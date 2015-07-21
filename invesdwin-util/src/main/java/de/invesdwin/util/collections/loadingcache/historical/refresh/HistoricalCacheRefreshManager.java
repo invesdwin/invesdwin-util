@@ -7,6 +7,8 @@ import de.invesdwin.util.time.fdate.FDate;
 @ThreadSafe
 public final class HistoricalCacheRefreshManager {
 
+    public static final HistoricalCacheRefreshManager INSTANCE = new HistoricalCacheRefreshManager();
+
     private static volatile FDate lastRefresh = new FDate();
 
     private HistoricalCacheRefreshManager() {}

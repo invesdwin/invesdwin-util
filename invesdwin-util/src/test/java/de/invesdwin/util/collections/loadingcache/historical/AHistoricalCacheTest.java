@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -14,8 +13,8 @@ import org.apache.commons.math3.random.JDKRandomGenerator;
 import org.apache.commons.math3.random.RandomDataGenerator;
 import org.junit.Test;
 
-import com.google.common.util.concurrent.Futures;
-
+import de.invesdwin.util.concurrent.Executors;
+import de.invesdwin.util.concurrent.Futures;
 import de.invesdwin.util.math.decimal.Decimal;
 import de.invesdwin.util.math.decimal.scaled.Percent;
 import de.invesdwin.util.math.decimal.scaled.PercentScale;
