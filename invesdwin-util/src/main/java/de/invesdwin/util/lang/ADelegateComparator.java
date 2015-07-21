@@ -1,0 +1,148 @@
+package de.invesdwin.util.lang;
+
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+
+import javax.annotation.Nonnull;
+import javax.annotation.concurrent.Immutable;
+
+/**
+ * Is ascending internally
+ */
+@Immutable
+public abstract class ADelegateComparator<E> implements Comparator<Object> {
+
+    private final Class<E> genericType;
+
+    public ADelegateComparator() {
+        this.genericType = findGenericType();
+    }
+
+    /**
+     * Null never reaches this method. This is ensured internally.
+     */
+    protected abstract Comparable<?> getCompareCriteria(@Nonnull final E e);
+
+    private Comparable<?> getCompareCriteriaNullsafe(final E e) {
+        if (e == null) {
+            return null;
+        } else {
+            return getCompareCriteria(e);
+        }
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public int compare(final Object o1, final Object o2) {
+        if (!genericType.isInstance(o1)) {
+            return -1;
+        } else if (!(genericType.isInstance(o2))) {
+            return 1;
+        }
+
+        final E e1 = (E) o1;
+        final E e2 = (E) o2;
+        final Comparable<Object> c1 = (Comparable<Object>) getCompareCriteriaNullsafe(e1);
+        final Object c2 = getCompareCriteriaNullsafe(e2);
+
+        if (c1 == null) {
+            return -1;
+        } else if (c2 == null) {
+            return 1;
+        } else {
+            return c1.compareTo(c2);
+        }
+    };
+
+    public Comparator<Object> asDescending() {
+        return new Comparator<Object>() {
+            @Override
+            public int compare(final Object o1, final Object o2) {
+                final int compare = ADelegateComparator.this.compare(o1, o2);
+                if (compare < 0) {
+                    return 1;
+                } else if (compare > 0) {
+                    return -1;
+                } else {
+                    return 0;
+                }
+            };
+        };
+    }
+
+    public <T extends E> void sort(final List<T> list, final boolean ascending) {
+        if (list == null || list.size() == 0) {
+            return;
+        }
+        Comparator<Object> comparator;
+        if (ascending) {
+            comparator = this;
+        } else {
+            comparator = asDescending();
+        }
+
+        Collections.sort(list, comparator);
+    }
+
+    /**
+     * Checks all elements
+     */
+    public <T extends E> void assertOrder(final List<T> list, final boolean ascending) {
+        if (list == null || list.size() == 0) {
+            return;
+        }
+
+        Comparator<Object> comparator;
+        if (ascending) {
+            comparator = this;
+        } else {
+            comparator = asDescending();
+        }
+
+        T previousE = (T) null;
+        for (final T e : list) {
+            if (previousE == null) {
+                previousE = e;
+            } else {
+                final int compareErgebnis = comparator.compare(e, previousE);
+                org.assertj.core.api.Assertions.assertThat(compareErgebnis)
+                .as("No %s order!", ascending ? "ascending" : "descending")
+                .isGreaterThanOrEqualTo(0);
+            }
+        }
+    }
+
+    /**
+     * Just checks the first and last element.
+     */
+    public <T extends E> void assertOrderFast(final List<T> list, final boolean ascending) {
+        if (list == null || list.size() == 0) {
+            return;
+        }
+
+        Comparator<Object> comparator;
+        if (ascending) {
+            comparator = this;
+        } else {
+            comparator = asDescending();
+        }
+
+        final T firstE = list.get(0);
+        final T lastE = list.get(list.size() - 1);
+        final int compareResult = comparator.compare(lastE, firstE);
+        org.assertj.core.api.Assertions.assertThat(compareResult)
+        .as("No %s order!", ascending ? "ascending" : "descending")
+        .isGreaterThanOrEqualTo(0);
+    }
+
+    /**
+     * @see <a href="http://blog.xebia.com/2009/02/07/acessing-generic-types-at-runtime-in-java/">Source</a>
+     */
+    @SuppressWarnings("unchecked")
+    protected Class<E> findGenericType() {
+        return (Class<E>) org.springframework.core.GenericTypeResolver.resolveTypeArgument(getClass(),
+                ADelegateComparator.class);
+    }
+
+}

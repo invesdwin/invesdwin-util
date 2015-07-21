@@ -1,0 +1,56 @@
+package de.invesdwin.util.collections;
+
+import java.io.Serializable;
+import java.util.Map.Entry;
+
+import javax.annotation.concurrent.Immutable;
+
+import de.invesdwin.util.lang.Objects;
+
+@SuppressWarnings("serial")
+@Immutable
+public class ImmutableEntry<K, V> implements Entry<K, V>, Serializable {
+
+    private final K key;
+    private final V value;
+
+    protected ImmutableEntry(final K key, final V value) {
+        this.key = key;
+        this.value = value;
+    }
+
+    public static <K, V> ImmutableEntry<K, V> of(final K key, final V value) {
+        return new ImmutableEntry<K, V>(key, value);
+    }
+
+    @Override
+    public K getKey() {
+        return key;
+    }
+
+    @Override
+    public V getValue() {
+        return value;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(getClass(), getKey(), getValue());
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (obj instanceof ImmutableEntry) {
+            final ImmutableEntry<?, ?> castObj = (ImmutableEntry<?, ?>) obj;
+            return Objects.equals(getKey(), castObj.getKey()) && Objects.equals(getValue(), castObj.getValue());
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public V setValue(final V value) {
+        throw new UnsupportedOperationException();
+    }
+
+}
