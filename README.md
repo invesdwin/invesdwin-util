@@ -50,13 +50,13 @@ Provides a way to create a pipes and filters work chain with steps to paralleliz
 
 ## Beans
 #### `APropertyChangeSupported`
-This is a base class that handles a lazily instantiated PropertyChangeSupport in a threadsafe manner. It becomes more useful when it is combined with an aspect that handles the setters properly without you needing to implement the calls to firePropertyChange(...) manually.
+This is a base class that handles a lazily instantiated `PropertyChangeSupport` in a threadsafe manner. It becomes more useful when it is combined with an aspect that handles the setters properly without you needing to implement the calls to `firePropertyChange(...)` manually.
 #### `AValueObject`
-This type should be used as the base class for all beans. It provides reflective toString(), hashCode(), equals() and compareTo() per default using https://commons.apache.org/proper/commons-lang/ (with you being able to override if needed). Also it allows to copy equally named properties from other objects via a mergeFrom(...) method that utilizes the http://commons.apache.org/proper/commons-beanutils/ framework. And it provides a deep clone method per default that is implemented via the https://github.com/RuedigerMoeller/fast-serialization framework. Though it still offers a shallowClone() method.
+This type should be used as the base class for all beans. It provides reflective `toString()`, `hashCode()`, `equals()` and `compareTo()` per default using https://commons.apache.org/proper/commons-lang (with you being able to override if needed). Also it allows to copy equally named properties from other objects via a `mergeFrom(...)` method that utilizes the http://commons.apache.org/proper/commons-beanutils framework. And it provides a deep `clone()` method per default that is implemented via the https://github.com/RuedigerMoeller/fast-serialization framework. Though it still offers a `shallowClone()` method for when this is needed.
 #### `DirtyTracker`
-AValueObjects also have something called a DirtyTracker, which is a class that allows you to check if the values of a bean tree have been changed or not. It utilizes the PropertyChangeSupport to keep track of changes in the objects tree. Though please be sure to always implement firePropertyChange(...) properly in your setters or use an aspect for this. Also make sure to only change values by calling the setters or else the DirtyTracker will not notice changes in the fields themselves. The DirtyTracker is very handy for UI development where the UI framework does not handle dirty state properly or not at all.
+`AValueObjects` also have something called a `DirtyTracker`, which is a class that allows you to check if the values of a bean tree have been changed or not. It utilizes the `PropertyChangeSupport` to keep track of changes in the objects tree. Though please be sure to always implement `firePropertyChange(...)` properly in your setters or use an aspect for this. Also make sure to only change values by calling the setters or else the `DirtyTracker` will not notice changes in the fields themselves. The `DirtyTracker` is very handy for UI development where the UI framework does not handle dirty state properly or not at all.
 #### `Pair`, `Triple`, `Quadruple`
-These can be useful as combined keys for caches.
+These can be useful as combined keys for caches (e.g. ALoadingCache) or when multiple return values are required and you don't want to write another value object for this.
 
 ## Others
 #### `Assertions`
