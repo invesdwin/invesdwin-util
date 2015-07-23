@@ -56,7 +56,7 @@ This type should be used as the base class for all beans. It provides reflective
 #### `DirtyTracker`
 `AValueObjects` also have something called a `DirtyTracker`, which is a class that allows you to check if the values of a bean tree have been changed or not. It utilizes the `PropertyChangeSupport` to keep track of changes in the objects tree. Though please be sure to always implement `firePropertyChange(...)` properly in your setters or use an aspect for this. Also make sure to only change values by calling the setters or else the `DirtyTracker` will not notice changes in the fields themselves. The `DirtyTracker` is very handy for UI development where the UI framework does not handle dirty state properly or not at all.
 #### `Pair`, `Triple`, `Quadruple`
-These can be useful as combined keys for caches (e.g. ALoadingCache) or when multiple return values are required and you don't want to write another value object for this.
+These can be useful as combined keys for caches (e.g. ALoadingCache) or when multiple return values are required for a method and you don't want to write another value object for this.
 
 ## Others
 #### `Assertions`
