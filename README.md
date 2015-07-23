@@ -20,6 +20,8 @@ Dependency declaration:
 
 ## Types
 
+All of these types are immutable in nature, which makes code for calculations safer.
+
 ### `Decimal` 
 this type wraps a Double value and handles rounding properly when needed internally to increase precision of calculations for mathematical use cases where performance is crititcal while a good precision is required. It eases working with Double by providing a fluent API with ScaledDecimals (e.g. ByteSize or Percent, more complex ones like Money, Price or Amount are used in other frameworks built on this) to make transformations between units easier and aggregate functions (e.g. sum, avg, ...) to ease working with lots of Decimals. It makes Double more like BigDecimal, without being as slow as BigDecimal, nor being as imprecise as Double normally is. And the API makes mathematical code much easier to write and understand.
 ### `FDate`
