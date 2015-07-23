@@ -1,7 +1,6 @@
-# invesdwin-norva
-norva stands for **N**aked **O**bjects **R**eflection **V**isitor **A**PI
+# invesdwin-util
 
-A unified visitor pattern implementation for processing Objects, Classes and javax.model via reflection. Allowing simpler creation of code generators or UI binding frameworks following the principles of the naked objects pattern.
+This project consists of common utilities and helpers that make a developers life easier. Most of these utilities are used for performance critical financial strategy backtesting. Especially the FDate, Decimal and AHistoricalCache implementations drive this the most.
 
 ## Maven
 
@@ -14,89 +13,45 @@ Dependency declaration:
 ```xml
 <dependency>
 	<groupId>de.invesdwin</groupId>
-	<artifactId>invesdwin-norva</artifactId>
+	<artifactId>invesdwin-util</artifactId>
 	<version>1.0.0-SNAPSHOT</version>
 </dependency>
 ```
 
+## Types
 
-## Sample Code Generators
-There are three sample annotation processors included that generate code by using this api:
+All of these types are immutable in nature, which makes code for calculations safer.
 
-### Static Facade
-```java
-de.invesdwin.norva.apt.staticfacade.internal.StaticFacadeDefinitionAnnotationProcessor
-```
-- this one can be used to extend static utility classes that are final or to combine multiple utility classes into one for simpler access by faking polymorphism
-- use the `@StaticFacadeDefinition` annotation to enable this generator
-- Sample:
-```java
-@StaticFacadeDefinition(name = "de.invesdwin.common.lang.internal.AReflectionsStaticFacade", targets = {
-        org.fest.reflect.core.Reflection.class, DynamicInstrumentationReflections.class, BeanPathReflections.class,
-        org.springframework.core.GenericTypeResolver.class })
-public final class Reflections extends AReflectionsStaticFacade {
-```
+####`Decimal` 
+This type wraps a Double value and handles rounding properly when needed internally to increase precision of calculations for mathematical use cases where performance is crititcal while a good precision is required. It eases working with Double by providing a fluent API with ScaledDecimals (e.g. ByteSize or Percent, more complex ones like Money, Price or Amount are used in other frameworks built on this) to make transformations between units easier and aggregate functions (e.g. sum, avg, ...) to ease working with lots of Decimals. It makes Double more like BigDecimal, without being as slow as BigDecimal, nor being as imprecise as Double normally is. And the API makes mathematical code much easier to write and understand.
+#### `FDate`
+This stands for "Fast Date". It is essentially a long value with a cached hashcode for making it faster as a key in maps. Each time operation is handled by the fastest time library available, which is http://www.joda.org/joda-time/ in this case. Also comes with a FDateBuilder that makes creation of specific dates easier.
+#### `Instant`
+Makes time-tracking in batch processing easier, prints itself out as a Duration with the precision of System.nanoTime().
+#### `Duration`
+Useful for time duration calculations and prints them out as an extended version of https://en.wikipedia.org/wiki/ISO_8601#Durations
 
-### Constants
-```java
-de.invesdwin.norva.apt.constants.internal.ConstantsAnnotationProcessor
-```
-- this one generates XyzConstants with bean path constants like "some.path.inner" for complex beans
-- use the `@BeanPathRoot` to enable this generator, you can use `@NoBeanPathRoot` to exclude classes again that extend a `@BeanPathRoot` annotated base class
-- Sample:
-```java
-@BeanPathRoot
-public abstract class AValueObject implements Serializable {
-```
+## Caches
+#### `ALoadingCache`
+A simple map like class that loads missing values via your custom load method. It finds the fastest map implementation depending on the configuration methods `isHighConcurrency()` and `getMaximumSize()` to get the optimum out of each calculation you might want to cache while providing a common way to access those results. This class can be quite useful in factories that want to cache instances. For example providing cached instances of historical caches that were instantiated by a specific parameter set.
+#### `AHistoricalCache`
+This wraps multiple ALoadingCaches to provide time sensitive lookups of keys and values by providing convenience queries for next and previous ones, even bulk loading. It caches a bit of the history to be a very fast accessor for financial datapoints during backtesting. Derived data from calculations like financial indicators and signals are a good use case for this cache.
+#### `AGapHistoricalCache`
+This is a historical cache that works with sources like a database, data file or rest service containing data points by time. It can even handle gaps efficiently (while providing random access) like weekends in daily data or sparse data like ticks. Financial data sources like bars or ticks are a good use case for this cache.
 
-### Build Version
-```java
-de.invesdwin.norva.apt.buildversion.internal.BuildVersionDefinitionAnnotationProcessor
-```
-- this one generates a class with a timestamp denoting the time of the build
-- use the `@BuildVersionDefinition` to enable this generator
-- Sample:
-```java
-@BuildVersionDefinition(name = "de.invesdwin.common.system.internal.ABuildVersion")
-public class BuildVersion extends ABuildVersion {
-```
+## Concurrency
 
-## Bean Paths and Naked Objects
+#### `Executors`
+Similar to `java.util.concurrent.Executors`, just with the convention to name each thread pool for easier debugging of thread dumps or in `jvisualvm` and to extend the pool by a few load handling helper methods. Also registering a JVM shutdown hook for each pool and ensuring the default uncaught exception handler is used.
+#### `Futures`
+This makes working with lots of tasks in thread pools easier by providing methods for bulk-handling those futures.
+#### `ICloseableIterable` and `ICloseableIterator`
+Provides a way to create a pipes and filters work chain with steps to parallelize on. Chaining of tasks can make complex workloads far easier to implement. For example loading and financial data cache from a rest service and transforming that into a binary local cache format in a parallel fashion becomes easy with this design.
 
-Bean Path Elements can be either properties (text fields, tables, combo boxes, etc) or actions (buttons, links, etc). 
-
-A bean path consists of elements separated by `.`, e.g. `some.path.doSomething`.
-Here `some` is the bean path root container, having a `SomeType getPath()` property method that returns a type that acts as a child container that has a `void doSomething()` action method.
-
-Using this framework, you can easily understand bean paths and handle static and dynamic information contained in them.
-They can be used to define models for generated UIs via the naked objects pattern. This framework does not do the UI generation part, instead it focuses on the reflection and basic functionality of a naked objects model and the processing of it. The actual naked objects framework can be built on top of this API, just like it is easy to create other code generators using this.
-
-The element classes of this API provide methods for easily understanding a few annotations and utility methods and the hierarchy of when which one should override another. Also when processing objects you are able to utilize property modifiers and action invokers to ease interaction with the model.
-
-### Bean Annotations
-
-This framework handles the following annotations:
-
-* `@ColumnOrder`: to define an order for properties and actions or effectively table columns, can also be used to hide columns that are not named in this annotation
-* `@Disabled`: can be used to make an element disabled
-* `@Hidden`: can be used to hide an element
-* `@Intercept`: can be used to override bean paths of children, effectively changing the tree
-* `@Tabbed`: can be used to create tabbed panels
-* `@Title`: can be used to set a title text for this element
-* `@Tooltip`: can be used to set a tooltip text for this element
-
-The framework also understands `@NotNull` from the BeanValidation annotations and `@Column(nullable=false)` from the JPA annotations to determine if `null` is a valid value in choices for comboboxes.
-
-### Utility Methods
-
-For bean path elements you can also add utility methods for various dynamic decisions:
-
-* `List<?> getXyzChoice()`: this can be used to define the choices a combo box has
-* `List<String> columnOrder()`: this can be used to change the column order of table columns dynamically
-* `String title()`: with this you can define a title text for a container
-* `String disableXyz()`: with this you can dynamically disable elements, the return type can also be a boolean, when it is a string it denotes the reason why it is disabled (can be shown as a tooltip in the UI)
-* `String hideXyz()`: just as the disable utility method, only that it hides elements
-* `String xyzTitle()`: can be used to define a dynamic title for elements
-* `String xyzTooltip()`: just like the title utility method, only for tooltips
-* `boolean validateXyz(Object newValue)`: can be used to write complex validations for input, e.g. when BeanValidation annotations are not enough
-* `void removeFromXyz(Object removedValue)`: can be used as a column in a table that should remove an element in the model
+## Others
+#### `Assertions`
+The popular fluent API http://joel-costigliola.github.io/assertj/ extended by FDate and Decimal. Though sometimes it might be better to use if-throw statements instead of this API, since it might be a performance bottleneck in some cases. Where it is not, it is a very good ease in doing defensive coding. Best approach is to use it as a default and replace it by manual code where the profiler tells that it is too slow (should not be too many cases anyway).
+#### `ADelegateComparator`
+Ever wondered if your comparator will result in ascending or descending order? This class will make the desired order easier to get by making that an explicit decision during sort calls.
+#### `Strings`, `Reflections`, `Objects`, ...
+Being a one-stop class to find the utility method you are searching for by providing a static facade to the most useful frameworks and providing its own set of operations which are missing from the ones that already exist.
