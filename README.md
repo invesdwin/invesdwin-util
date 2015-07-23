@@ -64,4 +64,4 @@ The popular fluent API http://joel-costigliola.github.io/assertj/ extended by FD
 #### `ADelegateComparator`
 Ever wondered if your comparator will result in ascending or descending order? This class will make the desired order easier to get by making that an explicit decision during sort calls. You also only have to give it the property to compare and it will handle casting, null checks and other things for you.
 #### `Strings`, `Reflections`, `Objects`, ...
-Being a one-stop class to find the utility method you are searching for by providing a static facade to the most useful frameworks and providing its own set of operations which are missing from the ones that already exist.
+Each one being a one-stop class to find the utility method you are searching for by providing a static facade to the most useful frameworks and providing its own set of operations which are missing from the ones that already exist.
