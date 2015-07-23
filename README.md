@@ -48,6 +48,16 @@ This makes working with lots of tasks in thread pools easier by providing method
 #### `ICloseableIterable` and `ICloseableIterator`
 Provides a way to create a pipes and filters work chain with steps to parallelize on. Chaining of tasks can make complex workloads far easier to implement. For example loading and financial data cache from a rest service and transforming that into a binary local cache format in a parallel fashion becomes easy with this design.
 
+## Beans
+#### `APropertyChangeSupported`
+This is a base class that handles a lazily instantiated PropertyChangeSupport in a threadsafe manner. It becomes more useful when it is combined with an aspect that handles the setters properly without you needing to implement the calls to firePropertyChange(...) manually.
+#### `AValueObject`
+This type should be used as the base class for all beans. It provides reflective toString(), hashCode(), equals() and compareTo() per default using https://commons.apache.org/proper/commons-lang/ (with you being able to override if needed). Also it allows to copy equally named properties from other objects via a mergeFrom(...) method that utilizes the http://commons.apache.org/proper/commons-beanutils/ framework. And it provides a deep clone method per default that is implemented via the https://github.com/RuedigerMoeller/fast-serialization framework. Though it still offers a shallowClone() method.
+#### `DirtyTracker`
+AValueObjects also have something called a DirtyTracker, which is a class that allows you to check if the values of a bean tree have been changed or not. It utilizes the PropertyChangeSupport to keep track of changes in the objects tree. Though please be sure to always implement firePropertyChange(...) properly in your setters or use an aspect for this. Also make sure to only change values by calling the setters or else the DirtyTracker will not notice changes in the fields themselves. The DirtyTracker is very handy for UI development where the UI framework does not handle dirty state properly or not at all.
+#### `Pair`, `Triple`, `Quadruple`
+These can be useful as combined keys for caches.
+
 ## Others
 #### `Assertions`
 The popular fluent API http://joel-costigliola.github.io/assertj/ extended by FDate and Decimal. Though sometimes it might be better to use if-throw statements instead of this API, since it might be a performance bottleneck in some cases. Where it is not, it is a very good ease in doing defensive coding. Best approach is to use it as a default and replace it by manual code where the profiler tells that it is too slow (should not be too many cases anyway).
