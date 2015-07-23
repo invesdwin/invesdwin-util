@@ -42,7 +42,7 @@ This is a historical cache that works with sources like a database, data file or
 ## Concurrency
 
 #### `Executors`
-Similar to `java.util.concurrent.Executors`, just with the convention to name each thread pool for easier debugging of thread dumps or in `jvisualvm` and to extend the pool by a few load handling helper methods. Also registering a jvm shutdown hook for each pool and ensuring the default uncaught exception handler is used.
+Similar to `java.util.concurrent.Executors`, just with the convention to name each thread pool for easier debugging of thread dumps or in `jvisualvm` and to extend the pool by a few load handling helper methods. Also registering a JVM shutdown hook for each pool and ensuring the default uncaught exception handler is used.
 #### `Futures`
 This makes working with lots of tasks in thread pools easier by providing methods for bulk-handling those futures.
 #### `ICloseableIterable` and `ICloseableIterator`
