@@ -2,19 +2,12 @@ package de.invesdwin.util.bean;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.annotation.concurrent.ThreadSafe;
 
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.junit.Test;
 import org.mockito.Mockito;
-
-import com.mysema.query.alias.Alias;
-import com.mysema.query.collections.CollQuery;
-import com.mysema.query.types.path.ComparablePath;
-import com.mysema.query.types.path.EntityPathBase;
 
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.lang.Strings;
@@ -73,50 +66,6 @@ public class AValueObjectTest {
         final CloneableClass clazz = new CloneableClass();
         clazz.setOtherValue(1);
         vo.mergeFrom(clazz);
-    }
-
-    @Test
-    public void testQueryDslWithSimpleClass() {
-        final List<CloneableClass> vos = new ArrayList<CloneableClass>();
-        for (int i = 0; i < 5; i++) {
-            final CloneableClass vo = new CloneableClass();
-            vo.setOtherValue(i);
-            vos.add(vo);
-        }
-        final CloneableClass vo = Alias.alias(CloneableClass.class, "vo");
-        Assertions.assertThat(vo).isNotNull();
-        final CollQuery query = new CollQuery();
-        final EntityPathBase<CloneableClass> fromVo = Alias.$(vo);
-        Assertions.assertThat(fromVo).isNotNull();
-        query.from(fromVo, vos);
-        query.where(Alias.$(vo.getOtherValue()).eq(1));
-        final List<CloneableClass> result = query.list(Alias.$(vo));
-
-        Assertions.assertThat(result).isNotNull();
-        Assertions.assertThat(result.size()).isEqualTo(1);
-        Assertions.assertThat(result.get(0).getOtherValue()).isEqualTo(1);
-    }
-
-    @Test
-    public void testQueryDslWithComparableValueObject() {
-        final List<CloneableVO> vos = new ArrayList<CloneableVO>();
-        for (int i = 0; i < 5; i++) {
-            final CloneableVO vo = new CloneableVO();
-            vo.setValue(i);
-            vos.add(vo);
-        }
-        final CloneableVO vo = Alias.alias(CloneableVO.class, "vo");
-        Assertions.assertThat(vo).isNotNull();
-        final CollQuery query = new CollQuery();
-        final ComparablePath<CloneableVO> fromVo = Alias.$(vo);
-        Assertions.assertThat(fromVo).as("https://bugs.launchpad.net/querydsl/+bug/785935").isNotNull();
-        query.from(fromVo, vos);
-        query.where(Alias.$(vo.getValue()).eq(1));
-        final List<CloneableVO> result = query.list(Alias.$(vo));
-
-        Assertions.assertThat(result).isNotNull();
-        Assertions.assertThat(result.size()).isEqualTo(1);
-        Assertions.assertThat(result.get(0).getValue()).isEqualTo(1);
     }
 
     @Test
