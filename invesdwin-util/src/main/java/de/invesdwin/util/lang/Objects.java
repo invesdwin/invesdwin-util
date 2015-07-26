@@ -15,10 +15,10 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.nustaq.serialization.FSTConfiguration;
 
-import de.invesdwin.util.lang.internal.AObjectsStaticFacade;
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
 import de.invesdwin.norva.beanpath.BeanPathObjects;
 import de.invesdwin.norva.beanpath.BeanPathReflections;
+import de.invesdwin.util.lang.internal.AObjectsStaticFacade;
 
 @Immutable
 @StaticFacadeDefinition(name = "de.invesdwin.util.lang.internal.AObjectsStaticFacade", targets = { BeanPathObjects.class })
@@ -128,10 +128,18 @@ public final class Objects extends AObjectsStaticFacade {
 
     @SuppressWarnings("unchecked")
     public static <T> T deserialize(final InputStream in) {
-        try (InputStream inputStream = in) {
-            return (T) SERIALIZATION_CONFIG.getObjectInput(inputStream).readObject();
-        } catch (ClassNotFoundException | IOException e) {
+        try {
+            return (T) SERIALIZATION_CONFIG.getObjectInput(in).readObject();
+        } catch (final ClassNotFoundException e) {
             throw new RuntimeException(e);
+        } catch (final IOException e) {
+            throw new RuntimeException(e);
+        } finally {
+            try {
+                in.close();
+            } catch (final IOException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 

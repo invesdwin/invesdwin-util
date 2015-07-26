@@ -23,7 +23,7 @@ public abstract class AHistoricalCache<V> {
     /**
      * This is normally sufficient for daily bars of stocks and also fast enough for intraday ticks to load.
      */
-    public static final int DEFAULT_MAXIMUM_SIZE = 10_000;
+    public static final int DEFAULT_MAXIMUM_SIZE = 10000;
 
     private final Set<IHistoricalCacheListener<V>> listeners = new CopyOnWriteArraySet<IHistoricalCacheListener<V>>();
 

@@ -38,7 +38,7 @@ import de.invesdwin.util.lang.Objects;
 @QuerySupertype
 @BeanPathRoot
 public abstract class AValueObject extends APropertyChangeSupported implements Comparable<Object>, Cloneable,
-        ISerializableValueObject {
+ISerializableValueObject {
 
     /**
      * @see <a
@@ -109,7 +109,7 @@ public abstract class AValueObject extends APropertyChangeSupported implements C
                 if (Throwables.isCausedByType(t, NotEqualRuntimeException.class)) {
                     return false;
                 } else {
-                    throw t;
+                    throw Throwables.propagate(t);
                 }
             }
         } else {
@@ -172,7 +172,7 @@ public abstract class AValueObject extends APropertyChangeSupported implements C
 
     private void copyValue(final boolean overwrite, final Set<String> recursionFilter,
             final PropertyDescriptor thisDesc, final PropertyDescriptor thereDesc, final Object valueThere)
-            throws IllegalAccessException, InvocationTargetException {
+                    throws IllegalAccessException, InvocationTargetException {
         boolean copy = true;
         final Object valueHere = thisDesc.getReadMethod().invoke(this);
         if (valueHere != null) {

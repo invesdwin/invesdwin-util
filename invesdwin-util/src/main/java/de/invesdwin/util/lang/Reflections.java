@@ -63,7 +63,13 @@ public final class Reflections extends AReflectionsStaticFacade {
             field.setAccessible(true);
             final Map<Class<? extends Annotation>, Annotation> annotations = (Map<Class<? extends Annotation>, Annotation>) field.get(clazz);
             return (T) annotations.put(newAnnotation.annotationType(), newAnnotation);
-        } catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
+        } catch (final NoSuchFieldException e) {
+            throw new RuntimeException(e);
+        } catch (final SecurityException e) {
+            throw new RuntimeException(e);
+        } catch (final IllegalArgumentException e) {
+            throw new RuntimeException(e);
+        } catch (final IllegalAccessException e) {
             throw new RuntimeException(e);
         }
     }
@@ -78,7 +84,13 @@ public final class Reflections extends AReflectionsStaticFacade {
             field.setAccessible(true);
             final Map<Class<? extends Annotation>, Annotation> annotations = (Map<Class<? extends Annotation>, Annotation>) field.get(method);
             return (T) annotations.put(newAnnotation.annotationType(), newAnnotation);
-        } catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
+        } catch (final NoSuchFieldException e) {
+            throw new RuntimeException(e);
+        } catch (final SecurityException e) {
+            throw new RuntimeException(e);
+        } catch (final IllegalArgumentException e) {
+            throw new RuntimeException(e);
+        } catch (final IllegalAccessException e) {
             throw new RuntimeException(e);
         }
     }
@@ -90,7 +102,11 @@ public final class Reflections extends AReflectionsStaticFacade {
             modifiersField = Field.class.getDeclaredField("modifiers");
             makeAccessible(modifiersField);
             modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
-        } catch (final NoSuchFieldException | IllegalArgumentException | IllegalAccessException e) {
+        } catch (final NoSuchFieldException e) {
+            handleReflectionException(e);
+        } catch (final IllegalArgumentException e) {
+            handleReflectionException(e);
+        } catch (final IllegalAccessException e) {
             handleReflectionException(e);
         }
     }

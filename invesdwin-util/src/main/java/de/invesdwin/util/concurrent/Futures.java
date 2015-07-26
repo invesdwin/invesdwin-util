@@ -85,7 +85,7 @@ public final class Futures {
                             for (final Future<?> f : futures) {
                                 f.cancel(true);
                             }
-                            throw t;
+                            throw Throwables.propagate(t);
                         }
                     }
                 }

@@ -40,7 +40,7 @@ public abstract class AGuavaLoadingCacheMap<K, V> extends ADelegateMap<K, V> {
                 //ignore
                 return null;
             } else {
-                throw e;
+                throw Throwables.propagate(e);
             }
         }
     }
