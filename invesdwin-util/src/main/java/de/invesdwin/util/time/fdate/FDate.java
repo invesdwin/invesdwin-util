@@ -1,7 +1,6 @@
 package de.invesdwin.util.time.fdate;
 
 import java.io.Serializable;
-import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -93,14 +92,6 @@ public final class FDate implements IDate, Serializable, Cloneable, Comparable<O
     public FDate(final long millis) {
         this.millis = millis;
         this.hashCode = Long.hashCode(millis);
-    }
-
-    public FDate(final java.time.LocalDateTime javaTime) {
-        this(javaTime.toInstant(ZoneOffset.UTC));
-    }
-
-    public FDate(final java.time.Instant javaTime) {
-        this(javaTime.toEpochMilli());
     }
 
     public FDate(final ReadableDateTime jodaTime) {
@@ -291,10 +282,6 @@ public final class FDate implements IDate, Serializable, Cloneable, Comparable<O
         return new LocalDateTime(millis);
     }
 
-    public java.time.Instant javaTimeValue() {
-        return java.time.Instant.ofEpochMilli(millis);
-    }
-
     public static FDate valueOf(final Long millis) {
         if (millis != null) {
             return new FDate(millis);
@@ -330,22 +317,6 @@ public final class FDate implements IDate, Serializable, Cloneable, Comparable<O
     public static FDate valueOf(final LocalDateTime jodaTime) {
         if (jodaTime != null) {
             return new FDate(jodaTime);
-        } else {
-            return null;
-        }
-    }
-
-    public static FDate valueOf(final java.time.Instant javaTime) {
-        if (javaTime != null) {
-            return new FDate(javaTime);
-        } else {
-            return null;
-        }
-    }
-
-    public static FDate valueOf(final java.time.LocalDateTime javaTime) {
-        if (javaTime != null) {
-            return new FDate(javaTime);
         } else {
             return null;
         }
