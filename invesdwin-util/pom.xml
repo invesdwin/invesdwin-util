@@ -75,7 +75,14 @@
 			<groupId>org.assertj</groupId>
 			<artifactId>assertj-guava</artifactId>
 			<version>${version.assertj-guava}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>com.google.guava</groupId>
+					<artifactId>guava</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
+
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-math3</artifactId>
