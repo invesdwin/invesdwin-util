@@ -28,6 +28,11 @@ public enum FWeekday {
         public int jodaTimeValue() {
             return DateTimeConstants.MONDAY;
         }
+
+        @Override
+        public boolean isWeekend() {
+            return false;
+        }
     },
     Tuesday {
         @Override
@@ -43,6 +48,11 @@ public enum FWeekday {
         @Override
         public int jodaTimeValue() {
             return DateTimeConstants.TUESDAY;
+        }
+
+        @Override
+        public boolean isWeekend() {
+            return false;
         }
     },
     Wednesday {
@@ -60,6 +70,11 @@ public enum FWeekday {
         public int jodaTimeValue() {
             return DateTimeConstants.WEDNESDAY;
         }
+
+        @Override
+        public boolean isWeekend() {
+            return false;
+        }
     },
     Thursday {
         @Override
@@ -75,6 +90,11 @@ public enum FWeekday {
         @Override
         public int jodaTimeValue() {
             return DateTimeConstants.THURSDAY;
+        }
+
+        @Override
+        public boolean isWeekend() {
+            return false;
         }
     },
     Friday {
@@ -92,6 +112,11 @@ public enum FWeekday {
         public int jodaTimeValue() {
             return DateTimeConstants.FRIDAY;
         }
+
+        @Override
+        public boolean isWeekend() {
+            return false;
+        }
     },
     Saturday {
         @Override
@@ -108,6 +133,11 @@ public enum FWeekday {
         public int jodaTimeValue() {
             return DateTimeConstants.SATURDAY;
         }
+
+        @Override
+        public boolean isWeekend() {
+            return true;
+        }
     },
     Sunday {
         @Override
@@ -123,6 +153,11 @@ public enum FWeekday {
         @Override
         public int jodaTimeValue() {
             return DateTimeConstants.SUNDAY;
+        }
+
+        @Override
+        public boolean isWeekend() {
+            return true;
         }
     };
 
@@ -190,5 +225,7 @@ public enum FWeekday {
         sb.setLength(2);
         return sb.toString();
     }
+
+    public abstract boolean isWeekend();
 
 }

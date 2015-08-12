@@ -290,6 +290,14 @@ public final class FDate implements IDate, Serializable, Cloneable, Comparable<O
         }
     }
 
+    public static FDate valueOf(final Long value, final TimeUnit timeUnit) {
+        if (value != null) {
+            return new FDate(timeUnit.toMillis(value));
+        } else {
+            return null;
+        }
+    }
+
     public static FDate valueOf(final Date date) {
         if (date != null) {
             return new FDate(date);
