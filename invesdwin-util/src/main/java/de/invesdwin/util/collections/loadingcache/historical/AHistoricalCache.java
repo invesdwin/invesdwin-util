@@ -160,7 +160,11 @@ public abstract class AHistoricalCache<V> {
     public final FDate extractKey(final FDate key, final V value) {
         if (extractKeysDelegate != null) {
             final Object shiftKeysValue = extractKeysDelegate.query().withFuture().getValue(key);
-            return extractKeysDelegate.extractKey(key, shiftKeysValue);
+            if (shiftKeysValue != null) {
+                return extractKeysDelegate.extractKey(key, shiftKeysValue);
+            } else {
+                return key;
+            }
         } else {
             return innerExtractKey(key, value);
         }

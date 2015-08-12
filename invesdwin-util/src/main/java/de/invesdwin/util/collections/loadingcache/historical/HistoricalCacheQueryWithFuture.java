@@ -23,6 +23,11 @@ public class HistoricalCacheQueryWithFuture<V> extends HistoricalCacheQuery<V> {
     }
 
     @Override
+    public HistoricalCacheQueryWithFuture<V> withElementFilter(final IHistoricalCacheQueryElementFilter<V> elementFilter) {
+        return (HistoricalCacheQueryWithFuture<V>) super.withElementFilter(elementFilter);
+    }
+
+    @Override
     public HistoricalCacheQueryWithFuture<V> withFilterDuplicateKeys(final boolean filterDuplicateKeys) {
         return (HistoricalCacheQueryWithFuture<V>) super.withFilterDuplicateKeys(filterDuplicateKeys);
     }

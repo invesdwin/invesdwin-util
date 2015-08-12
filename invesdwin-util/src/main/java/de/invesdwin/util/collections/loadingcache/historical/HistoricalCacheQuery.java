@@ -29,10 +29,16 @@ public class HistoricalCacheQuery<V> {
     private final AHistoricalCache<?> shiftKeysDelegate;
     private boolean filterDuplicateKeys = true;
     private boolean rememberNullValue = false;
+    private IHistoricalCacheQueryElementFilter<V> elementFilter;
 
     protected HistoricalCacheQuery(final AHistoricalCache<V> cache, final AHistoricalCache<?> shiftKeysDelegate) {
         this.cache = cache;
         this.shiftKeysDelegate = shiftKeysDelegate;
+    }
+
+    public HistoricalCacheQuery<V> withElementFilter(final IHistoricalCacheQueryElementFilter<V> elementFilter) {
+        this.elementFilter = elementFilter;
+        return this;
     }
 
     /**
@@ -74,9 +80,27 @@ public class HistoricalCacheQuery<V> {
     }
 
     protected final Entry<FDate, V> getEntry(final FDate key, final HistoricalCacheAssertValue assertValue) {
-        final V value = getValueCache().getValuesMap().get(key);
+        V value = getValueCache().getValuesMap().get(key);
         if (!rememberNullValue && value == null) {
             getValueCache().remove(key);
+        }
+        if (value != null && elementFilter != null) {
+            FDate curKey = getValueCache().extractKey(key, value);
+            while (!elementFilter.isValid(curKey, value)) {
+                value = null;
+                //try earlier dates to find a valid element
+                final FDate previousKey = getKeyCache().calculatePreviousKey(curKey);
+                final V previousValue = getValueCache().getValuesMap().get(previousKey);
+                if (previousValue == null) {
+                    break;
+                }
+                final FDate previousValueKey = getValueCache().extractKey(previousKey, previousValue);
+                if (previousValueKey.equals(curKey)) {
+                    break;
+                }
+                curKey = previousKey;
+                value = previousValue;
+            }
         }
         return assertValue.assertValue(getValueCache(), key, key, value);
     }
@@ -452,9 +476,10 @@ public class HistoricalCacheQuery<V> {
         }
     }
 
-    private void copyQuerySettings(final HistoricalCacheQuery<?> query) {
+    private void copyQuerySettings(final HistoricalCacheQuery<V> query) {
         query.assertValue = assertValue;
         query.filterDuplicateKeys = filterDuplicateKeys;
+        query.elementFilter = elementFilter;
     }
 
     private HistoricalCacheQueryWithFuture<V> newFutureQuery() {
