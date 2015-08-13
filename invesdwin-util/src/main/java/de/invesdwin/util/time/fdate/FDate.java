@@ -164,12 +164,20 @@ public final class FDate implements IDate, Serializable, Cloneable, Comparable<O
         return set(FDateField.Month, month);
     }
 
+    public FDate setFMonth(final FMonth month) {
+        return setMonth(month.jodaTimeValue());
+    }
+
     public FDate setDay(final int day) {
         return set(FDateField.Day, day);
     }
 
     public FDate setWeekday(final int weekday) {
         return set(FDateField.Weekday, weekday);
+    }
+
+    public FDate setFWeekday(final FWeekday weekday) {
+        return setWeekday(weekday.jodaTimeValue());
     }
 
     public FDate setHour(final int hour) {
@@ -608,12 +616,25 @@ public final class FDate implements IDate, Serializable, Cloneable, Comparable<O
         return max(min(value, max), min);
     }
 
+    private static boolean isBetween(final FDate value, final FDate min, final FDate max) {
+        return between(value, min, max).equals(value);
+    }
+
     public static boolean isSameYear(final FDate date1, final FDate date2) {
         return isSameTruncated(date1, date2, FDateField.Year);
     }
 
     public static boolean isSameMonth(final FDate date1, final FDate date2) {
         return isSameTruncated(date1, date2, FDateField.Month);
+    }
+
+    public static boolean isSameWeek(final FDate date1, final FDate date2) {
+        if (date1 == null || date2 == null) {
+            return false;
+        }
+        final FDate monday = date1.withoutTime().setFWeekday(FWeekday.Monday);
+        final FDate sundayEvening = date1.withoutTime().setFWeekday(FWeekday.Sunday).addDays(1).addMilliseconds(-1);
+        return FDate.isBetween(date2, monday, sundayEvening);
     }
 
     public static boolean isSameDay(final FDate date1, final FDate date2) {

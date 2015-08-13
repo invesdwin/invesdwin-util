@@ -45,4 +45,20 @@ public class FDateTest {
         Assertions.assertThat(dateStr).endsWith("T00:00:00");
     }
 
+    @Test
+    public void testIsSameWeek() {
+        final FDate wednesday = FDateBuilder.newDate(2015, 8, 12);
+        Assertions.assertThat(wednesday.getFWeekday()).isEqualTo(FWeekday.Wednesday);
+
+        final FDate monday = FDateBuilder.newDate(2015, 8, 10);
+        Assertions.assertThat(monday.getFWeekday()).isEqualTo(FWeekday.Monday);
+        Assertions.assertThat(FDate.isSameWeek(wednesday, monday)).isTrue();
+        Assertions.assertThat(FDate.isSameWeek(wednesday, monday.addMilliseconds(-1))).isFalse();
+
+        final FDate sunday = FDateBuilder.newDate(2015, 8, 16).addDays(1).addMilliseconds(-1);
+        Assertions.assertThat(sunday.getFWeekday()).isEqualTo(FWeekday.Sunday);
+        Assertions.assertThat(FDate.isSameWeek(wednesday, sunday)).isTrue();
+        Assertions.assertThat(FDate.isSameWeek(wednesday, sunday.addMilliseconds(1))).isFalse();
+    }
+
 }
