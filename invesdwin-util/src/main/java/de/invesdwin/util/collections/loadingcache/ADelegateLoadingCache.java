@@ -1,6 +1,7 @@
 package de.invesdwin.util.collections.loadingcache;
 
 import java.util.Collection;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -65,6 +66,11 @@ public abstract class ADelegateLoadingCache<K, V> implements ILoadingCache<K, V>
     @Override
     public Collection<V> values() {
         return getDelegate().values();
+    }
+
+    @Override
+    public Map<K, V> asMap() {
+        return getDelegate().asMap();
     }
 
 }

@@ -1,6 +1,7 @@
 package de.invesdwin.util.collections.loadingcache;
 
 import java.util.Collection;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -23,5 +24,7 @@ public interface ILoadingCache<K, V> {
     Set<K> keySet();
 
     Collection<V> values();
+
+    Map<K, V> asMap();
 
 }

@@ -1,6 +1,7 @@
 package de.invesdwin.util.collections.loadingcache.internal;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -77,6 +78,11 @@ public abstract class ASynchronizedLoadingCache<K, V> implements ILoadingCache<K
     @Override
     public synchronized Collection<V> values() {
         return map.values();
+    }
+
+    @Override
+    public synchronized Map<K, V> asMap() {
+        return Collections.unmodifiableMap(map);
     }
 
 }

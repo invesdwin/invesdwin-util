@@ -1,6 +1,8 @@
 package de.invesdwin.util.collections.loadingcache.internal;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.function.Function;
@@ -80,6 +82,11 @@ public class GuavaLoadingCache<K, V> implements ILoadingCache<K, V> {
     @Override
     public Collection<V> values() {
         return delegate.values();
+    }
+
+    @Override
+    public Map<K, V> asMap() {
+        return Collections.unmodifiableMap(delegate);
     }
 
 }

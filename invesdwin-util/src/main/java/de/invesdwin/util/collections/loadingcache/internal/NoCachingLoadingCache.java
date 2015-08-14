@@ -2,6 +2,7 @@ package de.invesdwin.util.collections.loadingcache.internal;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.function.Function;
@@ -57,6 +58,11 @@ public class NoCachingLoadingCache<K, V> implements ILoadingCache<K, V> {
     @Override
     public Collection<V> values() {
         return Collections.emptySet();
+    }
+
+    @Override
+    public Map<K, V> asMap() {
+        return Collections.emptyMap();
     }
 
 }
