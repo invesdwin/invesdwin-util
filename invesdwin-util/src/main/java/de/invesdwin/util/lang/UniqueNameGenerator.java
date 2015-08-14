@@ -19,7 +19,7 @@ public final class UniqueNameGenerator {
     /**
      * Generates IDs in the schema of [Name]_[SequenceNumber].
      */
-    public String get(final String name) {
+    public synchronized String get(final String name) {
         final AtomicInteger sequenceNumber = name_sequencenumber.get(name);
         return name + "_" + sequenceNumber.incrementAndGet();
     }
