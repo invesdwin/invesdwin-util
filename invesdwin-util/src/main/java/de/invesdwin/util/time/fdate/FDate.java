@@ -616,7 +616,7 @@ public final class FDate implements IDate, Serializable, Cloneable, Comparable<O
         return max(min(value, max), min);
     }
 
-    private static boolean isBetween(final FDate value, final FDate min, final FDate max) {
+    public static boolean isBetween(final FDate value, final FDate min, final FDate max) {
         return between(value, min, max).equals(value);
     }
 
