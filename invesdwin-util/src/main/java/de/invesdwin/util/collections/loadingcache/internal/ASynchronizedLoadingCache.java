@@ -31,10 +31,15 @@ public abstract class ASynchronizedLoadingCache<K, V> implements ILoadingCache<K
             v = map.get(key);
         }
         if (v == null) {
-            //bad idea to synchronize in apply, this might cause deadlocks
+            //bad idea to synchronize in apply, this might cause deadlocks when threads are used inside of it
             v = loadValue.apply(key);
             synchronized (this) {
-                map.put(key, v);
+                final V oldV = map.get(key);
+                if (oldV != null) {
+                    v = oldV;
+                } else {
+                    map.put(key, v);
+                }
             }
         }
         return v;
