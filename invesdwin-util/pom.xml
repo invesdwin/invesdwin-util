@@ -80,6 +80,11 @@
 					<groupId>com.google.guava</groupId>
 					<artifactId>guava</artifactId>
 				</exclusion>
+				<exclusion>
+					<!-- remove range dependency that causes errors in artifactory -->
+					<artifactId>assertj-core</artifactId>
+					<groupId>org.assertj</groupId>
+				</exclusion>
 			</exclusions>
 		</dependency>
 
