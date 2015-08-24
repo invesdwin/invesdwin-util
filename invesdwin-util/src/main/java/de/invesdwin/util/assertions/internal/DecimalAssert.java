@@ -4,14 +4,16 @@ import java.util.Comparator;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import org.assertj.core.api.AbstractUnevenComparableAssert;
+import org.assertj.core.api.AbstractComparableAssert;
 import org.assertj.core.api.NumberAssert;
+import org.assertj.core.data.Offset;
+import org.assertj.core.data.Percentage;
 
 import de.invesdwin.util.math.decimal.ADecimal;
 
 @NotThreadSafe
-public class DecimalAssert<E extends ADecimal<E>> extends AbstractUnevenComparableAssert<DecimalAssert<E>, E> implements
-        NumberAssert<DecimalAssert<E>, E> {
+public class DecimalAssert<E extends ADecimal<E>> extends AbstractComparableAssert<DecimalAssert<E>, E> implements
+NumberAssert<DecimalAssert<E>, E> {
     private Decimals decimals = Decimals.INSTANCE;
 
     public DecimalAssert(final E actual) {
@@ -113,5 +115,15 @@ public class DecimalAssert<E extends ADecimal<E>> extends AbstractUnevenComparab
         super.usingDefaultComparator();
         this.decimals = Decimals.INSTANCE;
         return myself;
+    }
+
+    @Override
+    public DecimalAssert<E> isCloseTo(final E expected, final Offset<E> offset) {
+        throw new UnsupportedOperationException("TODO");
+    }
+
+    @Override
+    public DecimalAssert<E> isCloseTo(final E expected, final Percentage percentage) {
+        throw new UnsupportedOperationException("TODO");
     }
 }

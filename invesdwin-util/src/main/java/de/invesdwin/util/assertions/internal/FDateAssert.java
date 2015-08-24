@@ -23,7 +23,7 @@ import javax.annotation.concurrent.Immutable;
 
 import org.assertj.core.api.AbstractAssert;
 import org.assertj.core.internal.ComparatorBasedComparisonStrategy;
-import org.assertj.core.util.Dates;
+import org.assertj.core.util.DateUtil;
 import org.assertj.core.util.VisibleForTesting;
 
 import de.invesdwin.util.time.fdate.FDate;
@@ -54,8 +54,8 @@ public class FDateAssert extends AbstractAssert<FDateAssert, FDate> {
     /**
      * the default DateFormat used to parse any String date representation.
      */
-    private static final List<DateFormat> DEFAULT_DATE_FORMATS = newArrayList(Dates.newIsoDateTimeWithMsFormat(),
-            Dates.newIsoDateTimeFormat(), Dates.newIsoDateFormat());
+    private static final List<DateFormat> DEFAULT_DATE_FORMATS = newArrayList(DateUtil.newIsoDateTimeWithMsFormat(),
+            DateUtil.newIsoDateTimeFormat(), DateUtil.newIsoDateFormat());
 
     private static final String DATE_FORMAT_PATTERN_SHOULD_NOT_BE_NULL = "Given date format pattern should not be null";
     private static final String DATE_FORMAT_SHOULD_NOT_BE_NULL = "Given date format should not be null";

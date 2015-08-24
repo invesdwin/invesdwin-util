@@ -2,6 +2,9 @@ package de.invesdwin.util.assertions.internal;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import org.assertj.core.api.AssertionInfo;
+import org.assertj.core.data.Offset;
+
 import de.invesdwin.util.math.decimal.ADecimal;
 import de.invesdwin.util.math.decimal.Decimal;
 
@@ -20,5 +23,10 @@ class Decimals extends org.assertj.core.internal.Numbers {
     @Override
     protected ADecimal<?> zero() {
         return Decimal.ZERO;
+    }
+
+    @Override
+    public void assertIsCloseTo(final AssertionInfo info, final Number actual, final Number other, final Offset offset) {
+        throw new UnsupportedOperationException("TODO");
     }
 }
