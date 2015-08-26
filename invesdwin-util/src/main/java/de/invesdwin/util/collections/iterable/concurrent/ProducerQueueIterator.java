@@ -14,7 +14,6 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
-import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
 import de.invesdwin.util.concurrent.Executors;
 import de.invesdwin.util.concurrent.WrappedExecutorService;
 
@@ -68,7 +67,7 @@ public class ProducerQueueIterator<E> implements ICloseableIterator<E> {
         }
     }
 
-    public static final int DEFAULT_QUEUE_SIZE = AHistoricalCache.DEFAULT_MAXIMUM_SIZE;
+    public static final int DEFAULT_QUEUE_SIZE = 10000;
 
     private final BlockingQueue<E> queue;
     private volatile boolean closed;

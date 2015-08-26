@@ -21,9 +21,10 @@ import de.invesdwin.util.time.fdate.FDate;
 public abstract class AHistoricalCache<V> {
 
     /**
-     * This is normally sufficient for daily bars of stocks and also fast enough for intraday ticks to load.
+     * 10k is normally sufficient for daily bars of stocks and also fast enough for intraday ticks to load. Though
+     * reducing to 1k for better memory utilization in multimarket tests.
      */
-    public static final int DEFAULT_MAXIMUM_SIZE = 10000;
+    public static final int DEFAULT_MAXIMUM_SIZE = 1000;
 
     private final Set<IHistoricalCacheListener<V>> listeners = new CopyOnWriteArraySet<IHistoricalCacheListener<V>>();
 
