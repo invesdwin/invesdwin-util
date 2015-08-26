@@ -1,8 +1,6 @@
 package de.invesdwin.util.collections.loadingcache.historical;
 
 import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.concurrent.GuardedBy;
@@ -56,8 +54,6 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
     private FDate maxKey;
     @GuardedBy("this")
     private FDate minKey;
-    @GuardedBy("this")
-    private final Set<FDate> keysFromDB = new TreeSet<FDate>();
     @GuardedBy("this")
     private boolean noKeysInDB;
     @GuardedBy("this")
@@ -148,7 +144,6 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
                 final FDate maxValueKey = extractKey(key, maxValue);
                 if (maxKeyInDB == null || maxValueKey.compareTo(maxKeyInDB) <= -1) {
                     maxKeyInDB = maxValueKey;
-                    keysFromDB.add(maxKeyInDB);
                     getValuesMap().put(maxValueKey, maxValue);
                     return true;
                 }
@@ -165,7 +160,6 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
                 //min key must be kept intact if all values have been loaded from a later key
                 if (minKeyInDB == null || minValueKey.compareTo(minKeyInDB) <= -1) {
                     minKeyInDB = minValueKey;
-                    keysFromDB.add(minKeyInDB);
                     getValuesMap().put(minValueKey, minValue);
                     return true;
                 }
@@ -196,11 +190,6 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
         final V value = eventuallyGetMinValue(key, newMinKey);
         if (value != null) {
             return value;
-        }
-
-        //anywhere between min and max our value has already been added
-        if ((!newMaxKey || furtherValues != null && furtherValues.size() == 0) && !newMinKey) {
-            return searchInCacheViaKeysFromDB(key);
         }
 
         //maybe use max value
@@ -307,7 +296,6 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
         while (furtherValues.size() > 0) {
             final V newValue = furtherValues.get(0);
             final FDate newValueKey = extractKey(key, newValue);
-            keysFromDB.add(newValueKey);
             final int compare = key.compareTo(newValueKey);
             if (compare < 0) {
                 //key < newValueKey
@@ -398,38 +386,6 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
         return (V) null;
     }
 
-    private V searchInCacheViaKeysFromDB(final FDate key) {
-        FDate previousKeyFromDB = null;
-        for (final FDate keyFromDB : keysFromDB) {
-            final int compare = key.compareTo(keyFromDB);
-            if (compare <= -1) {
-                //key < newValueKey
-                //run over the key we wanted
-                break;
-            } else if (compare == 0) {
-                //key == newValueKey
-                //This is the value we searched for!
-                previousKeyFromDB = keyFromDB;
-                break;
-            } else {
-                //key > newValueKey
-                //continue with the next one
-                previousKeyFromDB = keyFromDB;
-            }
-        }
-        if (previousKeyFromDB != null) {
-            if (containsKey(previousKeyFromDB)) {
-                return query().withFuture().getValue(previousKeyFromDB);
-            } else if (furtherValues == null || furtherValues.size() == 0
-                    || extractKey(key, furtherValues.get(0)).compareTo(previousKeyFromDB) >= 1) {
-                //Key seems to be evicted from the cache, force load further values later by clearing the reference
-                furtherValues = null;
-                keysFromDB.clear();
-            }
-        }
-        return (V) null;
-    }
-
     private V readNewestValueFromDB(final FDate key) {
         V value = null;
 
@@ -450,7 +406,6 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
             //we remember the db key of the value so that it can be found again later
             //to use the parameter key would make the result incorrect
             final FDate valueKey = extractKey(key, value);
-            keysFromDB.add(valueKey);
             getValuesMap().put(valueKey, value);
             return value;
         } else {
@@ -490,7 +445,6 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
     @Override
     public synchronized void clear() {
         super.clear();
-        keysFromDB.clear();
         //remove flags so that the limit check gets skipped if get has not been called yet and this method might be called again
         maxKeyInDB = null;
         minKeyInDB = null;
