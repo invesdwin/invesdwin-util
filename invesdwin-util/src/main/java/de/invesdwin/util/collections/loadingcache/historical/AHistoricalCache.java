@@ -31,6 +31,7 @@ public abstract class AHistoricalCache<V> {
     private boolean isPutDisabled = getMaximumSize() != null && getMaximumSize() == 0;
     private AHistoricalCache<Object> shiftKeysDelegate;
     private AHistoricalCache<Object> extractKeysDelegate;
+    private AHistoricalCache<V> putDelegate;
     private final ILoadingCache<FDate, V> valuesMap = new ADelegateLoadingCache<FDate, V>() {
 
         @Override
@@ -221,7 +222,7 @@ public abstract class AHistoricalCache<V> {
         return new HistoricalCacheQuery<V>(this, shiftKeysDelegate);
     }
 
-    public final boolean containsKey(final FDate key) {
+    public boolean containsKey(final FDate key) {
         return getValuesMap().containsKey(key);
     }
 
@@ -251,7 +252,7 @@ public abstract class AHistoricalCache<V> {
         }
     }
 
-    public final void put(final FDate newKey, final V newValue, final FDate prevKey, final V prevValue) {
+    public void put(final FDate newKey, final V newValue, final FDate prevKey, final V prevValue) {
         if (isPutDisabled) {
             return;
         }
@@ -265,7 +266,7 @@ public abstract class AHistoricalCache<V> {
         }
     }
 
-    public final void put(final V newValue, final V prevValue) {
+    public void put(final V newValue, final V prevValue) {
         if (isPutDisabled) {
             return;
         }
@@ -281,7 +282,7 @@ public abstract class AHistoricalCache<V> {
         }
     }
 
-    public final void put(final Entry<FDate, V> newEntry, final Entry<FDate, V> prevEntry) {
+    public void put(final Entry<FDate, V> newEntry, final Entry<FDate, V> prevEntry) {
         if (isPutDisabled) {
             return;
         }
