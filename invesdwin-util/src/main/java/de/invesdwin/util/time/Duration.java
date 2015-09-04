@@ -99,6 +99,14 @@ public final class Duration extends Number implements Comparable<Object> {
         return isGreaterThan(duration.duration, duration.timeUnit);
     }
 
+    public boolean isGreaterThanOrEqualTo(final Duration duration) {
+        return isGreaterThanOrEqualTo(duration.duration, duration.timeUnit);
+    }
+
+    public boolean isGreaterThanOrEqualTo(final long duration, final TimeUnit timeUnit) {
+        return !isLessThan(duration, timeUnit);
+    }
+
     public boolean isLessThan(final long duration, final TimeUnit timeUnit) {
         final long comparableDuration = Math.abs(TimeUnit.NANOSECONDS.convert(duration, timeUnit));
         return Math.abs(longValue(TimeUnit.NANOSECONDS)) < comparableDuration;
@@ -106,6 +114,14 @@ public final class Duration extends Number implements Comparable<Object> {
 
     public boolean isLessThan(final Duration duration) {
         return isLessThan(duration.duration, duration.timeUnit);
+    }
+
+    public boolean isLessThanOrEqualTo(final long duration, final TimeUnit timeUnit) {
+        return !isGreaterThan(duration, timeUnit);
+    }
+
+    public boolean isLessThanOrEqualTo(final Duration duration) {
+        return isLessThanOrEqualTo(duration.duration, duration.timeUnit);
     }
 
     public TimeUnit getTimeUnit() {

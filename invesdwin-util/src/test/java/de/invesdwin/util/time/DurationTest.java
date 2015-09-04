@@ -34,6 +34,13 @@ public class DurationTest {
     }
 
     @Test
+    public void testIsGreaterThanFDate() throws InterruptedException {
+        final FDate start = new FDate().addMinutes(-1);
+        Assertions.assertThat(new Duration(start).isGreaterThan(55, TimeUnit.SECONDS)).isTrue();
+        Assertions.assertThat(new Duration(start).isGreaterThan(65, TimeUnit.SECONDS)).isFalse();
+    }
+
+    @Test
     public void testEquals() {
         new Duration(1, TimeUnit.DAYS).equals(new Duration(1, TimeUnit.DAYS));
     }
