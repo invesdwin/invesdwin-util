@@ -478,48 +478,97 @@ public final class FDate implements IDate, Serializable, Cloneable, Comparable<O
         private final FTimeUnit timeUnit;
         private final int incrementAmount;
 
-        FDateIterable(final FDate startFinal, final FDate endFinal, final FTimeUnit timeUnit, final int incrementAmount) {
+        FDateIterable(final FDate startFinal, final FDate endFinal, final FTimeUnit timeUnit,
+                final int incrementAmount) {
             this.startFinal = startFinal;
             this.endFinal = endFinal;
             this.timeUnit = timeUnit;
             this.incrementAmount = incrementAmount;
+            if (incrementAmount == 0) {
+                throw new IllegalArgumentException("incrementAmount must not be 0");
+            }
+            if (startFinal.isBefore(endFinal) && incrementAmount < 0) {
+                throw new IllegalArgumentException("When iterating forward [" + startFinal + " -> " + endFinal
+                        + "], incrementAmount [" + incrementAmount + "] needs to be positive.");
+            } else if (startFinal.isAfter(endFinal) && incrementAmount > 0) {
+                throw new IllegalArgumentException("When iterating backward [" + startFinal + " -> " + endFinal
+                        + "], incrementAmount [" + incrementAmount + "] needs to be negative.");
+            }
         }
 
         @Override
         public Iterator<FDate> iterator() {
-            return new Iterator<FDate>() {
+            if (incrementAmount > 0) {
+                return new Iterator<FDate>() {
 
-                private boolean first = true;
-                private FDate spot = startFinal;
+                    private boolean first = true;
+                    private FDate spot = startFinal;
 
-                @Override
-                public boolean hasNext() {
-                    return first || spot.isBefore(endFinal);
-                }
+                    @Override
+                    public boolean hasNext() {
+                        return first || spot.isBefore(endFinal);
+                    }
 
-                @Override
-                public FDate next() {
-                    if (first) {
-                        first = false;
-                        return spot;
-                    } else {
-                        if (spot.isAfter(endFinal)) {
-                            throw new NoSuchElementException();
-                        }
-                        spot = spot.add(timeUnit, incrementAmount);
-                        if (spot.isAfter(endFinal)) {
-                            return endFinal;
-                        } else {
+                    @Override
+                    public FDate next() {
+                        if (first) {
+                            first = false;
                             return spot;
+                        } else {
+                            if (spot.isAfter(endFinal)) {
+                                throw new NoSuchElementException();
+                            }
+                            spot = spot.add(timeUnit, incrementAmount);
+                            if (spot.isAfter(endFinal)) {
+                                return endFinal;
+                            } else {
+                                return spot;
+                            }
                         }
                     }
-                }
 
-                @Override
-                public void remove() {
-                    throw new UnsupportedOperationException();
-                }
-            };
+                    @Override
+                    public void remove() {
+                        throw new UnsupportedOperationException();
+                    }
+                };
+            } else {
+                //reverse
+                return new Iterator<FDate>() {
+
+                    private boolean first = true;
+                    private FDate spot = startFinal;
+
+                    @Override
+                    public boolean hasNext() {
+                        return first || spot.isAfter(endFinal);
+                    }
+
+                    @Override
+                    public FDate next() {
+                        if (first) {
+                            first = false;
+                            return spot;
+                        } else {
+                            if (spot.isBefore(endFinal)) {
+                                throw new NoSuchElementException();
+                            }
+                            spot = spot.add(timeUnit, incrementAmount);
+                            if (spot.isBefore(endFinal)) {
+                                return endFinal;
+                            } else {
+                                return spot;
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void remove() {
+                        throw new UnsupportedOperationException();
+                    }
+                };
+            }
+
         }
     }
 
