@@ -264,6 +264,13 @@ public final class FDate implements IDate, Serializable, Cloneable, Comparable<O
     }
 
     /**
+     * sets hour, minute, second and millisecond each to 23:59:999.
+     */
+    public FDate atEndOfDay() {
+        return withoutTime().addDays(1).addMilliseconds(-1);
+    }
+
+    /**
      * Returns the number of milliseconds since January 1, 1970, 00:00:00 GMT.
      */
     public long millisValue() {
