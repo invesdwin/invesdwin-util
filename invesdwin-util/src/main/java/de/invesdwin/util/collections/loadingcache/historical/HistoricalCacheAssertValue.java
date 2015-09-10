@@ -4,7 +4,7 @@ import java.util.Map.Entry;
 
 import javax.annotation.concurrent.Immutable;
 
-import de.invesdwin.util.collections.ImmutableEntry;
+import de.invesdwin.util.bean.tuple.ImmutableEntry;
 import de.invesdwin.util.time.fdate.FDate;
 
 @Immutable

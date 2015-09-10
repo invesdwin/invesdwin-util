@@ -13,16 +13,21 @@ import de.invesdwin.util.math.decimal.scaled.IDecimalScale;
 
 @SuppressWarnings({ "rawtypes", "serial" })
 @Immutable
-public abstract class AScaledDecimal<T extends AScaledDecimal<T, S>, S extends IDecimalScale<T, S>> extends ADecimal<T> {
+public abstract class AScaledDecimal<T extends AScaledDecimal<T, S>, S extends IDecimalScale<T, S>>
+        extends ADecimal<T> {
 
-    private static final DecimalFormatSymbols ENGLISH_DECIMAL_FORMAT_SYMBOLS = DecimalFormatSymbols.getInstance(Locale.ENGLISH);
+    private static final DecimalFormatSymbols ENGLISH_DECIMAL_FORMAT_SYMBOLS = DecimalFormatSymbols
+            .getInstance(Locale.ENGLISH);
     protected final S scale;
     private final ScaledDecimalDelegateImpl impl;
 
     protected AScaledDecimal(final Decimal value, final S scale) {
         this.impl = new ScaledDecimalDelegateImpl(this, Decimal.nullToZero(value).getImpl());
+        validateScale(scale);
         this.scale = scale;
     }
+
+    protected void validateScale(final S scale) {}
 
     protected abstract T newValueCopy(Decimal value, S scale);
 
@@ -48,6 +53,7 @@ public abstract class AScaledDecimal<T extends AScaledDecimal<T, S>, S extends I
     }
 
     public final Decimal getValue(final S scale) {
+        validateScale(scale);
         if (scale == this.scale) {
             return new Decimal(getImpl().getDelegate());
         } else {
@@ -108,6 +114,7 @@ public abstract class AScaledDecimal<T extends AScaledDecimal<T, S>, S extends I
     }
 
     public T asScale(final S scale) {
+        validateScale(scale);
         return newValueCopy(getValue(scale), scale);
     }
 
