@@ -16,10 +16,13 @@ public class FDateTest {
 
     @BeforeClass
     public static void beforeClass() {
+        final FDate curDate = new FDate();
+        final String dateStr = curDate.toString();
         final TimeZone newTimeZone = TimeZones.getTimeZone("UTC");
         TimeZone.setDefault(newTimeZone);
         //joda needs another call explicitly since it might have cached the value too early...
         DateTimeZone.setDefault(DateTimeZone.forTimeZone(newTimeZone));
+        Assertions.assertThat(curDate.toString()).isEqualTo(dateStr);
     }
 
     @Test
