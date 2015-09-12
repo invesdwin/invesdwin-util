@@ -246,7 +246,11 @@ public final class FDate implements IDate, Serializable, Cloneable, Comparable<O
     }
 
     public FDate add(final Duration duration) {
-        return add(FTimeUnit.Milliseconds, duration.intValue(TimeUnit.MILLISECONDS));
+        return duration.addTo(this);
+    }
+
+    public FDate subtract(final Duration duration) {
+        return duration.subtractFrom(this);
     }
 
     public FDate truncate(final FDateField field) {
@@ -485,8 +489,7 @@ public final class FDate implements IDate, Serializable, Cloneable, Comparable<O
         private final FTimeUnit timeUnit;
         private final int incrementAmount;
 
-        FDateIterable(final FDate startFinal, final FDate endFinal, final FTimeUnit timeUnit,
-                final int incrementAmount) {
+        FDateIterable(final FDate startFinal, final FDate endFinal, final FTimeUnit timeUnit, final int incrementAmount) {
             this.startFinal = startFinal;
             this.endFinal = endFinal;
             this.timeUnit = timeUnit;
