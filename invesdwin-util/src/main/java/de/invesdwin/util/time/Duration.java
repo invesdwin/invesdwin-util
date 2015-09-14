@@ -292,6 +292,16 @@ public final class Duration extends Number implements Comparable<Object> {
         return new Duration(this.longValue(TimeUnit.NANOSECONDS) + comparableDuration, TimeUnit.NANOSECONDS);
     }
 
+    public Duration divide(final Number dividend) {
+        final long divided = (long) (longValue(TimeUnit.NANOSECONDS) / dividend.doubleValue());
+        return new Duration(divided, TimeUnit.NANOSECONDS);
+    }
+
+    public Duration multiply(final Number multiplicant) {
+        final long multiplied = (long) (longValue(TimeUnit.NANOSECONDS) * multiplicant.doubleValue());
+        return new Duration(multiplied, TimeUnit.NANOSECONDS);
+    }
+
     /**
      * Creates a new duration derived from this one with the added duration in nanoseconds as timeunit.
      */
