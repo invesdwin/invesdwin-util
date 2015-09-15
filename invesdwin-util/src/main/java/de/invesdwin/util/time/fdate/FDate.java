@@ -27,6 +27,7 @@ import com.google.common.primitives.Ints;
 
 import de.invesdwin.norva.marker.IDate;
 import de.invesdwin.util.lang.ADelegateComparator;
+import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.time.Duration;
 import de.invesdwin.util.time.TimeZones;
 
@@ -391,7 +392,7 @@ public final class FDate implements IDate, Serializable, Cloneable, Comparable<O
 
     public static FDate valueOf(final String str, final TimeZone timeZone, final Locale locale,
             final String parsePattern) {
-        if (str == null) {
+        if (Strings.isBlank(str)) {
             return null;
         }
         DateTimeFormatter df = DateTimeFormat.forPattern(parsePattern);
