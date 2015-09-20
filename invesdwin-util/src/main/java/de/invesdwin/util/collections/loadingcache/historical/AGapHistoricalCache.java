@@ -7,7 +7,6 @@ import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.assertions.Assertions;
-import de.invesdwin.util.collections.loadingcache.historical.refresh.HistoricalCacheRefreshManager;
 import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.time.Duration;
 import de.invesdwin.util.time.fdate.FDate;
@@ -31,7 +30,6 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
      */
     public static final long DEFAULT_READ_BACK_STEP_MILLIS = new Duration(10, TimeUnit.DAYS).intValue(TimeUnit.MILLISECONDS);
 
-    private volatile FDate lastRefresh = new FDate();
     @GuardedBy("this")
     private List<? extends V> furtherValues;
     /**
@@ -124,7 +122,7 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
     }
 
     private boolean eventuallyGetMinMaxKeysInDB(final FDate key, final boolean force) {
-        if (noValueInReadNewestValueFromDB) {
+        if (noValueInReadNewestValueFromDB && !force) {
             return false;
         }
         boolean changed = false;
@@ -282,8 +280,8 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
 
         if (furtherValues.size() > 1) {
             Assertions.assertThat(firstKey.compareTo(lastKey) <= 0)
-                    .as("Not ascending sorted! At firstKey [%s] and lastKey [%s]", firstKey, lastKey)
-                    .isTrue();
+            .as("Not ascending sorted! At firstKey [%s] and lastKey [%s]", firstKey, lastKey)
+            .isTrue();
         }
     }
 
@@ -424,20 +422,9 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
     protected abstract V readLatestValueFor(final FDate key);
 
     @Override
-    protected void onGet() {
-        final FDate lastRefreshFromManager = HistoricalCacheRefreshManager.getLastRefresh();
-        if (lastRefresh.isBefore(lastRefreshFromManager)) {
-            lastRefresh = new FDate();
-            maybeRefresh();
-        }
-    }
-
     protected synchronized boolean maybeRefresh() {
-        if (maxKeyInDB != null || minKeyInDB != null) {
-            if (eventuallyGetMinMaxKeysInDB(maxKey(), true)) {
-                clear();
-                return true;
-            }
+        if (eventuallyGetMinMaxKeysInDB(maxKey(), true)) {
+            return super.maybeRefresh();
         }
         return false;
     }

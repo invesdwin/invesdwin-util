@@ -15,6 +15,7 @@ import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 import de.invesdwin.util.collections.loadingcache.ILoadingCache;
 import de.invesdwin.util.collections.loadingcache.historical.interceptor.HistoricalCacheQueryInterceptorSupport;
 import de.invesdwin.util.collections.loadingcache.historical.interceptor.IHistoricalCacheQueryInterceptor;
+import de.invesdwin.util.collections.loadingcache.historical.refresh.HistoricalCacheRefreshManager;
 import de.invesdwin.util.time.fdate.FDate;
 
 @ThreadSafe
@@ -28,10 +29,10 @@ public abstract class AHistoricalCache<V> {
 
     private final Set<IHistoricalCacheListener<V>> listeners = new CopyOnWriteArraySet<IHistoricalCacheListener<V>>();
 
+    private volatile FDate lastRefresh = HistoricalCacheRefreshManager.getLastRefresh();
     private boolean isPutDisabled = getMaximumSize() != null && getMaximumSize() == 0;
     private AHistoricalCache<Object> shiftKeysDelegate;
     private AHistoricalCache<Object> extractKeysDelegate;
-    private AHistoricalCache<V> putDelegate;
     private final ILoadingCache<FDate, V> valuesMap = new ADelegateLoadingCache<FDate, V>() {
 
         @Override
@@ -136,7 +137,18 @@ public abstract class AHistoricalCache<V> {
         isPutDisabled = false;
     }
 
-    protected void onGet() {}
+    protected void onGet() {
+        final FDate lastRefreshFromManager = HistoricalCacheRefreshManager.getLastRefresh();
+        if (lastRefresh.isBefore(lastRefreshFromManager)) {
+            lastRefresh = new FDate();
+            maybeRefresh();
+        }
+    }
+
+    protected synchronized boolean maybeRefresh() {
+        clear();
+        return true;
+    }
 
     protected abstract V loadValue(FDate key);
 
@@ -239,9 +251,8 @@ public abstract class AHistoricalCache<V> {
     private void putPrevAndNext(final FDate nextKey, final FDate valueKey, final V value, final FDate previousKey) {
         if (previousKey != null && nextKey != null) {
             if (!(previousKey.compareTo(nextKey) <= 0)) {
-                throw new IllegalArgumentException(
-                        new TextDescription("previousKey [%s] <= nextKey [%s] not matched", previousKey, nextKey)
-                                .toString());
+                throw new IllegalArgumentException(new TextDescription("previousKey [%s] <= nextKey [%s] not matched",
+                        previousKey, nextKey).toString());
             }
         }
         getValuesMap().put(valueKey, value);
@@ -306,9 +317,8 @@ public abstract class AHistoricalCache<V> {
     private void putPrevious(final FDate previousKey, final V value, final FDate valueKey) {
         final int compare = previousKey.compareTo(valueKey);
         if (!(compare <= 0)) {
-            throw new IllegalArgumentException(
-                    new TextDescription("previousKey [%s] <= value [%s] not matched", previousKey, valueKey)
-                            .toString());
+            throw new IllegalArgumentException(new TextDescription("previousKey [%s] <= value [%s] not matched",
+                    previousKey, valueKey).toString());
         }
         if (compare != 0) {
             getPreviousKeysCache().put(valueKey, previousKey);
@@ -319,8 +329,8 @@ public abstract class AHistoricalCache<V> {
     private void putNext(final FDate nextKey, final V value, final FDate valueKey) {
         final int compare = nextKey.compareTo(valueKey);
         if (!(compare >= 0)) {
-            throw new IllegalArgumentException(
-                    new TextDescription("nextKey [%s] >= value [%s] not matched", nextKey, valueKey).toString());
+            throw new IllegalArgumentException(new TextDescription("nextKey [%s] >= value [%s] not matched", nextKey,
+                    valueKey).toString());
         }
         if (compare != 0) {
             getNextKeysCache().put(valueKey, nextKey);
