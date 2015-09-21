@@ -29,7 +29,6 @@ import de.invesdwin.norva.marker.IDate;
 import de.invesdwin.util.lang.ADelegateComparator;
 import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.time.Duration;
-import de.invesdwin.util.time.TimeZones;
 
 /**
  * FDate stands for an immutable Fast Date implementation by utilizing heavy caching.
@@ -74,16 +73,15 @@ public final class FDate implements IDate, Serializable, Cloneable, Comparable<O
         }
     };
 
-    //CHECKSTYLE:OFF
-    private static final Calendar TEMPLATE_CALENDAR = Calendar.getInstance();
-    //CHECKSTYLE:ON
+    private static Calendar templateCalendar;
+    private static TimeZone defaultTimeZone;
+    private static DateTimeZone defaultDateTimeZone;
 
     private final long millis;
     private final int hashCode;
 
     static {
-        TEMPLATE_CALENDAR.clear();
-        TEMPLATE_CALENDAR.setTimeZone(TimeZones.UTC);
+        setDefaultTimeZone(TimeZone.getDefault());
     }
 
     public FDate() {
@@ -109,6 +107,25 @@ public final class FDate implements IDate, Serializable, Cloneable, Comparable<O
 
     public FDate(final Date date) {
         this(date.getTime());
+    }
+
+    public static void setDefaultTimeZone(final TimeZone defaultTimeZone) {
+        FDate.defaultTimeZone = defaultTimeZone;
+        FDate.defaultDateTimeZone = DateTimeZone.forTimeZone(defaultTimeZone);
+        //CHECKSTYLE:OFF
+        final Calendar cal = Calendar.getInstance();
+        //CHECKSTYLE:ON
+        cal.clear();
+        cal.setTimeZone(defaultTimeZone);
+        templateCalendar = cal;
+    }
+
+    public static TimeZone getDefaultTimeZone() {
+        return defaultTimeZone;
+    }
+
+    private DateTimeZone getDefaultDateTimeZone() {
+        return defaultDateTimeZone;
     }
 
     public int getYear() {
@@ -230,18 +247,18 @@ public final class FDate implements IDate, Serializable, Cloneable, Comparable<O
     }
 
     public int get(final FDateField field) {
-        final MutableDateTime delegate = new MutableDateTime(millis);
+        final MutableDateTime delegate = newMutableDateTime();
         return delegate.get(field.jodaTimeValue());
     }
 
     public FDate set(final FDateField field, final int value) {
-        final MutableDateTime delegate = new MutableDateTime(millis);
+        final MutableDateTime delegate = newMutableDateTime();
         delegate.set(field.jodaTimeValue(), value);
         return new FDate(delegate);
     }
 
     public FDate add(final FTimeUnit field, final int amount) {
-        final MutableDateTime delegate = new MutableDateTime(millis);
+        final MutableDateTime delegate = newMutableDateTime();
         delegate.add(field.jodaTimeValue(), amount);
         return new FDate(delegate);
     }
@@ -255,7 +272,7 @@ public final class FDate implements IDate, Serializable, Cloneable, Comparable<O
     }
 
     public FDate truncate(final FDateField field) {
-        final MutableDateTime delegate = new MutableDateTime(millis);
+        final MutableDateTime delegate = newMutableDateTime();
         delegate.setRounding(field.jodaTimeValue().getField(delegate.getChronology()));
         final FDate truncated = new FDate(delegate);
         return truncated;
@@ -283,9 +300,7 @@ public final class FDate implements IDate, Serializable, Cloneable, Comparable<O
     }
 
     public Date dateValue() {
-        //CHECKSTYLE:OFF
-        return new Date(millis);
-        //CHECKSTYLE:ON
+        return calendarValue().getTime();
     }
 
     public long longValue(final TimeUnit timeUnit) {
@@ -293,7 +308,7 @@ public final class FDate implements IDate, Serializable, Cloneable, Comparable<O
     }
 
     public Calendar calendarValue() {
-        final Calendar cal = (Calendar) TEMPLATE_CALENDAR.clone();
+        final Calendar cal = (Calendar) templateCalendar.clone();
         cal.setTimeInMillis(millis);
         return cal;
     }
@@ -453,14 +468,20 @@ public final class FDate implements IDate, Serializable, Cloneable, Comparable<O
     }
 
     public String toString(final String format, final TimeZone timeZone) {
-        final MutableDateTime delegate = new MutableDateTime(millis);
+        final MutableDateTime delegate = newMutableDateTime();
         DateTimeFormatter df = DateTimeFormat.forPattern(format);
         if (timeZone != null) {
             df = df.withZone(DateTimeZone.forTimeZone(timeZone));
         } else {
-            df = df.withZoneUTC();
+            df = df.withZone(getDefaultDateTimeZone());
         }
         return df.print(delegate);
+    }
+
+    private MutableDateTime newMutableDateTime() {
+        final MutableDateTime d = new MutableDateTime(millis);
+        d.setZone(getDefaultDateTimeZone());
+        return d;
     }
 
     public boolean isBefore(final FDate other) {
@@ -490,7 +511,8 @@ public final class FDate implements IDate, Serializable, Cloneable, Comparable<O
         private final FTimeUnit timeUnit;
         private final int incrementAmount;
 
-        FDateIterable(final FDate startFinal, final FDate endFinal, final FTimeUnit timeUnit, final int incrementAmount) {
+        FDateIterable(final FDate startFinal, final FDate endFinal, final FTimeUnit timeUnit,
+                final int incrementAmount) {
             this.startFinal = startFinal;
             this.endFinal = endFinal;
             this.timeUnit = timeUnit;

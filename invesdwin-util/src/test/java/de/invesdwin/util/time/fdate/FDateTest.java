@@ -23,6 +23,7 @@ public class FDateTest {
         //joda needs another call explicitly since it might have cached the value too early...
         DateTimeZone.setDefault(DateTimeZone.forTimeZone(newTimeZone));
         Assertions.assertThat(curDate.toString()).isEqualTo(dateStr);
+        FDate.setDefaultTimeZone(newTimeZone);
     }
 
     @Test
@@ -35,6 +36,7 @@ public class FDateTest {
         final String fdateStr = today.toString(FDate.FORMAT_ISO_DATE_TIME);
         Assertions.assertThat(dateStr).isEqualTo(fdateStr);
         Assertions.assertThat(dateStr).endsWith("T00:00:00");
+        System.out.println(new FDate().dateValue()); //SUPPRESS CHECKSTYLE single line
     }
 
     @Test
