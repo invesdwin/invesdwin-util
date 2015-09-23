@@ -26,6 +26,7 @@ public class ConfiguredForkJoinWorkerThreadFactory implements ForkJoinWorkerThre
 
     @Override
     public ForkJoinWorkerThread newThread(final ForkJoinPool pool) {
+        final String parentThreadName = Thread.currentThread().getName();
         final ForkJoinWorkerThread t = new ForkJoinWorkerThread(pool) {
             /**
              * http://jsr166-concurrency.10961.n7.nabble.com/How-to-set-the-thread-group-of-the-ForkJoinPool-td1590.html
@@ -33,7 +34,8 @@ public class ConfiguredForkJoinWorkerThreadFactory implements ForkJoinWorkerThre
             @Override
             protected void onStart() {
                 super.onStart();
-                setName(threadpoolId + "-" + threadIds.incrementAndGet() + ":" + name);
+                final String curThreadName = threadpoolId + "-" + threadIds.incrementAndGet() + ":" + name;
+                setName(curThreadName + " <- " + parentThreadName);
             }
         };
         /*

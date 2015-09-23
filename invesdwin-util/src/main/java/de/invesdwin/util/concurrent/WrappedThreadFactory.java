@@ -28,7 +28,10 @@ public class WrappedThreadFactory implements ThreadFactory {
     @Override
     public Thread newThread(final Runnable r) {
         final Thread t = delegate.newThread(r);
-        t.setName(threadpoolId + "-" + threadIds.incrementAndGet() + ":" + name);
+
+        final String parentThreadName = Thread.currentThread().getName();
+        final String curThreadName = threadpoolId + "-" + threadIds.incrementAndGet() + ":" + name;
+        t.setName(curThreadName + " <- " + parentThreadName);
         /*
          * So that exceptions are still logged if runnables are sent into executors without futures being checked. This
          * keeps the default behaviour expected from normal threads.

@@ -22,10 +22,10 @@ public class ConfiguredForkJoinPool extends ForkJoinPool {
     public ConfiguredForkJoinPool(final String name, final int parallelism, final boolean asyncMode) {
         super(parallelism, new ConfiguredForkJoinWorkerThreadFactory(name),
                 Thread.getDefaultUncaughtExceptionHandler(), false);
-        configure(name);
+        configure();
     }
 
-    private void configure(final String name) {
+    private void configure() {
         /*
          * All executors should be shutdown on application shutdown.
          */
