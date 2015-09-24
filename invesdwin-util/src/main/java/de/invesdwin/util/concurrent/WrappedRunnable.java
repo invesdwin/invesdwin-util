@@ -9,11 +9,13 @@ import javax.annotation.concurrent.NotThreadSafe;
 @NotThreadSafe
 final class WrappedRunnable implements Runnable {
 
+    private final String parentThreadName;
     private final Runnable delegate;
     private final WrappedExecutorService parent;
 
     private WrappedRunnable(final WrappedExecutorService parent, final Runnable delegate,
             final boolean skipWaitOnFullPendingCount) throws InterruptedException {
+        this.parentThreadName = Thread.currentThread().getName();
         this.delegate = delegate;
         this.parent = parent;
         parent.incrementPendingCount(skipWaitOnFullPendingCount);
@@ -21,6 +23,7 @@ final class WrappedRunnable implements Runnable {
 
     @Override
     public void run() {
+        Threads.updateParentThreadName(parentThreadName);
         try {
             delegate.run();
         } finally {

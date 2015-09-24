@@ -10,11 +10,13 @@ import javax.annotation.concurrent.NotThreadSafe;
 @NotThreadSafe
 final class WrappedCallable<V> implements Callable<V> {
 
+    private final String parentThreadName;
     private final Callable<V> delegate;
     private final WrappedExecutorService parent;
 
     private WrappedCallable(final WrappedExecutorService parent, final Callable<V> delegate,
             final boolean skipWaitOnFullPendingCount) throws InterruptedException {
+        this.parentThreadName = Thread.currentThread().getName();
         this.delegate = delegate;
         this.parent = parent;
         parent.incrementPendingCount(skipWaitOnFullPendingCount);
@@ -22,6 +24,7 @@ final class WrappedCallable<V> implements Callable<V> {
 
     @Override
     public V call() throws Exception {
+        Threads.updateParentThreadName(parentThreadName);
         try {
             return delegate.call();
         } finally {

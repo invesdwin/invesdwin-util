@@ -35,7 +35,7 @@ public class ConfiguredForkJoinWorkerThreadFactory implements ForkJoinWorkerThre
             protected void onStart() {
                 super.onStart();
                 final String curThreadName = threadpoolId + "-" + threadIds.incrementAndGet() + ":" + name;
-                setName(curThreadName + Executors.NESTED_THREAD_NAME_SEPARATOR + parentThreadName);
+                setName(curThreadName + Threads.NESTED_THREAD_NAME_SEPARATOR + parentThreadName);
             }
         };
         /*

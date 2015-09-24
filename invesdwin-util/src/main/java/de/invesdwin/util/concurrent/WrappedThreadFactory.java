@@ -31,7 +31,7 @@ public class WrappedThreadFactory implements ThreadFactory {
 
         final String parentThreadName = Thread.currentThread().getName();
         final String curThreadName = threadpoolId + "-" + threadIds.incrementAndGet() + ":" + name;
-        t.setName(curThreadName + Executors.NESTED_THREAD_NAME_SEPARATOR + parentThreadName);
+        t.setName(curThreadName + Threads.NESTED_THREAD_NAME_SEPARATOR + parentThreadName);
         /*
          * So that exceptions are still logged if runnables are sent into executors without futures being checked. This
          * keeps the default behaviour expected from normal threads.

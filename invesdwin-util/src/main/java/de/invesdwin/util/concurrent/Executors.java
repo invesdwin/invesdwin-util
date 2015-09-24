@@ -15,8 +15,6 @@ import javax.annotation.concurrent.Immutable;
 @Immutable
 public final class Executors {
 
-    public static final String NESTED_THREAD_NAME_SEPARATOR = " <- ";
-
     private Executors() {}
 
     /**
