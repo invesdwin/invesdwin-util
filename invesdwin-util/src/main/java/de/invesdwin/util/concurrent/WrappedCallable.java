@@ -16,10 +16,15 @@ final class WrappedCallable<V> implements Callable<V> {
 
     private WrappedCallable(final WrappedExecutorService parent, final Callable<V> delegate,
             final boolean skipWaitOnFullPendingCount) throws InterruptedException {
+        if (delegate instanceof WrappedCallable) {
+            throw new IllegalArgumentException("delegate should not be an instance of " + getClass().getSimpleName());
+        }
         this.parentThreadName = Thread.currentThread().getName();
         this.delegate = delegate;
         this.parent = parent;
-        parent.incrementPendingCount(skipWaitOnFullPendingCount);
+        if (parent != null) {
+            parent.incrementPendingCount(skipWaitOnFullPendingCount);
+        }
     }
 
     @Override
@@ -28,7 +33,9 @@ final class WrappedCallable<V> implements Callable<V> {
         try {
             return delegate.call();
         } finally {
-            parent.decrementPendingCount();
+            if (parent != null) {
+                parent.decrementPendingCount();
+            }
         }
     }
 

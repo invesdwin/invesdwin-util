@@ -43,8 +43,8 @@ public class ConfiguredForkJoinWorkerThreadFactory implements ForkJoinWorkerThre
          * keeps the default behaviour expected from normal threads.
          */
         if (t.getUncaughtExceptionHandler() != Thread.getDefaultUncaughtExceptionHandler()) {
-            throw new IllegalArgumentException(UncaughtExceptionHandler.class.getSimpleName()
-                    + " is not already set properly!");
+            throw new IllegalArgumentException(
+                    UncaughtExceptionHandler.class.getSimpleName() + " is not already set properly!");
         }
         return t;
     }

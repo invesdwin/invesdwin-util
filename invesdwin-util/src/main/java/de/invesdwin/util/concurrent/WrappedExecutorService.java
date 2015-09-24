@@ -45,11 +45,8 @@ public class WrappedExecutorService implements ExecutorService {
         }
     };
 
-    private final String name;
-
     protected WrappedExecutorService(final java.util.concurrent.ThreadPoolExecutor delegate, final String name) {
         this.delegate = delegate;
-        this.name = name;
         configure(name);
     }
 
@@ -241,8 +238,8 @@ public class WrappedExecutorService implements ExecutorService {
     }
 
     @Override
-    public <T> T invokeAny(final Collection<? extends Callable<T>> tasks) throws InterruptedException,
-    ExecutionException {
+    public <T> T invokeAny(final Collection<? extends Callable<T>> tasks)
+            throws InterruptedException, ExecutionException {
         return getWrappedInstance().invokeAny(WrappedCallable.newInstance(this, tasks));
     }
 

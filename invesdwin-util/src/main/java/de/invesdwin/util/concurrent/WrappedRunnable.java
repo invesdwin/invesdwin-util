@@ -15,10 +15,15 @@ final class WrappedRunnable implements Runnable {
 
     private WrappedRunnable(final WrappedExecutorService parent, final Runnable delegate,
             final boolean skipWaitOnFullPendingCount) throws InterruptedException {
+        if (delegate instanceof WrappedRunnable) {
+            throw new IllegalArgumentException("delegate should not be an instance of " + getClass().getSimpleName());
+        }
         this.parentThreadName = Thread.currentThread().getName();
         this.delegate = delegate;
         this.parent = parent;
-        parent.incrementPendingCount(skipWaitOnFullPendingCount);
+        if (parent != null) {
+            parent.incrementPendingCount(skipWaitOnFullPendingCount);
+        }
     }
 
     @Override
@@ -27,7 +32,9 @@ final class WrappedRunnable implements Runnable {
         try {
             delegate.run();
         } finally {
-            parent.decrementPendingCount();
+            if (parent != null) {
+                parent.decrementPendingCount();
+            }
         }
     }
 
