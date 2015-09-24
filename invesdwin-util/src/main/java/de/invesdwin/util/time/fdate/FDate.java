@@ -711,12 +711,21 @@ public final class FDate implements IDate, Serializable, Cloneable, Comparable<O
     }
 
     public static boolean isSameWeek(final FDate date1, final FDate date2) {
+        return isSameWeekPart(date1, date2, FWeekday.Monday, FWeekday.Sunday);
+    }
+
+    public static boolean isSameWeekPart(final FDate date1, final FDate date2, final FWeekday statOfWeekPart,
+            final FWeekday endOfWeekPart) {
         if (date1 == null || date2 == null) {
             return false;
         }
-        final FDate monday = date1.withoutTime().setFWeekday(FWeekday.Monday);
-        final FDate sundayEvening = date1.withoutTime().setFWeekday(FWeekday.Sunday).addDays(1).addMilliseconds(-1);
-        return FDate.isBetween(date2, monday, sundayEvening);
+        final FDate startOfWeek = date1.withoutTime().setFWeekday(statOfWeekPart);
+        final FDate endOfWeek = date1.withoutTime().setFWeekday(endOfWeekPart).addDays(1).addMilliseconds(-1);
+        if (startOfWeek.isAfter(endOfWeek)) {
+            throw new IllegalStateException(
+                    "startOfWeek [" + startOfWeek + "] should not be after [" + endOfWeek + "]");
+        }
+        return FDate.isBetween(date2, startOfWeek, endOfWeek);
     }
 
     public static boolean isSameDay(final FDate date1, final FDate date2) {
