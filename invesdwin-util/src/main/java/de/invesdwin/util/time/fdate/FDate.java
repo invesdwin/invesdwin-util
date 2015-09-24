@@ -728,6 +728,18 @@ public final class FDate implements IDate, Serializable, Cloneable, Comparable<O
         return FDate.isBetween(date2, startOfWeek, endOfWeek);
     }
 
+    /**
+     * This does not count the weekday of date1, so the range is ]date1,date2]
+     */
+    public static boolean isWeekdayBetween(final FDate date1, final FDate date2, final FWeekday weekday) {
+        for (final FDate day : iterable(date1.withoutTime().addDays(1), date2.withoutTime(), FTimeUnit.Days, 1)) {
+            if (day.getFWeekday() == weekday) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public static boolean isSameDay(final FDate date1, final FDate date2) {
         return isSameTruncated(date1, date2, FDateField.Day);
     }
