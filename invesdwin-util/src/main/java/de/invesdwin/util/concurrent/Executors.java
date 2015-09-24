@@ -60,7 +60,7 @@ public final class Executors {
      * Returns the number of cpu cores +1 for ThreadPools that are cpu intensive.
      */
     public static int getCpuThreadPoolCount() {
-        return Runtime.getRuntime().availableProcessors() + 1;
+        return Runtime.getRuntime().availableProcessors();
     }
 
     public static ConfiguredForkJoinPool newForkJoinPool(final String name, final int parallelism) {
