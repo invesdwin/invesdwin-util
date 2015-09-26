@@ -17,7 +17,7 @@ public enum PercentScale implements IDecimalScale<Percent, PercentScale> {
     private final int scale;
     private String symbol;
 
-    private PercentScale(final String text, final int scale, final String symbol) {
+    PercentScale(final String text, final int scale, final String symbol) {
         this.text = text;
         this.scale = scale;
         this.symbol = symbol;
