@@ -29,9 +29,19 @@ public final class DatatypeConverter {
         return FDate.valueOf(FACTORY.newXMLGregorianCalendar(lex).toGregorianCalendar());
     }
 
-    private static String toXML(final FDate cal, final GTypes type) {
-        return type.stripToValid(FACTORY.newXMLGregorianCalendar((GregorianCalendar) cal.calendarValue()))
-                .toXMLFormat();
+    private static String toXML(final FDate date, final GTypes type) {
+        final Calendar cal = toCalendar(date);
+        return type.stripToValid(FACTORY.newXMLGregorianCalendar((GregorianCalendar) cal)).toXMLFormat();
+    }
+
+    private static Calendar toCalendar(final FDate date) {
+        final Calendar cal;
+        if (date == null) {
+            cal = null;
+        } else {
+            cal = date.calendarValue();
+        }
+        return cal;
     }
 
     public static String printGDay(final FDate cal) {
@@ -88,7 +98,10 @@ public final class DatatypeConverter {
     }
 
     public static String printTime(final FDate date) {
-        final Calendar cal = date.calendarValue();
+        if (date == null) {
+            return null;
+        }
+        final Calendar cal = toCalendar(date);
         return javax.xml.bind.DatatypeConverter.printTime(cal);
     }
 
@@ -98,7 +111,10 @@ public final class DatatypeConverter {
     }
 
     public static String printDate(final FDate date) {
-        final Calendar cal = date.calendarValue();
+        if (date == null) {
+            return null;
+        }
+        final Calendar cal = toCalendar(date);
         return javax.xml.bind.DatatypeConverter.printDate(cal);
     }
 
@@ -108,7 +124,10 @@ public final class DatatypeConverter {
     }
 
     public static String printDateTime(final FDate date) {
-        final Calendar cal = date.calendarValue();
+        if (date == null) {
+            return null;
+        }
+        final Calendar cal = toCalendar(date);
         return javax.xml.bind.DatatypeConverter.printDateTime(cal);
     }
 
