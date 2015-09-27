@@ -251,8 +251,8 @@ public abstract class AHistoricalCache<V> {
     private void putPrevAndNext(final FDate nextKey, final FDate valueKey, final V value, final FDate previousKey) {
         if (previousKey != null && nextKey != null) {
             if (!(previousKey.compareTo(nextKey) <= 0)) {
-                throw new IllegalArgumentException(new TextDescription("previousKey [%s] <= nextKey [%s] not matched",
-                        previousKey, nextKey).toString());
+                throw new IllegalArgumentException(new TextDescription(
+                        "%s: previousKey [%s] <= nextKey [%s] not matched", this, previousKey, nextKey).toString());
             }
         }
         getValuesMap().put(valueKey, value);
@@ -317,8 +317,9 @@ public abstract class AHistoricalCache<V> {
     private void putPrevious(final FDate previousKey, final V value, final FDate valueKey) {
         final int compare = previousKey.compareTo(valueKey);
         if (!(compare <= 0)) {
-            throw new IllegalArgumentException(new TextDescription("previousKey [%s] <= value [%s] not matched",
-                    previousKey, valueKey).toString());
+            throw new IllegalArgumentException(
+                    new TextDescription("%s: previousKey [%s] <= value [%s] not matched", this, previousKey, valueKey)
+                            .toString());
         }
         if (compare != 0) {
             getPreviousKeysCache().put(valueKey, previousKey);
@@ -329,8 +330,9 @@ public abstract class AHistoricalCache<V> {
     private void putNext(final FDate nextKey, final V value, final FDate valueKey) {
         final int compare = nextKey.compareTo(valueKey);
         if (!(compare >= 0)) {
-            throw new IllegalArgumentException(new TextDescription("nextKey [%s] >= value [%s] not matched", nextKey,
-                    valueKey).toString());
+            throw new IllegalArgumentException(
+                    new TextDescription("%s: nextKey [%s] >= value [%s] not matched", this, nextKey, valueKey)
+                            .toString());
         }
         if (compare != 0) {
             getNextKeysCache().put(valueKey, nextKey);
