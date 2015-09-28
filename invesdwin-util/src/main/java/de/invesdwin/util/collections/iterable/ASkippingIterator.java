@@ -45,6 +45,11 @@ public abstract class ASkippingIterator<E> implements ICloseableIterator<E> {
                 }
                 //catching nosuchelement might be faster sometimes than checking hasNext(), e.g. for LevelDB
             } catch (final NoSuchElementException e) {
+                try {
+                    close();
+                } catch (final IOException e1) {
+                    throw new RuntimeException(e1);
+                }
                 return null;
             }
             return cachedReadNext;
