@@ -251,7 +251,7 @@ public class AGapHistoricalCacheTest {
     public void testPreviousValueWithoutDistance() {
         FDate previousValue = cache.query()
 
-        .getPreviousValue(entities.get(entities.size() - 1), entities.size());
+                .getPreviousValue(entities.get(entities.size() - 1), entities.size());
         Assertions.assertThat(previousValue).isSameAs(entities.get(0));
         Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(2);
         //loading newest entity is faster than always loading all entities
@@ -313,8 +313,8 @@ public class AGapHistoricalCacheTest {
 
     @Test
     public void testPreviousValuesWithoutDistance() {
-        final Collection<FDate> previousValues = asList(cache.query().getPreviousValues(
-                entities.get(entities.size() - 1), entities.size()));
+        final Collection<FDate> previousValues = asList(
+                cache.query().getPreviousValues(entities.get(entities.size() - 1), entities.size()));
         Assertions.assertThat(previousValues).isEqualTo(entities);
         Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(2);
         Assertions.assertThat(countReadNewestValueTo).isEqualTo(2);
@@ -336,9 +336,8 @@ public class AGapHistoricalCacheTest {
 
     @Test
     public void testPreviousValuesGetsFilledDownWithoutDistance() {
-        final Collection<FDate> previousValues = asList(cache.query()
-                .withFilterDuplicateKeys(false)
-                .getPreviousValues(entities.get(0), entities.size()));
+        final Collection<FDate> previousValues = asList(
+                cache.query().withFilterDuplicateKeys(false).getPreviousValues(entities.get(0), entities.size()));
         Assertions.assertThat(previousValues.size()).isEqualTo(entities.size());
         for (final FDate d : previousValues) {
             Assertions.assertThat(d).isSameAs(entities.get(0));
@@ -435,20 +434,22 @@ public class AGapHistoricalCacheTest {
 
     @Test
     public void testPreviousKeysFilterDuplicateKeys() {
-        Assertions.assertThat(
-                asList(cache.query().withFilterDuplicateKeys(false).getPreviousKeys(new FDate(), 100)).size())
+        Assertions
+                .assertThat(
+                        asList(cache.query().withFilterDuplicateKeys(false).getPreviousKeys(new FDate(), 100)).size())
                 .isSameAs(100);
         Assertions.assertThat(asList(cache.query().getPreviousKeys(new FDate(), 100)).size())
-        .isEqualTo(entities.size());
+                .isEqualTo(entities.size());
     }
 
     @Test
     public void testPreviousValuesFilterDuplicateKeys() {
-        Assertions.assertThat(
-                asList(cache.query().withFilterDuplicateKeys(false).getPreviousValues(new FDate(), 100)).size())
+        Assertions
+                .assertThat(
+                        asList(cache.query().withFilterDuplicateKeys(false).getPreviousValues(new FDate(), 100)).size())
                 .isSameAs(100);
-        Assertions.assertThat(asList(cache.query().getPreviousValues(new FDate(), 100)).size()).isEqualTo(
-                entities.size());
+        Assertions.assertThat(asList(cache.query().getPreviousValues(new FDate(), 100)).size())
+                .isEqualTo(entities.size());
     }
 
     @Test
@@ -479,6 +480,18 @@ public class AGapHistoricalCacheTest {
         HistoricalCacheRefreshManager.refresh();
         final FDate correctValue = cache.query().getValue(newEntity);
         Assertions.assertThat(correctValue).isEqualTo(newEntity);
+    }
+
+    @Test
+    public void testNotCorrectTime() {
+        for (final FDate entity : entities.subList(1, entities.size() - 1)) {
+            final FDate valueBefore = cache.query().getValue(entity.addHours(-3));
+            Assertions.assertThat(valueBefore).isEqualTo(entity.addYears(-1));
+            final FDate value = cache.query().getValue(entity);
+            Assertions.assertThat(value).isEqualTo(entity);
+            final FDate valueAfter = cache.query().getValue(entity.addHours(2));
+            Assertions.assertThat(valueAfter).isEqualTo(entity);
+        }
     }
 
     private class TestGapHistoricalCache extends AGapHistoricalCache<FDate> {

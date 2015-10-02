@@ -28,10 +28,13 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
     /**
      * 10 days is a good value for daily caches.
      */
-    public static final long DEFAULT_READ_BACK_STEP_MILLIS = new Duration(10, TimeUnit.DAYS).intValue(TimeUnit.MILLISECONDS);
+    public static final long DEFAULT_READ_BACK_STEP_MILLIS = new Duration(10, TimeUnit.DAYS)
+            .intValue(TimeUnit.MILLISECONDS);
 
     @GuardedBy("this")
     private List<? extends V> furtherValues;
+    @GuardedBy("this")
+    private V lastValueFromFurtherValues;
     /**
      * As a convenience a field even if always reset
      */
@@ -224,6 +227,7 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
                 keyForReadAllValues = FDate.max(minKeyInDB, adjustedKey);
             }
             furtherValues = readAllValuesAscendingFrom(keyForReadAllValues);
+            lastValueFromFurtherValues = null;
 
             if (furtherValues.size() > 0) {
                 assertFurtherValuesSorting(key);
@@ -280,8 +284,8 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
 
         if (furtherValues.size() > 1) {
             Assertions.assertThat(firstKey.compareTo(lastKey) <= 0)
-            .as("Not ascending sorted! At firstKey [%s] and lastKey [%s]", firstKey, lastKey)
-            .isTrue();
+                    .as("Not ascending sorted! At firstKey [%s] and lastKey [%s]", firstKey, lastKey)
+                    .isTrue();
         }
     }
 
@@ -291,6 +295,15 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
         //Search for the newest value
         V prevValue = (V) null;
         FDate prevKey = null;
+        if (lastValueFromFurtherValues != null && !furtherValues.isEmpty()) {
+            //though maybe use the last one for smaller increments than the data itself is loaded
+            final FDate keyLastValueFromFurtherValues = extractKey(key, lastValueFromFurtherValues);
+            if (keyLastValueFromFurtherValues.isBeforeOrEqual(key) && isBeforeCurrentKeyFromFurtherValues(key)) {
+                prevValue = lastValueFromFurtherValues;
+                prevKey = keyLastValueFromFurtherValues;
+            }
+        }
+
         while (furtherValues.size() > 0) {
             final V newValue = furtherValues.get(0);
             final FDate newValueKey = extractKey(key, newValue);
@@ -302,13 +315,13 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
             } else if (compare == 0) {
                 //key == newValueKey
                 //This is the value we searched for! It will later be added with the db key to the cache.
-                furtherValues.remove(0);
+                lastValueFromFurtherValues = furtherValues.remove(0);
                 return newValue;
             } else {
                 //key > newValueKey
                 //put this value into the cache; gaps do not get filled here, so that the max size of the cache does not get reached prematurely
                 put(newValueKey, newValue, prevKey, prevValue);
-                furtherValues.remove(0);
+                lastValueFromFurtherValues = furtherValues.remove(0);
                 //continue with the next one
                 prevValue = newValue;
                 prevKey = newValueKey;
@@ -316,11 +329,10 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
                 if (furtherValues.isEmpty() && newValueKey.isBefore(maxKeyInDB) && key.isBefore(maxKeyInDB)
                         && maxKeyInDBFromLoadFurtherValues.isBefore(maxKeyInDB)) {
                     final FDate timeForLoadFurtherValues = FDate.max(newValueKey, earliestStartOfLoadFurtherValues);
-                    Assertions.assertThat(
-                            eventuallyLoadFurtherValues("searchInFurtherValues", newValueKey, timeForLoadFurtherValues,
-                                    false, true)).isTrue();
+                    Assertions.assertThat(eventuallyLoadFurtherValues("searchInFurtherValues", newValueKey,
+                            timeForLoadFurtherValues, false, true)).isTrue();
                     if (!furtherValues.isEmpty()) {
-                        furtherValues.remove(0);
+                        lastValueFromFurtherValues = furtherValues.remove(0);
                         if (!timeForLoadFurtherValues.equals(newValue)) {
                             //do not distort prev/next lookup when using earlisetStartOfLoadFurtherValues, thus reset those
                             prevValue = null;
@@ -437,6 +449,7 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
         minKeyInDB = null;
         //a clear forces the list to be completely reloaded next time get is called
         furtherValues = null;
+        lastValueFromFurtherValues = null;
         noKeysInDB = false;
         noValueInReadNewestValueFromDB = false;
     }
