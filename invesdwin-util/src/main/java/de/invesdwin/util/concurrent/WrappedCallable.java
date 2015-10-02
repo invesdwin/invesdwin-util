@@ -7,6 +7,8 @@ import java.util.concurrent.Callable;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.util.error.Throwables;
+
 @NotThreadSafe
 final class WrappedCallable<V> implements Callable<V> {
 
@@ -32,6 +34,11 @@ final class WrappedCallable<V> implements Callable<V> {
         Threads.updateParentThreadName(parentThreadName);
         try {
             return delegate.call();
+        } catch (final Throwable t) {
+            if (parent != null && parent.isLogExceptions()) {
+                Thread.currentThread().getUncaughtExceptionHandler().uncaughtException(Thread.currentThread(), t);
+            }
+            throw Throwables.propagate(t);
         } finally {
             if (parent != null) {
                 parent.decrementPendingCount();

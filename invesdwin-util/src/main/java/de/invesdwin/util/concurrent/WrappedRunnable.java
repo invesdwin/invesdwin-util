@@ -6,6 +6,8 @@ import java.util.List;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.util.error.Throwables;
+
 @NotThreadSafe
 final class WrappedRunnable implements Runnable {
 
@@ -31,6 +33,11 @@ final class WrappedRunnable implements Runnable {
         Threads.updateParentThreadName(parentThreadName);
         try {
             delegate.run();
+        } catch (final Throwable t) {
+            if (parent != null && parent.isLogExceptions()) {
+                Thread.currentThread().getUncaughtExceptionHandler().uncaughtException(Thread.currentThread(), t);
+            }
+            throw Throwables.propagate(t);
         } finally {
             if (parent != null) {
                 parent.decrementPendingCount();

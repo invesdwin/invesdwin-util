@@ -50,6 +50,15 @@ public class WrappedExecutorService implements ExecutorService {
         configure(name);
     }
 
+    public boolean isLogExceptions() {
+        return logExceptions;
+    }
+
+    public WrappedExecutorService withLogExceptions(final boolean logExceptions) {
+        this.logExceptions = logExceptions;
+        return this;
+    }
+
     void incrementPendingCount(final boolean skipWaitOnFullPendingCount) throws InterruptedException {
         if (waitOnFullPendingCount && !skipWaitOnFullPendingCount) {
             synchronized (pendingCountWaitLock) {
