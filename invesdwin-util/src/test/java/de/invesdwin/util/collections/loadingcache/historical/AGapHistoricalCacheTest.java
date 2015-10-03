@@ -13,6 +13,7 @@ import org.junit.Test;
 import com.google.common.collect.Iterables;
 
 import de.invesdwin.util.assertions.Assertions;
+import de.invesdwin.util.collections.loadingcache.historical.listener.AHighWaterMarkHistoricalCacheListener;
 import de.invesdwin.util.collections.loadingcache.historical.refresh.HistoricalCacheRefreshManager;
 import de.invesdwin.util.time.fdate.FDate;
 import de.invesdwin.util.time.fdate.FDateBuilder;
@@ -461,7 +462,7 @@ public class AGapHistoricalCacheTest {
     }
 
     @Test
-    public void testNewEntityIncoming() {
+    public void testNewEntityIncomingAfterClear() {
         final List<FDate> newEntities = new ArrayList<FDate>(entities);
         final FDate newEntity = FDateBuilder.newDate(1996, 1, 1);
         newEntities.add(newEntity);
@@ -478,6 +479,31 @@ public class AGapHistoricalCacheTest {
         final FDate wrongValue = cache.query().getValue(newEntity);
         Assertions.assertThat(wrongValue).isEqualTo(entities.get(entities.size() - 2));
         HistoricalCacheRefreshManager.refresh();
+        final FDate correctValue = cache.query().getValue(newEntity);
+        Assertions.assertThat(correctValue).isEqualTo(newEntity);
+    }
+
+    @Test
+    public void testNewEntityIncomingListener() {
+        cache.getListeners().add(new AHighWaterMarkHistoricalCacheListener<FDate>(cache) {
+            @Override
+            protected FDate getHighWaterMark() {
+                return entities.get(entities.size() - 1);
+            }
+        });
+        final List<FDate> newEntities = new ArrayList<FDate>(entities);
+        final FDate newEntity = FDateBuilder.newDate(1996, 1, 1);
+        newEntities.add(newEntity);
+        for (final FDate entity : newEntities) {
+            final FDate value = cache.query().getValue(entity);
+            if (newEntity.equals(entity)) {
+                Assertions.assertThat(value).isNotEqualTo(newEntity);
+                Assertions.assertThat(value).isEqualTo(entities.get(entities.size() - 1));
+            } else {
+                Assertions.assertThat(value).isEqualTo(entity);
+            }
+        }
+        entities.add(newEntity);
         final FDate correctValue = cache.query().getValue(newEntity);
         Assertions.assertThat(correctValue).isEqualTo(newEntity);
     }

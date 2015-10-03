@@ -15,6 +15,7 @@ import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 import de.invesdwin.util.collections.loadingcache.ILoadingCache;
 import de.invesdwin.util.collections.loadingcache.historical.interceptor.HistoricalCacheQueryInterceptorSupport;
 import de.invesdwin.util.collections.loadingcache.historical.interceptor.IHistoricalCacheQueryInterceptor;
+import de.invesdwin.util.collections.loadingcache.historical.listener.IHistoricalCacheListener;
 import de.invesdwin.util.collections.loadingcache.historical.refresh.HistoricalCacheRefreshManager;
 import de.invesdwin.util.time.fdate.FDate;
 
@@ -37,7 +38,7 @@ public abstract class AHistoricalCache<V> {
 
         @Override
         public V get(final FDate key) {
-            onGet();
+            onBeforeGet(key);
             return super.get(key);
         }
 
@@ -56,18 +57,15 @@ public abstract class AHistoricalCache<V> {
                     return value;
                 }
 
-                private void onValueLoaded(final FDate key, final V value) {}
-
             }, getMaximumSize());
         }
-
     };
 
     private final ILoadingCache<FDate, FDate> previousKeysCache = new ADelegateLoadingCache<FDate, FDate>() {
 
         @Override
         public FDate get(final FDate key) {
-            onGet();
+            onBeforeGet(key);
             return super.get(key);
         }
 
@@ -102,7 +100,7 @@ public abstract class AHistoricalCache<V> {
 
         @Override
         public FDate get(final FDate key) {
-            onGet();
+            onBeforeGet(key);
             return super.get(key);
         }
 
@@ -120,7 +118,7 @@ public abstract class AHistoricalCache<V> {
     /**
      * null means unlimited and 0 means no caching at all.
      */
-    protected Integer getMaximumSize() {
+    public Integer getMaximumSize() {
         return DEFAULT_MAXIMUM_SIZE;
     }
 
@@ -137,11 +135,16 @@ public abstract class AHistoricalCache<V> {
         isPutDisabled = false;
     }
 
-    protected void onGet() {
+    private void onBeforeGet(final FDate key) {
         final FDate lastRefreshFromManager = HistoricalCacheRefreshManager.getLastRefresh();
         if (lastRefresh.isBefore(lastRefreshFromManager)) {
             lastRefresh = new FDate();
             maybeRefresh();
+        }
+        if (!listeners.isEmpty()) {
+            for (final IHistoricalCacheListener<V> l : listeners) {
+                l.onBeforeGet(key);
+            }
         }
     }
 

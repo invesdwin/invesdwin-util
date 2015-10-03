@@ -7,6 +7,7 @@ import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.assertions.Assertions;
+import de.invesdwin.util.collections.loadingcache.historical.listener.AHighWaterMarkHistoricalCacheListener;
 import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.time.Duration;
 import de.invesdwin.util.time.fdate.FDate;
@@ -59,6 +60,9 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
     private boolean noKeysInDB;
     @GuardedBy("this")
     private boolean noValueInReadNewestValueFromDB;
+
+    @GuardedBy("this")
+    private AHighWaterMarkHistoricalCacheListener<V> highWaterMarkProvider;
 
     /**
      * Assumption: cache eviction does not cause values to be evicted with their keys not being evicted aswell.
@@ -139,14 +143,22 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
     }
 
     private boolean eventuallyGetMaxKeyInDB(final FDate key, final boolean force) {
-        if (maxKeyInDB == null || force) {
-            final V maxValue = readNewestValueFromDB(maxKey());
-            if (maxValue != null) {
-                final FDate maxValueKey = extractKey(key, maxValue);
-                if (maxKeyInDB == null || maxValueKey.compareTo(maxKeyInDB) <= -1) {
-                    maxKeyInDB = maxValueKey;
-                    getValuesMap().put(maxValueKey, maxValue);
-                    return true;
+        if (highWaterMarkProvider != null) {
+            final FDate newMaxKeyInDB = highWaterMarkProvider.getCurHighWaterMark();
+            if (newMaxKeyInDB.isAfter(maxKeyInDB)) {
+                maxKeyInDB = newMaxKeyInDB;
+                return true;
+            }
+        } else {
+            if (maxKeyInDB == null || force) {
+                final V maxValue = readNewestValueFromDB(maxKey());
+                if (maxValue != null) {
+                    final FDate maxValueKey = extractKey(key, maxValue);
+                    if (maxKeyInDB == null || maxValueKey.compareTo(maxKeyInDB) <= -1) {
+                        maxKeyInDB = maxValueKey;
+                        getValuesMap().put(maxValueKey, maxValue);
+                        return true;
+                    }
                 }
             }
         }
@@ -452,6 +464,19 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
         lastValueFromFurtherValues = null;
         noKeysInDB = false;
         noValueInReadNewestValueFromDB = false;
+    }
+
+    /**
+     * For internal use only.
+     */
+    @Deprecated
+    public synchronized void setHighWaterMarkProvider(
+            final AHighWaterMarkHistoricalCacheListener<V> highWaterMarkProvider) {
+        if (this.highWaterMarkProvider != null) {
+            throw new IllegalStateException(
+                    "Only one " + AHighWaterMarkHistoricalCacheListener.class.getSimpleName() + " is allowed");
+        }
+        this.highWaterMarkProvider = highWaterMarkProvider;
     }
 
 }
