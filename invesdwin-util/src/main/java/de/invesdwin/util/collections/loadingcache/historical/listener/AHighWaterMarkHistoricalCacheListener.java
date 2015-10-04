@@ -2,6 +2,7 @@ package de.invesdwin.util.collections.loadingcache.historical.listener;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
@@ -19,6 +20,7 @@ public abstract class AHighWaterMarkHistoricalCacheListener<V> implements IHisto
     private FDate curHighWaterMark;
     @GuardedBy("this")
     private final Set<FDate> removeKeysOnNewHighWaterMark = new LinkedHashSet<FDate>();
+    private final AtomicBoolean alreadyQuerying = new AtomicBoolean(false);
 
     @SuppressWarnings("deprecation")
     public AHighWaterMarkHistoricalCacheListener(final AHistoricalCache<V> parent) {
@@ -32,19 +34,31 @@ public abstract class AHighWaterMarkHistoricalCacheListener<V> implements IHisto
         }
     }
 
-    public FDate getCurHighWaterMark() {
+    public synchronized FDate getCurHighWaterMark() {
         return curHighWaterMark;
     }
 
     @Override
-    public void onBeforeGet(final FDate key) {
-        final FDate newHighWaterMark = getHighWaterMark();
-        if (curHighWaterMark == null || newHighWaterMark.isAfter(curHighWaterMark)) {
-            for (final FDate removeKey : removeKeysOnNewHighWaterMark) {
-                parent.remove(removeKey);
+    public synchronized void onBeforeGet(final FDate key) {
+        //prevent recursion on getHighWaterMark() doing another get
+        if (!alreadyQuerying.compareAndSet(false, true)) {
+            return;
+        }
+        try {
+            final FDate newHighWaterMark = getHighWaterMark();
+            synchronized (this) {
+                if (curHighWaterMark == null || newHighWaterMark.isAfter(curHighWaterMark)) {
+                    for (final FDate removeKey : removeKeysOnNewHighWaterMark) {
+                        parent.remove(removeKey);
+                    }
+                    removeKeysOnNewHighWaterMark.clear();
+                    curHighWaterMark = newHighWaterMark;
+                }
             }
-            removeKeysOnNewHighWaterMark.clear();
-            curHighWaterMark = newHighWaterMark;
+        } finally {
+            if (!alreadyQuerying.getAndSet(false)) {
+                throw new IllegalStateException("true expected");
+            }
         }
     }
 
@@ -52,7 +66,7 @@ public abstract class AHighWaterMarkHistoricalCacheListener<V> implements IHisto
 
     @Override
     public synchronized void onValueLoaded(final FDate key, final V value) {
-        if (key.isAfter(curHighWaterMark)) {
+        if (curHighWaterMark != null && key.isAfter(curHighWaterMark)) {
             removeKeysOnNewHighWaterMark.add(key);
         }
 

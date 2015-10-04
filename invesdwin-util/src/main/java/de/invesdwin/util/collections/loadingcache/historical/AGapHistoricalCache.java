@@ -145,20 +145,24 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
     private boolean eventuallyGetMaxKeyInDB(final FDate key, final boolean force) {
         if (highWaterMarkProvider != null) {
             final FDate newMaxKeyInDB = highWaterMarkProvider.getCurHighWaterMark();
-            if (newMaxKeyInDB.isAfter(maxKeyInDB)) {
-                maxKeyInDB = newMaxKeyInDB;
-                return true;
+            if (newMaxKeyInDB != null) {
+                if (newMaxKeyInDB.isAfter(maxKeyInDB)) {
+                    maxKeyInDB = newMaxKeyInDB;
+                    return true;
+                } else {
+                    return false;
+                }
             }
-        } else {
-            if (maxKeyInDB == null || force) {
-                final V maxValue = readNewestValueFromDB(maxKey());
-                if (maxValue != null) {
-                    final FDate maxValueKey = extractKey(key, maxValue);
-                    if (maxKeyInDB == null || maxValueKey.compareTo(maxKeyInDB) <= -1) {
-                        maxKeyInDB = maxValueKey;
-                        getValuesMap().put(maxValueKey, maxValue);
-                        return true;
-                    }
+        }
+        //fallback to normal procedure if curHighWaterMark is not provided by provider
+        if (maxKeyInDB == null || force) {
+            final V maxValue = readNewestValueFromDB(maxKey());
+            if (maxValue != null) {
+                final FDate maxValueKey = extractKey(key, maxValue);
+                if (maxKeyInDB == null || maxValueKey.compareTo(maxKeyInDB) <= -1) {
+                    maxKeyInDB = maxValueKey;
+                    getValuesMap().put(maxValueKey, maxValue);
+                    return true;
                 }
             }
         }
