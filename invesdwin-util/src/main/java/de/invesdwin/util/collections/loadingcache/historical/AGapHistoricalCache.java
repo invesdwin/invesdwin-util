@@ -84,14 +84,9 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
         final boolean newMinKey = updateMinKey(key);
 
         //Try loading from cache before trying a query; via gap finding or through min key
-        V value;
-        if (maxKeyInDBFromLoadFurtherValues != null && maxKeyInDBFromLoadFurtherValues.equals(maxKeyInDB)
-                && isBeforeCurrentKeyFromFurtherValues(key) && !isBeforeMinKeyFromFurtherValues(key)
-                || maxKeyInDB == null || key.isAfter(maxKeyInDB)) {
-            value = loadFromCacheBeforeLoadFurtherValues(key, newMaxKey, newMinKey);
-            if (value != null) {
-                return value;
-            }
+        V value = loadFromCacheBeforeLoadFurtherValues(key, newMaxKey, newMinKey);
+        if (value != null) {
+            return value;
         }
 
         //Try the expensive query
@@ -113,10 +108,6 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
         //And last we just try to get the newest value matching the key.
         //If there are no values in db, this method is only called once
         return readNewestValueFromDB(key);
-    }
-
-    private boolean isBeforeMinKeyFromFurtherValues(final FDate key) {
-        return minKeyInDBFromLoadFurtherValues == null || key.isBefore(minKeyInDBFromLoadFurtherValues);
     }
 
     private boolean isBeforeCurrentKeyFromFurtherValues(final FDate key) {
