@@ -187,6 +187,7 @@ public abstract class AHistoricalCache<V> {
             for (final FDate keyToRemove : keysToRemoveOnNewHighestAllowedKey) {
                 remove(keyToRemove);
             }
+            keysToRemoveOnNewHighestAllowedKey.clear();
         }
     }
 
