@@ -1,6 +1,6 @@
 package de.invesdwin.util.collections.loadingcache.historical;
 
-import java.util.LinkedHashSet;
+import java.util.HashSet;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -37,7 +37,7 @@ public abstract class AHistoricalCache<V> {
     @GuardedBy("this")
     private FDate curHighestAllowedKey;
     @GuardedBy("this")
-    private final Set<FDate> keysToRemoveOnNewHighestAllowedKey = new LinkedHashSet<FDate>();
+    private final Set<FDate> keysToRemoveOnNewHighestAllowedKey = new HashSet<FDate>();
 
     private volatile FDate lastRefresh = HistoricalCacheRefreshManager.getLastRefresh();
     private boolean isPutDisabled = getMaximumSize() != null && getMaximumSize() == 0;
