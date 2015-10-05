@@ -8,9 +8,6 @@ import de.invesdwin.util.time.fdate.FDate;
 public class HistoricalCacheListenerSupport<V> implements IHistoricalCacheListener<V> {
 
     @Override
-    public void onBeforeGet(final FDate key) {}
-
-    @Override
     public void onValueLoaded(final FDate key, final V value) {}
 
 }

@@ -7,7 +7,6 @@ import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.assertions.Assertions;
-import de.invesdwin.util.collections.loadingcache.historical.listener.AHighWaterMarkHistoricalCacheListener;
 import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.time.Duration;
 import de.invesdwin.util.time.fdate.FDate;
@@ -60,9 +59,6 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
     private boolean noKeysInDB;
     @GuardedBy("this")
     private boolean noValueInReadNewestValueFromDB;
-
-    @GuardedBy("this")
-    private AHighWaterMarkHistoricalCacheListener<V> highWaterMarkProvider;
 
     /**
      * Assumption: cache eviction does not cause values to be evicted with their keys not being evicted aswell.
@@ -134,15 +130,13 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
     }
 
     private boolean eventuallyGetMaxKeyInDB(final FDate key, final boolean force) {
-        if (highWaterMarkProvider != null) {
-            final FDate newMaxKeyInDB = highWaterMarkProvider.getCurHighWaterMark();
-            if (newMaxKeyInDB != null) {
-                if (newMaxKeyInDB.isAfter(maxKeyInDB)) {
-                    maxKeyInDB = newMaxKeyInDB;
-                    return true;
-                } else {
-                    return false;
-                }
+        final FDate newMaxKeyInDB = getHighestAllowedKey();
+        if (newMaxKeyInDB != null) {
+            if (newMaxKeyInDB.isAfter(maxKeyInDB)) {
+                maxKeyInDB = newMaxKeyInDB;
+                return true;
+            } else {
+                return false;
             }
         }
         //fallback to normal procedure if curHighWaterMark is not provided by provider
@@ -161,6 +155,15 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
     }
 
     private boolean eventuallyGetMinKeyInDB(final FDate key, final boolean force) {
+        final FDate newMinKeyInDB = getLowestAllowedKey();
+        if (newMinKeyInDB != null) {
+            if (newMinKeyInDB.isBefore(minKeyInDB)) {
+                minKeyInDB = newMinKeyInDB;
+                return true;
+            } else {
+                return false;
+            }
+        }
         if (minKeyInDB == null || force) {
             final V minValue = readNewestValueFromDB(minKey());
             if (minValue != null) {
@@ -459,19 +462,6 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
         lastValueFromFurtherValues = null;
         noKeysInDB = false;
         noValueInReadNewestValueFromDB = false;
-    }
-
-    /**
-     * For internal use only.
-     */
-    @Deprecated
-    public synchronized void setHighWaterMarkProvider(
-            final AHighWaterMarkHistoricalCacheListener<V> highWaterMarkProvider) {
-        if (this.highWaterMarkProvider != null) {
-            throw new IllegalStateException(
-                    "Only one " + AHighWaterMarkHistoricalCacheListener.class.getSimpleName() + " is allowed");
-        }
-        this.highWaterMarkProvider = highWaterMarkProvider;
     }
 
 }

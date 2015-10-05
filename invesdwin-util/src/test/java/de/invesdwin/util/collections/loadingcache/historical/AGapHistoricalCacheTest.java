@@ -13,7 +13,6 @@ import org.junit.Test;
 import com.google.common.collect.Iterables;
 
 import de.invesdwin.util.assertions.Assertions;
-import de.invesdwin.util.collections.loadingcache.historical.listener.AHighWaterMarkHistoricalCacheListener;
 import de.invesdwin.util.collections.loadingcache.historical.refresh.HistoricalCacheRefreshManager;
 import de.invesdwin.util.time.fdate.FDate;
 import de.invesdwin.util.time.fdate.FDateBuilder;
@@ -32,6 +31,7 @@ public class AGapHistoricalCacheTest {
     private boolean returnAllInReadAllValuesAscendingFrom;
     private Integer returnMaxResults;
     private final int testReturnMaxResultsValue = 2;
+    private boolean returnHighestAllowedKey = false;
 
     private final TestGapHistoricalCache cache = new TestGapHistoricalCache();
 
@@ -485,12 +485,7 @@ public class AGapHistoricalCacheTest {
 
     @Test
     public void testNewEntityIncomingListener() {
-        cache.getListeners().add(new AHighWaterMarkHistoricalCacheListener<FDate>(cache) {
-            @Override
-            protected FDate getHighWaterMark() {
-                return entities.get(entities.size() - 1);
-            }
-        });
+        returnHighestAllowedKey = true;
         final List<FDate> newEntities = new ArrayList<FDate>(entities);
         final FDate newEntity = FDateBuilder.newDate(1996, 1, 1);
         newEntities.add(newEntity);
@@ -583,6 +578,15 @@ public class AGapHistoricalCacheTest {
         protected FDate innerCalculateNextKey(final FDate key) {
             //            return FDates.addDays(FDates.addYears(key, 1), 1); //this causes a bug which should be fixed sometime when it is needed that unprecise values may be returned here
             return key.addYears(1);
+        }
+
+        @Override
+        protected FDate getHighestAllowedKey() {
+            if (returnHighestAllowedKey) {
+                return entities.get(entities.size() - 1);
+            } else {
+                return null;
+            }
         }
 
     }
