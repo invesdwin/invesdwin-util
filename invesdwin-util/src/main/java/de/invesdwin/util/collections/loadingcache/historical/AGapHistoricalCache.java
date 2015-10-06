@@ -7,7 +7,6 @@ import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.assertions.Assertions;
-import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.time.Duration;
 import de.invesdwin.util.time.fdate.FDate;
 
@@ -378,21 +377,6 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
             final V value = eventuallyGetMinValue(key, false);
             if (value != null) {
                 return value;
-            }
-        }
-
-        //further tries to still find the value we want
-
-        //with previous key
-        try {
-            final FDate previousKey = calculatePreviousKey(key);
-            if (containsKey(previousKey)) {
-                return query().withFuture().getValue(previousKey);
-            }
-        } catch (final Throwable e) {
-            //ignore, since the cache might not support this type of query
-            if (!Throwables.isCausedByType(e, UnsupportedOperationException.class)) {
-                throw new RuntimeException(e);
             }
         }
 

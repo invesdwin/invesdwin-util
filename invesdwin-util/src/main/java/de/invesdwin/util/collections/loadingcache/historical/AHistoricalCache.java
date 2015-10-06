@@ -47,8 +47,8 @@ public abstract class AHistoricalCache<V> {
 
         @Override
         public V get(final FDate key) {
-            onBeforeGet();
-            return super.get(key);
+            final FDate adjKey = maybeAdjustKey(key);
+            return super.get(adjKey);
         }
 
         @Override
@@ -57,16 +57,7 @@ public abstract class AHistoricalCache<V> {
 
                 @Override
                 public V apply(final FDate key) {
-                    rememberKeyToRemove(key);
-                    final FDate lowestAllowedKey = getLowestAllowedKey();
-                    if (lowestAllowedKey != null && key.isBefore(lowestAllowedKey)) {
-                        return null;
-                    }
-                    FDate adjKey;
-                    synchronized (AHistoricalCache.this) {
-                        adjKey = FDate.min(key, curHighestAllowedKey);
-                    }
-                    final V value = AHistoricalCache.this.loadValue(adjKey);
+                    final V value = AHistoricalCache.this.loadValue(key);
                     if (value != null && !listeners.isEmpty()) {
                         for (final IHistoricalCacheListener<V> l : listeners) {
                             l.onValueLoaded(key, value);
@@ -83,8 +74,8 @@ public abstract class AHistoricalCache<V> {
 
         @Override
         public FDate get(final FDate key) {
-            onBeforeGet();
-            return super.get(key);
+            final FDate adjKey = maybeAdjustKey(key);
+            return super.get(adjKey);
         }
 
         @Override
@@ -118,8 +109,8 @@ public abstract class AHistoricalCache<V> {
 
         @Override
         public FDate get(final FDate key) {
-            onBeforeGet();
-            return super.get(key);
+            final FDate adjKey = maybeAdjustKey(key);
+            return super.get(adjKey);
         }
 
         @Override
@@ -153,21 +144,34 @@ public abstract class AHistoricalCache<V> {
         isPutDisabled = false;
     }
 
-    private void onBeforeGet() {
+    private FDate maybeAdjustKey(final FDate key) {
         final FDate lastRefreshFromManager = HistoricalCacheRefreshManager.getLastRefresh();
         if (lastRefresh.isBefore(lastRefreshFromManager)) {
             lastRefresh = new FDate();
             maybeRefresh();
         }
         if (alreadyAdjustingKey.compareAndSet(false, true)) {
-            final FDate newHighestAllowedKey = getHighestAllowedKey();
-            if (newHighestAllowedKey != null) {
-                updateCurHighestAllowedKey(newHighestAllowedKey);
+            try {
+                final FDate newHighestAllowedKey = getHighestAllowedKey();
+                if (newHighestAllowedKey != null) {
+                    updateCurHighestAllowedKey(newHighestAllowedKey);
+                    if (key.isAfter(newHighestAllowedKey)) {
+                        return newHighestAllowedKey;
+                    }
+                }
+                final FDate lowestAllowedKey = getLowestAllowedKey();
+                if (lowestAllowedKey != null && key.isBefore(lowestAllowedKey)) {
+                    return lowestAllowedKey;
+                }
+            } finally {
+                if (!alreadyAdjustingKey.getAndSet(false)) {
+                    throw new IllegalStateException("true expected");
+                }
             }
-            if (!alreadyAdjustingKey.getAndSet(false)) {
-                throw new IllegalStateException("true expected");
-            }
+        } else {
+            rememberKeyToRemove(key);
         }
+        return key;
     }
 
     private synchronized void rememberKeyToRemove(final FDate key) {
@@ -185,7 +189,7 @@ public abstract class AHistoricalCache<V> {
         if (purge || curHighestAllowedKey.isBefore(newHighestAllowedKey)) {
             curHighestAllowedKey = newHighestAllowedKey;
             for (final FDate keyToRemove : keysToRemoveOnNewHighestAllowedKey) {
-                remove(keyToRemove);
+                innerRemove(keyToRemove);
             }
             keysToRemoveOnNewHighestAllowedKey.clear();
         }
@@ -281,10 +285,16 @@ public abstract class AHistoricalCache<V> {
     }
 
     public boolean containsKey(final FDate key) {
-        return getValuesMap().containsKey(key);
+        final FDate adjKey = maybeAdjustKey(key);
+        return getValuesMap().containsKey(adjKey);
     }
 
     public final void remove(final FDate key) {
+        final FDate adjKey = maybeAdjustKey(key);
+        innerRemove(adjKey);
+    }
+
+    private void innerRemove(final FDate key) {
         getValuesMap().remove(key);
         if (getPreviousKeysCache().containsKey(key)) {
             final FDate previousKey = getPreviousKeysCache().get(key);

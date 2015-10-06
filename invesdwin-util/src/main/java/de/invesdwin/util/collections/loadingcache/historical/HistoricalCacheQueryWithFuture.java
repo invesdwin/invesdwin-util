@@ -23,7 +23,8 @@ public class HistoricalCacheQueryWithFuture<V> extends HistoricalCacheQuery<V> {
     }
 
     @Override
-    public HistoricalCacheQueryWithFuture<V> withElementFilter(final IHistoricalCacheQueryElementFilter<V> elementFilter) {
+    public HistoricalCacheQueryWithFuture<V> withElementFilter(
+            final IHistoricalCacheQueryElementFilter<V> elementFilter) {
         return (HistoricalCacheQueryWithFuture<V>) super.withElementFilter(elementFilter);
     }
 

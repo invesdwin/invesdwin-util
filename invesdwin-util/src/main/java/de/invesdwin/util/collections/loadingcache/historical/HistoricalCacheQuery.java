@@ -171,7 +171,8 @@ public class HistoricalCacheQuery<V> {
             @Override
             public ICloseableIterator<V> iterator() {
                 return new ICloseableIterator<V>() {
-                    private final ICloseableIterator<Entry<FDate, V>> entriesIterator = getEntries(keys, assertValue).iterator();
+                    private final ICloseableIterator<Entry<FDate, V>> entriesIterator = getEntries(keys, assertValue)
+                            .iterator();
 
                     @Override
                     public boolean hasNext() {
@@ -279,7 +280,8 @@ public class HistoricalCacheQuery<V> {
             @Override
             public ICloseableIterator<Entry<FDate, V>> iterator() {
                 return new ICloseableIterator<Entry<FDate, V>>() {
-                    private final ICloseableIterator<FDate> previousKeys = getPreviousKeys(key, shiftBackUnits).iterator();
+                    private final ICloseableIterator<FDate> previousKeys = getPreviousKeys(key, shiftBackUnits)
+                            .iterator();
 
                     @Override
                     public boolean hasNext() {
