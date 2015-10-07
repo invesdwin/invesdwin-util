@@ -125,16 +125,14 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
     }
 
     private boolean eventuallyGetMaxKeyInDB(final FDate key, final boolean force) {
-        if (shouldAdjustByHighestAllowedKey.call()) {
-            //not updating highest allowed key, since this already happened during key adjustment
-            final FDate newMaxKeyInDB = getHighestAllowedKeyCached(false);
-            if (newMaxKeyInDB != null) {
-                if (newMaxKeyInDB.isAfter(maxKeyInDB)) {
-                    maxKeyInDB = newMaxKeyInDB;
-                    return true;
-                } else {
-                    return false;
-                }
+        //not updating highest allowed key, since this already happened during key adjustment
+        final FDate newMaxKeyInDB = getHighestAllowedKeyCached(false);
+        if (newMaxKeyInDB != null) {
+            if (newMaxKeyInDB.isAfter(maxKeyInDB)) {
+                maxKeyInDB = newMaxKeyInDB;
+                return true;
+            } else {
+                return false;
             }
         }
         //fallback to normal procedure if curHighWaterMark is not provided by provider
@@ -153,16 +151,14 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
     }
 
     private boolean eventuallyGetMinKeyInDB(final FDate key, final boolean force) {
-        if (shouldAdjustByLowestAllowedKey.call()) {
-            //not updating lowest allowed key, since this already happened during key adjustment
-            final FDate newMinKeyInDB = getLowestAllowedKeyCached(false);
-            if (newMinKeyInDB != null) {
-                if (newMinKeyInDB.isBefore(minKeyInDB)) {
-                    minKeyInDB = newMinKeyInDB;
-                    return true;
-                } else {
-                    return false;
-                }
+        //not updating lowest allowed key, since this already happened during key adjustment
+        final FDate newMinKeyInDB = getLowestAllowedKeyCached(false);
+        if (newMinKeyInDB != null) {
+            if (newMinKeyInDB.isBefore(minKeyInDB)) {
+                minKeyInDB = newMinKeyInDB;
+                return true;
+            } else {
+                return false;
             }
         }
         if (minKeyInDB == null || force) {
