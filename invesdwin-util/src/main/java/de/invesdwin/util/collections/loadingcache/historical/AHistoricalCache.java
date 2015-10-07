@@ -35,7 +35,7 @@ public abstract class AHistoricalCache<V> {
 
         @Override
         protected Boolean innerCall() {
-            if (getMaximumSize() == null || getMaximumSize() == 0) {
+            if (isPutDisabled) {
                 return false;
             }
             try {
@@ -49,7 +49,7 @@ public abstract class AHistoricalCache<V> {
     protected final ACachedCallable<Boolean> shouldAdjustByLowestAllowedKey = new ACachedCallable<Boolean>() {
         @Override
         protected Boolean innerCall() {
-            if (getMaximumSize() == null || getMaximumSize() == 0) {
+            if (isPutDisabled) {
                 return false;
             }
             try {
