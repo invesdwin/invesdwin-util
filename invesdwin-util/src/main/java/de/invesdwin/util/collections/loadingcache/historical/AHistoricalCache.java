@@ -4,7 +4,6 @@ import java.util.HashSet;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 
 import javax.annotation.concurrent.GuardedBy;
@@ -20,6 +19,7 @@ import de.invesdwin.util.collections.loadingcache.historical.interceptor.Histori
 import de.invesdwin.util.collections.loadingcache.historical.interceptor.IHistoricalCacheQueryInterceptor;
 import de.invesdwin.util.collections.loadingcache.historical.listener.IHistoricalCacheListener;
 import de.invesdwin.util.collections.loadingcache.historical.refresh.HistoricalCacheRefreshManager;
+import de.invesdwin.util.concurrent.ACachedCallable;
 import de.invesdwin.util.time.fdate.FDate;
 
 @ThreadSafe
@@ -31,11 +31,48 @@ public abstract class AHistoricalCache<V> {
      */
     public static final int DEFAULT_MAXIMUM_SIZE = 1000;
 
+    protected final ACachedCallable<Boolean> shouldAdjustByHighestAllowedKey = new ACachedCallable<Boolean>() {
+
+        @Override
+        protected Boolean innerCall() {
+            if (getMaximumSize() == null || getMaximumSize() == 0) {
+                return false;
+            }
+            try {
+                updateCurHighestAllowedKey(getHighestAllowedKey());
+            } catch (final UnsupportedOperationException e) {
+                return false;
+            }
+            return true;
+        }
+    };
+    protected final ACachedCallable<Boolean> shouldAdjustByLowestAllowedKey = new ACachedCallable<Boolean>() {
+        @Override
+        protected Boolean innerCall() {
+            if (getMaximumSize() == null || getMaximumSize() == 0) {
+                return false;
+            }
+            try {
+                getLowestAllowedKeyCached();
+            } catch (final UnsupportedOperationException e) {
+                return false;
+            }
+            return true;
+        }
+    };
+
     private final Set<IHistoricalCacheListener<V>> listeners = new CopyOnWriteArraySet<IHistoricalCacheListener<V>>();
 
-    private final AtomicBoolean alreadyAdjustingKey = new AtomicBoolean(false);
+    private final ThreadLocal<Boolean> alreadyAdjustingKey = new ThreadLocal<Boolean>() {
+        @Override
+        protected Boolean initialValue() {
+            return false;
+        }
+    };
     @GuardedBy("this")
     private FDate curHighestAllowedKey;
+    @GuardedBy("this")
+    private FDate curLowestAllowedKey;
     @GuardedBy("this")
     private final Set<FDate> keysToRemoveOnNewHighestAllowedKey = new HashSet<FDate>();
 
@@ -150,28 +187,42 @@ public abstract class AHistoricalCache<V> {
             lastRefresh = new FDate();
             maybeRefresh();
         }
-        if (alreadyAdjustingKey.compareAndSet(false, true)) {
-            try {
-                final FDate newHighestAllowedKey = getHighestAllowedKey();
-                if (newHighestAllowedKey != null) {
-                    updateCurHighestAllowedKey(newHighestAllowedKey);
-                    if (key.isAfter(newHighestAllowedKey)) {
-                        return newHighestAllowedKey;
+        final boolean adjHighest = shouldAdjustByHighestAllowedKey.call();
+        final boolean adjLowest = shouldAdjustByLowestAllowedKey.call();
+        if (adjHighest || adjLowest) {
+            if (!alreadyAdjustingKey.get()) {
+                alreadyAdjustingKey.set(true);
+                try {
+                    if (adjHighest) {
+                        final FDate newHighestAllowedKey = getHighestAllowedKey();
+                        if (newHighestAllowedKey != null) {
+                            updateCurHighestAllowedKey(newHighestAllowedKey);
+                            if (key.isAfter(newHighestAllowedKey)) { //SUPPRESS CHECKSTYLE nested ifs
+                                return newHighestAllowedKey;
+                            }
+                        }
                     }
+                    if (adjLowest) {
+                        final FDate lowestAllowedKey = getLowestAllowedKeyCached();
+                        if (lowestAllowedKey != null && key.isBefore(lowestAllowedKey)) {
+                            return lowestAllowedKey;
+                        }
+                    }
+                } finally {
+                    alreadyAdjustingKey.set(false);
                 }
-                final FDate lowestAllowedKey = getLowestAllowedKey();
-                if (lowestAllowedKey != null && key.isBefore(lowestAllowedKey)) {
-                    return lowestAllowedKey;
-                }
-            } finally {
-                if (!alreadyAdjustingKey.getAndSet(false)) {
-                    throw new IllegalStateException("true expected");
-                }
+            } else {
+                rememberKeyToRemove(key);
             }
-        } else {
-            rememberKeyToRemove(key);
         }
         return key;
+    }
+
+    private synchronized FDate getLowestAllowedKeyCached() {
+        if (curLowestAllowedKey == null) {
+            curLowestAllowedKey = getLowestAllowedKey();
+        }
+        return curLowestAllowedKey;
     }
 
     private synchronized void rememberKeyToRemove(final FDate key) {
@@ -400,6 +451,7 @@ public abstract class AHistoricalCache<V> {
         synchronized (this) {
             keysToRemoveOnNewHighestAllowedKey.clear();
             curHighestAllowedKey = null;
+            curLowestAllowedKey = null;
         }
         valuesMap.clear();
         previousKeysCache.clear();
@@ -446,11 +498,11 @@ public abstract class AHistoricalCache<V> {
     }
 
     protected FDate getHighestAllowedKey() {
-        return null;
+        throw new UnsupportedOperationException("Deactivating this feature");
     }
 
     protected FDate getLowestAllowedKey() {
-        return null;
+        throw new UnsupportedOperationException("Deactivating this feature");
     }
 
 }
