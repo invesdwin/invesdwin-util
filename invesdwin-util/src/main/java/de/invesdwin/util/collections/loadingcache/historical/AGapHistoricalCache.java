@@ -126,7 +126,7 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
 
     private boolean eventuallyGetMaxKeyInDB(final FDate key, final boolean force) {
         if (shouldAdjustByHighestAllowedKey.call()) {
-            final FDate newMaxKeyInDB = getHighestAllowedKey();
+            final FDate newMaxKeyInDB = getHighestAllowedKeyCached();
             if (newMaxKeyInDB != null) {
                 if (newMaxKeyInDB.isAfter(maxKeyInDB)) {
                     maxKeyInDB = newMaxKeyInDB;
@@ -153,7 +153,7 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
 
     private boolean eventuallyGetMinKeyInDB(final FDate key, final boolean force) {
         if (shouldAdjustByLowestAllowedKey.call()) {
-            final FDate newMinKeyInDB = getLowestAllowedKey();
+            final FDate newMinKeyInDB = getLowestAllowedKeyCached();
             if (newMinKeyInDB != null) {
                 if (newMinKeyInDB.isBefore(minKeyInDB)) {
                     minKeyInDB = newMinKeyInDB;
