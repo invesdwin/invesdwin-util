@@ -39,9 +39,12 @@ public abstract class AHistoricalCache<V> {
                 return false;
             }
             try {
+                alreadyAdjustingKey.set(true);
                 getHighestAllowedKeyCached();
             } catch (final UnsupportedOperationException e) {
                 return false;
+            } finally {
+                alreadyAdjustingKey.set(false);
             }
             return true;
         }
@@ -53,9 +56,12 @@ public abstract class AHistoricalCache<V> {
                 return false;
             }
             try {
+                alreadyAdjustingKey.set(true);
                 getLowestAllowedKeyCached();
             } catch (final UnsupportedOperationException e) {
                 return false;
+            } finally {
+                alreadyAdjustingKey.set(false);
             }
             return true;
         }
