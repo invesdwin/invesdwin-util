@@ -220,18 +220,20 @@ public abstract class AHistoricalCache<V> {
             }
         }
         final FDate newHighestAllowedKey = getHighestAllowedKey();
-        synchronized (this) {
-            final boolean purge = curHighestAllowedKey == null;
-            if (purge) {
-                //purge maybe already remembered keys above curHighestAllowedKey
-                clear();
-            }
-            if (purge || curHighestAllowedKey.isBefore(newHighestAllowedKey)) {
-                curHighestAllowedKey = newHighestAllowedKey;
-                for (final FDate keyToRemove : keysToRemoveOnNewHighestAllowedKey) {
-                    innerRemove(keyToRemove);
+        if (newHighestAllowedKey != null) {
+            synchronized (this) {
+                final boolean purge = curHighestAllowedKey == null;
+                if (purge) {
+                    //purge maybe already remembered keys above curHighestAllowedKey
+                    clear();
                 }
-                keysToRemoveOnNewHighestAllowedKey.clear();
+                if (purge || curHighestAllowedKey.isBefore(newHighestAllowedKey)) {
+                    curHighestAllowedKey = newHighestAllowedKey;
+                    for (final FDate keyToRemove : keysToRemoveOnNewHighestAllowedKey) {
+                        innerRemove(keyToRemove);
+                    }
+                    keysToRemoveOnNewHighestAllowedKey.clear();
+                }
             }
         }
         return newHighestAllowedKey;
