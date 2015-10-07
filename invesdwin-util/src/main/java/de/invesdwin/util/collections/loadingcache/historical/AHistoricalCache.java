@@ -39,12 +39,9 @@ public abstract class AHistoricalCache<V> {
                 return false;
             }
             try {
-                alreadyAdjustingKey.set(true);
                 getHighestAllowedKeyCached();
             } catch (final UnsupportedOperationException e) {
                 return false;
-            } finally {
-                alreadyAdjustingKey.set(false);
             }
             return true;
         }
@@ -56,12 +53,9 @@ public abstract class AHistoricalCache<V> {
                 return false;
             }
             try {
-                alreadyAdjustingKey.set(true);
                 getLowestAllowedKeyCached();
             } catch (final UnsupportedOperationException e) {
                 return false;
-            } finally {
-                alreadyAdjustingKey.set(false);
             }
             return true;
         }
@@ -193,32 +187,28 @@ public abstract class AHistoricalCache<V> {
             lastRefresh = new FDate();
             maybeRefresh();
         }
-        final boolean adjHighest = shouldAdjustByHighestAllowedKey.call();
-        final boolean adjLowest = shouldAdjustByLowestAllowedKey.call();
-        if (adjHighest || adjLowest) {
-            if (!alreadyAdjustingKey.get()) {
-                alreadyAdjustingKey.set(true);
-                try {
-                    if (adjHighest) {
-                        final FDate newHighestAllowedKey = getHighestAllowedKeyCached();
-                        if (newHighestAllowedKey != null) {
-                            if (key.isAfter(newHighestAllowedKey)) { //SUPPRESS CHECKSTYLE nested ifs
-                                return newHighestAllowedKey;
-                            }
+        if (!alreadyAdjustingKey.get()) {
+            alreadyAdjustingKey.set(true);
+            try {
+                if (shouldAdjustByHighestAllowedKey.call()) {
+                    final FDate newHighestAllowedKey = getHighestAllowedKeyCached();
+                    if (newHighestAllowedKey != null) {
+                        if (key.isAfter(newHighestAllowedKey)) { //SUPPRESS CHECKSTYLE nested ifs
+                            return newHighestAllowedKey;
                         }
                     }
-                    if (adjLowest) {
-                        final FDate lowestAllowedKey = getLowestAllowedKeyCached();
-                        if (lowestAllowedKey != null && key.isBefore(lowestAllowedKey)) {
-                            return lowestAllowedKey;
-                        }
-                    }
-                } finally {
-                    alreadyAdjustingKey.set(false);
                 }
-            } else {
-                rememberKeyToRemove(key);
+                if (shouldAdjustByLowestAllowedKey.call()) {
+                    final FDate lowestAllowedKey = getLowestAllowedKeyCached();
+                    if (lowestAllowedKey != null && key.isBefore(lowestAllowedKey)) {
+                        return lowestAllowedKey;
+                    }
+                }
+            } finally {
+                alreadyAdjustingKey.set(false);
             }
+        } else {
+            rememberKeyToRemove(key);
         }
         return key;
     }
