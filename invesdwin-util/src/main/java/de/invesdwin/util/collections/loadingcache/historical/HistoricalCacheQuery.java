@@ -38,18 +38,7 @@ public class HistoricalCacheQuery<V> {
         if (elementFilter == null) {
             this.elementFilter = null;
         } else {
-            //wrapping here to make debugging easier
-            this.elementFilter = new IHistoricalCacheQueryElementFilter<V>() {
-                @Override
-                public boolean isValid(final FDate key, final V value) {
-                    final boolean valid = elementFilter.isValid(key, value);
-                    if (valid) { //SUPPRESS CHECKSTYLE single line
-                        return true;
-                    } else {
-                        return false;
-                    }
-                }
-            };
+            this.elementFilter = elementFilter;
         }
         return this;
     }
