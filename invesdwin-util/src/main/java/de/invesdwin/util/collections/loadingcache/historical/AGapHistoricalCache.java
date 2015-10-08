@@ -126,7 +126,7 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
 
     private boolean eventuallyGetMaxKeyInDB(final FDate key, final boolean force) {
         //not updating highest allowed key, since this already happened during key adjustment
-        final FDate newMaxKeyInDB = adjustKeyProvider.getHighestAllowedKey();
+        final FDate newMaxKeyInDB = getAdjustKeyProvider().getHighestAllowedKey();
         if (newMaxKeyInDB != null) {
             if (newMaxKeyInDB.isAfter(maxKeyInDB)) {
                 maxKeyInDB = newMaxKeyInDB;

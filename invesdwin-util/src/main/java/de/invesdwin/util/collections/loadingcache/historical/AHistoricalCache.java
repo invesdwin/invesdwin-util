@@ -32,7 +32,7 @@ public abstract class AHistoricalCache<V> {
      */
     public static final int DEFAULT_MAXIMUM_SIZE = 1000;
 
-    protected final IHistoricalCacheAdjustKeyProvider adjustKeyProvider = newAdjustKeyProvider();
+    private final IHistoricalCacheAdjustKeyProvider adjustKeyProvider = newAdjustKeyProvider();
     private IHistoricalCacheOnValueLoadedListener<V> onValueLoadedListener = new HistoricalCacheOnValueLoadedListenerSupport<V>();
 
     private volatile FDate lastRefresh = HistoricalCacheRefreshManager.getLastRefresh();
@@ -49,7 +49,7 @@ public abstract class AHistoricalCache<V> {
 
         @Override
         protected ILoadingCache<FDate, V> createDelegate() {
-            return newProvider(new Function<FDate, V>() {
+            return newLoadingCacheProvider(new Function<FDate, V>() {
 
                 @Override
                 public V apply(final FDate key) {
@@ -104,7 +104,7 @@ public abstract class AHistoricalCache<V> {
 
     protected abstract V loadValue(FDate key);
 
-    protected <T> ILoadingCache<FDate, T> newProvider(final Function<FDate, T> loadValue, final Integer maximumSize) {
+    protected <T> ILoadingCache<FDate, T> newLoadingCacheProvider(final Function<FDate, T> loadValue, final Integer maximumSize) {
         return new ALoadingCache<FDate, T>() {
 
             @Override
@@ -150,6 +150,10 @@ public abstract class AHistoricalCache<V> {
 
     public IHistoricalCacheShiftKeyProvider getShiftKeyProvider() {
         return shiftKeyProvider;
+    }
+
+    public IHistoricalCacheAdjustKeyProvider getAdjustKeyProvider() {
+        return adjustKeyProvider;
     }
 
     /**
@@ -343,7 +347,7 @@ public abstract class AHistoricalCache<V> {
 
             @Override
             protected ILoadingCache<FDate, FDate> createDelegate() {
-                return newProvider(new Function<FDate, FDate>() {
+                return newLoadingCacheProvider(new Function<FDate, FDate>() {
                     @Override
                     public FDate apply(final FDate key) {
                         return innerCalculatePreviousKey(key);
@@ -370,7 +374,7 @@ public abstract class AHistoricalCache<V> {
 
             @Override
             protected ILoadingCache<FDate, FDate> createDelegate() {
-                return newProvider(new Function<FDate, FDate>() {
+                return newLoadingCacheProvider(new Function<FDate, FDate>() {
                     @Override
                     public FDate apply(final FDate key) {
                         return innerCalculateNextKey(key);
