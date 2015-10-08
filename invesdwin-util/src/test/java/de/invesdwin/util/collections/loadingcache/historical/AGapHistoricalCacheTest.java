@@ -13,6 +13,8 @@ import org.junit.Test;
 import com.google.common.collect.Iterables;
 
 import de.invesdwin.util.assertions.Assertions;
+import de.invesdwin.util.collections.loadingcache.historical.key.APullingHistoricalCacheAdjustKeyProvider;
+import de.invesdwin.util.collections.loadingcache.historical.key.IHistoricalCacheAdjustKeyProvider;
 import de.invesdwin.util.collections.loadingcache.historical.refresh.HistoricalCacheRefreshManager;
 import de.invesdwin.util.time.fdate.FDate;
 import de.invesdwin.util.time.fdate.FDateBuilder;
@@ -581,12 +583,18 @@ public class AGapHistoricalCacheTest {
         }
 
         @Override
-        protected FDate getHighestAllowedKey() {
-            if (returnHighestAllowedKey) {
-                return entities.get(entities.size() - 1);
-            } else {
-                return null;
-            }
+        protected IHistoricalCacheAdjustKeyProvider newAdjustKeyProvider() {
+            return new APullingHistoricalCacheAdjustKeyProvider(this) {
+
+                @Override
+                protected FDate innerGetHighestAllowedKey() {
+                    if (returnHighestAllowedKey) {
+                        return entities.get(entities.size() - 1);
+                    } else {
+                        return null;
+                    }
+                }
+            };
         }
 
     }

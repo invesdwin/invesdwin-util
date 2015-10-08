@@ -17,9 +17,8 @@ import de.invesdwin.util.time.fdate.FDate;
 @NotThreadSafe
 public class HistoricalCacheQueryWithFuture<V> extends HistoricalCacheQuery<V> {
 
-    protected HistoricalCacheQueryWithFuture(final AHistoricalCache<V> cache,
-            final AHistoricalCache<?> shiftKeysDelegate) {
-        super(cache, shiftKeysDelegate);
+    protected HistoricalCacheQueryWithFuture(final AHistoricalCache<V> parent) {
+        super(parent);
     }
 
     @Override
@@ -46,7 +45,6 @@ public class HistoricalCacheQueryWithFuture<V> extends HistoricalCacheQuery<V> {
     /**
      * Jumps the specified shiftForwardUnits to the future instead of only one unit.
      */
-    @SuppressWarnings("null")
     public final FDate getNextKey(final FDate key, final int shiftForwardUnits) {
         Assertions.assertThat(shiftForwardUnits).isGreaterThanOrEqualTo(0);
 
@@ -62,19 +60,19 @@ public class HistoricalCacheQueryWithFuture<V> extends HistoricalCacheQuery<V> {
             if (i == 0) {
                 nextNextKey = nextKey;
             } else {
-                nextNextKey = getKeyCache().calculateNextKey(nextKey);
+                nextNextKey = parent.calculateNextKey(nextKey);
                 if (nextNextKey == null) {
                     break;
                 }
             }
             //the key of the value is the relevant one
-            final Entry<FDate, V> nextEntry = assertValue.assertValue(getValueCache(), key, nextNextKey,
+            final Entry<FDate, V> nextEntry = assertValue.assertValue(parent, key, nextNextKey,
                     getValue(nextNextKey, HistoricalCacheAssertValue.ASSERT_VALUE_WITH_FUTURE));
             if (nextEntry == null) {
                 return null;
             } else {
                 final V nextValue = nextEntry.getValue();
-                nextKey = getValueCache().extractKey(nextNextKey, nextValue);
+                nextKey = parent.extractKey(nextNextKey, nextValue);
             }
         }
         return nextKey;
@@ -107,12 +105,12 @@ public class HistoricalCacheQueryWithFuture<V> extends HistoricalCacheQuery<V> {
     public Entry<FDate, V> getNextEntry(final FDate key, final int shiftForwardUnits) {
         final FDate nextKey = getNextKey(key, shiftForwardUnits);
         //the key of the query is the relevant one
-        return assertValue.assertValue(getValueCache(), key, nextKey,
+        return assertValue.assertValue(parent, key, nextKey,
                 getValue(nextKey, HistoricalCacheAssertValue.ASSERT_VALUE_WITH_FUTURE));
     }
 
     public V getNextValue(final FDate key, final int shiftForwardUnits) {
-        return assertValue.unwrapEntry(getNextEntry(key, shiftForwardUnits));
+        return HistoricalCacheAssertValue.unwrapEntry(getNextEntry(key, shiftForwardUnits));
     }
 
     /**
@@ -135,7 +133,7 @@ public class HistoricalCacheQueryWithFuture<V> extends HistoricalCacheQuery<V> {
                     @Override
                     public Entry<FDate, V> next() {
                         final FDate nextKey = nextKeys.next();
-                        return assertValue.assertValue(getValueCache(), key, nextKey,
+                        return assertValue.assertValue(parent, key, nextKey,
                                 getValue(nextKey, HistoricalCacheAssertValue.ASSERT_VALUE_WITH_FUTURE));
                     }
 
@@ -168,7 +166,7 @@ public class HistoricalCacheQueryWithFuture<V> extends HistoricalCacheQuery<V> {
 
                     @Override
                     public V next() {
-                        return assertValue.unwrapEntry(nextEntries.next());
+                        return HistoricalCacheAssertValue.unwrapEntry(nextEntries.next());
                     }
 
                     @Override

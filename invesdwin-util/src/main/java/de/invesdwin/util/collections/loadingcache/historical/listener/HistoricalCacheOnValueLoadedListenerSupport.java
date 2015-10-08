@@ -5,7 +5,7 @@ import javax.annotation.concurrent.Immutable;
 import de.invesdwin.util.time.fdate.FDate;
 
 @Immutable
-public class HistoricalCacheListenerSupport<V> implements IHistoricalCacheListener<V> {
+public class HistoricalCacheOnValueLoadedListenerSupport<V> implements IHistoricalCacheOnValueLoadedListener<V> {
 
     @Override
     public void onValueLoaded(final FDate key, final V value) {}

@@ -1,12 +1,8 @@
 package de.invesdwin.util.collections.loadingcache.historical;
 
-import java.util.HashSet;
 import java.util.Map.Entry;
-import java.util.Set;
-import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.function.Function;
 
-import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
 import org.assertj.core.description.TextDescription;
@@ -17,7 +13,13 @@ import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 import de.invesdwin.util.collections.loadingcache.ILoadingCache;
 import de.invesdwin.util.collections.loadingcache.historical.interceptor.HistoricalCacheQueryInterceptorSupport;
 import de.invesdwin.util.collections.loadingcache.historical.interceptor.IHistoricalCacheQueryInterceptor;
-import de.invesdwin.util.collections.loadingcache.historical.listener.IHistoricalCacheListener;
+import de.invesdwin.util.collections.loadingcache.historical.key.IHistoricalCacheAdjustKeyProvider;
+import de.invesdwin.util.collections.loadingcache.historical.key.internal.DelegateHistoricalCacheExtractKeyProvider;
+import de.invesdwin.util.collections.loadingcache.historical.key.internal.DelegateHistoricalCacheShiftKeyProvider;
+import de.invesdwin.util.collections.loadingcache.historical.key.internal.IHistoricalCacheExtractKeyProvider;
+import de.invesdwin.util.collections.loadingcache.historical.key.internal.IHistoricalCacheShiftKeyProvider;
+import de.invesdwin.util.collections.loadingcache.historical.listener.HistoricalCacheOnValueLoadedListenerSupport;
+import de.invesdwin.util.collections.loadingcache.historical.listener.IHistoricalCacheOnValueLoadedListener;
 import de.invesdwin.util.collections.loadingcache.historical.refresh.HistoricalCacheRefreshManager;
 import de.invesdwin.util.time.fdate.FDate;
 
@@ -30,28 +32,18 @@ public abstract class AHistoricalCache<V> {
      */
     public static final int DEFAULT_MAXIMUM_SIZE = 1000;
 
-    private final Set<IHistoricalCacheListener<V>> listeners = new CopyOnWriteArraySet<IHistoricalCacheListener<V>>();
-
-    private final ThreadLocal<Boolean> alreadyAdjustingKey = new ThreadLocal<Boolean>() {
-        @Override
-        protected Boolean initialValue() {
-            return false;
-        }
-    };
-    @GuardedBy("this")
-    private FDate curHighestAllowedKey;
-    @GuardedBy("this")
-    private final Set<FDate> keysToRemoveOnNewHighestAllowedKey = new HashSet<FDate>();
+    protected final IHistoricalCacheAdjustKeyProvider adjustKeyProvider = newAdjustKeyProvider();
+    private IHistoricalCacheOnValueLoadedListener<V> onValueLoadedListener = new HistoricalCacheOnValueLoadedListenerSupport<V>();
 
     private volatile FDate lastRefresh = HistoricalCacheRefreshManager.getLastRefresh();
     private boolean isPutDisabled = getMaximumSize() != null && getMaximumSize() == 0;
-    private AHistoricalCache<Object> shiftKeysDelegate;
-    private AHistoricalCache<Object> extractKeysDelegate;
+    private IHistoricalCacheShiftKeyProvider shiftKeyProvider = new InnerHistoricalCacheShiftKeyProvider();
+    private IHistoricalCacheExtractKeyProvider<V> extractKeyProvider = new InnerHistoricalCacheExtractKeyProvider();
     private final ILoadingCache<FDate, V> valuesMap = new ADelegateLoadingCache<FDate, V>() {
 
         @Override
         public V get(final FDate key) {
-            final FDate adjKey = maybeAdjustKey(key);
+            final FDate adjKey = adjustKey(key);
             return super.get(adjKey);
         }
 
@@ -62,68 +54,10 @@ public abstract class AHistoricalCache<V> {
                 @Override
                 public V apply(final FDate key) {
                     final V value = AHistoricalCache.this.loadValue(key);
-                    if (value != null && !listeners.isEmpty()) {
-                        for (final IHistoricalCacheListener<V> l : listeners) {
-                            l.onValueLoaded(key, value);
-                        }
-                    }
+                    onValueLoadedListener.onValueLoaded(key, value);
                     return value;
                 }
 
-            }, getMaximumSize());
-        }
-    };
-
-    private final ILoadingCache<FDate, FDate> previousKeysCache = new ADelegateLoadingCache<FDate, FDate>() {
-
-        @Override
-        public FDate get(final FDate key) {
-            final FDate adjKey = maybeAdjustKey(key);
-            return super.get(adjKey);
-        }
-
-        @Override
-        public void put(final FDate key, final FDate value) {
-            //don't cache null values to prevent moving time issues of the underlying source (e.g. JForexTickCache getNextValue)
-            if (value != null && !key.equals(value)) {
-                super.put(key, value);
-            }
-        }
-
-        @Override
-        protected ILoadingCache<FDate, FDate> createDelegate() {
-            return newProvider(new Function<FDate, FDate>() {
-                @Override
-                public FDate apply(final FDate key) {
-                    return innerCalculatePreviousKey(key);
-                }
-            }, getMaximumSize());
-        }
-
-    };
-
-    private final ILoadingCache<FDate, FDate> nextKeysCache = new ADelegateLoadingCache<FDate, FDate>() {
-        @Override
-        public void put(final FDate key, final FDate value) {
-            //don't cache null values to prevent moving time issues of the underlying source (e.g. JForexTickCache getNextValue)
-            if (value != null && !key.equals(value)) {
-                super.put(key, value);
-            }
-        }
-
-        @Override
-        public FDate get(final FDate key) {
-            final FDate adjKey = maybeAdjustKey(key);
-            return super.get(adjKey);
-        }
-
-        @Override
-        protected ILoadingCache<FDate, FDate> createDelegate() {
-            return newProvider(new Function<FDate, FDate>() {
-                @Override
-                public FDate apply(final FDate key) {
-                    return innerCalculateNextKey(key);
-                }
             }, getMaximumSize());
         }
     };
@@ -135,75 +69,35 @@ public abstract class AHistoricalCache<V> {
         return DEFAULT_MAXIMUM_SIZE;
     }
 
+    protected IHistoricalCacheAdjustKeyProvider newAdjustKeyProvider() {
+        return new InnerHistoricalCacheAdjustKeyProvider();
+    }
+
     @SuppressWarnings("unchecked")
-    protected void setShiftKeysDelegate(final AHistoricalCache<?> shiftKeysDelegate, final boolean extractKeys) {
-        Assertions.assertThat(shiftKeysDelegate).as("Use null instead of this").isNotSameAs(this);
-        Assertions.assertThat(this.shiftKeysDelegate).isNull();
-        this.shiftKeysDelegate = (AHistoricalCache<Object>) shiftKeysDelegate;
-        if (extractKeys) {
-            this.extractKeysDelegate = this.shiftKeysDelegate;
-        } else {
-            this.extractKeysDelegate = null;
+    protected void setShiftKeyDelegate(final AHistoricalCache<?> shiftKeyDelegate, final boolean alsoExtractKey) {
+        Assertions.assertThat(shiftKeyDelegate).as("Use null instead of this").isNotSameAs(this);
+        Assertions.assertThat(this.shiftKeyProvider)
+                .as("%s can only be set once", IHistoricalCacheShiftKeyProvider.class.getSimpleName())
+                .isInstanceOf(InnerHistoricalCacheShiftKeyProvider.class);
+        this.shiftKeyProvider = new DelegateHistoricalCacheShiftKeyProvider(
+                (AHistoricalCache<Object>) shiftKeyDelegate);
+        if (alsoExtractKey) {
+            this.extractKeyProvider = new DelegateHistoricalCacheExtractKeyProvider<V>(
+                    (AHistoricalCache<Object>) shiftKeyDelegate);
         }
         isPutDisabled = false;
     }
 
-    private FDate maybeAdjustKey(final FDate key) {
+    private FDate adjustKey(final FDate key) {
         final FDate lastRefreshFromManager = HistoricalCacheRefreshManager.getLastRefresh();
         if (lastRefresh.isBefore(lastRefreshFromManager)) {
             lastRefresh = new FDate();
             maybeRefresh();
         }
-        if (!alreadyAdjustingKey.get()) {
-            alreadyAdjustingKey.set(true);
-            try {
-                final FDate newHighestAllowedKey = getHighestAllowedKeyUpdateCached();
-                if (newHighestAllowedKey != null) {
-                    if (key.isAfter(newHighestAllowedKey)) {
-                        return newHighestAllowedKey;
-                    }
-                }
-            } finally {
-                alreadyAdjustingKey.set(false);
-            }
-        } else {
-            rememberKeyToRemove(key);
-        }
-        return key;
+        return adjustKeyProvider.adjustKey(key);
     }
 
-    private FDate getHighestAllowedKeyUpdateCached() {
-        final FDate newHighestAllowedKey = getHighestAllowedKey();
-        if (newHighestAllowedKey != null) {
-            synchronized (this) {
-                final boolean purge = curHighestAllowedKey == null;
-                if (purge) {
-                    //purge maybe already remembered keys above curHighestAllowedKey
-                    clear();
-                }
-                if (purge || curHighestAllowedKey.isBefore(newHighestAllowedKey)) {
-                    curHighestAllowedKey = newHighestAllowedKey;
-                    for (final FDate keyToRemove : keysToRemoveOnNewHighestAllowedKey) {
-                        innerRemove(keyToRemove);
-                    }
-                    keysToRemoveOnNewHighestAllowedKey.clear();
-                }
-            }
-        }
-        return newHighestAllowedKey;
-    }
-
-    protected synchronized FDate getHighestAllowedKeyCached() {
-        return curHighestAllowedKey;
-    }
-
-    private synchronized void rememberKeyToRemove(final FDate key) {
-        if (curHighestAllowedKey != null && key.isAfter(curHighestAllowedKey)) {
-            keysToRemoveOnNewHighestAllowedKey.add(key);
-        }
-    }
-
-    protected synchronized boolean maybeRefresh() {
+    protected boolean maybeRefresh() {
         clear();
         return true;
     }
@@ -230,16 +124,7 @@ public abstract class AHistoricalCache<V> {
      * Should return the key if the value does not contain a key itself.
      */
     public final FDate extractKey(final FDate key, final V value) {
-        if (extractKeysDelegate != null) {
-            final Object shiftKeysValue = extractKeysDelegate.query().withFuture().getValue(key);
-            if (shiftKeysValue != null) {
-                return extractKeysDelegate.extractKey(key, shiftKeysValue);
-            } else {
-                return key;
-            }
-        } else {
-            return innerExtractKey(key, value);
-        }
+        return extractKeyProvider.extractKey(key, value);
     }
 
     /**
@@ -253,22 +138,18 @@ public abstract class AHistoricalCache<V> {
         if (key == null) {
             throw new IllegalArgumentException("key should not be null!");
         }
-        if (shiftKeysDelegate != null) {
-            return shiftKeysDelegate.calculatePreviousKey(key);
-        } else {
-            return previousKeysCache.get(key);
-        }
+        return shiftKeyProvider.calculatePreviousKey(key);
     }
 
     protected final FDate calculateNextKey(final FDate key) {
         if (key == null) {
             throw new IllegalArgumentException("key should not be null!");
         }
-        if (shiftKeysDelegate != null) {
-            return shiftKeysDelegate.calculateNextKey(key);
-        } else {
-            return nextKeysCache.get(key);
-        }
+        return shiftKeyProvider.calculateNextKey(key);
+    }
+
+    public IHistoricalCacheShiftKeyProvider getShiftKeyProvider() {
+        return shiftKeyProvider;
     }
 
     /**
@@ -289,27 +170,21 @@ public abstract class AHistoricalCache<V> {
      * Does not allow values from future per default.
      */
     public final HistoricalCacheQuery<V> query() {
-        return new HistoricalCacheQuery<V>(this, shiftKeysDelegate);
+        return new HistoricalCacheQuery<V>(this);
     }
 
     public boolean containsKey(final FDate key) {
-        final FDate adjKey = maybeAdjustKey(key);
-        return getValuesMap().containsKey(adjKey);
+        return getValuesMap().containsKey(key);
     }
 
     public final void remove(final FDate key) {
-        final FDate adjKey = maybeAdjustKey(key);
-        innerRemove(adjKey);
-    }
-
-    private void innerRemove(final FDate key) {
         getValuesMap().remove(key);
-        if (getPreviousKeysCache().containsKey(key)) {
-            final FDate previousKey = getPreviousKeysCache().get(key);
-            getPreviousKeysCache().remove(previousKey);
+        if (shiftKeyProvider.getPreviousKeysCache().containsKey(key)) {
+            final FDate previousKey = shiftKeyProvider.getPreviousKeysCache().get(key);
+            shiftKeyProvider.getPreviousKeysCache().remove(previousKey);
         }
-        getPreviousKeysCache().remove(key);
-        getNextKeysCache().remove(key);
+        shiftKeyProvider.getPreviousKeysCache().remove(key);
+        shiftKeyProvider.getNextKeysCache().remove(key);
     }
 
     private void putPrevAndNext(final FDate nextKey, final FDate valueKey, final V value, final FDate previousKey) {
@@ -386,8 +261,8 @@ public abstract class AHistoricalCache<V> {
                             .toString());
         }
         if (compare != 0) {
-            getPreviousKeysCache().put(valueKey, previousKey);
-            getNextKeysCache().put(previousKey, valueKey);
+            shiftKeyProvider.getPreviousKeysCache().put(valueKey, previousKey);
+            shiftKeyProvider.getNextKeysCache().put(previousKey, valueKey);
         }
     }
 
@@ -399,48 +274,32 @@ public abstract class AHistoricalCache<V> {
                             .toString());
         }
         if (compare != 0) {
-            getNextKeysCache().put(valueKey, nextKey);
-            getPreviousKeysCache().put(nextKey, valueKey);
+            shiftKeyProvider.getNextKeysCache().put(valueKey, nextKey);
+            shiftKeyProvider.getPreviousKeysCache().put(nextKey, valueKey);
         }
     }
 
     public void clear() {
-        synchronized (this) {
-            keysToRemoveOnNewHighestAllowedKey.clear();
-            curHighestAllowedKey = null;
-            //            curLowestAllowedKey = null;
-            //            curHighestAllowedKeyUpdateTime = null;
-        }
         valuesMap.clear();
-        previousKeysCache.clear();
-        nextKeysCache.clear();
-        if (shiftKeysDelegate != null) {
-            shiftKeysDelegate.clear();
-        }
+        adjustKeyProvider.clear();
+        shiftKeyProvider.clear();
+        lastRefresh = new FDate();
     }
 
     protected IHistoricalCacheQueryInterceptor<V> getQueryInterceptor() {
         return new HistoricalCacheQueryInterceptorSupport<V>();
     }
 
-    public Set<IHistoricalCacheListener<V>> getListeners() {
-        return listeners;
+    public void setOnValueLoadedListener(final IHistoricalCacheOnValueLoadedListener<V> onValueLoadedListener) {
+        Assertions.assertThat(onValueLoadedListener)
+                .as("%s can only be set once, maybe you should chain them?",
+                        IHistoricalCacheOnValueLoadedListener.class.getSimpleName())
+                .isInstanceOf(InnerHistoricalCacheOnValueLoadedListener.class);
+        this.onValueLoadedListener = onValueLoadedListener;
     }
 
-    private ILoadingCache<FDate, FDate> getPreviousKeysCache() {
-        if (shiftKeysDelegate != null) {
-            return shiftKeysDelegate.getPreviousKeysCache();
-        } else {
-            return previousKeysCache;
-        }
-    }
-
-    private ILoadingCache<FDate, FDate> getNextKeysCache() {
-        if (shiftKeysDelegate != null) {
-            return shiftKeysDelegate.getNextKeysCache();
-        } else {
-            return nextKeysCache;
-        }
+    public IHistoricalCacheOnValueLoadedListener<V> getOnValueLoadedListener() {
+        return onValueLoadedListener;
     }
 
     ILoadingCache<FDate, V> getValuesMap() {
@@ -455,8 +314,121 @@ public abstract class AHistoricalCache<V> {
         return FDate.MAX_DATE;
     }
 
-    protected FDate getHighestAllowedKey() {
-        return null;
+    private class InnerHistoricalCacheExtractKeyProvider implements IHistoricalCacheExtractKeyProvider<V> {
+
+        @Override
+        public FDate extractKey(final FDate key, final V value) {
+            return innerExtractKey(key, value);
+        }
+
+    }
+
+    private class InnerHistoricalCacheShiftKeyProvider implements IHistoricalCacheShiftKeyProvider {
+
+        private final ILoadingCache<FDate, FDate> previousKeysCache = new ADelegateLoadingCache<FDate, FDate>() {
+
+            @Override
+            public FDate get(final FDate key) {
+                final FDate adjKey = adjustKey(key);
+                return super.get(adjKey);
+            }
+
+            @Override
+            public void put(final FDate key, final FDate value) {
+                //don't cache null values to prevent moving time issues of the underlying source (e.g. JForexTickCache getNextValue)
+                if (value != null && !key.equals(value)) {
+                    super.put(key, value);
+                }
+            }
+
+            @Override
+            protected ILoadingCache<FDate, FDate> createDelegate() {
+                return newProvider(new Function<FDate, FDate>() {
+                    @Override
+                    public FDate apply(final FDate key) {
+                        return innerCalculatePreviousKey(key);
+                    }
+                }, getMaximumSize());
+            }
+
+        };
+
+        private final ILoadingCache<FDate, FDate> nextKeysCache = new ADelegateLoadingCache<FDate, FDate>() {
+            @Override
+            public void put(final FDate key, final FDate value) {
+                //don't cache null values to prevent moving time issues of the underlying source (e.g. JForexTickCache getNextValue)
+                if (value != null && !key.equals(value)) {
+                    super.put(key, value);
+                }
+            }
+
+            @Override
+            public FDate get(final FDate key) {
+                final FDate adjKey = adjustKey(key);
+                return super.get(adjKey);
+            }
+
+            @Override
+            protected ILoadingCache<FDate, FDate> createDelegate() {
+                return newProvider(new Function<FDate, FDate>() {
+                    @Override
+                    public FDate apply(final FDate key) {
+                        return innerCalculateNextKey(key);
+                    }
+                }, getMaximumSize());
+            }
+        };
+
+        @Override
+        public FDate calculatePreviousKey(final FDate key) {
+            return previousKeysCache.get(key);
+        }
+
+        @Override
+        public FDate calculateNextKey(final FDate key) {
+            return nextKeysCache.get(key);
+        }
+
+        @Override
+        public ILoadingCache<FDate, FDate> getPreviousKeysCache() {
+            return previousKeysCache;
+        }
+
+        @Override
+        public ILoadingCache<FDate, FDate> getNextKeysCache() {
+            return nextKeysCache;
+        }
+
+        @Override
+        public void clear() {
+            previousKeysCache.clear();
+            nextKeysCache.clear();
+        }
+
+    }
+
+    private class InnerHistoricalCacheAdjustKeyProvider implements IHistoricalCacheAdjustKeyProvider {
+
+        @Override
+        public FDate adjustKey(final FDate key) {
+            return key;
+        }
+
+        @Override
+        public void clear() {}
+
+        @Override
+        public FDate getHighestAllowedKey() {
+            return null;
+        }
+
+    }
+
+    private class InnerHistoricalCacheOnValueLoadedListener implements IHistoricalCacheOnValueLoadedListener<V> {
+
+        @Override
+        public void onValueLoaded(final FDate key, final V value) {}
+
     }
 
 }

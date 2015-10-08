@@ -25,15 +25,13 @@ public class HistoricalCacheQuery<V> {
 
     private static final HistoricalCacheAssertValue DEFAULT_ASSERT_VALUE = HistoricalCacheAssertValue.ASSERT_VALUE_WITHOUT_FUTURE;
     protected HistoricalCacheAssertValue assertValue = DEFAULT_ASSERT_VALUE;
-    private final AHistoricalCache<V> cache;
-    private final AHistoricalCache<?> shiftKeysDelegate;
+    protected final AHistoricalCache<V> parent;
     private boolean filterDuplicateKeys = true;
     private boolean rememberNullValue = false;
     private IHistoricalCacheQueryElementFilter<V> elementFilter;
 
-    protected HistoricalCacheQuery(final AHistoricalCache<V> cache, final AHistoricalCache<?> shiftKeysDelegate) {
-        this.cache = cache;
-        this.shiftKeysDelegate = shiftKeysDelegate;
+    protected HistoricalCacheQuery(final AHistoricalCache<V> parent) {
+        this.parent = parent;
     }
 
     public HistoricalCacheQuery<V> withElementFilter(final IHistoricalCacheQueryElementFilter<V> elementFilter) {
@@ -95,21 +93,22 @@ public class HistoricalCacheQuery<V> {
     }
 
     protected final Entry<FDate, V> getEntry(final FDate key, final HistoricalCacheAssertValue assertValue) {
-        V value = getValueCache().getValuesMap().get(key);
+        V value = parent.getValuesMap().get(key);
         if (!rememberNullValue && value == null) {
-            getValueCache().remove(key);
+            final FDate valueKey = parent.extractKey(key, value);
+            parent.remove(valueKey);
         }
         if (value != null && elementFilter != null) {
-            FDate curKey = getValueCache().extractKey(key, value);
+            FDate curKey = parent.extractKey(key, value);
             while (!elementFilter.isValid(curKey, value)) {
                 value = null;
                 //try earlier dates to find a valid element
-                final FDate previousKey = getKeyCache().calculatePreviousKey(curKey);
-                final V previousValue = getValueCache().getValuesMap().get(previousKey);
+                final FDate previousKey = parent.calculatePreviousKey(curKey);
+                final V previousValue = parent.getValuesMap().get(previousKey);
                 if (previousValue == null) {
                     break;
                 }
-                final FDate previousValueKey = getValueCache().extractKey(previousKey, previousValue);
+                final FDate previousValueKey = parent.extractKey(previousKey, previousValue);
                 if (previousValueKey.equals(curKey)) {
                     break;
                 }
@@ -117,7 +116,7 @@ public class HistoricalCacheQuery<V> {
                 value = previousValue;
             }
         }
-        return assertValue.assertValue(getValueCache(), key, key, value);
+        return assertValue.assertValue(parent, key, key, value);
     }
 
     protected final V getValue(final FDate key, final HistoricalCacheAssertValue assertValue) {
@@ -201,7 +200,6 @@ public class HistoricalCacheQuery<V> {
     /**
      * Jumps the specified shiftBackUnits to the past instead of only one unit.
      */
-    @SuppressWarnings("null")
     public final FDate getPreviousKey(final FDate key, final int shiftBackUnits) {
         Assertions.assertThat(shiftBackUnits).isGreaterThanOrEqualTo(0);
 
@@ -217,19 +215,19 @@ public class HistoricalCacheQuery<V> {
             if (i == 0) {
                 previousPreviousKey = previousKey;
             } else {
-                previousPreviousKey = getKeyCache().calculatePreviousKey(previousKey);
+                previousPreviousKey = parent.calculatePreviousKey(previousKey);
             }
             if (previousPreviousKey == null) {
                 break;
             }
             //the key of the value is the relevant one
-            final Entry<FDate, V> previousEntry = assertValue.assertValue(getValueCache(), key, previousPreviousKey,
+            final Entry<FDate, V> previousEntry = assertValue.assertValue(parent, key, previousPreviousKey,
                     getValue(previousPreviousKey, HistoricalCacheAssertValue.ASSERT_VALUE_WITH_FUTURE));
             if (previousEntry == null) {
                 return null;
             } else {
                 final V previousValue = previousEntry.getValue();
-                previousKey = getValueCache().extractKey(previousPreviousKey, previousValue);
+                previousKey = parent.extractKey(previousPreviousKey, previousValue);
             }
         }
         return previousKey;
@@ -262,7 +260,7 @@ public class HistoricalCacheQuery<V> {
     public final Entry<FDate, V> getPreviousEntry(final FDate key, final int shiftBackUnits) {
         final FDate previousKey = getPreviousKey(key, shiftBackUnits);
         //the key of the query is the relevant one
-        return assertValue.assertValue(getValueCache(), key, previousKey,
+        return assertValue.assertValue(parent, key, previousKey,
                 getValue(previousKey, HistoricalCacheAssertValue.ASSERT_VALUE_WITH_FUTURE));
     }
 
@@ -291,7 +289,7 @@ public class HistoricalCacheQuery<V> {
                     @Override
                     public Entry<FDate, V> next() {
                         final FDate previousKey = previousKeys.next();
-                        return assertValue.assertValue(getValueCache(), key, previousKey,
+                        return assertValue.assertValue(parent, key, previousKey,
                                 getValue(previousKey, HistoricalCacheAssertValue.ASSERT_VALUE_WITH_FUTURE));
                     }
 
@@ -347,7 +345,7 @@ public class HistoricalCacheQuery<V> {
      * Returns all keys in the given time range.
      */
     public ICloseableIterable<FDate> getKeys(final FDate from, final FDate to) {
-        final ICloseableIterable<FDate> interceptor = cache.getQueryInterceptor().getKeys(from, to);
+        final ICloseableIterable<FDate> interceptor = parent.getQueryInterceptor().getKeys(from, to);
         if (interceptor != null) {
             return interceptor;
         } else {
@@ -392,7 +390,7 @@ public class HistoricalCacheQuery<V> {
      * Returns all values in the given time range.
      */
     public ICloseableIterable<Entry<FDate, V>> getEntries(final FDate from, final FDate to) {
-        final ICloseableIterable<Entry<FDate, V>> interceptor = cache.getQueryInterceptor().getEntries(from, to);
+        final ICloseableIterable<Entry<FDate, V>> interceptor = parent.getQueryInterceptor().getEntries(from, to);
         if (interceptor != null) {
             return interceptor;
         } else {
@@ -477,7 +475,7 @@ public class HistoricalCacheQuery<V> {
             if (previousEntry == null) {
                 return null;
             }
-            final FDate previousKey = getValueCache().extractKey(previousEntry.getKey(), previousEntry.getValue());
+            final FDate previousKey = parent.extractKey(previousEntry.getKey(), previousEntry.getValue());
             if (!firstTry && !previousKey.isBefore(curKey)) {
                 return null;
             }
@@ -500,7 +498,7 @@ public class HistoricalCacheQuery<V> {
     }
 
     private HistoricalCacheQueryWithFuture<V> newFutureQuery() {
-        final HistoricalCacheQueryWithFuture<V> query = new HistoricalCacheQueryWithFuture<V>(cache, shiftKeysDelegate);
+        final HistoricalCacheQueryWithFuture<V> query = new HistoricalCacheQueryWithFuture<V>(parent);
         copyQuerySettings(query);
         return query;
     }
@@ -520,18 +518,6 @@ public class HistoricalCacheQuery<V> {
             }
             this.assertValue = newAssertValue;
         }
-    }
-
-    protected final AHistoricalCache<?> getKeyCache() {
-        if (shiftKeysDelegate != null) {
-            return shiftKeysDelegate;
-        } else {
-            return cache;
-        }
-    }
-
-    protected final AHistoricalCache<V> getValueCache() {
-        return cache;
     }
 
 }
