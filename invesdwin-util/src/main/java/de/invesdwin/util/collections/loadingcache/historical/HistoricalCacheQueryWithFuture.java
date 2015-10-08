@@ -50,39 +50,34 @@ public class HistoricalCacheQueryWithFuture<V> extends HistoricalCacheQuery<V> {
     public final FDate getNextKey(final FDate key, final int shiftForwardUnits) {
         Assertions.assertThat(shiftForwardUnits).isGreaterThanOrEqualTo(0);
 
-        final Transaction tx = new Transaction();
-        try {
-            FDate nextKey = key;
-            for (int i = 0; i <= shiftForwardUnits; i++) {
-                /*
-                 * if key of value == key, the same key would be returned on the next call
-                 * 
-                 * we decrement by one unit to get the next key
-                 */
+        FDate nextKey = key;
+        for (int i = 0; i <= shiftForwardUnits; i++) {
+            /*
+             * if key of value == key, the same key would be returned on the next call
+             * 
+             * we decrement by one unit to get the next key
+             */
 
-                final FDate nextNextKey;
-                if (i == 0) {
-                    nextNextKey = nextKey;
-                } else {
-                    nextNextKey = getKeyCache().calculateNextKey(nextKey);
-                    if (nextNextKey == null) {
-                        break;
-                    }
-                }
-                //the key of the value is the relevant one
-                final Entry<FDate, V> nextEntry = assertValue.assertValue(getValueCache(), key, nextNextKey,
-                        getValue(nextNextKey, HistoricalCacheAssertValue.ASSERT_VALUE_WITH_FUTURE));
-                if (nextEntry == null) {
-                    return null;
-                } else {
-                    final V nextValue = nextEntry.getValue();
-                    nextKey = getValueCache().extractKey(nextNextKey, nextValue);
+            final FDate nextNextKey;
+            if (i == 0) {
+                nextNextKey = nextKey;
+            } else {
+                nextNextKey = getKeyCache().calculateNextKey(nextKey);
+                if (nextNextKey == null) {
+                    break;
                 }
             }
-            return nextKey;
-        } finally {
-            tx.end();
+            //the key of the value is the relevant one
+            final Entry<FDate, V> nextEntry = assertValue.assertValue(getValueCache(), key, nextNextKey,
+                    getValue(nextNextKey, HistoricalCacheAssertValue.ASSERT_VALUE_WITH_FUTURE));
+            if (nextEntry == null) {
+                return null;
+            } else {
+                final V nextValue = nextEntry.getValue();
+                nextKey = getValueCache().extractKey(nextNextKey, nextValue);
+            }
         }
+        return nextKey;
     }
 
     /**
@@ -96,16 +91,11 @@ public class HistoricalCacheQueryWithFuture<V> extends HistoricalCacheQuery<V> {
         //With 10 units this iterates from 9 to 0
         //to go from past to future so that queries get minimized
         //only on the first call we risk multiple queries
-        final Transaction tx = new Transaction();
-        try {
-            for (int unitsBack = shiftForwardUnits - 1; unitsBack >= 0; unitsBack--) {
-                final FDate nextKey = getNextKey(key, unitsBack);
-                if (nextKey != null) {
-                    trailing.add(nextKey);
-                }
+        for (int unitsBack = shiftForwardUnits - 1; unitsBack >= 0; unitsBack--) {
+            final FDate nextKey = getNextKey(key, unitsBack);
+            if (nextKey != null) {
+                trailing.add(nextKey);
             }
-        } finally {
-            tx.end();
         }
         if (trailing instanceof List) {
             return new WrapperCloseableIterable<FDate>(trailing);
@@ -115,19 +105,14 @@ public class HistoricalCacheQueryWithFuture<V> extends HistoricalCacheQuery<V> {
     }
 
     public Entry<FDate, V> getNextEntry(final FDate key, final int shiftForwardUnits) {
-        final Transaction tx = new Transaction();
-        try {
-            final FDate nextKey = getNextKey(key, shiftForwardUnits);
-            //the key of the query is the relevant one
-            return assertValue.assertValue(getValueCache(), key, nextKey,
-                    getValue(nextKey, HistoricalCacheAssertValue.ASSERT_VALUE_WITH_FUTURE));
-        } finally {
-            tx.end();
-        }
+        final FDate nextKey = getNextKey(key, shiftForwardUnits);
+        //the key of the query is the relevant one
+        return assertValue.assertValue(getValueCache(), key, nextKey,
+                getValue(nextKey, HistoricalCacheAssertValue.ASSERT_VALUE_WITH_FUTURE));
     }
 
     public V getNextValue(final FDate key, final int shiftForwardUnits) {
-        return HistoricalCacheAssertValue.unwrapEntry(getNextEntry(key, shiftForwardUnits));
+        return assertValue.unwrapEntry(getNextEntry(key, shiftForwardUnits));
     }
 
     /**
@@ -139,7 +124,7 @@ public class HistoricalCacheQueryWithFuture<V> extends HistoricalCacheQuery<V> {
         return new ICloseableIterable<Entry<FDate, V>>() {
             @Override
             public ICloseableIterator<Entry<FDate, V>> iterator() {
-                return new TransactionIterator<Entry<FDate, V>>(new ICloseableIterator<Entry<FDate, V>>() {
+                return new ICloseableIterator<Entry<FDate, V>>() {
                     private final ICloseableIterator<FDate> nextKeys = getNextKeys(key, shiftForwardUnits).iterator();
 
                     @Override
@@ -163,7 +148,7 @@ public class HistoricalCacheQueryWithFuture<V> extends HistoricalCacheQuery<V> {
                     public void close() throws IOException {
                         nextKeys.close();
                     }
-                });
+                };
             }
         };
     }
@@ -172,7 +157,6 @@ public class HistoricalCacheQueryWithFuture<V> extends HistoricalCacheQuery<V> {
         return new ICloseableIterable<V>() {
             @Override
             public ICloseableIterator<V> iterator() {
-                //no need for transaction since getEntries handles this
                 return new ICloseableIterator<V>() {
                     private final ICloseableIterator<Entry<FDate, V>> nextEntries = getNextEntries(key,
                             shiftForwardUnits).iterator();
@@ -184,7 +168,7 @@ public class HistoricalCacheQueryWithFuture<V> extends HistoricalCacheQuery<V> {
 
                     @Override
                     public V next() {
-                        return HistoricalCacheAssertValue.unwrapEntry(nextEntries.next());
+                        return assertValue.unwrapEntry(nextEntries.next());
                     }
 
                     @Override

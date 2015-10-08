@@ -9,7 +9,6 @@ import java.util.function.Function;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
-import org.apache.commons.lang3.BooleanUtils;
 import org.assertj.core.description.TextDescription;
 
 import de.invesdwin.util.assertions.Assertions;
@@ -40,7 +39,7 @@ public abstract class AHistoricalCache<V> {
                 return false;
             }
             try {
-                getHighestAllowedKeyCached(true);
+                getHighestAllowedKeyUpdateCached();
             } catch (final UnsupportedOperationException e) {
                 return false;
             }
@@ -54,7 +53,7 @@ public abstract class AHistoricalCache<V> {
                 return false;
             }
             try {
-                getLowestAllowedKeyCached(true);
+                getLowestAllowedKeyUpdateCached();
             } catch (final UnsupportedOperationException e) {
                 return false;
             }
@@ -70,7 +69,6 @@ public abstract class AHistoricalCache<V> {
             return false;
         }
     };
-    private final ThreadLocal<Boolean> transactionStartedAndUpdated = new ThreadLocal<Boolean>();
     @GuardedBy("this")
     private FDate curHighestAllowedKey;
     @GuardedBy("this")
@@ -191,15 +189,9 @@ public abstract class AHistoricalCache<V> {
         }
         if (!alreadyAdjustingKey.get()) {
             alreadyAdjustingKey.set(true);
-            //null or false cause update
-            final Boolean transactionStartedAndUpdatedValue = transactionStartedAndUpdated.get();
-            final boolean update = !BooleanUtils.isTrue(transactionStartedAndUpdatedValue);
             try {
-                if (transactionStartedAndUpdatedValue != null) {
-                    transactionStartedAndUpdated.set(true);
-                }
                 if (shouldAdjustByHighestAllowedKey.call()) {
-                    final FDate newHighestAllowedKey = getHighestAllowedKeyCached(update);
+                    final FDate newHighestAllowedKey = getHighestAllowedKeyUpdateCached();
                     if (newHighestAllowedKey != null) {
                         if (key.isAfter(newHighestAllowedKey)) { //SUPPRESS CHECKSTYLE nested ifs
                             return newHighestAllowedKey;
@@ -207,7 +199,7 @@ public abstract class AHistoricalCache<V> {
                     }
                 }
                 if (shouldAdjustByLowestAllowedKey.call()) {
-                    final FDate lowestAllowedKey = getLowestAllowedKeyCached(update);
+                    final FDate lowestAllowedKey = getLowestAllowedKeyUpdateCached();
                     if (lowestAllowedKey != null && key.isBefore(lowestAllowedKey)) {
                         return lowestAllowedKey;
                     }
@@ -221,12 +213,7 @@ public abstract class AHistoricalCache<V> {
         return key;
     }
 
-    protected FDate getHighestAllowedKeyCached(final boolean update) {
-        if (!update) {
-            synchronized (this) {
-                return curHighestAllowedKey;
-            }
-        }
+    private FDate getHighestAllowedKeyUpdateCached() {
         final FDate newHighestAllowedKey = getHighestAllowedKey();
         if (newHighestAllowedKey != null) {
             synchronized (this) {
@@ -247,10 +234,18 @@ public abstract class AHistoricalCache<V> {
         return newHighestAllowedKey;
     }
 
-    protected synchronized FDate getLowestAllowedKeyCached(final boolean update) {
-        if (curLowestAllowedKey == null && update) {
+    private synchronized FDate getLowestAllowedKeyUpdateCached() {
+        if (curLowestAllowedKey == null) {
             curLowestAllowedKey = getLowestAllowedKey();
         }
+        return curLowestAllowedKey;
+    }
+
+    protected synchronized FDate getHighestAllowedKeyCached() {
+        return curHighestAllowedKey;
+    }
+
+    protected synchronized FDate getLowestAllowedKeyCached() {
         return curLowestAllowedKey;
     }
 
@@ -517,22 +512,6 @@ public abstract class AHistoricalCache<V> {
 
     protected FDate getLowestAllowedKey() {
         throw new UnsupportedOperationException("Deactivating this feature");
-    }
-
-    boolean beginTransaction() {
-        if (transactionStartedAndUpdated.get() == null) {
-            transactionStartedAndUpdated.set(false);
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    void endTransaction() {
-        if (transactionStartedAndUpdated.get() == null) {
-            throw new IllegalStateException("Transaction was not started by this thread!");
-        }
-        transactionStartedAndUpdated.remove();
     }
 
 }
