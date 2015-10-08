@@ -222,8 +222,9 @@ public abstract class AHistoricalCache<V> {
                 synchronized (this) {
                     if (newHighestAllowedKeyUpdateTime.isBeforeOrEqual(curHighestAllowedKeyUpdateTime)) {
                         return curHighestAllowedKey;
+                    } else {
+                        curHighestAllowedKeyUpdateTime = newHighestAllowedKeyUpdateTime;
                     }
-                    curHighestAllowedKeyUpdateTime = newHighestAllowedKeyUpdateTime;
                 }
             }
         }
