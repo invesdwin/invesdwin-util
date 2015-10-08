@@ -43,7 +43,6 @@ public abstract class APullingHistoricalCacheAdjustKeyProvider implements IHisto
                 alreadyAdjustingKey.set(false);
             }
         } else {
-            //TODO: check if this is actually used???
             rememberKeyToRemove(key);
         }
         return key;
