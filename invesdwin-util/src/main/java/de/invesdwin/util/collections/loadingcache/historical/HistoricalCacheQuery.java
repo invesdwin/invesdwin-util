@@ -95,8 +95,11 @@ public class HistoricalCacheQuery<V> {
     protected final Entry<FDate, V> getEntry(final FDate key, final HistoricalCacheAssertValue assertValue) {
         V value = parent.getValuesMap().get(key);
         if (!rememberNullValue && value == null) {
+            parent.remove(key);
             final FDate valueKey = parent.extractKey(key, value);
-            parent.remove(valueKey);
+            if (!valueKey.equals(key)) {
+                parent.remove(valueKey);
+            }
         }
         if (value != null && elementFilter != null) {
             FDate curKey = parent.extractKey(key, value);
