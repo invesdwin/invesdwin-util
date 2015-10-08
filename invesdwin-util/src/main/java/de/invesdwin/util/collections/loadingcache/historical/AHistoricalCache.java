@@ -39,7 +39,7 @@ public abstract class AHistoricalCache<V> {
                 return false;
             }
             try {
-                getHighestAllowedKeyUpdateCached();
+                getHighestAllowedKeyUpdateCached(false);
             } catch (final UnsupportedOperationException e) {
                 return false;
             }
@@ -193,7 +193,7 @@ public abstract class AHistoricalCache<V> {
             alreadyAdjustingKey.set(true);
             try {
                 if (shouldAdjustByHighestAllowedKey.call()) {
-                    final FDate newHighestAllowedKey = getHighestAllowedKeyUpdateCached();
+                    final FDate newHighestAllowedKey = getHighestAllowedKeyUpdateCached(true);
                     if (newHighestAllowedKey != null) {
                         if (key.isAfter(newHighestAllowedKey)) { //SUPPRESS CHECKSTYLE nested ifs
                             return newHighestAllowedKey;
@@ -215,14 +215,16 @@ public abstract class AHistoricalCache<V> {
         return key;
     }
 
-    private FDate getHighestAllowedKeyUpdateCached() {
-        synchronized (this) {
-            final FDate newHighestAllowedKeyUpdateTime = getHighestAllowedKeyUpdateTime();
-            if (newHighestAllowedKeyUpdateTime != null) {
-                if (newHighestAllowedKeyUpdateTime.isBeforeOrEqual(curHighestAllowedKeyUpdateTime)) {
-                    return curHighestAllowedKey;
+    private FDate getHighestAllowedKeyUpdateCached(final boolean checkUpdateTime) {
+        if (checkUpdateTime) {
+            synchronized (this) {
+                final FDate newHighestAllowedKeyUpdateTime = getHighestAllowedKeyUpdateTime();
+                if (newHighestAllowedKeyUpdateTime != null) {
+                    if (newHighestAllowedKeyUpdateTime.isBeforeOrEqual(curHighestAllowedKeyUpdateTime)) {
+                        return curHighestAllowedKey;
+                    }
+                    curHighestAllowedKeyUpdateTime = newHighestAllowedKeyUpdateTime;
                 }
-                curHighestAllowedKeyUpdateTime = newHighestAllowedKeyUpdateTime;
             }
         }
         final FDate newHighestAllowedKey = getHighestAllowedKey();
@@ -523,8 +525,8 @@ public abstract class AHistoricalCache<V> {
      */
     protected FDate getHighestAllowedKeyUpdateTime() {
         //should not be UnsupportedOperationException or else this exception might get hidden
-        throw new IllegalStateException(
-                "When getHighestAllowedKey is enabled, you have to also implement this method for performance reasons, e.g. by returning the current tick time!");
+        throw new IllegalStateException(getClass().getSimpleName()
+                + ": When getHighestAllowedKey() is enabled, you have to also implement this method for performance reasons, e.g. by returning the current tick time!");
     }
 
     protected FDate getHighestAllowedKey() {
