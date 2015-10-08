@@ -217,9 +217,9 @@ public abstract class AHistoricalCache<V> {
 
     private FDate getHighestAllowedKeyUpdateCached(final boolean checkUpdateTime) {
         if (checkUpdateTime) {
-            synchronized (this) {
-                final FDate newHighestAllowedKeyUpdateTime = getHighestAllowedKeyUpdateTime();
-                if (newHighestAllowedKeyUpdateTime != null) {
+            final FDate newHighestAllowedKeyUpdateTime = getHighestAllowedKeyUpdateTime();
+            if (newHighestAllowedKeyUpdateTime != null) {
+                synchronized (this) {
                     if (newHighestAllowedKeyUpdateTime.isBeforeOrEqual(curHighestAllowedKeyUpdateTime)) {
                         return curHighestAllowedKey;
                     }
