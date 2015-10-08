@@ -589,10 +589,5 @@ public class AGapHistoricalCacheTest {
             }
         }
 
-        @Override
-        protected FDate getHighestAllowedKeyUpdateTime() {
-            return null;
-        }
-
     }
 }
