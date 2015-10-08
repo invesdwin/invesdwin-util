@@ -151,16 +151,6 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
     }
 
     private boolean eventuallyGetMinKeyInDB(final FDate key, final boolean force) {
-        //not updating lowest allowed key, since this already happened during key adjustment
-        //        final FDate newMinKeyInDB = getLowestAllowedKeyCached();
-        //        if (newMinKeyInDB != null) {
-        //            if (newMinKeyInDB.isBefore(minKeyInDB)) {
-        //                minKeyInDB = newMinKeyInDB;
-        //                return true;
-        //            } else {
-        //                return false;
-        //            }
-        //        }
         if (minKeyInDB == null || force) {
             final V minValue = readNewestValueFromDB(minKey());
             if (minValue != null) {
