@@ -95,29 +95,34 @@ public class HistoricalCacheQuery<V> {
     }
 
     protected final Entry<FDate, V> getEntry(final FDate key, final HistoricalCacheAssertValue assertValue) {
-        V value = getValueCache().getValuesMap().get(key);
-        if (!rememberNullValue && value == null) {
-            getValueCache().remove(key);
-        }
-        if (value != null && elementFilter != null) {
-            FDate curKey = getValueCache().extractKey(key, value);
-            while (!elementFilter.isValid(curKey, value)) {
-                value = null;
-                //try earlier dates to find a valid element
-                final FDate previousKey = getKeyCache().calculatePreviousKey(curKey);
-                final V previousValue = getValueCache().getValuesMap().get(previousKey);
-                if (previousValue == null) {
-                    break;
-                }
-                final FDate previousValueKey = getValueCache().extractKey(previousKey, previousValue);
-                if (previousValueKey.equals(curKey)) {
-                    break;
-                }
-                curKey = previousKey;
-                value = previousValue;
+        final Transaction tx = new Transaction();
+        try {
+            V value = getValueCache().getValuesMap().get(key);
+            if (!rememberNullValue && value == null) {
+                getValueCache().remove(key);
             }
+            if (value != null && elementFilter != null) {
+                FDate curKey = getValueCache().extractKey(key, value);
+                while (!elementFilter.isValid(curKey, value)) {
+                    value = null;
+                    //try earlier dates to find a valid element
+                    final FDate previousKey = getKeyCache().calculatePreviousKey(curKey);
+                    final V previousValue = getValueCache().getValuesMap().get(previousKey);
+                    if (previousValue == null) {
+                        break;
+                    }
+                    final FDate previousValueKey = getValueCache().extractKey(previousKey, previousValue);
+                    if (previousValueKey.equals(curKey)) {
+                        break;
+                    }
+                    curKey = previousKey;
+                    value = previousValue;
+                }
+            }
+            return assertValue.assertValue(getValueCache(), key, key, value);
+        } finally {
+            tx.end();
         }
-        return assertValue.assertValue(getValueCache(), key, key, value);
     }
 
     protected final V getValue(final FDate key, final HistoricalCacheAssertValue assertValue) {
@@ -143,7 +148,7 @@ public class HistoricalCacheQuery<V> {
         return new ICloseableIterable<Entry<FDate, V>>() {
             @Override
             public ICloseableIterator<Entry<FDate, V>> iterator() {
-                return new WrapperCloseableIterator<Entry<FDate, V>>(new Iterator<Entry<FDate, V>>() {
+                return new TransactionIterator<Entry<FDate, V>>(new Iterator<Entry<FDate, V>>() {
                     private final Iterator<FDate> keysIterator = keys.iterator();
 
                     @Override
@@ -160,6 +165,7 @@ public class HistoricalCacheQuery<V> {
                     public void remove() {
                         throw new UnsupportedOperationException();
                     }
+
                 });
             }
         };
@@ -170,6 +176,7 @@ public class HistoricalCacheQuery<V> {
         return new ICloseableIterable<V>() {
             @Override
             public ICloseableIterator<V> iterator() {
+                //no need for transaction since getEntries handles this
                 return new ICloseableIterator<V>() {
                     private final ICloseableIterator<Entry<FDate, V>> entriesIterator = getEntries(keys, assertValue)
                             .iterator();
@@ -201,38 +208,42 @@ public class HistoricalCacheQuery<V> {
     /**
      * Jumps the specified shiftBackUnits to the past instead of only one unit.
      */
-    @SuppressWarnings("null")
     public final FDate getPreviousKey(final FDate key, final int shiftBackUnits) {
         Assertions.assertThat(shiftBackUnits).isGreaterThanOrEqualTo(0);
 
-        FDate previousKey = key;
-        for (int i = 0; i <= shiftBackUnits; i++) {
-            /*
-             * if key of value == key, the same key would be returned on the next call
-             * 
-             * we decrement by one unit to get the previous key
-             */
+        final Transaction tx = new Transaction();
+        try {
+            FDate previousKey = key;
+            for (int i = 0; i <= shiftBackUnits; i++) {
+                /*
+                 * if key of value == key, the same key would be returned on the next call
+                 * 
+                 * we decrement by one unit to get the previous key
+                 */
 
-            final FDate previousPreviousKey;
-            if (i == 0) {
-                previousPreviousKey = previousKey;
-            } else {
-                previousPreviousKey = getKeyCache().calculatePreviousKey(previousKey);
+                final FDate previousPreviousKey;
+                if (i == 0) {
+                    previousPreviousKey = previousKey;
+                } else {
+                    previousPreviousKey = getKeyCache().calculatePreviousKey(previousKey);
+                }
+                if (previousPreviousKey == null) {
+                    break;
+                }
+                //the key of the value is the relevant one
+                final Entry<FDate, V> previousEntry = assertValue.assertValue(getValueCache(), key, previousPreviousKey,
+                        getValue(previousPreviousKey, HistoricalCacheAssertValue.ASSERT_VALUE_WITH_FUTURE));
+                if (previousEntry == null) {
+                    return null;
+                } else {
+                    final V previousValue = previousEntry.getValue();
+                    previousKey = getValueCache().extractKey(previousPreviousKey, previousValue);
+                }
             }
-            if (previousPreviousKey == null) {
-                break;
-            }
-            //the key of the value is the relevant one
-            final Entry<FDate, V> previousEntry = assertValue.assertValue(getValueCache(), key, previousPreviousKey,
-                    getValue(previousPreviousKey, HistoricalCacheAssertValue.ASSERT_VALUE_WITH_FUTURE));
-            if (previousEntry == null) {
-                return null;
-            } else {
-                final V previousValue = previousEntry.getValue();
-                previousKey = getValueCache().extractKey(previousPreviousKey, previousValue);
-            }
+            return previousKey;
+        } finally {
+            tx.end();
         }
-        return previousKey;
     }
 
     /**
@@ -246,11 +257,16 @@ public class HistoricalCacheQuery<V> {
         //With 10 units this iterates from 9 to 0
         //to go from past to future so that queries get minimized
         //only on the first call we risk multiple queries
-        for (int unitsBack = shiftBackUnits - 1; unitsBack >= 0; unitsBack--) {
-            final FDate previousKey = getPreviousKey(key, unitsBack);
-            if (previousKey != null) {
-                trailing.add(previousKey);
+        final Transaction tx = new Transaction();
+        try {
+            for (int unitsBack = shiftBackUnits - 1; unitsBack >= 0; unitsBack--) {
+                final FDate previousKey = getPreviousKey(key, unitsBack);
+                if (previousKey != null) {
+                    trailing.add(previousKey);
+                }
             }
+        } finally {
+            tx.end();
         }
         if (trailing instanceof List) {
             return new WrapperCloseableIterable<FDate>(trailing);
@@ -260,10 +276,15 @@ public class HistoricalCacheQuery<V> {
     }
 
     public final Entry<FDate, V> getPreviousEntry(final FDate key, final int shiftBackUnits) {
-        final FDate previousKey = getPreviousKey(key, shiftBackUnits);
-        //the key of the query is the relevant one
-        return assertValue.assertValue(getValueCache(), key, previousKey,
-                getValue(previousKey, HistoricalCacheAssertValue.ASSERT_VALUE_WITH_FUTURE));
+        final Transaction tx = new Transaction();
+        try {
+            final FDate previousKey = getPreviousKey(key, shiftBackUnits);
+            //the key of the query is the relevant one
+            return assertValue.assertValue(getValueCache(), key, previousKey,
+                    getValue(previousKey, HistoricalCacheAssertValue.ASSERT_VALUE_WITH_FUTURE));
+        } finally {
+            tx.end();
+        }
     }
 
     public final V getPreviousValue(final FDate key, final int shiftBackUnits) {
@@ -279,7 +300,7 @@ public class HistoricalCacheQuery<V> {
         return new ICloseableIterable<Entry<FDate, V>>() {
             @Override
             public ICloseableIterator<Entry<FDate, V>> iterator() {
-                return new ICloseableIterator<Entry<FDate, V>>() {
+                return new TransactionIterator<Entry<FDate, V>>(new ICloseableIterator<Entry<FDate, V>>() {
                     private final ICloseableIterator<FDate> previousKeys = getPreviousKeys(key, shiftBackUnits)
                             .iterator();
 
@@ -304,7 +325,7 @@ public class HistoricalCacheQuery<V> {
                     public void close() throws IOException {
                         previousKeys.close();
                     }
-                };
+                });
             }
 
         };
@@ -314,6 +335,7 @@ public class HistoricalCacheQuery<V> {
         return new ICloseableIterable<V>() {
             @Override
             public ICloseableIterator<V> iterator() {
+                //no need for transaction since getEntries handles this
                 return new ICloseableIterator<V>() {
                     private final ICloseableIterator<Entry<FDate, V>> previousEntries = getPreviousEntries(key,
                             shiftBackUnits).iterator();
@@ -354,7 +376,7 @@ public class HistoricalCacheQuery<V> {
             return new ICloseableIterable<FDate>() {
                 @Override
                 public ICloseableIterator<FDate> iterator() {
-                    return new WrapperCloseableIterator<FDate>(new Iterator<FDate>() {
+                    return new TransactionIterator<FDate>(new Iterator<FDate>() {
                         private final HistoricalCacheQueryWithFuture<V> future = withFuture();
                         private FDate nextKey = future.getNextKey(from, 0);
 
@@ -399,6 +421,7 @@ public class HistoricalCacheQuery<V> {
             return new ICloseableIterable<Entry<FDate, V>>() {
                 @Override
                 public ICloseableIterator<Entry<FDate, V>> iterator() {
+                    //no need for transaction since getEntries handles this
                     return new ICloseableIterator<Entry<FDate, V>>() {
 
                         private final ICloseableIterator<FDate> keysIterator = getKeys(from, to).iterator();
@@ -433,6 +456,7 @@ public class HistoricalCacheQuery<V> {
         return new ICloseableIterable<V>() {
             @Override
             public ICloseableIterator<V> iterator() {
+                //no need for transaction since getEntries handles this
                 return new ICloseableIterator<V>() {
 
                     private final ICloseableIterator<Entry<FDate, V>> entriesIterator = getEntries(from, to).iterator();
@@ -466,30 +490,35 @@ public class HistoricalCacheQuery<V> {
         FDate curKey = to;
         final Optional<V> optionalValue = Optional.fromNullable(value);
         boolean firstTry = true;
-        while (true) {
-            int shiftBackUnits;
-            if (firstTry) {
-                shiftBackUnits = 0;
-            } else {
-                shiftBackUnits = 1;
+        final Transaction tx = new Transaction();
+        try {
+            while (true) {
+                int shiftBackUnits;
+                if (firstTry) {
+                    shiftBackUnits = 0;
+                } else {
+                    shiftBackUnits = 1;
+                }
+                final Entry<FDate, V> previousEntry = getPreviousEntry(curKey, shiftBackUnits);
+                if (previousEntry == null) {
+                    return null;
+                }
+                final FDate previousKey = getValueCache().extractKey(previousEntry.getKey(), previousEntry.getValue());
+                if (!firstTry && !previousKey.isBefore(curKey)) {
+                    return null;
+                }
+                curKey = previousKey;
+                if (curKey.isBefore(from)) {
+                    return null;
+                }
+                final Optional<V> optionalCurValue = Optional.fromNullable(previousEntry.getValue());
+                if (optionalValue.equals(optionalCurValue)) {
+                    return curKey;
+                }
+                firstTry = false;
             }
-            final Entry<FDate, V> previousEntry = getPreviousEntry(curKey, shiftBackUnits);
-            if (previousEntry == null) {
-                return null;
-            }
-            final FDate previousKey = getValueCache().extractKey(previousEntry.getKey(), previousEntry.getValue());
-            if (!firstTry && !previousKey.isBefore(curKey)) {
-                return null;
-            }
-            curKey = previousKey;
-            if (curKey.isBefore(from)) {
-                return null;
-            }
-            final Optional<V> optionalCurValue = Optional.fromNullable(previousEntry.getValue());
-            if (optionalValue.equals(optionalCurValue)) {
-                return curKey;
-            }
-            firstTry = false;
+        } finally {
+            tx.end();
         }
     }
 
@@ -532,6 +561,42 @@ public class HistoricalCacheQuery<V> {
 
     protected final AHistoricalCache<V> getValueCache() {
         return cache;
+    }
+
+    protected class Transaction {
+
+        private final boolean beganTransactionCache;
+        private final boolean beganTransactionShiftKeysDelegate;
+
+        public Transaction() {
+            beganTransactionCache = cache.beginTransaction();
+            beganTransactionShiftKeysDelegate = shiftKeysDelegate != null && shiftKeysDelegate.beginTransaction();
+        }
+
+        public void end() {
+            if (beganTransactionCache) {
+                cache.endTransaction();
+            }
+            if (beganTransactionShiftKeysDelegate) {
+                shiftKeysDelegate.endTransaction();
+            }
+        }
+
+    }
+
+    protected class TransactionIterator<E> extends WrapperCloseableIterator<E> {
+
+        private final Transaction tx = new Transaction();
+
+        public TransactionIterator(final Iterator<? extends E> delegate) {
+            super(delegate);
+        }
+
+        @Override
+        protected void onClose() {
+            super.onClose();
+            tx.end();
+        }
     }
 
 }

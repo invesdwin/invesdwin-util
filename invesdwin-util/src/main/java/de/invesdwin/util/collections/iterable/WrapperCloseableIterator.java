@@ -46,13 +46,19 @@ public class WrapperCloseableIterator<E> implements ICloseableIterator<E> {
     }
 
     @Override
-    public void close() throws IOException {
+    public final void close() throws IOException {
+        if (closed) {
+            return;
+        }
         final Method close = Reflections.findMethod(delegate.getClass(), "close");
         if (close != null) {
             Reflections.invokeMethod(close, delegate);
         }
         closed = true;
+        onClose();
     }
+
+    protected void onClose() {}
 
     public static <T> ICloseableIterator<T> maybeWrap(final Iterator<T> iterator) {
         if (iterator instanceof ICloseableIterator) {
