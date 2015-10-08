@@ -72,6 +72,8 @@ public abstract class AHistoricalCache<V> {
     @GuardedBy("this")
     private FDate curHighestAllowedKey;
     @GuardedBy("this")
+    private FDate curHighestAllowedKeyUpdateTime;
+    @GuardedBy("this")
     private FDate curLowestAllowedKey;
     @GuardedBy("this")
     private final Set<FDate> keysToRemoveOnNewHighestAllowedKey = new HashSet<FDate>();
@@ -214,6 +216,15 @@ public abstract class AHistoricalCache<V> {
     }
 
     private FDate getHighestAllowedKeyUpdateCached() {
+        synchronized (this) {
+            final FDate newHighestAllowedKeyUpdateTime = getHighestAllowedKeyUpdateTime();
+            if (newHighestAllowedKeyUpdateTime != null) {
+                if (newHighestAllowedKeyUpdateTime.isBeforeOrEqual(curHighestAllowedKeyUpdateTime)) {
+                    return curHighestAllowedKey;
+                }
+                curHighestAllowedKeyUpdateTime = newHighestAllowedKeyUpdateTime;
+            }
+        }
         final FDate newHighestAllowedKey = getHighestAllowedKey();
         if (newHighestAllowedKey != null) {
             synchronized (this) {
@@ -461,6 +472,7 @@ public abstract class AHistoricalCache<V> {
             keysToRemoveOnNewHighestAllowedKey.clear();
             curHighestAllowedKey = null;
             curLowestAllowedKey = null;
+            curHighestAllowedKeyUpdateTime = null;
         }
         valuesMap.clear();
         previousKeysCache.clear();
@@ -504,6 +516,15 @@ public abstract class AHistoricalCache<V> {
 
     protected final FDate maxKey() {
         return FDate.MAX_DATE;
+    }
+
+    /**
+     * Only when a higher value is reached here, the highest allowed key gets updated.
+     */
+    protected FDate getHighestAllowedKeyUpdateTime() {
+        //should not be UnsupportedOperationException or else this exception might get hidden
+        throw new IllegalStateException(
+                "When getHighestAllowedKey is enabled, you have to also implement this method for performance reasons, e.g. by returning the current tick time!");
     }
 
     protected FDate getHighestAllowedKey() {
