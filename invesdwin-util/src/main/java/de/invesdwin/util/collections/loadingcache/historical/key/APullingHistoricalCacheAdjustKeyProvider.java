@@ -59,10 +59,10 @@ public abstract class APullingHistoricalCacheAdjustKeyProvider implements IHisto
                     clear();
                 }
                 if (purge || curHighestAllowedKey.isBefore(newHighestAllowedKey)) {
-                    curHighestAllowedKey = newHighestAllowedKey;
                     for (final FDate keyToRemove : keysToRemoveOnNewHighestAllowedKey) {
                         parent.remove(keyToRemove);
                     }
+                    curHighestAllowedKey = newHighestAllowedKey;
                     keysToRemoveOnNewHighestAllowedKey.clear();
                 }
             }
