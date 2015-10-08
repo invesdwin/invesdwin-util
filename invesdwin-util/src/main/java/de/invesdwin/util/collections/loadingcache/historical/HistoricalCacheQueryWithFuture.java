@@ -46,7 +46,6 @@ public class HistoricalCacheQueryWithFuture<V> extends HistoricalCacheQuery<V> {
     /**
      * Jumps the specified shiftForwardUnits to the future instead of only one unit.
      */
-    @SuppressWarnings("null")
     public final FDate getNextKey(final FDate key, final int shiftForwardUnits) {
         Assertions.assertThat(shiftForwardUnits).isGreaterThanOrEqualTo(0);
 
