@@ -18,7 +18,6 @@ import de.invesdwin.util.collections.loadingcache.historical.key.internal.Delega
 import de.invesdwin.util.collections.loadingcache.historical.key.internal.DelegateHistoricalCacheShiftKeyProvider;
 import de.invesdwin.util.collections.loadingcache.historical.key.internal.IHistoricalCacheExtractKeyProvider;
 import de.invesdwin.util.collections.loadingcache.historical.key.internal.IHistoricalCacheShiftKeyProvider;
-import de.invesdwin.util.collections.loadingcache.historical.listener.HistoricalCacheOnValueLoadedListenerSupport;
 import de.invesdwin.util.collections.loadingcache.historical.listener.IHistoricalCacheOnValueLoadedListener;
 import de.invesdwin.util.collections.loadingcache.historical.refresh.HistoricalCacheRefreshManager;
 import de.invesdwin.util.time.fdate.FDate;
@@ -32,8 +31,8 @@ public abstract class AHistoricalCache<V> {
      */
     public static final int DEFAULT_MAXIMUM_SIZE = 1000;
 
-    private final IHistoricalCacheAdjustKeyProvider adjustKeyProvider = newAdjustKeyProvider();
-    private IHistoricalCacheOnValueLoadedListener<V> onValueLoadedListener = new HistoricalCacheOnValueLoadedListenerSupport<V>();
+    private IHistoricalCacheAdjustKeyProvider adjustKeyProvider = new InnerHistoricalCacheAdjustKeyProvider();
+    private IHistoricalCacheOnValueLoadedListener<V> onValueLoadedListener = new InnerHistoricalCacheOnValueLoadedListener();
 
     private volatile FDate lastRefresh = HistoricalCacheRefreshManager.getLastRefresh();
     private boolean isPutDisabled = getMaximumSize() != null && getMaximumSize() == 0;
@@ -69,8 +68,11 @@ public abstract class AHistoricalCache<V> {
         return DEFAULT_MAXIMUM_SIZE;
     }
 
-    protected IHistoricalCacheAdjustKeyProvider newAdjustKeyProvider() {
-        return new InnerHistoricalCacheAdjustKeyProvider();
+    protected void setAdjustKeyProvider(final IHistoricalCacheAdjustKeyProvider adjustKeyProvider) {
+        Assertions.assertThat(this.adjustKeyProvider)
+                .as("%s can only be set once", IHistoricalCacheAdjustKeyProvider.class.getSimpleName())
+                .isInstanceOf(InnerHistoricalCacheAdjustKeyProvider.class);
+        this.adjustKeyProvider = adjustKeyProvider;
     }
 
     @SuppressWarnings("unchecked")
@@ -104,7 +106,8 @@ public abstract class AHistoricalCache<V> {
 
     protected abstract V loadValue(FDate key);
 
-    protected <T> ILoadingCache<FDate, T> newLoadingCacheProvider(final Function<FDate, T> loadValue, final Integer maximumSize) {
+    protected <T> ILoadingCache<FDate, T> newLoadingCacheProvider(final Function<FDate, T> loadValue,
+            final Integer maximumSize) {
         return new ALoadingCache<FDate, T>() {
 
             @Override

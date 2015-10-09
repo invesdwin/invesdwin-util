@@ -14,7 +14,6 @@ import com.google.common.collect.Iterables;
 
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.loadingcache.historical.key.APullingHistoricalCacheAdjustKeyProvider;
-import de.invesdwin.util.collections.loadingcache.historical.key.IHistoricalCacheAdjustKeyProvider;
 import de.invesdwin.util.collections.loadingcache.historical.refresh.HistoricalCacheRefreshManager;
 import de.invesdwin.util.time.fdate.FDate;
 import de.invesdwin.util.time.fdate.FDateBuilder;
@@ -519,6 +518,20 @@ public class AGapHistoricalCacheTest {
 
     private class TestGapHistoricalCache extends AGapHistoricalCache<FDate> {
 
+        public TestGapHistoricalCache() {
+            setAdjustKeyProvider(new APullingHistoricalCacheAdjustKeyProvider(this) {
+
+                @Override
+                protected FDate innerGetHighestAllowedKey() {
+                    if (returnHighestAllowedKey) {
+                        return entities.get(entities.size() - 1);
+                    } else {
+                        return null;
+                    }
+                }
+            });
+        }
+
         @Override
         protected List<FDate> readAllValuesAscendingFrom(final FDate key) {
             countReadAllValuesAscendingFrom++;
@@ -580,21 +593,6 @@ public class AGapHistoricalCacheTest {
         protected FDate innerCalculateNextKey(final FDate key) {
             //            return FDates.addDays(FDates.addYears(key, 1), 1); //this causes a bug which should be fixed sometime when it is needed that unprecise values may be returned here
             return key.addYears(1);
-        }
-
-        @Override
-        protected IHistoricalCacheAdjustKeyProvider newAdjustKeyProvider() {
-            return new APullingHistoricalCacheAdjustKeyProvider(this) {
-
-                @Override
-                protected FDate innerGetHighestAllowedKey() {
-                    if (returnHighestAllowedKey) {
-                        return entities.get(entities.size() - 1);
-                    } else {
-                        return null;
-                    }
-                }
-            };
         }
 
     }

@@ -48,6 +48,10 @@ public abstract class APullingHistoricalCacheAdjustKeyProvider implements IHisto
         return key;
     }
 
+    public AHistoricalCache<?> getParent() {
+        return parent;
+    }
+
     private FDate getHighestAllowedKeyUpdateCached() {
         final FDate newHighestAllowedKey = innerGetHighestAllowedKey();
         if (newHighestAllowedKey != null) {
