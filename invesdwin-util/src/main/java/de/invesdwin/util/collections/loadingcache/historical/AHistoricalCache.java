@@ -72,6 +72,7 @@ public abstract class AHistoricalCache<V> {
         Assertions.assertThat(this.adjustKeyProvider)
                 .as("%s can only be set once", IHistoricalCacheAdjustKeyProvider.class.getSimpleName())
                 .isInstanceOf(InnerHistoricalCacheAdjustKeyProvider.class);
+        Assertions.assertThat(adjustKeyProvider.registerHistoricalCache(this)).isTrue();
         this.adjustKeyProvider = adjustKeyProvider;
     }
 
@@ -427,6 +428,11 @@ public abstract class AHistoricalCache<V> {
         @Override
         public FDate getHighestAllowedKey() {
             return null;
+        }
+
+        @Override
+        public boolean registerHistoricalCache(final AHistoricalCache<?> historicalCcache) {
+            return true;
         }
 
     }

@@ -1,13 +1,18 @@
 package de.invesdwin.util.collections.loadingcache.historical.key;
 
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
+
 import javax.annotation.concurrent.ThreadSafe;
 
+import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
 import de.invesdwin.util.time.fdate.FDate;
 
 @ThreadSafe
 public class PushingHistoricalCacheAdjustKeyProvider implements IHistoricalCacheAdjustKeyProvider {
 
     private volatile FDate curHighestAllowedKey;
+    private final Set<AHistoricalCache<?>> historicalCaches = new CopyOnWriteArraySet<AHistoricalCache<?>>();
 
     @Override
     public FDate adjustKey(final FDate key) {
@@ -20,6 +25,11 @@ public class PushingHistoricalCacheAdjustKeyProvider implements IHistoricalCache
     }
 
     public void pushHighestAllowedKey(final FDate highestAllowedKey) {
+        if (curHighestAllowedKey == null && highestAllowedKey != null) {
+            for (final AHistoricalCache<?> c : historicalCaches) {
+                c.clear();
+            }
+        }
         this.curHighestAllowedKey = highestAllowedKey;
     }
 
@@ -31,6 +41,11 @@ public class PushingHistoricalCacheAdjustKeyProvider implements IHistoricalCache
     @Override
     public void clear() {
         curHighestAllowedKey = null;
+    }
+
+    @Override
+    public boolean registerHistoricalCache(final AHistoricalCache<?> historicalCache) {
+        return historicalCaches.add(historicalCache);
     }
 
 }

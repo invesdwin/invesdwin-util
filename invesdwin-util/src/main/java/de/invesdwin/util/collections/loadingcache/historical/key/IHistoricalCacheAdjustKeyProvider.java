@@ -1,5 +1,6 @@
 package de.invesdwin.util.collections.loadingcache.historical.key;
 
+import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
 import de.invesdwin.util.time.fdate.FDate;
 
 public interface IHistoricalCacheAdjustKeyProvider {
@@ -9,5 +10,7 @@ public interface IHistoricalCacheAdjustKeyProvider {
     void clear();
 
     FDate getHighestAllowedKey();
+
+    boolean registerHistoricalCache(AHistoricalCache<?> historicalCache);
 
 }

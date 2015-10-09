@@ -1,9 +1,8 @@
 package de.invesdwin.util.collections.loadingcache.historical.key;
 
-import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 
-import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
@@ -18,15 +17,9 @@ public abstract class APullingHistoricalCacheAdjustKeyProvider implements IHisto
             return false;
         }
     };
-    @GuardedBy("this")
-    private FDate curHighestAllowedKey;
-    @GuardedBy("this")
-    private final Set<FDate> keysToRemoveOnNewHighestAllowedKey = new HashSet<FDate>();
-    private final AHistoricalCache<?> parent;
-
-    public APullingHistoricalCacheAdjustKeyProvider(final AHistoricalCache<?> parent) {
-        this.parent = parent;
-    }
+    private volatile FDate curHighestAllowedKey;
+    private final Set<FDate> keysToRemoveOnNewHighestAllowedKey = new CopyOnWriteArraySet<FDate>();
+    private final Set<AHistoricalCache<?>> historicalCaches = new CopyOnWriteArraySet<AHistoricalCache<?>>();
 
     @Override
     public FDate adjustKey(final FDate key) {
@@ -48,37 +41,37 @@ public abstract class APullingHistoricalCacheAdjustKeyProvider implements IHisto
         return key;
     }
 
-    public AHistoricalCache<?> getParent() {
-        return parent;
-    }
-
     private FDate getHighestAllowedKeyUpdateCached() {
         final FDate newHighestAllowedKey = innerGetHighestAllowedKey();
         if (newHighestAllowedKey != null) {
-            synchronized (this) {
-                final boolean purge = curHighestAllowedKey == null;
-                if (purge) {
-                    //purge maybe already remembered keys above curHighestAllowedKey
-                    clear();
+            final FDate curHighestAllowedKeyCopy = curHighestAllowedKey;
+            final boolean purge = curHighestAllowedKeyCopy == null;
+            if (purge) {
+                //purge maybe already remembered keys above curHighestAllowedKey
+                for (final AHistoricalCache<?> c : historicalCaches) {
+                    c.clear();
                 }
-                if (purge || curHighestAllowedKey.isBefore(newHighestAllowedKey)) {
-                    for (final FDate keyToRemove : keysToRemoveOnNewHighestAllowedKey) {
-                        parent.remove(keyToRemove);
+            }
+
+            if (purge || curHighestAllowedKeyCopy.isBefore(newHighestAllowedKey)) {
+                for (final FDate keyToRemove : keysToRemoveOnNewHighestAllowedKey) {
+                    for (final AHistoricalCache<?> c : historicalCaches) {
+                        c.remove(keyToRemove);
                     }
-                    curHighestAllowedKey = newHighestAllowedKey;
-                    keysToRemoveOnNewHighestAllowedKey.clear();
                 }
+                curHighestAllowedKey = newHighestAllowedKey;
+                keysToRemoveOnNewHighestAllowedKey.clear();
             }
         }
         return newHighestAllowedKey;
     }
 
     @Override
-    public synchronized FDate getHighestAllowedKey() {
+    public FDate getHighestAllowedKey() {
         return curHighestAllowedKey;
     }
 
-    private synchronized void rememberKeyToRemove(final FDate key) {
+    private void rememberKeyToRemove(final FDate key) {
         if (curHighestAllowedKey != null && key.isAfter(curHighestAllowedKey)) {
             keysToRemoveOnNewHighestAllowedKey.add(key);
         }
@@ -87,9 +80,14 @@ public abstract class APullingHistoricalCacheAdjustKeyProvider implements IHisto
     protected abstract FDate innerGetHighestAllowedKey();
 
     @Override
-    public synchronized void clear() {
+    public void clear() {
         keysToRemoveOnNewHighestAllowedKey.clear();
         curHighestAllowedKey = null;
+    }
+
+    @Override
+    public boolean registerHistoricalCache(final AHistoricalCache<?> historicalCache) {
+        return historicalCaches.add(historicalCache);
     }
 
 }
