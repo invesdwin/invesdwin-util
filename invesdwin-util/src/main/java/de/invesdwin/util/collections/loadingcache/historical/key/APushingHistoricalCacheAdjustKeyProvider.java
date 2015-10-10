@@ -12,10 +12,20 @@ import de.invesdwin.util.collections.loadingcache.historical.key.internal.Histor
 import de.invesdwin.util.time.fdate.FDate;
 
 @ThreadSafe
-public class PushingHistoricalCacheAdjustKeyProvider implements IHistoricalCacheAdjustKeyProvider {
+public abstract class APushingHistoricalCacheAdjustKeyProvider implements IHistoricalCacheAdjustKeyProvider {
 
     private volatile FDate curHighestAllowedKey;
     private final Set<HistoricalCacheForClear> historicalCachesForClear = new CopyOnWriteArraySet<HistoricalCacheForClear>();
+    private final APullingHistoricalCacheAdjustKeyProvider pullingAdjustKeyProvider;
+
+    public APushingHistoricalCacheAdjustKeyProvider(final AHistoricalCache<?> parent) {
+        this.pullingAdjustKeyProvider = new APullingHistoricalCacheAdjustKeyProvider(parent) {
+            @Override
+            protected FDate innerGetHighestAllowedKey() {
+                return getInitialHighestAllowedKey();
+            }
+        };
+    }
 
     @Override
     public FDate adjustKey(final FDate key) {
@@ -27,6 +37,8 @@ public class PushingHistoricalCacheAdjustKeyProvider implements IHistoricalCache
         }
     }
 
+    protected abstract FDate getInitialHighestAllowedKey();
+
     public void pushHighestAllowedKey(final FDate highestAllowedKey) {
         if (curHighestAllowedKey == null && highestAllowedKey != null) {
             clear();
@@ -36,6 +48,9 @@ public class PushingHistoricalCacheAdjustKeyProvider implements IHistoricalCache
 
     @Override
     public FDate getHighestAllowedKey() {
+        if (curHighestAllowedKey == null) {
+            curHighestAllowedKey = pullingAdjustKeyProvider.getHighestAllowedKey();
+        }
         return curHighestAllowedKey;
     }
 
@@ -51,6 +66,7 @@ public class PushingHistoricalCacheAdjustKeyProvider implements IHistoricalCache
             for (final HistoricalCacheForClear c : historicalCachesForClearCopy) {
                 c.clear();
             }
+            pullingAdjustKeyProvider.clear();
         }
     }
 

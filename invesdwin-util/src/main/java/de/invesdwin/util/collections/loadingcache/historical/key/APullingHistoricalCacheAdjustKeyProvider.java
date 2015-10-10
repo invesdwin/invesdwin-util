@@ -74,6 +74,15 @@ public abstract class APullingHistoricalCacheAdjustKeyProvider implements IHisto
 
     @Override
     public FDate getHighestAllowedKey() {
+        if (curHighestAllowedKey == null && !alreadyAdjustingKey.get()) {
+            alreadyAdjustingKey.set(true);
+            try {
+                final FDate newHighestAllowedKey = getHighestAllowedKeyUpdateCached();
+                curHighestAllowedKey = newHighestAllowedKey;
+            } finally {
+                alreadyAdjustingKey.set(false);
+            }
+        }
         return curHighestAllowedKey;
     }
 

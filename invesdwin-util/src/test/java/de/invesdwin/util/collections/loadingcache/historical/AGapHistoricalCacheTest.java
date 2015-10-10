@@ -14,8 +14,8 @@ import com.google.common.collect.Iterables;
 
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.loadingcache.historical.key.APullingHistoricalCacheAdjustKeyProvider;
+import de.invesdwin.util.collections.loadingcache.historical.key.APushingHistoricalCacheAdjustKeyProvider;
 import de.invesdwin.util.collections.loadingcache.historical.key.IHistoricalCacheAdjustKeyProvider;
-import de.invesdwin.util.collections.loadingcache.historical.key.PushingHistoricalCacheAdjustKeyProvider;
 import de.invesdwin.util.collections.loadingcache.historical.refresh.HistoricalCacheRefreshManager;
 import de.invesdwin.util.time.fdate.FDate;
 import de.invesdwin.util.time.fdate.FDateBuilder;
@@ -511,7 +511,13 @@ public class AGapHistoricalCacheTest {
 
     @Test
     public void testNewEntityIncomingPushingAdjustKeyProvider() {
-        final PushingHistoricalCacheAdjustKeyProvider adjustKeyProvider = new PushingHistoricalCacheAdjustKeyProvider();
+        final APushingHistoricalCacheAdjustKeyProvider adjustKeyProvider = new APushingHistoricalCacheAdjustKeyProvider(
+                cache) {
+            @Override
+            protected FDate getInitialHighestAllowedKey() {
+                return null;
+            }
+        };
         cache.setAdjustKeyProvider(adjustKeyProvider);
         adjustKeyProvider.pushHighestAllowedKey(entities.get(entities.size() - 1));
         final List<FDate> newEntities = new ArrayList<FDate>(entities);
@@ -534,7 +540,41 @@ public class AGapHistoricalCacheTest {
 
     @Test
     public void testNewEntityIncomingPushingAdjustKeyProviderWithoutInitialPush() {
-        final PushingHistoricalCacheAdjustKeyProvider adjustKeyProvider = new PushingHistoricalCacheAdjustKeyProvider();
+        final APushingHistoricalCacheAdjustKeyProvider adjustKeyProvider = new APushingHistoricalCacheAdjustKeyProvider(
+                cache) {
+            @Override
+            protected FDate getInitialHighestAllowedKey() {
+                return null;
+            }
+        };
+        cache.setAdjustKeyProvider(adjustKeyProvider);
+        final List<FDate> newEntities = new ArrayList<FDate>(entities);
+        final FDate newEntity = FDateBuilder.newDate(1996, 1, 1);
+        newEntities.add(newEntity);
+        for (final FDate entity : newEntities) {
+            final FDate value = cache.query().getValue(entity);
+            if (newEntity.equals(entity)) {
+                Assertions.assertThat(value).isNotEqualTo(newEntity);
+                Assertions.assertThat(value).isEqualTo(entities.get(entities.size() - 1));
+            } else {
+                Assertions.assertThat(value).isEqualTo(entity);
+            }
+        }
+        adjustKeyProvider.pushHighestAllowedKey(newEntity);
+        entities.add(newEntity);
+        final FDate correctValue = cache.query().getValue(newEntity);
+        Assertions.assertThat(correctValue).isEqualTo(newEntity);
+    }
+
+    @Test
+    public void testNewEntityIncomingPushingAdjustKeyProviderWithoutPush() {
+        final APushingHistoricalCacheAdjustKeyProvider adjustKeyProvider = new APushingHistoricalCacheAdjustKeyProvider(
+                cache) {
+            @Override
+            protected FDate getInitialHighestAllowedKey() {
+                return entities.get(entities.size() - 1);
+            }
+        };
         cache.setAdjustKeyProvider(adjustKeyProvider);
         final List<FDate> newEntities = new ArrayList<FDate>(entities);
         final FDate newEntity = FDateBuilder.newDate(1996, 1, 1);
