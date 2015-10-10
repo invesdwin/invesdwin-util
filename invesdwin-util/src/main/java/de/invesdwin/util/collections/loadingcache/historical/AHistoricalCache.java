@@ -72,7 +72,7 @@ public abstract class AHistoricalCache<V> {
         Assertions.assertThat(this.adjustKeyProvider)
                 .as("%s can only be set once", IHistoricalCacheAdjustKeyProvider.class.getSimpleName())
                 .isInstanceOf(InnerHistoricalCacheAdjustKeyProvider.class);
-        Assertions.assertThat(adjustKeyProvider.registerHistoricalCache(this)).isTrue();
+        Assertions.assertThat(adjustKeyProvider.registerHistoricalCache(this)).isTrue(); //need to first register, then set provider or else we might clear the provider too often
         this.adjustKeyProvider = adjustKeyProvider;
     }
 
