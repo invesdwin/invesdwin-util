@@ -8,13 +8,14 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
+import de.invesdwin.util.collections.loadingcache.historical.key.internal.HistoricalCacheForClear;
 import de.invesdwin.util.time.fdate.FDate;
 
 @ThreadSafe
 public class PushingHistoricalCacheAdjustKeyProvider implements IHistoricalCacheAdjustKeyProvider {
 
     private volatile FDate curHighestAllowedKey;
-    private final Set<AHistoricalCache<?>> historicalCachesForClear = new CopyOnWriteArraySet<AHistoricalCache<?>>();
+    private final Set<HistoricalCacheForClear> historicalCachesForClear = new CopyOnWriteArraySet<HistoricalCacheForClear>();
 
     @Override
     public FDate adjustKey(final FDate key) {
@@ -43,11 +44,11 @@ public class PushingHistoricalCacheAdjustKeyProvider implements IHistoricalCache
         curHighestAllowedKey = null;
         if (!historicalCachesForClear.isEmpty()) {
             //make copy to prevent recusion
-            final List<AHistoricalCache<?>> historicalCachesForClearCopy = new ArrayList<AHistoricalCache<?>>(
+            final List<HistoricalCacheForClear> historicalCachesForClearCopy = new ArrayList<HistoricalCacheForClear>(
                     historicalCachesForClear);
             //remove references to prevent memory leaks
             historicalCachesForClear.clear();
-            for (final AHistoricalCache<?> c : historicalCachesForClearCopy) {
+            for (final HistoricalCacheForClear c : historicalCachesForClearCopy) {
                 c.clear();
             }
         }
@@ -56,7 +57,7 @@ public class PushingHistoricalCacheAdjustKeyProvider implements IHistoricalCache
     @Override
     public boolean registerHistoricalCache(final AHistoricalCache<?> historicalCache) {
         if (curHighestAllowedKey == null) {
-            return historicalCachesForClear.add(historicalCache);
+            return historicalCachesForClear.add(new HistoricalCacheForClear(historicalCache));
         } else {
             //clear now, since next access will be with a valid highest allowed key
             historicalCache.clear();

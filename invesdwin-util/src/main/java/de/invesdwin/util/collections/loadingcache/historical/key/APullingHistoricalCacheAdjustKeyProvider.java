@@ -8,6 +8,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
+import de.invesdwin.util.collections.loadingcache.historical.key.internal.HistoricalCacheForClear;
 import de.invesdwin.util.time.fdate.FDate;
 
 @ThreadSafe
@@ -21,7 +22,7 @@ public abstract class APullingHistoricalCacheAdjustKeyProvider implements IHisto
     };
     private volatile FDate curHighestAllowedKey;
     private final Set<FDate> keysToRemoveOnNewHighestAllowedKey = new CopyOnWriteArraySet<FDate>();
-    private final Set<AHistoricalCache<?>> historicalCachesForClear = new CopyOnWriteArraySet<AHistoricalCache<?>>();
+    private final Set<HistoricalCacheForClear> historicalCachesForClear = new CopyOnWriteArraySet<HistoricalCacheForClear>();
     private final AHistoricalCache<?> parent;
 
     public APullingHistoricalCacheAdjustKeyProvider(final AHistoricalCache<?> parent) {
@@ -90,11 +91,11 @@ public abstract class APullingHistoricalCacheAdjustKeyProvider implements IHisto
         curHighestAllowedKey = null;
         if (!historicalCachesForClear.isEmpty()) {
             //make copy to prevent recusion
-            final List<AHistoricalCache<?>> historicalCachesForClearCopy = new ArrayList<AHistoricalCache<?>>(
+            final List<HistoricalCacheForClear> historicalCachesForClearCopy = new ArrayList<HistoricalCacheForClear>(
                     historicalCachesForClear);
             //remove references to prevent memory leaks
             historicalCachesForClear.clear();
-            for (final AHistoricalCache<?> c : historicalCachesForClearCopy) {
+            for (final HistoricalCacheForClear c : historicalCachesForClearCopy) {
                 c.clear();
             }
         }
@@ -103,7 +104,7 @@ public abstract class APullingHistoricalCacheAdjustKeyProvider implements IHisto
     @Override
     public boolean registerHistoricalCache(final AHistoricalCache<?> historicalCache) {
         if (curHighestAllowedKey == null) {
-            return historicalCachesForClear.add(historicalCache);
+            return historicalCachesForClear.add(new HistoricalCacheForClear(historicalCache));
         } else {
             historicalCache.clear();
             return true;
