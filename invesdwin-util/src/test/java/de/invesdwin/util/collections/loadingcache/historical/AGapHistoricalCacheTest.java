@@ -486,7 +486,7 @@ public class AGapHistoricalCacheTest {
 
     @Test
     public void testNewEntityIncomingPullingAdjustKeyProvider() {
-        cache.setAdjustKeyProvider(new APullingHistoricalCacheAdjustKeyProvider() {
+        cache.setAdjustKeyProvider(new APullingHistoricalCacheAdjustKeyProvider(cache) {
             @Override
             protected FDate innerGetHighestAllowedKey() {
                 return entities.get(entities.size() - 1);

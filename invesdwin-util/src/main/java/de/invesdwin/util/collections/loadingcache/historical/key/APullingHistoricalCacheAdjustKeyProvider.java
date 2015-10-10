@@ -19,7 +19,12 @@ public abstract class APullingHistoricalCacheAdjustKeyProvider implements IHisto
     };
     private volatile FDate curHighestAllowedKey;
     private final Set<FDate> keysToRemoveOnNewHighestAllowedKey = new CopyOnWriteArraySet<FDate>();
-    private final Set<AHistoricalCache<?>> historicalCaches = new CopyOnWriteArraySet<AHistoricalCache<?>>();
+    private final Set<AHistoricalCache<?>> historicalCachesForClear = new CopyOnWriteArraySet<AHistoricalCache<?>>();
+    private final AHistoricalCache<?> parent;
+
+    public APullingHistoricalCacheAdjustKeyProvider(final AHistoricalCache<?> parent) {
+        this.parent = parent;
+    }
 
     @Override
     public FDate adjustKey(final FDate key) {
@@ -48,16 +53,17 @@ public abstract class APullingHistoricalCacheAdjustKeyProvider implements IHisto
             final boolean purge = curHighestAllowedKeyCopy == null;
             if (purge) {
                 //purge maybe already remembered keys above curHighestAllowedKey
-                for (final AHistoricalCache<?> c : historicalCaches) {
+                for (final AHistoricalCache<?> c : historicalCachesForClear) {
                     c.clear();
                 }
+                historicalCachesForClear.clear();
             }
 
             if (purge || curHighestAllowedKeyCopy.isBefore(newHighestAllowedKey)) {
                 for (final FDate keyToRemove : keysToRemoveOnNewHighestAllowedKey) {
-                    for (final AHistoricalCache<?> c : historicalCaches) {
-                        c.remove(keyToRemove);
-                    }
+                    //only parent will actually be used to search without being adjusted
+                    //and we don't want to keep references to all those others using this properly
+                    parent.remove(keyToRemove);
                 }
                 curHighestAllowedKey = newHighestAllowedKey;
                 keysToRemoveOnNewHighestAllowedKey.clear();
@@ -87,7 +93,12 @@ public abstract class APullingHistoricalCacheAdjustKeyProvider implements IHisto
 
     @Override
     public boolean registerHistoricalCache(final AHistoricalCache<?> historicalCache) {
-        return historicalCaches.add(historicalCache);
+        if (curHighestAllowedKey == null) {
+            return historicalCachesForClear.add(historicalCache);
+        } else {
+            historicalCache.clear();
+            return true;
+        }
     }
 
 }

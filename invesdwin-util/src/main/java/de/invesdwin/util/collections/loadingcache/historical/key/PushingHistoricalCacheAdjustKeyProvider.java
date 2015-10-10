@@ -12,7 +12,7 @@ import de.invesdwin.util.time.fdate.FDate;
 public class PushingHistoricalCacheAdjustKeyProvider implements IHistoricalCacheAdjustKeyProvider {
 
     private volatile FDate curHighestAllowedKey;
-    private final Set<AHistoricalCache<?>> historicalCaches = new CopyOnWriteArraySet<AHistoricalCache<?>>();
+    private final Set<AHistoricalCache<?>> historicalCachesForClear = new CopyOnWriteArraySet<AHistoricalCache<?>>();
 
     @Override
     public FDate adjustKey(final FDate key) {
@@ -26,9 +26,11 @@ public class PushingHistoricalCacheAdjustKeyProvider implements IHistoricalCache
 
     public void pushHighestAllowedKey(final FDate highestAllowedKey) {
         if (curHighestAllowedKey == null && highestAllowedKey != null) {
-            for (final AHistoricalCache<?> c : historicalCaches) {
+            for (final AHistoricalCache<?> c : historicalCachesForClear) {
                 c.clear();
             }
+            //remove references to prevent memory leaks
+            historicalCachesForClear.clear();
         }
         this.curHighestAllowedKey = highestAllowedKey;
     }
@@ -45,7 +47,13 @@ public class PushingHistoricalCacheAdjustKeyProvider implements IHistoricalCache
 
     @Override
     public boolean registerHistoricalCache(final AHistoricalCache<?> historicalCache) {
-        return historicalCaches.add(historicalCache);
+        if (curHighestAllowedKey == null) {
+            return historicalCachesForClear.add(historicalCache);
+        } else {
+            //clear now, since next access will be with a valid highest allowed key
+            historicalCache.clear();
+            return true;
+        }
     }
 
 }
