@@ -1,5 +1,7 @@
 package de.invesdwin.util.collections.loadingcache.historical.key;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
@@ -53,10 +55,7 @@ public abstract class APullingHistoricalCacheAdjustKeyProvider implements IHisto
             final boolean purge = curHighestAllowedKeyCopy == null;
             if (purge) {
                 //purge maybe already remembered keys above curHighestAllowedKey
-                for (final AHistoricalCache<?> c : historicalCachesForClear) {
-                    c.clear();
-                }
-                historicalCachesForClear.clear();
+                clear();
             }
 
             if (purge || curHighestAllowedKeyCopy.isBefore(newHighestAllowedKey)) {
@@ -89,6 +88,16 @@ public abstract class APullingHistoricalCacheAdjustKeyProvider implements IHisto
     public void clear() {
         keysToRemoveOnNewHighestAllowedKey.clear();
         curHighestAllowedKey = null;
+        if (!historicalCachesForClear.isEmpty()) {
+            //make copy to prevent recusion
+            final List<AHistoricalCache<?>> historicalCachesForClearCopy = new ArrayList<AHistoricalCache<?>>(
+                    historicalCachesForClear);
+            //remove references to prevent memory leaks
+            historicalCachesForClear.clear();
+            for (final AHistoricalCache<?> c : historicalCachesForClearCopy) {
+                c.clear();
+            }
+        }
     }
 
     @Override
