@@ -292,6 +292,11 @@ public final class Duration extends Number implements Comparable<Object> {
         return new Duration(this.longValue(TimeUnit.NANOSECONDS) + comparableDuration, TimeUnit.NANOSECONDS);
     }
 
+    public Duration subtract(final long duration, final TimeUnit timeUnit) {
+        final long comparableDuration = Math.abs(TimeUnit.NANOSECONDS.convert(duration, timeUnit));
+        return new Duration(this.longValue(TimeUnit.NANOSECONDS) - comparableDuration, TimeUnit.NANOSECONDS);
+    }
+
     public Duration divide(final Number dividend) {
         final long divided = (long) (longValue(TimeUnit.NANOSECONDS) / dividend.doubleValue());
         return new Duration(divided, TimeUnit.NANOSECONDS);
@@ -307,6 +312,10 @@ public final class Duration extends Number implements Comparable<Object> {
      */
     public Duration add(final Duration duration) {
         return add(duration.duration, duration.timeUnit);
+    }
+
+    public Duration subtract(final Duration duration) {
+        return subtract(duration.duration, duration.timeUnit);
     }
 
     @Override
