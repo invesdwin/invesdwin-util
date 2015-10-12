@@ -36,7 +36,11 @@ public final class Lists extends AListsStaticFacade {
         final List<E> list = new ArrayList<E>();
         try {
             while (true) {
-                list.add(iterator.next());
+                final E next = iterator.next();
+                if (next == null) {
+                    throw new IllegalArgumentException("null");
+                }
+                list.add(next);
             }
         } catch (final NoSuchElementException e) {
             iterator.close();

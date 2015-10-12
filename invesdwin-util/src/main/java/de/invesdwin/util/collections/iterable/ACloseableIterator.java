@@ -4,18 +4,18 @@ import java.io.Closeable;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-import javax.annotation.concurrent.ThreadSafe;
+import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.error.Throwables;
 
-@ThreadSafe
+@NotThreadSafe
 public abstract class ACloseableIterator<E> implements Iterator<E>, Closeable {
 
     private static boolean finalizerDebugEnabled;
 
-    private volatile boolean closed;
+    private boolean closed;
 
-    private volatile Exception stackTrace;
+    private Exception stackTrace;
 
     /**
      * http://www.informit.com/articles/article.aspx?p=1216151&seqNum=7
@@ -58,16 +58,17 @@ public abstract class ACloseableIterator<E> implements Iterator<E>, Closeable {
             stackTrace = new Exception();
             stackTrace.fillInStackTrace();
         }
+        final E next;
         try {
-            final E next = innerNext();
-            if (next == null) {
-                close();
-            }
-            return next;
+            next = innerNext();
         } catch (final NoSuchElementException e) {
             close();
             throw e;
         }
+        if (next == null) {
+            close();
+        }
+        return next;
     }
 
     protected abstract E innerNext();

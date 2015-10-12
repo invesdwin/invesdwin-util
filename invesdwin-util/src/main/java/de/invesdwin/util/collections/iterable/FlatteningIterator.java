@@ -18,7 +18,7 @@ public class FlatteningIterator<E> extends ACloseableIterator<E> {
     @Override
     protected boolean innerHasNext() {
         try {
-            return getIterator().hasNext() || delegate.hasNext();
+            return delegate.hasNext() || getIterator().hasNext();
         } catch (final NoSuchElementException e) {
             return false;
         }

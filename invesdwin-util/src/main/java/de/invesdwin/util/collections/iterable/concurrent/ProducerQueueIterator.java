@@ -24,7 +24,7 @@ public class ProducerQueueIterator<E> extends ACloseableIterator<E> {
         @Override
         public void run() {
             try {
-                while (!isClosed() && producer.hasNext()) {
+                while (!innerClosed && producer.hasNext()) {
                     final E next = producer.next();
                     onElement(next);
                 }
@@ -39,7 +39,7 @@ public class ProducerQueueIterator<E> extends ACloseableIterator<E> {
         private void onElement(final E element) {
             try {
                 Assertions.assertThat(element).isNotNull();
-                while (!isClosed()) {
+                while (!innerClosed) {
                     final boolean added = queue.offer(element);
                     if (!added && queue.remainingCapacity() == 0) {
                         if (utilizationDebugEnabled) {
@@ -48,7 +48,7 @@ public class ProducerQueueIterator<E> extends ACloseableIterator<E> {
                         drainedLock.lock();
                         try {
                             //wait till queue is drained again, start work immediately when a bit of space is free again
-                            while (!isClosed() && queue.size() >= queueSize) {
+                            while (!innerClosed && queue.size() >= queueSize) {
                                 drainedCondition.await(1, TimeUnit.SECONDS);
                             }
                         } finally {
@@ -69,6 +69,7 @@ public class ProducerQueueIterator<E> extends ACloseableIterator<E> {
     public static final int DEFAULT_QUEUE_SIZE = 10000;
 
     private final BlockingQueue<E> queue;
+    private volatile boolean innerClosed;
     @GuardedBy("this")
     private E nextElement;
     private final Lock drainedLock = new ReentrantLock();
@@ -108,7 +109,11 @@ public class ProducerQueueIterator<E> extends ACloseableIterator<E> {
 
     @Override
     protected synchronized boolean innerHasNext() {
-        return !queue.isEmpty() || nextElement != null;
+        final boolean hasNext = !innerClosed || !queue.isEmpty() || nextElement != null;
+        if (!hasNext) {
+            close();
+        }
+        return hasNext;
     }
 
     /*
@@ -156,9 +161,12 @@ public class ProducerQueueIterator<E> extends ACloseableIterator<E> {
 
     @Override
     protected void innerClose() {
-        executor.shutdown();
-        //cannot wait here for executor to close completely since the thread could trigger it himself
-        producer.close();
+        if (!innerClosed) {
+            innerClosed = true;
+            executor.shutdown();
+            //cannot wait here for executor to close completely since the thread could trigger it himself
+            producer.close();
+        }
     }
 
 }
