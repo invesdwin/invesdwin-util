@@ -1,12 +1,11 @@
 package de.invesdwin.util.collections.iterable;
 
-import java.io.IOException;
 import java.util.NoSuchElementException;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
 @NotThreadSafe
-public class SingleValueIterator<E> implements ICloseableIterator<E> {
+public class SingleValueIterator<E> extends ACloseableIterator<E> {
 
     private E singleValue;
 
@@ -15,12 +14,12 @@ public class SingleValueIterator<E> implements ICloseableIterator<E> {
     }
 
     @Override
-    public boolean hasNext() {
+    protected boolean innerHasNext() {
         return singleValue != null;
     }
 
     @Override
-    public E next() {
+    protected E innerNext() {
         if (hasNext()) {
             final E ret = singleValue;
             singleValue = null;
@@ -31,7 +30,7 @@ public class SingleValueIterator<E> implements ICloseableIterator<E> {
     }
 
     @Override
-    public void close() throws IOException {
+    protected void innerClose() {
         singleValue = null;
     }
 

@@ -15,7 +15,7 @@ class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregate<E> {
     private E converter;
     private final List<? extends E> values;
 
-    public DecimalAggregate(final List<? extends E> values) {
+    DecimalAggregate(final List<? extends E> values) {
         this.values = values;
     }
 

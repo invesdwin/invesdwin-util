@@ -12,7 +12,7 @@ public class WrapperCloseableIterable<E> implements ICloseableIterable<E> {
     }
 
     @Override
-    public ICloseableIterator<E> iterator() {
+    public ACloseableIterator<E> iterator() {
         return new WrapperCloseableIterator<E>(delegate.iterator());
     }
 

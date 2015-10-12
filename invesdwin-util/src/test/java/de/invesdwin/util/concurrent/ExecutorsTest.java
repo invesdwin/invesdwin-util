@@ -34,7 +34,7 @@ public class ExecutorsTest {
 
         private final int id;
 
-        public WaitingRunnable(final int id) {
+        WaitingRunnable(final int id) {
             this.id = id;
         }
 

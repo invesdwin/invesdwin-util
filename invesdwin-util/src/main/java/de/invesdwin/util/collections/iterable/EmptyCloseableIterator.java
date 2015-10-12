@@ -1,24 +1,23 @@
 package de.invesdwin.util.collections.iterable;
 
-import java.io.IOException;
 import java.util.NoSuchElementException;
 
 import javax.annotation.concurrent.Immutable;
 
 @Immutable
-public class EmptyCloseableIterator<E> implements ICloseableIterator<E> {
+public class EmptyCloseableIterator<E> extends ACloseableIterator<E> {
 
     @Override
-    public boolean hasNext() {
+    protected boolean innerHasNext() {
         return false;
     }
 
     @Override
-    public E next() {
+    protected E innerNext() {
         throw new NoSuchElementException();
     }
 
     @Override
-    public void close() throws IOException {}
+    protected void innerClose() {}
 
 }

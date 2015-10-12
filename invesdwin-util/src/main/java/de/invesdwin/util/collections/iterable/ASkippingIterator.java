@@ -1,27 +1,26 @@
 package de.invesdwin.util.collections.iterable;
 
-import java.io.IOException;
 import java.util.NoSuchElementException;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
 @NotThreadSafe
-public abstract class ASkippingIterator<E> implements ICloseableIterator<E> {
+public abstract class ASkippingIterator<E> extends ACloseableIterator<E> {
 
-    private final ICloseableIterator<E> delegate;
+    private final ACloseableIterator<E> delegate;
     private E cachedReadNext;
 
-    public ASkippingIterator(final ICloseableIterator<E> delegate) {
+    public ASkippingIterator(final ACloseableIterator<E> delegate) {
         this.delegate = delegate;
     }
 
     @Override
-    public boolean hasNext() {
+    protected boolean innerHasNext() {
         return readNext() != null;
     }
 
     @Override
-    public E next() {
+    protected E innerNext() {
         final E readNext = readNext();
         cachedReadNext = null;
         if (readNext == null) {
@@ -45,11 +44,7 @@ public abstract class ASkippingIterator<E> implements ICloseableIterator<E> {
                 }
                 //catching nosuchelement might be faster sometimes than checking hasNext(), e.g. for LevelDB
             } catch (final NoSuchElementException e) {
-                try {
-                    close();
-                } catch (final IOException e1) {
-                    throw new RuntimeException(e1);
-                }
+                close();
                 return null;
             }
             return cachedReadNext;
@@ -59,7 +54,7 @@ public abstract class ASkippingIterator<E> implements ICloseableIterator<E> {
     protected abstract boolean skip(E element);
 
     @Override
-    public void close() throws IOException {
+    protected void innerClose() {
         delegate.close();
     }
 

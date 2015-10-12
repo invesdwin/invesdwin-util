@@ -1,23 +1,22 @@
 package de.invesdwin.util.collections.iterable;
 
-import java.io.IOException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
 @NotThreadSafe
-public class FlatteningIterator<E> implements ICloseableIterator<E> {
+public class FlatteningIterator<E> extends ACloseableIterator<E> {
 
-    private final ICloseableIterator<? extends Iterator<? extends E>> delegate;
-    private ICloseableIterator<? extends E> curIterator;
+    private final ACloseableIterator<? extends Iterator<? extends E>> delegate;
+    private ACloseableIterator<? extends E> curIterator;
 
-    public FlatteningIterator(final ICloseableIterator<? extends Iterator<? extends E>> delegate) {
+    public FlatteningIterator(final ACloseableIterator<? extends Iterator<? extends E>> delegate) {
         this.delegate = delegate;
     }
 
     @Override
-    public boolean hasNext() {
+    protected boolean innerHasNext() {
         try {
             return getIterator().hasNext() || delegate.hasNext();
         } catch (final NoSuchElementException e) {
@@ -26,11 +25,11 @@ public class FlatteningIterator<E> implements ICloseableIterator<E> {
     }
 
     @Override
-    public E next() {
+    protected E innerNext() {
         return getIterator().next();
     }
 
-    private ICloseableIterator<? extends E> getIterator() {
+    private ACloseableIterator<? extends E> getIterator() {
         while (curIterator == null || !curIterator.hasNext()) {
             curIterator = WrapperCloseableIterator.maybeWrap(delegate.next());
         }
@@ -38,7 +37,7 @@ public class FlatteningIterator<E> implements ICloseableIterator<E> {
     }
 
     @Override
-    public void close() throws IOException {
+    protected void innerClose() {
         if (curIterator != null) {
             curIterator.close();
         }

@@ -1,6 +1,5 @@
 package de.invesdwin.util.collections.iterable.concurrent;
 
-import java.io.IOException;
 import java.util.NoSuchElementException;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -13,19 +12,19 @@ import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.assertions.Assertions;
-import de.invesdwin.util.collections.iterable.ICloseableIterator;
+import de.invesdwin.util.collections.iterable.ACloseableIterator;
 import de.invesdwin.util.concurrent.Executors;
 import de.invesdwin.util.concurrent.WrappedExecutorService;
 
 @NotThreadSafe
-public class ProducerQueueIterator<E> implements ICloseableIterator<E> {
+public class ProducerQueueIterator<E> extends ACloseableIterator<E> {
 
     private final class ProducerRunnable implements Runnable {
 
         @Override
         public void run() {
             try {
-                while (!closed && producer.hasNext()) {
+                while (!isClosed() && producer.hasNext()) {
                     final E next = producer.next();
                     onElement(next);
                 }
@@ -40,16 +39,16 @@ public class ProducerQueueIterator<E> implements ICloseableIterator<E> {
         private void onElement(final E element) {
             try {
                 Assertions.assertThat(element).isNotNull();
-                while (!closed) {
+                while (!isClosed()) {
                     final boolean added = queue.offer(element);
                     if (!added && queue.remainingCapacity() == 0) {
-                        if (debugEnabled) {
+                        if (utilizationDebugEnabled) {
                             System.out.println(String.format("%s: queue is full", name)); //SUPPRESS CHECKSTYLE single line
                         }
                         drainedLock.lock();
                         try {
                             //wait till queue is drained again, start work immediately when a bit of space is free again
-                            while (!closed && queue.size() >= queueSize) {
+                            while (!isClosed() && queue.size() >= queueSize) {
                                 drainedCondition.await(1, TimeUnit.SECONDS);
                             }
                         } finally {
@@ -70,25 +69,24 @@ public class ProducerQueueIterator<E> implements ICloseableIterator<E> {
     public static final int DEFAULT_QUEUE_SIZE = 10000;
 
     private final BlockingQueue<E> queue;
-    private volatile boolean closed;
     @GuardedBy("this")
     private E nextElement;
     private final Lock drainedLock = new ReentrantLock();
     @GuardedBy("drainedLock")
     private final Condition drainedCondition = drainedLock.newCondition();
     private final WrappedExecutorService executor;
-    private ICloseableIterator<E> producer;
+    private ACloseableIterator<E> producer;
 
     private final String name;
     private final int queueSize;
 
-    private boolean debugEnabled;
+    private boolean utilizationDebugEnabled;
 
-    public ProducerQueueIterator(final String name, final ICloseableIterator<E> producer) {
+    public ProducerQueueIterator(final String name, final ACloseableIterator<E> producer) {
         this(name, producer, DEFAULT_QUEUE_SIZE);
     }
 
-    public ProducerQueueIterator(final String name, final ICloseableIterator<E> producer, final int queueSize) {
+    public ProducerQueueIterator(final String name, final ACloseableIterator<E> producer, final int queueSize) {
         this.producer = producer;
         this.queue = new LinkedBlockingDeque<E>(queueSize);
         this.name = name;
@@ -99,24 +97,18 @@ public class ProducerQueueIterator<E> implements ICloseableIterator<E> {
         this.nextElement = readNext();
     }
 
-    public ProducerQueueIterator<E> withDebugEnabled() {
-        this.debugEnabled = true;
+    public ProducerQueueIterator<E> withUtilizationDebugEnabled() {
+        this.utilizationDebugEnabled = true;
         return this;
     }
 
-    @Override
-    protected void finalize() throws Throwable {
-        super.finalize();
-        close();
+    public boolean isUtilizationDebugEnabled() {
+        return utilizationDebugEnabled;
     }
 
     @Override
-    public synchronized boolean hasNext() {
-        final boolean hasNext = !closed || !queue.isEmpty() || nextElement != null;
-        if (!hasNext) {
-            close();
-        }
-        return hasNext;
+    protected synchronized boolean innerHasNext() {
+        return !queue.isEmpty() || nextElement != null;
     }
 
     /*
@@ -124,7 +116,7 @@ public class ProducerQueueIterator<E> implements ICloseableIterator<E> {
      * throw NoSuchElementException without the caller expecting this
      */
     @Override
-    public synchronized E next() {
+    protected synchronized E innerNext() {
         if (hasNext()) {
             final E curElement = nextElement;
             nextElement = null;
@@ -140,7 +132,7 @@ public class ProducerQueueIterator<E> implements ICloseableIterator<E> {
         try {
             boolean firstPoll = true;
             while (hasNext()) {
-                if (!firstPoll && debugEnabled) {
+                if (!firstPoll && utilizationDebugEnabled) {
                     System.out.println(String.format("%s: queue is empty", name)); //SUPPRESS CHECKSTYLE single line
                 }
                 firstPoll = false;
@@ -163,22 +155,10 @@ public class ProducerQueueIterator<E> implements ICloseableIterator<E> {
     }
 
     @Override
-    public void remove() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void close() {
-        if (!closed) {
-            closed = true;
-            executor.shutdown();
-            //cannot wait here for executor to close completely since the thread could trigger it himself
-            try {
-                producer.close();
-            } catch (final IOException e1) {
-                throw new RuntimeException(e1);
-            }
-        }
+    protected void innerClose() {
+        executor.shutdown();
+        //cannot wait here for executor to close completely since the thread could trigger it himself
+        producer.close();
     }
 
 }

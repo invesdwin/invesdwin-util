@@ -1,16 +1,15 @@
 package de.invesdwin.util.collections.iterable;
 
-import java.io.IOException;
 import java.util.Iterator;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
 @NotThreadSafe
-public abstract class ATransformingCloseableIterator<S, R> implements ICloseableIterator<R> {
+public abstract class ATransformingCloseableIterator<S, R> extends ACloseableIterator<R> {
 
-    private final ICloseableIterator<? extends S> delegate;
+    private final ACloseableIterator<? extends S> delegate;
 
-    public ATransformingCloseableIterator(final ICloseableIterator<? extends S> delegate) {
+    public ATransformingCloseableIterator(final ACloseableIterator<? extends S> delegate) {
         this.delegate = delegate;
     }
 
@@ -19,13 +18,12 @@ public abstract class ATransformingCloseableIterator<S, R> implements ICloseable
     }
 
     @Override
-    public boolean hasNext() {
+    protected boolean innerHasNext() {
         return delegate.hasNext();
     }
 
-    @SuppressWarnings("null")
     @Override
-    public R next() {
+    protected R innerNext() {
         final S next = delegate.next();
         if (next == null) {
             return null;
@@ -37,7 +35,7 @@ public abstract class ATransformingCloseableIterator<S, R> implements ICloseable
     protected abstract R transform(S value);
 
     @Override
-    public void close() throws IOException {
+    protected void innerClose() {
         delegate.close();
     }
 

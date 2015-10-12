@@ -48,8 +48,8 @@ public final class ShutdownHookManager {
         synchronized (INSTANCE) {
             final ShutdownHookThread thread = new ShutdownHookThread(hook);
             Assertions.assertThat(REGISTERED_HOOKS.put(hook, thread))
-            .as("Hook [%s] has already been registered!", hook)
-            .isNull();
+                    .as("Hook [%s] has already been registered!", hook)
+                    .isNull();
             Runtime.getRuntime().addShutdownHook(thread);
         }
     }
@@ -73,7 +73,7 @@ public final class ShutdownHookManager {
     private static class ShutdownHookThread extends Thread {
         private final IShutdownHook shutdownable;
 
-        public ShutdownHookThread(final IShutdownHook shutdownable) {
+        ShutdownHookThread(final IShutdownHook shutdownable) {
             this.shutdownable = shutdownable;
         }
 

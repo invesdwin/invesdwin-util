@@ -12,7 +12,7 @@ public abstract class ASkippingIterable<E> implements ICloseableIterable<E> {
     }
 
     @Override
-    public ICloseableIterator<E> iterator() {
+    public ACloseableIterator<E> iterator() {
         return new ASkippingIterator<E>(delegate.iterator()) {
             @Override
             protected boolean skip(final E element) {

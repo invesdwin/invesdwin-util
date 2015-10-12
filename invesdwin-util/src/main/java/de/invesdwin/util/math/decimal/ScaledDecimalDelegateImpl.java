@@ -19,7 +19,7 @@ class ScaledDecimalDelegateImpl extends ADecimalImpl {
     @GuardedBy("this")
     private ADecimalImpl defaultScaledDelegate;
 
-    public ScaledDecimalDelegateImpl(final AScaledDecimal<?, ?> parent, final ADecimalImpl delegate) {
+    ScaledDecimalDelegateImpl(final AScaledDecimal<?, ?> parent, final ADecimalImpl delegate) {
         super(false, false);
         this.parent = parent;
         if (delegate instanceof ScaledDecimalDelegateImpl) {

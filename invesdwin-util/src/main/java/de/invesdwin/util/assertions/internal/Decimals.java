@@ -16,7 +16,7 @@ class Decimals extends org.assertj.core.internal.Numbers {
 
     private Decimals() {}
 
-    public Decimals(final org.assertj.core.internal.ComparisonStrategy comparisonStrategy) {
+    Decimals(final org.assertj.core.internal.ComparisonStrategy comparisonStrategy) {
         super(comparisonStrategy);
     }
 
@@ -26,7 +26,8 @@ class Decimals extends org.assertj.core.internal.Numbers {
     }
 
     @Override
-    public void assertIsCloseTo(final AssertionInfo info, final Number actual, final Number other, final Offset offset) {
+    public void assertIsCloseTo(final AssertionInfo info, final Number actual, final Number other,
+            final Offset offset) {
         throw new UnsupportedOperationException("TODO");
     }
 }

@@ -1,6 +1,5 @@
 package de.invesdwin.util.collections.iterable;
 
-import java.io.IOException;
 import java.util.NoSuchElementException;
 
 import javax.annotation.concurrent.NotThreadSafe;
@@ -10,19 +9,19 @@ import javax.annotation.concurrent.NotThreadSafe;
  * NoSuchElementException.
  */
 @NotThreadSafe
-public class LimitingIterator<E> implements ICloseableIterator<E> {
+public class LimitingIterator<E> extends ACloseableIterator<E> {
 
-    private final ICloseableIterator<? extends E> delegate;
+    private final ACloseableIterator<? extends E> delegate;
     private final int limit;
     private int curCount;
 
-    public LimitingIterator(final ICloseableIterator<? extends E> delegate, final int limit) {
+    public LimitingIterator(final ACloseableIterator<? extends E> delegate, final int limit) {
         this.delegate = delegate;
         this.limit = limit;
     }
 
     @Override
-    public boolean hasNext() {
+    protected boolean innerHasNext() {
         if (curCount >= limit) {
             return false;
         }
@@ -30,7 +29,7 @@ public class LimitingIterator<E> implements ICloseableIterator<E> {
     }
 
     @Override
-    public E next() {
+    protected E innerNext() {
         if (curCount >= limit) {
             throw new NoSuchElementException();
         }
@@ -39,7 +38,7 @@ public class LimitingIterator<E> implements ICloseableIterator<E> {
     }
 
     @Override
-    public void close() throws IOException {
+    protected void innerClose() {
         delegate.close();
     }
 

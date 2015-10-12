@@ -3,7 +3,7 @@ package de.invesdwin.util.collections.iterable.concurrent;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
-import de.invesdwin.util.collections.iterable.ICloseableIterator;
+import de.invesdwin.util.collections.iterable.ACloseableIterator;
 
 @Immutable
 public abstract class AParallelChunkConsumerIterable<R, E> implements ICloseableIterable<E> {
@@ -25,7 +25,7 @@ public abstract class AParallelChunkConsumerIterable<R, E> implements ICloseable
     }
 
     @Override
-    public ICloseableIterator<E> iterator() {
+    public ACloseableIterator<E> iterator() {
         return new AParallelChunkConsumerIterator<R, E>(name, requests.iterator(), chunkSize) {
             @Override
             protected E doWork(final R request) {

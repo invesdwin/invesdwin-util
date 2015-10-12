@@ -3,7 +3,7 @@ package de.invesdwin.util.collections.iterable.concurrent;
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
-import de.invesdwin.util.collections.iterable.ICloseableIterator;
+import de.invesdwin.util.collections.iterable.ACloseableIterator;
 
 @ThreadSafe
 public class SynchronizedIterable<E> implements ICloseableIterable<E> {
@@ -15,7 +15,7 @@ public class SynchronizedIterable<E> implements ICloseableIterable<E> {
     }
 
     @Override
-    public ICloseableIterator<E> iterator() {
+    public ACloseableIterator<E> iterator() {
         return new SynchronizedIterator<E>(delegate.iterator());
     }
 

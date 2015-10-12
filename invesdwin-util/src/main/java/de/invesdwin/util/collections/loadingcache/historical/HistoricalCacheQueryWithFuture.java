@@ -1,6 +1,5 @@
 package de.invesdwin.util.collections.loadingcache.historical;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -9,8 +8,8 @@ import java.util.Map.Entry;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.assertions.Assertions;
+import de.invesdwin.util.collections.iterable.ACloseableIterator;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
-import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.collections.iterable.WrapperCloseableIterable;
 import de.invesdwin.util.time.fdate.FDate;
 
@@ -121,29 +120,24 @@ public class HistoricalCacheQueryWithFuture<V> extends HistoricalCacheQuery<V> {
     public ICloseableIterable<Entry<FDate, V>> getNextEntries(final FDate key, final int shiftForwardUnits) {
         return new ICloseableIterable<Entry<FDate, V>>() {
             @Override
-            public ICloseableIterator<Entry<FDate, V>> iterator() {
-                return new ICloseableIterator<Entry<FDate, V>>() {
-                    private final ICloseableIterator<FDate> nextKeys = getNextKeys(key, shiftForwardUnits).iterator();
+            public ACloseableIterator<Entry<FDate, V>> iterator() {
+                return new ACloseableIterator<Entry<FDate, V>>() {
+                    private final ACloseableIterator<FDate> nextKeys = getNextKeys(key, shiftForwardUnits).iterator();
 
                     @Override
-                    public boolean hasNext() {
+                    protected boolean innerHasNext() {
                         return nextKeys.hasNext();
                     }
 
                     @Override
-                    public Entry<FDate, V> next() {
+                    protected Entry<FDate, V> innerNext() {
                         final FDate nextKey = nextKeys.next();
                         return assertValue.assertValue(parent, key, nextKey,
                                 getValue(nextKey, HistoricalCacheAssertValue.ASSERT_VALUE_WITH_FUTURE));
                     }
 
                     @Override
-                    public void remove() {
-                        throw new UnsupportedOperationException();
-                    }
-
-                    @Override
-                    public void close() throws IOException {
+                    protected void innerClose() {
                         nextKeys.close();
                     }
                 };
@@ -154,28 +148,23 @@ public class HistoricalCacheQueryWithFuture<V> extends HistoricalCacheQuery<V> {
     public ICloseableIterable<V> getNextValues(final FDate key, final int shiftForwardUnits) {
         return new ICloseableIterable<V>() {
             @Override
-            public ICloseableIterator<V> iterator() {
-                return new ICloseableIterator<V>() {
-                    private final ICloseableIterator<Entry<FDate, V>> nextEntries = getNextEntries(key,
+            public ACloseableIterator<V> iterator() {
+                return new ACloseableIterator<V>() {
+                    private final ACloseableIterator<Entry<FDate, V>> nextEntries = getNextEntries(key,
                             shiftForwardUnits).iterator();
 
                     @Override
-                    public boolean hasNext() {
+                    protected boolean innerHasNext() {
                         return nextEntries.hasNext();
                     }
 
                     @Override
-                    public V next() {
+                    protected V innerNext() {
                         return HistoricalCacheAssertValue.unwrapEntry(nextEntries.next());
                     }
 
                     @Override
-                    public void remove() {
-                        throw new UnsupportedOperationException();
-                    }
-
-                    @Override
-                    public void close() throws IOException {
+                    protected void innerClose() {
                         nextEntries.close();
                     }
                 };

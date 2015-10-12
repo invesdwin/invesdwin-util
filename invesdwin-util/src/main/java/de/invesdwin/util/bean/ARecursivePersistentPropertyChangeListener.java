@@ -32,7 +32,8 @@ public abstract class ARecursivePersistentPropertyChangeListener implements Prop
     private final String sourceBeanPath;
     private final APropertyChangeSupported source;
     @GuardedBy("this")
-    private final Set<ChildRecursivePersistentPropertyChangeListener> children = Collections.newSetFromMap(new WeakHashMap<ChildRecursivePersistentPropertyChangeListener, Boolean>());
+    private final Set<ChildRecursivePersistentPropertyChangeListener> children = Collections
+            .newSetFromMap(new WeakHashMap<ChildRecursivePersistentPropertyChangeListener, Boolean>());
 
     public ARecursivePersistentPropertyChangeListener(final APropertyChangeSupported source) {
         this("", source);
@@ -150,8 +151,8 @@ public abstract class ARecursivePersistentPropertyChangeListener implements Prop
                         Assertions.assertThat(PathUtil.isShallowBeanPath(e.getBeanPath())).isTrue();
                         final APropertyChangeSupported cValue = (APropertyChangeSupported) value;
                         final ChildRecursivePersistentPropertyChangeListener child = new ChildRecursivePersistentPropertyChangeListener(
-                                cValue, ARecursivePersistentPropertyChangeListener.this, e.getAccessor()
-                                .getBeanPathFragment());
+                                cValue, ARecursivePersistentPropertyChangeListener.this,
+                                e.getAccessor().getBeanPathFragment());
                         child.addListenersToSourceHierarchy();
                     }
                 }
@@ -195,13 +196,13 @@ public abstract class ARecursivePersistentPropertyChangeListener implements Prop
 
     protected abstract void onListenerRemoved(ARecursivePersistentPropertyChangeListener listener);
 
-    private static class ChildRecursivePersistentPropertyChangeListener extends
-    ARecursivePersistentPropertyChangeListener {
+    private static class ChildRecursivePersistentPropertyChangeListener
+            extends ARecursivePersistentPropertyChangeListener {
 
         private final WeakReference<ARecursivePersistentPropertyChangeListener> parentRef;
         private final String beanPathFragment;
 
-        public ChildRecursivePersistentPropertyChangeListener(final APropertyChangeSupported source,
+        ChildRecursivePersistentPropertyChangeListener(final APropertyChangeSupported source,
                 final ARecursivePersistentPropertyChangeListener parent, final String beanPathFragment) {
             super(buildSourceBeanPath(parent, beanPathFragment), source);
             this.parentRef = new WeakReference<ARecursivePersistentPropertyChangeListener>(parent);
@@ -283,10 +284,12 @@ public abstract class ARecursivePersistentPropertyChangeListener implements Prop
 
         private final ChildRecursivePersistentPropertyChangeListener originChild;
 
-        public ChildPropertyChangeEvent(final ChildRecursivePersistentPropertyChangeListener originChild,
+        ChildPropertyChangeEvent(final ChildRecursivePersistentPropertyChangeListener originChild,
                 final PropertyChangeEvent propagatedEvent) {
-            super(extractParentSource(originChild), originChild.getBeanPathFragment() + PathUtil.BEAN_PATH_SEPARATOR
-                    + propagatedEvent.getPropertyName(), propagatedEvent.getOldValue(), propagatedEvent.getNewValue());
+            super(extractParentSource(originChild),
+                    originChild.getBeanPathFragment() + PathUtil.BEAN_PATH_SEPARATOR
+                            + propagatedEvent.getPropertyName(),
+                    propagatedEvent.getOldValue(), propagatedEvent.getNewValue());
             this.originChild = originChild;
         }
 

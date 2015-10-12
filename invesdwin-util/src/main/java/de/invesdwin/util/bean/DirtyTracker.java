@@ -137,8 +137,10 @@ public class DirtyTracker implements Serializable {
         final boolean changed = directMarkDirty(beanPathPrefixes);
         //manual changes are more expensive than tracked ones, since they don't propagate via the tracker on all levels
         //notify parents
-        for (final Entry<TrackingChangesPropagatingRecursivePersistentPropertyChangeListener, String> entry : getRegisteredTrackers().entrySet()) {
-            final TrackingChangesPropagatingRecursivePersistentPropertyChangeListener registeredTracker = entry.getKey();
+        for (final Entry<TrackingChangesPropagatingRecursivePersistentPropertyChangeListener, String> entry : getRegisteredTrackers()
+                .entrySet()) {
+            final TrackingChangesPropagatingRecursivePersistentPropertyChangeListener registeredTracker = entry
+                    .getKey();
             final String sourceBeanPath = entry.getValue();
             if (registeredTracker != directTracker) {
                 final String[] parentBeanPathPrefixes = adjustBeanPathPrefixesForParent(sourceBeanPath,
@@ -180,8 +182,10 @@ public class DirtyTracker implements Serializable {
         final boolean changed = directMarkClean(beanPathPrefixes);
         //manual changes are more expensive than tracked ones, since they don't propagate via the tracker on all levels
         //notify parents
-        for (final Entry<TrackingChangesPropagatingRecursivePersistentPropertyChangeListener, String> entry : getRegisteredTrackers().entrySet()) {
-            final TrackingChangesPropagatingRecursivePersistentPropertyChangeListener registeredTracker = entry.getKey();
+        for (final Entry<TrackingChangesPropagatingRecursivePersistentPropertyChangeListener, String> entry : getRegisteredTrackers()
+                .entrySet()) {
+            final TrackingChangesPropagatingRecursivePersistentPropertyChangeListener registeredTracker = entry
+                    .getKey();
             final String sourceBeanPath = entry.getValue();
             if (registeredTracker != directTracker) {
                 final String[] parentBeanPathPrefixes = adjustBeanPathPrefixesForParent(sourceBeanPath,
@@ -218,8 +222,10 @@ public class DirtyTracker implements Serializable {
 
     private synchronized void detectAndHealBrokenChildTrackers(final DirtyTracker childDirtyTracker) {
         synchronized (childDirtyTracker) {
-            final Map<TrackingChangesPropagatingRecursivePersistentPropertyChangeListener, String> childRegisteredTrackers = childDirtyTracker.getRegisteredTrackers();
-            for (final TrackingChangesPropagatingRecursivePersistentPropertyChangeListener tracker : getRegisteredTrackers().keySet()) {
+            final Map<TrackingChangesPropagatingRecursivePersistentPropertyChangeListener, String> childRegisteredTrackers = childDirtyTracker
+                    .getRegisteredTrackers();
+            for (final TrackingChangesPropagatingRecursivePersistentPropertyChangeListener tracker : getRegisteredTrackers()
+                    .keySet()) {
                 if (!childRegisteredTrackers.containsKey(tracker)) {
                     //there seems to be a new child that was not added via a setter, thus reattach everything from scratch
                     tracker.removeListenersFromSourceHierarchy();
@@ -342,10 +348,10 @@ public class DirtyTracker implements Serializable {
         directTracker = null;
     }
 
-    private class TrackingChangesPropagatingRecursivePersistentPropertyChangeListener extends
-            ARecursivePersistentPropertyChangeListener {
+    private class TrackingChangesPropagatingRecursivePersistentPropertyChangeListener
+            extends ARecursivePersistentPropertyChangeListener {
 
-        public TrackingChangesPropagatingRecursivePersistentPropertyChangeListener() {
+        TrackingChangesPropagatingRecursivePersistentPropertyChangeListener() {
             super(root);
         }
 
@@ -360,7 +366,8 @@ public class DirtyTracker implements Serializable {
             Assertions.assertThat(source).isInstanceOf(AValueObject.class);
             final AValueObject cSource = (AValueObject) source;
             final DirtyTracker sourceDirtyTracker = cSource.dirtyTracker();
-            final TrackingChangesPropagatingRecursivePersistentPropertyChangeListener sourceLeadingRegisteredTracker = sourceDirtyTracker.getOrUpdateLeadingRegisteredTracker(this);
+            final TrackingChangesPropagatingRecursivePersistentPropertyChangeListener sourceLeadingRegisteredTracker = sourceDirtyTracker
+                    .getOrUpdateLeadingRegisteredTracker(this);
             Assertions.assertThat(sourceLeadingRegisteredTracker).isSameAs(this);
             if (!sourceDirtyTracker.isTrackingChanges()) {
                 throw new IllegalStateException(
@@ -378,7 +385,8 @@ public class DirtyTracker implements Serializable {
             if (source instanceof AValueObject) {
                 final AValueObject cSource = (AValueObject) source;
                 final DirtyTracker sourceDirtyTracker = cSource.dirtyTracker();
-                final TrackingChangesPropagatingRecursivePersistentPropertyChangeListener sourceLeadingRegisteredTracker = sourceDirtyTracker.getOrUpdateLeadingRegisteredTracker(this);
+                final TrackingChangesPropagatingRecursivePersistentPropertyChangeListener sourceLeadingRegisteredTracker = sourceDirtyTracker
+                        .getOrUpdateLeadingRegisteredTracker(this);
                 if (sourceLeadingRegisteredTracker == this) {
                     return false;
                 }

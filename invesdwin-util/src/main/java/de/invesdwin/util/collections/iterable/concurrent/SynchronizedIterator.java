@@ -1,32 +1,30 @@
 package de.invesdwin.util.collections.iterable.concurrent;
 
-import java.io.IOException;
-
 import javax.annotation.concurrent.ThreadSafe;
 
-import de.invesdwin.util.collections.iterable.ICloseableIterator;
+import de.invesdwin.util.collections.iterable.ACloseableIterator;
 
 @ThreadSafe
-public class SynchronizedIterator<E> implements ICloseableIterator<E> {
+public class SynchronizedIterator<E> extends ACloseableIterator<E> {
 
-    private final ICloseableIterator<E> delegate;
+    private final ACloseableIterator<E> delegate;
 
-    public SynchronizedIterator(final ICloseableIterator<E> delegate) {
+    public SynchronizedIterator(final ACloseableIterator<E> delegate) {
         this.delegate = delegate;
     }
 
     @Override
-    public synchronized boolean hasNext() {
+    protected synchronized boolean innerHasNext() {
         return delegate.hasNext();
     }
 
     @Override
-    public synchronized E next() {
+    protected synchronized E innerNext() {
         return delegate.next();
     }
 
     @Override
-    public synchronized void close() throws IOException {
+    protected synchronized void innerClose() {
         delegate.close();
     }
 
