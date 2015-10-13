@@ -29,10 +29,10 @@ public class ProducerQueueIterator<E> extends ACloseableIterator<E> {
                     onElement(next);
                 }
             } catch (final NoSuchElementException e) {
-                close();
+                innerClose();
             } finally {
                 //closing does not prevent queue from getting drained completely
-                close();
+                innerClose();
             }
         }
 
@@ -43,7 +43,7 @@ public class ProducerQueueIterator<E> extends ACloseableIterator<E> {
                     final boolean added = queue.offer(element);
                     if (!added && queue.remainingCapacity() == 0) {
                         if (utilizationDebugEnabled) {
-                            System.out.println(String.format("%s: queue is full", name)); //SUPPRESS CHECKSTYLE single line
+                            LOGGER.info(String.format("%s: queue is full", name));
                         }
                         drainedLock.lock();
                         try {
@@ -61,12 +61,13 @@ public class ProducerQueueIterator<E> extends ACloseableIterator<E> {
                 }
             } catch (final InterruptedException e) {
                 Thread.currentThread().interrupt();
-                close();
+                innerClose();
             }
         }
     }
 
     public static final int DEFAULT_QUEUE_SIZE = 10000;
+    private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(ProducerQueueIterator.class);
 
     private final BlockingQueue<E> queue;
     private volatile boolean innerClosed;
@@ -111,7 +112,7 @@ public class ProducerQueueIterator<E> extends ACloseableIterator<E> {
     protected synchronized boolean innerHasNext() {
         final boolean hasNext = !innerClosed || !queue.isEmpty() || nextElement != null;
         if (!hasNext) {
-            close();
+            innerClose();
         }
         return hasNext;
     }
@@ -138,7 +139,7 @@ public class ProducerQueueIterator<E> extends ACloseableIterator<E> {
             boolean firstPoll = true;
             while (hasNext()) {
                 if (!firstPoll && utilizationDebugEnabled) {
-                    System.out.println(String.format("%s: queue is empty", name)); //SUPPRESS CHECKSTYLE single line
+                    LOGGER.info(String.format("%s: queue is empty", name));
                 }
                 firstPoll = false;
                 final E element = queue.poll(1, TimeUnit.SECONDS);

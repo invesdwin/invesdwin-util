@@ -11,11 +11,21 @@ import de.invesdwin.util.error.Throwables;
 @NotThreadSafe
 public abstract class ACloseableIterator<E> implements Iterator<E>, Closeable {
 
+    private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(ACloseableIterator.class);
+
     private static boolean finalizerDebugEnabled;
 
     private boolean closed;
 
-    private Exception stackTrace;
+    private Exception initStackTrace;
+    private Exception nextStackTrace;
+
+    public ACloseableIterator() {
+        if (isFinalizerDebugEnabled()) {
+            initStackTrace = new Exception();
+            initStackTrace.fillInStackTrace();
+        }
+    }
 
     /**
      * http://www.informit.com/articles/article.aspx?p=1216151&seqNum=7
@@ -25,10 +35,17 @@ public abstract class ACloseableIterator<E> implements Iterator<E>, Closeable {
         if (!isClosed()) {
             if (finalizerDebugEnabled) {
                 String warning = "Finalizing unclosed iterator [" + getClass().getName() + "]";
+                final Exception stackTrace;
+                if (initStackTrace != null) {
+                    warning += " which was initialized but never used";
+                    stackTrace = initStackTrace;
+                } else {
+                    stackTrace = nextStackTrace;
+                }
                 if (stackTrace != null) {
                     warning += " from stacktrace:\n" + Throwables.getFullStackTrace(stackTrace);
                 }
-                System.err.println(warning); //SUPPRESS CHECKSTYLE single line
+                LOGGER.warn(warning);
             }
             close();
         }
@@ -54,9 +71,10 @@ public abstract class ACloseableIterator<E> implements Iterator<E>, Closeable {
         if (isClosed()) {
             throw new NoSuchElementException("closed");
         }
-        if (isFinalizerDebugEnabled() && stackTrace == null) {
-            stackTrace = new Exception();
-            stackTrace.fillInStackTrace();
+        if (isFinalizerDebugEnabled() && nextStackTrace == null) {
+            initStackTrace = null;
+            nextStackTrace = new Exception();
+            nextStackTrace.fillInStackTrace();
         }
         final E next;
         try {
@@ -67,6 +85,7 @@ public abstract class ACloseableIterator<E> implements Iterator<E>, Closeable {
         }
         if (next == null) {
             close();
+            throw new NoSuchElementException("null element");
         }
         return next;
     }
@@ -87,7 +106,8 @@ public abstract class ACloseableIterator<E> implements Iterator<E>, Closeable {
     public final void close() {
         if (!isClosed()) {
             closed = true;
-            stackTrace = null;
+            initStackTrace = null;
+            nextStackTrace = null;
             innerClose();
         }
     }
