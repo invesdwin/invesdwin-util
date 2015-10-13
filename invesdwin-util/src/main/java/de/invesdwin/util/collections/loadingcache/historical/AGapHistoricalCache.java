@@ -1,13 +1,12 @@
 package de.invesdwin.util.collections.loadingcache.historical;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.assertions.Assertions;
+import de.invesdwin.util.collections.iterable.BufferingIterator;
 import de.invesdwin.util.time.Duration;
 import de.invesdwin.util.time.fdate.FDate;
 
@@ -36,9 +35,9 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
     private static final int MAX_LAST_VALUES_FROM_LOAD_FURTHER_VALUES = 2;
 
     @GuardedBy("this")
-    private List<? extends V> furtherValues;
+    private final BufferingIterator<V> furtherValues = new BufferingIterator<V>();
     @GuardedBy("this")
-    private final List<V> lastValuesFromFurtherValues = new ArrayList<V>();
+    private final BufferingIterator<V> lastValuesFromFurtherValues = new BufferingIterator<V>();
     /**
      * As a convenience a field even if always reset
      */
@@ -223,10 +222,11 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
             } else {
                 keyForReadAllValues = FDate.max(minKeyInDB, adjustedKey);
             }
-            furtherValues = readAllValuesAscendingFrom(keyForReadAllValues);
+            furtherValues.clear();
             lastValuesFromFurtherValues.clear();
+            furtherValues.addAll(readAllValuesAscendingFrom(keyForReadAllValues));
 
-            if (furtherValues.size() > 0) {
+            if (!furtherValues.isEmpty()) {
                 assertFurtherValuesSorting(key);
             } else if (maxKeyInDB == null && minKeyInDB == null) {
                 noKeysInDB = true;
@@ -237,8 +237,7 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
     }
 
     private boolean shouldLoadFurtherValues(final FDate key, final boolean newMinKey) {
-        final boolean furtherValuesEmpty = furtherValues == null || furtherValues.size() == 0;
-        if (furtherValuesEmpty) {
+        if (furtherValues.isEmpty()) {
             return true;
         }
         final boolean keyIsBeforeMinKeyFromLoadFurtherValues = newMinKey
@@ -261,7 +260,7 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
     }
 
     private void assertFurtherValuesSorting(final FDate key) {
-        final FDate firstKey = extractKey(key, furtherValues.get(0));
+        final FDate firstKey = extractKey(key, furtherValues.getHead());
         if (firstKey.compareTo(key) <= -1) {
             /*
              * readAllValuesAscendingFrom loads all data, thus we set the min key very deep so that later queries are
@@ -273,7 +272,7 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
             minKeyInDB = firstKey;
         }
         minKeyInDBFromLoadFurtherValues = FDate.min(minKeyInDBFromLoadFurtherValues, firstKey);
-        final FDate lastKey = extractKey(key, furtherValues.get(furtherValues.size() - 1));
+        final FDate lastKey = extractKey(key, furtherValues.getTail());
         if (maxKeyInDB == null || lastKey.compareTo(maxKeyInDB) <= -1) {
             maxKeyInDB = FDate.max(maxKeyInDB, lastKey);
         }
@@ -307,7 +306,7 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
 
         final FDate earliestStartOfLoadFurtherValues = determineEaliestStartOfLoadFurtherValues(key);
         while (furtherValues.size() > 0) {
-            final V newValue = furtherValues.get(0);
+            final V newValue = furtherValues.getHead();
             final FDate newValueKey = extractKey(key, newValue);
             final int compare = key.compareTo(newValueKey);
             if (compare < 0) {
@@ -349,9 +348,9 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
 
     private void pushLastValueFromFurtherValues() {
         while (lastValuesFromFurtherValues.size() > MAX_LAST_VALUES_FROM_LOAD_FURTHER_VALUES) {
-            lastValuesFromFurtherValues.remove(0);
+            lastValuesFromFurtherValues.next();
         }
-        lastValuesFromFurtherValues.add(furtherValues.remove(0));
+        lastValuesFromFurtherValues.add(furtherValues.next());
     }
 
     /**
@@ -403,7 +402,7 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
 
         //try to use first value of furthervalues
         if (value == null && furtherValuesLoaded && !furtherValues.isEmpty()) {
-            value = furtherValues.get(0);
+            value = furtherValues.getHead();
         }
 
         if (value != null) {
@@ -417,7 +416,7 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
         }
     }
 
-    protected abstract List<? extends V> readAllValuesAscendingFrom(final FDate key);
+    protected abstract Iterable<? extends V> readAllValuesAscendingFrom(final FDate key);
 
     /**
      * This method first tries to load the nearest neighbor value to the given key. First it tries to load values <=
@@ -442,7 +441,7 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
         maxKeyInDB = null;
         minKeyInDB = null;
         //a clear forces the list to be completely reloaded next time get is called
-        furtherValues = null;
+        furtherValues.clear();
         lastValuesFromFurtherValues.clear();
         noKeysInDB = false;
         noValueInReadNewestValueFromDB = false;

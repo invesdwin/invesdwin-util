@@ -14,7 +14,7 @@ public class FlatteningIterable<E> implements ICloseableIterable<E> {
     }
 
     @Override
-    public ACloseableIterator<E> iterator() {
+    public ICloseableIterator<E> iterator() {
         final ATransformingCloseableIterator<Iterable<? extends E>, Iterator<? extends E>> transformingDelegate = new ATransformingCloseableIterator<Iterable<? extends E>, Iterator<? extends E>>(
                 delegate.iterator()) {
             @Override

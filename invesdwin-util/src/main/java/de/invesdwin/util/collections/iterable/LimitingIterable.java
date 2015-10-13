@@ -18,7 +18,7 @@ public class LimitingIterable<E> implements ICloseableIterable<E> {
     }
 
     @Override
-    public ACloseableIterator<E> iterator() {
+    public ICloseableIterator<E> iterator() {
         return new LimitingIterator<E>(delegate.iterator(), limit);
     }
 

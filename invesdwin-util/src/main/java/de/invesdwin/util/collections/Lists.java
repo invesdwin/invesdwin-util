@@ -11,7 +11,7 @@ import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
 import de.invesdwin.util.collections.internal.AListsStaticFacade;
-import de.invesdwin.util.collections.iterable.ACloseableIterator;
+import de.invesdwin.util.collections.iterable.ICloseableIterator;
 
 @Immutable
 @StaticFacadeDefinition(name = "de.invesdwin.util.collections.internal.AListsStaticFacade", targets = {
@@ -33,7 +33,7 @@ public final class Lists extends AListsStaticFacade {
         return join(Arrays.asList(lists));
     }
 
-    public static <E> List<E> toListWithoutHasNext(final ACloseableIterator<? extends E> iterator, final List<E> list) {
+    public static <E> List<E> toListWithoutHasNext(final ICloseableIterator<? extends E> iterator, final List<E> list) {
         try {
             while (true) {
                 final E next = iterator.next();
@@ -48,12 +48,12 @@ public final class Lists extends AListsStaticFacade {
         }
     }
 
-    public static <E> List<E> toListWithoutHasNext(final ACloseableIterator<? extends E> iterator) {
+    public static <E> List<E> toListWithoutHasNext(final ICloseableIterator<? extends E> iterator) {
         //linked list is most suitable for AGapHistoricalCache in performance
         return toListWithoutHasNext(iterator, new LinkedList<E>());
     }
 
-    public static <E> List<E> toList(final ACloseableIterator<? extends E> iterator, final List<E> list) {
+    public static <E> List<E> toList(final ICloseableIterator<? extends E> iterator, final List<E> list) {
         while (iterator.hasNext()) {
             list.add(iterator.next());
         }
@@ -61,7 +61,7 @@ public final class Lists extends AListsStaticFacade {
         return list;
     }
 
-    public static <E> List<E> toList(final ACloseableIterator<? extends E> iterator) {
+    public static <E> List<E> toList(final ICloseableIterator<? extends E> iterator) {
         return toList(iterator, new LinkedList<E>());
     }
 }

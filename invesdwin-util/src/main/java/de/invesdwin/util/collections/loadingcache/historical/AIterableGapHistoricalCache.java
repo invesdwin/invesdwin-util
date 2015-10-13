@@ -1,40 +1,47 @@
 package de.invesdwin.util.collections.loadingcache.historical;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.annotation.concurrent.ThreadSafe;
 
+import de.invesdwin.util.collections.iterable.ASkippingIterable;
+import de.invesdwin.util.collections.iterable.ICloseableIterable;
+import de.invesdwin.util.collections.iterable.WrapperCloseableIterable;
 import de.invesdwin.util.time.fdate.FDate;
 
 @ThreadSafe
 public abstract class AIterableGapHistoricalCache<V> extends AGapHistoricalCache<V> {
 
-    @Override
-    protected List<V> readAllValuesAscendingFrom(final FDate key) {
-        final List<V> list = new ArrayList<V>();
-        for (final V e : getIterable()) {
-            final FDate eKey = extractKey(e);
-            if (!eKey.isBefore(key)) {
-                list.add(e);
-            }
+    private ICloseableIterable<V> delegate;
+
+    protected synchronized ICloseableIterable<V> getDelegate() {
+        if (delegate == null) {
+            this.delegate = WrapperCloseableIterable.maybeWrap(createDelegate());
         }
-        return list;
+        return delegate;
+    }
+
+    protected abstract Iterable<V> createDelegate();
+
+    @Override
+    protected Iterable<V> readAllValuesAscendingFrom(final FDate key) {
+        return new ASkippingIterable<V>(getDelegate()) {
+            @Override
+            protected boolean skip(final V element) {
+                return extractKey(key, element).isBefore(key);
+            }
+        };
     }
 
     @Override
-    protected final FDate innerExtractKey(final FDate key, final V value) {
-        return extractKey(value);
-    }
+    protected abstract FDate innerExtractKey(final FDate key, final V value);
 
     @Override
     protected V readLatestValueFor(final FDate key) {
         V previousE = (V) null;
-        for (final V e : getIterable()) {
+        for (final V e : getDelegate()) {
             if (previousE == null) {
                 previousE = e;
             } else {
-                final FDate eKey = extractKey(e);
+                final FDate eKey = extractKey(key, e);
                 if (key.isAfter(eKey)) {
                     previousE = e;
                 } else {
@@ -44,9 +51,5 @@ public abstract class AIterableGapHistoricalCache<V> extends AGapHistoricalCache
         }
         return previousE;
     }
-
-    protected abstract Iterable<V> getIterable();
-
-    protected abstract FDate extractKey(V value);
 
 }

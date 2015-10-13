@@ -13,6 +13,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.iterable.ACloseableIterator;
+import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.concurrent.Executors;
 import de.invesdwin.util.concurrent.WrappedExecutorService;
 
@@ -77,18 +78,18 @@ public class ProducerQueueIterator<E> extends ACloseableIterator<E> {
     @GuardedBy("drainedLock")
     private final Condition drainedCondition = drainedLock.newCondition();
     private final WrappedExecutorService executor;
-    private ACloseableIterator<E> producer;
+    private ICloseableIterator<E> producer;
 
     private final String name;
     private final int queueSize;
 
     private boolean utilizationDebugEnabled;
 
-    public ProducerQueueIterator(final String name, final ACloseableIterator<E> producer) {
+    public ProducerQueueIterator(final String name, final ICloseableIterator<E> producer) {
         this(name, producer, DEFAULT_QUEUE_SIZE);
     }
 
-    public ProducerQueueIterator(final String name, final ACloseableIterator<E> producer, final int queueSize) {
+    public ProducerQueueIterator(final String name, final ICloseableIterator<E> producer, final int queueSize) {
         this.producer = producer;
         this.queue = new LinkedBlockingDeque<E>(queueSize);
         this.name = name;

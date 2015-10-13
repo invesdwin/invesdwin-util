@@ -21,7 +21,7 @@ public abstract class ATransformingCloseableIterable<S, R> implements ICloseable
     protected abstract R transform(S value);
 
     @Override
-    public ACloseableIterator<R> iterator() {
+    public ICloseableIterator<R> iterator() {
         return new ATransformingCloseableIterator<S, R>(delegate.iterator()) {
 
             @Override

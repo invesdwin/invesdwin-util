@@ -1,5 +1,8 @@
 package de.invesdwin.util.collections.iterable;
 
+import java.io.Closeable;
+import java.io.IOException;
+import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import javax.annotation.concurrent.NotThreadSafe;
@@ -10,44 +13,118 @@ import javax.annotation.concurrent.NotThreadSafe;
  * 
  * Helpful to fix too many open files during iteration of lots of files in parallel without too much of a performance
  * overhead.
+ * 
+ * Also a faster alternative to any list when only iteration is needed.
  */
 @NotThreadSafe
-public class BufferingIterator<E> extends ACloseableIterator<E> {
+public class BufferingIterator<E> implements ICloseableIterator<E>, Iterable<E> {
 
-    private Node head = null;
+    private Node head;
+    private Node tail;
+    private int size = 0;
 
-    public BufferingIterator(final ACloseableIterator<E> iterator) {
-        Node prev = new Node(iterator.next());
-        head = prev;
+    public BufferingIterator() {}
+
+    public BufferingIterator(final Iterator<E> iterator) {
+        addAll(iterator);
+    }
+
+    @Override
+    public boolean hasNext() {
+        return head != null;
+    }
+
+    public boolean isEmpty() {
+        return head == null;
+    }
+
+    @Override
+    public E next() {
+        final E value = getHead();
+        head = head.getNext();
+        size--;
+        return value;
+    }
+
+    public E getHead() {
+        if (head == null) {
+            throw new NoSuchElementException();
+        } else {
+            return head.getValue();
+        }
+    }
+
+    public E getTail() {
+        return tail.getValue();
+    }
+
+    public void add(final E element) {
+        if (element == null) {
+            throw new NullPointerException();
+        }
+        final Node newTail = new Node(element);
+        if (head == null) {
+            head = newTail;
+        } else {
+            tail.setNext(newTail);
+        }
+        size++;
+        tail = newTail;
+    }
+
+    public void addAll(final Iterable<? extends E> iterable) {
+        if (iterable == null) {
+            return;
+        } else {
+            addAll(iterable.iterator());
+        }
+    }
+
+    public void addAll(final Iterator<? extends E> iterator) {
+        if (iterator == null) {
+            return;
+        }
+        Node prev = tail;
         try {
+            if (tail == null) {
+                prev = new Node(iterator.next());
+                size++;
+            }
+            if (head == null) {
+                head = prev;
+            }
             while (true) {
                 final Node next = new Node(iterator.next());
                 prev.setNext(next);
                 prev = next;
+                size++;
             }
         } catch (final NoSuchElementException e) {
-            iterator.close();
+            if (iterator instanceof Closeable) {
+                final Closeable cIterator = (Closeable) iterator;
+                try {
+                    cIterator.close();
+                } catch (final IOException e1) {
+                    throw new RuntimeException(e1);
+                }
+            }
         }
+        tail = prev;
     }
 
     @Override
-    protected boolean innerHasNext() {
-        return head != null;
+    public void close() {
+        clear();
     }
 
-    @Override
-    protected E innerNext() {
-        if (head == null) {
-            throw new NoSuchElementException();
-        }
-        final E value = head.getValue();
-        head = head.getNext();
-        return value;
-    }
-
-    @Override
-    protected void innerClose() {
+    public void clear() {
         head = null;
+        tail = null;
+        size = 0;
+    }
+
+    public int size() {
+        return size;
     }
 
     private class Node {
@@ -69,6 +146,30 @@ public class BufferingIterator<E> extends ACloseableIterator<E> {
         public void setNext(final Node next) {
             this.next = next;
         }
+    }
+
+    @Override
+    public Iterator<E> iterator() {
+        return new Iterator<E>() {
+
+            private Node innerHead = head;
+
+            @Override
+            public boolean hasNext() {
+                return innerHead != null;
+            }
+
+            @Override
+            public E next() {
+                if (!hasNext()) {
+                    throw new NoSuchElementException();
+                }
+                final E value = innerHead.getValue();
+                innerHead = innerHead.getNext();
+                return value;
+            }
+
+        };
     }
 
 }

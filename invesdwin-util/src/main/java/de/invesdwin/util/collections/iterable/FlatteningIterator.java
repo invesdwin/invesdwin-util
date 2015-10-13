@@ -8,10 +8,10 @@ import javax.annotation.concurrent.NotThreadSafe;
 @NotThreadSafe
 public class FlatteningIterator<E> extends ACloseableIterator<E> {
 
-    private final ACloseableIterator<? extends Iterator<? extends E>> delegate;
-    private ACloseableIterator<? extends E> curIterator;
+    private final ICloseableIterator<? extends Iterator<? extends E>> delegate;
+    private ICloseableIterator<? extends E> curIterator;
 
-    public FlatteningIterator(final ACloseableIterator<? extends Iterator<? extends E>> delegate) {
+    public FlatteningIterator(final ICloseableIterator<? extends Iterator<? extends E>> delegate) {
         this.delegate = delegate;
     }
 
@@ -29,7 +29,7 @@ public class FlatteningIterator<E> extends ACloseableIterator<E> {
         return getIterator().next();
     }
 
-    private ACloseableIterator<? extends E> getIterator() {
+    private ICloseableIterator<? extends E> getIterator() {
         while (curIterator == null || !curIterator.hasNext()) {
             curIterator = WrapperCloseableIterator.maybeWrap(delegate.next());
         }

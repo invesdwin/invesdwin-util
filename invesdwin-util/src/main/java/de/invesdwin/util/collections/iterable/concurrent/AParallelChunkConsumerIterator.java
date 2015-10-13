@@ -10,6 +10,7 @@ import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.collections.iterable.ACloseableIterator;
+import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.concurrent.Executors;
 import de.invesdwin.util.concurrent.Futures;
 import de.invesdwin.util.concurrent.WrappedExecutorService;
@@ -18,17 +19,17 @@ import de.invesdwin.util.concurrent.WrappedExecutorService;
 public abstract class AParallelChunkConsumerIterator<R, E> extends ACloseableIterator<E> {
 
     private static final int DEFAULT_CONSUMER_COUNT = Executors.getCpuThreadPoolCount();
-    private final ACloseableIterator<R> requests;
+    private final ICloseableIterator<R> requests;
     private final WrappedExecutorService consumerExecutor;
     @GuardedBy("this")
     private final List<Future<E>> futures;
     private final int chunkSize;
 
-    public AParallelChunkConsumerIterator(final String name, final ACloseableIterator<R> requests) {
+    public AParallelChunkConsumerIterator(final String name, final ICloseableIterator<R> requests) {
         this(name, requests, DEFAULT_CONSUMER_COUNT);
     }
 
-    public AParallelChunkConsumerIterator(final String name, final ACloseableIterator<R> requests,
+    public AParallelChunkConsumerIterator(final String name, final ICloseableIterator<R> requests,
             final int chunkSize) {
         this.chunkSize = chunkSize;
         this.requests = requests;

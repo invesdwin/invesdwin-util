@@ -4,9 +4,9 @@ import java.util.Map.Entry;
 
 import javax.annotation.concurrent.ThreadSafe;
 
-import de.invesdwin.util.collections.iterable.ACloseableIterator;
 import de.invesdwin.util.collections.iterable.ATransformingCloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
+import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
 import de.invesdwin.util.time.fdate.FDate;
 
@@ -23,17 +23,17 @@ public abstract class AHistoricalCacheQueryInterceptor<V> implements IHistorical
     public ICloseableIterable<FDate> getKeys(final FDate from, final FDate to) {
         return new ICloseableIterable<FDate>() {
             @Override
-            public ACloseableIterator<FDate> iterator() {
-                return new ACloseableIterator<FDate>() {
-                    private final ACloseableIterator<Entry<FDate, V>> entriesIterator = getEntries(from, to).iterator();
+            public ICloseableIterator<FDate> iterator() {
+                return new ICloseableIterator<FDate>() {
+                    private final ICloseableIterator<Entry<FDate, V>> entriesIterator = getEntries(from, to).iterator();
 
                     @Override
-                    protected boolean innerHasNext() {
+                    public boolean hasNext() {
                         return entriesIterator.hasNext();
                     }
 
                     @Override
-                    protected FDate innerNext() {
+                    public FDate next() {
                         final Entry<FDate, V> next = entriesIterator.next();
                         if (next == null) {
                             return null;
@@ -43,7 +43,7 @@ public abstract class AHistoricalCacheQueryInterceptor<V> implements IHistorical
                     }
 
                     @Override
-                    protected void innerClose() {
+                    public void close() {
                         entriesIterator.close();
                     }
                 };

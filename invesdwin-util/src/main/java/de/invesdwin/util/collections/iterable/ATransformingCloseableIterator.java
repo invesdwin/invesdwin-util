@@ -7,9 +7,9 @@ import javax.annotation.concurrent.NotThreadSafe;
 @NotThreadSafe
 public abstract class ATransformingCloseableIterator<S, R> extends ACloseableIterator<R> {
 
-    private final ACloseableIterator<? extends S> delegate;
+    private final ICloseableIterator<? extends S> delegate;
 
-    public ATransformingCloseableIterator(final ACloseableIterator<? extends S> delegate) {
+    public ATransformingCloseableIterator(final ICloseableIterator<? extends S> delegate) {
         this.delegate = delegate;
     }
 

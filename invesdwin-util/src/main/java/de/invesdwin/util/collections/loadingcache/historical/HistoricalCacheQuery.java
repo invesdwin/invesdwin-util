@@ -15,6 +15,7 @@ import com.google.common.base.Optional;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.iterable.ACloseableIterator;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
+import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.collections.iterable.WrapperCloseableIterable;
 import de.invesdwin.util.collections.iterable.WrapperCloseableIterator;
 import de.invesdwin.util.time.fdate.FDate;
@@ -156,23 +157,23 @@ public class HistoricalCacheQuery<V> {
             final HistoricalCacheAssertValue assertValue) {
         return new ICloseableIterable<V>() {
             @Override
-            public ACloseableIterator<V> iterator() {
-                return new ACloseableIterator<V>() {
-                    private final ACloseableIterator<Entry<FDate, V>> entriesIterator = getEntries(keys, assertValue)
+            public ICloseableIterator<V> iterator() {
+                return new ICloseableIterator<V>() {
+                    private final ICloseableIterator<Entry<FDate, V>> entriesIterator = getEntries(keys, assertValue)
                             .iterator();
 
                     @Override
-                    protected boolean innerHasNext() {
+                    public boolean hasNext() {
                         return entriesIterator.hasNext();
                     }
 
                     @Override
-                    protected V innerNext() {
+                    public V next() {
                         return HistoricalCacheAssertValue.unwrapEntry(entriesIterator.next());
                     }
 
                     @Override
-                    protected void innerClose() {
+                    public void close() {
                         entriesIterator.close();
                     }
                 };
@@ -261,7 +262,7 @@ public class HistoricalCacheQuery<V> {
             @Override
             public ACloseableIterator<Entry<FDate, V>> iterator() {
                 return new ACloseableIterator<Entry<FDate, V>>() {
-                    private final ACloseableIterator<FDate> previousKeys = getPreviousKeys(key, shiftBackUnits)
+                    private final ICloseableIterator<FDate> previousKeys = getPreviousKeys(key, shiftBackUnits)
                             .iterator();
 
                     @Override
@@ -289,23 +290,23 @@ public class HistoricalCacheQuery<V> {
     public final ICloseableIterable<V> getPreviousValues(final FDate key, final int shiftBackUnits) {
         return new ICloseableIterable<V>() {
             @Override
-            public ACloseableIterator<V> iterator() {
-                return new ACloseableIterator<V>() {
-                    private final ACloseableIterator<Entry<FDate, V>> previousEntries = getPreviousEntries(key,
+            public ICloseableIterator<V> iterator() {
+                return new ICloseableIterator<V>() {
+                    private final ICloseableIterator<Entry<FDate, V>> previousEntries = getPreviousEntries(key,
                             shiftBackUnits).iterator();
 
                     @Override
-                    protected boolean innerHasNext() {
+                    public boolean hasNext() {
                         return previousEntries.hasNext();
                     }
 
                     @Override
-                    protected V innerNext() {
+                    public V next() {
                         return HistoricalCacheAssertValue.unwrapEntry(previousEntries.next());
                     }
 
                     @Override
-                    protected void innerClose() {
+                    public void close() {
                         previousEntries.close();
                     }
                 };
@@ -369,23 +370,23 @@ public class HistoricalCacheQuery<V> {
         } else {
             return new ICloseableIterable<Entry<FDate, V>>() {
                 @Override
-                public ACloseableIterator<Entry<FDate, V>> iterator() {
-                    return new ACloseableIterator<Entry<FDate, V>>() {
+                public ICloseableIterator<Entry<FDate, V>> iterator() {
+                    return new ICloseableIterator<Entry<FDate, V>>() {
 
-                        private final ACloseableIterator<FDate> keysIterator = getKeys(from, to).iterator();
+                        private final ICloseableIterator<FDate> keysIterator = getKeys(from, to).iterator();
 
                         @Override
-                        protected boolean innerHasNext() {
+                        public boolean hasNext() {
                             return keysIterator.hasNext();
                         }
 
                         @Override
-                        protected Entry<FDate, V> innerNext() {
+                        public Entry<FDate, V> next() {
                             return getEntry(keysIterator.next());
                         }
 
                         @Override
-                        protected void innerClose() {
+                        public void close() {
                             keysIterator.close();
                         }
 
@@ -398,23 +399,23 @@ public class HistoricalCacheQuery<V> {
     public ICloseableIterable<V> getValues(final FDate from, final FDate to) {
         return new ICloseableIterable<V>() {
             @Override
-            public ACloseableIterator<V> iterator() {
-                return new ACloseableIterator<V>() {
+            public ICloseableIterator<V> iterator() {
+                return new ICloseableIterator<V>() {
 
-                    private final ACloseableIterator<Entry<FDate, V>> entriesIterator = getEntries(from, to).iterator();
+                    private final ICloseableIterator<Entry<FDate, V>> entriesIterator = getEntries(from, to).iterator();
 
                     @Override
-                    protected boolean innerHasNext() {
+                    public boolean hasNext() {
                         return entriesIterator.hasNext();
                     }
 
                     @Override
-                    protected V innerNext() {
+                    public V next() {
                         return HistoricalCacheAssertValue.unwrapEntry(entriesIterator.next());
                     }
 
                     @Override
-                    protected void innerClose() {
+                    public void close() {
                         entriesIterator.close();
                     }
 

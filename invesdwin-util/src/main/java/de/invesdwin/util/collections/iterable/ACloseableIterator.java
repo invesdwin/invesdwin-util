@@ -1,7 +1,5 @@
 package de.invesdwin.util.collections.iterable;
 
-import java.io.Closeable;
-import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import javax.annotation.concurrent.NotThreadSafe;
@@ -9,7 +7,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 import de.invesdwin.util.error.Throwables;
 
 @NotThreadSafe
-public abstract class ACloseableIterator<E> implements Iterator<E>, Closeable {
+public abstract class ACloseableIterator<E> implements ICloseableIterator<E> {
 
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(ACloseableIterator.class);
 

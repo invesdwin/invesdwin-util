@@ -11,11 +11,11 @@ import javax.annotation.concurrent.NotThreadSafe;
 @NotThreadSafe
 public class LimitingIterator<E> extends ACloseableIterator<E> {
 
-    private final ACloseableIterator<? extends E> delegate;
+    private final ICloseableIterator<? extends E> delegate;
     private final int limit;
     private int curCount;
 
-    public LimitingIterator(final ACloseableIterator<? extends E> delegate, final int limit) {
+    public LimitingIterator(final ICloseableIterator<? extends E> delegate, final int limit) {
         this.delegate = delegate;
         this.limit = limit;
     }
