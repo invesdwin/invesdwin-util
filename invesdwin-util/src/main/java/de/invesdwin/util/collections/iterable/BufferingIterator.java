@@ -25,8 +25,12 @@ public class BufferingIterator<E> implements ICloseableIterator<E>, Iterable<E> 
 
     public BufferingIterator() {}
 
-    public BufferingIterator(final Iterator<E> iterator) {
+    public BufferingIterator(final Iterator<? extends E> iterator) {
         addAll(iterator);
+    }
+
+    public BufferingIterator(final Iterable<? extends E> iterable) {
+        addAll(iterable);
     }
 
     @Override
@@ -75,6 +79,17 @@ public class BufferingIterator<E> implements ICloseableIterator<E>, Iterable<E> 
     public void addAll(final Iterable<? extends E> iterable) {
         if (iterable == null) {
             return;
+        } else if (iterable instanceof BufferingIterator) {
+            @SuppressWarnings("unchecked")
+            final BufferingIterator<E> cIterable = (BufferingIterator<E>) iterable;
+            size += cIterable.size;
+            if (head == null) {
+                head = cIterable.head;
+            } else {
+                tail.setNext(cIterable.head);
+            }
+            tail = cIterable.tail;
+            cIterable.clear();
         } else {
             addAll(iterable.iterator());
         }

@@ -13,6 +13,7 @@ import org.junit.Test;
 import com.google.common.collect.Iterables;
 
 import de.invesdwin.util.assertions.Assertions;
+import de.invesdwin.util.collections.iterable.BufferingIterator;
 import de.invesdwin.util.collections.loadingcache.historical.key.APullingHistoricalCacheAdjustKeyProvider;
 import de.invesdwin.util.collections.loadingcache.historical.key.APushingHistoricalCacheAdjustKeyProvider;
 import de.invesdwin.util.collections.loadingcache.historical.key.IHistoricalCacheAdjustKeyProvider;
@@ -614,7 +615,7 @@ public class AGapHistoricalCacheTest {
         }
 
         @Override
-        protected List<FDate> readAllValuesAscendingFrom(final FDate key) {
+        protected Iterable<FDate> readAllValuesAscendingFrom(final FDate key) {
             countReadAllValuesAscendingFrom++;
             if (returnMaxResults != null) {
                 Assertions.assertThat(returnAllInReadAllValuesAscendingFrom).isFalse();
@@ -635,7 +636,7 @@ public class AGapHistoricalCacheTest {
             if (returnMaxResults != null && !result.isEmpty()) {
                 result = result.subList(0, Math.min(result.size() - 1, returnMaxResults));
             }
-            return result;
+            return new BufferingIterator<FDate>(result.iterator());
         }
 
         @Override
