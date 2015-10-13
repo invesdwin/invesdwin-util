@@ -3,6 +3,7 @@ package de.invesdwin.util.collections;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -48,7 +49,8 @@ public final class Lists extends AListsStaticFacade {
     }
 
     public static <E> List<E> toListWithoutHasNext(final ACloseableIterator<? extends E> iterator) {
-        return toListWithoutHasNext(iterator, new ArrayList<E>());
+        //linked list is most suitable for AGapHistoricalCache in performance
+        return toListWithoutHasNext(iterator, new LinkedList<E>());
     }
 
     public static <E> List<E> toList(final ACloseableIterator<? extends E> iterator, final List<E> list) {
@@ -60,6 +62,6 @@ public final class Lists extends AListsStaticFacade {
     }
 
     public static <E> List<E> toList(final ACloseableIterator<? extends E> iterator) {
-        return toList(iterator, new ArrayList<E>());
+        return toList(iterator, new LinkedList<E>());
     }
 }
