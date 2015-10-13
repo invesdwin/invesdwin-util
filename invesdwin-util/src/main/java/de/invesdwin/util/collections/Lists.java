@@ -32,8 +32,7 @@ public final class Lists extends AListsStaticFacade {
         return join(Arrays.asList(lists));
     }
 
-    public static <E> List<E> toListWithoutHasNext(final ACloseableIterator<E> iterator) {
-        final List<E> list = new ArrayList<E>();
+    public static <E> List<E> toListWithoutHasNext(final ACloseableIterator<? extends E> iterator, final List<E> list) {
         try {
             while (true) {
                 final E next = iterator.next();
@@ -48,8 +47,11 @@ public final class Lists extends AListsStaticFacade {
         }
     }
 
-    public static <E> List<E> toList(final ACloseableIterator<E> iterator) {
-        final List<E> list = new ArrayList<E>();
+    public static <E> List<E> toListWithoutHasNext(final ACloseableIterator<? extends E> iterator) {
+        return toListWithoutHasNext(iterator, new ArrayList<E>());
+    }
+
+    public static <E> List<E> toList(final ACloseableIterator<? extends E> iterator, final List<E> list) {
         while (iterator.hasNext()) {
             list.add(iterator.next());
         }
@@ -57,4 +59,7 @@ public final class Lists extends AListsStaticFacade {
         return list;
     }
 
+    public static <E> List<E> toList(final ACloseableIterator<? extends E> iterator) {
+        return toList(iterator, new ArrayList<E>());
+    }
 }

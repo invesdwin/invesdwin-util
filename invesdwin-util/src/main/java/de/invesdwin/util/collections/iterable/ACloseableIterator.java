@@ -100,7 +100,9 @@ public abstract class ACloseableIterator<E> implements Iterator<E>, Closeable {
         innerRemove();
     }
 
-    protected void innerRemove() {}
+    protected void innerRemove() {
+        throw new UnsupportedOperationException();
+    }
 
     @Override
     public final void close() {
@@ -116,9 +118,7 @@ public abstract class ACloseableIterator<E> implements Iterator<E>, Closeable {
         return closed;
     }
 
-    protected void innerClose() {
-        throw new UnsupportedOperationException();
-    }
+    protected abstract void innerClose();
 
     public static void setFinalizerDebugEnabled(final boolean finalizerDebugEnabled) {
         ACloseableIterator.finalizerDebugEnabled = finalizerDebugEnabled;
