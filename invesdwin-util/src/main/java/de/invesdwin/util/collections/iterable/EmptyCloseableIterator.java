@@ -5,19 +5,19 @@ import java.util.NoSuchElementException;
 import javax.annotation.concurrent.Immutable;
 
 @Immutable
-public class EmptyCloseableIterator<E> extends ACloseableIterator<E> {
+public class EmptyCloseableIterator<E> implements ICloseableIterator<E> {
 
     @Override
-    protected boolean innerHasNext() {
+    public boolean hasNext() {
         return false;
     }
 
     @Override
-    protected E innerNext() {
+    public E next() {
         throw new NoSuchElementException();
     }
 
     @Override
-    protected void innerClose() {}
+    public void close() {}
 
 }
