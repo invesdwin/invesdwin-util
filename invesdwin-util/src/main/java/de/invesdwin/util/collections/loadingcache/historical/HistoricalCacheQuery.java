@@ -13,7 +13,6 @@ import javax.annotation.concurrent.NotThreadSafe;
 import com.google.common.base.Optional;
 
 import de.invesdwin.util.assertions.Assertions;
-import de.invesdwin.util.collections.iterable.ACloseableIterator;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.collections.iterable.WrapperCloseableIterable;
@@ -260,25 +259,25 @@ public class HistoricalCacheQuery<V> {
     public final ICloseableIterable<Entry<FDate, V>> getPreviousEntries(final FDate key, final int shiftBackUnits) {
         return new ICloseableIterable<Entry<FDate, V>>() {
             @Override
-            public ACloseableIterator<Entry<FDate, V>> iterator() {
-                return new ACloseableIterator<Entry<FDate, V>>() {
+            public ICloseableIterator<Entry<FDate, V>> iterator() {
+                return new ICloseableIterator<Entry<FDate, V>>() {
                     private final ICloseableIterator<FDate> previousKeys = getPreviousKeys(key, shiftBackUnits)
                             .iterator();
 
                     @Override
-                    protected boolean innerHasNext() {
+                    public boolean hasNext() {
                         return previousKeys.hasNext();
                     }
 
                     @Override
-                    protected Entry<FDate, V> innerNext() {
+                    public Entry<FDate, V> next() {
                         final FDate previousKey = previousKeys.next();
                         return assertValue.assertValue(parent, key, previousKey,
                                 getValue(previousKey, HistoricalCacheAssertValue.ASSERT_VALUE_WITH_FUTURE));
                     }
 
                     @Override
-                    protected void innerClose() {
+                    public void close() {
                         previousKeys.close();
                     }
                 };

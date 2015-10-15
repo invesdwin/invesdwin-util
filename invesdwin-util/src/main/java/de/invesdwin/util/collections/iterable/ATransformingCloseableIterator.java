@@ -5,7 +5,7 @@ import java.util.Iterator;
 import javax.annotation.concurrent.NotThreadSafe;
 
 @NotThreadSafe
-public abstract class ATransformingCloseableIterator<S, R> extends ACloseableIterator<R> {
+public abstract class ATransformingCloseableIterator<S, R> implements ICloseableIterator<R> {
 
     private final ICloseableIterator<? extends S> delegate;
 
@@ -18,12 +18,12 @@ public abstract class ATransformingCloseableIterator<S, R> extends ACloseableIte
     }
 
     @Override
-    protected boolean innerHasNext() {
+    public boolean hasNext() {
         return delegate.hasNext();
     }
 
     @Override
-    protected R innerNext() {
+    public R next() {
         final S next = delegate.next();
         if (next == null) {
             return null;
@@ -35,7 +35,7 @@ public abstract class ATransformingCloseableIterator<S, R> extends ACloseableIte
     protected abstract R transform(S value);
 
     @Override
-    protected void innerClose() {
+    public void close() {
         delegate.close();
     }
 

@@ -5,7 +5,7 @@ import java.util.NoSuchElementException;
 import javax.annotation.concurrent.NotThreadSafe;
 
 @NotThreadSafe
-public abstract class ASkippingIterator<E> extends ACloseableIterator<E> {
+public abstract class ASkippingIterator<E> implements ICloseableIterator<E> {
 
     private final ICloseableIterator<E> delegate;
     private E cachedReadNext;
@@ -15,12 +15,12 @@ public abstract class ASkippingIterator<E> extends ACloseableIterator<E> {
     }
 
     @Override
-    protected boolean innerHasNext() {
+    public boolean hasNext() {
         return readNext() != null;
     }
 
     @Override
-    protected E innerNext() {
+    public E next() {
         final E readNext = readNext();
         cachedReadNext = null;
         if (readNext == null) {
@@ -54,7 +54,7 @@ public abstract class ASkippingIterator<E> extends ACloseableIterator<E> {
     protected abstract boolean skip(E element);
 
     @Override
-    protected void innerClose() {
+    public void close() {
         delegate.close();
     }
 

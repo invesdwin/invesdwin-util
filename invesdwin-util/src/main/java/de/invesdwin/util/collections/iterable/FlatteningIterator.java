@@ -6,7 +6,7 @@ import java.util.NoSuchElementException;
 import javax.annotation.concurrent.NotThreadSafe;
 
 @NotThreadSafe
-public class FlatteningIterator<E> extends ACloseableIterator<E> {
+public class FlatteningIterator<E> implements ICloseableIterator<E> {
 
     private final ICloseableIterator<? extends Iterator<? extends E>> delegate;
     private ICloseableIterator<? extends E> curIterator;
@@ -16,16 +16,16 @@ public class FlatteningIterator<E> extends ACloseableIterator<E> {
     }
 
     @Override
-    protected boolean innerHasNext() {
+    public boolean hasNext() {
         try {
-            return delegate.hasNext() || getIterator().hasNext();
+            return getIterator().hasNext() || delegate.hasNext();
         } catch (final NoSuchElementException e) {
             return false;
         }
     }
 
     @Override
-    protected E innerNext() {
+    public E next() {
         return getIterator().next();
     }
 
@@ -37,7 +37,7 @@ public class FlatteningIterator<E> extends ACloseableIterator<E> {
     }
 
     @Override
-    protected void innerClose() {
+    public void close() {
         if (curIterator != null) {
             curIterator.close();
         }

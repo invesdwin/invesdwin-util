@@ -9,7 +9,7 @@ import javax.annotation.concurrent.NotThreadSafe;
  * NoSuchElementException.
  */
 @NotThreadSafe
-public class LimitingIterator<E> extends ACloseableIterator<E> {
+public class LimitingIterator<E> implements ICloseableIterator<E> {
 
     private final ICloseableIterator<? extends E> delegate;
     private final int limit;
@@ -21,7 +21,7 @@ public class LimitingIterator<E> extends ACloseableIterator<E> {
     }
 
     @Override
-    protected boolean innerHasNext() {
+    public boolean hasNext() {
         if (curCount >= limit) {
             return false;
         }
@@ -29,7 +29,7 @@ public class LimitingIterator<E> extends ACloseableIterator<E> {
     }
 
     @Override
-    protected E innerNext() {
+    public E next() {
         if (curCount >= limit) {
             throw new NoSuchElementException();
         }
@@ -38,7 +38,7 @@ public class LimitingIterator<E> extends ACloseableIterator<E> {
     }
 
     @Override
-    protected void innerClose() {
+    public void close() {
         delegate.close();
     }
 

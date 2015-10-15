@@ -5,7 +5,7 @@ import java.util.NoSuchElementException;
 import javax.annotation.concurrent.NotThreadSafe;
 
 @NotThreadSafe
-public class SingleValueIterator<E> extends ACloseableIterator<E> {
+public class SingleValueIterator<E> implements ICloseableIterator<E> {
 
     private E singleValue;
 
@@ -14,12 +14,12 @@ public class SingleValueIterator<E> extends ACloseableIterator<E> {
     }
 
     @Override
-    protected boolean innerHasNext() {
+    public boolean hasNext() {
         return singleValue != null;
     }
 
     @Override
-    protected E innerNext() {
+    public E next() {
         if (hasNext()) {
             final E ret = singleValue;
             singleValue = null;
@@ -30,7 +30,7 @@ public class SingleValueIterator<E> extends ACloseableIterator<E> {
     }
 
     @Override
-    protected void innerClose() {
+    public void close() {
         singleValue = null;
     }
 

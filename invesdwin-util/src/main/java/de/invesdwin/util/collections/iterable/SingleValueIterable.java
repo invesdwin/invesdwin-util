@@ -12,7 +12,7 @@ public class SingleValueIterable<E> implements ICloseableIterable<E> {
     }
 
     @Override
-    public ACloseableIterator<E> iterator() {
+    public ICloseableIterator<E> iterator() {
         return new SingleValueIterator<E>(singleValue);
     }
 
