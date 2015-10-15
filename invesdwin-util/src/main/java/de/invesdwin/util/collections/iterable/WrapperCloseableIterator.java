@@ -8,7 +8,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 import de.invesdwin.util.lang.Reflections;
 
 @NotThreadSafe
-public class WrapperCloseableIterator<E> extends ACloseableIterator<E> {
+public class WrapperCloseableIterator<E> implements ICloseableIterator<E> {
 
     private final Iterator<? extends E> delegate;
 
@@ -17,29 +17,29 @@ public class WrapperCloseableIterator<E> extends ACloseableIterator<E> {
     }
 
     @Override
-    protected boolean innerHasNext() {
+    public boolean hasNext() {
         return delegate.hasNext();
     }
 
     @Override
-    protected E innerNext() {
+    public E next() {
         return delegate.next();
     }
 
     @Override
-    protected void innerRemove() {
+    public void remove() {
         delegate.remove();
     }
 
     @Override
-    protected void innerClose() {
+    public void close() {
         final Method close = Reflections.findMethod(delegate.getClass(), "close");
         if (close != null) {
             Reflections.invokeMethod(close, delegate);
         }
     }
 
-    public static <T> ACloseableIterator<T> maybeWrap(final Iterator<T> iterator) {
+    public static <T> ICloseableIterator<T> maybeWrap(final Iterator<T> iterator) {
         if (iterator instanceof ACloseableIterator) {
             return (ACloseableIterator<T>) iterator;
         } else {
