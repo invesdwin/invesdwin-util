@@ -127,7 +127,9 @@ public class ProducerQueueIterator<E> extends ACloseableIterator<E> {
         if (hasNext()) {
             final E curElement = nextElement;
             nextElement = null;
-            Assertions.assertThat(curElement).isNotNull();
+            if (curElement == null) {
+                throw new NullPointerException("should not happen, since hasNext was called!");
+            }
             nextElement = readNext();
             return curElement;
         } else {

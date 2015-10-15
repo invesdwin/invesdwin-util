@@ -1,6 +1,7 @@
 package de.invesdwin.util.collections.iterable;
 
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
@@ -26,7 +27,7 @@ public abstract class ATransformingCloseableIterator<S, R> implements ICloseable
     public R next() {
         final S next = delegate.next();
         if (next == null) {
-            return null;
+            throw new NoSuchElementException();
         } else {
             return transform(next);
         }

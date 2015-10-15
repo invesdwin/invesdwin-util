@@ -63,7 +63,7 @@ public abstract class AParallelChunkConsumerIterator<R, E> extends ACloseableIte
             return Futures.get(future);
         } catch (final InterruptedException e) {
             Thread.currentThread().interrupt();
-            return null;
+            throw new NoSuchElementException();
         }
     }
 
