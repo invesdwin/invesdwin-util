@@ -192,13 +192,4 @@ public class BufferingIterator<E> implements ICloseableIterator<E>, ICloseableIt
         };
     }
 
-    public ICloseableIterable<E> asUnmodifiableIterable() {
-        return new ICloseableIterable<E>() {
-            @Override
-            public ICloseableIterator<E> iterator() {
-                return BufferingIterator.this.iterator();
-            }
-        };
-    }
-
 }

@@ -1,6 +1,5 @@
 package de.invesdwin.util.collections.iterable;
 
-import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import javax.annotation.concurrent.NotThreadSafe;
@@ -12,10 +11,6 @@ public abstract class ATransformingCloseableIterator<S, R> implements ICloseable
 
     public ATransformingCloseableIterator(final ICloseableIterator<? extends S> delegate) {
         this.delegate = delegate;
-    }
-
-    public ATransformingCloseableIterator(final Iterator<? extends S> delegate) {
-        this(WrapperCloseableIterator.maybeWrap(delegate));
     }
 
     @Override
