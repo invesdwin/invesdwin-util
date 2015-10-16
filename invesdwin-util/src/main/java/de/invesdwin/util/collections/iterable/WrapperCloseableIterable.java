@@ -3,17 +3,17 @@ package de.invesdwin.util.collections.iterable;
 import javax.annotation.concurrent.NotThreadSafe;
 
 @NotThreadSafe
-public class WrapperCloseableIterable<E> implements ICloseableIterable<E> {
+public final class WrapperCloseableIterable<E> implements ICloseableIterable<E> {
 
     private final Iterable<? extends E> delegate;
 
-    public WrapperCloseableIterable(final Iterable<? extends E> delegate) {
+    private WrapperCloseableIterable(final Iterable<? extends E> delegate) {
         this.delegate = delegate;
     }
 
     @Override
     public ICloseableIterator<E> iterator() {
-        return new WrapperCloseableIterator<E>(delegate.iterator());
+        return WrapperCloseableIterator.maybeWrap(delegate.iterator());
     }
 
     public static <T> ICloseableIterable<T> maybeWrap(final Iterable<T> iterator) {

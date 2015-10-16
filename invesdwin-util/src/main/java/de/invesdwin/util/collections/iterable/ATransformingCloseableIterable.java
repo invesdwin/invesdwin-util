@@ -15,7 +15,7 @@ public abstract class ATransformingCloseableIterable<S, R> implements ICloseable
     }
 
     public ATransformingCloseableIterable(final Iterable<? extends S> delegate) {
-        this.delegate = new WrapperCloseableIterable<S>(delegate);
+        this(WrapperCloseableIterable.maybeWrap(delegate));
     }
 
     protected abstract R transform(S value);

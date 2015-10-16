@@ -6,7 +6,6 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.NoSuchElementException;
@@ -26,6 +25,8 @@ import org.joda.time.format.DateTimeFormatter;
 import com.google.common.primitives.Ints;
 
 import de.invesdwin.norva.marker.IDate;
+import de.invesdwin.util.collections.iterable.ICloseableIterable;
+import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.lang.ADelegateComparator;
 import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.time.Duration;
@@ -500,12 +501,12 @@ public final class FDate implements IDate, Serializable, Cloneable, Comparable<O
         return other != null && !isBefore(other);
     }
 
-    public static Iterable<FDate> iterable(final FDate start, final FDate end, final FTimeUnit timeUnit,
+    public static ICloseableIterable<FDate> iterable(final FDate start, final FDate end, final FTimeUnit timeUnit,
             final int incrementAmount) {
         return new FDateIterable(start, end, timeUnit, incrementAmount);
     }
 
-    static class FDateIterable implements Iterable<FDate> {
+    static class FDateIterable implements ICloseableIterable<FDate> {
         private final FDate startFinal;
         private final FDate endFinal;
         private final FTimeUnit timeUnit;
@@ -530,9 +531,9 @@ public final class FDate implements IDate, Serializable, Cloneable, Comparable<O
         }
 
         @Override
-        public Iterator<FDate> iterator() {
+        public ICloseableIterator<FDate> iterator() {
             if (incrementAmount > 0) {
-                return new Iterator<FDate>() {
+                return new ICloseableIterator<FDate>() {
 
                     private boolean first = true;
                     private FDate spot = startFinal;
@@ -564,10 +565,15 @@ public final class FDate implements IDate, Serializable, Cloneable, Comparable<O
                     public void remove() {
                         throw new UnsupportedOperationException();
                     }
+
+                    @Override
+                    public void close() {
+                        spot = endFinal;
+                    }
                 };
             } else {
                 //reverse
-                return new Iterator<FDate>() {
+                return new ICloseableIterator<FDate>() {
 
                     private boolean first = true;
                     private FDate spot = startFinal;
@@ -598,6 +604,11 @@ public final class FDate implements IDate, Serializable, Cloneable, Comparable<O
                     @Override
                     public void remove() {
                         throw new UnsupportedOperationException();
+                    }
+
+                    @Override
+                    public void close() {
+                        spot = endFinal;
                     }
                 };
             }

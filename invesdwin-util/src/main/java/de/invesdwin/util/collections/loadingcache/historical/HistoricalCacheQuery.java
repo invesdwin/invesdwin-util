@@ -2,9 +2,7 @@ package de.invesdwin.util.collections.loadingcache.historical;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 
@@ -130,8 +128,9 @@ public class HistoricalCacheQuery<V> {
         return new ICloseableIterable<Entry<FDate, V>>() {
             @Override
             public ICloseableIterator<Entry<FDate, V>> iterator() {
-                return new WrapperCloseableIterator<Entry<FDate, V>>(new Iterator<Entry<FDate, V>>() {
-                    private final Iterator<FDate> keysIterator = keys.iterator();
+                return new ICloseableIterator<Entry<FDate, V>>() {
+                    private final ICloseableIterator<FDate> keysIterator = WrapperCloseableIterator
+                            .maybeWrap(keys.iterator());
 
                     @Override
                     public boolean hasNext() {
@@ -144,10 +143,10 @@ public class HistoricalCacheQuery<V> {
                     }
 
                     @Override
-                    public void remove() {
-                        throw new UnsupportedOperationException();
+                    public void close() {
+                        keysIterator.close();
                     }
-                });
+                };
             }
         };
     }
@@ -233,11 +232,7 @@ public class HistoricalCacheQuery<V> {
                 trailing.add(previousKey);
             }
         }
-        if (trailing instanceof List) {
-            return new WrapperCloseableIterable<FDate>(trailing);
-        } else {
-            return new WrapperCloseableIterable<FDate>(new ArrayList<FDate>(trailing));
-        }
+        return WrapperCloseableIterable.maybeWrap(trailing);
     }
 
     public final Entry<FDate, V> getPreviousEntry(final FDate key, final int shiftBackUnits) {
@@ -325,7 +320,7 @@ public class HistoricalCacheQuery<V> {
             return new ICloseableIterable<FDate>() {
                 @Override
                 public ICloseableIterator<FDate> iterator() {
-                    return new WrapperCloseableIterator<FDate>(new Iterator<FDate>() {
+                    return new ICloseableIterator<FDate>() {
                         private final HistoricalCacheQueryWithFuture<V> future = withFuture();
                         private FDate nextKey = future.getNextKey(from, 0);
 
@@ -350,10 +345,11 @@ public class HistoricalCacheQuery<V> {
                         }
 
                         @Override
-                        public void remove() {
-                            throw new UnsupportedOperationException();
+                        public void close() {
+                            nextKey = null;
                         }
-                    });
+
+                    };
                 }
             };
         }

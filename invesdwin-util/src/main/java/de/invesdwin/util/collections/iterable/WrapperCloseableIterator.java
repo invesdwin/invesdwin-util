@@ -9,12 +9,12 @@ import javax.annotation.concurrent.NotThreadSafe;
 import de.invesdwin.util.lang.Reflections;
 
 @NotThreadSafe
-public class WrapperCloseableIterator<E> implements ICloseableIterator<E> {
+public final class WrapperCloseableIterator<E> implements ICloseableIterator<E> {
 
     private final Iterator<? extends E> delegate;
     private boolean closed;
 
-    public WrapperCloseableIterator(final Iterator<? extends E> delegate) {
+    private WrapperCloseableIterator(final Iterator<? extends E> delegate) {
         this.delegate = delegate;
     }
 
@@ -52,7 +52,7 @@ public class WrapperCloseableIterator<E> implements ICloseableIterator<E> {
         }
     }
 
-    public static <T> ICloseableIterator<T> maybeWrap(final Iterator<T> iterator) {
+    public static <T> ICloseableIterator<T> maybeWrap(final Iterator<? extends T> iterator) {
         if (iterator instanceof ICloseableIterator) {
             return (ICloseableIterator<T>) iterator;
         } else {

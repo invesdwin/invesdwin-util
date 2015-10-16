@@ -17,7 +17,7 @@ import javax.annotation.concurrent.NotThreadSafe;
  * Also a faster alternative to any list when only iteration is needed.
  */
 @NotThreadSafe
-public class BufferingIterator<E> implements ICloseableIterator<E>, Iterable<E> {
+public class BufferingIterator<E> implements ICloseableIterator<E>, ICloseableIterable<E> {
 
     private Node head;
     private Node tail;
@@ -164,8 +164,8 @@ public class BufferingIterator<E> implements ICloseableIterator<E>, Iterable<E> 
     }
 
     @Override
-    public Iterator<E> iterator() {
-        return new Iterator<E>() {
+    public ICloseableIterator<E> iterator() {
+        return new ICloseableIterator<E>() {
 
             private Node innerHead = head;
 
@@ -184,6 +184,20 @@ public class BufferingIterator<E> implements ICloseableIterator<E>, Iterable<E> 
                 return value;
             }
 
+            @Override
+            public void close() {
+                innerHead = null;
+            }
+
+        };
+    }
+
+    public ICloseableIterable<E> asUnmodifiableIterable() {
+        return new ICloseableIterable<E>() {
+            @Override
+            public ICloseableIterator<E> iterator() {
+                return BufferingIterator.this.iterator();
+            }
         };
     }
 

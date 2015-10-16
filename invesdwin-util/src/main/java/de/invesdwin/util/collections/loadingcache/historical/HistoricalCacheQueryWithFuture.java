@@ -1,8 +1,6 @@
 package de.invesdwin.util.collections.loadingcache.historical;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map.Entry;
 
 import javax.annotation.concurrent.NotThreadSafe;
@@ -94,11 +92,7 @@ public class HistoricalCacheQueryWithFuture<V> extends HistoricalCacheQuery<V> {
                 trailing.add(nextKey);
             }
         }
-        if (trailing instanceof List) {
-            return new WrapperCloseableIterable<FDate>(trailing);
-        } else {
-            return new WrapperCloseableIterable<FDate>(new ArrayList<FDate>(trailing));
-        }
+        return WrapperCloseableIterable.maybeWrap(trailing);
     }
 
     public Entry<FDate, V> getNextEntry(final FDate key, final int shiftForwardUnits) {
