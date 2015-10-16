@@ -59,9 +59,10 @@ public final class Reflections extends AReflectionsStaticFacade {
     @SuppressWarnings("unchecked")
     public static <T extends Annotation> T addAnnotation(final Class<?> clazz, final T newAnnotation) {
         try {
-            final Field field = Class.class.getDeclaredField("annotations");
-            field.setAccessible(true);
-            final Map<Class<? extends Annotation>, Annotation> annotations = (Map<Class<? extends Annotation>, Annotation>) field.get(clazz);
+            final Field declaredAnnotations = Class.class.getDeclaredField("annotations");
+            declaredAnnotations.setAccessible(true);
+            final Map<Class<? extends Annotation>, Annotation> annotations = (Map<Class<? extends Annotation>, Annotation>) declaredAnnotations
+                    .get(clazz);
             return (T) annotations.put(newAnnotation.annotationType(), newAnnotation);
         } catch (final NoSuchFieldException e) {
             throw new RuntimeException(e);
@@ -80,9 +81,32 @@ public final class Reflections extends AReflectionsStaticFacade {
     @SuppressWarnings("unchecked")
     public static <T extends Annotation> T addAnnotation(final Method method, final T newAnnotation) {
         try {
-            final Field field = Method.class.getDeclaredField("declaredAnnotations");
-            field.setAccessible(true);
-            final Map<Class<? extends Annotation>, Annotation> annotations = (Map<Class<? extends Annotation>, Annotation>) field.get(method);
+            final Field declaredAnnotations = Method.class.getDeclaredField("declaredAnnotations");
+            declaredAnnotations.setAccessible(true);
+            final Map<Class<? extends Annotation>, Annotation> annotations = (Map<Class<? extends Annotation>, Annotation>) declaredAnnotations
+                    .get(method);
+            return (T) annotations.put(newAnnotation.annotationType(), newAnnotation);
+        } catch (final NoSuchFieldException e) {
+            throw new RuntimeException(e);
+        } catch (final SecurityException e) {
+            throw new RuntimeException(e);
+        } catch (final IllegalArgumentException e) {
+            throw new RuntimeException(e);
+        } catch (final IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * @return the previous annotation in place on this specific class
+     */
+    @SuppressWarnings("unchecked")
+    public static <T extends Annotation> T addAnnotation(final Field field, final T newAnnotation) {
+        try {
+            final Field declaredAnnotations = Field.class.getDeclaredField("declaredAnnotations");
+            declaredAnnotations.setAccessible(true);
+            final Map<Class<? extends Annotation>, Annotation> annotations = (Map<Class<? extends Annotation>, Annotation>) declaredAnnotations
+                    .get(field);
             return (T) annotations.put(newAnnotation.annotationType(), newAnnotation);
         } catch (final NoSuchFieldException e) {
             throw new RuntimeException(e);
