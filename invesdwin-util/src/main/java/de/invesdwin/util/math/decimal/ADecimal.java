@@ -170,6 +170,10 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
         return !isPositive();
     }
 
+    public boolean isNegativeOrZero() {
+        return !isPositiveNonZero();
+    }
+
     public boolean isGreaterThan(final Number o) {
         if (o == null) {
             return false;
@@ -270,11 +274,10 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
             return newValueCopy(getImpl().remainder(0));
         } else {
             if (divisor instanceof AScaledDecimal) {
-                throw new IllegalArgumentException(
-                        new TextDescription(
-                                "Division between different types of %ss [%s=%s / %s=%s] does not make any sense.",
-                                AScaledDecimal.class.getSimpleName(), this.getClass(), this, divisor.getClass(),
-                                divisor).toString());
+                throw new IllegalArgumentException(new TextDescription(
+                        "Division between different types of %ss [%s=%s / %s=%s] does not make any sense.",
+                        AScaledDecimal.class.getSimpleName(), this.getClass(), this, divisor.getClass(), divisor)
+                                .toString());
             }
             return newValueCopy(getImpl().remainder(divisor));
         }
@@ -314,11 +317,10 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
             return newValueCopy(getImpl().multiply(0));
         } else {
             if (divisor instanceof AScaledDecimal) {
-                throw new IllegalArgumentException(
-                        new TextDescription(
-                                "Division between different types of %ss [%s=%s / %s=%s] does not make any sense.",
-                                AScaledDecimal.class.getSimpleName(), this.getClass(), this, divisor.getClass(),
-                                divisor).toString());
+                throw new IllegalArgumentException(new TextDescription(
+                        "Division between different types of %ss [%s=%s / %s=%s] does not make any sense.",
+                        AScaledDecimal.class.getSimpleName(), this.getClass(), this, divisor.getClass(), divisor)
+                                .toString());
             }
             return newValueCopy(getImpl().divide(divisor));
         }
