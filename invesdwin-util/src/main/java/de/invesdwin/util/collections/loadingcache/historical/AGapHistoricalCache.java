@@ -347,7 +347,7 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
     }
 
     private void pushLastValueFromFurtherValues() {
-        while (lastValuesFromFurtherValues.size() > MAX_LAST_VALUES_FROM_LOAD_FURTHER_VALUES) {
+        while (lastValuesFromFurtherValues.size() >= MAX_LAST_VALUES_FROM_LOAD_FURTHER_VALUES) {
             lastValuesFromFurtherValues.next();
         }
         lastValuesFromFurtherValues.add(furtherValues.next());
