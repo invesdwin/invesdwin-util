@@ -1,9 +1,10 @@
 package de.invesdwin.util.collections.loadingcache.historical.key;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.CopyOnWriteArraySet;
 
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -21,8 +22,9 @@ public abstract class APullingHistoricalCacheAdjustKeyProvider implements IHisto
         }
     };
     private volatile FDate curHighestAllowedKey;
-    private final Set<FDate> keysToRemoveOnNewHighestAllowedKey = new CopyOnWriteArraySet<FDate>();
-    private final Set<HistoricalCacheForClear> historicalCachesForClear = new CopyOnWriteArraySet<HistoricalCacheForClear>();
+    private final Set<FDate> keysToRemoveOnNewHighestAllowedKey = Collections.synchronizedSet(new HashSet<FDate>());
+    private final Set<HistoricalCacheForClear> historicalCachesForClear = Collections
+            .synchronizedSet(new HashSet<HistoricalCacheForClear>());
     private final AHistoricalCache<?> parent;
 
     public APullingHistoricalCacheAdjustKeyProvider(final AHistoricalCache<?> parent) {

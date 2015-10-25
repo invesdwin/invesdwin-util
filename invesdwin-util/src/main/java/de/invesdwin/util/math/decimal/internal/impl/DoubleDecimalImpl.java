@@ -45,8 +45,8 @@ public class DoubleDecimalImpl extends ADecimalImpl<DoubleDecimalImpl, Double> {
 
     @Override
     protected int internalCompareTo(final ADecimal<?> defaultRoundedOther) {
-        final double doundedOther = defaultRoundedOther.doubleValue();
-        return getDefaultRoundedValue().compareTo(doundedOther);
+        final double roundedOther = defaultRoundedOther.doubleValue();
+        return getDefaultRoundedValue().compareTo(roundedOther);
     }
 
     @Override

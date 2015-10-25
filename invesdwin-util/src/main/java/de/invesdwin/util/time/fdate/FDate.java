@@ -73,6 +73,13 @@ public final class FDate implements IDate, Serializable, Cloneable, Comparable<O
             return e;
         }
     };
+    private static final ThreadLocal<MutableDateTime> MUTABLE_DATE_TIME = new ThreadLocal<MutableDateTime>() {
+        @Override
+        protected MutableDateTime initialValue() {
+            final MutableDateTime d = new MutableDateTime(getDefaultDateTimeZone());
+            return d;
+        }
+    };
 
     private static Calendar templateCalendar;
     private static TimeZone defaultTimeZone;
@@ -119,13 +126,14 @@ public final class FDate implements IDate, Serializable, Cloneable, Comparable<O
         cal.clear();
         cal.setTimeZone(defaultTimeZone);
         templateCalendar = cal;
+        MUTABLE_DATE_TIME.remove();
     }
 
     public static TimeZone getDefaultTimeZone() {
         return defaultTimeZone;
     }
 
-    private DateTimeZone getDefaultDateTimeZone() {
+    private static DateTimeZone getDefaultDateTimeZone() {
         return defaultDateTimeZone;
     }
 
@@ -480,9 +488,9 @@ public final class FDate implements IDate, Serializable, Cloneable, Comparable<O
     }
 
     private MutableDateTime newMutableDateTime() {
-        final MutableDateTime d = new MutableDateTime(millis);
-        d.setZone(getDefaultDateTimeZone());
-        return d;
+        final MutableDateTime mutableDateTime = MUTABLE_DATE_TIME.get();
+        mutableDateTime.setMillis(millis);
+        return mutableDateTime;
     }
 
     public boolean isBefore(final FDate other) {

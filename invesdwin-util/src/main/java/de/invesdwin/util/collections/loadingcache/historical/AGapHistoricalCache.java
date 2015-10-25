@@ -30,7 +30,7 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
     public static final long DEFAULT_READ_BACK_STEP_MILLIS = new Duration(10, TimeUnit.DAYS)
             .intValue(TimeUnit.MILLISECONDS);
     /**
-     * having 2 here helps with queries elements are filtered by end time
+     * having 2 here helps with queries for elements that are filtered by end time
      */
     private static final int MAX_LAST_VALUES_FROM_LOAD_FURTHER_VALUES = 2;
 

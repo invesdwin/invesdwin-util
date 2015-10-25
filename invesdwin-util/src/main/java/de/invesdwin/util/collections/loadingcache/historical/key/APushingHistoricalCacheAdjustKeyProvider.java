@@ -1,9 +1,10 @@
 package de.invesdwin.util.collections.loadingcache.historical.key;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.CopyOnWriteArraySet;
 
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -15,7 +16,8 @@ import de.invesdwin.util.time.fdate.FDate;
 public abstract class APushingHistoricalCacheAdjustKeyProvider implements IHistoricalCacheAdjustKeyProvider {
 
     private volatile FDate curHighestAllowedKey;
-    private final Set<HistoricalCacheForClear> historicalCachesForClear = new CopyOnWriteArraySet<HistoricalCacheForClear>();
+    private final Set<HistoricalCacheForClear> historicalCachesForClear = Collections
+            .synchronizedSet(new HashSet<HistoricalCacheForClear>());
     private final APullingHistoricalCacheAdjustKeyProvider pullingAdjustKeyProvider;
 
     public APushingHistoricalCacheAdjustKeyProvider(final AHistoricalCache<?> parent) {

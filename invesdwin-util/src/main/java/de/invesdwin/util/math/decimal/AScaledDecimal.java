@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
+import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.math.decimal.internal.impl.ADecimalImpl;
@@ -19,10 +20,20 @@ public abstract class AScaledDecimal<T extends AScaledDecimal<T, S>, S extends I
     private static final DecimalFormatSymbols ENGLISH_DECIMAL_FORMAT_SYMBOLS = DecimalFormatSymbols
             .getInstance(Locale.ENGLISH);
     protected final S scale;
+    private final Decimal scaledValue;
     private final ScaledDecimalDelegateImpl impl;
+    @GuardedBy("none for performance")
+    private transient Decimal defaultValue;
+    private final S defaultScale;
 
-    protected AScaledDecimal(final Decimal value, final S scale) {
-        this.impl = new ScaledDecimalDelegateImpl(this, Decimal.nullToZero(value).getImpl());
+    protected AScaledDecimal(final Decimal value, final S scale, final S defaultScale) {
+        this.defaultScale = defaultScale;
+        if (defaultScale == null) {
+            throw new NullPointerException("defaultScale should not be null");
+        }
+        validateScale(defaultScale);
+        this.scaledValue = Decimal.nullToZero(value);
+        this.impl = new ScaledDecimalDelegateImpl(this, scaledValue.getImpl());
         validateScale(scale);
         this.scale = scale;
     }
@@ -43,20 +54,30 @@ public abstract class AScaledDecimal<T extends AScaledDecimal<T, S>, S extends I
 
     @Override
     public final T fromDefaultValue(final Decimal value) {
-        final Decimal scaledValue = scale.convertValue(getGenericThis(), value, getDefaultScale());
-        return newValueCopy(scaledValue, scale);
+        //it is faster to continue with defaultScale
+        return newValueCopy(value, defaultScale);
     }
 
     @Override
     public final Decimal getDefaultValue() {
-        return getValue(getDefaultScale());
+        if (defaultValue == null) {
+            defaultValue = innerGetValue(defaultScale);
+        }
+        return defaultValue;
     }
 
     public final Decimal getValue(final S scale) {
-        validateScale(scale);
+        if (defaultScale.equals(scale)) {
+            return getDefaultValue();
+        }
+        return innerGetValue(scale);
+    }
+
+    private Decimal innerGetValue(final S scale) {
         if (scale == this.scale) {
-            return new Decimal(getImpl().getDelegate());
+            return scaledValue;
         } else {
+            validateScale(scale);
             return scale.convertValue(getGenericThis(), new Decimal(getImpl().getDelegate()), this.scale);
         }
     }
@@ -80,7 +101,9 @@ public abstract class AScaledDecimal<T extends AScaledDecimal<T, S>, S extends I
         return scale;
     }
 
-    public abstract S getDefaultScale();
+    public final S getDefaultScale() {
+        return defaultScale;
+    }
 
     @Override
     public String toString() {

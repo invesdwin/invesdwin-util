@@ -11,13 +11,14 @@ import org.apache.commons.math3.dfp.Dfp;
 
 import de.invesdwin.util.math.decimal.internal.impl.ADecimalImpl;
 
+@SuppressWarnings({ "serial", "rawtypes", "unchecked" })
 @ThreadSafe
 class ScaledDecimalDelegateImpl extends ADecimalImpl {
 
     private final AScaledDecimal<?, ?> parent;
     private final ADecimalImpl delegate;
-    @GuardedBy("this")
-    private ADecimalImpl defaultScaledDelegate;
+    @GuardedBy("none for performance")
+    private transient ADecimalImpl defaultScaledDelegate;
 
     ScaledDecimalDelegateImpl(final AScaledDecimal<?, ?> parent, final ADecimalImpl delegate) {
         super(false, false);
@@ -33,7 +34,7 @@ class ScaledDecimalDelegateImpl extends ADecimalImpl {
         return delegate;
     }
 
-    private synchronized ADecimalImpl getDefaultScaledDelegate() {
+    private ADecimalImpl getDefaultScaledDelegate() {
         if (defaultScaledDelegate == null) {
             defaultScaledDelegate = parent.getDefaultValue().getImpl();
         }
