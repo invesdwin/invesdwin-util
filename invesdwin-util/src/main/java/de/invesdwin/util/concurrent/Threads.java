@@ -12,14 +12,22 @@ public final class Threads {
 
     private Threads() {}
 
-    public static void throwIfInterrupted() throws InterruptedException {
-        if (isInterrupted()) {
+    public static void throwIfInterrupted(final Thread thread) throws InterruptedException {
+        if (isInterrupted(thread)) {
             throw new InterruptedException();
         }
     }
 
+    public static void throwIfInterrupted() throws InterruptedException {
+        throwIfInterrupted(Thread.currentThread());
+    }
+
     public static boolean isInterrupted() {
-        return Thread.currentThread().isInterrupted() || ShutdownHookManager.isShuttingDown();
+        return isInterrupted(Thread.currentThread());
+    }
+
+    public static boolean isInterrupted(final Thread thread) {
+        return thread.isInterrupted() || ShutdownHookManager.isShuttingDown();
     }
 
     public static void updateParentThreadName(final String parentThreadName) {
