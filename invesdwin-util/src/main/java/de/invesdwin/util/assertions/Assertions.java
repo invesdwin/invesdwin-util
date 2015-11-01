@@ -11,7 +11,8 @@ import de.invesdwin.util.math.decimal.ADecimal;
 import de.invesdwin.util.time.fdate.FDate;
 
 @StaticFacadeDefinition(name = "de.invesdwin.util.assertions.internal.AAssertionsStaticFacade", targets = {
-        org.assertj.core.api.Assertions.class, org.assertj.guava.api.Assertions.class }, filterMethodSignatureExpressions = ".* org\\.assertj\\.core\\.api\\.StringAssert assertThat\\(java\\.lang\\.String .*")
+        org.assertj.core.api.Assertions.class, org.assertj.guava.api.Assertions.class,
+        com.google.common.base.Preconditions.class }, filterMethodSignatureExpressions = ".* org\\.assertj\\.core\\.api\\.StringAssert assertThat\\(java\\.lang\\.String .*")
 @Immutable
 public final class Assertions extends AAssertionsStaticFacade {
 
