@@ -21,7 +21,7 @@
 		<version.commons-collections>3.2.1</version.commons-collections>
 		<version.fest-reflect>1.4.1</version.fest-reflect>
 		<version.fest-util>1.2.5</version.fest-util>
-		<version.fst>2.19</version.fst>
+		<version.fst>2.41</version.fst>
 		<version.joda-time>2.7</version.joda-time>
 		<version.commons-codec>1.9</version.commons-codec>
 		<version.assertj-guava>2.0.0</version.assertj-guava>
