@@ -27,8 +27,7 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
     /**
      * 10 days is a good value for daily caches.
      */
-    public static final long DEFAULT_READ_BACK_STEP_MILLIS = new Duration(10, TimeUnit.DAYS)
-            .intValue(TimeUnit.MILLISECONDS);
+    public static final long DEFAULT_READ_BACK_STEP_MILLIS = new Duration(10, TimeUnit.DAYS).intValue(TimeUnit.MILLISECONDS);
     /**
      * having 2 here helps with queries for elements that are filtered by end time
      */
@@ -58,10 +57,6 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
     private FDate maxKey;
     @GuardedBy("this")
     private FDate minKey;
-    @GuardedBy("this")
-    private boolean noKeysInDB;
-    @GuardedBy("this")
-    private boolean noValueInReadNewestValueFromDB;
 
     /**
      * Assumption: cache eviction does not cause values to be evicted with their keys not being evicted aswell.
@@ -71,10 +66,6 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
      */
     @Override
     protected final synchronized V loadValue(final FDate key) {
-        if (noKeysInDB && key.compareTo(minKey) >= 0) {
-            return (V) null;
-        }
-
         eventuallyGetMinMaxKeysInDB(key, false);
 
         this.furtherValuesLoaded = false;
@@ -94,7 +85,7 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
                     determineEaliestStartOfLoadFurtherValues(key), newMinKey, false);
         }
         value = searchInFurtherValues(key);
-        if (value != null || noKeysInDB) {
+        if (value != null) {
             return value;
         }
 
@@ -110,9 +101,6 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
     }
 
     private boolean eventuallyGetMinMaxKeysInDB(final FDate key, final boolean force) {
-        if (noValueInReadNewestValueFromDB && !force) {
-            return false;
-        }
         boolean changed = false;
         if (eventuallyGetMinKeyInDB(key, force)) {
             changed = true;
@@ -228,12 +216,14 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
 
             if (!furtherValues.isEmpty()) {
                 assertFurtherValuesSorting(key);
-            } else if (maxKeyInDB == null && minKeyInDB == null) {
-                noKeysInDB = true;
             }
             return true;
         }
         return false;
+    }
+
+    protected boolean allowNoDataInDBShortcut() {
+        return true;
     }
 
     private boolean shouldLoadFurtherValues(final FDate key, final boolean newMinKey) {
@@ -280,8 +270,8 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
 
         if (furtherValues.size() > 1) {
             Assertions.assertThat(firstKey.compareTo(lastKey) <= 0)
-                    .as("Not ascending sorted! At firstKey [%s] and lastKey [%s]", firstKey, lastKey)
-                    .isTrue();
+            .as("Not ascending sorted! At firstKey [%s] and lastKey [%s]", firstKey, lastKey)
+            .isTrue();
         }
     }
 
@@ -330,8 +320,9 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
                 if (furtherValues.isEmpty() && newValueKey.isBefore(maxKeyInDB) && key.isBefore(maxKeyInDB)
                         && maxKeyInDBFromLoadFurtherValues.isBefore(maxKeyInDB)) {
                     final FDate timeForLoadFurtherValues = FDate.max(newValueKey, earliestStartOfLoadFurtherValues);
-                    Assertions.assertThat(eventuallyLoadFurtherValues("searchInFurtherValues", newValueKey,
-                            timeForLoadFurtherValues, false, true)).isTrue();
+                    Assertions.assertThat(
+                            eventuallyLoadFurtherValues("searchInFurtherValues", newValueKey, timeForLoadFurtherValues,
+                                    false, true)).isTrue();
                     if (!furtherValues.isEmpty()) {
                         pushLastValueFromFurtherValues();
                         if (!timeForLoadFurtherValues.equals(newValue)) {
@@ -390,15 +381,8 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
     }
 
     private V readNewestValueFromDB(final FDate key) {
-        V value = null;
-
-        if (!noValueInReadNewestValueFromDB) {
-            // we give up and use the newest value from db
-            value = readLatestValueFor(key);
-            if (value == null) {
-                noValueInReadNewestValueFromDB = true;
-            }
-        }
+        // we give up and use the newest value from db
+        V value = readLatestValueFor(key);
 
         //try to use first value of furthervalues
         if (value == null && furtherValuesLoaded && !furtherValues.isEmpty()) {
@@ -443,8 +427,6 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
         //a clear forces the list to be completely reloaded next time get is called
         furtherValues.clear();
         lastValuesFromFurtherValues.clear();
-        noKeysInDB = false;
-        noValueInReadNewestValueFromDB = false;
     }
 
 }
