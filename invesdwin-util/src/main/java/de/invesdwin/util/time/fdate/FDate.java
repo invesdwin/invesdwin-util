@@ -29,7 +29,7 @@ import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.lang.ADelegateComparator;
 import de.invesdwin.util.lang.Strings;
-import de.invesdwin.util.time.Duration;
+import de.invesdwin.util.time.duration.Duration;
 
 /**
  * FDate stands for an immutable Fast Date implementation by utilizing heavy caching.

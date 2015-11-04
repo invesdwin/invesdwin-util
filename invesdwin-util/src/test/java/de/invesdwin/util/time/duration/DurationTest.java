@@ -1,4 +1,4 @@
-package de.invesdwin.util.time;
+package de.invesdwin.util.time.duration;
 
 import java.util.concurrent.TimeUnit;
 
@@ -7,6 +7,7 @@ import javax.annotation.concurrent.Immutable;
 import org.junit.Test;
 
 import de.invesdwin.util.assertions.Assertions;
+import de.invesdwin.util.time.Instant;
 import de.invesdwin.util.time.fdate.FDate;
 
 @Immutable

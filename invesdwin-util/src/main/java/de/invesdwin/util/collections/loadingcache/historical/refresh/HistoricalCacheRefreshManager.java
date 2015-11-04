@@ -7,7 +7,7 @@ import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.concurrent.Executors;
 import de.invesdwin.util.concurrent.WrappedScheduledExecutorService;
-import de.invesdwin.util.time.Duration;
+import de.invesdwin.util.time.duration.Duration;
 import de.invesdwin.util.time.fdate.FDate;
 
 @ThreadSafe

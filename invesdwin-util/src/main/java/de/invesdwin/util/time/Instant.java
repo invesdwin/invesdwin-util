@@ -4,6 +4,8 @@ import java.util.concurrent.TimeUnit;
 
 import javax.annotation.concurrent.Immutable;
 
+import de.invesdwin.util.time.duration.Duration;
+
 /**
  * This class represents an instant relative to the application start in nanoseconds.
  * 

@@ -15,7 +15,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 
-import de.invesdwin.util.time.Duration;
+import de.invesdwin.util.time.duration.Duration;
 
 @NotThreadSafe
 public final class URIsConnect {

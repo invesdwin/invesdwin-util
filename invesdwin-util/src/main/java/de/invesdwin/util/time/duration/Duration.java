@@ -1,5 +1,7 @@
-package de.invesdwin.util.time;
+package de.invesdwin.util.time.duration;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.concurrent.GuardedBy;
@@ -8,6 +10,7 @@ import javax.annotation.concurrent.ThreadSafe;
 import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.lang.Strings;
+import de.invesdwin.util.time.Instant;
 import de.invesdwin.util.time.fdate.FDate;
 
 @ThreadSafe
@@ -26,6 +29,7 @@ public final class Duration extends Number implements Comparable<Object> {
     public static final int MICROSECONDS_IN_MILLISECOND = 1000;
     public static final int NANOSECONDS_IN_MICROSECOND = 1000;
 
+    public static final Duration ZERO = new Duration(0, TimeUnit.NANOSECONDS);
     public static final Duration ONE_MILLISECOND = new Duration(1, TimeUnit.MILLISECONDS);
     public static final Duration ONE_SECOND = new Duration(1, TimeUnit.SECONDS);
     public static final Duration ONE_MINUTE = new Duration(1, TimeUnit.MINUTES);
@@ -369,6 +373,18 @@ public final class Duration extends Number implements Comparable<Object> {
             }
         }
         return -1;
+    }
+
+    public static IDurationAggregate valueOf(final Duration... values) {
+        return valueOf(Arrays.asList(values));
+    }
+
+    public static IDurationAggregate valueOf(final List<? extends Duration> values) {
+        if (values == null || values.size() == 0) {
+            return DummyDurationAggregate.INSTANCE;
+        } else {
+            return new DurationAggregate(values);
+        }
     }
 
 }

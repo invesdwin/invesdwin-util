@@ -7,6 +7,7 @@ import javax.annotation.concurrent.Immutable;
 import org.junit.Test;
 
 import de.invesdwin.util.assertions.Assertions;
+import de.invesdwin.util.time.duration.Duration;
 
 @Immutable
 public class InstantTest {

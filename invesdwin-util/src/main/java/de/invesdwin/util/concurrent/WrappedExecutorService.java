@@ -18,7 +18,7 @@ import javax.annotation.concurrent.ThreadSafe;
 import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 import de.invesdwin.util.shutdown.IShutdownHook;
 import de.invesdwin.util.shutdown.ShutdownHookManager;
-import de.invesdwin.util.time.Duration;
+import de.invesdwin.util.time.duration.Duration;
 
 @ThreadSafe
 public class WrappedExecutorService implements ExecutorService {

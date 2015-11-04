@@ -14,7 +14,7 @@ import com.google.common.cache.RemovalNotification;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.loadingcache.guava.internal.OptionalValueWrapperLoadingCache;
 import de.invesdwin.util.collections.loadingcache.guava.internal.WrapperLoadingCacheMap;
-import de.invesdwin.util.time.Duration;
+import de.invesdwin.util.time.duration.Duration;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 @NotThreadSafe

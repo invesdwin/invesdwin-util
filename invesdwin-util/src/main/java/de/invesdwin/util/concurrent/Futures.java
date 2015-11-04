@@ -14,7 +14,7 @@ import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.error.Throwables;
-import de.invesdwin.util.time.Duration;
+import de.invesdwin.util.time.duration.Duration;
 import de.invesdwin.util.time.fdate.FDate;
 
 @Immutable
