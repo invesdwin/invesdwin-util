@@ -55,15 +55,15 @@ public class AHistoricalCacheTest {
         newCachedThreadPool.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
         final boolean dateIsFaster = date.get() < l.get();
         if (dateIsFaster) {
-            System.out.println(String.format("date " //SUPPRESS CHECKSTYLE single line
-                    + TimeUnit.MILLISECONDS.convert(l.get() - date.get(), TimeUnit.NANOSECONDS)
-                    + "ms "
-                    + new Percent(Decimal.valueOf(date.get()), Decimal.valueOf(l.get())).getValue(PercentScale.PERCENT)));
+            System.out.println(String.format("dateIsFaster " //SUPPRESS CHECKSTYLE single line
+                    + TimeUnit.MILLISECONDS.convert(l.get() - date.get(), TimeUnit.NANOSECONDS) + "ms "
+                    + new Percent(Decimal.valueOf(date.get()), Decimal.valueOf(l.get()))
+                            .getValue(PercentScale.PERCENT)));
         } else {
-            System.out.println(String.format("long " //SUPPRESS CHECKSTYLE single line
-                    + TimeUnit.MILLISECONDS.convert(date.get() - l.get(), TimeUnit.NANOSECONDS)
-                    + "ms "
-                    + new Percent(Decimal.valueOf(l.get()), Decimal.valueOf(date.get())).getValue(PercentScale.PERCENT)));
+            System.out.println(String.format("longIsFaster " //SUPPRESS CHECKSTYLE single line
+                    + TimeUnit.MILLISECONDS.convert(date.get() - l.get(), TimeUnit.NANOSECONDS) + "ms "
+                    + new Percent(Decimal.valueOf(l.get()), Decimal.valueOf(date.get()))
+                            .getValue(PercentScale.PERCENT)));
         }
     }
 
