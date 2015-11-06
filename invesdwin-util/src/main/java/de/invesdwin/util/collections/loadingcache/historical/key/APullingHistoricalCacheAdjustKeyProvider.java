@@ -32,6 +32,11 @@ public abstract class APullingHistoricalCacheAdjustKeyProvider implements IHisto
     }
 
     @Override
+    public AHistoricalCache<?> getParent() {
+        return parent;
+    }
+
+    @Override
     public FDate adjustKey(final FDate key) {
         if (!alreadyAdjustingKey.get()) {
             alreadyAdjustingKey.set(true);

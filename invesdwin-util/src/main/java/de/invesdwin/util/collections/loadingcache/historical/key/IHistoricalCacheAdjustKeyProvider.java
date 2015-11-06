@@ -13,4 +13,6 @@ public interface IHistoricalCacheAdjustKeyProvider {
 
     boolean registerHistoricalCache(AHistoricalCache<?> historicalCache);
 
+    AHistoricalCache<?> getParent();
+
 }

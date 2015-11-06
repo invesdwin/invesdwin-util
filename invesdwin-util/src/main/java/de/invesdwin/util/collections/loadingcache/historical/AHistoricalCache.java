@@ -70,8 +70,8 @@ public abstract class AHistoricalCache<V> {
 
     protected void setAdjustKeyProvider(final IHistoricalCacheAdjustKeyProvider adjustKeyProvider) {
         Assertions.assertThat(this.adjustKeyProvider)
-        .as("%s can only be set once", IHistoricalCacheAdjustKeyProvider.class.getSimpleName())
-        .isInstanceOf(InnerHistoricalCacheAdjustKeyProvider.class);
+                .as("%s can only be set once", IHistoricalCacheAdjustKeyProvider.class.getSimpleName())
+                .isInstanceOf(InnerHistoricalCacheAdjustKeyProvider.class);
         Assertions.assertThat(adjustKeyProvider.registerHistoricalCache(this)).isTrue(); //need to first register, then set provider or else we might clear the provider too often
         this.adjustKeyProvider = adjustKeyProvider;
     }
@@ -80,9 +80,10 @@ public abstract class AHistoricalCache<V> {
     protected void setShiftKeyDelegate(final AHistoricalCache<?> shiftKeyDelegate, final boolean alsoExtractKey) {
         Assertions.assertThat(shiftKeyDelegate).as("Use null instead of this").isNotSameAs(this);
         Assertions.assertThat(this.shiftKeyProvider)
-        .as("%s can only be set once", IHistoricalCacheShiftKeyProvider.class.getSimpleName())
-        .isInstanceOf(InnerHistoricalCacheShiftKeyProvider.class);
-        this.shiftKeyProvider = new DelegateHistoricalCacheShiftKeyProvider((AHistoricalCache<Object>) shiftKeyDelegate);
+                .as("%s can only be set once", IHistoricalCacheShiftKeyProvider.class.getSimpleName())
+                .isInstanceOf(InnerHistoricalCacheShiftKeyProvider.class);
+        this.shiftKeyProvider = new DelegateHistoricalCacheShiftKeyProvider(
+                (AHistoricalCache<Object>) shiftKeyDelegate);
         if (alsoExtractKey) {
             this.extractKeyProvider = new DelegateHistoricalCacheExtractKeyProvider<V>(
                     (AHistoricalCache<Object>) shiftKeyDelegate);
@@ -263,8 +264,9 @@ public abstract class AHistoricalCache<V> {
     private void putPrevious(final FDate previousKey, final V value, final FDate valueKey) {
         final int compare = previousKey.compareTo(valueKey);
         if (!(compare <= 0)) {
-            throw new IllegalArgumentException(new TextDescription("%s: previousKey [%s] <= value [%s] not matched",
-                    this, previousKey, valueKey).toString());
+            throw new IllegalArgumentException(
+                    new TextDescription("%s: previousKey [%s] <= value [%s] not matched", this, previousKey, valueKey)
+                            .toString());
         }
         if (compare != 0) {
             shiftKeyProvider.getPreviousKeysCache().put(valueKey, previousKey);
@@ -275,8 +277,9 @@ public abstract class AHistoricalCache<V> {
     private void putNext(final FDate nextKey, final V value, final FDate valueKey) {
         final int compare = nextKey.compareTo(valueKey);
         if (!(compare >= 0)) {
-            throw new IllegalArgumentException(new TextDescription("%s: nextKey [%s] >= value [%s] not matched", this,
-                    nextKey, valueKey).toString());
+            throw new IllegalArgumentException(
+                    new TextDescription("%s: nextKey [%s] >= value [%s] not matched", this, nextKey, valueKey)
+                            .toString());
         }
         if (compare != 0) {
             shiftKeyProvider.getNextKeysCache().put(valueKey, nextKey);
@@ -286,8 +289,12 @@ public abstract class AHistoricalCache<V> {
 
     public void clear() {
         valuesMap.clear();
-        adjustKeyProvider.clear();
-        shiftKeyProvider.clear();
+        if (adjustKeyProvider.getParent() == this) {
+            adjustKeyProvider.clear();
+        }
+        if (shiftKeyProvider.getParent() == this) {
+            shiftKeyProvider.clear();
+        }
         lastRefresh = new FDate();
     }
 
@@ -297,8 +304,8 @@ public abstract class AHistoricalCache<V> {
 
     public void setOnValueLoadedListener(final IHistoricalCacheOnValueLoadedListener<V> onValueLoadedListener) {
         Assertions.assertThat(onValueLoadedListener)
-        .as("%s can only be set once, maybe you should chain them?",
-                IHistoricalCacheOnValueLoadedListener.class.getSimpleName())
+                .as("%s can only be set once, maybe you should chain them?",
+                        IHistoricalCacheOnValueLoadedListener.class.getSimpleName())
                 .isInstanceOf(InnerHistoricalCacheOnValueLoadedListener.class);
         this.onValueLoadedListener = onValueLoadedListener;
     }
@@ -410,6 +417,11 @@ public abstract class AHistoricalCache<V> {
             nextKeysCache.clear();
         }
 
+        @Override
+        public AHistoricalCache<?> getParent() {
+            return AHistoricalCache.this;
+        }
+
     }
 
     private class InnerHistoricalCacheAdjustKeyProvider implements IHistoricalCacheAdjustKeyProvider {
@@ -430,6 +442,11 @@ public abstract class AHistoricalCache<V> {
         @Override
         public boolean registerHistoricalCache(final AHistoricalCache<?> historicalCcache) {
             return true;
+        }
+
+        @Override
+        public AHistoricalCache<?> getParent() {
+            return AHistoricalCache.this;
         }
 
     }

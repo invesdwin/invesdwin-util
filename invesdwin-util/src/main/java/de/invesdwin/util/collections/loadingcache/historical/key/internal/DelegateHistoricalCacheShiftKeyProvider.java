@@ -16,6 +16,11 @@ public class DelegateHistoricalCacheShiftKeyProvider implements IHistoricalCache
     }
 
     @Override
+    public AHistoricalCache<?> getParent() {
+        return delegate;
+    }
+
+    @Override
     public FDate calculatePreviousKey(final FDate key) {
         return delegate.getShiftKeyProvider().calculatePreviousKey(key);
     }

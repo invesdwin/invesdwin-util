@@ -30,6 +30,11 @@ public abstract class APushingHistoricalCacheAdjustKeyProvider implements IHisto
     }
 
     @Override
+    public AHistoricalCache<?> getParent() {
+        return pullingAdjustKeyProvider.getParent();
+    }
+
+    @Override
     public FDate adjustKey(final FDate key) {
         final FDate highestAllowedKey = getHighestAllowedKey();
         if (highestAllowedKey != null && key.isAfter(highestAllowedKey)) {

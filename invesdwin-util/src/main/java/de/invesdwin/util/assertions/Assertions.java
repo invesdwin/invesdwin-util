@@ -38,4 +38,11 @@ public final class Assertions extends AAssertionsStaticFacade {
         }
     }
 
+    public static void checkSame(final Object o1, final Object o2) {
+        if (o1 != o2) {
+            assertThat(o1).isSameAs(o2);
+            fail("Exception expected");
+        }
+    }
+
 }
