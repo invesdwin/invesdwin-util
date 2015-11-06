@@ -27,7 +27,8 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
     /**
      * 10 days is a good value for daily caches.
      */
-    public static final long DEFAULT_READ_BACK_STEP_MILLIS = new Duration(10, TimeUnit.DAYS).intValue(TimeUnit.MILLISECONDS);
+    public static final long DEFAULT_READ_BACK_STEP_MILLIS = new Duration(10, TimeUnit.DAYS)
+            .intValue(TimeUnit.MILLISECONDS);
     /**
      * having 2 here helps with queries for elements that are filtered by end time
      */
@@ -81,10 +82,16 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
 
         //Try the expensive query
         if (!furtherValuesLoaded) {
-            furtherValuesLoaded = eventuallyLoadFurtherValues("loadValue", key,
-                    determineEaliestStartOfLoadFurtherValues(key), newMinKey, false);
+            final FDate adjKey = determineEaliestStartOfLoadFurtherValues(key);
+            furtherValuesLoaded = eventuallyLoadFurtherValues("loadValue", key, adjKey, newMinKey, false);
         }
         value = searchInFurtherValues(key);
+        if (!furtherValuesLoaded && isPotentiallyAlreadyEvicted(key, value)) {
+            final FDate adjKey = determineEaliestStartOfLoadFurtherValues(key);
+            furtherValuesLoaded = eventuallyLoadFurtherValues("loadValueBecauseOfEviction", key, adjKey, newMinKey,
+                    true);
+            value = searchInFurtherValues(key);
+        }
         if (value != null) {
             return value;
         }
@@ -98,6 +105,25 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
         //And last we just try to get the newest value matching the key.
         //If there are no values in db, this method is only called once
         return readNewestValueFromDB(key);
+    }
+
+    private boolean isPotentiallyAlreadyEvicted(final FDate key, final V value) {
+        final boolean isEvictedBeforeCurrentFurtherValues = (value == null || extractKey(key, value).isAfter(key))
+                && (key.isAfter(minKeyInDB) || key.isAfter(minKeyInDBFromLoadFurtherValues));
+        if (isEvictedBeforeCurrentFurtherValues) {
+            return true;
+        }
+        final boolean mightBeEvictedAfterFurtherValues = value != null && furtherValues.isEmpty();
+        if (mightBeEvictedAfterFurtherValues) {
+            final FDate valueKey = extractKey(key, value);
+            final boolean isEvictedAfterCurrentFurtherValues = valueKey.isBefore(key)
+                    && valueKey.isBeforeOrEqual(maxKeyInDB);
+            if (isEvictedAfterCurrentFurtherValues) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private boolean eventuallyGetMinMaxKeysInDB(final FDate key, final boolean force) {
@@ -228,7 +254,16 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
 
     private boolean shouldLoadFurtherValues(final FDate key, final boolean newMinKey) {
         if (furtherValues.isEmpty()) {
-            return true;
+            final V tail = lastValuesFromFurtherValues.getTail();
+            if (tail == null) {
+                return true;
+            }
+            final V head = lastValuesFromFurtherValues.getHead();
+            final FDate tailKey = extractKey(key, tail);
+            final FDate headKey = extractKey(key, head);
+            final boolean isEndReachedAnyway = tailKey.equals(maxKeyInDB) && key.isBeforeOrEqual(maxKeyInDB)
+                    && headKey.isBeforeOrEqual(key);
+            return !isEndReachedAnyway;
         }
         final boolean keyIsBeforeMinKeyFromLoadFurtherValues = newMinKey
                 && key.isBefore(minKeyInDBFromLoadFurtherValues);
@@ -269,9 +304,8 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
         maxKeyInDBFromLoadFurtherValues = FDate.max(maxKeyInDBFromLoadFurtherValues, lastKey);
 
         if (furtherValues.size() > 1) {
-            Assertions.assertThat(firstKey.compareTo(lastKey) <= 0)
-            .as("Not ascending sorted! At firstKey [%s] and lastKey [%s]", firstKey, lastKey)
-            .isTrue();
+            Assertions.checkState(firstKey.compareTo(lastKey) <= 0,
+                    "Not ascending sorted! At firstKey [%s] and lastKey [%s]", firstKey, lastKey);
         }
     }
 
@@ -280,7 +314,7 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
         //Search for the newest value
         V prevValue = (V) null;
         FDate prevKey = null;
-        if (!lastValuesFromFurtherValues.isEmpty() && !furtherValues.isEmpty()) {
+        if (!lastValuesFromFurtherValues.isEmpty()) {
             //though maybe use the last one for smaller increments than the data itself is loaded
             for (final V lastValueFromFurtherValues : lastValuesFromFurtherValues) {
                 final FDate keyLastValueFromFurtherValues = extractKey(key, lastValueFromFurtherValues);
@@ -320,9 +354,8 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
                 if (furtherValues.isEmpty() && newValueKey.isBefore(maxKeyInDB) && key.isBefore(maxKeyInDB)
                         && maxKeyInDBFromLoadFurtherValues.isBefore(maxKeyInDB)) {
                     final FDate timeForLoadFurtherValues = FDate.max(newValueKey, earliestStartOfLoadFurtherValues);
-                    Assertions.assertThat(
-                            eventuallyLoadFurtherValues("searchInFurtherValues", newValueKey, timeForLoadFurtherValues,
-                                    false, true)).isTrue();
+                    Assertions.checkState(eventuallyLoadFurtherValues("searchInFurtherValues", newValueKey,
+                            timeForLoadFurtherValues, false, true));
                     if (!furtherValues.isEmpty()) {
                         pushLastValueFromFurtherValues();
                         if (!timeForLoadFurtherValues.equals(newValue)) {

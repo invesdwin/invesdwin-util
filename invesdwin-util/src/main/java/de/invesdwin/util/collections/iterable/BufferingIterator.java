@@ -7,6 +7,9 @@ import java.util.NoSuchElementException;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.util.collections.Lists;
+import de.invesdwin.util.lang.Objects;
+
 /**
  * This iterator can be used to buffer another iterator. Useful to load from a file immediately to keep the file open as
  * shorty as possible, then serve the items from memory and removing them on the go to keep memory consumption low.
@@ -52,14 +55,18 @@ public class BufferingIterator<E> implements ICloseableIterator<E>, ICloseableIt
 
     public E getHead() {
         if (head == null) {
-            throw new NoSuchElementException();
+            return null;
         } else {
             return head.getValue();
         }
     }
 
     public E getTail() {
-        return tail.getValue();
+        if (tail == null) {
+            return null;
+        } else {
+            return tail.getValue();
+        }
     }
 
     public void add(final E element) {
@@ -161,6 +168,16 @@ public class BufferingIterator<E> implements ICloseableIterator<E>, ICloseableIt
         public void setNext(final Node next) {
             this.next = next;
         }
+
+        @Override
+        public String toString() {
+            return Objects.toString(value);
+        }
+    }
+
+    @Override
+    public String toString() {
+        return Lists.toListWithoutHasNext(iterator()).toString();
     }
 
     @Override

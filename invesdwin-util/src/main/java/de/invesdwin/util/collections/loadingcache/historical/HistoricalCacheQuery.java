@@ -206,7 +206,11 @@ public class HistoricalCacheQuery<V> {
             final Entry<FDate, V> previousEntry = assertValue.assertValue(parent, key, previousPreviousKey,
                     getValue(previousPreviousKey, HistoricalCacheAssertValue.ASSERT_VALUE_WITH_FUTURE));
             if (previousEntry == null) {
-                return null;
+                if (previousKey.equals(key)) {
+                    return null;
+                } else {
+                    return previousKey;
+                }
             } else {
                 final V previousValue = previousEntry.getValue();
                 previousKey = parent.extractKey(previousPreviousKey, previousValue);

@@ -23,7 +23,7 @@ import de.invesdwin.util.time.fdate.FDateBuilder;
 
 // CHECKSTYLE:OFF abstract
 @ThreadSafe
-public class AGapHistoricalCacheTest {
+public class AGapHistoricalCacheWithUnlimitedCacheTest {
     //CHECKSTYLE:ON
 
     //marker object
@@ -37,7 +37,7 @@ public class AGapHistoricalCacheTest {
     private final int testReturnMaxResultsValue = 2;
     private final TestGapHistoricalCache cache = new TestGapHistoricalCache();
 
-    public AGapHistoricalCacheTest() {
+    public AGapHistoricalCacheWithUnlimitedCacheTest() {
         this.entities = new ArrayList<FDate>();
         entities.add(FDateBuilder.newDate(1990, 1, 1));
         entities.add(FDateBuilder.newDate(1991, 1, 1));
@@ -641,7 +641,7 @@ public class AGapHistoricalCacheTest {
 
         @Override
         public Integer getMaximumSize() {
-            return super.getMaximumSize();
+            return null;
         }
 
         @Override
