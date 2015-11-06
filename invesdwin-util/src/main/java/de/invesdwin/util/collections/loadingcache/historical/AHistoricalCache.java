@@ -289,6 +289,7 @@ public abstract class AHistoricalCache<V> {
 
     public void clear() {
         valuesMap.clear();
+        //when clearning other caches they might become inconsistent...
         if (adjustKeyProvider.getParent() == this) {
             adjustKeyProvider.clear();
         }
