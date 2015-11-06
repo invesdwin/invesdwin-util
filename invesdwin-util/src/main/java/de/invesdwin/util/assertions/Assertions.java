@@ -7,6 +7,7 @@ import de.invesdwin.util.assertions.internal.AAssertionsStaticFacade;
 import de.invesdwin.util.assertions.internal.DecimalAssert;
 import de.invesdwin.util.assertions.internal.FDateAssert;
 import de.invesdwin.util.assertions.internal.StringAssert;
+import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.math.decimal.ADecimal;
 import de.invesdwin.util.time.fdate.FDate;
 
@@ -28,6 +29,13 @@ public final class Assertions extends AAssertionsStaticFacade {
 
     public static FDateAssert assertThat(final FDate actual) {
         return new FDateAssert(actual);
+    }
+
+    public static void checkEquals(final Object o1, final Object o2) {
+        if (!Objects.equals(o1, o2)) {
+            assertThat(o1).isEqualTo(o2);
+            fail("Exception expected");
+        }
     }
 
 }

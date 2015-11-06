@@ -14,12 +14,24 @@ import de.invesdwin.util.lang.Strings;
 
 @Immutable
 @StaticFacadeDefinition(name = "de.invesdwin.util.error.internal.AThrowablesStaticFacade", targets = {
-        com.google.common.base.Throwables.class, org.fest.util.Throwables.class, org.fest.reflect.util.Throwables.class })
+        com.google.common.base.Throwables.class, org.fest.util.Throwables.class,
+        org.fest.reflect.util.Throwables.class })
 public final class Throwables extends AThrowablesStaticFacade {
+
+    private static boolean finalizerDebugStackTraceEnabled;
 
     private Throwables() {}
 
-    public static <T extends Throwable> boolean isCausedByType(@Nonnull final Throwable e, @Nonnull final Class<T> type) {
+    public static void setFinalizerDebugStackTraceEnabled(final boolean finalizerDebugStackTraceEnabled) {
+        Throwables.finalizerDebugStackTraceEnabled = finalizerDebugStackTraceEnabled;
+    }
+
+    public static boolean isFinalizerDebugStackTraceEnabled() {
+        return finalizerDebugStackTraceEnabled;
+    }
+
+    public static <T extends Throwable> boolean isCausedByType(@Nonnull final Throwable e,
+            @Nonnull final Class<T> type) {
         return getCauseByType(e, type) != null;
     }
 

@@ -21,18 +21,10 @@ public abstract class ADelegateInputStream extends InputStream {
     private Exception readStackTrace;
 
     public ADelegateInputStream() {
-        if (isFinalizerDebugEnabled()) {
+        if (Throwables.isFinalizerDebugStackTraceEnabled()) {
             initStackTrace = new Exception();
             initStackTrace.fillInStackTrace();
         }
-    }
-
-    public static boolean isFinalizerDebugEnabled() {
-        return ACloseableIterator.isFinalizerDebugEnabled();
-    }
-
-    public static void setFinalizerDebugEnabled(final boolean finalizerDebugEnabled) {
-        ACloseableIterator.setFinalizerDebugEnabled(finalizerDebugEnabled);
     }
 
     @Override
@@ -64,9 +56,9 @@ public abstract class ADelegateInputStream extends InputStream {
     @Override
     protected void finalize() throws Throwable {
         if (!isClosed()) {
-            if (isFinalizerDebugEnabled()) {
-                String warning = "Finalizing unclosed " + InputStream.class.getSimpleName() + " ["
-                        + getClass().getName() + "]";
+            String warning = "Finalizing unclosed " + InputStream.class.getSimpleName() + " [" + getClass().getName()
+                    + "]";
+            if (Throwables.isFinalizerDebugStackTraceEnabled()) {
                 final Exception stackTrace;
                 if (initStackTrace != null) {
                     warning += " which was initialized but never used";
@@ -77,8 +69,8 @@ public abstract class ADelegateInputStream extends InputStream {
                 if (stackTrace != null) {
                     warning += " from stacktrace:\n" + Throwables.getFullStackTrace(stackTrace);
                 }
-                LOGGER.warn(warning);
             }
+            LOGGER.warn(warning);
             close();
         }
         super.finalize();
@@ -105,7 +97,7 @@ public abstract class ADelegateInputStream extends InputStream {
 
     @Override
     public int read() throws IOException {
-        if (isFinalizerDebugEnabled() && readStackTrace == null) {
+        if (Throwables.isFinalizerDebugStackTraceEnabled() && readStackTrace == null) {
             initStackTrace = null;
             readStackTrace = new Exception();
             readStackTrace.fillInStackTrace();

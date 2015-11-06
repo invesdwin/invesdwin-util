@@ -11,15 +11,13 @@ public abstract class ACloseableIterator<E> implements ICloseableIterator<E> {
 
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(ACloseableIterator.class);
 
-    private static boolean finalizerDebugEnabled;
-
     private boolean closed;
 
     private Exception initStackTrace;
     private Exception nextStackTrace;
 
     public ACloseableIterator() {
-        if (isFinalizerDebugEnabled()) {
+        if (Throwables.isFinalizerDebugStackTraceEnabled()) {
             initStackTrace = new Exception();
             initStackTrace.fillInStackTrace();
         }
@@ -31,8 +29,8 @@ public abstract class ACloseableIterator<E> implements ICloseableIterator<E> {
     @Override
     protected void finalize() throws Throwable {
         if (!isClosed()) {
-            if (finalizerDebugEnabled) {
-                String warning = "Finalizing unclosed iterator [" + getClass().getName() + "]";
+            String warning = "Finalizing unclosed iterator [" + getClass().getName() + "]";
+            if (Throwables.isFinalizerDebugStackTraceEnabled()) {
                 final Exception stackTrace;
                 if (initStackTrace != null) {
                     warning += " which was initialized but never used";
@@ -43,8 +41,8 @@ public abstract class ACloseableIterator<E> implements ICloseableIterator<E> {
                 if (stackTrace != null) {
                     warning += " from stacktrace:\n" + Throwables.getFullStackTrace(stackTrace);
                 }
-                LOGGER.warn(warning);
             }
+            LOGGER.warn(warning);
             close();
         }
         super.finalize();
@@ -69,7 +67,7 @@ public abstract class ACloseableIterator<E> implements ICloseableIterator<E> {
         if (isClosed()) {
             throw new NoSuchElementException("closed");
         }
-        if (isFinalizerDebugEnabled() && nextStackTrace == null) {
+        if (Throwables.isFinalizerDebugStackTraceEnabled() && nextStackTrace == null) {
             initStackTrace = null;
             nextStackTrace = new Exception();
             nextStackTrace.fillInStackTrace();
@@ -117,13 +115,5 @@ public abstract class ACloseableIterator<E> implements ICloseableIterator<E> {
     }
 
     protected abstract void innerClose();
-
-    public static void setFinalizerDebugEnabled(final boolean finalizerDebugEnabled) {
-        ACloseableIterator.finalizerDebugEnabled = finalizerDebugEnabled;
-    }
-
-    public static boolean isFinalizerDebugEnabled() {
-        return finalizerDebugEnabled;
-    }
 
 }
