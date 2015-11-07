@@ -54,8 +54,8 @@ public abstract class AScaledDecimal<T extends AScaledDecimal<T, S>, S extends I
 
     @Override
     public final T fromDefaultValue(final Decimal value) {
-        //it is faster to continue with defaultScale
-        return newValueCopy(value, defaultScale);
+        final Decimal scaledValue = scale.convertValue(getGenericThis(), value, getDefaultScale());
+        return newValueCopy(scaledValue, scale);
     }
 
     @Override
