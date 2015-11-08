@@ -45,4 +45,18 @@ public final class Assertions extends AAssertionsStaticFacade {
         }
     }
 
+    public static void checkNull(final Object obj) {
+        if (obj != null) {
+            assertThat(obj).isNull();
+            fail("Exception expected");
+        }
+    }
+
+    public static void checkNull(final Object obj, final String message, final Object... args) {
+        if (obj != null) {
+            assertThat(obj).as(message, args).isNull();
+            fail("Exception expected");
+        }
+    }
+
 }
