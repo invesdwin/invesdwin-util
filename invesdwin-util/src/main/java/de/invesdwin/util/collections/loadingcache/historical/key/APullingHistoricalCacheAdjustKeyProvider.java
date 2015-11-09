@@ -104,7 +104,7 @@ public abstract class APullingHistoricalCacheAdjustKeyProvider implements IHisto
     @Override
     public void clear() {
         keysToRemoveOnNewHighestAllowedKey.clear();
-        curHighestAllowedKey = null;
+        //        curHighestAllowedKey = null; // dont clear highestallowedkey or else backtests might get confused
         if (!historicalCachesForClear.isEmpty()) {
             //make copy to prevent recusion
             final List<HistoricalCacheForClear> historicalCachesForClearCopy = new ArrayList<HistoricalCacheForClear>(
