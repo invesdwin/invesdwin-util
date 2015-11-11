@@ -7,15 +7,17 @@ import de.invesdwin.util.math.decimal.Decimal;
 
 @SuppressWarnings("serial")
 @Immutable
-public class Percent extends AScaledDecimal<Percent, PercentScale> implements IPercentData {
+public class Percent extends AScaledDecimal<Percent, PercentScale>implements IPercentData {
 
     public static final PercentScale DEFAULT_SCALE;
     public static final Percent ONE_HUNDRED_PERCENT;
+    public static final Percent FIFTY_PERCENT;
     public static final Percent ZERO_PERCENT;
 
     static {
         DEFAULT_SCALE = PercentScale.RATE;
         ONE_HUNDRED_PERCENT = new Percent(Decimal.ONE, PercentScale.RATE);
+        FIFTY_PERCENT = new Percent(new Decimal("50"), PercentScale.PERCENT);
         ZERO_PERCENT = new Percent(Decimal.ZERO, PercentScale.RATE);
     }
 
