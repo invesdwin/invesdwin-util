@@ -1,5 +1,7 @@
 package de.invesdwin.util.assertions;
 
+import java.util.Collection;
+
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
@@ -34,28 +36,89 @@ public final class Assertions extends AAssertionsStaticFacade {
     public static void checkEquals(final Object o1, final Object o2) {
         if (!Objects.equals(o1, o2)) {
             assertThat(o1).isEqualTo(o2);
-            fail("Exception expected");
+            failExceptionExpected();
         }
+    }
+
+    public static void failExceptionExpected() {
+        fail("Exception expected");
     }
 
     public static void checkSame(final Object o1, final Object o2) {
         if (o1 != o2) {
             assertThat(o1).isSameAs(o2);
-            fail("Exception expected");
+            failExceptionExpected();
         }
     }
 
     public static void checkNull(final Object obj) {
         if (obj != null) {
             assertThat(obj).isNull();
-            fail("Exception expected");
+            failExceptionExpected();
         }
     }
 
     public static void checkNull(final Object obj, final String message, final Object... args) {
         if (obj != null) {
             assertThat(obj).as(message, args).isNull();
-            fail("Exception expected");
+            failExceptionExpected();
+        }
+    }
+
+    public static void checkTrue(final boolean expression) {
+        if (!expression) {
+            assertThat(expression).isTrue();
+            failExceptionExpected();
+        }
+    }
+
+    public static void checkTrue(final boolean expression, final String message, final Object... args) {
+        if (!expression) {
+            assertThat(expression).as(message, args).isTrue();
+            failExceptionExpected();
+        }
+    }
+
+    public static void checkFalse(final boolean expression) {
+        if (expression) {
+            assertThat(expression).isFalse();
+            failExceptionExpected();
+        }
+    }
+
+    public static void checkFalse(final boolean expression, final String message, final Object... args) {
+        if (expression) {
+            assertThat(expression).as(message, args).isFalse();
+            failExceptionExpected();
+        }
+    }
+
+    public static void checkNotEmpty(final Collection<?> collection) {
+        if (collection.isEmpty()) {
+            assertThat(collection).isNotEmpty();
+            failExceptionExpected();
+        }
+    }
+
+    public static void checkNotEmpty(final Collection<?> collection, final String message, final Object... args) {
+        if (collection.isEmpty()) {
+            assertThat(collection).as(message, args).isNotEmpty();
+            failExceptionExpected();
+        }
+    }
+
+    public static void checkContains(final Collection<?> collection, final Object element) {
+        if (!collection.contains(element)) {
+            assertThat(collection).contains(element);
+            failExceptionExpected();
+        }
+    }
+
+    public static void checkContains(final Collection<?> collection, final Object element, final String message,
+            final Object... args) {
+        if (!collection.contains(element)) {
+            assertThat(collection).as(message, args).contains(element);
+            failExceptionExpected();
         }
     }
 
