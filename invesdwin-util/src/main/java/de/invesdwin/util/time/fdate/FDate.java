@@ -27,6 +27,7 @@ import com.google.common.primitives.Ints;
 import de.invesdwin.norva.marker.IDate;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
+import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.lang.ADelegateComparator;
 import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.time.duration.Duration;
@@ -781,6 +782,29 @@ public final class FDate implements IDate, Serializable, Cloneable, Comparable<O
         }
         return date1.millisValue() == date2.millisValue()
                 || date1.truncate(field).millisValue() == date2.truncate(field).millisValue();
+    }
+
+    public static boolean isSamePeriod(final FDate date1, final FDate date2, final FTimeUnit period) {
+        switch (period) {
+        case Milliseconds:
+            return isSameMillisecond(date1, date2);
+        case Seconds:
+            return isSameSecond(date1, date2);
+        case Minutes:
+            return isSameMinute(date1, date2);
+        case Hours:
+            return isSameHour(date1, date2);
+        case Days:
+            return isSameDay(date1, date2);
+        case Weeks:
+            return isSameWeek(date1, date2);
+        case Months:
+            return isSameMonth(date1, date2);
+        case Years:
+            return isSameYear(date1, date2);
+        default:
+            throw UnknownArgumentException.newInstance(FTimeUnit.class, period);
+        }
     }
 
     /**
