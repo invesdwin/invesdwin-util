@@ -14,7 +14,7 @@ import de.invesdwin.util.time.Instant;
 import de.invesdwin.util.time.fdate.FDate;
 
 @ThreadSafe
-public final class Duration extends Number implements Comparable<Object> {
+public class Duration extends Number implements Comparable<Object> {
 
     public static final int DAYS_IN_YEAR = 365;
     public static final int MONTHS_IN_YEAR = 12;
