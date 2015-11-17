@@ -135,30 +135,9 @@ class ScaledDecimalDelegateImpl extends ADecimalImpl {
     }
 
     @Override
-    public ADecimalImpl subtract(final ADecimal subtrahend) {
-        final ADecimal<?> defaultScaledSubtrahend = maybeGetDefaultScaledNumber(subtrahend);
-        final ADecimalImpl newDefault = getDefaultScaledDelegate().subtract(defaultScaledSubtrahend);
-        return parent.fromDefaultValue(new Decimal(newDefault)).getImpl();
-    }
-
-    @Override
-    public ADecimalImpl add(final ADecimal augend) {
-        final ADecimal<?> defaultScaledAugend = maybeGetDefaultScaledNumber(augend);
-        final ADecimalImpl newDefault = getDefaultScaledDelegate().add(defaultScaledAugend);
-        return parent.fromDefaultValue(new Decimal(newDefault)).getImpl();
-    }
-
-    @Override
     public ADecimalImpl multiply(final Number multiplicant) {
         final ADecimalImpl newDefault = getDelegate().multiply(multiplicant);
         return parent.newValueCopy(newDefault).getImpl();
-    }
-
-    @Override
-    public ADecimalImpl multiply(final ADecimal multiplicant) {
-        final ADecimal<?> defaultScaledMultiplicant = maybeGetDefaultScaledNumber(multiplicant);
-        final ADecimalImpl newDefault = getDefaultScaledDelegate().multiply(defaultScaledMultiplicant);
-        return parent.fromDefaultValue(new Decimal(newDefault)).getImpl();
     }
 
     @Override
@@ -168,33 +147,64 @@ class ScaledDecimalDelegateImpl extends ADecimalImpl {
     }
 
     @Override
-    public ADecimalImpl divide(final ADecimal divisor) {
-        final ADecimal<?> defaultScaledDivisor = maybeGetDefaultScaledNumber(divisor);
-        final ADecimalImpl newDefault = getDefaultScaledDelegate().divide(defaultScaledDivisor);
-        return parent.fromDefaultValue(new Decimal(newDefault)).getImpl();
-    }
-
-    @Override
     public ADecimalImpl remainder(final Number divisor) {
         final ADecimalImpl newDefault = getDelegate().remainder(divisor);
         return parent.newValueCopy(newDefault).getImpl();
     }
 
     @Override
-    public ADecimalImpl remainder(final ADecimal divisor) {
-        final ADecimal<?> defaultScaledDivisor = maybeGetDefaultScaledNumber(divisor);
-        final ADecimalImpl newDefault = getDefaultScaledDelegate().remainder(defaultScaledDivisor);
-        return parent.fromDefaultValue(new Decimal(newDefault)).getImpl();
+    @Deprecated
+    public ADecimalImpl subtract(final ADecimal subtrahend) {
+        //        final ADecimal<?> defaultScaledSubtrahend = maybeGetDefaultScaledNumber(subtrahend);
+        //        final ADecimalImpl newDefault = getDefaultScaledDelegate().subtract(defaultScaledSubtrahend);
+        //        return parent.fromDefaultValue(new Decimal(newDefault)).getImpl();
+        throw new UnsupportedOperationException();
     }
 
-    private ADecimal<?> maybeGetDefaultScaledNumber(final ADecimal<?> number) {
-        if (number instanceof AScaledDecimal) {
-            final AScaledDecimal<?, ?> scaledNumber = (AScaledDecimal<?, ?>) number;
-            return scaledNumber.getDefaultValue();
-        } else {
-            return number;
-        }
+    @Override
+    @Deprecated
+    public ADecimalImpl add(final ADecimal augend) {
+        //        final ADecimal<?> defaultScaledAugend = maybeGetDefaultScaledNumber(augend);
+        //        final ADecimalImpl newDefault = getDefaultScaledDelegate().add(defaultScaledAugend);
+        //        return parent.fromDefaultValue(new Decimal(newDefault)).getImpl();
+        throw new UnsupportedOperationException();
     }
+
+    @Override
+    @Deprecated
+    public ADecimalImpl multiply(final ADecimal multiplicant) {
+        //        final ADecimal<?> defaultScaledMultiplicant = maybeGetDefaultScaledNumber(multiplicant);
+        //        final ADecimalImpl newDefault = getDefaultScaledDelegate().multiply(defaultScaledMultiplicant);
+        //        return parent.fromDefaultValue(new Decimal(newDefault)).getImpl();
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    @Deprecated
+    public ADecimalImpl divide(final ADecimal divisor) {
+        //        final ADecimal<?> defaultScaledDivisor = maybeGetDefaultScaledNumber(divisor);
+        //        final ADecimalImpl newDefault = getDefaultScaledDelegate().divide(defaultScaledDivisor);
+        //        return parent.fromDefaultValue(new Decimal(newDefault)).getImpl();
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    @Deprecated
+    public ADecimalImpl remainder(final ADecimal divisor) {
+        //        final ADecimal<?> defaultScaledDivisor = maybeGetDefaultScaledNumber(divisor);
+        //        final ADecimalImpl newDefault = getDefaultScaledDelegate().remainder(defaultScaledDivisor);
+        //        return parent.fromDefaultValue(new Decimal(newDefault)).getImpl();
+        throw new UnsupportedOperationException();
+    }
+
+    //    private ADecimal<?> maybeGetDefaultScaledNumber(final ADecimal<?> number) {
+    //        if (number instanceof AScaledDecimal) {
+    //            final AScaledDecimal<?, ?> scaledNumber = (AScaledDecimal<?, ?>) number;
+    //            return scaledNumber.getDefaultValue();
+    //        } else {
+    //            return number;
+    //        }
+    //    }
 
     @Override
     public BigDecimal bigDecimalValue() {

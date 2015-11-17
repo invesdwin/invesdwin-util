@@ -260,7 +260,7 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
     /**
      * returns the remainder of the division.
      */
-    public E remainder(final Decimal divisor) {
+    public E remainder(final E divisor) {
         if (divisor == null || divisor.isZero()) {
             return remainder(0);
         } else {

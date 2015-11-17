@@ -141,4 +141,53 @@ public abstract class AScaledDecimal<T extends AScaledDecimal<T, S>, S extends I
         return newValueCopy(getValue(scale), scale);
     }
 
+    @SuppressWarnings("unchecked")
+    @Override
+    public T subtract(final T subtrahend) {
+        final ADecimal<?> defaultScaledSubtrahend = maybeGetDefaultScaledNumber(subtrahend);
+        final ADecimalImpl newDefault = getDefaultValue().getImpl().subtract(defaultScaledSubtrahend);
+        return fromDefaultValue(new Decimal(newDefault));
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public T add(final T augend) {
+        final ADecimal<?> defaultScaledAugend = maybeGetDefaultScaledNumber(augend);
+        final ADecimalImpl newDefault = getDefaultValue().getImpl().add(defaultScaledAugend);
+        return fromDefaultValue(new Decimal(newDefault));
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public T multiply(final T multiplicant) {
+        final ADecimal<?> defaultScaledMultiplicant = maybeGetDefaultScaledNumber(multiplicant);
+        final ADecimalImpl newDefault = getDefaultValue().getImpl().multiply(defaultScaledMultiplicant);
+        return fromDefaultValue(new Decimal(newDefault));
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public T divide(final T divisor) {
+        final ADecimal<?> defaultScaledDivisor = maybeGetDefaultScaledNumber(divisor);
+        final ADecimalImpl newDefault = getDefaultValue().getImpl().divide(defaultScaledDivisor);
+        return fromDefaultValue(new Decimal(newDefault));
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public T remainder(final T divisor) {
+        final ADecimal<?> defaultScaledDivisor = maybeGetDefaultScaledNumber(divisor);
+        final ADecimalImpl newDefault = getDefaultValue().getImpl().remainder(defaultScaledDivisor);
+        return fromDefaultValue(new Decimal(newDefault));
+    }
+
+    private ADecimal<?> maybeGetDefaultScaledNumber(final ADecimal<?> number) {
+        if (number instanceof AScaledDecimal) {
+            final AScaledDecimal<?, ?> scaledNumber = (AScaledDecimal<?, ?>) number;
+            return scaledNumber.getDefaultValue();
+        } else {
+            return number;
+        }
+    }
+
 }
