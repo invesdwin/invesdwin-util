@@ -31,6 +31,9 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
 
     protected abstract ADecimalImpl getImpl();
 
+    /**
+     * http://stackoverflow.com/questions/2170872/does-java-casting-introduce-overhead-why
+     */
     protected abstract E getGenericThis();
 
     protected abstract E newValueCopy(ADecimalImpl value);

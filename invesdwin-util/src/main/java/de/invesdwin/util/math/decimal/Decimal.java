@@ -154,8 +154,8 @@ public class Decimal extends ADecimal<Decimal> {
             return (Decimal) value;
         } else {
             if (value instanceof AScaledDecimal) {
-                throw new IllegalArgumentException("value [" + value + "] should not be an instance of "
-                        + AScaledDecimal.class.getSimpleName());
+                throw new IllegalArgumentException(
+                        "value [" + value + "] should not be an instance of " + AScaledDecimal.class.getSimpleName());
             }
             return new Decimal(value);
         }

@@ -7,23 +7,25 @@ import java.util.List;
 import java.util.Locale;
 
 import javax.annotation.concurrent.GuardedBy;
-import javax.annotation.concurrent.Immutable;
+import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.math.decimal.internal.impl.ADecimalImpl;
 import de.invesdwin.util.math.decimal.scaled.IDecimalScale;
 
 @SuppressWarnings({ "rawtypes", "serial" })
-@Immutable
-public abstract class AScaledDecimal<T extends AScaledDecimal<T, S>, S extends IDecimalScale<T, S>>
-        extends ADecimal<T> {
+@ThreadSafe
+public abstract class AScaledDecimal<T extends AScaledDecimal<T, S>, S extends IDecimalScale<T, S>> extends ADecimal<T>
+        implements Cloneable {
 
     private static final DecimalFormatSymbols ENGLISH_DECIMAL_FORMAT_SYMBOLS = DecimalFormatSymbols
             .getInstance(Locale.ENGLISH);
     protected final S scale;
-    private final Decimal scaledValue;
-    private final ScaledDecimalDelegateImpl impl;
     @GuardedBy("none for performance")
-    private transient Decimal defaultValue;
+    private Decimal scaledValue;
+    @GuardedBy("none for performance")
+    private ScaledDecimalDelegateImpl impl;
+    @GuardedBy("none for performance")
+    private Decimal defaultValue;
     private final S defaultScale;
 
     protected AScaledDecimal(final Decimal value, final S scale, final S defaultScale) {
@@ -33,7 +35,6 @@ public abstract class AScaledDecimal<T extends AScaledDecimal<T, S>, S extends I
         }
         validateScale(defaultScale);
         this.scaledValue = Decimal.nullToZero(value);
-        this.impl = new ScaledDecimalDelegateImpl(this, scaledValue.getImpl());
         validateScale(scale);
         this.scale = scale;
     }
@@ -44,6 +45,9 @@ public abstract class AScaledDecimal<T extends AScaledDecimal<T, S>, S extends I
 
     @Override
     protected ScaledDecimalDelegateImpl getImpl() {
+        if (impl == null) {
+            impl = new ScaledDecimalDelegateImpl(this, getScaledValue().getImpl());
+        }
         return impl;
     }
 
@@ -52,10 +56,18 @@ public abstract class AScaledDecimal<T extends AScaledDecimal<T, S>, S extends I
         return newValueCopy(new Decimal(value), scale);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public final T fromDefaultValue(final Decimal value) {
-        final Decimal scaledValue = scale.convertValue(getGenericThis(), value, getDefaultScale());
-        return newValueCopy(scaledValue, scale);
+        try {
+            final T clone = (T) clone();
+            clone.scaledValue = null;
+            clone.impl = null;
+            clone.defaultValue = value;
+            return clone;
+        } catch (final CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -75,11 +87,22 @@ public abstract class AScaledDecimal<T extends AScaledDecimal<T, S>, S extends I
 
     private Decimal innerGetValue(final S scale) {
         if (scale == this.scale) {
-            return scaledValue;
+            return getScaledValue();
         } else {
             validateScale(scale);
-            return scale.convertValue(getGenericThis(), new Decimal(getImpl().getDelegate()), this.scale);
+            if (scaledValue != null) {
+                return scale.convertValue(getGenericThis(), new Decimal(getImpl().getDelegate()), this.scale);
+            } else {
+                return scale.convertValue(getGenericThis(), defaultValue, defaultScale);
+            }
         }
+    }
+
+    private Decimal getScaledValue() {
+        if (scaledValue == null) {
+            scaledValue = scale.convertValue(getGenericThis(), defaultValue, this.defaultScale);
+        }
+        return scaledValue;
     }
 
     @Override
@@ -144,6 +167,9 @@ public abstract class AScaledDecimal<T extends AScaledDecimal<T, S>, S extends I
     @SuppressWarnings("unchecked")
     @Override
     public T subtract(final T subtrahend) {
+        if (subtrahend == null) {
+            return getGenericThis();
+        }
         final ADecimal<?> defaultScaledSubtrahend = maybeGetDefaultScaledNumber(subtrahend);
         final ADecimalImpl newDefault = getDefaultValue().getImpl().subtract(defaultScaledSubtrahend);
         return fromDefaultValue(new Decimal(newDefault));
@@ -152,6 +178,9 @@ public abstract class AScaledDecimal<T extends AScaledDecimal<T, S>, S extends I
     @SuppressWarnings("unchecked")
     @Override
     public T add(final T augend) {
+        if (augend == null) {
+            return getGenericThis();
+        }
         final ADecimal<?> defaultScaledAugend = maybeGetDefaultScaledNumber(augend);
         final ADecimalImpl newDefault = getDefaultValue().getImpl().add(defaultScaledAugend);
         return fromDefaultValue(new Decimal(newDefault));
@@ -160,6 +189,9 @@ public abstract class AScaledDecimal<T extends AScaledDecimal<T, S>, S extends I
     @SuppressWarnings("unchecked")
     @Override
     public T multiply(final T multiplicant) {
+        if (multiplicant == null) {
+            return getGenericThis();
+        }
         final ADecimal<?> defaultScaledMultiplicant = maybeGetDefaultScaledNumber(multiplicant);
         final ADecimalImpl newDefault = getDefaultValue().getImpl().multiply(defaultScaledMultiplicant);
         return fromDefaultValue(new Decimal(newDefault));
@@ -168,6 +200,9 @@ public abstract class AScaledDecimal<T extends AScaledDecimal<T, S>, S extends I
     @SuppressWarnings("unchecked")
     @Override
     public T divide(final T divisor) {
+        if (divisor == null) {
+            return getGenericThis();
+        }
         final ADecimal<?> defaultScaledDivisor = maybeGetDefaultScaledNumber(divisor);
         final ADecimalImpl newDefault = getDefaultValue().getImpl().divide(defaultScaledDivisor);
         return fromDefaultValue(new Decimal(newDefault));
@@ -176,6 +211,9 @@ public abstract class AScaledDecimal<T extends AScaledDecimal<T, S>, S extends I
     @SuppressWarnings("unchecked")
     @Override
     public T remainder(final T divisor) {
+        if (divisor == null) {
+            return getGenericThis();
+        }
         final ADecimal<?> defaultScaledDivisor = maybeGetDefaultScaledNumber(divisor);
         final ADecimalImpl newDefault = getDefaultValue().getImpl().remainder(defaultScaledDivisor);
         return fromDefaultValue(new Decimal(newDefault));
