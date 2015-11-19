@@ -60,11 +60,11 @@ public abstract class AScaledDecimal<T extends AScaledDecimal<T, S>, S extends I
     @Override
     public final T fromDefaultValue(final Decimal value) {
         try {
-            final T clone = (T) clone();
+            final AScaledDecimal<T, S> clone = (AScaledDecimal<T, S>) clone();
             clone.scaledValue = null;
             clone.impl = null;
             clone.defaultValue = value;
-            return clone;
+            return (T) clone;
         } catch (final CloneNotSupportedException e) {
             throw new RuntimeException(e);
         }
