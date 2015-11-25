@@ -11,6 +11,7 @@ import javax.annotation.concurrent.Immutable;
 import org.joda.time.DurationFieldType;
 
 import de.invesdwin.util.error.UnknownArgumentException;
+import de.invesdwin.util.time.duration.Duration;
 
 @Immutable
 public enum FTimeUnit {
@@ -35,6 +36,11 @@ public enum FTimeUnit {
         public TimeUnit timeUnitValue() {
             return null;
         }
+
+        @Override
+        public Duration getDuration() {
+            return new Duration(Duration.DAYS_IN_YEAR, TimeUnit.DAYS);
+        }
     },
     Months {
         @Override
@@ -55,6 +61,11 @@ public enum FTimeUnit {
         @Override
         public TimeUnit timeUnitValue() {
             return null;
+        }
+
+        @Override
+        public Duration getDuration() {
+            return new Duration(Duration.DAYS_IN_MONTH, TimeUnit.DAYS);
         }
     },
     Weeks {
@@ -79,6 +90,11 @@ public enum FTimeUnit {
             return null;
         }
 
+        @Override
+        public Duration getDuration() {
+            return new Duration(Duration.DAYS_IN_WEEK, TimeUnit.DAYS);
+        }
+
     },
     Days {
         @Override
@@ -99,6 +115,11 @@ public enum FTimeUnit {
         @Override
         public TimeUnit timeUnitValue() {
             return TimeUnit.DAYS;
+        }
+
+        @Override
+        public Duration getDuration() {
+            return new Duration(1, TimeUnit.DAYS);
         }
     },
     Hours {
@@ -121,6 +142,11 @@ public enum FTimeUnit {
         public TimeUnit timeUnitValue() {
             return TimeUnit.HOURS;
         }
+
+        @Override
+        public Duration getDuration() {
+            return new Duration(1, TimeUnit.HOURS);
+        }
     },
     Minutes {
         @Override
@@ -141,6 +167,11 @@ public enum FTimeUnit {
         @Override
         public TimeUnit timeUnitValue() {
             return TimeUnit.MINUTES;
+        }
+
+        @Override
+        public Duration getDuration() {
+            return new Duration(1, TimeUnit.MINUTES);
         }
     },
     Seconds {
@@ -163,6 +194,11 @@ public enum FTimeUnit {
         public TimeUnit timeUnitValue() {
             return TimeUnit.SECONDS;
         }
+
+        @Override
+        public Duration getDuration() {
+            return new Duration(1, TimeUnit.SECONDS);
+        }
     },
     Milliseconds {
         @Override
@@ -183,6 +219,11 @@ public enum FTimeUnit {
         @Override
         public TimeUnit timeUnitValue() {
             return TimeUnit.MILLISECONDS;
+        }
+
+        @Override
+        public Duration getDuration() {
+            return new Duration(1, TimeUnit.MILLISECONDS);
         }
     };
 
@@ -238,5 +279,7 @@ public enum FTimeUnit {
             return value;
         }
     }
+
+    public abstract Duration getDuration();
 
 }
