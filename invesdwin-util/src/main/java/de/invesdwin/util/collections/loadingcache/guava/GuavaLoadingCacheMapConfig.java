@@ -140,10 +140,10 @@ public class GuavaLoadingCacheMapConfig {
             builder.concurrencyLevel(concurrencyLevel);
         }
         if (expireAfterAccess != null) {
-            builder.expireAfterAccess(expireAfterAccess.longValue(), expireAfterAccess.getTimeUnit());
+            builder.expireAfterAccess(expireAfterAccess.longValue(), expireAfterAccess.getTimeUnit().timeUnitValue());
         }
         if (expireAfterWrite != null) {
-            builder.expireAfterWrite(expireAfterWrite.longValue(), expireAfterWrite.getTimeUnit());
+            builder.expireAfterWrite(expireAfterWrite.longValue(), expireAfterWrite.getTimeUnit().timeUnitValue());
         }
         configureKeysAndValues(builder);
         if (removalListener != null) {

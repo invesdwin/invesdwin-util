@@ -8,7 +8,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -16,6 +15,7 @@ import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.time.duration.Duration;
 import de.invesdwin.util.time.fdate.FDate;
+import de.invesdwin.util.time.fdate.FTimeUnit;
 
 @Immutable
 public final class Futures {
@@ -74,7 +74,7 @@ public final class Futures {
         FDate lastFailFastCheck = FDate.MIN_DATE;
         for (final Runnable task : tasks) {
             futures.add(executor.submit(task));
-            if (new Duration(lastFailFastCheck, new FDate()).isGreaterThan(5, TimeUnit.SECONDS)) {
+            if (new Duration(lastFailFastCheck, new FDate()).isGreaterThan(5, FTimeUnit.SECONDS)) {
                 //failfast on exceptions
                 for (final Future<?> future : futures) {
                     if (future.isDone()) {

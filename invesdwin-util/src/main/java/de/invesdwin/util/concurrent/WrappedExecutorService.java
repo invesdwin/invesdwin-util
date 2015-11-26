@@ -19,11 +19,12 @@ import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 import de.invesdwin.util.shutdown.IShutdownHook;
 import de.invesdwin.util.shutdown.ShutdownHookManager;
 import de.invesdwin.util.time.duration.Duration;
+import de.invesdwin.util.time.fdate.FTimeUnit;
 
 @ThreadSafe
 public class WrappedExecutorService implements ExecutorService {
 
-    private static final Duration FIXED_THREAD_KEEPALIVE_TIMEOUT = new Duration(60, TimeUnit.SECONDS);
+    private static final Duration FIXED_THREAD_KEEPALIVE_TIMEOUT = new Duration(60, FTimeUnit.SECONDS);
 
     private final Lock pendingCountLock = new ReentrantLock();
     private final ALoadingCache<Long, Condition> pendingCount_limitListener = new ALoadingCache<Long, Condition>() {
@@ -102,7 +103,7 @@ public class WrappedExecutorService implements ExecutorService {
          * All threads should stop after 60 seconds of idle time
          */
         delegate.setKeepAliveTime(FIXED_THREAD_KEEPALIVE_TIMEOUT.longValue(),
-                FIXED_THREAD_KEEPALIVE_TIMEOUT.getTimeUnit());
+                FIXED_THREAD_KEEPALIVE_TIMEOUT.getTimeUnit().timeUnitValue());
         /*
          * Fixes non starting with corepoolsize von 0 and not filled queue (Java Conurrency In Practice Chapter 8.3.1).
          * If this bug can occur, a exception would be thrown here.

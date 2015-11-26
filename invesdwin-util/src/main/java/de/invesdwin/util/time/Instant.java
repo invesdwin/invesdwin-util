@@ -1,10 +1,9 @@
 package de.invesdwin.util.time;
 
-import java.util.concurrent.TimeUnit;
-
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.time.duration.Duration;
+import de.invesdwin.util.time.fdate.FTimeUnit;
 
 /**
  * This class represents an instant relative to the application start in nanoseconds.
@@ -15,7 +14,7 @@ import de.invesdwin.util.time.duration.Duration;
 @Immutable
 public class Instant extends Number implements Comparable<Object> {
 
-    public static final TimeUnit DEFAULT_TIMEUNIT = TimeUnit.NANOSECONDS;
+    public static final FTimeUnit DEFAULT_TIMEUNIT = FTimeUnit.NANOSECONDS;
     public static final Instant DUMMY = new Instant(0, DEFAULT_TIMEUNIT);
 
     private static final long serialVersionUID = 1L;
@@ -26,7 +25,7 @@ public class Instant extends Number implements Comparable<Object> {
         this.startNanos = System.nanoTime();
     }
 
-    public Instant(final long start, final TimeUnit timeUnit) {
+    public Instant(final long start, final FTimeUnit timeUnit) {
         this.startNanos = DEFAULT_TIMEUNIT.convert(start, timeUnit);
     }
 
@@ -35,7 +34,7 @@ public class Instant extends Number implements Comparable<Object> {
         return toString(DEFAULT_TIMEUNIT);
     }
 
-    public String toString(final TimeUnit timeUnit) {
+    public String toString(final FTimeUnit timeUnit) {
         return new Duration(this, new Instant(), timeUnit).toString();
     }
 
@@ -46,7 +45,7 @@ public class Instant extends Number implements Comparable<Object> {
     /**
      * Sleeps relative to this instant. Thus may not sleep at all if the time has already passed.
      */
-    public void sleepRelative(final long amount, final TimeUnit timeUnit) throws InterruptedException {
+    public void sleepRelative(final long amount, final FTimeUnit timeUnit) throws InterruptedException {
         final long alreadyPassedNanos = new Duration(this, new Instant()).longValue();
         final long durationNanos = DEFAULT_TIMEUNIT.convert(amount, timeUnit);
         DEFAULT_TIMEUNIT.sleep(durationNanos - alreadyPassedNanos);
@@ -61,7 +60,7 @@ public class Instant extends Number implements Comparable<Object> {
         return intValue(DEFAULT_TIMEUNIT);
     }
 
-    public int intValue(final TimeUnit timeUnit) {
+    public int intValue(final FTimeUnit timeUnit) {
         return Long.valueOf(timeUnit.convert(startNanos, DEFAULT_TIMEUNIT)).intValue();
     }
 
@@ -70,7 +69,7 @@ public class Instant extends Number implements Comparable<Object> {
         return longValue(DEFAULT_TIMEUNIT);
     }
 
-    public long longValue(final TimeUnit timeUnit) {
+    public long longValue(final FTimeUnit timeUnit) {
         return Long.valueOf(timeUnit.convert(startNanos, DEFAULT_TIMEUNIT)).longValue();
     }
 
@@ -79,7 +78,7 @@ public class Instant extends Number implements Comparable<Object> {
         return floatValue(DEFAULT_TIMEUNIT);
     }
 
-    public float floatValue(final TimeUnit timeUnit) {
+    public float floatValue(final FTimeUnit timeUnit) {
         return Long.valueOf(timeUnit.convert(startNanos, DEFAULT_TIMEUNIT)).floatValue();
     }
 
@@ -88,16 +87,16 @@ public class Instant extends Number implements Comparable<Object> {
         return doubleValue(DEFAULT_TIMEUNIT);
     }
 
-    public double doubleValue(final TimeUnit timeUnit) {
+    public double doubleValue(final FTimeUnit timeUnit) {
         return Long.valueOf(timeUnit.convert(startNanos, DEFAULT_TIMEUNIT)).doubleValue();
     }
 
     public boolean before(final Instant time) {
-        return longValue(TimeUnit.NANOSECONDS) < time.longValue(TimeUnit.NANOSECONDS);
+        return longValue(FTimeUnit.NANOSECONDS) < time.longValue(FTimeUnit.NANOSECONDS);
     }
 
     public boolean after(final Instant zeitpunkt) {
-        return longValue(TimeUnit.NANOSECONDS) > zeitpunkt.longValue(TimeUnit.NANOSECONDS);
+        return longValue(FTimeUnit.NANOSECONDS) > zeitpunkt.longValue(FTimeUnit.NANOSECONDS);
     }
 
     @Override

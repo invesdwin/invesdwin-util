@@ -1,7 +1,5 @@
 package de.invesdwin.util.collections.loadingcache.historical.refresh;
 
-import java.util.concurrent.TimeUnit;
-
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -9,6 +7,7 @@ import de.invesdwin.util.concurrent.Executors;
 import de.invesdwin.util.concurrent.WrappedScheduledExecutorService;
 import de.invesdwin.util.time.duration.Duration;
 import de.invesdwin.util.time.fdate.FDate;
+import de.invesdwin.util.time.fdate.FTimeUnit;
 
 @ThreadSafe
 public final class HistoricalCacheRefreshManager {
@@ -16,10 +15,10 @@ public final class HistoricalCacheRefreshManager {
     /**
      * The system should ensure that at least every hour the caches are refreshed (e.g. by running the scheduler)
      */
-    public static final long DEFAULT_REFRESH_INTERVAL_MILLIS = 1 * Duration.MINUTES_IN_HOUR
-            * Duration.SECONDS_IN_MINUTE * Duration.MILLISECONDS_IN_SECOND;
+    public static final long DEFAULT_REFRESH_INTERVAL_MILLIS = 1 * FTimeUnit.MINUTES_IN_HOUR
+            * FTimeUnit.SECONDS_IN_MINUTE * FTimeUnit.MILLISECONDS_IN_SECOND;
     public static final Duration DEFAULT_REFRESH_INTERVAL = new Duration(DEFAULT_REFRESH_INTERVAL_MILLIS,
-            TimeUnit.MILLISECONDS);
+            FTimeUnit.MILLISECONDS);
 
     public static final HistoricalCacheRefreshManager INSTANCE = new HistoricalCacheRefreshManager();
 
@@ -57,13 +56,13 @@ public final class HistoricalCacheRefreshManager {
     public static synchronized boolean startRefreshScheduler(final Duration refreshInterval) {
         if (executor == null) {
             executor = Executors.newScheduledThreadPool(HistoricalCacheRefreshManager.class.getSimpleName(), 1);
-            final long period = refreshInterval.longValue(TimeUnit.MILLISECONDS);
+            final long period = refreshInterval.longValue(FTimeUnit.MILLISECONDS);
             executor.scheduleAtFixedRate(new Runnable() {
                 @Override
                 public void run() {
                     maybeRefresh(refreshInterval);
                 }
-            }, period, period, TimeUnit.MILLISECONDS);
+            }, period, period, FTimeUnit.MILLISECONDS.timeUnitValue());
             return true;
         }
         return false;

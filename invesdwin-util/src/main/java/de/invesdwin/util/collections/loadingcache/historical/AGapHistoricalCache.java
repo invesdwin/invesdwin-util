@@ -1,7 +1,5 @@
 package de.invesdwin.util.collections.loadingcache.historical;
 
-import java.util.concurrent.TimeUnit;
-
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -9,6 +7,7 @@ import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.iterable.BufferingIterator;
 import de.invesdwin.util.time.duration.Duration;
 import de.invesdwin.util.time.fdate.FDate;
+import de.invesdwin.util.time.fdate.FTimeUnit;
 
 /**
  * Tries to fill gaps via an intelligent caching algorithm to reduce the number of queries. This is also tolerant to
@@ -27,8 +26,8 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
     /**
      * 10 days is a good value for daily caches.
      */
-    public static final long DEFAULT_READ_BACK_STEP_MILLIS = new Duration(10, TimeUnit.DAYS)
-            .intValue(TimeUnit.MILLISECONDS);
+    public static final long DEFAULT_READ_BACK_STEP_MILLIS = new Duration(10, FTimeUnit.DAYS)
+            .intValue(FTimeUnit.MILLISECONDS);
     /**
      * having 2 here helps with queries for elements that are filtered by end time
      */

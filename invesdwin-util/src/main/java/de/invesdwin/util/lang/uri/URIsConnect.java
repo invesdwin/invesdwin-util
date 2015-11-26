@@ -8,7 +8,6 @@ import java.net.URLConnection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.concurrent.TimeUnit;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
@@ -16,11 +15,12 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 
 import de.invesdwin.util.time.duration.Duration;
+import de.invesdwin.util.time.fdate.FTimeUnit;
 
 @NotThreadSafe
 public final class URIsConnect {
 
-    private static Duration defaultNetworkTimeout = new Duration(30, TimeUnit.SECONDS);
+    private static Duration defaultNetworkTimeout = new Duration(30, FTimeUnit.SECONDS);
     private final URL url;
 
     private Duration networkTimeout = defaultNetworkTimeout;
@@ -72,7 +72,7 @@ public final class URIsConnect {
         try {
             final Socket socket = new Socket();
             socket.connect(Addresses.asAddress(url.getHost(), url.getPort()),
-                    networkTimeout.intValue(TimeUnit.MILLISECONDS));
+                    networkTimeout.intValue(FTimeUnit.MILLISECONDS));
             socket.close();
             return true;
         } catch (final IOException e) {
@@ -123,8 +123,8 @@ public final class URIsConnect {
     public URLConnection openConnection() throws IOException {
         final URLConnection con = url.openConnection();
         con.setUseCaches(false);
-        con.setConnectTimeout(networkTimeout.intValue(TimeUnit.MILLISECONDS));
-        con.setReadTimeout(networkTimeout.intValue(TimeUnit.MILLISECONDS));
+        con.setConnectTimeout(networkTimeout.intValue(FTimeUnit.MILLISECONDS));
+        con.setReadTimeout(networkTimeout.intValue(FTimeUnit.MILLISECONDS));
         if (headers != null) {
             for (final Entry<String, String> header : headers.entrySet()) {
                 con.setRequestProperty(header.getKey(), header.getValue());

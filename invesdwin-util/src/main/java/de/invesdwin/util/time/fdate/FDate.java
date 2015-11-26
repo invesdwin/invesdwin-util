@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.NoSuchElementException;
 import java.util.TimeZone;
-import java.util.concurrent.TimeUnit;
 
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -47,14 +46,14 @@ public final class FDate implements IDate, Serializable, Cloneable, Comparable<O
     public static final FDate MIN_DATE = FDateBuilder.newDate(MIN_YEAR);
     public static final FDate MAX_DATE = FDateBuilder.newDate(MAX_YEAR);
 
-    public static final int COUNT_NANOSECONDS_IN_MILLISECOND = Ints.checkedCast(TimeUnit.MILLISECONDS.toNanos(1));
-    public static final int COUNT_NANOSECONDS_IN_MICROSECOND = Ints.checkedCast(TimeUnit.MICROSECONDS.toNanos(1));
-    public static final int COUNT_WEEKDAYS_IN_WEEK = Duration.DAYS_IN_WEEK;
-    public static final int COUNT_WEEKDAYS_IN_MONTH = COUNT_WEEKDAYS_IN_WEEK * Duration.WEEKS_IN_MONTH;
-    public static final int COUNT_WEEKDAYS_IN_YEAR = COUNT_WEEKDAYS_IN_MONTH * Duration.MONTHS_IN_YEAR;
+    public static final int COUNT_NANOSECONDS_IN_MILLISECOND = Ints.checkedCast(FTimeUnit.MILLISECONDS.toNanos(1));
+    public static final int COUNT_NANOSECONDS_IN_MICROSECOND = Ints.checkedCast(FTimeUnit.MICROSECONDS.toNanos(1));
+    public static final int COUNT_WEEKDAYS_IN_WEEK = FTimeUnit.DAYS_IN_WEEK;
+    public static final int COUNT_WEEKDAYS_IN_MONTH = COUNT_WEEKDAYS_IN_WEEK * FTimeUnit.WEEKS_IN_MONTH;
+    public static final int COUNT_WEEKDAYS_IN_YEAR = COUNT_WEEKDAYS_IN_MONTH * FTimeUnit.MONTHS_IN_YEAR;
     public static final int COUNT_WORKDAYS_IN_WEEK = 5;
-    public static final int COUNT_WORKDAYS_IN_MONTH = COUNT_WORKDAYS_IN_WEEK * Duration.WEEKS_IN_MONTH;
-    public static final int COUNT_WORKDAYS_IN_YEAR = COUNT_WORKDAYS_IN_MONTH * Duration.MONTHS_IN_YEAR;
+    public static final int COUNT_WORKDAYS_IN_MONTH = COUNT_WORKDAYS_IN_WEEK * FTimeUnit.WEEKS_IN_MONTH;
+    public static final int COUNT_WORKDAYS_IN_YEAR = COUNT_WORKDAYS_IN_MONTH * FTimeUnit.MONTHS_IN_YEAR;
 
     /*
      * ISO 8601 date-time format, example: "2003-04-01T13:01:02"
@@ -217,15 +216,15 @@ public final class FDate implements IDate, Serializable, Cloneable, Comparable<O
     }
 
     public FDate addYears(final int years) {
-        return add(FTimeUnit.Years, years);
+        return add(FTimeUnit.YEARS, years);
     }
 
     public FDate addMonths(final int months) {
-        return add(FTimeUnit.Months, months);
+        return add(FTimeUnit.MONTHS, months);
     }
 
     public FDate addDays(final int days) {
-        return add(FTimeUnit.Days, days);
+        return add(FTimeUnit.DAYS, days);
     }
 
     public FDate addWeeks(final int weeks) {
@@ -233,15 +232,15 @@ public final class FDate implements IDate, Serializable, Cloneable, Comparable<O
     }
 
     public FDate addHours(final int hours) {
-        return add(FTimeUnit.Hours, hours);
+        return add(FTimeUnit.HOURS, hours);
     }
 
     public FDate addMinutes(final int minutes) {
-        return add(FTimeUnit.Minutes, minutes);
+        return add(FTimeUnit.MINUTES, minutes);
     }
 
     public FDate addSeconds(final int seconds) {
-        return add(FTimeUnit.Seconds, seconds);
+        return add(FTimeUnit.SECONDS, seconds);
     }
 
     public FDate addMilliseconds(final long milliseconds) {
@@ -305,8 +304,8 @@ public final class FDate implements IDate, Serializable, Cloneable, Comparable<O
         return calendarValue().getTime();
     }
 
-    public long longValue(final TimeUnit timeUnit) {
-        return timeUnit.convert(millis, TimeUnit.MILLISECONDS);
+    public long longValue(final FTimeUnit timeUnit) {
+        return timeUnit.convert(millis, FTimeUnit.MILLISECONDS);
     }
 
     public Calendar calendarValue() {
@@ -327,7 +326,7 @@ public final class FDate implements IDate, Serializable, Cloneable, Comparable<O
         }
     }
 
-    public static FDate valueOf(final Long value, final TimeUnit timeUnit) {
+    public static FDate valueOf(final Long value, final FTimeUnit timeUnit) {
         if (value != null) {
             return new FDate(timeUnit.toMillis(value));
         } else {
@@ -744,7 +743,7 @@ public final class FDate implements IDate, Serializable, Cloneable, Comparable<O
         if (to.isBefore(from)) {
             return false;
         }
-        for (final FDate day : iterable(from, to, FTimeUnit.Days, 1)) {
+        for (final FDate day : iterable(from, to, FTimeUnit.DAYS, 1)) {
             if (day.getFWeekday() == weekday) {
                 return true;
             }
@@ -786,21 +785,21 @@ public final class FDate implements IDate, Serializable, Cloneable, Comparable<O
 
     public static boolean isSamePeriod(final FDate date1, final FDate date2, final FTimeUnit period) {
         switch (period) {
-        case Milliseconds:
+        case MILLISECONDS:
             return isSameMillisecond(date1, date2);
-        case Seconds:
+        case SECONDS:
             return isSameSecond(date1, date2);
-        case Minutes:
+        case MINUTES:
             return isSameMinute(date1, date2);
-        case Hours:
+        case HOURS:
             return isSameHour(date1, date2);
-        case Days:
+        case DAYS:
             return isSameDay(date1, date2);
-        case Weeks:
+        case WEEKS:
             return isSameWeek(date1, date2);
-        case Months:
+        case MONTHS:
             return isSameMonth(date1, date2);
-        case Years:
+        case YEARS:
             return isSameYear(date1, date2);
         default:
             throw UnknownArgumentException.newInstance(FTimeUnit.class, period);

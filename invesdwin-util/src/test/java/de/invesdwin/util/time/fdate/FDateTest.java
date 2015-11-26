@@ -69,7 +69,7 @@ public class FDateTest {
     @Test
     public void testIterable() {
         int iterations = 0;
-        for (final FDate date : FDate.iterable(new FDate(), new FDate(), FTimeUnit.Days, 1)) {
+        for (final FDate date : FDate.iterable(new FDate(), new FDate(), FTimeUnit.DAYS, 1)) {
             System.out.println(String.format("%s", date)); //SUPPRESS CHECKSTYLE single line
             iterations++;
         }
@@ -79,7 +79,7 @@ public class FDateTest {
     @Test
     public void testIterableReverse() {
         int iterations = 0;
-        for (final FDate date : FDate.iterable(new FDate(), new FDate(), FTimeUnit.Days, -1)) {
+        for (final FDate date : FDate.iterable(new FDate(), new FDate(), FTimeUnit.DAYS, -1)) {
             System.out.println(String.format("%s", date)); //SUPPRESS CHECKSTYLE single line
             iterations++;
         }
@@ -92,7 +92,7 @@ public class FDateTest {
         final FDate endDate = FDateBuilder.newDate(2012, 1, 27);
         final FDate startDate = FDateBuilder.newDate(1990, 1, 1);
         FDate lastDate = null;
-        for (final FDate date : FDate.iterable(startDate, endDate, FTimeUnit.Years, 1)) {
+        for (final FDate date : FDate.iterable(startDate, endDate, FTimeUnit.YEARS, 1)) {
             if (lastDate == null) {
                 Assertions.assertThat(FDate.isSameMillisecond(startDate, date)).isTrue();
             }
@@ -110,7 +110,7 @@ public class FDateTest {
         final FDate endDate = FDateBuilder.newDate(2012, 1, 27);
         final FDate startDate = FDateBuilder.newDate(1990, 1, 1);
         FDate lastDate = null;
-        for (final FDate date : FDate.iterable(endDate, startDate, FTimeUnit.Years, -1)) {
+        for (final FDate date : FDate.iterable(endDate, startDate, FTimeUnit.YEARS, -1)) {
             if (lastDate == null) {
                 Assertions.assertThat(FDate.isSameMillisecond(endDate, date)).isTrue();
             }
