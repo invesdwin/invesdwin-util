@@ -238,16 +238,19 @@ public class Duration extends Number implements Comparable<Object> {
                 sb.insert(0, "D");
                 sb.insert(0, days);
             }
+        case WEEKS:
             final long weeks = nanosAsWeeks - nanosAsMonths * FTimeUnit.WEEKS_IN_MONTH;
             if (weeks > 0) {
                 sb.insert(0, "W");
                 sb.insert(0, weeks);
             }
+        case MONTHS:
             final long months = nanosAsMonths - nanosAsYears * FTimeUnit.MONTHS_IN_YEAR;
             if (months > 0) {
                 sb.insert(0, "M");
                 sb.insert(0, months);
             }
+        case YEARS:
             final long years = nanosAsYears;
             if (years > 0) {
                 sb.insert(0, "Y");

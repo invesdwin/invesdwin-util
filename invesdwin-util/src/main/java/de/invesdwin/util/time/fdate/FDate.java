@@ -279,6 +279,29 @@ public final class FDate implements IDate, Serializable, Cloneable, Comparable<O
         return truncated;
     }
 
+    public FDate truncate(final FTimeUnit timeUnit) {
+        switch (timeUnit) {
+        case YEARS:
+            return truncate(FDateField.Year);
+        case MONTHS:
+            return truncate(FDateField.Month);
+        case WEEKS:
+            return setFWeekday(FWeekday.Monday);
+        case DAYS:
+            return truncate(FDateField.Day);
+        case HOURS:
+            return truncate(FDateField.Hour);
+        case MINUTES:
+            return truncate(FDateField.Minute);
+        case SECONDS:
+            return truncate(FDateField.Second);
+        case MILLISECONDS:
+            return truncate(FDateField.Millisecond);
+        default:
+            throw UnknownArgumentException.newInstance(FTimeUnit.class, timeUnit);
+        }
+    }
+
     /**
      * sets hour, minute, second and millisecond each to 0.
      */
