@@ -31,6 +31,7 @@
 		<version.commons-collections>3.2.1</version.commons-collections>
 		<version.commons-beanutils>1.9.2</version.commons-beanutils>
 		<version.slf4j>1.7.12</version.slf4j>
+		<version.spring>4.1.6.RELEASE</version.spring>
 
 		<version.junit>4.12</version.junit>
 		<version.mockito>1.9.5</version.mockito>
@@ -118,6 +119,11 @@
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
 			<version>${version.slf4j}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-context</artifactId>
+			<version>${version.spring}</version>
 		</dependency>
 
 		<dependency>
