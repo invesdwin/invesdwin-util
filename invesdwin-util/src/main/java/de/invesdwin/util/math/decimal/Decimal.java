@@ -1,8 +1,10 @@
 package de.invesdwin.util.math.decimal;
 
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -13,7 +15,10 @@ import de.invesdwin.util.math.decimal.internal.impl.IDecimalImplFactory;
 @Immutable
 public class Decimal extends ADecimal<Decimal> {
 
+    public static final DecimalFormatSymbols DEFAULT_DECIMAL_FORMAT_SYMBOLS = DecimalFormatSymbols
+            .getInstance(Locale.ENGLISH);
     public static final String DEFAULT_DECIMAL_FORMAT = "#,##0.##";
+    public static final String MONEY_DECIMAL_FORMAT = "#,##0.00";
 
     public static final Decimal MINUS_THREE;
     public static final Decimal MINUS_TWO;
@@ -174,7 +179,7 @@ public class Decimal extends ADecimal<Decimal> {
     }
 
     public String toFormattedString(final String format) {
-        final DecimalFormat dc = new DecimalFormat(format);
+        final DecimalFormat dc = new DecimalFormat(format, DEFAULT_DECIMAL_FORMAT_SYMBOLS);
         return dc.format(this);
     }
 

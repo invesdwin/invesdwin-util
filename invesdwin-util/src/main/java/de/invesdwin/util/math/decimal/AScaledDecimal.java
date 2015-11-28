@@ -1,10 +1,8 @@
 package de.invesdwin.util.math.decimal;
 
 import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
@@ -17,8 +15,6 @@ import de.invesdwin.util.math.decimal.scaled.IDecimalScale;
 public abstract class AScaledDecimal<T extends AScaledDecimal<T, S>, S extends IDecimalScale<T, S>> extends ADecimal<T>
         implements Cloneable {
 
-    private static final DecimalFormatSymbols ENGLISH_DECIMAL_FORMAT_SYMBOLS = DecimalFormatSymbols
-            .getInstance(Locale.ENGLISH);
     protected final S scale;
     @GuardedBy("none for performance")
     private Decimal scaledValue;
@@ -143,7 +139,7 @@ public abstract class AScaledDecimal<T extends AScaledDecimal<T, S>, S extends I
 
     public String toString(final S scale, final boolean withSymbol) {
         final String formatStr = scale.getFormat(getGenericThis(), withSymbol);
-        final DecimalFormat format = new DecimalFormat(formatStr, ENGLISH_DECIMAL_FORMAT_SYMBOLS);
+        final DecimalFormat format = new DecimalFormat(formatStr, Decimal.DEFAULT_DECIMAL_FORMAT_SYMBOLS);
         return format.format(getValue(scale).getImpl().numberValue());
     }
 
