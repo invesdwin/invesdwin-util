@@ -22,6 +22,7 @@ import de.invesdwin.norva.beanpath.spi.visitor.SimpleBeanPathVisitorSupport;
 import de.invesdwin.norva.marker.ISerializableValueObject;
 import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.lang.Objects;
+import de.invesdwin.util.lang.Reflections;
 
 /**
  * ValueObjects are non persistent Entities. They do not contain any logic, but they contain data and verifications.
@@ -37,13 +38,13 @@ import de.invesdwin.util.lang.Objects;
 @ThreadSafe
 @QuerySupertype
 @BeanPathRoot
-public abstract class AValueObject extends APropertyChangeSupported implements Comparable<Object>, Cloneable,
-ISerializableValueObject {
+public abstract class AValueObject extends APropertyChangeSupported
+        implements Comparable<Object>, Cloneable, ISerializableValueObject {
 
     /**
-     * @see <a
-     *      href="http://apache-commons.680414.n4.nabble.com/Setting-null-on-Integer-property-via-BeanUtils-setProperty-td955955.html">Null
-     *      handling</a>
+     * @see <a href=
+     *      "http://apache-commons.680414.n4.nabble.com/Setting-null-on-Integer-property-via-BeanUtils-setProperty-td955955.html">
+     *      Null handling</a>
      */
     @GuardedBy("this")
     private static BeanUtilsBean beanUtilsBean;
@@ -147,22 +148,36 @@ ISerializableValueObject {
      */
     @Hidden(skip = true)
     public final void mergeFrom(final Object o, final boolean overwrite) {
-        innerMergeFrom(o, overwrite, new HashSet<String>());
+        innerMergeFrom(o, overwrite, false, new HashSet<String>());
     }
 
-    protected void innerMergeFrom(final Object o, final boolean overwrite, final Set<String> recursionFilter) {
+    private void innerMergeFrom(final Object o, final boolean overwrite, final boolean clone,
+            final Set<String> recursionFilter) {
         final BeanUtilsBean beanUtilsBean = getBeanUtilsBean();
         for (final PropertyDescriptor thereDesc : beanUtilsBean.getPropertyUtils().getPropertyDescriptors(o)) {
             try {
-                final Object valueThere = thereDesc.getReadMethod().invoke(o);
+                final String propertyName = thereDesc.getName();
+                if (clone && (Objects.REFLECTION_EXCLUDED_FIELDS.contains(propertyName)
+                        || Objects.ADDITIONAL_REFLECTION_TO_STRING_EXCLUDED_FIELDS.contains(propertyName))) {
+                    continue;
+                }
+                Object valueThere = thereDesc.getReadMethod().invoke(o);
+                if (clone && valueThere != null) {
+                    if (valueThere instanceof AValueObject) {
+                        final AValueObject cValueThere = (AValueObject) valueThere;
+                        valueThere = cValueThere.shallowClone();
+                    } else /* if (valueThere instanceof Cloneable) */ {
+                        valueThere = Reflections.method("clone").in(valueThere).invoke();
+                    }
+                }
                 if (valueThere != null) {
                     final PropertyDescriptor thisDesc = beanUtilsBean.getPropertyUtils().getPropertyDescriptor(this,
-                            thereDesc.getName());
+                            propertyName);
                     if (thisDesc == null) {
                         continue;
                     }
 
-                    copyValue(overwrite, recursionFilter, thisDesc, thereDesc, valueThere);
+                    copyValue(overwrite, clone, recursionFilter, thisDesc, thereDesc, valueThere);
                 }
             } catch (final Throwable e) { //SUPPRESS CHECKSTYLE empty statement
                 //ignore (no setter for property class etc, or getter without setter)
@@ -170,7 +185,7 @@ ISerializableValueObject {
         }
     }
 
-    private void copyValue(final boolean overwrite, final Set<String> recursionFilter,
+    private void copyValue(final boolean overwrite, final boolean clone, final Set<String> recursionFilter,
             final PropertyDescriptor thisDesc, final PropertyDescriptor thereDesc, final Object valueThere)
                     throws IllegalAccessException, InvocationTargetException {
         boolean copy = true;
@@ -179,9 +194,9 @@ ISerializableValueObject {
             if (valueHere instanceof AValueObject) {
                 final AValueObject vo = (AValueObject) valueHere;
                 if (recursionFilter.add(Objects.toStringIdentity(vo))) {
-                    vo.innerMergeFrom(valueThere, overwrite, recursionFilter);
+                    vo.innerMergeFrom(valueThere, clone, overwrite, recursionFilter);
                 }
-                copy = false;
+                copy = clone;
             } else {
                 copy = overwrite;
             }
@@ -212,6 +227,13 @@ ISerializableValueObject {
         } catch (final CloneNotSupportedException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Hidden(skip = true)
+    public AValueObject shallowCloneReflective() {
+        final AValueObject clone = shallowClone();
+        clone.innerMergeFrom(this, true, true, new HashSet<String>());
+        return clone;
     }
 
     @Hidden(skip = true)

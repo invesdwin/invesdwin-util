@@ -46,8 +46,11 @@ public abstract class APropertyChangeSupported {
 
     static {
         Objects.REFLECTION_EXCLUDED_FIELDS.add("propertyChangeSupportLock");
+        //need to remove listeners from innerMergeFrom
+        Objects.REFLECTION_EXCLUDED_FIELDS.add("propertyChangeListeners");
         //cannot exclude PropertyChangeSupport for equals check since DirtyTracker will not detect new instances otherwise
         Objects.ADDITIONAL_REFLECTION_TO_STRING_EXCLUDED_FIELDS.add("propertyChangeSupport");
+
     }
 
     /**
