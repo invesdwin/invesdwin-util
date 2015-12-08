@@ -151,7 +151,7 @@ public abstract class AValueObject extends APropertyChangeSupported
         innerMergeFrom(o, overwrite, false, new HashSet<String>());
     }
 
-    private void innerMergeFrom(final Object o, final boolean overwrite, final boolean clone,
+    protected void innerMergeFrom(final Object o, final boolean overwrite, final boolean clone,
             final Set<String> recursionFilter) {
         final BeanUtilsBean beanUtilsBean = getBeanUtilsBean();
         for (final PropertyDescriptor thereDesc : beanUtilsBean.getPropertyUtils().getPropertyDescriptors(o)) {
