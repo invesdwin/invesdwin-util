@@ -5,11 +5,9 @@ import java.math.BigInteger;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -25,15 +23,11 @@ public class DefaultToStringStyle extends ToStringStyle {
 
     private static final long serialVersionUID = 1L;
 
-    private final Set<String> excludedFields;
-
     protected DefaultToStringStyle() {
         setFieldNameValueSeparator(":");
         setFieldSeparator("|");
         setUseShortClassName(true);
         setUseIdentityHashCode(false);
-        this.excludedFields = new HashSet<String>(Objects.REFLECTION_EXCLUDED_FIELDS);
-        this.excludedFields.addAll(Objects.ADDITIONAL_REFLECTION_TO_STRING_EXCLUDED_FIELDS);
     }
 
     @Override
@@ -116,12 +110,11 @@ public class DefaultToStringStyle extends ToStringStyle {
         if (value instanceof BigInteger || value instanceof BigDecimal) {
             super.appendDetail(buffer, fieldName, value.toString());
         } else if (value instanceof Date || value instanceof Calendar) {
-            super.appendDetail(
-                    buffer,
-                    fieldName,
-                    org.apache.commons.lang3.time.FastDateFormat.getDateTimeInstance(
-                            org.apache.commons.lang3.time.FastDateFormat.FULL,
-                            org.apache.commons.lang3.time.FastDateFormat.LONG).format(value));
+            super.appendDetail(buffer, fieldName,
+                    org.apache.commons.lang3.time.FastDateFormat
+                            .getDateTimeInstance(org.apache.commons.lang3.time.FastDateFormat.FULL,
+                                    org.apache.commons.lang3.time.FastDateFormat.LONG)
+                            .format(value));
         } else {
             super.appendDetail(buffer, fieldName, value);
         }
@@ -129,15 +122,16 @@ public class DefaultToStringStyle extends ToStringStyle {
 
     @Override
     protected void appendFieldStart(final StringBuffer buffer, final String fieldName) {
-        if (excludedFields.contains(fieldName)) {
+        if (Objects.REFLECTION_EXCLUDED_FIELDS.contains(fieldName)) {
             throw new IllegalArgumentException("Printing of this fieldName should have been prevented: " + fieldName);
         }
         super.appendFieldStart(buffer, fieldName);
     }
 
     @Override
-    public void append(final StringBuffer buffer, final String fieldName, final Object value, final Boolean fullDetail) {
-        if (excludedFields.contains(fieldName)) {
+    public void append(final StringBuffer buffer, final String fieldName, final Object value,
+            final Boolean fullDetail) {
+        if (Objects.REFLECTION_EXCLUDED_FIELDS.contains(fieldName)) {
             return;
         }
         super.append(buffer, fieldName, value, fullDetail);

@@ -157,8 +157,7 @@ public abstract class AValueObject extends APropertyChangeSupported
         for (final PropertyDescriptor thereDesc : beanUtilsBean.getPropertyUtils().getPropertyDescriptors(o)) {
             try {
                 final String propertyName = thereDesc.getName();
-                if (clone && (Objects.REFLECTION_EXCLUDED_FIELDS.contains(propertyName)
-                        || Objects.ADDITIONAL_REFLECTION_TO_STRING_EXCLUDED_FIELDS.contains(propertyName))) {
+                if (clone && (Objects.REFLECTION_EXCLUDED_FIELDS.contains(propertyName))) {
                     continue;
                 }
                 Object valueThere = thereDesc.getReadMethod().invoke(o);

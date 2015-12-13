@@ -21,12 +21,12 @@ import de.invesdwin.norva.beanpath.BeanPathReflections;
 import de.invesdwin.util.lang.internal.AObjectsStaticFacade;
 
 @Immutable
-@StaticFacadeDefinition(name = "de.invesdwin.util.lang.internal.AObjectsStaticFacade", targets = { BeanPathObjects.class })
+@StaticFacadeDefinition(name = "de.invesdwin.util.lang.internal.AObjectsStaticFacade", targets = {
+        BeanPathObjects.class })
 public final class Objects extends AObjectsStaticFacade {
 
     public static final FSTConfiguration SERIALIZATION_CONFIG = FSTConfiguration.getDefaultConfiguration();
     public static final Set<String> REFLECTION_EXCLUDED_FIELDS = new HashSet<String>();
-    public static final Set<String> ADDITIONAL_REFLECTION_TO_STRING_EXCLUDED_FIELDS = new HashSet<String>();
 
     static {
         //datanucleus enhancer fix

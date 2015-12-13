@@ -4,6 +4,8 @@ import java.beans.IndexedPropertyChangeEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.lang.reflect.Field;
+import java.util.Map;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
@@ -13,6 +15,7 @@ import com.mysema.query.annotations.QuerySupertype;
 
 import de.invesdwin.norva.beanpath.annotation.Hidden;
 import de.invesdwin.util.lang.Objects;
+import de.invesdwin.util.lang.Reflections;
 
 /**
  * Standard implementation of {@link PropertyChangeSupported}. This class is thread-safe and uses a lazily initialized
@@ -46,10 +49,9 @@ public abstract class APropertyChangeSupported {
 
     static {
         Objects.REFLECTION_EXCLUDED_FIELDS.add("propertyChangeSupportLock");
+        Objects.REFLECTION_EXCLUDED_FIELDS.add("propertyChangeSupport");
         //need to remove listeners from innerMergeFrom
         Objects.REFLECTION_EXCLUDED_FIELDS.add("propertyChangeListeners");
-        //cannot exclude PropertyChangeSupport for equals check since DirtyTracker will not detect new instances otherwise
-        Objects.ADDITIONAL_REFLECTION_TO_STRING_EXCLUDED_FIELDS.add("propertyChangeSupport");
 
     }
 
@@ -158,8 +160,11 @@ public abstract class APropertyChangeSupported {
     public final void fireIndexedPropertyChange(final String propertyName, final int index, final Object oldValue,
             final Object newValue) {
         final PropertyChangeSupport ref = lazyGetPropertyChangeSupport(false);
-        if (ref != null && !Objects.equals(oldValue, newValue)) {
-            ref.firePropertyChange(new IndexedPropertyChangeEvent(this, propertyName, oldValue, newValue, index));
+        if (ref != null
+                && (!Objects.equals(oldValue, newValue) || !equalsPropertyChangeListeners(oldValue, newValue))) {
+            final IndexedPropertyChangeEvent event = new IndexedPropertyChangeEvent(this, propertyName, oldValue,
+                    newValue, index);
+            fireEvent(ref, propertyName, event);
         }
     }
 
@@ -171,9 +176,78 @@ public abstract class APropertyChangeSupported {
      */
     public final void firePropertyChange(final String propertyName, final Object oldValue, final Object newValue) {
         final PropertyChangeSupport ref = lazyGetPropertyChangeSupport(false);
-        if (ref != null && !Objects.equals(oldValue, newValue)) {
-            ref.firePropertyChange(new PropertyChangeEvent(this, propertyName, oldValue, newValue));
+        if (ref != null
+                && (!Objects.equals(oldValue, newValue) || !equalsPropertyChangeListeners(oldValue, newValue))) {
+            final PropertyChangeEvent event = new PropertyChangeEvent(this, propertyName, oldValue, newValue);
+            fireEvent(ref, propertyName, event);
         }
+    }
+
+    /**
+     * Performance optimization to just fire the events instead of having PropertyChangeSupport call equals so often.
+     * Also with this we don't have to rely on equals alone to fire an event.
+     */
+    @SuppressWarnings("unchecked")
+    private static void fireEvent(final PropertyChangeSupport ref, final String propertyName,
+            final PropertyChangeEvent event) {
+        final Field mapField = Reflections.findField(PropertyChangeSupport.class, "map");
+        Reflections.makeAccessible(mapField);
+        final Object map = Reflections.getField(mapField, ref);
+        final Field mapMapField = Reflections.findField(map.getClass(), "map");
+        Reflections.makeAccessible(mapMapField);
+        final Map<String, PropertyChangeListener[]> mapMap = (Map<String, PropertyChangeListener[]>) Reflections
+                .getField(mapMapField, map);
+        if (mapMap == null) {
+            return;
+        }
+        final PropertyChangeListener[] common = mapMap.get(null);
+        fireEvent(common, event);
+        if (propertyName != null) {
+            final PropertyChangeListener[] named = mapMap.get(propertyName);
+            fireEvent(named, event);
+        }
+    }
+
+    private static void fireEvent(final PropertyChangeListener[] listeners, final PropertyChangeEvent event) {
+        if (listeners != null) {
+            for (final PropertyChangeListener listener : listeners) {
+                listener.propertyChange(event);
+            }
+        }
+    }
+
+    private static boolean equalsPropertyChangeListeners(final Object oldValue, final Object newValue) {
+        final APropertyChangeSupported cOldValue;
+        if (oldValue instanceof APropertyChangeSupported) {
+            cOldValue = (APropertyChangeSupported) oldValue;
+        } else {
+            cOldValue = null;
+        }
+        final APropertyChangeSupported cNewValue;
+        if (newValue instanceof APropertyChangeSupported) {
+            cNewValue = (APropertyChangeSupported) newValue;
+        } else {
+            cNewValue = null;
+        }
+        //one of them null
+        if ((cOldValue == null) != (cNewValue == null)) {
+            return false;
+        }
+        //both null
+        if (cOldValue == null) {
+            return true;
+        }
+        final PropertyChangeSupport oldValueRef = cOldValue.lazyGetPropertyChangeSupport(false);
+        final PropertyChangeSupport newValueRef = cNewValue.lazyGetPropertyChangeSupport(false);
+        //one of them null
+        if ((oldValueRef == null) != (newValueRef == null)) {
+            return false;
+        }
+        //both null
+        if (oldValueRef == null) {
+            return true;
+        }
+        return Objects.equals(oldValueRef.getPropertyChangeListeners(), newValueRef.getPropertyChangeListeners());
     }
 
 }
