@@ -13,12 +13,14 @@ public class Percent extends AScaledDecimal<Percent, PercentScale> implements IP
     public static final Percent ONE_HUNDRED_PERCENT;
     public static final Percent FIFTY_PERCENT;
     public static final Percent ZERO_PERCENT;
+    public static final Percent ONE_PERCENT;
 
     static {
         DEFAULT_SCALE = PercentScale.RATE;
         ONE_HUNDRED_PERCENT = new Percent(Decimal.ONE, PercentScale.RATE);
         FIFTY_PERCENT = new Percent(new Decimal("50"), PercentScale.PERCENT);
         ZERO_PERCENT = new Percent(Decimal.ZERO, PercentScale.RATE);
+        ONE_PERCENT = new Percent(Decimal.ONE, PercentScale.PERCENT);
     }
 
     public Percent(final Decimal value, final PercentScale scale) {
