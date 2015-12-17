@@ -27,6 +27,7 @@ public class Decimal extends ADecimal<Decimal> {
     public static final Decimal ONE;
     public static final Decimal TWO;
     public static final Decimal THREE;
+    public static final Decimal ONE_HUNDRED;
 
     /**
      * Due to implementation simplifications of equals, hashCode and compareTo only one implementations cannot be mixed
@@ -47,6 +48,7 @@ public class Decimal extends ADecimal<Decimal> {
         ONE = new Decimal("1");
         TWO = new Decimal("2");
         THREE = new Decimal("3");
+        ONE_HUNDRED = new Decimal("100");
     }
 
     private final ADecimalImpl<?, ?> impl;
