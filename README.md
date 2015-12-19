@@ -46,7 +46,7 @@ Similar to `java.util.concurrent.Executors`, just with the convention to name ea
 #### `Futures`
 This makes working with lots of tasks in thread pools easier by providing methods for bulk-handling those futures.
 #### `ICloseableIterable` and `ICloseableIterator`
-Provides a way to create a pipes and filters work chain with steps to parallelize on. Chaining of tasks can make complex workloads far easier to implement. For example loading and financial data cache from a rest service and transforming that into a binary local cache format in a parallel fashion becomes easy with this design.
+Provides a way to create a pipes and filters work chain with steps to parallelize on. Chaining of tasks can make complex workloads far easier to implement. For example loading a financial data cache from a rest service and transforming that into a binary local cache format in a parallel fashion becomes easy with this design.
 
 ## Beans
 #### `APropertyChangeSupported`
