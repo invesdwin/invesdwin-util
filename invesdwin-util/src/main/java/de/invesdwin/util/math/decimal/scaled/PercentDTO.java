@@ -25,4 +25,9 @@ public class PercentDTO implements IPercentData, ISerializableValueObject {
         this.rate = rate;
     }
 
+    @Override
+    public String toString() {
+        return String.valueOf(rate);
+    }
+
 }
