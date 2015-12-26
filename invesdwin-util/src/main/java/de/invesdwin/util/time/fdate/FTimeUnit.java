@@ -859,22 +859,22 @@ public enum FTimeUnit {
         for (final FTimeUnit f : values()) {
             try {
                 TIME_UNIT_LOOKUP.put(f.timeUnitValue(), f);
-            } catch (final UnsupportedOperationException e) {
+            } catch (final UnsupportedOperationException e) { //SUPPRESS CHECKSTYLE empty block
                 //ignore
             }
             try {
                 CALENDAR_LOOKUP.put(f.calendarValue(), f);
-            } catch (final UnsupportedOperationException e) {
+            } catch (final UnsupportedOperationException e) {//SUPPRESS CHECKSTYLE empty block
                 //ignore
             }
             try {
                 JAVA_TIME_LOOKUP.put(f.javaTimeValue(), f);
-            } catch (final UnsupportedOperationException e) {
+            } catch (final UnsupportedOperationException e) {//SUPPRESS CHECKSTYLE empty block
                 //ignore
             }
             try {
                 JODA_TIME_LOOKUP.put(f.jodaTimeValue(), f);
-            } catch (final UnsupportedOperationException e) {
+            } catch (final UnsupportedOperationException e) {//SUPPRESS CHECKSTYLE empty block
                 //ignore
             }
         }

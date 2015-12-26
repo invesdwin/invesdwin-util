@@ -15,8 +15,7 @@ import de.invesdwin.util.math.decimal.internal.impl.IDecimalImplFactory;
 @Immutable
 public class Decimal extends ADecimal<Decimal> {
 
-    public static final DecimalFormatSymbols DEFAULT_DECIMAL_FORMAT_SYMBOLS = DecimalFormatSymbols
-            .getInstance(Locale.ENGLISH);
+    public static final DecimalFormatSymbols DEFAULT_DECIMAL_FORMAT_SYMBOLS = DecimalFormatSymbols.getInstance(Locale.ENGLISH);
     public static final String DEFAULT_DECIMAL_FORMAT = "#,##0.##";
     public static final String MONEY_DECIMAL_FORMAT = "#,##0.00";
 
@@ -27,6 +26,7 @@ public class Decimal extends ADecimal<Decimal> {
     public static final Decimal ONE;
     public static final Decimal TWO;
     public static final Decimal THREE;
+    public static final Decimal TEN;
     public static final Decimal ONE_HUNDRED;
 
     /**
@@ -48,6 +48,7 @@ public class Decimal extends ADecimal<Decimal> {
         ONE = new Decimal("1");
         TWO = new Decimal("2");
         THREE = new Decimal("3");
+        TEN = new Decimal("10");
         ONE_HUNDRED = new Decimal("100");
     }
 
@@ -161,8 +162,8 @@ public class Decimal extends ADecimal<Decimal> {
             return (Decimal) value;
         } else {
             if (value instanceof AScaledDecimal) {
-                throw new IllegalArgumentException(
-                        "value [" + value + "] should not be an instance of " + AScaledDecimal.class.getSimpleName());
+                throw new IllegalArgumentException("value [" + value + "] should not be an instance of "
+                        + AScaledDecimal.class.getSimpleName());
             }
             return new Decimal(value);
         }
