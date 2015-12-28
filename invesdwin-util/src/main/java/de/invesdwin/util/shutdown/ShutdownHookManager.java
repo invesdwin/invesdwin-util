@@ -46,6 +46,10 @@ public final class ShutdownHookManager {
 
     public static void register(final IShutdownHook hook) {
         synchronized (INSTANCE) {
+            if (isShuttingDown()) {
+                //too late
+                return;
+            }
             final ShutdownHookThread thread = new ShutdownHookThread(hook);
             Assertions.assertThat(REGISTERED_HOOKS.put(hook, thread))
                     .as("Hook [%s] has already been registered!", hook)
@@ -56,6 +60,10 @@ public final class ShutdownHookManager {
 
     public static void unregister(final IShutdownHook hook) {
         synchronized (INSTANCE) {
+            if (isShuttingDown()) {
+                //too late
+                return;
+            }
             final ShutdownHookThread removedThread = REGISTERED_HOOKS.remove(hook);
             Assertions.assertThat(shuttingDown || removedThread != null)
                     .as("Hook [%s] was never registered!", hook)
