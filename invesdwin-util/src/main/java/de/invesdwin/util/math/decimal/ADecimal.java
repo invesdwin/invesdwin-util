@@ -21,7 +21,7 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
      * Using HALF_UP here for commercial rounding.
      */
     public static final RoundingMode DEFAULT_ROUNDING_MODE = RoundingMode.HALF_UP;
-    public static final int DEFAULT_ROUNDING_SCALE = 10;
+    public static final int DEFAULT_ROUNDING_SCALE = 9;
     public static final ADelegateComparator<ADecimal<?>> COMPARATOR = new ADelegateComparator<ADecimal<?>>() {
         @Override
         protected Comparable<?> getCompareCriteria(final ADecimal<?> e) {
@@ -279,8 +279,8 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
             if (divisor instanceof AScaledDecimal) {
                 throw new IllegalArgumentException(new TextDescription(
                         "Division between different types of %ss [%s=%s / %s=%s] does not make any sense.",
-                        AScaledDecimal.class.getSimpleName(), this.getClass().getSimpleName(), this,
-                        divisor.getClass().getSimpleName(), divisor).toString());
+                        AScaledDecimal.class.getSimpleName(), this.getClass().getSimpleName(), this, divisor.getClass()
+                                .getSimpleName(), divisor).toString());
             }
             return newValueCopy(getImpl().remainder(divisor));
         }
@@ -322,8 +322,8 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
             if (divisor instanceof AScaledDecimal) {
                 throw new IllegalArgumentException(new TextDescription(
                         "Division between different types of %ss [%s=%s / %s=%s] does not make any sense.",
-                        AScaledDecimal.class.getSimpleName(), this.getClass().getSimpleName(), this,
-                        divisor.getClass().getSimpleName(), divisor).toString());
+                        AScaledDecimal.class.getSimpleName(), this.getClass().getSimpleName(), this, divisor.getClass()
+                                .getSimpleName(), divisor).toString());
             }
             return newValueCopy(getImpl().divide(divisor));
         }
