@@ -53,8 +53,8 @@ public class DecimalTest {
 
     @Test
     public void testDivide() {
-        Assertions.assertThat(new Decimal("1").divide(new Decimal("3")).toString()).isEqualTo("0.3333333333");
-        Assertions.assertThat(new Decimal("1").divide(new Decimal("3"))).isEqualTo(new Decimal("0.3333333333"));
+        Assertions.assertThat(new Decimal("1").divide(new Decimal("3")).toString()).isEqualTo("0.333333333");
+        Assertions.assertThat(new Decimal("1").divide(new Decimal("3"))).isEqualTo(new Decimal("0.333333333"));
     }
 
     @Test
@@ -84,9 +84,9 @@ public class DecimalTest {
         values.add(new Decimal("4"));
         values.add(new Decimal("5"));
         final IDecimalAggregate<Decimal> growthRates = Decimal.valueOf(values).growthRates();
-        Assertions.assertThat(growthRates.toString()).isEqualTo("[1, 0.5, 0.3333333333, 0.25]");
+        Assertions.assertThat(growthRates.toString()).isEqualTo("[1, 0.5, 0.333333333, 0.25]");
         final List<Decimal> expectedList = Arrays.asList(new Decimal("1"), new Decimal("0.5"), new Decimal(
-                "0.3333333333"), new Decimal("0.25"));
+                "0.333333333"), new Decimal("0.25"));
         Assertions.assertThat(Decimal.valueOf(values).growthRates().values().size()).isEqualTo(
                 growthRates.values().size());
         for (int i = 0; i < expectedList.size(); i++) {
@@ -95,8 +95,8 @@ public class DecimalTest {
         Assertions.assertThat(growthRates.values()).isEqualTo(expectedList);
 
         final Decimal avg = Decimal.valueOf(values).growthRates().avg();
-        Assertions.assertThat(avg.toString()).isEqualTo("0.5208333333");
-        Assertions.assertThat(avg).isEqualTo(new Decimal("0.5208333333"));
+        Assertions.assertThat(avg.toString()).isEqualTo("0.520833333");
+        Assertions.assertThat(avg).isEqualTo(new Decimal("0.520833333"));
 
         Assertions.assertThat(values.get(0).growthRate(values.get(values.size() - 1)).toString()).isEqualTo("4");
         Assertions.assertThat(values.get(0).growthRate(values.get(values.size() - 1))).isEqualTo(new Decimal("4"));

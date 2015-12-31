@@ -18,34 +18,34 @@ public class ByteSizeTest {
         Assertions.assertThat(new ByteSize(Decimal.ONE, ByteSizeScale.BYTES).getValue(ByteSizeScale.BYTES)).isEqualTo(
                 Decimal.ONE);
         Assertions.assertThat(new ByteSize(Decimal.ONE, ByteSizeScale.BYTES).getValue(ByteSizeScale.KILOBYTES))
-        .isEqualTo(new Decimal("0.0009765625"));
+                .isEqualTo(new Decimal("0.000976563"));
         Assertions.assertThat(
                 new ByteSize(Decimal.ONE, ByteSizeScale.BYTES).getValue(ByteSizeScale.MEGABYTES).toString()).isEqualTo(
-                        new Decimal("0.0000009537").toString());
+                new Decimal("0.000000954").toString());
         Assertions.assertThat(new ByteSize(Decimal.ONE, ByteSizeScale.BYTES).getValue(ByteSizeScale.MEGABYTES))
-        .isEqualTo(new Decimal("0.0000009537"));
+                .isEqualTo(new Decimal("0.000000954"));
 
         Assertions.assertThat(new ByteSize(Decimal.ONE, ByteSizeScale.KILOBYTES).getValue(ByteSizeScale.KILOBYTES))
-        .isEqualTo(Decimal.ONE);
+                .isEqualTo(Decimal.ONE);
         Assertions.assertThat(new ByteSize(Decimal.ONE, ByteSizeScale.KILOBYTES).getValue(ByteSizeScale.MEGABYTES))
-        .isEqualTo(new Decimal("0.0009765625"));
+                .isEqualTo(new Decimal("0.000976563"));
         Assertions.assertThat(new ByteSize(Decimal.ONE, ByteSizeScale.KILOBYTES).getValue(ByteSizeScale.BYTES))
-        .isEqualTo(new Decimal("1024"));
+                .isEqualTo(new Decimal("1024"));
 
         Assertions.assertThat(new ByteSize(Decimal.ONE, ByteSizeScale.MEGABYTES).getValue(ByteSizeScale.MEGABYTES))
-        .isEqualTo(Decimal.ONE);
+                .isEqualTo(Decimal.ONE);
         Assertions.assertThat(new ByteSize(Decimal.ONE, ByteSizeScale.MEGABYTES).getValue(ByteSizeScale.KILOBYTES))
-        .isEqualTo(new Decimal("1024"));
+                .isEqualTo(new Decimal("1024"));
         Assertions.assertThat(new ByteSize(Decimal.ONE, ByteSizeScale.MEGABYTES).getValue(ByteSizeScale.BYTES))
-        .isEqualTo(new Decimal("1048576"));
+                .isEqualTo(new Decimal("1048576"));
 
         Assertions.assertThat(new ByteSize(Decimal.ONE, ByteSizeScale.BYTES).toString(ByteSizeScale.BYTES, true))
-        .isEqualTo("1B");
+                .isEqualTo("1B");
         Assertions.assertThat(new ByteSize(Decimal.ONE, ByteSizeScale.BYTES).toString(ByteSizeScale.KILOBYTES, true))
-        .isEqualTo("0" + DecimalFormatSymbols.getInstance(Locale.ENGLISH).getDecimalSeparator() + "001KB");
+                .isEqualTo("0" + DecimalFormatSymbols.getInstance(Locale.ENGLISH).getDecimalSeparator() + "001KB");
         Assertions.assertThat(new ByteSize(Decimal.ONE, ByteSizeScale.BYTES).toString(ByteSizeScale.MEGABYTES, true))
-        .isEqualTo("0" + DecimalFormatSymbols.getInstance(Locale.ENGLISH).getDecimalSeparator() + "000001MB");
+                .isEqualTo("0" + DecimalFormatSymbols.getInstance(Locale.ENGLISH).getDecimalSeparator() + "000001MB");
         Assertions.assertThat(new ByteSize(Decimal.ONE, ByteSizeScale.BYTES).toString(ByteSizeScale.TERABYTES, true))
-        .isEqualTo("0.000000000001TB");
+                .isEqualTo("0TB");
     }
 }

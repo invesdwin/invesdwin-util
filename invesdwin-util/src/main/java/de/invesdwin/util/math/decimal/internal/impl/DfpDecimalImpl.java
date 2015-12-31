@@ -161,7 +161,7 @@ public class DfpDecimalImpl extends ADecimalImpl<DfpDecimalImpl, Dfp> {
 
     @Override
     public BigDecimal bigDecimalValue() {
-        return new BigDecimal(getValue().toString());
+        return new BigDecimal(getDefaultRoundedValue().toString());
     }
 
     @Override
@@ -171,37 +171,37 @@ public class DfpDecimalImpl extends ADecimalImpl<DfpDecimalImpl, Dfp> {
 
     @Override
     public int intValue() {
-        return getValue().intValue();
+        return getDefaultRoundedValue().intValue();
     }
 
     @Override
     public long longValue() {
-        return Double.valueOf(getValue().toDouble()).longValue();
+        return Double.valueOf(getDefaultRoundedValue().toDouble()).longValue();
     }
 
     @Override
     public float floatValue() {
-        return Double.valueOf(getValue().toDouble()).floatValue();
+        return Double.valueOf(getDefaultRoundedValue().toDouble()).floatValue();
     }
 
     @Override
     public double doubleValue() {
-        return getValue().toDouble();
+        return getDefaultRoundedValue().toDouble();
     }
 
     @Override
     public byte byteValue() {
-        return Double.valueOf(getValue().toDouble()).byteValue();
+        return Double.valueOf(getDefaultRoundedValue().toDouble()).byteValue();
     }
 
     @Override
     public short shortValue() {
-        return Double.valueOf(getValue().toDouble()).shortValue();
+        return Double.valueOf(getDefaultRoundedValue().toDouble()).shortValue();
     }
 
     @Override
     public Dfp dfpValue() {
-        return getValue();
+        return getDefaultRoundedValue();
     }
 
     @Override

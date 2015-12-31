@@ -55,33 +55,38 @@ public class DoubleDecimalImpl extends ADecimalImpl<DoubleDecimalImpl, Double> {
     }
 
     @Override
+    public Number numberValue() {
+        return getDefaultRoundedValue();
+    }
+
+    @Override
     public double doubleValue() {
-        return getValue().doubleValue();
+        return getDefaultRoundedValue().doubleValue();
     }
 
     @Override
     public float floatValue() {
-        return getValue().floatValue();
+        return getDefaultRoundedValue().floatValue();
     }
 
     @Override
     public int intValue() {
-        return getValue().intValue();
+        return getDefaultRoundedValue().intValue();
     }
 
     @Override
     public long longValue() {
-        return getValue().longValue();
+        return getDefaultRoundedValue().longValue();
     }
 
     @Override
     public byte byteValue() {
-        return getValue().byteValue();
+        return getDefaultRoundedValue().byteValue();
     }
 
     @Override
     public short shortValue() {
-        return getValue().shortValue();
+        return getDefaultRoundedValue().shortValue();
     }
 
     @Override
@@ -160,7 +165,7 @@ public class DoubleDecimalImpl extends ADecimalImpl<DoubleDecimalImpl, Double> {
 
     @Override
     public Dfp dfpValue() {
-        return DfpDecimalImplFactory.toDfp(getValue());
+        return DfpDecimalImplFactory.toDfp(getDefaultRoundedValue());
     }
 
     @Override
@@ -241,11 +246,6 @@ public class DoubleDecimalImpl extends ADecimalImpl<DoubleDecimalImpl, Double> {
     @Override
     protected DoubleDecimalImpl getGenericThis() {
         return this;
-    }
-
-    @Override
-    public Number numberValue() {
-        return getValue();
     }
 
 }

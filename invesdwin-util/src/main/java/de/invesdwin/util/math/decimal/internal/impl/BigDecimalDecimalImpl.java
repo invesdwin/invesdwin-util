@@ -41,32 +41,32 @@ public class BigDecimalDecimalImpl extends ADecimalImpl<BigDecimalDecimalImpl, B
 
     @Override
     public int intValue() {
-        return getValue().intValue();
+        return getDefaultRoundedValue().intValue();
     }
 
     @Override
     public long longValue() {
-        return getValue().longValue();
+        return getDefaultRoundedValue().longValue();
     }
 
     @Override
     public float floatValue() {
-        return getValue().floatValue();
+        return getDefaultRoundedValue().floatValue();
     }
 
     @Override
     public double doubleValue() {
-        return getValue().doubleValue();
+        return getDefaultRoundedValue().doubleValue();
     }
 
     @Override
     public byte byteValue() {
-        return getValue().byteValue();
+        return getDefaultRoundedValue().byteValue();
     }
 
     @Override
     public short shortValue() {
-        return getValue().shortValue();
+        return getDefaultRoundedValue().shortValue();
     }
 
     @Override
@@ -111,7 +111,7 @@ public class BigDecimalDecimalImpl extends ADecimalImpl<BigDecimalDecimalImpl, B
         return newValueCopy(
                 getValue().multiply(BigDecimalDecimalImplFactory.toBigDecimal(multiplicant),
                         BigDecimals.DEFAULT_MATH_CONTEXT)).round(Decimal.DEFAULT_ROUNDING_SCALE,
-                Decimal.DEFAULT_ROUNDING_MODE);
+                                Decimal.DEFAULT_ROUNDING_MODE);
     }
 
     @Override
@@ -143,12 +143,12 @@ public class BigDecimalDecimalImpl extends ADecimalImpl<BigDecimalDecimalImpl, B
 
     @Override
     public BigDecimal bigDecimalValue() {
-        return getValue();
+        return getDefaultRoundedValue();
     }
 
     @Override
     public BigInteger bigIntegerValue() {
-        return getValue().toBigInteger();
+        return getDefaultRoundedValue().toBigInteger();
     }
 
     @Override
@@ -158,12 +158,12 @@ public class BigDecimalDecimalImpl extends ADecimalImpl<BigDecimalDecimalImpl, B
 
     @Override
     public Dfp dfpValue() {
-        return DfpDecimalImplFactory.toDfp(getValue());
+        return DfpDecimalImplFactory.toDfp(getDefaultRoundedValue());
     }
 
     @Override
     public Number numberValue() {
-        return getValue();
+        return getDefaultRoundedValue();
     }
 
     @Override
