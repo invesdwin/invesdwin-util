@@ -15,8 +15,10 @@ import de.invesdwin.util.math.decimal.internal.impl.IDecimalImplFactory;
 @Immutable
 public class Decimal extends ADecimal<Decimal> {
 
-    public static final DecimalFormatSymbols DEFAULT_DECIMAL_FORMAT_SYMBOLS = DecimalFormatSymbols.getInstance(Locale.ENGLISH);
+    public static final DecimalFormatSymbols DEFAULT_DECIMAL_FORMAT_SYMBOLS = DecimalFormatSymbols
+            .getInstance(Locale.ENGLISH);
     public static final String DEFAULT_DECIMAL_FORMAT = "#,##0.##";
+    public static final String INTEGER_DECIMAL_FORMAT = "#,##0";
     public static final String MONEY_DECIMAL_FORMAT = "#,##0.00";
 
     public static final Decimal MINUS_THREE;
@@ -162,8 +164,8 @@ public class Decimal extends ADecimal<Decimal> {
             return (Decimal) value;
         } else {
             if (value instanceof AScaledDecimal) {
-                throw new IllegalArgumentException("value [" + value + "] should not be an instance of "
-                        + AScaledDecimal.class.getSimpleName());
+                throw new IllegalArgumentException(
+                        "value [" + value + "] should not be an instance of " + AScaledDecimal.class.getSimpleName());
             }
             return new Decimal(value);
         }
