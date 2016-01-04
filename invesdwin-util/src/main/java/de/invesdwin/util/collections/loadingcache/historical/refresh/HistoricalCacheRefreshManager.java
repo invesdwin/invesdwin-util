@@ -1,10 +1,11 @@
 package de.invesdwin.util.collections.loadingcache.historical.refresh;
 
+import java.util.concurrent.ScheduledExecutorService;
+
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.concurrent.Executors;
-import de.invesdwin.util.concurrent.WrappedScheduledExecutorService;
 import de.invesdwin.util.time.duration.Duration;
 import de.invesdwin.util.time.fdate.FDate;
 import de.invesdwin.util.time.fdate.FTimeUnit;
@@ -24,7 +25,7 @@ public final class HistoricalCacheRefreshManager {
 
     private static volatile FDate lastRefresh = new FDate();
     @GuardedBy("this.class")
-    private static WrappedScheduledExecutorService executor;
+    private static ScheduledExecutorService executor;
 
     private HistoricalCacheRefreshManager() {}
 
@@ -53,9 +54,14 @@ public final class HistoricalCacheRefreshManager {
         return false;
     }
 
-    public static synchronized boolean startRefreshScheduler(final Duration refreshInterval) {
+    public static synchronized boolean startRefreshScheduler(final Duration refreshInterval,
+            final ScheduledExecutorService useExecutor) {
         if (executor == null) {
-            executor = Executors.newScheduledThreadPool(HistoricalCacheRefreshManager.class.getSimpleName(), 1);
+            if (useExecutor != null) {
+                executor = useExecutor;
+            } else {
+                executor = Executors.newScheduledThreadPool(HistoricalCacheRefreshManager.class.getSimpleName(), 1);
+            }
             final long period = refreshInterval.longValue(FTimeUnit.MILLISECONDS);
             executor.scheduleAtFixedRate(new Runnable() {
                 @Override
@@ -69,7 +75,11 @@ public final class HistoricalCacheRefreshManager {
     }
 
     public static boolean startRefreshScheduler() {
-        return startRefreshScheduler(DEFAULT_REFRESH_INTERVAL);
+        return startRefreshScheduler(DEFAULT_REFRESH_INTERVAL, null);
+    }
+
+    public static boolean startRefreshScheduler(final ScheduledExecutorService useExecutor) {
+        return startRefreshScheduler(DEFAULT_REFRESH_INTERVAL, useExecutor);
     }
 
     public static synchronized boolean isRefreshSchedulerRunning() {
