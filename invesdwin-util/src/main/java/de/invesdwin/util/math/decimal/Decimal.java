@@ -29,6 +29,7 @@ public class Decimal extends ADecimal<Decimal> {
     public static final Decimal TWO;
     public static final Decimal THREE;
     public static final Decimal TEN;
+    public static final Decimal FIFTY;
     public static final Decimal ONE_HUNDRED;
 
     /**
@@ -51,6 +52,7 @@ public class Decimal extends ADecimal<Decimal> {
         TWO = new Decimal("2");
         THREE = new Decimal("3");
         TEN = new Decimal("10");
+        FIFTY = new Decimal("50");
         ONE_HUNDRED = new Decimal("100");
     }
 
