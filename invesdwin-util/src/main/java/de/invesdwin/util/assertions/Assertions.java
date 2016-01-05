@@ -40,6 +40,13 @@ public final class Assertions extends AAssertionsStaticFacade {
         }
     }
 
+    public static void checkEquals(final Object o1, final Object o2, final String message, final Object... args) {
+        if (!Objects.equals(o1, o2)) {
+            assertThat(o1).as(message, args).isEqualTo(o2);
+            failExceptionExpected();
+        }
+    }
+
     public static void failExceptionExpected() {
         fail("Exception expected");
     }
