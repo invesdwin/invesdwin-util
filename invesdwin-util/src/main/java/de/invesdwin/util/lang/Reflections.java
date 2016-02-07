@@ -122,8 +122,7 @@ public final class Reflections extends AReflectionsStaticFacade {
     public static void makeAccessibleFinal(final Field field) {
         try {
             makeAccessible(field);
-            Field modifiersField;
-            modifiersField = Field.class.getDeclaredField("modifiers");
+            final Field modifiersField = Field.class.getDeclaredField("modifiers");
             makeAccessible(modifiersField);
             modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
         } catch (final NoSuchFieldException e) {

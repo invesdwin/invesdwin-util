@@ -124,7 +124,7 @@ public class GuavaLoadingCacheMapConfig {
                     }
                 })) {
             @Override
-            protected final boolean isPutAllowed(final K key, final V value) {
+            protected boolean isPutAllowed(final K key, final V value) {
                 return parent.isPutAllowed(key, value);
             };
         };

@@ -18,7 +18,7 @@ public class GuavaLoadingCache<K, V> implements ILoadingCache<K, V> {
 
     private final AGuavaLoadingCacheMap<K, V> delegate = new AGuavaLoadingCacheMap<K, V>() {
         @Override
-        protected final V loadValue(final K key) {
+        protected V loadValue(final K key) {
             return loadValue.apply(key);
         }
 
