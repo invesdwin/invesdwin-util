@@ -8,6 +8,7 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -22,6 +23,7 @@ import de.invesdwin.norva.beanpath.impl.object.BeanObjectContext;
 import de.invesdwin.norva.beanpath.impl.object.BeanObjectProcessor;
 import de.invesdwin.norva.beanpath.spi.PathUtil;
 import de.invesdwin.norva.beanpath.spi.element.APropertyBeanPathElement;
+import de.invesdwin.norva.beanpath.spi.element.ITableColumnBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.visitor.SimpleBeanPathVisitorSupport;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.lang.Strings;
@@ -37,7 +39,7 @@ public class DirtyTracker implements Serializable {
     private final Set<String> beanPaths;
     private final Set<IDirtyTrackerListener> listeners = new CopyOnWriteArraySet<IDirtyTrackerListener>();
     @GuardedBy("this")
-    private final Set<String> changedBeanPaths = new HashSet<String>();
+    private final Set<String> changedBeanPaths = new LinkedHashSet<String>();
 
     @GuardedBy("this")
     private boolean trackingChangesDirectly;
@@ -129,6 +131,10 @@ public class DirtyTracker implements Serializable {
         }
     }
 
+    public Set<String> getChangedBeanPaths() {
+        return Collections.unmodifiableSet(changedBeanPaths);
+    }
+
     /**
      * WARNING: if a parent is not tracking changes, it is not known on this level and thus won't receive changes made
      * here. Always make sure to call "startTrackingChangesDirectly()" on the root object to prevent any problems.
@@ -160,7 +166,8 @@ public class DirtyTracker implements Serializable {
             public void visitProperty(final APropertyBeanPathElement e) {
                 final String[] childBeanPathPrefixes = adjustBeanPathPrefixesForChildren(e.getBeanPath(),
                         beanPathPrefixes);
-                if (childBeanPathPrefixes != null && e.getAccessor().hasPublicGetter()) {
+                if (childBeanPathPrefixes != null && e.getAccessor().hasPublicGetter()
+                        && !(e instanceof ITableColumnBeanPathElement)) {
                     final Object value = e.getModifier().getValue();
                     if (value != null && value instanceof AValueObject) {
                         final AValueObject cValue = (AValueObject) value;
@@ -205,7 +212,8 @@ public class DirtyTracker implements Serializable {
             public void visitProperty(final APropertyBeanPathElement e) {
                 final String[] childBeanPathPrefixes = adjustBeanPathPrefixesForChildren(e.getBeanPath(),
                         beanPathPrefixes);
-                if (childBeanPathPrefixes != null && e.getAccessor().hasPublicGetter()) {
+                if (childBeanPathPrefixes != null && e.getAccessor().hasPublicGetter()
+                        && !(e instanceof ITableColumnBeanPathElement)) {
                     final Object value = e.getModifier().getValue();
                     if (value != null && value instanceof AValueObject) {
                         final AValueObject cValue = (AValueObject) value;

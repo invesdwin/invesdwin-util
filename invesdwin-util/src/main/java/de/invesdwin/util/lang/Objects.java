@@ -48,6 +48,30 @@ public final class Objects extends AObjectsStaticFacade {
         return com.google.common.base.Objects.equal(a, b);
     }
 
+    /**
+     * Same as equals, just that an empty collection is equal to null.
+     */
+    public static boolean equalsProperty(final Object oldValue, final Object newValue) {
+        if (!equals(oldValue, newValue)) {
+            Iterable<?> iterable = null;
+            Object other = null;
+            if (oldValue instanceof Iterable) {
+                iterable = (Iterable<?>) oldValue;
+                other = newValue;
+            } else if (newValue instanceof Iterable) {
+                iterable = (Iterable<?>) newValue;
+                other = oldValue;
+            }
+            if (iterable == null) {
+                return false;
+            } else {
+                return !iterable.iterator().hasNext() && other == null;
+            }
+        } else {
+            return true;
+        }
+    }
+
     public static int hashCode(final Object object) {
         return java.util.Objects.hashCode(object);
     }

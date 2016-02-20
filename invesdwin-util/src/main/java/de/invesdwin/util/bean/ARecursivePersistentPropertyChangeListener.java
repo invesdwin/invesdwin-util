@@ -5,6 +5,7 @@ import java.beans.PropertyChangeListener;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Method;
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 import java.util.WeakHashMap;
 
@@ -16,7 +17,9 @@ import de.invesdwin.norva.beanpath.BeanPathReflections;
 import de.invesdwin.norva.beanpath.impl.object.BeanObjectContext;
 import de.invesdwin.norva.beanpath.impl.object.BeanObjectProcessor;
 import de.invesdwin.norva.beanpath.spi.PathUtil;
+import de.invesdwin.norva.beanpath.spi.element.AChoiceBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.APropertyBeanPathElement;
+import de.invesdwin.norva.beanpath.spi.element.ITableColumnBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.visitor.SimpleBeanPathVisitorSupport;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.lang.Reflections;
@@ -106,6 +109,28 @@ public abstract class ARecursivePersistentPropertyChangeListener implements Prop
         return false;
     }
 
+    private void maybeRemoveChildPropertyChangeListeners(final Object oldSource) {
+        if (oldSource instanceof Iterable) {
+            final Iterable<?> it = (Iterable<?>) oldSource;
+            for (final Object value : it) {
+                maybeRemoveChildPropertyChangeListenersSimpleValue(value);
+            }
+        } else {
+            maybeRemoveChildPropertyChangeListenersSimpleValue(oldSource);
+        }
+    }
+
+    private void maybeAddChildPropertyChangeListeners(final String beanPathFragment, final Object newSource) {
+        if (newSource instanceof Iterable) {
+            final Iterable<?> it = (Iterable<?>) newSource;
+            for (final Object value : it) {
+                maybeAddChildPropertyChangeListenersSimpleValue(beanPathFragment, value);
+            }
+        } else {
+            maybeAddChildPropertyChangeListenersSimpleValue(beanPathFragment, newSource);
+        }
+    }
+
     private boolean isOriginatingFromDirectChild(final PropertyChangeEvent evt) {
         return Strings.countMatches(evt.getPropertyName(), PathUtil.BEAN_PATH_SEPARATOR) == 1;
     }
@@ -114,7 +139,7 @@ public abstract class ARecursivePersistentPropertyChangeListener implements Prop
 
     protected abstract void onPropertyChangeOnAnyLevel(final PropertyChangeEvent evt);
 
-    private void maybeAddChildPropertyChangeListeners(final String beanPathFragment, final Object newValue) {
+    private void maybeAddChildPropertyChangeListenersSimpleValue(final String beanPathFragment, final Object newValue) {
         if (newValue != null && newValue instanceof APropertyChangeSupported) {
             //register listener on newly added bean
             final APropertyChangeSupported cNewValue = (APropertyChangeSupported) newValue;
@@ -145,22 +170,45 @@ public abstract class ARecursivePersistentPropertyChangeListener implements Prop
         new BeanObjectProcessor(context, new SimpleBeanPathVisitorSupport(context) {
             @Override
             public void visitProperty(final APropertyBeanPathElement e) {
-                if (e.getAccessor().hasPublicGetter()) {
+                if (e.getAccessor().hasPublicGetter() && !(e instanceof ITableColumnBeanPathElement)) {
                     final Object value = e.getModifier().getValue();
-                    if (value != null && value instanceof APropertyChangeSupported) {
-                        Assertions.assertThat(PathUtil.isShallowBeanPath(e.getBeanPath())).isTrue();
-                        final APropertyChangeSupported cValue = (APropertyChangeSupported) value;
-                        final ChildRecursivePersistentPropertyChangeListener child = new ChildRecursivePersistentPropertyChangeListener(
-                                cValue, ARecursivePersistentPropertyChangeListener.this,
-                                e.getAccessor().getBeanPathFragment());
-                        child.addListenersToSourceHierarchy();
+                    internalAddListenersToSourceHierarchy(e, value);
+                    if (e instanceof AChoiceBeanPathElement) {
+                        final AChoiceBeanPathElement choice = (AChoiceBeanPathElement) e;
+                        final List<Object> choiceValue = choice.getChoiceModifier().getValue();
+                        internalAddListenersToSourceHierarchy(e, choiceValue);
                     }
                 }
             }
+
+            private void internalAddListenersToSourceHierarchy(final APropertyBeanPathElement e,
+                    final Object newSource) {
+                if (newSource instanceof Iterable) {
+                    final Iterable<?> it = (Iterable<?>) newSource;
+                    for (final Object value : it) {
+                        internalAddListenersToSourceHierarchySimpleValue(e, value);
+                    }
+                } else {
+                    internalAddListenersToSourceHierarchySimpleValue(e, newSource);
+                }
+            }
+
+            private void internalAddListenersToSourceHierarchySimpleValue(final APropertyBeanPathElement e,
+                    final Object value) {
+                if (value != null && value instanceof APropertyChangeSupported) {
+                    Assertions.assertThat(PathUtil.isShallowBeanPath(e.getBeanPath())).isTrue();
+                    final APropertyChangeSupported cValue = (APropertyChangeSupported) value;
+                    final ChildRecursivePersistentPropertyChangeListener child = new ChildRecursivePersistentPropertyChangeListener(
+                            cValue, ARecursivePersistentPropertyChangeListener.this,
+                            e.getAccessor().getBeanPathFragment());
+                    child.addListenersToSourceHierarchy();
+                }
+            }
+
         }).withShallowOnly().process();
     }
 
-    private void maybeRemoveChildPropertyChangeListeners(final Object oldValue) {
+    private void maybeRemoveChildPropertyChangeListenersSimpleValue(final Object oldValue) {
         if (oldValue != null && oldValue instanceof APropertyChangeSupported) {
             final APropertyChangeSupported cOldValue = (APropertyChangeSupported) oldValue;
             final PropertyChangeListener[] listeners = cOldValue.getPropertyChangeListeners();

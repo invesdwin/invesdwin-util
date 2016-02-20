@@ -160,8 +160,8 @@ public abstract class APropertyChangeSupported {
     public final void fireIndexedPropertyChange(final String propertyName, final int index, final Object oldValue,
             final Object newValue) {
         final PropertyChangeSupport ref = lazyGetPropertyChangeSupport(false);
-        if (ref != null
-                && (!Objects.equals(oldValue, newValue) || !equalsPropertyChangeListeners(oldValue, newValue))) {
+        if (ref != null && (!Objects.equalsProperty(oldValue, newValue)
+                || !equalsPropertyChangeListeners(oldValue, newValue))) {
             final IndexedPropertyChangeEvent event = new IndexedPropertyChangeEvent(this, propertyName, oldValue,
                     newValue, index);
             fireEvent(ref, propertyName, event);
@@ -176,8 +176,8 @@ public abstract class APropertyChangeSupported {
      */
     public final void firePropertyChange(final String propertyName, final Object oldValue, final Object newValue) {
         final PropertyChangeSupport ref = lazyGetPropertyChangeSupport(false);
-        if (ref != null
-                && (!Objects.equals(oldValue, newValue) || !equalsPropertyChangeListeners(oldValue, newValue))) {
+        if (ref != null && (!Objects.equalsProperty(oldValue, newValue)
+                || !equalsPropertyChangeListeners(oldValue, newValue))) {
             final PropertyChangeEvent event = new PropertyChangeEvent(this, propertyName, oldValue, newValue);
             fireEvent(ref, propertyName, event);
         }

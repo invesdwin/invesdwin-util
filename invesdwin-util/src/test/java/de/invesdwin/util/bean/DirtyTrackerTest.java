@@ -2,6 +2,7 @@ package de.invesdwin.util.bean;
 
 import java.beans.PropertyChangeEvent;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.annotation.concurrent.NotThreadSafe;
@@ -187,10 +188,10 @@ public class DirtyTrackerTest {
                 countPropertyChangeEvents++;
                 try {
                     Assertions.assertThat(expectedPropertyChangeEventsOnSecondLevel.remove(evt.getPropertyName()))
-                    .isTrue();
+                            .isTrue();
                 } catch (final Throwable t) {
-                    throw new RuntimeException(
-                            countPropertyChangeEvents + ". propertyChange: " + evt.getPropertyName(), t);
+                    throw new RuntimeException(countPropertyChangeEvents + ". propertyChange: " + evt.getPropertyName(),
+                            t);
                 }
             }
 
@@ -519,7 +520,54 @@ public class DirtyTrackerTest {
         Assertions.assertThat(expectedPropertyChangeEventsOnSecondLevel).isEmpty();
     }
 
-    private OuterVo newOuterVo() {
+    @Test
+    public void testIterableEmptyEqualsNull() {
+        final ListVo listVo = new ListVo();
+        listVo.setList(null);
+        listVo.dirtyTracker().startTrackingChangesDirectly();
+        Assertions.assertThat(listVo.dirtyTracker().isDirty()).isFalse();
+        listVo.setList(new ArrayList<OuterVo>());
+        Assertions.assertThat(listVo.dirtyTracker().isDirty()).isFalse();
+        listVo.setList(new ArrayList<OuterVo>());
+        Assertions.assertThat(listVo.dirtyTracker().isDirty()).isFalse();
+        listVo.setList(Arrays.asList(newOuterVo()));
+        Assertions.assertThat(listVo.dirtyTracker().isDirty()).isTrue();
+        listVo.dirtyTracker().markClean();
+        Assertions.assertThat(listVo.dirtyTracker().isDirty()).isFalse();
+        listVo.setList(null);
+        Assertions.assertThat(listVo.dirtyTracker().isDirty()).isTrue();
+    }
+
+    @Test
+    public void testIterableChildrenGetTracked() {
+        final ListVo listVo = new ListVo();
+        listVo.dirtyTracker().startTrackingChangesDirectly();
+        Assertions.assertThat(listVo.dirtyTracker().isDirty()).isFalse();
+        listVo.getList().get(0).setOtherValue(1298129);
+        Assertions.assertThat(listVo.dirtyTracker().isDirty()).isTrue();
+    }
+
+    public static class ListVo extends AValueObject {
+        private List<OuterVo> list = new ArrayList<OuterVo>();
+
+        public ListVo() {
+            list.add(newOuterVo());
+            list.add(newOuterVo());
+            list.add(newOuterVo());
+        }
+
+        public List<OuterVo> getList() {
+            return list;
+        }
+
+        public void setList(final List<OuterVo> list) {
+            final List<OuterVo> oldValue = this.list;
+            this.list = list;
+            firePropertyChange("list", oldValue, list);
+        }
+    }
+
+    private static OuterVo newOuterVo() {
         final OuterVo outer = new OuterVo();
         Assertions.assertThat(outer.dirtyTracker().isTrackingChanges()).isFalse();
         Assertions.assertThat(outer.getInner().dirtyTracker().isTrackingChanges()).isFalse();
