@@ -15,7 +15,8 @@ import de.invesdwin.util.lang.internal.DefaultToStringStyle;
 import de.invesdwin.util.lang.internal.MultilineToStringStyle;
 
 @Immutable
-@StaticFacadeDefinition(name = "de.invesdwin.util.lang.internal.AStringsStaticFacade", targets = { BeanPathStrings.class })
+@StaticFacadeDefinition(name = "de.invesdwin.util.lang.internal.AStringsStaticFacade", targets = {
+        BeanPathStrings.class })
 public final class Strings extends AStringsStaticFacade {
 
     public static final ADelegateComparator<String> COMPARATOR = new ADelegateComparator<String>() {
@@ -119,22 +120,12 @@ public final class Strings extends AStringsStaticFacade {
         return s == null || s.length() == 0;
     }
 
-    public static String eventuallyAddPrefix(final String s, final String prefix) {
-        if (s == null) {
-            return null;
-        }
-        if (prefix == null || s.startsWith(prefix)) {
-            return s;
-        } else {
-            return prefix + s;
-        }
-    }
-
     /**
      * Removes all non ASCII characters from the string.
      * 
-     * @see <a
-     *      href="http://stackoverflow.com/questions/123336/how-can-you-strip-non-ascii-characters-from-a-string-in-c">stackoverflow.com</a>
+     * @see <a href=
+     *      "http://stackoverflow.com/questions/123336/how-can-you-strip-non-ascii-characters-from-a-string-in-c">
+     *      stackoverflow.com</a>
      */
     public static String stripNonAscii(final String s) {
         if (Strings.isBlank(s)) {
@@ -146,8 +137,9 @@ public final class Strings extends AStringsStaticFacade {
 
     /**
      * 
-     * @see <a
-     *      href="http://stackoverflow.com/questions/1176904/php-how-to-remove-all-non-printable-characters-in-a-string">stackoverflow.com</a>
+     * @see <a href=
+     *      "http://stackoverflow.com/questions/1176904/php-how-to-remove-all-non-printable-characters-in-a-string">
+     *      stackoverflow.com</a>
      */
     public static String stripNonPrintableAscii(final String s) {
         if (Strings.isBlank(s)) {
@@ -171,6 +163,14 @@ public final class Strings extends AStringsStaticFacade {
     public static String asStringNullText(final Object o) {
         if (o == null) {
             return DefaultToStringStyle.INSTANCE.getNullText();
+        } else {
+            return o.toString();
+        }
+    }
+
+    public static String asStringEmptyText(final Object o) {
+        if (o == null) {
+            return "";
         } else {
             return o.toString();
         }
@@ -273,8 +273,8 @@ public final class Strings extends AStringsStaticFacade {
     }
 
     /**
-     * @see <a
-     *      href="http://code.activestate.com/recipes/435882-normalizing-newlines-between-windowsunixmacs/">Source</a>
+     * @see <a href="http://code.activestate.com/recipes/435882-normalizing-newlines-between-windowsunixmacs/">Source
+     *      </a>
      */
     public static String normalizeNewlines(final String s) {
         return s.replace("\r\n", "\n").replace("\r", "\n");
