@@ -61,6 +61,11 @@ public interface IDecimalAggregate<E extends ADecimal<E>> {
     E min();
 
     /**
+     * distance = abs(max()-min())
+     */
+    E minMaxDistance();
+
+    /**
      * s = (1/(n-1) * sum((x_i - x_quer)^2))^1/2
      */
     E standardDeviation();
@@ -90,4 +95,13 @@ public interface IDecimalAggregate<E extends ADecimal<E>> {
     IDecimalAggregate<E> roundToStep(final E step);
 
     IDecimalAggregate<E> roundToStep(final E step, final RoundingMode roundingMode);
+
+    IDecimalAggregate<E> positiveValues();
+
+    IDecimalAggregate<E> positiveNonZeroValues();
+
+    IDecimalAggregate<E> negativeValues();
+
+    IDecimalAggregate<E> negativeOrZeroValues();
+
 }

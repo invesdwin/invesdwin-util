@@ -2,9 +2,11 @@ package de.invesdwin.util.math.decimal;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.function.Function;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -139,8 +141,21 @@ public class Decimal extends ADecimal<Decimal> {
         if (values == null || values.size() == 0) {
             return DummyDecimalAggregate.getInstance();
         } else {
-            return new DecimalAggregate<Decimal>(values);
+            return new DecimalAggregate<Decimal>(values, Decimal.ZERO);
         }
+    }
+
+    public static <T> List<Decimal> extractValues(final Function<T, Decimal> getter, final List<T> objects) {
+        final List<Decimal> decimals = new ArrayList<Decimal>();
+        for (final T obj : objects) {
+            final Decimal decimal = getter.apply(obj);
+            decimals.add(decimal);
+        }
+        return decimals;
+    }
+
+    public static <T> List<Decimal> extractValues(final Function<T, Decimal> getter, final T... objects) {
+        return extractValues(getter, Arrays.asList(objects));
     }
 
     /**

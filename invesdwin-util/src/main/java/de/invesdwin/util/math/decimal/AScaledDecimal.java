@@ -1,8 +1,10 @@
 package de.invesdwin.util.math.decimal;
 
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Function;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
@@ -143,16 +145,31 @@ public abstract class AScaledDecimal<T extends AScaledDecimal<T, S>, S extends I
         return format.format(getValue(scale).getImpl().numberValue());
     }
 
-    public static <T extends AScaledDecimal<T, ?>> IDecimalAggregate<T> valueOf(final T... values) {
+    public static <D extends AScaledDecimal<D, ?>> IDecimalAggregate<D> valueOf(final D... values) {
         return valueOf(Arrays.asList(values));
     }
 
-    public static <T extends AScaledDecimal<T, ?>> IDecimalAggregate<T> valueOf(final List<? extends T> values) {
+    public static <D extends AScaledDecimal<D, ?>> IDecimalAggregate<D> valueOf(final List<? extends D> values) {
         if (values == null || values.size() == 0) {
             return DummyDecimalAggregate.getInstance();
         } else {
-            return new DecimalAggregate<T>(values);
+            return new DecimalAggregate<D>(values, null);
         }
+    }
+
+    public static <T, D extends AScaledDecimal<D, ?>> List<D> extractValues(final Function<T, D> getter,
+            final List<T> objects) {
+        final List<D> decimals = new ArrayList<D>();
+        for (final T obj : objects) {
+            final D decimal = getter.apply(obj);
+            decimals.add(decimal);
+        }
+        return decimals;
+    }
+
+    public static <T, D extends AScaledDecimal<D, ?>> List<D> extractValues(final Function<T, D> getter,
+            final T... objects) {
+        return extractValues(getter, Arrays.asList(objects));
     }
 
     public T asScale(final S scale) {

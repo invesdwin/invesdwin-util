@@ -75,6 +75,11 @@ final class DummyDecimalAggregate<E extends ADecimal<E>> implements IDecimalAggr
     }
 
     @Override
+    public E minMaxDistance() {
+        return (E) null;
+    }
+
+    @Override
     public E standardDeviation() {
         return (E) null;
     }
@@ -132,6 +137,26 @@ final class DummyDecimalAggregate<E extends ADecimal<E>> implements IDecimalAggr
     @Override
     public String toString() {
         return "[]";
+    }
+
+    @Override
+    public IDecimalAggregate<E> positiveValues() {
+        return this;
+    }
+
+    @Override
+    public IDecimalAggregate<E> negativeValues() {
+        return this;
+    }
+
+    @Override
+    public IDecimalAggregate<E> positiveNonZeroValues() {
+        return this;
+    }
+
+    @Override
+    public IDecimalAggregate<E> negativeOrZeroValues() {
+        return this;
     }
 
 }

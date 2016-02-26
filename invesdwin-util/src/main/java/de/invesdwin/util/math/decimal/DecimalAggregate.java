@@ -15,8 +15,9 @@ class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregate<E> {
     private E converter;
     private final List<? extends E> values;
 
-    DecimalAggregate(final List<? extends E> values) {
+    DecimalAggregate(final List<? extends E> values, final E converter) {
         this.values = values;
+        this.converter = converter;
     }
 
     private E getConverter() {
@@ -45,7 +46,7 @@ class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregate<E> {
             }
             previousValue = value;
         }
-        return new DecimalAggregate<E>(growthRates);
+        return new DecimalAggregate<E>(growthRates, getConverter());
     }
 
     /**
@@ -66,7 +67,7 @@ class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregate<E> {
 
     @Override
     public IDecimalAggregate<E> reverse() {
-        return new DecimalAggregate<E>(Lists.reverse(values));
+        return new DecimalAggregate<E>(Lists.reverse(values), getConverter());
     }
 
     /**
@@ -173,6 +174,19 @@ class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregate<E> {
         return lowest;
     }
 
+    @Override
+    public E minMaxDistance() {
+        final E min = min();
+        if (min == null) {
+            return null;
+        }
+        final E max = max();
+        if (max == null) {
+            return null;
+        }
+        return min.distance(max);
+    }
+
     /**
      * s = (1/(n-1) * sum((x_i - x_quer)^2))^1/2
      */
@@ -240,7 +254,7 @@ class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregate<E> {
         for (final E value : values) {
             rounded.add(value.round(scale, roundingMode));
         }
-        return new DecimalAggregate<E>(rounded);
+        return new DecimalAggregate<E>(rounded, getConverter());
     }
 
     @Override
@@ -254,12 +268,56 @@ class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregate<E> {
         for (final E value : values) {
             rounded.add(value.roundToStep(step, roundingMode));
         }
-        return new DecimalAggregate<E>(rounded);
+        return new DecimalAggregate<E>(rounded, getConverter());
     }
 
     @Override
     public String toString() {
         return values.toString();
+    }
+
+    @Override
+    public IDecimalAggregate<E> positiveValues() {
+        final List<E> positives = new ArrayList<E>();
+        for (final E value : values) {
+            if (value.isPositive()) {
+                positives.add(value);
+            }
+        }
+        return new DecimalAggregate<E>(positives, getConverter());
+    }
+
+    @Override
+    public IDecimalAggregate<E> positiveNonZeroValues() {
+        final List<E> positives = new ArrayList<E>();
+        for (final E value : values) {
+            if (value.isPositiveNonZero()) {
+                positives.add(value);
+            }
+        }
+        return new DecimalAggregate<E>(positives, getConverter());
+    }
+
+    @Override
+    public IDecimalAggregate<E> negativeValues() {
+        final List<E> negatives = new ArrayList<E>();
+        for (final E value : values) {
+            if (value.isNegative()) {
+                negatives.add(value);
+            }
+        }
+        return new DecimalAggregate<E>(negatives, getConverter());
+    }
+
+    @Override
+    public IDecimalAggregate<E> negativeOrZeroValues() {
+        final List<E> negatives = new ArrayList<E>();
+        for (final E value : values) {
+            if (value.isNegativeOrZero()) {
+                negatives.add(value);
+            }
+        }
+        return new DecimalAggregate<E>(negatives, getConverter());
     }
 
 }
