@@ -21,7 +21,12 @@ public final class UniqueNameGenerator {
      */
     public synchronized String get(final String name) {
         final AtomicInteger sequenceNumber = name_sequencenumber.get(name);
-        return name + "_" + sequenceNumber.incrementAndGet();
+        final int sequenceNumberIncremented = sequenceNumber.incrementAndGet();
+        if (sequenceNumberIncremented == 1) {
+            return name;
+        } else {
+            return Strings.addSuffixToFileName(name, "_" + (sequenceNumberIncremented - 1));
+        }
     }
 
 }

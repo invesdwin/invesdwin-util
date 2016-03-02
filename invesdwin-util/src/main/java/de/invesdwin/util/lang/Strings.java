@@ -331,4 +331,16 @@ public final class Strings extends AStringsStaticFacade {
         return false;
     }
 
+    /**
+     * "a/b/c.txt" with suffix "_1" results in "a/b/c_1.txt"
+     */
+    public static String addSuffixToFileName(final String fileName, final String suffix) {
+        if (fileName.contains(".")) {
+            return Strings.substringBeforeLast(fileName, ".") + suffix + "."
+                    + Strings.substringAfterLast(fileName, ".");
+        } else {
+            return fileName + suffix;
+        }
+    }
+
 }
