@@ -3,7 +3,6 @@ package de.invesdwin.util.lang;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
-import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -17,7 +16,7 @@ import org.nustaq.serialization.FSTConfiguration;
 
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
 import de.invesdwin.norva.beanpath.BeanPathObjects;
-import de.invesdwin.norva.beanpath.BeanPathReflections;
+import de.invesdwin.norva.beanpath.IDeepCloneProvider;
 import de.invesdwin.util.lang.internal.AObjectsStaticFacade;
 
 @Immutable
@@ -31,6 +30,13 @@ public final class Objects extends AObjectsStaticFacade {
     static {
         //datanucleus enhancer fix
         REFLECTION_EXCLUDED_FIELDS.add("jdoDetachedState");
+        //use FST in BeanPathObjects as deepClone fallback instead of java serialization
+        BeanPathObjects.setDeepCloneProvider(new IDeepCloneProvider() {
+            @Override
+            public <T> T deepClone(final T obj) {
+                return Objects.deepClone(obj);
+            }
+        });
     }
 
     private Objects() {}
@@ -169,21 +175,6 @@ public final class Objects extends AObjectsStaticFacade {
 
     public static byte[] serialize(final Serializable obj) {
         return SERIALIZATION_CONFIG.asByteArray(obj);
-    }
-
-    public static Object clone(final Object obj) {
-        if (obj == null) {
-            return null;
-        }
-        final Method cloneMethod = BeanPathReflections.findMethod(obj.getClass(), "clone");
-        if (cloneMethod != null) {
-            return BeanPathReflections.invokeMethod(cloneMethod, obj);
-        } else if (obj instanceof Serializable) {
-            return deepClone((Serializable) obj);
-        } else {
-            throw new UnsupportedOperationException("Object [" + obj + "] is neither cloneable, nor serializable!");
-        }
-
     }
 
     public static String toString(final Object obj) {
