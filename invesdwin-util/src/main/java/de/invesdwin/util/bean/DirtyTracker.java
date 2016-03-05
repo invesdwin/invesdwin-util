@@ -140,7 +140,7 @@ public class DirtyTracker implements Serializable {
      * here. Always make sure to call "startTrackingChangesDirectly()" on the root object to prevent any problems.
      */
     public synchronized boolean markDirty(final String... beanPathPrefixes) {
-        final boolean changed = directMarkDirty(beanPathPrefixes);
+        final boolean changed = directMarkDirty(false, beanPathPrefixes);
         //manual changes are more expensive than tracked ones, since they don't propagate via the tracker on all levels
         //notify parents
         for (final Entry<TrackingChangesPropagatingRecursivePersistentPropertyChangeListener, String> entry : getRegisteredTrackers()
@@ -173,7 +173,7 @@ public class DirtyTracker implements Serializable {
                         final AValueObject cValue = (AValueObject) value;
                         final DirtyTracker childDirtyTracker = cValue.dirtyTracker();
                         detectAndHealBrokenChildTrackers(childDirtyTracker);
-                        childDirtyTracker.directMarkDirty(childBeanPathPrefixes);
+                        childDirtyTracker.directMarkDirty(false, childBeanPathPrefixes);
                         childDirtyTracker.childrenMarkDirty(childBeanPathPrefixes);
                     }
                 }
@@ -186,7 +186,7 @@ public class DirtyTracker implements Serializable {
      * here. Always make sure to call "startTrackingChangesDirectly()" on the root object to prevent any problems.
      */
     public synchronized boolean markClean(final String... beanPathPrefixes) {
-        final boolean changed = directMarkClean(beanPathPrefixes);
+        final boolean changed = directMarkClean(false, beanPathPrefixes);
         //manual changes are more expensive than tracked ones, since they don't propagate via the tracker on all levels
         //notify parents
         for (final Entry<TrackingChangesPropagatingRecursivePersistentPropertyChangeListener, String> entry : getRegisteredTrackers()
@@ -219,7 +219,7 @@ public class DirtyTracker implements Serializable {
                         final AValueObject cValue = (AValueObject) value;
                         final DirtyTracker childDirtyTracker = cValue.dirtyTracker();
                         detectAndHealBrokenChildTrackers(childDirtyTracker);
-                        childDirtyTracker.directMarkClean(childBeanPathPrefixes);
+                        childDirtyTracker.directMarkClean(false, childBeanPathPrefixes);
                         childDirtyTracker.childrenMarkClean(childBeanPathPrefixes);
                     }
                 }
@@ -291,14 +291,14 @@ public class DirtyTracker implements Serializable {
         }
     }
 
-    private synchronized boolean directMarkDirty(final String... beanPathPrefixes) {
+    private synchronized boolean directMarkDirty(final boolean absoluteBeanPath, final String... beanPathPrefixes) {
         boolean changed = false;
         for (final String beanPath : beanPaths) {
             if (beanPath == null) {
                 continue;
             }
             if (beanPathPrefixes == null || beanPathPrefixes.length == 0
-                    || Strings.startsWithAny(beanPath, beanPathPrefixes)) {
+                    || PathUtil.startsWithAnyBeanPath(absoluteBeanPath, beanPath, beanPathPrefixes)) {
                 if (changedBeanPaths.add(beanPath)) {
                     changed = true;
                     for (final IDirtyTrackerListener listener : getListeners()) {
@@ -310,7 +310,7 @@ public class DirtyTracker implements Serializable {
         return changed;
     }
 
-    private synchronized boolean directMarkClean(final String... beanPathPrefixes) {
+    private synchronized boolean directMarkClean(final boolean absoluteBeanPath, final String... beanPathPrefixes) {
         boolean changed = false;
         final List<String> changedBeanPathsCopy = new ArrayList<String>(changedBeanPaths);
         for (final String beanPath : changedBeanPathsCopy) {
@@ -318,7 +318,7 @@ public class DirtyTracker implements Serializable {
                 continue;
             }
             if (beanPathPrefixes == null || beanPathPrefixes.length == 0
-                    || Strings.startsWithAny(beanPath, beanPathPrefixes)) {
+                    || PathUtil.startsWithAnyBeanPath(absoluteBeanPath, beanPath, beanPathPrefixes)) {
                 if (changedBeanPaths.remove(beanPath)) {
                     changed = true;
                     for (final IDirtyTrackerListener listener : getListeners()) {
@@ -381,7 +381,7 @@ public class DirtyTracker implements Serializable {
                 throw new IllegalStateException(
                         "Not tracking changes right now, thus events should not be able to arrive!");
             }
-            sourceDirtyTracker.directMarkDirty(evt.getPropertyName());
+            sourceDirtyTracker.directMarkDirty(true, evt.getPropertyName());
             for (final IDirtyTrackerListener listener : sourceDirtyTracker.getListeners()) {
                 listener.propertyChange(evt);
             }
@@ -423,14 +423,14 @@ public class DirtyTracker implements Serializable {
         }
 
         public boolean onManualMarkClean(final String... beanPathPrefixes) {
-            final boolean changed = directMarkClean(beanPathPrefixes);
+            final boolean changed = directMarkClean(false, beanPathPrefixes);
             //we need to propagate upwards again since there might be a distance between this parent and the root parent.
             childrenMarkClean(beanPathPrefixes);
             return changed;
         }
 
         public boolean onManualMarkDirty(final String... beanPathPrefixes) {
-            final boolean changed = directMarkDirty(beanPathPrefixes);
+            final boolean changed = directMarkDirty(false, beanPathPrefixes);
             //we need to propagate upwards again since there might be a distance between this parent and the root parent.
             childrenMarkDirty(beanPathPrefixes);
             return changed;

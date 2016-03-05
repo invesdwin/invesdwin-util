@@ -198,18 +198,6 @@ public final class Strings extends AStringsStaticFacade {
         }
     }
 
-    public static boolean startsWithAny(final String s, final String[] possiblePrefixes) {
-        if (s == null) {
-            return false;
-        }
-        for (final String prefix : possiblePrefixes) {
-            if (prefix != null && s.startsWith(prefix)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     public static String stripBlankLines(final String s) {
         return s.replaceAll("(?m)^\\s*", "").trim();
     }
