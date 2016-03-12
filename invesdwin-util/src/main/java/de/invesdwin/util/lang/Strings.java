@@ -307,6 +307,18 @@ public final class Strings extends AStringsStaticFacade {
         return false;
     }
 
+    public static boolean containsAnyIgnoreCase(final String string, final String... searchStrings) {
+        if (string == null) {
+            return false;
+        }
+        for (final String search : searchStrings) {
+            if (containsIgnoreCase(string, search)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public static boolean equalsAny(final String string, final String... searchStrings) {
         if (string == null) {
             return false;
