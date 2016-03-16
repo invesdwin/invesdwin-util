@@ -116,9 +116,7 @@ public class WrappedExecutorService implements ExecutorService {
     }
 
     private void unconfigure() {
-        if (!isShutdown()) {
-            ShutdownHookManager.unregister(shutdownHook);
-        }
+        ShutdownHookManager.unregister(shutdownHook);
     }
 
     public boolean isWaitOnFullPendingCount() {
