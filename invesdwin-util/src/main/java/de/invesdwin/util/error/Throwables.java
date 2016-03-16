@@ -92,4 +92,21 @@ public final class Throwables extends AThrowablesStaticFacade {
         return ExceptionUtils.getStackTrace(t);
     }
 
+    @SafeVarargs
+    public static Throwable ignoreType(final Throwable e, final Class<? extends Throwable>... ignoredTypes) {
+        Throwable validCause = e;
+        boolean ignoredSomething;
+        do {
+            ignoredSomething = false;
+            for (final Class<? extends Throwable> ignoredType : ignoredTypes) {
+                if (ignoredType.isInstance(validCause)) {
+                    validCause = Throwables.getCause(validCause);
+                    ignoredSomething = true;
+                    break;
+                }
+            }
+        } while (ignoredSomething);
+        return validCause;
+    }
+
 }
