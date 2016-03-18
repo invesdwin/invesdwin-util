@@ -10,6 +10,7 @@ import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
 import de.invesdwin.util.collections.internal.AListsStaticFacade;
+import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 
 @Immutable
@@ -47,8 +48,16 @@ public final class Lists extends AListsStaticFacade {
         }
     }
 
+    public static <E> List<E> toListWithoutHasNext(final ICloseableIterable<? extends E> iterable, final List<E> list) {
+        return toListWithoutHasNext(iterable.iterator(), list);
+    }
+
     public static <E> List<E> toListWithoutHasNext(final ICloseableIterator<? extends E> iterator) {
         return toListWithoutHasNext(iterator, new ArrayList<E>());
+    }
+
+    public static <E> List<E> toListWithoutHasNext(final ICloseableIterable<? extends E> iterable) {
+        return toListWithoutHasNext(iterable.iterator());
     }
 
     public static <E> List<E> toList(final ICloseableIterator<? extends E> iterator, final List<E> list) {
@@ -59,7 +68,15 @@ public final class Lists extends AListsStaticFacade {
         return list;
     }
 
+    public static <E> List<E> toList(final ICloseableIterable<? extends E> iterable, final List<E> list) {
+        return toList(iterable.iterator(), list);
+    }
+
     public static <E> List<E> toList(final ICloseableIterator<? extends E> iterator) {
         return toList(iterator, new ArrayList<E>());
+    }
+
+    public static <E> List<E> toList(final ICloseableIterable<? extends E> iterable) {
+        return toList(iterable.iterator());
     }
 }
