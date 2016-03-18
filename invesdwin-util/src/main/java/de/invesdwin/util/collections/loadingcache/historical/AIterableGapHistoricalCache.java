@@ -52,4 +52,23 @@ public abstract class AIterableGapHistoricalCache<V> extends AGapHistoricalCache
         return previousE;
     }
 
+    @Override
+    protected FDate innerCalculateNextKey(final FDate key) {
+
+        for (final V value : getDelegate()) {
+            final FDate valueKey = extractKey(key, value);
+
+            if (valueKey.isAfter(key)) {
+                return valueKey;
+            }
+        }
+
+        return key;
+    }
+
+    @Override
+    protected FDate innerCalculatePreviousKey(final FDate key) {
+        return key.addMilliseconds(-1);
+    }
+
 }
