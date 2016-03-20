@@ -175,7 +175,7 @@ public abstract class ARecursivePersistentPropertyChangeListener implements Prop
                     internalAddListenersToSourceHierarchy(e, value);
                     if (e instanceof AChoiceBeanPathElement) {
                         final AChoiceBeanPathElement choice = (AChoiceBeanPathElement) e;
-                        final List<Object> choiceValue = choice.getChoiceModifier().getValue();
+                        final List<?> choiceValue = choice.getChoiceModifier().getValue();
                         internalAddListenersToSourceHierarchy(e, choiceValue);
                     }
                 }
