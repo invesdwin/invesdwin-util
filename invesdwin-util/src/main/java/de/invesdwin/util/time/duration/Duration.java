@@ -17,6 +17,8 @@ import de.invesdwin.util.time.fdate.FTimeUnit;
 public class Duration extends Number implements Comparable<Object> {
 
     public static final Duration ZERO = new Duration(0, FTimeUnit.NANOSECONDS);
+    public static final Duration ONE_NANOSECOND = new Duration(1, FTimeUnit.NANOSECONDS);
+    public static final Duration ONE_MICROSECOND = new Duration(1, FTimeUnit.MICROSECONDS);
     public static final Duration ONE_MILLISECOND = new Duration(1, FTimeUnit.MILLISECONDS);
     public static final Duration ONE_SECOND = new Duration(1, FTimeUnit.SECONDS);
     public static final Duration ONE_MINUTE = new Duration(1, FTimeUnit.MINUTES);

@@ -10,8 +10,10 @@ import javax.annotation.concurrent.ThreadSafe;
 @ThreadSafe
 public class WrappedScheduledExecutorService extends WrappedExecutorService implements ScheduledExecutorService {
 
-    WrappedScheduledExecutorService(final java.util.concurrent.ScheduledThreadPoolExecutor delegate, final String name) {
+    WrappedScheduledExecutorService(final java.util.concurrent.ScheduledThreadPoolExecutor delegate,
+            final String name) {
         super(delegate, name);
+        withLogExceptions(true);
     }
 
     @Override
@@ -55,8 +57,8 @@ public class WrappedScheduledExecutorService extends WrappedExecutorService impl
     public ScheduledFuture<?> scheduleWithFixedDelay(final Runnable command, final long initialDelay, final long delay,
             final TimeUnit unit) {
         try {
-            return getWrappedInstance().scheduleWithFixedDelay(WrappedRunnable.newInstance(this, command),
-                    initialDelay, delay, unit);
+            return getWrappedInstance().scheduleWithFixedDelay(WrappedRunnable.newInstance(this, command), initialDelay,
+                    delay, unit);
         } catch (final InterruptedException e) {
             Thread.currentThread().interrupt();
             return new InterruptingFuture<Object>();
