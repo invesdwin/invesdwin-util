@@ -166,6 +166,14 @@ public class Decimal extends ADecimal<Decimal> {
         throw new UnsupportedOperationException();
     }
 
+    public static Decimal valueOf(final String value) {
+        if (value == null) {
+            return null;
+        } else {
+            return new Decimal(value);
+        }
+    }
+
     public static Decimal valueOf(final Double value) {
         if (value == null) {
             return null;
