@@ -22,7 +22,7 @@ import javax.annotation.concurrent.ThreadSafe;
 import de.invesdwin.norva.beanpath.impl.object.BeanObjectContext;
 import de.invesdwin.norva.beanpath.impl.object.BeanObjectProcessor;
 import de.invesdwin.norva.beanpath.spi.PathUtil;
-import de.invesdwin.norva.beanpath.spi.element.APropertyBeanPathElement;
+import de.invesdwin.norva.beanpath.spi.element.IPropertyBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.ITableColumnBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.visitor.SimpleBeanPathVisitorSupport;
 import de.invesdwin.util.assertions.Assertions;
@@ -56,7 +56,7 @@ public class DirtyTracker implements Serializable {
         final BeanObjectContext context = new BeanObjectContext(root);
         new BeanObjectProcessor(context, new SimpleBeanPathVisitorSupport(context) {
             @Override
-            public void visitProperty(final APropertyBeanPathElement e) {
+            public void visitProperty(final IPropertyBeanPathElement e) {
                 Assertions.assertThat(beanPaths.add(e.getBeanPath())).isTrue();
             }
         }).process();
@@ -163,7 +163,7 @@ public class DirtyTracker implements Serializable {
         final BeanObjectContext context = new BeanObjectContext(root);
         new BeanObjectProcessor(context, new SimpleBeanPathVisitorSupport(context) {
             @Override
-            public void visitProperty(final APropertyBeanPathElement e) {
+            public void visitProperty(final IPropertyBeanPathElement e) {
                 final String[] childBeanPathPrefixes = adjustBeanPathPrefixesForChildren(e.getBeanPath(),
                         beanPathPrefixes);
                 if (childBeanPathPrefixes != null && e.getAccessor().hasPublicGetter()
@@ -209,7 +209,7 @@ public class DirtyTracker implements Serializable {
         final BeanObjectContext context = new BeanObjectContext(root);
         new BeanObjectProcessor(context, new SimpleBeanPathVisitorSupport(context) {
             @Override
-            public void visitProperty(final APropertyBeanPathElement e) {
+            public void visitProperty(final IPropertyBeanPathElement e) {
                 final String[] childBeanPathPrefixes = adjustBeanPathPrefixesForChildren(e.getBeanPath(),
                         beanPathPrefixes);
                 if (childBeanPathPrefixes != null && e.getAccessor().hasPublicGetter()

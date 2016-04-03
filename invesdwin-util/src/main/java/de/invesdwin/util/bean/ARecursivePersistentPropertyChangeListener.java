@@ -18,7 +18,7 @@ import de.invesdwin.norva.beanpath.impl.object.BeanObjectContext;
 import de.invesdwin.norva.beanpath.impl.object.BeanObjectProcessor;
 import de.invesdwin.norva.beanpath.spi.PathUtil;
 import de.invesdwin.norva.beanpath.spi.element.AChoiceBeanPathElement;
-import de.invesdwin.norva.beanpath.spi.element.APropertyBeanPathElement;
+import de.invesdwin.norva.beanpath.spi.element.IPropertyBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.ITableColumnBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.visitor.SimpleBeanPathVisitorSupport;
 import de.invesdwin.util.assertions.Assertions;
@@ -169,7 +169,7 @@ public abstract class ARecursivePersistentPropertyChangeListener implements Prop
         final BeanObjectContext context = new BeanObjectContext(source);
         new BeanObjectProcessor(context, new SimpleBeanPathVisitorSupport(context) {
             @Override
-            public void visitProperty(final APropertyBeanPathElement e) {
+            public void visitProperty(final IPropertyBeanPathElement e) {
                 if (e.getAccessor().hasPublicGetter() && !(e instanceof ITableColumnBeanPathElement)) {
                     final Object value = e.getModifier().getValue();
                     internalAddListenersToSourceHierarchy(e, value);
@@ -183,7 +183,7 @@ public abstract class ARecursivePersistentPropertyChangeListener implements Prop
                 }
             }
 
-            private void internalAddListenersToSourceHierarchy(final APropertyBeanPathElement e,
+            private void internalAddListenersToSourceHierarchy(final IPropertyBeanPathElement e,
                     final Object newSource) {
                 if (newSource instanceof Iterable) {
                     final Iterable<?> it = (Iterable<?>) newSource;
@@ -195,7 +195,7 @@ public abstract class ARecursivePersistentPropertyChangeListener implements Prop
                 }
             }
 
-            private void internalAddListenersToSourceHierarchySimpleValue(final APropertyBeanPathElement e,
+            private void internalAddListenersToSourceHierarchySimpleValue(final IPropertyBeanPathElement e,
                     final Object value) {
                 if (value != null && value instanceof APropertyChangeSupported) {
                     Assertions.assertThat(PathUtil.isShallowBeanPath(e.getBeanPath())).isTrue();

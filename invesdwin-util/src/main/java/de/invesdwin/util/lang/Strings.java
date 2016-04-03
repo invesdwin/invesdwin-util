@@ -319,18 +319,6 @@ public final class Strings extends AStringsStaticFacade {
         return false;
     }
 
-    public static boolean equalsAny(final String string, final String... searchStrings) {
-        if (string == null) {
-            return false;
-        }
-        for (final String search : searchStrings) {
-            if (string.equals(search)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     /**
      * "a/b/c.txt" with suffix "_1" results in "a/b/c_1.txt"
      */
