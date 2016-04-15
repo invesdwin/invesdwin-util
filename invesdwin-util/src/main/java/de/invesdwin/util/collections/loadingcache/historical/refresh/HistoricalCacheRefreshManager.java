@@ -47,7 +47,8 @@ public final class HistoricalCacheRefreshManager {
     }
 
     public static boolean maybeRefresh(final Duration refreshInterval) {
-        if (new Duration(lastRefresh).isGreaterThanOrEqualTo(refreshInterval)) {
+        if (new Duration(lastRefresh).isGreaterThanOrEqualTo(refreshInterval)
+                || !FDate.isSameDay(lastRefresh, new FDate())) {
             refresh();
             return true;
         }
