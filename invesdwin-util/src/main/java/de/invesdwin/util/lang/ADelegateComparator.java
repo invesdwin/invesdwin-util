@@ -79,7 +79,7 @@ public abstract class ADelegateComparator<E> implements Comparator<Object> {
         if (list == null || list.size() == 0) {
             return;
         }
-        Comparator<Object> comparator;
+        final Comparator<Object> comparator;
         if (ascending) {
             comparator = this;
         } else {
@@ -97,7 +97,7 @@ public abstract class ADelegateComparator<E> implements Comparator<Object> {
             return;
         }
 
-        Comparator<Object> comparator;
+        final Comparator<Object> comparator;
         if (ascending) {
             comparator = this;
         } else {
@@ -125,7 +125,7 @@ public abstract class ADelegateComparator<E> implements Comparator<Object> {
             return;
         }
 
-        Comparator<Object> comparator;
+        final Comparator<Object> comparator;
         if (ascending) {
             comparator = this;
         } else {

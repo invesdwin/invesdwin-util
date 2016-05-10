@@ -84,7 +84,7 @@ public class FDateBuilder {
         final int minuteOfHour = Objects.defaultIfNull(minutes, 0);
         final int secondOfMinute = Objects.defaultIfNull(seconds, 0);
         final int millisOfSecond = Objects.defaultIfNull(milliseconds, 0);
-        DateTimeZone zone;
+        final DateTimeZone zone;
         if (timeZone != null) {
             zone = DateTimeZone.forTimeZone(timeZone);
         } else {

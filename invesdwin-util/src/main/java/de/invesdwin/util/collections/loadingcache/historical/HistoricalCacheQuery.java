@@ -428,7 +428,7 @@ public class HistoricalCacheQuery<V> {
         final Optional<V> optionalValue = Optional.fromNullable(value);
         boolean firstTry = true;
         while (true) {
-            int shiftBackUnits;
+            final int shiftBackUnits;
             if (firstTry) {
                 shiftBackUnits = 0;
             } else {

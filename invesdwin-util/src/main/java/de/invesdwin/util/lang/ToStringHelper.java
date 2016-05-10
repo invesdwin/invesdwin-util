@@ -115,7 +115,7 @@ public final class ToStringHelper {
     private StringBuilder checkNameAndAppend(final String name) {
         org.assertj.core.api.Assertions.assertThat(name).isNotNull();
         final StringBuilder append = maybeAppendSeparator().append(name);
-        String colon;
+        final String colon;
         if (multiline) {
             colon = " = ";
         } else {
