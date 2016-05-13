@@ -170,7 +170,7 @@ public abstract class ARecursivePersistentPropertyChangeListener implements Prop
         new BeanObjectProcessor(context, new SimpleBeanPathVisitorSupport(context) {
             @Override
             public void visitProperty(final IPropertyBeanPathElement e) {
-                if (e.getAccessor().hasPublicGetter() && !(e instanceof ITableColumnBeanPathElement)) {
+                if (e.getAccessor().hasPublicGetterOrField() && !(e instanceof ITableColumnBeanPathElement)) {
                     final Object value = e.getModifier().getValue();
                     internalAddListenersToSourceHierarchy(e, value);
                     if (e instanceof AChoiceBeanPathElement) {

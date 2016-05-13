@@ -30,6 +30,7 @@ public final class Objects extends AObjectsStaticFacade {
     static {
         //datanucleus enhancer fix
         REFLECTION_EXCLUDED_FIELDS.add("jdoDetachedState");
+        REFLECTION_EXCLUDED_FIELDS.add("class");
         //use FST in BeanPathObjects as deepClone fallback instead of java serialization
         BeanPathObjects.setDeepCloneProvider(new IDeepCloneProvider() {
             @Override

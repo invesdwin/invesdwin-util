@@ -110,6 +110,31 @@ public class AValueObjectTest {
     }
 
     @Test
+    public void testShallowCloneReflectiveOnFields() {
+        final FieldCloneableVO vo = new FieldCloneableVO();
+        vo.value = 5;
+        vo.mutableValue = new MutableInt(5);
+        vo.cloneableClass = new FieldCloneableClass();
+        vo.cloneableClass.otherValue = 8;
+        vo.cloneableVO = new FieldCloneableVO();
+        vo.cloneableVO.value = 6;
+        final FieldCloneableVO voClone = (FieldCloneableVO) vo.shallowCloneReflective();
+        Assertions.assertThat(vo).isNotSameAs(voClone);
+        //refletive clone does not clone constants
+        Assertions.assertThat(vo.value).isSameAs(voClone.value);
+        Assertions.assertThat(vo.value).isEqualTo(voClone.value);
+        //also it does not clone classes that do not implement cloneable
+        Assertions.assertThat(vo.mutableValue).isSameAs(voClone.mutableValue);
+        Assertions.assertThat(vo.mutableValue).isEqualTo(voClone.mutableValue);
+        //but it does cloneables
+        Assertions.assertThat(vo.cloneableClass).isNotSameAs(voClone.cloneableClass);
+        Assertions.assertThat(vo.cloneableClass).isEqualTo(voClone.cloneableClass);
+        //and value objects
+        Assertions.assertThat(vo.cloneableVO).isNotSameAs(voClone.cloneableVO);
+        Assertions.assertThat(vo.cloneableVO).isEqualTo(voClone.cloneableVO);
+    }
+
+    @Test
     public void testMergeFrom() {
         final Integer value = 5;
         final CloneableVO vo = new CloneableVO();
@@ -219,6 +244,45 @@ public class AValueObjectTest {
         public void setOtherValue(final Integer otherValue) {
             this.otherValue = otherValue;
         }
+
+        @Override
+        public Object clone() {
+            try {
+                return super.clone();
+            } catch (final CloneNotSupportedException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.reflectionHashCode(this);
+        }
+
+        @Override
+        public boolean equals(final Object obj) {
+            return Objects.reflectionEquals(this, obj);
+        }
+    }
+
+    public static class FieldCloneableVO extends AValueObject {
+        //CHECKSTYLE:OFF
+        public Integer value;
+
+        public MutableInt mutableValue;
+
+        public FieldCloneableClass cloneableClass;
+
+        public FieldCloneableVO cloneableVO;
+        //CHECKSTYLE:ON
+
+    }
+
+    public static class FieldCloneableClass implements Cloneable, Serializable {
+        //CHECKSTYLE:OFF
+        public FieldCloneableVO value;
+        public Integer otherValue;
+        //CHECKSTYLE:ON
 
         @Override
         public Object clone() {

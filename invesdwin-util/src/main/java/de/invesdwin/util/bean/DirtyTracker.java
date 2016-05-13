@@ -166,7 +166,7 @@ public class DirtyTracker implements Serializable {
             public void visitProperty(final IPropertyBeanPathElement e) {
                 final String[] childBeanPathPrefixes = adjustBeanPathPrefixesForChildren(e.getBeanPath(),
                         beanPathPrefixes);
-                if (childBeanPathPrefixes != null && e.getAccessor().hasPublicGetter()
+                if (childBeanPathPrefixes != null && e.getAccessor().hasPublicGetterOrField()
                         && !(e instanceof ITableColumnBeanPathElement)) {
                     final Object value = e.getModifier().getValue();
                     if (value != null && value instanceof AValueObject) {
@@ -212,7 +212,7 @@ public class DirtyTracker implements Serializable {
             public void visitProperty(final IPropertyBeanPathElement e) {
                 final String[] childBeanPathPrefixes = adjustBeanPathPrefixesForChildren(e.getBeanPath(),
                         beanPathPrefixes);
-                if (childBeanPathPrefixes != null && e.getAccessor().hasPublicGetter()
+                if (childBeanPathPrefixes != null && e.getAccessor().hasPublicGetterOrField()
                         && !(e instanceof ITableColumnBeanPathElement)) {
                     final Object value = e.getModifier().getValue();
                     if (value != null && value instanceof AValueObject) {

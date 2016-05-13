@@ -109,4 +109,12 @@ public final class Throwables extends AThrowablesStaticFacade {
         return validCause;
     }
 
+    /**
+     * Prints the first stack trace element with the exception info
+     */
+    public static String getShortStackTrace(final Throwable e) {
+        final StackTraceElement stackTraceElement = e.getStackTrace()[0];
+        return e.toString() + " -> " + stackTraceElement;
+    }
+
 }

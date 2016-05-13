@@ -1,15 +1,11 @@
 package de.invesdwin.util.bean;
 
-import java.beans.PropertyDescriptor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashSet;
 import java.util.Set;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 import javax.persistence.Transient;
-
-import org.apache.commons.beanutils.BeanUtilsBean;
 
 import com.mysema.query.annotations.QuerySupertype;
 
@@ -20,9 +16,9 @@ import de.invesdwin.norva.beanpath.impl.object.BeanObjectProcessor;
 import de.invesdwin.norva.beanpath.spi.element.IPropertyBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.visitor.SimpleBeanPathVisitorSupport;
 import de.invesdwin.norva.marker.ISerializableValueObject;
+import de.invesdwin.util.bean.internal.ValueObjectMerge;
 import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.lang.Objects;
-import de.invesdwin.util.lang.Reflections;
 
 /**
  * ValueObjects are non persistent Entities. They do not contain any logic, but they contain data and verifications.
@@ -41,13 +37,6 @@ import de.invesdwin.util.lang.Reflections;
 public abstract class AValueObject extends APropertyChangeSupported
         implements Comparable<Object>, Cloneable, ISerializableValueObject {
 
-    /**
-     * @see <a href=
-     *      "http://apache-commons.680414.n4.nabble.com/Setting-null-on-Integer-property-via-BeanUtils-setProperty-td955955.html">
-     *      Null handling</a>
-     */
-    @GuardedBy("this")
-    private static BeanUtilsBean beanUtilsBean;
     @GuardedBy("this")
     @Transient
     private DirtyTracker dirtyTracker;
@@ -55,15 +44,6 @@ public abstract class AValueObject extends APropertyChangeSupported
     static {
         Objects.REFLECTION_EXCLUDED_FIELDS.add("beanUtilsBean");
         Objects.REFLECTION_EXCLUDED_FIELDS.add("dirtyTracker");
-    }
-
-    private static synchronized BeanUtilsBean getBeanUtilsBean() {
-        if (beanUtilsBean == null) {
-            beanUtilsBean = new BeanUtilsBean();
-            //Set defaults for BeanUtils.
-            beanUtilsBean.getConvertUtils().register(false, true, 0);
-        }
-        return beanUtilsBean;
     }
 
     @Override
@@ -153,57 +133,7 @@ public abstract class AValueObject extends APropertyChangeSupported
 
     protected void innerMergeFrom(final Object o, final boolean overwrite, final boolean clone,
             final Set<String> recursionFilter) {
-        final BeanUtilsBean beanUtilsBean = getBeanUtilsBean();
-        for (final PropertyDescriptor thereDesc : beanUtilsBean.getPropertyUtils().getPropertyDescriptors(o)) {
-            try {
-                final String propertyName = thereDesc.getName();
-                if (clone && (Objects.REFLECTION_EXCLUDED_FIELDS.contains(propertyName))) {
-                    continue;
-                }
-                Object valueThere = thereDesc.getReadMethod().invoke(o);
-                if (clone && valueThere != null) {
-                    if (valueThere instanceof AValueObject) {
-                        final AValueObject cValueThere = (AValueObject) valueThere;
-                        valueThere = cValueThere.shallowClone();
-                    } else /* if (valueThere instanceof Cloneable) */ {
-                        valueThere = Reflections.method("clone").in(valueThere).invoke();
-                    }
-                }
-                if (valueThere != null) {
-                    final PropertyDescriptor thisDesc = beanUtilsBean.getPropertyUtils().getPropertyDescriptor(this,
-                            propertyName);
-                    if (thisDesc == null) {
-                        continue;
-                    }
-
-                    copyValue(overwrite, clone, recursionFilter, thisDesc, thereDesc, valueThere);
-                }
-            } catch (final Throwable e) { //SUPPRESS CHECKSTYLE empty statement
-                //ignore (no setter for property class etc, or getter without setter)
-            }
-        }
-    }
-
-    private void copyValue(final boolean overwrite, final boolean clone, final Set<String> recursionFilter,
-            final PropertyDescriptor thisDesc, final PropertyDescriptor thereDesc, final Object valueThere)
-                    throws IllegalAccessException, InvocationTargetException {
-        boolean copy = true;
-        final Object valueHere = thisDesc.getReadMethod().invoke(this);
-        if (valueHere != null) {
-            if (valueHere instanceof AValueObject) {
-                final AValueObject vo = (AValueObject) valueHere;
-                if (recursionFilter.add(Objects.toStringIdentity(vo))) {
-                    vo.innerMergeFrom(valueThere, clone, overwrite, recursionFilter);
-                }
-                copy = clone;
-            } else {
-                copy = overwrite;
-            }
-        }
-
-        if (copy) {
-            getBeanUtilsBean().copyProperty(this, thereDesc.getName(), valueThere);
-        }
+        new ValueObjectMerge(this, overwrite, clone, new HashSet<String>()).merge(o);
     }
 
     /**
