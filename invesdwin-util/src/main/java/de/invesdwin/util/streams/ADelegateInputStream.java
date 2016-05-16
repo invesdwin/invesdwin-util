@@ -103,10 +103,14 @@ public abstract class ADelegateInputStream extends InputStream {
             readStackTrace.fillInStackTrace();
         }
         final int read = getDelegate().read();
-        if (read == -1) {
+        if (shouldCloseOnMinus1Read() && read == -1) {
             close();
         }
         return read;
+    }
+
+    protected boolean shouldCloseOnMinus1Read() {
+        return true;
     }
 
 }
