@@ -135,7 +135,7 @@ public abstract class AHistoricalCache<V> {
      * This is only for internal purposes, use extractKey instead.
      */
     protected FDate innerExtractKey(final FDate key, final V value) {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException(getClass().getSimpleName());
     }
 
     protected final FDate calculatePreviousKey(final FDate key) {
@@ -164,14 +164,14 @@ public abstract class AHistoricalCache<V> {
      * This is only for internal purposes, use calculatePreviousKey instead.
      */
     protected FDate innerCalculatePreviousKey(final FDate key) {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException(getClass().getSimpleName());
     }
 
     /**
      * This is only for internal purposes, use calculateNextKey instead.
      */
     protected FDate innerCalculateNextKey(final FDate key) {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException(getClass().getSimpleName());
     }
 
     /**

@@ -7,12 +7,12 @@ import javax.annotation.concurrent.ThreadSafe;
 import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 
 @ThreadSafe
-public final class UniqueNameGenerator {
+public class UniqueNameGenerator {
 
     private final ALoadingCache<String, AtomicInteger> name_sequencenumber = new ALoadingCache<String, AtomicInteger>() {
         @Override
         protected AtomicInteger loadValue(final String key) {
-            return new AtomicInteger();
+            return new AtomicInteger(getInitialValue());
         }
     };
 
@@ -27,6 +27,10 @@ public final class UniqueNameGenerator {
         } else {
             return Strings.addSuffixToFileName(name, "_" + (sequenceNumberIncremented - 1));
         }
+    }
+
+    protected int getInitialValue() {
+        return 0;
     }
 
 }
