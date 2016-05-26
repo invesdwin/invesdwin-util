@@ -2,7 +2,6 @@ package de.invesdwin.util.time;
 
 import javax.annotation.concurrent.Immutable;
 
-import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.time.duration.Duration;
 import de.invesdwin.util.time.fdate.FDate;
 
@@ -13,10 +12,16 @@ public class TimeRange {
     private final FDate to;
 
     public TimeRange(final FDate from, final FDate to) {
-        Assertions.checkNotNull(from);
-        Assertions.checkNotNull(to);
-        this.from = from;
-        this.to = to;
+        if (from == null) {
+            this.from = FDate.MIN_DATE;
+        } else {
+            this.from = from;
+        }
+        if (to == null) {
+            this.to = FDate.MAX_DATE;
+        } else {
+            this.to = to;
+        }
     }
 
     public FDate getFrom() {
