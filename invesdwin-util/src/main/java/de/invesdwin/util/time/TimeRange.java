@@ -12,16 +12,8 @@ public class TimeRange {
     private final FDate to;
 
     public TimeRange(final FDate from, final FDate to) {
-        if (from == null) {
-            this.from = FDate.MIN_DATE;
-        } else {
-            this.from = from;
-        }
-        if (to == null) {
-            this.to = FDate.MAX_DATE;
-        } else {
-            this.to = to;
-        }
+        this.from = from;
+        this.to = to;
     }
 
     public FDate getFrom() {
@@ -39,6 +31,22 @@ public class TimeRange {
     @Override
     public String toString() {
         return getFrom() + " -> " + getTo() + " => " + getDuration();
+    }
+
+    public TimeRange asNonNull(final FDate fromNullReplacement, final FDate toNullReplacement) {
+        FDate usedFrom;
+        if (from == null) {
+            usedFrom = fromNullReplacement;
+        } else {
+            usedFrom = from;
+        }
+        FDate usedTo;
+        if (to == null) {
+            usedTo = toNullReplacement;
+        } else {
+            usedTo = to;
+        }
+        return new TimeRange(usedFrom, usedTo);
     }
 
 }
