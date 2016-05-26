@@ -122,4 +122,20 @@ public class FDateTest {
         Assertions.assertThat(FDate.isSameMillisecond(startDate, lastDate)).isTrue();
     }
 
+    @Test
+    public void testFirstWeekdayOfMonthFromSundayFirst() {
+        final FDate sundayFirst = FDateBuilder.newDate(2016, 5, 1);
+        Assertions.assertThat(sundayFirst.getFWeekday()).isEqualTo(FWeekday.Sunday);
+        final FDate mondayInMay = sundayFirst.getFirstWeekdayOfMonth(FWeekday.Monday);
+        Assertions.assertThat(mondayInMay).isEqualTo(FDateBuilder.newDate(2016, 5, 2));
+    }
+
+    @Test
+    public void testFirstWeekdayOfMonthFromSaturdayLast() {
+        final FDate sundayFirst = FDateBuilder.newDate(2016, 4, 30);
+        Assertions.assertThat(sundayFirst.getFWeekday()).isEqualTo(FWeekday.Saturday);
+        final FDate mondayInMay = sundayFirst.getFirstWeekdayOfMonth(FWeekday.Monday);
+        Assertions.assertThat(mondayInMay).isEqualTo(FDateBuilder.newDate(2016, 4, 4));
+    }
+
 }

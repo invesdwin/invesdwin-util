@@ -876,4 +876,13 @@ public final class FDate implements IDate, Serializable, Cloneable, Comparable<O
     }
     //CHECKSTYLE:ON
 
+    public FDate getFirstWeekdayOfMonth(final FWeekday weekday) {
+        final FDate firstWeekDay = withoutTime().setDay(1).setFWeekday(weekday);
+        if (!FDate.isSameMonth(this, firstWeekDay)) {
+            return firstWeekDay.addDays(FTimeUnit.DAYS_IN_WEEK);
+        } else {
+            return firstWeekDay;
+        }
+    }
+
 }
