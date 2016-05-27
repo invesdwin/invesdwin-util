@@ -30,6 +30,10 @@ import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.lang.ADelegateComparator;
 import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.time.duration.Duration;
+import de.jollyday.HolidayCalendar;
+import de.jollyday.HolidayManager;
+import de.jollyday.HolidayType;
+import de.jollyday.ManagerParameters;
 
 /**
  * FDate stands for an immutable Fast Date implementation by utilizing heavy caching.
@@ -633,6 +637,7 @@ public final class FDate implements IDate, Serializable, Cloneable, Comparable<O
                         spot = endFinal;
                     }
                 };
+
             }
 
         }
@@ -883,6 +888,21 @@ public final class FDate implements IDate, Serializable, Cloneable, Comparable<O
         } else {
             return firstWeekDay;
         }
+    }
+
+    public FDate getFirstWorkdayOfMonth(final FDate key, final HolidayCalendar holidayCalendar) {
+        FDate firstWorkdayDay = withoutTime().setDay(1);
+        final HolidayManager holidayManager;
+        if (holidayCalendar != null) {
+            holidayManager = HolidayManager.getInstance(ManagerParameters.create(holidayCalendar));
+        } else {
+            holidayManager = null;
+        }
+        while (firstWorkdayDay.getFWeekday().isWeekend() || (holidayManager != null
+                && holidayManager.isHoliday(firstWorkdayDay.calendarValue(), HolidayType.OFFICIAL_HOLIDAY))) {
+            firstWorkdayDay = firstWorkdayDay.addDays(1);
+        }
+        return firstWorkdayDay;
     }
 
 }

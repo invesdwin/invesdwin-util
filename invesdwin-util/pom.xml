@@ -36,6 +36,7 @@
 		<version.querydsl>3.6.1</version.querydsl>
 		<version.commons-collections>3.2.2</version.commons-collections>
 		<version.commons-beanutils>1.9.2</version.commons-beanutils>
+		<version.jollyday>0.5.1</version.jollyday>
 
 		<version.invesdwin-bom>1.0.0-SNAPSHOT</version.invesdwin-bom>
 	</properties>
@@ -128,6 +129,11 @@
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-context</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>de.jollyday</groupId>
+			<artifactId>jollyday</artifactId>
+			<version>${version.jollyday}</version>
 		</dependency>
 
 		<dependency>
