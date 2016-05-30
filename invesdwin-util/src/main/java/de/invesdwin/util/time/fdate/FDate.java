@@ -892,17 +892,41 @@ public final class FDate implements IDate, Serializable, Cloneable, Comparable<O
 
     public FDate getFirstWorkdayOfMonth(final FDate key, final HolidayCalendar holidayCalendar) {
         FDate firstWorkdayDay = withoutTime().setDay(1);
-        final HolidayManager holidayManager;
-        if (holidayCalendar != null) {
-            holidayManager = HolidayManager.getInstance(ManagerParameters.create(holidayCalendar));
-        } else {
-            holidayManager = null;
-        }
-        while (firstWorkdayDay.getFWeekday().isWeekend() || (holidayManager != null
-                && holidayManager.isHoliday(firstWorkdayDay.calendarValue(), HolidayType.OFFICIAL_HOLIDAY))) {
+        while (firstWorkdayDay.getFWeekday().isWeekend() || firstWorkdayDay.isHoliday(holidayCalendar)) {
             firstWorkdayDay = firstWorkdayDay.addDays(1);
         }
         return firstWorkdayDay;
+    }
+
+    public boolean isHoliday(final HolidayCalendar holidayCalendar) {
+        if (holidayCalendar != null) {
+            final HolidayManager holidayManager = HolidayManager.getInstance(ManagerParameters.create(holidayCalendar));
+            return holidayManager.isHoliday(calendarValue(), HolidayType.OFFICIAL_HOLIDAY);
+        } else {
+            return false;
+        }
+    }
+
+    public FDate addWorkdays(final int workdays, final HolidayCalendar holidayCalendar) {
+        int workdaysToShift = Math.abs(workdays);
+        if (getFWeekday().isWeekend() || isHoliday(holidayCalendar)) {
+            workdaysToShift--;
+        }
+        final int shiftUnit;
+        if (workdays >= 0) {
+            shiftUnit = 1;
+        } else {
+            shiftUnit = -1;
+        }
+        int workdaysShifted = 0;
+        FDate cur = this;
+        while (workdaysShifted < workdaysToShift) {
+            if (!cur.getFWeekday().isWeekend() && !cur.isHoliday(holidayCalendar)) {
+                workdaysShifted++;
+            }
+            cur = cur.addDays(shiftUnit);
+        }
+        return cur;
     }
 
 }

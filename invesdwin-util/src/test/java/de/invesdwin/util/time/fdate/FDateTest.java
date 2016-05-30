@@ -10,6 +10,7 @@ import org.junit.Test;
 
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.time.TimeZones;
+import de.jollyday.HolidayCalendar;
 
 @NotThreadSafe
 public class FDateTest {
@@ -124,9 +125,9 @@ public class FDateTest {
 
     @Test
     public void testFirstWeekdayOfMonthFromSundayFirst() {
-        final FDate sundayFirst = FDateBuilder.newDate(2016, 5, 1);
-        Assertions.assertThat(sundayFirst.getFWeekday()).isEqualTo(FWeekday.Sunday);
-        final FDate mondayInMay = sundayFirst.getFirstWeekdayOfMonth(FWeekday.Monday);
+        final FDate saturdayLast = FDateBuilder.newDate(2016, 5, 1);
+        Assertions.assertThat(saturdayLast.getFWeekday()).isEqualTo(FWeekday.Sunday);
+        final FDate mondayInMay = saturdayLast.getFirstWeekdayOfMonth(FWeekday.Monday);
         Assertions.assertThat(mondayInMay).isEqualTo(FDateBuilder.newDate(2016, 5, 2));
     }
 
@@ -136,6 +137,22 @@ public class FDateTest {
         Assertions.assertThat(sundayFirst.getFWeekday()).isEqualTo(FWeekday.Saturday);
         final FDate mondayInMay = sundayFirst.getFirstWeekdayOfMonth(FWeekday.Monday);
         Assertions.assertThat(mondayInMay).isEqualTo(FDateBuilder.newDate(2016, 4, 4));
+    }
+
+    @Test
+    public void testAddWorkdays() {
+        final FDate saturday = FDateBuilder.newDate(2016, 4, 30);
+        Assertions.assertThat(saturday.addWorkdays(2, null)).isEqualTo(FDateBuilder.newDate(2016, 5, 3));
+        Assertions.assertThat(saturday.addWorkdays(2, HolidayCalendar.GERMANY))
+                .isEqualTo(FDateBuilder.newDate(2016, 5, 3));
+        Assertions.assertThat(saturday.addWorkdays(-2, null)).isEqualTo(FDateBuilder.newDate(2016, 4, 28));
+        Assertions.assertThat(saturday.addWorkdays(-2, HolidayCalendar.GERMANY))
+                .isEqualTo(FDateBuilder.newDate(2016, 4, 28));
+
+        final FDate wednesday = FDateBuilder.newDate(2016, 5, 4);
+        Assertions.assertThat(wednesday.addWorkdays(5, null)).isEqualTo(FDateBuilder.newDate(2016, 5, 11));
+        Assertions.assertThat(wednesday.addWorkdays(5, HolidayCalendar.GERMANY))
+                .isEqualTo(FDateBuilder.newDate(2016, 5, 12));
     }
 
 }

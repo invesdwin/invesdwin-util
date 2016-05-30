@@ -228,4 +228,8 @@ public enum FWeekday {
 
     public abstract boolean isWeekend();
 
+    public boolean isWorkday() {
+        return !isWeekend();
+    }
+
 }
