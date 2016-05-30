@@ -34,13 +34,13 @@ public class TimeRange {
     }
 
     public TimeRange asNonNull(final FDate fromNullReplacement, final FDate toNullReplacement) {
-        FDate usedFrom;
+        final FDate usedFrom;
         if (from == null) {
             usedFrom = fromNullReplacement;
         } else {
             usedFrom = from;
         }
-        FDate usedTo;
+        final FDate usedTo;
         if (to == null) {
             usedTo = toNullReplacement;
         } else {
