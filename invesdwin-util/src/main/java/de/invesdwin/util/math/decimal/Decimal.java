@@ -10,6 +10,7 @@ import java.util.function.Function;
 
 import javax.annotation.concurrent.Immutable;
 
+import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.math.decimal.internal.impl.ADecimalImpl;
 import de.invesdwin.util.math.decimal.internal.impl.DoubleDecimalImplFactory;
 import de.invesdwin.util.math.decimal.internal.impl.IDecimalImplFactory;
@@ -214,7 +215,12 @@ public class Decimal extends ADecimal<Decimal> {
 
     public String toFormattedString(final String format) {
         final DecimalFormat dc = new DecimalFormat(format, DEFAULT_DECIMAL_FORMAT_SYMBOLS);
-        return dc.format(this);
+        final String str = dc.format(this);
+        if (str.matches("-0[\\.,](0)*")) {
+            return Strings.removeStart(str, "-");
+        } else {
+            return str;
+        }
     }
 
 }
