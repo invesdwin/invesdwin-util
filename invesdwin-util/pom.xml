@@ -267,6 +267,7 @@
 					<excludesRegex>
 						<!-- apache license -->
 						<param>joda-time.*</param>
+						<param>de.jollyday.*</param>
 					</excludesRegex>
 				</configuration>
 			</plugin>
