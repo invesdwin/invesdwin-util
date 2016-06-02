@@ -37,13 +37,18 @@ public class BigDecimalDecimalImplFactory implements IDecimalImplFactory<BigDeci
         } else if (number instanceof BigDecimal) {
             final BigDecimal cNumber = (BigDecimal) number;
             return cNumber;
-        } else {
-            try {
-                //first use string to prevent inprecision of double conversion, which might break the scale
-                return new BigDecimal(number.toString());
-            } catch (final NumberFormatException e) {
-                return new BigDecimal(number.doubleValue(), BigDecimals.DEFAULT_MATH_CONTEXT);
+        } else if (number instanceof Double) {
+            final Double d = (Double) number;
+            if (d.isNaN() || d.isInfinite()) {
+                //fix NumberFormatException: Infinite or NaN
+                return BigDecimal.ZERO;
             }
+        }
+        try {
+            //first use string to prevent inprecision of double conversion, which might break the scale
+            return new BigDecimal(number.toString());
+        } catch (final NumberFormatException e) {
+            return new BigDecimal(number.doubleValue(), BigDecimals.DEFAULT_MATH_CONTEXT);
         }
     }
 
