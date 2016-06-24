@@ -41,6 +41,13 @@ import de.jollyday.ManagerParameters;
 @ThreadSafe
 public final class FDate implements IDate, Serializable, Cloneable, Comparable<Object> {
 
+    public static final ADelegateComparator<FDate> COMPARATOR = new ADelegateComparator<FDate>() {
+        @Override
+        protected Comparable<?> getCompareCriteria(final FDate e) {
+            return e;
+        }
+    };
+
     /**
      * Somehow leveldb-jni does not like going higher than this year...
      */
