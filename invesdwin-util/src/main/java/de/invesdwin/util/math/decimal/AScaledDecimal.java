@@ -42,7 +42,7 @@ public abstract class AScaledDecimal<T extends AScaledDecimal<T, S>, S extends I
     protected abstract T newValueCopy(Decimal value, S scale);
 
     @Override
-    protected ScaledDecimalDelegateImpl getImpl() {
+    public ScaledDecimalDelegateImpl getImpl() {
         if (impl == null) {
             impl = new ScaledDecimalDelegateImpl(this, getScaledValue().getImpl());
         }

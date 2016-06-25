@@ -35,8 +35,8 @@ public class DfpDecimalImpl extends ADecimalImpl<DfpDecimalImpl, Dfp> {
     }
 
     @Override
-    protected int internalCompareTo(final ADecimal<?> defaultRoundedOther) {
-        final Dfp dfpOther = defaultRoundedOther.dfpValue();
+    protected int internalCompareTo(final ADecimal<?> decimalOther) {
+        final Dfp dfpOther = decimalOther.round().dfpValue();
         if (getDefaultRoundedValue().greaterThan(dfpOther)) {
             return 1;
         } else if (getDefaultRoundedValue().lessThan(dfpOther)) {

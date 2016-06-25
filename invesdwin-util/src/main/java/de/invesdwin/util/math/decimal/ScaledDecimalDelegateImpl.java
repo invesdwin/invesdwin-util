@@ -89,7 +89,7 @@ class ScaledDecimalDelegateImpl extends ADecimalImpl {
     }
 
     @Override
-    protected int internalCompareTo(final ADecimal defaultRoundedOther) {
+    protected int internalCompareTo(final ADecimal decimalOther) {
         throw new UnsupportedOperationException();
     }
 

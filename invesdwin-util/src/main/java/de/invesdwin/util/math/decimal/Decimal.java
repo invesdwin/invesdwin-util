@@ -106,7 +106,7 @@ public class Decimal extends ADecimal<Decimal> {
     }
 
     @Override
-    protected ADecimalImpl getImpl() {
+    public ADecimalImpl getImpl() {
         return impl;
     }
 

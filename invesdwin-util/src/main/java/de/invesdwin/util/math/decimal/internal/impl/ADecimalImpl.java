@@ -21,8 +21,8 @@ import de.invesdwin.util.math.decimal.Decimal;
  * This class does not extend AValueObject to improve performance by skipping the bean property aspect.
  */
 @ThreadSafe
-public abstract class ADecimalImpl<E extends ADecimalImpl<E, V>, V> implements Comparable<Object>, Serializable,
-IDecimal {
+public abstract class ADecimalImpl<E extends ADecimalImpl<E, V>, V>
+        implements Comparable<Object>, Serializable, IDecimal {
 
     private final V value;
 
@@ -137,11 +137,10 @@ IDecimal {
         } else {
             return 1;
         }
-        final ADecimal<?> roundedOther = decimalOther.round();
-        return internalCompareTo(roundedOther);
+        return internalCompareTo(decimalOther);
     }
 
-    protected abstract int internalCompareTo(ADecimal<?> defaultRoundedOther);
+    protected abstract int internalCompareTo(ADecimal<?> other);
 
     @Override
     public String toString() {

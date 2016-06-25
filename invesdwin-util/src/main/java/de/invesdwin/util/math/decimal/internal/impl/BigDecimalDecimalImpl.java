@@ -35,8 +35,8 @@ public class BigDecimalDecimalImpl extends ADecimalImpl<BigDecimalDecimalImpl, B
     }
 
     @Override
-    protected int internalCompareTo(final ADecimal<?> defaultRoundedOther) {
-        return getDefaultRoundedValue().compareTo(BigDecimalDecimalImplFactory.toBigDecimal(defaultRoundedOther));
+    protected int internalCompareTo(final ADecimal<?> decimalOther) {
+        return getDefaultRoundedValue().compareTo(BigDecimalDecimalImplFactory.toBigDecimal(decimalOther.round()));
     }
 
     @Override
@@ -108,10 +108,8 @@ public class BigDecimalDecimalImpl extends ADecimalImpl<BigDecimalDecimalImpl, B
 
     @Override
     public BigDecimalDecimalImpl multiply(final Number multiplicant) {
-        return newValueCopy(
-                getValue().multiply(BigDecimalDecimalImplFactory.toBigDecimal(multiplicant),
-                        BigDecimals.DEFAULT_MATH_CONTEXT)).round(Decimal.DEFAULT_ROUNDING_SCALE,
-                                Decimal.DEFAULT_ROUNDING_MODE);
+        return newValueCopy(getValue().multiply(BigDecimalDecimalImplFactory.toBigDecimal(multiplicant),
+                BigDecimals.DEFAULT_MATH_CONTEXT)).round(Decimal.DEFAULT_ROUNDING_SCALE, Decimal.DEFAULT_ROUNDING_MODE);
     }
 
     @Override

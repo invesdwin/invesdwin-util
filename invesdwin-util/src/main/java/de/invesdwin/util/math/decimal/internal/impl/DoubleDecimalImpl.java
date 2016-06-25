@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.MathContext;
 import java.math.RoundingMode;
+import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Locale;
 
@@ -11,14 +12,27 @@ import javax.annotation.concurrent.ThreadSafe;
 
 import org.apache.commons.math3.dfp.Dfp;
 
+import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.error.UnknownArgumentException;
+import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.math.decimal.ADecimal;
 import de.invesdwin.util.math.decimal.Decimal;
 
 @ThreadSafe
 public class DoubleDecimalImpl extends ADecimalImpl<DoubleDecimalImpl, Double> {
 
+    private static final Double FIRST_ABOVE_ZERO = 0.000000001;
+    private static final Double FIRST_BELOW_ZERO = -0.000000001;
     private static final Double ZERO = 0d;
+
+    static {
+        //ensure rounding performance fix uses correct scale
+        final NumberFormat df = new DecimalFormat("0.##########################");
+        Assertions.assertThat(Strings.countMatches(df.format(FIRST_ABOVE_ZERO), "0"))
+                .isEqualTo(ADecimal.DEFAULT_ROUNDING_SCALE);
+        Assertions.assertThat(Strings.countMatches(df.format(FIRST_BELOW_ZERO), "0"))
+                .isEqualTo(ADecimal.DEFAULT_ROUNDING_SCALE);
+    }
 
     public DoubleDecimalImpl(final Double value, final Double defaultRoundedValue) {
         super(value, defaultRoundedValue);
@@ -44,9 +58,22 @@ public class DoubleDecimalImpl extends ADecimalImpl<DoubleDecimalImpl, Double> {
     }
 
     @Override
-    protected int internalCompareTo(final ADecimal<?> defaultRoundedOther) {
-        final double roundedOther = defaultRoundedOther.doubleValue();
-        return getDefaultRoundedValue().compareTo(roundedOther);
+    protected int internalCompareTo(final ADecimal<?> decimalOther) {
+        //improve compare performance by rounding less often
+        final DoubleDecimalImpl doubleDecimalOther = (DoubleDecimalImpl) decimalOther.getImpl();
+        final Double doubleOther = doubleDecimalOther.getValue();
+        final Double doubleThis = getValue();
+        final Double difference = doubleThis - doubleOther;
+        if (difference > FIRST_ABOVE_ZERO) {
+            return 1;
+        } else if (difference < FIRST_BELOW_ZERO) {
+            return -1;
+        } else if (difference == ZERO) {
+            return 0;
+        } else {
+            final double roundedOther = decimalOther.round().doubleValue();
+            return getDefaultRoundedValue().compareTo(roundedOther);
+        }
     }
 
     @Override
