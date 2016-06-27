@@ -376,6 +376,10 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
         return orLower(max).orHigher(min);
     }
 
+    public E pow(final E exponent) {
+        return newValueCopy(getImpl().pow(exponent));
+    }
+
     public E pow(final int exponent) {
         return newValueCopy(getImpl().pow(exponent));
     }

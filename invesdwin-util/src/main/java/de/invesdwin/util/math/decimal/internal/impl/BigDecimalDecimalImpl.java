@@ -80,9 +80,14 @@ public class BigDecimalDecimalImpl extends ADecimalImpl<BigDecimalDecimalImpl, B
     }
 
     @Override
-    public BigDecimalDecimalImpl root(final int n) {
+    public BigDecimalDecimalImpl root(final Number n) {
         final double doubleValue = getValue().doubleValue();
         return newValueCopy(new DoubleDecimalImpl(doubleValue, doubleValue).root(n).bigDecimalValue());
+    }
+
+    @Override
+    public BigDecimalDecimalImpl root(final ADecimal<?> n) {
+        return null;
     }
 
     @Override
@@ -92,8 +97,14 @@ public class BigDecimalDecimalImpl extends ADecimalImpl<BigDecimalDecimalImpl, B
     }
 
     @Override
-    public BigDecimalDecimalImpl pow(final int exponent) {
-        return newValueCopy(getValue().pow(exponent, BigDecimals.DEFAULT_MATH_CONTEXT));
+    public BigDecimalDecimalImpl pow(final Number exponent) {
+        final double doubleValue = getValue().doubleValue();
+        return newValueCopy(new DoubleDecimalImpl(doubleValue, doubleValue).pow(exponent).bigDecimalValue());
+    }
+
+    @Override
+    public BigDecimalDecimalImpl pow(final ADecimal<?> exponent) {
+        return pow(exponent.doubleValue());
     }
 
     @Override

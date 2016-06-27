@@ -161,9 +161,13 @@ public abstract class ADecimalImpl<E extends ADecimalImpl<E, V>, V>
 
     public abstract E scaleByPowerOfTen(int n);
 
-    public abstract E root(int n);
+    public abstract E root(Number n);
 
-    public abstract E pow(int exponent);
+    public abstract E root(ADecimal<?> n);
+
+    public abstract E pow(Number exponent);
+
+    public abstract E pow(ADecimal<?> exponent);
 
     public abstract E subtract(final ADecimal<?> subtrahend);
 

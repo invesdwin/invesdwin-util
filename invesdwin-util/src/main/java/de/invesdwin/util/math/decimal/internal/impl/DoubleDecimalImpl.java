@@ -122,9 +122,14 @@ public class DoubleDecimalImpl extends ADecimalImpl<DoubleDecimalImpl, Double> {
     }
 
     @Override
-    public DoubleDecimalImpl root(final int n) {
+    public DoubleDecimalImpl root(final ADecimal<?> n) {
+        return root(n.doubleValue());
+    }
+
+    @Override
+    public DoubleDecimalImpl root(final Number n) {
         final double log = Math.log(getValue());
-        final double result = Math.exp(log / n);
+        final double result = Math.exp(log / n.doubleValue());
         return newValueCopy(result);
     }
 
@@ -134,8 +139,13 @@ public class DoubleDecimalImpl extends ADecimalImpl<DoubleDecimalImpl, Double> {
     }
 
     @Override
-    public DoubleDecimalImpl pow(final int exponent) {
-        return newValueCopy(Math.pow(getValue(), exponent));
+    public DoubleDecimalImpl pow(final Number exponent) {
+        return newValueCopy(Math.pow(getValue(), exponent.doubleValue()));
+    }
+
+    @Override
+    public DoubleDecimalImpl pow(final ADecimal<?> exponent) {
+        return pow(exponent.doubleValue());
     }
 
     @Override

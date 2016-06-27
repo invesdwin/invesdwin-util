@@ -120,7 +120,12 @@ class ScaledDecimalDelegateImpl extends ADecimalImpl {
     }
 
     @Override
-    public ADecimalImpl root(final int n) {
+    public ADecimalImpl root(final Number n) {
+        return getDelegate().root(n);
+    }
+
+    @Override
+    public ADecimalImpl root(final ADecimal n) {
         return getDelegate().root(n);
     }
 
@@ -130,7 +135,12 @@ class ScaledDecimalDelegateImpl extends ADecimalImpl {
     }
 
     @Override
-    public ADecimalImpl pow(final int exponent) {
+    public ADecimalImpl pow(final Number exponent) {
+        return getDelegate().pow(exponent);
+    }
+
+    @Override
+    public ADecimalImpl pow(final ADecimal exponent) {
         return getDelegate().pow(exponent);
     }
 

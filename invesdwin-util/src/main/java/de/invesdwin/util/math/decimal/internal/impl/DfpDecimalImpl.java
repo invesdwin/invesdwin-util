@@ -58,15 +58,25 @@ public class DfpDecimalImpl extends ADecimalImpl<DfpDecimalImpl, Dfp> {
     }
 
     @Override
-    public DfpDecimalImpl root(final int n) {
+    public DfpDecimalImpl root(final Number n) {
         final Dfp log = DfpMath.log(getValue());
-        final Dfp result = DfpMath.exp(log.divide(n));
+        final Dfp result = DfpMath.exp(log.divide(n.doubleValue()));
         return newValueCopy(result);
     }
 
     @Override
-    public DfpDecimalImpl pow(final int exponent) {
-        return newValueCopy(DfpMath.pow(getValue(), exponent));
+    public DfpDecimalImpl root(final ADecimal<?> n) {
+        return root(n.doubleValue());
+    }
+
+    @Override
+    public DfpDecimalImpl pow(final Number exponent) {
+        return newValueCopy(DfpMath.pow(getValue(), DfpDecimalImplFactory.toDfp(exponent)));
+    }
+
+    @Override
+    public DfpDecimalImpl pow(final ADecimal<?> exponent) {
+        return pow(exponent.doubleValue());
     }
 
     @Override
