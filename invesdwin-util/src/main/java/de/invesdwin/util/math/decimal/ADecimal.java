@@ -38,9 +38,9 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
 
     protected abstract E newValueCopy(ADecimalImpl value);
 
-    protected abstract E fromDefaultValue(Decimal value);
+    public abstract E fromDefaultValue(Decimal value);
 
-    protected abstract Decimal getDefaultValue();
+    public abstract Decimal getDefaultValue();
 
     @Override
     public int hashCode() {

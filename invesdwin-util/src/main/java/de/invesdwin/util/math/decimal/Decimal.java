@@ -129,12 +129,12 @@ public class Decimal extends ADecimal<Decimal> {
     }
 
     @Override
-    protected Decimal fromDefaultValue(final Decimal value) {
+    public Decimal fromDefaultValue(final Decimal value) {
         return value;
     }
 
     @Override
-    protected Decimal getDefaultValue() {
+    public Decimal getDefaultValue() {
         return this;
     }
 
@@ -194,8 +194,8 @@ public class Decimal extends ADecimal<Decimal> {
             return (Decimal) value;
         } else {
             if (value instanceof AScaledDecimal) {
-                throw new IllegalArgumentException(
-                        "value [" + value + "] should not be an instance of " + AScaledDecimal.class.getSimpleName());
+                throw new IllegalArgumentException("value [" + value + "] should not be an instance of "
+                        + AScaledDecimal.class.getSimpleName() + ": " + value.getClass().getSimpleName());
             }
             return new Decimal(value);
         }
