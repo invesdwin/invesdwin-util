@@ -230,6 +230,11 @@ public abstract class ADecimalImpl<E extends ADecimalImpl<E, V>, V>
 
     public abstract double doubleValue();
 
+    /**
+     * This gives the raw value, thus not getting rounded for precision.
+     */
+    public abstract double doubleValueRaw();
+
     public abstract byte byteValue();
 
     public abstract short shortValue();

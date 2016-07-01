@@ -92,6 +92,11 @@ public class DoubleDecimalImpl extends ADecimalImpl<DoubleDecimalImpl, Double> {
     }
 
     @Override
+    public double doubleValueRaw() {
+        return getValue();
+    }
+
+    @Override
     public float floatValue() {
         return getDefaultRoundedValue().floatValue();
     }
@@ -123,7 +128,7 @@ public class DoubleDecimalImpl extends ADecimalImpl<DoubleDecimalImpl, Double> {
 
     @Override
     public DoubleDecimalImpl root(final ADecimal<?> n) {
-        return root(n.doubleValue());
+        return root(n.doubleValueRaw());
     }
 
     @Override
@@ -145,24 +150,24 @@ public class DoubleDecimalImpl extends ADecimalImpl<DoubleDecimalImpl, Double> {
 
     @Override
     public DoubleDecimalImpl pow(final ADecimal<?> exponent) {
-        return pow(exponent.doubleValue());
+        return pow(exponent.doubleValueRaw());
     }
 
     @Override
     public DoubleDecimalImpl subtract(final ADecimal<?> subtrahend) {
-        final double value = getValue() - subtrahend.doubleValue();
+        final double value = getValue() - subtrahend.doubleValueRaw();
         return newValueCopy(value, value);
     }
 
     @Override
     public DoubleDecimalImpl add(final ADecimal<?> augend) {
-        final double value = getValue() + augend.doubleValue();
+        final double value = getValue() + augend.doubleValueRaw();
         return newValueCopy(value, value);
     }
 
     @Override
     public DoubleDecimalImpl multiply(final ADecimal<?> multiplicant) {
-        return newValueCopy(getValue() * multiplicant.doubleValue());
+        return newValueCopy(getValue() * multiplicant.doubleValueRaw());
     }
 
     @Override
@@ -172,7 +177,7 @@ public class DoubleDecimalImpl extends ADecimalImpl<DoubleDecimalImpl, Double> {
 
     @Override
     public DoubleDecimalImpl divide(final ADecimal<?> divisor) {
-        return newValueCopy(getValue() / divisor.doubleValue());
+        return newValueCopy(getValue() / divisor.doubleValueRaw());
     }
 
     @Override
@@ -182,7 +187,7 @@ public class DoubleDecimalImpl extends ADecimalImpl<DoubleDecimalImpl, Double> {
 
     @Override
     public DoubleDecimalImpl remainder(final ADecimal<?> divisor) {
-        return newValueCopy(getValue() % divisor.doubleValue());
+        return newValueCopy(getValue() % divisor.doubleValueRaw());
     }
 
     @Override

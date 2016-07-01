@@ -60,6 +60,11 @@ public class BigDecimalDecimalImpl extends ADecimalImpl<BigDecimalDecimalImpl, B
     }
 
     @Override
+    public double doubleValueRaw() {
+        return getValue().doubleValue();
+    }
+
+    @Override
     public byte byteValue() {
         return getDefaultRoundedValue().byteValue();
     }
@@ -104,7 +109,7 @@ public class BigDecimalDecimalImpl extends ADecimalImpl<BigDecimalDecimalImpl, B
 
     @Override
     public BigDecimalDecimalImpl pow(final ADecimal<?> exponent) {
-        return pow(exponent.doubleValue());
+        return pow(exponent.doubleValueRaw());
     }
 
     @Override

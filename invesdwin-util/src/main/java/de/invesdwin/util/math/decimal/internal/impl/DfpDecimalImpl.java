@@ -66,7 +66,7 @@ public class DfpDecimalImpl extends ADecimalImpl<DfpDecimalImpl, Dfp> {
 
     @Override
     public DfpDecimalImpl root(final ADecimal<?> n) {
-        return root(n.doubleValue());
+        return root(n.doubleValueRaw());
     }
 
     @Override
@@ -76,7 +76,7 @@ public class DfpDecimalImpl extends ADecimalImpl<DfpDecimalImpl, Dfp> {
 
     @Override
     public DfpDecimalImpl pow(final ADecimal<?> exponent) {
-        return pow(exponent.doubleValue());
+        return pow(exponent.doubleValueRaw());
     }
 
     @Override
@@ -197,6 +197,11 @@ public class DfpDecimalImpl extends ADecimalImpl<DfpDecimalImpl, Dfp> {
     @Override
     public double doubleValue() {
         return getDefaultRoundedValue().toDouble();
+    }
+
+    @Override
+    public double doubleValueRaw() {
+        return getValue().toDouble();
     }
 
     @Override

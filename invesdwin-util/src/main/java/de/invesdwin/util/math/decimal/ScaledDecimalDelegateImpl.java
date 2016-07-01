@@ -247,6 +247,11 @@ class ScaledDecimalDelegateImpl extends ADecimalImpl {
     }
 
     @Override
+    public double doubleValueRaw() {
+        return getDefaultScaledDelegate().doubleValueRaw();
+    }
+
+    @Override
     public byte byteValue() {
         return getDefaultScaledDelegate().byteValue();
     }

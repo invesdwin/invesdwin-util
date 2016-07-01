@@ -82,6 +82,13 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
         return getImpl().doubleValue();
     }
 
+    /**
+     * This gives the raw value, thus not getting rounded for precision.
+     */
+    public double doubleValueRaw() {
+        return getImpl().doubleValueRaw();
+    }
+
     @Override
     public byte byteValue() {
         return getImpl().byteValue();
