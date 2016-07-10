@@ -5,10 +5,12 @@ import javax.annotation.concurrent.Immutable;
 import de.invesdwin.util.math.decimal.ADecimal;
 import de.invesdwin.util.math.decimal.AScaledDecimal;
 import de.invesdwin.util.math.decimal.Decimal;
+import de.invesdwin.util.time.duration.Duration;
+import de.invesdwin.util.time.fdate.FTimeUnit;
 
 @SuppressWarnings("serial")
 @Immutable
-public class Percent extends AScaledDecimal<Percent, PercentScale>implements IPercentData {
+public class Percent extends AScaledDecimal<Percent, PercentScale> implements IPercentData {
 
     public static final PercentScale DEFAULT_SCALE;
     public static final Percent ONE_HUNDRED_PERCENT;
@@ -54,6 +56,10 @@ public class Percent extends AScaledDecimal<Percent, PercentScale>implements IPe
 
     public Percent(final ADecimal<?> dividend, final ADecimal<?> divisor) {
         this(dividend.getDefaultValue().divide(divisor.getDefaultValue()), PercentScale.RATE);
+    }
+
+    public Percent(final Duration dividend, final Duration divisor) {
+        this(dividend.doubleValue(FTimeUnit.MILLISECONDS), divisor.doubleValue(FTimeUnit.MILLISECONDS));
     }
 
     public <T extends AScaledDecimal<T, ?>> Percent(final AScaledDecimal<T, ?> dividend,
