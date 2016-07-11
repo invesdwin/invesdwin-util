@@ -29,6 +29,7 @@ import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.lang.ADelegateComparator;
 import de.invesdwin.util.lang.Strings;
+import de.invesdwin.util.math.decimal.scaled.Percent;
 import de.invesdwin.util.time.duration.Duration;
 import de.jollyday.HolidayCalendar;
 import de.jollyday.HolidayManager;
@@ -59,12 +60,23 @@ public final class FDate implements IDate, Serializable, Cloneable, Comparable<O
 
     public static final int COUNT_NANOSECONDS_IN_MILLISECOND = Ints.checkedCast(FTimeUnit.MILLISECONDS.toNanos(1));
     public static final int COUNT_NANOSECONDS_IN_MICROSECOND = Ints.checkedCast(FTimeUnit.MICROSECONDS.toNanos(1));
-    public static final int COUNT_WEEKDAYS_IN_WEEK = FTimeUnit.DAYS_IN_WEEK;
-    public static final int COUNT_WEEKDAYS_IN_MONTH = COUNT_WEEKDAYS_IN_WEEK * FTimeUnit.WEEKS_IN_MONTH;
-    public static final int COUNT_WEEKDAYS_IN_YEAR = COUNT_WEEKDAYS_IN_MONTH * FTimeUnit.MONTHS_IN_YEAR;
-    public static final int COUNT_WORKDAYS_IN_WEEK = 5;
-    public static final int COUNT_WORKDAYS_IN_MONTH = COUNT_WORKDAYS_IN_WEEK * FTimeUnit.WEEKS_IN_MONTH;
-    public static final int COUNT_WORKDAYS_IN_YEAR = COUNT_WORKDAYS_IN_MONTH * FTimeUnit.MONTHS_IN_YEAR;
+    public static final int COUNT_WEEKEND_DAYS_IN_WEEK = 2;
+    public static final int COUNT_WORKDAYS_IN_YEAR = FTimeUnit.DAYS_IN_YEAR
+            - FTimeUnit.WEEKS_IN_YEAR * COUNT_WEEKEND_DAYS_IN_WEEK;
+    public static final int COUNT_WORKDAYS_IN_MONTH = COUNT_WORKDAYS_IN_YEAR / FTimeUnit.MONTHS_IN_YEAR;
+    public static final int COUNT_WORKDAYS_IN_WEEK = COUNT_WORKDAYS_IN_MONTH / FTimeUnit.WEEKS_IN_MONTH;
+
+    /**
+     * https://en.wikipedia.org/wiki/Trading_day
+     */
+    public static final int COUNT_TRADING_HOLIDAYS_PER_YEAR = 9;
+    public static final int COUNT_TRADING_DAYS_IN_YEAR = COUNT_WORKDAYS_IN_YEAR - COUNT_TRADING_HOLIDAYS_PER_YEAR;
+    public static final int COUNT_DAYS_WITHOUT_TRADING_IN_YEAR = FTimeUnit.DAYS_IN_YEAR - COUNT_TRADING_DAYS_IN_YEAR;
+
+    public static final Percent PERCENT_DAYS_WITHOUT_TRADING_IN_YEAR = new Percent(
+            FDate.COUNT_DAYS_WITHOUT_TRADING_IN_YEAR, FTimeUnit.DAYS_IN_YEAR);
+    public static final Percent PERCENT_TRADING_DAYS_IN_YEAR = new Percent(FDate.COUNT_TRADING_DAYS_IN_YEAR,
+            FTimeUnit.DAYS_IN_YEAR);
 
     /*
      * ISO 8601 date-time format, example: "2003-04-01T13:01:02"
@@ -240,7 +252,7 @@ public final class FDate implements IDate, Serializable, Cloneable, Comparable<O
     }
 
     public FDate addWeeks(final int weeks) {
-        return addDays(weeks * COUNT_WEEKDAYS_IN_WEEK);
+        return addDays(weeks * FTimeUnit.DAYS_IN_WEEK);
     }
 
     public FDate addHours(final int hours) {
