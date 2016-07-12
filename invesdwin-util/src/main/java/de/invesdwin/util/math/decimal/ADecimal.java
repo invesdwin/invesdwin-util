@@ -387,7 +387,7 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
         return newValueCopy(getImpl().pow(exponent));
     }
 
-    public E pow(final int exponent) {
+    public E pow(final Number exponent) {
         return newValueCopy(getImpl().pow(exponent));
     }
 
@@ -400,7 +400,7 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
      * 
      * @see <a href="http://www.ee.ucl.ac.uk/~mflanaga/java/Stat.html#geom2">Source with BigDecimal</a>
      */
-    public E root(final int n) {
+    public E root(final Number n) {
         return newValueCopy(getImpl().root(n));
     }
 
