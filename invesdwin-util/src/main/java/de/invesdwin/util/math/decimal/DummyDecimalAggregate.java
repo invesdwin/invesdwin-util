@@ -80,6 +80,11 @@ final class DummyDecimalAggregate<E extends ADecimal<E>> implements IDecimalAggr
     }
 
     @Override
+    public E sampleStandardDeviation() {
+        return (E) null;
+    }
+
+    @Override
     public E standardDeviation() {
         return (E) null;
     }

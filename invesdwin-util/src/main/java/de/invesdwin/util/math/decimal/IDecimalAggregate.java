@@ -68,6 +68,11 @@ public interface IDecimalAggregate<E extends ADecimal<E>> {
     /**
      * s = (1/(n-1) * sum((x_i - x_quer)^2))^1/2
      */
+    E sampleStandardDeviation();
+
+    /**
+     * s = (1/(n) * sum((x_i - x_quer)^2))^1/2
+     */
     E standardDeviation();
 
     /**

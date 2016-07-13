@@ -191,13 +191,23 @@ class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregate<E> {
      * s = (1/(n-1) * sum((x_i - x_quer)^2))^1/2
      */
     @Override
+    public E sampleStandardDeviation() {
+        final E avg = avg();
+        Decimal sum = Decimal.ZERO;
+        for (final E value : values) {
+            sum = sum.add(value.subtract(avg).getDefaultValue().pow(2));
+        }
+        return getConverter().fromDefaultValue(sum.divide(values.size() - 1).sqrt());
+    }
+
+    @Override
     public E standardDeviation() {
         final E avg = avg();
         Decimal sum = Decimal.ZERO;
         for (final E value : values) {
             sum = sum.add(value.subtract(avg).getDefaultValue().pow(2));
         }
-        return getConverter().fromDefaultValue(sum.sqrt().divide(values.size() - 1));
+        return getConverter().fromDefaultValue(sum.divide(values.size()).sqrt());
     }
 
     /**
