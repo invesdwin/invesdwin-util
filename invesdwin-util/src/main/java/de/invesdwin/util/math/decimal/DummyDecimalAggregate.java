@@ -164,4 +164,24 @@ final class DummyDecimalAggregate<E extends ADecimal<E>> implements IDecimalAggr
         return this;
     }
 
+    @Override
+    public IDecimalAggregate<E> addEach(final E augend) {
+        return this;
+    }
+
+    @Override
+    public IDecimalAggregate<E> subtractEach(final E subtrahend) {
+        return this;
+    }
+
+    @Override
+    public IDecimalAggregate<E> multiplyEach(final E multiplicant) {
+        return this;
+    }
+
+    @Override
+    public IDecimalAggregate<E> divideEach(final E divisor) {
+        return this;
+    }
+
 }

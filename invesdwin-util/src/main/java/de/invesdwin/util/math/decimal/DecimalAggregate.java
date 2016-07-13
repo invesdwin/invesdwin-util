@@ -200,6 +200,9 @@ class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregate<E> {
         return getConverter().fromDefaultValue(sum.divide(values.size() - 1).sqrt());
     }
 
+    /**
+     * s = (1/(n) * sum((x_i - x_quer)^2))^1/2
+     */
     @Override
     public E standardDeviation() {
         final E avg = avg();
@@ -328,6 +331,42 @@ class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregate<E> {
             }
         }
         return new DecimalAggregate<E>(negatives, getConverter());
+    }
+
+    @Override
+    public IDecimalAggregate<E> addEach(final E augend) {
+        final List<E> added = new ArrayList<E>();
+        for (final E value : values) {
+            added.add(value.add(augend));
+        }
+        return new DecimalAggregate<E>(added, getConverter());
+    }
+
+    @Override
+    public IDecimalAggregate<E> subtractEach(final E subtrahend) {
+        final List<E> subtracted = new ArrayList<E>();
+        for (final E value : values) {
+            subtracted.add(value.subtract(subtrahend));
+        }
+        return new DecimalAggregate<E>(subtracted, getConverter());
+    }
+
+    @Override
+    public IDecimalAggregate<E> multiplyEach(final E multiplicant) {
+        final List<E> multiplied = new ArrayList<E>();
+        for (final E value : values) {
+            multiplied.add(value.add(multiplicant));
+        }
+        return new DecimalAggregate<E>(multiplied, getConverter());
+    }
+
+    @Override
+    public IDecimalAggregate<E> divideEach(final E divisor) {
+        final List<E> divided = new ArrayList<E>();
+        for (final E value : values) {
+            divided.add(value.add(divisor));
+        }
+        return new DecimalAggregate<E>(divided, getConverter());
     }
 
 }
