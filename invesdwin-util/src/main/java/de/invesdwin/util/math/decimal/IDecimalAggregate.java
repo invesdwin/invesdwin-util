@@ -109,6 +109,8 @@ public interface IDecimalAggregate<E extends ADecimal<E>> {
 
     IDecimalAggregate<E> negativeOrZeroValues();
 
+    IDecimalAggregate<E> nonZeroValues();
+
     IDecimalAggregate<E> addEach(E augend);
 
     IDecimalAggregate<E> subtractEach(E subtrahend);

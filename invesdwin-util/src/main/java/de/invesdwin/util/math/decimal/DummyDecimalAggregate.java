@@ -165,6 +165,11 @@ final class DummyDecimalAggregate<E extends ADecimal<E>> implements IDecimalAggr
     }
 
     @Override
+    public IDecimalAggregate<E> nonZeroValues() {
+        return this;
+    }
+
+    @Override
     public IDecimalAggregate<E> addEach(final E augend) {
         return this;
     }

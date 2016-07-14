@@ -334,6 +334,18 @@ class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregate<E> {
     }
 
     @Override
+    public IDecimalAggregate<E> nonZeroValues() {
+        final List<E> nonZeros = new ArrayList<E>();
+        for (final E value : values) {
+            if (value.isNotZero()) {
+                nonZeros.add(value);
+            }
+        }
+        return new DecimalAggregate<E>(nonZeros, getConverter());
+
+    }
+
+    @Override
     public IDecimalAggregate<E> addEach(final E augend) {
         final List<E> added = new ArrayList<E>();
         for (final E value : values) {
