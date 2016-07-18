@@ -5,6 +5,7 @@ import java.util.Currency;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -84,6 +85,16 @@ public final class Currencies {
         } else {
             return currencyCode;
         }
+    }
+
+    public static String replaceCurrencySymbolsWithCurrencyCode(final String str) {
+        String replaced = str;
+        for (final Entry<String, String> entry : CURRENCY_CODE_2_CURRENCY_SYMBOL.entrySet()) {
+            final String code = entry.getKey();
+            final String symbol = entry.getValue();
+            replaced = replaced.replace(symbol, code);
+        }
+        return replaced;
     }
 
     public static Currency getInstance(final String currencyCode) {
