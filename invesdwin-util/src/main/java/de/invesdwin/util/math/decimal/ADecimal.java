@@ -237,7 +237,7 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
      * 
      * @see <a href="http://www.chemieonline.de/forum/showthread.php?t=101560">Source</a>
      */
-    public E growthRate(final E nextValue) {
+    public E growthRate(final ADecimal<E> nextValue) {
         return nextValue.subtract(getGenericThis()).divide(abs());
     }
 
@@ -245,21 +245,21 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
         return newValueCopy(getImpl().abs());
     }
 
-    public E subtract(final E subtrahend) {
+    public E subtract(final ADecimal<E> subtrahend) {
         if (subtrahend == null) {
             return getGenericThis();
         }
         return newValueCopy(getImpl().subtract(subtrahend));
     }
 
-    public E add(final E augend) {
+    public E add(final ADecimal<E> augend) {
         if (augend == null) {
             return getGenericThis();
         }
         return newValueCopy(getImpl().add(augend));
     }
 
-    public E multiply(final E multiplicant) {
+    public E multiply(final ADecimal<E> multiplicant) {
         if (multiplicant == null) {
             return multiply(0);
         } else {
@@ -270,7 +270,7 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
     /**
      * returns the remainder of the division.
      */
-    public E remainder(final E divisor) {
+    public E remainder(final ADecimal<E> divisor) {
         if (divisor == null || divisor.isZero()) {
             return remainder(0);
         } else {
@@ -296,7 +296,7 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
     /**
      * If the divisor is 0, 0 is returned. This goes against the mathematical rules, but makes a developers life easier.
      */
-    public E divide(final E divisor) {
+    public E divide(final ADecimal<E> divisor) {
         if (divisor == null || divisor.isZero()) {
             return divide(0);
         } else {
@@ -339,11 +339,11 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
     /**
      * With a step of 0.5: (Math.ceil(x * 2) / 2)
      */
-    public E roundToStep(final E step) {
+    public E roundToStep(final ADecimal<E> step) {
         return roundToStep(step, DEFAULT_ROUNDING_MODE);
     }
 
-    public E roundToStep(final E step, final RoundingMode roundingMode) {
+    public E roundToStep(final ADecimal<E> step, final RoundingMode roundingMode) {
         final E stepReciprocal = step.reciprocal();
         return multiply(stepReciprocal).round(0, roundingMode).divide(stepReciprocal);
     }
@@ -383,7 +383,7 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
         return orLower(max).orHigher(min);
     }
 
-    public E pow(final E exponent) {
+    public E pow(final ADecimal<E> exponent) {
         return newValueCopy(getImpl().pow(exponent));
     }
 
@@ -404,7 +404,7 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
         return newValueCopy(getImpl().root(n));
     }
 
-    public E distance(final E to) {
+    public E distance(final ADecimal<E> to) {
         return subtract(to).abs();
     }
 

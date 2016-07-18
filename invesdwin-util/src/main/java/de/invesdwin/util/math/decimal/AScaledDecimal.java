@@ -179,7 +179,7 @@ public abstract class AScaledDecimal<T extends AScaledDecimal<T, S>, S extends I
 
     @SuppressWarnings("unchecked")
     @Override
-    public T subtract(final T subtrahend) {
+    public T subtract(final ADecimal<T> subtrahend) {
         if (subtrahend == null) {
             return getGenericThis();
         }
@@ -190,7 +190,7 @@ public abstract class AScaledDecimal<T extends AScaledDecimal<T, S>, S extends I
 
     @SuppressWarnings("unchecked")
     @Override
-    public T add(final T augend) {
+    public T add(final ADecimal<T> augend) {
         if (augend == null) {
             return getGenericThis();
         }
@@ -201,7 +201,7 @@ public abstract class AScaledDecimal<T extends AScaledDecimal<T, S>, S extends I
 
     @SuppressWarnings("unchecked")
     @Override
-    public T multiply(final T multiplicant) {
+    public T multiply(final ADecimal<T> multiplicant) {
         if (multiplicant == null) {
             return getGenericThis();
         }
@@ -212,7 +212,7 @@ public abstract class AScaledDecimal<T extends AScaledDecimal<T, S>, S extends I
 
     @SuppressWarnings("unchecked")
     @Override
-    public T divide(final T divisor) {
+    public T divide(final ADecimal<T> divisor) {
         if (divisor == null) {
             return getGenericThis();
         }
@@ -223,7 +223,7 @@ public abstract class AScaledDecimal<T extends AScaledDecimal<T, S>, S extends I
 
     @SuppressWarnings("unchecked")
     @Override
-    public T remainder(final T divisor) {
+    public T remainder(final ADecimal<T> divisor) {
         if (divisor == null) {
             return getGenericThis();
         }

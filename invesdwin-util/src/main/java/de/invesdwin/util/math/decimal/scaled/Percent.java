@@ -10,7 +10,7 @@ import de.invesdwin.util.time.fdate.FTimeUnit;
 
 @SuppressWarnings("serial")
 @Immutable
-public class Percent extends AScaledDecimal<Percent, PercentScale> implements IPercentData {
+public class Percent extends AScaledDecimal<Percent, PercentScale>implements IPercentData {
 
     public static final PercentScale DEFAULT_SCALE;
     public static final Percent ONE_HUNDRED_PERCENT;
@@ -88,6 +88,14 @@ public class Percent extends AScaledDecimal<Percent, PercentScale> implements IP
     @Override
     public Decimal getRate() {
         return getDefaultValue();
+    }
+
+    /**
+     * (newValue - oldValue) / abs(oldValue)
+     */
+    public static <T extends ADecimal<T>> Percent relativeDifference(final ADecimal<T> oldValue,
+            final ADecimal<T> newValue) {
+        return new Percent(newValue.subtract(oldValue), oldValue.abs());
     }
 
 }
