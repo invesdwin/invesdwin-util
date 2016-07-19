@@ -30,7 +30,7 @@
 		<version.fest-util>1.2.5</version.fest-util>
 		<version.fst>2.41</version.fst>
 		<version.joda-time>2.7</version.joda-time>
-		<version.commons-codec>1.9</version.commons-codec>
+		<version.commons-codec>1.10</version.commons-codec>
 		<version.commons-math3>3.2</version.commons-math3>
 		<version.commons-io>2.4</version.commons-io>
 		<version.querydsl>3.6.1</version.querydsl>
