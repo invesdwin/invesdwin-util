@@ -7,7 +7,7 @@ import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 import javax.persistence.Transient;
 
-import com.mysema.query.annotations.QuerySupertype;
+import com.querydsl.core.annotations.QuerySupertype;
 
 import de.invesdwin.norva.apt.constants.BeanPathRoot;
 import de.invesdwin.norva.beanpath.annotation.Hidden;
