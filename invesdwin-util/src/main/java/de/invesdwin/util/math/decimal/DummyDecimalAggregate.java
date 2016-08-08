@@ -189,4 +189,14 @@ final class DummyDecimalAggregate<E extends ADecimal<E>> implements IDecimalAggr
         return this;
     }
 
+    @Override
+    public boolean isStableOrRisingEach() {
+        return false;
+    }
+
+    @Override
+    public boolean isStableOrFallingEach() {
+        return false;
+    }
+
 }

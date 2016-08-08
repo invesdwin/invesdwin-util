@@ -119,4 +119,14 @@ public interface IDecimalAggregate<E extends ADecimal<E>> {
 
     IDecimalAggregate<E> divideEach(E divisor);
 
+    /**
+     * True when each element is >= its previous element
+     */
+    boolean isStableOrRisingEach();
+
+    /**
+     * True when each element is <= its previous element
+     */
+    boolean isStableOrFallingEach();
+
 }

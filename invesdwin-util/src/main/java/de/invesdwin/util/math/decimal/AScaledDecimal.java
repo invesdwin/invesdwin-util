@@ -9,6 +9,8 @@ import java.util.function.Function;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
+import de.invesdwin.util.collections.Lists;
+import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.math.decimal.internal.impl.ADecimalImpl;
 import de.invesdwin.util.math.decimal.scaled.IDecimalScale;
 
@@ -147,6 +149,11 @@ public abstract class AScaledDecimal<T extends AScaledDecimal<T, S>, S extends I
 
     public static <D extends AScaledDecimal<D, ?>> IDecimalAggregate<D> valueOf(final D... values) {
         return valueOf(Arrays.asList(values));
+    }
+
+    public static <D extends AScaledDecimal<D, ?>> IDecimalAggregate<D> valueOf(
+            final ICloseableIterable<? extends D> values) {
+        return valueOf(Lists.toList(values));
     }
 
     public static <D extends AScaledDecimal<D, ?>> IDecimalAggregate<D> valueOf(final List<? extends D> values) {

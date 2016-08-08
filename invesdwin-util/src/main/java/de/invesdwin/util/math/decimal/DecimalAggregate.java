@@ -381,4 +381,32 @@ class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregate<E> {
         return new DecimalAggregate<E>(divided, getConverter());
     }
 
+    @Override
+    public boolean isStableOrRisingEach() {
+        E prevValue = null;
+        for (final E value : values) {
+            if (prevValue != null) {
+                if (value.isLessThan(prevValue)) {
+                    return false;
+                }
+            }
+            prevValue = value;
+        }
+        return true;
+    }
+
+    @Override
+    public boolean isStableOrFallingEach() {
+        E prevValue = null;
+        for (final E value : values) {
+            if (prevValue != null) {
+                if (value.isGreaterThan(prevValue)) {
+                    return false;
+                }
+            }
+            prevValue = value;
+        }
+        return true;
+    }
+
 }
