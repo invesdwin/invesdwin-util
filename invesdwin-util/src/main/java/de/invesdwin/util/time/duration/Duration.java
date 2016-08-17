@@ -307,11 +307,19 @@ public class Duration extends Number implements Comparable<Object> {
      * Creates a new duration derived from this one with the added duration in nanoseconds as timeunit.
      */
     public Duration add(final Duration duration) {
-        return add(duration.duration, duration.timeUnit);
+        if (duration == null) {
+            return this;
+        } else {
+            return add(duration.duration, duration.timeUnit);
+        }
     }
 
     public Duration subtract(final Duration duration) {
-        return subtract(duration.duration, duration.timeUnit);
+        if (duration == null) {
+            return this;
+        } else {
+            return subtract(duration.duration, duration.timeUnit);
+        }
     }
 
     @Override
