@@ -444,4 +444,28 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
         }
     }
 
+    public static <T extends ADecimal<T>> T sum(final T value1, final T value2) {
+        if (value1 == null) {
+            return value2;
+        } else {
+            return value1.add(value2);
+        }
+    }
+
+    public static <T extends ADecimal<T>> T max(final T value1, final T value2) {
+        if (value1 == null) {
+            return value2;
+        } else {
+            return value1.orHigher(value2);
+        }
+    }
+
+    public static <T extends ADecimal<T>> T min(final T value1, final T value2) {
+        if (value1 == null) {
+            return value2;
+        } else {
+            return value1.orLower(value2);
+        }
+    }
+
 }

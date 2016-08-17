@@ -379,4 +379,52 @@ public class Duration extends Number implements Comparable<Object> {
         }
     }
 
+    public Duration orHigher(final Duration other) {
+        if (other == null) {
+            return this;
+        }
+
+        if (compareTo(other) > 0) {
+            return this;
+        } else {
+            return other;
+        }
+    }
+
+    public Duration orLower(final Duration other) {
+        if (other == null) {
+            return this;
+        }
+
+        if (compareTo(other) < 0) {
+            return this;
+        } else {
+            return other;
+        }
+    }
+
+    public static Duration sum(final Duration value1, final Duration value2) {
+        if (value1 == null) {
+            return value2;
+        } else {
+            return value1.add(value2);
+        }
+    }
+
+    public static Duration max(final Duration value1, final Duration value2) {
+        if (value1 == null) {
+            return value2;
+        } else {
+            return value1.orHigher(value2);
+        }
+    }
+
+    public static Duration min(final Duration value1, final Duration value2) {
+        if (value1 == null) {
+            return value2;
+        } else {
+            return value1.orLower(value2);
+        }
+    }
+
 }
