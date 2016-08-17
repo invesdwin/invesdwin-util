@@ -17,10 +17,39 @@ public abstract class ACloseableIterator<E> implements ICloseableIterator<E> {
     private Exception nextStackTrace;
 
     public ACloseableIterator() {
+        createInitStackTrace();
+    }
+
+    protected void createInitStackTrace() {
         if (Throwables.isFinalizerDebugStackTraceEnabled()) {
             initStackTrace = new Exception();
             initStackTrace.fillInStackTrace();
         }
+    }
+
+    protected void createNextStackTrace() {
+        if (Throwables.isFinalizerDebugStackTraceEnabled() && nextStackTrace == null) {
+            initStackTrace = null;
+            nextStackTrace = new Exception();
+            nextStackTrace.fillInStackTrace();
+        }
+    }
+
+    protected void createUnclosedFinalizeMessageLog() {
+        String warning = "Finalizing unclosed iterator [" + getClass().getName() + "]";
+        if (Throwables.isFinalizerDebugStackTraceEnabled()) {
+            final Exception stackTrace;
+            if (initStackTrace != null) {
+                warning += " which was initialized but never used";
+                stackTrace = initStackTrace;
+            } else {
+                stackTrace = nextStackTrace;
+            }
+            if (stackTrace != null) {
+                warning += " from stacktrace:\n" + Throwables.getFullStackTrace(stackTrace);
+            }
+        }
+        LOGGER.warn(warning);
     }
 
     /**
@@ -29,20 +58,7 @@ public abstract class ACloseableIterator<E> implements ICloseableIterator<E> {
     @Override
     protected void finalize() throws Throwable {
         if (!isClosed()) {
-            String warning = "Finalizing unclosed iterator [" + getClass().getName() + "]";
-            if (Throwables.isFinalizerDebugStackTraceEnabled()) {
-                final Exception stackTrace;
-                if (initStackTrace != null) {
-                    warning += " which was initialized but never used";
-                    stackTrace = initStackTrace;
-                } else {
-                    stackTrace = nextStackTrace;
-                }
-                if (stackTrace != null) {
-                    warning += " from stacktrace:\n" + Throwables.getFullStackTrace(stackTrace);
-                }
-            }
-            LOGGER.warn(warning);
+            createUnclosedFinalizeMessageLog();
             close();
         }
         super.finalize();
@@ -67,11 +83,7 @@ public abstract class ACloseableIterator<E> implements ICloseableIterator<E> {
         if (isClosed()) {
             throw new NoSuchElementException("closed");
         }
-        if (Throwables.isFinalizerDebugStackTraceEnabled() && nextStackTrace == null) {
-            initStackTrace = null;
-            nextStackTrace = new Exception();
-            nextStackTrace.fillInStackTrace();
-        }
+        createNextStackTrace();
         final E next;
         try {
             next = innerNext();
