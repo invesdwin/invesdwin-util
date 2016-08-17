@@ -546,6 +546,10 @@ public final class FDate implements IDate, Serializable, Cloneable, Comparable<O
         return other != null && !isBefore(other);
     }
 
+    public static ICloseableIterable<FDate> iterable(final FDate start, final FDate end, final Duration increment) {
+        return new FDateIterable(start, end, increment.getTimeUnit(), increment.intValue());
+    }
+
     public static ICloseableIterable<FDate> iterable(final FDate start, final FDate end, final FTimeUnit timeUnit,
             final int incrementAmount) {
         return new FDateIterable(start, end, timeUnit, incrementAmount);
