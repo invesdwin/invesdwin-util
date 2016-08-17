@@ -12,6 +12,8 @@ import java.util.concurrent.atomic.AtomicLong;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
+import org.apache.commons.lang3.BooleanUtils;
+
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 
@@ -32,8 +34,7 @@ public abstract class AConcurrentModificationDelegateSet<E> extends ADelegateCol
         if (openIterators.get() == 0) {
             return super.add(e);
         } else {
-            tasks_add.remove(e);
-            return !contains(e) && tasks_add.put(e, true) == null;
+            return !contains(e) && BooleanUtils.isNotTrue(tasks_add.put(e, true));
         }
     }
 
@@ -54,8 +55,7 @@ public abstract class AConcurrentModificationDelegateSet<E> extends ADelegateCol
         if (openIterators.get() == 0) {
             return super.remove(o);
         } else {
-            tasks_add.remove(o);
-            return contains(o) && tasks_add.put((E) o, false) == null;
+            return contains(o) && BooleanUtils.isNotFalse(tasks_add.put((E) o, false));
         }
     }
 
