@@ -1,6 +1,7 @@
 package de.invesdwin.util.lang;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
@@ -184,15 +185,17 @@ public final class Objects extends AObjectsStaticFacade {
 
     public static byte[] serialize(final Serializable obj) {
         //prevent memory leak by always using a new instance
-        final FSTObjectOutput fstObjectOutput = new FSTObjectOutput(SERIALIZATION_CONFIG);
+        final ByteArrayOutputStream out = new ByteArrayOutputStream();
+        final FSTObjectOutput fstObjectOutput = new FSTObjectOutput(out, SERIALIZATION_CONFIG);
         try {
             fstObjectOutput.writeObject(obj);
-            return fstObjectOutput.getCopyOfWrittenBuffer();
+            return out.toByteArray();
         } catch (final IOException e) {
             throw new RuntimeException(e);
         } finally {
             try {
                 fstObjectOutput.close();
+                out.close();
             } catch (final IOException e) {
                 throw new RuntimeException(e);
             }
