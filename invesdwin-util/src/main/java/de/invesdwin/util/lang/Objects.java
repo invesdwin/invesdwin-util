@@ -152,8 +152,12 @@ public final class Objects extends AObjectsStaticFacade {
         if (obj == null) {
             return (T) null;
         }
-        final byte[] serialized = serialize((Serializable) obj);
-        return (T) deserialize(serialized);
+        try {
+            final byte[] serialized = serialize((Serializable) obj);
+            return (T) deserialize(serialized);
+        } catch (final Throwable t) {
+            throw new RuntimeException("At: " + obj);
+        }
     }
 
     public static <T> T deserialize(final byte[] objectData) {
