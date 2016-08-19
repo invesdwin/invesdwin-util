@@ -1,10 +1,9 @@
 package de.invesdwin.util.lang;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -16,7 +15,6 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.nustaq.serialization.FSTConfiguration;
 import org.nustaq.serialization.FSTObjectInput;
-import org.nustaq.serialization.FSTObjectOutput;
 
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
 import de.invesdwin.norva.beanpath.BeanPathObjects;
@@ -152,31 +150,24 @@ public final class Objects extends AObjectsStaticFacade {
         if (obj == null) {
             return (T) null;
         }
-        try {
-            final byte[] serialized = serialize((Serializable) obj);
-            return (T) deserialize(serialized);
-        } catch (final Throwable t) {
-            throw new RuntimeException("At: " + obj);
-        }
+        final byte[] serialized = serialize((Serializable) obj);
+        return (T) deserialize(serialized);
     }
 
+    @SuppressWarnings("unchecked")
     public static <T> T deserialize(final byte[] objectData) {
-        return deserialize(new ByteArrayInputStream(objectData));
+        try {
+            return (T) SERIALIZATION_CONFIG.asObject(objectData);
+        } finally {
+            resetFstObjectInputCallbacks();
+        }
     }
 
     @SuppressWarnings("unchecked")
     public static <T> T deserialize(final InputStream in) {
-        //prevent memory leak by always using a new instance
         try {
-            final FSTObjectInput fstObjectInput = new FSTObjectInput(in, SERIALIZATION_CONFIG);
-            try {
-                return (T) fstObjectInput.readObject();
-            } finally {
-                fstObjectInput.close();
-            }
-        } catch (final ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        } catch (final IOException e) {
+            return (T) SERIALIZATION_CONFIG.decodeFromStream(in);
+        } catch (final Exception e) {
             throw new RuntimeException(e);
         } finally {
             try {
@@ -184,26 +175,20 @@ public final class Objects extends AObjectsStaticFacade {
             } catch (final IOException e) {
                 throw new RuntimeException(e);
             }
+            resetFstObjectInputCallbacks();
         }
     }
 
+    private static void resetFstObjectInputCallbacks() {
+        //otherwise this can become a memory leak!
+        final FSTObjectInput fstObjectInput = (FSTObjectInput) SERIALIZATION_CONFIG.getStreamCoderFactory()
+                .getInput()
+                .get();
+        Reflections.field("callbacks").ofType(ArrayList.class).in(fstObjectInput).set(null);
+    }
+
     public static byte[] serialize(final Serializable obj) {
-        //prevent memory leak by always using a new instance
-        final ByteArrayOutputStream out = new ByteArrayOutputStream();
-        final FSTObjectOutput fstObjectOutput = new FSTObjectOutput(out, SERIALIZATION_CONFIG);
-        try {
-            fstObjectOutput.writeObject(obj);
-            return out.toByteArray();
-        } catch (final IOException e) {
-            throw new RuntimeException(e);
-        } finally {
-            try {
-                fstObjectOutput.close();
-                out.close();
-            } catch (final IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
+        return SERIALIZATION_CONFIG.asByteArray(obj);
     }
 
     public static String toString(final Object obj) {
