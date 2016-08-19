@@ -180,6 +180,7 @@ public final class Objects extends AObjectsStaticFacade {
     }
 
     private static void resetFstObjectInputCallbacks() {
+        //TODO remove with next fst release
         //otherwise this can become a memory leak!
         final FSTObjectInput fstObjectInput = (FSTObjectInput) SERIALIZATION_CONFIG.getStreamCoderFactory()
                 .getInput()
