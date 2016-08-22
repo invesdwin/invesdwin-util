@@ -11,6 +11,7 @@ import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 import javax.persistence.Transient;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.querydsl.core.annotations.QuerySupertype;
 
 import de.invesdwin.norva.beanpath.annotation.Hidden;
@@ -43,8 +44,10 @@ public abstract class APropertyChangeSupported {
      */
     @GuardedBy("propertyChangeSupportLock")
     @Transient
+    @JsonIgnore
     private PropertyChangeSupport propertyChangeSupport;
     @Transient
+    @JsonIgnore
     private final Object propertyChangeSupportLock = new Object();
 
     static {
@@ -135,6 +138,7 @@ public abstract class APropertyChangeSupported {
      */
     @Transient
     @Hidden(skip = true)
+    @JsonIgnore
     public final PropertyChangeListener[] getPropertyChangeListeners() {
         final PropertyChangeSupport ref = lazyGetPropertyChangeSupport(true);
         return ref.getPropertyChangeListeners();
@@ -145,6 +149,7 @@ public abstract class APropertyChangeSupported {
      */
     @Transient
     @Hidden(skip = true)
+    @JsonIgnore
     public final PropertyChangeListener[] getPropertyChangeListeners(final String propertyName) {
         final PropertyChangeSupport ref = lazyGetPropertyChangeSupport(true);
         return ref.getPropertyChangeListeners(propertyName);

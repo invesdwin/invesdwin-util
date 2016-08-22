@@ -7,6 +7,7 @@ import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 import javax.persistence.Transient;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.querydsl.core.annotations.QuerySupertype;
 
 import de.invesdwin.norva.apt.constants.BeanPathRoot;
@@ -39,6 +40,7 @@ public abstract class AValueObject extends APropertyChangeSupported
 
     @GuardedBy("this")
     @Transient
+    @JsonIgnore
     private DirtyTracker dirtyTracker;
 
     static {
@@ -167,6 +169,7 @@ public abstract class AValueObject extends APropertyChangeSupported
 
     @Hidden(skip = true)
     @Transient
+    @JsonIgnore
     public synchronized DirtyTracker dirtyTracker() {
         if (dirtyTracker == null) {
             dirtyTracker = new DirtyTracker(this);
