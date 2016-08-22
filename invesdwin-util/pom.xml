@@ -75,6 +75,12 @@
 			<groupId>de.ruedigermoeller</groupId>
 			<artifactId>fst</artifactId>
 			<version>${version.fst}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>commons-logging</groupId>
+					<artifactId>commons-logging</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>joda-time</groupId>
