@@ -92,4 +92,9 @@ public abstract class ASynchronizedLoadingCache<K, V> implements ILoadingCache<K
         return Collections.unmodifiableMap(map);
     }
 
+    @Override
+    public synchronized boolean isEmpty() {
+        return map.isEmpty();
+    }
+
 }

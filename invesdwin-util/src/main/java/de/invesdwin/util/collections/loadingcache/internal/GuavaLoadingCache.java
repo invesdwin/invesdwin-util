@@ -89,4 +89,9 @@ public class GuavaLoadingCache<K, V> implements ILoadingCache<K, V> {
         return Collections.unmodifiableMap(delegate);
     }
 
+    @Override
+    public boolean isEmpty() {
+        return delegate.isEmpty();
+    }
+
 }

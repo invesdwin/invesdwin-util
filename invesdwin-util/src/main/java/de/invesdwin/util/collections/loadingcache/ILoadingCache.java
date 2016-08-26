@@ -21,6 +21,8 @@ public interface ILoadingCache<K, V> {
 
     int size();
 
+    boolean isEmpty();
+
     Set<K> keySet();
 
     Collection<V> values();

@@ -952,4 +952,24 @@ public final class FDate implements IDate, Serializable, Cloneable, Comparable<O
         return cur;
     }
 
+    public static FDate avg(final FDate first, final FDate second) {
+        return new FDate((first.millisValue() + second.millisValue()) / 2);
+    }
+
+    public static FDate avg(final FDate... values) {
+        long sum = 0;
+        for (final FDate value : values) {
+            sum += value.millisValue();
+        }
+        return new FDate(sum / values.length);
+    }
+
+    public static FDate avg(final Collection<FDate> values) {
+        long sum = 0;
+        for (final FDate value : values) {
+            sum += value.millisValue();
+        }
+        return new FDate(sum / values.size());
+    }
+
 }

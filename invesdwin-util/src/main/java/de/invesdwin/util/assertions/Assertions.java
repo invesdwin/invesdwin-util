@@ -128,6 +128,20 @@ public final class Assertions extends AAssertionsStaticFacade {
         }
     }
 
+    public static void checkNotEmpty(final Object[] collection) {
+        if (collection.length == 0) {
+            assertThat(collection).isNotEmpty();
+            failExceptionExpected();
+        }
+    }
+
+    public static void checkNotEmpty(final Object[] collection, final String message, final Object... args) {
+        if (collection.length == 0) {
+            assertThat(collection).as(message, args).isNotEmpty();
+            failExceptionExpected();
+        }
+    }
+
     public static void checkContains(final Collection<?> collection, final Object element) {
         if (!collection.contains(element)) {
             assertThat(collection).contains(element);

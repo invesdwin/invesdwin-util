@@ -1,16 +1,10 @@
 package de.invesdwin.util.math.decimal;
 
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.function.Function;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
-import de.invesdwin.util.collections.Lists;
-import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.math.decimal.internal.impl.ADecimalImpl;
 import de.invesdwin.util.math.decimal.scaled.IDecimalScale;
 
@@ -145,38 +139,6 @@ public abstract class AScaledDecimal<T extends AScaledDecimal<T, S>, S extends I
         final String formatStr = scale.getFormat(getGenericThis(), withSymbol);
         final DecimalFormat format = new DecimalFormat(formatStr, Decimal.DEFAULT_DECIMAL_FORMAT_SYMBOLS);
         return format.format(getValue(scale).getImpl().numberValue());
-    }
-
-    public static <D extends AScaledDecimal<D, ?>> IDecimalAggregate<D> valueOf(final D... values) {
-        return valueOf(Arrays.asList(values));
-    }
-
-    public static <D extends AScaledDecimal<D, ?>> IDecimalAggregate<D> valueOf(
-            final ICloseableIterable<? extends D> values) {
-        return valueOf(Lists.toList(values));
-    }
-
-    public static <D extends AScaledDecimal<D, ?>> IDecimalAggregate<D> valueOf(final List<? extends D> values) {
-        if (values == null || values.size() == 0) {
-            return DummyDecimalAggregate.getInstance();
-        } else {
-            return new DecimalAggregate<D>(values, null);
-        }
-    }
-
-    public static <T, D extends AScaledDecimal<D, ?>> List<D> extractValues(final Function<T, D> getter,
-            final List<T> objects) {
-        final List<D> decimals = new ArrayList<D>();
-        for (final T obj : objects) {
-            final D decimal = getter.apply(obj);
-            decimals.add(decimal);
-        }
-        return decimals;
-    }
-
-    public static <T, D extends AScaledDecimal<D, ?>> List<D> extractValues(final Function<T, D> getter,
-            final T... objects) {
-        return extractValues(getter, Arrays.asList(objects));
     }
 
     public T asScale(final S scale) {

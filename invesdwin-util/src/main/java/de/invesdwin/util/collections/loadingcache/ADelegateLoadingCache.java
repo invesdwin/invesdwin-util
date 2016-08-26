@@ -73,4 +73,9 @@ public abstract class ADelegateLoadingCache<K, V> implements ILoadingCache<K, V>
         return getDelegate().asMap();
     }
 
+    @Override
+    public boolean isEmpty() {
+        return getDelegate().isEmpty();
+    }
+
 }

@@ -51,6 +51,11 @@ public class NoCachingLoadingCache<K, V> implements ILoadingCache<K, V> {
     }
 
     @Override
+    public boolean isEmpty() {
+        return true;
+    }
+
+    @Override
     public Set<K> keySet() {
         return Collections.emptySet();
     }

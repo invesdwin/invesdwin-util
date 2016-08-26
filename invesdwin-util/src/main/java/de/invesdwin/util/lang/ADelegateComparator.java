@@ -13,6 +13,13 @@ import javax.annotation.concurrent.Immutable;
 @Immutable
 public abstract class ADelegateComparator<E> implements Comparator<Object> {
 
+    public static final ADelegateComparator<Object> DEFAULT_COMPARATOR = new ADelegateComparator<Object>() {
+        @Override
+        protected Comparable<?> getCompareCriteria(final Object e) {
+            return (Comparable<?>) e;
+        }
+    };
+
     private final Class<E> genericType;
 
     public ADelegateComparator() {
