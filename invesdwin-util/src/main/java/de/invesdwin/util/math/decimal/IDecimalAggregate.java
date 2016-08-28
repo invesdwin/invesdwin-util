@@ -129,4 +129,6 @@ public interface IDecimalAggregate<E extends ADecimal<E>> {
      */
     boolean isStableOrFallingEach();
 
+    IDecimalAggregate<E> loessInterpolation(LoessInterpolationConfig config);
+
 }

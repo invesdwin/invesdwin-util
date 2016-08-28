@@ -199,4 +199,9 @@ final class DummyDecimalAggregate<E extends ADecimal<E>> implements IDecimalAggr
         return false;
     }
 
+    @Override
+    public IDecimalAggregate<E> loessInterpolation(final LoessInterpolationConfig config) {
+        return this;
+    }
+
 }

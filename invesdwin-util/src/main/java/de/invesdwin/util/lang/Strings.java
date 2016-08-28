@@ -74,37 +74,8 @@ public final class Strings extends AStringsStaticFacade {
         return removed;
     }
 
-    public static String removeEnd(final String s, final int countCharacters) {
-        return s.substring(0, s.length() - countCharacters);
-    }
-
     public static String removeStart(final String s, final int countCharacters) {
         return s.substring(countCharacters, s.length());
-    }
-
-    public static StringBuilder removeEnd(final StringBuilder s, final int countCharacters) {
-        if (!isEmpty(s)) {
-            s.setLength(s.length() - countCharacters);
-        }
-        return s;
-    }
-
-    public static StringBuilder removeEnd(final StringBuilder s, final String end) {
-        final int startIndex = s.length() - end.length();
-        if (startIndex >= 0 && s.substring(startIndex).equals(end)) {
-            return removeEnd(s, end.length());
-        } else {
-            return s;
-        }
-    }
-
-    public static String replaceEnd(final String s, final String end, final String replaceWith) {
-        final String endRemoved = removeEnd(s, end);
-        if (endRemoved.length() != s.length()) {
-            return endRemoved + replaceWith;
-        } else {
-            return s;
-        }
     }
 
     public static String removeAnyEnd(final String s, final String... ends) {

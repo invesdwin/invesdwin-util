@@ -2,10 +2,14 @@ package de.invesdwin.util.math;
 
 import javax.annotation.concurrent.Immutable;
 
+import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
 import de.invesdwin.util.lang.ADelegateComparator;
+import de.invesdwin.util.math.internal.ALongsStaticFacade;
 
+@StaticFacadeDefinition(name = "de.invesdwin.util.math.internal.ALongsStaticFacade", targets = {
+        com.google.common.primitives.Longs.class })
 @Immutable
-public final class Longs {
+public final class Longs extends ALongsStaticFacade {
 
     public static final ADelegateComparator<Long> COMPARATOR = new ADelegateComparator<Long>() {
         @Override

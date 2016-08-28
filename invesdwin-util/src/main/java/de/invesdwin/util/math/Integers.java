@@ -4,10 +4,14 @@ import java.util.Collection;
 
 import javax.annotation.concurrent.Immutable;
 
+import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
 import de.invesdwin.util.lang.ADelegateComparator;
+import de.invesdwin.util.math.internal.AIntegersStaticFacade;
 
+@StaticFacadeDefinition(name = "de.invesdwin.util.math.internal.AIntegersStaticFacade", targets = {
+        com.google.common.primitives.Ints.class })
 @Immutable
-public final class Integers {
+public final class Integers extends AIntegersStaticFacade {
 
     public static final ADelegateComparator<Integer> COMPARATOR = new ADelegateComparator<Integer>() {
         @Override

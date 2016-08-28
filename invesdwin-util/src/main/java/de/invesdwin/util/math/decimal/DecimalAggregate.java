@@ -7,7 +7,12 @@ import java.util.List;
 
 import javax.annotation.concurrent.Immutable;
 
+import org.apache.commons.math3.analysis.interpolation.LoessInterpolator;
+import org.apache.commons.math3.analysis.polynomials.PolynomialSplineFunction;
+
 import de.invesdwin.util.collections.Lists;
+import de.invesdwin.util.math.Doubles;
+import de.invesdwin.util.math.decimal.scaled.PercentScale;
 
 @Immutable
 class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregate<E> {
@@ -239,6 +244,43 @@ class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregate<E> {
             sum = sum.add(value.subtract(avg).getDefaultValue().pow(2));
         }
         return getConverter().fromDefaultValue(sum.divide(values.size()));
+    }
+
+    @Override
+    public IDecimalAggregate<E> loessInterpolation(final LoessInterpolationConfig config) {
+        final List<Double> xval = new ArrayList<Double>();
+        final List<Double> yval = new ArrayList<Double>();
+        for (int i = 0; i < values.size(); i++) {
+            xval.add((double) i);
+            yval.add(values.get(i).doubleValue());
+        }
+        if (config.isPunishEdges()) {
+            xval.add(0, -1D);
+            xval.add((double) values.size());
+            if (yval.get(0) < 0) {
+                yval.add(0, yval.get(0) * 2);
+            } else {
+                yval.add(0, 0D);
+            }
+            if (yval.get(yval.size() - 1) < 0) {
+                yval.add(yval.get(yval.size() - 1) * 2);
+            } else {
+                yval.add(0D);
+            }
+        }
+        double bandwidth = config.getSmoothness().getValue(PercentScale.RATE).doubleValue();
+        if (bandwidth * values.size() < 2) {
+            bandwidth = Decimal.TWO.divide(values.size()).doubleValue();
+        }
+        final PolynomialSplineFunction interpolated = new LoessInterpolator(bandwidth,
+                LoessInterpolator.DEFAULT_ROBUSTNESS_ITERS).interpolate(Doubles.toArray(xval), Doubles.toArray(yval));
+
+        final List<E> interpolatedValues = new ArrayList<E>();
+        for (int i = 0; i < values.size(); i++) {
+            final E value = converter.fromDefaultValue(Decimal.valueOf(interpolated.value(i)));
+            interpolatedValues.add(value);
+        }
+        return new DecimalAggregate<E>(interpolatedValues, converter);
     }
 
     @Override
