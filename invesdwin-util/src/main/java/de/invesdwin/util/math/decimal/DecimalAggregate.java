@@ -252,7 +252,12 @@ class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregate<E> {
         final List<Double> yval = new ArrayList<Double>();
         for (int i = 0; i < values.size(); i++) {
             xval.add((double) i);
-            yval.add(values.get(i).doubleValue());
+            final double y = values.get(i).doubleValue();
+            if (Double.isFinite(y)) {
+                yval.add(y);
+            } else {
+                yval.add(0D);
+            }
         }
         if (config.isPunishEdges()) {
             xval.add(0, -1D);
