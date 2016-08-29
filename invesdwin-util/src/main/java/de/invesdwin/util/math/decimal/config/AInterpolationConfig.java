@@ -16,6 +16,10 @@ public abstract class AInterpolationConfig<E> {
         return higherIsBetter;
     }
 
+    /**
+     * Edges will only get punished when the values size is >= 5, or else the data is insufficient to tell that the
+     * edges are actually worse.
+     */
     public E withPunishEdges(final boolean punishEdges, final boolean higherIsBetter) {
         this.punishEdges = punishEdges;
         this.higherIsBetter = higherIsBetter;
