@@ -5,7 +5,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 import de.invesdwin.util.math.decimal.scaled.Percent;
 
 @NotThreadSafe
-public class LoessInterpolationConfig extends AInterpolationConfig<LoessInterpolationConfig> {
+public class LoessInterpolationConfig extends InterpolationConfig {
 
     private Percent smoothness = Percent.FIFTY_PERCENT;
 
@@ -16,6 +16,11 @@ public class LoessInterpolationConfig extends AInterpolationConfig<LoessInterpol
     public LoessInterpolationConfig withSmoothness(final Percent smoothness) {
         this.smoothness = smoothness;
         return this;
+    }
+
+    @Override
+    public LoessInterpolationConfig withPunishEdges(final boolean punishEdges, final boolean higherIsBetter) {
+        return (LoessInterpolationConfig) super.withPunishEdges(punishEdges, higherIsBetter);
     }
 
 }

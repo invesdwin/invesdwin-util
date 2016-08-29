@@ -3,9 +3,9 @@ package de.invesdwin.util.math.decimal.config;
 import javax.annotation.concurrent.NotThreadSafe;
 
 @NotThreadSafe
-public class BSplineInterpolationConfig extends AInterpolationConfig<BSplineInterpolationConfig> {
+public class BSplineInterpolationConfig extends InterpolationConfig {
 
-    private int degree = Integer.MAX_VALUE;
+    private int degree = 4;
 
     public int getDegree() {
         return degree;
@@ -17,6 +17,11 @@ public class BSplineInterpolationConfig extends AInterpolationConfig<BSplineInte
     public BSplineInterpolationConfig withDegree(final int degree) {
         this.degree = degree;
         return this;
+    }
+
+    @Override
+    public BSplineInterpolationConfig withPunishEdges(final boolean punishEdges, final boolean higherIsBetter) {
+        return (BSplineInterpolationConfig) super.withPunishEdges(punishEdges, higherIsBetter);
     }
 
 }

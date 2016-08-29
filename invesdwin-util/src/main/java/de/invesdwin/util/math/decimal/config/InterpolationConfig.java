@@ -3,7 +3,7 @@ package de.invesdwin.util.math.decimal.config;
 import javax.annotation.concurrent.NotThreadSafe;
 
 @NotThreadSafe
-public abstract class AInterpolationConfig<E> {
+public class InterpolationConfig {
 
     private boolean punishEdges = false;
     private boolean higherIsBetter = true;
@@ -20,10 +20,10 @@ public abstract class AInterpolationConfig<E> {
      * Edges will only get punished when the values size is >= 5, or else the data is insufficient to tell that the
      * edges are actually worse.
      */
-    public E withPunishEdges(final boolean punishEdges, final boolean higherIsBetter) {
+    public InterpolationConfig withPunishEdges(final boolean punishEdges, final boolean higherIsBetter) {
         this.punishEdges = punishEdges;
         this.higherIsBetter = higherIsBetter;
-        return (E) this;
+        return this;
     }
 
 }

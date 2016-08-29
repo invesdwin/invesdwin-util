@@ -9,6 +9,7 @@ import javax.annotation.concurrent.Immutable;
 import de.invesdwin.util.math.decimal.ADecimal;
 import de.invesdwin.util.math.decimal.IDecimalAggregate;
 import de.invesdwin.util.math.decimal.config.BSplineInterpolationConfig;
+import de.invesdwin.util.math.decimal.config.InterpolationConfig;
 import de.invesdwin.util.math.decimal.config.LoessInterpolationConfig;
 
 @Immutable
@@ -211,6 +212,16 @@ public final class DummyDecimalAggregate<E extends ADecimal<E>> implements IDeci
 
     @Override
     public IDecimalAggregate<E> bSplineInterpolation(final BSplineInterpolationConfig config) {
+        return this;
+    }
+
+    @Override
+    public IDecimalAggregate<E> cubicBSplineInterpolation(final InterpolationConfig config) {
+        return this;
+    }
+
+    @Override
+    public IDecimalAggregate<E> bezierCurveInterpolation(final InterpolationConfig config) {
         return this;
     }
 

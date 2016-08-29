@@ -12,6 +12,7 @@ import de.invesdwin.util.math.decimal.ADecimal;
 import de.invesdwin.util.math.decimal.Decimal;
 import de.invesdwin.util.math.decimal.IDecimalAggregate;
 import de.invesdwin.util.math.decimal.config.BSplineInterpolationConfig;
+import de.invesdwin.util.math.decimal.config.InterpolationConfig;
 import de.invesdwin.util.math.decimal.config.LoessInterpolationConfig;
 
 @Immutable
@@ -254,6 +255,16 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
     @Override
     public IDecimalAggregate<E> loessInterpolation(final LoessInterpolationConfig config) {
         return new DecimalAggregateInterpolations<E>(this).loessInterpolation(config);
+    }
+
+    @Override
+    public IDecimalAggregate<E> cubicBSplineInterpolation(final InterpolationConfig config) {
+        return new DecimalAggregateInterpolations<E>(this).cubicBSplineInterpolation(config);
+    }
+
+    @Override
+    public IDecimalAggregate<E> bezierCurveInterpolation(final InterpolationConfig config) {
+        return new DecimalAggregateInterpolations<E>(this).bezierCurveInterpolation(config);
     }
 
     @Override

@@ -4,6 +4,7 @@ import java.math.RoundingMode;
 import java.util.List;
 
 import de.invesdwin.util.math.decimal.config.BSplineInterpolationConfig;
+import de.invesdwin.util.math.decimal.config.InterpolationConfig;
 import de.invesdwin.util.math.decimal.config.LoessInterpolationConfig;
 
 public interface IDecimalAggregate<E extends ADecimal<E>> {
@@ -135,5 +136,14 @@ public interface IDecimalAggregate<E extends ADecimal<E>> {
     IDecimalAggregate<E> loessInterpolation(LoessInterpolationConfig config);
 
     IDecimalAggregate<E> bSplineInterpolation(BSplineInterpolationConfig config);
+
+    IDecimalAggregate<E> cubicBSplineInterpolation(InterpolationConfig config);
+
+    /**
+     * bezier is fast O(n) but cannot calculate value sizes larger than 1030. You might want to consider to fallback to
+     * an equivalent variation of BSpline with degree n, which sadly is exponentially slower with O(2^n) and might thus
+     * not even complete in your lifetime...
+     */
+    IDecimalAggregate<E> bezierCurveInterpolation(InterpolationConfig config);
 
 }

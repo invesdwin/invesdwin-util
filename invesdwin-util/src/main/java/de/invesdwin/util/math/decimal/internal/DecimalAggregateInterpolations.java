@@ -11,7 +11,9 @@ import org.apache.commons.math3.analysis.interpolation.SplineInterpolator;
 import org.apache.commons.math3.analysis.interpolation.UnivariateInterpolator;
 
 import com.graphbuilder.curve.BSpline;
+import com.graphbuilder.curve.BezierCurve;
 import com.graphbuilder.curve.ControlPath;
+import com.graphbuilder.curve.CubicBSpline;
 import com.graphbuilder.curve.Curve;
 import com.graphbuilder.curve.GroupIterator;
 import com.graphbuilder.curve.MultiPath;
@@ -22,8 +24,8 @@ import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.decimal.ADecimal;
 import de.invesdwin.util.math.decimal.Decimal;
 import de.invesdwin.util.math.decimal.IDecimalAggregate;
-import de.invesdwin.util.math.decimal.config.AInterpolationConfig;
 import de.invesdwin.util.math.decimal.config.BSplineInterpolationConfig;
+import de.invesdwin.util.math.decimal.config.InterpolationConfig;
 import de.invesdwin.util.math.decimal.config.LoessInterpolationConfig;
 import de.invesdwin.util.math.decimal.scaled.PercentScale;
 
@@ -42,6 +44,45 @@ public class DecimalAggregateInterpolations<E extends ADecimal<E>> {
         this.converter = parent.getConverter();
     }
 
+    public IDecimalAggregate<E> cubicBSplineInterpolation(final InterpolationConfig config) {
+        if (values.size() < 4) {
+            return parent;
+        }
+
+        final List<Double> xval = new ArrayList<Double>();
+        final List<Double> yval = new ArrayList<Double>();
+        fillInterpolationPoints(xval, yval, config);
+
+        final ControlPath cp = new ControlPath();
+        for (int i = 0; i < xval.size(); i++) {
+            cp.addPoint(PointFactory.create(xval.get(i), yval.get(i)));
+        }
+        final GroupIterator gi = new GroupIterator("0:n-1", cp.numPoints());
+        final CubicBSpline curve = new CubicBSpline(cp, gi);
+        curve.setInterpolateEndpoints(true);
+        calculateCurve(xval, yval, curve);
+
+        final UnivariateInterpolator interpolator = new SplineInterpolator();
+        return interpolate(xval, yval, interpolator);
+    }
+
+    public IDecimalAggregate<E> bezierCurveInterpolation(final InterpolationConfig config) {
+        final List<Double> xval = new ArrayList<Double>();
+        final List<Double> yval = new ArrayList<Double>();
+        fillInterpolationPoints(xval, yval, config);
+
+        final ControlPath cp = new ControlPath();
+        for (int i = 0; i < xval.size(); i++) {
+            cp.addPoint(PointFactory.create(xval.get(i), yval.get(i)));
+        }
+        final GroupIterator gi = new GroupIterator("0:n-1", cp.numPoints());
+        final BezierCurve curve = new BezierCurve(cp, gi);
+        calculateCurve(xval, yval, curve);
+
+        final UnivariateInterpolator interpolator = new SplineInterpolator();
+        return interpolate(xval, yval, interpolator);
+    }
+
     public IDecimalAggregate<E> bSplineInterpolation(final BSplineInterpolationConfig config) {
         final List<Double> xval = new ArrayList<Double>();
         final List<Double> yval = new ArrayList<Double>();
@@ -52,13 +93,13 @@ public class DecimalAggregateInterpolations<E extends ADecimal<E>> {
             cp.addPoint(PointFactory.create(xval.get(i), yval.get(i)));
         }
         final GroupIterator gi = new GroupIterator("0:n-1", cp.numPoints());
-        final BSpline bSpline = new BSpline(cp, gi);
-        bSpline.setDegree(config.getDegree());
+        final BSpline curve = new BSpline(cp, gi);
+        curve.setDegree(config.getDegree());
         final int maxDegree = cp.numPoints() - 1;
-        if (bSpline.getDegree() > maxDegree) {
-            bSpline.setDegree(maxDegree);
+        if (curve.getDegree() > maxDegree) {
+            curve.setDegree(maxDegree);
         }
-        calculateCurve(xval, yval, bSpline);
+        calculateCurve(xval, yval, curve);
 
         final UnivariateInterpolator interpolator = new SplineInterpolator();
         return interpolate(xval, yval, interpolator);
@@ -111,7 +152,7 @@ public class DecimalAggregateInterpolations<E extends ADecimal<E>> {
     }
 
     private void fillInterpolationPoints(final List<Double> xval, final List<Double> yval,
-            final AInterpolationConfig<?> config) {
+            final InterpolationConfig config) {
         for (int i = 0; i < values.size(); i++) {
             xval.add((double) i);
             final double y = values.get(i).doubleValue();
@@ -135,7 +176,7 @@ public class DecimalAggregateInterpolations<E extends ADecimal<E>> {
         }
     }
 
-    private double punishEdgeValue(final double value, final AInterpolationConfig<?> config, final Double minValue,
+    private double punishEdgeValue(final double value, final InterpolationConfig config, final Double minValue,
             final Double maxValue) {
         if (config.isHigherIsBetter()) {
             if (value > 0) {
