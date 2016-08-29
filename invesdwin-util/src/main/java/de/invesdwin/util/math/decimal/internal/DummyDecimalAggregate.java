@@ -1,4 +1,4 @@
-package de.invesdwin.util.math.decimal;
+package de.invesdwin.util.math.decimal.internal;
 
 import java.math.RoundingMode;
 import java.util.Collections;
@@ -6,8 +6,13 @@ import java.util.List;
 
 import javax.annotation.concurrent.Immutable;
 
+import de.invesdwin.util.math.decimal.ADecimal;
+import de.invesdwin.util.math.decimal.IDecimalAggregate;
+import de.invesdwin.util.math.decimal.config.BSplineInterpolationConfig;
+import de.invesdwin.util.math.decimal.config.LoessInterpolationConfig;
+
 @Immutable
-final class DummyDecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregate<E> {
+public final class DummyDecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregate<E> {
 
     @SuppressWarnings("rawtypes")
     private static final DummyDecimalAggregate INSTANCE = new DummyDecimalAggregate();
@@ -201,6 +206,11 @@ final class DummyDecimalAggregate<E extends ADecimal<E>> implements IDecimalAggr
 
     @Override
     public IDecimalAggregate<E> loessInterpolation(final LoessInterpolationConfig config) {
+        return this;
+    }
+
+    @Override
+    public IDecimalAggregate<E> bSplineInterpolation(final BSplineInterpolationConfig config) {
         return this;
     }
 

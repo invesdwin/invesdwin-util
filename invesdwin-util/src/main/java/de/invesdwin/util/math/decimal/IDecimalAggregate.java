@@ -3,6 +3,9 @@ package de.invesdwin.util.math.decimal;
 import java.math.RoundingMode;
 import java.util.List;
 
+import de.invesdwin.util.math.decimal.config.BSplineInterpolationConfig;
+import de.invesdwin.util.math.decimal.config.LoessInterpolationConfig;
+
 public interface IDecimalAggregate<E extends ADecimal<E>> {
 
     /**
@@ -130,5 +133,7 @@ public interface IDecimalAggregate<E extends ADecimal<E>> {
     boolean isStableOrFallingEach();
 
     IDecimalAggregate<E> loessInterpolation(LoessInterpolationConfig config);
+
+    IDecimalAggregate<E> bSplineInterpolation(BSplineInterpolationConfig config);
 
 }

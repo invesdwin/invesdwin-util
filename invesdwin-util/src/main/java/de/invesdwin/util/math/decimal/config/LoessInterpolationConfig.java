@@ -1,14 +1,13 @@
-package de.invesdwin.util.math.decimal;
+package de.invesdwin.util.math.decimal.config;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.math.decimal.scaled.Percent;
 
 @NotThreadSafe
-public class LoessInterpolationConfig {
+public class LoessInterpolationConfig extends AInterpolationConfig<LoessInterpolationConfig> {
 
     private Percent smoothness = Percent.FIFTY_PERCENT;
-    private boolean punishEdges = false;
 
     public Percent getSmoothness() {
         return smoothness;
@@ -16,15 +15,6 @@ public class LoessInterpolationConfig {
 
     public LoessInterpolationConfig withSmoothness(final Percent smoothness) {
         this.smoothness = smoothness;
-        return this;
-    }
-
-    public boolean isPunishEdges() {
-        return punishEdges;
-    }
-
-    public LoessInterpolationConfig withPunishEdges(final boolean punishEdges) {
-        this.punishEdges = punishEdges;
         return this;
     }
 

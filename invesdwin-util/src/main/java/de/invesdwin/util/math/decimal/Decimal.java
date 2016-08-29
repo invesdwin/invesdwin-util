@@ -11,6 +11,8 @@ import java.util.function.Function;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.lang.Strings;
+import de.invesdwin.util.math.decimal.internal.DecimalAggregate;
+import de.invesdwin.util.math.decimal.internal.DummyDecimalAggregate;
 import de.invesdwin.util.math.decimal.internal.impl.ADecimalImpl;
 import de.invesdwin.util.math.decimal.internal.impl.DoubleDecimalImplFactory;
 import de.invesdwin.util.math.decimal.internal.impl.IDecimalImplFactory;

@@ -1,4 +1,4 @@
-package de.invesdwin.util.math.decimal;
+package de.invesdwin.util.math.decimal.internal;
 
 import java.math.RoundingMode;
 import java.util.ArrayList;
@@ -7,25 +7,25 @@ import java.util.List;
 
 import javax.annotation.concurrent.Immutable;
 
-import org.apache.commons.math3.analysis.interpolation.LoessInterpolator;
-import org.apache.commons.math3.analysis.polynomials.PolynomialSplineFunction;
-
 import de.invesdwin.util.collections.Lists;
-import de.invesdwin.util.math.Doubles;
-import de.invesdwin.util.math.decimal.scaled.PercentScale;
+import de.invesdwin.util.math.decimal.ADecimal;
+import de.invesdwin.util.math.decimal.Decimal;
+import de.invesdwin.util.math.decimal.IDecimalAggregate;
+import de.invesdwin.util.math.decimal.config.BSplineInterpolationConfig;
+import de.invesdwin.util.math.decimal.config.LoessInterpolationConfig;
 
 @Immutable
-class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregate<E> {
+public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregate<E> {
 
     private E converter;
     private final List<? extends E> values;
 
-    DecimalAggregate(final List<? extends E> values, final E converter) {
+    public DecimalAggregate(final List<? extends E> values, final E converter) {
         this.values = values;
         this.converter = converter;
     }
 
-    private E getConverter() {
+    public E getConverter() {
         if (converter == null) {
             for (final E scaledValue : values) {
                 if (scaledValue != null) {
@@ -247,45 +247,13 @@ class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregate<E> {
     }
 
     @Override
-    public IDecimalAggregate<E> loessInterpolation(final LoessInterpolationConfig config) {
-        final List<Double> xval = new ArrayList<Double>();
-        final List<Double> yval = new ArrayList<Double>();
-        for (int i = 0; i < values.size(); i++) {
-            xval.add((double) i);
-            final double y = values.get(i).doubleValue();
-            if (Double.isFinite(y)) {
-                yval.add(y);
-            } else {
-                yval.add(0D);
-            }
-        }
-        if (config.isPunishEdges()) {
-            xval.add(0, -1D);
-            xval.add((double) values.size());
-            if (yval.get(0) < 0) {
-                yval.add(0, yval.get(0) * 2);
-            } else {
-                yval.add(0, 0D);
-            }
-            if (yval.get(yval.size() - 1) < 0) {
-                yval.add(yval.get(yval.size() - 1) * 2);
-            } else {
-                yval.add(0D);
-            }
-        }
-        double bandwidth = config.getSmoothness().getValue(PercentScale.RATE).doubleValue();
-        if (bandwidth * values.size() < 2) {
-            bandwidth = Decimal.TWO.divide(values.size()).doubleValue();
-        }
-        final PolynomialSplineFunction interpolated = new LoessInterpolator(bandwidth,
-                LoessInterpolator.DEFAULT_ROBUSTNESS_ITERS).interpolate(Doubles.toArray(xval), Doubles.toArray(yval));
+    public IDecimalAggregate<E> bSplineInterpolation(final BSplineInterpolationConfig config) {
+        return new DecimalAggregateInterpolations<E>(this).bSplineInterpolation(config);
+    }
 
-        final List<E> interpolatedValues = new ArrayList<E>();
-        for (int i = 0; i < values.size(); i++) {
-            final E value = converter.fromDefaultValue(Decimal.valueOf(interpolated.value(i)));
-            interpolatedValues.add(value);
-        }
-        return new DecimalAggregate<E>(interpolatedValues, converter);
+    @Override
+    public IDecimalAggregate<E> loessInterpolation(final LoessInterpolationConfig config) {
+        return new DecimalAggregateInterpolations<E>(this).loessInterpolation(config);
     }
 
     @Override
