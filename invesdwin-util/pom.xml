@@ -285,7 +285,9 @@
 					<excludesRegex>
 						<!-- apache license -->
 						<param>joda-time.*</param>
-						<param>de.jollyday.*</param>
+						<param>de\.jollyday.*</param>
+						<!-- bsd license -->
+						<param>com\.github\.virtuald:curvesapi.*</param>
 					</excludesRegex>
 				</configuration>
 			</plugin>
