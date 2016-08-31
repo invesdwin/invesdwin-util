@@ -260,7 +260,9 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
     }
 
     public E multiply(final ADecimal<E> multiplicant) {
-        if (multiplicant == null) {
+        if (isZero()) {
+            return getGenericThis();
+        } else if (multiplicant == null) {
             return multiply(0);
         } else {
             return newValueCopy(getImpl().multiply(multiplicant));
@@ -271,7 +273,9 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
      * returns the remainder of the division.
      */
     public E remainder(final ADecimal<E> divisor) {
-        if (divisor == null || divisor.isZero()) {
+        if (isZero()) {
+            return getGenericThis();
+        } else if (divisor == null || divisor.isZero()) {
             return remainder(0);
         } else {
             return newValueCopy(getImpl().remainder(divisor));
@@ -279,7 +283,9 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
     }
 
     public E remainder(final Number divisor) {
-        if (divisor == null || divisor.doubleValue() == 0D) {
+        if (isZero()) {
+            return getGenericThis();
+        } else if (divisor == null || divisor.doubleValue() == 0D) {
             //results in 0, thus multiply by 0
             return newValueCopy(getImpl().remainder(0));
         } else {
@@ -293,19 +299,10 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
         }
     }
 
-    /**
-     * If the divisor is 0, 0 is returned. This goes against the mathematical rules, but makes a developers life easier.
-     */
-    public E divide(final ADecimal<E> divisor) {
-        if (divisor == null || divisor.isZero()) {
-            return divide(0);
-        } else {
-            return newValueCopy(getImpl().divide(divisor));
-        }
-    }
-
     public E multiply(final Number multiplicant) {
-        if (multiplicant == null) {
+        if (isZero()) {
+            return getGenericThis();
+        } else if (multiplicant == null) {
             return newValueCopy(getImpl().multiply(0));
         } else {
             if (multiplicant instanceof AScaledDecimal) {
@@ -321,8 +318,25 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
     /**
      * If the divisor is 0, 0 is returned. This goes against the mathematical rules, but makes a developers life easier.
      */
+    public E divide(final ADecimal<E> divisor) {
+        if (isZero()) {
+            //prevent NaN
+            return getGenericThis();
+        } else if (divisor == null || divisor.isZero()) {
+            return divide(0);
+        } else {
+            return newValueCopy(getImpl().divide(divisor));
+        }
+    }
+
+    /**
+     * If the divisor is 0, 0 is returned. This goes against the mathematical rules, but makes a developers life easier.
+     */
     public E divide(final Number divisor) {
-        if (divisor == null || divisor.doubleValue() == 0D) {
+        if (isZero()) {
+            //prevent NaN
+            return getGenericThis();
+        } else if (divisor == null || divisor.doubleValue() == 0D) {
             //results in 0, thus multiply by 0
             return newValueCopy(getImpl().multiply(0));
         } else {

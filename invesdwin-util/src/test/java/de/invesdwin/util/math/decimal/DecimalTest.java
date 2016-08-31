@@ -45,8 +45,8 @@ public class DecimalTest {
 
     @Test
     public void testMultiply() {
-        Assertions.assertThat(new Decimal("13191").multiply(new Decimal("1352255913000")).toString()).isIn(
-                "17837607748383000", /* double imprecision adds 2 */"17837607748383002");
+        Assertions.assertThat(new Decimal("13191").multiply(new Decimal("1352255913000")).toString())
+                .isIn("17837607748383000", /* double imprecision adds 2 */"17837607748383002");
         Assertions.assertThat(new Decimal("13191").multiply(new Decimal("1352255913000"))).isIn(
                 new Decimal("17837607748383000"), /* double imprecision adds 2 */new Decimal("17837607748383002"));
     }
@@ -55,6 +55,7 @@ public class DecimalTest {
     public void testDivide() {
         Assertions.assertThat(new Decimal("1").divide(new Decimal("3")).toString()).isEqualTo("0.333333333");
         Assertions.assertThat(new Decimal("1").divide(new Decimal("3"))).isEqualTo(new Decimal("0.333333333"));
+        Assertions.assertThat(new Decimal("0").divide(new Decimal("3"))).isEqualTo(new Decimal("0"));
     }
 
     @Test
@@ -85,10 +86,10 @@ public class DecimalTest {
         values.add(new Decimal("5"));
         final IDecimalAggregate<Decimal> growthRates = Decimal.valueOf(values).growthRates();
         Assertions.assertThat(growthRates.toString()).isEqualTo("[1, 0.5, 0.333333333, 0.25]");
-        final List<Decimal> expectedList = Arrays.asList(new Decimal("1"), new Decimal("0.5"), new Decimal(
-                "0.333333333"), new Decimal("0.25"));
-        Assertions.assertThat(Decimal.valueOf(values).growthRates().values().size()).isEqualTo(
-                growthRates.values().size());
+        final List<Decimal> expectedList = Arrays.asList(new Decimal("1"), new Decimal("0.5"),
+                new Decimal("0.333333333"), new Decimal("0.25"));
+        Assertions.assertThat(Decimal.valueOf(values).growthRates().values().size())
+                .isEqualTo(growthRates.values().size());
         for (int i = 0; i < expectedList.size(); i++) {
             Assertions.assertThat(growthRates.values().get(i)).isEqualTo(expectedList.get(i));
         }
@@ -124,8 +125,8 @@ public class DecimalTest {
 
         Assertions.assertThat(new Decimal("0.1").roundToStep(new Decimal("0.1"), RoundingMode.FLOOR).toString())
                 .isEqualTo("0.1");
-        Assertions.assertThat(new Decimal("0.1").roundToStep(new Decimal("0.1"), RoundingMode.FLOOR)).isEqualTo(
-                new Decimal("0.1"));
+        Assertions.assertThat(new Decimal("0.1").roundToStep(new Decimal("0.1"), RoundingMode.FLOOR))
+                .isEqualTo(new Decimal("0.1"));
     }
 
     @Test
@@ -225,10 +226,10 @@ public class DecimalTest {
         Assertions.assertThat(new Decimal("37.966").round(2, RoundingMode.HALF_EVEN).toString()).isEqualTo("37.97");
         Assertions.assertThat(new Decimal("37.966").round(2, RoundingMode.HALF_EVEN)).isEqualTo(new Decimal("37.97"));
 
-        Assertions.assertThat(new Decimal("37.95629787000").round(2, RoundingMode.UNNECESSARY).toString()).isEqualTo(
-                "37.95629787");
-        Assertions.assertThat(new Decimal("37.95629787000").round(2, RoundingMode.UNNECESSARY)).isEqualTo(
-                new Decimal("37.95629787000"));
+        Assertions.assertThat(new Decimal("37.95629787000").round(2, RoundingMode.UNNECESSARY).toString())
+                .isEqualTo("37.95629787");
+        Assertions.assertThat(new Decimal("37.95629787000").round(2, RoundingMode.UNNECESSARY))
+                .isEqualTo(new Decimal("37.95629787000"));
     }
 
     @Test
@@ -295,10 +296,10 @@ public class DecimalTest {
         Assertions.assertThat(new Decimal("-37.966").round(2, RoundingMode.HALF_EVEN).toString()).isEqualTo("-37.97");
         Assertions.assertThat(new Decimal("-37.966").round(2, RoundingMode.HALF_EVEN)).isEqualTo(new Decimal("-37.97"));
 
-        Assertions.assertThat(new Decimal("-37.95629787000").round(2, RoundingMode.UNNECESSARY).toString()).isEqualTo(
-                "-37.95629787");
-        Assertions.assertThat(new Decimal("-37.95629787000").round(2, RoundingMode.UNNECESSARY)).isEqualTo(
-                new Decimal("-37.95629787000"));
+        Assertions.assertThat(new Decimal("-37.95629787000").round(2, RoundingMode.UNNECESSARY).toString())
+                .isEqualTo("-37.95629787");
+        Assertions.assertThat(new Decimal("-37.95629787000").round(2, RoundingMode.UNNECESSARY))
+                .isEqualTo(new Decimal("-37.95629787000"));
     }
 
     @Test
@@ -352,8 +353,8 @@ public class DecimalTest {
 
     @Test
     public void testEquals() {
-        Assertions.assertThat(new Decimal("9.536743164E-7").toString()).isEqualTo(
-                new Decimal("0.0000009536743164").toString());
+        Assertions.assertThat(new Decimal("9.536743164E-7").toString())
+                .isEqualTo(new Decimal("0.0000009536743164").toString());
         Assertions.assertThat(new Decimal("9.536743164E-7")).isEqualTo(new Decimal("0.0000009536743164"));
     }
 

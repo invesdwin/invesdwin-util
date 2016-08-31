@@ -179,34 +179,44 @@ public abstract class AScaledDecimal<T extends AScaledDecimal<T, S>, S extends I
     @SuppressWarnings("unchecked")
     @Override
     public T multiply(final ADecimal<T> multiplicant) {
-        if (multiplicant == null) {
+        if (isZero()) {
             return getGenericThis();
+        } else if (multiplicant == null) {
+            return multiply(0);
+        } else {
+            final ADecimal<?> defaultScaledMultiplicant = maybeGetDefaultScaledNumber(multiplicant);
+            final ADecimalImpl newDefault = getDefaultValue().getImpl().multiply(defaultScaledMultiplicant);
+            return fromDefaultValue(new Decimal(newDefault));
         }
-        final ADecimal<?> defaultScaledMultiplicant = maybeGetDefaultScaledNumber(multiplicant);
-        final ADecimalImpl newDefault = getDefaultValue().getImpl().multiply(defaultScaledMultiplicant);
-        return fromDefaultValue(new Decimal(newDefault));
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public T divide(final ADecimal<T> divisor) {
-        if (divisor == null) {
+        if (isZero()) {
+            //prevent NaN
             return getGenericThis();
+        } else if (divisor == null || divisor.isZero()) {
+            return divide(0);
+        } else {
+            final ADecimal<?> defaultScaledDivisor = maybeGetDefaultScaledNumber(divisor);
+            final ADecimalImpl newDefault = getDefaultValue().getImpl().divide(defaultScaledDivisor);
+            return fromDefaultValue(new Decimal(newDefault));
         }
-        final ADecimal<?> defaultScaledDivisor = maybeGetDefaultScaledNumber(divisor);
-        final ADecimalImpl newDefault = getDefaultValue().getImpl().divide(defaultScaledDivisor);
-        return fromDefaultValue(new Decimal(newDefault));
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public T remainder(final ADecimal<T> divisor) {
-        if (divisor == null) {
+        if (isZero()) {
             return getGenericThis();
+        } else if (divisor == null || divisor.isZero()) {
+            return remainder(0);
+        } else {
+            final ADecimal<?> defaultScaledDivisor = maybeGetDefaultScaledNumber(divisor);
+            final ADecimalImpl newDefault = getDefaultValue().getImpl().remainder(defaultScaledDivisor);
+            return fromDefaultValue(new Decimal(newDefault));
         }
-        final ADecimal<?> defaultScaledDivisor = maybeGetDefaultScaledNumber(divisor);
-        final ADecimalImpl newDefault = getDefaultValue().getImpl().remainder(defaultScaledDivisor);
-        return fromDefaultValue(new Decimal(newDefault));
     }
 
     private ADecimal<?> maybeGetDefaultScaledNumber(final ADecimal<?> number) {
