@@ -135,6 +135,16 @@ class ScaledDecimalDelegateImpl extends ADecimalImpl {
     }
 
     @Override
+    public ADecimalImpl log() {
+        return getDelegate().log();
+    }
+
+    @Override
+    public ADecimalImpl exp() {
+        return getDelegate().exp();
+    }
+
+    @Override
     public ADecimalImpl pow(final Number exponent) {
         return getDelegate().pow(exponent);
     }

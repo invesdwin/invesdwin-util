@@ -125,6 +125,16 @@ public class DfpDecimalImpl extends ADecimalImpl<DfpDecimalImpl, Dfp> {
     }
 
     @Override
+    public DfpDecimalImpl log() {
+        return newValueCopy(getValue().log());
+    }
+
+    @Override
+    public DfpDecimalImpl exp() {
+        return newValueCopy(getValue().exp());
+    }
+
+    @Override
     public Dfp internalRound(final Dfp value, final int scale, final RoundingMode roundingMode) {
         final Dfp factor = DfpDecimalImplFactory.toDfp((long) Math.pow(10, scale));
         final Dfp toBeRoundedValue = value.multiply(factor);

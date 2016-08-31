@@ -243,4 +243,8 @@ public abstract class ADecimalImpl<E extends ADecimalImpl<E, V>, V>
 
     public abstract Number numberValue();
 
+    public abstract E log();
+
+    public abstract E exp();
+
 }

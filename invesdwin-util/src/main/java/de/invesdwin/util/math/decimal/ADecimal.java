@@ -245,6 +245,20 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
         return newValueCopy(getImpl().abs());
     }
 
+    /**
+     * Returns the natural logarithm.
+     */
+    public E log() {
+        return newValueCopy(getImpl().log());
+    }
+
+    /**
+     * Returns Euler's number <i>e</i> raised to the power of this value.
+     */
+    public E exp() {
+        return newValueCopy(getImpl().exp());
+    }
+
     public E subtract(final ADecimal<E> subtrahend) {
         if (subtrahend == null) {
             return getGenericThis();

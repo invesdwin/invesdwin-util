@@ -196,6 +196,16 @@ public class DoubleDecimalImpl extends ADecimalImpl<DoubleDecimalImpl, Double> {
     }
 
     @Override
+    public DoubleDecimalImpl log() {
+        return newValueCopy(Math.log(getValue()));
+    }
+
+    @Override
+    public DoubleDecimalImpl exp() {
+        return newValueCopy(Math.exp(getValue()));
+    }
+
+    @Override
     public BigDecimal bigDecimalValue() {
         return BigDecimalDecimalImplFactory.toBigDecimal(getValue());
     }
