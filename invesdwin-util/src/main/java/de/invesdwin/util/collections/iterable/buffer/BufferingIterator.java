@@ -1,4 +1,4 @@
-package de.invesdwin.util.collections.iterable;
+package de.invesdwin.util.collections.iterable.buffer;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -8,6 +8,7 @@ import java.util.NoSuchElementException;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.collections.Lists;
+import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.lang.Objects;
 
 /**
@@ -20,7 +21,7 @@ import de.invesdwin.util.lang.Objects;
  * Also a faster alternative to any list when only iteration is needed.
  */
 @NotThreadSafe
-public class BufferingIterator<E> implements ICloseableIterator<E>, ICloseableIterable<E> {
+public class BufferingIterator<E> implements IBufferingIterator<E> {
 
     private Node head;
     private Node tail;
@@ -41,6 +42,7 @@ public class BufferingIterator<E> implements ICloseableIterator<E>, ICloseableIt
         return head != null;
     }
 
+    @Override
     public boolean isEmpty() {
         return head == null;
     }
@@ -53,6 +55,7 @@ public class BufferingIterator<E> implements ICloseableIterator<E>, ICloseableIt
         return value;
     }
 
+    @Override
     public E getHead() {
         if (head == null) {
             return null;
@@ -61,6 +64,7 @@ public class BufferingIterator<E> implements ICloseableIterator<E>, ICloseableIt
         }
     }
 
+    @Override
     public E getTail() {
         if (tail == null) {
             return null;
@@ -69,6 +73,7 @@ public class BufferingIterator<E> implements ICloseableIterator<E>, ICloseableIt
         }
     }
 
+    @Override
     public void add(final E element) {
         if (element == null) {
             throw new NullPointerException();
@@ -83,6 +88,7 @@ public class BufferingIterator<E> implements ICloseableIterator<E>, ICloseableIt
         tail = newTail;
     }
 
+    @Override
     public void addAll(final Iterable<? extends E> iterable) {
         if (iterable == null) {
             return;
@@ -102,6 +108,7 @@ public class BufferingIterator<E> implements ICloseableIterator<E>, ICloseableIt
         }
     }
 
+    @Override
     public void addAll(final Iterator<? extends E> iterator) {
         if (iterator == null) {
             return;
@@ -139,12 +146,14 @@ public class BufferingIterator<E> implements ICloseableIterator<E>, ICloseableIt
         clear();
     }
 
+    @Override
     public void clear() {
         head = null;
         tail = null;
         size = 0;
     }
 
+    @Override
     public int size() {
         return size;
     }
