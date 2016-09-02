@@ -26,10 +26,9 @@ import de.invesdwin.util.time.fdate.FDate;
 public abstract class AHistoricalCache<V> {
 
     /**
-     * 10k is normally sufficient for daily bars of stocks and also fast enough for intraday ticks to load. Though
-     * reducing to 1k for better memory utilization in multimarket tests.
+     * 10k is normally sufficient for daily bars of stocks and also fast enough for intraday ticks to load.
      */
-    public static final int DEFAULT_MAXIMUM_SIZE = 1000;
+    public static final int DEFAULT_MAXIMUM_SIZE = 10000;
 
     private IHistoricalCacheAdjustKeyProvider adjustKeyProvider = new InnerHistoricalCacheAdjustKeyProvider();
     private IHistoricalCacheOnValueLoadedListener<V> onValueLoadedListener = new InnerHistoricalCacheOnValueLoadedListener();
