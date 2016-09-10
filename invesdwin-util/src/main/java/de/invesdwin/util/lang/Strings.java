@@ -1,6 +1,7 @@
 package de.invesdwin.util.lang;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -126,6 +127,19 @@ public final class Strings extends AStringsStaticFacade {
         } else {
             return s.replaceAll("[^A-Za-z0-9]", "");
         }
+    }
+
+    public static String asString(final List<String> list, final String delimiter) {
+        if (list == null) {
+            return null;
+        }
+        final StringBuilder sb = new StringBuilder();
+        for (final String e : list) {
+            sb.append(e);
+            sb.append(delimiter);
+        }
+        Strings.removeEnd(sb, delimiter);
+        return sb.toString();
     }
 
     /**

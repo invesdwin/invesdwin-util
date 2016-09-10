@@ -79,4 +79,30 @@ public final class Lists extends AListsStaticFacade {
     public static <E> List<E> toList(final ICloseableIterable<? extends E> iterable) {
         return toList(iterable.iterator());
     }
+
+    /**
+     * Examples:
+     * 
+     * null,null -> true
+     * 
+     * [],null -> true
+     * 
+     * null,[] -> true
+     * 
+     * [],[] -> true
+     * 
+     * [x],[] -> false
+     * 
+     * null,[x] -> false
+     */
+    public static boolean equals(final List<?> list1, final List<?> list2) {
+        final boolean list1NullOrEmpty = list1 == null || list1.isEmpty();
+        final boolean list2NullOrEmpty = list2 == null || list2.isEmpty();
+        if (list1NullOrEmpty && list2NullOrEmpty) {
+            return true;
+        } else {
+            return isEqualList(list1, list2);
+        }
+    }
+
 }
