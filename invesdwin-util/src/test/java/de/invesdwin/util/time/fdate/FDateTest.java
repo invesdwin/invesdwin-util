@@ -9,6 +9,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import de.invesdwin.util.assertions.Assertions;
+import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.time.TimeZones;
 import de.jollyday.HolidayCalendar;
 
@@ -153,6 +154,18 @@ public class FDateTest {
         Assertions.assertThat(wednesday.addWorkdays(5, null)).isEqualTo(FDateBuilder.newDate(2016, 5, 11));
         Assertions.assertThat(wednesday.addWorkdays(5, HolidayCalendar.GERMANY))
                 .isEqualTo(FDateBuilder.newDate(2016, 5, 12));
+    }
+
+    @Test
+    public void testIterateDays() {
+        final FDate fromDate = FDateBuilder.newDate(2000, 1, 1);
+        final FDate toDate = fromDate.addDays(1).addMilliseconds(-1);
+        final ICloseableIterator<FDate> iterator = FDate.iterable(fromDate, toDate, FTimeUnit.DAYS, 1).iterator();
+        final FDate next = iterator.next();
+        Assertions.assertThat(next).isEqualTo(fromDate);
+        final FDate nextNext = iterator.next();
+        Assertions.assertThat(nextNext).isEqualTo(toDate);
+        Assertions.assertThat(iterator.hasNext()).isFalse();
     }
 
 }
