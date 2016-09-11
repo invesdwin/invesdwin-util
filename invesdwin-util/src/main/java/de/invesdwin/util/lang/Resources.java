@@ -1,10 +1,14 @@
 package de.invesdwin.util.lang;
 
+import java.io.IOException;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.concurrent.Immutable;
 
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 
 @Immutable
@@ -17,11 +21,34 @@ public final class Resources {
         for (final Resource resource : resources) {
             final String resourceString = resource.toString();
             if (resourceString != null && Strings.contains(resourceString, "META-INF")) {
-                locationStrings.add("/META-INF"
-                        + Strings.removeEnd(Strings.substringAfter(resourceString, "META-INF"), "]"));
+                locationStrings
+                        .add("/META-INF" + Strings.removeEnd(Strings.substringAfter(resourceString, "META-INF"), "]"));
             }
         }
         return locationStrings;
+    }
+
+    public static String resourceToPatternString(final Resource resource) {
+        if (resource instanceof ClassPathResource) {
+            final ClassPathResource cResource = (ClassPathResource) resource;
+            return "classpath:" + cResource.getPath();
+        } else if (resource instanceof FileSystemResource) {
+            final FileSystemResource cResource = (FileSystemResource) resource;
+            return "file:" + cResource.getPath();
+        } else {
+            try {
+                final URI uri = resource.getURI();
+                if (uri != null) {
+                    return uri.toString();
+                } else {
+                    //fallback garbage
+                    return resource.toString();
+                }
+            } catch (final IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
     }
 
 }
