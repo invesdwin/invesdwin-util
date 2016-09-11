@@ -7,10 +7,10 @@ import javax.annotation.concurrent.NotThreadSafe;
 @NotThreadSafe
 public abstract class ASkippingIterator<E> implements ICloseableIterator<E> {
 
-    private final ICloseableIterator<E> delegate;
+    private final ICloseableIterator<? extends E> delegate;
     private E cachedReadNext;
 
-    public ASkippingIterator(final ICloseableIterator<E> delegate) {
+    public ASkippingIterator(final ICloseableIterator<? extends E> delegate) {
         this.delegate = delegate;
     }
 
