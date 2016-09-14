@@ -26,6 +26,17 @@ public abstract class ALoadingCache<K, V> extends ADelegateLoadingCache<K, V> {
         return false;
     }
 
+    public void increaseMaximumSize(final int maximumSize) {
+        final ILoadingCache<K, V> delegate = getDelegate();
+        if (delegate instanceof LRUMapLoadingCache) {
+            final LRUMapLoadingCache<K, V> lru = (LRUMapLoadingCache<K, V>) delegate;
+            lru.increaseMaximumSize(maximumSize);
+        } else {
+            throw new UnsupportedOperationException(
+                    "Currently only supported with: " + LRUMapLoadingCache.class.getSimpleName());
+        }
+    }
+
     protected abstract V loadValue(K key);
 
     @Override

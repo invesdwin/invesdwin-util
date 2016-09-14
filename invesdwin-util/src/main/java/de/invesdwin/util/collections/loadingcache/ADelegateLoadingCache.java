@@ -17,7 +17,7 @@ public abstract class ADelegateLoadingCache<K, V> implements ILoadingCache<K, V>
         this.delegate = createDelegate();
     }
 
-    private ILoadingCache<K, V> getDelegate() {
+    protected ILoadingCache<K, V> getDelegate() {
         return delegate;
     }
 

@@ -1,5 +1,7 @@
 package de.invesdwin.util.collections.loadingcache.historical;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.function.Function;
 
@@ -28,7 +30,8 @@ public abstract class AHistoricalCache<V> {
     /**
      * 10k is normally sufficient for daily bars of stocks and also fast enough for intraday ticks to load.
      */
-    public static final int DEFAULT_MAXIMUM_SIZE = 10000;
+    public static final int DEFAULT_MAXIMUM_SIZE = 1000;
+    private final List<ALoadingCache<?, ?>> increaseMaximumSizeListeners = new ArrayList<ALoadingCache<?, ?>>();
 
     private IHistoricalCacheAdjustKeyProvider adjustKeyProvider = new InnerHistoricalCacheAdjustKeyProvider();
     private IHistoricalCacheOnValueLoadedListener<V> onValueLoadedListener = new InnerHistoricalCacheOnValueLoadedListener();
@@ -65,6 +68,12 @@ public abstract class AHistoricalCache<V> {
      */
     public Integer getMaximumSize() {
         return DEFAULT_MAXIMUM_SIZE;
+    }
+
+    protected void increaseMaximumSize(final int maximumSize) {
+        for (final ALoadingCache<?, ?> l : increaseMaximumSizeListeners) {
+            l.increaseMaximumSize(maximumSize);
+        }
     }
 
     protected void setAdjustKeyProvider(final IHistoricalCacheAdjustKeyProvider adjustKeyProvider) {
@@ -108,7 +117,7 @@ public abstract class AHistoricalCache<V> {
 
     protected <T> ILoadingCache<FDate, T> newLoadingCacheProvider(final Function<FDate, T> loadValue,
             final Integer maximumSize) {
-        return new ALoadingCache<FDate, T>() {
+        final ALoadingCache<FDate, T> loadingCache = new ALoadingCache<FDate, T>() {
 
             @Override
             protected Integer getMaximumSize() {
@@ -121,6 +130,8 @@ public abstract class AHistoricalCache<V> {
             }
 
         };
+        increaseMaximumSizeListeners.add(loadingCache);
+        return loadingCache;
     }
 
     /**

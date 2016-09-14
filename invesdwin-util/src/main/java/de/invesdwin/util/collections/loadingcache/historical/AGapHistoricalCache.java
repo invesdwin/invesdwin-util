@@ -5,6 +5,7 @@ import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
+import de.invesdwin.util.collections.loadingcache.historical.internal.AGapHistoricalCacheMissCounter;
 import de.invesdwin.util.time.duration.Duration;
 import de.invesdwin.util.time.fdate.FDate;
 import de.invesdwin.util.time.fdate.FTimeUnit;
@@ -26,20 +27,56 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
     /**
      * 10 days is a good value for daily caches.
      */
-    public static final long DEFAULT_LOOK_BACK_STEP_MILLIS = new Duration(10, FTimeUnit.DAYS)
+    public static final long DEFAULT_READ_BACK_STEP_MILLIS = new Duration(10, FTimeUnit.DAYS)
             .intValue(FTimeUnit.MILLISECONDS);
     /**
      * having 2 here helps with queries for elements that are filtered by end time
      */
     private static final int MAX_LAST_VALUES_FROM_LOAD_FURTHER_VALUES = 2;
-    private static final int MAX_SUCCESSIVE_CACHE_EVICTIONS = 10;
 
-    private final org.slf4j.ext.XLogger log = org.slf4j.ext.XLoggerFactory.getXLogger(getClass());
-
+    private static boolean debugAutomaticReoptimization = false;
     @GuardedBy("this")
     private final BufferingIterator<V> furtherValues = new BufferingIterator<V>();
     @GuardedBy("this")
     private final BufferingIterator<V> lastValuesFromFurtherValues = new BufferingIterator<V>();
+    @GuardedBy("this")
+    private final AGapHistoricalCacheMissCounter<V> cacheMissCounter = new AGapHistoricalCacheMissCounter<V>() {
+
+        @Override
+        protected Integer getMaximumSize() {
+            return AGapHistoricalCache.this.getMaximumSize();
+        }
+
+        @Override
+        protected long getReadBackStepMillis() {
+            return AGapHistoricalCache.this.getReadBackStepMillis();
+        }
+
+        @Override
+        protected Iterable<? extends V> readAllValuesAscendingFrom(final FDate curMaxDate) {
+            return AGapHistoricalCache.this.readAllValuesAscendingFrom(curMaxDate);
+        }
+
+        @Override
+        protected FDate extractKey(final V v) {
+            return AGapHistoricalCache.this.extractKey(null, v);
+        }
+
+        @Override
+        protected void increaseOptimumMaximumSize(final int optimumMaximumSize) {
+            AGapHistoricalCache.this.increaseMaximumSize(optimumMaximumSize);
+        }
+
+        @Override
+        protected String parentToString() {
+            return AGapHistoricalCache.this.toString();
+        }
+
+        @Override
+        protected boolean isDebugAutomaticReoptimization() {
+            return isDefaultDebugAutomaticReoptimization();
+        }
+    };
     /**
      * As a convenience a field even if always reset
      */
@@ -61,14 +98,17 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
     @GuardedBy("this")
     private FDate minKey;
 
-    @GuardedBy("this")
-    private int successiveCacheEvictions = 0;
-    @GuardedBy("this")
-    private FDate successiveCacheEvictionsToMinKey = FDate.MAX_DATE;
-    @GuardedBy("this")
-    private FDate successiveCacheEvictionsFromMaxKey;
-    @GuardedBy("this")
-    private int maxSuccessiveCacheEvictions = 1;
+    /**
+     * You can enable this setting to get useful info when the automatic reoptimization happens, so you can hardcode the
+     * optimal values for getMaximumSize() and getReadBackStepMillis() for this cache in these circumstances.
+     */
+    public static void setDebugAutomaticReoptimization(final boolean debugAutomaticReoptimization) {
+        AGapHistoricalCache.debugAutomaticReoptimization = debugAutomaticReoptimization;
+    }
+
+    public static boolean isDefaultDebugAutomaticReoptimization() {
+        return debugAutomaticReoptimization;
+    }
 
     /**
      * Assumption: cache eviction does not cause values to be evicted with their keys not being evicted aswell.
@@ -98,7 +138,7 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
         }
         value = searchInFurtherValues(key);
         if (!furtherValuesLoaded && isPotentiallyAlreadyEvicted(key, value)) {
-            checkSuccessiveCacheEvictions(key);
+            cacheMissCounter.checkSuccessiveCacheEvictions(key);
             final FDate adjKey = determineEaliestStartOfLoadFurtherValues(key);
             furtherValuesLoaded = eventuallyLoadFurtherValues("loadValueBecauseOfEviction", key, adjKey, newMinKey,
                     true);
@@ -117,59 +157,6 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
         //And last we just try to get the newest value matching the key.
         //If there are no values in db, this method is only called once
         return readNewestValueFromDB(key);
-    }
-
-    private void checkSuccessiveCacheEvictions(final FDate key) {
-        if (key.isBeforeOrEqual(successiveCacheEvictionsToMinKey)) {
-            if (successiveCacheEvictionsFromMaxKey == null) {
-                successiveCacheEvictionsFromMaxKey = key;
-            }
-            successiveCacheEvictions++;
-        } else {
-            maxSuccessiveCacheEvictions = Math.max(maxSuccessiveCacheEvictions, successiveCacheEvictions);
-            if (successiveCacheEvictions > MAX_SUCCESSIVE_CACHE_EVICTIONS) {
-                warnAboutSuccessiveCacheEvictions();
-            }
-            successiveCacheEvictions = 0;
-            successiveCacheEvictionsFromMaxKey = key;
-        }
-        successiveCacheEvictionsToMinKey = key;
-    }
-
-    private void warnAboutSuccessiveCacheEvictions() {
-        if (log.isWarnEnabled()) {
-            final long newOptimiumReadBackStepMillis = determineNewOptimiumReadBackStepMillis();
-            final int newOptimiumMaximumSize = determineNewOptimiumMaximumSize();
-            final long currentReadBackStepMillis = getReadBackStepMillis();
-            final Integer currentMaximumSize = getMaximumSize();
-            log.warn(getClass().getSimpleName() + " [" + toString() + "]: please check your getMaximumSize() [current="
-                    + currentMaximumSize + "|newOptimium=" + newOptimiumMaximumSize
-                    + "] and getReadBackStepMillis() [current=" + currentReadBackStepMillis + "/"
-                    + new Duration(currentReadBackStepMillis, FTimeUnit.MILLISECONDS) + "|newOptimium="
-                    + newOptimiumReadBackStepMillis + "/"
-                    + new Duration(newOptimiumReadBackStepMillis, FTimeUnit.MILLISECONDS)
-                    + "] lookback period and increase them maybe. " + successiveCacheEvictions
-                    + " successive reloads encountered due to cache evictions between: "
-                    + successiveCacheEvictionsFromMaxKey + " -> " + successiveCacheEvictionsToMinKey + " = "
-                    + new Duration(successiveCacheEvictionsToMinKey, successiveCacheEvictionsFromMaxKey));
-        }
-    }
-
-    private int determineNewOptimiumMaximumSize() {
-        FDate curMaxDate = successiveCacheEvictionsToMinKey;
-        int newOptimumMaximumSize = 0;
-        while (curMaxDate.isBefore(successiveCacheEvictionsFromMaxKey)) {
-            final Iterable<? extends V> readAllValues = readAllValuesAscendingFrom(curMaxDate);
-            for (final V v : readAllValues) {
-                newOptimumMaximumSize++;
-                curMaxDate = extractKey(null, v);
-            }
-        }
-        return newOptimumMaximumSize;
-    }
-
-    private long determineNewOptimiumReadBackStepMillis() {
-        return getReadBackStepMillis() * maxSuccessiveCacheEvictions;
     }
 
     private boolean isPotentiallyAlreadyEvicted(final FDate key, final V value) {
@@ -447,11 +434,11 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
      */
     private FDate determineEaliestStartOfLoadFurtherValues(final FDate key) {
         //1 day is fine for most cases
-        return key.addMilliseconds(-getReadBackStepMillis());
+        return key.addMilliseconds(-cacheMissCounter.getOptimiumReadBackStepMillis());
     }
 
     protected long getReadBackStepMillis() {
-        return DEFAULT_LOOK_BACK_STEP_MILLIS;
+        return DEFAULT_READ_BACK_STEP_MILLIS;
     }
 
     /**

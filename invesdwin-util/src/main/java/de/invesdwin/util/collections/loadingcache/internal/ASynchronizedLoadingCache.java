@@ -16,7 +16,7 @@ import de.invesdwin.util.collections.loadingcache.ILoadingCache;
 public abstract class ASynchronizedLoadingCache<K, V> implements ILoadingCache<K, V> {
 
     @GuardedBy("this")
-    private final Map<K, V> map;
+    protected final Map<K, V> map;
     private final Function<K, V> loadValue;
 
     public ASynchronizedLoadingCache(final Function<K, V> loadValue, final Map<K, V> map) {
