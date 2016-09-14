@@ -24,6 +24,9 @@ public class LRUMapLoadingCache<K, V> extends ASynchronizedLoadingCache<K, V> {
             final Field field = Reflections.findField(LRUMap.class, "maxSize");
             Reflections.makeAccessible(field);
             Reflections.setField(field, map, maximumSize);
+        } else {
+            throw new IllegalArgumentException(
+                    "maximumSize [" + maximumSize + "] needs to be greater than current [" + lru.maxSize() + "]");
         }
     }
 

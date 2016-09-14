@@ -63,8 +63,8 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
         }
 
         @Override
-        protected void increaseOptimumMaximumSize(final int optimumMaximumSize) {
-            AGapHistoricalCache.this.increaseMaximumSize(optimumMaximumSize);
+        protected void increaseOptimalMaximumSize(final int optimalMaximumSize) {
+            AGapHistoricalCache.this.increaseMaximumSize(optimalMaximumSize);
         }
 
         @Override
@@ -434,7 +434,7 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
      */
     private FDate determineEaliestStartOfLoadFurtherValues(final FDate key) {
         //1 day is fine for most cases
-        return key.addMilliseconds(-cacheMissCounter.getOptimiumReadBackStepMillis());
+        return key.addMilliseconds(-cacheMissCounter.getOptimalReadBackStepMillis());
     }
 
     protected long getReadBackStepMillis() {
