@@ -26,12 +26,15 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
     /**
      * 10 days is a good value for daily caches.
      */
-    public static final long DEFAULT_READ_BACK_STEP_MILLIS = new Duration(10, FTimeUnit.DAYS)
+    public static final long DEFAULT_LOOK_BACK_STEP_MILLIS = new Duration(10, FTimeUnit.DAYS)
             .intValue(FTimeUnit.MILLISECONDS);
     /**
      * having 2 here helps with queries for elements that are filtered by end time
      */
     private static final int MAX_LAST_VALUES_FROM_LOAD_FURTHER_VALUES = 2;
+    private static final int MAX_SUCCESSIVE_CACHE_EVICTIONS = 10;
+
+    private final org.slf4j.ext.XLogger log = org.slf4j.ext.XLoggerFactory.getXLogger(getClass());
 
     @GuardedBy("this")
     private final BufferingIterator<V> furtherValues = new BufferingIterator<V>();
@@ -57,6 +60,15 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
     private FDate maxKey;
     @GuardedBy("this")
     private FDate minKey;
+
+    @GuardedBy("this")
+    private int successiveCacheEvictions = 0;
+    @GuardedBy("this")
+    private FDate successiveCacheEvictionsToMinKey = FDate.MAX_DATE;
+    @GuardedBy("this")
+    private FDate successiveCacheEvictionsFromMaxKey;
+    @GuardedBy("this")
+    private int maxSuccessiveCacheEvictions = 1;
 
     /**
      * Assumption: cache eviction does not cause values to be evicted with their keys not being evicted aswell.
@@ -86,6 +98,7 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
         }
         value = searchInFurtherValues(key);
         if (!furtherValuesLoaded && isPotentiallyAlreadyEvicted(key, value)) {
+            checkSuccessiveCacheEvictions(key);
             final FDate adjKey = determineEaliestStartOfLoadFurtherValues(key);
             furtherValuesLoaded = eventuallyLoadFurtherValues("loadValueBecauseOfEviction", key, adjKey, newMinKey,
                     true);
@@ -104,6 +117,59 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
         //And last we just try to get the newest value matching the key.
         //If there are no values in db, this method is only called once
         return readNewestValueFromDB(key);
+    }
+
+    private void checkSuccessiveCacheEvictions(final FDate key) {
+        if (key.isBeforeOrEqual(successiveCacheEvictionsToMinKey)) {
+            if (successiveCacheEvictionsFromMaxKey == null) {
+                successiveCacheEvictionsFromMaxKey = key;
+            }
+            successiveCacheEvictions++;
+        } else {
+            maxSuccessiveCacheEvictions = Math.max(maxSuccessiveCacheEvictions, successiveCacheEvictions);
+            if (successiveCacheEvictions > MAX_SUCCESSIVE_CACHE_EVICTIONS) {
+                warnAboutSuccessiveCacheEvictions();
+            }
+            successiveCacheEvictions = 0;
+            successiveCacheEvictionsFromMaxKey = key;
+        }
+        successiveCacheEvictionsToMinKey = key;
+    }
+
+    private void warnAboutSuccessiveCacheEvictions() {
+        if (log.isWarnEnabled()) {
+            final long newOptimiumReadBackStepMillis = determineNewOptimiumReadBackStepMillis();
+            final int newOptimiumMaximumSize = determineNewOptimiumMaximumSize();
+            final long currentReadBackStepMillis = getReadBackStepMillis();
+            final Integer currentMaximumSize = getMaximumSize();
+            log.warn(getClass().getSimpleName() + " [" + toString() + "]: please check your getMaximumSize() [current="
+                    + currentMaximumSize + "|newOptimium=" + newOptimiumMaximumSize
+                    + "] and getReadBackStepMillis() [current=" + currentReadBackStepMillis + "/"
+                    + new Duration(currentReadBackStepMillis, FTimeUnit.MILLISECONDS) + "|newOptimium="
+                    + newOptimiumReadBackStepMillis + "/"
+                    + new Duration(newOptimiumReadBackStepMillis, FTimeUnit.MILLISECONDS)
+                    + "] lookback period and increase them maybe. " + successiveCacheEvictions
+                    + " successive reloads encountered due to cache evictions between: "
+                    + successiveCacheEvictionsFromMaxKey + " -> " + successiveCacheEvictionsToMinKey + " = "
+                    + new Duration(successiveCacheEvictionsToMinKey, successiveCacheEvictionsFromMaxKey));
+        }
+    }
+
+    private int determineNewOptimiumMaximumSize() {
+        FDate curMaxDate = successiveCacheEvictionsToMinKey;
+        int newOptimumMaximumSize = 0;
+        while (curMaxDate.isBefore(successiveCacheEvictionsFromMaxKey)) {
+            final Iterable<? extends V> readAllValues = readAllValuesAscendingFrom(curMaxDate);
+            for (final V v : readAllValues) {
+                newOptimumMaximumSize++;
+                curMaxDate = extractKey(null, v);
+            }
+        }
+        return newOptimumMaximumSize;
+    }
+
+    private long determineNewOptimiumReadBackStepMillis() {
+        return getReadBackStepMillis() * maxSuccessiveCacheEvictions;
     }
 
     private boolean isPotentiallyAlreadyEvicted(final FDate key, final V value) {
@@ -385,7 +451,7 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
     }
 
     protected long getReadBackStepMillis() {
-        return DEFAULT_READ_BACK_STEP_MILLIS;
+        return DEFAULT_LOOK_BACK_STEP_MILLIS;
     }
 
     /**
