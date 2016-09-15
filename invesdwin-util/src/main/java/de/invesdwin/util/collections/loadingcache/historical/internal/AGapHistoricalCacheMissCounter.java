@@ -20,18 +20,8 @@ public abstract class AGapHistoricalCacheMissCounter<V> {
     private FDate successiveCacheEvictionsFromMaxKey;
     private int maxSuccessiveCacheEvictions = 1;
 
-    private Integer optimiumMaximumSize;
-    private long optimiumReadBackStepMillis;
-
-    public AGapHistoricalCacheMissCounter() {
-        optimiumMaximumSize = getMaximumSize();
-        final long readBackStepMillis = getReadBackStepMillis();
-        if (readBackStepMillis <= 0) {
-            throw new IllegalStateException(
-                    "getReadBackStepMillis needs to return a positive value: " + readBackStepMillis);
-        }
-        optimiumReadBackStepMillis = readBackStepMillis;
-    }
+    private Integer optimiumMaximumSize = getMaximumSize();
+    private long optimiumReadBackStepMillis = getReadBackStepMillis();
 
     public void checkSuccessiveCacheEvictions(final FDate key) {
         if (key.isBeforeOrEqual(successiveCacheEvictionsToMinKey)) {
