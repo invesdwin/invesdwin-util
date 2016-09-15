@@ -96,7 +96,7 @@ public class AGapHistoricalCacheWithLimitedCacheTest {
         for (final FDate entity : new HashSet<FDate>(entities)) {
             Assertions.assertThat(cache.query().getValue(entity.addDays(2))).isNotNull();
         }
-        Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(8);
+        Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(10);
         Assertions.assertThat(countReadNewestValueTo).isEqualTo(7);
 
         //simulate cache eviction
@@ -108,7 +108,7 @@ public class AGapHistoricalCacheWithLimitedCacheTest {
         for (final FDate entity : entities) {
             Assertions.assertThat(cache.query().getValue(entity.addDays(2))).isNotNull();
         }
-        Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(12);
+        Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(14);
         Assertions.assertThat(countReadNewestValueTo).isEqualTo(11);
     }
 
@@ -152,7 +152,7 @@ public class AGapHistoricalCacheWithLimitedCacheTest {
         for (final FDate entity : new HashSet<FDate>(entities)) {
             Assertions.assertThat(cache.query().getValue(entity.addDays(2))).isNotNull();
         }
-        Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(21);
+        Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(25);
         Assertions.assertThat(countReadNewestValueTo).isEqualTo(7);
 
         //simulate cache eviction
@@ -164,7 +164,7 @@ public class AGapHistoricalCacheWithLimitedCacheTest {
         for (final FDate entity : entities) {
             Assertions.assertThat(cache.query().getValue(entity.addDays(2))).isNotNull();
         }
-        Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(33);
+        Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(35);
         Assertions.assertThat(countReadNewestValueTo).isEqualTo(11);
     }
 
@@ -232,7 +232,7 @@ public class AGapHistoricalCacheWithLimitedCacheTest {
 
         previousKey = cache.query().getPreviousKey(new FDate(), 1);
         Assertions.assertThat(previousKey).isSameAs(entities.get(entities.size() - 2));
-        Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(6);
+        Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(7);
         Assertions.assertThat(countReadNewestValueTo).isEqualTo(7);
     }
 
@@ -246,7 +246,7 @@ public class AGapHistoricalCacheWithLimitedCacheTest {
 
         previousValue = cache.query().getPreviousValue(new FDate(), 1);
         Assertions.assertThat(previousValue).isSameAs(entities.get(entities.size() - 2));
-        Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(6);
+        Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(7);
         Assertions.assertThat(countReadNewestValueTo).isEqualTo(8);
     }
 
@@ -270,8 +270,8 @@ public class AGapHistoricalCacheWithLimitedCacheTest {
     public void testPreviousKeys() {
         final Collection<FDate> previousKeys = asList(cache.query().getPreviousKeys(new FDate(), entities.size()));
         Assertions.assertThat(previousKeys).isEqualTo(entities);
-        Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(19);
-        Assertions.assertThat(countReadNewestValueTo).isEqualTo(16);
+        Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(10);
+        Assertions.assertThat(countReadNewestValueTo).isEqualTo(9);
     }
 
     private <T> List<T> asList(final Iterable<T> iterable) {
@@ -310,8 +310,8 @@ public class AGapHistoricalCacheWithLimitedCacheTest {
     public void testPreviousValuesWithDistance() {
         final Collection<FDate> previousValues = asList(cache.query().getPreviousValues(new FDate(), entities.size()));
         Assertions.assertThat(previousValues).isEqualTo(entities);
-        Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(20);
-        Assertions.assertThat(countReadNewestValueTo).isEqualTo(16);
+        Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(10);
+        Assertions.assertThat(countReadNewestValueTo).isEqualTo(10);
     }
 
     @Test
@@ -319,8 +319,8 @@ public class AGapHistoricalCacheWithLimitedCacheTest {
         final Collection<FDate> previousValues = asList(
                 cache.query().getPreviousValues(entities.get(entities.size() - 1), entities.size()));
         Assertions.assertThat(previousValues).isEqualTo(entities);
-        Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(15);
-        Assertions.assertThat(countReadNewestValueTo).isEqualTo(15);
+        Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(9);
+        Assertions.assertThat(countReadNewestValueTo).isEqualTo(10);
     }
 
     @Test
@@ -398,7 +398,7 @@ public class AGapHistoricalCacheWithLimitedCacheTest {
 
         previousKey = cache.query().getPreviousKey(new FDate(), 1);
         Assertions.assertThat(previousKey).isSameAs(entities.get(entities.size() - 2));
-        Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(4);
+        Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(5);
         Assertions.assertThat(countReadNewestValueTo).isEqualTo(3);
     }
 

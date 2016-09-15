@@ -20,16 +20,11 @@ public abstract class AGapHistoricalCacheMissCounter<V> {
     private FDate successiveCacheEvictionsFromMaxKey;
     private int maxSuccessiveCacheEvictions = 1;
 
-    private int optimiumMaximumSize;
+    private Integer optimiumMaximumSize;
     private long optimiumReadBackStepMillis;
 
     public AGapHistoricalCacheMissCounter() {
-        final Integer maximumSize = getMaximumSize();
-        if (maximumSize == null || maximumSize <= 0) {
-            throw new IllegalStateException("getMaximumSize for " + AGapHistoricalCache.class.getSimpleName()
-                    + " needs to be a positive value: " + maximumSize);
-        }
-        optimiumMaximumSize = maximumSize;
+        optimiumMaximumSize = getMaximumSize();
         final long readBackStepMillis = getReadBackStepMillis();
         if (readBackStepMillis <= 0) {
             throw new IllegalStateException(
@@ -64,11 +59,13 @@ public abstract class AGapHistoricalCacheMissCounter<V> {
             optimiumReadBackStepMillis = newOptimalReadBackStepMillis;
             changed = true;
         }
-        final int newOptimalMaximumSize = determineNewOptimalMaximumSize();
-        if (newOptimalMaximumSize > currentMaximumSize) {
-            optimiumMaximumSize = newOptimalMaximumSize;
-            increaseOptimalMaximumSize(newOptimalMaximumSize);
-            changed = true;
+        if (currentMaximumSize != null && currentMaximumSize > 0) {
+            final int newOptimalMaximumSize = determineNewOptimalMaximumSize();
+            if (newOptimalMaximumSize > currentMaximumSize) {
+                optimiumMaximumSize = newOptimalMaximumSize;
+                increaseOptimalMaximumSize(newOptimalMaximumSize);
+                changed = true;
+            }
         }
         if (changed && isDebugAutomaticReoptimization()) {
             warn(currentReadBackStepMillis, currentMaximumSize);
@@ -109,9 +106,13 @@ public abstract class AGapHistoricalCacheMissCounter<V> {
         int newOptimalMaximumSize = 0;
         while (curMaxDate.isBefore(successiveCacheEvictionsFromMaxKey)) {
             final Iterable<? extends V> readAllValues = readAllValuesAscendingFrom(curMaxDate);
+            final FDate prevMaxDate = curMaxDate;
             for (final V v : readAllValues) {
                 newOptimalMaximumSize++;
                 curMaxDate = extractKey(v);
+            }
+            if (prevMaxDate.equals(curMaxDate)) {
+                break;
             }
         }
         return newOptimalMaximumSize * OPTIMAL_MULTIPLICATOR;
