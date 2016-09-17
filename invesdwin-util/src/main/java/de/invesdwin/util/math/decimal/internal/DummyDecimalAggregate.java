@@ -225,4 +225,19 @@ public final class DummyDecimalAggregate<E extends ADecimal<E>> implements IDeci
         return this;
     }
 
+    @Override
+    public E coefficientOfVariance() {
+        return null;
+    }
+
+    @Override
+    public E sampleCoefficientOfVariance() {
+        return null;
+    }
+
+    @Override
+    public int count() {
+        return 0;
+    }
+
 }

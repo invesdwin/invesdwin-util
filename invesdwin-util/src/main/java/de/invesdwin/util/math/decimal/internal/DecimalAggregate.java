@@ -91,7 +91,7 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
     public E avgWeightedDesc() {
         int sumOfWeights = 0;
         Decimal sumOfWeightedValues = Decimal.ZERO;
-        for (int i = 0, weight = values.size(); i < values.size(); i++, weight--) {
+        for (int i = 0, weight = count(); i < count(); i++, weight--) {
             final Decimal weightedValue = values.get(i).getDefaultValue().multiply(weight);
             sumOfWeights += weight;
             sumOfWeightedValues = sumOfWeightedValues.add(weightedValue);
@@ -117,7 +117,7 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
      */
     @Override
     public E avg() {
-        return sum().divide(values.size());
+        return sum().divide(count());
     }
 
     /**
@@ -143,10 +143,10 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
     @Override
     public E geomAvg() {
         Decimal logSum = Decimal.ZERO;
-        for (int i = 0; i < values.size(); i++) {
+        for (int i = 0; i < count(); i++) {
             logSum = Decimal.sum(logSum, values.get(i).getDefaultValue().log());
         }
-        final Decimal result = logSum.divide(values.size()).exp();
+        final Decimal result = logSum.divide(count()).exp();
         return getConverter().fromDefaultValue(result);
     }
 
@@ -203,7 +203,7 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
         for (final E value : values) {
             sum = sum.add(value.subtract(avg).getDefaultValue().pow(2));
         }
-        return getConverter().fromDefaultValue(sum.divide(values.size() - 1).sqrt());
+        return getConverter().fromDefaultValue(sum.divide(count() - 1).sqrt());
     }
 
     /**
@@ -216,7 +216,7 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
         for (final E value : values) {
             sum = sum.add(value.subtract(avg).getDefaultValue().pow(2));
         }
-        return getConverter().fromDefaultValue(sum.divide(values.size()).sqrt());
+        return getConverter().fromDefaultValue(sum.divide(count()).sqrt());
     }
 
     /**
@@ -229,7 +229,7 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
         for (final E value : values) {
             sum = sum.add(value.subtract(avg).getDefaultValue().pow(2));
         }
-        return getConverter().fromDefaultValue(sum.divide(values.size() - 1));
+        return getConverter().fromDefaultValue(sum.divide(count() - 1));
     }
 
     /**
@@ -244,7 +244,22 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
         for (final E value : values) {
             sum = sum.add(value.subtract(avg).getDefaultValue().pow(2));
         }
-        return getConverter().fromDefaultValue(sum.divide(values.size()));
+        return getConverter().fromDefaultValue(sum.divide(count()));
+    }
+
+    @Override
+    public E coefficientOfVariance() {
+        return standardDeviation().divide(avg());
+    }
+
+    @Override
+    public E sampleCoefficientOfVariance() {
+        return sampleStandardDeviation().divide(avg());
+    }
+
+    @Override
+    public int count() {
+        return values.size();
     }
 
     @Override
@@ -289,7 +304,7 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
 
     @Override
     public IDecimalAggregate<E> round(final int scale, final RoundingMode roundingMode) {
-        final List<E> rounded = new ArrayList<E>(values.size());
+        final List<E> rounded = new ArrayList<E>(count());
         for (final E value : values) {
             rounded.add(value.round(scale, roundingMode));
         }
@@ -303,7 +318,7 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
 
     @Override
     public IDecimalAggregate<E> roundToStep(final E step, final RoundingMode roundingMode) {
-        final List<E> rounded = new ArrayList<E>(values.size());
+        final List<E> rounded = new ArrayList<E>(count());
         for (final E value : values) {
             rounded.add(value.roundToStep(step, roundingMode));
         }
