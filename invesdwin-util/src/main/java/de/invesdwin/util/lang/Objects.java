@@ -10,6 +10,7 @@ import java.util.Set;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.builder.CompareToBuilder;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -163,19 +164,12 @@ public final class Objects extends AObjectsStaticFacade {
         }
     }
 
-    @SuppressWarnings("unchecked")
     public static <T> T deserialize(final InputStream in) {
+        //FST is unreliable regarding input streams
         try {
-            return (T) SERIALIZATION_CONFIG.decodeFromStream(in);
-        } catch (final Exception e) {
+            return deserialize(IOUtils.toByteArray(in));
+        } catch (final IOException e) {
             throw new RuntimeException(e);
-        } finally {
-            try {
-                in.close();
-            } catch (final IOException e) {
-                throw new RuntimeException(e);
-            }
-            resetFstObjectInputCallbacks();
         }
     }
 
@@ -185,7 +179,9 @@ public final class Objects extends AObjectsStaticFacade {
         final FSTObjectInput fstObjectInput = (FSTObjectInput) SERIALIZATION_CONFIG.getStreamCoderFactory()
                 .getInput()
                 .get();
-        Reflections.field("callbacks").ofType(ArrayList.class).in(fstObjectInput).set(null);
+        if (fstObjectInput != null) {
+            Reflections.field("callbacks").ofType(ArrayList.class).in(fstObjectInput).set(null);
+        }
     }
 
     public static byte[] serialize(final Serializable obj) {
