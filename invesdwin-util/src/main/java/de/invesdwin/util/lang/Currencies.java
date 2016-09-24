@@ -105,4 +105,12 @@ public final class Currencies {
         }
     }
 
+    public static Currency getInstanceOrNull(final String currencyCode) {
+        try {
+            return Currency.getInstance(currencyCode);
+        } catch (final Throwable t) {
+            return null;
+        }
+    }
+
 }
