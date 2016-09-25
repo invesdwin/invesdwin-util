@@ -140,4 +140,27 @@ public final class URIs {
         return new URIsConnect(url);
     }
 
+    public static URI setPort(final URI uri, final int port) {
+        try {
+            //CHECKSTYLE:OFF
+            final URI newUri = new URI(uri.getScheme(), uri.getUserInfo(), uri.getHost(), port, uri.getPath(),
+                    uri.getQuery(), uri.getFragment());
+            //CHECKSTYLE:ON
+            return newUri;
+        } catch (final URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static URL setPort(final URL url, final int port) {
+        try {
+            //CHECKSTYLE:OFF
+            final URL newUri = new URL(url.getProtocol(), url.getHost(), port, url.getFile());
+            //CHECKSTYLE:ON
+            return newUri;
+        } catch (final MalformedURLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }
