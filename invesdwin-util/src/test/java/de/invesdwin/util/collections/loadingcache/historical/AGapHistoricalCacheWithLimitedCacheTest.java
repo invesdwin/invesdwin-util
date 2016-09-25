@@ -92,13 +92,6 @@ public class AGapHistoricalCacheWithLimitedCacheTest {
         Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(5);
         Assertions.assertThat(countReadNewestValueTo).isEqualTo(7);
 
-        //random order
-        for (final FDate entity : new HashSet<FDate>(entities)) {
-            Assertions.assertThat(cache.query().getValue(entity.addDays(2))).isNotNull();
-        }
-        Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(10);
-        Assertions.assertThat(countReadNewestValueTo).isEqualTo(7);
-
         //simulate cache eviction
         cache.clear();
         for (final FDate entity : entities) {
@@ -108,8 +101,15 @@ public class AGapHistoricalCacheWithLimitedCacheTest {
         for (final FDate entity : entities) {
             Assertions.assertThat(cache.query().getValue(entity.addDays(2))).isNotNull();
         }
-        Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(14);
+        Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(9);
         Assertions.assertThat(countReadNewestValueTo).isEqualTo(11);
+
+        //random order
+        for (final FDate entity : new HashSet<FDate>(entities)) {
+            Assertions.assertThat(cache.query().getValue(entity.addDays(2))).isNotNull();
+        }
+        Assertions.assertThat(countReadAllValuesAscendingFrom).isLessThanOrEqualTo(14);
+        Assertions.assertThat(countReadNewestValueTo).isLessThanOrEqualTo(11);
     }
 
     @Test
@@ -148,13 +148,6 @@ public class AGapHistoricalCacheWithLimitedCacheTest {
         Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(15);
         Assertions.assertThat(countReadNewestValueTo).isEqualTo(7);
 
-        //random order
-        for (final FDate entity : new HashSet<FDate>(entities)) {
-            Assertions.assertThat(cache.query().getValue(entity.addDays(2))).isNotNull();
-        }
-        Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(25);
-        Assertions.assertThat(countReadNewestValueTo).isEqualTo(7);
-
         //simulate cache eviction
         cache.clear();
         for (final FDate entity : entities) {
@@ -164,8 +157,15 @@ public class AGapHistoricalCacheWithLimitedCacheTest {
         for (final FDate entity : entities) {
             Assertions.assertThat(cache.query().getValue(entity.addDays(2))).isNotNull();
         }
-        Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(35);
+        Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(27);
         Assertions.assertThat(countReadNewestValueTo).isEqualTo(11);
+
+        //random order
+        for (final FDate entity : new HashSet<FDate>(entities)) {
+            Assertions.assertThat(cache.query().getValue(entity.addDays(2))).isNotNull();
+        }
+        Assertions.assertThat(countReadAllValuesAscendingFrom).isLessThanOrEqualTo(37);
+        Assertions.assertThat(countReadNewestValueTo).isLessThanOrEqualTo(11);
     }
 
     @Test
