@@ -82,11 +82,19 @@ enum HistoricalCacheAssertValue {
         }
     }
 
-    public static final <V> V unwrapEntry(final Entry<FDate, V> entry) {
+    public static final <V> V unwrapEntryValue(final Entry<FDate, V> entry) {
         if (entry == null) {
             return (V) null;
         } else {
             return entry.getValue();
+        }
+    }
+
+    public static final <V> FDate unwrapEntryKey(final Entry<FDate, V> entry) {
+        if (entry == null) {
+            return null;
+        } else {
+            return entry.getKey();
         }
     }
 }

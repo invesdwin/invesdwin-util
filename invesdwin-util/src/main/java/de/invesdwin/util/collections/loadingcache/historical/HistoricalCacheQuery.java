@@ -10,7 +10,6 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import com.google.common.base.Optional;
 
-import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.collections.iterable.WrapperCloseableIterable;
@@ -109,7 +108,7 @@ public class HistoricalCacheQuery<V> {
         if (key == null) {
             return (V) null;
         }
-        return HistoricalCacheAssertValue.unwrapEntry(getEntry(key, assertValue));
+        return HistoricalCacheAssertValue.unwrapEntryValue(getEntry(key, assertValue));
     }
 
     public final ICloseableIterable<Entry<FDate, V>> getEntries(final Iterable<FDate> keys) {
@@ -167,7 +166,7 @@ public class HistoricalCacheQuery<V> {
 
                     @Override
                     public V next() {
-                        return HistoricalCacheAssertValue.unwrapEntry(entriesIterator.next());
+                        return HistoricalCacheAssertValue.unwrapEntryValue(entriesIterator.next());
                     }
 
                     @Override
@@ -179,11 +178,18 @@ public class HistoricalCacheQuery<V> {
         };
     }
 
+    public FDate getKey(final FDate key) {
+        if (key == null) {
+            return null;
+        }
+        return HistoricalCacheAssertValue.unwrapEntryKey(getEntry(key, assertValue));
+    }
+
     /**
-     * Jumps the specified shiftBackUnits to the past instead of only one unit.
+     * Jumps the specified shiftBackUnits to the past instead of only one unit. 0 results in current value.
      */
     public final FDate getPreviousKey(final FDate key, final int shiftBackUnits) {
-        Assertions.assertThat(shiftBackUnits).isGreaterThanOrEqualTo(0);
+        assertShiftUnitsPositive(shiftBackUnits);
 
         FDate previousKey = key;
         for (int i = 0; i <= shiftBackUnits; i++) {
@@ -225,6 +231,7 @@ public class HistoricalCacheQuery<V> {
      * Fills the list with keys from the past.
      */
     public final ICloseableIterable<FDate> getPreviousKeys(final FDate key, final int shiftBackUnits) {
+        assertShiftUnitsPositiveNonZero(shiftBackUnits);
         //This has to work with lists internally to support FilterDuplicateKeys option
         final Collection<FDate> trailing = newKeysCollection();
         //With 10 units this iterates from 9 to 0
@@ -240,6 +247,8 @@ public class HistoricalCacheQuery<V> {
     }
 
     public final Entry<FDate, V> getPreviousEntry(final FDate key, final int shiftBackUnits) {
+        assertShiftUnitsPositive(shiftBackUnits);
+
         final FDate previousKey = getPreviousKey(key, shiftBackUnits);
         //the key of the query is the relevant one
         return assertValue.assertValue(parent, key, previousKey,
@@ -247,7 +256,8 @@ public class HistoricalCacheQuery<V> {
     }
 
     public final V getPreviousValue(final FDate key, final int shiftBackUnits) {
-        return HistoricalCacheAssertValue.unwrapEntry(getPreviousEntry(key, shiftBackUnits));
+        assertShiftUnitsPositive(shiftBackUnits);
+        return HistoricalCacheAssertValue.unwrapEntryValue(getPreviousEntry(key, shiftBackUnits));
     }
 
     /**
@@ -256,6 +266,7 @@ public class HistoricalCacheQuery<V> {
      * Fills the list with values from the past.
      */
     public final ICloseableIterable<Entry<FDate, V>> getPreviousEntries(final FDate key, final int shiftBackUnits) {
+        assertShiftUnitsPositiveNonZero(shiftBackUnits);
         return new ICloseableIterable<Entry<FDate, V>>() {
             @Override
             public ICloseableIterator<Entry<FDate, V>> iterator() {
@@ -286,6 +297,7 @@ public class HistoricalCacheQuery<V> {
     }
 
     public final ICloseableIterable<V> getPreviousValues(final FDate key, final int shiftBackUnits) {
+        assertShiftUnitsPositiveNonZero(shiftBackUnits);
         return new ICloseableIterable<V>() {
             @Override
             public ICloseableIterator<V> iterator() {
@@ -300,7 +312,7 @@ public class HistoricalCacheQuery<V> {
 
                     @Override
                     public V next() {
-                        return HistoricalCacheAssertValue.unwrapEntry(previousEntries.next());
+                        return HistoricalCacheAssertValue.unwrapEntryValue(previousEntries.next());
                     }
 
                     @Override
@@ -311,6 +323,18 @@ public class HistoricalCacheQuery<V> {
             }
 
         };
+    }
+
+    protected void assertShiftUnitsPositiveNonZero(final int shiftUnits) {
+        if (shiftUnits <= 0) {
+            throw new IllegalArgumentException("shiftUnits needs to be a positive non zero value: " + shiftUnits);
+        }
+    }
+
+    protected void assertShiftUnitsPositive(final int shiftUnits) {
+        if (shiftUnits < 0) {
+            throw new IllegalArgumentException("shiftUnits needs to be a positive value: " + shiftUnits);
+        }
     }
 
     /**
@@ -410,7 +434,7 @@ public class HistoricalCacheQuery<V> {
 
                     @Override
                     public V next() {
-                        return HistoricalCacheAssertValue.unwrapEntry(entriesIterator.next());
+                        return HistoricalCacheAssertValue.unwrapEntryValue(entriesIterator.next());
                     }
 
                     @Override

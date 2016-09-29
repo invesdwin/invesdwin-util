@@ -5,7 +5,6 @@ import java.util.Map.Entry;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.collections.iterable.WrapperCloseableIterable;
@@ -43,7 +42,7 @@ public class HistoricalCacheQueryWithFuture<V> extends HistoricalCacheQuery<V> {
      * Jumps the specified shiftForwardUnits to the future instead of only one unit.
      */
     public final FDate getNextKey(final FDate key, final int shiftForwardUnits) {
-        Assertions.assertThat(shiftForwardUnits).isGreaterThanOrEqualTo(0);
+        assertShiftUnitsPositive(shiftForwardUnits);
 
         FDate nextKey = key;
         for (int i = 0; i <= shiftForwardUnits; i++) {
@@ -81,6 +80,7 @@ public class HistoricalCacheQueryWithFuture<V> extends HistoricalCacheQuery<V> {
      * Fills the list with keys from the future.
      */
     public ICloseableIterable<FDate> getNextKeys(final FDate key, final int shiftForwardUnits) {
+        assertShiftUnitsPositiveNonZero(shiftForwardUnits);
         //This has to work with lists internally to support FilterDuplicateKeys option
         final Collection<FDate> trailing = newKeysCollection();
         //With 10 units this iterates from 9 to 0
@@ -96,6 +96,7 @@ public class HistoricalCacheQueryWithFuture<V> extends HistoricalCacheQuery<V> {
     }
 
     public Entry<FDate, V> getNextEntry(final FDate key, final int shiftForwardUnits) {
+        assertShiftUnitsPositive(shiftForwardUnits);
         final FDate nextKey = getNextKey(key, shiftForwardUnits);
         //the key of the query is the relevant one
         return assertValue.assertValue(parent, key, nextKey,
@@ -103,7 +104,8 @@ public class HistoricalCacheQueryWithFuture<V> extends HistoricalCacheQuery<V> {
     }
 
     public V getNextValue(final FDate key, final int shiftForwardUnits) {
-        return HistoricalCacheAssertValue.unwrapEntry(getNextEntry(key, shiftForwardUnits));
+        assertShiftUnitsPositive(shiftForwardUnits);
+        return HistoricalCacheAssertValue.unwrapEntryValue(getNextEntry(key, shiftForwardUnits));
     }
 
     /**
@@ -112,6 +114,7 @@ public class HistoricalCacheQueryWithFuture<V> extends HistoricalCacheQuery<V> {
      * Fills the list with values from the future.
      */
     public ICloseableIterable<Entry<FDate, V>> getNextEntries(final FDate key, final int shiftForwardUnits) {
+        assertShiftUnitsPositiveNonZero(shiftForwardUnits);
         return new ICloseableIterable<Entry<FDate, V>>() {
             @Override
             public ICloseableIterator<Entry<FDate, V>> iterator() {
@@ -140,6 +143,7 @@ public class HistoricalCacheQueryWithFuture<V> extends HistoricalCacheQuery<V> {
     }
 
     public ICloseableIterable<V> getNextValues(final FDate key, final int shiftForwardUnits) {
+        assertShiftUnitsPositiveNonZero(shiftForwardUnits);
         return new ICloseableIterable<V>() {
             @Override
             public ICloseableIterator<V> iterator() {
@@ -154,7 +158,7 @@ public class HistoricalCacheQueryWithFuture<V> extends HistoricalCacheQuery<V> {
 
                     @Override
                     public V next() {
-                        return HistoricalCacheAssertValue.unwrapEntry(nextEntries.next());
+                        return HistoricalCacheAssertValue.unwrapEntryValue(nextEntries.next());
                     }
 
                     @Override
