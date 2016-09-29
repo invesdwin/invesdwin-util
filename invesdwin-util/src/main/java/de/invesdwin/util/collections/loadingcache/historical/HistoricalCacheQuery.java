@@ -5,11 +5,14 @@ import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Map.Entry;
 import java.util.NoSuchElementException;
+import java.util.Set;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
 import com.google.common.base.Optional;
 
+import de.invesdwin.util.bean.tuple.KeyIdentityEntry;
+import de.invesdwin.util.collections.ADelegateSet;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.collections.iterable.WrapperCloseableIterable;
@@ -182,7 +185,7 @@ public class HistoricalCacheQuery<V> {
         if (key == null) {
             return null;
         }
-        return HistoricalCacheAssertValue.unwrapEntryKey(getEntry(key, assertValue));
+        return HistoricalCacheAssertValue.unwrapEntryKey(parent, getEntry(key, assertValue));
     }
 
     /**
@@ -190,8 +193,49 @@ public class HistoricalCacheQuery<V> {
      */
     public final FDate getPreviousKey(final FDate key, final int shiftBackUnits) {
         assertShiftUnitsPositive(shiftBackUnits);
+        return HistoricalCacheAssertValue.unwrapEntryKey(parent, getPreviousEntry(key, shiftBackUnits));
+    }
+
+    /**
+     * Skips null values for keys.
+     * 
+     * Fills the list with keys from the past.
+     */
+    public final ICloseableIterable<FDate> getPreviousKeys(final FDate key, final int shiftBackUnits) {
+        assertShiftUnitsPositiveNonZero(shiftBackUnits);
+        return new ICloseableIterable<FDate>() {
+            @Override
+            public ICloseableIterator<FDate> iterator() {
+                return new ICloseableIterator<FDate>() {
+                    private final ICloseableIterator<Entry<FDate, V>> previousEntries = getPreviousEntries(key,
+                            shiftBackUnits).iterator();
+
+                    @Override
+                    public boolean hasNext() {
+                        return previousEntries.hasNext();
+                    }
+
+                    @Override
+                    public FDate next() {
+                        return HistoricalCacheAssertValue.unwrapEntryKey(parent, previousEntries.next());
+                    }
+
+                    @Override
+                    public void close() {
+                        previousEntries.close();
+                    }
+                };
+            }
+
+        };
+    }
+
+    public final Entry<FDate, V> getPreviousEntry(final FDate key, final int shiftBackUnits) {
+        assertShiftUnitsPositive(shiftBackUnits);
 
         FDate previousKey = key;
+        Entry<FDate, V> previousEntry = null;
+
         for (int i = 0; i <= shiftBackUnits; i++) {
             /*
              * if key of value == key, the same key would be returned on the next call
@@ -209,50 +253,21 @@ public class HistoricalCacheQuery<V> {
                 break;
             }
             //the key of the value is the relevant one
-            final Entry<FDate, V> previousEntry = assertValue.assertValue(parent, key, previousPreviousKey,
+            final Entry<FDate, V> previousPreviousEntry = assertValue.assertValue(parent, key, previousPreviousKey,
                     getValue(previousPreviousKey, HistoricalCacheAssertValue.ASSERT_VALUE_WITH_FUTURE));
-            if (previousEntry == null) {
+            if (previousPreviousEntry == null) {
                 if (previousKey.equals(key)) {
                     return null;
                 } else {
-                    return previousKey;
+                    return previousEntry;
                 }
             } else {
-                final V previousValue = previousEntry.getValue();
+                final V previousValue = previousPreviousEntry.getValue();
                 previousKey = parent.extractKey(previousPreviousKey, previousValue);
+                previousEntry = previousPreviousEntry;
             }
         }
-        return previousKey;
-    }
-
-    /**
-     * Skips null values for keys.
-     * 
-     * Fills the list with keys from the past.
-     */
-    public final ICloseableIterable<FDate> getPreviousKeys(final FDate key, final int shiftBackUnits) {
-        assertShiftUnitsPositiveNonZero(shiftBackUnits);
-        //This has to work with lists internally to support FilterDuplicateKeys option
-        final Collection<FDate> trailing = newKeysCollection();
-        //With 10 units this iterates from 9 to 0
-        //to go from past to future so that queries get minimized
-        //only on the first call we risk multiple queries
-        for (int unitsBack = shiftBackUnits - 1; unitsBack >= 0; unitsBack--) {
-            final FDate previousKey = getPreviousKey(key, unitsBack);
-            if (previousKey != null) {
-                trailing.add(previousKey);
-            }
-        }
-        return WrapperCloseableIterable.maybeWrap(trailing);
-    }
-
-    public final Entry<FDate, V> getPreviousEntry(final FDate key, final int shiftBackUnits) {
-        assertShiftUnitsPositive(shiftBackUnits);
-
-        final FDate previousKey = getPreviousKey(key, shiftBackUnits);
-        //the key of the query is the relevant one
-        return assertValue.assertValue(parent, key, previousKey,
-                getValue(previousKey, HistoricalCacheAssertValue.ASSERT_VALUE_WITH_FUTURE));
+        return previousEntry;
     }
 
     public final V getPreviousValue(final FDate key, final int shiftBackUnits) {
@@ -267,33 +282,18 @@ public class HistoricalCacheQuery<V> {
      */
     public final ICloseableIterable<Entry<FDate, V>> getPreviousEntries(final FDate key, final int shiftBackUnits) {
         assertShiftUnitsPositiveNonZero(shiftBackUnits);
-        return new ICloseableIterable<Entry<FDate, V>>() {
-            @Override
-            public ICloseableIterator<Entry<FDate, V>> iterator() {
-                return new ICloseableIterator<Entry<FDate, V>>() {
-                    private final ICloseableIterator<FDate> previousKeys = getPreviousKeys(key, shiftBackUnits)
-                            .iterator();
-
-                    @Override
-                    public boolean hasNext() {
-                        return previousKeys.hasNext();
-                    }
-
-                    @Override
-                    public Entry<FDate, V> next() {
-                        final FDate previousKey = previousKeys.next();
-                        return assertValue.assertValue(parent, key, previousKey,
-                                getValue(previousKey, HistoricalCacheAssertValue.ASSERT_VALUE_WITH_FUTURE));
-                    }
-
-                    @Override
-                    public void close() {
-                        previousKeys.close();
-                    }
-                };
+        //This has to work with lists internally to support FilterDuplicateKeys option
+        final Collection<Entry<FDate, V>> trailing = newEntriesCollection();
+        //With 10 units this iterates from 9 to 0
+        //to go from past to future so that queries get minimized
+        //only on the first call we risk multiple queries
+        for (int unitsBack = shiftBackUnits - 1; unitsBack >= 0; unitsBack--) {
+            final Entry<FDate, V> previousEntry = getPreviousEntry(key, unitsBack);
+            if (previousEntry != null) {
+                trailing.add(previousEntry);
             }
-
-        };
+        }
+        return WrapperCloseableIterable.maybeWrap(trailing);
     }
 
     public final ICloseableIterable<V> getPreviousValues(final FDate key, final int shiftBackUnits) {
@@ -349,32 +349,23 @@ public class HistoricalCacheQuery<V> {
                 @Override
                 public ICloseableIterator<FDate> iterator() {
                     return new ICloseableIterator<FDate>() {
-                        private final HistoricalCacheQueryWithFuture<V> future = withFuture();
-                        private FDate nextKey = future.getNextKey(from, 0);
+
+                        private final ICloseableIterator<Entry<FDate, V>> entriesIterator = getEntries(from, to)
+                                .iterator();
 
                         @Override
                         public boolean hasNext() {
-                            return nextKey != null && !nextKey.isAfter(to);
+                            return entriesIterator.hasNext();
                         }
 
                         @Override
                         public FDate next() {
-                            if (hasNext()) {
-                                //always returning current and reading ahead once
-                                final FDate currentKey = nextKey;
-                                nextKey = future.getNextKey(currentKey, 1);
-                                if (nextKey != null && !nextKey.isAfter(currentKey)) {
-                                    nextKey = null;
-                                }
-                                return currentKey;
-                            } else {
-                                throw new NoSuchElementException();
-                            }
+                            return HistoricalCacheAssertValue.unwrapEntryKey(parent, entriesIterator.next());
                         }
 
                         @Override
                         public void close() {
-                            nextKey = null;
+                            entriesIterator.close();
                         }
 
                     };
@@ -395,22 +386,41 @@ public class HistoricalCacheQuery<V> {
                 @Override
                 public ICloseableIterator<Entry<FDate, V>> iterator() {
                     return new ICloseableIterator<Entry<FDate, V>>() {
-
-                        private final ICloseableIterator<FDate> keysIterator = getKeys(from, to).iterator();
+                        private final HistoricalCacheQueryWithFuture<V> future = withFuture();
+                        private Entry<FDate, V> nextEntry = future.getNextEntry(from, 0);
+                        private FDate nextEntryKey = extractKey(nextEntry);
 
                         @Override
                         public boolean hasNext() {
-                            return keysIterator.hasNext();
+                            return nextEntryKey != null && !nextEntryKey.isAfter(to);
+                        }
+
+                        private FDate extractKey(final Entry<FDate, V> e) {
+                            return HistoricalCacheAssertValue.unwrapEntryKey(parent, e);
                         }
 
                         @Override
                         public Entry<FDate, V> next() {
-                            return getEntry(keysIterator.next());
+                            if (hasNext()) {
+                                //always returning current and reading ahead once
+                                final Entry<FDate, V> currentEntry = nextEntry;
+                                final FDate currentEntryKey = extractKey(currentEntry);
+                                nextEntry = future.getNextEntry(currentEntryKey, 1);
+                                nextEntryKey = extractKey(nextEntry);
+                                if (nextEntry != null && !nextEntryKey.isAfter(currentEntryKey)) {
+                                    nextEntry = null;
+                                    nextEntryKey = null;
+                                }
+                                return currentEntry;
+                            } else {
+                                throw new NoSuchElementException();
+                            }
                         }
 
                         @Override
                         public void close() {
-                            keysIterator.close();
+                            nextEntry = null;
+                            nextEntryKey = null;
                         }
 
                     };
@@ -490,11 +500,21 @@ public class HistoricalCacheQuery<V> {
         return query;
     }
 
-    protected final Collection<FDate> newKeysCollection() {
+    protected final Collection<Entry<FDate, V>> newEntriesCollection() {
         if (filterDuplicateKeys) {
-            return new LinkedHashSet<FDate>();
+            return new ADelegateSet<Entry<FDate, V>>() {
+                @Override
+                protected Set<Entry<FDate, V>> createDelegate() {
+                    return new LinkedHashSet<Entry<FDate, V>>();
+                }
+
+                @Override
+                public boolean add(final Entry<FDate, V> e) {
+                    return super.add(KeyIdentityEntry.of(e.getKey(), e.getValue()));
+                }
+            };
         } else {
-            return new ArrayList<FDate>();
+            return new ArrayList<Entry<FDate, V>>();
         }
     }
 
