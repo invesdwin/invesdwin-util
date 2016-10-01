@@ -105,4 +105,21 @@ public final class Lists extends AListsStaticFacade {
         }
     }
 
+    public static <E> List<? extends List<E>> splitIntoPackageCount(final List<E> list, final int packageCount) {
+        final List<List<E>> packages = new ArrayList<List<E>>();
+        final int realPackageCount = Math.min(packageCount, list.size());
+        for (int i = 0; i < realPackageCount; i++) {
+            packages.add(new ArrayList<E>());
+        }
+        int curPackage = 0;
+        for (final E e : list) {
+            packages.get(curPackage).add(e);
+            curPackage++;
+            if (curPackage >= realPackageCount) {
+                curPackage = 0;
+            }
+        }
+        return packages;
+    }
+
 }
