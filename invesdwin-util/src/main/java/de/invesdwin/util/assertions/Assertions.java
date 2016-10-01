@@ -72,6 +72,13 @@ public final class Assertions extends AAssertionsStaticFacade {
         }
     }
 
+    public static void checkSame(final Object o1, final Object o2, final String message, final Object... args) {
+        if (o1 != o2) {
+            assertThat(o1).as(message, args).isSameAs(o2);
+            failExceptionExpected();
+        }
+    }
+
     public static void checkNull(final Object obj) {
         if (obj != null) {
             assertThat(obj).isNull();
