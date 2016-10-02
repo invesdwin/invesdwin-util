@@ -127,7 +127,7 @@ public class HistoricalCacheQueryWithFuture<V> extends HistoricalCacheQuery<V>
     public ICloseableIterable<Entry<FDate, V>> getNextEntries(final FDate key, final int shiftForwardUnits) {
         assertShiftUnitsPositiveNonZero(shiftForwardUnits);
         //This has to work with lists internally to support FilterDuplicateKeys option
-        final Collection<Entry<FDate, V>> trailing = newEntriesCollection();
+        final Collection<Entry<FDate, V>> trailing = newFilteringEntriesCollection();
         //With 10 units this iterates from 9 to 0
         //to go from past to future so that queries get minimized
         //only on the first call we risk multiple queries

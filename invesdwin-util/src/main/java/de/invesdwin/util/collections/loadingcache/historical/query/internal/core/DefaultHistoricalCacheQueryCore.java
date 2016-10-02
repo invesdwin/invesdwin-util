@@ -1,13 +1,13 @@
 package de.invesdwin.util.collections.loadingcache.historical.query.internal.core;
 
-import java.util.Collection;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map.Entry;
 
 import javax.annotation.concurrent.Immutable;
 
-import de.invesdwin.util.collections.iterable.ICloseableIterable;
-import de.invesdwin.util.collections.iterable.WrapperCloseableIterable;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.HistoricalCacheAssertValue;
+import de.invesdwin.util.collections.loadingcache.historical.query.internal.HistoricalCacheQuery;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.IHistoricalCacheInternalMethods;
 import de.invesdwin.util.time.fdate.FDate;
 
@@ -66,42 +66,13 @@ public class DefaultHistoricalCacheQueryCore<V> implements IHistoricalCacheQuery
     @Override
     public final Entry<FDate, V> getPreviousEntry(final IHistoricalCacheQueryInternalMethods<V> query, final FDate key,
             final int shiftBackUnits) {
-        FDate previousKey = key;
-        Entry<FDate, V> previousEntry = null;
-
-        for (int i = 0; i <= shiftBackUnits; i++) {
-            /*
-             * if key of value == key, the same key would be returned on the next call
-             * 
-             * we decrement by one unit to get the previous key
-             */
-
-            final FDate previousPreviousKey;
-            if (i == 0) {
-                previousPreviousKey = previousKey;
-            } else {
-                previousPreviousKey = parent.calculatePreviousKey(previousKey);
-            }
-            if (previousPreviousKey == null) {
-                break;
-            }
-            //the key of the value is the relevant one
-            final Entry<FDate, V> previousPreviousEntry = query.getAssertValue().assertValue(parent, key,
-                    previousPreviousKey,
-                    getValue(query, previousPreviousKey, HistoricalCacheAssertValue.ASSERT_VALUE_WITH_FUTURE));
-            if (previousPreviousEntry == null) {
-                if (previousKey.equals(key)) {
-                    return null;
-                } else {
-                    return previousEntry;
-                }
-            } else {
-                final V previousValue = previousPreviousEntry.getValue();
-                previousKey = parent.extractKey(previousPreviousKey, previousValue);
-                previousEntry = previousPreviousEntry;
-            }
+        final GetPreviousEntryQuery<V> impl = new GetPreviousEntryQuery<V>(this, query, key, shiftBackUnits);
+        //CHECKSTYLE:OFF
+        while (!impl.iterationFinished()) {
+            //noop
         }
-        return previousEntry;
+        //CHECKSTYLE:ON
+        return impl.getResult();
     }
 
     /**
@@ -110,10 +81,10 @@ public class DefaultHistoricalCacheQueryCore<V> implements IHistoricalCacheQuery
      * Fills the list with values from the past.
      */
     @Override
-    public final ICloseableIterable<Entry<FDate, V>> getPreviousEntries(
-            final IHistoricalCacheQueryInternalMethods<V> query, final FDate key, final int shiftBackUnits) {
+    public final List<Entry<FDate, V>> getPreviousEntries(final IHistoricalCacheQueryInternalMethods<V> query,
+            final FDate key, final int shiftBackUnits) {
         //This has to work with lists internally to support FilterDuplicateKeys option
-        final Collection<Entry<FDate, V>> trailing = query.newEntriesCollection();
+        final List<Entry<FDate, V>> trailing = new ArrayList<Entry<FDate, V>>();
         //With 10 units this iterates from 9 to 0
         //to go from past to future so that queries get minimized
         //only on the first call we risk multiple queries
@@ -123,7 +94,7 @@ public class DefaultHistoricalCacheQueryCore<V> implements IHistoricalCacheQuery
                 trailing.add(previousEntry);
             }
         }
-        return WrapperCloseableIterable.maybeWrap(trailing);
+        return trailing;
     }
 
     @Override
@@ -134,6 +105,11 @@ public class DefaultHistoricalCacheQueryCore<V> implements IHistoricalCacheQuery
     @Override
     public void increaseMaximumSize(final int maximumSize) {
         //noop since not caching anything
+    }
+
+    @Override
+    public HistoricalCacheQuery<V> newQuery() {
+        return new HistoricalCacheQuery<V>(this);
     }
 
 }

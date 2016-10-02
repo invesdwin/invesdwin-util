@@ -3,6 +3,7 @@ package de.invesdwin.util.collections.loadingcache.historical.query.internal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -15,6 +16,7 @@ import de.invesdwin.util.bean.tuple.KeyIdentityEntry;
 import de.invesdwin.util.collections.ADelegateSet;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
+import de.invesdwin.util.collections.iterable.WrapperCloseableIterable;
 import de.invesdwin.util.collections.iterable.WrapperCloseableIterator;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQuery;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQueryElementFilter;
@@ -46,10 +48,6 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
             return elementFilter;
         }
 
-        @Override
-        public Collection<Entry<FDate, V>> newEntriesCollection() {
-            return HistoricalCacheQuery.this.newEntriesCollection();
-        }
     };
     private boolean filterDuplicateKeys = true;
     private boolean rememberNullValue = false;
@@ -444,7 +442,7 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
         return query;
     }
 
-    protected final Collection<Entry<FDate, V>> newEntriesCollection() {
+    protected final Collection<Entry<FDate, V>> newFilteringEntriesCollection() {
         if (filterDuplicateKeys) {
             return new ADelegateSet<Entry<FDate, V>>() {
                 @Override
@@ -459,6 +457,16 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
             };
         } else {
             return new ArrayList<Entry<FDate, V>>();
+        }
+    }
+
+    private Collection<Entry<FDate, V>> maybeFilterEntriesCollection(final List<Entry<FDate, V>> unfiltered) {
+        if (filterDuplicateKeys) {
+            final Collection<Entry<FDate, V>> distinct = newFilteringEntriesCollection();
+            distinct.addAll(unfiltered);
+            return distinct;
+        } else {
+            return unfiltered;
         }
     }
 
@@ -485,7 +493,8 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
     @Override
     public final ICloseableIterable<Entry<FDate, V>> getPreviousEntries(final FDate key, final int shiftBackUnits) {
         assertShiftUnitsPositiveNonZero(shiftBackUnits);
-        return core.getPreviousEntries(internalMethods, key, shiftBackUnits);
+        return WrapperCloseableIterable
+                .maybeWrap(maybeFilterEntriesCollection(core.getPreviousEntries(internalMethods, key, shiftBackUnits)));
     }
 
 }

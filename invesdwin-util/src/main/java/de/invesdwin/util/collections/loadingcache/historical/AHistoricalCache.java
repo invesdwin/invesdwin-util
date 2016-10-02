@@ -22,7 +22,6 @@ import de.invesdwin.util.collections.loadingcache.historical.key.internal.IHisto
 import de.invesdwin.util.collections.loadingcache.historical.key.internal.IHistoricalCacheShiftKeyProvider;
 import de.invesdwin.util.collections.loadingcache.historical.listener.IHistoricalCacheOnValueLoadedListener;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQuery;
-import de.invesdwin.util.collections.loadingcache.historical.query.internal.HistoricalCacheQuery;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.IHistoricalCacheInternalMethods;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.CachedHistoricalCacheQueryCore;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.DefaultHistoricalCacheQueryCore;
@@ -207,7 +206,7 @@ public abstract class AHistoricalCache<V> {
      * Does not allow values from future per default.
      */
     public final IHistoricalCacheQuery<V> query() {
-        return new HistoricalCacheQuery<V>(queryCore);
+        return queryCore.newQuery();
     }
 
     public boolean containsKey(final FDate key) {
@@ -391,6 +390,11 @@ public abstract class AHistoricalCache<V> {
         @Override
         public FDate extractKey(final FDate key, final V value) {
             return AHistoricalCache.this.extractKey(key, value);
+        }
+
+        @Override
+        public Integer getMaximumSize() {
+            return AHistoricalCache.this.getMaximumSize();
         }
     }
 
