@@ -363,8 +363,8 @@ public class AGapHistoricalCacheTest {
         //new minKey limit gets tested
         final Collection<FDate> values = asList(cache.query().getPreviousValues(FDate.MIN_DATE, 5));
         Assertions.assertThat(values).isEmpty();
-        Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(11);
-        Assertions.assertThat(countReadNewestValueTo).isEqualTo(33);
+        Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(7);
+        Assertions.assertThat(countReadNewestValueTo).isEqualTo(21);
     }
 
     @Test

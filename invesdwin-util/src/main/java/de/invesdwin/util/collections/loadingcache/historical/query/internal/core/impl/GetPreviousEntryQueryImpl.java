@@ -1,14 +1,16 @@
-package de.invesdwin.util.collections.loadingcache.historical.query.internal.core;
+package de.invesdwin.util.collections.loadingcache.historical.query.internal.core.impl;
 
 import java.util.Map.Entry;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.HistoricalCacheAssertValue;
+import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.IHistoricalCacheQueryCore;
+import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.IHistoricalCacheQueryInternalMethods;
 import de.invesdwin.util.time.fdate.FDate;
 
 @NotThreadSafe
-public class GetPreviousEntryQuery<V> {
+public class GetPreviousEntryQueryImpl<V> {
 
     private final IHistoricalCacheQueryCore<V> core;
     private final FDate key;
@@ -18,7 +20,7 @@ public class GetPreviousEntryQuery<V> {
     private final int shiftBackUnits;
     private final IHistoricalCacheQueryInternalMethods<V> query;
 
-    public GetPreviousEntryQuery(final IHistoricalCacheQueryCore<V> core,
+    public GetPreviousEntryQueryImpl(final IHistoricalCacheQueryCore<V> core,
             final IHistoricalCacheQueryInternalMethods<V> query, final FDate key, final int shiftBackUnits) {
         this.core = core;
         this.query = query;
