@@ -15,26 +15,37 @@ import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 import de.invesdwin.util.collections.loadingcache.ILoadingCache;
 import de.invesdwin.util.collections.loadingcache.historical.interceptor.HistoricalCacheQueryInterceptorSupport;
 import de.invesdwin.util.collections.loadingcache.historical.interceptor.IHistoricalCacheQueryInterceptor;
+import de.invesdwin.util.collections.loadingcache.historical.internal.DisabledHistoricalCacheQueryBooster;
+import de.invesdwin.util.collections.loadingcache.historical.internal.HistoricalCacheQueryBooster;
+import de.invesdwin.util.collections.loadingcache.historical.internal.IHistoricalCacheQueryBooster;
 import de.invesdwin.util.collections.loadingcache.historical.key.IHistoricalCacheAdjustKeyProvider;
 import de.invesdwin.util.collections.loadingcache.historical.key.internal.DelegateHistoricalCacheExtractKeyProvider;
 import de.invesdwin.util.collections.loadingcache.historical.key.internal.DelegateHistoricalCacheShiftKeyProvider;
 import de.invesdwin.util.collections.loadingcache.historical.key.internal.IHistoricalCacheExtractKeyProvider;
 import de.invesdwin.util.collections.loadingcache.historical.key.internal.IHistoricalCacheShiftKeyProvider;
 import de.invesdwin.util.collections.loadingcache.historical.listener.IHistoricalCacheOnValueLoadedListener;
+import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQuery;
+import de.invesdwin.util.collections.loadingcache.historical.query.internal.HistoricalCacheQuery;
+import de.invesdwin.util.collections.loadingcache.historical.query.internal.IHistoricalCacheInternalMethods;
 import de.invesdwin.util.collections.loadingcache.historical.refresh.HistoricalCacheRefreshManager;
+import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.time.fdate.FDate;
 
 @ThreadSafe
 public abstract class AHistoricalCache<V> {
 
+    public static final Integer DISABLED_MAXIMUM_SIZE = 0;
+    public static final Integer UNLIMITED_MAXIMUM_SIZE = null;
     /**
      * 10k is normally sufficient for daily bars of stocks and also fast enough for intraday ticks to load.
      */
-    public static final int DEFAULT_MAXIMUM_SIZE = 1000;
+    public static final Integer DEFAULT_MAXIMUM_SIZE = 1000;
     private final List<ALoadingCache<?, ?>> increaseMaximumSizeListeners = new ArrayList<ALoadingCache<?, ?>>();
 
+    private final IHistoricalCacheQueryBooster<V> queryBooster = newHistoricalCacheQueryBooster();
     private IHistoricalCacheAdjustKeyProvider adjustKeyProvider = new InnerHistoricalCacheAdjustKeyProvider();
     private IHistoricalCacheOnValueLoadedListener<V> onValueLoadedListener = new InnerHistoricalCacheOnValueLoadedListener();
+    private final IHistoricalCacheInternalMethods<V> internalMethods = new HistoricalCacheInternalMethods();
 
     private volatile FDate lastRefresh = HistoricalCacheRefreshManager.getLastRefresh();
     private boolean isPutDisabled = getMaximumSize() != null && getMaximumSize() == 0;
@@ -70,10 +81,19 @@ public abstract class AHistoricalCache<V> {
         return DEFAULT_MAXIMUM_SIZE;
     }
 
+    private IHistoricalCacheQueryBooster<V> newHistoricalCacheQueryBooster() {
+        if (!Objects.equals(getMaximumSize(), DISABLED_MAXIMUM_SIZE)) {
+            return new HistoricalCacheQueryBooster<V>(this);
+        } else {
+            return new DisabledHistoricalCacheQueryBooster<V>();
+        }
+    }
+
     protected void increaseMaximumSize(final int maximumSize) {
         for (final ALoadingCache<?, ?> l : increaseMaximumSizeListeners) {
             l.increaseMaximumSize(maximumSize);
         }
+        queryBooster.increaseMaximumSize(maximumSize);
     }
 
     protected void setAdjustKeyProvider(final IHistoricalCacheAdjustKeyProvider adjustKeyProvider) {
@@ -187,8 +207,8 @@ public abstract class AHistoricalCache<V> {
     /**
      * Does not allow values from future per default.
      */
-    public final HistoricalCacheQuery<V> query() {
-        return new HistoricalCacheQuery<V>(this);
+    public final IHistoricalCacheQuery<V> query() {
+        return new HistoricalCacheQuery<V>(this, internalMethods);
     }
 
     public boolean containsKey(final FDate key) {
@@ -306,6 +326,7 @@ public abstract class AHistoricalCache<V> {
         if (shiftKeyProvider.getParent() == this) {
             shiftKeyProvider.clear();
         }
+        queryBooster.clear();
         lastRefresh = new FDate();
     }
 
@@ -325,8 +346,12 @@ public abstract class AHistoricalCache<V> {
         return onValueLoadedListener;
     }
 
-    ILoadingCache<FDate, V> getValuesMap() {
+    protected ILoadingCache<FDate, V> getValuesMap() {
         return valuesMap;
+    }
+
+    private IHistoricalCacheQueryBooster<V> getQueryBooster() {
+        return queryBooster;
     }
 
     protected final FDate minKey() {
@@ -337,7 +362,29 @@ public abstract class AHistoricalCache<V> {
         return FDate.MAX_DATE;
     }
 
-    private class InnerHistoricalCacheExtractKeyProvider implements IHistoricalCacheExtractKeyProvider<V> {
+    private final class HistoricalCacheInternalMethods implements IHistoricalCacheInternalMethods<V> {
+        @Override
+        public IHistoricalCacheQueryInterceptor<V> getQueryInterceptor() {
+            return AHistoricalCache.this.getQueryInterceptor();
+        }
+
+        @Override
+        public FDate calculatePreviousKey(final FDate key) {
+            return AHistoricalCache.this.calculatePreviousKey(key);
+        }
+
+        @Override
+        public FDate calculateNextKey(final FDate key) {
+            return AHistoricalCache.this.calculateNextKey(key);
+        }
+
+        @Override
+        public ILoadingCache<FDate, V> getValuesMap() {
+            return AHistoricalCache.this.getValuesMap();
+        }
+    }
+
+    private final class InnerHistoricalCacheExtractKeyProvider implements IHistoricalCacheExtractKeyProvider<V> {
 
         @Override
         public FDate extractKey(final FDate key, final V value) {
@@ -346,7 +393,7 @@ public abstract class AHistoricalCache<V> {
 
     }
 
-    private class InnerHistoricalCacheShiftKeyProvider implements IHistoricalCacheShiftKeyProvider {
+    private final class InnerHistoricalCacheShiftKeyProvider implements IHistoricalCacheShiftKeyProvider {
 
         private final ILoadingCache<FDate, FDate> previousKeysCache = new ADelegateLoadingCache<FDate, FDate>() {
 
@@ -435,7 +482,7 @@ public abstract class AHistoricalCache<V> {
 
     }
 
-    private class InnerHistoricalCacheAdjustKeyProvider implements IHistoricalCacheAdjustKeyProvider {
+    private final class InnerHistoricalCacheAdjustKeyProvider implements IHistoricalCacheAdjustKeyProvider {
 
         @Override
         public FDate adjustKey(final FDate key) {
@@ -462,7 +509,7 @@ public abstract class AHistoricalCache<V> {
 
     }
 
-    private class InnerHistoricalCacheOnValueLoadedListener implements IHistoricalCacheOnValueLoadedListener<V> {
+    private final class InnerHistoricalCacheOnValueLoadedListener implements IHistoricalCacheOnValueLoadedListener<V> {
 
         @Override
         public void onValueLoaded(final FDate key, final V value) {}

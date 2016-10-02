@@ -458,7 +458,7 @@ public class AGapHistoricalCacheWithNoCacheTest {
     @Test
     public void testPreviousValueKey() {
         for (final FDate entity : entities) {
-            final FDate foundKey = cache.query().getPreviousValueKey(FDate.MIN_DATE, FDate.MAX_DATE, entity);
+            final FDate foundKey = cache.query().getPreviousValueKeyBetween(FDate.MIN_DATE, FDate.MAX_DATE, entity);
             Assertions.assertThat(foundKey).isEqualTo(entity);
         }
     }

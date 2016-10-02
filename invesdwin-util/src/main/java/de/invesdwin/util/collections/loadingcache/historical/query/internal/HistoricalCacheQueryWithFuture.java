@@ -1,4 +1,4 @@
-package de.invesdwin.util.collections.loadingcache.historical;
+package de.invesdwin.util.collections.loadingcache.historical.query.internal;
 
 import java.util.Collection;
 import java.util.Map.Entry;
@@ -8,29 +8,39 @@ import javax.annotation.concurrent.NotThreadSafe;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.collections.iterable.WrapperCloseableIterable;
+import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
+import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQueryElementFilter;
+import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQueryWithFuture;
 import de.invesdwin.util.time.fdate.FDate;
 
 @NotThreadSafe
-public class HistoricalCacheQueryWithFuture<V> extends HistoricalCacheQuery<V> {
+public class HistoricalCacheQueryWithFuture<V> extends HistoricalCacheQuery<V>
+        implements IHistoricalCacheQueryWithFuture<V> {
 
-    protected HistoricalCacheQueryWithFuture(final AHistoricalCache<V> parent) {
-        super(parent);
+    protected HistoricalCacheQueryWithFuture(final AHistoricalCache<V> parent,
+            final IHistoricalCacheInternalMethods<V> internalMethods) {
+        super(parent, internalMethods);
     }
 
     @Override
-    public HistoricalCacheQueryWithFuture<V> withElementFilter(
+    public IHistoricalCacheQueryWithFuture<V> withElementFilter(
             final IHistoricalCacheQueryElementFilter<V> elementFilter) {
-        return (HistoricalCacheQueryWithFuture<V>) super.withElementFilter(elementFilter);
+        return (IHistoricalCacheQueryWithFuture<V>) super.withElementFilter(elementFilter);
     }
 
     @Override
-    public HistoricalCacheQueryWithFuture<V> withFilterDuplicateKeys(final boolean filterDuplicateKeys) {
-        return (HistoricalCacheQueryWithFuture<V>) super.withFilterDuplicateKeys(filterDuplicateKeys);
+    public IHistoricalCacheQueryWithFuture<V> withFilterDuplicateKeys(final boolean filterDuplicateKeys) {
+        return (IHistoricalCacheQueryWithFuture<V>) super.withFilterDuplicateKeys(filterDuplicateKeys);
     }
 
     @Override
-    public HistoricalCacheQueryWithFuture<V> withRememberNullValue(final boolean rememberNullValue) {
-        return (HistoricalCacheQueryWithFuture<V>) super.withRememberNullValue(rememberNullValue);
+    public IHistoricalCacheQueryWithFuture<V> withRememberNullValue(final boolean rememberNullValue) {
+        return (IHistoricalCacheQueryWithFuture<V>) super.withRememberNullValue(rememberNullValue);
+    }
+
+    @Override
+    public IHistoricalCacheQueryWithFuture<V> withFutureNull() {
+        return (IHistoricalCacheQueryWithFuture<V>) super.withFutureNull();
     }
 
     @Override
@@ -38,19 +48,13 @@ public class HistoricalCacheQueryWithFuture<V> extends HistoricalCacheQuery<V> {
         return super.getValue(key);
     }
 
-    /**
-     * Jumps the specified shiftForwardUnits to the future instead of only one unit.
-     */
+    @Override
     public final FDate getNextKey(final FDate key, final int shiftForwardUnits) {
         assertShiftUnitsPositive(shiftForwardUnits);
         return HistoricalCacheAssertValue.unwrapEntryKey(parent, getNextEntry(key, shiftForwardUnits));
     }
 
-    /**
-     * Skips null values for keys.
-     * 
-     * Fills the list with keys from the future.
-     */
+    @Override
     public ICloseableIterable<FDate> getNextKeys(final FDate key, final int shiftForwardUnits) {
         assertShiftUnitsPositiveNonZero(shiftForwardUnits);
         return new ICloseableIterable<FDate>() {
@@ -79,6 +83,7 @@ public class HistoricalCacheQueryWithFuture<V> extends HistoricalCacheQuery<V> {
         };
     }
 
+    @Override
     public Entry<FDate, V> getNextEntry(final FDate key, final int shiftForwardUnits) {
         assertShiftUnitsPositive(shiftForwardUnits);
         FDate nextKey = key;
@@ -94,7 +99,7 @@ public class HistoricalCacheQueryWithFuture<V> extends HistoricalCacheQuery<V> {
             if (i == 0) {
                 nextNextKey = nextKey;
             } else {
-                nextNextKey = parent.calculateNextKey(nextKey);
+                nextNextKey = internalMethods.calculateNextKey(nextKey);
                 if (nextNextKey == null) {
                     break;
                 }
@@ -113,16 +118,13 @@ public class HistoricalCacheQueryWithFuture<V> extends HistoricalCacheQuery<V> {
         return nextEntry;
     }
 
+    @Override
     public V getNextValue(final FDate key, final int shiftForwardUnits) {
         assertShiftUnitsPositive(shiftForwardUnits);
         return HistoricalCacheAssertValue.unwrapEntryValue(getNextEntry(key, shiftForwardUnits));
     }
 
-    /**
-     * Skips null values for keys.
-     * 
-     * Fills the list with values from the future.
-     */
+    @Override
     public ICloseableIterable<Entry<FDate, V>> getNextEntries(final FDate key, final int shiftForwardUnits) {
         assertShiftUnitsPositiveNonZero(shiftForwardUnits);
         //This has to work with lists internally to support FilterDuplicateKeys option
@@ -139,6 +141,7 @@ public class HistoricalCacheQueryWithFuture<V> extends HistoricalCacheQuery<V> {
         return WrapperCloseableIterable.maybeWrap(trailing);
     }
 
+    @Override
     public ICloseableIterable<V> getNextValues(final FDate key, final int shiftForwardUnits) {
         assertShiftUnitsPositiveNonZero(shiftForwardUnits);
         return new ICloseableIterable<V>() {
