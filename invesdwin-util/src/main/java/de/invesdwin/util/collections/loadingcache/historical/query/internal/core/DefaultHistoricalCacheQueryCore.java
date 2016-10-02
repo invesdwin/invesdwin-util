@@ -108,32 +108,18 @@ public class DefaultHistoricalCacheQueryCore<V> implements IHistoricalCacheQuery
     @Override
     public ICloseableIterable<Entry<FDate, V>> getNextEntries(final IHistoricalCacheQueryInternalMethods<V> query,
             final FDate key, final int shiftForwardUnits) {
-        //      //This has to work with lists internally to support FilterDuplicateKeys option
-        //        final List<Entry<FDate, V>> trailing = query.newEntriesList();
-        //        //With 10 units this iterates from 9 to 0
-        //        //to go from past to future so that queries get minimized
-        //        //only on the first call we risk multiple queries
-        //        final GetNextEntryQueryImpl<V> impl = new GetNextEntryQueryImpl<V>(this, query, key, shiftForwardUnits);
-        //        for (int unitsBack = shiftForwardUnits - 1; unitsBack >= 0 && !impl.iterationFinished(); unitsBack--) {
-        //            final Entry<FDate, V> value = impl.getResult();
-        //            if (value != null) {
-        //                trailing.add(value);
-        //            } else {
-        //                break;
-        //            }
-        //        }
-        //        Collections.reverse(trailing);
-        //        return WrapperCloseableIterable.maybeWrap(trailing);
-
         //This has to work with lists internally to support FilterDuplicateKeys option
         final List<Entry<FDate, V>> trailing = query.newEntriesList();
         //With 10 units this iterates from 9 to 0
         //to go from past to future so that queries get minimized
         //only on the first call we risk multiple queries
-        for (int unitsBack = shiftForwardUnits - 1; unitsBack >= 0; unitsBack--) {
-            final Entry<FDate, V> nextEntry = getNextEntry(query, key, unitsBack);
-            if (nextEntry != null) {
-                trailing.add(nextEntry);
+        final GetNextEntryQueryImpl<V> impl = new GetNextEntryQueryImpl<V>(this, query, key, shiftForwardUnits);
+        for (int unitsBack = shiftForwardUnits - 1; unitsBack >= 0 && !impl.iterationFinished(); unitsBack--) {
+            final Entry<FDate, V> value = impl.getResult();
+            if (value != null) {
+                trailing.add(value);
+            } else {
+                break;
             }
         }
         return WrapperCloseableIterable.maybeWrap(trailing);
