@@ -1,8 +1,8 @@
 package de.invesdwin.util.collections.loadingcache.historical.query.internal.core;
 
-import java.util.List;
 import java.util.Map.Entry;
 
+import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.HistoricalCacheAssertValue;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.HistoricalCacheQuery;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.IHistoricalCacheInternalMethods;
@@ -12,7 +12,7 @@ public interface IHistoricalCacheQueryCore<V> {
 
     Entry<FDate, V> getPreviousEntry(IHistoricalCacheQueryInternalMethods<V> query, FDate key, int shiftBackUnits);
 
-    List<Entry<FDate, V>> getPreviousEntries(IHistoricalCacheQueryInternalMethods<V> query, FDate key,
+    ICloseableIterable<Entry<FDate, V>> getPreviousEntries(IHistoricalCacheQueryInternalMethods<V> query, FDate key,
             int shiftBackUnits);
 
     IHistoricalCacheInternalMethods<V> getParent();
@@ -27,5 +27,10 @@ public interface IHistoricalCacheQueryCore<V> {
             HistoricalCacheAssertValue assertValue);
 
     HistoricalCacheQuery<V> newQuery();
+
+    ICloseableIterable<Entry<FDate, V>> getNextEntries(IHistoricalCacheQueryInternalMethods<V> query, FDate key,
+            int shiftForwardUnits);
+
+    Entry<FDate, V> getNextEntry(IHistoricalCacheQueryInternalMethods<V> query, FDate key, int shiftForwardUnits);
 
 }

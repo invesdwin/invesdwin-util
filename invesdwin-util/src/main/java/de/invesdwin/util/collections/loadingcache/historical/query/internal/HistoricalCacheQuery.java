@@ -1,7 +1,6 @@
 package de.invesdwin.util.collections.loadingcache.historical.query.internal;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map.Entry;
@@ -14,9 +13,9 @@ import com.google.common.base.Optional;
 
 import de.invesdwin.util.bean.tuple.KeyIdentityEntry;
 import de.invesdwin.util.collections.ADelegateSet;
+import de.invesdwin.util.collections.ListSet;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
-import de.invesdwin.util.collections.iterable.WrapperCloseableIterable;
 import de.invesdwin.util.collections.iterable.WrapperCloseableIterator;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQuery;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQueryElementFilter;
@@ -46,6 +45,11 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
         @Override
         public IHistoricalCacheQueryElementFilter<V> getElementFilter() {
             return elementFilter;
+        }
+
+        @Override
+        public List<Entry<FDate, V>> newEntriesList() {
+            return HistoricalCacheQuery.this.newEntriesList();
         }
 
     };
@@ -442,31 +446,26 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
         return query;
     }
 
-    protected final Collection<Entry<FDate, V>> newFilteringEntriesCollection() {
+    protected final List<Entry<FDate, V>> newEntriesList() {
         if (filterDuplicateKeys) {
-            return new ADelegateSet<Entry<FDate, V>>() {
+            return new ListSet<Entry<FDate, V>>() {
                 @Override
-                protected Set<Entry<FDate, V>> createDelegate() {
-                    return new LinkedHashSet<Entry<FDate, V>>();
-                }
+                protected Set<Entry<FDate, V>> newSet() {
+                    return new ADelegateSet<Entry<FDate, V>>() {
+                        @Override
+                        protected Set<Entry<FDate, V>> createDelegate() {
+                            return new LinkedHashSet<Entry<FDate, V>>();
+                        }
 
-                @Override
-                public boolean add(final Entry<FDate, V> e) {
-                    return super.add(KeyIdentityEntry.of(e.getKey(), e.getValue()));
+                        @Override
+                        public boolean add(final Entry<FDate, V> e) {
+                            return super.add(KeyIdentityEntry.of(e.getKey(), e.getValue()));
+                        }
+                    };
                 }
             };
         } else {
             return new ArrayList<Entry<FDate, V>>();
-        }
-    }
-
-    private Collection<Entry<FDate, V>> maybeFilterEntriesCollection(final List<Entry<FDate, V>> unfiltered) {
-        if (filterDuplicateKeys) {
-            final Collection<Entry<FDate, V>> distinct = newFilteringEntriesCollection();
-            distinct.addAll(unfiltered);
-            return distinct;
-        } else {
-            return unfiltered;
         }
     }
 
@@ -493,8 +492,7 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
     @Override
     public final ICloseableIterable<Entry<FDate, V>> getPreviousEntries(final FDate key, final int shiftBackUnits) {
         assertShiftUnitsPositiveNonZero(shiftBackUnits);
-        return WrapperCloseableIterable
-                .maybeWrap(maybeFilterEntriesCollection(core.getPreviousEntries(internalMethods, key, shiftBackUnits)));
+        return core.getPreviousEntries(internalMethods, key, shiftBackUnits);
     }
 
 }

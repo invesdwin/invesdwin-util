@@ -6,6 +6,7 @@ import java.util.Map.Entry;
 
 import javax.annotation.concurrent.ThreadSafe;
 
+import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.HistoricalCacheAssertValue;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.HistoricalCacheQuery;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.IHistoricalCacheInternalMethods;
@@ -41,9 +42,21 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
     }
 
     @Override
-    public synchronized List<Entry<FDate, V>> getPreviousEntries(final IHistoricalCacheQueryInternalMethods<V> query,
-            final FDate key, final int shiftBackUnits) {
+    public synchronized ICloseableIterable<Entry<FDate, V>> getPreviousEntries(
+            final IHistoricalCacheQueryInternalMethods<V> query, final FDate key, final int shiftBackUnits) {
         return delegate.getPreviousEntries(query, key, shiftBackUnits);
+    }
+
+    @Override
+    public ICloseableIterable<Entry<FDate, V>> getNextEntries(final IHistoricalCacheQueryInternalMethods<V> query,
+            final FDate key, final int shiftForwardUnits) {
+        return delegate.getNextEntries(query, key, shiftForwardUnits);
+    }
+
+    @Override
+    public Entry<FDate, V> getNextEntry(final IHistoricalCacheQueryInternalMethods<V> query, final FDate key,
+            final int shiftForwardUnits) {
+        return delegate.getNextEntry(query, key, shiftForwardUnits);
     }
 
     @Override
