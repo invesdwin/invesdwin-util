@@ -15,9 +15,6 @@ import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 import de.invesdwin.util.collections.loadingcache.ILoadingCache;
 import de.invesdwin.util.collections.loadingcache.historical.interceptor.HistoricalCacheQueryInterceptorSupport;
 import de.invesdwin.util.collections.loadingcache.historical.interceptor.IHistoricalCacheQueryInterceptor;
-import de.invesdwin.util.collections.loadingcache.historical.internal.DisabledHistoricalCacheQueryBooster;
-import de.invesdwin.util.collections.loadingcache.historical.internal.HistoricalCacheQueryBooster;
-import de.invesdwin.util.collections.loadingcache.historical.internal.IHistoricalCacheQueryBooster;
 import de.invesdwin.util.collections.loadingcache.historical.key.IHistoricalCacheAdjustKeyProvider;
 import de.invesdwin.util.collections.loadingcache.historical.key.internal.DelegateHistoricalCacheExtractKeyProvider;
 import de.invesdwin.util.collections.loadingcache.historical.key.internal.DelegateHistoricalCacheShiftKeyProvider;
@@ -27,6 +24,10 @@ import de.invesdwin.util.collections.loadingcache.historical.listener.IHistorica
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQuery;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.HistoricalCacheQuery;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.IHistoricalCacheInternalMethods;
+import de.invesdwin.util.collections.loadingcache.historical.query.internal.cache.CachedHistoricalCacheQuery;
+import de.invesdwin.util.collections.loadingcache.historical.query.internal.cache.booster.DisabledHistoricalCacheQueryBooster;
+import de.invesdwin.util.collections.loadingcache.historical.query.internal.cache.booster.HistoricalCacheQueryBooster;
+import de.invesdwin.util.collections.loadingcache.historical.query.internal.cache.booster.IHistoricalCacheQueryBooster;
 import de.invesdwin.util.collections.loadingcache.historical.refresh.HistoricalCacheRefreshManager;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.time.fdate.FDate;
@@ -208,7 +209,7 @@ public abstract class AHistoricalCache<V> {
      * Does not allow values from future per default.
      */
     public final IHistoricalCacheQuery<V> query() {
-        return new HistoricalCacheQuery<V>(this, internalMethods);
+        return new CachedHistoricalCacheQuery<V>(new HistoricalCacheQuery<V>(this, internalMethods), queryBooster);
     }
 
     public boolean containsKey(final FDate key) {
@@ -348,10 +349,6 @@ public abstract class AHistoricalCache<V> {
 
     protected ILoadingCache<FDate, V> getValuesMap() {
         return valuesMap;
-    }
-
-    private IHistoricalCacheQueryBooster<V> getQueryBooster() {
-        return queryBooster;
     }
 
     protected final FDate minKey() {

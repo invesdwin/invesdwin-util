@@ -1,4 +1,4 @@
-package de.invesdwin.util.collections.loadingcache.historical.query.internal.cached;
+package de.invesdwin.util.collections.loadingcache.historical.query.internal.cache;
 
 import java.util.Map.Entry;
 
@@ -8,15 +8,23 @@ import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQuery;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQueryElementFilter;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQueryWithFuture;
+import de.invesdwin.util.collections.loadingcache.historical.query.internal.cache.booster.IHistoricalCacheQueryBooster;
 import de.invesdwin.util.time.fdate.FDate;
 
 @NotThreadSafe
 public class CachedHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
 
+    protected final IHistoricalCacheQueryBooster<V> queryBooster;
     private IHistoricalCacheQuery<V> delegate;
 
-    public CachedHistoricalCacheQuery(final IHistoricalCacheQuery<V> delegate) {
+    public CachedHistoricalCacheQuery(final IHistoricalCacheQuery<V> delegate,
+            final IHistoricalCacheQueryBooster<V> queryBooster) {
         this.delegate = delegate;
+        this.queryBooster = queryBooster;
+    }
+
+    public IHistoricalCacheQuery<V> getDelegate() {
+        return delegate;
     }
 
     @Override
@@ -45,7 +53,7 @@ public class CachedHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
 
     @Override
     public IHistoricalCacheQueryWithFuture<V> withFuture() {
-        return new CachedHistoricalCacheQueryWithFuture<V>(delegate.withFuture());
+        return new CachedHistoricalCacheQueryWithFuture<V>(delegate.withFuture(), queryBooster);
     }
 
     @Override

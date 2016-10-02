@@ -1,4 +1,4 @@
-package de.invesdwin.util.collections.loadingcache.historical.internal;
+package de.invesdwin.util.collections.loadingcache.historical.query.internal.cache.booster;
 
 import java.util.List;
 import java.util.Map.Entry;
