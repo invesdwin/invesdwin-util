@@ -5,14 +5,13 @@ import java.util.Map.Entry;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.bean.tuple.ImmutableEntry;
-import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
 import de.invesdwin.util.time.fdate.FDate;
 
 @Immutable
-enum HistoricalCacheAssertValue {
+public enum HistoricalCacheAssertValue {
     ASSERT_VALUE_WITH_FUTURE() {
         @Override
-        public <V> Entry<FDate, V> internalAssertValue(final AHistoricalCache<V> parent, final FDate key,
+        public <V> Entry<FDate, V> internalAssertValue(final IHistoricalCacheInternalMethods<V> parent, final FDate key,
                 final FDate valueKey, final V value) {
             FDate assertedValueKey = null;
             if (value != null) {
@@ -30,7 +29,7 @@ enum HistoricalCacheAssertValue {
     },
     ASSERT_VALUE_WITH_FUTURE_NULL() {
         @Override
-        public <V> Entry<FDate, V> internalAssertValue(final AHistoricalCache<V> parent, final FDate key,
+        public <V> Entry<FDate, V> internalAssertValue(final IHistoricalCacheInternalMethods<V> parent, final FDate key,
                 final FDate valueKey, final V value) {
             FDate assertedValueKey = null;
             if (value != null) {
@@ -50,7 +49,7 @@ enum HistoricalCacheAssertValue {
     },
     ASSERT_VALUE_WITHOUT_FUTURE() {
         @Override
-        public <V> Entry<FDate, V> internalAssertValue(final AHistoricalCache<V> parent, final FDate key,
+        public <V> Entry<FDate, V> internalAssertValue(final IHistoricalCacheInternalMethods<V> parent, final FDate key,
                 final FDate valueKey, final V value) {
             FDate assertedValueKey = null;
             if (value != null) {
@@ -70,10 +69,10 @@ enum HistoricalCacheAssertValue {
         }
     };
 
-    protected abstract <V> Entry<FDate, V> internalAssertValue(AHistoricalCache<V> parent, FDate key, FDate valueKey,
-            V value);
+    protected abstract <V> Entry<FDate, V> internalAssertValue(IHistoricalCacheInternalMethods<V> parent, FDate key,
+            FDate valueKey, V value);
 
-    public final <V> Entry<FDate, V> assertValue(final AHistoricalCache<V> parent, final FDate key,
+    public final <V> Entry<FDate, V> assertValue(final IHistoricalCacheInternalMethods<V> parent, final FDate key,
             final FDate valueKey, final V value) {
         final Entry<FDate, V> assertedValue = internalAssertValue(parent, key, valueKey, value);
         if (assertedValue == null || assertedValue.getValue() == null) {
@@ -91,7 +90,8 @@ enum HistoricalCacheAssertValue {
         }
     }
 
-    public static final <V> FDate unwrapEntryKey(final AHistoricalCache<V> parent, final Entry<FDate, V> entry) {
+    public static final <V> FDate unwrapEntryKey(final IHistoricalCacheInternalMethods<V> parent,
+            final Entry<FDate, V> entry) {
         if (entry == null) {
             return null;
         } else {

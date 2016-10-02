@@ -24,10 +24,9 @@ import de.invesdwin.util.collections.loadingcache.historical.listener.IHistorica
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQuery;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.HistoricalCacheQuery;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.IHistoricalCacheInternalMethods;
-import de.invesdwin.util.collections.loadingcache.historical.query.internal.cache.CachedHistoricalCacheQuery;
-import de.invesdwin.util.collections.loadingcache.historical.query.internal.cache.booster.DisabledHistoricalCacheQueryBooster;
-import de.invesdwin.util.collections.loadingcache.historical.query.internal.cache.booster.HistoricalCacheQueryBooster;
-import de.invesdwin.util.collections.loadingcache.historical.query.internal.cache.booster.IHistoricalCacheQueryBooster;
+import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.CachedHistoricalCacheQueryCore;
+import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.DefaultHistoricalCacheQueryCore;
+import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.IHistoricalCacheQueryCore;
 import de.invesdwin.util.collections.loadingcache.historical.refresh.HistoricalCacheRefreshManager;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.time.fdate.FDate;
@@ -43,10 +42,9 @@ public abstract class AHistoricalCache<V> {
     public static final Integer DEFAULT_MAXIMUM_SIZE = 1000;
     private final List<ALoadingCache<?, ?>> increaseMaximumSizeListeners = new ArrayList<ALoadingCache<?, ?>>();
 
-    private final IHistoricalCacheQueryBooster<V> queryBooster = newHistoricalCacheQueryBooster();
+    private final IHistoricalCacheQueryCore<V> queryCore = newHistoricalCacheQueryCore();
     private IHistoricalCacheAdjustKeyProvider adjustKeyProvider = new InnerHistoricalCacheAdjustKeyProvider();
     private IHistoricalCacheOnValueLoadedListener<V> onValueLoadedListener = new InnerHistoricalCacheOnValueLoadedListener();
-    private final IHistoricalCacheInternalMethods<V> internalMethods = new HistoricalCacheInternalMethods();
 
     private volatile FDate lastRefresh = HistoricalCacheRefreshManager.getLastRefresh();
     private boolean isPutDisabled = getMaximumSize() != null && getMaximumSize() == 0;
@@ -82,11 +80,11 @@ public abstract class AHistoricalCache<V> {
         return DEFAULT_MAXIMUM_SIZE;
     }
 
-    private IHistoricalCacheQueryBooster<V> newHistoricalCacheQueryBooster() {
+    private IHistoricalCacheQueryCore<V> newHistoricalCacheQueryCore() {
         if (!Objects.equals(getMaximumSize(), DISABLED_MAXIMUM_SIZE)) {
-            return new HistoricalCacheQueryBooster<V>(this);
+            return new CachedHistoricalCacheQueryCore<V>(new HistoricalCacheInternalMethods());
         } else {
-            return new DisabledHistoricalCacheQueryBooster<V>();
+            return new DefaultHistoricalCacheQueryCore<V>(new HistoricalCacheInternalMethods());
         }
     }
 
@@ -94,7 +92,7 @@ public abstract class AHistoricalCache<V> {
         for (final ALoadingCache<?, ?> l : increaseMaximumSizeListeners) {
             l.increaseMaximumSize(maximumSize);
         }
-        queryBooster.increaseMaximumSize(maximumSize);
+        queryCore.increaseMaximumSize(maximumSize);
     }
 
     protected void setAdjustKeyProvider(final IHistoricalCacheAdjustKeyProvider adjustKeyProvider) {
@@ -209,7 +207,7 @@ public abstract class AHistoricalCache<V> {
      * Does not allow values from future per default.
      */
     public final IHistoricalCacheQuery<V> query() {
-        return new CachedHistoricalCacheQuery<V>(new HistoricalCacheQuery<V>(this, internalMethods), queryBooster);
+        return new HistoricalCacheQuery<V>(queryCore);
     }
 
     public boolean containsKey(final FDate key) {
@@ -327,7 +325,7 @@ public abstract class AHistoricalCache<V> {
         if (shiftKeyProvider.getParent() == this) {
             shiftKeyProvider.clear();
         }
-        queryBooster.clear();
+        queryCore.clear();
         lastRefresh = new FDate();
     }
 
@@ -378,6 +376,21 @@ public abstract class AHistoricalCache<V> {
         @Override
         public ILoadingCache<FDate, V> getValuesMap() {
             return AHistoricalCache.this.getValuesMap();
+        }
+
+        @Override
+        public IHistoricalCacheAdjustKeyProvider getAdjustKeyProvider() {
+            return AHistoricalCache.this.getAdjustKeyProvider();
+        }
+
+        @Override
+        public void remove(final FDate key) {
+            AHistoricalCache.this.remove(key);
+        }
+
+        @Override
+        public FDate extractKey(final FDate key, final V value) {
+            return AHistoricalCache.this.extractKey(key, value);
         }
     }
 
