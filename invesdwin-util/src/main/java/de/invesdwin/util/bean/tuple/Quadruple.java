@@ -25,12 +25,12 @@ public class Quadruple<FIRST, SECOND, THIRD, FOURTH> extends Triple<FIRST, SECON
     }
 
     @Override
-    protected int internalHashCode() {
+    public int hashCode() {
         return Objects.hashCode(getClass(), getFirst(), getSecond(), getThird(), getFourth());
     }
 
     @Override
-    protected boolean internalEquals(final Object obj) {
+    public boolean equals(final Object obj) {
         if (obj instanceof Quadruple) {
             final Quadruple<?, ?, ?, ?> castObj = (Quadruple<?, ?, ?, ?>) obj;
             return Objects.equals(getFirst(), castObj.getFirst()) && Objects.equals(getSecond(), castObj.getSecond())

@@ -14,8 +14,6 @@ public class ImmutableEntry<K, V> extends AValueObject implements Entry<K, V> {
     private final K key;
     private final V value;
 
-    private Integer cachedHashCode;
-
     protected ImmutableEntry(final K key, final V value) {
         this.key = key;
         this.value = value;
@@ -37,10 +35,7 @@ public class ImmutableEntry<K, V> extends AValueObject implements Entry<K, V> {
 
     @Override
     public int hashCode() {
-        if (cachedHashCode == null) {
-            cachedHashCode = Objects.hashCode(getClass(), getKey(), getValue());
-        }
-        return cachedHashCode;
+        return Objects.hashCode(getClass(), getKey(), getValue());
     }
 
     @Override
