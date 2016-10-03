@@ -9,6 +9,7 @@ import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
+import de.invesdwin.util.collections.iterable.SingleValueIterable;
 import de.invesdwin.util.collections.iterable.WrapperCloseableIterable;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.HistoricalCacheAssertValue;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.HistoricalCacheQuery;
@@ -42,11 +43,15 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
     @Override
     public Entry<FDate, V> getPreviousEntry(final IHistoricalCacheQueryInternalMethods<V> query, final FDate key,
             final int shiftBackUnits) {
-        final List<Entry<FDate, V>> previousEntries = getPreviousEntriesList(query, key, shiftBackUnits + 1);
-        if (previousEntries.isEmpty()) {
-            return null;
+        if (shiftBackUnits == 0) {
+            return delegate.getPreviousEntry(query, key, 0);
         } else {
-            return previousEntries.get(0);
+            final List<Entry<FDate, V>> previousEntries = getPreviousEntriesList(query, key, shiftBackUnits + 1);
+            if (previousEntries.isEmpty()) {
+                return null;
+            } else {
+                return previousEntries.get(0);
+            }
         }
     }
 
@@ -59,8 +64,13 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
     @Override
     public synchronized ICloseableIterable<Entry<FDate, V>> getPreviousEntries(
             final IHistoricalCacheQueryInternalMethods<V> query, final FDate key, final int shiftBackUnits) {
-        final List<Entry<FDate, V>> result = getPreviousEntriesList(query, key, shiftBackUnits);
-        return WrapperCloseableIterable.maybeWrap(result);
+        if (shiftBackUnits == 1) {
+            final Entry<FDate, V> entry = delegate.getPreviousEntry(query, key, 0);
+            return new SingleValueIterable<Entry<FDate, V>>(entry);
+        } else {
+            final List<Entry<FDate, V>> result = getPreviousEntriesList(query, key, shiftBackUnits);
+            return WrapperCloseableIterable.maybeWrap(result);
+        }
     }
 
     private List<Entry<FDate, V>> getPreviousEntriesList(final IHistoricalCacheQueryInternalMethods<V> query,
