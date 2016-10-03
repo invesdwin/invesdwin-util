@@ -842,9 +842,9 @@ public class AGapHistoricalCacheWithLimitedCacheTest {
             Assertions.assertThat(previousValues).isEqualTo(expectedValues);
         }
         Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(4);
-        Assertions.assertThat(countReadNewestValueTo).isEqualTo(6);
-        Assertions.assertThat(countInnerExtractKey).isEqualTo(102);
-        Assertions.assertThat(countAdjustKey).isEqualTo(43);
+        Assertions.assertThat(countReadNewestValueTo).isEqualTo(5);
+        Assertions.assertThat(countInnerExtractKey).isEqualTo(47);
+        Assertions.assertThat(countAdjustKey).isEqualTo(18);
     }
 
     @Test
