@@ -46,10 +46,7 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
         if (shiftBackUnits == 0) {
             return delegate.getPreviousEntry(query, key, 0);
         } else {
-            //use arraylist since we don't want to have the overhead of filtering duplicates
-            final List<Entry<FDate, V>> trailing = new ArrayList<Entry<FDate, V>>(shiftBackUnits + 1);
-            final List<Entry<FDate, V>> previousEntries = getPreviousEntriesList(query, key, shiftBackUnits + 1,
-                    trailing);
+            final List<Entry<FDate, V>> previousEntries = getPreviousEntriesList(query, key, shiftBackUnits + 1);
             if (previousEntries.isEmpty()) {
                 return null;
             } else {
@@ -71,22 +68,21 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
             final Entry<FDate, V> entry = delegate.getPreviousEntry(query, key, 0);
             return new SingleValueIterable<Entry<FDate, V>>(entry);
         } else {
-            final List<Entry<FDate, V>> trailing = query.newEntriesList(shiftBackUnits);
-            final List<Entry<FDate, V>> result = getPreviousEntriesList(query, key, shiftBackUnits, trailing);
+            final List<Entry<FDate, V>> result = getPreviousEntriesList(query, key, shiftBackUnits);
             return WrapperCloseableIterable.maybeWrap(result);
         }
     }
 
     private List<Entry<FDate, V>> getPreviousEntriesList(final IHistoricalCacheQueryInternalMethods<V> query,
-            final FDate key, final int shiftBackUnits, final List<Entry<FDate, V>> trailing) {
+            final FDate key, final int shiftBackUnits) {
         final FDate adjKey = getParent().adjustKey(key);
         final List<Entry<FDate, V>> result;
+        final List<Entry<FDate, V>> trailing = query.newEntriesList(shiftBackUnits);
         if (!cachedPreviousEntries.isEmpty()) {
-            result = cachedGetPreviousEntries(query, shiftBackUnits, adjKey, trailing);
+            return cachedGetPreviousEntries(query, shiftBackUnits, adjKey, trailing);
         } else {
-            result = defaultGetPreviousEntries(query, shiftBackUnits, adjKey, trailing);
+            return defaultGetPreviousEntries(query, shiftBackUnits, adjKey, trailing);
         }
-        return result;
     }
 
     private List<Entry<FDate, V>> cachedGetPreviousEntries(final IHistoricalCacheQueryInternalMethods<V> query,

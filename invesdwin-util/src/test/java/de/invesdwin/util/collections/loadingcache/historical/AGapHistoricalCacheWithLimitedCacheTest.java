@@ -529,7 +529,7 @@ public class AGapHistoricalCacheWithLimitedCacheTest {
         previousKey = cache.query().getPreviousKey(new FDate(), 1);
         Assertions.assertThat(previousKey).isSameAs(entities.get(entities.size() - 2));
         Assertions.assertThat(countReadAllValuesAscendingFrom).isLessThanOrEqualTo(4);
-        Assertions.assertThat(countReadNewestValueTo).isEqualTo(3);
+        Assertions.assertThat(countReadNewestValueTo).isLessThanOrEqualTo(4);
     }
 
     @Test
