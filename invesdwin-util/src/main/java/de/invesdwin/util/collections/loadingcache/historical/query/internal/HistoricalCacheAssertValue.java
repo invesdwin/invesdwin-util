@@ -95,7 +95,7 @@ public enum HistoricalCacheAssertValue {
         if (entry == null) {
             return null;
         } else {
-            return parent.extractKey(entry.getKey(), entry.getValue());
+            return entry.getKey(); //internalAssertValue already has made sure that the entry key is the valueKey
         }
     }
 }
