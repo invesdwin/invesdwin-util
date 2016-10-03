@@ -76,6 +76,11 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
         if (Objects.equals(adjKey, cachedPreviousEntriesKey) || Objects.equals(adjKey, getLastCachedEntry().getKey())) {
             return cachedGetPreviousEntries_sameKey(query, shiftBackUnits, adjKey);
         } else if ((adjKey.isAfter(cachedPreviousEntriesKey) || adjKey.isAfter(getLastCachedEntry().getKey()))
+                /*
+                 * when we go a higher key and only want to load 1 value, we can just go with direct map access since we
+                 * won't hit cache anyway because first access will be against map anyway. we make sure to not replace
+                 * the cached values in this case in the default query
+                 */
                 && shiftBackUnits > 1) {
             return cachedGetPreviousEntries_incrementedKey(query, shiftBackUnits, adjKey);
         } else if (adjKey.isBeforeOrEqual(cachedPreviousEntriesKey)
@@ -203,8 +208,13 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
     }
 
     private void replaceCachedEntries(final FDate adjKey, final List<Entry<FDate, V>> trailing) {
-        if (trailing.isEmpty() || (trailing.size() == 1 && cachedPreviousEntries.size() > 1)) {
-            //maybe we went before the first entry, so we don't throw away a cache that might already be filled
+        if (trailing.isEmpty() ||
+        /*
+         * (maybe we went before the first entry) or (maybe we went after the last entry to only fetch one element), so
+         * we don't want to throw away a cache that might already be filled
+         */
+                (trailing.size() == 1 && cachedPreviousEntries.size() > 1)) {
+
             return;
         }
         maybeIncreaseMaximumSize(trailing.size());
