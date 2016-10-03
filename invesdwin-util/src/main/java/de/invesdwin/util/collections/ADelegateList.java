@@ -10,9 +10,11 @@ import javax.annotation.concurrent.NotThreadSafe;
 @NotThreadSafe
 public abstract class ADelegateList<E> extends ADelegateCollection<E> implements List<E> {
 
+    private final List<E> delegateList = (List<E>) super.getDelegate();
+
     @Override
     protected List<E> getDelegate() {
-        return (List<E>) super.getDelegate();
+        return delegateList;
     }
 
     @Override
