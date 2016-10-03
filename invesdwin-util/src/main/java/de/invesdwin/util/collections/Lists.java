@@ -12,6 +12,7 @@ import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
 import de.invesdwin.util.collections.internal.AListsStaticFacade;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
+import de.invesdwin.util.collections.iterable.WrapperCloseableIterable;
 
 @Immutable
 @StaticFacadeDefinition(name = "de.invesdwin.util.collections.internal.AListsStaticFacade", targets = {
@@ -49,7 +50,13 @@ public final class Lists extends AListsStaticFacade {
     }
 
     public static <E> List<E> toListWithoutHasNext(final ICloseableIterable<? extends E> iterable, final List<E> list) {
-        return toListWithoutHasNext(iterable.iterator(), list);
+        final Iterable<E> unwrapped = WrapperCloseableIterable.maybeUnwrap(iterable);
+        if (unwrapped instanceof Collection) {
+            list.addAll((Collection<E>) unwrapped);
+            return list;
+        } else {
+            return toListWithoutHasNext(iterable.iterator(), list);
+        }
     }
 
     public static <E> List<E> toListWithoutHasNext(final ICloseableIterator<? extends E> iterator) {
@@ -57,6 +64,13 @@ public final class Lists extends AListsStaticFacade {
     }
 
     public static <E> List<E> toListWithoutHasNext(final ICloseableIterable<? extends E> iterable) {
+        final Iterable<E> unwrapped = WrapperCloseableIterable.maybeUnwrap(iterable);
+        if (unwrapped instanceof List) {
+            return (List<E>) unwrapped;
+        }
+        if (unwrapped instanceof Collection) {
+            return new ArrayList<E>((Collection<E>) unwrapped);
+        }
         return toListWithoutHasNext(iterable.iterator());
     }
 
@@ -69,7 +83,13 @@ public final class Lists extends AListsStaticFacade {
     }
 
     public static <E> List<E> toList(final ICloseableIterable<? extends E> iterable, final List<E> list) {
-        return toList(iterable.iterator(), list);
+        final Iterable<E> unwrapped = WrapperCloseableIterable.maybeUnwrap(iterable);
+        if (unwrapped instanceof Collection) {
+            list.addAll((Collection<E>) unwrapped);
+            return list;
+        } else {
+            return toList(iterable.iterator(), list);
+        }
     }
 
     public static <E> List<E> toList(final ICloseableIterator<? extends E> iterator) {
@@ -77,6 +97,13 @@ public final class Lists extends AListsStaticFacade {
     }
 
     public static <E> List<E> toList(final ICloseableIterable<? extends E> iterable) {
+        final Iterable<E> unwrapped = WrapperCloseableIterable.maybeUnwrap(iterable);
+        if (unwrapped instanceof List) {
+            return (List<E>) unwrapped;
+        }
+        if (unwrapped instanceof Collection) {
+            return new ArrayList<E>((Collection<E>) unwrapped);
+        }
         return toList(iterable.iterator());
     }
 
