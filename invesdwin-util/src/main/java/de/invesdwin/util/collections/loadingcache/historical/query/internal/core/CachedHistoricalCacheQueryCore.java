@@ -72,8 +72,11 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
             return cachedGetPreviousEntries_sameKey(query, shiftBackUnits, adjKey);
         } else if (adjKey.isAfter(cachedPreviousEntriesKey) || adjKey.isAfter(getLastCachedEntry().getKey())) {
             return cachedGetPreviousEntries_incrementedKey(query, shiftBackUnits, adjKey);
+            //        } else if (adjKey.isBefore(cachedPreviousEntriesKey) && adjKey.isBeforeOrEqual(getLastCachedEntry().getKey())
+            //                && adjKey.isAfterOrEqual(getFirstCachedEntry().getKey())) {
+            //            return cachedGetPreviousEntries_decrementedKey(query, shiftBackUnits, adjKey);
         } else {
-            System.out.println("default");
+            //value will not be found in cache, so we just go with the default query and renew the cache
             return defaultGetPreviousEntries(query, shiftBackUnits, adjKey);
         }
     }
@@ -191,6 +194,10 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
     }
 
     private void replaceCachedEntries(final FDate adjKey, final List<Entry<FDate, V>> trailing) {
+        if (trailing.isEmpty() || (trailing.size() == 1 && cachedPreviousEntries.size() > 1)) {
+            //maybe we went before the first entry, so we don't throw away a cache that might already be filled
+            return;
+        }
         cachedPreviousEntries.clear();
         cachedPreviousEntries.addAll(trailing);
         cachedPreviousEntriesKey = adjKey;
@@ -210,6 +217,10 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
 
     private Entry<FDate, V> getLastCachedEntry() {
         return cachedPreviousEntries.get(cachedPreviousEntries.size() - 1);
+    }
+
+    private Entry<FDate, V> getFirstCachedEntry() {
+        return cachedPreviousEntries.get(0);
     }
 
     @Override
