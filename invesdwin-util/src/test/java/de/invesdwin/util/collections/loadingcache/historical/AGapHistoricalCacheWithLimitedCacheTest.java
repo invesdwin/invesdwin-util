@@ -32,6 +32,7 @@ public class AGapHistoricalCacheWithLimitedCacheTest {
     private int countReadAllValuesAscendingFrom;
     private int countReadNewestValueTo;
     private int countInnerExtractKey;
+    private int countAdjustKey;
     private boolean returnNullInReadNewestValueTo;
     private boolean returnAllInReadAllValuesAscendingFrom;
     private Integer returnMaxResults;
@@ -801,6 +802,7 @@ public class AGapHistoricalCacheWithLimitedCacheTest {
         Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(3);
         Assertions.assertThat(countReadNewestValueTo).isEqualTo(4);
         Assertions.assertThat(countInnerExtractKey).isEqualTo(39);
+        Assertions.assertThat(countAdjustKey).isEqualTo(15);
     }
 
     @Test
@@ -814,9 +816,30 @@ public class AGapHistoricalCacheWithLimitedCacheTest {
         Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(13);
         Assertions.assertThat(countReadNewestValueTo).isEqualTo(13);
         Assertions.assertThat(countInnerExtractKey).isEqualTo(170);
+        Assertions.assertThat(countAdjustKey).isEqualTo(42);
+    }
+
+    @Test
+    public void testPreviousValuesWithQueryCacheWithDecrementingKey() {
+        for (int index = entities.size() - 1; index >= 0; index--) {
+            final Collection<FDate> previousValues = asList(
+                    cache.query().withFilterDuplicateKeys(false).getPreviousValues(entities.get(index), index + 1));
+            final List<FDate> expectedValues = entities.subList(0, index + 1);
+            Assertions.assertThat(previousValues).isEqualTo(expectedValues);
+        }
+        Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(8);
+        Assertions.assertThat(countReadNewestValueTo).isEqualTo(8);
+        Assertions.assertThat(countInnerExtractKey).isEqualTo(124);
+        Assertions.assertThat(countAdjustKey).isEqualTo(43);
     }
 
     private class TestGapHistoricalCache extends AGapHistoricalCache<FDate> {
+
+        @Override
+        protected FDate adjustKey(final FDate key) {
+            countAdjustKey++;
+            return super.adjustKey(key);
+        }
 
         @Override
         public void setAdjustKeyProvider(final IHistoricalCacheAdjustKeyProvider adjustKeyProvider) {

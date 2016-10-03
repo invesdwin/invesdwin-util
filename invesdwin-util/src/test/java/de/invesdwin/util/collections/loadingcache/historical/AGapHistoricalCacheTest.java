@@ -32,6 +32,7 @@ public class AGapHistoricalCacheTest {
     private int countReadAllValuesAscendingFrom;
     private int countReadNewestValueTo;
     private int countInnerExtractKey;
+    private int countAdjustKey;
     private boolean returnNullInReadNewestValueTo;
     private boolean returnAllInReadAllValuesAscendingFrom;
     private Integer returnMaxResults;
@@ -799,6 +800,7 @@ public class AGapHistoricalCacheTest {
         Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(2);
         Assertions.assertThat(countReadNewestValueTo).isEqualTo(3);
         Assertions.assertThat(countInnerExtractKey).isEqualTo(31);
+        Assertions.assertThat(countAdjustKey).isEqualTo(15);
     }
 
     @Test
@@ -812,9 +814,30 @@ public class AGapHistoricalCacheTest {
         Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(2);
         Assertions.assertThat(countReadNewestValueTo).isEqualTo(3);
         Assertions.assertThat(countInnerExtractKey).isEqualTo(100);
+        Assertions.assertThat(countAdjustKey).isEqualTo(43);
+    }
+
+    @Test
+    public void testPreviousValuesWithQueryCacheWithDecrementingKey() {
+        for (int index = entities.size() - 1; index >= 0; index--) {
+            final Collection<FDate> previousValues = asList(
+                    cache.query().withFilterDuplicateKeys(false).getPreviousValues(entities.get(index), index + 1));
+            final List<FDate> expectedValues = entities.subList(0, index + 1);
+            Assertions.assertThat(previousValues).isEqualTo(expectedValues);
+        }
+        Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(2);
+        Assertions.assertThat(countReadNewestValueTo).isEqualTo(3);
+        Assertions.assertThat(countInnerExtractKey).isEqualTo(79);
+        Assertions.assertThat(countAdjustKey).isEqualTo(43);
     }
 
     private class TestGapHistoricalCache extends AGapHistoricalCache<FDate> {
+
+        @Override
+        protected FDate adjustKey(final FDate key) {
+            countAdjustKey++;
+            return super.adjustKey(key);
+        }
 
         @Override
         public void setAdjustKeyProvider(final IHistoricalCacheAdjustKeyProvider adjustKeyProvider) {

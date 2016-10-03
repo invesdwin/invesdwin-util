@@ -117,7 +117,7 @@ public abstract class AHistoricalCache<V> {
         isPutDisabled = false;
     }
 
-    private FDate adjustKey(final FDate key) {
+    protected FDate adjustKey(final FDate key) {
         final FDate lastRefreshFromManager = HistoricalCacheRefreshManager.getLastRefresh();
         if (lastRefresh.isBefore(lastRefreshFromManager)) {
             lastRefresh = new FDate();

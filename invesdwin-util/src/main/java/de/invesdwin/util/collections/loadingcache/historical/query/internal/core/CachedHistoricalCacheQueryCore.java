@@ -68,57 +68,115 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
 
     private List<Entry<FDate, V>> cachedGetPreviousEntries(final IHistoricalCacheQueryInternalMethods<V> query,
             final int shiftBackUnits, final FDate adjKey) {
-        final List<Entry<FDate, V>> trailing = query.newEntriesList();
-        final int skipFirstValueIncrement = 1;
-        int unitsBack = shiftBackUnits - skipFirstValueIncrement;
         if (Objects.equals(adjKey, cachedEntriesKey) || Objects.equals(adjKey, getLastCachedEntry().getKey())) {
-            unitsBack = fillFromCacheAsFarAsPossible(trailing, unitsBack);
-            if (unitsBack == -1) {
-                //we could satisfy the query completely with cached values
-                Collections.reverse(trailing);
-                //cached values don't have to be updated
-                //                System.out.println("complete");
-                return trailing;
-            } else {
-                if (unitsBack < 0) {
-                    throw new IllegalStateException("unitsBack should not become smaller than -1: " + unitsBack);
-                }
-                final FDate lastTrailingKey = trailing.get(trailing.size() - skipFirstValueIncrement).getKey();
-                //we need to load further values from the map
-                final GetPreviousEntryQueryImpl<V> impl = new GetPreviousEntryQueryImpl<V>(this, query, lastTrailingKey,
-                        unitsBack + skipFirstValueIncrement);
-                impl.setIterations(skipFirstValueIncrement);
-                while (unitsBack >= 0 && !impl.iterationFinished()) {
-                    final Entry<FDate, V> value = impl.getResult();
-                    if (value != null) {
-                        trailing.add(value);
-                    } else {
-                        break;
-                    }
-                    unitsBack--;
-                }
-                Collections.reverse(trailing);
-                replaceCachedEntries(adjKey, trailing);
-                //                System.out.println("trailing");
-                return trailing;
-            }
+            return cachedGetPreviousEntries_sameKey(query, shiftBackUnits, adjKey);
+            //        } else if (adjKey.isAfter(cachedEntriesKey) || adjKey.isAfter(getLastCachedEntry().getKey())) {
+            //            return cachedGetPreviousEntries_incrementedKey(query, shiftBackUnits, adjKey);
+        } else {
+            System.out.println("default");
+            return defaultGetPreviousEntries(query, shiftBackUnits, adjKey);
         }
-        //        System.out.println("default");
-        return defaultGetPreviousEntries(query, shiftBackUnits, adjKey);
     }
 
-    private List<Entry<FDate, V>> defaultGetPreviousEntries(final IHistoricalCacheQueryInternalMethods<V> query,
+    private List<Entry<FDate, V>> cachedGetPreviousEntries_incrementedKey(
+            final IHistoricalCacheQueryInternalMethods<V> query, final int shiftBackUnits, final FDate adjKey) {
+        final List<Entry<FDate, V>> trailing = query.newEntriesList();
+        int unitsBack = shiftBackUnits - 1;
+        //go through query as long as we found the first entry in the cache
+        final GetPreviousEntryQueryImpl<V> impl = new GetPreviousEntryQueryImpl<V>(this, query, adjKey, shiftBackUnits);
+        final FDate lastCachedEntryKey = getLastCachedEntry().getKey();
+        while (unitsBack >= 0 && !impl.iterationFinished()) {
+            final Entry<FDate, V> value = impl.getResult();
+            if (value != null) {
+                if (value.getKey().equals(lastCachedEntryKey)) {
+                    break; //continue with fillFromCacheAsFarAsPossible
+                } else {
+                    trailing.add(value);
+                    unitsBack--;
+                }
+            } else {
+                unitsBack = -1; //break
+            }
+        }
+
+        //then fill the rest from the cache as far as possible
+        unitsBack = fillFromCacheAsFarAsPossible(trailing, unitsBack);
+        if (unitsBack == -1) {
+            //we could satisfy the query completely with cached values
+            Collections.reverse(trailing);
+            //cached values don't have to be updated
+            System.out.println("complete incremented key");
+            return trailing;
+        } else {
+            //and use the query again if there are missing elements at the end
+            loadFurtherTrailingValuesViaQuery(query, trailing, unitsBack);
+            Collections.reverse(trailing);
+            replaceCachedEntries(adjKey, trailing);
+            System.out.println("trailing incremented key");
+            return trailing;
+        }
+    }
+
+    private List<Entry<FDate, V>> cachedGetPreviousEntries_sameKey(final IHistoricalCacheQueryInternalMethods<V> query,
             final int shiftBackUnits, final FDate adjKey) {
         final List<Entry<FDate, V>> trailing = query.newEntriesList();
-        final GetPreviousEntryQueryImpl<V> impl = new GetPreviousEntryQueryImpl<V>(this, query, adjKey, shiftBackUnits);
-        for (int unitsBack = shiftBackUnits - 1; unitsBack >= 0 && !impl.iterationFinished(); unitsBack--) {
+        int unitsBack = shiftBackUnits - 1;
+        unitsBack = fillFromCacheAsFarAsPossible(trailing, unitsBack);
+        if (unitsBack == -1) {
+            //we could satisfy the query completely with cached values
+            Collections.reverse(trailing);
+            //cached values don't have to be updated
+            System.out.println("complete");
+            return trailing;
+        } else {
+            loadFurtherTrailingValuesViaQuery(query, trailing, unitsBack);
+            Collections.reverse(trailing);
+            replaceCachedEntries(adjKey, trailing);
+            System.out.println("trailing");
+            return trailing;
+        }
+    }
+
+    private void loadFurtherTrailingValuesViaQuery(final IHistoricalCacheQueryInternalMethods<V> query,
+            final List<Entry<FDate, V>> trailing, final int unitsBack) {
+        assertUnitsBackNotExchausted(unitsBack);
+        final FDate lastTrailingKey = trailing.get(trailing.size() - 1).getKey();
+        //we need to load further values from the map
+        final int skipFirstValueIncrement = 1;
+        final GetPreviousEntryQueryImpl<V> impl = new GetPreviousEntryQueryImpl<V>(this, query, lastTrailingKey,
+                unitsBack + skipFirstValueIncrement);
+        impl.setIterations(skipFirstValueIncrement);
+        int newUnitsBack = unitsBack;
+        newUnitsBack = fillFromQuery(trailing, impl, newUnitsBack);
+    }
+
+    private int fillFromQuery(final List<Entry<FDate, V>> trailing, final GetPreviousEntryQueryImpl<V> impl,
+            final int unitsBack) {
+        int newUnitsBack = unitsBack;
+        while (newUnitsBack >= 0 && !impl.iterationFinished()) {
             final Entry<FDate, V> value = impl.getResult();
             if (value != null) {
                 trailing.add(value);
             } else {
                 break;
             }
+            newUnitsBack--;
         }
+        return newUnitsBack;
+    }
+
+    private void assertUnitsBackNotExchausted(final int unitsBack) {
+        if (unitsBack < 0) {
+            throw new IllegalStateException("unitsBack should not become smaller than -1: " + unitsBack);
+        }
+    }
+
+    private List<Entry<FDate, V>> defaultGetPreviousEntries(final IHistoricalCacheQueryInternalMethods<V> query,
+            final int shiftBackUnits, final FDate adjKey) {
+        final List<Entry<FDate, V>> trailing = query.newEntriesList();
+        final GetPreviousEntryQueryImpl<V> impl = new GetPreviousEntryQueryImpl<V>(this, query, adjKey, shiftBackUnits);
+        int unitsBack = shiftBackUnits - 1;
+        unitsBack = fillFromQuery(trailing, impl, unitsBack);
         Collections.reverse(trailing);
         replaceCachedEntries(adjKey, trailing);
         return trailing;
