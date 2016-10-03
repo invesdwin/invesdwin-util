@@ -10,16 +10,13 @@ import javax.annotation.concurrent.NotThreadSafe;
 @NotThreadSafe
 public abstract class ADelegateCollection<E> implements Collection<E> {
 
-    private Collection<E> delegate;
+    private final Collection<E> delegate = newDelegate();
 
-    protected synchronized Collection<E> getDelegate() {
-        if (delegate == null) {
-            this.delegate = createDelegate();
-        }
+    protected Collection<E> getDelegate() {
         return delegate;
     }
 
-    protected abstract Collection<E> createDelegate();
+    protected abstract Collection<E> newDelegate();
 
     @Override
     public int size() {

@@ -453,7 +453,7 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
                 protected Set<Entry<FDate, V>> newSet() {
                     return new ADelegateSet<Entry<FDate, V>>() {
                         @Override
-                        protected Set<Entry<FDate, V>> createDelegate() {
+                        protected Set<Entry<FDate, V>> newDelegate() {
                             return new LinkedHashSet<Entry<FDate, V>>(size);
                         }
 

@@ -27,7 +27,7 @@ public abstract class AConcurrentModificationDelegateSet<E> extends ADelegateCol
     private final Map<E, Boolean> tasks_add = new LinkedHashMap<E, Boolean>();
 
     @Override
-    protected abstract Set<E> createDelegate();
+    protected abstract Set<E> newDelegate();
 
     @Override
     public synchronized boolean add(final E e) {

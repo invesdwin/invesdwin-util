@@ -13,6 +13,6 @@ public abstract class ADelegateSet<E> extends ADelegateCollection<E> implements 
     }
 
     @Override
-    protected abstract Set<E> createDelegate();
+    protected abstract Set<E> newDelegate();
 
 }

@@ -78,6 +78,6 @@ public abstract class ADelegateList<E> extends ADelegateCollection<E> implements
     }
 
     @Override
-    protected abstract List<E> createDelegate();
+    protected abstract List<E> newDelegate();
 
 }

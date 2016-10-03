@@ -9,14 +9,11 @@ import javax.annotation.concurrent.NotThreadSafe;
 @NotThreadSafe
 public abstract class ADelegateMap<K, V> implements Map<K, V> {
 
-    private Map<K, V> delegate;
+    private final Map<K, V> delegate = newDelegate();
 
-    protected abstract Map<K, V> createDelegate();
+    protected abstract Map<K, V> newDelegate();
 
-    protected synchronized Map<K, V> getDelegate() {
-        if (delegate == null) {
-            this.delegate = createDelegate();
-        }
+    protected Map<K, V> getDelegate() {
         return delegate;
     }
 
