@@ -971,8 +971,8 @@ public class AGapHistoricalCacheWithLimitedCacheTest {
         }
         Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(2);
         Assertions.assertThat(countReadNewestValueTo).isEqualTo(3);
-        Assertions.assertThat(countInnerExtractKey).isEqualTo(86);
-        Assertions.assertThat(countAdjustKey).isEqualTo(25);
+        Assertions.assertThat(countInnerExtractKey).isEqualTo(101);
+        Assertions.assertThat(countAdjustKey).isEqualTo(35);
     }
 
     @Test
@@ -1001,8 +1001,8 @@ public class AGapHistoricalCacheWithLimitedCacheTest {
         }
         Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(4);
         Assertions.assertThat(countReadNewestValueTo).isEqualTo(6);
-        Assertions.assertThat(countInnerExtractKey).isEqualTo(52);
-        Assertions.assertThat(countAdjustKey).isEqualTo(20);
+        Assertions.assertThat(countInnerExtractKey).isEqualTo(67);
+        Assertions.assertThat(countAdjustKey).isEqualTo(30);
     }
 
     @Test
@@ -1016,8 +1016,8 @@ public class AGapHistoricalCacheWithLimitedCacheTest {
         }
         Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(2);
         Assertions.assertThat(countReadNewestValueTo).isEqualTo(4);
-        Assertions.assertThat(countInnerExtractKey).isEqualTo(42);
-        Assertions.assertThat(countAdjustKey).isEqualTo(19);
+        Assertions.assertThat(countInnerExtractKey).isEqualTo(36);
+        Assertions.assertThat(countAdjustKey).isEqualTo(17);
     }
 
     @Test
