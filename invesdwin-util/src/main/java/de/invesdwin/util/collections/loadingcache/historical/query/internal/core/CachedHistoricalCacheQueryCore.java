@@ -41,6 +41,8 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
     @Override
     public Entry<FDate, V> getPreviousEntry(final IHistoricalCacheQueryInternalMethods<V> query, final FDate key,
             final int shiftBackUnits) {
+        //TODO use cache here
+        //TODO increase maximum size if shiftbackunits is larger than it
         final GetPreviousEntryQueryImpl<V> impl = new GetPreviousEntryQueryImpl<V>(this, query, key, shiftBackUnits);
         //CHECKSTYLE:OFF
         while (!impl.iterationFinished()) {
@@ -53,8 +55,8 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
     @Override
     public synchronized ICloseableIterable<Entry<FDate, V>> getPreviousEntries(
             final IHistoricalCacheQueryInternalMethods<V> query, final FDate key, final int shiftBackUnits) {
-
-        final FDate adjKey = getParent().getAdjustKeyProvider().adjustKey(key);
+        //TODO increase maximum size if shiftbackunits is larger than it
+        final FDate adjKey = getParent().adjustKey(key);
         final List<Entry<FDate, V>> result;
         if (!cachedEntries.isEmpty()) {
             result = cachedGetPreviousEntries(query, shiftBackUnits, adjKey);
@@ -67,16 +69,41 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
     private List<Entry<FDate, V>> cachedGetPreviousEntries(final IHistoricalCacheQueryInternalMethods<V> query,
             final int shiftBackUnits, final FDate adjKey) {
         final List<Entry<FDate, V>> trailing = query.newEntriesList();
-        int unitsBack = shiftBackUnits - 1;
+        final int skipFirstValueIncrement = 1;
+        int unitsBack = shiftBackUnits - skipFirstValueIncrement;
         if (Objects.equals(adjKey, cachedEntriesKey) || Objects.equals(adjKey, getLastCachedEntry().getKey())) {
             unitsBack = fillFromCacheAsFarAsPossible(trailing, unitsBack);
-            if (unitsBack == 0) {
+            if (unitsBack == -1) {
                 //we could satisfy the query completely with cached values
                 Collections.reverse(trailing);
                 //cached values don't have to be updated
+                //                System.out.println("complete");
+                return trailing;
+            } else {
+                if (unitsBack < 0) {
+                    throw new IllegalStateException("unitsBack should not become smaller than -1: " + unitsBack);
+                }
+                final FDate lastTrailingKey = trailing.get(trailing.size() - skipFirstValueIncrement).getKey();
+                //we need to load further values from the map
+                final GetPreviousEntryQueryImpl<V> impl = new GetPreviousEntryQueryImpl<V>(this, query, lastTrailingKey,
+                        unitsBack + skipFirstValueIncrement);
+                impl.setIterations(skipFirstValueIncrement);
+                while (unitsBack >= 0 && !impl.iterationFinished()) {
+                    final Entry<FDate, V> value = impl.getResult();
+                    if (value != null) {
+                        trailing.add(value);
+                    } else {
+                        break;
+                    }
+                    unitsBack--;
+                }
+                Collections.reverse(trailing);
+                replaceCachedEntries(adjKey, trailing);
+                //                System.out.println("trailing");
                 return trailing;
             }
         }
+        //        System.out.println("default");
         return defaultGetPreviousEntries(query, shiftBackUnits, adjKey);
     }
 
@@ -133,7 +160,9 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
 
     @Override
     public synchronized void clear() {
+        delegate.clear();
         cachedEntries.clear();
+        cachedEntriesKey = null;
     }
 
     @Override

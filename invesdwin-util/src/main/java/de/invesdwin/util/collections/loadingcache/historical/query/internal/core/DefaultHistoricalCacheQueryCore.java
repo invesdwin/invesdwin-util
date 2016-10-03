@@ -34,7 +34,7 @@ public class DefaultHistoricalCacheQueryCore<V> implements IHistoricalCacheQuery
             final HistoricalCacheAssertValue assertValue) {
         V value = parent.getValuesMap().get(key);
         if (!query.isRememberNullValue() && value == null) {
-            final FDate adjKey = parent.getAdjustKeyProvider().adjustKey(key);
+            final FDate adjKey = parent.adjustKey(key);
             parent.remove(adjKey);
         }
         if (value != null && query.getElementFilter() != null) {

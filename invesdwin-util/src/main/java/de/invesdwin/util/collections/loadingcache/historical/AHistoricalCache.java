@@ -325,7 +325,7 @@ public abstract class AHistoricalCache<V> {
             shiftKeyProvider.clear();
         }
         queryCore.clear();
-        lastRefresh = new FDate();
+        lastRefresh = HistoricalCacheRefreshManager.getLastRefresh();
     }
 
     protected IHistoricalCacheQueryInterceptor<V> getQueryInterceptor() {
@@ -378,8 +378,8 @@ public abstract class AHistoricalCache<V> {
         }
 
         @Override
-        public IHistoricalCacheAdjustKeyProvider getAdjustKeyProvider() {
-            return AHistoricalCache.this.getAdjustKeyProvider();
+        public FDate adjustKey(final FDate key) {
+            return AHistoricalCache.this.adjustKey(key);
         }
 
         @Override

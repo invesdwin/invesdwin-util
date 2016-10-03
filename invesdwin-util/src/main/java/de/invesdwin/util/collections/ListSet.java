@@ -211,4 +211,9 @@ public class ListSet<E> implements List<E>, Set<E> {
     public int hashCode() {
         return this.list.hashCode();
     }
+
+    @Override
+    public String toString() {
+        return list.toString();
+    }
 }

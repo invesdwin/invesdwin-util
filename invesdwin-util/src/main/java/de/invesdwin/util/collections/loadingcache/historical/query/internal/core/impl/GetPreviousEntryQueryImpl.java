@@ -29,6 +29,10 @@ public class GetPreviousEntryQueryImpl<V> {
         this.shiftBackUnits = shiftBackUnits;
     }
 
+    public void setIterations(final int iterations) {
+        this.iterations = iterations;
+    }
+
     public boolean iterationFinished() {
         if (iterations <= shiftBackUnits) {
             /*

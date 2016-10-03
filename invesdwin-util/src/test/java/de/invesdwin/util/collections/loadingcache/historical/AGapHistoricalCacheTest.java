@@ -31,6 +31,7 @@ public class AGapHistoricalCacheTest {
 
     private int countReadAllValuesAscendingFrom;
     private int countReadNewestValueTo;
+    private int countInnerExtractKey;
     private boolean returnNullInReadNewestValueTo;
     private boolean returnAllInReadAllValuesAscendingFrom;
     private Integer returnMaxResults;
@@ -786,6 +787,33 @@ public class AGapHistoricalCacheTest {
         }
     }
 
+    @Test
+    public void testPreviousValuesWithQueryCacheWithAlwaysSameKey() {
+        for (int size = 1; size < entities.size(); size++) {
+            final Collection<FDate> previousValues = asList(cache.query()
+                    .withFilterDuplicateKeys(false)
+                    .getPreviousValues(entities.get(entities.size() - 1), size));
+            final List<FDate> expectedValues = entities.subList(entities.size() - size, entities.size());
+            Assertions.assertThat(previousValues).isEqualTo(expectedValues);
+        }
+        Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(2);
+        Assertions.assertThat(countReadNewestValueTo).isEqualTo(3);
+        Assertions.assertThat(countInnerExtractKey).isEqualTo(31);
+    }
+
+    @Test
+    public void testPreviousValuesWithQueryCacheWithIncrementingKey() {
+        for (int index = 0; index < entities.size(); index++) {
+            final Collection<FDate> previousValues = asList(
+                    cache.query().withFilterDuplicateKeys(false).getPreviousValues(entities.get(index), index + 1));
+            final List<FDate> expectedValues = entities.subList(0, index + 1);
+            Assertions.assertThat(previousValues).isEqualTo(expectedValues);
+        }
+        Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(2);
+        Assertions.assertThat(countReadNewestValueTo).isEqualTo(3);
+        Assertions.assertThat(countInnerExtractKey).isEqualTo(100);
+    }
+
     private class TestGapHistoricalCache extends AGapHistoricalCache<FDate> {
 
         @Override
@@ -825,6 +853,7 @@ public class AGapHistoricalCacheTest {
 
         @Override
         protected FDate innerExtractKey(final FDate key, final FDate entity) {
+            countInnerExtractKey++;
             return entity;
         }
 

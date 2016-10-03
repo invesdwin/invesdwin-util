@@ -122,4 +122,12 @@ public final class Lists extends AListsStaticFacade {
         return packages;
     }
 
+    public static <E> E getLastElement(final List<E> list) {
+        if (list.isEmpty()) {
+            return null;
+        } else {
+            return list.get(list.size() - 1);
+        }
+    }
+
 }

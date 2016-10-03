@@ -103,4 +103,9 @@ public abstract class ADelegateCollection<E> implements Collection<E> {
         return true;
     }
 
+    @Override
+    public String toString() {
+        return getDelegate().toString();
+    }
+
 }
