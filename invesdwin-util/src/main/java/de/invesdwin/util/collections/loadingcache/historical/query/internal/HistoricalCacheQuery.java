@@ -48,8 +48,8 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
         }
 
         @Override
-        public List<Entry<FDate, V>> newEntriesList() {
-            return HistoricalCacheQuery.this.newEntriesList();
+        public List<Entry<FDate, V>> newEntriesList(final int size) {
+            return HistoricalCacheQuery.this.newEntriesList(size);
         }
 
     };
@@ -446,7 +446,7 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
         return query;
     }
 
-    protected final List<Entry<FDate, V>> newEntriesList() {
+    protected final List<Entry<FDate, V>> newEntriesList(final int size) {
         if (filterDuplicateKeys) {
             return new ListSet<Entry<FDate, V>>() {
                 @Override
@@ -454,7 +454,7 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
                     return new ADelegateSet<Entry<FDate, V>>() {
                         @Override
                         protected Set<Entry<FDate, V>> createDelegate() {
-                            return new LinkedHashSet<Entry<FDate, V>>();
+                            return new LinkedHashSet<Entry<FDate, V>>(size);
                         }
 
                         @Override
@@ -463,9 +463,14 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
                         }
                     };
                 }
+
+                @Override
+                protected List<Entry<FDate, V>> newList() {
+                    return new ArrayList<Entry<FDate, V>>(size);
+                }
             };
         } else {
-            return new ArrayList<Entry<FDate, V>>();
+            return new ArrayList<Entry<FDate, V>>(size);
         }
     }
 

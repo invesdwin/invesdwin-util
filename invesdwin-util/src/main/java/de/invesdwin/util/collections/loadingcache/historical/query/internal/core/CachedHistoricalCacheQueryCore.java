@@ -46,7 +46,10 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
         if (shiftBackUnits == 0) {
             return delegate.getPreviousEntry(query, key, 0);
         } else {
-            final List<Entry<FDate, V>> previousEntries = getPreviousEntriesList(query, key, shiftBackUnits + 1);
+            //use arraylist since we don't want to have the overhead of filtering duplicates
+            final List<Entry<FDate, V>> trailing = new ArrayList<Entry<FDate, V>>();
+            final List<Entry<FDate, V>> previousEntries = getPreviousEntriesList(query, key, shiftBackUnits + 1,
+                    trailing);
             if (previousEntries.isEmpty()) {
                 return null;
             } else {
@@ -68,27 +71,28 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
             final Entry<FDate, V> entry = delegate.getPreviousEntry(query, key, 0);
             return new SingleValueIterable<Entry<FDate, V>>(entry);
         } else {
-            final List<Entry<FDate, V>> result = getPreviousEntriesList(query, key, shiftBackUnits);
+            final List<Entry<FDate, V>> trailing = query.newEntriesList(shiftBackUnits);
+            final List<Entry<FDate, V>> result = getPreviousEntriesList(query, key, shiftBackUnits, trailing);
             return WrapperCloseableIterable.maybeWrap(result);
         }
     }
 
     private List<Entry<FDate, V>> getPreviousEntriesList(final IHistoricalCacheQueryInternalMethods<V> query,
-            final FDate key, final int shiftBackUnits) {
+            final FDate key, final int shiftBackUnits, final List<Entry<FDate, V>> trailing) {
         final FDate adjKey = getParent().adjustKey(key);
         final List<Entry<FDate, V>> result;
         if (!cachedPreviousEntries.isEmpty()) {
-            result = cachedGetPreviousEntries(query, shiftBackUnits, adjKey);
+            result = cachedGetPreviousEntries(query, shiftBackUnits, adjKey, trailing);
         } else {
-            result = defaultGetPreviousEntries(query, shiftBackUnits, adjKey);
+            result = defaultGetPreviousEntries(query, shiftBackUnits, adjKey, trailing);
         }
         return result;
     }
 
     private List<Entry<FDate, V>> cachedGetPreviousEntries(final IHistoricalCacheQueryInternalMethods<V> query,
-            final int shiftBackUnits, final FDate adjKey) {
+            final int shiftBackUnits, final FDate adjKey, final List<Entry<FDate, V>> trailing) {
         if (Objects.equals(adjKey, cachedPreviousEntriesKey) || Objects.equals(adjKey, getLastCachedEntry().getKey())) {
-            return cachedGetPreviousEntries_sameKey(query, shiftBackUnits, adjKey);
+            return cachedGetPreviousEntries_sameKey(query, shiftBackUnits, adjKey, trailing);
         } else if ((adjKey.isAfter(cachedPreviousEntriesKey) || adjKey.isAfter(getLastCachedEntry().getKey()))
                 /*
                  * when we go a higher key and only want to load 1 value, we can just go with direct map access since we
@@ -96,23 +100,23 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
                  * the cached values in this case in the default query
                  */
                 && shiftBackUnits > 1) {
-            return cachedGetPreviousEntries_incrementedKey(query, shiftBackUnits, adjKey);
+            return cachedGetPreviousEntries_incrementedKey(query, shiftBackUnits, adjKey, trailing);
         } else if (adjKey.isBeforeOrEqual(cachedPreviousEntriesKey)
                 && adjKey.isAfterOrEqual(getFirstCachedEntry().getKey())
                 && adjKey.isBeforeOrEqual(getLastCachedEntry().getKey())) {
-            return cachedGetPreviousEntries_decrementedKey(query, shiftBackUnits, adjKey);
+            return cachedGetPreviousEntries_decrementedKey(query, shiftBackUnits, adjKey, trailing);
         } else {
             /*
              * value will not be found in cache (we are before the first cached entry), so we just go with the default
              * query and renew the cache if possible; jumping around wildly in the history is expensive right now
              */
-            return defaultGetPreviousEntries(query, shiftBackUnits, adjKey);
+            return defaultGetPreviousEntries(query, shiftBackUnits, adjKey, trailing);
         }
     }
 
     private List<Entry<FDate, V>> cachedGetPreviousEntries_decrementedKey(
-            final IHistoricalCacheQueryInternalMethods<V> query, final int shiftBackUnits, final FDate adjKey) {
-        final List<Entry<FDate, V>> trailing = query.newEntriesList();
+            final IHistoricalCacheQueryInternalMethods<V> query, final int shiftBackUnits, final FDate adjKey,
+            final List<Entry<FDate, V>> trailing) {
         int unitsBack = shiftBackUnits - 1;
         unitsBack = fillFromCacheAsFarAsPossible(trailing, unitsBack, adjKey);
         if (unitsBack == -1) {
@@ -130,8 +134,8 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
     }
 
     private List<Entry<FDate, V>> cachedGetPreviousEntries_incrementedKey(
-            final IHistoricalCacheQueryInternalMethods<V> query, final int shiftBackUnits, final FDate adjKey) {
-        final List<Entry<FDate, V>> trailing = query.newEntriesList();
+            final IHistoricalCacheQueryInternalMethods<V> query, final int shiftBackUnits, final FDate adjKey,
+            final List<Entry<FDate, V>> trailing) {
         int unitsBack = fillFromQueryUntilCacheCanBeUsed(query, shiftBackUnits, adjKey, trailing);
 
         if (unitsBack == -1) {
@@ -238,8 +242,7 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
     }
 
     private List<Entry<FDate, V>> cachedGetPreviousEntries_sameKey(final IHistoricalCacheQueryInternalMethods<V> query,
-            final int shiftBackUnits, final FDate adjKey) {
-        final List<Entry<FDate, V>> trailing = query.newEntriesList();
+            final int shiftBackUnits, final FDate adjKey, final List<Entry<FDate, V>> trailing) {
         int unitsBack = shiftBackUnits - 1;
         unitsBack = fillFromCacheAsFarAsPossible(trailing, unitsBack, null);
         if (unitsBack == -1) {
@@ -290,8 +293,7 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
     }
 
     private List<Entry<FDate, V>> defaultGetPreviousEntries(final IHistoricalCacheQueryInternalMethods<V> query,
-            final int shiftBackUnits, final FDate adjKey) {
-        final List<Entry<FDate, V>> trailing = query.newEntriesList();
+            final int shiftBackUnits, final FDate adjKey, final List<Entry<FDate, V>> trailing) {
         final GetPreviousEntryQueryImpl<V> impl = new GetPreviousEntryQueryImpl<V>(this, query, adjKey, shiftBackUnits);
         int unitsBack = shiftBackUnits - 1;
         unitsBack = fillFromQuery(trailing, impl, unitsBack);

@@ -15,6 +15,6 @@ public interface IHistoricalCacheQueryInternalMethods<V> {
 
     IHistoricalCacheQueryElementFilter<V> getElementFilter();
 
-    List<Entry<FDate, V>> newEntriesList();
+    List<Entry<FDate, V>> newEntriesList(int size);
 
 }
