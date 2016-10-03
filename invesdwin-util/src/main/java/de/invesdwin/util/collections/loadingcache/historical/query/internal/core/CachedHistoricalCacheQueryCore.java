@@ -26,8 +26,6 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
     @GuardedBy("this")
     private Integer maximumSize;
     @GuardedBy("this")
-    private FDate minKeyInDB = null;
-    @GuardedBy("this")
     private final List<Entry<FDate, V>> cachedPreviousEntries = new ArrayList<Entry<FDate, V>>();
     @GuardedBy("this")
     private FDate cachedPreviousEntriesKey = null;
@@ -190,22 +188,10 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
 
     private void prependCachedEntries(final FDate adjKey, final List<Entry<FDate, V>> trailing,
             final int trailingCountFoundInCache) {
-        Entry<FDate, V> firstInCache = getFirstCachedEntry();
         for (int i = trailingCountFoundInCache - 1; i < trailing.size(); i++) {
-            final Entry<FDate, V> prepend = trailing.get(i);
-            if (prepend.getKey().isBefore(firstInCache.getKey())) {
-                cachedPreviousEntries.add(0, prepend);
-                minKeyInDB = prepend.getKey();
-                firstInCache = prepend;
-            } else {
-                break;
-            }
+            cachedPreviousEntries.add(0, trailing.get(i));
         }
         if (maximumSize != null) {
-            /*
-             * we don't care if the trailing list contains duplicates that were skipped, it still tells that we are
-             * interested in this count
-             */
             maybeIncreaseMaximumSize(trailing.size());
             //ensure we stay in size limit
             while (cachedPreviousEntries.size() > maximumSize) {
@@ -222,21 +208,11 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
 
     private void appendCachedEntries(final FDate adjKey, final List<Entry<FDate, V>> trailing,
             final int trailingCountFoundInQuery) {
-        final Entry<FDate, V> lastInCache = getLastCachedEntry();
         for (int i = trailingCountFoundInQuery - 1; i >= 0; i--) {
-            final Entry<FDate, V> append = trailing.get(i);
-            if (append.getKey().isAfter(lastInCache.getKey())) {
-                cachedPreviousEntries.add(append);
-            } else {
-                break;
-            }
+            cachedPreviousEntries.add(trailing.get(i));
         }
         cachedPreviousEntriesKey = adjKey;
         if (maximumSize != null) {
-            /*
-             * we don't care if the trailing list contains duplicates that were skipped, it still tells that we are
-             * interested in this count
-             */
             maybeIncreaseMaximumSize(trailing.size());
             //ensure we stay in size limit
             while (cachedPreviousEntries.size() > maximumSize) {
@@ -252,34 +228,12 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
          * we don't want to throw away a cache that might already be filled
          */
                 (trailing.size() == 1 && cachedPreviousEntries.size() > 1)) {
+
             return;
         }
         maybeIncreaseMaximumSize(trailing.size());
         cachedPreviousEntries.clear();
         cachedPreviousEntries.addAll(trailing);
-        //filter duplicates at beginning
-        final Entry<FDate, V> firstCachedEntry = getFirstCachedEntry();
-        for (int i = 1; i < cachedPreviousEntries.size(); i++) {
-            final Entry<FDate, V> nextCachedEntry = cachedPreviousEntries.get(i);
-            if (nextCachedEntry.getKey().equals(firstCachedEntry.getKey())) {
-                minKeyInDB = firstCachedEntry.getKey();
-                cachedPreviousEntries.remove(0);
-                i--;
-            } else {
-                break;
-            }
-        }
-        //filter duplicates at end
-        final Entry<FDate, V> lastCachedEntry = getLastCachedEntry();
-        for (int i = cachedPreviousEntries.size() - 2; i >= 0; i++) {
-            final Entry<FDate, V> prevCachedEntry = cachedPreviousEntries.get(i);
-            if (prevCachedEntry.getKey().equals(lastCachedEntry.getKey())) {
-                cachedPreviousEntries.remove(cachedPreviousEntries.size() - 1);
-                i--;
-            } else {
-                break;
-            }
-        }
         cachedPreviousEntriesKey = adjKey;
     }
 
@@ -365,15 +319,6 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
             cachedIndex--;
             newUnitsBack--;
         }
-        if (newUnitsBack != -1 && cachedIndex == 0) {
-            final Entry<FDate, V> firstCachedEntry = getFirstCachedEntry();
-            if (firstCachedEntry.getKey().equals(minKeyInDB)) {
-                while (newUnitsBack >= 0) {
-                    trailing.add(firstCachedEntry);
-                    newUnitsBack--;
-                }
-            }
-        }
         return newUnitsBack;
     }
 
@@ -402,7 +347,6 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
         delegate.clear();
         cachedPreviousEntries.clear();
         cachedPreviousEntriesKey = null;
-        minKeyInDB = null;
     }
 
     @Override
