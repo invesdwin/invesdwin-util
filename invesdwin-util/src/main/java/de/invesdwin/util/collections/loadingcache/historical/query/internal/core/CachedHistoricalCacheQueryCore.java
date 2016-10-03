@@ -42,14 +42,12 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
     @Override
     public Entry<FDate, V> getPreviousEntry(final IHistoricalCacheQueryInternalMethods<V> query, final FDate key,
             final int shiftBackUnits) {
-        //TODO use cache here
-        final GetPreviousEntryQueryImpl<V> impl = new GetPreviousEntryQueryImpl<V>(this, query, key, shiftBackUnits);
-        //CHECKSTYLE:OFF
-        while (!impl.iterationFinished()) {
-            //noop
+        final List<Entry<FDate, V>> previousEntries = getPreviousEntriesList(query, key, shiftBackUnits + 1);
+        if (previousEntries.isEmpty()) {
+            return null;
+        } else {
+            return previousEntries.get(0);
         }
-        //CHECKSTYLE:ON
-        return impl.getResult();
     }
 
     private void maybeIncreaseMaximumSize(final int requiredSize) {
@@ -61,6 +59,12 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
     @Override
     public synchronized ICloseableIterable<Entry<FDate, V>> getPreviousEntries(
             final IHistoricalCacheQueryInternalMethods<V> query, final FDate key, final int shiftBackUnits) {
+        final List<Entry<FDate, V>> result = getPreviousEntriesList(query, key, shiftBackUnits);
+        return WrapperCloseableIterable.maybeWrap(result);
+    }
+
+    private List<Entry<FDate, V>> getPreviousEntriesList(final IHistoricalCacheQueryInternalMethods<V> query,
+            final FDate key, final int shiftBackUnits) {
         final FDate adjKey = getParent().adjustKey(key);
         final List<Entry<FDate, V>> result;
         if (!cachedPreviousEntries.isEmpty()) {
@@ -68,7 +72,7 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
         } else {
             result = defaultGetPreviousEntries(query, shiftBackUnits, adjKey);
         }
-        return WrapperCloseableIterable.maybeWrap(result);
+        return result;
     }
 
     private List<Entry<FDate, V>> cachedGetPreviousEntries(final IHistoricalCacheQueryInternalMethods<V> query,
@@ -174,7 +178,7 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
 
     private void prependCachedEntries(final FDate adjKey, final List<Entry<FDate, V>> trailing,
             final int trailingCountFoundInCache) {
-        for (int i = trailingCountFoundInCache - 1; i >= 0; i++) {
+        for (int i = trailingCountFoundInCache - 1; i < trailing.size(); i++) {
             cachedPreviousEntries.add(0, trailing.get(i));
         }
         if (maximumSize != null) {
