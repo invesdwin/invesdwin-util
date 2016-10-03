@@ -213,7 +213,7 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
     }
 
     private void replaceCachedEntries(final FDate adjKey, final List<Entry<FDate, V>> trailing) {
-        if (trailing.isEmpty() || (trailing.size() == 1 && cachedPreviousEntries.size() > 1)) {
+        if (trailing.isEmpty()) {
             //maybe we went before the first entry, so we don't throw away a cache that might already be filled
             return;
         }
