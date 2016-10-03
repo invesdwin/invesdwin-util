@@ -43,7 +43,6 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
     public Entry<FDate, V> getPreviousEntry(final IHistoricalCacheQueryInternalMethods<V> query, final FDate key,
             final int shiftBackUnits) {
         //TODO use cache here
-        //TODO increase maximum size if shiftbackunits is larger than it
         final GetPreviousEntryQueryImpl<V> impl = new GetPreviousEntryQueryImpl<V>(this, query, key, shiftBackUnits);
         //CHECKSTYLE:OFF
         while (!impl.iterationFinished()) {
@@ -62,7 +61,6 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
     @Override
     public synchronized ICloseableIterable<Entry<FDate, V>> getPreviousEntries(
             final IHistoricalCacheQueryInternalMethods<V> query, final FDate key, final int shiftBackUnits) {
-        //TODO increase maximum size if shiftbackunits is larger than it
         final FDate adjKey = getParent().adjustKey(key);
         final List<Entry<FDate, V>> result;
         if (!cachedPreviousEntries.isEmpty()) {
@@ -77,9 +75,10 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
             final int shiftBackUnits, final FDate adjKey) {
         if (Objects.equals(adjKey, cachedPreviousEntriesKey) || Objects.equals(adjKey, getLastCachedEntry().getKey())) {
             return cachedGetPreviousEntries_sameKey(query, shiftBackUnits, adjKey);
-        } else if (adjKey.isAfter(cachedPreviousEntriesKey) || adjKey.isAfter(getLastCachedEntry().getKey())) {
+        } else if ((adjKey.isAfter(cachedPreviousEntriesKey) || adjKey.isAfter(getLastCachedEntry().getKey()))
+                && shiftBackUnits > 1) {
             return cachedGetPreviousEntries_incrementedKey(query, shiftBackUnits, adjKey);
-            //        } else if (adjKey.isBefore(cachedPreviousEntriesKey) && adjKey.isAfterOrEqual(getFirstCachedEntry().getKey())
+            //        } else if (adjKey.isBeforeOrEqual(cachedPreviousEntriesKey) && adjKey.isAfterOrEqual(getFirstCachedEntry().getKey())
             //                && adjKey.isBeforeOrEqual(getLastCachedEntry().getKey())) {
             //            return cachedGetPreviousEntries_decrementedKey(query, shiftBackUnits, adjKey);
         } else {

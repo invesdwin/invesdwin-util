@@ -40,6 +40,10 @@ public abstract class AGapHistoricalCacheMissCounter<V> {
         successiveCacheEvictionsToMinKey = key;
     }
 
+    public void increaseMaximumSize(final int maximumSize) {
+        this.optimiumMaximumSize = maximumSize;
+    }
+
     private void maybeReoptimize() {
         final long currentReadBackStepMillis = optimiumReadBackStepMillis;
         final Integer currentMaximumSize = optimiumMaximumSize;

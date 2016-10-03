@@ -820,6 +820,20 @@ public class AGapHistoricalCacheWithLimitedCacheTest {
     }
 
     @Test
+    public void testPreviousValuesWithQueryCacheWithIncrementingAlwaysOneValue() {
+        for (int index = 0; index < entities.size(); index++) {
+            final Collection<FDate> previousValues = asList(
+                    cache.query().withFilterDuplicateKeys(false).getPreviousValues(entities.get(index), 1));
+            final List<FDate> expectedValues = entities.subList(index, index + 1);
+            Assertions.assertThat(previousValues).isEqualTo(expectedValues);
+        }
+        Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(1);
+        Assertions.assertThat(countReadNewestValueTo).isEqualTo(2);
+        Assertions.assertThat(countInnerExtractKey).isEqualTo(45);
+        Assertions.assertThat(countAdjustKey).isEqualTo(12);
+    }
+
+    @Test
     public void testPreviousValuesWithQueryCacheWithDecrementingKey() {
         for (int index = entities.size() - 1; index >= 0; index--) {
             final Collection<FDate> previousValues = asList(

@@ -87,7 +87,7 @@ public abstract class AHistoricalCache<V> {
         }
     }
 
-    protected void increaseMaximumSize(final int maximumSize) {
+    protected synchronized void increaseMaximumSize(final int maximumSize) {
         for (final ALoadingCache<?, ?> l : increaseMaximumSizeListeners) {
             l.increaseMaximumSize(maximumSize);
         }

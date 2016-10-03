@@ -110,6 +110,12 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
         return debugAutomaticReoptimization;
     }
 
+    @Override
+    protected synchronized void increaseMaximumSize(final int maximumSize) {
+        super.increaseMaximumSize(maximumSize);
+        cacheMissCounter.increaseMaximumSize(maximumSize);
+    }
+
     /**
      * Assumption: cache eviction does not cause values to be evicted with their keys not being evicted aswell.
      * 
