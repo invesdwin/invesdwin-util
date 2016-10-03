@@ -47,8 +47,9 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
             return delegate.getPreviousEntry(query, key, 0);
         } else {
             //use arraylist since we don't want to have the overhead of filtering duplicates
-            final List<Entry<FDate, V>> trailing = new ArrayList<Entry<FDate, V>>(shiftBackUnits + 1);
-            final List<Entry<FDate, V>> previousEntries = getPreviousEntriesList(query, key, shiftBackUnits + 1,
+            final int incrementedShiftBackUnits = shiftBackUnits + 1;
+            final List<Entry<FDate, V>> trailing = new ArrayList<Entry<FDate, V>>(incrementedShiftBackUnits);
+            final List<Entry<FDate, V>> previousEntries = getPreviousEntriesList(query, key, incrementedShiftBackUnits,
                     trailing);
             if (previousEntries.isEmpty()) {
                 return null;
