@@ -462,7 +462,7 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
         }
 
         //with maxKey
-        if (newMaxKey && previousMaxKey != null && containsKey(previousMaxKey)) {
+        if (newMaxKey && previousMaxKey != null && containsKey(previousMaxKey) && key.isAfterOrEqual(maxKeyInDB)) {
             //use the last maxKey
             //because this one is behind it and not a new one
             //thus working if the db does not have further values
