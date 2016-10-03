@@ -813,10 +813,10 @@ public class AGapHistoricalCacheWithLimitedCacheTest {
             final List<FDate> expectedValues = entities.subList(0, index + 1);
             Assertions.assertThat(previousValues).isEqualTo(expectedValues);
         }
-        Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(13);
-        Assertions.assertThat(countReadNewestValueTo).isEqualTo(13);
-        Assertions.assertThat(countInnerExtractKey).isEqualTo(170);
-        Assertions.assertThat(countAdjustKey).isEqualTo(42);
+        Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(2);
+        Assertions.assertThat(countReadNewestValueTo).isEqualTo(3);
+        Assertions.assertThat(countInnerExtractKey).isEqualTo(82);
+        Assertions.assertThat(countAdjustKey).isEqualTo(22);
     }
 
     @Test
