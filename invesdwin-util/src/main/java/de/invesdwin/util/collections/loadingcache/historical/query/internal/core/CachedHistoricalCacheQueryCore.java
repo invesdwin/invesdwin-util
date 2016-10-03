@@ -20,6 +20,7 @@ import de.invesdwin.util.time.fdate.FDate;
 @ThreadSafe
 public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryCore<V> {
 
+    private static final int REQUIRED_SIZE_MULTIPLICATOR = 2;
     private final DefaultHistoricalCacheQueryCore<V> delegate;
     @GuardedBy("this")
     private Integer maximumSize;
@@ -50,6 +51,12 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
         }
         //CHECKSTYLE:ON
         return impl.getResult();
+    }
+
+    private void maybeIncreaseMaximumSize(final int requiredSize) {
+        if (maximumSize != null && maximumSize < requiredSize) {
+            getParent().increaseMaximumSize(requiredSize * REQUIRED_SIZE_MULTIPLICATOR);
+        }
     }
 
     @Override
@@ -147,6 +154,24 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
             cachedPreviousEntries.add(trailing.get(i));
         }
         cachedPreviousEntriesKey = adjKey;
+        if (maximumSize != null) {
+            maybeIncreaseMaximumSize(trailing.size());
+            //ensure we stay in size limit
+            while (cachedPreviousEntries.size() > maximumSize) {
+                cachedPreviousEntries.remove(0);
+            }
+        }
+    }
+
+    private void replaceCachedEntries(final FDate adjKey, final List<Entry<FDate, V>> trailing) {
+        if (trailing.isEmpty()) {
+            //maybe we went before the first entry, so we don't throw away a cache that might already be filled
+            return;
+        }
+        maybeIncreaseMaximumSize(trailing.size());
+        cachedPreviousEntries.clear();
+        cachedPreviousEntries.addAll(trailing);
+        cachedPreviousEntriesKey = adjKey;
     }
 
     private List<Entry<FDate, V>> cachedGetPreviousEntries_sameKey(final IHistoricalCacheQueryInternalMethods<V> query,
@@ -210,16 +235,6 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
         Collections.reverse(trailing);
         replaceCachedEntries(adjKey, trailing);
         return trailing;
-    }
-
-    private void replaceCachedEntries(final FDate adjKey, final List<Entry<FDate, V>> trailing) {
-        if (trailing.isEmpty()) {
-            //maybe we went before the first entry, so we don't throw away a cache that might already be filled
-            return;
-        }
-        cachedPreviousEntries.clear();
-        cachedPreviousEntries.addAll(trailing);
-        cachedPreviousEntriesKey = adjKey;
     }
 
     private int fillFromCacheAsFarAsPossible(final List<Entry<FDate, V>> trailing, final int unitsBack) {

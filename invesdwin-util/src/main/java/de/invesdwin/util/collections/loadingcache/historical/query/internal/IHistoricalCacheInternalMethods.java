@@ -22,4 +22,6 @@ public interface IHistoricalCacheInternalMethods<V> {
 
     Integer getMaximumSize();
 
+    void increaseMaximumSize(int maximumSize);
+
 }

@@ -396,6 +396,11 @@ public abstract class AHistoricalCache<V> {
         public Integer getMaximumSize() {
             return AHistoricalCache.this.getMaximumSize();
         }
+
+        @Override
+        public void increaseMaximumSize(final int maximumSize) {
+            AHistoricalCache.this.increaseMaximumSize(maximumSize);
+        }
     }
 
     private final class InnerHistoricalCacheExtractKeyProvider implements IHistoricalCacheExtractKeyProvider<V> {
