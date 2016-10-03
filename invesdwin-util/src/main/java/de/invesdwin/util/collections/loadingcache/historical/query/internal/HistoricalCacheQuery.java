@@ -1,19 +1,15 @@
 package de.invesdwin.util.collections.loadingcache.historical.query.internal;
 
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.NoSuchElementException;
-import java.util.Set;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
 import com.google.common.base.Optional;
 
-import de.invesdwin.util.bean.tuple.KeyIdentityEntry;
-import de.invesdwin.util.collections.ADelegateSet;
-import de.invesdwin.util.collections.ListSet;
+import de.invesdwin.util.collections.ADelegateList;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.collections.iterable.WrapperCloseableIterator;
@@ -448,25 +444,39 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
 
     protected final List<Entry<FDate, V>> newEntriesList(final int size) {
         if (filterDuplicateKeys) {
-            return new ListSet<Entry<FDate, V>>() {
-                @Override
-                protected Set<Entry<FDate, V>> newSet() {
-                    return new ADelegateSet<Entry<FDate, V>>() {
-                        @Override
-                        protected Set<Entry<FDate, V>> newDelegate() {
-                            return new LinkedHashSet<Entry<FDate, V>>(size);
-                        }
+            /*
+             * duplicates will only occur on the edged, never in the middle, so we can use this fast implementation
+             */
+            return new ADelegateList<Entry<FDate, V>>() {
 
-                        @Override
-                        public boolean add(final Entry<FDate, V> e) {
-                            return super.add(KeyIdentityEntry.of(e.getKey(), e.getValue()));
-                        }
-                    };
+                private Entry<FDate, V> minEntry;
+                private Entry<FDate, V> maxEntry;
+
+                @Override
+                protected List<Entry<FDate, V>> newDelegate() {
+                    return new ArrayList<Entry<FDate, V>>(size);
                 }
 
                 @Override
-                protected List<Entry<FDate, V>> newList() {
-                    return new ArrayList<Entry<FDate, V>>(size);
+                public boolean isAddAllowed(final Entry<FDate, V> e) {
+                    if (isEmpty()) {
+                        minEntry = e;
+                        maxEntry = e;
+                        return true;
+                    } else {
+                        //we need to support reversal, thus doing identity check
+                        if (e.getKey().equals(minEntry.getKey()) && e != minEntry
+                                || e.getKey().equals(maxEntry.getKey()) && e != maxEntry) {
+                            return false;
+                        } else {
+                            if (e.getKey().isBefore(minEntry.getKey())) {
+                                minEntry = e;
+                            } else if (e.getKey().isAfter(maxEntry.getKey())) {
+                                maxEntry = e;
+                            }
+                            return true;
+                        }
+                    }
                 }
             };
         } else {
