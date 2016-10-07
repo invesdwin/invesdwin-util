@@ -24,10 +24,8 @@ import de.invesdwin.util.collections.loadingcache.historical.listener.IHistorica
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQuery;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.IHistoricalCacheInternalMethods;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.CachedHistoricalCacheQueryCore;
-import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.DefaultHistoricalCacheQueryCore;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.IHistoricalCacheQueryCore;
 import de.invesdwin.util.collections.loadingcache.historical.refresh.HistoricalCacheRefreshManager;
-import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.time.fdate.FDate;
 
 @ThreadSafe
@@ -39,6 +37,8 @@ public abstract class AHistoricalCache<V> {
      * 10k is normally sufficient for daily bars of stocks and also fast enough for intraday ticks to load.
      */
     public static final Integer DEFAULT_MAXIMUM_SIZE = 1000;
+    protected final IHistoricalCacheInternalMethods<V> internalMethods = new HistoricalCacheInternalMethods();
+
     private final List<ALoadingCache<?, ?>> increaseMaximumSizeListeners = new ArrayList<ALoadingCache<?, ?>>();
 
     private final IHistoricalCacheQueryCore<V> queryCore = newHistoricalCacheQueryCore();
@@ -79,12 +79,12 @@ public abstract class AHistoricalCache<V> {
         return DEFAULT_MAXIMUM_SIZE;
     }
 
-    private IHistoricalCacheQueryCore<V> newHistoricalCacheQueryCore() {
-        if (!Objects.equals(getMaximumSize(), DISABLED_MAXIMUM_SIZE)) {
-            return new CachedHistoricalCacheQueryCore<V>(new HistoricalCacheInternalMethods());
-        } else {
-            return new DefaultHistoricalCacheQueryCore<V>(new HistoricalCacheInternalMethods());
-        }
+    protected IHistoricalCacheQueryCore<V> newHistoricalCacheQueryCore() {
+        /*
+         * always use lookback cache to make getPreviousXyz faster even though this instance might not cache anything in
+         * the values map
+         */
+        return new CachedHistoricalCacheQueryCore<V>(internalMethods);
     }
 
     protected synchronized void increaseMaximumSize(final int maximumSize) {
