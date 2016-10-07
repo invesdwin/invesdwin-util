@@ -19,6 +19,7 @@ public class GetPreviousEntryQueryImpl<V> {
     private int iterations = 0;
     private final int shiftBackUnits;
     private final IHistoricalCacheQueryInternalMethods<V> query;
+    private boolean duplicateEncountered = false;
 
     public GetPreviousEntryQueryImpl(final IHistoricalCacheQueryCore<V> core,
             final IHistoricalCacheQueryInternalMethods<V> query, final FDate key, final int shiftBackUnits) {
@@ -35,36 +36,43 @@ public class GetPreviousEntryQueryImpl<V> {
 
     public boolean iterationFinished() {
         if (iterations <= shiftBackUnits) {
-            /*
-             * if key of value == key, the same key would be returned on the next call
-             * 
-             * we decrement by one unit to get the previous key
-             */
+            if (!duplicateEncountered) {
+                /*
+                 * if key of value == key, the same key would be returned on the next call
+                 * 
+                 * we decrement by one unit to get the previous key
+                 */
 
-            final FDate previousPreviousKey;
-            if (iterations == 0) {
-                previousPreviousKey = previousKey;
-            } else {
-                previousPreviousKey = core.getParent().calculatePreviousKey(previousKey);
-            }
-            if (previousPreviousKey == null) {
-                return true;
-            }
-            //the key of the value is the relevant one
-            final Entry<FDate, V> previousPreviousEntry = query.getAssertValue().assertValue(core.getParent(), key,
-                    previousPreviousKey,
-                    core.getValue(query, previousPreviousKey, HistoricalCacheAssertValue.ASSERT_VALUE_WITH_FUTURE));
-            if (previousPreviousEntry == null) {
-                if (previousKey.equals(key)) {
-                    previousEntry = null;
-                    return true;
+                final FDate previousPreviousKey;
+                if (iterations == 0) {
+                    previousPreviousKey = previousKey;
                 } else {
+                    previousPreviousKey = core.getParent().calculatePreviousKey(previousKey);
+                }
+                if (previousPreviousKey == null) {
                     return true;
                 }
-            } else {
-                final V previousValue = previousPreviousEntry.getValue();
-                previousKey = core.getParent().extractKey(previousPreviousKey, previousValue);
-                previousEntry = previousPreviousEntry;
+                //the key of the value is the relevant one
+                final Entry<FDate, V> previousPreviousEntry = query.getAssertValue().assertValue(core.getParent(), key,
+                        previousPreviousKey,
+                        core.getValue(query, previousPreviousKey, HistoricalCacheAssertValue.ASSERT_VALUE_WITH_FUTURE));
+                if (previousPreviousEntry == null) {
+                    if (previousKey.equals(key)) {
+                        previousEntry = null;
+                        return true;
+                    } else {
+                        return true;
+                    }
+                } else {
+                    final V previousValue = previousPreviousEntry.getValue();
+                    final FDate actualPreviousPreviousKey = core.getParent().extractKey(previousPreviousKey,
+                            previousValue);
+                    if (iterations > 0 && actualPreviousPreviousKey.equals(previousKey)) {
+                        duplicateEncountered = true;
+                    }
+                    previousKey = actualPreviousPreviousKey;
+                    previousEntry = previousPreviousEntry;
+                }
             }
             iterations++;
             return false;

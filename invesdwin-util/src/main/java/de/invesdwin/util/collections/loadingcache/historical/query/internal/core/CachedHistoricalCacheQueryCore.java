@@ -181,8 +181,11 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
                 if (value.getKey().equals(lastCachedEntryKey)) {
                     break; //continue with fillFromCacheAsFarAsPossible
                 } else {
-                    trailing.add(value);
-                    unitsBack--;
+                    if (trailing.add(value)) {
+                        unitsBack--;
+                    } else {
+                        unitsBack = -1; //break
+                    }
                 }
             } else {
                 unitsBack = -1; //break
@@ -278,7 +281,9 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
         while (newUnitsBack >= 0 && !impl.iterationFinished()) {
             final Entry<FDate, V> value = impl.getResult();
             if (value != null) {
-                trailing.add(value);
+                if (!trailing.add(value)) {
+                    newUnitsBack = -1; //break
+                }
             } else {
                 break;
             }
@@ -318,9 +323,12 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
         }
         int newUnitsBack = unitsBack;
         while (newUnitsBack >= 0 && cachedIndex >= 0) {
-            trailing.add(cachedPreviousEntries.get(cachedIndex));
-            cachedIndex--;
-            newUnitsBack--;
+            if (trailing.add(cachedPreviousEntries.get(cachedIndex))) {
+                cachedIndex--;
+                newUnitsBack--;
+            } else {
+                newUnitsBack = -1;
+            }
         }
         return newUnitsBack;
     }

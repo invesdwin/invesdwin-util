@@ -96,7 +96,9 @@ public class DefaultHistoricalCacheQueryCore<V> implements IHistoricalCacheQuery
         for (int unitsBack = shiftBackUnits - 1; unitsBack >= 0 && !impl.iterationFinished(); unitsBack--) {
             final Entry<FDate, V> value = impl.getResult();
             if (value != null) {
-                trailing.add(value);
+                if (!trailing.add(value)) {
+                    break;
+                }
             } else {
                 break;
             }
@@ -117,7 +119,9 @@ public class DefaultHistoricalCacheQueryCore<V> implements IHistoricalCacheQuery
         for (int unitsBack = shiftForwardUnits - 1; unitsBack >= 0 && !impl.iterationFinished(); unitsBack--) {
             final Entry<FDate, V> value = impl.getResult();
             if (value != null) {
-                trailing.add(value);
+                if (!trailing.add(value)) {
+                    break;
+                }
             } else {
                 break;
             }
