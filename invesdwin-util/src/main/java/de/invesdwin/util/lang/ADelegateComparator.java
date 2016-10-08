@@ -82,7 +82,7 @@ public abstract class ADelegateComparator<E> implements Comparator<Object> {
         };
     }
 
-    public <T extends E> void sort(final List<T> list, final boolean ascending) {
+    public <T extends E> void sort(final List<? extends T> list, final boolean ascending) {
         if (list == null || list.size() == 0) {
             return;
         }
@@ -99,7 +99,7 @@ public abstract class ADelegateComparator<E> implements Comparator<Object> {
     /**
      * Checks all elements
      */
-    public <T extends E> void assertOrder(final List<T> list, final boolean ascending) {
+    public <T extends E> void assertOrder(final List<? extends T> list, final boolean ascending) {
         if (list == null || list.size() == 0) {
             return;
         }
@@ -127,7 +127,7 @@ public abstract class ADelegateComparator<E> implements Comparator<Object> {
     /**
      * Just checks the first and last element.
      */
-    public <T extends E> void assertOrderFast(final List<T> list, final boolean ascending) {
+    public <T extends E> void assertOrderFast(final List<? extends T> list, final boolean ascending) {
         if (list == null || list.size() == 0) {
             return;
         }
