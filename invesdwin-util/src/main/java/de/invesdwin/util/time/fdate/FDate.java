@@ -933,7 +933,9 @@ public final class FDate implements IDate, Serializable, Cloneable, Comparable<O
     public FDate addWorkdays(final int workdays, final HolidayCalendar holidayCalendar) {
         int workdaysToShift = Math.abs(workdays);
         if (getFWeekday().isWeekend() || isHoliday(holidayCalendar)) {
-            workdaysToShift--;
+            if (workdaysToShift > 1) {
+                workdaysToShift--;
+            }
         }
         final int shiftUnit;
         if (workdays >= 0) {
