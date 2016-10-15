@@ -218,7 +218,7 @@ public class Decimal extends ADecimal<Decimal> {
     public String toFormattedString(final String format) {
         final DecimalFormat dc = new DecimalFormat(format, DEFAULT_DECIMAL_FORMAT_SYMBOLS);
         final String str = dc.format(this);
-        if (str.matches("-0[\\.,](0)*")) {
+        if (str.startsWith("-0") && str.matches("-0([\\.,](0)*)?")) {
             return Strings.removeStart(str, "-");
         } else {
             return str;

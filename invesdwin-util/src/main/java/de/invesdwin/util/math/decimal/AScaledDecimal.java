@@ -5,12 +5,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
+import java.util.regex.Pattern;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.collections.Lists;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
+import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.math.decimal.internal.DecimalAggregate;
 import de.invesdwin.util.math.decimal.internal.DummyDecimalAggregate;
 import de.invesdwin.util.math.decimal.internal.impl.ADecimalImpl;
@@ -146,7 +148,16 @@ public abstract class AScaledDecimal<T extends AScaledDecimal<T, S>, S extends I
     public String toString(final S scale, final boolean withSymbol) {
         final String formatStr = scale.getFormat(getGenericThis(), withSymbol);
         final DecimalFormat format = new DecimalFormat(formatStr, Decimal.DEFAULT_DECIMAL_FORMAT_SYMBOLS);
-        return format.format(getValue(scale).getImpl().numberValue());
+        final String str = format.format(getValue(scale).getImpl().numberValue());
+        String negativeZeroMatchStr = "-0([\\.,](0)*)?";
+        if (withSymbol) {
+            negativeZeroMatchStr += Pattern.quote(scale.getSymbol());
+        }
+        if (str.startsWith("-0") && str.matches(negativeZeroMatchStr)) {
+            return Strings.removeStart(str, "-");
+        } else {
+            return str;
+        }
     }
 
     public T asScale(final S scale) {
