@@ -5,7 +5,12 @@ import java.util.NoSuchElementException;
 import javax.annotation.concurrent.Immutable;
 
 @Immutable
-public class EmptyCloseableIterator<E> implements ICloseableIterator<E> {
+public final class EmptyCloseableIterator<E> implements ICloseableIterator<E> {
+
+    @SuppressWarnings("rawtypes")
+    private static final EmptyCloseableIterator INSTANCE = new EmptyCloseableIterator();
+
+    private EmptyCloseableIterator() {}
 
     @Override
     public boolean hasNext() {
@@ -19,5 +24,10 @@ public class EmptyCloseableIterator<E> implements ICloseableIterator<E> {
 
     @Override
     public void close() {}
+
+    @SuppressWarnings("unchecked")
+    public static <T> EmptyCloseableIterator<T> getInstance() {
+        return INSTANCE;
+    }
 
 }

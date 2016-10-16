@@ -14,6 +14,7 @@ import javax.annotation.concurrent.ThreadSafe;
 
 import org.apache.commons.lang3.BooleanUtils;
 
+import de.invesdwin.util.collections.iterable.EmptyCloseableIterator;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 
@@ -72,6 +73,9 @@ public abstract class AConcurrentModificationDelegateSet<E> extends ADelegateCol
 
     @Override
     public ICloseableIterator<E> iterator() {
+        if (isEmpty()) {
+            return EmptyCloseableIterator.getInstance();
+        }
         final Iterator<E> delegate = super.iterator();
         synchronized (this) {
             openIterators.incrementAndGet();
