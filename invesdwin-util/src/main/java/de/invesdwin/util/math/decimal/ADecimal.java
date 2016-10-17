@@ -17,6 +17,8 @@ import de.invesdwin.util.math.decimal.internal.impl.ADecimalImpl;
 @Immutable
 public abstract class ADecimal<E extends ADecimal<E>> extends Number implements Comparable<Object>, IDecimal {
 
+    public static final String NEGATIVE_SIGN = "-";
+    public static final String POSITIVE_SIGN = "+";
     /**
      * Using HALF_UP here for commercial rounding.
      */
@@ -451,15 +453,15 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
     public String getSign(final boolean inverted) {
         if (isPositive()) {
             if (!inverted) {
-                return "+";
+                return POSITIVE_SIGN;
             } else {
-                return "-";
+                return NEGATIVE_SIGN;
             }
         } else {
             if (!inverted) {
-                return "-";
+                return NEGATIVE_SIGN;
             } else {
-                return "+";
+                return POSITIVE_SIGN;
             }
         }
     }

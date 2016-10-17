@@ -24,6 +24,8 @@ public class DoubleDecimalImpl extends ADecimalImpl<DoubleDecimalImpl, Double> {
     private static final Double FIRST_ABOVE_ZERO = 0.000000001;
     private static final Double FIRST_BELOW_ZERO = -0.000000001;
     private static final Double ZERO = 0d;
+    private static final Double NEGATIVE_ZERO = -0d;
+    private static final DoubleDecimalImpl ZERO_IMPL = new DoubleDecimalImpl(ZERO, ZERO);
 
     static {
         //ensure rounding performance fix uses correct scale
@@ -40,7 +42,7 @@ public class DoubleDecimalImpl extends ADecimalImpl<DoubleDecimalImpl, Double> {
 
     @Override
     public boolean isZero() {
-        return getDefaultRoundedValue().equals(ZERO);
+        return internalCompareTo(ZERO_IMPL) == 0;
     }
 
     @Override
@@ -61,6 +63,10 @@ public class DoubleDecimalImpl extends ADecimalImpl<DoubleDecimalImpl, Double> {
     protected int internalCompareTo(final ADecimal<?> decimalOther) {
         //improve compare performance by rounding less often
         final DoubleDecimalImpl doubleDecimalOther = (DoubleDecimalImpl) decimalOther.getImpl();
+        return internalCompareTo(doubleDecimalOther);
+    }
+
+    private int internalCompareTo(final DoubleDecimalImpl doubleDecimalOther) {
         final Double doubleOther = doubleDecimalOther.getValue();
         final Double doubleThis = getValue();
         final Double difference = doubleThis - doubleOther;
@@ -68,10 +74,10 @@ public class DoubleDecimalImpl extends ADecimalImpl<DoubleDecimalImpl, Double> {
             return 1;
         } else if (difference < FIRST_BELOW_ZERO) {
             return -1;
-        } else if (difference == ZERO) {
+        } else if (ZERO.equals(difference) || NEGATIVE_ZERO.equals(difference)) {
             return 0;
         } else {
-            final double roundedOther = decimalOther.round().doubleValue();
+            final double roundedOther = doubleDecimalOther.getDefaultRoundedValue();
             return getDefaultRoundedValue().compareTo(roundedOther);
         }
     }
