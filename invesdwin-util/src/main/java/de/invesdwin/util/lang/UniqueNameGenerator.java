@@ -1,6 +1,6 @@
 package de.invesdwin.util.lang;
 
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -9,10 +9,10 @@ import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 @ThreadSafe
 public class UniqueNameGenerator {
 
-    private final ALoadingCache<String, AtomicInteger> name_sequencenumber = new ALoadingCache<String, AtomicInteger>() {
+    private final ALoadingCache<String, AtomicLong> name_sequencenumber = new ALoadingCache<String, AtomicLong>() {
         @Override
-        protected AtomicInteger loadValue(final String key) {
-            return new AtomicInteger(getInitialValue());
+        protected AtomicLong loadValue(final String key) {
+            return new AtomicLong(getInitialValue());
         }
     };
 
@@ -20,8 +20,8 @@ public class UniqueNameGenerator {
      * Generates IDs in the schema of [Name]_[SequenceNumber].
      */
     public synchronized String get(final String name) {
-        final AtomicInteger sequenceNumber = name_sequencenumber.get(name);
-        final int sequenceNumberIncremented = sequenceNumber.incrementAndGet();
+        final AtomicLong sequenceNumber = name_sequencenumber.get(name);
+        final long sequenceNumberIncremented = sequenceNumber.incrementAndGet();
         if (sequenceNumberIncremented == 1) {
             return name;
         } else {
@@ -29,7 +29,7 @@ public class UniqueNameGenerator {
         }
     }
 
-    protected int getInitialValue() {
+    protected long getInitialValue() {
         return 0;
     }
 
