@@ -158,4 +158,6 @@ public interface IDecimalAggregate<E extends ADecimal<E>> {
 
     int count();
 
+    int bestValueIndex(boolean isHigherBetter);
+
 }

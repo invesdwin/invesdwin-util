@@ -240,4 +240,9 @@ public final class DummyDecimalAggregate<E extends ADecimal<E>> implements IDeci
         return 0;
     }
 
+    @Override
+    public int bestValueIndex(final boolean isHigherBetter) {
+        return -1;
+    }
+
 }

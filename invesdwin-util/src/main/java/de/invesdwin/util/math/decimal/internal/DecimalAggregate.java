@@ -450,4 +450,28 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
         return true;
     }
 
+    @Override
+    public int bestValueIndex(final boolean isHigherBetter) {
+        E bestValue = null;
+        int bestValueIndex = -1;
+        for (int i = 0; i < values.size(); i++) {
+            final E value = values.get(i);
+            if (bestValue == null) {
+                bestValue = value;
+                bestValueIndex = i;
+            } else if (isHigherBetter) {
+                if (value.isGreaterThan(bestValue)) {
+                    bestValue = value;
+                    bestValueIndex = i;
+                }
+            } else {
+                if (value.isLessThan(bestValue)) {
+                    bestValue = value;
+                    bestValueIndex = i;
+                }
+            }
+        }
+        return bestValueIndex;
+    }
+
 }
