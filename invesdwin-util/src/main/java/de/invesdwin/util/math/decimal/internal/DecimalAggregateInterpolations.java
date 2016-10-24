@@ -70,7 +70,7 @@ public class DecimalAggregateInterpolations<E extends ADecimal<E>> {
     public IDecimalAggregate<E> bezierCurveInterpolation(final InterpolationConfig config) {
         final List<Double> xval = new ArrayList<Double>();
         final List<Double> yval = new ArrayList<Double>();
-        fillInterpolationPoints(xval, yval, config, maybeFilterPoints(values, BEZIER_CURVE_MAX_SIZE));
+        fillInterpolationPoints(xval, yval, config, maybeReducePoints(values, BEZIER_CURVE_MAX_SIZE));
 
         final ControlPath cp = new ControlPath();
         for (int i = 0; i < xval.size(); i++) {
@@ -152,9 +152,13 @@ public class DecimalAggregateInterpolations<E extends ADecimal<E>> {
         return interpolate(xval, yval, interpolator);
     }
 
-    private static <T extends ADecimal<T>> List<T> maybeFilterPoints(final List<? extends T> values,
+    private static <T extends ADecimal<T>> List<? extends T> maybeReducePoints(final List<? extends T> values,
             final int maxSize) {
-        return null;
+        if (values.size() <= maxSize) {
+            return values;
+        } else {
+            throw new UnsupportedOperationException("TODO");
+        }
     }
 
     private static <T extends ADecimal<T>> void fillInterpolationPoints(final List<Double> xval,
