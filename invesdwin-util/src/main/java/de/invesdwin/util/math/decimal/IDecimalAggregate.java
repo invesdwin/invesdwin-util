@@ -147,14 +147,14 @@ public interface IDecimalAggregate<E extends ADecimal<E>> {
     IDecimalAggregate<E> bezierCurveInterpolation(InterpolationConfig config);
 
     /**
-     * VarK(x) = stddev(x) / expectedValue(x)
+     * CV(x) = stddev(x) / expectedValue(x)
      */
     E coefficientOfVariance();
 
     /**
-     * VarK(x) = samplestddev(x) / expectedValue(x)
+     * CV(x) = samplestddev(x) / expectedValue(x)
      */
-    E sampleCoefficientOfVariance();
+    E sampleCoefficientOfVariation();
 
     int count();
 

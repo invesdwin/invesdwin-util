@@ -231,7 +231,7 @@ public final class DummyDecimalAggregate<E extends ADecimal<E>> implements IDeci
     }
 
     @Override
-    public E sampleCoefficientOfVariance() {
+    public E sampleCoefficientOfVariation() {
         return null;
     }
 
