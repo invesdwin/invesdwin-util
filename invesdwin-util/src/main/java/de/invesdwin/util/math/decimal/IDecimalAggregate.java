@@ -91,7 +91,7 @@ public interface IDecimalAggregate<E extends ADecimal<E>> {
      */
     E sampleVariance();
 
-    List<? extends E> values();
+    List<E> values();
 
     IDecimalAggregate<E> round();
 

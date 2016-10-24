@@ -32,6 +32,7 @@ import de.invesdwin.util.math.decimal.scaled.PercentScale;
 @NotThreadSafe
 public class DecimalAggregateInterpolations<E extends ADecimal<E>> {
 
+    private static final int BEZIER_CURVE_MAX_SIZE = 1030;
     private static final double PUNISH_EDGE_FACTOR = 2;
 
     private final DecimalAggregate<E> parent;
@@ -51,7 +52,7 @@ public class DecimalAggregateInterpolations<E extends ADecimal<E>> {
 
         final List<Double> xval = new ArrayList<Double>();
         final List<Double> yval = new ArrayList<Double>();
-        fillInterpolationPoints(xval, yval, config);
+        fillInterpolationPoints(xval, yval, config, values);
 
         final ControlPath cp = new ControlPath();
         for (int i = 0; i < xval.size(); i++) {
@@ -69,7 +70,7 @@ public class DecimalAggregateInterpolations<E extends ADecimal<E>> {
     public IDecimalAggregate<E> bezierCurveInterpolation(final InterpolationConfig config) {
         final List<Double> xval = new ArrayList<Double>();
         final List<Double> yval = new ArrayList<Double>();
-        fillInterpolationPoints(xval, yval, config);
+        fillInterpolationPoints(xval, yval, config, maybeFilterPoints(values, BEZIER_CURVE_MAX_SIZE));
 
         final ControlPath cp = new ControlPath();
         for (int i = 0; i < xval.size(); i++) {
@@ -86,7 +87,7 @@ public class DecimalAggregateInterpolations<E extends ADecimal<E>> {
     public IDecimalAggregate<E> bSplineInterpolation(final BSplineInterpolationConfig config) {
         final List<Double> xval = new ArrayList<Double>();
         final List<Double> yval = new ArrayList<Double>();
-        fillInterpolationPoints(xval, yval, config);
+        fillInterpolationPoints(xval, yval, config, values);
 
         final ControlPath cp = new ControlPath();
         for (int i = 0; i < xval.size(); i++) {
@@ -141,7 +142,7 @@ public class DecimalAggregateInterpolations<E extends ADecimal<E>> {
 
         final List<Double> xval = new ArrayList<Double>();
         final List<Double> yval = new ArrayList<Double>();
-        fillInterpolationPoints(xval, yval, config);
+        fillInterpolationPoints(xval, yval, config, values);
         double bandwidth = config.getSmoothness().getValue(PercentScale.RATE).doubleValue();
         if (bandwidth * values.size() < 2) {
             bandwidth = Decimal.TWO.divide(values.size()).doubleValue();
@@ -151,8 +152,13 @@ public class DecimalAggregateInterpolations<E extends ADecimal<E>> {
         return interpolate(xval, yval, interpolator);
     }
 
-    private void fillInterpolationPoints(final List<Double> xval, final List<Double> yval,
-            final InterpolationConfig config) {
+    private static <T extends ADecimal<T>> List<T> maybeFilterPoints(final List<? extends T> values,
+            final int maxSize) {
+        return null;
+    }
+
+    private static <T extends ADecimal<T>> void fillInterpolationPoints(final List<Double> xval,
+            final List<Double> yval, final InterpolationConfig config, final List<? extends T> values) {
         for (int i = 0; i < values.size(); i++) {
             xval.add((double) i);
             final double y = values.get(i).doubleValue();
@@ -176,9 +182,9 @@ public class DecimalAggregateInterpolations<E extends ADecimal<E>> {
         }
     }
 
-    private double punishEdgeValue(final double value, final InterpolationConfig config, final Double minValue,
+    private static double punishEdgeValue(final double value, final InterpolationConfig config, final Double minValue,
             final Double maxValue) {
-        if (config.isHigherIsBetter()) {
+        if (config.isHigherBetter()) {
             if (value > 0) {
                 return Math.max(minValue, value / PUNISH_EDGE_FACTOR);
             } else {

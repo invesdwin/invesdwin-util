@@ -9,7 +9,6 @@ import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.collections.Lists;
 import de.invesdwin.util.math.decimal.ADecimal;
-import de.invesdwin.util.math.decimal.AScaledDecimal;
 import de.invesdwin.util.math.decimal.Decimal;
 import de.invesdwin.util.math.decimal.IDecimalAggregate;
 import de.invesdwin.util.math.decimal.config.BSplineInterpolationConfig;
@@ -19,14 +18,11 @@ import de.invesdwin.util.math.decimal.config.LoessInterpolationConfig;
 @Immutable
 public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregate<E> {
 
-    private static final int BEZIER_CURVE_MAX_SIZE = 1030;
-    private static final int BEZIER_CURVE_PARTITION_SIZE = 300;
-
     private E converter;
-    private final List<? extends E> values;
+    private final List<E> values;
 
     public DecimalAggregate(final List<? extends E> values, final E converter) {
-        this.values = values;
+        this.values = Collections.unmodifiableList(values);
         this.converter = converter;
     }
 
@@ -49,7 +45,7 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
     @Override
     public IDecimalAggregate<E> growthRates() {
         final List<E> growthRates = new ArrayList<E>();
-        E previousValue = (E) null;
+        E previousValue = null;
         for (final E value : values) {
             if (previousValue != null) {
                 growthRates.add(previousValue.growthRate(value));
@@ -156,7 +152,7 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
 
     @Override
     public E max() {
-        E highest = (E) null;
+        E highest = null;
         for (final E value : values) {
             if (highest == null) {
                 highest = value;
@@ -171,7 +167,7 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
 
     @Override
     public E min() {
-        E lowest = (E) null;
+        E lowest = null;
         for (final E value : values) {
             if (lowest == null) {
                 lowest = value;
@@ -281,37 +277,14 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
         return new DecimalAggregateInterpolations<E>(this).cubicBSplineInterpolation(config);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public IDecimalAggregate<E> bezierCurveInterpolation(final InterpolationConfig config) {
-        if (values.size() <= BEZIER_CURVE_MAX_SIZE) {
-            return new DecimalAggregateInterpolations<E>(this).bezierCurveInterpolation(config);
-        } else {
-            final List<E> result = new ArrayList<E>();
-            final int partitionSize = BEZIER_CURVE_PARTITION_SIZE;
-            final List<List<E>> partitions = Lists.partition((List<E>) values, partitionSize);
-            for (int i = 0; i < partitions.size(); i++) {
-                final List<E> curPartitionWithSurrounding = new ArrayList<E>();
-                if (i > 0) {
-                    curPartitionWithSurrounding.addAll(partitions.get(i - 1));
-                }
-                final int fromIndex = curPartitionWithSurrounding.size();
-                curPartitionWithSurrounding.addAll(partitions.get(i));
-                final int toIndex = curPartitionWithSurrounding.size();
-                if (i < partitions.size() - 1) {
-                    curPartitionWithSurrounding.addAll(partitions.get(i + 1));
-                }
-                final IDecimalAggregate<E> interpolated = AScaledDecimal.valueOf(curPartitionWithSurrounding)
-                        .bezierCurveInterpolation(config);
-                result.addAll(interpolated.values().subList(fromIndex, toIndex));
-            }
-            return new DecimalAggregate<E>(result, converter);
-        }
+        return new DecimalAggregateInterpolations<E>(this).bezierCurveInterpolation(config);
     }
 
     @Override
-    public List<? extends E> values() {
-        return Collections.unmodifiableList(values);
+    public List<E> values() {
+        return values;
     }
 
     @Override

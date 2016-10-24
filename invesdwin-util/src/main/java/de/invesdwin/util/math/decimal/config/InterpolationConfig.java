@@ -5,24 +5,24 @@ import javax.annotation.concurrent.NotThreadSafe;
 @NotThreadSafe
 public class InterpolationConfig {
 
-    private boolean punishEdges = false;
-    private boolean higherIsBetter = true;
+    private boolean isPunishEdges = false;
+    private boolean isHigherBetter = true;
 
     public boolean isPunishEdges() {
-        return punishEdges;
+        return isPunishEdges;
     }
 
-    public boolean isHigherIsBetter() {
-        return higherIsBetter;
+    public boolean isHigherBetter() {
+        return isHigherBetter;
     }
 
     /**
      * Edges will only get punished when the values size is >= 5, or else the data is insufficient to tell that the
      * edges are actually worse.
      */
-    public InterpolationConfig withPunishEdges(final boolean punishEdges, final boolean higherIsBetter) {
-        this.punishEdges = punishEdges;
-        this.higherIsBetter = higherIsBetter;
+    public InterpolationConfig withPunishEdges(final boolean isPunishEdges, final boolean isHigherBetter) {
+        this.isPunishEdges = isPunishEdges;
+        this.isHigherBetter = isHigherBetter;
         return this;
     }
 

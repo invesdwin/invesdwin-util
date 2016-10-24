@@ -111,7 +111,7 @@ public final class DummyDecimalAggregate<E extends ADecimal<E>> implements IDeci
     }
 
     @Override
-    public List<? extends E> values() {
+    public List<E> values() {
         return Collections.emptyList();
     }
 
