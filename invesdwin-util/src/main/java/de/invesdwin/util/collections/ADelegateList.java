@@ -1,6 +1,5 @@
 package de.invesdwin.util.collections;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.ListIterator;
@@ -19,13 +18,8 @@ public abstract class ADelegateList<E> extends ADelegateCollection<E> implements
 
     @Override
     public boolean addAll(final int index, final Collection<? extends E> c) {
-        final List<E> filtered = new ArrayList<E>();
-        for (final E e : c) {
-            if (isAddAllowed(e)) {
-                filtered.add(e);
-            }
-        }
-        return getDelegate().addAll(index, filtered);
+        final Collection<E> allowedElements = filterAllowedElements(c);
+        return getDelegate().addAll(index, allowedElements);
     }
 
     @Override

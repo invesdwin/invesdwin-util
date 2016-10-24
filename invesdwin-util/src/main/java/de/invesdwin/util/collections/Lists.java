@@ -3,6 +3,7 @@ package de.invesdwin.util.collections;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -105,6 +106,87 @@ public final class Lists extends AListsStaticFacade {
             return new ArrayList<E>((Collection<E>) unwrapped);
         }
         return toList(iterable.iterator());
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <E> List<E> toList(final Iterable<? extends E> c) {
+        if (c instanceof ICloseableIterable) {
+            return toList((ICloseableIterable<E>) c);
+        }
+        if (c instanceof List) {
+            return (List<E>) c;
+        }
+        if (c instanceof Collection) {
+            return new ArrayList<E>((Collection<E>) c);
+        }
+        return toList(c.iterator());
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <E> List<E> toList(final Iterable<? extends E> c, final List<E> list) {
+        if (c instanceof ICloseableIterable) {
+            return toList((ICloseableIterable<E>) c, list);
+        }
+        if (c instanceof Collection) {
+            list.addAll((Collection<E>) c);
+            return list;
+        }
+        return toList(c.iterator(), list);
+    }
+
+    public static <E> List<E> toList(final Iterator<? extends E> iterator) {
+        return toList(iterator, new ArrayList<E>());
+    }
+
+    public static <E> List<E> toList(final Iterator<? extends E> iterator, final List<E> list) {
+        while (iterator.hasNext()) {
+            list.add(iterator.next());
+        }
+        return list;
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <E> List<E> toListWithoutHasNext(final Iterable<? extends E> c) {
+        if (c instanceof ICloseableIterable) {
+            return toListWithoutHasNext((ICloseableIterable<E>) c);
+        }
+        if (c instanceof List) {
+            return (List<E>) c;
+        }
+        if (c instanceof Collection) {
+            return new ArrayList<E>((Collection<E>) c);
+        }
+        return toListWithoutHasNext(c.iterator());
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <E> List<E> toListWithoutHasNext(final Iterable<? extends E> c, final List<E> list) {
+        if (c instanceof ICloseableIterable) {
+            return toListWithoutHasNext((ICloseableIterable<E>) c, list);
+        }
+        if (c instanceof Collection) {
+            list.addAll((Collection<E>) c);
+            return list;
+        }
+        return toList(c.iterator(), list);
+    }
+
+    public static <E> List<E> toListWithoutHasNext(final Iterator<? extends E> iterator) {
+        return toListWithoutHasNext(iterator, new ArrayList<E>());
+    }
+
+    public static <E> List<E> toListWithoutHasNext(final Iterator<? extends E> iterator, final List<E> list) {
+        try {
+            while (true) {
+                final E next = iterator.next();
+                if (next == null) {
+                    throw new IllegalArgumentException("null");
+                }
+                list.add(next);
+            }
+        } catch (final NoSuchElementException e) {
+            return list;
+        }
     }
 
     /**

@@ -374,4 +374,5 @@ public class DecimalTest {
         Assertions.assertThat(scaled001.getDecimalDigits()).isEqualTo(2);
         Assertions.assertThat(scaled001.getDigits()).isEqualTo(3);
     }
+
 }

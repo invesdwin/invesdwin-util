@@ -69,13 +69,18 @@ public abstract class ADelegateCollection<E> implements Collection<E> {
 
     @Override
     public boolean addAll(final Collection<? extends E> c) {
+        final Collection<E> allowedElements = filterAllowedElements(c);
+        return getDelegate().addAll(allowedElements);
+    }
+
+    protected Collection<E> filterAllowedElements(final Collection<? extends E> c) {
         final List<E> allowedElements = new ArrayList<E>();
         for (final E e : c) {
             if (isAddAllowed(e)) {
                 allowedElements.add(e);
             }
         }
-        return getDelegate().addAll(allowedElements);
+        return allowedElements;
     }
 
     @Override
