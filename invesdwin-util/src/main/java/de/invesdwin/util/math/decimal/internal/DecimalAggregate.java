@@ -248,7 +248,7 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
     }
 
     @Override
-    public E coefficientOfVariance() {
+    public E coefficientOfVariation() {
         return standardDeviation().divide(avg());
     }
 

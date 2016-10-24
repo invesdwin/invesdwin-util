@@ -148,11 +148,15 @@ public interface IDecimalAggregate<E extends ADecimal<E>> {
 
     /**
      * CV(x) = stddev(x) / expectedValue(x)
+     * 
+     * Also known as relative standard deviation.
      */
-    E coefficientOfVariance();
+    E coefficientOfVariation();
 
     /**
      * CV(x) = samplestddev(x) / expectedValue(x)
+     * 
+     * Also known as relative standard deviation.
      */
     E sampleCoefficientOfVariation();
 
