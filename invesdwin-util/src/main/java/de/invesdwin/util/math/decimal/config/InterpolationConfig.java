@@ -49,7 +49,8 @@ public class InterpolationConfig {
     }
 
     /**
-     * You can achieve a bumpier curve by increasing the value scale from [0,1] to [0, 100] via multipliying by 100
+     * You can achieve a better curve by increasing the value scale from [0,1] to [0, 100] via multipliying by 100. With
+     * a scale of [0,1] the difference in the values is not large enough to correctly detect peaks and valleys.
      */
     public InterpolationConfig withValueMultiplicator(final Decimal valueMultiplicator) {
         this.valueMultiplicator = valueMultiplicator;

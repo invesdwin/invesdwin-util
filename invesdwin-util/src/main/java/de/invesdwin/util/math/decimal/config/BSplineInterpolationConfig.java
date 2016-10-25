@@ -2,6 +2,8 @@ package de.invesdwin.util.math.decimal.config;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.util.math.decimal.Decimal;
+
 @NotThreadSafe
 public class BSplineInterpolationConfig extends InterpolationConfig {
 
@@ -22,6 +24,16 @@ public class BSplineInterpolationConfig extends InterpolationConfig {
     @Override
     public BSplineInterpolationConfig withPunishEdges(final boolean punishEdges, final boolean higherIsBetter) {
         return (BSplineInterpolationConfig) super.withPunishEdges(punishEdges, higherIsBetter);
+    }
+
+    @Override
+    public BSplineInterpolationConfig withMaxPoints(final Integer maxPoints) {
+        return (BSplineInterpolationConfig) super.withMaxPoints(maxPoints);
+    }
+
+    @Override
+    public BSplineInterpolationConfig withValueMultiplicator(final Decimal valueMultiplicator) {
+        return (BSplineInterpolationConfig) super.withValueMultiplicator(valueMultiplicator);
     }
 
 }
