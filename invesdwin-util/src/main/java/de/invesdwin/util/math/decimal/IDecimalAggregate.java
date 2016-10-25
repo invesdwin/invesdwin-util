@@ -142,7 +142,8 @@ public interface IDecimalAggregate<E extends ADecimal<E>> {
     /**
      * bezier is fast O(n) but cannot calculate value sizes larger than 1030. You might want to consider to fallback to
      * an equivalent variation of BSpline with degree n, which sadly is exponentially slower with O(2^n) and might thus
-     * not even complete in your lifetime...
+     * not even complete in your lifetime. So we are automatically reducing the points by an averaging algorithm as a
+     * preprocessing filter to get down to a maximum of 1000 points.
      */
     IDecimalAggregate<E> bezierCurveInterpolation(InterpolationConfig config);
 
