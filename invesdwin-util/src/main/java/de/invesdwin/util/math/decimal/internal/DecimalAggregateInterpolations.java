@@ -67,7 +67,7 @@ public class DecimalAggregateInterpolations<E extends ADecimal<E>> {
         calculateCurve(xval, yval, curve);
 
         final UnivariateInterpolator interpolator = new SplineInterpolator();
-        return interpolate(xval, yval, interpolator);
+        return interpolate(config, xval, yval, interpolator);
     }
 
     public IDecimalAggregate<E> bezierCurveInterpolation(final InterpolationConfig config) {
@@ -84,7 +84,7 @@ public class DecimalAggregateInterpolations<E extends ADecimal<E>> {
         calculateCurve(xval, yval, curve);
 
         final UnivariateInterpolator interpolator = new SplineInterpolator();
-        return interpolate(xval, yval, interpolator);
+        return interpolate(config, xval, yval, interpolator);
     }
 
     public IDecimalAggregate<E> bSplineInterpolation(final BSplineInterpolationConfig config) {
@@ -106,7 +106,7 @@ public class DecimalAggregateInterpolations<E extends ADecimal<E>> {
         calculateCurve(xval, yval, curve);
 
         final UnivariateInterpolator interpolator = new SplineInterpolator();
-        return interpolate(xval, yval, interpolator);
+        return interpolate(config, xval, yval, interpolator);
     }
 
     private void calculateCurve(final List<Double> xval, final List<Double> yval, final Curve curve) {
@@ -126,16 +126,32 @@ public class DecimalAggregateInterpolations<E extends ADecimal<E>> {
         }
     }
 
-    private IDecimalAggregate<E> interpolate(final List<Double> xval, final List<Double> yval,
-            final UnivariateInterpolator interpolator) {
+    private IDecimalAggregate<E> interpolate(final InterpolationConfig config, final List<Double> xval,
+            final List<Double> yval, final UnivariateInterpolator interpolator) {
         final UnivariateFunction interpolated = interpolator.interpolate(Doubles.toArray(xval), Doubles.toArray(yval));
         final List<E> interpolatedValues = new ArrayList<E>();
-        for (int i = 0; i < values.size(); i++) {
-            final E value = converter.fromDefaultValue(Decimal.valueOf(interpolated.value(i)));
-            interpolatedValues.add(value);
-        }
+        interpolateAndMaybeReverseMultiplier(config, interpolated, interpolatedValues);
         Assertions.assertThat(interpolatedValues).hasSameSizeAs(values);
         return new DecimalAggregate<E>(interpolatedValues, converter);
+    }
+
+    private void interpolateAndMaybeReverseMultiplier(final InterpolationConfig config,
+            final UnivariateFunction interpolated, final List<E> results) {
+        //splitting the loops for performance reasons
+        if (config.getValueMultiplicator() != null) {
+            final double multiplier = config.getValueMultiplicator().doubleValue();
+            for (int i = 0; i < values.size(); i++) {
+                final double result = interpolated.value(i) / multiplier;
+                final E value = converter.fromDefaultValue(Decimal.valueOf(result));
+                results.add(value);
+            }
+        } else {
+            for (int i = 0; i < values.size(); i++) {
+                final double result = interpolated.value(i);
+                final E value = converter.fromDefaultValue(Decimal.valueOf(result));
+                results.add(value);
+            }
+        }
     }
 
     public IDecimalAggregate<E> loessInterpolation(final LoessInterpolationConfig config) {
@@ -152,22 +168,14 @@ public class DecimalAggregateInterpolations<E extends ADecimal<E>> {
         }
         final UnivariateInterpolator interpolator = new LoessInterpolator(bandwidth,
                 LoessInterpolator.DEFAULT_ROBUSTNESS_ITERS);
-        return interpolate(xval, yval, interpolator);
+        return interpolate(config, xval, yval, interpolator);
     }
 
     private <T extends ADecimal<T>> Pair<List<Double>, List<Double>> fillInterpolationPoints(
             final InterpolationConfig config, final Integer absoluteMaxSize) {
         List<Double> xval = new ArrayList<Double>(values.size());
         List<Double> yval = new ArrayList<Double>(values.size());
-        for (int i = 0; i < values.size(); i++) {
-            xval.add((double) i);
-            final double y = values.get(i).doubleValue();
-            if (Double.isFinite(y)) {
-                yval.add(y);
-            } else {
-                yval.add(0D);
-            }
-        }
+        fillAndMaybeApplyMultiplier(config, xval, yval);
         final Integer maxSize = Integers.min(absoluteMaxSize, config.getMaxPoints());
         if (maxSize != null) {
             while (xval.size() > maxSize) {
@@ -191,6 +199,50 @@ public class DecimalAggregateInterpolations<E extends ADecimal<E>> {
             yval.add(endPunished);
         }
         return Pair.of(xval, yval);
+    }
+
+    private void fillAndMaybeApplyMultiplier(final InterpolationConfig config, final List<Double> xval,
+            final List<Double> yval) {
+        //splitting the loops for performance reasons
+        if (config.getValueMultiplicator() != null) {
+            final double multipier = config.getValueMultiplicator().doubleValue();
+            for (int i = 0; i < values.size(); i++) {
+                xval.add((double) i);
+                final double y = values.get(i).doubleValue() * multipier;
+                if (Double.isFinite(y)) {
+                    yval.add(y);
+                } else {
+                    yval.add(0D);
+                }
+            }
+        } else {
+            for (int i = 0; i < values.size(); i++) {
+                xval.add((double) i);
+                final double y = values.get(i).doubleValue();
+                if (Double.isFinite(y)) {
+                    yval.add(y);
+                } else {
+                    yval.add(0D);
+                }
+            }
+        }
+    }
+
+    private double punishEdgeValue(final double value, final InterpolationConfig config, final Double minValue,
+            final Double maxValue) {
+        if (config.isHigherBetter()) {
+            if (value > 0) {
+                return 0d;
+            } else {
+                return Math.max(minValue, value * PUNISH_NEGATIVE_EDGE_FACTOR);
+            }
+        } else {
+            if (value > 0) {
+                return Math.min(maxValue, value * PUNISH_NEGATIVE_EDGE_FACTOR);
+            } else {
+                return 0;
+            }
+        }
     }
 
     /**
@@ -230,23 +282,6 @@ public class DecimalAggregateInterpolations<E extends ADecimal<E>> {
         newxval.add(xval.get(xval.size() - 1));
         newyval.add(yval.get(yval.size() - 1));
         return Pair.of(newxval, newyval);
-    }
-
-    private double punishEdgeValue(final double value, final InterpolationConfig config, final Double minValue,
-            final Double maxValue) {
-        if (config.isHigherBetter()) {
-            if (value > 0) {
-                return 0d;
-            } else {
-                return Math.max(minValue, value * PUNISH_NEGATIVE_EDGE_FACTOR);
-            }
-        } else {
-            if (value > 0) {
-                return Math.min(maxValue, value * PUNISH_NEGATIVE_EDGE_FACTOR);
-            } else {
-                return 0;
-            }
-        }
     }
 
 }

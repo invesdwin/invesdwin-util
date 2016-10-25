@@ -2,12 +2,17 @@ package de.invesdwin.util.math.decimal.config;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.util.math.decimal.Decimal;
+
 @NotThreadSafe
 public class InterpolationConfig {
+
+    public static final Decimal SUGGESTED_RATE_VALUE_MULTIPLIER = Decimal.ONE_HUNDRED;
 
     private boolean isPunishEdges = false;
     private boolean isHigherBetter = true;
     private Integer maxPoints = null;
+    private Decimal valueMultiplicator = null;
 
     public boolean isPunishEdges() {
         return isPunishEdges;
@@ -36,6 +41,18 @@ public class InterpolationConfig {
      */
     public InterpolationConfig withMaxPoints(final Integer maxPoints) {
         this.maxPoints = maxPoints;
+        return this;
+    }
+
+    public Decimal getValueMultiplicator() {
+        return valueMultiplicator;
+    }
+
+    /**
+     * You can achieve a bumpier curve by increasing the value scale from [0,1] to [0, 100] via multipliying by 100
+     */
+    public InterpolationConfig withValueMultiplicator(final Decimal valueMultiplicator) {
+        this.valueMultiplicator = valueMultiplicator;
         return this;
     }
 
