@@ -8,6 +8,7 @@ import de.invesdwin.util.math.decimal.Decimal;
 public class InterpolationConfig {
 
     public static final Decimal SUGGESTED_RATE_VALUE_MULTIPLIER = Decimal.ONE_HUNDRED;
+    public static final Integer SUGGESTED_MAX_POINTS = 100;
 
     private boolean isPunishEdges = false;
     private boolean isHigherBetter = true;
