@@ -39,13 +39,13 @@ public class FilterDuplicateKeysList<V> extends ADelegateList<Entry<FDate, V>> {
         }
         final List<Entry<FDate, V>> cList = Lists.toList(c);
         final int highestIndexFirst = 0;
-        final Entry<FDate, V> highestEntry = cList.get(highestIndexFirst);
+        final Entry<FDate, V> highestEntryFirst = cList.get(highestIndexFirst);
         final int lowestIndexLast = cList.size() - 1;
-        final Entry<FDate, V> lowestEntry = cList.get(lowestIndexLast);
-        if (highestEntry.getKey().isBefore(lowestEntry.getKey())) {
-            throw new IllegalArgumentException("Expecting desceding order: first[" + highestEntry.getKey()
-                    + "] >= last[" + lowestEntry.getKey() + "]");
-        } else if (highestEntry.getKey().equals(lowestEntry.getKey())) {
+        final Entry<FDate, V> lowestEntryLast = cList.get(lowestIndexLast);
+        if (highestEntryFirst.getKey().isBefore(lowestEntryLast.getKey())) {
+            throw new IllegalArgumentException("Expecting desceding order: first[" + highestEntryFirst.getKey()
+                    + "] >= last[" + lowestEntryLast.getKey() + "]");
+        } else if (highestEntryFirst.getKey().equals(lowestEntryLast.getKey())) {
             final Entry<FDate, V> onlyEntry = cList.get(0);
             if (isAddAllowed(onlyEntry)) {
                 @SuppressWarnings("unchecked")
@@ -56,24 +56,24 @@ public class FilterDuplicateKeysList<V> extends ADelegateList<Entry<FDate, V>> {
             }
         }
 
-        final Integer minIndex = determineMinIndex(cList, lowestEntry, highestIndexFirst, lowestIndexLast);
+        final Integer minIndex = determineMinIndex(cList, lowestEntryLast, highestIndexFirst, lowestIndexLast);
         if (minIndex == null) {
             return Collections.emptyList();
         }
 
-        final Integer maxIndex = determineMaxIndex(cList, highestEntry, highestIndexFirst, lowestIndexLast);
+        final Integer maxIndex = determineMaxIndex(cList, highestEntryFirst, highestIndexFirst, lowestIndexLast);
         if (maxIndex == null) {
             return Collections.emptyList();
         }
         return cList.subList(maxIndex, minIndex + 1);
     }
 
-    private Integer determineMaxIndex(final List<Entry<FDate, V>> cList, final Entry<FDate, V> highestEntry,
+    private Integer determineMaxIndex(final List<Entry<FDate, V>> cList, final Entry<FDate, V> highestEntryFirst,
             final int highestIndexFirst, final int lowestIndexLast) {
         final boolean newMaxEntry;
         Integer maxIndex = null;
-        if (maxEntry == null) {
-            maxEntry = highestEntry;
+        if (maxEntry == null || maxEntry.getKey().isBefore(highestEntryFirst.getKey())) {
+            maxEntry = highestEntryFirst;
             maxIndex = highestIndexFirst;
             newMaxEntry = true;
         } else {
@@ -93,12 +93,12 @@ public class FilterDuplicateKeysList<V> extends ADelegateList<Entry<FDate, V>> {
         return maxIndex;
     }
 
-    private Integer determineMinIndex(final List<Entry<FDate, V>> cList, final Entry<FDate, V> lowestEntry,
+    private Integer determineMinIndex(final List<Entry<FDate, V>> cList, final Entry<FDate, V> lowestEntryLast,
             final int highestIndexFirst, final int lowestIndexLast) {
         final boolean newMinEntry;
         Integer minIndex = null;
-        if (minEntry == null) {
-            minEntry = lowestEntry;
+        if (minEntry == null || minEntry.getKey().isAfter(lowestEntryLast.getKey())) {
+            minEntry = lowestEntryLast;
             minIndex = lowestIndexLast;
             newMinEntry = true;
         } else {
