@@ -21,7 +21,8 @@ public final class Executors {
      * @see java.util.concurrent.Executors.newCachedThreadPool
      */
     public static WrappedExecutorService newCachedThreadPool(final String name) {
-        final java.util.concurrent.ThreadPoolExecutor ex = (java.util.concurrent.ThreadPoolExecutor) java.util.concurrent.Executors.newCachedThreadPool();
+        final java.util.concurrent.ThreadPoolExecutor ex = (java.util.concurrent.ThreadPoolExecutor) java.util.concurrent.Executors
+                .newCachedThreadPool();
         return new WrappedExecutorService(ex, name);
     }
 
@@ -29,7 +30,8 @@ public final class Executors {
      * @see java.util.concurrent.Executors.newFixedThreadPool
      */
     public static WrappedExecutorService newFixedThreadPool(final String name, final int nThreads) {
-        final java.util.concurrent.ThreadPoolExecutor ex = (java.util.concurrent.ThreadPoolExecutor) java.util.concurrent.Executors.newFixedThreadPool(nThreads);
+        final java.util.concurrent.ThreadPoolExecutor ex = (java.util.concurrent.ThreadPoolExecutor) java.util.concurrent.Executors
+                .newFixedThreadPool(nThreads);
         return new WrappedExecutorService(ex, name);
     }
 
@@ -37,7 +39,8 @@ public final class Executors {
      * @see java.util.concurrent.Executors.newScheduledThreadPool
      */
     public static WrappedScheduledExecutorService newScheduledThreadPool(final String name) {
-        final java.util.concurrent.ScheduledThreadPoolExecutor ex = (java.util.concurrent.ScheduledThreadPoolExecutor) java.util.concurrent.Executors.newScheduledThreadPool(Integer.MAX_VALUE);
+        final java.util.concurrent.ScheduledThreadPoolExecutor ex = (java.util.concurrent.ScheduledThreadPoolExecutor) java.util.concurrent.Executors
+                .newScheduledThreadPool(Integer.MAX_VALUE);
         return new WrappedScheduledExecutorService(ex, name);
     }
 
@@ -45,7 +48,8 @@ public final class Executors {
      * @see java.util.concurrent.Executors.newScheduledThreadPool
      */
     public static WrappedScheduledExecutorService newScheduledThreadPool(final String name, final int corePoolSize) {
-        final java.util.concurrent.ScheduledThreadPoolExecutor ex = (java.util.concurrent.ScheduledThreadPoolExecutor) java.util.concurrent.Executors.newScheduledThreadPool(corePoolSize);
+        final java.util.concurrent.ScheduledThreadPoolExecutor ex = (java.util.concurrent.ScheduledThreadPoolExecutor) java.util.concurrent.Executors
+                .newScheduledThreadPool(corePoolSize);
         return new WrappedScheduledExecutorService(ex, name);
     }
 
@@ -57,7 +61,7 @@ public final class Executors {
     }
 
     /**
-     * Returns the number of cpu cores +1 for ThreadPools that are cpu intensive.
+     * Returns the number of cpu cores for ThreadPools that are cpu intensive.
      */
     public static int getCpuThreadPoolCount() {
         return Runtime.getRuntime().availableProcessors();
