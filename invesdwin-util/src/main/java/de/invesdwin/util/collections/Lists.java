@@ -215,7 +215,14 @@ public final class Lists extends AListsStaticFacade {
     }
 
     public static <E> List<? extends List<E>> splitIntoPackageCount(final List<E> list, final int packageCount) {
+        if (packageCount <= 0) {
+            throw new IllegalArgumentException("packageCount needs to be at least 1: " + packageCount);
+        }
         final List<List<E>> packages = new ArrayList<List<E>>();
+        if (packageCount == 1) {
+            packages.add(list);
+            return packages;
+        }
         final int realPackageCount = Math.min(packageCount, list.size());
         for (int i = 0; i < realPackageCount; i++) {
             packages.add(new ArrayList<E>());
