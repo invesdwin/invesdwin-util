@@ -15,6 +15,8 @@ import javax.annotation.concurrent.Immutable;
 @Immutable
 public final class Executors {
 
+    private static int cpuThreadPoolCount = Runtime.getRuntime().availableProcessors();
+
     private Executors() {}
 
     /**
@@ -64,7 +66,11 @@ public final class Executors {
      * Returns the number of cpu cores for ThreadPools that are cpu intensive.
      */
     public static int getCpuThreadPoolCount() {
-        return Runtime.getRuntime().availableProcessors();
+        return Executors.cpuThreadPoolCount;
+    }
+
+    public static void setCpuThreadPoolCount(final int cpuThreadPoolCount) {
+        Executors.cpuThreadPoolCount = cpuThreadPoolCount;
     }
 
     public static ConfiguredForkJoinPool newForkJoinPool(final String name, final int parallelism) {
