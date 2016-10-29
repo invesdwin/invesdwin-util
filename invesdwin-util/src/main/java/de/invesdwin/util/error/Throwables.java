@@ -117,4 +117,8 @@ public final class Throwables extends AThrowablesStaticFacade {
         return e.toString() + " -> " + stackTraceElement;
     }
 
+    public static RuntimeException newUnexpectedHereException(final Class<?> location, final Throwable e) {
+        return new RuntimeException("This exception should never be thrown up to here: " + location.getSimpleName(), e);
+    }
+
 }
