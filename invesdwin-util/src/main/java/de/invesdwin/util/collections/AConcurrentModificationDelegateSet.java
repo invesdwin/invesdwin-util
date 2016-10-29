@@ -52,7 +52,7 @@ public abstract class AConcurrentModificationDelegateSet<E> extends ADelegateCol
 
     @SuppressWarnings("unchecked")
     @Override
-    public boolean remove(final Object o) {
+    public synchronized boolean remove(final Object o) {
         if (openIterators.get() == 0) {
             return super.remove(o);
         } else {
