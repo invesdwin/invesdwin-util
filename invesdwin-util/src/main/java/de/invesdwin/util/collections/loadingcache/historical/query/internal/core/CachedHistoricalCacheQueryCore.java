@@ -139,6 +139,9 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
         }
     }
 
+    /**
+     * Use sublist if possible to reduce memory footprint of transient array lists to reduce garbage collection overhead
+     */
     private List<Entry<FDate, V>> tryCachedPreviousResult(final IHistoricalCacheQueryInternalMethods<V> query,
             final int shiftBackUnits, final boolean filterDuplicateKeys) {
         if (filterDuplicateKeys) {
