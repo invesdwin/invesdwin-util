@@ -110,4 +110,14 @@ public abstract class ADelegateCollection<E> implements Collection<E> {
         return getDelegate().toString();
     }
 
+    @Override
+    public boolean equals(final Object obj) {
+        return getDelegate().equals(obj);
+    }
+
+    @Override
+    public int hashCode() {
+        return getDelegate().hashCode();
+    }
+
 }

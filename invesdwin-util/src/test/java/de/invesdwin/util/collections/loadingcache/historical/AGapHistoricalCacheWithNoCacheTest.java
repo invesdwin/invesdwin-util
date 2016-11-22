@@ -1102,6 +1102,17 @@ public class AGapHistoricalCacheWithNoCacheTest {
         Assertions.assertThat(countAdjustKey).isEqualTo(24);
     }
 
+    @Test
+    public void testSubListWhenSwitchingFromNonFilterToFilter() {
+        final FDate key = new FDate();
+        final FDate previousValue = cache.query().getPreviousValue(key, 4);
+        final FDate expectedValue = entities.get(entities.size() - 5);
+        Assertions.assertThat(previousValue).isEqualTo(expectedValue);
+        final Collection<FDate> previousValues = asList(cache.query().getPreviousValues(key, 4));
+        final List<FDate> expectedValues = entities.subList(2, 6);
+        Assertions.assertThat(previousValues).isEqualTo(expectedValues);
+    }
+
     private class TestGapHistoricalCache extends AGapHistoricalCache<FDate> {
 
         @Override

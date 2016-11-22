@@ -17,4 +17,6 @@ public interface IHistoricalCacheQueryInternalMethods<V> {
 
     List<Entry<FDate, V>> newEntriesList(int size);
 
+    boolean isFilterDuplicateKeys();
+
 }

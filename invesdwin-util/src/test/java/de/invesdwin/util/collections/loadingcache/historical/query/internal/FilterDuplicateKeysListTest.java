@@ -16,6 +16,21 @@ import de.invesdwin.util.time.fdate.FDateBuilder;
 @NotThreadSafe
 public class FilterDuplicateKeysListTest {
 
+    private final List<Entry<FDate, Integer>> expectedList = new ArrayList<Entry<FDate, Integer>>() {
+        {
+            add(ImmutableEntry.of(FDateBuilder.newDate(0), 0));
+            add(ImmutableEntry.of(FDateBuilder.newDate(1), 1));
+            add(ImmutableEntry.of(FDateBuilder.newDate(2), 2));
+        }
+    };
+    private final List<Entry<FDate, Integer>> expectedListReverse = new ArrayList<Entry<FDate, Integer>>() {
+        {
+            add(ImmutableEntry.of(FDateBuilder.newDate(2), 2));
+            add(ImmutableEntry.of(FDateBuilder.newDate(1), 1));
+            add(ImmutableEntry.of(FDateBuilder.newDate(0), 0));
+        }
+    };
+
     @Test
     public void testAdd() {
         final FilterDuplicateKeysList<Integer> list = new FilterDuplicateKeysList<Integer>(10);
@@ -25,6 +40,7 @@ public class FilterDuplicateKeysListTest {
         list.add(ImmutableEntry.of(FDateBuilder.newDate(2), 2));
         list.add(ImmutableEntry.of(FDateBuilder.newDate(2), 2));
         Assertions.assertThat(list).hasSize(3);
+        Assertions.assertThat(list).isEqualTo(expectedList);
     }
 
     @Test
@@ -36,9 +52,9 @@ public class FilterDuplicateKeysListTest {
         list.add(ImmutableEntry.of(FDateBuilder.newDate(0), 0));
         list.add(ImmutableEntry.of(FDateBuilder.newDate(0), 0));
         Assertions.assertThat(list).hasSize(3);
+        Assertions.assertThat(list).isEqualTo(expectedListReverse);
     }
 
-    @Test(expected = IllegalArgumentException.class)
     public void testAddAll() {
         final List<Entry<FDate, Integer>> input = new ArrayList<Entry<FDate, Integer>>();
         input.add(ImmutableEntry.of(FDateBuilder.newDate(0), 0));
@@ -50,6 +66,7 @@ public class FilterDuplicateKeysListTest {
         //can not use addAll in that direction, also not needed right now
         list.addAll(input);
         Assertions.assertThat(list).hasSize(3);
+        Assertions.assertThat(list).isEqualTo(expectedList);
     }
 
     @Test
@@ -63,6 +80,7 @@ public class FilterDuplicateKeysListTest {
         final FilterDuplicateKeysList<Integer> list = new FilterDuplicateKeysList<Integer>(10);
         list.addAll(input);
         Assertions.assertThat(list).hasSize(3);
+        Assertions.assertThat(list).isEqualTo(expectedListReverse);
     }
 
     @Test
@@ -77,6 +95,7 @@ public class FilterDuplicateKeysListTest {
         list.add(ImmutableEntry.of(FDateBuilder.newDate(2), 2));
         list.addAll(input);
         Assertions.assertThat(list).hasSize(3);
+        Assertions.assertThat(list).isEqualTo(expectedListReverse);
     }
 
     @Test
@@ -91,6 +110,7 @@ public class FilterDuplicateKeysListTest {
         list.add(ImmutableEntry.of(FDateBuilder.newDate(0), 0));
         list.addAll(0, input);
         Assertions.assertThat(list).hasSize(3);
+        Assertions.assertThat(list).isEqualTo(expectedListReverse);
     }
 
 }

@@ -47,6 +47,11 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
             return HistoricalCacheQuery.this.newEntriesList(size);
         }
 
+        @Override
+        public boolean isFilterDuplicateKeys() {
+            return filterDuplicateKeys;
+        }
+
     };
     private boolean filterDuplicateKeys = true;
     private boolean rememberNullValue = false;
