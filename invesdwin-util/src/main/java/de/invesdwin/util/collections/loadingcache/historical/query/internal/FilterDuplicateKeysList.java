@@ -19,17 +19,17 @@ import de.invesdwin.util.time.fdate.FDate;
  */
 @NotThreadSafe
 public class FilterDuplicateKeysList<V> extends ADelegateList<Entry<FDate, V>> {
-    private final int size;
+    private final int initialCapacity;
     private Entry<FDate, V> minEntry;
     private Entry<FDate, V> maxEntry;
 
-    public FilterDuplicateKeysList(final int size) {
-        this.size = size;
+    public FilterDuplicateKeysList(final int initialCapacity) {
+        this.initialCapacity = initialCapacity;
     }
 
     @Override
     protected List<Entry<FDate, V>> newDelegate() {
-        return new ArrayList<Entry<FDate, V>>(size);
+        return new ArrayList<Entry<FDate, V>>(initialCapacity);
     }
 
     @Override
