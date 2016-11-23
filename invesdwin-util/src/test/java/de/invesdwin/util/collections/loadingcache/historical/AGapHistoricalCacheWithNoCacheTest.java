@@ -1108,9 +1108,43 @@ public class AGapHistoricalCacheWithNoCacheTest {
         final FDate previousValue = cache.query().getPreviousValue(key, 4);
         final FDate expectedValue = entities.get(entities.size() - 5);
         Assertions.assertThat(previousValue).isEqualTo(expectedValue);
+        Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(4);
+        Assertions.assertThat(countReadNewestValueTo).isEqualTo(5);
+        Assertions.assertThat(countInnerExtractKey).isEqualTo(39);
+        Assertions.assertThat(countAdjustKey).isEqualTo(10);
+
         final Collection<FDate> previousValues = asList(cache.query().getPreviousValues(key, 4));
         final List<FDate> expectedValues = entities.subList(2, 6);
         Assertions.assertThat(previousValues).isEqualTo(expectedValues);
+        Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(4);
+        Assertions.assertThat(countReadNewestValueTo).isEqualTo(5);
+        Assertions.assertThat(countInnerExtractKey).isEqualTo(39);
+        Assertions.assertThat(countAdjustKey).isEqualTo(11);
+    }
+
+    @Test
+    public void testSubListWhenSwitchingFromFilterToNonFilter() {
+        final FDate key = new FDate();
+        final Collection<FDate> previousValues = asList(cache.query().getPreviousValues(key, 10));
+        final List<FDate> expectedValues = entities;
+        Assertions.assertThat(previousValues).isEqualTo(expectedValues);
+        Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(5);
+        Assertions.assertThat(countReadNewestValueTo).isEqualTo(7);
+        Assertions.assertThat(countInnerExtractKey).isEqualTo(52);
+        Assertions.assertThat(countAdjustKey).isEqualTo(14);
+
+        final Collection<FDate> previousValuesCached = asList(
+                cache.query().withFilterDuplicateKeys(false).getPreviousValues(key, 10));
+        final List<FDate> expectedValuesCached = new ArrayList<FDate>();
+        for (int i = 0; i < 4; i++) {
+            expectedValuesCached.add(entities.get(0));
+        }
+        expectedValuesCached.addAll(entities);
+        Assertions.assertThat(previousValuesCached).isEqualTo(expectedValuesCached);
+        Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(5);
+        Assertions.assertThat(countReadNewestValueTo).isEqualTo(7);
+        Assertions.assertThat(countInnerExtractKey).isEqualTo(52);
+        Assertions.assertThat(countAdjustKey).isEqualTo(15);
     }
 
     private class TestGapHistoricalCache extends AGapHistoricalCache<FDate> {

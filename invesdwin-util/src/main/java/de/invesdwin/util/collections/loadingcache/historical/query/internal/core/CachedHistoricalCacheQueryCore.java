@@ -145,6 +145,9 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
     private List<Entry<FDate, V>> tryCachedPreviousResult(final IHistoricalCacheQueryInternalMethods<V> query,
             final int shiftBackUnits, final boolean filterDuplicateKeys) {
         if (filterDuplicateKeys) {
+            if (cachedPreviousResult_shiftBackUnits < shiftBackUnits) {
+                return null;
+            }
             if (cachedPreviousResult_filteringDuplicates == null) {
                 if (cachedPreviousResult_notFilteringDuplicates == null) {
                     return null;
@@ -154,18 +157,28 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
                     cachedPreviousResult_filteringDuplicates.addAll(cachedPreviousResult_notFilteringDuplicates);
                 }
             }
-            if (cachedPreviousResult_shiftBackUnits < shiftBackUnits) {
-                return null;
-            }
             final int toIndex = cachedPreviousResult_filteringDuplicates.size();
             final int fromIndex = Math.max(0, toIndex - shiftBackUnits);
             return Collections.unmodifiableList(cachedPreviousResult_filteringDuplicates.subList(fromIndex, toIndex));
         } else {
-            if (cachedPreviousResult_notFilteringDuplicates == null) {
-                return null;
-            }
             if (cachedPreviousResult_shiftBackUnits < shiftBackUnits) {
                 return null;
+            }
+            if (cachedPreviousResult_notFilteringDuplicates == null) {
+                if (cachedPreviousResult_filteringDuplicates == null) {
+                    return null;
+                } else {
+                    cachedPreviousResult_notFilteringDuplicates = new ArrayList<Entry<FDate, V>>(
+                            cachedPreviousResult_filteringDuplicates);
+                    final int duplicatesRemaining = cachedPreviousResult_shiftBackUnits
+                            - cachedPreviousResult_notFilteringDuplicates.size();
+                    if (duplicatesRemaining > 0) {
+                        final Entry<FDate, V> toBeDuplicated = cachedPreviousResult_filteringDuplicates.get(0);
+                        for (int i = 0; i < duplicatesRemaining; i++) {
+                            cachedPreviousResult_notFilteringDuplicates.add(0, toBeDuplicated);
+                        }
+                    }
+                }
             }
             final int toIndex = cachedPreviousResult_notFilteringDuplicates.size();
             final int fromIndex = Math.max(0, toIndex - shiftBackUnits);
@@ -187,7 +200,7 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
             final boolean filterDuplicateKeys) {
         if (filterDuplicateKeys) {
             cachedPreviousResult_filteringDuplicates = result;
-            cachedPreviousResult_notFilteringDuplicates = result;
+            cachedPreviousResult_notFilteringDuplicates = null;
             cachedPreviousResult_shiftBackUnits = shiftBackUnits;
         } else {
             cachedPreviousResult_filteringDuplicates = null;
