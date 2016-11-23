@@ -109,7 +109,11 @@ public class DecimalAggregateInterpolations<E extends ADecimal<E>> {
         return interpolate(config, xval, yval, interpolator);
     }
 
-    private void calculateCurve(final List<Double> xval, final List<Double> yval, final Curve curve) {
+    /**
+     * Synchronized since BSpline and BezierCurve are not thread-safe since they have static arrays...
+     */
+    private static synchronized void calculateCurve(final List<Double> xval, final List<Double> yval,
+            final Curve curve) {
         final MultiPath mp = new MultiPath(2);
         curve.appendTo(mp);
         xval.clear();
