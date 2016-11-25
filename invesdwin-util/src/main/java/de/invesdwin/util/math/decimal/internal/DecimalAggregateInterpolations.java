@@ -110,10 +110,9 @@ public class DecimalAggregateInterpolations<E extends ADecimal<E>> {
     }
 
     /**
-     * Synchronized since BSpline and BezierCurve are not thread-safe since they have static arrays...
+     * CurvesAPI has been patched to be thread safe in this usage scenario
      */
-    private static synchronized void calculateCurve(final List<Double> xval, final List<Double> yval,
-            final Curve curve) {
+    private void calculateCurve(final List<Double> xval, final List<Double> yval, final Curve curve) {
         final MultiPath mp = new MultiPath(2);
         curve.appendTo(mp);
         xval.clear();
