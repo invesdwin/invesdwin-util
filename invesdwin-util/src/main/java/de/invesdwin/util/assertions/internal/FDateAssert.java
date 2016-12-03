@@ -73,7 +73,7 @@ public class FDateAssert extends AbstractAssert<FDateAssert, FDate> {
         }
     };
     @VisibleForTesting
-    FDates dates = FDates.instance();
+    FDatesAssertions dates = FDatesAssertions.instance();
 
     public FDateAssert(final FDate actual) {
         this(actual, FDateAssert.class);
@@ -509,10 +509,10 @@ public class FDateAssert extends AbstractAssert<FDateAssert, FDate> {
      * </ul>
      *
      * @param datesAsString
-     *            the given FDates represented as String in default or custom date format.
+     *            the given FDatesAssertions represented as String in default or custom date format.
      * @return this assertion object.
      * @throws AssertionError
-     *             if actual is not in given FDates represented as String.
+     *             if actual is not in given FDatesAssertions represented as String.
      * @throws AssertionError
      *             if one of the given date as String could not be converted to a FDate.
      */
@@ -561,10 +561,10 @@ public class FDateAssert extends AbstractAssert<FDateAssert, FDate> {
      * <code>isIn(Collection&lt;FDate&gt;)</code> since java collection type are erased at runtime.
      *
      * @param datesAsString
-     *            the given FDates represented as String in default or custom date format.
+     *            the given FDatesAssertions represented as String in default or custom date format.
      * @return this assertion object.
      * @throws AssertionError
-     *             if actual is not in given FDates represented as String.
+     *             if actual is not in given FDatesAssertions represented as String.
      * @throws AssertionError
      *             if one of the given date as String could not be converted to a FDate.
      */
@@ -608,10 +608,10 @@ public class FDateAssert extends AbstractAssert<FDateAssert, FDate> {
      * </ul>
      *
      * @param datesAsString
-     *            the given FDates represented as String in default or custom date format.
+     *            the given FDatesAssertions represented as String in default or custom date format.
      * @return this assertion object.
      * @throws AssertionError
-     *             if actual is in given FDates represented as String.
+     *             if actual is in given FDatesAssertions represented as String.
      * @throws AssertionError
      *             if one of the given date as String could not be converted to a FDate.
      */
@@ -657,10 +657,10 @@ public class FDateAssert extends AbstractAssert<FDateAssert, FDate> {
      * as <code>isNotIn(Collection&lt;FDate&gt;)</code> since java collection type are erased at runtime.
      *
      * @param datesAsString
-     *            the given FDates represented as String in default or custom date format.
+     *            the given FDatesAssertions represented as String in default or custom date format.
      * @return this assertion object.
      * @throws AssertionError
-     *             if actual is in given FDates represented as String.
+     *             if actual is in given FDatesAssertions represented as String.
      * @throws AssertionError
      *             if one of the given date as String could not be converted to a FDate.
      */
@@ -1884,7 +1884,7 @@ public class FDateAssert extends AbstractAssert<FDateAssert, FDate> {
      * assertThat(myFDate).isWithinHour(hourOfDayOf(otherFDate))
      * </pre>
      * 
-     * see {@link org.assertj.core.util.FDates#hourOfDayOf(java.util.FDate) hourOfDayOf} to get the hour of a given
+     * see {@link org.assertj.core.util.FDatesAssertions#hourOfDayOf(java.util.FDate) hourOfDayOf} to get the hour of a given
      * FDate.
      * <p/>
      * Note that using a custom comparator has no effect on this assertion (see {@link #usingComparator(Comparator)}).
@@ -1967,7 +1967,7 @@ public class FDateAssert extends AbstractAssert<FDateAssert, FDate> {
      * <p/>
      * If you want to compare hour only (without day, month and year), you could write :
      * <code>assertThat(myFDate).isWithinHour(hourOfDayOf(otherFDate))</code><br>
-     * see {@link org.assertj.core.util.FDates#hourOfDayOf(FDate)} to get the hour of a given FDate.
+     * see {@link org.assertj.core.util.FDatesAssertions#hourOfDayOf(FDate)} to get the hour of a given FDate.
      * <p/>
      * Note that using a custom comparator has no effect on this assertion (see {@link #usingComparator(Comparator)}.
      *
@@ -2138,7 +2138,7 @@ public class FDateAssert extends AbstractAssert<FDateAssert, FDate> {
      * <p/>
      * If you want to compare minute field only (without hour, day, month and year), you could write :
      * <code>assertThat(myFDate).isWithinMinute(minuteOf(otherFDate))</code><br>
-     * using {@link org.assertj.core.util.FDates#minuteOf(FDate)} to get the minute of a given FDate.
+     * using {@link org.assertj.core.util.FDatesAssertions#minuteOf(FDate)} to get the minute of a given FDate.
      * <p/>
      * Note that using a custom comparator has no effect on this assertion (see {@link #usingComparator(Comparator)}).
      *
@@ -2308,7 +2308,7 @@ public class FDateAssert extends AbstractAssert<FDateAssert, FDate> {
      * <p/>
      * If you want to compare second fields only (without minute, hour, day, month and year), you could write :
      * <code>assertThat(myFDate).isWithinSecond(secondOf(otherFDate))</code><br>
-     * using {@link org.assertj.core.util.FDates#secondOf(FDate)} to get the second of a given FDate.
+     * using {@link org.assertj.core.util.FDatesAssertions#secondOf(FDate)} to get the second of a given FDate.
      * <p/>
      * Note that using a custom comparator has no effect on this assertion (see {@link #usingComparator(Comparator)}).
      *
@@ -2719,14 +2719,14 @@ public class FDateAssert extends AbstractAssert<FDateAssert, FDate> {
     @Override
     public FDateAssert usingComparator(final Comparator<? super FDate> customComparator) {
         super.usingComparator(customComparator);
-        this.dates = new FDates(new ComparatorBasedComparisonStrategy(customComparator));
+        this.dates = new FDatesAssertions(new ComparatorBasedComparisonStrategy(customComparator));
         return myself;
     }
 
     @Override
     public FDateAssert usingDefaultComparator() {
         super.usingDefaultComparator();
-        this.dates = FDates.instance();
+        this.dates = FDatesAssertions.instance();
         return myself;
     }
 

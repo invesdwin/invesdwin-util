@@ -8,6 +8,7 @@ import javax.annotation.concurrent.ThreadSafe;
 import de.invesdwin.util.concurrent.Executors;
 import de.invesdwin.util.time.duration.Duration;
 import de.invesdwin.util.time.fdate.FDate;
+import de.invesdwin.util.time.fdate.FDates;
 import de.invesdwin.util.time.fdate.FTimeUnit;
 
 @ThreadSafe
@@ -48,7 +49,7 @@ public final class HistoricalCacheRefreshManager {
 
     public static boolean maybeRefresh(final Duration refreshInterval) {
         if (new Duration(lastRefresh).isGreaterThanOrEqualTo(refreshInterval)
-                || !FDate.isSameDay(lastRefresh, new FDate())) {
+                || !FDates.isSameDay(lastRefresh, new FDate())) {
             refresh();
             return true;
         }

@@ -1,3 +1,5 @@
+// CHECKSTYLE:OFF file length
+
 package de.invesdwin.util.time.fdate;
 
 import java.time.temporal.ChronoUnit;
@@ -12,9 +14,253 @@ import org.joda.time.DurationFieldType;
 
 import de.invesdwin.util.error.UnknownArgumentException;
 
+// CHECKSTYLE:ON
 @Immutable
 public enum FTimeUnit {
 
+    MILLENIA {
+        @Override
+        public int calendarValue() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public TimeUnit timeUnitValue() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public ChronoUnit javaTimeValue() {
+            return ChronoUnit.MILLENNIA;
+        }
+
+        @Override
+        public DurationFieldType jodaTimeValue() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void sleep(final long timeout) throws InterruptedException {
+            YEARS.sleep(YEARS_IN_MILLENIUM);
+        }
+
+        @Override
+        public long convert(final long duration, final FTimeUnit timeUnit) {
+            return YEARS.convert(duration, timeUnit) / YEARS_IN_MILLENIUM;
+        }
+
+        @Override
+        public long toNanos(final long duration) {
+            return YEARS.toNanos(duration) * YEARS_IN_MILLENIUM;
+        }
+
+        @Override
+        public long toMicros(final long duration) {
+            return YEARS.toMicros(duration) * YEARS_IN_MILLENIUM;
+        }
+
+        @Override
+        public long toMillis(final long duration) {
+            return YEARS.toMillis(duration) * YEARS_IN_MILLENIUM;
+        }
+
+        @Override
+        public long toSeconds(final long duration) {
+            return YEARS.toSeconds(duration) * YEARS_IN_MILLENIUM;
+        }
+
+        @Override
+        public long toMinutes(final long duration) {
+            return YEARS.toMinutes(duration) * YEARS_IN_MILLENIUM;
+        }
+
+        @Override
+        public long toHours(final long duration) {
+            return YEARS.toHours(duration) * YEARS_IN_MILLENIUM;
+        }
+
+        @Override
+        public long toDays(final long duration) {
+            return YEARS.toDays(duration) * YEARS_IN_MILLENIUM;
+        }
+
+        @Override
+        public long toWeeks(final long duration) {
+            return YEARS.toWeeks(duration) * YEARS_IN_MILLENIUM;
+        }
+
+        @Override
+        public long toMonths(final long duration) {
+            return YEARS.toMonths(duration * YEARS_IN_MILLENIUM);
+        }
+
+        @Override
+        public long toYears(final long duration) {
+            return duration * YEARS_IN_MILLENIUM;
+        }
+    },
+    CENTURIES {
+        @Override
+        public int calendarValue() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public TimeUnit timeUnitValue() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public ChronoUnit javaTimeValue() {
+            return ChronoUnit.CENTURIES;
+        }
+
+        @Override
+        public DurationFieldType jodaTimeValue() {
+            return DurationFieldType.centuries();
+        }
+
+        @Override
+        public void sleep(final long timeout) throws InterruptedException {
+            YEARS.sleep(YEARS_IN_CENTURY);
+        }
+
+        @Override
+        public long convert(final long duration, final FTimeUnit timeUnit) {
+            return YEARS.convert(duration, timeUnit) / YEARS_IN_CENTURY;
+        }
+
+        @Override
+        public long toNanos(final long duration) {
+            return YEARS.toNanos(duration) * YEARS_IN_CENTURY;
+        }
+
+        @Override
+        public long toMicros(final long duration) {
+            return YEARS.toMicros(duration) * YEARS_IN_CENTURY;
+        }
+
+        @Override
+        public long toMillis(final long duration) {
+            return YEARS.toMillis(duration) * YEARS_IN_CENTURY;
+        }
+
+        @Override
+        public long toSeconds(final long duration) {
+            return YEARS.toSeconds(duration) * YEARS_IN_CENTURY;
+        }
+
+        @Override
+        public long toMinutes(final long duration) {
+            return YEARS.toMinutes(duration) * YEARS_IN_CENTURY;
+        }
+
+        @Override
+        public long toHours(final long duration) {
+            return YEARS.toHours(duration) * YEARS_IN_CENTURY;
+        }
+
+        @Override
+        public long toDays(final long duration) {
+            return YEARS.toDays(duration) * YEARS_IN_CENTURY;
+        }
+
+        @Override
+        public long toWeeks(final long duration) {
+            return YEARS.toWeeks(duration) * YEARS_IN_CENTURY;
+        }
+
+        @Override
+        public long toMonths(final long duration) {
+            return YEARS.toMonths(duration * YEARS_IN_CENTURY);
+        }
+
+        @Override
+        public long toYears(final long duration) {
+            return duration * YEARS_IN_CENTURY;
+        }
+    },
+    DECADES {
+        @Override
+        public int calendarValue() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public TimeUnit timeUnitValue() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public ChronoUnit javaTimeValue() {
+            return ChronoUnit.DECADES;
+        }
+
+        @Override
+        public DurationFieldType jodaTimeValue() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void sleep(final long timeout) throws InterruptedException {
+            YEARS.sleep(YEARS_IN_DECADE);
+        }
+
+        @Override
+        public long convert(final long duration, final FTimeUnit timeUnit) {
+            return YEARS.convert(duration, timeUnit) / YEARS_IN_DECADE;
+        }
+
+        @Override
+        public long toNanos(final long duration) {
+            return YEARS.toNanos(duration) * YEARS_IN_DECADE;
+        }
+
+        @Override
+        public long toMicros(final long duration) {
+            return YEARS.toMicros(duration) * YEARS_IN_DECADE;
+        }
+
+        @Override
+        public long toMillis(final long duration) {
+            return YEARS.toMillis(duration) * YEARS_IN_DECADE;
+        }
+
+        @Override
+        public long toSeconds(final long duration) {
+            return YEARS.toSeconds(duration) * YEARS_IN_DECADE;
+        }
+
+        @Override
+        public long toMinutes(final long duration) {
+            return YEARS.toMinutes(duration) * YEARS_IN_DECADE;
+        }
+
+        @Override
+        public long toHours(final long duration) {
+            return YEARS.toHours(duration) * YEARS_IN_DECADE;
+        }
+
+        @Override
+        public long toDays(final long duration) {
+            return YEARS.toDays(duration) * YEARS_IN_DECADE;
+        }
+
+        @Override
+        public long toWeeks(final long duration) {
+            return YEARS.toWeeks(duration) * YEARS_IN_DECADE;
+        }
+
+        @Override
+        public long toMonths(final long duration) {
+            return YEARS.toMonths(duration * YEARS_IN_DECADE);
+        }
+
+        @Override
+        public long toYears(final long duration) {
+            return duration * YEARS_IN_DECADE;
+        }
+    },
     YEARS {
         @Override
         public int calendarValue() {
@@ -837,6 +1083,9 @@ public enum FTimeUnit {
 
     };
 
+    public static final int YEARS_IN_MILLENIUM = 1000;
+    public static final int YEARS_IN_CENTURY = 100;
+    public static final int YEARS_IN_DECADE = 10;
     public static final int DAYS_IN_YEAR = 365;
     public static final int MONTHS_IN_YEAR = 12;
     public static final int DAYS_IN_WEEK = 7;

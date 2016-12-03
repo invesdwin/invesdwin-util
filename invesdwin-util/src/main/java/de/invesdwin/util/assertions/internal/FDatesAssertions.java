@@ -44,6 +44,7 @@ import org.assertj.core.util.DateUtil;
 import org.assertj.core.util.VisibleForTesting;
 
 import de.invesdwin.util.time.fdate.FDate;
+import de.invesdwin.util.time.fdate.FDates;
 
 /**
  * Reusable assertions for <code>{@link FDate}</code>s.
@@ -52,9 +53,9 @@ import de.invesdwin.util.time.fdate.FDate;
  * @author William Delanoue
  */
 @Immutable
-class FDates extends Dates {
+class FDatesAssertions extends Dates {
 
-    private static final FDates INSTANCE = new FDates();
+    private static final FDatesAssertions INSTANCE = new FDatesAssertions();
 
     @VisibleForTesting
     private final Failures failures = Failures.instance();
@@ -62,11 +63,11 @@ class FDates extends Dates {
     private final ComparisonStrategy comparisonStrategy;
 
     @VisibleForTesting
-    FDates() {
+    FDatesAssertions() {
         this(StandardComparisonStrategy.instance());
     }
 
-    public FDates(final ComparisonStrategy comparisonStrategy) {
+    public FDatesAssertions(final ComparisonStrategy comparisonStrategy) {
         super(comparisonStrategy);
         this.comparisonStrategy = comparisonStrategy;
     }
@@ -76,7 +77,7 @@ class FDates extends Dates {
      * 
      * @return the singleton instance of this class.
      */
-    public static FDates instance() {
+    public static FDatesAssertions instance() {
         return INSTANCE;
     }
 
@@ -111,7 +112,7 @@ class FDates extends Dates {
         if (isBefore(actual, other)) {
             return;
         }
-        throw failures.failure(info, shouldBeBefore(FDate.toDate(actual), FDate.toDate(other), comparisonStrategy));
+        throw failures.failure(info, shouldBeBefore(FDates.toDate(actual), FDates.toDate(other), comparisonStrategy));
     }
 
     /**
@@ -137,7 +138,7 @@ class FDates extends Dates {
             return;
         }
         throw failures.failure(info,
-                shouldBeBeforeOrEqualsTo(FDate.toDate(actual), FDate.toDate(other), comparisonStrategy));
+                shouldBeBeforeOrEqualsTo(FDates.toDate(actual), FDates.toDate(other), comparisonStrategy));
     }
 
     /**
@@ -162,7 +163,7 @@ class FDates extends Dates {
         if (isAfter(actual, other)) {
             return;
         }
-        throw failures.failure(info, shouldBeAfter(FDate.toDate(actual), FDate.toDate(other), comparisonStrategy));
+        throw failures.failure(info, shouldBeAfter(FDates.toDate(actual), FDates.toDate(other), comparisonStrategy));
     }
 
     /**
@@ -188,7 +189,7 @@ class FDates extends Dates {
             return;
         }
         throw failures.failure(info,
-                shouldBeAfterOrEqualsTo(FDate.toDate(actual), FDate.toDate(other), comparisonStrategy));
+                shouldBeAfterOrEqualsTo(FDates.toDate(actual), FDates.toDate(other), comparisonStrategy));
     }
 
     /**
@@ -238,8 +239,8 @@ class FDates extends Dates {
             break;
         }
         if (calendarActual.compareTo(calendarOther) != 0) {
-            throw failures.failure(info,
-                    ShouldBeEqualWithTimePrecision.shouldBeEqual(FDate.toDate(actual), FDate.toDate(other), precision));
+            throw failures.failure(info, ShouldBeEqualWithTimePrecision.shouldBeEqual(FDates.toDate(actual),
+                    FDates.toDate(other), precision));
         }
     }
 
@@ -283,8 +284,8 @@ class FDates extends Dates {
         assertNotNull(info, actual);
         startFDateParameterIsNotNull(start);
         endFDateParameterIsNotNull(end);
-        final boolean checkLowerBoundaryPeriod = inclusiveStart ? isAfterOrEqualTo(actual, start) : isAfter(actual,
-                start);
+        final boolean checkLowerBoundaryPeriod = inclusiveStart ? isAfterOrEqualTo(actual, start)
+                : isAfter(actual, start);
         final boolean checkUpperBoundaryPeriod = inclusiveEnd ? isBeforeOrEqualTo(actual, end) : isBefore(actual, end);
         final boolean isBetweenGivenPeriod = checkLowerBoundaryPeriod && checkUpperBoundaryPeriod;
         return isBetweenGivenPeriod;
@@ -321,10 +322,8 @@ class FDates extends Dates {
         if (!actualIsBetweenGivenPeriod(info, actual, start, end, inclusiveStart, inclusiveEnd)) {
             return;
         }
-        throw failures.failure(
-                info,
-                shouldNotBeBetween(FDate.toDate(actual), FDate.toDate(start), FDate.toDate(end), inclusiveStart,
-                        inclusiveEnd, comparisonStrategy));
+        throw failures.failure(info, shouldNotBeBetween(FDates.toDate(actual), FDates.toDate(start), FDates.toDate(end),
+                inclusiveStart, inclusiveEnd, comparisonStrategy));
     }
 
     /**
@@ -344,7 +343,7 @@ class FDates extends Dates {
         if (isBefore(actual, FDate.valueOf(DateUtil.now()))) {
             return;
         }
-        throw failures.failure(info, shouldBeInThePast(FDate.toDate(actual), comparisonStrategy));
+        throw failures.failure(info, shouldBeInThePast(FDates.toDate(actual), comparisonStrategy));
     }
 
     /**
@@ -363,11 +362,11 @@ class FDates extends Dates {
     public void assertIsToday(final AssertionInfo info, final FDate actual) {
         assertNotNull(info, actual);
         final FDate todayWithoutTime = FDate.valueOf(DateUtil.truncateTime(DateUtil.now()));
-        final FDate actualWithoutTime = FDate.valueOf(DateUtil.truncateTime(FDate.toDate(actual)));
+        final FDate actualWithoutTime = FDate.valueOf(DateUtil.truncateTime(FDates.toDate(actual)));
         if (areEqual(actualWithoutTime, todayWithoutTime)) {
             return;
         }
-        throw failures.failure(info, shouldBeToday(FDate.toDate(actual), comparisonStrategy));
+        throw failures.failure(info, shouldBeToday(FDates.toDate(actual), comparisonStrategy));
     }
 
     /**
@@ -387,7 +386,7 @@ class FDates extends Dates {
         if (isAfter(actual, FDate.valueOf(DateUtil.now()))) {
             return;
         }
-        throw failures.failure(info, shouldBeInTheFuture(FDate.toDate(actual), comparisonStrategy));
+        throw failures.failure(info, shouldBeInTheFuture(FDates.toDate(actual), comparisonStrategy));
     }
 
     /**
@@ -406,10 +405,10 @@ class FDates extends Dates {
      */
     public void assertIsBeforeYear(final AssertionInfo info, final FDate actual, final int year) {
         assertNotNull(info, actual);
-        if (DateUtil.yearOf(FDate.toDate(actual)) < year) {
+        if (DateUtil.yearOf(FDates.toDate(actual)) < year) {
             return;
         }
-        throw failures.failure(info, shouldBeBeforeYear(FDate.toDate(actual), year));
+        throw failures.failure(info, shouldBeBeforeYear(FDates.toDate(actual), year));
     }
 
     /**
@@ -428,10 +427,10 @@ class FDates extends Dates {
      */
     public void assertIsAfterYear(final AssertionInfo info, final FDate actual, final int year) {
         assertNotNull(info, actual);
-        if (DateUtil.yearOf(FDate.toDate(actual)) > year) {
+        if (DateUtil.yearOf(FDates.toDate(actual)) > year) {
             return;
         }
-        throw failures.failure(info, shouldBeAfterYear(FDate.toDate(actual), year));
+        throw failures.failure(info, shouldBeAfterYear(FDates.toDate(actual), year));
     }
 
     /**
@@ -450,10 +449,10 @@ class FDates extends Dates {
      */
     public void assertIsWithinYear(final AssertionInfo info, final FDate actual, final int year) {
         assertNotNull(info, actual);
-        if (DateUtil.yearOf(FDate.toDate(actual)) == year) {
+        if (DateUtil.yearOf(FDates.toDate(actual)) == year) {
             return;
         }
-        throw failures.failure(info, shouldBeWithin(FDate.toDate(actual), "year", year));
+        throw failures.failure(info, shouldBeWithin(FDates.toDate(actual), "year", year));
     }
 
     /**
@@ -473,10 +472,10 @@ class FDates extends Dates {
      */
     public void assertIsWithinMonth(final AssertionInfo info, final FDate actual, final int month) {
         assertNotNull(info, actual);
-        if (DateUtil.monthOf(FDate.toDate(actual)) == month) {
+        if (DateUtil.monthOf(FDates.toDate(actual)) == month) {
             return;
         }
-        throw failures.failure(info, shouldBeWithin(FDate.toDate(actual), "month", month));
+        throw failures.failure(info, shouldBeWithin(FDates.toDate(actual), "month", month));
     }
 
     /**
@@ -495,10 +494,10 @@ class FDates extends Dates {
      */
     public void assertIsWithinDayOfMonth(final AssertionInfo info, final FDate actual, final int dayOfMonth) {
         assertNotNull(info, actual);
-        if (DateUtil.dayOfMonthOf(FDate.toDate(actual)) == dayOfMonth) {
+        if (DateUtil.dayOfMonthOf(FDates.toDate(actual)) == dayOfMonth) {
             return;
         }
-        throw failures.failure(info, shouldBeWithin(FDate.toDate(actual), "day of month", dayOfMonth));
+        throw failures.failure(info, shouldBeWithin(FDates.toDate(actual), "day of month", dayOfMonth));
     }
 
     /**
@@ -517,10 +516,10 @@ class FDates extends Dates {
      */
     public void assertIsWithinDayOfWeek(final AssertionInfo info, final FDate actual, final int dayOfWeek) {
         assertNotNull(info, actual);
-        if (DateUtil.dayOfWeekOf(FDate.toDate(actual)) == dayOfWeek) {
+        if (DateUtil.dayOfWeekOf(FDates.toDate(actual)) == dayOfWeek) {
             return;
         }
-        throw failures.failure(info, shouldBeWithin(FDate.toDate(actual), "day of week", dayOfWeek));
+        throw failures.failure(info, shouldBeWithin(FDates.toDate(actual), "day of week", dayOfWeek));
     }
 
     /**
@@ -539,10 +538,10 @@ class FDates extends Dates {
      */
     public void assertIsWithinHourOfDay(final AssertionInfo info, final FDate actual, final int hourOfDay) {
         assertNotNull(info, actual);
-        if (DateUtil.hourOfDayOf(FDate.toDate(actual)) == hourOfDay) {
+        if (DateUtil.hourOfDayOf(FDates.toDate(actual)) == hourOfDay) {
             return;
         }
-        throw failures.failure(info, shouldBeWithin(FDate.toDate(actual), "hour", hourOfDay));
+        throw failures.failure(info, shouldBeWithin(FDates.toDate(actual), "hour", hourOfDay));
     }
 
     /**
@@ -561,10 +560,10 @@ class FDates extends Dates {
      */
     public void assertIsWithinMinute(final AssertionInfo info, final FDate actual, final int minute) {
         assertNotNull(info, actual);
-        if (DateUtil.minuteOf(FDate.toDate(actual)) == minute) {
+        if (DateUtil.minuteOf(FDates.toDate(actual)) == minute) {
             return;
         }
-        throw failures.failure(info, shouldBeWithin(FDate.toDate(actual), "minute", minute));
+        throw failures.failure(info, shouldBeWithin(FDates.toDate(actual), "minute", minute));
     }
 
     /**
@@ -583,10 +582,10 @@ class FDates extends Dates {
      */
     public void assertIsWithinSecond(final AssertionInfo info, final FDate actual, final int second) {
         assertNotNull(info, actual);
-        if (DateUtil.secondOf(FDate.toDate(actual)) == second) {
+        if (DateUtil.secondOf(FDates.toDate(actual)) == second) {
             return;
         }
-        throw failures.failure(info, shouldBeWithin(FDate.toDate(actual), "second", second));
+        throw failures.failure(info, shouldBeWithin(FDates.toDate(actual), "second", second));
     }
 
     /**
@@ -605,10 +604,10 @@ class FDates extends Dates {
      */
     public void assertIsWithinMillisecond(final AssertionInfo info, final FDate actual, final int millisecond) {
         assertNotNull(info, actual);
-        if (DateUtil.millisecondOf(FDate.toDate(actual)) == millisecond) {
+        if (DateUtil.millisecondOf(FDates.toDate(actual)) == millisecond) {
             return;
         }
-        throw failures.failure(info, shouldBeWithin(FDate.toDate(actual), "millisecond", millisecond));
+        throw failures.failure(info, shouldBeWithin(FDates.toDate(actual), "millisecond", millisecond));
     }
 
     /**
@@ -633,7 +632,7 @@ class FDates extends Dates {
         if (areInSameYear(actual, other)) {
             return;
         }
-        throw failures.failure(info, shouldBeInSameYear(FDate.toDate(actual), FDate.toDate(other)));
+        throw failures.failure(info, shouldBeInSameYear(FDates.toDate(actual), FDates.toDate(other)));
     }
 
     /**
@@ -646,7 +645,7 @@ class FDates extends Dates {
      * @return true if both date are in the same year, false otherwise
      */
     private static boolean areInSameYear(final FDate actual, final FDate other) {
-        return DateUtil.yearOf(FDate.toDate(actual)) == DateUtil.yearOf(FDate.toDate(other));
+        return DateUtil.yearOf(FDates.toDate(actual)) == DateUtil.yearOf(FDates.toDate(other));
     }
 
     /**
@@ -671,7 +670,7 @@ class FDates extends Dates {
         if (areInSameMonth(actual, other)) {
             return;
         }
-        throw failures.failure(info, shouldBeInSameMonth(FDate.toDate(actual), FDate.toDate(other)));
+        throw failures.failure(info, shouldBeInSameMonth(FDates.toDate(actual), FDates.toDate(other)));
     }
 
     /**
@@ -685,7 +684,7 @@ class FDates extends Dates {
      */
     private static boolean areInSameMonth(final FDate actual, final FDate other) {
         return areInSameYear(actual, other)
-                && DateUtil.monthOf(FDate.toDate(actual)) == DateUtil.monthOf(FDate.toDate(other));
+                && DateUtil.monthOf(FDates.toDate(actual)) == DateUtil.monthOf(FDates.toDate(other));
     }
 
     /**
@@ -711,7 +710,7 @@ class FDates extends Dates {
         if (areInSameDayOfMonth(actual, other)) {
             return;
         }
-        throw failures.failure(info, shouldBeInSameDay(FDate.toDate(actual), FDate.toDate(other)));
+        throw failures.failure(info, shouldBeInSameDay(FDates.toDate(actual), FDates.toDate(other)));
     }
 
     /**
@@ -725,7 +724,7 @@ class FDates extends Dates {
      */
     private static boolean areInSameDayOfMonth(final FDate actual, final FDate other) {
         return areInSameMonth(actual, other)
-                && DateUtil.dayOfMonthOf(FDate.toDate(actual)) == DateUtil.dayOfMonthOf(FDate.toDate(other));
+                && DateUtil.dayOfMonthOf(FDates.toDate(actual)) == DateUtil.dayOfMonthOf(FDates.toDate(other));
     }
 
     /**
@@ -751,7 +750,7 @@ class FDates extends Dates {
         if (areInSameHour(actual, other)) {
             return;
         }
-        throw failures.failure(info, shouldBeInSameHour(FDate.toDate(actual), FDate.toDate(other)));
+        throw failures.failure(info, shouldBeInSameHour(FDates.toDate(actual), FDates.toDate(other)));
     }
 
     /**
@@ -776,7 +775,7 @@ class FDates extends Dates {
         if (areInSameHourWindow(actual, other)) {
             return;
         }
-        throw failures.failure(info, shouldBeInSameHourWindow(FDate.toDate(actual), FDate.toDate(other)));
+        throw failures.failure(info, shouldBeInSameHourWindow(FDates.toDate(actual), FDates.toDate(other)));
     }
 
     /**
@@ -789,7 +788,7 @@ class FDates extends Dates {
      * @return true if both date are in the same year, month and day of month, hour, minute and second, false otherwise.
      */
     private static boolean areInSameHourWindow(final FDate actual, final FDate other) {
-        return DateUtil.timeDifference(FDate.toDate(actual), FDate.toDate(other)) < TimeUnit.HOURS.toMillis(1);
+        return DateUtil.timeDifference(FDates.toDate(actual), FDates.toDate(other)) < TimeUnit.HOURS.toMillis(1);
     }
 
     /**
@@ -803,7 +802,7 @@ class FDates extends Dates {
      */
     private static boolean areInSameHour(final FDate actual, final FDate other) {
         return areInSameDayOfMonth(actual, other)
-                && DateUtil.hourOfDayOf(FDate.toDate(actual)) == DateUtil.hourOfDayOf(FDate.toDate(other));
+                && DateUtil.hourOfDayOf(FDates.toDate(actual)) == DateUtil.hourOfDayOf(FDates.toDate(other));
     }
 
     /**
@@ -828,7 +827,7 @@ class FDates extends Dates {
         if (areInSameMinute(actual, other)) {
             return;
         }
-        throw failures.failure(info, shouldBeInSameMinute(FDate.toDate(actual), FDate.toDate(other)));
+        throw failures.failure(info, shouldBeInSameMinute(FDates.toDate(actual), FDates.toDate(other)));
     }
 
     /**
@@ -853,7 +852,7 @@ class FDates extends Dates {
         if (areInSameMinuteWindow(actual, other)) {
             return;
         }
-        throw failures.failure(info, shouldBeInSameMinuteWindow(FDate.toDate(actual), FDate.toDate(other)));
+        throw failures.failure(info, shouldBeInSameMinuteWindow(FDates.toDate(actual), FDates.toDate(other)));
     }
 
     /**
@@ -867,11 +866,11 @@ class FDates extends Dates {
      */
     private static boolean areInSameMinute(final FDate actual, final FDate other) {
         return areInSameHour(actual, other)
-                && DateUtil.minuteOf(FDate.toDate(actual)) == DateUtil.minuteOf(FDate.toDate(other));
+                && DateUtil.minuteOf(FDates.toDate(actual)) == DateUtil.minuteOf(FDates.toDate(other));
     }
 
     private static boolean areInSameMinuteWindow(final FDate actual, final FDate other) {
-        return DateUtil.timeDifference(FDate.toDate(actual), FDate.toDate(other)) < TimeUnit.MINUTES.toMillis(1);
+        return DateUtil.timeDifference(FDates.toDate(actual), FDates.toDate(other)) < TimeUnit.MINUTES.toMillis(1);
     }
 
     /**
@@ -896,7 +895,7 @@ class FDates extends Dates {
         if (areInSameSecond(actual, other)) {
             return;
         }
-        throw failures.failure(info, shouldBeInSameSecond(FDate.toDate(actual), FDate.toDate(other)));
+        throw failures.failure(info, shouldBeInSameSecond(FDates.toDate(actual), FDates.toDate(other)));
     }
 
     /**
@@ -921,7 +920,7 @@ class FDates extends Dates {
         if (areInSameSecondWindow(actual, other)) {
             return;
         }
-        throw failures.failure(info, shouldBeInSameSecondWindow(FDate.toDate(actual), FDate.toDate(other)));
+        throw failures.failure(info, shouldBeInSameSecondWindow(FDates.toDate(actual), FDates.toDate(other)));
     }
 
     /**
@@ -934,7 +933,7 @@ class FDates extends Dates {
      * @return true if both date are in the same year, month and day of month, hour, minute and second, false otherwise.
      */
     private static boolean areInSameSecondWindow(final FDate actual, final FDate other) {
-        return DateUtil.timeDifference(FDate.toDate(actual), FDate.toDate(other)) < TimeUnit.SECONDS.toMillis(1);
+        return DateUtil.timeDifference(FDates.toDate(actual), FDates.toDate(other)) < TimeUnit.SECONDS.toMillis(1);
     }
 
     /**
@@ -948,7 +947,7 @@ class FDates extends Dates {
      */
     private static boolean areInSameSecond(final FDate actual, final FDate other) {
         return areInSameMinute(actual, other)
-                && DateUtil.secondOf(FDate.toDate(actual)) == DateUtil.secondOf(FDate.toDate(other));
+                && DateUtil.secondOf(FDates.toDate(actual)) == DateUtil.secondOf(FDates.toDate(other));
     }
 
     /**
@@ -982,7 +981,7 @@ class FDates extends Dates {
             return;
         }
         throw failures.failure(info,
-                shouldBeCloseTo(FDate.toDate(actual), FDate.toDate(other), deltaInMilliseconds, difference));
+                shouldBeCloseTo(FDates.toDate(actual), FDates.toDate(other), deltaInMilliseconds, difference));
     }
 
     /**
@@ -1004,7 +1003,7 @@ class FDates extends Dates {
         if (actual.millisValue() == timestamp) {
             return;
         }
-        throw failures.failure(info, shouldHaveTime(FDate.toDate(actual), timestamp));
+        throw failures.failure(info, shouldHaveTime(FDates.toDate(actual), timestamp));
     }
 
     /**

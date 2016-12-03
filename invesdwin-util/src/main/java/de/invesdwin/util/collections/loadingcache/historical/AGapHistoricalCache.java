@@ -8,6 +8,7 @@ import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
 import de.invesdwin.util.collections.loadingcache.historical.internal.AGapHistoricalCacheMissCounter;
 import de.invesdwin.util.time.duration.Duration;
 import de.invesdwin.util.time.fdate.FDate;
+import de.invesdwin.util.time.fdate.FDates;
 import de.invesdwin.util.time.fdate.FTimeUnit;
 
 /**
@@ -290,9 +291,9 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
             final FDate keyForReadAllValues;
             if (newMinKey && minKeyInDBFromLoadFurtherValues != null && key.isBefore(minKeyInDBFromLoadFurtherValues)) {
                 //performance optimization for first load
-                keyForReadAllValues = FDate.min(minKeyInDB, FDate.max(minKeyInDB, adjustedKey));
+                keyForReadAllValues = FDates.min(minKeyInDB, FDates.max(minKeyInDB, adjustedKey));
             } else {
-                keyForReadAllValues = FDate.max(minKeyInDB, adjustedKey);
+                keyForReadAllValues = FDates.max(minKeyInDB, adjustedKey);
             }
             furtherValues.clear();
             lastValuesFromFurtherValues.clear();
@@ -339,7 +340,7 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
 
     private boolean isMinKeyInDBFromLoadFurtherValues() {
         return minKeyInDBFromLoadFurtherValues != null
-                && FDate.isSameMillisecond(minKeyInDBFromLoadFurtherValues, minKeyInDB);
+                && FDates.isSameMillisecond(minKeyInDBFromLoadFurtherValues, minKeyInDB);
     }
 
     private void assertFurtherValuesSorting(final FDate key) {
@@ -354,12 +355,12 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
         if (minKeyInDB == null || firstKey.compareTo(minKey) <= -1) {
             minKeyInDB = firstKey;
         }
-        minKeyInDBFromLoadFurtherValues = FDate.min(minKeyInDBFromLoadFurtherValues, firstKey);
+        minKeyInDBFromLoadFurtherValues = FDates.min(minKeyInDBFromLoadFurtherValues, firstKey);
         final FDate lastKey = extractKey(key, furtherValues.getTail());
         if (maxKeyInDB == null || lastKey.compareTo(maxKeyInDB) <= -1) {
-            maxKeyInDB = FDate.max(maxKeyInDB, lastKey);
+            maxKeyInDB = FDates.max(maxKeyInDB, lastKey);
         }
-        maxKeyInDBFromLoadFurtherValues = FDate.max(maxKeyInDBFromLoadFurtherValues, lastKey);
+        maxKeyInDBFromLoadFurtherValues = FDates.max(maxKeyInDBFromLoadFurtherValues, lastKey);
 
         if (furtherValues.size() > 1) {
             Assertions.checkState(firstKey.compareTo(lastKey) <= 0,
@@ -411,7 +412,7 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
 
                 if (furtherValues.isEmpty() && newValueKey.isBefore(maxKeyInDB) && key.isBefore(maxKeyInDB)
                         && maxKeyInDBFromLoadFurtherValues.isBefore(maxKeyInDB)) {
-                    final FDate timeForLoadFurtherValues = FDate.max(newValueKey, earliestStartOfLoadFurtherValues);
+                    final FDate timeForLoadFurtherValues = FDates.max(newValueKey, earliestStartOfLoadFurtherValues);
                     Assertions.checkState(eventuallyLoadFurtherValues("searchInFurtherValues", newValueKey,
                             timeForLoadFurtherValues, false, true));
                     if (!furtherValues.isEmpty()) {
