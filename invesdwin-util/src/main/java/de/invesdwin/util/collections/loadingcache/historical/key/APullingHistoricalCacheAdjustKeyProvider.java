@@ -48,7 +48,7 @@ public abstract class APullingHistoricalCacheAdjustKeyProvider implements IHisto
                     }
                 }
             } finally {
-                alreadyAdjustingKey.set(false);
+                alreadyAdjustingKey.remove();
             }
         } else {
             rememberKeyToRemove(key);
