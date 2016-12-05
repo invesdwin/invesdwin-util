@@ -130,9 +130,9 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
                 updateCachedPreviousResult(shiftBackUnits, result, filterDuplicateKeys);
                 return result;
             }
-        } else if (adjKey.isBeforeOrEqual(cachedPreviousEntriesKey)
-                && adjKey.isAfterOrEqual(getFirstCachedEntry().getKey())
-                && adjKey.isBeforeOrEqual(getLastCachedEntry().getKey())) {
+        } else if (adjKey.isBeforeOrEqualTo(cachedPreviousEntriesKey)
+                && adjKey.isAfterOrEqualTo(getFirstCachedEntry().getKey())
+                && adjKey.isBeforeOrEqualTo(getLastCachedEntry().getKey())) {
             final List<Entry<FDate, V>> trailing = newEntriesList(query, shiftBackUnits, filterDuplicateKeys);
             return cachedGetPreviousEntries_decrementedKey(query, shiftBackUnits, adjKey, trailing);
         } else {

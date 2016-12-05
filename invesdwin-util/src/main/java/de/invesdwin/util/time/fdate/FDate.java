@@ -547,7 +547,7 @@ public final class FDate implements IDate, Serializable, Cloneable, Comparable<O
         return other != null && compareTo(other) < 0;
     }
 
-    public boolean isBeforeOrEqual(final FDate other) {
+    public boolean isBeforeOrEqualTo(final FDate other) {
         return other != null && !isAfter(other);
     }
 
@@ -555,7 +555,7 @@ public final class FDate implements IDate, Serializable, Cloneable, Comparable<O
         return other != null && compareTo(other) > 0;
     }
 
-    public boolean isAfterOrEqual(final FDate other) {
+    public boolean isAfterOrEqualTo(final FDate other) {
         return other != null && !isBefore(other);
     }
 

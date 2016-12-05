@@ -72,7 +72,7 @@ public class FilterDuplicateKeysList<V> extends ADelegateList<Entry<FDate, V>> {
         final Entry<FDate, V> highestEntryLast = cList.get(highestIndexLast);
         final int lowestIndexFirst = 0;
         final Entry<FDate, V> lowestEntryFirst = cList.get(lowestIndexFirst);
-        if (highestEntryLast.getKey().isBeforeOrEqual(lowestEntryFirst.getKey())) {
+        if (highestEntryLast.getKey().isBeforeOrEqualTo(lowestEntryFirst.getKey())) {
             throw new IllegalArgumentException("Expecting ascending order: first[" + lowestEntryFirst.getKey()
                     + "] < last[" + highestEntryLast.getKey() + "]");
         }

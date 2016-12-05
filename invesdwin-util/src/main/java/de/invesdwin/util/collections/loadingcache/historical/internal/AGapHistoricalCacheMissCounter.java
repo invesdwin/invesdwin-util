@@ -24,7 +24,7 @@ public abstract class AGapHistoricalCacheMissCounter<V> {
     private long optimiumReadBackStepMillis = getReadBackStepMillis();
 
     public void checkSuccessiveCacheEvictions(final FDate key) {
-        if (key.isBeforeOrEqual(successiveCacheEvictionsToMinKey)) {
+        if (key.isBeforeOrEqualTo(successiveCacheEvictionsToMinKey)) {
             if (successiveCacheEvictionsFromMaxKey == null) {
                 successiveCacheEvictionsFromMaxKey = key;
             }

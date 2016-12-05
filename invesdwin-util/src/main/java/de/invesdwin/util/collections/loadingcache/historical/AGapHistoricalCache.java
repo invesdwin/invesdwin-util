@@ -176,7 +176,7 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
         if (mightBeEvictedAfterFurtherValues) {
             final FDate valueKey = extractKey(key, value);
             final boolean isEvictedAfterCurrentFurtherValues = valueKey.isBefore(key)
-                    && valueKey.isBeforeOrEqual(maxKeyInDB);
+                    && valueKey.isBeforeOrEqualTo(maxKeyInDB);
             if (isEvictedAfterCurrentFurtherValues) {
                 return true;
             }
@@ -320,8 +320,8 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
             final V head = lastValuesFromFurtherValues.getHead();
             final FDate tailKey = extractKey(key, tail);
             final FDate headKey = extractKey(key, head);
-            final boolean isEndReachedAnyway = tailKey.equals(maxKeyInDB) && key.isBeforeOrEqual(maxKeyInDB)
-                    && headKey.isBeforeOrEqual(key);
+            final boolean isEndReachedAnyway = tailKey.equals(maxKeyInDB) && key.isBeforeOrEqualTo(maxKeyInDB)
+                    && headKey.isBeforeOrEqualTo(key);
             return !isEndReachedAnyway;
         }
         final boolean keyIsBeforeMinKeyFromLoadFurtherValues = newMinKey
@@ -377,7 +377,7 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
             //though maybe use the last one for smaller increments than the data itself is loaded
             for (final V lastValueFromFurtherValues : lastValuesFromFurtherValues) {
                 final FDate keyLastValueFromFurtherValues = extractKey(key, lastValueFromFurtherValues);
-                if (keyLastValueFromFurtherValues.isBeforeOrEqual(key)) {
+                if (keyLastValueFromFurtherValues.isBeforeOrEqualTo(key)) {
                     prevValue = lastValueFromFurtherValues;
                     prevKey = keyLastValueFromFurtherValues;
                 } else {
@@ -463,7 +463,7 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
         }
 
         //with maxKey
-        if (newMaxKey && previousMaxKey != null && containsKey(previousMaxKey) && key.isAfterOrEqual(maxKeyInDB)) {
+        if (newMaxKey && previousMaxKey != null && containsKey(previousMaxKey) && key.isAfterOrEqualTo(maxKeyInDB)) {
             //use the last maxKey
             //because this one is behind it and not a new one
             //thus working if the db does not have further values
