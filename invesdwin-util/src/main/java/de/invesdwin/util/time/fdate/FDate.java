@@ -88,6 +88,7 @@ public final class FDate implements IDate, Serializable, Cloneable, Comparable<O
     public static final String FORMAT_TIMESTAMP_NUMBER = "yyyyMMddHHmmssSSS";
     public static final String FORMAT_TIMESTAMP_UNDERSCORE = "yyyy_MM_dd_HH_mm_ss_SSS";
     public static final String FORMAT_GERMAN_DATE = "dd.MM.yyyy";
+    public static final String FORMAT_GERMAN_DATE_TIME = FORMAT_GERMAN_DATE + " " + FORMAT_ISO_TIME;
 
     public static final ADelegateComparator<FDate> DATE_COMPARATOR = new ADelegateComparator<FDate>() {
         @Override
