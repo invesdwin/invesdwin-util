@@ -1,4 +1,4 @@
-package de.invesdwin.util.collections;
+package de.invesdwin.util.collections.loadingcache.historical.query.internal;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -9,6 +9,8 @@ import java.util.Map.Entry;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.util.collections.ADelegateList;
+import de.invesdwin.util.collections.Lists;
 import de.invesdwin.util.time.fdate.FDate;
 
 /**

@@ -9,7 +9,6 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import com.google.common.base.Optional;
 
-import de.invesdwin.util.collections.FilterDuplicateKeysList;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.collections.iterable.WrapperCloseableIterator;
