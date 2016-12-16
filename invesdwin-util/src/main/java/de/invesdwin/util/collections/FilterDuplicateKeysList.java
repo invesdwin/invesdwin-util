@@ -1,4 +1,4 @@
-package de.invesdwin.util.collections.loadingcache.historical.query.internal;
+package de.invesdwin.util.collections;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -9,8 +9,6 @@ import java.util.Map.Entry;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import de.invesdwin.util.collections.ADelegateList;
-import de.invesdwin.util.collections.Lists;
 import de.invesdwin.util.time.fdate.FDate;
 
 /**
@@ -30,6 +28,14 @@ public class FilterDuplicateKeysList<V> extends ADelegateList<Entry<FDate, V>> {
     @Override
     protected List<Entry<FDate, V>> newDelegate() {
         return new ArrayList<Entry<FDate, V>>(initialCapacity);
+    }
+
+    public Entry<FDate, V> getMinEntry() {
+        return minEntry;
+    }
+
+    public Entry<FDate, V> getMaxEntry() {
+        return maxEntry;
     }
 
     @Override

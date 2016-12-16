@@ -1,4 +1,4 @@
-package de.invesdwin.util.collections.loadingcache.historical.query.internal;
+package de.invesdwin.util.collections;
 
 import java.util.ArrayList;
 import java.util.List;
