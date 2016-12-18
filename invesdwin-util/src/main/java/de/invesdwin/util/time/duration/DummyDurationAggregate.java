@@ -47,4 +47,14 @@ final class DummyDurationAggregate implements IDurationAggregate {
         return "[]";
     }
 
+    @Override
+    public Duration avgWeightedAsc() {
+        return null;
+    }
+
+    @Override
+    public Duration avgWeightedDesc() {
+        return null;
+    }
+
 }

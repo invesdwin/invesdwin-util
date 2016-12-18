@@ -21,4 +21,8 @@ public interface IDurationAggregate {
 
     List<? extends Duration> values();
 
+    Duration avgWeightedAsc();
+
+    Duration avgWeightedDesc();
+
 }

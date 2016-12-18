@@ -10,29 +10,38 @@ import de.invesdwin.util.collections.Lists;
 @Immutable
 class DurationAggregate implements IDurationAggregate {
 
-    private Duration converter;
     private final List<? extends Duration> values;
 
     DurationAggregate(final List<? extends Duration> values) {
         this.values = values;
     }
 
-    private Duration getConverter() {
-        if (converter == null) {
-            for (final Duration scaledValue : values) {
-                if (scaledValue != null) {
-                    converter = scaledValue;
-                    break;
-                }
-            }
-        }
-        return converter;
-
-    }
-
     @Override
     public IDurationAggregate reverse() {
         return new DurationAggregate(Lists.reverse(values));
+    }
+
+    /**
+     * Returns a weighted average where the first value has the least weight and the last value has the highest weight.
+     */
+    @Override
+    public Duration avgWeightedAsc() {
+        return reverse().avgWeightedDesc();
+    }
+
+    /**
+     * Returns a weighted average where the first value has the highest weight and the last value has the least weight.
+     */
+    @Override
+    public Duration avgWeightedDesc() {
+        int sumOfWeights = 0;
+        Duration sumOfWeightedValues = Duration.ZERO;
+        for (int i = 0, weight = count(); i < count(); i++, weight--) {
+            final Duration weightedValue = values.get(i).multiply(weight);
+            sumOfWeights += weight;
+            sumOfWeightedValues = sumOfWeightedValues.add(weightedValue);
+        }
+        return sumOfWeightedValues.divide(sumOfWeights);
     }
 
     @Override
@@ -89,6 +98,10 @@ class DurationAggregate implements IDurationAggregate {
     @Override
     public List<? extends Duration> values() {
         return Collections.unmodifiableList(values);
+    }
+
+    public int count() {
+        return values.size();
     }
 
     @Override
