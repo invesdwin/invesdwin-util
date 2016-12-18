@@ -156,4 +156,12 @@ public abstract class ADelegateComparator<E> implements Comparator<Object> {
                 ADelegateComparator.class);
     }
 
+    public void sortDescending(final List<E> list) {
+        sort(list, false);
+    }
+
+    public void sortAscending(final List<E> list) {
+        sort(list, true);
+    }
+
 }
