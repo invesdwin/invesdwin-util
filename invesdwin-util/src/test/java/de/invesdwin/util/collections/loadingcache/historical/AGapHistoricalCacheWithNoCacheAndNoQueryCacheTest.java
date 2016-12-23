@@ -9,6 +9,7 @@ import java.util.List;
 
 import javax.annotation.concurrent.ThreadSafe;
 
+import org.apache.commons.lang3.RandomUtils;
 import org.junit.Test;
 
 import com.google.common.collect.Iterables;
@@ -990,6 +991,18 @@ public class AGapHistoricalCacheWithNoCacheAndNoQueryCacheTest {
         Assertions.assertThat(countReadNewestValueTo).isEqualTo(14);
         Assertions.assertThat(countInnerExtractKey).isEqualTo(107);
         Assertions.assertThat(countAdjustKey).isEqualTo(26);
+    }
+
+    @Test
+    public void testRandomizedPreviousValues() {
+        for (int i = 0; i < 100000; i++) {
+            final int keyIndex = RandomUtils.nextInt(0, entities.size());
+            final int shiftBackUnits = RandomUtils.nextInt(1, Math.max(1, keyIndex));
+            final FDate key = entities.get(keyIndex);
+            final Collection<FDate> previousValues = asList(cache.query().getPreviousValues(key, shiftBackUnits));
+            final List<FDate> expectedValues = entities.subList(keyIndex - shiftBackUnits + 1, keyIndex + 1);
+            Assertions.assertThat(previousValues).isEqualTo(expectedValues);
+        }
     }
 
     private class TestGapHistoricalCache extends AGapHistoricalCache<FDate> {

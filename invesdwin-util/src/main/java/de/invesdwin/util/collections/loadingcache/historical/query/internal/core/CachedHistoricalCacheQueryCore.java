@@ -458,6 +458,8 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
         int unitsBack = shiftBackUnits - 1;
         unitsBack = fillFromCacheAsFarAsPossible(trailing, unitsBack, null);
         if (unitsBack == -1) {
+            //maybe cached previous result has smaller shift back
+            resetCachedPreviousResult();
             //we could satisfy the query completely with cached values
             Collections.reverse(trailing);
             //cached values don't have to be updated
