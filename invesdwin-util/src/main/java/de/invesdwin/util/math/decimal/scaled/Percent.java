@@ -10,7 +10,7 @@ import de.invesdwin.util.time.fdate.FTimeUnit;
 
 @SuppressWarnings("serial")
 @Immutable
-public class Percent extends AScaledDecimal<Percent, PercentScale>implements IPercentData {
+public class Percent extends AScaledDecimal<Percent, PercentScale> implements IPercentData {
 
     public static final PercentScale DEFAULT_SCALE;
     public static final Percent ONE_HUNDRED_PERCENT;
@@ -65,6 +65,10 @@ public class Percent extends AScaledDecimal<Percent, PercentScale>implements IPe
     public <T extends AScaledDecimal<T, ?>> Percent(final AScaledDecimal<T, ?> dividend,
             final AScaledDecimal<T, ?> divisor) {
         this(dividend.getDefaultValue().divide(divisor.getDefaultValue()), PercentScale.RATE);
+    }
+
+    public Percent(final Percent percent) {
+        this(percent.getValue(percent.getScale()), percent.getScale());
     }
 
     @Override
