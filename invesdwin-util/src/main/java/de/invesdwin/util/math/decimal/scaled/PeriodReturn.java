@@ -10,7 +10,7 @@ public class PeriodReturn extends Percent {
     private final TimeRange timeRange;
 
     public PeriodReturn(final TimeRange timeRange, final Percent percent) {
-        super(percent.getDefaultValue(), percent.getDefaultScale());
+        super(percent);
         this.timeRange = timeRange;
     }
 
