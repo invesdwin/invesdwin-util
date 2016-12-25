@@ -165,7 +165,7 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
     }
 
     /**
-     * 0 is counted as positive aswell here to make things simpler.
+     * 0 is counted as positive as well here to make things simpler.
      */
     public boolean isPositive() {
         return getImpl().isPositive();

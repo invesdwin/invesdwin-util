@@ -13,6 +13,8 @@ import de.invesdwin.util.time.fdate.FTimeUnit;
 public class Percent extends AScaledDecimal<Percent, PercentScale> implements IPercentData {
 
     public static final PercentScale DEFAULT_SCALE;
+    public static final Percent THREE_HUNDRED_PERCENT;
+    public static final Percent TWO_HUNDRED_PERCENT;
     public static final Percent ONE_HUNDRED_PERCENT;
     public static final Percent FIFTY_PERCENT;
     public static final Percent ZERO_PERCENT;
@@ -20,6 +22,8 @@ public class Percent extends AScaledDecimal<Percent, PercentScale> implements IP
 
     static {
         DEFAULT_SCALE = PercentScale.RATE;
+        THREE_HUNDRED_PERCENT = new Percent(Decimal.THREE, PercentScale.RATE);
+        TWO_HUNDRED_PERCENT = new Percent(Decimal.TWO, PercentScale.RATE);
         ONE_HUNDRED_PERCENT = new Percent(Decimal.ONE, PercentScale.RATE);
         FIFTY_PERCENT = new Percent(new Decimal("50"), PercentScale.PERCENT);
         ZERO_PERCENT = new Percent(Decimal.ZERO, PercentScale.RATE);

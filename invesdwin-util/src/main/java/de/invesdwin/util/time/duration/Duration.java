@@ -443,4 +443,52 @@ public class Duration extends Number implements Comparable<Object> {
         }
     }
 
+    public boolean isZero() {
+        return duration == 0;
+    }
+
+    public final boolean isNotZero() {
+        return !isZero();
+    }
+
+    /**
+     * 0 is counted as positive as well here to make things simpler.
+     */
+    public boolean isPositive() {
+        return duration >= 0;
+    }
+
+    /**
+     * This one excludes 0 from positive.
+     */
+    public boolean isPositiveNonZero() {
+        return isPositive() && !isZero();
+    }
+
+    public boolean isNegative() {
+        return !isPositive();
+    }
+
+    public boolean isNegativeOrZero() {
+        return !isPositiveNonZero();
+    }
+
+    public static Duration zeroToNull(final Duration duration) {
+        if (duration == null) {
+            return null;
+        } else if (duration.isZero()) {
+            return null;
+        } else {
+            return duration;
+        }
+    }
+
+    public static Duration nullToZero(final Duration duration) {
+        if (duration == null) {
+            return Duration.ZERO;
+        } else {
+            return duration;
+        }
+    }
+
 }
