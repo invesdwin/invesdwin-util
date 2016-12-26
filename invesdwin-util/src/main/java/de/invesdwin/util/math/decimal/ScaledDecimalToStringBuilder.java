@@ -61,12 +61,16 @@ public class ScaledDecimalToStringBuilder<T extends AScaledDecimal<T, S>, S exte
     public String getFormat() {
         final int usedDecimalDigits;
         if (decimalDigits == null) {
-            usedDecimalDigits = scale.getDefaultDecimalDigits(parent);
+            usedDecimalDigits = getDefaultDecimalDigits();
         } else {
             usedDecimalDigits = decimalDigits;
         }
         final String formatStr = scale.getFormat(parent, withSymbol, usedDecimalDigits);
         return formatStr;
+    }
+
+    public int getDefaultDecimalDigits() {
+        return scale.getDefaultDecimalDigits(parent);
     }
 
     public String toString(final String format) {
