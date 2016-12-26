@@ -1,18 +1,15 @@
 package de.invesdwin.util.math.decimal;
 
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
-import java.util.regex.Pattern;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.collections.Lists;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
-import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.math.decimal.internal.DecimalAggregate;
 import de.invesdwin.util.math.decimal.internal.DummyDecimalAggregate;
 import de.invesdwin.util.math.decimal.internal.impl.ADecimalImpl;
@@ -133,31 +130,24 @@ public abstract class AScaledDecimal<T extends AScaledDecimal<T, S>, S extends I
     }
 
     @Override
-    public String toString() {
+    public final String toString() {
         return toString(scale);
     }
 
-    public String toString(final boolean withSymbol) {
+    public final String toString(final boolean withSymbol) {
         return toString(scale, withSymbol);
     }
 
-    public String toString(final S scale) {
+    public final String toString(final S scale) {
         return toString(scale, true);
     }
 
-    public String toString(final S scale, final boolean withSymbol) {
-        final String formatStr = scale.getFormat(getGenericThis(), withSymbol);
-        final DecimalFormat format = new DecimalFormat(formatStr, Decimal.DEFAULT_DECIMAL_FORMAT_SYMBOLS);
-        final String str = format.format(getValue(scale).getImpl().numberValue());
-        String negativeZeroMatchStr = "-0([\\.,](0)*)?";
-        if (withSymbol) {
-            negativeZeroMatchStr += Pattern.quote(scale.getSymbol());
-        }
-        if (str.startsWith("-0") && str.matches(negativeZeroMatchStr)) {
-            return Strings.removeStart(str, "-");
-        } else {
-            return str;
-        }
+    public final String toString(final S scale, final boolean withSymbol) {
+        return toStringBuilder().withScale(scale).withSymbol(withSymbol).toString();
+    }
+
+    public ScaledDecimalToStringBuilder<T, S> toStringBuilder() {
+        return new ScaledDecimalToStringBuilder<T, S>(getGenericThis());
     }
 
     public T asScale(final S scale) {

@@ -43,11 +43,15 @@ public enum ByteSizeScale implements IDecimalScale<ByteSize, ByteSizeScale> {
     }
 
     @Override
-    public String getFormat(final ByteSize parent, final boolean withSymbol) {
-        final int scale = getMultiplesOf1024() * SCALE_1024;
+    public int getDefaultDecimalDigits(final ByteSize parent) {
+        return getMultiplesOf1024() * SCALE_1024;
+    }
+
+    @Override
+    public String getFormat(final ByteSize parent, final boolean withSymbol, final int decimalDigits) {
         String format = ",##0";
-        if (scale > 0) {
-            format += "." + Strings.repeat("#", scale);
+        if (decimalDigits > 0) {
+            format += "." + Strings.repeat("#", decimalDigits);
         }
         if (withSymbol && symbol.length() > 0) {
             format += "'" + symbol + "'";

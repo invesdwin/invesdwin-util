@@ -41,11 +41,25 @@ public class PercentTest {
     public void testToString() {
         Assertions.assertThat(new Percent(new Decimal("0.001"), PercentScale.PERCENT).toString(PercentScale.RATE))
                 .isEqualTo("0");
+        Assertions.assertThat(new Percent(new Decimal("0.001"), PercentScale.PERCENT).toStringBuilder()
+                .withScale(PercentScale.RATE)
+                .withDecimalDigits(5)
+                .toString()).isEqualTo("0.00001");
         Assertions.assertThat(new Percent(new Decimal("0.001"), PercentScale.PERCENT).toString(PercentScale.PERCENT))
                 .isEqualTo("0%");
+        Assertions.assertThat(new Percent(new Decimal("0.001"), PercentScale.PERCENT).toStringBuilder()
+                .withScale(PercentScale.PERCENT)
+                .withDecimalDigits(3)
+                .toString()).isEqualTo("0.001%");
         final Percent permilleValue = new Percent(new Decimal("0.001"), PercentScale.PERCENT)
                 .asScale(PercentScale.PERMILLE);
         Assertions.assertThat(permilleValue.toString(PercentScale.PERMILLE))
+                .isEqualTo("0" + PercentScale.PERMILLE.getSymbol());
+        Assertions
+                .assertThat(permilleValue.toStringBuilder()
+                        .withScale(PercentScale.PERMILLE)
+                        .withDecimalDigits(2)
+                        .toString())
                 .isEqualTo("0.01" + PercentScale.PERMILLE.getSymbol());
     }
 }
