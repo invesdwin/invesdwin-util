@@ -22,9 +22,9 @@ public class Decimal extends ADecimal<Decimal> {
 
     public static final DecimalFormatSymbols DEFAULT_DECIMAL_FORMAT_SYMBOLS = DecimalFormatSymbols
             .getInstance(Locale.ENGLISH);
-    public static final String DEFAULT_DECIMAL_FORMAT = "#,##0.##";
+    public static final String DEFAULT_DECIMAL_FORMAT = newDefaultDecimalFormat(2);
     public static final String INTEGER_DECIMAL_FORMAT = "#,##0";
-    public static final String MONEY_DECIMAL_FORMAT = "#,##0.00";
+    public static final String MONEY_DECIMAL_FORMAT = newMoneyDecimalFormat(2);
 
     public static final Decimal MINUS_THREE;
     public static final Decimal MINUS_TWO;
@@ -225,4 +225,19 @@ public class Decimal extends ADecimal<Decimal> {
         }
     }
 
+    public static String newDefaultDecimalFormat(final int decimalDigits) {
+        String format = "#,##0";
+        if (decimalDigits > 0) {
+            format += "." + Strings.repeat("#", decimalDigits);
+        }
+        return format;
+    }
+
+    public static String newMoneyDecimalFormat(final int decimalDigits) {
+        String format = "#,##0";
+        if (decimalDigits > 0) {
+            format += "." + Strings.repeat("0", decimalDigits);
+        }
+        return format;
+    }
 }
