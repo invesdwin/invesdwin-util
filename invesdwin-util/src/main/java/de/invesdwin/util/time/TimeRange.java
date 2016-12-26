@@ -1,5 +1,8 @@
 package de.invesdwin.util.time;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.time.duration.Duration;
@@ -49,4 +52,11 @@ public class TimeRange {
         return new TimeRange(usedFrom, usedTo);
     }
 
+    public static List<Duration> extractDurations(final Iterable<TimeRange> timeRanges) {
+        final List<Duration> durations = new ArrayList<Duration>();
+        for (final TimeRange pr : timeRanges) {
+            durations.add(pr.getDuration());
+        }
+        return durations;
+    }
 }

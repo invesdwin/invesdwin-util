@@ -247,6 +247,10 @@ public abstract class AScaledDecimal<T extends AScaledDecimal<T, S>, S extends I
         return valueOf(Lists.toList(values));
     }
 
+    public static <D extends ADecimal<D>> IDecimalAggregate<D> valueOf(final Iterable<? extends D> values) {
+        return valueOf(Lists.toList(values));
+    }
+
     public static <D extends ADecimal<D>> IDecimalAggregate<D> valueOf(final List<? extends D> values) {
         if (values == null || values.size() == 0) {
             return DummyDecimalAggregate.getInstance();

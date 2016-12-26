@@ -11,7 +11,12 @@ import de.invesdwin.util.math.decimal.Decimal;
 public enum PercentScale implements IDecimalScale<Percent, PercentScale> {
     RATE("Rate", 0, ""),
     PERCENT("Percent", 2, String.valueOf(DecimalFormatSymbols.getInstance().getPercent())),
-    PERMILLE("Permille", 3, String.valueOf(DecimalFormatSymbols.getInstance().getPerMill()));
+    PERMILLE("Permille", 3, String.valueOf(DecimalFormatSymbols.getInstance().getPerMill())) {
+        @Override
+        protected int getFormatDecimalPoints() {
+            return super.getFormatDecimalPoints() + 1;
+        }
+    };
 
     private final String text;
     private final int scale;
@@ -40,7 +45,7 @@ public enum PercentScale implements IDecimalScale<Percent, PercentScale> {
 
     @Override
     public String getFormat(final Percent parent, final boolean withSymbol) {
-        final int scale = PercentScale.PERMILLE.getScale() - getScale() + 1;
+        final int scale = getFormatDecimalPoints();
         String format = ",##0";
         if (scale > 0) {
             format += "." + Strings.repeat("#", scale);
@@ -49,6 +54,10 @@ public enum PercentScale implements IDecimalScale<Percent, PercentScale> {
             format += "'" + symbol + "'";
         }
         return format;
+    }
+
+    protected int getFormatDecimalPoints() {
+        return PercentScale.PERMILLE.getScale() - getScale() + 1;
     }
 
     @Override
