@@ -10,6 +10,7 @@ import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.lang.ADelegateComparator;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.lang.Strings;
+import de.invesdwin.util.math.decimal.Decimal;
 import de.invesdwin.util.time.Instant;
 import de.invesdwin.util.time.fdate.FDate;
 import de.invesdwin.util.time.fdate.FTimeUnit;
@@ -169,13 +170,21 @@ public class Duration extends Number implements Comparable<Object> {
         return Long.valueOf(timeUnit.convert(duration, this.timeUnit)).doubleValue();
     }
 
+    public Decimal decimalValue() {
+        return decimalValue(timeUnit);
+    }
+
+    public Decimal decimalValue(final FTimeUnit timeUnit) {
+        return new Decimal(timeUnit.convert(duration, this.timeUnit));
+    }
+
     @Override
     public String toString() {
         return toString(timeUnit);
     }
 
     /**
-     * Returns the duration the following format:
+     * Returns the duration in the following format:
      * 
      * P[JY][MM][WW][TD][T[hH][mM][s[.f]S]]
      * 
@@ -184,7 +193,7 @@ public class Duration extends Number implements Comparable<Object> {
      * @see <a href="http://de.wikipedia.org/wiki/ISO_8601">ISO_8601</a>
      */
     //CHECKSTYLE:OFF NPath
-    public String toString(final FTimeUnit smallestFTimeUnit) {
+    public String toString(final FTimeUnit smallestTimeUnit) {
         //CHECKSTYLE:ON
         final long nanos = Math.abs(FTimeUnit.NANOSECONDS.convert(duration, this.timeUnit));
         final long nanosAsMicros = FTimeUnit.NANOSECONDS.toMicros(nanos);
@@ -199,10 +208,10 @@ public class Duration extends Number implements Comparable<Object> {
 
         final StringBuilder sb = new StringBuilder();
         long nanoseconds = 0;
-        long mikroseconds = 0;
+        long microseconds = 0;
         long milliseconds = 0;
         long seconds = 0;
-        switch (smallestFTimeUnit) {
+        switch (smallestTimeUnit) {
         case NANOSECONDS:
             nanoseconds = nanos - nanosAsMicros * FTimeUnit.NANOSECONDS_IN_MICROSECOND;
             if (nanoseconds > 0) {
@@ -210,20 +219,20 @@ public class Duration extends Number implements Comparable<Object> {
                 sb.insert(0, ".");
             }
         case MICROSECONDS:
-            mikroseconds = nanosAsMicros - nanosAsMillis * FTimeUnit.MICROSECONDS_IN_MILLISECOND;
-            if (mikroseconds + nanoseconds > 0) {
-                sb.insert(0, Strings.leftPad(mikroseconds, 3, "0"));
+            microseconds = nanosAsMicros - nanosAsMillis * FTimeUnit.MICROSECONDS_IN_MILLISECOND;
+            if (microseconds + nanoseconds > 0) {
+                sb.insert(0, Strings.leftPad(microseconds, 3, "0"));
                 sb.insert(0, ".");
             }
         case MILLISECONDS:
             milliseconds = nanosAsMillis - nanosAsSeconds * FTimeUnit.MILLISECONDS_IN_SECOND;
-            if (milliseconds + mikroseconds + nanoseconds > 0) {
+            if (milliseconds + microseconds + nanoseconds > 0) {
                 sb.insert(0, Strings.leftPad(milliseconds, 3, "0"));
                 sb.insert(0, ".");
             }
         case SECONDS:
             seconds = nanosAsSeconds - nanosAsMinutes * FTimeUnit.SECONDS_IN_MINUTE;
-            if (seconds + milliseconds + mikroseconds + nanoseconds > 0) {
+            if (seconds + milliseconds + microseconds + nanoseconds > 0) {
                 sb.insert(0, seconds);
                 sb.append("S");
             }
@@ -268,7 +277,7 @@ public class Duration extends Number implements Comparable<Object> {
             }
             break;
         default:
-            throw UnknownArgumentException.newInstance(FTimeUnit.class, smallestFTimeUnit);
+            throw UnknownArgumentException.newInstance(FTimeUnit.class, smallestTimeUnit);
         }
         if (sb.length() == 0) {
             sb.append("0");
@@ -293,12 +302,14 @@ public class Duration extends Number implements Comparable<Object> {
      */
     public Duration add(final long duration, final FTimeUnit timeUnit) {
         final long comparableDuration = Math.abs(FTimeUnit.NANOSECONDS.convert(duration, timeUnit));
-        return new Duration(this.longValue(FTimeUnit.NANOSECONDS) + comparableDuration, FTimeUnit.NANOSECONDS);
+        return new Duration(Math.addExact(this.longValue(FTimeUnit.NANOSECONDS), comparableDuration),
+                FTimeUnit.NANOSECONDS);
     }
 
     public Duration subtract(final long duration, final FTimeUnit timeUnit) {
         final long comparableDuration = Math.abs(FTimeUnit.NANOSECONDS.convert(duration, timeUnit));
-        return new Duration(this.longValue(FTimeUnit.NANOSECONDS) - comparableDuration, FTimeUnit.NANOSECONDS);
+        return new Duration(Math.subtractExact(this.longValue(FTimeUnit.NANOSECONDS), comparableDuration),
+                FTimeUnit.NANOSECONDS);
     }
 
     public Duration divide(final Number dividend) {

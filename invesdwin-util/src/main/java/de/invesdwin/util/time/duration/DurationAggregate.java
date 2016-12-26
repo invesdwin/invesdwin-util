@@ -6,6 +6,8 @@ import java.util.List;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.collections.Lists;
+import de.invesdwin.util.math.decimal.Decimal;
+import de.invesdwin.util.time.fdate.FTimeUnit;
 
 @Immutable
 class DurationAggregate implements IDurationAggregate {
@@ -34,14 +36,15 @@ class DurationAggregate implements IDurationAggregate {
      */
     @Override
     public Duration avgWeightedDesc() {
-        int sumOfWeights = 0;
-        Duration sumOfWeightedValues = Duration.ZERO;
+        long sumOfWeights = 0;
+        Decimal sumOfWeightedValues = Decimal.ZERO;
         for (int i = 0, weight = count(); i < count(); i++, weight--) {
-            final Duration weightedValue = values.get(i).multiply(weight);
+            final Decimal weightedValue = new Decimal(values.get(i).decimalValue(FTimeUnit.NANOSECONDS))
+                    .multiply(weight);
             sumOfWeights += weight;
             sumOfWeightedValues = sumOfWeightedValues.add(weightedValue);
         }
-        return sumOfWeightedValues.divide(sumOfWeights);
+        return new Duration(sumOfWeightedValues.divide(sumOfWeights).longValue(), FTimeUnit.NANOSECONDS);
     }
 
     @Override
@@ -62,7 +65,13 @@ class DurationAggregate implements IDurationAggregate {
      */
     @Override
     public Duration avg() {
-        return sum().divide(values.size());
+        Decimal sum = Decimal.ZERO;
+        for (final Duration value : values) {
+            if (value != null) {
+                sum = sum.add(value.decimalValue(FTimeUnit.NANOSECONDS));
+            }
+        }
+        return new Duration(sum.divide(count()).longValue(), FTimeUnit.NANOSECONDS);
     }
 
     @Override
