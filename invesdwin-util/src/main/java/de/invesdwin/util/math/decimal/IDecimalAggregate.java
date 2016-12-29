@@ -123,6 +123,10 @@ public interface IDecimalAggregate<E extends ADecimal<E>> {
 
     IDecimalAggregate<E> divideEach(E divisor);
 
+    IDecimalAggregate<E> nullToZeroEach();
+
+    IDecimalAggregate<E> removeNullValues();
+
     /**
      * True when each element is >= its previous element
      */

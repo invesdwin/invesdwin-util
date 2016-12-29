@@ -466,6 +466,8 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
         }
     }
 
+    public abstract E getZero();
+
     public static <T extends ADecimal<T>> T zeroToNull(final T value) {
         if (value == null || value.isZero()) {
             return (T) null;

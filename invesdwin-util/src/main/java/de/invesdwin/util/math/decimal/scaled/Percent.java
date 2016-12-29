@@ -85,9 +85,14 @@ public class Percent extends AScaledDecimal<Percent, PercentScale> implements IP
         return new Percent(value, scale);
     }
 
+    @Override
+    public Percent getZero() {
+        return ZERO_PERCENT;
+    }
+
     public static Percent nullToZero(final Percent value) {
         if (value == null) {
-            return new Percent(Decimal.ZERO, DEFAULT_SCALE);
+            return ZERO_PERCENT;
         } else {
             return value;
         }

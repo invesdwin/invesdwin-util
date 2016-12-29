@@ -117,6 +117,11 @@ public class Decimal extends ADecimal<Decimal> {
         return new Decimal(value);
     }
 
+    @Override
+    public Decimal getZero() {
+        return ZERO;
+    }
+
     public static Decimal nullToZero(final Decimal value) {
         if (value == null) {
             return ZERO;

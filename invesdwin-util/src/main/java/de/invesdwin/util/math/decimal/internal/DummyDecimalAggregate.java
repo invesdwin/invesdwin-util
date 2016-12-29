@@ -206,6 +206,16 @@ public final class DummyDecimalAggregate<E extends ADecimal<E>> implements IDeci
     }
 
     @Override
+    public IDecimalAggregate<E> nullToZeroEach() {
+        return this;
+    }
+
+    @Override
+    public IDecimalAggregate<E> removeNullValues() {
+        return this;
+    }
+
+    @Override
     public IDecimalAggregate<E> loessInterpolation(final LoessInterpolationConfig config) {
         return this;
     }

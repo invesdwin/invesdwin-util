@@ -7,6 +7,7 @@ import java.util.List;
 
 import javax.annotation.concurrent.Immutable;
 
+import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.Lists;
 import de.invesdwin.util.math.decimal.ADecimal;
 import de.invesdwin.util.math.decimal.Decimal;
@@ -34,6 +35,8 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
                     break;
                 }
             }
+            Assertions.checkNotNull(converter, "Please provide a converter manually via the appropriate constructor "
+                    + "or make sure there is at least one non null value in the list.");
         }
         return converter;
 
@@ -420,6 +423,31 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
             divided.add(value.add(divisor));
         }
         return new DecimalAggregate<E>(divided, getConverter());
+    }
+
+    @Override
+    public IDecimalAggregate<E> nullToZeroEach() {
+        final List<E> replaced = new ArrayList<E>();
+        final E zero = getConverter().getZero();
+        for (final E value : values) {
+            if (value != null) {
+                replaced.add(value);
+            } else {
+                replaced.add(zero);
+            }
+        }
+        return new DecimalAggregate<E>(replaced, getConverter());
+    }
+
+    @Override
+    public IDecimalAggregate<E> removeNullValues() {
+        final List<E> filtered = new ArrayList<E>();
+        for (final E value : values) {
+            if (value != null) {
+                filtered.add(value);
+            }
+        }
+        return new DecimalAggregate<E>(filtered, getConverter());
     }
 
     @Override

@@ -10,6 +10,7 @@ import de.invesdwin.util.math.decimal.Decimal;
 public class ByteSize extends AScaledDecimal<ByteSize, ByteSizeScale> {
 
     public static final ByteSizeScale DEFAULT_SCALE = ByteSizeScale.BYTES;
+    public static final ByteSize ZERO = new ByteSize(Decimal.ZERO, DEFAULT_SCALE);
 
     public ByteSize(final Decimal value, final ByteSizeScale scale) {
         super(value, scale, DEFAULT_SCALE);
@@ -27,10 +28,15 @@ public class ByteSize extends AScaledDecimal<ByteSize, ByteSizeScale> {
 
     public static ByteSize nullToZero(final ByteSize value) {
         if (value == null) {
-            return new ByteSize(Decimal.ZERO, DEFAULT_SCALE);
+            return ZERO;
         } else {
             return value;
         }
+    }
+
+    @Override
+    public ByteSize getZero() {
+        return ZERO;
     }
 
 }
