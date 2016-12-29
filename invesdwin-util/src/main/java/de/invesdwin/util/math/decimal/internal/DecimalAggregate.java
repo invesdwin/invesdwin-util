@@ -451,9 +451,9 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
     }
 
     @Override
-    public int bestValueIndex(final boolean isHigherBetter) {
+    public Integer bestValueIndex(final boolean isHigherBetter) {
         E bestValue = null;
-        int bestValueIndex = -1;
+        Integer bestValueIndex = null;
         for (int i = 0; i < values.size(); i++) {
             final E value = values.get(i);
             if (bestValue == null) {

@@ -49,6 +49,10 @@ public class DecimalAggregateInterpolations<E extends ADecimal<E>> {
     }
 
     public IDecimalAggregate<E> cubicBSplineInterpolation(final InterpolationConfig config) {
+        if (values.isEmpty()) {
+            return DummyDecimalAggregate.getInstance();
+        }
+
         if (values.size() < 4) {
             return parent;
         }
@@ -71,6 +75,10 @@ public class DecimalAggregateInterpolations<E extends ADecimal<E>> {
     }
 
     public IDecimalAggregate<E> bezierCurveInterpolation(final InterpolationConfig config) {
+        if (values.isEmpty()) {
+            return DummyDecimalAggregate.getInstance();
+        }
+
         final Pair<List<Double>, List<Double>> pair = fillInterpolationPoints(config, BEZIER_CURVE_MAX_SIZE);
         final List<Double> xval = pair.getFirst();
         final List<Double> yval = pair.getSecond();
@@ -88,6 +96,10 @@ public class DecimalAggregateInterpolations<E extends ADecimal<E>> {
     }
 
     public IDecimalAggregate<E> bSplineInterpolation(final BSplineInterpolationConfig config) {
+        if (values.isEmpty()) {
+            return DummyDecimalAggregate.getInstance();
+        }
+
         final Pair<List<Double>, List<Double>> pair = fillInterpolationPoints(config, null);
         final List<Double> xval = pair.getFirst();
         final List<Double> yval = pair.getSecond();
@@ -158,6 +170,10 @@ public class DecimalAggregateInterpolations<E extends ADecimal<E>> {
     }
 
     public IDecimalAggregate<E> loessInterpolation(final LoessInterpolationConfig config) {
+        if (values.isEmpty()) {
+            return DummyDecimalAggregate.getInstance();
+        }
+
         if (values.size() < 3) {
             return parent;
         }
