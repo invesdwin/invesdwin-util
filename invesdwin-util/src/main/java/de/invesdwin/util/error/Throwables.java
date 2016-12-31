@@ -2,7 +2,6 @@ package de.invesdwin.util.error;
 
 import java.lang.reflect.InvocationTargetException;
 
-import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -30,13 +29,12 @@ public final class Throwables extends AThrowablesStaticFacade {
         return finalizerDebugStackTraceEnabled;
     }
 
-    public static <T extends Throwable> boolean isCausedByType(@Nonnull final Throwable e,
-            @Nonnull final Class<T> type) {
+    public static <T extends Throwable> boolean isCausedByType(final Throwable e, final Class<T> type) {
         return getCauseByType(e, type) != null;
     }
 
     @SuppressWarnings("unchecked" /* is safe since typecheck is done */)
-    public static <T extends Throwable> T getCauseByType(@Nonnull final Throwable e, @Nonnull final Class<T> type) {
+    public static <T extends Throwable> T getCauseByType(final Throwable e, final Class<T> type) {
         Assertions.assertThat(e).isNotNull();
         Assertions.assertThat(type).isNotNull();
         Throwable cause = e;
@@ -46,7 +44,7 @@ public final class Throwables extends AThrowablesStaticFacade {
             }
             cause = getCause(cause);
         }
-        return (T) null;
+        return null;
     }
 
     /**
