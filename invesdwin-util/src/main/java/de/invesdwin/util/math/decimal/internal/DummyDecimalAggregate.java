@@ -255,4 +255,14 @@ public final class DummyDecimalAggregate<E extends ADecimal<E>> implements IDeci
         return null;
     }
 
+    @Override
+    public IDecimalAggregate<E> normalize() {
+        return this;
+    }
+
+    @Override
+    public IDecimalAggregate<E> detrend() {
+        return this;
+    }
+
 }

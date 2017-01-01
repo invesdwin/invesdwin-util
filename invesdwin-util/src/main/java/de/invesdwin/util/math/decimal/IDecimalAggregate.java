@@ -127,6 +127,10 @@ public interface IDecimalAggregate<E extends ADecimal<E>> {
 
     IDecimalAggregate<E> removeNullValues();
 
+    IDecimalAggregate<E> normalize();
+
+    IDecimalAggregate<E> detrend();
+
     /**
      * True when each element is >= its previous element
      */

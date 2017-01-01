@@ -86,7 +86,7 @@ public class Percent extends AScaledDecimal<Percent, PercentScale> implements IP
     }
 
     @Override
-    public Percent getZero() {
+    public Percent zero() {
         return ZERO_PERCENT;
     }
 

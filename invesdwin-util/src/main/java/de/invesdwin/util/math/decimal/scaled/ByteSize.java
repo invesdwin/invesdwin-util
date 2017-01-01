@@ -35,7 +35,7 @@ public class ByteSize extends AScaledDecimal<ByteSize, ByteSizeScale> {
     }
 
     @Override
-    public ByteSize getZero() {
+    public ByteSize zero() {
         return ZERO;
     }
 

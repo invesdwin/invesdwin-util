@@ -118,7 +118,7 @@ public class Decimal extends ADecimal<Decimal> {
     }
 
     @Override
-    public Decimal getZero() {
+    public Decimal zero() {
         return ZERO;
     }
 
