@@ -127,8 +127,16 @@ public interface IDecimalAggregate<E extends ADecimal<E>> {
 
     IDecimalAggregate<E> removeNullValues();
 
+    /**
+     * normalized(x) = (x-min(x))/(max(x)-min(x))
+     */
     IDecimalAggregate<E> normalize();
 
+    /**
+     * avgChangeYperX = (toY - fromY) / (toX - fromX)
+     * 
+     * detrendedY(x,y) = y - ((x - fromX) * avgChangeYperX)
+     */
     IDecimalAggregate<E> detrend();
 
     /**
