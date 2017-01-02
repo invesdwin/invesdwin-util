@@ -1,4 +1,4 @@
-package de.invesdwin.util.assertions.internal;
+package de.invesdwin.util.assertions.type.internal;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
@@ -10,13 +10,13 @@ import de.invesdwin.util.math.decimal.Decimal;
 
 @SuppressWarnings("rawtypes")
 @NotThreadSafe
-class Decimals extends org.assertj.core.internal.Numbers {
+public class DecimalsAssertions extends org.assertj.core.internal.Numbers {
 
-    public static final Decimals INSTANCE = new Decimals();
+    public static final DecimalsAssertions INSTANCE = new DecimalsAssertions();
 
-    private Decimals() {}
+    private DecimalsAssertions() {}
 
-    Decimals(final org.assertj.core.internal.ComparisonStrategy comparisonStrategy) {
+    public DecimalsAssertions(final org.assertj.core.internal.ComparisonStrategy comparisonStrategy) {
         super(comparisonStrategy);
     }
 

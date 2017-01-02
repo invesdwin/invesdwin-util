@@ -1,6 +1,6 @@
 // CHECKSTYLE:OFF
 
-package de.invesdwin.util.assertions.internal;
+package de.invesdwin.util.assertions.type.internal;
 
 import static org.assertj.core.error.ShouldBeAfter.shouldBeAfter;
 import static org.assertj.core.error.ShouldBeAfterOrEqualsTo.shouldBeAfterOrEqualsTo;
@@ -53,7 +53,7 @@ import de.invesdwin.util.time.fdate.FDates;
  * @author William Delanoue
  */
 @Immutable
-class FDatesAssertions extends Dates {
+public class FDatesAssertions extends Dates {
 
     private static final FDatesAssertions INSTANCE = new FDatesAssertions();
 

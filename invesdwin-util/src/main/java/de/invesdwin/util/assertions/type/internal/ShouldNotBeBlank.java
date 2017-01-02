@@ -1,4 +1,4 @@
-package de.invesdwin.util.assertions.internal;
+package de.invesdwin.util.assertions.type.internal;
 
 import javax.annotation.concurrent.Immutable;
 

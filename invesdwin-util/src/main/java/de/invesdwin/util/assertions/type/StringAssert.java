@@ -1,10 +1,13 @@
-package de.invesdwin.util.assertions.internal;
+package de.invesdwin.util.assertions.type;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
 import org.assertj.core.api.AbstractCharSequenceAssert;
 import org.assertj.core.api.AssertionInfo;
 
+import de.invesdwin.util.assertions.type.internal.ShouldBeBlank;
+import de.invesdwin.util.assertions.type.internal.ShouldBeNullOrBlank;
+import de.invesdwin.util.assertions.type.internal.ShouldNotBeBlank;
 import de.invesdwin.util.lang.Strings;
 
 @NotThreadSafe

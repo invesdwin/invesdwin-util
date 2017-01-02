@@ -6,14 +6,14 @@ import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
 import de.invesdwin.util.assertions.internal.AAssertionsStaticFacade;
-import de.invesdwin.util.assertions.internal.DecimalAssert;
-import de.invesdwin.util.assertions.internal.FDateAssert;
-import de.invesdwin.util.assertions.internal.StringAssert;
+import de.invesdwin.util.assertions.type.DecimalAssert;
+import de.invesdwin.util.assertions.type.FDateAssert;
+import de.invesdwin.util.assertions.type.StringAssert;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.math.decimal.ADecimal;
 import de.invesdwin.util.time.fdate.FDate;
 
-@StaticFacadeDefinition(name = "de.invesdwin.util.assertions.internal.AAssertionsStaticFacade", targets = {
+@StaticFacadeDefinition(name = "de.invesdwin.util.assertions.type.internal.AAssertionsStaticFacade", targets = {
         org.assertj.core.api.Assertions.class, org.assertj.guava.api.Assertions.class,
         com.google.common.base.Preconditions.class }, filterMethodSignatureExpressions = ".* org\\.assertj\\.core\\.api\\.StringAssert assertThat\\(java\\.lang\\.String .*")
 @Immutable

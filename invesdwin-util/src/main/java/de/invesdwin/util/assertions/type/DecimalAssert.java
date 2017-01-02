@@ -1,4 +1,4 @@
-package de.invesdwin.util.assertions.internal;
+package de.invesdwin.util.assertions.type;
 
 import java.util.Comparator;
 
@@ -9,47 +9,54 @@ import org.assertj.core.api.NumberAssert;
 import org.assertj.core.data.Offset;
 import org.assertj.core.data.Percentage;
 
+import de.invesdwin.util.assertions.type.internal.DecimalsAssertions;
 import de.invesdwin.util.math.decimal.ADecimal;
 
 @NotThreadSafe
-public class DecimalAssert<E extends ADecimal<E>> extends AbstractComparableAssert<DecimalAssert<E>, E> implements
-NumberAssert<DecimalAssert<E>, E> {
-    private Decimals decimals = Decimals.INSTANCE;
+public class DecimalAssert<E extends ADecimal<E>> extends AbstractComparableAssert<DecimalAssert<E>, E>
+        implements NumberAssert<DecimalAssert<E>, E> {
+    private DecimalsAssertions decimals = DecimalsAssertions.INSTANCE;
 
     public DecimalAssert(final E actual) {
         super(actual, DecimalAssert.class);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public DecimalAssert<E> isZero() {
         decimals.assertIsZero(info, actual);
         return myself;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public DecimalAssert<E> isNotZero() {
         decimals.assertIsNotZero(info, actual);
         return myself;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public DecimalAssert<E> isPositive() {
         decimals.assertIsPositive(info, actual);
         return myself;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public DecimalAssert<E> isNegative() {
         decimals.assertIsNegative(info, actual);
         return myself;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public DecimalAssert<E> isNotPositive() {
         decimals.assertIsNotPositive(info, actual);
         return myself;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public DecimalAssert<E> isNotNegative() {
         decimals.assertIsNotNegative(info, actual);
@@ -74,6 +81,7 @@ NumberAssert<DecimalAssert<E>, E> {
      * 
      * </p>
      */
+    @SuppressWarnings("unchecked")
     @Override
     public DecimalAssert<E> isBetween(final E start, final E end) {
         decimals.assertIsBetween(info, actual, start, end);
@@ -97,6 +105,7 @@ NumberAssert<DecimalAssert<E>, E> {
      * 
      * </p>
      */
+    @SuppressWarnings("unchecked")
     @Override
     public DecimalAssert<E> isStrictlyBetween(final E start, final E end) {
         decimals.assertIsStrictlyBetween(info, actual, start, end);
@@ -106,14 +115,15 @@ NumberAssert<DecimalAssert<E>, E> {
     @Override
     public DecimalAssert<E> usingComparator(final Comparator<? super E> customComparator) {
         super.usingComparator(customComparator);
-        this.decimals = new Decimals(new org.assertj.core.internal.ComparatorBasedComparisonStrategy(customComparator));
+        this.decimals = new DecimalsAssertions(
+                new org.assertj.core.internal.ComparatorBasedComparisonStrategy(customComparator));
         return myself;
     }
 
     @Override
     public DecimalAssert<E> usingDefaultComparator() {
         super.usingDefaultComparator();
-        this.decimals = Decimals.INSTANCE;
+        this.decimals = DecimalsAssertions.INSTANCE;
         return myself;
     }
 

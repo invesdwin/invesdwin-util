@@ -1,5 +1,5 @@
 // CHECKSTYLE:OFF
-package de.invesdwin.util.assertions.internal;
+package de.invesdwin.util.assertions.type;
 
 import static java.util.concurrent.TimeUnit.HOURS;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
@@ -26,6 +26,7 @@ import org.assertj.core.internal.ComparatorBasedComparisonStrategy;
 import org.assertj.core.util.DateUtil;
 import org.assertj.core.util.VisibleForTesting;
 
+import de.invesdwin.util.assertions.type.internal.FDatesAssertions;
 import de.invesdwin.util.time.fdate.FDate;
 
 /**
