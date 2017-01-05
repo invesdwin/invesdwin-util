@@ -11,18 +11,18 @@ import de.invesdwin.util.time.TimeRange;
 import de.invesdwin.util.time.fdate.FDate;
 
 @Immutable
-public class TimedPercent extends Percent {
+public class TimeRangedPercent extends Percent {
 
-    public static final TimedPercent INVALID_ROW = new TimedPercent(new TimeRange(null, null),
+    public static final TimeRangedPercent INVALID_ROW = new TimeRangedPercent(new TimeRange(null, null),
             new Percent(new Decimal(Double.MIN_VALUE), PercentScale.RATE));
 
     private final TimeRange timeRange;
 
-    public TimedPercent(final FDate time, final FDate endTime, final Percent percent) {
+    public TimeRangedPercent(final FDate time, final FDate endTime, final Percent percent) {
         this(new TimeRange(time, endTime), percent);
     }
 
-    public TimedPercent(final TimeRange timeRange, final Percent percent) {
+    public TimeRangedPercent(final TimeRange timeRange, final Percent percent) {
         super(percent);
         Assertions.checkNotNull(timeRange);
         this.timeRange = timeRange;
@@ -32,17 +32,17 @@ public class TimedPercent extends Percent {
         return timeRange;
     }
 
-    public static List<TimeRange> extractTimeRanges(final Iterable<TimedPercent> values) {
+    public static List<TimeRange> extractTimeRanges(final Iterable<TimeRangedPercent> values) {
         final List<TimeRange> timeRanges = new ArrayList<TimeRange>();
-        for (final TimedPercent pr : values) {
+        for (final TimeRangedPercent pr : values) {
             timeRanges.add(pr.getTimeRange());
         }
         return timeRanges;
     }
 
-    public static TimedPercent extractValueWithMaxPeriod(final Iterable<TimedPercent> values) {
-        TimedPercent maxPeriod = null;
-        for (final TimedPercent pr : values) {
+    public static TimeRangedPercent extractValueWithMaxPeriod(final Iterable<TimeRangedPercent> values) {
+        TimeRangedPercent maxPeriod = null;
+        for (final TimeRangedPercent pr : values) {
             if (maxPeriod == null
                     || maxPeriod.getTimeRange().getDuration().isLessThan(pr.getTimeRange().getDuration())) {
                 maxPeriod = pr;
@@ -51,9 +51,9 @@ public class TimedPercent extends Percent {
         return maxPeriod;
     }
 
-    public static TimedPercent extractValueWithMinPeriod(final Iterable<TimedPercent> values) {
-        TimedPercent minPeriod = null;
-        for (final TimedPercent pr : values) {
+    public static TimeRangedPercent extractValueWithMinPeriod(final Iterable<TimeRangedPercent> values) {
+        TimeRangedPercent minPeriod = null;
+        for (final TimeRangedPercent pr : values) {
             if (minPeriod == null
                     || minPeriod.getTimeRange().getDuration().isGreaterThan(pr.getTimeRange().getDuration())) {
                 minPeriod = pr;
