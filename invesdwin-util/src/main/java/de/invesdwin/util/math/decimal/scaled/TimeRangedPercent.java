@@ -13,7 +13,8 @@ import de.invesdwin.util.time.fdate.FDate;
 @Immutable
 public class TimeRangedPercent extends Percent {
 
-    public static final TimeRangedPercent INVALID_ROW = new TimeRangedPercent(new TimeRange(null, null),
+    public static final TimeRangedPercent INVALID_ROW = new TimeRangedPercent(
+            new TimeRange(FDate.MIN_DATE, FDate.MAX_DATE),
             new Percent(new Decimal(Double.MIN_VALUE), PercentScale.RATE));
 
     private final TimeRange timeRange;
