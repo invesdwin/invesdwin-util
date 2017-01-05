@@ -25,6 +25,8 @@ public class TimeRangedPercent extends Percent {
     public TimeRangedPercent(final TimeRange timeRange, final Percent percent) {
         super(percent);
         Assertions.checkNotNull(timeRange);
+        Assertions.checkNotNull(timeRange.getFrom());
+        Assertions.checkNotNull(timeRange.getTo());
         this.timeRange = timeRange;
     }
 
