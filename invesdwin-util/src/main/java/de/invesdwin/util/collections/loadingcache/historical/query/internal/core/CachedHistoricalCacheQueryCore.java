@@ -47,8 +47,8 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
     }
 
     @Override
-    public synchronized Entry<FDate, V> getPreviousEntry(final IHistoricalCacheQueryInternalMethods<V> query,
-            final FDate key, final int shiftBackUnits) {
+    public Entry<FDate, V> getPreviousEntry(final IHistoricalCacheQueryInternalMethods<V> query, final FDate key,
+            final int shiftBackUnits) {
         if (shiftBackUnits == 0) {
             return delegate.getPreviousEntry(query, key, 0);
         } else {
@@ -72,8 +72,8 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
     }
 
     @Override
-    public synchronized ICloseableIterable<Entry<FDate, V>> getPreviousEntries(
-            final IHistoricalCacheQueryInternalMethods<V> query, final FDate key, final int shiftBackUnits) {
+    public ICloseableIterable<Entry<FDate, V>> getPreviousEntries(final IHistoricalCacheQueryInternalMethods<V> query,
+            final FDate key, final int shiftBackUnits) {
         if (shiftBackUnits == 1) {
             final Entry<FDate, V> entry = delegate.getPreviousEntry(query, key, 0);
             return new SingleValueIterable<Entry<FDate, V>>(entry);
@@ -84,8 +84,9 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
         }
     }
 
-    private List<Entry<FDate, V>> getPreviousEntriesList(final IHistoricalCacheQueryInternalMethods<V> query,
-            final FDate key, final int shiftBackUnits, final boolean filterDuplicateKeys) {
+    private synchronized List<Entry<FDate, V>> getPreviousEntriesList(
+            final IHistoricalCacheQueryInternalMethods<V> query, final FDate key, final int shiftBackUnits,
+            final boolean filterDuplicateKeys) {
         final FDate adjKey = getParent().adjustKey(key);
         final List<Entry<FDate, V>> result;
         if (!cachedPreviousEntries.isEmpty()) {
