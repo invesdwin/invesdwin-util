@@ -47,8 +47,8 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
     }
 
     @Override
-    public Entry<FDate, V> getPreviousEntry(final IHistoricalCacheQueryInternalMethods<V> query, final FDate key,
-            final int shiftBackUnits) {
+    public synchronized Entry<FDate, V> getPreviousEntry(final IHistoricalCacheQueryInternalMethods<V> query,
+            final FDate key, final int shiftBackUnits) {
         if (shiftBackUnits == 0) {
             return delegate.getPreviousEntry(query, key, 0);
         } else {
