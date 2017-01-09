@@ -378,6 +378,51 @@ public final class FDates {
         return julianDayNumber1 == julianDayNumber2;
     }
 
+    /**
+     * Fast but unprecise variation of isSameDay(). Does not count in daylight saving time.
+     */
+    public static boolean isSameJulianHour(final FDate date1, final FDate date2) {
+        if (date1 == null || date2 == null) {
+            return false;
+        }
+        // Strip out the time part of each date.
+        final long julianHourNumber1 = date1.millisValue() / org.apache.commons.lang3.time.DateUtils.MILLIS_PER_HOUR;
+        final long julianHourNumber2 = date2.millisValue() / org.apache.commons.lang3.time.DateUtils.MILLIS_PER_HOUR;
+
+        // If they now are equal then it is the same day.
+        return julianHourNumber1 == julianHourNumber2;
+    }
+
+    /**
+     * Fast but unprecise variation of isSameDay(). Does not count in daylight saving time.
+     */
+    public static boolean isSameJulianMinute(final FDate date1, final FDate date2) {
+        if (date1 == null || date2 == null) {
+            return false;
+        }
+        // Strip out the time part of each date.
+        final long julianMinuteNumber1 = date1.millisValue() / org.apache.commons.lang3.time.DateUtils.MILLIS_PER_MINUTE;
+        final long julianMinuteNumber2 = date2.millisValue() / org.apache.commons.lang3.time.DateUtils.MILLIS_PER_MINUTE;
+
+        // If they now are equal then it is the same day.
+        return julianMinuteNumber1 == julianMinuteNumber2;
+    }
+
+    /**
+     * Fast but unprecise variation of isSameDay(). Does not count in daylight saving time.
+     */
+    public static boolean isSameJulianSecond(final FDate date1, final FDate date2) {
+        if (date1 == null || date2 == null) {
+            return false;
+        }
+        // Strip out the time part of each date.
+        final long julianSecondNumber1 = date1.millisValue() / org.apache.commons.lang3.time.DateUtils.MILLIS_PER_SECOND;
+        final long julianSecondNumber2 = date2.millisValue() / org.apache.commons.lang3.time.DateUtils.MILLIS_PER_SECOND;
+
+        // If they now are equal then it is the same day.
+        return julianSecondNumber1 == julianSecondNumber2;
+    }
+
     public static Date toDate(final FDate date) {
         if (date != null) {
             return date.dateValue();
