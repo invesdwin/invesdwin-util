@@ -49,7 +49,7 @@ public final class HistoricalCacheRefreshManager {
 
     public static boolean maybeRefresh(final Duration refreshInterval) {
         if (new Duration(lastRefresh).isGreaterThanOrEqualTo(refreshInterval)
-                || !FDates.isSameDay(lastRefresh, new FDate())) {
+                || !FDates.isSameJulianDay(lastRefresh, new FDate())) {
             refresh();
             return true;
         }

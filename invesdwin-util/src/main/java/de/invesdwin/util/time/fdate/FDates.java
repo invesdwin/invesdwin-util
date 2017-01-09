@@ -18,6 +18,11 @@ import de.invesdwin.util.time.duration.Duration;
 @ThreadSafe
 public final class FDates {
 
+    private static final long MILLISECONDS_IN_DAY = FTimeUnit.MILLISECONDS_IN_DAY;
+    private static final long MILLISECONDS_IN_HOUR = FTimeUnit.MILLISECONDS_IN_HOUR;
+    private static final long MILLISECONDS_IN_MINUTE = FTimeUnit.MILLISECONDS_IN_MINUTE;
+    private static final long MILLISECONDS_IN_SECOND = FTimeUnit.MILLISECONDS_IN_SECOND;
+
     private static Calendar templateCalendar;
     private static TimeZone defaultTimeZone;
     private static DateTimeZone defaultDateTimeZone;
@@ -363,61 +368,88 @@ public final class FDates {
         }
     }
 
+    public static boolean isSameJulianPeriod(final FDate date1, final FDate date2, final FTimeUnit period) {
+        switch (period) {
+        case MILLISECONDS:
+            return isSameMillisecond(date1, date2);
+        case SECONDS:
+            return isSameJulianSecond(date1, date2);
+        case MINUTES:
+            return isSameJulianMinute(date1, date2);
+        case HOURS:
+            return isSameJulianHour(date1, date2);
+        case DAYS:
+            return isSameJulianDay(date1, date2);
+        case WEEKS:
+            return isSameWeek(date1, date2);
+        case MONTHS:
+            return isSameMonth(date1, date2);
+        case YEARS:
+            return isSameYear(date1, date2);
+        default:
+            throw UnknownArgumentException.newInstance(FTimeUnit.class, period);
+        }
+    }
+
     /**
-     * Fast but unprecise variation of isSameDay(). Does not count in daylight saving time.
+     * Fast but unprecise variation of isSameDay(). Does not count in daylight saving time. Though does not matter when
+     * working with UTC.
      */
     public static boolean isSameJulianDay(final FDate date1, final FDate date2) {
         if (date1 == null || date2 == null) {
             return false;
         }
         // Strip out the time part of each date.
-        final long julianDayNumber1 = date1.millisValue() / org.apache.commons.lang3.time.DateUtils.MILLIS_PER_DAY;
-        final long julianDayNumber2 = date2.millisValue() / org.apache.commons.lang3.time.DateUtils.MILLIS_PER_DAY;
+        final long julianDayNumber1 = date1.millisValue() / MILLISECONDS_IN_DAY;
+        final long julianDayNumber2 = date2.millisValue() / MILLISECONDS_IN_DAY;
 
         // If they now are equal then it is the same day.
         return julianDayNumber1 == julianDayNumber2;
     }
 
     /**
-     * Fast but unprecise variation of isSameDay(). Does not count in daylight saving time.
+     * Fast but unprecise variation of isSameHour(). Does not count in daylight saving time. Though does not matter when
+     * working with UTC.
      */
     public static boolean isSameJulianHour(final FDate date1, final FDate date2) {
         if (date1 == null || date2 == null) {
             return false;
         }
         // Strip out the time part of each date.
-        final long julianHourNumber1 = date1.millisValue() / org.apache.commons.lang3.time.DateUtils.MILLIS_PER_HOUR;
-        final long julianHourNumber2 = date2.millisValue() / org.apache.commons.lang3.time.DateUtils.MILLIS_PER_HOUR;
+        final long julianHourNumber1 = date1.millisValue() / MILLISECONDS_IN_HOUR;
+        final long julianHourNumber2 = date2.millisValue() / MILLISECONDS_IN_HOUR;
 
         // If they now are equal then it is the same day.
         return julianHourNumber1 == julianHourNumber2;
     }
 
     /**
-     * Fast but unprecise variation of isSameDay(). Does not count in daylight saving time.
+     * Fast but unprecise variation of isSameMinute(). Does not count in daylight saving time. Though does not matter
+     * when working with UTC.
      */
     public static boolean isSameJulianMinute(final FDate date1, final FDate date2) {
         if (date1 == null || date2 == null) {
             return false;
         }
         // Strip out the time part of each date.
-        final long julianMinuteNumber1 = date1.millisValue() / org.apache.commons.lang3.time.DateUtils.MILLIS_PER_MINUTE;
-        final long julianMinuteNumber2 = date2.millisValue() / org.apache.commons.lang3.time.DateUtils.MILLIS_PER_MINUTE;
+        final long julianMinuteNumber1 = date1.millisValue() / MILLISECONDS_IN_MINUTE;
+        final long julianMinuteNumber2 = date2.millisValue() / MILLISECONDS_IN_MINUTE;
 
         // If they now are equal then it is the same day.
         return julianMinuteNumber1 == julianMinuteNumber2;
     }
 
     /**
-     * Fast but unprecise variation of isSameDay(). Does not count in daylight saving time.
+     * Fast but unprecise variation of isSameSecond(). Does not count in daylight saving time. Though does not matter
+     * when working with UTC.
      */
     public static boolean isSameJulianSecond(final FDate date1, final FDate date2) {
         if (date1 == null || date2 == null) {
             return false;
         }
         // Strip out the time part of each date.
-        final long julianSecondNumber1 = date1.millisValue() / org.apache.commons.lang3.time.DateUtils.MILLIS_PER_SECOND;
-        final long julianSecondNumber2 = date2.millisValue() / org.apache.commons.lang3.time.DateUtils.MILLIS_PER_SECOND;
+        final long julianSecondNumber1 = date1.millisValue() / MILLISECONDS_IN_SECOND;
+        final long julianSecondNumber2 = date2.millisValue() / MILLISECONDS_IN_SECOND;
 
         // If they now are equal then it is the same day.
         return julianSecondNumber1 == julianSecondNumber2;
