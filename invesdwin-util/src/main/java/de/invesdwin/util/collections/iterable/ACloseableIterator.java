@@ -21,14 +21,14 @@ public abstract class ACloseableIterator<E> implements ICloseableIterator<E> {
     }
 
     protected void createInitStackTrace() {
-        if (Throwables.isFinalizerDebugStackTraceEnabled()) {
+        if (Throwables.isDebugStackTraceEnabled()) {
             initStackTrace = new Exception();
             initStackTrace.fillInStackTrace();
         }
     }
 
     protected void createNextStackTrace() {
-        if (Throwables.isFinalizerDebugStackTraceEnabled() && nextStackTrace == null) {
+        if (Throwables.isDebugStackTraceEnabled() && nextStackTrace == null) {
             initStackTrace = null;
             nextStackTrace = new Exception();
             nextStackTrace.fillInStackTrace();
@@ -37,7 +37,7 @@ public abstract class ACloseableIterator<E> implements ICloseableIterator<E> {
 
     protected void createUnclosedFinalizeMessageLog() {
         String warning = "Finalizing unclosed iterator [" + getClass().getName() + "]";
-        if (Throwables.isFinalizerDebugStackTraceEnabled()) {
+        if (Throwables.isDebugStackTraceEnabled()) {
             final Exception stackTrace;
             if (initStackTrace != null) {
                 warning += " which was initialized but never used";

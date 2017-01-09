@@ -17,16 +17,21 @@ import de.invesdwin.util.lang.Strings;
         org.fest.reflect.util.Throwables.class })
 public final class Throwables extends AThrowablesStaticFacade {
 
-    private static boolean finalizerDebugStackTraceEnabled;
+    private static boolean debugStackTraceEnabled;
 
     private Throwables() {}
 
-    public static void setFinalizerDebugStackTraceEnabled(final boolean finalizerDebugStackTraceEnabled) {
-        Throwables.finalizerDebugStackTraceEnabled = finalizerDebugStackTraceEnabled;
+    public static void setDebugStackTraceEnabled(final boolean debugStackTraceEnabled) {
+        Throwables.debugStackTraceEnabled = debugStackTraceEnabled;
     }
 
-    public static boolean isFinalizerDebugStackTraceEnabled() {
-        return finalizerDebugStackTraceEnabled;
+    /**
+     * This tells whether stack traces that are normally skipped for performance reasons are enabled (e.g. finalizers of
+     * unclosed ACloseableIterators or exceptions that are normally handled for control logic and normally do not
+     * require stack traces)
+     */
+    public static boolean isDebugStackTraceEnabled() {
+        return debugStackTraceEnabled;
     }
 
     public static <T extends Throwable> boolean isCausedByType(final Throwable e, final Class<T> type) {
