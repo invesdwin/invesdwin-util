@@ -307,7 +307,7 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
         } else {
             if (divisor instanceof AScaledDecimal) {
                 throw new IllegalArgumentException(new TextDescription(
-                        "Division between different types of %ss [%s=%s / %s=%s] does not make any sense.",
+                        "Division between different types of %ss [%s=%s / %s=%s] does not make any sense. Please be more specific.",
                         AScaledDecimal.class.getSimpleName(), this.getClass().getSimpleName(), this,
                         divisor.getClass().getSimpleName(), divisor).toString());
             }
@@ -323,7 +323,7 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
         } else {
             if (multiplicant instanceof AScaledDecimal) {
                 throw new IllegalArgumentException(new TextDescription(
-                        "Multiplication between different types of %ss [%s=%s * %s=%s] does not make any sense.",
+                        "Multiplication between different types of %ss [%s=%s * %s=%s] does not make any sense. Please be more specific.",
                         AScaledDecimal.class.getSimpleName(), this.getClass().getSimpleName(), this,
                         multiplicant.getClass().getSimpleName(), multiplicant).toString());
             }
@@ -358,7 +358,7 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
         } else {
             if (divisor instanceof AScaledDecimal) {
                 throw new IllegalArgumentException(new TextDescription(
-                        "Division between different types of %ss [%s=%s / %s=%s] does not make any sense.",
+                        "Division between different types of %ss [%s=%s / %s=%s] does not make any sense. Please be more specific.",
                         AScaledDecimal.class.getSimpleName(), this.getClass().getSimpleName(), this,
                         divisor.getClass().getSimpleName(), divisor).toString());
             }
