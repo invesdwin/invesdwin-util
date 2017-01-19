@@ -6,6 +6,11 @@ import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.math.decimal.ADecimal;
 import de.invesdwin.util.math.decimal.Decimal;
 
+/**
+ * http://quant.stackexchange.com/questions/4286/detrending-price-data-for-analysis-of-signal-returns
+ * 
+ * http://www.automated-trading-system.com/detrending-for-trend-following/
+ */
 @NotThreadSafe
 public class DecimalStreamDetrending<Y extends ADecimal<Y>>
         implements IDecimalStreamAlgorithm<DecimalPoint<Decimal, Y>, DecimalPoint<Decimal, Y>> {
