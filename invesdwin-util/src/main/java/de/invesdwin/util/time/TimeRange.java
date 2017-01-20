@@ -7,6 +7,7 @@ import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.time.duration.Duration;
 import de.invesdwin.util.time.fdate.FDate;
+import de.invesdwin.util.time.fdate.FDates;
 
 @Immutable
 public class TimeRange {
@@ -58,5 +59,27 @@ public class TimeRange {
             durations.add(pr.getDuration());
         }
         return durations;
+    }
+
+    public static List<FDate> extractFroms(final Iterable<TimeRange> timeRanges) {
+        final List<FDate> durations = new ArrayList<FDate>();
+        for (final TimeRange pr : timeRanges) {
+            durations.add(pr.getFrom());
+        }
+        return durations;
+    }
+
+    public static List<FDate> extractTos(final Iterable<TimeRange> timeRanges) {
+        final List<FDate> durations = new ArrayList<FDate>();
+        for (final TimeRange pr : timeRanges) {
+            durations.add(pr.getTo());
+        }
+        return durations;
+    }
+
+    public static TimeRange avg(final List<TimeRange> timeRanges) {
+        final FDate avgFrom = FDates.avg(extractFroms(timeRanges));
+        final FDate avgTo = FDates.avg(extractTos(timeRanges));
+        return new TimeRange(avgFrom, avgTo);
     }
 }
