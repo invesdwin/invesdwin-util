@@ -17,27 +17,48 @@ public class DecimalStreamDetrending<Y extends ADecimal<Y>>
 
     private final DecimalPoint<Decimal, Y> from;
     private final DecimalPoint<Decimal, Y> to;
-    private final Y avgChangeYperX;
+
+    private final Decimal fromX;
+    private final Y fromY;
+    private final Y logAvgChangeYperX;
 
     public DecimalStreamDetrending(final DecimalPoint<Decimal, Y> from, final DecimalPoint<Decimal, Y> to) {
         this.from = from;
         this.to = to;
-        final Decimal xChange = to.getX().subtract(from.getX());
+        this.fromX = from.getX();
+        final Decimal xChange = scaleChangeInX(to.getX().subtract(fromX));
         Assertions.assertThat(xChange).isGreaterThan(Decimal.ZERO);
-        this.avgChangeYperX = to.getY().subtract(from.getY()).divide(xChange);
+        this.fromY = from.getY();
+        this.logAvgChangeYperX = to.getY().divide(fromY).log().divide(xChange);
     }
 
     /**
-     * avgChangeYperX = (toY - fromY) / (toX - fromX)
+     * logAvgChangeYperX = LOG(toY/fromY) / (toX - fromX)
      * 
-     * detrendedY(x,y) = y - ((x - fromX) * avgChangeYperX)
+     * logDetrendedAdjustment = LOG(curY/fromY) - logAvgChangeYperX*(curX-fromX)
+     * 
+     * detrendedY = fromY * EXP(logDetrendedProfit)
      */
     @Override
     public DecimalPoint<Decimal, Y> process(final DecimalPoint<Decimal, Y> value) {
-        final Decimal changeInX = value.getX().subtract(from.getX());
-        final Y subtraction = avgChangeYperX.multiply(changeInX);
-        final Y newY = value.getY().subtract(subtraction);
-        return new DecimalPoint<Decimal, Y>(value.getX(), newY);
+        final Decimal curX = value.getX();
+        final Y curY = value.getY();
+
+        final Decimal changeInX = scaleChangeInX(curX.subtract(fromX));
+
+        final Y logCurProfit = curY.divide(fromY).log();
+        final Y logMinusProfit = logAvgChangeYperX.multiply(changeInX);
+        final Y logDetrendedProfit = logCurProfit.subtract(logMinusProfit);
+        final Y detrendedY = fromY.multiply(logDetrendedProfit.exp());
+        return new DecimalPoint<Decimal, Y>(curX, detrendedY);
+    }
+
+    /**
+     * It might be needed to scale a change in X from e.g. milliseconds to minutes in order to make the detrending
+     * algorithm numerically valid when using double as the underlying decimal implementation.
+     */
+    protected Decimal scaleChangeInX(final Decimal changeInX) {
+        return changeInX;
     }
 
     public DecimalPoint<Decimal, Y> getFrom() {

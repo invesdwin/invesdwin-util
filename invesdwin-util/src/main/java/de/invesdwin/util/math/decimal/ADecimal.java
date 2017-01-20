@@ -255,10 +255,24 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
     }
 
     /**
+     * Returns the logarithm base 10.
+     */
+    public E log10() {
+        return newValueCopy(getImpl().log10());
+    }
+
+    /**
      * Returns Euler's number <i>e</i> raised to the power of this value.
      */
     public E exp() {
         return newValueCopy(getImpl().exp());
+    }
+
+    /**
+     * Returns 10 raised to the power of this value.
+     */
+    public E exp10() {
+        return newValueCopy(getImpl().exp10());
     }
 
     public E subtract(final ADecimal<E> subtrahend) {

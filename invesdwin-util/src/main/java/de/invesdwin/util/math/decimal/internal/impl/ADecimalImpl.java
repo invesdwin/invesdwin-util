@@ -247,4 +247,8 @@ public abstract class ADecimalImpl<E extends ADecimalImpl<E, V>, V>
 
     public abstract E exp();
 
+    public abstract E log10();
+
+    public abstract E exp10();
+
 }
