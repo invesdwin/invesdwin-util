@@ -522,4 +522,12 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
         }
     }
 
+    public static <T extends ADecimal<T>> T abs(final T value) {
+        if (value == null) {
+            return null;
+        } else {
+            return value.abs();
+        }
+    }
+
 }
