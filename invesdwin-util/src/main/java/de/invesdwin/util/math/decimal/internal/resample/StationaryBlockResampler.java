@@ -19,17 +19,17 @@ public class StationaryBlockResampler<E extends ADecimal<E>> extends CircularBlo
 
     public StationaryBlockResampler(final DecimalAggregate<E> parent) {
         super(parent);
-        final int superBlockLength = super.newBlockLength();
+        final int superBlockLength = super.getBlockLength();
         divisor = Math.log(1.0 - (1.0 / superBlockLength)) * -1;
     }
 
     @Override
-    protected long initialBlockLength(final IDecimalAggregate<E> parent) {
+    protected long newInitialBlockLength(final IDecimalAggregate<E> parent) {
         return new StationaryOptimalBlockLength<E>(parent).getBlockLength();
     }
 
     @Override
-    protected int newBlockLength() {
+    protected int getBlockLength() {
         //we randomize the block length for the stationary bootstrap
         int newBlockLength = Math.round((float) (random.nextDouble() / divisor));
         newBlockLength = newBlockLength < 1 ? 1 : newBlockLength;

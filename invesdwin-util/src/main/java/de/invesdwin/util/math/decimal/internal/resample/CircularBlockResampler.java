@@ -33,7 +33,7 @@ public class CircularBlockResampler<E extends ADecimal<E>> implements IDecimalRe
     public CircularBlockResampler(final DecimalAggregate<E> parent) {
         this.sample = parent.values();
         this.converter = parent.getConverter();
-        this.blockLength = initialBlockLength(parent);
+        this.blockLength = newInitialBlockLength(parent);
         Assertions.assertThat(blockLength).isGreaterThanOrEqualTo(1);
         if (blockLength == 1) {
             //blockwise resample makes no sense with block length 1
@@ -48,7 +48,7 @@ public class CircularBlockResampler<E extends ADecimal<E>> implements IDecimalRe
         }
     }
 
-    protected long initialBlockLength(final IDecimalAggregate<E> parent) {
+    protected long newInitialBlockLength(final IDecimalAggregate<E> parent) {
         return new CircularOptimalBlockLength<E>(parent).getBlockLength();
     }
 
@@ -57,7 +57,7 @@ public class CircularBlockResampler<E extends ADecimal<E>> implements IDecimalRe
         return delegate.resample();
     }
 
-    protected int newBlockLength() {
+    protected int getBlockLength() {
         return (int) blockLength;
     }
 
@@ -71,7 +71,7 @@ public class CircularBlockResampler<E extends ADecimal<E>> implements IDecimalRe
         final List<E> resample = new ArrayList<E>(length);
         for (int resampleIdx = 0; resampleIdx < length; resampleIdx += curBlockLength) {
             final int startIdx = (int) (uniformRandom.nextLong() % length);
-            curBlockLength = newBlockLength();
+            curBlockLength = getBlockLength();
             final int maxBlockIdx;
             if (resampleIdx + curBlockLength < length) {
                 maxBlockIdx = curBlockLength;
