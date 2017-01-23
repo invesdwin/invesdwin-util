@@ -4,6 +4,7 @@ import java.math.RoundingMode;
 import java.util.List;
 
 import de.invesdwin.util.math.decimal.config.BSplineInterpolationConfig;
+import de.invesdwin.util.math.decimal.config.BlockBootstrapConfig;
 import de.invesdwin.util.math.decimal.config.InterpolationConfig;
 import de.invesdwin.util.math.decimal.config.LoessInterpolationConfig;
 
@@ -194,11 +195,11 @@ public interface IDecimalAggregate<E extends ADecimal<E>> {
     /**
      * Randomize the values with replacement blockwise (for dependent data)
      */
-    IDecimalAggregate<E> randomizeCircularBootstrap();
+    IDecimalAggregate<E> randomizeCircularBootstrap(BlockBootstrapConfig config);
 
     /**
      * Randomize the values with replacement blockwise with randomized block length (for time series)
      */
-    IDecimalAggregate<E> randomizeStationaryBootstrap();
+    IDecimalAggregate<E> randomizeStationaryBootstrap(BlockBootstrapConfig config);
 
 }

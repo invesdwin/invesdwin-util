@@ -4,6 +4,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.math.decimal.ADecimal;
 import de.invesdwin.util.math.decimal.IDecimalAggregate;
+import de.invesdwin.util.math.decimal.config.BlockBootstrapConfig;
 import de.invesdwin.util.math.decimal.internal.DecimalAggregate;
 import de.invesdwin.util.math.decimal.internal.resample.blocklength.StationaryOptimalBlockLength;
 
@@ -12,14 +13,14 @@ public class StationaryBlockResampler<E extends ADecimal<E>> extends CircularBlo
 
     private final double divisor;
 
-    public StationaryBlockResampler(final DecimalAggregate<E> parent) {
-        super(parent);
+    public StationaryBlockResampler(final DecimalAggregate<E> parent, final BlockBootstrapConfig config) {
+        super(parent, config);
         final int superBlockLength = super.nextBlockLength();
         divisor = Math.log(1.0 - (1.0 / superBlockLength)) * -1;
     }
 
     @Override
-    protected int newInitialBlockLength(final IDecimalAggregate<E> parent) {
+    protected int newOptimalBlockLength(final IDecimalAggregate<E> parent) {
         return new StationaryOptimalBlockLength<E>(parent).getBlockLength();
     }
 

@@ -9,6 +9,7 @@ import javax.annotation.concurrent.Immutable;
 import de.invesdwin.util.math.decimal.ADecimal;
 import de.invesdwin.util.math.decimal.IDecimalAggregate;
 import de.invesdwin.util.math.decimal.config.BSplineInterpolationConfig;
+import de.invesdwin.util.math.decimal.config.BlockBootstrapConfig;
 import de.invesdwin.util.math.decimal.config.InterpolationConfig;
 import de.invesdwin.util.math.decimal.config.LoessInterpolationConfig;
 
@@ -276,12 +277,12 @@ public final class DummyDecimalAggregate<E extends ADecimal<E>> implements IDeci
     }
 
     @Override
-    public IDecimalAggregate<E> randomizeCircularBootstrap() {
+    public IDecimalAggregate<E> randomizeCircularBootstrap(final BlockBootstrapConfig config) {
         return this;
     }
 
     @Override
-    public IDecimalAggregate<E> randomizeStationaryBootstrap() {
+    public IDecimalAggregate<E> randomizeStationaryBootstrap(final BlockBootstrapConfig config) {
         return this;
     }
 
