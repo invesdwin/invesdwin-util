@@ -16,7 +16,7 @@ public class StationaryBlockResampler<E extends ADecimal<E>> extends CircularBlo
     public StationaryBlockResampler(final DecimalAggregate<E> parent, final BlockBootstrapConfig config) {
         super(parent, config);
         final int superBlockLength = super.nextBlockLength();
-        divisor = Math.log(1.0 - (1.0 / superBlockLength)) * -1;
+        divisor = Math.log(1D - (1D / superBlockLength)) * -1D;
     }
 
     @Override
