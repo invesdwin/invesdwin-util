@@ -42,25 +42,25 @@ public class CircularOptimalBlockLength<E extends ADecimal<E>> {
         final long maxLag = determineOptimalLag_maxlag(length);
         final double correlationThreshold = determineOptimalLag_correlationThreshold(length);
 
-        int prevLag = 0;
+        int prevHalfLag = 0;
         int halfLag = 0;
         int lagIncrements = 0;
-        int curLag = 1;
-        while (curLag <= maxLag) {
-            if (Math.abs(sampleAutoCorrelation(curLag)) > correlationThreshold) {
-                prevLag = curLag;
+        int curLagIdx = 1;
+        while (curLagIdx <= maxLag) {
+            if (Math.abs(sampleAutoCorrelation(curLagIdx)) > correlationThreshold) {
+                prevHalfLag = curLagIdx;
                 lagIncrements = 0;
             } else {
                 lagIncrements++;
                 if (lagIncrements == checkLag) {
-                    halfLag = curLag - checkLag + 1;
+                    halfLag = curLagIdx - checkLag + 1;
                     break;
                 }
             }
-            curLag++;
+            curLagIdx++;
         }
         if (halfLag == 0) {
-            halfLag = prevLag;
+            halfLag = prevHalfLag;
         }
         final long usedLag = 2 * halfLag;
         if (usedLag > maxLag) {
