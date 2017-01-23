@@ -25,16 +25,12 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
 
     private E converter;
     private final List<E> values;
-    private final ThreadLocal<DecimalAggregateBootstraps<E>> bootstraps = new ThreadLocal<DecimalAggregateBootstraps<E>>() {
-        @Override
-        protected DecimalAggregateBootstraps<E> initialValue() {
-            return new DecimalAggregateBootstraps<E>(DecimalAggregate.this);
-        };
-    };
+    private final DecimalAggregateBootstraps<E> bootstraps;
 
     public DecimalAggregate(final List<? extends E> values, final E converter) {
         this.values = Collections.unmodifiableList(values);
         this.converter = converter;
+        this.bootstraps = new DecimalAggregateBootstraps<E>(this);
     }
 
     public E getConverter() {
@@ -545,22 +541,22 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
 
     @Override
     public IDecimalAggregate<E> randomize() {
-        return bootstraps.get().randomize();
+        return bootstraps.randomize();
     }
 
     @Override
     public IDecimalAggregate<E> randomizeBootstrap() {
-        return bootstraps.get().randomizeBootstrap();
+        return bootstraps.randomizeBootstrap();
     }
 
     @Override
-    public IDecimalAggregate<E> randomizeMovingBootstrap(final BlockBootstrapConfig config) {
-        return bootstraps.get().randomizeMovingBootstrap(config);
+    public IDecimalAggregate<E> randomizeMovingBlockBootstrap(final BlockBootstrapConfig config) {
+        return bootstraps.randomizeMovingBootstrap(config);
     }
 
     @Override
     public IDecimalAggregate<E> randomizeStationaryBootstrap(final BlockBootstrapConfig config) {
-        return bootstraps.get().randomizeStationaryBootstrap(config);
+        return bootstraps.randomizeStationaryBootstrap(config);
     }
 
 }

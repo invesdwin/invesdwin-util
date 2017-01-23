@@ -3,12 +3,12 @@ package de.invesdwin.util.math.decimal.internal.resample;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.annotation.concurrent.NotThreadSafe;
+import javax.annotation.concurrent.ThreadSafe;
 
-import org.apache.commons.math3.random.JDKRandomGenerator;
 import org.apache.commons.math3.random.RandomGenerator;
 
 import de.invesdwin.util.assertions.Assertions;
+import de.invesdwin.util.lang.RandomGeneratorAdapter;
 import de.invesdwin.util.math.decimal.ADecimal;
 import de.invesdwin.util.math.decimal.IDecimalAggregate;
 import de.invesdwin.util.math.decimal.config.BlockBootstrapConfig;
@@ -22,20 +22,17 @@ import de.invesdwin.util.math.decimal.internal.resample.blocklength.CircularOpti
  * 
  * https://github.com/colintbowers/DependentBootstrap.jl
  */
-@NotThreadSafe
+@ThreadSafe
 public class MovingBlockResampler<E extends ADecimal<E>> implements IDecimalResampler<E> {
 
-    protected final RandomGenerator random = newRandomGenerator();
     private final int blockLength;
     private final List<E> sample;
     private final E converter;
     private final IDecimalResampler<E> delegate;
-    private BlockBootstrapConfig config;
 
     public MovingBlockResampler(final DecimalAggregate<E> parent, final BlockBootstrapConfig config) {
         this.sample = parent.values();
         this.converter = parent.getConverter();
-        this.config = config;
         if (config.getBlockLength() != null) {
             this.blockLength = config.getBlockLength();
         } else {
@@ -64,21 +61,22 @@ public class MovingBlockResampler<E extends ADecimal<E>> implements IDecimalResa
         return delegate.resample();
     }
 
-    protected int nextBlockLength() {
+    protected int nextBlockLength(final RandomGenerator random) {
         return blockLength;
     }
 
     protected RandomGenerator newRandomGenerator() {
-        return new JDKRandomGenerator();
+        return RandomGeneratorAdapter.currentThreadLocalRandom();
     }
 
     private IDecimalAggregate<E> internalResample() {
+        final RandomGenerator random = newRandomGenerator();
         int curBlockLength;
         final int length = sample.size();
         final List<E> resample = new ArrayList<E>(length);
         for (int resampleIdx = 0; resampleIdx < length; resampleIdx += curBlockLength) {
             final int startIdx = (int) (random.nextLong() % length);
-            curBlockLength = nextBlockLength();
+            curBlockLength = nextBlockLength(random);
             final int maxBlockIdx;
             if (resampleIdx + curBlockLength < length) {
                 maxBlockIdx = curBlockLength;

@@ -1,6 +1,6 @@
 package de.invesdwin.util.math.decimal.internal;
 
-import javax.annotation.concurrent.NotThreadSafe;
+import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 import de.invesdwin.util.math.decimal.ADecimal;
@@ -12,7 +12,7 @@ import de.invesdwin.util.math.decimal.internal.resample.IDecimalResampler;
 import de.invesdwin.util.math.decimal.internal.resample.MovingBlockResampler;
 import de.invesdwin.util.math.decimal.internal.resample.StationaryBlockResampler;
 
-@NotThreadSafe
+@ThreadSafe
 public class DecimalAggregateBootstraps<E extends ADecimal<E>> {
 
     private final DecimalAggregate<E> parent;
