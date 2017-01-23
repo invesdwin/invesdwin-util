@@ -24,7 +24,7 @@ public class StationaryBlockResampler<E extends ADecimal<E>> extends CircularBlo
     }
 
     @Override
-    protected long newBlockLength(final IDecimalAggregate<E> parent) {
+    protected long initialBlockLength(final IDecimalAggregate<E> parent) {
         return new StationaryOptimalBlockLength<E>(parent).getBlockLength();
     }
 

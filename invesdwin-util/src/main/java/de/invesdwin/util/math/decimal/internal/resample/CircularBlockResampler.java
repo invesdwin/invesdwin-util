@@ -33,7 +33,7 @@ public class CircularBlockResampler<E extends ADecimal<E>> implements IDecimalRe
     public CircularBlockResampler(final DecimalAggregate<E> parent) {
         this.sample = parent.values();
         this.converter = parent.getConverter();
-        this.blockLength = newBlockLength(parent);
+        this.blockLength = initialBlockLength(parent);
         Assertions.assertThat(blockLength).isGreaterThanOrEqualTo(1);
         if (blockLength == 1) {
             //blockwise resample makes no sense with block length 1
@@ -48,7 +48,7 @@ public class CircularBlockResampler<E extends ADecimal<E>> implements IDecimalRe
         }
     }
 
-    protected long newBlockLength(final IDecimalAggregate<E> parent) {
+    protected long initialBlockLength(final IDecimalAggregate<E> parent) {
         return new CircularOptimalBlockLength<E>(parent).getBlockLength();
     }
 
