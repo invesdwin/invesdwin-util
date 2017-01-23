@@ -113,6 +113,10 @@ public class CircularOptimalBlockLength<E extends ADecimal<E>> {
     }
 
     public long getBlockLength() {
+        return determineOptimalBlockLength();
+    }
+
+    private long determineOptimalBlockLength() {
         final int length = sample.size();
         final long optimalLag = determineOptimalLag();
         double sumTwoLagMultiCovar = sampleAutoCovariance0;
@@ -144,7 +148,7 @@ public class CircularOptimalBlockLength<E extends ADecimal<E>> {
     private double sampleAutoCovariance(final int index) {
         Assertions.checkTrue(index < sample.size());
         final int length = sample.size();
-        double sum = 0;
+        double sum = 0D;
         final int maxIdx = length - index;
         for (int i = 1; i <= maxIdx; ++i) {
             final double curAdj = sample.get(i).doubleValueRaw() - sampleAvg;

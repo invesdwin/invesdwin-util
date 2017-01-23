@@ -5,7 +5,7 @@ import java.util.List;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import org.apache.commons.math3.random.MersenneTwister;
+import org.apache.commons.math3.random.JDKRandomGenerator;
 import org.apache.commons.math3.random.RandomGenerator;
 
 import de.invesdwin.util.assertions.Assertions;
@@ -24,10 +24,10 @@ import de.invesdwin.util.math.decimal.internal.resample.blocklength.CircularOpti
 @NotThreadSafe
 public class CircularBlockResampler<E extends ADecimal<E>> implements IDecimalResampler<E> {
 
+    protected final RandomGenerator random = newRandomGenerator();
     private final long blockLength;
     private final List<E> sample;
     private final E converter;
-    private final RandomGenerator uniformRandom = newUniformRandomGenerator();
     private final IDecimalResampler<E> delegate;
 
     public CircularBlockResampler(final DecimalAggregate<E> parent) {
@@ -61,8 +61,8 @@ public class CircularBlockResampler<E extends ADecimal<E>> implements IDecimalRe
         return (int) blockLength;
     }
 
-    protected RandomGenerator newUniformRandomGenerator() {
-        return new MersenneTwister();
+    protected RandomGenerator newRandomGenerator() {
+        return new JDKRandomGenerator();
     }
 
     private IDecimalAggregate<E> internalResample() {
@@ -70,7 +70,7 @@ public class CircularBlockResampler<E extends ADecimal<E>> implements IDecimalRe
         final int length = sample.size();
         final List<E> resample = new ArrayList<E>(length);
         for (int resampleIdx = 0; resampleIdx < length; resampleIdx += curBlockLength) {
-            final int startIdx = (int) (uniformRandom.nextLong() % length);
+            final int startIdx = (int) (random.nextLong() % length);
             curBlockLength = getBlockLength();
             final int maxBlockIdx;
             if (resampleIdx + curBlockLength < length) {

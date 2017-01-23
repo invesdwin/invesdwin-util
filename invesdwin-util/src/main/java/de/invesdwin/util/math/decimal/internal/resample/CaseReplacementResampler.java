@@ -5,7 +5,7 @@ import java.util.List;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import org.apache.commons.math3.random.MersenneTwister;
+import org.apache.commons.math3.random.JDKRandomGenerator;
 import org.apache.commons.math3.random.RandomGenerator;
 
 import de.invesdwin.util.math.decimal.ADecimal;
@@ -17,7 +17,7 @@ public class CaseReplacementResampler<E extends ADecimal<E>> implements IDecimal
 
     private final List<? extends E> sample;
     private final E converter;
-    private final RandomGenerator uniformRandom = newUniformRandomGenerator();
+    private final RandomGenerator random = newRandomGenerator();
 
     public CaseReplacementResampler(final DecimalAggregate<E> parent) {
         this.sample = parent.values();
@@ -28,14 +28,14 @@ public class CaseReplacementResampler<E extends ADecimal<E>> implements IDecimal
     public IDecimalAggregate<E> resample() {
         final List<E> resample = new ArrayList<E>(sample.size());
         for (int resampleIdx = 0; resampleIdx < sample.size(); resampleIdx++) {
-            final int sourceIdx = (int) (this.uniformRandom.nextLong() % sample.size());
+            final int sourceIdx = (int) (this.random.nextLong() % sample.size());
             resample.add(sample.get(sourceIdx));
         }
         return new DecimalAggregate<E>(resample, converter);
     }
 
-    protected MersenneTwister newUniformRandomGenerator() {
-        return new MersenneTwister();
+    protected RandomGenerator newRandomGenerator() {
+        return new JDKRandomGenerator();
     }
 
 }
