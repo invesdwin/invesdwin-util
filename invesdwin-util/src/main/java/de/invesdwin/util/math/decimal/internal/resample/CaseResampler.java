@@ -10,6 +10,7 @@ import org.apache.commons.math3.random.RandomGenerator;
 
 import de.invesdwin.util.math.decimal.ADecimal;
 import de.invesdwin.util.math.decimal.IDecimalAggregate;
+import de.invesdwin.util.math.decimal.internal.DecimalAggregate;
 
 @Immutable
 public class CaseResampler<E extends ADecimal<E>> implements IDecimalResampler<E> {
@@ -18,7 +19,7 @@ public class CaseResampler<E extends ADecimal<E>> implements IDecimalResampler<E
     private final E converter;
     private final RandomGenerator uniformRandom = newUniformRandomGenerator();
 
-    public CaseResampler(final de.invesdwin.util.math.decimal.internal.DecimalAggregate<E> parent) {
+    public CaseResampler(final DecimalAggregate<E> parent) {
         this.sample = parent.values();
         this.converter = parent.getConverter();
     }
@@ -31,7 +32,7 @@ public class CaseResampler<E extends ADecimal<E>> implements IDecimalResampler<E
             final int sourceIdx = (int) (this.uniformRandom.nextLong() % sampleCopy.size());
             resample.add(sampleCopy.remove(sourceIdx));
         }
-        return new de.invesdwin.util.math.decimal.internal.DecimalAggregate<E>(resample, converter);
+        return new DecimalAggregate<E>(resample, converter);
     }
 
     protected MersenneTwister newUniformRandomGenerator() {

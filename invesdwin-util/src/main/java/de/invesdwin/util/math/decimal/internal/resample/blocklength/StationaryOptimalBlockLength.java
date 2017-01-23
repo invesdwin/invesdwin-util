@@ -6,7 +6,9 @@ import de.invesdwin.util.math.decimal.ADecimal;
 import de.invesdwin.util.math.decimal.IDecimalAggregate;
 
 @NotThreadSafe
-public class StationaryOptimalBlockLength<E extends ADecimal<E>> extends OptimalBlockLength<E> {
+public class StationaryOptimalBlockLength<E extends ADecimal<E>> extends CircularOptimalBlockLength<E> {
+
+    private static final double MULTIPLICATOR = 2.0;
 
     public StationaryOptimalBlockLength(final IDecimalAggregate<E> parent) {
         super(parent);
@@ -14,7 +16,7 @@ public class StationaryOptimalBlockLength<E extends ADecimal<E>> extends Optimal
 
     @Override
     protected double determineOptimalBlockLength_multiplicator() {
-        return 2.0;
+        return MULTIPLICATOR;
     }
 
 }

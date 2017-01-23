@@ -19,12 +19,14 @@ import de.invesdwin.util.math.decimal.IDecimalAggregate;
  * 
  */
 @NotThreadSafe
-public class OptimalBlockLength<E extends ADecimal<E>> {
+public class CircularOptimalBlockLength<E extends ADecimal<E>> {
+    private static final double ONE_THIRD = 1D / 3D;
+    private static final double MULTIPLICATOR = 1D + ONE_THIRD;
     private final List<E> sample;
     private final double sampleAvg;
     private final double sampleAutoCovariance0;
 
-    public OptimalBlockLength(final IDecimalAggregate<E> parent) {
+    public CircularOptimalBlockLength(final IDecimalAggregate<E> parent) {
         this.sample = parent.values();
         this.sampleAvg = parent.avg().doubleValueRaw();
         this.sampleAutoCovariance0 = sampleAutoCovariance(0);
@@ -76,27 +78,25 @@ public class OptimalBlockLength<E extends ADecimal<E>> {
 
     public long getBlockLength() {
         final int length = sample.size();
-        final long a2 = determineOptimalLag();
+        final long optimalLag = determineOptimalLag();
         double a3 = sampleAutoCovariance0;
         double a4 = 0.0;
-        int a5 = 1;
-        while (a5 <= a2) {
-            final double a6 = determineOptimalBlockLength_1(1.0 * a5 / a2);
-            final double a7 = sampleAutoCovariance(a5);
+        for (int i = 1; i <= optimalLag; i++) {
+            final double a6 = determineOptimalBlockLength_1(1.0 * i / optimalLag);
+            final double a7 = sampleAutoCovariance(i);
             a3 += 2.0 * a6 * a7;
-            a4 += 2.0 * a6 * a5 * a7;
-            ++a5;
+            a4 += 2.0 * a6 * i * a7;
         }
         final double a8 = a3 * a3 * determineOptimalBlockLength_multiplicator();
-        double a9 = Math.pow(2.0 * a4 * a4 * length / a8, 0.3333333333333333);
+        double result = Math.pow(2.0 * a4 * a4 * length / a8, ONE_THIRD);
         final double a10 = determineOptimalBlockLength_2(length);
-        a9 = a9 > a10 ? a10 : a9;
-        a9 = a9 < 1.0 ? 1.0 : a9;
-        return Math.round(a9);
+        result = result > a10 ? a10 : result;
+        result = result < 1.0 ? 1.0 : result;
+        return Math.round(result);
     }
 
     protected double determineOptimalBlockLength_multiplicator() {
-        return 1.3333333333333333;
+        return MULTIPLICATOR;
     }
 
     private double sampleAutoCorrelation(final int index) {
@@ -106,11 +106,11 @@ public class OptimalBlockLength<E extends ADecimal<E>> {
     private double sampleAutoCovariance(final int index) {
         Assertions.checkTrue(index < sample.size());
         final int length = sample.size();
-        double a2 = 0.0;
+        double sum = 0;
         for (int i = 1; i <= length - index; ++i) {
-            a2 += (sample.get(i).doubleValueRaw() - sampleAvg) * (sample.get(i + index).doubleValueRaw() - sampleAvg);
+            sum += (sample.get(i).doubleValueRaw() - sampleAvg) * (sample.get(i + index).doubleValueRaw() - sampleAvg);
         }
-        return a2 / length;
+        return sum / length;
     }
 
 }

@@ -11,7 +11,8 @@ import org.apache.commons.math3.random.RandomGenerator;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.math.decimal.ADecimal;
 import de.invesdwin.util.math.decimal.IDecimalAggregate;
-import de.invesdwin.util.math.decimal.internal.resample.blocklength.OptimalBlockLength;
+import de.invesdwin.util.math.decimal.internal.DecimalAggregate;
+import de.invesdwin.util.math.decimal.internal.resample.blocklength.CircularOptimalBlockLength;
 
 /**
  * http://www.math.ucsd.edu/~politis/SOFT/PPW/ppw.R
@@ -27,33 +28,33 @@ public class CircularBlockResampler<E extends ADecimal<E>> implements IDecimalRe
     private final List<E> sample;
     private final E converter;
     private final RandomGenerator uniformRandom = newUniformRandomGenerator();
+    private final IDecimalResampler<E> delegate;
 
-    public CircularBlockResampler(final de.invesdwin.util.math.decimal.internal.DecimalAggregate<E> parent) {
+    public CircularBlockResampler(final DecimalAggregate<E> parent) {
         this.sample = parent.values();
         this.converter = parent.getConverter();
         this.blockLength = newBlockLength(parent);
-        Assertions.assertThat(blockLength).isGreaterThan(1);
+        Assertions.assertThat(blockLength).isGreaterThanOrEqualTo(1);
+        if (blockLength == 1) {
+            //blockwise resample makes no sense with block length 1
+            delegate = new CaseReplacementResampler<E>(parent);
+        } else {
+            delegate = new IDecimalResampler<E>() {
+                @Override
+                public IDecimalAggregate<E> resample() {
+                    return internalResample();
+                }
+            };
+        }
     }
 
     protected long newBlockLength(final IDecimalAggregate<E> parent) {
-        return new OptimalBlockLength<E>(parent).getBlockLength();
+        return new CircularOptimalBlockLength<E>(parent).getBlockLength();
     }
 
     @Override
-    public IDecimalAggregate<E> resample() {
-        int curBlockLength;
-        final int length = sample.size();
-        final List<E> resample = new ArrayList<E>(length);
-        for (int i = 0; i < length; i += curBlockLength) {
-            final int randomI = (int) (uniformRandom.nextLong() % length);
-            curBlockLength = this.newBlockLength();
-            final int jMax = i + curBlockLength < length ? curBlockLength : length - i;
-            for (int j = 0; j < jMax; ++j) {
-                final int valuesIndex = (randomI + j) % length;
-                resample.add(sample.get(valuesIndex));
-            }
-        }
-        return new de.invesdwin.util.math.decimal.internal.DecimalAggregate<E>(resample, converter);
+    public final IDecimalAggregate<E> resample() {
+        return delegate.resample();
     }
 
     protected int newBlockLength() {
@@ -62,6 +63,27 @@ public class CircularBlockResampler<E extends ADecimal<E>> implements IDecimalRe
 
     protected RandomGenerator newUniformRandomGenerator() {
         return new MersenneTwister();
+    }
+
+    private IDecimalAggregate<E> internalResample() {
+        int curBlockLength;
+        final int length = sample.size();
+        final List<E> resample = new ArrayList<E>(length);
+        for (int resampleIdx = 0; resampleIdx < length; resampleIdx += curBlockLength) {
+            final int startIdx = (int) (uniformRandom.nextLong() % length);
+            curBlockLength = newBlockLength();
+            final int maxBlockIdx;
+            if (resampleIdx + curBlockLength < length) {
+                maxBlockIdx = curBlockLength;
+            } else {
+                maxBlockIdx = length - resampleIdx;
+            }
+            for (int blockIdx = 0; blockIdx < maxBlockIdx; blockIdx++) {
+                final int valuesIndex = (startIdx + blockIdx) % length;
+                resample.add(sample.get(valuesIndex));
+            }
+        }
+        return new DecimalAggregate<E>(resample, converter);
     }
 
 }
