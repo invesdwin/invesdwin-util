@@ -112,8 +112,8 @@ public class CircularOptimalBlockLength<E extends ADecimal<E>> {
         return rounded;
     }
 
-    public long getBlockLength() {
-        return determineOptimalBlockLength();
+    public int getBlockLength() {
+        return (int) determineOptimalBlockLength();
     }
 
     private long determineOptimalBlockLength() {

@@ -25,7 +25,7 @@ import de.invesdwin.util.math.decimal.internal.resample.blocklength.CircularOpti
 public class CircularBlockResampler<E extends ADecimal<E>> implements IDecimalResampler<E> {
 
     protected final RandomGenerator random = newRandomGenerator();
-    private final long blockLength;
+    private final int blockLength;
     private final List<E> sample;
     private final E converter;
     private final IDecimalResampler<E> delegate;
@@ -48,7 +48,7 @@ public class CircularBlockResampler<E extends ADecimal<E>> implements IDecimalRe
         }
     }
 
-    protected long newInitialBlockLength(final IDecimalAggregate<E> parent) {
+    protected int newInitialBlockLength(final IDecimalAggregate<E> parent) {
         return new CircularOptimalBlockLength<E>(parent).getBlockLength();
     }
 
@@ -57,8 +57,8 @@ public class CircularBlockResampler<E extends ADecimal<E>> implements IDecimalRe
         return delegate.resample();
     }
 
-    protected int getBlockLength() {
-        return (int) blockLength;
+    protected int nextBlockLength() {
+        return blockLength;
     }
 
     protected RandomGenerator newRandomGenerator() {
@@ -71,7 +71,7 @@ public class CircularBlockResampler<E extends ADecimal<E>> implements IDecimalRe
         final List<E> resample = new ArrayList<E>(length);
         for (int resampleIdx = 0; resampleIdx < length; resampleIdx += curBlockLength) {
             final int startIdx = (int) (random.nextLong() % length);
-            curBlockLength = getBlockLength();
+            curBlockLength = nextBlockLength();
             final int maxBlockIdx;
             if (resampleIdx + curBlockLength < length) {
                 maxBlockIdx = curBlockLength;
