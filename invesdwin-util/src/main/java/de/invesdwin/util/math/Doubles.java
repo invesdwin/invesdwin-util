@@ -40,4 +40,8 @@ public final class Doubles extends ADoublesStaticFacade {
         }
     }
 
+    public static Double between(final Double value, final Double min, final Double max) {
+        return max(min(value, max), min);
+    }
+
 }

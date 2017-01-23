@@ -5,6 +5,7 @@ import java.util.List;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.assertions.Assertions;
+import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.decimal.ADecimal;
 import de.invesdwin.util.math.decimal.IDecimalAggregate;
 
@@ -20,8 +21,11 @@ import de.invesdwin.util.math.decimal.IDecimalAggregate;
  */
 @NotThreadSafe
 public class CircularOptimalBlockLength<E extends ADecimal<E>> {
+    private static final double DISTRIBUTION_CONSTANT = 1.959964D;
+    private static final int MIN_CHECK_LAG_INTERVAL = 5;
     private static final double ONE_THIRD = 1D / 3D;
-    private static final double MULTIPLICATOR = 1D + ONE_THIRD;
+    private static final double MULTIPLICATOR_ONE_AND_A_THIRD = 1D + ONE_THIRD;
+
     private final List<E> sample;
     private final double sampleAvg;
     private final double sampleAutoCovariance0;
@@ -34,69 +38,102 @@ public class CircularOptimalBlockLength<E extends ADecimal<E>> {
 
     private long determineOptimalLag() {
         final int length = sample.size();
-        final int a2 = determineOptimalLag_1(length);
-        final long a3 = determineOptimalLag_2(length);
-        final double a4 = determineOptimalLag_3(length);
-        int a6 = 0;
-        int a7 = 0;
-        int a8 = 0;
-        int a9 = 1;
-        while (a9 <= a3) {
-            if (Math.abs(sampleAutoCorrelation(a9)) > a4) {
-                a6 = a9;
-                a8 = 0;
-            } else if (++a8 == a2) {
-                a7 = a9 - a2 + 1;
-                break;
+        final int checkLag = determineOptimalLag_checkLagInterval(length);
+        final long maxLag = determineOptimalLag_maxlag(length);
+        final double correlationThreshold = determineOptimalLag_correlationThreshold(length);
+
+        int prevLag = 0;
+        int halfLag = 0;
+        int lagIncrements = 0;
+        int curLag = 1;
+        while (curLag <= maxLag) {
+            if (Math.abs(sampleAutoCorrelation(curLag)) > correlationThreshold) {
+                prevLag = curLag;
+                lagIncrements = 0;
+            } else {
+                lagIncrements++;
+                if (lagIncrements == checkLag) {
+                    halfLag = curLag - checkLag + 1;
+                    break;
+                }
             }
-            a9++;
+            curLag++;
         }
-        a7 = a7 == 0 ? a6 : a7;
-        return 2 * a7 > a3 ? a3 : (long) (2 * a7);
+        if (halfLag == 0) {
+            halfLag = prevLag;
+        }
+        final long usedLag = 2 * halfLag;
+        if (usedLag > maxLag) {
+            return maxLag;
+        } else {
+            return usedLag;
+        }
     }
 
-    private int determineOptimalLag_1(final int a) {
-        return Math.max(5, (int) Math.ceil(Math.sqrt(Math.log10(a))));
+    private int determineOptimalLag_checkLagInterval(final int length) {
+        final double logLength = Math.log10(length);
+        final double sqrtLogLength = Math.sqrt(logLength);
+        final int roundedSqrtLogLength = (int) Math.ceil(sqrtLogLength);
+        return Math.max(MIN_CHECK_LAG_INTERVAL, roundedSqrtLogLength);
     }
 
-    private long determineOptimalLag_2(final int a) {
-        return (long) Math.ceil(Math.sqrt(a)) + determineOptimalLag_1(a);
+    private long determineOptimalLag_maxlag(final int length) {
+        final double sqrtLength = Math.sqrt(length);
+        final long roundedSqrtLength = (long) Math.ceil(sqrtLength);
+        final int checkLagInterval = determineOptimalLag_checkLagInterval(length);
+        final long maxLag = roundedSqrtLength + checkLagInterval;
+        return maxLag;
     }
 
-    private double determineOptimalLag_3(final int a) {
-        return 1.959964 * Math.sqrt(Math.log10(a) / a);
+    private double determineOptimalLag_correlationThreshold(final int length) {
+        final double logLengthPerLength = Math.log10(length) / length;
+        final double sqrtLogLengthPerLength = Math.sqrt(logLengthPerLength);
+        return DISTRIBUTION_CONSTANT * sqrtLogLengthPerLength;
     }
 
-    private double determineOptimalBlockLength_1(final double a) {
-        final double a2 = Math.abs(a);
-        return a2 <= 0.5 ? 1.0 : (a2 <= 1.0 ? 2.0 * (1.0 - a2) : 0.0);
+    private double determineOptimalBlockLength_lagMultiplicator(final double value) {
+        final double absValue = Math.abs(value);
+        if (absValue <= 0.5D) {
+            return 1D;
+        } else if (absValue <= 1D) {
+            return 2D * (1D - absValue);
+        } else {
+            return 0D;
+        }
     }
 
-    private long determineOptimalBlockLength_2(final int a) {
-        return (long) Math.ceil(Math.min(3.0 * Math.sqrt(a), a / 3.0));
+    private long determineOptimalBlockLength_maxBlockLength(final int length) {
+        final double sqrtLength = Math.sqrt(length);
+        final double threeTimesSqrtLength = 3D * sqrtLength;
+        final double oneThirdLength = length / 3D;
+        final double min = Math.min(threeTimesSqrtLength, oneThirdLength);
+        final long rounded = (long) Math.ceil(min);
+        return rounded;
     }
 
     public long getBlockLength() {
         final int length = sample.size();
         final long optimalLag = determineOptimalLag();
-        double a3 = sampleAutoCovariance0;
-        double a4 = 0.0;
-        for (int i = 1; i <= optimalLag; i++) {
-            final double a6 = determineOptimalBlockLength_1(1.0 * i / optimalLag);
-            final double a7 = sampleAutoCovariance(i);
-            a3 += 2.0 * a6 * a7;
-            a4 += 2.0 * a6 * i * a7;
+        double sumTwoLagMultiCovar = sampleAutoCovariance0;
+        double sumTwoLagMultiLagCovar = 0D;
+        for (int curLag = 1; curLag <= optimalLag; curLag++) {
+            final double lagMultiplicator = determineOptimalBlockLength_lagMultiplicator(1D * curLag / optimalLag);
+            final double covariance = sampleAutoCovariance(curLag);
+            sumTwoLagMultiCovar += 2D * lagMultiplicator * covariance;
+            sumTwoLagMultiLagCovar += 2D * lagMultiplicator * curLag * covariance;
         }
-        final double a8 = a3 * a3 * determineOptimalBlockLength_multiplicator();
-        double result = Math.pow(2.0 * a4 * a4 * length / a8, ONE_THIRD);
-        final double a10 = determineOptimalBlockLength_2(length);
-        result = result > a10 ? a10 : result;
-        result = result < 1.0 ? 1.0 : result;
-        return Math.round(result);
+        final double blockLengthDivisor = sumTwoLagMultiCovar * sumTwoLagMultiCovar
+                * determineOptimalBlockLength_blockLengthMultiplicator();
+        double blockLength = Math
+                .pow(2D * sumTwoLagMultiLagCovar * sumTwoLagMultiLagCovar * length / blockLengthDivisor, ONE_THIRD);
+        final double maxBlockLength = determineOptimalBlockLength_maxBlockLength(length);
+
+        blockLength = Doubles.between(blockLength, 1D, maxBlockLength);
+        return Math.round(blockLength);
     }
 
-    protected double determineOptimalBlockLength_multiplicator() {
-        return MULTIPLICATOR;
+    protected double determineOptimalBlockLength_blockLengthMultiplicator() {
+        return MULTIPLICATOR_ONE_AND_A_THIRD;
     }
 
     private double sampleAutoCorrelation(final int index) {
@@ -107,8 +144,11 @@ public class CircularOptimalBlockLength<E extends ADecimal<E>> {
         Assertions.checkTrue(index < sample.size());
         final int length = sample.size();
         double sum = 0;
-        for (int i = 1; i <= length - index; ++i) {
-            sum += (sample.get(i).doubleValueRaw() - sampleAvg) * (sample.get(i + index).doubleValueRaw() - sampleAvg);
+        final int maxIdx = length - index;
+        for (int i = 1; i <= maxIdx; ++i) {
+            final double curAdj = sample.get(i).doubleValueRaw() - sampleAvg;
+            final double nextAdj = sample.get(i + index).doubleValueRaw() - sampleAvg;
+            sum += curAdj * nextAdj;
         }
         return sum / length;
     }

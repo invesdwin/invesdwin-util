@@ -8,15 +8,15 @@ import de.invesdwin.util.math.decimal.IDecimalAggregate;
 @NotThreadSafe
 public class StationaryOptimalBlockLength<E extends ADecimal<E>> extends CircularOptimalBlockLength<E> {
 
-    private static final double MULTIPLICATOR = 2.0;
+    private static final double MULTIPLICATOR_TWO = 2;
 
     public StationaryOptimalBlockLength(final IDecimalAggregate<E> parent) {
         super(parent);
     }
 
     @Override
-    protected double determineOptimalBlockLength_multiplicator() {
-        return MULTIPLICATOR;
+    protected double determineOptimalBlockLength_blockLengthMultiplicator() {
+        return MULTIPLICATOR_TWO;
     }
 
 }

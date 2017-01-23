@@ -64,7 +64,7 @@ public final class Longs extends ALongsStaticFacade {
         }
     }
 
-    public static long between(final long value, final long min, final long max) {
+    public static Long between(final Long value, final Long min, final Long max) {
         return max(min(value, max), min);
     }
 
