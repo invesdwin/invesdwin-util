@@ -5,11 +5,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import javax.annotation.concurrent.Immutable;
+import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.Lists;
-import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 import de.invesdwin.util.math.decimal.ADecimal;
 import de.invesdwin.util.math.decimal.Decimal;
 import de.invesdwin.util.math.decimal.IDecimalAggregate;
@@ -17,40 +16,20 @@ import de.invesdwin.util.math.decimal.config.BSplineInterpolationConfig;
 import de.invesdwin.util.math.decimal.config.BlockBootstrapConfig;
 import de.invesdwin.util.math.decimal.config.InterpolationConfig;
 import de.invesdwin.util.math.decimal.config.LoessInterpolationConfig;
-import de.invesdwin.util.math.decimal.internal.resample.CaseReplacementResampler;
-import de.invesdwin.util.math.decimal.internal.resample.CaseResampler;
-import de.invesdwin.util.math.decimal.internal.resample.CircularBlockResampler;
-import de.invesdwin.util.math.decimal.internal.resample.StationaryBlockResampler;
 import de.invesdwin.util.math.decimal.stream.DecimalPoint;
 import de.invesdwin.util.math.decimal.stream.DecimalStreamDetrending;
 import de.invesdwin.util.math.decimal.stream.DecimalStreamNormalization;
 
-@Immutable
+@ThreadSafe
 public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregate<E> {
 
     private E converter;
     private final List<E> values;
-    private final ALoadingCache<BlockBootstrapConfig, CircularBlockResampler<E>> config_circularBlockResampler = new ALoadingCache<BlockBootstrapConfig, CircularBlockResampler<E>>() {
+    private final ThreadLocal<DecimalAggregateBootstraps<E>> bootstraps = new ThreadLocal<DecimalAggregateBootstraps<E>>() {
         @Override
-        protected CircularBlockResampler<E> loadValue(final BlockBootstrapConfig key) {
-            return new CircularBlockResampler<E>(DecimalAggregate.this, key);
-        }
-
-        @Override
-        protected Integer getMaximumSize() {
-            return 10;
-        }
-    };
-    private final ALoadingCache<BlockBootstrapConfig, StationaryBlockResampler<E>> config_stationaryBlockResampler = new ALoadingCache<BlockBootstrapConfig, StationaryBlockResampler<E>>() {
-        @Override
-        protected StationaryBlockResampler<E> loadValue(final BlockBootstrapConfig key) {
-            return new StationaryBlockResampler<E>(DecimalAggregate.this, key);
-        }
-
-        @Override
-        protected Integer getMaximumSize() {
-            return 10;
-        }
+        protected DecimalAggregateBootstraps<E> initialValue() {
+            return new DecimalAggregateBootstraps<E>(DecimalAggregate.this);
+        };
     };
 
     public DecimalAggregate(final List<? extends E> values, final E converter) {
@@ -566,22 +545,22 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
 
     @Override
     public IDecimalAggregate<E> randomize() {
-        return new CaseResampler<E>(this).resample();
+        return bootstraps.get().randomize();
     }
 
     @Override
     public IDecimalAggregate<E> randomizeBootstrap() {
-        return new CaseReplacementResampler<E>(this).resample();
+        return bootstraps.get().randomizeBootstrap();
     }
 
     @Override
-    public IDecimalAggregate<E> randomizeCircularBootstrap(final BlockBootstrapConfig config) {
-        return config_circularBlockResampler.get(config).resample();
+    public IDecimalAggregate<E> randomizeMovingBootstrap(final BlockBootstrapConfig config) {
+        return bootstraps.get().randomizeMovingBootstrap(config);
     }
 
     @Override
     public IDecimalAggregate<E> randomizeStationaryBootstrap(final BlockBootstrapConfig config) {
-        return config_stationaryBlockResampler.get(config).resample();
+        return bootstraps.get().randomizeStationaryBootstrap(config);
     }
 
 }

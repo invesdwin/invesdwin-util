@@ -195,7 +195,7 @@ public interface IDecimalAggregate<E extends ADecimal<E>> {
     /**
      * Randomize the values with replacement blockwise (for dependent data)
      */
-    IDecimalAggregate<E> randomizeCircularBootstrap(BlockBootstrapConfig config);
+    IDecimalAggregate<E> randomizeMovingBootstrap(BlockBootstrapConfig config);
 
     /**
      * Randomize the values with replacement blockwise with randomized block length (for time series)

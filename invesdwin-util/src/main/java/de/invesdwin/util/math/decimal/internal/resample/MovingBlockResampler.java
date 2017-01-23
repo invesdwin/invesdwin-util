@@ -23,7 +23,7 @@ import de.invesdwin.util.math.decimal.internal.resample.blocklength.CircularOpti
  * https://github.com/colintbowers/DependentBootstrap.jl
  */
 @NotThreadSafe
-public class CircularBlockResampler<E extends ADecimal<E>> implements IDecimalResampler<E> {
+public class MovingBlockResampler<E extends ADecimal<E>> implements IDecimalResampler<E> {
 
     protected final RandomGenerator random = newRandomGenerator();
     private final int blockLength;
@@ -32,7 +32,7 @@ public class CircularBlockResampler<E extends ADecimal<E>> implements IDecimalRe
     private final IDecimalResampler<E> delegate;
     private BlockBootstrapConfig config;
 
-    public CircularBlockResampler(final DecimalAggregate<E> parent, final BlockBootstrapConfig config) {
+    public MovingBlockResampler(final DecimalAggregate<E> parent, final BlockBootstrapConfig config) {
         this.sample = parent.values();
         this.converter = parent.getConverter();
         this.config = config;

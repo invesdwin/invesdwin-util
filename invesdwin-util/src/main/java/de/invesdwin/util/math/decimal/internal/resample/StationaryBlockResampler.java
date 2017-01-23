@@ -9,7 +9,7 @@ import de.invesdwin.util.math.decimal.internal.DecimalAggregate;
 import de.invesdwin.util.math.decimal.internal.resample.blocklength.StationaryOptimalBlockLength;
 
 @NotThreadSafe
-public class StationaryBlockResampler<E extends ADecimal<E>> extends CircularBlockResampler<E> {
+public class StationaryBlockResampler<E extends ADecimal<E>> extends MovingBlockResampler<E> {
 
     private final double divisor;
 

@@ -277,7 +277,7 @@ public final class DummyDecimalAggregate<E extends ADecimal<E>> implements IDeci
     }
 
     @Override
-    public IDecimalAggregate<E> randomizeCircularBootstrap(final BlockBootstrapConfig config) {
+    public IDecimalAggregate<E> randomizeMovingBootstrap(final BlockBootstrapConfig config) {
         return this;
     }
 
