@@ -15,6 +15,10 @@ import de.invesdwin.util.math.decimal.IDecimalAggregate;
 import de.invesdwin.util.math.decimal.config.BSplineInterpolationConfig;
 import de.invesdwin.util.math.decimal.config.InterpolationConfig;
 import de.invesdwin.util.math.decimal.config.LoessInterpolationConfig;
+import de.invesdwin.util.math.decimal.internal.resample.CaseReplacementResampler;
+import de.invesdwin.util.math.decimal.internal.resample.CaseResampler;
+import de.invesdwin.util.math.decimal.internal.resample.CircularBlockResampler;
+import de.invesdwin.util.math.decimal.internal.resample.StationaryBlockResampler;
 import de.invesdwin.util.math.decimal.stream.DecimalPoint;
 import de.invesdwin.util.math.decimal.stream.DecimalStreamDetrending;
 import de.invesdwin.util.math.decimal.stream.DecimalStreamNormalization;
@@ -24,6 +28,8 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
 
     private E converter;
     private final List<E> values;
+    private CircularBlockResampler<E> randomizeCircularBootstrap;
+    private StationaryBlockResampler<E> stationaryBlockResampler;
 
     public DecimalAggregate(final List<? extends E> values, final E converter) {
         this.values = Collections.unmodifiableList(values);
@@ -534,6 +540,34 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
             results.add(detrendedValue.getY());
         }
         return new DecimalAggregate<E>(results, getConverter());
+    }
+
+    @Override
+    public IDecimalAggregate<E> randomize() {
+        return new CaseResampler<E>(this).resample();
+    }
+
+    @Override
+    public IDecimalAggregate<E> randomizeBootstrap() {
+        return new CaseReplacementResampler<E>(this).resample();
+    }
+
+    @Override
+    public IDecimalAggregate<E> randomizeCircularBootstrap() {
+        if (randomizeCircularBootstrap == null) {
+            //keep the instance since it is expensive to instantiate
+            this.randomizeCircularBootstrap = new CircularBlockResampler<E>(this);
+        }
+        return randomizeCircularBootstrap.resample();
+    }
+
+    @Override
+    public IDecimalAggregate<E> randomizeStationaryBootstrap() {
+        if (stationaryBlockResampler == null) {
+            //keep the instance since it is expensive to instantiate
+            stationaryBlockResampler = new StationaryBlockResampler<E>(this);
+        }
+        return stationaryBlockResampler.resample();
     }
 
 }

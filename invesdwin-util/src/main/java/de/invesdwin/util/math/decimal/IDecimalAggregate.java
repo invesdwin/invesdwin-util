@@ -181,4 +181,24 @@ public interface IDecimalAggregate<E extends ADecimal<E>> {
 
     Integer bestValueIndex(boolean isHigherBetter);
 
+    /**
+     * Randomized the values without replacement
+     */
+    IDecimalAggregate<E> randomize();
+
+    /**
+     * Randomized the values with replacement, thus can draw the same values multiple times
+     */
+    IDecimalAggregate<E> randomizeBootstrap();
+
+    /**
+     * Randomize the values with replacement blockwise (for dependent data)
+     */
+    IDecimalAggregate<E> randomizeCircularBootstrap();
+
+    /**
+     * Randomize the values with replacement blockwise with randomized block length (for time series)
+     */
+    IDecimalAggregate<E> randomizeStationaryBootstrap();
+
 }

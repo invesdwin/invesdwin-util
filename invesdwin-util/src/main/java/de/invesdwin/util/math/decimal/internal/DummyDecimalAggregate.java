@@ -265,4 +265,24 @@ public final class DummyDecimalAggregate<E extends ADecimal<E>> implements IDeci
         return this;
     }
 
+    @Override
+    public IDecimalAggregate<E> randomize() {
+        return this;
+    }
+
+    @Override
+    public IDecimalAggregate<E> randomizeBootstrap() {
+        return this;
+    }
+
+    @Override
+    public IDecimalAggregate<E> randomizeCircularBootstrap() {
+        return this;
+    }
+
+    @Override
+    public IDecimalAggregate<E> randomizeStationaryBootstrap() {
+        return this;
+    }
+
 }
