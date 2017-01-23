@@ -63,12 +63,8 @@ public class CircularOptimalBlockLength<E extends ADecimal<E>> {
         if (halfLag == 0) {
             halfLag = prevHalfLag;
         }
-        final long usedLag = 2 * halfLag;
-        if (usedLag > maxLag) {
-            return maxLag;
-        } else {
-            return usedLag;
-        }
+        final long limitedLag = Math.min(2 * halfLag, maxLag);
+        return limitedLag;
     }
 
     private int determineOptimalLag_checkLagInterval(final int length) {
