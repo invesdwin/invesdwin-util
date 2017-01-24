@@ -556,8 +556,8 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
     }
 
     @Override
-    public IDecimalAggregate<E> randomizeMovingBlockBootstrap(final BlockBootstrapConfig config) {
-        return getBootstraps().randomizeMovingBootstrap(config);
+    public IDecimalAggregate<E> randomizeCircularBlockBootstrap(final BlockBootstrapConfig config) {
+        return getBootstraps().randomizeCircularBootstrap(config);
     }
 
     @Override

@@ -8,8 +8,8 @@ import de.invesdwin.util.math.decimal.IDecimalAggregate;
 import de.invesdwin.util.math.decimal.config.BlockBootstrapConfig;
 import de.invesdwin.util.math.decimal.internal.resample.CaseReplacementResampler;
 import de.invesdwin.util.math.decimal.internal.resample.CaseResampler;
+import de.invesdwin.util.math.decimal.internal.resample.CircularResampler;
 import de.invesdwin.util.math.decimal.internal.resample.IDecimalResampler;
-import de.invesdwin.util.math.decimal.internal.resample.MovingBlockResampler;
 import de.invesdwin.util.math.decimal.internal.resample.StationaryBlockResampler;
 
 @ThreadSafe
@@ -17,10 +17,10 @@ public class DecimalAggregateBootstraps<E extends ADecimal<E>> {
 
     private final DecimalAggregate<E> parent;
 
-    private final ALoadingCache<BlockBootstrapConfig, MovingBlockResampler<E>> movingBlockResampler = new ALoadingCache<BlockBootstrapConfig, MovingBlockResampler<E>>() {
+    private final ALoadingCache<BlockBootstrapConfig, CircularResampler<E>> circularResampler = new ALoadingCache<BlockBootstrapConfig, CircularResampler<E>>() {
         @Override
-        protected MovingBlockResampler<E> loadValue(final BlockBootstrapConfig key) {
-            return new MovingBlockResampler<E>(parent, key);
+        protected CircularResampler<E> loadValue(final BlockBootstrapConfig key) {
+            return new CircularResampler<E>(parent, key);
         }
 
         @Override
@@ -60,8 +60,8 @@ public class DecimalAggregateBootstraps<E extends ADecimal<E>> {
         return caseReplacementResampler.resample();
     }
 
-    public IDecimalAggregate<E> randomizeMovingBootstrap(final BlockBootstrapConfig config) {
-        return movingBlockResampler.get(config).resample();
+    public IDecimalAggregate<E> randomizeCircularBootstrap(final BlockBootstrapConfig config) {
+        return circularResampler.get(config).resample();
     }
 
     public IDecimalAggregate<E> randomizeStationaryBootstrap(final BlockBootstrapConfig config) {
