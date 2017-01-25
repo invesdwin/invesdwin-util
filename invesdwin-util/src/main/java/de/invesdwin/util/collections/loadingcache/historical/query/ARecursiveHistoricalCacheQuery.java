@@ -44,7 +44,7 @@ public abstract class ARecursiveHistoricalCacheQuery<V> {
     public V getPreviousValue(final FDate key, final FDate previousKey) {
         final V previous;
         if (parent.containsKey(previousKey)) {
-            previous = parent.query().getValue(previousKey);
+            previous = newQuery(parent).getValue(previousKey);
         } else {
             final AtomicInteger curRecursionCount = curRecursionCountHolder.get();
             if (curRecursionCount.incrementAndGet() >= maxRecursionCount || key.equals(previousKey)) {
@@ -52,13 +52,20 @@ public abstract class ARecursiveHistoricalCacheQuery<V> {
                 previous = getInitialValue(previousKey);
             } else {
                 //use recursion up to the allowed limit
-                previous = parent.query().getValue(previousKey);
+                previous = newQuery(parent).getValue(previousKey);
             }
             if (curRecursionCount.decrementAndGet() <= 0) {
                 curRecursionCountHolder.remove();
             }
         }
         return previous;
+    }
+
+    /**
+     * can be overridden to change the future data handling
+     */
+    protected IHistoricalCacheQuery<V> newQuery(final AHistoricalCache<V> parent) {
+        return parent.query().withFutureNull();
     }
 
     protected abstract V getInitialValue(FDate previousKey);
