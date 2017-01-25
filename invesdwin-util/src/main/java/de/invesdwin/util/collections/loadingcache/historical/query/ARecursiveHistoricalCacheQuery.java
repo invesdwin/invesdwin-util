@@ -65,7 +65,7 @@ public abstract class ARecursiveHistoricalCacheQuery<V> {
      * can be overridden to change the future data handling
      */
     protected IHistoricalCacheQuery<V> newQuery(final AHistoricalCache<V> parent) {
-        return parent.query().withFutureNull();
+        return parent.query();
     }
 
     protected abstract V getInitialValue(FDate previousKey);
