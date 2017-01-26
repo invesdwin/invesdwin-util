@@ -268,6 +268,14 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
         return newValueCopy(getImpl().exp());
     }
 
+    public E cos() {
+        return newValueCopy(getImpl().cos());
+    }
+
+    public E sin() {
+        return newValueCopy(getImpl().sin());
+    }
+
     /**
      * Returns 10 raised to the power of this value.
      */

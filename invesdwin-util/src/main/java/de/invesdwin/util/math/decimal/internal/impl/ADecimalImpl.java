@@ -251,4 +251,8 @@ public abstract class ADecimalImpl<E extends ADecimalImpl<E, V>, V>
 
     public abstract E exp10();
 
+    public abstract E cos();
+
+    public abstract E sin();
+
 }

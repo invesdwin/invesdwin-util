@@ -39,6 +39,7 @@ public class Decimal extends ADecimal<Decimal> {
     public static final Decimal TEN;
     public static final Decimal FIFTY;
     public static final Decimal ONE_HUNDRED;
+    public static final Decimal PI;
 
     /**
      * Due to implementation simplifications of equals, hashCode and compareTo only one implementations cannot be mixed
@@ -65,6 +66,8 @@ public class Decimal extends ADecimal<Decimal> {
         TEN = new Decimal("10");
         FIFTY = new Decimal("50");
         ONE_HUNDRED = new Decimal("100");
+
+        PI = new Decimal(Math.PI);
     }
 
     private final ADecimalImpl<?, ?> impl;
@@ -247,4 +250,5 @@ public class Decimal extends ADecimal<Decimal> {
         }
         return format;
     }
+
 }

@@ -222,6 +222,16 @@ public class DoubleDecimalImpl extends ADecimalImpl<DoubleDecimalImpl, Double> {
     }
 
     @Override
+    public DoubleDecimalImpl cos() {
+        return newValueCopy(Math.cos(getValue()));
+    }
+
+    @Override
+    public DoubleDecimalImpl sin() {
+        return newValueCopy(Math.sin(getValue()));
+    }
+
+    @Override
     public BigDecimal bigDecimalValue() {
         return BigDecimalDecimalImplFactory.toBigDecimal(getValue());
     }

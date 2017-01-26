@@ -246,4 +246,8 @@ public final class Lists extends AListsStaticFacade {
         }
     }
 
+    public static int reverseIndex(final int i, final int size) {
+        return size - 1 - i;
+    }
+
 }

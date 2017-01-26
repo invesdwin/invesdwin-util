@@ -126,6 +126,18 @@ public class BigDecimalDecimalImpl extends ADecimalImpl<BigDecimalDecimalImpl, B
     }
 
     @Override
+    public BigDecimalDecimalImpl cos() {
+        final double doubleValue = getValue().doubleValue();
+        return newValueCopy(new DoubleDecimalImpl(doubleValue, doubleValue).cos().bigDecimalValue());
+    }
+
+    @Override
+    public BigDecimalDecimalImpl sin() {
+        final double doubleValue = getValue().doubleValue();
+        return newValueCopy(new DoubleDecimalImpl(doubleValue, doubleValue).sin().bigDecimalValue());
+    }
+
+    @Override
     public BigDecimalDecimalImpl pow(final Number exponent) {
         final double doubleValue = getValue().doubleValue();
         return newValueCopy(new DoubleDecimalImpl(doubleValue, doubleValue).pow(exponent).bigDecimalValue());
