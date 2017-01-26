@@ -19,6 +19,8 @@ import de.invesdwin.util.time.fdate.FDate;
 @ThreadSafe
 public abstract class ARecursiveHistoricalCacheQuery<V> {
 
+    public static final int MIN_RECURSION_COUNT = 20;
+
     private final AHistoricalCache<V> parent;
     private final ThreadLocal<AtomicInteger> curRecursionCountHolder = new ThreadLocal<AtomicInteger>() {
         @Override
@@ -30,7 +32,7 @@ public abstract class ARecursiveHistoricalCacheQuery<V> {
 
     public ARecursiveHistoricalCacheQuery(final AHistoricalCache<V> parent, final int maxRecursionCount) {
         this.parent = parent;
-        this.maxRecursionCount = maxRecursionCount;
+        this.maxRecursionCount = Integers.max(maxRecursionCount, MIN_RECURSION_COUNT);
     }
 
     public int getMaxRecursionCount() {
@@ -38,6 +40,10 @@ public abstract class ARecursiveHistoricalCacheQuery<V> {
     }
 
     public int getSuggestedMaximumSizeForParent(final int maximumSize) {
+        return newSuggestedMaximumSizeForParent(maximumSize, maxRecursionCount);
+    }
+
+    public static int newSuggestedMaximumSizeForParent(final int maximumSize, final int maxRecursionCount) {
         return Integers.max(maximumSize, maxRecursionCount * 2);
     }
 

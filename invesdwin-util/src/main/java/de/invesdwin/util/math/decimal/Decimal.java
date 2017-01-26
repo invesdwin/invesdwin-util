@@ -35,6 +35,7 @@ public class Decimal extends ADecimal<Decimal> {
     public static final Decimal THREE;
     public static final Decimal FOUR;
     public static final Decimal FIVE;
+    public static final Decimal SIX;
     public static final Decimal TEN;
     public static final Decimal FIFTY;
     public static final Decimal ONE_HUNDRED;
@@ -60,6 +61,7 @@ public class Decimal extends ADecimal<Decimal> {
         THREE = new Decimal("3");
         FOUR = new Decimal("4");
         FIVE = new Decimal("5");
+        SIX = new Decimal("6");
         TEN = new Decimal("10");
         FIFTY = new Decimal("50");
         ONE_HUNDRED = new Decimal("100");
