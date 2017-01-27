@@ -15,6 +15,7 @@ public class ScaledDecimalToStringBuilder<T extends AScaledDecimal<T, S>, S exte
     private S scale;
     private boolean withSymbol = true;
     private Integer decimalDigits;
+    private boolean decimalDigitsOptional = true;
 
     public ScaledDecimalToStringBuilder(final T parent) {
         this.parent = parent;
@@ -49,6 +50,20 @@ public class ScaledDecimalToStringBuilder<T extends AScaledDecimal<T, S>, S exte
         return decimalDigits;
     }
 
+    public Object withDecimalDigitsRequired() {
+        withDecimalDigitsOptional(false);
+        return this;
+    }
+
+    public Object withDecimalDigitsOptional(final boolean decimalDigitsOptional) {
+        this.decimalDigitsOptional = decimalDigitsOptional;
+        return this;
+    }
+
+    public boolean isDecimalDigitsOptional() {
+        return decimalDigitsOptional;
+    }
+
     public T getParent() {
         return parent;
     }
@@ -65,7 +80,7 @@ public class ScaledDecimalToStringBuilder<T extends AScaledDecimal<T, S>, S exte
         } else {
             usedDecimalDigits = decimalDigits;
         }
-        final String formatStr = scale.getFormat(parent, withSymbol, usedDecimalDigits);
+        final String formatStr = scale.getFormat(parent, withSymbol, usedDecimalDigits, decimalDigitsOptional);
         return formatStr;
     }
 

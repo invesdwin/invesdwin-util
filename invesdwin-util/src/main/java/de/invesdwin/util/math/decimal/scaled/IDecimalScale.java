@@ -9,7 +9,7 @@ public interface IDecimalScale<T extends AScaledDecimal<T, S>, S extends IDecima
 
     int getDefaultDecimalDigits(T parent);
 
-    String getFormat(T parent, boolean withSymbol, int decimalDigits);
+    String getFormat(T parent, boolean withSymbol, int decimalDigits, boolean decimalDigitsOptional);
 
     String getSymbol();
 
