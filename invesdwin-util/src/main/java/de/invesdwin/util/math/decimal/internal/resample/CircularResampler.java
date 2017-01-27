@@ -75,7 +75,7 @@ public class CircularResampler<E extends ADecimal<E>> implements IDecimalResampl
         final int length = sample.size();
         final List<E> resample = new ArrayList<E>(length);
         for (int resampleIdx = 0; resampleIdx < length; resampleIdx += curBlockLength) {
-            final int startIdx = (int) (random.nextLong() % length);
+            final int startIdx = random.nextInt(length);
             curBlockLength = nextBlockLength(random);
             final int maxBlockIdx;
             if (resampleIdx + curBlockLength < length) {

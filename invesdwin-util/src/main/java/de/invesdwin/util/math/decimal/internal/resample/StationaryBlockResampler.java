@@ -29,9 +29,8 @@ public class StationaryBlockResampler<E extends ADecimal<E>> extends CircularRes
     @Override
     protected int nextBlockLength(final RandomGenerator random) {
         //we randomize the block length for the stationary bootstrap
-        int newBlockLength = Math.round((float) (random.nextDouble() / divisor));
-        newBlockLength = newBlockLength < 1 ? 1 : newBlockLength;
-        return newBlockLength;
+        final int newBlockLength = Math.round((float) (random.nextDouble() / divisor));
+        return Math.max(1, newBlockLength);
     }
 
 }

@@ -4,7 +4,6 @@ import java.util.List;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.decimal.ADecimal;
 import de.invesdwin.util.math.decimal.IDecimalAggregate;
@@ -137,18 +136,21 @@ public class CircularOptimalBlockLength<E extends ADecimal<E>> {
         return MULTIPLICATOR_ONE_AND_A_THIRD;
     }
 
-    private double sampleAutoCorrelation(final int index) {
-        return sampleAutoCovariance(index) / sampleAutoCovariance0;
+    private double sampleAutoCorrelation(final int lag) {
+        return sampleAutoCovariance(lag) / sampleAutoCovariance0;
     }
 
-    private double sampleAutoCovariance(final int index) {
-        Assertions.checkTrue(index < sample.size());
+    private double sampleAutoCovariance(final int lag) {
+        if (lag >= sample.size()) {
+            throw new IllegalArgumentException(
+                    "Index needs to be smaller than sample size [" + sample.size() + "]: " + lag);
+        }
         final int length = sample.size();
         double sum = 0D;
-        final int maxIdx = length - index;
-        for (int i = 1; i <= maxIdx; ++i) {
+        final int maxIdx = length - lag - 1;
+        for (int i = 0; i <= maxIdx; ++i) {
             final double curAdj = sample.get(i).doubleValueRaw() - sampleAvg;
-            final double nextAdj = sample.get(i + index).doubleValueRaw() - sampleAvg;
+            final double nextAdj = sample.get(i + lag).doubleValueRaw() - sampleAvg;
             sum += curAdj * nextAdj;
         }
         return sum / length;

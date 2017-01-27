@@ -28,7 +28,7 @@ public class CaseReplacementResampler<E extends ADecimal<E>> implements IDecimal
         final RandomGenerator random = newRandomGenerator();
         final List<E> resample = new ArrayList<E>(sample.size());
         for (int resampleIdx = 0; resampleIdx < sample.size(); resampleIdx++) {
-            final int sourceIdx = (int) (random.nextLong() % sample.size());
+            final int sourceIdx = random.nextInt(sample.size());
             resample.add(sample.get(sourceIdx));
         }
         return new DecimalAggregate<E>(resample, converter);

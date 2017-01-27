@@ -29,7 +29,7 @@ public class CaseResampler<E extends ADecimal<E>> implements IDecimalResampler<E
         final List<E> resample = new ArrayList<E>(sample.size());
         final List<E> sampleCopy = new ArrayList<E>(sample);
         while (!sampleCopy.isEmpty()) {
-            final int sourceIdx = (int) (random.nextLong() % sampleCopy.size());
+            final int sourceIdx = random.nextInt(sampleCopy.size());
             resample.add(sampleCopy.remove(sourceIdx));
         }
         return new DecimalAggregate<E>(resample, converter);
