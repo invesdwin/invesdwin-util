@@ -108,7 +108,8 @@ public class CircularOptimalBlockLength<E extends ADecimal<E>> {
     }
 
     public int getBlockLength() {
-        return (int) determineOptimalBlockLength();
+        final int optimalBlockLength = (int) determineOptimalBlockLength();
+        return Math.max(1, optimalBlockLength);
     }
 
     private long determineOptimalBlockLength() {

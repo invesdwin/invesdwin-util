@@ -158,10 +158,11 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
     @Override
     public E geomAvg() {
         Decimal logSum = Decimal.ZERO;
-        for (int i = 0; i < count(); i++) {
+        final int count = count();
+        for (int i = 0; i < count; i++) {
             logSum = Decimal.sum(logSum, values.get(i).getDefaultValue().log());
         }
-        final Decimal result = logSum.divide(count()).exp();
+        final Decimal result = logSum.divide(count).exp();
         return getConverter().fromDefaultValue(result);
     }
 
