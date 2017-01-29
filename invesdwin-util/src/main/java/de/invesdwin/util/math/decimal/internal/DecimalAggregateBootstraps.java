@@ -1,71 +1,59 @@
 package de.invesdwin.util.math.decimal.internal;
 
+import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
-import de.invesdwin.util.collections.loadingcache.ALoadingCache;
+import org.apache.commons.math3.random.RandomGenerator;
+
 import de.invesdwin.util.math.decimal.ADecimal;
 import de.invesdwin.util.math.decimal.IDecimalAggregate;
-import de.invesdwin.util.math.decimal.config.BlockBootstrapConfig;
 import de.invesdwin.util.math.decimal.internal.resample.CaseReplacementResampler;
 import de.invesdwin.util.math.decimal.internal.resample.CaseResampler;
 import de.invesdwin.util.math.decimal.internal.resample.CircularResampler;
-import de.invesdwin.util.math.decimal.internal.resample.IDecimalResampler;
-import de.invesdwin.util.math.decimal.internal.resample.StationaryBlockResampler;
+import de.invesdwin.util.math.decimal.internal.resample.StationaryResampler;
 
 @ThreadSafe
 public class DecimalAggregateBootstraps<E extends ADecimal<E>> {
 
     private final DecimalAggregate<E> parent;
 
-    private final ALoadingCache<BlockBootstrapConfig, CircularResampler<E>> circularResampler = new ALoadingCache<BlockBootstrapConfig, CircularResampler<E>>() {
-        @Override
-        protected CircularResampler<E> loadValue(final BlockBootstrapConfig key) {
-            return new CircularResampler<E>(parent, key);
-        }
-
-        @Override
-        protected Integer getMaximumSize() {
-            return 10;
-        }
-    };
-    private final ALoadingCache<BlockBootstrapConfig, StationaryBlockResampler<E>> config_stationaryBlockResampler = new ALoadingCache<BlockBootstrapConfig, StationaryBlockResampler<E>>() {
-        @Override
-        protected StationaryBlockResampler<E> loadValue(final BlockBootstrapConfig key) {
-            return new StationaryBlockResampler<E>(parent, key);
-        }
-
-        @Override
-        protected Integer getMaximumSize() {
-            return 10;
-        }
-    };
-    private IDecimalResampler<E> caseResampler;
-    private CaseReplacementResampler<E> caseReplacementResampler;
+    @GuardedBy("this")
+    private CircularResampler<E> circularResampler;
+    @GuardedBy("this")
+    private StationaryResampler<E> stationaryResampler;
 
     public DecimalAggregateBootstraps(final DecimalAggregate<E> parent) {
         this.parent = parent;
     }
 
-    public IDecimalAggregate<E> randomize() {
-        if (caseResampler == null) {
-            caseResampler = new CaseResampler<E>(parent);
+    public IDecimalAggregate<E> randomize(final RandomGenerator random) {
+        return new CaseResampler<E>(parent).resample(random);
+    }
+
+    public IDecimalAggregate<E> randomizeBootstrap(final RandomGenerator random) {
+        return new CaseReplacementResampler<E>(parent).resample(random);
+    }
+
+    public IDecimalAggregate<E> randomizeCircularBootstrap(final RandomGenerator random) {
+        return getCircularResampler().resample(random);
+    }
+
+    private synchronized CircularResampler<E> getCircularResampler() {
+        if (circularResampler == null) {
+            circularResampler = new CircularResampler<E>(parent);
         }
-        return caseResampler.resample();
+        return circularResampler;
     }
 
-    public IDecimalAggregate<E> randomizeBootstrap() {
-        if (caseReplacementResampler == null) {
-            caseReplacementResampler = new CaseReplacementResampler<E>(parent);
+    public IDecimalAggregate<E> randomizeStationaryBootstrap(final RandomGenerator random) {
+        return getStationaryResampler().resample(random);
+    }
+
+    private synchronized StationaryResampler<E> getStationaryResampler() {
+        if (stationaryResampler == null) {
+            stationaryResampler = new StationaryResampler<E>(parent);
         }
-        return caseReplacementResampler.resample();
-    }
-
-    public IDecimalAggregate<E> randomizeCircularBootstrap(final BlockBootstrapConfig config) {
-        return circularResampler.get(config).resample();
-    }
-
-    public IDecimalAggregate<E> randomizeStationaryBootstrap(final BlockBootstrapConfig config) {
-        return config_stationaryBlockResampler.get(config).resample();
+        return stationaryResampler;
     }
 
 }

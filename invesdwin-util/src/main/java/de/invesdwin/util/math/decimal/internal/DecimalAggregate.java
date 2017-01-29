@@ -7,13 +7,14 @@ import java.util.List;
 
 import javax.annotation.concurrent.ThreadSafe;
 
+import org.apache.commons.math3.random.RandomGenerator;
+
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.Lists;
 import de.invesdwin.util.math.decimal.ADecimal;
 import de.invesdwin.util.math.decimal.Decimal;
 import de.invesdwin.util.math.decimal.IDecimalAggregate;
 import de.invesdwin.util.math.decimal.config.BSplineInterpolationConfig;
-import de.invesdwin.util.math.decimal.config.BlockBootstrapConfig;
 import de.invesdwin.util.math.decimal.config.InterpolationConfig;
 import de.invesdwin.util.math.decimal.config.LoessInterpolationConfig;
 import de.invesdwin.util.math.decimal.stream.DecimalPoint;
@@ -25,18 +26,11 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
 
     private E converter;
     private final List<E> values;
-    private DecimalAggregateBootstraps<E> bootstraps;
+    private final DecimalAggregateBootstraps<E> bootstraps = new DecimalAggregateBootstraps<E>(this);
 
     public DecimalAggregate(final List<? extends E> values, final E converter) {
         this.values = Collections.unmodifiableList(values);
         this.converter = converter;
-    }
-
-    private synchronized DecimalAggregateBootstraps<E> getBootstraps() {
-        if (bootstraps == null) {
-            bootstraps = new DecimalAggregateBootstraps<E>(this);
-        }
-        return bootstraps;
     }
 
     public E getConverter() {
@@ -549,23 +543,23 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
     }
 
     @Override
-    public IDecimalAggregate<E> randomize() {
-        return getBootstraps().randomize();
+    public IDecimalAggregate<E> randomize(final RandomGenerator random) {
+        return bootstraps.randomize(random);
     }
 
     @Override
-    public IDecimalAggregate<E> randomizeBootstrap() {
-        return getBootstraps().randomizeBootstrap();
+    public IDecimalAggregate<E> randomizeBootstrap(final RandomGenerator random) {
+        return bootstraps.randomizeBootstrap(random);
     }
 
     @Override
-    public IDecimalAggregate<E> randomizeCircularBlockBootstrap(final BlockBootstrapConfig config) {
-        return getBootstraps().randomizeCircularBootstrap(config);
+    public IDecimalAggregate<E> randomizeCircularBlockBootstrap(final RandomGenerator random) {
+        return bootstraps.randomizeCircularBootstrap(random);
     }
 
     @Override
-    public IDecimalAggregate<E> randomizeStationaryBootstrap(final BlockBootstrapConfig config) {
-        return getBootstraps().randomizeStationaryBootstrap(config);
+    public IDecimalAggregate<E> randomizeStationaryBootstrap(final RandomGenerator random) {
+        return bootstraps.randomizeStationaryBootstrap(random);
     }
 
 }

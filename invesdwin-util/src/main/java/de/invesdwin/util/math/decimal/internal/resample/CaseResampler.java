@@ -7,7 +7,6 @@ import javax.annotation.concurrent.ThreadSafe;
 
 import org.apache.commons.math3.random.RandomGenerator;
 
-import de.invesdwin.util.lang.RandomGeneratorAdapter;
 import de.invesdwin.util.math.decimal.ADecimal;
 import de.invesdwin.util.math.decimal.IDecimalAggregate;
 import de.invesdwin.util.math.decimal.internal.DecimalAggregate;
@@ -24,8 +23,7 @@ public class CaseResampler<E extends ADecimal<E>> implements IDecimalResampler<E
     }
 
     @Override
-    public IDecimalAggregate<E> resample() {
-        final RandomGenerator random = newRandomGenerator();
+    public IDecimalAggregate<E> resample(final RandomGenerator random) {
         final List<E> resample = new ArrayList<E>(sample.size());
         final List<E> sampleCopy = new ArrayList<E>(sample);
         while (!sampleCopy.isEmpty()) {
@@ -33,10 +31,6 @@ public class CaseResampler<E extends ADecimal<E>> implements IDecimalResampler<E
             resample.add(sampleCopy.remove(sourceIdx));
         }
         return new DecimalAggregate<E>(resample, converter);
-    }
-
-    protected RandomGenerator newRandomGenerator() {
-        return RandomGeneratorAdapter.currentThreadLocalRandom();
     }
 
 }

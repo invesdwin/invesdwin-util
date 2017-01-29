@@ -1,4 +1,4 @@
-package de.invesdwin.util.lang;
+package de.invesdwin.util.math;
 
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;

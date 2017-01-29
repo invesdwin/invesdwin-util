@@ -3,8 +3,9 @@ package de.invesdwin.util.math.decimal;
 import java.math.RoundingMode;
 import java.util.List;
 
+import org.apache.commons.math3.random.RandomGenerator;
+
 import de.invesdwin.util.math.decimal.config.BSplineInterpolationConfig;
-import de.invesdwin.util.math.decimal.config.BlockBootstrapConfig;
 import de.invesdwin.util.math.decimal.config.InterpolationConfig;
 import de.invesdwin.util.math.decimal.config.LoessInterpolationConfig;
 
@@ -185,21 +186,21 @@ public interface IDecimalAggregate<E extends ADecimal<E>> {
     /**
      * Randomized the values without replacement
      */
-    IDecimalAggregate<E> randomize();
+    IDecimalAggregate<E> randomize(RandomGenerator random);
 
     /**
      * Randomized the values with replacement, thus can draw the same values multiple times
      */
-    IDecimalAggregate<E> randomizeBootstrap();
+    IDecimalAggregate<E> randomizeBootstrap(RandomGenerator random);
 
     /**
      * Randomize the values with replacement blockwise (for dependent data)
      */
-    IDecimalAggregate<E> randomizeCircularBlockBootstrap(BlockBootstrapConfig config);
+    IDecimalAggregate<E> randomizeCircularBlockBootstrap(RandomGenerator random);
 
     /**
      * Randomize the values with replacement blockwise with randomized block length (for time series)
      */
-    IDecimalAggregate<E> randomizeStationaryBootstrap(BlockBootstrapConfig config);
+    IDecimalAggregate<E> randomizeStationaryBootstrap(RandomGenerator random);
 
 }

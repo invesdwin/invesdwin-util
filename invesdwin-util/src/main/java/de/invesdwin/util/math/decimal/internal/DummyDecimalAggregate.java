@@ -6,10 +6,11 @@ import java.util.List;
 
 import javax.annotation.concurrent.Immutable;
 
+import org.apache.commons.math3.random.RandomGenerator;
+
 import de.invesdwin.util.math.decimal.ADecimal;
 import de.invesdwin.util.math.decimal.IDecimalAggregate;
 import de.invesdwin.util.math.decimal.config.BSplineInterpolationConfig;
-import de.invesdwin.util.math.decimal.config.BlockBootstrapConfig;
 import de.invesdwin.util.math.decimal.config.InterpolationConfig;
 import de.invesdwin.util.math.decimal.config.LoessInterpolationConfig;
 
@@ -267,22 +268,22 @@ public final class DummyDecimalAggregate<E extends ADecimal<E>> implements IDeci
     }
 
     @Override
-    public IDecimalAggregate<E> randomize() {
+    public IDecimalAggregate<E> randomize(final RandomGenerator random) {
         return this;
     }
 
     @Override
-    public IDecimalAggregate<E> randomizeBootstrap() {
+    public IDecimalAggregate<E> randomizeBootstrap(final RandomGenerator random) {
         return this;
     }
 
     @Override
-    public IDecimalAggregate<E> randomizeCircularBlockBootstrap(final BlockBootstrapConfig config) {
+    public IDecimalAggregate<E> randomizeCircularBlockBootstrap(final RandomGenerator random) {
         return this;
     }
 
     @Override
-    public IDecimalAggregate<E> randomizeStationaryBootstrap(final BlockBootstrapConfig config) {
+    public IDecimalAggregate<E> randomizeStationaryBootstrap(final RandomGenerator random) {
         return this;
     }
 

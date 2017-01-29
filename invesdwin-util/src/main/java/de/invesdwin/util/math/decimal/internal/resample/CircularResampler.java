@@ -8,10 +8,8 @@ import javax.annotation.concurrent.ThreadSafe;
 import org.apache.commons.math3.random.RandomGenerator;
 
 import de.invesdwin.util.assertions.Assertions;
-import de.invesdwin.util.lang.RandomGeneratorAdapter;
 import de.invesdwin.util.math.decimal.ADecimal;
 import de.invesdwin.util.math.decimal.IDecimalAggregate;
-import de.invesdwin.util.math.decimal.config.BlockBootstrapConfig;
 import de.invesdwin.util.math.decimal.internal.DecimalAggregate;
 import de.invesdwin.util.math.decimal.internal.resample.blocklength.CircularOptimalBlockLength;
 
@@ -30,14 +28,10 @@ public class CircularResampler<E extends ADecimal<E>> implements IDecimalResampl
     private final E converter;
     private final IDecimalResampler<E> delegate;
 
-    public CircularResampler(final DecimalAggregate<E> parent, final BlockBootstrapConfig config) {
+    public CircularResampler(final DecimalAggregate<E> parent) {
         this.sample = parent.values();
         this.converter = parent.getConverter();
-        if (config.getBlockLength() != null) {
-            this.blockLength = config.getBlockLength();
-        } else {
-            this.blockLength = newOptimalBlockLength(parent);
-        }
+        this.blockLength = newOptimalBlockLength(parent);
         Assertions.assertThat(blockLength).isGreaterThanOrEqualTo(1);
         if (blockLength == 1) {
             //blockwise resample makes no sense with block length 1
@@ -45,8 +39,8 @@ public class CircularResampler<E extends ADecimal<E>> implements IDecimalResampl
         } else {
             delegate = new IDecimalResampler<E>() {
                 @Override
-                public IDecimalAggregate<E> resample() {
-                    return internalResample();
+                public IDecimalAggregate<E> resample(final RandomGenerator random) {
+                    return internalResample(random);
                 }
             };
         }
@@ -57,20 +51,15 @@ public class CircularResampler<E extends ADecimal<E>> implements IDecimalResampl
     }
 
     @Override
-    public final IDecimalAggregate<E> resample() {
-        return delegate.resample();
+    public final IDecimalAggregate<E> resample(final RandomGenerator random) {
+        return delegate.resample(random);
     }
 
     protected int nextBlockLength(final RandomGenerator random) {
         return blockLength;
     }
 
-    protected RandomGenerator newRandomGenerator() {
-        return RandomGeneratorAdapter.currentThreadLocalRandom();
-    }
-
-    private IDecimalAggregate<E> internalResample() {
-        final RandomGenerator random = newRandomGenerator();
+    private IDecimalAggregate<E> internalResample(final RandomGenerator random) {
         int curBlockLength;
         final int length = sample.size();
         final List<E> resample = new ArrayList<E>(length);

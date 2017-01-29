@@ -6,17 +6,16 @@ import org.apache.commons.math3.random.RandomGenerator;
 
 import de.invesdwin.util.math.decimal.ADecimal;
 import de.invesdwin.util.math.decimal.IDecimalAggregate;
-import de.invesdwin.util.math.decimal.config.BlockBootstrapConfig;
 import de.invesdwin.util.math.decimal.internal.DecimalAggregate;
 import de.invesdwin.util.math.decimal.internal.resample.blocklength.StationaryOptimalBlockLength;
 
 @ThreadSafe
-public class StationaryBlockResampler<E extends ADecimal<E>> extends CircularResampler<E> {
+public class StationaryResampler<E extends ADecimal<E>> extends CircularResampler<E> {
 
     private final double divisor;
 
-    public StationaryBlockResampler(final DecimalAggregate<E> parent, final BlockBootstrapConfig config) {
-        super(parent, config);
+    public StationaryResampler(final DecimalAggregate<E> parent) {
+        super(parent);
         final int superBlockLength = super.nextBlockLength(null);
         divisor = Math.log(1D - (1D / superBlockLength)) * -1D;
     }
