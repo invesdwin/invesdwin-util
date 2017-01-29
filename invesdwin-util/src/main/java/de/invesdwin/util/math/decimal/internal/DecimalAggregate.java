@@ -32,7 +32,7 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
         this.converter = converter;
     }
 
-    private DecimalAggregateBootstraps<E> getBootstraps() {
+    private synchronized DecimalAggregateBootstraps<E> getBootstraps() {
         if (bootstraps == null) {
             bootstraps = new DecimalAggregateBootstraps<E>(this);
         }
