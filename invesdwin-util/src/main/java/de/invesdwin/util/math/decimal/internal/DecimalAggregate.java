@@ -160,7 +160,9 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
         Decimal logSum = Decimal.ZERO;
         final int count = count();
         for (int i = 0; i < count; i++) {
-            logSum = Decimal.sum(logSum, values.get(i).getDefaultValue().log());
+            final Decimal defaultValue = values.get(i).getDefaultValue();
+            final Decimal log = defaultValue.log();
+            logSum = Decimal.sum(logSum, log);
         }
         final Decimal result = logSum.divide(count).exp();
         return getConverter().fromDefaultValue(result);

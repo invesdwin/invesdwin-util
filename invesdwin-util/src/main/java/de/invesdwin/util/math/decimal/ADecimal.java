@@ -10,6 +10,7 @@ import org.apache.commons.math3.dfp.Dfp;
 import org.assertj.core.description.TextDescription;
 
 import de.invesdwin.norva.marker.IDecimal;
+import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.lang.ADelegateComparator;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.math.decimal.internal.impl.ADecimalImpl;
@@ -251,6 +252,7 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
      * Returns the natural logarithm.
      */
     public E log() {
+        Assertions.checkTrue(isPositive(), "value needs to be positive: %s", this);
         return newValueCopy(getImpl().log());
     }
 
@@ -258,6 +260,7 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
      * Returns the logarithm base 10.
      */
     public E log10() {
+        Assertions.checkTrue(isPositive(), "value needs to be positive: %s", this);
         return newValueCopy(getImpl().log10());
     }
 
