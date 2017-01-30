@@ -1,6 +1,6 @@
 package de.invesdwin.util.math.decimal.internal.resample;
 
-import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -25,21 +25,19 @@ public class CircularResampler<E extends ADecimal<E>> implements IDecimalResampl
 
     private final int blockLength;
     private final List<E> sample;
-    private final E converter;
     private final IDecimalResampler<E> delegate;
 
     public CircularResampler(final DecimalAggregate<E> parent) {
         this.sample = parent.values();
-        this.converter = parent.getConverter();
         this.blockLength = newOptimalBlockLength(parent);
         Assertions.assertThat(blockLength).isGreaterThanOrEqualTo(1);
         if (blockLength == 1) {
-            //blockwise resample makes no sense with block length 1
+            //blockwise resample makes no sense with block maxResampleIdx 1
             delegate = new CaseReplacementResampler<E>(parent);
         } else {
             delegate = new IDecimalResampler<E>() {
                 @Override
-                public IDecimalAggregate<E> resample(final RandomGenerator random) {
+                public Iterator<E> resample(final RandomGenerator random) {
                     return internalResample(random);
                 }
             };
@@ -51,7 +49,7 @@ public class CircularResampler<E extends ADecimal<E>> implements IDecimalResampl
     }
 
     @Override
-    public final IDecimalAggregate<E> resample(final RandomGenerator random) {
+    public final Iterator<E> resample(final RandomGenerator random) {
         return delegate.resample(random);
     }
 
@@ -59,25 +57,43 @@ public class CircularResampler<E extends ADecimal<E>> implements IDecimalResampl
         return blockLength;
     }
 
-    private IDecimalAggregate<E> internalResample(final RandomGenerator random) {
-        int curBlockLength;
-        final int length = sample.size();
-        final List<E> resample = new ArrayList<E>(length);
-        for (int resampleIdx = 0; resampleIdx < length; resampleIdx += curBlockLength) {
-            final int startIdx = random.nextInt(length);
-            curBlockLength = nextBlockLength(random);
-            final int maxBlockIdx;
-            if (resampleIdx + curBlockLength < length) {
-                maxBlockIdx = curBlockLength;
-            } else {
-                maxBlockIdx = length - resampleIdx;
+    private Iterator<E> internalResample(final RandomGenerator random) {
+        return new Iterator<E>() {
+            private final int maxResampleIdx = sample.size();
+            private int curResampleIdx = 0;
+            private int curBlockIdx = 0;
+            private int maxBlockIdx = 0;
+            private int curStartIdx = 0;
+
+            @Override
+            public boolean hasNext() {
+                return curResampleIdx < maxResampleIdx;
             }
-            for (int blockIdx = 0; blockIdx < maxBlockIdx; blockIdx++) {
-                final int valuesIndex = (startIdx + blockIdx) % length;
-                resample.add(sample.get(valuesIndex));
+
+            @Override
+            public E next() {
+                if (curBlockIdx == maxBlockIdx) {
+                    initNextBlock(random);
+                }
+                final int valuesIndex = (curStartIdx + curBlockIdx) % maxResampleIdx;
+                final E value = sample.get(valuesIndex);
+                curBlockIdx++;
+                curResampleIdx++;
+                return value;
             }
-        }
-        return new DecimalAggregate<E>(resample, converter);
+
+            private void initNextBlock(final RandomGenerator random) {
+                curStartIdx = random.nextInt(maxResampleIdx);
+                final int curBlockLength = nextBlockLength(random);
+                if (curResampleIdx + curBlockLength < maxResampleIdx) {
+                    maxBlockIdx = curBlockLength;
+                } else {
+                    maxBlockIdx = maxResampleIdx - curResampleIdx;
+                }
+                curBlockIdx = 0;
+            }
+
+        };
     }
 
 }

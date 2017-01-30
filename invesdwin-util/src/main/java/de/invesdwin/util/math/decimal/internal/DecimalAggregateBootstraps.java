@@ -1,12 +1,13 @@
 package de.invesdwin.util.math.decimal.internal;
 
+import java.util.Iterator;
+
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
 import org.apache.commons.math3.random.RandomGenerator;
 
 import de.invesdwin.util.math.decimal.ADecimal;
-import de.invesdwin.util.math.decimal.IDecimalAggregate;
 import de.invesdwin.util.math.decimal.internal.resample.CaseReplacementResampler;
 import de.invesdwin.util.math.decimal.internal.resample.CaseResampler;
 import de.invesdwin.util.math.decimal.internal.resample.CircularResampler;
@@ -26,15 +27,15 @@ public class DecimalAggregateBootstraps<E extends ADecimal<E>> {
         this.parent = parent;
     }
 
-    public IDecimalAggregate<E> randomize(final RandomGenerator random) {
+    public Iterator<E> randomize(final RandomGenerator random) {
         return new CaseResampler<E>(parent).resample(random);
     }
 
-    public IDecimalAggregate<E> randomizeBootstrap(final RandomGenerator random) {
+    public Iterator<E> randomizeBootstrap(final RandomGenerator random) {
         return new CaseReplacementResampler<E>(parent).resample(random);
     }
 
-    public IDecimalAggregate<E> randomizeCircularBootstrap(final RandomGenerator random) {
+    public Iterator<E> randomizeCircularBootstrap(final RandomGenerator random) {
         return getCircularResampler().resample(random);
     }
 
@@ -45,7 +46,7 @@ public class DecimalAggregateBootstraps<E extends ADecimal<E>> {
         return circularResampler;
     }
 
-    public IDecimalAggregate<E> randomizeStationaryBootstrap(final RandomGenerator random) {
+    public Iterator<E> randomizeStationaryBootstrap(final RandomGenerator random) {
         return getStationaryResampler().resample(random);
     }
 

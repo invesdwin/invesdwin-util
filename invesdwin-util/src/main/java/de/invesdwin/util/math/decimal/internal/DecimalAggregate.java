@@ -3,6 +3,7 @@ package de.invesdwin.util.math.decimal.internal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -543,22 +544,22 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
     }
 
     @Override
-    public IDecimalAggregate<E> randomize(final RandomGenerator random) {
+    public Iterator<E> randomize(final RandomGenerator random) {
         return bootstraps.randomize(random);
     }
 
     @Override
-    public IDecimalAggregate<E> randomizeBootstrap(final RandomGenerator random) {
+    public Iterator<E> randomizeBootstrap(final RandomGenerator random) {
         return bootstraps.randomizeBootstrap(random);
     }
 
     @Override
-    public IDecimalAggregate<E> randomizeCircularBlockBootstrap(final RandomGenerator random) {
+    public Iterator<E> randomizeCircularBlockBootstrap(final RandomGenerator random) {
         return bootstraps.randomizeCircularBootstrap(random);
     }
 
     @Override
-    public IDecimalAggregate<E> randomizeStationaryBootstrap(final RandomGenerator random) {
+    public Iterator<E> randomizeStationaryBootstrap(final RandomGenerator random) {
         return bootstraps.randomizeStationaryBootstrap(random);
     }
 

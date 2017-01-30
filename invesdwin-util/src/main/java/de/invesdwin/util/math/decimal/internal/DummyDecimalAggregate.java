@@ -2,12 +2,14 @@ package de.invesdwin.util.math.decimal.internal;
 
 import java.math.RoundingMode;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.annotation.concurrent.Immutable;
 
 import org.apache.commons.math3.random.RandomGenerator;
 
+import de.invesdwin.util.collections.iterable.EmptyCloseableIterator;
 import de.invesdwin.util.math.decimal.ADecimal;
 import de.invesdwin.util.math.decimal.IDecimalAggregate;
 import de.invesdwin.util.math.decimal.config.BSplineInterpolationConfig;
@@ -268,23 +270,23 @@ public final class DummyDecimalAggregate<E extends ADecimal<E>> implements IDeci
     }
 
     @Override
-    public IDecimalAggregate<E> randomize(final RandomGenerator random) {
-        return this;
+    public Iterator<E> randomize(final RandomGenerator random) {
+        return EmptyCloseableIterator.getInstance();
     }
 
     @Override
-    public IDecimalAggregate<E> randomizeBootstrap(final RandomGenerator random) {
-        return this;
+    public Iterator<E> randomizeBootstrap(final RandomGenerator random) {
+        return EmptyCloseableIterator.getInstance();
     }
 
     @Override
-    public IDecimalAggregate<E> randomizeCircularBlockBootstrap(final RandomGenerator random) {
-        return this;
+    public Iterator<E> randomizeCircularBlockBootstrap(final RandomGenerator random) {
+        return EmptyCloseableIterator.getInstance();
     }
 
     @Override
-    public IDecimalAggregate<E> randomizeStationaryBootstrap(final RandomGenerator random) {
-        return this;
+    public Iterator<E> randomizeStationaryBootstrap(final RandomGenerator random) {
+        return EmptyCloseableIterator.getInstance();
     }
 
 }

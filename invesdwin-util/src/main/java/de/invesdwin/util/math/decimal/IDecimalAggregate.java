@@ -1,6 +1,7 @@
 package de.invesdwin.util.math.decimal;
 
 import java.math.RoundingMode;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.math3.random.RandomGenerator;
@@ -186,21 +187,21 @@ public interface IDecimalAggregate<E extends ADecimal<E>> {
     /**
      * Randomized the values without replacement
      */
-    IDecimalAggregate<E> randomize(RandomGenerator random);
+    Iterator<E> randomize(RandomGenerator random);
 
     /**
      * Randomized the values with replacement, thus can draw the same values multiple times
      */
-    IDecimalAggregate<E> randomizeBootstrap(RandomGenerator random);
+    Iterator<E> randomizeBootstrap(RandomGenerator random);
 
     /**
      * Randomize the values with replacement blockwise (for dependent data)
      */
-    IDecimalAggregate<E> randomizeCircularBlockBootstrap(RandomGenerator random);
+    Iterator<E> randomizeCircularBlockBootstrap(RandomGenerator random);
 
     /**
      * Randomize the values with replacement blockwise with randomized block length (for time series)
      */
-    IDecimalAggregate<E> randomizeStationaryBootstrap(RandomGenerator random);
+    Iterator<E> randomizeStationaryBootstrap(RandomGenerator random);
 
 }
