@@ -1,7 +1,6 @@
-package de.invesdwin.util.math;
+package de.invesdwin.util.math.random;
 
 import java.util.Random;
-import java.util.concurrent.ThreadLocalRandom;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -76,10 +75,6 @@ public class RandomGeneratorAdapter implements RandomGenerator {
     @Override
     public double nextGaussian() {
         return delegate.nextGaussian();
-    }
-
-    public static RandomGenerator currentThreadLocalRandom() {
-        return new RandomGeneratorAdapter(ThreadLocalRandom.current());
     }
 
 }
