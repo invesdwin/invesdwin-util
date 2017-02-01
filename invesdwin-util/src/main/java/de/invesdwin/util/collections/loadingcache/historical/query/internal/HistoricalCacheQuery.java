@@ -380,7 +380,12 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
             public ICloseableIterator<V> iterator() {
                 return new ICloseableIterator<V>() {
 
-                    private final ICloseableIterator<Entry<FDate, V>> entriesIterator = getEntries(from, to).iterator();
+                    private final ICloseableIterator<Entry<FDate, V>> entriesIterator;
+
+                    {
+                        final ICloseableIterable<Entry<FDate, V>> entries = getEntries(from, to);
+                        entriesIterator = entries.iterator();
+                    }
 
                     @Override
                     public boolean hasNext() {
