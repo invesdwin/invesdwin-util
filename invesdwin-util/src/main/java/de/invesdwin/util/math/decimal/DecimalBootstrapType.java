@@ -23,7 +23,7 @@ public enum DecimalBootstrapType {
             return values.randomizeCircularBlockBootstrap(random);
         }
     },
-    StationaryBoostrap {
+    StationaryBootstrap {
         @Override
         public <T extends ADecimal<T>> Iterator<T> randomize(final IDecimalAggregate<T> values,
                 final RandomGenerator random) {
