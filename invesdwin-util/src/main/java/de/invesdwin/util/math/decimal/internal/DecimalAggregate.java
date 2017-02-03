@@ -544,8 +544,8 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
     }
 
     @Override
-    public Iterator<E> randomize(final RandomGenerator random) {
-        return bootstraps.randomize(random);
+    public Iterator<E> randomizeShuffle(final RandomGenerator random) {
+        return bootstraps.randomizeShuffle(random);
     }
 
     @Override

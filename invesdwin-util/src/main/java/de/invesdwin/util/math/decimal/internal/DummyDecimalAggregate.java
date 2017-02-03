@@ -270,7 +270,7 @@ public final class DummyDecimalAggregate<E extends ADecimal<E>> implements IDeci
     }
 
     @Override
-    public Iterator<E> randomize(final RandomGenerator random) {
+    public Iterator<E> randomizeShuffle(final RandomGenerator random) {
         return EmptyCloseableIterator.getInstance();
     }
 

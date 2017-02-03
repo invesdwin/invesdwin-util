@@ -27,7 +27,7 @@ public class DecimalAggregateBootstraps<E extends ADecimal<E>> {
         this.parent = parent;
     }
 
-    public Iterator<E> randomize(final RandomGenerator random) {
+    public Iterator<E> randomizeShuffle(final RandomGenerator random) {
         return new CaseResampler<E>(parent).resample(random);
     }
 

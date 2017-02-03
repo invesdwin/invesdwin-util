@@ -187,7 +187,7 @@ public interface IDecimalAggregate<E extends ADecimal<E>> {
     /**
      * Randomized the values without replacement
      */
-    Iterator<E> randomize(RandomGenerator random);
+    Iterator<E> randomizeShuffle(RandomGenerator random);
 
     /**
      * Randomized the values with replacement, thus can draw the same values multiple times
