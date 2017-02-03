@@ -195,12 +195,15 @@ public interface IDecimalAggregate<E extends ADecimal<E>> {
     Iterator<E> randomizeBootstrap(RandomGenerator random);
 
     /**
-     * Randomize the values with replacement blockwise (for dependent data)
+     * Randomize the values with replacement blockwise (for dependent data). Since the random generator is used less
+     * often here (only per block), the actual performance here is better than that of the normal bootstrap.
      */
     Iterator<E> randomizeCircularBlockBootstrap(RandomGenerator random);
 
     /**
-     * Randomize the values with replacement blockwise with randomized block length (for time series)
+     * Randomize the values with replacement blockwise with randomized block length (for time series). Since the random
+     * generator is used less often here (only per block), the actual performance here is better than that of the normal
+     * bootstrap.
      */
     Iterator<E> randomizeStationaryBootstrap(RandomGenerator random);
 
