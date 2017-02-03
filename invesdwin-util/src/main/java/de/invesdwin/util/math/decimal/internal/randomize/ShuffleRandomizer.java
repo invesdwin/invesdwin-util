@@ -1,4 +1,4 @@
-package de.invesdwin.util.math.decimal.internal.resample;
+package de.invesdwin.util.math.decimal.internal.randomize;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -14,16 +14,16 @@ import de.invesdwin.util.math.decimal.ADecimal;
 import de.invesdwin.util.math.decimal.internal.DecimalAggregate;
 
 @ThreadSafe
-public class CaseResampler<E extends ADecimal<E>> implements IDecimalResampler<E> {
+public class ShuffleRandomizer<E extends ADecimal<E>> implements IDecimalRandomizer<E> {
 
     private final List<E> sample;
 
-    public CaseResampler(final DecimalAggregate<E> parent) {
+    public ShuffleRandomizer(final DecimalAggregate<E> parent) {
         this.sample = parent.values();
     }
 
     @Override
-    public Iterator<E> resample(final RandomGenerator random) {
+    public Iterator<E> randomize(final RandomGenerator random) {
         final List<E> sampleCopy = new ArrayList<E>(sample);
         Collections.shuffle(sampleCopy, new RandomAdaptor(random));
         return sampleCopy.iterator();

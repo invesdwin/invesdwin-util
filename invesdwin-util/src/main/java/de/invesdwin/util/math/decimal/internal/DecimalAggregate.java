@@ -27,7 +27,7 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
 
     private E converter;
     private final List<E> values;
-    private final DecimalAggregateBootstraps<E> bootstraps = new DecimalAggregateBootstraps<E>(this);
+    private final DecimalAggregateRandomizers<E> bootstraps = new DecimalAggregateRandomizers<E>(this);
 
     public DecimalAggregate(final List<? extends E> values, final E converter) {
         this.values = Collections.unmodifiableList(values);

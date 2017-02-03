@@ -14,7 +14,7 @@ import de.invesdwin.util.math.decimal.IDecimalAggregate;
 import de.invesdwin.util.math.random.RandomGenerators;
 
 @NotThreadSafe
-public class DecimalAggregateBootstrapsTest {
+public class DecimalAggregateRandomizersTest {
 
     private static final int REPEAT_COUNT = 100;
 

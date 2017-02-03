@@ -1,4 +1,4 @@
-package de.invesdwin.util.math.decimal.internal.resample.blocklength;
+package de.invesdwin.util.math.decimal.internal.randomize.blocklength;
 
 import javax.annotation.concurrent.NotThreadSafe;
 

@@ -1,4 +1,4 @@
-package de.invesdwin.util.math.decimal.internal.resample;
+package de.invesdwin.util.math.decimal.internal.randomize;
 
 import java.util.Iterator;
 import java.util.List;
@@ -11,7 +11,7 @@ import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.math.decimal.ADecimal;
 import de.invesdwin.util.math.decimal.IDecimalAggregate;
 import de.invesdwin.util.math.decimal.internal.DecimalAggregate;
-import de.invesdwin.util.math.decimal.internal.resample.blocklength.CircularOptimalBlockLength;
+import de.invesdwin.util.math.decimal.internal.randomize.blocklength.CircularOptimalBlockLength;
 
 /**
  * http://www.math.ucsd.edu/~politis/SOFT/PPW/ppw.R
@@ -21,23 +21,23 @@ import de.invesdwin.util.math.decimal.internal.resample.blocklength.CircularOpti
  * https://github.com/colintbowers/DependentBootstrap.jl
  */
 @ThreadSafe
-public class CircularResampler<E extends ADecimal<E>> implements IDecimalResampler<E> {
+public class CircularBootstrapRandomizer<E extends ADecimal<E>> implements IDecimalRandomizer<E> {
 
     private final int blockLength;
     private final List<E> sample;
-    private final IDecimalResampler<E> delegate;
+    private final IDecimalRandomizer<E> delegate;
 
-    public CircularResampler(final DecimalAggregate<E> parent) {
+    public CircularBootstrapRandomizer(final DecimalAggregate<E> parent) {
         this.sample = parent.values();
         this.blockLength = newOptimalBlockLength(parent);
         Assertions.assertThat(blockLength).isGreaterThanOrEqualTo(1);
         if (blockLength == 1) {
             //blockwise resample makes no sense with block maxResampleIdx 1
-            delegate = new CaseReplacementResampler<E>(parent);
+            delegate = new BootstrapRandomizer<E>(parent);
         } else {
-            delegate = new IDecimalResampler<E>() {
+            delegate = new IDecimalRandomizer<E>() {
                 @Override
-                public Iterator<E> resample(final RandomGenerator random) {
+                public Iterator<E> randomize(final RandomGenerator random) {
                     return internalResample(random);
                 }
             };
@@ -49,8 +49,8 @@ public class CircularResampler<E extends ADecimal<E>> implements IDecimalResampl
     }
 
     @Override
-    public final Iterator<E> resample(final RandomGenerator random) {
-        return delegate.resample(random);
+    public final Iterator<E> randomize(final RandomGenerator random) {
+        return delegate.randomize(random);
     }
 
     protected int nextBlockLength(final RandomGenerator random) {

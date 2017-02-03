@@ -1,4 +1,4 @@
-package de.invesdwin.util.math.decimal.internal.resample;
+package de.invesdwin.util.math.decimal.internal.randomize;
 
 import java.util.Iterator;
 import java.util.List;
@@ -11,16 +11,16 @@ import de.invesdwin.util.math.decimal.ADecimal;
 import de.invesdwin.util.math.decimal.internal.DecimalAggregate;
 
 @ThreadSafe
-public class CaseReplacementResampler<E extends ADecimal<E>> implements IDecimalResampler<E> {
+public class BootstrapRandomizer<E extends ADecimal<E>> implements IDecimalRandomizer<E> {
 
     private final List<? extends E> sample;
 
-    public CaseReplacementResampler(final DecimalAggregate<E> parent) {
+    public BootstrapRandomizer(final DecimalAggregate<E> parent) {
         this.sample = parent.values();
     }
 
     @Override
-    public Iterator<E> resample(final RandomGenerator random) {
+    public Iterator<E> randomize(final RandomGenerator random) {
         return new Iterator<E>() {
 
             private final int size = sample.size();
