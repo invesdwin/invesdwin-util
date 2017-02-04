@@ -24,7 +24,13 @@ public class DecimalStreamAvg<E extends ADecimal<E>> implements IDecimalStreamAl
     }
 
     public E getAvg() {
-        return converter.fromDefaultValue(new Decimal(sum / count));
+        final double doubleResult;
+        if (count == 0) {
+            doubleResult = 0D;
+        } else {
+            doubleResult = sum / count;
+        }
+        return converter.fromDefaultValue(new Decimal(doubleResult));
     }
 
 }

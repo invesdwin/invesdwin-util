@@ -30,13 +30,21 @@ public class DecimalStreamGeomAvg<E extends ADecimal<E>> implements IDecimalStre
     @Override
     public Void process(final E value) {
         final double doubleValue = value.getDefaultValue().doubleValueRaw();
-        logSum += Math.log(doubleValue + valueAdjustmentAddition);
+        final double adjValue = doubleValue + valueAdjustmentAddition;
+        if (adjValue > 0D) {
+            logSum += Math.log(adjValue);
+        }
         count++;
         return null;
     }
 
     public E getGeomAvg() {
-        final double doubleResult = Math.exp(logSum / count);
+        final double doubleResult;
+        if (count == 0) {
+            doubleResult = 0D;
+        } else {
+            doubleResult = Math.exp(logSum / count);
+        }
         final Decimal result = new Decimal(doubleResult);
         if (result.isZero()) {
             return converter.zero();

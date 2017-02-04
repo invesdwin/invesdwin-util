@@ -38,6 +38,13 @@ public class DoubleDecimalImpl extends ADecimalImpl<DoubleDecimalImpl, Double> {
 
     public DoubleDecimalImpl(final Double value, final Double defaultRoundedValue) {
         super(value, defaultRoundedValue);
+        final double doubleValue = getValue();
+        if (Double.isNaN(doubleValue)) {
+            throw new IllegalArgumentException("NaN: " + doubleValue);
+        }
+        if (Double.isInfinite(doubleValue)) {
+            throw new IllegalArgumentException("Infinite: " + doubleValue);
+        }
     }
 
     @Override
@@ -151,7 +158,14 @@ public class DoubleDecimalImpl extends ADecimalImpl<DoubleDecimalImpl, Double> {
 
     @Override
     public DoubleDecimalImpl pow(final Number exponent) {
-        return newValueCopy(Math.pow(getValue(), exponent.doubleValue()));
+        final double a = getValue();
+        final double b = exponent.doubleValue();
+        double pow = Math.pow(a, b);
+        if (Double.isNaN(pow) && a < 0) {
+            final double absA = Math.abs(a);
+            pow = -Math.pow(absA, b);
+        }
+        return newValueCopy(pow);
     }
 
     @Override

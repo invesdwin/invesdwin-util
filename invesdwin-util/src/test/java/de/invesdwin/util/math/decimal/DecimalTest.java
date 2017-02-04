@@ -65,6 +65,36 @@ public class DecimalTest {
 
         Assertions.assertThat(Decimal.TWO.pow(3).toString()).isEqualTo("8");
         Assertions.assertThat(Decimal.TWO.pow(3)).isEqualTo(new Decimal("8"));
+
+        Assertions.assertThat(new Decimal("-1000").pow(new Decimal("-0.1"))).isEqualTo(new Decimal("-0.501187234"));
+        Assertions.assertThat(new Decimal("-1000").pow(new Decimal("0.1"))).isEqualTo(new Decimal("-1.995262315"));
+        Assertions.assertThat(new Decimal("1000").pow(new Decimal("-0.1"))).isEqualTo(new Decimal("0.501187234"));
+        Assertions.assertThat(new Decimal("1000").pow(new Decimal("0.1"))).isEqualTo(new Decimal("1.995262315"));
+
+        Assertions.assertThat(new Decimal("-1000").pow(new Decimal("-0.2"))).isEqualTo(new Decimal("-0.251188643"));
+        Assertions.assertThat(new Decimal("-1000").pow(new Decimal("0.2"))).isEqualTo(new Decimal("-3.981071706"));
+        Assertions.assertThat(new Decimal("1000").pow(new Decimal("-0.2"))).isEqualTo(new Decimal("0.251188643"));
+        Assertions.assertThat(new Decimal("1000").pow(new Decimal("0.2"))).isEqualTo(new Decimal("3.981071706"));
+
+        Assertions.assertThat(new Decimal("-10").pow(new Decimal("-10"))).isEqualTo(new Decimal("0"));
+        Assertions.assertThat(new Decimal("-10").pow(new Decimal("10"))).isEqualTo(new Decimal("10000000000"));
+        Assertions.assertThat(new Decimal("10").pow(new Decimal("-10"))).isEqualTo(new Decimal("0"));
+        Assertions.assertThat(new Decimal("10").pow(new Decimal("10"))).isEqualTo(new Decimal("10000000000"));
+
+        Assertions.assertThat(new Decimal("-9").pow(new Decimal("-10"))).isEqualTo(new Decimal("0"));
+        Assertions.assertThat(new Decimal("-9").pow(new Decimal("10"))).isEqualTo(new Decimal("3486784401"));
+        Assertions.assertThat(new Decimal("9").pow(new Decimal("-10"))).isEqualTo(new Decimal("0"));
+        Assertions.assertThat(new Decimal("9").pow(new Decimal("10"))).isEqualTo(new Decimal("3486784401"));
+
+        Assertions.assertThat(new Decimal("-10").pow(new Decimal("-9"))).isEqualTo(new Decimal("-0.000000001"));
+        Assertions.assertThat(new Decimal("-10").pow(new Decimal("9"))).isEqualTo(new Decimal("-1000000000"));
+        Assertions.assertThat(new Decimal("10").pow(new Decimal("-9"))).isEqualTo(new Decimal("0.000000001"));
+        Assertions.assertThat(new Decimal("10").pow(new Decimal("9"))).isEqualTo(new Decimal("1000000000"));
+
+        Assertions.assertThat(new Decimal("-0.01").pow(new Decimal("-0.1"))).isEqualTo(new Decimal("-1.584893192"));
+        Assertions.assertThat(new Decimal("-0.01").pow(new Decimal("0.1"))).isEqualTo(new Decimal("-0.630957344"));
+        Assertions.assertThat(new Decimal("0.01").pow(new Decimal("-0.1"))).isEqualTo(new Decimal("1.584893192"));
+        Assertions.assertThat(new Decimal("0.01").pow(new Decimal("0.1"))).isEqualTo(new Decimal("0.630957344"));
     }
 
     @Test

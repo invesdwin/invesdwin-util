@@ -251,7 +251,7 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
      * Returns the natural logarithm.
      */
     public E log() {
-        if (isNegative()) {
+        if (isNegativeOrZero()) {
             return zero();
         }
         return newValueCopy(getImpl().log());
@@ -261,7 +261,7 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
      * Returns the logarithm base 10.
      */
     public E log10() {
-        if (isNegative()) {
+        if (isNegativeOrZero()) {
             return zero();
         }
         return newValueCopy(getImpl().log10());
