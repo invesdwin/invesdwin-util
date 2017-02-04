@@ -18,8 +18,6 @@ import de.invesdwin.util.math.decimal.IDecimalAggregate;
 import de.invesdwin.util.math.decimal.config.BSplineInterpolationConfig;
 import de.invesdwin.util.math.decimal.config.InterpolationConfig;
 import de.invesdwin.util.math.decimal.config.LoessInterpolationConfig;
-import de.invesdwin.util.math.decimal.stream.DecimalPoint;
-import de.invesdwin.util.math.decimal.stream.DecimalStreamDetrending;
 import de.invesdwin.util.math.decimal.stream.DecimalStreamNormalization;
 
 @ThreadSafe
@@ -63,6 +61,18 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
             previousValue = value;
         }
         return new DecimalAggregate<E>(growthRates, getConverter());
+    }
+
+    public IDecimalAggregate<E> absoluteChanges() {
+        final List<E> differences = new ArrayList<E>();
+        E previousValue = null;
+        for (final E value : values) {
+            if (previousValue != null) {
+                differences.add(value.subtract(previousValue));
+            }
+            previousValue = value;
+        }
+        return new DecimalAggregate<E>(differences, getConverter());
     }
 
     /**
@@ -527,20 +537,14 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
 
     @Override
     public IDecimalAggregate<E> detrend() {
-        if (count() < 3) {
-            return this;
+        final E avgChange = absoluteChanges().avg();
+        final List<E> detrendedValues = new ArrayList<E>();
+        for (int i = 0; i < values.size(); i++) {
+            final E value = values.get(i);
+            final E detrendedValue = value.subtract(avgChange.multiply(i));
+            detrendedValues.add(detrendedValue);
         }
-        final DecimalPoint<Decimal, E> from = new DecimalPoint<Decimal, E>(Decimal.ZERO, values.get(0));
-        final DecimalPoint<Decimal, E> to = new DecimalPoint<Decimal, E>(new Decimal(count()),
-                values.get(values.size() - 1));
-        final DecimalStreamDetrending<E> detrending = new DecimalStreamDetrending<E>(from, to);
-        final List<E> results = new ArrayList<E>();
-        for (int i = 0; i < count(); i++) {
-            final DecimalPoint<Decimal, E> value = new DecimalPoint<Decimal, E>(new Decimal(i), values.get(i));
-            final DecimalPoint<Decimal, E> detrendedValue = detrending.process(value);
-            results.add(detrendedValue.getY());
-        }
-        return new DecimalAggregate<E>(results, getConverter());
+        return new DecimalAggregate<E>(detrendedValues, getConverter());
     }
 
     @Override

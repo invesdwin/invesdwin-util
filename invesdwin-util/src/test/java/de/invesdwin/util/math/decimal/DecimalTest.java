@@ -405,4 +405,30 @@ public class DecimalTest {
         Assertions.assertThat(scaled001.getDigits()).isEqualTo(3);
     }
 
+    @Test
+    public void testDetrendPositiveToNegative() {
+        final List<Decimal> values = new ArrayList<Decimal>();
+        for (int i = 10; i >= -10; i--) {
+            values.add(new Decimal(i));
+        }
+        final List<Decimal> detrended = Decimal.valueOf(values).detrend().values();
+        //CHECKSTYLE:OFF
+        System.out.println(values + " " + Decimal.valueOf(values).growthRates().avg());
+        System.out.println(detrended + " " + Decimal.valueOf(detrended).growthRates().avg());
+        //CHECKSTYLE:ON
+    }
+
+    @Test
+    public void testDetrendPositive() {
+        final List<Decimal> values = new ArrayList<Decimal>();
+        for (int i = 10; i >= 0; i--) {
+            values.add(new Decimal(i));
+        }
+        final List<Decimal> detrended = Decimal.valueOf(values).detrend().values();
+        //CHECKSTYLE:OFF
+        System.out.println(values + " " + Decimal.valueOf(values).growthRates().avg());
+        System.out.println(detrended + " " + Decimal.valueOf(detrended).growthRates().avg());
+        //CHECKSTYLE:ON
+    }
+
 }

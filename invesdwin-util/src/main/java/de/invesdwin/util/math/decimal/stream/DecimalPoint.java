@@ -2,6 +2,7 @@ package de.invesdwin.util.math.decimal.stream;
 
 import javax.annotation.concurrent.Immutable;
 
+import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.math.decimal.ADecimal;
 
 @Immutable
@@ -21,6 +22,11 @@ public class DecimalPoint<X, Y extends ADecimal<Y>> {
 
     public Y getY() {
         return y;
+    }
+
+    @Override
+    public String toString() {
+        return Objects.toStringHelper(this).add("x", x).add("y", y).toString();
     }
 
 }

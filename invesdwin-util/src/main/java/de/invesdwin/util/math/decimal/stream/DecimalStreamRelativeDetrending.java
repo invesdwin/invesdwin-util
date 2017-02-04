@@ -12,24 +12,25 @@ import de.invesdwin.util.math.decimal.Decimal;
  * http://www.automated-trading-system.com/detrending-for-trend-following/
  */
 @NotThreadSafe
-public class DecimalStreamDetrending<Y extends ADecimal<Y>>
+public class DecimalStreamRelativeDetrending<Y extends ADecimal<Y>>
         implements IDecimalStreamAlgorithm<DecimalPoint<Decimal, Y>, DecimalPoint<Decimal, Y>> {
 
     private final DecimalPoint<Decimal, Y> from;
     private final DecimalPoint<Decimal, Y> to;
 
     private final Decimal fromX;
-    private final Y fromY;
-    private final Y logAvgChangeYperX;
+    private final double fromY;
+    private final double logAvgChangeYperX;
 
-    public DecimalStreamDetrending(final DecimalPoint<Decimal, Y> from, final DecimalPoint<Decimal, Y> to) {
+    public DecimalStreamRelativeDetrending(final DecimalPoint<Decimal, Y> from, final DecimalPoint<Decimal, Y> to) {
         this.from = from;
         this.to = to;
         this.fromX = from.getX();
-        final Decimal xChange = scaleChangeInX(to.getX().subtract(fromX));
-        Assertions.assertThat(xChange).isGreaterThan(Decimal.ZERO);
-        this.fromY = from.getY();
-        this.logAvgChangeYperX = to.getY().divide(fromY).log().divide(xChange);
+        final double xChange = scaleChangeInX(to.getX().subtract(fromX)).getDefaultValue().doubleValueRaw();
+        Assertions.assertThat(xChange).isGreaterThan(0D);
+        this.fromY = getY(from).getDefaultValue().doubleValueRaw();
+        final double toAdjY = getY(to).getDefaultValue().doubleValueRaw();
+        this.logAvgChangeYperX = Math.log(toAdjY / fromY) / xChange;
     }
 
     /**
@@ -42,15 +43,24 @@ public class DecimalStreamDetrending<Y extends ADecimal<Y>>
     @Override
     public DecimalPoint<Decimal, Y> process(final DecimalPoint<Decimal, Y> value) {
         final Decimal curX = value.getX();
+        final double curY = getY(value).getDefaultValue().doubleValueRaw();
+
+        final double changeInX = scaleChangeInX(curX.subtract(fromX)).getDefaultValue().doubleValueRaw();
+
+        final double logCurProfit = Math.log(curY / fromY);
+        final double logMinusProfit = logAvgChangeYperX * changeInX;
+        final double logDetrendedProfit = logCurProfit - logMinusProfit;
+        final double detrendedY = fromY * Math.exp(logDetrendedProfit);
+        return new DecimalPoint<Decimal, Y>(curX, value.getY().fromDefaultValue(new Decimal(detrendedY)));
+    }
+
+    private Y getY(final DecimalPoint<Decimal, Y> value) {
         final Y curY = value.getY();
-
-        final Decimal changeInX = scaleChangeInX(curX.subtract(fromX));
-
-        final Y logCurProfit = curY.divide(fromY).log();
-        final Y logMinusProfit = logAvgChangeYperX.multiply(changeInX);
-        final Y logDetrendedProfit = logCurProfit.subtract(logMinusProfit);
-        final Y detrendedY = fromY.multiply(logDetrendedProfit.exp());
-        return new DecimalPoint<Decimal, Y>(curX, detrendedY);
+        if (curY.isNegativeOrZero()) {
+            throw new IllegalArgumentException("Current value [" + value
+                    + "] is negative or zero. Please preprocess the data so this does not happen because we cannot create a logarithm of a negative value.");
+        }
+        return curY;
     }
 
     /**
