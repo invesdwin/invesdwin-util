@@ -142,6 +142,8 @@ public interface IDecimalAggregate<E extends ADecimal<E>> {
      */
     IDecimalAggregate<E> detrendAbsolute();
 
+    IDecimalAggregate<E> detrendRelative();
+
     /**
      * True when each element is >= its previous element
      */
