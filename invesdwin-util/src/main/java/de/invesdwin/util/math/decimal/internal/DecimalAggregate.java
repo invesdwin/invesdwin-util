@@ -19,6 +19,7 @@ import de.invesdwin.util.math.decimal.config.BSplineInterpolationConfig;
 import de.invesdwin.util.math.decimal.config.InterpolationConfig;
 import de.invesdwin.util.math.decimal.config.LoessInterpolationConfig;
 import de.invesdwin.util.math.decimal.stream.DecimalPoint;
+import de.invesdwin.util.math.decimal.stream.DecimalStreamGeomAvg;
 import de.invesdwin.util.math.decimal.stream.DecimalStreamNormalization;
 import de.invesdwin.util.math.decimal.stream.DecimalStreamRelativeDetrending;
 
@@ -164,15 +165,11 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
      */
     @Override
     public E geomAvg() {
-        Decimal logSum = Decimal.ZERO;
-        final int count = count();
-        for (int i = 0; i < count; i++) {
-            final Decimal defaultValue = values.get(i).getDefaultValue();
-            final Decimal log = defaultValue.log();
-            logSum = Decimal.sum(logSum, log);
+        final DecimalStreamGeomAvg<E> geomAvg = new DecimalStreamGeomAvg<E>(getConverter());
+        for (final E value : values) {
+            geomAvg.process(value);
         }
-        final Decimal result = logSum.divide(count).exp();
-        return getConverter().fromDefaultValue(result);
+        return geomAvg.getGeomAvg();
     }
 
     @Override

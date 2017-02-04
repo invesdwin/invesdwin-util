@@ -31,9 +31,11 @@ public class DecimalStreamGeomAvg<E extends ADecimal<E>> implements IDecimalStre
     public Void process(final E value) {
         final double doubleValue = value.getDefaultValue().doubleValueRaw();
         final double adjValue = doubleValue + valueAdjustmentAddition;
-        if (adjValue > 0D) {
-            logSum += Math.log(adjValue);
+        if (adjValue <= 0D) {
+            throw new IllegalArgumentException(
+                    "Negative values are not supported here since we cannot compute a logratihm on it: " + value);
         }
+        logSum += Math.log(adjValue);
         count++;
         return null;
     }
