@@ -536,7 +536,7 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
     }
 
     @Override
-    public IDecimalAggregate<E> detrend() {
+    public IDecimalAggregate<E> detrendAbsolute() {
         final E avgChange = absoluteChanges().avg();
         final List<E> detrendedValues = new ArrayList<E>();
         for (int i = 0; i < values.size(); i++) {

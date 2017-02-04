@@ -411,7 +411,7 @@ public class DecimalTest {
         for (int i = 10; i >= -10; i--) {
             values.add(new Decimal(i));
         }
-        final List<Decimal> detrended = Decimal.valueOf(values).detrend().values();
+        final List<Decimal> detrended = Decimal.valueOf(values).detrendAbsolute().values();
         //CHECKSTYLE:OFF
         System.out.println(values + " " + Decimal.valueOf(values).growthRates().avg());
         System.out.println(detrended + " " + Decimal.valueOf(detrended).growthRates().avg());
@@ -424,7 +424,7 @@ public class DecimalTest {
         for (int i = 10; i >= 0; i--) {
             values.add(new Decimal(i));
         }
-        final List<Decimal> detrended = Decimal.valueOf(values).detrend().values();
+        final List<Decimal> detrended = Decimal.valueOf(values).detrendAbsolute().values();
         //CHECKSTYLE:OFF
         System.out.println(values + " " + Decimal.valueOf(values).growthRates().avg());
         System.out.println(detrended + " " + Decimal.valueOf(detrended).growthRates().avg());

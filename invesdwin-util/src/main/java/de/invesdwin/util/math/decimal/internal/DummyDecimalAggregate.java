@@ -265,7 +265,7 @@ public final class DummyDecimalAggregate<E extends ADecimal<E>> implements IDeci
     }
 
     @Override
-    public IDecimalAggregate<E> detrend() {
+    public IDecimalAggregate<E> detrendAbsolute() {
         return this;
     }
 

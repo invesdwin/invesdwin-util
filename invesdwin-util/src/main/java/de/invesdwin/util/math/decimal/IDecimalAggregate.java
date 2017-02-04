@@ -140,7 +140,7 @@ public interface IDecimalAggregate<E extends ADecimal<E>> {
      * 
      * detrendedY(x,y) = y - ((x - fromX) * avgChangeYperX)
      */
-    IDecimalAggregate<E> detrend();
+    IDecimalAggregate<E> detrendAbsolute();
 
     /**
      * True when each element is >= its previous element
