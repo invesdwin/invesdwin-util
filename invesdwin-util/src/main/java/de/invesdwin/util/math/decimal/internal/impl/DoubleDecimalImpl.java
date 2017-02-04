@@ -161,7 +161,7 @@ public class DoubleDecimalImpl extends ADecimalImpl<DoubleDecimalImpl, Double> {
         final double a = getValue();
         final double b = exponent.doubleValue();
         double pow = Math.pow(a, b);
-        if (Double.isNaN(pow) && a < 0) {
+        if (Double.isNaN(pow) && a < 0D) {
             final double absA = Math.abs(a);
             pow = -Math.pow(absA, b);
         }
