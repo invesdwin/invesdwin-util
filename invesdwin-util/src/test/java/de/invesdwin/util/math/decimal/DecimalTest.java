@@ -406,7 +406,7 @@ public class DecimalTest {
     }
 
     @Test
-    public void testDetrendPositiveToNegative() {
+    public void testDetrendAbsolutePositiveToNegative() {
         final List<Decimal> values = new ArrayList<Decimal>();
         for (int i = 10; i >= -10; i--) {
             values.add(new Decimal(i));
@@ -419,7 +419,7 @@ public class DecimalTest {
     }
 
     @Test
-    public void testDetrendPositive() {
+    public void testDetrendAbsolutePositive() {
         final List<Decimal> values = new ArrayList<Decimal>();
         for (int i = 10; i >= 0; i--) {
             values.add(new Decimal(i));
@@ -428,6 +428,36 @@ public class DecimalTest {
         //CHECKSTYLE:OFF
         System.out.println(values + " " + Decimal.valueOf(values).growthRates().avg());
         System.out.println(detrended + " " + Decimal.valueOf(detrended).growthRates().avg());
+        //CHECKSTYLE:ON
+    }
+
+    @Test
+    public void testDetrendRelativePositiveToNegative() {
+        final List<Decimal> values = new ArrayList<Decimal>();
+        for (int i = 100; i < 120; i++) {
+            values.add(new Decimal(i));
+        }
+        final List<Decimal> detrended = Decimal.valueOf(values).detrendRelative().values();
+        final List<Decimal> detrendedWithAbsolute = Decimal.valueOf(detrended).detrendAbsolute().values();
+        //CHECKSTYLE:OFF
+        System.out.println(values + " " + Decimal.valueOf(values).growthRates().avg());
+        System.out.println(detrended + " " + Decimal.valueOf(detrended).growthRates().avg());
+        System.out.println(detrendedWithAbsolute + " " + Decimal.valueOf(detrendedWithAbsolute).growthRates().avg());
+        //CHECKSTYLE:ON
+    }
+
+    @Test
+    public void testDetrendRelativePositive() {
+        final List<Decimal> values = new ArrayList<Decimal>();
+        for (int i = 100; i >= 80; i--) {
+            values.add(new Decimal(i));
+        }
+        final List<Decimal> detrended = Decimal.valueOf(values).detrendRelative().values();
+        final List<Decimal> detrendedWithAbsolute = Decimal.valueOf(detrended).detrendAbsolute().values();
+        //CHECKSTYLE:OFF
+        System.out.println(values + " " + Decimal.valueOf(values).growthRates().avg());
+        System.out.println(detrended + " " + Decimal.valueOf(detrended).growthRates().avg());
+        System.out.println(detrendedWithAbsolute + " " + Decimal.valueOf(detrendedWithAbsolute).growthRates().avg());
         //CHECKSTYLE:ON
     }
 

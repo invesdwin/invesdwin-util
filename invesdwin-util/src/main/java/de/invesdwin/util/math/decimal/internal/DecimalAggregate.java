@@ -542,7 +542,9 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
         if (count() < 3) {
             return this;
         }
-        final E avgChange = absoluteChanges().avg();
+        final E firstValue = values.get(0);
+        final E lastValue = values.get(count() - 1);
+        final E avgChange = lastValue.subtract(firstValue).divide(count() - 1);
         final List<E> detrendedValues = new ArrayList<E>();
         for (int i = 0; i < values.size(); i++) {
             final E value = values.get(i);
