@@ -252,7 +252,7 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
      */
     public E log() {
         if (isNegativeOrZero()) {
-            throw new IllegalArgumentException("Value needs to be positive non zero: " + this);
+            return zero();
         }
         return newValueCopy(getImpl().log());
     }
@@ -262,7 +262,7 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
      */
     public E log10() {
         if (isNegativeOrZero()) {
-            throw new IllegalArgumentException("Value needs to be positive non zero: " + this);
+            return zero();
         }
         return newValueCopy(getImpl().log10());
     }

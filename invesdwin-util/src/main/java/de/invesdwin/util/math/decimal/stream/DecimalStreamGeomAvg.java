@@ -31,11 +31,13 @@ public class DecimalStreamGeomAvg<E extends ADecimal<E>> implements IDecimalStre
     public Void process(final E value) {
         final double doubleValue = value.getDefaultValue().doubleValueRaw();
         final double adjValue = doubleValue + valueAdjustmentAddition;
-        if (adjValue <= 0D) {
-            throw new IllegalArgumentException(
-                    "Negative values are not supported here since we cannot compute a logratihm on it: " + value);
+        if (adjValue > 0D) {
+            /*
+             * though this is not nice, when trying to calculate the compoundDailyGrowthRate from a detrended equity
+             * curve that goes negative, this is needed
+             */
+            logSum += Math.log(adjValue);
         }
-        logSum += Math.log(adjValue);
         count++;
         return null;
     }
