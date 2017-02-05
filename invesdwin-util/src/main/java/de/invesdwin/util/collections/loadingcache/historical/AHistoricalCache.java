@@ -47,6 +47,7 @@ public abstract class AHistoricalCache<V> {
 
     private volatile FDate lastRefresh = HistoricalCacheRefreshManager.getLastRefresh();
     private boolean isPutDisabled = getMaximumSize() != null && getMaximumSize() == 0;
+    private volatile Integer maximumSize = newInitialMaximumSize();
     private IHistoricalCacheShiftKeyProvider shiftKeyProvider = new InnerHistoricalCacheShiftKeyProvider();
     private IHistoricalCacheExtractKeyProvider<V> extractKeyProvider = new InnerHistoricalCacheExtractKeyProvider();
     private final ILoadingCache<FDate, V> valuesMap = new ADelegateLoadingCache<FDate, V>() {
@@ -75,8 +76,22 @@ public abstract class AHistoricalCache<V> {
     /**
      * null means unlimited and 0 means no caching at all.
      */
-    public Integer getMaximumSize() {
+    protected Integer newInitialMaximumSize() {
         return DEFAULT_MAXIMUM_SIZE;
+    }
+
+    public Integer getMaximumSize() {
+        return maximumSize;
+    }
+
+    public synchronized void increaseMaximumSize(final int maximumSize) {
+        final Integer existingMaximumSize = this.maximumSize;
+        if (existingMaximumSize == null || existingMaximumSize < maximumSize) {
+            for (final ALoadingCache<?, ?> l : increaseMaximumSizeListeners) {
+                l.increaseMaximumSize(maximumSize);
+            }
+            queryCore.increaseMaximumSize(maximumSize);
+        }
     }
 
     protected IHistoricalCacheQueryCore<V> newHistoricalCacheQueryCore() {
@@ -85,13 +100,6 @@ public abstract class AHistoricalCache<V> {
          * the values map
          */
         return new CachedHistoricalCacheQueryCore<V>(internalMethods);
-    }
-
-    protected synchronized void increaseMaximumSize(final int maximumSize) {
-        for (final ALoadingCache<?, ?> l : increaseMaximumSizeListeners) {
-            l.increaseMaximumSize(maximumSize);
-        }
-        queryCore.increaseMaximumSize(maximumSize);
     }
 
     protected void setAdjustKeyProvider(final IHistoricalCacheAdjustKeyProvider adjustKeyProvider) {
@@ -138,7 +146,7 @@ public abstract class AHistoricalCache<V> {
         final ALoadingCache<FDate, T> loadingCache = new ALoadingCache<FDate, T>() {
 
             @Override
-            protected Integer getMaximumSize() {
+            protected Integer newInitialMaximumSize() {
                 return maximumSize;
             }
 

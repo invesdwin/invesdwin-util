@@ -1197,11 +1197,6 @@ public class AGapHistoricalCacheTest {
         }
 
         @Override
-        public Integer getMaximumSize() {
-            return super.getMaximumSize();
-        }
-
-        @Override
         protected FDate innerExtractKey(final FDate key, final FDate entity) {
             countInnerExtractKey++;
             return entity;

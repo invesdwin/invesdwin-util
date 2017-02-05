@@ -15,7 +15,7 @@ public abstract class ALoadingCache<K, V> extends ADelegateLoadingCache<K, V> {
     /**
      * default unlimited size
      */
-    protected Integer getMaximumSize() {
+    protected Integer newInitialMaximumSize() {
         return null;
     }
 
@@ -39,7 +39,7 @@ public abstract class ALoadingCache<K, V> extends ADelegateLoadingCache<K, V> {
 
     @Override
     protected ILoadingCache<K, V> createDelegate() {
-        final Integer maximumSize = getMaximumSize();
+        final Integer maximumSize = newInitialMaximumSize();
         final Function<K, V> loadValue = new Function<K, V>() {
             @Override
             public V apply(final K key) {

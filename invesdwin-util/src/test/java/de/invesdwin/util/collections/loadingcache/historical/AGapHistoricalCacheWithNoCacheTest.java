@@ -1199,7 +1199,7 @@ public class AGapHistoricalCacheWithNoCacheTest {
         }
 
         @Override
-        public Integer getMaximumSize() {
+        protected Integer newInitialMaximumSize() {
             return 0;
         }
 
