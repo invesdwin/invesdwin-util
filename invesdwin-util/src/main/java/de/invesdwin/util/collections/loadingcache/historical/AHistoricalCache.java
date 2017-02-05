@@ -222,7 +222,11 @@ public abstract class AHistoricalCache<V> {
         return getValuesMap().containsKey(key);
     }
 
-    public final void remove(final FDate key) {
+    /**
+     * For internal use only. Removal is only required in very special cases.
+     */
+    @Deprecated
+    public void remove(final FDate key) {
         getValuesMap().remove(key);
         if (shiftKeyProvider.getPreviousKeysCache().containsKey(key)) {
             final FDate previousKey = shiftKeyProvider.getPreviousKeysCache().get(key);

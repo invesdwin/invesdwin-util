@@ -56,6 +56,7 @@ public abstract class APullingHistoricalCacheAdjustKeyProvider implements IHisto
         return key;
     }
 
+    @SuppressWarnings("deprecation")
     private FDate getHighestAllowedKeyUpdateCached() {
         final FDate newHighestAllowedKey = innerGetHighestAllowedKey();
         if (newHighestAllowedKey != null) {

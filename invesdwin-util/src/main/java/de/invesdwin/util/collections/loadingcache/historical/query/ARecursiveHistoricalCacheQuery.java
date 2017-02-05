@@ -77,8 +77,11 @@ public abstract class ARecursiveHistoricalCacheQuery<V> {
             List<FDate> recursionKeys = Lists.toListWithoutHasNext(
                     newQuery(previousKeysProvider).getPreviousKeys(previousKey, maxRecursionCount));
             firstRecursionKey = recursionKeys.get(0);
-            Assertions.checkEquals(recursionKeys.get(recursionKeys.size() - 1), previousKey);
-            lastRecursionKey = previousKey;
+            lastRecursionKey = recursionKeys.get(recursionKeys.size() - 1);
+            if (!lastRecursionKey.equals(previousKey)) {
+                throw new IllegalStateException(
+                        parent + ": lastRecursionKey [" + lastRecursionKey + "] != previousKey [" + previousKey + "]");
+            }
 
             for (int i = recursionKeys.size() - 1; i >= 0; i--) {
                 final FDate recursionKey = recursionKeys.get(i);
@@ -89,6 +92,7 @@ public abstract class ARecursiveHistoricalCacheQuery<V> {
                 }
             }
             for (final FDate recursionKey : recursionKeys) {
+                //fill up the missing values
                 newQuery(parent).getValue(recursionKey);
             }
             final V previous = newQuery(parent).getValue(previousKey);
