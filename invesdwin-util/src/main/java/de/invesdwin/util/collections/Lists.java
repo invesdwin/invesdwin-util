@@ -40,7 +40,7 @@ public final class Lists extends AListsStaticFacade {
             while (true) {
                 final E next = iterator.next();
                 if (next == null) {
-                    throw new IllegalArgumentException("null");
+                    throw new NullPointerException("null");
                 }
                 list.add(next);
             }

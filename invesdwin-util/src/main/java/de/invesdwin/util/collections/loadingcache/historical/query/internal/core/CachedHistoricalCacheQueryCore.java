@@ -35,6 +35,8 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
     private List<Entry<FDate, V>> cachedPreviousResult_filteringDuplicates = null;
     @GuardedBy("this")
     private Integer cachedPreviousResult_shiftBackUnits = null;
+    @GuardedBy("this")
+    private boolean cachedQueryActive;
 
     public CachedHistoricalCacheQueryCore(final IHistoricalCacheInternalMethods<V> parent) {
         this.delegate = new DefaultHistoricalCacheQueryCore<V>(parent);
@@ -89,12 +91,23 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
             final boolean filterDuplicateKeys) {
         final FDate adjKey = getParent().adjustKey(key);
         final List<Entry<FDate, V>> result;
-        if (!cachedPreviousEntries.isEmpty()) {
-            result = cachedGetPreviousEntries(query, shiftBackUnits, adjKey, filterDuplicateKeys);
-        } else {
+        if (cachedQueryActive) {
+            //prevent nested/recursive cached queries that might f**k up the cache
             final List<Entry<FDate, V>> trailing = newEntriesList(query, shiftBackUnits, filterDuplicateKeys);
             result = defaultGetPreviousEntries(query, shiftBackUnits, adjKey, trailing);
-            updateCachedPreviousResult(shiftBackUnits, result, filterDuplicateKeys);
+        } else {
+            cachedQueryActive = true;
+            try {
+                if (!cachedPreviousEntries.isEmpty()) {
+                    result = cachedGetPreviousEntries(query, shiftBackUnits, adjKey, filterDuplicateKeys);
+                } else {
+                    final List<Entry<FDate, V>> trailing = newEntriesList(query, shiftBackUnits, filterDuplicateKeys);
+                    result = defaultGetPreviousEntries(query, shiftBackUnits, adjKey, trailing);
+                    updateCachedPreviousResult(shiftBackUnits, result, filterDuplicateKeys);
+                }
+            } finally {
+                cachedQueryActive = false;
+            }
         }
         return result;
     }
@@ -268,9 +281,9 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
      */
     private void updateCachedPreviousResult(final int shiftBackUnits, final List<Entry<FDate, V>> result,
             final boolean filterDuplicateKeys) {
-        //        if (cachedPreviousResult_shiftBackUnits != null) {
-        //            throw new IllegalStateException("cachedPreviousResult should have been reset by preceeding code!");
-        //        }
+        if (cachedPreviousResult_shiftBackUnits != null) {
+            throw new IllegalStateException("cachedPreviousResult should have been reset by preceeding code!");
+        }
         if (filterDuplicateKeys) {
             cachedPreviousResult_filteringDuplicates = result;
             cachedPreviousResult_notFilteringDuplicates = null;

@@ -23,7 +23,7 @@ import de.invesdwin.util.collections.loadingcache.historical.key.internal.IHisto
 import de.invesdwin.util.collections.loadingcache.historical.listener.IHistoricalCacheOnValueLoadedListener;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQuery;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.IHistoricalCacheInternalMethods;
-import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.CachedHistoricalCacheQueryCore;
+import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.DefaultHistoricalCacheQueryCore;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.IHistoricalCacheQueryCore;
 import de.invesdwin.util.collections.loadingcache.historical.refresh.HistoricalCacheRefreshManager;
 import de.invesdwin.util.time.fdate.FDate;
@@ -100,7 +100,8 @@ public abstract class AHistoricalCache<V> {
          * always use lookback cache to make getPreviousXyz faster even though this instance might not cache anything in
          * the values map
          */
-        return new CachedHistoricalCacheQueryCore<V>(internalMethods);
+        //        return new CachedHistoricalCacheQueryCore<V>(internalMethods);
+        return new DefaultHistoricalCacheQueryCore<V>(internalMethods);
     }
 
     protected void setAdjustKeyProvider(final IHistoricalCacheAdjustKeyProvider adjustKeyProvider) {
