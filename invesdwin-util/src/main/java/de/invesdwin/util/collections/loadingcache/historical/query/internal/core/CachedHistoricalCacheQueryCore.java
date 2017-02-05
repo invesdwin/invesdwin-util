@@ -268,9 +268,9 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
      */
     private void updateCachedPreviousResult(final int shiftBackUnits, final List<Entry<FDate, V>> result,
             final boolean filterDuplicateKeys) {
-        if (cachedPreviousResult_shiftBackUnits != null) {
-            throw new IllegalStateException("cachedPreviousResult should have been reset by preceeding code!");
-        }
+        //        if (cachedPreviousResult_shiftBackUnits != null) {
+        //            throw new IllegalStateException("cachedPreviousResult should have been reset by preceeding code!");
+        //        }
         if (filterDuplicateKeys) {
             cachedPreviousResult_filteringDuplicates = result;
             cachedPreviousResult_notFilteringDuplicates = null;

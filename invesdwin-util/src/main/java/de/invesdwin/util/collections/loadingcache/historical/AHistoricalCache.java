@@ -91,6 +91,7 @@ public abstract class AHistoricalCache<V> {
                 l.increaseMaximumSize(maximumSize);
             }
             queryCore.increaseMaximumSize(maximumSize);
+            this.maximumSize = maximumSize;
         }
     }
 

@@ -1,9 +1,12 @@
 package de.invesdwin.util.collections.loadingcache.historical.query;
 
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.List;
 
+import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
+import de.invesdwin.util.assertions.Assertions;
+import de.invesdwin.util.collections.Lists;
 import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.time.fdate.FDate;
@@ -22,25 +25,28 @@ public abstract class ARecursiveHistoricalCacheQuery<V> {
     public static final int MIN_RECURSION_COUNT = 20;
 
     private final AHistoricalCache<V> parent;
-    private final ThreadLocal<AtomicInteger> curRecursionCountHolder = new ThreadLocal<AtomicInteger>() {
-        @Override
-        protected AtomicInteger initialValue() {
-            return new AtomicInteger();
-        }
-    };
+    private final AHistoricalCache<?> previousKeysProvider;
     private final int maxRecursionCount;
+    @GuardedBy("this")
+    private boolean recursionInProgress = false;
+    @GuardedBy("this")
+    private FDate firstRecursionKey;
+    @GuardedBy("this")
+    private FDate lastRecursionKey;
 
-    public ARecursiveHistoricalCacheQuery(final AHistoricalCache<V> parent, final int maxRecursionCount) {
+    public ARecursiveHistoricalCacheQuery(final AHistoricalCache<V> parent,
+            final AHistoricalCache<?> previousKeysProvider, final int maxRecursionCount) {
         this.parent = parent;
+        this.previousKeysProvider = previousKeysProvider;
+        Assertions.assertThat(parent)
+                .as("previousKeysProvider needs to be a different cache than parent, since we need one that does not have to do recursion to determine its previous key")
+                .isNotSameAs(previousKeysProvider);
         this.maxRecursionCount = Integers.max(maxRecursionCount, MIN_RECURSION_COUNT);
+        parent.increaseMaximumSize(newSuggestedMaximumSizeForParent(parent.getMaximumSize(), maxRecursionCount));
     }
 
     public int getMaxRecursionCount() {
         return maxRecursionCount;
-    }
-
-    public int getSuggestedMaximumSizeForParent(final int maximumSize) {
-        return newSuggestedMaximumSizeForParent(maximumSize, maxRecursionCount);
     }
 
     public static int newSuggestedMaximumSizeForParent(final int maximumSize, final int maxRecursionCount) {
@@ -52,25 +58,52 @@ public abstract class ARecursiveHistoricalCacheQuery<V> {
         if (parent.containsKey(previousKey)) {
             previous = newQuery(parent).getValue(previousKey);
         } else {
-            final AtomicInteger curRecursionCount = curRecursionCountHolder.get();
-            if (curRecursionCount.incrementAndGet() >= maxRecursionCount || key.equals(previousKey)) {
-                //Start with SMA
-                previous = getInitialValue(previousKey);
-            } else {
-                //use recursion up to the allowed limit
-                previous = newQuery(parent).getValue(previousKey);
-            }
-            if (curRecursionCount.decrementAndGet() <= 0) {
-                curRecursionCountHolder.remove();
-            }
+            previous = getPreviousValueByRecursion(key, previousKey);
         }
         return previous;
+    }
+
+    private synchronized V getPreviousValueByRecursion(final FDate key, final FDate previousKey) {
+        if (recursionInProgress) {
+            if (previousKey.isBeforeOrEqualTo(firstRecursionKey)) {
+                return getInitialValue(previousKey);
+            } else {
+                throw new IllegalStateException(parent + ": the values between " + firstRecursionKey + " and "
+                        + lastRecursionKey + " should have been cached: " + previousKey);
+            }
+        }
+        recursionInProgress = true;
+        try {
+            List<FDate> recursionKeys = Lists.toListWithoutHasNext(
+                    newQuery(previousKeysProvider).getPreviousKeys(previousKey, maxRecursionCount));
+            firstRecursionKey = recursionKeys.get(0);
+            Assertions.checkEquals(recursionKeys.get(recursionKeys.size() - 1), previousKey);
+            lastRecursionKey = previousKey;
+
+            for (int i = recursionKeys.size() - 1; i >= 0; i--) {
+                final FDate recursionKey = recursionKeys.get(i);
+                if (parent.containsKey(recursionKey)) {
+                    //start at latest available recursion key
+                    recursionKeys = recursionKeys.subList(i, recursionKeys.size());
+                    break;
+                }
+            }
+            for (final FDate recursionKey : recursionKeys) {
+                newQuery(parent).getValue(recursionKey);
+            }
+            final V previous = newQuery(parent).getValue(previousKey);
+            return previous;
+        } finally {
+            firstRecursionKey = null;
+            lastRecursionKey = null;
+            recursionInProgress = false;
+        }
     }
 
     /**
      * can be overridden to change the future data handling
      */
-    protected IHistoricalCacheQuery<V> newQuery(final AHistoricalCache<V> parent) {
+    protected <T> IHistoricalCacheQuery<T> newQuery(final AHistoricalCache<T> parent) {
         return parent.query();
     }
 
