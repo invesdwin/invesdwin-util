@@ -68,8 +68,10 @@ public abstract class ARecursiveHistoricalCacheQuery<V> {
             if (previousKey.isBeforeOrEqualTo(firstRecursionKey)) {
                 return getInitialValue(previousKey);
             } else {
-                throw new IllegalStateException(parent + ": the values between " + firstRecursionKey + " and "
-                        + lastRecursionKey + " should have been cached: " + previousKey);
+                throw new IllegalStateException(
+                        parent + ": the values between " + firstRecursionKey + " and " + lastRecursionKey
+                                + " should have been cached, maybe you are returning null values even if you should not: "
+                                + previousKey);
             }
         }
         recursionInProgress = true;

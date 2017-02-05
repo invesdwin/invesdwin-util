@@ -2,7 +2,6 @@ package de.invesdwin.util.math.decimal.stream;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.math.decimal.ADecimal;
 import de.invesdwin.util.math.decimal.Decimal;
 
@@ -27,7 +26,10 @@ public class DecimalStreamRelativeDetrending<Y extends ADecimal<Y>>
         this.to = to;
         this.fromX = from.getX();
         final double xChange = scaleChangeInX(to.getX().subtract(fromX)).getDefaultValue().doubleValueRaw();
-        Assertions.assertThat(xChange).isGreaterThan(0D);
+        if (xChange <= 0D) {
+            throw new IllegalArgumentException(
+                    "from [" + from + "] -> to [" + to + "] has negative change per x: " + xChange);
+        }
         this.fromY = getY(from).getDefaultValue().doubleValueRaw();
         final double toAdjY = getY(to).getDefaultValue().doubleValueRaw();
         this.logAvgChangeYperX = Math.log(toAdjY / fromY) / xChange;
