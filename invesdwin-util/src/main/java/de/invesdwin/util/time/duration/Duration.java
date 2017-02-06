@@ -82,6 +82,9 @@ public class Duration extends Number implements Comparable<Object> {
 
     public Duration(final long duration, final FTimeUnit timeUnit) {
         this.duration = Long.valueOf(duration);
+        if (timeUnit == null) {
+            throw new NullPointerException("timeUnit should not be null");
+        }
         this.timeUnit = timeUnit;
     }
 

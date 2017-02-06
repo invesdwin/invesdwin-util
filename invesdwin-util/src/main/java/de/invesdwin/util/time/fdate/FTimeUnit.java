@@ -13,6 +13,7 @@ import javax.annotation.concurrent.Immutable;
 import org.joda.time.DurationFieldType;
 
 import de.invesdwin.util.error.UnknownArgumentException;
+import de.invesdwin.util.time.duration.Duration;
 
 // CHECKSTYLE:ON
 @Immutable
@@ -1086,6 +1087,8 @@ public enum FTimeUnit {
     public static final int YEARS_IN_MILLENIUM = 1000;
     public static final int YEARS_IN_CENTURY = 100;
     public static final int YEARS_IN_DECADE = 10;
+    public static final int CENTURIES_IN_MILLENIUM = YEARS_IN_MILLENIUM / YEARS_IN_CENTURY;
+    public static final int DECADES_IN_CENTURY = YEARS_IN_CENTURY / YEARS_IN_DECADE;
     public static final int DAYS_IN_YEAR = 365;
     public static final int MONTHS_IN_YEAR = 12;
     public static final int DAYS_IN_WEEK = 7;
@@ -1108,6 +1111,7 @@ public enum FTimeUnit {
     private static final Map<Integer, FTimeUnit> CALENDAR_LOOKUP = new HashMap<Integer, FTimeUnit>();
     private static final Map<ChronoUnit, FTimeUnit> JAVA_TIME_LOOKUP = new HashMap<ChronoUnit, FTimeUnit>();
     private static final Map<DurationFieldType, FTimeUnit> JODA_TIME_LOOKUP = new HashMap<DurationFieldType, FTimeUnit>();
+    private static final Map<Long, FTimeUnit> DURATION_NANOS_LOOKUP = new HashMap<Long, FTimeUnit>();
 
     static {
         for (final FTimeUnit f : values()) {
@@ -1131,6 +1135,7 @@ public enum FTimeUnit {
             } catch (final UnsupportedOperationException e) {//SUPPRESS CHECKSTYLE empty block
                 //ignore
             }
+            DURATION_NANOS_LOOKUP.put(f.toNanos(1), f);
         }
     }
 
@@ -1141,6 +1146,10 @@ public enum FTimeUnit {
     public abstract ChronoUnit javaTimeValue();
 
     public abstract DurationFieldType jodaTimeValue();
+
+    public Duration durationValue() {
+        return new Duration(1, this);
+    }
 
     public static FTimeUnit valueOfTimeUnit(final TimeUnit timeUnit) {
         return lookup(TIME_UNIT_LOOKUP, timeUnit);
@@ -1194,5 +1203,9 @@ public enum FTimeUnit {
     public abstract long toMonths(final long duration);
 
     public abstract long toYears(final long duration);
+
+    public static FTimeUnit valueOf(final Duration duration) {
+        return DURATION_NANOS_LOOKUP.get(duration.longValue(FTimeUnit.NANOSECONDS));
+    }
 
 }
