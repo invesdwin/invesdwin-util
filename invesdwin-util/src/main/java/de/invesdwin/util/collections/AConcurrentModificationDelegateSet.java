@@ -26,6 +26,8 @@ public abstract class AConcurrentModificationDelegateSet<E> extends ADelegateCol
     private final AtomicLong openIterators = new AtomicLong(0L);
     @GuardedBy("this")
     private final Map<E, Boolean> tasks_add = new LinkedHashMap<E, Boolean>();
+    @GuardedBy("this")
+    private boolean empty;
 
     @Override
     protected abstract Set<E> newDelegate();
@@ -33,7 +35,9 @@ public abstract class AConcurrentModificationDelegateSet<E> extends ADelegateCol
     @Override
     public synchronized boolean add(final E e) {
         if (openIterators.get() == 0) {
-            return super.add(e);
+            final boolean added = super.add(e);
+            empty = false;
+            return added;
         } else {
             return !contains(e) && BooleanUtils.isNotTrue(tasks_add.put(e, true));
         }
@@ -54,10 +58,18 @@ public abstract class AConcurrentModificationDelegateSet<E> extends ADelegateCol
     @Override
     public synchronized boolean remove(final Object o) {
         if (openIterators.get() == 0) {
-            return super.remove(o);
+            final boolean removed = super.remove(o);
+            empty = super.isEmpty();
+            return removed;
         } else {
             return contains(o) && BooleanUtils.isNotFalse(tasks_add.put((E) o, false));
         }
+    }
+
+    @Override
+    public void clear() {
+        super.clear();
+        empty = true;
     }
 
     @Override
@@ -69,6 +81,11 @@ public abstract class AConcurrentModificationDelegateSet<E> extends ADelegateCol
             }
         }
         return changed;
+    }
+
+    @Override
+    public synchronized boolean isEmpty() {
+        return empty;
     }
 
     @Override
