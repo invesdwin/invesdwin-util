@@ -5,7 +5,6 @@ import java.util.List;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
-import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.Lists;
 import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
 import de.invesdwin.util.math.Integers;
@@ -25,7 +24,6 @@ public abstract class ARecursiveHistoricalCacheQuery<V> {
     public static final int MIN_RECURSION_COUNT = 20;
 
     private final AHistoricalCache<V> parent;
-    private final AHistoricalCache<?> previousKeysProvider;
     private final int maxRecursionCount;
     @GuardedBy("this")
     private boolean recursionInProgress = false;
@@ -34,13 +32,8 @@ public abstract class ARecursiveHistoricalCacheQuery<V> {
     @GuardedBy("this")
     private FDate lastRecursionKey;
 
-    public ARecursiveHistoricalCacheQuery(final AHistoricalCache<V> parent,
-            final AHistoricalCache<?> previousKeysProvider, final int maxRecursionCount) {
+    public ARecursiveHistoricalCacheQuery(final AHistoricalCache<V> parent, final int maxRecursionCount) {
         this.parent = parent;
-        this.previousKeysProvider = previousKeysProvider;
-        Assertions.assertThat(parent)
-                .as("previousKeysProvider needs to be a different cache than parent, since we need one that does not have to do recursion to determine its previous key")
-                .isNotSameAs(previousKeysProvider);
         this.maxRecursionCount = Integers.max(maxRecursionCount, MIN_RECURSION_COUNT);
         parent.increaseMaximumSize(newSuggestedMaximumSizeForParent(parent.getMaximumSize(), maxRecursionCount));
     }
@@ -84,8 +77,8 @@ public abstract class ARecursiveHistoricalCacheQuery<V> {
 
     private V internalGetPreviousValueByRecursion(final FDate previousKey) {
         try {
-            List<FDate> recursionKeys = Lists.toListWithoutHasNext(
-                    newQuery(previousKeysProvider).getPreviousKeys(previousKey, maxRecursionCount));
+            List<FDate> recursionKeys = Lists
+                    .toListWithoutHasNext(newQuery(parent).getPreviousKeys(previousKey, maxRecursionCount));
             if (recursionKeys.isEmpty()) {
                 return null;
             }

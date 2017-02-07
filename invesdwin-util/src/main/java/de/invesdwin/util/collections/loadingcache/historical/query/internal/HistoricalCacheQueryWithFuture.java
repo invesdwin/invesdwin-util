@@ -6,6 +6,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
+import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQuery;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQueryElementFilter;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQueryWithFuture;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.IHistoricalCacheQueryCore;
@@ -47,12 +48,20 @@ public class HistoricalCacheQueryWithFuture<V> extends HistoricalCacheQuery<V>
 
     @Override
     public final FDate getNextKey(final FDate key, final int shiftForwardUnits) {
+        final IHistoricalCacheQuery<?> interceptor = newKeysQueryInterceptor();
+        if (interceptor != null) {
+            return interceptor.withFuture().getNextKey(key, shiftForwardUnits);
+        }
         assertShiftUnitsPositive(shiftForwardUnits);
         return HistoricalCacheAssertValue.unwrapEntryKey(core.getParent(), getNextEntry(key, shiftForwardUnits));
     }
 
     @Override
     public ICloseableIterable<FDate> getNextKeys(final FDate key, final int shiftForwardUnits) {
+        final IHistoricalCacheQuery<?> interceptor = newKeysQueryInterceptor();
+        if (interceptor != null) {
+            return interceptor.withFuture().getNextKeys(key, shiftForwardUnits);
+        }
         assertShiftUnitsPositiveNonZero(shiftForwardUnits);
         return new ICloseableIterable<FDate>() {
             @Override

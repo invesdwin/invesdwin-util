@@ -18,12 +18,14 @@ import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
 public abstract class AFastIterableDelegateSet<E> extends ADelegateSet<E> {
 
     private volatile BufferingIterator<E> fastIterable = new BufferingIterator<E>();
+    private volatile boolean empty = true;;
 
     @Override
     public synchronized boolean add(final E e) {
         final boolean added = super.add(e);
         if (added) {
             fastIterable.add(e);
+            empty = false;
         }
         return added;
     }
@@ -57,12 +59,14 @@ public abstract class AFastIterableDelegateSet<E> extends ADelegateSet<E> {
 
     private void refreshFastIterator() {
         fastIterable = new BufferingIterator<E>(getDelegate());
+        empty = fastIterable.isEmpty();
     }
 
     @Override
     public synchronized void clear() {
         super.clear();
         fastIterable = new BufferingIterator<E>();
+        empty = true;
     }
 
     @Override
@@ -70,4 +74,8 @@ public abstract class AFastIterableDelegateSet<E> extends ADelegateSet<E> {
         return fastIterable.iterator();
     }
 
+    @Override
+    public boolean isEmpty() {
+        return empty;
+    }
 }

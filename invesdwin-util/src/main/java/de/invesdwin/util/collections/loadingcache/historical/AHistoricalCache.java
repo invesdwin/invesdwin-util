@@ -13,8 +13,8 @@ import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.loadingcache.ADelegateLoadingCache;
 import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 import de.invesdwin.util.collections.loadingcache.ILoadingCache;
-import de.invesdwin.util.collections.loadingcache.historical.interceptor.HistoricalCacheQueryInterceptorSupport;
-import de.invesdwin.util.collections.loadingcache.historical.interceptor.IHistoricalCacheQueryInterceptor;
+import de.invesdwin.util.collections.loadingcache.historical.interceptor.HistoricalCacheRangeQueryInterceptorSupport;
+import de.invesdwin.util.collections.loadingcache.historical.interceptor.IHistoricalCacheRangeQueryInterceptor;
 import de.invesdwin.util.collections.loadingcache.historical.key.IHistoricalCacheAdjustKeyProvider;
 import de.invesdwin.util.collections.loadingcache.historical.key.internal.DelegateHistoricalCacheExtractKeyProvider;
 import de.invesdwin.util.collections.loadingcache.historical.key.internal.DelegateHistoricalCacheShiftKeyProvider;
@@ -22,6 +22,7 @@ import de.invesdwin.util.collections.loadingcache.historical.key.internal.IHisto
 import de.invesdwin.util.collections.loadingcache.historical.key.internal.IHistoricalCacheShiftKeyProvider;
 import de.invesdwin.util.collections.loadingcache.historical.listener.IHistoricalCacheOnValueLoadedListener;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQuery;
+import de.invesdwin.util.collections.loadingcache.historical.query.internal.HistoricalCacheQuery;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.IHistoricalCacheInternalMethods;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.DefaultHistoricalCacheQueryCore;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.IHistoricalCacheQueryCore;
@@ -342,8 +343,8 @@ public abstract class AHistoricalCache<V> {
         lastRefresh = HistoricalCacheRefreshManager.getLastRefresh();
     }
 
-    protected IHistoricalCacheQueryInterceptor<V> getQueryInterceptor() {
-        return new HistoricalCacheQueryInterceptorSupport<V>();
+    protected IHistoricalCacheRangeQueryInterceptor<V> getQueryInterceptor() {
+        return new HistoricalCacheRangeQueryInterceptorSupport<V>();
     }
 
     public void setOnValueLoadedListener(final IHistoricalCacheOnValueLoadedListener<V> onValueLoadedListener) {
@@ -372,7 +373,7 @@ public abstract class AHistoricalCache<V> {
 
     private final class HistoricalCacheInternalMethods implements IHistoricalCacheInternalMethods<V> {
         @Override
-        public IHistoricalCacheQueryInterceptor<V> getQueryInterceptor() {
+        public IHistoricalCacheRangeQueryInterceptor<V> getRangeQueryInterceptor() {
             return AHistoricalCache.this.getQueryInterceptor();
         }
 
@@ -415,6 +416,12 @@ public abstract class AHistoricalCache<V> {
         public void increaseMaximumSize(final int maximumSize) {
             AHistoricalCache.this.increaseMaximumSize(maximumSize);
         }
+
+        @Override
+        public HistoricalCacheQuery<?> newKeysQueryInterceptor() {
+            return (HistoricalCacheQuery<?>) AHistoricalCache.this.getShiftKeyProvider().newKeysQueryInterceptor();
+        }
+
     }
 
     private final class InnerHistoricalCacheExtractKeyProvider implements IHistoricalCacheExtractKeyProvider<V> {
@@ -511,6 +518,11 @@ public abstract class AHistoricalCache<V> {
         @Override
         public AHistoricalCache<?> getParent() {
             return AHistoricalCache.this;
+        }
+
+        @Override
+        public IHistoricalCacheQuery<?> newKeysQueryInterceptor() {
+            return null;
         }
 
     }

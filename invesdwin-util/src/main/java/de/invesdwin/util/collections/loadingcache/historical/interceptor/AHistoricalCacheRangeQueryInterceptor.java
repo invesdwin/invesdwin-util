@@ -11,11 +11,11 @@ import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
 import de.invesdwin.util.time.fdate.FDate;
 
 @ThreadSafe
-public abstract class AHistoricalCacheQueryInterceptor<V> implements IHistoricalCacheQueryInterceptor<V> {
+public abstract class AHistoricalCacheRangeQueryInterceptor<V> implements IHistoricalCacheRangeQueryInterceptor<V> {
 
     private final AHistoricalCache<V> parent;
 
-    public AHistoricalCacheQueryInterceptor(final AHistoricalCache<V> parent) {
+    public AHistoricalCacheRangeQueryInterceptor(final AHistoricalCache<V> parent) {
         this.parent = parent;
     }
 

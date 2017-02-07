@@ -8,7 +8,7 @@ import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.time.fdate.FDate;
 
 @NotThreadSafe
-public class HistoricalCacheQueryInterceptorSupport<V> implements IHistoricalCacheQueryInterceptor<V> {
+public class HistoricalCacheRangeQueryInterceptorSupport<V> implements IHistoricalCacheRangeQueryInterceptor<V> {
 
     @Override
     public ICloseableIterable<FDate> getKeys(final FDate from, final FDate to) {

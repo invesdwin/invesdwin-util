@@ -4,6 +4,7 @@ import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.collections.loadingcache.ILoadingCache;
 import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
+import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQuery;
 import de.invesdwin.util.time.fdate.FDate;
 
 @Immutable
@@ -43,6 +44,11 @@ public class DelegateHistoricalCacheShiftKeyProvider implements IHistoricalCache
     @Override
     public ILoadingCache<FDate, FDate> getNextKeysCache() {
         return delegate.getShiftKeyProvider().getPreviousKeysCache();
+    }
+
+    @Override
+    public IHistoricalCacheQuery<?> newKeysQueryInterceptor() {
+        return delegate.query();
     }
 
 }

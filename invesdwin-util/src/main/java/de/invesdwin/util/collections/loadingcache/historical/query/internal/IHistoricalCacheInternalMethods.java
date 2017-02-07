@@ -1,12 +1,12 @@
 package de.invesdwin.util.collections.loadingcache.historical.query.internal;
 
 import de.invesdwin.util.collections.loadingcache.ILoadingCache;
-import de.invesdwin.util.collections.loadingcache.historical.interceptor.IHistoricalCacheQueryInterceptor;
+import de.invesdwin.util.collections.loadingcache.historical.interceptor.IHistoricalCacheRangeQueryInterceptor;
 import de.invesdwin.util.time.fdate.FDate;
 
 public interface IHistoricalCacheInternalMethods<V> {
 
-    IHistoricalCacheQueryInterceptor<V> getQueryInterceptor();
+    IHistoricalCacheRangeQueryInterceptor<V> getRangeQueryInterceptor();
 
     FDate calculatePreviousKey(FDate key);
 
@@ -23,5 +23,7 @@ public interface IHistoricalCacheInternalMethods<V> {
     Integer getMaximumSize();
 
     void increaseMaximumSize(int maximumSize);
+
+    HistoricalCacheQuery<?> newKeysQueryInterceptor();
 
 }

@@ -32,7 +32,7 @@ public abstract class AConcurrentModificationDelegateSet<E> extends ADelegateCol
     @GuardedBy("this")
     private final Map<E, Boolean> tasks_add = new LinkedHashMap<E, Boolean>();
     @GuardedBy("this")
-    private boolean empty;
+    private boolean empty = true;
 
     @Override
     protected abstract Set<E> newDelegate();

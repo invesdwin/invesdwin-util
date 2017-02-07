@@ -182,6 +182,10 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
 
     @Override
     public FDate getKey(final FDate key) {
+        final IHistoricalCacheQuery<?> interceptor = newKeysQueryInterceptor();
+        if (interceptor != null) {
+            return interceptor.getKey(key);
+        }
         if (key == null) {
             return null;
         }
@@ -191,6 +195,10 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
 
     @Override
     public final FDate getPreviousKey(final FDate key, final int shiftBackUnits) {
+        final IHistoricalCacheQuery<?> interceptor = newKeysQueryInterceptor();
+        if (interceptor != null) {
+            return interceptor.getPreviousKey(key, shiftBackUnits);
+        }
         assertShiftUnitsPositive(shiftBackUnits);
         return HistoricalCacheAssertValue.unwrapEntryKey(core.getParent(), getPreviousEntry(key, shiftBackUnits));
     }
@@ -202,6 +210,10 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
      */
     @Override
     public final ICloseableIterable<FDate> getPreviousKeys(final FDate key, final int shiftBackUnits) {
+        final IHistoricalCacheQuery<?> interceptor = newKeysQueryInterceptor();
+        if (interceptor != null) {
+            return interceptor.getPreviousKeys(key, shiftBackUnits);
+        }
         assertShiftUnitsPositiveNonZero(shiftBackUnits);
         return new ICloseableIterable<FDate>() {
             @Override
@@ -283,9 +295,13 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
      */
     @Override
     public ICloseableIterable<FDate> getKeys(final FDate from, final FDate to) {
-        final ICloseableIterable<FDate> interceptor = core.getParent().getQueryInterceptor().getKeys(from, to);
+        final IHistoricalCacheQuery<?> interceptor = newKeysQueryInterceptor();
         if (interceptor != null) {
-            return interceptor;
+            return interceptor.getKeys(from, to);
+        }
+        final ICloseableIterable<FDate> iterableInterceptor = core.getParent().getRangeQueryInterceptor().getKeys(from, to);
+        if (iterableInterceptor != null) {
+            return iterableInterceptor;
         } else {
             return new ICloseableIterable<FDate>() {
                 @Override
@@ -321,10 +337,10 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
      */
     @Override
     public ICloseableIterable<Entry<FDate, V>> getEntries(final FDate from, final FDate to) {
-        final ICloseableIterable<Entry<FDate, V>> interceptor = core.getParent().getQueryInterceptor().getEntries(from,
+        final ICloseableIterable<Entry<FDate, V>> iterableInterceptor = core.getParent().getRangeQueryInterceptor().getEntries(from,
                 to);
-        if (interceptor != null) {
-            return interceptor;
+        if (iterableInterceptor != null) {
+            return iterableInterceptor;
         } else {
             return new ICloseableIterable<Entry<FDate, V>>() {
                 @Override
@@ -439,16 +455,29 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
         }
     }
 
-    private void copyQuerySettings(final HistoricalCacheQuery<V> query) {
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    private void copyQuerySettings(final HistoricalCacheQuery query) {
         query.assertValue = assertValue;
         query.filterDuplicateKeys = filterDuplicateKeys;
         query.elementFilter = elementFilter;
+        query.rememberNullValue = rememberNullValue;
     }
 
     private HistoricalCacheQueryWithFuture<V> newFutureQuery() {
         final HistoricalCacheQueryWithFuture<V> query = new HistoricalCacheQueryWithFuture<V>(core);
         copyQuerySettings(query);
         return query;
+    }
+
+    protected IHistoricalCacheQuery<?> newKeysQueryInterceptor() {
+        if (elementFilter == null) {
+            final HistoricalCacheQuery<?> interceptor = core.getParent().newKeysQueryInterceptor();
+            if (interceptor != null) {
+                copyQuerySettings(interceptor);
+                return interceptor;
+            }
+        }
+        return null;
     }
 
     protected final List<Entry<FDate, V>> newEntriesList(final int size) {
