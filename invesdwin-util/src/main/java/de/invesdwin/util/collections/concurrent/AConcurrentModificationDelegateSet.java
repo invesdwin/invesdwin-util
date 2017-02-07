@@ -1,4 +1,4 @@
-package de.invesdwin.util.collections;
+package de.invesdwin.util.collections.concurrent;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -14,10 +14,15 @@ import javax.annotation.concurrent.ThreadSafe;
 
 import org.apache.commons.lang3.BooleanUtils;
 
+import de.invesdwin.util.collections.ADelegateCollection;
 import de.invesdwin.util.collections.iterable.EmptyCloseableIterator;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 
+/**
+ * You might want to use AFastIterableDelegateMap for a faster alternative to this implementation for read heavy
+ * situations.
+ */
 @ThreadSafe
 public abstract class AConcurrentModificationDelegateSet<E> extends ADelegateCollection<E>
         implements ICloseableIterable<E>, Set<E> {

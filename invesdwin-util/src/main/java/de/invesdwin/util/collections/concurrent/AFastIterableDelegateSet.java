@@ -1,4 +1,4 @@
-package de.invesdwin.util.collections.iterable.buffer;
+package de.invesdwin.util.collections.concurrent;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -6,13 +6,16 @@ import java.util.Iterator;
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.collections.ADelegateSet;
+import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
 
 /**
  * Boosts the iteration speed over the values by keeping a fast iterator instance that only gets modified when changes
  * to the map occur.
+ * 
+ * The iterator returned from this set is also suitable for concurrent modification during iteration.
  */
 @ThreadSafe
-public abstract class AFastIterableSet<E> extends ADelegateSet<E> {
+public abstract class AFastIterableDelegateSet<E> extends ADelegateSet<E> {
 
     private volatile BufferingIterator<E> fastIterable = new BufferingIterator<E>();
 
