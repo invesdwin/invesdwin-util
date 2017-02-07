@@ -86,6 +86,9 @@ public abstract class ARecursiveHistoricalCacheQuery<V> {
         try {
             List<FDate> recursionKeys = Lists.toListWithoutHasNext(
                     newQuery(previousKeysProvider).getPreviousKeys(previousKey, maxRecursionCount));
+            if (recursionKeys.isEmpty()) {
+                return null;
+            }
             firstRecursionKey = recursionKeys.get(0);
             lastRecursionKey = recursionKeys.get(recursionKeys.size() - 1);
             if (!lastRecursionKey.equals(previousKey)) {
