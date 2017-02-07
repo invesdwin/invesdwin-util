@@ -58,7 +58,9 @@ public abstract class ADelegateMap<K, V> implements Map<K, V> {
 
     @Override
     public void putAll(final Map<? extends K, ? extends V> m) {
-        getDelegate().putAll(m);
+        for (final Entry<? extends K, ? extends V> e : m.entrySet()) {
+            put(e.getKey(), e.getValue());
+        }
     }
 
     @Override
