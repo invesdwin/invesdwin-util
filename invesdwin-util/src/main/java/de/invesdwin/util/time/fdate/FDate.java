@@ -38,7 +38,7 @@ import de.jollyday.ManagerParameters;
  * FDate stands for an immutable Fast Date implementation by utilizing heavy caching.
  */
 @ThreadSafe
-public final class FDate implements IDate, Serializable, Cloneable, Comparable<Object> {
+public class FDate implements IDate, Serializable, Cloneable, Comparable<Object> {
 
     public static final ADelegateComparator<FDate> COMPARATOR = new ADelegateComparator<FDate>() {
         @Override
@@ -107,6 +107,11 @@ public final class FDate implements IDate, Serializable, Cloneable, Comparable<O
     public FDate(final long millis) {
         this.millis = millis;
         this.hashCode = Long.hashCode(millis);
+    }
+
+    protected FDate(final FDate date) {
+        this.millis = date.millis;
+        this.hashCode = date.hashCode;
     }
 
     public FDate(final ReadableDateTime jodaTime) {
