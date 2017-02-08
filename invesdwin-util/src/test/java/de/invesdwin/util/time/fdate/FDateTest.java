@@ -168,4 +168,11 @@ public class FDateTest {
         Assertions.assertThat(iterator.hasNext()).isFalse();
     }
 
+    @Test
+    public void testSetWeekday() {
+        final FDate date = FDateBuilder.newDate(2017, 1, 1);
+        final FDate monday = date.setFWeekday(FWeekday.Monday);
+        Assertions.assertThat(monday).isEqualTo(FDateBuilder.newDate(2016, 12, 26));
+    }
+
 }
