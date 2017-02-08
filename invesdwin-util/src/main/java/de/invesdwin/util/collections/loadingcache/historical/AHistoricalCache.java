@@ -22,7 +22,6 @@ import de.invesdwin.util.collections.loadingcache.historical.key.internal.IHisto
 import de.invesdwin.util.collections.loadingcache.historical.key.internal.IHistoricalCacheShiftKeyProvider;
 import de.invesdwin.util.collections.loadingcache.historical.listener.IHistoricalCacheOnValueLoadedListener;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQuery;
-import de.invesdwin.util.collections.loadingcache.historical.query.internal.HistoricalCacheQuery;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.IHistoricalCacheInternalMethods;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.adj.AdjustedFDate;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.adj.AdjustingHistoricalCacheQuery;
@@ -415,8 +414,8 @@ public abstract class AHistoricalCache<V> {
         }
 
         @Override
-        public HistoricalCacheQuery<?> newKeysQueryInterceptor() {
-            return (HistoricalCacheQuery<?>) AHistoricalCache.this.getShiftKeyProvider().newKeysQueryInterceptor();
+        public IHistoricalCacheQuery<?> newKeysQueryInterceptor() {
+            return AHistoricalCache.this.getShiftKeyProvider().newKeysQueryInterceptor();
         }
 
     }
