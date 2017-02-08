@@ -44,8 +44,8 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
     private final AGapHistoricalCacheMissCounter<V> cacheMissCounter = new AGapHistoricalCacheMissCounter<V>() {
 
         @Override
-        protected Integer getInitialMaximumSize() {
-            return AGapHistoricalCache.this.getInitialMaximumSize();
+        protected Integer getMaximumSize() {
+            return AGapHistoricalCache.this.getMaximumSize();
         }
 
         @Override

@@ -24,7 +24,7 @@ import de.invesdwin.util.collections.loadingcache.historical.listener.IHistorica
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQuery;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.HistoricalCacheQuery;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.IHistoricalCacheInternalMethods;
-import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.CachedHistoricalCacheQueryCore;
+import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.DefaultHistoricalCacheQueryCore;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.IHistoricalCacheQueryCore;
 import de.invesdwin.util.collections.loadingcache.historical.refresh.HistoricalCacheRefreshManager;
 import de.invesdwin.util.time.fdate.FDate;
@@ -47,9 +47,8 @@ public abstract class AHistoricalCache<V> {
     private IHistoricalCacheOnValueLoadedListener<V> onValueLoadedListener = new InnerHistoricalCacheOnValueLoadedListener();
 
     private volatile FDate lastRefresh = HistoricalCacheRefreshManager.getLastRefresh();
-    private final Integer initialMaximumSize = newInitialMaximumSize();
-    private boolean isPutDisabled = initialMaximumSize != null && initialMaximumSize == 0;
-    private volatile Integer maximumSize = initialMaximumSize;
+    private boolean isPutDisabled = getMaximumSize() != null && getMaximumSize() == 0;
+    private volatile Integer maximumSize = newInitialMaximumSize();
     private IHistoricalCacheShiftKeyProvider shiftKeyProvider = new InnerHistoricalCacheShiftKeyProvider();
     private IHistoricalCacheExtractKeyProvider<V> extractKeyProvider = new InnerHistoricalCacheExtractKeyProvider();
     private final ILoadingCache<FDate, V> valuesMap = new ADelegateLoadingCache<FDate, V>() {
@@ -82,12 +81,8 @@ public abstract class AHistoricalCache<V> {
         return DEFAULT_MAXIMUM_SIZE;
     }
 
-    public final Integer getMaximumSize() {
+    public Integer getMaximumSize() {
         return maximumSize;
-    }
-
-    public final Integer getInitialMaximumSize() {
-        return initialMaximumSize;
     }
 
     public synchronized void increaseMaximumSize(final int maximumSize) {
@@ -106,7 +101,8 @@ public abstract class AHistoricalCache<V> {
          * always use lookback cache to make getPreviousXyz faster even though this instance might not cache anything in
          * the values map
          */
-        return new CachedHistoricalCacheQueryCore<V>(internalMethods);
+        //        return new CachedHistoricalCacheQueryCore<V>(internalMethods);
+        return new DefaultHistoricalCacheQueryCore<V>(internalMethods);
     }
 
     protected void setAdjustKeyProvider(final IHistoricalCacheAdjustKeyProvider adjustKeyProvider) {
@@ -412,8 +408,8 @@ public abstract class AHistoricalCache<V> {
         }
 
         @Override
-        public Integer getInitialMaximumSize() {
-            return AHistoricalCache.this.getInitialMaximumSize();
+        public Integer getMaximumSize() {
+            return AHistoricalCache.this.getMaximumSize();
         }
 
         @Override
