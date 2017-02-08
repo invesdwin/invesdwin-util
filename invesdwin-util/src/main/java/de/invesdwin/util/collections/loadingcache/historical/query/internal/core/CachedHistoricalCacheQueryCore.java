@@ -252,7 +252,7 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
                             cachedPreviousResult_filteringDuplicates);
                     final int duplicatesRemaining = cachedPreviousResult_shiftBackUnits
                             - cachedPreviousResult_notFilteringDuplicates.size();
-                    if (duplicatesRemaining > 0) {
+                    if (duplicatesRemaining > 0 && !cachedPreviousResult_filteringDuplicates.isEmpty()) {
                         final Entry<FDate, V> toBeDuplicated = cachedPreviousResult_filteringDuplicates.get(0);
                         for (int i = 0; i < duplicatesRemaining; i++) {
                             cachedPreviousResult_notFilteringDuplicates.add(0, toBeDuplicated);
@@ -281,7 +281,7 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
      */
     private void updateCachedPreviousResult(final int shiftBackUnits, final List<Entry<FDate, V>> result,
             final boolean filterDuplicateKeys) {
-        if (cachedPreviousResult_shiftBackUnits != null) {
+        if (cachedPreviousResult_shiftBackUnits != null && !cachedPreviousEntries.isEmpty()) {
             throw new IllegalStateException("cachedPreviousResult should have been reset by preceeding code!");
         }
         if (filterDuplicateKeys) {
@@ -451,7 +451,7 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
          * we don't want to throw away a cache that might already be filled
          */
                 (trailing.size() == 1 && cachedPreviousEntries.size() > 1)) {
-
+            resetCachedPreviousResult();
             return;
         }
         maybeIncreaseMaximumSize(trailing.size());
@@ -507,6 +507,7 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
             if (value != null) {
                 if (!trailing.add(value)) {
                     newUnitsBack = -1; //break
+                    break;
                 }
             } else {
                 break;
