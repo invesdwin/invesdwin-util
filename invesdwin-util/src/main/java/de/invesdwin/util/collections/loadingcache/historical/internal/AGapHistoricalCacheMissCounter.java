@@ -20,7 +20,7 @@ public abstract class AGapHistoricalCacheMissCounter<V> {
     private FDate successiveCacheEvictionsFromMaxKey;
     private int maxSuccessiveCacheEvictions = 1;
 
-    private Integer optimiumMaximumSize = getMaximumSize();
+    private Integer optimiumMaximumSize = getInitialMaximumSize();
     private long optimiumReadBackStepMillis = getReadBackStepMillis();
 
     public void checkSuccessiveCacheEvictions(final FDate key) {
@@ -91,7 +91,7 @@ public abstract class AGapHistoricalCacheMissCounter<V> {
         return optimiumReadBackStepMillis;
     }
 
-    protected abstract Integer getMaximumSize();
+    protected abstract Integer getInitialMaximumSize();
 
     protected abstract long getReadBackStepMillis();
 

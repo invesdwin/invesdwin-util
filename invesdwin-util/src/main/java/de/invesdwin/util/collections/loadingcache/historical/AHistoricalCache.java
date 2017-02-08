@@ -24,7 +24,7 @@ import de.invesdwin.util.collections.loadingcache.historical.listener.IHistorica
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQuery;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.HistoricalCacheQuery;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.IHistoricalCacheInternalMethods;
-import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.DefaultHistoricalCacheQueryCore;
+import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.CachedHistoricalCacheQueryCore;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.IHistoricalCacheQueryCore;
 import de.invesdwin.util.collections.loadingcache.historical.refresh.HistoricalCacheRefreshManager;
 import de.invesdwin.util.time.fdate.FDate;
@@ -48,7 +48,7 @@ public abstract class AHistoricalCache<V> {
 
     private volatile FDate lastRefresh = HistoricalCacheRefreshManager.getLastRefresh();
     private boolean isPutDisabled = getMaximumSize() != null && getMaximumSize() == 0;
-    private volatile Integer maximumSize = newInitialMaximumSize();
+    private volatile Integer maximumSize = getInitialMaximumSize();
     private IHistoricalCacheShiftKeyProvider shiftKeyProvider = new InnerHistoricalCacheShiftKeyProvider();
     private IHistoricalCacheExtractKeyProvider<V> extractKeyProvider = new InnerHistoricalCacheExtractKeyProvider();
     private final ILoadingCache<FDate, V> valuesMap = new ADelegateLoadingCache<FDate, V>() {
@@ -77,11 +77,11 @@ public abstract class AHistoricalCache<V> {
     /**
      * null means unlimited and 0 means no caching at all.
      */
-    protected Integer newInitialMaximumSize() {
+    protected Integer getInitialMaximumSize() {
         return DEFAULT_MAXIMUM_SIZE;
     }
 
-    public Integer getMaximumSize() {
+    public final Integer getMaximumSize() {
         return maximumSize;
     }
 
@@ -101,8 +101,7 @@ public abstract class AHistoricalCache<V> {
          * always use lookback cache to make getPreviousXyz faster even though this instance might not cache anything in
          * the values map
          */
-        //        return new CachedHistoricalCacheQueryCore<V>(internalMethods);
-        return new DefaultHistoricalCacheQueryCore<V>(internalMethods);
+        return new CachedHistoricalCacheQueryCore<V>(internalMethods);
     }
 
     protected void setAdjustKeyProvider(final IHistoricalCacheAdjustKeyProvider adjustKeyProvider) {
@@ -149,7 +148,7 @@ public abstract class AHistoricalCache<V> {
         final ALoadingCache<FDate, T> loadingCache = new ALoadingCache<FDate, T>() {
 
             @Override
-            protected Integer newInitialMaximumSize() {
+            protected Integer getInitialMaximumSize() {
                 return maximumSize;
             }
 
@@ -408,8 +407,8 @@ public abstract class AHistoricalCache<V> {
         }
 
         @Override
-        public Integer getMaximumSize() {
-            return AHistoricalCache.this.getMaximumSize();
+        public Integer getInitialMaximumSize() {
+            return AHistoricalCache.this.getInitialMaximumSize();
         }
 
         @Override

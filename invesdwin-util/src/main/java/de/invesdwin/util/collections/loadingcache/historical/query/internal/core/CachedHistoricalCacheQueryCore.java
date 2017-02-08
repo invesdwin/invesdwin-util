@@ -40,7 +40,7 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
 
     public CachedHistoricalCacheQueryCore(final IHistoricalCacheInternalMethods<V> parent) {
         this.delegate = new DefaultHistoricalCacheQueryCore<V>(parent);
-        this.maximumSize = parent.getMaximumSize();
+        this.maximumSize = parent.getInitialMaximumSize();
     }
 
     @Override

@@ -20,7 +20,7 @@ public interface IHistoricalCacheInternalMethods<V> {
 
     FDate extractKey(FDate key, V value);
 
-    Integer getMaximumSize();
+    Integer getInitialMaximumSize();
 
     void increaseMaximumSize(int maximumSize);
 
