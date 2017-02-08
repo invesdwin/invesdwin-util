@@ -164,7 +164,7 @@ public abstract class AHistoricalCache<V> {
      * Should return the key if the value does not contain a key itself.
      */
     public final FDate extractKey(final FDate key, final V value) {
-        return extractKeyProvider.extractKey(key, value);
+        return new AdjustedFDate(adjustKeyProvider, extractKeyProvider.extractKey(key, value));
     }
 
     /**
@@ -178,14 +178,14 @@ public abstract class AHistoricalCache<V> {
         if (key == null) {
             throw new IllegalArgumentException("key should not be null!");
         }
-        return shiftKeyProvider.calculatePreviousKey(key);
+        return AdjustedFDate.adjustKey(adjustKeyProvider, shiftKeyProvider.calculatePreviousKey(key));
     }
 
     protected final FDate calculateNextKey(final FDate key) {
         if (key == null) {
             throw new IllegalArgumentException("key should not be null!");
         }
-        return adjustKey(shiftKeyProvider.calculateNextKey(key));
+        return AdjustedFDate.adjustKey(adjustKeyProvider, shiftKeyProvider.calculateNextKey(key));
     }
 
     public IHistoricalCacheShiftKeyProvider getShiftKeyProvider() {

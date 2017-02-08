@@ -228,13 +228,13 @@ public class AGapHistoricalCacheWithNoCacheTest {
     @Test
     public void testPreviousKey() {
         FDate previousKey = cache.query().getPreviousKey(new FDate(), entities.size());
-        Assertions.assertThat(previousKey).isSameAs(entities.get(0));
+        Assertions.assertThat(previousKey).isEqualTo(entities.get(0));
         Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(5);
         //loading newest entity is faster than always loading all entities
         Assertions.assertThat(countReadNewestValueTo).isEqualTo(7);
 
         previousKey = cache.query().getPreviousKey(new FDate(), 1);
-        Assertions.assertThat(previousKey).isSameAs(entities.get(entities.size() - 2));
+        Assertions.assertThat(previousKey).isEqualTo(entities.get(entities.size() - 2));
         Assertions.assertThat(countReadAllValuesAscendingFrom).isLessThanOrEqualTo(7);
         Assertions.assertThat(countReadNewestValueTo).isLessThanOrEqualTo(8);
     }
@@ -242,13 +242,13 @@ public class AGapHistoricalCacheWithNoCacheTest {
     @Test
     public void testNextKey() {
         FDate previousKey = cache.query().withFuture().getNextKey(FDate.MIN_DATE, entities.size());
-        Assertions.assertThat(previousKey).isSameAs(entities.get(entities.size() - 1));
+        Assertions.assertThat(previousKey).isEqualTo(entities.get(entities.size() - 1));
         Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(2);
         //loading newest entity is faster than always loading all entities
         Assertions.assertThat(countReadNewestValueTo).isEqualTo(4);
 
         previousKey = cache.query().withFuture().getNextKey(FDate.MIN_DATE, 1);
-        Assertions.assertThat(previousKey).isSameAs(entities.get(1));
+        Assertions.assertThat(previousKey).isEqualTo(entities.get(1));
         Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(3);
         Assertions.assertThat(countReadNewestValueTo).isEqualTo(5);
     }
@@ -490,13 +490,13 @@ public class AGapHistoricalCacheWithNoCacheTest {
         returnAllInReadAllValuesAscendingFrom = true;
 
         FDate previousKey = cache.query().getPreviousKey(new FDate(), entities.size());
-        Assertions.assertThat(previousKey).isSameAs(entities.get(0));
+        Assertions.assertThat(previousKey).isEqualTo(entities.get(0));
         Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(4);
         //loading newest entity is faster than always loading all entities
         Assertions.assertThat(countReadNewestValueTo).isEqualTo(3);
 
         previousKey = cache.query().getPreviousKey(new FDate(), 1);
-        Assertions.assertThat(previousKey).isSameAs(entities.get(entities.size() - 2));
+        Assertions.assertThat(previousKey).isEqualTo(entities.get(entities.size() - 2));
         Assertions.assertThat(countReadAllValuesAscendingFrom).isLessThanOrEqualTo(6);
         Assertions.assertThat(countReadNewestValueTo).isEqualTo(3);
     }
@@ -506,13 +506,13 @@ public class AGapHistoricalCacheWithNoCacheTest {
         returnAllInReadAllValuesAscendingFrom = true;
 
         FDate nextKey = cache.query().withFuture().getNextKey(FDate.MIN_DATE, entities.size());
-        Assertions.assertThat(nextKey).isSameAs(entities.get(entities.size() - 1));
+        Assertions.assertThat(nextKey).isEqualTo(entities.get(entities.size() - 1));
         Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(2);
         //loading newest entity is faster than always loading all entities
         Assertions.assertThat(countReadNewestValueTo).isEqualTo(3);
 
         nextKey = cache.query().withFuture().getNextKey(FDate.MIN_DATE, 1);
-        Assertions.assertThat(nextKey).isSameAs(entities.get(1));
+        Assertions.assertThat(nextKey).isEqualTo(entities.get(1));
         Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(3);
         Assertions.assertThat(countReadNewestValueTo).isEqualTo(4);
     }
@@ -522,13 +522,13 @@ public class AGapHistoricalCacheWithNoCacheTest {
         returnMaxResults = testReturnMaxResultsValue;
 
         FDate previousKey = cache.query().getPreviousKey(new FDate(), entities.size());
-        Assertions.assertThat(previousKey).isSameAs(entities.get(0));
+        Assertions.assertThat(previousKey).isEqualTo(entities.get(0));
         Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(4);
         //loading newest entity is faster than always loading all entities
         Assertions.assertThat(countReadNewestValueTo).isEqualTo(6);
 
         previousKey = cache.query().getPreviousKey(new FDate(), 1);
-        Assertions.assertThat(previousKey).isSameAs(entities.get(entities.size() - 2));
+        Assertions.assertThat(previousKey).isEqualTo(entities.get(entities.size() - 2));
         Assertions.assertThat(countReadAllValuesAscendingFrom).isLessThanOrEqualTo(5);
         Assertions.assertThat(countReadNewestValueTo).isLessThanOrEqualTo(9);
     }
@@ -538,13 +538,13 @@ public class AGapHistoricalCacheWithNoCacheTest {
         returnMaxResults = testReturnMaxResultsValue;
 
         FDate nextKey = cache.query().withFuture().getNextKey(FDate.MIN_DATE, entities.size());
-        Assertions.assertThat(nextKey).isSameAs(entities.get(entities.size() - 1));
+        Assertions.assertThat(nextKey).isEqualTo(entities.get(entities.size() - 1));
         Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(4);
         //loading newest entity is faster than always loading all entities
         Assertions.assertThat(countReadNewestValueTo).isEqualTo(4);
 
         nextKey = cache.query().withFuture().getNextKey(FDate.MIN_DATE, 1);
-        Assertions.assertThat(nextKey).isSameAs(entities.get(1));
+        Assertions.assertThat(nextKey).isEqualTo(entities.get(1));
         Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(5);
         Assertions.assertThat(countReadNewestValueTo).isEqualTo(5);
     }
@@ -555,13 +555,13 @@ public class AGapHistoricalCacheWithNoCacheTest {
         returnNullInReadNewestValueTo = true;
 
         FDate previousKey = cache.query().getPreviousKey(new FDate(), entities.size());
-        Assertions.assertThat(previousKey).isSameAs(entities.get(0));
+        Assertions.assertThat(previousKey).isEqualTo(entities.get(0));
         Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(4);
         //loading newest entity is faster than always loading all entities
         Assertions.assertThat(countReadNewestValueTo).isEqualTo(3);
 
         previousKey = cache.query().getPreviousKey(new FDate(), 1);
-        Assertions.assertThat(previousKey).isSameAs(entities.get(entities.size() - 2));
+        Assertions.assertThat(previousKey).isEqualTo(entities.get(entities.size() - 2));
         Assertions.assertThat(countReadAllValuesAscendingFrom).isLessThanOrEqualTo(6);
         Assertions.assertThat(countReadNewestValueTo).isEqualTo(3);
     }
@@ -572,13 +572,13 @@ public class AGapHistoricalCacheWithNoCacheTest {
         returnNullInReadNewestValueTo = true;
 
         FDate nextKey = cache.query().withFuture().getNextKey(FDate.MIN_DATE, entities.size());
-        Assertions.assertThat(nextKey).isSameAs(entities.get(entities.size() - 1));
+        Assertions.assertThat(nextKey).isEqualTo(entities.get(entities.size() - 1));
         Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(2);
         //loading newest entity is faster than always loading all entities
         Assertions.assertThat(countReadNewestValueTo).isEqualTo(3);
 
         nextKey = cache.query().withFuture().getNextKey(FDate.MIN_DATE, 1);
-        Assertions.assertThat(nextKey).isSameAs(entities.get(1));
+        Assertions.assertThat(nextKey).isEqualTo(entities.get(1));
         Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(3);
         Assertions.assertThat(countReadNewestValueTo).isEqualTo(4);
     }

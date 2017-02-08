@@ -10,7 +10,7 @@ public final class AdjustedFDate extends FDate {
 
     private final IHistoricalCacheAdjustKeyProvider adjustKeyProvider;
 
-    private AdjustedFDate(final IHistoricalCacheAdjustKeyProvider adjustKeyProvider, final FDate key) {
+    public AdjustedFDate(final IHistoricalCacheAdjustKeyProvider adjustKeyProvider, final FDate key) {
         super(adjustKeyProvider.adjustKey(key));
         this.adjustKeyProvider = adjustKeyProvider;
     }
