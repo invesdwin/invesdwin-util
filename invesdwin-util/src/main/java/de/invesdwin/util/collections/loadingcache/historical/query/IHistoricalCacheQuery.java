@@ -3,6 +3,7 @@ package de.invesdwin.util.collections.loadingcache.historical.query;
 import java.util.Map.Entry;
 
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
+import de.invesdwin.util.collections.loadingcache.historical.query.internal.HistoricalCacheAssertValue;
 import de.invesdwin.util.time.fdate.FDate;
 
 public interface IHistoricalCacheQuery<V> {
@@ -53,5 +54,16 @@ public interface IHistoricalCacheQuery<V> {
     ICloseableIterable<V> getValues(FDate from, FDate to);
 
     FDate getPreviousValueKeyBetween(FDate from, FDate to, V value);
+
+    @SuppressWarnings("rawtypes")
+    void copyQuerySettings(IHistoricalCacheQuery copyFrom);
+
+    HistoricalCacheAssertValue getAssertValue();
+
+    boolean isFilterDuplicateKeys();
+
+    IHistoricalCacheQueryElementFilter<V> getElementFilter();
+
+    boolean isRememberNullValue();
 
 }

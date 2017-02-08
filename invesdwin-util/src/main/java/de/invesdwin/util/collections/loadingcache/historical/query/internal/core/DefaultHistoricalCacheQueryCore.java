@@ -9,7 +9,6 @@ import javax.annotation.concurrent.Immutable;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.WrapperCloseableIterable;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.HistoricalCacheAssertValue;
-import de.invesdwin.util.collections.loadingcache.historical.query.internal.HistoricalCacheQuery;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.IHistoricalCacheInternalMethods;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.impl.GetNextEntryQueryImpl;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.impl.GetPreviousEntryQueryImpl;
@@ -34,8 +33,7 @@ public class DefaultHistoricalCacheQueryCore<V> implements IHistoricalCacheQuery
             final HistoricalCacheAssertValue assertValue) {
         V value = parent.getValuesMap().get(key);
         if (!query.isRememberNullValue() && value == null) {
-            final FDate adjKey = parent.adjustKey(key);
-            parent.remove(adjKey);
+            parent.remove(key);
         }
         if (value != null && query.getElementFilter() != null) {
             FDate valueKey = parent.extractKey(key, value);
@@ -149,11 +147,6 @@ public class DefaultHistoricalCacheQueryCore<V> implements IHistoricalCacheQuery
     @Override
     public void increaseMaximumSize(final int maximumSize) {
         //noop since not caching anything
-    }
-
-    @Override
-    public HistoricalCacheQuery<V> newQuery() {
-        return new HistoricalCacheQuery<V>(this);
     }
 
 }

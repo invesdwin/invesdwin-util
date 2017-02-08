@@ -24,6 +24,8 @@ import de.invesdwin.util.collections.loadingcache.historical.listener.IHistorica
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQuery;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.HistoricalCacheQuery;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.IHistoricalCacheInternalMethods;
+import de.invesdwin.util.collections.loadingcache.historical.query.internal.adj.AdjustedFDate;
+import de.invesdwin.util.collections.loadingcache.historical.query.internal.adj.AdjustingHistoricalCacheQuery;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.CachedHistoricalCacheQueryCore;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.IHistoricalCacheQueryCore;
 import de.invesdwin.util.collections.loadingcache.historical.refresh.HistoricalCacheRefreshManager;
@@ -52,13 +54,6 @@ public abstract class AHistoricalCache<V> {
     private IHistoricalCacheShiftKeyProvider shiftKeyProvider = new InnerHistoricalCacheShiftKeyProvider();
     private IHistoricalCacheExtractKeyProvider<V> extractKeyProvider = new InnerHistoricalCacheExtractKeyProvider();
     private final ILoadingCache<FDate, V> valuesMap = new ADelegateLoadingCache<FDate, V>() {
-
-        @Override
-        public V get(final FDate key) {
-            final FDate adjKey = adjustKey(key);
-            return super.get(adjKey);
-        }
-
         @Override
         protected ILoadingCache<FDate, V> createDelegate() {
             return newLoadingCacheProvider(new Function<FDate, V>() {
@@ -128,12 +123,15 @@ public abstract class AHistoricalCache<V> {
     }
 
     protected FDate adjustKey(final FDate key) {
+        if (!AdjustedFDate.shouldAdjustKey(adjustKeyProvider, key)) {
+            return key;
+        }
         final FDate lastRefreshFromManager = HistoricalCacheRefreshManager.getLastRefresh();
         if (lastRefresh.isBefore(lastRefreshFromManager)) {
             lastRefresh = new FDate();
             maybeRefresh();
         }
-        return adjustKeyProvider.adjustKey(key);
+        return AdjustedFDate.adjustKey(adjustKeyProvider, key);
     }
 
     protected boolean maybeRefresh() {
@@ -187,7 +185,7 @@ public abstract class AHistoricalCache<V> {
         if (key == null) {
             throw new IllegalArgumentException("key should not be null!");
         }
-        return shiftKeyProvider.calculateNextKey(key);
+        return adjustKey(shiftKeyProvider.calculateNextKey(key));
     }
 
     public IHistoricalCacheShiftKeyProvider getShiftKeyProvider() {
@@ -216,7 +214,7 @@ public abstract class AHistoricalCache<V> {
      * Does not allow values from future per default.
      */
     public final IHistoricalCacheQuery<V> query() {
-        return queryCore.newQuery();
+        return new AdjustingHistoricalCacheQuery<V>(queryCore);
     }
 
     public boolean containsKey(final FDate key) {

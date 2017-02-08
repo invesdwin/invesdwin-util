@@ -43,13 +43,13 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
         }
 
         @Override
-        public List<Entry<FDate, V>> newEntriesList(final int size) {
-            return HistoricalCacheQuery.this.newEntriesList(size);
+        public boolean isFilterDuplicateKeys() {
+            return filterDuplicateKeys;
         }
 
         @Override
-        public boolean isFilterDuplicateKeys() {
-            return filterDuplicateKeys;
+        public List<Entry<FDate, V>> newEntriesList(final int size) {
+            return HistoricalCacheQuery.this.newEntriesList(size);
         }
 
     };
@@ -59,6 +59,26 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
 
     public HistoricalCacheQuery(final IHistoricalCacheQueryCore<V> core) {
         this.core = core;
+    }
+
+    @Override
+    public boolean isRememberNullValue() {
+        return rememberNullValue;
+    }
+
+    @Override
+    public HistoricalCacheAssertValue getAssertValue() {
+        return assertValue;
+    }
+
+    @Override
+    public IHistoricalCacheQueryElementFilter<V> getElementFilter() {
+        return elementFilter;
+    }
+
+    @Override
+    public boolean isFilterDuplicateKeys() {
+        return filterDuplicateKeys;
     }
 
     @Override
@@ -299,7 +319,8 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
         if (interceptor != null) {
             return interceptor.getKeys(from, to);
         }
-        final ICloseableIterable<FDate> iterableInterceptor = core.getParent().getRangeQueryInterceptor().getKeys(from, to);
+        final ICloseableIterable<FDate> iterableInterceptor = core.getParent().getRangeQueryInterceptor().getKeys(from,
+                to);
         if (iterableInterceptor != null) {
             return iterableInterceptor;
         } else {
@@ -337,8 +358,9 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
      */
     @Override
     public ICloseableIterable<Entry<FDate, V>> getEntries(final FDate from, final FDate to) {
-        final ICloseableIterable<Entry<FDate, V>> iterableInterceptor = core.getParent().getRangeQueryInterceptor().getEntries(from,
-                to);
+        final ICloseableIterable<Entry<FDate, V>> iterableInterceptor = core.getParent()
+                .getRangeQueryInterceptor()
+                .getEntries(from, to);
         if (iterableInterceptor != null) {
             return iterableInterceptor;
         } else {
@@ -455,25 +477,26 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
         }
     }
 
+    @Override
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    private void copyQuerySettings(final HistoricalCacheQuery query) {
-        query.assertValue = assertValue;
-        query.filterDuplicateKeys = filterDuplicateKeys;
-        query.elementFilter = elementFilter;
-        query.rememberNullValue = rememberNullValue;
+    public void copyQuerySettings(final IHistoricalCacheQuery copyFrom) {
+        this.assertValue = copyFrom.getAssertValue();
+        this.filterDuplicateKeys = copyFrom.isFilterDuplicateKeys();
+        this.elementFilter = copyFrom.getElementFilter();
+        this.rememberNullValue = copyFrom.isRememberNullValue();
     }
 
     private HistoricalCacheQueryWithFuture<V> newFutureQuery() {
         final HistoricalCacheQueryWithFuture<V> query = new HistoricalCacheQueryWithFuture<V>(core);
-        copyQuerySettings(query);
+        query.copyQuerySettings(this);
         return query;
     }
 
     protected IHistoricalCacheQuery<?> newKeysQueryInterceptor() {
         if (elementFilter == null) {
-            final HistoricalCacheQuery<?> interceptor = core.getParent().newKeysQueryInterceptor();
+            final IHistoricalCacheQuery<?> interceptor = core.getParent().newKeysQueryInterceptor();
             if (interceptor != null) {
-                copyQuerySettings(interceptor);
+                interceptor.copyQuerySettings(this);
                 return interceptor;
             }
         }
