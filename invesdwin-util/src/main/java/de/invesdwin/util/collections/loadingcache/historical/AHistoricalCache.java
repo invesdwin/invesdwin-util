@@ -214,7 +214,7 @@ public abstract class AHistoricalCache<V> {
         return adjustKeyProvider.newQuery(queryCore);
     }
 
-    public final synchronized void maybeRefresh() {
+    public final void maybeRefresh() {
         final FDate lastRefreshFromManager = HistoricalCacheRefreshManager.getLastRefresh();
         if (lastRefresh.isBefore(lastRefreshFromManager)) {
             lastRefresh = new FDate();
