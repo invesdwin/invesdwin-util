@@ -82,4 +82,8 @@ public class TimeRange {
         final FDate avgTo = FDates.avg(extractTos(timeRanges));
         return new TimeRange(avgFrom, avgTo);
     }
+
+    public boolean isZeroDuration() {
+        return from == null || to == null || getDuration().isZero();
+    }
 }
