@@ -136,7 +136,8 @@ public abstract class AHistoricalCache<V> {
     }
 
     /**
-     * Requests a refresh of the cache on the next get() operation.
+     * Requests a refresh of the cache on the next get() operation. We would risk deadlocks if we did not make that
+     * detour.
      */
     public final void requestRefresh() {
         final FDate lastRefreshFromManager = HistoricalCacheRefreshManager.getLastRefresh();
