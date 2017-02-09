@@ -19,7 +19,9 @@ public class DelegateHistoricalCacheExtractKeyProvider<V> implements IHistorical
 
     @Override
     public FDate extractKey(final FDate key, final V value) {
-        final Object shiftKeysValue = delegateQueryWithFuture.getValue(key);
+        //might be a value key we got inside here which would obviouls already be adjusted
+        final FDate adjKey = delegate.getAdjustKeyProvider().newAlreadyAdjustedKey(key);
+        final Object shiftKeysValue = delegateQueryWithFuture.getValue(adjKey);
         if (shiftKeysValue != null) {
             return delegate.extractKey(key, shiftKeysValue);
         } else {
