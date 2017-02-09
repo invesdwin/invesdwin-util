@@ -56,8 +56,7 @@ public class GetNextEntryQueryImpl<V> {
                     nextEntry = null;
                     return true;
                 } else {
-                    final V nextValue = nextNextEntry.getValue();
-                    final FDate actualNextNextKey = core.getParent().extractKey(nextNextKey, nextValue);
+                    final FDate actualNextNextKey = nextNextEntry.getKey();
                     if (iterations > 0 && actualNextNextKey.equals(nextKey)) {
                         duplicateEncountered = true;
                     }

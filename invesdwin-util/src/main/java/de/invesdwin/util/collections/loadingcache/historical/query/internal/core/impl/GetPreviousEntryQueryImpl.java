@@ -64,9 +64,7 @@ public class GetPreviousEntryQueryImpl<V> {
                         return true;
                     }
                 } else {
-                    final V previousValue = previousPreviousEntry.getValue();
-                    final FDate actualPreviousPreviousKey = core.getParent().extractKey(previousPreviousKey,
-                            previousValue);
+                    final FDate actualPreviousPreviousKey = previousPreviousEntry.getKey();
                     if (iterations > 0 && actualPreviousPreviousKey.equals(previousKey)) {
                         duplicateEncountered = true;
                     }

@@ -438,7 +438,7 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
             if (previousEntry == null) {
                 return null;
             }
-            final FDate previousKey = core.getParent().extractKey(previousEntry.getKey(), previousEntry.getValue());
+            final FDate previousKey = previousEntry.getKey();
             if (!firstTry && !previousKey.isBefore(curKey)) {
                 return null;
             }

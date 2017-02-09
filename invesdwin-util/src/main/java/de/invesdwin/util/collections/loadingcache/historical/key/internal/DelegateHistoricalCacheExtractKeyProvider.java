@@ -1,5 +1,7 @@
 package de.invesdwin.util.collections.loadingcache.historical.key.internal;
 
+import java.util.Map.Entry;
+
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
@@ -21,9 +23,9 @@ public class DelegateHistoricalCacheExtractKeyProvider<V> implements IHistorical
     public FDate extractKey(final FDate key, final V value) {
         //might be a value key we got inside here which would obviouls already be adjusted
         final FDate adjKey = delegate.getAdjustKeyProvider().newAlreadyAdjustedKey(key);
-        final Object shiftKeysValue = delegateQueryWithFuture.getValue(adjKey);
-        if (shiftKeysValue != null) {
-            return delegate.extractKey(adjKey, shiftKeysValue);
+        final Entry<FDate, Object> shiftKeysEntry = delegateQueryWithFuture.getEntry(adjKey);
+        if (shiftKeysEntry != null) {
+            return shiftKeysEntry.getKey();
         } else {
             return key;
         }

@@ -38,7 +38,7 @@ public abstract class AHistoricalCacheRangeQueryInterceptor<V> implements IHisto
                         if (next == null) {
                             return null;
                         } else {
-                            return parent.extractKey(next.getKey(), next.getValue());
+                            return next.getKey();
                         }
                     }
 
