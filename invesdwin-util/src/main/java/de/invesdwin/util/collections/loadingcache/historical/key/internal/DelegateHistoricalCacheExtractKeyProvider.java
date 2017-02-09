@@ -23,7 +23,7 @@ public class DelegateHistoricalCacheExtractKeyProvider<V> implements IHistorical
         final FDate adjKey = delegate.getAdjustKeyProvider().newAlreadyAdjustedKey(key);
         final Object shiftKeysValue = delegateQueryWithFuture.getValue(adjKey);
         if (shiftKeysValue != null) {
-            return delegate.extractKey(key, shiftKeysValue);
+            return delegate.extractKey(adjKey, shiftKeysValue);
         } else {
             return key;
         }
