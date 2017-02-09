@@ -642,7 +642,18 @@ public class AGapHistoricalCacheTest {
     public void testPreviousValueKeyBetween() {
         for (int i = 0; i < entities.size(); i++) {
             final FDate entity = entities.get(i);
-            final FDate foundKey = cache.query().getPreviousValueKeyBetween(FDate.MIN_DATE, FDate.MAX_DATE, entity);
+            final FDate foundKey = cache.query().getPreviousKeyWithSameValueBetween(FDate.MIN_DATE, FDate.MAX_DATE,
+                    entity);
+            Assertions.assertThat(foundKey).isEqualTo(entity);
+        }
+    }
+
+    @Test
+    public void testPreviousValueKeyBetweenReverse() {
+        for (int i = entities.size() - 1; i >= 0; i--) {
+            final FDate entity = entities.get(i);
+            final FDate foundKey = cache.query().getPreviousKeyWithSameValueBetween(FDate.MIN_DATE, FDate.MAX_DATE,
+                    entity);
             Assertions.assertThat(foundKey).isEqualTo(entity);
         }
     }

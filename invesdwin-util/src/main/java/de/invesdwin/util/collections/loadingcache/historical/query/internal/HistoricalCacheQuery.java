@@ -423,7 +423,7 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
     }
 
     @Override
-    public FDate getPreviousValueKeyBetween(final FDate from, final FDate to, final V value) {
+    public FDate getPreviousKeyWithSameValueBetween(final FDate from, final FDate to, final V value) {
         FDate curKey = to;
         final Optional<V> optionalValue = Optional.fromNullable(value);
         boolean firstTry = true;

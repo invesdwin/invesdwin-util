@@ -163,8 +163,8 @@ public class AdjustingHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V
     }
 
     @Override
-    public FDate getPreviousValueKeyBetween(final FDate from, final FDate to, final V value) {
-        return delegate.getPreviousValueKeyBetween(adjustKey(from), adjustKey(to), value);
+    public FDate getPreviousKeyWithSameValueBetween(final FDate from, final FDate to, final V value) {
+        return delegate.getPreviousKeyWithSameValueBetween(adjustKey(from), adjustKey(to), value);
     }
 
     @SuppressWarnings("rawtypes")

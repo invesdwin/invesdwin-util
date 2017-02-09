@@ -172,17 +172,7 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
             resetCachedPreviousResult();
             return null;
         }
-        final FDate lastCachedEntryKey = getLastCachedEntry().getKey();
-        if (cachedPreviousResult_filteringDuplicates != null) {
-            final FDate lastCachedResultKey = cachedPreviousResult_filteringDuplicates
-                    .get(cachedPreviousResult_filteringDuplicates.size() - 1).getKey();
-            assertSameLastKey(lastCachedEntryKey, lastCachedResultKey);
-        }
-        if (cachedPreviousResult_notFilteringDuplicates != null) {
-            final FDate lastCachedResultKey = cachedPreviousResult_notFilteringDuplicates
-                    .get(cachedPreviousResult_notFilteringDuplicates.size() - 1).getKey();
-            assertSameLastKey(lastCachedEntryKey, lastCachedResultKey);
-        }
+        final FDate lastCachedEntryKey = determineConsistentLastCachedEntryKey();
 
         //go through query as long as we found the first entry in the cache
         final GetPreviousEntryQueryImpl<V> impl = new GetPreviousEntryQueryImpl<V>(this, query, key, shiftBackUnits);
@@ -210,6 +200,21 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
         return tryCachedPreviousResult_sameKey(query, shiftBackUnits, filterDuplicateKeys);
     }
 
+    private FDate determineConsistentLastCachedEntryKey() {
+        final FDate lastCachedEntryKey = getLastCachedEntry().getKey();
+        if (cachedPreviousResult_filteringDuplicates != null) {
+            final FDate lastCachedResultKey = cachedPreviousResult_filteringDuplicates
+                    .get(cachedPreviousResult_filteringDuplicates.size() - 1).getKey();
+            assertSameLastKey(lastCachedEntryKey, lastCachedResultKey);
+        }
+        if (cachedPreviousResult_notFilteringDuplicates != null) {
+            final FDate lastCachedResultKey = cachedPreviousResult_notFilteringDuplicates
+                    .get(cachedPreviousResult_notFilteringDuplicates.size() - 1).getKey();
+            assertSameLastKey(lastCachedEntryKey, lastCachedResultKey);
+        }
+        return lastCachedEntryKey;
+    }
+
     private void assertSameLastKey(final FDate lastCachedEntryKey, final FDate lastCachedResultKey) {
         if (!lastCachedEntryKey.equals(lastCachedResultKey)) {
             throw new IllegalStateException("lastCachedEntryKey[" + lastCachedEntryKey + "] != lastCachedResultKey["
@@ -222,10 +227,10 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
      */
     private List<Entry<FDate, V>> tryCachedPreviousResult_sameKey(final IHistoricalCacheQueryInternalMethods<V> query,
             final int shiftBackUnits, final boolean filterDuplicateKeys) {
+        if (cachedPreviousResult_shiftBackUnits == null || cachedPreviousResult_shiftBackUnits < shiftBackUnits) {
+            return null;
+        }
         if (filterDuplicateKeys) {
-            if (cachedPreviousResult_shiftBackUnits < shiftBackUnits) {
-                return null;
-            }
             if (cachedPreviousResult_filteringDuplicates == null) {
                 if (cachedPreviousResult_notFilteringDuplicates == null) {
                     return null;
@@ -239,9 +244,6 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
             final int fromIndex = Math.max(0, toIndex - shiftBackUnits);
             return Collections.unmodifiableList(cachedPreviousResult_filteringDuplicates.subList(fromIndex, toIndex));
         } else {
-            if (cachedPreviousResult_shiftBackUnits < shiftBackUnits) {
-                return null;
-            }
             if (cachedPreviousResult_notFilteringDuplicates == null) {
                 if (cachedPreviousResult_filteringDuplicates == null) {
                     return null;
@@ -395,7 +397,8 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
                  */
                 cachedPreviousEntries.remove(0);
             }
-            //so that we don't go accidentally into sameKey algorithm
+            //reset cached results and set new marker so that we don't go accidentally into sameKey algorithm
+            resetCachedPreviousResult();
             cachedPreviousEntriesKey = getLastCachedEntry().getKey();
         }
     }

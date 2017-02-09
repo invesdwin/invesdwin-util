@@ -53,7 +53,7 @@ public interface IHistoricalCacheQuery<V> extends IHistoricalCacheQueryInternalM
 
     ICloseableIterable<V> getValues(FDate from, FDate to);
 
-    FDate getPreviousValueKeyBetween(FDate from, FDate to, V value);
+    FDate getPreviousKeyWithSameValueBetween(FDate from, FDate to, V value);
 
     @SuppressWarnings("rawtypes")
     void copyQuerySettings(IHistoricalCacheQuery copyFrom);
