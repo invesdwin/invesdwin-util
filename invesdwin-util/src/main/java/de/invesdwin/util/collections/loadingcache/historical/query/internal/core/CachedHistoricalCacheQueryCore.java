@@ -279,7 +279,7 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
      */
     private void updateCachedPreviousResult(final int shiftBackUnits, final List<Entry<FDate, V>> result,
             final boolean filterDuplicateKeys) {
-        if (cachedPreviousResult_shiftBackUnits != null && !cachedPreviousEntries.isEmpty()) {
+        if (cachedPreviousResult_shiftBackUnits != null && !cachedPreviousEntries.isEmpty() && result.size() > 1) {
             throw new IllegalStateException("cachedPreviousResult should have been reset by preceeding code!");
         }
         if (filterDuplicateKeys) {
@@ -449,7 +449,6 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
          * we don't want to throw away a cache that might already be filled
          */
                 (trailing.size() == 1 && cachedPreviousEntries.size() > 1)) {
-            resetCachedPreviousResult();
             return;
         }
         maybeIncreaseMaximumSize(trailing.size());

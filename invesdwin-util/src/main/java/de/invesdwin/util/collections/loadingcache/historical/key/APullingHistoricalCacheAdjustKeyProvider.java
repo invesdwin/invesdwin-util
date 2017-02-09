@@ -10,6 +10,7 @@ import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
 import de.invesdwin.util.collections.loadingcache.historical.key.internal.HistoricalCacheForClear;
+import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQuery;
 import de.invesdwin.util.time.fdate.FDate;
 
 @ThreadSafe
@@ -129,8 +130,20 @@ public abstract class APullingHistoricalCacheAdjustKeyProvider implements IHisto
     }
 
     @Override
-    public boolean shouldReadjustKey(final IHistoricalCacheAdjustKeyProvider alreadyUsedAdjustKeyProvider) {
-        return alreadyUsedAdjustKeyProvider != this;
+    public FDate newAlreadyAdjustedKey(final FDate key) {
+        return AdjustedFDate.newAdjustedKey(this, key);
+    }
+
+    @Override
+    public FDate maybeAdjustKey(final FDate key) {
+        return AdjustedFDate.maybeAdjustKey(this, key);
+    }
+
+    @Override
+    public final <T> IHistoricalCacheQuery<T> newQuery(
+            final de.invesdwin.util.collections.loadingcache.historical.query.internal.core.IHistoricalCacheQueryCore<T> queryCore) {
+        return new de.invesdwin.util.collections.loadingcache.historical.query.internal.adj.AdjustingHistoricalCacheQuery<T>(
+                queryCore);
     }
 
 }

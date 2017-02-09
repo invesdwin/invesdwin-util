@@ -22,9 +22,8 @@ import de.invesdwin.util.collections.loadingcache.historical.key.internal.IHisto
 import de.invesdwin.util.collections.loadingcache.historical.key.internal.IHistoricalCacheShiftKeyProvider;
 import de.invesdwin.util.collections.loadingcache.historical.listener.IHistoricalCacheOnValueLoadedListener;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQuery;
+import de.invesdwin.util.collections.loadingcache.historical.query.internal.HistoricalCacheQuery;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.IHistoricalCacheInternalMethods;
-import de.invesdwin.util.collections.loadingcache.historical.query.internal.adj.AdjustedFDate;
-import de.invesdwin.util.collections.loadingcache.historical.query.internal.adj.AdjustingHistoricalCacheQuery;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.CachedHistoricalCacheQueryCore;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.IHistoricalCacheQueryCore;
 import de.invesdwin.util.collections.loadingcache.historical.refresh.HistoricalCacheRefreshManager;
@@ -122,12 +121,7 @@ public abstract class AHistoricalCache<V> {
     }
 
     protected FDate adjustKey(final FDate key) {
-        final FDate lastRefreshFromManager = HistoricalCacheRefreshManager.getLastRefresh();
-        if (lastRefresh.isBefore(lastRefreshFromManager)) {
-            lastRefresh = new FDate();
-            maybeRefresh();
-        }
-        return AdjustedFDate.maybeAdjustKey(adjustKeyProvider, key);
+        return adjustKeyProvider.maybeAdjustKey(key);
     }
 
     protected boolean maybeRefresh() {
@@ -161,7 +155,7 @@ public abstract class AHistoricalCache<V> {
      */
     public final FDate extractKey(final FDate key, final V value) {
         final FDate extractedKey = extractKeyProvider.extractKey(key, value);
-        return AdjustedFDate.maybeReadjustKey(adjustKeyProvider, extractedKey);
+        return adjustKeyProvider.newAlreadyAdjustedKey(extractedKey);
     }
 
     /**
@@ -176,7 +170,7 @@ public abstract class AHistoricalCache<V> {
             throw new IllegalArgumentException("key should not be null!");
         }
         final FDate prevKey = shiftKeyProvider.calculatePreviousKey(key);
-        return AdjustedFDate.maybeReadjustKey(adjustKeyProvider, prevKey);
+        return adjustKeyProvider.newAlreadyAdjustedKey(prevKey);
     }
 
     protected final FDate calculateNextKey(final FDate key) {
@@ -184,7 +178,7 @@ public abstract class AHistoricalCache<V> {
             throw new IllegalArgumentException("key should not be null!");
         }
         final FDate nextKey = shiftKeyProvider.calculateNextKey(key);
-        return AdjustedFDate.maybeReadjustKey(adjustKeyProvider, nextKey);
+        return adjustKeyProvider.adjustKey(nextKey);
     }
 
     public IHistoricalCacheShiftKeyProvider getShiftKeyProvider() {
@@ -213,7 +207,12 @@ public abstract class AHistoricalCache<V> {
      * Does not allow values from future per default.
      */
     public final IHistoricalCacheQuery<V> query() {
-        return new AdjustingHistoricalCacheQuery<V>(queryCore);
+        final FDate lastRefreshFromManager = HistoricalCacheRefreshManager.getLastRefresh();
+        if (lastRefresh.isBefore(lastRefreshFromManager)) {
+            lastRefresh = new FDate();
+            maybeRefresh();
+        }
+        return adjustKeyProvider.newQuery(queryCore);
     }
 
     public boolean containsKey(final FDate key) {
@@ -519,6 +518,16 @@ public abstract class AHistoricalCache<V> {
         }
 
         @Override
+        public FDate newAlreadyAdjustedKey(final FDate key) {
+            return key;
+        }
+
+        @Override
+        public FDate maybeAdjustKey(final FDate key) {
+            return key;
+        }
+
+        @Override
         public void clear() {}
 
         @Override
@@ -537,8 +546,8 @@ public abstract class AHistoricalCache<V> {
         }
 
         @Override
-        public boolean shouldReadjustKey(final IHistoricalCacheAdjustKeyProvider alreadyUsedAdjustKeyProvider) {
-            return false;
+        public <T> IHistoricalCacheQuery<T> newQuery(final IHistoricalCacheQueryCore<T> queryCore) {
+            return new HistoricalCacheQuery<T>(queryCore);
         }
 
     }
