@@ -7,6 +7,7 @@ import javax.annotation.concurrent.Immutable;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQueryElementFilter;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQueryWithFuture;
+import de.invesdwin.util.collections.loadingcache.historical.query.internal.HistoricalCacheQueryWithFuture;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.IHistoricalCacheQueryCore;
 import de.invesdwin.util.time.fdate.FDate;
 
@@ -15,6 +16,10 @@ public class AdjustingHistoricalCacheQueryWithFuture<V> extends AdjustingHistori
         implements IHistoricalCacheQueryWithFuture<V> {
 
     private final IHistoricalCacheQueryWithFuture<V> delegate;
+
+    public AdjustingHistoricalCacheQueryWithFuture(final IHistoricalCacheQueryCore<V> core) {
+        this(core, new HistoricalCacheQueryWithFuture<V>(core));
+    }
 
     protected AdjustingHistoricalCacheQueryWithFuture(final IHistoricalCacheQueryCore<V> core,
             final IHistoricalCacheQueryWithFuture<V> delegate) {
@@ -75,6 +80,11 @@ public class AdjustingHistoricalCacheQueryWithFuture<V> extends AdjustingHistori
     @Override
     public V getNextValue(final FDate key, final int shiftForwardUnits) {
         return delegate.getNextValue(adjustKey(key), shiftForwardUnits);
+    }
+
+    @Override
+    protected AdjustingHistoricalCacheQueryWithFuture<V> newFutureQuery() {
+        return this;
     }
 
 }

@@ -8,6 +8,7 @@ import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.WrapperCloseableIterable;
+import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQueryElementFilter;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.HistoricalCacheAssertValue;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.IHistoricalCacheInternalMethods;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.impl.GetNextEntryQueryImpl;
@@ -35,22 +36,25 @@ public class DefaultHistoricalCacheQueryCore<V> implements IHistoricalCacheQuery
         if (!query.isRememberNullValue() && value == null) {
             parent.remove(key);
         }
-        if (value != null && query.getElementFilter() != null) {
-            FDate valueKey = parent.extractKey(key, value);
-            while (!query.getElementFilter().isValid(valueKey, value)) {
-                value = null;
-                //try earlier dates to find a valid element
-                final FDate previousKey = parent.calculatePreviousKey(valueKey);
-                final V previousValue = parent.getValuesMap().get(previousKey);
-                if (previousValue == null) {
-                    break;
+        if (value != null) {
+            final IHistoricalCacheQueryElementFilter<V> elementFilter = query.getElementFilter();
+            if (elementFilter != null) {
+                FDate valueKey = parent.extractKey(key, value);
+                while (!elementFilter.isValid(valueKey, value)) {
+                    value = null;
+                    //try earlier dates to find a valid element
+                    final FDate previousKey = parent.calculatePreviousKey(valueKey);
+                    final V previousValue = parent.getValuesMap().get(previousKey);
+                    if (previousValue == null) {
+                        break;
+                    }
+                    final FDate previousValueKey = parent.extractKey(previousKey, previousValue);
+                    if (previousValueKey.equals(valueKey)) {
+                        break;
+                    }
+                    valueKey = previousKey;
+                    value = previousValue;
                 }
-                final FDate previousValueKey = parent.extractKey(previousKey, previousValue);
-                if (previousValueKey.equals(valueKey)) {
-                    break;
-                }
-                valueKey = previousKey;
-                value = previousValue;
             }
         }
         return assertValue.assertValue(parent, key, key, value);

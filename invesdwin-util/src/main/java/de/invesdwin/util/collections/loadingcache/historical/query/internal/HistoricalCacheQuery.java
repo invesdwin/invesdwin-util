@@ -16,49 +16,31 @@ import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCa
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQueryElementFilter;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQueryWithFuture;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.IHistoricalCacheQueryCore;
-import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.IHistoricalCacheQueryInternalMethods;
 import de.invesdwin.util.time.fdate.FDate;
 
 @NotThreadSafe
 public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
 
+    private static final boolean DEFAULT_REMEMBER_NULL_VALUE = false;
+    private static final boolean DEFAULT_FILTER_DUPLICATE_KEYS = true;
     private static final HistoricalCacheAssertValue DEFAULT_ASSERT_VALUE = HistoricalCacheAssertValue.ASSERT_VALUE_WITHOUT_FUTURE;
-    protected HistoricalCacheAssertValue assertValue = DEFAULT_ASSERT_VALUE;
+
     protected final IHistoricalCacheQueryCore<V> core;
-    protected final IHistoricalCacheQueryInternalMethods<V> internalMethods = new IHistoricalCacheQueryInternalMethods<V>() {
-
-        @Override
-        public boolean isRememberNullValue() {
-            return rememberNullValue;
-        }
-
-        @Override
-        public HistoricalCacheAssertValue getAssertValue() {
-            return assertValue;
-        }
-
-        @Override
-        public IHistoricalCacheQueryElementFilter<V> getElementFilter() {
-            return elementFilter;
-        }
-
-        @Override
-        public boolean isFilterDuplicateKeys() {
-            return filterDuplicateKeys;
-        }
-
-        @Override
-        public List<Entry<FDate, V>> newEntriesList(final int size) {
-            return HistoricalCacheQuery.this.newEntriesList(size);
-        }
-
-    };
-    private boolean filterDuplicateKeys = true;
-    private boolean rememberNullValue = false;
+    protected HistoricalCacheAssertValue assertValue = DEFAULT_ASSERT_VALUE;
+    private boolean filterDuplicateKeys = DEFAULT_FILTER_DUPLICATE_KEYS;
+    private boolean rememberNullValue = DEFAULT_REMEMBER_NULL_VALUE;
     private IHistoricalCacheQueryElementFilter<V> elementFilter;
 
     public HistoricalCacheQuery(final IHistoricalCacheQueryCore<V> core) {
         this.core = core;
+    }
+
+    @Override
+    public void resetQuerySettings() {
+        assertValue = DEFAULT_ASSERT_VALUE;
+        filterDuplicateKeys = DEFAULT_FILTER_DUPLICATE_KEYS;
+        rememberNullValue = DEFAULT_REMEMBER_NULL_VALUE;
+        elementFilter = null;
     }
 
     @Override
@@ -83,11 +65,7 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
 
     @Override
     public IHistoricalCacheQuery<V> withElementFilter(final IHistoricalCacheQueryElementFilter<V> elementFilter) {
-        if (elementFilter == null) {
-            this.elementFilter = null;
-        } else {
-            this.elementFilter = elementFilter;
-        }
+        this.elementFilter = elementFilter;
         return this;
     }
 
@@ -123,12 +101,12 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
 
     @Override
     public final Entry<FDate, V> getEntry(final FDate key) {
-        return core.getEntry(internalMethods, key, assertValue);
+        return core.getEntry(this, key, assertValue);
     }
 
     @Override
     public V getValue(final FDate key) {
-        return core.getValue(internalMethods, key, assertValue);
+        return core.getValue(this, key, assertValue);
     }
 
     @Override
@@ -160,7 +138,7 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
 
                     @Override
                     public Entry<FDate, V> next() {
-                        return core.getEntry(internalMethods, keysIterator.next(), assertValue);
+                        return core.getEntry(HistoricalCacheQuery.this, keysIterator.next(), assertValue);
                     }
 
                     @Override
@@ -209,8 +187,7 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
         if (key == null) {
             return null;
         }
-        return HistoricalCacheAssertValue.unwrapEntryKey(core.getParent(),
-                core.getEntry(internalMethods, key, assertValue));
+        return HistoricalCacheAssertValue.unwrapEntryKey(core.getParent(), core.getEntry(this, key, assertValue));
     }
 
     @Override
@@ -486,7 +463,7 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
         this.rememberNullValue = copyFrom.isRememberNullValue();
     }
 
-    private HistoricalCacheQueryWithFuture<V> newFutureQuery() {
+    protected HistoricalCacheQueryWithFuture<V> newFutureQuery() {
         final HistoricalCacheQueryWithFuture<V> query = new HistoricalCacheQueryWithFuture<V>(core);
         query.copyQuerySettings(this);
         return query;
@@ -503,7 +480,8 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
         return null;
     }
 
-    protected final List<Entry<FDate, V>> newEntriesList(final int size) {
+    @Override
+    public final List<Entry<FDate, V>> newEntriesList(final int size) {
         if (filterDuplicateKeys) {
             /*
              * duplicates will only occur on the edged, never in the middle, so we can use this fast implementation
@@ -526,7 +504,7 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
     @Override
     public final Entry<FDate, V> getPreviousEntry(final FDate key, final int shiftBackUnits) {
         assertShiftUnitsPositive(shiftBackUnits);
-        return core.getPreviousEntry(internalMethods, key, shiftBackUnits);
+        return core.getPreviousEntry(this, key, shiftBackUnits);
     }
 
     /**
@@ -537,7 +515,7 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
     @Override
     public final ICloseableIterable<Entry<FDate, V>> getPreviousEntries(final FDate key, final int shiftBackUnits) {
         assertShiftUnitsPositiveNonZero(shiftBackUnits);
-        return core.getPreviousEntries(internalMethods, key, shiftBackUnits);
+        return core.getPreviousEntries(this, key, shiftBackUnits);
     }
 
 }

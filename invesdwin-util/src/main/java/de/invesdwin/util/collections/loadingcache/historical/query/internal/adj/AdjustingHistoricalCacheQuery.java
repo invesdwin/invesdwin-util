@@ -1,6 +1,7 @@
 package de.invesdwin.util.collections.loadingcache.historical.query.internal.adj;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map.Entry;
 
 import javax.annotation.concurrent.Immutable;
@@ -84,6 +85,10 @@ public class AdjustingHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V
 
     @Override
     public IHistoricalCacheQueryWithFuture<V> withFuture() {
+        return newFutureQuery();
+    }
+
+    protected AdjustingHistoricalCacheQueryWithFuture<V> newFutureQuery() {
         return new AdjustingHistoricalCacheQueryWithFuture<V>(core, delegate.withFuture());
     }
 
@@ -186,6 +191,16 @@ public class AdjustingHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V
     @Override
     public boolean isRememberNullValue() {
         return delegate.isRememberNullValue();
+    }
+
+    @Override
+    public void resetQuerySettings() {
+        delegate.resetQuerySettings();
+    }
+
+    @Override
+    public List<Entry<FDate, V>> newEntriesList(final int size) {
+        return delegate.newEntriesList(size);
     }
 
 }

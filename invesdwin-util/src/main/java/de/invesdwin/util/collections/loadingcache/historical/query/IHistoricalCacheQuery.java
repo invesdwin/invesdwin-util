@@ -3,10 +3,10 @@ package de.invesdwin.util.collections.loadingcache.historical.query;
 import java.util.Map.Entry;
 
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
-import de.invesdwin.util.collections.loadingcache.historical.query.internal.HistoricalCacheAssertValue;
+import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.IHistoricalCacheQueryInternalMethods;
 import de.invesdwin.util.time.fdate.FDate;
 
-public interface IHistoricalCacheQuery<V> {
+public interface IHistoricalCacheQuery<V> extends IHistoricalCacheQueryInternalMethods<V> {
 
     IHistoricalCacheQuery<V> withElementFilter(IHistoricalCacheQueryElementFilter<V> elementFilter);
 
@@ -58,12 +58,6 @@ public interface IHistoricalCacheQuery<V> {
     @SuppressWarnings("rawtypes")
     void copyQuerySettings(IHistoricalCacheQuery copyFrom);
 
-    HistoricalCacheAssertValue getAssertValue();
-
-    boolean isFilterDuplicateKeys();
-
-    IHistoricalCacheQueryElementFilter<V> getElementFilter();
-
-    boolean isRememberNullValue();
+    void resetQuerySettings();
 
 }

@@ -1,10 +1,16 @@
 package de.invesdwin.util.collections.loadingcache.historical.refresh;
 
+import java.util.Collections;
+import java.util.Set;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ScheduledExecutorService;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
+import com.google.common.cache.CacheBuilder;
+
+import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
 import de.invesdwin.util.concurrent.Executors;
 import de.invesdwin.util.time.duration.Duration;
 import de.invesdwin.util.time.fdate.FDate;
@@ -28,6 +34,16 @@ public final class HistoricalCacheRefreshManager {
     @GuardedBy("this.class")
     private static ScheduledExecutorService executor;
 
+    private static final Set<AHistoricalCache<?>> REGISTERED_CACHES;
+
+    static {
+        final ConcurrentMap<AHistoricalCache<?>, Boolean> map = CacheBuilder.newBuilder()
+                .weakKeys()
+                .<AHistoricalCache<?>, Boolean> build()
+                .asMap();
+        REGISTERED_CACHES = Collections.newSetFromMap(map);
+    }
+
     private HistoricalCacheRefreshManager() {}
 
     public static FDate getLastRefresh() {
@@ -37,10 +53,13 @@ public final class HistoricalCacheRefreshManager {
     /**
      * Try every 3 hours if new data is in the cache. Queries may also call webservices.
      * 
-     * Calling this manually makes the caches refresh themselves on their next call to get().
+     * Calling this manually makes the caches refresh immediately.
      */
-    public static void refresh() {
+    public static synchronized void refresh() {
         lastRefresh = new FDate();
+        for (final AHistoricalCache<?> registeredCache : REGISTERED_CACHES) {
+            registeredCache.maybeRefresh();
+        }
     }
 
     public static boolean maybeRefresh() {
@@ -86,6 +105,14 @@ public final class HistoricalCacheRefreshManager {
 
     public static synchronized boolean isRefreshSchedulerRunning() {
         return executor != null;
+    }
+
+    public static void register(final AHistoricalCache<?> cache) {
+        REGISTERED_CACHES.add(cache);
+    }
+
+    public static void unregister(final AHistoricalCache<?> cache) {
+        REGISTERED_CACHES.remove(cache);
     }
 
 }

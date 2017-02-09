@@ -67,6 +67,10 @@ public abstract class AHistoricalCache<V> {
         }
     };
 
+    public AHistoricalCache() {
+        HistoricalCacheRefreshManager.register(this);
+    }
+
     /**
      * null means unlimited and 0 means no caching at all.
      */
@@ -124,7 +128,7 @@ public abstract class AHistoricalCache<V> {
         return adjustKeyProvider.maybeAdjustKey(key);
     }
 
-    protected boolean maybeRefresh() {
+    protected boolean innerMaybeRefresh() {
         clear();
         return true;
     }
@@ -207,12 +211,15 @@ public abstract class AHistoricalCache<V> {
      * Does not allow values from future per default.
      */
     public final IHistoricalCacheQuery<V> query() {
+        return adjustKeyProvider.newQuery(queryCore);
+    }
+
+    public final synchronized void maybeRefresh() {
         final FDate lastRefreshFromManager = HistoricalCacheRefreshManager.getLastRefresh();
         if (lastRefresh.isBefore(lastRefreshFromManager)) {
             lastRefresh = new FDate();
-            maybeRefresh();
+            innerMaybeRefresh();
         }
-        return adjustKeyProvider.newQuery(queryCore);
     }
 
     public boolean containsKey(final FDate key) {

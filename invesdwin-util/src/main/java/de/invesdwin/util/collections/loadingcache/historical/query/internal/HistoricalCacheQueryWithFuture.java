@@ -16,7 +16,7 @@ import de.invesdwin.util.time.fdate.FDate;
 public class HistoricalCacheQueryWithFuture<V> extends HistoricalCacheQuery<V>
         implements IHistoricalCacheQueryWithFuture<V> {
 
-    protected HistoricalCacheQueryWithFuture(final IHistoricalCacheQueryCore<V> core) {
+    public HistoricalCacheQueryWithFuture(final IHistoricalCacheQueryCore<V> core) {
         super(core);
     }
 
@@ -92,7 +92,7 @@ public class HistoricalCacheQueryWithFuture<V> extends HistoricalCacheQuery<V>
     @Override
     public Entry<FDate, V> getNextEntry(final FDate key, final int shiftForwardUnits) {
         assertShiftUnitsPositive(shiftForwardUnits);
-        return core.getNextEntry(internalMethods, key, shiftForwardUnits);
+        return core.getNextEntry(this, key, shiftForwardUnits);
     }
 
     @Override
@@ -104,7 +104,7 @@ public class HistoricalCacheQueryWithFuture<V> extends HistoricalCacheQuery<V>
     @Override
     public ICloseableIterable<Entry<FDate, V>> getNextEntries(final FDate key, final int shiftForwardUnits) {
         assertShiftUnitsPositiveNonZero(shiftForwardUnits);
-        return core.getNextEntries(internalMethods, key, shiftForwardUnits);
+        return core.getNextEntries(this, key, shiftForwardUnits);
     }
 
     @Override
@@ -134,6 +134,11 @@ public class HistoricalCacheQueryWithFuture<V> extends HistoricalCacheQuery<V>
                 };
             }
         };
+    }
+
+    @Override
+    protected HistoricalCacheQueryWithFuture<V> newFutureQuery() {
+        return this;
     }
 
 }
