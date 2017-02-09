@@ -15,4 +15,6 @@ public interface IHistoricalCacheAdjustKeyProvider {
 
     AHistoricalCache<?> getParent();
 
+    boolean shouldReadjustKey(IHistoricalCacheAdjustKeyProvider alreadyUsedAdjustKeyProvider);
+
 }

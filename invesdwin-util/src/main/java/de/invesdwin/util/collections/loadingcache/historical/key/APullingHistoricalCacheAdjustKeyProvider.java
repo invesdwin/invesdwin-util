@@ -128,4 +128,9 @@ public abstract class APullingHistoricalCacheAdjustKeyProvider implements IHisto
         }
     }
 
+    @Override
+    public boolean shouldReadjustKey(final IHistoricalCacheAdjustKeyProvider alreadyUsedAdjustKeyProvider) {
+        return alreadyUsedAdjustKeyProvider != this;
+    }
+
 }

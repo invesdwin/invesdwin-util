@@ -122,15 +122,12 @@ public abstract class AHistoricalCache<V> {
     }
 
     protected FDate adjustKey(final FDate key) {
-        if (!AdjustedFDate.shouldAdjustKey(adjustKeyProvider, key)) {
-            return key;
-        }
         final FDate lastRefreshFromManager = HistoricalCacheRefreshManager.getLastRefresh();
         if (lastRefresh.isBefore(lastRefreshFromManager)) {
             lastRefresh = new FDate();
             maybeRefresh();
         }
-        return AdjustedFDate.adjustKey(adjustKeyProvider, key);
+        return AdjustedFDate.maybeAdjustKey(adjustKeyProvider, key);
     }
 
     protected boolean maybeRefresh() {
@@ -163,7 +160,8 @@ public abstract class AHistoricalCache<V> {
      * Should return the key if the value does not contain a key itself.
      */
     public final FDate extractKey(final FDate key, final V value) {
-        return new AdjustedFDate(adjustKeyProvider, extractKeyProvider.extractKey(key, value));
+        final FDate extractedKey = extractKeyProvider.extractKey(key, value);
+        return AdjustedFDate.maybeReadjustKey(adjustKeyProvider, extractedKey);
     }
 
     /**
@@ -177,14 +175,16 @@ public abstract class AHistoricalCache<V> {
         if (key == null) {
             throw new IllegalArgumentException("key should not be null!");
         }
-        return AdjustedFDate.adjustKey(adjustKeyProvider, shiftKeyProvider.calculatePreviousKey(key));
+        final FDate prevKey = shiftKeyProvider.calculatePreviousKey(key);
+        return AdjustedFDate.maybeReadjustKey(adjustKeyProvider, prevKey);
     }
 
     protected final FDate calculateNextKey(final FDate key) {
         if (key == null) {
             throw new IllegalArgumentException("key should not be null!");
         }
-        return AdjustedFDate.adjustKey(adjustKeyProvider, shiftKeyProvider.calculateNextKey(key));
+        final FDate nextKey = shiftKeyProvider.calculateNextKey(key);
+        return AdjustedFDate.maybeReadjustKey(adjustKeyProvider, nextKey);
     }
 
     public IHistoricalCacheShiftKeyProvider getShiftKeyProvider() {
@@ -434,12 +434,6 @@ public abstract class AHistoricalCache<V> {
         private final ILoadingCache<FDate, FDate> previousKeysCache = new ADelegateLoadingCache<FDate, FDate>() {
 
             @Override
-            public FDate get(final FDate key) {
-                final FDate adjKey = adjustKey(key);
-                return super.get(adjKey);
-            }
-
-            @Override
             public void put(final FDate key, final FDate value) {
                 //don't cache null values to prevent moving time issues of the underlying source (e.g. JForexTickCache getNextValue)
                 if (value != null && !key.equals(value)) {
@@ -466,12 +460,6 @@ public abstract class AHistoricalCache<V> {
                 if (value != null && !key.equals(value)) {
                     super.put(key, value);
                 }
-            }
-
-            @Override
-            public FDate get(final FDate key) {
-                final FDate adjKey = adjustKey(key);
-                return super.get(adjKey);
             }
 
             @Override
@@ -546,6 +534,11 @@ public abstract class AHistoricalCache<V> {
         @Override
         public AHistoricalCache<?> getParent() {
             return AHistoricalCache.this;
+        }
+
+        @Override
+        public boolean shouldReadjustKey(final IHistoricalCacheAdjustKeyProvider alreadyUsedAdjustKeyProvider) {
+            return false;
         }
 
     }

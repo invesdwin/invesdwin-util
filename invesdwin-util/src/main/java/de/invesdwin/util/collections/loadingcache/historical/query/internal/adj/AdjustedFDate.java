@@ -6,12 +6,12 @@ import de.invesdwin.util.collections.loadingcache.historical.key.IHistoricalCach
 import de.invesdwin.util.time.fdate.FDate;
 
 @Immutable
-public final class AdjustedFDate extends FDate {
+public class AdjustedFDate extends FDate {
 
     private final IHistoricalCacheAdjustKeyProvider adjustKeyProvider;
 
-    public AdjustedFDate(final IHistoricalCacheAdjustKeyProvider adjustKeyProvider, final FDate key) {
-        super(adjustKeyProvider.adjustKey(key));
+    public AdjustedFDate(final IHistoricalCacheAdjustKeyProvider adjustKeyProvider, final FDate adjustedKey) {
+        super(adjustedKey);
         this.adjustKeyProvider = adjustKeyProvider;
     }
 
@@ -19,19 +19,36 @@ public final class AdjustedFDate extends FDate {
         return adjustKeyProvider;
     }
 
-    public static boolean shouldAdjustKey(final IHistoricalCacheAdjustKeyProvider adjustKeyProvider, final FDate key) {
+    public static FDate adjustKey(final IHistoricalCacheAdjustKeyProvider adjustKeyProvider, final FDate key) {
+        return new AdjustedFDate(adjustKeyProvider, adjustKeyProvider.adjustKey(key));
+    }
+
+    public static FDate maybeAdjustKey(final IHistoricalCacheAdjustKeyProvider adjustKeyProvider, final FDate key) {
         if (key instanceof AdjustedFDate) {
             final AdjustedFDate cKey = (AdjustedFDate) key;
             //only when we move to a different adjust key provider
-            return adjustKeyProvider != cKey.adjustKeyProvider;
+            if (adjustKeyProvider.shouldReadjustKey(cKey.adjustKeyProvider)) {
+                return AdjustedFDate.adjustKey(adjustKeyProvider, cKey);
+            } else {
+                return cKey;
+            }
         } else {
-            //not adjusted yet
-            return true;
+            return adjustKey(adjustKeyProvider, key);
         }
     }
 
-    public static FDate adjustKey(final IHistoricalCacheAdjustKeyProvider adjustKeyProvider, final FDate key) {
-        return new AdjustedFDate(adjustKeyProvider, key);
+    public static FDate maybeReadjustKey(final IHistoricalCacheAdjustKeyProvider adjustKeyProvider, final FDate key) {
+        if (key instanceof AdjustedFDate) {
+            final AdjustedFDate cKey = (AdjustedFDate) key;
+            //only when we move to a different adjust key provider
+            if (adjustKeyProvider.shouldReadjustKey(cKey.adjustKeyProvider)) {
+                return AdjustedFDate.adjustKey(adjustKeyProvider, cKey);
+            } else {
+                return cKey;
+            }
+        } else {
+            return new AdjustedFDate(adjustKeyProvider, key);
+        }
     }
 
 }

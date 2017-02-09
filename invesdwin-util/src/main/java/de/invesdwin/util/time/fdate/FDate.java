@@ -567,7 +567,7 @@ public class FDate implements IDate, Serializable, Cloneable, Comparable<Object>
 
     //CHECKSTYLE:OFF
     @Override
-    public Object clone() {
+    public FDate clone() {
         return new FDate(millis);
     }
     //CHECKSTYLE:ON
