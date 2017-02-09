@@ -374,8 +374,16 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
 
     private void prependCachedEntries(final FDate key, final List<Entry<FDate, V>> trailing,
             final int trailingCountFoundInCache) {
-        for (int i = trailingCountFoundInCache - 1; i < trailing.size(); i++) {
-            cachedPreviousEntries.add(trailing.get(i));
+        for (int i = trailing.size() - trailingCountFoundInCache - 1; i >= 0; i--) {
+            final Entry<FDate, V> appendEntry = trailing.get(i);
+            if (!cachedPreviousEntries.isEmpty()) {
+                final Entry<FDate, V> firstCachedEntry = getFirstCachedEntry();
+                if (!firstCachedEntry.getKey().isAfter(appendEntry.getKey())) {
+                    throw new IllegalArgumentException("appendEntry [" + appendEntry.getKey()
+                            + "] should be after firstCachedEntry [" + firstCachedEntry.getKey() + "]");
+                }
+            }
+            cachedPreviousEntries.add(appendEntry);
         }
         if (maximumSize != null) {
             maybeIncreaseMaximumSize(trailing.size());
@@ -395,7 +403,15 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
     private void appendCachedEntries(final FDate key, final List<Entry<FDate, V>> trailing,
             final int trailingCountFoundInQuery) {
         for (int i = trailingCountFoundInQuery - 1; i >= 0; i--) {
-            cachedPreviousEntries.add(0, trailing.get(i));
+            final Entry<FDate, V> prependEntry = trailing.get(i);
+            if (!cachedPreviousEntries.isEmpty()) {
+                final Entry<FDate, V> lastCachedEntry = getLastCachedEntry();
+                if (!lastCachedEntry.getKey().isBefore(prependEntry.getKey())) {
+                    throw new IllegalArgumentException("appendEntry [" + prependEntry.getKey()
+                            + "] should be before firstCachedEntry [" + lastCachedEntry.getKey() + "]");
+                }
+            }
+            cachedPreviousEntries.add(0, prependEntry);
         }
         cachedPreviousEntriesKey = key;
         if (maximumSize != null) {

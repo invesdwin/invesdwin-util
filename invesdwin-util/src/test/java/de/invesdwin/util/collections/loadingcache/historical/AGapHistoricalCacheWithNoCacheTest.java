@@ -15,6 +15,7 @@ import org.junit.Test;
 import com.google.common.collect.Iterables;
 
 import de.invesdwin.util.assertions.Assertions;
+import de.invesdwin.util.bean.tuple.Pair;
 import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
 import de.invesdwin.util.collections.loadingcache.historical.key.APullingHistoricalCacheAdjustKeyProvider;
 import de.invesdwin.util.collections.loadingcache.historical.key.APushingHistoricalCacheAdjustKeyProvider;
@@ -641,7 +642,8 @@ public class AGapHistoricalCacheWithNoCacheTest {
 
     @Test
     public void testPreviousValueKeyBetween() {
-        for (final FDate entity : entities) {
+        for (int i = 0; i < entities.size(); i++) {
+            final FDate entity = entities.get(i);
             final FDate foundKey = cache.query().getPreviousValueKeyBetween(FDate.MIN_DATE, FDate.MAX_DATE, entity);
             Assertions.assertThat(foundKey).isEqualTo(entity);
         }
@@ -1015,9 +1017,9 @@ public class AGapHistoricalCacheWithNoCacheTest {
             final FDate expectedValue = entities.get(index - 1);
             Assertions.assertThat(previousValue).isEqualTo(expectedValue);
         }
-        Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(6);
+        Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(5);
         Assertions.assertThat(countReadNewestValueTo).isEqualTo(5);
-        Assertions.assertThat(countInnerExtractKey).isEqualTo(58);
+        Assertions.assertThat(countInnerExtractKey).isEqualTo(47);
         Assertions.assertThat(countAdjustKey).isEqualTo(0);
     }
 
@@ -1150,13 +1152,40 @@ public class AGapHistoricalCacheWithNoCacheTest {
 
     @Test
     public void testRandomizedPreviousValues() {
-        for (int i = 0; i < 100000; i++) {
-            final int keyIndex = RandomUtils.nextInt(0, entities.size());
-            final int shiftBackUnits = RandomUtils.nextInt(1, Math.max(1, keyIndex));
-            final FDate key = entities.get(keyIndex);
-            final Collection<FDate> previousValues = asList(cache.query().getPreviousValues(key, shiftBackUnits));
-            final List<FDate> expectedValues = entities.subList(keyIndex - shiftBackUnits + 1, keyIndex + 1);
-            Assertions.assertThat(previousValues).isEqualTo(expectedValues);
+        final List<Pair<Integer, Integer>> reproduce = new ArrayList<Pair<Integer, Integer>>();
+        try {
+            for (int i = 0; i < 100000; i++) {
+                final int keyIndex = RandomUtils.nextInt(0, entities.size());
+                final int shiftBackUnits = RandomUtils.nextInt(1, Math.max(1, keyIndex));
+                reproduce.add(Pair.of(keyIndex, shiftBackUnits));
+                final FDate key = entities.get(keyIndex);
+                final Collection<FDate> previousValues = asList(cache.query().getPreviousValues(key, shiftBackUnits));
+                final List<FDate> expectedValues = entities.subList(keyIndex - shiftBackUnits + 1, keyIndex + 1);
+                Assertions.assertThat(previousValues).isEqualTo(expectedValues);
+                if (i % 100 == 0) {
+                    cache.clear();
+                    reproduce.clear();
+                }
+            }
+        } catch (final Throwable t) {
+            //CHECKSTYLE:OFF
+            System.out.println(reproduce.size() + ". step: " + t.toString());
+            //CHECKSTYLE:ON
+            cache.clear();
+            for (int step = 1; step <= reproduce.size(); step++) {
+                final Pair<Integer, Integer> keyIndex_shiftBackUnits = reproduce.get(step - 1);
+                final int keyIndex = keyIndex_shiftBackUnits.getFirst();
+                final int shiftBackUnits = keyIndex_shiftBackUnits.getSecond();
+                final FDate key = entities.get(keyIndex);
+                final List<FDate> expectedValues = entities.subList(keyIndex - shiftBackUnits + 1, keyIndex + 1);
+                if (step == reproduce.size()) {
+                    //CHECKSTYLE:OFF
+                    System.out.println("now");
+                    //CHECKSTYLE:ON
+                }
+                final Collection<FDate> previousValues = asList(cache.query().getPreviousValues(key, shiftBackUnits));
+                Assertions.assertThat(previousValues).isEqualTo(expectedValues);
+            }
         }
     }
 
