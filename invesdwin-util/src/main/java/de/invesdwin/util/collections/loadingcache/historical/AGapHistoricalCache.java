@@ -503,9 +503,9 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
     protected abstract V readLatestValueFor(final FDate key);
 
     @Override
-    protected synchronized boolean innerMaybeRefresh() {
+    protected synchronized boolean maybeRefresh() {
         if (eventuallyGetMinMaxKeysInDB(maxKey(), true)) {
-            return super.innerMaybeRefresh();
+            return super.maybeRefresh();
         }
         return false;
     }

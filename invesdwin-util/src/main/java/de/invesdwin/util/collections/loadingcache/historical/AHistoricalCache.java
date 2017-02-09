@@ -52,10 +52,16 @@ public abstract class AHistoricalCache<V> {
     private IHistoricalCacheShiftKeyProvider shiftKeyProvider = new InnerHistoricalCacheShiftKeyProvider();
     private IHistoricalCacheExtractKeyProvider<V> extractKeyProvider = new InnerHistoricalCacheExtractKeyProvider();
     private final ILoadingCache<FDate, V> valuesMap = new ADelegateLoadingCache<FDate, V>() {
+
+        @Override
+        public V get(final FDate key) {
+            invokeRefreshIfRequested();
+            return super.get(key);
+        }
+
         @Override
         protected ILoadingCache<FDate, V> createDelegate() {
             return newLoadingCacheProvider(new Function<FDate, V>() {
-
                 @Override
                 public V apply(final FDate key) {
                     final V value = AHistoricalCache.this.loadValue(key);
@@ -66,6 +72,7 @@ public abstract class AHistoricalCache<V> {
             }, getMaximumSize());
         }
     };
+    private volatile boolean refreshRequested;
 
     public AHistoricalCache() {
         HistoricalCacheRefreshManager.register(this);
@@ -128,7 +135,31 @@ public abstract class AHistoricalCache<V> {
         return adjustKeyProvider.maybeAdjustKey(key);
     }
 
-    protected boolean innerMaybeRefresh() {
+    /**
+     * Requests a refresh of the cache on the next get() operation.
+     */
+    public final void requestRefresh() {
+        final FDate lastRefreshFromManager = HistoricalCacheRefreshManager.getLastRefresh();
+        if (lastRefresh.isBefore(lastRefreshFromManager)) {
+            lastRefresh = new FDate();
+            refreshRequested = true;
+        }
+    }
+
+    private void invokeRefreshIfRequested() {
+        if (refreshRequested) {
+            maybeRefresh();
+            refreshRequested = false;
+        }
+    }
+
+    /**
+     * Checks if the dependant data has changed and refreshes if it has to by clearing the cache.
+     * 
+     * Per default this does not check anything and just clears the cache. More complex logic can be added by overriding
+     * this method
+     */
+    protected boolean maybeRefresh() {
         clear();
         return true;
     }
@@ -212,14 +243,6 @@ public abstract class AHistoricalCache<V> {
      */
     public final IHistoricalCacheQuery<V> query() {
         return adjustKeyProvider.newQuery(queryCore);
-    }
-
-    public final void maybeRefresh() {
-        final FDate lastRefreshFromManager = HistoricalCacheRefreshManager.getLastRefresh();
-        if (lastRefresh.isBefore(lastRefreshFromManager)) {
-            lastRefresh = new FDate();
-            innerMaybeRefresh();
-        }
     }
 
     public boolean containsKey(final FDate key) {
@@ -440,6 +463,12 @@ public abstract class AHistoricalCache<V> {
         private final ILoadingCache<FDate, FDate> previousKeysCache = new ADelegateLoadingCache<FDate, FDate>() {
 
             @Override
+            public FDate get(final FDate key) {
+                invokeRefreshIfRequested();
+                return super.get(key);
+            }
+
+            @Override
             public void put(final FDate key, final FDate value) {
                 //don't cache null values to prevent moving time issues of the underlying source (e.g. JForexTickCache getNextValue)
                 if (value != null && !key.equals(value)) {
@@ -460,6 +489,13 @@ public abstract class AHistoricalCache<V> {
         };
 
         private final ILoadingCache<FDate, FDate> nextKeysCache = new ADelegateLoadingCache<FDate, FDate>() {
+
+            @Override
+            public FDate get(final FDate key) {
+                invokeRefreshIfRequested();
+                return super.get(key);
+            }
+
             @Override
             public void put(final FDate key, final FDate value) {
                 //don't cache null values to prevent moving time issues of the underlying source (e.g. JForexTickCache getNextValue)

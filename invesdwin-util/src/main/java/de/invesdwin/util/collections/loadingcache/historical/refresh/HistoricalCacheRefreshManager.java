@@ -53,12 +53,12 @@ public final class HistoricalCacheRefreshManager {
     /**
      * Try every 3 hours if new data is in the cache. Queries may also call webservices.
      * 
-     * Calling this manually makes the caches refresh immediately.
+     * Calling this manually makes the caches refresh on the next call to get.
      */
     public static synchronized void refresh() {
         lastRefresh = new FDate();
         for (final AHistoricalCache<?> registeredCache : REGISTERED_CACHES) {
-            registeredCache.maybeRefresh();
+            registeredCache.requestRefresh();
         }
     }
 
