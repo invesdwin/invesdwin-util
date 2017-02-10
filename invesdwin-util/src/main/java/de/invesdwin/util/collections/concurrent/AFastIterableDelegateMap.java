@@ -2,6 +2,7 @@ package de.invesdwin.util.collections.concurrent;
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -261,10 +262,16 @@ public abstract class AFastIterableDelegateMap<K, V> extends ADelegateMap<K, V> 
         final BufferingIterator<Entry<K, V>> fastEntryIterable = new BufferingIterator<Entry<K, V>>();
         final BufferingIterator<K> fastKeyIterable = new BufferingIterator<K>();
         final BufferingIterator<V> fastValueIterable = new BufferingIterator<V>();
-        for (final Entry<K, V> e : getDelegate().entrySet()) {
-            fastEntryIterable.add(e);
-            fastKeyIterable.add(e.getKey());
-            fastValueIterable.add(e.getValue());
+        final Iterator<Entry<K, V>> iterator = getDelegate().entrySet().iterator();
+        try {
+            while (true) {
+                final Entry<K, V> next = iterator.next();
+                fastEntryIterable.add(next);
+                fastKeyIterable.add(next.getKey());
+                fastValueIterable.add(next.getValue());
+            }
+        } catch (final NoSuchElementException e) {
+            //noop
         }
         this.fastEntryIterable = fastEntryIterable;
         this.fastKeyIterable = fastKeyIterable;
