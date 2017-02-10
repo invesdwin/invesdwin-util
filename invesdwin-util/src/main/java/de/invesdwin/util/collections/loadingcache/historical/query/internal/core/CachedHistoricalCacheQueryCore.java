@@ -202,12 +202,13 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
 
     private FDate determineConsistentLastCachedEntryKey() {
         final FDate lastCachedEntryKey = getLastCachedEntry().getKey();
-        if (cachedPreviousResult_filteringDuplicates != null) {
+        if (cachedPreviousResult_filteringDuplicates != null && !cachedPreviousResult_filteringDuplicates.isEmpty()) {
             final FDate lastCachedResultKey = cachedPreviousResult_filteringDuplicates
                     .get(cachedPreviousResult_filteringDuplicates.size() - 1).getKey();
             assertSameLastKey(lastCachedEntryKey, lastCachedResultKey);
         }
-        if (cachedPreviousResult_notFilteringDuplicates != null) {
+        if (cachedPreviousResult_notFilteringDuplicates != null
+                && !cachedPreviousResult_notFilteringDuplicates.isEmpty()) {
             final FDate lastCachedResultKey = cachedPreviousResult_notFilteringDuplicates
                     .get(cachedPreviousResult_notFilteringDuplicates.size() - 1).getKey();
             assertSameLastKey(lastCachedEntryKey, lastCachedResultKey);
