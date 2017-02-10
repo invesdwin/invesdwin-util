@@ -14,6 +14,7 @@ import de.invesdwin.util.collections.iterable.WrapperCloseableIterable;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.HistoricalCacheAssertValue;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.IHistoricalCacheInternalMethods;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.impl.GetPreviousEntryQueryImpl;
+import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.time.fdate.FDate;
 
@@ -107,7 +108,7 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
                     return result;
                 } catch (final ResetCacheException e) {
                     countResets++;
-                    if (countResets >= COUNT_RESETS_BEFORE_WARNING) {
+                    if (countResets >= COUNT_RESETS_BEFORE_WARNING || Throwables.isDebugStackTraceEnabled()) {
                         LOG.warn(
                                 "%s: resetting %s for the %s. time now and retrying after exception [%s], if this happens too often we might encounter bad performance due to inefficient caching",
                                 delegate.getParent(), getClass().getSimpleName(), countResets, e);
