@@ -14,7 +14,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.WeakHashMap;
-import java.util.concurrent.CopyOnWriteArraySet;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
@@ -26,6 +25,7 @@ import de.invesdwin.norva.beanpath.spi.element.IPropertyBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.ITableColumnBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.visitor.SimpleBeanPathVisitorSupport;
 import de.invesdwin.util.assertions.Assertions;
+import de.invesdwin.util.collections.concurrent.AFastIterableDelegateSet;
 import de.invesdwin.util.lang.Strings;
 
 /**
@@ -37,7 +37,12 @@ public class DirtyTracker implements Serializable {
 
     private final AValueObject root;
     private final Set<String> beanPaths;
-    private final Set<IDirtyTrackerListener> listeners = new CopyOnWriteArraySet<IDirtyTrackerListener>();
+    private final Set<IDirtyTrackerListener> listeners = new AFastIterableDelegateSet<IDirtyTrackerListener>() {
+        @Override
+        protected Set<IDirtyTrackerListener> newDelegate() {
+            return Collections.synchronizedSet(new LinkedHashSet<IDirtyTrackerListener>());
+        }
+    };
     @GuardedBy("this")
     private final Set<String> changedBeanPaths = new LinkedHashSet<String>();
 

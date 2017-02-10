@@ -17,8 +17,12 @@ import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
 @ThreadSafe
 public abstract class AFastIterableDelegateMap<K, V> extends ADelegateMap<K, V> implements Iterable<V> {
 
-    private volatile BufferingIterator<V> fastIterable = new BufferingIterator<V>();
-    private volatile boolean empty = true;
+    private volatile BufferingIterator<V> fastIterable;
+    private volatile boolean empty;
+
+    public AFastIterableDelegateMap() {
+        refreshFastIterable();
+    }
 
     @Override
     public synchronized V put(final K key, final V value) {
@@ -41,12 +45,12 @@ public abstract class AFastIterableDelegateMap<K, V> extends ADelegateMap<K, V> 
     public synchronized V remove(final Object key) {
         final V removed = super.remove(key);
         if (removed != null) {
-            refreshFastIterator();
+            refreshFastIterable();
         }
         return removed;
     }
 
-    private void refreshFastIterator() {
+    private void refreshFastIterable() {
         fastIterable = new BufferingIterator<V>(getDelegate().values());
         empty = fastIterable.isEmpty();
     }
@@ -55,7 +59,7 @@ public abstract class AFastIterableDelegateMap<K, V> extends ADelegateMap<K, V> 
     public synchronized boolean remove(final Object key, final Object value) {
         final boolean removed = super.remove(key, value);
         if (removed) {
-            refreshFastIterator();
+            refreshFastIterable();
         }
         return removed;
     }

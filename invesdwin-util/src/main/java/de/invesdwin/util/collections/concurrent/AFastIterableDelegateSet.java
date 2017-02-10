@@ -17,8 +17,12 @@ import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
 @ThreadSafe
 public abstract class AFastIterableDelegateSet<E> extends ADelegateSet<E> {
 
-    private volatile BufferingIterator<E> fastIterable = new BufferingIterator<E>();
-    private volatile boolean empty = true;;
+    private volatile BufferingIterator<E> fastIterable = new BufferingIterator<E>(getDelegate());
+    private volatile boolean empty = true;
+
+    public AFastIterableDelegateSet() {
+        refreshFastIterable();
+    }
 
     @Override
     public synchronized boolean add(final E e) {
@@ -34,7 +38,7 @@ public abstract class AFastIterableDelegateSet<E> extends ADelegateSet<E> {
     public synchronized boolean addAll(final Collection<? extends E> c) {
         final boolean added = super.addAll(c);
         if (added) {
-            refreshFastIterator();
+            refreshFastIterable();
         }
         return added;
     }
@@ -43,7 +47,7 @@ public abstract class AFastIterableDelegateSet<E> extends ADelegateSet<E> {
     public synchronized boolean remove(final Object o) {
         final boolean removed = super.remove(o);
         if (removed) {
-            refreshFastIterator();
+            refreshFastIterable();
         }
         return removed;
     }
@@ -52,12 +56,12 @@ public abstract class AFastIterableDelegateSet<E> extends ADelegateSet<E> {
     public synchronized boolean removeAll(final Collection<?> c) {
         final boolean removed = super.removeAll(c);
         if (removed) {
-            refreshFastIterator();
+            refreshFastIterable();
         }
         return removed;
     }
 
-    private void refreshFastIterator() {
+    private void refreshFastIterable() {
         fastIterable = new BufferingIterator<E>(getDelegate());
         empty = fastIterable.isEmpty();
     }
