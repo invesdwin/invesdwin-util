@@ -467,8 +467,13 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
     }
 
     private void appendCachedEntryAndResult(final FDate key, final int shiftBackUnits,
-            final Entry<FDate, V> latestEntry) {
+            final Entry<FDate, V> latestEntry) throws ResetCacheException {
         if (latestEntry != null) {
+            if (cachedPreviousResult_shiftBackUnits == null) {
+                throw new ResetCacheException(
+                        "cachedPreviousResult_shiftBackUnits is null even though it should be extended");
+            }
+
             cachedPreviousEntries.add(0, latestEntry);
 
             if (cachedPreviousResult_shiftBackUnits < shiftBackUnits) {
