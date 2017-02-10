@@ -321,7 +321,7 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
     private void updateCachedPreviousResult(final int shiftBackUnits, final List<Entry<FDate, V>> result,
             final boolean filterDuplicateKeys) throws ResetCacheException {
         if (cachedPreviousResult_shiftBackUnits != null && !cachedPreviousEntries.isEmpty() && result.size() > 1) {
-            throw new ResetCacheException("cachedPreviousResult should have been reset by preceeding code!");
+            throw new IllegalStateException("cachedPreviousResult should have been reset by preceeding code!");
         }
         if (filterDuplicateKeys) {
             cachedPreviousResult_filteringDuplicates = result;
@@ -420,7 +420,7 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
             if (!cachedPreviousEntries.isEmpty()) {
                 final Entry<FDate, V> firstCachedEntry = getFirstCachedEntry();
                 if (!firstCachedEntry.getKey().isAfterOrEqualTo(appendEntry.getKey())) {
-                    throw new ResetCacheException("appendEntry [" + appendEntry.getKey()
+                    throw new IllegalStateException("appendEntry [" + appendEntry.getKey()
                             + "] should be after firstCachedEntry [" + firstCachedEntry.getKey() + "]");
                 }
             }
@@ -449,7 +449,7 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
             if (!cachedPreviousEntries.isEmpty()) {
                 final Entry<FDate, V> lastCachedEntry = getLastCachedEntry();
                 if (!lastCachedEntry.getKey().isBefore(prependEntry.getKey())) {
-                    throw new ResetCacheException("appendEntry [" + prependEntry.getKey()
+                    throw new IllegalStateException("appendEntry [" + prependEntry.getKey()
                             + "] should be before firstCachedEntry [" + lastCachedEntry.getKey() + "]");
                 }
             }
@@ -575,7 +575,7 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
 
     private void assertUnitsBackNotExchausted(final int unitsBack) throws ResetCacheException {
         if (unitsBack < 0) {
-            throw new ResetCacheException("unitsBack should not become smaller than -1: " + unitsBack);
+            throw new IllegalStateException("unitsBack should not become smaller than -1: " + unitsBack);
         }
     }
 
