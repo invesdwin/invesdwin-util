@@ -8,7 +8,6 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.bean.tuple.ImmutableEntry;
 import de.invesdwin.util.collections.ADelegateMap;
-import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
 
 /**
@@ -42,6 +41,9 @@ public abstract class AFastIterableDelegateMap<K, V> extends ADelegateMap<K, V> 
 
         @Override
         public Iterator<Entry<K, V>> iterator() {
+            if (fastIterable == null) {
+                fastIterable = new BufferingIterator<Entry<K, V>>(getDelegate().entrySet());
+            }
             return fastIterable.iterator();
         }
 
@@ -109,7 +111,7 @@ public abstract class AFastIterableDelegateMap<K, V> extends ADelegateMap<K, V> 
 
         @Override
         public Iterator<K> iterator() {
-            final ICloseableIterator<Entry<K, V>> iterator = fastIterable.iterator();
+            final Iterator<Entry<K, V>> iterator = entrySet.iterator();
             return new Iterator<K>() {
                 @Override
                 public boolean hasNext() {
@@ -188,7 +190,7 @@ public abstract class AFastIterableDelegateMap<K, V> extends ADelegateMap<K, V> 
 
         @Override
         public Iterator<V> iterator() {
-            final ICloseableIterator<Entry<K, V>> iterator = fastIterable.iterator();
+            final Iterator<Entry<K, V>> iterator = entrySet.iterator();
             return new Iterator<V>() {
                 @Override
                 public boolean hasNext() {
@@ -257,7 +259,9 @@ public abstract class AFastIterableDelegateMap<K, V> extends ADelegateMap<K, V> 
     public V put(final K key, final V value) {
         final V prev = super.put(key, value);
         if (prev == null) {
-            fastIterable.add(ImmutableEntry.of(key, value));
+            if (fastIterable != null) {
+                fastIterable.add(ImmutableEntry.of(key, value));
+            }
             empty = false;
             size++;
         } else if (prev != value) {
@@ -284,9 +288,9 @@ public abstract class AFastIterableDelegateMap<K, V> extends ADelegateMap<K, V> 
     }
 
     private void refreshFastIterable() {
-        fastIterable = new BufferingIterator<Entry<K, V>>(getDelegate().entrySet());
-        size = fastIterable.size();
-        empty = fastIterable.isEmpty();
+        fastIterable = null;
+        size = getDelegate().size();
+        empty = size == 0;
     }
 
     @Override

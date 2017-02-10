@@ -17,9 +17,9 @@ import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
 @NotThreadSafe
 public abstract class AFastIterableDelegateSet<E> extends ADelegateSet<E> {
 
-    private BufferingIterator<E> fastIterable = new BufferingIterator<E>(getDelegate());
-    private boolean empty = true;
-    private int size = 0;
+    private BufferingIterator<E> fastIterable;
+    private boolean empty;
+    private int size;
 
     public AFastIterableDelegateSet() {
         refreshFastIterable();
@@ -29,7 +29,9 @@ public abstract class AFastIterableDelegateSet<E> extends ADelegateSet<E> {
     public boolean add(final E e) {
         final boolean added = super.add(e);
         if (added) {
-            fastIterable.add(e);
+            if (fastIterable != null) {
+                fastIterable.add(e);
+            }
             empty = false;
             size++;
         }
@@ -64,9 +66,9 @@ public abstract class AFastIterableDelegateSet<E> extends ADelegateSet<E> {
     }
 
     private void refreshFastIterable() {
-        fastIterable = new BufferingIterator<E>(getDelegate());
-        empty = fastIterable.isEmpty();
-        size = fastIterable.size();
+        fastIterable = null;
+        size = getDelegate().size();
+        empty = size == 0;
     }
 
     @Override
@@ -79,6 +81,9 @@ public abstract class AFastIterableDelegateSet<E> extends ADelegateSet<E> {
 
     @Override
     public Iterator<E> iterator() {
+        if (fastIterable == null) {
+            fastIterable = new BufferingIterator<E>(getDelegate());
+        }
         return fastIterable.iterator();
     }
 
