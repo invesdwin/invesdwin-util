@@ -19,6 +19,7 @@ public abstract class AFastIterableDelegateSet<E> extends ADelegateSet<E> {
 
     private volatile BufferingIterator<E> fastIterable = new BufferingIterator<E>(getDelegate());
     private volatile boolean empty = true;
+    private volatile int size = 0;
 
     public AFastIterableDelegateSet() {
         refreshFastIterable();
@@ -30,6 +31,7 @@ public abstract class AFastIterableDelegateSet<E> extends ADelegateSet<E> {
         if (added) {
             fastIterable.add(e);
             empty = false;
+            size++; //it is actually safe here to increment since every modifier is synchronized
         }
         return added;
     }
@@ -64,6 +66,7 @@ public abstract class AFastIterableDelegateSet<E> extends ADelegateSet<E> {
     private void refreshFastIterable() {
         fastIterable = new BufferingIterator<E>(getDelegate());
         empty = fastIterable.isEmpty();
+        size = fastIterable.size();
     }
 
     @Override
@@ -71,6 +74,7 @@ public abstract class AFastIterableDelegateSet<E> extends ADelegateSet<E> {
         super.clear();
         fastIterable = new BufferingIterator<E>();
         empty = true;
+        size = 0;
     }
 
     @Override
@@ -81,5 +85,10 @@ public abstract class AFastIterableDelegateSet<E> extends ADelegateSet<E> {
     @Override
     public boolean isEmpty() {
         return empty;
+    }
+
+    @Override
+    public int size() {
+        return size;
     }
 }
