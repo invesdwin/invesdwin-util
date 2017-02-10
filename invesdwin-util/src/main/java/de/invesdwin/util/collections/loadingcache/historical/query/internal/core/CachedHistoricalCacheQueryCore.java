@@ -381,7 +381,7 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
             final Entry<FDate, V> appendEntry = trailing.get(i);
             if (!cachedPreviousEntries.isEmpty()) {
                 final Entry<FDate, V> firstCachedEntry = getFirstCachedEntry();
-                if (!firstCachedEntry.getKey().isAfter(appendEntry.getKey())) {
+                if (!firstCachedEntry.getKey().isAfterOrEqualTo(appendEntry.getKey())) {
                     throw new IllegalArgumentException("appendEntry [" + appendEntry.getKey()
                             + "] should be after firstCachedEntry [" + firstCachedEntry.getKey() + "]");
                 }
@@ -410,7 +410,7 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
             final Entry<FDate, V> prependEntry = trailing.get(i);
             if (!cachedPreviousEntries.isEmpty()) {
                 final Entry<FDate, V> lastCachedEntry = getLastCachedEntry();
-                if (!lastCachedEntry.getKey().isBefore(prependEntry.getKey())) {
+                if (!lastCachedEntry.getKey().isBeforeOrEqualTo(prependEntry.getKey())) {
                     throw new IllegalArgumentException("appendEntry [" + prependEntry.getKey()
                             + "] should be before firstCachedEntry [" + lastCachedEntry.getKey() + "]");
                 }
