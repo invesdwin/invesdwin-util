@@ -410,7 +410,7 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
             final Entry<FDate, V> prependEntry = trailing.get(i);
             if (!cachedPreviousEntries.isEmpty()) {
                 final Entry<FDate, V> lastCachedEntry = getLastCachedEntry();
-                if (!lastCachedEntry.getKey().isBeforeOrEqualTo(prependEntry.getKey())) {
+                if (!lastCachedEntry.getKey().isBefore(prependEntry.getKey())) {
                     throw new IllegalArgumentException("appendEntry [" + prependEntry.getKey()
                             + "] should be before firstCachedEntry [" + lastCachedEntry.getKey() + "]");
                 }
