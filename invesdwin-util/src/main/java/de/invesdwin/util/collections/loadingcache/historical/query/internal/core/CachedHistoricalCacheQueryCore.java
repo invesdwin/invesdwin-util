@@ -254,8 +254,9 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
     private void assertSameLastKey(final FDate lastCachedEntryKey, final FDate lastCachedResultKey)
             throws ResetCacheException {
         if (!lastCachedEntryKey.equals(lastCachedResultKey)) {
-            throw new ResetCacheException("lastCachedEntryKey[" + lastCachedEntryKey + "] != lastCachedResultKey["
-                    + lastCachedResultKey + "]");
+            throw new ResetCacheException(
+                    "lastCachedEntryKey[" + lastCachedEntryKey + "] != lastCachedResultKey[" + lastCachedResultKey
+                            + "], might happen on far reaching recursive queries or long looped queries into the past");
         }
     }
 
