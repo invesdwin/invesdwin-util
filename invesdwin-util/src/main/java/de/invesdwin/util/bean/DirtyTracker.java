@@ -37,12 +37,13 @@ public class DirtyTracker implements Serializable {
 
     private final AValueObject root;
     private final Set<String> beanPaths;
-    private final Set<IDirtyTrackerListener> listeners = new AFastIterableDelegateSet<IDirtyTrackerListener>() {
-        @Override
-        protected Set<IDirtyTrackerListener> newDelegate() {
-            return Collections.synchronizedSet(new LinkedHashSet<IDirtyTrackerListener>());
-        }
-    };
+    private final Set<IDirtyTrackerListener> listeners = Collections
+            .synchronizedSet(new AFastIterableDelegateSet<IDirtyTrackerListener>() {
+                @Override
+                protected Set<IDirtyTrackerListener> newDelegate() {
+                    return new LinkedHashSet<IDirtyTrackerListener>();
+                }
+            });
     @GuardedBy("this")
     private final Set<String> changedBeanPaths = new LinkedHashSet<String>();
 

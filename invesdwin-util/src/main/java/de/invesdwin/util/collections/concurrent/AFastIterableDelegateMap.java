@@ -4,7 +4,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
 
-import javax.annotation.concurrent.ThreadSafe;
+import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.bean.tuple.ImmutableEntry;
 import de.invesdwin.util.collections.ADelegateMap;
@@ -17,12 +17,12 @@ import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
  * 
  * The iterator returned from this map is also suitable for concurrent modification during iteration.
  */
-@ThreadSafe
+@NotThreadSafe
 public abstract class AFastIterableDelegateMap<K, V> extends ADelegateMap<K, V> {
 
-    private volatile BufferingIterator<Entry<K, V>> fastIterable;
-    private volatile boolean empty;
-    private volatile int size;
+    private BufferingIterator<Entry<K, V>> fastIterable;
+    private boolean empty;
+    private int size;
 
     private final Set<Entry<K, V>> entrySet = new Set<Entry<K, V>>() {
         @Override
@@ -254,18 +254,18 @@ public abstract class AFastIterableDelegateMap<K, V> extends ADelegateMap<K, V> 
     }
 
     @Override
-    public synchronized V put(final K key, final V value) {
+    public V put(final K key, final V value) {
         final V prev = super.put(key, value);
         if (prev == null) {
             fastIterable.add(ImmutableEntry.of(key, value));
             empty = false;
-            size++; //it is actually safe here to increment since every modifier is synchronized
+            size++;
         }
         return prev;
     }
 
     @Override
-    public synchronized void clear() {
+    public void clear() {
         super.clear();
         fastIterable = new BufferingIterator<Entry<K, V>>();
         empty = true;
@@ -273,7 +273,7 @@ public abstract class AFastIterableDelegateMap<K, V> extends ADelegateMap<K, V> 
     }
 
     @Override
-    public synchronized V remove(final Object key) {
+    public V remove(final Object key) {
         final V removed = super.remove(key);
         if (removed != null) {
             refreshFastIterable();
@@ -288,7 +288,7 @@ public abstract class AFastIterableDelegateMap<K, V> extends ADelegateMap<K, V> 
     }
 
     @Override
-    public synchronized boolean remove(final Object key, final Object value) {
+    public boolean remove(final Object key, final Object value) {
         final boolean removed = super.remove(key, value);
         if (removed) {
             refreshFastIterable();

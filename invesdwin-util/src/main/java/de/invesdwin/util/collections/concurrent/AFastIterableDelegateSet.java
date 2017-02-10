@@ -3,7 +3,7 @@ package de.invesdwin.util.collections.concurrent;
 import java.util.Collection;
 import java.util.Iterator;
 
-import javax.annotation.concurrent.ThreadSafe;
+import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.collections.ADelegateSet;
 import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
@@ -14,30 +14,30 @@ import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
  * 
  * The iterator returned from this set is also suitable for concurrent modification during iteration.
  */
-@ThreadSafe
+@NotThreadSafe
 public abstract class AFastIterableDelegateSet<E> extends ADelegateSet<E> {
 
-    private volatile BufferingIterator<E> fastIterable = new BufferingIterator<E>(getDelegate());
-    private volatile boolean empty = true;
-    private volatile int size = 0;
+    private BufferingIterator<E> fastIterable = new BufferingIterator<E>(getDelegate());
+    private boolean empty = true;
+    private int size = 0;
 
     public AFastIterableDelegateSet() {
         refreshFastIterable();
     }
 
     @Override
-    public synchronized boolean add(final E e) {
+    public boolean add(final E e) {
         final boolean added = super.add(e);
         if (added) {
             fastIterable.add(e);
             empty = false;
-            size++; //it is actually safe here to increment since every modifier is synchronized
+            size++;
         }
         return added;
     }
 
     @Override
-    public synchronized boolean addAll(final Collection<? extends E> c) {
+    public boolean addAll(final Collection<? extends E> c) {
         final boolean added = super.addAll(c);
         if (added) {
             refreshFastIterable();
@@ -46,7 +46,7 @@ public abstract class AFastIterableDelegateSet<E> extends ADelegateSet<E> {
     }
 
     @Override
-    public synchronized boolean remove(final Object o) {
+    public boolean remove(final Object o) {
         final boolean removed = super.remove(o);
         if (removed) {
             refreshFastIterable();
@@ -55,7 +55,7 @@ public abstract class AFastIterableDelegateSet<E> extends ADelegateSet<E> {
     }
 
     @Override
-    public synchronized boolean removeAll(final Collection<?> c) {
+    public boolean removeAll(final Collection<?> c) {
         final boolean removed = super.removeAll(c);
         if (removed) {
             refreshFastIterable();
@@ -70,7 +70,7 @@ public abstract class AFastIterableDelegateSet<E> extends ADelegateSet<E> {
     }
 
     @Override
-    public synchronized void clear() {
+    public void clear() {
         super.clear();
         fastIterable = new BufferingIterator<E>();
         empty = true;

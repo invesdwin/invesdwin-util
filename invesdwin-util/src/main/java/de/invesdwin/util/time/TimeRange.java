@@ -29,7 +29,11 @@ public class TimeRange {
     }
 
     public Duration getDuration() {
-        return new Duration(from, to);
+        if (from == null || to == null) {
+            return null;
+        } else {
+            return new Duration(from, to);
+        }
     }
 
     @Override
