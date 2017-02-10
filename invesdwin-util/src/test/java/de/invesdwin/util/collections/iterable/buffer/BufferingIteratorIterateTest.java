@@ -1,9 +1,9 @@
 package de.invesdwin.util.collections.iterable.buffer;
 
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
@@ -27,8 +27,8 @@ import de.invesdwin.util.time.Instant;
 @Ignore
 public class BufferingIteratorIterateTest {
 
-    private static final int COUNT_RAND = 1000;
-    private static final int COUNT_LOOPS = 100;
+    private static final int COUNT_RAND = 100;
+    private static final int COUNT_LOOPS = 1000;
 
     @Test
     public void testListVsBufferingIteratorPerformance() throws InterruptedException {
@@ -71,13 +71,13 @@ public class BufferingIteratorIterateTest {
 
     private static long iteratorPerformanceTestBuffering(final int curTest) {
         final Instant start = new Instant();
+        final BufferingIterator<Long> list = new BufferingIterator<Long>();
+        final RandomDataGenerator r = new RandomDataGenerator(RandomGenerators.newDefaultRandom());
+        for (long ilong = 0L; ilong < COUNT_RAND; ilong++) {
+            list.add(r.nextLong(Long.MIN_VALUE, Long.MAX_VALUE));
+        }
         for (int i = 0; i < COUNT_LOOPS; i++) {
-            final BufferingIterator<Long> list = new BufferingIterator<Long>();
-            final RandomDataGenerator r = new RandomDataGenerator(RandomGenerators.newDefaultRandom());
-            for (long ilong = 0L; ilong < COUNT_RAND; ilong++) {
-                list.add(r.nextLong(Long.MIN_VALUE, Long.MAX_VALUE));
-            }
-            final ICloseableIterator<Long> iterator = list;
+            final ICloseableIterator<Long> iterator = list.iterator();
             while (iterator.hasNext()) {
                 iterator.next().hashCode();
             }
@@ -87,16 +87,15 @@ public class BufferingIteratorIterateTest {
 
     private static long iteratorPerformanceTestList(final int curTest) {
         final Instant start = new Instant();
+        final Set<Long> list = new HashSet<Long>(COUNT_RAND);
+        final RandomDataGenerator r = new RandomDataGenerator(RandomGenerators.newDefaultRandom());
+        for (long ilong = 0L; ilong < COUNT_RAND; ilong++) {
+            list.add(r.nextLong(Long.MIN_VALUE, Long.MAX_VALUE));
+        }
         for (int i = 0; i < COUNT_LOOPS; i++) {
-            final List<Long> list = new ArrayList<Long>(COUNT_RAND);
-            final RandomDataGenerator r = new RandomDataGenerator(RandomGenerators.newDefaultRandom());
-            for (long ilong = 0L; ilong < COUNT_RAND; ilong++) {
-                list.add(r.nextLong(Long.MIN_VALUE, Long.MAX_VALUE));
-            }
             final Iterator<Long> iterator = list.iterator();
             while (iterator.hasNext()) {
                 iterator.next().hashCode();
-                iterator.remove();
             }
         }
         return start.longValue();
