@@ -260,6 +260,8 @@ public abstract class AFastIterableDelegateMap<K, V> extends ADelegateMap<K, V> 
             fastIterable.add(ImmutableEntry.of(key, value));
             empty = false;
             size++;
+        } else if (prev != value) {
+            refreshFastIterable();
         }
         return prev;
     }
