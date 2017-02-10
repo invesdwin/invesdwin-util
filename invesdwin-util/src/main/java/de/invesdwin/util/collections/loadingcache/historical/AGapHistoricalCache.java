@@ -297,7 +297,7 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
             }
             furtherValues.clear();
             lastValuesFromFurtherValues.clear();
-            furtherValues.addAll(readAllValuesAscendingFrom(keyForReadAllValues));
+            furtherValues.consume(readAllValuesAscendingFrom(keyForReadAllValues));
 
             if (!furtherValues.isEmpty()) {
                 assertFurtherValuesSorting(key);

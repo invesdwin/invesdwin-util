@@ -29,6 +29,10 @@ public class BufferingIterator<E> implements IBufferingIterator<E> {
 
     public BufferingIterator() {}
 
+    public BufferingIterator(final BufferingIterator<E> iterable) {
+        addAll(iterable);
+    }
+
     public BufferingIterator(final Iterator<? extends E> iterator) {
         addAll(iterator);
     }
@@ -92,17 +96,15 @@ public class BufferingIterator<E> implements IBufferingIterator<E> {
     public void addAll(final Iterable<? extends E> iterable) {
         if (iterable == null) {
             return;
-        } else if (iterable instanceof BufferingIterator) {
-            @SuppressWarnings("unchecked")
-            final BufferingIterator<E> cIterable = (BufferingIterator<E>) iterable;
-            size += cIterable.size;
-            if (head == null) {
-                head = cIterable.head;
-            } else {
-                tail.setNext(cIterable.head);
-            }
-            tail = cIterable.tail;
-            cIterable.clear();
+        } else {
+            addAll(iterable.iterator());
+        }
+    }
+
+    @Override
+    public void addAll(final BufferingIterator<E> iterable) {
+        if (iterable == null) {
+            return;
         } else {
             addAll(iterable.iterator());
         }
@@ -112,33 +114,72 @@ public class BufferingIterator<E> implements IBufferingIterator<E> {
     public void addAll(final Iterator<? extends E> iterator) {
         if (iterator == null) {
             return;
-        }
-        Node prev = tail;
-        try {
-            if (tail == null) {
-                prev = new Node(iterator.next());
-                size++;
-            }
-            if (head == null) {
-                head = prev;
-            }
-            while (true) {
-                final Node next = new Node(iterator.next());
-                prev.setNext(next);
-                prev = next;
-                size++;
-            }
-        } catch (final NoSuchElementException e) {
-            if (iterator instanceof Closeable) {
-                final Closeable cIterator = (Closeable) iterator;
-                try {
-                    cIterator.close();
-                } catch (final IOException e1) {
-                    throw new RuntimeException(e1);
+        } else {
+            Node prev = tail;
+            try {
+                if (tail == null) {
+                    prev = new Node(iterator.next());
+                    size++;
+                }
+                if (head == null) {
+                    head = prev;
+                }
+                while (true) {
+                    final Node next = new Node(iterator.next());
+                    prev.setNext(next);
+                    prev = next;
+                    size++;
+                }
+            } catch (final NoSuchElementException e) {
+                if (iterator instanceof Closeable) {
+                    final Closeable cIterator = (Closeable) iterator;
+                    try {
+                        cIterator.close();
+                    } catch (final IOException e1) {
+                        throw new RuntimeException(e1);
+                    }
                 }
             }
+            tail = prev;
         }
-        tail = prev;
+    }
+
+    @Override
+    public void consume(final Iterable<? extends E> iterable) {
+        if (iterable == null) {
+            return;
+        } else if (iterable instanceof BufferingIterator) {
+            @SuppressWarnings("unchecked")
+            final BufferingIterator<E> cIterable = (BufferingIterator<E>) iterable;
+            consume(cIterable);
+        } else {
+            addAll(iterable.iterator());
+        }
+    }
+
+    @Override
+    public void consume(final Iterator<? extends E> iterator) {
+        if (iterator == null) {
+            return;
+        } else if (iterator instanceof BufferingIterator) {
+            @SuppressWarnings("unchecked")
+            final BufferingIterator<E> cIterable = (BufferingIterator<E>) iterator;
+            consume(cIterable);
+        } else {
+            addAll(iterator);
+        }
+    }
+
+    @Override
+    public void consume(final BufferingIterator<E> iterator) {
+        size += iterator.size;
+        if (head == null) {
+            head = iterator.head;
+        } else {
+            tail.setNext(iterator.head);
+        }
+        tail = iterator.tail;
+        iterator.clear();
     }
 
     @Override
@@ -164,6 +205,11 @@ public class BufferingIterator<E> implements IBufferingIterator<E> {
 
         Node(final E value) {
             this.value = value;
+        }
+
+        Node(final Node copy) {
+            this.value = copy.value;
+            this.next = copy.next;
         }
 
         public E getValue() {
