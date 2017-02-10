@@ -17,6 +17,7 @@ import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
 @NotThreadSafe
 public abstract class AFastIterableDelegateSet<E> extends ADelegateSet<E> {
 
+    //arraylist wins in raw iterator speed compared to bufferingIterator since no remove is needed, though we need protection against concurrent modification
     private BufferingIterator<E> fastIterable;
     private boolean empty;
     private int size;

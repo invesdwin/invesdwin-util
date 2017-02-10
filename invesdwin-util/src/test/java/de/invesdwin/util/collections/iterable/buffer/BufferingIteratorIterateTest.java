@@ -1,7 +1,8 @@
-package de.invesdwin.util.collections.loadingcache.historical;
+package de.invesdwin.util.collections.iterable.buffer;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -13,6 +14,7 @@ import org.apache.commons.math3.random.RandomDataGenerator;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.concurrent.Executors;
 import de.invesdwin.util.concurrent.Futures;
 import de.invesdwin.util.math.decimal.Decimal;
@@ -20,19 +22,16 @@ import de.invesdwin.util.math.decimal.scaled.Percent;
 import de.invesdwin.util.math.decimal.scaled.PercentScale;
 import de.invesdwin.util.math.random.RandomGenerators;
 import de.invesdwin.util.time.Instant;
-import de.invesdwin.util.time.fdate.FDate;
 
-// CHECKSTYLE:OFF
 @NotThreadSafe
 @Ignore
-public class AHistoricalCacheTest {
-    //CHECKSTYLE:ON
+public class BufferingIteratorIterateTest {
 
-    private static final int COUNT_RAND = 10000;
-    private static final int COUNT_LOOPS = 1000;
+    private static final int COUNT_RAND = 1000;
+    private static final int COUNT_LOOPS = 100;
 
     @Test
-    public void testLongVsDateHashcodePerformance() throws InterruptedException {
+    public void testListVsBufferingIteratorPerformance() throws InterruptedException {
         final AtomicLong date = new AtomicLong();
         final AtomicLong l = new AtomicLong();
         final int runs = 100;
@@ -40,7 +39,7 @@ public class AHistoricalCacheTest {
             @Override
             public void run() {
                 for (int i = 0; i < runs; i++) {
-                    date.addAndGet(hashcodePerformanceTestDate(i));
+                    date.addAndGet(iteratorPerformanceTestBuffering(i));
                 }
             };
         };
@@ -48,7 +47,7 @@ public class AHistoricalCacheTest {
             @Override
             public void run() {
                 for (int i = 0; i < runs; i++) {
-                    l.addAndGet(hashcodePerformanceTestLong(i));
+                    l.addAndGet(iteratorPerformanceTestList(i));
                 }
             };
         };
@@ -58,43 +57,46 @@ public class AHistoricalCacheTest {
         newCachedThreadPool.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
         final boolean dateIsFaster = date.get() < l.get();
         if (dateIsFaster) {
-            System.out.println(String.format("dateIsFaster " //SUPPRESS CHECKSTYLE single line
+            System.out.println(String.format("bufferingIsFaster " //SUPPRESS CHECKSTYLE single line
                     + TimeUnit.MILLISECONDS.convert(l.get() - date.get(), TimeUnit.NANOSECONDS) + "ms "
                     + new Percent(Decimal.valueOf(date.get()), Decimal.valueOf(l.get()))
                             .getValue(PercentScale.PERCENT)));
         } else {
-            System.out.println(String.format("longIsFaster " //SUPPRESS CHECKSTYLE single line
+            System.out.println(String.format("listIsFaster " //SUPPRESS CHECKSTYLE single line
                     + TimeUnit.MILLISECONDS.convert(date.get() - l.get(), TimeUnit.NANOSECONDS) + "ms "
                     + new Percent(Decimal.valueOf(l.get()), Decimal.valueOf(date.get()))
                             .getValue(PercentScale.PERCENT)));
         }
     }
 
-    private static long hashcodePerformanceTestDate(final int curTest) {
-        final List<Long> list = new ArrayList<Long>();
-        final RandomDataGenerator r = new RandomDataGenerator(RandomGenerators.newDefaultRandom());
-        for (long i = 0L; i < COUNT_RAND; i++) {
-            list.add(r.nextLong(Long.MIN_VALUE, Long.MAX_VALUE));
-        }
+    private static long iteratorPerformanceTestBuffering(final int curTest) {
         final Instant start = new Instant();
         for (int i = 0; i < COUNT_LOOPS; i++) {
-            for (final Long l : list) {
-                l.hashCode();
+            final BufferingIterator<Long> list = new BufferingIterator<Long>();
+            final RandomDataGenerator r = new RandomDataGenerator(RandomGenerators.newDefaultRandom());
+            for (long ilong = 0L; ilong < COUNT_RAND; ilong++) {
+                list.add(r.nextLong(Long.MIN_VALUE, Long.MAX_VALUE));
+            }
+            final ICloseableIterator<Long> iterator = list;
+            while (iterator.hasNext()) {
+                iterator.next().hashCode();
             }
         }
         return start.longValue();
     }
 
-    private static long hashcodePerformanceTestLong(final int curTest) {
-        final List<FDate> list = new ArrayList<FDate>();
-        final RandomDataGenerator r = new RandomDataGenerator(RandomGenerators.newDefaultRandom());
-        for (long i = 0L; i < COUNT_RAND; i++) {
-            list.add(new FDate(r.nextLong(Long.MIN_VALUE, Long.MAX_VALUE)));
-        }
+    private static long iteratorPerformanceTestList(final int curTest) {
         final Instant start = new Instant();
         for (int i = 0; i < COUNT_LOOPS; i++) {
-            for (final FDate l : list) {
-                l.hashCode();
+            final List<Long> list = new ArrayList<Long>(COUNT_RAND);
+            final RandomDataGenerator r = new RandomDataGenerator(RandomGenerators.newDefaultRandom());
+            for (long ilong = 0L; ilong < COUNT_RAND; ilong++) {
+                list.add(r.nextLong(Long.MIN_VALUE, Long.MAX_VALUE));
+            }
+            final Iterator<Long> iterator = list.iterator();
+            while (iterator.hasNext()) {
+                iterator.next().hashCode();
+                iterator.remove();
             }
         }
         return start.longValue();

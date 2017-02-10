@@ -16,7 +16,8 @@ import de.invesdwin.util.lang.Objects;
  * shorty as possible, then serve the items from memory and removing them on the go to keep memory consumption low.
  * 
  * Helpful to fix too many open files during iteration of lots of files in parallel without too much of a performance
- * overhead.
+ * overhead. This is not a replacement for classic lists, since those can be iterated faster if no item removal is
+ * required. Though BufferingIterator beats HashSets in raw iteration speed.
  * 
  * Also a faster alternative to any list when only iteration is needed.
  */
