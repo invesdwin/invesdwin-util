@@ -31,6 +31,9 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
         }
     };
 
+    private Boolean isZero;
+    private Boolean isPositive;
+
     public abstract ADecimalImpl getImpl();
 
     /**
@@ -157,7 +160,10 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
     }
 
     public boolean isZero() {
-        return getImpl().isZero();
+        if (isZero == null) {
+            isZero = getImpl().isZero();
+        }
+        return isZero;
     }
 
     public final boolean isNotZero() {
@@ -168,7 +174,10 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
      * 0 is counted as positive as well here to make things simpler.
      */
     public boolean isPositive() {
-        return getImpl().isPositive();
+        if (isPositive == null) {
+            isPositive = getImpl().isPositive();
+        }
+        return isPositive;
     }
 
     /**

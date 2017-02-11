@@ -36,9 +36,6 @@ public class DoubleDecimalImpl extends ADecimalImpl<DoubleDecimalImpl, Double> {
                 .isEqualTo(ADecimal.DEFAULT_ROUNDING_SCALE);
     }
 
-    private Boolean isZero;
-    private Boolean isPositive;
-
     public DoubleDecimalImpl(final Double value, final Double defaultRoundedValue) {
         super(value, defaultRoundedValue);
         final double doubleValue = getValue();
@@ -52,18 +49,12 @@ public class DoubleDecimalImpl extends ADecimalImpl<DoubleDecimalImpl, Double> {
 
     @Override
     public boolean isZero() {
-        if (isZero == null) {
-            isZero = internalCompareTo(ZERO_IMPL) == 0;
-        }
-        return isZero;
+        return internalCompareTo(ZERO_IMPL) == 0;
     }
 
     @Override
     public boolean isPositive() {
-        if (isPositive == null) {
-            isPositive = getDefaultRoundedValue() >= ZERO;
-        }
-        return isPositive;
+        return getDefaultRoundedValue() >= ZERO;
     }
 
     @Override
