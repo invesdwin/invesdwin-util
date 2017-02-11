@@ -1,8 +1,8 @@
 package de.invesdwin.util.collections.iterable;
 
-import java.util.NoSuchElementException;
-
 import javax.annotation.concurrent.NotThreadSafe;
+
+import de.invesdwin.util.error.FastNoSuchElementException;
 
 /**
  * This implementation is faster than Iterators.limit() when not using hasNext() and instead relying on next() and
@@ -33,7 +33,7 @@ public class LimitingIterator<E> implements ICloseableIterator<E> {
     public E next() {
         if (curCount >= limit) {
             close();
-            throw new NoSuchElementException();
+            throw new FastNoSuchElementException("LimitingIterator: next reached limit");
         }
         curCount++;
         return delegate.next();

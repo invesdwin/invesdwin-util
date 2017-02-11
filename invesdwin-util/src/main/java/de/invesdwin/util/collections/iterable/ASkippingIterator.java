@@ -4,6 +4,8 @@ import java.util.NoSuchElementException;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.util.error.FastNoSuchElementException;
+
 @NotThreadSafe
 public abstract class ASkippingIterator<E> implements ICloseableIterator<E> {
 
@@ -24,12 +26,11 @@ public abstract class ASkippingIterator<E> implements ICloseableIterator<E> {
         final E readNext = readNext();
         cachedReadNext = null;
         if (readNext == null) {
-            throw new NoSuchElementException();
+            throw new FastNoSuchElementException("ASkippingIterator: readNext is null");
         }
         return readNext;
     }
 
-    @SuppressWarnings("null")
     private E readNext() {
         if (cachedReadNext != null) {
             return cachedReadNext;

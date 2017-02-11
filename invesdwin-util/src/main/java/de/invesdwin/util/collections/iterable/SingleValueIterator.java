@@ -1,8 +1,8 @@
 package de.invesdwin.util.collections.iterable;
 
-import java.util.NoSuchElementException;
-
 import javax.annotation.concurrent.NotThreadSafe;
+
+import de.invesdwin.util.error.FastNoSuchElementException;
 
 @NotThreadSafe
 public class SingleValueIterator<E> implements ICloseableIterator<E> {
@@ -25,7 +25,7 @@ public class SingleValueIterator<E> implements ICloseableIterator<E> {
             singleValue = null;
             return ret;
         } else {
-            throw new NoSuchElementException();
+            throw new FastNoSuchElementException("SingleValueIterator: hasNext is false");
         }
     }
 

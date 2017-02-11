@@ -2,7 +2,6 @@ package de.invesdwin.util.collections.iterable.concurrent;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 
@@ -14,6 +13,7 @@ import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.concurrent.Executors;
 import de.invesdwin.util.concurrent.Futures;
 import de.invesdwin.util.concurrent.WrappedExecutorService;
+import de.invesdwin.util.error.FastNoSuchElementException;
 
 @ThreadSafe
 public abstract class AParallelChunkConsumerIterator<R, E> extends ACloseableIterator<E> {
@@ -56,14 +56,14 @@ public abstract class AParallelChunkConsumerIterator<R, E> extends ACloseableIte
             futures.add(submit);
         }
         if (futures.isEmpty()) {
-            throw new NoSuchElementException();
+            throw new FastNoSuchElementException("AParallelChunkConsumerIterator: futures is empty");
         }
         final Future<E> future = futures.remove(0);
         try {
             return Futures.get(future);
         } catch (final InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new NoSuchElementException();
+            throw new FastNoSuchElementException("AParallelChunkConsumerIterator: InterrupedException received");
         }
     }
 

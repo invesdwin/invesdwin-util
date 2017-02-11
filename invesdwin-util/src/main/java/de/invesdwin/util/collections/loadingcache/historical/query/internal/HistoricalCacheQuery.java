@@ -3,7 +3,6 @@ package de.invesdwin.util.collections.loadingcache.historical.query.internal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.NoSuchElementException;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
@@ -16,6 +15,7 @@ import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCa
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQueryElementFilter;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQueryWithFuture;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.IHistoricalCacheQueryCore;
+import de.invesdwin.util.error.FastNoSuchElementException;
 import de.invesdwin.util.time.fdate.FDate;
 
 @NotThreadSafe
@@ -372,7 +372,8 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
                                 }
                                 return currentEntry;
                             } else {
-                                throw new NoSuchElementException();
+                                throw new FastNoSuchElementException(
+                                        "HistoricalCacheQuery: getEntries hasNext is false");
                             }
                         }
 

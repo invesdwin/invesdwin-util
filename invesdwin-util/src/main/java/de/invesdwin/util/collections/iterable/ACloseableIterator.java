@@ -4,6 +4,7 @@ import java.util.NoSuchElementException;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.util.error.FastNoSuchElementException;
 import de.invesdwin.util.error.Throwables;
 
 @NotThreadSafe
@@ -81,7 +82,7 @@ public abstract class ACloseableIterator<E> implements ICloseableIterator<E> {
     @Override
     public final E next() {
         if (isClosed()) {
-            throw new NoSuchElementException("closed");
+            throw new FastNoSuchElementException("ACloseableIterator: next blocked because already closed");
         }
         createNextStackTrace();
         final E next;
@@ -89,11 +90,12 @@ public abstract class ACloseableIterator<E> implements ICloseableIterator<E> {
             next = innerNext();
         } catch (final NoSuchElementException e) {
             close();
-            throw e;
+            throw FastNoSuchElementException.maybeReplace(e,
+                    "ACloseableIterator: innerNext threw NoSuchElementException");
         }
         if (next == null) {
             close();
-            throw new NoSuchElementException("null element");
+            throw new FastNoSuchElementException("ACloseableIterator: next is null");
         }
         return next;
     }
@@ -103,7 +105,7 @@ public abstract class ACloseableIterator<E> implements ICloseableIterator<E> {
     @Override
     public final void remove() {
         if (isClosed()) {
-            throw new NoSuchElementException("closed");
+            throw new FastNoSuchElementException("ACloseableIterator: remove blocked because already closed");
         }
         innerRemove();
     }

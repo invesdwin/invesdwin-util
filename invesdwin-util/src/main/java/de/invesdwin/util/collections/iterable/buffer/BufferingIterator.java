@@ -9,6 +9,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.collections.Lists;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
+import de.invesdwin.util.error.FastNoSuchElementException;
 import de.invesdwin.util.lang.Objects;
 
 /**
@@ -250,7 +251,7 @@ public class BufferingIterator<E> implements IBufferingIterator<E> {
             @Override
             public E next() {
                 if (!hasNext()) {
-                    throw new NoSuchElementException();
+                    throw new FastNoSuchElementException("BufferingIterator: hasNext is false");
                 }
                 final E value = innerHead.getValue();
                 innerHead = innerHead.getNext();

@@ -3,7 +3,6 @@ package de.invesdwin.util.time.fdate;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
-import java.util.NoSuchElementException;
 import java.util.TimeZone;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -12,6 +11,7 @@ import org.joda.time.DateTimeZone;
 
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
+import de.invesdwin.util.error.FastNoSuchElementException;
 import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.time.duration.Duration;
 
@@ -109,7 +109,7 @@ public final class FDates {
                             return spot;
                         } else {
                             if (spot.isAfter(endFinal)) {
-                                throw new NoSuchElementException();
+                                throw new FastNoSuchElementException("FDateIterable: incrementing next reached end");
                             }
                             spot = spot.add(timeUnit, incrementAmount);
                             if (spot.isAfter(endFinal)) {
@@ -149,7 +149,7 @@ public final class FDates {
                             return spot;
                         } else {
                             if (spot.isBefore(endFinal)) {
-                                throw new NoSuchElementException();
+                                throw new FastNoSuchElementException("FDateIterable: decrementing next reached end");
                             }
                             spot = spot.add(timeUnit, incrementAmount);
                             if (spot.isBefore(endFinal)) {

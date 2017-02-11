@@ -16,6 +16,7 @@ import de.invesdwin.util.collections.iterable.ACloseableIterator;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.concurrent.Executors;
 import de.invesdwin.util.concurrent.WrappedExecutorService;
+import de.invesdwin.util.error.FastNoSuchElementException;
 
 @NotThreadSafe
 public class ProducerQueueIterator<E> extends ACloseableIterator<E> {
@@ -133,7 +134,7 @@ public class ProducerQueueIterator<E> extends ACloseableIterator<E> {
             nextElement = readNext();
             return curElement;
         } else {
-            throw new NoSuchElementException();
+            throw new FastNoSuchElementException("ProducerQueueIterator: hasNext is false");
         }
     }
 

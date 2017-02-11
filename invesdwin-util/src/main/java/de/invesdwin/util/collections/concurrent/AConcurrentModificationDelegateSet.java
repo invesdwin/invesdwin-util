@@ -18,6 +18,7 @@ import de.invesdwin.util.collections.ADelegateCollection;
 import de.invesdwin.util.collections.iterable.EmptyCloseableIterator;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
+import de.invesdwin.util.error.FastNoSuchElementException;
 
 /**
  * You might want to use AFastIterableDelegateMap for a faster alternative to this implementation for read heavy
@@ -140,7 +141,8 @@ public abstract class AConcurrentModificationDelegateSet<E> extends ADelegateCol
                     return delegate.next();
                 } catch (final NoSuchElementException e) {
                     close();
-                    throw e;
+                    throw FastNoSuchElementException.maybeReplace(e,
+                            "AConcurrentModificationDelegateSet: next threw NoSuchElementException");
                 }
             }
 

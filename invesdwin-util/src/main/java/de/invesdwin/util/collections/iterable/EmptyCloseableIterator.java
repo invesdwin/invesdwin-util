@@ -1,8 +1,8 @@
 package de.invesdwin.util.collections.iterable;
 
-import java.util.NoSuchElementException;
-
 import javax.annotation.concurrent.Immutable;
+
+import de.invesdwin.util.error.FastNoSuchElementException;
 
 @Immutable
 public final class EmptyCloseableIterator<E> implements ICloseableIterator<E> {
@@ -19,7 +19,7 @@ public final class EmptyCloseableIterator<E> implements ICloseableIterator<E> {
 
     @Override
     public E next() {
-        throw new NoSuchElementException();
+        throw new FastNoSuchElementException("EmptyCloseableIterator: always empty");
     }
 
     @Override
