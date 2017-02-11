@@ -19,6 +19,7 @@ import de.invesdwin.util.math.decimal.config.BSplineInterpolationConfig;
 import de.invesdwin.util.math.decimal.config.InterpolationConfig;
 import de.invesdwin.util.math.decimal.config.LoessInterpolationConfig;
 import de.invesdwin.util.math.decimal.stream.DecimalPoint;
+import de.invesdwin.util.math.decimal.stream.DecimalStreamAvgWeightedAsc;
 import de.invesdwin.util.math.decimal.stream.DecimalStreamGeomAvg;
 import de.invesdwin.util.math.decimal.stream.DecimalStreamNormalization;
 import de.invesdwin.util.math.decimal.stream.DecimalStreamRelativeDetrending;
@@ -104,15 +105,11 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
      */
     @Override
     public E avgWeightedAsc() {
-        int sumOfWeights = 0;
-        Decimal sumOfWeightedValues = Decimal.ZERO;
-        final int size = count();
-        for (int i = 0, weight = 1; i < size; i++, weight++) {
-            final Decimal weightedValue = values.get(i).getDefaultValue().multiply(weight);
-            sumOfWeights += weight;
-            sumOfWeightedValues = sumOfWeightedValues.add(weightedValue);
+        final DecimalStreamAvgWeightedAsc<E> avgWeightedAsc = new DecimalStreamAvgWeightedAsc<E>(getConverter());
+        for (final E value : values) {
+            avgWeightedAsc.process(value);
         }
-        return getConverter().fromDefaultValue(sumOfWeightedValues.divide(sumOfWeights));
+        return avgWeightedAsc.getAvgWeightedAsc();
     }
 
     /**
