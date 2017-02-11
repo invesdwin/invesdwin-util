@@ -23,6 +23,7 @@ public class LimitingIterator<E> implements ICloseableIterator<E> {
     @Override
     public boolean hasNext() {
         if (curCount >= limit) {
+            close();
             return false;
         }
         return delegate.hasNext();
@@ -31,6 +32,7 @@ public class LimitingIterator<E> implements ICloseableIterator<E> {
     @Override
     public E next() {
         if (curCount >= limit) {
+            close();
             throw new NoSuchElementException();
         }
         curCount++;
