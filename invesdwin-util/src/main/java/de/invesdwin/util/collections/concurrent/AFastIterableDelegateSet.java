@@ -1,5 +1,6 @@
 package de.invesdwin.util.collections.concurrent;
 
+import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -19,6 +20,7 @@ public abstract class AFastIterableDelegateSet<E> extends ADelegateSet<E> {
 
     //arraylist wins in raw iterator speed compared to bufferingIterator since no remove is needed, though we need protection against concurrent modification
     private BufferingIterator<E> fastIterable;
+    private E[] array;
     private boolean empty;
     private int size;
 
@@ -33,6 +35,7 @@ public abstract class AFastIterableDelegateSet<E> extends ADelegateSet<E> {
             if (fastIterable != null) {
                 fastIterable.add(e);
             }
+            array = null;
             empty = false;
             size++;
         }
@@ -68,6 +71,7 @@ public abstract class AFastIterableDelegateSet<E> extends ADelegateSet<E> {
 
     private void refreshFastIterable() {
         fastIterable = null;
+        array = null;
         size = getDelegate().size();
         empty = size == 0;
     }
@@ -76,6 +80,7 @@ public abstract class AFastIterableDelegateSet<E> extends ADelegateSet<E> {
     public void clear() {
         super.clear();
         fastIterable = new BufferingIterator<E>();
+        array = null;
         empty = true;
         size = 0;
     }
@@ -96,5 +101,14 @@ public abstract class AFastIterableDelegateSet<E> extends ADelegateSet<E> {
     @Override
     public int size() {
         return size;
+    }
+
+    @SuppressWarnings("unchecked")
+    public E[] asArray(final Class<E> type) {
+        if (array == null) {
+            final E[] empty = (E[]) Array.newInstance(type, size());
+            array = toArray(empty);
+        }
+        return array;
     }
 }

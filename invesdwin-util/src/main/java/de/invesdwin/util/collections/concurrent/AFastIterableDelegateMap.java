@@ -1,5 +1,6 @@
 package de.invesdwin.util.collections.concurrent;
 
+import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
@@ -24,6 +25,9 @@ public abstract class AFastIterableDelegateMap<K, V> extends ADelegateMap<K, V> 
     private boolean empty;
     private int size;
 
+    private Entry<K, V>[] entryArray;
+    private K[] keyArray;
+    private V[] valueArray;
     private final Set<Entry<K, V>> entrySet = new Set<Entry<K, V>>() {
         @Override
         public int size() {
@@ -263,6 +267,9 @@ public abstract class AFastIterableDelegateMap<K, V> extends ADelegateMap<K, V> 
             if (fastIterable != null) {
                 fastIterable.add(ImmutableEntry.of(key, value));
             }
+            entryArray = null;
+            keyArray = null;
+            valueArray = null;
             empty = false;
             size++;
         } else if (prev != value) {
@@ -275,6 +282,9 @@ public abstract class AFastIterableDelegateMap<K, V> extends ADelegateMap<K, V> 
     public void clear() {
         super.clear();
         fastIterable = new BufferingIterator<Entry<K, V>>();
+        entryArray = null;
+        keyArray = null;
+        valueArray = null;
         empty = true;
         size = 0;
     }
@@ -290,6 +300,9 @@ public abstract class AFastIterableDelegateMap<K, V> extends ADelegateMap<K, V> 
 
     private void refreshFastIterable() {
         fastIterable = null;
+        entryArray = null;
+        keyArray = null;
+        valueArray = null;
         size = getDelegate().size();
         empty = size == 0;
     }
@@ -308,14 +321,41 @@ public abstract class AFastIterableDelegateMap<K, V> extends ADelegateMap<K, V> 
         return values;
     }
 
+    @SuppressWarnings("unchecked")
+    public V[] asValueArray(final Class<V> valueType) {
+        if (valueArray == null) {
+            final V[] empty = (V[]) Array.newInstance(valueType, size());
+            valueArray = values.toArray(empty);
+        }
+        return valueArray;
+    }
+
     @Override
     public Set<K> keySet() {
         return keySet;
     }
 
+    @SuppressWarnings("unchecked")
+    public K[] asKeyArray(final Class<K> keyType) {
+        if (keyArray == null) {
+            final K[] empty = (K[]) Array.newInstance(keyType, size());
+            keyArray = keySet.toArray(empty);
+        }
+        return keyArray;
+    }
+
     @Override
     public Set<Entry<K, V>> entrySet() {
         return entrySet;
+    }
+
+    @SuppressWarnings("unchecked")
+    public Entry<K, V>[] asEntryArray() {
+        if (entryArray == null) {
+            final Entry<K, V>[] empty = (Entry<K, V>[]) Array.newInstance(Entry.class, size());
+            entryArray = entrySet.toArray(empty);
+        }
+        return entryArray;
     }
 
     @Override
