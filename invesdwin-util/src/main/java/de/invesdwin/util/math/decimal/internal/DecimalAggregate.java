@@ -104,7 +104,15 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
      */
     @Override
     public E avgWeightedAsc() {
-        return reverse().avgWeightedDesc();
+        int sumOfWeights = 0;
+        Decimal sumOfWeightedValues = Decimal.ZERO;
+        final int size = count();
+        for (int i = 0, weight = 1; i < size; i++, weight++) {
+            final Decimal weightedValue = values.get(i).getDefaultValue().multiply(weight);
+            sumOfWeights += weight;
+            sumOfWeightedValues = sumOfWeightedValues.add(weightedValue);
+        }
+        return getConverter().fromDefaultValue(sumOfWeightedValues.divide(sumOfWeights));
     }
 
     /**
