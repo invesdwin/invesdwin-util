@@ -48,14 +48,12 @@ public class Triple<FIRST, SECOND, THIRD> extends Pair<FIRST, SECOND> {
     }
 
     @Override
-    public int internalHashCode() {
+    public int hashCode() {
         return Objects.hashCode(getClass(), getFirst(), getSecond(), getThird());
     }
 
-    //CHECKSTYLE:OFF
     @Override
     public boolean equals(final Object obj) {
-        //CHECKSTYLE:ON
         if (obj instanceof Triple) {
             final Triple<?, ?, ?> castObj = (Triple<?, ?, ?>) obj;
             return Objects.equals(getFirst(), castObj.getFirst()) && Objects.equals(getSecond(), castObj.getSecond())
