@@ -6,19 +6,11 @@ import java.util.Iterator;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import de.invesdwin.util.collections.ADelegateSet;
+import de.invesdwin.util.collections.ADelegateList;
 import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
 
-/**
- * Boosts the iteration speed over the values by keeping a fast iterator instance that only gets modified when changes
- * to the map occur.
- * 
- * The iterator returned from this set is also suitable for concurrent modification during iteration.
- * 
- * http://stackoverflow.com/questions/1006395/fastest-way-to-iterate-an-array-in-java-loop-variable-vs-enhanced-for-statement
- */
 @NotThreadSafe
-public abstract class AFastIterableDelegateSet<E> extends ADelegateSet<E> {
+public abstract class AFastIterableDelegateList<E> extends ADelegateList<E> {
 
     //arraylist wins in raw iterator speed compared to bufferingIterator since no remove is needed, though we need protection against concurrent modification
     private BufferingIterator<E> fastIterable;
@@ -26,7 +18,7 @@ public abstract class AFastIterableDelegateSet<E> extends ADelegateSet<E> {
     private boolean empty;
     private int size;
 
-    public AFastIterableDelegateSet() {
+    public AFastIterableDelegateList() {
         refreshFastIterable();
     }
 
@@ -54,6 +46,21 @@ public abstract class AFastIterableDelegateSet<E> extends ADelegateSet<E> {
     }
 
     @Override
+    public boolean addAll(final int index, final Collection<? extends E> c) {
+        final boolean added = super.addAll(index, c);
+        if (added) {
+            refreshFastIterable();
+        }
+        return added;
+    }
+
+    @Override
+    public void add(final int index, final E element) {
+        super.add(index, element);
+        refreshFastIterable();
+    }
+
+    @Override
     public boolean remove(final Object o) {
         final boolean removed = super.remove(o);
         if (removed) {
@@ -68,6 +75,13 @@ public abstract class AFastIterableDelegateSet<E> extends ADelegateSet<E> {
         if (removed) {
             refreshFastIterable();
         }
+        return removed;
+    }
+
+    @Override
+    public E remove(final int index) {
+        final E removed = super.remove(index);
+        refreshFastIterable();
         return removed;
     }
 
