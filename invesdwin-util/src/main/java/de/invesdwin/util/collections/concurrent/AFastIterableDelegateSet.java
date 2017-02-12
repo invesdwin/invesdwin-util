@@ -14,6 +14,8 @@ import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
  * to the map occur.
  * 
  * The iterator returned from this set is also suitable for concurrent modification during iteration.
+ * 
+ * http://stackoverflow.com/questions/1006395/fastest-way-to-iterate-an-array-in-java-loop-variable-vs-enhanced-for-statement
  */
 @NotThreadSafe
 public abstract class AFastIterableDelegateSet<E> extends ADelegateSet<E> {
