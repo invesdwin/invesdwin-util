@@ -390,7 +390,8 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
     }
 
     private int fillFromQueryUntilCacheCanBeUsed(final IHistoricalCacheQueryInternalMethods<V> query,
-            final int shiftBackUnits, final FDate key, final List<Entry<FDate, V>> trailing) {
+            final int shiftBackUnits, final FDate key, final List<Entry<FDate, V>> trailing)
+            throws ResetCacheException {
         int unitsBack = shiftBackUnits - 1;
         //go through query as long as we found the first entry in the cache
         final GetPreviousEntryQueryImpl<V> impl = new GetPreviousEntryQueryImpl<V>(this, query, key, shiftBackUnits);
@@ -618,7 +619,10 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
         return newUnitsBack;
     }
 
-    private Entry<FDate, V> getLastCachedEntry() {
+    private Entry<FDate, V> getLastCachedEntry() throws ResetCacheException {
+        if (cachedPreviousEntries.isEmpty()) {
+            throw new ResetCacheException("lastCachedEntry cannot be retrieved since cachedPreviousEntries is empty");
+        }
         return cachedPreviousEntries.get(0);
     }
 
