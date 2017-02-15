@@ -65,6 +65,8 @@ public abstract class AScaledDecimal<T extends AScaledDecimal<T, S>, S extends I
             clone.scaledValue = null;
             clone.impl = null;
             clone.defaultValue = value;
+            clone.isPositive = null;
+            clone.isZero = null;
             return (T) clone;
         } catch (final CloneNotSupportedException e) {
             throw new RuntimeException(e);

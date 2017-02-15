@@ -31,8 +31,8 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
         }
     };
 
-    private Boolean isZero;
-    private Boolean isPositive;
+    protected Boolean isZero;
+    protected Boolean isPositive;
 
     public abstract ADecimalImpl getImpl();
 
