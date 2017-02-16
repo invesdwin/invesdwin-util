@@ -10,6 +10,7 @@ import javax.annotation.concurrent.ThreadSafe;
 
 import com.google.common.cache.CacheBuilder;
 
+import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
 import de.invesdwin.util.concurrent.Executors;
 import de.invesdwin.util.time.duration.Duration;
@@ -108,11 +109,11 @@ public final class HistoricalCacheRefreshManager {
     }
 
     public static void register(final AHistoricalCache<?> cache) {
-        REGISTERED_CACHES.add(cache);
+        Assertions.checkTrue(REGISTERED_CACHES.add(cache));
     }
 
     public static void unregister(final AHistoricalCache<?> cache) {
-        REGISTERED_CACHES.remove(cache);
+        Assertions.checkTrue(REGISTERED_CACHES.remove(cache));
     }
 
 }
