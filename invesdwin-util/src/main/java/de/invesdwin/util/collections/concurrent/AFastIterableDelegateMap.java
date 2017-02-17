@@ -264,18 +264,22 @@ public abstract class AFastIterableDelegateMap<K, V> extends ADelegateMap<K, V> 
     public V put(final K key, final V value) {
         final V prev = super.put(key, value);
         if (prev == null) {
-            if (fastIterable != null) {
-                fastIterable.add(ImmutableEntry.of(key, value));
-            }
-            entryArray = null;
-            keyArray = null;
-            valueArray = null;
-            empty = false;
-            size++;
+            addToFastIterable(key, value);
         } else if (prev != value) {
             refreshFastIterable();
         }
         return prev;
+    }
+
+    protected void addToFastIterable(final K key, final V value) {
+        if (fastIterable != null) {
+            fastIterable.add(ImmutableEntry.of(key, value));
+        }
+        entryArray = null;
+        keyArray = null;
+        valueArray = null;
+        empty = false;
+        size++;
     }
 
     @Override
@@ -298,7 +302,7 @@ public abstract class AFastIterableDelegateMap<K, V> extends ADelegateMap<K, V> 
         return removed;
     }
 
-    private void refreshFastIterable() {
+    protected void refreshFastIterable() {
         fastIterable = null;
         entryArray = null;
         keyArray = null;

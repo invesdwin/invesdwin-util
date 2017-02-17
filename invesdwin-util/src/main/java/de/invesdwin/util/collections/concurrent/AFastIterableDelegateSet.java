@@ -35,14 +35,18 @@ public abstract class AFastIterableDelegateSet<E> extends ADelegateSet<E> implem
     public boolean add(final E e) {
         final boolean added = super.add(e);
         if (added) {
-            if (fastIterable != null) {
-                fastIterable.add(e);
-            }
-            array = null;
-            empty = false;
-            size++;
+            addToFastIterable(e);
         }
         return added;
+    }
+
+    protected void addToFastIterable(final E e) {
+        if (fastIterable != null) {
+            fastIterable.add(e);
+        }
+        array = null;
+        empty = false;
+        size++;
     }
 
     @Override
@@ -72,7 +76,7 @@ public abstract class AFastIterableDelegateSet<E> extends ADelegateSet<E> implem
         return removed;
     }
 
-    private void refreshFastIterable() {
+    protected void refreshFastIterable() {
         fastIterable = null;
         array = null;
         size = getDelegate().size();
