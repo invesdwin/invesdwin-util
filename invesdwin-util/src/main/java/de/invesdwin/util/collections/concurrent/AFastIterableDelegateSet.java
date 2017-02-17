@@ -2,11 +2,12 @@ package de.invesdwin.util.collections.concurrent;
 
 import java.lang.reflect.Array;
 import java.util.Collection;
-import java.util.Iterator;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.collections.ADelegateSet;
+import de.invesdwin.util.collections.iterable.ICloseableIterable;
+import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
 
 /**
@@ -18,7 +19,7 @@ import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
  * http://stackoverflow.com/questions/1006395/fastest-way-to-iterate-an-array-in-java-loop-variable-vs-enhanced-for-statement
  */
 @NotThreadSafe
-public abstract class AFastIterableDelegateSet<E> extends ADelegateSet<E> {
+public abstract class AFastIterableDelegateSet<E> extends ADelegateSet<E> implements ICloseableIterable<E> {
 
     //arraylist wins in raw iterator speed compared to bufferingIterator since no remove is needed, though we need protection against concurrent modification
     private BufferingIterator<E> fastIterable;
@@ -88,7 +89,7 @@ public abstract class AFastIterableDelegateSet<E> extends ADelegateSet<E> {
     }
 
     @Override
-    public Iterator<E> iterator() {
+    public ICloseableIterator<E> iterator() {
         if (fastIterable == null) {
             fastIterable = new BufferingIterator<E>(getDelegate());
         }

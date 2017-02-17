@@ -1,5 +1,6 @@
 package de.invesdwin.util.time.fdate;
 
+import java.nio.ByteBuffer;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
@@ -481,6 +482,23 @@ public final class FDates {
             sum += value.millisValue();
         }
         return new FDate(sum / values.size());
+    }
+
+    public static void putFDate(final ByteBuffer buffer, final FDate time) {
+        if (time == null) {
+            buffer.putLong(Long.MIN_VALUE);
+        } else {
+            buffer.putLong(time.millisValue());
+        }
+    }
+
+    public static FDate extractFDate(final ByteBuffer buffer, final int index) {
+        final long time = buffer.getLong(index);
+        if (time == Long.MIN_VALUE) {
+            return null;
+        } else {
+            return new FDate(time);
+        }
     }
 
 }

@@ -2,15 +2,16 @@ package de.invesdwin.util.collections.concurrent;
 
 import java.lang.reflect.Array;
 import java.util.Collection;
-import java.util.Iterator;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.collections.ADelegateList;
+import de.invesdwin.util.collections.iterable.ICloseableIterable;
+import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
 
 @NotThreadSafe
-public abstract class AFastIterableDelegateList<E> extends ADelegateList<E> {
+public abstract class AFastIterableDelegateList<E> extends ADelegateList<E> implements ICloseableIterable<E> {
 
     //arraylist wins in raw iterator speed compared to bufferingIterator since no remove is needed, though we need protection against concurrent modification
     private BufferingIterator<E> fastIterable;
@@ -102,7 +103,7 @@ public abstract class AFastIterableDelegateList<E> extends ADelegateList<E> {
     }
 
     @Override
-    public Iterator<E> iterator() {
+    public ICloseableIterator<E> iterator() {
         if (fastIterable == null) {
             fastIterable = new BufferingIterator<E>(getDelegate());
         }
