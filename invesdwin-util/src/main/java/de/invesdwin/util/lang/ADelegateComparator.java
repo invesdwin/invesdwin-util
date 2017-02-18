@@ -54,12 +54,24 @@ public abstract class ADelegateComparator<E> implements Comparator<Object> {
         final Comparable<Object> c2 = (Comparable<Object>) getCompareCriteriaNullsafe(e2);
 
         if (c1 == null) {
-            return -1;
+            if (isNullFirst()) {
+                return 1;
+            } else {
+                return -1;
+            }
         } else if (c2 == null) {
-            return 1;
+            if (isNullFirst()) {
+                return -1;
+            } else {
+                return 1;
+            }
         } else {
             return compare(c1, c2);
         }
+    }
+
+    protected boolean isNullFirst() {
+        return false;
     }
 
     protected int compare(final Comparable<Object> c1, final Comparable<Object> c2) {
@@ -111,15 +123,17 @@ public abstract class ADelegateComparator<E> implements Comparator<Object> {
             comparator = asDescending();
         }
 
-        T previousE = (T) null;
+        T previousE = null;
         for (final T e : list) {
             if (previousE == null) {
                 previousE = e;
             } else {
-                final int compareErgebnis = comparator.compare(e, previousE);
-                org.assertj.core.api.Assertions.assertThat(compareErgebnis)
-                        .as("No %s order!", ascending ? "ascending" : "descending")
-                        .isGreaterThanOrEqualTo(0);
+                final int compareResult = comparator.compare(e, previousE);
+                if (compareResult < 0) {
+                    org.assertj.core.api.Assertions.assertThat(compareResult)
+                            .as("No %s order!", ascending ? "ascending" : "descending")
+                            .isGreaterThanOrEqualTo(0);
+                }
             }
         }
     }
@@ -142,9 +156,11 @@ public abstract class ADelegateComparator<E> implements Comparator<Object> {
         final T firstE = list.get(0);
         final T lastE = list.get(list.size() - 1);
         final int compareResult = comparator.compare(lastE, firstE);
-        org.assertj.core.api.Assertions.assertThat(compareResult)
-                .as("No %s order!", ascending ? "ascending" : "descending")
-                .isGreaterThanOrEqualTo(0);
+        if (compareResult < 0) {
+            org.assertj.core.api.Assertions.assertThat(compareResult)
+                    .as("No %s order!", ascending ? "ascending" : "descending")
+                    .isGreaterThanOrEqualTo(0);
+        }
     }
 
     /**
