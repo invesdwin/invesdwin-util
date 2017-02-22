@@ -19,10 +19,12 @@ import de.invesdwin.util.math.decimal.config.BSplineInterpolationConfig;
 import de.invesdwin.util.math.decimal.config.InterpolationConfig;
 import de.invesdwin.util.math.decimal.config.LoessInterpolationConfig;
 import de.invesdwin.util.math.decimal.stream.DecimalPoint;
+import de.invesdwin.util.math.decimal.stream.DecimalStreamAvg;
 import de.invesdwin.util.math.decimal.stream.DecimalStreamAvgWeightedAsc;
 import de.invesdwin.util.math.decimal.stream.DecimalStreamGeomAvg;
 import de.invesdwin.util.math.decimal.stream.DecimalStreamNormalization;
 import de.invesdwin.util.math.decimal.stream.DecimalStreamRelativeDetrending;
+import de.invesdwin.util.math.decimal.stream.DecimalStreamSum;
 
 @ThreadSafe
 public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregate<E> {
@@ -129,13 +131,11 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
 
     @Override
     public E sum() {
-        Decimal sum = Decimal.ZERO;
+        final DecimalStreamSum<E> sum = new DecimalStreamSum<E>(getConverter());
         for (final E value : values) {
-            if (value != null) {
-                sum = sum.add(value.getDefaultValue());
-            }
+            sum.process(value);
         }
-        return getConverter().fromDefaultValue(sum);
+        return sum.getSum();
     }
 
     /**
@@ -145,7 +145,11 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
      */
     @Override
     public E avg() {
-        return sum().divide(count());
+        final DecimalStreamAvg<E> sum = new DecimalStreamAvg<E>(getConverter());
+        for (final E value : values) {
+            sum.process(value);
+        }
+        return sum.getAvg();
     }
 
     /**
