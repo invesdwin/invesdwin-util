@@ -63,6 +63,14 @@ public final class Integers extends AIntegersStaticFacade {
         return (int) (sum / values.size());
     }
 
+    public static Integer sum(final Collection<Integer> values) {
+        int sum = 0;
+        for (final Integer value : values) {
+            sum += value;
+        }
+        return sum;
+    }
+
     public static Integer between(final Integer value, final Integer min, final Integer max) {
         return max(min(value, max), min);
     }

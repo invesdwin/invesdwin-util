@@ -10,7 +10,6 @@ import org.apache.commons.math3.random.RandomGenerator;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.math.decimal.ADecimal;
 import de.invesdwin.util.math.decimal.IDecimalAggregate;
-import de.invesdwin.util.math.decimal.internal.DecimalAggregate;
 import de.invesdwin.util.math.decimal.internal.randomize.blocklength.CircularOptimalBlockLength;
 
 /**
@@ -27,7 +26,7 @@ public class CircularBootstrapRandomizer<E extends ADecimal<E>> implements IDeci
     private final List<E> sample;
     private final IDecimalRandomizer<E> delegate;
 
-    public CircularBootstrapRandomizer(final DecimalAggregate<E> parent) {
+    public CircularBootstrapRandomizer(final IDecimalAggregate<E> parent) {
         this.sample = parent.values();
         this.blockLength = newOptimalBlockLength(parent);
         Assertions.assertThat(blockLength).isGreaterThanOrEqualTo(1);

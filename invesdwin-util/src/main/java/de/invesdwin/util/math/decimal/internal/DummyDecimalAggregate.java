@@ -294,4 +294,14 @@ public final class DummyDecimalAggregate<E extends ADecimal<E>> implements IDeci
         return EmptyCloseableIterator.getInstance();
     }
 
+    @Override
+    public Iterator<E> randomizeWeightedChunksDescending(final RandomGenerator random, final int chunkCount) {
+        return EmptyCloseableIterator.getInstance();
+    }
+
+    @Override
+    public Iterator<E> randomizeWeightedChunksAscending(final RandomGenerator random, final int chunkCount) {
+        return EmptyCloseableIterator.getInstance();
+    }
+
 }

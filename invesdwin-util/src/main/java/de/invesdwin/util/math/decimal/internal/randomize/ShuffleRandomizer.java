@@ -11,14 +11,14 @@ import org.apache.commons.math3.random.RandomAdaptor;
 import org.apache.commons.math3.random.RandomGenerator;
 
 import de.invesdwin.util.math.decimal.ADecimal;
-import de.invesdwin.util.math.decimal.internal.DecimalAggregate;
+import de.invesdwin.util.math.decimal.IDecimalAggregate;
 
 @ThreadSafe
 public class ShuffleRandomizer<E extends ADecimal<E>> implements IDecimalRandomizer<E> {
 
     private final List<E> sample;
 
-    public ShuffleRandomizer(final DecimalAggregate<E> parent) {
+    public ShuffleRandomizer(final IDecimalAggregate<E> parent) {
         this.sample = parent.values();
     }
 

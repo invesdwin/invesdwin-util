@@ -6,7 +6,6 @@ import org.apache.commons.math3.random.RandomGenerator;
 
 import de.invesdwin.util.math.decimal.ADecimal;
 import de.invesdwin.util.math.decimal.IDecimalAggregate;
-import de.invesdwin.util.math.decimal.internal.DecimalAggregate;
 import de.invesdwin.util.math.decimal.internal.randomize.blocklength.StationaryOptimalBlockLength;
 
 @ThreadSafe
@@ -14,7 +13,7 @@ public class StationaryBootstrapRandomizer<E extends ADecimal<E>> extends Circul
 
     private final double divisor;
 
-    public StationaryBootstrapRandomizer(final DecimalAggregate<E> parent) {
+    public StationaryBootstrapRandomizer(final IDecimalAggregate<E> parent) {
         super(parent);
         final int superBlockLength = super.nextBlockLength(null);
         divisor = Math.log(1D - (1D / superBlockLength)) * -1D;

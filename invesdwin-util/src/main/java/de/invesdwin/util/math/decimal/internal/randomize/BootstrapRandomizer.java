@@ -8,14 +8,14 @@ import javax.annotation.concurrent.ThreadSafe;
 import org.apache.commons.math3.random.RandomGenerator;
 
 import de.invesdwin.util.math.decimal.ADecimal;
-import de.invesdwin.util.math.decimal.internal.DecimalAggregate;
+import de.invesdwin.util.math.decimal.IDecimalAggregate;
 
 @ThreadSafe
 public class BootstrapRandomizer<E extends ADecimal<E>> implements IDecimalRandomizer<E> {
 
     private final List<? extends E> sample;
 
-    public BootstrapRandomizer(final DecimalAggregate<E> parent) {
+    public BootstrapRandomizer(final IDecimalAggregate<E> parent) {
         this.sample = parent.values();
     }
 

@@ -584,6 +584,16 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
     }
 
     @Override
+    public Iterator<E> randomizeWeightedChunksAscending(final RandomGenerator random, final int chunkCount) {
+        return bootstraps.randomizeWeightedChunksAscending(random, chunkCount);
+    }
+
+    @Override
+    public Iterator<E> randomizeWeightedChunksDescending(final RandomGenerator random, final int chunkCount) {
+        return bootstraps.randomizeWeightedChunksDescending(random, chunkCount);
+    }
+
+    @Override
     public Iterator<E> randomizeBootstrap(final RandomGenerator random) {
         return bootstraps.randomizeBootstrap(random);
     }
