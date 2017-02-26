@@ -78,7 +78,8 @@ public class CircularOptimalBlockLength<E extends ADecimal<E>> {
         final long roundedSqrtLength = (long) Math.ceil(sqrtLength);
         final int checkLagInterval = determineOptimalLag_checkLagInterval(length);
         final long maxLag = roundedSqrtLength + checkLagInterval;
-        return maxLag;
+        final int absMaxLag = length - 1;
+        return Math.min(absMaxLag, maxLag);
     }
 
     private double determineOptimalLag_correlationThreshold(final int length) {
