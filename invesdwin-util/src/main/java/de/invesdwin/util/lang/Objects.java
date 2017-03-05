@@ -34,7 +34,7 @@ public final class Objects extends AObjectsStaticFacade {
     /**
      * This configuration uses class names for inter process communication
      */
-    public static final FSTConfiguration REMOTE_SERIALIZATION_CONFIG = FSTConfiguration.getDefaultConfiguration();
+    public static final FSTConfiguration REMOTE_SERIALIZATION_CONFIG = FSTConfiguration.createDefaultConfiguration();
     public static final Set<String> REFLECTION_EXCLUDED_FIELDS = new HashSet<String>();
 
     static {
