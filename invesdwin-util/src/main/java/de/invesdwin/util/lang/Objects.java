@@ -155,36 +155,28 @@ public final class Objects extends AObjectsStaticFacade {
         return (T) deserialize(serialized);
     }
 
-    public static <T> T deserialize(final byte[] objectData) {
-        return deserialize(objectData, SERIALIZATION_CONFIG);
-    }
-
     @SuppressWarnings("unchecked")
-    public static <T> T deserialize(final byte[] objectData, final FSTConfiguration fstConfiguration) {
+    public static <T> T deserialize(final byte[] objectData) {
         try {
-            return (T) fstConfiguration.asObject(objectData);
+            return (T) SERIALIZATION_CONFIG.asObject(objectData);
         } finally {
-            resetFstObjectInputCallbacks(fstConfiguration);
+            resetFstObjectInputCallbacks();
         }
     }
 
     public static <T> T deserialize(final InputStream in) {
-        return deserialize(in, SERIALIZATION_CONFIG);
-    }
-
-    public static <T> T deserialize(final InputStream in, final FSTConfiguration fstConfiguration) {
         //FST is unreliable regarding input streams
         try {
-            return deserialize(IOUtils.toByteArray(in), fstConfiguration);
+            return deserialize(IOUtils.toByteArray(in));
         } catch (final IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private static void resetFstObjectInputCallbacks(final FSTConfiguration fstConfiguration) {
+    private static void resetFstObjectInputCallbacks() {
         //TODO remove with next fst release
         //otherwise this can become a memory leak!
-        final FSTObjectInput fstObjectInput = (FSTObjectInput) fstConfiguration.getStreamCoderFactory()
+        final FSTObjectInput fstObjectInput = (FSTObjectInput) SERIALIZATION_CONFIG.getStreamCoderFactory()
                 .getInput()
                 .get();
         if (fstObjectInput != null) {
@@ -193,11 +185,7 @@ public final class Objects extends AObjectsStaticFacade {
     }
 
     public static byte[] serialize(final Serializable obj) {
-        return serialize(obj, SERIALIZATION_CONFIG);
-    }
-
-    public static byte[] serialize(final Serializable obj, final FSTConfiguration fstConfiguration) {
-        return fstConfiguration.asByteArray(obj);
+        return SERIALIZATION_CONFIG.asByteArray(obj);
     }
 
     public static String toString(final Object obj) {
