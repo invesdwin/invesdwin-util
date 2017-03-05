@@ -33,8 +33,8 @@ public class SortedList<E> implements List<E> {
     @Override
     public void add(final int index, final E o) {
         final int size = delegate.size();
-        for (int i = 0; i < size; i++) {
-            if (comparator.compare(delegate.get(i - 1), o) < 0) {
+        for (int i = 0; i < size - 1; i++) {
+            if (comparator.compare(delegate.get(i + 1), o) > 0) {
                 delegate.add(i, o);
             }
         }
