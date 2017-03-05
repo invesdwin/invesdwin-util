@@ -27,7 +27,14 @@ import de.invesdwin.util.lang.internal.AObjectsStaticFacade;
         BeanPathObjects.class })
 public final class Objects extends AObjectsStaticFacade {
 
-    public static final FSTConfiguration SERIALIZATION_CONFIG = FSTConfiguration.getDefaultConfiguration();
+    /**
+     * This configuration uses registered classes for faster cloning
+     */
+    public static final FSTConfiguration LOCAL_SERIALIZATION_CONFIG = FSTConfiguration.getDefaultConfiguration();
+    /**
+     * This configuration uses class names for inter process communication
+     */
+    public static final FSTConfiguration REMOTE_SERIALIZATION_CONFIG = FSTConfiguration.getDefaultConfiguration();
     public static final Set<String> REFLECTION_EXCLUDED_FIELDS = new HashSet<String>();
 
     static {
@@ -155,28 +162,36 @@ public final class Objects extends AObjectsStaticFacade {
         return (T) deserialize(serialized);
     }
 
-    @SuppressWarnings("unchecked")
     public static <T> T deserialize(final byte[] objectData) {
+        return deserialize(objectData, LOCAL_SERIALIZATION_CONFIG);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T> T deserialize(final byte[] objectData, final FSTConfiguration fstConfiguration) {
         try {
-            return (T) SERIALIZATION_CONFIG.asObject(objectData);
+            return (T) fstConfiguration.asObject(objectData);
         } finally {
-            resetFstObjectInputCallbacks();
+            resetFstObjectInputCallbacks(fstConfiguration);
         }
     }
 
     public static <T> T deserialize(final InputStream in) {
+        return deserialize(in, LOCAL_SERIALIZATION_CONFIG);
+    }
+
+    public static <T> T deserialize(final InputStream in, final FSTConfiguration fstConfiguration) {
         //FST is unreliable regarding input streams
         try {
-            return deserialize(IOUtils.toByteArray(in));
+            return deserialize(IOUtils.toByteArray(in), fstConfiguration);
         } catch (final IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private static void resetFstObjectInputCallbacks() {
+    private static void resetFstObjectInputCallbacks(final FSTConfiguration fstConfiguration) {
         //TODO remove with next fst release
         //otherwise this can become a memory leak!
-        final FSTObjectInput fstObjectInput = (FSTObjectInput) SERIALIZATION_CONFIG.getStreamCoderFactory()
+        final FSTObjectInput fstObjectInput = (FSTObjectInput) fstConfiguration.getStreamCoderFactory()
                 .getInput()
                 .get();
         if (fstObjectInput != null) {
@@ -185,7 +200,11 @@ public final class Objects extends AObjectsStaticFacade {
     }
 
     public static byte[] serialize(final Serializable obj) {
-        return SERIALIZATION_CONFIG.asByteArray(obj);
+        return serialize(obj, LOCAL_SERIALIZATION_CONFIG);
+    }
+
+    public static byte[] serialize(final Serializable obj, final FSTConfiguration fstConfiguration) {
+        return fstConfiguration.asByteArray(obj);
     }
 
     public static String toString(final Object obj) {
