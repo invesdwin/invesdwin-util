@@ -38,7 +38,7 @@ public class SortedList<E> implements List<E> {
                 delegate.add(i, o);
             }
         }
-        delegate.add(o);
+        delegate.add(0, o);
     }
 
     /**
