@@ -27,7 +27,7 @@ import de.invesdwin.util.lang.internal.AObjectsStaticFacade;
         BeanPathObjects.class })
 public final class Objects extends AObjectsStaticFacade {
 
-    public static final FSTConfiguration SERIALIZATION_CONFIG = FSTConfiguration.createDefaultConfiguration();
+    public static final FSTConfiguration SERIALIZATION_CONFIG = FSTConfiguration.getDefaultConfiguration();
     public static final Set<String> REFLECTION_EXCLUDED_FIELDS = new HashSet<String>();
 
     static {
