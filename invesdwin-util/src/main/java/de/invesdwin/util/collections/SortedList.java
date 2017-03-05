@@ -27,12 +27,23 @@ public class SortedList<E> implements List<E> {
         this.delegate = delegate;
     }
 
+    /**
+     * adds the element at its appropriate spot doing the search in ascending order to add it in the front
+     */
     @Override
-    public void add(final int index, final E element) {
-        // no indexed insertion supported
-        add(element);
+    public void add(final int index, final E o) {
+        final int size = delegate.size();
+        for (int i = 0; i < size; i++) {
+            if (comparator.compare(delegate.get(i - 1), o) < 0) {
+                delegate.add(i, o);
+            }
+        }
+        delegate.add(o);
     }
 
+    /**
+     * adds the element at its appropriate spot doing the search in descending order to add it in the end
+     */
     @Override
     public boolean add(final E o) {
         final int size = delegate.size();
