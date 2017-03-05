@@ -27,14 +27,7 @@ import de.invesdwin.util.lang.internal.AObjectsStaticFacade;
         BeanPathObjects.class })
 public final class Objects extends AObjectsStaticFacade {
 
-    /**
-     * This configuration uses registered classes for faster cloning
-     */
-    public static final FSTConfiguration LOCAL_SERIALIZATION_CONFIG = FSTConfiguration.getDefaultConfiguration();
-    /**
-     * This configuration uses class names for inter process communication
-     */
-    public static final FSTConfiguration REMOTE_SERIALIZATION_CONFIG = FSTConfiguration.createDefaultConfiguration();
+    public static final FSTConfiguration SERIALIZATION_CONFIG = FSTConfiguration.createDefaultConfiguration();
     public static final Set<String> REFLECTION_EXCLUDED_FIELDS = new HashSet<String>();
 
     static {
@@ -163,7 +156,7 @@ public final class Objects extends AObjectsStaticFacade {
     }
 
     public static <T> T deserialize(final byte[] objectData) {
-        return deserialize(objectData, LOCAL_SERIALIZATION_CONFIG);
+        return deserialize(objectData, SERIALIZATION_CONFIG);
     }
 
     @SuppressWarnings("unchecked")
@@ -176,7 +169,7 @@ public final class Objects extends AObjectsStaticFacade {
     }
 
     public static <T> T deserialize(final InputStream in) {
-        return deserialize(in, LOCAL_SERIALIZATION_CONFIG);
+        return deserialize(in, SERIALIZATION_CONFIG);
     }
 
     public static <T> T deserialize(final InputStream in, final FSTConfiguration fstConfiguration) {
@@ -200,7 +193,7 @@ public final class Objects extends AObjectsStaticFacade {
     }
 
     public static byte[] serialize(final Serializable obj) {
-        return serialize(obj, LOCAL_SERIALIZATION_CONFIG);
+        return serialize(obj, SERIALIZATION_CONFIG);
     }
 
     public static byte[] serialize(final Serializable obj, final FSTConfiguration fstConfiguration) {
