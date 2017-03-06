@@ -227,4 +227,6 @@ public interface IDecimalAggregate<E extends ADecimal<E>> {
      */
     Iterator<E> randomizeWeightedChunksAscending(RandomGenerator random, int chunkCount);
 
+    E median();
+
 }

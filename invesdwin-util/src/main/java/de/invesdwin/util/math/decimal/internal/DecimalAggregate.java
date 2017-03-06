@@ -13,6 +13,7 @@ import org.apache.commons.math3.random.RandomGenerator;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.Lists;
 import de.invesdwin.util.math.decimal.ADecimal;
+import de.invesdwin.util.math.decimal.ADecimalMedian;
 import de.invesdwin.util.math.decimal.Decimal;
 import de.invesdwin.util.math.decimal.IDecimalAggregate;
 import de.invesdwin.util.math.decimal.config.BSplineInterpolationConfig;
@@ -150,6 +151,16 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
             sum.process(value);
         }
         return sum.getAvg();
+    }
+
+    @Override
+    public E median() {
+        return new ADecimalMedian<E>() {
+            @Override
+            protected List<E> getSortedList() {
+                return sortAscending().values();
+            }
+        }.getMedian();
     }
 
     /**
@@ -576,6 +587,18 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
             results.add(detrendedValue.getY());
         }
         return new DecimalAggregate<E>(results, getConverter());
+    }
+
+    public IDecimalAggregate<E> sortAscending() {
+        final List<E> sorted = new ArrayList<E>(values);
+        Decimal.COMPARATOR.sortAscending(sorted);
+        return new DecimalAggregate<E>(sorted, getConverter());
+    }
+
+    public IDecimalAggregate<E> sortDescending() {
+        final List<E> sorted = new ArrayList<E>(values);
+        Decimal.COMPARATOR.sortDescending(sorted);
+        return new DecimalAggregate<E>(sorted, getConverter());
     }
 
     @Override

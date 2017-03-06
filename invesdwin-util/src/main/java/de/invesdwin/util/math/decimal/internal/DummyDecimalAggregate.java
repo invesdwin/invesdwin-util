@@ -304,4 +304,9 @@ public final class DummyDecimalAggregate<E extends ADecimal<E>> implements IDeci
         return EmptyCloseableIterator.getInstance();
     }
 
+    @Override
+    public E median() {
+        return null;
+    }
+
 }
