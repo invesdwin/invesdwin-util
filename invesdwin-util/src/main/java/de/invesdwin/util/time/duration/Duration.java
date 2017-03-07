@@ -96,8 +96,8 @@ public class Duration extends Number implements Comparable<Object> {
     }
 
     public boolean isGreaterThan(final long duration, final FTimeUnit timeUnit) {
-        final long comparableDuration = Math.abs(FTimeUnit.NANOSECONDS.convert(duration, timeUnit));
-        return Math.abs(longValue(FTimeUnit.NANOSECONDS)) > comparableDuration;
+        final long comparableDuration = FTimeUnit.NANOSECONDS.convert(duration, timeUnit);
+        return longValue(FTimeUnit.NANOSECONDS) > comparableDuration;
     }
 
     public boolean isGreaterThan(final Duration duration) {
@@ -113,8 +113,8 @@ public class Duration extends Number implements Comparable<Object> {
     }
 
     public boolean isLessThan(final long duration, final FTimeUnit timeUnit) {
-        final long comparableDuration = Math.abs(FTimeUnit.NANOSECONDS.convert(duration, timeUnit));
-        return Math.abs(longValue(FTimeUnit.NANOSECONDS)) < comparableDuration;
+        final long comparableDuration = FTimeUnit.NANOSECONDS.convert(duration, timeUnit);
+        return longValue(FTimeUnit.NANOSECONDS) < comparableDuration;
     }
 
     public boolean isLessThan(final Duration duration) {
@@ -304,13 +304,13 @@ public class Duration extends Number implements Comparable<Object> {
      * Creates a new duration derived from this one with the added duration in nanoseconds as timeunit.
      */
     public Duration add(final long duration, final FTimeUnit timeUnit) {
-        final long comparableDuration = Math.abs(FTimeUnit.NANOSECONDS.convert(duration, timeUnit));
+        final long comparableDuration = FTimeUnit.NANOSECONDS.convert(duration, timeUnit);
         return new Duration(Math.addExact(this.longValue(FTimeUnit.NANOSECONDS), comparableDuration),
                 FTimeUnit.NANOSECONDS);
     }
 
     public Duration subtract(final long duration, final FTimeUnit timeUnit) {
-        final long comparableDuration = Math.abs(FTimeUnit.NANOSECONDS.convert(duration, timeUnit));
+        final long comparableDuration = FTimeUnit.NANOSECONDS.convert(duration, timeUnit);
         return new Duration(Math.subtractExact(this.longValue(FTimeUnit.NANOSECONDS), comparableDuration),
                 FTimeUnit.NANOSECONDS);
     }

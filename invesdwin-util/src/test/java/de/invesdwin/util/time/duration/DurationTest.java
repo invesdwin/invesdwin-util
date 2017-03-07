@@ -30,7 +30,7 @@ public class DurationTest {
         Assertions.assertThat(new Duration(start).isGreaterThan(5, FTimeUnit.MILLISECONDS)).isTrue();
         Assertions.assertThat(
                 new Duration(start, new Instant(0, FTimeUnit.MILLISECONDS)).isGreaterThan(5, FTimeUnit.MILLISECONDS))
-                .isTrue();
+                .isFalse();
     }
 
     @Test
