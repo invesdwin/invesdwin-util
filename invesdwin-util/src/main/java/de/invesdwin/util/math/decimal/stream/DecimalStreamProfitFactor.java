@@ -24,7 +24,7 @@ public class DecimalStreamProfitFactor<E extends ADecimal<E>> implements IDecima
     }
 
     public Percent getProfitFactor() {
-        return new Percent(new Decimal(profitSum), new Decimal(lossSum));
+        return new Percent(new Decimal(profitSum), new Decimal(Math.abs(lossSum)));
     }
 
 }
