@@ -90,6 +90,9 @@ public abstract class AFastIterableDelegateList<E> extends ADelegateList<E> impl
         return removed;
     }
 
+    /**
+     * protected so it can be used inside addToFastIterable to refresh instead if desired by overriding
+     */
     protected void refreshFastIterable() {
         fastIterable = null;
         array = null;

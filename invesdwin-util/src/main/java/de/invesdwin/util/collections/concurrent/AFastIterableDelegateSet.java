@@ -76,6 +76,9 @@ public abstract class AFastIterableDelegateSet<E> extends ADelegateSet<E> implem
         return removed;
     }
 
+    /**
+     * protected so it can be used inside addToFastIterable to refresh instead if desired by overriding
+     */
     protected void refreshFastIterable() {
         fastIterable = null;
         array = null;

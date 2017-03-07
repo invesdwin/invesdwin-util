@@ -302,6 +302,9 @@ public abstract class AFastIterableDelegateMap<K, V> extends ADelegateMap<K, V> 
         return removed;
     }
 
+    /**
+     * protected so it can be used inside addToFastIterable to refresh instead if desired by overriding
+     */
     protected void refreshFastIterable() {
         fastIterable = null;
         entryArray = null;

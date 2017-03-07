@@ -175,4 +175,9 @@ public class SortedList<E> implements List<E> {
         return delegate.toArray(a);
     }
 
+    @Override
+    public String toString() {
+        return delegate.toString();
+    }
+
 }
