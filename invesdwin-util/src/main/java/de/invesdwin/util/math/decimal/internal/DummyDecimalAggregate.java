@@ -275,6 +275,11 @@ public final class DummyDecimalAggregate<E extends ADecimal<E>> implements IDeci
     }
 
     @Override
+    public IDecimalAggregate<E> removeFlatSequences() {
+        return this;
+    }
+
+    @Override
     public Iterator<E> randomizeShuffle(final RandomGenerator random) {
         return EmptyCloseableIterator.getInstance();
     }

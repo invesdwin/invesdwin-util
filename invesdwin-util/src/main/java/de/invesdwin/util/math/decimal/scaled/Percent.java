@@ -17,9 +17,15 @@ public class Percent extends AScaledDecimal<Percent, PercentScale> implements IP
     public static final Percent TWO_HUNDRED_PERCENT;
     public static final Percent ONE_HUNDRED_PERCENT;
     public static final Percent FIFTY_PERCENT;
-    public static final Percent ZERO_PERCENT;
+    public static final Percent TEN_PERCENT;
+    public static final Percent FIVE_PERCENT;
+    public static final Percent TWO_PERCENT;
     public static final Percent ONE_PERCENT;
+    public static final Percent ZERO_PERCENT;
     public static final Percent MINUS_ONE_PERCENT;
+    public static final Percent MINUS_TWO_PERCENT;
+    public static final Percent MINUS_FIVE_PERCENT;
+    public static final Percent MINUS_TEN_PERCENT;
 
     static {
         DEFAULT_SCALE = PercentScale.RATE;
@@ -27,9 +33,15 @@ public class Percent extends AScaledDecimal<Percent, PercentScale> implements IP
         TWO_HUNDRED_PERCENT = new Percent(Decimal.TWO, PercentScale.RATE);
         ONE_HUNDRED_PERCENT = new Percent(Decimal.ONE, PercentScale.RATE);
         FIFTY_PERCENT = new Percent(new Decimal("50"), PercentScale.PERCENT);
-        ZERO_PERCENT = new Percent(Decimal.ZERO, PercentScale.RATE);
+        TEN_PERCENT = new Percent(new Decimal("10"), PercentScale.PERCENT);
+        FIVE_PERCENT = new Percent(new Decimal("5"), PercentScale.PERCENT);
+        TWO_PERCENT = new Percent(new Decimal("2"), PercentScale.PERCENT);
         ONE_PERCENT = new Percent(Decimal.ONE, PercentScale.PERCENT);
+        ZERO_PERCENT = new Percent(Decimal.ZERO, PercentScale.RATE);
         MINUS_ONE_PERCENT = ONE_PERCENT.negate();
+        MINUS_TWO_PERCENT = TWO_PERCENT.negate();
+        MINUS_FIVE_PERCENT = FIVE_PERCENT.negate();
+        MINUS_TEN_PERCENT = TEN_PERCENT.negate();
     }
 
     public Percent(final Decimal value, final PercentScale scale) {

@@ -589,6 +589,19 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
         return new DecimalAggregate<E>(results, getConverter());
     }
 
+    @Override
+    public IDecimalAggregate<E> removeFlatSequences() {
+        final List<E> deflattened = new ArrayList<E>();
+        E prevValue = null;
+        for (final E value : values) {
+            if (prevValue == null || !value.equals(prevValue)) {
+                deflattened.add(value);
+            }
+            prevValue = value;
+        }
+        return new DecimalAggregate<E>(deflattened, getConverter());
+    }
+
     public IDecimalAggregate<E> sortAscending() {
         final List<E> sorted = new ArrayList<E>(values);
         Decimal.COMPARATOR.sortAscending(sorted);

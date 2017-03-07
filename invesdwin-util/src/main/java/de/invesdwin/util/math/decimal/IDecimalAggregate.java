@@ -145,6 +145,13 @@ public interface IDecimalAggregate<E extends ADecimal<E>> {
     IDecimalAggregate<E> detrendRelative();
 
     /**
+     * From: 0,1,1,1,2,2,3
+     * 
+     * To: 0,1,2,3
+     */
+    IDecimalAggregate<E> removeFlatSequences();
+
+    /**
      * True when each element is >= its previous element
      */
     boolean isStableOrRisingEach();
