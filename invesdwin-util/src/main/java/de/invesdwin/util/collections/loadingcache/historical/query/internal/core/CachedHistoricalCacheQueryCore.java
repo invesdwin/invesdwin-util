@@ -24,7 +24,7 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
     private static final org.slf4j.ext.XLogger LOG = org.slf4j.ext.XLoggerFactory
             .getXLogger(CachedHistoricalCacheQueryCore.class);
     private static final int REQUIRED_SIZE_MULTIPLICATOR = 2;
-    private static final int COUNT_RESETS_BEFORE_WARNING = 10;
+    private static final int COUNT_RESETS_BEFORE_WARNING = 100;
 
     private int countResets = 0;
     private final DefaultHistoricalCacheQueryCore<V> delegate;
@@ -108,10 +108,13 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
                     return result;
                 } catch (final ResetCacheException e) {
                     countResets++;
-                    if (countResets >= COUNT_RESETS_BEFORE_WARNING || Throwables.isDebugStackTraceEnabled()) {
+                    if (countResets % COUNT_RESETS_BEFORE_WARNING == 0 || Throwables.isDebugStackTraceEnabled()) {
+                        //CHECKSTYLE:OFF
                         LOG.warn(
-                                "%s: resetting %s for the %s. time now and retrying after exception [%s], if this happens too often we might encounter bad performance due to inefficient caching",
-                                delegate.getParent(), getClass().getSimpleName(), countResets, e);
+                                "{}: resetting {} for the {}. time now and retrying after exception [{}: {}], if this happens too often we might encounter bad performance due to inefficient caching",
+                                delegate.getParent(), getClass().getSimpleName(), countResets,
+                                e.getClass().getSimpleName(), e.getMessage());
+                        //CHECKSTYLE:ON
                     }
                     resetForRetry();
                     try {
@@ -597,13 +600,17 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
     }
 
     private int fillFromCacheAsFarAsPossible(final List<Entry<FDate, V>> trailing, final int unitsBack,
-            final FDate skippingKeysAbove) {
+            final FDate skippingKeysAbove) throws ResetCacheException {
         //prefill what is possible and add suffixes by query as needed
         int cachedIndex = 0;
+        final int maxCachedIndex = unitsBack * 100;
         if (skippingKeysAbove != null) {
             while (cachedIndex < cachedPreviousEntries.size()) {
                 if (cachedPreviousEntries.get(cachedIndex).getKey().isAfter(skippingKeysAbove)) {
                     cachedIndex++;
+                    if (cachedIndex > maxCachedIndex) {
+                        throw new ResetCacheException("Had to go too far back on decremented key.");
+                    }
                 } else {
                     break;
                 }

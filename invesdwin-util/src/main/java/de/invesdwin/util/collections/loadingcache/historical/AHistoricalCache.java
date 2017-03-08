@@ -448,6 +448,11 @@ public abstract class AHistoricalCache<V> {
             return AHistoricalCache.this.getShiftKeyProvider().newKeysQueryInterceptor();
         }
 
+        @Override
+        public String toString() {
+            return AHistoricalCache.this.toString();
+        }
+
     }
 
     private final class InnerHistoricalCacheExtractKeyProvider implements IHistoricalCacheExtractKeyProvider<V> {
