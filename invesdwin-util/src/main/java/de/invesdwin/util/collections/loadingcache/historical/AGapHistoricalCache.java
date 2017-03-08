@@ -299,14 +299,36 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
             lastValuesFromFurtherValues.clear();
             FDate curKey = keyForReadAllValues;
             while (true) {
+                final BufferingIterator<V> newFurtherValuesBuffer = new BufferingIterator<V>();
                 final Iterable<? extends V> newFurtherValues = readAllValuesAscendingFrom(curKey);
-                final boolean added = furtherValues.consume(newFurtherValues);
+                newFurtherValuesBuffer.consume(newFurtherValues);
+                final boolean furtherValuesEmpty = furtherValues.isEmpty();
+                if (!furtherValuesEmpty) {
+                    final FDate tailKey = innerExtractKey(key, furtherValues.getTail());
+                    final FDate newTailKey = innerExtractKey(key, newFurtherValuesBuffer.getTail());
+                    if (newTailKey.isAfter(tailKey)) {
+                        //skip duplicates on further queries
+                        while (!newFurtherValuesBuffer.isEmpty()
+                                && innerExtractKey(key, newFurtherValuesBuffer.getHead()).isBefore(curKey)) {
+                            newFurtherValuesBuffer.next();
+                        }
+                    } else {
+                        //just a duplicate result...
+                        break;
+                    }
+                }
+                final boolean added = furtherValues.consume(newFurtherValuesBuffer);
                 if (!added) {
                     //end of data reached
                     break;
                 }
                 final FDate tailKey = innerExtractKey(key, furtherValues.getTail());
-                if (tailKey.isAfterOrEqualTo(key)) {
+                if (furtherValuesEmpty) {
+                    final FDate headKey = innerExtractKey(key, furtherValues.getHead());
+                    cacheMissCounter
+                            .maybeLimitOptimalReadBackStepByLoadFurtherValuesRange(new Duration(headKey, tailKey));
+                }
+                if (tailKey.isAfterOrEqualTo(key) || tailKey.equals(maxKeyInDB)) {
                     //request fulfilled
                     break;
                 }
