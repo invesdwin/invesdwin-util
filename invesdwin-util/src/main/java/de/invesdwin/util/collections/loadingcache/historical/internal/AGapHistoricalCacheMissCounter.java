@@ -22,6 +22,7 @@ public abstract class AGapHistoricalCacheMissCounter<V> {
 
     private Integer optimiumMaximumSize = getInitialMaximumSize();
     private Duration optimiumReadBackStepMillis = new Duration(getReadBackStepMillis(), FTimeUnit.MILLISECONDS);
+    private Duration maxFutherValuesRange;
 
     public void checkSuccessiveCacheEvictions(final FDate key) {
         if (key.isBeforeOrEqualTo(successiveCacheEvictionsToMinKey)) {
@@ -120,8 +121,9 @@ public abstract class AGapHistoricalCacheMissCounter<V> {
     protected abstract Iterable<? extends V> readAllValuesAscendingFrom(final FDate curMaxDate);
 
     public void maybeLimitOptimalReadBackStepByLoadFurtherValuesRange(final Duration duration) {
-        if (optimiumReadBackStepMillis.isGreaterThan(duration)) {
-            final Duration maximumReadBackStep = duration.divide(2);
+        maxFutherValuesRange = Duration.max(maxFutherValuesRange, duration);
+        if (optimiumReadBackStepMillis.isGreaterThan(maxFutherValuesRange)) {
+            final Duration maximumReadBackStep = maxFutherValuesRange.divide(2);
             optimiumReadBackStepMillis = maximumReadBackStep;
         }
     }
