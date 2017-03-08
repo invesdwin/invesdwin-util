@@ -120,8 +120,8 @@ public abstract class AGapHistoricalCacheMissCounter<V> {
     protected abstract Iterable<? extends V> readAllValuesAscendingFrom(final FDate curMaxDate);
 
     public void maybeLimitOptimalReadBackStepByLoadFurtherValuesRange(final Duration duration) {
-        final Duration maximumReadBackStep = duration.divide(2);
         if (optimiumReadBackStepMillis.isGreaterThan(duration)) {
+            final Duration maximumReadBackStep = duration.divide(2);
             optimiumReadBackStepMillis = maximumReadBackStep;
         }
     }
