@@ -95,29 +95,30 @@ public class BufferingIterator<E> implements IBufferingIterator<E> {
     }
 
     @Override
-    public void addAll(final Iterable<? extends E> iterable) {
+    public boolean addAll(final Iterable<? extends E> iterable) {
         if (iterable == null) {
-            return;
+            return false;
         } else {
-            addAll(iterable.iterator());
+            return addAll(iterable.iterator());
         }
     }
 
     @Override
-    public void addAll(final BufferingIterator<E> iterable) {
+    public boolean addAll(final BufferingIterator<E> iterable) {
         if (iterable == null) {
-            return;
+            return false;
         } else {
-            addAll(iterable.iterator());
+            return addAll(iterable.iterator());
         }
     }
 
     @Override
-    public void addAll(final Iterator<? extends E> iterator) {
+    public boolean addAll(final Iterator<? extends E> iterator) {
         if (iterator == null) {
-            return;
+            return false;
         } else {
             Node prev = tail;
+            final int sizeBefore = size;
             try {
                 if (tail == null) {
                     prev = new Node(iterator.next());
@@ -143,37 +144,39 @@ public class BufferingIterator<E> implements IBufferingIterator<E> {
                 }
             }
             tail = prev;
+            return sizeBefore < size;
         }
     }
 
     @Override
-    public void consume(final Iterable<? extends E> iterable) {
+    public boolean consume(final Iterable<? extends E> iterable) {
         if (iterable == null) {
-            return;
+            return false;
         } else if (iterable instanceof BufferingIterator) {
             @SuppressWarnings("unchecked")
             final BufferingIterator<E> cIterable = (BufferingIterator<E>) iterable;
-            consume(cIterable);
+            return consume(cIterable);
         } else {
-            addAll(iterable.iterator());
+            return addAll(iterable.iterator());
         }
     }
 
     @Override
-    public void consume(final Iterator<? extends E> iterator) {
+    public boolean consume(final Iterator<? extends E> iterator) {
         if (iterator == null) {
-            return;
+            return false;
         } else if (iterator instanceof BufferingIterator) {
             @SuppressWarnings("unchecked")
             final BufferingIterator<E> cIterable = (BufferingIterator<E>) iterator;
-            consume(cIterable);
+            return consume(cIterable);
         } else {
-            addAll(iterator);
+            return addAll(iterator);
         }
     }
 
     @Override
-    public void consume(final BufferingIterator<E> iterator) {
+    public boolean consume(final BufferingIterator<E> iterator) {
+        final int sizeBefore = size;
         size += iterator.size;
         if (head == null) {
             head = iterator.head;
@@ -182,6 +185,7 @@ public class BufferingIterator<E> implements IBufferingIterator<E> {
         }
         tail = iterator.tail;
         iterator.clear();
+        return sizeBefore < size;
     }
 
     @Override

@@ -297,7 +297,21 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
             }
             furtherValues.clear();
             lastValuesFromFurtherValues.clear();
-            furtherValues.consume(readAllValuesAscendingFrom(keyForReadAllValues));
+            FDate curKey = keyForReadAllValues;
+            while (true) {
+                final Iterable<? extends V> newFurtherValues = readAllValuesAscendingFrom(curKey);
+                final boolean added = furtherValues.consume(newFurtherValues);
+                if (!added) {
+                    //end of data reached
+                    break;
+                }
+                final FDate tailKey = innerExtractKey(key, furtherValues.getTail());
+                if (tailKey.isAfterOrEqualTo(key)) {
+                    //request fulfilled
+                    break;
+                }
+                curKey = tailKey.addMilliseconds(1);
+            }
 
             if (!furtherValues.isEmpty()) {
                 assertFurtherValuesSorting(key);

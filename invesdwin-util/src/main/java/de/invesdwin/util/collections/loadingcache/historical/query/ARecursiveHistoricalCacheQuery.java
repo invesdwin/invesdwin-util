@@ -25,11 +25,11 @@ public abstract class ARecursiveHistoricalCacheQuery<V> {
 
     private final AHistoricalCache<V> parent;
     private final int maxRecursionCount;
-    @GuardedBy("this")
+    @GuardedBy("parent")
     private boolean recursionInProgress = false;
-    @GuardedBy("this")
+    @GuardedBy("parent")
     private FDate firstRecursionKey;
-    @GuardedBy("this")
+    @GuardedBy("parent")
     private FDate lastRecursionKey;
 
     public ARecursiveHistoricalCacheQuery(final AHistoricalCache<V> parent, final int maxRecursionCount) {
@@ -56,22 +56,24 @@ public abstract class ARecursiveHistoricalCacheQuery<V> {
         return previous;
     }
 
-    private synchronized V getPreviousValueByRecursion(final FDate key, final FDate previousKey) {
-        if (recursionInProgress) {
-            if (previousKey.isBeforeOrEqualTo(firstRecursionKey)) {
-                return getInitialValue(previousKey);
-            } else {
-                throw new IllegalStateException(
-                        parent + ": the values between " + firstRecursionKey + " and " + lastRecursionKey
-                                + " should have been cached, maybe you are returning null values even if you should not: "
-                                + previousKey);
+    private V getPreviousValueByRecursion(final FDate key, final FDate previousKey) {
+        synchronized (parent) {
+            if (recursionInProgress) {
+                if (previousKey.isBeforeOrEqualTo(firstRecursionKey)) {
+                    return getInitialValue(previousKey);
+                } else {
+                    throw new IllegalStateException(
+                            parent + ": the values between " + firstRecursionKey + " and " + lastRecursionKey
+                                    + " should have been cached, maybe you are returning null values even if you should not: "
+                                    + previousKey);
+                }
             }
-        }
-        recursionInProgress = true;
-        try {
-            return internalGetPreviousValueByRecursion(previousKey);
-        } finally {
-            recursionInProgress = false;
+            recursionInProgress = true;
+            try {
+                return internalGetPreviousValueByRecursion(previousKey);
+            } finally {
+                recursionInProgress = false;
+            }
         }
     }
 
