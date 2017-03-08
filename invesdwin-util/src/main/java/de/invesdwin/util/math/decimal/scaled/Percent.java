@@ -17,6 +17,7 @@ public class Percent extends AScaledDecimal<Percent, PercentScale> implements IP
     public static final Percent TWO_HUNDRED_PERCENT;
     public static final Percent ONE_HUNDRED_PERCENT;
     public static final Percent FIFTY_PERCENT;
+    public static final Percent TWENTYFIVE_PERCENT;
     public static final Percent TEN_PERCENT;
     public static final Percent FIVE_PERCENT;
     public static final Percent TWO_PERCENT;
@@ -33,6 +34,7 @@ public class Percent extends AScaledDecimal<Percent, PercentScale> implements IP
         TWO_HUNDRED_PERCENT = new Percent(Decimal.TWO, PercentScale.RATE);
         ONE_HUNDRED_PERCENT = new Percent(Decimal.ONE, PercentScale.RATE);
         FIFTY_PERCENT = new Percent(new Decimal("50"), PercentScale.PERCENT);
+        TWENTYFIVE_PERCENT = new Percent(new Decimal("25"), PercentScale.PERCENT);
         TEN_PERCENT = new Percent(new Decimal("10"), PercentScale.PERCENT);
         FIVE_PERCENT = new Percent(new Decimal("5"), PercentScale.PERCENT);
         TWO_PERCENT = new Percent(new Decimal("2"), PercentScale.PERCENT);
