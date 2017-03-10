@@ -314,4 +314,14 @@ public final class DummyDecimalAggregate<E extends ADecimal<E>> implements IDeci
         return null;
     }
 
+    @Override
+    public IDecimalAggregate<E> sortAscending() {
+        return this;
+    }
+
+    @Override
+    public IDecimalAggregate<E> sortDescending() {
+        return this;
+    }
+
 }

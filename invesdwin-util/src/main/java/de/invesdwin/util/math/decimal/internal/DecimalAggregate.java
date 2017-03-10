@@ -602,12 +602,14 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
         return new DecimalAggregate<E>(deflattened, getConverter());
     }
 
+    @Override
     public IDecimalAggregate<E> sortAscending() {
         final List<E> sorted = new ArrayList<E>(values);
         Decimal.COMPARATOR.sortAscending(sorted);
         return new DecimalAggregate<E>(sorted, getConverter());
     }
 
+    @Override
     public IDecimalAggregate<E> sortDescending() {
         final List<E> sorted = new ArrayList<E>(values);
         Decimal.COMPARATOR.sortDescending(sorted);

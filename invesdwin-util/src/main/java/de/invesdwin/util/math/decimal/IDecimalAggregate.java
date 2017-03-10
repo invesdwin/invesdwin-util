@@ -236,4 +236,8 @@ public interface IDecimalAggregate<E extends ADecimal<E>> {
 
     E median();
 
+    IDecimalAggregate<E> sortAscending();
+
+    IDecimalAggregate<E> sortDescending();
+
 }
