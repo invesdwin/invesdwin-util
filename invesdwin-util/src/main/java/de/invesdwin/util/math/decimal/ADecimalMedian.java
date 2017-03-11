@@ -14,6 +14,12 @@ public abstract class ADecimalMedian<E extends ADecimal<E>> {
 
     public E getMedian() {
         final List<E> sortedList = getSortedList();
+        if (sortedList.isEmpty()) {
+            return null;
+        }
+        if (sortedList.size() == 1) {
+            return sortedList.get(0);
+        }
         final int middle = sortedList.size() / 2;
         final E median;
         if (sortedList.size() % 2 == 0) {
