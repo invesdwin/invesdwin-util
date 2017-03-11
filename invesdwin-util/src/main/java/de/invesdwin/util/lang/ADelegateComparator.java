@@ -131,7 +131,8 @@ public abstract class ADelegateComparator<E> implements Comparator<Object> {
                 final int compareResult = comparator.compare(e, previousE);
                 if (compareResult < 0) {
                     org.assertj.core.api.Assertions.assertThat(compareResult)
-                            .as("No %s order!", ascending ? "ascending" : "descending")
+                            .as("No %s order: previousE [%s], e [%s]", ascending ? "ascending" : "descending",
+                                    previousE, e)
                             .isGreaterThanOrEqualTo(0);
                 }
             }
