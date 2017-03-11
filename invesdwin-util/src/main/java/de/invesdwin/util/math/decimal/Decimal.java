@@ -38,6 +38,7 @@ public class Decimal extends ADecimal<Decimal> {
     public static final Decimal SIX;
     public static final Decimal TEN;
     public static final Decimal FIFTY;
+    public static final Decimal SEVENTYFIVE;
     public static final Decimal ONE_HUNDRED;
     public static final Decimal PI;
 
@@ -65,6 +66,7 @@ public class Decimal extends ADecimal<Decimal> {
         SIX = new Decimal("6");
         TEN = new Decimal("10");
         FIFTY = new Decimal("50");
+        SEVENTYFIVE = new Decimal("75");
         ONE_HUNDRED = new Decimal("100");
 
         PI = new Decimal(Math.PI);
