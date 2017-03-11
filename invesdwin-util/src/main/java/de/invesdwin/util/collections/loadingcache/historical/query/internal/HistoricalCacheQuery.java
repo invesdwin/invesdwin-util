@@ -425,6 +425,18 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
 
     @Override
     public FDate getPreviousKeyWithSameValueBetween(final FDate from, final FDate to, final V value) {
+        final Entry<FDate, V> entry = getPreviousEntryWithSameValueBetween(from, to, value);
+        return HistoricalCacheAssertValue.unwrapEntryKey(core.getParent(), entry);
+    }
+
+    @Override
+    public V getPreviousValueWithSameValueBetween(final FDate from, final FDate to, final V value) {
+        final Entry<FDate, V> entry = getPreviousEntryWithSameValueBetween(from, to, value);
+        return HistoricalCacheAssertValue.unwrapEntryValue(entry);
+    }
+
+    @Override
+    public Entry<FDate, V> getPreviousEntryWithSameValueBetween(final FDate from, final FDate to, final V value) {
         FDate curKey = to;
         final Optional<V> optionalValue = Optional.fromNullable(value);
         boolean firstTry = true;
@@ -449,9 +461,142 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
             }
             final Optional<V> optionalCurValue = Optional.fromNullable(previousEntry.getValue());
             if (optionalValue.equals(optionalCurValue)) {
-                return curKey;
+                return previousEntry;
             }
             firstTry = false;
+        }
+    }
+
+    @Override
+    public FDate getPreviousKeyWithDifferentValueBetween(final FDate from, final FDate to, final V value) {
+        final Entry<FDate, V> entry = getPreviousEntryWithDifferentValueBetween(from, to, value);
+        return HistoricalCacheAssertValue.unwrapEntryKey(core.getParent(), entry);
+    }
+
+    @Override
+    public V getPreviousValueWithDifferentValueBetween(final FDate from, final FDate to, final V value) {
+        final Entry<FDate, V> entry = getPreviousEntryWithDifferentValueBetween(from, to, value);
+        return HistoricalCacheAssertValue.unwrapEntryValue(entry);
+    }
+
+    @Override
+    public Entry<FDate, V> getPreviousEntryWithDifferentValueBetween(final FDate from, final FDate to, final V value) {
+        FDate curKey = to;
+        final Optional<V> optionalValue = Optional.fromNullable(value);
+        boolean firstTry = true;
+        while (true) {
+            final int shiftBackUnits;
+            if (firstTry) {
+                shiftBackUnits = 0;
+            } else {
+                shiftBackUnits = 1;
+            }
+            final Entry<FDate, V> previousEntry = getPreviousEntry(curKey, shiftBackUnits);
+            if (previousEntry == null) {
+                return null;
+            }
+            final FDate previousKey = previousEntry.getKey();
+            if (!firstTry && !previousKey.isBefore(curKey)) {
+                return null;
+            }
+            curKey = previousKey;
+            if (curKey.isBefore(from)) {
+                return null;
+            }
+            final Optional<V> optionalCurValue = Optional.fromNullable(previousEntry.getValue());
+            if (!optionalValue.equals(optionalCurValue)) {
+                return previousEntry;
+            }
+            firstTry = false;
+        }
+    }
+
+    @Override
+    public FDate getPreviousKeyWithSameValue(final FDate key, final int maxShiftBackUnits, final V value) {
+        final Entry<FDate, V> entry = getPreviousEntryWithSameValue(key, maxShiftBackUnits, value);
+        return HistoricalCacheAssertValue.unwrapEntryKey(core.getParent(), entry);
+    }
+
+    @Override
+    public V getPreviousValueWithSameValue(final FDate key, final int maxShiftBackUnits, final V value) {
+        final Entry<FDate, V> entry = getPreviousEntryWithSameValue(key, maxShiftBackUnits, value);
+        return HistoricalCacheAssertValue.unwrapEntryValue(entry);
+    }
+
+    @Override
+    public Entry<FDate, V> getPreviousEntryWithSameValue(final FDate key, final int maxShiftBackUnits, final V value) {
+        FDate curKey = key;
+        final Optional<V> optionalValue = Optional.fromNullable(value);
+        int curTry = 0;
+        while (true) {
+            final int curShiftBackUnits;
+            if (curTry == 0) {
+                curShiftBackUnits = 0;
+            } else {
+                curShiftBackUnits = 1;
+            }
+            final Entry<FDate, V> previousEntry = getPreviousEntry(curKey, curShiftBackUnits);
+            if (previousEntry == null) {
+                return null;
+            }
+            final FDate previousKey = previousEntry.getKey();
+            if (curTry > 0 && !previousKey.isBefore(curKey)) {
+                return null;
+            }
+            curKey = previousKey;
+            final Optional<V> optionalCurValue = Optional.fromNullable(previousEntry.getValue());
+            if (optionalValue.equals(optionalCurValue)) {
+                return previousEntry;
+            }
+            curTry++;
+            if (curTry > maxShiftBackUnits) {
+                return null;
+            }
+        }
+    }
+
+    @Override
+    public FDate getPreviousKeyWithDifferentValue(final FDate key, final int maxShiftBackUnits, final V value) {
+        final Entry<FDate, V> entry = getPreviousEntryWithDifferentValue(key, maxShiftBackUnits, value);
+        return HistoricalCacheAssertValue.unwrapEntryKey(core.getParent(), entry);
+    }
+
+    @Override
+    public V getPreviousValueWithDifferentValue(final FDate key, final int maxShiftBackUnits, final V value) {
+        final Entry<FDate, V> entry = getPreviousEntryWithDifferentValue(key, maxShiftBackUnits, value);
+        return HistoricalCacheAssertValue.unwrapEntryValue(entry);
+    }
+
+    @Override
+    public Entry<FDate, V> getPreviousEntryWithDifferentValue(final FDate key, final int maxShiftBackUnits,
+            final V value) {
+        FDate curKey = key;
+        final Optional<V> optionalValue = Optional.fromNullable(value);
+        int curTry = 0;
+        while (true) {
+            final int curShiftBackUnits;
+            if (curTry == 0) {
+                curShiftBackUnits = 0;
+            } else {
+                curShiftBackUnits = 1;
+            }
+            final Entry<FDate, V> previousEntry = getPreviousEntry(curKey, curShiftBackUnits);
+            if (previousEntry == null) {
+                return null;
+            }
+            final FDate previousKey = previousEntry.getKey();
+            if (curTry > 0 && !previousKey.isBefore(curKey)) {
+                return null;
+            }
+            curKey = previousKey;
+            final Optional<V> optionalCurValue = Optional.fromNullable(previousEntry.getValue());
+            if (!optionalValue.equals(optionalCurValue)) {
+                return previousEntry;
+            }
+            curTry++;
+            if (curTry > maxShiftBackUnits) {
+                return null;
+            }
         }
     }
 

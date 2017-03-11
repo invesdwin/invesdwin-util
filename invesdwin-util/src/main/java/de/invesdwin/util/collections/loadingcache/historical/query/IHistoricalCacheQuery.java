@@ -55,6 +55,28 @@ public interface IHistoricalCacheQuery<V> extends IHistoricalCacheQueryInternalM
 
     FDate getPreviousKeyWithSameValueBetween(FDate from, FDate to, V value);
 
+    V getPreviousValueWithSameValueBetween(FDate from, FDate to, V value);
+
+    Entry<FDate, V> getPreviousEntryWithSameValueBetween(FDate from, FDate to, V value);
+
+    FDate getPreviousKeyWithDifferentValueBetween(FDate from, FDate to, V value);
+
+    V getPreviousValueWithDifferentValueBetween(FDate from, FDate to, V value);
+
+    Entry<FDate, V> getPreviousEntryWithDifferentValueBetween(FDate from, FDate to, V value);
+
+    FDate getPreviousKeyWithSameValue(FDate key, int maxShiftBackUnits, V value);
+
+    V getPreviousValueWithSameValue(FDate key, int maxShiftBackUnits, V value);
+
+    Entry<FDate, V> getPreviousEntryWithSameValue(FDate key, int maxShiftBackUnits, V value);
+
+    FDate getPreviousKeyWithDifferentValue(FDate key, int maxShiftBackUnits, V value);
+
+    V getPreviousValueWithDifferentValue(FDate key, int maxShiftBackUnits, V value);
+
+    Entry<FDate, V> getPreviousEntryWithDifferentValue(FDate key, int maxShiftBackUnits, V value);
+
     @SuppressWarnings("rawtypes")
     void copyQuerySettings(IHistoricalCacheQuery copyFrom);
 

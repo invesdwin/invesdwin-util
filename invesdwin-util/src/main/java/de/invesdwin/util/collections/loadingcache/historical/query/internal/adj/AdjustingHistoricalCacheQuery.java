@@ -167,6 +167,62 @@ public class AdjustingHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V
         return delegate.getPreviousKeyWithSameValueBetween(adjustKey(from), adjustKey(to), value);
     }
 
+    @Override
+    public V getPreviousValueWithSameValueBetween(final FDate from, final FDate to, final V value) {
+        return delegate.getPreviousValueWithSameValueBetween(adjustKey(from), adjustKey(to), value);
+    }
+
+    @Override
+    public Entry<FDate, V> getPreviousEntryWithSameValueBetween(final FDate from, final FDate to, final V value) {
+        return delegate.getPreviousEntryWithSameValueBetween(adjustKey(from), adjustKey(to), value);
+    }
+
+    @Override
+    public FDate getPreviousKeyWithDifferentValueBetween(final FDate from, final FDate to, final V value) {
+        return delegate.getPreviousKeyWithDifferentValueBetween(adjustKey(from), adjustKey(to), value);
+    }
+
+    @Override
+    public V getPreviousValueWithDifferentValueBetween(final FDate from, final FDate to, final V value) {
+        return delegate.getPreviousValueWithDifferentValueBetween(adjustKey(from), adjustKey(to), value);
+    }
+
+    @Override
+    public Entry<FDate, V> getPreviousEntryWithDifferentValueBetween(final FDate from, final FDate to, final V value) {
+        return delegate.getPreviousEntryWithDifferentValueBetween(adjustKey(from), adjustKey(to), value);
+    }
+
+    @Override
+    public FDate getPreviousKeyWithSameValue(final FDate key, final int maxShiftBackUnits, final V value) {
+        return delegate.getPreviousKeyWithSameValue(adjustKey(key), maxShiftBackUnits, value);
+    }
+
+    @Override
+    public V getPreviousValueWithSameValue(final FDate key, final int maxShiftBackUnits, final V value) {
+        return delegate.getPreviousValueWithSameValue(adjustKey(key), maxShiftBackUnits, value);
+    }
+
+    @Override
+    public Entry<FDate, V> getPreviousEntryWithSameValue(final FDate key, final int maxShiftBackUnits, final V value) {
+        return delegate.getPreviousEntryWithSameValue(adjustKey(key), maxShiftBackUnits, value);
+    }
+
+    @Override
+    public FDate getPreviousKeyWithDifferentValue(final FDate key, final int maxShiftBackUnits, final V value) {
+        return delegate.getPreviousKeyWithDifferentValue(adjustKey(key), maxShiftBackUnits, value);
+    }
+
+    @Override
+    public V getPreviousValueWithDifferentValue(final FDate key, final int maxShiftBackUnits, final V value) {
+        return delegate.getPreviousValueWithDifferentValue(adjustKey(key), maxShiftBackUnits, value);
+    }
+
+    @Override
+    public Entry<FDate, V> getPreviousEntryWithDifferentValue(final FDate key, final int maxShiftBackUnits,
+            final V value) {
+        return delegate.getPreviousEntryWithDifferentValue(adjustKey(key), maxShiftBackUnits, value);
+    }
+
     @SuppressWarnings("rawtypes")
     @Override
     public void copyQuerySettings(final IHistoricalCacheQuery copyFrom) {
