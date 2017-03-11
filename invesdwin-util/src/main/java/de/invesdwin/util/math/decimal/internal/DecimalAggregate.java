@@ -9,11 +9,11 @@ import java.util.List;
 import javax.annotation.concurrent.ThreadSafe;
 
 import org.apache.commons.math3.random.RandomGenerator;
+import org.apache.commons.math3.stat.descriptive.rank.Median;
 
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.Lists;
 import de.invesdwin.util.math.decimal.ADecimal;
-import de.invesdwin.util.math.decimal.ADecimalMedian;
 import de.invesdwin.util.math.decimal.Decimal;
 import de.invesdwin.util.math.decimal.IDecimalAggregate;
 import de.invesdwin.util.math.decimal.config.BSplineInterpolationConfig;
@@ -122,7 +122,7 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
     public E avgWeightedDesc() {
         int sumOfWeights = 0;
         Decimal sumOfWeightedValues = Decimal.ZERO;
-        for (int i = 0, weight = count(); i < count(); i++, weight--) {
+        for (int i = 0, weight = size(); i < size(); i++, weight--) {
             final Decimal weightedValue = values.get(i).getDefaultValue().multiply(weight);
             sumOfWeights += weight;
             sumOfWeightedValues = sumOfWeightedValues.add(weightedValue);
@@ -155,12 +155,14 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
 
     @Override
     public E median() {
-        return new ADecimalMedian<E>() {
-            @Override
-            protected List<E> getSortedList() {
-                return sortAscending().values();
-            }
-        }.getMedian();
+        final double[] doubleValues = new double[values.size()];
+        for (int i = 0; i < values.size(); i++) {
+            final E next = values.get(i);
+            doubleValues[i] = next.getDefaultValue().doubleValueRaw();
+        }
+        final Median medianAlgo = new Median();
+        final double median = medianAlgo.evaluate(doubleValues);
+        return getConverter().fromDefaultValue(new Decimal(median));
     }
 
     /**
@@ -245,7 +247,7 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
         for (final E value : values) {
             sum = sum.add(value.subtract(avg).getDefaultValue().pow(2));
         }
-        return getConverter().fromDefaultValue(sum.divide(count() - 1).sqrt());
+        return getConverter().fromDefaultValue(sum.divide(size() - 1).sqrt());
     }
 
     /**
@@ -258,7 +260,7 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
         for (final E value : values) {
             sum = sum.add(value.subtract(avg).getDefaultValue().pow(2));
         }
-        return getConverter().fromDefaultValue(sum.divide(count()).sqrt());
+        return getConverter().fromDefaultValue(sum.divide(size()).sqrt());
     }
 
     /**
@@ -271,7 +273,7 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
         for (final E value : values) {
             sum = sum.add(value.subtract(avg).getDefaultValue().pow(2));
         }
-        return getConverter().fromDefaultValue(sum.divide(count() - 1));
+        return getConverter().fromDefaultValue(sum.divide(size() - 1));
     }
 
     /**
@@ -286,7 +288,7 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
         for (final E value : values) {
             sum = sum.add(value.subtract(avg).getDefaultValue().pow(2));
         }
-        return getConverter().fromDefaultValue(sum.divide(count()));
+        return getConverter().fromDefaultValue(sum.divide(size()));
     }
 
     @Override
@@ -300,7 +302,7 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
     }
 
     @Override
-    public int count() {
+    public int size() {
         return values.size();
     }
 
@@ -346,7 +348,7 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
 
     @Override
     public IDecimalAggregate<E> round(final int scale, final RoundingMode roundingMode) {
-        final List<E> rounded = new ArrayList<E>(count());
+        final List<E> rounded = new ArrayList<E>(size());
         for (final E value : values) {
             rounded.add(value.round(scale, roundingMode));
         }
@@ -360,7 +362,7 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
 
     @Override
     public IDecimalAggregate<E> roundToStep(final E step, final RoundingMode roundingMode) {
-        final List<E> rounded = new ArrayList<E>(count());
+        final List<E> rounded = new ArrayList<E>(size());
         for (final E value : values) {
             rounded.add(value.roundToStep(step, roundingMode));
         }
@@ -543,7 +545,7 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
 
     @Override
     public IDecimalAggregate<E> normalize() {
-        if (count() < 2) {
+        if (size() < 2) {
             return this;
         }
         final DecimalStreamNormalization<E> normalization = new DecimalStreamNormalization<E>(min(), max());
@@ -556,12 +558,12 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
 
     @Override
     public IDecimalAggregate<E> detrendAbsolute() {
-        if (count() < 3) {
+        if (size() < 3) {
             return this;
         }
         final E firstValue = values.get(0);
-        final E lastValue = values.get(count() - 1);
-        final E avgChange = lastValue.subtract(firstValue).divide(count() - 1);
+        final E lastValue = values.get(size() - 1);
+        final E avgChange = lastValue.subtract(firstValue).divide(size() - 1);
         final List<E> detrendedValues = new ArrayList<E>();
         for (int i = 0; i < values.size(); i++) {
             final E value = values.get(i);
@@ -573,15 +575,15 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
 
     @Override
     public IDecimalAggregate<E> detrendRelative() {
-        if (count() < 3) {
+        if (size() < 3) {
             return this;
         }
         final DecimalPoint<Decimal, E> from = new DecimalPoint<Decimal, E>(Decimal.ZERO, values.get(0));
-        final DecimalPoint<Decimal, E> to = new DecimalPoint<Decimal, E>(new Decimal(count()),
+        final DecimalPoint<Decimal, E> to = new DecimalPoint<Decimal, E>(new Decimal(size()),
                 values.get(values.size() - 1));
         final DecimalStreamRelativeDetrending<E> detrending = new DecimalStreamRelativeDetrending<E>(from, to);
         final List<E> results = new ArrayList<E>();
-        for (int i = 0; i < count(); i++) {
+        for (int i = 0; i < size(); i++) {
             final DecimalPoint<Decimal, E> value = new DecimalPoint<Decimal, E>(new Decimal(i), values.get(i));
             final DecimalPoint<Decimal, E> detrendedValue = detrending.process(value);
             results.add(detrendedValue.getY());

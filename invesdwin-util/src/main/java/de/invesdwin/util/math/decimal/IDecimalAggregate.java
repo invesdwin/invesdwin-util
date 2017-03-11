@@ -189,7 +189,7 @@ public interface IDecimalAggregate<E extends ADecimal<E>> {
      */
     E sampleCoefficientOfVariation();
 
-    int count();
+    int size();
 
     Integer bestValueIndex(boolean isHigherBetter);
 

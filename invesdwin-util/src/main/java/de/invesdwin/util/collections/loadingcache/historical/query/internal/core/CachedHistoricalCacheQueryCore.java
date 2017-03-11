@@ -603,13 +603,15 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
             final FDate skippingKeysAbove) throws ResetCacheException {
         //prefill what is possible and add suffixes by query as needed
         int cachedIndex = 0;
-        final int maxCachedIndex = unitsBack * 100;
+        final int maxCachedIndex = unitsBack * 1000;
         if (skippingKeysAbove != null) {
             while (cachedIndex < cachedPreviousEntries.size()) {
                 if (cachedPreviousEntries.get(cachedIndex).getKey().isAfter(skippingKeysAbove)) {
                     cachedIndex++;
                     if (cachedIndex > maxCachedIndex) {
-                        throw new ResetCacheException("Had to go too far back on decremented key.");
+                        throw new ResetCacheException("Had to go too far back on decremented key: cachedIndex ["
+                                + cachedIndex + "] > maxCachedIndex [" + maxCachedIndex
+                                + "] with cachedPreviousEntries.size [" + cachedPreviousEntries.size() + "] ");
                     }
                 } else {
                     break;

@@ -250,7 +250,7 @@ public final class DummyDecimalAggregate<E extends ADecimal<E>> implements IDeci
     }
 
     @Override
-    public int count() {
+    public int size() {
         return 0;
     }
 
