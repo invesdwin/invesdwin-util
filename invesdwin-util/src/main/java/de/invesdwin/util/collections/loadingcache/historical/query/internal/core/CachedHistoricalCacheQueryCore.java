@@ -23,6 +23,7 @@ import de.invesdwin.util.time.fdate.FDate;
 @ThreadSafe
 public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryCore<V> {
 
+    private static final int MAX_CACHED_INDEX = 10000;
     private static final org.slf4j.ext.XLogger LOG = org.slf4j.ext.XLoggerFactory
             .getXLogger(CachedHistoricalCacheQueryCore.class);
     private static final int REQUIRED_SIZE_MULTIPLICATOR = 2;
@@ -618,7 +619,7 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
             final FDate skippingKeysAbove) throws ResetCacheException {
         //prefill what is possible and add suffixes by query as needed
         int cachedIndex = 0;
-        final int maxCachedIndex = unitsBack * 1000;
+        final int maxCachedIndex = Math.max(MAX_CACHED_INDEX, unitsBack * 100);
         if (skippingKeysAbove != null) {
             while (cachedIndex < cachedPreviousEntries.size()) {
                 if (cachedPreviousEntries.get(cachedIndex).getKey().isAfter(skippingKeysAbove)) {
@@ -626,7 +627,7 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
                     if (cachedIndex > maxCachedIndex) {
                         throw new ResetCacheException("Had to go too far back on decremented key: cachedIndex ["
                                 + cachedIndex + "] > maxCachedIndex [" + maxCachedIndex
-                                + "] with cachedPreviousEntries.size [" + cachedPreviousEntries.size() + "] ");
+                                + "] with cachedPreviousEntries.size [" + cachedPreviousEntries.size() + "]");
                     }
                 } else {
                     break;

@@ -31,6 +31,8 @@ public abstract class ARecursiveHistoricalCacheQuery<V> {
     private FDate firstRecursionKey;
     @GuardedBy("parent")
     private FDate lastRecursionKey;
+    @GuardedBy("parent")
+    private FDate firstAvailableKey;
 
     public ARecursiveHistoricalCacheQuery(final AHistoricalCache<V> parent, final int maxRecursionCount) {
         this.parent = parent;
@@ -59,7 +61,8 @@ public abstract class ARecursiveHistoricalCacheQuery<V> {
     private V getPreviousValueByRecursion(final FDate key, final FDate previousKey) {
         synchronized (parent) {
             if (recursionInProgress) {
-                if (previousKey.isBeforeOrEqualTo(firstRecursionKey)) {
+                if (previousKey.isBeforeOrEqualTo(firstRecursionKey)
+                        || lastRecursionKey.equals(getFirstAvailableKey())) {
                     return getInitialValue(previousKey);
                 } else {
                     throw new IllegalStateException(
@@ -87,8 +90,12 @@ public abstract class ARecursiveHistoricalCacheQuery<V> {
             firstRecursionKey = recursionKeys.get(0);
             lastRecursionKey = recursionKeys.get(recursionKeys.size() - 1);
             if (!lastRecursionKey.equals(previousKey)) {
-                throw new IllegalStateException(
-                        parent + ": lastRecursionKey [" + lastRecursionKey + "] != previousKey [" + previousKey + "]");
+                //adjustKeyProvider may not have been filled with any useful data yet and the first value might have been requested; check for that case
+                final FDate firstAvailableKey = getFirstAvailableKey();
+                if (!lastRecursionKey.equals(firstAvailableKey)) {
+                    throw new IllegalStateException(parent + ": lastRecursionKey [" + lastRecursionKey
+                            + "] != previousKey [" + previousKey + "]");
+                }
             }
 
             for (int i = recursionKeys.size() - 1; i >= 0; i--) {
@@ -109,6 +116,13 @@ public abstract class ARecursiveHistoricalCacheQuery<V> {
             firstRecursionKey = null;
             lastRecursionKey = null;
         }
+    }
+
+    private FDate getFirstAvailableKey() {
+        if (firstAvailableKey == null) {
+            this.firstAvailableKey = parent.query().withFuture().getKey(FDate.MIN_DATE);
+        }
+        return firstAvailableKey;
     }
 
     /**
