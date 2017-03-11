@@ -8,6 +8,8 @@ import java.util.Map.Entry;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
+import org.assertj.core.util.Lists;
+
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.SingleValueIterable;
 import de.invesdwin.util.collections.iterable.WrapperCloseableIterable;
@@ -135,9 +137,18 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
     private List<Entry<FDate, V>> tryCachedGetPreviousEntriesIfAvailable(
             final IHistoricalCacheQueryInternalMethods<V> query, final FDate key, final int shiftBackUnits,
             final boolean filterDuplicateKeys) throws ResetCacheException {
-        final List<Entry<FDate, V>> result;
+        List<Entry<FDate, V>> result;
         if (!cachedPreviousEntries.isEmpty()) {
             result = cachedGetPreviousEntries(query, shiftBackUnits, key, filterDuplicateKeys);
+            if (!result.isEmpty() && query.getAssertValue() != HistoricalCacheAssertValue.ASSERT_VALUE_WITH_FUTURE) {
+                //fix when first withFuture and then withFutureNull is called on the cached result
+                final Entry<FDate, V> firstResult = result.get(0);
+                final Entry<FDate, V> assertedValue = query.getAssertValue().assertValue(delegate.getParent(), key,
+                        firstResult.getKey(), firstResult.getValue());
+                if (assertedValue == null) {
+                    result = Lists.emptyList();
+                }
+            }
         } else {
             final List<Entry<FDate, V>> trailing = newEntriesList(query, shiftBackUnits, filterDuplicateKeys);
             result = defaultGetPreviousEntries(query, shiftBackUnits, key, trailing);

@@ -2,6 +2,7 @@
 package de.invesdwin.util.collections.loadingcache.historical;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -320,6 +321,33 @@ public class AGapHistoricalCacheWithNoCacheAndNoQueryCacheTest {
         Assertions.assertThat(previousKeys).isEqualTo(entities);
         Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(5);
         Assertions.assertThat(countReadNewestValueTo).isEqualTo(6);
+    }
+
+    @Test
+    public void testPreviousKeysBeforeFirst() {
+        Collection<FDate> previousKeys = asList(
+                cache.query().withFuture().getPreviousKeys(FDate.MIN_DATE, entities.size()));
+        Assertions.assertThat(previousKeys).isEqualTo(Arrays.asList(entities.get(0)));
+        Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(1);
+        Assertions.assertThat(countReadNewestValueTo).isEqualTo(4);
+
+        previousKeys = asList(cache.query().withFutureNull().getPreviousKeys(FDate.MIN_DATE, entities.size()));
+        Assertions.assertThat(previousKeys).isEmpty();
+        Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(1);
+        Assertions.assertThat(countReadNewestValueTo).isEqualTo(5);
+    }
+
+    @Test
+    public void testPreviousKeyBeforeFirst() {
+        FDate previousKey = cache.query().withFuture().getPreviousKey(FDate.MIN_DATE, entities.size());
+        Assertions.assertThat(previousKey).isEqualTo(entities.get(0));
+        Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(1);
+        Assertions.assertThat(countReadNewestValueTo).isEqualTo(4);
+
+        previousKey = cache.query().withFutureNull().getPreviousKey(FDate.MIN_DATE, entities.size());
+        Assertions.assertThat(previousKey).isNull();
+        Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(1);
+        Assertions.assertThat(countReadNewestValueTo).isEqualTo(5);
     }
 
     @Test
