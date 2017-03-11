@@ -152,7 +152,7 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
         } else {
             final List<Entry<FDate, V>> trailing = newEntriesList(query, shiftBackUnits, filterDuplicateKeys);
             result = defaultGetPreviousEntries(query, shiftBackUnits, key, trailing);
-            updateCachedPreviousResult(shiftBackUnits, result, filterDuplicateKeys);
+            updateCachedPreviousResult(query, shiftBackUnits, result, filterDuplicateKeys);
         }
         return result;
     }
@@ -168,7 +168,7 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
                 final List<Entry<FDate, V>> trailing = newEntriesList(query, shiftBackUnits, filterDuplicateKeys);
                 final List<Entry<FDate, V>> result = cachedGetPreviousEntries_sameKey(query, shiftBackUnits, key,
                         trailing);
-                updateCachedPreviousResult(shiftBackUnits, result, filterDuplicateKeys);
+                updateCachedPreviousResult(query, shiftBackUnits, result, filterDuplicateKeys);
                 return result;
             }
         } else if ((key.isAfter(cachedPreviousEntriesKey) || key.isAfter(getLastCachedEntry().getKey()))
@@ -186,7 +186,7 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
                 final List<Entry<FDate, V>> trailing = newEntriesList(query, shiftBackUnits, filterDuplicateKeys);
                 final List<Entry<FDate, V>> result = cachedGetPreviousEntries_incrementedKey(query, shiftBackUnits, key,
                         trailing);
-                updateCachedPreviousResult(shiftBackUnits, result, filterDuplicateKeys);
+                updateCachedPreviousResult(query, shiftBackUnits, result, filterDuplicateKeys);
                 return result;
             }
         } else if (key.isBeforeOrEqualTo(cachedPreviousEntriesKey)
@@ -201,7 +201,7 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
              */
             final List<Entry<FDate, V>> trailing = newEntriesList(query, shiftBackUnits, filterDuplicateKeys);
             final List<Entry<FDate, V>> result = defaultGetPreviousEntries(query, shiftBackUnits, key, trailing);
-            updateCachedPreviousResult(shiftBackUnits, result, filterDuplicateKeys);
+            updateCachedPreviousResult(query, shiftBackUnits, result, filterDuplicateKeys);
             return result;
         }
     }
@@ -245,7 +245,7 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
             }
         }
 
-        appendCachedEntryAndResult(key, shiftBackUnits, latestValue);
+        appendCachedEntryAndResult(query, key, shiftBackUnits, latestValue);
         return tryCachedPreviousResult_sameKey(query, shiftBackUnits, filterDuplicateKeys);
     }
 
@@ -333,20 +333,24 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
      * 
      * @throws ResetCacheException
      */
-    private void updateCachedPreviousResult(final int shiftBackUnits, final List<Entry<FDate, V>> result,
-            final boolean filterDuplicateKeys) throws ResetCacheException {
+    private void updateCachedPreviousResult(final IHistoricalCacheQueryInternalMethods<V> query,
+            final int shiftBackUnits, final List<Entry<FDate, V>> result, final boolean filterDuplicateKeys)
+            throws ResetCacheException {
+        if (result.isEmpty() && query.getAssertValue() == HistoricalCacheAssertValue.ASSERT_VALUE_WITH_FUTURE_NULL) {
+            //do not remember an empty result with future null (a call with future next might trip on it)
+            return;
+        }
         if (cachedPreviousResult_shiftBackUnits != null && !cachedPreviousEntries.isEmpty() && result.size() > 1) {
             throw new IllegalStateException("cachedPreviousResult should have been reset by preceeding code!");
         }
         if (filterDuplicateKeys) {
             cachedPreviousResult_filteringDuplicates = result;
             cachedPreviousResult_notFilteringDuplicates = null;
-            cachedPreviousResult_shiftBackUnits = shiftBackUnits;
         } else {
             cachedPreviousResult_filteringDuplicates = null;
             cachedPreviousResult_notFilteringDuplicates = result;
-            cachedPreviousResult_shiftBackUnits = shiftBackUnits;
         }
+        cachedPreviousResult_shiftBackUnits = shiftBackUnits;
     }
 
     private List<Entry<FDate, V>> cachedGetPreviousEntries_decrementedKey(
@@ -481,8 +485,8 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
         }
     }
 
-    private void appendCachedEntryAndResult(final FDate key, final int shiftBackUnits,
-            final Entry<FDate, V> latestEntry) throws ResetCacheException {
+    private void appendCachedEntryAndResult(final IHistoricalCacheQueryInternalMethods<V> query, final FDate key,
+            final int shiftBackUnits, final Entry<FDate, V> latestEntry) throws ResetCacheException {
         if (latestEntry != null) {
             if (cachedPreviousResult_shiftBackUnits == null) {
                 throw new ResetCacheException(
