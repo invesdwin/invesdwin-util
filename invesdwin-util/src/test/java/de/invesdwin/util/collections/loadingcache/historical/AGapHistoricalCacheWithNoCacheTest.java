@@ -333,6 +333,11 @@ public class AGapHistoricalCacheWithNoCacheTest {
         Assertions.assertThat(previousKeys).isEmpty();
         Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(1);
         Assertions.assertThat(countReadNewestValueTo).isEqualTo(4);
+
+        previousKeys = asList(cache.query().withFuture().getPreviousKeys(FDate.MIN_DATE, entities.size()));
+        Assertions.assertThat(previousKeys).isEqualTo(Arrays.asList(entities.get(0)));
+        Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(1);
+        Assertions.assertThat(countReadNewestValueTo).isEqualTo(4);
     }
 
     @Test
@@ -346,6 +351,48 @@ public class AGapHistoricalCacheWithNoCacheTest {
         Assertions.assertThat(previousKey).isNull();
         Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(1);
         Assertions.assertThat(countReadNewestValueTo).isEqualTo(4);
+
+        previousKey = cache.query().withFuture().getPreviousKey(FDate.MIN_DATE, entities.size());
+        Assertions.assertThat(previousKey).isEqualTo(entities.get(0));
+        Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(1);
+        Assertions.assertThat(countReadNewestValueTo).isEqualTo(4);
+    }
+
+    @Test
+    public void testPreviousKeysBeforeFirstReverse() {
+        Collection<FDate> previousKeys = asList(
+                cache.query().withFutureNull().getPreviousKeys(FDate.MIN_DATE, entities.size()));
+        Assertions.assertThat(previousKeys).isEmpty();
+        Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(1);
+        Assertions.assertThat(countReadNewestValueTo).isEqualTo(3);
+
+        previousKeys = asList(cache.query().withFuture().getPreviousKeys(FDate.MIN_DATE, entities.size()));
+        Assertions.assertThat(previousKeys).isEqualTo(Arrays.asList(entities.get(0)));
+        Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(1);
+        Assertions.assertThat(countReadNewestValueTo).isEqualTo(5);
+
+        previousKeys = asList(cache.query().withFutureNull().getPreviousKeys(FDate.MIN_DATE, entities.size()));
+        Assertions.assertThat(previousKeys).isEmpty();
+        Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(1);
+        Assertions.assertThat(countReadNewestValueTo).isEqualTo(5);
+    }
+
+    @Test
+    public void testPreviousKeyBeforeFirstReverse() {
+        FDate previousKey = cache.query().withFutureNull().getPreviousKey(FDate.MIN_DATE, entities.size());
+        Assertions.assertThat(previousKey).isNull();
+        Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(1);
+        Assertions.assertThat(countReadNewestValueTo).isEqualTo(3);
+
+        previousKey = cache.query().withFuture().getPreviousKey(FDate.MIN_DATE, entities.size());
+        Assertions.assertThat(previousKey).isEqualTo(entities.get(0));
+        Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(1);
+        Assertions.assertThat(countReadNewestValueTo).isEqualTo(5);
+
+        previousKey = cache.query().withFutureNull().getPreviousKey(FDate.MIN_DATE, entities.size());
+        Assertions.assertThat(previousKey).isNull();
+        Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(1);
+        Assertions.assertThat(countReadNewestValueTo).isEqualTo(5);
     }
 
     @Test
