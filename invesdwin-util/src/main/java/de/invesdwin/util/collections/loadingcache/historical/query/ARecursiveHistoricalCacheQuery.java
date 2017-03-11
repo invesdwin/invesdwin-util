@@ -79,8 +79,8 @@ public abstract class ARecursiveHistoricalCacheQuery<V> {
 
     private V internalGetPreviousValueByRecursion(final FDate previousKey) {
         try {
-            List<FDate> recursionKeys = Lists
-                    .toListWithoutHasNext(newQuery(parent).getPreviousKeys(previousKey, maxRecursionCount));
+            List<FDate> recursionKeys = Lists.toListWithoutHasNext(
+                    newQuery(parent).withFutureNull().getPreviousKeys(previousKey, maxRecursionCount));
             if (recursionKeys.isEmpty()) {
                 return null;
             }
