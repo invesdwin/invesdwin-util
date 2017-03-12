@@ -112,8 +112,8 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
     }
 
     @Override
-    public synchronized void increaseMaximumSize(final int maximumSize) {
-        super.increaseMaximumSize(maximumSize);
+    protected void innerIncreaseMaximumSize(final int maximumSize) {
+        super.innerIncreaseMaximumSize(maximumSize);
         cacheMissCounter.increaseMaximumSize(maximumSize);
     }
 

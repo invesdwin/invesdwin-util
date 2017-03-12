@@ -38,6 +38,7 @@ public abstract class AHistoricalCache<V> {
      * 10k is normally sufficient for daily bars of stocks and also fast enough for intraday ticks to load.
      */
     public static final Integer DEFAULT_MAXIMUM_SIZE = 1000;
+    public static final int ABSOLUTE_MAXIMUM_SIZE = 20000;
     protected final IHistoricalCacheInternalMethods<V> internalMethods = new HistoricalCacheInternalMethods();
 
     private final List<ALoadingCache<?, ?>> increaseMaximumSizeListeners = new ArrayList<ALoadingCache<?, ?>>();
@@ -89,15 +90,20 @@ public abstract class AHistoricalCache<V> {
         return maximumSize;
     }
 
-    public synchronized void increaseMaximumSize(final int maximumSize) {
+    public final synchronized void increaseMaximumSize(final int maximumSize) {
         final Integer existingMaximumSize = this.maximumSize;
-        if (existingMaximumSize == null || existingMaximumSize < maximumSize) {
-            for (final ALoadingCache<?, ?> l : increaseMaximumSizeListeners) {
-                l.increaseMaximumSize(maximumSize);
-            }
-            queryCore.increaseMaximumSize(maximumSize);
-            this.maximumSize = maximumSize;
+        final int usedMaximumSize = Math.min(ABSOLUTE_MAXIMUM_SIZE, maximumSize);
+        if (existingMaximumSize == null || existingMaximumSize < usedMaximumSize) {
+            innerIncreaseMaximumSize(usedMaximumSize);
         }
+    }
+
+    protected void innerIncreaseMaximumSize(final int maximumSize) {
+        for (final ALoadingCache<?, ?> l : increaseMaximumSizeListeners) {
+            l.increaseMaximumSize(maximumSize);
+        }
+        queryCore.increaseMaximumSize(maximumSize);
+        this.maximumSize = maximumSize;
     }
 
     protected IHistoricalCacheQueryCore<V> newHistoricalCacheQueryCore() {
