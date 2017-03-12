@@ -27,6 +27,7 @@ import de.invesdwin.util.collections.loadingcache.historical.query.internal.IHis
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.CachedHistoricalCacheQueryCore;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.IHistoricalCacheQueryCore;
 import de.invesdwin.util.collections.loadingcache.historical.refresh.HistoricalCacheRefreshManager;
+import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.time.fdate.FDate;
 
 @ThreadSafe
@@ -37,8 +38,10 @@ public abstract class AHistoricalCache<V> {
     /**
      * 10k is normally sufficient for daily bars of stocks and also fast enough for intraday ticks to load.
      */
-    public static final Integer DEFAULT_MAXIMUM_SIZE = 1000;
-    public static final int ABSOLUTE_MAXIMUM_SIZE = 100000;
+    public static final Integer DEFAULT_MAXIMUM_SIZE = 100;
+    public static final int DEFAULT_MAXIMUM_SIZE_LIMIT = 10000;
+    private static final org.slf4j.ext.XLogger LOG = org.slf4j.ext.XLoggerFactory.getXLogger(AHistoricalCache.class);
+
     protected final IHistoricalCacheInternalMethods<V> internalMethods = new HistoricalCacheInternalMethods();
 
     private final List<ALoadingCache<?, ?>> increaseMaximumSizeListeners = new ArrayList<ALoadingCache<?, ?>>();
@@ -92,10 +95,14 @@ public abstract class AHistoricalCache<V> {
 
     public final synchronized void increaseMaximumSize(final int maximumSize) {
         final Integer existingMaximumSize = this.maximumSize;
-        final int usedMaximumSize = Math.min(ABSOLUTE_MAXIMUM_SIZE, maximumSize);
+        final int usedMaximumSize = Math.min(getMaximumSizeLimit(), maximumSize);
         if (existingMaximumSize == null || existingMaximumSize < usedMaximumSize) {
             innerIncreaseMaximumSize(usedMaximumSize);
         }
+    }
+
+    protected int getMaximumSizeLimit() {
+        return DEFAULT_MAXIMUM_SIZE_LIMIT;
     }
 
     protected void innerIncreaseMaximumSize(final int maximumSize) {
@@ -103,6 +110,10 @@ public abstract class AHistoricalCache<V> {
             l.increaseMaximumSize(maximumSize);
         }
         queryCore.increaseMaximumSize(maximumSize);
+        if (Throwables.isDebugStackTraceEnabled() || maximumSize >= getMaximumSizeLimit()) {
+            LOG.warn(this + ": Increasing maximum size from [" + this.maximumSize + "] to [" + maximumSize
+                    + "]. Growing too large maximum sizes for unanticipated caches can cause excessive memory consumption and bad performance.");
+        }
         this.maximumSize = maximumSize;
     }
 

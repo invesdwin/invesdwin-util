@@ -37,15 +37,10 @@ public abstract class ARecursiveHistoricalCacheQuery<V> {
     public ARecursiveHistoricalCacheQuery(final AHistoricalCache<V> parent, final int maxRecursionCount) {
         this.parent = parent;
         this.maxRecursionCount = Integers.max(maxRecursionCount, MIN_RECURSION_COUNT);
-        parent.increaseMaximumSize(newSuggestedMaximumSizeForParent(parent.getMaximumSize(), maxRecursionCount));
     }
 
     public int getMaxRecursionCount() {
         return maxRecursionCount;
-    }
-
-    public static int newSuggestedMaximumSizeForParent(final int maximumSize, final int maxRecursionCount) {
-        return Integers.max(maximumSize, maxRecursionCount * 2);
     }
 
     public V getPreviousValue(final FDate key, final FDate previousKey) {
