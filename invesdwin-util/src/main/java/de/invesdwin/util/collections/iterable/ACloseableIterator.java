@@ -90,8 +90,7 @@ public abstract class ACloseableIterator<E> implements ICloseableIterator<E> {
             next = innerNext();
         } catch (final NoSuchElementException e) {
             close();
-            throw FastNoSuchElementException.maybeReplace(e,
-                    "ACloseableIterator: innerNext threw NoSuchElementException");
+            throw FastNoSuchElementException.maybeReplace(e, "ACloseableIterator: innerNext threw");
         }
         if (next == null) {
             close();

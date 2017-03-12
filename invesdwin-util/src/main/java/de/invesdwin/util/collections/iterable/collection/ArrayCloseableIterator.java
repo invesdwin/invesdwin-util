@@ -1,4 +1,4 @@
-package de.invesdwin.util.collections.iterable.list;
+package de.invesdwin.util.collections.iterable.collection;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
@@ -9,13 +9,13 @@ import de.invesdwin.util.error.FastNoSuchElementException;
 public class ArrayCloseableIterator<E> implements ICloseableIterator<E> {
 
     private final E[] array;
-    private final int length;
+    private final int size;
     private int offset;
 
-    public ArrayCloseableIterator(final E[] array, final int offset, final int length) {
+    public ArrayCloseableIterator(final E[] array, final int offset, final int count) {
         this.array = array;
         this.offset = offset;
-        this.length = length + offset;
+        this.size = count + offset;
     }
 
     public ArrayCloseableIterator(final E[] array) {
@@ -24,7 +24,7 @@ public class ArrayCloseableIterator<E> implements ICloseableIterator<E> {
 
     @Override
     public boolean hasNext() {
-        return offset < length;
+        return offset < size;
     }
 
     @Override
@@ -37,7 +37,7 @@ public class ArrayCloseableIterator<E> implements ICloseableIterator<E> {
 
     @Override
     public void close() {
-        offset = length;
+        offset = size;
     }
 
 }

@@ -1,10 +1,12 @@
 package de.invesdwin.util.collections.iterable;
 
+import java.util.Collection;
 import java.util.List;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import de.invesdwin.util.collections.iterable.list.ListCloseableIterable;
+import de.invesdwin.util.collections.iterable.collection.CollectionCloseableIterable;
+import de.invesdwin.util.collections.iterable.collection.ListCloseableIterable;
 
 @NotThreadSafe
 public final class WrapperCloseableIterable<E> implements ICloseableIterable<E> {
@@ -15,6 +17,7 @@ public final class WrapperCloseableIterable<E> implements ICloseableIterable<E> 
         this.delegate = delegate;
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public ICloseableIterator<E> iterator() {
         return WrapperCloseableIterator.maybeWrap(delegate.iterator());
@@ -34,15 +37,24 @@ public final class WrapperCloseableIterable<E> implements ICloseableIterable<E> 
     public static <T> ICloseableIterable<T> maybeWrap(final Iterable<? extends T> iterable) {
         if (iterable instanceof ICloseableIterable) {
             return (ICloseableIterable<T>) iterable;
-        } else if (iterable instanceof List) {
-            return maybeWrap((List<T>) iterable);
+        } else if (iterable instanceof Collection) {
+            return maybeWrap((Collection<T>) iterable);
         } else {
             return new WrapperCloseableIterable<T>(iterable);
         }
     }
 
     public static <T> ICloseableIterable<T> maybeWrap(final List<? extends T> iterable) {
-        return new ListCloseableIterable<T>((List<T>) iterable);
+        return new ListCloseableIterable<T>(iterable);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T> ICloseableIterable<T> maybeWrap(final Collection<? extends T> iterable) {
+        if (iterable instanceof List) {
+            return maybeWrap((List<T>) iterable);
+        } else {
+            return new CollectionCloseableIterable<T>(iterable);
+        }
     }
 
 }

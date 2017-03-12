@@ -1,4 +1,4 @@
-package de.invesdwin.util.collections.iterable.list;
+package de.invesdwin.util.collections.iterable.collection;
 
 import java.util.List;
 
@@ -10,11 +10,11 @@ import de.invesdwin.util.error.FastNoSuchElementException;
 @NotThreadSafe
 public class ListCloseableIterator<E> implements ICloseableIterator<E> {
 
-    private final List<E> list;
+    private final List<? extends E> list;
     private final int size;
     private int i = 0;
 
-    public ListCloseableIterator(final List<E> list) {
+    public ListCloseableIterator(final List<? extends E> list) {
         this.list = list;
         this.size = list.size();
     }

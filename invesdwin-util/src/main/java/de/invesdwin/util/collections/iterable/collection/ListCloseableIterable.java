@@ -1,4 +1,4 @@
-package de.invesdwin.util.collections.iterable.list;
+package de.invesdwin.util.collections.iterable.collection;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -29,11 +29,11 @@ public class ListCloseableIterable<E> implements ICloseableIterable<E> {
         Reflections.makeAccessible(SUBLIST_PARENT_FIELD);
     }
 
-    private final List<E> list;
+    private final List<? extends E> list;
 
-    public ListCloseableIterable(final List<E> list) {
+    public ListCloseableIterable(final List<? extends E> list) {
         if (list instanceof ADelegateList) {
-            final ADelegateList<E> cList = (ADelegateList<E>) list;
+            final ADelegateList<? extends E> cList = (ADelegateList<? extends E>) list;
             this.list = cList.getDelegate();
         } else {
             this.list = list;
@@ -45,14 +45,12 @@ public class ListCloseableIterable<E> implements ICloseableIterable<E> {
     public ICloseableIterator<E> iterator() {
         if (list instanceof ArrayList) {
             final E[] array = (E[]) Reflections.getField(ARRAYLIST_ELEMENTDATA_FIELD, list);
-            final int size = list.size();
-            return new ArrayCloseableIterator<E>(array, 0, size);
+            return new ArrayCloseableIterator<E>(array, 0, list.size());
         } else if (list.getClass().equals(SUBLIST_CLASS)) {
             final ArrayList<E> parent = (ArrayList<E>) Reflections.getField(SUBLIST_PARENT_FIELD, list);
             final int offset = (Integer) Reflections.getField(SUBLIST_OFFSET_FIELD, list);
-            final int size = list.size();
             final E[] array = (E[]) Reflections.getField(ARRAYLIST_ELEMENTDATA_FIELD, parent);
-            return new ArrayCloseableIterator<E>(array, offset, size);
+            return new ArrayCloseableIterator<E>(array, offset, list.size());
         } else {
             return new ListCloseableIterator<E>(list);
         }

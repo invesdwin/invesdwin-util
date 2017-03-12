@@ -141,8 +141,7 @@ public abstract class AConcurrentModificationDelegateSet<E> extends ADelegateCol
                     return delegate.next();
                 } catch (final NoSuchElementException e) {
                     close();
-                    throw FastNoSuchElementException.maybeReplace(e,
-                            "AConcurrentModificationDelegateSet: next threw NoSuchElementException");
+                    throw FastNoSuchElementException.maybeReplace(e, "AConcurrentModificationDelegateSet: next threw");
                 }
             }
 

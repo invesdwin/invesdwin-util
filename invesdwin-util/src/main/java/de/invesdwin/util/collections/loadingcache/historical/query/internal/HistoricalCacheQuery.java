@@ -10,7 +10,7 @@ import com.google.common.base.Optional;
 
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
-import de.invesdwin.util.collections.iterable.WrapperCloseableIterator;
+import de.invesdwin.util.collections.iterable.WrapperCloseableIterable;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQuery;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQueryElementFilter;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQueryWithFuture;
@@ -128,8 +128,8 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
             @Override
             public ICloseableIterator<Entry<FDate, V>> iterator() {
                 return new ICloseableIterator<Entry<FDate, V>>() {
-                    private final ICloseableIterator<FDate> keysIterator = WrapperCloseableIterator
-                            .maybeWrap(keys.iterator());
+                    private final ICloseableIterator<FDate> keysIterator = WrapperCloseableIterable.maybeWrap(keys)
+                            .iterator();
 
                     @Override
                     public boolean hasNext() {
