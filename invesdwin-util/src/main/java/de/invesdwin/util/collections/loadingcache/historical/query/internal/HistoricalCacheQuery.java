@@ -166,7 +166,7 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
 
                     @Override
                     public V next() {
-                        return HistoricalCacheAssertValue.unwrapEntryValue(entriesIterator.next());
+                        return entriesIterator.next().getValue();
                     }
 
                     @Override
@@ -187,7 +187,7 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
         if (key == null) {
             return null;
         }
-        return HistoricalCacheAssertValue.unwrapEntryKey(core.getParent(), core.getEntry(this, key, assertValue));
+        return HistoricalCacheAssertValue.unwrapEntryKey(core.getEntry(this, key, assertValue));
     }
 
     @Override
@@ -197,7 +197,7 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
             return interceptor.getPreviousKey(key, shiftBackUnits);
         }
         assertShiftUnitsPositive(shiftBackUnits);
-        return HistoricalCacheAssertValue.unwrapEntryKey(core.getParent(), getPreviousEntry(key, shiftBackUnits));
+        return HistoricalCacheAssertValue.unwrapEntryKey(getPreviousEntry(key, shiftBackUnits));
     }
 
     /**
@@ -226,7 +226,7 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
 
                     @Override
                     public FDate next() {
-                        return HistoricalCacheAssertValue.unwrapEntryKey(core.getParent(), previousEntries.next());
+                        return previousEntries.next().getKey();
                     }
 
                     @Override
@@ -262,7 +262,7 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
 
                     @Override
                     public V next() {
-                        return HistoricalCacheAssertValue.unwrapEntryValue(previousEntries.next());
+                        return previousEntries.next().getValue();
                     }
 
                     @Override
@@ -316,7 +316,7 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
 
                         @Override
                         public FDate next() {
-                            return HistoricalCacheAssertValue.unwrapEntryKey(core.getParent(), entriesIterator.next());
+                            return entriesIterator.next().getKey();
                         }
 
                         @Override
@@ -355,7 +355,7 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
                         }
 
                         private FDate extractKey(final Entry<FDate, V> e) {
-                            return HistoricalCacheAssertValue.unwrapEntryKey(core.getParent(), e);
+                            return HistoricalCacheAssertValue.unwrapEntryKey(e);
                         }
 
                         @Override
@@ -410,7 +410,7 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
 
                     @Override
                     public V next() {
-                        return HistoricalCacheAssertValue.unwrapEntryValue(entriesIterator.next());
+                        return entriesIterator.next().getValue();
                     }
 
                     @Override
@@ -426,7 +426,7 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
     @Override
     public FDate getPreviousKeyWithSameValueBetween(final FDate from, final FDate to, final V value) {
         final Entry<FDate, V> entry = getPreviousEntryWithSameValueBetween(from, to, value);
-        return HistoricalCacheAssertValue.unwrapEntryKey(core.getParent(), entry);
+        return HistoricalCacheAssertValue.unwrapEntryKey(entry);
     }
 
     @Override
@@ -470,7 +470,7 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
     @Override
     public FDate getPreviousKeyWithDifferentValueBetween(final FDate from, final FDate to, final V value) {
         final Entry<FDate, V> entry = getPreviousEntryWithDifferentValueBetween(from, to, value);
-        return HistoricalCacheAssertValue.unwrapEntryKey(core.getParent(), entry);
+        return HistoricalCacheAssertValue.unwrapEntryKey(entry);
     }
 
     @Override
@@ -514,7 +514,7 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
     @Override
     public FDate getPreviousKeyWithSameValue(final FDate key, final int maxShiftBackUnits, final V value) {
         final Entry<FDate, V> entry = getPreviousEntryWithSameValue(key, maxShiftBackUnits, value);
-        return HistoricalCacheAssertValue.unwrapEntryKey(core.getParent(), entry);
+        return HistoricalCacheAssertValue.unwrapEntryKey(entry);
     }
 
     @Override
@@ -558,7 +558,7 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
     @Override
     public FDate getPreviousKeyWithDifferentValue(final FDate key, final int maxShiftBackUnits, final V value) {
         final Entry<FDate, V> entry = getPreviousEntryWithDifferentValue(key, maxShiftBackUnits, value);
-        return HistoricalCacheAssertValue.unwrapEntryKey(core.getParent(), entry);
+        return HistoricalCacheAssertValue.unwrapEntryKey(entry);
     }
 
     @Override

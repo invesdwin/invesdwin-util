@@ -90,8 +90,7 @@ public enum HistoricalCacheAssertValue {
         }
     }
 
-    public static final <V> FDate unwrapEntryKey(final IHistoricalCacheInternalMethods<V> parent,
-            final Entry<FDate, V> entry) {
+    public static final <V> FDate unwrapEntryKey(final Entry<FDate, V> entry) {
         if (entry == null) {
             return null;
         } else {
