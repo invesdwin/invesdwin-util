@@ -76,4 +76,13 @@ public abstract class ADelegateList<E> extends ADelegateCollection<E> implements
     @Override
     protected abstract List<E> newDelegate();
 
+    public static <T> List<T> maybeUnwrapToRoot(final List<T> list) {
+        List<T> cur = list;
+        while (cur instanceof ADelegateList) {
+            final ADelegateList<T> c = (ADelegateList<T>) cur;
+            cur = c.getDelegate();
+        }
+        return cur;
+    }
+
 }

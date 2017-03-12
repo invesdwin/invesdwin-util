@@ -33,8 +33,7 @@ public class ListCloseableIterable<E> implements ICloseableIterable<E> {
 
     public ListCloseableIterable(final List<? extends E> list) {
         if (list instanceof ADelegateList) {
-            final ADelegateList<? extends E> cList = (ADelegateList<? extends E>) list;
-            this.list = cList.getDelegate();
+            this.list = ADelegateList.maybeUnwrapToRoot(list);
         } else {
             this.list = list;
         }

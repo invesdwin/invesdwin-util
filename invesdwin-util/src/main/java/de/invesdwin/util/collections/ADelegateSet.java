@@ -17,4 +17,13 @@ public abstract class ADelegateSet<E> extends ADelegateCollection<E> implements 
     @Override
     protected abstract Set<E> newDelegate();
 
+    public static <T> Set<T> maybeUnwrapToRoot(final Set<T> set) {
+        Set<T> cur = set;
+        while (cur instanceof ADelegateSet) {
+            final ADelegateSet<T> c = (ADelegateSet<T>) cur;
+            cur = c.getDelegate();
+        }
+        return cur;
+    }
+
 }

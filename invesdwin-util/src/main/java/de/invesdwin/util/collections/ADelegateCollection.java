@@ -120,4 +120,13 @@ public abstract class ADelegateCollection<E> implements Collection<E> {
         return getDelegate().hashCode();
     }
 
+    public static <T> Collection<T> maybeUnwrapToRoot(final Collection<T> collection) {
+        Collection<T> cur = collection;
+        while (cur instanceof ADelegateCollection) {
+            final ADelegateCollection<T> c = (ADelegateCollection<T>) cur;
+            cur = c.getDelegate();
+        }
+        return cur;
+    }
+
 }

@@ -87,4 +87,13 @@ public abstract class ADelegateMap<K, V> implements Map<K, V> {
         return true;
     }
 
+    public static <K, V> Map<K, V> maybeUnwrapToRoot(final Map<K, V> map) {
+        Map<K, V> cur = map;
+        while (cur instanceof ADelegateMap) {
+            final ADelegateMap<K, V> c = (ADelegateMap<K, V>) map;
+            cur = c.getDelegate();
+        }
+        return cur;
+    }
+
 }
