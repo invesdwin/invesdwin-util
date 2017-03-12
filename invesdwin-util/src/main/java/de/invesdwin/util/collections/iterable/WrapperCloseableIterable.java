@@ -1,6 +1,10 @@
 package de.invesdwin.util.collections.iterable;
 
+import java.util.List;
+
 import javax.annotation.concurrent.NotThreadSafe;
+
+import de.invesdwin.util.collections.iterable.list.ListCloseableIterable;
 
 @NotThreadSafe
 public final class WrapperCloseableIterable<E> implements ICloseableIterable<E> {
@@ -27,12 +31,18 @@ public final class WrapperCloseableIterable<E> implements ICloseableIterable<E> 
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> ICloseableIterable<T> maybeWrap(final Iterable<? extends T> iterator) {
-        if (iterator instanceof ICloseableIterable) {
-            return (ICloseableIterable<T>) iterator;
+    public static <T> ICloseableIterable<T> maybeWrap(final Iterable<? extends T> iterable) {
+        if (iterable instanceof ICloseableIterable) {
+            return (ICloseableIterable<T>) iterable;
+        } else if (iterable instanceof List) {
+            return maybeWrap((List<T>) iterable);
         } else {
-            return new WrapperCloseableIterable<T>(iterator);
+            return new WrapperCloseableIterable<T>(iterable);
         }
+    }
+
+    public static <T> ICloseableIterable<T> maybeWrap(final List<? extends T> iterable) {
+        return new ListCloseableIterable<T>((List<T>) iterable);
     }
 
 }

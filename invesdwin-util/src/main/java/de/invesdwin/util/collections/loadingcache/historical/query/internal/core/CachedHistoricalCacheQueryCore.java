@@ -295,7 +295,7 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
             }
             final int toIndex = cachedPreviousResult_filteringDuplicates.size();
             final int fromIndex = Math.max(0, toIndex - shiftBackUnits);
-            return Collections.unmodifiableList(cachedPreviousResult_filteringDuplicates.subList(fromIndex, toIndex));
+            return cachedPreviousResult_filteringDuplicates.subList(fromIndex, toIndex);
         } else {
             if (cachedPreviousResult_notFilteringDuplicates == null) {
                 if (cachedPreviousResult_filteringDuplicates == null) {
@@ -315,8 +315,7 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
             }
             final int toIndex = cachedPreviousResult_notFilteringDuplicates.size();
             final int fromIndex = Math.max(0, toIndex - shiftBackUnits);
-            return Collections
-                    .unmodifiableList(cachedPreviousResult_notFilteringDuplicates.subList(fromIndex, toIndex));
+            return cachedPreviousResult_notFilteringDuplicates.subList(fromIndex, toIndex);
         }
     }
 

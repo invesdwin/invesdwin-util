@@ -10,7 +10,7 @@ public abstract class ADelegateSet<E> extends ADelegateCollection<E> implements 
     private final Set<E> delegateSet = (Set<E>) super.getDelegate();
 
     @Override
-    protected Set<E> getDelegate() {
+    public Set<E> getDelegate() {
         return delegateSet;
     }
 

@@ -12,7 +12,7 @@ public abstract class ADelegateCollection<E> implements Collection<E> {
 
     private final Collection<E> delegate = newDelegate();
 
-    protected Collection<E> getDelegate() {
+    public Collection<E> getDelegate() {
         return delegate;
     }
 

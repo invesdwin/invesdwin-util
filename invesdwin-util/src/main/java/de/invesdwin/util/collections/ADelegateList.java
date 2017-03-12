@@ -12,7 +12,7 @@ public abstract class ADelegateList<E> extends ADelegateCollection<E> implements
     private final List<E> delegateList = (List<E>) super.getDelegate();
 
     @Override
-    protected List<E> getDelegate() {
+    public List<E> getDelegate() {
         return delegateList;
     }
 
