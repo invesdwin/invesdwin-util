@@ -42,6 +42,10 @@ public class ListCloseableIterable<E> implements ICloseableIterable<E> {
     @SuppressWarnings("unchecked")
     @Override
     public ICloseableIterator<E> iterator() {
+        /*
+         * try to save us the effort for checking the mod count and bounds all the time by trying to directly go to the
+         * underlying array
+         */
         if (list instanceof ArrayList) {
             final E[] array = (E[]) Reflections.getField(ARRAYLIST_ELEMENTDATA_FIELD, list);
             return new ArrayCloseableIterator<E>(array, 0, list.size());
