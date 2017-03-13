@@ -23,7 +23,7 @@ public interface IHistoricalCacheInternalMethods<V> {
 
     Integer getInitialMaximumSize();
 
-    void increaseMaximumSize(int maximumSize);
+    void increaseMaximumSize(int maximumSize, String reason);
 
     IHistoricalCacheQuery<?> newKeysQueryInterceptor();
 

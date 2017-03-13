@@ -60,7 +60,8 @@ public abstract class AGapHistoricalCacheMissCounter<V> {
             final int newOptimalMaximumSize = determineNewOptimalMaximumSize();
             if (newOptimalMaximumSize > currentMaximumSize) {
                 optimiumMaximumSize = newOptimalMaximumSize;
-                increaseOptimalMaximumSize(newOptimalMaximumSize);
+                increaseOptimalMaximumSize(newOptimalMaximumSize,
+                        AGapHistoricalCacheMissCounter.class.getSimpleName() + " enountered too many cache misses");
                 changed = true;
             }
         }
@@ -84,7 +85,7 @@ public abstract class AGapHistoricalCacheMissCounter<V> {
 
     protected abstract String parentToString();
 
-    protected abstract void increaseOptimalMaximumSize(int optimalMaximumSize);
+    protected abstract void increaseOptimalMaximumSize(int optimalMaximumSize, String reason);
 
     public long getOptimalReadBackStepMillis() {
         return optimiumReadBackStepMillis.longValue(FTimeUnit.MILLISECONDS);

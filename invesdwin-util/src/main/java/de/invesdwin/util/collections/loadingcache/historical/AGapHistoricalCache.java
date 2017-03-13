@@ -64,8 +64,8 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
         }
 
         @Override
-        protected void increaseOptimalMaximumSize(final int optimalMaximumSize) {
-            AGapHistoricalCache.this.increaseMaximumSize(optimalMaximumSize);
+        protected void increaseOptimalMaximumSize(final int optimalMaximumSize, final String reason) {
+            AGapHistoricalCache.this.increaseMaximumSize(optimalMaximumSize, reason);
         }
 
         @Override
@@ -97,8 +97,8 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
     private final IHistoricalCacheQuery<V> thisQueryWithFuture = query().withFuture();
 
     @Override
-    protected void innerIncreaseMaximumSize(final int maximumSize) {
-        super.innerIncreaseMaximumSize(maximumSize);
+    protected void innerIncreaseMaximumSize(final int maximumSize, final String reason) {
+        super.innerIncreaseMaximumSize(maximumSize, reason);
         cacheMissCounter.increaseMaximumSize(maximumSize);
     }
 

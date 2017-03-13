@@ -38,7 +38,7 @@ public abstract class AHistoricalCache<V> {
      * 10k is normally sufficient for daily bars of stocks and also fast enough for intraday ticks to load.
      */
     public static final Integer DEFAULT_MAXIMUM_SIZE = 100;
-    public static final int DEFAULT_MAXIMUM_SIZE_LIMIT = 25000;
+    public static final int DEFAULT_MAXIMUM_SIZE_LIMIT = 100000;
     private static final org.slf4j.ext.XLogger LOG = org.slf4j.ext.XLoggerFactory.getXLogger(AHistoricalCache.class);
     private static boolean debugAutomaticReoptimization = false;
 
@@ -105,11 +105,11 @@ public abstract class AHistoricalCache<V> {
         return maximumSize;
     }
 
-    public final synchronized void increaseMaximumSize(final int maximumSize) {
+    public final synchronized void increaseMaximumSize(final int maximumSize, final String reason) {
         final Integer existingMaximumSize = this.maximumSize;
         final int usedMaximumSize = Math.min(getMaximumSizeLimit(), maximumSize);
         if (existingMaximumSize == null || existingMaximumSize < usedMaximumSize) {
-            innerIncreaseMaximumSize(usedMaximumSize);
+            innerIncreaseMaximumSize(usedMaximumSize, reason);
         }
     }
 
@@ -117,7 +117,7 @@ public abstract class AHistoricalCache<V> {
         return DEFAULT_MAXIMUM_SIZE_LIMIT;
     }
 
-    protected void innerIncreaseMaximumSize(final int maximumSize) {
+    protected void innerIncreaseMaximumSize(final int maximumSize, final String reason) {
         for (final ALoadingCache<?, ?> l : increaseMaximumSizeListeners) {
             l.increaseMaximumSize(maximumSize);
         }
@@ -125,7 +125,7 @@ public abstract class AHistoricalCache<V> {
         if (isDebugAutomaticReoptimization() || maximumSize >= getMaximumSizeLimit()) {
             if (LOG.isWarnEnabled()) {
                 LOG.warn(this + ": Increasing maximum size from [" + this.maximumSize + "] to [" + maximumSize
-                        + "]. Growing too large maximum sizes for unanticipated caches can cause excessive memory consumption and bad performance.");
+                        + "] with reason [" + reason + "]");
             }
         }
         this.maximumSize = maximumSize;
@@ -470,8 +470,8 @@ public abstract class AHistoricalCache<V> {
         }
 
         @Override
-        public void increaseMaximumSize(final int maximumSize) {
-            AHistoricalCache.this.increaseMaximumSize(maximumSize);
+        public void increaseMaximumSize(final int maximumSize, final String reason) {
+            AHistoricalCache.this.increaseMaximumSize(maximumSize, reason);
         }
 
         @Override
