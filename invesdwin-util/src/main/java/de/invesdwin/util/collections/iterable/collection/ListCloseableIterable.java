@@ -7,12 +7,13 @@ import java.util.List;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.collections.ADelegateList;
+import de.invesdwin.util.collections.IFastToListProvider;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.lang.Reflections;
 
 @Immutable
-public class ListCloseableIterable<E> implements ICloseableIterable<E> {
+public class ListCloseableIterable<E> implements ICloseableIterable<E>, IFastToListProvider<E> {
 
     private static final Field ARRAYLIST_ELEMENTDATA_FIELD;
     private static final Class<?> SUBLIST_CLASS;
@@ -48,15 +49,47 @@ public class ListCloseableIterable<E> implements ICloseableIterable<E> {
          */
         if (list instanceof ArrayList) {
             final E[] array = (E[]) Reflections.getField(ARRAYLIST_ELEMENTDATA_FIELD, list);
-            return new ArrayCloseableIterator<E>(array, 0, list.size());
+            return new ArrayCloseableIterator<E>(array, 0, list.size()) {
+                @Override
+                public List<E> toList() {
+                    return ListCloseableIterable.this.toList();
+                }
+
+                @Override
+                public List<E> toList(final List<E> list) {
+                    return ListCloseableIterable.this.toList();
+                }
+            };
         } else if (list.getClass().equals(SUBLIST_CLASS)) {
             final ArrayList<E> parent = (ArrayList<E>) Reflections.getField(SUBLIST_PARENT_FIELD, list);
             final int offset = (Integer) Reflections.getField(SUBLIST_OFFSET_FIELD, list);
             final E[] array = (E[]) Reflections.getField(ARRAYLIST_ELEMENTDATA_FIELD, parent);
-            return new ArrayCloseableIterator<E>(array, offset, list.size());
+            return new ArrayCloseableIterator<E>(array, offset, list.size()) {
+                @Override
+                public List<E> toList() {
+                    return ListCloseableIterable.this.toList();
+                }
+
+                @Override
+                public List<E> toList(final List<E> list) {
+                    return ListCloseableIterable.this.toList();
+                }
+            };
         } else {
             return new ListCloseableIterator<E>(list);
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public List<E> toList() {
+        return (List<E>) list;
+    }
+
+    @Override
+    public List<E> toList(final List<E> list) {
+        list.addAll(this.list);
+        return list;
     }
 
 }

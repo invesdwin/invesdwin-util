@@ -34,9 +34,16 @@ public abstract class ARecursiveHistoricalCacheQuery<V> {
     @GuardedBy("parent")
     private FDate firstAvailableKey;
 
+    private final IHistoricalCacheQuery<V> parentQuery;
+    private final IHistoricalCacheQueryWithFuture<V> parentQueryWithFuture;
+    private final IHistoricalCacheQuery<V> parentQueryWithFutureNull;
+
     public ARecursiveHistoricalCacheQuery(final AHistoricalCache<V> parent, final int maxRecursionCount) {
         this.parent = parent;
         this.maxRecursionCount = Integers.max(maxRecursionCount, MIN_RECURSION_COUNT);
+        this.parentQuery = parent.query();
+        this.parentQueryWithFuture = parent.query().withFuture();
+        this.parentQueryWithFutureNull = parent.query().withFutureNull();
     }
 
     public int getMaxRecursionCount() {
@@ -46,7 +53,7 @@ public abstract class ARecursiveHistoricalCacheQuery<V> {
     public V getPreviousValue(final FDate key, final FDate previousKey) {
         final V previous;
         if (parent.containsKey(previousKey)) {
-            previous = newQuery(parent).getValue(previousKey);
+            previous = parentQuery.getValue(previousKey);
         } else {
             previous = getPreviousValueByRecursion(key, previousKey);
         }
@@ -76,8 +83,8 @@ public abstract class ARecursiveHistoricalCacheQuery<V> {
     }
 
     private V internalGetPreviousValueByRecursion(final FDate previousKey) {
-        List<FDate> recursionKeys = Lists.toListWithoutHasNext(
-                newQuery(parent).withFutureNull().getPreviousKeys(previousKey, maxRecursionCount));
+        List<FDate> recursionKeys = Lists
+                .toListWithoutHasNext(parentQueryWithFutureNull.getPreviousKeys(previousKey, maxRecursionCount));
         if (recursionKeys.isEmpty()) {
             return getInitialValue(previousKey);
         }
@@ -103,9 +110,9 @@ public abstract class ARecursiveHistoricalCacheQuery<V> {
             }
             for (final FDate recursionKey : recursionKeys) {
                 //fill up the missing values
-                newQuery(parent).getValue(recursionKey);
+                parentQuery.getValue(recursionKey);
             }
-            final V previous = newQuery(parent).getValue(previousKey);
+            final V previous = parentQuery.getValue(previousKey);
             return previous;
         } finally {
             firstRecursionKey = null;
@@ -115,16 +122,9 @@ public abstract class ARecursiveHistoricalCacheQuery<V> {
 
     private FDate getFirstAvailableKey() {
         if (firstAvailableKey == null) {
-            this.firstAvailableKey = parent.query().withFuture().getKey(FDate.MIN_DATE);
+            this.firstAvailableKey = parentQueryWithFuture.getKey(FDate.MIN_DATE);
         }
         return firstAvailableKey;
-    }
-
-    /**
-     * can be overridden to change the future data handling
-     */
-    protected <T> IHistoricalCacheQuery<T> newQuery(final AHistoricalCache<T> parent) {
-        return parent.query();
     }
 
     protected abstract V getInitialValue(FDate previousKey);

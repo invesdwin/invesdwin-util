@@ -35,24 +35,34 @@ public final class Lists extends AListsStaticFacade {
         return join(Arrays.asList(lists));
     }
 
+    @SuppressWarnings("unchecked")
     public static <E> List<E> toListWithoutHasNext(final ICloseableIterator<? extends E> iterator, final List<E> list) {
-        try {
-            while (true) {
-                final E next = iterator.next();
-                if (next == null) {
-                    throw new NullPointerException("null");
+        if (iterator instanceof IFastToListProvider) {
+            final IFastToListProvider<E> cIterator = (IFastToListProvider<E>) iterator;
+            return cIterator.toList(list);
+        } else {
+            try {
+                while (true) {
+                    final E next = iterator.next();
+                    if (next == null) {
+                        throw new NullPointerException("null");
+                    }
+                    list.add(next);
                 }
-                list.add(next);
+            } catch (final NoSuchElementException e) {
+                iterator.close();
+                return list;
             }
-        } catch (final NoSuchElementException e) {
-            iterator.close();
-            return list;
         }
     }
 
+    @SuppressWarnings("unchecked")
     public static <E> List<E> toListWithoutHasNext(final ICloseableIterable<? extends E> iterable, final List<E> list) {
         final Iterable<E> unwrapped = WrapperCloseableIterable.maybeUnwrap(iterable);
-        if (unwrapped instanceof Collection) {
+        if (unwrapped instanceof IFastToListProvider) {
+            final IFastToListProvider<E> cUnwrapped = (IFastToListProvider<E>) unwrapped;
+            return cUnwrapped.toList(list);
+        } else if (unwrapped instanceof Collection) {
             list.addAll((Collection<E>) unwrapped);
             return list;
         } else {
@@ -64,28 +74,41 @@ public final class Lists extends AListsStaticFacade {
         return toListWithoutHasNext(iterator, new ArrayList<E>());
     }
 
+    @SuppressWarnings("unchecked")
     public static <E> List<E> toListWithoutHasNext(final ICloseableIterable<? extends E> iterable) {
         final Iterable<E> unwrapped = WrapperCloseableIterable.maybeUnwrap(iterable);
-        if (unwrapped instanceof List) {
+        if (unwrapped instanceof IFastToListProvider) {
+            final IFastToListProvider<E> cUnwrapped = (IFastToListProvider<E>) unwrapped;
+            return cUnwrapped.toList();
+        } else if (unwrapped instanceof List) {
             return (List<E>) unwrapped;
-        }
-        if (unwrapped instanceof Collection) {
+        } else if (unwrapped instanceof Collection) {
             return new ArrayList<E>((Collection<E>) unwrapped);
         }
         return toListWithoutHasNext(iterable.iterator());
     }
 
+    @SuppressWarnings("unchecked")
     public static <E> List<E> toList(final ICloseableIterator<? extends E> iterator, final List<E> list) {
-        while (iterator.hasNext()) {
-            list.add(iterator.next());
+        if (iterator instanceof IFastToListProvider) {
+            final IFastToListProvider<E> cIterator = (IFastToListProvider<E>) iterator;
+            return cIterator.toList(list);
+        } else {
+            while (iterator.hasNext()) {
+                list.add(iterator.next());
+            }
+            iterator.close();
+            return list;
         }
-        iterator.close();
-        return list;
     }
 
+    @SuppressWarnings("unchecked")
     public static <E> List<E> toList(final ICloseableIterable<? extends E> iterable, final List<E> list) {
         final Iterable<E> unwrapped = WrapperCloseableIterable.maybeUnwrap(iterable);
-        if (unwrapped instanceof Collection) {
+        if (unwrapped instanceof IFastToListProvider) {
+            final IFastToListProvider<E> cUnwrapped = (IFastToListProvider<E>) unwrapped;
+            return cUnwrapped.toList(list);
+        } else if (unwrapped instanceof Collection) {
             list.addAll((Collection<E>) unwrapped);
             return list;
         } else {
@@ -97,12 +120,15 @@ public final class Lists extends AListsStaticFacade {
         return toList(iterator, new ArrayList<E>());
     }
 
+    @SuppressWarnings("unchecked")
     public static <E> List<E> toList(final ICloseableIterable<? extends E> iterable) {
         final Iterable<E> unwrapped = WrapperCloseableIterable.maybeUnwrap(iterable);
-        if (unwrapped instanceof List) {
+        if (unwrapped instanceof IFastToListProvider) {
+            final IFastToListProvider<E> cUnwrapped = (IFastToListProvider<E>) unwrapped;
+            return cUnwrapped.toList();
+        } else if (unwrapped instanceof List) {
             return (List<E>) unwrapped;
-        }
-        if (unwrapped instanceof Collection) {
+        } else if (unwrapped instanceof Collection) {
             return new ArrayList<E>((Collection<E>) unwrapped);
         }
         return toList(iterable.iterator());
@@ -112,11 +138,12 @@ public final class Lists extends AListsStaticFacade {
     public static <E> List<E> toList(final Iterable<? extends E> c) {
         if (c instanceof ICloseableIterable) {
             return toList((ICloseableIterable<E>) c);
-        }
-        if (c instanceof List) {
+        } else if (c instanceof IFastToListProvider) {
+            final IFastToListProvider<E> cUnwrapped = (IFastToListProvider<E>) c;
+            return cUnwrapped.toList();
+        } else if (c instanceof List) {
             return (List<E>) c;
-        }
-        if (c instanceof Collection) {
+        } else if (c instanceof Collection) {
             return new ArrayList<E>((Collection<E>) c);
         }
         return toList(c.iterator());
@@ -126,8 +153,10 @@ public final class Lists extends AListsStaticFacade {
     public static <E> List<E> toList(final Iterable<? extends E> c, final List<E> list) {
         if (c instanceof ICloseableIterable) {
             return toList((ICloseableIterable<E>) c, list);
-        }
-        if (c instanceof Collection) {
+        } else if (c instanceof IFastToListProvider) {
+            final IFastToListProvider<E> cUnwrapped = (IFastToListProvider<E>) c;
+            return cUnwrapped.toList(list);
+        } else if (c instanceof Collection) {
             list.addAll((Collection<E>) c);
             return list;
         }
@@ -138,22 +167,29 @@ public final class Lists extends AListsStaticFacade {
         return toList(iterator, new ArrayList<E>());
     }
 
+    @SuppressWarnings("unchecked")
     public static <E> List<E> toList(final Iterator<? extends E> iterator, final List<E> list) {
-        while (iterator.hasNext()) {
-            list.add(iterator.next());
+        if (iterator instanceof IFastToListProvider) {
+            final IFastToListProvider<E> cUnwrapped = (IFastToListProvider<E>) iterator;
+            return cUnwrapped.toList(list);
+        } else {
+            while (iterator.hasNext()) {
+                list.add(iterator.next());
+            }
+            return list;
         }
-        return list;
     }
 
     @SuppressWarnings("unchecked")
     public static <E> List<E> toListWithoutHasNext(final Iterable<? extends E> c) {
         if (c instanceof ICloseableIterable) {
             return toListWithoutHasNext((ICloseableIterable<E>) c);
-        }
-        if (c instanceof List) {
+        } else if (c instanceof IFastToListProvider) {
+            final IFastToListProvider<E> cUnwrapped = (IFastToListProvider<E>) c;
+            return cUnwrapped.toList();
+        } else if (c instanceof List) {
             return (List<E>) c;
-        }
-        if (c instanceof Collection) {
+        } else if (c instanceof Collection) {
             return new ArrayList<E>((Collection<E>) c);
         }
         return toListWithoutHasNext(c.iterator());
@@ -163,8 +199,10 @@ public final class Lists extends AListsStaticFacade {
     public static <E> List<E> toListWithoutHasNext(final Iterable<? extends E> c, final List<E> list) {
         if (c instanceof ICloseableIterable) {
             return toListWithoutHasNext((ICloseableIterable<E>) c, list);
-        }
-        if (c instanceof Collection) {
+        } else if (c instanceof IFastToListProvider) {
+            final IFastToListProvider<E> cUnwrapped = (IFastToListProvider<E>) c;
+            return cUnwrapped.toList(list);
+        } else if (c instanceof Collection) {
             list.addAll((Collection<E>) c);
             return list;
         }
@@ -175,17 +213,23 @@ public final class Lists extends AListsStaticFacade {
         return toListWithoutHasNext(iterator, new ArrayList<E>());
     }
 
+    @SuppressWarnings("unchecked")
     public static <E> List<E> toListWithoutHasNext(final Iterator<? extends E> iterator, final List<E> list) {
-        try {
-            while (true) {
-                final E next = iterator.next();
-                if (next == null) {
-                    throw new IllegalArgumentException("null");
+        if (iterator instanceof IFastToListProvider) {
+            final IFastToListProvider<E> cUnwrapped = (IFastToListProvider<E>) iterator;
+            return cUnwrapped.toList(list);
+        } else {
+            try {
+                while (true) {
+                    final E next = iterator.next();
+                    if (next == null) {
+                        throw new IllegalArgumentException("null");
+                    }
+                    list.add(next);
                 }
-                list.add(next);
+            } catch (final NoSuchElementException e) {
+                return list;
             }
-        } catch (final NoSuchElementException e) {
-            return list;
         }
     }
 

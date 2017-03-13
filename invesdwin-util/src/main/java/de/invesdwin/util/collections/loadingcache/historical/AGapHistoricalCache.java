@@ -6,6 +6,7 @@ import javax.annotation.concurrent.ThreadSafe;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
 import de.invesdwin.util.collections.loadingcache.historical.internal.AGapHistoricalCacheMissCounter;
+import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQuery;
 import de.invesdwin.util.time.duration.Duration;
 import de.invesdwin.util.time.fdate.FDate;
 import de.invesdwin.util.time.fdate.FDates;
@@ -98,6 +99,8 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
     private FDate maxKey;
     @GuardedBy("this")
     private FDate minKey;
+
+    private final IHistoricalCacheQuery<V> thisQueryWithFuture = query().withFuture();
 
     /**
      * You can enable this setting to get useful info when the automatic reoptimization happens, so you can hardcode the
@@ -264,7 +267,7 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
 
         //maybe use max value
         if (maxKeyInDB != null && key.compareTo(maxKeyInDB) >= 0 && containsKey(maxKeyInDB)) {
-            return query().withFuture().getValue(maxKeyInDB);
+            return thisQueryWithFuture.getValue(maxKeyInDB);
         }
         return (V) null;
     }
@@ -275,11 +278,11 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
             final boolean afterMinKey = !newMinKey && key.compareTo(minKey) >= 0;
             if (afterMinKey && key.compareTo(minKeyInDB) <= 0 && containsKey(minKey)) {
                 //via readNewestValueTo
-                return query().withFuture().getValue(minKey);
+                return thisQueryWithFuture.getValue(minKey);
             }
             if (key.compareTo(minKeyInDB) <= 0 && containsKey(minKeyInDB)) {
                 //via searchInFurtherValues
-                return query().withFuture().getValue(minKeyInDB);
+                return thisQueryWithFuture.getValue(minKeyInDB);
             }
         }
         return (V) null;
@@ -503,7 +506,7 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
             //use the last maxKey
             //because this one is behind it and not a new one
             //thus working if the db does not have further values
-            return query().withFuture().getValue(previousMaxKey);
+            return thisQueryWithFuture.getValue(previousMaxKey);
         }
         return (V) null;
     }

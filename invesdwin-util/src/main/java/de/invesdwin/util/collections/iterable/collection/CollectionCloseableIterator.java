@@ -10,6 +10,10 @@ import de.invesdwin.util.collections.iterable.EmptyCloseableIterator;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.error.FastNoSuchElementException;
 
+/**
+ * By decision not implements IFastToListProvider since we would have to memorize how many elements were skipped
+ * already. This does not work too well with HashSets where the order is undefined. Thus just keep the default behavior.
+ */
 @NotThreadSafe
 public class CollectionCloseableIterator<E> implements ICloseableIterator<E> {
 

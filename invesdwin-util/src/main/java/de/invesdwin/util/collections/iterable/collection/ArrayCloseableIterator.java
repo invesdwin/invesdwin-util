@@ -1,12 +1,17 @@
 package de.invesdwin.util.collections.iterable.collection;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.util.collections.IFastToListProvider;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.error.FastNoSuchElementException;
 
 @NotThreadSafe
-public class ArrayCloseableIterator<E> implements ICloseableIterator<E> {
+public class ArrayCloseableIterator<E> implements ICloseableIterator<E>, IFastToListProvider<E> {
 
     private final E[] array;
     private final int size;
@@ -38,6 +43,41 @@ public class ArrayCloseableIterator<E> implements ICloseableIterator<E> {
     @Override
     public void close() {
         offset = size;
+    }
+
+    @Override
+    public List<E> toList() {
+        try {
+            if (offset == 0 && size == array.length) {
+                return Arrays.asList(array);
+            } else {
+                final ArrayList<E> list = new ArrayList<E>();
+                addAllTo(list);
+                return list;
+            }
+        } finally {
+            close();
+        }
+    }
+
+    @Override
+    public List<E> toList(final List<E> list) {
+        try {
+            if (offset == 0 && size == array.length) {
+                list.addAll(Arrays.asList(array));
+            } else {
+                addAllTo(list);
+            }
+            return list;
+        } finally {
+            close();
+        }
+    }
+
+    protected void addAllTo(final List<E> list) {
+        for (int i = offset; i < size; i++) {
+            list.add(array[i]);
+        }
     }
 
 }
