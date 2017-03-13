@@ -3,6 +3,7 @@ package de.invesdwin.util.collections.loadingcache.historical.internal;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.collections.loadingcache.historical.AGapHistoricalCache;
+import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
 import de.invesdwin.util.time.duration.Duration;
 import de.invesdwin.util.time.fdate.FDate;
 import de.invesdwin.util.time.fdate.FTimeUnit;
@@ -63,12 +64,10 @@ public abstract class AGapHistoricalCacheMissCounter<V> {
                 changed = true;
             }
         }
-        if (changed && isDebugAutomaticReoptimization()) {
+        if (changed && AHistoricalCache.isDebugAutomaticReoptimization()) {
             warn(currentReadBackStepMillis, currentMaximumSize);
         }
     }
-
-    protected abstract boolean isDebugAutomaticReoptimization();
 
     private void warn(final Duration currentReadBackStepMillis, final Integer currentMaximumSize) {
         if (LOG.isWarnEnabled()) {

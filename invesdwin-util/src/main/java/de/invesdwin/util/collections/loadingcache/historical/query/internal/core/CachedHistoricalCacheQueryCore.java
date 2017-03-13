@@ -13,10 +13,10 @@ import org.assertj.core.util.Lists;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.SingleValueIterable;
 import de.invesdwin.util.collections.iterable.WrapperCloseableIterable;
+import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.HistoricalCacheAssertValue;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.IHistoricalCacheInternalMethods;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.impl.GetPreviousEntryQueryImpl;
-import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.time.fdate.FDate;
 
@@ -111,13 +111,16 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
                     return result;
                 } catch (final ResetCacheException e) {
                     countResets++;
-                    if (countResets % COUNT_RESETS_BEFORE_WARNING == 0 || Throwables.isDebugStackTraceEnabled()) {
-                        //CHECKSTYLE:OFF
-                        LOG.warn(
-                                "{}: resetting {} for the {}. time now and retrying after exception [{}: {}], if this happens too often we might encounter bad performance due to inefficient caching",
-                                delegate.getParent(), getClass().getSimpleName(), countResets,
-                                e.getClass().getSimpleName(), e.getMessage());
-                        //CHECKSTYLE:ON
+                    if (countResets % COUNT_RESETS_BEFORE_WARNING == 0
+                            || AHistoricalCache.isDebugAutomaticReoptimization()) {
+                        if (LOG.isWarnEnabled()) {
+                            //CHECKSTYLE:OFF
+                            LOG.warn(
+                                    "{}: resetting {} for the {}. time now and retrying after exception [{}: {}], if this happens too often we might encounter bad performance due to inefficient caching",
+                                    delegate.getParent(), getClass().getSimpleName(), countResets,
+                                    e.getClass().getSimpleName(), e.getMessage());
+                            //CHECKSTYLE:ON
+                        }
                     }
                     resetForRetry();
                     try {

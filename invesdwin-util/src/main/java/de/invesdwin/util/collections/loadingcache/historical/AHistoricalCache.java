@@ -27,7 +27,6 @@ import de.invesdwin.util.collections.loadingcache.historical.query.internal.IHis
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.CachedHistoricalCacheQueryCore;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.IHistoricalCacheQueryCore;
 import de.invesdwin.util.collections.loadingcache.historical.refresh.HistoricalCacheRefreshManager;
-import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.time.fdate.FDate;
 
 @ThreadSafe
@@ -41,6 +40,7 @@ public abstract class AHistoricalCache<V> {
     public static final Integer DEFAULT_MAXIMUM_SIZE = 10;
     public static final int DEFAULT_MAXIMUM_SIZE_LIMIT = 10000;
     private static final org.slf4j.ext.XLogger LOG = org.slf4j.ext.XLoggerFactory.getXLogger(AHistoricalCache.class);
+    private static boolean debugAutomaticReoptimization = false;
 
     protected final IHistoricalCacheInternalMethods<V> internalMethods = new HistoricalCacheInternalMethods();
 
@@ -83,6 +83,18 @@ public abstract class AHistoricalCache<V> {
     }
 
     /**
+     * You can enable this setting to get useful info when the automatic reoptimization happens, so you can hardcode the
+     * optimal values for getMaximumSize() and getReadBackStepMillis() for this cache in these circumstances.
+     */
+    public static void setDebugAutomaticReoptimization(final boolean debugAutomaticReoptimization) {
+        AHistoricalCache.debugAutomaticReoptimization = debugAutomaticReoptimization;
+    }
+
+    public static boolean isDebugAutomaticReoptimization() {
+        return debugAutomaticReoptimization;
+    }
+
+    /**
      * null means unlimited and 0 means no caching at all.
      */
     protected Integer getInitialMaximumSize() {
@@ -110,9 +122,11 @@ public abstract class AHistoricalCache<V> {
             l.increaseMaximumSize(maximumSize);
         }
         queryCore.increaseMaximumSize(maximumSize);
-        if (Throwables.isDebugStackTraceEnabled() || maximumSize >= getMaximumSizeLimit()) {
-            LOG.warn(this + ": Increasing maximum size from [" + this.maximumSize + "] to [" + maximumSize
-                    + "]. Growing too large maximum sizes for unanticipated caches can cause excessive memory consumption and bad performance.");
+        if (isDebugAutomaticReoptimization() || maximumSize >= getMaximumSizeLimit()) {
+            if (LOG.isWarnEnabled()) {
+                LOG.warn(this + ": Increasing maximum size from [" + this.maximumSize + "] to [" + maximumSize
+                        + "]. Growing too large maximum sizes for unanticipated caches can cause excessive memory consumption and bad performance.");
+            }
         }
         this.maximumSize = maximumSize;
     }

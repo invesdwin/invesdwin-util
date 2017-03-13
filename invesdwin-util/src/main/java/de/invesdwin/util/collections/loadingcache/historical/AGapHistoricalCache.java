@@ -36,7 +36,6 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
      */
     private static final int MAX_LAST_VALUES_FROM_LOAD_FURTHER_VALUES = 2;
 
-    private static boolean debugAutomaticReoptimization = false;
     @GuardedBy("this")
     private final BufferingIterator<V> furtherValues = new BufferingIterator<V>();
     @GuardedBy("this")
@@ -73,11 +72,6 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
         protected String parentToString() {
             return AGapHistoricalCache.this.toString();
         }
-
-        @Override
-        protected boolean isDebugAutomaticReoptimization() {
-            return isDefaultDebugAutomaticReoptimization();
-        }
     };
     /**
      * As a convenience a field even if always reset
@@ -101,18 +95,6 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
     private FDate minKey;
 
     private final IHistoricalCacheQuery<V> thisQueryWithFuture = query().withFuture();
-
-    /**
-     * You can enable this setting to get useful info when the automatic reoptimization happens, so you can hardcode the
-     * optimal values for getMaximumSize() and getReadBackStepMillis() for this cache in these circumstances.
-     */
-    public static void setDebugAutomaticReoptimization(final boolean debugAutomaticReoptimization) {
-        AGapHistoricalCache.debugAutomaticReoptimization = debugAutomaticReoptimization;
-    }
-
-    public static boolean isDefaultDebugAutomaticReoptimization() {
-        return debugAutomaticReoptimization;
-    }
 
     @Override
     protected void innerIncreaseMaximumSize(final int maximumSize) {
