@@ -3,6 +3,7 @@ package de.invesdwin.util.collections;
 import java.util.Collection;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Spliterator;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
@@ -83,6 +84,11 @@ public abstract class ADelegateList<E> extends ADelegateCollection<E> implements
             cur = c.getDelegate();
         }
         return cur;
+    }
+
+    @Override
+    public Spliterator<E> spliterator() {
+        return getDelegate().spliterator();
     }
 
 }

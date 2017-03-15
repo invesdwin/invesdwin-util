@@ -44,7 +44,7 @@ public abstract class APullingHistoricalCacheAdjustKeyProvider implements IHisto
             try {
                 final FDate newHighestAllowedKey = getHighestAllowedKeyUpdateCached();
                 if (newHighestAllowedKey != null) {
-                    if (key.isAfter(newHighestAllowedKey)) {
+                    if (key.millisValue() > newHighestAllowedKey.millisValue()) {
                         return newHighestAllowedKey;
                     }
                 }

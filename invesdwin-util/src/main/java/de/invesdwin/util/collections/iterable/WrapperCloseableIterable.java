@@ -1,10 +1,14 @@
 package de.invesdwin.util.collections.iterable;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.util.collections.ADelegateList;
+import de.invesdwin.util.collections.iterable.collection.ArrayListCloseableIterable;
+import de.invesdwin.util.collections.iterable.collection.ArraySubListCloseableIterable;
 import de.invesdwin.util.collections.iterable.collection.CollectionCloseableIterable;
 import de.invesdwin.util.collections.iterable.collection.ListCloseableIterable;
 
@@ -44,8 +48,16 @@ public final class WrapperCloseableIterable<E> implements ICloseableIterable<E> 
         }
     }
 
+    @SuppressWarnings("unchecked")
     public static <T> ICloseableIterable<T> maybeWrap(final List<? extends T> iterable) {
-        return new ListCloseableIterable<T>(iterable);
+        final List<? extends T> unwrappedList = ADelegateList.maybeUnwrapToRoot(iterable);
+        if (unwrappedList instanceof ArrayList) {
+            return new ArrayListCloseableIterable<T>((ArrayList<T>) unwrappedList);
+        } else if (unwrappedList.getClass().equals(ArraySubListCloseableIterable.SUBLIST_CLASS)) {
+            return new ArraySubListCloseableIterable<T>(unwrappedList);
+        } else {
+            return new ListCloseableIterable<T>(unwrappedList);
+        }
     }
 
     @SuppressWarnings("unchecked")
