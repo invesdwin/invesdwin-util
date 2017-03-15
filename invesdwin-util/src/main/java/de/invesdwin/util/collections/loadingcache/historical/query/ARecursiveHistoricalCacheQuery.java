@@ -63,8 +63,8 @@ public abstract class ARecursiveHistoricalCacheQuery<V> {
     private V getPreviousValueByRecursion(final FDate key, final FDate previousKey) {
         synchronized (parent) {
             if (recursionInProgress) {
-                if (previousKey.isBeforeOrEqualTo(firstRecursionKey)
-                        || lastRecursionKey.equals(getFirstAvailableKey())) {
+                if (previousKey.isBeforeOrEqualTo(firstRecursionKey) || lastRecursionKey.equals(getFirstAvailableKey())
+                        || key.equals(previousKey)) {
                     return getInitialValue(previousKey);
                 } else {
                     throw new IllegalStateException(
