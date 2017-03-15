@@ -29,6 +29,9 @@ public class ProcessedEventsRateString {
             return "0/s";
         }
         final double milliseconds = duration.doubleValue(FTimeUnit.MILLISECONDS);
+        if (milliseconds <= 0D) {
+            return "0/s";
+        }
         final double ratePerMillisecond = countEvents / milliseconds;
         if (ratePerMillisecond < 10 && duration.isGreaterThan(Duration.ONE_SECOND)) {
             final double seconds = duration.doubleValue(FTimeUnit.SECONDS);
