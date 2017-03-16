@@ -1,11 +1,9 @@
 package de.invesdwin.util.collections.loadingcache.historical.query;
 
-import java.util.List;
-
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
-import de.invesdwin.util.collections.Lists;
+import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.time.fdate.FDate;
@@ -33,17 +31,33 @@ public abstract class ARecursiveHistoricalCacheQuery<V> {
     private FDate lastRecursionKey;
     @GuardedBy("parent")
     private FDate firstAvailableKey;
+    @GuardedBy("parent")
+    //reuse the array to reduce the garbage collection overhead
+    private final FDate[] recursionKeys;
+    @GuardedBy("parent")
+    //cache separately since the parent could encounter more evictions than this internal cache
+    private final ALoadingCache<FDate, V> cachedRecursiveResults;
 
     private final IHistoricalCacheQuery<V> parentQuery;
     private final IHistoricalCacheQueryWithFuture<V> parentQueryWithFuture;
-    private final IHistoricalCacheQuery<V> parentQueryWithFutureNull;
 
     public ARecursiveHistoricalCacheQuery(final AHistoricalCache<V> parent, final int maxRecursionCount) {
         this.parent = parent;
         this.maxRecursionCount = Integers.max(maxRecursionCount, MIN_RECURSION_COUNT);
         this.parentQuery = parent.query();
         this.parentQueryWithFuture = parent.query().withFuture();
-        this.parentQueryWithFutureNull = parent.query().withFutureNull();
+        this.cachedRecursiveResults = new ALoadingCache<FDate, V>() {
+            @Override
+            protected V loadValue(final FDate key) {
+                return internalGetPreviousValueByRecursion(key);
+            }
+
+            @Override
+            protected Integer getInitialMaximumSize() {
+                return Math.max(MIN_RECURSION_COUNT, parent.getMaximumSize());
+            }
+        };
+        this.recursionKeys = new FDate[maxRecursionCount];
     }
 
     public int getMaxRecursionCount() {
@@ -62,9 +76,15 @@ public abstract class ARecursiveHistoricalCacheQuery<V> {
 
     private V getPreviousValueByRecursion(final FDate key, final FDate previousKey) {
         synchronized (parent) {
+            if (previousKey.isBeforeOrEqualTo(getFirstAvailableKey())) {
+                return getInitialValue(previousKey);
+            }
+
             if (recursionInProgress) {
-                if (previousKey.isBeforeOrEqualTo(firstRecursionKey) || lastRecursionKey.equals(getFirstAvailableKey())
-                        || key.equals(previousKey)) {
+                if (cachedRecursiveResults.containsKey(previousKey)) {
+                    return cachedRecursiveResults.get(previousKey);
+                } else if (previousKey.isBeforeOrEqualTo(firstRecursionKey)
+                        || lastRecursionKey.equals(getFirstAvailableKey()) || key.equals(previousKey)) {
                     return getInitialValue(previousKey);
                 } else {
                     throw new IllegalStateException(
@@ -75,7 +95,7 @@ public abstract class ARecursiveHistoricalCacheQuery<V> {
             }
             recursionInProgress = true;
             try {
-                return internalGetPreviousValueByRecursion(previousKey);
+                return cachedRecursiveResults.get(previousKey);
             } finally {
                 recursionInProgress = false;
             }
@@ -83,36 +103,35 @@ public abstract class ARecursiveHistoricalCacheQuery<V> {
     }
 
     private V internalGetPreviousValueByRecursion(final FDate previousKey) {
-        List<FDate> recursionKeys = Lists
-                .toListWithoutHasNext(parentQueryWithFutureNull.getPreviousKeys(previousKey, maxRecursionCount));
-        if (recursionKeys.isEmpty()) {
-            return getInitialValue(previousKey);
-        }
         try {
-            firstRecursionKey = recursionKeys.get(0);
-            lastRecursionKey = recursionKeys.get(recursionKeys.size() - 1);
-            if (!lastRecursionKey.equals(previousKey)) {
-                //adjustKeyProvider may not have been filled with any useful data yet and the first value might have been requested; check for that case
-                final FDate firstAvailableKey = getFirstAvailableKey();
-                if (!lastRecursionKey.equals(firstAvailableKey)) {
-                    throw new IllegalStateException(parent + ": lastRecursionKey [" + lastRecursionKey
-                            + "] != previousKey [" + previousKey + "]");
-                }
-            }
-
-            for (int i = recursionKeys.size() - 1; i >= 0; i--) {
-                final FDate recursionKey = recursionKeys.get(i);
-                if (parent.containsKey(recursionKey)) {
-                    //start at latest available recursion key
-                    recursionKeys = recursionKeys.subList(i, recursionKeys.size());
+            lastRecursionKey = previousKey;
+            FDate curPreviousKey = lastRecursionKey;
+            int minRecursionIdx = maxRecursionCount;
+            while (minRecursionIdx > 0) {
+                final FDate newPreviousKey = parentQueryWithFuture.getPreviousKey(curPreviousKey, 1);
+                firstRecursionKey = newPreviousKey;
+                if (newPreviousKey.isAfterOrEqualTo(curPreviousKey)) {
+                    //start reached
                     break;
+                } else if (parent.containsKey(newPreviousKey) || cachedRecursiveResults.containsKey(newPreviousKey)) {
+                    //point to continue from reached
+                    break;
+                } else {
+                    //search further for a match to begin from
+                    minRecursionIdx--;
+                    recursionKeys[minRecursionIdx] = newPreviousKey;
+                    curPreviousKey = newPreviousKey;
                 }
             }
-            for (final FDate recursionKey : recursionKeys) {
+            for (int i = minRecursionIdx; i < maxRecursionCount; i++) {
                 //fill up the missing values
-                parentQuery.getValue(recursionKey);
+                parentQuery.getValue(recursionKeys[i]);
             }
             final V previous = parentQuery.getValue(previousKey);
+            if (!parent.containsKey(previousKey)) {
+                throw new IllegalStateException(
+                        parent + ": previousKey for recursion result should have been cached: " + previousKey);
+            }
             return previous;
         } finally {
             firstRecursionKey = null;
