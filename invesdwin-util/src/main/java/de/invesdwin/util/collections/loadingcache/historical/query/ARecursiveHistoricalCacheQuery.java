@@ -125,7 +125,9 @@ public abstract class ARecursiveHistoricalCacheQuery<V> {
             }
             for (int i = minRecursionIdx; i < maxRecursionCount; i++) {
                 //fill up the missing values
-                parentQuery.getValue(recursionKeys[i]);
+                final FDate recursiveKey = recursionKeys[i];
+                final V value = parentQuery.getValue(recursiveKey);
+                cachedRecursiveResults.put(recursiveKey, value);
             }
             return parentQuery.getValue(lastRecursionKey);
         } finally {
