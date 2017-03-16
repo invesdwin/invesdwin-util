@@ -41,12 +41,6 @@ public class AdjustingHistoricalCacheQueryWithFuture<V> extends AdjustingHistori
     }
 
     @Override
-    public IHistoricalCacheQueryWithFuture<V> withRememberNullValue(final boolean rememberNullValue) {
-        delegate.withRememberNullValue(rememberNullValue);
-        return this;
-    }
-
-    @Override
     public IHistoricalCacheQueryWithFuture<V> withFutureNull() {
         delegate.withFutureNull();
         return this;

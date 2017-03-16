@@ -32,11 +32,6 @@ public class HistoricalCacheQueryWithFuture<V> extends HistoricalCacheQuery<V>
     }
 
     @Override
-    public IHistoricalCacheQueryWithFuture<V> withRememberNullValue(final boolean rememberNullValue) {
-        return (IHistoricalCacheQueryWithFuture<V>) super.withRememberNullValue(rememberNullValue);
-    }
-
-    @Override
     public IHistoricalCacheQueryWithFuture<V> withFutureNull() {
         return (IHistoricalCacheQueryWithFuture<V>) super.withFutureNull();
     }

@@ -104,7 +104,7 @@ public abstract class ARecursiveHistoricalCacheQuery<V> {
 
     private V internalGetPreviousValueByRecursion(final FDate previousKey) {
         try {
-            lastRecursionKey = previousKey;
+            lastRecursionKey = parentQueryWithFuture.getKey(previousKey);
             FDate curPreviousKey = lastRecursionKey;
             int minRecursionIdx = maxRecursionCount;
             while (minRecursionIdx > 0) {
@@ -127,12 +127,7 @@ public abstract class ARecursiveHistoricalCacheQuery<V> {
                 //fill up the missing values
                 parentQuery.getValue(recursionKeys[i]);
             }
-            final V previous = parentQuery.getValue(previousKey);
-            if (!parent.containsKey(previousKey)) {
-                throw new IllegalStateException(
-                        parent + ": previousKey for recursion result should have been cached: " + previousKey);
-            }
-            return previous;
+            return parentQuery.getValue(lastRecursionKey);
         } finally {
             firstRecursionKey = null;
             lastRecursionKey = null;

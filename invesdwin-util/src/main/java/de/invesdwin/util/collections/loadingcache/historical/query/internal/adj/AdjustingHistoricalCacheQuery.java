@@ -72,12 +72,6 @@ public class AdjustingHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V
     }
 
     @Override
-    public IHistoricalCacheQuery<V> withRememberNullValue(final boolean rememberNullValue) {
-        delegate.withRememberNullValue(rememberNullValue);
-        return this;
-    }
-
-    @Override
     public IHistoricalCacheQuery<V> withFutureNull() {
         delegate.withFutureNull();
         return this;
@@ -242,11 +236,6 @@ public class AdjustingHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V
     @Override
     public IHistoricalCacheQueryElementFilter<V> getElementFilter() {
         return delegate.getElementFilter();
-    }
-
-    @Override
-    public boolean isRememberNullValue() {
-        return delegate.isRememberNullValue();
     }
 
     @Override

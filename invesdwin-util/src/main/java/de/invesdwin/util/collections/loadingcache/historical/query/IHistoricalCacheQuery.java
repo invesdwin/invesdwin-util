@@ -16,8 +16,6 @@ public interface IHistoricalCacheQuery<V> extends IHistoricalCacheQueryInternalM
      */
     IHistoricalCacheQuery<V> withFilterDuplicateKeys(boolean filterDuplicateKeys);
 
-    IHistoricalCacheQuery<V> withRememberNullValue(boolean rememberNullValue);
-
     IHistoricalCacheQuery<V> withFutureNull();
 
     IHistoricalCacheQueryWithFuture<V> withFuture();

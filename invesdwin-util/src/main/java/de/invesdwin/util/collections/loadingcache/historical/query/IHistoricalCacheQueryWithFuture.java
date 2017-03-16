@@ -18,9 +18,6 @@ public interface IHistoricalCacheQueryWithFuture<V> extends IHistoricalCacheQuer
     IHistoricalCacheQueryWithFuture<V> withFilterDuplicateKeys(boolean filterDuplicateKeys);
 
     @Override
-    IHistoricalCacheQueryWithFuture<V> withRememberNullValue(boolean rememberNullValue);
-
-    @Override
     IHistoricalCacheQueryWithFuture<V> withFutureNull();
 
     @Override

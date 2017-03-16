@@ -21,14 +21,12 @@ import de.invesdwin.util.time.fdate.FDate;
 @NotThreadSafe
 public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
 
-    private static final boolean DEFAULT_REMEMBER_NULL_VALUE = false;
     private static final boolean DEFAULT_FILTER_DUPLICATE_KEYS = true;
     private static final HistoricalCacheAssertValue DEFAULT_ASSERT_VALUE = HistoricalCacheAssertValue.ASSERT_VALUE_WITHOUT_FUTURE;
 
     protected final IHistoricalCacheQueryCore<V> core;
     protected HistoricalCacheAssertValue assertValue = DEFAULT_ASSERT_VALUE;
     private boolean filterDuplicateKeys = DEFAULT_FILTER_DUPLICATE_KEYS;
-    private boolean rememberNullValue = DEFAULT_REMEMBER_NULL_VALUE;
     private IHistoricalCacheQueryElementFilter<V> elementFilter;
 
     public HistoricalCacheQuery(final IHistoricalCacheQueryCore<V> core) {
@@ -39,13 +37,7 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
     public void resetQuerySettings() {
         assertValue = DEFAULT_ASSERT_VALUE;
         filterDuplicateKeys = DEFAULT_FILTER_DUPLICATE_KEYS;
-        rememberNullValue = DEFAULT_REMEMBER_NULL_VALUE;
         elementFilter = null;
-    }
-
-    @Override
-    public boolean isRememberNullValue() {
-        return rememberNullValue;
     }
 
     @Override
@@ -72,12 +64,6 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
     @Override
     public IHistoricalCacheQuery<V> withFilterDuplicateKeys(final boolean filterDuplicateKeys) {
         this.filterDuplicateKeys = filterDuplicateKeys;
-        return this;
-    }
-
-    @Override
-    public IHistoricalCacheQuery<V> withRememberNullValue(final boolean rememberNullValue) {
-        this.rememberNullValue = rememberNullValue;
         return this;
     }
 
@@ -606,7 +592,6 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
         this.assertValue = copyFrom.getAssertValue();
         this.filterDuplicateKeys = copyFrom.isFilterDuplicateKeys();
         this.elementFilter = copyFrom.getElementFilter();
-        this.rememberNullValue = copyFrom.isRememberNullValue();
     }
 
     protected HistoricalCacheQueryWithFuture<V> newFutureQuery() {

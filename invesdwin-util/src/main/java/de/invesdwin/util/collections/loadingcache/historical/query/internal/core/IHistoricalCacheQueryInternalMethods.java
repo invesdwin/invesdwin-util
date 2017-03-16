@@ -9,8 +9,6 @@ import de.invesdwin.util.time.fdate.FDate;
 
 public interface IHistoricalCacheQueryInternalMethods<V> {
 
-    boolean isRememberNullValue();
-
     HistoricalCacheAssertValue getAssertValue();
 
     IHistoricalCacheQueryElementFilter<V> getElementFilter();
