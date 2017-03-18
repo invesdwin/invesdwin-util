@@ -3,8 +3,10 @@ package de.invesdwin.util.collections.loadingcache.historical.query;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
+import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
+import de.invesdwin.util.collections.loadingcache.historical.listener.IHistoricalCacheOnClearListener;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.time.fdate.FDate;
 
@@ -33,7 +35,7 @@ public abstract class ARecursiveHistoricalCacheQuery<V> {
     private FDate firstAvailableKey;
     @GuardedBy("parent")
     //reuse the array to reduce the garbage collection overhead
-    private final FDate[] recursionKeys;
+    private FDate[] reusedRecursionKeys;
     @GuardedBy("parent")
     //cache separately since the parent could encounter more evictions than this internal cache
     private final ALoadingCache<FDate, V> cachedRecursiveResults;
@@ -57,7 +59,13 @@ public abstract class ARecursiveHistoricalCacheQuery<V> {
                 return Math.max(MIN_RECURSION_COUNT, parent.getMaximumSize());
             }
         };
-        this.recursionKeys = new FDate[maxRecursionCount];
+        Assertions.checkTrue(parent.getOnClearListeners().add(new IHistoricalCacheOnClearListener() {
+            @Override
+            public void onClear() {
+                cachedRecursiveResults.clear();
+                reusedRecursionKeys = null;
+            }
+        }));
     }
 
     public int getMaxRecursionCount() {
@@ -107,6 +115,7 @@ public abstract class ARecursiveHistoricalCacheQuery<V> {
             lastRecursionKey = parentQueryWithFuture.getKey(previousKey);
             FDate curPreviousKey = lastRecursionKey;
             int minRecursionIdx = maxRecursionCount;
+            final FDate[] recursionKeys = getRecursionKeys();
             while (minRecursionIdx > 0) {
                 final FDate newPreviousKey = parentQueryWithFuture.getPreviousKey(curPreviousKey, 1);
                 firstRecursionKey = newPreviousKey;
@@ -134,6 +143,13 @@ public abstract class ARecursiveHistoricalCacheQuery<V> {
             firstRecursionKey = null;
             lastRecursionKey = null;
         }
+    }
+
+    private FDate[] getRecursionKeys() {
+        if (reusedRecursionKeys == null) {
+            reusedRecursionKeys = new FDate[maxRecursionCount];
+        }
+        return reusedRecursionKeys;
     }
 
     private FDate getFirstAvailableKey() {

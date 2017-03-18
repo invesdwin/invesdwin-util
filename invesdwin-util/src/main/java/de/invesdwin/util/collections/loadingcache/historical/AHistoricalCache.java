@@ -1,8 +1,11 @@
 package de.invesdwin.util.collections.loadingcache.historical;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.function.Function;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -10,6 +13,7 @@ import javax.annotation.concurrent.ThreadSafe;
 import org.assertj.core.description.TextDescription;
 
 import de.invesdwin.util.assertions.Assertions;
+import de.invesdwin.util.collections.concurrent.AFastIterableDelegateSet;
 import de.invesdwin.util.collections.loadingcache.ADelegateLoadingCache;
 import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 import de.invesdwin.util.collections.loadingcache.ILoadingCache;
@@ -20,6 +24,7 @@ import de.invesdwin.util.collections.loadingcache.historical.key.internal.Delega
 import de.invesdwin.util.collections.loadingcache.historical.key.internal.DelegateHistoricalCacheShiftKeyProvider;
 import de.invesdwin.util.collections.loadingcache.historical.key.internal.IHistoricalCacheExtractKeyProvider;
 import de.invesdwin.util.collections.loadingcache.historical.key.internal.IHistoricalCacheShiftKeyProvider;
+import de.invesdwin.util.collections.loadingcache.historical.listener.IHistoricalCacheOnClearListener;
 import de.invesdwin.util.collections.loadingcache.historical.listener.IHistoricalCacheOnValueLoadedListener;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQuery;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.HistoricalCacheQuery;
@@ -49,6 +54,13 @@ public abstract class AHistoricalCache<V> {
     private final IHistoricalCacheQueryCore<V> queryCore = newHistoricalCacheQueryCore();
     private IHistoricalCacheAdjustKeyProvider adjustKeyProvider = new InnerHistoricalCacheAdjustKeyProvider();
     private IHistoricalCacheOnValueLoadedListener<V> onValueLoadedListener = new InnerHistoricalCacheOnValueLoadedListener();
+    private final Set<IHistoricalCacheOnClearListener> onClearListeners = Collections
+            .synchronizedSet(new AFastIterableDelegateSet<IHistoricalCacheOnClearListener>() {
+                @Override
+                protected Set<IHistoricalCacheOnClearListener> newDelegate() {
+                    return new LinkedHashSet<IHistoricalCacheOnClearListener>();
+                }
+            });
 
     private volatile FDate lastRefresh = HistoricalCacheRefreshManager.getLastRefresh();
     private boolean isPutDisabled = getMaximumSize() != null && getMaximumSize() == 0;
@@ -397,7 +409,14 @@ public abstract class AHistoricalCache<V> {
             shiftKeyProvider.clear();
         }
         queryCore.clear();
+        for (final IHistoricalCacheOnClearListener listener : onClearListeners) {
+            listener.onClear();
+        }
         lastRefresh = HistoricalCacheRefreshManager.getLastRefresh();
+    }
+
+    public Set<IHistoricalCacheOnClearListener> getOnClearListeners() {
+        return onClearListeners;
     }
 
     protected IHistoricalCacheRangeQueryInterceptor<V> getQueryInterceptor() {
