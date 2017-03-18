@@ -13,6 +13,8 @@ import org.apache.commons.math3.stat.descriptive.rank.Median;
 
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.Lists;
+import de.invesdwin.util.collections.iterable.ICloseableIterator;
+import de.invesdwin.util.collections.iterable.WrapperCloseableIterable;
 import de.invesdwin.util.math.decimal.ADecimal;
 import de.invesdwin.util.math.decimal.Decimal;
 import de.invesdwin.util.math.decimal.IDecimalAggregate;
@@ -25,6 +27,7 @@ import de.invesdwin.util.math.decimal.stream.DecimalStreamAvgWeightedAsc;
 import de.invesdwin.util.math.decimal.stream.DecimalStreamGeomAvg;
 import de.invesdwin.util.math.decimal.stream.DecimalStreamNormalization;
 import de.invesdwin.util.math.decimal.stream.DecimalStreamRelativeDetrending;
+import de.invesdwin.util.math.decimal.stream.DecimalStreamRemoveFlatSequences;
 import de.invesdwin.util.math.decimal.stream.DecimalStreamSum;
 
 @ThreadSafe
@@ -564,7 +567,7 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
         final E firstValue = values.get(0);
         final E lastValue = values.get(size() - 1);
         final E avgChange = lastValue.subtract(firstValue).divide(size() - 1);
-        final List<E> detrendedValues = new ArrayList<E>();
+        final List<E> detrendedValues = new ArrayList<E>(size());
         for (int i = 0; i < values.size(); i++) {
             final E value = values.get(i);
             final E detrendedValue = value.subtract(avgChange.multiply(i));
@@ -582,7 +585,7 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
         final DecimalPoint<Decimal, E> to = new DecimalPoint<Decimal, E>(new Decimal(size()),
                 values.get(values.size() - 1));
         final DecimalStreamRelativeDetrending<E> detrending = new DecimalStreamRelativeDetrending<E>(from, to);
-        final List<E> results = new ArrayList<E>();
+        final List<E> results = new ArrayList<E>(size());
         for (int i = 0; i < size(); i++) {
             final DecimalPoint<Decimal, E> value = new DecimalPoint<Decimal, E>(new Decimal(i), values.get(i));
             final DecimalPoint<Decimal, E> detrendedValue = detrending.process(value);
@@ -593,14 +596,9 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
 
     @Override
     public IDecimalAggregate<E> removeFlatSequences() {
-        final List<E> deflattened = new ArrayList<E>();
-        E prevValue = null;
-        for (final E value : values) {
-            if (prevValue == null || !value.equals(prevValue)) {
-                deflattened.add(value);
-            }
-            prevValue = value;
-        }
+        final ICloseableIterator<E> removeFlatSequences = new DecimalStreamRemoveFlatSequences<E>()
+                .asIterator(WrapperCloseableIterable.maybeWrap(values).iterator());
+        final List<E> deflattened = Lists.toListWithoutHasNext(removeFlatSequences, new ArrayList<E>(size()));
         return new DecimalAggregate<E>(deflattened, getConverter());
     }
 
