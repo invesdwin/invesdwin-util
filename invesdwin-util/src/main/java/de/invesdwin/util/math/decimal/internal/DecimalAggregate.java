@@ -62,7 +62,7 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
      */
     @Override
     public IDecimalAggregate<E> growthRates() {
-        final List<E> growthRates = new ArrayList<E>();
+        final List<E> growthRates = new ArrayList<E>(size());
         E previousValue = null;
         for (final E value : values) {
             if (previousValue != null) {
@@ -74,7 +74,7 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
     }
 
     public IDecimalAggregate<E> absoluteChanges() {
-        final List<E> differences = new ArrayList<E>();
+        final List<E> differences = new ArrayList<E>(size());
         E previousValue = null;
         for (final E value : values) {
             if (previousValue != null) {
@@ -379,7 +379,7 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
 
     @Override
     public IDecimalAggregate<E> positiveValues() {
-        final List<E> positives = new ArrayList<E>();
+        final List<E> positives = new ArrayList<E>(size());
         for (final E value : values) {
             if (value.isPositive()) {
                 positives.add(value);
@@ -390,7 +390,7 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
 
     @Override
     public IDecimalAggregate<E> positiveNonZeroValues() {
-        final List<E> positives = new ArrayList<E>();
+        final List<E> positives = new ArrayList<E>(size());
         for (final E value : values) {
             if (value.isPositiveNonZero()) {
                 positives.add(value);
@@ -401,7 +401,7 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
 
     @Override
     public IDecimalAggregate<E> negativeValues() {
-        final List<E> negatives = new ArrayList<E>();
+        final List<E> negatives = new ArrayList<E>(size());
         for (final E value : values) {
             if (value.isNegative()) {
                 negatives.add(value);
@@ -412,7 +412,7 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
 
     @Override
     public IDecimalAggregate<E> negativeOrZeroValues() {
-        final List<E> negatives = new ArrayList<E>();
+        final List<E> negatives = new ArrayList<E>(size());
         for (final E value : values) {
             if (value.isNegativeOrZero()) {
                 negatives.add(value);
@@ -423,7 +423,7 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
 
     @Override
     public IDecimalAggregate<E> nonZeroValues() {
-        final List<E> nonZeros = new ArrayList<E>();
+        final List<E> nonZeros = new ArrayList<E>(size());
         for (final E value : values) {
             if (value.isNotZero()) {
                 nonZeros.add(value);
@@ -435,7 +435,7 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
 
     @Override
     public IDecimalAggregate<E> addEach(final E augend) {
-        final List<E> added = new ArrayList<E>();
+        final List<E> added = new ArrayList<E>(size());
         for (final E value : values) {
             added.add(value.add(augend));
         }
@@ -444,7 +444,7 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
 
     @Override
     public IDecimalAggregate<E> subtractEach(final E subtrahend) {
-        final List<E> subtracted = new ArrayList<E>();
+        final List<E> subtracted = new ArrayList<E>(size());
         for (final E value : values) {
             subtracted.add(value.subtract(subtrahend));
         }
@@ -453,7 +453,7 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
 
     @Override
     public IDecimalAggregate<E> multiplyEach(final E multiplicant) {
-        final List<E> multiplied = new ArrayList<E>();
+        final List<E> multiplied = new ArrayList<E>(size());
         for (final E value : values) {
             multiplied.add(value.add(multiplicant));
         }
@@ -462,7 +462,7 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
 
     @Override
     public IDecimalAggregate<E> divideEach(final E divisor) {
-        final List<E> divided = new ArrayList<E>();
+        final List<E> divided = new ArrayList<E>(size());
         for (final E value : values) {
             divided.add(value.add(divisor));
         }
@@ -471,7 +471,7 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
 
     @Override
     public IDecimalAggregate<E> nullToZeroEach() {
-        final List<E> replaced = new ArrayList<E>();
+        final List<E> replaced = new ArrayList<E>(size());
         final E zero = getConverter().zero();
         for (final E value : values) {
             if (value != null) {
@@ -485,7 +485,7 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
 
     @Override
     public IDecimalAggregate<E> removeNullValues() {
-        final List<E> filtered = new ArrayList<E>();
+        final List<E> filtered = new ArrayList<E>(size());
         for (final E value : values) {
             if (value != null) {
                 filtered.add(value);
@@ -552,7 +552,7 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
             return this;
         }
         final DecimalStreamNormalization<E> normalization = new DecimalStreamNormalization<E>(min(), max());
-        final List<E> results = new ArrayList<E>();
+        final List<E> results = new ArrayList<E>(size());
         for (final E value : values) {
             results.add(normalization.process(value));
         }
