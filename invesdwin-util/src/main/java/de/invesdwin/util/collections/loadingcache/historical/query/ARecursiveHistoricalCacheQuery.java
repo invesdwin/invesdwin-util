@@ -62,8 +62,12 @@ public abstract class ARecursiveHistoricalCacheQuery<V> {
         Assertions.checkTrue(parent.getOnClearListeners().add(new IHistoricalCacheOnClearListener() {
             @Override
             public void onClear() {
-                cachedRecursiveResults.clear();
-                reusedRecursionKeys = null;
+                synchronized (parent) {
+                    if (!recursionInProgress) {
+                        cachedRecursiveResults.clear();
+                        reusedRecursionKeys = null;
+                    }
+                }
             }
         }));
     }
