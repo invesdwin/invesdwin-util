@@ -746,8 +746,10 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
 
     @Override
     public synchronized void clear() {
-        resetForRetry();
-        countResets = 0;
+        if (!cachedQueryActive) {
+            resetForRetry();
+            countResets = 0;
+        }
     }
 
     private void resetForRetry() {
