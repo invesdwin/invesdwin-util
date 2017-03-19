@@ -5,12 +5,13 @@ import java.util.List;
 
 import javax.annotation.concurrent.Immutable;
 
+import de.invesdwin.util.bean.AValueObject;
 import de.invesdwin.util.time.duration.Duration;
 import de.invesdwin.util.time.fdate.FDate;
 import de.invesdwin.util.time.fdate.FDates;
 
 @Immutable
-public class TimeRange {
+public class TimeRange extends AValueObject {
 
     private final FDate from;
     private final FDate to;
