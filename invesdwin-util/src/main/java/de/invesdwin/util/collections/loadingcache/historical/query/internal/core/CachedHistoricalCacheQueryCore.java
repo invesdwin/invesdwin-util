@@ -481,7 +481,7 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
             if (!cachedPreviousEntries.isEmpty()) {
                 final Entry<FDate, V> lastCachedEntry = getLastCachedEntry();
                 if (!lastCachedEntry.getKey().isBefore(prependEntry.getKey())) {
-                    throw new IllegalStateException("appendEntry [" + prependEntry.getKey()
+                    throw new ResetCacheException("appendEntry [" + prependEntry.getKey()
                             + "] should be before firstCachedEntry [" + lastCachedEntry.getKey() + "]");
                 }
             }
