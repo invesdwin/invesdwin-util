@@ -6,6 +6,8 @@ import java.util.concurrent.TimeUnit;
 
 import javax.annotation.concurrent.Immutable;
 
+import io.netty.util.concurrent.DefaultThreadFactory;
+
 /**
  * As an alternative to the java executors class. Here more conventions are kept for all executors.
  * 
@@ -24,8 +26,12 @@ public final class Executors {
      */
     public static WrappedExecutorService newCachedThreadPool(final String name) {
         final java.util.concurrent.ThreadPoolExecutor ex = (java.util.concurrent.ThreadPoolExecutor) java.util.concurrent.Executors
-                .newCachedThreadPool();
+                .newCachedThreadPool(newFastThreadLocalThreadFactory(name));
         return new WrappedExecutorService(ex, name);
+    }
+
+    public static WrappedThreadFactory newFastThreadLocalThreadFactory(final String name) {
+        return new WrappedThreadFactory(name, new DefaultThreadFactory(name));
     }
 
     /**
@@ -33,7 +39,7 @@ public final class Executors {
      */
     public static WrappedExecutorService newFixedThreadPool(final String name, final int nThreads) {
         final java.util.concurrent.ThreadPoolExecutor ex = (java.util.concurrent.ThreadPoolExecutor) java.util.concurrent.Executors
-                .newFixedThreadPool(nThreads);
+                .newFixedThreadPool(nThreads, newFastThreadLocalThreadFactory(name));
         return new WrappedExecutorService(ex, name);
     }
 
@@ -42,7 +48,7 @@ public final class Executors {
      */
     public static WrappedScheduledExecutorService newScheduledThreadPool(final String name) {
         final java.util.concurrent.ScheduledThreadPoolExecutor ex = (java.util.concurrent.ScheduledThreadPoolExecutor) java.util.concurrent.Executors
-                .newScheduledThreadPool(Integer.MAX_VALUE);
+                .newScheduledThreadPool(Integer.MAX_VALUE, newFastThreadLocalThreadFactory(name));
         return new WrappedScheduledExecutorService(ex, name);
     }
 
@@ -51,14 +57,14 @@ public final class Executors {
      */
     public static WrappedScheduledExecutorService newScheduledThreadPool(final String name, final int corePoolSize) {
         final java.util.concurrent.ScheduledThreadPoolExecutor ex = (java.util.concurrent.ScheduledThreadPoolExecutor) java.util.concurrent.Executors
-                .newScheduledThreadPool(corePoolSize);
+                .newScheduledThreadPool(corePoolSize, newFastThreadLocalThreadFactory(name));
         return new WrappedScheduledExecutorService(ex, name);
     }
 
     public static WrappedExecutorService newFixedCallerRunsThreadPool(final String name, final int nThreads) {
         final java.util.concurrent.ThreadPoolExecutor ex = new java.util.concurrent.ThreadPoolExecutor(nThreads,
                 nThreads, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(nThreads),
-                new CallerRunsPolicy());
+                newFastThreadLocalThreadFactory(name), new CallerRunsPolicy());
         return new WrappedExecutorService(ex, name);
     }
 

@@ -28,6 +28,7 @@ import org.assertj.core.util.VisibleForTesting;
 
 import de.invesdwin.util.assertions.type.internal.FDatesAssertions;
 import de.invesdwin.util.time.fdate.FDate;
+import io.netty.util.concurrent.FastThreadLocal;
 
 /**
  * Base class for all implementations of assertions for {@link FDate}s.
@@ -41,9 +42,9 @@ import de.invesdwin.util.time.fdate.FDate;
  * To turn back to default format, simply call {@link #withDefaultDateFormatsOnly()}.
  *
  * @param <S>
- *            the "self" type of this assertion class. Please read "<a href="http://bit.ly/anMa4g"
- *            target="_blank">Emulating 'self types' using Java Generics to simplify fluent API implementation</a>" for
- *            more details.
+ *            the "self" type of this assertion class. Please read
+ *            "<a href="http://bit.ly/anMa4g" target="_blank">Emulating 'self types' using Java Generics to simplify
+ *            fluent API implementation</a>" for more details.
  * @author Tomasz Nurkiewicz (thanks for giving assertions idea)
  * @author Joel Costigliola
  * @author Mikhail Mazursky
@@ -67,7 +68,7 @@ public class FDateAssert extends AbstractAssert<FDateAssert, FDate> {
      * It keeps the instertion order so first format added will be first format used.
      */
     @VisibleForTesting
-    static ThreadLocal<LinkedHashSet<DateFormat>> userDateFormats = new ThreadLocal<LinkedHashSet<DateFormat>>() {
+    static FastThreadLocal<LinkedHashSet<DateFormat>> userDateFormats = new FastThreadLocal<LinkedHashSet<DateFormat>>() {
         @Override
         protected LinkedHashSet<DateFormat> initialValue() {
             return new LinkedHashSet<DateFormat>();
@@ -536,12 +537,12 @@ public class FDateAssert extends AbstractAssert<FDateAssert, FDate> {
      * 
      * <pre>
      * // assertion will pass
-     * assertThat(theTwoTowers.getReleaseFDate()).isInWithStringFDateCollection(
-     *         Arrays.asList(&quot;2002-12-17&quot;, &quot;2002-12-18&quot;, &quot;2002-12-19&quot;));
+     * assertThat(theTwoTowers.getReleaseFDate())
+     *         .isInWithStringFDateCollection(Arrays.asList(&quot;2002-12-17&quot;, &quot;2002-12-18&quot;, &quot;2002-12-19&quot;));
      * 
      * // assertion will fail
-     * assertThat(theTwoTowers.getReleaseFDate()).isInWithStringFDateCollection(
-     *         Arrays.asList(&quot;2002-12-17&quot;, &quot;2002-12-19&quot;, &quot;2002-12-20&quot;));
+     * assertThat(theTwoTowers.getReleaseFDate())
+     *         .isInWithStringFDateCollection(Arrays.asList(&quot;2002-12-17&quot;, &quot;2002-12-19&quot;, &quot;2002-12-20&quot;));
      * </pre>
      * 
      * Defaults date format (expressed in the local time zone) are :
@@ -635,10 +636,12 @@ public class FDateAssert extends AbstractAssert<FDateAssert, FDate> {
      * 
      * <pre>
      * // assertion will pass
-     * assertThat(theTwoTowers.getReleaseFDate()).isNotInWithStringFDateCollection(Arrays.asList(&quot;2002-12-17&quot;, &quot;2002-12-19&quot;));
+     * assertThat(theTwoTowers.getReleaseFDate())
+     *         .isNotInWithStringFDateCollection(Arrays.asList(&quot;2002-12-17&quot;, &quot;2002-12-19&quot;));
      * 
      * // assertion will fail
-     * assertThat(theTwoTowers.getReleaseFDate()).isNotInWithStringFDateCollection(Arrays.asList(&quot;2002-12-17&quot;, &quot;2002-12-18&quot;));
+     * assertThat(theTwoTowers.getReleaseFDate())
+     *         .isNotInWithStringFDateCollection(Arrays.asList(&quot;2002-12-17&quot;, &quot;2002-12-18&quot;));
      * </pre>
      * 
      * Defaults date format (expressed in the local time zone) are :
@@ -1885,8 +1888,8 @@ public class FDateAssert extends AbstractAssert<FDateAssert, FDate> {
      * assertThat(myFDate).isWithinHour(hourOfDayOf(otherFDate))
      * </pre>
      * 
-     * see {@link org.assertj.core.util.FDatesAssertions#hourOfDayOf(java.util.FDate) hourOfDayOf} to get the hour of a given
-     * FDate.
+     * see {@link org.assertj.core.util.FDatesAssertions#hourOfDayOf(java.util.FDate) hourOfDayOf} to get the hour of a
+     * given FDate.
      * <p/>
      * Note that using a custom comparator has no effect on this assertion (see {@link #usingComparator(Comparator)}).
      *

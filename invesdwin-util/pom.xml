@@ -32,6 +32,7 @@
 		<version.commons-beanutils>1.9.2</version.commons-beanutils>
 		<version.jollyday>0.5.1</version.jollyday>
 		<version.dsiutils>2.3.3</version.dsiutils>
+		<version.netty>4.1.9.Final</version.netty>
 
 		<version.invesdwin-bom>1.0.0-SNAPSHOT</version.invesdwin-bom>
 	</properties>
@@ -170,6 +171,12 @@
 					<artifactId>jsap</artifactId>
 				</exclusion>
 			</exclusions>
+		</dependency>
+
+		<dependency>
+			<groupId>io.netty</groupId>
+			<artifactId>netty-common</artifactId>
+			<version>${version.netty}</version>
 		</dependency>
 
 		<dependency>

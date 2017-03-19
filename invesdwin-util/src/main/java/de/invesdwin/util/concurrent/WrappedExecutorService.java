@@ -112,7 +112,9 @@ public class WrappedExecutorService implements ExecutorService {
         /*
          * Named threads improve debugging.
          */
-        delegate.setThreadFactory(new WrappedThreadFactory(name, delegate.getThreadFactory()));
+        if (!(delegate.getThreadFactory() instanceof WrappedThreadFactory)) {
+            delegate.setThreadFactory(new WrappedThreadFactory(name, delegate.getThreadFactory()));
+        }
     }
 
     private void unconfigure() {

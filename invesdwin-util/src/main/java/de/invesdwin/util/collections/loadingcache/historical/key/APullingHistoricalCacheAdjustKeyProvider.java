@@ -12,11 +12,12 @@ import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
 import de.invesdwin.util.collections.loadingcache.historical.key.internal.HistoricalCacheForClear;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQuery;
 import de.invesdwin.util.time.fdate.FDate;
+import io.netty.util.concurrent.FastThreadLocal;
 
 @ThreadSafe
 public abstract class APullingHistoricalCacheAdjustKeyProvider implements IHistoricalCacheAdjustKeyProvider {
 
-    private final ThreadLocal<Boolean> alreadyAdjustingKey = new ThreadLocal<Boolean>() {
+    private final FastThreadLocal<Boolean> alreadyAdjustingKey = new FastThreadLocal<Boolean>() {
         @Override
         protected Boolean initialValue() {
             return false;

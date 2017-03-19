@@ -3,7 +3,6 @@ package de.invesdwin.util.concurrent;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import javax.annotation.Nonnull;
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.assertions.Assertions;
@@ -18,11 +17,12 @@ public class WrappedThreadFactory implements ThreadFactory {
     private final String name;
     private final ThreadFactory delegate;
 
-    public WrappedThreadFactory(@Nonnull final String name, @Nonnull final ThreadFactory delegate) {
+    public WrappedThreadFactory(final String name, final ThreadFactory delegate) {
         Assertions.assertThat(name).isNotNull();
         Assertions.assertThat(delegate).isNotNull();
         this.name = name;
         this.delegate = delegate;
+        Assertions.assertThat(delegate).isNotInstanceOf(WrappedThreadFactory.class);
     }
 
     @Override
@@ -43,4 +43,5 @@ public class WrappedThreadFactory implements ThreadFactory {
     public ThreadFactory getWrappedInstance() {
         return delegate;
     }
+
 }
