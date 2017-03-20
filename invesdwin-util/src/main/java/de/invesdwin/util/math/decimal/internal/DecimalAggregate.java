@@ -603,7 +603,7 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
     }
 
     @Override
-    public IDecimalAggregate<E> stopSequenceAtNegativeOrZero() {
+    public IDecimalAggregate<E> stopSequenceBeforeNegativeOrZero() {
         for (int i = 0; i < values.size(); i++) {
             final E event = values.get(i);
             if (event.isNegativeOrZero()) {

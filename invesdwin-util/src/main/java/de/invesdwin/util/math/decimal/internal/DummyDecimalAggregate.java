@@ -325,7 +325,7 @@ public final class DummyDecimalAggregate<E extends ADecimal<E>> implements IDeci
     }
 
     @Override
-    public IDecimalAggregate<E> stopSequenceAtNegativeOrZero() {
+    public IDecimalAggregate<E> stopSequenceBeforeNegativeOrZero() {
         return this;
     }
 

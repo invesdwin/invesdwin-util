@@ -240,6 +240,6 @@ public interface IDecimalAggregate<E extends ADecimal<E>> {
 
     IDecimalAggregate<E> sortDescending();
 
-    IDecimalAggregate<E> stopSequenceAtNegativeOrZero();
+    IDecimalAggregate<E> stopSequenceBeforeNegativeOrZero();
 
 }
