@@ -603,6 +603,18 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
     }
 
     @Override
+    public IDecimalAggregate<E> stopSequenceAtNegativeOrZero() {
+        for (int i = 0; i < values.size(); i++) {
+            final E event = values.get(i);
+            if (event.isNegativeOrZero()) {
+                final List<E> subList = values.subList(0, i - 1);
+                return new DecimalAggregate<E>(subList, getConverter());
+            }
+        }
+        return this;
+    }
+
+    @Override
     public IDecimalAggregate<E> sortAscending() {
         final List<E> sorted = new ArrayList<E>(values);
         Decimal.COMPARATOR.sortAscending(sorted);
