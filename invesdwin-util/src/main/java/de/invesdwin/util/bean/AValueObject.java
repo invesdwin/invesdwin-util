@@ -41,7 +41,7 @@ public abstract class AValueObject extends APropertyChangeSupported
     @GuardedBy("this")
     @Transient
     @JsonIgnore
-    private DirtyTracker dirtyTracker;
+    private transient DirtyTracker dirtyTracker;
 
     static {
         Objects.REFLECTION_EXCLUDED_FIELDS.add("beanUtilsBean");

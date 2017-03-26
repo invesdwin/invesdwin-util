@@ -45,7 +45,7 @@ public abstract class APropertyChangeSupported {
     @GuardedBy("propertyChangeSupportLock")
     @Transient
     @JsonIgnore
-    private PropertyChangeSupport propertyChangeSupport;
+    private transient PropertyChangeSupport propertyChangeSupport;
     @Transient
     @JsonIgnore
     private final Object propertyChangeSupportLock = new Object();
