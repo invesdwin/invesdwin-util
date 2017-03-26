@@ -1,5 +1,6 @@
 package de.invesdwin.util.lang;
 
+import java.nio.ByteBuffer;
 import java.text.NumberFormat;
 import java.util.Currency;
 import java.util.HashMap;
@@ -110,6 +111,25 @@ public final class Currencies {
             return Currency.getInstance(currencyCode);
         } catch (final Throwable t) {
             return null;
+        }
+    }
+
+    public static void putCurrency(final ByteBuffer buffer, final Currency currency) {
+        if (currency == null) {
+            buffer.put("___".getBytes());
+        } else {
+            buffer.put(currency.getCurrencyCode().getBytes());
+        }
+    }
+
+    public static Currency extractCurrency(final ByteBuffer buffer, final int index) {
+        final byte[] bytes = new byte[3];
+        buffer.get(bytes);
+        final String currencyCode = new String(bytes);
+        if ("___".equals(currencyCode)) {
+            return null;
+        } else {
+            return getInstance(currencyCode);
         }
     }
 

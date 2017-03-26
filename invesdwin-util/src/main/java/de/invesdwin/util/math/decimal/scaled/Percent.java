@@ -1,5 +1,7 @@
 package de.invesdwin.util.math.decimal.scaled;
 
+import java.nio.ByteBuffer;
+
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.math.decimal.ADecimal;
@@ -129,6 +131,23 @@ public class Percent extends AScaledDecimal<Percent, PercentScale> implements IP
     public static <T extends ADecimal<T>> Percent relativeDifference(final ADecimal<T> oldValue,
             final ADecimal<T> newValue) {
         return new Percent(newValue.subtract(oldValue), oldValue.abs());
+    }
+
+    public static void putPercent(final ByteBuffer buffer, final Percent value) {
+        if (value == null) {
+            buffer.putDouble(Double.MIN_VALUE);
+        } else {
+            buffer.putDouble(value.getRate().doubleValueRaw());
+        }
+    }
+
+    public static Percent extractPercent(final ByteBuffer buffer, final int index) {
+        final double value = buffer.getDouble(index);
+        if (value == Double.MIN_VALUE) {
+            return null;
+        } else {
+            return new Percent(new Decimal(value), PercentScale.RATE);
+        }
     }
 
 }

@@ -1,5 +1,6 @@
 package de.invesdwin.util.time;
 
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -90,5 +91,25 @@ public class TimeRange extends AValueObject {
 
     public boolean isZeroDuration() {
         return from == null || to == null || getDuration().isZero();
+    }
+
+    public static void putTimeRange(final ByteBuffer buffer, final TimeRange timeRange) {
+        if (timeRange == null) {
+            buffer.putLong(Long.MAX_VALUE);
+            buffer.putLong(Long.MAX_VALUE);
+        } else {
+            FDates.putFDate(buffer, timeRange.getFrom());
+            FDates.putFDate(buffer, timeRange.getTo());
+        }
+    }
+
+    public static TimeRange extractTimeRange(final ByteBuffer buffer, final int index) {
+        final long from = buffer.getLong(index);
+        final long to = buffer.getLong(index + 8);
+        if (from == Long.MAX_VALUE && to == Long.MAX_VALUE) {
+            return null;
+        } else {
+            return new TimeRange(FDates.extractFDate(buffer, index), FDates.extractFDate(buffer, index + 8));
+        }
     }
 }
