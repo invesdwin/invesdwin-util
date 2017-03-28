@@ -95,8 +95,9 @@ public final class FDates {
             if (incrementAmount > 0) {
                 return new ICloseableIterator<FDate>() {
 
-                    private boolean first = true;
                     private FDate spot = startFinal;
+                    private boolean first = true;
+                    private boolean end = false;
 
                     @Override
                     public boolean hasNext() {
@@ -109,11 +110,12 @@ public final class FDates {
                             first = false;
                             return spot;
                         } else {
-                            if (spot.isAfter(endFinal)) {
+                            if (spot.isAfter(endFinal) || end) {
                                 throw new FastNoSuchElementException("FDateIterable: incrementing next reached end");
                             }
                             spot = spot.add(timeUnit, incrementAmount);
-                            if (spot.isAfter(endFinal)) {
+                            if (spot.isAfterOrEqualTo(endFinal)) {
+                                end = true;
                                 return endFinal;
                             } else {
                                 return spot;
@@ -129,6 +131,8 @@ public final class FDates {
                     @Override
                     public void close() {
                         spot = endFinal;
+                        first = false;
+                        end = true;
                     }
                 };
             } else {
@@ -137,6 +141,7 @@ public final class FDates {
 
                     private boolean first = true;
                     private FDate spot = startFinal;
+                    private boolean end = false;
 
                     @Override
                     public boolean hasNext() {
@@ -149,11 +154,12 @@ public final class FDates {
                             first = false;
                             return spot;
                         } else {
-                            if (spot.isBefore(endFinal)) {
+                            if (spot.isBefore(endFinal) || end) {
                                 throw new FastNoSuchElementException("FDateIterable: decrementing next reached end");
                             }
                             spot = spot.add(timeUnit, incrementAmount);
-                            if (spot.isBefore(endFinal)) {
+                            if (spot.isBeforeOrEqualTo(endFinal)) {
+                                end = true;
                                 return endFinal;
                             } else {
                                 return spot;
@@ -169,6 +175,8 @@ public final class FDates {
                     @Override
                     public void close() {
                         spot = endFinal;
+                        first = false;
+                        end = true;
                     }
                 };
 
