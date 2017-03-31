@@ -152,6 +152,16 @@ public abstract class AScaledDecimal<T extends AScaledDecimal<T, S>, S extends I
         return new ScaledDecimalToStringBuilder<T, S>(getGenericThis());
     }
 
+    @Override
+    public String toFormattedString() {
+        return toFormattedString(Decimal.DEFAULT_DECIMAL_FORMAT);
+    }
+
+    @Override
+    public String toFormattedString(final String format) {
+        return toStringBuilder().toString(format);
+    }
+
     public T asScale(final S scale) {
         validateScale(scale);
         return newValueCopy(getValue(scale), scale);

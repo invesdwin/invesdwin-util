@@ -223,10 +223,12 @@ public class Decimal extends ADecimal<Decimal> {
         }
     }
 
+    @Override
     public String toFormattedString() {
         return toFormattedString(DEFAULT_DECIMAL_FORMAT);
     }
 
+    @Override
     public String toFormattedString(final String format) {
         final DecimalFormat dc = new DecimalFormat(format, DEFAULT_DECIMAL_FORMAT_SYMBOLS);
         final String str = dc.format(this);
