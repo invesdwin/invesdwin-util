@@ -89,7 +89,7 @@ public class ScaledDecimalToStringBuilder<T extends AScaledDecimal<T, S>, S exte
     }
 
     public String toString(final String format) {
-        final DecimalFormat formatter = new DecimalFormat(format, Decimal.DEFAULT_DECIMAL_FORMAT_SYMBOLS);
+        final DecimalFormat formatter = Decimal.newDecimalFormatInstance(format);
         final Number value = parent.getValue(scale).getImpl().numberValue();
         final String str = formatter.format(value);
         String negativeZeroMatchStr = "-0([\\.,](0)*)?";

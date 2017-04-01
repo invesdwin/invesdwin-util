@@ -230,7 +230,7 @@ public class Decimal extends ADecimal<Decimal> {
 
     @Override
     public String toFormattedString(final String format) {
-        final DecimalFormat dc = new DecimalFormat(format, DEFAULT_DECIMAL_FORMAT_SYMBOLS);
+        final DecimalFormat dc = newDecimalFormatInstance(format);
         final String str = dc.format(this);
         if (str.startsWith("-0") && str.matches("-0([\\.,](0)*)?")) {
             return Strings.removeStart(str, "-");
@@ -253,6 +253,20 @@ public class Decimal extends ADecimal<Decimal> {
             format += "." + Strings.repeat("0", decimalDigits);
         }
         return format;
+    }
+
+    public static DecimalFormat newDecimalFormatInstance(final String format) {
+        return newDecimalFormatInstance(format, Decimal.DEFAULT_DECIMAL_FORMAT_SYMBOLS);
+    }
+
+    public static DecimalFormat newDecimalFormatInstance(final String format, final Locale locale) {
+        return newDecimalFormatInstance(format, DecimalFormatSymbols.getInstance(locale));
+    }
+
+    public static DecimalFormat newDecimalFormatInstance(final String format, final DecimalFormatSymbols symbols) {
+        final DecimalFormat formatter = new DecimalFormat(format, symbols);
+        formatter.setRoundingMode(ADecimal.DEFAULT_ROUNDING_MODE);
+        return formatter;
     }
 
 }
