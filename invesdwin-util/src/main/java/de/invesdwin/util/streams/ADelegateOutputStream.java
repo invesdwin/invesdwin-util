@@ -86,4 +86,9 @@ public abstract class ADelegateOutputStream extends OutputStream {
         getDelegate().write(b);
     }
 
+    @Override
+    public void flush() throws IOException {
+        getDelegate().flush();
+    }
+
 }
