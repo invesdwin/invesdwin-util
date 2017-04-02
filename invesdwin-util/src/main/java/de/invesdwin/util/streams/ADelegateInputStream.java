@@ -56,21 +56,23 @@ public abstract class ADelegateInputStream extends InputStream {
     @Override
     protected void finalize() throws Throwable {
         if (!isClosed()) {
-            String warning = "Finalizing unclosed " + InputStream.class.getSimpleName() + " [" + getClass().getName()
-                    + "]";
-            if (Throwables.isDebugStackTraceEnabled()) {
-                final Exception stackTrace;
-                if (initStackTrace != null) {
-                    warning += " which was initialized but never used";
-                    stackTrace = initStackTrace;
-                } else {
-                    stackTrace = readStackTrace;
+            if (delegate != null) {
+                String warning = "Finalizing unclosed " + InputStream.class.getSimpleName() + " ["
+                        + getClass().getName() + "]";
+                if (Throwables.isDebugStackTraceEnabled()) {
+                    final Exception stackTrace;
+                    if (initStackTrace != null) {
+                        warning += " which was initialized but never used";
+                        stackTrace = initStackTrace;
+                    } else {
+                        stackTrace = readStackTrace;
+                    }
+                    if (stackTrace != null) {
+                        warning += " from stacktrace:\n" + Throwables.getFullStackTrace(stackTrace);
+                    }
                 }
-                if (stackTrace != null) {
-                    warning += " from stacktrace:\n" + Throwables.getFullStackTrace(stackTrace);
-                }
+                LOGGER.warn(warning);
             }
-            LOGGER.warn(warning);
             close();
         }
         super.finalize();
