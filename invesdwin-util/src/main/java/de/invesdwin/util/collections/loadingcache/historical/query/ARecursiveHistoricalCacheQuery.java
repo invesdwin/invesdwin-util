@@ -21,7 +21,18 @@ import de.invesdwin.util.time.fdate.FDate;
 @ThreadSafe
 public abstract class ARecursiveHistoricalCacheQuery<V> {
 
-    public static final int MIN_RECURSION_COUNT = 20;
+    /**
+     * we should use 10 times the lookback period (bars count) in order to get 7 decimal points of accuracy against
+     * calculating from the beginning of history (measured on lowpass indicator)
+     */
+    public static final int RECOMMENDED_LOOKBACK_MULTIPLICATOR_FOR_RECURSION = 10;
+
+    /**
+     * Zorro has UnstablePeriod at a default of 40
+     * 
+     * http://zorro-trader.com/manual/en/lookback.htm
+     */
+    public static final int MIN_RECURSION_COUNT = 40;
 
     private final AHistoricalCache<V> parent;
     private final int maxRecursionCount;
