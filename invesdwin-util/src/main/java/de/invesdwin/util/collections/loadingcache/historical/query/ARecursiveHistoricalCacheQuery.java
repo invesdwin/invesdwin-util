@@ -1,19 +1,9 @@
 package de.invesdwin.util.collections.loadingcache.historical.query;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.NoSuchElementException;
-
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
-import com.google.common.collect.Iterators;
-import com.google.common.collect.PeekingIterator;
-
 import de.invesdwin.util.assertions.Assertions;
-import de.invesdwin.util.collections.iterable.ICloseableIterator;
-import de.invesdwin.util.collections.iterable.WrapperCloseableIterable;
 import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
 import de.invesdwin.util.collections.loadingcache.historical.listener.IHistoricalCacheOnClearListener;
@@ -42,13 +32,7 @@ public abstract class ARecursiveHistoricalCacheQuery<V> {
      * 
      * http://zorro-trader.com/manual/en/lookback.htm
      */
-    private static final int MIN_RECURSION_COUNT = 40;
-
-    /**
-     * If we go beyong this in gaps to the previous value, we should start from scratch since searching for the first
-     * key would take too long then
-     */
-    private static final int MAX_CONTINUE_SEARCH_COUNT = 100;
+    public static final int MIN_RECURSION_COUNT = 40;
 
     private final AHistoricalCache<V> parent;
     private final int maxRecursionCount;
@@ -60,6 +44,9 @@ public abstract class ARecursiveHistoricalCacheQuery<V> {
     private FDate lastRecursionKey;
     @GuardedBy("parent")
     private FDate firstAvailableKey;
+    @GuardedBy("parent")
+    //reuse the array to reduce the garbage collection overhead
+    private FDate[] reusedRecursionKeys;
     @GuardedBy("parent")
     //cache separately since the parent could encounter more evictions than this internal cache
     private final ALoadingCache<FDate, V> cachedRecursiveResults;
@@ -89,6 +76,7 @@ public abstract class ARecursiveHistoricalCacheQuery<V> {
                 synchronized (parent) {
                     if (!recursionInProgress) {
                         cachedRecursiveResults.clear();
+                        reusedRecursionKeys = null;
                     }
                 }
             }
@@ -139,16 +127,31 @@ public abstract class ARecursiveHistoricalCacheQuery<V> {
 
     private V internalGetPreviousValueByRecursion(final FDate previousKey) {
         try {
-            final Iterator<FDate> recursionKeysIterator = newRecursionKeysIterator(previousKey);
-            try {
-                while (true) {
-                    //fill up the missing values
-                    final FDate recursiveKey = recursionKeysIterator.next();
-                    final V value = parentQuery.getValue(recursiveKey);
-                    cachedRecursiveResults.put(recursiveKey, value);
+            lastRecursionKey = parentQueryWithFuture.getKey(previousKey);
+            FDate curPreviousKey = lastRecursionKey;
+            int minRecursionIdx = maxRecursionCount;
+            final FDate[] recursionKeys = getRecursionKeys();
+            while (minRecursionIdx > 0) {
+                final FDate newPreviousKey = parentQueryWithFuture.getPreviousKey(curPreviousKey, 1);
+                firstRecursionKey = newPreviousKey;
+                if (newPreviousKey.isAfterOrEqualTo(curPreviousKey)) {
+                    //start reached
+                    break;
+                } else if (parent.containsKey(newPreviousKey) || cachedRecursiveResults.containsKey(newPreviousKey)) {
+                    //point to continue from reached
+                    break;
+                } else {
+                    //search further for a match to begin from
+                    minRecursionIdx--;
+                    recursionKeys[minRecursionIdx] = newPreviousKey;
+                    curPreviousKey = newPreviousKey;
                 }
-            } catch (final NoSuchElementException e) {
-                //ignore
+            }
+            for (int i = minRecursionIdx; i < maxRecursionCount; i++) {
+                //fill up the missing values
+                final FDate recursiveKey = recursionKeys[i];
+                final V value = parentQuery.getValue(recursiveKey);
+                cachedRecursiveResults.put(recursiveKey, value);
             }
             return parentQuery.getValue(lastRecursionKey);
         } finally {
@@ -157,46 +160,11 @@ public abstract class ARecursiveHistoricalCacheQuery<V> {
         }
     }
 
-    private Iterator<FDate> newRecursionKeysIterator(final FDate previousKey) {
-        lastRecursionKey = parentQueryWithFuture.getKey(previousKey);
-        if (cachedRecursiveResults.isEmpty()) {
-            return newFullRecursionKeysIterator(previousKey);
+    private FDate[] getRecursionKeys() {
+        if (reusedRecursionKeys == null) {
+            reusedRecursionKeys = new FDate[maxRecursionCount];
         }
-        FDate curPreviousKey = lastRecursionKey;
-        int minRecursionIdx = maxRecursionCount;
-        final List<FDate> recursionKeys = new ArrayList<FDate>();
-        int continueSearchCount = 0;
-        while (minRecursionIdx > 0) {
-            final FDate newPreviousKey = parentQueryWithFuture.getPreviousKey(curPreviousKey, 1);
-            firstRecursionKey = newPreviousKey;
-            if (newPreviousKey.isAfterOrEqualTo(curPreviousKey)) {
-                //start reached
-                break;
-            } else if (parent.containsKey(newPreviousKey) || cachedRecursiveResults.containsKey(newPreviousKey)) {
-                //point to continue from reached
-                break;
-            } else {
-                //search further for a match to begin from
-                minRecursionIdx--;
-                recursionKeys.add(0, newPreviousKey);
-                curPreviousKey = newPreviousKey;
-                continueSearchCount++;
-                if (continueSearchCount >= MAX_CONTINUE_SEARCH_COUNT) {
-                    //we hit the maximum search in previous values, thus we should go from the start
-                    return newFullRecursionKeysIterator(previousKey);
-                }
-            }
-        }
-        final ICloseableIterator<FDate> recursionKeysIterator = WrapperCloseableIterable.maybeWrap(recursionKeys)
-                .iterator();
-        return recursionKeysIterator;
-    }
-
-    private Iterator<FDate> newFullRecursionKeysIterator(final FDate previousKey) {
-        final PeekingIterator<FDate> peekingIterator = Iterators
-                .peekingIterator(parentQueryWithFuture.getPreviousKeys(previousKey, maxRecursionCount).iterator());
-        firstRecursionKey = peekingIterator.peek();
-        return peekingIterator;
+        return reusedRecursionKeys;
     }
 
     private FDate getFirstAvailableKey() {
