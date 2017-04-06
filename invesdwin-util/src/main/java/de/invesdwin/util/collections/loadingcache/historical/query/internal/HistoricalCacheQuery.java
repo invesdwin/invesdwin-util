@@ -3,10 +3,9 @@ package de.invesdwin.util.collections.loadingcache.historical.query.internal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Optional;
 
 import javax.annotation.concurrent.NotThreadSafe;
-
-import com.google.common.base.Optional;
 
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
@@ -183,6 +182,12 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
             return interceptor.getPreviousKey(key, shiftBackUnits);
         }
         assertShiftUnitsPositive(shiftBackUnits);
+        final Optional<FDate> optionalInterceptor = core.getParent()
+                .getPreviousKeysQueryInterceptor()
+                .getPreviousKey(key, shiftBackUnits);
+        if (optionalInterceptor != null) {
+            return optionalInterceptor.get();
+        }
         return HistoricalCacheAssertValue.unwrapEntryKey(getPreviousEntry(key, shiftBackUnits));
     }
 
@@ -198,6 +203,12 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
             return interceptor.getPreviousKeys(key, shiftBackUnits);
         }
         assertShiftUnitsPositiveNonZero(shiftBackUnits);
+        final ICloseableIterable<FDate> iterableInterceptor = core.getParent()
+                .getPreviousKeysQueryInterceptor()
+                .getPreviousKeys(key, shiftBackUnits);
+        if (iterableInterceptor != null) {
+            return iterableInterceptor;
+        }
         return new ICloseableIterable<FDate>() {
             @Override
             public ICloseableIterator<FDate> iterator() {
@@ -424,7 +435,7 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
     @Override
     public Entry<FDate, V> getPreviousEntryWithSameValueBetween(final FDate from, final FDate to, final V value) {
         FDate curKey = to;
-        final Optional<V> optionalValue = Optional.fromNullable(value);
+        final Optional<V> optionalValue = Optional.ofNullable(value);
         boolean firstTry = true;
         while (true) {
             final int shiftBackUnits;
@@ -445,7 +456,7 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
             if (curKey.isBefore(from)) {
                 return null;
             }
-            final Optional<V> optionalCurValue = Optional.fromNullable(previousEntry.getValue());
+            final Optional<V> optionalCurValue = Optional.ofNullable(previousEntry.getValue());
             if (optionalValue.equals(optionalCurValue)) {
                 return previousEntry;
             }
@@ -468,7 +479,7 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
     @Override
     public Entry<FDate, V> getPreviousEntryWithDifferentValueBetween(final FDate from, final FDate to, final V value) {
         FDate curKey = to;
-        final Optional<V> optionalValue = Optional.fromNullable(value);
+        final Optional<V> optionalValue = Optional.ofNullable(value);
         boolean firstTry = true;
         while (true) {
             final int shiftBackUnits;
@@ -489,7 +500,7 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
             if (curKey.isBefore(from)) {
                 return null;
             }
-            final Optional<V> optionalCurValue = Optional.fromNullable(previousEntry.getValue());
+            final Optional<V> optionalCurValue = Optional.ofNullable(previousEntry.getValue());
             if (!optionalValue.equals(optionalCurValue)) {
                 return previousEntry;
             }
@@ -512,7 +523,7 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
     @Override
     public Entry<FDate, V> getPreviousEntryWithSameValue(final FDate key, final int maxShiftBackUnits, final V value) {
         FDate curKey = key;
-        final Optional<V> optionalValue = Optional.fromNullable(value);
+        final Optional<V> optionalValue = Optional.ofNullable(value);
         int curTry = 0;
         while (true) {
             final int curShiftBackUnits;
@@ -530,7 +541,7 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
                 return null;
             }
             curKey = previousKey;
-            final Optional<V> optionalCurValue = Optional.fromNullable(previousEntry.getValue());
+            final Optional<V> optionalCurValue = Optional.ofNullable(previousEntry.getValue());
             if (optionalValue.equals(optionalCurValue)) {
                 return previousEntry;
             }
@@ -557,7 +568,7 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
     public Entry<FDate, V> getPreviousEntryWithDifferentValue(final FDate key, final int maxShiftBackUnits,
             final V value) {
         FDate curKey = key;
-        final Optional<V> optionalValue = Optional.fromNullable(value);
+        final Optional<V> optionalValue = Optional.ofNullable(value);
         int curTry = 0;
         while (true) {
             final int curShiftBackUnits;
@@ -575,7 +586,7 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
                 return null;
             }
             curKey = previousKey;
-            final Optional<V> optionalCurValue = Optional.fromNullable(previousEntry.getValue());
+            final Optional<V> optionalCurValue = Optional.ofNullable(previousEntry.getValue());
             if (!optionalValue.equals(optionalCurValue)) {
                 return previousEntry;
             }
