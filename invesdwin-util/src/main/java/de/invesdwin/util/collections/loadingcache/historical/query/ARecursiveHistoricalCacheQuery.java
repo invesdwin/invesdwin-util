@@ -46,12 +46,6 @@ public abstract class ARecursiveHistoricalCacheQuery<V> {
      */
     private static final int MIN_RECURSION_COUNT = 40;
 
-    //    /**
-    //     * If we go beyond this in gaps to the previous value, we should start from scratch since searching for the first
-    //     * key would take too long then
-    //     */
-    //    private static final int CHECK_HIGHEST_RANGE_AT_CONTINUE_SEARCH_COUNT = 10000;
-
     private final AHistoricalCache<V> parent;
     private final int maxRecursionCount;
     @GuardedBy("parent")
@@ -217,7 +211,6 @@ public abstract class ARecursiveHistoricalCacheQuery<V> {
         FDate curPreviousKey = lastRecursionKey;
         int minRecursionIdx = maxRecursionCount;
         final List<FDate> recursionKeys = new ArrayList<FDate>();
-        //        final int continueSearchCount = 0;
         while (minRecursionIdx > 0) {
             final FDate newPreviousKey = parentQueryWithFuture.getPreviousKey(curPreviousKey, 1);
             firstRecursionKey = newPreviousKey;
@@ -236,16 +229,11 @@ public abstract class ARecursiveHistoricalCacheQuery<V> {
                 minRecursionIdx--;
                 recursionKeys.add(0, newPreviousKey);
                 curPreviousKey = newPreviousKey;
-                //                continueSearchCount++;
-                //                if (continueSearchCount == CHECK_HIGHEST_RANGE_AT_CONTINUE_SEARCH_COUNT
-                //                        && !highestRecursionResultsAsc.isEmpty()) {
-                //                    //we hit the maximum search in previous values, thus we should try to go from the last highest value
-                //                    final FDate highestRecursionKey = highestRecursionResultsAsc.lastKey();
-                //                    if (highestRecursionKey.isBeforeOrEqualTo(previousKey)) {
-                //                        shouldAppendHighestRecursionResults = true;
-                //                        return newRangeRecursionKeysIterator(highestRecursionKey);
-                //                    }
-                //                }
+                /*
+                 * checking highest key and going with range query could lead to more values being recalculated than
+                 * allowed by maxRecursionCount. Also going with the range query directly against the file system might
+                 * be slower than continuing with the search here
+                 */
             }
         }
         final ICloseableIterator<FDate> recursionKeysIterator = WrapperCloseableIterable.maybeWrap(recursionKeys)
@@ -258,11 +246,6 @@ public abstract class ARecursiveHistoricalCacheQuery<V> {
                 .peekingIterator(parentQueryWithFuture.getPreviousKeys(from, maxRecursionCount).iterator());
         firstRecursionKey = peekingIterator.peek();
         return peekingIterator;
-    }
-
-    private Iterator<FDate> newRangeRecursionKeysIterator(final FDate from) {
-        firstRecursionKey = from;
-        return parentQueryWithFuture.getKeys(from, lastRecursionKey).iterator();
     }
 
     private FDate getFirstAvailableKey() {
