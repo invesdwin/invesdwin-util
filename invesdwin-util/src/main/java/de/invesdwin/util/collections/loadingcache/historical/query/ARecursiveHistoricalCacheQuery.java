@@ -78,7 +78,7 @@ public abstract class ARecursiveHistoricalCacheQuery<V> {
             final int recursionLookbackCount) {
         this.parent = parent;
         this.maxRecursionCount = Integers.max(maxRecursionCount, MIN_RECURSION_COUNT);
-        this.maxHighestRecursionResultsCount = recursionLookbackCount;
+        this.maxHighestRecursionResultsCount = Integer.max(recursionLookbackCount, MIN_RECURSION_COUNT);
         this.parentQuery = parent.query();
         this.parentQueryWithFuture = parent.query().withFuture();
         this.cachedRecursionResults = new ALoadingCache<FDate, V>() {
