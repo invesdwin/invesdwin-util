@@ -80,6 +80,17 @@ public class BufferingIterator<E> implements IBufferingIterator<E> {
     }
 
     @Override
+    public void prepend(final E element) {
+        if (element == null) {
+            throw new NullPointerException();
+        }
+        final Node newHead = new Node(element);
+        newHead.setNext(head);
+        head = newHead;
+        size++;
+    }
+
+    @Override
     public void add(final E element) {
         if (element == null) {
             throw new NullPointerException();
