@@ -124,4 +124,12 @@ public final class Throwables extends AThrowablesStaticFacade {
         return new RuntimeException("This exception should never be thrown up to here: " + location.getSimpleName(), e);
     }
 
+    public static String getMessage(final Throwable throwable) {
+        if (throwable != null) {
+            return throwable.getMessage();
+        } else {
+            return null;
+        }
+    }
+
 }
