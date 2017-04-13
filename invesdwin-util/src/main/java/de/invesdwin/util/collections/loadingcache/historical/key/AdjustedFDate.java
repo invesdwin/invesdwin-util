@@ -7,7 +7,7 @@ import de.invesdwin.util.time.fdate.FDate;
 @Immutable
 public class AdjustedFDate extends FDate {
 
-    private final IHistoricalCacheAdjustKeyProvider adjustKeyProvider;
+    private final transient IHistoricalCacheAdjustKeyProvider adjustKeyProvider;
 
     public AdjustedFDate(final IHistoricalCacheAdjustKeyProvider adjustKeyProvider, final FDate adjustedKey) {
         super(adjustedKey);
