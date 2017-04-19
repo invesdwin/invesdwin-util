@@ -7,15 +7,11 @@ import de.invesdwin.util.time.fdate.FDate;
 @Immutable
 public class AdjustedFDate extends FDate {
 
-    private final transient IHistoricalCacheAdjustKeyProvider adjustKeyProvider;
+    private final int adjustKeyProviderIdentityHashCode;
 
     public AdjustedFDate(final IHistoricalCacheAdjustKeyProvider adjustKeyProvider, final FDate adjustedKey) {
         super(adjustedKey);
-        this.adjustKeyProvider = adjustKeyProvider;
-    }
-
-    public IHistoricalCacheAdjustKeyProvider getAdjustKeyProvider() {
-        return adjustKeyProvider;
+        this.adjustKeyProviderIdentityHashCode = System.identityHashCode(adjustKeyProvider);
     }
 
     public static FDate newAdjustedKey(final IHistoricalCacheAdjustKeyProvider adjustKeyProvider, final FDate key) {
@@ -26,7 +22,7 @@ public class AdjustedFDate extends FDate {
         if (key instanceof AdjustedFDate) {
             final AdjustedFDate cKey = (AdjustedFDate) key;
             //only when we move to a different adjust key provider
-            if (adjustKeyProvider != cKey.adjustKeyProvider) {
+            if (System.identityHashCode(adjustKeyProvider) != cKey.adjustKeyProviderIdentityHashCode) {
                 return adjustKeyProvider.adjustKey(cKey);
             } else {
                 return cKey;
