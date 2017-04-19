@@ -8,6 +8,8 @@ import java.util.Set;
 
 import javax.annotation.concurrent.ThreadSafe;
 
+import org.apache.commons.lang3.BooleanUtils;
+
 import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
 import de.invesdwin.util.collections.loadingcache.historical.key.internal.HistoricalCacheForClear;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQuery;
@@ -17,12 +19,8 @@ import io.netty.util.concurrent.FastThreadLocal;
 @ThreadSafe
 public abstract class APullingHistoricalCacheAdjustKeyProvider implements IHistoricalCacheAdjustKeyProvider {
 
-    private final FastThreadLocal<Boolean> alreadyAdjustingKey = new FastThreadLocal<Boolean>() {
-        @Override
-        protected Boolean initialValue() {
-            return false;
-        }
-    };
+    private final FastThreadLocal<Boolean> alreadyAdjustingKey = new FastThreadLocal<Boolean>();
+
     private volatile FDate curHighestAllowedKey;
     private final Set<FDate> keysToRemoveOnNewHighestAllowedKey = Collections.synchronizedSet(new HashSet<FDate>());
     private final Set<HistoricalCacheForClear> historicalCachesForClear = Collections
@@ -40,7 +38,7 @@ public abstract class APullingHistoricalCacheAdjustKeyProvider implements IHisto
 
     @Override
     public FDate adjustKey(final FDate key) {
-        if (!alreadyAdjustingKey.get()) {
+        if (BooleanUtils.isNotTrue(alreadyAdjustingKey.get())) {
             alreadyAdjustingKey.set(true);
             try {
                 final FDate newHighestAllowedKey = getHighestAllowedKeyUpdateCached();
@@ -84,13 +82,13 @@ public abstract class APullingHistoricalCacheAdjustKeyProvider implements IHisto
 
     @Override
     public FDate getHighestAllowedKey() {
-        if (curHighestAllowedKey == null && !alreadyAdjustingKey.get()) {
+        if (curHighestAllowedKey == null && BooleanUtils.isNotTrue(alreadyAdjustingKey.get())) {
             alreadyAdjustingKey.set(true);
             try {
                 final FDate newHighestAllowedKey = getHighestAllowedKeyUpdateCached();
                 curHighestAllowedKey = newHighestAllowedKey;
             } finally {
-                alreadyAdjustingKey.set(false);
+                alreadyAdjustingKey.remove();
             }
         }
         return curHighestAllowedKey;
