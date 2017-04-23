@@ -126,8 +126,8 @@ public class DecimalTest {
         Assertions.assertThat(growthRates.values()).isEqualTo(expectedList);
 
         final Decimal avg = Decimal.valueOf(values).growthRates().avg();
-        Assertions.assertThat(avg.toString()).isEqualTo("0.520833333");
-        Assertions.assertThat(avg).isEqualTo(new Decimal("0.520833333"));
+        Assertions.assertThat(avg.toString()).isEqualTo("0.5208333333333333");
+        Assertions.assertThat(avg).isEqualTo(new Decimal("0.5208333333333333"));
 
         Assertions.assertThat(values.get(0).growthRate(values.get(values.size() - 1)).toString()).isEqualTo("4");
         Assertions.assertThat(values.get(0).growthRate(values.get(values.size() - 1))).isEqualTo(new Decimal("4"));
