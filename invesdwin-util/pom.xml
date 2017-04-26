@@ -27,7 +27,7 @@
 
 		<version.fest-reflect>1.4.1</version.fest-reflect>
 		<version.fest-util>1.2.5</version.fest-util>
-		<version.fst>2.48</version.fst>
+		<version.fst>2.50</version.fst>
 		<version.commons-beanutils>1.9.2</version.commons-beanutils>
 		<version.jollyday>0.5.1</version.jollyday>
 		<version.dsiutils>2.3.3</version.dsiutils>

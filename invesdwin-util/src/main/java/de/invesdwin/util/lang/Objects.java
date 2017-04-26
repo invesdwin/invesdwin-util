@@ -3,7 +3,6 @@ package de.invesdwin.util.lang;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -15,7 +14,6 @@ import org.apache.commons.lang3.builder.CompareToBuilder;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.nustaq.serialization.FSTConfiguration;
-import org.nustaq.serialization.FSTObjectInput;
 
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
 import de.invesdwin.norva.beanpath.BeanPathObjects;
@@ -157,11 +155,7 @@ public final class Objects extends AObjectsStaticFacade {
 
     @SuppressWarnings("unchecked")
     public static <T> T deserialize(final byte[] objectData) {
-        try {
-            return (T) SERIALIZATION_CONFIG.asObject(objectData);
-        } finally {
-            resetFstObjectInputCallbacks();
-        }
+        return (T) SERIALIZATION_CONFIG.asObject(objectData);
     }
 
     public static <T> T deserialize(final InputStream in) {
@@ -170,17 +164,6 @@ public final class Objects extends AObjectsStaticFacade {
             return deserialize(IOUtils.toByteArray(in));
         } catch (final IOException e) {
             throw new RuntimeException(e);
-        }
-    }
-
-    private static void resetFstObjectInputCallbacks() {
-        //TODO remove with next fst release
-        //otherwise this can become a memory leak!
-        final FSTObjectInput fstObjectInput = (FSTObjectInput) SERIALIZATION_CONFIG.getStreamCoderFactory()
-                .getInput()
-                .get();
-        if (fstObjectInput != null) {
-            Reflections.field("callbacks").ofType(ArrayList.class).in(fstObjectInput).set(null);
         }
     }
 
