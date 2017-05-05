@@ -29,6 +29,9 @@ public class UniqueNameGenerator {
         }
     }
 
+    /**
+     * Initialize with 1 to skip the first value with a number
+     */
     protected long getInitialValue() {
         return 0;
     }
