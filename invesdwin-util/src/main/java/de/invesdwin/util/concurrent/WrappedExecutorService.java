@@ -41,16 +41,24 @@ public class WrappedExecutorService implements ExecutorService {
     private volatile boolean waitOnFullPendingCount = false;
 
     @GuardedBy("this")
-    private IShutdownHook shutdownHook = new IShutdownHook() {
-        @Override
-        public void shutdown() throws Exception {
-            delegate.shutdownNow();
-        }
-    };
+    private IShutdownHook shutdownHook;
 
     protected WrappedExecutorService(final java.util.concurrent.ThreadPoolExecutor delegate, final String name) {
         this.delegate = delegate;
+        this.shutdownHook = newShutdownHook(delegate);
         configure(name);
+    }
+
+    /**
+     * Prevent reference leak to this instance by using a static method
+     */
+    private static IShutdownHook newShutdownHook(final java.util.concurrent.ThreadPoolExecutor delegate) {
+        return new IShutdownHook() {
+            @Override
+            public void shutdown() throws Exception {
+                delegate.shutdownNow();
+            }
+        };
     }
 
     public boolean isLogExceptions() {
@@ -262,6 +270,12 @@ public class WrappedExecutorService implements ExecutorService {
     public <T> T invokeAny(final Collection<? extends Callable<T>> tasks, final long timeout, final TimeUnit unit)
             throws InterruptedException, ExecutionException, TimeoutException {
         return getWrappedInstance().invokeAny(WrappedCallable.newInstance(this, tasks), timeout, unit);
+    }
+
+    @Override
+    protected void finalize() throws Throwable {
+        super.finalize();
+        shutdown();
     }
 
 }
