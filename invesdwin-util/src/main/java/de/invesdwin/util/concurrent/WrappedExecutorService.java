@@ -264,10 +264,4 @@ public class WrappedExecutorService implements ExecutorService {
         return getWrappedInstance().invokeAny(WrappedCallable.newInstance(this, tasks), timeout, unit);
     }
 
-    @Override
-    protected void finalize() throws Throwable {
-        super.finalize();
-        unconfigure();
-    }
-
 }
