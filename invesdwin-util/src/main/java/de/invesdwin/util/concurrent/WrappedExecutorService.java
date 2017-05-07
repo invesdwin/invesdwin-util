@@ -13,6 +13,7 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.collections.loadingcache.ALoadingCache;
@@ -39,7 +40,8 @@ public class WrappedExecutorService implements ExecutorService {
     private volatile boolean logExceptions = false;
     private volatile boolean waitOnFullPendingCount = false;
 
-    private final IShutdownHook shutdownHook = new IShutdownHook() {
+    @GuardedBy("this")
+    private IShutdownHook shutdownHook = new IShutdownHook() {
         @Override
         public void shutdown() throws Exception {
             delegate.shutdownNow();
@@ -94,7 +96,7 @@ public class WrappedExecutorService implements ExecutorService {
         }
     }
 
-    private void configure(final String name) {
+    private synchronized void configure(final String name) {
         /*
          * All executors should be shutdown on application shutdown.
          */
@@ -117,8 +119,11 @@ public class WrappedExecutorService implements ExecutorService {
         }
     }
 
-    private void unconfigure() {
-        ShutdownHookManager.unregister(shutdownHook);
+    private synchronized void unconfigure() {
+        if (shutdownHook != null) {
+            ShutdownHookManager.unregister(shutdownHook);
+        }
+        shutdownHook = null;
     }
 
     public boolean isWaitOnFullPendingCount() {
@@ -257,6 +262,12 @@ public class WrappedExecutorService implements ExecutorService {
     public <T> T invokeAny(final Collection<? extends Callable<T>> tasks, final long timeout, final TimeUnit unit)
             throws InterruptedException, ExecutionException, TimeoutException {
         return getWrappedInstance().invokeAny(WrappedCallable.newInstance(this, tasks), timeout, unit);
+    }
+
+    @Override
+    protected void finalize() throws Throwable {
+        super.finalize();
+        unconfigure();
     }
 
 }
