@@ -1,8 +1,11 @@
 package de.invesdwin.util.math.decimal;
 
+import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -44,6 +47,27 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
     protected abstract E newValueCopy(ADecimalImpl value);
 
     public abstract E fromDefaultValue(Decimal value);
+
+    public List<E> fromDefaultValue(final List<Decimal> values) {
+        final List<E> converted = new ArrayList<E>(values.size());
+        for (final Decimal value : values) {
+            converted.add(fromDefaultValue(value));
+        }
+        return converted;
+    }
+
+    @SuppressWarnings("unchecked")
+    public E[] fromDefaultValue(final Decimal[] values) {
+        final E[] converted = (E[]) Array.newInstance(getGenericThis().getClass(), values.length);
+        return fromDefaultValue(values, converted);
+    }
+
+    public E[] fromDefaultValue(final Decimal[] values, final E[] destination) {
+        for (int i = 0; i < values.length; i++) {
+            destination[i] = fromDefaultValue(values[i]);
+        }
+        return destination;
+    }
 
     public abstract Decimal getDefaultValue();
 

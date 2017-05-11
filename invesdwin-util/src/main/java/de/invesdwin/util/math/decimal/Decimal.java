@@ -269,4 +269,20 @@ public class Decimal extends ADecimal<Decimal> {
         return formatter;
     }
 
+    public static <T extends ADecimal<?>> double[] toPrimitive(final T[] array) {
+        final double[] doubleArray = new double[array.length];
+        for (int i = 0; i < array.length; i++) {
+            doubleArray[i] = array[i].getDefaultValue().doubleValueRaw();
+        }
+        return doubleArray;
+    }
+
+    public static Decimal[] toObject(final double[] array) {
+        final Decimal[] decimalArray = new Decimal[array.length];
+        for (int i = 0; i < array.length; i++) {
+            decimalArray[i] = new Decimal(array[i]);
+        }
+        return decimalArray;
+    }
+
 }
