@@ -74,4 +74,19 @@ public final class Integers extends AIntegersStaticFacade {
     public static Integer between(final Integer value, final Integer min, final Integer max) {
         return max(min(value, max), min);
     }
+
+    public static Integer checkedCast(final Number value) {
+        if (value == null) {
+            return null;
+        } else if (value instanceof Long || value instanceof Double || value instanceof Float) {
+            final long longValue = value.longValue();
+            return checkedCast(longValue);
+        } else {
+            return value.intValue();
+        }
+    }
+
+    public static int checkedCast(final long longValue) {
+        return Math.toIntExact(longValue);
+    }
 }
