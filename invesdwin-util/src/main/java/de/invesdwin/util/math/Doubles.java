@@ -44,4 +44,38 @@ public final class Doubles extends ADoublesStaticFacade {
         return max(min(value, max), min);
     }
 
+    public static double[] checkedCastVector(final float[] value) {
+        final double[] doubleVector = new double[value.length];
+        for (int i = 0; i < value.length; i++) {
+            doubleVector[i] = value[i];
+        }
+        return doubleVector;
+    }
+
+    public static double[][] checkedCastMatrix(final float[][] value) {
+        final double[][] doubleMatrix = new double[value.length][];
+        for (int row = 0; row < value.length; row++) {
+            final float[] vector = value[row];
+            doubleMatrix[row] = checkedCastVector(vector);
+        }
+        return doubleMatrix;
+    }
+
+    public static double[] checkedCastVector(final long[] value) {
+        final double[] doubleVector = new double[value.length];
+        for (int i = 0; i < value.length; i++) {
+            doubleVector[i] = value[i];
+        }
+        return doubleVector;
+    }
+
+    public static double[][] checkedCastMatrix(final long[][] value) {
+        final double[][] doubleMatrix = new double[value.length][];
+        for (int row = 0; row < value.length; row++) {
+            final long[] vector = value[row];
+            doubleMatrix[row] = checkedCastVector(vector);
+        }
+        return doubleMatrix;
+    }
+
 }

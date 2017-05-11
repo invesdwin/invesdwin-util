@@ -56,30 +56,30 @@ public final class Floats extends AFloatsStaticFacade {
         }
     }
 
-    public static Float checkedCast(final Number number) {
-        if (number == null) {
+    public static Float checkedCast(final Number value) {
+        if (value == null) {
             return null;
-        } else if (number instanceof Double) {
-            final double doubleValue = number.doubleValue();
+        } else if (value instanceof Double) {
+            final double doubleValue = value.doubleValue();
             return checkedCast(doubleValue);
-        } else if (number instanceof Long) {
-            final long longValue = number.longValue();
+        } else if (value instanceof Long) {
+            final long longValue = value.longValue();
             return checkedCast(longValue);
         } else {
-            return number.floatValue();
+            return value.floatValue();
         }
     }
 
-    public static float checkedCast(final long longValue) {
-        final float floatValue = longValue;
+    public static float checkedCast(final long value) {
+        final float floatValue = value;
         return floatValue;
     }
 
-    public static float checkedCast(final double doubleValue) {
-        if (doubleValue < Float.MIN_VALUE || doubleValue > Float.MAX_VALUE) {
+    public static float checkedCast(final double value) {
+        if (value < Float.MIN_VALUE || value > Float.MAX_VALUE) {
             throw new ArithmeticException("float overflow");
         }
-        final float floatValue = (float) doubleValue;
+        final float floatValue = (float) value;
         return floatValue;
     }
 
@@ -97,10 +97,10 @@ public final class Floats extends AFloatsStaticFacade {
         }
     }
 
-    public static float[] checkedCastVector(final double[] vector) {
-        final float[] floatVector = new float[vector.length];
-        for (int i = 0; i < vector.length; i++) {
-            floatVector[i] = Floats.checkedCast(vector[i]);
+    public static float[] checkedCastVector(final double[] value) {
+        final float[] floatVector = new float[value.length];
+        for (int i = 0; i < value.length; i++) {
+            floatVector[i] = Floats.checkedCast(value[i]);
         }
         return floatVector;
     }
@@ -119,10 +119,10 @@ public final class Floats extends AFloatsStaticFacade {
         }
     }
 
-    public static float[][] checkedCastMatrix(final double[][] matrix) {
-        final float[][] floatMatrix = new float[matrix.length][];
-        for (int row = 0; row < matrix.length; row++) {
-            final double[] vector = matrix[row];
+    public static float[][] checkedCastMatrix(final double[][] value) {
+        final float[][] floatMatrix = new float[value.length][];
+        for (int row = 0; row < value.length; row++) {
+            final double[] vector = value[row];
             floatMatrix[row] = checkedCastVector(vector);
         }
         return floatMatrix;

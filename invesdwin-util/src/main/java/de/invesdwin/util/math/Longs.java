@@ -68,4 +68,28 @@ public final class Longs extends ALongsStaticFacade {
         return max(min(value, max), min);
     }
 
+    public static long checkedCast(final double value) {
+        if (value < Long.MIN_VALUE || value > Long.MAX_VALUE) {
+            throw new ArithmeticException("long overflow");
+        }
+        return (long) value;
+    }
+
+    public static long[] checkedCastVector(final double[] value) {
+        final long[] doubleVector = new long[value.length];
+        for (int i = 0; i < value.length; i++) {
+            doubleVector[i] = checkedCast(value[i]);
+        }
+        return doubleVector;
+    }
+
+    public static long[][] checkedCastMatrix(final double[][] value) {
+        final long[][] doubleMatrix = new long[value.length][];
+        for (int row = 0; row < value.length; row++) {
+            final double[] vector = value[row];
+            doubleMatrix[row] = checkedCastVector(vector);
+        }
+        return doubleMatrix;
+    }
+
 }
