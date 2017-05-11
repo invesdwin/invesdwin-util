@@ -21,12 +21,11 @@ import org.joda.time.ReadableDateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
-import com.google.common.primitives.Ints;
-
 import de.invesdwin.norva.marker.IDate;
 import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.lang.ADelegateComparator;
 import de.invesdwin.util.lang.Strings;
+import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.decimal.scaled.Percent;
 import de.invesdwin.util.time.duration.Duration;
 import de.jollyday.HolidayCalendar;
@@ -56,8 +55,8 @@ public class FDate implements IDate, Serializable, Cloneable, Comparable<Object>
     public static final FDate MIN_DATE = FDateBuilder.newDate(MIN_YEAR);
     public static final FDate MAX_DATE = FDateBuilder.newDate(MAX_YEAR);
 
-    public static final int COUNT_NANOSECONDS_IN_MILLISECOND = Ints.checkedCast(FTimeUnit.MILLISECONDS.toNanos(1));
-    public static final int COUNT_NANOSECONDS_IN_MICROSECOND = Ints.checkedCast(FTimeUnit.MICROSECONDS.toNanos(1));
+    public static final int COUNT_NANOSECONDS_IN_MILLISECOND = Integers.checkedCast(FTimeUnit.MILLISECONDS.toNanos(1));
+    public static final int COUNT_NANOSECONDS_IN_MICROSECOND = Integers.checkedCast(FTimeUnit.MICROSECONDS.toNanos(1));
     public static final int COUNT_WEEKEND_DAYS_IN_WEEK = 2;
     public static final int COUNT_WORKDAYS_IN_YEAR = FTimeUnit.DAYS_IN_YEAR
             - FTimeUnit.WEEKS_IN_YEAR * COUNT_WEEKEND_DAYS_IN_WEEK;

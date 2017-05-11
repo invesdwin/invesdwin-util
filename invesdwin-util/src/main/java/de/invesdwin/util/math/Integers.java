@@ -126,4 +126,21 @@ public final class Integers extends AIntegersStaticFacade {
         }
         return intMatrix;
     }
+
+    public static int[] checkedCastVector(final byte[] value) {
+        final int[] intVector = new int[value.length];
+        for (int i = 0; i < value.length; i++) {
+            intVector[i] = value[i];
+        }
+        return intVector;
+    }
+
+    public static int[][] checkedCastMatrix(final byte[][] value) {
+        final int[][] intMatrix = new int[value.length][];
+        for (int row = 0; row < value.length; row++) {
+            final byte[] vector = value[row];
+            intMatrix[row] = checkedCastVector(vector);
+        }
+        return intMatrix;
+    }
 }

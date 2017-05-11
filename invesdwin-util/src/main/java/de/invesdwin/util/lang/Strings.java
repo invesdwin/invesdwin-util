@@ -316,4 +316,25 @@ public final class Strings extends AStringsStaticFacade {
         }
     }
 
+    public static String toString(final char value) {
+        return String.valueOf(value);
+    }
+
+    public static String[] toStringVector(final char[] value) {
+        final String[] stringVector = new String[value.length];
+        for (int i = 0; i < value.length; i++) {
+            stringVector[i] = toString(value[i]);
+        }
+        return stringVector;
+    }
+
+    public static String[][] toStringMatrix(final char[][] value) {
+        final String[][] stringMatrix = new String[value.length][];
+        for (int row = 0; row < value.length; row++) {
+            final char[] vector = value[row];
+            stringMatrix[row] = toStringVector(vector);
+        }
+        return stringMatrix;
+    }
+
 }
