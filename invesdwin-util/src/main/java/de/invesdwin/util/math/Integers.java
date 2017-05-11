@@ -78,15 +78,52 @@ public final class Integers extends AIntegersStaticFacade {
     public static Integer checkedCast(final Number value) {
         if (value == null) {
             return null;
-        } else if (value instanceof Long || value instanceof Double || value instanceof Float) {
+        } else if (value instanceof Long) {
             final long longValue = value.longValue();
             return checkedCast(longValue);
+        } else if (value instanceof Double) {
+            final double doubleValue = value.doubleValue();
+            return checkedCast(doubleValue);
+        } else if (value instanceof Float) {
+            final float floatValue = value.floatValue();
+            return checkedCast(floatValue);
         } else {
             return value.intValue();
         }
     }
 
-    public static int checkedCast(final long longValue) {
-        return Math.toIntExact(longValue);
+    public static int checkedCast(final long value) {
+        return Math.toIntExact(value);
+    }
+
+    public static int checkedCast(final float value) {
+        if (value < Integer.MIN_VALUE || value > Integer.MAX_VALUE) {
+            throw new ArithmeticException("integer overflow");
+        }
+        return (int) value;
+    }
+
+    public static int checkedCast(final double value) {
+        if (value < Integer.MIN_VALUE || value > Integer.MAX_VALUE) {
+            throw new ArithmeticException("integer overflow");
+        }
+        return (int) value;
+    }
+
+    public static int[] checkedCastVector(final short[] value) {
+        final int[] intVector = new int[value.length];
+        for (int i = 0; i < value.length; i++) {
+            intVector[i] = value[i];
+        }
+        return intVector;
+    }
+
+    public static int[][] checkedCastMatrix(final short[][] value) {
+        final int[][] intMatrix = new int[value.length][];
+        for (int row = 0; row < value.length; row++) {
+            final short[] vector = value[row];
+            intMatrix[row] = checkedCastVector(vector);
+        }
+        return intMatrix;
     }
 }

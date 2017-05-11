@@ -68,7 +68,48 @@ public final class Shorts extends AShortsStaticFacade {
         return max(min(value, max), min);
     }
 
+    public static Short checkedCast(final Number value) {
+        if (value == null) {
+            return null;
+        } else if (value instanceof Long) {
+            final long longValue = value.longValue();
+            return checkedCast(longValue);
+        } else if (value instanceof Double) {
+            final double doubleValue = value.doubleValue();
+            return checkedCast(doubleValue);
+        } else if (value instanceof Float) {
+            final float floatValue = value.floatValue();
+            return checkedCast(floatValue);
+        } else if (value instanceof Integer) {
+            final int integerValue = value.intValue();
+            return checkedCast(integerValue);
+        } else {
+            return value.shortValue();
+        }
+    }
+
     public static short checkedCast(final int value) {
+        if (value < Short.MIN_VALUE || value > Short.MAX_VALUE) {
+            throw new ArithmeticException("short overflow");
+        }
+        return (short) value;
+    }
+
+    public static short checkedCast(final long value) {
+        if (value < Short.MIN_VALUE || value > Short.MAX_VALUE) {
+            throw new ArithmeticException("short overflow");
+        }
+        return (short) value;
+    }
+
+    public static short checkedCast(final float value) {
+        if (value < Short.MIN_VALUE || value > Short.MAX_VALUE) {
+            throw new ArithmeticException("short overflow");
+        }
+        return (short) value;
+    }
+
+    public static short checkedCast(final double value) {
         if (value < Short.MIN_VALUE || value > Short.MAX_VALUE) {
             throw new ArithmeticException("short overflow");
         }
