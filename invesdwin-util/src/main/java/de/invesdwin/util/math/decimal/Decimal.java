@@ -285,4 +285,20 @@ public class Decimal extends ADecimal<Decimal> {
         return decimalArray;
     }
 
+    public static double[] toPrimitive(final List<? extends ADecimal<?>> value) {
+        final double[] doubleArray = new double[value.size()];
+        for (int i = 0; i < value.size(); i++) {
+            doubleArray[i] = value.get(i).getDefaultValue().doubleValueRaw();
+        }
+        return doubleArray;
+    }
+
+    public static Decimal[] toObject(final List<Double> value) {
+        final Decimal[] decimalArray = new Decimal[value.size()];
+        for (int i = 0; i < value.size(); i++) {
+            decimalArray[i] = new Decimal(value.get(i));
+        }
+        return decimalArray;
+    }
+
 }

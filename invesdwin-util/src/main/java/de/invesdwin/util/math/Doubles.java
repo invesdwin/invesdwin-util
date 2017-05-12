@@ -5,9 +5,11 @@ import javax.annotation.concurrent.Immutable;
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
 import de.invesdwin.util.lang.ADelegateComparator;
 import de.invesdwin.util.math.internal.ADoublesStaticFacade;
+import de.invesdwin.util.math.internal.CheckedCastDoubles;
+import de.invesdwin.util.math.internal.CheckedCastDoublesObj;
 
 @StaticFacadeDefinition(name = "de.invesdwin.util.math.internal.ADoublesStaticFacade", targets = {
-        com.google.common.primitives.Doubles.class })
+        CheckedCastDoubles.class, CheckedCastDoublesObj.class, com.google.common.primitives.Doubles.class })
 @Immutable
 public final class Doubles extends ADoublesStaticFacade {
 

@@ -7,9 +7,11 @@ import javax.annotation.concurrent.Immutable;
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
 import de.invesdwin.util.lang.ADelegateComparator;
 import de.invesdwin.util.math.internal.AIntegersStaticFacade;
+import de.invesdwin.util.math.internal.CheckedCastIntegers;
+import de.invesdwin.util.math.internal.CheckedCastIntegersObj;
 
 @StaticFacadeDefinition(name = "de.invesdwin.util.math.internal.AIntegersStaticFacade", targets = {
-        com.google.common.primitives.Ints.class })
+        CheckedCastIntegers.class, CheckedCastIntegersObj.class, com.google.common.primitives.Ints.class })
 @Immutable
 public final class Integers extends AIntegersStaticFacade {
 
@@ -75,72 +77,4 @@ public final class Integers extends AIntegersStaticFacade {
         return max(min(value, max), min);
     }
 
-    public static Integer checkedCast(final Number value) {
-        if (value == null) {
-            return null;
-        } else if (value instanceof Long) {
-            final long longValue = value.longValue();
-            return checkedCast(longValue);
-        } else if (value instanceof Double) {
-            final double doubleValue = value.doubleValue();
-            return checkedCast(doubleValue);
-        } else if (value instanceof Float) {
-            final float floatValue = value.floatValue();
-            return checkedCast(floatValue);
-        } else {
-            return value.intValue();
-        }
-    }
-
-    public static int checkedCast(final long value) {
-        return Math.toIntExact(value);
-    }
-
-    public static int checkedCast(final float value) {
-        if (value < Integer.MIN_VALUE || value > Integer.MAX_VALUE) {
-            throw new ArithmeticException("integer overflow");
-        }
-        return (int) value;
-    }
-
-    public static int checkedCast(final double value) {
-        if (value < Integer.MIN_VALUE || value > Integer.MAX_VALUE) {
-            throw new ArithmeticException("integer overflow");
-        }
-        return (int) value;
-    }
-
-    public static int[] checkedCastVector(final short[] value) {
-        final int[] intVector = new int[value.length];
-        for (int i = 0; i < value.length; i++) {
-            intVector[i] = value[i];
-        }
-        return intVector;
-    }
-
-    public static int[][] checkedCastMatrix(final short[][] value) {
-        final int[][] intMatrix = new int[value.length][];
-        for (int row = 0; row < value.length; row++) {
-            final short[] vector = value[row];
-            intMatrix[row] = checkedCastVector(vector);
-        }
-        return intMatrix;
-    }
-
-    public static int[] checkedCastVector(final byte[] value) {
-        final int[] intVector = new int[value.length];
-        for (int i = 0; i < value.length; i++) {
-            intVector[i] = value[i];
-        }
-        return intVector;
-    }
-
-    public static int[][] checkedCastMatrix(final byte[][] value) {
-        final int[][] intMatrix = new int[value.length][];
-        for (int row = 0; row < value.length; row++) {
-            final byte[] vector = value[row];
-            intMatrix[row] = checkedCastVector(vector);
-        }
-        return intMatrix;
-    }
 }

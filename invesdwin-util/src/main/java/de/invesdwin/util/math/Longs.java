@@ -5,9 +5,11 @@ import javax.annotation.concurrent.Immutable;
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
 import de.invesdwin.util.lang.ADelegateComparator;
 import de.invesdwin.util.math.internal.ALongsStaticFacade;
+import de.invesdwin.util.math.internal.CheckedCastLongs;
+import de.invesdwin.util.math.internal.CheckedCastLongsObj;
 
-@StaticFacadeDefinition(name = "de.invesdwin.util.math.internal.ALongsStaticFacade", targets = {
-        com.google.common.primitives.Longs.class })
+@StaticFacadeDefinition(name = "de.invesdwin.util.math.internal.ALongsStaticFacade", targets = { CheckedCastLongs.class,
+        CheckedCastLongsObj.class, com.google.common.primitives.Longs.class })
 @Immutable
 public final class Longs extends ALongsStaticFacade {
 

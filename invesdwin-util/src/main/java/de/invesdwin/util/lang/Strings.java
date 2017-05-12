@@ -12,12 +12,13 @@ import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
 import de.invesdwin.norva.beanpath.BeanPathStrings;
 import de.invesdwin.util.lang.internal.AStringsStaticFacade;
+import de.invesdwin.util.lang.internal.CheckedCastStrings;
 import de.invesdwin.util.lang.internal.DefaultToStringStyle;
 import de.invesdwin.util.lang.internal.MultilineToStringStyle;
 
 @Immutable
 @StaticFacadeDefinition(name = "de.invesdwin.util.lang.internal.AStringsStaticFacade", targets = {
-        BeanPathStrings.class })
+        CheckedCastStrings.class, BeanPathStrings.class })
 public final class Strings extends AStringsStaticFacade {
 
     public static final ADelegateComparator<String> COMPARATOR = new ADelegateComparator<String>() {
@@ -314,27 +315,6 @@ public final class Strings extends AStringsStaticFacade {
         } else {
             return fileName + suffix;
         }
-    }
-
-    public static String toString(final char value) {
-        return String.valueOf(value);
-    }
-
-    public static String[] toStringVector(final char[] value) {
-        final String[] stringVector = new String[value.length];
-        for (int i = 0; i < value.length; i++) {
-            stringVector[i] = toString(value[i]);
-        }
-        return stringVector;
-    }
-
-    public static String[][] toStringMatrix(final char[][] value) {
-        final String[][] stringMatrix = new String[value.length][];
-        for (int row = 0; row < value.length; row++) {
-            final char[] vector = value[row];
-            stringMatrix[row] = toStringVector(vector);
-        }
-        return stringMatrix;
     }
 
 }

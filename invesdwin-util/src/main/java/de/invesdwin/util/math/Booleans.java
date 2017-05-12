@@ -5,9 +5,11 @@ import javax.annotation.concurrent.Immutable;
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
 import de.invesdwin.util.lang.ADelegateComparator;
 import de.invesdwin.util.math.internal.ABooleansStaticFacade;
+import de.invesdwin.util.math.internal.CheckedCastBooleans;
+import de.invesdwin.util.math.internal.CheckedCastBooleansObj;
 
 @StaticFacadeDefinition(name = "de.invesdwin.util.math.internal.ABooleansStaticFacade", targets = {
-        com.google.common.primitives.Booleans.class })
+        CheckedCastBooleans.class, CheckedCastBooleansObj.class, com.google.common.primitives.Booleans.class })
 @Immutable
 public final class Booleans extends ABooleansStaticFacade {
 
