@@ -1,8 +1,11 @@
+// CHECKSTYLE:OFF file length
 package de.invesdwin.util.lang.internal;
+// CHECKSTYLE:ON
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -46,10 +49,90 @@ public final class CheckedCastStrings {
         } else if (value instanceof Character[]) {
             final Character[] cValue = (Character[]) value;
             return checkedCast(cValue);
+        } else if (value instanceof Object[]) {
+            final Object[] cValue = (Object[]) value;
+            return checkedCast(cValue);
+        } else if (value instanceof boolean[]) {
+            final boolean[] cValue = (boolean[]) value;
+            return checkedCast(cValue);
+        } else if (value instanceof byte[]) {
+            final byte[] cValue = (byte[]) value;
+            return checkedCast(cValue);
+        } else if (value instanceof short[]) {
+            final short[] cValue = (short[]) value;
+            return checkedCast(cValue);
+        } else if (value instanceof int[]) {
+            final int[] cValue = (int[]) value;
+            return checkedCast(cValue);
+        } else if (value instanceof long[]) {
+            final long[] cValue = (long[]) value;
+            return checkedCast(cValue);
+        } else if (value instanceof float[]) {
+            final float[] cValue = (float[]) value;
+            return checkedCast(cValue);
+        } else if (value instanceof double[]) {
+            final double[] cValue = (double[]) value;
+            return checkedCast(cValue);
         } else {
             //fallback to toString()
             return String.valueOf(value);
         }
+    }
+
+    public static String checkedCast(final Object[] value) {
+        if (value == null) {
+            return null;
+        }
+        return Arrays.toString(value);
+    }
+
+    public static String checkedCast(final boolean[] value) {
+        if (value == null) {
+            return null;
+        }
+        return Arrays.toString(value);
+    }
+
+    public static String checkedCast(final byte[] value) {
+        if (value == null) {
+            return null;
+        }
+        return Arrays.toString(value);
+    }
+
+    public static String checkedCast(final short[] value) {
+        if (value == null) {
+            return null;
+        }
+        return Arrays.toString(value);
+    }
+
+    public static String checkedCast(final int[] value) {
+        if (value == null) {
+            return null;
+        }
+        return Arrays.toString(value);
+    }
+
+    public static String checkedCast(final long[] value) {
+        if (value == null) {
+            return null;
+        }
+        return Arrays.toString(value);
+    }
+
+    public static String checkedCast(final float[] value) {
+        if (value == null) {
+            return null;
+        }
+        return Arrays.toString(value);
+    }
+
+    public static String checkedCast(final double[] value) {
+        if (value == null) {
+            return null;
+        }
+        return Arrays.toString(value);
     }
 
     public static String checkedCast(final Number value) {
