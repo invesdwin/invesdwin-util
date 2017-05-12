@@ -13,6 +13,7 @@ import java.util.List;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.error.UnknownArgumentException;
+import de.invesdwin.util.math.Bytes;
 import de.invesdwin.util.math.Characters;
 import de.invesdwin.util.math.decimal.ADecimal;
 import de.invesdwin.util.math.decimal.Decimal;
@@ -49,14 +50,17 @@ public final class CheckedCastStrings {
         } else if (value instanceof Character[]) {
             final Character[] cValue = (Character[]) value;
             return checkedCast(cValue);
+        } else if (value instanceof byte[]) {
+            final byte[] cValue = (byte[]) value;
+            return checkedCast(cValue);
+        } else if (value instanceof Byte[]) {
+            final Byte[] cValue = (Byte[]) value;
+            return checkedCast(cValue);
         } else if (value instanceof Object[]) {
             final Object[] cValue = (Object[]) value;
             return checkedCast(cValue);
         } else if (value instanceof boolean[]) {
             final boolean[] cValue = (boolean[]) value;
-            return checkedCast(cValue);
-        } else if (value instanceof byte[]) {
-            final byte[] cValue = (byte[]) value;
             return checkedCast(cValue);
         } else if (value instanceof short[]) {
             final short[] cValue = (short[]) value;
@@ -87,13 +91,6 @@ public final class CheckedCastStrings {
     }
 
     public static String checkedCast(final boolean[] value) {
-        if (value == null) {
-            return null;
-        }
-        return Arrays.toString(value);
-    }
-
-    public static String checkedCast(final byte[] value) {
         if (value == null) {
             return null;
         }
@@ -184,6 +181,20 @@ public final class CheckedCastStrings {
             return null;
         }
         return new String(value);
+    }
+
+    public static String checkedCast(final byte[] value) {
+        if (value == null) {
+            return null;
+        }
+        return new String(value);
+    }
+
+    public static String checkedCast(final Byte[] value) {
+        if (value == null) {
+            return null;
+        }
+        return checkedCast(Bytes.checkedCastVectorObj(value));
     }
 
     public static String checkedCast(final String value) {
