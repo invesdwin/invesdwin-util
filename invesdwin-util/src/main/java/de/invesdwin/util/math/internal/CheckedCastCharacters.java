@@ -11,7 +11,6 @@ import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.math.decimal.ADecimal;
-import de.invesdwin.util.math.decimal.Decimal;
 
 @Immutable
 public final class CheckedCastCharacters {
@@ -227,8 +226,8 @@ public final class CheckedCastCharacters {
         } else if (value instanceof Short[]) {
             final Short[] cValue = (Short[]) value;
             return checkedCastVector(cValue);
-        } else if (value instanceof Decimal[]) {
-            final Decimal[] cValue = (Decimal[]) value;
+        } else if (value instanceof ADecimal[]) {
+            final ADecimal<?>[] cValue = (ADecimal<?>[]) value;
             return checkedCastVector(cValue);
         } else if (value instanceof BigDecimal[]) {
             final BigDecimal[] cValue = (BigDecimal[]) value;
@@ -478,7 +477,7 @@ public final class CheckedCastCharacters {
         return vector;
     }
 
-    public static char[] checkedCastVector(final Decimal[] value) {
+    public static char[] checkedCastVector(final ADecimal<?>[] value) {
         if (value == null) {
             return null;
         }
@@ -586,8 +585,8 @@ public final class CheckedCastCharacters {
         } else if (value instanceof Character[][]) {
             final Character[][] cValue = (Character[][]) value;
             return checkedCastMatrix(cValue);
-        } else if (value instanceof Decimal[][]) {
-            final Decimal[][] cValue = (Decimal[][]) value;
+        } else if (value instanceof ADecimal[][]) {
+            final ADecimal<?>[][] cValue = (ADecimal<?>[][]) value;
             return checkedCastMatrix(cValue);
         } else if (value instanceof BigDecimal[][]) {
             final BigDecimal[][] cValue = (BigDecimal[][]) value;
@@ -831,7 +830,7 @@ public final class CheckedCastCharacters {
         return matrix;
     }
 
-    public static char[][] checkedCastMatrix(final Decimal[][] value) {
+    public static char[][] checkedCastMatrix(final ADecimal<?>[][] value) {
         if (value == null) {
             return null;
         }

@@ -11,7 +11,6 @@ import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.math.decimal.ADecimal;
-import de.invesdwin.util.math.decimal.Decimal;
 
 @Immutable
 public final class CheckedCastBytes {
@@ -228,8 +227,8 @@ public final class CheckedCastBytes {
         } else if (value instanceof Short[]) {
             final Short[] cValue = (Short[]) value;
             return checkedCastVector(cValue);
-        } else if (value instanceof Decimal[]) {
-            final Decimal[] cValue = (Decimal[]) value;
+        } else if (value instanceof ADecimal[]) {
+            final ADecimal<?>[] cValue = (ADecimal<?>[]) value;
             return checkedCastVector(cValue);
         } else if (value instanceof BigDecimal[]) {
             final BigDecimal[] cValue = (BigDecimal[]) value;
@@ -479,7 +478,7 @@ public final class CheckedCastBytes {
         return vector;
     }
 
-    public static byte[] checkedCastVector(final Decimal[] value) {
+    public static byte[] checkedCastVector(final ADecimal<?>[] value) {
         if (value == null) {
             return null;
         }
@@ -587,8 +586,8 @@ public final class CheckedCastBytes {
         } else if (value instanceof Character[][]) {
             final Character[][] cValue = (Character[][]) value;
             return checkedCastMatrix(cValue);
-        } else if (value instanceof Decimal[][]) {
-            final Decimal[][] cValue = (Decimal[][]) value;
+        } else if (value instanceof ADecimal[][]) {
+            final ADecimal<?>[][] cValue = (ADecimal<?>[][]) value;
             return checkedCastMatrix(cValue);
         } else if (value instanceof BigDecimal[][]) {
             final BigDecimal[][] cValue = (BigDecimal[][]) value;
@@ -832,7 +831,7 @@ public final class CheckedCastBytes {
         return matrix;
     }
 
-    public static byte[][] checkedCastMatrix(final Decimal[][] value) {
+    public static byte[][] checkedCastMatrix(final ADecimal<?>[][] value) {
         if (value == null) {
             return null;
         }

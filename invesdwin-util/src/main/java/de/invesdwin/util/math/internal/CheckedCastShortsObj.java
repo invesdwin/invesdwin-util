@@ -11,7 +11,6 @@ import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.math.decimal.ADecimal;
-import de.invesdwin.util.math.decimal.Decimal;
 
 @Immutable
 public final class CheckedCastShortsObj {
@@ -260,8 +259,8 @@ public final class CheckedCastShortsObj {
         } else if (value instanceof Short[]) {
             final Short[] cValue = (Short[]) value;
             return checkedCastVectorObj(cValue);
-        } else if (value instanceof Decimal[]) {
-            final Decimal[] cValue = (Decimal[]) value;
+        } else if (value instanceof ADecimal[]) {
+            final ADecimal<?>[] cValue = (ADecimal<?>[]) value;
             return checkedCastVectorObj(cValue);
         } else if (value instanceof BigDecimal[]) {
             final BigDecimal[] cValue = (BigDecimal[]) value;
@@ -511,7 +510,7 @@ public final class CheckedCastShortsObj {
         return vector;
     }
 
-    public static Short[] checkedCastVectorObj(final Decimal[] value) {
+    public static Short[] checkedCastVectorObj(final ADecimal<?>[] value) {
         if (value == null) {
             return null;
         }
@@ -619,8 +618,8 @@ public final class CheckedCastShortsObj {
         } else if (value instanceof Character[][]) {
             final Character[][] cValue = (Character[][]) value;
             return checkedCastMatrixObj(cValue);
-        } else if (value instanceof Decimal[][]) {
-            final Decimal[][] cValue = (Decimal[][]) value;
+        } else if (value instanceof ADecimal[][]) {
+            final ADecimal<?>[][] cValue = (ADecimal<?>[][]) value;
             return checkedCastMatrixObj(cValue);
         } else if (value instanceof BigDecimal[][]) {
             final BigDecimal[][] cValue = (BigDecimal[][]) value;
@@ -864,7 +863,7 @@ public final class CheckedCastShortsObj {
         return matrix;
     }
 
-    public static Short[][] checkedCastMatrixObj(final Decimal[][] value) {
+    public static Short[][] checkedCastMatrixObj(final ADecimal<?>[][] value) {
         if (value == null) {
             return null;
         }
