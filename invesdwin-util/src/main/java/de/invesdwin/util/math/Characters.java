@@ -1,5 +1,7 @@
 package de.invesdwin.util.math;
 
+import java.util.Collection;
+
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
@@ -22,6 +24,21 @@ public final class Characters extends ACharactersStaticFacade {
     };
 
     private Characters() {}
+
+    public static char[] toArray(final Collection<Character> collection) {
+        if (collection == null) {
+            return null;
+        }
+        return ACharactersStaticFacade.toArray(collection);
+    }
+
+    public static java.util.List<java.lang.Character> asList(final char... backingArray) {
+        if (backingArray == null) {
+            return null;
+        } else {
+            return ACharactersStaticFacade.asList(backingArray);
+        }
+    }
 
     public static Character min(final Character... times) {
         Character minTime = null;

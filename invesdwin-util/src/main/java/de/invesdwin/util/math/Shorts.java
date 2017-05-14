@@ -1,5 +1,7 @@
 package de.invesdwin.util.math;
 
+import java.util.Collection;
+
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
@@ -21,6 +23,21 @@ public final class Shorts extends AShortsStaticFacade {
     };
 
     private Shorts() {}
+
+    public static short[] toArray(final Collection<Short> collection) {
+        if (collection == null) {
+            return null;
+        }
+        return AShortsStaticFacade.toArray(collection);
+    }
+
+    public static java.util.List<java.lang.Short> asList(final short... backingArray) {
+        if (backingArray == null) {
+            return null;
+        } else {
+            return AShortsStaticFacade.asList(backingArray);
+        }
+    }
 
     public static Short min(final Short... values) {
         Short minValue = null;

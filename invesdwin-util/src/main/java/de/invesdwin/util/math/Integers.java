@@ -24,6 +24,21 @@ public final class Integers extends AIntegersStaticFacade {
 
     private Integers() {}
 
+    public static int[] toArray(final Collection<Integer> collection) {
+        if (collection == null) {
+            return null;
+        }
+        return AIntegersStaticFacade.toArray(collection);
+    }
+
+    public static java.util.List<java.lang.Integer> asList(final int... backingArray) {
+        if (backingArray == null) {
+            return null;
+        } else {
+            return AIntegersStaticFacade.asList(backingArray);
+        }
+    }
+
     public static Integer max(final Integer first, final Integer second) {
         if (first == null) {
             return second;

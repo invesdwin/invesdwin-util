@@ -1,5 +1,7 @@
 package de.invesdwin.util.math;
 
+import java.util.Collection;
+
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
@@ -21,6 +23,21 @@ public final class Bytes extends ABytesStaticFacade {
     };
 
     private Bytes() {}
+
+    public static byte[] toArray(final Collection<Byte> collection) {
+        if (collection == null) {
+            return null;
+        }
+        return ABytesStaticFacade.toArray(collection);
+    }
+
+    public static java.util.List<java.lang.Byte> asList(final byte... backingArray) {
+        if (backingArray == null) {
+            return null;
+        } else {
+            return ABytesStaticFacade.asList(backingArray);
+        }
+    }
 
     public static Byte min(final Byte... times) {
         Byte minTime = null;

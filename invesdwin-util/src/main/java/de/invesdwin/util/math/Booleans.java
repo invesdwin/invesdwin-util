@@ -1,5 +1,7 @@
 package de.invesdwin.util.math;
 
+import java.util.Collection;
+
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
@@ -21,5 +23,20 @@ public final class Booleans extends ABooleansStaticFacade {
     };
 
     private Booleans() {}
+
+    public static boolean[] toArray(final Collection<Boolean> collection) {
+        if (collection == null) {
+            return null;
+        }
+        return ABooleansStaticFacade.toArray(collection);
+    }
+
+    public static java.util.List<java.lang.Boolean> asList(final boolean... backingArray) {
+        if (backingArray == null) {
+            return null;
+        } else {
+            return ABooleansStaticFacade.asList(backingArray);
+        }
+    }
 
 }

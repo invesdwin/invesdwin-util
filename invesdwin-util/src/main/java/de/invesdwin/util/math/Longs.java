@@ -1,5 +1,7 @@
 package de.invesdwin.util.math;
 
+import java.util.Collection;
+
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
@@ -21,6 +23,21 @@ public final class Longs extends ALongsStaticFacade {
     };
 
     private Longs() {}
+
+    public static long[] toArray(final Collection<Long> collection) {
+        if (collection == null) {
+            return null;
+        }
+        return ALongsStaticFacade.toArray(collection);
+    }
+
+    public static java.util.List<java.lang.Long> asList(final long... backingArray) {
+        if (backingArray == null) {
+            return null;
+        } else {
+            return ALongsStaticFacade.asList(backingArray);
+        }
+    }
 
     public static Long min(final Long... times) {
         Long minTime = null;
@@ -68,30 +85,6 @@ public final class Longs extends ALongsStaticFacade {
 
     public static Long between(final Long value, final Long min, final Long max) {
         return max(min(value, max), min);
-    }
-
-    public static long checkedCast(final double value) {
-        if (value < Long.MIN_VALUE || value > Long.MAX_VALUE) {
-            throw new ArithmeticException("long overflow");
-        }
-        return (long) value;
-    }
-
-    public static long[] checkedCastVector(final double[] value) {
-        final long[] longVector = new long[value.length];
-        for (int i = 0; i < value.length; i++) {
-            longVector[i] = checkedCast(value[i]);
-        }
-        return longVector;
-    }
-
-    public static long[][] checkedCastMatrix(final double[][] value) {
-        final long[][] longMatrix = new long[value.length][];
-        for (int row = 0; row < value.length; row++) {
-            final double[] vector = value[row];
-            longMatrix[row] = checkedCastVector(vector);
-        }
-        return longMatrix;
     }
 
 }

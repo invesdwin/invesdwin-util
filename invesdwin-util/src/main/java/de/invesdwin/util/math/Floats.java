@@ -1,5 +1,7 @@
 package de.invesdwin.util.math;
 
+import java.util.Collection;
+
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
@@ -21,6 +23,21 @@ public final class Floats extends AFloatsStaticFacade {
     };
 
     private Floats() {}
+
+    public static float[] toArray(final Collection<Float> collection) {
+        if (collection == null) {
+            return null;
+        }
+        return AFloatsStaticFacade.toArray(collection);
+    }
+
+    public static java.util.List<java.lang.Float> asList(final float... backingArray) {
+        if (backingArray == null) {
+            return null;
+        } else {
+            return AFloatsStaticFacade.asList(backingArray);
+        }
+    }
 
     public static Float max(final Float first, final Float second) {
         if (first == null) {
