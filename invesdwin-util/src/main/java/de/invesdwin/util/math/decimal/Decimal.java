@@ -270,6 +270,9 @@ public class Decimal extends ADecimal<Decimal> {
     }
 
     public static Decimal[] toObject(final double[] array) {
+        if (array == null) {
+            return null;
+        }
         final Decimal[] decimalArray = new Decimal[array.length];
         for (int i = 0; i < array.length; i++) {
             decimalArray[i] = new Decimal(array[i]);
@@ -278,6 +281,9 @@ public class Decimal extends ADecimal<Decimal> {
     }
 
     public static Decimal[] toObject(final List<Double> value) {
+        if (value == null) {
+            return null;
+        }
         final Decimal[] decimalArray = new Decimal[value.size()];
         for (int i = 0; i < value.size(); i++) {
             decimalArray[i] = new Decimal(value.get(i));

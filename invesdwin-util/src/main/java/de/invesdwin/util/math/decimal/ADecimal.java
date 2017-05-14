@@ -49,6 +49,9 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
     public abstract E fromDefaultValue(Decimal value);
 
     public List<E> fromDefaultValue(final List<Decimal> values) {
+        if (values == null) {
+            return null;
+        }
         final List<E> converted = new ArrayList<E>(values.size());
         for (final Decimal value : values) {
             converted.add(fromDefaultValue(value));
@@ -58,6 +61,9 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
 
     @SuppressWarnings("unchecked")
     public E[] fromDefaultValue(final Decimal[] values) {
+        if (values == null) {
+            return null;
+        }
         final E[] converted = (E[]) Array.newInstance(getGenericThis().getClass(), values.length);
         return fromDefaultValue(values, converted);
     }
