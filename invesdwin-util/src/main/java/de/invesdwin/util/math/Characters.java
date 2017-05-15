@@ -1,6 +1,7 @@
 package de.invesdwin.util.math;
 
 import java.util.Collection;
+import java.util.List;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -32,7 +33,7 @@ public final class Characters extends ACharactersStaticFacade {
         return ACharactersStaticFacade.toArray(collection);
     }
 
-    public static java.util.List<java.lang.Character> asList(final char... backingArray) {
+    public static List<Character> asList(final char... backingArray) {
         if (backingArray == null) {
             return null;
         } else {

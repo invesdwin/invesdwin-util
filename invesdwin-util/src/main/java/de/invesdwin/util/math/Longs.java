@@ -1,6 +1,7 @@
 package de.invesdwin.util.math;
 
 import java.util.Collection;
+import java.util.List;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -24,14 +25,14 @@ public final class Longs extends ALongsStaticFacade {
 
     private Longs() {}
 
-    public static long[] toArray(final Collection<Long> collection) {
+    public static long[] toArray(final Collection<? extends Number> collection) {
         if (collection == null) {
             return null;
         }
         return ALongsStaticFacade.toArray(collection);
     }
 
-    public static java.util.List<java.lang.Long> asList(final long... backingArray) {
+    public static List<Long> asList(final long... backingArray) {
         if (backingArray == null) {
             return null;
         } else {

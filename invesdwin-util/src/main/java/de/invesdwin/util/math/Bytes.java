@@ -1,6 +1,7 @@
 package de.invesdwin.util.math;
 
 import java.util.Collection;
+import java.util.List;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -24,14 +25,14 @@ public final class Bytes extends ABytesStaticFacade {
 
     private Bytes() {}
 
-    public static byte[] toArray(final Collection<Byte> collection) {
+    public static byte[] toArray(final Collection<? extends Number> collection) {
         if (collection == null) {
             return null;
         }
         return ABytesStaticFacade.toArray(collection);
     }
 
-    public static java.util.List<java.lang.Byte> asList(final byte... backingArray) {
+    public static List<java.lang.Byte> asList(final byte... backingArray) {
         if (backingArray == null) {
             return null;
         } else {

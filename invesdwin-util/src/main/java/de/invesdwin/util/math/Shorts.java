@@ -1,6 +1,7 @@
 package de.invesdwin.util.math;
 
 import java.util.Collection;
+import java.util.List;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -24,14 +25,14 @@ public final class Shorts extends AShortsStaticFacade {
 
     private Shorts() {}
 
-    public static short[] toArray(final Collection<Short> collection) {
+    public static short[] toArray(final Collection<? extends Number> collection) {
         if (collection == null) {
             return null;
         }
         return AShortsStaticFacade.toArray(collection);
     }
 
-    public static java.util.List<java.lang.Short> asList(final short... backingArray) {
+    public static List<Short> asList(final short... backingArray) {
         if (backingArray == null) {
             return null;
         } else {

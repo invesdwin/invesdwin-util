@@ -1,6 +1,7 @@
 package de.invesdwin.util.math;
 
 import java.util.Collection;
+import java.util.List;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -24,14 +25,14 @@ public final class Doubles extends ADoublesStaticFacade {
 
     private Doubles() {}
 
-    public static double[] toArray(final Collection<Double> collection) {
+    public static double[] toArray(final Collection<? extends Number> collection) {
         if (collection == null) {
             return null;
         }
         return ADoublesStaticFacade.toArray(collection);
     }
 
-    public static java.util.List<java.lang.Double> asList(final double... backingArray) {
+    public static List<Double> asList(final double... backingArray) {
         if (backingArray == null) {
             return null;
         } else {

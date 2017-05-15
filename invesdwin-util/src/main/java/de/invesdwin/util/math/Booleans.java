@@ -1,6 +1,7 @@
 package de.invesdwin.util.math;
 
 import java.util.Collection;
+import java.util.List;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -31,7 +32,7 @@ public final class Booleans extends ABooleansStaticFacade {
         return ABooleansStaticFacade.toArray(collection);
     }
 
-    public static java.util.List<java.lang.Boolean> asList(final boolean... backingArray) {
+    public static List<Boolean> asList(final boolean... backingArray) {
         if (backingArray == null) {
             return null;
         } else {

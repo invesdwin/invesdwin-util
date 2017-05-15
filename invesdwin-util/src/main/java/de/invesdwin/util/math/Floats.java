@@ -1,6 +1,7 @@
 package de.invesdwin.util.math;
 
 import java.util.Collection;
+import java.util.List;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -24,14 +25,14 @@ public final class Floats extends AFloatsStaticFacade {
 
     private Floats() {}
 
-    public static float[] toArray(final Collection<Float> collection) {
+    public static float[] toArray(final Collection<? extends Number> collection) {
         if (collection == null) {
             return null;
         }
         return AFloatsStaticFacade.toArray(collection);
     }
 
-    public static java.util.List<java.lang.Float> asList(final float... backingArray) {
+    public static List<Float> asList(final float... backingArray) {
         if (backingArray == null) {
             return null;
         } else {
