@@ -140,6 +140,37 @@ public abstract class ADelegateComparator<E> implements Comparator<Object> {
     }
 
     /**
+     * Also does not allow the same element to appear twice
+     */
+    public <T extends E> void assertOrderStrict(final List<? extends T> list, final boolean ascending) {
+        if (list == null || list.size() == 0) {
+            return;
+        }
+
+        final Comparator<Object> comparator;
+        if (ascending) {
+            comparator = this;
+        } else {
+            comparator = asDescending();
+        }
+
+        T previousE = null;
+        for (final T e : list) {
+            if (previousE == null) {
+                previousE = e;
+            } else {
+                final int compareResult = comparator.compare(e, previousE);
+                if (compareResult <= 0) {
+                    org.assertj.core.api.Assertions.assertThat(compareResult)
+                            .as("No strict %s order: previousE [%s], e [%s]", ascending ? "ascending" : "descending",
+                                    previousE, e)
+                            .isGreaterThanOrEqualTo(0);
+                }
+            }
+        }
+    }
+
+    /**
      * Just checks the first and last element.
      */
     public <T extends E> void assertOrderFast(final List<? extends T> list, final boolean ascending) {
