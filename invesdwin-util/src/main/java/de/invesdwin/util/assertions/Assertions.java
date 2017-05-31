@@ -10,6 +10,7 @@ import de.invesdwin.util.assertions.type.DecimalAssert;
 import de.invesdwin.util.assertions.type.FDateAssert;
 import de.invesdwin.util.assertions.type.StringAssert;
 import de.invesdwin.util.lang.Objects;
+import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.math.decimal.ADecimal;
 import de.invesdwin.util.time.fdate.FDate;
 
@@ -110,6 +111,34 @@ public final class Assertions extends AAssertionsStaticFacade {
     public static void checkFalse(final boolean expression) {
         if (expression) {
             assertThat(expression).isFalse();
+            failExceptionExpected();
+        }
+    }
+
+    public static void checkBlank(final String str) {
+        if (Strings.isBlank(str)) {
+            assertThat(str).isBlank();
+            failExceptionExpected();
+        }
+    }
+
+    public static void checkBlank(final String str, final String message, final Object... args) {
+        if (Strings.isBlank(str)) {
+            assertThat(str).as(message, args).isBlank();
+            failExceptionExpected();
+        }
+    }
+
+    public static void checkNotBlank(final String str) {
+        if (Strings.isNotBlank(str)) {
+            assertThat(str).isNotBlank();
+            failExceptionExpected();
+        }
+    }
+
+    public static void checkNotBlank(final String str, final String message, final Object... args) {
+        if (Strings.isNotBlank(str)) {
+            assertThat(str).as(message, args).isNotBlank();
             failExceptionExpected();
         }
     }
