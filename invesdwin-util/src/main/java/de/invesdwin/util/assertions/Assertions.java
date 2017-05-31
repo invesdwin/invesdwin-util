@@ -116,28 +116,28 @@ public final class Assertions extends AAssertionsStaticFacade {
     }
 
     public static void checkBlank(final String str) {
-        if (Strings.isBlank(str)) {
+        if (Strings.isNotBlank(str)) {
             assertThat(str).isBlank();
             failExceptionExpected();
         }
     }
 
     public static void checkBlank(final String str, final String message, final Object... args) {
-        if (Strings.isBlank(str)) {
+        if (Strings.isNotBlank(str)) {
             assertThat(str).as(message, args).isBlank();
             failExceptionExpected();
         }
     }
 
     public static void checkNotBlank(final String str) {
-        if (Strings.isNotBlank(str)) {
+        if (Strings.isBlank(str)) {
             assertThat(str).isNotBlank();
             failExceptionExpected();
         }
     }
 
     public static void checkNotBlank(final String str, final String message, final Object... args) {
-        if (Strings.isNotBlank(str)) {
+        if (Strings.isBlank(str)) {
             assertThat(str).as(message, args).isNotBlank();
             failExceptionExpected();
         }
