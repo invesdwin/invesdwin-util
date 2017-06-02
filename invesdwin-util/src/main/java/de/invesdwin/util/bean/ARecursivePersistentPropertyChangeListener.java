@@ -16,7 +16,7 @@ import javax.annotation.concurrent.ThreadSafe;
 import de.invesdwin.norva.beanpath.BeanPathReflections;
 import de.invesdwin.norva.beanpath.impl.object.BeanObjectContext;
 import de.invesdwin.norva.beanpath.impl.object.BeanObjectProcessor;
-import de.invesdwin.norva.beanpath.spi.PathUtil;
+import de.invesdwin.norva.beanpath.spi.BeanPathUtil;
 import de.invesdwin.norva.beanpath.spi.element.AChoiceBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.IPropertyBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.ITableColumnBeanPathElement;
@@ -62,7 +62,7 @@ public abstract class ARecursivePersistentPropertyChangeListener implements Prop
             final String propertyName = evt.getPropertyName();
             final Object oldValue = evt.getOldValue();
             final Object newValue = evt.getNewValue();
-            if (oldValue != newValue && PathUtil.isShallowBeanPath(propertyName)) {
+            if (oldValue != newValue && BeanPathUtil.isShallowBeanPath(propertyName)) {
                 maybeAddChildPropertyChangeListeners(propertyName, newValue);
                 maybeRemoveChildPropertyChangeListeners(oldValue);
             }
@@ -132,7 +132,7 @@ public abstract class ARecursivePersistentPropertyChangeListener implements Prop
     }
 
     private boolean isOriginatingFromDirectChild(final PropertyChangeEvent evt) {
-        return Strings.countMatches(evt.getPropertyName(), PathUtil.BEAN_PATH_SEPARATOR) == 1;
+        return Strings.countMatches(evt.getPropertyName(), BeanPathUtil.BEAN_PATH_SEPARATOR) == 1;
     }
 
     protected abstract void onPropertyChangeOnLastLevel(final PropertyChangeEvent evt);
@@ -198,7 +198,7 @@ public abstract class ARecursivePersistentPropertyChangeListener implements Prop
             private void internalAddListenersToSourceHierarchySimpleValue(final IPropertyBeanPathElement e,
                     final Object value) {
                 if (value != null && value instanceof APropertyChangeSupported) {
-                    Assertions.assertThat(PathUtil.isShallowBeanPath(e.getBeanPath())).isTrue();
+                    Assertions.assertThat(BeanPathUtil.isShallowBeanPath(e.getBeanPath())).isTrue();
                     final APropertyChangeSupported cValue = (APropertyChangeSupported) value;
                     final ChildRecursivePersistentPropertyChangeListener child = new ChildRecursivePersistentPropertyChangeListener(
                             cValue, ARecursivePersistentPropertyChangeListener.this,
@@ -290,7 +290,7 @@ public abstract class ARecursivePersistentPropertyChangeListener implements Prop
             if (Strings.isBlank(parent.sourceBeanPath)) {
                 return beanPathFragment;
             } else {
-                return parent.sourceBeanPath + PathUtil.BEAN_PATH_SEPARATOR + beanPathFragment;
+                return parent.sourceBeanPath + BeanPathUtil.BEAN_PATH_SEPARATOR + beanPathFragment;
             }
         }
 
@@ -337,7 +337,7 @@ public abstract class ARecursivePersistentPropertyChangeListener implements Prop
         ChildPropertyChangeEvent(final ChildRecursivePersistentPropertyChangeListener originChild,
                 final PropertyChangeEvent propagatedEvent) {
             super(extractParentSource(originChild),
-                    originChild.getBeanPathFragment() + PathUtil.BEAN_PATH_SEPARATOR
+                    originChild.getBeanPathFragment() + BeanPathUtil.BEAN_PATH_SEPARATOR
                             + propagatedEvent.getPropertyName(),
                     propagatedEvent.getOldValue(), propagatedEvent.getNewValue());
             this.originChild = originChild;

@@ -20,7 +20,7 @@ import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.norva.beanpath.impl.object.BeanObjectContext;
 import de.invesdwin.norva.beanpath.impl.object.BeanObjectProcessor;
-import de.invesdwin.norva.beanpath.spi.PathUtil;
+import de.invesdwin.norva.beanpath.spi.BeanPathUtil;
 import de.invesdwin.norva.beanpath.spi.element.IPropertyBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.ITableColumnBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.visitor.SimpleBeanPathVisitorSupport;
@@ -257,11 +257,11 @@ public class DirtyTracker implements Serializable {
              * 
              * We add a separator at the end to now change the dirty flag of the parent accessor to this value.
              */
-            return new String[] { sourceBeanPath + PathUtil.BEAN_PATH_SEPARATOR };
+            return new String[] { sourceBeanPath + BeanPathUtil.BEAN_PATH_SEPARATOR };
         } else {
             final String[] newBeanPathPrefixes = new String[beanPathPrefixes.length];
             for (int i = 0; i < beanPathPrefixes.length; i++) {
-                newBeanPathPrefixes[i] = sourceBeanPath + PathUtil.BEAN_PATH_SEPARATOR + beanPathPrefixes[i];
+                newBeanPathPrefixes[i] = sourceBeanPath + BeanPathUtil.BEAN_PATH_SEPARATOR + beanPathPrefixes[i];
             }
             return newBeanPathPrefixes;
         }
@@ -281,8 +281,8 @@ public class DirtyTracker implements Serializable {
             final String[] newBeanPathPrefixes = new String[beanPathPrefixes.length];
             for (int i = 0; i < beanPathPrefixes.length; i++) {
                 if (Strings.startsWith(beanPathPrefixes[i], childBeanPath)
-                        && Strings.contains(beanPathPrefixes[i], PathUtil.BEAN_PATH_SEPARATOR)) {
-                    newBeanPathPrefixes[i] = Strings.substringAfter(beanPathPrefixes[i], PathUtil.BEAN_PATH_SEPARATOR);
+                        && Strings.contains(beanPathPrefixes[i], BeanPathUtil.BEAN_PATH_SEPARATOR)) {
+                    newBeanPathPrefixes[i] = Strings.substringAfter(beanPathPrefixes[i], BeanPathUtil.BEAN_PATH_SEPARATOR);
                     childBeanPathFound = true;
                 } else {
                     //children will skip null bean path prefixes
@@ -304,7 +304,7 @@ public class DirtyTracker implements Serializable {
                 continue;
             }
             if (beanPathPrefixes == null || beanPathPrefixes.length == 0
-                    || PathUtil.startsWithAnyBeanPath(absoluteBeanPath, beanPath, beanPathPrefixes)) {
+                    || BeanPathUtil.startsWithAnyBeanPath(absoluteBeanPath, beanPath, beanPathPrefixes)) {
                 if (changedBeanPaths.add(beanPath)) {
                     changed = true;
                     for (final IDirtyTrackerListener listener : getListeners()) {
@@ -324,7 +324,7 @@ public class DirtyTracker implements Serializable {
                 continue;
             }
             if (beanPathPrefixes == null || beanPathPrefixes.length == 0
-                    || PathUtil.startsWithAnyBeanPath(absoluteBeanPath, beanPath, beanPathPrefixes)) {
+                    || BeanPathUtil.startsWithAnyBeanPath(absoluteBeanPath, beanPath, beanPathPrefixes)) {
                 if (changedBeanPaths.remove(beanPath)) {
                     changed = true;
                     for (final IDirtyTrackerListener listener : getListeners()) {
