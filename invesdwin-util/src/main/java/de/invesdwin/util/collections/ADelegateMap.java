@@ -6,8 +6,10 @@ import java.util.Set;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.norva.marker.ISerializableValueObject;
+
 @NotThreadSafe
-public abstract class ADelegateMap<K, V> implements Map<K, V> {
+public abstract class ADelegateMap<K, V> implements Map<K, V>, ISerializableValueObject {
 
     private final Map<K, V> delegate = newDelegate();
 

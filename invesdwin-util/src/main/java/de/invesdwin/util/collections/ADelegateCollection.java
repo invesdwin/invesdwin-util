@@ -7,8 +7,10 @@ import java.util.List;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.norva.marker.ISerializableValueObject;
+
 @NotThreadSafe
-public abstract class ADelegateCollection<E> implements Collection<E> {
+public abstract class ADelegateCollection<E> implements Collection<E>, ISerializableValueObject {
 
     private final Collection<E> delegate = newDelegate();
 
