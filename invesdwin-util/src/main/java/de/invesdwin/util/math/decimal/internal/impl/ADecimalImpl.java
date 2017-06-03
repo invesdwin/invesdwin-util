@@ -36,11 +36,14 @@ public abstract class ADecimalImpl<E extends ADecimalImpl<E, V>, V>
     private transient String toString;
     @GuardedBy("none for performance")
     private transient V defaultRoundedValue;
+    @GuardedBy("none for performance")
+    private transient boolean defaultRoundedValueActuallyRounded;
 
     public ADecimalImpl(final V value, final V defaultRoundedValue) {
         if (value == null) {
             this.value = getZero();
             this.defaultRoundedValue = this.value;
+            this.defaultRoundedValueActuallyRounded = true;
         } else {
             this.value = value;
             this.defaultRoundedValue = defaultRoundedValue;
@@ -191,6 +194,9 @@ public abstract class ADecimalImpl<E extends ADecimalImpl<E, V>, V>
         }
         final V rounded;
         if (scale == Decimal.DEFAULT_ROUNDING_SCALE && roundingMode == Decimal.DEFAULT_ROUNDING_MODE) {
+            if (!defaultRoundedValueActuallyRounded) {
+                defaultRoundedValue = null;
+            }
             rounded = getDefaultRoundedValue();
         } else {
             rounded = internalRound(value, scale, roundingMode);
@@ -204,6 +210,7 @@ public abstract class ADecimalImpl<E extends ADecimalImpl<E, V>, V>
     protected final V getDefaultRoundedValue() {
         if (defaultRoundedValue == null) {
             defaultRoundedValue = internalRound(value, Decimal.DEFAULT_ROUNDING_SCALE, Decimal.DEFAULT_ROUNDING_MODE);
+            defaultRoundedValueActuallyRounded = true;
         }
         return defaultRoundedValue;
     }
