@@ -203,4 +203,13 @@ public final class Objects extends AObjectsStaticFacade {
         return CompareToBuilder.reflectionCompare(thisObj, obj, REFLECTION_EXCLUDED_FIELDS);
     }
 
+    public static boolean equalsAny(final Object thisObj, final Object... anyObjs) {
+        for (final Object anyObj : anyObjs) {
+            if (equals(thisObj, anyObj)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 }
