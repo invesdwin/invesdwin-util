@@ -31,12 +31,12 @@ public final class DummyDecimalAggregate<E extends ADecimal<E>> implements IDeci
 
     @Override
     public E growthRate() {
-        return (E) null;
+        return null;
     }
 
     @Override
     public E growthRatesTrend() {
-        return (E) null;
+        return null;
     }
 
     @Override
@@ -46,67 +46,77 @@ public final class DummyDecimalAggregate<E extends ADecimal<E>> implements IDeci
 
     @Override
     public E avgWeightedAsc() {
-        return (E) null;
+        return null;
     }
 
     @Override
     public E avgWeightedDesc() {
-        return (E) null;
+        return null;
     }
 
     @Override
     public E sum() {
-        return (E) null;
+        return null;
     }
 
     @Override
     public E avg() {
-        return (E) null;
+        return null;
     }
 
     @Override
     public E product() {
-        return (E) null;
+        return null;
     }
 
     @Override
     public E geomAvg() {
-        return (E) null;
+        return null;
     }
 
     @Override
     public E max() {
-        return (E) null;
+        return null;
     }
 
     @Override
     public E min() {
-        return (E) null;
+        return null;
     }
 
     @Override
     public E minMaxDistance() {
-        return (E) null;
+        return null;
     }
 
     @Override
     public E sampleStandardDeviation() {
-        return (E) null;
+        return null;
+    }
+
+    @Override
+    public E sampleStandardDeviation(final E avg) {
+        return null;
     }
 
     @Override
     public E standardDeviation() {
-        return (E) null;
+        return null;
+    }
+
+    @Override
+    public E standardDeviation(final E avg) {
+        return null;
     }
 
     @Override
     public E variance() {
-        return (E) null;
+        return null;
     }
 
     @Override
     public E sampleVariance() {
-        return (E) null;
+        return null;
     }
 
     @SuppressWarnings("unchecked")

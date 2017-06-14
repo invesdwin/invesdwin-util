@@ -77,10 +77,14 @@ public interface IDecimalAggregate<E extends ADecimal<E>> {
      */
     E sampleStandardDeviation();
 
+    E sampleStandardDeviation(E avg);
+
     /**
      * s = (1/(n) * sum((x_i - x_quer)^2))^1/2
      */
     E standardDeviation();
+
+    E standardDeviation(E avg);
 
     /**
      * s^2 = 1/(n-1) * sum((x_i - x_quer)^2)

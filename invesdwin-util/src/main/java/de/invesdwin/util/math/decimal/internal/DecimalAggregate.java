@@ -246,6 +246,11 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
     @Override
     public E sampleStandardDeviation() {
         final E avg = avg();
+        return sampleStandardDeviation(avg);
+    }
+
+    @Override
+    public E sampleStandardDeviation(final E avg) {
         Decimal sum = Decimal.ZERO;
         for (final E value : values) {
             sum = sum.add(value.subtract(avg).getDefaultValue().pow(2));
@@ -259,6 +264,11 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
     @Override
     public E standardDeviation() {
         final E avg = avg();
+        return standardDeviation(avg);
+    }
+
+    @Override
+    public E standardDeviation(final E avg) {
         Decimal sum = Decimal.ZERO;
         for (final E value : values) {
             sum = sum.add(value.subtract(avg).getDefaultValue().pow(2));
