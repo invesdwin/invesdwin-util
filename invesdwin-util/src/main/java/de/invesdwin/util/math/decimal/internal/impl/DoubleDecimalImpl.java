@@ -21,11 +21,11 @@ import de.invesdwin.util.math.decimal.Decimal;
 @ThreadSafe
 public class DoubleDecimalImpl extends ADecimalImpl<DoubleDecimalImpl, Double> {
 
-    private static final Double FIRST_ABOVE_ZERO = 0.000000001;
-    private static final Double FIRST_BELOW_ZERO = -0.000000001;
-    private static final Double ZERO = 0d;
-    private static final Double NEGATIVE_ZERO = -0d;
-    private static final DoubleDecimalImpl ZERO_IMPL = new DoubleDecimalImpl(ZERO, ZERO);
+    private static final double FIRST_ABOVE_ZERO = 0.000000001;
+    private static final double FIRST_BELOW_ZERO = -0.000000001;
+    private static final double ZERO = 0d;
+    private static final Double ZERO_OBJ = ZERO;
+    private static final DoubleDecimalImpl ZERO_IMPL = new DoubleDecimalImpl(ZERO_OBJ, ZERO_OBJ);
 
     static {
         //ensure rounding performance fix uses correct scale
@@ -54,7 +54,7 @@ public class DoubleDecimalImpl extends ADecimalImpl<DoubleDecimalImpl, Double> {
 
     @Override
     public boolean isPositive() {
-        return getDefaultRoundedValue() >= ZERO;
+        return internalCompareTo(ZERO_IMPL) >= 0;
     }
 
     @Override
@@ -76,16 +76,23 @@ public class DoubleDecimalImpl extends ADecimalImpl<DoubleDecimalImpl, Double> {
     private int internalCompareTo(final DoubleDecimalImpl doubleDecimalOther) {
         final Double doubleOther = doubleDecimalOther.getValue();
         final Double doubleThis = getValue();
-        final Double difference = doubleThis - doubleOther;
+        final double difference = doubleThis - doubleOther;
         if (difference > FIRST_ABOVE_ZERO) {
             return 1;
         } else if (difference < FIRST_BELOW_ZERO) {
             return -1;
-        } else if (ZERO.equals(difference) || NEGATIVE_ZERO.equals(difference)) {
+        } else if (difference == ZERO) {
             return 0;
         } else {
             final double roundedOther = doubleDecimalOther.getDefaultRoundedValue();
-            return getDefaultRoundedValue().compareTo(roundedOther);
+            final double defaultRoundedValue = getDefaultRoundedValue();
+            if (defaultRoundedValue < roundedOther) {
+                return -1;
+            } else if (defaultRoundedValue > roundedOther) {
+                return 1;
+            } else {
+                return 0;
+            }
         }
     }
 
@@ -327,7 +334,7 @@ public class DoubleDecimalImpl extends ADecimalImpl<DoubleDecimalImpl, Double> {
 
     @Override
     protected Double getZero() {
-        return ZERO;
+        return ZERO_OBJ;
     }
 
     @Override
