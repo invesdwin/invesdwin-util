@@ -143,6 +143,15 @@ public class Percent extends AScaledDecimal<Percent, PercentScale> implements IP
 
     public static Percent extractPercent(final ByteBuffer buffer, final int index) {
         final double value = buffer.getDouble(index);
+        return extractPercent(value);
+    }
+
+    public static Percent extractPercent(final ByteBuffer buffer) {
+        final double value = buffer.getDouble();
+        return extractPercent(value);
+    }
+
+    public static Percent extractPercent(final double value) {
         if (value == Double.MIN_VALUE) {
             return null;
         } else {
