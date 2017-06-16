@@ -21,6 +21,7 @@ import de.invesdwin.util.math.decimal.IDecimalAggregate;
 import de.invesdwin.util.math.decimal.config.BSplineInterpolationConfig;
 import de.invesdwin.util.math.decimal.config.InterpolationConfig;
 import de.invesdwin.util.math.decimal.config.LoessInterpolationConfig;
+import de.invesdwin.util.math.decimal.scaled.Percent;
 import de.invesdwin.util.math.decimal.stream.DecimalPoint;
 import de.invesdwin.util.math.decimal.stream.DecimalStreamAvg;
 import de.invesdwin.util.math.decimal.stream.DecimalStreamAvgWeightedAsc;
@@ -61,8 +62,8 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
      * All growth rates separately
      */
     @Override
-    public IDecimalAggregate<E> growthRates() {
-        final List<E> growthRates = new ArrayList<E>(size());
+    public IDecimalAggregate<Percent> growthRates() {
+        final List<Percent> growthRates = new ArrayList<Percent>(size());
         E previousValue = null;
         for (final E value : values) {
             if (previousValue != null) {
@@ -70,7 +71,7 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
             }
             previousValue = value;
         }
-        return new DecimalAggregate<E>(growthRates, getConverter());
+        return new DecimalAggregate<Percent>(growthRates, Percent.ZERO_PERCENT);
     }
 
     public IDecimalAggregate<E> absoluteChanges() {
@@ -89,7 +90,7 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
      * The average of all growthRates.
      */
     @Override
-    public E growthRate() {
+    public Percent growthRate() {
         return growthRates().avg();
     }
 
@@ -97,7 +98,7 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
      * The growthRate of the growthRates.
      */
     @Override
-    public E growthRatesTrend() {
+    public Percent growthRatesTrend() {
         return growthRates().growthRate();
     }
 
@@ -636,6 +637,15 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
         final List<E> sorted = new ArrayList<E>(values);
         Decimal.COMPARATOR.sortDescending(sorted);
         return new DecimalAggregate<E>(sorted, getConverter());
+    }
+
+    @Override
+    public IDecimalAggregate<Decimal> defaultValues() {
+        final List<Decimal> defaultValues = new ArrayList<Decimal>(values.size());
+        for (int i = 0; i < size(); i++) {
+            defaultValues.add(values.get(i).getDefaultValue());
+        }
+        return new DecimalAggregate<Decimal>(defaultValues, Decimal.ZERO);
     }
 
     @Override

@@ -11,10 +11,12 @@ import org.apache.commons.math3.random.RandomGenerator;
 
 import de.invesdwin.util.collections.iterable.EmptyCloseableIterator;
 import de.invesdwin.util.math.decimal.ADecimal;
+import de.invesdwin.util.math.decimal.Decimal;
 import de.invesdwin.util.math.decimal.IDecimalAggregate;
 import de.invesdwin.util.math.decimal.config.BSplineInterpolationConfig;
 import de.invesdwin.util.math.decimal.config.InterpolationConfig;
 import de.invesdwin.util.math.decimal.config.LoessInterpolationConfig;
+import de.invesdwin.util.math.decimal.scaled.Percent;
 
 @Immutable
 public final class DummyDecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregate<E> {
@@ -25,17 +27,17 @@ public final class DummyDecimalAggregate<E extends ADecimal<E>> implements IDeci
     private DummyDecimalAggregate() {}
 
     @Override
-    public IDecimalAggregate<E> growthRates() {
-        return this;
+    public IDecimalAggregate<Percent> growthRates() {
+        return getInstance();
     }
 
     @Override
-    public E growthRate() {
+    public Percent growthRate() {
         return null;
     }
 
     @Override
-    public E growthRatesTrend() {
+    public Percent growthRatesTrend() {
         return null;
     }
 
@@ -337,6 +339,11 @@ public final class DummyDecimalAggregate<E extends ADecimal<E>> implements IDeci
     @Override
     public IDecimalAggregate<E> stopSequenceBeforeNegativeOrZero() {
         return this;
+    }
+
+    @Override
+    public IDecimalAggregate<Decimal> defaultValues() {
+        return getInstance();
     }
 
 }

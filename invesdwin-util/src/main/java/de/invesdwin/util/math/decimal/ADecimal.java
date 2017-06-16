@@ -16,6 +16,8 @@ import de.invesdwin.norva.marker.IDecimal;
 import de.invesdwin.util.lang.ADelegateComparator;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.math.decimal.internal.impl.ADecimalImpl;
+import de.invesdwin.util.math.decimal.scaled.Percent;
+import de.invesdwin.util.math.decimal.scaled.PercentScale;
 
 @Immutable
 public abstract class ADecimal<E extends ADecimal<E>> extends Number implements Comparable<Object>, IDecimal {
@@ -278,8 +280,11 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
      * 
      * @see <a href="http://www.chemieonline.de/forum/showthread.php?t=101560">Source</a>
      */
-    public E growthRate(final ADecimal<E> nextValue) {
-        return nextValue.subtract(getGenericThis()).divide(abs());
+    public Percent growthRate(final ADecimal<E> nextValue) {
+        final Decimal nextDecimalValue = nextValue.getDefaultValue();
+        final Decimal thisDecimalValue = getGenericThis().getDefaultValue();
+        final Decimal rate = nextDecimalValue.subtract(thisDecimalValue).divide(thisDecimalValue.abs());
+        return new Percent(rate, PercentScale.RATE);
     }
 
     public E abs() {

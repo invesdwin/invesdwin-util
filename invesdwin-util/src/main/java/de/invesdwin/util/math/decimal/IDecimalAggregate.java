@@ -9,23 +9,24 @@ import org.apache.commons.math3.random.RandomGenerator;
 import de.invesdwin.util.math.decimal.config.BSplineInterpolationConfig;
 import de.invesdwin.util.math.decimal.config.InterpolationConfig;
 import de.invesdwin.util.math.decimal.config.LoessInterpolationConfig;
+import de.invesdwin.util.math.decimal.scaled.Percent;
 
 public interface IDecimalAggregate<E extends ADecimal<E>> {
 
     /**
      * All growth rates separately
      */
-    IDecimalAggregate<E> growthRates();
+    IDecimalAggregate<Percent> growthRates();
 
     /**
      * The average of all growthRates.
      */
-    E growthRate();
+    Percent growthRate();
 
     /**
      * The growthRate of the growthRates.
      */
-    E growthRatesTrend();
+    Percent growthRatesTrend();
 
     IDecimalAggregate<E> reverse();
 
@@ -245,5 +246,7 @@ public interface IDecimalAggregate<E extends ADecimal<E>> {
     IDecimalAggregate<E> sortDescending();
 
     IDecimalAggregate<E> stopSequenceBeforeNegativeOrZero();
+
+    IDecimalAggregate<Decimal> defaultValues();
 
 }
