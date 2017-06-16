@@ -130,12 +130,12 @@ public final class Strings extends AStringsStaticFacade {
         }
     }
 
-    public static String asString(final List<String> list, final String delimiter) {
+    public static String asString(final List<?> list, final String delimiter) {
         if (list == null) {
             return null;
         }
         final StringBuilder sb = new StringBuilder();
-        for (final String e : list) {
+        for (final Object e : list) {
             sb.append(e);
             sb.append(delimiter);
         }
