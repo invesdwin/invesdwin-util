@@ -1,5 +1,6 @@
 package de.invesdwin.util.math;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -25,19 +26,50 @@ public final class Doubles extends ADoublesStaticFacade {
 
     private Doubles() {}
 
-    public static double[] toArray(final Collection<? extends Number> collection) {
-        if (collection == null) {
+    public static double[] toArray(final Collection<? extends Number> vector) {
+        if (vector == null) {
             return null;
         }
-        return ADoublesStaticFacade.toArray(collection);
+        return ADoublesStaticFacade.toArray(vector);
     }
 
-    public static List<Double> asList(final double... backingArray) {
-        if (backingArray == null) {
+    public static double[] toArrayVector(final Collection<Double> vector) {
+        return toArray(vector);
+    }
+
+    public static double[][] toArrayMatrix(final List<? extends List<Double>> matrix) {
+        if (matrix == null) {
+            return null;
+        }
+        final double[][] arrayMatrix = new double[matrix.size()][];
+        for (int i = 0; i < matrix.size(); i++) {
+            final List<Double> vector = matrix.get(i);
+            arrayMatrix[i] = toArrayVector(vector);
+        }
+        return arrayMatrix;
+    }
+
+    public static List<Double> asList(final double... vector) {
+        if (vector == null) {
             return null;
         } else {
-            return ADoublesStaticFacade.asList(backingArray);
+            return ADoublesStaticFacade.asList(vector);
         }
+    }
+
+    public static List<Double> asListVector(final double[] vector) {
+        return asList(vector);
+    }
+
+    public static List<List<Double>> asListMatrix(final double[][] matrix) {
+        if (matrix == null) {
+            return null;
+        }
+        final List<List<Double>> matrixAsList = new ArrayList<List<Double>>(matrix.length);
+        for (final double[] vector : matrix) {
+            matrixAsList.add(asList(vector));
+        }
+        return matrixAsList;
     }
 
     public static Double max(final Double first, final Double second) {

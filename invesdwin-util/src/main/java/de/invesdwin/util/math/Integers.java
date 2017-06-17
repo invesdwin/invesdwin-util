@@ -1,5 +1,6 @@
 package de.invesdwin.util.math;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -25,19 +26,50 @@ public final class Integers extends AIntegersStaticFacade {
 
     private Integers() {}
 
-    public static int[] toArray(final Collection<? extends Number> collection) {
-        if (collection == null) {
+    public static int[] toArray(final Collection<? extends Number> vector) {
+        if (vector == null) {
             return null;
         }
-        return AIntegersStaticFacade.toArray(collection);
+        return AIntegersStaticFacade.toArray(vector);
     }
 
-    public static List<Integer> asList(final int... backingArray) {
-        if (backingArray == null) {
+    public static int[] toArrayVector(final Collection<Integer> vector) {
+        return toArray(vector);
+    }
+
+    public static int[][] toArrayMatrix(final List<? extends List<Integer>> matrix) {
+        if (matrix == null) {
+            return null;
+        }
+        final int[][] arrayMatrix = new int[matrix.size()][];
+        for (int i = 0; i < matrix.size(); i++) {
+            final List<Integer> vector = matrix.get(i);
+            arrayMatrix[i] = toArrayVector(vector);
+        }
+        return arrayMatrix;
+    }
+
+    public static List<Integer> asList(final int... vector) {
+        if (vector == null) {
             return null;
         } else {
-            return AIntegersStaticFacade.asList(backingArray);
+            return AIntegersStaticFacade.asList(vector);
         }
+    }
+
+    public static List<Integer> asListVector(final int[] vector) {
+        return asList(vector);
+    }
+
+    public static List<List<Integer>> asListMatrix(final int[][] matrix) {
+        if (matrix == null) {
+            return null;
+        }
+        final List<List<Integer>> matrixAsList = new ArrayList<List<Integer>>(matrix.length);
+        for (final int[] vector : matrix) {
+            matrixAsList.add(asList(vector));
+        }
+        return matrixAsList;
     }
 
     public static Integer max(final Integer first, final Integer second) {

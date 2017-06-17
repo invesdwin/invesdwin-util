@@ -1,5 +1,6 @@
 package de.invesdwin.util.math;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -25,19 +26,50 @@ public final class Floats extends AFloatsStaticFacade {
 
     private Floats() {}
 
-    public static float[] toArray(final Collection<? extends Number> collection) {
-        if (collection == null) {
+    public static float[] toArray(final Collection<? extends Number> vector) {
+        if (vector == null) {
             return null;
         }
-        return AFloatsStaticFacade.toArray(collection);
+        return AFloatsStaticFacade.toArray(vector);
     }
 
-    public static List<Float> asList(final float... backingArray) {
-        if (backingArray == null) {
+    public static float[] toArrayVector(final Collection<Float> vector) {
+        return toArray(vector);
+    }
+
+    public static float[][] toArrayMatrix(final List<? extends List<Float>> matrix) {
+        if (matrix == null) {
+            return null;
+        }
+        final float[][] arrayMatrix = new float[matrix.size()][];
+        for (int i = 0; i < matrix.size(); i++) {
+            final List<Float> vector = matrix.get(i);
+            arrayMatrix[i] = toArrayVector(vector);
+        }
+        return arrayMatrix;
+    }
+
+    public static List<Float> asList(final float... vector) {
+        if (vector == null) {
             return null;
         } else {
-            return AFloatsStaticFacade.asList(backingArray);
+            return AFloatsStaticFacade.asList(vector);
         }
+    }
+
+    public static List<Float> asListVector(final float[] vector) {
+        return asList(vector);
+    }
+
+    public static List<List<Float>> asListMatrix(final float[][] matrix) {
+        if (matrix == null) {
+            return null;
+        }
+        final List<List<Float>> matrixAsList = new ArrayList<List<Float>>(matrix.length);
+        for (final float[] vector : matrix) {
+            matrixAsList.add(asList(vector));
+        }
+        return matrixAsList;
     }
 
     public static Float max(final Float first, final Float second) {

@@ -1,5 +1,6 @@
 package de.invesdwin.util.math;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -25,19 +26,50 @@ public final class Bytes extends ABytesStaticFacade {
 
     private Bytes() {}
 
-    public static byte[] toArray(final Collection<? extends Number> collection) {
-        if (collection == null) {
+    public static byte[] toArray(final Collection<? extends Number> vector) {
+        if (vector == null) {
             return null;
         }
-        return ABytesStaticFacade.toArray(collection);
+        return ABytesStaticFacade.toArray(vector);
     }
 
-    public static List<java.lang.Byte> asList(final byte... backingArray) {
-        if (backingArray == null) {
+    public static byte[] toArrayVector(final Collection<Byte> vector) {
+        return toArray(vector);
+    }
+
+    public static byte[][] toArrayMatrix(final List<? extends List<Byte>> matrix) {
+        if (matrix == null) {
+            return null;
+        }
+        final byte[][] arrayMatrix = new byte[matrix.size()][];
+        for (int i = 0; i < matrix.size(); i++) {
+            final List<Byte> vector = matrix.get(i);
+            arrayMatrix[i] = toArrayVector(vector);
+        }
+        return arrayMatrix;
+    }
+
+    public static List<java.lang.Byte> asList(final byte... vector) {
+        if (vector == null) {
             return null;
         } else {
-            return ABytesStaticFacade.asList(backingArray);
+            return ABytesStaticFacade.asList(vector);
         }
+    }
+
+    public static List<Byte> asListVector(final byte[] vector) {
+        return asList(vector);
+    }
+
+    public static List<List<Byte>> asListMatrix(final byte[][] matrix) {
+        if (matrix == null) {
+            return null;
+        }
+        final List<List<Byte>> matrixAsList = new ArrayList<List<Byte>>(matrix.length);
+        for (final byte[] vector : matrix) {
+            matrixAsList.add(asList(vector));
+        }
+        return matrixAsList;
     }
 
     public static Byte min(final Byte... times) {

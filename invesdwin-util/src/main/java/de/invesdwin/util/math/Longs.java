@@ -1,5 +1,6 @@
 package de.invesdwin.util.math;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -25,19 +26,50 @@ public final class Longs extends ALongsStaticFacade {
 
     private Longs() {}
 
-    public static long[] toArray(final Collection<? extends Number> collection) {
-        if (collection == null) {
+    public static long[] toArray(final Collection<? extends Number> vector) {
+        if (vector == null) {
             return null;
         }
-        return ALongsStaticFacade.toArray(collection);
+        return ALongsStaticFacade.toArray(vector);
     }
 
-    public static List<Long> asList(final long... backingArray) {
-        if (backingArray == null) {
+    public static long[] toArrayVector(final Collection<Long> vector) {
+        return toArray(vector);
+    }
+
+    public static long[][] toArrayMatrix(final List<? extends List<Long>> matrix) {
+        if (matrix == null) {
+            return null;
+        }
+        final long[][] arrayMatrix = new long[matrix.size()][];
+        for (int i = 0; i < matrix.size(); i++) {
+            final List<Long> vector = matrix.get(i);
+            arrayMatrix[i] = toArrayVector(vector);
+        }
+        return arrayMatrix;
+    }
+
+    public static List<Long> asList(final long... vector) {
+        if (vector == null) {
             return null;
         } else {
-            return ALongsStaticFacade.asList(backingArray);
+            return ALongsStaticFacade.asList(vector);
         }
+    }
+
+    public static List<Long> asListVector(final long[] vector) {
+        return asList(vector);
+    }
+
+    public static List<List<Long>> asListMatrix(final long[][] matrix) {
+        if (matrix == null) {
+            return null;
+        }
+        final List<List<Long>> matrixAsList = new ArrayList<List<Long>>(matrix.length);
+        for (final long[] vector : matrix) {
+            matrixAsList.add(asList(vector));
+        }
+        return matrixAsList;
     }
 
     public static Long min(final Long... times) {

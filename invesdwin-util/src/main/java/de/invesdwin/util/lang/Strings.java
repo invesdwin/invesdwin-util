@@ -1,5 +1,7 @@
 package de.invesdwin.util.lang;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -315,6 +317,51 @@ public final class Strings extends AStringsStaticFacade {
         } else {
             return fileName + suffix;
         }
+    }
+
+    public static String[] toArray(final List<String> vector) {
+        if (vector == null) {
+            return null;
+        }
+        return vector.toArray(new String[vector.size()]);
+    }
+
+    public static String[] toArrayVector(final List<String> vector) {
+        return toArray(vector);
+    }
+
+    public static String[][] toArrayMatrix(final List<? extends List<String>> matrix) {
+        if (matrix == null) {
+            return null;
+        }
+        final String[][] arrayMatrix = new String[matrix.size()][];
+        for (int i = 0; i < matrix.size(); i++) {
+            final List<String> vector = matrix.get(i);
+            arrayMatrix[i] = toArrayVector(vector);
+        }
+        return arrayMatrix;
+    }
+
+    public static List<String> asList(final String... vector) {
+        if (vector == null) {
+            return null;
+        }
+        return Arrays.asList(vector);
+    }
+
+    public static List<String> asListVector(final String[] vector) {
+        return asList(vector);
+    }
+
+    public static List<List<String>> asListMatrix(final String[][] matrix) {
+        if (matrix == null) {
+            return null;
+        }
+        final List<List<String>> matrixAsList = new ArrayList<List<String>>(matrix.length);
+        for (final String[] vector : matrix) {
+            matrixAsList.add(asListVector(vector));
+        }
+        return matrixAsList;
     }
 
 }

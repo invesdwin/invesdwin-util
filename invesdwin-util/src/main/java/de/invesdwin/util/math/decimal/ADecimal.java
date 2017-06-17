@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.annotation.concurrent.Immutable;
@@ -50,29 +51,120 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
 
     public abstract E fromDefaultValue(Decimal value);
 
-    public List<E> fromDefaultValue(final List<Decimal> values) {
-        if (values == null) {
+    public List<E> fromDefaultValueVector(final List<Decimal> vector) {
+        if (vector == null) {
             return null;
         }
-        final List<E> converted = new ArrayList<E>(values.size());
-        for (final Decimal value : values) {
+        final List<E> converted = new ArrayList<E>(vector.size());
+        for (final Decimal value : vector) {
             converted.add(fromDefaultValue(value));
         }
         return converted;
     }
 
-    @SuppressWarnings("unchecked")
-    public E[] fromDefaultValue(final Decimal[] values) {
-        if (values == null) {
+    public List<List<E>> fromDefaultValueMatrix(final List<List<Decimal>> matrix) {
+        if (matrix == null) {
             return null;
         }
-        final E[] converted = (E[]) Array.newInstance(getGenericThis().getClass(), values.length);
-        return fromDefaultValue(values, converted);
+        final List<List<E>> converted = new ArrayList<List<E>>(matrix.size());
+        for (final List<Decimal> vector : matrix) {
+            converted.add(fromDefaultValueVector(vector));
+        }
+        return converted;
     }
 
-    public E[] fromDefaultValue(final Decimal[] values, final E[] destination) {
+    @SuppressWarnings("unchecked")
+    public E[] fromDefaultValueVector(final Decimal[] vector) {
+        if (vector == null) {
+            return null;
+        }
+        final E[] destination = (E[]) Array.newInstance(getGenericThis().getClass(), vector.length);
+        return fromDefaultValueVector(vector, destination);
+    }
+
+    public E[] fromDefaultValueVector(final Decimal[] vector, final E[] destination) {
+        for (int i = 0; i < vector.length; i++) {
+            destination[i] = fromDefaultValue(vector[i]);
+        }
+        return destination;
+    }
+
+    @SuppressWarnings("unchecked")
+    public E[][] fromDefaultValueMatrix(final Decimal[][] matrix) {
+        if (matrix == null) {
+            return null;
+        }
+        final E[][] destination = (E[][]) Array.newInstance(getGenericThis().getClass(), matrix.length,
+                matrix[0].length);
+        return fromDefaultValueMatrix(matrix, destination);
+    }
+
+    public E[][] fromDefaultValueMatrix(final Decimal[][] values, final E[][] destination) {
         for (int i = 0; i < values.length; i++) {
-            destination[i] = fromDefaultValue(values[i]);
+            destination[i] = fromDefaultValueVector(values[i]);
+        }
+        return destination;
+    }
+
+    public List<E> toObjectVector(final List<Double> vector) {
+        if (vector == null) {
+            return null;
+        }
+        final List<E> converted = new ArrayList<E>(vector.size());
+        for (final Double value : vector) {
+            converted.add(toObject(value));
+        }
+        return converted;
+    }
+
+    public E toObject(final Double value) {
+        return fromDefaultValue(new Decimal(value));
+    }
+
+    public List<List<E>> toObjectMatrix(final List<List<Double>> matrix) {
+        if (matrix == null) {
+            return null;
+        }
+        final List<List<E>> converted = new ArrayList<List<E>>(matrix.size());
+        for (final List<Double> vector : matrix) {
+            converted.add(toObjectVector(vector));
+        }
+        return converted;
+    }
+
+    @SuppressWarnings("unchecked")
+    public E[] toObjectVector(final double[] vector) {
+        if (vector == null) {
+            return null;
+        }
+        final E[] destination = (E[]) Array.newInstance(getGenericThis().getClass(), vector.length);
+        return toObjectVector(vector, destination);
+    }
+
+    public E[] toObjectVector(final double[] vector, final E[] destination) {
+        for (int i = 0; i < vector.length; i++) {
+            destination[i] = toObject(vector[i]);
+        }
+        return destination;
+    }
+
+    @SuppressWarnings("unchecked")
+    public E[][] toObjectMatrix(final double[][] matrix) {
+        if (matrix == null) {
+            return null;
+        }
+        if (matrix.length == 0) {
+            return (E[][]) Array.newInstance(getGenericThis().getClass(), 0, 0);
+        } else {
+            final E[][] destination = (E[][]) Array.newInstance(getGenericThis().getClass(), matrix.length,
+                    matrix[0].length);
+            return toObjectMatrix(matrix, destination);
+        }
+    }
+
+    public E[][] toObjectMatrix(final double[][] values, final E[][] destination) {
+        for (int i = 0; i < values.length; i++) {
+            destination[i] = toObjectVector(values[i]);
         }
         return destination;
     }
@@ -538,6 +630,10 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
         }
     }
 
+    public abstract String toFormattedString();
+
+    public abstract String toFormattedString(final String format);
+
     public abstract E zero();
 
     public static <T extends ADecimal<T>> T zeroToNull(final T value) {
@@ -588,8 +684,22 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
         }
     }
 
-    public abstract String toFormattedString();
+    public static <T extends ADecimal<T>> List<T> asListVector(final T[] vector) {
+        if (vector == null) {
+            return null;
+        }
+        return Arrays.asList(vector);
+    }
 
-    public abstract String toFormattedString(final String format);
+    public static <T extends ADecimal<T>> List<List<T>> asListMatrix(final T[][] matrix) {
+        if (matrix == null) {
+            return null;
+        }
+        final List<List<T>> matrixAsList = new ArrayList<List<T>>(matrix.length);
+        for (final T[] vector : matrix) {
+            matrixAsList.add(asListVector(vector));
+        }
+        return matrixAsList;
+    }
 
 }

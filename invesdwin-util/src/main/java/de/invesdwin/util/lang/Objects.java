@@ -3,6 +3,7 @@ package de.invesdwin.util.lang;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -52,7 +53,30 @@ public final class Objects extends AObjectsStaticFacade {
         return org.apache.commons.lang3.ObjectUtils.firstNonNull(values);
     }
 
+    //CHECKSTYLE:OFF
     public static boolean equals(@Nullable final Object a, @Nullable final Object b) {
+        //CHECKSTYLE:ON
+        if (a != null && a.getClass().isArray() && b != null && b.getClass().isArray()) {
+            if (a instanceof boolean[] && b instanceof boolean[]) {
+                return Arrays.equals((boolean[]) a, (boolean[]) b);
+            } else if (a instanceof byte[] && b instanceof byte[]) {
+                return Arrays.equals((byte[]) a, (byte[]) b);
+            } else if (a instanceof char[] && b instanceof char[]) {
+                return Arrays.equals((char[]) a, (char[]) b);
+            } else if (a instanceof double[] && b instanceof double[]) {
+                return Arrays.equals((double[]) a, (double[]) b);
+            } else if (a instanceof float[] && b instanceof float[]) {
+                return Arrays.equals((float[]) a, (float[]) b);
+            } else if (a instanceof int[] && b instanceof int[]) {
+                return Arrays.equals((int[]) a, (int[]) b);
+            } else if (a instanceof long[] && b instanceof long[]) {
+                return Arrays.equals((long[]) a, (long[]) b);
+            } else if (a instanceof short[] && b instanceof short[]) {
+                return Arrays.equals((short[]) a, (short[]) b);
+            } else if (a instanceof Object[] && b instanceof Object[]) {
+                return Arrays.deepEquals((Object[]) a, (Object[]) b);
+            }
+        }
         return com.google.common.base.Objects.equal(a, b);
     }
 

@@ -1,5 +1,6 @@
 package de.invesdwin.util.math;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -26,19 +27,50 @@ public final class Characters extends ACharactersStaticFacade {
 
     private Characters() {}
 
-    public static char[] toArray(final Collection<Character> collection) {
-        if (collection == null) {
+    public static char[] toArray(final Collection<Character> vector) {
+        if (vector == null) {
             return null;
         }
-        return ACharactersStaticFacade.toArray(collection);
+        return ACharactersStaticFacade.toArray(vector);
     }
 
-    public static List<Character> asList(final char... backingArray) {
-        if (backingArray == null) {
+    public static char[] toArrayVector(final Collection<Character> vector) {
+        return toArray(vector);
+    }
+
+    public static char[][] toArrayMatrix(final List<? extends List<Character>> matrix) {
+        if (matrix == null) {
+            return null;
+        }
+        final char[][] arrayMatrix = new char[matrix.size()][];
+        for (int i = 0; i < matrix.size(); i++) {
+            final List<Character> vector = matrix.get(i);
+            arrayMatrix[i] = toArrayVector(vector);
+        }
+        return arrayMatrix;
+    }
+
+    public static List<Character> asList(final char... vector) {
+        if (vector == null) {
             return null;
         } else {
-            return ACharactersStaticFacade.asList(backingArray);
+            return ACharactersStaticFacade.asList(vector);
         }
+    }
+
+    public static List<Character> asListVector(final char[] vector) {
+        return asList(vector);
+    }
+
+    public static List<List<Character>> asListMatrix(final char[][] matrix) {
+        if (matrix == null) {
+            return null;
+        }
+        final List<List<Character>> matrixAsList = new ArrayList<List<Character>>(matrix.length);
+        for (final char[] vector : matrix) {
+            matrixAsList.add(asList(vector));
+        }
+        return matrixAsList;
     }
 
     public static Character min(final Character... times) {
