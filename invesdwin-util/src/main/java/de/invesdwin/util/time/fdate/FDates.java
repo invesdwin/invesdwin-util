@@ -502,6 +502,15 @@ public final class FDates {
 
     public static FDate extractFDate(final ByteBuffer buffer, final int index) {
         final long time = buffer.getLong(index);
+        return extractFDate(time);
+    }
+
+    public static FDate extractFDate(final ByteBuffer buffer) {
+        final long time = buffer.getLong();
+        return extractFDate(time);
+    }
+
+    public static FDate extractFDate(final long time) {
         if (time == Long.MIN_VALUE) {
             return null;
         } else {
