@@ -28,6 +28,12 @@ public final class Objects extends AObjectsStaticFacade {
 
     public static final FSTConfiguration SERIALIZATION_CONFIG = FSTConfiguration.getDefaultConfiguration();
     public static final Set<String> REFLECTION_EXCLUDED_FIELDS = new HashSet<String>();
+    public static final ADelegateComparator<Object> COMPARATOR = new ADelegateComparator<Object>() {
+        @Override
+        protected Comparable<?> getCompareCriteria(final Object e) {
+            return (Comparable<?>) e;
+        }
+    };
 
     static {
         //datanucleus enhancer fix
