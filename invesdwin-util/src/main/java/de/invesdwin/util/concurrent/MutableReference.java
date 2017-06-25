@@ -1,4 +1,4 @@
-package de.invesdwin.util.collections;
+package de.invesdwin.util.concurrent;
 
 import javax.annotation.concurrent.ThreadSafe;
 
