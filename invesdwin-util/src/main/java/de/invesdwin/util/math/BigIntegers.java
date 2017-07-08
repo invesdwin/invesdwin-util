@@ -8,6 +8,7 @@ import java.util.List;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.lang.ADelegateComparator;
+import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.math.decimal.ADecimal;
 
 @Immutable
@@ -54,6 +55,24 @@ public final class BigIntegers {
             bigDecimals.add(valueOf(n));
         }
         return bigDecimals;
+    }
+
+    public static BigInteger[][] fixInconsistentMatrixDimensions(final BigInteger[][] matrix) {
+        return fixInconsistentMatrixDimensions(matrix, BigInteger.ZERO);
+    }
+
+    public static BigInteger[][] fixInconsistentMatrixDimensions(final BigInteger[][] matrix, final BigInteger missingValue) {
+        return Objects.fixInconsistentMatrixDimensions(matrix, missingValue);
+    }
+
+    public static List<List<BigInteger>> fixInconsistentMatrixDimensionsAsList(
+            final List<? extends List<? extends BigInteger>> matrix) {
+        return fixInconsistentMatrixDimensionsAsList(matrix, BigInteger.ZERO);
+    }
+
+    public static List<List<BigInteger>> fixInconsistentMatrixDimensionsAsList(
+            final List<? extends List<? extends BigInteger>> matrix, final BigInteger missingValue) {
+        return Objects.fixInconsistentMatrixDimensionsAsList(matrix, missingValue);
     }
 
 }

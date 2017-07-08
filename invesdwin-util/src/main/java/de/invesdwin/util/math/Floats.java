@@ -8,6 +8,7 @@ import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
 import de.invesdwin.util.lang.ADelegateComparator;
+import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.math.internal.AFloatsStaticFacade;
 import de.invesdwin.util.math.internal.CheckedCastFloats;
 import de.invesdwin.util.math.internal.CheckedCastFloatsObj;
@@ -94,6 +95,61 @@ public final class Floats extends AFloatsStaticFacade {
 
     public static Float between(final Float value, final Float min, final Float max) {
         return max(min(value, max), min);
+    }
+
+    public static <T> float[][] fixInconsistentMatrixDimensions(final float[][] matrix) {
+        return fixInconsistentMatrixDimensions(matrix, (float) 0);
+    }
+
+    public static <T> float[][] fixInconsistentMatrixDimensions(final float[][] matrix, final float missingValue) {
+        final int rows = matrix.length;
+        int cols = 0;
+        boolean colsInconsistent = false;
+        for (int i = 0; i < rows; i++) {
+            final float[] vector = matrix[i];
+            if (cols != 0 && cols != vector.length) {
+                colsInconsistent = true;
+            }
+            cols = Integers.max(cols, vector.length);
+        }
+        if (!colsInconsistent) {
+            return matrix;
+        }
+        final float[][] fixedMatrix = new float[rows][];
+        for (int i = 0; i < matrix.length; i++) {
+            final float[] vector = matrix[i];
+            final float[] fixedVector;
+            if (vector.length == cols) {
+                fixedVector = vector.clone();
+            } else {
+                fixedVector = new float[cols];
+                System.arraycopy(vector, 0, fixedVector, 0, vector.length);
+                if (missingValue != 0) {
+                    for (int j = vector.length - 1; j < cols; j++) {
+                        fixedVector[j] = missingValue;
+                    }
+                }
+            }
+            fixedMatrix[i] = fixedVector;
+        }
+        return fixedMatrix;
+    }
+
+    public static <T> Float[][] fixInconsistentMatrixDimensionsObj(final Float[][] matrix) {
+        return fixInconsistentMatrixDimensionsObj(matrix, (float) 0);
+    }
+
+    public static <T> Float[][] fixInconsistentMatrixDimensionsObj(final Float[][] matrix, final Float missingValue) {
+        return Objects.fixInconsistentMatrixDimensions(matrix, missingValue);
+    }
+
+    public static List<List<Float>> fixInconsistentMatrixDimensionsAsList(final List<? extends List<? extends Float>> matrix) {
+        return fixInconsistentMatrixDimensionsAsList(matrix, (float) 0);
+    }
+
+    public static List<List<Float>> fixInconsistentMatrixDimensionsAsList(final List<? extends List<? extends Float>> matrix,
+            final Float missingValue) {
+        return Objects.fixInconsistentMatrixDimensionsAsList(matrix, missingValue);
     }
 
 }

@@ -8,6 +8,7 @@ import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
 import de.invesdwin.util.lang.ADelegateComparator;
+import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.math.internal.AShortsStaticFacade;
 import de.invesdwin.util.math.internal.CheckedCastShorts;
 import de.invesdwin.util.math.internal.CheckedCastShortsObj;
@@ -118,6 +119,61 @@ public final class Shorts extends AShortsStaticFacade {
 
     public static Short between(final Short value, final Short min, final Short max) {
         return max(min(value, max), min);
+    }
+
+    public static <T> short[][] fixInconsistentMatrixDimensions(final short[][] matrix) {
+        return fixInconsistentMatrixDimensions(matrix, (short) 0);
+    }
+
+    public static <T> short[][] fixInconsistentMatrixDimensions(final short[][] matrix, final short missingValue) {
+        final int rows = matrix.length;
+        int cols = 0;
+        boolean colsInconsistent = false;
+        for (int i = 0; i < rows; i++) {
+            final short[] vector = matrix[i];
+            if (cols != 0 && cols != vector.length) {
+                colsInconsistent = true;
+            }
+            cols = Integers.max(cols, vector.length);
+        }
+        if (!colsInconsistent) {
+            return matrix;
+        }
+        final short[][] fixedMatrix = new short[rows][];
+        for (int i = 0; i < matrix.length; i++) {
+            final short[] vector = matrix[i];
+            final short[] fixedVector;
+            if (vector.length == cols) {
+                fixedVector = vector.clone();
+            } else {
+                fixedVector = new short[cols];
+                System.arraycopy(vector, 0, fixedVector, 0, vector.length);
+                if (missingValue != 0) {
+                    for (int j = vector.length - 1; j < cols; j++) {
+                        fixedVector[j] = missingValue;
+                    }
+                }
+            }
+            fixedMatrix[i] = fixedVector;
+        }
+        return fixedMatrix;
+    }
+
+    public static <T> Short[][] fixInconsistentMatrixDimensionsObj(final Short[][] matrix) {
+        return fixInconsistentMatrixDimensionsObj(matrix, (short) 0);
+    }
+
+    public static <T> Short[][] fixInconsistentMatrixDimensionsObj(final Short[][] matrix, final Short missingValue) {
+        return Objects.fixInconsistentMatrixDimensions(matrix, missingValue);
+    }
+
+    public static List<List<Short>> fixInconsistentMatrixDimensionsAsList(final List<? extends List<? extends Short>> matrix) {
+        return fixInconsistentMatrixDimensionsAsList(matrix, (short) 0);
+    }
+
+    public static List<List<Short>> fixInconsistentMatrixDimensionsAsList(final List<? extends List<? extends Short>> matrix,
+            final Short missingValue) {
+        return Objects.fixInconsistentMatrixDimensionsAsList(matrix, missingValue);
     }
 
 }

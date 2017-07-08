@@ -702,4 +702,45 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
         return matrixAsList;
     }
 
+    public static <T extends ADecimal<T>> T[][] fixInconsistentMatrixDimensions(final T[][] matrix) {
+        T missingValue = null;
+        OUTER: for (int i = 0; i < matrix.length; i++) {
+            final T[] vector = matrix[i];
+            for (int j = 0; j < vector.length; j++) {
+                final T value = vector[j];
+                if (value != null) {
+                    missingValue = value.zero();
+                    break OUTER;
+                }
+            }
+        }
+        return fixInconsistentMatrixDimensions(matrix, missingValue);
+    }
+
+    public static <T extends ADecimal<T>> T[][] fixInconsistentMatrixDimensions(final T[][] matrix,
+            final T missingValue) {
+        return Objects.fixInconsistentMatrixDimensions(matrix, missingValue);
+    }
+
+    public static <T extends ADecimal<T>> List<? extends List<T>> fixInconsistentMatrixDimensionsAsList(
+            final List<? extends List<? extends T>> matrix) {
+        T missingValue = null;
+        OUTER: for (int i = 0; i < matrix.size(); i++) {
+            final List<? extends T> vector = matrix.get(i);
+            for (int j = 0; j < vector.size(); j++) {
+                final T value = vector.get(j);
+                if (value != null) {
+                    missingValue = value.zero();
+                    break OUTER;
+                }
+            }
+        }
+        return fixInconsistentMatrixDimensionsAsList(matrix, missingValue);
+    }
+
+    public static <T extends ADecimal<T>> List<List<T>> fixInconsistentMatrixDimensionsAsList(
+            final List<? extends List<? extends T>> matrix, final T missingValue) {
+        return Objects.fixInconsistentMatrixDimensionsAsList(matrix, missingValue);
+    }
+
 }

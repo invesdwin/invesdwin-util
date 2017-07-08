@@ -364,4 +364,21 @@ public final class Strings extends AStringsStaticFacade {
         return matrixAsList;
     }
 
+    public static String[][] fixInconsistentMatrixDimensions(final String[][] matrix) {
+        return fixInconsistentMatrixDimensions(matrix, null);
+    }
+
+    public static String[][] fixInconsistentMatrixDimensions(final String[][] matrix, final String missingValue) {
+        return Objects.fixInconsistentMatrixDimensions(matrix, missingValue);
+    }
+
+    public static List<List<String>> fixInconsistentMatrixDimensionsAsList(final List<? extends List<? extends String>> matrix) {
+        return fixInconsistentMatrixDimensionsAsList(matrix, null);
+    }
+
+    public static List<List<String>> fixInconsistentMatrixDimensionsAsList(final List<? extends List<? extends String>> matrix,
+            final String missingValue) {
+        return Objects.fixInconsistentMatrixDimensionsAsList(matrix, missingValue);
+    }
+
 }

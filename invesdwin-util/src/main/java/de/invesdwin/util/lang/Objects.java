@@ -3,8 +3,11 @@ package de.invesdwin.util.lang;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.annotation.Nullable;
@@ -20,6 +23,7 @@ import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
 import de.invesdwin.norva.beanpath.BeanPathObjects;
 import de.invesdwin.norva.beanpath.IDeepCloneProvider;
 import de.invesdwin.util.lang.internal.AObjectsStaticFacade;
+import de.invesdwin.util.math.Integers;
 
 @Immutable
 @StaticFacadeDefinition(name = "de.invesdwin.util.lang.internal.AObjectsStaticFacade", targets = {
@@ -247,6 +251,69 @@ public final class Objects extends AObjectsStaticFacade {
             }
         }
         return false;
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T> T[][] fixInconsistentMatrixDimensions(final T[][] matrix, final T missingValue) {
+        final int rows = matrix.length;
+        int cols = 0;
+        boolean colsInconsistent = false;
+        for (int i = 0; i < rows; i++) {
+            final T[] vector = matrix[i];
+            if (cols != 0 && cols != vector.length) {
+                colsInconsistent = true;
+            }
+            cols = Integers.max(cols, vector.length);
+        }
+        if (!colsInconsistent) {
+            return matrix;
+        }
+        final T[][] fixedMatrix = (T[][]) Array.newInstance(matrix.getClass().getComponentType(), rows, cols);
+        for (int i = 0; i < matrix.length; i++) {
+            final T[] vector = matrix[i];
+            final T[] fixedVector = fixedMatrix[i];
+            System.arraycopy(vector, 0, fixedVector, 0, vector.length);
+            if (missingValue != null) {
+                for (int j = vector.length - 1; j < fixedVector.length; j++) {
+                    fixedVector[j] = missingValue;
+                }
+            }
+        }
+        return fixedMatrix;
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T> List<List<T>> fixInconsistentMatrixDimensionsAsList(final List<? extends List<? extends T>> matrix,
+            final T missingValue) {
+        final int rows = matrix.size();
+        int cols = 0;
+        boolean colsInconsistent = false;
+        for (int i = 0; i < rows; i++) {
+            final List<? extends T> vector = matrix.get(i);
+            if (cols != 0 && cols != vector.size()) {
+                colsInconsistent = true;
+            }
+            cols = Integers.max(cols, vector.size());
+        }
+        if (!colsInconsistent) {
+            return (List<List<T>>) matrix;
+        }
+        final List<List<T>> fixedMatrix = new ArrayList<List<T>>(rows);
+        for (int i = 0; i < matrix.size(); i++) {
+            final List<? extends T> vector = matrix.get(i);
+            final List<T> fixedVector;
+            if (vector.size() == cols) {
+                fixedVector = new ArrayList<T>(vector);
+            } else {
+                fixedVector = new ArrayList<T>(cols);
+                fixedVector.addAll(vector);
+                for (int j = vector.size() - 1; j < cols; j++) {
+                    fixedVector.add(missingValue);
+                }
+            }
+            fixedMatrix.add(fixedVector);
+        }
+        return fixedMatrix;
     }
 
 }
