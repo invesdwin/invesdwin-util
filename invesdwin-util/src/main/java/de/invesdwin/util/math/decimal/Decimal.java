@@ -1,5 +1,6 @@
 package de.invesdwin.util.math.decimal;
 
+import java.nio.ByteBuffer;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
@@ -267,6 +268,32 @@ public class Decimal extends ADecimal<Decimal> {
         final DecimalFormat formatter = new DecimalFormat(format, symbols);
         formatter.setRoundingMode(ADecimal.DEFAULT_ROUNDING_MODE);
         return formatter;
+    }
+
+    public static void putDecimal(final ByteBuffer buffer, final Decimal value) {
+        if (value == null) {
+            buffer.putDouble(Double.MIN_VALUE);
+        } else {
+            buffer.putDouble(value.doubleValueRaw());
+        }
+    }
+
+    public static Decimal extractDecimal(final ByteBuffer buffer, final int index) {
+        final double value = buffer.getDouble(index);
+        return extractDecimal(value);
+    }
+
+    public static Decimal extractDecimal(final ByteBuffer buffer) {
+        final double value = buffer.getDouble();
+        return extractDecimal(value);
+    }
+
+    public static Decimal extractDecimal(final double value) {
+        if (value == Double.MIN_VALUE) {
+            return null;
+        } else {
+            return new Decimal(value);
+        }
     }
 
 }

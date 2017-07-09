@@ -12,6 +12,7 @@ public class DecimalStreamGeomAvg<E extends ADecimal<E>> implements IDecimalStre
     private int count;
     private final double valueAdjustmentAddition;
     private final E converter;
+    private E geomAvg;
 
     public DecimalStreamGeomAvg(final E converter) {
         this.converter = converter;
@@ -39,10 +40,18 @@ public class DecimalStreamGeomAvg<E extends ADecimal<E>> implements IDecimalStre
             logSum += Math.log(adjValue);
         }
         count++;
+        geomAvg = null;
         return null;
     }
 
     public E getGeomAvg() {
+        if (geomAvg == null) {
+            geomAvg = calculateGeomAvg();
+        }
+        return geomAvg;
+    }
+
+    private E calculateGeomAvg() {
         final double doubleResult;
         if (count == 0) {
             doubleResult = 0D;
