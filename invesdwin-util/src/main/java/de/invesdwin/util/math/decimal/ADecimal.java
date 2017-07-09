@@ -719,7 +719,12 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
 
     public static <T extends ADecimal<T>> T[][] fixInconsistentMatrixDimensions(final T[][] matrix,
             final T missingValue) {
-        return Objects.fixInconsistentMatrixDimensions(matrix, missingValue);
+        return fixInconsistentMatrixDimensions(matrix, missingValue, Objects.DEFAULT_APPEND_MISSING_VALUES);
+    }
+
+    public static <T extends ADecimal<T>> T[][] fixInconsistentMatrixDimensions(final T[][] matrix,
+            final T missingValue, final boolean appendMissingValues) {
+        return Objects.fixInconsistentMatrixDimensions(matrix, missingValue, appendMissingValues);
     }
 
     public static <T extends ADecimal<T>> List<? extends List<T>> fixInconsistentMatrixDimensionsAsList(
@@ -740,7 +745,12 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
 
     public static <T extends ADecimal<T>> List<List<T>> fixInconsistentMatrixDimensionsAsList(
             final List<? extends List<? extends T>> matrix, final T missingValue) {
-        return Objects.fixInconsistentMatrixDimensionsAsList(matrix, missingValue);
+        return fixInconsistentMatrixDimensionsAsList(matrix, missingValue, Objects.DEFAULT_APPEND_MISSING_VALUES);
+    }
+
+    public static <T extends ADecimal<T>> List<List<T>> fixInconsistentMatrixDimensionsAsList(
+            final List<? extends List<? extends T>> matrix, final T missingValue, final boolean appendMissingValues) {
+        return Objects.fixInconsistentMatrixDimensionsAsList(matrix, missingValue, appendMissingValues);
     }
 
 }

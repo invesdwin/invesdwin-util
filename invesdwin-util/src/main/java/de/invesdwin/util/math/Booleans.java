@@ -18,6 +18,8 @@ import de.invesdwin.util.math.internal.CheckedCastBooleansObj;
 @Immutable
 public final class Booleans extends ABooleansStaticFacade {
 
+    public static final boolean DEFAULT_MISSING_VALUE = false;
+    public static final Boolean DEFAULT_MISSING_VALUE_OBJ = DEFAULT_MISSING_VALUE;
     public static final ADelegateComparator<Boolean> COMPARATOR = new ADelegateComparator<Boolean>() {
         @Override
         protected Comparable<?> getCompareCriteria(final Boolean e) {
@@ -74,10 +76,15 @@ public final class Booleans extends ABooleansStaticFacade {
     }
 
     public static <T> boolean[][] fixInconsistentMatrixDimensions(final boolean[][] matrix) {
-        return fixInconsistentMatrixDimensions(matrix, false);
+        return fixInconsistentMatrixDimensions(matrix, DEFAULT_MISSING_VALUE);
     }
 
-    public static <T> boolean[][] fixInconsistentMatrixDimensions(final boolean[][] matrix, final boolean missingValue) {
+    public static boolean[][] fixInconsistentMatrixDimensions(final boolean[][] matrix, final boolean missingValue) {
+        return fixInconsistentMatrixDimensions(matrix, missingValue, Objects.DEFAULT_APPEND_MISSING_VALUES);
+    }
+
+    public static <T> boolean[][] fixInconsistentMatrixDimensions(final boolean[][] matrix, final boolean missingValue,
+            final boolean appendMissingValues) {
         final int rows = matrix.length;
         int cols = 0;
         boolean colsInconsistent = false;
@@ -99,11 +106,22 @@ public final class Booleans extends ABooleansStaticFacade {
                 fixedVector = vector.clone();
             } else {
                 fixedVector = new boolean[cols];
-                System.arraycopy(vector, 0, fixedVector, 0, vector.length);
-                if (missingValue) {
-                    for (int j = vector.length - 1; j < cols; j++) {
-                        fixedVector[j] = missingValue;
+                if (appendMissingValues) {
+                    System.arraycopy(vector, 0, fixedVector, 0, vector.length);
+                    if (missingValue != DEFAULT_MISSING_VALUE) {
+                        for (int j = vector.length - 1; j < fixedVector.length; j++) {
+                            fixedVector[j] = missingValue;
+                        }
                     }
+                } else {
+                    //prepend
+                    final int missingValues = fixedVector.length - vector.length;
+                    if (missingValue != DEFAULT_MISSING_VALUE) {
+                        for (int j = 0; j < missingValues; j++) {
+                            fixedVector[j] = missingValue;
+                        }
+                    }
+                    System.arraycopy(vector, 0, fixedVector, missingValues, vector.length);
                 }
             }
             fixedMatrix[i] = fixedVector;
@@ -112,21 +130,32 @@ public final class Booleans extends ABooleansStaticFacade {
     }
 
     public static <T> Boolean[][] fixInconsistentMatrixDimensionsObj(final Boolean[][] matrix) {
-        return fixInconsistentMatrixDimensionsObj(matrix, Boolean.FALSE);
+        return fixInconsistentMatrixDimensionsObj(matrix, DEFAULT_MISSING_VALUE_OBJ);
     }
 
-    public static <T> Boolean[][] fixInconsistentMatrixDimensionsObj(final Boolean[][] matrix, final Boolean missingValue) {
-        return Objects.fixInconsistentMatrixDimensions(matrix, missingValue);
+    public static Boolean[][] fixInconsistentMatrixDimensionsObj(final Boolean[][] matrix, final Boolean missingValue) {
+        return fixInconsistentMatrixDimensionsObj(matrix, missingValue, Objects.DEFAULT_APPEND_MISSING_VALUES);
+    }
+
+    public static <T> Boolean[][] fixInconsistentMatrixDimensionsObj(final Boolean[][] matrix,
+            final Boolean missingValue, final boolean appendMissingValues) {
+        return Objects.fixInconsistentMatrixDimensions(matrix, missingValue, appendMissingValues);
     }
 
     public static List<List<Boolean>> fixInconsistentMatrixDimensionsAsList(
             final List<? extends List<? extends Boolean>> matrix) {
-        return fixInconsistentMatrixDimensionsAsList(matrix, Boolean.FALSE);
+        return fixInconsistentMatrixDimensionsAsList(matrix, DEFAULT_MISSING_VALUE_OBJ);
     }
 
-    public static List<List<Boolean>> fixInconsistentMatrixDimensionsAsList(final List<? extends List<? extends Boolean>> matrix,
-            final Boolean missingValue) {
-        return Objects.fixInconsistentMatrixDimensionsAsList(matrix, missingValue);
+    public static List<List<Boolean>> fixInconsistentMatrixDimensionsAsList(
+            final List<? extends List<? extends Boolean>> matrix, final Boolean missingValue) {
+        return fixInconsistentMatrixDimensionsAsList(matrix, missingValue, Objects.DEFAULT_APPEND_MISSING_VALUES);
+    }
+
+    public static List<List<Boolean>> fixInconsistentMatrixDimensionsAsList(
+            final List<? extends List<? extends Boolean>> matrix, final Boolean missingValue,
+            final boolean appendMissingValues) {
+        return Objects.fixInconsistentMatrixDimensionsAsList(matrix, missingValue, appendMissingValues);
     }
 
 }

@@ -30,6 +30,7 @@ import de.invesdwin.util.math.Integers;
         BeanPathObjects.class })
 public final class Objects extends AObjectsStaticFacade {
 
+    public static final boolean DEFAULT_APPEND_MISSING_VALUES = true;
     public static final FSTConfiguration SERIALIZATION_CONFIG = FSTConfiguration.getDefaultConfiguration();
     public static final Set<String> REFLECTION_EXCLUDED_FIELDS = new HashSet<String>();
     public static final ADelegateComparator<Object> COMPARATOR = new ADelegateComparator<Object>() {
@@ -253,8 +254,17 @@ public final class Objects extends AObjectsStaticFacade {
         return false;
     }
 
-    @SuppressWarnings("unchecked")
+    public static <T> T[][] fixInconsistentMatrixDimensions(final T[][] matrix) {
+        return fixInconsistentMatrixDimensions(matrix, null);
+    }
+
     public static <T> T[][] fixInconsistentMatrixDimensions(final T[][] matrix, final T missingValue) {
+        return fixInconsistentMatrixDimensions(matrix, missingValue, true);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T> T[][] fixInconsistentMatrixDimensions(final T[][] matrix, final T missingValue,
+            final boolean appendMissingValues) {
         final int rows = matrix.length;
         int cols = 0;
         boolean colsInconsistent = false;
@@ -272,19 +282,40 @@ public final class Objects extends AObjectsStaticFacade {
         for (int i = 0; i < matrix.length; i++) {
             final T[] vector = matrix[i];
             final T[] fixedVector = fixedMatrix[i];
-            System.arraycopy(vector, 0, fixedVector, 0, vector.length);
-            if (missingValue != null) {
-                for (int j = vector.length - 1; j < fixedVector.length; j++) {
-                    fixedVector[j] = missingValue;
+            if (appendMissingValues) {
+                System.arraycopy(vector, 0, fixedVector, 0, vector.length);
+                if (missingValue != null) {
+                    for (int j = vector.length - 1; j < fixedVector.length; j++) {
+                        fixedVector[j] = missingValue;
+                    }
                 }
+            } else {
+                //prepend
+                final int missingValues = fixedVector.length - vector.length;
+                if (missingValue != null) {
+                    for (int j = 0; j < missingValues; j++) {
+                        fixedVector[j] = missingValue;
+                    }
+                }
+                System.arraycopy(vector, 0, fixedVector, missingValues, vector.length);
             }
         }
         return fixedMatrix;
     }
 
+    public static <T> List<List<T>> fixInconsistentMatrixDimensionsAsList(
+            final List<? extends List<? extends T>> matrix) {
+        return fixInconsistentMatrixDimensionsAsList(matrix, null);
+    }
+
+    public static <T> List<List<T>> fixInconsistentMatrixDimensionsAsList(
+            final List<? extends List<? extends T>> matrix, final T missingValue) {
+        return fixInconsistentMatrixDimensionsAsList(matrix, missingValue, DEFAULT_APPEND_MISSING_VALUES);
+    }
+
     @SuppressWarnings("unchecked")
-    public static <T> List<List<T>> fixInconsistentMatrixDimensionsAsList(final List<? extends List<? extends T>> matrix,
-            final T missingValue) {
+    public static <T> List<List<T>> fixInconsistentMatrixDimensionsAsList(
+            final List<? extends List<? extends T>> matrix, final T missingValue, final boolean appendMissingValues) {
         final int rows = matrix.size();
         int cols = 0;
         boolean colsInconsistent = false;
@@ -307,8 +338,15 @@ public final class Objects extends AObjectsStaticFacade {
             } else {
                 fixedVector = new ArrayList<T>(cols);
                 fixedVector.addAll(vector);
-                for (int j = vector.size() - 1; j < cols; j++) {
-                    fixedVector.add(missingValue);
+                if (appendMissingValues) {
+                    for (int j = vector.size() - 1; j < cols; j++) {
+                        fixedVector.add(missingValue);
+                    }
+                } else {
+                    //prepend
+                    for (int j = vector.size() - 1; j < cols; j++) {
+                        fixedVector.add(0, missingValue);
+                    }
                 }
             }
             fixedMatrix.add(fixedVector);

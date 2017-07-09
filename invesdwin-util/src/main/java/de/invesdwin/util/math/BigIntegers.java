@@ -14,6 +14,7 @@ import de.invesdwin.util.math.decimal.ADecimal;
 @Immutable
 public final class BigIntegers {
 
+    public static final BigInteger DEFAULT_MISSING_VALUE = BigInteger.ZERO;
     public static final ADelegateComparator<BigInteger> COMPARATOR = new ADelegateComparator<BigInteger>() {
         @Override
         protected Comparable<?> getCompareCriteria(final BigInteger e) {
@@ -58,21 +59,33 @@ public final class BigIntegers {
     }
 
     public static BigInteger[][] fixInconsistentMatrixDimensions(final BigInteger[][] matrix) {
-        return fixInconsistentMatrixDimensions(matrix, BigInteger.ZERO);
+        return fixInconsistentMatrixDimensions(matrix, DEFAULT_MISSING_VALUE);
     }
 
-    public static BigInteger[][] fixInconsistentMatrixDimensions(final BigInteger[][] matrix, final BigInteger missingValue) {
-        return Objects.fixInconsistentMatrixDimensions(matrix, missingValue);
+    public static BigInteger[][] fixInconsistentMatrixDimensions(final BigInteger[][] matrix,
+            final BigInteger missingValue) {
+        return fixInconsistentMatrixDimensions(matrix, missingValue, Objects.DEFAULT_APPEND_MISSING_VALUES);
+    }
+
+    public static BigInteger[][] fixInconsistentMatrixDimensions(final BigInteger[][] matrix,
+            final BigInteger missingValue, final boolean appendMissingValues) {
+        return Objects.fixInconsistentMatrixDimensions(matrix, missingValue, appendMissingValues);
     }
 
     public static List<List<BigInteger>> fixInconsistentMatrixDimensionsAsList(
             final List<? extends List<? extends BigInteger>> matrix) {
-        return fixInconsistentMatrixDimensionsAsList(matrix, BigInteger.ZERO);
+        return fixInconsistentMatrixDimensionsAsList(matrix, DEFAULT_MISSING_VALUE);
     }
 
     public static List<List<BigInteger>> fixInconsistentMatrixDimensionsAsList(
             final List<? extends List<? extends BigInteger>> matrix, final BigInteger missingValue) {
-        return Objects.fixInconsistentMatrixDimensionsAsList(matrix, missingValue);
+        return fixInconsistentMatrixDimensionsAsList(matrix, missingValue, Objects.DEFAULT_APPEND_MISSING_VALUES);
+    }
+
+    public static List<List<BigInteger>> fixInconsistentMatrixDimensionsAsList(
+            final List<? extends List<? extends BigInteger>> matrix, final BigInteger missingValue,
+            final boolean appendMissingValues) {
+        return Objects.fixInconsistentMatrixDimensionsAsList(matrix, missingValue, appendMissingValues);
     }
 
 }

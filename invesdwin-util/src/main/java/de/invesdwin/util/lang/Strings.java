@@ -31,6 +31,7 @@ public final class Strings extends AStringsStaticFacade {
     };
 
     public static final String EMPTY = org.apache.commons.lang3.StringUtils.EMPTY;
+    public static final String DEFAULT_MISSING_VALUE = null;
 
     private static final Map<String, String> SYMBOL_ESCAPEDHTML = new HashMap<String, String>();
 
@@ -365,20 +366,32 @@ public final class Strings extends AStringsStaticFacade {
     }
 
     public static String[][] fixInconsistentMatrixDimensions(final String[][] matrix) {
-        return fixInconsistentMatrixDimensions(matrix, null);
+        return fixInconsistentMatrixDimensions(matrix, DEFAULT_MISSING_VALUE);
     }
 
     public static String[][] fixInconsistentMatrixDimensions(final String[][] matrix, final String missingValue) {
-        return Objects.fixInconsistentMatrixDimensions(matrix, missingValue);
+        return fixInconsistentMatrixDimensions(matrix, missingValue, Objects.DEFAULT_APPEND_MISSING_VALUES);
     }
 
-    public static List<List<String>> fixInconsistentMatrixDimensionsAsList(final List<? extends List<? extends String>> matrix) {
-        return fixInconsistentMatrixDimensionsAsList(matrix, null);
+    public static String[][] fixInconsistentMatrixDimensions(final String[][] matrix, final String missingValue,
+            final boolean appendMissingValues) {
+        return Objects.fixInconsistentMatrixDimensions(matrix, missingValue, appendMissingValues);
     }
 
-    public static List<List<String>> fixInconsistentMatrixDimensionsAsList(final List<? extends List<? extends String>> matrix,
-            final String missingValue) {
-        return Objects.fixInconsistentMatrixDimensionsAsList(matrix, missingValue);
+    public static List<List<String>> fixInconsistentMatrixDimensionsAsList(
+            final List<? extends List<? extends String>> matrix) {
+        return fixInconsistentMatrixDimensionsAsList(matrix, DEFAULT_MISSING_VALUE);
+    }
+
+    public static List<List<String>> fixInconsistentMatrixDimensionsAsList(
+            final List<? extends List<? extends String>> matrix, final String missingValue) {
+        return fixInconsistentMatrixDimensionsAsList(matrix, missingValue, Objects.DEFAULT_APPEND_MISSING_VALUES);
+    }
+
+    public static List<List<String>> fixInconsistentMatrixDimensionsAsList(
+            final List<? extends List<? extends String>> matrix, final String missingValue,
+            final boolean appendMissingValues) {
+        return Objects.fixInconsistentMatrixDimensionsAsList(matrix, missingValue, appendMissingValues);
     }
 
 }

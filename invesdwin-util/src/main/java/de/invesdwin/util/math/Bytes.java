@@ -18,6 +18,8 @@ import de.invesdwin.util.math.internal.CheckedCastBytesObj;
 @Immutable
 public final class Bytes extends ABytesStaticFacade {
 
+    public static final byte DEFAULT_MISSING_VALUE = (byte) 0;
+    public static final Byte DEFAULT_MISSING_VALUE_OBJ = DEFAULT_MISSING_VALUE;
     public static final ADelegateComparator<Byte> COMPARATOR = new ADelegateComparator<Byte>() {
         @Override
         protected Comparable<?> getCompareCriteria(final Byte e) {
@@ -122,10 +124,15 @@ public final class Bytes extends ABytesStaticFacade {
     }
 
     public static <T> byte[][] fixInconsistentMatrixDimensions(final byte[][] matrix) {
-        return fixInconsistentMatrixDimensions(matrix, (byte) 0);
+        return fixInconsistentMatrixDimensions(matrix, DEFAULT_MISSING_VALUE);
     }
 
-    public static <T> byte[][] fixInconsistentMatrixDimensions(final byte[][] matrix, final byte missingValue) {
+    public static byte[][] fixInconsistentMatrixDimensions(final byte[][] matrix, final byte missingValue) {
+        return fixInconsistentMatrixDimensions(matrix, missingValue, Objects.DEFAULT_APPEND_MISSING_VALUES);
+    }
+
+    public static <T> byte[][] fixInconsistentMatrixDimensions(final byte[][] matrix, final byte missingValue,
+            final boolean appendMissingValues) {
         final int rows = matrix.length;
         int cols = 0;
         boolean colsInconsistent = false;
@@ -147,11 +154,22 @@ public final class Bytes extends ABytesStaticFacade {
                 fixedVector = vector.clone();
             } else {
                 fixedVector = new byte[cols];
-                System.arraycopy(vector, 0, fixedVector, 0, vector.length);
-                if (missingValue != 0) {
-                    for (int j = vector.length - 1; j < cols; j++) {
-                        fixedVector[j] = missingValue;
+                if (appendMissingValues) {
+                    System.arraycopy(vector, 0, fixedVector, 0, vector.length);
+                    if (missingValue != DEFAULT_MISSING_VALUE) {
+                        for (int j = vector.length - 1; j < fixedVector.length; j++) {
+                            fixedVector[j] = missingValue;
+                        }
                     }
+                } else {
+                    //prepend
+                    final int missingValues = fixedVector.length - vector.length;
+                    if (missingValue != DEFAULT_MISSING_VALUE) {
+                        for (int j = 0; j < missingValues; j++) {
+                            fixedVector[j] = missingValue;
+                        }
+                    }
+                    System.arraycopy(vector, 0, fixedVector, missingValues, vector.length);
                 }
             }
             fixedMatrix[i] = fixedVector;
@@ -160,20 +178,32 @@ public final class Bytes extends ABytesStaticFacade {
     }
 
     public static <T> Byte[][] fixInconsistentMatrixDimensionsObj(final Byte[][] matrix) {
-        return fixInconsistentMatrixDimensionsObj(matrix, (byte) 0);
+        return fixInconsistentMatrixDimensionsObj(matrix, DEFAULT_MISSING_VALUE_OBJ);
     }
 
-    public static <T> Byte[][] fixInconsistentMatrixDimensionsObj(final Byte[][] matrix, final Byte missingValue) {
-        return Objects.fixInconsistentMatrixDimensions(matrix, missingValue);
+    public static Byte[][] fixInconsistentMatrixDimensionsObj(final Byte[][] matrix, final byte missingValue) {
+        return fixInconsistentMatrixDimensionsObj(matrix, missingValue, Objects.DEFAULT_APPEND_MISSING_VALUES);
     }
 
-    public static List<List<Byte>> fixInconsistentMatrixDimensionsAsList(final List<? extends List<? extends Byte>> matrix) {
-        return fixInconsistentMatrixDimensionsAsList(matrix, (byte) 0);
+    public static <T> Byte[][] fixInconsistentMatrixDimensionsObj(final Byte[][] matrix, final Byte missingValue,
+            final boolean appendMissingValues) {
+        return Objects.fixInconsistentMatrixDimensions(matrix, missingValue, appendMissingValues);
     }
 
-    public static List<List<Byte>> fixInconsistentMatrixDimensionsAsList(final List<? extends List<? extends Byte>> matrix,
-            final Byte missingValue) {
-        return Objects.fixInconsistentMatrixDimensionsAsList(matrix, missingValue);
+    public static List<List<Byte>> fixInconsistentMatrixDimensionsAsList(
+            final List<? extends List<? extends Byte>> matrix) {
+        return fixInconsistentMatrixDimensionsAsList(matrix, DEFAULT_MISSING_VALUE_OBJ);
+    }
+
+    public static List<List<Byte>> fixInconsistentMatrixDimensionsAsList(
+            final List<? extends List<? extends Byte>> matrix, final Byte missingValue) {
+        return fixInconsistentMatrixDimensionsAsList(matrix, missingValue, Objects.DEFAULT_APPEND_MISSING_VALUES);
+    }
+
+    public static List<List<Byte>> fixInconsistentMatrixDimensionsAsList(
+            final List<? extends List<? extends Byte>> matrix, final Byte missingValue,
+            final boolean appendMissingValues) {
+        return Objects.fixInconsistentMatrixDimensionsAsList(matrix, missingValue, appendMissingValues);
     }
 
 }

@@ -18,6 +18,8 @@ import de.invesdwin.util.math.internal.CheckedCastLongsObj;
 @Immutable
 public final class Longs extends ALongsStaticFacade {
 
+    public static final long DEFAULT_MISSING_VALUE = 0;
+    public static final Long DEFAULT_MISSING_VALUE_OBJ = DEFAULT_MISSING_VALUE;
     public static final ADelegateComparator<Long> COMPARATOR = new ADelegateComparator<Long>() {
         @Override
         protected Comparable<?> getCompareCriteria(final Long e) {
@@ -122,10 +124,15 @@ public final class Longs extends ALongsStaticFacade {
     }
 
     public static <T> long[][] fixInconsistentMatrixDimensions(final long[][] matrix) {
-        return fixInconsistentMatrixDimensions(matrix, (long) 0);
+        return fixInconsistentMatrixDimensions(matrix, DEFAULT_MISSING_VALUE);
     }
 
-    public static <T> long[][] fixInconsistentMatrixDimensions(final long[][] matrix, final long missingValue) {
+    public static long[][] fixInconsistentMatrixDimensions(final long[][] matrix, final long missingValue) {
+        return fixInconsistentMatrixDimensions(matrix, missingValue, Objects.DEFAULT_APPEND_MISSING_VALUES);
+    }
+
+    public static <T> long[][] fixInconsistentMatrixDimensions(final long[][] matrix, final long missingValue,
+            final boolean appendMissingValues) {
         final int rows = matrix.length;
         int cols = 0;
         boolean colsInconsistent = false;
@@ -147,11 +154,22 @@ public final class Longs extends ALongsStaticFacade {
                 fixedVector = vector.clone();
             } else {
                 fixedVector = new long[cols];
-                System.arraycopy(vector, 0, fixedVector, 0, vector.length);
-                if (missingValue != 0) {
-                    for (int j = vector.length - 1; j < cols; j++) {
-                        fixedVector[j] = missingValue;
+                if (appendMissingValues) {
+                    System.arraycopy(vector, 0, fixedVector, 0, vector.length);
+                    if (missingValue != DEFAULT_MISSING_VALUE) {
+                        for (int j = vector.length - 1; j < fixedVector.length; j++) {
+                            fixedVector[j] = missingValue;
+                        }
                     }
+                } else {
+                    //prepend
+                    final int missingValues = fixedVector.length - vector.length;
+                    if (missingValue != DEFAULT_MISSING_VALUE) {
+                        for (int j = 0; j < missingValues; j++) {
+                            fixedVector[j] = missingValue;
+                        }
+                    }
+                    System.arraycopy(vector, 0, fixedVector, missingValues, vector.length);
                 }
             }
             fixedMatrix[i] = fixedVector;
@@ -160,20 +178,32 @@ public final class Longs extends ALongsStaticFacade {
     }
 
     public static <T> Long[][] fixInconsistentMatrixDimensionsObj(final Long[][] matrix) {
-        return fixInconsistentMatrixDimensionsObj(matrix, (long) 0);
+        return fixInconsistentMatrixDimensionsObj(matrix, DEFAULT_MISSING_VALUE_OBJ);
     }
 
-    public static <T> Long[][] fixInconsistentMatrixDimensionsObj(final Long[][] matrix, final Long missingValue) {
-        return Objects.fixInconsistentMatrixDimensions(matrix, missingValue);
+    public static Long[][] fixInconsistentMatrixDimensionsObj(final Long[][] matrix, final Long missingValue) {
+        return fixInconsistentMatrixDimensionsObj(matrix, missingValue, Objects.DEFAULT_APPEND_MISSING_VALUES);
     }
 
-    public static List<List<Long>> fixInconsistentMatrixDimensionsAsList(final List<? extends List<? extends Long>> matrix) {
-        return fixInconsistentMatrixDimensionsAsList(matrix, (long) 0);
+    public static <T> Long[][] fixInconsistentMatrixDimensionsObj(final Long[][] matrix, final Long missingValue,
+            final boolean appendMissingValues) {
+        return Objects.fixInconsistentMatrixDimensions(matrix, missingValue, appendMissingValues);
     }
 
-    public static List<List<Long>> fixInconsistentMatrixDimensionsAsList(final List<? extends List<? extends Long>> matrix,
-            final Long missingValue) {
-        return Objects.fixInconsistentMatrixDimensionsAsList(matrix, missingValue);
+    public static List<List<Long>> fixInconsistentMatrixDimensionsAsList(
+            final List<? extends List<? extends Long>> matrix) {
+        return fixInconsistentMatrixDimensionsAsList(matrix, DEFAULT_MISSING_VALUE_OBJ);
+    }
+
+    public static List<List<Long>> fixInconsistentMatrixDimensionsAsList(
+            final List<? extends List<? extends Long>> matrix, final Long missingValue) {
+        return fixInconsistentMatrixDimensionsAsList(matrix, missingValue, Objects.DEFAULT_APPEND_MISSING_VALUES);
+    }
+
+    public static List<List<Long>> fixInconsistentMatrixDimensionsAsList(
+            final List<? extends List<? extends Long>> matrix, final Long missingValue,
+            final boolean appendMissingValues) {
+        return Objects.fixInconsistentMatrixDimensionsAsList(matrix, missingValue, appendMissingValues);
     }
 
 }

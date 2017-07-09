@@ -17,6 +17,7 @@ import de.invesdwin.util.math.decimal.internal.impl.BigDecimalDecimalImplFactory
 @Immutable
 public final class BigDecimals {
 
+    public static final BigDecimal DEFAULT_MISSING_VALUE = BigDecimal.ZERO;
     public static final MathContext DEFAULT_MATH_CONTEXT = new MathContext(MathContext.DECIMAL128.getPrecision(),
             Decimal.DEFAULT_ROUNDING_MODE);
     public static final ADelegateComparator<BigDecimal> COMPARATOR = new ADelegateComparator<BigDecimal>() {
@@ -54,28 +55,40 @@ public final class BigDecimals {
 
     public static BigDecimal nullToZero(final BigDecimal value) {
         if (value == null) {
-            return BigDecimal.ZERO;
+            return DEFAULT_MISSING_VALUE;
         } else {
             return value;
         }
     }
 
     public static BigDecimal[][] fixInconsistentMatrixDimensions(final BigDecimal[][] matrix) {
-        return fixInconsistentMatrixDimensions(matrix, BigDecimal.ZERO);
+        return fixInconsistentMatrixDimensions(matrix, DEFAULT_MISSING_VALUE);
     }
 
-    public static BigDecimal[][] fixInconsistentMatrixDimensions(final BigDecimal[][] matrix, final BigDecimal missingValue) {
-        return Objects.fixInconsistentMatrixDimensions(matrix, missingValue);
+    public static BigDecimal[][] fixInconsistentMatrixDimensions(final BigDecimal[][] matrix,
+            final BigDecimal missingValue) {
+        return fixInconsistentMatrixDimensions(matrix, missingValue, Objects.DEFAULT_APPEND_MISSING_VALUES);
+    }
+
+    public static BigDecimal[][] fixInconsistentMatrixDimensions(final BigDecimal[][] matrix,
+            final BigDecimal missingValue, final boolean appendMissingValues) {
+        return Objects.fixInconsistentMatrixDimensions(matrix, missingValue, appendMissingValues);
     }
 
     public static List<List<BigDecimal>> fixInconsistentMatrixDimensionsAsList(
             final List<? extends List<? extends BigDecimal>> matrix) {
-        return fixInconsistentMatrixDimensionsAsList(matrix, BigDecimal.ZERO);
+        return fixInconsistentMatrixDimensionsAsList(matrix, DEFAULT_MISSING_VALUE);
     }
 
     public static List<List<BigDecimal>> fixInconsistentMatrixDimensionsAsList(
             final List<? extends List<? extends BigDecimal>> matrix, final BigDecimal missingValue) {
-        return Objects.fixInconsistentMatrixDimensionsAsList(matrix, missingValue);
+        return fixInconsistentMatrixDimensionsAsList(matrix, missingValue, Objects.DEFAULT_APPEND_MISSING_VALUES);
+    }
+
+    public static List<List<BigDecimal>> fixInconsistentMatrixDimensionsAsList(
+            final List<? extends List<? extends BigDecimal>> matrix, final BigDecimal missingValue,
+            final boolean appendMissingValues) {
+        return Objects.fixInconsistentMatrixDimensionsAsList(matrix, missingValue, appendMissingValues);
     }
 
 }

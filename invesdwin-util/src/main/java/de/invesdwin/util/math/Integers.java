@@ -18,6 +18,8 @@ import de.invesdwin.util.math.internal.CheckedCastIntegersObj;
 @Immutable
 public final class Integers extends AIntegersStaticFacade {
 
+    public static final int DEFAULT_MISSING_VALUE = 0;
+    public static final Integer DEFAULT_MISSING_VALUE_OBJ = DEFAULT_MISSING_VALUE;
     public static final ADelegateComparator<Integer> COMPARATOR = new ADelegateComparator<Integer>() {
         @Override
         protected Comparable<?> getCompareCriteria(final Integer e) {
@@ -127,10 +129,15 @@ public final class Integers extends AIntegersStaticFacade {
     }
 
     public static <T> int[][] fixInconsistentMatrixDimensions(final int[][] matrix) {
-        return fixInconsistentMatrixDimensions(matrix, 0);
+        return fixInconsistentMatrixDimensions(matrix, DEFAULT_MISSING_VALUE);
     }
 
-    public static <T> int[][] fixInconsistentMatrixDimensions(final int[][] matrix, final int missingValue) {
+    public static int[][] fixInconsistentMatrixDimensions(final int[][] matrix, final int missingValue) {
+        return fixInconsistentMatrixDimensions(matrix, missingValue, Objects.DEFAULT_APPEND_MISSING_VALUES);
+    }
+
+    public static <T> int[][] fixInconsistentMatrixDimensions(final int[][] matrix, final int missingValue,
+            final boolean appendMissingValues) {
         final int rows = matrix.length;
         int cols = 0;
         boolean colsInconsistent = false;
@@ -152,11 +159,22 @@ public final class Integers extends AIntegersStaticFacade {
                 fixedVector = vector.clone();
             } else {
                 fixedVector = new int[cols];
-                System.arraycopy(vector, 0, fixedVector, 0, vector.length);
-                if (missingValue != 0) {
-                    for (int j = vector.length - 1; j < cols; j++) {
-                        fixedVector[j] = missingValue;
+                if (appendMissingValues) {
+                    System.arraycopy(vector, 0, fixedVector, 0, vector.length);
+                    if (missingValue != DEFAULT_MISSING_VALUE) {
+                        for (int j = vector.length - 1; j < fixedVector.length; j++) {
+                            fixedVector[j] = missingValue;
+                        }
                     }
+                } else {
+                    //prepend
+                    final int missingValues = fixedVector.length - vector.length;
+                    if (missingValue != DEFAULT_MISSING_VALUE) {
+                        for (int j = 0; j < missingValues; j++) {
+                            fixedVector[j] = missingValue;
+                        }
+                    }
+                    System.arraycopy(vector, 0, fixedVector, missingValues, vector.length);
                 }
             }
             fixedMatrix[i] = fixedVector;
@@ -165,21 +183,32 @@ public final class Integers extends AIntegersStaticFacade {
     }
 
     public static <T> Integer[][] fixInconsistentMatrixDimensionsObj(final Integer[][] matrix) {
-        return fixInconsistentMatrixDimensionsObj(matrix, 0);
+        return fixInconsistentMatrixDimensionsObj(matrix, DEFAULT_MISSING_VALUE_OBJ);
     }
 
-    public static <T> Integer[][] fixInconsistentMatrixDimensionsObj(final Integer[][] matrix, final Integer missingValue) {
-        return Objects.fixInconsistentMatrixDimensions(matrix, missingValue);
+    public static Integer[][] fixInconsistentMatrixDimensionsObj(final Integer[][] matrix, final Integer missingValue) {
+        return fixInconsistentMatrixDimensionsObj(matrix, missingValue, Objects.DEFAULT_APPEND_MISSING_VALUES);
+    }
+
+    public static <T> Integer[][] fixInconsistentMatrixDimensionsObj(final Integer[][] matrix,
+            final Integer missingValue, final boolean appendMissingValue) {
+        return Objects.fixInconsistentMatrixDimensions(matrix, missingValue, appendMissingValue);
     }
 
     public static List<List<Integer>> fixInconsistentMatrixDimensionsAsList(
             final List<? extends List<? extends Integer>> matrix) {
-        return fixInconsistentMatrixDimensionsAsList(matrix, 0);
+        return fixInconsistentMatrixDimensionsAsList(matrix, DEFAULT_MISSING_VALUE_OBJ);
     }
 
-    public static List<List<Integer>> fixInconsistentMatrixDimensionsAsList(final List<? extends List<? extends Integer>> matrix,
-            final Integer missingValue) {
-        return Objects.fixInconsistentMatrixDimensionsAsList(matrix, missingValue);
+    public static List<List<Integer>> fixInconsistentMatrixDimensionsAsList(
+            final List<? extends List<? extends Integer>> matrix, final Integer missingValue) {
+        return fixInconsistentMatrixDimensionsAsList(matrix, missingValue, Objects.DEFAULT_APPEND_MISSING_VALUES);
+    }
+
+    public static List<List<Integer>> fixInconsistentMatrixDimensionsAsList(
+            final List<? extends List<? extends Integer>> matrix, final Integer missingValue,
+            final boolean appendMissingValues) {
+        return Objects.fixInconsistentMatrixDimensionsAsList(matrix, missingValue, appendMissingValues);
     }
 
 }

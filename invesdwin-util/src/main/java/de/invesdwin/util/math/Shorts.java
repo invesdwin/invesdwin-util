@@ -18,6 +18,8 @@ import de.invesdwin.util.math.internal.CheckedCastShortsObj;
 @Immutable
 public final class Shorts extends AShortsStaticFacade {
 
+    public static final short DEFAULT_MISSING_VALUE = (short) 0;
+    public static final Short DEFAULT_MISSING_VALUE_OBJ = DEFAULT_MISSING_VALUE;
     public static final ADelegateComparator<Short> COMPARATOR = new ADelegateComparator<Short>() {
         @Override
         protected Comparable<?> getCompareCriteria(final Short e) {
@@ -122,10 +124,15 @@ public final class Shorts extends AShortsStaticFacade {
     }
 
     public static <T> short[][] fixInconsistentMatrixDimensions(final short[][] matrix) {
-        return fixInconsistentMatrixDimensions(matrix, (short) 0);
+        return fixInconsistentMatrixDimensions(matrix, DEFAULT_MISSING_VALUE);
     }
 
-    public static <T> short[][] fixInconsistentMatrixDimensions(final short[][] matrix, final short missingValue) {
+    public static short[][] fixInconsistentMatrixDimensions(final short[][] matrix, final short missingValue) {
+        return fixInconsistentMatrixDimensions(matrix, missingValue, Objects.DEFAULT_APPEND_MISSING_VALUES);
+    }
+
+    public static <T> short[][] fixInconsistentMatrixDimensions(final short[][] matrix, final short missingValue,
+            final boolean appendMissingValues) {
         final int rows = matrix.length;
         int cols = 0;
         boolean colsInconsistent = false;
@@ -147,11 +154,22 @@ public final class Shorts extends AShortsStaticFacade {
                 fixedVector = vector.clone();
             } else {
                 fixedVector = new short[cols];
-                System.arraycopy(vector, 0, fixedVector, 0, vector.length);
-                if (missingValue != 0) {
-                    for (int j = vector.length - 1; j < cols; j++) {
-                        fixedVector[j] = missingValue;
+                if (appendMissingValues) {
+                    System.arraycopy(vector, 0, fixedVector, 0, vector.length);
+                    if (missingValue != DEFAULT_MISSING_VALUE) {
+                        for (int j = vector.length - 1; j < fixedVector.length; j++) {
+                            fixedVector[j] = missingValue;
+                        }
                     }
+                } else {
+                    //prepend
+                    final int missingValues = fixedVector.length - vector.length;
+                    if (missingValue != DEFAULT_MISSING_VALUE) {
+                        for (int j = 0; j < missingValues; j++) {
+                            fixedVector[j] = missingValue;
+                        }
+                    }
+                    System.arraycopy(vector, 0, fixedVector, missingValues, vector.length);
                 }
             }
             fixedMatrix[i] = fixedVector;
@@ -160,20 +178,32 @@ public final class Shorts extends AShortsStaticFacade {
     }
 
     public static <T> Short[][] fixInconsistentMatrixDimensionsObj(final Short[][] matrix) {
-        return fixInconsistentMatrixDimensionsObj(matrix, (short) 0);
+        return fixInconsistentMatrixDimensionsObj(matrix, DEFAULT_MISSING_VALUE_OBJ);
     }
 
-    public static <T> Short[][] fixInconsistentMatrixDimensionsObj(final Short[][] matrix, final Short missingValue) {
-        return Objects.fixInconsistentMatrixDimensions(matrix, missingValue);
+    public static Short[][] fixInconsistentMatrixDimensionsObj(final Short[][] matrix, final Short missingValue) {
+        return fixInconsistentMatrixDimensionsObj(matrix, missingValue, Objects.DEFAULT_APPEND_MISSING_VALUES);
     }
 
-    public static List<List<Short>> fixInconsistentMatrixDimensionsAsList(final List<? extends List<? extends Short>> matrix) {
-        return fixInconsistentMatrixDimensionsAsList(matrix, (short) 0);
+    public static <T> Short[][] fixInconsistentMatrixDimensionsObj(final Short[][] matrix, final Short missingValue,
+            final boolean appendMissingValues) {
+        return Objects.fixInconsistentMatrixDimensions(matrix, missingValue, appendMissingValues);
     }
 
-    public static List<List<Short>> fixInconsistentMatrixDimensionsAsList(final List<? extends List<? extends Short>> matrix,
-            final Short missingValue) {
-        return Objects.fixInconsistentMatrixDimensionsAsList(matrix, missingValue);
+    public static List<List<Short>> fixInconsistentMatrixDimensionsAsList(
+            final List<? extends List<? extends Short>> matrix) {
+        return fixInconsistentMatrixDimensionsAsList(matrix, DEFAULT_MISSING_VALUE_OBJ);
+    }
+
+    public static List<List<Short>> fixInconsistentMatrixDimensionsAsList(
+            final List<? extends List<? extends Short>> matrix, final Short missingValue) {
+        return fixInconsistentMatrixDimensionsAsList(matrix, missingValue, Objects.DEFAULT_APPEND_MISSING_VALUES);
+    }
+
+    public static List<List<Short>> fixInconsistentMatrixDimensionsAsList(
+            final List<? extends List<? extends Short>> matrix, final Short missingValue,
+            final boolean appendMissingValues) {
+        return Objects.fixInconsistentMatrixDimensionsAsList(matrix, missingValue, appendMissingValues);
     }
 
 }
