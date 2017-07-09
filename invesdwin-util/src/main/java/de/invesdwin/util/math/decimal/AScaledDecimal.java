@@ -110,14 +110,15 @@ public abstract class AScaledDecimal<T extends AScaledDecimal<T, S>, S extends I
 
     @Override
     public int hashCode() {
-        return getClass().hashCode() + getScale().hashCode() + getDefaultValue().hashCode();
+        return getClass().hashCode() + getDefaultScale().hashCode() + getDefaultValue().hashCode();
     }
 
     @Override
     public boolean equals(final Object obj) {
         if (obj != null && getGenericThis().getClass().isAssignableFrom(obj.getClass())) {
             final AScaledDecimal castedObj = (AScaledDecimal) obj;
-            return castedObj.getDefaultValue().equals(this.getDefaultValue());
+            return castedObj.getDefaultScale().equals(this.getDefaultScale())
+                    && castedObj.getDefaultValue().equals(this.getDefaultValue());
         } else {
             return false;
         }
@@ -233,11 +234,18 @@ public abstract class AScaledDecimal<T extends AScaledDecimal<T, S>, S extends I
     }
 
     private ADecimal<?> maybeGetDefaultScaledNumber(final ADecimal<?> number) {
+        assertSameDefaultScale(number);
+        return number.getDefaultValue();
+    }
+
+    public void assertSameDefaultScale(final Number number) {
         if (number instanceof AScaledDecimal) {
             final AScaledDecimal<?, ?> scaledNumber = (AScaledDecimal<?, ?>) number;
-            return scaledNumber.getDefaultValue();
-        } else {
-            return number;
+            if (!scaledNumber.getDefaultScale().equals(getDefaultScale())) {
+                throw new IllegalArgumentException(
+                        "Cannot mix two different default scales on division: " + getDefaultScale() + " [" + this
+                                + "]  != " + scaledNumber.getDefaultScale() + " [" + scaledNumber + "]");
+            }
         }
     }
 

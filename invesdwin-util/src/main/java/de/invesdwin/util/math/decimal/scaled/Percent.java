@@ -82,6 +82,10 @@ public class Percent extends AScaledDecimal<Percent, PercentScale> implements IP
 
     public Percent(final ADecimal<?> dividend, final ADecimal<?> divisor) {
         this(dividend.getDefaultValue().divide(divisor.getDefaultValue()), PercentScale.RATE);
+        if (dividend instanceof AScaledDecimal) {
+            final AScaledDecimal<?, ?> cDividend = (AScaledDecimal<?, ?>) dividend;
+            cDividend.assertSameDefaultScale(divisor);
+        }
     }
 
     public Percent(final Duration dividend, final Duration divisor) {
@@ -91,6 +95,7 @@ public class Percent extends AScaledDecimal<Percent, PercentScale> implements IP
     public <T extends AScaledDecimal<T, ?>> Percent(final AScaledDecimal<T, ?> dividend,
             final AScaledDecimal<T, ?> divisor) {
         this(dividend.getDefaultValue().divide(divisor.getDefaultValue()), PercentScale.RATE);
+        dividend.assertSameDefaultScale(divisor);
     }
 
     public Percent(final Percent percent) {
