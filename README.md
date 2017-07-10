@@ -65,3 +65,7 @@ The popular [AssertJ](http://joel-costigliola.github.io/assertj) fluent API exte
 Ever wondered if your comparator will result in ascending or descending order? This class will make the desired order easier to get by making that an explicit decision during sort calls. You also only have to give it the property to compare and it will handle casting, null checks and other things for you.
 #### `Strings`, `Reflections`, `Objects`, ...
 Each one being a one-stop class to find the utility method you are searching for by providing a [static facade](https://github.com/subes/invesdwin-norva#static-facade) to the most useful frameworks and providing its own set of operations which are missing from the ones that already exist.
+
+## Support
+
+If you need further assistance or have some ideas for improvements and don't want to create an issue here on github, feel free to ask a question in our [invesdwin-platform googlegroup](https://groups.google.com/forum/#!forum/invesdwin-platform).
