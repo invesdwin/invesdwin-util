@@ -64,8 +64,8 @@ public class DecimalStreamProduct<E extends ADecimal<E>>
         if (result.isZero()) {
             return converter.zero();
         }
-        final E geomAvg = converter.fromDefaultValue(result.subtract(new Decimal(valueAdjustmentAddition)));
-        return geomAvg;
+        final E product = converter.fromDefaultValue(result.subtract(new Decimal(valueAdjustmentAddition)));
+        return product;
     }
 
 }
