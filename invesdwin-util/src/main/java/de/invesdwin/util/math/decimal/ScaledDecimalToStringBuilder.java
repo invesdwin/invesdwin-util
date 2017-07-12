@@ -50,12 +50,12 @@ public class ScaledDecimalToStringBuilder<T extends AScaledDecimal<T, S>, S exte
         return decimalDigits;
     }
 
-    public Object withDecimalDigitsRequired() {
+    public ScaledDecimalToStringBuilder<T, S> withDecimalDigitsRequired() {
         withDecimalDigitsOptional(false);
         return this;
     }
 
-    public Object withDecimalDigitsOptional(final boolean decimalDigitsOptional) {
+    public ScaledDecimalToStringBuilder<T, S> withDecimalDigitsOptional(final boolean decimalDigitsOptional) {
         this.decimalDigitsOptional = decimalDigitsOptional;
         return this;
     }
