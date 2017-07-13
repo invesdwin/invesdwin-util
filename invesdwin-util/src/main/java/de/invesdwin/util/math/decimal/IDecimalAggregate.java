@@ -223,7 +223,7 @@ public interface IDecimalAggregate<E extends ADecimal<E>> {
 
     /**
      * Divides the given values into chunks (e.g. 1000 values in 4 chunks results in each chunk having 250 values).
-     * These chunks will get an descending weight for being chosen as the basis for the next sample being taken (e.g.
+     * These chunks will get a descending weight for being chosen as the basis for the next sample being taken (e.g.
      * with 40% probability it is chunk1, with 30% probability it is chunk2, with 20% probability it is chunk3 and with
      * 10% probability it is chunk4). The probabilities of the chunks with varying chunkCount is proportional to the
      * given example.
