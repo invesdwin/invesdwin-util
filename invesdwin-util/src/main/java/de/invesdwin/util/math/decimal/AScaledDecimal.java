@@ -10,6 +10,7 @@ import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.collections.Lists;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
+import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.math.decimal.internal.DecimalAggregate;
 import de.invesdwin.util.math.decimal.internal.DummyDecimalAggregate;
 import de.invesdwin.util.math.decimal.internal.impl.ADecimalImpl;
@@ -110,7 +111,7 @@ public abstract class AScaledDecimal<T extends AScaledDecimal<T, S>, S extends I
 
     @Override
     public int hashCode() {
-        return getClass().hashCode() + getDefaultScale().hashCode() + getDefaultValue().hashCode();
+        return Objects.hashCode(getClass(), getDefaultScale(), getDefaultValue());
     }
 
     @Override
@@ -118,6 +119,7 @@ public abstract class AScaledDecimal<T extends AScaledDecimal<T, S>, S extends I
         if (obj != null && getGenericThis().getClass().isAssignableFrom(obj.getClass())) {
             final AScaledDecimal castedObj = (AScaledDecimal) obj;
             return castedObj.getDefaultScale().equals(this.getDefaultScale())
+                    //force default rounding if not explicitly done yet
                     && castedObj.getDefaultValue().equals(this.getDefaultValue());
         } else {
             return false;

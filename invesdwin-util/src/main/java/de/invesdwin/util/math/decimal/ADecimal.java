@@ -173,7 +173,8 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(getClass(), getImpl());
+        //force explicit default rounding if not done yet
+        return Objects.hashCode(getClass(), round().getImpl());
     }
 
     @Override
@@ -181,9 +182,17 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
         return getImpl().compareTo(other);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public boolean equals(final Object other) {
-        return other != null && getClass().isAssignableFrom(other.getClass()) && Objects.equals(getImpl(), other);
+        if (other != null && getClass().isAssignableFrom(other.getClass())) {
+            final ADecimal<?> cOther = (ADecimal<?>) other;
+            //force explicit default rounding if not done yet
+            final ADecimal<?> cOtherRounded = cOther.round();
+            return round().getImpl().equals(cOtherRounded);
+        } else {
+            return false;
+        }
     }
 
     @Override

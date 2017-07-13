@@ -124,6 +124,10 @@ public abstract class ADecimalImpl<E extends ADecimalImpl<E, V>, V>
         return getDefaultRoundedValue().hashCode();
     }
 
+    public boolean equals(final ADecimal<?> other) {
+        return internalCompareTo(other) == 0;
+    }
+
     @Override
     public boolean equals(final Object other) {
         return compareTo(other) == 0;
@@ -137,6 +141,10 @@ public abstract class ADecimalImpl<E extends ADecimalImpl<E, V>, V>
         } else if (other instanceof Number) {
             final Number cOther = (Number) other;
             decimalOther = Decimal.valueOf(cOther);
+        } else if (other instanceof ADecimalImpl) {
+            throw new IllegalArgumentException("Please provide the " + ADecimal.class.getSimpleName()
+                    + " instead of the " + ADecimalImpl.class.getSimpleName() + " for comparison: "
+                    + other.getClass().getSimpleName() + "[" + other + "]");
         } else {
             return 1;
         }
