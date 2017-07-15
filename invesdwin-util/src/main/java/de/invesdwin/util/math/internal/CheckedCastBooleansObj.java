@@ -1,5 +1,6 @@
 package de.invesdwin.util.math.internal;
 
+import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -32,9 +33,14 @@ public final class CheckedCastBooleansObj {
         } else if (value instanceof CharSequence) {
             final CharSequence cValue = (CharSequence) value;
             return checkedCastObj(cValue);
-        } else {
-            throw UnknownArgumentException.newInstance(Object.class, value);
+        } else if (value.getClass().isArray()) {
+            final int length = Array.getLength(value);
+            if (length == 1) {
+                final Object cValue = Array.get(value, 0);
+                return checkedCastObj(cValue);
+            }
         }
+        throw UnknownArgumentException.newInstance(Object.class, value);
     }
 
     public static Boolean checkedCastObj(final Number value) {
