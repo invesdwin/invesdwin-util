@@ -283,9 +283,23 @@ public final class CheckedCastFloatsObj {
         } else if (value instanceof CharSequence[]) {
             final CharSequence[] cValue = (CharSequence[]) value;
             return checkedCastVectorObj(cValue);
+        } else if (value instanceof Object[]) {
+            final Object[] cValue = (Object[]) value;
+            return checkedCastVectorObj(cValue);
         } else {
-            throw UnknownArgumentException.newInstance(Class.class, value.getClass());
+            throw UnknownArgumentException.newInstance(Object.class, value);
         }
+    }
+
+    public static Float[] checkedCastVectorObj(final Object[] value) {
+        if (value == null) {
+            return null;
+        }
+        final Float[] vector = new Float[value.length];
+        for (int i = 0; i < value.length; i++) {
+            vector[i] = checkedCastObj(value[i]);
+        }
+        return vector;
     }
 
     public static Float[] checkedCastVectorObj(final Boolean[] value) {
@@ -636,9 +650,23 @@ public final class CheckedCastFloatsObj {
         } else if (value instanceof Iterator) {
             final Iterator<?> cValue = (Iterator<?>) value;
             return checkedCastMatrixObj(cValue);
+        } else if (value instanceof Object[]) {
+            final Object[] cValue = (Object[]) value;
+            return checkedCastMatrixObj(cValue);
         } else {
-            throw UnknownArgumentException.newInstance(Class.class, value.getClass());
+            throw UnknownArgumentException.newInstance(Object.class, value);
         }
+    }
+
+    public static Float[][] checkedCastMatrixObj(final Object[] value) {
+        if (value == null) {
+            return null;
+        }
+        final Float[][] matrix = new Float[value.length][];
+        for (int row = 0; row < value.length; row++) {
+            matrix[row] = checkedCastVectorObj(value[row]);
+        }
+        return matrix;
     }
 
     public static Float[][] checkedCastMatrixObj(final Iterator<?> value) {

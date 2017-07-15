@@ -295,9 +295,23 @@ public final class CheckedCastCharactersObj {
         } else if (value instanceof CharSequence[]) {
             final CharSequence[] cValue = (CharSequence[]) value;
             return checkedCastVectorObj(cValue);
+        } else if (value instanceof Object[]) {
+            final Object[] cValue = (Object[]) value;
+            return checkedCastVectorObj(cValue);
         } else {
-            throw UnknownArgumentException.newInstance(Class.class, value.getClass());
+            throw UnknownArgumentException.newInstance(Object.class, value);
         }
+    }
+
+    public static Character[] checkedCastVectorObj(final Object[] value) {
+        if (value == null) {
+            return null;
+        }
+        final Character[] vector = new Character[value.length];
+        for (int i = 0; i < value.length; i++) {
+            vector[i] = checkedCastObj(value[i]);
+        }
+        return vector;
     }
 
     public static Character[] checkedCastVectorObj(final Boolean[] value) {
@@ -648,9 +662,23 @@ public final class CheckedCastCharactersObj {
         } else if (value instanceof Iterator) {
             final Iterator<?> cValue = (Iterator<?>) value;
             return checkedCastMatrixObj(cValue);
+        } else if (value instanceof Object[]) {
+            final Object[] cValue = (Object[]) value;
+            return checkedCastMatrixObj(cValue);
         } else {
-            throw UnknownArgumentException.newInstance(Class.class, value.getClass());
+            throw UnknownArgumentException.newInstance(Object.class, value);
         }
+    }
+
+    public static Character[][] checkedCastMatrixObj(final Object[] value) {
+        if (value == null) {
+            return null;
+        }
+        final Character[][] matrix = new Character[value.length][];
+        for (int row = 0; row < value.length; row++) {
+            matrix[row] = checkedCastVectorObj(value[row]);
+        }
+        return matrix;
     }
 
     public static Character[][] checkedCastMatrixObj(final Iterator<?> value) {

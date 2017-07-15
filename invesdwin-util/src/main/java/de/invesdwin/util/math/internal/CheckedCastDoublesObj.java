@@ -277,9 +277,23 @@ public final class CheckedCastDoublesObj {
         } else if (value instanceof CharSequence[]) {
             final CharSequence[] cValue = (CharSequence[]) value;
             return checkedCastVectorObj(cValue);
+        } else if (value instanceof Object[]) {
+            final Object[] cValue = (Object[]) value;
+            return checkedCastVectorObj(cValue);
         } else {
-            throw UnknownArgumentException.newInstance(Class.class, value.getClass());
+            throw UnknownArgumentException.newInstance(Object.class, value);
         }
+    }
+
+    public static Double[] checkedCastVectorObj(final Object[] value) {
+        if (value == null) {
+            return null;
+        }
+        final Double[] vector = new Double[value.length];
+        for (int i = 0; i < value.length; i++) {
+            vector[i] = checkedCastObj(value[i]);
+        }
+        return vector;
     }
 
     public static Double[] checkedCastVectorObj(final Boolean[] value) {
@@ -630,9 +644,23 @@ public final class CheckedCastDoublesObj {
         } else if (value instanceof Iterator) {
             final Iterator<?> cValue = (Iterator<?>) value;
             return checkedCastMatrixObj(cValue);
+        } else if (value instanceof Object[]) {
+            final Object[] cValue = (Object[]) value;
+            return checkedCastMatrixObj(cValue);
         } else {
-            throw UnknownArgumentException.newInstance(Class.class, value.getClass());
+            throw UnknownArgumentException.newInstance(Object.class, value);
         }
+    }
+
+    public static Double[][] checkedCastMatrixObj(final Object[] value) {
+        if (value == null) {
+            return null;
+        }
+        final Double[][] matrix = new Double[value.length][];
+        for (int row = 0; row < value.length; row++) {
+            matrix[row] = checkedCastVectorObj(value[row]);
+        }
+        return matrix;
     }
 
     public static Double[][] checkedCastMatrixObj(final Iterator<?> value) {
