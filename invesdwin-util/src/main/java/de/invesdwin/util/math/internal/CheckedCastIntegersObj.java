@@ -297,6 +297,12 @@ public final class CheckedCastIntegersObj {
         if (value == null) {
             return null;
         }
+        if (value.length == 1) {
+            final Object firstValue = value[0];
+            if (firstValue != null && firstValue.getClass().isArray()) {
+                return checkedCastVectorObj(firstValue);
+            }
+        }
         final Integer[] vector = new Integer[value.length];
         for (int i = 0; i < value.length; i++) {
             vector[i] = checkedCastObj(value[i]);

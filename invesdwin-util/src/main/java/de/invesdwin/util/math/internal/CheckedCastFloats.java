@@ -256,6 +256,12 @@ public final class CheckedCastFloats {
         if (value == null) {
             return null;
         }
+        if (value.length == 1) {
+            final Object firstValue = value[0];
+            if (firstValue != null && firstValue.getClass().isArray()) {
+                return checkedCastVector(firstValue);
+            }
+        }
         final float[] vector = new float[value.length];
         for (int i = 0; i < value.length; i++) {
             vector[i] = checkedCast(value[i]);
