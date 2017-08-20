@@ -38,6 +38,9 @@ public abstract class APullingHistoricalCacheAdjustKeyProvider implements IHisto
 
     @Override
     public FDate adjustKey(final FDate key) {
+        if (key == null) {
+            return null;
+        }
         if (BooleanUtils.isNotTrue(alreadyAdjustingKey.get())) {
             alreadyAdjustingKey.set(true);
             try {

@@ -37,6 +37,9 @@ public abstract class APushingHistoricalCacheAdjustKeyProvider implements IHisto
 
     @Override
     public FDate adjustKey(final FDate key) {
+        if (key == null) {
+            return null;
+        }
         final FDate highestAllowedKey = getHighestAllowedKey();
         if (highestAllowedKey != null && key.millisValue() > highestAllowedKey.millisValue()) {
             return highestAllowedKey;
