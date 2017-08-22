@@ -62,6 +62,8 @@ public abstract class ARecursiveHistoricalCacheQuery<V> {
     @GuardedBy("parent")
     private FDate firstAvailableKey;
     @GuardedBy("parent")
+    private boolean firstAvailableKeyRequested;
+    @GuardedBy("parent")
     //cache separately since the parent could encounter more evictions than this internal cache
     private final ALoadingCache<FDate, V> cachedRecursionResults;
 
@@ -104,6 +106,7 @@ public abstract class ARecursiveHistoricalCacheQuery<V> {
             cachedRecursionResults.clear();
             highestRecursionResultsAsc.clear();
             firstAvailableKey = null;
+            firstAvailableKeyRequested = false;
             shouldAppendHighestRecursionResults = false;
         }
     }
@@ -124,7 +127,12 @@ public abstract class ARecursiveHistoricalCacheQuery<V> {
 
     private V getPreviousValueByRecursion(final FDate key, final FDate previousKey) {
         synchronized (parent) {
-            if (previousKey.isBeforeOrEqualTo(getFirstAvailableKey())) {
+            final FDate firstAvailableKey = getFirstAvailableKey();
+            if (firstAvailableKey == null) {
+                //no data found
+                return null;
+            }
+            if (previousKey.isBeforeOrEqualTo(firstAvailableKey)) {
                 return getInitialValue(previousKey);
             }
 
@@ -135,7 +143,7 @@ public abstract class ARecursiveHistoricalCacheQuery<V> {
                 } else if (cachedRecursionResults.containsKey(previousKey)) {
                     return cachedRecursionResults.get(previousKey);
                 } else if (previousKey.isBeforeOrEqualTo(firstRecursionKey)
-                        || lastRecursionKey.equals(getFirstAvailableKey()) || key.equals(previousKey)) {
+                        || lastRecursionKey.equals(firstAvailableKey) || key.equals(previousKey)) {
                     return getInitialValue(previousKey);
                 } else {
                     throw new IllegalStateException(
@@ -249,8 +257,9 @@ public abstract class ARecursiveHistoricalCacheQuery<V> {
     }
 
     private FDate getFirstAvailableKey() {
-        if (firstAvailableKey == null) {
+        if (firstAvailableKey == null && !firstAvailableKeyRequested) {
             this.firstAvailableKey = parentQueryWithFuture.getKey(FDate.MIN_DATE);
+            firstAvailableKeyRequested = true;
         }
         return firstAvailableKey;
     }

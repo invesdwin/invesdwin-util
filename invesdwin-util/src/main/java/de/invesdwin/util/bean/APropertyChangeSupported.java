@@ -162,7 +162,7 @@ public abstract class APropertyChangeSupported {
      * @see java.beans.PropertyChangeSupport#fireIndexedPropertyChange(java.lang.String, int, java.lang.Object,
      *      java.lang.Object)
      */
-    public final void fireIndexedPropertyChange(final String propertyName, final int index, final Object oldValue,
+    public void fireIndexedPropertyChange(final String propertyName, final int index, final Object oldValue,
             final Object newValue) {
         final PropertyChangeSupport ref = lazyGetPropertyChangeSupport(false);
         if (ref != null && (!Objects.equalsProperty(oldValue, newValue)
@@ -179,7 +179,7 @@ public abstract class APropertyChangeSupported {
      * 
      * @see java.beans.PropertyChangeSupport#firePropertyChange(java.lang.String, java.lang.Object, java.lang.Object)
      */
-    public final void firePropertyChange(final String propertyName, final Object oldValue, final Object newValue) {
+    public void firePropertyChange(final String propertyName, final Object oldValue, final Object newValue) {
         final PropertyChangeSupport ref = lazyGetPropertyChangeSupport(false);
         if (ref != null && (!Objects.equalsProperty(oldValue, newValue)
                 || !equalsPropertyChangeListeners(oldValue, newValue))) {
