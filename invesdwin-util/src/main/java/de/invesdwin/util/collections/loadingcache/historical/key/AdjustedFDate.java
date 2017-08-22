@@ -15,6 +15,9 @@ public class AdjustedFDate extends FDate {
     }
 
     public static FDate newAdjustedKey(final IHistoricalCacheAdjustKeyProvider adjustKeyProvider, final FDate key) {
+        if (key == null) {
+            return null;
+        }
         return new AdjustedFDate(adjustKeyProvider, key);
     }
 

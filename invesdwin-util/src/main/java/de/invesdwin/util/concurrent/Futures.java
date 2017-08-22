@@ -111,7 +111,7 @@ public final class Futures {
         wait(Arrays.asList(futures));
     }
 
-    public static void wait(final List<Future<?>> futures) throws InterruptedException {
+    public static void wait(final List<? extends Future<?>> futures) throws InterruptedException {
         for (final Future<?> future : futures) {
             wait(future);
         }
