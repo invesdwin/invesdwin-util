@@ -15,7 +15,7 @@ public abstract class ACloseableIterator<E> implements ICloseableIterator<E> {
     private boolean closed;
 
     private Exception initStackTrace;
-    private Exception nextStackTrace;
+    private Exception nextOrHasNextStackTrace;
 
     public ACloseableIterator() {
         createInitStackTrace();
@@ -28,11 +28,11 @@ public abstract class ACloseableIterator<E> implements ICloseableIterator<E> {
         }
     }
 
-    protected void createNextStackTrace() {
-        if (Throwables.isDebugStackTraceEnabled() && nextStackTrace == null) {
+    protected void createNextOrHasNextStackTrace() {
+        if (Throwables.isDebugStackTraceEnabled() && nextOrHasNextStackTrace == null) {
             initStackTrace = null;
-            nextStackTrace = new Exception();
-            nextStackTrace.fillInStackTrace();
+            nextOrHasNextStackTrace = new Exception();
+            nextOrHasNextStackTrace.fillInStackTrace();
         }
     }
 
@@ -44,7 +44,7 @@ public abstract class ACloseableIterator<E> implements ICloseableIterator<E> {
                 warning += " which was initialized but never used";
                 stackTrace = initStackTrace;
             } else {
-                stackTrace = nextStackTrace;
+                stackTrace = nextOrHasNextStackTrace;
             }
             if (stackTrace != null) {
                 warning += " from stacktrace:\n" + Throwables.getFullStackTrace(stackTrace);
@@ -70,6 +70,7 @@ public abstract class ACloseableIterator<E> implements ICloseableIterator<E> {
         if (isClosed()) {
             return false;
         }
+        createNextOrHasNextStackTrace();
         final boolean hasNext = innerHasNext();
         if (!hasNext) {
             close();
@@ -84,7 +85,7 @@ public abstract class ACloseableIterator<E> implements ICloseableIterator<E> {
         if (isClosed()) {
             throw new FastNoSuchElementException("ACloseableIterator: next blocked because already closed");
         }
-        createNextStackTrace();
+        createNextOrHasNextStackTrace();
         final E next;
         try {
             next = innerNext();
@@ -118,7 +119,7 @@ public abstract class ACloseableIterator<E> implements ICloseableIterator<E> {
         if (!isClosed()) {
             closed = true;
             initStackTrace = null;
-            nextStackTrace = null;
+            nextOrHasNextStackTrace = null;
             innerClose();
         }
     }
