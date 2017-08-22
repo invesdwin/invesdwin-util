@@ -116,7 +116,8 @@ public abstract class AFastIterableDelegateSet<E> extends ADelegateSet<E> implem
     @SuppressWarnings("unchecked")
     public E[] asArray(final Class<E> type) {
         if (array == null) {
-            final E[] empty = (E[]) Array.newInstance(type, size());
+            final int curSize = size();
+            final E[] empty = (E[]) Array.newInstance(type, curSize);
             array = toArray(empty);
         }
         return array;
