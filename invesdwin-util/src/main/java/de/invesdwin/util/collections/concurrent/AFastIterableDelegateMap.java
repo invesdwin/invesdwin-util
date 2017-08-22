@@ -23,7 +23,7 @@ public abstract class AFastIterableDelegateMap<K, V> extends ADelegateMap<K, V> 
     //arraylist wins in raw iterator speed compared to bufferingIterator since no remove is needed, though we need protection against concurrent modification
     private BufferingIterator<Entry<K, V>> fastIterable;
     private boolean empty;
-    private int size;
+    private volatile int size;
 
     private Entry<K, V>[] entryArray;
     private K[] keyArray;

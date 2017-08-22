@@ -17,7 +17,7 @@ public abstract class AFastIterableDelegateList<E> extends ADelegateList<E> impl
     private BufferingIterator<E> fastIterable;
     private E[] array;
     private boolean empty;
-    private int size;
+    private volatile int size;
 
     public AFastIterableDelegateList() {
         refreshFastIterable();

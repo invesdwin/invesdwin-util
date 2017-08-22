@@ -25,7 +25,7 @@ public abstract class AFastIterableDelegateSet<E> extends ADelegateSet<E> implem
     private BufferingIterator<E> fastIterable;
     private E[] array;
     private boolean empty;
-    private int size;
+    private volatile int size;
 
     public AFastIterableDelegateSet() {
         refreshFastIterable();
@@ -116,8 +116,7 @@ public abstract class AFastIterableDelegateSet<E> extends ADelegateSet<E> implem
     @SuppressWarnings("unchecked")
     public E[] asArray(final Class<E> type) {
         if (array == null) {
-            final int curSize = size();
-            final E[] empty = (E[]) Array.newInstance(type, curSize);
+            final E[] empty = (E[]) Array.newInstance(type, size);
             array = toArray(empty);
         }
         return array;
