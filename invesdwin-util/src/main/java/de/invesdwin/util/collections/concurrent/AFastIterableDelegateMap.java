@@ -5,7 +5,8 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
 
-import javax.annotation.concurrent.NotThreadSafe;
+import javax.annotation.concurrent.GuardedBy;
+import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.bean.tuple.ImmutableEntry;
 import de.invesdwin.util.collections.ADelegateMap;
@@ -17,16 +18,22 @@ import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
  * 
  * The iterator returned from this map is also suitable for concurrent modification during iteration.
  */
-@NotThreadSafe
+@ThreadSafe
 public abstract class AFastIterableDelegateMap<K, V> extends ADelegateMap<K, V> {
 
     //arraylist wins in raw iterator speed compared to bufferingIterator since no remove is needed, though we need protection against concurrent modification
+    @GuardedBy("this")
     private BufferingIterator<Entry<K, V>> fastIterable;
+    @GuardedBy("this")
     private boolean empty;
-    private volatile int size;
+    @GuardedBy("this")
+    private int size;
 
+    @GuardedBy("this")
     private Entry<K, V>[] entryArray;
+    @GuardedBy("this")
     private K[] keyArray;
+    @GuardedBy("this")
     private V[] valueArray;
     private final Set<Entry<K, V>> entrySet = new Set<Entry<K, V>>() {
         @Override
@@ -46,10 +53,12 @@ public abstract class AFastIterableDelegateMap<K, V> extends ADelegateMap<K, V> 
 
         @Override
         public Iterator<Entry<K, V>> iterator() {
-            if (fastIterable == null) {
-                fastIterable = new BufferingIterator<Entry<K, V>>(getDelegate().entrySet());
+            synchronized (AFastIterableDelegateMap.this) {
+                if (fastIterable == null) {
+                    fastIterable = new BufferingIterator<Entry<K, V>>(getDelegate().entrySet());
+                }
+                return fastIterable.iterator();
             }
-            return fastIterable.iterator();
         }
 
         @Override
@@ -127,7 +136,6 @@ public abstract class AFastIterableDelegateMap<K, V> extends ADelegateMap<K, V> 
                 public K next() {
                     return iterator.next().getKey();
                 }
-
             };
         }
 
@@ -271,7 +279,7 @@ public abstract class AFastIterableDelegateMap<K, V> extends ADelegateMap<K, V> 
         return prev;
     }
 
-    protected void addToFastIterable(final K key, final V value) {
+    protected synchronized void addToFastIterable(final K key, final V value) {
         if (fastIterable != null) {
             fastIterable.add(ImmutableEntry.of(key, value));
         }
@@ -285,12 +293,14 @@ public abstract class AFastIterableDelegateMap<K, V> extends ADelegateMap<K, V> 
     @Override
     public void clear() {
         super.clear();
-        fastIterable = new BufferingIterator<Entry<K, V>>();
-        entryArray = null;
-        keyArray = null;
-        valueArray = null;
-        empty = true;
-        size = 0;
+        synchronized (this) {
+            fastIterable = new BufferingIterator<Entry<K, V>>();
+            entryArray = null;
+            keyArray = null;
+            valueArray = null;
+            empty = true;
+            size = 0;
+        }
     }
 
     @Override
@@ -305,7 +315,7 @@ public abstract class AFastIterableDelegateMap<K, V> extends ADelegateMap<K, V> 
     /**
      * protected so it can be used inside addToFastIterable to refresh instead if desired by overriding
      */
-    protected void refreshFastIterable() {
+    protected synchronized void refreshFastIterable() {
         fastIterable = null;
         entryArray = null;
         keyArray = null;
@@ -329,9 +339,9 @@ public abstract class AFastIterableDelegateMap<K, V> extends ADelegateMap<K, V> 
     }
 
     @SuppressWarnings("unchecked")
-    public V[] asValueArray(final Class<V> valueType) {
+    public synchronized V[] asValueArray(final Class<V> valueType) {
         if (valueArray == null) {
-            final V[] empty = (V[]) Array.newInstance(valueType, size());
+            final V[] empty = (V[]) Array.newInstance(valueType, size);
             valueArray = values.toArray(empty);
         }
         return valueArray;
@@ -343,9 +353,9 @@ public abstract class AFastIterableDelegateMap<K, V> extends ADelegateMap<K, V> 
     }
 
     @SuppressWarnings("unchecked")
-    public K[] asKeyArray(final Class<K> keyType) {
+    public synchronized K[] asKeyArray(final Class<K> keyType) {
         if (keyArray == null) {
-            final K[] empty = (K[]) Array.newInstance(keyType, size());
+            final K[] empty = (K[]) Array.newInstance(keyType, size);
             keyArray = keySet.toArray(empty);
         }
         return keyArray;
@@ -357,21 +367,21 @@ public abstract class AFastIterableDelegateMap<K, V> extends ADelegateMap<K, V> 
     }
 
     @SuppressWarnings("unchecked")
-    public Entry<K, V>[] asEntryArray() {
+    public synchronized Entry<K, V>[] asEntryArray() {
         if (entryArray == null) {
-            final Entry<K, V>[] empty = (Entry<K, V>[]) Array.newInstance(Entry.class, size());
+            final Entry<K, V>[] empty = (Entry<K, V>[]) Array.newInstance(Entry.class, size);
             entryArray = entrySet.toArray(empty);
         }
         return entryArray;
     }
 
     @Override
-    public boolean isEmpty() {
+    public synchronized boolean isEmpty() {
         return empty;
     }
 
     @Override
-    public int size() {
+    public synchronized int size() {
         return size;
     }
 

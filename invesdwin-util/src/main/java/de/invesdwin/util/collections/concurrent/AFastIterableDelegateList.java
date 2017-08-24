@@ -3,21 +3,26 @@ package de.invesdwin.util.collections.concurrent;
 import java.lang.reflect.Array;
 import java.util.Collection;
 
-import javax.annotation.concurrent.NotThreadSafe;
+import javax.annotation.concurrent.GuardedBy;
+import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.collections.ADelegateList;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
 
-@NotThreadSafe
+@ThreadSafe
 public abstract class AFastIterableDelegateList<E> extends ADelegateList<E> implements ICloseableIterable<E> {
 
     //arraylist wins in raw iterator speed compared to bufferingIterator since no remove is needed, though we need protection against concurrent modification
+    @GuardedBy("this")
     private BufferingIterator<E> fastIterable;
+    @GuardedBy("this")
     private E[] array;
+    @GuardedBy("this")
     private boolean empty;
-    private volatile int size;
+    @GuardedBy("this")
+    private int size;
 
     public AFastIterableDelegateList() {
         refreshFastIterable();
@@ -32,7 +37,7 @@ public abstract class AFastIterableDelegateList<E> extends ADelegateList<E> impl
         return added;
     }
 
-    protected void addToFastIterable(final E e) {
+    protected synchronized void addToFastIterable(final E e) {
         if (fastIterable != null) {
             fastIterable.add(e);
         }
@@ -93,7 +98,7 @@ public abstract class AFastIterableDelegateList<E> extends ADelegateList<E> impl
     /**
      * protected so it can be used inside addToFastIterable to refresh instead if desired by overriding
      */
-    protected void refreshFastIterable() {
+    protected synchronized void refreshFastIterable() {
         fastIterable = null;
         array = null;
         size = getDelegate().size();
@@ -103,14 +108,16 @@ public abstract class AFastIterableDelegateList<E> extends ADelegateList<E> impl
     @Override
     public void clear() {
         super.clear();
-        fastIterable = new BufferingIterator<E>();
-        array = null;
-        empty = true;
-        size = 0;
+        synchronized (this) {
+            fastIterable = new BufferingIterator<E>();
+            array = null;
+            empty = true;
+            size = 0;
+        }
     }
 
     @Override
-    public ICloseableIterator<E> iterator() {
+    public synchronized ICloseableIterator<E> iterator() {
         if (fastIterable == null) {
             fastIterable = new BufferingIterator<E>(getDelegate());
         }
@@ -118,19 +125,19 @@ public abstract class AFastIterableDelegateList<E> extends ADelegateList<E> impl
     }
 
     @Override
-    public boolean isEmpty() {
+    public synchronized boolean isEmpty() {
         return empty;
     }
 
     @Override
-    public int size() {
+    public synchronized int size() {
         return size;
     }
 
     @SuppressWarnings("unchecked")
-    public E[] asArray(final Class<E> type) {
+    public synchronized E[] asArray(final Class<E> type) {
         if (array == null) {
-            final E[] empty = (E[]) Array.newInstance(type, size());
+            final E[] empty = (E[]) Array.newInstance(type, size);
             array = toArray(empty);
         }
         return array;
