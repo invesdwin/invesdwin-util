@@ -31,7 +31,7 @@ import de.invesdwin.util.math.Integers;
 public final class Objects extends AObjectsStaticFacade {
 
     public static final boolean DEFAULT_APPEND_MISSING_VALUES = true;
-    public static final FSTConfiguration SERIALIZATION_CONFIG = FSTConfiguration.getDefaultConfiguration();
+    public static final FSTConfiguration SERIALIZATION_CONFIG;
     public static final Set<String> REFLECTION_EXCLUDED_FIELDS = new HashSet<String>();
     public static final ADelegateComparator<Object> COMPARATOR = new ADelegateComparator<Object>() {
         @Override
@@ -44,13 +44,58 @@ public final class Objects extends AObjectsStaticFacade {
         //datanucleus enhancer fix
         REFLECTION_EXCLUDED_FIELDS.add("jdoDetachedState");
         REFLECTION_EXCLUDED_FIELDS.add("class");
-        //use FST in BeanPathObjects as deepClone fallback instead of java serialization
-        BeanPathObjects.setDeepCloneProvider(new IDeepCloneProvider() {
-            @Override
-            public <T> T deepClone(final T obj) {
-                return Objects.deepClone(obj);
-            }
-        });
+        FSTConfiguration fstConfig;
+        try {
+            fstConfig = FSTConfiguration.getDefaultConfiguration();
+        } catch (final Throwable t) {
+            /*
+             * we might be in a restricted environment where FST is not allowed, stay with java serialization then
+             */
+            fstConfig = null;
+        }
+        SERIALIZATION_CONFIG = fstConfig;
+        if (SERIALIZATION_CONFIG != null) {
+            //use FST in BeanPathObjects as deepClone fallback instead of java serialization
+            BeanPathObjects.setDeepCloneProvider(new IDeepCloneProvider() {
+                @SuppressWarnings("unchecked")
+                @Override
+                public <T> T deepClone(final T obj) {
+                    if (obj == null) {
+                        return null;
+                    }
+                    final byte[] serialized = serialize((Serializable) obj);
+                    return (T) deserialize(serialized);
+                }
+
+                @Override
+                @SuppressWarnings("unchecked")
+                public <T> T deserialize(final byte[] objectData) {
+                    try {
+                        return (T) SERIALIZATION_CONFIG.asObject(objectData);
+                    } finally {
+                        //TODO remove with next version of FST when resetForReuseArray also clears the callbacks
+                        //calls internally resetForReuse which clears the callbacks
+                        //https://github.com/RuedigerMoeller/fast-serialization/pull/200
+                        SERIALIZATION_CONFIG.getObjectInput();
+                    }
+                }
+
+                @Override
+                public <T> T deserialize(final InputStream in) {
+                    //FST is unreliable regarding input streams
+                    try {
+                        return deserialize(IOUtils.toByteArray(in));
+                    } catch (final IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+
+                @Override
+                public byte[] serialize(final Serializable obj) {
+                    return SERIALIZATION_CONFIG.asByteArray(obj);
+                }
+            });
+        }
     }
 
     private Objects() {}
@@ -179,40 +224,6 @@ public final class Objects extends AObjectsStaticFacade {
 
     public static int hashCode(@Nullable final Object... objects) {
         return com.google.common.base.Objects.hashCode(objects);
-    }
-
-    @SuppressWarnings({ "unchecked", "null" })
-    public static <T> T deepClone(final T obj) {
-        if (obj == null) {
-            return (T) null;
-        }
-        final byte[] serialized = serialize((Serializable) obj);
-        return (T) deserialize(serialized);
-    }
-
-    @SuppressWarnings("unchecked")
-    public static <T> T deserialize(final byte[] objectData) {
-        try {
-            return (T) SERIALIZATION_CONFIG.asObject(objectData);
-        } finally {
-            //TODO remove with next version of FST when resetForReuseArray also clears the callbacks
-            //calls internally resetForReuse which clears the callbacks
-            //https://github.com/RuedigerMoeller/fast-serialization/pull/200
-            SERIALIZATION_CONFIG.getObjectInput();
-        }
-    }
-
-    public static <T> T deserialize(final InputStream in) {
-        //FST is unreliable regarding input streams
-        try {
-            return deserialize(IOUtils.toByteArray(in));
-        } catch (final IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public static byte[] serialize(final Serializable obj) {
-        return SERIALIZATION_CONFIG.asByteArray(obj);
     }
 
     public static String toString(final Object obj) {
