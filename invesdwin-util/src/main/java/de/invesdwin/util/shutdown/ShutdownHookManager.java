@@ -1,6 +1,5 @@
 package de.invesdwin.util.shutdown;
 
-import java.security.AccessControlException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -55,25 +54,7 @@ public final class ShutdownHookManager {
             Assertions.assertThat(REGISTERED_HOOKS.put(hook, thread))
                     .as("Hook [%s] has already been registered!", hook)
                     .isNull();
-            try {
-                Runtime.getRuntime().addShutdownHook(thread);
-            } catch (final AccessControlException t) {
-                //ignore, might fail in webstart environment
-            }
-        }
-    }
-
-    public static void run() {
-        synchronized (INSTANCE) {
-            for (final ShutdownHookThread thread : REGISTERED_HOOKS.values()) {
-                try {
-                    Runtime.getRuntime().removeShutdownHook(thread);
-                } catch (final AccessControlException t) {
-                    //ignore, might fail in webstart environment
-                }
-                thread.start();
-            }
-            REGISTERED_HOOKS.clear();
+            Runtime.getRuntime().addShutdownHook(thread);
         }
     }
 
@@ -87,11 +68,7 @@ public final class ShutdownHookManager {
             Assertions.assertThat(shuttingDown || removedThread != null)
                     .as("Hook [%s] was never registered!", hook)
                     .isTrue();
-            try {
-                Assertions.assertThat(Runtime.getRuntime().removeShutdownHook(removedThread)).isTrue();
-            } catch (final AccessControlException t) {
-                //ignore, might fail in webstart environment
-            }
+            Assertions.assertThat(Runtime.getRuntime().removeShutdownHook(removedThread)).isTrue();
         }
     }
 
