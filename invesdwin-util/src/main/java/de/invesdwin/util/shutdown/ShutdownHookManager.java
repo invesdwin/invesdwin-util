@@ -54,7 +54,25 @@ public final class ShutdownHookManager {
             Assertions.assertThat(REGISTERED_HOOKS.put(hook, thread))
                     .as("Hook [%s] has already been registered!", hook)
                     .isNull();
-            Runtime.getRuntime().addShutdownHook(thread);
+            try {
+                Runtime.getRuntime().addShutdownHook(thread);
+            } catch (final Throwable t) {
+                //ignore, might fail in webstart environment
+            }
+        }
+    }
+
+    public static void run() {
+        synchronized (INSTANCE) {
+            for (final ShutdownHookThread thread : REGISTERED_HOOKS.values()) {
+                try {
+                    Runtime.getRuntime().removeShutdownHook(thread);
+                } catch (final Throwable t) {
+                    //ignore, might fail in webstart environment
+                }
+                thread.start();
+            }
+            REGISTERED_HOOKS.clear();
         }
     }
 
