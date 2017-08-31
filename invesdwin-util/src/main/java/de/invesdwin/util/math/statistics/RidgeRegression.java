@@ -1,4 +1,4 @@
-package de.invesdwin.util.math.stat;
+package de.invesdwin.util.math.statistics;
 
 import javax.annotation.concurrent.NotThreadSafe;
 

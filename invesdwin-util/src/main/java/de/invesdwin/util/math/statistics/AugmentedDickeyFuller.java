@@ -1,4 +1,4 @@
-package de.invesdwin.util.math.stat;
+package de.invesdwin.util.math.statistics;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
@@ -6,7 +6,7 @@ import org.apache.commons.math3.linear.MatrixUtils;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.linear.RealVector;
 
-import de.invesdwin.util.math.stat.MacKinnonP.RegressionMethod;
+import de.invesdwin.util.math.statistics.MacKinnonP.RegressionMethod;
 
 /**
  * https://github.com/Netflix/Surus/blob/master/src/main/java/org/surus/math/AugmentedDickeyFuller.java
