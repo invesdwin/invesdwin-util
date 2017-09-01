@@ -5,6 +5,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 import org.apache.commons.math3.linear.MatrixUtils;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.linear.RealVector;
+import org.apache.commons.math3.stat.regression.OLSMultipleLinearRegression;
 
 import de.invesdwin.util.math.statistics.MacKinnonP.RegressionMethod;
 
@@ -19,7 +20,6 @@ public class AugmentedDickeyFuller {
     private final double[] ts;
     private final int lag;
     private double testStatistic;
-    private double pValue;
 
     /**
      * Uses the Augmented Dickey Fuller test to determine if ts is a stationary time series
@@ -69,19 +69,19 @@ public class AugmentedDickeyFuller {
             designMatrix.setColumn(1, ones(ts.length - 1 - k + 1));
             designMatrix.setColumn(2, trend);
         }
-        /*
-         * OLSMultipleLinearRegression regression = new OLSMultipleLinearRegression(); regression.setNoIntercept(true);
-         * regression.newSampleData(zcol1.toArray(), designMatrix.getData()); double[] beta =
-         * regression.estimateRegressionParameters(); double[] sd =
-         * regression.estimateRegressionParametersStandardErrors();
-         */
-        final RidgeRegression regression = new RidgeRegression(designMatrix.getData(), zcol1.toArray());
-        regression.updateCoefficients(L2PENALTY);
-        final double[] beta = regression.getCoefficients();
-        final double[] sd = regression.getStandarderrors();
+
+        final OLSMultipleLinearRegression regression = new OLSMultipleLinearRegression();
+        regression.setNoIntercept(true);
+        regression.newSampleData(zcol1.toArray(), designMatrix.getData());
+        final double[] beta = regression.estimateRegressionParameters();
+        final double[] sd = regression.estimateRegressionParametersStandardErrors();
+
+        //        final RidgeRegression regression = new RidgeRegression(designMatrix.getData(), zcol1.toArray());
+        //        regression.updateCoefficients(L2PENALTY);
+        //        final double[] beta = regression.getCoefficients();
+        //        final double[] sd = regression.getStandarderrors();
 
         this.testStatistic = beta[0] / sd[0];
-        this.pValue = MacKinnonP.macKinnonP(testStatistic, RegressionMethod.c, 1);
     }
 
     /**
@@ -166,6 +166,6 @@ public class AugmentedDickeyFuller {
     }
 
     public double getPValue() {
-        return pValue;
+        return MacKinnonP.macKinnonP(testStatistic, RegressionMethod.c, 1);
     }
 }
