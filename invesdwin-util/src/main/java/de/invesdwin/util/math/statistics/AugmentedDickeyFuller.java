@@ -16,7 +16,6 @@ import de.invesdwin.util.math.statistics.MacKinnonP.RegressionMethod;
 @NotThreadSafe
 public class AugmentedDickeyFuller {
 
-    public static final double L2PENALTY = .0001;
     private final double[] ts;
     private final int lag;
     private double testStatistic;
