@@ -273,13 +273,7 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
     private boolean eventuallyLoadFurtherValues(final String source, final FDate key, final FDate adjustedKey,
             final boolean newMinKey, final boolean forced) {
         if (forced || shouldLoadFurtherValues(key, newMinKey)) {
-            final FDate keyForReadAllValues;
-            if (newMinKey && minKeyInDBFromLoadFurtherValues != null && key.isBefore(minKeyInDBFromLoadFurtherValues)) {
-                //performance optimization for first load
-                keyForReadAllValues = FDates.min(minKeyInDB, FDates.max(minKeyInDB, adjustedKey));
-            } else {
-                keyForReadAllValues = FDates.max(minKeyInDB, adjustedKey);
-            }
+            final FDate keyForReadAllValues = FDates.max(minKeyInDB, adjustedKey);
             furtherValues.clear();
             lastValuesFromFurtherValues.clear();
             FDate curKey = keyForReadAllValues;
@@ -462,7 +456,8 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
      */
     private FDate determineEaliestStartOfLoadFurtherValues(final FDate key) {
         //1 day is fine for most cases
-        return key.addMilliseconds(-cacheMissCounter.getOptimalReadBackStepMillis());
+        final long readBackStepMillis = cacheMissCounter.getOptimalReadBackStepMillis();
+        return key.addMilliseconds(-readBackStepMillis);
     }
 
     protected long getReadBackStepMillis() {
