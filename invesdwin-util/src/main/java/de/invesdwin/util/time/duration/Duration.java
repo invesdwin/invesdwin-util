@@ -487,6 +487,10 @@ public class Duration extends Number implements Comparable<Object> {
         return !isPositiveNonZero();
     }
 
+    public Duration negate() {
+        return new Duration(-duration, timeUnit);
+    }
+
     public static Duration zeroToNull(final Duration duration) {
         if (duration == null) {
             return null;
