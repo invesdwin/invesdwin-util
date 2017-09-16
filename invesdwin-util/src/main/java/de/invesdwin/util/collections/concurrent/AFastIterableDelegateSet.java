@@ -7,7 +7,6 @@ import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.collections.ADelegateSet;
-import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
 
@@ -20,7 +19,7 @@ import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
  * http://stackoverflow.com/questions/1006395/fastest-way-to-iterate-an-array-in-java-loop-variable-vs-enhanced-for-statement
  */
 @ThreadSafe
-public abstract class AFastIterableDelegateSet<E> extends ADelegateSet<E> implements ICloseableIterable<E> {
+public abstract class AFastIterableDelegateSet<E> extends ADelegateSet<E> implements IFastIterable<E> {
 
     //arraylist wins in raw iterator speed compared to bufferingIterator since no remove is needed, though we need protection against concurrent modification
     @GuardedBy("this")
@@ -120,6 +119,7 @@ public abstract class AFastIterableDelegateSet<E> extends ADelegateSet<E> implem
         return size;
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public synchronized E[] asArray(final Class<E> type) {
         if (array == null) {

@@ -7,12 +7,11 @@ import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.collections.ADelegateList;
-import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
 
 @ThreadSafe
-public abstract class AFastIterableDelegateList<E> extends ADelegateList<E> implements ICloseableIterable<E> {
+public abstract class AFastIterableDelegateList<E> extends ADelegateList<E> implements IFastIterable<E> {
 
     //arraylist wins in raw iterator speed compared to bufferingIterator since no remove is needed, though we need protection against concurrent modification
     @GuardedBy("this")
@@ -135,6 +134,7 @@ public abstract class AFastIterableDelegateList<E> extends ADelegateList<E> impl
     }
 
     @SuppressWarnings("unchecked")
+    @Override
     public synchronized E[] asArray(final Class<E> type) {
         if (array == null) {
             final E[] empty = (E[]) Array.newInstance(type, size);
