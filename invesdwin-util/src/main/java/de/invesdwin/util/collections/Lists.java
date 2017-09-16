@@ -17,7 +17,7 @@ import de.invesdwin.util.collections.iterable.WrapperCloseableIterable;
 
 @Immutable
 @StaticFacadeDefinition(name = "de.invesdwin.util.collections.internal.AListsStaticFacade", targets = {
-        com.google.common.collect.Lists.class, org.apache.commons.collections.ListUtils.class })
+        com.google.common.collect.Lists.class, org.apache.commons.collections4.ListUtils.class })
 public final class Lists extends AListsStaticFacade {
 
     private Lists() {}

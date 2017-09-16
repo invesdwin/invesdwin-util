@@ -9,7 +9,10 @@ import de.invesdwin.util.collections.internal.ASetsStaticFacade;
 
 @Immutable
 @StaticFacadeDefinition(name = "de.invesdwin.util.collections.internal.ASetsStaticFacade", targets = {
-        com.google.common.collect.Sets.class, org.apache.commons.collections.SetUtils.class })
+        com.google.common.collect.Sets.class,
+        org.apache.commons.collections4.SetUtils.class }, filterMethodSignatureExpressions = {
+                ".* com\\.google\\.common\\.collect\\.Sets\\.SetView.* union\\(.*",
+                ".* java\\.util\\.SortedSet.* unmodifiableNavigableSet\\(.*" })
 public final class Sets extends ASetsStaticFacade {
 
     private Sets() {}

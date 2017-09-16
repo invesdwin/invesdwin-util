@@ -57,6 +57,10 @@
 			<artifactId>commons-collections</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-collections4</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>org.easytesting</groupId>
 			<artifactId>fest-reflect</artifactId>
 			<version>${version.fest-reflect}</version>
