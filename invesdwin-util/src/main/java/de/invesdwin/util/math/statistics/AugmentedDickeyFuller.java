@@ -19,7 +19,7 @@ public class AugmentedDickeyFuller {
 
     private final double[] ts;
     private final int lag;
-    private double testStatistic;
+    private Double testStatistic;
 
     /**
      * Uses the Augmented Dickey Fuller test to determine if ts is a stationary time series
@@ -76,7 +76,6 @@ public class AugmentedDickeyFuller {
             regression.newSampleData(zcol1.toArray(), designMatrix.getData());
         } catch (final MathIllegalArgumentException e) {
             //not enough data
-            this.testStatistic = Double.NEGATIVE_INFINITY;
             return;
         }
         final double[] beta = regression.estimateRegressionParameters();
@@ -167,11 +166,14 @@ public class AugmentedDickeyFuller {
         return sequence;
     }
 
-    public double getTestStatisic() {
+    public Double getTestStatisic() {
         return testStatistic;
     }
 
-    public double getPValue() {
+    public Double getPValue() {
+        if (testStatistic == null) {
+            return null;
+        }
         return MacKinnonP.macKinnonP(testStatistic, RegressionMethod.c, 1);
     }
 }
