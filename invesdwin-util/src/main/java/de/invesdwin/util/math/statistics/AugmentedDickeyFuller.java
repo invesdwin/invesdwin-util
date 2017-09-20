@@ -2,6 +2,7 @@ package de.invesdwin.util.math.statistics;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import org.apache.commons.math3.exception.MathIllegalArgumentException;
 import org.apache.commons.math3.linear.MatrixUtils;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.linear.RealVector;
@@ -71,7 +72,13 @@ public class AugmentedDickeyFuller {
 
         final OLSMultipleLinearRegression regression = new OLSMultipleLinearRegression();
         regression.setNoIntercept(true);
-        regression.newSampleData(zcol1.toArray(), designMatrix.getData());
+        try {
+            regression.newSampleData(zcol1.toArray(), designMatrix.getData());
+        } catch (final MathIllegalArgumentException e) {
+            //not enough data
+            this.testStatistic = Double.NEGATIVE_INFINITY;
+            return;
+        }
         final double[] beta = regression.estimateRegressionParameters();
         final double[] sd = regression.estimateRegressionParametersStandardErrors();
 
