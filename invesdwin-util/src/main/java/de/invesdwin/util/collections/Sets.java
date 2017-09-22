@@ -12,6 +12,8 @@ import de.invesdwin.util.collections.internal.ASetsStaticFacade;
         com.google.common.collect.Sets.class,
         org.apache.commons.collections4.SetUtils.class }, filterMethodSignatureExpressions = {
                 ".* com\\.google\\.common\\.collect\\.Sets\\.SetView.* union\\(.*",
+                ".* com\\.google\\.common\\.collect\\.Sets\\.SetView.* difference\\(.*",
+                ".* com\\.google\\.common\\.collect\\.Sets\\.SetView.* intersection\\(.*",
                 ".* java\\.util\\.SortedSet.* unmodifiableNavigableSet\\(.*" })
 public final class Sets extends ASetsStaticFacade {
 
