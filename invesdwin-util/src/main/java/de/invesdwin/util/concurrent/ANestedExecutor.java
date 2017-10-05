@@ -38,5 +38,5 @@ public abstract class ANestedExecutor {
         return Threads.getCurrentNestedThreadLevel(name + NESTED_LEVEL_SEPARATOR);
     }
 
-    protected abstract WrappedExecutorService newNestedExecutor(final String nestedName);
+    protected abstract WrappedExecutorService newNestedExecutor(String nestedName);
 }

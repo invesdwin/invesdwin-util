@@ -68,6 +68,6 @@ public abstract class AHistoricalCacheRangeQueryInterceptor<V> implements IHisto
         };
     }
 
-    protected abstract ICloseableIterable<Entry<FDate, V>> innerGetEntries(final FDate from, final FDate to);
+    protected abstract ICloseableIterable<Entry<FDate, V>> innerGetEntries(FDate from, FDate to);
 
 }

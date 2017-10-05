@@ -49,7 +49,9 @@ public class ValueObjectMerge {
         return beanUtilsBean;
     }
 
+    //CHECKSTYLE:OFF
     public void merge(final Object o) {
+        //CHECKSTYLE:ON
         final BeanObjectContext thisCtx = new BeanObjectContext(thisVo);
         boolean thisProcessed = false;
         final BeanObjectContext thereCtx = new BeanObjectContext(o);

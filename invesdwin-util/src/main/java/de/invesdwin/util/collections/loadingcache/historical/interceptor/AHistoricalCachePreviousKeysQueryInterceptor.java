@@ -20,7 +20,7 @@ public abstract class AHistoricalCachePreviousKeysQueryInterceptor
     }
 
     @Override
-    public abstract Optional<FDate> getPreviousKey(final FDate key, final int shiftBackUnits);
+    public abstract Optional<FDate> getPreviousKey(FDate key, int shiftBackUnits);
 
     @Override
     public ICloseableIterable<FDate> getPreviousKeys(final FDate key, final int shiftBackUnits) {

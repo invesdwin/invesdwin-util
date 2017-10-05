@@ -135,9 +135,9 @@ public abstract class ARecursivePersistentPropertyChangeListener implements Prop
         return Strings.countMatches(evt.getPropertyName(), BeanPathUtil.BEAN_PATH_SEPARATOR) == 1;
     }
 
-    protected abstract void onPropertyChangeOnLastLevel(final PropertyChangeEvent evt);
+    protected abstract void onPropertyChangeOnLastLevel(PropertyChangeEvent evt);
 
-    protected abstract void onPropertyChangeOnAnyLevel(final PropertyChangeEvent evt);
+    protected abstract void onPropertyChangeOnAnyLevel(PropertyChangeEvent evt);
 
     private void maybeAddChildPropertyChangeListenersSimpleValue(final String beanPathFragment, final Object newValue) {
         if (newValue != null && newValue instanceof APropertyChangeSupported) {

@@ -29,7 +29,7 @@ public abstract class ADelegateComparator<E> implements Comparator<Object> {
     /**
      * Null never reaches this method. This is ensured internally.
      */
-    protected abstract Comparable<?> getCompareCriteria(@Nonnull final E e);
+    protected abstract Comparable<?> getCompareCriteria(@Nonnull E e);
 
     private Comparable<?> getCompareCriteriaNullsafe(final E e) {
         if (e == null) {

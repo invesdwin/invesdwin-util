@@ -641,7 +641,7 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
 
     public abstract String toFormattedString();
 
-    public abstract String toFormattedString(final String format);
+    public abstract String toFormattedString(String format);
 
     public abstract E zero();
 

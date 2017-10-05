@@ -29,7 +29,7 @@ public abstract class AGuavaLoadingCacheMap<K, V> extends ADelegateMap<K, V> {
         return new GuavaLoadingCacheMapConfig();
     }
 
-    protected abstract V loadValue(final K key);
+    protected abstract V loadValue(K key);
 
     @Override
     public V get(final Object key) {
@@ -48,8 +48,8 @@ public abstract class AGuavaLoadingCacheMap<K, V> extends ADelegateMap<K, V> {
     private static boolean isRecursiveLoadException(final Throwable e) {
         //maybe key == valueKey, then recursive load happens which we ignore on first iteration
         final IllegalStateException illegalStateExc = Throwables.getCauseByType(e, IllegalStateException.class);
-        return illegalStateExc != null
-                && AGuavaLoadingCacheMap.RECURSIVE_LOAD_ILLEGAL_STATE_EXCEPTION_TEXT.equalsIgnoreCase(illegalStateExc.getMessage());
+        return illegalStateExc != null && AGuavaLoadingCacheMap.RECURSIVE_LOAD_ILLEGAL_STATE_EXCEPTION_TEXT
+                .equalsIgnoreCase(illegalStateExc.getMessage());
     }
 
 }

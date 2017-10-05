@@ -7,13 +7,13 @@ import java.util.Set;
 
 public interface ILoadingCache<K, V> {
 
-    V get(final K key);
+    V get(K key);
 
     void clear();
 
-    boolean containsKey(final K key);
+    boolean containsKey(K key);
 
-    void remove(final K key);
+    void remove(K key);
 
     void put(K key, V value);
 

@@ -28,7 +28,7 @@ public abstract class ACopyOnWriteDelegateMap<K, V> implements Map<K, V>, Clonea
         delegate = newDelegate(Collections.<K, V> emptyMap());
     }
 
-    protected abstract Map<K, V> newDelegate(final Map<K, V> data);
+    protected abstract Map<K, V> newDelegate(Map<K, V> data);
 
     /**
      * Adds the provided key and value to this map.

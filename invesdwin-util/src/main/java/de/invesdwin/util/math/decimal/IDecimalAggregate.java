@@ -103,15 +103,15 @@ public interface IDecimalAggregate<E extends ADecimal<E>> {
 
     IDecimalAggregate<E> round();
 
-    IDecimalAggregate<E> round(final RoundingMode roundingMode);
+    IDecimalAggregate<E> round(RoundingMode roundingMode);
 
-    IDecimalAggregate<E> round(final int scale);
+    IDecimalAggregate<E> round(int scale);
 
-    IDecimalAggregate<E> round(final int scale, final RoundingMode roundingMode);
+    IDecimalAggregate<E> round(int scale, RoundingMode roundingMode);
 
-    IDecimalAggregate<E> roundToStep(final E step);
+    IDecimalAggregate<E> roundToStep(E step);
 
-    IDecimalAggregate<E> roundToStep(final E step, final RoundingMode roundingMode);
+    IDecimalAggregate<E> roundToStep(E step, RoundingMode roundingMode);
 
     IDecimalAggregate<E> positiveValues();
 

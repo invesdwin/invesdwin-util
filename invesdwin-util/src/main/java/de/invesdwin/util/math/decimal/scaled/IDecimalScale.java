@@ -5,7 +5,7 @@ import de.invesdwin.util.math.decimal.Decimal;
 
 public interface IDecimalScale<T extends AScaledDecimal<T, S>, S extends IDecimalScale<T, S>> {
 
-    Decimal convertValue(T parent, final Decimal value, final S scale);
+    Decimal convertValue(T parent, Decimal value, S scale);
 
     int getDefaultDecimalDigits(T parent);
 

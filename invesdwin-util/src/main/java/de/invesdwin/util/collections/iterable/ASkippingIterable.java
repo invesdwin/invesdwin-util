@@ -21,6 +21,6 @@ public abstract class ASkippingIterable<E> implements ICloseableIterable<E> {
         };
     }
 
-    protected abstract boolean skip(final E element);
+    protected abstract boolean skip(E element);
 
 }

@@ -1180,29 +1180,29 @@ public enum FTimeUnit {
         }
     }
 
-    public abstract void sleep(final long timeout) throws InterruptedException;
+    public abstract void sleep(long timeout) throws InterruptedException;
 
-    public abstract long convert(final long duration, final FTimeUnit timeUnit);
+    public abstract long convert(long duration, FTimeUnit timeUnit);
 
-    public abstract long toNanos(final long duration);
+    public abstract long toNanos(long duration);
 
-    public abstract long toMicros(final long duration);
+    public abstract long toMicros(long duration);
 
-    public abstract long toMillis(final long duration);
+    public abstract long toMillis(long duration);
 
-    public abstract long toSeconds(final long duration);
+    public abstract long toSeconds(long duration);
 
-    public abstract long toMinutes(final long duration);
+    public abstract long toMinutes(long duration);
 
-    public abstract long toHours(final long duration);
+    public abstract long toHours(long duration);
 
-    public abstract long toDays(final long duration);
+    public abstract long toDays(long duration);
 
-    public abstract long toWeeks(final long duration);
+    public abstract long toWeeks(long duration);
 
-    public abstract long toMonths(final long duration);
+    public abstract long toMonths(long duration);
 
-    public abstract long toYears(final long duration);
+    public abstract long toYears(long duration);
 
     public static FTimeUnit valueOf(final Duration duration) {
         return DURATION_NANOS_LOOKUP.get(duration.longValue(FTimeUnit.NANOSECONDS));

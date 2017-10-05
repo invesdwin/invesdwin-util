@@ -118,7 +118,7 @@ public abstract class AGapHistoricalCacheMissCounter<V> {
 
     protected abstract FDate extractKey(V v);
 
-    protected abstract Iterable<? extends V> readAllValuesAscendingFrom(final FDate curMaxDate);
+    protected abstract Iterable<? extends V> readAllValuesAscendingFrom(FDate curMaxDate);
 
     public void maybeLimitOptimalReadBackStepByLoadFurtherValuesRange(final Duration duration) {
         maxFutherValuesRange = Duration.max(maxFutherValuesRange, duration);

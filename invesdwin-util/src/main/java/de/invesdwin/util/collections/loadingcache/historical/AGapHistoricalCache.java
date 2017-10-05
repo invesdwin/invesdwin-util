@@ -508,7 +508,7 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
         }
     }
 
-    protected abstract Iterable<? extends V> readAllValuesAscendingFrom(final FDate key);
+    protected abstract Iterable<? extends V> readAllValuesAscendingFrom(FDate key);
 
     /**
      * This method first tries to load the nearest neighbor value to the given key. First it tries to load values <=
@@ -516,7 +516,7 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
      * will get handled properly later. For example financial backtests may not use values from the future to keep the
      * test realistic.
      */
-    protected abstract V readLatestValueFor(final FDate key);
+    protected abstract V readLatestValueFor(FDate key);
 
     @Override
     protected synchronized boolean maybeRefresh() {
