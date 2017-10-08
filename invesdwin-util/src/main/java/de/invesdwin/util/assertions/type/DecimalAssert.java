@@ -112,6 +112,7 @@ public class DecimalAssert<E extends ADecimal<E>> extends AbstractComparableAsse
         return myself;
     }
 
+    @SuppressWarnings("CheckReturnValue")
     @Override
     public DecimalAssert<E> usingComparator(final Comparator<? super E> customComparator) {
         super.usingComparator(customComparator);
@@ -120,6 +121,7 @@ public class DecimalAssert<E extends ADecimal<E>> extends AbstractComparableAsse
         return myself;
     }
 
+    @SuppressWarnings("CheckReturnValue")
     @Override
     public DecimalAssert<E> usingDefaultComparator() {
         super.usingDefaultComparator();

@@ -2720,6 +2720,7 @@ public class FDateAssert extends AbstractAssert<FDateAssert, FDate> {
         return null;
     }
 
+    @SuppressWarnings("CheckReturnValue")
     @Override
     public FDateAssert usingComparator(final Comparator<? super FDate> customComparator) {
         super.usingComparator(customComparator);
@@ -2727,6 +2728,7 @@ public class FDateAssert extends AbstractAssert<FDateAssert, FDate> {
         return myself;
     }
 
+    @SuppressWarnings("CheckReturnValue")
     @Override
     public FDateAssert usingDefaultComparator() {
         super.usingDefaultComparator();
