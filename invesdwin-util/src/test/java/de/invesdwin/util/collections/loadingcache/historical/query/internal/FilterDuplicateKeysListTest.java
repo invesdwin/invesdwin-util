@@ -6,7 +6,7 @@ import java.util.Map.Entry;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.bean.tuple.ImmutableEntry;
@@ -55,6 +55,7 @@ public class FilterDuplicateKeysListTest {
         Assertions.assertThat(list).isEqualTo(expectedListReverse);
     }
 
+    @Test
     public void testAddAll() {
         final List<Entry<FDate, Integer>> input = new ArrayList<Entry<FDate, Integer>>();
         input.add(ImmutableEntry.of(FDateBuilder.newDate(0), 0));

@@ -1,5 +1,7 @@
 package de.invesdwin.util.collections.iterable.collection;
 
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,15 +19,21 @@ import de.invesdwin.util.lang.Reflections;
 public class ArraySubListCloseableIterable<E> implements ICloseableIterable<E>, IFastToListProvider<E> {
 
     public static final Class<?> SUBLIST_CLASS;
-    public static final Field SUBLIST_OFFSET_FIELD;
-    public static final Field SUBLIST_PARENT_FIELD;
+    public static final MethodHandle SUBLIST_OFFSET_GETTER;
+    public static final MethodHandle SUBLIST_PARENT_GETTER;
 
     static {
-        SUBLIST_CLASS = Reflections.classForName("java.util.ArrayList$SubList");
-        SUBLIST_OFFSET_FIELD = Reflections.findField(SUBLIST_CLASS, "offset");
-        Reflections.makeAccessible(SUBLIST_OFFSET_FIELD);
-        SUBLIST_PARENT_FIELD = Reflections.findField(SUBLIST_CLASS, "parent");
-        Reflections.makeAccessible(SUBLIST_PARENT_FIELD);
+        try {
+            SUBLIST_CLASS = Reflections.classForName("java.util.ArrayList$SubList");
+            final Field sublistOffsetField = Reflections.findField(SUBLIST_CLASS, "offset");
+            Reflections.makeAccessibleFinal(sublistOffsetField);
+            SUBLIST_OFFSET_GETTER = MethodHandles.lookup().unreflectGetter(sublistOffsetField);
+            final Field sublistParentField = Reflections.findField(SUBLIST_CLASS, "parent");
+            Reflections.makeAccessibleFinal(sublistParentField);
+            SUBLIST_PARENT_GETTER = MethodHandles.lookup().unreflectGetter(sublistParentField);
+        } catch (final IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private final List<? extends E> arraySubList;
@@ -47,14 +55,17 @@ public class ArraySubListCloseableIterable<E> implements ICloseableIterable<E>, 
      * not recognize array replacements that did not come with a size change, so be careful. You can alternatively
      * override this method to always do a refresh.
      */
-    @SuppressWarnings("unchecked")
     @Override
     public ICloseableIterator<E> iterator() {
         if (cachedSize != arraySubList.size()) {
             cachedSize = arraySubList.size();
-            final ArrayList<E> parent = (ArrayList<E>) Reflections.getField(SUBLIST_PARENT_FIELD, arraySubList);
-            cachedArray = (E[]) Reflections.getField(ArrayListCloseableIterable.ARRAYLIST_ELEMENTDATA_FIELD, parent);
-            cachedOffset = (Integer) Reflections.getField(SUBLIST_OFFSET_FIELD, arraySubList);
+            try {
+                final ArrayList<E> parent = (ArrayList<E>) SUBLIST_PARENT_GETTER.invoke(arraySubList);
+                cachedArray = (E[]) ArrayListCloseableIterable.ARRAYLIST_ELEMENTDATA_GETTER.invokeExact(parent);
+                cachedOffset = (Integer) SUBLIST_OFFSET_GETTER.invoke(arraySubList);
+            } catch (final Throwable e) {
+                throw new RuntimeException(e);
+            }
         }
         return new ArrayCloseableIterator<E>(cachedArray, cachedOffset, cachedSize) {
             @Override

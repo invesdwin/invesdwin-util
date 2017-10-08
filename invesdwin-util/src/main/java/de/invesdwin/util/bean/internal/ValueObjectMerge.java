@@ -24,7 +24,7 @@ public class ValueObjectMerge {
      *      "http://apache-commons.680414.n4.nabble.com/Setting-null-on-Integer-property-via-BeanUtils-setProperty-td955955.html">
      *      Null handling</a>
      */
-    @GuardedBy("this.class")
+    @GuardedBy("ValueObjectMerge.class")
     private static BeanUtilsBean beanUtilsBean;
 
     private final AValueObject thisVo;

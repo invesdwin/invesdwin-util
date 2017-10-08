@@ -17,6 +17,7 @@ class ScaledDecimalDelegateImpl extends ADecimalImpl {
 
     private final AScaledDecimal<?, ?> parent;
     private final ADecimalImpl delegate;
+    @SuppressWarnings("GuardedBy")
     @GuardedBy("none for performance")
     private transient ADecimalImpl defaultScaledDelegate;
 

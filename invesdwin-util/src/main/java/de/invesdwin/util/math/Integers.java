@@ -14,7 +14,8 @@ import de.invesdwin.util.math.internal.CheckedCastIntegers;
 import de.invesdwin.util.math.internal.CheckedCastIntegersObj;
 
 @StaticFacadeDefinition(name = "de.invesdwin.util.math.internal.AIntegersStaticFacade", targets = {
-        CheckedCastIntegers.class, CheckedCastIntegersObj.class, com.google.common.primitives.Ints.class })
+        CheckedCastIntegers.class, CheckedCastIntegersObj.class,
+        com.google.common.primitives.Ints.class }, filterMethodSignatureExpressions = { ".* toArray\\(.*" })
 @Immutable
 public final class Integers extends AIntegersStaticFacade {
 
@@ -33,7 +34,7 @@ public final class Integers extends AIntegersStaticFacade {
         if (vector == null) {
             return null;
         }
-        return AIntegersStaticFacade.toArray(vector);
+        return com.google.common.primitives.Ints.toArray(vector);
     }
 
     public static int[] toArrayVector(final Collection<Integer> vector) {

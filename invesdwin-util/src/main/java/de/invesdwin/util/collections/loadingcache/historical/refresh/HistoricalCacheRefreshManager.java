@@ -32,7 +32,7 @@ public final class HistoricalCacheRefreshManager {
     public static final HistoricalCacheRefreshManager INSTANCE = new HistoricalCacheRefreshManager();
 
     private static volatile FDate lastRefresh = new FDate();
-    @GuardedBy("this.class")
+    @GuardedBy("HistoricalCacheRefreshManager.class")
     private static ScheduledExecutorService executor;
 
     private static final Set<AHistoricalCache<?>> REGISTERED_CACHES;

@@ -91,7 +91,7 @@ public abstract class ARecursiveHistoricalCacheQuery<V> {
         Assertions.checkTrue(parent.getOnClearListeners().add(new IHistoricalCacheOnClearListener() {
             @Override
             public void onClear() {
-                synchronized (parent) {
+                synchronized (ARecursiveHistoricalCacheQuery.this.parent) {
                     if (!recursionInProgress) {
                         clear();
                     }
@@ -125,6 +125,7 @@ public abstract class ARecursiveHistoricalCacheQuery<V> {
         return previous;
     }
 
+    @SuppressWarnings("GuardedBy")
     private V getPreviousValueByRecursion(final FDate key, final FDate previousKey) {
         synchronized (parent) {
             final FDate firstAvailableKey = getFirstAvailableKey();
@@ -146,10 +147,10 @@ public abstract class ARecursiveHistoricalCacheQuery<V> {
                         || lastRecursionKey.equals(firstAvailableKey) || key.equals(previousKey)) {
                     return getInitialValue(previousKey);
                 } else {
-                    throw new IllegalStateException(
-                            parent + ": the values between " + firstRecursionKey + " and " + lastRecursionKey
-                                    + " should have been cached, maybe you are returning null values even if you should not: "
-                                    + previousKey);
+                    throw new IllegalStateException(parent + ": the values between " + firstRecursionKey + " and "
+                            + lastRecursionKey
+                            + " should have been cached, maybe you are returning null values even if you should not: "
+                            + previousKey);
                 }
             }
             recursionInProgress = true;
@@ -161,6 +162,7 @@ public abstract class ARecursiveHistoricalCacheQuery<V> {
         }
     }
 
+    @SuppressWarnings("GuardedBy")
     private V internalGetPreviousValueByRecursion(final FDate previousKey) {
         try {
             lastRecursionKey = previousKey;
@@ -191,6 +193,7 @@ public abstract class ARecursiveHistoricalCacheQuery<V> {
         }
     }
 
+    @SuppressWarnings("GuardedBy")
     private void appendHighestRecursionResult(final FDate key, final V value) {
         if (shouldAppendHighestRecursionResults) {
             if (!highestRecursionResultsAsc.isEmpty()) {
@@ -207,6 +210,7 @@ public abstract class ARecursiveHistoricalCacheQuery<V> {
         }
     }
 
+    @SuppressWarnings("GuardedBy")
     private Iterator<FDate> newRecursionKeysIterator(final FDate previousKey) {
         if (highestRecursionResultsAsc.isEmpty()) {
             shouldAppendHighestRecursionResults = true;
@@ -249,6 +253,7 @@ public abstract class ARecursiveHistoricalCacheQuery<V> {
         return recursionKeysIterator;
     }
 
+    @SuppressWarnings("GuardedBy")
     private Iterator<FDate> newFullRecursionKeysIterator(final FDate from) {
         final PeekingIterator<FDate> peekingIterator = Iterators
                 .peekingIterator(parentQueryWithFuture.getPreviousKeys(from, maxRecursionCount).iterator());
@@ -256,6 +261,7 @@ public abstract class ARecursiveHistoricalCacheQuery<V> {
         return peekingIterator;
     }
 
+    @SuppressWarnings("GuardedBy")
     private FDate getFirstAvailableKey() {
         if (firstAvailableKey == null && !firstAvailableKeyRequested) {
             this.firstAvailableKey = parentQueryWithFuture.getKey(FDate.MIN_DATE);

@@ -26,6 +26,7 @@ import de.invesdwin.norva.beanpath.spi.element.ITableColumnBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.visitor.SimpleBeanPathVisitorSupport;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.concurrent.AFastIterableDelegateSet;
+import de.invesdwin.util.collections.concurrent.SynchronizedSet;
 import de.invesdwin.util.lang.Strings;
 
 /**
@@ -137,8 +138,8 @@ public class DirtyTracker implements Serializable {
         }
     }
 
-    public Set<String> getChangedBeanPaths() {
-        return Collections.unmodifiableSet(changedBeanPaths);
+    public synchronized Set<String> getChangedBeanPaths() {
+        return Collections.unmodifiableSet(new SynchronizedSet<String>(changedBeanPaths, this));
     }
 
     /**
@@ -282,7 +283,8 @@ public class DirtyTracker implements Serializable {
             for (int i = 0; i < beanPathPrefixes.length; i++) {
                 if (Strings.startsWith(beanPathPrefixes[i], childBeanPath)
                         && Strings.contains(beanPathPrefixes[i], BeanPathUtil.BEAN_PATH_SEPARATOR)) {
-                    newBeanPathPrefixes[i] = Strings.substringAfter(beanPathPrefixes[i], BeanPathUtil.BEAN_PATH_SEPARATOR);
+                    newBeanPathPrefixes[i] = Strings.substringAfter(beanPathPrefixes[i],
+                            BeanPathUtil.BEAN_PATH_SEPARATOR);
                     childBeanPathFound = true;
                 } else {
                     //children will skip null bean path prefixes

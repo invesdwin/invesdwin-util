@@ -16,16 +16,19 @@ import de.invesdwin.util.math.decimal.internal.DummyDecimalAggregate;
 import de.invesdwin.util.math.decimal.internal.impl.ADecimalImpl;
 import de.invesdwin.util.math.decimal.scaled.IDecimalScale;
 
-@SuppressWarnings({ "rawtypes", "serial" })
+@SuppressWarnings({ "rawtypes" })
 @ThreadSafe
 public abstract class AScaledDecimal<T extends AScaledDecimal<T, S>, S extends IDecimalScale<T, S>> extends ADecimal<T>
         implements Cloneable {
 
     protected final S scale;
+    @SuppressWarnings("GuardedBy")
     @GuardedBy("none for performance")
     private Decimal scaledValue;
+    @SuppressWarnings("GuardedBy")
     @GuardedBy("none for performance")
     private ScaledDecimalDelegateImpl impl;
+    @SuppressWarnings("GuardedBy")
     @GuardedBy("none for performance")
     private Decimal defaultValue;
     private final S defaultScale;

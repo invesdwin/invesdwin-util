@@ -8,7 +8,7 @@ import java.util.List;
 
 import javax.annotation.concurrent.ThreadSafe;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import de.invesdwin.util.assertions.Assertions;
 

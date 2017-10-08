@@ -26,16 +26,22 @@ public abstract class ADecimalImpl<E extends ADecimalImpl<E, V>, V>
 
     private final V value;
 
+    @SuppressWarnings("GuardedBy")
     @GuardedBy("none for performance")
     private transient Integer wholeNumberDigits;
+    @SuppressWarnings("GuardedBy")
     @GuardedBy("none for performance")
     private transient Integer decimalDigits;
+    @SuppressWarnings("GuardedBy")
     @GuardedBy("none for performance")
     private transient Integer digits;
+    @SuppressWarnings("GuardedBy")
     @GuardedBy("none for performance")
     private transient String toString;
+    @SuppressWarnings("GuardedBy")
     @GuardedBy("none for performance")
     private transient V defaultRoundedValue;
+    @SuppressWarnings("GuardedBy")
     @GuardedBy("none for performance")
     private transient boolean defaultRoundedValueActuallyRounded;
 

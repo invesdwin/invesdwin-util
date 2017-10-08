@@ -41,6 +41,7 @@ public class Duration extends Number implements Comparable<Object> {
 
     private final long duration;
     private final FTimeUnit timeUnit;
+    @SuppressWarnings("GuardedBy")
     @GuardedBy("none for performance")
     private Integer cachedHashCode;
 
@@ -221,30 +222,35 @@ public class Duration extends Number implements Comparable<Object> {
                 sb.insert(0, Strings.leftPad(nanoseconds, 3, "0"));
                 sb.insert(0, ".");
             }
+            // fall through
         case MICROSECONDS:
             microseconds = nanosAsMicros - nanosAsMillis * FTimeUnit.MICROSECONDS_IN_MILLISECOND;
             if (microseconds + nanoseconds > 0) {
                 sb.insert(0, Strings.leftPad(microseconds, 3, "0"));
                 sb.insert(0, ".");
             }
+            // fall through
         case MILLISECONDS:
             milliseconds = nanosAsMillis - nanosAsSeconds * FTimeUnit.MILLISECONDS_IN_SECOND;
             if (milliseconds + microseconds + nanoseconds > 0) {
                 sb.insert(0, Strings.leftPad(milliseconds, 3, "0"));
                 sb.insert(0, ".");
             }
+            // fall through
         case SECONDS:
             seconds = nanosAsSeconds - nanosAsMinutes * FTimeUnit.SECONDS_IN_MINUTE;
             if (seconds + milliseconds + microseconds + nanoseconds > 0) {
                 sb.insert(0, seconds);
                 sb.append("S");
             }
+            // fall through
         case MINUTES:
             final long minutes = nanosAsMinutes - nanosAsHours * FTimeUnit.MINUTES_IN_HOUR;
             if (minutes > 0) {
                 sb.insert(0, "M");
                 sb.insert(0, minutes);
             }
+            // fall through
         case HOURS:
             final long hours = nanosAsHours - nanosAsDays * FTimeUnit.HOURS_IN_DAY;
             if (hours > 0) {
@@ -254,24 +260,28 @@ public class Duration extends Number implements Comparable<Object> {
             if (sb.length() > 0) {
                 sb.insert(0, "T");
             }
+            // fall through
         case DAYS:
             final long days = nanosAsDays - nanosAsWeeks * FTimeUnit.DAYS_IN_WEEK;
             if (days > 0) {
                 sb.insert(0, "D");
                 sb.insert(0, days);
             }
+            // fall through
         case WEEKS:
             final long weeks = nanosAsWeeks - nanosAsMonths * FTimeUnit.WEEKS_IN_MONTH;
             if (weeks > 0) {
                 sb.insert(0, "W");
                 sb.insert(0, weeks);
             }
+            // fall through
         case MONTHS:
             final long months = nanosAsMonths - nanosAsYears * FTimeUnit.MONTHS_IN_YEAR;
             if (months > 0) {
                 sb.insert(0, "M");
                 sb.insert(0, months);
             }
+            // fall through
         case YEARS:
             final long years = nanosAsYears;
             if (years > 0) {
@@ -507,6 +517,11 @@ public class Duration extends Number implements Comparable<Object> {
         } else {
             return duration;
         }
+    }
+
+    public java.time.Duration javaTimeValue() {
+        return java.time.Duration.of(duration, timeUnit.javaTimeValue());
+
     }
 
 }

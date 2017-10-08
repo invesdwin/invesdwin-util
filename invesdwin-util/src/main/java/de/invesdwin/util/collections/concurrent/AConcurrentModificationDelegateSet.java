@@ -73,7 +73,7 @@ public abstract class AConcurrentModificationDelegateSet<E> extends ADelegateCol
     }
 
     @Override
-    public void clear() {
+    public synchronized void clear() {
         super.clear();
         empty = true;
     }

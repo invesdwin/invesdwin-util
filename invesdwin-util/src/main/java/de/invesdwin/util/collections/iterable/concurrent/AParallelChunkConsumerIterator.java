@@ -19,6 +19,7 @@ import de.invesdwin.util.error.FastNoSuchElementException;
 public abstract class AParallelChunkConsumerIterator<R, E> extends ACloseableIterator<E> {
 
     private static final int DEFAULT_CONSUMER_COUNT = Executors.getCpuThreadPoolCount();
+    @GuardedBy("this")
     private final ICloseableIterator<R> requests;
     private final WrappedExecutorService consumerExecutor;
     @GuardedBy("this")
@@ -38,7 +39,7 @@ public abstract class AParallelChunkConsumerIterator<R, E> extends ACloseableIte
     }
 
     @Override
-    protected boolean innerHasNext() {
+    protected synchronized boolean innerHasNext() {
         return requests.hasNext() || !futures.isEmpty();
     }
 
@@ -70,7 +71,7 @@ public abstract class AParallelChunkConsumerIterator<R, E> extends ACloseableIte
     protected abstract E doWork(R request);
 
     @Override
-    protected void innerClose() {
+    protected synchronized void innerClose() {
         requests.close();
         consumerExecutor.shutdown();
     }

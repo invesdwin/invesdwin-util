@@ -11,7 +11,7 @@ import java.util.List;
 import javax.annotation.concurrent.ThreadSafe;
 
 import org.apache.commons.lang3.RandomUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.Iterables;
 
@@ -466,10 +466,9 @@ public class AGapHistoricalCacheTest {
 
     @Test
     public void testPreviousValuesGetsFilledDownWithDistance() {
-        final Collection<FDate> previousValues = asList(cache.query()
-                .withFilterDuplicateKeys(false)
-                .withFuture()
-                .getPreviousValues(FDate.MIN_DATE, entities.size()));
+        final Collection<FDate> previousValues = asList(
+                cache.query().withFilterDuplicateKeys(false).withFuture().getPreviousValues(FDate.MIN_DATE,
+                        entities.size()));
         Assertions.assertThat(previousValues.size()).isEqualTo(entities.size());
         for (final FDate d : previousValues) {
             Assertions.assertThat(d).isSameAs(entities.get(0));
@@ -480,10 +479,9 @@ public class AGapHistoricalCacheTest {
 
     @Test
     public void testNextValuesGetsFilledUpWithDistance() {
-        final Collection<FDate> nextValues = asList(cache.query()
-                .withFilterDuplicateKeys(false)
-                .withFuture()
-                .getNextValues(FDate.MAX_DATE, entities.size()));
+        final Collection<FDate> nextValues = asList(
+                cache.query().withFilterDuplicateKeys(false).withFuture().getNextValues(FDate.MAX_DATE,
+                        entities.size()));
         Assertions.assertThat(nextValues.size()).isEqualTo(entities.size());
         for (final FDate d : nextValues) {
             Assertions.assertThat(d).isSameAs(entities.get(entities.size() - 1));
@@ -875,9 +873,9 @@ public class AGapHistoricalCacheTest {
     @Test
     public void testPreviousValuesWithQueryCacheWithAlwaysSameKey() {
         for (int size = 1; size < entities.size(); size++) {
-            final Collection<FDate> previousValues = asList(cache.query()
-                    .withFilterDuplicateKeys(false)
-                    .getPreviousValues(entities.get(entities.size() - 1), size));
+            final Collection<FDate> previousValues = asList(
+                    cache.query().withFilterDuplicateKeys(false).getPreviousValues(entities.get(entities.size() - 1),
+                            size));
             final List<FDate> expectedValues = entities.subList(entities.size() - size, entities.size());
             Assertions.assertThat(previousValues).isEqualTo(expectedValues);
         }
@@ -1030,9 +1028,8 @@ public class AGapHistoricalCacheTest {
     @Test
     public void testPreviousValueWithQueryCacheWithAlwaysSameKey() {
         for (int size = 1; size < entities.size(); size++) {
-            final FDate previousValue = cache.query()
-                    .withFilterDuplicateKeys(false)
-                    .getPreviousValue(entities.get(entities.size() - 1), size);
+            final FDate previousValue = cache.query().withFilterDuplicateKeys(false).getPreviousValue(
+                    entities.get(entities.size() - 1), size);
             final FDate expectedValue = entities.get(entities.size() - size - 1);
             Assertions.assertThat(previousValue).isEqualTo(expectedValue);
         }
@@ -1045,9 +1042,8 @@ public class AGapHistoricalCacheTest {
     @Test
     public void testPreviousValueWithQueryCacheWithIncrementingKey() {
         for (int index = 0; index < entities.size(); index++) {
-            final FDate previousValue = cache.query()
-                    .withFilterDuplicateKeys(false)
-                    .getPreviousValue(entities.get(index), index + 1);
+            final FDate previousValue = cache.query().withFilterDuplicateKeys(false).getPreviousValue(
+                    entities.get(index), index + 1);
             final FDate expectedValue = entities.get(0);
             Assertions.assertThat(previousValue).isEqualTo(expectedValue);
         }
@@ -1060,9 +1056,8 @@ public class AGapHistoricalCacheTest {
     @Test
     public void testPreviousValueWithQueryCacheWithIncrementingAlwaysOneValue() {
         for (int index = 1; index < entities.size(); index++) {
-            final FDate previousValue = cache.query()
-                    .withFilterDuplicateKeys(false)
-                    .getPreviousValue(entities.get(index), 1);
+            final FDate previousValue = cache.query().withFilterDuplicateKeys(false).getPreviousValue(
+                    entities.get(index), 1);
             final FDate expectedValue = entities.get(index - 1);
             Assertions.assertThat(previousValue).isEqualTo(expectedValue);
         }
@@ -1075,9 +1070,8 @@ public class AGapHistoricalCacheTest {
     @Test
     public void testPreviousValueWithQueryCacheWithDecrementingKey() {
         for (int index = entities.size() - 1; index >= 0; index--) {
-            final FDate previousValue = cache.query()
-                    .withFilterDuplicateKeys(false)
-                    .getPreviousValue(entities.get(index), index + 1);
+            final FDate previousValue = cache.query().withFilterDuplicateKeys(false).getPreviousValue(
+                    entities.get(index), index + 1);
             final FDate expectedValue = entities.get(0);
             Assertions.assertThat(previousValue).isEqualTo(expectedValue);
         }
@@ -1090,9 +1084,8 @@ public class AGapHistoricalCacheTest {
     @Test
     public void testPreviousValueWithQueryCacheWithDecrementingKeyAlwaysOne() {
         for (int index = entities.size() - 1; index > 0; index--) {
-            final FDate previousValue = cache.query()
-                    .withFilterDuplicateKeys(false)
-                    .getPreviousValue(entities.get(index), 1);
+            final FDate previousValue = cache.query().withFilterDuplicateKeys(false).getPreviousValue(
+                    entities.get(index), 1);
             final FDate expectedValue = entities.get(index - 1);
             Assertions.assertThat(previousValue).isEqualTo(expectedValue);
         }

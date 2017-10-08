@@ -14,7 +14,8 @@ import de.invesdwin.util.math.internal.CheckedCastLongs;
 import de.invesdwin.util.math.internal.CheckedCastLongsObj;
 
 @StaticFacadeDefinition(name = "de.invesdwin.util.math.internal.ALongsStaticFacade", targets = { CheckedCastLongs.class,
-        CheckedCastLongsObj.class, com.google.common.primitives.Longs.class })
+        CheckedCastLongsObj.class,
+        com.google.common.primitives.Longs.class }, filterMethodSignatureExpressions = { ".* toArray\\(.*" })
 @Immutable
 public final class Longs extends ALongsStaticFacade {
 
@@ -33,7 +34,7 @@ public final class Longs extends ALongsStaticFacade {
         if (vector == null) {
             return null;
         }
-        return ALongsStaticFacade.toArray(vector);
+        return com.google.common.primitives.Longs.toArray(vector);
     }
 
     public static long[] toArrayVector(final Collection<Long> vector) {

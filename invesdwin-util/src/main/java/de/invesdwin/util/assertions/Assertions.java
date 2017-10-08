@@ -12,11 +12,15 @@ import de.invesdwin.util.assertions.type.StringAssert;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.math.decimal.ADecimal;
+import de.invesdwin.util.time.duration.Duration;
 import de.invesdwin.util.time.fdate.FDate;
 
 @StaticFacadeDefinition(name = "de.invesdwin.util.assertions.internal.AAssertionsStaticFacade", targets = {
         org.assertj.core.api.Assertions.class, org.assertj.guava.api.Assertions.class,
-        com.google.common.base.Preconditions.class }, filterMethodSignatureExpressions = ".* org\\.assertj\\.core\\.api\\.StringAssert assertThat\\(java\\.lang\\.String .*")
+        com.google.common.base.Preconditions.class,
+        org.junit.jupiter.api.Assertions.class }, filterMethodSignatureExpressions = {
+                ".* org\\.assertj\\.core\\.api\\.StringAssert assertThat\\(java\\.lang\\.String .*",
+                ".* fail\\(java\\.lang\\.String .*" })
 @Immutable
 public final class Assertions extends AAssertionsStaticFacade {
 
@@ -150,14 +154,14 @@ public final class Assertions extends AAssertionsStaticFacade {
         }
     }
 
-    public static void checkNotEmpty(final Collection<?> collection) {
+    public static <S> void checkNotEmpty(final Collection<S> collection) {
         if (collection.isEmpty()) {
             assertThat(collection).isNotEmpty();
             failExceptionExpected();
         }
     }
 
-    public static void checkNotEmpty(final Collection<?> collection, final String message, final Object... args) {
+    public static <S> void checkNotEmpty(final Collection<S> collection, final String message, final Object... args) {
         if (collection.isEmpty()) {
             assertThat(collection).as(message, args).isNotEmpty();
             failExceptionExpected();
@@ -178,19 +182,92 @@ public final class Assertions extends AAssertionsStaticFacade {
         }
     }
 
-    public static void checkContains(final Collection<?> collection, final Object element) {
+    public static <S> void checkContains(final Collection<S> collection, final S element) {
         if (!collection.contains(element)) {
             assertThat(collection).contains(element);
             failExceptionExpected();
         }
     }
 
-    public static void checkContains(final Collection<?> collection, final Object element, final String message,
+    public static <S> void checkContains(final Collection<S> collection, final S element, final String message,
             final Object... args) {
         if (!collection.contains(element)) {
             assertThat(collection).as(message, args).contains(element);
             failExceptionExpected();
         }
+    }
+
+    public static void fail(final String failureMessage) {
+        org.assertj.core.api.Assertions.fail(failureMessage);
+    }
+
+    public static void fail(final String failureMessage, final java.lang.Throwable realCause) {
+        org.assertj.core.api.Assertions.fail(failureMessage, realCause);
+    }
+
+    public static void assertTimeout(final Duration timeout,
+            final org.junit.jupiter.api.function.Executable executable) {
+        org.junit.jupiter.api.Assertions.assertTimeout(timeout.javaTimeValue(), executable);
+    }
+
+    public static void assertTimeout(final Duration timeout, final org.junit.jupiter.api.function.Executable executable,
+            final String message) {
+        org.junit.jupiter.api.Assertions.assertTimeout(timeout.javaTimeValue(), executable, message);
+    }
+
+    public static void assertTimeout(final Duration timeout, final org.junit.jupiter.api.function.Executable executable,
+            final java.util.function.Supplier<String> messageSupplier) {
+        org.junit.jupiter.api.Assertions.assertTimeout(timeout.javaTimeValue(), executable, messageSupplier);
+    }
+
+    public static <T extends java.lang.Object> T assertTimeout(final Duration timeout,
+            final org.junit.jupiter.api.function.ThrowingSupplier<T> supplier) {
+        return org.junit.jupiter.api.Assertions.assertTimeout(timeout.javaTimeValue(), supplier);
+    }
+
+    public static <T extends java.lang.Object> T assertTimeout(final Duration timeout,
+            final org.junit.jupiter.api.function.ThrowingSupplier<T> supplier, final String message) {
+        return org.junit.jupiter.api.Assertions.assertTimeout(timeout.javaTimeValue(), supplier, message);
+    }
+
+    public static <T extends java.lang.Object> T assertTimeout(final Duration timeout,
+            final org.junit.jupiter.api.function.ThrowingSupplier<T> supplier,
+            final java.util.function.Supplier<String> messageSupplier) {
+        return org.junit.jupiter.api.Assertions.assertTimeout(timeout.javaTimeValue(), supplier, messageSupplier);
+    }
+
+    public static void assertTimeoutPreemptively(final Duration timeout,
+            final org.junit.jupiter.api.function.Executable executable) {
+        org.junit.jupiter.api.Assertions.assertTimeoutPreemptively(timeout.javaTimeValue(), executable);
+    }
+
+    public static void assertTimeoutPreemptively(final Duration timeout,
+            final org.junit.jupiter.api.function.Executable executable, final String message) {
+        org.junit.jupiter.api.Assertions.assertTimeoutPreemptively(timeout.javaTimeValue(), executable, message);
+    }
+
+    public static void assertTimeoutPreemptively(final Duration timeout,
+            final org.junit.jupiter.api.function.Executable executable,
+            final java.util.function.Supplier<String> messageSupplier) {
+        org.junit.jupiter.api.Assertions.assertTimeoutPreemptively(timeout.javaTimeValue(), executable,
+                messageSupplier);
+    }
+
+    public static <T extends java.lang.Object> T assertTimeoutPreemptively(final Duration timeout,
+            final org.junit.jupiter.api.function.ThrowingSupplier<T> supplier) {
+        return org.junit.jupiter.api.Assertions.assertTimeoutPreemptively(timeout.javaTimeValue(), supplier);
+    }
+
+    public static <T extends java.lang.Object> T assertTimeoutPreemptively(final Duration timeout,
+            final org.junit.jupiter.api.function.ThrowingSupplier<T> supplier, final String message) {
+        return org.junit.jupiter.api.Assertions.assertTimeoutPreemptively(timeout.javaTimeValue(), supplier, message);
+    }
+
+    public static <T extends java.lang.Object> T assertTimeoutPreemptively(final Duration timeout,
+            final org.junit.jupiter.api.function.ThrowingSupplier<T> supplier,
+            final java.util.function.Supplier<String> messageSupplier) {
+        return org.junit.jupiter.api.Assertions.assertTimeoutPreemptively(timeout.javaTimeValue(), supplier,
+                messageSupplier);
     }
 
 }

@@ -10,7 +10,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.concurrent.ThreadSafe;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import de.invesdwin.util.assertions.Assertions;
 
@@ -49,22 +49,27 @@ public class ExecutorsTest {
         }
     }
 
-    @Test(expected = InterruptedException.class)
+    @Test
     public void testInterruptWithShutdownNow() throws InterruptedException {
-        final ExecutorService executor = Executors.newFixedThreadPool("testInterruptMitShutdownNow", 1);
-        final Future<Void> future = executor.submit(new Callable<Void>() {
-            @Override
-            public Void call() throws InterruptedException {
-                success = true;
-                TimeUnit.DAYS.sleep(9999);
-                return null;
+        try {
+            final ExecutorService executor = Executors.newFixedThreadPool("testInterruptMitShutdownNow", 1);
+            final Future<Void> future = executor.submit(new Callable<Void>() {
+                @Override
+                public Void call() throws InterruptedException {
+                    success = true;
+                    TimeUnit.DAYS.sleep(9999);
+                    return null;
+                }
+            });
+            while (!success) {
+                TimeUnit.MILLISECONDS.sleep(100);
             }
-        });
-        while (!success) {
-            TimeUnit.MILLISECONDS.sleep(100);
+            executor.shutdownNow();
+            Futures.get(future);
+            Assertions.failExceptionExpected();
+        } catch (final Throwable t) {
+            Assertions.assertThat(t).isInstanceOf(InterruptedException.class);
         }
-        executor.shutdownNow();
-        Futures.get(future);
     }
 
     @Test

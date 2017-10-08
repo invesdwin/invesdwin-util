@@ -22,7 +22,6 @@ import static org.assertj.core.error.ShouldBeInSameYear.shouldBeInSameYear;
 import static org.assertj.core.error.ShouldBeInTheFuture.shouldBeInTheFuture;
 import static org.assertj.core.error.ShouldBeInThePast.shouldBeInThePast;
 import static org.assertj.core.error.ShouldBeToday.shouldBeToday;
-import static org.assertj.core.error.ShouldBeWithin.shouldBeWithin;
 import static org.assertj.core.error.ShouldHaveTime.shouldHaveTime;
 import static org.assertj.core.error.ShouldNotBeBetween.shouldNotBeBetween;
 
@@ -221,18 +220,23 @@ public class FDatesAssertions extends Dates {
         case DAYS:
             calendarActual.set(Calendar.DAY_OF_WEEK, 0);
             calendarOther.set(Calendar.DAY_OF_WEEK, 0);
+            // fall through
         case HOURS:
             calendarActual.set(Calendar.HOUR_OF_DAY, 0);
             calendarOther.set(Calendar.HOUR_OF_DAY, 0);
+            // fall through
         case MINUTES:
             calendarActual.set(Calendar.MINUTE, 0);
             calendarOther.set(Calendar.MINUTE, 0);
+            // fall through
         case SECONDS:
             calendarActual.set(Calendar.SECOND, 0);
             calendarOther.set(Calendar.SECOND, 0);
+            // fall through
         case MILLISECONDS:
             calendarActual.set(Calendar.MILLISECOND, 0);
             calendarOther.set(Calendar.MILLISECOND, 0);
+            // fall through
         case MICROSECONDS:
             break;
         default:
@@ -452,7 +456,7 @@ public class FDatesAssertions extends Dates {
         if (DateUtil.yearOf(FDates.toDate(actual)) == year) {
             return;
         }
-        throw failures.failure(info, shouldBeWithin(FDates.toDate(actual), "year", year));
+        throw failures.failure(info, ShouldBeWithin.shouldBeWithin(FDates.toDate(actual), "year", year));
     }
 
     /**
@@ -475,7 +479,7 @@ public class FDatesAssertions extends Dates {
         if (DateUtil.monthOf(FDates.toDate(actual)) == month) {
             return;
         }
-        throw failures.failure(info, shouldBeWithin(FDates.toDate(actual), "month", month));
+        throw failures.failure(info, ShouldBeWithin.shouldBeWithin(FDates.toDate(actual), "month", month));
     }
 
     /**
@@ -497,7 +501,7 @@ public class FDatesAssertions extends Dates {
         if (DateUtil.dayOfMonthOf(FDates.toDate(actual)) == dayOfMonth) {
             return;
         }
-        throw failures.failure(info, shouldBeWithin(FDates.toDate(actual), "day of month", dayOfMonth));
+        throw failures.failure(info, ShouldBeWithin.shouldBeWithin(FDates.toDate(actual), "day of month", dayOfMonth));
     }
 
     /**
@@ -519,7 +523,7 @@ public class FDatesAssertions extends Dates {
         if (DateUtil.dayOfWeekOf(FDates.toDate(actual)) == dayOfWeek) {
             return;
         }
-        throw failures.failure(info, shouldBeWithin(FDates.toDate(actual), "day of week", dayOfWeek));
+        throw failures.failure(info, ShouldBeWithin.shouldBeWithin(FDates.toDate(actual), "day of week", dayOfWeek));
     }
 
     /**
@@ -541,7 +545,7 @@ public class FDatesAssertions extends Dates {
         if (DateUtil.hourOfDayOf(FDates.toDate(actual)) == hourOfDay) {
             return;
         }
-        throw failures.failure(info, shouldBeWithin(FDates.toDate(actual), "hour", hourOfDay));
+        throw failures.failure(info, ShouldBeWithin.shouldBeWithin(FDates.toDate(actual), "hour", hourOfDay));
     }
 
     /**
@@ -563,7 +567,7 @@ public class FDatesAssertions extends Dates {
         if (DateUtil.minuteOf(FDates.toDate(actual)) == minute) {
             return;
         }
-        throw failures.failure(info, shouldBeWithin(FDates.toDate(actual), "minute", minute));
+        throw failures.failure(info, ShouldBeWithin.shouldBeWithin(FDates.toDate(actual), "minute", minute));
     }
 
     /**
@@ -585,7 +589,7 @@ public class FDatesAssertions extends Dates {
         if (DateUtil.secondOf(FDates.toDate(actual)) == second) {
             return;
         }
-        throw failures.failure(info, shouldBeWithin(FDates.toDate(actual), "second", second));
+        throw failures.failure(info, ShouldBeWithin.shouldBeWithin(FDates.toDate(actual), "second", second));
     }
 
     /**
@@ -607,7 +611,7 @@ public class FDatesAssertions extends Dates {
         if (DateUtil.millisecondOf(FDates.toDate(actual)) == millisecond) {
             return;
         }
-        throw failures.failure(info, shouldBeWithin(FDates.toDate(actual), "millisecond", millisecond));
+        throw failures.failure(info, ShouldBeWithin.shouldBeWithin(FDates.toDate(actual), "millisecond", millisecond));
     }
 
     /**

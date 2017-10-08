@@ -14,7 +14,8 @@ import de.invesdwin.util.math.internal.CheckedCastShorts;
 import de.invesdwin.util.math.internal.CheckedCastShortsObj;
 
 @StaticFacadeDefinition(name = "de.invesdwin.util.math.internal.AShortsStaticFacade", targets = {
-        CheckedCastShorts.class, CheckedCastShortsObj.class, com.google.common.primitives.Shorts.class })
+        CheckedCastShorts.class, CheckedCastShortsObj.class,
+        com.google.common.primitives.Shorts.class }, filterMethodSignatureExpressions = { ".* toArray\\(.*" })
 @Immutable
 public final class Shorts extends AShortsStaticFacade {
 
@@ -33,7 +34,7 @@ public final class Shorts extends AShortsStaticFacade {
         if (vector == null) {
             return null;
         }
-        return AShortsStaticFacade.toArray(vector);
+        return com.google.common.primitives.Shorts.toArray(vector);
     }
 
     public static short[] toArrayVector(final Collection<Short> vector) {

@@ -2,9 +2,6 @@ package de.invesdwin.util.assertions.type.internal;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import org.assertj.core.api.AssertionInfo;
-import org.assertj.core.data.Offset;
-
 import de.invesdwin.util.math.decimal.ADecimal;
 import de.invesdwin.util.math.decimal.Decimal;
 
@@ -26,8 +23,18 @@ public class DecimalsAssertions extends org.assertj.core.internal.Numbers {
     }
 
     @Override
-    public void assertIsCloseTo(final AssertionInfo info, final Number actual, final Number other,
-            final Offset offset) {
-        throw new UnsupportedOperationException("TODO");
+    protected ADecimal<?> one() {
+        return Decimal.ONE;
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected ADecimal<?> absDiff(final Number actual, final Number other) {
+        return ((ADecimal) actual).subtract((ADecimal) other).abs();
+    }
+
+    @Override
+    protected boolean isGreaterThan(final Number value, final Number other) {
+        return ((ADecimal) value).isGreaterThan(value);
     }
 }

@@ -2,7 +2,7 @@ package de.invesdwin.util.time.duration;
 
 import javax.annotation.concurrent.Immutable;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.time.Instant;

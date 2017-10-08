@@ -17,7 +17,7 @@ public class LRUMapLoadingCache<K, V> extends ASynchronizedLoadingCache<K, V> {
         super(loadValue, new LRUMap<K, V>(maximumSize));
     }
 
-    public void increaseMaximumSize(final int maximumSize) {
+    public synchronized void increaseMaximumSize(final int maximumSize) {
         final LRUMap<K, V> lru = (LRUMap<K, V>) map;
         if (lru.maxSize() < maximumSize) {
             final Field field = Reflections.findField(LRUMap.class, "maxSize");

@@ -14,7 +14,8 @@ import de.invesdwin.util.math.internal.CheckedCastBytes;
 import de.invesdwin.util.math.internal.CheckedCastBytesObj;
 
 @StaticFacadeDefinition(name = "de.invesdwin.util.math.internal.ABytesStaticFacade", targets = { CheckedCastBytes.class,
-        CheckedCastBytesObj.class, com.google.common.primitives.Bytes.class })
+        CheckedCastBytesObj.class,
+        com.google.common.primitives.Bytes.class }, filterMethodSignatureExpressions = { ".* toArray\\(.*" })
 @Immutable
 public final class Bytes extends ABytesStaticFacade {
 
@@ -33,7 +34,7 @@ public final class Bytes extends ABytesStaticFacade {
         if (vector == null) {
             return null;
         }
-        return ABytesStaticFacade.toArray(vector);
+        return com.google.common.primitives.Bytes.toArray(vector);
     }
 
     public static byte[] toArrayVector(final Collection<Byte> vector) {

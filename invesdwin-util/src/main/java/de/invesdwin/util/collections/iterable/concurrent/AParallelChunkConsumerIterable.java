@@ -2,8 +2,8 @@ package de.invesdwin.util.collections.iterable.concurrent;
 
 import javax.annotation.concurrent.Immutable;
 
-import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ACloseableIterator;
+import de.invesdwin.util.collections.iterable.ICloseableIterable;
 
 @Immutable
 public abstract class AParallelChunkConsumerIterable<R, E> implements ICloseableIterable<E> {

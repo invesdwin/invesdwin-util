@@ -127,13 +127,38 @@ public class DecimalAssert<E extends ADecimal<E>> extends AbstractComparableAsse
         return myself;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public DecimalAssert<E> isCloseTo(final E expected, final Offset<E> offset) {
-        throw new UnsupportedOperationException("TODO");
+        decimals.assertIsCloseTo(info, actual, expected, offset);
+        return myself;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public DecimalAssert<E> isCloseTo(final E expected, final Percentage percentage) {
-        throw new UnsupportedOperationException("TODO");
+        decimals.assertIsCloseToPercentage(info, actual, expected, percentage);
+        return myself;
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public DecimalAssert<E> isOne() {
+        decimals.assertIsOne(info, actual);
+        return myself;
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public DecimalAssert<E> isNotCloseTo(final E expected, final Offset<E> offset) {
+        decimals.assertIsNotCloseTo(info, actual, expected, offset);
+        return myself;
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public DecimalAssert<E> isNotCloseTo(final E expected, final Percentage percentage) {
+        decimals.assertIsNotCloseToPercentage(info, actual, expected, percentage);
+        return myself;
     }
 }

@@ -14,7 +14,8 @@ import de.invesdwin.util.math.internal.CheckedCastDoubles;
 import de.invesdwin.util.math.internal.CheckedCastDoublesObj;
 
 @StaticFacadeDefinition(name = "de.invesdwin.util.math.internal.ADoublesStaticFacade", targets = {
-        CheckedCastDoubles.class, CheckedCastDoublesObj.class, com.google.common.primitives.Doubles.class })
+        CheckedCastDoubles.class, CheckedCastDoublesObj.class,
+        com.google.common.primitives.Doubles.class }, filterMethodSignatureExpressions = { ".* toArray\\(.*" })
 @Immutable
 public final class Doubles extends ADoublesStaticFacade {
 
@@ -33,7 +34,7 @@ public final class Doubles extends ADoublesStaticFacade {
         if (vector == null) {
             return null;
         }
-        return ADoublesStaticFacade.toArray(vector);
+        return com.google.common.primitives.Doubles.toArray(vector);
     }
 
     public static double[] toArrayVector(final Collection<Double> vector) {

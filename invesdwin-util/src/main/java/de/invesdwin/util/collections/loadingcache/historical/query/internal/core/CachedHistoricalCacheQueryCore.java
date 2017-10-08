@@ -81,6 +81,7 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
         }
     }
 
+    @SuppressWarnings("GuardedBy")
     private void maybeIncreaseMaximumSize(final int requiredSize) {
         final int adjRequiredSize = requiredSize * REQUIRED_SIZE_MULTIPLICATOR;
         if (maximumSize != null && maximumSize < requiredSize) {
@@ -147,6 +148,7 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
         }
     }
 
+    @SuppressWarnings("GuardedBy")
     private List<Entry<FDate, V>> tryCachedGetPreviousEntriesIfAvailable(
             final IHistoricalCacheQueryInternalMethods<V> query, final FDate key, final int shiftBackUnits,
             final boolean filterDuplicateKeys) throws ResetCacheException {
@@ -170,6 +172,7 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
         return result;
     }
 
+    @SuppressWarnings("GuardedBy")
     private List<Entry<FDate, V>> cachedGetPreviousEntries(final IHistoricalCacheQueryInternalMethods<V> query,
             final int shiftBackUnits, final FDate key, final boolean filterDuplicateKeys) throws ResetCacheException {
         if (Objects.equals(key, cachedPreviousEntriesKey) || Objects.equals(key, getLastCachedEntry().getKey())) {
@@ -224,6 +227,7 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
      * 
      * @throws ResetCacheException
      */
+    @SuppressWarnings("GuardedBy")
     private List<Entry<FDate, V>> tryCachedPreviousResult_incrementedKey(
             final IHistoricalCacheQueryInternalMethods<V> query, final int shiftBackUnits,
             final boolean filterDuplicateKeys, final FDate key) throws ResetCacheException {
@@ -262,17 +266,20 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
         return tryCachedPreviousResult_sameKey(query, shiftBackUnits, filterDuplicateKeys);
     }
 
+    @SuppressWarnings("GuardedBy")
     private FDate determineConsistentLastCachedEntryKey() throws ResetCacheException {
         final FDate lastCachedEntryKey = getLastCachedEntry().getKey();
         if (cachedPreviousResult_filteringDuplicates != null && !cachedPreviousResult_filteringDuplicates.isEmpty()) {
             final FDate lastCachedResultKey = cachedPreviousResult_filteringDuplicates
-                    .get(cachedPreviousResult_filteringDuplicates.size() - 1).getKey();
+                    .get(cachedPreviousResult_filteringDuplicates.size() - 1)
+                    .getKey();
             assertSameLastKey(lastCachedEntryKey, lastCachedResultKey);
         }
         if (cachedPreviousResult_notFilteringDuplicates != null
                 && !cachedPreviousResult_notFilteringDuplicates.isEmpty()) {
             final FDate lastCachedResultKey = cachedPreviousResult_notFilteringDuplicates
-                    .get(cachedPreviousResult_notFilteringDuplicates.size() - 1).getKey();
+                    .get(cachedPreviousResult_notFilteringDuplicates.size() - 1)
+                    .getKey();
             assertSameLastKey(lastCachedEntryKey, lastCachedResultKey);
         }
         return lastCachedEntryKey;
@@ -290,6 +297,7 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
     /**
      * Use sublist if possible to reduce memory footprint of transient array lists to reduce garbage collection overhead
      */
+    @SuppressWarnings("GuardedBy")
     private List<Entry<FDate, V>> tryCachedPreviousResult_sameKey(final IHistoricalCacheQueryInternalMethods<V> query,
             final int shiftBackUnits, final boolean filterDuplicateKeys) {
         if (cachedPreviousResult_shiftBackUnits == null || cachedPreviousResult_shiftBackUnits < shiftBackUnits) {
@@ -345,6 +353,7 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
      * 
      * @throws ResetCacheException
      */
+    @SuppressWarnings("GuardedBy")
     private void updateCachedPreviousResult(final IHistoricalCacheQueryInternalMethods<V> query,
             final int shiftBackUnits, final List<Entry<FDate, V>> result, final boolean filterDuplicateKeys)
             throws ResetCacheException {
@@ -445,6 +454,7 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
         return unitsBack;
     }
 
+    @SuppressWarnings("GuardedBy")
     private void prependCachedEntries(final FDate key, final List<Entry<FDate, V>> trailing,
             final int trailingCountFoundInCache) throws ResetCacheException {
         for (int i = trailing.size() - trailingCountFoundInCache - 1; i >= 0; i--) {
@@ -474,6 +484,7 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
         }
     }
 
+    @SuppressWarnings("GuardedBy")
     private void appendCachedEntries(final FDate key, final List<Entry<FDate, V>> trailing,
             final int trailingCountFoundInQuery) throws ResetCacheException {
         for (int i = trailingCountFoundInQuery - 1; i >= 0; i--) {
@@ -497,6 +508,7 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
         }
     }
 
+    @SuppressWarnings("GuardedBy")
     private void appendCachedEntryAndResult(final IHistoricalCacheQueryInternalMethods<V> query, final FDate key,
             final int shiftBackUnits, final Entry<FDate, V> latestEntry) throws ResetCacheException {
         if (latestEntry != null) {
@@ -537,6 +549,7 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
         cachedPreviousEntriesKey = key;
     }
 
+    @SuppressWarnings("GuardedBy")
     private void replaceCachedEntries(final FDate key, final List<Entry<FDate, V>> trailing) {
         if (trailing.isEmpty() ||
         /*
@@ -553,6 +566,7 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
         resetCachedPreviousResult();
     }
 
+    @SuppressWarnings("GuardedBy")
     private void resetCachedPreviousResult() {
         cachedPreviousResult_filteringDuplicates = null;
         cachedPreviousResult_notFilteringDuplicates = null;
@@ -626,6 +640,7 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
         return trailing;
     }
 
+    @SuppressWarnings("GuardedBy")
     private int fillFromCacheAsFarAsPossible(final List<Entry<FDate, V>> trailing, final int unitsBack,
             final FDate skippingKeysAbove) throws ResetCacheException {
         //prefill what is possible and add suffixes by query as needed
@@ -647,6 +662,7 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
     }
 
     //CHECKSTYLE:OFF
+    @SuppressWarnings("GuardedBy")
     private int narrowCachedIndex(final int unitsBack, final FDate skippingKeysAbove) throws ResetCacheException {
         //CHECKSTYLE:ON
         int cachedIndex = 0;
@@ -721,6 +737,7 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
         return cachedIndex;
     }
 
+    @SuppressWarnings("GuardedBy")
     private Entry<FDate, V> getLastCachedEntry() throws ResetCacheException {
         if (cachedPreviousEntries.isEmpty()) {
             throw new ResetCacheException("lastCachedEntry cannot be retrieved since cachedPreviousEntries is empty");
@@ -728,6 +745,7 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
         return cachedPreviousEntries.get(0);
     }
 
+    @SuppressWarnings("GuardedBy")
     private Entry<FDate, V> getFirstCachedEntry() {
         return cachedPreviousEntries.get(cachedPreviousEntries.size() - 1);
     }
@@ -752,6 +770,7 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
         }
     }
 
+    @SuppressWarnings("GuardedBy")
     private void resetForRetry() {
         delegate.clear();
         cachedPreviousEntries.clear();

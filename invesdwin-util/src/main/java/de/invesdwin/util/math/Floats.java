@@ -14,7 +14,8 @@ import de.invesdwin.util.math.internal.CheckedCastFloats;
 import de.invesdwin.util.math.internal.CheckedCastFloatsObj;
 
 @StaticFacadeDefinition(name = "de.invesdwin.util.math.internal.AFloatsStaticFacade", targets = {
-        CheckedCastFloats.class, CheckedCastFloatsObj.class, com.google.common.primitives.Floats.class })
+        CheckedCastFloats.class, CheckedCastFloatsObj.class,
+        com.google.common.primitives.Floats.class }, filterMethodSignatureExpressions = { ".* toArray\\(.*" })
 @Immutable
 public final class Floats extends AFloatsStaticFacade {
 
@@ -33,7 +34,7 @@ public final class Floats extends AFloatsStaticFacade {
         if (vector == null) {
             return null;
         }
-        return AFloatsStaticFacade.toArray(vector);
+        return com.google.common.primitives.Floats.toArray(vector);
     }
 
     public static float[] toArrayVector(final Collection<Float> vector) {

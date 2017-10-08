@@ -1,5 +1,7 @@
 package de.invesdwin.util.collections.iterable.collection;
 
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,11 +18,16 @@ import de.invesdwin.util.lang.Reflections;
 @NotThreadSafe
 public class ArrayListCloseableIterable<E> implements ICloseableIterable<E>, IFastToListProvider<E> {
 
-    public static final Field ARRAYLIST_ELEMENTDATA_FIELD;
+    public static final MethodHandle ARRAYLIST_ELEMENTDATA_GETTER;
 
     static {
-        ARRAYLIST_ELEMENTDATA_FIELD = Reflections.findField(ArrayList.class, "elementData");
-        Reflections.makeAccessible(ARRAYLIST_ELEMENTDATA_FIELD);
+        try {
+            final Field arraylistElementDataField = Reflections.findField(ArrayList.class, "elementData");
+            Reflections.makeAccessibleFinal(arraylistElementDataField);
+            ARRAYLIST_ELEMENTDATA_GETTER = MethodHandles.lookup().unreflectGetter(arraylistElementDataField);
+        } catch (final IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private final ArrayList<? extends E> arrayList;
@@ -37,12 +44,15 @@ public class ArrayListCloseableIterable<E> implements ICloseableIterable<E>, IFa
      * not recognize array replacements that did not come with a size change, so be careful. You can alternatively
      * override this method to always do a refresh.
      */
-    @SuppressWarnings("unchecked")
     @Override
     public ICloseableIterator<E> iterator() {
         if (cachedSize != arrayList.size()) {
             cachedSize = arrayList.size();
-            cachedArray = (E[]) Reflections.getField(ARRAYLIST_ELEMENTDATA_FIELD, arrayList);
+            try {
+                cachedArray = (E[]) ARRAYLIST_ELEMENTDATA_GETTER.invokeExact(arrayList);
+            } catch (final Throwable e) {
+                throw new RuntimeException(e);
+            }
         }
         return new ArrayCloseableIterator<E>(cachedArray, 0, cachedSize) {
             @Override
