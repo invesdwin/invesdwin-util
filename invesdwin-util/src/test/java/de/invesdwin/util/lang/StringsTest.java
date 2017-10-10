@@ -8,7 +8,7 @@ import java.util.Map;
 
 import javax.annotation.concurrent.ThreadSafe;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.time.fdate.FDate;

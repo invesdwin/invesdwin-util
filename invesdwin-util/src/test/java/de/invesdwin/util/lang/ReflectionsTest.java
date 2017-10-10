@@ -2,7 +2,7 @@ package de.invesdwin.util.lang;
 
 import javax.annotation.concurrent.Immutable;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import de.invesdwin.util.assertions.Assertions;
 

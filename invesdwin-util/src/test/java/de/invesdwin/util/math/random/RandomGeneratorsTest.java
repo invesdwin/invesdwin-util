@@ -3,14 +3,14 @@ package de.invesdwin.util.math.random;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import org.apache.commons.math3.random.RandomGenerator;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
+import org.junit.Ignore;
+import org.junit.Test;
 
 import de.invesdwin.util.time.Instant;
 import de.invesdwin.util.time.duration.Duration;
 import it.unimi.dsi.util.XoRoShiRo128PlusRandomGenerator;
 
-@Disabled("manual test")
+@Ignore("manual test")
 @NotThreadSafe
 public class RandomGeneratorsTest {
 

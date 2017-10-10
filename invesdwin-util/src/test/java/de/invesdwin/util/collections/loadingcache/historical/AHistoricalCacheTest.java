@@ -10,8 +10,8 @@ import java.util.concurrent.atomic.AtomicLong;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import org.apache.commons.math3.random.RandomDataGenerator;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
+import org.junit.Ignore;
+import org.junit.Test;
 
 import de.invesdwin.util.concurrent.Executors;
 import de.invesdwin.util.concurrent.Futures;
@@ -24,7 +24,7 @@ import de.invesdwin.util.time.fdate.FDate;
 
 // CHECKSTYLE:OFF
 @NotThreadSafe
-@Disabled
+@Ignore
 public class AHistoricalCacheTest {
     //CHECKSTYLE:ON
 

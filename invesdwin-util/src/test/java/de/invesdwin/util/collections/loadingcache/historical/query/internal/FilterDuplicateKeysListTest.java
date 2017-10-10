@@ -6,7 +6,7 @@ import java.util.Map.Entry;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.bean.tuple.ImmutableEntry;
