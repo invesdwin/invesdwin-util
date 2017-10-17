@@ -9,6 +9,7 @@ import de.invesdwin.util.assertions.internal.AAssertionsStaticFacade;
 import de.invesdwin.util.assertions.type.DecimalAssert;
 import de.invesdwin.util.assertions.type.FDateAssert;
 import de.invesdwin.util.assertions.type.StringAssert;
+import de.invesdwin.util.assertions.type.internal.junit.JUnitAssertions;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.math.decimal.ADecimal;
@@ -17,7 +18,7 @@ import de.invesdwin.util.time.fdate.FDate;
 
 @StaticFacadeDefinition(name = "de.invesdwin.util.assertions.internal.AAssertionsStaticFacade", targets = {
         org.assertj.core.api.Assertions.class, org.assertj.guava.api.Assertions.class,
-        com.google.common.base.Preconditions.class, org.junit.jupiter.api.Assertions.class,
+        com.google.common.base.Preconditions.class, JUnitAssertions.class,
         org.assertj.jodatime.api.Assertions.class }, filterMethodSignatureExpressions = {
                 ".* org\\.assertj\\.core\\.api\\.StringAssert assertThat\\(java\\.lang\\.String .*",
                 ".* fail\\(java\\.lang\\.String .*" })
@@ -205,69 +206,61 @@ public final class Assertions extends AAssertionsStaticFacade {
         org.assertj.core.api.Assertions.fail(failureMessage, realCause);
     }
 
-    public static void assertTimeout(final Duration timeout,
-            final org.junit.jupiter.api.function.Executable executable) {
-        org.junit.jupiter.api.Assertions.assertTimeout(timeout.javaTimeValue(), executable);
+    public static void assertTimeout(final Duration timeout, final Executable executable) {
+        JUnitAssertions.assertTimeout(timeout.javaTimeValue(), executable);
     }
 
-    public static void assertTimeout(final Duration timeout, final org.junit.jupiter.api.function.Executable executable,
+    public static void assertTimeout(final Duration timeout, final Executable executable, final String message) {
+        JUnitAssertions.assertTimeout(timeout.javaTimeValue(), executable, message);
+    }
+
+    public static void assertTimeout(final Duration timeout, final Executable executable,
+            final java.util.function.Supplier<String> messageSupplier) {
+        JUnitAssertions.assertTimeout(timeout.javaTimeValue(), executable, messageSupplier);
+    }
+
+    public static <T extends java.lang.Object> T assertTimeout(final Duration timeout,
+            final ThrowingSupplier<T> supplier) {
+        return JUnitAssertions.assertTimeout(timeout.javaTimeValue(), supplier);
+    }
+
+    public static <T extends java.lang.Object> T assertTimeout(final Duration timeout,
+            final ThrowingSupplier<T> supplier, final String message) {
+        return JUnitAssertions.assertTimeout(timeout.javaTimeValue(), supplier, message);
+    }
+
+    public static <T extends java.lang.Object> T assertTimeout(final Duration timeout,
+            final ThrowingSupplier<T> supplier, final java.util.function.Supplier<String> messageSupplier) {
+        return JUnitAssertions.assertTimeout(timeout.javaTimeValue(), supplier, messageSupplier);
+    }
+
+    public static void assertTimeoutPreemptively(final Duration timeout, final Executable executable) {
+        JUnitAssertions.assertTimeoutPreemptively(timeout.javaTimeValue(), executable);
+    }
+
+    public static void assertTimeoutPreemptively(final Duration timeout, final Executable executable,
             final String message) {
-        org.junit.jupiter.api.Assertions.assertTimeout(timeout.javaTimeValue(), executable, message);
+        JUnitAssertions.assertTimeoutPreemptively(timeout.javaTimeValue(), executable, message);
     }
 
-    public static void assertTimeout(final Duration timeout, final org.junit.jupiter.api.function.Executable executable,
+    public static void assertTimeoutPreemptively(final Duration timeout, final Executable executable,
             final java.util.function.Supplier<String> messageSupplier) {
-        org.junit.jupiter.api.Assertions.assertTimeout(timeout.javaTimeValue(), executable, messageSupplier);
-    }
-
-    public static <T extends java.lang.Object> T assertTimeout(final Duration timeout,
-            final org.junit.jupiter.api.function.ThrowingSupplier<T> supplier) {
-        return org.junit.jupiter.api.Assertions.assertTimeout(timeout.javaTimeValue(), supplier);
-    }
-
-    public static <T extends java.lang.Object> T assertTimeout(final Duration timeout,
-            final org.junit.jupiter.api.function.ThrowingSupplier<T> supplier, final String message) {
-        return org.junit.jupiter.api.Assertions.assertTimeout(timeout.javaTimeValue(), supplier, message);
-    }
-
-    public static <T extends java.lang.Object> T assertTimeout(final Duration timeout,
-            final org.junit.jupiter.api.function.ThrowingSupplier<T> supplier,
-            final java.util.function.Supplier<String> messageSupplier) {
-        return org.junit.jupiter.api.Assertions.assertTimeout(timeout.javaTimeValue(), supplier, messageSupplier);
-    }
-
-    public static void assertTimeoutPreemptively(final Duration timeout,
-            final org.junit.jupiter.api.function.Executable executable) {
-        org.junit.jupiter.api.Assertions.assertTimeoutPreemptively(timeout.javaTimeValue(), executable);
-    }
-
-    public static void assertTimeoutPreemptively(final Duration timeout,
-            final org.junit.jupiter.api.function.Executable executable, final String message) {
-        org.junit.jupiter.api.Assertions.assertTimeoutPreemptively(timeout.javaTimeValue(), executable, message);
-    }
-
-    public static void assertTimeoutPreemptively(final Duration timeout,
-            final org.junit.jupiter.api.function.Executable executable,
-            final java.util.function.Supplier<String> messageSupplier) {
-        org.junit.jupiter.api.Assertions.assertTimeoutPreemptively(timeout.javaTimeValue(), executable,
-                messageSupplier);
+        JUnitAssertions.assertTimeoutPreemptively(timeout.javaTimeValue(), executable, messageSupplier);
     }
 
     public static <T extends java.lang.Object> T assertTimeoutPreemptively(final Duration timeout,
-            final org.junit.jupiter.api.function.ThrowingSupplier<T> supplier) {
-        return org.junit.jupiter.api.Assertions.assertTimeoutPreemptively(timeout.javaTimeValue(), supplier);
+            final ThrowingSupplier<T> supplier) {
+        return JUnitAssertions.assertTimeoutPreemptively(timeout.javaTimeValue(), supplier);
     }
 
     public static <T extends java.lang.Object> T assertTimeoutPreemptively(final Duration timeout,
-            final org.junit.jupiter.api.function.ThrowingSupplier<T> supplier, final String message) {
-        return org.junit.jupiter.api.Assertions.assertTimeoutPreemptively(timeout.javaTimeValue(), supplier, message);
+            final ThrowingSupplier<T> supplier, final String message) {
+        return JUnitAssertions.assertTimeoutPreemptively(timeout.javaTimeValue(), supplier, message);
     }
 
     public static <T extends java.lang.Object> T assertTimeoutPreemptively(final Duration timeout,
-            final org.junit.jupiter.api.function.ThrowingSupplier<T> supplier,
-            final java.util.function.Supplier<String> messageSupplier) {
-        return org.junit.jupiter.api.Assertions.assertTimeoutPreemptively(timeout.javaTimeValue(), supplier,
-                messageSupplier);
+            final ThrowingSupplier<T> supplier, final java.util.function.Supplier<String> messageSupplier) {
+        return JUnitAssertions.assertTimeoutPreemptively(timeout.javaTimeValue(), supplier, messageSupplier);
     }
 
 }
