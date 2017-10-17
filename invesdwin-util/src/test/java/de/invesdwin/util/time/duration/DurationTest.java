@@ -55,5 +55,15 @@ public class DurationTest {
         Assertions.assertThat(new Duration(-66, FTimeUnit.MINUTES).toString(FTimeUnit.HOURS)).isEqualTo("-PT1H");
         Assertions.assertThat(new Duration(-66, FTimeUnit.MINUTES).toString(FTimeUnit.DAYS)).isEqualTo("P0");
         Assertions.assertThat(new Duration(10, FTimeUnit.MINUTES).toString()).isEqualTo("PT10M");
+        Assertions.assertThat(new Duration(new FDate(0),
+                new FDate(0).addYears(1)
+                        .addDays(FTimeUnit.DAYS_IN_MONTH)
+                        .addWeeks(1)
+                        .addDays(1)
+                        .addHours(1)
+                        .addMinutes(1)
+                        .addSeconds(1)
+                        .addMilliseconds(1)).toString())
+                .isEqualTo("P1Y1M1W1DT1H1M1.001S");
     }
 }

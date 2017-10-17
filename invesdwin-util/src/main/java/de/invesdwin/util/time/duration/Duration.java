@@ -215,6 +215,9 @@ public class Duration extends Number implements Comparable<Object> {
         long microseconds = 0;
         long milliseconds = 0;
         long seconds = 0;
+        final long years = nanosAsYears;
+        final long months = nanosAsMonths - years * FTimeUnit.MONTHS_IN_YEAR;
+        final long weeks = nanosAsWeeks - months * FTimeUnit.WEEKS_IN_MONTH - years * FTimeUnit.WEEKS_IN_YEAR;
         switch (smallestTimeUnit) {
         case NANOSECONDS:
             nanoseconds = nanos - nanosAsMicros * FTimeUnit.NANOSECONDS_IN_MICROSECOND;
@@ -262,28 +265,26 @@ public class Duration extends Number implements Comparable<Object> {
             }
             // fall through
         case DAYS:
-            final long days = nanosAsDays - nanosAsWeeks * FTimeUnit.DAYS_IN_WEEK;
+            final long days = nanosAsDays - weeks * FTimeUnit.DAYS_IN_WEEK - months * FTimeUnit.DAYS_IN_MONTH
+                    - years * FTimeUnit.DAYS_IN_YEAR;
             if (days > 0) {
                 sb.insert(0, "D");
                 sb.insert(0, days);
             }
             // fall through
         case WEEKS:
-            final long weeks = nanosAsWeeks - nanosAsMonths * FTimeUnit.WEEKS_IN_MONTH;
             if (weeks > 0) {
                 sb.insert(0, "W");
                 sb.insert(0, weeks);
             }
             // fall through
         case MONTHS:
-            final long months = nanosAsMonths - nanosAsYears * FTimeUnit.MONTHS_IN_YEAR;
             if (months > 0) {
                 sb.insert(0, "M");
                 sb.insert(0, months);
             }
             // fall through
         case YEARS:
-            final long years = nanosAsYears;
             if (years > 0) {
                 sb.insert(0, "Y");
                 sb.insert(0, years);

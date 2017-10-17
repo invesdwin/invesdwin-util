@@ -146,6 +146,19 @@ public final class Strings extends AStringsStaticFacade {
         return sb.toString();
     }
 
+    public static String asString(final List<?> list, final char delimiter) {
+        if (list == null) {
+            return null;
+        }
+        final StringBuilder sb = new StringBuilder();
+        for (final Object e : list) {
+            sb.append(e);
+            sb.append(delimiter);
+        }
+        Strings.removeEnd(sb, delimiter);
+        return sb.toString();
+    }
+
     /**
      * Calls o.toString(). Returns &lt;null&gt; if o is null.
      */

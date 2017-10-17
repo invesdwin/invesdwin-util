@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.net.Socket;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -22,7 +23,6 @@ public final class URIsConnect {
 
     private static Duration defaultNetworkTimeout = new Duration(30, FTimeUnit.SECONDS);
     private final URL url;
-
     private Duration networkTimeout = defaultNetworkTimeout;
 
     private Map<String, String> headers;
@@ -112,9 +112,24 @@ public final class URIsConnect {
         try {
             final URLConnection con = openConnection();
             in = con.getInputStream();
-            return IOUtils.toString(in);
+            return IOUtils.toString(in, Charset.defaultCharset());
         } catch (final IOException e) {
             return null;
+        } finally {
+            IOUtils.closeQuietly(in);
+        }
+    }
+
+    public String downloadThrowing() throws IOException {
+        InputStream in = null;
+        try {
+            final URLConnection con = openConnection();
+            in = con.getInputStream();
+            final String response = IOUtils.toString(in, Charset.defaultCharset());
+            if (response == null) {
+                throw new IOException("response is null");
+            }
+            return response;
         } finally {
             IOUtils.closeQuietly(in);
         }

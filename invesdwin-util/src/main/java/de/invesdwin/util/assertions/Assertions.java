@@ -17,8 +17,8 @@ import de.invesdwin.util.time.fdate.FDate;
 
 @StaticFacadeDefinition(name = "de.invesdwin.util.assertions.internal.AAssertionsStaticFacade", targets = {
         org.assertj.core.api.Assertions.class, org.assertj.guava.api.Assertions.class,
-        com.google.common.base.Preconditions.class,
-        org.junit.jupiter.api.Assertions.class }, filterMethodSignatureExpressions = {
+        com.google.common.base.Preconditions.class, org.junit.jupiter.api.Assertions.class,
+        org.assertj.jodatime.api.Assertions.class }, filterMethodSignatureExpressions = {
                 ".* org\\.assertj\\.core\\.api\\.StringAssert assertThat\\(java\\.lang\\.String .*",
                 ".* fail\\(java\\.lang\\.String .*" })
 @Immutable
