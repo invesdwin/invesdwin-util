@@ -7,8 +7,6 @@ import java.util.function.Supplier;
 
 import javax.annotation.concurrent.Immutable;
 
-import org.junit.ComparisonFailure;
-
 import de.invesdwin.util.lang.Strings;
 
 @Immutable
@@ -30,10 +28,6 @@ public final class AssertionUtils {
 
     static void fail(final Supplier<String> messageSupplier) {
         throw new AssertionError(nullSafeGet(messageSupplier));
-    }
-
-    static void fail(final String message, final Object expected, final Object actual) {
-        throw new ComparisonFailure(message, Strings.asString(expected), Strings.asString(actual));
     }
 
     static String nullSafeGet(final Supplier<String> messageSupplier) {
