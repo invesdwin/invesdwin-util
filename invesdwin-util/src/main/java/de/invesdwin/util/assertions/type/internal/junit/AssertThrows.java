@@ -2,7 +2,7 @@ package de.invesdwin.util.assertions.type.internal.junit;
 
 import java.util.function.Supplier;
 
-import com.google.errorprone.annotations.Immutable;
+import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.assertions.Executable;
 

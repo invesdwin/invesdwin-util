@@ -125,6 +125,22 @@ public final class Integers extends AIntegersStaticFacade {
         return sum;
     }
 
+    public static Integer max(final Collection<Integer> values) {
+        Integer max = 0;
+        for (final Integer value : values) {
+            max = max(max, value);
+        }
+        return max;
+    }
+
+    public static Integer min(final Collection<Integer> values) {
+        Integer min = 0;
+        for (final Integer value : values) {
+            min = min(min, value);
+        }
+        return min;
+    }
+
     public static Integer between(final Integer value, final Integer min, final Integer max) {
         return max(min(value, max), min);
     }
