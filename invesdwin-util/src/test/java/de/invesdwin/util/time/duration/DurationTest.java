@@ -66,4 +66,18 @@ public class DurationTest {
                         .addMilliseconds(1)).toString())
                 .isEqualTo("P1Y1M1W1DT1H1M1.001S");
     }
+
+    @Test
+    public void testDurationParser() {
+        final String durationStr = "P1Y1M1W1DT1H1M1.001.001.001S";
+        final Duration duration = Duration.valueOf(durationStr);
+        Assertions.assertThat(duration.toString()).isEqualTo(durationStr);
+    }
+
+    @Test
+    public void testStringValue() {
+        final String durationStr = "1 YEARS";
+        final Duration duration = Duration.valueOf(durationStr);
+        Assertions.assertThat(duration.stringValue()).isEqualTo(durationStr);
+    }
 }

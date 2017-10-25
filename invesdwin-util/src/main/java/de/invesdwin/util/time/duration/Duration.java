@@ -5,6 +5,9 @@ import java.util.List;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
+import javax.persistence.Transient;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.lang.ADelegateComparator;
@@ -12,6 +15,7 @@ import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.math.decimal.Decimal;
 import de.invesdwin.util.time.Instant;
+import de.invesdwin.util.time.duration.internal.DurationParser;
 import de.invesdwin.util.time.fdate.FDate;
 import de.invesdwin.util.time.fdate.FTimeUnit;
 
@@ -43,6 +47,8 @@ public class Duration extends Number implements Comparable<Object> {
     private final FTimeUnit timeUnit;
     @SuppressWarnings("GuardedBy")
     @GuardedBy("none for performance")
+    @JsonIgnore
+    @Transient
     private Integer cachedHashCode;
 
     public Duration(final Instant start) {
@@ -550,6 +556,39 @@ public class Duration extends Number implements Comparable<Object> {
         } else {
             return duration.jodaTimeValue();
         }
+    }
+
+    public static String toStringValue(final Duration duration) {
+        if (duration == null) {
+            return null;
+        } else {
+            return duration.stringValue();
+        }
+    }
+
+    public static Duration valueOf(final String value) {
+        final String trimmedValue = Strings.trim(value);
+        if (Strings.contains(trimmedValue, " ")) {
+            try {
+                final String[] values = trimmedValue.split(" ");
+                final int duration = Integer.valueOf(values[0]);
+                final FTimeUnit unit = FTimeUnit.valueOf(values[1]);
+                return new Duration(duration, unit);
+            } catch (final NumberFormatException e) {
+                return null;
+            } catch (final IllegalArgumentException e) {
+                return null;
+            } catch (final IndexOutOfBoundsException e) {
+                return null;
+            }
+        } else {
+            return new DurationParser(trimmedValue).parse();
+        }
+
+    }
+
+    public String stringValue() {
+        return duration + " " + timeUnit;
     }
 
 }

@@ -22,9 +22,7 @@ public final class DurationKeyDeserializer extends KeyDeserializer {
         if (Strings.isEmpty(key)) {
             return null;
         }
-        final java.time.Duration duration = (java.time.Duration) com.fasterxml.jackson.datatype.jsr310.deser.key.DurationKeyDeserializer.INSTANCE
-                .deserializeKey(key, ctxt);
-        return Duration.valueOf(duration);
+        return Duration.valueOf(key);
     }
 
 }

@@ -8,7 +8,6 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.deser.std.DateDeserializers.DateDeserializer;
 
 import de.invesdwin.util.time.fdate.FDate;
 
@@ -22,7 +21,11 @@ public final class FDateDeserializer extends JsonDeserializer<FDate> {
     @Override
     public FDate deserialize(final JsonParser p, final DeserializationContext ctxt)
             throws IOException, JsonProcessingException {
-        return FDate.valueOf(DateDeserializer.instance.deserialize(p, ctxt));
+        final String string = p.getText().trim();
+        if (string.length() == 0) {
+            return null;
+        }
+        return FDate.valueOf(string, FDate.FORMAT_ISO_DATE_TIME_MS);
     }
 
 }

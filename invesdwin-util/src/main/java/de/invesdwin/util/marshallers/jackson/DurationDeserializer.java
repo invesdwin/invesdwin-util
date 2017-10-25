@@ -21,8 +21,11 @@ public final class DurationDeserializer extends JsonDeserializer<Duration> {
     @Override
     public Duration deserialize(final JsonParser p, final DeserializationContext ctxt)
             throws IOException, JsonProcessingException {
-        return Duration.valueOf(
-                com.fasterxml.jackson.datatype.jsr310.deser.DurationDeserializer.INSTANCE.deserialize(p, ctxt));
+        final String string = p.getText().trim();
+        if (string.length() == 0) {
+            return null;
+        }
+        return Duration.valueOf(string);
     }
 
 }
