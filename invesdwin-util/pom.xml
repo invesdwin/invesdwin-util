@@ -26,12 +26,10 @@
 		<version.maven-source-plugin>3.0.1</version.maven-source-plugin>
 		<version.maven-processor-plugin>3.3.2</version.maven-processor-plugin>
 		<version.invesdwin-maven-plugin>1.0.0-SNAPSHOT</version.invesdwin-maven-plugin>
-		<version.license-check-maven-plugin>0.5.4-inv</version.license-check-maven-plugin>
 
 		<version.fest-reflect>1.4.1</version.fest-reflect>
 		<version.fest-util>1.2.5</version.fest-util>
 		<version.fst>2.50</version.fst>
-		<version.commons-beanutils>1.9.2</version.commons-beanutils>
 		<version.jollyday>0.5.2</version.jollyday>
 		<version.dsiutils>2.4.0</version.dsiutils>
 	</properties>
@@ -110,13 +108,6 @@
 		<dependency>
 			<groupId>commons-beanutils</groupId>
 			<artifactId>commons-beanutils</artifactId>
-			<version>${version.commons-beanutils}</version>
-			<exclusions>
-				<exclusion>
-					<artifactId>commons-logging</artifactId>
-					<groupId>commons-logging</groupId>
-				</exclusion>
-			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
@@ -173,6 +164,10 @@
 		<dependency>
 			<groupId>com.fasterxml.jackson.module</groupId>
 			<artifactId>jackson-module-parameter-names</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.datatype</groupId>
+			<artifactId>jackson-datatype-guava</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.fasterxml.jackson.datatype</groupId>
@@ -280,36 +275,6 @@
 						</configuration>
 					</execution>
 				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.complykit</groupId>
-				<artifactId>license-check-maven-plugin</artifactId>
-				<version>${version.license-check-maven-plugin}</version>
-				<executions>
-					<execution>
-						<phase>verify</phase>
-						<goals>
-							<goal>os-check</goal>
-						</goals>
-					</execution>
-				</executions>
-				<configuration>
-					<blacklist>
-						<param>agpl-1.0</param>
-						<param>agpl-2.0</param>
-						<param>agpl-3.0</param>
-						<param>gpl-1.0</param>
-						<param>gpl-2.0</param>
-						<param>gpl-3.0</param>
-					</blacklist>
-					<excludesRegex>
-						<!-- apache license -->
-						<param>joda-time.*</param>
-						<param>de\.jollyday.*</param>
-						<!-- bsd license -->
-						<param>com\.github\.virtuald:curvesapi.*</param>
-					</excludesRegex>
-				</configuration>
 			</plugin>
 		</plugins>
 	</build>
