@@ -139,10 +139,11 @@ public final class Strings extends AStringsStaticFacade {
         }
         final StringBuilder sb = new StringBuilder();
         for (final Object e : list) {
+            if (sb.length() > 0) {
+                sb.append(delimiter);
+            }
             sb.append(e);
-            sb.append(delimiter);
         }
-        Strings.removeEnd(sb, delimiter);
         return sb.toString();
     }
 
@@ -152,10 +153,11 @@ public final class Strings extends AStringsStaticFacade {
         }
         final StringBuilder sb = new StringBuilder();
         for (final Object e : list) {
+            if (sb.length() > 0) {
+                sb.append(delimiter);
+            }
             sb.append(e);
-            sb.append(delimiter);
         }
-        Strings.removeEnd(sb, delimiter);
         return sb.toString();
     }
 
