@@ -522,7 +522,34 @@ public class Duration extends Number implements Comparable<Object> {
 
     public java.time.Duration javaTimeValue() {
         return java.time.Duration.of(duration, timeUnit.javaTimeValue());
+    }
 
+    public org.joda.time.Duration jodaTimeValue() {
+        return org.joda.time.Duration.millis(longValue(FTimeUnit.MILLISECONDS));
+    }
+
+    public static Duration valueOf(final java.time.Duration duration) {
+        return new Duration(duration.toNanos(), FTimeUnit.NANOSECONDS);
+    }
+
+    public static Duration valueOf(final org.joda.time.Duration duration) {
+        return new Duration(duration.getMillis(), FTimeUnit.MILLISECONDS);
+    }
+
+    public static java.time.Duration toJavaTimeValue(final Duration duration) {
+        if (duration == null) {
+            return null;
+        } else {
+            return duration.javaTimeValue();
+        }
+    }
+
+    public static org.joda.time.Duration toJodaTimeValue(final Duration duration) {
+        if (duration == null) {
+            return null;
+        } else {
+            return duration.jodaTimeValue();
+        }
     }
 
 }

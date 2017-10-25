@@ -1,4 +1,4 @@
-package de.invesdwin.util.internal.jaxb;
+package de.invesdwin.util.marshallers.jaxb;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
