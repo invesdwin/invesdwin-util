@@ -23,11 +23,14 @@ public class StringsTest {
         Assertions.assertThat(Strings.removeEnd(new StringBuilder("asdasd"), "").toString()).isEqualTo("asdasd");
         Assertions.assertThat(Strings.removeEnd(new StringBuilder("asdasd"), "f").toString()).isEqualTo("asdasd");
         Assertions.assertThat(Strings.removeEnd(new StringBuilder("asdasd"), "asdasda").toString()).isEqualTo("asdasd");
-        Assertions.assertThat(Strings.removeEnd(new StringBuilder("asdasd"), "asd".length()).toString()).isEqualTo(
-                "asd");
+        Assertions.assertThat(Strings.removeEnd(new StringBuilder("asdasd"), "asd".length()).toString())
+                .isEqualTo("asd");
         Assertions.assertThat(Strings.removeEnd("asdasd", "asd").toString()).isEqualTo("asd");
         Assertions.assertThat(Strings.removeEnd("asdasd", "asd".length()).toString()).isEqualTo("asd");
         Assertions.assertThat(Strings.removeEnd("asdasd", 1).toString()).isEqualTo("asdas");
+        Assertions.assertThat(Strings.removeEnd("", 1).toString()).isEqualTo("");
+        Assertions.assertThat(Strings.removeEnd(new StringBuilder(""), 1).toString()).isEqualTo("");
+        Assertions.assertThat(Strings.removeEnd(new StringBuilder("asd"), 5).toString()).isEqualTo("asd");
     }
 
     @Test
@@ -55,7 +58,8 @@ public class StringsTest {
     @Test
     public void testAsStringReflective() {
         System.out.println(String.format(new PrettyToStringVO().toString())); //SUPPRESS CHECKSTYLE single line
-        System.out.println(String.format(Strings.asStringReflective(new ArrayList<Integer>(Arrays.asList(1, 2, 3, 4, 5))))); //SUPPRESS CHECKSTYLE single line
+        System.out.println(//SUPPRESS CHECKSTYLE single line
+                String.format(Strings.asStringReflective(new ArrayList<Integer>(Arrays.asList(1, 2, 3, 4, 5)))));
     }
 
     @Test
@@ -72,7 +76,8 @@ public class StringsTest {
     public void testAsStringIdentity() {
         System.out.println(String.format(new Object().toString())); //SUPPRESS CHECKSTYLE single line
         System.out.println(String.format(Strings.asStringIdentity(new PrettyToStringVO()))); //SUPPRESS CHECKSTYLE single line
-        System.out.println(String.format(Strings.asStringIdentity(new ArrayList<Integer>(Arrays.asList(1, 2, 3, 4, 5))))); //SUPPRESS CHECKSTYLE single line
+        System.out
+                .println(String.format(Strings.asStringIdentity(new ArrayList<Integer>(Arrays.asList(1, 2, 3, 4, 5))))); //SUPPRESS CHECKSTYLE single line
     }
 
     @SuppressWarnings("unused")
@@ -111,15 +116,15 @@ public class StringsTest {
         }
 
         public String toStringHelperMultiline() {
-            return internalToStringHelper(Objects.toStringHelperMultiline(this)).with(
-                    internalToStringHelper(Objects.toStringHelperMultiline(object)))
+            return internalToStringHelper(Objects.toStringHelperMultiline(this))
+                    .with(internalToStringHelper(Objects.toStringHelperMultiline(object)))
                     .with(internalToStringHelper(Objects.toStringHelperMultiline(object)))
                     .toString();
         }
 
         public String toStringHelper() {
-            return internalToStringHelper(Objects.toStringHelper(this)).with(
-                    internalToStringHelper(Objects.toStringHelper(object)))
+            return internalToStringHelper(Objects.toStringHelper(this))
+                    .with(internalToStringHelper(Objects.toStringHelper(object)))
                     .with(internalToStringHelper(Objects.toStringHelper(object)))
                     .toString();
         }
