@@ -1,7 +1,12 @@
 package de.invesdwin.util.collections.loadingcache.historical.internal;
 
+import java.util.NoSuchElementException;
+
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.util.collections.iterable.ICloseableIterable;
+import de.invesdwin.util.collections.iterable.ICloseableIterator;
+import de.invesdwin.util.collections.iterable.WrapperCloseableIterable;
 import de.invesdwin.util.collections.loadingcache.historical.AGapHistoricalCache;
 import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
 import de.invesdwin.util.time.duration.Duration;
@@ -99,11 +104,17 @@ public abstract class AGapHistoricalCacheMissCounter<V> {
         FDate curMaxDate = successiveCacheEvictionsToMinKey;
         int newOptimalMaximumSize = 0;
         while (curMaxDate.isBefore(successiveCacheEvictionsFromMaxKey)) {
-            final Iterable<? extends V> readAllValues = readAllValuesAscendingFrom(curMaxDate);
+            final ICloseableIterable<? extends V> readAllValues = WrapperCloseableIterable
+                    .maybeWrap(readAllValuesAscendingFrom(curMaxDate));
             final FDate prevMaxDate = curMaxDate;
-            for (final V v : readAllValues) {
-                newOptimalMaximumSize++;
-                curMaxDate = extractKey(v);
+            try (ICloseableIterator<? extends V> readAllValuesIterator = readAllValues.iterator()) {
+                while (true) {
+                    final V v = readAllValuesIterator.next();
+                    newOptimalMaximumSize++;
+                    curMaxDate = extractKey(v);
+                }
+            } catch (final NoSuchElementException e) {
+                //end reached
             }
             if (prevMaxDate.equals(curMaxDate)) {
                 break;

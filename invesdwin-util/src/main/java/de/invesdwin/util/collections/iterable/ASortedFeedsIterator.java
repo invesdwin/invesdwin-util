@@ -22,12 +22,10 @@ public abstract class ASortedFeedsIterator<E> implements ICloseableIterator<E> {
     public ASortedFeedsIterator(final Iterable<? extends ICloseableIterator<? extends E>> feeds) {
         for (final ICloseableIterator<? extends E> feed : feeds) {
             final PeekingCloseableIterator<? extends E> peekingFeed = new PeekingCloseableIterator<>(feed);
-            try {
-                peekingFeed.peek();
-                //only add feeds that are not empty
+            peekingFeed.peek();
+            //only add feeds that are not empty
+            if (peekingFeed.hasNext()) {
                 peekingFeeds.add(peekingFeed);
-            } catch (final NoSuchElementException e) {
-                //ignore
             }
         }
     }
@@ -44,13 +42,15 @@ public abstract class ASortedFeedsIterator<E> implements ICloseableIterator<E> {
         if (!hasNext()) {
             throw new FastNoSuchElementException("ASortedFeedsIterator hasNext() returned false");
         }
-        final PeekingCloseableIterator<? extends E> feed = peekingFeeds.remove(0);
+        final PeekingCloseableIterator<? extends E> peekingFeed = peekingFeeds.remove(0);
         try {
-            final E next = feed.next();
-            peekingFeeds.add(feed); //add into the list with an updated sort order
+            final E next = peekingFeed.next();
+            if (peekingFeed.hasNext()) {
+                peekingFeeds.add(peekingFeed); //add into the list with an updated sort order
+            }
             return next;
         } catch (final NoSuchElementException e) {
-            //try next feed until there are no more feeds
+            //feed is empty
             return next();
         }
     }

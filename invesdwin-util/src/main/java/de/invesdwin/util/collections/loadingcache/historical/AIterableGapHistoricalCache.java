@@ -1,9 +1,12 @@
 package de.invesdwin.util.collections.loadingcache.historical;
 
+import java.util.NoSuchElementException;
+
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.collections.iterable.ASkippingIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
+import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.collections.iterable.WrapperCloseableIterable;
 import de.invesdwin.util.time.fdate.FDate;
 
@@ -36,34 +39,41 @@ public abstract class AIterableGapHistoricalCache<V> extends AGapHistoricalCache
 
     @Override
     protected V readLatestValueFor(final FDate key) {
-        V previousE = (V) null;
-        for (final V e : getDelegate()) {
-            if (previousE == null) {
-                previousE = e;
-            } else {
-                final FDate eKey = extractKey(key, e);
-                if (key.isAfter(eKey)) {
+        V previousE = null;
+        try (ICloseableIterator<V> delegate = getDelegate().iterator()) {
+            while (true) {
+                final V e = delegate.next();
+                if (previousE == null) {
                     previousE = e;
                 } else {
-                    break;
+                    final FDate eKey = extractKey(key, e);
+                    if (key.isAfter(eKey)) {
+                        previousE = e;
+                    } else {
+                        break;
+                    }
                 }
             }
+            return previousE;
+        } catch (final NoSuchElementException e) {
+            return previousE;
         }
-        return previousE;
     }
 
     @Override
     protected FDate innerCalculateNextKey(final FDate key) {
+        try (ICloseableIterator<V> delegate = getDelegate().iterator()) {
+            while (true) {
+                final V value = delegate.next();
+                final FDate valueKey = extractKey(key, value);
 
-        for (final V value : getDelegate()) {
-            final FDate valueKey = extractKey(key, value);
-
-            if (valueKey.isAfter(key)) {
-                return valueKey;
+                if (valueKey.isAfter(key)) {
+                    return valueKey;
+                }
             }
+        } catch (final NoSuchElementException e) {
+            return key;
         }
-
-        return key;
     }
 
     @Override
