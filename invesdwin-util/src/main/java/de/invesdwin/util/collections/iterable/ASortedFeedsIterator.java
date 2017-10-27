@@ -22,7 +22,6 @@ public abstract class ASortedFeedsIterator<E> implements ICloseableIterator<E> {
     public ASortedFeedsIterator(final Iterable<? extends ICloseableIterator<? extends E>> feeds) {
         for (final ICloseableIterator<? extends E> feed : feeds) {
             final PeekingCloseableIterator<? extends E> peekingFeed = new PeekingCloseableIterator<>(feed);
-            peekingFeed.peek();
             //only add feeds that are not empty
             if (peekingFeed.hasNext()) {
                 peekingFeeds.add(peekingFeed);
