@@ -9,7 +9,7 @@ import de.invesdwin.util.collections.iterable.ICloseableIterator;
 @NotThreadSafe
 public class ProducerQueueIterator<E> extends AProducerQueueIterator<E> {
 
-    private ICloseableIterator<E> producer;
+    private final ICloseableIterator<E> producer;
 
     public ProducerQueueIterator(final String name, final ICloseableIterator<E> producer) {
         this(name, producer, DEFAULT_QUEUE_SIZE);
@@ -17,7 +17,11 @@ public class ProducerQueueIterator<E> extends AProducerQueueIterator<E> {
 
     public ProducerQueueIterator(final String name, final ICloseableIterator<E> producer, final int queueSize) {
         super(name, queueSize);
+        if (producer == null) {
+            throw new NullPointerException("producer should not be null");
+        }
         this.producer = producer;
+        start();
     }
 
     @Override

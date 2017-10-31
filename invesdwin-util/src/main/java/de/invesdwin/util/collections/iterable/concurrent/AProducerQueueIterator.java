@@ -97,6 +97,9 @@ public abstract class AProducerQueueIterator<E> extends ACloseableIterator<E> {
         this.name = name;
         this.queueSize = queueSize;
         this.executor = Executors.newFixedThreadPool(name, 1);
+    }
+
+    protected void start() {
         this.executor.execute(new ProducerRunnable());
         //read first element
         this.nextElement = readNext();
