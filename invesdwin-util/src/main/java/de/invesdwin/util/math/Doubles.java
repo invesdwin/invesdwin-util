@@ -1,5 +1,6 @@
 package de.invesdwin.util.math;
 
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -181,6 +182,32 @@ public final class Doubles extends ADoublesStaticFacade {
             final List<? extends List<? extends Double>> matrix, final Double missingValue,
             final boolean appendMissingValues) {
         return Objects.fixInconsistentMatrixDimensionsAsList(matrix, missingValue, appendMissingValues);
+    }
+
+    public static void putDouble(final ByteBuffer buffer, final Double value) {
+        if (value == null) {
+            buffer.putDouble(Double.MIN_VALUE);
+        } else {
+            buffer.putDouble(value);
+        }
+    }
+
+    public static Double extractDouble(final ByteBuffer buffer, final int index) {
+        final double value = buffer.getDouble(index);
+        return extractDouble(value);
+    }
+
+    public static Double extractDouble(final ByteBuffer buffer) {
+        final double value = buffer.getDouble();
+        return extractDouble(value);
+    }
+
+    public static Double extractDouble(final double value) {
+        if (value == Double.MIN_VALUE) {
+            return null;
+        } else {
+            return value;
+        }
     }
 
 }
