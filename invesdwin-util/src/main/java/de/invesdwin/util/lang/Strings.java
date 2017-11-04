@@ -31,6 +31,7 @@ public final class Strings extends AStringsStaticFacade {
     };
 
     public static final String EMPTY = org.apache.commons.lang3.StringUtils.EMPTY;
+    public static final String NULL = String.valueOf(null);
     public static final String DEFAULT_MISSING_VALUE = null;
 
     private static final Map<String, String> SYMBOL_ESCAPEDHTML = new HashMap<String, String>();
