@@ -55,6 +55,9 @@ public class BufferingIterator<E> implements IBufferingIterator<E> {
 
     @Override
     public E next() {
+        if (head == null) {
+            throw new FastNoSuchElementException("BufferingIterator next() head is null");
+        }
         final E value = getHead();
         head = head.getNext();
         size--;
