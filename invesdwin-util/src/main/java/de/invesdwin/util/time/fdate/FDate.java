@@ -457,7 +457,7 @@ public class FDate implements IDate, Serializable, Cloneable, Comparable<Object>
 
     public static FDate valueOf(final String str, final TimeZone timeZone, final Locale locale,
             final String parsePattern) {
-        if (Strings.isBlank(str) || Strings.NULL.equals(str)) {
+        if (Strings.isBlank(str) || Strings.NULL_TEXT.equals(str)) {
             return null;
         }
         DateTimeFormatter df = DateTimeFormat.forPattern(parsePattern);
