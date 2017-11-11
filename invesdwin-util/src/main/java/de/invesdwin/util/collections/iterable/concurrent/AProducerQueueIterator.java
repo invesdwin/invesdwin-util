@@ -97,7 +97,7 @@ public abstract class AProducerQueueIterator<E> extends ACloseableIterator<E> {
         this.queue = new LinkedBlockingDeque<E>(queueSize);
         this.name = name;
         this.queueSize = queueSize;
-        this.executor = Executors.newFixedThreadPool(name, 1);
+        this.executor = Executors.newFixedThreadPool(name, 1).withLogExceptions(true);
     }
 
     protected void start() {
