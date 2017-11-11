@@ -1,4 +1,4 @@
-package de.invesdwin.util.collections.loadingcache.historical.query;
+package de.invesdwin.util.collections.loadingcache.historical.query.recursive;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -19,6 +19,8 @@ import de.invesdwin.util.collections.iterable.WrapperCloseableIterable;
 import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
 import de.invesdwin.util.collections.loadingcache.historical.listener.IHistoricalCacheOnClearListener;
+import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQuery;
+import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQueryWithFuture;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.time.fdate.FDate;
 
@@ -85,7 +87,7 @@ public abstract class ARecursiveHistoricalCacheQuery<V> {
 
             @Override
             protected Integer getInitialMaximumSize() {
-                return Math.max(MIN_RECURSION_LOOKBACK, parent.getMaximumSize());
+                return Math.max(maxRecursionCount, parent.getMaximumSize());
             }
         };
         Assertions.checkTrue(parent.getOnClearListeners().add(new IHistoricalCacheOnClearListener() {
@@ -259,7 +261,7 @@ public abstract class ARecursiveHistoricalCacheQuery<V> {
     }
 
     @SuppressWarnings("GuardedBy")
-    private Iterator<FDate> newFullRecursionKeysIterator(final FDate from) {
+    protected Iterator<FDate> newFullRecursionKeysIterator(final FDate from) {
         //we always start form the earliest date available, because otherwise we get wrong results when using recursion with calculations that depend on one another
         final PeekingIterator<FDate> peekingIterator = Iterators
                 .peekingIterator(parentQueryWithFuture.getKeys(getFirstAvailableKey(), from).iterator());
