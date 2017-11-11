@@ -37,14 +37,14 @@ public abstract class ARecursiveHistoricalCacheQuery<V> {
      * we should use 10 times the lookback period (bars count) in order to get 7 decimal points of accuracy against
      * calculating from the beginning of history (measured on lowpass indicator)
      */
-    public static final int RECOMMENDED_LOOKBACK_MULTIPLICATOR_FOR_RECURSION = 100;
+    private static final int RECURSION_COUNT_LOOKBACK_MULTIPLICATOR = 100;
 
     /**
      * Zorro has UnstablePeriod at a default of 40
      * 
      * http://zorro-trader.com/manual/en/lookback.htm
      */
-    private static final int MIN_RECURSION_COUNT = 40;
+    private static final int MIN_RECURSION_LOOKBACK = 100;
 
     private final AHistoricalCache<V> parent;
     private final int maxRecursionCount;
@@ -70,11 +70,11 @@ public abstract class ARecursiveHistoricalCacheQuery<V> {
     private final IHistoricalCacheQuery<V> parentQuery;
     private final IHistoricalCacheQueryWithFuture<V> parentQueryWithFuture;
 
-    public ARecursiveHistoricalCacheQuery(final AHistoricalCache<V> parent, final int maxRecursionCount,
-            final int recursionLookbackCount) {
+    public ARecursiveHistoricalCacheQuery(final AHistoricalCache<V> parent, final int maxRecursionCount) {
         this.parent = parent;
-        this.maxRecursionCount = Integers.max(maxRecursionCount, MIN_RECURSION_COUNT);
-        this.maxHighestRecursionResultsCount = Integer.max(recursionLookbackCount, MIN_RECURSION_COUNT);
+        this.maxRecursionCount = Integers.max(maxRecursionCount * RECURSION_COUNT_LOOKBACK_MULTIPLICATOR,
+                MIN_RECURSION_LOOKBACK);
+        this.maxHighestRecursionResultsCount = Integer.max(maxRecursionCount, MIN_RECURSION_LOOKBACK);
         this.parentQuery = parent.query();
         this.parentQueryWithFuture = parent.query().withFuture();
         this.cachedRecursionResults = new ALoadingCache<FDate, V>() {
@@ -85,7 +85,7 @@ public abstract class ARecursiveHistoricalCacheQuery<V> {
 
             @Override
             protected Integer getInitialMaximumSize() {
-                return Math.max(MIN_RECURSION_COUNT, parent.getMaximumSize());
+                return Math.max(MIN_RECURSION_LOOKBACK, parent.getMaximumSize());
             }
         };
         Assertions.checkTrue(parent.getOnClearListeners().add(new IHistoricalCacheOnClearListener() {
@@ -248,15 +248,21 @@ public abstract class ARecursiveHistoricalCacheQuery<V> {
                  */
             }
         }
-        final ICloseableIterator<FDate> recursionKeysIterator = WrapperCloseableIterable.maybeWrap(recursionKeys)
-                .iterator();
-        return recursionKeysIterator;
+        if (minRecursionIdx <= 0) {
+            //we did not find any previous value to continue from, so start over from scratch
+            return newFullRecursionKeysIterator(previousKey);
+        } else {
+            final ICloseableIterator<FDate> recursionKeysIterator = WrapperCloseableIterable.maybeWrap(recursionKeys)
+                    .iterator();
+            return recursionKeysIterator;
+        }
     }
 
     @SuppressWarnings("GuardedBy")
     private Iterator<FDate> newFullRecursionKeysIterator(final FDate from) {
+        //we always start form the earliest date available, because otherwise we get wrong results when using recursion with calculations that depend on one another
         final PeekingIterator<FDate> peekingIterator = Iterators
-                .peekingIterator(parentQueryWithFuture.getPreviousKeys(from, maxRecursionCount).iterator());
+                .peekingIterator(parentQueryWithFuture.getKeys(getFirstAvailableKey(), from).iterator());
         firstRecursionKey = peekingIterator.peek();
         return peekingIterator;
     }
