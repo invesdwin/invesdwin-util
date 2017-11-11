@@ -86,6 +86,7 @@ public abstract class AProducerQueueIterator<E> extends ACloseableIterator<E> {
     private final String name;
     private final int queueSize;
 
+    private boolean started;
     private boolean utilizationDebugEnabled;
 
     public AProducerQueueIterator(final String name) {
@@ -100,6 +101,7 @@ public abstract class AProducerQueueIterator<E> extends ACloseableIterator<E> {
     }
 
     protected void start() {
+        started = true;
         this.executor.execute(new ProducerRunnable());
         //read first element
         this.nextElement = readNext();
@@ -178,6 +180,9 @@ public abstract class AProducerQueueIterator<E> extends ACloseableIterator<E> {
 
     @Override
     protected void innerClose() {
+        if (!started) {
+            throw new IllegalStateException("start() was forgotten to be called right after the constructor");
+        }
         if (!innerClosed) {
             innerClosed = true;
             executor.shutdown();
