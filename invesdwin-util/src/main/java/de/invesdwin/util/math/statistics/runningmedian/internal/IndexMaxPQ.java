@@ -1,13 +1,5 @@
 package de.invesdwin.util.math.statistics.runningmedian.internal;
 
-/******************************************************************************
- * Compilation: javac IndexMaxPQ.java Execution: java IndexMaxPQ Dependencies: StdOut.java
- *
- * Maximum-oriented indexed PQ implementation using a binary heap.
- *
- ******************************************************************************/
-
-import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 
@@ -42,11 +34,11 @@ import de.invesdwin.util.bean.tuple.ImmutableEntry;
  * 
  */
 @NotThreadSafe
-public class IndexMaxPQ<Key extends Comparable<Key>> implements Iterable<Entry<Integer, Key>> {
+public class IndexMaxPQ<Key extends Comparable<Key>> implements Iterable<Entry<Integer, Key>>, Cloneable {
     private int n; // number of elements on PQ
-    private final int[] pq; // binary heap using 1-based indexing
-    private final int[] qp; // inverse of pq - qp[pq[i]] = pq[qp[i]] = i
-    private final Key[] keys; // keys[i] = priority of i
+    private int[] pq; // binary heap using 1-based indexing
+    private int[] qp; // inverse of pq - qp[pq[i]] = pq[qp[i]] = i
+    private Key[] keys; // keys[i] = priority of i
 
     /**
      * Initializes an empty indexed priority queue with indices between {@code 0} and {@code maxN - 1}.
@@ -341,39 +333,22 @@ public class IndexMaxPQ<Key extends Comparable<Key>> implements Iterable<Entry<I
      * @return an iterator that iterates over the keys in descending order
      */
     @Override
-    public Iterator<Entry<Integer, Key>> iterator() {
-        return new HeapIterator();
+    public IndexMaxPQHeapIterator<Key> iterator() {
+        return new IndexMaxPQHeapIterator<Key>(clone());
     }
 
-    private final class HeapIterator implements Iterator<Entry<Integer, Key>> {
-        // create a new pq
-        private final IndexMaxPQ<Key> copy;
-
-        // add all elements to copy of heap
-        // takes linear time since already in heap order so no keys move
-        private HeapIterator() {
-            copy = new IndexMaxPQ<Key>(pq.length - 1);
-            for (int i = 1; i <= n; i++) {
-                copy.insert(pq[i], keys[pq[i]]);
-            }
-        }
-
-        @Override
-        public boolean hasNext() {
-            return !copy.isEmpty();
-        }
-
-        @Override
-        public void remove() {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public Entry<Integer, Key> next() {
-            if (!hasNext()) {
-                throw new java.util.NoSuchElementException();
-            }
-            return copy.delMax();
+    @SuppressWarnings("unchecked")
+    @Override
+    public IndexMaxPQ<Key> clone() {
+        try {
+            final IndexMaxPQ<Key> clone = (IndexMaxPQ<Key>) super.clone();
+            clone.n = n;
+            clone.pq = pq.clone();
+            clone.qp = qp.clone();
+            clone.keys = keys.clone();
+            return clone;
+        } catch (final CloneNotSupportedException e) {
+            throw new RuntimeException(e);
         }
     }
 
