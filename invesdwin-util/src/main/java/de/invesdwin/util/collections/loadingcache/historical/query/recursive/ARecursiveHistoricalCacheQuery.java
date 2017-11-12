@@ -174,6 +174,9 @@ public abstract class ARecursiveHistoricalCacheQuery<V> {
                 return highestRecursionResult;
             }
             final Iterator<FDate> recursionKeysIterator = newRecursionKeysIterator(previousKey);
+            if (firstRecursionKey == null || firstRecursionKey.isAfterOrEqualTo(previousKey)) {
+                return getInitialValue(previousKey);
+            }
             try {
                 while (true) {
                     //fill up the missing values
@@ -219,7 +222,7 @@ public abstract class ARecursiveHistoricalCacheQuery<V> {
         }
         if (cachedRecursionResults.isEmpty()) {
             //nothing here yet, have to go the full range
-            return newFullRecursionKeysIterator(previousKey);
+            return getFullRecursionKeysIterator(previousKey);
         }
         //we seem to have started somewhere in the middle, thus try to continue from somewhere we left off before
         FDate curPreviousKey = lastRecursionKey;
@@ -252,7 +255,7 @@ public abstract class ARecursiveHistoricalCacheQuery<V> {
         }
         if (minRecursionIdx <= 0) {
             //we did not find any previous value to continue from, so start over from scratch
-            return newFullRecursionKeysIterator(previousKey);
+            return getFullRecursionKeysIterator(previousKey);
         } else {
             final ICloseableIterator<FDate> recursionKeysIterator = WrapperCloseableIterable.maybeWrap(recursionKeys)
                     .iterator();
@@ -261,16 +264,29 @@ public abstract class ARecursiveHistoricalCacheQuery<V> {
     }
 
     @SuppressWarnings("GuardedBy")
+    private Iterator<FDate> getFullRecursionKeysIterator(final FDate from) {
+        final Iterator<FDate> iterator = newFullRecursionKeysIterator(from);
+        if (iterator == null) {
+            firstRecursionKey = null;
+            return null;
+        }
+        final PeekingIterator<FDate> peekingIterator = Iterators.peekingIterator(iterator);
+        try {
+            firstRecursionKey = peekingIterator.peek();
+            return peekingIterator;
+        } catch (final NoSuchElementException e) {
+            firstRecursionKey = null;
+            return null;
+        }
+    }
+
     protected Iterator<FDate> newFullRecursionKeysIterator(final FDate from) {
         //we always start form the earliest date available, because otherwise we get wrong results when using recursion with calculations that depend on one another
-        final PeekingIterator<FDate> peekingIterator = Iterators
-                .peekingIterator(parentQueryWithFuture.getKeys(getFirstAvailableKey(), from).iterator());
-        firstRecursionKey = peekingIterator.peek();
-        return peekingIterator;
+        return parentQueryWithFuture.getKeys(getFirstAvailableKey(), from).iterator();
     }
 
     @SuppressWarnings("GuardedBy")
-    private FDate getFirstAvailableKey() {
+    protected FDate getFirstAvailableKey() {
         if (firstAvailableKey == null && !firstAvailableKeyRequested) {
             this.firstAvailableKey = parentQueryWithFuture.getKey(FDate.MIN_DATE);
             firstAvailableKeyRequested = true;
