@@ -281,6 +281,7 @@ public abstract class ARecursiveHistoricalCacheQuery<V> {
     }
 
     protected Iterator<FDate> newFullRecursionKeysIterator(final FDate from) {
+        //        return parentQueryWithFuture.getPreviousKeys(from, maxRecursionCount).iterator();
         //we always start form the earliest date available, because otherwise we get wrong results when using recursion with calculations that depend on one another
         return parentQueryWithFuture.getKeys(getFirstAvailableKey(), from).iterator();
     }
