@@ -17,7 +17,7 @@ import de.invesdwin.util.time.duration.Duration;
 @NotThreadSafe
 public class RunningMedianTest {
 
-    private static final int ITERATIONS = 100_000;
+    private static final int ITERATIONS = 10_000;
     private static final int SIZE = 300;
 
     @Test
