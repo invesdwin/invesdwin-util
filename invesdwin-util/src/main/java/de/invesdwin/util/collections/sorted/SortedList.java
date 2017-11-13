@@ -1,4 +1,4 @@
-package de.invesdwin.util.collections;
+package de.invesdwin.util.collections.sorted;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -7,8 +7,10 @@ import java.util.List;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.util.collections.ADelegateList;
+
 /**
- * A performant way to keep a list of ordered elements
+ * A performant way to keep a list of ordered elements when the elements arrive in a more or less ordered fashion
  */
 @NotThreadSafe
 public class SortedList<E> extends ADelegateList<E> {

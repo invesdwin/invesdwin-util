@@ -1,7 +1,6 @@
 package de.invesdwin.util.math.statistics.runningmedian;
 
 import java.util.ArrayList;
-import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -11,13 +10,14 @@ import org.apache.commons.math3.stat.descriptive.rank.Median;
 import org.junit.Test;
 
 import de.invesdwin.util.assertions.Assertions;
+import de.invesdwin.util.math.statistics.RunningMedian;
 import de.invesdwin.util.time.Instant;
 import de.invesdwin.util.time.duration.Duration;
 
 @NotThreadSafe
 public class RunningMedianTest {
 
-    private static final int ITERATIONS = 10_000;
+    private static final int ITERATIONS = 100_000;
     private static final int SIZE = 300;
 
     @Test
@@ -32,18 +32,13 @@ public class RunningMedianTest {
 
     private List<Double> run() {
         Duration sumDuration = Duration.ZERO;
-        final Deque<Double> sequentialValues = new LinkedList<Double>();
         final RunningMedian runningMedian = new RunningMedian(SIZE);
 
         final List<Double> medians = new ArrayList<>();
         for (double i = 0; i < ITERATIONS; i++) {
-            if (sequentialValues.size() >= SIZE) {
-                final Double first = sequentialValues.removeFirst();
-                runningMedian.remove(first);
-            }
-            sequentialValues.add(i);
             final Instant time = new Instant();
             runningMedian.add(i);
+            runningMedian.add(-i);
             final Double median = runningMedian.getMedian();
             sumDuration = sumDuration.add(time.toDuration());
             medians.add(median);
@@ -66,6 +61,10 @@ public class RunningMedianTest {
                 sequentialValues.removeFirst();
             }
             sequentialValues.add(i);
+            if (sequentialValues.size() >= SIZE) {
+                sequentialValues.removeFirst();
+            }
+            sequentialValues.add(-i);
             final Instant time = new Instant();
             for (int j = 0; j < sequentialValues.size(); j++) {
                 values[j] = sequentialValues.get(j);

@@ -25,9 +25,12 @@ public abstract class ADecimalMedian<E extends ADecimal<E>> {
         if (sortedList.size() % 2 == 0) {
             final E medianA = sortedList.get(middle);
             final E medianB = sortedList.get(middle - 1);
-            median = medianA.add(medianB).divide(2);
+            final double dMedianA = medianA.getDefaultValue().doubleValueRaw();
+            final double dMedianB = medianB.getDefaultValue().doubleValueRaw();
+            final double dMedian = (dMedianA + dMedianB) / 2D;
+            median = medianA.fromDefaultValue(new Decimal(dMedian));
         } else {
-            median = sortedList.get(middle + 1);
+            median = sortedList.get(middle);
         }
         return median;
     }
