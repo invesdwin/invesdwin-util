@@ -9,7 +9,6 @@ import java.util.List;
 import javax.annotation.concurrent.ThreadSafe;
 
 import org.apache.commons.math3.random.RandomGenerator;
-import org.apache.commons.math3.stat.descriptive.rank.Median;
 
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.Lists;
@@ -30,6 +29,7 @@ import de.invesdwin.util.math.decimal.stream.DecimalStreamNormalization;
 import de.invesdwin.util.math.decimal.stream.DecimalStreamRelativeDetrending;
 import de.invesdwin.util.math.decimal.stream.DecimalStreamRemoveFlatSequences;
 import de.invesdwin.util.math.decimal.stream.DecimalStreamSum;
+import de.invesdwin.util.math.statistics.RunningMedian;
 
 @ThreadSafe
 public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregate<E> {
@@ -159,13 +159,13 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
 
     @Override
     public E median() {
-        final double[] doubleValues = new double[values.size()];
+        final RunningMedian runningMedian = new RunningMedian(values.size());
         for (int i = 0; i < values.size(); i++) {
             final E next = values.get(i);
-            doubleValues[i] = next.getDefaultValue().doubleValueRaw();
+            final double nextDouble = next.getDefaultValue().doubleValueRaw();
+            runningMedian.add(nextDouble);
         }
-        final Median medianAlgo = new Median();
-        final double median = medianAlgo.evaluate(doubleValues);
+        final double median = runningMedian.getMedian();
         return getConverter().fromDefaultValue(new Decimal(median));
     }
 

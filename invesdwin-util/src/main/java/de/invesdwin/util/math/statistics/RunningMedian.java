@@ -1,5 +1,6 @@
 package de.invesdwin.util.math.statistics;
 
+import java.util.Comparator;
 import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
@@ -17,11 +18,16 @@ import de.invesdwin.util.math.Doubles;
 public class RunningMedian {
 
     private final Deque<Double> queue = new LinkedList<Double>();
-    private final List<Double> sortedList = new BisectSortedList<Double>(Doubles.COMPARATOR);
+    private final List<Double> sortedList = newSortedList(Doubles.COMPARATOR);
     private final int size;
 
     public RunningMedian(final int size) {
         this.size = size;
+    }
+
+    @SuppressWarnings("rawtypes")
+    protected List<Double> newSortedList(final Comparator comparator) {
+        return new BisectSortedList<Double>(comparator);
     }
 
     public void add(final Double value) {
