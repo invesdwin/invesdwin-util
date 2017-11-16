@@ -752,7 +752,7 @@ public class AGapHistoricalCacheWithLimitedCacheTest {
         entities.add(newEntity);
         final FDate wrongValue = cache.query().getValue(newEntity);
         Assertions.assertThat(wrongValue).isEqualTo(entities.get(entities.size() - 2));
-        HistoricalCacheRefreshManager.refresh();
+        HistoricalCacheRefreshManager.forceRefresh();
         final FDate correctValue = cache.query().getValue(newEntity);
         Assertions.assertThat(correctValue).isEqualTo(newEntity);
     }

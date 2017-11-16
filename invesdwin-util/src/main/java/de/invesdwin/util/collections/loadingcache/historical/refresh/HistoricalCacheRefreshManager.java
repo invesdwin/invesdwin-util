@@ -18,6 +18,18 @@ import de.invesdwin.util.time.fdate.FDate;
 import de.invesdwin.util.time.fdate.FDates;
 import de.invesdwin.util.time.fdate.FTimeUnit;
 
+/**
+ * WARNING: This class only exists for testing and debugging reasons since it can negatively impact the overall cache
+ * performance. If you have problems new keys not properly arriving after a data update, you should rather look at
+ * pushing/pulling adjust key providers in your historical caches. Also try to set an appropriate instance in all of
+ * your time sensitive historical caches. It is also a good approach to reuse adjust key providers in dependant
+ * historical caches from a parent histrical cache.
+ * 
+ * If you still think you need to use this, then you should know what you are doing and call this only after actual new
+ * data has arrived. This might be legitimate when operating a scheduler updater that should update data in the whole
+ * process.
+ */
+@Deprecated
 @ThreadSafe
 public final class HistoricalCacheRefreshManager {
 
@@ -52,11 +64,11 @@ public final class HistoricalCacheRefreshManager {
     }
 
     /**
-     * Try every 3 hours if new data is in the cache. Queries may also call webservices.
+     * Try every hour if new data is in the cache. Queries may also call webservices.
      * 
      * Calling this manually makes the caches refresh on the next call to get.
      */
-    public static synchronized void refresh() {
+    public static synchronized void forceRefresh() {
         lastRefresh = new FDate();
         for (final AHistoricalCache<?> registeredCache : REGISTERED_CACHES) {
             registeredCache.requestRefresh();
@@ -70,7 +82,7 @@ public final class HistoricalCacheRefreshManager {
     public static boolean maybeRefresh(final Duration refreshInterval) {
         if (new Duration(lastRefresh).isGreaterThanOrEqualTo(refreshInterval)
                 || !FDates.isSameJulianDay(lastRefresh, new FDate())) {
-            refresh();
+            forceRefresh();
             return true;
         }
         return false;

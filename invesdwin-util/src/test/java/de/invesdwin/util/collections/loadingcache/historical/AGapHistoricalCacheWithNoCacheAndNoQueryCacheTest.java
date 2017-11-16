@@ -754,7 +754,7 @@ public class AGapHistoricalCacheWithNoCacheAndNoQueryCacheTest {
         entities.add(newEntity);
         final FDate wrongValue = cache.query().getValue(newEntity);
         Assertions.assertThat(wrongValue).isEqualTo(newEntity);
-        HistoricalCacheRefreshManager.refresh();
+        HistoricalCacheRefreshManager.forceRefresh();
         final FDate correctValue = cache.query().getValue(newEntity);
         Assertions.assertThat(correctValue).isEqualTo(newEntity);
     }
