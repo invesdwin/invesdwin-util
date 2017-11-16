@@ -29,7 +29,6 @@ import de.invesdwin.util.time.fdate.FTimeUnit;
  * data has arrived. This might be legitimate when operating a scheduler updater that should update data in the whole
  * process.
  */
-@Deprecated
 @ThreadSafe
 public final class HistoricalCacheRefreshManager {
 
@@ -42,6 +41,9 @@ public final class HistoricalCacheRefreshManager {
             FTimeUnit.MILLISECONDS);
 
     public static final HistoricalCacheRefreshManager INSTANCE = new HistoricalCacheRefreshManager();
+
+    private static final org.slf4j.ext.XLogger LOG = org.slf4j.ext.XLoggerFactory
+            .getXLogger(HistoricalCacheRefreshManager.class);
 
     private static volatile FDate lastRefresh = new FDate();
     @GuardedBy("HistoricalCacheRefreshManager.class")
@@ -69,6 +71,9 @@ public final class HistoricalCacheRefreshManager {
      * Calling this manually makes the caches refresh on the next call to get.
      */
     public static synchronized void forceRefresh() {
+        //CHECKSTYLE:OFF
+        LOG.warn("Forcing refresh on historical caches: {}", REGISTERED_CACHES.size());
+        //CHECKSTYLE:ON
         lastRefresh = new FDate();
         for (final AHistoricalCache<?> registeredCache : REGISTERED_CACHES) {
             registeredCache.requestRefresh();
@@ -91,6 +96,9 @@ public final class HistoricalCacheRefreshManager {
     public static synchronized boolean startRefreshScheduler(final Duration refreshInterval,
             final ScheduledExecutorService useExecutor) {
         if (executor == null) {
+            //CHECKSTYLE:OFF
+            LOG.warn("Starting refresh scheduler with interval: {}", refreshInterval);
+            //CHECKSTYLE:ON
             if (useExecutor != null) {
                 executor = useExecutor;
             } else {
