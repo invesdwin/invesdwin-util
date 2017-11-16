@@ -86,7 +86,12 @@ public class AugmentedDickeyFuller {
         //        final double[] beta = regression.getCoefficients();
         //        final double[] sd = regression.getStandarderrors();
 
-        this.testStatistic = beta[0] / sd[0];
+        final double result = beta[0] / sd[0];
+        if (Double.isInfinite(result)) {
+            this.testStatistic = null;
+        } else {
+            this.testStatistic = result;
+        }
     }
 
     /**
