@@ -246,6 +246,14 @@ public final class Objects extends AObjectsStaticFacade {
         return new ToStringHelper(obj, true);
     }
 
+    public static ToStringHelper toStringHelper(final Class<?> clazz) {
+        return new ToStringHelper(clazz, false);
+    }
+
+    public static ToStringHelper toStringHelperMultiline(final Class<?> clazz) {
+        return new ToStringHelper(clazz, true);
+    }
+
     public static int reflectionHashCode(final Object obj) {
         return hashCode(obj.getClass(), HashCodeBuilder.reflectionHashCode(obj, REFLECTION_EXCLUDED_FIELDS));
     }
