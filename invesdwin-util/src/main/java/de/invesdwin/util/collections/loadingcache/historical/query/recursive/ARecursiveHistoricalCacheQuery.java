@@ -22,7 +22,9 @@ import de.invesdwin.util.collections.loadingcache.historical.listener.IHistorica
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQuery;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQueryWithFuture;
 import de.invesdwin.util.math.Integers;
+import de.invesdwin.util.time.TimeRange;
 import de.invesdwin.util.time.fdate.FDate;
+import de.invesdwin.util.time.fdate.FTimeUnit;
 
 /**
  * This class can be used inside of historical caches to retrieve values from itself recursively. It solves the infinite
@@ -47,6 +49,9 @@ public abstract class ARecursiveHistoricalCacheQuery<V> {
      * http://zorro-trader.com/manual/en/lookback.htm
      */
     private static final int MIN_RECURSION_LOOKBACK = 100;
+
+    private static final org.slf4j.ext.XLogger LOG = org.slf4j.ext.XLoggerFactory
+            .getXLogger(ARecursiveHistoricalCacheQuery.class);
 
     private final AHistoricalCache<V> parent;
     private final int maxRecursionCount;
@@ -283,7 +288,14 @@ public abstract class ARecursiveHistoricalCacheQuery<V> {
     protected Iterator<FDate> newFullRecursionKeysIterator(final FDate from) {
         //        return parentQueryWithFuture.getPreviousKeys(from, maxRecursionCount).iterator();
         //we always start form the earliest date available, because otherwise we get wrong results when using recursion with calculations that depend on one another
-        return parentQueryWithFuture.getKeys(getFirstAvailableKey(), from).iterator();
+        final FDate start = getFirstAvailableKey();
+        final TimeRange timeRange = new TimeRange(start, from);
+        if (timeRange.getDuration().intValue(FTimeUnit.YEARS) > 1) {
+            //CHECKSTYLE:OFF
+            LOG.warn("Recalculating [{}] recursively over: {}", parent, timeRange);
+            //CHECKSTYLE:ON
+        }
+        return parentQueryWithFuture.getKeys(start, from).iterator();
     }
 
     @SuppressWarnings("GuardedBy")
