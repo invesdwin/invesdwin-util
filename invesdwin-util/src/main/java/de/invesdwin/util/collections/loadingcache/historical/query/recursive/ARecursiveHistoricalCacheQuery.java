@@ -286,7 +286,7 @@ public abstract class ARecursiveHistoricalCacheQuery<V> {
                 if (largeRecalculationsCount % LARGE_RECALCULATION_WARNING_THRESHOLD == 0) {
                     //CHECKSTYLE:OFF
                     LOG.warn(
-                            "Recalculating [{}] recursively for the {}. time over more than a year [{}]. If this happens too often this might have a negative impact on performance.",
+                            "{}: Recalculating recursively for the {}. time over more than a year [{}]. If this happens too often this might have a negative impact on performance.",
                             parent, timeRange, largeRecalculationsCount);
                     //CHECKSTYLE:ON
                 }
@@ -299,10 +299,10 @@ public abstract class ARecursiveHistoricalCacheQuery<V> {
     }
 
     protected Iterator<FDate> newFullRecursionKeysIterator(final FDate from) {
-        //        return parentQueryWithFuture.getPreviousKeys(from, maxRecursionCount).iterator();
+        return parentQueryWithFuture.getPreviousKeys(from, maxRecursionCount).iterator();
         //we always start form the earliest date available, because otherwise we get wrong results when using recursion with calculations that depend on one another
-        final FDate start = getFirstAvailableKey();
-        return parentQueryWithFuture.getKeys(start, from).iterator();
+        //        final FDate start = getFirstAvailableKey();
+        //        return parentQueryWithFuture.getKeys(start, from).iterator();
     }
 
     @SuppressWarnings("GuardedBy")
