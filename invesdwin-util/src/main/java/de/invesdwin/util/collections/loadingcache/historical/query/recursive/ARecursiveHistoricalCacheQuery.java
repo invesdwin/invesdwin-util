@@ -49,6 +49,7 @@ public abstract class ARecursiveHistoricalCacheQuery<V> {
      * http://zorro-trader.com/manual/en/lookback.htm
      */
     private static final int MIN_RECURSION_LOOKBACK = 100;
+    private static final int LARGE_RECALCULATION_WARNING_THRESHOLD = 10;
 
     private static final org.slf4j.ext.XLogger LOG = org.slf4j.ext.XLoggerFactory
             .getXLogger(ARecursiveHistoricalCacheQuery.class);
@@ -73,6 +74,7 @@ public abstract class ARecursiveHistoricalCacheQuery<V> {
     @GuardedBy("parent")
     //cache separately since the parent could encounter more evictions than this internal cache
     private final ALoadingCache<FDate, V> cachedRecursionResults;
+    private int largeRecalculationsCount = 0;
 
     private final IHistoricalCacheQuery<V> parentQuery;
     private final IHistoricalCacheQueryWithFuture<V> parentQueryWithFuture;
@@ -278,6 +280,17 @@ public abstract class ARecursiveHistoricalCacheQuery<V> {
         final PeekingIterator<FDate> peekingIterator = Iterators.peekingIterator(iterator);
         try {
             firstRecursionKey = peekingIterator.peek();
+            final TimeRange timeRange = new TimeRange(firstRecursionKey, from);
+            if (timeRange.getDuration().intValue(FTimeUnit.YEARS) > 1) {
+                largeRecalculationsCount++;
+                if (largeRecalculationsCount % LARGE_RECALCULATION_WARNING_THRESHOLD == 0) {
+                    //CHECKSTYLE:OFF
+                    LOG.warn(
+                            "Recalculating [{}] recursively for the {}. time over more than a year [{}]. If this happens too often this might have a negative impact on performance.",
+                            parent, timeRange, largeRecalculationsCount);
+                    //CHECKSTYLE:ON
+                }
+            }
             return peekingIterator;
         } catch (final NoSuchElementException e) {
             firstRecursionKey = null;
@@ -289,12 +302,6 @@ public abstract class ARecursiveHistoricalCacheQuery<V> {
         //        return parentQueryWithFuture.getPreviousKeys(from, maxRecursionCount).iterator();
         //we always start form the earliest date available, because otherwise we get wrong results when using recursion with calculations that depend on one another
         final FDate start = getFirstAvailableKey();
-        final TimeRange timeRange = new TimeRange(start, from);
-        if (timeRange.getDuration().intValue(FTimeUnit.YEARS) > 1) {
-            //CHECKSTYLE:OFF
-            LOG.warn("Recalculating [{}] recursively over: {}", parent, timeRange);
-            //CHECKSTYLE:ON
-        }
         return parentQueryWithFuture.getKeys(start, from).iterator();
     }
 
