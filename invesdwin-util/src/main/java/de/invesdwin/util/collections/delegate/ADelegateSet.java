@@ -1,4 +1,4 @@
-package de.invesdwin.util.collections;
+package de.invesdwin.util.collections.delegate;
 
 import java.util.Set;
 
@@ -8,6 +8,14 @@ import javax.annotation.concurrent.NotThreadSafe;
 public abstract class ADelegateSet<E> extends ADelegateCollection<E> implements Set<E> {
 
     private final Set<E> delegateSet = (Set<E>) super.getDelegate();
+
+    public ADelegateSet() {
+        super();
+    }
+
+    ADelegateSet(final Set<E> delegate) {
+        super(delegate);
+    }
 
     @Override
     public Set<E> getDelegate() {

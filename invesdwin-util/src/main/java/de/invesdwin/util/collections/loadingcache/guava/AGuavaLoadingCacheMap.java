@@ -4,7 +4,7 @@ import java.util.Map;
 
 import javax.annotation.concurrent.ThreadSafe;
 
-import de.invesdwin.util.collections.ADelegateMap;
+import de.invesdwin.util.collections.delegate.ADelegateMap;
 import de.invesdwin.util.error.Throwables;
 
 @ThreadSafe

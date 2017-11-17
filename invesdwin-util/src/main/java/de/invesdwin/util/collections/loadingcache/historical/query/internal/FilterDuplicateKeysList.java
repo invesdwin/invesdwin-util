@@ -9,8 +9,8 @@ import java.util.Map.Entry;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import de.invesdwin.util.collections.ADelegateList;
 import de.invesdwin.util.collections.Lists;
+import de.invesdwin.util.collections.delegate.ADelegateList;
 import de.invesdwin.util.time.fdate.FDate;
 
 /**

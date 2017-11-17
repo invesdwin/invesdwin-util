@@ -6,7 +6,7 @@ import java.util.Collection;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
-import de.invesdwin.util.collections.ADelegateSet;
+import de.invesdwin.util.collections.delegate.ADelegateSet;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
 

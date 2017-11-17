@@ -7,7 +7,7 @@ import java.util.List;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import de.invesdwin.util.collections.ADelegateList;
+import de.invesdwin.util.collections.delegate.ADelegateList;
 
 /**
  * A performant way to keep a list of ordered elements when the elements arrive in a random order

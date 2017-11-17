@@ -9,7 +9,7 @@ import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.bean.tuple.ImmutableEntry;
-import de.invesdwin.util.collections.ADelegateMap;
+import de.invesdwin.util.collections.delegate.ADelegateMap;
 import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
 
 /**

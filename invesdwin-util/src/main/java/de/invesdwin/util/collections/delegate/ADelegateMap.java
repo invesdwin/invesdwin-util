@@ -1,4 +1,4 @@
-package de.invesdwin.util.collections;
+package de.invesdwin.util.collections.delegate;
 
 import java.util.Collection;
 import java.util.Map;
@@ -11,7 +11,15 @@ import de.invesdwin.norva.marker.ISerializableValueObject;
 @NotThreadSafe
 public abstract class ADelegateMap<K, V> implements Map<K, V>, ISerializableValueObject {
 
-    private final Map<K, V> delegate = newDelegate();
+    private final Map<K, V> delegate;
+
+    public ADelegateMap() {
+        this.delegate = newDelegate();
+    }
+
+    ADelegateMap(final Map<K, V> delegate) {
+        this.delegate = delegate;
+    }
 
     protected abstract Map<K, V> newDelegate();
 

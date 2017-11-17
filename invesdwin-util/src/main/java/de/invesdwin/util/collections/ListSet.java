@@ -9,6 +9,8 @@ import java.util.Set;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.util.collections.delegate.ADelegateList;
+
 @NotThreadSafe
 public class ListSet<E> extends ADelegateList<E> implements Set<E> {
     private final Set<E> set = newSet();

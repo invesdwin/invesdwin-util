@@ -6,7 +6,7 @@ import java.util.List;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import de.invesdwin.util.collections.ADelegateList;
+import de.invesdwin.util.collections.delegate.ADelegateList;
 import de.invesdwin.util.collections.iterable.collection.ArrayListCloseableIterable;
 import de.invesdwin.util.collections.iterable.collection.ArraySubListCloseableIterable;
 import de.invesdwin.util.collections.iterable.collection.CollectionCloseableIterable;

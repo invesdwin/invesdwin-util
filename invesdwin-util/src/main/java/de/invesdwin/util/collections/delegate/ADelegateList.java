@@ -1,4 +1,4 @@
-package de.invesdwin.util.collections;
+package de.invesdwin.util.collections.delegate;
 
 import java.util.Collection;
 import java.util.List;
@@ -11,6 +11,14 @@ import javax.annotation.concurrent.NotThreadSafe;
 public abstract class ADelegateList<E> extends ADelegateCollection<E> implements List<E> {
 
     private final List<E> delegateList = (List<E>) super.getDelegate();
+
+    public ADelegateList() {
+        super();
+    }
+
+    ADelegateList(final List<E> delegate) {
+        super(delegate);
+    }
 
     @Override
     public List<E> getDelegate() {

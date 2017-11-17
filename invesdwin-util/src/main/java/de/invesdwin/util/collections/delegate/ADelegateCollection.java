@@ -1,4 +1,4 @@
-package de.invesdwin.util.collections;
+package de.invesdwin.util.collections.delegate;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -12,7 +12,15 @@ import de.invesdwin.norva.marker.ISerializableValueObject;
 @NotThreadSafe
 public abstract class ADelegateCollection<E> implements Collection<E>, ISerializableValueObject {
 
-    private final Collection<E> delegate = newDelegate();
+    private final Collection<E> delegate;
+
+    public ADelegateCollection() {
+        this.delegate = newDelegate();
+    }
+
+    ADelegateCollection(final Collection<E> delegate) {
+        this.delegate = delegate;
+    }
 
     public Collection<E> getDelegate() {
         return delegate;
