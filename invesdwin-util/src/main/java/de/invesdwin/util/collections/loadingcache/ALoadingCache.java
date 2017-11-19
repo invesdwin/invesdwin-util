@@ -5,7 +5,7 @@ import java.util.function.Function;
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.collections.loadingcache.internal.GuavaLoadingCache;
-import de.invesdwin.util.collections.loadingcache.internal.LRUMapLoadingCache;
+import de.invesdwin.util.collections.loadingcache.internal.LRAMapLoadingCache;
 import de.invesdwin.util.collections.loadingcache.internal.NoCachingLoadingCache;
 import de.invesdwin.util.collections.loadingcache.internal.UnlimitedCachingLoadingCache;
 
@@ -28,8 +28,8 @@ public abstract class ALoadingCache<K, V> extends ADelegateLoadingCache<K, V> {
 
     public void increaseMaximumSize(final int maximumSize) {
         final ILoadingCache<K, V> delegate = getDelegate();
-        if (delegate instanceof LRUMapLoadingCache) {
-            final LRUMapLoadingCache<K, V> lru = (LRUMapLoadingCache<K, V>) delegate;
+        if (delegate instanceof LRAMapLoadingCache) {
+            final LRAMapLoadingCache<K, V> lru = (LRAMapLoadingCache<K, V>) delegate;
             lru.increaseMaximumSize(maximumSize);
         }
         //else ignore
@@ -53,7 +53,7 @@ public abstract class ALoadingCache<K, V> extends ADelegateLoadingCache<K, V> {
         } else if (maximumSize == 0) {
             return new NoCachingLoadingCache<K, V>(loadValue);
         } else {
-            return new LRUMapLoadingCache<K, V>(loadValue, maximumSize);
+            return new LRAMapLoadingCache<K, V>(loadValue, maximumSize);
         }
     }
 
