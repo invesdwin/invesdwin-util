@@ -1,4 +1,4 @@
-package de.invesdwin.util.collections.loadingcache.internal;
+package de.invesdwin.util.collections.loadingcache.map;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -68,6 +68,11 @@ public class NoCachingLoadingCache<K, V> implements ILoadingCache<K, V> {
     @Override
     public Map<K, V> asMap() {
         return Collections.emptyMap();
+    }
+
+    @Override
+    public void increaseMaximumSize(final int maximumSize) {
+        //ignore
     }
 
 }

@@ -1,4 +1,4 @@
-package de.invesdwin.util.collections.loadingcache.internal;
+package de.invesdwin.util.collections.loadingcache.map;
 
 import java.util.HashMap;
 import java.util.function.Function;
@@ -10,6 +10,11 @@ public class UnlimitedCachingLoadingCache<K, V> extends ASynchronizedLoadingCach
 
     public UnlimitedCachingLoadingCache(final Function<K, V> loadValue) {
         super(loadValue, new HashMap<K, V>());
+    }
+
+    @Override
+    public void increaseMaximumSize(final int maximumSize) {
+        //ignore
     }
 
 }

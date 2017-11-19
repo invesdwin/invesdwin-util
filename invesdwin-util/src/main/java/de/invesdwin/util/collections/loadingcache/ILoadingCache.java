@@ -29,4 +29,6 @@ public interface ILoadingCache<K, V> {
 
     Map<K, V> asMap();
 
+    void increaseMaximumSize(int maximumSize);
+
 }

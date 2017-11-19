@@ -96,6 +96,11 @@ public abstract class ARecursiveHistoricalCacheQuery<V> {
             protected Integer getInitialMaximumSize() {
                 return Math.max(maxRecursionCount, parent.getMaximumSize());
             }
+
+            @Override
+            protected boolean isLeastRecentlyUsed() {
+                return false;
+            }
         };
         Assertions.checkTrue(parent.getOnClearListeners().add(new IHistoricalCacheOnClearListener() {
             @Override

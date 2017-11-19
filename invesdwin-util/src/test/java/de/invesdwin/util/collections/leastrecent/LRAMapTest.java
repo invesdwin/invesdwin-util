@@ -1,4 +1,4 @@
-package de.invesdwin.util.collections;
+package de.invesdwin.util.collections.leastrecent;
 
 import javax.annotation.concurrent.NotThreadSafe;
 

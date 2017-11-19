@@ -4,10 +4,11 @@ import java.util.function.Function;
 
 import javax.annotation.concurrent.ThreadSafe;
 
-import de.invesdwin.util.collections.loadingcache.internal.GuavaLoadingCache;
-import de.invesdwin.util.collections.loadingcache.internal.LRAMapLoadingCache;
-import de.invesdwin.util.collections.loadingcache.internal.NoCachingLoadingCache;
-import de.invesdwin.util.collections.loadingcache.internal.UnlimitedCachingLoadingCache;
+import de.invesdwin.util.collections.loadingcache.map.GuavaLoadingCache;
+import de.invesdwin.util.collections.loadingcache.map.LRAMapLoadingCache;
+import de.invesdwin.util.collections.loadingcache.map.LRUMapLoadingCache;
+import de.invesdwin.util.collections.loadingcache.map.NoCachingLoadingCache;
+import de.invesdwin.util.collections.loadingcache.map.UnlimitedCachingLoadingCache;
 
 @ThreadSafe
 public abstract class ALoadingCache<K, V> extends ADelegateLoadingCache<K, V> {
@@ -26,13 +27,11 @@ public abstract class ALoadingCache<K, V> extends ADelegateLoadingCache<K, V> {
         return false;
     }
 
-    public void increaseMaximumSize(final int maximumSize) {
-        final ILoadingCache<K, V> delegate = getDelegate();
-        if (delegate instanceof LRAMapLoadingCache) {
-            final LRAMapLoadingCache<K, V> lru = (LRAMapLoadingCache<K, V>) delegate;
-            lru.increaseMaximumSize(maximumSize);
-        }
-        //else ignore
+    /**
+     * default is true, otherwise it will evict the least recently added element
+     */
+    protected boolean isLeastRecentlyUsed() {
+        return true;
     }
 
     protected abstract V loadValue(K key);
@@ -53,7 +52,11 @@ public abstract class ALoadingCache<K, V> extends ADelegateLoadingCache<K, V> {
         } else if (maximumSize == 0) {
             return new NoCachingLoadingCache<K, V>(loadValue);
         } else {
-            return new LRAMapLoadingCache<K, V>(loadValue, maximumSize);
+            if (isLeastRecentlyUsed()) {
+                return new LRUMapLoadingCache<>(loadValue, maximumSize);
+            } else {
+                return new LRAMapLoadingCache<K, V>(loadValue, maximumSize);
+            }
         }
     }
 

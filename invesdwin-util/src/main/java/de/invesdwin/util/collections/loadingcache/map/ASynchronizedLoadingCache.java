@@ -1,4 +1,4 @@
-package de.invesdwin.util.collections.loadingcache.internal;
+package de.invesdwin.util.collections.loadingcache.map;
 
 import java.util.Collection;
 import java.util.Collections;

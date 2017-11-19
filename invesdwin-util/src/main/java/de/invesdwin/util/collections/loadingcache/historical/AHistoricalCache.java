@@ -226,6 +226,11 @@ public abstract class AHistoricalCache<V> {
                 return loadValue.apply(key);
             }
 
+            @Override
+            protected boolean isLeastRecentlyUsed() {
+                return false;
+            }
+
         };
         increaseMaximumSizeListeners.add(loadingCache);
         return loadingCache;

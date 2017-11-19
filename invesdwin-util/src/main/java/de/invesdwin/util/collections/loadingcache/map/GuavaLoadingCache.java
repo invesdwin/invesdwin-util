@@ -1,4 +1,4 @@
-package de.invesdwin.util.collections.loadingcache.internal;
+package de.invesdwin.util.collections.loadingcache.map;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -92,6 +92,11 @@ public class GuavaLoadingCache<K, V> implements ILoadingCache<K, V> {
     @Override
     public boolean isEmpty() {
         return delegate.isEmpty();
+    }
+
+    @Override
+    public void increaseMaximumSize(final int maximumSize) {
+        //ignore
     }
 
 }
