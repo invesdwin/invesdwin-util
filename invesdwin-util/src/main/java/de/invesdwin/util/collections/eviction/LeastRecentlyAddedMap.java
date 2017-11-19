@@ -1,4 +1,4 @@
-package de.invesdwin.util.collections.leastrecent;
+package de.invesdwin.util.collections.eviction;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
@@ -7,10 +7,10 @@ import javax.annotation.concurrent.NotThreadSafe;
  * Only the first time an element is added is counted. This improves performance a bit.
  */
 @NotThreadSafe
-public class LRAMap<K, V> extends LRUMap<K, V> {
+public class LeastRecentlyAddedMap<K, V> extends LeastRecentlyModifiedMap<K, V> {
 
-    public LRAMap(final int maxSize) {
-        super(maxSize);
+    public LeastRecentlyAddedMap(final int maximumSize) {
+        super(maximumSize);
     }
 
     @Override
@@ -24,17 +24,7 @@ public class LRAMap<K, V> extends LRUMap<K, V> {
     }
 
     @Override
-    public V get(final Object key) {
-        final LinkEntry<K, V> entry = getEntry(key);
-        if (entry == null) {
-            return null;
-        }
-        return entry.getValue();
-    }
-
-    @Deprecated
-    @Override
-    public V get(final Object key, final boolean updateToMRU) {
-        return get(key);
+    public EvictionMode getEvictionMode() {
+        return EvictionMode.LeastRecentlyAdded;
     }
 }

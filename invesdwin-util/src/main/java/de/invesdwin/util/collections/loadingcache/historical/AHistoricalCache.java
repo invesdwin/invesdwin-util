@@ -14,6 +14,7 @@ import org.assertj.core.description.TextDescription;
 
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.concurrent.AFastIterableDelegateSet;
+import de.invesdwin.util.collections.eviction.EvictionMode;
 import de.invesdwin.util.collections.loadingcache.ADelegateLoadingCache;
 import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 import de.invesdwin.util.collections.loadingcache.ILoadingCache;
@@ -46,6 +47,7 @@ public abstract class AHistoricalCache<V> {
      */
     public static final Integer DEFAULT_MAXIMUM_SIZE = 100;
     public static final int DEFAULT_MAXIMUM_SIZE_LIMIT = 100000;
+    public static final EvictionMode EVICTION_MODE = EvictionMode.LeastRecentlyAdded;
     private static final org.slf4j.ext.XLogger LOG = org.slf4j.ext.XLoggerFactory.getXLogger(AHistoricalCache.class);
     private static boolean debugAutomaticReoptimization = false;
 
@@ -227,8 +229,8 @@ public abstract class AHistoricalCache<V> {
             }
 
             @Override
-            protected boolean isLeastRecentlyUsed() {
-                return false;
+            protected EvictionMode getEvictionMode() {
+                return EVICTION_MODE;
             }
 
         };

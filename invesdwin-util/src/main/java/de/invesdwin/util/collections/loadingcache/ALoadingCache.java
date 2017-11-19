@@ -4,9 +4,9 @@ import java.util.function.Function;
 
 import javax.annotation.concurrent.ThreadSafe;
 
+import de.invesdwin.util.collections.eviction.EvictionMode;
+import de.invesdwin.util.collections.loadingcache.map.EvictionMapLoadingCache;
 import de.invesdwin.util.collections.loadingcache.map.GuavaLoadingCache;
-import de.invesdwin.util.collections.loadingcache.map.LRAMapLoadingCache;
-import de.invesdwin.util.collections.loadingcache.map.LRUMapLoadingCache;
 import de.invesdwin.util.collections.loadingcache.map.NoCachingLoadingCache;
 import de.invesdwin.util.collections.loadingcache.map.UnlimitedCachingLoadingCache;
 
@@ -30,8 +30,8 @@ public abstract class ALoadingCache<K, V> extends ADelegateLoadingCache<K, V> {
     /**
      * default is true, otherwise it will evict the least recently added element
      */
-    protected boolean isLeastRecentlyUsed() {
-        return true;
+    protected EvictionMode getEvictionMode() {
+        return EvictionMode.LeastRecentlyUsed;
     }
 
     protected abstract V loadValue(K key);
@@ -52,11 +52,7 @@ public abstract class ALoadingCache<K, V> extends ADelegateLoadingCache<K, V> {
         } else if (maximumSize == 0) {
             return new NoCachingLoadingCache<K, V>(loadValue);
         } else {
-            if (isLeastRecentlyUsed()) {
-                return new LRUMapLoadingCache<>(loadValue, maximumSize);
-            } else {
-                return new LRAMapLoadingCache<K, V>(loadValue, maximumSize);
-            }
+            return new EvictionMapLoadingCache<K, V>(loadValue, getEvictionMode().newMap(maximumSize));
         }
     }
 

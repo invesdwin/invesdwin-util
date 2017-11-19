@@ -14,6 +14,7 @@ import com.google.common.collect.Iterators;
 import com.google.common.collect.PeekingIterator;
 
 import de.invesdwin.util.assertions.Assertions;
+import de.invesdwin.util.collections.eviction.EvictionMode;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.collections.iterable.WrapperCloseableIterable;
 import de.invesdwin.util.collections.loadingcache.ALoadingCache;
@@ -98,8 +99,8 @@ public abstract class ARecursiveHistoricalCacheQuery<V> {
             }
 
             @Override
-            protected boolean isLeastRecentlyUsed() {
-                return false;
+            protected EvictionMode getEvictionMode() {
+                return AHistoricalCache.EVICTION_MODE;
             }
         };
         Assertions.checkTrue(parent.getOnClearListeners().add(new IHistoricalCacheOnClearListener() {

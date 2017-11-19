@@ -1,4 +1,4 @@
-package de.invesdwin.util.collections.leastrecent;
+package de.invesdwin.util.collections.eviction;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
@@ -12,12 +12,13 @@ import de.invesdwin.util.lang.Reflections;
  * apache commons LRUMap is faster than adjusted LinkedHashMap
  */
 @NotThreadSafe
-public class LRUMap<K, V> extends org.apache.commons.collections4.map.LRUMap<K, V> {
+public class LeastRecentlyUsedMap<K, V> extends org.apache.commons.collections4.map.LRUMap<K, V>
+        implements IEvictionMap<K, V> {
 
     private static final MethodHandle LRUMAP_MAXSIZE_SETTER;
 
     static {
-        final Field field = Reflections.findField(LRUMap.class, "maxSize");
+        final Field field = Reflections.findField(LeastRecentlyUsedMap.class, "maxSize");
         Reflections.makeAccessible(field);
         try {
             LRUMAP_MAXSIZE_SETTER = MethodHandles.lookup().unreflectSetter(field);
@@ -26,11 +27,22 @@ public class LRUMap<K, V> extends org.apache.commons.collections4.map.LRUMap<K, 
         }
     }
 
-    public LRUMap(final int maxSize) {
-        super(maxSize);
+    public LeastRecentlyUsedMap(final int maximumSize) {
+        super(maximumSize);
     }
 
-    public void setMaxSize(final int maximumSize) {
+    @Override
+    public EvictionMode getEvictionMode() {
+        return EvictionMode.LeastRecentlyUsed;
+    }
+
+    @Override
+    public int getMaximumSize() {
+        return maxSize();
+    }
+
+    @Override
+    public void setMaximumSize(final int maximumSize) {
         try {
             LRUMAP_MAXSIZE_SETTER.invoke(this, maximumSize);
         } catch (final Throwable e) {
