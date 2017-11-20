@@ -14,7 +14,7 @@ import de.invesdwin.util.math.decimal.Decimal;
 public class DecimalStreamProductTest {
 
     @Test
-    public void testIsSameAsMultiplication() {
+    public void testIsSameAsMultiplicationWithAdjustment() {
         final DecimalStreamProduct<Decimal> productByLogSumStream = new DecimalStreamProduct<Decimal>(Decimal.ZERO) {
             @Override
             protected Decimal getValueAdjustmentAddition() {
@@ -38,7 +38,27 @@ public class DecimalStreamProductTest {
         final Decimal productByLogSum = productByLogSumStream.getProduct();
         Assertions.assertThat(productByLogSum.round()).isEqualTo(new Decimal("0.716"));
         Assertions.assertThat(productByMultiplication).isEqualTo(new Decimal("0.716"));
+    }
 
+    @Test
+    public void testIsSameAsMultiplication() {
+        final DecimalStreamProduct<Decimal> productByLogSumStream = new DecimalStreamProduct<Decimal>(Decimal.ZERO);
+        final List<Decimal> values = new ArrayList<>();
+        values.add(new Decimal("1.1"));
+        values.add(new Decimal("1.2"));
+        values.add(new Decimal("1.3"));
+        Decimal productByMultiplication = null;
+        for (final Decimal value : values) {
+            if (productByMultiplication == null) {
+                productByMultiplication = value;
+            } else {
+                productByMultiplication = productByMultiplication.multiply(value);
+            }
+            productByLogSumStream.process(value);
+        }
+        final Decimal productByLogSum = productByLogSumStream.getProduct();
+        Assertions.assertThat(productByLogSum.round()).isEqualTo(new Decimal("1.716"));
+        Assertions.assertThat(productByMultiplication).isEqualTo(new Decimal("1.716"));
     }
 
 }
