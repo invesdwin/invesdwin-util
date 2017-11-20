@@ -26,6 +26,7 @@ import de.invesdwin.util.math.decimal.stream.DecimalStreamAvg;
 import de.invesdwin.util.math.decimal.stream.DecimalStreamAvgWeightedAsc;
 import de.invesdwin.util.math.decimal.stream.DecimalStreamGeomAvg;
 import de.invesdwin.util.math.decimal.stream.DecimalStreamNormalization;
+import de.invesdwin.util.math.decimal.stream.DecimalStreamProduct;
 import de.invesdwin.util.math.decimal.stream.DecimalStreamRelativeDetrending;
 import de.invesdwin.util.math.decimal.stream.DecimalStreamRemoveFlatSequences;
 import de.invesdwin.util.math.decimal.stream.DecimalStreamSum;
@@ -125,13 +126,14 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
     @Override
     public E avgWeightedDesc() {
         int sumOfWeights = 0;
-        Decimal sumOfWeightedValues = Decimal.ZERO;
+        double sumOfWeightedValues = 0D;
         for (int i = 0, weight = size(); i < size(); i++, weight--) {
-            final Decimal weightedValue = values.get(i).getDefaultValue().multiply(weight);
+            final double weightedValue = values.get(i).getDefaultValue().doubleValueRaw() * weight;
             sumOfWeights += weight;
-            sumOfWeightedValues = sumOfWeightedValues.add(weightedValue);
+            sumOfWeightedValues += weightedValue;
         }
-        return getConverter().fromDefaultValue(sumOfWeightedValues.divide(sumOfWeights));
+        final double result = sumOfWeightedValues / sumOfWeights;
+        return getConverter().fromDefaultValue(new Decimal(result));
     }
 
     @Override
@@ -150,11 +152,11 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
      */
     @Override
     public E avg() {
-        final DecimalStreamAvg<E> sum = new DecimalStreamAvg<E>(getConverter());
+        final DecimalStreamAvg<E> avg = new DecimalStreamAvg<E>(getConverter());
         for (final E value : values) {
-            sum.process(value);
+            avg.process(value);
         }
-        return sum.getAvg();
+        return avg.getAvg();
     }
 
     @Override
@@ -176,11 +178,11 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
      */
     @Override
     public E product() {
-        Decimal product = Decimal.ONE;
+        final DecimalStreamProduct<E> product = new DecimalStreamProduct<E>(getConverter());
         for (final E value : values) {
-            product = product.multiply(value.getDefaultValue());
+            product.process(value);
         }
-        return getConverter().fromDefaultValue(product);
+        return product.getProduct();
     }
 
     /**
@@ -252,11 +254,15 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
 
     @Override
     public E sampleStandardDeviation(final E avg) {
-        Decimal sum = Decimal.ZERO;
+        double sum = 0D;
+        final double avgDouble = avg.getDefaultValue().doubleValueRaw();
         for (final E value : values) {
-            sum = sum.add(value.subtract(avg).getDefaultValue().pow(2));
+            final double difference = value.getDefaultValue().doubleValueRaw() - avgDouble;
+            sum += Math.pow(difference, 2);
         }
-        return getConverter().fromDefaultValue(sum.divide(size() - 1).sqrt());
+        final double divisor = size() - 1D;
+        final double sqrt = Math.sqrt(sum / divisor);
+        return getConverter().fromDefaultValue(new Decimal(sqrt));
     }
 
     /**
@@ -270,11 +276,15 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
 
     @Override
     public E standardDeviation(final E avg) {
-        Decimal sum = Decimal.ZERO;
+        double sum = 0D;
+        final double avgDouble = avg.getDefaultValue().doubleValueRaw();
         for (final E value : values) {
-            sum = sum.add(value.subtract(avg).getDefaultValue().pow(2));
+            final double difference = value.getDefaultValue().doubleValueRaw() - avgDouble;
+            sum += Math.pow(difference, 2);
         }
-        return getConverter().fromDefaultValue(sum.divide(size()).sqrt());
+        final double divisor = size();
+        final double sqrt = Math.sqrt(sum / divisor);
+        return getConverter().fromDefaultValue(new Decimal(sqrt));
     }
 
     /**
