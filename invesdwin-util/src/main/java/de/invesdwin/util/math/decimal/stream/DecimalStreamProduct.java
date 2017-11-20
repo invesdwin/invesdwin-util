@@ -14,6 +14,7 @@ public class DecimalStreamProduct<E extends ADecimal<E>>
     private final double valueAdjustmentAddition;
     private final E converter;
     private E product;
+    private Double productDouble;
     private int count;
 
     public DecimalStreamProduct(final E converter) {
@@ -43,29 +44,35 @@ public class DecimalStreamProduct<E extends ADecimal<E>>
         }
         count++;
         product = null;
+        productDouble = null;
         return null;
     }
 
     public E getProduct() {
         if (product == null) {
-            product = calculateProduct();
+            product = converter.fromDefaultValue(new Decimal(getProductDouble()));
         }
         return product;
     }
 
-    private E calculateProduct() {
+    public double getProductDouble() {
+        if (productDouble == null) {
+            productDouble = calculateProductDouble();
+        }
+        return productDouble;
+    }
+
+    private double calculateProductDouble() {
         final double doubleResult;
         if (count == 0) {
             doubleResult = 0D;
         } else {
             doubleResult = Math.exp(logSum);
         }
-        final Decimal result = new Decimal(doubleResult);
-        if (result.isZero()) {
-            return converter.zero();
+        if (doubleResult == 0D) {
+            return 0D;
         }
-        final E product = converter.fromDefaultValue(result.subtract(new Decimal(valueAdjustmentAddition)));
-        return product;
+        return doubleResult - valueAdjustmentAddition;
     }
 
 }
