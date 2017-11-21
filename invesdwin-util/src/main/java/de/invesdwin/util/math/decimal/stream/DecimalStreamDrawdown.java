@@ -24,7 +24,7 @@ public class DecimalStreamDrawdown<E extends ADecimal<E>> implements IDecimalStr
             final double drawdown = maxEquity - equityDouble;
             //on multimarket strategies the drawdown can actually become positive for orders
             final Percent drawdownPercent = new Percent(drawdown, maxEquity);
-            if (drawdownPercent.doubleValueRaw() <= 0) {
+            if (drawdownPercent.getRate().doubleValueRaw() <= 0) {
                 throw new IllegalStateException(maxEquity + " -> " + equityDouble + " => " + drawdownPercent);
             }
             return drawdownPercent;

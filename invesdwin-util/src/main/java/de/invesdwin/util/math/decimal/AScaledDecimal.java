@@ -42,6 +42,9 @@ public abstract class AScaledDecimal<T extends AScaledDecimal<T, S>, S extends I
         this.scaledValue = Decimal.nullToZero(value);
         validateScale(scale);
         this.scale = scale;
+        if (scale.equals(defaultScale)) {
+            defaultValue = value;
+        }
     }
 
     protected void validateScale(final S scale) {}

@@ -4,6 +4,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.collections.iterable.ACloseableIterator;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
+import de.invesdwin.util.collections.iterable.ICloseableIterator;
 
 @NotThreadSafe
 public class ProducerQueueIterable<E> implements ICloseableIterable<E> {
@@ -14,7 +15,7 @@ public class ProducerQueueIterable<E> implements ICloseableIterable<E> {
     private boolean utilizationDebugEnabled;
 
     public ProducerQueueIterable(final String name, final ICloseableIterable<E> producer) {
-        this(name, producer, ProducerQueueIterator.DEFAULT_QUEUE_SIZE);
+        this(name, producer, AProducerQueueIterator.DEFAULT_QUEUE_SIZE);
     }
 
     public ProducerQueueIterable(final String name, final ICloseableIterable<E> producer, final int queueSize) {
@@ -25,7 +26,12 @@ public class ProducerQueueIterable<E> implements ICloseableIterable<E> {
 
     @Override
     public ACloseableIterator<E> iterator() {
-        final ProducerQueueIterator<E> iterator = new ProducerQueueIterator<E>(name, producer.iterator(), queueSize);
+        final AProducerQueueIterator<E> iterator = new AProducerQueueIterator<E>(name, queueSize) {
+            @Override
+            protected ICloseableIterator<E> newProducer() {
+                return producer.iterator();
+            }
+        };
         if (utilizationDebugEnabled) {
             iterator.withUtilizationDebugEnabled();
         }
