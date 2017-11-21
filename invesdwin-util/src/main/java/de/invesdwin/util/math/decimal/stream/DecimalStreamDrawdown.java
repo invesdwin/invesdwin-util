@@ -8,23 +8,24 @@ import de.invesdwin.util.math.decimal.scaled.Percent;
 @NotThreadSafe
 public class DecimalStreamDrawdown<E extends ADecimal<E>> implements IDecimalStreamAlgorithm<E, Percent> {
 
-    private E maxEquity = null;
+    private double maxEquity;
 
     public DecimalStreamDrawdown(final E initialEquity) {
-        this.maxEquity = initialEquity;
+        this.maxEquity = initialEquity.getDefaultValue().doubleValueRaw();
     }
 
     @Override
     public Percent process(final E equity) {
-        if (equity.isGreaterThanOrEqualTo(maxEquity)) {
-            maxEquity = equity;
+        final double equityDouble = equity.getDefaultValue().doubleValueRaw();
+        if (equityDouble >= maxEquity) {
+            maxEquity = equityDouble;
             return Percent.ZERO_PERCENT;
         } else {
-            final E drawdown = maxEquity.subtract(equity);
+            final double drawdown = maxEquity - equityDouble;
             //on multimarket strategies the drawdown can actually become positive for orders
             final Percent drawdownPercent = new Percent(drawdown, maxEquity);
-            if (!drawdownPercent.isPositive()) {
-                throw new IllegalStateException(maxEquity + " -> " + equity + " => " + drawdownPercent);
+            if (drawdownPercent.doubleValueRaw() <= 0) {
+                throw new IllegalStateException(maxEquity + " -> " + equityDouble + " => " + drawdownPercent);
             }
             return drawdownPercent;
         }

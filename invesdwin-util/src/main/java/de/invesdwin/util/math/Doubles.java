@@ -210,4 +210,20 @@ public final class Doubles extends ADoublesStaticFacade {
         }
     }
 
+    public static double divideIfNotZero(final Double dividend, final Double divisor) {
+        if (dividend == null || divisor == null) {
+            return 0D;
+        } else {
+            return divideIfNotZero(dividend.doubleValue(), divisor.doubleValue());
+        }
+    }
+
+    public static double divideIfNotZero(final double dividend, final double divisor) {
+        if (divisor == 0D) {
+            return 0D;
+        } else {
+            return dividend / divisor;
+        }
+    }
+
 }

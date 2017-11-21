@@ -4,6 +4,7 @@ import java.nio.ByteBuffer;
 
 import javax.annotation.concurrent.Immutable;
 
+import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.decimal.ADecimal;
 import de.invesdwin.util.math.decimal.AScaledDecimal;
 import de.invesdwin.util.math.decimal.Decimal;
@@ -58,6 +59,10 @@ public class Percent extends AScaledDecimal<Percent, PercentScale> implements IP
 
     public Percent(final Number dividend, final Number divisor) {
         this(Decimal.valueOf(dividend), Decimal.valueOf(divisor));
+    }
+
+    public Percent(final double dividend, final double divisor) {
+        this(new Decimal(Doubles.divideIfNotZero(dividend, divisor)), PercentScale.RATE);
     }
 
     /**
