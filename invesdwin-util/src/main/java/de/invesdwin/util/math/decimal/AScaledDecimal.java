@@ -96,7 +96,7 @@ public abstract class AScaledDecimal<T extends AScaledDecimal<T, S>, S extends I
     }
 
     private Decimal innerGetValue(final S scale) {
-        if (scale == this.scale) {
+        if (scale.equals(this.scale)) {
             return getScaledValue();
         } else {
             validateScale(scale);
