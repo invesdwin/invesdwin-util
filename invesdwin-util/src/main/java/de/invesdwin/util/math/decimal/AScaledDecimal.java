@@ -108,7 +108,7 @@ public abstract class AScaledDecimal<T extends AScaledDecimal<T, S>, S extends I
         }
     }
 
-    private Decimal getScaledValue() {
+    public Decimal getScaledValue() {
         if (scaledValue == null) {
             scaledValue = scale.convertValue(getGenericThis(), defaultValue, this.defaultScale);
         }
