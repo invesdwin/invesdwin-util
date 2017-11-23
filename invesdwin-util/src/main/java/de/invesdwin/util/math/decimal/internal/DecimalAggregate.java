@@ -284,7 +284,7 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
             sum += Math.pow(difference, 2);
         }
         final double divisor = size();
-        final double sqrt = Math.sqrt(sum / divisor);
+        final double sqrt = Math.sqrt(Doubles.divideHandlingZero(sum, divisor));
         return getConverter().fromDefaultValue(new Decimal(sqrt));
     }
 
