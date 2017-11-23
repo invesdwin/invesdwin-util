@@ -214,11 +214,11 @@ public final class Doubles extends ADoublesStaticFacade {
         if (dividend == null || divisor == null) {
             return 0D;
         } else {
-            return divideIfNotZero(dividend.doubleValue(), divisor.doubleValue());
+            return divideHandlingZero(dividend.doubleValue(), divisor.doubleValue());
         }
     }
 
-    public static double divideIfNotZero(final double dividend, final double divisor) {
+    public static double divideHandlingZero(final double dividend, final double divisor) {
         if (divisor == 0D) {
             return 0D;
         } else {

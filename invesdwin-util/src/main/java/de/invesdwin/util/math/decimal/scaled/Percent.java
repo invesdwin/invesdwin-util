@@ -62,7 +62,7 @@ public class Percent extends AScaledDecimal<Percent, PercentScale> implements IP
     }
 
     public Percent(final double dividend, final double divisor) {
-        this(new Decimal(Doubles.divideIfNotZero(dividend, divisor)), PercentScale.RATE);
+        this(new Decimal(Doubles.divideHandlingZero(dividend, divisor)), PercentScale.RATE);
     }
 
     /**
