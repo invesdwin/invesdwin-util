@@ -271,15 +271,17 @@ public abstract class AFastIterableDelegateMap<K, V> extends ADelegateMap<K, V> 
     @Override
     public V put(final K key, final V value) {
         final V prev = super.put(key, value);
-        if (prev == null) {
-            addToFastIterable(key, value);
-        } else if (prev != value) {
-            refreshFastIterable();
+        synchronized (this) {
+            if (prev == null) {
+                addToFastIterable(key, value);
+            } else if (prev != value) {
+                refreshFastIterable();
+            }
         }
         return prev;
     }
 
-    protected synchronized void addToFastIterable(final K key, final V value) {
+    protected void addToFastIterable(final K key, final V value) {
         if (fastIterable != null) {
             fastIterable.add(ImmutableEntry.of(key, value));
         }
@@ -291,20 +293,18 @@ public abstract class AFastIterableDelegateMap<K, V> extends ADelegateMap<K, V> 
     }
 
     @Override
-    public void clear() {
+    public synchronized void clear() {
         super.clear();
-        synchronized (this) {
-            fastIterable = new BufferingIterator<Entry<K, V>>();
-            entryArray = null;
-            keyArray = null;
-            valueArray = null;
-            empty = true;
-            size = 0;
-        }
+        fastIterable = new BufferingIterator<Entry<K, V>>();
+        entryArray = null;
+        keyArray = null;
+        valueArray = null;
+        empty = true;
+        size = 0;
     }
 
     @Override
-    public V remove(final Object key) {
+    public synchronized V remove(final Object key) {
         final V removed = super.remove(key);
         if (removed != null) {
             refreshFastIterable();
@@ -315,7 +315,7 @@ public abstract class AFastIterableDelegateMap<K, V> extends ADelegateMap<K, V> 
     /**
      * protected so it can be used inside addToFastIterable to refresh instead if desired by overriding
      */
-    protected synchronized void refreshFastIterable() {
+    protected void refreshFastIterable() {
         fastIterable = null;
         entryArray = null;
         keyArray = null;
@@ -325,7 +325,7 @@ public abstract class AFastIterableDelegateMap<K, V> extends ADelegateMap<K, V> 
     }
 
     @Override
-    public boolean remove(final Object key, final Object value) {
+    public synchronized boolean remove(final Object key, final Object value) {
         final boolean removed = super.remove(key, value);
         if (removed) {
             refreshFastIterable();

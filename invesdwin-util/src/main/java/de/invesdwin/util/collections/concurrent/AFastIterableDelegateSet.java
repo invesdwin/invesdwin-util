@@ -39,12 +39,14 @@ public abstract class AFastIterableDelegateSet<E> extends ADelegateSet<E> implem
     public boolean add(final E e) {
         final boolean added = super.add(e);
         if (added) {
-            addToFastIterable(e);
+            synchronized (this) {
+                addToFastIterable(e);
+            }
         }
         return added;
     }
 
-    protected synchronized void addToFastIterable(final E e) {
+    protected void addToFastIterable(final E e) {
         if (fastIterable != null) {
             fastIterable.add(e);
         }
@@ -57,13 +59,15 @@ public abstract class AFastIterableDelegateSet<E> extends ADelegateSet<E> implem
     public boolean addAll(final Collection<? extends E> c) {
         final boolean added = super.addAll(c);
         if (added) {
-            refreshFastIterable();
+            synchronized (this) {
+                refreshFastIterable();
+            }
         }
         return added;
     }
 
     @Override
-    public boolean remove(final Object o) {
+    public synchronized boolean remove(final Object o) {
         final boolean removed = super.remove(o);
         if (removed) {
             refreshFastIterable();
@@ -72,7 +76,7 @@ public abstract class AFastIterableDelegateSet<E> extends ADelegateSet<E> implem
     }
 
     @Override
-    public boolean removeAll(final Collection<?> c) {
+    public synchronized boolean removeAll(final Collection<?> c) {
         final boolean removed = super.removeAll(c);
         if (removed) {
             refreshFastIterable();
@@ -83,7 +87,7 @@ public abstract class AFastIterableDelegateSet<E> extends ADelegateSet<E> implem
     /**
      * protected so it can be used inside addToFastIterable to refresh instead if desired by overriding
      */
-    protected synchronized void refreshFastIterable() {
+    protected void refreshFastIterable() {
         fastIterable = null;
         array = null;
         size = getDelegate().size();
@@ -91,14 +95,12 @@ public abstract class AFastIterableDelegateSet<E> extends ADelegateSet<E> implem
     }
 
     @Override
-    public void clear() {
+    public synchronized void clear() {
         super.clear();
-        synchronized (this) {
-            fastIterable = new BufferingIterator<E>();
-            array = null;
-            empty = true;
-            size = 0;
-        }
+        fastIterable = new BufferingIterator<E>();
+        array = null;
+        empty = true;
+        size = 0;
     }
 
     @Override
