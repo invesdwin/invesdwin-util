@@ -2,11 +2,11 @@ package de.invesdwin.util.collections.concurrent;
 
 import java.lang.reflect.Array;
 import java.util.Collection;
+import java.util.Set;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
-import de.invesdwin.util.collections.delegate.ADelegateSet;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
 
@@ -19,7 +19,7 @@ import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
  * http://stackoverflow.com/questions/1006395/fastest-way-to-iterate-an-array-in-java-loop-variable-vs-enhanced-for-statement
  */
 @ThreadSafe
-public abstract class AFastIterableDelegateSet<E> extends ADelegateSet<E> implements IFastIterable<E> {
+public abstract class AFastIterableDelegateSet<E> implements IFastIterable<E>, Set<E> {
 
     //arraylist wins in raw iterator speed compared to bufferingIterator since no remove is needed, though we need protection against concurrent modification
     @GuardedBy("this")
@@ -30,18 +30,20 @@ public abstract class AFastIterableDelegateSet<E> extends ADelegateSet<E> implem
     private boolean empty;
     @GuardedBy("this")
     private int size;
+    @GuardedBy("this")
+    private final Set<E> delegate = newDelegate();
 
     public AFastIterableDelegateSet() {
         refreshFastIterable();
     }
 
+    protected abstract Set<E> newDelegate();
+
     @Override
-    public boolean add(final E e) {
-        final boolean added = super.add(e);
+    public synchronized boolean add(final E e) {
+        final boolean added = delegate.add(e);
         if (added) {
-            synchronized (this) {
-                addToFastIterable(e);
-            }
+            addToFastIterable(e);
         }
         return added;
     }
@@ -56,19 +58,17 @@ public abstract class AFastIterableDelegateSet<E> extends ADelegateSet<E> implem
     }
 
     @Override
-    public boolean addAll(final Collection<? extends E> c) {
-        final boolean added = super.addAll(c);
+    public synchronized boolean addAll(final Collection<? extends E> c) {
+        final boolean added = delegate.addAll(c);
         if (added) {
-            synchronized (this) {
-                refreshFastIterable();
-            }
+            refreshFastIterable();
         }
         return added;
     }
 
     @Override
     public synchronized boolean remove(final Object o) {
-        final boolean removed = super.remove(o);
+        final boolean removed = delegate.remove(o);
         if (removed) {
             refreshFastIterable();
         }
@@ -77,7 +77,7 @@ public abstract class AFastIterableDelegateSet<E> extends ADelegateSet<E> implem
 
     @Override
     public synchronized boolean removeAll(final Collection<?> c) {
-        final boolean removed = super.removeAll(c);
+        final boolean removed = delegate.removeAll(c);
         if (removed) {
             refreshFastIterable();
         }
@@ -90,13 +90,13 @@ public abstract class AFastIterableDelegateSet<E> extends ADelegateSet<E> implem
     protected void refreshFastIterable() {
         fastIterable = null;
         array = null;
-        size = getDelegate().size();
+        size = delegate.size();
         empty = size == 0;
     }
 
     @Override
     public synchronized void clear() {
-        super.clear();
+        delegate.clear();
         fastIterable = new BufferingIterator<E>();
         array = null;
         empty = true;
@@ -106,7 +106,7 @@ public abstract class AFastIterableDelegateSet<E> extends ADelegateSet<E> implem
     @Override
     public synchronized ICloseableIterator<E> iterator() {
         if (fastIterable == null) {
-            fastIterable = new BufferingIterator<E>(getDelegate());
+            fastIterable = new BufferingIterator<E>(delegate);
         }
         return fastIterable.iterator();
     }
@@ -129,6 +129,31 @@ public abstract class AFastIterableDelegateSet<E> extends ADelegateSet<E> implem
             array = toArray(empty);
         }
         return array;
+    }
+
+    @Override
+    public synchronized boolean contains(final Object o) {
+        return delegate.contains(o);
+    }
+
+    @Override
+    public synchronized Object[] toArray() {
+        return delegate.toArray();
+    }
+
+    @Override
+    public synchronized <T> T[] toArray(final T[] a) {
+        return delegate.toArray(a);
+    }
+
+    @Override
+    public synchronized boolean containsAll(final Collection<?> c) {
+        return delegate.containsAll(c);
+    }
+
+    @Override
+    public synchronized boolean retainAll(final Collection<?> c) {
+        return delegate.retainAll(c);
     }
 
 }

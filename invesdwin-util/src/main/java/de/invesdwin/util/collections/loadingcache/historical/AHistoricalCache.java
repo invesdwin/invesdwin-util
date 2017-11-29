@@ -1,7 +1,6 @@
 package de.invesdwin.util.collections.loadingcache.historical;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map.Entry;
@@ -58,13 +57,12 @@ public abstract class AHistoricalCache<V> {
     private final IHistoricalCacheQueryCore<V> queryCore = newHistoricalCacheQueryCore();
     private IHistoricalCacheAdjustKeyProvider adjustKeyProvider = new InnerHistoricalCacheAdjustKeyProvider();
     private IHistoricalCacheOnValueLoadedListener<V> onValueLoadedListener = new InnerHistoricalCacheOnValueLoadedListener();
-    private final Set<IHistoricalCacheOnClearListener> onClearListeners = Collections
-            .synchronizedSet(new AFastIterableDelegateSet<IHistoricalCacheOnClearListener>() {
-                @Override
-                protected Set<IHistoricalCacheOnClearListener> newDelegate() {
-                    return new LinkedHashSet<IHistoricalCacheOnClearListener>();
-                }
-            });
+    private final AFastIterableDelegateSet<IHistoricalCacheOnClearListener> onClearListeners = new AFastIterableDelegateSet<IHistoricalCacheOnClearListener>() {
+        @Override
+        protected Set<IHistoricalCacheOnClearListener> newDelegate() {
+            return new LinkedHashSet<IHistoricalCacheOnClearListener>();
+        }
+    };
 
     private volatile FDate lastRefresh = HistoricalCacheRefreshManager.getLastRefresh();
     private boolean isPutDisabled = getMaximumSize() != null && getMaximumSize() == 0;
