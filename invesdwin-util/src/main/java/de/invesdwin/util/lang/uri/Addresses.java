@@ -1,7 +1,9 @@
 package de.invesdwin.util.lang.uri;
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -18,8 +20,8 @@ public final class Addresses {
     public static final List<Integer> ALL_PORTS;
 
     private static final Pattern BYTE_PATTERN = Pattern.compile("(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)");
-    private static final Pattern IP_PATTERN = Pattern.compile(BYTE_PATTERN + "\\." + BYTE_PATTERN + "\\."
-            + BYTE_PATTERN + "\\." + BYTE_PATTERN);
+    private static final Pattern IP_PATTERN = Pattern
+            .compile(BYTE_PATTERN + "\\." + BYTE_PATTERN + "\\." + BYTE_PATTERN + "\\." + BYTE_PATTERN);
 
     static {
         final List<Integer> ports = new ArrayList<Integer>(PORT_MAX);
@@ -73,6 +75,14 @@ public final class Addresses {
     public static InetSocketAddress asAddress(final String host, final int port) {
         final InetAddress addr = asAddress(host);
         return addr == null ? null : new InetSocketAddress(addr, port);
+    }
+
+    public static boolean isConnectionPossible(final String host, final int port) {
+        try (Socket ignored = new Socket(host, port)) {
+            return true;
+        } catch (final IOException e) {
+            return false;
+        }
     }
 
 }
