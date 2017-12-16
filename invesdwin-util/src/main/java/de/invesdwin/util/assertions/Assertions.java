@@ -183,6 +183,34 @@ public final class Assertions extends AAssertionsStaticFacade {
         }
     }
 
+    public static <S> void checkEmpty(final Collection<S> collection) {
+        if (!collection.isEmpty()) {
+            assertThat(collection).isEmpty();
+            failExceptionExpected();
+        }
+    }
+
+    public static <S> void checkEmpty(final Collection<S> collection, final String message, final Object... args) {
+        if (!collection.isEmpty()) {
+            assertThat(collection).as(message, args).isEmpty();
+            failExceptionExpected();
+        }
+    }
+
+    public static void checkEmpty(final Object[] collection) {
+        if (collection.length != 0) {
+            assertThat(collection).isEmpty();
+            failExceptionExpected();
+        }
+    }
+
+    public static void checkEmpty(final Object[] collection, final String message, final Object... args) {
+        if (collection.length != 0) {
+            assertThat(collection).as(message, args).isEmpty();
+            failExceptionExpected();
+        }
+    }
+
     public static <S> void checkContains(final Collection<S> collection, final S element) {
         if (!collection.contains(element)) {
             assertThat(collection).contains(element);
