@@ -29,7 +29,7 @@
 
 		<version.fest-reflect>1.4.1</version.fest-reflect>
 		<version.fest-util>1.2.5</version.fest-util>
-		<version.fst>2.50</version.fst>
+		<version.fst>2.56</version.fst>
 		<version.jollyday>0.5.2</version.jollyday>
 		<version.dsiutils>2.4.0</version.dsiutils>
 	</properties>

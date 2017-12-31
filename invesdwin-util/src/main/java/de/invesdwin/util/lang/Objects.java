@@ -70,14 +70,7 @@ public final class Objects extends AObjectsStaticFacade {
                 @Override
                 @SuppressWarnings("unchecked")
                 public <T> T deserialize(final byte[] objectData) {
-                    try {
-                        return (T) SERIALIZATION_CONFIG.asObject(objectData);
-                    } finally {
-                        //TODO remove with next version of FST when resetForReuseArray also clears the callbacks
-                        //calls internally resetForReuse which clears the callbacks
-                        //https://github.com/RuedigerMoeller/fast-serialization/pull/200
-                        SERIALIZATION_CONFIG.getObjectInput();
-                    }
+                    return (T) SERIALIZATION_CONFIG.asObject(objectData);
                 }
 
                 @Override
