@@ -148,4 +148,9 @@ public final class URIsConnect {
         return con;
     }
 
+    @Override
+    public String toString() {
+        return url.toString();
+    }
+
 }
