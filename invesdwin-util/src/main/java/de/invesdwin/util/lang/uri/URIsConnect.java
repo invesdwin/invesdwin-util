@@ -93,7 +93,7 @@ public final class URIsConnect {
         try {
             final URLConnection con = openConnection();
             return con.getInputStream().available() > 0;
-        } catch (final IOException e) {
+        } catch (final Throwable e) {
             return false;
         }
     }

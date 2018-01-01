@@ -1,6 +1,5 @@
 package de.invesdwin.util.lang.uri;
 
-import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -80,7 +79,7 @@ public final class Addresses {
     public static boolean isConnectionPossible(final String host, final int port) {
         try (Socket ignored = new Socket(host, port)) {
             return true;
-        } catch (final IOException e) {
+        } catch (final Throwable e) {
             return false;
         }
     }
