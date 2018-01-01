@@ -75,7 +75,7 @@ public final class URIsConnect {
                     networkTimeout.intValue(FTimeUnit.MILLISECONDS));
             socket.close();
             return true;
-        } catch (final IOException e) {
+        } catch (final Throwable e) {
             return false;
         }
     }
@@ -113,7 +113,7 @@ public final class URIsConnect {
             final URLConnection con = openConnection();
             in = con.getInputStream();
             return IOUtils.toString(in, Charset.defaultCharset());
-        } catch (final IOException e) {
+        } catch (final Throwable e) {
             return null;
         } finally {
             IOUtils.closeQuietly(in);
