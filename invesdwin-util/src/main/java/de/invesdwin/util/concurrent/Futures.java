@@ -2,6 +2,7 @@ package de.invesdwin.util.concurrent;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -25,6 +26,9 @@ public final class Futures {
     public static <T> T get(final Future<T> future) throws InterruptedException {
         try {
             return future.get();
+        } catch (final InterruptedException e) {
+            future.cancel(true);
+            throw e;
         } catch (final ExecutionException e) {
             final InterruptedException iCause = Throwables.getCauseByType(e, InterruptedException.class);
             if (iCause != null) {
@@ -40,12 +44,34 @@ public final class Futures {
         return get(Arrays.asList(futures));
     }
 
-    public static <T> List<T> get(final List<Future<T>> futures) throws InterruptedException {
-        final List<T> resultate = new ArrayList<T>(futures.size());
-        for (final Future<T> future : futures) {
-            resultate.add(get(future));
+    public static <T> List<T> get(final Iterable<? extends Future<T>> futures) throws InterruptedException {
+        try {
+            final List<T> results = new ArrayList<T>();
+            for (final Future<T> future : futures) {
+                results.add(get(future));
+            }
+            return results;
+        } catch (final InterruptedException e) {
+            cancel(futures);
+            throw e;
         }
-        return resultate;
+    }
+
+    @SafeVarargs
+    public static <T> void cancel(final Future<T>... futures) {
+        cancel(Arrays.asList(futures));
+    }
+
+    public static <T> void cancel(final Iterable<? extends Future<T>> futures) {
+        for (final Future<?> future : futures) {
+            cancel(future);
+        }
+    }
+
+    public static void cancel(final Future<?> future) {
+        if (!future.isDone() && !future.isCancelled()) {
+            future.cancel(true);
+        }
     }
 
     public static void submitAndWait(final ExecutorService executor, final Runnable task) throws InterruptedException {
@@ -53,7 +79,7 @@ public final class Futures {
         wait(future);
     }
 
-    public static void submitAndWait(final ExecutorService executor, final List<? extends Runnable> tasks)
+    public static void submitAndWait(final ExecutorService executor, final Collection<? extends Runnable> tasks)
             throws InterruptedException {
         final List<Future<?>> futures = new ArrayList<Future<?>>(tasks.size());
 
@@ -67,7 +93,7 @@ public final class Futures {
      * Returns with the first exception and aborts remaining tasks. This is useful for caller runs or similar throttled
      * executors.
      */
-    public static void submitAndWaitFailFast(final ExecutorService executor, final List<? extends Runnable> tasks)
+    public static void submitAndWaitFailFast(final ExecutorService executor, final Collection<? extends Runnable> tasks)
             throws InterruptedException {
         final List<Future<?>> futures = new CopyOnWriteArrayList<Future<?>>();
 
@@ -101,8 +127,8 @@ public final class Futures {
         return get(future);
     }
 
-    public static <T> List<T> submitAndGet(final ExecutorService executor, final List<? extends Callable<T>> tasks)
-            throws InterruptedException {
+    public static <T> List<T> submitAndGet(final ExecutorService executor,
+            final Collection<? extends Callable<T>> tasks) throws InterruptedException {
         final List<Future<T>> futures = executor.invokeAll(tasks);
         return get(futures);
     }
@@ -111,9 +137,14 @@ public final class Futures {
         wait(Arrays.asList(futures));
     }
 
-    public static void wait(final List<? extends Future<?>> futures) throws InterruptedException {
-        for (final Future<?> future : futures) {
-            wait(future);
+    public static void wait(final Iterable<? extends Future<?>> futures) throws InterruptedException {
+        try {
+            for (final Future<?> future : futures) {
+                wait(future);
+            }
+        } catch (final InterruptedException e) {
+            cancel(futures);
+            throw e;
         }
     }
 
