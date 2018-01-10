@@ -14,13 +14,15 @@ import de.invesdwin.util.error.Throwables;
 public abstract class ADelegateInputStream extends InputStream {
 
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(ACloseableIterator.class);
+    private final boolean debugStackTraceEnabled = Throwables.isDebugStackTraceEnabled();
 
     private InputStream delegate;
 
     private Exception initStackTrace;
+    private Exception readStackTrace;
 
     public ADelegateInputStream() {
-        if (Throwables.isDebugStackTraceEnabled()) {
+        if (debugStackTraceEnabled) {
             initStackTrace = new Exception();
             initStackTrace.fillInStackTrace();
         }
@@ -58,8 +60,14 @@ public abstract class ADelegateInputStream extends InputStream {
             if (delegate != null) {
                 String warning = "Finalizing unclosed " + InputStream.class.getSimpleName() + " ["
                         + getClass().getName() + "]";
-                if (Throwables.isDebugStackTraceEnabled()) {
-                    final Exception stackTrace = initStackTrace;
+                if (debugStackTraceEnabled) {
+                    final Exception stackTrace;
+                    if (initStackTrace != null) {
+                        warning += " which was initialized but never used";
+                        stackTrace = initStackTrace;
+                    } else {
+                        stackTrace = readStackTrace;
+                    }
                     if (stackTrace != null) {
                         warning += " from stacktrace:\n" + Throwables.getFullStackTrace(stackTrace);
                     }
@@ -92,6 +100,11 @@ public abstract class ADelegateInputStream extends InputStream {
 
     @Override
     public int read() throws IOException {
+        if (debugStackTraceEnabled && readStackTrace == null) {
+            initStackTrace = null;
+            readStackTrace = new Exception();
+            readStackTrace.fillInStackTrace();
+        }
         final int read = getDelegate().read();
         if (shouldCloseOnMinus1Read() && read == -1) {
             close();

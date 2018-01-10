@@ -14,13 +14,15 @@ import de.invesdwin.util.error.Throwables;
 public abstract class ADelegateOutputStream extends OutputStream {
 
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(ACloseableIterator.class);
+    private final boolean debugStackTraceEnabled = Throwables.isDebugStackTraceEnabled();
 
     private OutputStream delegate;
 
     private Exception initStackTrace;
+    private Exception readStackTrace;
 
     public ADelegateOutputStream() {
-        if (Throwables.isDebugStackTraceEnabled()) {
+        if (debugStackTraceEnabled) {
             initStackTrace = new Exception();
             initStackTrace.fillInStackTrace();
         }
@@ -53,8 +55,14 @@ public abstract class ADelegateOutputStream extends OutputStream {
             if (delegate != null) {
                 String warning = "Finalizing unclosed " + OutputStream.class.getSimpleName() + " ["
                         + getClass().getName() + "]";
-                if (Throwables.isDebugStackTraceEnabled()) {
-                    final Exception stackTrace = initStackTrace;
+                if (debugStackTraceEnabled) {
+                    final Exception stackTrace;
+                    if (initStackTrace != null) {
+                        warning += " which was initialized but never used";
+                        stackTrace = initStackTrace;
+                    } else {
+                        stackTrace = readStackTrace;
+                    }
                     if (stackTrace != null) {
                         warning += " from stacktrace:\n" + Throwables.getFullStackTrace(stackTrace);
                     }
@@ -72,6 +80,11 @@ public abstract class ADelegateOutputStream extends OutputStream {
 
     @Override
     public void write(final int b) throws IOException {
+        if (debugStackTraceEnabled && readStackTrace == null) {
+            initStackTrace = null;
+            readStackTrace = new Exception();
+            readStackTrace.fillInStackTrace();
+        }
         getDelegate().write(b);
     }
 

@@ -11,6 +11,7 @@ import de.invesdwin.util.error.Throwables;
 public abstract class ACloseableIterator<E> implements ICloseableIterator<E> {
 
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(ACloseableIterator.class);
+    private final boolean debugStackTraceEnabled = Throwables.isDebugStackTraceEnabled();
 
     private boolean closed;
 
@@ -22,14 +23,14 @@ public abstract class ACloseableIterator<E> implements ICloseableIterator<E> {
     }
 
     protected void createInitStackTrace() {
-        if (Throwables.isDebugStackTraceEnabled()) {
+        if (debugStackTraceEnabled) {
             initStackTrace = new Exception();
             initStackTrace.fillInStackTrace();
         }
     }
 
     protected void createNextOrHasNextStackTrace() {
-        if (Throwables.isDebugStackTraceEnabled() && nextOrHasNextStackTrace == null) {
+        if (debugStackTraceEnabled && nextOrHasNextStackTrace == null) {
             initStackTrace = null;
             nextOrHasNextStackTrace = new Exception();
             nextOrHasNextStackTrace.fillInStackTrace();
@@ -38,7 +39,7 @@ public abstract class ACloseableIterator<E> implements ICloseableIterator<E> {
 
     protected void createUnclosedFinalizeMessageLog() {
         String warning = "Finalizing unclosed iterator [" + getClass().getName() + "]";
-        if (Throwables.isDebugStackTraceEnabled()) {
+        if (debugStackTraceEnabled) {
             final Exception stackTrace;
             if (initStackTrace != null) {
                 warning += " which was initialized but never used";
