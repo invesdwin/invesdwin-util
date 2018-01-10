@@ -18,20 +18,13 @@ public abstract class ADelegateOutputStream extends OutputStream {
     private OutputStream delegate;
 
     private Exception initStackTrace;
-    private Exception readStackTrace;
 
     public ADelegateOutputStream() {
         if (Throwables.isDebugStackTraceEnabled()) {
             initStackTrace = new Exception();
             initStackTrace.fillInStackTrace();
         }
-    }
-
-    protected OutputStream getDelegate() {
-        if (delegate == null) {
-            delegate = newDelegate();
-        }
-        return delegate;
+        delegate = newDelegate();
     }
 
     protected abstract OutputStream newDelegate();
@@ -55,13 +48,7 @@ public abstract class ADelegateOutputStream extends OutputStream {
                 String warning = "Finalizing unclosed " + OutputStream.class.getSimpleName() + " ["
                         + getClass().getName() + "]";
                 if (Throwables.isDebugStackTraceEnabled()) {
-                    final Exception stackTrace;
-                    if (initStackTrace != null) {
-                        warning += " which was initialized but never used";
-                        stackTrace = initStackTrace;
-                    } else {
-                        stackTrace = readStackTrace;
-                    }
+                    final Exception stackTrace = initStackTrace;
                     if (stackTrace != null) {
                         warning += " from stacktrace:\n" + Throwables.getFullStackTrace(stackTrace);
                     }
@@ -79,17 +66,12 @@ public abstract class ADelegateOutputStream extends OutputStream {
 
     @Override
     public void write(final int b) throws IOException {
-        if (Throwables.isDebugStackTraceEnabled() && readStackTrace == null) {
-            initStackTrace = null;
-            readStackTrace = new Exception();
-            readStackTrace.fillInStackTrace();
-        }
-        getDelegate().write(b);
+        delegate.write(b);
     }
 
     @Override
     public void flush() throws IOException {
-        getDelegate().flush();
+        delegate.flush();
     }
 
 }
