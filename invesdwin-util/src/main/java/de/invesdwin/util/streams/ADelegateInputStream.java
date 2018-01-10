@@ -18,7 +18,6 @@ public abstract class ADelegateInputStream extends InputStream {
     private InputStream delegate;
 
     private Exception initStackTrace;
-    private Exception readStackTrace;
 
     public ADelegateInputStream() {
         if (Throwables.isDebugStackTraceEnabled()) {
@@ -60,13 +59,7 @@ public abstract class ADelegateInputStream extends InputStream {
                 String warning = "Finalizing unclosed " + InputStream.class.getSimpleName() + " ["
                         + getClass().getName() + "]";
                 if (Throwables.isDebugStackTraceEnabled()) {
-                    final Exception stackTrace;
-                    if (initStackTrace != null) {
-                        warning += " which was initialized but never used";
-                        stackTrace = initStackTrace;
-                    } else {
-                        stackTrace = readStackTrace;
-                    }
+                    final Exception stackTrace = initStackTrace;
                     if (stackTrace != null) {
                         warning += " from stacktrace:\n" + Throwables.getFullStackTrace(stackTrace);
                     }
@@ -99,11 +92,6 @@ public abstract class ADelegateInputStream extends InputStream {
 
     @Override
     public int read() throws IOException {
-        if (Throwables.isDebugStackTraceEnabled() && readStackTrace == null) {
-            initStackTrace = null;
-            readStackTrace = new Exception();
-            readStackTrace.fillInStackTrace();
-        }
         final int read = getDelegate().read();
         if (shouldCloseOnMinus1Read() && read == -1) {
             close();
