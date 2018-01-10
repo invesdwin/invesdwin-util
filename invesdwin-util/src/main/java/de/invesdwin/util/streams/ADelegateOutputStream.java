@@ -24,7 +24,13 @@ public abstract class ADelegateOutputStream extends OutputStream {
             initStackTrace = new Exception();
             initStackTrace.fillInStackTrace();
         }
-        delegate = newDelegate();
+    }
+
+    protected OutputStream getDelegate() {
+        if (delegate == null) {
+            delegate = newDelegate();
+        }
+        return delegate;
     }
 
     protected abstract OutputStream newDelegate();
@@ -66,12 +72,12 @@ public abstract class ADelegateOutputStream extends OutputStream {
 
     @Override
     public void write(final int b) throws IOException {
-        delegate.write(b);
+        getDelegate().write(b);
     }
 
     @Override
     public void flush() throws IOException {
-        delegate.flush();
+        getDelegate().flush();
     }
 
 }
