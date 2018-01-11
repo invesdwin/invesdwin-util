@@ -58,17 +58,17 @@ public final class Futures {
     }
 
     @SafeVarargs
-    public static <T> void cancel(final Future<T>... futures) {
+    public static <T> void cancel(final Future<? extends T>... futures) {
         cancel(Arrays.asList(futures));
     }
 
-    public static <T> void cancel(final Iterable<? extends Future<T>> futures) {
+    public static <T> void cancel(final Iterable<? extends Future<? extends T>> futures) {
         for (final Future<?> future : futures) {
             cancel(future);
         }
     }
 
-    public static void cancel(final Future<?> future) {
+    public static <T> void cancel(final Future<? extends T> future) {
         if (!future.isDone() && !future.isCancelled()) {
             future.cancel(true);
         }
@@ -133,11 +133,12 @@ public final class Futures {
         return get(futures);
     }
 
-    public static void wait(final Future<?>... futures) throws InterruptedException {
+    @SafeVarargs
+    public static <T> void wait(final Future<? extends T>... futures) throws InterruptedException {
         wait(Arrays.asList(futures));
     }
 
-    public static void wait(final Iterable<? extends Future<?>> futures) throws InterruptedException {
+    public static <T> void wait(final Iterable<? extends Future<? extends T>> futures) throws InterruptedException {
         try {
             for (final Future<?> future : futures) {
                 wait(future);
@@ -148,7 +149,7 @@ public final class Futures {
         }
     }
 
-    public static void wait(final Future<?> future) throws InterruptedException {
+    public static <T> void wait(final Future<? extends T> future) throws InterruptedException {
         Assertions.assertThat(get(future)).isNull();
     }
 }
