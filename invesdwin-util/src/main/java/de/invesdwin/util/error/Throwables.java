@@ -1,7 +1,5 @@
 package de.invesdwin.util.error;
 
-import java.lang.reflect.InvocationTargetException;
-
 import javax.annotation.concurrent.Immutable;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -47,24 +45,9 @@ public final class Throwables extends AThrowablesStaticFacade {
             if (type.isInstance(cause)) {
                 return (T) cause;
             }
-            cause = getCause(cause);
+            cause = cause.getCause();
         }
         return null;
-    }
-
-    /**
-     * Handles InvocationTargetException properly
-     */
-    public static Throwable getCause(final Throwable t) {
-        Throwable cause = null;
-        if (t instanceof InvocationTargetException) {
-            final InvocationTargetException ite = (InvocationTargetException) t;
-            cause = ite.getTargetException();
-        }
-        if (cause == null) {
-            cause = t.getCause();
-        }
-        return cause;
     }
 
     public static String concatMessages(final Throwable e) {
@@ -75,7 +58,7 @@ public final class Throwables extends AThrowablesStaticFacade {
                 sb.append("\nCaused by ");
             }
             sb.append(cause.toString());
-            cause = getCause(cause);
+            cause = cause.getCause();
         }
         return sb.toString();
     }
@@ -86,7 +69,7 @@ public final class Throwables extends AThrowablesStaticFacade {
             if (Strings.containsIgnoreCase(cause.getMessage(), messagePart)) {
                 return true;
             }
-            cause = getCause(cause);
+            cause = cause.getCause();
         }
         return false;
     }
@@ -103,7 +86,7 @@ public final class Throwables extends AThrowablesStaticFacade {
             ignoredSomething = false;
             for (final Class<? extends Throwable> ignoredType : ignoredTypes) {
                 if (ignoredType.isInstance(validCause)) {
-                    validCause = Throwables.getCause(validCause);
+                    validCause = validCause.getCause();
                     ignoredSomething = true;
                     break;
                 }
