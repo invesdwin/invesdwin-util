@@ -157,6 +157,11 @@ public class DfpDecimalImpl extends AGenericDecimalImpl<DfpDecimalImpl, Dfp> {
     }
 
     @Override
+    public DfpDecimalImpl round(final int scale, final RoundingMode roundingMode) {
+        return (DfpDecimalImpl) super.round(scale, roundingMode);
+    }
+
+    @Override
     public Dfp internalRound(final Dfp value, final int scale, final RoundingMode roundingMode) {
         final Dfp factor = DfpDecimalImplFactory.toDfp((long) Math.pow(10, scale));
         final Dfp toBeRoundedValue = value.multiply(factor);

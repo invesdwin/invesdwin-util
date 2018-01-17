@@ -160,9 +160,13 @@ public class BigDecimalDecimalImpl extends AGenericDecimalImpl<BigDecimalDecimal
 
     @Override
     public BigDecimalDecimalImpl multiply(final Number multiplicant) {
-        return (BigDecimalDecimalImpl) newValueCopy(getValue()
-                .multiply(BigDecimalDecimalImplFactory.toBigDecimal(multiplicant), BigDecimals.DEFAULT_MATH_CONTEXT))
-                        .round(Decimal.DEFAULT_ROUNDING_SCALE, Decimal.DEFAULT_ROUNDING_MODE);
+        return newValueCopy(getValue().multiply(BigDecimalDecimalImplFactory.toBigDecimal(multiplicant),
+                BigDecimals.DEFAULT_MATH_CONTEXT)).round(Decimal.DEFAULT_ROUNDING_SCALE, Decimal.DEFAULT_ROUNDING_MODE);
+    }
+
+    @Override
+    public BigDecimalDecimalImpl round(final int scale, final RoundingMode roundingMode) {
+        return (BigDecimalDecimalImpl) super.round(scale, roundingMode);
     }
 
     @Override
