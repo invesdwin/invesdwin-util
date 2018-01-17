@@ -16,6 +16,8 @@ import org.assertj.core.description.TextDescription;
 import de.invesdwin.norva.marker.IDecimal;
 import de.invesdwin.util.lang.ADelegateComparator;
 import de.invesdwin.util.lang.Objects;
+import de.invesdwin.util.math.Booleans;
+import de.invesdwin.util.math.Bytes;
 import de.invesdwin.util.math.decimal.internal.impl.ADecimalImpl;
 import de.invesdwin.util.math.decimal.scaled.Percent;
 import de.invesdwin.util.math.decimal.scaled.PercentScale;
@@ -36,9 +38,16 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
             return e;
         }
     };
+    private static final byte TRUE_BYTE = 1;
+    private static final byte FALSE_BYTE = -1;
 
-    protected transient Boolean isZero;
-    protected transient Boolean isPositive;
+    /**
+     * using primitive byte to represent this information in order to save some heap space.
+     * 
+     * -1 = null, 0 = false, 1 = true
+     */
+    protected transient byte isZero;
+    protected transient byte isPositive;
 
     public abstract ADecimalImpl getImpl();
 
@@ -293,10 +302,10 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
     }
 
     public boolean isZero() {
-        if (isZero == null) {
-            isZero = getImpl().isZero();
+        if (isZero == 0) {
+            isZero = Bytes.checkedCast(getImpl().isZero());
         }
-        return isZero;
+        return Booleans.checkedCast(isZero);
     }
 
     public final boolean isNotZero() {
@@ -307,10 +316,10 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
      * 0 is counted as positive as well here to make things simpler.
      */
     public boolean isPositive() {
-        if (isPositive == null) {
-            isPositive = getImpl().isPositive();
+        if (isPositive == 0) {
+            isPositive = Bytes.checkedCast(getImpl().isPositive(), TRUE_BYTE, FALSE_BYTE);
         }
-        return isPositive;
+        return Booleans.checkedCast(isPositive, TRUE_BYTE, FALSE_BYTE);
     }
 
     /**
@@ -612,7 +621,7 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
     }
 
     public E negate() {
-        return multiply(-1);
+        return multiply(FALSE_BYTE);
     }
 
     public String getSign() {

@@ -10,14 +10,14 @@ import javax.annotation.concurrent.ThreadSafe;
 import org.apache.commons.math3.dfp.Dfp;
 
 import de.invesdwin.util.math.decimal.internal.impl.ADecimalImpl;
+import de.invesdwin.util.math.decimal.internal.impl.AGenericDecimalImpl;
 
 @SuppressWarnings({ "serial", "rawtypes", "unchecked" })
 @ThreadSafe
-class ScaledDecimalDelegateImpl extends ADecimalImpl {
+class ScaledDecimalDelegateImpl extends AGenericDecimalImpl {
 
     private final AScaledDecimal<?, ?> parent;
     private final ADecimalImpl delegate;
-    @SuppressWarnings("GuardedBy")
     @GuardedBy("none for performance")
     private transient ADecimalImpl defaultScaledDelegate;
 
@@ -308,7 +308,7 @@ class ScaledDecimalDelegateImpl extends ADecimalImpl {
     }
 
     @Override
-    protected ADecimalImpl newValueCopy(final Object value, final Object defaultRoundedValue) {
+    protected AGenericDecimalImpl newValueCopy(final Object value, final Object defaultRoundedValue) {
         throw new UnsupportedOperationException();
     }
 

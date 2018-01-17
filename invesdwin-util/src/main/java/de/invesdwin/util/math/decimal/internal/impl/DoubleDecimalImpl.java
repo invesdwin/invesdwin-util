@@ -15,16 +15,21 @@ import org.apache.commons.math3.dfp.Dfp;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.lang.Strings;
+import de.invesdwin.util.math.Bytes;
+import de.invesdwin.util.math.Floats;
+import de.invesdwin.util.math.Integers;
+import de.invesdwin.util.math.Longs;
+import de.invesdwin.util.math.Shorts;
 import de.invesdwin.util.math.decimal.ADecimal;
 import de.invesdwin.util.math.decimal.Decimal;
 
 @ThreadSafe
-public class DoubleDecimalImpl extends ADecimalImpl<DoubleDecimalImpl, Double> {
+public class DoubleDecimalImpl extends ADoubleDecimalImpl<DoubleDecimalImpl> {
 
     private static final double FIRST_ABOVE_ZERO = 0.000000001;
     private static final double FIRST_BELOW_ZERO = -0.000000001;
     private static final double ZERO = 0d;
-    private static final Double ZERO_OBJ = ZERO;
+    private static final double ZERO_OBJ = ZERO;
     private static final DoubleDecimalImpl ZERO_IMPL = new DoubleDecimalImpl(ZERO_OBJ, ZERO_OBJ);
 
     static {
@@ -108,7 +113,7 @@ public class DoubleDecimalImpl extends ADecimalImpl<DoubleDecimalImpl, Double> {
 
     @Override
     public double doubleValue() {
-        return getDefaultRoundedValue().doubleValue();
+        return getDefaultRoundedValue();
     }
 
     @Override
@@ -118,27 +123,27 @@ public class DoubleDecimalImpl extends ADecimalImpl<DoubleDecimalImpl, Double> {
 
     @Override
     public float floatValue() {
-        return getDefaultRoundedValue().floatValue();
+        return Floats.checkedCast(getDefaultRoundedValue());
     }
 
     @Override
     public int intValue() {
-        return getDefaultRoundedValue().intValue();
+        return Integers.checkedCast(getDefaultRoundedValue());
     }
 
     @Override
     public long longValue() {
-        return getDefaultRoundedValue().longValue();
+        return Longs.checkedCast(getDefaultRoundedValue());
     }
 
     @Override
     public byte byteValue() {
-        return getDefaultRoundedValue().byteValue();
+        return Bytes.checkedCast(getDefaultRoundedValue());
     }
 
     @Override
     public short shortValue() {
-        return getDefaultRoundedValue().shortValue();
+        return Shorts.checkedCast(getDefaultRoundedValue());
     }
 
     @Override
@@ -268,7 +273,7 @@ public class DoubleDecimalImpl extends ADecimalImpl<DoubleDecimalImpl, Double> {
     }
 
     @Override
-    protected Double internalRound(final Double value, final int scale, final RoundingMode roundingMode) {
+    protected double internalRound(final double value, final int scale, final RoundingMode roundingMode) {
         final long factor = (long) Math.pow(10, scale);
         final double toBeRoundedValue;
         if (scale < Decimal.DEFAULT_ROUNDING_SCALE && roundingMode != Decimal.DEFAULT_ROUNDING_MODE) {
@@ -333,12 +338,12 @@ public class DoubleDecimalImpl extends ADecimalImpl<DoubleDecimalImpl, Double> {
     }
 
     @Override
-    protected Double getZero() {
-        return ZERO_OBJ;
+    protected double getZero() {
+        return ZERO;
     }
 
     @Override
-    protected DoubleDecimalImpl newValueCopy(final Double value, final Double defaultRoundedValue) {
+    protected DoubleDecimalImpl newValueCopy(final double value, final double defaultRoundedValue) {
         return new DoubleDecimalImpl(value, defaultRoundedValue);
     }
 

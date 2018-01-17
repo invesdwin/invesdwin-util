@@ -5,13 +5,11 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
 
-import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
 import org.apache.commons.math3.dfp.Dfp;
 
 import de.invesdwin.norva.marker.IDecimal;
-import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.math.decimal.ADecimal;
 import de.invesdwin.util.math.decimal.Decimal;
 
@@ -21,101 +19,34 @@ import de.invesdwin.util.math.decimal.Decimal;
  * This class does not extend AValueObject to improve performance by skipping the bean property aspect.
  */
 @ThreadSafe
-public abstract class ADecimalImpl<E extends ADecimalImpl<E, V>, V>
-        implements Comparable<Object>, Serializable, IDecimal {
+public abstract class ADecimalImpl<E extends ADecimalImpl<E>> implements Comparable<Object>, Serializable, IDecimal {
 
-    private final V value;
+    /**
+     * Wrap this information in a value object since not many decimals require this info. This saves a lot of heap
+     * space.
+     */
+    private transient DecimalDigitsInfo digitsInfo;
 
-    @SuppressWarnings("GuardedBy")
-    @GuardedBy("none for performance")
-    private transient Integer wholeNumberDigits;
-    @SuppressWarnings("GuardedBy")
-    @GuardedBy("none for performance")
-    private transient Integer decimalDigits;
-    @SuppressWarnings("GuardedBy")
-    @GuardedBy("none for performance")
-    private transient Integer digits;
-    @SuppressWarnings("GuardedBy")
-    @GuardedBy("none for performance")
-    private transient String toString;
-    @SuppressWarnings("GuardedBy")
-    @GuardedBy("none for performance")
-    private transient V defaultRoundedValue;
-    @SuppressWarnings("GuardedBy")
-    @GuardedBy("none for performance")
-    private transient boolean defaultRoundedValueActuallyRounded;
-
-    public ADecimalImpl(final V value, final V defaultRoundedValue) {
-        if (value == null) {
-            this.value = getZero();
-            this.defaultRoundedValue = this.value;
-            this.defaultRoundedValueActuallyRounded = true;
-        } else {
-            this.value = value;
-            this.defaultRoundedValue = defaultRoundedValue;
+    private DecimalDigitsInfo getDigitsInfo() {
+        if (digitsInfo == null) {
+            digitsInfo = new DecimalDigitsInfo(internalToString());
         }
-    }
-
-    protected abstract V internalRound(V value, int scale, RoundingMode roundingMode);
-
-    protected abstract V getZero();
-
-    protected final V getValue() {
-        return value;
+        return digitsInfo;
     }
 
     public int getWholeNumberDigits() {
-        if (wholeNumberDigits == null) {
-            /*
-             * using string operations here because values get distorted even for BigDecimal when using
-             * scaleByPowerOfTen
-             */
-            final String s = toString();
-            final int indexOfDecimalPoint = s.indexOf(".");
-            if (indexOfDecimalPoint != -1) {
-                wholeNumberDigits = indexOfDecimalPoint;
-            } else {
-                wholeNumberDigits = Math.max(1, s.length());
-            }
-        }
-        return wholeNumberDigits;
+        return getDigitsInfo().getWholeNumberDigits();
     }
 
     /**
      * Returns the real scale without trailing zeros.
      */
     public int getDecimalDigits() {
-        if (decimalDigits == null) {
-            /*
-             * using string operations here because values get distorted even for BigDecimal when using
-             * scaleByPowerOfTen
-             */
-            final String s = toString();
-            final int indexOfDecimalPoint = s.indexOf(".");
-            if (indexOfDecimalPoint != -1) {
-                decimalDigits = s.length() - indexOfDecimalPoint - 1;
-            } else {
-                decimalDigits = 0;
-            }
-        }
-        return decimalDigits;
+        return getDigitsInfo().getDecimalDigits();
     }
 
     public int getDigits() {
-        if (digits == null) {
-            /*
-             * using string operations here because values get distorted even for BigDecimal when using
-             * scaleByPowerOfTen
-             */
-            final String s = toString();
-            final int indexOfDecimalPoint = s.indexOf(".");
-            if (indexOfDecimalPoint != -1) {
-                digits = s.length() - 1;
-            } else {
-                digits = Math.max(1, s.length());
-            }
-        }
-        return digits;
+        return getDigitsInfo().getDigits();
     }
 
     public abstract boolean isZero();
@@ -126,18 +57,12 @@ public abstract class ADecimalImpl<E extends ADecimalImpl<E, V>, V>
     public abstract boolean isPositive();
 
     @Override
-    public int hashCode() {
-        return getDefaultRoundedValue().hashCode();
-    }
+    public abstract int hashCode();
 
-    public boolean equals(final ADecimal<?> other) {
-        return internalCompareTo(other) == 0;
-    }
+    public abstract boolean equals(ADecimal<?> other);
 
     @Override
-    public boolean equals(final Object other) {
-        return compareTo(other) == 0;
-    }
+    public abstract boolean equals(Object other);
 
     @Override
     public int compareTo(final Object other) {
@@ -161,15 +86,7 @@ public abstract class ADecimalImpl<E extends ADecimalImpl<E, V>, V>
 
     @Override
     public String toString() {
-        if (toString == null) {
-            final String s = internalToString();
-            if (s.length() > 1 && s.contains(".")) {
-                toString = Strings.removeEnd(Strings.removeTrailing(s, "0"), ".");
-            } else {
-                toString = s;
-            }
-        }
-        return toString;
+        return getDigitsInfo().toString();
     }
 
     protected abstract String internalToString();
@@ -202,38 +119,7 @@ public abstract class ADecimalImpl<E extends ADecimalImpl<E, V>, V>
 
     public abstract E remainder(ADecimal<?> divisor);
 
-    public E round(final int scale, final RoundingMode roundingMode) {
-        if (roundingMode == RoundingMode.UNNECESSARY) {
-            return getGenericThis();
-        }
-        final V rounded;
-        if (scale == Decimal.DEFAULT_ROUNDING_SCALE && roundingMode == Decimal.DEFAULT_ROUNDING_MODE) {
-            if (!defaultRoundedValueActuallyRounded) {
-                defaultRoundedValue = null;
-            }
-            rounded = getDefaultRoundedValue();
-        } else {
-            rounded = internalRound(value, scale, roundingMode);
-        }
-        return newValueCopy(rounded, rounded);
-    }
-
-    /**
-     * this value should be used for comparisons
-     */
-    protected final V getDefaultRoundedValue() {
-        if (defaultRoundedValue == null) {
-            defaultRoundedValue = internalRound(value, Decimal.DEFAULT_ROUNDING_SCALE, Decimal.DEFAULT_ROUNDING_MODE);
-            defaultRoundedValueActuallyRounded = true;
-        }
-        return defaultRoundedValue;
-    }
-
-    protected final E newValueCopy(final V value) {
-        return newValueCopy(value, null);
-    }
-
-    protected abstract E newValueCopy(V value, V defaultRoundedValue);
+    public abstract ADecimalImpl<E> round(int scale, RoundingMode roundingMode);
 
     protected abstract E getGenericThis();
 

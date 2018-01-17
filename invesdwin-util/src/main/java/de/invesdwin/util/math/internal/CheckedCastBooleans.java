@@ -119,6 +119,16 @@ public final class CheckedCastBooleans {
         }
     }
 
+    public static boolean checkedCast(final byte value, final byte trueByte, final byte falseByte) {
+        if (value == trueByte) {
+            return true;
+        } else if (value == falseByte) {
+            return false;
+        } else {
+            throw new IllegalArgumentException("Expecting a " + trueByte + " or " + falseByte + ": " + value);
+        }
+    }
+
     public static boolean checkedCast(final Short value) {
         return checkedCast((short) value);
     }

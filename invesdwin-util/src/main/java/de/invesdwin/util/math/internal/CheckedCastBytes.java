@@ -99,6 +99,14 @@ public final class CheckedCastBytes {
         }
     }
 
+    public static byte checkedCast(final boolean value, final byte trueValue, final byte falseValue) {
+        if (value) {
+            return trueValue;
+        } else {
+            return falseValue;
+        }
+    }
+
     public static byte checkedCast(final Character value) {
         return checkedCast((char) value);
     }

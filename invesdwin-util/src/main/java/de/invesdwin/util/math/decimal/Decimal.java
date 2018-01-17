@@ -73,7 +73,7 @@ public class Decimal extends ADecimal<Decimal> {
         PI = new Decimal(Math.PI);
     }
 
-    private final ADecimalImpl<?, ?> impl;
+    private final ADecimalImpl<?> impl;
 
     public Decimal(final Number value) {
         this(DECIMAL_IMPL_FACTORY.valueOf(value));
@@ -107,7 +107,7 @@ public class Decimal extends ADecimal<Decimal> {
         this(DECIMAL_IMPL_FACTORY.valueOf(value));
     }
 
-    public Decimal(final ADecimalImpl<?, ?> impl) {
+    public Decimal(final ADecimalImpl<?> impl) {
         if (impl instanceof ScaledDecimalDelegateImpl) {
             this.impl = ((ScaledDecimalDelegateImpl) impl).getDelegate();
         } else {

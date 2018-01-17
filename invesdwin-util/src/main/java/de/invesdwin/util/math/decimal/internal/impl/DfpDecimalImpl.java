@@ -13,7 +13,7 @@ import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.math.decimal.ADecimal;
 
 @Immutable
-public class DfpDecimalImpl extends ADecimalImpl<DfpDecimalImpl, Dfp> {
+public class DfpDecimalImpl extends AGenericDecimalImpl<DfpDecimalImpl, Dfp> {
 
     public DfpDecimalImpl(final Dfp value, final Dfp defaultRoundedValue) {
         super(value, defaultRoundedValue);

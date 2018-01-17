@@ -13,7 +13,7 @@ import de.invesdwin.util.math.decimal.ADecimal;
 import de.invesdwin.util.math.decimal.Decimal;
 
 @ThreadSafe
-public class BigDecimalDecimalImpl extends ADecimalImpl<BigDecimalDecimalImpl, BigDecimal> {
+public class BigDecimalDecimalImpl extends AGenericDecimalImpl<BigDecimalDecimalImpl, BigDecimal> {
 
     public BigDecimalDecimalImpl(final BigDecimal value, final BigDecimal defaultRoundedValue) {
         super(value, defaultRoundedValue);
@@ -160,8 +160,9 @@ public class BigDecimalDecimalImpl extends ADecimalImpl<BigDecimalDecimalImpl, B
 
     @Override
     public BigDecimalDecimalImpl multiply(final Number multiplicant) {
-        return newValueCopy(getValue().multiply(BigDecimalDecimalImplFactory.toBigDecimal(multiplicant),
-                BigDecimals.DEFAULT_MATH_CONTEXT)).round(Decimal.DEFAULT_ROUNDING_SCALE, Decimal.DEFAULT_ROUNDING_MODE);
+        return (BigDecimalDecimalImpl) newValueCopy(getValue()
+                .multiply(BigDecimalDecimalImplFactory.toBigDecimal(multiplicant), BigDecimals.DEFAULT_MATH_CONTEXT))
+                        .round(Decimal.DEFAULT_ROUNDING_SCALE, Decimal.DEFAULT_ROUNDING_MODE);
     }
 
     @Override

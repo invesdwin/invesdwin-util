@@ -11,6 +11,7 @@ import javax.annotation.concurrent.ThreadSafe;
 import org.junit.Test;
 
 import de.invesdwin.util.assertions.Assertions;
+import de.invesdwin.util.lang.Objects;
 
 @ThreadSafe
 public class DecimalTest {
@@ -460,6 +461,14 @@ public class DecimalTest {
         System.out.println(detrended + " " + Decimal.valueOf(detrended).growthRates().avg());
         System.out.println(detrendedWithAbsolute + " " + Decimal.valueOf(detrendedWithAbsolute).growthRates().avg());
         //CHECKSTYLE:ON
+    }
+
+    @Test
+    public void testSerialize() {
+        final Decimal positive = new Decimal("1");
+        Assertions.checkTrue(positive.isPositive());
+        final Decimal deepClone = Objects.deepClone(positive);
+        Assertions.checkTrue(deepClone.isPositive());
     }
 
 }
