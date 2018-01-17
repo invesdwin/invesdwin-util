@@ -16,19 +16,19 @@ public class BigDecimalDecimalImplFactory implements IDecimalImplFactory<BigDeci
     @Override
     public BigDecimalDecimalImpl valueOf(final Number value) {
         final BigDecimal bigDecimal = toBigDecimal(value);
-        return new BigDecimalDecimalImpl(bigDecimal, bigDecimal);
+        return new BigDecimalDecimalImpl(bigDecimal);
     }
 
     @Override
     public BigDecimalDecimalImpl valueOf(final Double value) {
         final BigDecimal bigDecimal = toBigDecimal(value);
-        return new BigDecimalDecimalImpl(bigDecimal, bigDecimal);
+        return new BigDecimalDecimalImpl(bigDecimal);
     }
 
     @Override
     public BigDecimalDecimalImpl valueOf(final String value) {
         final BigDecimal bigDecimal = new BigDecimal(value);
-        return new BigDecimalDecimalImpl(bigDecimal, bigDecimal);
+        return new BigDecimalDecimalImpl(bigDecimal);
     }
 
     public static BigDecimal toBigDecimal(final Number number) {

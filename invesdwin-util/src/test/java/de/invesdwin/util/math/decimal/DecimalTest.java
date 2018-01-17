@@ -127,8 +127,8 @@ public class DecimalTest {
         Assertions.assertThat(growthRates.values()).isEqualTo(expectedList);
 
         final Decimal avg = Decimal.valueOf(values).growthRates().avg().getRate();
-        Assertions.assertThat(avg.toString()).isEqualTo("0.5208333333333333");
-        Assertions.assertThat(avg).isEqualTo(new Decimal("0.5208333333333333"));
+        Assertions.assertThat(avg.toString()).isEqualTo("0.520833333");
+        Assertions.assertThat(avg).isEqualTo(new Decimal("0.520833333"));
 
         Assertions.assertThat(values.get(0).growthRate(values.get(values.size() - 1)).toString()).isEqualTo("4");
         Assertions.assertThat(values.get(0).growthRate(values.get(values.size() - 1)).getRate())
@@ -467,8 +467,10 @@ public class DecimalTest {
     public void testSerialize() {
         final Decimal positive = new Decimal("1");
         Assertions.checkTrue(positive.isPositive());
+        final double roundedValue = positive.doubleValue();
         final Decimal deepClone = Objects.deepClone(positive);
         Assertions.checkTrue(deepClone.isPositive());
+        Assertions.assertThat(deepClone.doubleValue()).isEqualTo(roundedValue);
     }
 
 }

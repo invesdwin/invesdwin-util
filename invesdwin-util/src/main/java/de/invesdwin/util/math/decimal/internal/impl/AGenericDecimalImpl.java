@@ -15,17 +15,14 @@ public abstract class AGenericDecimalImpl<E extends AGenericDecimalImpl<E, V>, V
 
     @GuardedBy("none for performance")
     private transient V defaultRoundedValue;
-    @GuardedBy("none for performance")
-    private transient boolean defaultRoundedValueActuallyRounded;
 
-    public AGenericDecimalImpl(final V value, final V defaultRoundedValue) {
+    public AGenericDecimalImpl(final V value) {
         if (value == null) {
             this.value = getZero();
             this.defaultRoundedValue = this.value;
-            this.defaultRoundedValueActuallyRounded = true;
         } else {
             this.value = value;
-            this.defaultRoundedValue = defaultRoundedValue;
+            this.defaultRoundedValue = null;
         }
     }
 
@@ -57,16 +54,13 @@ public abstract class AGenericDecimalImpl<E extends AGenericDecimalImpl<E, V>, V
         if (roundingMode == RoundingMode.UNNECESSARY) {
             return getGenericThis();
         }
-        final V rounded;
         if (scale == Decimal.DEFAULT_ROUNDING_SCALE && roundingMode == Decimal.DEFAULT_ROUNDING_MODE) {
-            if (!defaultRoundedValueActuallyRounded) {
-                defaultRoundedValue = null;
-            }
-            rounded = getDefaultRoundedValue();
+            final V rounded = getDefaultRoundedValue();
+            return newValueCopy(rounded).setAlreadyDefaultRounded(true);
         } else {
-            rounded = internalRound(value, scale, roundingMode);
+            final V rounded = internalRound(value, scale, roundingMode);
+            return newValueCopy(rounded);
         }
-        return newValueCopy(rounded, rounded);
     }
 
     /**
@@ -75,15 +69,23 @@ public abstract class AGenericDecimalImpl<E extends AGenericDecimalImpl<E, V>, V
     protected final V getDefaultRoundedValue() {
         if (defaultRoundedValue == null) {
             defaultRoundedValue = internalRound(value, Decimal.DEFAULT_ROUNDING_SCALE, Decimal.DEFAULT_ROUNDING_MODE);
-            defaultRoundedValueActuallyRounded = true;
         }
         return defaultRoundedValue;
     }
 
-    protected final E newValueCopy(final V value) {
-        return newValueCopy(value, null);
+    @Override
+    public E setAlreadyDefaultRounded(final boolean alreadyDefaultRounded) {
+        if (alreadyDefaultRounded) {
+            defaultRoundedValue = value;
+        }
+        return getGenericThis();
     }
 
-    protected abstract E newValueCopy(V value, V defaultRoundedValue);
+    @Override
+    public boolean isAlreadyDefaultRounded() {
+        return defaultRoundedValue != null;
+    }
+
+    protected abstract E newValueCopy(V value);
 
 }

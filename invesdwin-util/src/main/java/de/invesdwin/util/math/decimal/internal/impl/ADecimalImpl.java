@@ -162,4 +162,8 @@ public abstract class ADecimalImpl<E extends ADecimalImpl<E>> implements Compara
 
     public abstract E sin();
 
+    public abstract E setAlreadyDefaultRounded(boolean alreadyRounded);
+
+    public abstract boolean isAlreadyDefaultRounded();
+
 }

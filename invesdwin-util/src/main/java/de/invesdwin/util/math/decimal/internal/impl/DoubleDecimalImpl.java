@@ -30,7 +30,7 @@ public class DoubleDecimalImpl extends ADoubleDecimalImpl<DoubleDecimalImpl> {
     private static final double FIRST_BELOW_ZERO = -0.000000001;
     private static final double ZERO = 0d;
     private static final double ZERO_OBJ = ZERO;
-    private static final DoubleDecimalImpl ZERO_IMPL = new DoubleDecimalImpl(ZERO_OBJ, ZERO_OBJ);
+    private static final DoubleDecimalImpl ZERO_IMPL = new DoubleDecimalImpl(ZERO_OBJ).setAlreadyDefaultRounded(true);
 
     static {
         //ensure rounding performance fix uses correct scale
@@ -41,8 +41,8 @@ public class DoubleDecimalImpl extends ADoubleDecimalImpl<DoubleDecimalImpl> {
                 .isEqualTo(ADecimal.DEFAULT_ROUNDING_SCALE);
     }
 
-    public DoubleDecimalImpl(final Double value, final Double defaultRoundedValue) {
-        super(value, defaultRoundedValue);
+    public DoubleDecimalImpl(final Double value) {
+        super(value);
         final double doubleValue = getValue();
         if (Double.isNaN(doubleValue)) {
             throw new IllegalArgumentException("NaN: " + doubleValue);
@@ -188,13 +188,13 @@ public class DoubleDecimalImpl extends ADoubleDecimalImpl<DoubleDecimalImpl> {
     @Override
     public DoubleDecimalImpl subtract(final ADecimal<?> subtrahend) {
         final double value = getValue() - subtrahend.doubleValueRaw();
-        return newValueCopy(value, value);
+        return newValueCopy(value);
     }
 
     @Override
     public DoubleDecimalImpl add(final ADecimal<?> augend) {
         final double value = getValue() + augend.doubleValueRaw();
-        return newValueCopy(value, value);
+        return newValueCopy(value);
     }
 
     @Override
@@ -343,8 +343,8 @@ public class DoubleDecimalImpl extends ADoubleDecimalImpl<DoubleDecimalImpl> {
     }
 
     @Override
-    protected DoubleDecimalImpl newValueCopy(final double value, final double defaultRoundedValue) {
-        return new DoubleDecimalImpl(value, defaultRoundedValue);
+    protected DoubleDecimalImpl newValueCopy(final double value) {
+        return new DoubleDecimalImpl(value);
     }
 
     @Override

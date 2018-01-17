@@ -32,19 +32,19 @@ public class DfpDecimalImplFactory implements IDecimalImplFactory<DfpDecimalImpl
     @Override
     public DfpDecimalImpl valueOf(final Number value) {
         final Dfp dfp = toDfp(value);
-        return new DfpDecimalImpl(dfp, dfp);
+        return new DfpDecimalImpl(dfp);
     }
 
     @Override
     public DfpDecimalImpl valueOf(final Double value) {
         final Dfp dfp = toDfp(value);
-        return new DfpDecimalImpl(dfp, dfp);
+        return new DfpDecimalImpl(dfp);
     }
 
     @Override
     public DfpDecimalImpl valueOf(final String value) {
         final Dfp newDfp = DFP_FIELD.newDfp(value);
-        return new DfpDecimalImpl(newDfp, newDfp);
+        return new DfpDecimalImpl(newDfp);
     }
 
     public static Dfp toDfp(final Number number) {

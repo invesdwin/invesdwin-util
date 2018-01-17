@@ -15,8 +15,8 @@ import de.invesdwin.util.math.decimal.Decimal;
 @ThreadSafe
 public class BigDecimalDecimalImpl extends AGenericDecimalImpl<BigDecimalDecimalImpl, BigDecimal> {
 
-    public BigDecimalDecimalImpl(final BigDecimal value, final BigDecimal defaultRoundedValue) {
-        super(value, defaultRoundedValue);
+    public BigDecimalDecimalImpl(final BigDecimal value) {
+        super(value);
     }
 
     @Override
@@ -87,7 +87,7 @@ public class BigDecimalDecimalImpl extends AGenericDecimalImpl<BigDecimalDecimal
     @Override
     public BigDecimalDecimalImpl root(final Number n) {
         final double doubleValue = getValue().doubleValue();
-        return newValueCopy(new DoubleDecimalImpl(doubleValue, doubleValue).root(n).bigDecimalValue());
+        return newValueCopy(new DoubleDecimalImpl(doubleValue).root(n).bigDecimalValue());
     }
 
     @Override
@@ -98,49 +98,49 @@ public class BigDecimalDecimalImpl extends AGenericDecimalImpl<BigDecimalDecimal
     @Override
     public BigDecimalDecimalImpl sqrt() {
         final double doubleValue = getValue().doubleValue();
-        return newValueCopy(new DoubleDecimalImpl(doubleValue, doubleValue).sqrt().bigDecimalValue());
+        return newValueCopy(new DoubleDecimalImpl(doubleValue).sqrt().bigDecimalValue());
     }
 
     @Override
     public BigDecimalDecimalImpl log() {
         final double doubleValue = getValue().doubleValue();
-        return newValueCopy(new DoubleDecimalImpl(doubleValue, doubleValue).log().bigDecimalValue());
+        return newValueCopy(new DoubleDecimalImpl(doubleValue).log().bigDecimalValue());
     }
 
     @Override
     public BigDecimalDecimalImpl exp() {
         final double doubleValue = getValue().doubleValue();
-        return newValueCopy(new DoubleDecimalImpl(doubleValue, doubleValue).exp().bigDecimalValue());
+        return newValueCopy(new DoubleDecimalImpl(doubleValue).exp().bigDecimalValue());
     }
 
     @Override
     public BigDecimalDecimalImpl log10() {
         final double doubleValue = getValue().doubleValue();
-        return newValueCopy(new DoubleDecimalImpl(doubleValue, doubleValue).log10().bigDecimalValue());
+        return newValueCopy(new DoubleDecimalImpl(doubleValue).log10().bigDecimalValue());
     }
 
     @Override
     public BigDecimalDecimalImpl exp10() {
         final double doubleValue = getValue().doubleValue();
-        return newValueCopy(new DoubleDecimalImpl(doubleValue, doubleValue).exp10().bigDecimalValue());
+        return newValueCopy(new DoubleDecimalImpl(doubleValue).exp10().bigDecimalValue());
     }
 
     @Override
     public BigDecimalDecimalImpl cos() {
         final double doubleValue = getValue().doubleValue();
-        return newValueCopy(new DoubleDecimalImpl(doubleValue, doubleValue).cos().bigDecimalValue());
+        return newValueCopy(new DoubleDecimalImpl(doubleValue).cos().bigDecimalValue());
     }
 
     @Override
     public BigDecimalDecimalImpl sin() {
         final double doubleValue = getValue().doubleValue();
-        return newValueCopy(new DoubleDecimalImpl(doubleValue, doubleValue).sin().bigDecimalValue());
+        return newValueCopy(new DoubleDecimalImpl(doubleValue).sin().bigDecimalValue());
     }
 
     @Override
     public BigDecimalDecimalImpl pow(final Number exponent) {
         final double doubleValue = getValue().doubleValue();
-        return newValueCopy(new DoubleDecimalImpl(doubleValue, doubleValue).pow(exponent).bigDecimalValue());
+        return newValueCopy(new DoubleDecimalImpl(doubleValue).pow(exponent).bigDecimalValue());
     }
 
     @Override
@@ -227,8 +227,8 @@ public class BigDecimalDecimalImpl extends AGenericDecimalImpl<BigDecimalDecimal
     }
 
     @Override
-    protected BigDecimalDecimalImpl newValueCopy(final BigDecimal value, final BigDecimal defaultRoundedValue) {
-        return new BigDecimalDecimalImpl(value, defaultRoundedValue);
+    protected BigDecimalDecimalImpl newValueCopy(final BigDecimal value) {
+        return new BigDecimalDecimalImpl(value);
     }
 
     @Override

@@ -1,5 +1,6 @@
 package de.invesdwin.util.math.decimal.internal.impl;
 
+import java.io.IOException;
 import java.math.RoundingMode;
 
 import javax.annotation.concurrent.GuardedBy;
@@ -13,25 +14,22 @@ public abstract class ADoubleDecimalImpl<E extends ADoubleDecimalImpl<E>> extend
 
     private static final double NULL_VALUE = Double.NaN;
 
-    private final double value;
+    private double value;
 
     @GuardedBy("none for performance")
     private transient double defaultRoundedValue;
-    @GuardedBy("none for performance")
-    private transient boolean defaultRoundedValueActuallyRounded;
 
-    public ADoubleDecimalImpl(final Double value, final Double defaultRoundedValue) {
-        this(nullToNaN(value), nullToNaN(defaultRoundedValue));
+    public ADoubleDecimalImpl(final Double value) {
+        this(nullToNaN(value));
     }
 
-    public ADoubleDecimalImpl(final double value, final double defaultRoundedValue) {
+    public ADoubleDecimalImpl(final double value) {
         if (isNullValue(value)) {
             this.value = getZero();
             this.defaultRoundedValue = this.value;
-            this.defaultRoundedValueActuallyRounded = true;
         } else {
             this.value = value;
-            this.defaultRoundedValue = defaultRoundedValue;
+            this.defaultRoundedValue = NULL_VALUE;
         }
     }
 
@@ -75,16 +73,13 @@ public abstract class ADoubleDecimalImpl<E extends ADoubleDecimalImpl<E>> extend
         if (roundingMode == RoundingMode.UNNECESSARY) {
             return getGenericThis();
         }
-        final double rounded;
         if (scale == Decimal.DEFAULT_ROUNDING_SCALE && roundingMode == Decimal.DEFAULT_ROUNDING_MODE) {
-            if (!defaultRoundedValueActuallyRounded) {
-                defaultRoundedValue = NULL_VALUE;
-            }
-            rounded = getDefaultRoundedValue();
+            final double rounded = getDefaultRoundedValue();
+            return newValueCopy(rounded).setAlreadyDefaultRounded(true);
         } else {
-            rounded = internalRound(value, scale, roundingMode);
+            final double rounded = internalRound(value, scale, roundingMode);
+            return newValueCopy(rounded);
         }
-        return newValueCopy(rounded, rounded);
     }
 
     /**
@@ -93,15 +88,32 @@ public abstract class ADoubleDecimalImpl<E extends ADoubleDecimalImpl<E>> extend
     protected final double getDefaultRoundedValue() {
         if (isNullValue(defaultRoundedValue)) {
             defaultRoundedValue = internalRound(value, Decimal.DEFAULT_ROUNDING_SCALE, Decimal.DEFAULT_ROUNDING_MODE);
-            defaultRoundedValueActuallyRounded = true;
         }
         return defaultRoundedValue;
     }
 
-    protected final E newValueCopy(final double value) {
-        return newValueCopy(value, NULL_VALUE);
+    @Override
+    public E setAlreadyDefaultRounded(final boolean alreadyDefaultRounded) {
+        if (alreadyDefaultRounded) {
+            defaultRoundedValue = value;
+        }
+        return getGenericThis();
     }
 
-    protected abstract E newValueCopy(double value, double defaultRoundedValue);
+    @Override
+    public boolean isAlreadyDefaultRounded() {
+        return !isNullValue(defaultRoundedValue);
+    }
+
+    protected abstract E newValueCopy(double value);
+
+    private void writeObject(final java.io.ObjectOutputStream stream) throws IOException {
+        stream.writeDouble(value);
+    }
+
+    private void readObject(final java.io.ObjectInputStream stream) throws IOException, ClassNotFoundException {
+        value = stream.readDouble();
+        defaultRoundedValue = NULL_VALUE;
+    }
 
 }

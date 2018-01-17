@@ -22,13 +22,10 @@ public abstract class AScaledDecimal<T extends AScaledDecimal<T, S>, S extends I
         implements Cloneable {
 
     protected final S scale;
-    @SuppressWarnings("GuardedBy")
     @GuardedBy("none for performance")
     private Decimal scaledValue;
-    @SuppressWarnings("GuardedBy")
     @GuardedBy("none for performance")
     private ScaledDecimalDelegateImpl impl;
-    @SuppressWarnings("GuardedBy")
     @GuardedBy("none for performance")
     private Decimal defaultValue;
     private final S defaultScale;
@@ -72,8 +69,6 @@ public abstract class AScaledDecimal<T extends AScaledDecimal<T, S>, S extends I
             clone.scaledValue = null;
             clone.impl = null;
             clone.defaultValue = value;
-            clone.isPositive = 0;
-            clone.isZero = 0;
             return (T) clone;
         } catch (final CloneNotSupportedException e) {
             throw new RuntimeException(e);

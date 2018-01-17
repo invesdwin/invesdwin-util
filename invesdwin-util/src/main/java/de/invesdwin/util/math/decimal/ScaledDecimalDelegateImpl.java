@@ -22,7 +22,7 @@ class ScaledDecimalDelegateImpl extends AGenericDecimalImpl {
     private transient ADecimalImpl defaultScaledDelegate;
 
     ScaledDecimalDelegateImpl(final AScaledDecimal<?, ?> parent, final ADecimalImpl delegate) {
-        super(false, false);
+        super(false);
         this.parent = parent;
         if (delegate instanceof ScaledDecimalDelegateImpl) {
             throw new IllegalArgumentException("Delegate [" + delegate + "] should not be an instance of "
@@ -308,7 +308,7 @@ class ScaledDecimalDelegateImpl extends AGenericDecimalImpl {
     }
 
     @Override
-    protected AGenericDecimalImpl newValueCopy(final Object value, final Object defaultRoundedValue) {
+    protected AGenericDecimalImpl newValueCopy(final Object value) {
         throw new UnsupportedOperationException();
     }
 

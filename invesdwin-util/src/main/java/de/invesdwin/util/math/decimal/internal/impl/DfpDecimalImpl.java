@@ -15,8 +15,8 @@ import de.invesdwin.util.math.decimal.ADecimal;
 @Immutable
 public class DfpDecimalImpl extends AGenericDecimalImpl<DfpDecimalImpl, Dfp> {
 
-    public DfpDecimalImpl(final Dfp value, final Dfp defaultRoundedValue) {
-        super(value, defaultRoundedValue);
+    public DfpDecimalImpl(final Dfp value) {
+        super(value);
     }
 
     @Override
@@ -137,13 +137,13 @@ public class DfpDecimalImpl extends AGenericDecimalImpl<DfpDecimalImpl, Dfp> {
     @Override
     public DfpDecimalImpl log10() {
         final double doubleValue = getValue().toDouble();
-        return newValueCopy(new DoubleDecimalImpl(doubleValue, doubleValue).log10().dfpValue());
+        return newValueCopy(new DoubleDecimalImpl(doubleValue).log10().dfpValue());
     }
 
     @Override
     public DfpDecimalImpl exp10() {
         final double doubleValue = getValue().toDouble();
-        return newValueCopy(new DoubleDecimalImpl(doubleValue, doubleValue).exp10().dfpValue());
+        return newValueCopy(new DoubleDecimalImpl(doubleValue).exp10().dfpValue());
     }
 
     @Override
@@ -267,8 +267,8 @@ public class DfpDecimalImpl extends AGenericDecimalImpl<DfpDecimalImpl, Dfp> {
     }
 
     @Override
-    protected DfpDecimalImpl newValueCopy(final Dfp value, final Dfp defaultRoundedValue) {
-        return new DfpDecimalImpl(value, defaultRoundedValue);
+    protected DfpDecimalImpl newValueCopy(final Dfp value) {
+        return new DfpDecimalImpl(value);
     }
 
     @Override
