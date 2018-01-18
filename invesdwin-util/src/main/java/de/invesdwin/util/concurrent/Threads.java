@@ -34,7 +34,7 @@ public final class Threads {
         final String curThreadName = Strings.substringBefore(Thread.currentThread().getName(),
                 NESTED_THREAD_NAME_SEPARATOR);
         Thread.currentThread()
-                .setName(Strings.appendIfMissing(curThreadName, NESTED_THREAD_NAME_SEPARATOR + parentThreadName));
+                .setName(Strings.eventuallyAddSuffix(curThreadName, NESTED_THREAD_NAME_SEPARATOR + parentThreadName));
     }
 
     public static int getCurrentNestedThreadLevel(final String threadNameContains) {
