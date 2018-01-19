@@ -33,9 +33,10 @@ public final class Threads {
     public static void updateParentThreadName(final String parentThreadName) {
         final String curThreadName = Strings.substringBefore(Thread.currentThread().getName(),
                 NESTED_THREAD_NAME_SEPARATOR);
-        final String newThreadName = Strings.eventuallyAddSuffix(curThreadName,
-                NESTED_THREAD_NAME_SEPARATOR + parentThreadName);
-        Thread.currentThread().setName(newThreadName);
+        if (!curThreadName.endsWith(parentThreadName)) {
+            final String newThreadName = curThreadName + NESTED_THREAD_NAME_SEPARATOR + parentThreadName;
+            Thread.currentThread().setName(newThreadName);
+        }
     }
 
     public static int getCurrentNestedThreadLevel(final String threadNameContains) {
