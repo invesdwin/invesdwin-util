@@ -7,7 +7,7 @@ public abstract class ADelegateCloseableIterator<E> implements ICloseableIterato
 
     private ICloseableIterator<E> delegate;
 
-    private ICloseableIterator<E> getDelegate() {
+    protected ICloseableIterator<E> getDelegate() {
         if (delegate == null) {
             delegate = newDelegate();
         }
