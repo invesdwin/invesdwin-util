@@ -6,6 +6,7 @@ import org.apache.commons.math3.exception.MathIllegalArgumentException;
 import org.apache.commons.math3.linear.MatrixUtils;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.linear.RealVector;
+import org.apache.commons.math3.linear.SingularMatrixException;
 import org.apache.commons.math3.stat.regression.OLSMultipleLinearRegression;
 
 import de.invesdwin.util.math.statistics.MacKinnonP.RegressionMethod;
@@ -78,7 +79,13 @@ public class AugmentedDickeyFuller {
             //not enough data
             return;
         }
-        final double[] beta = regression.estimateRegressionParameters();
+        final double[] beta;
+        try {
+            beta = regression.estimateRegressionParameters();
+        } catch (final SingularMatrixException e) {
+            //not enough data
+            return;
+        }
         final double[] sd = regression.estimateRegressionParametersStandardErrors();
 
         //        final RidgeRegression regression = new RidgeRegression(designMatrix.getData(), zcol1.toArray());
