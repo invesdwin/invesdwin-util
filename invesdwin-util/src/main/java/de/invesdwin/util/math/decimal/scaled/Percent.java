@@ -54,7 +54,7 @@ public class Percent extends AScaledDecimal<Percent, PercentScale> implements IP
     }
 
     public Percent(final Decimal value, final PercentScale scale) {
-        super(value, scale, DEFAULT_SCALE);
+        super(value, scale);
     }
 
     public Percent(final Number dividend, final Number divisor) {
@@ -71,7 +71,7 @@ public class Percent extends AScaledDecimal<Percent, PercentScale> implements IP
      */
     @Deprecated
     public Percent(final AScaledDecimal<?, ?> dividend, final Number divisor) throws Exception {
-        super(Decimal.ZERO, PercentScale.PERCENT, DEFAULT_SCALE);
+        super(Decimal.ZERO, PercentScale.PERCENT);
         throw new UnsupportedOperationException();
     }
 
@@ -81,7 +81,7 @@ public class Percent extends AScaledDecimal<Percent, PercentScale> implements IP
      */
     @Deprecated
     public Percent(final Number dividend, final AScaledDecimal<?, ?> divisor) throws Exception {
-        super(null, null, DEFAULT_SCALE);
+        super(null, null);
         throw new UnsupportedOperationException();
     }
 
@@ -105,6 +105,11 @@ public class Percent extends AScaledDecimal<Percent, PercentScale> implements IP
 
     public Percent(final Percent percent) {
         this(percent.getValue(percent.getScale()), percent.getScale());
+    }
+
+    @Override
+    public PercentScale getDefaultScale() {
+        return DEFAULT_SCALE;
     }
 
     @Override

@@ -13,7 +13,12 @@ public class ByteSize extends AScaledDecimal<ByteSize, ByteSizeScale> {
     public static final ByteSize ZERO = new ByteSize(Decimal.ZERO, DEFAULT_SCALE);
 
     public ByteSize(final Decimal value, final ByteSizeScale scale) {
-        super(value, scale, DEFAULT_SCALE);
+        super(value, scale);
+    }
+
+    @Override
+    public ByteSizeScale getDefaultScale() {
+        return DEFAULT_SCALE;
     }
 
     @Override

@@ -28,10 +28,9 @@ public abstract class AScaledDecimal<T extends AScaledDecimal<T, S>, S extends I
     private ScaledDecimalDelegateImpl impl;
     @GuardedBy("none for performance")
     private Decimal defaultValue;
-    private final S defaultScale;
 
-    protected AScaledDecimal(final Decimal value, final S scale, final S defaultScale) {
-        this.defaultScale = defaultScale;
+    protected AScaledDecimal(final Decimal value, final S scale) {
+        final S defaultScale = getDefaultScale();
         if (defaultScale == null) {
             throw new NullPointerException("defaultScale should not be null");
         }
@@ -78,13 +77,13 @@ public abstract class AScaledDecimal<T extends AScaledDecimal<T, S>, S extends I
     @Override
     public final Decimal getDefaultValue() {
         if (defaultValue == null) {
-            defaultValue = innerGetValue(defaultScale);
+            defaultValue = innerGetValue(getDefaultScale());
         }
         return defaultValue;
     }
 
     public final Decimal getValue(final S scale) {
-        if (defaultScale.equals(scale)) {
+        if (getDefaultScale().equals(scale)) {
             return getDefaultValue();
         }
         return innerGetValue(scale);
@@ -98,14 +97,14 @@ public abstract class AScaledDecimal<T extends AScaledDecimal<T, S>, S extends I
             if (scaledValue != null) {
                 return scale.convertValue(getGenericThis(), new Decimal(getImpl().getDelegate()), this.scale);
             } else {
-                return scale.convertValue(getGenericThis(), defaultValue, defaultScale);
+                return scale.convertValue(getGenericThis(), defaultValue, getDefaultScale());
             }
         }
     }
 
     public Decimal getScaledValue() {
         if (scaledValue == null) {
-            scaledValue = scale.convertValue(getGenericThis(), defaultValue, this.defaultScale);
+            scaledValue = scale.convertValue(getGenericThis(), defaultValue, getDefaultScale());
         }
         return scaledValue;
     }
@@ -131,9 +130,7 @@ public abstract class AScaledDecimal<T extends AScaledDecimal<T, S>, S extends I
         return scale;
     }
 
-    public final S getDefaultScale() {
-        return defaultScale;
-    }
+    public abstract S getDefaultScale();
 
     @Override
     public final String toString() {
