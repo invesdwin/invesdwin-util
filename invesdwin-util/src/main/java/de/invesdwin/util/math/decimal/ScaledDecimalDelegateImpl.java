@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
 
-import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
 import org.apache.commons.math3.dfp.Dfp;
@@ -18,8 +17,6 @@ class ScaledDecimalDelegateImpl extends AGenericDecimalImpl {
 
     private final AScaledDecimal<?, ?> parent;
     private final ADecimalImpl delegate;
-    @GuardedBy("none for performance")
-    private transient ADecimalImpl defaultScaledDelegate;
 
     ScaledDecimalDelegateImpl(final AScaledDecimal<?, ?> parent, final ADecimalImpl delegate) {
         super(false);
@@ -36,10 +33,7 @@ class ScaledDecimalDelegateImpl extends AGenericDecimalImpl {
     }
 
     private ADecimalImpl getDefaultScaledDelegate() {
-        if (defaultScaledDelegate == null) {
-            defaultScaledDelegate = parent.getDefaultValue().getImpl();
-        }
-        return defaultScaledDelegate;
+        return parent.getDefaultValue().getImpl();
     }
 
     @Override
