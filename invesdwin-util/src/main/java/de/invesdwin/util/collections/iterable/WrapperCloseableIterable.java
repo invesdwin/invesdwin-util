@@ -1,6 +1,7 @@
 package de.invesdwin.util.collections.iterable;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -35,6 +36,11 @@ public final class WrapperCloseableIterable<E> implements ICloseableIterable<E> 
         } else {
             return (Iterable<T>) iterator;
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T> ICloseableIterable<T> maybeWrap(final T... iterables) {
+        return maybeWrap(new ArrayList<T>(Arrays.asList(iterables)));
     }
 
     @SuppressWarnings("unchecked")
