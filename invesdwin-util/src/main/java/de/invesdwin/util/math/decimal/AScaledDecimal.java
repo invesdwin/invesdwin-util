@@ -30,6 +30,7 @@ public abstract class AScaledDecimal<T extends AScaledDecimal<T, S>, S extends I
     private Decimal defaultValue;
 
     protected AScaledDecimal(final Decimal value, final S scale) {
+        this.scale = scale;
         final S defaultScale = getDefaultScale();
         if (defaultScale == null) {
             throw new NullPointerException("defaultScale should not be null");
@@ -37,7 +38,6 @@ public abstract class AScaledDecimal<T extends AScaledDecimal<T, S>, S extends I
         validateScale(defaultScale);
         this.scaledValue = Decimal.nullToZero(value);
         validateScale(scale);
-        this.scale = scale;
         if (scale.equals(defaultScale)) {
             defaultValue = value;
         }
