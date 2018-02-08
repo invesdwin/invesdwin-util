@@ -65,4 +65,14 @@ public class WrappedScheduledExecutorService extends WrappedExecutorService impl
         }
     }
 
+    @Override
+    public WrappedScheduledExecutorService withLogExceptions(final boolean logExceptions) {
+        return (WrappedScheduledExecutorService) super.withLogExceptions(logExceptions);
+    }
+
+    @Override
+    public WrappedScheduledExecutorService withWaitOnFullPendingCount(final boolean waitOnFullPendingCount) {
+        return (WrappedScheduledExecutorService) super.withWaitOnFullPendingCount(waitOnFullPendingCount);
+    }
+
 }
