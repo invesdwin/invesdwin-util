@@ -6,6 +6,8 @@ import java.util.List;
 
 import javax.annotation.concurrent.Immutable;
 
+import org.apache.commons.math3.stat.descriptive.rank.Median;
+
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
 import de.invesdwin.util.lang.ADelegateComparator;
 import de.invesdwin.util.lang.Objects;
@@ -123,6 +125,13 @@ public final class Integers extends AIntegersStaticFacade {
             sum += value;
         }
         return sum;
+    }
+
+    public static Integer median(final Collection<Integer> values) {
+        final Median median = new Median();
+        final double medianValueDouble = median.evaluate(Doubles.checkedCastVector(values));
+        final Integer medianValueInt = Integers.checkedCast(medianValueDouble);
+        return medianValueInt;
     }
 
     public static Integer max(final Collection<Integer> values) {
