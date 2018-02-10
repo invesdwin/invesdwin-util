@@ -131,7 +131,7 @@ public final class Integers extends AIntegersStaticFacade {
         for (final Integer value : values) {
             median.add(Doubles.checkedCastObj(value));
         }
-        return checkedCast(median.getMedian());
+        return checkedCastObj(median.getMedian());
     }
 
     public static Integer max(final Collection<Integer> values) {
