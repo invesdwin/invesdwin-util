@@ -6,14 +6,13 @@ import java.util.List;
 
 import javax.annotation.concurrent.Immutable;
 
-import org.apache.commons.math3.stat.descriptive.rank.Median;
-
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
 import de.invesdwin.util.lang.ADelegateComparator;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.math.internal.AIntegersStaticFacade;
 import de.invesdwin.util.math.internal.CheckedCastIntegers;
 import de.invesdwin.util.math.internal.CheckedCastIntegersObj;
+import de.invesdwin.util.math.statistics.RunningMedian;
 
 @StaticFacadeDefinition(name = "de.invesdwin.util.math.internal.AIntegersStaticFacade", targets = {
         CheckedCastIntegers.class, CheckedCastIntegersObj.class,
@@ -128,10 +127,11 @@ public final class Integers extends AIntegersStaticFacade {
     }
 
     public static Integer median(final Collection<Integer> values) {
-        final Median median = new Median();
-        final double medianValueDouble = median.evaluate(Doubles.checkedCastVector(values));
-        final Integer medianValueInt = Integers.checkedCast(medianValueDouble);
-        return medianValueInt;
+        final RunningMedian median = new RunningMedian(values.size());
+        for (final Integer value : values) {
+            median.add(Doubles.checkedCastObj(value));
+        }
+        return checkedCast(median.getMedian());
     }
 
     public static Integer max(final Collection<Integer> values) {
