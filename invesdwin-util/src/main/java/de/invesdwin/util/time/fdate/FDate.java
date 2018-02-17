@@ -97,7 +97,6 @@ public class FDate implements IDate, Serializable, Cloneable, Comparable<Object>
     };
 
     private final long millis;
-    private final int hashCode;
 
     public FDate() {
         this(System.currentTimeMillis());
@@ -105,12 +104,10 @@ public class FDate implements IDate, Serializable, Cloneable, Comparable<Object>
 
     public FDate(final long millis) {
         this.millis = millis;
-        this.hashCode = Long.hashCode(millis);
     }
 
     protected FDate(final FDate date) {
         this.millis = date.millis;
-        this.hashCode = date.hashCode;
     }
 
     public FDate(final ReadableDateTime jodaTime) {
@@ -497,7 +494,7 @@ public class FDate implements IDate, Serializable, Cloneable, Comparable<Object>
 
     @Override
     public int hashCode() {
-        return hashCode;
+        return Long.hashCode(millis);
     }
 
     @Override
