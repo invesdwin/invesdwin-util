@@ -1,6 +1,7 @@
 package de.invesdwin.util.assertions;
 
 import java.util.Collection;
+import java.util.Map;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -163,6 +164,20 @@ public final class Assertions extends AAssertionsStaticFacade {
     }
 
     public static <S> void checkNotEmpty(final Collection<S> collection, final String message, final Object... args) {
+        if (collection.isEmpty()) {
+            assertThat(collection).as(message, args).isNotEmpty();
+            failExceptionExpected();
+        }
+    }
+
+    public static <K, V> void checkNotEmpty(final Map<K, V> collection) {
+        if (collection.isEmpty()) {
+            assertThat(collection).isNotEmpty();
+            failExceptionExpected();
+        }
+    }
+
+    public static <K, V> void checkNotEmpty(final Map<K, V> collection, final String message, final Object... args) {
         if (collection.isEmpty()) {
             assertThat(collection).as(message, args).isNotEmpty();
             failExceptionExpected();
