@@ -2,6 +2,7 @@ package de.invesdwin.util.math;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -72,6 +73,29 @@ public final class Doubles extends ADoublesStaticFacade {
         }
         final List<List<Double>> matrixAsList = new ArrayList<List<Double>>(matrix.length);
         for (final double[] vector : matrix) {
+            matrixAsList.add(asList(vector));
+        }
+        return matrixAsList;
+    }
+
+    public static List<Double> asList(final Double... vector) {
+        if (vector == null) {
+            return null;
+        } else {
+            return Arrays.asList(vector);
+        }
+    }
+
+    public static List<Double> asListVector(final Double[] vector) {
+        return asList(vector);
+    }
+
+    public static List<List<Double>> asListMatrix(final Double[][] matrix) {
+        if (matrix == null) {
+            return null;
+        }
+        final List<List<Double>> matrixAsList = new ArrayList<List<Double>>(matrix.length);
+        for (final Double[] vector : matrix) {
             matrixAsList.add(asList(vector));
         }
         return matrixAsList;
