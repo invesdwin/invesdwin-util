@@ -2,11 +2,13 @@ package de.invesdwin.util.concurrent;
 
 import java.util.concurrent.Callable;
 
+import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
 @ThreadSafe
 public abstract class ACachedCallable<E> implements Callable<E> {
 
+    @GuardedBy("this")
     private E cached;
 
     @Override
