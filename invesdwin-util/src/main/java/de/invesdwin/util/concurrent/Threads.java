@@ -2,6 +2,7 @@ package de.invesdwin.util.concurrent;
 
 import javax.annotation.concurrent.Immutable;
 
+import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.shutdown.ShutdownHookManager;
 
@@ -31,11 +32,16 @@ public final class Threads {
     }
 
     public static void updateParentThreadName(final String parentThreadName) {
-        final String curThreadName = Strings.substringBefore(getCurrentThreadName(), NESTED_THREAD_NAME_SEPARATOR);
-        if (!curThreadName.endsWith(parentThreadName)) {
-            final String newThreadName = curThreadName + NESTED_THREAD_NAME_SEPARATOR + parentThreadName;
-            setCurrentThreadName(newThreadName);
+        final String curThreadName = getCurrentThreadName();
+        if (curThreadName.endsWith(parentThreadName)) {
+            return;
         }
+        final String curRootThreadName = Strings.substringBefore(curThreadName, NESTED_THREAD_NAME_SEPARATOR);
+        if (curRootThreadName.endsWith(parentThreadName)) {
+            return;
+        }
+        final String newThreadName = curRootThreadName + NESTED_THREAD_NAME_SEPARATOR + parentThreadName;
+        setCurrentThreadName(newThreadName);
     }
 
     public static void setCurrentThreadName(final String newThreadName) {
@@ -56,6 +62,14 @@ public final class Threads {
 
     public static String getCurrentThreadName() {
         return Thread.currentThread().getName();
+    }
+
+    public static void main(final String[] args) {
+        final String newThreadName = "89-112:PortfolioModelOptimalF <- 20-1:BacktestRunFactory_0 <- 20-1:BacktestRunFactory_0";
+        setCurrentThreadName(newThreadName);
+        Assertions.checkEquals(newThreadName, getCurrentThreadName());
+        updateParentThreadName("20-1:BacktestRunFactory_0");
+        Assertions.checkEquals(newThreadName, getCurrentThreadName());
     }
 
 }
