@@ -48,6 +48,9 @@ public final class Threads {
     }
 
     public static void setCurrentThreadName(final String newThreadName) {
+        if (getCurrentThreadName().equals(newThreadName)) {
+            return;
+        }
         if (newThreadName.length() > MAX_THREAD_NAME_LENGTH) {
             throw new IllegalStateException("Thread name length [" + newThreadName.length() + "] should be less than ["
                     + MAX_THREAD_NAME_LENGTH + "] characters: " + newThreadName);
