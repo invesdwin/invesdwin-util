@@ -2,7 +2,6 @@ package de.invesdwin.util.concurrent;
 
 import javax.annotation.concurrent.Immutable;
 
-import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.shutdown.ShutdownHookManager;
 
@@ -62,14 +61,6 @@ public final class Threads {
 
     public static String getCurrentThreadName() {
         return Thread.currentThread().getName();
-    }
-
-    public static void main(final String[] args) {
-        final String newThreadName = "89-112:PortfolioModelOptimalF <- 20-1:BacktestRunFactory_0 <- 20-1:BacktestRunFactory_0";
-        setCurrentThreadName(newThreadName);
-        Assertions.checkEquals(newThreadName, getCurrentThreadName());
-        updateParentThreadName("20-1:BacktestRunFactory_0");
-        Assertions.checkEquals(newThreadName, getCurrentThreadName());
     }
 
 }
