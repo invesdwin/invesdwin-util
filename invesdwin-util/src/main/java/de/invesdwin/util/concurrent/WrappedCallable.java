@@ -31,6 +31,7 @@ final class WrappedCallable<V> implements Callable<V> {
 
     @Override
     public V call() throws Exception {
+        final String originalThreadName = Threads.getCurrentThreadName();
         Threads.updateParentThreadName(parentThreadName);
         try {
             return delegate.call();
@@ -43,6 +44,7 @@ final class WrappedCallable<V> implements Callable<V> {
             if (parent != null) {
                 parent.decrementPendingCount();
             }
+            Threads.setCurrentThreadName(originalThreadName);
         }
     }
 

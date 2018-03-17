@@ -9,6 +9,10 @@ import de.invesdwin.util.shutdown.ShutdownHookManager;
 public final class Threads {
 
     public static final String NESTED_THREAD_NAME_SEPARATOR = " <- ";
+    /**
+     * Above 1998 character there can occur deadlocks when settings thread names
+     */
+    private static final int MAX_THREAD_NAME_LENGTH = 1800;
 
     private Threads() {}
 
@@ -44,6 +48,10 @@ public final class Threads {
     }
 
     public static void setCurrentThreadName(final String newThreadName) {
+        if (newThreadName.length() > MAX_THREAD_NAME_LENGTH) {
+            throw new IllegalStateException("Thread name length [" + newThreadName.length() + "] should be less than ["
+                    + MAX_THREAD_NAME_LENGTH + "] characters: " + newThreadName);
+        }
         Thread.currentThread().setName(newThreadName);
     }
 

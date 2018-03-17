@@ -30,6 +30,7 @@ final class WrappedRunnable implements Runnable {
 
     @Override
     public void run() {
+        final String originalThreadName = Threads.getCurrentThreadName();
         Threads.updateParentThreadName(parentThreadName);
         try {
             delegate.run();
@@ -42,6 +43,7 @@ final class WrappedRunnable implements Runnable {
             if (parent != null) {
                 parent.decrementPendingCount();
             }
+            Threads.setCurrentThreadName(originalThreadName);
         }
     }
 
