@@ -30,7 +30,7 @@ final class WrappedRunnable implements Runnable {
 
     @Override
     public void run() {
-        final String originalThreadName = Threads.getCurrentThreadName();
+        final String originalThreadName = Threads.getCurrentRootThreadName();
         Threads.updateParentThreadName(parentThreadName);
         try {
             delegate.run();

@@ -71,4 +71,10 @@ public final class Threads {
         return Thread.currentThread().getName();
     }
 
+    public static String getCurrentRootThreadName() {
+        final String curThreadName = getCurrentThreadName();
+        final String curRootThreadName = Strings.substringBefore(curThreadName, NESTED_THREAD_NAME_SEPARATOR);
+        return curRootThreadName;
+    }
+
 }

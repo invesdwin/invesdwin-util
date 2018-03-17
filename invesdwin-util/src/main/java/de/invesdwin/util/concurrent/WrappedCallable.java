@@ -31,7 +31,7 @@ final class WrappedCallable<V> implements Callable<V> {
 
     @Override
     public V call() throws Exception {
-        final String originalThreadName = Threads.getCurrentThreadName();
+        final String originalThreadName = Threads.getCurrentRootThreadName();
         Threads.updateParentThreadName(parentThreadName);
         try {
             return delegate.call();
