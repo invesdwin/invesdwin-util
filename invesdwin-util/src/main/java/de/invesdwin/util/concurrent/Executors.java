@@ -49,7 +49,7 @@ public final class Executors {
     public static WrappedScheduledExecutorService newScheduledThreadPool(final String name) {
         final java.util.concurrent.ScheduledThreadPoolExecutor ex = (java.util.concurrent.ScheduledThreadPoolExecutor) java.util.concurrent.Executors
                 .newScheduledThreadPool(Integer.MAX_VALUE, newFastThreadLocalThreadFactory(name));
-        return new WrappedScheduledExecutorService(ex, name);
+        return new WrappedScheduledExecutorService(ex, name).withDynamicThreadName(false);
     }
 
     /**
@@ -58,7 +58,7 @@ public final class Executors {
     public static WrappedScheduledExecutorService newScheduledThreadPool(final String name, final int corePoolSize) {
         final java.util.concurrent.ScheduledThreadPoolExecutor ex = (java.util.concurrent.ScheduledThreadPoolExecutor) java.util.concurrent.Executors
                 .newScheduledThreadPool(corePoolSize, newFastThreadLocalThreadFactory(name));
-        return new WrappedScheduledExecutorService(ex, name);
+        return new WrappedScheduledExecutorService(ex, name).withDynamicThreadName(false);
     }
 
     public static WrappedExecutorService newFixedCallerRunsThreadPool(final String name, final int nThreads) {

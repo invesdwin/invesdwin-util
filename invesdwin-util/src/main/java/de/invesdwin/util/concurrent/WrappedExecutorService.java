@@ -39,6 +39,7 @@ public class WrappedExecutorService implements ExecutorService {
     private final java.util.concurrent.ThreadPoolExecutor delegate;
     private volatile boolean logExceptions = false;
     private volatile boolean waitOnFullPendingCount = false;
+    private volatile boolean dynamicThreadName;
 
     @GuardedBy("this")
     private IShutdownHook shutdownHook;
@@ -68,6 +69,15 @@ public class WrappedExecutorService implements ExecutorService {
     public WrappedExecutorService withLogExceptions(final boolean logExceptions) {
         this.logExceptions = logExceptions;
         return this;
+    }
+
+    public WrappedExecutorService withDynamicThreadName(final boolean dynamicThreadName) {
+        this.dynamicThreadName = dynamicThreadName;
+        return this;
+    }
+
+    public boolean isDynamicThreadName() {
+        return dynamicThreadName;
     }
 
     void incrementPendingCount(final boolean skipWaitOnFullPendingCount) throws InterruptedException {

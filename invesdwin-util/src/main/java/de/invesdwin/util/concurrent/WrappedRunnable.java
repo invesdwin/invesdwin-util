@@ -30,8 +30,13 @@ final class WrappedRunnable implements Runnable {
 
     @Override
     public void run() {
-        final String originalThreadName = Threads.getCurrentRootThreadName();
-        Threads.updateParentThreadName(parentThreadName);
+        final String originalThreadName;
+        if (parent != null && parent.isDynamicThreadName()) {
+            originalThreadName = Threads.getCurrentRootThreadName();
+            Threads.updateParentThreadName(parentThreadName);
+        } else {
+            originalThreadName = null;
+        }
         try {
             delegate.run();
         } catch (final Throwable t) {
@@ -43,7 +48,9 @@ final class WrappedRunnable implements Runnable {
             if (parent != null) {
                 parent.decrementPendingCount();
             }
-            Threads.setCurrentThreadName(originalThreadName);
+            if (originalThreadName != null) {
+                Threads.setCurrentThreadName(originalThreadName);
+            }
         }
     }
 

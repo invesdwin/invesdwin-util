@@ -75,4 +75,9 @@ public class WrappedScheduledExecutorService extends WrappedExecutorService impl
         return (WrappedScheduledExecutorService) super.withWaitOnFullPendingCount(waitOnFullPendingCount);
     }
 
+    @Override
+    public WrappedScheduledExecutorService withDynamicThreadName(final boolean dynamicThreadName) {
+        return (WrappedScheduledExecutorService) super.withDynamicThreadName(dynamicThreadName);
+    }
+
 }
