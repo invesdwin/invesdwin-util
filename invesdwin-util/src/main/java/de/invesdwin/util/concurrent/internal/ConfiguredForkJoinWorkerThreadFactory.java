@@ -1,4 +1,4 @@
-package de.invesdwin.util.concurrent;
+package de.invesdwin.util.concurrent.internal;
 
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.concurrent.ForkJoinPool;
@@ -10,6 +10,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.assertions.Assertions;
+import de.invesdwin.util.concurrent.Threads;
 
 @ThreadSafe
 public class ConfiguredForkJoinWorkerThreadFactory implements ForkJoinWorkerThreadFactory {
@@ -17,11 +18,18 @@ public class ConfiguredForkJoinWorkerThreadFactory implements ForkJoinWorkerThre
     private final int threadpoolId = WrappedThreadFactory.THREADPOOL_IDS.incrementAndGet();
     private final AtomicInteger threadIds = new AtomicInteger();
 
+    private IWrappedExecutorServiceInternal parent;
     private final String name;
 
     public ConfiguredForkJoinWorkerThreadFactory(@Nonnull final String name) {
         Assertions.assertThat(name).isNotNull();
         this.name = name;
+    }
+
+    public void setParent(final IWrappedExecutorServiceInternal parent) {
+        Assertions.checkNull(this.parent);
+        Assertions.checkEquals(name, parent.getName());
+        this.parent = parent;
     }
 
     @Override
@@ -35,7 +43,11 @@ public class ConfiguredForkJoinWorkerThreadFactory implements ForkJoinWorkerThre
             protected void onStart() {
                 super.onStart();
                 final String curThreadName = threadpoolId + "-" + threadIds.incrementAndGet() + ":" + name;
-                setName(curThreadName + Threads.NESTED_THREAD_NAME_SEPARATOR + parentThreadName);
+                if (parent == null || parent.isDynamicThreadName()) {
+                    setName(curThreadName + Threads.NESTED_THREAD_NAME_SEPARATOR + parentThreadName);
+                } else {
+                    setName(curThreadName);
+                }
             }
         };
         /*

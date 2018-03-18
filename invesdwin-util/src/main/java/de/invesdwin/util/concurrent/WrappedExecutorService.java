@@ -17,6 +17,10 @@ import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.collections.loadingcache.ALoadingCache;
+import de.invesdwin.util.concurrent.internal.IWrappedExecutorServiceInternal;
+import de.invesdwin.util.concurrent.internal.WrappedCallable;
+import de.invesdwin.util.concurrent.internal.WrappedRunnable;
+import de.invesdwin.util.concurrent.internal.WrappedThreadFactory;
 import de.invesdwin.util.shutdown.IShutdownHook;
 import de.invesdwin.util.shutdown.ShutdownHookManager;
 import de.invesdwin.util.time.duration.Duration;
@@ -27,6 +31,34 @@ public class WrappedExecutorService implements ExecutorService {
 
     private static final Duration FIXED_THREAD_KEEPALIVE_TIMEOUT = new Duration(60, FTimeUnit.SECONDS);
 
+    protected final IWrappedExecutorServiceInternal internal = new IWrappedExecutorServiceInternal() {
+
+        @Override
+        public boolean isLogExceptions() {
+            return WrappedExecutorService.this.isLogExceptions();
+        }
+
+        @Override
+        public boolean isDynamicThreadName() {
+            return WrappedExecutorService.this.isDynamicThreadName();
+        }
+
+        @Override
+        public void incrementPendingCount(final boolean skipWaitOnFullPendingCount) throws InterruptedException {
+            WrappedExecutorService.this.incrementPendingCount(skipWaitOnFullPendingCount);
+        }
+
+        @Override
+        public void decrementPendingCount() {
+            WrappedExecutorService.this.decrementPendingCount();
+        }
+
+        @Override
+        public String getName() {
+            return WrappedExecutorService.this.getName();
+        }
+
+    };
     private final Lock pendingCountLock = new ReentrantLock();
     private final ALoadingCache<Long, Condition> pendingCount_limitListener = new ALoadingCache<Long, Condition>() {
         @Override
@@ -39,7 +71,8 @@ public class WrappedExecutorService implements ExecutorService {
     private final java.util.concurrent.ThreadPoolExecutor delegate;
     private volatile boolean logExceptions = false;
     private volatile boolean waitOnFullPendingCount = false;
-    private volatile boolean dynamicThreadName;
+    private volatile boolean dynamicThreadName = true;
+    private final String name;
 
     @GuardedBy("this")
     private IShutdownHook shutdownHook;
@@ -47,7 +80,8 @@ public class WrappedExecutorService implements ExecutorService {
     protected WrappedExecutorService(final java.util.concurrent.ThreadPoolExecutor delegate, final String name) {
         this.delegate = delegate;
         this.shutdownHook = newShutdownHook(delegate);
-        configure(name);
+        this.name = name;
+        configure();
     }
 
     /**
@@ -80,7 +114,11 @@ public class WrappedExecutorService implements ExecutorService {
         return dynamicThreadName;
     }
 
-    void incrementPendingCount(final boolean skipWaitOnFullPendingCount) throws InterruptedException {
+    public String getName() {
+        return name;
+    }
+
+    private void incrementPendingCount(final boolean skipWaitOnFullPendingCount) throws InterruptedException {
         if (waitOnFullPendingCount && !skipWaitOnFullPendingCount) {
             synchronized (pendingCountWaitLock) {
                 //Only one waiting thread may be woken up when this limit is reached!
@@ -94,7 +132,7 @@ public class WrappedExecutorService implements ExecutorService {
         }
     }
 
-    void decrementPendingCount() {
+    private void decrementPendingCount() {
         notifyPendingCountListeners(pendingCount.decrementAndGet());
     }
 
@@ -114,7 +152,7 @@ public class WrappedExecutorService implements ExecutorService {
         }
     }
 
-    private synchronized void configure(final String name) {
+    private synchronized void configure() {
         /*
          * All executors should be shutdown on application shutdown.
          */
@@ -132,9 +170,14 @@ public class WrappedExecutorService implements ExecutorService {
         /*
          * Named threads improve debugging.
          */
-        if (!(delegate.getThreadFactory() instanceof WrappedThreadFactory)) {
-            delegate.setThreadFactory(new WrappedThreadFactory(name, delegate.getThreadFactory()));
+        final WrappedThreadFactory threadFactory;
+        if (delegate.getThreadFactory() instanceof WrappedThreadFactory) {
+            threadFactory = (WrappedThreadFactory) delegate.getThreadFactory();
+        } else {
+            threadFactory = new WrappedThreadFactory(name, delegate.getThreadFactory());
+            delegate.setThreadFactory(threadFactory);
         }
+        threadFactory.setParent(internal);
     }
 
     private synchronized void unconfigure() {
@@ -223,7 +266,7 @@ public class WrappedExecutorService implements ExecutorService {
     @Override
     public void execute(final Runnable command) {
         try {
-            getWrappedInstance().execute(WrappedRunnable.newInstance(this, command));
+            getWrappedInstance().execute(WrappedRunnable.newInstance(internal, command));
         } catch (final InterruptedException e) {
             Thread.currentThread().interrupt();
         }
@@ -232,7 +275,7 @@ public class WrappedExecutorService implements ExecutorService {
     @Override
     public <T> Future<T> submit(final Callable<T> task) {
         try {
-            return getWrappedInstance().submit(WrappedCallable.newInstance(this, task));
+            return getWrappedInstance().submit(WrappedCallable.newInstance(internal, task));
         } catch (final InterruptedException e) {
             Thread.currentThread().interrupt();
             return new InterruptingFuture<T>();
@@ -242,7 +285,7 @@ public class WrappedExecutorService implements ExecutorService {
     @Override
     public <T> Future<T> submit(final Runnable task, final T result) {
         try {
-            return getWrappedInstance().submit(WrappedRunnable.newInstance(this, task), result);
+            return getWrappedInstance().submit(WrappedRunnable.newInstance(internal, task), result);
         } catch (final InterruptedException e) {
             Thread.currentThread().interrupt();
             return new InterruptingFuture<T>();
@@ -252,7 +295,7 @@ public class WrappedExecutorService implements ExecutorService {
     @Override
     public Future<?> submit(final Runnable task) {
         try {
-            return getWrappedInstance().submit(WrappedRunnable.newInstance(this, task));
+            return getWrappedInstance().submit(WrappedRunnable.newInstance(internal, task));
         } catch (final InterruptedException e) {
             Thread.currentThread().interrupt();
             return new InterruptingFuture<Object>();
@@ -261,25 +304,25 @@ public class WrappedExecutorService implements ExecutorService {
 
     @Override
     public <T> List<Future<T>> invokeAll(final Collection<? extends Callable<T>> tasks) throws InterruptedException {
-        return getWrappedInstance().invokeAll(WrappedCallable.newInstance(this, tasks));
+        return getWrappedInstance().invokeAll(WrappedCallable.newInstance(internal, tasks));
     }
 
     @Override
     public <T> List<Future<T>> invokeAll(final Collection<? extends Callable<T>> tasks, final long timeout,
             final TimeUnit unit) throws InterruptedException {
-        return getWrappedInstance().invokeAll(WrappedCallable.newInstance(this, tasks), timeout, unit);
+        return getWrappedInstance().invokeAll(WrappedCallable.newInstance(internal, tasks), timeout, unit);
     }
 
     @Override
     public <T> T invokeAny(final Collection<? extends Callable<T>> tasks)
             throws InterruptedException, ExecutionException {
-        return getWrappedInstance().invokeAny(WrappedCallable.newInstance(this, tasks));
+        return getWrappedInstance().invokeAny(WrappedCallable.newInstance(internal, tasks));
     }
 
     @Override
     public <T> T invokeAny(final Collection<? extends Callable<T>> tasks, final long timeout, final TimeUnit unit)
             throws InterruptedException, ExecutionException, TimeoutException {
-        return getWrappedInstance().invokeAny(WrappedCallable.newInstance(this, tasks), timeout, unit);
+        return getWrappedInstance().invokeAny(WrappedCallable.newInstance(internal, tasks), timeout, unit);
     }
 
     @Override

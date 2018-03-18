@@ -6,6 +6,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.annotation.concurrent.Immutable;
 
+import de.invesdwin.util.concurrent.internal.WrappedThreadFactory;
 import io.netty.util.concurrent.DefaultThreadFactory;
 
 /**

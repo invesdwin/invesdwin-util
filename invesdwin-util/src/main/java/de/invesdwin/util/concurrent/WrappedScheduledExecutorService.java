@@ -7,6 +7,9 @@ import java.util.concurrent.TimeUnit;
 
 import javax.annotation.concurrent.ThreadSafe;
 
+import de.invesdwin.util.concurrent.internal.WrappedCallable;
+import de.invesdwin.util.concurrent.internal.WrappedRunnable;
+
 @ThreadSafe
 public class WrappedScheduledExecutorService extends WrappedExecutorService implements ScheduledExecutorService {
 
@@ -24,7 +27,7 @@ public class WrappedScheduledExecutorService extends WrappedExecutorService impl
     @Override
     public ScheduledFuture<?> schedule(final Runnable command, final long delay, final TimeUnit unit) {
         try {
-            return getWrappedInstance().schedule(WrappedRunnable.newInstance(this, command), delay, unit);
+            return getWrappedInstance().schedule(WrappedRunnable.newInstance(internal, command), delay, unit);
         } catch (final InterruptedException e) {
             Thread.currentThread().interrupt();
             return new InterruptingFuture<Object>();
@@ -34,7 +37,7 @@ public class WrappedScheduledExecutorService extends WrappedExecutorService impl
     @Override
     public <V> ScheduledFuture<V> schedule(final Callable<V> callable, final long delay, final TimeUnit unit) {
         try {
-            return getWrappedInstance().schedule(WrappedCallable.newInstance(this, callable), delay, unit);
+            return getWrappedInstance().schedule(WrappedCallable.newInstance(internal, callable), delay, unit);
         } catch (final InterruptedException e) {
             Thread.currentThread().interrupt();
             return new InterruptingFuture<V>();
@@ -45,8 +48,8 @@ public class WrappedScheduledExecutorService extends WrappedExecutorService impl
     public ScheduledFuture<?> scheduleAtFixedRate(final Runnable command, final long initialDelay, final long period,
             final TimeUnit unit) {
         try {
-            return getWrappedInstance().scheduleAtFixedRate(WrappedRunnable.newInstance(this, command), initialDelay,
-                    period, unit);
+            return getWrappedInstance().scheduleAtFixedRate(WrappedRunnable.newInstance(internal, command),
+                    initialDelay, period, unit);
         } catch (final InterruptedException e) {
             Thread.currentThread().interrupt();
             return new InterruptingFuture<Object>();
@@ -57,8 +60,8 @@ public class WrappedScheduledExecutorService extends WrappedExecutorService impl
     public ScheduledFuture<?> scheduleWithFixedDelay(final Runnable command, final long initialDelay, final long delay,
             final TimeUnit unit) {
         try {
-            return getWrappedInstance().scheduleWithFixedDelay(WrappedRunnable.newInstance(this, command), initialDelay,
-                    delay, unit);
+            return getWrappedInstance().scheduleWithFixedDelay(WrappedRunnable.newInstance(internal, command),
+                    initialDelay, delay, unit);
         } catch (final InterruptedException e) {
             Thread.currentThread().interrupt();
             return new InterruptingFuture<Object>();

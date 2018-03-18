@@ -1,4 +1,4 @@
-package de.invesdwin.util.concurrent;
+package de.invesdwin.util.concurrent.internal;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -7,16 +7,17 @@ import java.util.concurrent.Callable;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.util.concurrent.Threads;
 import de.invesdwin.util.error.Throwables;
 
 @NotThreadSafe
-final class WrappedCallable<V> implements Callable<V> {
+public final class WrappedCallable<V> implements Callable<V> {
 
     private final String parentThreadName;
     private final Callable<V> delegate;
-    private final WrappedExecutorService parent;
+    private final IWrappedExecutorServiceInternal parent;
 
-    private WrappedCallable(final WrappedExecutorService parent, final Callable<V> delegate,
+    private WrappedCallable(final IWrappedExecutorServiceInternal parent, final Callable<V> delegate,
             final boolean skipWaitOnFullPendingCount) throws InterruptedException {
         if (delegate instanceof WrappedCallable) {
             throw new IllegalArgumentException("delegate should not be an instance of " + getClass().getSimpleName());
@@ -55,7 +56,7 @@ final class WrappedCallable<V> implements Callable<V> {
         }
     }
 
-    static <T> Collection<WrappedCallable<T>> newInstance(final WrappedExecutorService parent,
+    public static <T> Collection<WrappedCallable<T>> newInstance(final IWrappedExecutorServiceInternal parent,
             final Collection<? extends Callable<T>> tasks) throws InterruptedException {
         final List<WrappedCallable<T>> ret = new ArrayList<WrappedCallable<T>>(tasks.size());
         boolean skipWaitOnFullPendingCount = false;
@@ -66,8 +67,8 @@ final class WrappedCallable<V> implements Callable<V> {
         return ret;
     }
 
-    static <T> WrappedCallable<T> newInstance(final WrappedExecutorService parent, final Callable<T> delegate)
-            throws InterruptedException {
+    public static <T> WrappedCallable<T> newInstance(final IWrappedExecutorServiceInternal parent,
+            final Callable<T> delegate) throws InterruptedException {
         return new WrappedCallable<T>(parent, delegate, false);
     }
 

@@ -11,14 +11,49 @@ import java.util.concurrent.RunnableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import javax.annotation.Nonnull;
 import javax.annotation.concurrent.ThreadSafe;
 
+import de.invesdwin.util.concurrent.internal.ConfiguredForkJoinWorkerThreadFactory;
+import de.invesdwin.util.concurrent.internal.IWrappedExecutorServiceInternal;
+import de.invesdwin.util.concurrent.internal.WrappedCallable;
+import de.invesdwin.util.concurrent.internal.WrappedRunnable;
 import de.invesdwin.util.shutdown.IShutdownHook;
 import de.invesdwin.util.shutdown.ShutdownHookManager;
 
 @ThreadSafe
 public class ConfiguredForkJoinPool extends ForkJoinPool {
+
+    protected final IWrappedExecutorServiceInternal internal = new IWrappedExecutorServiceInternal() {
+
+        @Override
+        public boolean isLogExceptions() {
+            return ConfiguredForkJoinPool.this.isLogExceptions();
+        }
+
+        @Override
+        public boolean isDynamicThreadName() {
+            return ConfiguredForkJoinPool.this.isDynamicThreadName();
+        }
+
+        @Override
+        public void incrementPendingCount(final boolean skipWaitOnFullPendingCount) throws InterruptedException {
+            //noop
+        }
+
+        @Override
+        public void decrementPendingCount() {
+            //noop
+        }
+
+        @Override
+        public String getName() {
+            return ConfiguredForkJoinPool.this.getName();
+        }
+
+    };
+    private volatile boolean logExceptions = false;
+    private volatile boolean dynamicThreadName = true;
+    private final String name;
 
     private final IShutdownHook shutdownHook = new IShutdownHook() {
         @Override
@@ -27,13 +62,38 @@ public class ConfiguredForkJoinPool extends ForkJoinPool {
         }
     };
 
-    public ConfiguredForkJoinPool(@Nonnull final String name, final int parallelism, final boolean asyncMode) {
+    public ConfiguredForkJoinPool(final String name, final int parallelism, final boolean asyncMode) {
         super(parallelism, new ConfiguredForkJoinWorkerThreadFactory(name), Thread.getDefaultUncaughtExceptionHandler(),
                 false);
+        this.name = name;
         configure();
     }
 
+    public boolean isLogExceptions() {
+        return logExceptions;
+    }
+
+    public ConfiguredForkJoinPool withLogExceptions(final boolean logExceptions) {
+        this.logExceptions = logExceptions;
+        return this;
+    }
+
+    public ConfiguredForkJoinPool withDynamicThreadName(final boolean dynamicThreadName) {
+        this.dynamicThreadName = dynamicThreadName;
+        return this;
+    }
+
+    public boolean isDynamicThreadName() {
+        return dynamicThreadName;
+    }
+
+    public String getName() {
+        return name;
+    }
+
     private void configure() {
+        final ConfiguredForkJoinWorkerThreadFactory factory = (ConfiguredForkJoinWorkerThreadFactory) getFactory();
+        factory.setParent(internal);
         /*
          * All executors should be shutdown on application shutdown.
          */
@@ -76,7 +136,7 @@ public class ConfiguredForkJoinPool extends ForkJoinPool {
     @Override
     public void execute(final Runnable task) {
         try {
-            super.execute(WrappedRunnable.newInstance(null, task));
+            super.execute(WrappedRunnable.newInstance(internal, task));
         } catch (final InterruptedException e) {
             throw new RuntimeException(e);
         }
@@ -85,7 +145,7 @@ public class ConfiguredForkJoinPool extends ForkJoinPool {
     @Override
     public <T> ForkJoinTask<T> submit(final Callable<T> task) {
         try {
-            return super.submit(WrappedCallable.newInstance(null, task));
+            return super.submit(WrappedCallable.newInstance(internal, task));
         } catch (final InterruptedException e) {
             throw new RuntimeException(e);
         }
@@ -100,7 +160,7 @@ public class ConfiguredForkJoinPool extends ForkJoinPool {
     @Override
     public ForkJoinTask<?> submit(final Runnable task) {
         try {
-            return super.submit(WrappedRunnable.newInstance(null, task));
+            return super.submit(WrappedRunnable.newInstance(internal, task));
         } catch (final InterruptedException e) {
             throw new RuntimeException(e);
         }
@@ -109,7 +169,7 @@ public class ConfiguredForkJoinPool extends ForkJoinPool {
     @Override
     public <T> ForkJoinTask<T> submit(final Runnable task, final T result) {
         try {
-            return super.submit(WrappedRunnable.newInstance(null, task), result);
+            return super.submit(WrappedRunnable.newInstance(internal, task), result);
         } catch (final InterruptedException e) {
             throw new RuntimeException(e);
         }
@@ -124,7 +184,7 @@ public class ConfiguredForkJoinPool extends ForkJoinPool {
     @Override
     public <T> List<Future<T>> invokeAll(final Collection<? extends Callable<T>> tasks) {
         try {
-            return super.invokeAll(WrappedCallable.newInstance(null, tasks));
+            return super.invokeAll(WrappedCallable.newInstance(internal, tasks));
         } catch (final InterruptedException e) {
             throw new RuntimeException(e);
         }
@@ -133,25 +193,25 @@ public class ConfiguredForkJoinPool extends ForkJoinPool {
     @Override
     public <T> List<Future<T>> invokeAll(final Collection<? extends Callable<T>> tasks, final long timeout,
             final TimeUnit unit) throws InterruptedException {
-        return super.invokeAll(WrappedCallable.newInstance(null, tasks), timeout, unit);
+        return super.invokeAll(WrappedCallable.newInstance(internal, tasks), timeout, unit);
     }
 
     @Override
     public <T> T invokeAny(final Collection<? extends Callable<T>> tasks)
             throws InterruptedException, ExecutionException {
-        return super.invokeAny(WrappedCallable.newInstance(null, tasks));
+        return super.invokeAny(WrappedCallable.newInstance(internal, tasks));
     }
 
     @Override
     public <T> T invokeAny(final Collection<? extends Callable<T>> tasks, final long timeout, final TimeUnit unit)
             throws InterruptedException, ExecutionException, TimeoutException {
-        return super.invokeAny(WrappedCallable.newInstance(null, tasks), timeout, unit);
+        return super.invokeAny(WrappedCallable.newInstance(internal, tasks), timeout, unit);
     }
 
     @Override
     protected <T> RunnableFuture<T> newTaskFor(final Callable<T> callable) {
         try {
-            return super.newTaskFor(WrappedCallable.newInstance(null, callable));
+            return super.newTaskFor(WrappedCallable.newInstance(internal, callable));
         } catch (final InterruptedException e) {
             throw new RuntimeException(e);
         }
@@ -160,7 +220,7 @@ public class ConfiguredForkJoinPool extends ForkJoinPool {
     @Override
     protected <T> RunnableFuture<T> newTaskFor(final Runnable runnable, final T value) {
         try {
-            return super.newTaskFor(WrappedRunnable.newInstance(null, runnable), value);
+            return super.newTaskFor(WrappedRunnable.newInstance(internal, runnable), value);
         } catch (final InterruptedException e) {
             throw new RuntimeException(e);
         }

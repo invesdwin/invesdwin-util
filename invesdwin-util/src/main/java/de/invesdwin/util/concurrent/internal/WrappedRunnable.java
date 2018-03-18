@@ -1,4 +1,4 @@
-package de.invesdwin.util.concurrent;
+package de.invesdwin.util.concurrent.internal;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -6,16 +6,17 @@ import java.util.List;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.util.concurrent.Threads;
 import de.invesdwin.util.error.Throwables;
 
 @NotThreadSafe
-final class WrappedRunnable implements Runnable {
+public final class WrappedRunnable implements Runnable {
 
     private final String parentThreadName;
     private final Runnable delegate;
-    private final WrappedExecutorService parent;
+    private final IWrappedExecutorServiceInternal parent;
 
-    private WrappedRunnable(final WrappedExecutorService parent, final Runnable delegate,
+    private WrappedRunnable(final IWrappedExecutorServiceInternal parent, final Runnable delegate,
             final boolean skipWaitOnFullPendingCount) throws InterruptedException {
         if (delegate instanceof WrappedRunnable) {
             throw new IllegalArgumentException("delegate should not be an instance of " + getClass().getSimpleName());
@@ -54,7 +55,7 @@ final class WrappedRunnable implements Runnable {
         }
     }
 
-    static Collection<WrappedRunnable> newInstance(final WrappedExecutorService parent,
+    public static Collection<WrappedRunnable> newInstance(final IWrappedExecutorServiceInternal parent,
             final Collection<Runnable> delegates) throws InterruptedException {
         final List<WrappedRunnable> ret = new ArrayList<WrappedRunnable>(delegates.size());
         boolean skipWaitOnFullPendingCount = false;
@@ -65,7 +66,7 @@ final class WrappedRunnable implements Runnable {
         return ret;
     }
 
-    static WrappedRunnable newInstance(final WrappedExecutorService parent, final Runnable delegate)
+    public static WrappedRunnable newInstance(final IWrappedExecutorServiceInternal parent, final Runnable delegate)
             throws InterruptedException {
         return new WrappedRunnable(parent, delegate, false);
     }
