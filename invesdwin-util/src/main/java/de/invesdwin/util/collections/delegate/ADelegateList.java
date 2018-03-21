@@ -10,8 +10,6 @@ import javax.annotation.concurrent.NotThreadSafe;
 @NotThreadSafe
 public abstract class ADelegateList<E> extends ADelegateCollection<E> implements List<E> {
 
-    private final List<E> delegateList = (List<E>) super.getDelegate();
-
     public ADelegateList() {
         super();
     }
@@ -22,7 +20,7 @@ public abstract class ADelegateList<E> extends ADelegateCollection<E> implements
 
     @Override
     public List<E> getDelegate() {
-        return delegateList;
+        return (List<E>) super.getDelegate();
     }
 
     @Override

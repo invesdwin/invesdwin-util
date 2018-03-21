@@ -7,8 +7,6 @@ import javax.annotation.concurrent.NotThreadSafe;
 @NotThreadSafe
 public abstract class ADelegateSet<E> extends ADelegateCollection<E> implements Set<E> {
 
-    private final Set<E> delegateSet = (Set<E>) super.getDelegate();
-
     public ADelegateSet() {
         super();
     }
@@ -19,7 +17,7 @@ public abstract class ADelegateSet<E> extends ADelegateCollection<E> implements 
 
     @Override
     public Set<E> getDelegate() {
-        return delegateSet;
+        return (Set<E>) super.getDelegate();
     }
 
     @Override
