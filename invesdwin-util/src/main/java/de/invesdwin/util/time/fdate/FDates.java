@@ -477,19 +477,21 @@ public final class FDates {
     }
 
     public static FDate avg(final FDate... values) {
-        long sum = 0;
+        double sum = 0;
         for (final FDate value : values) {
             sum += value.millisValue();
         }
-        return new FDate(sum / values.length);
+        final double avg = sum / values.length;
+        return new FDate((long) avg);
     }
 
     public static FDate avg(final Collection<FDate> values) {
-        long sum = 0;
+        double sum = 0;
         for (final FDate value : values) {
             sum += value.millisValue();
         }
-        return new FDate(sum / values.size());
+        final double avg = sum / values.size();
+        return new FDate((long) avg);
     }
 
     public static void putFDate(final ByteBuffer buffer, final FDate time) {

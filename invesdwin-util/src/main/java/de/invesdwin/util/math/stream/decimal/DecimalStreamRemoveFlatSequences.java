@@ -1,13 +1,14 @@
-package de.invesdwin.util.math.decimal.stream;
+package de.invesdwin.util.math.stream.decimal;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.collections.iterable.ASkippingIterator;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.math.decimal.ADecimal;
+import de.invesdwin.util.math.stream.IStreamAlgorithm;
 
 @NotThreadSafe
-public class DecimalStreamRemoveFlatSequences<E extends ADecimal<E>> implements IDecimalStreamAlgorithm<E, E> {
+public class DecimalStreamRemoveFlatSequences<E extends ADecimal<E>> implements IStreamAlgorithm<E, E> {
 
     private E prevValue = null;
 

@@ -1,12 +1,13 @@
-package de.invesdwin.util.math.decimal.stream;
+package de.invesdwin.util.math.stream.decimal;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.math.decimal.ADecimal;
+import de.invesdwin.util.math.stream.IStreamAlgorithm;
 
 @NotThreadSafe
-public class DecimalStreamNormalization<E extends ADecimal<E>> implements IDecimalStreamAlgorithm<E, E> {
+public class DecimalStreamNormalization<E extends ADecimal<E>> implements IStreamAlgorithm<E, E> {
 
     private final E min;
     private final E max;

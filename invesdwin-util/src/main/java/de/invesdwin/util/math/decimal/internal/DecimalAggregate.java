@@ -22,16 +22,16 @@ import de.invesdwin.util.math.decimal.config.BSplineInterpolationConfig;
 import de.invesdwin.util.math.decimal.config.InterpolationConfig;
 import de.invesdwin.util.math.decimal.config.LoessInterpolationConfig;
 import de.invesdwin.util.math.decimal.scaled.Percent;
-import de.invesdwin.util.math.decimal.stream.DecimalPoint;
-import de.invesdwin.util.math.decimal.stream.DecimalStreamAvg;
-import de.invesdwin.util.math.decimal.stream.DecimalStreamAvgWeightedAsc;
-import de.invesdwin.util.math.decimal.stream.DecimalStreamGeomAvg;
-import de.invesdwin.util.math.decimal.stream.DecimalStreamNormalization;
-import de.invesdwin.util.math.decimal.stream.DecimalStreamProduct;
-import de.invesdwin.util.math.decimal.stream.DecimalStreamRelativeDetrending;
-import de.invesdwin.util.math.decimal.stream.DecimalStreamRemoveFlatSequences;
-import de.invesdwin.util.math.decimal.stream.DecimalStreamSum;
 import de.invesdwin.util.math.statistics.RunningMedian;
+import de.invesdwin.util.math.stream.decimal.DecimalPoint;
+import de.invesdwin.util.math.stream.decimal.DecimalStreamAvg;
+import de.invesdwin.util.math.stream.decimal.DecimalStreamAvgWeightedAsc;
+import de.invesdwin.util.math.stream.decimal.DecimalStreamGeomAvg;
+import de.invesdwin.util.math.stream.decimal.DecimalStreamNormalization;
+import de.invesdwin.util.math.stream.decimal.DecimalStreamProduct;
+import de.invesdwin.util.math.stream.decimal.DecimalStreamRelativeDetrending;
+import de.invesdwin.util.math.stream.decimal.DecimalStreamRemoveFlatSequences;
+import de.invesdwin.util.math.stream.decimal.DecimalStreamSum;
 
 @ThreadSafe
 public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregate<E> {

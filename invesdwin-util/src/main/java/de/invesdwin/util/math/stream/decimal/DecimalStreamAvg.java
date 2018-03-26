@@ -1,12 +1,13 @@
-package de.invesdwin.util.math.decimal.stream;
+package de.invesdwin.util.math.stream.decimal;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.math.decimal.ADecimal;
 import de.invesdwin.util.math.decimal.Decimal;
+import de.invesdwin.util.math.stream.IStreamAlgorithm;
 
 @NotThreadSafe
-public class DecimalStreamAvg<E extends ADecimal<E>> implements IDecimalStreamAlgorithm<E, Void> {
+public class DecimalStreamAvg<E extends ADecimal<E>> implements IStreamAlgorithm<E, Void> {
 
     private int count = 0;
     private double sum = 0;

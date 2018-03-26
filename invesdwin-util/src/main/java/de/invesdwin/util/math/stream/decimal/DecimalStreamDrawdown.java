@@ -1,12 +1,13 @@
-package de.invesdwin.util.math.decimal.stream;
+package de.invesdwin.util.math.stream.decimal;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.math.decimal.ADecimal;
 import de.invesdwin.util.math.decimal.scaled.Percent;
+import de.invesdwin.util.math.stream.IStreamAlgorithm;
 
 @NotThreadSafe
-public class DecimalStreamDrawdown<E extends ADecimal<E>> implements IDecimalStreamAlgorithm<E, Percent> {
+public class DecimalStreamDrawdown<E extends ADecimal<E>> implements IStreamAlgorithm<E, Percent> {
 
     private double maxEquity;
 

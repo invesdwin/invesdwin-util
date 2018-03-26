@@ -1,14 +1,15 @@
-package de.invesdwin.util.math.decimal.stream;
+package de.invesdwin.util.math.stream.decimal;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.norva.marker.ISerializableValueObject;
 import de.invesdwin.util.math.decimal.Decimal;
 import de.invesdwin.util.math.decimal.scaled.Percent;
+import de.invesdwin.util.math.stream.IStreamAlgorithm;
 
 @NotThreadSafe
 public class DecimalStreamPerformanceFromHoldingPeriodReturns
-        implements IDecimalStreamAlgorithm<Percent, Void>, ISerializableValueObject {
+        implements IStreamAlgorithm<Percent, Void>, ISerializableValueObject {
 
     private Decimal performance = getInitialValue();
     private Double performanceDouble = performance.doubleValueRaw();

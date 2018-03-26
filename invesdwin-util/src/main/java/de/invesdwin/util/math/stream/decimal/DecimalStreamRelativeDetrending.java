@@ -1,9 +1,10 @@
-package de.invesdwin.util.math.decimal.stream;
+package de.invesdwin.util.math.stream.decimal;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.math.decimal.ADecimal;
 import de.invesdwin.util.math.decimal.Decimal;
+import de.invesdwin.util.math.stream.IStreamAlgorithm;
 
 /**
  * http://quant.stackexchange.com/questions/4286/detrending-price-data-for-analysis-of-signal-returns
@@ -12,7 +13,7 @@ import de.invesdwin.util.math.decimal.Decimal;
  */
 @NotThreadSafe
 public class DecimalStreamRelativeDetrending<Y extends ADecimal<Y>>
-        implements IDecimalStreamAlgorithm<DecimalPoint<Decimal, Y>, DecimalPoint<Decimal, Y>> {
+        implements IStreamAlgorithm<DecimalPoint<Decimal, Y>, DecimalPoint<Decimal, Y>> {
 
     private final DecimalPoint<Decimal, Y> from;
     private final DecimalPoint<Decimal, Y> to;

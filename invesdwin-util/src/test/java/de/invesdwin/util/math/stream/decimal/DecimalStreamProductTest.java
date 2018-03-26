@@ -1,4 +1,4 @@
-package de.invesdwin.util.math.decimal.stream;
+package de.invesdwin.util.math.stream.decimal;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,14 +1,15 @@
-package de.invesdwin.util.math.decimal.stream;
+package de.invesdwin.util.math.stream.decimal;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.norva.marker.ISerializableValueObject;
 import de.invesdwin.util.math.decimal.ADecimal;
 import de.invesdwin.util.math.decimal.Decimal;
+import de.invesdwin.util.math.stream.IStreamAlgorithm;
 
 @NotThreadSafe
 public class DecimalStreamProduct<E extends ADecimal<E>>
-        implements IDecimalStreamAlgorithm<E, Void>, ISerializableValueObject {
+        implements IStreamAlgorithm<E, Void>, ISerializableValueObject {
 
     private double logSum = 0D;
     private final double valueAdjustmentAddition;
