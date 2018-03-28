@@ -20,7 +20,9 @@ import de.invesdwin.util.lang.internal.MultilineToStringStyle;
 
 @Immutable
 @StaticFacadeDefinition(name = "de.invesdwin.util.lang.internal.AStringsStaticFacade", targets = {
-        CheckedCastStrings.class, BeanPathStrings.class })
+        CheckedCastStrings.class, BeanPathStrings.class,
+        com.google.common.base.Strings.class }, filterMethodSignatureExpressions = {
+                ".* java\\.lang\\.String repeat\\(java\\.lang\\.String str, int repeat\\).*" })
 public final class Strings extends AStringsStaticFacade {
 
     public static final ADelegateComparator<String> COMPARATOR = new ADelegateComparator<String>() {
