@@ -7,11 +7,13 @@ import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
 
+import de.invesdwin.norva.marker.ISerializableValueObject;
+
 /**
  * Is ascending internally
  */
 @Immutable
-public abstract class ADelegateComparator<E> implements Comparator<Object> {
+public abstract class ADelegateComparator<E> implements Comparator<Object>, ISerializableValueObject {
 
     public static final ADelegateComparator<Object> DEFAULT_COMPARATOR = new ADelegateComparator<Object>() {
         @Override
