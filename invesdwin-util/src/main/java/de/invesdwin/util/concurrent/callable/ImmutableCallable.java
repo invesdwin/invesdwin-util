@@ -1,11 +1,13 @@
-package de.invesdwin.util.concurrent;
+package de.invesdwin.util.concurrent.callable;
 
 import java.util.concurrent.Callable;
 
 import javax.annotation.concurrent.Immutable;
 
+import de.invesdwin.norva.marker.ISerializableValueObject;
+
 @Immutable
-public class ImmutableCallable<E> implements Callable<E> {
+public class ImmutableCallable<E> implements Callable<E>, ISerializableValueObject {
 
     private final E value;
 

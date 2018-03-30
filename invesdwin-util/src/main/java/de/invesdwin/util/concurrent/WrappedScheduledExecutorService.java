@@ -7,6 +7,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.annotation.concurrent.ThreadSafe;
 
+import de.invesdwin.util.concurrent.future.InterruptingFuture;
 import de.invesdwin.util.concurrent.internal.WrappedCallable;
 import de.invesdwin.util.concurrent.internal.WrappedRunnable;
 

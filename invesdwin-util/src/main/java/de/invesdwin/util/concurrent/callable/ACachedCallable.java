@@ -1,4 +1,4 @@
-package de.invesdwin.util.concurrent;
+package de.invesdwin.util.concurrent.callable;
 
 import java.util.concurrent.Callable;
 

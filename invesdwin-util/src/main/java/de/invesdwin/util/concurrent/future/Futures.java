@@ -1,4 +1,4 @@
-package de.invesdwin.util.concurrent;
+package de.invesdwin.util.concurrent.future;
 
 import java.util.ArrayList;
 import java.util.Arrays;

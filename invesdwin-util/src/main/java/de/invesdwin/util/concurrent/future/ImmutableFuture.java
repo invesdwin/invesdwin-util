@@ -1,4 +1,4 @@
-package de.invesdwin.util.concurrent;
+package de.invesdwin.util.concurrent.future;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -7,13 +7,19 @@ import java.util.concurrent.TimeoutException;
 
 import javax.annotation.concurrent.Immutable;
 
+import de.invesdwin.norva.marker.ISerializableValueObject;
+
 @Immutable
-public class CompletedFuture<V> implements Future<V> {
+public final class ImmutableFuture<E> implements Future<E>, ISerializableValueObject {
 
-    private final V value;
+    private final E value;
 
-    public CompletedFuture(final V value) {
+    private ImmutableFuture(final E value) {
         this.value = value;
+    }
+
+    public static <E> ImmutableFuture<E> of(final E value) {
+        return new ImmutableFuture<E>(value);
     }
 
     @Override
@@ -32,12 +38,12 @@ public class CompletedFuture<V> implements Future<V> {
     }
 
     @Override
-    public V get() throws InterruptedException, ExecutionException {
+    public E get() throws InterruptedException, ExecutionException {
         return value;
     }
 
     @Override
-    public V get(final long timeout, final TimeUnit unit)
+    public E get(final long timeout, final TimeUnit unit)
             throws InterruptedException, ExecutionException, TimeoutException {
         return value;
     }

@@ -1,4 +1,4 @@
-package de.invesdwin.util.concurrent;
+package de.invesdwin.util.concurrent.future;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
