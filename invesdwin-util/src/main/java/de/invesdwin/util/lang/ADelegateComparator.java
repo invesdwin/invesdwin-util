@@ -81,19 +81,7 @@ public abstract class ADelegateComparator<E> implements Comparator<Object>, ISer
     }
 
     public Comparator<Object> asDescending() {
-        return new Comparator<Object>() {
-            @Override
-            public int compare(final Object o1, final Object o2) {
-                final int compare = ADelegateComparator.this.compare(o1, o2);
-                if (compare < 0) {
-                    return 1;
-                } else if (compare > 0) {
-                    return -1;
-                } else {
-                    return 0;
-                }
-            };
-        };
+        return new DescendingComparator();
     }
 
     public <T extends E> void sort(final List<? extends T> list, final boolean ascending) {
@@ -212,6 +200,20 @@ public abstract class ADelegateComparator<E> implements Comparator<Object>, ISer
 
     public void sortAscending(final List<? extends E> list) {
         sort(list, true);
+    }
+
+    private final class DescendingComparator implements Comparator<Object>, ISerializableValueObject {
+        @Override
+        public int compare(final Object o1, final Object o2) {
+            final int compare = ADelegateComparator.this.compare(o1, o2);
+            if (compare < 0) {
+                return 1;
+            } else if (compare > 0) {
+                return -1;
+            } else {
+                return 0;
+            }
+        }
     }
 
 }
