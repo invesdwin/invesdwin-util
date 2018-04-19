@@ -9,6 +9,7 @@ import java.util.Set;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
+import de.invesdwin.norva.marker.ISerializableValueObject;
 import de.invesdwin.util.bean.tuple.ImmutableEntry;
 import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
 
@@ -19,7 +20,7 @@ import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
  * The iterator returned from this map is also suitable for concurrent modification during iteration.
  */
 @ThreadSafe
-public abstract class AFastIterableDelegateMap<K, V> implements Map<K, V> {
+public abstract class AFastIterableDelegateMap<K, V> implements Map<K, V>, ISerializableValueObject {
 
     //arraylist wins in raw iterator speed compared to bufferingIterator since no remove is needed, though we need protection against concurrent modification
     @GuardedBy("this")

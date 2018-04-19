@@ -7,6 +7,7 @@ import java.util.NoSuchElementException;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.norva.marker.ISerializableValueObject;
 import de.invesdwin.util.collections.Lists;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.error.FastNoSuchElementException;
@@ -23,7 +24,7 @@ import de.invesdwin.util.lang.Objects;
  * Also a faster alternative to any list when only iteration is needed.
  */
 @NotThreadSafe
-public class BufferingIterator<E> implements IBufferingIterator<E> {
+public class BufferingIterator<E> implements IBufferingIterator<E>, ISerializableValueObject {
 
     private Node head;
     private Node tail;
@@ -219,7 +220,7 @@ public class BufferingIterator<E> implements IBufferingIterator<E> {
         return size;
     }
 
-    private class Node {
+    private class Node implements ISerializableValueObject {
         private final E value;
         private Node next;
 
