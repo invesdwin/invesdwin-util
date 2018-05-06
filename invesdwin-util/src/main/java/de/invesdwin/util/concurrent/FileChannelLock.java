@@ -8,22 +8,38 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.nio.channels.OverlappingFileLockException;
 
+import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
+
+import org.apache.commons.io.FileUtils;
 
 @ThreadSafe
 public class FileChannelLock implements Closeable {
 
     private final File file;
+    @GuardedBy("this")
     private RandomAccessFile raf;
+    @GuardedBy("this")
     private FileChannel channel;
+    @GuardedBy("this")
     private FileLock lock;
+    @GuardedBy("this")
+    private boolean locked;
 
     public FileChannelLock(final File file) {
         this.file = file;
     }
 
+    public File getFile() {
+        return file;
+    }
+
     public synchronized boolean tryLock() {
         try {
+            if (!file.exists()) {
+                FileUtils.forceMkdirParent(file);
+                FileUtils.touch(file);
+            }
             // Get a file channel for the file
             raf = new RandomAccessFile(file, "rw");
             channel = raf.getChannel();
@@ -41,10 +57,15 @@ public class FileChannelLock implements Closeable {
                 unlock();
                 return false;
             }
+            locked = true;
             return true;
         } catch (final IOException e) {
-            throw new RuntimeException(e);
+            throw new IllegalStateException("Unable to lock file: " + file, e);
         }
+    }
+
+    public synchronized boolean isLocked() {
+        return locked;
     }
 
     public synchronized void unlock() {
@@ -75,6 +96,14 @@ public class FileChannelLock implements Closeable {
             }
             raf = null;
         }
+        if (locked) {
+            locked = false;
+            deleteFileAfterUnlock();
+        }
+    }
+
+    protected void deleteFileAfterUnlock() {
+        file.delete();
     }
 
     @Override
@@ -86,6 +115,13 @@ public class FileChannelLock implements Closeable {
     protected void finalize() throws Throwable {
         super.finalize();
         close();
+    }
+
+    public FileChannelLock tryLockThrowing() {
+        if (!tryLock()) {
+            throw new IllegalStateException("Unable to lock file: " + file);
+        }
+        return this;
     }
 
 }
