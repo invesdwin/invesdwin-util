@@ -6,6 +6,7 @@ import java.util.Map.Entry;
 
 import javax.annotation.concurrent.Immutable;
 
+import de.invesdwin.util.collections.iterable.EmptyCloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQuery;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQueryElementFilter;
@@ -143,47 +144,92 @@ public class AdjustingHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V
 
     @Override
     public ICloseableIterable<FDate> getKeys(final FDate from, final FDate to) {
-        return delegate.getKeys(adjustKey(from), adjustKey(to));
+        final FDate adjFrom = adjustKey(from);
+        if (adjFrom != null && adjFrom.isBefore(from)) {
+            return EmptyCloseableIterable.getInstance();
+        }
+        final FDate adjTo = adjustKey(to);
+        return delegate.getKeys(adjFrom, adjTo);
     }
 
     @Override
     public ICloseableIterable<Entry<FDate, V>> getEntries(final FDate from, final FDate to) {
-        return delegate.getEntries(adjustKey(from), adjustKey(to));
+        final FDate adjFrom = adjustKey(from);
+        if (adjFrom != null && adjFrom.isBefore(from)) {
+            return EmptyCloseableIterable.getInstance();
+        }
+        final FDate adjTo = adjustKey(to);
+        return delegate.getEntries(adjFrom, adjTo);
     }
 
     @Override
     public ICloseableIterable<V> getValues(final FDate from, final FDate to) {
-        return delegate.getValues(adjustKey(from), adjustKey(to));
+        final FDate adjFrom = adjustKey(from);
+        if (adjFrom != null && adjFrom.isBefore(from)) {
+            return EmptyCloseableIterable.getInstance();
+        }
+        final FDate adjTo = adjustKey(to);
+        return delegate.getValues(adjFrom, adjTo);
     }
 
     @Override
     public FDate getPreviousKeyWithSameValueBetween(final FDate from, final FDate to, final V value) {
-        return delegate.getPreviousKeyWithSameValueBetween(adjustKey(from), adjustKey(to), value);
+        final FDate adjFrom = adjustKey(from);
+        if (adjFrom != null && adjFrom.isBefore(from)) {
+            return null;
+        }
+        final FDate adjTo = adjustKey(to);
+        return delegate.getPreviousKeyWithSameValueBetween(adjFrom, adjTo, value);
     }
 
     @Override
     public V getPreviousValueWithSameValueBetween(final FDate from, final FDate to, final V value) {
-        return delegate.getPreviousValueWithSameValueBetween(adjustKey(from), adjustKey(to), value);
+        final FDate adjFrom = adjustKey(from);
+        if (adjFrom != null && adjFrom.isBefore(from)) {
+            return null;
+        }
+        final FDate adjTo = adjustKey(to);
+        return delegate.getPreviousValueWithSameValueBetween(adjFrom, adjTo, value);
     }
 
     @Override
     public Entry<FDate, V> getPreviousEntryWithSameValueBetween(final FDate from, final FDate to, final V value) {
-        return delegate.getPreviousEntryWithSameValueBetween(adjustKey(from), adjustKey(to), value);
+        final FDate adjFrom = adjustKey(from);
+        if (adjFrom != null && adjFrom.isBefore(from)) {
+            return null;
+        }
+        final FDate adjTo = adjustKey(to);
+        return delegate.getPreviousEntryWithSameValueBetween(adjFrom, adjTo, value);
     }
 
     @Override
     public FDate getPreviousKeyWithDifferentValueBetween(final FDate from, final FDate to, final V value) {
-        return delegate.getPreviousKeyWithDifferentValueBetween(adjustKey(from), adjustKey(to), value);
+        final FDate adjFrom = adjustKey(from);
+        if (adjFrom != null && adjFrom.isBefore(from)) {
+            return null;
+        }
+        final FDate adjTo = adjustKey(to);
+        return delegate.getPreviousKeyWithDifferentValueBetween(adjFrom, adjTo, value);
     }
 
     @Override
     public V getPreviousValueWithDifferentValueBetween(final FDate from, final FDate to, final V value) {
-        return delegate.getPreviousValueWithDifferentValueBetween(adjustKey(from), adjustKey(to), value);
+        final FDate adjFrom = adjustKey(from);
+        if (adjFrom != null && adjFrom.isBefore(from)) {
+            return null;
+        }
+        final FDate adjTo = adjustKey(to);
+        return delegate.getPreviousValueWithDifferentValueBetween(adjFrom, adjTo, value);
     }
 
     @Override
     public Entry<FDate, V> getPreviousEntryWithDifferentValueBetween(final FDate from, final FDate to, final V value) {
-        return delegate.getPreviousEntryWithDifferentValueBetween(adjustKey(from), adjustKey(to), value);
+        final FDate adjFrom = adjustKey(from);
+        if (adjFrom != null && adjFrom.isBefore(from)) {
+            return null;
+        }
+        final FDate adjTo = adjustKey(to);
+        return delegate.getPreviousEntryWithDifferentValueBetween(adjFrom, adjTo, value);
     }
 
     @Override
