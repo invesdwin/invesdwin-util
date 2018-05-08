@@ -79,6 +79,10 @@ public abstract class AHistoricalCache<V> {
 
         @Override
         protected ILoadingCache<FDate, V> createDelegate() {
+            final Integer size = getMaximumSize();
+            if (size == null || size > 0) {
+                HistoricalCacheRefreshManager.register(AHistoricalCache.this);
+            }
             return newLoadingCacheProvider(new Function<FDate, V>() {
                 @Override
                 public V apply(final FDate key) {
@@ -87,14 +91,12 @@ public abstract class AHistoricalCache<V> {
                     return value;
                 }
 
-            }, getMaximumSize());
+            }, size);
         }
     };
     private volatile boolean refreshRequested;
 
-    public AHistoricalCache() {
-        HistoricalCacheRefreshManager.register(this);
-    }
+    public AHistoricalCache() {}
 
     /**
      * You can enable this setting to get useful info when the automatic reoptimization happens, so you can hardcode the
@@ -106,6 +108,15 @@ public abstract class AHistoricalCache<V> {
 
     public static boolean isDebugAutomaticReoptimization() {
         return debugAutomaticReoptimization;
+    }
+
+    @Override
+    protected void finalize() throws Throwable {
+        super.finalize();
+        final Integer size = getMaximumSize();
+        if (size == null || size > 0) {
+            HistoricalCacheRefreshManager.unregister(this);
+        }
     }
 
     /**
