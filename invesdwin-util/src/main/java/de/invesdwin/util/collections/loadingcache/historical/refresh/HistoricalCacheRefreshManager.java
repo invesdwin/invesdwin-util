@@ -138,12 +138,23 @@ public final class HistoricalCacheRefreshManager {
         return executor != null;
     }
 
-    public static void register(final AHistoricalCache<?> cache) {
-        Assertions.checkTrue(REGISTERED_CACHES.get(cache.getClass()).add(cache));
+    public static synchronized void register(final AHistoricalCache<?> cache) {
+        final Set<AHistoricalCache<?>> caches = REGISTERED_CACHES.get(cache.getClass());
+        Assertions.checkTrue(caches.add(cache));
+        final int size = caches.size();
+        if (size % 10000 == 0) {
+            //CHECKSTYLE:OFF
+            LOG.warn(
+                    "Already registered {} {}s, maybe the cache instance should be cached itself instead of being recreated all the time? "
+                            + "Alternatively set maximum size to 0 so it does not get registered here. Class={} ToString={}",
+                    size, AHistoricalCache.class.getSimpleName(), cache.getClass().getSimpleName(), cache);
+            //CHECKSTYLE:ON
+        }
     }
 
-    public static void unregister(final AHistoricalCache<?> cache) {
-        Assertions.checkTrue(REGISTERED_CACHES.get(cache.getClass()).remove(cache));
+    public static synchronized void unregister(final AHistoricalCache<?> cache) {
+        final Set<AHistoricalCache<?>> caches = REGISTERED_CACHES.get(cache.getClass());
+        Assertions.checkTrue(caches.remove(cache));
     }
 
 }

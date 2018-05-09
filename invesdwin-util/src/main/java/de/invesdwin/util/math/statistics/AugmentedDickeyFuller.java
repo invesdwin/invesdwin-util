@@ -80,13 +80,14 @@ public class AugmentedDickeyFuller {
             return;
         }
         final double[] beta;
+        final double[] sd;
         try {
             beta = regression.estimateRegressionParameters();
+            sd = regression.estimateRegressionParametersStandardErrors();
         } catch (final SingularMatrixException e) {
             //not enough data
             return;
         }
-        final double[] sd = regression.estimateRegressionParametersStandardErrors();
 
         //        final RidgeRegression regression = new RidgeRegression(designMatrix.getData(), zcol1.toArray());
         //        regression.updateCoefficients(L2PENALTY);
