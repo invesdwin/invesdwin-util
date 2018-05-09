@@ -11,6 +11,7 @@ import javax.annotation.concurrent.ThreadSafe;
 import com.google.common.cache.CacheBuilder;
 
 import de.invesdwin.util.assertions.Assertions;
+import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
 import de.invesdwin.util.concurrent.Executors;
 import de.invesdwin.util.time.duration.Duration;
@@ -49,15 +50,22 @@ public final class HistoricalCacheRefreshManager {
     @GuardedBy("HistoricalCacheRefreshManager.class")
     private static ScheduledExecutorService executor;
 
-    private static final Set<AHistoricalCache<?>> REGISTERED_CACHES;
+    private static final ALoadingCache<Class<?>, Set<AHistoricalCache<?>>> REGISTERED_CACHES = new ALoadingCache<Class<?>, Set<AHistoricalCache<?>>>() {
 
-    static {
-        final ConcurrentMap<AHistoricalCache<?>, Boolean> map = CacheBuilder.newBuilder()
-                .weakKeys()
-                .<AHistoricalCache<?>, Boolean> build()
-                .asMap();
-        REGISTERED_CACHES = Collections.newSetFromMap(map);
-    }
+        @Override
+        protected Set<AHistoricalCache<?>> loadValue(final Class<?> key) {
+            final ConcurrentMap<AHistoricalCache<?>, Boolean> map = CacheBuilder.newBuilder()
+                    .weakKeys()
+                    .<AHistoricalCache<?>, Boolean> build()
+                    .asMap();
+            return Collections.newSetFromMap(map);
+        }
+
+        @Override
+        protected boolean isHighConcurrency() {
+            return true;
+        }
+    };
 
     private HistoricalCacheRefreshManager() {}
 
@@ -75,8 +83,10 @@ public final class HistoricalCacheRefreshManager {
         LOG.warn("Forcing refresh on historical caches: {}", REGISTERED_CACHES.size());
         //CHECKSTYLE:ON
         lastRefresh = new FDate();
-        for (final AHistoricalCache<?> registeredCache : REGISTERED_CACHES) {
-            registeredCache.requestRefresh();
+        for (final Set<AHistoricalCache<?>> caches : REGISTERED_CACHES.values()) {
+            for (final AHistoricalCache<?> registeredCache : caches) {
+                registeredCache.requestRefresh();
+            }
         }
     }
 
@@ -129,11 +139,11 @@ public final class HistoricalCacheRefreshManager {
     }
 
     public static void register(final AHistoricalCache<?> cache) {
-        Assertions.checkTrue(REGISTERED_CACHES.add(cache));
+        Assertions.checkTrue(REGISTERED_CACHES.get(cache.getClass()).add(cache));
     }
 
     public static void unregister(final AHistoricalCache<?> cache) {
-        Assertions.checkTrue(REGISTERED_CACHES.remove(cache));
+        Assertions.checkTrue(REGISTERED_CACHES.get(cache.getClass()).remove(cache));
     }
 
 }
