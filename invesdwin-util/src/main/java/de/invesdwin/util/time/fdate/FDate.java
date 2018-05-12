@@ -309,7 +309,7 @@ public class FDate implements IDate, Serializable, Cloneable, Comparable<Object>
         case MONTHS:
             return truncate(FDateField.Month);
         case WEEKS:
-            return setFWeekday(FWeekday.Monday);
+            return withoutTime().setFWeekday(FWeekday.Monday);
         case DAYS:
             return truncate(FDateField.Day);
         case HOURS:
