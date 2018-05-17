@@ -112,4 +112,8 @@ public class TimeRange extends AValueObject {
             return new TimeRange(FDates.extractFDate(buffer, index), FDates.extractFDate(buffer, index + 8));
         }
     }
+
+    public boolean contains(final FDate time) {
+        return FDates.isBetween(time, from, to);
+    }
 }
