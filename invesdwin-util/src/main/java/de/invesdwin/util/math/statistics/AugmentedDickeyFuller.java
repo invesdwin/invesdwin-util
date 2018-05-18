@@ -51,7 +51,12 @@ public class AugmentedDickeyFuller {
         final int k = lag + 1;
         final int n = ts.length - 1;
 
-        final RealMatrix z = MatrixUtils.createRealMatrix(laggedMatrix(y, k)); //has rows length(ts) - 1 - k + 1
+        final double[][] laggedMatrix = laggedMatrix(y, k);
+        if (laggedMatrix.length == 0) {
+            //not enough data
+            return;
+        }
+        final RealMatrix z = MatrixUtils.createRealMatrix(laggedMatrix); //has rows length(ts) - 1 - k + 1
         final RealVector zcol1 = z.getColumnVector(0); //has length length(ts) - 1 - k + 1
         final double[] xt1 = subsetArray(ts, k - 1, n - 1); //ts[k:(length(ts) - 1)], has length length(ts) - 1 - k + 1
         final double[] trend = sequence(k, n); //trend k:n, has length length(ts) - 1 - k + 1
