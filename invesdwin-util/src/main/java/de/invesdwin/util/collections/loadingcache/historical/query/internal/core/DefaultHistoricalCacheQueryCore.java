@@ -49,7 +49,7 @@ public class DefaultHistoricalCacheQueryCore<V> implements IHistoricalCacheQuery
                     if (previousValueKey.equals(valueKey)) {
                         break;
                     }
-                    valueKey = previousKey;
+                    valueKey = previousValueKey;
                     value = previousValue;
                 }
             }
