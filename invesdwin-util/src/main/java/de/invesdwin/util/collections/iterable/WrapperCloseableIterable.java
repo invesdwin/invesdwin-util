@@ -39,8 +39,8 @@ public final class WrapperCloseableIterable<E> implements ICloseableIterable<E> 
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> ICloseableIterable<T> maybeWrap(final T... iterables) {
-        return maybeWrap(new ArrayList<T>(Arrays.asList(iterables)));
+    public static <T> ICloseableIterable<T> maybeWrap(final T... iterable) {
+        return maybeWrap(new ArrayList<T>(Arrays.asList(iterable)));
     }
 
     @SuppressWarnings("unchecked")
