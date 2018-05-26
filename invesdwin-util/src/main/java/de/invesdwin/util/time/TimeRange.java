@@ -7,12 +7,20 @@ import java.util.List;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.bean.AValueObject;
+import de.invesdwin.util.lang.ADelegateComparator;
 import de.invesdwin.util.time.duration.Duration;
 import de.invesdwin.util.time.fdate.FDate;
 import de.invesdwin.util.time.fdate.FDates;
 
 @Immutable
 public class TimeRange extends AValueObject {
+
+    public static final ADelegateComparator<TimeRange> COMPARATOR = new ADelegateComparator<TimeRange>() {
+        @Override
+        protected Comparable<?> getCompareCriteria(final TimeRange e) {
+            return e.getFrom();
+        }
+    };
 
     private final FDate from;
     private final FDate to;
@@ -115,5 +123,10 @@ public class TimeRange extends AValueObject {
 
     public boolean contains(final FDate time) {
         return FDates.isBetween(time, from, to);
+    }
+
+    @Override
+    public int compareTo(final Object o) {
+        return COMPARATOR.compare(this, o);
     }
 }
