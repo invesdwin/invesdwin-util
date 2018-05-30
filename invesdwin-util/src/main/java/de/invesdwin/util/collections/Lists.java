@@ -50,8 +50,9 @@ public final class Lists extends AListsStaticFacade {
                     list.add(next);
                 }
             } catch (final NoSuchElementException e) {
-                iterator.close();
                 return list;
+            } finally {
+                iterator.close();
             }
         }
     }
@@ -94,10 +95,13 @@ public final class Lists extends AListsStaticFacade {
             final IFastToListProvider<E> cIterator = (IFastToListProvider<E>) iterator;
             return cIterator.toList(list);
         } else {
-            while (iterator.hasNext()) {
-                list.add(iterator.next());
+            try {
+                while (iterator.hasNext()) {
+                    list.add(iterator.next());
+                }
+            } finally {
+                iterator.close();
             }
-            iterator.close();
             return list;
         }
     }
