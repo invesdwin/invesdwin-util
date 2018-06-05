@@ -278,7 +278,6 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
         return (V) null;
     }
 
-    @SuppressWarnings("GuardedBy")
     private boolean eventuallyLoadFurtherValues(final String source, final FDate key, final FDate adjustedKey,
             final boolean newMinKey, final boolean forced) {
         if (forced || shouldLoadFurtherValues(key, newMinKey)) {
@@ -290,16 +289,17 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
                 final BufferingIterator<V> newFurtherValuesBuffer = new BufferingIterator<V>();
                 final Iterable<? extends V> newFurtherValues = readAllValuesAscendingFrom(curKey);
                 newFurtherValuesBuffer.consume(newFurtherValues);
+                if (newFurtherValuesBuffer.isEmpty()) {
+                    //end of data reached
+                    break;
+                }
                 final boolean furtherValuesEmpty = furtherValues.isEmpty();
                 if (!furtherValuesEmpty) {
                     final FDate tailKey = innerExtractKey(key, furtherValues.getTail());
                     final FDate newTailKey = innerExtractKey(key, newFurtherValuesBuffer.getTail());
                     if (newTailKey.isAfter(tailKey)) {
                         //skip duplicates on further queries
-                        while (!newFurtherValuesBuffer.isEmpty()
-                                && innerExtractKey(key, newFurtherValuesBuffer.getHead()).isBefore(curKey)) {
-                            newFurtherValuesBuffer.next();
-                        }
+                        skipDuplicates(key, curKey, newFurtherValuesBuffer);
                     } else {
                         //just a duplicate result...
                         break;
@@ -329,6 +329,14 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
             return true;
         }
         return false;
+    }
+
+    private void skipDuplicates(final FDate key, final FDate curKey,
+            final BufferingIterator<V> newFurtherValuesBuffer) {
+        while (!newFurtherValuesBuffer.isEmpty()
+                && innerExtractKey(key, newFurtherValuesBuffer.getHead()).isBefore(curKey)) {
+            newFurtherValuesBuffer.next();
+        }
     }
 
     protected boolean allowNoDataInDBShortcut() {
