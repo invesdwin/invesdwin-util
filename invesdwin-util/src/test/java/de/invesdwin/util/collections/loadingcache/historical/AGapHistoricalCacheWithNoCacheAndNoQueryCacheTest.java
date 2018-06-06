@@ -425,6 +425,18 @@ public class AGapHistoricalCacheWithNoCacheAndNoQueryCacheTest {
     }
 
     @Test
+    public void testValues() {
+        final Iterable<FDate> iterable = cache.query().getValues(entities.get(0).addMilliseconds(1), FDate.MAX_DATE);
+        final List<FDate> previousKeys = new ArrayList<FDate>();
+        for (final FDate d : iterable) {
+            previousKeys.add(d);
+        }
+        Assertions.assertThat(previousKeys).isEqualTo(entities.subList(1, entities.size()));
+        Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(2);
+        Assertions.assertThat(countReadNewestValueTo).isEqualTo(3);
+    }
+
+    @Test
     public void testKeysWithReturnMaxResults() {
         returnMaxResults = testReturnMaxResultsValue;
 
@@ -475,10 +487,9 @@ public class AGapHistoricalCacheWithNoCacheAndNoQueryCacheTest {
 
     @Test
     public void testPreviousValuesGetsFilledDownWithDistance() {
-        final Collection<FDate> previousValues = asList(cache.query()
-                .withFilterDuplicateKeys(false)
-                .withFuture()
-                .getPreviousValues(FDate.MIN_DATE, entities.size()));
+        final Collection<FDate> previousValues = asList(
+                cache.query().withFilterDuplicateKeys(false).withFuture().getPreviousValues(FDate.MIN_DATE,
+                        entities.size()));
         Assertions.assertThat(previousValues.size()).isEqualTo(entities.size());
         for (final FDate d : previousValues) {
             Assertions.assertThat(d).isSameAs(entities.get(0));
@@ -489,10 +500,9 @@ public class AGapHistoricalCacheWithNoCacheAndNoQueryCacheTest {
 
     @Test
     public void testNextValuesGetsFilledUpWithDistance() {
-        final Collection<FDate> nextValues = asList(cache.query()
-                .withFilterDuplicateKeys(false)
-                .withFuture()
-                .getNextValues(FDate.MAX_DATE, entities.size()));
+        final Collection<FDate> nextValues = asList(
+                cache.query().withFilterDuplicateKeys(false).withFuture().getNextValues(FDate.MAX_DATE,
+                        entities.size()));
         Assertions.assertThat(nextValues.size()).isEqualTo(entities.size());
         for (final FDate d : nextValues) {
             Assertions.assertThat(d).isSameAs(entities.get(entities.size() - 1));
@@ -884,9 +894,9 @@ public class AGapHistoricalCacheWithNoCacheAndNoQueryCacheTest {
     @Test
     public void testPreviousValuesWithQueryCacheWithAlwaysSameKey() {
         for (int size = 1; size < entities.size(); size++) {
-            final Collection<FDate> previousValues = asList(cache.query()
-                    .withFilterDuplicateKeys(false)
-                    .getPreviousValues(entities.get(entities.size() - 1), size));
+            final Collection<FDate> previousValues = asList(
+                    cache.query().withFilterDuplicateKeys(false).getPreviousValues(entities.get(entities.size() - 1),
+                            size));
             final List<FDate> expectedValues = entities.subList(entities.size() - size, entities.size());
             Assertions.assertThat(previousValues).isEqualTo(expectedValues);
         }

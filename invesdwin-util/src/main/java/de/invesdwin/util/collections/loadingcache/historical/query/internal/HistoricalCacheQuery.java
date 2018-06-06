@@ -349,9 +349,10 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
                             nextEntry = future.getNextEntry(from, 0);
                             if (nextEntry != null) {
                                 nextEntryKey = extractKey(nextEntry);
-                                if (nextEntry != null && nextEntryKey.isBefore(from)) {
+                                if (nextEntryKey.isBefore(from)) {
                                     //skip initial value if it is not inside requested range
-                                    next();
+                                    nextEntry = future.getNextEntry(nextEntryKey, 1);
+                                    nextEntryKey = extractKey(nextEntry);
                                 }
                             }
                         }
