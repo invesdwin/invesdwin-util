@@ -36,6 +36,11 @@ public abstract class APushingHistoricalCacheAdjustKeyProvider implements IHisto
     }
 
     @Override
+    public boolean isAlreadyAdjustingKey() {
+        return pullingAdjustKeyProvider.isAlreadyAdjustingKey();
+    }
+
+    @Override
     public FDate adjustKey(final FDate key) {
         if (key == null) {
             return null;

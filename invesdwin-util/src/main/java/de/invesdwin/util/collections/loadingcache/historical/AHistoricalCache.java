@@ -21,6 +21,7 @@ import de.invesdwin.util.collections.loadingcache.historical.interceptor.Histori
 import de.invesdwin.util.collections.loadingcache.historical.interceptor.HistoricalCacheRangeQueryInterceptorSupport;
 import de.invesdwin.util.collections.loadingcache.historical.interceptor.IHistoricalCachePreviousKeysQueryInterceptor;
 import de.invesdwin.util.collections.loadingcache.historical.interceptor.IHistoricalCacheRangeQueryInterceptor;
+import de.invesdwin.util.collections.loadingcache.historical.key.APullingHistoricalCacheAdjustKeyProvider;
 import de.invesdwin.util.collections.loadingcache.historical.key.IHistoricalCacheAdjustKeyProvider;
 import de.invesdwin.util.collections.loadingcache.historical.key.internal.DelegateHistoricalCacheExtractKeyProvider;
 import de.invesdwin.util.collections.loadingcache.historical.key.internal.DelegateHistoricalCacheShiftKeyProvider;
@@ -674,6 +675,11 @@ public abstract class AHistoricalCache<V> {
         @Override
         public <T> IHistoricalCacheQuery<T> newQuery(final IHistoricalCacheQueryCore<T> queryCore) {
             return new HistoricalCacheQuery<T>(queryCore);
+        }
+
+        @Override
+        public boolean isAlreadyAdjustingKey() {
+            return APullingHistoricalCacheAdjustKeyProvider.isGlobalAlreadyAdjustingKey();
         }
 
     }

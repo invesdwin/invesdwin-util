@@ -19,6 +19,7 @@ import io.netty.util.concurrent.FastThreadLocal;
 @ThreadSafe
 public abstract class APullingHistoricalCacheAdjustKeyProvider implements IHistoricalCacheAdjustKeyProvider {
 
+    private static final FastThreadLocal<Boolean> GLOBAL_ALREADY_ADJUSTING_KEY = new FastThreadLocal<Boolean>();
     private final FastThreadLocal<Boolean> alreadyAdjustingKey = new FastThreadLocal<Boolean>();
 
     private volatile FDate curHighestAllowedKey;
@@ -42,6 +43,8 @@ public abstract class APullingHistoricalCacheAdjustKeyProvider implements IHisto
             return null;
         }
         if (BooleanUtils.isNotTrue(alreadyAdjustingKey.get())) {
+            final Boolean prevGlobalAlreadyAdjustingKey = GLOBAL_ALREADY_ADJUSTING_KEY.get();
+            GLOBAL_ALREADY_ADJUSTING_KEY.set(true);
             alreadyAdjustingKey.set(true);
             try {
                 final FDate newHighestAllowedKey = getHighestAllowedKeyUpdateCached();
@@ -51,6 +54,7 @@ public abstract class APullingHistoricalCacheAdjustKeyProvider implements IHisto
                     }
                 }
             } finally {
+                GLOBAL_ALREADY_ADJUSTING_KEY.set(prevGlobalAlreadyAdjustingKey);
                 alreadyAdjustingKey.remove();
             }
         } else {
@@ -85,16 +89,30 @@ public abstract class APullingHistoricalCacheAdjustKeyProvider implements IHisto
 
     @Override
     public FDate getHighestAllowedKey() {
-        if (curHighestAllowedKey == null && BooleanUtils.isNotTrue(alreadyAdjustingKey.get())) {
-            alreadyAdjustingKey.set(true);
-            try {
-                final FDate newHighestAllowedKey = getHighestAllowedKeyUpdateCached();
-                curHighestAllowedKey = newHighestAllowedKey;
-            } finally {
-                alreadyAdjustingKey.remove();
+        if (curHighestAllowedKey == null) {
+            if (BooleanUtils.isNotTrue(alreadyAdjustingKey.get())) {
+                final Boolean prevGlobalAlreadyAdjustingKey = GLOBAL_ALREADY_ADJUSTING_KEY.get();
+                GLOBAL_ALREADY_ADJUSTING_KEY.set(true);
+                alreadyAdjustingKey.set(true);
+                try {
+                    final FDate newHighestAllowedKey = getHighestAllowedKeyUpdateCached();
+                    curHighestAllowedKey = newHighestAllowedKey;
+                } finally {
+                    GLOBAL_ALREADY_ADJUSTING_KEY.set(prevGlobalAlreadyAdjustingKey);
+                    alreadyAdjustingKey.remove();
+                }
             }
         }
         return curHighestAllowedKey;
+    }
+
+    public static boolean isGlobalAlreadyAdjustingKey() {
+        return BooleanUtils.isTrue(GLOBAL_ALREADY_ADJUSTING_KEY.get());
+    }
+
+    @Override
+    public boolean isAlreadyAdjustingKey() {
+        return isGlobalAlreadyAdjustingKey();
     }
 
     private void rememberKeyToRemove(final FDate key) {

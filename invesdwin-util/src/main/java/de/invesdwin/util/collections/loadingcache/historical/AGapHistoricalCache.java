@@ -6,6 +6,7 @@ import javax.annotation.concurrent.ThreadSafe;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
 import de.invesdwin.util.collections.loadingcache.historical.internal.AGapHistoricalCacheMissCounter;
+import de.invesdwin.util.collections.loadingcache.historical.key.IHistoricalCacheAdjustKeyProvider;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQuery;
 import de.invesdwin.util.time.duration.Duration;
 import de.invesdwin.util.time.fdate.FDate;
@@ -183,20 +184,23 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
         return changed;
     }
 
-    @SuppressWarnings("GuardedBy")
     private boolean eventuallyGetMaxKeyInDB(final FDate key, final boolean force) {
-        //not updating highest allowed key, since this already happened during key adjustment
-        final FDate newMaxKeyInDB = getAdjustKeyProvider().getHighestAllowedKey();
-        if (newMaxKeyInDB != null) {
-            if (newMaxKeyInDB.isAfter(maxKeyInDB)) {
-                maxKeyInDB = newMaxKeyInDB;
-                return true;
-            } else {
-                return false;
+        final IHistoricalCacheAdjustKeyProvider adjustKeyProvider = getAdjustKeyProvider();
+        final boolean alreadyAdjustingKey = adjustKeyProvider.isAlreadyAdjustingKey();
+        if (!alreadyAdjustingKey) {
+            //not updating highest allowed key, since this already happened during key adjustment
+            final FDate newMaxKeyInDB = adjustKeyProvider.getHighestAllowedKey();
+            if (newMaxKeyInDB != null) {
+                if (newMaxKeyInDB.isAfter(maxKeyInDB)) {
+                    maxKeyInDB = newMaxKeyInDB;
+                    return true;
+                } else {
+                    return false;
+                }
             }
         }
         //fallback to normal procedure if curHighWaterMark is not provided by provider
-        if (maxKeyInDB == null || force) {
+        if (maxKeyInDB == null || force || alreadyAdjustingKey) {
             final V maxValue = readNewestValueFromDB(maxKey());
             if (maxValue != null) {
                 final FDate maxValueKey = extractKey(key, maxValue);
