@@ -97,7 +97,6 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
 
     private final IHistoricalCacheQuery<V> thisQueryWithFuture = query().withFuture();
 
-    @SuppressWarnings("GuardedBy")
     @Override
     protected void innerIncreaseMaximumSize(final int maximumSize, final String reason) {
         super.innerIncreaseMaximumSize(maximumSize, reason);
@@ -153,7 +152,6 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
         return readNewestValueFromDB(key);
     }
 
-    @SuppressWarnings("GuardedBy")
     private boolean isPotentiallyAlreadyEvicted(final FDate key, final V value) {
         final boolean isEvictedBeforeCurrentFurtherValues = (value == null || extractKey(key, value).isAfter(key))
                 && (key.isAfter(minKeyInDB) || key.isAfter(minKeyInDBFromLoadFurtherValues));
@@ -204,7 +202,7 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
             final V maxValue = readNewestValueFromDB(maxKey());
             if (maxValue != null) {
                 final FDate maxValueKey = extractKey(key, maxValue);
-                if (maxKeyInDB == null || maxValueKey.compareTo(maxKeyInDB) <= -1) {
+                if (maxKeyInDB == null || maxValueKey.compareTo(maxKeyInDB) >= 1) {
                     maxKeyInDB = maxValueKey;
                     getValuesMap().put(maxValueKey, maxValue);
                     return true;
@@ -214,7 +212,6 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
         return false;
     }
 
-    @SuppressWarnings("GuardedBy")
     private boolean eventuallyGetMinKeyInDB(final FDate key, final boolean force) {
         if (minKeyInDB == null || force) {
             final V minValue = readNewestValueFromDB(minKey());
@@ -231,7 +228,6 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
         return false;
     }
 
-    @SuppressWarnings("GuardedBy")
     private boolean updateMaxKey(final FDate key) {
         if (maxKey == null || key.compareTo(maxKey) >= 1) {
             maxKey = key;
@@ -241,7 +237,6 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
         }
     }
 
-    @SuppressWarnings("GuardedBy")
     private boolean updateMinKey(final FDate key) {
         if (minKey == null || key.compareTo(minKey) <= -1) {
             minKey = key;
@@ -251,7 +246,6 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
         }
     }
 
-    @SuppressWarnings("GuardedBy")
     private V loadFromCacheBeforeLoadFurtherValues(final FDate key, final boolean newMaxKey, final boolean newMinKey) {
         final V value = eventuallyGetMinValue(key, newMinKey);
         if (value != null) {
@@ -265,7 +259,6 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
         return (V) null;
     }
 
-    @SuppressWarnings("GuardedBy")
     private V eventuallyGetMinValue(final FDate key, final boolean newMinKey) {
         //if key < minKey; use value for minKey
         if (minKeyInDB != null) {
@@ -347,7 +340,6 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
         return true;
     }
 
-    @SuppressWarnings("GuardedBy")
     private boolean shouldLoadFurtherValues(final FDate key, final boolean newMinKey) {
         if (furtherValues.isEmpty()) {
             final V tail = lastValuesFromFurtherValues.getTail();
@@ -375,13 +367,11 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
         return false;
     }
 
-    @SuppressWarnings("GuardedBy")
     private boolean isMinKeyInDBFromLoadFurtherValues() {
         return minKeyInDBFromLoadFurtherValues != null
                 && FDates.isSameMillisecond(minKeyInDBFromLoadFurtherValues, minKeyInDB);
     }
 
-    @SuppressWarnings("GuardedBy")
     private void assertFurtherValuesSorting(final FDate key) {
         final FDate firstKey = extractKey(key, furtherValues.getHead());
         if (firstKey.compareTo(key) <= -1) {
@@ -407,7 +397,6 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
         }
     }
 
-    @SuppressWarnings("GuardedBy")
     private V searchInFurtherValues(final FDate key) {
         //Take the first matching value from the sorted list
         //Search for the newest value
@@ -469,7 +458,6 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
         return prevValue;
     }
 
-    @SuppressWarnings("GuardedBy")
     private void pushLastValueFromFurtherValues() {
         while (lastValuesFromFurtherValues.size() >= MAX_LAST_VALUES_FROM_LOAD_FURTHER_VALUES) {
             lastValuesFromFurtherValues.next();
@@ -480,7 +468,7 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
     /**
      * when this does not match, then getLatestValue will be used automatically anyway to go further back in time
      */
-    @SuppressWarnings("GuardedBy")
+
     private FDate determineEaliestStartOfLoadFurtherValues(final FDate key) {
         //1 day is fine for most cases
         final long readBackStepMillis = cacheMissCounter.getOptimalReadBackStepMillis();
@@ -494,7 +482,7 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
     /**
      * These checks may only be called after furtherValues were searched and eventuelly the list has been reloaded.
      */
-    @SuppressWarnings("GuardedBy")
+
     private V tryLoadFromCacheAfterLoadFurtherValues(final FDate key, final boolean newMaxKey,
             final FDate previousMaxKey) {
         //maybe minKey in db did not change even though the minKey in the cache changed
@@ -516,7 +504,6 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
         return null;
     }
 
-    @SuppressWarnings("GuardedBy")
     private V readNewestValueFromDB(final FDate key) {
         // we give up and use the newest value from db
         V value = readLatestValueFor(key);
