@@ -182,9 +182,8 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
             return interceptor.getPreviousKey(key, shiftBackUnits);
         }
         assertShiftUnitsPositive(shiftBackUnits);
-        final Optional<FDate> optionalInterceptor = core.getParent()
-                .getPreviousKeysQueryInterceptor()
-                .getPreviousKey(key, shiftBackUnits);
+        final Optional<FDate> optionalInterceptor = core.getParent().getPreviousKeysQueryInterceptor().getPreviousKey(
+                key, shiftBackUnits);
         if (optionalInterceptor != null) {
             return optionalInterceptor.get();
         }
@@ -343,8 +342,19 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
                 public ICloseableIterator<Entry<FDate, V>> iterator() {
                     return new ICloseableIterator<Entry<FDate, V>>() {
                         private final IHistoricalCacheQueryWithFuture<V> future = withFuture();
-                        private Entry<FDate, V> nextEntry = future.getNextEntry(from, 0);
-                        private FDate nextEntryKey = extractKey(nextEntry);
+                        private Entry<FDate, V> nextEntry;
+                        private FDate nextEntryKey;
+
+                        {
+                            nextEntry = future.getNextEntry(from, 0);
+                            if (nextEntry != null) {
+                                nextEntryKey = extractKey(nextEntry);
+                                if (nextEntry != null && nextEntryKey.isBefore(from)) {
+                                    //skip initial value if it is not inside requested range
+                                    next();
+                                }
+                            }
+                        }
 
                         @Override
                         public boolean hasNext() {
