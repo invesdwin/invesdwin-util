@@ -34,6 +34,7 @@
 		<version.fst>2.57</version.fst>
 		<version.jollyday>0.5.5</version.jollyday>
 		<version.dsiutils>2.4.0</version.dsiutils>
+		<version.btreemap>1.1.0</version.btreemap>
 	</properties>
 
 	<dependencyManagement>
@@ -193,6 +194,11 @@
 		<dependency>
 			<groupId>io.netty</groupId>
 			<artifactId>netty-common</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>uk.co.omega-prime</groupId>
+			<artifactId>btreemap</artifactId>
+			<version>${version.btreemap}</version>
 		</dependency>
 
 		<dependency>

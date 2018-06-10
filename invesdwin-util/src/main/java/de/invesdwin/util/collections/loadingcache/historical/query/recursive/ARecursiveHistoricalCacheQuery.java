@@ -5,7 +5,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NavigableMap;
 import java.util.NoSuchElementException;
-import java.util.TreeMap;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
@@ -26,6 +25,7 @@ import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.time.TimeRange;
 import de.invesdwin.util.time.fdate.FDate;
 import de.invesdwin.util.time.fdate.FTimeUnit;
+import uk.co.omegaprime.btreemap.BTreeMap;
 
 /**
  * This class can be used inside of historical caches to retrieve values from itself recursively. It solves the infinite
@@ -64,7 +64,7 @@ public abstract class ARecursiveHistoricalCacheQuery<V> {
     @GuardedBy("parent")
     private FDate lastRecursionKey;
     @GuardedBy("parent")
-    private final NavigableMap<FDate, V> highestRecursionResultsAsc = new TreeMap<FDate, V>(FDate.COMPARATOR);
+    private final NavigableMap<FDate, V> highestRecursionResultsAsc = BTreeMap.create(FDate.COMPARATOR);
     private final int maxHighestRecursionResultsCount;
     @GuardedBy("parent")
     private boolean shouldAppendHighestRecursionResults;
