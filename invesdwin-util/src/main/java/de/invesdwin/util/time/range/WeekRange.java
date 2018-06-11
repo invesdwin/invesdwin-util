@@ -10,6 +10,7 @@ import de.invesdwin.util.lang.ADelegateComparator;
 import de.invesdwin.util.time.duration.Duration;
 import de.invesdwin.util.time.fdate.FDate;
 import de.invesdwin.util.time.fdate.FDates;
+import de.invesdwin.util.time.fdate.FWeekTime;
 
 @Immutable
 public class WeekRange extends AValueObject {

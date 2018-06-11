@@ -28,7 +28,6 @@ import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.decimal.scaled.Percent;
 import de.invesdwin.util.time.duration.Duration;
-import de.invesdwin.util.time.range.FWeekTime;
 import de.jollyday.HolidayCalendar;
 import de.jollyday.HolidayManager;
 import de.jollyday.HolidayType;

@@ -1,4 +1,4 @@
-package de.invesdwin.util.time.range;
+package de.invesdwin.util.time.fdate;
 
 import java.util.TimeZone;
 
@@ -9,9 +9,6 @@ import de.invesdwin.util.lang.ADelegateComparator;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.math.Bytes;
-import de.invesdwin.util.time.fdate.FDate;
-import de.invesdwin.util.time.fdate.FDateBuilder;
-import de.invesdwin.util.time.fdate.FWeekday;
 
 @Immutable
 public class FWeekTime extends AValueObject {
