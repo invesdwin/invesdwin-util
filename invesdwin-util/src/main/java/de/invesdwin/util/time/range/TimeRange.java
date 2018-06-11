@@ -1,4 +1,4 @@
-package de.invesdwin.util.time;
+package de.invesdwin.util.time.range;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;

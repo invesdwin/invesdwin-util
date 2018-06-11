@@ -28,6 +28,7 @@ import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.decimal.scaled.Percent;
 import de.invesdwin.util.time.duration.Duration;
+import de.invesdwin.util.time.range.FWeekTime;
 import de.jollyday.HolidayCalendar;
 import de.jollyday.HolidayManager;
 import de.jollyday.HolidayType;
@@ -194,6 +195,15 @@ public class FDate implements IDate, Serializable, Cloneable, Comparable<Object>
 
     public FDate setFWeekday(final FWeekday weekday) {
         return setWeekday(weekday.jodaTimeValue());
+    }
+
+    public FDate setFWeekTime(final FWeekTime weekTime) {
+        final MutableDateTime delegate = newMutableDateTime();
+        delegate.set(FDateField.Weekday.jodaTimeValue(), weekTime.getWeekday());
+        delegate.set(FDateField.Hour.jodaTimeValue(), weekTime.getHour());
+        delegate.set(FDateField.Minute.jodaTimeValue(), weekTime.getMinute());
+        delegate.setRounding(FDateField.Minute.jodaTimeValue().getField(delegate.getChronology()));
+        return new FDate(delegate);
     }
 
     public FDate setHour(final int hour) {

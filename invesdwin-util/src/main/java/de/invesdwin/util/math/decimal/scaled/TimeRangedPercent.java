@@ -7,8 +7,8 @@ import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.math.decimal.Decimal;
-import de.invesdwin.util.time.TimeRange;
 import de.invesdwin.util.time.fdate.FDate;
+import de.invesdwin.util.time.range.TimeRange;
 
 @Immutable
 public class TimeRangedPercent extends Percent {

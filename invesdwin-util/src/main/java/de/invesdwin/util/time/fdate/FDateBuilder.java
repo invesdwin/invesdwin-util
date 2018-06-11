@@ -6,14 +6,17 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+import org.joda.time.MutableDateTime;
 
 import de.invesdwin.util.lang.Objects;
+import de.invesdwin.util.time.range.FWeekTime;
 
 @NotThreadSafe
 public class FDateBuilder {
 
     private Integer years;
     private Integer months;
+    private FWeekday weekday;
     private Integer days;
     private Integer hours;
     private Integer minutes;
@@ -36,6 +39,13 @@ public class FDateBuilder {
         return this;
     }
 
+    public FDateBuilder withWeekTime(final FWeekTime weekTime) {
+        this.weekday = weekTime.getFWeekday();
+        this.hours = (int) weekTime.getHour();
+        this.minutes = (int) weekTime.getMinute();
+        return this;
+    }
+
     public FDateBuilder withYears(final Integer years) {
         this.years = years;
         return this;
@@ -43,6 +53,20 @@ public class FDateBuilder {
 
     public FDateBuilder withMonths(final Integer months) {
         this.months = months;
+        return this;
+    }
+
+    public FDateBuilder withFWeekday(final FWeekday weekday) {
+        this.weekday = weekday;
+        return this;
+    }
+
+    public FDateBuilder withWeekday(final Integer weekday) {
+        if (weekday == null) {
+            this.weekday = null;
+        } else {
+            this.weekday = FWeekday.valueOfIndex(weekday);
+        }
         return this;
     }
 
@@ -92,7 +116,13 @@ public class FDateBuilder {
         }
         final DateTime dateTime = new DateTime(year, monthOfYear, dayOfMonth, hourOfDay, minuteOfHour, secondOfMinute,
                 millisOfSecond, zone);
-        return new FDate(dateTime);
+        if (weekday == null) {
+            return new FDate(dateTime);
+        } else {
+            final MutableDateTime mutableDateTime = dateTime.toMutableDateTime();
+            mutableDateTime.set(FDateField.Weekday.jodaTimeValue(), weekday.jodaTimeValue());
+            return new FDate(mutableDateTime);
+        }
     }
 
     public static FDate newDate(final Integer years) {

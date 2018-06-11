@@ -22,9 +22,9 @@ import de.invesdwin.util.collections.loadingcache.historical.listener.IHistorica
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQuery;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQueryWithFuture;
 import de.invesdwin.util.math.Integers;
-import de.invesdwin.util.time.TimeRange;
 import de.invesdwin.util.time.fdate.FDate;
 import de.invesdwin.util.time.fdate.FTimeUnit;
+import de.invesdwin.util.time.range.TimeRange;
 import uk.co.omegaprime.btreemap.BTreeMap;
 
 /**

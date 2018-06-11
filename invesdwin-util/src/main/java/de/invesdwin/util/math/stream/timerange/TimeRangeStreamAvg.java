@@ -4,8 +4,8 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.math.stream.IStreamAlgorithm;
 import de.invesdwin.util.math.stream.number.NumberStreamSum;
-import de.invesdwin.util.time.TimeRange;
 import de.invesdwin.util.time.fdate.FDate;
+import de.invesdwin.util.time.range.TimeRange;
 
 @NotThreadSafe
 public class TimeRangeStreamAvg<E extends TimeRange> implements IStreamAlgorithm<E, Void> {
