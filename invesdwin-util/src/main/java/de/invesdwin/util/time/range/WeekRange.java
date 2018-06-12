@@ -32,9 +32,6 @@ public class WeekRange extends AValueObject {
         if (to == null) {
             throw new NullPointerException("to should not be null");
         }
-        if (from.isAfter(to)) {
-            throw new IllegalArgumentException("from [" + from + "] should not be after to [" + to + "]");
-        }
         this.from = from;
         this.to = to;
     }
