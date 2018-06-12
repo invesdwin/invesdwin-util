@@ -594,9 +594,16 @@ public class FDate implements IDate, Serializable, Cloneable, Comparable<Object>
         return firstWorkdayDay;
     }
 
+    public boolean isHoliday(final String holidayCalendarId) {
+        return isHoliday(HolidayManager.getInstance(ManagerParameters.create(holidayCalendarId)));
+    }
+
     public boolean isHoliday(final HolidayCalendar holidayCalendar) {
-        if (holidayCalendar != null) {
-            final HolidayManager holidayManager = HolidayManager.getInstance(ManagerParameters.create(holidayCalendar));
+        return isHoliday(HolidayManager.getInstance(ManagerParameters.create(holidayCalendar)));
+    }
+
+    public boolean isHoliday(final HolidayManager holidayManager) {
+        if (holidayManager != null) {
             return holidayManager.isHoliday(calendarValue(), HolidayType.OFFICIAL_HOLIDAY);
         } else {
             return false;
