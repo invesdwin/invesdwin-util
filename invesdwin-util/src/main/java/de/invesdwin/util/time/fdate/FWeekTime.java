@@ -1,7 +1,5 @@
 package de.invesdwin.util.time.fdate;
 
-import java.util.TimeZone;
-
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.bean.AValueObject;
@@ -27,17 +25,8 @@ public class FWeekTime extends AValueObject {
     private final byte hour;
     private final byte minute;
 
-    public FWeekTime(final FWeekday weekday, final int hour, final int minute, final TimeZone timeZone) {
-        this(new FDateBuilder().withTimeZone(timeZone)
-                .withYears(FDate.MIN_YEAR)
-                .withFWeekday(weekday)
-                .withHours(hour)
-                .withMinutes(minute)
-                .get());
-    }
-
     public FWeekTime(final FDate date) {
-        this(date.getFWeekday(), Bytes.checkedCast(date.getHour()), Bytes.checkedCast(date.getMinute()));
+        this(date.getFWeekday(), date.getHour(), date.getMinute());
     }
 
     public FWeekTime(final FWeekday weekday, final int hour, final int minute) {
