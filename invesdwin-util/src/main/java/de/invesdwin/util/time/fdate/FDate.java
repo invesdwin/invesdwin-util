@@ -189,7 +189,12 @@ public class FDate implements IDate, Serializable, Cloneable, Comparable<Object>
     }
 
     public FDate setWeekday(final int weekday) {
-        return set(FDateField.Weekday, weekday);
+        final FDate modified = set(FDateField.Weekday, weekday);
+        if (!FDates.isSameJulianDay(modified, this) && modified.isAfter(this)) {
+            return modified.addWeeks(-1);
+        } else {
+            return modified;
+        }
     }
 
     public FDate setFWeekday(final FWeekday weekday) {
@@ -198,12 +203,16 @@ public class FDate implements IDate, Serializable, Cloneable, Comparable<Object>
 
     public FDate setFWeekTime(final FWeekTime weekTime) {
         final MutableDateTime delegate = newMutableDateTime();
-        delegate.addWeeks(-1);
         delegate.set(FDateField.Weekday.jodaTimeValue(), weekTime.getWeekday());
         delegate.set(FDateField.Hour.jodaTimeValue(), weekTime.getHour());
         delegate.set(FDateField.Minute.jodaTimeValue(), weekTime.getMinute());
         delegate.setRounding(FDateField.Minute.jodaTimeValue().getField(delegate.getChronology()));
-        return new FDate(delegate);
+        final FDate modified = new FDate(delegate);
+        if (!FDates.isSameJulianDay(modified, this) && modified.isAfter(this)) {
+            return modified.addWeeks(-1);
+        } else {
+            return modified;
+        }
     }
 
     public FDate setHour(final int hour) {
@@ -581,7 +590,7 @@ public class FDate implements IDate, Serializable, Cloneable, Comparable<Object>
     public FDate getFirstWeekdayOfMonth(final FWeekday weekday) {
         final FDate firstWeekDay = withoutTime().setDay(1).setFWeekday(weekday);
         if (!FDates.isSameMonth(this, firstWeekDay)) {
-            return firstWeekDay.addDays(FTimeUnit.DAYS_IN_WEEK);
+            return firstWeekDay.addWeeks(1);
         } else {
             return firstWeekDay;
         }

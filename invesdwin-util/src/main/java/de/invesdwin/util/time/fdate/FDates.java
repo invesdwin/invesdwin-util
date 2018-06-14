@@ -300,10 +300,9 @@ public final class FDates {
             return false;
         }
         final FDate startOfWeek = date1.withoutTime().setFWeekday(statOfWeekPart);
-        final FDate endOfWeek = date1.withoutTime().setFWeekday(endOfWeekPart).addDays(1).addMilliseconds(-1);
-        if (startOfWeek.isAfter(endOfWeek)) {
-            throw new IllegalStateException(
-                    "startOfWeek [" + startOfWeek + "] should not be after [" + endOfWeek + "]");
+        FDate endOfWeek = date1.withoutTime().setFWeekday(endOfWeekPart).addDays(1).addMilliseconds(-1);
+        if (startOfWeek.isAfterOrEqualTo(endOfWeek)) {
+            endOfWeek = endOfWeek.addWeeks(1);
         }
         return FDates.isBetween(date2, startOfWeek, endOfWeek);
     }
