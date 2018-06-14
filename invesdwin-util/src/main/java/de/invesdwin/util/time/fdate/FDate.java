@@ -198,6 +198,7 @@ public class FDate implements IDate, Serializable, Cloneable, Comparable<Object>
 
     public FDate setFWeekTime(final FWeekTime weekTime) {
         final MutableDateTime delegate = newMutableDateTime();
+        delegate.addWeeks(-1);
         delegate.set(FDateField.Weekday.jodaTimeValue(), weekTime.getWeekday());
         delegate.set(FDateField.Hour.jodaTimeValue(), weekTime.getHour());
         delegate.set(FDateField.Minute.jodaTimeValue(), weekTime.getMinute());
