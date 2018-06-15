@@ -16,16 +16,22 @@ public final class FHolidayManager {
      * 
      * Holidays on 1.January and 25.December only
      */
-    public static final FHolidayManager ZORRO = getInstance("zorro");
-    public static final FHolidayManager GERMANY = getInstance(HolidayCalendar.GERMANY);
+    public static final FHolidayManager ZORRO;
+    public static final FHolidayManager GERMANY;
 
-    private static final ALoadingCache<String, FHolidayManager> ID_MANAGER = new ALoadingCache<String, FHolidayManager>() {
+    private static final ALoadingCache<String, FHolidayManager> ID_MANAGER;
 
-        @Override
-        protected FHolidayManager loadValue(final String key) {
-            return new FHolidayManager(key);
-        }
-    };
+    static {
+        ID_MANAGER = new ALoadingCache<String, FHolidayManager>() {
+
+            @Override
+            protected FHolidayManager loadValue(final String key) {
+                return new FHolidayManager(key);
+            }
+        };
+        ZORRO = getInstance("zorro");
+        GERMANY = getInstance(HolidayCalendar.GERMANY);
+    }
 
     private final HolidayManager delegate;
 
