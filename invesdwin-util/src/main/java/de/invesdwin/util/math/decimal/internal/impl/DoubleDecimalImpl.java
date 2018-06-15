@@ -274,6 +274,10 @@ public class DoubleDecimalImpl extends ADoubleDecimalImpl<DoubleDecimalImpl> {
 
     @Override
     protected double internalRound(final double value, final int scale, final RoundingMode roundingMode) {
+        if (value % 1 == 0) {
+            //nothing to round
+            return value;
+        }
         final long factor = (long) Math.pow(10, scale);
         final double toBeRoundedValue;
         if (scale < Decimal.DEFAULT_ROUNDING_SCALE && roundingMode != Decimal.DEFAULT_ROUNDING_MODE) {

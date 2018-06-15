@@ -262,6 +262,8 @@ public class DecimalTest {
                 .isEqualTo("37.95629787");
         Assertions.assertThat(new Decimal("37.95629787000").round(2, RoundingMode.UNNECESSARY))
                 .isEqualTo(new Decimal("37.95629787000"));
+
+        Assertions.assertThat(new Decimal(243841100000L).toString()).isEqualTo("243841100000");
     }
 
     @Test
@@ -332,6 +334,8 @@ public class DecimalTest {
                 .isEqualTo("-37.95629787");
         Assertions.assertThat(new Decimal("-37.95629787000").round(2, RoundingMode.UNNECESSARY))
                 .isEqualTo(new Decimal("-37.95629787000"));
+
+        Assertions.assertThat(new Decimal(-243841100000L).toString()).isEqualTo("-243841100000");
     }
 
     @Test
