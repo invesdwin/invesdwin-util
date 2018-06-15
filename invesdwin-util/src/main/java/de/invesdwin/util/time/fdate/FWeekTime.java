@@ -2,7 +2,6 @@ package de.invesdwin.util.time.fdate;
 
 import javax.annotation.concurrent.Immutable;
 
-import de.invesdwin.util.bean.AValueObject;
 import de.invesdwin.util.lang.ADelegateComparator;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.lang.Strings;
@@ -10,12 +9,12 @@ import de.invesdwin.util.math.Bytes;
 import de.invesdwin.util.math.Shorts;
 
 @Immutable
-public class FWeekTime extends AValueObject {
+public class FWeekTime extends Number implements Comparable<Object> {
 
     public static final ADelegateComparator<FWeekTime> COMPARATOR = new ADelegateComparator<FWeekTime>() {
         @Override
         protected Comparable<?> getCompareCriteria(final FWeekTime e) {
-            return Integer.parseInt(e.toString());
+            return e.longValue();
         }
     };
 
@@ -127,6 +126,30 @@ public class FWeekTime extends AValueObject {
     @Override
     public int hashCode() {
         return Objects.hashCode(FWeekTime.class, weekday, hour, minute, second, millisecond);
+    }
+
+    @Deprecated
+    @Override
+    public int intValue() {
+        throw new UnsupportedOperationException("value does not fit into Integer, use longValue() instead");
+    }
+
+    @Override
+    public long longValue() {
+        final String concatNumber = weekday.jodaTimeValue() + Strings.leftPad(hour, 2, '0')
+                + Strings.leftPad(minute, 2, '0') + Strings.leftPad(second, 2, '0')
+                + Strings.leftPad(millisecond, 3, '0');
+        return Long.parseLong(concatNumber);
+    }
+
+    @Override
+    public float floatValue() {
+        return longValue();
+    }
+
+    @Override
+    public double doubleValue() {
+        return longValue();
     }
 
 }
