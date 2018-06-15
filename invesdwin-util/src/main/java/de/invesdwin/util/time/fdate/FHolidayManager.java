@@ -11,6 +11,14 @@ import de.jollyday.ManagerParameters;
 @ThreadSafe
 public final class FHolidayManager {
 
+    /**
+     * http://zorro-project.com/manual/en/weekend.htm
+     * 
+     * Holidays on 1.January and 25.December only
+     */
+    public static final FHolidayManager ZORRO = getInstance("zorro");
+    public static final FHolidayManager GERMANY = getInstance(HolidayCalendar.GERMANY);
+
     private static final ALoadingCache<String, FHolidayManager> ID_MANAGER = new ALoadingCache<String, FHolidayManager>() {
 
         @Override
@@ -33,8 +41,15 @@ public final class FHolidayManager {
         }
     };
 
+    private final String calendarId;
+
     private FHolidayManager(final String calendarId) {
+        this.calendarId = calendarId;
         this.delegate = HolidayManager.getInstance(ManagerParameters.create(calendarId));
+    }
+
+    public String getCalendarId() {
+        return calendarId;
     }
 
     public boolean isHoliday(final FDate date) {
