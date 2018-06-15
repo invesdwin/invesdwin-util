@@ -18,11 +18,12 @@ public class FWeekTime extends Number implements Comparable<Object> {
         }
     };
 
-    private static final int MIN = 0;
-    private static final int MAX_HOUR = 24;
-    private static final int MAX_MINUTE = 59;
-    private static final int MAX_SECOND = 59;
-    private static final int MAX_MILLISECOND = 999;
+    public static final int MIN = 0;
+    public static final int MAX_HOUR = 24;
+    public static final int MAX_MINUTE = 59;
+    public static final int MAX_SECOND = 59;
+    public static final int MAX_MILLISECOND = 999;
+
     private final FWeekday weekday;
     private final byte hour;
     private final byte minute;
