@@ -206,7 +206,8 @@ public class FDate implements IDate, Serializable, Cloneable, Comparable<Object>
         delegate.set(FDateField.Weekday.jodaTimeValue(), weekTime.getWeekday());
         delegate.set(FDateField.Hour.jodaTimeValue(), weekTime.getHour());
         delegate.set(FDateField.Minute.jodaTimeValue(), weekTime.getMinute());
-        delegate.setRounding(FDateField.Minute.jodaTimeValue().getField(delegate.getChronology()));
+        delegate.set(FDateField.Second.jodaTimeValue(), weekTime.getSecond());
+        delegate.set(FDateField.Millisecond.jodaTimeValue(), weekTime.getMillisecond());
         final FDate modified = new FDate(delegate);
         if (!FDates.isSameJulianDay(modified, this) && modified.isAfter(this)) {
             return modified.addWeeks(-1);

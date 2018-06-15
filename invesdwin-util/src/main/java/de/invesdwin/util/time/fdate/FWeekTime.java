@@ -7,6 +7,7 @@ import de.invesdwin.util.lang.ADelegateComparator;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.math.Bytes;
+import de.invesdwin.util.math.Shorts;
 
 @Immutable
 public class FWeekTime extends AValueObject {
@@ -21,15 +22,20 @@ public class FWeekTime extends AValueObject {
     private static final int MIN = 0;
     private static final int MAX_HOUR = 24;
     private static final int MAX_MINUTE = 59;
+    private static final int MAX_SECOND = 59;
+    private static final int MAX_MILLISECOND = 999;
     private final FWeekday weekday;
     private final byte hour;
     private final byte minute;
+    private final byte second;
+    private final short millisecond;
 
     public FWeekTime(final FDate date) {
-        this(date.getFWeekday(), date.getHour(), date.getMinute());
+        this(date.getFWeekday(), date.getHour(), date.getMinute(), date.getSecond(), date.getMillisecond());
     }
 
-    public FWeekTime(final FWeekday weekday, final int hour, final int minute) {
+    public FWeekTime(final FWeekday weekday, final int hour, final int minute, final int second,
+            final int millisecond) {
         if (weekday == null) {
             throw new NullPointerException("weekday should not be null");
         }
@@ -38,11 +44,21 @@ public class FWeekTime extends AValueObject {
         }
         if (minute < MIN || minute > MAX_MINUTE) {
             throw new IllegalArgumentException(
-                    "minute should be between [" + MIN + "] and [" + MAX_HOUR + "]: " + hour);
+                    "minute should be between [" + MIN + "] and [" + MAX_MINUTE + "]: " + minute);
+        }
+        if (second < MIN || second > MAX_SECOND) {
+            throw new IllegalArgumentException(
+                    "second should be between [" + MIN + "] and [" + MAX_SECOND + "]: " + second);
+        }
+        if (millisecond < MIN || millisecond > MAX_MILLISECOND) {
+            throw new IllegalArgumentException(
+                    "millisecond should be between [" + MIN + "] and [" + MAX_MILLISECOND + "]: " + millisecond);
         }
         this.weekday = weekday;
         this.hour = Bytes.checkedCast(hour);
         this.minute = Bytes.checkedCast(minute);
+        this.second = Bytes.checkedCast(second);
+        this.millisecond = Shorts.checkedCast(millisecond);
     }
 
     public FWeekday getFWeekday() {
@@ -61,9 +77,18 @@ public class FWeekTime extends AValueObject {
         return minute;
     }
 
+    public byte getSecond() {
+        return second;
+    }
+
+    public short getMillisecond() {
+        return millisecond;
+    }
+
     @Override
     public String toString() {
-        return weekday.jodaTimeValue() + Strings.leftPad(hour, 2, '0') + Strings.leftPad(minute, 2, '0');
+        return weekday.jodaTimeValue() + "T" + Strings.leftPad(hour, 2, '0') + ":" + Strings.leftPad(minute, 2, '0')
+                + ":" + Strings.leftPad(second, 2, '0') + "." + Strings.leftPad(millisecond, 3, '0');
     }
 
     @Override
@@ -76,7 +101,8 @@ public class FWeekTime extends AValueObject {
         if (obj instanceof FWeekTime) {
             final FWeekTime cObj = (FWeekTime) obj;
             return Objects.equals(cObj.weekday, weekday) && Objects.equals(cObj.hour, hour)
-                    && Objects.equals(cObj.minute, minute);
+                    && Objects.equals(cObj.minute, minute) && Objects.equals(cObj.second, second)
+                    && Objects.equals(cObj.millisecond, millisecond);
         } else {
             return false;
         }
@@ -100,7 +126,7 @@ public class FWeekTime extends AValueObject {
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(FWeekTime.class, weekday, hour, minute);
+        return Objects.hashCode(FWeekTime.class, weekday, hour, minute, second, millisecond);
     }
 
 }

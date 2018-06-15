@@ -191,20 +191,20 @@ public class FDateTest {
     @Test
     public void testSetFWeekTime() {
         final FDate date = FDateBuilder.newDate(2017, 1, 1);
-        final FDate monday = date.setFWeekTime(new FWeekTime(FWeekday.Monday, 1, 1));
+        final FDate monday = date.setFWeekTime(new FWeekTime(FWeekday.Monday, 1, 1, 0, 0));
         Assertions.assertThat(monday).isEqualTo(FDateBuilder.newDate(2016, 12, 26, 1, 1));
 
-        final FDate sunday = date.setFWeekTime(new FWeekTime(FWeekday.Sunday, 1, 1));
+        final FDate sunday = date.setFWeekTime(new FWeekTime(FWeekday.Sunday, 1, 1, 0, 0));
         Assertions.assertThat(sunday).isEqualTo(FDateBuilder.newDate(2017, 1, 1, 1, 1));
     }
 
     @Test
     public void testSetFWeekTimeStays() {
         final FDate date = FDateBuilder.newDate(2017, 1, 2);
-        final FDate monday = date.setFWeekTime(new FWeekTime(FWeekday.Monday, 1, 1));
+        final FDate monday = date.setFWeekTime(new FWeekTime(FWeekday.Monday, 1, 1, 0, 0));
         Assertions.assertThat(monday).isEqualTo(FDateBuilder.newDate(2017, 1, 2, 1, 1));
 
-        final FDate sunday = date.setFWeekTime(new FWeekTime(FWeekday.Sunday, 1, 1));
+        final FDate sunday = date.setFWeekTime(new FWeekTime(FWeekday.Sunday, 1, 1, 0, 0));
         Assertions.assertThat(sunday).isEqualTo(FDateBuilder.newDate(2017, 1, 1, 1, 1));
     }
 

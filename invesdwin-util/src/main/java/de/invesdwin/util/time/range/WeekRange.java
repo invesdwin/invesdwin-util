@@ -86,7 +86,12 @@ public class WeekRange extends AValueObject {
     }
 
     public boolean contains(final FDate time) {
-        return FDates.isBetween(time, time.setFWeekTime(from), time.addWeeks(1).setFWeekTime(to));
+        final FDate weekendFrom = time.setFWeekTime(from);
+        FDate weekendTo = time.setFWeekTime(to);
+        if (weekendTo.isBeforeOrEqualTo(weekendFrom)) {
+            weekendTo = weekendTo.addWeeks(1);
+        }
+        return FDates.isBetween(time, weekendFrom, weekendTo);
     }
 
     @Override
