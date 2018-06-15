@@ -28,10 +28,6 @@ import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.decimal.scaled.Percent;
 import de.invesdwin.util.time.duration.Duration;
-import de.jollyday.HolidayCalendar;
-import de.jollyday.HolidayManager;
-import de.jollyday.HolidayType;
-import de.jollyday.ManagerParameters;
 
 /**
  * FDate stands for an immutable Fast Date implementation by utilizing heavy caching.
@@ -597,38 +593,24 @@ public class FDate implements IDate, Serializable, Cloneable, Comparable<Object>
         }
     }
 
-    public FDate getFirstWorkdayOfMonth(final FDate key, final HolidayCalendar holidayCalendar) {
+    public FDate getFirstWorkdayOfMonth(final FDate key, final FHolidayManager holidayManager) {
         FDate firstWorkdayDay = withoutTime().setDay(1);
-        while (firstWorkdayDay.getFWeekday().isWeekend() || firstWorkdayDay.isHoliday(holidayCalendar)) {
+        while (firstWorkdayDay.getFWeekday().isWeekend() || firstWorkdayDay.isHoliday(holidayManager)) {
             firstWorkdayDay = firstWorkdayDay.addDays(1);
         }
         return firstWorkdayDay;
     }
 
-    public boolean isHoliday(final String holidayCalendarId) {
-        if (holidayCalendarId == null) {
-            return false;
-        }
-        return isHoliday(HolidayManager.getInstance(ManagerParameters.create(holidayCalendarId)));
-    }
-
-    public boolean isHoliday(final HolidayCalendar holidayCalendar) {
-        if (holidayCalendar == null) {
-            return false;
-        }
-        return isHoliday(HolidayManager.getInstance(ManagerParameters.create(holidayCalendar)));
-    }
-
-    public boolean isHoliday(final HolidayManager holidayManager) {
+    public boolean isHoliday(final FHolidayManager holidayManager) {
         if (holidayManager == null) {
             return false;
         }
-        return holidayManager.isHoliday(calendarValue(), HolidayType.OFFICIAL_HOLIDAY);
+        return holidayManager.isHoliday(this);
     }
 
-    public FDate addWorkdays(final int workdays, final HolidayCalendar holidayCalendar) {
+    public FDate addWorkdays(final int workdays, final FHolidayManager holidayManager) {
         int workdaysToShift = Math.abs(workdays);
-        if (getFWeekday().isWeekend() || isHoliday(holidayCalendar)) {
+        if (getFWeekday().isWeekend() || isHoliday(holidayManager)) {
             if (workdaysToShift > 1) {
                 workdaysToShift--;
             }
@@ -642,7 +624,7 @@ public class FDate implements IDate, Serializable, Cloneable, Comparable<Object>
         int workdaysShifted = 0;
         FDate cur = this;
         while (workdaysShifted < workdaysToShift) {
-            if (!cur.getFWeekday().isWeekend() && !cur.isHoliday(holidayCalendar)) {
+            if (!cur.getFWeekday().isWeekend() && !cur.isHoliday(holidayManager)) {
                 workdaysShifted++;
             }
             cur = cur.addDays(shiftUnit);
