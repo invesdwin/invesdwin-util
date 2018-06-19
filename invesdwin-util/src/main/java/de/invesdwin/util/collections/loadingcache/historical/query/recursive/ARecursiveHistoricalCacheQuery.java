@@ -42,7 +42,7 @@ public abstract class ARecursiveHistoricalCacheQuery<V> {
      * we should use 10 times the lookback period (bars count) in order to get 7 decimal points of accuracy against
      * calculating from the beginning of history (measured on lowpass indicator)
      */
-    private static final int RECURSION_COUNT_LOOKBACK_MULTIPLICATOR = 100;
+    private static final int RECURSION_COUNT_LOOKBACK_MULTIPLICATOR = 10;
 
     /**
      * Zorro has UnstablePeriod at a default of 40
