@@ -577,7 +577,11 @@ public abstract class AHistoricalCache<V> {
             @Override
             public FDate get(final FDate key) {
                 invokeRefreshIfRequested();
-                return super.get(key);
+                final FDate value = super.get(key);
+                if (value == null || key.equals(value)) {
+                    remove(key);
+                }
+                return value;
             }
 
             @Override
