@@ -70,7 +70,7 @@ public class WrappedExecutorService implements ExecutorService {
     private final AtomicLong pendingCount = new AtomicLong();
     private final Object pendingCountWaitLock = new Object();
     private final java.util.concurrent.ThreadPoolExecutor delegate;
-    private volatile boolean logExceptions = false;
+    private volatile boolean logExceptions = true;
     private volatile boolean waitOnFullPendingCount = false;
     private volatile boolean dynamicThreadName = true;
     private final String name;

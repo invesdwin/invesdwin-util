@@ -101,7 +101,7 @@ public abstract class AGenericProducerQueueIterator<E> extends ACloseableIterato
         this.queue = new LinkedBlockingDeque<E>(queueSize);
         this.name = name;
         this.queueSize = queueSize;
-        this.executor = Executors.newFixedThreadPool(name, 1).withLogExceptions(true);
+        this.executor = Executors.newFixedThreadPool(name, 1);
     }
 
     protected void start() {

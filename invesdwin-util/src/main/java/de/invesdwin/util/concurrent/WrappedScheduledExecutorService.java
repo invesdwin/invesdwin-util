@@ -17,7 +17,6 @@ public class WrappedScheduledExecutorService extends WrappedExecutorService impl
     WrappedScheduledExecutorService(final java.util.concurrent.ScheduledThreadPoolExecutor delegate,
             final String name) {
         super(delegate, name);
-        withLogExceptions(true);
     }
 
     @Override

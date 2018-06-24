@@ -51,7 +51,7 @@ public class ConfiguredForkJoinPool extends ForkJoinPool {
         }
 
     };
-    private volatile boolean logExceptions = false;
+    private volatile boolean logExceptions = true;
     private volatile boolean dynamicThreadName = true;
     private final String name;
 
