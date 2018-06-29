@@ -1,10 +1,13 @@
-package de.invesdwin.util.math.decimal;
+package de.invesdwin.util.math.decimal.randomizers;
 
 import java.util.Iterator;
 
 import javax.annotation.concurrent.Immutable;
 
 import org.apache.commons.math3.random.RandomGenerator;
+
+import de.invesdwin.util.math.decimal.ADecimal;
+import de.invesdwin.util.math.decimal.IDecimalAggregate;
 
 @Immutable
 public enum DecimalBootstrapType {
@@ -13,21 +16,21 @@ public enum DecimalBootstrapType {
         @Override
         public <T extends ADecimal<T>> Iterator<T> randomize(final IDecimalAggregate<T> values,
                 final RandomGenerator random) {
-            return values.randomizeBootstrap(random);
+            return values.randomize().bootstrap(random);
         }
     },
-    CircularBootstrap {
+    CircularBlockBootstrap {
         @Override
         public <T extends ADecimal<T>> Iterator<T> randomize(final IDecimalAggregate<T> values,
                 final RandomGenerator random) {
-            return values.randomizeCircularBlockBootstrap(random);
+            return values.randomize().circularBlockBootstrap(random);
         }
     },
     StationaryBootstrap {
         @Override
         public <T extends ADecimal<T>> Iterator<T> randomize(final IDecimalAggregate<T> values,
                 final RandomGenerator random) {
-            return values.randomizeStationaryBootstrap(random);
+            return values.randomize().stationaryBootstrap(random);
         }
     };
 

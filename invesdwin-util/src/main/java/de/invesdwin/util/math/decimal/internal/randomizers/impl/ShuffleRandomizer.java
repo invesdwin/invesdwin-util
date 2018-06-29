@@ -1,4 +1,4 @@
-package de.invesdwin.util.math.decimal.internal.randomize;
+package de.invesdwin.util.math.decimal.internal.randomizers.impl;
 
 import java.util.ArrayList;
 import java.util.Collections;

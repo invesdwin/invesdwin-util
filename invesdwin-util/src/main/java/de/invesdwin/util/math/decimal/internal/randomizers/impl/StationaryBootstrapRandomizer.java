@@ -1,4 +1,4 @@
-package de.invesdwin.util.math.decimal.internal.randomize;
+package de.invesdwin.util.math.decimal.internal.randomizers.impl;
 
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -6,7 +6,7 @@ import org.apache.commons.math3.random.RandomGenerator;
 
 import de.invesdwin.util.math.decimal.ADecimal;
 import de.invesdwin.util.math.decimal.IDecimalAggregate;
-import de.invesdwin.util.math.decimal.internal.randomize.blocklength.StationaryOptimalBlockLength;
+import de.invesdwin.util.math.decimal.internal.randomizers.impl.blocklength.StationaryOptimalBlockLength;
 
 @ThreadSafe
 public class StationaryBootstrapRandomizer<E extends ADecimal<E>> extends CircularBootstrapRandomizer<E> {

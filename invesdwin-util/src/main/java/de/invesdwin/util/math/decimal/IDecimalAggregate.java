@@ -1,14 +1,10 @@
 package de.invesdwin.util.math.decimal;
 
 import java.math.RoundingMode;
-import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.math3.random.RandomGenerator;
-
-import de.invesdwin.util.math.decimal.config.BSplineInterpolationConfig;
-import de.invesdwin.util.math.decimal.config.InterpolationConfig;
-import de.invesdwin.util.math.decimal.config.LoessInterpolationConfig;
+import de.invesdwin.util.math.decimal.interpolations.IDecimalAggregateInterpolations;
+import de.invesdwin.util.math.decimal.randomizers.IDecimalAggregateRandomizers;
 import de.invesdwin.util.math.decimal.scaled.Percent;
 
 public interface IDecimalAggregate<E extends ADecimal<E>> {
@@ -166,20 +162,6 @@ public interface IDecimalAggregate<E extends ADecimal<E>> {
      */
     boolean isStableOrFallingEach();
 
-    IDecimalAggregate<E> loessInterpolation(LoessInterpolationConfig config);
-
-    IDecimalAggregate<E> bSplineInterpolation(BSplineInterpolationConfig config);
-
-    IDecimalAggregate<E> cubicBSplineInterpolation(InterpolationConfig config);
-
-    /**
-     * bezier is fast O(n) but cannot calculate value sizes larger than 1030. You might want to consider to fallback to
-     * an equivalent variation of BSpline with degree n, which sadly is exponentially slower with O(2^n) and might thus
-     * not even complete in your lifetime. So we are automatically reducing the points by an averaging algorithm as a
-     * preprocessing filter to get down to a maximum of 1000 points.
-     */
-    IDecimalAggregate<E> bezierCurveInterpolation(InterpolationConfig config);
-
     /**
      * CV(x) = stddev(x) / expectedValue(x)
      * 
@@ -198,47 +180,6 @@ public interface IDecimalAggregate<E extends ADecimal<E>> {
 
     Integer bestValueIndex(boolean isHigherBetter);
 
-    /**
-     * Randomized the values without replacement
-     */
-    Iterator<E> randomizeShuffle(RandomGenerator random);
-
-    /**
-     * Randomized the values with replacement, thus can draw the same values multiple times
-     */
-    Iterator<E> randomizeBootstrap(RandomGenerator random);
-
-    /**
-     * Randomize the values with replacement blockwise (for dependent data). Since the random generator is used less
-     * often here (only per block), the actual performance here is better than that of the normal bootstrap.
-     */
-    Iterator<E> randomizeCircularBlockBootstrap(RandomGenerator random);
-
-    /**
-     * Randomize the values with replacement blockwise with randomized block length (for time series). Since the random
-     * generator is used less often here (only per block), the actual performance here is better than that of the normal
-     * bootstrap.
-     */
-    Iterator<E> randomizeStationaryBootstrap(RandomGenerator random);
-
-    /**
-     * Divides the given values into chunks (e.g. 1000 values in 4 chunks results in each chunk having 250 values).
-     * These chunks will get a descending weight for being chosen as the basis for the next sample being taken (e.g.
-     * with 40% probability it is chunk1, with 30% probability it is chunk2, with 20% probability it is chunk3 and with
-     * 10% probability it is chunk4). The probabilities of the chunks with varying chunkCount is proportional to the
-     * given example.
-     */
-    Iterator<E> randomizeWeightedChunksDescending(RandomGenerator random, int chunkCount);
-
-    /**
-     * Divides the given values into chunks (e.g. 1000 values in 4 chunks results in each chunk having 250 values).
-     * These chunks will get an ascending weight for being chosen as the basis for the next sample being taken (e.g.
-     * with 10% probability it is chunk1, with 20% probability it is chunk2, with 30% probability it is chunk3 and with
-     * 40% probability it is chunk4). The probabilities of the chunks with varying chunkCount is proportional to the
-     * given example.
-     */
-    Iterator<E> randomizeWeightedChunksAscending(RandomGenerator random, int chunkCount);
-
     E median();
 
     IDecimalAggregate<E> sortAscending();
@@ -248,5 +189,9 @@ public interface IDecimalAggregate<E extends ADecimal<E>> {
     IDecimalAggregate<E> stopSequenceBeforeNegativeOrZero();
 
     IDecimalAggregate<Decimal> defaultValues();
+
+    IDecimalAggregateInterpolations<E> interpolate();
+
+    IDecimalAggregateRandomizers<E> randomize();
 
 }

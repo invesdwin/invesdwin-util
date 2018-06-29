@@ -1,4 +1,4 @@
-package de.invesdwin.util.math.decimal.config;
+package de.invesdwin.util.math.decimal.interpolations.config.copy;
 
 import javax.annotation.concurrent.NotThreadSafe;
 

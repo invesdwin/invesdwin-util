@@ -1,4 +1,4 @@
-package de.invesdwin.util.math.decimal.internal.randomize.blocklength;
+package de.invesdwin.util.math.decimal.internal.randomizers.impl.blocklength;
 
 import java.util.List;
 

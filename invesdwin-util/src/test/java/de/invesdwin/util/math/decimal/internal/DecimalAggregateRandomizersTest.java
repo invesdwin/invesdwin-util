@@ -28,7 +28,7 @@ public class DecimalAggregateRandomizersTest {
         final IDecimalAggregate<Decimal> agg = Decimal.valueOf(values);
         for (int i = 0; i < REPEAT_COUNT; i++) {
             final List<? extends Decimal> resampled = Lists
-                    .toList(agg.randomizeShuffle(RandomGenerators.newDefaultRandom()));
+                    .toList(agg.randomize().shuffle(RandomGenerators.newDefaultRandom()));
             Assertions.assertThat(values).hasSameSizeAs(resampled);
         }
     }
@@ -43,7 +43,7 @@ public class DecimalAggregateRandomizersTest {
         final IDecimalAggregate<Decimal> agg = Decimal.valueOf(values);
         for (int i = 0; i < REPEAT_COUNT; i++) {
             final List<? extends Decimal> resampled = Lists
-                    .toList(agg.randomizeBootstrap(RandomGenerators.newDefaultRandom()));
+                    .toList(agg.randomize().bootstrap(RandomGenerators.newDefaultRandom()));
             Assertions.assertThat(values).hasSameSizeAs(resampled);
         }
     }
@@ -58,7 +58,7 @@ public class DecimalAggregateRandomizersTest {
         final IDecimalAggregate<Decimal> agg = Decimal.valueOf(values);
         for (int i = 0; i < REPEAT_COUNT; i++) {
             final List<? extends Decimal> resampled = Lists
-                    .toList(agg.randomizeCircularBlockBootstrap(RandomGenerators.newDefaultRandom()));
+                    .toList(agg.randomize().circularBlockBootstrap(RandomGenerators.newDefaultRandom()));
             Assertions.assertThat(values).hasSameSizeAs(resampled);
         }
     }
@@ -73,7 +73,7 @@ public class DecimalAggregateRandomizersTest {
         final IDecimalAggregate<Decimal> agg = Decimal.valueOf(values);
         for (int i = 0; i < REPEAT_COUNT; i++) {
             final List<? extends Decimal> resampled = Lists
-                    .toList(agg.randomizeStationaryBootstrap(RandomGenerators.newDefaultRandom()));
+                    .toList(agg.randomize().stationaryBootstrap(RandomGenerators.newDefaultRandom()));
             Assertions.assertThat(values).hasSameSizeAs(resampled);
         }
     }

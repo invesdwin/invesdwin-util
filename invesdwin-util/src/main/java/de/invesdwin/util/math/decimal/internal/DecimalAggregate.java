@@ -3,12 +3,9 @@ package de.invesdwin.util.math.decimal.internal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.annotation.concurrent.ThreadSafe;
-
-import org.apache.commons.math3.random.RandomGenerator;
 
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.Lists;
@@ -18,9 +15,10 @@ import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.decimal.ADecimal;
 import de.invesdwin.util.math.decimal.Decimal;
 import de.invesdwin.util.math.decimal.IDecimalAggregate;
-import de.invesdwin.util.math.decimal.config.BSplineInterpolationConfig;
-import de.invesdwin.util.math.decimal.config.InterpolationConfig;
-import de.invesdwin.util.math.decimal.config.LoessInterpolationConfig;
+import de.invesdwin.util.math.decimal.internal.interpolations.DecimalAggregateInterpolations;
+import de.invesdwin.util.math.decimal.internal.randomizers.DecimalAggregateRandomizers;
+import de.invesdwin.util.math.decimal.interpolations.IDecimalAggregateInterpolations;
+import de.invesdwin.util.math.decimal.randomizers.IDecimalAggregateRandomizers;
 import de.invesdwin.util.math.decimal.scaled.Percent;
 import de.invesdwin.util.math.statistics.RunningMedian;
 import de.invesdwin.util.math.stream.decimal.DecimalPoint;
@@ -38,7 +36,7 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
 
     private E converter;
     private final List<E> values;
-    private final DecimalAggregateRandomizers<E> bootstraps = new DecimalAggregateRandomizers<E>(this);
+    private final IDecimalAggregateRandomizers<E> randomizers = new DecimalAggregateRandomizers<E>(this);
 
     public DecimalAggregate(final List<? extends E> values, final E converter) {
         this.values = Collections.unmodifiableList(values);
@@ -329,26 +327,6 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
     @Override
     public int size() {
         return values.size();
-    }
-
-    @Override
-    public IDecimalAggregate<E> bSplineInterpolation(final BSplineInterpolationConfig config) {
-        return new DecimalAggregateInterpolations<E>(this).bSplineInterpolation(config);
-    }
-
-    @Override
-    public IDecimalAggregate<E> loessInterpolation(final LoessInterpolationConfig config) {
-        return new DecimalAggregateInterpolations<E>(this).loessInterpolation(config);
-    }
-
-    @Override
-    public IDecimalAggregate<E> cubicBSplineInterpolation(final InterpolationConfig config) {
-        return new DecimalAggregateInterpolations<E>(this).cubicBSplineInterpolation(config);
-    }
-
-    @Override
-    public IDecimalAggregate<E> bezierCurveInterpolation(final InterpolationConfig config) {
-        return new DecimalAggregateInterpolations<E>(this).bezierCurveInterpolation(config);
     }
 
     @Override
@@ -660,33 +638,12 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
     }
 
     @Override
-    public Iterator<E> randomizeShuffle(final RandomGenerator random) {
-        return bootstraps.randomizeShuffle(random);
+    public IDecimalAggregateInterpolations<E> interpolate() {
+        return new DecimalAggregateInterpolations<>(this);
     }
 
     @Override
-    public Iterator<E> randomizeWeightedChunksAscending(final RandomGenerator random, final int chunkCount) {
-        return bootstraps.randomizeWeightedChunksAscending(random, chunkCount);
+    public IDecimalAggregateRandomizers<E> randomize() {
+        return randomizers;
     }
-
-    @Override
-    public Iterator<E> randomizeWeightedChunksDescending(final RandomGenerator random, final int chunkCount) {
-        return bootstraps.randomizeWeightedChunksDescending(random, chunkCount);
-    }
-
-    @Override
-    public Iterator<E> randomizeBootstrap(final RandomGenerator random) {
-        return bootstraps.randomizeBootstrap(random);
-    }
-
-    @Override
-    public Iterator<E> randomizeCircularBlockBootstrap(final RandomGenerator random) {
-        return bootstraps.randomizeCircularBootstrap(random);
-    }
-
-    @Override
-    public Iterator<E> randomizeStationaryBootstrap(final RandomGenerator random) {
-        return bootstraps.randomizeStationaryBootstrap(random);
-    }
-
 }

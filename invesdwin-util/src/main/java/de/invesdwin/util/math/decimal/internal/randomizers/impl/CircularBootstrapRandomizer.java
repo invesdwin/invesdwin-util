@@ -1,4 +1,4 @@
-package de.invesdwin.util.math.decimal.internal.randomize;
+package de.invesdwin.util.math.decimal.internal.randomizers.impl;
 
 import java.util.Iterator;
 import java.util.List;
@@ -10,7 +10,7 @@ import org.apache.commons.math3.random.RandomGenerator;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.math.decimal.ADecimal;
 import de.invesdwin.util.math.decimal.IDecimalAggregate;
-import de.invesdwin.util.math.decimal.internal.randomize.blocklength.CircularOptimalBlockLength;
+import de.invesdwin.util.math.decimal.internal.randomizers.impl.blocklength.CircularOptimalBlockLength;
 
 /**
  * http://www.math.ucsd.edu/~politis/SOFT/PPW/ppw.R

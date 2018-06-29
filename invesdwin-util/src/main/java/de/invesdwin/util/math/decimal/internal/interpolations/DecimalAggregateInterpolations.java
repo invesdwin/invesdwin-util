@@ -1,4 +1,4 @@
-package de.invesdwin.util.math.decimal.internal;
+package de.invesdwin.util.math.decimal.internal.interpolations;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,13 +26,16 @@ import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.decimal.ADecimal;
 import de.invesdwin.util.math.decimal.Decimal;
 import de.invesdwin.util.math.decimal.IDecimalAggregate;
-import de.invesdwin.util.math.decimal.config.BSplineInterpolationConfig;
-import de.invesdwin.util.math.decimal.config.InterpolationConfig;
-import de.invesdwin.util.math.decimal.config.LoessInterpolationConfig;
+import de.invesdwin.util.math.decimal.internal.DecimalAggregate;
+import de.invesdwin.util.math.decimal.internal.DummyDecimalAggregate;
+import de.invesdwin.util.math.decimal.interpolations.IDecimalAggregateInterpolations;
+import de.invesdwin.util.math.decimal.interpolations.config.BSplineInterpolationConfig;
+import de.invesdwin.util.math.decimal.interpolations.config.InterpolationConfig;
+import de.invesdwin.util.math.decimal.interpolations.config.LoessInterpolationConfig;
 import de.invesdwin.util.math.decimal.scaled.PercentScale;
 
 @NotThreadSafe
-public class DecimalAggregateInterpolations<E extends ADecimal<E>> {
+public class DecimalAggregateInterpolations<E extends ADecimal<E>> implements IDecimalAggregateInterpolations<E> {
 
     //actual limit is 1030, but we want to stay safe
     private static final int BEZIER_CURVE_MAX_SIZE = 1000;
@@ -48,7 +51,8 @@ public class DecimalAggregateInterpolations<E extends ADecimal<E>> {
         this.converter = parent.getConverter();
     }
 
-    public IDecimalAggregate<E> cubicBSplineInterpolation(final InterpolationConfig config) {
+    @Override
+    public IDecimalAggregate<E> cubicBSpline(final InterpolationConfig config) {
         if (values.isEmpty()) {
             return DummyDecimalAggregate.getInstance();
         }
@@ -74,7 +78,8 @@ public class DecimalAggregateInterpolations<E extends ADecimal<E>> {
         return interpolate(config, xval, yval, interpolator);
     }
 
-    public IDecimalAggregate<E> bezierCurveInterpolation(final InterpolationConfig config) {
+    @Override
+    public IDecimalAggregate<E> bezierCurve(final InterpolationConfig config) {
         if (values.isEmpty()) {
             return DummyDecimalAggregate.getInstance();
         }
@@ -95,7 +100,8 @@ public class DecimalAggregateInterpolations<E extends ADecimal<E>> {
         return interpolate(config, xval, yval, interpolator);
     }
 
-    public IDecimalAggregate<E> bSplineInterpolation(final BSplineInterpolationConfig config) {
+    @Override
+    public IDecimalAggregate<E> bSpline(final BSplineInterpolationConfig config) {
         if (values.isEmpty()) {
             return DummyDecimalAggregate.getInstance();
         }
@@ -169,7 +175,8 @@ public class DecimalAggregateInterpolations<E extends ADecimal<E>> {
         }
     }
 
-    public IDecimalAggregate<E> loessInterpolation(final LoessInterpolationConfig config) {
+    @Override
+    public IDecimalAggregate<E> loess(final LoessInterpolationConfig config) {
         if (values.isEmpty()) {
             return DummyDecimalAggregate.getInstance();
         }

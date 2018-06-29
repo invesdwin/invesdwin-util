@@ -2,20 +2,17 @@ package de.invesdwin.util.math.decimal.internal;
 
 import java.math.RoundingMode;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.annotation.concurrent.Immutable;
 
-import org.apache.commons.math3.random.RandomGenerator;
-
-import de.invesdwin.util.collections.iterable.EmptyCloseableIterator;
 import de.invesdwin.util.math.decimal.ADecimal;
 import de.invesdwin.util.math.decimal.Decimal;
 import de.invesdwin.util.math.decimal.IDecimalAggregate;
-import de.invesdwin.util.math.decimal.config.BSplineInterpolationConfig;
-import de.invesdwin.util.math.decimal.config.InterpolationConfig;
-import de.invesdwin.util.math.decimal.config.LoessInterpolationConfig;
+import de.invesdwin.util.math.decimal.internal.interpolations.DummyDecimalAggregateInterpolations;
+import de.invesdwin.util.math.decimal.internal.randomizers.DummyDecimalAggregateRandomizers;
+import de.invesdwin.util.math.decimal.interpolations.IDecimalAggregateInterpolations;
+import de.invesdwin.util.math.decimal.randomizers.IDecimalAggregateRandomizers;
 import de.invesdwin.util.math.decimal.scaled.Percent;
 
 @Immutable
@@ -232,26 +229,6 @@ public final class DummyDecimalAggregate<E extends ADecimal<E>> implements IDeci
     }
 
     @Override
-    public IDecimalAggregate<E> loessInterpolation(final LoessInterpolationConfig config) {
-        return this;
-    }
-
-    @Override
-    public IDecimalAggregate<E> bSplineInterpolation(final BSplineInterpolationConfig config) {
-        return this;
-    }
-
-    @Override
-    public IDecimalAggregate<E> cubicBSplineInterpolation(final InterpolationConfig config) {
-        return this;
-    }
-
-    @Override
-    public IDecimalAggregate<E> bezierCurveInterpolation(final InterpolationConfig config) {
-        return this;
-    }
-
-    @Override
     public E coefficientOfVariation() {
         return null;
     }
@@ -292,36 +269,6 @@ public final class DummyDecimalAggregate<E extends ADecimal<E>> implements IDeci
     }
 
     @Override
-    public Iterator<E> randomizeShuffle(final RandomGenerator random) {
-        return EmptyCloseableIterator.getInstance();
-    }
-
-    @Override
-    public Iterator<E> randomizeBootstrap(final RandomGenerator random) {
-        return EmptyCloseableIterator.getInstance();
-    }
-
-    @Override
-    public Iterator<E> randomizeCircularBlockBootstrap(final RandomGenerator random) {
-        return EmptyCloseableIterator.getInstance();
-    }
-
-    @Override
-    public Iterator<E> randomizeStationaryBootstrap(final RandomGenerator random) {
-        return EmptyCloseableIterator.getInstance();
-    }
-
-    @Override
-    public Iterator<E> randomizeWeightedChunksDescending(final RandomGenerator random, final int chunkCount) {
-        return EmptyCloseableIterator.getInstance();
-    }
-
-    @Override
-    public Iterator<E> randomizeWeightedChunksAscending(final RandomGenerator random, final int chunkCount) {
-        return EmptyCloseableIterator.getInstance();
-    }
-
-    @Override
     public E median() {
         return null;
     }
@@ -344,6 +291,17 @@ public final class DummyDecimalAggregate<E extends ADecimal<E>> implements IDeci
     @Override
     public IDecimalAggregate<Decimal> defaultValues() {
         return getInstance();
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public IDecimalAggregateRandomizers<E> randomize() {
+        return DummyDecimalAggregateRandomizers.INSTANCE;
+    }
+
+    @Override
+    public IDecimalAggregateInterpolations<E> interpolate() {
+        return DummyDecimalAggregateInterpolations.INSTANCE;
     }
 
 }

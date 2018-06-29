@@ -1,4 +1,4 @@
-package de.invesdwin.util.math.decimal.internal;
+package de.invesdwin.util.math.decimal.interpolations;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,8 +9,8 @@ import org.junit.Test;
 
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.math.decimal.Decimal;
-import de.invesdwin.util.math.decimal.config.BSplineInterpolationConfig;
-import de.invesdwin.util.math.decimal.config.InterpolationConfig;
+import de.invesdwin.util.math.decimal.interpolations.config.BSplineInterpolationConfig;
+import de.invesdwin.util.math.decimal.interpolations.config.InterpolationConfig;
 
 @NotThreadSafe
 public class DecimalAggregateInterpolationsTest {
@@ -22,7 +22,8 @@ public class DecimalAggregateInterpolationsTest {
             values.add(new Decimal(i));
         }
         final List<? extends Decimal> interpolatedValues = Decimal.valueOf(values)
-                .bezierCurveInterpolation(new InterpolationConfig())
+                .interpolate()
+                .bezierCurve(new InterpolationConfig())
                 .values();
         Assertions.assertThat(values).hasSameSizeAs(interpolatedValues);
     }
@@ -34,7 +35,8 @@ public class DecimalAggregateInterpolationsTest {
             values.add(new Decimal(i));
         }
         final List<? extends Decimal> interpolatedValues = Decimal.valueOf(values)
-                .bSplineInterpolation(new BSplineInterpolationConfig().withDegree(values.size() - 1))
+                .interpolate()
+                .bSpline(new BSplineInterpolationConfig().withDegree(values.size() - 1))
                 .values();
         Assertions.assertThat(values).hasSameSizeAs(interpolatedValues);
     }
