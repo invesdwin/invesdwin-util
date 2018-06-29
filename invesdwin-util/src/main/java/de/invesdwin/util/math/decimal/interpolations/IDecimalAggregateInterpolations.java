@@ -3,8 +3,8 @@ package de.invesdwin.util.math.decimal.interpolations;
 import de.invesdwin.util.math.decimal.ADecimal;
 import de.invesdwin.util.math.decimal.IDecimalAggregate;
 import de.invesdwin.util.math.decimal.interpolations.config.BSplineInterpolationConfig;
-import de.invesdwin.util.math.decimal.interpolations.config.InterpolationConfig;
 import de.invesdwin.util.math.decimal.interpolations.config.LoessInterpolationConfig;
+import de.invesdwin.util.math.decimal.interpolations.config.SplineInterpolationConfig;
 
 public interface IDecimalAggregateInterpolations<E extends ADecimal<E>> {
 
@@ -12,7 +12,7 @@ public interface IDecimalAggregateInterpolations<E extends ADecimal<E>> {
 
     IDecimalAggregate<E> bSpline(BSplineInterpolationConfig config);
 
-    IDecimalAggregate<E> cubicBSpline(InterpolationConfig config);
+    IDecimalAggregate<E> cubicBSpline(SplineInterpolationConfig config);
 
     /**
      * bezier is fast O(n) but cannot calculate value sizes larger than 1030. You might want to consider to fallback to
@@ -20,6 +20,8 @@ public interface IDecimalAggregateInterpolations<E extends ADecimal<E>> {
      * not even complete in your lifetime. So we are automatically reducing the points by an averaging algorithm as a
      * preprocessing filter to get down to a maximum of 1000 points.
      */
-    IDecimalAggregate<E> bezierCurve(InterpolationConfig config);
+    IDecimalAggregate<E> bezierCurve(SplineInterpolationConfig config);
+
+    IDecimalAggregate<E> robustPlateau(boolean isHigherBetter);
 
 }

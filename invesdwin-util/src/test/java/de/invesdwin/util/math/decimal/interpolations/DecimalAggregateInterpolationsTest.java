@@ -10,7 +10,7 @@ import org.junit.Test;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.math.decimal.Decimal;
 import de.invesdwin.util.math.decimal.interpolations.config.BSplineInterpolationConfig;
-import de.invesdwin.util.math.decimal.interpolations.config.InterpolationConfig;
+import de.invesdwin.util.math.decimal.interpolations.config.SplineInterpolationConfig;
 
 @NotThreadSafe
 public class DecimalAggregateInterpolationsTest {
@@ -23,7 +23,7 @@ public class DecimalAggregateInterpolationsTest {
         }
         final List<? extends Decimal> interpolatedValues = Decimal.valueOf(values)
                 .interpolate()
-                .bezierCurve(new InterpolationConfig())
+                .bezierCurve(new SplineInterpolationConfig())
                 .values();
         Assertions.assertThat(values).hasSameSizeAs(interpolatedValues);
     }

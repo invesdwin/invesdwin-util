@@ -5,7 +5,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 import de.invesdwin.util.math.decimal.Decimal;
 
 @NotThreadSafe
-public class BSplineInterpolationConfig extends InterpolationConfig {
+public class BSplineInterpolationConfig extends SplineInterpolationConfig {
 
     private int degree = 4;
 

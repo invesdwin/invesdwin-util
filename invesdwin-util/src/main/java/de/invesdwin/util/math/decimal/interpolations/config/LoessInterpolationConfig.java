@@ -6,7 +6,7 @@ import de.invesdwin.util.math.decimal.Decimal;
 import de.invesdwin.util.math.decimal.scaled.Percent;
 
 @NotThreadSafe
-public class LoessInterpolationConfig extends InterpolationConfig {
+public class LoessInterpolationConfig extends SplineInterpolationConfig {
 
     private Percent smoothness = Percent.FIFTY_PERCENT;
 

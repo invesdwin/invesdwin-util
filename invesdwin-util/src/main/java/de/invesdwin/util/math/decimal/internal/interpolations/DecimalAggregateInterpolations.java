@@ -30,8 +30,8 @@ import de.invesdwin.util.math.decimal.internal.DecimalAggregate;
 import de.invesdwin.util.math.decimal.internal.DummyDecimalAggregate;
 import de.invesdwin.util.math.decimal.interpolations.IDecimalAggregateInterpolations;
 import de.invesdwin.util.math.decimal.interpolations.config.BSplineInterpolationConfig;
-import de.invesdwin.util.math.decimal.interpolations.config.InterpolationConfig;
 import de.invesdwin.util.math.decimal.interpolations.config.LoessInterpolationConfig;
+import de.invesdwin.util.math.decimal.interpolations.config.SplineInterpolationConfig;
 import de.invesdwin.util.math.decimal.scaled.PercentScale;
 
 @NotThreadSafe
@@ -52,7 +52,7 @@ public class DecimalAggregateInterpolations<E extends ADecimal<E>> implements ID
     }
 
     @Override
-    public IDecimalAggregate<E> cubicBSpline(final InterpolationConfig config) {
+    public IDecimalAggregate<E> cubicBSpline(final SplineInterpolationConfig config) {
         if (values.isEmpty()) {
             return DummyDecimalAggregate.getInstance();
         }
@@ -79,7 +79,7 @@ public class DecimalAggregateInterpolations<E extends ADecimal<E>> implements ID
     }
 
     @Override
-    public IDecimalAggregate<E> bezierCurve(final InterpolationConfig config) {
+    public IDecimalAggregate<E> bezierCurve(final SplineInterpolationConfig config) {
         if (values.isEmpty()) {
             return DummyDecimalAggregate.getInstance();
         }
@@ -147,7 +147,7 @@ public class DecimalAggregateInterpolations<E extends ADecimal<E>> implements ID
         }
     }
 
-    private IDecimalAggregate<E> interpolate(final InterpolationConfig config, final List<Double> xval,
+    private IDecimalAggregate<E> interpolate(final SplineInterpolationConfig config, final List<Double> xval,
             final List<Double> yval, final UnivariateInterpolator interpolator) {
         final UnivariateFunction interpolated = interpolator.interpolate(Doubles.toArray(xval), Doubles.toArray(yval));
         final List<E> interpolatedValues = new ArrayList<E>();
@@ -156,7 +156,7 @@ public class DecimalAggregateInterpolations<E extends ADecimal<E>> implements ID
         return new DecimalAggregate<E>(interpolatedValues, converter);
     }
 
-    private void interpolateAndMaybeReverseMultiplier(final InterpolationConfig config,
+    private void interpolateAndMaybeReverseMultiplier(final SplineInterpolationConfig config,
             final UnivariateFunction interpolated, final List<E> results) {
         //splitting the loops for performance reasons
         if (config.getValueMultiplicator() != null) {
@@ -198,7 +198,7 @@ public class DecimalAggregateInterpolations<E extends ADecimal<E>> implements ID
     }
 
     private <T extends ADecimal<T>> Pair<List<Double>, List<Double>> fillInterpolationPoints(
-            final InterpolationConfig config, final Integer absoluteMaxSize) {
+            final SplineInterpolationConfig config, final Integer absoluteMaxSize) {
         List<Double> xval = new ArrayList<Double>(values.size());
         List<Double> yval = new ArrayList<Double>(values.size());
         fillAndMaybeApplyMultiplier(config, xval, yval);
@@ -227,7 +227,7 @@ public class DecimalAggregateInterpolations<E extends ADecimal<E>> implements ID
         return Pair.of(xval, yval);
     }
 
-    private void fillAndMaybeApplyMultiplier(final InterpolationConfig config, final List<Double> xval,
+    private void fillAndMaybeApplyMultiplier(final SplineInterpolationConfig config, final List<Double> xval,
             final List<Double> yval) {
         //splitting the loops for performance reasons
         if (config.getValueMultiplicator() != null) {
@@ -254,7 +254,7 @@ public class DecimalAggregateInterpolations<E extends ADecimal<E>> implements ID
         }
     }
 
-    private double punishEdgeValue(final double value, final InterpolationConfig config, final Double minValue,
+    private double punishEdgeValue(final double value, final SplineInterpolationConfig config, final Double minValue,
             final Double maxValue) {
         if (config.isHigherBetter()) {
             if (value > 0) {
@@ -308,6 +308,64 @@ public class DecimalAggregateInterpolations<E extends ADecimal<E>> implements ID
         newxval.add(xval.get(xval.size() - 1));
         newyval.add(yval.get(yval.size() - 1));
         return Pair.of(newxval, newyval);
+    }
+
+    @Override
+    public IDecimalAggregate<E> robustPlateau(final boolean isHigherBetter) {
+        final List<E> robustValues = new ArrayList<>(values.size());
+        for (int i = 0; i < values.size(); i++) {
+            final E prevValue;
+            final int prevIdx = i - 1;
+            if (prevIdx >= 0) {
+                prevValue = values.get(prevIdx);
+            } else {
+                prevValue = null;
+            }
+            final E curValue = values.get(i);
+            final E nextValue;
+            final int nextIdx = i + 1;
+            if (nextIdx < values.size()) {
+                nextValue = values.get(nextIdx);
+            } else {
+                nextValue = null;
+            }
+
+            if (prevValue == null && nextValue == null) {
+                robustValues.add(curValue);
+            } else if (prevValue == null) {
+                final double curValueDouble = curValue.getDefaultValue().doubleValueRaw();
+                final double nextValueDouble = nextValue.getDefaultValue().doubleValueRaw();
+                final double weightedAvg = (curValueDouble * 2D + nextValueDouble) / 3D;
+                final double avg = (curValueDouble + nextValueDouble) / 2D;
+                final double pessimistic = pessimistic(isHigherBetter, weightedAvg, avg);
+                robustValues.add(converter.fromDefaultValue(Decimal.valueOf(pessimistic)));
+            } else if (nextValue == null) {
+                final double prevValueDouble = prevValue.getDefaultValue().doubleValueRaw();
+                final double curValueDouble = curValue.getDefaultValue().doubleValueRaw();
+                final double weightedAvg = (prevValueDouble + curValueDouble * 2D) / 3D;
+                final double avg = (prevValueDouble + curValueDouble) / 2D;
+                final double pessimistic = pessimistic(isHigherBetter, weightedAvg, avg);
+                robustValues.add(converter.fromDefaultValue(Decimal.valueOf(pessimistic)));
+            } else {
+                final double prevValueDouble = prevValue.getDefaultValue().doubleValueRaw();
+                final double curValueDouble = curValue.getDefaultValue().doubleValueRaw();
+                final double nextValueDouble = nextValue.getDefaultValue().doubleValueRaw();
+                final double prevNextSum = prevValueDouble + nextValueDouble;
+                final double weightedAvg = (prevNextSum + curValueDouble * 2D) / 4D;
+                final double avg = (prevNextSum + curValueDouble) / 3D;
+                final double pessimistic = pessimistic(isHigherBetter, weightedAvg, avg);
+                robustValues.add(converter.fromDefaultValue(Decimal.valueOf(pessimistic)));
+            }
+        }
+        return new DecimalAggregate<E>(robustValues, converter);
+    }
+
+    private double pessimistic(final boolean isHigherBetter, final double value1, final double value2) {
+        if (isHigherBetter) {
+            return Math.min(value1, value2);
+        } else {
+            return Math.max(value1, value2);
+        }
     }
 
 }
