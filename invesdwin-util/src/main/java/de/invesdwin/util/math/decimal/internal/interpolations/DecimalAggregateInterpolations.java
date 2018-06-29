@@ -39,7 +39,7 @@ import de.invesdwin.util.math.decimal.scaled.PercentScale;
 public class DecimalAggregateInterpolations<E extends ADecimal<E>> implements IDecimalAggregateInterpolations<E> {
 
     private static final int MIN_NEIGHTBOURS_COUNT = 1;
-    private static final int MAX_NEIGHTBOURS_SEGMENTS = 10;
+    private static final int MAX_NEIGHTBOURS_SEGMENTS = 20;
     //actual limit is 1030, but we want to stay safe
     private static final int BEZIER_CURVE_MAX_SIZE = 1000;
     private static final double PUNISH_NEGATIVE_EDGE_FACTOR = 2;
