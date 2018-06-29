@@ -39,7 +39,8 @@ import de.invesdwin.util.math.decimal.scaled.PercentScale;
 public class DecimalAggregateInterpolations<E extends ADecimal<E>> implements IDecimalAggregateInterpolations<E> {
 
     private static final int MIN_NEIGHTBOURS_COUNT = 1;
-    private static final int MAX_NEIGHTBOURS_SEGMENTS = 20;
+    //when choosing params it is best to use around 10 permutations (max 20), thus use that amount for segments
+    private static final int MAX_NEIGHTBOURS_SEGMENTS = 10;
     //actual limit is 1030, but we want to stay safe
     private static final int BEZIER_CURVE_MAX_SIZE = 1000;
     private static final double PUNISH_NEGATIVE_EDGE_FACTOR = 2;
@@ -319,7 +320,7 @@ public class DecimalAggregateInterpolations<E extends ADecimal<E>> implements ID
         final int countNeighbours = Math.max(MIN_NEIGHTBOURS_COUNT, values.size() / MAX_NEIGHTBOURS_SEGMENTS);
         for (int i = 0; i < values.size(); i++) {
             final List<E> prevValues = new ArrayList<>(countNeighbours);
-            for (int p = 0; p <= countNeighbours; p++) {
+            for (int p = 0; p < countNeighbours; p++) {
                 final int prevIdx = i - p - 1;
                 if (prevIdx >= 0) {
                     prevValues.add(values.get(prevIdx));
@@ -329,7 +330,7 @@ public class DecimalAggregateInterpolations<E extends ADecimal<E>> implements ID
             }
             final E curValue = values.get(i);
             final List<E> nextValues = new ArrayList<>(countNeighbours);
-            for (int n = 0; n <= countNeighbours; n++) {
+            for (int n = 0; n < countNeighbours; n++) {
                 final int nextIdx = i + n + 1;
                 if (nextIdx < values.size()) {
                     nextValues.add(values.get(nextIdx));
