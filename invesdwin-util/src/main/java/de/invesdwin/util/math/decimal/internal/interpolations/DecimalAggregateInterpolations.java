@@ -1,6 +1,7 @@
 package de.invesdwin.util.math.decimal.internal.interpolations;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.concurrent.NotThreadSafe;
@@ -37,6 +38,8 @@ import de.invesdwin.util.math.decimal.scaled.PercentScale;
 @NotThreadSafe
 public class DecimalAggregateInterpolations<E extends ADecimal<E>> implements IDecimalAggregateInterpolations<E> {
 
+    private static final int MIN_NEIGHTBOURS_COUNT = 1;
+    private static final int MAX_NEIGHTBOURS_SEGMENTS = 10;
     //actual limit is 1030, but we want to stay safe
     private static final int BEZIER_CURVE_MAX_SIZE = 1000;
     private static final double PUNISH_NEGATIVE_EDGE_FACTOR = 2;
@@ -313,49 +316,62 @@ public class DecimalAggregateInterpolations<E extends ADecimal<E>> implements ID
     @Override
     public IDecimalAggregate<E> robustPlateau(final boolean isHigherBetter) {
         final List<E> robustValues = new ArrayList<>(values.size());
+        final int countNeighbours = Math.max(MIN_NEIGHTBOURS_COUNT, values.size() / MAX_NEIGHTBOURS_SEGMENTS);
         for (int i = 0; i < values.size(); i++) {
-            final E prevValue;
-            final int prevIdx = i - 1;
-            if (prevIdx >= 0) {
-                prevValue = values.get(prevIdx);
-            } else {
-                prevValue = null;
+            final List<E> prevValues = new ArrayList<>(countNeighbours);
+            for (int p = 0; p <= countNeighbours; p++) {
+                final int prevIdx = i - p - 1;
+                if (prevIdx >= 0) {
+                    prevValues.add(values.get(prevIdx));
+                } else {
+                    break;
+                }
             }
             final E curValue = values.get(i);
-            final E nextValue;
-            final int nextIdx = i + 1;
-            if (nextIdx < values.size()) {
-                nextValue = values.get(nextIdx);
-            } else {
-                nextValue = null;
+            final List<E> nextValues = new ArrayList<>(countNeighbours);
+            for (int n = 0; n <= countNeighbours; n++) {
+                final int nextIdx = i + n + 1;
+                if (nextIdx < values.size()) {
+                    nextValues.add(values.get(nextIdx));
+                } else {
+                    break;
+                }
             }
 
-            if (prevValue == null && nextValue == null) {
-                robustValues.add(curValue);
-            } else if (prevValue == null) {
-                final double curValueDouble = curValue.getDefaultValue().doubleValueRaw();
-                final double nextValueDouble = nextValue.getDefaultValue().doubleValueRaw();
-                final double weightedAvg = (curValueDouble * 2D + nextValueDouble) / 3D;
-                final double avg = (curValueDouble + nextValueDouble) / 2D;
-                final double pessimistic = pessimistic(isHigherBetter, weightedAvg, avg);
-                robustValues.add(converter.fromDefaultValue(Decimal.valueOf(pessimistic)));
-            } else if (nextValue == null) {
-                final double prevValueDouble = prevValue.getDefaultValue().doubleValueRaw();
-                final double curValueDouble = curValue.getDefaultValue().doubleValueRaw();
-                final double weightedAvg = (prevValueDouble + curValueDouble * 2D) / 3D;
-                final double avg = (prevValueDouble + curValueDouble) / 2D;
-                final double pessimistic = pessimistic(isHigherBetter, weightedAvg, avg);
-                robustValues.add(converter.fromDefaultValue(Decimal.valueOf(pessimistic)));
-            } else {
-                final double prevValueDouble = prevValue.getDefaultValue().doubleValueRaw();
-                final double curValueDouble = curValue.getDefaultValue().doubleValueRaw();
-                final double nextValueDouble = nextValue.getDefaultValue().doubleValueRaw();
-                final double prevNextSum = prevValueDouble + nextValueDouble;
-                final double weightedAvg = (prevNextSum + curValueDouble * 2D) / 4D;
-                final double avg = (prevNextSum + curValueDouble) / 3D;
-                final double pessimistic = pessimistic(isHigherBetter, weightedAvg, avg);
-                robustValues.add(converter.fromDefaultValue(Decimal.valueOf(pessimistic)));
+            Collections.reverse(prevValues);
+            final double curValueDouble = curValue.getDefaultValue().doubleValueRaw();
+
+            final int maxNeighbourWeight = Math.max(prevValues.size(), nextValues.size());
+            final int curValueWeight = maxNeighbourWeight + 1;
+
+            double valuesSum = 0D;
+            int weightsSum = 0;
+            double weightedValuesSum = 0D;
+            int valuesCount = 0;
+            for (int p = 0; p < prevValues.size(); p++) {
+                final double value = prevValues.get(p).getDefaultValue().doubleValueRaw();
+                valuesSum += value;
+                final int weight = maxNeighbourWeight - p;
+                weightsSum += weight;
+                weightedValuesSum += value * weight;
+                valuesCount++;
             }
+            valuesSum += curValueDouble;
+            weightsSum += curValueWeight;
+            weightedValuesSum += curValueDouble * curValueWeight;
+            valuesCount++;
+            for (int n = 0; n < nextValues.size(); n++) {
+                final double value = nextValues.get(n).getDefaultValue().doubleValueRaw();
+                valuesSum += value;
+                final int weight = maxNeighbourWeight - n;
+                weightsSum += weight;
+                weightedValuesSum += value * weight;
+                valuesCount++;
+            }
+            final double weightedAvg = weightedValuesSum / weightsSum;
+            final double avg = valuesSum / valuesCount;
+            final double pessimistic = pessimistic(isHigherBetter, weightedAvg, avg);
+            robustValues.add(converter.fromDefaultValue(Decimal.valueOf(pessimistic)));
         }
         return new DecimalAggregate<E>(robustValues, converter);
     }

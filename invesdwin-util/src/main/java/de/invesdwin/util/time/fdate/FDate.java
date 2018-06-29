@@ -315,11 +315,11 @@ public class FDate implements IDate, Serializable, Cloneable, Comparable<Object>
     public FDate truncate(final FTimeUnit timeUnit) {
         switch (timeUnit) {
         case MILLENIA:
-            return truncate(FDateField.Year).addYears(getYear() % FTimeUnit.YEARS_IN_MILLENIUM);
+            return truncate(FDateField.Year).addYears(-getYear() % FTimeUnit.YEARS_IN_MILLENIUM);
         case CENTURIES:
-            return truncate(FDateField.Year).addYears(getYear() % FTimeUnit.YEARS_IN_CENTURY);
+            return truncate(FDateField.Year).addYears(-getYear() % FTimeUnit.YEARS_IN_CENTURY);
         case DECADES:
-            return truncate(FDateField.Year).addYears(getYear() % FTimeUnit.YEARS_IN_DECADE);
+            return truncate(FDateField.Year).addYears(-getYear() % FTimeUnit.YEARS_IN_DECADE);
         case YEARS:
             return truncate(FDateField.Year);
         case MONTHS:
