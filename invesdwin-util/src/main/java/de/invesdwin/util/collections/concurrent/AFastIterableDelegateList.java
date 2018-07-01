@@ -210,4 +210,9 @@ public abstract class AFastIterableDelegateList<E> implements IFastIterable<E>, 
         return new SynchronizedList<E>(unmodifiableDelegate.subList(fromIndex, toIndex), this);
     }
 
+    @Override
+    public String toString() {
+        return delegate.toString();
+    }
+
 }

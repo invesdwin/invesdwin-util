@@ -156,4 +156,9 @@ public abstract class AFastIterableDelegateSet<E> implements IFastIterable<E>, S
         return delegate.retainAll(c);
     }
 
+    @Override
+    public String toString() {
+        return delegate.toString();
+    }
+
 }

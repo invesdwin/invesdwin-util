@@ -440,4 +440,9 @@ public abstract class AFastIterableDelegateMap<K, V> implements Map<K, V>, ISeri
         refreshFastIterable();
     }
 
+    @Override
+    public String toString() {
+        return delegate.toString();
+    }
+
 }
