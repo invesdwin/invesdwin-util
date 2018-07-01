@@ -178,7 +178,9 @@ public class SynchronizedCollection<E> implements Collection<E> {
 
     @Override
     public String toString() {
-        return getDelegate().toString();
+        synchronized (lock) {
+            return getDelegate().toString();
+        }
     }
 
 }

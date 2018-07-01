@@ -224,7 +224,9 @@ public class SynchronizedMap<K, V> implements Map<K, V> {
 
     @Override
     public String toString() {
-        return delegate.toString();
+        synchronized (lock) {
+            return delegate.toString();
+        }
     }
 
 }

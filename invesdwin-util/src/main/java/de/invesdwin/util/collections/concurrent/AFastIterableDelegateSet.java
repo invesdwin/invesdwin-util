@@ -157,7 +157,7 @@ public abstract class AFastIterableDelegateSet<E> implements IFastIterable<E>, S
     }
 
     @Override
-    public String toString() {
+    public synchronized String toString() {
         return delegate.toString();
     }
 

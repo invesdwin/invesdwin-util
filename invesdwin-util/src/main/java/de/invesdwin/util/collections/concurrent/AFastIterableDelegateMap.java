@@ -441,7 +441,7 @@ public abstract class AFastIterableDelegateMap<K, V> implements Map<K, V>, ISeri
     }
 
     @Override
-    public String toString() {
+    public synchronized String toString() {
         return delegate.toString();
     }
 
