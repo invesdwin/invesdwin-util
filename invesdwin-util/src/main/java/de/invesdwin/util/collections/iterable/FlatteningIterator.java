@@ -11,6 +11,11 @@ public class FlatteningIterator<E> implements ICloseableIterator<E> {
     private final ICloseableIterator<? extends Iterator<? extends E>> delegate;
     private ICloseableIterator<? extends E> curIterator;
 
+    @SafeVarargs
+    public FlatteningIterator(final Iterator<? extends E>... delegate) {
+        this.delegate = WrapperCloseableIterable.maybeWrap(delegate).iterator();
+    }
+
     public FlatteningIterator(final ICloseableIterator<? extends Iterator<? extends E>> delegate) {
         this.delegate = delegate;
     }
