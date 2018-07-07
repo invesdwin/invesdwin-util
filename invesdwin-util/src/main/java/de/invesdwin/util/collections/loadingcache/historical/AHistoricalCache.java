@@ -87,9 +87,13 @@ public abstract class AHistoricalCache<V> {
             return newLoadingCacheProvider(new Function<FDate, V>() {
                 @Override
                 public V apply(final FDate key) {
-                    final V value = AHistoricalCache.this.loadValue(key);
-                    onValueLoadedListener.onValueLoaded(key, value);
-                    return value;
+                    try {
+                        final V value = AHistoricalCache.this.loadValue(key);
+                        onValueLoadedListener.onValueLoaded(key, value);
+                        return value;
+                    } catch (final Throwable t) {
+                        throw new RuntimeException("At: " + AHistoricalCache.this.toString(), t);
+                    }
                 }
 
             }, size);
