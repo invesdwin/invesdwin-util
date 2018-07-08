@@ -632,4 +632,8 @@ public class FDate implements IDate, Serializable, Cloneable, Comparable<Object>
         return cur;
     }
 
+    public boolean isBetween(final FDate min, final FDate max) {
+        return FDates.isBetween(this, min, max);
+    }
+
 }
