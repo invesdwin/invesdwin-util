@@ -48,11 +48,25 @@ public class Instant extends Number implements Comparable<Object> {
     public void sleepRelative(final long amount, final FTimeUnit timeUnit) throws InterruptedException {
         final long alreadyPassedNanos = new Duration(this, new Instant()).longValue();
         final long durationNanos = DEFAULT_TIMEUNIT.convert(amount, timeUnit);
-        DEFAULT_TIMEUNIT.sleep(durationNanos - alreadyPassedNanos);
+        final long remainingNanos = durationNanos - alreadyPassedNanos;
+        if (remainingNanos > 0) {
+            DEFAULT_TIMEUNIT.sleep(remainingNanos);
+        }
     }
 
-    public void sleepRelativeTo(final Duration duration) throws InterruptedException {
+    public void sleepRelative(final Duration duration) throws InterruptedException {
         sleepRelative(duration.longValue(), duration.getTimeUnit());
+    }
+
+    public boolean shouldSleepRelative(final Duration duration) {
+        return shouldSleepRelative(duration.longValue(), duration.getTimeUnit());
+    }
+
+    public boolean shouldSleepRelative(final long amount, final FTimeUnit timeUnit) {
+        final long alreadyPassedNanos = new Duration(this, new Instant()).longValue();
+        final long durationNanos = DEFAULT_TIMEUNIT.convert(amount, timeUnit);
+        final long remainingNanos = durationNanos - alreadyPassedNanos;
+        return remainingNanos > 0;
     }
 
     @Override
