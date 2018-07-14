@@ -9,7 +9,6 @@ import com.google.common.cache.RemovalListener;
 import com.google.common.cache.RemovalNotification;
 
 import de.invesdwin.util.collections.loadingcache.guava.IRemovalListener;
-import de.invesdwin.util.collections.loadingcache.guava.RemovalCause;
 
 @ThreadSafe
 public class OptionalValueWrapperRemovalListener<K, V> implements RemovalListener<K, Optional<V>>, Serializable {
@@ -22,8 +21,7 @@ public class OptionalValueWrapperRemovalListener<K, V> implements RemovalListene
 
     @Override
     public void onRemoval(final RemovalNotification<K, Optional<V>> notification) {
-        delegate.onRemoval(notification.getKey(), notification.getValue().get(),
-                RemovalCause.valueOf(notification.getCause()));
+        delegate.onRemoval(notification.getKey(), notification.getValue().get());
     }
 
 }

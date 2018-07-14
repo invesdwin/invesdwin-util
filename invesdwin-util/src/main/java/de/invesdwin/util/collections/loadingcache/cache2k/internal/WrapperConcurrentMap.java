@@ -1,4 +1,4 @@
-package de.invesdwin.util.collections.loadingcache.caffeine.internal;
+package de.invesdwin.util.collections.loadingcache.cache2k.internal;
 
 import java.util.concurrent.ConcurrentMap;
 

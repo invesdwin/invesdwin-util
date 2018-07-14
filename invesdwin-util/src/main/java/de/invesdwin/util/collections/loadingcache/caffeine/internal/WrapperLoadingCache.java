@@ -3,7 +3,6 @@ package de.invesdwin.util.collections.loadingcache.caffeine.internal;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Optional;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Function;
 
@@ -38,11 +37,9 @@ public class WrapperLoadingCache<K, V> implements LoadingCache<K, V> {
     @Override
     public V get(final K key, final Function<? super K, ? extends V> mappingFunction) {
         return maybeGet(key, delegate.get(key, new Function<K, V>() {
-            @SuppressWarnings("unchecked")
-
             @Override
             public V apply(final K t) {
-                return (V) Optional.ofNullable(mappingFunction.apply(t));
+                return mappingFunction.apply(t);
             }
         }));
     }

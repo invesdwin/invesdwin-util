@@ -1,9 +1,10 @@
-package de.invesdwin.util.collections.loadingcache.caffeine.internal;
+package de.invesdwin.util.collections.loadingcache.cache2k.internal;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import javax.annotation.concurrent.NotThreadSafe;
@@ -54,7 +55,7 @@ public class WrapperMap<K, V> implements Map<K, V> {
             return false;
         } else {
             try {
-                return delegate.containsValue(value);
+                return delegate.containsValue(Optional.ofNullable((V) value));
             } catch (final ClassCastException e) {
                 return false;
             }
@@ -105,7 +106,7 @@ public class WrapperMap<K, V> implements Map<K, V> {
         final Set<V> values = new HashSet<V>();
         final Collection<V> maybeNullValues = delegate.values();
         for (final V maybeNullValue : maybeNullValues) {
-            final V value = maybeGet((K) null, maybeNullValue);
+            final V value = maybeGet(null, maybeNullValue);
             if (value != null) {
                 values.add(value);
             }

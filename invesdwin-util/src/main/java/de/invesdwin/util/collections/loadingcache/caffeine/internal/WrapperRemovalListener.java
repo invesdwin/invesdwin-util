@@ -7,7 +7,6 @@ import javax.annotation.concurrent.ThreadSafe;
 import com.github.benmanes.caffeine.cache.RemovalListener;
 
 import de.invesdwin.util.collections.loadingcache.guava.IRemovalListener;
-import de.invesdwin.util.collections.loadingcache.guava.RemovalCause;
 
 @ThreadSafe
 public class WrapperRemovalListener<K, V> implements RemovalListener<K, V>, Serializable {
@@ -20,7 +19,7 @@ public class WrapperRemovalListener<K, V> implements RemovalListener<K, V>, Seri
 
     @Override
     public void onRemoval(final K key, final V value, final com.github.benmanes.caffeine.cache.RemovalCause cause) {
-        delegate.onRemoval(key, value, RemovalCause.valueOf(cause));
+        delegate.onRemoval(key, value);
     }
 
 }

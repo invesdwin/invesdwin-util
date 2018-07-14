@@ -110,7 +110,7 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
      * strategy
      */
     @Override
-    protected final synchronized V loadValue(final FDate key) {
+    protected final V loadValue(final FDate key) {
         eventuallyGetMinMaxKeysInDB(key, false);
 
         this.furtherValuesLoaded = false;
