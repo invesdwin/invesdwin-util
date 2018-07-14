@@ -10,8 +10,6 @@ import de.invesdwin.util.error.Throwables;
 @ThreadSafe
 public abstract class ACaffeineLoadingCacheMap<K, V> extends ADelegateMap<K, V> {
 
-    public static final String RECURSIVE_LOAD_ILLEGAL_STATE_EXCEPTION_TEXT = "recursive load";
-
     @Override
     protected final Map<K, V> newDelegate() {
         return getConfig().newMap(this);
