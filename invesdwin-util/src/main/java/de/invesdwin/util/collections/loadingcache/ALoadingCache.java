@@ -5,8 +5,8 @@ import java.util.function.Function;
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.collections.eviction.EvictionMode;
+import de.invesdwin.util.collections.loadingcache.map.CaffeineLoadingCache;
 import de.invesdwin.util.collections.loadingcache.map.EvictionMapLoadingCache;
-import de.invesdwin.util.collections.loadingcache.map.GuavaLoadingCache;
 import de.invesdwin.util.collections.loadingcache.map.NoCachingLoadingCache;
 import de.invesdwin.util.collections.loadingcache.map.UnlimitedCachingLoadingCache;
 
@@ -46,7 +46,7 @@ public abstract class ALoadingCache<K, V> extends ADelegateLoadingCache<K, V> {
             }
         };
         if (isHighConcurrency()) {
-            return new GuavaLoadingCache<K, V>(loadValue, maximumSize);
+            return new CaffeineLoadingCache<K, V>(loadValue, maximumSize);
         } else if (maximumSize == null) {
             return new UnlimitedCachingLoadingCache<K, V>(loadValue);
         } else if (maximumSize == 0) {
