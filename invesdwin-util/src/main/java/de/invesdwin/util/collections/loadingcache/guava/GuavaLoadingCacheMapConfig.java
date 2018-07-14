@@ -8,11 +8,10 @@ import com.google.common.base.Optional;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import com.google.common.cache.RemovalListener;
-import com.google.common.cache.RemovalNotification;
 
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.loadingcache.guava.internal.OptionalValueWrapperLoadingCache;
+import de.invesdwin.util.collections.loadingcache.guava.internal.OptionalValueWrapperRemovalListener;
 import de.invesdwin.util.collections.loadingcache.guava.internal.WrapperLoadingCacheMap;
 import de.invesdwin.util.time.duration.Duration;
 
@@ -147,14 +146,9 @@ public class GuavaLoadingCacheMapConfig {
         }
         configureKeysAndValues(builder);
         if (removalListener != null) {
-            Assertions.assertThat(builder.removalListener(new RemovalListener<K, Optional<V>>() {
-                private final IRemovalListener<K, V> delegate = removalListener;
-
-                @Override
-                public void onRemoval(final RemovalNotification<K, Optional<V>> notification) {
-                    delegate.onRemoval(notification.getKey(), notification.getValue().get(), notification.getCause());
-                }
-            })).isNotNull();
+            Assertions
+                    .assertThat(builder.removalListener(new OptionalValueWrapperRemovalListener<K, V>(removalListener)))
+                    .isNotNull();
         }
         return builder;
     }

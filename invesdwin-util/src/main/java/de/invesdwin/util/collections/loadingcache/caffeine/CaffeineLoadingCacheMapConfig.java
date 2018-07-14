@@ -9,11 +9,12 @@ import org.apache.commons.lang3.BooleanUtils;
 import com.github.benmanes.caffeine.cache.CacheLoader;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
-import com.github.benmanes.caffeine.cache.RemovalListener;
 
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.loadingcache.caffeine.internal.WrapperLoadingCache;
 import de.invesdwin.util.collections.loadingcache.caffeine.internal.WrapperLoadingCacheMap;
+import de.invesdwin.util.collections.loadingcache.caffeine.internal.WrapperRemovalListener;
+import de.invesdwin.util.collections.loadingcache.guava.IRemovalListener;
 import de.invesdwin.util.concurrent.Executors;
 import de.invesdwin.util.concurrent.WrappedExecutorService;
 import de.invesdwin.util.time.duration.Duration;
@@ -33,7 +34,7 @@ public class CaffeineLoadingCacheMapConfig {
     private Boolean weakKeys;
     private Boolean weakValues;
     private Boolean recursiveLoading;
-    private RemovalListener removalListener;
+    private IRemovalListener removalListener;
 
     public Long getMaximumSize() {
         return maximumSize;
@@ -98,11 +99,11 @@ public class CaffeineLoadingCacheMapConfig {
         return weakValues;
     }
 
-    public RemovalListener getRemovalListener() {
+    public IRemovalListener getRemovalListener() {
         return removalListener;
     }
 
-    public CaffeineLoadingCacheMapConfig withRemovalListener(final RemovalListener removalListener) {
+    public CaffeineLoadingCacheMapConfig withRemovalListener(final IRemovalListener removalListener) {
         this.removalListener = removalListener;
         return this;
     }
@@ -157,7 +158,8 @@ public class CaffeineLoadingCacheMapConfig {
         }
         configureKeysAndValues(builder);
         if (removalListener != null) {
-            Assertions.assertThat(builder.removalListener(removalListener)).isNotNull();
+            Assertions.assertThat(builder.removalListener(new WrapperRemovalListener<K, V>(removalListener)))
+                    .isNotNull();
         }
         return builder;
     }
