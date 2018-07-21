@@ -17,4 +17,8 @@ public final class Colors {
         return Strings.leftPad(Integer.toHexString(color.getRGB() & 0xffffff), 6, "0");
     }
 
+    public static Color fromHex(final String hex) {
+        return Color.decode(hex);
+    }
+
 }
