@@ -35,9 +35,13 @@ public class ArrayCloseableIterator<E> implements ICloseableIterator<E>, IFastTo
     @Override
     public E next() {
         if (!hasNext()) {
-            throw new FastNoSuchElementException("ListCloseableIterator: hasNext returned false");
+            throw new FastNoSuchElementException("ArrayCloseableIterator: hasNext returned false");
         }
-        return array[offset++];
+        try {
+            return array[offset++];
+        } catch (final ArrayIndexOutOfBoundsException e) {
+            throw new FastNoSuchElementException("ArrayCloseableIterator: next threw ArrayIndexOutOfBoundsException");
+        }
     }
 
     @Override
