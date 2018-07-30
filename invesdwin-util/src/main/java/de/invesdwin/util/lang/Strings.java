@@ -183,6 +183,15 @@ public final class Strings extends AStringsStaticFacade {
         }
     }
 
+    public static String asStringSpaces(final Object o) {
+        return asStringNullText(o).toString()
+                .replace("|", " | ")
+                .replace("[", " [ ")
+                .replace("]", " ]")
+                .replace("{", "{ ")
+                .replace("}", " }");
+    }
+
     /**
      * Calls ReflectionToStringBuilder.toString() with DefaultToStringStyle.
      */
