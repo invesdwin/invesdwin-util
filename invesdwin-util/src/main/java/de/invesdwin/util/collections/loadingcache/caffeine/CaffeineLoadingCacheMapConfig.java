@@ -33,7 +33,7 @@ public class CaffeineLoadingCacheMapConfig {
     private Boolean softValues;
     private Boolean weakKeys;
     private Boolean weakValues;
-    private Boolean recursiveLoading = true;
+    private Boolean recursiveLoading;
     private IRemovalListener removalListener;
 
     public Long getMaximumSize() {
