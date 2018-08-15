@@ -80,4 +80,19 @@ public interface IHistoricalCacheQuery<V> extends IHistoricalCacheQueryInternalM
 
     void resetQuerySettings();
 
+    /**
+     * This method bypasses the cache and directly computes the entry.
+     */
+    Entry<FDate, V> computeEntry(FDate key);
+
+    /**
+     * This method bypasses the cache and directly computes the key.
+     */
+    FDate computeKey(FDate key);
+
+    /**
+     * This method bypasses the cache and directly computes the value.
+     */
+    V computeValue(FDate key);
+
 }

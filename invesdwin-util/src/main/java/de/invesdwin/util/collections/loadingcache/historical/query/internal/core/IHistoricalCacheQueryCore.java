@@ -4,6 +4,7 @@ import java.util.Map.Entry;
 
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.HistoricalCacheAssertValue;
+import de.invesdwin.util.collections.loadingcache.historical.query.internal.HistoricalCacheQuery;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.IHistoricalCacheInternalMethods;
 import de.invesdwin.util.time.fdate.FDate;
 
@@ -29,5 +30,8 @@ public interface IHistoricalCacheQueryCore<V> {
             int shiftForwardUnits);
 
     Entry<FDate, V> getNextEntry(IHistoricalCacheQueryInternalMethods<V> query, FDate key, int shiftForwardUnits);
+
+    Entry<FDate, V> computeEntry(HistoricalCacheQuery<V> historicalCacheQuery, FDate key,
+            HistoricalCacheAssertValue assertValue);
 
 }

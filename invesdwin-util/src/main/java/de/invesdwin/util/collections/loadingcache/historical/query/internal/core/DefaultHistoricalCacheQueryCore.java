@@ -10,6 +10,7 @@ import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.WrapperCloseableIterable;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQueryElementFilter;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.HistoricalCacheAssertValue;
+import de.invesdwin.util.collections.loadingcache.historical.query.internal.HistoricalCacheQuery;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.IHistoricalCacheInternalMethods;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.impl.GetNextEntryQueryImpl;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.impl.GetPreviousEntryQueryImpl;
@@ -148,6 +149,34 @@ public class DefaultHistoricalCacheQueryCore<V> implements IHistoricalCacheQuery
     @Override
     public void increaseMaximumSize(final int maximumSize) {
         //noop since not caching anything
+    }
+
+    @Override
+    public Entry<FDate, V> computeEntry(final HistoricalCacheQuery<V> query, final FDate key,
+            final HistoricalCacheAssertValue assertValue) {
+        V value = parent.computeValue(key);
+        if (value != null) {
+            final IHistoricalCacheQueryElementFilter<V> elementFilter = query.getElementFilter();
+            if (elementFilter != null) {
+                FDate valueKey = parent.extractKey(key, value);
+                while (!elementFilter.isValid(valueKey, value)) {
+                    value = null;
+                    //try earlier dates to find a valid element
+                    final FDate previousKey = parent.calculatePreviousKey(valueKey);
+                    final V previousValue = parent.computeValue(previousKey);
+                    if (previousValue == null) {
+                        break;
+                    }
+                    final FDate previousValueKey = parent.extractKey(previousKey, previousValue);
+                    if (previousValueKey.equals(valueKey)) {
+                        break;
+                    }
+                    valueKey = previousValueKey;
+                    value = previousValue;
+                }
+            }
+        }
+        return assertValue.assertValue(parent, key, key, value);
     }
 
 }

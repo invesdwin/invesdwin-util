@@ -535,6 +535,11 @@ public abstract class AHistoricalCache<V> {
             return AHistoricalCache.this.toString();
         }
 
+        @Override
+        public V computeValue(final FDate key) {
+            return AHistoricalCache.this.loadValue(key);
+        }
+
     }
 
     private final class InnerHistoricalCacheExtractKeyProvider implements IHistoricalCacheExtractKeyProvider<V> {

@@ -30,4 +30,6 @@ public interface IHistoricalCacheInternalMethods<V> {
 
     IHistoricalCacheQuery<?> newKeysQueryInterceptor();
 
+    V computeValue(FDate key);
+
 }

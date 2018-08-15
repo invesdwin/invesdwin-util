@@ -15,6 +15,7 @@ import de.invesdwin.util.collections.iterable.SingleValueIterable;
 import de.invesdwin.util.collections.iterable.WrapperCloseableIterable;
 import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.HistoricalCacheAssertValue;
+import de.invesdwin.util.collections.loadingcache.historical.query.internal.HistoricalCacheQuery;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.IHistoricalCacheInternalMethods;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.impl.GetPreviousEntryQueryImpl;
 import de.invesdwin.util.lang.Objects;
@@ -793,6 +794,12 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
     public Entry<FDate, V> getEntry(final IHistoricalCacheQueryInternalMethods<V> query, final FDate key,
             final HistoricalCacheAssertValue assertValue) {
         return delegate.getEntry(query, key, assertValue);
+    }
+
+    @Override
+    public Entry<FDate, V> computeEntry(final HistoricalCacheQuery<V> historicalCacheQuery, final FDate key,
+            final HistoricalCacheAssertValue assertValue) {
+        return delegate.computeEntry(historicalCacheQuery, key, assertValue);
     }
 
 }

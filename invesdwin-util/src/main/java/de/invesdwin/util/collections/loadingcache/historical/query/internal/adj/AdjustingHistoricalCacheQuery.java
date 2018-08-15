@@ -294,4 +294,19 @@ public class AdjustingHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V
         return delegate.newEntriesList(size);
     }
 
+    @Override
+    public Entry<FDate, V> computeEntry(final FDate key) {
+        return delegate.computeEntry(adjustKey(key));
+    }
+
+    @Override
+    public FDate computeKey(final FDate key) {
+        return delegate.computeKey(adjustKey(key));
+    }
+
+    @Override
+    public V computeValue(final FDate key) {
+        return delegate.computeValue(adjustKey(key));
+    }
+
 }

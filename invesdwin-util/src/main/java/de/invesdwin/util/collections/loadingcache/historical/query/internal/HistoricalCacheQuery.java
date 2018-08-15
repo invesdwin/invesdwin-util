@@ -671,4 +671,19 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
         return core.getPreviousEntries(this, key, shiftBackUnits);
     }
 
+    @Override
+    public Entry<FDate, V> computeEntry(final FDate key) {
+        return core.computeEntry(this, key, assertValue);
+    }
+
+    @Override
+    public V computeValue(final FDate key) {
+        return HistoricalCacheAssertValue.unwrapEntryValue(core.computeEntry(this, key, assertValue));
+    }
+
+    @Override
+    public FDate computeKey(final FDate key) {
+        return HistoricalCacheAssertValue.unwrapEntryKey(core.computeEntry(this, key, assertValue));
+    }
+
 }
