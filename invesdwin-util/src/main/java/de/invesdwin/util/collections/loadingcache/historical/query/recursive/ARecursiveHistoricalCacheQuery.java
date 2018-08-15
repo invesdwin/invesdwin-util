@@ -1,31 +1,11 @@
 package de.invesdwin.util.collections.loadingcache.historical.query.recursive;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.NavigableMap;
-import java.util.NoSuchElementException;
-
-import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
-import com.google.common.collect.Iterators;
-import com.google.common.collect.PeekingIterator;
-
-import de.invesdwin.util.assertions.Assertions;
-import de.invesdwin.util.collections.eviction.EvictionMode;
-import de.invesdwin.util.collections.iterable.ICloseableIterator;
-import de.invesdwin.util.collections.iterable.WrapperCloseableIterable;
-import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
-import de.invesdwin.util.collections.loadingcache.historical.listener.IHistoricalCacheOnClearListener;
-import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQuery;
-import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQueryWithFuture;
-import de.invesdwin.util.math.Integers;
+import de.invesdwin.util.collections.loadingcache.historical.query.recursive.internal.AContinuousRecursiveHistoricalCacheQuery;
+import de.invesdwin.util.collections.loadingcache.historical.query.recursive.internal.AUnstableRecursiveHistoricalCacheQuery;
 import de.invesdwin.util.time.fdate.FDate;
-import de.invesdwin.util.time.fdate.FTimeUnit;
-import de.invesdwin.util.time.range.TimeRange;
-import uk.co.omegaprime.btreemap.BTreeMap;
 
 /**
  * This class can be used inside of historical caches to retrieve values from itself recursively. It solves the infinite
@@ -33,291 +13,74 @@ import uk.co.omegaprime.btreemap.BTreeMap;
  * 
  * For example useful when calculating an exponential moving average that needs access to its previous values.
  * 
+ * When using unstableRecursionCount == null, a continuous and fast algorithm will be used to get values from the cache
+ * where possible.
+ * 
+ * When using unstableRecursionCount != null, an unstable algorithm will be used that is more independent of the
+ * available history but slower because all values are computed each time for the lookback of
+ * recursionCount+unstableRecursionCount. One should choose an unstableRecursionCount as small as possible in order to
+ * not get a too large performance hit.
+ * 
  * @param <V>
  */
 @ThreadSafe
-public abstract class ARecursiveHistoricalCacheQuery<V> {
+public abstract class ARecursiveHistoricalCacheQuery<V> implements IRecursiveHistoricalCacheQuery<V> {
 
-    /**
-     * we should use 10 times the lookback period (bars count) in order to get 7 decimal points of accuracy against
-     * calculating from the beginning of history (measured on lowpass indicator)
-     */
-    private static final int RECURSION_COUNT_LOOKBACK_MULTIPLICATOR = 10;
+    private IRecursiveHistoricalCacheQuery<V> delegate;
 
-    /**
-     * Zorro has UnstablePeriod at a default of 40
-     * 
-     * http://zorro-trader.com/manual/en/lookback.htm
-     */
-    private static final int MIN_RECURSION_LOOKBACK = 100;
-    private static final int LARGE_RECALCULATION_WARNING_THRESHOLD = 10;
-
-    private static final org.slf4j.ext.XLogger LOG = org.slf4j.ext.XLoggerFactory
-            .getXLogger(ARecursiveHistoricalCacheQuery.class);
-
-    private final AHistoricalCache<V> parent;
-    private final int maxRecursionCount;
-    @GuardedBy("parent")
-    private boolean recursionInProgress = false;
-    @GuardedBy("parent")
-    private FDate firstRecursionKey;
-    @GuardedBy("parent")
-    private FDate lastRecursionKey;
-    @GuardedBy("parent")
-    private final NavigableMap<FDate, V> highestRecursionResultsAsc = BTreeMap.create(FDate.COMPARATOR);
-    private final int maxHighestRecursionResultsCount;
-    @GuardedBy("parent")
-    private boolean shouldAppendHighestRecursionResults;
-    @GuardedBy("parent")
-    private FDate firstAvailableKey;
-    @GuardedBy("parent")
-    private boolean firstAvailableKeyRequested;
-    @GuardedBy("parent")
-    //cache separately since the parent could encounter more evictions than this internal cache
-    private final ALoadingCache<FDate, V> cachedRecursionResults;
-    private int largeRecalculationsCount = 0;
-
-    private final IHistoricalCacheQuery<V> parentQuery;
-    private final IHistoricalCacheQueryWithFuture<V> parentQueryWithFuture;
-
-    public ARecursiveHistoricalCacheQuery(final AHistoricalCache<V> parent, final int maxRecursionCount) {
-        this.parent = parent;
-        this.maxRecursionCount = Integers.max(maxRecursionCount * RECURSION_COUNT_LOOKBACK_MULTIPLICATOR,
-                MIN_RECURSION_LOOKBACK);
-        this.maxHighestRecursionResultsCount = Integer.max(maxRecursionCount, MIN_RECURSION_LOOKBACK);
-        this.parentQuery = parent.query();
-        this.parentQueryWithFuture = parent.query().withFuture();
-        this.cachedRecursionResults = new ALoadingCache<FDate, V>() {
-            @Override
-            protected V loadValue(final FDate key) {
-                return internalGetPreviousValueByRecursion(key);
-            }
-
-            @Override
-            protected Integer getInitialMaximumSize() {
-                return Math.max(maxRecursionCount, parent.getMaximumSize());
-            }
-
-            @Override
-            protected EvictionMode getEvictionMode() {
-                return AHistoricalCache.EVICTION_MODE;
-            }
-        };
-        Assertions.checkTrue(parent.getOnClearListeners().add(new IHistoricalCacheOnClearListener() {
-            @Override
-            public void onClear() {
-                synchronized (ARecursiveHistoricalCacheQuery.this.parent) {
-                    if (!recursionInProgress) {
-                        clear();
-                    }
+    public ARecursiveHistoricalCacheQuery(final AHistoricalCache<V> parent, final int recursionCount,
+            final Integer unstableRecursionCount) {
+        if (unstableRecursionCount == null) {
+            this.delegate = new AContinuousRecursiveHistoricalCacheQuery<V>(parent, recursionCount) {
+                @Override
+                protected V getInitialValue(final FDate previousKey) {
+                    return ARecursiveHistoricalCacheQuery.this.getInitialValue(previousKey);
                 }
-            }
 
-        }));
+                @Override
+                protected boolean shouldUseInitialValueInsteadOfFullRecursion() {
+                    return ARecursiveHistoricalCacheQuery.this.shouldUseInitialValueInsteadOfFullRecursion();
+                }
+            };
+        } else {
+            this.delegate = new AUnstableRecursiveHistoricalCacheQuery<V>(parent, recursionCount,
+                    unstableRecursionCount) {
+
+                @Override
+                protected V getInitialValue(final FDate previousKey) {
+                    return ARecursiveHistoricalCacheQuery.this.getInitialValue(previousKey);
+                }
+
+                @Override
+                protected boolean shouldUseInitialValueInsteadOfFullRecursion() {
+                    return ARecursiveHistoricalCacheQuery.this.shouldUseInitialValueInsteadOfFullRecursion();
+                }
+            };
+        }
     }
 
+    protected boolean shouldUseInitialValueInsteadOfFullRecursion() {
+        return false;
+    }
+
+    @Override
     public void clear() {
-        synchronized (parent) {
-            cachedRecursionResults.clear();
-            highestRecursionResultsAsc.clear();
-            firstAvailableKey = null;
-            firstAvailableKeyRequested = false;
-            shouldAppendHighestRecursionResults = false;
-        }
+        delegate.clear();
     }
 
-    public int getMaxRecursionCount() {
-        return maxRecursionCount;
+    @Override
+    public int getRecursionCount() {
+        return delegate.getRecursionCount();
     }
 
+    @Override
+    public Integer getUnstableRecursionCount() {
+        return delegate.getUnstableRecursionCount();
+    }
+
+    @Override
     public V getPreviousValue(final FDate key, final FDate previousKey) {
-        final V previous;
-        if (parent.containsKey(previousKey)) {
-            previous = parentQuery.getValue(previousKey);
-        } else {
-            previous = getPreviousValueByRecursion(key, previousKey);
-        }
-        return previous;
-    }
-
-    @SuppressWarnings("GuardedBy")
-    private V getPreviousValueByRecursion(final FDate key, final FDate previousKey) {
-        synchronized (parent) {
-            final FDate firstAvailableKey = getFirstAvailableKey();
-            if (firstAvailableKey == null) {
-                //no data found
-                return null;
-            }
-            if (previousKey.isBeforeOrEqualTo(firstAvailableKey)) {
-                return getInitialValue(previousKey);
-            }
-
-            if (recursionInProgress) {
-                final V highestRecursionResult = highestRecursionResultsAsc.get(previousKey);
-                if (highestRecursionResult != null) {
-                    return highestRecursionResult;
-                } else if (cachedRecursionResults.containsKey(previousKey)) {
-                    return cachedRecursionResults.get(previousKey);
-                } else if (previousKey.isBeforeOrEqualTo(firstRecursionKey)
-                        || lastRecursionKey.equals(firstAvailableKey) || key.equals(previousKey)) {
-                    return getInitialValue(previousKey);
-                } else {
-                    throw new IllegalStateException(parent + ": the values between " + firstRecursionKey + " and "
-                            + lastRecursionKey
-                            + " should have been cached, maybe you are returning null values even if you should not: "
-                            + previousKey);
-                }
-            }
-            recursionInProgress = true;
-            try {
-                return cachedRecursionResults.get(parentQueryWithFuture.getKey(previousKey));
-            } finally {
-                recursionInProgress = false;
-            }
-        }
-    }
-
-    @SuppressWarnings("GuardedBy")
-    private V internalGetPreviousValueByRecursion(final FDate previousKey) {
-        try {
-            lastRecursionKey = previousKey;
-            //check again if lastRecursionKey is already available as cached value
-            final V highestRecursionResult = highestRecursionResultsAsc.get(lastRecursionKey);
-            if (highestRecursionResult != null) {
-                return highestRecursionResult;
-            }
-            final Iterator<FDate> recursionKeysIterator = newRecursionKeysIterator(previousKey);
-            if (firstRecursionKey == null || firstRecursionKey.isAfterOrEqualTo(previousKey)) {
-                return getInitialValue(previousKey);
-            }
-            try {
-                while (true) {
-                    //fill up the missing values
-                    final FDate recursiveKey = recursionKeysIterator.next();
-                    final V value = parentQuery.getValue(recursiveKey);
-                    appendHighestRecursionResult(recursiveKey, value);
-                    cachedRecursionResults.put(recursiveKey, value);
-                }
-            } catch (final NoSuchElementException e) {
-                //ignore
-            }
-            final V lastRecursionResult = parentQuery.getValue(lastRecursionKey);
-            appendHighestRecursionResult(lastRecursionKey, lastRecursionResult);
-            return lastRecursionResult;
-        } finally {
-            firstRecursionKey = null;
-            lastRecursionKey = null;
-            shouldAppendHighestRecursionResults = false;
-        }
-    }
-
-    @SuppressWarnings("GuardedBy")
-    private void appendHighestRecursionResult(final FDate key, final V value) {
-        if (shouldAppendHighestRecursionResults) {
-            if (!highestRecursionResultsAsc.isEmpty()) {
-                final FDate highestRecursionKey = highestRecursionResultsAsc.lastKey();
-                if (highestRecursionKey != null && highestRecursionKey.isAfter(key)) {
-                    throw new IllegalStateException("when appending a new highest recursion result [" + key
-                            + "], it should be after the last one [" + highestRecursionKey + "]");
-                }
-            }
-            highestRecursionResultsAsc.put(key, value);
-            while (highestRecursionResultsAsc.size() > maxHighestRecursionResultsCount) {
-                highestRecursionResultsAsc.pollFirstEntry();
-            }
-        }
-    }
-
-    @SuppressWarnings("GuardedBy")
-    private Iterator<FDate> newRecursionKeysIterator(final FDate previousKey) {
-        if (highestRecursionResultsAsc.isEmpty()) {
-            shouldAppendHighestRecursionResults = true;
-        }
-        if (cachedRecursionResults.isEmpty()) {
-            //nothing here yet, have to go the full range
-            return getFullRecursionKeysIterator(previousKey);
-        }
-        //we seem to have started somewhere in the middle, thus try to continue from somewhere we left off before
-        FDate curPreviousKey = lastRecursionKey;
-        int minRecursionIdx = maxRecursionCount;
-        final List<FDate> recursionKeys = new ArrayList<FDate>();
-        while (minRecursionIdx > 0) {
-            final FDate newPreviousKey = parentQueryWithFuture.getPreviousKey(curPreviousKey, 1);
-            firstRecursionKey = newPreviousKey;
-            if (newPreviousKey.isAfterOrEqualTo(curPreviousKey)) {
-                //start reached
-                break;
-            } else if (highestRecursionResultsAsc.containsKey(newPreviousKey)) {
-                shouldAppendHighestRecursionResults = true;
-                //point to continue from reached
-                break;
-            } else if (parent.containsKey(newPreviousKey) || cachedRecursionResults.containsKey(newPreviousKey)) {
-                //point to continue from reached
-                break;
-            } else {
-                //search further for a match to begin from
-                minRecursionIdx--;
-                recursionKeys.add(0, newPreviousKey);
-                curPreviousKey = newPreviousKey;
-                /*
-                 * checking highest key and going with range query could lead to more values being recalculated than
-                 * allowed by maxRecursionCount. Also going with the range query directly against the file system might
-                 * be slower than continuing with the search here
-                 */
-            }
-        }
-        if (minRecursionIdx <= 0) {
-            //we did not find any previous value to continue from, so start over from scratch
-            return getFullRecursionKeysIterator(previousKey);
-        } else {
-            final ICloseableIterator<FDate> recursionKeysIterator = WrapperCloseableIterable.maybeWrap(recursionKeys)
-                    .iterator();
-            return recursionKeysIterator;
-        }
-    }
-
-    @SuppressWarnings("GuardedBy")
-    private Iterator<FDate> getFullRecursionKeysIterator(final FDate from) {
-        final Iterator<FDate> iterator = newFullRecursionKeysIterator(from);
-        if (iterator == null) {
-            firstRecursionKey = null;
-            return null;
-        }
-        final PeekingIterator<FDate> peekingIterator = Iterators.peekingIterator(iterator);
-        try {
-            firstRecursionKey = peekingIterator.peek();
-            final TimeRange timeRange = new TimeRange(firstRecursionKey, from);
-            if (timeRange.getDuration().intValue(FTimeUnit.YEARS) > 1) {
-                largeRecalculationsCount++;
-                if (largeRecalculationsCount % LARGE_RECALCULATION_WARNING_THRESHOLD == 0) {
-                    //CHECKSTYLE:OFF
-                    LOG.warn(
-                            "{}: Recalculating recursively for the {}. time over more than a year [{}]. If this happens too often this might have a negative impact on performance.",
-                            parent, timeRange, largeRecalculationsCount);
-                    //CHECKSTYLE:ON
-                }
-            }
-            return peekingIterator;
-        } catch (final NoSuchElementException e) {
-            firstRecursionKey = null;
-            return null;
-        }
-    }
-
-    protected Iterator<FDate> newFullRecursionKeysIterator(final FDate from) {
-        return parentQueryWithFuture.getPreviousKeys(from, maxRecursionCount).iterator();
-        //we always start form the earliest date available, because otherwise we get wrong results when using recursion with calculations that depend on one another
-        //        final FDate start = getFirstAvailableKey();
-        //        return parentQueryWithFuture.getKeys(start, from).iterator();
-    }
-
-    @SuppressWarnings("GuardedBy")
-    protected FDate getFirstAvailableKey() {
-        if (firstAvailableKey == null && !firstAvailableKeyRequested) {
-            this.firstAvailableKey = parentQueryWithFuture.getKey(FDate.MIN_DATE);
-            firstAvailableKeyRequested = true;
-        }
-        return firstAvailableKey;
+        return delegate.getPreviousValue(key, previousKey);
     }
 
     protected abstract V getInitialValue(FDate previousKey);
