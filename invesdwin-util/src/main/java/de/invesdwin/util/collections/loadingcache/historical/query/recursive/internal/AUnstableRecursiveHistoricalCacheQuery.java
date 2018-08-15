@@ -158,18 +158,24 @@ public abstract class AUnstableRecursiveHistoricalCacheQuery<V> implements IRecu
             if (firstRecursionKey == null || firstRecursionKey.isAfterOrEqualTo(previousKey)) {
                 return getInitialValue(previousKey);
             }
+            FDate recursiveKey = null;
+            V value = null;
             try {
                 while (true) {
                     //fill up the missing values
-                    final FDate recursiveKey = recursionKeysIterator.next();
-                    final V value = parentQuery.computeValue(recursiveKey);
+                    recursiveKey = recursionKeysIterator.next();
+                    value = parentQuery.computeValue(recursiveKey);
                     cachedRecursionResults.put(recursiveKey, value);
                 }
             } catch (final NoSuchElementException e) {
                 //ignore
             }
-            final V lastRecursionResult = parentQuery.computeValue(lastRecursionKey);
-            return lastRecursionResult;
+            if (recursiveKey != null && recursiveKey.equals(lastRecursionKey)) {
+                return value;
+            } else {
+                final V lastRecursionResult = parentQuery.computeValue(lastRecursionKey);
+                return lastRecursionResult;
+            }
         } finally {
             firstRecursionKey = null;
             lastRecursionKey = null;

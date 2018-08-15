@@ -197,20 +197,26 @@ public abstract class AContinuousRecursiveHistoricalCacheQuery<V> implements IRe
             if (firstRecursionKey == null || firstRecursionKey.isAfterOrEqualTo(previousKey)) {
                 return getInitialValue(previousKey);
             }
+            FDate recursiveKey = null;
+            V value = null;
             try {
                 while (true) {
                     //fill up the missing values
-                    final FDate recursiveKey = recursionKeysIterator.next();
-                    final V value = parentQuery.getValue(recursiveKey);
+                    recursiveKey = recursionKeysIterator.next();
+                    value = parentQuery.getValue(recursiveKey);
                     appendHighestRecursionResult(recursiveKey, value);
                     cachedRecursionResults.put(recursiveKey, value);
                 }
             } catch (final NoSuchElementException e) {
                 //ignore
             }
-            final V lastRecursionResult = parentQuery.getValue(lastRecursionKey);
-            appendHighestRecursionResult(lastRecursionKey, lastRecursionResult);
-            return lastRecursionResult;
+            if (recursiveKey != null && recursiveKey.equals(lastRecursionKey)) {
+                return value;
+            } else {
+                final V lastRecursionResult = parentQuery.getValue(lastRecursionKey);
+                appendHighestRecursionResult(lastRecursionKey, lastRecursionResult);
+                return lastRecursionResult;
+            }
         } finally {
             firstRecursionKey = null;
             lastRecursionKey = null;
