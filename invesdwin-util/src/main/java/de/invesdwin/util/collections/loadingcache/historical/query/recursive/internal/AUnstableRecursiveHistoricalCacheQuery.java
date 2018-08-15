@@ -7,7 +7,7 @@ import de.invesdwin.util.collections.loadingcache.historical.query.recursive.IRe
 import de.invesdwin.util.time.fdate.FDate;
 
 /**
- * This variation calculates the values accoring to recursionCount+unstableRecursionCount for each request. This makes
+ * This variation calculates the values according to recursionCount+unstableRecursionCount for each request. This makes
  * the calculation independent of the actual available history. The unstableRecursionCount should be chosen as small as
  * possible to not become a too large hit on performance.
  */
