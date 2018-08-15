@@ -3,6 +3,7 @@ package de.invesdwin.util.collections.loadingcache.historical.query.recursive.in
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
+import de.invesdwin.util.collections.loadingcache.historical.query.recursive.ARecursiveHistoricalCacheQuery;
 import de.invesdwin.util.collections.loadingcache.historical.query.recursive.IRecursiveHistoricalCacheQuery;
 import de.invesdwin.util.time.fdate.FDate;
 
@@ -53,7 +54,7 @@ public abstract class AUnstableRecursiveHistoricalCacheQuery<V> implements IRecu
     protected abstract V getInitialValue(FDate previousKey);
 
     protected boolean shouldUseInitialValueInsteadOfFullRecursion() {
-        return false;
+        return ARecursiveHistoricalCacheQuery.DEFAULT_SHOULD_USE_INITIAL_VALUE_INSTEAD_OF_FULL_RECURSION;
     }
 
 }

@@ -26,6 +26,7 @@ import de.invesdwin.util.time.fdate.FDate;
 @ThreadSafe
 public abstract class ARecursiveHistoricalCacheQuery<V> implements IRecursiveHistoricalCacheQuery<V> {
 
+    public static final boolean DEFAULT_SHOULD_USE_INITIAL_VALUE_INSTEAD_OF_FULL_RECURSION = false;
     private IRecursiveHistoricalCacheQuery<V> delegate;
 
     public ARecursiveHistoricalCacheQuery(final AHistoricalCache<V> parent, final int recursionCount,
@@ -60,7 +61,7 @@ public abstract class ARecursiveHistoricalCacheQuery<V> implements IRecursiveHis
     }
 
     protected boolean shouldUseInitialValueInsteadOfFullRecursion() {
-        return false;
+        return DEFAULT_SHOULD_USE_INITIAL_VALUE_INSTEAD_OF_FULL_RECURSION;
     }
 
     @Override
