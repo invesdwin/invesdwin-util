@@ -20,8 +20,13 @@ public class LoessInterpolationConfig extends SplineInterpolationConfig {
     }
 
     @Override
-    public LoessInterpolationConfig withPunishEdges(final boolean punishEdges, final boolean higherIsBetter) {
-        return (LoessInterpolationConfig) super.withPunishEdges(punishEdges, higherIsBetter);
+    public LoessInterpolationConfig withPunishEdges(final boolean punishEdges) {
+        return (LoessInterpolationConfig) super.withPunishEdges(punishEdges);
+    }
+
+    @Override
+    public LoessInterpolationConfig withHigherBetter(final boolean isHigherBetter) {
+        return (LoessInterpolationConfig) super.withHigherBetter(isHigherBetter);
     }
 
     @Override

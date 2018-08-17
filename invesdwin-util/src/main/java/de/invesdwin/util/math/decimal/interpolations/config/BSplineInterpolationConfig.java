@@ -22,8 +22,13 @@ public class BSplineInterpolationConfig extends SplineInterpolationConfig {
     }
 
     @Override
-    public BSplineInterpolationConfig withPunishEdges(final boolean punishEdges, final boolean higherIsBetter) {
-        return (BSplineInterpolationConfig) super.withPunishEdges(punishEdges, higherIsBetter);
+    public BSplineInterpolationConfig withPunishEdges(final boolean punishEdges) {
+        return (BSplineInterpolationConfig) super.withPunishEdges(punishEdges);
+    }
+
+    @Override
+    public BSplineInterpolationConfig withHigherBetter(final boolean isHigherBetter) {
+        return (BSplineInterpolationConfig) super.withHigherBetter(isHigherBetter);
     }
 
     @Override

@@ -5,32 +5,26 @@ import javax.annotation.concurrent.NotThreadSafe;
 import de.invesdwin.util.math.decimal.Decimal;
 
 @NotThreadSafe
-public class SplineInterpolationConfig {
+public class SplineInterpolationConfig extends RobustPlateauInterpolationConfig {
 
     public static final Decimal SUGGESTED_RATE_VALUE_MULTIPLIER = Decimal.ONE_HUNDRED;
     public static final Integer SUGGESTED_MAX_POINTS = 100;
 
-    private boolean isPunishEdges = false;
-    private boolean isHigherBetter = true;
     private Integer maxPoints = null;
     private Decimal valueMultiplicator = null;
-
-    public boolean isPunishEdges() {
-        return isPunishEdges;
-    }
-
-    public boolean isHigherBetter() {
-        return isHigherBetter;
-    }
 
     /**
      * Edges will only get punished when the values size is >= 5, or else the data is insufficient to tell that the
      * edges are actually worse.
      */
-    public SplineInterpolationConfig withPunishEdges(final boolean isPunishEdges, final boolean isHigherBetter) {
-        this.isPunishEdges = isPunishEdges;
-        this.isHigherBetter = isHigherBetter;
-        return this;
+    @Override
+    public SplineInterpolationConfig withPunishEdges(final boolean isPunishEdges) {
+        return (SplineInterpolationConfig) super.withPunishEdges(isPunishEdges);
+    }
+
+    @Override
+    public SplineInterpolationConfig withHigherBetter(final boolean isHigherBetter) {
+        return (SplineInterpolationConfig) super.withHigherBetter(isHigherBetter);
     }
 
     public Integer getMaxPoints() {

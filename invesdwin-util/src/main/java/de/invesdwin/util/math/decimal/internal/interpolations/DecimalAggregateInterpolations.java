@@ -32,6 +32,7 @@ import de.invesdwin.util.math.decimal.internal.DummyDecimalAggregate;
 import de.invesdwin.util.math.decimal.interpolations.IDecimalAggregateInterpolations;
 import de.invesdwin.util.math.decimal.interpolations.config.BSplineInterpolationConfig;
 import de.invesdwin.util.math.decimal.interpolations.config.LoessInterpolationConfig;
+import de.invesdwin.util.math.decimal.interpolations.config.RobustPlateauInterpolationConfig;
 import de.invesdwin.util.math.decimal.interpolations.config.SplineInterpolationConfig;
 import de.invesdwin.util.math.decimal.scaled.PercentScale;
 
@@ -221,11 +222,12 @@ public class DecimalAggregateInterpolations<E extends ADecimal<E>> implements ID
                 minValue = Doubles.min(minValue, y);
                 maxValue = Doubles.max(maxValue, y);
             }
-            final double startPunished = punishEdgeValue(yval.get(0), config, minValue, maxValue);
+            final double startPunished = punishEdgeValue(yval.get(0), config.isHigherBetter(), minValue, maxValue);
             xval.add(0, -1D);
             yval.add(0, startPunished);
             xval.add((double) values.size());
-            final double endPunished = punishEdgeValue(yval.get(yval.size() - 1), config, minValue, maxValue);
+            final double endPunished = punishEdgeValue(yval.get(yval.size() - 1), config.isHigherBetter(), minValue,
+                    maxValue);
             yval.add(endPunished);
         }
         return Pair.of(xval, yval);
@@ -258,9 +260,9 @@ public class DecimalAggregateInterpolations<E extends ADecimal<E>> implements ID
         }
     }
 
-    private double punishEdgeValue(final double value, final SplineInterpolationConfig config, final Double minValue,
+    private double punishEdgeValue(final double value, final boolean isHigherBetter, final Double minValue,
             final Double maxValue) {
-        if (config.isHigherBetter()) {
+        if (isHigherBetter) {
             if (value > 0) {
                 return 0d;
             } else {
@@ -315,32 +317,34 @@ public class DecimalAggregateInterpolations<E extends ADecimal<E>> implements ID
     }
 
     @Override
-    public IDecimalAggregate<E> robustPlateau(final boolean isHigherBetter) {
+    public IDecimalAggregate<E> robustPlateau(final RobustPlateauInterpolationConfig config) {
+        final boolean isHigherBetter = config.isHigherBetter();
+        final boolean isPunishEdges = config.isPunishEdges() && values.size() >= 5;
         final List<E> robustValues = new ArrayList<>(values.size());
         final int countNeighbours = Math.max(MIN_NEIGHTBOURS_COUNT, values.size() / MAX_NEIGHTBOURS_SEGMENTS);
-        for (int i = 0; i < values.size(); i++) {
-            final List<E> prevValues = new ArrayList<>(countNeighbours);
-            for (int p = 0; p < countNeighbours; p++) {
-                final int prevIdx = i - p - 1;
-                if (prevIdx >= 0) {
-                    prevValues.add(values.get(prevIdx));
-                } else {
-                    break;
-                }
-            }
-            final E curValue = values.get(i);
-            final List<E> nextValues = new ArrayList<>(countNeighbours);
-            for (int n = 0; n < countNeighbours; n++) {
-                final int nextIdx = i + n + 1;
-                if (nextIdx < values.size()) {
-                    nextValues.add(values.get(nextIdx));
-                } else {
-                    break;
-                }
-            }
+        final double standardDeviation;
+        if (isPunishEdges) {
+            standardDeviation = new DecimalAggregate<E>(values, converter).standardDeviation()
+                    .getDefaultValue()
+                    .doubleValueRaw();
+        } else {
+            standardDeviation = 0;
+        }
 
-            Collections.reverse(prevValues);
-            final double curValueDouble = curValue.getDefaultValue().doubleValueRaw();
+        final List<Double> doubleValues = new ArrayList<>();
+        for (final E value : values) {
+            final double doubleValue = value.getDefaultValue().doubleValueRaw();
+            doubleValues.add(doubleValue);
+        }
+
+        for (int i = 0; i < doubleValues.size(); i++) {
+            final List<Double> prevValues = collectPrevValues(isHigherBetter, countNeighbours, standardDeviation,
+                    doubleValues, i);
+            final double curValue = doubleValues.get(i);
+            final List<Double> nextValues = collectNextValues(isHigherBetter, countNeighbours, standardDeviation,
+                    doubleValues, i);
+
+            final double curValueDouble = curValue;
 
             final int maxNeighbourWeight = Math.max(prevValues.size(), nextValues.size());
             final int curValueWeight = maxNeighbourWeight + 1;
@@ -350,7 +354,7 @@ public class DecimalAggregateInterpolations<E extends ADecimal<E>> implements ID
             double weightedValuesSum = 0D;
             int valuesCount = 0;
             for (int p = 0; p < prevValues.size(); p++) {
-                final double value = prevValues.get(p).getDefaultValue().doubleValueRaw();
+                final double value = prevValues.get(p);
                 valuesSum += value;
                 final int weight = maxNeighbourWeight - p;
                 weightsSum += weight;
@@ -362,7 +366,7 @@ public class DecimalAggregateInterpolations<E extends ADecimal<E>> implements ID
             weightedValuesSum += curValueDouble * curValueWeight;
             valuesCount++;
             for (int n = 0; n < nextValues.size(); n++) {
-                final double value = nextValues.get(n).getDefaultValue().doubleValueRaw();
+                final double value = nextValues.get(n);
                 valuesSum += value;
                 final int weight = maxNeighbourWeight - n;
                 weightsSum += weight;
@@ -375,6 +379,54 @@ public class DecimalAggregateInterpolations<E extends ADecimal<E>> implements ID
             robustValues.add(converter.fromDefaultValue(Decimal.valueOf(pessimistic)));
         }
         return new DecimalAggregate<E>(robustValues, converter);
+
+    }
+
+    private List<Double> collectNextValues(final boolean isHigherBetter, final int countNeighbours,
+            final double standardDeviation, final List<Double> doubleValues, final int i) {
+        final List<Double> nextValues = new ArrayList<>(countNeighbours);
+        for (int n = 0; n < countNeighbours; n++) {
+            final int nextIdx = i + n + 1;
+            if (nextIdx < doubleValues.size()) {
+                nextValues.add(doubleValues.get(nextIdx));
+            } else if (nextIdx >= doubleValues.size()) {
+                final double lastValue = doubleValues.get(doubleValues.size() - 1);
+                final double punishValue = standardDeviation * (nextIdx - doubleValues.size() + 1);
+                final double edge = punishEdgeValue(lastValue, isHigherBetter, punishValue);
+                nextValues.add(edge);
+            } else {
+                break;
+            }
+        }
+        return nextValues;
+    }
+
+    private List<Double> collectPrevValues(final boolean isHigherBetter, final int countNeighbours,
+            final double standardDeviation, final List<Double> doubleValues, final int i) {
+        final List<Double> prevValues = new ArrayList<>(countNeighbours);
+        for (int p = 0; p < countNeighbours; p++) {
+            final int prevIdx = i - p - 1;
+            if (prevIdx >= 0) {
+                prevValues.add(doubleValues.get(prevIdx));
+            } else if (prevIdx < 0) {
+                final double firstValue = doubleValues.get(0);
+                final double punishValue = standardDeviation * (prevIdx * (-1));
+                final double edge = punishEdgeValue(firstValue, isHigherBetter, punishValue);
+                prevValues.add(edge);
+            } else {
+                break;
+            }
+        }
+        Collections.reverse(prevValues);
+        return prevValues;
+    }
+
+    private double punishEdgeValue(final double value, final boolean isHigherBetter, final double punishValue) {
+        if (isHigherBetter) {
+            return value - punishValue;
+        } else {
+            return value + punishValue;
+        }
     }
 
     private double pessimistic(final boolean isHigherBetter, final double value1, final double value2) {

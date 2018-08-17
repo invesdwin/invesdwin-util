@@ -4,6 +4,7 @@ import de.invesdwin.util.math.decimal.ADecimal;
 import de.invesdwin.util.math.decimal.IDecimalAggregate;
 import de.invesdwin.util.math.decimal.interpolations.config.BSplineInterpolationConfig;
 import de.invesdwin.util.math.decimal.interpolations.config.LoessInterpolationConfig;
+import de.invesdwin.util.math.decimal.interpolations.config.RobustPlateauInterpolationConfig;
 import de.invesdwin.util.math.decimal.interpolations.config.SplineInterpolationConfig;
 
 public interface IDecimalAggregateInterpolations<E extends ADecimal<E>> {
@@ -22,6 +23,6 @@ public interface IDecimalAggregateInterpolations<E extends ADecimal<E>> {
      */
     IDecimalAggregate<E> bezierCurve(SplineInterpolationConfig config);
 
-    IDecimalAggregate<E> robustPlateau(boolean isHigherBetter);
+    IDecimalAggregate<E> robustPlateau(RobustPlateauInterpolationConfig config);
 
 }

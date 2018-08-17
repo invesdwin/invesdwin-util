@@ -8,6 +8,7 @@ import de.invesdwin.util.math.decimal.internal.DummyDecimalAggregate;
 import de.invesdwin.util.math.decimal.interpolations.IDecimalAggregateInterpolations;
 import de.invesdwin.util.math.decimal.interpolations.config.BSplineInterpolationConfig;
 import de.invesdwin.util.math.decimal.interpolations.config.LoessInterpolationConfig;
+import de.invesdwin.util.math.decimal.interpolations.config.RobustPlateauInterpolationConfig;
 import de.invesdwin.util.math.decimal.interpolations.config.SplineInterpolationConfig;
 
 @Immutable
@@ -44,7 +45,7 @@ public final class DummyDecimalAggregateInterpolations<E extends ADecimal<E>>
     }
 
     @Override
-    public IDecimalAggregate<E> robustPlateau(final boolean isHigherBetter) {
+    public IDecimalAggregate<E> robustPlateau(final RobustPlateauInterpolationConfig config) {
         return parent;
     }
 
