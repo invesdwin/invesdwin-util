@@ -540,6 +540,11 @@ public abstract class AHistoricalCache<V> {
             return AHistoricalCache.this.loadValue(key);
         }
 
+        @Override
+        public Object getLock() {
+            return AHistoricalCache.this;
+        }
+
     }
 
     private final class InnerHistoricalCacheExtractKeyProvider implements IHistoricalCacheExtractKeyProvider<V> {

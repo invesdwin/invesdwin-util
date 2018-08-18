@@ -46,8 +46,7 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
     private List<Entry<FDate, V>> cachedPreviousResult_filteringDuplicates = null;
     @GuardedBy("this")
     private Integer cachedPreviousResult_shiftBackUnits = null;
-    @GuardedBy("this")
-    private boolean cachedQueryActive;
+    private volatile boolean cachedQueryActive;
     @GuardedBy("this")
     private int maxCachedIndex;
 
@@ -103,48 +102,53 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
         }
     }
 
-    private synchronized List<Entry<FDate, V>> getPreviousEntriesList(
-            final IHistoricalCacheQueryInternalMethods<V> query, final FDate key, final int shiftBackUnits,
-            final boolean filterDuplicateKeys) {
-        if (cachedQueryActive) {
-            //prevent nested/recursive cached queries that might f**k up the cache
-            final List<Entry<FDate, V>> trailing = newEntriesList(query, shiftBackUnits, filterDuplicateKeys);
-            final List<Entry<FDate, V>> result = defaultGetPreviousEntries(query, shiftBackUnits, key, trailing);
-            return result;
-        } else {
-            cachedQueryActive = true;
-            try {
+    private List<Entry<FDate, V>> getPreviousEntriesList(final IHistoricalCacheQueryInternalMethods<V> query,
+            final FDate key, final int shiftBackUnits, final boolean filterDuplicateKeys) {
+        synchronized (getLock()) {
+            if (cachedQueryActive) {
+                //prevent nested/recursive cached queries that might f**k up the cache
+                final List<Entry<FDate, V>> trailing = newEntriesList(query, shiftBackUnits, filterDuplicateKeys);
+                final List<Entry<FDate, V>> result = defaultGetPreviousEntries(query, shiftBackUnits, key, trailing);
+                return result;
+            } else {
+                cachedQueryActive = true;
                 try {
-                    final List<Entry<FDate, V>> result = tryCachedGetPreviousEntriesIfAvailable(query, key,
-                            shiftBackUnits, filterDuplicateKeys);
-                    return result;
-                } catch (final ResetCacheException e) {
-                    countResets++;
-                    if (countResets % COUNT_RESETS_BEFORE_WARNING == 0
-                            || AHistoricalCache.isDebugAutomaticReoptimization()) {
-                        if (LOG.isWarnEnabled()) {
-                            //CHECKSTYLE:OFF
-                            LOG.warn(
-                                    "{}: resetting {} for the {}. time now and retrying after exception [{}: {}], if this happens too often we might encounter bad performance due to inefficient caching",
-                                    delegate.getParent(), getClass().getSimpleName(), countResets,
-                                    e.getClass().getSimpleName(), e.getMessage());
-                            //CHECKSTYLE:ON
-                        }
-                    }
-                    resetForRetry();
                     try {
                         final List<Entry<FDate, V>> result = tryCachedGetPreviousEntriesIfAvailable(query, key,
                                 shiftBackUnits, filterDuplicateKeys);
                         return result;
-                    } catch (final ResetCacheException e1) {
-                        throw new RuntimeException("Follow up " + ResetCacheException.class.getSimpleName()
-                                + " on retry after:" + e.toString(), e1);
+                    } catch (final ResetCacheException e) {
+                        countResets++;
+                        if (countResets % COUNT_RESETS_BEFORE_WARNING == 0
+                                || AHistoricalCache.isDebugAutomaticReoptimization()) {
+                            if (LOG.isWarnEnabled()) {
+                                //CHECKSTYLE:OFF
+                                LOG.warn(
+                                        "{}: resetting {} for the {}. time now and retrying after exception [{}: {}], if this happens too often we might encounter bad performance due to inefficient caching",
+                                        delegate.getParent(), getClass().getSimpleName(), countResets,
+                                        e.getClass().getSimpleName(), e.getMessage());
+                                //CHECKSTYLE:ON
+                            }
+                        }
+                        resetForRetry();
+                        try {
+                            final List<Entry<FDate, V>> result = tryCachedGetPreviousEntriesIfAvailable(query, key,
+                                    shiftBackUnits, filterDuplicateKeys);
+                            return result;
+                        } catch (final ResetCacheException e1) {
+                            throw new RuntimeException("Follow up " + ResetCacheException.class.getSimpleName()
+                                    + " on retry after:" + e.toString(), e1);
+                        }
                     }
+                } finally {
+                    cachedQueryActive = false;
                 }
-            } finally {
-                cachedQueryActive = false;
             }
         }
+    }
+
+    private Object getLock() {
+        return getParent().getLock();
     }
 
     private List<Entry<FDate, V>> tryCachedGetPreviousEntriesIfAvailable(
@@ -751,10 +755,12 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
     }
 
     @Override
-    public synchronized void clear() {
+    public void clear() {
         if (!cachedQueryActive) {
-            resetForRetry();
-            countResets = 0;
+            synchronized (getLock()) {
+                resetForRetry();
+                countResets = 0;
+            }
         }
     }
 
