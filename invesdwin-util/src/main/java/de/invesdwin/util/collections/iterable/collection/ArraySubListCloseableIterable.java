@@ -19,12 +19,16 @@ import de.invesdwin.util.lang.Reflections;
 public class ArraySubListCloseableIterable<E> implements ICloseableIterable<E>, IFastToListProvider<E> {
 
     public static final Class<?> SUBLIST_CLASS;
+    public static final MethodHandle SUBLIST_SIZE_GETTER;
     public static final MethodHandle SUBLIST_OFFSET_GETTER;
     public static final MethodHandle SUBLIST_PARENT_GETTER;
 
     static {
         try {
             SUBLIST_CLASS = Reflections.classForName("java.util.ArrayList$SubList");
+            final Field sublistSizeField = Reflections.findField(SUBLIST_CLASS, "size");
+            Reflections.makeAccessibleFinal(sublistSizeField);
+            SUBLIST_SIZE_GETTER = MethodHandles.lookup().unreflectGetter(sublistSizeField);
             final Field sublistOffsetField = Reflections.findField(SUBLIST_CLASS, "offset");
             Reflections.makeAccessibleFinal(sublistOffsetField);
             SUBLIST_OFFSET_GETTER = MethodHandles.lookup().unreflectGetter(sublistOffsetField);
@@ -57,15 +61,16 @@ public class ArraySubListCloseableIterable<E> implements ICloseableIterable<E>, 
      */
     @Override
     public ICloseableIterator<E> iterator() {
-        if (cachedSize != arraySubList.size()) {
-            cachedSize = arraySubList.size();
-            try {
+        try {
+            final int size = (int) SUBLIST_SIZE_GETTER.invoke(arraySubList);
+            if (cachedSize != size) {
+                cachedSize = size;
                 final ArrayList<E> parent = (ArrayList<E>) SUBLIST_PARENT_GETTER.invoke(arraySubList);
                 cachedArray = (E[]) ArrayListCloseableIterable.ARRAYLIST_ELEMENTDATA_GETTER.invokeExact(parent);
                 cachedOffset = (Integer) SUBLIST_OFFSET_GETTER.invoke(arraySubList);
-            } catch (final Throwable e) {
-                throw new RuntimeException(e);
             }
+        } catch (final Throwable e) {
+            throw new RuntimeException(e);
         }
         return new ArrayCloseableIterator<E>(cachedArray, cachedOffset, cachedSize) {
             @Override
