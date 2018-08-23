@@ -637,4 +637,12 @@ public class FDate implements IDate, Serializable, Cloneable, Comparable<Object>
         return FDates.isBetween(this, min, max);
     }
 
+    public FDate orHigher(final FDate other) {
+        return FDates.max(this, other);
+    }
+
+    public FDate orLower(final FDate other) {
+        return FDates.min(this, other);
+    }
+
 }
