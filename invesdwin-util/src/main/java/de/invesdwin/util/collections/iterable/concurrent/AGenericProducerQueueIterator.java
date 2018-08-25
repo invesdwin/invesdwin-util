@@ -14,7 +14,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.iterable.ACloseableIterator;
 import de.invesdwin.util.concurrent.Executors;
-import de.invesdwin.util.concurrent.Threads;
+import de.invesdwin.util.concurrent.Locks;
 import de.invesdwin.util.concurrent.WrappedExecutorService;
 import de.invesdwin.util.error.FastNoSuchElementException;
 
@@ -102,7 +102,7 @@ public abstract class AGenericProducerQueueIterator<E> extends ACloseableIterato
         this.name = name;
         this.queueSize = queueSize;
         this.executor = Executors.newFixedThreadPool(name, 1);
-        this.drainedLock = Threads.getCycleDetectingLockFactory()
+        this.drainedLock = Locks
                 .newReentrantLock(AGenericProducerQueueIterator.class.getSimpleName() + "_" + name + "_drainedLock");
         this.drainedCondition = drainedLock.newCondition();
     }

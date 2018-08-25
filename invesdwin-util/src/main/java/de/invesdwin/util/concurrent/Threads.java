@@ -2,9 +2,6 @@ package de.invesdwin.util.concurrent;
 
 import javax.annotation.concurrent.Immutable;
 
-import com.google.common.util.concurrent.CycleDetectingLockFactory;
-import com.google.common.util.concurrent.CycleDetectingLockFactory.Policies;
-
 import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.shutdown.ShutdownHookManager;
 
@@ -16,12 +13,6 @@ public final class Threads {
      * Above 1998 character there can occur deadlocks when settings thread names
      */
     private static final int MAX_THREAD_NAME_LENGTH = 1800;
-
-    /**
-     * Keep it disabled by default to keep best performance.
-     */
-    private static CycleDetectingLockFactory cycleDetectingLockFactory = CycleDetectingLockFactory
-            .newInstance(Policies.DISABLED);
 
     private Threads() {}
 
@@ -87,22 +78,6 @@ public final class Threads {
         final String curThreadName = getCurrentThreadName();
         final String curRootThreadName = Strings.substringBefore(curThreadName, NESTED_THREAD_NAME_SEPARATOR);
         return curRootThreadName;
-    }
-
-    public static CycleDetectingLockFactory getCycleDetectingLockFactory() {
-        return cycleDetectingLockFactory;
-    }
-
-    public static void setCycleDetectingLockFactory(final CycleDetectingLockFactory cycleDetectingLockFactory) {
-        Threads.cycleDetectingLockFactory = cycleDetectingLockFactory;
-    }
-
-    /**
-     * Cycle detection is disabled per default for performance purposes, using this you can enable it for debugging
-     * purposes when required.
-     */
-    public static void setCycleDetectingLockFactory(final Policies cycleDetectingPolicy) {
-        setCycleDetectingLockFactory(CycleDetectingLockFactory.newInstance(cycleDetectingPolicy));
     }
 
 }

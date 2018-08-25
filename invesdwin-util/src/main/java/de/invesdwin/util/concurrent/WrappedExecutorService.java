@@ -81,7 +81,7 @@ public class WrappedExecutorService implements ExecutorService {
         this.delegate = delegate;
         this.shutdownHook = newShutdownHook(delegate);
         this.name = name;
-        this.pendingCountLock = Threads.getCycleDetectingLockFactory()
+        this.pendingCountLock = Locks
                 .newReentrantLock(WrappedExecutorService.class.getSimpleName() + "_" + name + "_pendingCountLock");
         configure();
     }
