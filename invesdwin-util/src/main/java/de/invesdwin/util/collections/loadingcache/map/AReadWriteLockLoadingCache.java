@@ -9,20 +9,20 @@ import java.util.function.Function;
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.collections.loadingcache.ILoadingCache;
+import de.invesdwin.util.concurrent.lock.ILock;
 import de.invesdwin.util.concurrent.lock.Locks;
-import de.invesdwin.util.concurrent.lock.WrappedReadLock;
-import de.invesdwin.util.concurrent.lock.WrappedReentrantReadWriteLock;
-import de.invesdwin.util.concurrent.lock.WrappedWriteLock;
+import de.invesdwin.util.concurrent.lock.readwrite.IReentrantReadWriteLock;
+import de.invesdwin.util.concurrent.lock.readwrite.IWriteLock;
 
 @ThreadSafe
 public abstract class AReadWriteLockLoadingCache<K, V> implements ILoadingCache<K, V> {
 
     private final Map<K, V> map;
     private final Function<K, V> loadValue;
-    private final WrappedReentrantReadWriteLock lock = Locks
+    private final IReentrantReadWriteLock lock = Locks
             .newReentrantReadWriteLock(AReadWriteLockLoadingCache.class.getSimpleName() + "_lock");
-    private final WrappedWriteLock writeLock = lock.writeLock();
-    private final WrappedReadLock readLock = lock.readLock();
+    private final IWriteLock writeLock = lock.writeLock();
+    private final ILock readLock = lock.readLock();
 
     public AReadWriteLockLoadingCache(final Function<K, V> loadValue, final Map<K, V> map) {
         this.loadValue = loadValue;

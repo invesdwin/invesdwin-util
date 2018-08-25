@@ -1,18 +1,23 @@
-package de.invesdwin.util.concurrent.lock;
+package de.invesdwin.util.concurrent.lock.readwrite;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 
 import javax.annotation.concurrent.ThreadSafe;
 
+import de.invesdwin.util.concurrent.Threads;
+import de.invesdwin.util.concurrent.lock.Locks;
+
 @ThreadSafe
-public class WrappedReentrantLock implements IReentrantLock {
+public class WrappedWriteLock implements IWriteLock {
 
+    private final String readLockName;
     private final String name;
-    private final ReentrantLock delegate;
+    private final WriteLock delegate;
 
-    public WrappedReentrantLock(final String name, final ReentrantLock delegate) {
+    public WrappedWriteLock(final String readLockName, final String name, final WriteLock delegate) {
+        this.readLockName = name;
         this.name = name;
         this.delegate = delegate;
     }
@@ -25,6 +30,7 @@ public class WrappedReentrantLock implements IReentrantLock {
     @Override
     public void lock() {
         try {
+            assertReadLockNotHeldByCurrentThread();
             delegate.lock();
             Locks.getLockTrace().locked(getName());
         } catch (final Throwable t) {
@@ -32,9 +38,18 @@ public class WrappedReentrantLock implements IReentrantLock {
         }
     }
 
+    private void assertReadLockNotHeldByCurrentThread() {
+        if (Locks.getLockTrace().isLockedByThisThread(readLockName)) {
+            throw Locks.getLockTrace().handleLockException(getName(),
+                    new IllegalStateException("read lock [" + readLockName + "] already held by current thread ["
+                            + Threads.getCurrentThreadName() + "] while trying to acquire write lock [" + name + "]"));
+        }
+    }
+
     @Override
     public void lockInterruptibly() throws InterruptedException {
         try {
+            assertReadLockNotHeldByCurrentThread();
             delegate.lockInterruptibly();
             Locks.getLockTrace().locked(getName());
         } catch (final InterruptedException t) {
@@ -47,6 +62,7 @@ public class WrappedReentrantLock implements IReentrantLock {
     @Override
     public boolean tryLock() {
         try {
+            assertReadLockNotHeldByCurrentThread();
             final boolean locked = delegate.tryLock();
             if (locked) {
                 Locks.getLockTrace().locked(getName());
@@ -60,6 +76,7 @@ public class WrappedReentrantLock implements IReentrantLock {
     @Override
     public boolean tryLock(final long time, final TimeUnit unit) throws InterruptedException {
         try {
+            assertReadLockNotHeldByCurrentThread();
             final boolean locked = delegate.tryLock(time, unit);
             if (locked) {
                 Locks.getLockTrace().locked(getName());
@@ -88,52 +105,13 @@ public class WrappedReentrantLock implements IReentrantLock {
     }
 
     @Override
-    public int getHoldCount() {
-        return delegate.getHoldCount();
-    }
-
-    @Override
     public boolean isHeldByCurrentThread() {
         return delegate.isHeldByCurrentThread();
     }
 
     @Override
-    public boolean isLocked() {
-        return delegate.isLocked();
+    public int getHoldCount() {
+        return delegate.getHoldCount();
     }
 
-    @Override
-    public boolean isFair() {
-        return delegate.isFair();
-    }
-
-    @Override
-    public boolean hasQueuedThreads() {
-        return delegate.hasQueuedThreads();
-    }
-
-    @Override
-    public final boolean hasQueuedThread(final Thread thread) {
-        return delegate.hasQueuedThread(thread);
-    }
-
-    @Override
-    public final int getQueueLength() {
-        return delegate.getQueueLength();
-    }
-
-    @Override
-    public boolean hasWaiters(final Condition condition) {
-        return delegate.hasWaiters(condition);
-    }
-
-    @Override
-    public int getWaitQueueLength(final Condition condition) {
-        return delegate.getWaitQueueLength(condition);
-    }
-
-    @Override
-    public String toString() {
-        return delegate.toString();
-    }
 }

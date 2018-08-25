@@ -2,17 +2,17 @@ package de.invesdwin.util.concurrent.lock;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.Lock;
 
 import javax.annotation.concurrent.ThreadSafe;
 
 @ThreadSafe
-public class WrappedReentrantLock implements IReentrantLock {
+public class WrappedLock implements ILock {
 
     private final String name;
-    private final ReentrantLock delegate;
+    private final Lock delegate;
 
-    public WrappedReentrantLock(final String name, final ReentrantLock delegate) {
+    public WrappedLock(final String name, final Lock delegate) {
         this.name = name;
         this.delegate = delegate;
     }
@@ -85,51 +85,6 @@ public class WrappedReentrantLock implements IReentrantLock {
     @Override
     public Condition newCondition() {
         return delegate.newCondition();
-    }
-
-    @Override
-    public int getHoldCount() {
-        return delegate.getHoldCount();
-    }
-
-    @Override
-    public boolean isHeldByCurrentThread() {
-        return delegate.isHeldByCurrentThread();
-    }
-
-    @Override
-    public boolean isLocked() {
-        return delegate.isLocked();
-    }
-
-    @Override
-    public boolean isFair() {
-        return delegate.isFair();
-    }
-
-    @Override
-    public boolean hasQueuedThreads() {
-        return delegate.hasQueuedThreads();
-    }
-
-    @Override
-    public final boolean hasQueuedThread(final Thread thread) {
-        return delegate.hasQueuedThread(thread);
-    }
-
-    @Override
-    public final int getQueueLength() {
-        return delegate.getQueueLength();
-    }
-
-    @Override
-    public boolean hasWaiters(final Condition condition) {
-        return delegate.hasWaiters(condition);
-    }
-
-    @Override
-    public int getWaitQueueLength(final Condition condition) {
-        return delegate.getWaitQueueLength(condition);
     }
 
     @Override
