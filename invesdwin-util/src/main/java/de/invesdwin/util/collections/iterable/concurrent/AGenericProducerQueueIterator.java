@@ -14,8 +14,8 @@ import javax.annotation.concurrent.NotThreadSafe;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.iterable.ACloseableIterator;
 import de.invesdwin.util.concurrent.Executors;
-import de.invesdwin.util.concurrent.Locks;
 import de.invesdwin.util.concurrent.WrappedExecutorService;
+import de.invesdwin.util.concurrent.lock.Locks;
 import de.invesdwin.util.error.FastNoSuchElementException;
 
 @NotThreadSafe

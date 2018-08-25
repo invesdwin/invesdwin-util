@@ -4,25 +4,25 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 import java.util.function.Function;
 
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.collections.loadingcache.ILoadingCache;
-import de.invesdwin.util.concurrent.Locks;
+import de.invesdwin.util.concurrent.lock.Locks;
+import de.invesdwin.util.concurrent.lock.WrappedReadLock;
+import de.invesdwin.util.concurrent.lock.WrappedReentrantReadWriteLock;
+import de.invesdwin.util.concurrent.lock.WrappedWriteLock;
 
 @ThreadSafe
 public abstract class AReadWriteLockLoadingCache<K, V> implements ILoadingCache<K, V> {
 
     private final Map<K, V> map;
     private final Function<K, V> loadValue;
-    private final ReentrantReadWriteLock lock = Locks
+    private final WrappedReentrantReadWriteLock lock = Locks
             .newReentrantReadWriteLock(AReadWriteLockLoadingCache.class.getSimpleName() + "_lock");
-    private final WriteLock writeLock = lock.writeLock();
-    private final ReadLock readLock = lock.readLock();
+    private final WrappedWriteLock writeLock = lock.writeLock();
+    private final WrappedReadLock readLock = lock.readLock();
 
     public AReadWriteLockLoadingCache(final Function<K, V> loadValue, final Map<K, V> map) {
         this.loadValue = loadValue;

@@ -1,4 +1,4 @@
-package de.invesdwin.util.concurrent;
+package de.invesdwin.util.concurrent.lock;
 
 import java.io.Closeable;
 import java.io.File;
