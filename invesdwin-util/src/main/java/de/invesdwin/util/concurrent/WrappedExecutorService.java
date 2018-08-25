@@ -11,7 +11,6 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
@@ -60,7 +59,7 @@ public class WrappedExecutorService implements ExecutorService {
         }
 
     };
-    private final Lock pendingCountLock = new ReentrantLock();
+    private final Lock pendingCountLock;
     private final ALoadingCache<Long, Condition> pendingCount_limitListener = new ALoadingCache<Long, Condition>() {
         @Override
         protected Condition loadValue(final Long key) {
@@ -82,6 +81,8 @@ public class WrappedExecutorService implements ExecutorService {
         this.delegate = delegate;
         this.shutdownHook = newShutdownHook(delegate);
         this.name = name;
+        this.pendingCountLock = Threads.getCycleDetectingLockFactory()
+                .newReentrantLock(WrappedExecutorService.class.getSimpleName() + "_" + name + "_pendingCountLock");
         configure();
     }
 

@@ -12,13 +12,15 @@ import java.util.function.Function;
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.collections.loadingcache.ILoadingCache;
+import de.invesdwin.util.concurrent.Threads;
 
 @ThreadSafe
 public abstract class AReadWriteLockLoadingCache<K, V> implements ILoadingCache<K, V> {
 
     private final Map<K, V> map;
     private final Function<K, V> loadValue;
-    private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
+    private final ReentrantReadWriteLock lock = Threads.getCycleDetectingLockFactory()
+            .newReentrantReadWriteLock(AReadWriteLockLoadingCache.class.getSimpleName() + "_lock");
     private final WriteLock writeLock = lock.writeLock();
     private final ReadLock readLock = lock.readLock();
 

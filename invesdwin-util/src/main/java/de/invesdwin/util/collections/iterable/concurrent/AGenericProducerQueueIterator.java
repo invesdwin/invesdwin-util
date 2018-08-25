@@ -6,7 +6,6 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 
 import javax.annotation.concurrent.GuardedBy;
@@ -15,6 +14,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.iterable.ACloseableIterator;
 import de.invesdwin.util.concurrent.Executors;
+import de.invesdwin.util.concurrent.Threads;
 import de.invesdwin.util.concurrent.WrappedExecutorService;
 import de.invesdwin.util.error.FastNoSuchElementException;
 
@@ -82,9 +82,9 @@ public abstract class AGenericProducerQueueIterator<E> extends ACloseableIterato
     private volatile boolean innerClosed;
     @GuardedBy("this")
     private E nextElement;
-    private final Lock drainedLock = new ReentrantLock();
+    private final Lock drainedLock;
     @GuardedBy("drainedLock")
-    private final Condition drainedCondition = drainedLock.newCondition();
+    private final Condition drainedCondition;
     private final WrappedExecutorService executor;
 
     private final String name;
@@ -102,6 +102,9 @@ public abstract class AGenericProducerQueueIterator<E> extends ACloseableIterato
         this.name = name;
         this.queueSize = queueSize;
         this.executor = Executors.newFixedThreadPool(name, 1);
+        this.drainedLock = Threads.getCycleDetectingLockFactory()
+                .newReentrantLock(AGenericProducerQueueIterator.class.getSimpleName() + "_" + name + "_drainedLock");
+        this.drainedCondition = drainedLock.newCondition();
     }
 
     protected void start() {
