@@ -26,7 +26,7 @@ public abstract class ABufferingRetrievalCloseableIterable<T> implements IClosea
         return new ICloseableIterator<T>() {
 
             private FDate curDate = fromDate;
-            private IBufferingIterator<? extends T> curList = queryNext(curDate, getFirstRetrievalLimit());
+            private IBufferingIterator<? extends T> curList = queryNext(curDate, getFirstRetrievalCount());
 
             private IBufferingIterator<? extends T> getList() {
                 if (curList == null) {
@@ -69,7 +69,7 @@ public abstract class ABufferingRetrievalCloseableIterable<T> implements IClosea
         };
     }
 
-    protected Integer getFirstRetrievalLimit() {
+    protected Integer getFirstRetrievalCount() {
         return retrievalCount;
     }
 
