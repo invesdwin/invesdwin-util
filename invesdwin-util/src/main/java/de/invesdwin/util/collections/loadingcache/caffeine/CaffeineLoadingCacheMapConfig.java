@@ -156,6 +156,8 @@ public class CaffeineLoadingCacheMapConfig {
         final Caffeine<Object, Object> builder = Caffeine.newBuilder();
         if (BooleanUtils.isTrue(recursiveLoading)) {
             builder.executor(RECURSIVE_EXECUTOR);
+        } else {
+            builder.executor(Executors.DISABLED_EXECUTOR);
         }
         if (maximumSize != null) {
             builder.maximumSize(maximumSize);
