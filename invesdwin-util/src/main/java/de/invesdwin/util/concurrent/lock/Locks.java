@@ -27,8 +27,9 @@ import de.invesdwin.util.concurrent.lock.internal.readwrite.update.WrappedReadWr
 import de.invesdwin.util.concurrent.lock.readwrite.IReadWriteLock;
 import de.invesdwin.util.concurrent.lock.readwrite.IReadWriteUpdateLock;
 import de.invesdwin.util.concurrent.lock.readwrite.IReentrantReadWriteLock;
-import de.invesdwin.util.concurrent.lock.trace.DisabledLockTrace;
 import de.invesdwin.util.concurrent.lock.trace.ILockTrace;
+import de.invesdwin.util.concurrent.lock.trace.internal.DisabledLockTrace;
+import de.invesdwin.util.concurrent.lock.trace.internal.EnabledLockTrace;
 import de.invesdwin.util.lang.UniqueNameGenerator;
 
 @StaticFacadeDefinition(name = "de.invesdwin.util.concurrent.lock.internal.ALocksStaticFacade", targets = {
@@ -72,6 +73,14 @@ public final class Locks extends ALocksStaticFacade {
         return maybeWrap(name, lock);
     }
 
+    /**
+     * The read write update lock is slow but can be used to debug scenarios where the same thread locks the read lock
+     * and then tries to upgrade to a write lock. This lock implementation will throw an exception for that case.
+     * Otherwise after the code works with this lock implementation, it is faster to create a different update lock
+     * yourself and use that in combination with a normal read write lock.
+     * 
+     * Though if performance is not critical, you can just stick to this implementation.
+     */
     public static IReadWriteUpdateLock newReentrantReadWriteUpdateLock(final String lockName) {
         final String name = UNIQUE_NAME_GENERATOR.get(lockName);
         final ReentrantReadWriteUpdateLock lock = new ReentrantReadWriteUpdateLock();
@@ -154,11 +163,13 @@ public final class Locks extends ALocksStaticFacade {
         return lockTrace;
     }
 
-    public static void setLockTrace(final ILockTrace lockTrace) {
-        if (lockTrace == null) {
-            Locks.lockTrace = DisabledLockTrace.INSTANCE;
+    public static void setLockTraceEnabled(final boolean lockTraceEnabled) {
+        if (lockTraceEnabled) {
+            if (!(Locks.lockTrace instanceof EnabledLockTrace)) {
+                Locks.lockTrace = new EnabledLockTrace();
+            }
         } else {
-            Locks.lockTrace = lockTrace;
+            Locks.lockTrace = DisabledLockTrace.INSTANCE;
         }
     }
 

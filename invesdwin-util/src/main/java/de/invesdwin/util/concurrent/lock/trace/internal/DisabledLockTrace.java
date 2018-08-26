@@ -1,6 +1,8 @@
-package de.invesdwin.util.concurrent.lock.trace;
+package de.invesdwin.util.concurrent.lock.trace.internal;
 
 import javax.annotation.concurrent.ThreadSafe;
+
+import de.invesdwin.util.concurrent.lock.trace.ILockTrace;
 
 @ThreadSafe
 public final class DisabledLockTrace implements ILockTrace {

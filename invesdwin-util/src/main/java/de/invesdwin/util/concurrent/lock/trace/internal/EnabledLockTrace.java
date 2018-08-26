@@ -1,4 +1,4 @@
-package de.invesdwin.util.concurrent.lock.trace;
+package de.invesdwin.util.concurrent.lock.trace.internal;
 
 import java.util.Map;
 import java.util.Map.Entry;
@@ -12,11 +12,13 @@ import de.invesdwin.util.collections.loadingcache.ILoadingCache;
 import de.invesdwin.util.collections.loadingcache.caffeine.CaffeineLoadingCacheMapConfig;
 import de.invesdwin.util.collections.loadingcache.map.CaffeineLoadingCache;
 import de.invesdwin.util.concurrent.Threads;
+import de.invesdwin.util.concurrent.lock.trace.ILockTrace;
+import de.invesdwin.util.concurrent.lock.trace.LockTraceEntry;
 import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.time.duration.Duration;
 
 @ThreadSafe
-public class DetailedLockTrace implements ILockTrace {
+public class EnabledLockTrace implements ILockTrace {
 
     private final ALoadingCache<String, ConcurrentHashMap<String, LockTraceEntry>> lockName_threadName_stackTrace = new ALoadingCache<String, ConcurrentHashMap<String, LockTraceEntry>>() {
         @Override
