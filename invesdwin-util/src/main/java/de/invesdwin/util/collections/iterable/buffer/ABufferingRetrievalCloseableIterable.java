@@ -14,7 +14,8 @@ public abstract class ABufferingRetrievalCloseableIterable<T> implements IClosea
     private final FDate toDate;
     private final Integer retrievalCount;
 
-    public ABufferingRetrievalCloseableIterable(final FDate fromDate, final FDate toDate, final Integer retrievalCount) {
+    public ABufferingRetrievalCloseableIterable(final FDate fromDate, final FDate toDate,
+            final Integer retrievalCount) {
         this.fromDate = fromDate;
         this.toDate = toDate;
         this.retrievalCount = retrievalCount;
@@ -25,14 +26,14 @@ public abstract class ABufferingRetrievalCloseableIterable<T> implements IClosea
         return new ICloseableIterator<T>() {
 
             private FDate curDate = fromDate;
-            private IBufferingIterator<? extends T> curList = queryNext(curDate);
+            private IBufferingIterator<? extends T> curList = queryNext(curDate, getFirstRetrievalLimit());
 
             private IBufferingIterator<? extends T> getList() {
                 if (curList == null) {
                     return null;
                 }
                 if (curList.isEmpty()) {
-                    curList = queryNext(curDate.addMilliseconds(1));
+                    curList = queryNext(curDate.addMilliseconds(1), retrievalCount);
                     if (curList.isEmpty()) {
                         close();
                     }
@@ -40,7 +41,7 @@ public abstract class ABufferingRetrievalCloseableIterable<T> implements IClosea
                 return curList;
             }
 
-            private IBufferingIterator<? extends T> queryNext(final FDate fromDate) {
+            private IBufferingIterator<? extends T> queryNext(final FDate fromDate, final Integer retrievalCount) {
                 return query(fromDate, toDate, retrievalCount);
             }
 
@@ -66,6 +67,10 @@ public abstract class ABufferingRetrievalCloseableIterable<T> implements IClosea
                 curList = null;
             }
         };
+    }
+
+    protected Integer getFirstRetrievalLimit() {
+        return retrievalCount;
     }
 
     protected abstract FDate extractTime(T next);
