@@ -28,6 +28,7 @@ public class CaffeineLoadingCacheMapConfig {
             .withDynamicThreadName(false);
 
     private Long maximumSize;
+    private Duration refreshAfterWrite;
     private Duration expireAfterWrite;
     private Duration expireAfterAccess;
     private Boolean softValues;
@@ -51,6 +52,15 @@ public class CaffeineLoadingCacheMapConfig {
         } else {
             this.maximumSize = maximumSize.longValue();
         }
+        return this;
+    }
+
+    public Duration getRefreshAfterWrite() {
+        return refreshAfterWrite;
+    }
+
+    public CaffeineLoadingCacheMapConfig withRefreshAfterWrite(final Duration refreshAfterWrite) {
+        this.refreshAfterWrite = refreshAfterWrite;
         return this;
     }
 
@@ -155,6 +165,9 @@ public class CaffeineLoadingCacheMapConfig {
         }
         if (expireAfterWrite != null) {
             builder.expireAfterWrite(expireAfterWrite.longValue(), expireAfterWrite.getTimeUnit().timeUnitValue());
+        }
+        if (refreshAfterWrite != null) {
+            builder.refreshAfterWrite(refreshAfterWrite.longValue(), refreshAfterWrite.getTimeUnit().timeUnitValue());
         }
         configureKeysAndValues(builder);
         if (removalListener != null) {

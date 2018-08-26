@@ -36,8 +36,6 @@
 		<version.jollyday>0.5.6</version.jollyday>
 		<version.dsiutils>2.4.0</version.dsiutils>
 		<version.btreemap>1.1.0</version.btreemap>
-		<version.caffeine>2.6.2</version.caffeine>
-		<version.cache2k>1.0.2.Final</version.cache2k>
 		<version.concurrent-locks>1.0.0</version.concurrent-locks>
 	</properties>
 
@@ -207,7 +205,6 @@
 		<dependency>
 			<groupId>com.github.ben-manes.caffeine</groupId>
 			<artifactId>caffeine</artifactId>
-			<version>${version.caffeine}</version>
 		</dependency>
 
 		<dependency>
