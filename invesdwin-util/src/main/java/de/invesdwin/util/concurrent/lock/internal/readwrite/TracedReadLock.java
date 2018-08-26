@@ -1,23 +1,21 @@
-package de.invesdwin.util.concurrent.lock.readwrite;
+package de.invesdwin.util.concurrent.lock.internal.readwrite;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
 
 import javax.annotation.concurrent.ThreadSafe;
 
-import de.invesdwin.util.concurrent.Threads;
+import de.invesdwin.util.concurrent.lock.ILock;
 import de.invesdwin.util.concurrent.lock.Locks;
 
 @ThreadSafe
-public class WrappedWriteLock implements IWriteLock {
+public class TracedReadLock implements ILock {
 
-    private final String readLockName;
     private final String name;
-    private final WriteLock delegate;
+    private final ReadLock delegate;
 
-    public WrappedWriteLock(final String readLockName, final String name, final WriteLock delegate) {
-        this.readLockName = name;
+    public TracedReadLock(final String name, final ReadLock delegate) {
         this.name = name;
         this.delegate = delegate;
     }
@@ -30,7 +28,6 @@ public class WrappedWriteLock implements IWriteLock {
     @Override
     public void lock() {
         try {
-            assertReadLockNotHeldByCurrentThread();
             delegate.lock();
             Locks.getLockTrace().locked(getName());
         } catch (final Throwable t) {
@@ -38,18 +35,9 @@ public class WrappedWriteLock implements IWriteLock {
         }
     }
 
-    private void assertReadLockNotHeldByCurrentThread() {
-        if (Locks.getLockTrace().isLockedByThisThread(readLockName)) {
-            throw Locks.getLockTrace().handleLockException(getName(),
-                    new IllegalStateException("read lock [" + readLockName + "] already held by current thread ["
-                            + Threads.getCurrentThreadName() + "] while trying to acquire write lock [" + name + "]"));
-        }
-    }
-
     @Override
     public void lockInterruptibly() throws InterruptedException {
         try {
-            assertReadLockNotHeldByCurrentThread();
             delegate.lockInterruptibly();
             Locks.getLockTrace().locked(getName());
         } catch (final InterruptedException t) {
@@ -62,7 +50,6 @@ public class WrappedWriteLock implements IWriteLock {
     @Override
     public boolean tryLock() {
         try {
-            assertReadLockNotHeldByCurrentThread();
             final boolean locked = delegate.tryLock();
             if (locked) {
                 Locks.getLockTrace().locked(getName());
@@ -76,7 +63,6 @@ public class WrappedWriteLock implements IWriteLock {
     @Override
     public boolean tryLock(final long time, final TimeUnit unit) throws InterruptedException {
         try {
-            assertReadLockNotHeldByCurrentThread();
             final boolean locked = delegate.tryLock(time, unit);
             if (locked) {
                 Locks.getLockTrace().locked(getName());
@@ -102,16 +88,6 @@ public class WrappedWriteLock implements IWriteLock {
     @Override
     public Condition newCondition() {
         return delegate.newCondition();
-    }
-
-    @Override
-    public boolean isHeldByCurrentThread() {
-        return delegate.isHeldByCurrentThread();
-    }
-
-    @Override
-    public int getHoldCount() {
-        return delegate.getHoldCount();
     }
 
 }

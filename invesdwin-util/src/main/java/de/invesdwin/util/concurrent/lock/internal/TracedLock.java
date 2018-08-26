@@ -1,8 +1,8 @@
-package de.invesdwin.util.concurrent.lock.readwrite;
+package de.invesdwin.util.concurrent.lock.internal;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
+import java.util.concurrent.locks.Lock;
 
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -10,12 +10,12 @@ import de.invesdwin.util.concurrent.lock.ILock;
 import de.invesdwin.util.concurrent.lock.Locks;
 
 @ThreadSafe
-public class WrappedReadLock implements ILock {
+public final class TracedLock implements ILock {
 
     private final String name;
-    private final ReadLock delegate;
+    private final Lock delegate;
 
-    public WrappedReadLock(final String name, final ReadLock delegate) {
+    public TracedLock(final String name, final Lock delegate) {
         this.name = name;
         this.delegate = delegate;
     }
@@ -88,6 +88,11 @@ public class WrappedReadLock implements ILock {
     @Override
     public Condition newCondition() {
         return delegate.newCondition();
+    }
+
+    @Override
+    public String toString() {
+        return delegate.toString();
     }
 
 }

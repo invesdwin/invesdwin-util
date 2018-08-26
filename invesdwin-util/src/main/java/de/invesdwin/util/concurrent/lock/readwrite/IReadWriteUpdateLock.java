@@ -1,9 +1,8 @@
-package de.invesdwin.util.concurrent.lock.readwrite.update;
+package de.invesdwin.util.concurrent.lock.readwrite;
 
 import com.googlecode.concurentlocks.ReadWriteUpdateLock;
 
 import de.invesdwin.util.concurrent.lock.ILock;
-import de.invesdwin.util.concurrent.lock.readwrite.IReadWriteLock;
 
 public interface IReadWriteUpdateLock extends IReadWriteLock, ReadWriteUpdateLock {
 

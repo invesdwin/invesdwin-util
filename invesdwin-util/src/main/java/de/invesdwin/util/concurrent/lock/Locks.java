@@ -1,5 +1,7 @@
 package de.invesdwin.util.concurrent.lock;
 
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -7,11 +9,24 @@ import javax.annotation.concurrent.Immutable;
 
 import com.google.common.util.concurrent.CycleDetectingLockFactory;
 import com.google.common.util.concurrent.CycleDetectingLockFactory.Policies;
+import com.googlecode.concurentlocks.ReadWriteUpdateLock;
+import com.googlecode.concurentlocks.ReentrantReadWriteUpdateLock;
 
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
 import de.invesdwin.util.concurrent.lock.internal.ALocksStaticFacade;
+import de.invesdwin.util.concurrent.lock.internal.TracedLock;
+import de.invesdwin.util.concurrent.lock.internal.TracedReentrantLock;
+import de.invesdwin.util.concurrent.lock.internal.WrappedLock;
+import de.invesdwin.util.concurrent.lock.internal.WrappedReentrantLock;
+import de.invesdwin.util.concurrent.lock.internal.readwrite.TracedReadWriteLock;
+import de.invesdwin.util.concurrent.lock.internal.readwrite.TracedReentrantReadWriteLock;
+import de.invesdwin.util.concurrent.lock.internal.readwrite.WrappedReadWriteLock;
+import de.invesdwin.util.concurrent.lock.internal.readwrite.WrappedReentrantReadWriteLock;
+import de.invesdwin.util.concurrent.lock.internal.readwrite.update.TracedReadWriteUpdateLock;
+import de.invesdwin.util.concurrent.lock.internal.readwrite.update.WrappedReadWriteUpdateLock;
+import de.invesdwin.util.concurrent.lock.readwrite.IReadWriteLock;
+import de.invesdwin.util.concurrent.lock.readwrite.IReadWriteUpdateLock;
 import de.invesdwin.util.concurrent.lock.readwrite.IReentrantReadWriteLock;
-import de.invesdwin.util.concurrent.lock.readwrite.WrappedReentrantReadWriteLock;
 import de.invesdwin.util.concurrent.lock.trace.DisabledLockTrace;
 import de.invesdwin.util.concurrent.lock.trace.ILockTrace;
 import de.invesdwin.util.lang.UniqueNameGenerator;
@@ -36,25 +51,31 @@ public final class Locks extends ALocksStaticFacade {
     public static IReentrantLock newReentrantLock(final String lockName) {
         final String name = UNIQUE_NAME_GENERATOR.get(lockName);
         final ReentrantLock lock = cycleDetectingLockFactory.newReentrantLock(name);
-        return new WrappedReentrantLock(name, lock);
+        return maybeWrap(name, lock);
     }
 
     public static IReentrantLock newReentrantLock(final String lockName, final boolean fair) {
         final String name = UNIQUE_NAME_GENERATOR.get(lockName);
         final ReentrantLock lock = cycleDetectingLockFactory.newReentrantLock(name, fair);
-        return new WrappedReentrantLock(name, lock);
+        return maybeWrap(name, lock);
     }
 
     public static IReentrantReadWriteLock newReentrantReadWriteLock(final String lockName) {
         final String name = UNIQUE_NAME_GENERATOR.get(lockName);
         final ReentrantReadWriteLock lock = cycleDetectingLockFactory.newReentrantReadWriteLock(name);
-        return new WrappedReentrantReadWriteLock(name, lock);
+        return maybeWrap(name, lock);
     }
 
     public static IReentrantReadWriteLock newReentrantReadWriteLock(final String lockName, final boolean fair) {
         final String name = UNIQUE_NAME_GENERATOR.get(lockName);
         final ReentrantReadWriteLock lock = cycleDetectingLockFactory.newReentrantReadWriteLock(name, fair);
-        return new WrappedReentrantReadWriteLock(name, lock);
+        return maybeWrap(name, lock);
+    }
+
+    public static IReadWriteUpdateLock newReentrantReadWriteUpdateLock(final String lockName) {
+        final String name = UNIQUE_NAME_GENERATOR.get(lockName);
+        final ReentrantReadWriteUpdateLock lock = new ReentrantReadWriteUpdateLock();
+        return maybeWrap(name, lock);
     }
 
     public static void setCycleDetectingLockFactory(final CycleDetectingLockFactory cycleDetectingLockFactory) {
@@ -69,6 +90,66 @@ public final class Locks extends ALocksStaticFacade {
         setCycleDetectingLockFactory(CycleDetectingLockFactory.newInstance(cycleDetectingPolicy));
     }
 
+    public static ILock maybeWrap(final String lockName, final Lock lock) {
+        if (lock instanceof ILock) {
+            return (ILock) lock;
+        } else {
+            if (isLockTraceEnabled()) {
+                return new TracedLock(lockName, lock);
+            } else {
+                return new WrappedLock(lockName, lock);
+            }
+        }
+    }
+
+    public static IReentrantLock maybeWrap(final String lockName, final ReentrantLock lock) {
+        if (lock instanceof IReentrantLock) {
+            return (IReentrantLock) lock;
+        } else {
+            if (isLockTraceEnabled()) {
+                return new TracedReentrantLock(lockName, lock);
+            } else {
+                return new WrappedReentrantLock(lockName, lock);
+            }
+        }
+    }
+
+    public static IReadWriteLock maybeWrap(final String lockName, final ReadWriteLock lock) {
+        if (lock instanceof IReadWriteLock) {
+            return (IReadWriteLock) lock;
+        } else {
+            if (isLockTraceEnabled()) {
+                return new TracedReadWriteLock(lockName, lock);
+            } else {
+                return new WrappedReadWriteLock(lockName, lock);
+            }
+        }
+    }
+
+    public static IReentrantReadWriteLock maybeWrap(final String lockName, final ReentrantReadWriteLock lock) {
+        if (lock instanceof IReentrantReadWriteLock) {
+            return (IReentrantReadWriteLock) lock;
+        } else {
+            if (isLockTraceEnabled()) {
+                return new TracedReentrantReadWriteLock(lockName, lock);
+            } else {
+                return new WrappedReentrantReadWriteLock(lockName, lock);
+            }
+        }
+    }
+
+    public static IReadWriteUpdateLock maybeWrap(final String lockName, final ReadWriteUpdateLock lock) {
+        if (lock instanceof IReadWriteUpdateLock) {
+            return (IReadWriteUpdateLock) lock;
+        } else {
+            if (isLockTraceEnabled()) {
+                return new TracedReadWriteUpdateLock(lockName, lock);
+            } else {
+                return new WrappedReadWriteUpdateLock(lockName, lock);
+            }
+        }
+    }
+
     public static ILockTrace getLockTrace() {
         return lockTrace;
     }
@@ -79,6 +160,10 @@ public final class Locks extends ALocksStaticFacade {
         } else {
             Locks.lockTrace = lockTrace;
         }
+    }
+
+    public static boolean isLockTraceEnabled() {
+        return Locks.lockTrace != DisabledLockTrace.INSTANCE;
     }
 
 }

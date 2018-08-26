@@ -1,23 +1,25 @@
-package de.invesdwin.util.concurrent.lock.readwrite;
+package de.invesdwin.util.concurrent.lock.internal.readwrite;
 
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import javax.annotation.concurrent.ThreadSafe;
 
+import de.invesdwin.util.concurrent.lock.readwrite.IReentrantReadWriteLock;
+
 @ThreadSafe
-public class WrappedReentrantReadWriteLock implements IReentrantReadWriteLock {
+public class TracedReentrantReadWriteLock implements IReentrantReadWriteLock {
 
     private final String name;
     private final ReentrantReadWriteLock delegate;
-    private final WrappedReadLock readLock;
-    private final WrappedWriteLock writeLock;
+    private final TracedReadLock readLock;
+    private final TracedWriteLock writeLock;
 
-    public WrappedReentrantReadWriteLock(final String name, final ReentrantReadWriteLock delegate) {
+    public TracedReentrantReadWriteLock(final String name, final ReentrantReadWriteLock delegate) {
         this.name = name;
         this.delegate = delegate;
-        this.readLock = new WrappedReadLock(name + "_readLock", delegate.readLock());
-        this.writeLock = new WrappedWriteLock(readLock.getName(), name + "_writeLock", delegate.writeLock());
+        this.readLock = new TracedReadLock(name + "_readLock", delegate.readLock());
+        this.writeLock = new TracedWriteLock(readLock.getName(), name + "_writeLock", delegate.writeLock());
     }
 
     @Override
@@ -26,12 +28,12 @@ public class WrappedReentrantReadWriteLock implements IReentrantReadWriteLock {
     }
 
     @Override
-    public WrappedReadLock readLock() {
+    public TracedReadLock readLock() {
         return readLock;
     }
 
     @Override
-    public WrappedWriteLock writeLock() {
+    public TracedWriteLock writeLock() {
         return writeLock;
     }
 
