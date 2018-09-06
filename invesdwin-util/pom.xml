@@ -37,6 +37,7 @@
 		<version.dsiutils>2.4.0</version.dsiutils>
 		<version.btreemap>1.1.0</version.btreemap>
 		<version.concurrent-locks>1.0.0</version.concurrent-locks>
+		<version.classgraph>4.1.5</version.classgraph>
 	</properties>
 
 	<dependencyManagement>
@@ -211,6 +212,12 @@
 			<groupId>com.googlecode.concurrent-locks</groupId>
 			<artifactId>concurrent-locks</artifactId>
 			<version>${version.concurrent-locks}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>io.github.classgraph</groupId>
+			<artifactId>classgraph</artifactId>
+			<version>${version.classgraph}</version>
 		</dependency>
 
 		<dependency>
