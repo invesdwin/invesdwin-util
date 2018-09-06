@@ -26,8 +26,6 @@ public class Pair<FIRST, SECOND> extends AValueObject {
     /** The second value in this tuple. */
     private final SECOND second;
 
-    private Integer cachedHashCode;
-
     /**
      * Creates a new </code>{@link Pair}</code>.
      * 
@@ -54,14 +52,7 @@ public class Pair<FIRST, SECOND> extends AValueObject {
     }
 
     @Override
-    public final int hashCode() {
-        if (cachedHashCode == null) {
-            cachedHashCode = internalHashCode();
-        }
-        return cachedHashCode;
-    }
-
-    protected int internalHashCode() {
+    public int hashCode() {
         return Objects.hashCode(getClass(), getFirst(), getSecond());
     }
 
