@@ -185,7 +185,7 @@ public final class FDates {
         }
     }
 
-    public static Object toString(final FDate date) {
+    public static String toString(final FDate date) {
         if (date == null) {
             return null;
         } else {
