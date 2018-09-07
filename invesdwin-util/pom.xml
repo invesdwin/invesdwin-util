@@ -38,7 +38,6 @@
 		<version.btreemap>1.1.0</version.btreemap>
 		<version.concurrent-locks>1.0.0</version.concurrent-locks>
 		<version.classgraph>4.1.5</version.classgraph>
-		<version.commons-text>1.4</version.commons-text>
 	</properties>
 
 	<dependencyManagement>
@@ -224,7 +223,6 @@
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-text</artifactId>
-			<version>${version.commons-text}</version>
 		</dependency>
 
 		<dependency>
