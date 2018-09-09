@@ -17,7 +17,7 @@ public class NumberStreamSum<E extends Number> implements IStreamAlgorithm<E, Do
         return sum;
     }
 
-    public Double getSum() {
+    public double getSum() {
         return sum;
     }
 
