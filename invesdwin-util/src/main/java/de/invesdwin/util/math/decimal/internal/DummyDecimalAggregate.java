@@ -94,17 +94,7 @@ public final class DummyDecimalAggregate<E extends ADecimal<E>> implements IDeci
     }
 
     @Override
-    public E sampleStandardDeviation(final E avg) {
-        return null;
-    }
-
-    @Override
     public E standardDeviation() {
-        return null;
-    }
-
-    @Override
-    public E standardDeviation(final E avg) {
         return null;
     }
 

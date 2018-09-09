@@ -324,7 +324,7 @@ public class DecimalAggregateInterpolations<E extends ADecimal<E>> implements ID
         final int countNeighbours = Math.max(MIN_NEIGHTBOURS_COUNT, values.size() / MAX_NEIGHTBOURS_SEGMENTS);
         final double standardDeviation;
         if (isPunishEdges) {
-            standardDeviation = new DecimalAggregate<E>(values, converter).standardDeviation()
+            standardDeviation = new DecimalAggregate<E>(values, converter).sampleStandardDeviation()
                     .getDefaultValue()
                     .doubleValueRaw();
         } else {

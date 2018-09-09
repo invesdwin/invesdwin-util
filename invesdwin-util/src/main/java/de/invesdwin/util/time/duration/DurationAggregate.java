@@ -6,7 +6,9 @@ import java.util.List;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.collections.Lists;
+import de.invesdwin.util.math.Longs;
 import de.invesdwin.util.math.decimal.Decimal;
+import de.invesdwin.util.math.stream.number.NumberStreamAvg;
 import de.invesdwin.util.time.fdate.FTimeUnit;
 
 @Immutable
@@ -65,13 +67,11 @@ class DurationAggregate implements IDurationAggregate {
      */
     @Override
     public Duration avg() {
-        Decimal sum = Decimal.ZERO;
+        final NumberStreamAvg<Double> avg = new NumberStreamAvg<>();
         for (final Duration value : values) {
-            if (value != null) {
-                sum = sum.add(value.decimalValue(FTimeUnit.NANOSECONDS));
-            }
+            avg.process(value.doubleValue(FTimeUnit.NANOSECONDS));
         }
-        return new Duration(sum.divide(count()).longValue(), FTimeUnit.NANOSECONDS);
+        return new Duration(Longs.checkedCast(avg.getAvg()), FTimeUnit.NANOSECONDS);
     }
 
     @Override

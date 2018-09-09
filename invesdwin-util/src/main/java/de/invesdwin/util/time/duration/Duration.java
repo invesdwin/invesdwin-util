@@ -45,7 +45,6 @@ public class Duration extends Number implements Comparable<Object> {
 
     private final long duration;
     private final FTimeUnit timeUnit;
-    @SuppressWarnings("GuardedBy")
     @GuardedBy("none for performance")
     @JsonIgnore
     @Transient

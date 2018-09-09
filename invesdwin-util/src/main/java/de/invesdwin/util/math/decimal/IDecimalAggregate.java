@@ -74,18 +74,22 @@ public interface IDecimalAggregate<E extends ADecimal<E>> {
      */
     E sampleStandardDeviation();
 
-    E sampleStandardDeviation(E avg);
-
     /**
      * s = (1/(n) * sum((x_i - x_quer)^2))^1/2
+     * 
+     * Warning: normally one will use the sampleCoefficientOfVariation since it is hard to come by a complete set of
+     * values representing the distribution of reality
      */
+    @Deprecated
     E standardDeviation();
-
-    E standardDeviation(E avg);
 
     /**
      * s^2 = 1/(n-1) * sum((x_i - x_quer)^2)
+     * 
+     * Warning: normally one will use the sampleCoefficientOfVariation since it is hard to come by a complete set of
+     * values representing the distribution of reality
      */
+    @Deprecated
     E variance();
 
     /**
@@ -166,7 +170,11 @@ public interface IDecimalAggregate<E extends ADecimal<E>> {
      * CV(x) = stddev(x) / expectedValue(x)
      * 
      * Also known as relative standard deviation.
+     * 
+     * Warning: normally one will use the sampleCoefficientOfVariation since it is hard to come by a complete set of
+     * values representing the distribution of reality
      */
+    @Deprecated
     E coefficientOfVariation();
 
     /**

@@ -5,35 +5,25 @@ import javax.annotation.concurrent.NotThreadSafe;
 import de.invesdwin.util.math.stream.IStreamAlgorithm;
 
 @NotThreadSafe
-public class NumberStreamAvg<E extends Number> implements IStreamAlgorithm<E, Void> {
+public class NumberStreamAvg<E extends Number> implements IStreamAlgorithm<E, Double> {
 
-    private int count = 0;
-    private double sum = 0;
+    private long count = 0;
+    private double avg = 0D; // our online mean estimate
 
     @Override
-    public Void process(final E value) {
+    public Double process(final E value) {
         count++;
-        if (value != null) {
-            sum += value.doubleValue();
-        }
-        return null;
+        final double doubleValue = value.doubleValue();
+        final double delta = doubleValue - avg;
+        avg += delta / count;
+        return delta;
     }
 
     public double getAvg() {
-        final double doubleResult;
-        if (count == 0) {
-            doubleResult = 0D;
-        } else {
-            doubleResult = sum / count;
-        }
-        return doubleResult;
+        return avg;
     }
 
-    public double getSum() {
-        return sum;
-    }
-
-    public int getCount() {
+    public long getCount() {
         return count;
     }
 

@@ -11,7 +11,6 @@ import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.Lists;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.collections.iterable.WrapperCloseableIterable;
-import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.decimal.ADecimal;
 import de.invesdwin.util.math.decimal.Decimal;
 import de.invesdwin.util.math.decimal.IDecimalAggregate;
@@ -29,7 +28,9 @@ import de.invesdwin.util.math.stream.decimal.DecimalStreamNormalization;
 import de.invesdwin.util.math.stream.decimal.DecimalStreamProduct;
 import de.invesdwin.util.math.stream.decimal.DecimalStreamRelativeDetrending;
 import de.invesdwin.util.math.stream.decimal.DecimalStreamRemoveFlatSequences;
+import de.invesdwin.util.math.stream.decimal.DecimalStreamStandardDeviation;
 import de.invesdwin.util.math.stream.decimal.DecimalStreamSum;
+import de.invesdwin.util.math.stream.decimal.DecimalStreamVariance;
 
 @ThreadSafe
 public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregate<E> {
@@ -247,73 +248,64 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
      */
     @Override
     public E sampleStandardDeviation() {
-        final E avg = avg();
-        return sampleStandardDeviation(avg);
-    }
-
-    @Override
-    public E sampleStandardDeviation(final E avg) {
-        double sum = 0D;
-        final double avgDouble = avg.getDefaultValue().doubleValueRaw();
+        final DecimalStreamStandardDeviation<E> variance = new DecimalStreamStandardDeviation<E>(converter);
         for (final E value : values) {
-            final double difference = value.getDefaultValue().doubleValueRaw() - avgDouble;
-            sum += Math.pow(difference, 2);
+            variance.process(value);
         }
-        final double divisor = size() - 1D;
-        final double sqrt = Math.sqrt(Doubles.divideHandlingZero(sum, divisor));
-        return getConverter().fromDefaultValue(new Decimal(sqrt));
+        return variance.getSampleStandardDeviation();
     }
 
     /**
      * s = (1/(n) * sum((x_i - x_quer)^2))^1/2
+     * 
+     * Warning: normally one will use the sampleCoefficientOfVariation since it is hard to come by a complete set of
+     * values representing the distribution of reality
      */
+    @Deprecated
     @Override
     public E standardDeviation() {
-        final E avg = avg();
-        return standardDeviation(avg);
-    }
-
-    @Override
-    public E standardDeviation(final E avg) {
-        double sum = 0D;
-        final double avgDouble = avg.getDefaultValue().doubleValueRaw();
+        final DecimalStreamStandardDeviation<E> variance = new DecimalStreamStandardDeviation<E>(converter);
         for (final E value : values) {
-            final double difference = value.getDefaultValue().doubleValueRaw() - avgDouble;
-            sum += Math.pow(difference, 2);
+            variance.process(value);
         }
-        final double divisor = size();
-        final double sqrt = Math.sqrt(Doubles.divideHandlingZero(sum, divisor));
-        return getConverter().fromDefaultValue(new Decimal(sqrt));
-    }
-
-    /**
-     * s^2 = 1/(n-1) * sum((x_i - x_quer)^2)
-     */
-    @Override
-    public E variance() {
-        final E avg = avg();
-        Decimal sum = Decimal.ZERO;
-        for (final E value : values) {
-            sum = sum.add(value.subtract(avg).getDefaultValue().pow(2));
-        }
-        return getConverter().fromDefaultValue(sum.divide(size() - 1));
+        return variance.getStandardDeviation();
     }
 
     /**
      * s^2 = 1/(n) * sum((x_i - x_quer)^2)
      * 
      * <a href="http://de.wikipedia.org/wiki/Stichprobenvarianz">Source</a>
+     * 
+     * Warning: normally one will use the sampleCoefficientOfVariation since it is hard to come by a complete set of
+     * values representing the distribution of reality
+     */
+    @Deprecated
+    @Override
+    public E variance() {
+        final DecimalStreamVariance<E> variance = new DecimalStreamVariance<E>(converter);
+        for (final E value : values) {
+            variance.process(value);
+        }
+        return variance.getVariance();
+    }
+
+    /**
+     * s^2 = 1/(n-1) * sum((x_i - x_quer)^2)
      */
     @Override
     public E sampleVariance() {
-        final E avg = avg();
-        Decimal sum = Decimal.ZERO;
+        final DecimalStreamVariance<E> variance = new DecimalStreamVariance<E>(converter);
         for (final E value : values) {
-            sum = sum.add(value.subtract(avg).getDefaultValue().pow(2));
+            variance.process(value);
         }
-        return getConverter().fromDefaultValue(sum.divide(size()));
+        return variance.getSampleVariance();
     }
 
+    /**
+     * Warning: normally one will use the sampleCoefficientOfVariation since it is hard to come by a complete set of
+     * values representing the distribution of reality
+     */
+    @Deprecated
     @Override
     public E coefficientOfVariation() {
         return standardDeviation().divide(avg());
