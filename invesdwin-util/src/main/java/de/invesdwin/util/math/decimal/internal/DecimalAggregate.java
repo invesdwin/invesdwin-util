@@ -248,7 +248,7 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
      */
     @Override
     public E sampleStandardDeviation() {
-        final DecimalStreamStandardDeviation<E> variance = new DecimalStreamStandardDeviation<E>(converter);
+        final DecimalStreamStandardDeviation<E> variance = new DecimalStreamStandardDeviation<E>(getConverter());
         for (final E value : values) {
             variance.process(value);
         }
@@ -264,7 +264,7 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
     @Deprecated
     @Override
     public E standardDeviation() {
-        final DecimalStreamStandardDeviation<E> variance = new DecimalStreamStandardDeviation<E>(converter);
+        final DecimalStreamStandardDeviation<E> variance = new DecimalStreamStandardDeviation<E>(getConverter());
         for (final E value : values) {
             variance.process(value);
         }
@@ -282,7 +282,7 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
     @Deprecated
     @Override
     public E variance() {
-        final DecimalStreamVariance<E> variance = new DecimalStreamVariance<E>(converter);
+        final DecimalStreamVariance<E> variance = new DecimalStreamVariance<E>(getConverter());
         for (final E value : values) {
             variance.process(value);
         }
@@ -294,7 +294,7 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
      */
     @Override
     public E sampleVariance() {
-        final DecimalStreamVariance<E> variance = new DecimalStreamVariance<E>(converter);
+        final DecimalStreamVariance<E> variance = new DecimalStreamVariance<E>(getConverter());
         for (final E value : values) {
             variance.process(value);
         }
