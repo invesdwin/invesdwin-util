@@ -4,9 +4,12 @@ import java.util.Map.Entry;
 
 import javax.annotation.concurrent.Immutable;
 
+import de.invesdwin.util.collections.iterable.ASkippingIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
+import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQueryElementFilter;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQueryWithFuture;
+import de.invesdwin.util.collections.loadingcache.historical.query.internal.HistoricalCacheAssertValue;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.IHistoricalCacheQueryCore;
 import de.invesdwin.util.time.fdate.FDate;
 
@@ -43,122 +46,124 @@ public class FilteringHistoricalCacheQueryWithFuture<V> extends FilteringHistori
 
     @Override
     public FDate getNextKey(final FDate key, final int shiftForwardUnits) {
-        final IHistoricalCacheQueryElementFilter<V> existing = delegate.getThreadLocalElementFilter();
-        delegate.withThreadLocalElementFilter(new IHistoricalCacheQueryElementFilter<V>() {
-
-            @Override
-            public boolean isValid(final FDate valueKey, final V value) {
-                if (valueKey.isBefore(key)) {
-                    return false;
-                }
-                return existing.isValid(valueKey, value);
-            }
-        });
-        try {
-            return delegate.getNextKey(key, shiftForwardUnits);
-        } finally {
-            delegate.withThreadLocalElementFilter(existing);
-        }
+        final Entry<FDate, V> result = getNextEntry(key, shiftForwardUnits);
+        return HistoricalCacheAssertValue.unwrapEntryKey(result);
     }
 
     @Override
-    public ICloseableIterable<FDate> getNextKeys(final FDate key, final int shiftForwardUnits) {
-        final IHistoricalCacheQueryElementFilter<V> existing = delegate.getThreadLocalElementFilter();
-        delegate.withThreadLocalElementFilter(new IHistoricalCacheQueryElementFilter<V>() {
-
-            @Override
-            public boolean isValid(final FDate valueKey, final V value) {
-                if (valueKey.isBefore(key)) {
-                    return false;
-                }
-                return existing.isValid(valueKey, value);
-            }
-        });
-        try {
-            return delegate.getNextKeys(key, shiftForwardUnits);
-        } finally {
-            delegate.withThreadLocalElementFilter(existing);
-        }
+    public V getNextValue(final FDate key, final int shiftForwardUnits) {
+        final Entry<FDate, V> result = getNextEntry(key, shiftForwardUnits);
+        return HistoricalCacheAssertValue.unwrapEntryValue(result);
     }
 
     @Override
     public Entry<FDate, V> getNextEntry(final FDate key, final int shiftForwardUnits) {
-        final IHistoricalCacheQueryElementFilter<V> existing = delegate.getThreadLocalElementFilter();
-        delegate.withThreadLocalElementFilter(new IHistoricalCacheQueryElementFilter<V>() {
-
-            @Override
-            public boolean isValid(final FDate valueKey, final V value) {
-                if (valueKey.isBefore(key)) {
-                    return false;
-                }
-                return existing.isValid(valueKey, value);
-            }
-        });
-        try {
-            return delegate.getNextEntry(key, shiftForwardUnits);
-        } finally {
-            delegate.withThreadLocalElementFilter(existing);
+        final Entry<FDate, V> curEntry = getEntry(key);
+        if (curEntry == null) {
+            return null;
+        }
+        final int adjShiftForwardUnits;
+        if (curEntry.getKey().isBefore(key)) {
+            adjShiftForwardUnits = shiftForwardUnits + 1;
+        } else {
+            adjShiftForwardUnits = shiftForwardUnits;
+        }
+        final Entry<FDate, V> result = delegate.getNextEntry(curEntry.getKey(), adjShiftForwardUnits);
+        if (result != null && result.getKey().isBefore(key)) {
+            return null;
+        } else {
+            return result;
         }
     }
 
     @Override
     public ICloseableIterable<V> getNextValues(final FDate key, final int shiftForwardUnits) {
-        final IHistoricalCacheQueryElementFilter<V> existing = delegate.getThreadLocalElementFilter();
-        delegate.withThreadLocalElementFilter(new IHistoricalCacheQueryElementFilter<V>() {
-
+        return new ICloseableIterable<V>() {
             @Override
-            public boolean isValid(final FDate valueKey, final V value) {
-                if (valueKey.isBefore(key)) {
-                    return false;
-                }
-                return existing.isValid(valueKey, value);
+            public ICloseableIterator<V> iterator() {
+                return new ICloseableIterator<V>() {
+
+                    private final ICloseableIterator<Entry<FDate, V>> entriesIterator;
+
+                    {
+                        final ICloseableIterable<Entry<FDate, V>> entries = getNextEntries(key, shiftForwardUnits);
+                        entriesIterator = entries.iterator();
+                    }
+
+                    @Override
+                    public boolean hasNext() {
+                        return entriesIterator.hasNext();
+                    }
+
+                    @Override
+                    public V next() {
+                        return entriesIterator.next().getValue();
+                    }
+
+                    @Override
+                    public void close() {
+                        entriesIterator.close();
+                    }
+
+                };
             }
-        });
-        try {
-            return delegate.getNextValues(key, shiftForwardUnits);
-        } finally {
-            delegate.withThreadLocalElementFilter(existing);
-        }
+        };
+    }
+
+    @Override
+    public ICloseableIterable<FDate> getNextKeys(final FDate key, final int shiftForwardUnits) {
+        return new ICloseableIterable<FDate>() {
+            @Override
+            public ICloseableIterator<FDate> iterator() {
+                return new ICloseableIterator<FDate>() {
+
+                    private final ICloseableIterator<Entry<FDate, V>> entriesIterator;
+
+                    {
+                        final ICloseableIterable<Entry<FDate, V>> entries = getNextEntries(key, shiftForwardUnits);
+                        entriesIterator = entries.iterator();
+                    }
+
+                    @Override
+                    public boolean hasNext() {
+                        return entriesIterator.hasNext();
+                    }
+
+                    @Override
+                    public FDate next() {
+                        return entriesIterator.next().getKey();
+                    }
+
+                    @Override
+                    public void close() {
+                        entriesIterator.close();
+                    }
+
+                };
+            }
+        };
     }
 
     @Override
     public ICloseableIterable<Entry<FDate, V>> getNextEntries(final FDate key, final int shiftForwardUnits) {
-        final IHistoricalCacheQueryElementFilter<V> existing = delegate.getThreadLocalElementFilter();
-        delegate.withThreadLocalElementFilter(new IHistoricalCacheQueryElementFilter<V>() {
-
-            @Override
-            public boolean isValid(final FDate valueKey, final V value) {
-                if (valueKey.isBefore(key)) {
-                    return false;
-                }
-                return existing.isValid(valueKey, value);
-            }
-        });
-        try {
-            return delegate.getNextEntries(key, shiftForwardUnits);
-        } finally {
-            delegate.withThreadLocalElementFilter(existing);
+        final Entry<FDate, V> curEntry = getEntry(key);
+        if (curEntry == null) {
+            return null;
         }
-    }
-
-    @Override
-    public V getNextValue(final FDate key, final int shiftForwardUnits) {
-        final IHistoricalCacheQueryElementFilter<V> existing = delegate.getThreadLocalElementFilter();
-        delegate.withThreadLocalElementFilter(new IHistoricalCacheQueryElementFilter<V>() {
-
-            @Override
-            public boolean isValid(final FDate valueKey, final V value) {
-                if (valueKey.isBefore(key)) {
-                    return false;
-                }
-                return existing.isValid(valueKey, value);
-            }
-        });
-        try {
-            return delegate.getNextValue(key, shiftForwardUnits);
-        } finally {
-            delegate.withThreadLocalElementFilter(existing);
+        final int adjShiftForwardUnits;
+        if (curEntry.getKey().isBefore(key)) {
+            adjShiftForwardUnits = shiftForwardUnits + 1;
+        } else {
+            adjShiftForwardUnits = shiftForwardUnits;
         }
+        final ICloseableIterable<Entry<FDate, V>> result = delegate.getNextEntries(curEntry.getKey(),
+                adjShiftForwardUnits);
+        return new ASkippingIterable<Entry<FDate, V>>(result) {
+            @Override
+            protected boolean skip(final Entry<FDate, V> element) {
+                return element.getKey().isBefore(key);
+            }
+        };
     }
 
     @Override
