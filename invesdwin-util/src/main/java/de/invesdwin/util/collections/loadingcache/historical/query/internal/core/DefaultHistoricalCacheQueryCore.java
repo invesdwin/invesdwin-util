@@ -8,6 +8,7 @@ import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.WrapperCloseableIterable;
+import de.invesdwin.util.collections.loadingcache.historical.query.DisabledHistoricalCacheQueryElementFilter;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQueryElementFilter;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.HistoricalCacheAssertValue;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.HistoricalCacheQuery;
@@ -35,8 +36,8 @@ public class DefaultHistoricalCacheQueryCore<V> implements IHistoricalCacheQuery
             final HistoricalCacheAssertValue assertValue) {
         V value = parent.getValuesMap().get(key);
         if (value != null) {
-            final IHistoricalCacheQueryElementFilter<V> elementFilter = query.getElementFilter();
-            if (elementFilter != null) {
+            final IHistoricalCacheQueryElementFilter<V> elementFilter = query.getElementFilterWithThreadLocal();
+            if (elementFilter != null && !(elementFilter instanceof DisabledHistoricalCacheQueryElementFilter)) {
                 FDate valueKey = parent.extractKey(key, value);
                 while (!elementFilter.isValid(valueKey, value)) {
                     value = null;
@@ -156,8 +157,8 @@ public class DefaultHistoricalCacheQueryCore<V> implements IHistoricalCacheQuery
             final HistoricalCacheAssertValue assertValue) {
         V value = parent.computeValue(key);
         if (value != null) {
-            final IHistoricalCacheQueryElementFilter<V> elementFilter = query.getElementFilter();
-            if (elementFilter != null) {
+            final IHistoricalCacheQueryElementFilter<V> elementFilter = query.getElementFilterWithThreadLocal();
+            if (elementFilter != null && !(elementFilter instanceof DisabledHistoricalCacheQueryElementFilter)) {
                 FDate valueKey = parent.extractKey(key, value);
                 while (!elementFilter.isValid(valueKey, value)) {
                     value = null;

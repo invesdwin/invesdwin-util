@@ -10,6 +10,9 @@ public interface IHistoricalCacheQuery<V> extends IHistoricalCacheQueryInternalM
 
     IHistoricalCacheQuery<V> withElementFilter(IHistoricalCacheQueryElementFilter<V> elementFilter);
 
+    IHistoricalCacheQuery<V> withThreadLocalElementFilter(
+            IHistoricalCacheQueryElementFilter<V> threadLocalElementFilter);
+
     /**
      * Default is true. Filters key and thus values that have already been added to the result list. Thus the result
      * list might contain less values than shiftBackUnits specified.
@@ -32,47 +35,109 @@ public interface IHistoricalCacheQuery<V> extends IHistoricalCacheQueryInternalM
 
     /**
      * Jumps the specified shiftBackUnits to the past instead of only one unit. 0 results in current value.
+     * 
+     * key is inclusive
      */
     FDate getPreviousKey(FDate key, int shiftBackUnits);
 
+    /**
+     * key is inclusive
+     */
     ICloseableIterable<FDate> getPreviousKeys(FDate key, int shiftBackUnits);
 
+    /**
+     * key is inclusive
+     */
     Entry<FDate, V> getPreviousEntry(FDate key, int shiftBackUnits);
 
+    /**
+     * key is inclusive
+     */
     V getPreviousValue(FDate key, int shiftBackUnits);
 
+    /**
+     * key is inclusive
+     */
     ICloseableIterable<Entry<FDate, V>> getPreviousEntries(FDate key, int shiftBackUnits);
 
+    /**
+     * key is inclusive
+     */
     ICloseableIterable<V> getPreviousValues(FDate key, int shiftBackUnits);
 
+    /**
+     * from and to are inclusive
+     */
     ICloseableIterable<FDate> getKeys(FDate from, FDate to);
 
+    /**
+     * from and to are inclusive
+     */
     ICloseableIterable<Entry<FDate, V>> getEntries(FDate from, FDate to);
 
+    /**
+     * from and to are inclusive
+     */
     ICloseableIterable<V> getValues(FDate from, FDate to);
 
+    /**
+     * from and to are inclusive
+     */
     FDate getPreviousKeyWithSameValueBetween(FDate from, FDate to, V value);
 
+    /**
+     * from and to are inclusive
+     */
     V getPreviousValueWithSameValueBetween(FDate from, FDate to, V value);
 
+    /**
+     * from and to are inclusive
+     */
     Entry<FDate, V> getPreviousEntryWithSameValueBetween(FDate from, FDate to, V value);
 
+    /**
+     * from and to are inclusive
+     */
     FDate getPreviousKeyWithDifferentValueBetween(FDate from, FDate to, V value);
 
+    /**
+     * from and to are inclusive
+     */
     V getPreviousValueWithDifferentValueBetween(FDate from, FDate to, V value);
 
+    /**
+     * from and to are inclusive
+     */
     Entry<FDate, V> getPreviousEntryWithDifferentValueBetween(FDate from, FDate to, V value);
 
+    /**
+     * key is inclusive
+     */
     FDate getPreviousKeyWithSameValue(FDate key, int maxShiftBackUnits, V value);
 
+    /**
+     * key is inclusive
+     */
     V getPreviousValueWithSameValue(FDate key, int maxShiftBackUnits, V value);
 
+    /**
+     * key is inclusive
+     */
     Entry<FDate, V> getPreviousEntryWithSameValue(FDate key, int maxShiftBackUnits, V value);
 
+    /**
+     * key is inclusive
+     */
     FDate getPreviousKeyWithDifferentValue(FDate key, int maxShiftBackUnits, V value);
 
+    /**
+     * key is inclusive
+     */
     V getPreviousValueWithDifferentValue(FDate key, int maxShiftBackUnits, V value);
 
+    /**
+     * key is inclusive
+     */
     Entry<FDate, V> getPreviousEntryWithDifferentValue(FDate key, int maxShiftBackUnits, V value);
 
     @SuppressWarnings("rawtypes")

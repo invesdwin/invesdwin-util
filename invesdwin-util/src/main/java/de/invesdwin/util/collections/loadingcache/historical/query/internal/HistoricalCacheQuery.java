@@ -10,12 +10,14 @@ import javax.annotation.concurrent.NotThreadSafe;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.collections.iterable.WrapperCloseableIterable;
+import de.invesdwin.util.collections.loadingcache.historical.query.DisabledHistoricalCacheQueryElementFilter;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQuery;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQueryElementFilter;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQueryWithFuture;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.IHistoricalCacheQueryCore;
 import de.invesdwin.util.error.FastNoSuchElementException;
 import de.invesdwin.util.time.fdate.FDate;
+import io.netty.util.concurrent.FastThreadLocal;
 
 @NotThreadSafe
 public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
@@ -26,7 +28,9 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
     protected final IHistoricalCacheQueryCore<V> core;
     protected HistoricalCacheAssertValue assertValue = DEFAULT_ASSERT_VALUE;
     private boolean filterDuplicateKeys = DEFAULT_FILTER_DUPLICATE_KEYS;
-    private IHistoricalCacheQueryElementFilter<V> elementFilter;
+    private IHistoricalCacheQueryElementFilter<V> elementFilter = DisabledHistoricalCacheQueryElementFilter
+            .getInstance();
+    private final FastThreadLocal<IHistoricalCacheQueryElementFilter<V>> threadLocalElementFilter = new FastThreadLocal<>();
 
     public HistoricalCacheQuery(final IHistoricalCacheQueryCore<V> core) {
         this.core = core;
@@ -50,13 +54,54 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
     }
 
     @Override
+    public IHistoricalCacheQueryElementFilter<V> getThreadLocalElementFilter() {
+        final IHistoricalCacheQueryElementFilter<V> threadLocal = threadLocalElementFilter.get();
+        if (threadLocal == null) {
+            return DisabledHistoricalCacheQueryElementFilter.getInstance();
+        } else {
+            return threadLocal;
+        }
+    }
+
+    @Override
+    public IHistoricalCacheQueryElementFilter<V> getElementFilterWithThreadLocal() {
+        final IHistoricalCacheQueryElementFilter<V> threadLocal = threadLocalElementFilter.get();
+        if (threadLocal == null) {
+            return elementFilter;
+        } else {
+            return new IHistoricalCacheQueryElementFilter<V>() {
+                @Override
+                public boolean isValid(final FDate valueKey, final V value) {
+                    return threadLocal.isValid(valueKey, value) && elementFilter.isValid(valueKey, value);
+                }
+            };
+        }
+    }
+
+    @Override
     public boolean isFilterDuplicateKeys() {
         return filterDuplicateKeys;
     }
 
     @Override
     public IHistoricalCacheQuery<V> withElementFilter(final IHistoricalCacheQueryElementFilter<V> elementFilter) {
-        this.elementFilter = elementFilter;
+        if (elementFilter == null) {
+            this.elementFilter = DisabledHistoricalCacheQueryElementFilter.getInstance();
+        } else {
+            this.elementFilter = elementFilter;
+        }
+        return this;
+    }
+
+    @Override
+    public IHistoricalCacheQuery<V> withThreadLocalElementFilter(
+            final IHistoricalCacheQueryElementFilter<V> threadLocalElementFilter) {
+        if (threadLocalElementFilter == null
+                || threadLocalElementFilter instanceof DisabledHistoricalCacheQueryElementFilter) {
+            this.threadLocalElementFilter.remove();
+        } else {
+            this.threadLocalElementFilter.set(threadLocalElementFilter);
+        }
         return this;
     }
 
@@ -614,6 +659,7 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
         this.assertValue = copyFrom.getAssertValue();
         this.filterDuplicateKeys = copyFrom.isFilterDuplicateKeys();
         this.elementFilter = copyFrom.getElementFilter();
+        withThreadLocalElementFilter(copyFrom.getThreadLocalElementFilter());
     }
 
     protected HistoricalCacheQueryWithFuture<V> newFutureQuery() {
@@ -623,7 +669,7 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
     }
 
     protected IHistoricalCacheQuery<?> newKeysQueryInterceptor() {
-        if (elementFilter == null) {
+        if (elementFilter == null || elementFilter instanceof DisabledHistoricalCacheQueryElementFilter) {
             final IHistoricalCacheQuery<?> interceptor = core.getParent().newKeysQueryInterceptor();
             if (interceptor != null) {
                 interceptor.copyQuerySettings(this);

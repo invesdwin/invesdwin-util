@@ -4,6 +4,6 @@ import de.invesdwin.util.time.fdate.FDate;
 
 public interface IHistoricalCacheQueryElementFilter<V> {
 
-    boolean isValid(FDate key, V value);
+    boolean isValid(FDate valueKey, V value);
 
 }

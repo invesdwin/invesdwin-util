@@ -34,6 +34,7 @@ import de.invesdwin.util.collections.loadingcache.historical.query.internal.Hist
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.IHistoricalCacheInternalMethods;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.CachedHistoricalCacheQueryCore;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.IHistoricalCacheQueryCore;
+import de.invesdwin.util.collections.loadingcache.historical.query.internal.filter.FilteringHistoricalCacheQuery;
 import de.invesdwin.util.collections.loadingcache.historical.refresh.HistoricalCacheRefreshManager;
 import de.invesdwin.util.time.fdate.FDate;
 
@@ -309,7 +310,7 @@ public abstract class AHistoricalCache<V> {
      * Does not allow values from future per default.
      */
     public final IHistoricalCacheQuery<V> query() {
-        return adjustKeyProvider.newQuery(queryCore);
+        return new FilteringHistoricalCacheQuery<V>(queryCore, adjustKeyProvider.newQuery(queryCore));
     }
 
     public boolean containsKey(final FDate key) {

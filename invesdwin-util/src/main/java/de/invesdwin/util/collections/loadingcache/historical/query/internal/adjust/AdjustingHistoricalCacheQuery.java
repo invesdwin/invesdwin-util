@@ -1,4 +1,4 @@
-package de.invesdwin.util.collections.loadingcache.historical.query.internal.adj;
+package de.invesdwin.util.collections.loadingcache.historical.query.internal.adjust;
 
 import java.util.Iterator;
 import java.util.List;
@@ -6,6 +6,7 @@ import java.util.Map.Entry;
 
 import javax.annotation.concurrent.Immutable;
 
+import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.iterable.EmptyCloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQuery;
@@ -67,6 +68,13 @@ public class AdjustingHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V
     }
 
     @Override
+    public IHistoricalCacheQuery<V> withThreadLocalElementFilter(
+            final IHistoricalCacheQueryElementFilter<V> threadLocalElementFilter) {
+        delegate.withThreadLocalElementFilter(threadLocalElementFilter);
+        return this;
+    }
+
+    @Override
     public IHistoricalCacheQuery<V> withFilterDuplicateKeys(final boolean filterDuplicateKeys) {
         delegate.withFilterDuplicateKeys(filterDuplicateKeys);
         return this;
@@ -74,7 +82,7 @@ public class AdjustingHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V
 
     @Override
     public IHistoricalCacheQuery<V> withFutureNull() {
-        delegate.withFutureNull();
+        Assertions.checkSame(delegate.withFutureNull(), delegate);
         return this;
     }
 
@@ -282,6 +290,16 @@ public class AdjustingHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V
     @Override
     public IHistoricalCacheQueryElementFilter<V> getElementFilter() {
         return delegate.getElementFilter();
+    }
+
+    @Override
+    public IHistoricalCacheQueryElementFilter<V> getThreadLocalElementFilter() {
+        return delegate.getThreadLocalElementFilter();
+    }
+
+    @Override
+    public IHistoricalCacheQueryElementFilter<V> getElementFilterWithThreadLocal() {
+        return delegate.getElementFilterWithThreadLocal();
     }
 
     @Override
