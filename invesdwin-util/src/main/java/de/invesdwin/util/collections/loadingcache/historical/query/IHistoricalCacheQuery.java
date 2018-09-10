@@ -37,6 +37,8 @@ public interface IHistoricalCacheQuery<V> extends IHistoricalCacheQueryInternalM
      * Jumps the specified shiftBackUnits to the past instead of only one unit. 0 results in current value.
      * 
      * key is inclusive
+     * 
+     * index 0 is the current value (below or equal to key), index 1 the previous value and so on
      */
     FDate getPreviousKey(FDate key, int shiftBackUnits);
 
@@ -47,11 +49,15 @@ public interface IHistoricalCacheQuery<V> extends IHistoricalCacheQueryInternalM
 
     /**
      * key is inclusive
+     * 
+     * index 0 is the current value (below or equal to key), index 1 the previous value and so on
      */
     Entry<FDate, V> getPreviousEntry(FDate key, int shiftBackUnits);
 
     /**
      * key is inclusive
+     * 
+     * index 0 is the current value (below or equal to key), index 1 the previous value and so on
      */
     V getPreviousValue(FDate key, int shiftBackUnits);
 

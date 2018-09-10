@@ -27,6 +27,8 @@ public interface IHistoricalCacheQueryWithFuture<V> extends IHistoricalCacheQuer
      * Jumps the specified shiftForwardUnits to the future instead of only one unit.
      * 
      * key is inclusive
+     * 
+     * index 0 is the current value (above or equal to key), index 1 the next value and so on
      */
     FDate getNextKey(FDate key, int shiftForwardUnits);
 
@@ -41,6 +43,8 @@ public interface IHistoricalCacheQueryWithFuture<V> extends IHistoricalCacheQuer
 
     /**
      * key is inclusive
+     * 
+     * index 0 is the current value (above or equal to key), index 1 the next value and so on
      */
     Entry<FDate, V> getNextEntry(FDate key, int shiftForwardUnits);
 
@@ -60,6 +64,8 @@ public interface IHistoricalCacheQueryWithFuture<V> extends IHistoricalCacheQuer
 
     /**
      * key is inclusive
+     * 
+     * index 0 is the current value (above or equal to key), index 1 the next value and so on
      */
     V getNextValue(FDate key, int shiftForwardUnits);
 
