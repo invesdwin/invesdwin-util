@@ -391,8 +391,7 @@ public class DecimalAggregateInterpolations<E extends ADecimal<E>> implements ID
                 nextValues.add(doubleValues.get(nextIdx));
             } else if (nextIdx >= doubleValues.size()) {
                 final double lastValue = doubleValues.get(doubleValues.size() - 1);
-                final double punishValue = standardDeviation * (nextIdx - doubleValues.size() + 1)
-                        * PUNISH_NEGATIVE_EDGE_FACTOR;
+                final double punishValue = standardDeviation * (nextIdx - doubleValues.size() + 1);
                 final double edge = punishEdgeValue(lastValue, isHigherBetter, punishValue);
                 nextValues.add(edge);
             } else {
@@ -411,7 +410,7 @@ public class DecimalAggregateInterpolations<E extends ADecimal<E>> implements ID
                 prevValues.add(doubleValues.get(prevIdx));
             } else if (prevIdx < 0) {
                 final double firstValue = doubleValues.get(0);
-                final double punishValue = standardDeviation * (prevIdx * (-1)) * PUNISH_NEGATIVE_EDGE_FACTOR;
+                final double punishValue = standardDeviation * (prevIdx * (-1));
                 final double edge = punishEdgeValue(firstValue, isHigherBetter, punishValue);
                 prevValues.add(edge);
             } else {

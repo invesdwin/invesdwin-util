@@ -4,10 +4,15 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.math.decimal.Decimal;
 
+/**
+ * https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2923818/
+ */
 @NotThreadSafe
 public class BSplineInterpolationConfig extends SplineInterpolationConfig {
 
-    private int degree = 4;
+    public static final int DEGREE_L_1 = 1;
+    public static final int DEGREE_L_UNLIMITED = 2;
+    private int degree = DEGREE_L_UNLIMITED;
 
     public int getDegree() {
         return degree;
