@@ -40,8 +40,6 @@ import de.invesdwin.util.math.decimal.scaled.PercentScale;
 public class DecimalAggregateInterpolations<E extends ADecimal<E>> implements IDecimalAggregateInterpolations<E> {
 
     private static final int MIN_NEIGHTBOURS_COUNT = 1;
-    //when choosing params it is best to use around 10 permutations (max 20), thus use that amount for segments
-    private static final int MAX_NEIGHTBOURS_SEGMENTS = 10;
     //actual limit is 1030, but we want to stay safe
     private static final int BEZIER_CURVE_MAX_SIZE = 1000;
     private static final double PUNISH_NEGATIVE_EDGE_FACTOR = 2;
@@ -321,7 +319,7 @@ public class DecimalAggregateInterpolations<E extends ADecimal<E>> implements ID
         final boolean isHigherBetter = config.isHigherBetter();
         final boolean isPunishEdges = config.isPunishEdges() && values.size() >= 5;
         final List<E> robustValues = new ArrayList<>(values.size());
-        final int countNeighbours = Math.max(MIN_NEIGHTBOURS_COUNT, values.size() / MAX_NEIGHTBOURS_SEGMENTS);
+        final int countNeighbours = Math.max(MIN_NEIGHTBOURS_COUNT, values.size() / config.getMaxSegments());
         final double standardDeviation;
         if (isPunishEdges) {
             standardDeviation = new DecimalAggregate<E>(values, converter).sampleStandardDeviation()
