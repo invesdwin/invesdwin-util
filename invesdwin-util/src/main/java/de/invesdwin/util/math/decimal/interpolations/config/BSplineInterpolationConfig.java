@@ -10,7 +10,13 @@ import de.invesdwin.util.math.decimal.Decimal;
 @NotThreadSafe
 public class BSplineInterpolationConfig extends SplineInterpolationConfig {
 
+    /**
+     * This value allows more outliers
+     */
     public static final int DEGREE_L_1 = 1;
+    /**
+     * This is a high enough value for two dimensional spaces to be responsive enough against outliers
+     */
     public static final int DEGREE_L_UNLIMITED = 2;
     private int degree = DEGREE_L_UNLIMITED;
 
