@@ -112,34 +112,24 @@ public class FilteringHistoricalCacheQueryWithFuture<V> extends FilteringHistori
 
     @Override
     public ICloseableIterable<FDate> getNextKeys(final FDate key, final int shiftForwardUnits) {
-        return new ICloseableIterable<FDate>() {
+        /*
+         * need to go directly against getKey so that recursive queries work properly with shift keys delegates
+         */
+        final FDate curKey = getKey(key);
+        if (curKey == null) {
+            return null;
+        }
+        final int adjShiftForwardUnits;
+        if (curKey.isBefore(key)) {
+            adjShiftForwardUnits = shiftForwardUnits + 1;
+        } else {
+            adjShiftForwardUnits = shiftForwardUnits;
+        }
+        final ICloseableIterable<FDate> result = delegate.getNextKeys(curKey, adjShiftForwardUnits);
+        return new ASkippingIterable<FDate>(result) {
             @Override
-            public ICloseableIterator<FDate> iterator() {
-                return new ICloseableIterator<FDate>() {
-
-                    private final ICloseableIterator<Entry<FDate, V>> entriesIterator;
-
-                    {
-                        final ICloseableIterable<Entry<FDate, V>> entries = getNextEntries(key, shiftForwardUnits);
-                        entriesIterator = entries.iterator();
-                    }
-
-                    @Override
-                    public boolean hasNext() {
-                        return entriesIterator.hasNext();
-                    }
-
-                    @Override
-                    public FDate next() {
-                        return entriesIterator.next().getKey();
-                    }
-
-                    @Override
-                    public void close() {
-                        entriesIterator.close();
-                    }
-
-                };
+            protected boolean skip(final FDate element) {
+                return element.isBefore(key);
             }
         };
     }
