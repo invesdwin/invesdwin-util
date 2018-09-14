@@ -112,22 +112,29 @@ public class FilteringHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V
         /*
          * need to go directly against getKey so that recursive queries work properly with shift keys delegates
          */
-        final IHistoricalCacheQueryElementFilter<V> existing = delegate.getThreadLocalElementFilter();
-        delegate.withThreadLocalElementFilter(new IHistoricalCacheQueryElementFilter<V>() {
+        return new AThreadLocalElementFilterCloseableIterable<FDate, V>(delegate) {
 
             @Override
-            public boolean isValid(final FDate valueKey, final V value) {
-                if (valueKey.isAfter(key)) {
-                    return false;
-                }
-                return existing.isValid(valueKey, value);
+            protected IHistoricalCacheQueryElementFilter<V> newWrapper(
+                    final IHistoricalCacheQueryElementFilter<V> existing) {
+                return new IHistoricalCacheQueryElementFilter<V>() {
+
+                    @Override
+                    public boolean isValid(final FDate valueKey, final V value) {
+                        if (valueKey.isAfter(key)) {
+                            return false;
+                        }
+                        return existing.isValid(valueKey, value);
+                    }
+                };
             }
-        });
-        try {
-            return delegate.getPreviousKeys(key, shiftBackUnits);
-        } finally {
-            delegate.withThreadLocalElementFilter(existing);
-        }
+
+            @Override
+            protected ICloseableIterable<FDate> newIterable() {
+                return delegate.getPreviousKeys(key, shiftBackUnits);
+            }
+
+        };
     }
 
     @Override
