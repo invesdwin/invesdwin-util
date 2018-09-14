@@ -36,7 +36,7 @@ public class DefaultHistoricalCacheQueryCore<V> implements IHistoricalCacheQuery
             final HistoricalCacheAssertValue assertValue) {
         V value = parent.getValuesMap().get(key);
         if (value != null) {
-            final IHistoricalCacheQueryElementFilter<V> elementFilter = query.getElementFilterWithThreadLocal();
+            final IHistoricalCacheQueryElementFilter<V> elementFilter = query.getElementFilter();
             if (elementFilter != null && !(elementFilter instanceof DisabledHistoricalCacheQueryElementFilter)) {
                 FDate valueKey = parent.extractKey(key, value);
                 while (!elementFilter.isValid(valueKey, value)) {
@@ -157,7 +157,7 @@ public class DefaultHistoricalCacheQueryCore<V> implements IHistoricalCacheQuery
             final HistoricalCacheAssertValue assertValue) {
         V value = parent.computeValue(key);
         if (value != null) {
-            final IHistoricalCacheQueryElementFilter<V> elementFilter = query.getElementFilterWithThreadLocal();
+            final IHistoricalCacheQueryElementFilter<V> elementFilter = query.getElementFilter();
             if (elementFilter != null && !(elementFilter instanceof DisabledHistoricalCacheQueryElementFilter)) {
                 FDate valueKey = parent.extractKey(key, value);
                 while (!elementFilter.isValid(valueKey, value)) {

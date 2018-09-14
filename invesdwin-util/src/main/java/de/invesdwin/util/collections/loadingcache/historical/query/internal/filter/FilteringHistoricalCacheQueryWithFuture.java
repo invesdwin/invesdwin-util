@@ -46,8 +46,25 @@ public class FilteringHistoricalCacheQueryWithFuture<V> extends FilteringHistori
 
     @Override
     public FDate getNextKey(final FDate key, final int shiftForwardUnits) {
-        final Entry<FDate, V> result = getNextEntry(key, shiftForwardUnits);
-        return HistoricalCacheAssertValue.unwrapEntryKey(result);
+        final FDate curKey = getKey(key);
+        if (curKey == null) {
+            return null;
+        }
+        final int adjShiftForwardUnits;
+        if (curKey.isBefore(key)) {
+            adjShiftForwardUnits = shiftForwardUnits + 1;
+        } else {
+            if (shiftForwardUnits == 0) {
+                return curKey;
+            }
+            adjShiftForwardUnits = shiftForwardUnits;
+        }
+        final FDate result = delegate.getNextKey(curKey, adjShiftForwardUnits);
+        if (result == null || result.isBefore(key)) {
+            return null;
+        } else {
+            return result;
+        }
     }
 
     @Override
@@ -66,10 +83,13 @@ public class FilteringHistoricalCacheQueryWithFuture<V> extends FilteringHistori
         if (curEntry.getKey().isBefore(key)) {
             adjShiftForwardUnits = shiftForwardUnits + 1;
         } else {
+            if (shiftForwardUnits == 0) {
+                return curEntry;
+            }
             adjShiftForwardUnits = shiftForwardUnits;
         }
         final Entry<FDate, V> result = delegate.getNextEntry(curEntry.getKey(), adjShiftForwardUnits);
-        if (result != null && result.getKey().isBefore(key)) {
+        if (result == null || result.getKey().isBefore(key)) {
             return null;
         } else {
             return result;

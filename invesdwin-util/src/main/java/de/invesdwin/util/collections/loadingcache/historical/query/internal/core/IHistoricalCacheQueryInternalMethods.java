@@ -13,10 +13,6 @@ public interface IHistoricalCacheQueryInternalMethods<V> {
 
     IHistoricalCacheQueryElementFilter<V> getElementFilter();
 
-    IHistoricalCacheQueryElementFilter<V> getThreadLocalElementFilter();
-
-    IHistoricalCacheQueryElementFilter<V> getElementFilterWithThreadLocal();
-
     List<Entry<FDate, V>> newEntriesList(int size);
 
     boolean isFilterDuplicateKeys();

@@ -68,13 +68,6 @@ public class AdjustingHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V
     }
 
     @Override
-    public IHistoricalCacheQuery<V> withThreadLocalElementFilter(
-            final IHistoricalCacheQueryElementFilter<V> threadLocalElementFilter) {
-        delegate.withThreadLocalElementFilter(threadLocalElementFilter);
-        return this;
-    }
-
-    @Override
     public IHistoricalCacheQuery<V> withFilterDuplicateKeys(final boolean filterDuplicateKeys) {
         delegate.withFilterDuplicateKeys(filterDuplicateKeys);
         return this;
@@ -290,16 +283,6 @@ public class AdjustingHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V
     @Override
     public IHistoricalCacheQueryElementFilter<V> getElementFilter() {
         return delegate.getElementFilter();
-    }
-
-    @Override
-    public IHistoricalCacheQueryElementFilter<V> getThreadLocalElementFilter() {
-        return delegate.getThreadLocalElementFilter();
-    }
-
-    @Override
-    public IHistoricalCacheQueryElementFilter<V> getElementFilterWithThreadLocal() {
-        return delegate.getElementFilterWithThreadLocal();
     }
 
     @Override
