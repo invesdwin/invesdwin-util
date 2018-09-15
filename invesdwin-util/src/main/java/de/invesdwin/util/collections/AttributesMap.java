@@ -1,4 +1,4 @@
-package de.invesdwin.util.collections.loadingcache.historical;
+package de.invesdwin.util.collections;
 
 import java.util.Collections;
 import java.util.HashMap;

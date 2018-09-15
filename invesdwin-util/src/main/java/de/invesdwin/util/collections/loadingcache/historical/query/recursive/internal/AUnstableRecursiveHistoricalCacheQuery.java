@@ -3,8 +3,6 @@ package de.invesdwin.util.collections.loadingcache.historical.query.recursive.in
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-import java.util.concurrent.Callable;
-import java.util.concurrent.atomic.AtomicReference;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
@@ -14,11 +12,8 @@ import com.google.common.collect.PeekingIterator;
 
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.eviction.EvictionMode;
-import de.invesdwin.util.collections.iterable.LimitingIterable;
 import de.invesdwin.util.collections.loadingcache.ALoadingCache;
-import de.invesdwin.util.collections.loadingcache.historical.AGapHistoricalCache;
 import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
-import de.invesdwin.util.collections.loadingcache.historical.AttributesMap;
 import de.invesdwin.util.collections.loadingcache.historical.listener.IHistoricalCacheOnClearListener;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQuery;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQueryWithFuture;
@@ -34,19 +29,15 @@ import de.invesdwin.util.time.fdate.FDate;
 @ThreadSafe
 public abstract class AUnstableRecursiveHistoricalCacheQuery<V> implements IRecursiveHistoricalCacheQuery<V> {
 
-    private static final String ATTR_FULL_RECURSION_KEYS_CACHE = AUnstableRecursiveHistoricalCacheQuery.class
-            .getSimpleName() + "_fullRecursionKeysCache";
-    private static final String ATTR_FULL_RECURSION_KEYS_QUERY_WITH_FUTURE = AUnstableRecursiveHistoricalCacheQuery.class
-            .getSimpleName() + "fullRecursionKeysQueryWithFuture";
-    private static final int FULL_RECURSION_COUNT_MULTIPLIER = 2;
     private final AHistoricalCache<V> parent;
     private final int recursionCount;
     private final int unstableRecursionCount;
 
     private final IHistoricalCacheQuery<V> parentQuery;
+    private final IHistoricalCacheQueryWithFuture<V> parentQueryWithFuture;
 
-    private final int fullRecursionCount;
-    private final AtomicReference<IHistoricalCacheQueryWithFuture<FDate>> fullRecursionKeysQueryWithFuture;
+    private final AHistoricalCache<FullRecursionKeysResult> fullRecursionKeysResults;
+    private final IHistoricalCacheQuery<FullRecursionKeysResult> fullRecursionKeysResultsQueryWithFutureNull;
 
     @GuardedBy("parent")
     private FDate firstAvailableKey;
@@ -75,6 +66,7 @@ public abstract class AUnstableRecursiveHistoricalCacheQuery<V> implements IRecu
         }
         this.unstableRecursionCount = unstableRecursionCount;
         this.parentQuery = parent.query();
+        this.parentQueryWithFuture = parent.query().withFuture();
         this.cachedRecursionResults = new ALoadingCache<FDate, V>() {
             @Override
             protected V loadValue(final FDate key) {
@@ -100,56 +92,11 @@ public abstract class AUnstableRecursiveHistoricalCacheQuery<V> implements IRecu
                     }
                 }
             }
-
         }));
-        this.fullRecursionCount = recursionCount + unstableRecursionCount;
-        this.fullRecursionKeysQueryWithFuture = newFullRecursionKeysCacheQueryWithFuture(parent);
-    }
 
-    private AtomicReference<IHistoricalCacheQueryWithFuture<FDate>> newFullRecursionKeysCacheQueryWithFuture(
-            final AHistoricalCache<V> parent) {
-        final AHistoricalCache<?> shiftKeyParent = getShiftKeyParentRoot(parent);
-        final AttributesMap attributesMap = shiftKeyParent.getAttributesMap();
-        synchronized (attributesMap) {
-            final Callable<FullRecursionKeysCache> factory = new Callable<FullRecursionKeysCache>() {
-                @Override
-                public FullRecursionKeysCache call() throws Exception {
-                    return new FullRecursionKeysCache(shiftKeyParent);
-                }
-            };
-            final FullRecursionKeysCache cache = attributesMap.getOrCreate(ATTR_FULL_RECURSION_KEYS_CACHE, factory);
-            final AtomicReference<IHistoricalCacheQueryWithFuture<FDate>> query = attributesMap.getOrCreate(
-                    ATTR_FULL_RECURSION_KEYS_QUERY_WITH_FUTURE,
-                    new Callable<AtomicReference<IHistoricalCacheQueryWithFuture<FDate>>>() {
-                        @Override
-                        public AtomicReference<IHistoricalCacheQueryWithFuture<FDate>> call() throws Exception {
-                            return new AtomicReference<>();
-                        }
-                    });
-            if (cache.getInitialMaximumSize() < fullRecursionCount * FULL_RECURSION_COUNT_MULTIPLIER) {
-                //increase size
-                try {
-                    final AUnstableRecursiveHistoricalCacheQuery<V>.FullRecursionKeysCache largerCache = factory.call();
-                    attributesMap.put(ATTR_FULL_RECURSION_KEYS_CACHE, largerCache);
-                    query.set(largerCache.query().withFuture());
-                } catch (final Exception e) {
-                    throw new RuntimeException(e);
-                }
-            }
-            return query;
-        }
-    }
-
-    private AHistoricalCache<?> getShiftKeyParentRoot(final AHistoricalCache<V> parent) {
-        AHistoricalCache<?> root = parent;
-        while (true) {
-            final AHistoricalCache<?> newRoot = root.getShiftKeyProvider().getParent();
-            if (newRoot == root) {
-                return root;
-            } else {
-                root = newRoot;
-            }
-        }
+        this.fullRecursionKeysResults = new FullRecursionKeysCache(parent.getShiftKeyProvider().getParent(),
+                recursionCount + unstableRecursionCount);
+        this.fullRecursionKeysResultsQueryWithFutureNull = fullRecursionKeysResults.query().withFutureNull();
     }
 
     @Override
@@ -203,7 +150,10 @@ public abstract class AUnstableRecursiveHistoricalCacheQuery<V> implements IRecu
             }
             recursionInProgress = true;
             try {
-                return cachedRecursionResults.get(fullRecursionKeysQueryWithFuture.get().getKey(previousKey));
+                if (parent.containsKey(previousKey)) {
+                    return parentQuery.getValue(previousKey);
+                }
+                return cachedRecursionResults.get(parentQueryWithFuture.getKey(previousKey));
             } finally {
                 cachedRecursionResults.clear();
                 recursionInProgress = false;
@@ -244,7 +194,7 @@ public abstract class AUnstableRecursiveHistoricalCacheQuery<V> implements IRecu
 
     protected FDate getFirstAvailableKey() {
         if (firstAvailableKey == null && !firstAvailableKeyRequested) {
-            this.firstAvailableKey = fullRecursionKeysQueryWithFuture.get().getKey(FDate.MIN_DATE);
+            this.firstAvailableKey = parentQueryWithFuture.getKey(FDate.MIN_DATE);
             firstAvailableKeyRequested = true;
         }
         return firstAvailableKey;
@@ -270,7 +220,7 @@ public abstract class AUnstableRecursiveHistoricalCacheQuery<V> implements IRecu
         if (shouldUseInitialValueInsteadOfFullRecursion()) {
             return null;
         } else {
-            return fullRecursionKeysQueryWithFuture.get().getPreviousKeys(from, fullRecursionCount).iterator();
+            return fullRecursionKeysResultsQueryWithFutureNull.getValue(from).getFullRecursionKeys();
         }
     }
 
@@ -278,44 +228,6 @@ public abstract class AUnstableRecursiveHistoricalCacheQuery<V> implements IRecu
 
     protected boolean shouldUseInitialValueInsteadOfFullRecursion() {
         return ARecursiveHistoricalCacheQuery.DEFAULT_SHOULD_USE_INITIAL_VALUE_INSTEAD_OF_FULL_RECURSION;
-    }
-
-    private final class FullRecursionKeysCache extends AGapHistoricalCache<FDate> {
-
-        private final AHistoricalCache<?> delegate;
-        private final IHistoricalCacheQueryWithFuture<?> delegateQueryWithFuture;
-
-        FullRecursionKeysCache(final AHistoricalCache<?> delegate) {
-            this.delegate = delegate;
-            setAdjustKeyProvider(delegate.getAdjustKeyProvider());
-            this.delegateQueryWithFuture = delegate.query().withFuture();
-        }
-
-        @Override
-        public Integer getInitialMaximumSize() {
-            return fullRecursionCount * FULL_RECURSION_COUNT_MULTIPLIER;
-        }
-
-        @Override
-        protected FDate innerExtractKey(final FDate key, final FDate value) {
-            return value;
-        }
-
-        @Override
-        protected FDate innerCalculatePreviousKey(final FDate key) {
-            //no need to go against storage for this
-            return key.addMilliseconds(-1);
-        }
-
-        @Override
-        protected Iterable<? extends FDate> readAllValuesAscendingFrom(final FDate key) {
-            return new LimitingIterable<>(delegateQueryWithFuture.getKeys(key, null), DEFAULT_RETRIEVAL_COUNT);
-        }
-
-        @Override
-        protected FDate readLatestValueFor(final FDate key) {
-            return delegateQueryWithFuture.getKey(key);
-        }
     }
 
 }

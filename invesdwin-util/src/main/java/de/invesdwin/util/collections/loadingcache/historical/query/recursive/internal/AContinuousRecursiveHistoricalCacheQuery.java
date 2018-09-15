@@ -178,6 +178,9 @@ public abstract class AContinuousRecursiveHistoricalCacheQuery<V> implements IRe
             }
             recursionInProgress = true;
             try {
+                if (parent.containsKey(previousKey)) {
+                    return parentQuery.getValue(previousKey);
+                }
                 return cachedRecursionResults.get(parentQueryWithFuture.getKey(previousKey));
             } finally {
                 recursionInProgress = false;

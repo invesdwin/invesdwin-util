@@ -7,7 +7,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.function.Function;
 
-import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
 import org.assertj.core.description.TextDescription;
@@ -103,9 +102,6 @@ public abstract class AHistoricalCache<V> {
     };
     private volatile boolean refreshRequested;
 
-    @GuardedBy("this")
-    private AttributesMap attributesMap;
-
     public AHistoricalCache() {}
 
     /**
@@ -118,13 +114,6 @@ public abstract class AHistoricalCache<V> {
 
     public static boolean isDebugAutomaticReoptimization() {
         return debugAutomaticReoptimization;
-    }
-
-    public synchronized AttributesMap getAttributesMap() {
-        if (attributesMap == null) {
-            attributesMap = new AttributesMap();
-        }
-        return attributesMap;
     }
 
     @Override
