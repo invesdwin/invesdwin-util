@@ -34,6 +34,7 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
     private int countResets = 0;
     private final DefaultHistoricalCacheQueryCore<V> delegate;
     private volatile Integer maximumSize;
+    @GuardedBy("this")
     private final List<Entry<FDate, V>> cachedPreviousEntries = new ArrayList<>();
     @GuardedBy("this")
     private FDate cachedPreviousEntriesKey = null;
