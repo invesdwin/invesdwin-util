@@ -1,6 +1,7 @@
 package de.invesdwin.util.collections.loadingcache.historical.query.internal.core;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map.Entry;
 
@@ -426,15 +427,19 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
         //go through query as long as we found the first entry in the cache
         final GetPreviousEntryQueryImpl<V> impl = new GetPreviousEntryQueryImpl<V>(this, query, key, shiftBackUnits);
         final FDate lastCachedEntryKey = getLastCachedEntry().getKey();
+        final List<Entry<FDate, V>> trailingReverse;
+        if (trailing.isEmpty()) {
+            trailingReverse = trailing;
+        } else {
+            trailingReverse = query.newEntriesList(shiftBackUnits);
+        }
         while (unitsBack >= 0 && !impl.iterationFinished()) {
             final Entry<FDate, V> value = impl.getResult();
             if (value != null) {
                 if (value.getKey().equals(lastCachedEntryKey)) {
                     break; //continue with fillFromCacheAsFarAsPossible
                 } else {
-                    final int sizeBefore = trailing.size();
-                    trailing.add(0, value);
-                    if (sizeBefore != trailing.size()) {
+                    if (trailingReverse.add(value)) {
                         unitsBack--;
                     } else {
                         unitsBack = -1; //break
@@ -443,6 +448,10 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
             } else {
                 unitsBack = -1; //break
             }
+        }
+        Collections.reverse(trailingReverse);
+        if (trailing != trailingReverse) {
+            trailing.addAll(0, trailingReverse);
         }
         return unitsBack;
     }
@@ -591,18 +600,22 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
                 unitsBack + skipFirstValueIncrement);
         impl.setIterations(skipFirstValueIncrement);
         int newUnitsBack = unitsBack;
-        newUnitsBack = fillFromQuery(trailing, impl, newUnitsBack);
+        newUnitsBack = fillFromQuery(query, trailing, impl, newUnitsBack);
     }
 
-    private int fillFromQuery(final List<Entry<FDate, V>> trailing, final GetPreviousEntryQueryImpl<V> impl,
-            final int unitsBack) {
+    private int fillFromQuery(final IHistoricalCacheQueryInternalMethods<V> query, final List<Entry<FDate, V>> trailing,
+            final GetPreviousEntryQueryImpl<V> impl, final int unitsBack) {
         int newUnitsBack = unitsBack;
+        final List<Entry<FDate, V>> trailingReverse;
+        if (trailing.isEmpty()) {
+            trailingReverse = trailing;
+        } else {
+            trailingReverse = query.newEntriesList(unitsBack);
+        }
         while (newUnitsBack >= 0 && !impl.iterationFinished()) {
             final Entry<FDate, V> value = impl.getResult();
             if (value != null) {
-                final int sizeBefore = trailing.size();
-                trailing.add(0, value);
-                if (sizeBefore == trailing.size()) {
+                if (!trailingReverse.add(value)) {
                     newUnitsBack = -1; //break
                     break;
                 }
@@ -610,6 +623,10 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
                 break;
             }
             newUnitsBack--;
+        }
+        Collections.reverse(trailingReverse);
+        if (trailing != trailingReverse) {
+            trailing.addAll(0, trailingReverse);
         }
         return newUnitsBack;
     }
@@ -624,7 +641,7 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
             final int shiftBackUnits, final FDate key, final List<Entry<FDate, V>> trailing) {
         final GetPreviousEntryQueryImpl<V> impl = new GetPreviousEntryQueryImpl<V>(this, query, key, shiftBackUnits);
         int unitsBack = shiftBackUnits - 1;
-        unitsBack = fillFromQuery(trailing, impl, unitsBack);
+        unitsBack = fillFromQuery(query, trailing, impl, unitsBack);
         replaceCachedEntries(key, trailing);
         return trailing;
     }
