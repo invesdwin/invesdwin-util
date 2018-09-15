@@ -1091,8 +1091,8 @@ public class AGapHistoricalCacheWithNoCacheTest {
             Assertions.assertThat(previousValue).isEqualTo(expectedValue);
         }
         Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(7);
-        Assertions.assertThat(countReadNewestValueTo).isEqualTo(13);
-        Assertions.assertThat(countInnerExtractKey).isEqualTo(86);
+        Assertions.assertThat(countReadNewestValueTo).isEqualTo(8);
+        Assertions.assertThat(countInnerExtractKey).isEqualTo(66);
         Assertions.assertThat(countAdjustKey).isEqualTo(0);
     }
 
