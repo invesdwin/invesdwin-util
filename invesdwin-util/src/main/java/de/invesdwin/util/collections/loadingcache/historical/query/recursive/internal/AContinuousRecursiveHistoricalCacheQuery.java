@@ -156,7 +156,7 @@ public abstract class AContinuousRecursiveHistoricalCacheQuery<V> implements IRe
                 //no data found
                 return null;
             }
-            if (previousKey.isBeforeOrEqualTo(firstAvailableKey)) {
+            if (previousKey == null || previousKey.isBeforeOrEqualTo(firstAvailableKey)) {
                 return getInitialValue(previousKey);
             }
 

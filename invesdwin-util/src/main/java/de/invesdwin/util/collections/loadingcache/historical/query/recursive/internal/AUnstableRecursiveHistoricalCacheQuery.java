@@ -132,7 +132,7 @@ public abstract class AUnstableRecursiveHistoricalCacheQuery<V> implements IRecu
                 //no data found
                 return null;
             }
-            if (previousKey.isBeforeOrEqualTo(firstAvailableKey)) {
+            if (previousKey == null || previousKey.isBeforeOrEqualTo(firstAvailableKey)) {
                 return getInitialValue(previousKey);
             }
 
