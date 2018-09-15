@@ -3,12 +3,10 @@ package de.invesdwin.util.collections.loadingcache.historical.query.internal.cor
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.SortedMap;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
-import org.apache.commons.lang3.mutable.MutableInt;
 import org.assertj.core.util.Lists;
 
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
@@ -22,7 +20,6 @@ import de.invesdwin.util.collections.loadingcache.historical.query.internal.core
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.time.fdate.FDate;
-import uk.co.omegaprime.btreemap.LongObjectBTreeMap;
 
 @ThreadSafe
 public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryCore<V> {
@@ -37,10 +34,6 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
     private final DefaultHistoricalCacheQueryCore<V> delegate;
     private volatile Integer maximumSize;
     private final List<Entry<FDate, V>> cachedPreviousEntries = new ArrayList<>();
-    @GuardedBy("this")
-    //CHECKSTYLE:OFF
-    private final LongObjectBTreeMap<MutableInt> cachedPreviousEntriesIndex = LongObjectBTreeMap.create();
-    //CHECKSTYLE:ON
     @GuardedBy("this")
     private FDate cachedPreviousEntriesKey = null;
     @GuardedBy("this")
@@ -456,7 +449,6 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
 
     private void prependCachedEntries(final FDate key, final List<Entry<FDate, V>> trailing,
             final int trailingCountFoundInCache) throws ResetCacheException {
-        int prependCount = 0;
         for (int i = trailing.size() - trailingCountFoundInCache - 1; i >= 0; i--) {
             final Entry<FDate, V> prependEntry = trailing.get(i);
             if (!cachedPreviousEntries.isEmpty()) {
@@ -467,7 +459,6 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
                 }
             }
             cachedPreviousEntries.add(0, prependEntry);
-            prependCount++;
         }
         if (maximumSize != null) {
             maybeIncreaseMaximumSize(trailing.size());
@@ -478,18 +469,10 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
                  * back and will live with the cost of loading again the current values next time
                  */
                 cachedPreviousEntries.remove(cachedPreviousEntries.size() - 1);
-                cachedPreviousEntriesIndex.pollLastEntry();
             }
             //reset cached results and set new marker so that we don't go accidentally into sameKey algorithm
             resetCachedPreviousResult();
             cachedPreviousEntriesKey = getLastCachedEntry().getKey();
-        }
-        //update index
-        for (final MutableInt index : cachedPreviousEntriesIndex.values()) {
-            index.add(prependCount);
-        }
-        for (int i = prependCount - 1; i >= 0; i--) {
-            cachedPreviousEntriesIndex.put(cachedPreviousEntries.get(i).getKey().millisValue(), new MutableInt(i));
         }
     }
 
@@ -510,19 +493,9 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
         if (maximumSize != null) {
             maybeIncreaseMaximumSize(trailing.size());
             //ensure we stay in size limit
-            int removedCount = 0;
             while (cachedPreviousEntries.size() > maximumSize) {
                 cachedPreviousEntries.remove(0);
-                cachedPreviousEntriesIndex.pollFirstEntry();
-                removedCount++;
             }
-            //update index
-            for (final MutableInt index : cachedPreviousEntriesIndex.values()) {
-                index.subtract(removedCount);
-            }
-        }
-        for (int i = cachedPreviousEntriesIndex.size(); i < cachedPreviousEntries.size(); i++) {
-            cachedPreviousEntriesIndex.put(cachedPreviousEntries.get(i).getKey().millisValue(), new MutableInt(i));
         }
     }
 
@@ -537,8 +510,6 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
             }
 
             cachedPreviousEntries.add(latestEntry);
-            cachedPreviousEntriesIndex.put(latestEntry.getKey().millisValue(),
-                    new MutableInt(cachedPreviousEntries.size() - 1));
 
             if (cachedPreviousResult_shiftBackUnits < shiftBackUnits) {
                 //we added one more element and there is still demand for more
@@ -562,19 +533,10 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
 
             if (maximumSize != null) {
                 //ensure we stay in size limit
-                int removedCount = 0;
                 while (cachedPreviousEntries.size() > maximumSize) {
                     cachedPreviousEntries.remove(0);
-                    removedCount++;
-                }
-                //update index
-                for (final MutableInt index : cachedPreviousEntriesIndex.values()) {
-                    index.subtract(removedCount);
                 }
             }
-        }
-        for (int i = cachedPreviousEntriesIndex.size(); i < cachedPreviousEntries.size(); i++) {
-            cachedPreviousEntriesIndex.put(cachedPreviousEntries.get(i).getKey().millisValue(), new MutableInt(i));
         }
         cachedPreviousEntriesKey = key;
     }
@@ -590,11 +552,7 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
         }
         maybeIncreaseMaximumSize(trailing.size());
         cachedPreviousEntries.clear();
-        cachedPreviousEntriesIndex.clear();
         cachedPreviousEntries.addAll(trailing);
-        for (int i = cachedPreviousEntriesIndex.size(); i < cachedPreviousEntries.size(); i++) {
-            cachedPreviousEntriesIndex.put(cachedPreviousEntries.get(i).getKey().millisValue(), new MutableInt(i));
-        }
         cachedPreviousEntriesKey = key;
         resetCachedPreviousResult();
     }
@@ -674,14 +632,14 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
     private int fillFromCacheAsFarAsPossible(final List<Entry<FDate, V>> trailing, final int unitsBack,
             final FDate skippingKeysAbove) throws ResetCacheException {
         //prefill what is possible and add suffixes by query as needed
-        final SortedMap<Long, MutableInt> headMap;
-        if (skippingKeysAbove == null) {
-            headMap = cachedPreviousEntriesIndex.descendingMap();
+        final int cachedToIndex;
+        if (skippingKeysAbove != null) {
+            cachedToIndex = bisect(skippingKeysAbove);
         } else {
-            headMap = cachedPreviousEntriesIndex.descendingMap().tailMap(skippingKeysAbove.millisValue());
+            cachedToIndex = cachedPreviousEntries.size() - 1;
         }
 
-        final int toIndex = headMap.values().iterator().next().intValue() + 1;
+        final int toIndex = cachedToIndex + 1;
         final int fromIndex = Math.max(0, toIndex - unitsBack - 1);
         final int size = toIndex - fromIndex;
         final int newUnitsBack = unitsBack - size;
@@ -689,6 +647,104 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
 
         return newUnitsBack;
     }
+
+    private int bisect(final FDate skippingKeysAbove) {
+        int lo = 0;
+        int hi = cachedPreviousEntries.size();
+        while (lo < hi) {
+            final int mid = (lo + hi) / 2;
+            //if (x < list.get(mid)) {
+            final int compareTo = cachedPreviousEntries.get(mid).getKey().compareTo(skippingKeysAbove);
+            if (compareTo == 0) {
+                return mid;
+            } else if (compareTo > 0) {
+                hi = mid;
+            } else {
+                lo = mid + 1;
+            }
+        }
+        if (cachedPreviousEntries.get(lo).getKey().isAfter(skippingKeysAbove)) {
+            return lo - 1;
+        } else {
+            return lo;
+        }
+    }
+
+    //the following logic is inverse and needs to be reversed before being reused:
+    //    //CHECKSTYLE:OFF
+    //    private int narrowCachedToIndex(final int unitsBack, final FDate skippingKeysAbove) throws ResetCacheException {
+    //        //CHECKSTYLE:ON
+    //        int cachedIndex = 0;
+    //        final int lowestTimeIndex = cachedPreviousEntries.size() - 1;
+    //        final FDate lowestTime = cachedPreviousEntries.get(lowestTimeIndex).getKey();
+    //        if (skippingKeysAbove.isBeforeOrEqualTo(lowestTime) && lowestTimeIndex > maxCachedIndex) {
+    //            throw new ResetCacheException("Not enough data in cache for fillFromCacheAsFarAsPossible [" + unitsBack
+    //                    + "/" + maxCachedIndex + "/" + lowestTimeIndex + "]");
+    //        }
+    //
+    //        boolean foundFast = false;
+    //        while (cachedIndex < cachedPreviousEntries.size()) {
+    //            if (cachedPreviousEntries.get(cachedIndex).getKey().isAfter(skippingKeysAbove)) {
+    //                cachedIndex++;
+    //                if (cachedIndex > 10) {
+    //                    break;
+    //                }
+    //            } else {
+    //                foundFast = true;
+    //                break;
+    //            }
+    //        }
+    //
+    //        if (!foundFast) {
+    //            int highestTimeIndex = cachedIndex;
+    //            FDate highestTime = cachedPreviousEntries.get(highestTimeIndex).getKey();
+    //            int countTryToNarrow = 0;
+    //            while (countTryToNarrow < 10) {
+    //                final double scanDuration = new Duration(lowestTime, highestTime).doubleValue(FTimeUnit.MILLISECONDS);
+    //                final double skipDuration = new Duration(skippingKeysAbove, highestTime)
+    //                        .doubleValue(FTimeUnit.MILLISECONDS);
+    //                boolean changed = false;
+    //                for (int divisor = 1; divisor < 10; divisor++) {
+    //                    final double skipRate = skipDuration / scanDuration / divisor;
+    //                    final int indexRange = lowestTimeIndex - highestTimeIndex;
+    //                    final int skipIndexRange = (int) (indexRange * skipRate);
+    //                    if (skipIndexRange < 10) {
+    //                        //abort since we cannot skip enough to be useful
+    //                        break;
+    //                    }
+    //                    final int guessHighestTimeIndex = highestTimeIndex + skipIndexRange;
+    //                    if (guessHighestTimeIndex == highestTimeIndex) {
+    //                        //abort since the guess did not change anything
+    //                        break;
+    //                    }
+    //                    final FDate guessHighestTime = cachedPreviousEntries.get(guessHighestTimeIndex).getKey();
+    //                    if (guessHighestTime.isAfterOrEqualTo(skippingKeysAbove)) {
+    //                        //we could skip a bit, remember that
+    //                        highestTimeIndex = guessHighestTimeIndex;
+    //                        highestTime = guessHighestTime;
+    //                        changed = true;
+    //                        break;
+    //                    }
+    //                }
+    //                if (!changed) {
+    //                    break;
+    //                }
+    //                countTryToNarrow++;
+    //            }
+    //            if (lowestTimeIndex < highestTimeIndex) {
+    //                throw new IllegalStateException("Inverted results should not happen");
+    //            }
+    //            cachedIndex = highestTimeIndex;
+    //            while (cachedIndex <= lowestTimeIndex) {
+    //                if (cachedPreviousEntries.get(cachedIndex).getKey().isAfter(skippingKeysAbove)) {
+    //                    cachedIndex++;
+    //                } else {
+    //                    break;
+    //                }
+    //            }
+    //        }
+    //        return cachedIndex;
+    //    }
 
     private Entry<FDate, V> getLastCachedEntry() throws ResetCacheException {
         if (cachedPreviousEntries.isEmpty()) {
