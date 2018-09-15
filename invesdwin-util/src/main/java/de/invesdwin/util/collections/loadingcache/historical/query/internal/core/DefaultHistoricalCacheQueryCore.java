@@ -1,6 +1,5 @@
 package de.invesdwin.util.collections.loadingcache.historical.query.internal.core;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map.Entry;
 
@@ -97,14 +96,15 @@ public class DefaultHistoricalCacheQueryCore<V> implements IHistoricalCacheQuery
         for (int unitsBack = shiftBackUnits - 1; unitsBack >= 0 && !impl.iterationFinished(); unitsBack--) {
             final Entry<FDate, V> value = impl.getResult();
             if (value != null) {
-                if (!trailing.add(value)) {
+                final int sizeBefore = trailing.size();
+                trailing.add(0, value);
+                if (sizeBefore == trailing.size()) {
                     break;
                 }
             } else {
                 break;
             }
         }
-        Collections.reverse(trailing);
         return WrapperCloseableIterable.maybeWrap(trailing);
     }
 
