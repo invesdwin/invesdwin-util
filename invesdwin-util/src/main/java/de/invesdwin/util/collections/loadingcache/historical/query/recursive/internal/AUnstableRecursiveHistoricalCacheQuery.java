@@ -51,6 +51,7 @@ public abstract class AUnstableRecursiveHistoricalCacheQuery<V> implements IRecu
     private FDate lastRecursionKey;
 
     //cache separately since the parent could encounter more evictions than this internal cache
+    private FDate cachedRecursionResultsKey = FDate.MIN_DATE;
     private final ALoadingCache<FDate, V> cachedRecursionResults;
 
     public AUnstableRecursiveHistoricalCacheQuery(final AHistoricalCache<V> parent, final int recursionCount,
@@ -150,12 +151,16 @@ public abstract class AUnstableRecursiveHistoricalCacheQuery<V> implements IRecu
             }
             recursionInProgress = true;
             try {
-                if (parent.containsKey(previousKey)) {
-                    return parentQuery.getValue(previousKey);
+                if (!cachedRecursionResultsKey.equals(key)) {
+                    /*
+                     * serve multiple requests for the same key with the same cached results; unstable period should
+                     * allow for one or two previous values as a buffer without increasing the actual lookback
+                     */
+                    cachedRecursionResults.clear();
+                    cachedRecursionResultsKey = key;
                 }
                 return cachedRecursionResults.get(parentQueryWithFuture.getKey(previousKey));
             } finally {
-                cachedRecursionResults.clear();
                 recursionInProgress = false;
             }
         }
