@@ -28,6 +28,12 @@ import de.invesdwin.util.time.fdate.FTimeUnit;
 public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
 
     /**
+     * 1k performs better than 10k because we get less often pauses from GC, this compensates for the additional file
+     * seeks
+     */
+    public static final int DEFAULT_RETRIEVAL_COUNT = 1_000;
+
+    /**
      * 10 days is a good value for daily caches.
      */
     public static final long DEFAULT_READ_BACK_STEP_MILLIS = new Duration(10, FTimeUnit.DAYS)

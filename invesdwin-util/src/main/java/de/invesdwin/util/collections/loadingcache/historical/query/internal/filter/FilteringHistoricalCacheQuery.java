@@ -6,7 +6,6 @@ import java.util.Map.Entry;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.assertions.Assertions;
-import de.invesdwin.util.collections.iterable.ASkippingIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQuery;
@@ -96,7 +95,7 @@ public class FilteringHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V
          * need to go directly against getKey so that recursive queries work properly with shift keys delegates
          */
         final ICloseableIterable<FDate> result = delegate.getPreviousKeys(key, shiftBackUnits);
-        return new ASkippingIterable<FDate>(result) {
+        return new AFilterSkippingIterable<FDate>(result) {
             @Override
             protected boolean skip(final FDate element) {
                 return element.isAfter(key);
@@ -123,7 +122,7 @@ public class FilteringHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V
     @Override
     public ICloseableIterable<Entry<FDate, V>> getPreviousEntries(final FDate key, final int shiftBackUnits) {
         final ICloseableIterable<Entry<FDate, V>> result = delegate.getPreviousEntries(key, shiftBackUnits);
-        return new ASkippingIterable<Entry<FDate, V>>(result) {
+        return new AFilterSkippingIterable<Entry<FDate, V>>(result) {
             @Override
             protected boolean skip(final Entry<FDate, V> element) {
                 return element.getKey().isAfter(key);
@@ -167,7 +166,7 @@ public class FilteringHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V
 
     @Override
     public ICloseableIterable<FDate> getKeys(final FDate from, final FDate to) {
-        return new ASkippingIterable<FDate>(delegate.getKeys(from, to)) {
+        return new AFilterSkippingIterable<FDate>(delegate.getKeys(from, to)) {
             @Override
             protected boolean skip(final FDate element) {
                 if (element.isAfter(to)) {
@@ -183,7 +182,7 @@ public class FilteringHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V
 
     @Override
     public ICloseableIterable<Entry<FDate, V>> getEntries(final FDate from, final FDate to) {
-        return new ASkippingIterable<Entry<FDate, V>>(delegate.getEntries(from, to)) {
+        return new AFilterSkippingIterable<Entry<FDate, V>>(delegate.getEntries(from, to)) {
             @Override
             protected boolean skip(final Entry<FDate, V> element) {
                 if (element.getKey().isAfter(to)) {

@@ -4,7 +4,6 @@ import java.util.Map.Entry;
 
 import javax.annotation.concurrent.Immutable;
 
-import de.invesdwin.util.collections.iterable.ASkippingIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQueryElementFilter;
@@ -146,7 +145,7 @@ public class FilteringHistoricalCacheQueryWithFuture<V> extends FilteringHistori
             adjShiftForwardUnits = shiftForwardUnits;
         }
         final ICloseableIterable<FDate> result = delegate.getNextKeys(curKey, adjShiftForwardUnits);
-        return new ASkippingIterable<FDate>(result) {
+        return new AFilterSkippingIterable<FDate>(result) {
             @Override
             protected boolean skip(final FDate element) {
                 return element.isBefore(key);
@@ -168,7 +167,7 @@ public class FilteringHistoricalCacheQueryWithFuture<V> extends FilteringHistori
         }
         final ICloseableIterable<Entry<FDate, V>> result = delegate.getNextEntries(curEntry.getKey(),
                 adjShiftForwardUnits);
-        return new ASkippingIterable<Entry<FDate, V>>(result) {
+        return new AFilterSkippingIterable<Entry<FDate, V>>(result) {
             @Override
             protected boolean skip(final Entry<FDate, V> element) {
                 return element.getKey().isBefore(key);
