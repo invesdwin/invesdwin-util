@@ -84,7 +84,7 @@ public abstract class AUnstableRecursiveHistoricalCacheQuery<V> implements IRecu
                 return AHistoricalCache.EVICTION_MODE;
             }
         };
-        Assertions.checkTrue(parent.getOnClearListeners().add(new IHistoricalCacheOnClearListener() {
+        Assertions.checkTrue(parent.registerOnClearListener(new IHistoricalCacheOnClearListener() {
             @Override
             public void onClear() {
                 synchronized (AUnstableRecursiveHistoricalCacheQuery.this.parent) {
@@ -95,9 +95,11 @@ public abstract class AUnstableRecursiveHistoricalCacheQuery<V> implements IRecu
             }
         }));
 
+        final int fullRecursionCount = recursionCount + unstableRecursionCount;
         this.fullRecursionKeysResults = new FullRecursionKeysCache(parent.getShiftKeyProvider().getParent(),
-                recursionCount + unstableRecursionCount);
+                fullRecursionCount);
         this.fullRecursionKeysResultsQueryWithFutureNull = fullRecursionKeysResults.query().withFutureNull();
+        parent.increaseMaximumSize(fullRecursionCount * 2, "fullRecursionCount");
     }
 
     @Override

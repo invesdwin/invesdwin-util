@@ -104,7 +104,7 @@ public abstract class AContinuousRecursiveHistoricalCacheQuery<V> implements IRe
                 return AHistoricalCache.EVICTION_MODE;
             }
         };
-        Assertions.checkTrue(parent.getOnClearListeners().add(new IHistoricalCacheOnClearListener() {
+        Assertions.checkTrue(parent.registerOnClearListener(new IHistoricalCacheOnClearListener() {
             @Override
             public void onClear() {
                 synchronized (AContinuousRecursiveHistoricalCacheQuery.this.parent) {
@@ -113,8 +113,8 @@ public abstract class AContinuousRecursiveHistoricalCacheQuery<V> implements IRe
                     }
                 }
             }
-
         }));
+        parent.increaseMaximumSize(recursionCount, "recursionCount");
     }
 
     @Override

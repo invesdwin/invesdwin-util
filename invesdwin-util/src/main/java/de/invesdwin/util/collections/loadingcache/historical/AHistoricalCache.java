@@ -1,18 +1,18 @@
 package de.invesdwin.util.collections.loadingcache.historical;
 
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
+import java.util.Collections;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.ConcurrentMap;
 import java.util.function.Function;
 
 import javax.annotation.concurrent.ThreadSafe;
 
 import org.assertj.core.description.TextDescription;
 
+import com.github.benmanes.caffeine.cache.Caffeine;
+
 import de.invesdwin.util.assertions.Assertions;
-import de.invesdwin.util.collections.concurrent.AFastIterableDelegateSet;
 import de.invesdwin.util.collections.eviction.EvictionMode;
 import de.invesdwin.util.collections.loadingcache.ADelegateLoadingCache;
 import de.invesdwin.util.collections.loadingcache.ALoadingCache;
@@ -27,8 +27,8 @@ import de.invesdwin.util.collections.loadingcache.historical.key.internal.Delega
 import de.invesdwin.util.collections.loadingcache.historical.key.internal.DelegateHistoricalCacheShiftKeyProvider;
 import de.invesdwin.util.collections.loadingcache.historical.key.internal.IHistoricalCacheExtractKeyProvider;
 import de.invesdwin.util.collections.loadingcache.historical.key.internal.IHistoricalCacheShiftKeyProvider;
+import de.invesdwin.util.collections.loadingcache.historical.listener.IHistoricalCacheIncreaseMaximumSizeListener;
 import de.invesdwin.util.collections.loadingcache.historical.listener.IHistoricalCacheOnClearListener;
-import de.invesdwin.util.collections.loadingcache.historical.listener.IHistoricalCacheOnValueLoadedListener;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQuery;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.HistoricalCacheQuery;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.IHistoricalCacheInternalMethods;
@@ -39,7 +39,7 @@ import de.invesdwin.util.collections.loadingcache.historical.refresh.HistoricalC
 import de.invesdwin.util.time.fdate.FDate;
 
 @ThreadSafe
-public abstract class AHistoricalCache<V> {
+public abstract class AHistoricalCache<V> implements IHistoricalCacheIncreaseMaximumSizeListener {
 
     public static final Integer DISABLED_MAXIMUM_SIZE = 0;
     public static final Integer UNLIMITED_MAXIMUM_SIZE = null;
@@ -54,17 +54,10 @@ public abstract class AHistoricalCache<V> {
 
     protected final IHistoricalCacheInternalMethods<V> internalMethods = new HistoricalCacheInternalMethods();
 
-    private final List<ALoadingCache<?, ?>> increaseMaximumSizeListeners = new ArrayList<ALoadingCache<?, ?>>();
-
     private final IHistoricalCacheQueryCore<V> queryCore = newHistoricalCacheQueryCore();
     private IHistoricalCacheAdjustKeyProvider adjustKeyProvider = new InnerHistoricalCacheAdjustKeyProvider();
-    private IHistoricalCacheOnValueLoadedListener<V> onValueLoadedListener = new InnerHistoricalCacheOnValueLoadedListener();
-    private final AFastIterableDelegateSet<IHistoricalCacheOnClearListener> onClearListeners = new AFastIterableDelegateSet<IHistoricalCacheOnClearListener>() {
-        @Override
-        protected Set<IHistoricalCacheOnClearListener> newDelegate() {
-            return new LinkedHashSet<IHistoricalCacheOnClearListener>();
-        }
-    };
+    private final Set<IHistoricalCacheOnClearListener> onClearListeners = newListenerSet();
+    private final Set<IHistoricalCacheIncreaseMaximumSizeListener> increaseMaximumSizeListeners = newListenerSet();
 
     private volatile FDate lastRefresh = HistoricalCacheRefreshManager.getLastRefresh();
     private boolean isPutDisabled = getMaximumSize() != null && getMaximumSize() == 0;
@@ -90,7 +83,6 @@ public abstract class AHistoricalCache<V> {
                 public V apply(final FDate key) {
                     try {
                         final V value = AHistoricalCache.this.loadValue(key);
-                        onValueLoadedListener.onValueLoaded(key, value);
                         return value;
                     } catch (final Throwable t) {
                         throw new RuntimeException("At: " + AHistoricalCache.this.toString(), t);
@@ -136,11 +128,21 @@ public abstract class AHistoricalCache<V> {
         return maximumSize;
     }
 
+    @Override
     public final synchronized void increaseMaximumSize(final int maximumSize, final String reason) {
         final Integer existingMaximumSize = this.maximumSize;
         final int usedMaximumSize = Math.min(getMaximumSizeLimit(), maximumSize);
         if (existingMaximumSize == null || existingMaximumSize < usedMaximumSize) {
             innerIncreaseMaximumSize(usedMaximumSize, reason);
+        }
+        //propagate the setting downwards without risking an endless recursion
+        final AHistoricalCache<?> parent = getShiftKeyProvider().getParent();
+        if (parent != this) {
+            final Integer parentMaximumSize = parent.getMaximumSize();
+            final int parentMaximumSizeExpected = Math.min(usedMaximumSize, parent.getMaximumSizeLimit());
+            if (parentMaximumSize == null || parentMaximumSize.intValue() < parentMaximumSizeExpected) {
+                parent.increaseMaximumSize(maximumSize, reason);
+            }
         }
     }
 
@@ -149,9 +151,6 @@ public abstract class AHistoricalCache<V> {
     }
 
     protected void innerIncreaseMaximumSize(final int maximumSize, final String reason) {
-        for (final ALoadingCache<?, ?> l : increaseMaximumSizeListeners) {
-            l.increaseMaximumSize(maximumSize);
-        }
         queryCore.increaseMaximumSize(maximumSize);
         if (isDebugAutomaticReoptimization() || maximumSize >= getMaximumSizeLimit()) {
             if (LOG.isWarnEnabled()) {
@@ -160,6 +159,9 @@ public abstract class AHistoricalCache<V> {
             }
         }
         this.maximumSize = maximumSize;
+        for (final IHistoricalCacheIncreaseMaximumSizeListener l : increaseMaximumSizeListeners) {
+            l.increaseMaximumSize(maximumSize, reason);
+        }
     }
 
     protected IHistoricalCacheQueryCore<V> newHistoricalCacheQueryCore() {
@@ -168,6 +170,11 @@ public abstract class AHistoricalCache<V> {
          * the values map
          */
         return new CachedHistoricalCacheQueryCore<V>(internalMethods);
+    }
+
+    private <T> Set<T> newListenerSet() {
+        final ConcurrentMap<T, Boolean> map = Caffeine.newBuilder().weakKeys().<T, Boolean> build().asMap();
+        return Collections.newSetFromMap(map);
     }
 
     protected void setAdjustKeyProvider(final IHistoricalCacheAdjustKeyProvider adjustKeyProvider) {
@@ -249,7 +256,12 @@ public abstract class AHistoricalCache<V> {
             }
 
         };
-        increaseMaximumSizeListeners.add(loadingCache);
+        increaseMaximumSizeListeners.add(new IHistoricalCacheIncreaseMaximumSizeListener() {
+            @Override
+            public void increaseMaximumSize(final int maximumSize, final String reason) {
+                loadingCache.increaseMaximumSize(maximumSize);
+            }
+        });
         return loadingCache;
     }
 
@@ -440,7 +452,32 @@ public abstract class AHistoricalCache<V> {
     }
 
     public Set<IHistoricalCacheOnClearListener> getOnClearListeners() {
-        return onClearListeners;
+        return Collections.unmodifiableSet(onClearListeners);
+    }
+
+    public boolean registerOnClearListener(final IHistoricalCacheOnClearListener l) {
+        return onClearListeners.add(l);
+    }
+
+    public boolean unregisterOnClearListener(final IHistoricalCacheOnClearListener l) {
+        return onClearListeners.remove(l);
+    }
+
+    public Set<IHistoricalCacheIncreaseMaximumSizeListener> getIncreaseMaximumSizeListeners() {
+        return Collections.unmodifiableSet(increaseMaximumSizeListeners);
+    }
+
+    public boolean registerIncreaseMaximumSizeListener(final IHistoricalCacheIncreaseMaximumSizeListener l) {
+        if (increaseMaximumSizeListeners.add(l)) {
+            l.increaseMaximumSize(maximumSize, "registerIncreaseMaximumSizeListener");
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public boolean unregisterIncreaseMaximumSizeListener(final IHistoricalCacheIncreaseMaximumSizeListener l) {
+        return increaseMaximumSizeListeners.remove(l);
     }
 
     protected IHistoricalCacheRangeQueryInterceptor<V> getRangeQueryInterceptor() {
@@ -449,18 +486,6 @@ public abstract class AHistoricalCache<V> {
 
     public IHistoricalCachePreviousKeysQueryInterceptor getPreviousKeysQueryInterceptor() {
         return new HistoricalCachePreviousKeysQueryInterceptorSupport();
-    }
-
-    public void setOnValueLoadedListener(final IHistoricalCacheOnValueLoadedListener<V> onValueLoadedListener) {
-        Assertions.assertThat(onValueLoadedListener)
-                .as("%s can only be set once, maybe you should chain them?",
-                        IHistoricalCacheOnValueLoadedListener.class.getSimpleName())
-                .isInstanceOf(InnerHistoricalCacheOnValueLoadedListener.class);
-        this.onValueLoadedListener = onValueLoadedListener;
-    }
-
-    public IHistoricalCacheOnValueLoadedListener<V> getOnValueLoadedListener() {
-        return onValueLoadedListener;
     }
 
     protected ILoadingCache<FDate, V> getValuesMap() {
@@ -517,8 +542,8 @@ public abstract class AHistoricalCache<V> {
         }
 
         @Override
-        public Integer getInitialMaximumSize() {
-            return AHistoricalCache.this.getInitialMaximumSize();
+        public Integer getMaximumSize() {
+            return AHistoricalCache.this.getMaximumSize();
         }
 
         @Override
@@ -700,13 +725,6 @@ public abstract class AHistoricalCache<V> {
         public boolean isAlreadyAdjustingKey() {
             return APullingHistoricalCacheAdjustKeyProvider.isGlobalAlreadyAdjustingKey();
         }
-
-    }
-
-    private final class InnerHistoricalCacheOnValueLoadedListener implements IHistoricalCacheOnValueLoadedListener<V> {
-
-        @Override
-        public void onValueLoaded(final FDate key, final V value) {}
 
     }
 

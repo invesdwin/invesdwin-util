@@ -33,7 +33,6 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
 
     private int countResets = 0;
     private final DefaultHistoricalCacheQueryCore<V> delegate;
-    private volatile Integer maximumSize;
     @GuardedBy("this")
     private final List<Entry<FDate, V>> cachedPreviousEntries = new ArrayList<>();
     @GuardedBy("this")
@@ -50,8 +49,7 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
 
     public CachedHistoricalCacheQueryCore(final IHistoricalCacheInternalMethods<V> parent) {
         this.delegate = new DefaultHistoricalCacheQueryCore<V>(parent);
-        this.maximumSize = parent.getInitialMaximumSize();
-        this.maxCachedIndex = Integers.max(INITIAL_MAX_CACHED_INDEX, maximumSize);
+        this.maxCachedIndex = Integers.max(INITIAL_MAX_CACHED_INDEX, parent.getMaximumSize());
     }
 
     @Override
@@ -80,6 +78,7 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
 
     private void maybeIncreaseMaximumSize(final int requiredSize) {
         final int adjRequiredSize = requiredSize * REQUIRED_SIZE_MULTIPLICATOR;
+        final Integer maximumSize = getParent().getMaximumSize();
         if (maximumSize != null && maximumSize < requiredSize) {
             getParent().increaseMaximumSize(adjRequiredSize, CachedHistoricalCacheQueryCore.class.getSimpleName()
                     + " encountered higher shiftBackUnits of " + requiredSize);
@@ -470,6 +469,7 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
             }
             cachedPreviousEntries.add(0, prependEntry);
         }
+        final Integer maximumSize = getParent().getMaximumSize();
         if (maximumSize != null) {
             maybeIncreaseMaximumSize(trailing.size());
             //ensure we stay in size limit
@@ -500,6 +500,7 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
             cachedPreviousEntries.add(appendEntry);
         }
         cachedPreviousEntriesKey = key;
+        final Integer maximumSize = getParent().getMaximumSize();
         if (maximumSize != null) {
             maybeIncreaseMaximumSize(trailing.size());
             //ensure we stay in size limit
@@ -541,6 +542,7 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
                 }
             }
 
+            final Integer maximumSize = getParent().getMaximumSize();
             if (maximumSize != null) {
                 //ensure we stay in size limit
                 while (cachedPreviousEntries.size() > maximumSize) {
@@ -652,7 +654,7 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
         //prefill what is possible and add suffixes by query as needed
         final int cachedToIndex;
         if (skippingKeysAbove != null) {
-            cachedToIndex = bisect(skippingKeysAbove);
+            cachedToIndex = bisect(skippingKeysAbove, unitsBack);
         } else {
             cachedToIndex = cachedPreviousEntries.size() - 1;
         }
@@ -666,7 +668,14 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
         return newUnitsBack;
     }
 
-    private int bisect(final FDate skippingKeysAbove) {
+    private int bisect(final FDate skippingKeysAbove, final int unitsBack) throws ResetCacheException {
+        final int highestTimeIndexReverse = cachedPreviousEntries.size() - 1;
+        final FDate lowestTime = cachedPreviousEntries.get(0).getKey();
+        if (skippingKeysAbove.isBeforeOrEqualTo(lowestTime) && highestTimeIndexReverse > maxCachedIndex) {
+            throw new ResetCacheException("Not enough data in cache for fillFromCacheAsFarAsPossible [" + unitsBack
+                    + "/" + maxCachedIndex + "/" + highestTimeIndexReverse + "]");
+        }
+
         int lo = 0;
         int hi = cachedPreviousEntries.size();
         while (lo < hi) {
@@ -687,82 +696,6 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
             return lo;
         }
     }
-
-    //the following logic is inverse and needs to be reversed before being reused:
-    //    //CHECKSTYLE:OFF
-    //    private int narrowCachedToIndex(final int unitsBack, final FDate skippingKeysAbove) throws ResetCacheException {
-    //        //CHECKSTYLE:ON
-    //        int cachedIndex = 0;
-    //        final int lowestTimeIndex = cachedPreviousEntries.size() - 1;
-    //        final FDate lowestTime = cachedPreviousEntries.get(lowestTimeIndex).getKey();
-    //        if (skippingKeysAbove.isBeforeOrEqualTo(lowestTime) && lowestTimeIndex > maxCachedIndex) {
-    //            throw new ResetCacheException("Not enough data in cache for fillFromCacheAsFarAsPossible [" + unitsBack
-    //                    + "/" + maxCachedIndex + "/" + lowestTimeIndex + "]");
-    //        }
-    //
-    //        boolean foundFast = false;
-    //        while (cachedIndex < cachedPreviousEntries.size()) {
-    //            if (cachedPreviousEntries.get(cachedIndex).getKey().isAfter(skippingKeysAbove)) {
-    //                cachedIndex++;
-    //                if (cachedIndex > 10) {
-    //                    break;
-    //                }
-    //            } else {
-    //                foundFast = true;
-    //                break;
-    //            }
-    //        }
-    //
-    //        if (!foundFast) {
-    //            int highestTimeIndex = cachedIndex;
-    //            FDate highestTime = cachedPreviousEntries.get(highestTimeIndex).getKey();
-    //            int countTryToNarrow = 0;
-    //            while (countTryToNarrow < 10) {
-    //                final double scanDuration = new Duration(lowestTime, highestTime).doubleValue(FTimeUnit.MILLISECONDS);
-    //                final double skipDuration = new Duration(skippingKeysAbove, highestTime)
-    //                        .doubleValue(FTimeUnit.MILLISECONDS);
-    //                boolean changed = false;
-    //                for (int divisor = 1; divisor < 10; divisor++) {
-    //                    final double skipRate = skipDuration / scanDuration / divisor;
-    //                    final int indexRange = lowestTimeIndex - highestTimeIndex;
-    //                    final int skipIndexRange = (int) (indexRange * skipRate);
-    //                    if (skipIndexRange < 10) {
-    //                        //abort since we cannot skip enough to be useful
-    //                        break;
-    //                    }
-    //                    final int guessHighestTimeIndex = highestTimeIndex + skipIndexRange;
-    //                    if (guessHighestTimeIndex == highestTimeIndex) {
-    //                        //abort since the guess did not change anything
-    //                        break;
-    //                    }
-    //                    final FDate guessHighestTime = cachedPreviousEntries.get(guessHighestTimeIndex).getKey();
-    //                    if (guessHighestTime.isAfterOrEqualTo(skippingKeysAbove)) {
-    //                        //we could skip a bit, remember that
-    //                        highestTimeIndex = guessHighestTimeIndex;
-    //                        highestTime = guessHighestTime;
-    //                        changed = true;
-    //                        break;
-    //                    }
-    //                }
-    //                if (!changed) {
-    //                    break;
-    //                }
-    //                countTryToNarrow++;
-    //            }
-    //            if (lowestTimeIndex < highestTimeIndex) {
-    //                throw new IllegalStateException("Inverted results should not happen");
-    //            }
-    //            cachedIndex = highestTimeIndex;
-    //            while (cachedIndex <= lowestTimeIndex) {
-    //                if (cachedPreviousEntries.get(cachedIndex).getKey().isAfter(skippingKeysAbove)) {
-    //                    cachedIndex++;
-    //                } else {
-    //                    break;
-    //                }
-    //            }
-    //        }
-    //        return cachedIndex;
-    //    }
 
     private Entry<FDate, V> getLastCachedEntry() throws ResetCacheException {
         if (cachedPreviousEntries.isEmpty()) {
@@ -806,7 +739,7 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
 
     @Override
     public void increaseMaximumSize(final int maximumSize) {
-        this.maximumSize = maximumSize;
+        this.maxCachedIndex = Math.max(maxCachedIndex, maximumSize);
     }
 
     @Override

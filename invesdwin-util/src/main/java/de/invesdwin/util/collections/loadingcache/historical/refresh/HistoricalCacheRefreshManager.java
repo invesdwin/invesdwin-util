@@ -8,7 +8,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
-import com.google.common.cache.CacheBuilder;
+import com.github.benmanes.caffeine.cache.Caffeine;
 
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.loadingcache.ALoadingCache;
@@ -54,7 +54,7 @@ public final class HistoricalCacheRefreshManager {
 
         @Override
         protected Set<AHistoricalCache<?>> loadValue(final Class<?> key) {
-            final ConcurrentMap<AHistoricalCache<?>, Boolean> map = CacheBuilder.newBuilder()
+            final ConcurrentMap<AHistoricalCache<?>, Boolean> map = Caffeine.newBuilder()
                     .weakKeys()
                     .<AHistoricalCache<?>, Boolean> build()
                     .asMap();
