@@ -127,10 +127,10 @@ public class TrailingHistoricalCacheQueryCore<V> implements IHistoricalCacheQuer
         } else {
             final Entry<FDate, V> firstCachedEntry = getFirstCachedEntry();
             final Entry<FDate, V> lastCachedEntry = getLastCachedEntry();
-            if (key.isBefore(firstCachedEntry.getKey())) {
+            if (key.isBeforeNotNullSafe(firstCachedEntry.getKey())) {
                 //a request that is way too old
                 return getPreviousEntries_tooOldData(query, key, shiftBackUnits, filterDuplicateKeys);
-            } else if (key.isAfter(lastCachedEntry.getKey())) {
+            } else if (key.isAfterNotNullSafe(lastCachedEntry.getKey())) {
                 //a request that might lead to newer data that can be appended
                 return getPreviousEntries_newerData(query, key, shiftBackUnits, filterDuplicateKeys, firstCachedEntry,
                         lastCachedEntry);
@@ -164,7 +164,7 @@ public class TrailingHistoricalCacheQueryCore<V> implements IHistoricalCacheQuer
         Entry<FDate, V> prevEntry = null;
         for (int i = 0; i < result.size(); i++) {
             final Entry<FDate, V> entry = result.get(i);
-            if (prevEntry != null && prevEntry.getKey().isBefore(entry.getKey())) {
+            if (prevEntry != null && prevEntry.getKey().isBeforeNotNullSafe(entry.getKey())) {
                 break;
             }
             firstUniqueIndex = i;
@@ -209,19 +209,19 @@ public class TrailingHistoricalCacheQueryCore<V> implements IHistoricalCacheQuer
             final List<Entry<FDate, V>> result) throws ResetCacheException {
         final Entry<FDate, V> firstResultEntry = result.get(0);
         final Entry<FDate, V> lastResultEntry = result.get(0);
-        if (firstResultEntry.getKey().isAfter(lastCachedEntry.getKey())) {
+        if (firstResultEntry.getKey().isAfterNotNullSafe(lastCachedEntry.getKey())) {
             //first result is after last cached entry, replace the cached entries
             cachedPreviousEntries.clear();
             cachedPreviousEntries.addAll(result);
             delegate.maybeIncreaseMaximumSize(cachedPreviousEntries.size());
             //finished
             return;
-        } else if (lastResultEntry.getKey().isBefore(firstCachedEntry.getKey())) {
+        } else if (lastResultEntry.getKey().isBeforeNotNullSafe(firstCachedEntry.getKey())) {
             //last result is before first cached entry, nothing to merge
             return;
         }
 
-        if (lastResultEntry.getKey().isAfter(lastCachedEntry.getKey())) {
+        if (lastResultEntry.getKey().isAfterNotNullSafe(lastCachedEntry.getKey())) {
             //we have some data that can be merged at the end of the result
             final int fromIndex = delegate.bisect(lastCachedEntry.getKey(), result, null) + 1;
             final int toIndex = result.size();
@@ -233,12 +233,12 @@ public class TrailingHistoricalCacheQueryCore<V> implements IHistoricalCacheQuer
 
         final Integer maximumSize = getParent().getMaximumSize();
         if ((maximumSize == null || cachedPreviousEntries.size() < maximumSize)
-                && firstResultEntry.getKey().isBefore(firstCachedEntry.getKey())) {
+                && firstResultEntry.getKey().isBeforeNotNullSafe(firstCachedEntry.getKey())) {
             //we have some data that can be merged at the start of the result
             int fromIndex = 0;
-            final int toIndex = delegate.bisect(lastCachedEntry.getKey(), result, null);
+            final int toIndex = delegate.bisect(firstCachedEntry.getKey(), result, null);
             if (maximumSize != null) {
-                int maximumSizeExceededBy = cachedPreviousEntries.size() + toIndex - maximumSize;
+                int maximumSizeExceededBy = cachedPreviousEntries.size() + toIndex - maximumSize - 1;
                 delegate.maybeIncreaseMaximumSize(cachedPreviousEntries.size() + maximumSizeExceededBy);
                 maximumSizeExceededBy = cachedPreviousEntries.size() + toIndex - getParent().getMaximumSize();
                 if (maximumSizeExceededBy > 0) {
@@ -338,9 +338,9 @@ public class TrailingHistoricalCacheQueryCore<V> implements IHistoricalCacheQuer
             try {
                 if (!cachedPreviousEntries.isEmpty()) {
                     final Entry<FDate, V> lastEntry = getLastCachedEntry();
-                    if (lastEntry.getKey().isBefore(previousKey)) {
+                    if (lastEntry.getKey().isBeforeNotNullSafe(previousKey)) {
                         cachedPreviousEntries.clear();
-                    } else if (lastEntry.getKey().isAfter(previousKey)) {
+                    } else if (lastEntry.getKey().isAfterNotNullSafe(previousKey)) {
                         return;
                     }
                 }
@@ -366,8 +366,8 @@ public class TrailingHistoricalCacheQueryCore<V> implements IHistoricalCacheQuer
             }
             try {
                 final Entry<FDate, V> lastEntry = getLastCachedEntry();
-                if (!lastEntry.getKey().equals(previousKey)) {
-                    if (lastEntry.getKey().isBefore(previousKey)) {
+                if (!lastEntry.getKey().equalsNotNullSafe(previousKey)) {
+                    if (lastEntry.getKey().isBeforeNotNullSafe(previousKey)) {
                         final V newValue = getParent().computeValue(valueKey);
                         putPrevious(previousKey, newValue, valueKey);
                     }

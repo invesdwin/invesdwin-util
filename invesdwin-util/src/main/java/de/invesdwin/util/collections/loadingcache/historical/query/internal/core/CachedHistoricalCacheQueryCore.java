@@ -20,7 +20,6 @@ import de.invesdwin.util.collections.loadingcache.historical.query.internal.Hist
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.IHistoricalCacheInternalMethods;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.impl.GetPreviousEntryQueryImpl;
 import de.invesdwin.util.error.UnknownArgumentException;
-import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.time.fdate.FDate;
 
@@ -172,7 +171,7 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
 
     private List<Entry<FDate, V>> cachedGetPreviousEntries(final IHistoricalCacheQueryInternalMethods<V> query,
             final int shiftBackUnits, final FDate key, final boolean filterDuplicateKeys) throws ResetCacheException {
-        if (Objects.equals(key, cachedPreviousEntriesKey) || Objects.equals(key, getLastCachedEntry().getKey())) {
+        if (key.equals(cachedPreviousEntriesKey) || key.equalsNotNullSafe(getLastCachedEntry().getKey())) {
             final List<Entry<FDate, V>> tryCachedPreviousResult = tryCachedPreviousResult_sameKey(query, shiftBackUnits,
                     filterDuplicateKeys);
             if (tryCachedPreviousResult != null) {
@@ -184,7 +183,7 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
                 updateCachedPreviousResult(query, shiftBackUnits, result, filterDuplicateKeys);
                 return result;
             }
-        } else if ((key.isAfter(cachedPreviousEntriesKey) || key.isAfter(getLastCachedEntry().getKey()))
+        } else if ((key.isAfter(cachedPreviousEntriesKey) || key.isAfterNotNullSafe(getLastCachedEntry().getKey()))
                 /*
                  * when we go a higher key and only want to load 1 value, we can just go with direct map access since we
                  * won't hit cache anyway because first access will be against map anyway. we make sure to not replace
@@ -203,8 +202,8 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
                 return result;
             }
         } else if (key.isBeforeOrEqualTo(cachedPreviousEntriesKey)
-                && key.isAfterOrEqualTo(getFirstCachedEntry().getKey())
-                && key.isBeforeOrEqualTo(getLastCachedEntry().getKey())) {
+                && key.isAfterOrEqualToNotNullSafe(getFirstCachedEntry().getKey())
+                && key.isBeforeOrEqualToNotNullSafe(getLastCachedEntry().getKey())) {
             final List<Entry<FDate, V>> trailing = newEntriesList(query, shiftBackUnits, filterDuplicateKeys);
             return cachedGetPreviousEntries_decrementedKey(query, shiftBackUnits, key, trailing);
         } else {
@@ -246,7 +245,7 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
                 resetCachedPreviousResult();
                 return null; //abort since we could not find any values
             } else {
-                if (value.getKey().equals(lastCachedEntryKey)) {
+                if (value.getKey().equalsNotNullSafe(lastCachedEntryKey)) {
                     break; //continue with tryCachedPreviousResult_sameKey
                 } else {
                     if (latestValue == null) {
@@ -283,7 +282,7 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
 
     private void assertSameLastKey(final FDate lastCachedEntryKey, final FDate lastCachedResultKey)
             throws ResetCacheException {
-        if (!lastCachedEntryKey.equals(lastCachedResultKey)) {
+        if (!lastCachedEntryKey.equalsNotNullSafe(lastCachedResultKey)) {
             throw new ResetCacheException(
                     "lastCachedEntryKey[" + lastCachedEntryKey + "] != lastCachedResultKey[" + lastCachedResultKey
                             + "], might happen on far reaching recursive queries or long looped queries into the past");
@@ -435,7 +434,7 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
         while (unitsBack >= 0 && !impl.iterationFinished()) {
             final Entry<FDate, V> value = impl.getResult();
             if (value != null) {
-                if (value.getKey().equals(lastCachedEntryKey)) {
+                if (value.getKey().equalsNotNullSafe(lastCachedEntryKey)) {
                     break; //continue with fillFromCacheAsFarAsPossible
                 } else {
                     if (trailingReverse.add(value)) {
@@ -461,7 +460,7 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
             final Entry<FDate, V> prependEntry = trailing.get(i);
             if (!cachedPreviousEntries.isEmpty()) {
                 final Entry<FDate, V> firstCachedEntry = getFirstCachedEntry();
-                if (!prependEntry.getKey().isBefore(firstCachedEntry.getKey())) {
+                if (!prependEntry.getKey().isBeforeNotNullSafe(firstCachedEntry.getKey())) {
                     throw new IllegalStateException("prependEntry [" + prependEntry.getKey()
                             + "] should be before firstCachedEntry [" + firstCachedEntry.getKey() + "]");
                 }
@@ -491,7 +490,7 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
             final Entry<FDate, V> appendEntry = trailing.get(i);
             if (!cachedPreviousEntries.isEmpty()) {
                 final Entry<FDate, V> lastCachedEntry = getLastCachedEntry();
-                if (!appendEntry.getKey().isAfter(lastCachedEntry.getKey())) {
+                if (!appendEntry.getKey().isAfterNotNullSafe(lastCachedEntry.getKey())) {
                     throw new ResetCacheException("appendEntry [" + appendEntry.getKey()
                             + "] should be after lastCachedEntry [" + lastCachedEntry.getKey() + "]");
                 }
@@ -673,7 +672,7 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
         int hi = list.size();
         if (unitsBack != null) {
             final FDate loTime = list.get(lo).getKey();
-            if (skippingKeysAbove.millisValue() <= loTime.millisValue() && hi >= maxCachedIndex) {
+            if (skippingKeysAbove.isBeforeOrEqualToNotNullSafe(loTime) && hi >= maxCachedIndex) {
                 throw new ResetCacheException("Not enough data in cache for fillFromCacheAsFarAsPossible [" + unitsBack
                         + "/" + maxCachedIndex + "/" + (hi - 1) + "]");
             }
@@ -684,7 +683,7 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
             final int mid = (lo + hi) / 2;
             //if (x < list.get(mid)) {
             final FDate midKey = list.get(mid).getKey();
-            final int compareTo = midKey.compareTo(skippingKeysAbove);
+            final int compareTo = midKey.compareToNotNullSafe(skippingKeysAbove);
             switch (compareTo) {
             case -1:
                 lo = mid + 1;
@@ -699,7 +698,7 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
             }
         }
         final FDate loTime = list.get(lo).getKey();
-        if (loTime.millisValue() > skippingKeysAbove.millisValue()) {
+        if (loTime.isAfterNotNullSafe(skippingKeysAbove)) {
             return lo - 1;
         } else {
             return lo;
@@ -783,7 +782,7 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
                 if (lastEntry == null) {
                     return;
                 }
-                if (!lastEntry.getKey().equals(previousKey)) {
+                if (!lastEntry.getKey().equalsNotNullSafe(previousKey)) {
                     return;
                 }
                 appendCachedEntryAndResult(valueKey, cachedPreviousResult_shiftBackUnits,
@@ -809,7 +808,7 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
                 if (lastEntry == null) {
                     return;
                 }
-                if (!lastEntry.getKey().equals(previousKey)) {
+                if (!lastEntry.getKey().equalsNotNullSafe(previousKey)) {
                     return;
                 }
                 final V newValue = getParent().computeValue(valueKey);

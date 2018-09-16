@@ -518,17 +518,28 @@ public class FDate implements IDate, Serializable, Cloneable, Comparable<Object>
     public int compareTo(final Object o) {
         if (o instanceof FDate) {
             final FDate cO = (FDate) o;
-            return compareTo(cO);
+            return compareToNotNullSafe(cO);
         } else {
             return 1;
         }
     }
 
     public int compareTo(final FDate o) {
+        if (o == null) {
+            return 1;
+        }
+        return compareToNotNullSafe(o);
+    }
+
+    public int compareToNotNullSafe(final FDate o) {
         return Long.compare(millis, o.millis);
     }
 
     public boolean equals(final FDate obj) {
+        return obj != null && equalsNotNullSafe(obj);
+    }
+
+    public boolean equalsNotNullSafe(final FDate obj) {
         return millis == obj.millis;
     }
 
@@ -536,7 +547,7 @@ public class FDate implements IDate, Serializable, Cloneable, Comparable<Object>
     public boolean equals(final Object obj) {
         if (obj instanceof FDate) {
             final FDate cObj = (FDate) obj;
-            return equals(cObj);
+            return equalsNotNullSafe(cObj);
         } else {
             return false;
         }
@@ -571,19 +582,35 @@ public class FDate implements IDate, Serializable, Cloneable, Comparable<Object>
     }
 
     public boolean isBefore(final FDate other) {
-        return other != null && compareTo(other) < 0;
+        return other != null && isBeforeNotNullSafe(other);
     }
 
     public boolean isBeforeOrEqualTo(final FDate other) {
-        return other != null && !isAfter(other);
+        return other != null && isBeforeOrEqualToNotNullSafe(other);
     }
 
     public boolean isAfter(final FDate other) {
-        return other != null && compareTo(other) > 0;
+        return other != null && isAfterNotNullSafe(other);
     }
 
     public boolean isAfterOrEqualTo(final FDate other) {
-        return other != null && !isBefore(other);
+        return other != null && isAfterOrEqualToNotNullSafe(other);
+    }
+
+    public boolean isBeforeNotNullSafe(final FDate other) {
+        return millis < other.millis;
+    }
+
+    public boolean isBeforeOrEqualToNotNullSafe(final FDate other) {
+        return millis <= other.millis;
+    }
+
+    public boolean isAfterNotNullSafe(final FDate other) {
+        return millis > other.millis;
+    }
+
+    public boolean isAfterOrEqualToNotNullSafe(final FDate other) {
+        return millis >= other.millis;
     }
 
     //CHECKSTYLE:OFF
