@@ -185,4 +185,9 @@ public class DefaultHistoricalCacheQueryCore<V> implements IHistoricalCacheQuery
         //ignore
     }
 
+    @Override
+    public void putPreviousKey(final FDate previousKey, final FDate valueKey) {
+        //ignore
+    }
+
 }

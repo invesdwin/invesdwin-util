@@ -36,4 +36,6 @@ public interface IHistoricalCacheQueryCore<V> {
 
     void putPrevious(FDate previousKey, V value, FDate valueKey);
 
+    void putPreviousKey(FDate previousKey, FDate valueKey);
+
 }

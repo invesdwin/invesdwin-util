@@ -1,4 +1,4 @@
-package de.invesdwin.util.collections.loadingcache.historical.key.internal;
+package de.invesdwin.util.collections.loadingcache.historical.key;
 
 import java.util.Map.Entry;
 import java.util.Set;

@@ -101,7 +101,7 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
         }
     }
 
-    private List<Entry<FDate, V>> getPreviousEntriesList(final IHistoricalCacheQueryInternalMethods<V> query,
+    public List<Entry<FDate, V>> getPreviousEntriesList(final IHistoricalCacheQueryInternalMethods<V> query,
             final FDate key, final int shiftBackUnits, final boolean filterDuplicateKeys) {
         synchronized (getLock()) {
             if (cachedQueryActive) {
@@ -338,7 +338,7 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
         }
     }
 
-    private List<Entry<FDate, V>> newEntriesList(final IHistoricalCacheQueryInternalMethods<V> query,
+    public List<Entry<FDate, V>> newEntriesList(final IHistoricalCacheQueryInternalMethods<V> query,
             final int shiftBackUnits, final boolean filterDuplicateKeys) {
         if (filterDuplicateKeys) {
             return query.newEntriesList(shiftBackUnits);
@@ -656,7 +656,7 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
         //prefill what is possible and add suffixes by query as needed
         final int cachedToIndex;
         if (skippingKeysAbove != null) {
-            cachedToIndex = bisect(skippingKeysAbove, unitsBack);
+            cachedToIndex = bisect(skippingKeysAbove, cachedPreviousEntries, unitsBack);
         } else {
             cachedToIndex = cachedPreviousEntries.size() - 1;
         }
@@ -670,20 +670,23 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
         return newUnitsBack;
     }
 
-    private int bisect(final FDate skippingKeysAbove, final int unitsBack) throws ResetCacheException {
+    public int bisect(final FDate skippingKeysAbove, final List<Entry<FDate, V>> list, final Integer unitsBack)
+            throws ResetCacheException {
         int lo = 0;
-        int hi = cachedPreviousEntries.size();
-        FDate loTime = cachedPreviousEntries.get(lo).getKey();
-        if (skippingKeysAbove.isBeforeOrEqualTo(loTime) && hi >= maxCachedIndex) {
-            throw new ResetCacheException("Not enough data in cache for fillFromCacheAsFarAsPossible [" + unitsBack
-                    + "/" + maxCachedIndex + "/" + (hi - 1) + "]");
+        int hi = list.size();
+        if (unitsBack != null) {
+            final FDate loTime = list.get(lo).getKey();
+            if (skippingKeysAbove.isBeforeOrEqualTo(loTime) && hi >= maxCachedIndex) {
+                throw new ResetCacheException("Not enough data in cache for fillFromCacheAsFarAsPossible [" + unitsBack
+                        + "/" + maxCachedIndex + "/" + (hi - 1) + "]");
+            }
         }
 
         //bisect
         while (lo < hi) {
             final int mid = (lo + hi) / 2;
             //if (x < list.get(mid)) {
-            final FDate midKey = cachedPreviousEntries.get(mid).getKey();
+            final FDate midKey = list.get(mid).getKey();
             final int compareTo = midKey.compareTo(skippingKeysAbove);
             switch (compareTo) {
             case -1:
@@ -698,7 +701,7 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
                 throw UnknownArgumentException.newInstance(Integer.class, compareTo);
             }
         }
-        loTime = cachedPreviousEntries.get(lo).getKey();
+        final FDate loTime = list.get(lo).getKey();
         if (loTime.isAfter(skippingKeysAbove)) {
             return lo - 1;
         } else {
@@ -784,6 +787,28 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
             }
             appendCachedEntryAndResult(valueKey, cachedPreviousResult_shiftBackUnits,
                     ImmutableEntry.of(valueKey, value));
+        } catch (final ResetCacheException e) {
+            //should not happen here
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void putPreviousKey(final FDate previousKey, final FDate valueKey) {
+        if (cachedPreviousEntries.isEmpty() || cachedPreviousResult_shiftBackUnits == null) {
+            return;
+        }
+        try {
+            final Entry<FDate, V> lastEntry = getLastCachedEntry();
+            if (lastEntry == null) {
+                return;
+            }
+            if (!lastEntry.getKey().equals(previousKey)) {
+                return;
+            }
+            final V newValue = getParent().computeValue(valueKey);
+            final Entry<FDate, V> newEntry = ImmutableEntry.of(valueKey, newValue);
+            getParent().getPutProvider().put(newEntry, lastEntry);
         } catch (final ResetCacheException e) {
             //should not happen here
             throw new RuntimeException(e);

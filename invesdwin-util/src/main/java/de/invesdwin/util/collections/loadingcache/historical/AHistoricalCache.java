@@ -1,6 +1,9 @@
 package de.invesdwin.util.collections.loadingcache.historical;
 
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
@@ -13,6 +16,7 @@ import org.assertj.core.description.TextDescription;
 import com.github.benmanes.caffeine.cache.Caffeine;
 
 import de.invesdwin.util.assertions.Assertions;
+import de.invesdwin.util.collections.concurrent.AFastIterableDelegateList;
 import de.invesdwin.util.collections.eviction.EvictionMode;
 import de.invesdwin.util.collections.loadingcache.ADelegateLoadingCache;
 import de.invesdwin.util.collections.loadingcache.ALoadingCache;
@@ -23,11 +27,11 @@ import de.invesdwin.util.collections.loadingcache.historical.interceptor.IHistor
 import de.invesdwin.util.collections.loadingcache.historical.interceptor.IHistoricalCacheRangeQueryInterceptor;
 import de.invesdwin.util.collections.loadingcache.historical.key.APullingHistoricalCacheAdjustKeyProvider;
 import de.invesdwin.util.collections.loadingcache.historical.key.IHistoricalCacheAdjustKeyProvider;
+import de.invesdwin.util.collections.loadingcache.historical.key.IHistoricalCachePutProvider;
 import de.invesdwin.util.collections.loadingcache.historical.key.internal.DelegateHistoricalCacheExtractKeyProvider;
 import de.invesdwin.util.collections.loadingcache.historical.key.internal.DelegateHistoricalCachePutProvider;
 import de.invesdwin.util.collections.loadingcache.historical.key.internal.DelegateHistoricalCacheShiftKeyProvider;
 import de.invesdwin.util.collections.loadingcache.historical.key.internal.IHistoricalCacheExtractKeyProvider;
-import de.invesdwin.util.collections.loadingcache.historical.key.internal.IHistoricalCachePutProvider;
 import de.invesdwin.util.collections.loadingcache.historical.key.internal.IHistoricalCacheShiftKeyProvider;
 import de.invesdwin.util.collections.loadingcache.historical.listener.IHistoricalCacheIncreaseMaximumSizeListener;
 import de.invesdwin.util.collections.loadingcache.historical.listener.IHistoricalCacheOnClearListener;
@@ -42,7 +46,8 @@ import de.invesdwin.util.collections.loadingcache.historical.refresh.HistoricalC
 import de.invesdwin.util.time.fdate.FDate;
 
 @ThreadSafe
-public abstract class AHistoricalCache<V> implements IHistoricalCacheIncreaseMaximumSizeListener {
+public abstract class AHistoricalCache<V>
+        implements IHistoricalCacheIncreaseMaximumSizeListener, IHistoricalCachePutListener {
 
     public static final Integer DISABLED_MAXIMUM_SIZE = 0;
     public static final Integer UNLIMITED_MAXIMUM_SIZE = null;
@@ -506,6 +511,11 @@ public abstract class AHistoricalCache<V> implements IHistoricalCacheIncreaseMax
             return AHistoricalCache.this;
         }
 
+        @Override
+        public IHistoricalCachePutProvider<V> getPutProvider() {
+            return AHistoricalCache.this.getPutProvider();
+        }
+
     }
 
     private final class InnerHistoricalCacheExtractKeyProvider implements IHistoricalCacheExtractKeyProvider<V> {
@@ -666,6 +676,13 @@ public abstract class AHistoricalCache<V> implements IHistoricalCacheIncreaseMax
     private final class InnerHistoricalCachePutProvider implements IHistoricalCachePutProvider<V> {
 
         private final Set<IHistoricalCachePutListener> putListeners = newListenerSet();
+        @SuppressWarnings("rawtypes")
+        private final AFastIterableDelegateList<WeakReference> putListenersFast = new AFastIterableDelegateList<WeakReference>() {
+            @Override
+            protected List<WeakReference> newDelegate() {
+                return new ArrayList<>();
+            }
+        };
 
         @Override
         public void put(final FDate newKey, final V newValue, final FDate prevKey, final V prevValue) {
@@ -736,6 +753,7 @@ public abstract class AHistoricalCache<V> implements IHistoricalCacheIncreaseMax
             }
         }
 
+        @SuppressWarnings("rawtypes")
         private void putPrevious(final FDate previousKey, final V value, final FDate valueKey) {
             final int compare = previousKey.compareTo(valueKey);
             if (!(compare <= 0)) {
@@ -746,9 +764,16 @@ public abstract class AHistoricalCache<V> implements IHistoricalCacheIncreaseMax
                 shiftKeyProvider.getPreviousKeysCache().put(valueKey, previousKey);
                 shiftKeyProvider.getNextKeysCache().put(previousKey, valueKey);
                 queryCore.putPrevious(previousKey, value, valueKey);
-                if (!putListeners.isEmpty()) {
-                    for (final IHistoricalCachePutListener l : putListeners) {
-                        l.putPrevious(previousKey, valueKey);
+                if (!putListenersFast.isEmpty()) {
+                    final WeakReference[] array = putListenersFast.asArray(WeakReference.class);
+                    for (int i = 0, fastIndex = 0; i < array.length; i++, fastIndex++) {
+                        final IHistoricalCachePutListener l = (IHistoricalCachePutListener) array[i].get();
+                        if (l == null) {
+                            putListenersFast.remove(fastIndex);
+                            fastIndex--;
+                        } else {
+                            l.putPreviousKey(previousKey, valueKey);
+                        }
                     }
                 }
             }
@@ -774,13 +799,35 @@ public abstract class AHistoricalCache<V> implements IHistoricalCacheIncreaseMax
 
         @Override
         public boolean registerPutListener(final IHistoricalCachePutListener l) {
-            return putListeners.add(l);
+            if (putListeners.add(l)) {
+                putListenersFast.add(new WeakReference<IHistoricalCachePutListener>(l));
+                return true;
+            } else {
+                return false;
+            }
         }
 
+        @SuppressWarnings("rawtypes")
         @Override
         public boolean unregisterPutListener(final IHistoricalCachePutListener l) {
-            return putListeners.remove(l);
+            if (putListeners.remove(l)) {
+                final WeakReference[] array = putListenersFast.asArray(WeakReference.class);
+                for (int i = 0; i < array.length; i++) {
+                    final IHistoricalCachePutListener existing = (IHistoricalCachePutListener) array[i].get();
+                    if (existing == l) {
+                        putListenersFast.remove(i);
+                    }
+                }
+                return true;
+            } else {
+                return false;
+            }
         }
+    }
+
+    @Override
+    public void putPreviousKey(final FDate previousKey, final FDate valueKey) {
+        queryCore.putPreviousKey(previousKey, valueKey);
     }
 
 }
