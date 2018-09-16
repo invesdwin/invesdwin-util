@@ -212,8 +212,8 @@ public abstract class AHistoricalCache<V> implements IHistoricalCacheIncreaseMax
     @SuppressWarnings("unchecked")
     protected void setPutDelegate(final IHistoricalCachePutProvider<? extends V> putProvider) {
         Assertions.assertThat(this.putProvider)
-                .as("%s can only be set once", IHistoricalCacheShiftKeyProvider.class.getSimpleName())
-                .isInstanceOf(InnerHistoricalCacheShiftKeyProvider.class);
+                .as("%s can only be set once", InnerHistoricalCachePutProvider.class.getSimpleName())
+                .isInstanceOf(InnerHistoricalCachePutProvider.class);
         Assertions.assertThat(putProvider).isNotInstanceOf(InnerHistoricalCachePutProvider.class);
         this.putProvider = (IHistoricalCachePutProvider<V>) putProvider;
     }
