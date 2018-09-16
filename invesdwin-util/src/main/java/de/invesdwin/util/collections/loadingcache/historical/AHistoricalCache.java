@@ -124,6 +124,7 @@ public abstract class AHistoricalCache<V> implements IHistoricalCacheIncreaseMax
         return DEFAULT_MAXIMUM_SIZE;
     }
 
+    @Override
     public final Integer getMaximumSize() {
         return maximumSize;
     }
@@ -135,18 +136,10 @@ public abstract class AHistoricalCache<V> implements IHistoricalCacheIncreaseMax
         if (existingMaximumSize == null || existingMaximumSize < usedMaximumSize) {
             innerIncreaseMaximumSize(usedMaximumSize, reason);
         }
-        //propagate the setting downwards without risking an endless recursion
-        final AHistoricalCache<?> parent = getShiftKeyProvider().getParent();
-        if (parent != this) {
-            final Integer parentMaximumSize = parent.getMaximumSize();
-            final int parentMaximumSizeExpected = Math.min(usedMaximumSize, parent.getMaximumSizeLimit());
-            if (parentMaximumSize == null || parentMaximumSize.intValue() < parentMaximumSizeExpected) {
-                parent.increaseMaximumSize(maximumSize, reason);
-            }
-        }
     }
 
-    protected int getMaximumSizeLimit() {
+    @Override
+    public int getMaximumSizeLimit() {
         return DEFAULT_MAXIMUM_SIZE_LIMIT;
     }
 
@@ -160,7 +153,11 @@ public abstract class AHistoricalCache<V> implements IHistoricalCacheIncreaseMax
         }
         this.maximumSize = maximumSize;
         for (final IHistoricalCacheIncreaseMaximumSizeListener l : increaseMaximumSizeListeners) {
-            l.increaseMaximumSize(maximumSize, reason);
+            final Integer listenerMaximumSize = l.getMaximumSize();
+            final int listenerMaximumSizeLimited = Math.min(maximumSize, l.getMaximumSizeLimit());
+            if (listenerMaximumSize == null || listenerMaximumSize.intValue() < listenerMaximumSizeLimited) {
+                l.increaseMaximumSize(maximumSize, reason);
+            }
         }
     }
 
@@ -197,6 +194,8 @@ public abstract class AHistoricalCache<V> implements IHistoricalCacheIncreaseMax
             this.extractKeyProvider = new DelegateHistoricalCacheExtractKeyProvider<V>(
                     (AHistoricalCache<Object>) shiftKeyDelegate);
         }
+        //propagate the setting downwards without risking an endless recursion
+        registerIncreaseMaximumSizeListener(shiftKeyDelegate);
         isPutDisabled = false;
     }
 
@@ -260,6 +259,16 @@ public abstract class AHistoricalCache<V> implements IHistoricalCacheIncreaseMax
             @Override
             public void increaseMaximumSize(final int maximumSize, final String reason) {
                 loadingCache.increaseMaximumSize(maximumSize);
+            }
+
+            @Override
+            public Integer getMaximumSize() {
+                return null;
+            }
+
+            @Override
+            public int getMaximumSizeLimit() {
+                return AHistoricalCache.this.getMaximumSizeLimit();
             }
         });
         return loadingCache;

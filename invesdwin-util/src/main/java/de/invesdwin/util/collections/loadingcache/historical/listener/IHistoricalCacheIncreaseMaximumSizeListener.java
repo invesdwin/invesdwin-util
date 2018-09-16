@@ -4,4 +4,8 @@ public interface IHistoricalCacheIncreaseMaximumSizeListener {
 
     void increaseMaximumSize(int maximumSize, String reason);
 
+    Integer getMaximumSize();
+
+    int getMaximumSizeLimit();
+
 }
