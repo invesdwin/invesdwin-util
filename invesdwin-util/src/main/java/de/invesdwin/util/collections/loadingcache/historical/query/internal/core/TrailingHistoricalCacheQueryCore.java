@@ -20,15 +20,14 @@ import de.invesdwin.util.time.fdate.FDate;
 @ThreadSafe
 public class TrailingHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryCore<V> {
 
-    private static final int REQUIRED_SIZE_MULTIPLICATOR = 2;
     private static final org.slf4j.ext.XLogger LOG = org.slf4j.ext.XLoggerFactory
             .getXLogger(CachedHistoricalCacheQueryCore.class);
     private static final int COUNT_RESETS_BEFORE_WARNING = 100;
 
-    private int countResets = 0;
-
     private final CachedHistoricalCacheQueryCore<V> delegate;
-    @GuardedBy("this")
+    @GuardedBy("getParent().getLock()")
+    private int countResets = 0;
+    @GuardedBy("getParent().getLock()")
     private final List<Entry<FDate, V>> cachedPreviousEntries = new ArrayList<>();
     private volatile boolean cachedQueryActive;
 
@@ -75,7 +74,7 @@ public class TrailingHistoricalCacheQueryCore<V> implements IHistoricalCacheQuer
 
     private List<Entry<FDate, V>> getPreviousEntriesList(final IHistoricalCacheQueryInternalMethods<V> query,
             final FDate key, final int shiftBackUnits, final boolean filterDuplicateKeys) {
-        synchronized (getLock()) {
+        synchronized (getParent().getLock()) {
             if (cachedQueryActive) {
                 return getPreviousEntries_tooOldData(query, key, shiftBackUnits, filterDuplicateKeys);
             } else {
@@ -115,18 +114,13 @@ public class TrailingHistoricalCacheQueryCore<V> implements IHistoricalCacheQuer
         }
     }
 
-    private List<Entry<FDate, V>> defaultGetPreviousEntries(final IHistoricalCacheQueryInternalMethods<V> query,
-            final FDate key, final int shiftBackUnits, final boolean filterDuplicateKeys) {
-        return delegate.getPreviousEntriesList(query, key, shiftBackUnits, filterDuplicateKeys);
-    }
-
     private List<Entry<FDate, V>> tryCachedGetPreviousEntriesIfAvailable(
             final IHistoricalCacheQueryInternalMethods<V> query, final FDate key, final int shiftBackUnits,
             final boolean filterDuplicateKeys) throws ResetCacheException {
         if (cachedPreviousEntries.isEmpty()) {
-            final List<Entry<FDate, V>> result = defaultGetPreviousEntries(query, key, shiftBackUnits,
+            final List<Entry<FDate, V>> result = delegate.getPreviousEntriesList(query, key, shiftBackUnits,
                     filterDuplicateKeys);
-            cachedPreviousEntries.addAll(result);
+            cachedPreviousEntries.addAll(filterDuplicateKeys(result, filterDuplicateKeys));
             return result;
         } else {
             final Entry<FDate, V> firstCachedEntry = getFirstCachedEntry();
@@ -144,19 +138,37 @@ public class TrailingHistoricalCacheQueryCore<V> implements IHistoricalCacheQuer
                 //or fill as far as possible, do another request for remaining and then prepend more data as much as size allows
                 final List<Entry<FDate, V>> trailing = delegate.newEntriesList(query, shiftBackUnits,
                         filterDuplicateKeys);
-                final int newUnitsBack = fillFromCacheAsFarAsPossible(trailing, shiftBackUnits, null);
-                if (newUnitsBack == -1) {
+                final int newUnitsBack = fillFromCacheAsFarAsPossible(trailing, shiftBackUnits, key);
+                if (newUnitsBack <= 0) {
                     return trailing;
                 } else {
                     final Entry<FDate, V> fristValueFromCache = trailing.get(0);
                     final List<Entry<FDate, V>> remainingResult = delegate.getPreviousEntriesList(query,
-                            fristValueFromCache.getKey().addMilliseconds(-1), newUnitsBack, filterDuplicateKeys);
-                    trailing.addAll(remainingResult);
-                    mergeResult(firstCachedEntry, lastCachedEntry, trailing);
+                            fristValueFromCache.getKey(), newUnitsBack + 1, filterDuplicateKeys);
+                    trailing.addAll(0, remainingResult.subList(0, remainingResult.size() - 1));
+                    mergeResult(firstCachedEntry, lastCachedEntry, filterDuplicateKeys(trailing, filterDuplicateKeys));
                     return trailing;
                 }
             }
         }
+    }
+
+    private List<Entry<FDate, V>> filterDuplicateKeys(final List<Entry<FDate, V>> result,
+            final boolean filterDuplicateKeys) {
+        if (filterDuplicateKeys) {
+            return result;
+        }
+        int firstUniqueIndex = 0;
+        Entry<FDate, V> prevEntry = null;
+        for (int i = 0; i < result.size(); i++) {
+            final Entry<FDate, V> entry = result.get(i);
+            if (prevEntry != null && prevEntry.getKey().isBefore(entry.getKey())) {
+                break;
+            }
+            firstUniqueIndex = i;
+            prevEntry = entry;
+        }
+        return result.subList(firstUniqueIndex, result.size());
     }
 
     private int fillFromCacheAsFarAsPossible(final List<Entry<FDate, V>> trailing, final int unitsBack,
@@ -170,7 +182,7 @@ public class TrailingHistoricalCacheQueryCore<V> implements IHistoricalCacheQuer
         }
 
         final int toIndex = cachedToIndex + 1;
-        final int fromIndex = Math.max(0, toIndex - unitsBack - 1);
+        final int fromIndex = Math.max(0, toIndex - unitsBack);
         final int size = toIndex - fromIndex;
         final int newUnitsBack = unitsBack - size;
         trailing.addAll(cachedPreviousEntries.subList(fromIndex, toIndex));
@@ -181,8 +193,9 @@ public class TrailingHistoricalCacheQueryCore<V> implements IHistoricalCacheQuer
     private List<Entry<FDate, V>> getPreviousEntries_newerData(final IHistoricalCacheQueryInternalMethods<V> query,
             final FDate key, final int shiftBackUnits, final boolean filterDuplicateKeys,
             final Entry<FDate, V> firstCachedEntry, final Entry<FDate, V> lastCachedEntry) throws ResetCacheException {
-        final List<Entry<FDate, V>> result = defaultGetPreviousEntries(query, key, shiftBackUnits, filterDuplicateKeys);
-        mergeResult(firstCachedEntry, lastCachedEntry, result);
+        final List<Entry<FDate, V>> result = delegate.getPreviousEntriesList(query, key, shiftBackUnits,
+                filterDuplicateKeys);
+        mergeResult(firstCachedEntry, lastCachedEntry, filterDuplicateKeys(result, filterDuplicateKeys));
         return result;
     }
 
@@ -234,21 +247,9 @@ public class TrailingHistoricalCacheQueryCore<V> implements IHistoricalCacheQuer
 
     private List<Entry<FDate, V>> getPreviousEntries_tooOldData(final IHistoricalCacheQueryInternalMethods<V> query,
             final FDate key, final int shiftBackUnits, final boolean filterDuplicateKeys) {
-        final List<Entry<FDate, V>> result = defaultGetPreviousEntries(query, key, shiftBackUnits, filterDuplicateKeys);
+        final List<Entry<FDate, V>> result = delegate.getPreviousEntriesList(query, key, shiftBackUnits,
+                filterDuplicateKeys);
         return result;
-    }
-
-    private Object getLock() {
-        return getParent().getLock();
-    }
-
-    private List<Entry<FDate, V>> newEntriesList(final IHistoricalCacheQueryInternalMethods<V> query,
-            final int shiftBackUnits, final boolean filterDuplicateKeys) {
-        if (filterDuplicateKeys) {
-            return query.newEntriesList(shiftBackUnits);
-        } else {
-            return new ArrayList<Entry<FDate, V>>();
-        }
     }
 
     private Entry<FDate, V> getLastCachedEntry() throws ResetCacheException {
@@ -277,7 +278,7 @@ public class TrailingHistoricalCacheQueryCore<V> implements IHistoricalCacheQuer
     @Override
     public void clear() {
         if (!cachedQueryActive) {
-            synchronized (getLock()) {
+            synchronized (getParent().getLock()) {
                 resetForRetry();
                 countResets = 0;
             }
@@ -314,38 +315,50 @@ public class TrailingHistoricalCacheQueryCore<V> implements IHistoricalCacheQuer
 
     @Override
     public void putPrevious(final FDate previousKey, final V value, final FDate valueKey) {
-        delegate.putPrevious(previousKey, value, valueKey);
-        try {
-            final Entry<FDate, V> lastEntry = getLastCachedEntry();
-            if (lastEntry != null && !lastEntry.getKey().equals(previousKey)) {
-                cachedPreviousEntries.clear();
+        synchronized (getParent().getLock()) {
+            if (cachedQueryActive) {
+                return;
             }
-            cachedPreviousEntries.add(ImmutableEntry.of(valueKey, value));
-        } catch (final ResetCacheException e) {
-            //should not happen here
-            throw new RuntimeException(e);
+            delegate.putPrevious(previousKey, value, valueKey);
+            try {
+                if (!cachedPreviousEntries.isEmpty()) {
+                    final Entry<FDate, V> lastEntry = getLastCachedEntry();
+                    if (lastEntry != null && !lastEntry.getKey().equals(previousKey)) {
+                        cachedPreviousEntries.clear();
+                    }
+                }
+                cachedPreviousEntries.add(ImmutableEntry.of(valueKey, value));
+            } catch (final ResetCacheException e) {
+                //should not happen here
+                throw new RuntimeException(e);
+            }
         }
     }
 
     @Override
     public void putPreviousKey(final FDate previousKey, final FDate valueKey) {
-        if (cachedPreviousEntries.isEmpty()) {
-            return;
-        }
-        try {
-            final Entry<FDate, V> lastEntry = getLastCachedEntry();
-            if (lastEntry == null) {
+        synchronized (getParent().getLock()) {
+            if (cachedQueryActive) {
                 return;
             }
-            if (!lastEntry.getKey().equals(previousKey)) {
+            if (cachedPreviousEntries.isEmpty()) {
                 return;
             }
-            final V newValue = getParent().computeValue(valueKey);
-            final Entry<FDate, V> newEntry = ImmutableEntry.of(valueKey, newValue);
-            getParent().getPutProvider().put(newEntry, lastEntry);
-        } catch (final ResetCacheException e) {
-            //should not happen here
-            throw new RuntimeException(e);
+            try {
+                final Entry<FDate, V> lastEntry = getLastCachedEntry();
+                if (lastEntry == null) {
+                    return;
+                }
+                if (!lastEntry.getKey().equals(previousKey)) {
+                    return;
+                }
+                final V newValue = getParent().computeValue(valueKey);
+                final Entry<FDate, V> newEntry = ImmutableEntry.of(valueKey, newValue);
+                getParent().getPutProvider().put(newEntry, lastEntry);
+            } catch (final ResetCacheException e) {
+                //should not happen here
+                throw new RuntimeException(e);
+            }
         }
     }
 

@@ -43,7 +43,7 @@ public class DelegateHistoricalCacheShiftKeyProvider implements IHistoricalCache
 
     @Override
     public ILoadingCache<FDate, FDate> getNextKeysCache() {
-        return delegate.getShiftKeyProvider().getPreviousKeysCache();
+        return delegate.getShiftKeyProvider().getNextKeysCache();
     }
 
     @Override
