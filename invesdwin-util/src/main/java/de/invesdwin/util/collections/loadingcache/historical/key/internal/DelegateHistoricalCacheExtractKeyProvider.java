@@ -9,12 +9,12 @@ import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCa
 import de.invesdwin.util.time.fdate.FDate;
 
 @Immutable
-public class DelegateHistoricalCacheExtractKeyProvider<V> implements IHistoricalCacheExtractKeyProvider<V> {
+public final class DelegateHistoricalCacheExtractKeyProvider<V> implements IHistoricalCacheExtractKeyProvider<V> {
 
     private final AHistoricalCache<Object> delegate;
     private final IHistoricalCacheQueryWithFuture<Object> delegateQueryWithFuture;
 
-    public DelegateHistoricalCacheExtractKeyProvider(final AHistoricalCache<Object> delegate) {
+    private DelegateHistoricalCacheExtractKeyProvider(final AHistoricalCache<Object> delegate) {
         this.delegate = delegate;
         this.delegateQueryWithFuture = delegate.query().withFuture();
     }
@@ -28,6 +28,22 @@ public class DelegateHistoricalCacheExtractKeyProvider<V> implements IHistorical
             return shiftKeysEntry.getKey();
         } else {
             return key;
+        }
+    }
+
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public static <T> DelegateHistoricalCacheExtractKeyProvider<T> maybeWrap(final AHistoricalCache shiftKeyDelegate) {
+        if (shiftKeyDelegate.getExtractKeyProvider() instanceof DelegateHistoricalCacheExtractKeyProvider) {
+            final DelegateHistoricalCacheExtractKeyProvider extractKeyProvider = (DelegateHistoricalCacheExtractKeyProvider) shiftKeyDelegate
+                    .getExtractKeyProvider();
+            if (extractKeyProvider.delegate.getAdjustKeyProvider()
+                    .getParent() == shiftKeyDelegate.getAdjustKeyProvider().getParent()) {
+                return extractKeyProvider;
+            } else {
+                return new DelegateHistoricalCacheExtractKeyProvider<T>(shiftKeyDelegate);
+            }
+        } else {
+            return new DelegateHistoricalCacheExtractKeyProvider<T>(shiftKeyDelegate);
         }
     }
 

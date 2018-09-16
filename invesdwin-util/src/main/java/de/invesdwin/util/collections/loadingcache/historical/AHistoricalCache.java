@@ -201,8 +201,7 @@ public abstract class AHistoricalCache<V>
         this.shiftKeyProvider = new DelegateHistoricalCacheShiftKeyProvider(
                 (AHistoricalCache<Object>) shiftKeyDelegate);
         if (alsoExtractKey) {
-            this.extractKeyProvider = new DelegateHistoricalCacheExtractKeyProvider<V>(
-                    (AHistoricalCache<Object>) shiftKeyDelegate);
+            this.extractKeyProvider = DelegateHistoricalCacheExtractKeyProvider.maybeWrap(shiftKeyDelegate);
         }
         //propagate the setting downwards without risking an endless recursion
         registerIncreaseMaximumSizeListener(shiftKeyDelegate);
@@ -211,7 +210,7 @@ public abstract class AHistoricalCache<V>
 
     protected void setPutDelegate(final AHistoricalCache<? extends V> putDelegate) {
         Assertions.assertThat(putDelegate).as("Use null instead of this").isNotSameAs(this);
-        setPutDelegate(new DelegateHistoricalCachePutProvider<V>(putDelegate));
+        setPutDelegate(putDelegate.getPutProvider());
     }
 
     @SuppressWarnings("unchecked")
@@ -219,12 +218,19 @@ public abstract class AHistoricalCache<V>
         Assertions.assertThat(this.putProvider)
                 .as("%s can only be set once", InnerHistoricalCachePutProvider.class.getSimpleName())
                 .isInstanceOf(InnerHistoricalCachePutProvider.class);
-        Assertions.assertThat(putProvider).isNotInstanceOf(InnerHistoricalCachePutProvider.class);
-        this.putProvider = (IHistoricalCachePutProvider<V>) putProvider;
+        if (InnerHistoricalCachePutProvider.class.isAssignableFrom(putProvider.getClass())) {
+            this.putProvider = DelegateHistoricalCachePutProvider.maybeWrap(putProvider);
+        } else {
+            this.putProvider = (IHistoricalCachePutProvider<V>) putProvider;
+        }
     }
 
     public final IHistoricalCachePutProvider<V> getPutProvider() {
         return putProvider;
+    }
+
+    public IHistoricalCacheExtractKeyProvider<V> getExtractKeyProvider() {
+        return extractKeyProvider;
     }
 
     protected FDate adjustKey(final FDate key) {

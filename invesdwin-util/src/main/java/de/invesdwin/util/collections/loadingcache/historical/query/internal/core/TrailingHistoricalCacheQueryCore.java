@@ -168,7 +168,11 @@ public class TrailingHistoricalCacheQueryCore<V> implements IHistoricalCacheQuer
             firstUniqueIndex = i;
             prevEntry = entry;
         }
-        return result.subList(firstUniqueIndex, result.size());
+        if (firstUniqueIndex == 0) {
+            return result;
+        } else {
+            return result.subList(firstUniqueIndex, result.size());
+        }
     }
 
     private int fillFromCacheAsFarAsPossible(final List<Entry<FDate, V>> trailing, final int unitsBack,
@@ -323,8 +327,10 @@ public class TrailingHistoricalCacheQueryCore<V> implements IHistoricalCacheQuer
             try {
                 if (!cachedPreviousEntries.isEmpty()) {
                     final Entry<FDate, V> lastEntry = getLastCachedEntry();
-                    if (lastEntry != null && !lastEntry.getKey().equals(previousKey)) {
+                    if (lastEntry.getKey().isBefore(previousKey)) {
                         cachedPreviousEntries.clear();
+                    } else if (lastEntry.getKey().isAfter(previousKey)) {
+                        return;
                     }
                 }
                 cachedPreviousEntries.add(ImmutableEntry.of(valueKey, value));
@@ -342,14 +348,17 @@ public class TrailingHistoricalCacheQueryCore<V> implements IHistoricalCacheQuer
                 return;
             }
             if (cachedPreviousEntries.isEmpty()) {
+                final V newValue = getParent().computeValue(valueKey);
+                putPrevious(previousKey, newValue, valueKey);
                 return;
             }
             try {
                 final Entry<FDate, V> lastEntry = getLastCachedEntry();
-                if (lastEntry == null) {
-                    return;
-                }
                 if (!lastEntry.getKey().equals(previousKey)) {
+                    if (lastEntry.getKey().isBefore(previousKey)) {
+                        final V newValue = getParent().computeValue(valueKey);
+                        putPrevious(previousKey, newValue, valueKey);
+                    }
                     return;
                 }
                 final V newValue = getParent().computeValue(valueKey);
