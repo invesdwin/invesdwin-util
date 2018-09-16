@@ -21,11 +21,7 @@ import de.invesdwin.util.collections.loadingcache.historical.query.internal.core
 import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.math.Integers;
-import de.invesdwin.util.math.stream.number.NumberStreamAvg;
-import de.invesdwin.util.time.Instant;
-import de.invesdwin.util.time.duration.Duration;
 import de.invesdwin.util.time.fdate.FDate;
-import de.invesdwin.util.time.fdate.FTimeUnit;
 
 @ThreadSafe
 public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryCore<V> {
@@ -673,106 +669,17 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
         return newUnitsBack;
     }
 
-    //CHECKSTYLE:OFF
     private int bisect(final FDate skippingKeysAbove, final int unitsBack) throws ResetCacheException {
-        //CHECKSTYLE:ON
-        final Instant start = new Instant();
-        final int highestTimeIndex = cachedPreviousEntries.size() - 1;
-        final int lowestTimeIndex = 0;
-        //        final FDate lowestTime = cachedPreviousEntries.get(lowestTimeIndex).getKey();
-        //        if (skippingKeysAbove.isBeforeOrEqualTo(lowestTime) && highestTimeIndex > maxCachedIndex) {
-        //            throw new ResetCacheException("Not enough data in cache for fillFromCacheAsFarAsPossible [" + unitsBack
-        //                    + "/" + maxCachedIndex + "/" + highestTimeIndex + "]");
-        //        }
+        int lo = 0;
+        int hi = cachedPreviousEntries.size();
+        FDate loTime = cachedPreviousEntries.get(lo).getKey();
+        if (skippingKeysAbove.isBeforeOrEqualTo(loTime) && hi >= maxCachedIndex) {
+            throw new ResetCacheException("Not enough data in cache for fillFromCacheAsFarAsPossible [" + unitsBack
+                    + "/" + maxCachedIndex + "/" + (hi - 1) + "]");
+        }
 
-        int iterations = 0;
-
-        //        final FDate highestTime = cachedPreviousEntries.get(highestTimeIndex).getKey();
-        //
-        //        for (int countTryToNarrow = 0; countTryToNarrow < 2; countTryToNarrow++) {
-        //            final double scanDuration = new Duration(lowestTime, highestTime).doubleValue(FTimeUnit.MILLISECONDS);
-        //            final double skipLowestDuration = new Duration(lowestTime, skippingKeysAbove)
-        //                    .doubleValue(FTimeUnit.MILLISECONDS);
-        //            final double skipHighestDuration = new Duration(skippingKeysAbove, highestTime)
-        //                    .doubleValue(FTimeUnit.MILLISECONDS);
-        //            boolean changed = false;
-        //            int minimumChange = 1;
-        //            for (int divisor = 1; divisor < 10; divisor++) {
-        //                final double scanDurationByDivisor = scanDuration * divisor;
-        //                final int indexRange = highestTimeIndex - lowestTimeIndex;
-        //                boolean changeAttempted = false;
-        //
-        //                { //SUPPRESS CHECKSTYLE nested blocks
-        //                    final double skipLowestRate = skipLowestDuration / scanDurationByDivisor;
-        //                    final int skipLowestIndexRange = (int) (indexRange * skipLowestRate);
-        //                    if (skipLowestIndexRange >= minimumChange) {
-        //                        iterations++;
-        //                        changeAttempted = true;
-        //                        final int guessLowestTimeIndex = lowestTimeIndex + skipLowestIndexRange;
-        //                        if (guessLowestTimeIndex == lowestTimeIndex) {
-        //                            //abort since the guess did not change anything
-        //                            break;
-        //                        }
-        //                        final FDate guessLowestTime = cachedPreviousEntries.get(guessLowestTimeIndex).getKey();
-        //                        final int compareTo = guessLowestTime.compareTo(skippingKeysAbove);
-        //                        if (compareTo == 0) {
-        //                            //we found it
-        //                            System.out.println("guess lowest correct " + iterations + " -> " + highestTimeIndex + "/"
-        //                                    + cachedPreviousEntries.size() + " -> " + bisectStats(iterations, start));
-        //                            return guessLowestTimeIndex;
-        //                        } else if (compareTo < 0) {
-        //                            //we could skip a bit, remember that
-        //                            lowestTimeIndex = guessLowestTimeIndex;
-        //                            lowestTime = guessLowestTime;
-        //                            changed = true;
-        //                        }
-        //                    }
-        //                }
-        //
-        //                { //SUPPRESS CHECKSTYLE nested blocks
-        //                    final double skipHighestRate = skipHighestDuration / scanDurationByDivisor;
-        //                    final int skipHighestIndexRange = (int) (indexRange * skipHighestRate);
-        //                    if (skipHighestIndexRange >= minimumChange) {
-        //                        iterations++;
-        //                        changeAttempted = true;
-        //                        final int guessHighestTimeIndex = highestTimeIndex - skipHighestIndexRange;
-        //                        if (guessHighestTimeIndex == highestTimeIndex) {
-        //                            //abort since the guess did not change anything
-        //                            break;
-        //                        }
-        //                        final FDate guessHighestTime = cachedPreviousEntries.get(guessHighestTimeIndex).getKey();
-        //                        final int compareTo = guessHighestTime.compareTo(skippingKeysAbove);
-        //                        if (compareTo == 0) {
-        //                            //we found it
-        //                            System.out.println("guess highest correct " + iterations + " -> " + highestTimeIndex + "/"
-        //                                    + cachedPreviousEntries.size() + " -> " + bisectStats(iterations, start));
-        //                            return guessHighestTimeIndex;
-        //                        } else if (compareTo > 0) {
-        //                            //we could skip a bit, remember that
-        //                            highestTimeIndex = guessHighestTimeIndex;
-        //                            highestTime = guessHighestTime;
-        //                            changed = true;
-        //                        }
-        //                    }
-        //                }
-        //
-        //                minimumChange = 10;
-        //                if (changed || !changeAttempted) {
-        //                    break;
-        //                }
-        //            }
-        //            if (!changed) {
-        //                break;
-        //            }
-        //        }
-        //        if (highestTimeIndex < lowestTimeIndex) {
-        //            throw new IllegalStateException("Inverted results should not happen");
-        //        }
         //bisect
-        int lo = lowestTimeIndex;
-        int hi = highestTimeIndex + 1;
         while (lo < hi) {
-            iterations++;
             final int mid = (lo + hi) / 2;
             //if (x < list.get(mid)) {
             final FDate midKey = cachedPreviousEntries.get(mid).getKey();
@@ -782,8 +689,6 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
                 lo = mid + 1;
                 break;
             case 0:
-                System.out.println("bisect correnct " + iterations + " -> " + lo + "/" + cachedPreviousEntries.size()
-                        + " -> " + bisectStats(iterations, start));
                 return mid;
             case 1:
                 hi = mid;
@@ -792,26 +697,12 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
                 throw UnknownArgumentException.newInstance(Integer.class, compareTo);
             }
         }
-        final FDate loKey = cachedPreviousEntries.get(lo).getKey();
-        System.out.println("end " + iterations + " -> " + lo + "/" + cachedPreviousEntries.size() + " -> "
-                + bisectStats(iterations, start));
-        if (loKey.isAfter(skippingKeysAbove)) {
+        loTime = cachedPreviousEntries.get(lo).getKey();
+        if (loTime.isAfter(skippingKeysAbove)) {
             return lo - 1;
         } else {
             return lo;
         }
-    }
-
-    private static long sumIterations = 0;
-    private static long countBisects = 0;
-    private static NumberStreamAvg<Double> avg = new NumberStreamAvg<>();
-
-    private String bisectStats(final int iterations, final Instant start) {
-        sumIterations += iterations;
-        countBisects++;
-        avg.process(start.toDuration().doubleValue(FTimeUnit.NANOSECONDS));
-        return sumIterations / countBisects + " (" + sumIterations + "/" + countBisects + ") -> "
-                + new Duration((long) avg.getAvg(), FTimeUnit.NANOSECONDS);
     }
 
     private Entry<FDate, V> getLastCachedEntry() throws ResetCacheException {
