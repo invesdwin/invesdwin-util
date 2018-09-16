@@ -61,7 +61,7 @@ public abstract class AHistoricalCacheRangeQueryInterceptor<V> implements IHisto
             @Override
             protected Entry<FDate, V> transform(final Entry<FDate, V> newEntry) {
                 //fill cache for faster prev/next lookups
-                parent.put(newEntry, prevEntry);
+                parent.getPutProvider().put(newEntry, prevEntry);
                 prevEntry = newEntry;
                 return newEntry;
             }

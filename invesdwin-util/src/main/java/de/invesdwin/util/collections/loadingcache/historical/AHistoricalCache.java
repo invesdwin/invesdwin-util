@@ -24,11 +24,14 @@ import de.invesdwin.util.collections.loadingcache.historical.interceptor.IHistor
 import de.invesdwin.util.collections.loadingcache.historical.key.APullingHistoricalCacheAdjustKeyProvider;
 import de.invesdwin.util.collections.loadingcache.historical.key.IHistoricalCacheAdjustKeyProvider;
 import de.invesdwin.util.collections.loadingcache.historical.key.internal.DelegateHistoricalCacheExtractKeyProvider;
+import de.invesdwin.util.collections.loadingcache.historical.key.internal.DelegateHistoricalCachePutProvider;
 import de.invesdwin.util.collections.loadingcache.historical.key.internal.DelegateHistoricalCacheShiftKeyProvider;
 import de.invesdwin.util.collections.loadingcache.historical.key.internal.IHistoricalCacheExtractKeyProvider;
+import de.invesdwin.util.collections.loadingcache.historical.key.internal.IHistoricalCachePutProvider;
 import de.invesdwin.util.collections.loadingcache.historical.key.internal.IHistoricalCacheShiftKeyProvider;
 import de.invesdwin.util.collections.loadingcache.historical.listener.IHistoricalCacheIncreaseMaximumSizeListener;
 import de.invesdwin.util.collections.loadingcache.historical.listener.IHistoricalCacheOnClearListener;
+import de.invesdwin.util.collections.loadingcache.historical.listener.IHistoricalCachePutListener;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQuery;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.HistoricalCacheQuery;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.IHistoricalCacheInternalMethods;
@@ -59,8 +62,10 @@ public abstract class AHistoricalCache<V> implements IHistoricalCacheIncreaseMax
     private final Set<IHistoricalCacheOnClearListener> onClearListeners = newListenerSet();
     private final Set<IHistoricalCacheIncreaseMaximumSizeListener> increaseMaximumSizeListeners = newListenerSet();
 
-    private volatile FDate lastRefresh = HistoricalCacheRefreshManager.getLastRefresh();
+    private IHistoricalCachePutProvider<V> putProvider = new InnerHistoricalCachePutProvider();
     private boolean isPutDisabled = getMaximumSize() != null && getMaximumSize() == 0;
+
+    private volatile FDate lastRefresh = HistoricalCacheRefreshManager.getLastRefresh();
     private volatile Integer maximumSize = getInitialMaximumSize();
     private IHistoricalCacheShiftKeyProvider shiftKeyProvider = new InnerHistoricalCacheShiftKeyProvider();
     private IHistoricalCacheExtractKeyProvider<V> extractKeyProvider = new InnerHistoricalCacheExtractKeyProvider();
@@ -197,6 +202,24 @@ public abstract class AHistoricalCache<V> implements IHistoricalCacheIncreaseMax
         //propagate the setting downwards without risking an endless recursion
         registerIncreaseMaximumSizeListener(shiftKeyDelegate);
         isPutDisabled = false;
+    }
+
+    protected void setPutDelegate(final AHistoricalCache<? extends V> putDelegate) {
+        Assertions.assertThat(putDelegate).as("Use null instead of this").isNotSameAs(this);
+        setPutDelegate(new DelegateHistoricalCachePutProvider<V>(putDelegate));
+    }
+
+    @SuppressWarnings("unchecked")
+    protected void setPutDelegate(final IHistoricalCachePutProvider<? extends V> putProvider) {
+        Assertions.assertThat(this.putProvider)
+                .as("%s can only be set once", IHistoricalCacheShiftKeyProvider.class.getSimpleName())
+                .isInstanceOf(InnerHistoricalCacheShiftKeyProvider.class);
+        Assertions.assertThat(putProvider).isNotInstanceOf(InnerHistoricalCachePutProvider.class);
+        this.putProvider = (IHistoricalCachePutProvider<V>) putProvider;
+    }
+
+    public final IHistoricalCachePutProvider<V> getPutProvider() {
+        return putProvider;
     }
 
     protected FDate adjustKey(final FDate key) {
@@ -350,98 +373,6 @@ public abstract class AHistoricalCache<V> implements IHistoricalCacheIncreaseMax
         }
         shiftKeyProvider.getPreviousKeysCache().remove(key);
         shiftKeyProvider.getNextKeysCache().remove(key);
-    }
-
-    private void putPrevAndNext(final FDate nextKey, final FDate valueKey, final V value, final FDate previousKey) {
-        if (previousKey != null && nextKey != null) {
-            if (!(previousKey.compareTo(nextKey) <= 0)) {
-                throw new IllegalArgumentException(new TextDescription(
-                        "%s: previousKey [%s] <= nextKey [%s] not matched", this, previousKey, nextKey).toString());
-            }
-        }
-        getValuesMap().put(valueKey, value);
-        if (previousKey != null) {
-            putPrevious(previousKey, value, valueKey);
-        }
-        if (nextKey != null) {
-            putNext(nextKey, value, valueKey);
-        }
-    }
-
-    public void put(final FDate newKey, final V newValue, final FDate prevKey, final V prevValue) {
-        if (isPutDisabled) {
-            return;
-        }
-        if (newValue != null) {
-            if (prevValue != null) {
-                putPrevAndNext(newKey, prevKey, prevValue, null);
-                putPrevAndNext(null, newKey, newValue, prevKey);
-            } else {
-                putPrevAndNext(null, newKey, newValue, null);
-            }
-        }
-    }
-
-    public void put(final V newValue, final V prevValue) {
-        if (isPutDisabled) {
-            return;
-        }
-        if (newValue != null) {
-            final FDate newKey = extractKey(null, newValue);
-            if (prevValue != null) {
-                final FDate prevKey = extractKey(null, prevValue);
-                putPrevAndNext(newKey, prevKey, prevValue, null);
-                putPrevAndNext(null, newKey, newValue, prevKey);
-            } else {
-                putPrevAndNext(null, newKey, newValue, null);
-            }
-        }
-    }
-
-    public void put(final Entry<FDate, V> newEntry, final Entry<FDate, V> prevEntry) {
-        if (isPutDisabled) {
-            return;
-        }
-        if (newEntry != null) {
-            final V newValue = newEntry.getValue();
-            if (newValue != null) {
-                final FDate newKey = newEntry.getKey();
-                if (prevEntry != null) {
-                    final FDate prevKey = prevEntry.getKey();
-                    final V prevValue = prevEntry.getValue();
-                    putPrevAndNext(newKey, prevKey, prevValue, null);
-                    putPrevAndNext(null, newKey, newValue, prevKey);
-                } else {
-                    putPrevAndNext(null, newKey, newValue, null);
-                }
-            }
-        }
-    }
-
-    private void putPrevious(final FDate previousKey, final V value, final FDate valueKey) {
-        final int compare = previousKey.compareTo(valueKey);
-        if (!(compare <= 0)) {
-            throw new IllegalArgumentException(
-                    new TextDescription("%s: previousKey [%s] <= value [%s] not matched", this, previousKey, valueKey)
-                            .toString());
-        }
-        if (compare != 0) {
-            shiftKeyProvider.getPreviousKeysCache().put(valueKey, previousKey);
-            shiftKeyProvider.getNextKeysCache().put(previousKey, valueKey);
-        }
-    }
-
-    private void putNext(final FDate nextKey, final V value, final FDate valueKey) {
-        final int compare = nextKey.compareTo(valueKey);
-        if (!(compare >= 0)) {
-            throw new IllegalArgumentException(
-                    new TextDescription("%s: nextKey [%s] >= value [%s] not matched", this, nextKey, valueKey)
-                            .toString());
-        }
-        if (compare != 0) {
-            shiftKeyProvider.getNextKeysCache().put(valueKey, nextKey);
-            shiftKeyProvider.getPreviousKeysCache().put(nextKey, valueKey);
-        }
     }
 
     public void clear() {
@@ -730,6 +661,126 @@ public abstract class AHistoricalCache<V> implements IHistoricalCacheIncreaseMax
             return APullingHistoricalCacheAdjustKeyProvider.isGlobalAlreadyAdjustingKey();
         }
 
+    }
+
+    private final class InnerHistoricalCachePutProvider implements IHistoricalCachePutProvider<V> {
+
+        private final Set<IHistoricalCachePutListener> putListeners = newListenerSet();
+
+        @Override
+        public void put(final FDate newKey, final V newValue, final FDate prevKey, final V prevValue) {
+            if (isPutDisabled) {
+                return;
+            }
+            if (newValue != null) {
+                if (prevValue != null) {
+                    putPrevAndNext(newKey, prevKey, prevValue, null);
+                    putPrevAndNext(null, newKey, newValue, prevKey);
+                } else {
+                    putPrevAndNext(null, newKey, newValue, null);
+                }
+            }
+        }
+
+        @Override
+        public void put(final V newValue, final V prevValue) {
+            if (isPutDisabled) {
+                return;
+            }
+            if (newValue != null) {
+                final FDate newKey = extractKey(null, newValue);
+                if (prevValue != null) {
+                    final FDate prevKey = extractKey(null, prevValue);
+                    putPrevAndNext(newKey, prevKey, prevValue, null);
+                    putPrevAndNext(null, newKey, newValue, prevKey);
+                } else {
+                    putPrevAndNext(null, newKey, newValue, null);
+                }
+            }
+        }
+
+        @Override
+        public void put(final Entry<FDate, V> newEntry, final Entry<FDate, V> prevEntry) {
+            if (isPutDisabled) {
+                return;
+            }
+            if (newEntry != null) {
+                final V newValue = newEntry.getValue();
+                if (newValue != null) {
+                    final FDate newKey = newEntry.getKey();
+                    if (prevEntry != null) {
+                        final FDate prevKey = prevEntry.getKey();
+                        final V prevValue = prevEntry.getValue();
+                        putPrevAndNext(newKey, prevKey, prevValue, null);
+                        putPrevAndNext(null, newKey, newValue, prevKey);
+                    } else {
+                        putPrevAndNext(null, newKey, newValue, null);
+                    }
+                }
+            }
+        }
+
+        private void putPrevAndNext(final FDate nextKey, final FDate valueKey, final V value, final FDate previousKey) {
+            if (previousKey != null && nextKey != null) {
+                if (!(previousKey.compareTo(nextKey) <= 0)) {
+                    throw new IllegalArgumentException(new TextDescription(
+                            "%s: previousKey [%s] <= nextKey [%s] not matched", this, previousKey, nextKey).toString());
+                }
+            }
+            getValuesMap().put(valueKey, value);
+            if (previousKey != null) {
+                putPrevious(previousKey, value, valueKey);
+            }
+            if (nextKey != null) {
+                putNext(nextKey, value, valueKey);
+            }
+        }
+
+        private void putPrevious(final FDate previousKey, final V value, final FDate valueKey) {
+            final int compare = previousKey.compareTo(valueKey);
+            if (!(compare <= 0)) {
+                throw new IllegalArgumentException(new TextDescription("%s: previousKey [%s] <= value [%s] not matched",
+                        this, previousKey, valueKey).toString());
+            }
+            if (compare != 0) {
+                shiftKeyProvider.getPreviousKeysCache().put(valueKey, previousKey);
+                shiftKeyProvider.getNextKeysCache().put(previousKey, valueKey);
+                queryCore.putPrevious(previousKey, value, valueKey);
+                if (!putListeners.isEmpty()) {
+                    for (final IHistoricalCachePutListener l : putListeners) {
+                        l.putPrevious(previousKey, valueKey);
+                    }
+                }
+            }
+        }
+
+        private void putNext(final FDate nextKey, final V value, final FDate valueKey) {
+            final int compare = nextKey.compareTo(valueKey);
+            if (!(compare >= 0)) {
+                throw new IllegalArgumentException(
+                        new TextDescription("%s: nextKey [%s] >= value [%s] not matched", this, nextKey, valueKey)
+                                .toString());
+            }
+            if (compare != 0) {
+                shiftKeyProvider.getNextKeysCache().put(valueKey, nextKey);
+                shiftKeyProvider.getPreviousKeysCache().put(nextKey, valueKey);
+            }
+        }
+
+        @Override
+        public Set<IHistoricalCachePutListener> getPutListeners() {
+            return Collections.unmodifiableSet(putListeners);
+        }
+
+        @Override
+        public boolean registerPutListener(final IHistoricalCachePutListener l) {
+            return putListeners.add(l);
+        }
+
+        @Override
+        public boolean unregisterPutListener(final IHistoricalCachePutListener l) {
+            return putListeners.remove(l);
+        }
     }
 
 }

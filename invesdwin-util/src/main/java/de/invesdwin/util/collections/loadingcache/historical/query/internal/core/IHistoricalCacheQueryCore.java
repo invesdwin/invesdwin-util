@@ -34,4 +34,6 @@ public interface IHistoricalCacheQueryCore<V> {
     Entry<FDate, V> computeEntry(HistoricalCacheQuery<V> historicalCacheQuery, FDate key,
             HistoricalCacheAssertValue assertValue);
 
+    void putPrevious(FDate previousKey, V value, FDate valueKey);
+
 }

@@ -180,4 +180,9 @@ public class DefaultHistoricalCacheQueryCore<V> implements IHistoricalCacheQuery
         return assertValue.assertValue(parent, key, key, value);
     }
 
+    @Override
+    public void putPrevious(final FDate previousKey, final V value, final FDate valueKey) {
+        //ignore
+    }
+
 }

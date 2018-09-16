@@ -10,6 +10,7 @@ import javax.annotation.concurrent.ThreadSafe;
 
 import org.assertj.core.util.Lists;
 
+import de.invesdwin.util.bean.tuple.ImmutableEntry;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.SingleValueIterable;
 import de.invesdwin.util.collections.iterable.WrapperCloseableIterable;
@@ -261,7 +262,7 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
             }
         }
 
-        appendCachedEntryAndResult(query, key, shiftBackUnits, latestValue);
+        appendCachedEntryAndResult(key, shiftBackUnits, latestValue);
         return tryCachedPreviousResult_sameKey(query, shiftBackUnits, filterDuplicateKeys);
     }
 
@@ -512,8 +513,8 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
     }
 
     //CHECKSTYLE:OFF
-    private void appendCachedEntryAndResult(final IHistoricalCacheQueryInternalMethods<V> query, final FDate key,
-            final int shiftBackUnits, final Entry<FDate, V> latestEntry) throws ResetCacheException {
+    private void appendCachedEntryAndResult(final FDate key, final int shiftBackUnits,
+            final Entry<FDate, V> latestEntry) throws ResetCacheException {
         //CHECKSTYLE:ON
         if (latestEntry != null) {
             if (cachedPreviousResult_shiftBackUnits == null) {
@@ -766,6 +767,27 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
     public Entry<FDate, V> computeEntry(final HistoricalCacheQuery<V> historicalCacheQuery, final FDate key,
             final HistoricalCacheAssertValue assertValue) {
         return delegate.computeEntry(historicalCacheQuery, key, assertValue);
+    }
+
+    @Override
+    public void putPrevious(final FDate previousKey, final V value, final FDate valueKey) {
+        if (cachedPreviousEntries.isEmpty() || cachedPreviousResult_shiftBackUnits == null) {
+            return;
+        }
+        try {
+            final Entry<FDate, V> lastEntry = getLastCachedEntry();
+            if (lastEntry == null) {
+                return;
+            }
+            if (!lastEntry.getKey().equals(previousKey)) {
+                return;
+            }
+            appendCachedEntryAndResult(valueKey, cachedPreviousResult_shiftBackUnits,
+                    ImmutableEntry.of(valueKey, value));
+        } catch (final ResetCacheException e) {
+            //should not happen here
+            throw new RuntimeException(e);
+        }
     }
 
 }
