@@ -518,17 +518,25 @@ public class FDate implements IDate, Serializable, Cloneable, Comparable<Object>
     public int compareTo(final Object o) {
         if (o instanceof FDate) {
             final FDate cO = (FDate) o;
-            return Long.compare(millis, cO.millis);
+            return compareTo(cO);
         } else {
             return 1;
         }
+    }
+
+    public int compareTo(final FDate o) {
+        return Long.compare(millis, o.millis);
+    }
+
+    public boolean equals(final FDate obj) {
+        return millis == obj.millis;
     }
 
     @Override
     public boolean equals(final Object obj) {
         if (obj instanceof FDate) {
             final FDate cObj = (FDate) obj;
-            return millis == cObj.millis;
+            return equals(cObj);
         } else {
             return false;
         }

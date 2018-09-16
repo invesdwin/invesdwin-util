@@ -79,7 +79,7 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
         }
     }
 
-    private void maybeIncreaseMaximumSize(final int requiredSize) {
+    public void maybeIncreaseMaximumSize(final int requiredSize) {
         final int adjRequiredSize = requiredSize * REQUIRED_SIZE_MULTIPLICATOR;
         final Integer maximumSize = getParent().getMaximumSize();
         if (maximumSize != null && maximumSize < requiredSize) {
@@ -673,7 +673,7 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
         int hi = list.size();
         if (unitsBack != null) {
             final FDate loTime = list.get(lo).getKey();
-            if (skippingKeysAbove.isBeforeOrEqualTo(loTime) && hi >= maxCachedIndex) {
+            if (skippingKeysAbove.millisValue() <= loTime.millisValue() && hi >= maxCachedIndex) {
                 throw new ResetCacheException("Not enough data in cache for fillFromCacheAsFarAsPossible [" + unitsBack
                         + "/" + maxCachedIndex + "/" + (hi - 1) + "]");
             }
@@ -699,7 +699,7 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
             }
         }
         final FDate loTime = list.get(lo).getKey();
-        if (loTime.isAfter(skippingKeysAbove)) {
+        if (loTime.millisValue() > skippingKeysAbove.millisValue()) {
             return lo - 1;
         } else {
             return lo;
