@@ -468,12 +468,7 @@ public abstract class AHistoricalCache<V> implements IHistoricalCacheIncreaseMax
     }
 
     public boolean registerIncreaseMaximumSizeListener(final IHistoricalCacheIncreaseMaximumSizeListener l) {
-        if (increaseMaximumSizeListeners.add(l)) {
-            l.increaseMaximumSize(maximumSize, "registerIncreaseMaximumSizeListener");
-            return true;
-        } else {
-            return false;
-        }
+        return increaseMaximumSizeListeners.add(l);
     }
 
     public boolean unregisterIncreaseMaximumSizeListener(final IHistoricalCacheIncreaseMaximumSizeListener l) {
