@@ -39,18 +39,26 @@ public abstract class AConvertingHistoricalCachePutProvider<FROM, TO> implements
     protected abstract FROM convertValue(TO value);
 
     @Override
-    public void put(final FDate newKey, final TO newValue, final FDate prevKey, final TO prevValue) {
-        delegate.put(newKey, nullSafeConvertValue(newValue), prevKey, nullSafeConvertValue(prevValue));
+    public void put(final FDate newKey, final TO newValue, final FDate prevKey, final TO prevValue,
+            final boolean notifyPutListeners) {
+        final FROM cNewValue = nullSafeConvertValue(newValue);
+        final FROM cPrevValue = nullSafeConvertValue(prevValue);
+        delegate.put(newKey, cNewValue, prevKey, cPrevValue, notifyPutListeners);
     }
 
     @Override
-    public void put(final TO newValue, final TO prevValue) {
-        delegate.put(nullSafeConvertValue(newValue), nullSafeConvertValue(prevValue));
+    public void put(final TO newValue, final TO prevValue, final boolean notifyPutListeners) {
+        final FROM cNewValue = nullSafeConvertValue(newValue);
+        final FROM cPrevValue = nullSafeConvertValue(prevValue);
+        delegate.put(cNewValue, cPrevValue, notifyPutListeners);
     }
 
     @Override
-    public void put(final Entry<FDate, TO> newEntry, final Entry<FDate, TO> prevEntry) {
-        delegate.put(nullSafeConvertEntry(newEntry), nullSafeConvertEntry(prevEntry));
+    public void put(final Entry<FDate, TO> newEntry, final Entry<FDate, TO> prevEntry,
+            final boolean notifyPutListeners) {
+        final Entry<FDate, FROM> cNewEntry = nullSafeConvertEntry(newEntry);
+        final Entry<FDate, FROM> cPrevEntry = nullSafeConvertEntry(prevEntry);
+        delegate.put(cNewEntry, cPrevEntry, notifyPutListeners);
     }
 
     @Override

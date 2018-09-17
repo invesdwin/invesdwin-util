@@ -689,22 +689,24 @@ public abstract class AHistoricalCache<V>
         };
 
         @Override
-        public void put(final FDate newKey, final V newValue, final FDate prevKey, final V prevValue) {
+        public void put(final FDate newKey, final V newValue, final FDate prevKey, final V prevValue,
+                final boolean notifyPutListeners) {
             if (isPutDisabled) {
                 return;
             }
             if (newValue != null) {
                 if (prevValue != null) {
-                    putPrevAndNext(newKey, prevKey, prevValue, null);
-                    putPrevAndNext(null, newKey, newValue, prevKey);
+                    putPrevAndNext(newKey, prevKey, prevValue, null, false);
+                    //notifyPutListeners only relevant for putPrevious
+                    putPrevAndNext(null, newKey, newValue, prevKey, notifyPutListeners);
                 } else {
-                    putPrevAndNext(null, newKey, newValue, null);
+                    putPrevAndNext(null, newKey, newValue, null, false);
                 }
             }
         }
 
         @Override
-        public void put(final V newValue, final V prevValue) {
+        public void put(final V newValue, final V prevValue, final boolean notifyPutListeners) {
             if (isPutDisabled) {
                 return;
             }
@@ -712,16 +714,18 @@ public abstract class AHistoricalCache<V>
                 final FDate newKey = extractKey(null, newValue);
                 if (prevValue != null) {
                     final FDate prevKey = extractKey(null, prevValue);
-                    putPrevAndNext(newKey, prevKey, prevValue, null);
-                    putPrevAndNext(null, newKey, newValue, prevKey);
+                    putPrevAndNext(newKey, prevKey, prevValue, null, false);
+                    //notifyPutListeners only relevant for putPrevious
+                    putPrevAndNext(null, newKey, newValue, prevKey, notifyPutListeners);
                 } else {
-                    putPrevAndNext(null, newKey, newValue, null);
+                    putPrevAndNext(null, newKey, newValue, null, false);
                 }
             }
         }
 
         @Override
-        public void put(final Entry<FDate, V> newEntry, final Entry<FDate, V> prevEntry) {
+        public void put(final Entry<FDate, V> newEntry, final Entry<FDate, V> prevEntry,
+                final boolean notifyPutListeners) {
             if (isPutDisabled) {
                 return;
             }
@@ -732,16 +736,18 @@ public abstract class AHistoricalCache<V>
                     if (prevEntry != null) {
                         final FDate prevKey = prevEntry.getKey();
                         final V prevValue = prevEntry.getValue();
-                        putPrevAndNext(newKey, prevKey, prevValue, null);
-                        putPrevAndNext(null, newKey, newValue, prevKey);
+                        putPrevAndNext(newKey, prevKey, prevValue, null, false);
+                        //notifyPutListeners only relevant for putPrevious
+                        putPrevAndNext(null, newKey, newValue, prevKey, notifyPutListeners);
                     } else {
-                        putPrevAndNext(null, newKey, newValue, null);
+                        putPrevAndNext(null, newKey, newValue, null, false);
                     }
                 }
             }
         }
 
-        private void putPrevAndNext(final FDate nextKey, final FDate valueKey, final V value, final FDate previousKey) {
+        private void putPrevAndNext(final FDate nextKey, final FDate valueKey, final V value, final FDate previousKey,
+                final boolean notifyPutListeners) {
             if (previousKey != null && nextKey != null) {
                 if (!(previousKey.compareTo(nextKey) <= 0)) {
                     throw new IllegalArgumentException(new TextDescription(
@@ -750,7 +756,7 @@ public abstract class AHistoricalCache<V>
             }
             getValuesMap().put(valueKey, value);
             if (previousKey != null) {
-                putPrevious(previousKey, value, valueKey);
+                putPrevious(previousKey, value, valueKey, notifyPutListeners);
             }
             if (nextKey != null) {
                 putNext(nextKey, value, valueKey);
@@ -758,7 +764,8 @@ public abstract class AHistoricalCache<V>
         }
 
         @SuppressWarnings("rawtypes")
-        private void putPrevious(final FDate previousKey, final V value, final FDate valueKey) {
+        private void putPrevious(final FDate previousKey, final V value, final FDate valueKey,
+                final boolean notifyPutListeners) {
             final int compare = previousKey.compareTo(valueKey);
             if (!(compare <= 0)) {
                 throw new IllegalArgumentException(new TextDescription("%s: previousKey [%s] <= value [%s] not matched",
@@ -767,16 +774,18 @@ public abstract class AHistoricalCache<V>
             if (compare != 0) {
                 shiftKeyProvider.getPreviousKeysCache().put(valueKey, previousKey);
                 shiftKeyProvider.getNextKeysCache().put(previousKey, valueKey);
-                queryCore.putPrevious(previousKey, value, valueKey);
-                if (!putListenersFast.isEmpty()) {
-                    final WeakReference[] array = putListenersFast.asArray(WeakReference.class);
-                    for (int i = 0, fastIndex = 0; i < array.length; i++, fastIndex++) {
-                        final IHistoricalCachePutListener l = (IHistoricalCachePutListener) array[i].get();
-                        if (l == null) {
-                            putListenersFast.remove(fastIndex);
-                            fastIndex--;
-                        } else {
-                            l.putPreviousKey(previousKey, valueKey);
+                if (notifyPutListeners) {
+                    queryCore.putPrevious(previousKey, value, valueKey);
+                    if (!putListenersFast.isEmpty()) {
+                        final WeakReference[] array = putListenersFast.asArray(WeakReference.class);
+                        for (int i = 0, fastIndex = 0; i < array.length; i++, fastIndex++) {
+                            final IHistoricalCachePutListener l = (IHistoricalCachePutListener) array[i].get();
+                            if (l == null) {
+                                putListenersFast.remove(fastIndex);
+                                fastIndex--;
+                            } else {
+                                l.putPreviousKey(previousKey, valueKey);
+                            }
                         }
                     }
                 }

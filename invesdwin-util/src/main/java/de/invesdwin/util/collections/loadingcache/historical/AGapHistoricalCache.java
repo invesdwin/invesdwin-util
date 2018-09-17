@@ -439,7 +439,7 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
             } else {
                 //key > newValueKey
                 //put this value into the cache; gaps do not get filled here, so that the max size of the cache does not get reached prematurely
-                getPutProvider().put(newValueKey, newValue, prevKey, prevValue);
+                getPutProvider().put(newValueKey, newValue, prevKey, prevValue, false);
                 pushLastValueFromFurtherValues();
                 //continue with the next one
                 prevValue = newValue;

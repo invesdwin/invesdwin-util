@@ -375,7 +375,7 @@ public class TrailingHistoricalCacheQueryCore<V> implements IHistoricalCacheQuer
                 }
                 final V newValue = getParent().computeValue(valueKey);
                 final Entry<FDate, V> newEntry = ImmutableEntry.of(valueKey, newValue);
-                getParent().getPutProvider().put(newEntry, lastEntry);
+                getParent().getPutProvider().put(newEntry, lastEntry, true);
             } catch (final ResetCacheException e) {
                 //should not happen here
                 throw new RuntimeException(e);

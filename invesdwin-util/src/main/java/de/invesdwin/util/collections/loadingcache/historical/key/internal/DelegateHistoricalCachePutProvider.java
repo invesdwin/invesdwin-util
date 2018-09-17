@@ -19,18 +19,19 @@ public final class DelegateHistoricalCachePutProvider<V> implements IHistoricalC
     }
 
     @Override
-    public void put(final FDate newKey, final V newValue, final FDate prevKey, final V prevValue) {
-        delegate.put(newKey, newValue, prevKey, prevValue);
+    public void put(final FDate newKey, final V newValue, final FDate prevKey, final V prevValue,
+            final boolean notifyPutListeners) {
+        delegate.put(newKey, newValue, prevKey, prevValue, notifyPutListeners);
     }
 
     @Override
-    public void put(final V newValue, final V prevValue) {
-        delegate.put(newValue, prevValue);
+    public void put(final V newValue, final V prevValue, final boolean notifyPutListeners) {
+        delegate.put(newValue, prevValue, notifyPutListeners);
     }
 
     @Override
-    public void put(final Entry<FDate, V> newEntry, final Entry<FDate, V> prevEntry) {
-        delegate.put(newEntry, prevEntry);
+    public void put(final Entry<FDate, V> newEntry, final Entry<FDate, V> prevEntry, final boolean notifyPutListeners) {
+        delegate.put(newEntry, prevEntry, notifyPutListeners);
     }
 
     @Override

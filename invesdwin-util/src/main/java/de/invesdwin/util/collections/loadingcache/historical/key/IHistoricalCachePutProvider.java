@@ -8,11 +8,23 @@ import de.invesdwin.util.time.fdate.FDate;
 
 public interface IHistoricalCachePutProvider<V> {
 
-    void put(FDate newKey, V newValue, FDate prevKey, V prevValue);
+    /**
+     * WARNING: Only notify put listeners when the new value can actually be retrieved right now from the providing
+     * cache via a query. In all other cases use false here.
+     */
+    void put(FDate newKey, V newValue, FDate prevKey, V prevValue, boolean notifyPutListeners);
 
-    void put(V newValue, V prevValue);
+    /**
+     * WARNING: Only notify put listeners when the new value can actually be retrieved right now from the providing
+     * cache via a query. In all other cases use false here.
+     */
+    void put(V newValue, V prevValue, boolean notifyPutListeners);
 
-    void put(Entry<FDate, V> newEntry, Entry<FDate, V> prevEntry);
+    /**
+     * WARNING: Only notify put listeners when the new value can actually be retrieved right now from the providing
+     * cache via a query. In all other cases use false here.
+     */
+    void put(Entry<FDate, V> newEntry, Entry<FDate, V> prevEntry, boolean notifyPutListeners);
 
     Set<IHistoricalCachePutListener> getPutListeners();
 
