@@ -14,7 +14,6 @@ public final class DelegateHistoricalCachePutProvider<V> implements IHistoricalC
 
     private final IHistoricalCachePutProvider<V> delegate;
 
-    @SuppressWarnings("unchecked")
     private DelegateHistoricalCachePutProvider(final IHistoricalCachePutProvider<V> delegate) {
         this.delegate = delegate;
     }

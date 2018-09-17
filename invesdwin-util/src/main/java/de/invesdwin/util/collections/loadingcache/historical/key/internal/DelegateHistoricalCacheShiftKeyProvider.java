@@ -8,47 +8,62 @@ import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCa
 import de.invesdwin.util.time.fdate.FDate;
 
 @Immutable
-public class DelegateHistoricalCacheShiftKeyProvider implements IHistoricalCacheShiftKeyProvider {
+public final class DelegateHistoricalCacheShiftKeyProvider implements IHistoricalCacheShiftKeyProvider {
 
-    private final AHistoricalCache<Object> delegate;
+    private final AHistoricalCache<Object> parent;
+    private final IHistoricalCacheShiftKeyProvider delegate;
 
-    public DelegateHistoricalCacheShiftKeyProvider(final AHistoricalCache<Object> delegate) {
+    private DelegateHistoricalCacheShiftKeyProvider(final AHistoricalCache<Object> parent,
+            final IHistoricalCacheShiftKeyProvider delegate) {
+        this.parent = parent;
         this.delegate = delegate;
     }
 
     @Override
     public AHistoricalCache<?> getParent() {
-        return delegate;
+        return parent;
     }
 
     @Override
     public FDate calculatePreviousKey(final FDate key) {
-        return delegate.getShiftKeyProvider().calculatePreviousKey(key);
+        return delegate.calculatePreviousKey(key);
     }
 
     @Override
     public FDate calculateNextKey(final FDate key) {
-        return delegate.getShiftKeyProvider().calculateNextKey(key);
+        return delegate.calculateNextKey(key);
     }
 
     @Override
     public void clear() {
-        delegate.clear();
+        parent.clear();
     }
 
     @Override
     public ILoadingCache<FDate, FDate> getPreviousKeysCache() {
-        return delegate.getShiftKeyProvider().getPreviousKeysCache();
+        return delegate.getPreviousKeysCache();
     }
 
     @Override
     public ILoadingCache<FDate, FDate> getNextKeysCache() {
-        return delegate.getShiftKeyProvider().getNextKeysCache();
+        return delegate.getNextKeysCache();
     }
 
     @Override
     public IHistoricalCacheQuery<?> newKeysQueryInterceptor() {
-        return delegate.query();
+        return parent.query();
+    }
+
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public static <T> DelegateHistoricalCacheShiftKeyProvider maybeWrap(final AHistoricalCache delegate) {
+        if (delegate.getShiftKeyProvider() instanceof DelegateHistoricalCacheShiftKeyProvider) {
+            final DelegateHistoricalCacheShiftKeyProvider provider = (DelegateHistoricalCacheShiftKeyProvider) delegate
+                    .getShiftKeyProvider();
+            //delegate directly without going the multiple layers, though remember which parent we were delegating so that traversion works properly
+            return new DelegateHistoricalCacheShiftKeyProvider(delegate, provider.delegate);
+        } else {
+            return new DelegateHistoricalCacheShiftKeyProvider(delegate, delegate.getShiftKeyProvider());
+        }
     }
 
 }

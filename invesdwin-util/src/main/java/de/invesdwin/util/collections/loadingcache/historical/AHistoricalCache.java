@@ -192,14 +192,12 @@ public abstract class AHistoricalCache<V>
         this.adjustKeyProvider = adjustKeyProvider;
     }
 
-    @SuppressWarnings("unchecked")
     protected void setShiftKeyDelegate(final AHistoricalCache<?> shiftKeyDelegate, final boolean alsoExtractKey) {
         Assertions.assertThat(shiftKeyDelegate).as("Use null instead of this").isNotSameAs(this);
         Assertions.assertThat(this.shiftKeyProvider)
                 .as("%s can only be set once", IHistoricalCacheShiftKeyProvider.class.getSimpleName())
                 .isInstanceOf(InnerHistoricalCacheShiftKeyProvider.class);
-        this.shiftKeyProvider = new DelegateHistoricalCacheShiftKeyProvider(
-                (AHistoricalCache<Object>) shiftKeyDelegate);
+        this.shiftKeyProvider = DelegateHistoricalCacheShiftKeyProvider.maybeWrap(shiftKeyDelegate);
         if (alsoExtractKey) {
             this.extractKeyProvider = DelegateHistoricalCacheExtractKeyProvider.maybeWrap(shiftKeyDelegate);
         }
