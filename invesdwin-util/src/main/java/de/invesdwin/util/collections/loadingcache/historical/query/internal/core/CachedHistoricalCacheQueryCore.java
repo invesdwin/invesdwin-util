@@ -1,6 +1,5 @@
 package de.invesdwin.util.collections.loadingcache.historical.query.internal.core;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map.Entry;
@@ -8,15 +7,8 @@ import java.util.Map.Entry;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
-import org.assertj.core.util.Lists;
-
 import de.invesdwin.util.bean.tuple.ImmutableEntry;
-import de.invesdwin.util.collections.iterable.ICloseableIterable;
-import de.invesdwin.util.collections.iterable.SingleValueIterable;
-import de.invesdwin.util.collections.iterable.WrapperCloseableIterable;
 import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
-import de.invesdwin.util.collections.loadingcache.historical.query.internal.HistoricalCacheAssertValue;
-import de.invesdwin.util.collections.loadingcache.historical.query.internal.HistoricalCacheQuery;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.IHistoricalCacheInternalMethods;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.impl.GetPreviousEntryQueryImpl;
 import de.invesdwin.util.error.UnknownArgumentException;
@@ -24,7 +16,7 @@ import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.time.fdate.FDate;
 
 @ThreadSafe
-public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryCore<V> {
+public class CachedHistoricalCacheQueryCore<V> extends ACachedHistoricalCacheQueryCore<V> {
 
     private static final int INITIAL_MAX_CACHED_INDEX = 10000;
     private static final org.slf4j.ext.XLogger LOG = org.slf4j.ext.XLoggerFactory
@@ -35,16 +27,6 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
     private final DefaultHistoricalCacheQueryCore<V> delegate;
     @GuardedBy("getParent().getLock()")
     private int countResets = 0;
-    @GuardedBy("getParent().getLock()")
-    private final List<Entry<FDate, V>> cachedPreviousEntries = new ArrayList<>();
-    @GuardedBy("getParent().getLock()")
-    private FDate cachedPreviousEntriesKey = null;
-    @GuardedBy("getParent().getLock()")
-    private List<Entry<FDate, V>> cachedPreviousResult_notFilteringDuplicates = null;
-    @GuardedBy("getParent().getLock()")
-    private List<Entry<FDate, V>> cachedPreviousResult_filteringDuplicates = null;
-    @GuardedBy("getParent().getLock()")
-    private Integer cachedPreviousResult_shiftBackUnits = null;
     private volatile boolean cachedQueryActive;
     @GuardedBy("getParent().getLock()")
     private int maxCachedIndex;
@@ -55,29 +37,11 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
     }
 
     @Override
-    public IHistoricalCacheInternalMethods<V> getParent() {
-        return delegate.getParent();
+    protected IHistoricalCacheQueryCore<V> getDelegate() {
+        return delegate;
     }
 
     @Override
-    public Entry<FDate, V> getPreviousEntry(final IHistoricalCacheQueryInternalMethods<V> query, final FDate key,
-            final int shiftBackUnits) {
-        if (shiftBackUnits == 0) {
-            return delegate.getPreviousEntry(query, key, 0);
-        } else {
-            //use arraylist since we don't want to have the overhead of filtering duplicates
-            final boolean filterDuplicateKeys = false;
-            final int incrementedShiftBackUnits = shiftBackUnits + 1;
-            final List<Entry<FDate, V>> previousEntries = getPreviousEntriesList(query, key, incrementedShiftBackUnits,
-                    filterDuplicateKeys);
-            if (previousEntries.isEmpty()) {
-                return null;
-            } else {
-                return previousEntries.get(0);
-            }
-        }
-    }
-
     public void maybeIncreaseMaximumSize(final int requiredSize) {
         final int adjRequiredSize = requiredSize * REQUIRED_SIZE_MULTIPLICATOR;
         final Integer maximumSize = getParent().getMaximumSize();
@@ -89,25 +53,13 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
     }
 
     @Override
-    public ICloseableIterable<Entry<FDate, V>> getPreviousEntries(final IHistoricalCacheQueryInternalMethods<V> query,
-            final FDate key, final int shiftBackUnits) {
-        if (shiftBackUnits == 1) {
-            final Entry<FDate, V> entry = delegate.getPreviousEntry(query, key, 0);
-            return new SingleValueIterable<Entry<FDate, V>>(entry);
-        } else {
-            final List<Entry<FDate, V>> result = getPreviousEntriesList(query, key, shiftBackUnits,
-                    query.isFilterDuplicateKeys());
-            return WrapperCloseableIterable.maybeWrap(result);
-        }
-    }
-
     public List<Entry<FDate, V>> getPreviousEntriesList(final IHistoricalCacheQueryInternalMethods<V> query,
             final FDate key, final int shiftBackUnits, final boolean filterDuplicateKeys) {
         synchronized (getParent().getLock()) {
             if (cachedQueryActive) {
                 //prevent nested/recursive cached queries that might f**k up the cache
                 final List<Entry<FDate, V>> trailing = newEntriesList(query, shiftBackUnits, filterDuplicateKeys);
-                final List<Entry<FDate, V>> result = defaultGetPreviousEntries(query, shiftBackUnits, key, trailing);
+                final List<Entry<FDate, V>> result = defaultGetPreviousEntries(query, key, shiftBackUnits, trailing);
                 return result;
             } else {
                 cachedQueryActive = true;
@@ -149,29 +101,22 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
     private List<Entry<FDate, V>> tryCachedGetPreviousEntriesIfAvailable(
             final IHistoricalCacheQueryInternalMethods<V> query, final FDate key, final int shiftBackUnits,
             final boolean filterDuplicateKeys) throws ResetCacheException {
-        List<Entry<FDate, V>> result;
+        final List<Entry<FDate, V>> result;
         if (!cachedPreviousEntries.isEmpty()) {
-            result = cachedGetPreviousEntries(query, shiftBackUnits, key, filterDuplicateKeys);
-            if (!result.isEmpty() && query.getAssertValue() != HistoricalCacheAssertValue.ASSERT_VALUE_WITH_FUTURE) {
-                //fix when first withFuture and then withFutureNull is called on the cached result
-                final Entry<FDate, V> firstResult = result.get(0);
-                final Entry<FDate, V> assertedValue = query.getAssertValue().assertValue(delegate.getParent(), key,
-                        firstResult.getKey(), firstResult.getValue());
-                if (assertedValue == null) {
-                    result = Lists.emptyList();
-                }
-            }
+            result = cachedGetPreviousEntries(query, key, shiftBackUnits, filterDuplicateKeys);
         } else {
             final List<Entry<FDate, V>> trailing = newEntriesList(query, shiftBackUnits, filterDuplicateKeys);
-            result = defaultGetPreviousEntries(query, shiftBackUnits, key, trailing);
+            result = defaultGetPreviousEntries(query, key, shiftBackUnits, trailing);
             updateCachedPreviousResult(query, shiftBackUnits, result, filterDuplicateKeys);
         }
         return result;
     }
 
     private List<Entry<FDate, V>> cachedGetPreviousEntries(final IHistoricalCacheQueryInternalMethods<V> query,
-            final int shiftBackUnits, final FDate key, final boolean filterDuplicateKeys) throws ResetCacheException {
-        if (key.equals(cachedPreviousEntriesKey) || key.equalsNotNullSafe(getLastCachedEntry().getKey())) {
+            final FDate key, final int shiftBackUnits, final boolean filterDuplicateKeys) throws ResetCacheException {
+        final Entry<FDate, V> firstCachedEntry = getFirstCachedEntry();
+        final Entry<FDate, V> lastCachedEntry = getLastCachedEntry();
+        if (key.equalsNotNullSafe(cachedPreviousEntriesKey) || key.equalsNotNullSafe(lastCachedEntry.getKey())) {
             final List<Entry<FDate, V>> tryCachedPreviousResult = tryCachedPreviousResult_sameKey(query, shiftBackUnits,
                     filterDuplicateKeys);
             if (tryCachedPreviousResult != null) {
@@ -183,7 +128,8 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
                 updateCachedPreviousResult(query, shiftBackUnits, result, filterDuplicateKeys);
                 return result;
             }
-        } else if ((key.isAfter(cachedPreviousEntriesKey) || key.isAfterNotNullSafe(getLastCachedEntry().getKey()))
+        } else if ((key.isAfterNotNullSafe(cachedPreviousEntriesKey)
+                || key.isAfterNotNullSafe(lastCachedEntry.getKey()))
                 /*
                  * when we go a higher key and only want to load 1 value, we can just go with direct map access since we
                  * won't hit cache anyway because first access will be against map anyway. we make sure to not replace
@@ -201,9 +147,9 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
                 updateCachedPreviousResult(query, shiftBackUnits, result, filterDuplicateKeys);
                 return result;
             }
-        } else if (key.isBeforeOrEqualTo(cachedPreviousEntriesKey)
-                && key.isAfterOrEqualToNotNullSafe(getFirstCachedEntry().getKey())
-                && key.isBeforeOrEqualToNotNullSafe(getLastCachedEntry().getKey())) {
+        } else if (key.isBeforeOrEqualToNotNullSafe(cachedPreviousEntriesKey)
+                && key.isAfterOrEqualToNotNullSafe(firstCachedEntry.getKey())
+                && key.isBeforeOrEqualToNotNullSafe(lastCachedEntry.getKey())) {
             final List<Entry<FDate, V>> trailing = newEntriesList(query, shiftBackUnits, filterDuplicateKeys);
             return cachedGetPreviousEntries_decrementedKey(query, shiftBackUnits, key, trailing);
         } else {
@@ -212,7 +158,7 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
              * query and renew the cache if possible; jumping around wildly in the history is expensive right now
              */
             final List<Entry<FDate, V>> trailing = newEntriesList(query, shiftBackUnits, filterDuplicateKeys);
-            final List<Entry<FDate, V>> result = defaultGetPreviousEntries(query, shiftBackUnits, key, trailing);
+            final List<Entry<FDate, V>> result = defaultGetPreviousEntries(query, key, shiftBackUnits, trailing);
             updateCachedPreviousResult(query, shiftBackUnits, result, filterDuplicateKeys);
             return result;
         }
@@ -262,113 +208,6 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
         return tryCachedPreviousResult_sameKey(query, shiftBackUnits, filterDuplicateKeys);
     }
 
-    private FDate determineConsistentLastCachedEntryKey() throws ResetCacheException {
-        final FDate lastCachedEntryKey = getLastCachedEntry().getKey();
-        if (cachedPreviousResult_filteringDuplicates != null && !cachedPreviousResult_filteringDuplicates.isEmpty()) {
-            final FDate lastCachedResultKey = cachedPreviousResult_filteringDuplicates
-                    .get(cachedPreviousResult_filteringDuplicates.size() - 1)
-                    .getKey();
-            assertSameLastKey(lastCachedEntryKey, lastCachedResultKey);
-        }
-        if (cachedPreviousResult_notFilteringDuplicates != null
-                && !cachedPreviousResult_notFilteringDuplicates.isEmpty()) {
-            final FDate lastCachedResultKey = cachedPreviousResult_notFilteringDuplicates
-                    .get(cachedPreviousResult_notFilteringDuplicates.size() - 1)
-                    .getKey();
-            assertSameLastKey(lastCachedEntryKey, lastCachedResultKey);
-        }
-        return lastCachedEntryKey;
-    }
-
-    private void assertSameLastKey(final FDate lastCachedEntryKey, final FDate lastCachedResultKey)
-            throws ResetCacheException {
-        if (!lastCachedEntryKey.equalsNotNullSafe(lastCachedResultKey)) {
-            throw new ResetCacheException(
-                    "lastCachedEntryKey[" + lastCachedEntryKey + "] != lastCachedResultKey[" + lastCachedResultKey
-                            + "], might happen on far reaching recursive queries or long looped queries into the past");
-        }
-    }
-
-    /**
-     * Use sublist if possible to reduce memory footprint of transient array lists to reduce garbage collection overhead
-     */
-
-    private List<Entry<FDate, V>> tryCachedPreviousResult_sameKey(final IHistoricalCacheQueryInternalMethods<V> query,
-            final int shiftBackUnits, final boolean filterDuplicateKeys) {
-        if (cachedPreviousResult_shiftBackUnits == null || cachedPreviousResult_shiftBackUnits < shiftBackUnits) {
-            return null;
-        }
-        if (filterDuplicateKeys) {
-            if (cachedPreviousResult_filteringDuplicates == null) {
-                if (cachedPreviousResult_notFilteringDuplicates == null) {
-                    return null;
-                } else {
-                    cachedPreviousResult_filteringDuplicates = query
-                            .newEntriesList(cachedPreviousResult_shiftBackUnits);
-                    cachedPreviousResult_filteringDuplicates.addAll(cachedPreviousResult_notFilteringDuplicates);
-                }
-            }
-            final int toIndex = cachedPreviousResult_filteringDuplicates.size();
-            final int fromIndex = Math.max(0, toIndex - shiftBackUnits);
-            return cachedPreviousResult_filteringDuplicates.subList(fromIndex, toIndex);
-        } else {
-            if (cachedPreviousResult_notFilteringDuplicates == null) {
-                if (cachedPreviousResult_filteringDuplicates == null) {
-                    return null;
-                } else {
-                    cachedPreviousResult_notFilteringDuplicates = new ArrayList<Entry<FDate, V>>(
-                            cachedPreviousResult_filteringDuplicates);
-                    final int duplicatesRemaining = cachedPreviousResult_shiftBackUnits
-                            - cachedPreviousResult_notFilteringDuplicates.size();
-                    if (duplicatesRemaining > 0 && !cachedPreviousResult_filteringDuplicates.isEmpty()) {
-                        final Entry<FDate, V> toBeDuplicated = cachedPreviousResult_filteringDuplicates.get(0);
-                        for (int i = 0; i < duplicatesRemaining; i++) {
-                            cachedPreviousResult_notFilteringDuplicates.add(0, toBeDuplicated);
-                        }
-                    }
-                }
-            }
-            final int toIndex = cachedPreviousResult_notFilteringDuplicates.size();
-            final int fromIndex = Math.max(0, toIndex - shiftBackUnits);
-            return cachedPreviousResult_notFilteringDuplicates.subList(fromIndex, toIndex);
-        }
-    }
-
-    public List<Entry<FDate, V>> newEntriesList(final IHistoricalCacheQueryInternalMethods<V> query,
-            final int shiftBackUnits, final boolean filterDuplicateKeys) {
-        if (filterDuplicateKeys) {
-            return query.newEntriesList(shiftBackUnits);
-        } else {
-            return new ArrayList<Entry<FDate, V>>();
-        }
-    }
-
-    /**
-     * This needs to be called wherever replaceCachedEntries() was called before
-     * 
-     * @throws ResetCacheException
-     */
-
-    private void updateCachedPreviousResult(final IHistoricalCacheQueryInternalMethods<V> query,
-            final int shiftBackUnits, final List<Entry<FDate, V>> result, final boolean filterDuplicateKeys)
-            throws ResetCacheException {
-        if (result.isEmpty() && query.getAssertValue() == HistoricalCacheAssertValue.ASSERT_VALUE_WITH_FUTURE_NULL) {
-            //do not remember an empty result with future null (a call with future next might trip on it)
-            return;
-        }
-        if (cachedPreviousResult_shiftBackUnits != null && !cachedPreviousEntries.isEmpty() && result.size() > 1) {
-            throw new IllegalStateException("cachedPreviousResult should have been reset by preceeding code!");
-        }
-        if (filterDuplicateKeys) {
-            cachedPreviousResult_filteringDuplicates = result;
-            cachedPreviousResult_notFilteringDuplicates = null;
-        } else {
-            cachedPreviousResult_filteringDuplicates = null;
-            cachedPreviousResult_notFilteringDuplicates = result;
-        }
-        cachedPreviousResult_shiftBackUnits = shiftBackUnits;
-    }
-
     private List<Entry<FDate, V>> cachedGetPreviousEntries_decrementedKey(
             final IHistoricalCacheQueryInternalMethods<V> query, final int shiftBackUnits, final FDate key,
             final List<Entry<FDate, V>> trailing) throws ResetCacheException {
@@ -393,6 +232,7 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
 
         if (unitsBack == -1) {
             //we can replace the cache since it was too far away anyway
+            //explicitly not calling updateCachedPreviousResult for it to be reset
             replaceCachedEntries(key, trailing);
             //we were above the cache and did not find anything useful in the cache, so we filled everything from query
             return trailing;
@@ -413,6 +253,7 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
             //and use the query again if there are missing elements at the end
             loadFurtherTrailingValuesViaQuery(query, trailing, unitsBack);
             //we can replace the cache since we extended it in both directions
+            //explicitly not calling updateCachedPreviousResult for it to be reset
             replaceCachedEntries(key, trailing);
             return trailing;
         }
@@ -508,71 +349,6 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
         }
     }
 
-    //CHECKSTYLE:OFF
-    private void appendCachedEntryAndResult(final FDate key, final int shiftBackUnits,
-            final Entry<FDate, V> latestEntry) throws ResetCacheException {
-        //CHECKSTYLE:ON
-        if (latestEntry != null) {
-            if (cachedPreviousResult_shiftBackUnits == null) {
-                throw new ResetCacheException(
-                        "cachedPreviousResult_shiftBackUnits is null even though it should be extended");
-            }
-
-            cachedPreviousEntries.add(latestEntry);
-
-            if (cachedPreviousResult_shiftBackUnits < shiftBackUnits) {
-                //we added one more element and there is still demand for more
-                cachedPreviousResult_shiftBackUnits++;
-            }
-
-            if (cachedPreviousResult_filteringDuplicates != null) {
-                //ensure we stay in size limit
-                cachedPreviousResult_filteringDuplicates.add(latestEntry);
-                if (cachedPreviousResult_filteringDuplicates.size() > cachedPreviousResult_shiftBackUnits) {
-                    cachedPreviousResult_filteringDuplicates.remove(0);
-                }
-            }
-            if (cachedPreviousResult_notFilteringDuplicates != null) {
-                //ensure we stay in size limit
-                cachedPreviousResult_notFilteringDuplicates.add(latestEntry);
-                if (cachedPreviousResult_notFilteringDuplicates.size() > cachedPreviousResult_shiftBackUnits) {
-                    cachedPreviousResult_notFilteringDuplicates.remove(0);
-                }
-            }
-
-            final Integer maximumSize = getParent().getMaximumSize();
-            if (maximumSize != null) {
-                //ensure we stay in size limit
-                while (cachedPreviousEntries.size() > maximumSize) {
-                    cachedPreviousEntries.remove(0);
-                }
-            }
-        }
-        cachedPreviousEntriesKey = key;
-    }
-
-    private void replaceCachedEntries(final FDate key, final List<Entry<FDate, V>> trailing) {
-        if (trailing.isEmpty() ||
-        /*
-         * (maybe we went before the first entry) or (maybe we went after the last entry to only fetch one element), so
-         * we don't want to throw away a cache that might already be filled
-         */
-                (trailing.size() == 1 && cachedPreviousEntries.size() > 1)) {
-            return;
-        }
-        maybeIncreaseMaximumSize(trailing.size());
-        cachedPreviousEntries.clear();
-        cachedPreviousEntries.addAll(trailing);
-        cachedPreviousEntriesKey = key;
-        resetCachedPreviousResult();
-    }
-
-    private void resetCachedPreviousResult() {
-        cachedPreviousResult_filteringDuplicates = null;
-        cachedPreviousResult_notFilteringDuplicates = null;
-        cachedPreviousResult_shiftBackUnits = null;
-    }
-
     private List<Entry<FDate, V>> cachedGetPreviousEntries_sameKey(final IHistoricalCacheQueryInternalMethods<V> query,
             final int shiftBackUnits, final FDate key, final List<Entry<FDate, V>> trailing)
             throws ResetCacheException {
@@ -586,6 +362,7 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
             return trailing;
         } else {
             loadFurtherTrailingValuesViaQuery(query, trailing, unitsBack);
+            //explicitly not calling updateCachedPreviousResult for it to be reset
             replaceCachedEntries(key, trailing);
             return trailing;
         }
@@ -639,10 +416,11 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
     }
 
     private List<Entry<FDate, V>> defaultGetPreviousEntries(final IHistoricalCacheQueryInternalMethods<V> query,
-            final int shiftBackUnits, final FDate key, final List<Entry<FDate, V>> trailing) {
+            final FDate key, final int shiftBackUnits, final List<Entry<FDate, V>> trailing) {
         final GetPreviousEntryQueryImpl<V> impl = new GetPreviousEntryQueryImpl<V>(this, query, key, shiftBackUnits);
         int unitsBack = shiftBackUnits - 1;
         unitsBack = fillFromQuery(query, trailing, impl, unitsBack);
+        //explicitly not calling updateCachedPreviousResult for it to be reset
         replaceCachedEntries(key, trailing);
         return trailing;
     }
@@ -666,6 +444,7 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
         return newUnitsBack;
     }
 
+    @Override
     public int bisect(final FDate skippingKeysAbove, final List<Entry<FDate, V>> list, final Integer unitsBack)
             throws ResetCacheException {
         int lo = 0;
@@ -705,29 +484,6 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
         }
     }
 
-    private Entry<FDate, V> getLastCachedEntry() throws ResetCacheException {
-        if (cachedPreviousEntries.isEmpty()) {
-            throw new ResetCacheException("lastCachedEntry cannot be retrieved since cachedPreviousEntries is empty");
-        }
-        return cachedPreviousEntries.get(cachedPreviousEntries.size() - 1);
-    }
-
-    private Entry<FDate, V> getFirstCachedEntry() {
-        return cachedPreviousEntries.get(0);
-    }
-
-    @Override
-    public ICloseableIterable<Entry<FDate, V>> getNextEntries(final IHistoricalCacheQueryInternalMethods<V> query,
-            final FDate key, final int shiftForwardUnits) {
-        return delegate.getNextEntries(query, key, shiftForwardUnits);
-    }
-
-    @Override
-    public Entry<FDate, V> getNextEntry(final IHistoricalCacheQueryInternalMethods<V> query, final FDate key,
-            final int shiftForwardUnits) {
-        return delegate.getNextEntry(query, key, shiftForwardUnits);
-    }
-
     @Override
     public void clear() {
         if (!cachedQueryActive) {
@@ -738,34 +494,9 @@ public class CachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryC
         }
     }
 
-    private void resetForRetry() {
-        delegate.clear();
-        cachedPreviousEntries.clear();
-        cachedPreviousEntriesKey = null;
-        resetCachedPreviousResult();
-    }
-
     @Override
     public void increaseMaximumSize(final int maximumSize) {
         this.maxCachedIndex = Math.max(maxCachedIndex, maximumSize);
-    }
-
-    @Override
-    public V getValue(final IHistoricalCacheQueryInternalMethods<V> query, final FDate key,
-            final HistoricalCacheAssertValue assertValue) {
-        return delegate.getValue(query, key, assertValue);
-    }
-
-    @Override
-    public Entry<FDate, V> getEntry(final IHistoricalCacheQueryInternalMethods<V> query, final FDate key,
-            final HistoricalCacheAssertValue assertValue) {
-        return delegate.getEntry(query, key, assertValue);
-    }
-
-    @Override
-    public Entry<FDate, V> computeEntry(final HistoricalCacheQuery<V> historicalCacheQuery, final FDate key,
-            final HistoricalCacheAssertValue assertValue) {
-        return delegate.computeEntry(historicalCacheQuery, key, assertValue);
     }
 
     @Override

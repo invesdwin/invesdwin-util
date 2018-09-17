@@ -59,14 +59,20 @@ public class ArraySubListCloseableIterable<E> implements ICloseableIterable<E>, 
      * not recognize array replacements that did not come with a size change, so be careful. You can alternatively
      * override this method to always do a refresh.
      */
+    @SuppressWarnings("unchecked")
     @Override
     public ICloseableIterator<E> iterator() {
         try {
             final int size = (int) SUBLIST_SIZE_GETTER.invoke(arraySubList);
             if (cachedSize != size) {
                 cachedSize = size;
-                final ArrayList<E> parent = (ArrayList<E>) SUBLIST_PARENT_GETTER.invoke(arraySubList);
-                cachedArray = (E[]) ArrayListCloseableIterable.ARRAYLIST_ELEMENTDATA_GETTER.invokeExact(parent);
+                List<E> parent = (List<E>) arraySubList;
+                while (parent.getClass().equals(SUBLIST_CLASS)) {
+                    parent = (List<E>) SUBLIST_PARENT_GETTER.invoke(parent);
+                }
+                final ArrayList<E> arrayListParent = (ArrayList<E>) parent;
+                cachedArray = (E[]) ArrayListCloseableIterable.ARRAYLIST_ELEMENTDATA_GETTER
+                        .invokeExact(arrayListParent);
                 cachedOffset = (Integer) SUBLIST_OFFSET_GETTER.invoke(arraySubList);
             }
         } catch (final Throwable e) {
