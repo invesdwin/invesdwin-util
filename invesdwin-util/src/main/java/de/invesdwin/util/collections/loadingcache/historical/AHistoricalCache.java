@@ -201,7 +201,7 @@ public abstract class AHistoricalCache<V>
         if (alsoExtractKey) {
             this.extractKeyProvider = DelegateHistoricalCacheExtractKeyProvider.maybeWrap(shiftKeyDelegate);
         }
-        //propagate the setting downwards without risking an endless recursion
+        //propagate the maximum size setting downwards without risking an endless recursion
         registerIncreaseMaximumSizeListener(shiftKeyDelegate);
         isPutDisabled = false;
     }
@@ -405,6 +405,9 @@ public abstract class AHistoricalCache<V>
     }
 
     public boolean registerOnClearListener(final IHistoricalCacheOnClearListener l) {
+        if (l == this) {
+            return false;
+        }
         return onClearListeners.add(l);
     }
 
@@ -417,7 +420,17 @@ public abstract class AHistoricalCache<V>
     }
 
     public boolean registerIncreaseMaximumSizeListener(final IHistoricalCacheIncreaseMaximumSizeListener l) {
-        return increaseMaximumSizeListeners.add(l);
+        if (l == this) {
+            return false;
+        }
+        if (increaseMaximumSizeListeners.add(l)) {
+            // propagate setting directly (does not cause an endless loop here)
+            l.increaseMaximumSize(getMaximumSize(), "setShiftKeyDelegate");
+            increaseMaximumSize(l.getMaximumSize(), "setShiftKeyDelegate");
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public boolean unregisterIncreaseMaximumSizeListener(final IHistoricalCacheIncreaseMaximumSizeListener l) {
@@ -812,6 +825,9 @@ public abstract class AHistoricalCache<V>
 
         @Override
         public boolean registerPutListener(final IHistoricalCachePutListener l) {
+            if (l == AHistoricalCache.this) {
+                return false;
+            }
             if (putListeners.add(l)) {
                 putListenersFast.add(new WeakReference<IHistoricalCachePutListener>(l));
                 return true;
