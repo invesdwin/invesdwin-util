@@ -93,8 +93,8 @@ public abstract class ACachedHistoricalCacheQueryCore<V> implements IHistoricalC
                 if (cachedPreviousResult_notFilteringDuplicates == null) {
                     return null;
                 } else {
-                    cachedPreviousResult_filteringDuplicates = query
-                            .newEntriesList(cachedPreviousResult_shiftBackUnits);
+                    cachedPreviousResult_filteringDuplicates = newEntriesList(query,
+                            cachedPreviousResult_shiftBackUnits, true);
                     cachedPreviousResult_filteringDuplicates.addAll(cachedPreviousResult_notFilteringDuplicates);
                 }
             }
@@ -140,11 +140,14 @@ public abstract class ACachedHistoricalCacheQueryCore<V> implements IHistoricalC
             throw new IllegalStateException("cachedPreviousResult should have been reset by preceeding code!");
         }
         if (filterDuplicateKeys) {
-            cachedPreviousResult_filteringDuplicates = result;
+            //defensive copy so that underlying caches do not modify this instance
+            cachedPreviousResult_filteringDuplicates = newEntriesList(query, result.size(), true);
+            cachedPreviousResult_filteringDuplicates.addAll(result);
             cachedPreviousResult_notFilteringDuplicates = null;
         } else {
             cachedPreviousResult_filteringDuplicates = null;
-            cachedPreviousResult_notFilteringDuplicates = result;
+            //defensive copy so that underlying caches do not modify this instance
+            cachedPreviousResult_notFilteringDuplicates = new ArrayList<Entry<FDate, V>>(result);
         }
         cachedPreviousResult_shiftBackUnits = shiftBackUnits;
     }
