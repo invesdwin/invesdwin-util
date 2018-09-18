@@ -133,7 +133,6 @@ public class TrailingHistoricalCacheQueryCore<V> extends ACachedHistoricalCacheQ
             final List<Entry<FDate, V>> result = getPreviousEntries_newerData(query, key, shiftBackUnits,
                     filterDuplicateKeys, firstCachedEntry, lastCachedEntry);
             updateCachedPreviousResult(query, shiftBackUnits, result, filterDuplicateKeys);
-            determineConsistentLastCachedEntryKey();
             return result;
         } else {
             //somewhere in the middle
