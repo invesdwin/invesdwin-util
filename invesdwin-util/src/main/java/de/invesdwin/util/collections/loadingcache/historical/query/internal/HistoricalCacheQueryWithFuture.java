@@ -31,9 +31,11 @@ public class HistoricalCacheQueryWithFuture<V> extends HistoricalCacheQuery<V>
         return (IHistoricalCacheQueryWithFuture<V>) super.withFilterDuplicateKeys(filterDuplicateKeys);
     }
 
+    @Deprecated
     @Override
     public IHistoricalCacheQueryWithFuture<V> withFutureNull() {
-        return (IHistoricalCacheQueryWithFuture<V>) super.withFutureNull();
+        throw new IllegalStateException(
+                "withFuture() has already been called. Please create a new query for this and call withFutureNull() directly");
     }
 
     @Override
