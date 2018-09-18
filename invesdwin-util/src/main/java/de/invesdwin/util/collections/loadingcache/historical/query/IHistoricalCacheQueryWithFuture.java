@@ -17,6 +17,10 @@ public interface IHistoricalCacheQueryWithFuture<V> extends IHistoricalCacheQuer
     @Override
     IHistoricalCacheQueryWithFuture<V> withFilterDuplicateKeys(boolean filterDuplicateKeys);
 
+    /**
+     * Warning: throws an exception since withFuture() was already called
+     */
+    @Deprecated
     @Override
     IHistoricalCacheQueryWithFuture<V> withFutureNull();
 
