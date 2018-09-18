@@ -177,18 +177,18 @@ public abstract class ACachedHistoricalCacheQueryCore<V> implements IHistoricalC
             throws ResetCacheException;
 
     //CHECKSTYLE:OFF
-    protected void appendCachedEntryAndResult(final FDate key, final int shiftBackUnits,
+    protected void appendCachedEntryAndResult(final FDate key, final Integer shiftBackUnits,
             final Entry<FDate, V> latestEntry) throws ResetCacheException {
         //CHECKSTYLE:ON
         if (latestEntry != null) {
-            if (cachedPreviousResult_shiftBackUnits == null) {
+            if (shiftBackUnits != null && cachedPreviousResult_shiftBackUnits == null) {
                 throw new ResetCacheException(
                         "cachedPreviousResult_shiftBackUnits is null even though it should be extended");
             }
 
             cachedPreviousEntries.add(latestEntry);
 
-            if (cachedPreviousResult_shiftBackUnits < shiftBackUnits) {
+            if (shiftBackUnits != null && cachedPreviousResult_shiftBackUnits < shiftBackUnits) {
                 //we added one more element and there is still demand for more
                 cachedPreviousResult_shiftBackUnits++;
             }

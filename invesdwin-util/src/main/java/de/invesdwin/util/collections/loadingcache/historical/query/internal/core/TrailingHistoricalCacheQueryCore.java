@@ -331,8 +331,7 @@ public class TrailingHistoricalCacheQueryCore<V> extends ACachedHistoricalCacheQ
                         return;
                     }
                 }
-                appendCachedEntryAndResult(valueKey, cachedPreviousResult_shiftBackUnits,
-                        ImmutableEntry.of(valueKey, value));
+                appendCachedEntryAndResult(valueKey, null, ImmutableEntry.of(valueKey, value));
             } catch (final ResetCacheException e) {
                 //should not happen here
                 throw new RuntimeException(e);

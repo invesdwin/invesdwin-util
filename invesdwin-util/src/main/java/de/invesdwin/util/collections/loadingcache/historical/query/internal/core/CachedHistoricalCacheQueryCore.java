@@ -505,7 +505,7 @@ public class CachedHistoricalCacheQueryCore<V> extends ACachedHistoricalCacheQue
             if (cachedQueryActive) {
                 return;
             }
-            if (cachedPreviousEntries.isEmpty() || cachedPreviousResult_shiftBackUnits == null) {
+            if (cachedPreviousEntries.isEmpty()) {
                 return;
             }
             try {
@@ -516,8 +516,7 @@ public class CachedHistoricalCacheQueryCore<V> extends ACachedHistoricalCacheQue
                 if (!lastEntry.getKey().equalsNotNullSafe(previousKey)) {
                     return;
                 }
-                appendCachedEntryAndResult(valueKey, cachedPreviousResult_shiftBackUnits,
-                        ImmutableEntry.of(valueKey, value));
+                appendCachedEntryAndResult(valueKey, null, ImmutableEntry.of(valueKey, value));
             } catch (final ResetCacheException e) {
                 //should not happen here
                 throw new RuntimeException(e);
@@ -531,7 +530,7 @@ public class CachedHistoricalCacheQueryCore<V> extends ACachedHistoricalCacheQue
             if (cachedQueryActive) {
                 return;
             }
-            if (cachedPreviousEntries.isEmpty() || cachedPreviousResult_shiftBackUnits == null) {
+            if (cachedPreviousEntries.isEmpty()) {
                 return;
             }
             try {
