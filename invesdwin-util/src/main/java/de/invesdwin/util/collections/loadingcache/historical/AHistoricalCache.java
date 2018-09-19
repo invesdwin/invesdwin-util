@@ -86,7 +86,7 @@ public abstract class AHistoricalCache<V>
         protected ILoadingCache<FDate, V> createDelegate() {
             final Integer size = getMaximumSize();
             if (size == null || size > 0) {
-                HistoricalCacheRefreshManager.register(AHistoricalCache.this);
+                Assertions.checkTrue(HistoricalCacheRefreshManager.register(AHistoricalCache.this));
             }
             return newLoadingCacheProvider(new Function<FDate, V>() {
                 @Override
@@ -123,6 +123,7 @@ public abstract class AHistoricalCache<V>
         super.finalize();
         final Integer size = getMaximumSize();
         if (size == null || size > 0) {
+            //not checking if actually done so since during finalize the weak reference might already have been lost
             HistoricalCacheRefreshManager.unregister(this);
         }
     }

@@ -10,7 +10,6 @@ import javax.annotation.concurrent.ThreadSafe;
 
 import com.github.benmanes.caffeine.cache.Caffeine;
 
-import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
 import de.invesdwin.util.concurrent.Executors;
@@ -138,9 +137,11 @@ public final class HistoricalCacheRefreshManager {
         return executor != null;
     }
 
-    public static synchronized void register(final AHistoricalCache<?> cache) {
+    public static synchronized boolean register(final AHistoricalCache<?> cache) {
         final Set<AHistoricalCache<?>> caches = REGISTERED_CACHES.get(cache.getClass());
-        Assertions.checkTrue(caches.add(cache));
+        if (!caches.add(cache)) {
+            return false;
+        }
         final int size = caches.size();
         if (size % 10000 == 0) {
             //CHECKSTYLE:OFF
@@ -150,11 +151,12 @@ public final class HistoricalCacheRefreshManager {
                     size, AHistoricalCache.class.getSimpleName(), cache.getClass().getSimpleName(), cache);
             //CHECKSTYLE:ON
         }
+        return true;
     }
 
-    public static synchronized void unregister(final AHistoricalCache<?> cache) {
+    public static synchronized boolean unregister(final AHistoricalCache<?> cache) {
         final Set<AHistoricalCache<?>> caches = REGISTERED_CACHES.get(cache.getClass());
-        Assertions.checkTrue(caches.remove(cache));
+        return caches.remove(cache);
     }
 
 }
