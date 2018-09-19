@@ -14,7 +14,6 @@ import de.invesdwin.util.collections.loadingcache.historical.query.internal.core
 import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.time.fdate.FDate;
-import uk.co.omegaprime.btreemap.LongIntBTreeMap;
 
 @ThreadSafe
 public class CachedHistoricalCacheQueryCore<V> extends ACachedHistoricalCacheQueryCore<V> {
@@ -43,7 +42,7 @@ public class CachedHistoricalCacheQueryCore<V> extends ACachedHistoricalCacheQue
     }
 
     @Override
-    public Integer maybeIncreaseMaximumSize(final int requiredSize) {
+    public void maybeIncreaseMaximumSize(final int requiredSize) {
         final int adjRequiredSize = requiredSize * REQUIRED_SIZE_MULTIPLICATOR;
         final Integer maximumSize = getParent().getMaximumSize();
         if (maximumSize != null && maximumSize < requiredSize) {
@@ -51,7 +50,6 @@ public class CachedHistoricalCacheQueryCore<V> extends ACachedHistoricalCacheQue
                     + " encountered higher shiftBackUnits of " + requiredSize);
         }
         maxCachedIndex = Math.max(maxCachedIndex, adjRequiredSize);
-        return getParent().getMaximumSize();
     }
 
     @Override
@@ -299,7 +297,6 @@ public class CachedHistoricalCacheQueryCore<V> extends ACachedHistoricalCacheQue
 
     private void prependCachedEntries(final FDate key, final List<Entry<FDate, V>> trailing,
             final int trailingCountFoundInCache) throws ResetCacheException {
-        boolean clearIndex = false;
         for (int i = trailing.size() - trailingCountFoundInCache - 1; i >= 0; i--) {
             final Entry<FDate, V> prependEntry = trailing.get(i);
             if (!cachedPreviousEntries.isEmpty()) {
@@ -310,11 +307,10 @@ public class CachedHistoricalCacheQueryCore<V> extends ACachedHistoricalCacheQue
                 }
             }
             cachedPreviousEntries.add(0, prependEntry);
-            clearIndex = true;
         }
-        Integer maximumSize = getParent().getMaximumSize();
+        final Integer maximumSize = getParent().getMaximumSize();
         if (maximumSize != null) {
-            maximumSize = maybeIncreaseMaximumSize(trailing.size());
+            maybeIncreaseMaximumSize(trailing.size());
             //ensure we stay in size limit
             while (cachedPreviousEntries.size() > maximumSize) {
                 /*
@@ -322,14 +318,10 @@ public class CachedHistoricalCacheQueryCore<V> extends ACachedHistoricalCacheQue
                  * back and will live with the cost of loading again the current values next time
                  */
                 cachedPreviousEntries.remove(cachedPreviousEntries.size() - 1);
-                clearIndex = true;
             }
             //reset cached results and set new marker so that we don't go accidentally into sameKey algorithm
             resetCachedPreviousResult();
             cachedPreviousEntriesKey = getLastCachedEntry().getKey();
-        }
-        if (clearIndex) {
-            cachedPreviousEntriesIndex.clear();
         }
     }
 
@@ -345,20 +337,14 @@ public class CachedHistoricalCacheQueryCore<V> extends ACachedHistoricalCacheQue
                 }
             }
             cachedPreviousEntries.add(appendEntry);
-            cachedPreviousEntriesIndex.putInt(appendEntry.getKey().millisValue(), cachedPreviousEntries.size() - 1);
         }
         cachedPreviousEntriesKey = key;
-        Integer maximumSize = getParent().getMaximumSize();
+        final Integer maximumSize = getParent().getMaximumSize();
         if (maximumSize != null) {
-            maximumSize = maybeIncreaseMaximumSize(trailing.size());
+            maybeIncreaseMaximumSize(trailing.size());
             //ensure we stay in size limit
-            int countRemoved = 0;
             while (cachedPreviousEntries.size() > maximumSize) {
                 cachedPreviousEntries.remove(0);
-                countRemoved++;
-            }
-            if (countRemoved > 0) {
-                cachedPreviousEntriesIndex.clear();
             }
         }
     }
@@ -444,7 +430,7 @@ public class CachedHistoricalCacheQueryCore<V> extends ACachedHistoricalCacheQue
         //prefill what is possible and add suffixes by query as needed
         final int cachedToIndex;
         if (skippingKeysAbove != null) {
-            cachedToIndex = bisect(skippingKeysAbove, cachedPreviousEntries, cachedPreviousEntriesIndex, unitsBack);
+            cachedToIndex = bisect(skippingKeysAbove, cachedPreviousEntries, unitsBack);
         } else {
             cachedToIndex = cachedPreviousEntries.size() - 1;
         }
@@ -459,8 +445,8 @@ public class CachedHistoricalCacheQueryCore<V> extends ACachedHistoricalCacheQue
     }
 
     @Override
-    public int bisect(final FDate skippingKeysAbove, final List<Entry<FDate, V>> list, final LongIntBTreeMap index,
-            final Integer unitsBack) throws ResetCacheException {
+    public int bisect(final FDate skippingKeysAbove, final List<Entry<FDate, V>> list, final Integer unitsBack)
+            throws ResetCacheException {
         int lo = 0;
         int hi = list.size();
         if (unitsBack != null) {
@@ -468,18 +454,6 @@ public class CachedHistoricalCacheQueryCore<V> extends ACachedHistoricalCacheQue
             if (skippingKeysAbove.isBeforeOrEqualToNotNullSafe(loTime) && hi >= maxCachedIndex) {
                 throw new ResetCacheException("Not enough data in cache for fillFromCacheAsFarAsPossible [" + unitsBack
                         + "/" + maxCachedIndex + "/" + (hi - 1) + "]");
-            }
-        }
-
-        if (index != null) {
-            final long millis = skippingKeysAbove.millisValue();
-            final Entry<Long, Integer> entry = index.ceilingEntry(millis);
-            if (entry != null) {
-                if (entry.getKey().longValue() == millis) {
-                    return entry.getValue();
-                } else {
-                    hi = entry.getValue();
-                }
             }
         }
 
@@ -503,17 +477,11 @@ public class CachedHistoricalCacheQueryCore<V> extends ACachedHistoricalCacheQue
             }
         }
         final FDate loTime = list.get(lo).getKey();
-        final int result;
         if (loTime.isAfterNotNullSafe(skippingKeysAbove)) {
-            result = lo - 1;
+            return lo - 1;
         } else {
-            result = lo;
+            return lo;
         }
-        if (index != null) {
-            final long millis = skippingKeysAbove.millisValue();
-            index.putInt(millis, result);
-        }
-        return result;
     }
 
     @Override
