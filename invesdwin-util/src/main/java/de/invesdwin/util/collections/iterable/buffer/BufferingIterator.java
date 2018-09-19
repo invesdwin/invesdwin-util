@@ -84,7 +84,7 @@ public class BufferingIterator<E> implements IBufferingIterator<E>, ISerializabl
     }
 
     @Override
-    public void prepend(final E element) {
+    public boolean prepend(final E element) {
         if (element == null) {
             throw new NullPointerException();
         }
@@ -92,10 +92,11 @@ public class BufferingIterator<E> implements IBufferingIterator<E>, ISerializabl
         newHead.setNext(head);
         head = newHead;
         size++;
+        return true;
     }
 
     @Override
-    public void add(final E element) {
+    public boolean add(final E element) {
         if (element == null) {
             throw new NullPointerException();
         }
@@ -107,6 +108,7 @@ public class BufferingIterator<E> implements IBufferingIterator<E>, ISerializabl
         }
         size++;
         tail = newTail;
+        return true;
     }
 
     @Override

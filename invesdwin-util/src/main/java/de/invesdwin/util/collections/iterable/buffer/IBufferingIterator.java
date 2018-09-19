@@ -16,12 +16,12 @@ public interface IBufferingIterator<E> extends ICloseableIterator<E>, ICloseable
     /**
      * Prepends the element at head of the list
      */
-    void prepend(E element);
+    boolean prepend(E element);
 
     /**
      * Adds the element at tail of the list
      */
-    void add(E element);
+    boolean add(E element);
 
     boolean addAll(Iterator<? extends E> iterator);
 

@@ -1,0 +1,173 @@
+package de.invesdwin.util.collections.delegate;
+
+import java.util.Iterator;
+
+import javax.annotation.concurrent.NotThreadSafe;
+
+import de.invesdwin.util.collections.iterable.ASkippingIterator;
+import de.invesdwin.util.collections.iterable.ICloseableIterator;
+import de.invesdwin.util.collections.iterable.WrapperCloseableIterable;
+import de.invesdwin.util.collections.iterable.WrapperCloseableIterator;
+import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
+import de.invesdwin.util.collections.iterable.buffer.IBufferingIterator;
+
+@NotThreadSafe
+public abstract class ADelegateBufferingIterator<E> implements IBufferingIterator<E> {
+
+    private final IBufferingIterator<E> delegate;
+
+    public ADelegateBufferingIterator() {
+        this.delegate = newDelegate();
+    }
+
+    ADelegateBufferingIterator(final IBufferingIterator<E> delegate) {
+        this.delegate = delegate;
+    }
+
+    public IBufferingIterator<E> getDelegate() {
+        return delegate;
+    }
+
+    protected abstract IBufferingIterator<E> newDelegate();
+
+    @Override
+    public int size() {
+        return getDelegate().size();
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return getDelegate().isEmpty();
+    }
+
+    @Override
+    public ICloseableIterator<E> iterator() {
+        return getDelegate().iterator();
+    }
+
+    @Override
+    public boolean add(final E e) {
+        if (isAddAllowed(e)) {
+            return getDelegate().add(e);
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public boolean addAll(final BufferingIterator<E> iterable) {
+        final ICloseableIterator<E> allowedElements = filterAllowedElements(iterable.iterator());
+        return getDelegate().addAll(allowedElements);
+    }
+
+    @Override
+    public boolean addAll(final Iterable<? extends E> iterable) {
+        final ICloseableIterator<E> allowedElements = filterAllowedElements(
+                WrapperCloseableIterable.maybeWrap(iterable).iterator());
+        return getDelegate().addAll(allowedElements);
+    }
+
+    @SuppressWarnings("deprecation")
+    @Override
+    public boolean addAll(final Iterator<? extends E> iterator) {
+        final ICloseableIterator<E> allowedElements = filterAllowedElements(
+                WrapperCloseableIterator.maybeWrap(iterator));
+        return getDelegate().addAll(allowedElements);
+    }
+
+    @Override
+    public boolean consume(final Iterable<? extends E> iterable) {
+        return addAll(iterable);
+    }
+
+    @Override
+    public boolean consume(final Iterator<? extends E> iterator) {
+        return addAll(iterator);
+    }
+
+    @Override
+    public boolean consume(final BufferingIterator<E> iterator) {
+        return addAll(iterator);
+    }
+
+    protected ICloseableIterator<E> filterAllowedElements(final ICloseableIterator<? extends E> c) {
+        return new ASkippingIterator<E>(c) {
+
+            @Override
+            protected boolean skip(final E element) {
+                return !isAddAllowed(element);
+            }
+        };
+    }
+
+    @Override
+    public void clear() {
+        getDelegate().clear();
+    }
+
+    /**
+     * Can be overwritten to add restrictions
+     */
+    public boolean isAddAllowed(final E e) {
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return getDelegate().toString();
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        return getDelegate().equals(obj);
+    }
+
+    @Override
+    public int hashCode() {
+        return getDelegate().hashCode();
+    }
+
+    public static <T> IBufferingIterator<T> maybeUnwrapToRoot(final IBufferingIterator<T> collection) {
+        IBufferingIterator<T> cur = collection;
+        while (cur instanceof ADelegateBufferingIterator) {
+            final ADelegateBufferingIterator<T> c = (ADelegateBufferingIterator<T>) cur;
+            cur = c.getDelegate();
+        }
+        return cur;
+    }
+
+    @Override
+    public E getHead() {
+        return getDelegate().getHead();
+    }
+
+    @Override
+    public E getTail() {
+        return getDelegate().getTail();
+    }
+
+    @Override
+    public boolean prepend(final E element) {
+        if (isAddAllowed(element)) {
+            return prepend(element);
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public void close() {
+        getDelegate().close();
+    }
+
+    @Override
+    public boolean hasNext() {
+        return getDelegate().hasNext();
+    }
+
+    @Override
+    public E next() {
+        return getDelegate().next();
+    }
+
+}

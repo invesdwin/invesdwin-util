@@ -68,13 +68,13 @@ public abstract class ATransformingBufferingIterator<S, R> implements IBuffering
 
     @Deprecated
     @Override
-    public void prepend(final R element) {
+    public boolean prepend(final R element) {
         throw new UnsupportedOperationException("can not add");
     }
 
     @Deprecated
     @Override
-    public void add(final R element) {
+    public boolean add(final R element) {
         throw new UnsupportedOperationException("can not add");
     }
 
