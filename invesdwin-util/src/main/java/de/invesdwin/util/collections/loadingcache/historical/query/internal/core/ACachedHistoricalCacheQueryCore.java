@@ -14,12 +14,14 @@ import de.invesdwin.util.collections.loadingcache.historical.query.internal.Hist
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.HistoricalCacheQuery;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.IHistoricalCacheInternalMethods;
 import de.invesdwin.util.time.fdate.FDate;
+import uk.co.omegaprime.btreemap.LongIntBTreeMap;
 
 @ThreadSafe
 public abstract class ACachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryCore<V> {
 
     @GuardedBy("getParent().getLock()")
     protected final List<Entry<FDate, V>> cachedPreviousEntries = new ArrayList<>();
+    protected final LongIntBTreeMap cachedPreviousEntriesIndex = LongIntBTreeMap.create();
     @GuardedBy("getParent().getLock()")
     protected FDate cachedPreviousEntriesKey = null;
     @GuardedBy("getParent().getLock()")
@@ -170,14 +172,15 @@ public abstract class ACachedHistoricalCacheQueryCore<V> implements IHistoricalC
         maybeIncreaseMaximumSize(trailing.size());
         cachedPreviousEntries.clear();
         cachedPreviousEntries.addAll(trailing);
+        cachedPreviousEntriesIndex.clear();
         cachedPreviousEntriesKey = key;
         resetCachedPreviousResult();
     }
 
-    protected abstract void maybeIncreaseMaximumSize(int requiredSize);
+    protected abstract Integer maybeIncreaseMaximumSize(int requiredSize);
 
-    protected abstract int bisect(FDate skippingKeysAbove, List<Entry<FDate, V>> list, Integer unitsBack)
-            throws ResetCacheException;
+    protected abstract int bisect(FDate skippingKeysAbove, List<Entry<FDate, V>> list, LongIntBTreeMap index,
+            Integer unitsBack) throws ResetCacheException;
 
     //CHECKSTYLE:OFF
     protected void appendCachedEntryAndResult(final FDate key, final Integer shiftBackUnits,
@@ -211,12 +214,20 @@ public abstract class ACachedHistoricalCacheQueryCore<V> implements IHistoricalC
                 }
             }
 
+            int countRemoved = 0;
             final Integer maximumSize = getParent().getMaximumSize();
             if (maximumSize != null) {
                 //ensure we stay in size limit
                 while (cachedPreviousEntries.size() > maximumSize) {
                     cachedPreviousEntries.remove(0);
+                    countRemoved++;
                 }
+            }
+
+            if (countRemoved > 0) {
+                cachedPreviousEntriesIndex.clear();
+            } else {
+                cachedPreviousEntriesIndex.putInt(latestEntry.getKey().millisValue(), cachedPreviousEntries.size() - 1);
             }
         }
         cachedPreviousEntriesKey = key;
@@ -263,6 +274,7 @@ public abstract class ACachedHistoricalCacheQueryCore<V> implements IHistoricalC
     protected void resetForRetry() {
         getDelegate().clear();
         cachedPreviousEntries.clear();
+        cachedPreviousEntriesIndex.clear();
         cachedPreviousEntriesKey = null;
         resetCachedPreviousResult();
     }
