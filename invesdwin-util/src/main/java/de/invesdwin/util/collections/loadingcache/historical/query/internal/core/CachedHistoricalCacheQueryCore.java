@@ -13,8 +13,11 @@ import de.invesdwin.util.collections.loadingcache.historical.query.internal.IHis
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.impl.GetPreviousEntryQueryImpl;
 import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.math.Integers;
+import de.invesdwin.util.math.stream.number.NumberStreamAvg;
+import de.invesdwin.util.time.Instant;
+import de.invesdwin.util.time.duration.Duration;
 import de.invesdwin.util.time.fdate.FDate;
-import uk.co.omegaprime.btreemap.LongIntBTreeMap;
+import de.invesdwin.util.time.fdate.FTimeUnit;
 
 @ThreadSafe
 public class CachedHistoricalCacheQueryCore<V> extends ACachedHistoricalCacheQueryCore<V> {
@@ -299,7 +302,6 @@ public class CachedHistoricalCacheQueryCore<V> extends ACachedHistoricalCacheQue
 
     private void prependCachedEntries(final FDate key, final List<Entry<FDate, V>> trailing,
             final int trailingCountFoundInCache) throws ResetCacheException {
-        boolean clearIndex = false;
         for (int i = trailing.size() - trailingCountFoundInCache - 1; i >= 0; i--) {
             final Entry<FDate, V> prependEntry = trailing.get(i);
             if (!cachedPreviousEntries.isEmpty()) {
@@ -310,7 +312,6 @@ public class CachedHistoricalCacheQueryCore<V> extends ACachedHistoricalCacheQue
                 }
             }
             cachedPreviousEntries.add(0, prependEntry);
-            clearIndex = true;
         }
         Integer maximumSize = getParent().getMaximumSize();
         if (maximumSize != null) {
@@ -322,14 +323,10 @@ public class CachedHistoricalCacheQueryCore<V> extends ACachedHistoricalCacheQue
                  * back and will live with the cost of loading again the current values next time
                  */
                 cachedPreviousEntries.remove(cachedPreviousEntries.size() - 1);
-                clearIndex = true;
             }
             //reset cached results and set new marker so that we don't go accidentally into sameKey algorithm
             resetCachedPreviousResult();
             cachedPreviousEntriesKey = getLastCachedEntry().getKey();
-        }
-        if (clearIndex) {
-            cachedPreviousEntriesIndex.clear();
         }
     }
 
@@ -345,20 +342,14 @@ public class CachedHistoricalCacheQueryCore<V> extends ACachedHistoricalCacheQue
                 }
             }
             cachedPreviousEntries.add(appendEntry);
-            cachedPreviousEntriesIndex.putInt(appendEntry.getKey().millisValue(), cachedPreviousEntries.size() - 1);
         }
         cachedPreviousEntriesKey = key;
         Integer maximumSize = getParent().getMaximumSize();
         if (maximumSize != null) {
             maximumSize = maybeIncreaseMaximumSize(trailing.size());
             //ensure we stay in size limit
-            int countRemoved = 0;
             while (cachedPreviousEntries.size() > maximumSize) {
                 cachedPreviousEntries.remove(0);
-                countRemoved++;
-            }
-            if (countRemoved > 0) {
-                cachedPreviousEntriesIndex.clear();
             }
         }
     }
@@ -444,7 +435,7 @@ public class CachedHistoricalCacheQueryCore<V> extends ACachedHistoricalCacheQue
         //prefill what is possible and add suffixes by query as needed
         final int cachedToIndex;
         if (skippingKeysAbove != null) {
-            cachedToIndex = bisect(skippingKeysAbove, cachedPreviousEntries, cachedPreviousEntriesIndex, unitsBack);
+            cachedToIndex = bisect(skippingKeysAbove, cachedPreviousEntries, unitsBack);
         } else {
             cachedToIndex = cachedPreviousEntries.size() - 1;
         }
@@ -458,62 +449,59 @@ public class CachedHistoricalCacheQueryCore<V> extends ACachedHistoricalCacheQue
         return newUnitsBack;
     }
 
-    @Override
-    public int bisect(final FDate skippingKeysAbove, final List<Entry<FDate, V>> list, final LongIntBTreeMap index,
-            final Integer unitsBack) throws ResetCacheException {
-        int lo = 0;
-        int hi = list.size();
-        if (unitsBack != null) {
-            final FDate loTime = list.get(lo).getKey();
-            if (skippingKeysAbove.isBeforeOrEqualToNotNullSafe(loTime) && hi >= maxCachedIndex) {
-                throw new ResetCacheException("Not enough data in cache for fillFromCacheAsFarAsPossible [" + unitsBack
-                        + "/" + maxCachedIndex + "/" + (hi - 1) + "]");
-            }
-        }
+    private static NumberStreamAvg<Double> avg = new NumberStreamAvg<>();
+    private static FDate lastPrint = new FDate();
 
-        if (index != null) {
-            final long millis = skippingKeysAbove.millisValue();
-            final Entry<Long, Integer> entry = index.ceilingEntry(millis);
-            if (entry != null) {
-                if (entry.getKey().longValue() == millis) {
-                    return entry.getValue();
-                } else {
-                    hi = entry.getValue();
+    @Override
+    public int bisect(final FDate skippingKeysAbove, final List<Entry<FDate, V>> list, final Integer unitsBack)
+            throws ResetCacheException {
+        final Instant start = new Instant();
+
+        try {
+            int lo = 0;
+            int hi = list.size();
+            if (unitsBack != null) {
+                final FDate loTime = list.get(lo).getKey();
+                if (skippingKeysAbove.isBeforeOrEqualToNotNullSafe(loTime) && hi >= maxCachedIndex) {
+                    throw new ResetCacheException("Not enough data in cache for fillFromCacheAsFarAsPossible ["
+                            + unitsBack + "/" + maxCachedIndex + "/" + (hi - 1) + "]");
                 }
             }
-        }
 
-        //bisect
-        while (lo < hi) {
-            final int mid = (lo + hi) / 2;
-            //if (x < list.get(mid)) {
-            final FDate midKey = list.get(mid).getKey();
-            final int compareTo = midKey.compareToNotNullSafe(skippingKeysAbove);
-            switch (compareTo) {
-            case -1:
-                lo = mid + 1;
-                break;
-            case 0:
-                return mid;
-            case 1:
-                hi = mid;
-                break;
-            default:
-                throw UnknownArgumentException.newInstance(Integer.class, compareTo);
+            //bisect
+            while (lo < hi) {
+                final int mid = (lo + hi) / 2;
+                //if (x < list.get(mid)) {
+                final FDate midKey = list.get(mid).getKey();
+                final int compareTo = midKey.compareToNotNullSafe(skippingKeysAbove);
+                switch (compareTo) {
+                case -1:
+                    lo = mid + 1;
+                    break;
+                case 0:
+                    return mid;
+                case 1:
+                    hi = mid;
+                    break;
+                default:
+                    throw UnknownArgumentException.newInstance(Integer.class, compareTo);
+                }
+            }
+            final FDate loTime = list.get(lo).getKey();
+            final int result;
+            if (loTime.isAfterNotNullSafe(skippingKeysAbove)) {
+                result = lo - 1;
+            } else {
+                result = lo;
+            }
+            return result;
+        } finally {
+            avg.process(start.toDuration().doubleValue(FTimeUnit.NANOSECONDS));
+            if (new Duration(lastPrint).isGreaterThan(Duration.ONE_SECOND)) {
+                System.out.println("avg: " + new Duration((long) avg.getAvg(), FTimeUnit.NANOSECONDS));
+                lastPrint = new FDate();
             }
         }
-        final FDate loTime = list.get(lo).getKey();
-        final int result;
-        if (loTime.isAfterNotNullSafe(skippingKeysAbove)) {
-            result = lo - 1;
-        } else {
-            result = lo;
-        }
-        if (index != null) {
-            final long millis = skippingKeysAbove.millisValue();
-            index.putInt(millis, result);
-        }
-        return result;
     }
 
     @Override
