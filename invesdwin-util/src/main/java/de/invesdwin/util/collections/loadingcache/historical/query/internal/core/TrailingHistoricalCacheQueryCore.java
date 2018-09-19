@@ -11,6 +11,7 @@ import de.invesdwin.util.bean.tuple.ImmutableEntry;
 import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.IHistoricalCacheInternalMethods;
 import de.invesdwin.util.time.fdate.FDate;
+import uk.co.omegaprime.btreemap.LongIntBTreeMap;
 
 @ThreadSafe
 public class TrailingHistoricalCacheQueryCore<V> extends ACachedHistoricalCacheQueryCore<V> {
@@ -77,8 +78,8 @@ public class TrailingHistoricalCacheQueryCore<V> extends ACachedHistoricalCacheQ
     }
 
     @Override
-    protected void maybeIncreaseMaximumSize(final int requiredSize) {
-        delegate.maybeIncreaseMaximumSize(requiredSize);
+    protected Integer maybeIncreaseMaximumSize(final int requiredSize) {
+        return delegate.maybeIncreaseMaximumSize(requiredSize);
     }
 
     private List<Entry<FDate, V>> tryCachedGetPreviousEntriesIfAvailable(
@@ -168,7 +169,7 @@ public class TrailingHistoricalCacheQueryCore<V> extends ACachedHistoricalCacheQ
         //prefill what is possible and add suffixes by query as needed
         final int cachedToIndex;
         if (skippingKeysAbove != null) {
-            cachedToIndex = bisect(skippingKeysAbove, cachedPreviousEntries, unitsBack);
+            cachedToIndex = bisect(skippingKeysAbove, cachedPreviousEntries, cachedPreviousEntriesIndex, unitsBack);
         } else {
             cachedToIndex = cachedPreviousEntries.size() - 1;
         }
@@ -183,13 +184,14 @@ public class TrailingHistoricalCacheQueryCore<V> extends ACachedHistoricalCacheQ
     }
 
     @Override
-    protected int bisect(final FDate skippingKeysAbove, final List<Entry<FDate, V>> list, final Integer unitsBack)
-            throws ResetCacheException {
-        return delegate.bisect(skippingKeysAbove, list, unitsBack);
+    protected int bisect(final FDate skippingKeysAbove, final List<Entry<FDate, V>> list, final LongIntBTreeMap index,
+            final Integer unitsBack) throws ResetCacheException {
+        return delegate.bisect(skippingKeysAbove, list, index, unitsBack);
     }
 
     private void prependCachedEntries(final FDate key, final List<Entry<FDate, V>> trailing,
             final int trailingCountFoundInCache) throws ResetCacheException {
+        boolean clearIndex = false;
         for (int i = trailing.size() - trailingCountFoundInCache - 1; i >= 0; i--) {
             final Entry<FDate, V> prependEntry = trailing.get(i);
             if (!cachedPreviousEntries.isEmpty()) {
@@ -200,11 +202,15 @@ public class TrailingHistoricalCacheQueryCore<V> extends ACachedHistoricalCacheQ
                 }
             }
             cachedPreviousEntries.add(0, prependEntry);
+            clearIndex = true;
         }
         final Integer maximumSize = getParent().getMaximumSize();
         if (maximumSize != null && cachedPreviousEntries.size() > maximumSize) {
             throw new IllegalStateException("maximumSize [" + maximumSize
                     + "] was exceeded during prependCachedEntries: " + cachedPreviousEntries.size());
+        }
+        if (clearIndex) {
+            cachedPreviousEntriesIndex.clear();
         }
     }
 
@@ -223,16 +229,22 @@ public class TrailingHistoricalCacheQueryCore<V> extends ACachedHistoricalCacheQ
                 appendCachedEntryAndResult(key, cachedPreviousResult_shiftBackUnits, appendEntry);
             } else {
                 cachedPreviousEntries.add(appendEntry);
+                cachedPreviousEntriesIndex.putInt(appendEntry.getKey().millisValue(), cachedPreviousEntries.size() - 1);
             }
         }
         if (cachedPreviousResult_shiftBackUnits == null) {
             cachedPreviousEntriesKey = key;
-            final Integer maximumSize = getParent().getMaximumSize();
+            Integer maximumSize = getParent().getMaximumSize();
             if (maximumSize != null) {
-                delegate.maybeIncreaseMaximumSize(trailing.size());
+                maximumSize = maybeIncreaseMaximumSize(trailing.size());
                 //ensure we stay in size limit
+                int removed = 0;
                 while (cachedPreviousEntries.size() > maximumSize) {
                     cachedPreviousEntries.remove(0);
+                    removed++;
+                }
+                if (removed > 0) {
+                    cachedPreviousEntriesIndex.clear();
                 }
             }
         }
@@ -264,22 +276,22 @@ public class TrailingHistoricalCacheQueryCore<V> extends ACachedHistoricalCacheQ
 
         if (lastResultEntry.getKey().isAfterNotNullSafe(lastCachedEntry.getKey())) {
             //we have some data that can be merged at the end of the result
-            final int fromIndex = delegate.bisect(lastCachedEntry.getKey(), result, null) + 1;
+            final int fromIndex = delegate.bisect(lastCachedEntry.getKey(), result, null, null) + 1;
             final int toIndex = result.size();
             final int sizeToAppend = toIndex - fromIndex;
             appendCachedEntries(key, result, sizeToAppend);
         }
 
-        final Integer maximumSize = getParent().getMaximumSize();
+        Integer maximumSize = getParent().getMaximumSize();
         if ((maximumSize == null || cachedPreviousEntries.size() < maximumSize)
                 && firstResultEntry.getKey().isBeforeNotNullSafe(firstCachedEntry.getKey())) {
             //we have some data that can be merged at the start of the result
             int fromIndex = 0;
-            final int toIndex = delegate.bisect(firstCachedEntry.getKey(), result, null);
+            final int toIndex = delegate.bisect(firstCachedEntry.getKey(), result, null, null);
             if (maximumSize != null) {
                 int maximumSizeExceededBy = cachedPreviousEntries.size() + toIndex - maximumSize - 1;
-                delegate.maybeIncreaseMaximumSize(cachedPreviousEntries.size() + maximumSizeExceededBy);
-                maximumSizeExceededBy = cachedPreviousEntries.size() + toIndex - getParent().getMaximumSize();
+                maximumSize = maybeIncreaseMaximumSize(cachedPreviousEntries.size() + maximumSizeExceededBy);
+                maximumSizeExceededBy = cachedPreviousEntries.size() + toIndex - maximumSize;
                 if (maximumSizeExceededBy > 0) {
                     fromIndex = maximumSizeExceededBy;
                 }
