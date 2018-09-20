@@ -717,7 +717,7 @@ public class AGapHistoricalCacheTest {
             final FDate entity = entities.get(i);
             final FDate foundKey = cache.query().getPreviousKeyWithSameValueBetween(FDate.MIN_DATE, FDate.MAX_DATE,
                     entity);
-            Assertions.assertThat(foundKey).isEqualTo(entity);
+            Assertions.assertThat(foundKey).as(String.valueOf(i)).isEqualTo(entity);
         }
     }
 

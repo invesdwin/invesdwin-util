@@ -1,11 +1,12 @@
 package de.invesdwin.util.collections.loadingcache.historical.key;
 
-import javax.annotation.concurrent.Immutable;
+import javax.annotation.concurrent.ThreadSafe;
 
+import de.invesdwin.util.collections.loadingcache.historical.query.index.IndexedFDate;
 import de.invesdwin.util.time.fdate.FDate;
 
-@Immutable
-public class AdjustedFDate extends FDate {
+@ThreadSafe
+public class AdjustedFDate extends IndexedFDate {
 
     private final int adjustKeyProviderIdentityHashCode;
 

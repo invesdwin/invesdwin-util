@@ -7,9 +7,12 @@ import java.util.Map.Entry;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
+import de.invesdwin.util.bean.tuple.ImmutableEntry;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.SingleValueIterable;
 import de.invesdwin.util.collections.iterable.WrapperCloseableIterable;
+import de.invesdwin.util.collections.loadingcache.historical.query.index.IndexedFDate;
+import de.invesdwin.util.collections.loadingcache.historical.query.index.QueryCoreIndex;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.HistoricalCacheAssertValue;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.HistoricalCacheQuery;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.IHistoricalCacheInternalMethods;
@@ -18,8 +21,10 @@ import de.invesdwin.util.time.fdate.FDate;
 @ThreadSafe
 public abstract class ACachedHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryCore<V> {
 
+    protected int modCount = 0;
+    protected int modIncrementIndex = 0;
     @GuardedBy("getParent().getLock()")
-    protected final List<Entry<FDate, V>> cachedPreviousEntries = new ArrayList<>();
+    protected final List<Entry<IndexedFDate, V>> cachedPreviousEntries = new ArrayList<>();
     @GuardedBy("getParent().getLock()")
     protected FDate cachedPreviousEntriesKey = null;
     @GuardedBy("getParent().getLock()")
@@ -28,6 +33,17 @@ public abstract class ACachedHistoricalCacheQueryCore<V> implements IHistoricalC
     protected List<Entry<FDate, V>> cachedPreviousResult_filteringDuplicates = null;
     @GuardedBy("getParent().getLock()")
     protected Integer cachedPreviousResult_shiftBackUnits = null;
+
+    protected void assertIndexes() {
+        for (int i = 0; i < cachedPreviousEntries.size(); i++) {
+            final IndexedFDate date = cachedPreviousEntries.get(i).getKey();
+            final QueryCoreIndex queryCoreIndex = date.getQueryCoreIndex(this);
+            final int index = queryCoreIndex.getIndex() + modIncrementIndex;
+            if (index != i) {
+                throw new IllegalStateException("index went wrong: " + index + " != " + i);
+            }
+        }
+    }
 
     @Override
     public Entry<FDate, V> getPreviousEntry(final IHistoricalCacheQueryInternalMethods<V> query, final FDate key,
@@ -158,6 +174,7 @@ public abstract class ACachedHistoricalCacheQueryCore<V> implements IHistoricalC
         cachedPreviousResult_shiftBackUnits = null;
     }
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     protected void replaceCachedEntries(final FDate key, final List<Entry<FDate, V>> trailing) {
         if (trailing.isEmpty() ||
         /*
@@ -168,16 +185,26 @@ public abstract class ACachedHistoricalCacheQueryCore<V> implements IHistoricalC
             return;
         }
         maybeIncreaseMaximumSize(trailing.size());
+        modCount++;
+        modIncrementIndex = 0;
         cachedPreviousEntries.clear();
-        cachedPreviousEntries.addAll(trailing);
+        for (int i = 0; i < trailing.size(); i++) {
+            final Entry<FDate, V> entry = trailing.get(i);
+            final IndexedFDate indexedKey = IndexedFDate.maybeWrap(entry.getKey());
+            indexedKey.putQueryCoreIndex(this,
+                    new QueryCoreIndex(modCount, cachedPreviousEntries.size() - modIncrementIndex));
+            final Entry<IndexedFDate, V> indexedEntry = ImmutableEntry.of(indexedKey, entry.getValue());
+            cachedPreviousEntries.add(indexedEntry);
+            trailing.set(i, (Entry) indexedEntry);
+        }
         cachedPreviousEntriesKey = key;
         resetCachedPreviousResult();
     }
 
     protected abstract Integer maybeIncreaseMaximumSize(int requiredSize);
 
-    protected abstract int bisect(FDate skippingKeysAbove, List<Entry<FDate, V>> list, Integer unitsBack)
-            throws ResetCacheException;
+    protected abstract int bisect(FDate skippingKeysAbove, List<Entry<FDate, V>> list, Integer unitsBack,
+            ACachedHistoricalCacheQueryCore<V> useIndex) throws ResetCacheException;
 
     //CHECKSTYLE:OFF
     protected void appendCachedEntryAndResult(final FDate key, final Integer shiftBackUnits,
@@ -189,7 +216,11 @@ public abstract class ACachedHistoricalCacheQueryCore<V> implements IHistoricalC
                         "cachedPreviousResult_shiftBackUnits is null even though it should be extended");
             }
 
-            cachedPreviousEntries.add(latestEntry);
+            final IndexedFDate indexedKey = IndexedFDate.maybeWrap(latestEntry.getKey());
+            indexedKey.putQueryCoreIndex(this,
+                    new QueryCoreIndex(modCount, cachedPreviousEntries.size() - modIncrementIndex));
+            final Entry<IndexedFDate, V> indexedEntry = ImmutableEntry.of(indexedKey, latestEntry.getValue());
+            cachedPreviousEntries.add(indexedEntry);
 
             if (shiftBackUnits != null && cachedPreviousResult_shiftBackUnits < shiftBackUnits) {
                 //we added one more element and there is still demand for more
@@ -216,6 +247,8 @@ public abstract class ACachedHistoricalCacheQueryCore<V> implements IHistoricalC
                 //ensure we stay in size limit
                 while (cachedPreviousEntries.size() > maximumSize) {
                     cachedPreviousEntries.remove(0);
+                    modIncrementIndex--;
+                    assertIndexes();
                 }
             }
 
@@ -224,7 +257,7 @@ public abstract class ACachedHistoricalCacheQueryCore<V> implements IHistoricalC
     }
 
     protected FDate determineConsistentLastCachedEntryKey() throws ResetCacheException {
-        final FDate lastCachedEntryKey = getLastCachedEntry().getKey();
+        final IndexedFDate lastCachedEntryKey = getLastCachedEntry().getKey();
         if (cachedPreviousResult_filteringDuplicates != null && !cachedPreviousResult_filteringDuplicates.isEmpty()) {
             final FDate lastCachedResultKey = cachedPreviousResult_filteringDuplicates
                     .get(cachedPreviousResult_filteringDuplicates.size() - 1)
@@ -241,7 +274,7 @@ public abstract class ACachedHistoricalCacheQueryCore<V> implements IHistoricalC
         return lastCachedEntryKey;
     }
 
-    private void assertSameLastKey(final FDate lastCachedEntryKey, final FDate lastCachedResultKey)
+    private void assertSameLastKey(final IndexedFDate lastCachedEntryKey, final FDate lastCachedResultKey)
             throws ResetCacheException {
         if (!lastCachedEntryKey.equalsNotNullSafe(lastCachedResultKey)) {
             throw new ResetCacheException(
@@ -250,20 +283,22 @@ public abstract class ACachedHistoricalCacheQueryCore<V> implements IHistoricalC
         }
     }
 
-    protected Entry<FDate, V> getLastCachedEntry() throws ResetCacheException {
+    protected Entry<IndexedFDate, V> getLastCachedEntry() throws ResetCacheException {
         if (cachedPreviousEntries.isEmpty()) {
             throw new ResetCacheException("lastCachedEntry cannot be retrieved since cachedPreviousEntries is empty");
         }
         return cachedPreviousEntries.get(cachedPreviousEntries.size() - 1);
     }
 
-    protected Entry<FDate, V> getFirstCachedEntry() {
+    protected Entry<IndexedFDate, V> getFirstCachedEntry() {
         return cachedPreviousEntries.get(0);
     }
 
     protected void resetForRetry() {
         getDelegate().clear();
         cachedPreviousEntries.clear();
+        modCount++;
+        modIncrementIndex = 0;
         cachedPreviousEntriesKey = null;
         resetCachedPreviousResult();
     }
