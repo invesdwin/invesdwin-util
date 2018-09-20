@@ -27,7 +27,7 @@ public class AdjustedFDate extends IndexedFDate {
             final AdjustedFDate cKey = (AdjustedFDate) key;
             return maybeAdjust(adjustKeyProvider, cKey);
         } else {
-            final IndexedFDate indexed = (IndexedFDate) key.getAttributes().get(IndexedFDate.KEY_INDEXED_FDATE);
+            final IndexedFDate indexed = (IndexedFDate) key.getExtension();
             if (indexed instanceof AdjustedFDate) {
                 final AdjustedFDate cKey = (AdjustedFDate) indexed;
                 return maybeAdjust(adjustKeyProvider, cKey);

@@ -12,11 +12,13 @@ public final class DelegateHistoricalCacheShiftKeyProvider implements IHistorica
 
     private final AHistoricalCache<Object> parent;
     private final IHistoricalCacheShiftKeyProvider delegate;
+    private final IHistoricalCacheQuery<?> parentQuery;
 
     private DelegateHistoricalCacheShiftKeyProvider(final AHistoricalCache<Object> parent,
             final IHistoricalCacheShiftKeyProvider delegate) {
         this.parent = parent;
         this.delegate = delegate;
+        this.parentQuery = parent.query();
     }
 
     @Override
@@ -51,7 +53,7 @@ public final class DelegateHistoricalCacheShiftKeyProvider implements IHistorica
 
     @Override
     public IHistoricalCacheQuery<?> newKeysQueryInterceptor() {
-        return parent.query();
+        return parentQuery;
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })

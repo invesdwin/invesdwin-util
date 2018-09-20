@@ -29,7 +29,7 @@ public abstract class AIterableGapHistoricalCache<V> extends AGapHistoricalCache
         return new ASkippingIterable<V>(getDelegate()) {
             @Override
             protected boolean skip(final V element) {
-                return extractKey(key, element).isBefore(key);
+                return extractKey(null, element).isBefore(key);
             }
         };
     }
@@ -46,7 +46,7 @@ public abstract class AIterableGapHistoricalCache<V> extends AGapHistoricalCache
                 if (previousE == null) {
                     previousE = e;
                 } else {
-                    final FDate eKey = extractKey(key, e);
+                    final FDate eKey = extractKey(null, e);
                     if (key.isAfter(eKey)) {
                         previousE = e;
                     } else {

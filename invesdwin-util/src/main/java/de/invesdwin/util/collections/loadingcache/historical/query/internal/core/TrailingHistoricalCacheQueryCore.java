@@ -348,7 +348,6 @@ public class TrailingHistoricalCacheQueryCore<V> extends ACachedHistoricalCacheQ
                     }
                 }
                 appendCachedEntryAndResult(valueKey, null, ImmutableEntry.of(valueKey, value));
-                IndexedFDate.maybeMerge(valueKey, previousKey, -1);
             } catch (final ResetCacheException e) {
                 //should not happen here
                 throw new RuntimeException(e);

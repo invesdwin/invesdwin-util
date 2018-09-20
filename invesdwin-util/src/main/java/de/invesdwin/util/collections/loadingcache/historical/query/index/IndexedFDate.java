@@ -2,23 +2,27 @@ package de.invesdwin.util.collections.loadingcache.historical.query.index;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import org.apache.commons.lang3.mutable.MutableInt;
+
 import de.invesdwin.util.time.fdate.FDate;
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 
 @NotThreadSafe
 public class IndexedFDate extends FDate {
 
-    public static final String KEY_INDEXED_FDATE = IndexedFDate.class.getSimpleName();
-    private transient Int2ObjectOpenHashMap<QueryCoreIndex> queryCoreIndexMap;
+    private static final int INDEXES_SIZE = 2;
+    private final IdentityQueryCoreIndex[] indexes;
+    private final MutableInt indexesRoundRobin;
 
     public IndexedFDate(final FDate key) {
         super(key);
         if (key instanceof IndexedFDate) {
             final IndexedFDate indexedKey = (IndexedFDate) key;
-            queryCoreIndexMap = indexedKey.getQueryCoreIndexMap();
+            this.indexes = indexedKey.indexes;
+            this.indexesRoundRobin = indexedKey.indexesRoundRobin;
         } else {
-            key.getAttributes().put(KEY_INDEXED_FDATE, this);
+            key.setExtension(this);
+            this.indexes = new IdentityQueryCoreIndex[INDEXES_SIZE];
+            this.indexesRoundRobin = new MutableInt(-1);
         }
     }
 
@@ -26,7 +30,7 @@ public class IndexedFDate extends FDate {
         if (key instanceof IndexedFDate) {
             return (IndexedFDate) key;
         } else {
-            final IndexedFDate indexedFDate = (IndexedFDate) key.getAttributes().get(KEY_INDEXED_FDATE);
+            final IndexedFDate indexedFDate = (IndexedFDate) key.getExtension();
             if (indexedFDate != null) {
                 return indexedFDate;
             } else {
@@ -39,7 +43,7 @@ public class IndexedFDate extends FDate {
         if (key instanceof IndexedFDate) {
             return (IndexedFDate) key;
         } else {
-            final IndexedFDate indexedFDate = (IndexedFDate) key.getAttributes().get(KEY_INDEXED_FDATE);
+            final IndexedFDate indexedFDate = (IndexedFDate) key.getExtension();
             if (indexedFDate != null) {
                 return indexedFDate;
             } else {
@@ -48,62 +52,54 @@ public class IndexedFDate extends FDate {
         }
     }
 
-    public synchronized Int2ObjectOpenHashMap<QueryCoreIndex> getQueryCoreIndexMap() {
-        if (queryCoreIndexMap == null) {
-            queryCoreIndexMap = newQueryCoreIndexMap();
-        }
-        return queryCoreIndexMap;
-    }
-
     public QueryCoreIndex getQueryCoreIndex(
             final de.invesdwin.util.collections.loadingcache.historical.query.internal.core.IHistoricalCacheQueryCore<?> queryCore) {
-        return getQueryCoreIndexMap().get(System.identityHashCode(queryCore));
+        final int identityHashCode = System.identityHashCode(queryCore);
+        synchronized (indexes) {
+            for (int i = 0; i < indexes.length; i++) {
+                final IdentityQueryCoreIndex index = indexes[i];
+                if (index == null) {
+                    break;
+                }
+                if (index.getQueryCoreIdentityHashCode() == identityHashCode) {
+                    return index;
+                }
+            }
+        }
+        return null;
     }
 
-    public void putQueryCoreIndex(
+    public synchronized void putQueryCoreIndex(
             final de.invesdwin.util.collections.loadingcache.historical.query.internal.core.IHistoricalCacheQueryCore<?> queryCore,
             final QueryCoreIndex queryCoreIndex) {
-        getQueryCoreIndexMap().put(System.identityHashCode(queryCore), queryCoreIndex);
+        synchronized (indexes) {
+            final int identityHashCode = System.identityHashCode(queryCore);
+            final IdentityQueryCoreIndex identityQueryCoreIndex = new IdentityQueryCoreIndex(identityHashCode,
+                    queryCoreIndex);
+            putIdentityQueryCoreIndex(identityQueryCoreIndex);
+        }
     }
 
-    private static Int2ObjectOpenHashMap<QueryCoreIndex> newQueryCoreIndexMap() {
-        return new Int2ObjectOpenHashMap<>();
-    }
-
-    public static FDate maybeMerge(final FDate from, final FDate to, final int adjustIndex) {
-        IndexedFDate fromIndexedKey = IndexedFDate.maybeUnwrap(from);
-        if (fromIndexedKey == null) {
-            final IndexedFDate toIndexedKey = maybeUnwrap(to);
-            if (toIndexedKey != null) {
-                fromIndexedKey = IndexedFDate.maybeWrap(from);
-                mergeMap(toIndexedKey, fromIndexedKey, -adjustIndex);
+    private void putIdentityQueryCoreIndex(final IdentityQueryCoreIndex identityQueryCoreIndex) {
+        for (int i = 0; i < indexes.length; i++) {
+            final IdentityQueryCoreIndex index = indexes[i];
+            if (index == null) {
+                break;
             }
-            return to;
+            if (index.getQueryCoreIdentityHashCode() == identityQueryCoreIndex.getQueryCoreIdentityHashCode()) {
+                indexes[i] = identityQueryCoreIndex;
+                indexesRoundRobin.setValue(i);
+                return;
+            }
+        }
+        int curRoundRobin = indexesRoundRobin.intValue();
+        if (curRoundRobin >= INDEXES_SIZE - 1) {
+            curRoundRobin = 0;
         } else {
-            final IndexedFDate toIndexedKey = IndexedFDate.maybeWrap(to);
-            mergeMap(fromIndexedKey, toIndexedKey, adjustIndex);
-            mergeMap(toIndexedKey, fromIndexedKey, -adjustIndex);
-            return toIndexedKey;
+            curRoundRobin++;
         }
-    }
-
-    private static void mergeMap(final IndexedFDate from, final IndexedFDate to, final int adjustIndex) {
-        final Int2ObjectOpenHashMap<QueryCoreIndex> fromMap = from.getQueryCoreIndexMap();
-        for (final Int2ObjectMap.Entry<QueryCoreIndex> fromEntry : fromMap.int2ObjectEntrySet()) {
-            final int queryCoreIdentityHashCode = fromEntry.getIntKey();
-            final QueryCoreIndex fromQueryCoreIndex = fromEntry.getValue();
-            final Int2ObjectOpenHashMap<QueryCoreIndex> toMap = to.getQueryCoreIndexMap();
-            final QueryCoreIndex toQueryCoreIndex = toMap.get(queryCoreIdentityHashCode);
-            if (toQueryCoreIndex != null) {
-                if (toQueryCoreIndex.getModCount() < fromQueryCoreIndex.getModCount()) {
-                    toMap.put(queryCoreIdentityHashCode, new QueryCoreIndex(fromQueryCoreIndex.getModCount(),
-                            fromQueryCoreIndex.getIndex() + adjustIndex));
-                }
-            } else {
-                toMap.put(queryCoreIdentityHashCode, new QueryCoreIndex(fromQueryCoreIndex.getModCount(),
-                        fromQueryCoreIndex.getIndex() + adjustIndex));
-            }
-        }
+        indexes[curRoundRobin] = identityQueryCoreIndex;
+        indexesRoundRobin.setValue(curRoundRobin);
     }
 
 }

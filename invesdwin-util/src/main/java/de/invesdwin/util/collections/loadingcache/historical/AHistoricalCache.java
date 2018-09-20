@@ -37,7 +37,6 @@ import de.invesdwin.util.collections.loadingcache.historical.listener.IHistorica
 import de.invesdwin.util.collections.loadingcache.historical.listener.IHistoricalCacheOnClearListener;
 import de.invesdwin.util.collections.loadingcache.historical.listener.IHistoricalCachePutListener;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQuery;
-import de.invesdwin.util.collections.loadingcache.historical.query.index.IndexedFDate;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.HistoricalCacheQuery;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.IHistoricalCacheInternalMethods;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.IHistoricalCacheQueryCore;
@@ -314,10 +313,8 @@ public abstract class AHistoricalCache<V>
     public final FDate extractKey(final FDate key, final V value) {
         FDate extractedKey = extractKeyProvider.extractKey(key, value);
         if (key != null) {
-            if (key.equals(extractedKey)) {
+            if (key.equalsNotNullSafe(extractedKey)) {
                 extractedKey = key;
-            } else {
-                IndexedFDate.maybeMerge(key, extractedKey, 0);
             }
         }
         return adjustKeyProvider.newAlreadyAdjustedKey(extractedKey);
@@ -336,7 +333,7 @@ public abstract class AHistoricalCache<V>
         }
         final FDate prevKey = shiftKeyProvider.calculatePreviousKey(key);
         final FDate adjKey = adjustKeyProvider.newAlreadyAdjustedKey(prevKey);
-        return IndexedFDate.maybeMerge(key, adjKey, -1);
+        return adjKey;
     }
 
     protected final FDate calculateNextKey(final FDate key) {

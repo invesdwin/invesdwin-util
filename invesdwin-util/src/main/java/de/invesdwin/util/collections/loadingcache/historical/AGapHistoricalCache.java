@@ -159,7 +159,7 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
     }
 
     private boolean isPotentiallyAlreadyEvicted(final FDate key, final V value) {
-        final boolean isEvictedBeforeCurrentFurtherValues = (value == null || extractKey(key, value).isAfter(key))
+        final boolean isEvictedBeforeCurrentFurtherValues = (value == null || extractKey(null, value).isAfter(key))
                 && (key.isAfter(minKeyInDB) || key.isAfter(minKeyInDBFromLoadFurtherValues));
         if (isEvictedBeforeCurrentFurtherValues) {
             return true;
@@ -207,7 +207,7 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
         if (maxKeyInDB == null || force || alreadyAdjustingKey) {
             final V maxValue = readNewestValueFromDB(maxKey());
             if (maxValue != null) {
-                final FDate maxValueKey = extractKey(key, maxValue);
+                final FDate maxValueKey = extractKey(null, maxValue);
                 if (maxKeyInDB == null || maxValueKey.compareTo(maxKeyInDB) >= 1) {
                     maxKeyInDB = maxValueKey;
                     getValuesMap().put(maxValueKey, maxValue);
@@ -222,7 +222,7 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
         if (minKeyInDB == null || force) {
             final V minValue = readNewestValueFromDB(minKey());
             if (minValue != null) {
-                final FDate minValueKey = extractKey(key, minValue);
+                final FDate minValueKey = extractKey(null, minValue);
                 //min key must be kept intact if all values have been loaded from a later key
                 if (minKeyInDB == null || minValueKey.compareTo(minKeyInDB) <= -1) {
                     minKeyInDB = minValueKey;
@@ -353,8 +353,8 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
                 return true;
             }
             final V head = lastValuesFromFurtherValues.getHead();
-            final FDate tailKey = extractKey(key, tail);
-            final FDate headKey = extractKey(key, head);
+            final FDate tailKey = extractKey(null, tail);
+            final FDate headKey = extractKey(null, head);
             final boolean isEndReachedAnyway = tailKey.equals(maxKeyInDB) && key.isBeforeOrEqualTo(maxKeyInDB)
                     && headKey.isBeforeOrEqualTo(key);
             return !isEndReachedAnyway;
@@ -379,7 +379,7 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
     }
 
     private void assertFurtherValuesSorting(final FDate key) {
-        final FDate firstKey = extractKey(key, furtherValues.getHead());
+        final FDate firstKey = extractKey(null, furtherValues.getHead());
         if (firstKey.compareTo(key) <= -1) {
             /*
              * readAllValuesAscendingFrom loads all data, thus we set the min key very deep so that later queries are
@@ -391,7 +391,7 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
             minKeyInDB = firstKey;
         }
         minKeyInDBFromLoadFurtherValues = FDates.min(minKeyInDBFromLoadFurtherValues, firstKey);
-        final FDate lastKey = extractKey(key, furtherValues.getTail());
+        final FDate lastKey = extractKey(null, furtherValues.getTail());
         if (maxKeyInDB == null || lastKey.compareTo(maxKeyInDB) <= -1) {
             maxKeyInDB = FDates.max(maxKeyInDB, lastKey);
         }
@@ -411,7 +411,7 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
         if (!lastValuesFromFurtherValues.isEmpty()) {
             //though maybe use the last one for smaller increments than the data itself is loaded
             for (final V lastValueFromFurtherValues : lastValuesFromFurtherValues) {
-                final FDate keyLastValueFromFurtherValues = extractKey(key, lastValueFromFurtherValues);
+                final FDate keyLastValueFromFurtherValues = extractKey(null, lastValueFromFurtherValues);
                 if (keyLastValueFromFurtherValues.isBeforeOrEqualTo(key)) {
                     prevValue = lastValueFromFurtherValues;
                     prevKey = keyLastValueFromFurtherValues;
@@ -522,7 +522,7 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
         if (value != null) {
             //we remember the db key of the value so that it can be found again later
             //to use the parameter key would make the result incorrect
-            final FDate valueKey = extractKey(key, value);
+            final FDate valueKey = extractKey(null, value);
             getValuesMap().put(valueKey, value);
             return value;
         } else {

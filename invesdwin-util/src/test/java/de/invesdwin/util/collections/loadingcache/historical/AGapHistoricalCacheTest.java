@@ -882,7 +882,7 @@ public class AGapHistoricalCacheTest {
                     cache.query().withFilterDuplicateKeys(false).getPreviousValues(entities.get(entities.size() - 1),
                             size));
             final List<FDate> expectedValues = entities.subList(entities.size() - size, entities.size());
-            Assertions.assertThat(previousValues).isEqualTo(expectedValues);
+            Assertions.assertThat(previousValues).as(String.valueOf(size)).isEqualTo(expectedValues);
         }
         Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(4);
         Assertions.assertThat(countReadNewestValueTo).isEqualTo(6);
