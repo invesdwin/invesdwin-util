@@ -353,7 +353,10 @@ public class CachedHistoricalCacheQueryCore<V> extends ACachedHistoricalCacheQue
             final Entry<IndexedFDate, V> indexedEntry = ImmutableEntry.of(indexedKey, appendEntry.getValue());
             cachedPreviousEntries.add(indexedEntry);
         }
-        cachedPreviousEntriesKey = key;
+        final IndexedFDate indexedKey = IndexedFDate.maybeWrap(key);
+        indexedKey.putQueryCoreIndex(this,
+                new QueryCoreIndex(modCount, cachedPreviousEntries.size() - 1 - modIncrementIndex));
+        cachedPreviousEntriesKey = indexedKey;
         Integer maximumSize = getParent().getMaximumSize();
         if (maximumSize != null) {
             maximumSize = maybeIncreaseMaximumSize(trailing.size());
@@ -485,8 +488,8 @@ public class CachedHistoricalCacheQueryCore<V> extends ACachedHistoricalCacheQue
             }
 
             if (useIndex != null) {
-                if (skippingKeysAbove instanceof IndexedFDate) {
-                    final IndexedFDate indexedSkippingKeysAbove = (IndexedFDate) skippingKeysAbove;
+                final IndexedFDate indexedSkippingKeysAbove = IndexedFDate.maybeUnwrap(skippingKeysAbove);
+                if (indexedSkippingKeysAbove != null) {
                     final QueryCoreIndex queryCoreIndex = indexedSkippingKeysAbove.getQueryCoreIndex(useIndex);
                     if (queryCoreIndex != null && queryCoreIndex.getModCount() == useIndex.modCount) {
                         final int index = queryCoreIndex.getIndex() + useIndex.modIncrementIndex;
@@ -509,7 +512,10 @@ public class CachedHistoricalCacheQueryCore<V> extends ACachedHistoricalCacheQue
                     lo = mid + 1;
                     break;
                 case 0:
-                    countBisect++;
+                    if (useIndex != null) {
+                        countBisect++;
+                    }
+                    registerIndex(skippingKeysAbove, mid, useIndex);
                     return mid;
                 case 1:
                     hi = mid;
@@ -519,19 +525,34 @@ public class CachedHistoricalCacheQueryCore<V> extends ACachedHistoricalCacheQue
                 }
             }
             final FDate loTime = list.get(lo).getKey();
-            countBisect++;
+            if (useIndex != null) {
+                countBisect++;
+            }
             if (loTime.isAfterNotNullSafe(skippingKeysAbove)) {
-                return lo - 1;
+                final int index = lo - 1;
+                registerIndex(skippingKeysAbove, index, useIndex);
+                return index;
             } else {
+                registerIndex(skippingKeysAbove, lo, useIndex);
                 return lo;
             }
         } finally {
-            avg.process(start.toDuration().doubleValue(FTimeUnit.NANOSECONDS));
-            if (new Duration(lastPrint).isGreaterThan(Duration.ONE_SECOND)) {
-                System.out.println("avg: " + new Duration((long) avg.getAvg(), FTimeUnit.NANOSECONDS) + " index: "
-                        + countIndex + " bisect: " + countBisect);
-                lastPrint = new FDate();
+            if (useIndex != null) {
+                avg.process(start.toDuration().doubleValue(FTimeUnit.NANOSECONDS));
+                if (new Duration(lastPrint).isGreaterThan(Duration.ONE_SECOND)) {
+                    System.out.println("avg: " + new Duration((long) avg.getAvg(), FTimeUnit.NANOSECONDS) + " index: "
+                            + countIndex + " bisect: " + countBisect);
+                    lastPrint = new FDate();
+                }
             }
+        }
+    }
+
+    private void registerIndex(final FDate key, final int index, final ACachedHistoricalCacheQueryCore<V> useIndex) {
+        if (useIndex != null) {
+            final IndexedFDate indexedKey = IndexedFDate.maybeWrap(key);
+            indexedKey.putQueryCoreIndex(useIndex,
+                    new QueryCoreIndex(useIndex.modCount, index - useIndex.modIncrementIndex));
         }
     }
 
@@ -568,6 +589,7 @@ public class CachedHistoricalCacheQueryCore<V> extends ACachedHistoricalCacheQue
                     return;
                 }
                 appendCachedEntryAndResult(valueKey, null, ImmutableEntry.of(valueKey, value));
+                IndexedFDate.maybeMerge(valueKey, previousKey, -1);
             } catch (final ResetCacheException e) {
                 //should not happen here
                 throw new RuntimeException(e);

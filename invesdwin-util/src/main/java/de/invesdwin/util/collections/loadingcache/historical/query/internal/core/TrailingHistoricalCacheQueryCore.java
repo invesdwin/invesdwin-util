@@ -237,7 +237,10 @@ public class TrailingHistoricalCacheQueryCore<V> extends ACachedHistoricalCacheQ
             }
         }
         if (cachedPreviousResult_shiftBackUnits == null) {
-            cachedPreviousEntriesKey = key;
+            final IndexedFDate indexedKey = IndexedFDate.maybeWrap(key);
+            indexedKey.putQueryCoreIndex(this,
+                    new QueryCoreIndex(modCount, cachedPreviousEntries.size() - 1 - modIncrementIndex));
+            cachedPreviousEntriesKey = indexedKey;
             Integer maximumSize = getParent().getMaximumSize();
             if (maximumSize != null) {
                 maximumSize = maybeIncreaseMaximumSize(trailing.size());
@@ -345,6 +348,7 @@ public class TrailingHistoricalCacheQueryCore<V> extends ACachedHistoricalCacheQ
                     }
                 }
                 appendCachedEntryAndResult(valueKey, null, ImmutableEntry.of(valueKey, value));
+                IndexedFDate.maybeMerge(valueKey, previousKey, -1);
             } catch (final ResetCacheException e) {
                 //should not happen here
                 throw new RuntimeException(e);

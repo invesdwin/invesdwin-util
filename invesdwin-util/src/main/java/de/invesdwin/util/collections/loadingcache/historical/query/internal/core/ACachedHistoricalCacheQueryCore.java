@@ -26,7 +26,7 @@ public abstract class ACachedHistoricalCacheQueryCore<V> implements IHistoricalC
     @GuardedBy("getParent().getLock()")
     protected final List<Entry<IndexedFDate, V>> cachedPreviousEntries = new ArrayList<>();
     @GuardedBy("getParent().getLock()")
-    protected FDate cachedPreviousEntriesKey = null;
+    protected IndexedFDate cachedPreviousEntriesKey = null;
     @GuardedBy("getParent().getLock()")
     protected List<Entry<FDate, V>> cachedPreviousResult_notFilteringDuplicates = null;
     @GuardedBy("getParent().getLock()")
@@ -180,13 +180,15 @@ public abstract class ACachedHistoricalCacheQueryCore<V> implements IHistoricalC
         for (int i = 0; i < trailing.size(); i++) {
             final Entry<FDate, V> entry = trailing.get(i);
             final IndexedFDate indexedKey = IndexedFDate.maybeWrap(entry.getKey());
-            indexedKey.putQueryCoreIndex(this,
-                    new QueryCoreIndex(modCount, cachedPreviousEntries.size() - modIncrementIndex));
+            indexedKey.putQueryCoreIndex(this, new QueryCoreIndex(modCount, i - modIncrementIndex));
             final Entry<IndexedFDate, V> indexedEntry = ImmutableEntry.of(indexedKey, entry.getValue());
             cachedPreviousEntries.add(indexedEntry);
             trailing.set(i, (Entry) indexedEntry);
         }
-        cachedPreviousEntriesKey = key;
+        final IndexedFDate indexedKey = IndexedFDate.maybeWrap(key);
+        indexedKey.putQueryCoreIndex(this,
+                new QueryCoreIndex(modCount, cachedPreviousEntries.size() - 1 - modIncrementIndex));
+        cachedPreviousEntriesKey = indexedKey;
         resetCachedPreviousResult();
     }
 
@@ -241,7 +243,10 @@ public abstract class ACachedHistoricalCacheQueryCore<V> implements IHistoricalC
             }
 
         }
-        cachedPreviousEntriesKey = key;
+        final IndexedFDate indexedKey = IndexedFDate.maybeWrap(key);
+        indexedKey.putQueryCoreIndex(this,
+                new QueryCoreIndex(modCount, cachedPreviousEntries.size() - 1 - modIncrementIndex));
+        cachedPreviousEntriesKey = indexedKey;
     }
 
     protected FDate determineConsistentLastCachedEntryKey() throws ResetCacheException {

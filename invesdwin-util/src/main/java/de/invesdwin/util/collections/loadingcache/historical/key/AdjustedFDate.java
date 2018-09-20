@@ -25,14 +25,25 @@ public class AdjustedFDate extends IndexedFDate {
     public static FDate maybeAdjustKey(final IHistoricalCacheAdjustKeyProvider adjustKeyProvider, final FDate key) {
         if (key instanceof AdjustedFDate) {
             final AdjustedFDate cKey = (AdjustedFDate) key;
-            //only when we move to a different adjust key provider
-            if (System.identityHashCode(adjustKeyProvider) != cKey.adjustKeyProviderIdentityHashCode) {
-                return adjustKeyProvider.adjustKey(cKey);
-            } else {
-                return cKey;
-            }
+            return maybeAdjust(adjustKeyProvider, cKey);
         } else {
-            return adjustKeyProvider.adjustKey(key);
+            final IndexedFDate indexed = (IndexedFDate) key.getAttributes().get(IndexedFDate.KEY_INDEXED_FDATE);
+            if (indexed instanceof AdjustedFDate) {
+                final AdjustedFDate cKey = (AdjustedFDate) indexed;
+                return maybeAdjust(adjustKeyProvider, cKey);
+            } else {
+                return adjustKeyProvider.adjustKey(key);
+            }
+        }
+    }
+
+    private static FDate maybeAdjust(final IHistoricalCacheAdjustKeyProvider adjustKeyProvider,
+            final AdjustedFDate cKey) {
+        //only when we move to a different adjust key provider
+        if (System.identityHashCode(adjustKeyProvider) != cKey.adjustKeyProviderIdentityHashCode) {
+            return adjustKeyProvider.adjustKey(cKey);
+        } else {
+            return cKey;
         }
     }
 

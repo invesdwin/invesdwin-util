@@ -4,6 +4,8 @@ import java.util.Map.Entry;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.util.bean.tuple.ImmutableEntry;
+import de.invesdwin.util.collections.loadingcache.historical.query.index.IndexedFDate;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.HistoricalCacheAssertValue;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.IHistoricalCacheQueryCore;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.IHistoricalCacheQueryInternalMethods;
@@ -68,8 +70,9 @@ public class GetPreviousEntryQueryImpl<V> {
                     if (iterations > 0 && actualPreviousPreviousKey.equals(previousKey)) {
                         duplicateEncountered = true;
                     }
-                    previousKey = actualPreviousPreviousKey;
-                    previousEntry = previousPreviousEntry;
+
+                    previousKey = IndexedFDate.maybeMerge(previousPreviousKey, actualPreviousPreviousKey, 0);
+                    previousEntry = ImmutableEntry.of(previousKey, previousPreviousEntry.getValue());
                 }
             }
             iterations++;

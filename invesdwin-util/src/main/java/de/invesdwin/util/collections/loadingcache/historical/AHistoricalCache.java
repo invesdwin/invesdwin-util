@@ -37,6 +37,7 @@ import de.invesdwin.util.collections.loadingcache.historical.listener.IHistorica
 import de.invesdwin.util.collections.loadingcache.historical.listener.IHistoricalCacheOnClearListener;
 import de.invesdwin.util.collections.loadingcache.historical.listener.IHistoricalCachePutListener;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQuery;
+import de.invesdwin.util.collections.loadingcache.historical.query.index.IndexedFDate;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.HistoricalCacheQuery;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.IHistoricalCacheInternalMethods;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.IHistoricalCacheQueryCore;
@@ -311,7 +312,14 @@ public abstract class AHistoricalCache<V>
      * Should return the key if the value does not contain a key itself.
      */
     public final FDate extractKey(final FDate key, final V value) {
-        final FDate extractedKey = extractKeyProvider.extractKey(key, value);
+        FDate extractedKey = extractKeyProvider.extractKey(key, value);
+        if (key != null) {
+            if (key.equals(extractedKey)) {
+                extractedKey = key;
+            } else {
+                IndexedFDate.maybeMerge(key, extractedKey, 0);
+            }
+        }
         return adjustKeyProvider.newAlreadyAdjustedKey(extractedKey);
     }
 
@@ -327,7 +335,8 @@ public abstract class AHistoricalCache<V>
             throw new IllegalArgumentException("key should not be null!");
         }
         final FDate prevKey = shiftKeyProvider.calculatePreviousKey(key);
-        return adjustKeyProvider.newAlreadyAdjustedKey(prevKey);
+        final FDate adjKey = adjustKeyProvider.newAlreadyAdjustedKey(prevKey);
+        return IndexedFDate.maybeMerge(key, adjKey, -1);
     }
 
     protected final FDate calculateNextKey(final FDate key) {
@@ -335,7 +344,8 @@ public abstract class AHistoricalCache<V>
             throw new IllegalArgumentException("key should not be null!");
         }
         final FDate nextKey = shiftKeyProvider.calculateNextKey(key);
-        return adjustKeyProvider.adjustKey(nextKey);
+        final FDate adjKey = adjustKeyProvider.adjustKey(nextKey);
+        return adjKey;
     }
 
     public IHistoricalCacheShiftKeyProvider getShiftKeyProvider() {

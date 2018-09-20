@@ -22,6 +22,7 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 import de.invesdwin.norva.marker.IDate;
+import de.invesdwin.util.collections.AttributesMap;
 import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.lang.ADelegateComparator;
 import de.invesdwin.util.lang.Strings;
@@ -94,6 +95,7 @@ public class FDate implements IDate, Serializable, Cloneable, Comparable<Object>
     };
 
     private final long millis;
+    private transient AttributesMap attributes;
 
     public FDate() {
         this(System.currentTimeMillis());
@@ -105,6 +107,9 @@ public class FDate implements IDate, Serializable, Cloneable, Comparable<Object>
 
     protected FDate(final FDate date) {
         this.millis = date.millis;
+        if (date.attributes != null) {
+            this.attributes = date.attributes;
+        }
     }
 
     public FDate(final ReadableDateTime jodaTime) {
@@ -678,6 +683,13 @@ public class FDate implements IDate, Serializable, Cloneable, Comparable<Object>
 
     public FDate orLower(final FDate other) {
         return FDates.min(this, other);
+    }
+
+    public synchronized AttributesMap getAttributes() {
+        if (attributes == null) {
+            attributes = new AttributesMap();
+        }
+        return attributes;
     }
 
 }
