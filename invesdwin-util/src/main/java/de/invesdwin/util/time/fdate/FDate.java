@@ -681,10 +681,18 @@ public class FDate implements IDate, Serializable, Cloneable, Comparable<Object>
         return FDates.min(this, other);
     }
 
+    /**
+     * WARNING: for framework use only.
+     */
+    @Deprecated
     public FDate getExtension() {
         return extension;
     }
 
+    /**
+     * WARNING: for framework use only.
+     */
+    @Deprecated
     public void setExtension(final FDate extension) {
         this.extension = extension;
     }

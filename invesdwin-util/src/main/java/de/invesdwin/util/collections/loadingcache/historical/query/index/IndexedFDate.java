@@ -2,30 +2,30 @@ package de.invesdwin.util.collections.loadingcache.historical.query.index;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import org.apache.commons.lang3.mutable.MutableInt;
-
 import de.invesdwin.util.time.fdate.FDate;
 
 @NotThreadSafe
 public class IndexedFDate extends FDate {
 
-    private static final int INDEXES_SIZE = 2;
-    private final IdentityQueryCoreIndex[] indexes;
-    private final MutableInt indexesRoundRobin;
+    private IdentityQueryCoreIndex indexFalse;
+    private IdentityQueryCoreIndex indexTrue;
+    private boolean indexesRoundRobin;
 
+    @SuppressWarnings("deprecation")
     public IndexedFDate(final FDate key) {
         super(key);
         if (key instanceof IndexedFDate) {
             final IndexedFDate indexedKey = (IndexedFDate) key;
-            this.indexes = indexedKey.indexes;
+            this.indexFalse = indexedKey.indexFalse;
+            this.indexTrue = indexedKey.indexTrue;
             this.indexesRoundRobin = indexedKey.indexesRoundRobin;
         } else {
             key.setExtension(this);
-            this.indexes = new IdentityQueryCoreIndex[INDEXES_SIZE];
-            this.indexesRoundRobin = new MutableInt(-1);
+            this.indexesRoundRobin = true;
         }
     }
 
+    @SuppressWarnings("deprecation")
     public static IndexedFDate maybeWrap(final FDate key) {
         if (key instanceof IndexedFDate) {
             return (IndexedFDate) key;
@@ -39,6 +39,7 @@ public class IndexedFDate extends FDate {
         }
     }
 
+    @SuppressWarnings("deprecation")
     public static IndexedFDate maybeUnwrap(final FDate key) {
         if (key instanceof IndexedFDate) {
             return (IndexedFDate) key;
@@ -52,19 +53,20 @@ public class IndexedFDate extends FDate {
         }
     }
 
-    public QueryCoreIndex getQueryCoreIndex(
+    public synchronized QueryCoreIndex getQueryCoreIndex(
             final de.invesdwin.util.collections.loadingcache.historical.query.internal.core.IHistoricalCacheQueryCore<?> queryCore) {
+        if (indexFalse == null) {
+            return null;
+        }
         final int identityHashCode = System.identityHashCode(queryCore);
-        synchronized (indexes) {
-            for (int i = 0; i < indexes.length; i++) {
-                final IdentityQueryCoreIndex index = indexes[i];
-                if (index == null) {
-                    break;
-                }
-                if (index.getQueryCoreIdentityHashCode() == identityHashCode) {
-                    return index;
-                }
-            }
+        if (indexFalse.getQueryCoreIdentityHashCode() == identityHashCode) {
+            return indexFalse;
+        }
+        if (indexTrue == null) {
+            return null;
+        }
+        if (indexTrue.getQueryCoreIdentityHashCode() == identityHashCode) {
+            return indexTrue;
         }
         return null;
     }
@@ -72,34 +74,42 @@ public class IndexedFDate extends FDate {
     public synchronized void putQueryCoreIndex(
             final de.invesdwin.util.collections.loadingcache.historical.query.internal.core.IHistoricalCacheQueryCore<?> queryCore,
             final QueryCoreIndex queryCoreIndex) {
-        synchronized (indexes) {
-            final int identityHashCode = System.identityHashCode(queryCore);
-            final IdentityQueryCoreIndex identityQueryCoreIndex = new IdentityQueryCoreIndex(identityHashCode,
-                    queryCoreIndex);
-            putIdentityQueryCoreIndex(identityQueryCoreIndex);
+        final int identityHashCode = System.identityHashCode(queryCore);
+        final IdentityQueryCoreIndex identityQueryCoreIndex = new IdentityQueryCoreIndex(identityHashCode,
+                queryCoreIndex);
+        put(identityQueryCoreIndex);
+    }
+
+    private void put(final IdentityQueryCoreIndex identityQueryCoreIndex) {
+        if (!update(identityQueryCoreIndex)) {
+            if (indexesRoundRobin) {
+                indexFalse = identityQueryCoreIndex;
+                indexesRoundRobin = false;
+            } else {
+                indexTrue = identityQueryCoreIndex;
+                indexesRoundRobin = true;
+            }
         }
     }
 
-    private void putIdentityQueryCoreIndex(final IdentityQueryCoreIndex identityQueryCoreIndex) {
-        for (int i = 0; i < indexes.length; i++) {
-            final IdentityQueryCoreIndex index = indexes[i];
-            if (index == null) {
-                break;
-            }
-            if (index.getQueryCoreIdentityHashCode() == identityQueryCoreIndex.getQueryCoreIdentityHashCode()) {
-                indexes[i] = identityQueryCoreIndex;
-                indexesRoundRobin.setValue(i);
-                return;
-            }
+    private boolean update(final IdentityQueryCoreIndex identityQueryCoreIndex) {
+        if (indexFalse == null) {
+            return false;
         }
-        int curRoundRobin = indexesRoundRobin.intValue();
-        if (curRoundRobin >= INDEXES_SIZE - 1) {
-            curRoundRobin = 0;
-        } else {
-            curRoundRobin++;
+        if (indexFalse.getQueryCoreIdentityHashCode() == identityQueryCoreIndex.getQueryCoreIdentityHashCode()) {
+            indexFalse = identityQueryCoreIndex;
+            indexesRoundRobin = false;
+            return true;
         }
-        indexes[curRoundRobin] = identityQueryCoreIndex;
-        indexesRoundRobin.setValue(curRoundRobin);
+        if (indexTrue == null) {
+            return false;
+        }
+        if (indexTrue.getQueryCoreIdentityHashCode() == identityQueryCoreIndex.getQueryCoreIdentityHashCode()) {
+            indexTrue = identityQueryCoreIndex;
+            indexesRoundRobin = true;
+            return true;
+        }
+        return false;
     }
 
 }

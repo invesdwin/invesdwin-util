@@ -22,6 +22,7 @@ public class AdjustedFDate extends IndexedFDate {
         return new AdjustedFDate(adjustKeyProvider, key);
     }
 
+    @SuppressWarnings("deprecation")
     public static FDate maybeAdjustKey(final IHistoricalCacheAdjustKeyProvider adjustKeyProvider, final FDate key) {
         if (key instanceof AdjustedFDate) {
             final AdjustedFDate cKey = (AdjustedFDate) key;
