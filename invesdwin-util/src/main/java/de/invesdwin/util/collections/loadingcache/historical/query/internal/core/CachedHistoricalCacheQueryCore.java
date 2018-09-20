@@ -464,87 +464,62 @@ public class CachedHistoricalCacheQueryCore<V> extends ACachedHistoricalCacheQue
         return newUnitsBack;
     }
 
-    private static NumberStreamAvg<Double> avg = new NumberStreamAvg<>();
-    private static FDate lastPrint = new FDate();
-    private static int countIndex = 0;
-    private static int countBisect = 0;
-
+    //CHECKSTYLE:OFF
     @Override
     public int bisect(final FDate skippingKeysAbove, final List<Entry<FDate, V>> list, final Integer unitsBack,
             final ACachedHistoricalCacheQueryCore<V> useIndex) throws ResetCacheException {
         //CHECKSTYLE:ON
-
-        final Instant start = new Instant();
-
-        try {
-            int lo = 0;
-            int hi = list.size();
-            if (unitsBack != null) {
-                final FDate loTime = list.get(lo).getKey();
-                if (skippingKeysAbove.isBeforeOrEqualToNotNullSafe(loTime) && hi >= maxCachedIndex) {
-                    throw new ResetCacheException("Not enough data in cache for fillFromCacheAsFarAsPossible ["
-                            + unitsBack + "/" + maxCachedIndex + "/" + (hi - 1) + "]");
-                }
-            }
-
-            if (useIndex != null) {
-                final IndexedFDate indexedSkippingKeysAbove = IndexedFDate.maybeUnwrap(skippingKeysAbove);
-                if (indexedSkippingKeysAbove != null) {
-                    final QueryCoreIndex queryCoreIndex = indexedSkippingKeysAbove.getQueryCoreIndex(useIndex);
-                    if (queryCoreIndex != null && queryCoreIndex.getModCount() == useIndex.modCount) {
-                        final int index = queryCoreIndex.getIndex() + useIndex.modIncrementIndex;
-                        if (index >= 0) {
-                            countIndex++;
-                            return index;
-                        }
-                    }
-                }
-            }
-
-            //bisect
-            while (lo < hi) {
-                final int mid = (lo + hi) / 2;
-                //if (x < list.get(mid)) {
-                final FDate midKey = list.get(mid).getKey();
-                final int compareTo = midKey.compareToNotNullSafe(skippingKeysAbove);
-                switch (compareTo) {
-                case -1:
-                    lo = mid + 1;
-                    break;
-                case 0:
-                    if (useIndex != null) {
-                        countBisect++;
-                    }
-                    registerIndex(skippingKeysAbove, mid, useIndex);
-                    return mid;
-                case 1:
-                    hi = mid;
-                    break;
-                default:
-                    throw UnknownArgumentException.newInstance(Integer.class, compareTo);
-                }
-            }
+        int lo = 0;
+        int hi = list.size();
+        if (unitsBack != null) {
             final FDate loTime = list.get(lo).getKey();
-            if (useIndex != null) {
-                countBisect++;
+            if (skippingKeysAbove.isBeforeOrEqualToNotNullSafe(loTime) && hi >= maxCachedIndex) {
+                throw new ResetCacheException("Not enough data in cache for fillFromCacheAsFarAsPossible [" + unitsBack
+                        + "/" + maxCachedIndex + "/" + (hi - 1) + "]");
             }
-            if (loTime.isAfterNotNullSafe(skippingKeysAbove)) {
-                final int index = lo - 1;
-                registerIndex(skippingKeysAbove, index, useIndex);
-                return index;
-            } else {
-                registerIndex(skippingKeysAbove, lo, useIndex);
-                return lo;
-            }
-        } finally {
-            if (useIndex != null) {
-                avg.process(start.toDuration().doubleValue(FTimeUnit.NANOSECONDS));
-                if (new Duration(lastPrint).isGreaterThan(Duration.ONE_SECOND)) {
-                    System.out.println("avg: " + new Duration((long) avg.getAvg(), FTimeUnit.NANOSECONDS) + " index: "
-                            + countIndex + " bisect: " + countBisect);
-                    lastPrint = new FDate();
+        }
+
+        if (useIndex != null) {
+            final IndexedFDate indexedSkippingKeysAbove = IndexedFDate.maybeUnwrap(skippingKeysAbove);
+            if (indexedSkippingKeysAbove != null) {
+                final QueryCoreIndex queryCoreIndex = indexedSkippingKeysAbove.getQueryCoreIndex(useIndex);
+                if (queryCoreIndex != null && queryCoreIndex.getModCount() == useIndex.modCount) {
+                    final int index = queryCoreIndex.getIndex() + useIndex.modIncrementIndex;
+                    if (index >= 0) {
+                        return index;
+                    }
                 }
             }
+        }
+
+        //bisect
+        while (lo < hi) {
+            final int mid = (lo + hi) / 2;
+            //if (x < list.get(mid)) {
+            final FDate midKey = list.get(mid).getKey();
+            final int compareTo = midKey.compareToNotNullSafe(skippingKeysAbove);
+            switch (compareTo) {
+            case -1:
+                lo = mid + 1;
+                break;
+            case 0:
+                registerIndex(skippingKeysAbove, mid, useIndex);
+                return mid;
+            case 1:
+                hi = mid;
+                break;
+            default:
+                throw UnknownArgumentException.newInstance(Integer.class, compareTo);
+            }
+        }
+        final FDate loTime = list.get(lo).getKey();
+        if (loTime.isAfterNotNullSafe(skippingKeysAbove)) {
+            final int index = lo - 1;
+            registerIndex(skippingKeysAbove, index, useIndex);
+            return index;
+        } else {
+            registerIndex(skippingKeysAbove, lo, useIndex);
+            return lo;
         }
     }
 
