@@ -11,6 +11,7 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 import javax.annotation.concurrent.ThreadSafe;
+import javax.persistence.Transient;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -94,6 +95,7 @@ public class FDate implements IDate, Serializable, Cloneable, Comparable<Object>
     };
 
     private final long millis;
+    @Transient
     private transient FDate extension;
 
     public FDate() {
