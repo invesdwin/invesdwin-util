@@ -15,11 +15,7 @@ import de.invesdwin.util.collections.loadingcache.historical.query.internal.IHis
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.impl.GetPreviousEntryQueryImpl;
 import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.math.Integers;
-import de.invesdwin.util.math.stream.number.NumberStreamAvg;
-import de.invesdwin.util.time.Instant;
-import de.invesdwin.util.time.duration.Duration;
 import de.invesdwin.util.time.fdate.FDate;
-import de.invesdwin.util.time.fdate.FTimeUnit;
 
 @ThreadSafe
 public class CachedHistoricalCacheQueryCore<V> extends ACachedHistoricalCacheQueryCore<V> {
