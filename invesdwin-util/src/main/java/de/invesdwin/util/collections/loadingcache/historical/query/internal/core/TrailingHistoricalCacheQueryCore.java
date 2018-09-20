@@ -203,11 +203,10 @@ public class TrailingHistoricalCacheQueryCore<V> extends ACachedHistoricalCacheQ
                 }
             }
             final IndexedFDate indexedKey = IndexedFDate.maybeWrap(prependEntry.getKey());
-            indexedKey.putQueryCoreIndex(this, new QueryCoreIndex(modCount, 0 - modIncrementIndex - 1));
+            indexedKey.putQueryCoreIndex(this, new QueryCoreIndex(modCount, -1 - modIncrementIndex));
             final Entry<IndexedFDate, V> indexedEntry = ImmutableEntry.of(indexedKey, prependEntry.getValue());
             cachedPreviousEntries.add(0, indexedEntry);
             modIncrementIndex++;
-            assertIndexes();
         }
         final Integer maximumSize = getParent().getMaximumSize();
         if (maximumSize != null && cachedPreviousEntries.size() > maximumSize) {
@@ -246,7 +245,6 @@ public class TrailingHistoricalCacheQueryCore<V> extends ACachedHistoricalCacheQ
                 while (cachedPreviousEntries.size() > maximumSize) {
                     cachedPreviousEntries.remove(0);
                     modIncrementIndex--;
-                    assertIndexes();
                 }
             }
         }

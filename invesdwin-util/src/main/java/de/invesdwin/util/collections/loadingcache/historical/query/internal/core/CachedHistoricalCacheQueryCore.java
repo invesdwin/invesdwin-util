@@ -310,11 +310,10 @@ public class CachedHistoricalCacheQueryCore<V> extends ACachedHistoricalCacheQue
                 }
             }
             final IndexedFDate indexedKey = IndexedFDate.maybeWrap(prependEntry.getKey());
-            indexedKey.putQueryCoreIndex(this, new QueryCoreIndex(modCount, 0 - modIncrementIndex - 1));
+            indexedKey.putQueryCoreIndex(this, new QueryCoreIndex(modCount, -1 - modIncrementIndex));
             final Entry<IndexedFDate, V> indexedEntry = ImmutableEntry.of(indexedKey, prependEntry.getValue());
             cachedPreviousEntries.add(0, indexedEntry);
             modIncrementIndex++;
-            assertIndexes();
         }
         Integer maximumSize = getParent().getMaximumSize();
         if (maximumSize != null) {
@@ -358,7 +357,6 @@ public class CachedHistoricalCacheQueryCore<V> extends ACachedHistoricalCacheQue
             while (cachedPreviousEntries.size() > maximumSize) {
                 cachedPreviousEntries.remove(0);
                 modIncrementIndex--;
-                assertIndexes();
             }
         }
     }
@@ -459,9 +457,11 @@ public class CachedHistoricalCacheQueryCore<V> extends ACachedHistoricalCacheQue
         return newUnitsBack;
     }
 
+    //CHECKSTYLE:OFF
     @Override
     public int bisect(final FDate skippingKeysAbove, final List<Entry<FDate, V>> list, final Integer unitsBack,
             final ACachedHistoricalCacheQueryCore<V> useIndex) throws ResetCacheException {
+        //CHECKSTYLE:ON
         int lo = 0;
         int hi = list.size();
         if (unitsBack != null) {
@@ -479,9 +479,6 @@ public class CachedHistoricalCacheQueryCore<V> extends ACachedHistoricalCacheQue
                 if (queryCoreIndex != null && queryCoreIndex.getModCount() == useIndex.modCount) {
                     final int index = queryCoreIndex.getIndex() + useIndex.modIncrementIndex;
                     if (index >= 0) {
-                        if (!list.get(index).getKey().equals(skippingKeysAbove)) {
-                            throw new IllegalStateException("index went wrong");
-                        }
                         return index;
                     }
                 }

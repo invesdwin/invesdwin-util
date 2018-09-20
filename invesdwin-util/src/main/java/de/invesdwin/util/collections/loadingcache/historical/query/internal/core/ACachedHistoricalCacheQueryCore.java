@@ -34,17 +34,6 @@ public abstract class ACachedHistoricalCacheQueryCore<V> implements IHistoricalC
     @GuardedBy("getParent().getLock()")
     protected Integer cachedPreviousResult_shiftBackUnits = null;
 
-    protected void assertIndexes() {
-        for (int i = 0; i < cachedPreviousEntries.size(); i++) {
-            final IndexedFDate date = cachedPreviousEntries.get(i).getKey();
-            final QueryCoreIndex queryCoreIndex = date.getQueryCoreIndex(this);
-            final int index = queryCoreIndex.getIndex() + modIncrementIndex;
-            if (index != i) {
-                throw new IllegalStateException("index went wrong: " + index + " != " + i);
-            }
-        }
-    }
-
     @Override
     public Entry<FDate, V> getPreviousEntry(final IHistoricalCacheQueryInternalMethods<V> query, final FDate key,
             final int shiftBackUnits) {
@@ -248,7 +237,6 @@ public abstract class ACachedHistoricalCacheQueryCore<V> implements IHistoricalC
                 while (cachedPreviousEntries.size() > maximumSize) {
                     cachedPreviousEntries.remove(0);
                     modIncrementIndex--;
-                    assertIndexes();
                 }
             }
 

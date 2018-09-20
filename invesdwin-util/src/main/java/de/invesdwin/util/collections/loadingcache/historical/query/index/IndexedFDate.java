@@ -1,17 +1,14 @@
 package de.invesdwin.util.collections.loadingcache.historical.query.index;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.annotation.concurrent.ThreadSafe;
+import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.time.fdate.FDate;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 
-@ThreadSafe
+@NotThreadSafe
 public class IndexedFDate extends FDate {
 
-    private transient Map<Integer, QueryCoreIndex> queryCoreIndexMap;
+    private transient Int2ObjectOpenHashMap<QueryCoreIndex> queryCoreIndexMap;
 
     public IndexedFDate(final FDate key) {
         super(key);
@@ -29,7 +26,7 @@ public class IndexedFDate extends FDate {
         }
     }
 
-    public synchronized Map<Integer, QueryCoreIndex> getQueryCoreIndexMap() {
+    private synchronized Int2ObjectOpenHashMap<QueryCoreIndex> getQueryCoreIndexMap() {
         if (queryCoreIndexMap == null) {
             queryCoreIndexMap = newQueryCoreIndexMap();
         }
@@ -47,8 +44,8 @@ public class IndexedFDate extends FDate {
         getQueryCoreIndexMap().put(System.identityHashCode(queryCore), queryCoreIndex);
     }
 
-    private static Map<Integer, QueryCoreIndex> newQueryCoreIndexMap() {
-        return Collections.synchronizedMap(new HashMap<>());
+    private static Int2ObjectOpenHashMap<QueryCoreIndex> newQueryCoreIndexMap() {
+        return new Int2ObjectOpenHashMap<>();
     }
 
 }
