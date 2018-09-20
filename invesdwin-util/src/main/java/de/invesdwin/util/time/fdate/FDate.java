@@ -693,7 +693,8 @@ public class FDate implements IDate, Serializable, Cloneable, Comparable<Object>
 
     /**
      * This property allows to extend existing FDate instances and thus propagating meta information to external holders
-     * of this instance. For example to carry the IndexedFDate information outside of the AHistoricalCache.
+     * of this instance. For example to carry the IndexedFDate information outside of the AHistoricalCache. The
+     * extension and this instance should normally contain the same timestamp internally.
      * 
      * WARNING: for framework use only.
      */
