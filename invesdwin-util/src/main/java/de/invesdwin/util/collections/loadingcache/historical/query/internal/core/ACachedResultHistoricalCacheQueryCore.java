@@ -201,4 +201,13 @@ public abstract class ACachedResultHistoricalCacheQueryCore<V> extends ACachedEn
         resetCachedPreviousResult();
     }
 
+    protected List<Entry<FDate, V>> newEntriesList(final IHistoricalCacheQueryInternalMethods<V> query,
+            final int shiftBackUnits, final boolean filterDuplicateKeys) {
+        if (filterDuplicateKeys) {
+            return query.newEntriesList(shiftBackUnits);
+        } else {
+            return new ArrayList<Entry<FDate, V>>();
+        }
+    }
+
 }

@@ -8,6 +8,9 @@ import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.bean.tuple.ImmutableEntry;
+import de.invesdwin.util.collections.iterable.ICloseableIterable;
+import de.invesdwin.util.collections.iterable.SingleValueIterable;
+import de.invesdwin.util.collections.iterable.WrapperCloseableIterable;
 import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
 import de.invesdwin.util.collections.loadingcache.historical.query.index.IndexedFDate;
 import de.invesdwin.util.collections.loadingcache.historical.query.index.QueryCoreIndex;
@@ -56,6 +59,37 @@ public class CachedHistoricalCacheQueryCore<V> extends ACachedResultHistoricalCa
     }
 
     @Override
+    public Entry<FDate, V> getPreviousEntry(final IHistoricalCacheQueryInternalMethods<V> query, final FDate key,
+            final int shiftBackUnits) {
+        if (shiftBackUnits == 0) {
+            return getDelegate().getPreviousEntry(query, key, 0);
+        } else {
+            //use arraylist since we don't want to have the overhead of filtering duplicates
+            final boolean filterDuplicateKeys = false;
+            final int incrementedShiftBackUnits = shiftBackUnits + 1;
+            final List<Entry<FDate, V>> previousEntries = getPreviousEntriesList(query, key, incrementedShiftBackUnits,
+                    filterDuplicateKeys);
+            if (previousEntries.isEmpty()) {
+                return null;
+            } else {
+                return previousEntries.get(0);
+            }
+        }
+    }
+
+    @Override
+    public ICloseableIterable<Entry<FDate, V>> getPreviousEntries(final IHistoricalCacheQueryInternalMethods<V> query,
+            final FDate key, final int shiftBackUnits) {
+        if (shiftBackUnits == 1) {
+            final Entry<FDate, V> entry = getDelegate().getPreviousEntry(query, key, 0);
+            return new SingleValueIterable<Entry<FDate, V>>(entry);
+        } else {
+            final List<Entry<FDate, V>> result = getPreviousEntriesList(query, key, shiftBackUnits,
+                    query.isFilterDuplicateKeys());
+            return WrapperCloseableIterable.maybeWrap(result);
+        }
+    }
+
     public List<Entry<FDate, V>> getPreviousEntriesList(final IHistoricalCacheQueryInternalMethods<V> query,
             final FDate key, final int shiftBackUnits, final boolean filterDuplicateKeys) {
         synchronized (getParent().getLock()) {
