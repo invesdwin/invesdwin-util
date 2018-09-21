@@ -18,7 +18,7 @@ import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.time.fdate.FDate;
 
 @ThreadSafe
-public class CachedHistoricalCacheQueryCore<V> extends ACachedHistoricalCacheQueryCore<V> {
+public class CachedHistoricalCacheQueryCore<V> extends ACachedResultHistoricalCacheQueryCore<V> {
 
     private static final int INITIAL_MAX_CACHED_INDEX = 10000;
     private static final org.slf4j.ext.XLogger LOG = org.slf4j.ext.XLoggerFactory
@@ -463,7 +463,7 @@ public class CachedHistoricalCacheQueryCore<V> extends ACachedHistoricalCacheQue
     //CHECKSTYLE:OFF
     @Override
     public int bisect(final FDate skippingKeysAbove, final List<Entry<FDate, V>> list, final Integer unitsBack,
-            final ACachedHistoricalCacheQueryCore<V> useIndex) throws ResetCacheException {
+            final ACachedEntriesHistoricalCacheQueryCore<V> useIndex) throws ResetCacheException {
         //CHECKSTYLE:ON
         int lo = 0;
         int hi = list.size();
@@ -519,7 +519,8 @@ public class CachedHistoricalCacheQueryCore<V> extends ACachedHistoricalCacheQue
         }
     }
 
-    private void registerIndex(final FDate key, final int index, final ACachedHistoricalCacheQueryCore<V> useIndex) {
+    private void registerIndex(final FDate key, final int index,
+            final ACachedEntriesHistoricalCacheQueryCore<V> useIndex) {
         if (useIndex != null) {
             final IndexedFDate indexedKey = IndexedFDate.maybeWrap(key);
             indexedKey.putQueryCoreIndex(useIndex,

@@ -15,7 +15,7 @@ import de.invesdwin.util.collections.loadingcache.historical.query.internal.IHis
 import de.invesdwin.util.time.fdate.FDate;
 
 @ThreadSafe
-public class TrailingHistoricalCacheQueryCore<V> extends ACachedHistoricalCacheQueryCore<V> {
+public class TrailingHistoricalCacheQueryCore<V> extends ACachedResultHistoricalCacheQueryCore<V> {
 
     private static final org.slf4j.ext.XLogger LOG = org.slf4j.ext.XLoggerFactory
             .getXLogger(CachedHistoricalCacheQueryCore.class);
@@ -187,7 +187,7 @@ public class TrailingHistoricalCacheQueryCore<V> extends ACachedHistoricalCacheQ
 
     @Override
     protected int bisect(final FDate skippingKeysAbove, final List<Entry<FDate, V>> list, final Integer unitsBack,
-            final ACachedHistoricalCacheQueryCore<V> useIndex) throws ResetCacheException {
+            final ACachedEntriesHistoricalCacheQueryCore<V> useIndex) throws ResetCacheException {
         return delegate.bisect(skippingKeysAbove, list, unitsBack, useIndex);
     }
 
