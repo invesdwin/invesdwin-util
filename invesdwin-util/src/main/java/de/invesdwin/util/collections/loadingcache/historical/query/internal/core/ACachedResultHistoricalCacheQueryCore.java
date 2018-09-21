@@ -16,10 +16,6 @@ import de.invesdwin.util.time.fdate.FDate;
 @ThreadSafe
 public abstract class ACachedResultHistoricalCacheQueryCore<V> extends ACachedEntriesHistoricalCacheQueryCore<V> {
 
-    protected int modCount = 0;
-    protected int modIncrementIndex = 0;
-    @GuardedBy("getParent().getLock()")
-    protected final List<Entry<IndexedFDate, V>> cachedPreviousEntries = new ArrayList<>();
     @GuardedBy("getParent().getLock()")
     protected IndexedFDate cachedPreviousEntriesKey = null;
     @GuardedBy("getParent().getLock()")
