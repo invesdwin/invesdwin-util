@@ -78,14 +78,14 @@ public abstract class ACachedEntriesHistoricalCacheQueryCore<V> implements IHist
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    protected boolean replaceCachedEntries(final FDate key, final List<Entry<FDate, V>> trailing) {
+    protected IndexedFDate replaceCachedEntries(final FDate key, final List<Entry<FDate, V>> trailing) {
         if (trailing.isEmpty() ||
         /*
          * (maybe we went before the first entry) or (maybe we went after the last entry to only fetch one element), so
          * we don't want to throw away a cache that might already be filled
          */
                 (trailing.size() == 1 && cachedPreviousEntries.size() > 1)) {
-            return false;
+            return null;
         }
         maybeIncreaseMaximumSize(trailing.size());
         modCount++;
@@ -99,7 +99,12 @@ public abstract class ACachedEntriesHistoricalCacheQueryCore<V> implements IHist
             cachedPreviousEntries.add(indexedEntry);
             trailing.set(i, (Entry) indexedEntry);
         }
-        return true;
+
+        //attach indexed key to outer key at least
+        final IndexedFDate indexedKey = IndexedFDate.maybeWrap(key);
+        indexedKey.putQueryCoreIndex(this,
+                new QueryCoreIndex(modCount, cachedPreviousEntries.size() - 1 - modIncrementIndex));
+        return indexedKey;
     }
 
     protected abstract Integer maybeIncreaseMaximumSize(int requiredSize);
@@ -153,6 +158,30 @@ public abstract class ACachedEntriesHistoricalCacheQueryCore<V> implements IHist
     public final Entry<FDate, V> getNextEntry(final IHistoricalCacheQueryInternalMethods<V> query, final FDate key,
             final int shiftForwardUnits) {
         return getDelegate().getNextEntry(query, key, shiftForwardUnits);
+    }
+
+    protected void appendCachedEntry(final FDate key, final Integer shiftBackUnits, final Entry<FDate, V> latestEntry)
+            throws ResetCacheException {
+        if (latestEntry != null) {
+            final IndexedFDate indexedKey = IndexedFDate.maybeWrap(latestEntry.getKey());
+            indexedKey.putQueryCoreIndex(this,
+                    new QueryCoreIndex(modCount, cachedPreviousEntries.size() - modIncrementIndex));
+            final Entry<IndexedFDate, V> indexedEntry = ImmutableEntry.of(indexedKey, latestEntry.getValue());
+            cachedPreviousEntries.add(indexedEntry);
+
+            final Integer maximumSize = getParent().getMaximumSize();
+            if (maximumSize != null) {
+                //ensure we stay in size limit
+                while (cachedPreviousEntries.size() > maximumSize) {
+                    cachedPreviousEntries.remove(0);
+                    modIncrementIndex--;
+                }
+            }
+        }
+        //attach indexed key to outer key at least
+        final IndexedFDate indexedKey = IndexedFDate.maybeWrap(key);
+        indexedKey.putQueryCoreIndex(this,
+                new QueryCoreIndex(modCount, cachedPreviousEntries.size() - 1 - modIncrementIndex));
     }
 
 }

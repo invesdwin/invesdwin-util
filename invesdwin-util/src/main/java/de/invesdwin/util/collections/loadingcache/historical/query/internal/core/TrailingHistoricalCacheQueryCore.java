@@ -15,7 +15,7 @@ import de.invesdwin.util.collections.loadingcache.historical.query.internal.IHis
 import de.invesdwin.util.time.fdate.FDate;
 
 @ThreadSafe
-public class TrailingHistoricalCacheQueryCore<V> extends ACachedResultHistoricalCacheQueryCore<V> {
+public class TrailingHistoricalCacheQueryCore<V> extends ACachedEntriesHistoricalCacheQueryCore<V> {
 
     private static final org.slf4j.ext.XLogger LOG = org.slf4j.ext.XLoggerFactory
             .getXLogger(CachedHistoricalCacheQueryCore.class);
@@ -91,7 +91,6 @@ public class TrailingHistoricalCacheQueryCore<V> extends ACachedResultHistorical
             result = cachedGetPreviousEntries(query, key, shiftBackUnits, filterDuplicateKeys);
         } else {
             result = defaultGetPreviousEntries(query, key, shiftBackUnits, filterDuplicateKeys);
-            updateCachedPreviousResult(query, shiftBackUnits, result, filterDuplicateKeys);
         }
         return result;
     }
@@ -109,32 +108,17 @@ public class TrailingHistoricalCacheQueryCore<V> extends ACachedResultHistorical
             final FDate key, final int shiftBackUnits, final boolean filterDuplicateKeys) throws ResetCacheException {
         final Entry<IndexedFDate, V> firstCachedEntry = getFirstCachedEntry();
         final Entry<IndexedFDate, V> lastCachedEntry = getLastCachedEntry();
-        if (key.equalsNotNullSafe(cachedPreviousEntriesKey) || key.equalsNotNullSafe(lastCachedEntry.getKey())) {
-            final List<Entry<FDate, V>> tryCachedPreviousResult = tryCachedPreviousResult_sameKey(query, shiftBackUnits,
-                    filterDuplicateKeys);
-            if (tryCachedPreviousResult != null) {
-                return tryCachedPreviousResult;
-            } else {
-                if (cachedPreviousResult_shiftBackUnits != null) {
-                    resetCachedPreviousResult();
-                }
-                final List<Entry<FDate, V>> result = cachedGetPreviousEntries_somewhereInTheMiddle(query, key,
-                        shiftBackUnits, filterDuplicateKeys, firstCachedEntry, lastCachedEntry);
-                updateCachedPreviousResult(query, shiftBackUnits, result, filterDuplicateKeys);
-                return result;
-            }
+        if (key.equalsNotNullSafe(lastCachedEntry.getKey())) {
+            final List<Entry<FDate, V>> result = cachedGetPreviousEntries_somewhereInTheMiddle(query, key,
+                    shiftBackUnits, filterDuplicateKeys, firstCachedEntry, lastCachedEntry);
+            return result;
         } else if (key.isBeforeNotNullSafe(firstCachedEntry.getKey())) {
             //a request that is way too old
             return getPreviousEntries_tooOldData(query, key, shiftBackUnits, filterDuplicateKeys);
-        } else if (key.isAfterNotNullSafe(cachedPreviousEntriesKey)
-                || key.isAfterNotNullSafe(lastCachedEntry.getKey())) {
+        } else if (key.isAfterNotNullSafe(lastCachedEntry.getKey())) {
             //a request that might lead to newer data that can be appended
-            if (cachedPreviousResult_shiftBackUnits != null) {
-                resetCachedPreviousResult();
-            }
             final List<Entry<FDate, V>> result = getPreviousEntries_newerData(query, key, shiftBackUnits,
                     filterDuplicateKeys, firstCachedEntry, lastCachedEntry);
-            updateCachedPreviousResult(query, shiftBackUnits, result, filterDuplicateKeys);
             return result;
         } else {
             //somewhere in the middle
@@ -226,29 +210,22 @@ public class TrailingHistoricalCacheQueryCore<V> extends ACachedResultHistorical
                             + "] should be after lastCachedEntry [" + lastCachedEntry.getKey() + "]");
                 }
             }
-            if (cachedPreviousResult_shiftBackUnits != null) {
-                appendCachedEntryAndResult(key, cachedPreviousResult_shiftBackUnits, appendEntry);
-            } else {
-                final IndexedFDate indexedKey = IndexedFDate.maybeWrap(appendEntry.getKey());
-                indexedKey.putQueryCoreIndex(this,
-                        new QueryCoreIndex(modCount, cachedPreviousEntries.size() - modIncrementIndex));
-                final Entry<IndexedFDate, V> indexedEntry = ImmutableEntry.of(indexedKey, appendEntry.getValue());
-                cachedPreviousEntries.add(indexedEntry);
-            }
-        }
-        if (cachedPreviousResult_shiftBackUnits == null) {
-            final IndexedFDate indexedKey = IndexedFDate.maybeWrap(key);
+            final IndexedFDate indexedKey = IndexedFDate.maybeWrap(appendEntry.getKey());
             indexedKey.putQueryCoreIndex(this,
-                    new QueryCoreIndex(modCount, cachedPreviousEntries.size() - 1 - modIncrementIndex));
-            cachedPreviousEntriesKey = indexedKey;
-            Integer maximumSize = getParent().getMaximumSize();
-            if (maximumSize != null) {
-                maximumSize = maybeIncreaseMaximumSize(trailing.size());
-                //ensure we stay in size limit
-                while (cachedPreviousEntries.size() > maximumSize) {
-                    cachedPreviousEntries.remove(0);
-                    modIncrementIndex--;
-                }
+                    new QueryCoreIndex(modCount, cachedPreviousEntries.size() - modIncrementIndex));
+            final Entry<IndexedFDate, V> indexedEntry = ImmutableEntry.of(indexedKey, appendEntry.getValue());
+            cachedPreviousEntries.add(indexedEntry);
+        }
+        final IndexedFDate indexedKey = IndexedFDate.maybeWrap(key);
+        indexedKey.putQueryCoreIndex(this,
+                new QueryCoreIndex(modCount, cachedPreviousEntries.size() - 1 - modIncrementIndex));
+        Integer maximumSize = getParent().getMaximumSize();
+        if (maximumSize != null) {
+            maximumSize = maybeIncreaseMaximumSize(trailing.size());
+            //ensure we stay in size limit
+            while (cachedPreviousEntries.size() > maximumSize) {
+                cachedPreviousEntries.remove(0);
+                modIncrementIndex--;
             }
         }
     }
@@ -347,7 +324,7 @@ public class TrailingHistoricalCacheQueryCore<V> extends ACachedResultHistorical
                         return;
                     }
                 }
-                appendCachedEntryAndResult(valueKey, null, ImmutableEntry.of(valueKey, value));
+                appendCachedEntry(valueKey, null, ImmutableEntry.of(valueKey, value));
             } catch (final ResetCacheException e) {
                 //should not happen here
                 throw new RuntimeException(e);

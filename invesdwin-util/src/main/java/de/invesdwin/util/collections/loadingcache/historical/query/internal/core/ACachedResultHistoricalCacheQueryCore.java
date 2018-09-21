@@ -104,16 +104,14 @@ public abstract class ACachedResultHistoricalCacheQueryCore<V> extends ACachedEn
     }
 
     @Override
-    protected boolean replaceCachedEntries(final FDate key, final List<Entry<FDate, V>> trailing) {
-        if (super.replaceCachedEntries(key, trailing)) {
-            final IndexedFDate indexedKey = IndexedFDate.maybeWrap(key);
-            indexedKey.putQueryCoreIndex(this,
-                    new QueryCoreIndex(modCount, cachedPreviousEntries.size() - 1 - modIncrementIndex));
+    protected IndexedFDate replaceCachedEntries(final FDate key, final List<Entry<FDate, V>> trailing) {
+        final IndexedFDate indexedKey = super.replaceCachedEntries(key, trailing);
+        if (indexedKey != null) {
             cachedPreviousEntriesKey = indexedKey;
             resetCachedPreviousResult();
-            return true;
+            return indexedKey;
         } else {
-            return false;
+            return null;
         }
     }
 
