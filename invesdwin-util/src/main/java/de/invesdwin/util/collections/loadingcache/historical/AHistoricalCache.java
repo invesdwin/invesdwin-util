@@ -39,6 +39,7 @@ import de.invesdwin.util.collections.loadingcache.historical.listener.IHistorica
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQuery;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.HistoricalCacheQuery;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.IHistoricalCacheInternalMethods;
+import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.CachedHistoricalCacheQueryCore;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.IHistoricalCacheQueryCore;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.TrailingHistoricalCacheQueryCore;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.filter.FilteringHistoricalCacheQuery;
@@ -62,7 +63,7 @@ public abstract class AHistoricalCache<V>
 
     protected final IHistoricalCacheInternalMethods<V> internalMethods = new HistoricalCacheInternalMethods();
 
-    private final IHistoricalCacheQueryCore<V> queryCore = newHistoricalCacheQueryCore();
+    private IHistoricalCacheQueryCore<V> queryCore = newQueryCore();
     private IHistoricalCacheAdjustKeyProvider adjustKeyProvider = new InnerHistoricalCacheAdjustKeyProvider();
     private final Set<IHistoricalCacheOnClearListener> onClearListeners = newListenerSet();
     private final Set<IHistoricalCacheIncreaseMaximumSizeListener> increaseMaximumSizeListeners = newListenerSet();
@@ -149,6 +150,10 @@ public abstract class AHistoricalCache<V>
         }
     }
 
+    public void setQueryCore(final IHistoricalCacheQueryCore<V> queryCore) {
+        this.queryCore = queryCore;
+    }
+
     @Override
     public int getMaximumSizeLimit() {
         return DEFAULT_MAXIMUM_SIZE_LIMIT;
@@ -172,12 +177,22 @@ public abstract class AHistoricalCache<V>
         }
     }
 
-    protected IHistoricalCacheQueryCore<V> newHistoricalCacheQueryCore() {
+    /**
+     * Use a different type of query core that works faster with limited unstable recursive queries, but minimally
+     * slower with normal queries.
+     */
+    public void enableTrailingQueryCore() {
+        if (!(queryCore instanceof TrailingHistoricalCacheQueryCore)) {
+            queryCore = new TrailingHistoricalCacheQueryCore<>(internalMethods);
+        }
+    }
+
+    protected IHistoricalCacheQueryCore<V> newQueryCore() {
         /*
          * always use lookback cache to make getPreviousXyz faster even though this instance might not cache anything in
          * the values map
          */
-        return new TrailingHistoricalCacheQueryCore<V>(internalMethods);
+        return new CachedHistoricalCacheQueryCore<V>(internalMethods);
     }
 
     private <T> Set<T> newListenerSet() {

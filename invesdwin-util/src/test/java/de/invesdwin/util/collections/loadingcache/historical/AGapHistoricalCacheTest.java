@@ -1268,6 +1268,10 @@ public class AGapHistoricalCacheTest {
 
     private class TestGapHistoricalCache extends AGapHistoricalCache<FDate> {
 
+        {
+            enableTrailingQueryCore();
+        }
+
         @Override
         protected FDate adjustKey(final FDate key) {
             countAdjustKey++;
