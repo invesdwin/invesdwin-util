@@ -85,14 +85,11 @@ public abstract class ACachedResultHistoricalCacheQueryCore<V> extends ACachedEn
             throw new IllegalStateException("cachedPreviousResult should have been reset by preceeding code!");
         }
         if (filterDuplicateKeys) {
-            //defensive copy so that underlying caches do not modify this instance
-            cachedPreviousResult_filteringDuplicates = newEntriesList(query, result.size(), true);
-            cachedPreviousResult_filteringDuplicates.addAll(result);
+            cachedPreviousResult_filteringDuplicates = result;
             cachedPreviousResult_notFilteringDuplicates = null;
         } else {
             cachedPreviousResult_filteringDuplicates = null;
-            //defensive copy so that underlying caches do not modify this instance
-            cachedPreviousResult_notFilteringDuplicates = new ArrayList<Entry<FDate, V>>(result);
+            cachedPreviousResult_notFilteringDuplicates = result;
         }
         cachedPreviousResult_shiftBackUnits = shiftBackUnits;
     }
