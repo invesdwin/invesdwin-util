@@ -19,9 +19,11 @@ import de.invesdwin.util.time.fdate.FDate;
 @ThreadSafe
 public abstract class ACachedEntriesHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryCore<V> {
 
+    @GuardedBy("cachedQueryActiveLock")
     protected int modCount = 0;
+    @GuardedBy("cachedQueryActiveLock")
     protected int modIncrementIndex = 0;
-    @GuardedBy("getParent().getLock()")
+    @GuardedBy("cachedQueryActiveLock")
     protected final List<Entry<IndexedFDate, V>> cachedPreviousEntries = new ArrayList<>();
     private final int hashCode = super.hashCode();
 

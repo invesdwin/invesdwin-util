@@ -33,8 +33,6 @@ public interface IHistoricalCacheInternalMethods<V> {
 
     V computeValue(FDate key);
 
-    Object getLock();
-
     IHistoricalCachePutProvider<V> getPutProvider();
 
 }

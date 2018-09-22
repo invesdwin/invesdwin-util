@@ -16,13 +16,13 @@ import de.invesdwin.util.time.fdate.FDate;
 @ThreadSafe
 public abstract class ACachedResultHistoricalCacheQueryCore<V> extends ACachedEntriesHistoricalCacheQueryCore<V> {
 
-    @GuardedBy("getParent().getLock()")
+    @GuardedBy("cachedQueryActiveLock")
     protected IndexedFDate cachedPreviousEntriesKey = null;
-    @GuardedBy("getParent().getLock()")
+    @GuardedBy("cachedQueryActiveLock")
     protected List<Entry<FDate, V>> cachedPreviousResult_notFilteringDuplicates = null;
-    @GuardedBy("getParent().getLock()")
+    @GuardedBy("cachedQueryActiveLock")
     protected List<Entry<FDate, V>> cachedPreviousResult_filteringDuplicates = null;
-    @GuardedBy("getParent().getLock()")
+    @GuardedBy("cachedQueryActiveLock")
     protected Integer cachedPreviousResult_shiftBackUnits = null;
 
     /**

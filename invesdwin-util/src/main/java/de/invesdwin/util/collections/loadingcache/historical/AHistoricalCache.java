@@ -547,11 +547,6 @@ public abstract class AHistoricalCache<V>
         }
 
         @Override
-        public Object getLock() {
-            return AHistoricalCache.this;
-        }
-
-        @Override
         public IHistoricalCachePutProvider<V> getPutProvider() {
             return AHistoricalCache.this.getPutProvider();
         }

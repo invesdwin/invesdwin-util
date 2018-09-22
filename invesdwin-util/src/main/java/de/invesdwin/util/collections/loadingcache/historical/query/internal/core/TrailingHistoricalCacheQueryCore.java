@@ -19,6 +19,8 @@ import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
 import de.invesdwin.util.collections.loadingcache.historical.query.index.IndexedFDate;
 import de.invesdwin.util.collections.loadingcache.historical.query.index.QueryCoreIndex;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.IHistoricalCacheInternalMethods;
+import de.invesdwin.util.concurrent.lock.ILock;
+import de.invesdwin.util.concurrent.lock.Locks;
 import de.invesdwin.util.time.fdate.FDate;
 
 @ThreadSafe
@@ -29,9 +31,12 @@ public class TrailingHistoricalCacheQueryCore<V> extends ACachedEntriesHistorica
     private static final int COUNT_RESETS_BEFORE_WARNING = 100;
 
     private final CachedHistoricalCacheQueryCore<V> delegate;
-    @GuardedBy("getParent().getLock()")
+    @GuardedBy("cachedQueryActiveLock")
     private int countResets = 0;
-    private volatile boolean cachedQueryActive;
+    private final ILock cachedQueryActiveLock = Locks
+            .newReentrantLock(getClass().getSimpleName() + "_cachedQueryActiveLock");
+    @GuardedBy("cachedQueryActiveLock")
+    private boolean cachedQueryActive = false;
 
     public TrailingHistoricalCacheQueryCore(final IHistoricalCacheInternalMethods<V> parent) {
         this.delegate = new CachedHistoricalCacheQueryCore<V>(parent);
@@ -77,42 +82,48 @@ public class TrailingHistoricalCacheQueryCore<V> extends ACachedEntriesHistorica
     private ICloseableIterable<Entry<FDate, V>> getPreviousEntriesList(
             final IHistoricalCacheQueryInternalMethods<V> query, final FDate key, final int shiftBackUnits,
             final boolean filterDuplicateKeys) {
-        synchronized (getParent().getLock()) {
-            if (cachedQueryActive) {
+        final boolean cachedQueryActiveLocked = cachedQueryActiveLock.tryLock();
+        if (!cachedQueryActiveLocked || cachedQueryActive) {
+            try {
                 return getPreviousEntries_tooOldData(query, key, shiftBackUnits, filterDuplicateKeys);
-            } else {
+            } finally {
+                if (cachedQueryActiveLocked) {
+                    cachedQueryActiveLock.unlock();
+                }
+            }
+        } else {
+            try {
                 cachedQueryActive = true;
                 try {
+                    final ICloseableIterable<Entry<FDate, V>> result = tryCachedGetPreviousEntriesIfAvailable(query,
+                            key, shiftBackUnits, filterDuplicateKeys);
+                    return result;
+                } catch (final ResetCacheException e) {
+                    countResets++;
+                    if (countResets % COUNT_RESETS_BEFORE_WARNING == 0
+                            || AHistoricalCache.isDebugAutomaticReoptimization()) {
+                        if (LOG.isWarnEnabled()) {
+                            //CHECKSTYLE:OFF
+                            LOG.warn(
+                                    "{}: resetting {} for the {}. time now and retrying after exception [{}: {}], if this happens too often we might encounter bad performance due to inefficient caching",
+                                    delegate.getParent(), getClass().getSimpleName(), countResets,
+                                    e.getClass().getSimpleName(), e.getMessage());
+                            //CHECKSTYLE:ON
+                        }
+                    }
+                    resetForRetry();
                     try {
                         final ICloseableIterable<Entry<FDate, V>> result = tryCachedGetPreviousEntriesIfAvailable(query,
                                 key, shiftBackUnits, filterDuplicateKeys);
                         return result;
-                    } catch (final ResetCacheException e) {
-                        countResets++;
-                        if (countResets % COUNT_RESETS_BEFORE_WARNING == 0
-                                || AHistoricalCache.isDebugAutomaticReoptimization()) {
-                            if (LOG.isWarnEnabled()) {
-                                //CHECKSTYLE:OFF
-                                LOG.warn(
-                                        "{}: resetting {} for the {}. time now and retrying after exception [{}: {}], if this happens too often we might encounter bad performance due to inefficient caching",
-                                        delegate.getParent(), getClass().getSimpleName(), countResets,
-                                        e.getClass().getSimpleName(), e.getMessage());
-                                //CHECKSTYLE:ON
-                            }
-                        }
-                        resetForRetry();
-                        try {
-                            final ICloseableIterable<Entry<FDate, V>> result = tryCachedGetPreviousEntriesIfAvailable(
-                                    query, key, shiftBackUnits, filterDuplicateKeys);
-                            return result;
-                        } catch (final ResetCacheException e1) {
-                            throw new RuntimeException("Follow up " + ResetCacheException.class.getSimpleName()
-                                    + " on retry after:" + e.toString(), e1);
-                        }
+                    } catch (final ResetCacheException e1) {
+                        throw new RuntimeException("Follow up " + ResetCacheException.class.getSimpleName()
+                                + " on retry after:" + e.toString(), e1);
                     }
-                } finally {
-                    cachedQueryActive = false;
                 }
+            } finally {
+                cachedQueryActive = false;
+                cachedQueryActiveLock.unlock();
             }
         }
     }
@@ -413,10 +424,15 @@ public class TrailingHistoricalCacheQueryCore<V> extends ACachedEntriesHistorica
 
     @Override
     public void clear() {
-        if (!cachedQueryActive) {
-            synchronized (getParent().getLock()) {
+        if (cachedQueryActiveLock.tryLock()) {
+            try {
+                if (cachedQueryActive) {
+                    return;
+                }
                 resetForRetry();
                 countResets = 0;
+            } finally {
+                cachedQueryActiveLock.unlock();
             }
         }
     }
@@ -428,7 +444,10 @@ public class TrailingHistoricalCacheQueryCore<V> extends ACachedEntriesHistorica
 
     @Override
     public void putPrevious(final FDate previousKey, final V value, final FDate valueKey) {
-        synchronized (getParent().getLock()) {
+        if (!cachedQueryActiveLock.tryLock()) {
+            return;
+        }
+        try {
             if (cachedQueryActive) {
                 return;
             }
@@ -449,13 +468,18 @@ public class TrailingHistoricalCacheQueryCore<V> extends ACachedEntriesHistorica
                 //should not happen here
                 throw new RuntimeException(e);
             }
+        } finally {
+            cachedQueryActiveLock.unlock();
         }
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
     public void putPreviousKey(final FDate previousKey, final FDate valueKey) {
-        synchronized (getParent().getLock()) {
+        if (!cachedQueryActiveLock.tryLock()) {
+            return;
+        }
+        try {
             if (cachedQueryActive) {
                 return;
             }
@@ -464,22 +488,22 @@ public class TrailingHistoricalCacheQueryCore<V> extends ACachedEntriesHistorica
                 putPrevious(previousKey, newValue, valueKey);
                 return;
             }
-            try {
-                final Entry<IndexedFDate, V> lastEntry = getLastCachedEntry();
-                if (!lastEntry.getKey().equalsNotNullSafe(previousKey)) {
-                    if (lastEntry.getKey().isBeforeNotNullSafe(previousKey)) {
-                        final V newValue = getParent().computeValue(valueKey);
-                        putPrevious(previousKey, newValue, valueKey);
-                    }
-                    return;
+            final Entry<IndexedFDate, V> lastEntry = getLastCachedEntry();
+            if (!lastEntry.getKey().equalsNotNullSafe(previousKey)) {
+                if (lastEntry.getKey().isBeforeNotNullSafe(previousKey)) {
+                    final V newValue = getParent().computeValue(valueKey);
+                    putPrevious(previousKey, newValue, valueKey);
                 }
-                final V newValue = getParent().computeValue(valueKey);
-                final Entry<FDate, V> newEntry = ImmutableEntry.of(valueKey, newValue);
-                getParent().getPutProvider().put(newEntry, (Entry) lastEntry, true);
-            } catch (final ResetCacheException e) {
-                //should not happen here
-                throw new RuntimeException(e);
+                return;
             }
+            final V newValue = getParent().computeValue(valueKey);
+            final Entry<FDate, V> newEntry = ImmutableEntry.of(valueKey, newValue);
+            getParent().getPutProvider().put(newEntry, (Entry) lastEntry, true);
+        } catch (final ResetCacheException e) {
+            //should not happen here
+            throw new RuntimeException(e);
+        } finally {
+            cachedQueryActiveLock.unlock();
         }
     }
 
