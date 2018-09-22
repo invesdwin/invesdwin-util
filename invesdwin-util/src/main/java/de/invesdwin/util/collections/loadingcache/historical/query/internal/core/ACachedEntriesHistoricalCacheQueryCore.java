@@ -23,6 +23,17 @@ public abstract class ACachedEntriesHistoricalCacheQueryCore<V> implements IHist
     protected int modIncrementIndex = 0;
     @GuardedBy("getParent().getLock()")
     protected final List<Entry<IndexedFDate, V>> cachedPreviousEntries = new ArrayList<>();
+    private final int hashCode = super.hashCode();
+
+    @Override
+    public boolean equals(final Object obj) {
+        return obj == this;
+    }
+
+    @Override
+    public int hashCode() {
+        return hashCode;
+    }
 
     @Override
     public IHistoricalCacheInternalMethods<V> getParent() {

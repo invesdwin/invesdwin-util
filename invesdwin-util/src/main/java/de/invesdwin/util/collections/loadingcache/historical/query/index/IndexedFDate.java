@@ -58,7 +58,7 @@ public class IndexedFDate extends FDate {
         if (indexFalse == null) {
             return null;
         }
-        final int identityHashCode = System.identityHashCode(queryCore);
+        final int identityHashCode = queryCore.hashCode();
         if (indexFalse.getQueryCoreIdentityHashCode() == identityHashCode) {
             return indexFalse;
         }
@@ -74,7 +74,7 @@ public class IndexedFDate extends FDate {
     public synchronized void putQueryCoreIndex(
             final de.invesdwin.util.collections.loadingcache.historical.query.internal.core.IHistoricalCacheQueryCore<?> queryCore,
             final QueryCoreIndex queryCoreIndex) {
-        final int identityHashCode = System.identityHashCode(queryCore);
+        final int identityHashCode = queryCore.hashCode();
         final IdentityQueryCoreIndex identityQueryCoreIndex = new IdentityQueryCoreIndex(identityHashCode,
                 queryCoreIndex);
         put(identityQueryCoreIndex);

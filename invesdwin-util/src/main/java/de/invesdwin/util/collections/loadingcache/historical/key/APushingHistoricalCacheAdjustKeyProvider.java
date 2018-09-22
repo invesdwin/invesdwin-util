@@ -20,6 +20,7 @@ public abstract class APushingHistoricalCacheAdjustKeyProvider implements IHisto
     private final Set<HistoricalCacheForClear> historicalCachesForClear = Collections
             .synchronizedSet(new HashSet<HistoricalCacheForClear>());
     private final APullingHistoricalCacheAdjustKeyProvider pullingAdjustKeyProvider;
+    private final int hashCode = super.hashCode();
 
     public APushingHistoricalCacheAdjustKeyProvider(final AHistoricalCache<?> parent) {
         this.pullingAdjustKeyProvider = new APullingHistoricalCacheAdjustKeyProvider(parent) {
@@ -28,6 +29,16 @@ public abstract class APushingHistoricalCacheAdjustKeyProvider implements IHisto
                 return getInitialHighestAllowedKey();
             }
         };
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        return obj == this;
+    }
+
+    @Override
+    public int hashCode() {
+        return hashCode;
     }
 
     @Override

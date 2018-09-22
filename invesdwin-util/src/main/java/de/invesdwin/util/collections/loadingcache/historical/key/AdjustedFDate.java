@@ -12,7 +12,7 @@ public class AdjustedFDate extends IndexedFDate {
 
     public AdjustedFDate(final IHistoricalCacheAdjustKeyProvider adjustKeyProvider, final FDate adjustedKey) {
         super(adjustedKey);
-        this.adjustKeyProviderIdentityHashCode = System.identityHashCode(adjustKeyProvider);
+        this.adjustKeyProviderIdentityHashCode = adjustKeyProvider.hashCode();
     }
 
     public static FDate newAdjustedKey(final IHistoricalCacheAdjustKeyProvider adjustKeyProvider, final FDate key) {
@@ -41,7 +41,7 @@ public class AdjustedFDate extends IndexedFDate {
     private static FDate maybeAdjust(final IHistoricalCacheAdjustKeyProvider adjustKeyProvider,
             final AdjustedFDate cKey) {
         //only when we move to a different adjust key provider
-        if (System.identityHashCode(adjustKeyProvider) != cKey.adjustKeyProviderIdentityHashCode) {
+        if (adjustKeyProvider.hashCode() != cKey.adjustKeyProviderIdentityHashCode) {
             return adjustKeyProvider.adjustKey(cKey);
         } else {
             return cKey;
