@@ -32,9 +32,8 @@ final class FullRecursionKeysResult {
     public FullRecursionKeysResult maybeInit() {
         if (fullRecursionKeys == null) {
             fullRecursionKeys = new BufferingIterator<>();
-            final ICloseableIterator<FDate> values = parentQueryWithFutureNull.getPreviousKeys(key, fullRecursionCount)
-                    .iterator();
-            try {
+            try (ICloseableIterator<FDate> values = parentQueryWithFutureNull.getPreviousKeys(key, fullRecursionCount)
+                    .iterator()) {
                 while (true) {
                     final FDate next = values.next();
                     fullRecursionKeys.add(next);
