@@ -115,4 +115,12 @@ public final class Throwables extends AThrowablesStaticFacade {
         }
     }
 
+    public static String asStringOrExceptionMessage(final Object obj) {
+        try {
+            return obj.toString();
+        } catch (final Throwable t) {
+            return obj.getClass().getSimpleName() + ".toString[" + t.toString() + "]";
+        }
+    }
+
 }
