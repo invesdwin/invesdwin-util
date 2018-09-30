@@ -48,6 +48,12 @@ public abstract class ASynchronizedLoadingCache<K, V> implements ILoadingCache<K
     }
 
     @Override
+    public synchronized V getIfPresent(final K key) {
+        final V v = map.get(key);
+        return v;
+    }
+
+    @Override
     public synchronized void clear() {
         map.clear();
     }

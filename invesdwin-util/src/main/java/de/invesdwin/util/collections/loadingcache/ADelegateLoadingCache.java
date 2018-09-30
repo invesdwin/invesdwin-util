@@ -83,4 +83,9 @@ public abstract class ADelegateLoadingCache<K, V> implements ILoadingCache<K, V>
         getDelegate().increaseMaximumSize(maximumSize);
     }
 
+    @Override
+    public V getIfPresent(final K key) {
+        return getDelegate().getIfPresent(key);
+    }
+
 }

@@ -4,6 +4,7 @@ import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.assertions.Assertions;
+import de.invesdwin.util.bean.tuple.ImmutableEntry;
 import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
 import de.invesdwin.util.collections.loadingcache.historical.internal.AGapHistoricalCacheMissCounter;
 import de.invesdwin.util.collections.loadingcache.historical.key.IHistoricalCacheAdjustKeyProvider;
@@ -166,7 +167,7 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
         }
         final boolean mightBeEvictedAfterFurtherValues = value != null && furtherValues.isEmpty();
         if (mightBeEvictedAfterFurtherValues) {
-            final FDate valueKey = extractKey(key, value);
+            final FDate valueKey = extractKey(null, value);
             final boolean isEvictedAfterCurrentFurtherValues = valueKey.isBefore(key)
                     && valueKey.isBeforeOrEqualTo(maxKeyInDB);
             if (isEvictedAfterCurrentFurtherValues) {
@@ -210,7 +211,7 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
                 final FDate maxValueKey = extractKey(null, maxValue);
                 if (maxKeyInDB == null || maxValueKey.compareTo(maxKeyInDB) >= 1) {
                     maxKeyInDB = maxValueKey;
-                    getValuesMap().put(maxValueKey, maxValue);
+                    getValuesMap().put(maxValueKey, ImmutableEntry.of(maxValueKey, maxValue));
                     return true;
                 }
             }
@@ -226,7 +227,7 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
                 //min key must be kept intact if all values have been loaded from a later key
                 if (minKeyInDB == null || minValueKey.compareTo(minKeyInDB) <= -1) {
                     minKeyInDB = minValueKey;
-                    getValuesMap().put(minValueKey, minValue);
+                    getValuesMap().put(minValueKey, ImmutableEntry.of(minValueKey, minValue));
                     return true;
                 }
             }
@@ -298,8 +299,8 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
                 }
                 final boolean furtherValuesEmpty = furtherValues.isEmpty();
                 if (!furtherValuesEmpty) {
-                    final FDate tailKey = innerExtractKey(key, furtherValues.getTail());
-                    final FDate newTailKey = innerExtractKey(key, newFurtherValuesBuffer.getTail());
+                    final FDate tailKey = innerExtractKey(null, furtherValues.getTail());
+                    final FDate newTailKey = innerExtractKey(null, newFurtherValuesBuffer.getTail());
                     if (newTailKey.isAfter(tailKey)) {
                         //skip duplicates on further queries
                         skipDuplicates(key, curKey, newFurtherValuesBuffer);
@@ -313,9 +314,9 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
                     //end of data reached
                     break;
                 }
-                final FDate tailKey = innerExtractKey(key, furtherValues.getTail());
+                final FDate tailKey = innerExtractKey(null, furtherValues.getTail());
                 if (furtherValuesEmpty) {
-                    final FDate headKey = innerExtractKey(key, furtherValues.getHead());
+                    final FDate headKey = innerExtractKey(null, furtherValues.getHead());
                     cacheMissCounter
                             .maybeLimitOptimalReadBackStepByLoadFurtherValuesRange(new Duration(headKey, tailKey));
                 }
@@ -337,7 +338,7 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
     private void skipDuplicates(final FDate key, final FDate curKey,
             final BufferingIterator<V> newFurtherValuesBuffer) {
         while (!newFurtherValuesBuffer.isEmpty()
-                && innerExtractKey(key, newFurtherValuesBuffer.getHead()).isBefore(curKey)) {
+                && innerExtractKey(null, newFurtherValuesBuffer.getHead()).isBefore(curKey)) {
             newFurtherValuesBuffer.next();
         }
     }
@@ -425,7 +426,7 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
         final FDate earliestStartOfLoadFurtherValues = determineEaliestStartOfLoadFurtherValues(key);
         while (furtherValues.size() > 0) {
             final V newValue = furtherValues.getHead();
-            final FDate newValueKey = extractKey(key, newValue);
+            final FDate newValueKey = extractKey(null, newValue);
             final int compare = key.compareTo(newValueKey);
             if (compare < 0) {
                 //key < newValueKey
@@ -523,7 +524,7 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
             //we remember the db key of the value so that it can be found again later
             //to use the parameter key would make the result incorrect
             final FDate valueKey = extractKey(null, value);
-            getValuesMap().put(valueKey, value);
+            getValuesMap().put(valueKey, ImmutableEntry.of(valueKey, value));
             return value;
         } else {
             return null;

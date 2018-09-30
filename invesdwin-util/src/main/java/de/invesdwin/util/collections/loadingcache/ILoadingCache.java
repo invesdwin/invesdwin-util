@@ -13,6 +13,8 @@ public interface ILoadingCache<K, V> {
 
     boolean containsKey(K key);
 
+    V getIfPresent(K key);
+
     void remove(K key);
 
     void put(K key, V value);

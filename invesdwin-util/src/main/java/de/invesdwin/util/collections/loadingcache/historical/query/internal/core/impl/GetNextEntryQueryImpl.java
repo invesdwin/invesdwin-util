@@ -49,9 +49,14 @@ public class GetNextEntryQueryImpl<V> {
                     }
                 }
                 //the key of the value is the relevant one
-                final Entry<FDate, V> nextNextEntry = query.getAssertValue().assertValue(core.getParent(), key,
-                        nextNextKey,
-                        core.getValue(query, nextNextKey, HistoricalCacheAssertValue.ASSERT_VALUE_WITH_FUTURE));
+                final Entry<FDate, V> potentialNextNextEntry = core.getEntry(query, nextNextKey,
+                        HistoricalCacheAssertValue.ASSERT_VALUE_WITH_FUTURE);
+                final Entry<FDate, V> nextNextEntry;
+                if (potentialNextNextEntry != null) {
+                    nextNextEntry = query.getAssertValue().assertValue(core.getParent(), key, potentialNextNextEntry);
+                } else {
+                    nextNextEntry = null;
+                }
                 if (nextNextEntry == null) {
                     nextEntry = null;
                     return true;

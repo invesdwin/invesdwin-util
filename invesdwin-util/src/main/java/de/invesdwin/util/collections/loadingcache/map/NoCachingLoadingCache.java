@@ -75,4 +75,9 @@ public class NoCachingLoadingCache<K, V> implements ILoadingCache<K, V> {
         //ignore
     }
 
+    @Override
+    public V getIfPresent(final K key) {
+        return null;
+    }
+
 }

@@ -164,16 +164,19 @@ public abstract class AContinuousRecursiveHistoricalCacheQuery<V> implements IRe
                 final V highestRecursionResult = highestRecursionResultsAsc.get(previousKey);
                 if (highestRecursionResult != null) {
                     return highestRecursionResult;
-                } else if (cachedRecursionResults.containsKey(previousKey)) {
-                    return cachedRecursionResults.get(previousKey);
-                } else if (previousKey.isBeforeOrEqualTo(firstRecursionKey)
-                        || lastRecursionKey.equals(firstAvailableKey) || key.equals(previousKey)) {
-                    return getInitialValue(previousKey);
                 } else {
-                    throw new IllegalStateException(parent + ": the values between " + firstRecursionKey + " and "
-                            + lastRecursionKey
-                            + " should have been cached, maybe you are returning null values even if you should not: "
-                            + previousKey);
+                    final V cachedResult = cachedRecursionResults.getIfPresent(previousKey);
+                    if (cachedResult != null) {
+                        return cachedResult;
+                    } else if (previousKey.isBeforeOrEqualTo(firstRecursionKey)
+                            || lastRecursionKey.equals(firstAvailableKey) || key.equals(previousKey)) {
+                        return getInitialValue(previousKey);
+                    } else {
+                        throw new IllegalStateException(parent + ": the values between " + firstRecursionKey + " and "
+                                + lastRecursionKey
+                                + " should have been cached, maybe you are returning null values even if you should not: "
+                                + previousKey);
+                    }
                 }
             }
             recursionInProgress = true;

@@ -1,7 +1,5 @@
 package de.invesdwin.util.collections.loadingcache.guava;
 
-import java.util.Map;
-
 import javax.annotation.concurrent.NotThreadSafe;
 
 import com.google.common.base.Optional;
@@ -10,6 +8,7 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 
 import de.invesdwin.util.assertions.Assertions;
+import de.invesdwin.util.collections.loadingcache.ILoadingCacheMap;
 import de.invesdwin.util.collections.loadingcache.guava.internal.OptionalValueWrapperLoadingCache;
 import de.invesdwin.util.collections.loadingcache.guava.internal.OptionalValueWrapperRemovalListener;
 import de.invesdwin.util.collections.loadingcache.guava.internal.WrapperLoadingCacheMap;
@@ -112,7 +111,7 @@ public class GuavaLoadingCacheMapConfig {
         return this;
     }
 
-    <K, V> Map<K, V> newMap(final AGuavaLoadingCacheMap<K, V> parent) {
+    <K, V> ILoadingCacheMap<K, V> newMap(final AGuavaLoadingCacheMap<K, V> parent) {
         final CacheBuilder<Object, Object> builder = newCacheBuilder();
         final LoadingCache<K, V> delegate = new OptionalValueWrapperLoadingCache<K, V>(
                 builder.<K, Optional<V>> build(new CacheLoader<K, Optional<V>>() {

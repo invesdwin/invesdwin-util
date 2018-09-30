@@ -1,5 +1,7 @@
 package de.invesdwin.util.collections.loadingcache.historical.query.internal;
 
+import java.util.Map.Entry;
+
 import de.invesdwin.util.collections.loadingcache.ILoadingCache;
 import de.invesdwin.util.collections.loadingcache.historical.interceptor.IHistoricalCachePreviousKeysQueryInterceptor;
 import de.invesdwin.util.collections.loadingcache.historical.interceptor.IHistoricalCacheRangeQueryInterceptor;
@@ -17,7 +19,7 @@ public interface IHistoricalCacheInternalMethods<V> {
 
     FDate calculateNextKey(FDate key);
 
-    ILoadingCache<FDate, V> getValuesMap();
+    ILoadingCache<FDate, Entry<FDate, V>> getValuesMap();
 
     FDate adjustKey(FDate key);
 
@@ -31,7 +33,7 @@ public interface IHistoricalCacheInternalMethods<V> {
 
     IHistoricalCacheQuery<?> newKeysQueryInterceptor();
 
-    V computeValue(FDate key);
+    Entry<FDate, V> computeValue(FDate key);
 
     IHistoricalCachePutProvider<V> getPutProvider();
 

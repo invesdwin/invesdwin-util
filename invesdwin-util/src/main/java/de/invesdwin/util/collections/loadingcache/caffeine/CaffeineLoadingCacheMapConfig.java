@@ -1,7 +1,5 @@
 package de.invesdwin.util.collections.loadingcache.caffeine;
 
-import java.util.Map;
-
 import javax.annotation.concurrent.NotThreadSafe;
 
 import org.apache.commons.lang3.BooleanUtils;
@@ -11,6 +9,7 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
 
 import de.invesdwin.util.assertions.Assertions;
+import de.invesdwin.util.collections.loadingcache.ILoadingCacheMap;
 import de.invesdwin.util.collections.loadingcache.caffeine.internal.WrapperLoadingCache;
 import de.invesdwin.util.collections.loadingcache.caffeine.internal.WrapperLoadingCacheMap;
 import de.invesdwin.util.collections.loadingcache.caffeine.internal.WrapperRemovalListener;
@@ -127,7 +126,7 @@ public class CaffeineLoadingCacheMapConfig {
         return this;
     }
 
-    <K, V> Map<K, V> newMap(final ACaffeineLoadingCacheMap<K, V> parent) {
+    <K, V> ILoadingCacheMap<K, V> newMap(final ACaffeineLoadingCacheMap<K, V> parent) {
         final Caffeine<Object, Object> builder = newCacheBuilder();
         final CacheLoader<K, V> loader = new CacheLoader<K, V>() {
             @Override

@@ -8,11 +8,13 @@ import javax.annotation.concurrent.ThreadSafe;
 
 import com.google.common.cache.LoadingCache;
 
+import de.invesdwin.util.collections.loadingcache.ILoadingCacheMap;
+
 /**
  * Because LoadingCache.asMap() does not load values, this acts as a workaround.
  */
 @ThreadSafe
-public class WrapperLoadingCacheMap<K, V> implements Map<K, V> {
+public class WrapperLoadingCacheMap<K, V> implements ILoadingCacheMap<K, V> {
 
     private final LoadingCache<K, V> delegate;
     private final Map<K, V> delegateAsMap;
@@ -85,6 +87,11 @@ public class WrapperLoadingCacheMap<K, V> implements Map<K, V> {
     @Override
     public Set<java.util.Map.Entry<K, V>> entrySet() {
         return delegateAsMap.entrySet();
+    }
+
+    @Override
+    public V getIfPresent(final K key) {
+        return delegate.getIfPresent(key);
     }
 
 }

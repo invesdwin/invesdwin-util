@@ -641,8 +641,7 @@ public class CachedHistoricalCacheQueryCore<V> extends ACachedResultHistoricalCa
             if (!lastEntry.getKey().equalsNotNullSafe(previousKey)) {
                 return;
             }
-            final V newValue = getParent().computeValue(valueKey);
-            final Entry<FDate, V> newEntry = ImmutableEntry.of(valueKey, newValue);
+            final Entry<FDate, V> newEntry = getParent().computeValue(valueKey);
             getParent().getPutProvider().put(newEntry, (Entry) lastEntry, true);
         } catch (final ResetCacheException e) {
             //should not happen here

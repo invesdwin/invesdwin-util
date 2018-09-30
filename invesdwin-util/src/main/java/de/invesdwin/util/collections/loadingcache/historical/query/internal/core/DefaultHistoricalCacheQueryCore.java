@@ -34,36 +34,35 @@ public class DefaultHistoricalCacheQueryCore<V> implements IHistoricalCacheQuery
     @Override
     public final Entry<FDate, V> getEntry(final IHistoricalCacheQueryInternalMethods<V> query, final FDate key,
             final HistoricalCacheAssertValue assertValue) {
-        V value = parent.getValuesMap().get(key);
-        if (value != null) {
+        Entry<FDate, V> entry = parent.getValuesMap().get(key);
+        if (entry != null) {
             final IHistoricalCacheQueryElementFilter<V> elementFilter = query.getElementFilter();
             if (elementFilter != null && !(elementFilter instanceof DisabledHistoricalCacheQueryElementFilter)) {
-                FDate valueKey = parent.extractKey(key, value);
-                while (!elementFilter.isValid(valueKey, value)) {
-                    value = null;
+                FDate entryKey = entry.getKey();
+                while (!elementFilter.isValid(entryKey, entry.getValue())) {
+                    entry = null;
                     //try earlier dates to find a valid element
-                    final FDate previousKey = parent.calculatePreviousKey(valueKey);
-                    final V previousValue = parent.getValuesMap().get(previousKey);
-                    if (previousValue == null) {
+                    final FDate previousKey = parent.calculatePreviousKey(entryKey);
+                    final Entry<FDate, V> previousEntry = parent.getValuesMap().get(previousKey);
+                    if (previousEntry == null) {
                         break;
                     }
-                    final FDate previousValueKey = parent.extractKey(previousKey, previousValue);
-                    if (previousValueKey.equals(valueKey)) {
+                    if (previousEntry.getKey().equals(entryKey)) {
                         break;
                     }
-                    valueKey = previousValueKey;
-                    value = previousValue;
+                    entry = previousEntry;
+                    entryKey = previousEntry.getKey();
                 }
             }
         }
-        return assertValue.assertValue(parent, key, key, value);
+        return assertValue.assertValue(parent, key, entry);
     }
 
     @Override
     public final V getValue(final IHistoricalCacheQueryInternalMethods<V> query, final FDate key,
             final HistoricalCacheAssertValue assertValue) {
         if (key == null) {
-            return (V) null;
+            return null;
         }
         return HistoricalCacheAssertValue.unwrapEntryValue(getEntry(query, key, assertValue));
     }
@@ -155,29 +154,28 @@ public class DefaultHistoricalCacheQueryCore<V> implements IHistoricalCacheQuery
     @Override
     public Entry<FDate, V> computeEntry(final HistoricalCacheQuery<V> query, final FDate key,
             final HistoricalCacheAssertValue assertValue) {
-        V value = parent.computeValue(key);
-        if (value != null) {
+        Entry<FDate, V> entry = parent.computeValue(key);
+        if (entry != null) {
             final IHistoricalCacheQueryElementFilter<V> elementFilter = query.getElementFilter();
             if (elementFilter != null && !(elementFilter instanceof DisabledHistoricalCacheQueryElementFilter)) {
-                FDate valueKey = parent.extractKey(key, value);
-                while (!elementFilter.isValid(valueKey, value)) {
-                    value = null;
+                FDate entryKey = entry.getKey();
+                while (!elementFilter.isValid(entryKey, entry.getValue())) {
+                    entry = null;
                     //try earlier dates to find a valid element
-                    final FDate previousKey = parent.calculatePreviousKey(valueKey);
-                    final V previousValue = parent.computeValue(previousKey);
-                    if (previousValue == null) {
+                    final FDate previousKey = parent.calculatePreviousKey(entryKey);
+                    final Entry<FDate, V> previousEntry = parent.computeValue(previousKey);
+                    if (previousEntry == null) {
                         break;
                     }
-                    final FDate previousValueKey = parent.extractKey(previousKey, previousValue);
-                    if (previousValueKey.equals(valueKey)) {
+                    if (previousEntry.getKey().equals(entryKey)) {
                         break;
                     }
-                    valueKey = previousValueKey;
-                    value = previousValue;
+                    entry = previousEntry;
+                    entryKey = previousEntry.getKey();
                 }
             }
         }
-        return assertValue.assertValue(parent, key, key, value);
+        return assertValue.assertValue(parent, key, entry);
     }
 
     @Override

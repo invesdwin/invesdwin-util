@@ -1,18 +1,22 @@
 package de.invesdwin.util.collections.loadingcache.caffeine;
 
-import java.util.Map;
-
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.collections.delegate.ADelegateMap;
+import de.invesdwin.util.collections.loadingcache.ILoadingCacheMap;
 import de.invesdwin.util.error.Throwables;
 
 @ThreadSafe
-public abstract class ACaffeineLoadingCacheMap<K, V> extends ADelegateMap<K, V> {
+public abstract class ACaffeineLoadingCacheMap<K, V> extends ADelegateMap<K, V> implements ILoadingCacheMap<K, V> {
 
     @Override
-    protected final Map<K, V> newDelegate() {
+    protected final ILoadingCacheMap<K, V> newDelegate() {
         return getConfig().newMap(this);
+    }
+
+    @Override
+    protected ILoadingCacheMap<K, V> getDelegate() {
+        return (ILoadingCacheMap<K, V>) super.getDelegate();
     }
 
     /**
@@ -36,6 +40,11 @@ public abstract class ACaffeineLoadingCacheMap<K, V> extends ADelegateMap<K, V> 
         } catch (final Throwable e) {
             throw Throwables.propagate(e);
         }
+    }
+
+    @Override
+    public V getIfPresent(final K key) {
+        return null;
     }
 
 }

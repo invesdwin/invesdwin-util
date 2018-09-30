@@ -65,7 +65,7 @@ public abstract class AIterableGapHistoricalCache<V> extends AGapHistoricalCache
         try (ICloseableIterator<V> delegate = getDelegate().iterator()) {
             while (true) {
                 final V value = delegate.next();
-                final FDate valueKey = extractKey(key, value);
+                final FDate valueKey = extractKey(null, value);
 
                 if (valueKey.isAfter(key)) {
                     return valueKey;

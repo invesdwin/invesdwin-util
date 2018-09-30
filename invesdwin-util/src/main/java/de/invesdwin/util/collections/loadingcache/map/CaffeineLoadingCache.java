@@ -99,4 +99,9 @@ public class CaffeineLoadingCache<K, V> implements ILoadingCache<K, V> {
         //ignore
     }
 
+    @Override
+    public V getIfPresent(final K key) {
+        return delegate.getIfPresent(key);
+    }
+
 }

@@ -484,20 +484,19 @@ public class TrailingHistoricalCacheQueryCore<V> extends ACachedEntriesHistorica
                 return;
             }
             if (cachedPreviousEntries.isEmpty()) {
-                final V newValue = getParent().computeValue(valueKey);
-                putPrevious(previousKey, newValue, valueKey);
+                final Entry<FDate, V> newEntry = getParent().computeValue(valueKey);
+                putPrevious(previousKey, newEntry.getValue(), newEntry.getKey());
                 return;
             }
             final Entry<IndexedFDate, V> lastEntry = getLastCachedEntry();
             if (!lastEntry.getKey().equalsNotNullSafe(previousKey)) {
                 if (lastEntry.getKey().isBeforeNotNullSafe(previousKey)) {
-                    final V newValue = getParent().computeValue(valueKey);
-                    putPrevious(previousKey, newValue, valueKey);
+                    final Entry<FDate, V> newEntry = getParent().computeValue(valueKey);
+                    putPrevious(previousKey, newEntry.getValue(), newEntry.getKey());
                 }
                 return;
             }
-            final V newValue = getParent().computeValue(valueKey);
-            final Entry<FDate, V> newEntry = ImmutableEntry.of(valueKey, newValue);
+            final Entry<FDate, V> newEntry = getParent().computeValue(valueKey);
             getParent().getPutProvider().put(newEntry, (Entry) lastEntry, true);
         } catch (final ResetCacheException e) {
             //should not happen here

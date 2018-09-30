@@ -53,9 +53,15 @@ public class GetPreviousEntryQueryImpl<V> {
                     return true;
                 }
                 //the key of the value is the relevant one
-                final Entry<FDate, V> previousPreviousEntry = query.getAssertValue().assertValue(core.getParent(), key,
-                        previousPreviousKey,
-                        core.getValue(query, previousPreviousKey, HistoricalCacheAssertValue.ASSERT_VALUE_WITH_FUTURE));
+                final Entry<FDate, V> potentialPreviousPreviousEntry = core.getEntry(query, previousPreviousKey,
+                        HistoricalCacheAssertValue.ASSERT_VALUE_WITH_FUTURE);
+                final Entry<FDate, V> previousPreviousEntry;
+                if (potentialPreviousPreviousEntry != null) {
+                    previousPreviousEntry = query.getAssertValue().assertValue(core.getParent(), key,
+                            potentialPreviousPreviousEntry);
+                } else {
+                    previousPreviousEntry = null;
+                }
                 if (previousPreviousEntry == null) {
                     if (previousKey.equals(key)) {
                         previousEntry = null;
