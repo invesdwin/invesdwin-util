@@ -328,21 +328,26 @@ public abstract class AHistoricalCache<V>
     public final FDate extractKey(final FDate key, final V value) {
         if (value instanceof IHistoricalEntry) {
             final IHistoricalEntry<?> cValue = (IHistoricalEntry<?>) value;
-            return cValue.getKey();
+            return maybeMergeKey(key, cValue.getKey());
         }
         if (value instanceof IHistoricalValue) {
             final IHistoricalValue<?> cValue = (IHistoricalValue<?>) value;
-            return cValue.asHistoricalEntry().getKey();
+            return maybeMergeKey(key, cValue.asHistoricalEntry().getKey());
         }
         return extractKeyNoCasting(key, value);
     }
 
-    FDate extractKeyNoCasting(final FDate key, final V value) {
-        FDate extractedKey = extractKeyProvider.extractKey(key, value);
-        if (key != null && key.equalsNotNullSafe(extractedKey)) {
+    private FDate maybeMergeKey(final FDate key, final FDate valueKey) {
+        FDate extractedKey = valueKey;
+        if (key != null && key.equalsNotNullSafe(valueKey)) {
             extractedKey = key;
         }
         return adjustKeyProvider.newAlreadyAdjustedKey(extractedKey);
+    }
+
+    FDate extractKeyNoCasting(final FDate key, final V value) {
+        final FDate extractedKey = extractKeyProvider.extractKey(key, value);
+        return maybeMergeKey(key, extractedKey);
     }
 
     /**
