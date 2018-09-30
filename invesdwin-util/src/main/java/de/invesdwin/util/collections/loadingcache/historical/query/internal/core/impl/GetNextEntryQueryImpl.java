@@ -1,9 +1,8 @@
 package de.invesdwin.util.collections.loadingcache.historical.query.internal.core.impl;
 
-import java.util.Map.Entry;
-
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.util.collections.loadingcache.historical.IHistoricalEntry;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.HistoricalCacheAssertValue;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.IHistoricalCacheQueryCore;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.IHistoricalCacheQueryInternalMethods;
@@ -15,7 +14,7 @@ public class GetNextEntryQueryImpl<V> {
     private final IHistoricalCacheQueryCore<V> core;
     private final FDate key;
     private FDate nextKey = null;
-    private Entry<FDate, V> nextEntry = null;
+    private IHistoricalEntry<V> nextEntry = null;
     private int iterations = 0;
     private final int shiftForwardUnits;
     private final IHistoricalCacheQueryInternalMethods<V> query;
@@ -49,9 +48,9 @@ public class GetNextEntryQueryImpl<V> {
                     }
                 }
                 //the key of the value is the relevant one
-                final Entry<FDate, V> potentialNextNextEntry = core.getEntry(query, nextNextKey,
+                final IHistoricalEntry<V> potentialNextNextEntry = core.getEntry(query, nextNextKey,
                         HistoricalCacheAssertValue.ASSERT_VALUE_WITH_FUTURE);
-                final Entry<FDate, V> nextNextEntry;
+                final IHistoricalEntry<V> nextNextEntry;
                 if (potentialNextNextEntry != null) {
                     nextNextEntry = query.getAssertValue().assertValue(core.getParent(), key, potentialNextNextEntry);
                 } else {
@@ -75,7 +74,7 @@ public class GetNextEntryQueryImpl<V> {
         return true;
     }
 
-    public Entry<FDate, V> getResult() {
+    public IHistoricalEntry<V> getResult() {
         return nextEntry;
     }
 

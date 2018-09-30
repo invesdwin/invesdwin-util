@@ -2,13 +2,13 @@ package de.invesdwin.util.collections.loadingcache.historical.query.internal.cor
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map.Entry;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
-import de.invesdwin.util.bean.tuple.ImmutableEntry;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
+import de.invesdwin.util.collections.loadingcache.historical.IHistoricalEntry;
+import de.invesdwin.util.collections.loadingcache.historical.ImmutableHistoricalEntry;
 import de.invesdwin.util.collections.loadingcache.historical.query.index.IndexedFDate;
 import de.invesdwin.util.collections.loadingcache.historical.query.index.QueryCoreIndex;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.HistoricalCacheAssertValue;
@@ -24,7 +24,7 @@ public abstract class ACachedEntriesHistoricalCacheQueryCore<V> implements IHist
     @GuardedBy("cachedQueryActiveLock")
     protected int modIncrementIndex = 0;
     @GuardedBy("cachedQueryActiveLock")
-    protected final List<Entry<IndexedFDate, V>> cachedPreviousEntries = new ArrayList<>();
+    protected final List<IHistoricalEntry<V>> cachedPreviousEntries = new ArrayList<>();
     private final int hashCode = super.hashCode();
 
     @Override
@@ -45,7 +45,7 @@ public abstract class ACachedEntriesHistoricalCacheQueryCore<V> implements IHist
     protected abstract IHistoricalCacheQueryCore<V> getDelegate();
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    protected IndexedFDate replaceCachedEntries(final FDate key, final List<Entry<FDate, V>> trailing) {
+    protected IndexedFDate replaceCachedEntries(final FDate key, final List<IHistoricalEntry<V>> trailing) {
         if (trailing.isEmpty() ||
         /*
          * (maybe we went before the first entry) or (maybe we went after the last entry to only fetch one element), so
@@ -59,12 +59,12 @@ public abstract class ACachedEntriesHistoricalCacheQueryCore<V> implements IHist
         modIncrementIndex = 0;
         cachedPreviousEntries.clear();
         for (int i = 0; i < trailing.size(); i++) {
-            final Entry<FDate, V> entry = trailing.get(i);
+            final IHistoricalEntry<V> entry = trailing.get(i);
             final IndexedFDate indexedKey = IndexedFDate.maybeWrap(entry.getKey());
             indexedKey.putQueryCoreIndex(this, new QueryCoreIndex(modCount, i - modIncrementIndex));
-            final Entry<IndexedFDate, V> indexedEntry = ImmutableEntry.of(indexedKey, entry.getValue());
+            final IHistoricalEntry<V> indexedEntry = ImmutableHistoricalEntry.of(indexedKey, entry.getValue());
             cachedPreviousEntries.add(indexedEntry);
-            trailing.set(i, (Entry) indexedEntry);
+            trailing.set(i, indexedEntry);
         }
 
         //attach indexed key to outer key at least
@@ -76,17 +76,17 @@ public abstract class ACachedEntriesHistoricalCacheQueryCore<V> implements IHist
 
     protected abstract Integer maybeIncreaseMaximumSize(int requiredSize);
 
-    protected abstract int bisect(FDate skippingKeysAbove, List<Entry<FDate, V>> list, Integer unitsBack,
+    protected abstract int bisect(FDate skippingKeysAbove, List<IHistoricalEntry<V>> list, Integer unitsBack,
             ACachedEntriesHistoricalCacheQueryCore<V> useIndex) throws ResetCacheException;
 
-    protected Entry<IndexedFDate, V> getLastCachedEntry() throws ResetCacheException {
+    protected IHistoricalEntry<V> getLastCachedEntry() throws ResetCacheException {
         if (cachedPreviousEntries.isEmpty()) {
             throw new ResetCacheException("lastCachedEntry cannot be retrieved since cachedPreviousEntries is empty");
         }
         return cachedPreviousEntries.get(cachedPreviousEntries.size() - 1);
     }
 
-    protected Entry<IndexedFDate, V> getFirstCachedEntry() {
+    protected IHistoricalEntry<V> getFirstCachedEntry() {
         return cachedPreviousEntries.get(0);
     }
 
@@ -104,36 +104,36 @@ public abstract class ACachedEntriesHistoricalCacheQueryCore<V> implements IHist
     }
 
     @Override
-    public final Entry<FDate, V> getEntry(final IHistoricalCacheQueryInternalMethods<V> query, final FDate key,
+    public final IHistoricalEntry<V> getEntry(final IHistoricalCacheQueryInternalMethods<V> query, final FDate key,
             final HistoricalCacheAssertValue assertValue) {
         return getDelegate().getEntry(query, key, assertValue);
     }
 
     @Override
-    public final Entry<FDate, V> computeEntry(final HistoricalCacheQuery<V> historicalCacheQuery, final FDate key,
+    public final IHistoricalEntry<V> computeEntry(final HistoricalCacheQuery<V> historicalCacheQuery, final FDate key,
             final HistoricalCacheAssertValue assertValue) {
         return getDelegate().computeEntry(historicalCacheQuery, key, assertValue);
     }
 
     @Override
-    public final ICloseableIterable<Entry<FDate, V>> getNextEntries(final IHistoricalCacheQueryInternalMethods<V> query,
-            final FDate key, final int shiftForwardUnits) {
+    public final ICloseableIterable<IHistoricalEntry<V>> getNextEntries(
+            final IHistoricalCacheQueryInternalMethods<V> query, final FDate key, final int shiftForwardUnits) {
         return getDelegate().getNextEntries(query, key, shiftForwardUnits);
     }
 
     @Override
-    public final Entry<FDate, V> getNextEntry(final IHistoricalCacheQueryInternalMethods<V> query, final FDate key,
+    public final IHistoricalEntry<V> getNextEntry(final IHistoricalCacheQueryInternalMethods<V> query, final FDate key,
             final int shiftForwardUnits) {
         return getDelegate().getNextEntry(query, key, shiftForwardUnits);
     }
 
-    protected void appendCachedEntry(final FDate key, final Integer shiftBackUnits, final Entry<FDate, V> latestEntry)
-            throws ResetCacheException {
+    protected void appendCachedEntry(final FDate key, final Integer shiftBackUnits,
+            final IHistoricalEntry<V> latestEntry) throws ResetCacheException {
         if (latestEntry != null) {
             final IndexedFDate indexedKey = IndexedFDate.maybeWrap(latestEntry.getKey());
             indexedKey.putQueryCoreIndex(this,
                     new QueryCoreIndex(modCount, cachedPreviousEntries.size() - modIncrementIndex));
-            final Entry<IndexedFDate, V> indexedEntry = ImmutableEntry.of(indexedKey, latestEntry.getValue());
+            final IHistoricalEntry<V> indexedEntry = ImmutableHistoricalEntry.of(indexedKey, latestEntry.getValue());
             cachedPreviousEntries.add(indexedEntry);
 
             final Integer maximumSize = getParent().getMaximumSize();

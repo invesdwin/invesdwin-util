@@ -1,8 +1,7 @@
 package de.invesdwin.util.collections.loadingcache.historical.query;
 
-import java.util.Map.Entry;
-
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
+import de.invesdwin.util.collections.loadingcache.historical.IHistoricalEntry;
 import de.invesdwin.util.time.fdate.FDate;
 
 public interface IHistoricalCacheQueryWithFuture<V> extends IHistoricalCacheQuery<V> {
@@ -50,7 +49,7 @@ public interface IHistoricalCacheQueryWithFuture<V> extends IHistoricalCacheQuer
      * 
      * index 0 is the current value (above or equal to key), index 1 the next value and so on
      */
-    Entry<FDate, V> getNextEntry(FDate key, int shiftForwardUnits);
+    IHistoricalEntry<V> getNextEntry(FDate key, int shiftForwardUnits);
 
     /**
      * key is inclusive
@@ -64,7 +63,7 @@ public interface IHistoricalCacheQueryWithFuture<V> extends IHistoricalCacheQuer
      * 
      * key is inclusive
      */
-    ICloseableIterable<Entry<FDate, V>> getNextEntries(FDate key, int shiftForwardUnits);
+    ICloseableIterable<IHistoricalEntry<V>> getNextEntries(FDate key, int shiftForwardUnits);
 
     /**
      * key is inclusive

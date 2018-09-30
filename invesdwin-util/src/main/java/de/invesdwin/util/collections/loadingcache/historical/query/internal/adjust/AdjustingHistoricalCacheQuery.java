@@ -2,13 +2,13 @@ package de.invesdwin.util.collections.loadingcache.historical.query.internal.adj
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map.Entry;
 
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.iterable.EmptyCloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
+import de.invesdwin.util.collections.loadingcache.historical.IHistoricalEntry;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQuery;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQueryElementFilter;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQueryWithFuture;
@@ -89,7 +89,7 @@ public class AdjustingHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V
     }
 
     @Override
-    public Entry<FDate, V> getEntry(final FDate key) {
+    public IHistoricalEntry<V> getEntry(final FDate key) {
         return delegate.getEntry(adjustKey(key));
     }
 
@@ -99,7 +99,7 @@ public class AdjustingHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V
     }
 
     @Override
-    public ICloseableIterable<Entry<FDate, V>> getEntries(final Iterable<FDate> keys) {
+    public ICloseableIterable<IHistoricalEntry<V>> getEntries(final Iterable<FDate> keys) {
         return delegate.getEntries(adjustKey(keys));
     }
 
@@ -124,7 +124,7 @@ public class AdjustingHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V
     }
 
     @Override
-    public Entry<FDate, V> getPreviousEntry(final FDate key, final int shiftBackUnits) {
+    public IHistoricalEntry<V> getPreviousEntry(final FDate key, final int shiftBackUnits) {
         return delegate.getPreviousEntry(adjustKey(key), shiftBackUnits);
     }
 
@@ -134,7 +134,7 @@ public class AdjustingHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V
     }
 
     @Override
-    public ICloseableIterable<Entry<FDate, V>> getPreviousEntries(final FDate key, final int shiftBackUnits) {
+    public ICloseableIterable<IHistoricalEntry<V>> getPreviousEntries(final FDate key, final int shiftBackUnits) {
         return delegate.getPreviousEntries(adjustKey(key), shiftBackUnits);
     }
 
@@ -154,7 +154,7 @@ public class AdjustingHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V
     }
 
     @Override
-    public ICloseableIterable<Entry<FDate, V>> getEntries(final FDate from, final FDate to) {
+    public ICloseableIterable<IHistoricalEntry<V>> getEntries(final FDate from, final FDate to) {
         final FDate adjFrom = adjustKey(from);
         if (adjFrom != null && adjFrom.isBefore(from)) {
             return EmptyCloseableIterable.getInstance();
@@ -194,7 +194,7 @@ public class AdjustingHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V
     }
 
     @Override
-    public Entry<FDate, V> getPreviousEntryWithSameValueBetween(final FDate from, final FDate to, final V value) {
+    public IHistoricalEntry<V> getPreviousEntryWithSameValueBetween(final FDate from, final FDate to, final V value) {
         final FDate adjFrom = adjustKey(from);
         if (adjFrom != null && adjFrom.isBefore(from)) {
             return null;
@@ -224,7 +224,8 @@ public class AdjustingHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V
     }
 
     @Override
-    public Entry<FDate, V> getPreviousEntryWithDifferentValueBetween(final FDate from, final FDate to, final V value) {
+    public IHistoricalEntry<V> getPreviousEntryWithDifferentValueBetween(final FDate from, final FDate to,
+            final V value) {
         final FDate adjFrom = adjustKey(from);
         if (adjFrom != null && adjFrom.isBefore(from)) {
             return null;
@@ -244,7 +245,8 @@ public class AdjustingHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V
     }
 
     @Override
-    public Entry<FDate, V> getPreviousEntryWithSameValue(final FDate key, final int maxShiftBackUnits, final V value) {
+    public IHistoricalEntry<V> getPreviousEntryWithSameValue(final FDate key, final int maxShiftBackUnits,
+            final V value) {
         return delegate.getPreviousEntryWithSameValue(adjustKey(key), maxShiftBackUnits, value);
     }
 
@@ -259,7 +261,7 @@ public class AdjustingHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V
     }
 
     @Override
-    public Entry<FDate, V> getPreviousEntryWithDifferentValue(final FDate key, final int maxShiftBackUnits,
+    public IHistoricalEntry<V> getPreviousEntryWithDifferentValue(final FDate key, final int maxShiftBackUnits,
             final V value) {
         return delegate.getPreviousEntryWithDifferentValue(adjustKey(key), maxShiftBackUnits, value);
     }
@@ -291,12 +293,12 @@ public class AdjustingHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V
     }
 
     @Override
-    public List<Entry<FDate, V>> newEntriesList(final int size) {
+    public List<IHistoricalEntry<V>> newEntriesList(final int size) {
         return delegate.newEntriesList(size);
     }
 
     @Override
-    public Entry<FDate, V> computeEntry(final FDate key) {
+    public IHistoricalEntry<V> computeEntry(final FDate key) {
         return delegate.computeEntry(adjustKey(key));
     }
 

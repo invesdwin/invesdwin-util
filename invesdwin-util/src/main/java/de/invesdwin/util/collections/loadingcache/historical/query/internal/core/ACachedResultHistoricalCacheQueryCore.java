@@ -2,12 +2,12 @@ package de.invesdwin.util.collections.loadingcache.historical.query.internal.cor
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map.Entry;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
-import de.invesdwin.util.bean.tuple.ImmutableEntry;
+import de.invesdwin.util.collections.loadingcache.historical.IHistoricalEntry;
+import de.invesdwin.util.collections.loadingcache.historical.ImmutableHistoricalEntry;
 import de.invesdwin.util.collections.loadingcache.historical.query.index.IndexedFDate;
 import de.invesdwin.util.collections.loadingcache.historical.query.index.QueryCoreIndex;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.HistoricalCacheAssertValue;
@@ -19,17 +19,18 @@ public abstract class ACachedResultHistoricalCacheQueryCore<V> extends ACachedEn
     @GuardedBy("cachedQueryActiveLock")
     protected IndexedFDate cachedPreviousEntriesKey = null;
     @GuardedBy("cachedQueryActiveLock")
-    protected List<Entry<FDate, V>> cachedPreviousResult_notFilteringDuplicates = null;
+    protected List<IHistoricalEntry<V>> cachedPreviousResult_notFilteringDuplicates = null;
     @GuardedBy("cachedQueryActiveLock")
-    protected List<Entry<FDate, V>> cachedPreviousResult_filteringDuplicates = null;
+    protected List<IHistoricalEntry<V>> cachedPreviousResult_filteringDuplicates = null;
     @GuardedBy("cachedQueryActiveLock")
     protected Integer cachedPreviousResult_shiftBackUnits = null;
 
     /**
      * Use sublist if possible to reduce memory footprint of transient array lists to reduce garbage collection overhead
      */
-    protected List<Entry<FDate, V>> tryCachedPreviousResult_sameKey(final IHistoricalCacheQueryInternalMethods<V> query,
-            final int shiftBackUnits, final boolean filterDuplicateKeys) {
+    protected List<IHistoricalEntry<V>> tryCachedPreviousResult_sameKey(
+            final IHistoricalCacheQueryInternalMethods<V> query, final int shiftBackUnits,
+            final boolean filterDuplicateKeys) {
         if (cachedPreviousResult_shiftBackUnits == null || cachedPreviousResult_shiftBackUnits < shiftBackUnits) {
             return null;
         }
@@ -51,12 +52,12 @@ public abstract class ACachedResultHistoricalCacheQueryCore<V> extends ACachedEn
                 if (cachedPreviousResult_filteringDuplicates == null) {
                     return null;
                 } else {
-                    cachedPreviousResult_notFilteringDuplicates = new ArrayList<Entry<FDate, V>>(
+                    cachedPreviousResult_notFilteringDuplicates = new ArrayList<IHistoricalEntry<V>>(
                             cachedPreviousResult_filteringDuplicates);
                     final int duplicatesRemaining = cachedPreviousResult_shiftBackUnits
                             - cachedPreviousResult_notFilteringDuplicates.size();
                     if (duplicatesRemaining > 0 && !cachedPreviousResult_filteringDuplicates.isEmpty()) {
-                        final Entry<FDate, V> toBeDuplicated = cachedPreviousResult_filteringDuplicates.get(0);
+                        final IHistoricalEntry<V> toBeDuplicated = cachedPreviousResult_filteringDuplicates.get(0);
                         for (int i = 0; i < duplicatesRemaining; i++) {
                             cachedPreviousResult_notFilteringDuplicates.add(0, toBeDuplicated);
                         }
@@ -75,7 +76,7 @@ public abstract class ACachedResultHistoricalCacheQueryCore<V> extends ACachedEn
      * @throws ResetCacheException
      */
     protected void updateCachedPreviousResult(final IHistoricalCacheQueryInternalMethods<V> query,
-            final int shiftBackUnits, final List<Entry<FDate, V>> result, final boolean filterDuplicateKeys)
+            final int shiftBackUnits, final List<IHistoricalEntry<V>> result, final boolean filterDuplicateKeys)
             throws ResetCacheException {
         if (result.isEmpty() && query.getAssertValue() == HistoricalCacheAssertValue.ASSERT_VALUE_WITH_FUTURE_NULL) {
             //do not remember an empty result with future null (a call with future next might trip on it)
@@ -101,7 +102,7 @@ public abstract class ACachedResultHistoricalCacheQueryCore<V> extends ACachedEn
     }
 
     @Override
-    protected IndexedFDate replaceCachedEntries(final FDate key, final List<Entry<FDate, V>> trailing) {
+    protected IndexedFDate replaceCachedEntries(final FDate key, final List<IHistoricalEntry<V>> trailing) {
         final IndexedFDate indexedKey = super.replaceCachedEntries(key, trailing);
         if (indexedKey != null) {
             cachedPreviousEntriesKey = indexedKey;
@@ -114,7 +115,7 @@ public abstract class ACachedResultHistoricalCacheQueryCore<V> extends ACachedEn
 
     //CHECKSTYLE:OFF
     protected void appendCachedEntryAndResult(final FDate key, final Integer shiftBackUnits,
-            final Entry<FDate, V> latestEntry) throws ResetCacheException {
+            final IHistoricalEntry<V> latestEntry) throws ResetCacheException {
         //CHECKSTYLE:ON
         if (latestEntry != null) {
             if (shiftBackUnits != null && cachedPreviousResult_shiftBackUnits == null) {
@@ -125,7 +126,7 @@ public abstract class ACachedResultHistoricalCacheQueryCore<V> extends ACachedEn
             final IndexedFDate indexedKey = IndexedFDate.maybeWrap(latestEntry.getKey());
             indexedKey.putQueryCoreIndex(this,
                     new QueryCoreIndex(modCount, cachedPreviousEntries.size() - modIncrementIndex));
-            final Entry<IndexedFDate, V> indexedEntry = ImmutableEntry.of(indexedKey, latestEntry.getValue());
+            final IHistoricalEntry<V> indexedEntry = ImmutableHistoricalEntry.of(indexedKey, latestEntry.getValue());
             cachedPreviousEntries.add(indexedEntry);
 
             if (shiftBackUnits != null && cachedPreviousResult_shiftBackUnits < shiftBackUnits) {
@@ -165,7 +166,7 @@ public abstract class ACachedResultHistoricalCacheQueryCore<V> extends ACachedEn
     }
 
     protected FDate determineConsistentLastCachedEntryKey() throws ResetCacheException {
-        final IndexedFDate lastCachedEntryKey = getLastCachedEntry().getKey();
+        final FDate lastCachedEntryKey = getLastCachedEntry().getKey();
         if (cachedPreviousResult_filteringDuplicates != null && !cachedPreviousResult_filteringDuplicates.isEmpty()) {
             final FDate lastCachedResultKey = cachedPreviousResult_filteringDuplicates
                     .get(cachedPreviousResult_filteringDuplicates.size() - 1)
@@ -182,7 +183,7 @@ public abstract class ACachedResultHistoricalCacheQueryCore<V> extends ACachedEn
         return lastCachedEntryKey;
     }
 
-    private void assertSameLastKey(final IndexedFDate lastCachedEntryKey, final FDate lastCachedResultKey)
+    private void assertSameLastKey(final FDate lastCachedEntryKey, final FDate lastCachedResultKey)
             throws ResetCacheException {
         if (!lastCachedEntryKey.equalsNotNullSafe(lastCachedResultKey)) {
             throw new ResetCacheException(
@@ -198,12 +199,12 @@ public abstract class ACachedResultHistoricalCacheQueryCore<V> extends ACachedEn
         resetCachedPreviousResult();
     }
 
-    protected List<Entry<FDate, V>> newEntriesList(final IHistoricalCacheQueryInternalMethods<V> query,
+    protected List<IHistoricalEntry<V>> newEntriesList(final IHistoricalCacheQueryInternalMethods<V> query,
             final int shiftBackUnits, final boolean filterDuplicateKeys) {
         if (filterDuplicateKeys) {
             return query.newEntriesList(shiftBackUnits);
         } else {
-            return new ArrayList<Entry<FDate, V>>();
+            return new ArrayList<IHistoricalEntry<V>>();
         }
     }
 

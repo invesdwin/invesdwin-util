@@ -2,12 +2,12 @@ package de.invesdwin.util.collections.loadingcache.historical.query.internal.cor
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Map.Entry;
 
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.WrapperCloseableIterable;
+import de.invesdwin.util.collections.loadingcache.historical.IHistoricalEntry;
 import de.invesdwin.util.collections.loadingcache.historical.query.DisabledHistoricalCacheQueryElementFilter;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQueryElementFilter;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.HistoricalCacheAssertValue;
@@ -32,9 +32,9 @@ public class DefaultHistoricalCacheQueryCore<V> implements IHistoricalCacheQuery
     }
 
     @Override
-    public final Entry<FDate, V> getEntry(final IHistoricalCacheQueryInternalMethods<V> query, final FDate key,
+    public final IHistoricalEntry<V> getEntry(final IHistoricalCacheQueryInternalMethods<V> query, final FDate key,
             final HistoricalCacheAssertValue assertValue) {
-        Entry<FDate, V> entry = parent.getValuesMap().get(key);
+        IHistoricalEntry<V> entry = parent.getValuesMap().get(key);
         if (entry != null) {
             final IHistoricalCacheQueryElementFilter<V> elementFilter = query.getElementFilter();
             if (elementFilter != null && !(elementFilter instanceof DisabledHistoricalCacheQueryElementFilter)) {
@@ -43,7 +43,7 @@ public class DefaultHistoricalCacheQueryCore<V> implements IHistoricalCacheQuery
                     entry = null;
                     //try earlier dates to find a valid element
                     final FDate previousKey = parent.calculatePreviousKey(entryKey);
-                    final Entry<FDate, V> previousEntry = parent.getValuesMap().get(previousKey);
+                    final IHistoricalEntry<V> previousEntry = parent.getValuesMap().get(previousKey);
                     if (previousEntry == null) {
                         break;
                     }
@@ -68,7 +68,7 @@ public class DefaultHistoricalCacheQueryCore<V> implements IHistoricalCacheQuery
     }
 
     @Override
-    public Entry<FDate, V> getPreviousEntry(final IHistoricalCacheQueryInternalMethods<V> query, final FDate key,
+    public IHistoricalEntry<V> getPreviousEntry(final IHistoricalCacheQueryInternalMethods<V> query, final FDate key,
             final int shiftBackUnits) {
         final GetPreviousEntryQueryImpl<V> impl = new GetPreviousEntryQueryImpl<V>(this, query, key, shiftBackUnits);
         //CHECKSTYLE:OFF
@@ -85,16 +85,16 @@ public class DefaultHistoricalCacheQueryCore<V> implements IHistoricalCacheQuery
      * Fills the list with values from the past.
      */
     @Override
-    public ICloseableIterable<Entry<FDate, V>> getPreviousEntries(final IHistoricalCacheQueryInternalMethods<V> query,
-            final FDate key, final int shiftBackUnits) {
+    public ICloseableIterable<IHistoricalEntry<V>> getPreviousEntries(
+            final IHistoricalCacheQueryInternalMethods<V> query, final FDate key, final int shiftBackUnits) {
         //This has to work with lists internally to support FilterDuplicateKeys option
-        final List<Entry<FDate, V>> trailing = query.newEntriesList(shiftBackUnits);
+        final List<IHistoricalEntry<V>> trailing = query.newEntriesList(shiftBackUnits);
         //With 10 units this iterates from 9 to 0
         //to go from past to future so that queries get minimized
         //only on the first call we risk multiple queries
         final GetPreviousEntryQueryImpl<V> impl = new GetPreviousEntryQueryImpl<V>(this, query, key, shiftBackUnits);
         for (int unitsBack = shiftBackUnits - 1; unitsBack >= 0 && !impl.iterationFinished(); unitsBack--) {
-            final Entry<FDate, V> value = impl.getResult();
+            final IHistoricalEntry<V> value = impl.getResult();
             if (value != null) {
                 if (!trailing.add(value)) {
                     break;
@@ -108,16 +108,16 @@ public class DefaultHistoricalCacheQueryCore<V> implements IHistoricalCacheQuery
     }
 
     @Override
-    public ICloseableIterable<Entry<FDate, V>> getNextEntries(final IHistoricalCacheQueryInternalMethods<V> query,
+    public ICloseableIterable<IHistoricalEntry<V>> getNextEntries(final IHistoricalCacheQueryInternalMethods<V> query,
             final FDate key, final int shiftForwardUnits) {
         //This has to work with lists internally to support FilterDuplicateKeys option
-        final List<Entry<FDate, V>> trailing = query.newEntriesList(shiftForwardUnits);
+        final List<IHistoricalEntry<V>> trailing = query.newEntriesList(shiftForwardUnits);
         //With 10 units this iterates from 9 to 0
         //to go from past to future so that queries get minimized
         //only on the first call we risk multiple queries
         final GetNextEntryQueryImpl<V> impl = new GetNextEntryQueryImpl<V>(this, query, key, shiftForwardUnits);
         for (int unitsBack = shiftForwardUnits - 1; unitsBack >= 0 && !impl.iterationFinished(); unitsBack--) {
-            final Entry<FDate, V> value = impl.getResult();
+            final IHistoricalEntry<V> value = impl.getResult();
             if (value != null) {
                 if (!trailing.add(value)) {
                     break;
@@ -130,7 +130,7 @@ public class DefaultHistoricalCacheQueryCore<V> implements IHistoricalCacheQuery
     }
 
     @Override
-    public Entry<FDate, V> getNextEntry(final IHistoricalCacheQueryInternalMethods<V> query, final FDate key,
+    public IHistoricalEntry<V> getNextEntry(final IHistoricalCacheQueryInternalMethods<V> query, final FDate key,
             final int shiftForwardUnits) {
         final GetNextEntryQueryImpl<V> impl = new GetNextEntryQueryImpl<V>(this, query, key, shiftForwardUnits);
         //CHECKSTYLE:OFF
@@ -152,9 +152,9 @@ public class DefaultHistoricalCacheQueryCore<V> implements IHistoricalCacheQuery
     }
 
     @Override
-    public Entry<FDate, V> computeEntry(final HistoricalCacheQuery<V> query, final FDate key,
+    public IHistoricalEntry<V> computeEntry(final HistoricalCacheQuery<V> query, final FDate key,
             final HistoricalCacheAssertValue assertValue) {
-        Entry<FDate, V> entry = parent.computeValue(key);
+        IHistoricalEntry<V> entry = parent.computeValue(key);
         if (entry != null) {
             final IHistoricalCacheQueryElementFilter<V> elementFilter = query.getElementFilter();
             if (elementFilter != null && !(elementFilter instanceof DisabledHistoricalCacheQueryElementFilter)) {
@@ -163,7 +163,7 @@ public class DefaultHistoricalCacheQueryCore<V> implements IHistoricalCacheQuery
                     entry = null;
                     //try earlier dates to find a valid element
                     final FDate previousKey = parent.calculatePreviousKey(entryKey);
-                    final Entry<FDate, V> previousEntry = parent.computeValue(previousKey);
+                    final IHistoricalEntry<V> previousEntry = parent.computeValue(previousKey);
                     if (previousEntry == null) {
                         break;
                     }

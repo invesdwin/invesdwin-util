@@ -1,10 +1,9 @@
 package de.invesdwin.util.collections.loadingcache.historical.query.internal.adjust;
 
-import java.util.Map.Entry;
-
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
+import de.invesdwin.util.collections.loadingcache.historical.IHistoricalEntry;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQueryElementFilter;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQueryWithFuture;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.HistoricalCacheQueryWithFuture;
@@ -57,7 +56,7 @@ public class AdjustingHistoricalCacheQueryWithFuture<V> extends AdjustingHistori
     }
 
     @Override
-    public Entry<FDate, V> getNextEntry(final FDate key, final int shiftForwardUnits) {
+    public IHistoricalEntry<V> getNextEntry(final FDate key, final int shiftForwardUnits) {
         return delegate.getNextEntry(adjustKey(key), shiftForwardUnits);
     }
 
@@ -67,7 +66,7 @@ public class AdjustingHistoricalCacheQueryWithFuture<V> extends AdjustingHistori
     }
 
     @Override
-    public ICloseableIterable<Entry<FDate, V>> getNextEntries(final FDate key, final int shiftForwardUnits) {
+    public ICloseableIterable<IHistoricalEntry<V>> getNextEntries(final FDate key, final int shiftForwardUnits) {
         return delegate.getNextEntries(adjustKey(key), shiftForwardUnits);
     }
 

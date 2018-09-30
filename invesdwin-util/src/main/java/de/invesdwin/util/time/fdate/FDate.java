@@ -23,6 +23,8 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 import de.invesdwin.norva.marker.IDate;
+import de.invesdwin.util.collections.loadingcache.historical.IHistoricalEntry;
+import de.invesdwin.util.collections.loadingcache.historical.IHistoricalValue;
 import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.lang.ADelegateComparator;
 import de.invesdwin.util.lang.Strings;
@@ -34,7 +36,7 @@ import de.invesdwin.util.time.duration.Duration;
  * FDate stands for an immutable Fast Date implementation by utilizing heavy caching.
  */
 @ThreadSafe
-public class FDate implements IDate, Serializable, Cloneable, Comparable<Object> {
+public class FDate implements IDate, Serializable, Cloneable, Comparable<Object>, IHistoricalValue<FDate> {
 
     public static final ADelegateComparator<FDate> COMPARATOR = new ADelegateComparator<FDate>() {
         @Override
@@ -701,6 +703,22 @@ public class FDate implements IDate, Serializable, Cloneable, Comparable<Object>
     @Deprecated
     public void setExtension(final FDate extension) {
         this.extension = extension;
+    }
+
+    @Override
+    public IHistoricalEntry<FDate> asHistoricalEntry() {
+        return new IHistoricalEntry<FDate>() {
+
+            @Override
+            public FDate getValue() {
+                return FDate.this;
+            }
+
+            @Override
+            public FDate getKey() {
+                return FDate.this;
+            }
+        };
     }
 
 }

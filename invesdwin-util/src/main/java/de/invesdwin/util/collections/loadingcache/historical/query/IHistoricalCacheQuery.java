@@ -1,8 +1,7 @@
 package de.invesdwin.util.collections.loadingcache.historical.query;
 
-import java.util.Map.Entry;
-
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
+import de.invesdwin.util.collections.loadingcache.historical.IHistoricalEntry;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.IHistoricalCacheQueryInternalMethods;
 import de.invesdwin.util.time.fdate.FDate;
 
@@ -20,11 +19,11 @@ public interface IHistoricalCacheQuery<V> extends IHistoricalCacheQueryInternalM
 
     IHistoricalCacheQueryWithFuture<V> withFuture();
 
-    Entry<FDate, V> getEntry(FDate key);
+    IHistoricalEntry<V> getEntry(FDate key);
 
     V getValue(FDate key);
 
-    ICloseableIterable<Entry<FDate, V>> getEntries(Iterable<FDate> keys);
+    ICloseableIterable<IHistoricalEntry<V>> getEntries(Iterable<FDate> keys);
 
     ICloseableIterable<V> getValues(Iterable<FDate> keys);
 
@@ -49,7 +48,7 @@ public interface IHistoricalCacheQuery<V> extends IHistoricalCacheQueryInternalM
      * 
      * index 0 is the current value (below or equal to key), index 1 the previous value and so on
      */
-    Entry<FDate, V> getPreviousEntry(FDate key, int shiftBackUnits);
+    IHistoricalEntry<V> getPreviousEntry(FDate key, int shiftBackUnits);
 
     /**
      * key is inclusive
@@ -61,7 +60,7 @@ public interface IHistoricalCacheQuery<V> extends IHistoricalCacheQueryInternalM
     /**
      * key is inclusive
      */
-    ICloseableIterable<Entry<FDate, V>> getPreviousEntries(FDate key, int shiftBackUnits);
+    ICloseableIterable<IHistoricalEntry<V>> getPreviousEntries(FDate key, int shiftBackUnits);
 
     /**
      * key is inclusive
@@ -76,7 +75,7 @@ public interface IHistoricalCacheQuery<V> extends IHistoricalCacheQueryInternalM
     /**
      * from and to are inclusive
      */
-    ICloseableIterable<Entry<FDate, V>> getEntries(FDate from, FDate to);
+    ICloseableIterable<IHistoricalEntry<V>> getEntries(FDate from, FDate to);
 
     /**
      * from and to are inclusive
@@ -96,7 +95,7 @@ public interface IHistoricalCacheQuery<V> extends IHistoricalCacheQueryInternalM
     /**
      * from and to are inclusive
      */
-    Entry<FDate, V> getPreviousEntryWithSameValueBetween(FDate from, FDate to, V value);
+    IHistoricalEntry<V> getPreviousEntryWithSameValueBetween(FDate from, FDate to, V value);
 
     /**
      * from and to are inclusive
@@ -111,7 +110,7 @@ public interface IHistoricalCacheQuery<V> extends IHistoricalCacheQueryInternalM
     /**
      * from and to are inclusive
      */
-    Entry<FDate, V> getPreviousEntryWithDifferentValueBetween(FDate from, FDate to, V value);
+    IHistoricalEntry<V> getPreviousEntryWithDifferentValueBetween(FDate from, FDate to, V value);
 
     /**
      * key is inclusive
@@ -126,7 +125,7 @@ public interface IHistoricalCacheQuery<V> extends IHistoricalCacheQueryInternalM
     /**
      * key is inclusive
      */
-    Entry<FDate, V> getPreviousEntryWithSameValue(FDate key, int maxShiftBackUnits, V value);
+    IHistoricalEntry<V> getPreviousEntryWithSameValue(FDate key, int maxShiftBackUnits, V value);
 
     /**
      * key is inclusive
@@ -141,7 +140,7 @@ public interface IHistoricalCacheQuery<V> extends IHistoricalCacheQueryInternalM
     /**
      * key is inclusive
      */
-    Entry<FDate, V> getPreviousEntryWithDifferentValue(FDate key, int maxShiftBackUnits, V value);
+    IHistoricalEntry<V> getPreviousEntryWithDifferentValue(FDate key, int maxShiftBackUnits, V value);
 
     @SuppressWarnings("rawtypes")
     void copyQuerySettings(IHistoricalCacheQuery copyFrom);
@@ -151,7 +150,7 @@ public interface IHistoricalCacheQuery<V> extends IHistoricalCacheQueryInternalM
     /**
      * This method bypasses the cache and directly computes the entry.
      */
-    Entry<FDate, V> computeEntry(FDate key);
+    IHistoricalEntry<V> computeEntry(FDate key);
 
     /**
      * This method bypasses the cache and directly computes the key.

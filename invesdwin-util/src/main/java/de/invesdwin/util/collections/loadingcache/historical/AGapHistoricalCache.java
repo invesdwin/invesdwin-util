@@ -4,7 +4,6 @@ import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.assertions.Assertions;
-import de.invesdwin.util.bean.tuple.ImmutableEntry;
 import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
 import de.invesdwin.util.collections.loadingcache.historical.internal.AGapHistoricalCacheMissCounter;
 import de.invesdwin.util.collections.loadingcache.historical.key.IHistoricalCacheAdjustKeyProvider;
@@ -208,10 +207,12 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
         if (maxKeyInDB == null || force || alreadyAdjustingKey) {
             final V maxValue = readNewestValueFromDB(maxKey());
             if (maxValue != null) {
-                final FDate maxValueKey = extractKey(null, maxValue);
+                final IHistoricalEntry<V> maxValueEntry = ImmutableHistoricalEntry.maybeExtractKey(this, null,
+                        maxValue);
+                final FDate maxValueKey = maxValueEntry.getKey();
                 if (maxKeyInDB == null || maxValueKey.compareTo(maxKeyInDB) >= 1) {
                     maxKeyInDB = maxValueKey;
-                    getValuesMap().put(maxValueKey, ImmutableEntry.of(maxValueKey, maxValue));
+                    getValuesMap().put(maxValueKey, maxValueEntry);
                     return true;
                 }
             }
@@ -223,11 +224,13 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
         if (minKeyInDB == null || force) {
             final V minValue = readNewestValueFromDB(minKey());
             if (minValue != null) {
-                final FDate minValueKey = extractKey(null, minValue);
+                final IHistoricalEntry<V> minValueEntry = ImmutableHistoricalEntry.maybeExtractKey(this, null,
+                        minValue);
+                final FDate minValueKey = minValueEntry.getKey();
                 //min key must be kept intact if all values have been loaded from a later key
                 if (minKeyInDB == null || minValueKey.compareTo(minKeyInDB) <= -1) {
                     minKeyInDB = minValueKey;
-                    getValuesMap().put(minValueKey, ImmutableEntry.of(minValueKey, minValue));
+                    getValuesMap().put(minValueKey, minValueEntry);
                     return true;
                 }
             }
@@ -523,8 +526,8 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
         if (value != null) {
             //we remember the db key of the value so that it can be found again later
             //to use the parameter key would make the result incorrect
-            final FDate valueKey = extractKey(null, value);
-            getValuesMap().put(valueKey, ImmutableEntry.of(valueKey, value));
+            final IHistoricalEntry<V> valueEntry = ImmutableHistoricalEntry.maybeExtractKey(this, null, value);
+            getValuesMap().put(valueEntry.getKey(), valueEntry);
             return value;
         } else {
             return null;

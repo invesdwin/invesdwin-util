@@ -16,7 +16,6 @@ import org.assertj.core.description.TextDescription;
 import com.github.benmanes.caffeine.cache.Caffeine;
 
 import de.invesdwin.util.assertions.Assertions;
-import de.invesdwin.util.bean.tuple.ImmutableEntry;
 import de.invesdwin.util.collections.concurrent.AFastIterableDelegateList;
 import de.invesdwin.util.collections.eviction.EvictionMode;
 import de.invesdwin.util.collections.loadingcache.ADelegateLoadingCache;
@@ -76,30 +75,26 @@ public abstract class AHistoricalCache<V>
     private volatile Integer maximumSize = getInitialMaximumSize();
     private IHistoricalCacheShiftKeyProvider shiftKeyProvider = new InnerHistoricalCacheShiftKeyProvider();
     private IHistoricalCacheExtractKeyProvider<V> extractKeyProvider = new InnerHistoricalCacheExtractKeyProvider();
-    private final ILoadingCache<FDate, Entry<FDate, V>> valuesMap = new ADelegateLoadingCache<FDate, Entry<FDate, V>>() {
+    private final ILoadingCache<FDate, IHistoricalEntry<V>> valuesMap = new ADelegateLoadingCache<FDate, IHistoricalEntry<V>>() {
 
         @Override
-        public Entry<FDate, V> get(final FDate key) {
+        public IHistoricalEntry<V> get(final FDate key) {
             invokeRefreshIfRequested();
             return super.get(key);
         }
 
         @Override
-        protected ILoadingCache<FDate, Entry<FDate, V>> createDelegate() {
+        protected ILoadingCache<FDate, IHistoricalEntry<V>> createDelegate() {
             final Integer size = getMaximumSize();
             if (size == null || size > 0) {
                 Assertions.checkTrue(HistoricalCacheRefreshManager.register(AHistoricalCache.this));
             }
-            return newLoadingCacheProvider(new Function<FDate, Entry<FDate, V>>() {
+            return newLoadingCacheProvider(new Function<FDate, IHistoricalEntry<V>>() {
                 @Override
-                public Entry<FDate, V> apply(final FDate key) {
+                public IHistoricalEntry<V> apply(final FDate key) {
                     try {
                         final V value = AHistoricalCache.this.loadValue(key);
-                        if (value == null) {
-                            return null;
-                        }
-                        final FDate valueKey = extractKey(key, value);
-                        return ImmutableEntry.of(valueKey, value);
+                        return ImmutableHistoricalEntry.maybeExtractKey(AHistoricalCache.this, key, value);
                     } catch (final Throwable t) {
                         throw new RuntimeException("At: " + AHistoricalCache.this.toString(), t);
                     }
@@ -331,6 +326,18 @@ public abstract class AHistoricalCache<V>
      * Should return the key if the value does not contain a key itself.
      */
     public final FDate extractKey(final FDate key, final V value) {
+        if (value instanceof IHistoricalEntry) {
+            final IHistoricalEntry<?> cValue = (IHistoricalEntry<?>) value;
+            return cValue.getKey();
+        }
+        if (value instanceof IHistoricalValue) {
+            final IHistoricalValue<?> cValue = (IHistoricalValue<?>) value;
+            return cValue.asHistoricalEntry().getKey();
+        }
+        return extractKeyNoCasting(key, value);
+    }
+
+    FDate extractKeyNoCasting(final FDate key, final V value) {
         FDate extractedKey = extractKeyProvider.extractKey(key, value);
         if (key != null && key.equalsNotNullSafe(extractedKey)) {
             extractedKey = key;
@@ -471,7 +478,7 @@ public abstract class AHistoricalCache<V>
         return new HistoricalCachePreviousKeysQueryInterceptorSupport();
     }
 
-    protected ILoadingCache<FDate, Entry<FDate, V>> getValuesMap() {
+    protected ILoadingCache<FDate, IHistoricalEntry<V>> getValuesMap() {
         return valuesMap;
     }
 
@@ -505,7 +512,7 @@ public abstract class AHistoricalCache<V>
         }
 
         @Override
-        public ILoadingCache<FDate, Entry<FDate, V>> getValuesMap() {
+        public ILoadingCache<FDate, IHistoricalEntry<V>> getValuesMap() {
             return AHistoricalCache.this.getValuesMap();
         }
 
@@ -545,13 +552,9 @@ public abstract class AHistoricalCache<V>
         }
 
         @Override
-        public Entry<FDate, V> computeValue(final FDate key) {
+        public IHistoricalEntry<V> computeValue(final FDate key) {
             final V value = AHistoricalCache.this.loadValue(key);
-            if (value == null) {
-                return null;
-            }
-            final FDate valueKey = extractKey(key, value);
-            return ImmutableEntry.of(valueKey, value);
+            return ImmutableHistoricalEntry.maybeExtractKey(AHistoricalCache.this, key, value);
         }
 
         @Override
@@ -793,7 +796,7 @@ public abstract class AHistoricalCache<V>
                             "%s: previousKey [%s] <= nextKey [%s] not matched", this, previousKey, nextKey).toString());
                 }
             }
-            getValuesMap().put(valueKey, ImmutableEntry.of(valueKey, value));
+            getValuesMap().put(valueKey, ImmutableHistoricalEntry.of(valueKey, value));
             if (previousKey != null) {
                 putPrevious(previousKey, value, valueKey, notifyPutListeners);
             }

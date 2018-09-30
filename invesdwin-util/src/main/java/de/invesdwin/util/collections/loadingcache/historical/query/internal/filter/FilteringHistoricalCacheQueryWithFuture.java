@@ -1,11 +1,10 @@
 package de.invesdwin.util.collections.loadingcache.historical.query.internal.filter;
 
-import java.util.Map.Entry;
-
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
+import de.invesdwin.util.collections.loadingcache.historical.IHistoricalEntry;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQueryElementFilter;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQueryWithFuture;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.HistoricalCacheAssertValue;
@@ -68,13 +67,13 @@ public class FilteringHistoricalCacheQueryWithFuture<V> extends FilteringHistori
 
     @Override
     public V getNextValue(final FDate key, final int shiftForwardUnits) {
-        final Entry<FDate, V> result = getNextEntry(key, shiftForwardUnits);
+        final IHistoricalEntry<V> result = getNextEntry(key, shiftForwardUnits);
         return HistoricalCacheAssertValue.unwrapEntryValue(result);
     }
 
     @Override
-    public Entry<FDate, V> getNextEntry(final FDate key, final int shiftForwardUnits) {
-        final Entry<FDate, V> curEntry = getEntry(key);
+    public IHistoricalEntry<V> getNextEntry(final FDate key, final int shiftForwardUnits) {
+        final IHistoricalEntry<V> curEntry = getEntry(key);
         if (curEntry == null) {
             return null;
         }
@@ -87,7 +86,7 @@ public class FilteringHistoricalCacheQueryWithFuture<V> extends FilteringHistori
             }
             adjShiftForwardUnits = shiftForwardUnits;
         }
-        final Entry<FDate, V> result = delegate.getNextEntry(curEntry.getKey(), adjShiftForwardUnits);
+        final IHistoricalEntry<V> result = delegate.getNextEntry(curEntry.getKey(), adjShiftForwardUnits);
         if (result == null || result.getKey().isBefore(key)) {
             return null;
         } else {
@@ -102,10 +101,10 @@ public class FilteringHistoricalCacheQueryWithFuture<V> extends FilteringHistori
             public ICloseableIterator<V> iterator() {
                 return new ICloseableIterator<V>() {
 
-                    private final ICloseableIterator<Entry<FDate, V>> entriesIterator;
+                    private final ICloseableIterator<IHistoricalEntry<V>> entriesIterator;
 
                     {
-                        final ICloseableIterable<Entry<FDate, V>> entries = getNextEntries(key, shiftForwardUnits);
+                        final ICloseableIterable<IHistoricalEntry<V>> entries = getNextEntries(key, shiftForwardUnits);
                         entriesIterator = entries.iterator();
                     }
 
@@ -154,8 +153,8 @@ public class FilteringHistoricalCacheQueryWithFuture<V> extends FilteringHistori
     }
 
     @Override
-    public ICloseableIterable<Entry<FDate, V>> getNextEntries(final FDate key, final int shiftForwardUnits) {
-        final Entry<FDate, V> curEntry = getEntry(key);
+    public ICloseableIterable<IHistoricalEntry<V>> getNextEntries(final FDate key, final int shiftForwardUnits) {
+        final IHistoricalEntry<V> curEntry = getEntry(key);
         if (curEntry == null) {
             return null;
         }
@@ -165,11 +164,11 @@ public class FilteringHistoricalCacheQueryWithFuture<V> extends FilteringHistori
         } else {
             adjShiftForwardUnits = shiftForwardUnits;
         }
-        final ICloseableIterable<Entry<FDate, V>> result = delegate.getNextEntries(curEntry.getKey(),
+        final ICloseableIterable<IHistoricalEntry<V>> result = delegate.getNextEntries(curEntry.getKey(),
                 adjShiftForwardUnits);
-        return new AFilterSkippingIterable<Entry<FDate, V>>(result) {
+        return new AFilterSkippingIterable<IHistoricalEntry<V>>(result) {
             @Override
-            protected boolean skip(final Entry<FDate, V> element) {
+            protected boolean skip(final IHistoricalEntry<V> element) {
                 return element.getKey().isBefore(key);
             }
         };

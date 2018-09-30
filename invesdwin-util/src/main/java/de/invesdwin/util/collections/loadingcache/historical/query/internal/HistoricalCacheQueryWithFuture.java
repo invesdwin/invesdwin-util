@@ -1,11 +1,10 @@
 package de.invesdwin.util.collections.loadingcache.historical.query.internal;
 
-import java.util.Map.Entry;
-
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
+import de.invesdwin.util.collections.loadingcache.historical.IHistoricalEntry;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQuery;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQueryElementFilter;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQueryWithFuture;
@@ -64,7 +63,7 @@ public class HistoricalCacheQueryWithFuture<V> extends HistoricalCacheQuery<V>
             @Override
             public ICloseableIterator<FDate> iterator() {
                 return new ICloseableIterator<FDate>() {
-                    private final ICloseableIterator<Entry<FDate, V>> nextEntries = getNextEntries(key,
+                    private final ICloseableIterator<IHistoricalEntry<V>> nextEntries = getNextEntries(key,
                             shiftForwardUnits).iterator();
 
                     @Override
@@ -87,7 +86,7 @@ public class HistoricalCacheQueryWithFuture<V> extends HistoricalCacheQuery<V>
     }
 
     @Override
-    public Entry<FDate, V> getNextEntry(final FDate key, final int shiftForwardUnits) {
+    public IHistoricalEntry<V> getNextEntry(final FDate key, final int shiftForwardUnits) {
         assertShiftUnitsPositive(shiftForwardUnits);
         return core.getNextEntry(this, key, shiftForwardUnits);
     }
@@ -99,7 +98,7 @@ public class HistoricalCacheQueryWithFuture<V> extends HistoricalCacheQuery<V>
     }
 
     @Override
-    public ICloseableIterable<Entry<FDate, V>> getNextEntries(final FDate key, final int shiftForwardUnits) {
+    public ICloseableIterable<IHistoricalEntry<V>> getNextEntries(final FDate key, final int shiftForwardUnits) {
         assertShiftUnitsPositiveNonZero(shiftForwardUnits);
         return core.getNextEntries(this, key, shiftForwardUnits);
     }
@@ -111,7 +110,7 @@ public class HistoricalCacheQueryWithFuture<V> extends HistoricalCacheQuery<V>
             @Override
             public ICloseableIterator<V> iterator() {
                 return new ICloseableIterator<V>() {
-                    private final ICloseableIterator<Entry<FDate, V>> nextEntries = getNextEntries(key,
+                    private final ICloseableIterator<IHistoricalEntry<V>> nextEntries = getNextEntries(key,
                             shiftForwardUnits).iterator();
 
                     @Override

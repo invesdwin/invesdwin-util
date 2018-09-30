@@ -1,9 +1,8 @@
 package de.invesdwin.util.collections.loadingcache.historical.query.internal.core.impl;
 
-import java.util.Map.Entry;
-
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.util.collections.loadingcache.historical.IHistoricalEntry;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.HistoricalCacheAssertValue;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.IHistoricalCacheQueryCore;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.IHistoricalCacheQueryInternalMethods;
@@ -15,7 +14,7 @@ public class GetPreviousEntryQueryImpl<V> {
     private final IHistoricalCacheQueryCore<V> core;
     private final FDate key;
     private FDate previousKey = null;
-    private Entry<FDate, V> previousEntry = null;
+    private IHistoricalEntry<V> previousEntry = null;
     private int iterations = 0;
     private final int shiftBackUnits;
     private final IHistoricalCacheQueryInternalMethods<V> query;
@@ -53,9 +52,9 @@ public class GetPreviousEntryQueryImpl<V> {
                     return true;
                 }
                 //the key of the value is the relevant one
-                final Entry<FDate, V> potentialPreviousPreviousEntry = core.getEntry(query, previousPreviousKey,
+                final IHistoricalEntry<V> potentialPreviousPreviousEntry = core.getEntry(query, previousPreviousKey,
                         HistoricalCacheAssertValue.ASSERT_VALUE_WITH_FUTURE);
-                final Entry<FDate, V> previousPreviousEntry;
+                final IHistoricalEntry<V> previousPreviousEntry;
                 if (potentialPreviousPreviousEntry != null) {
                     previousPreviousEntry = query.getAssertValue().assertValue(core.getParent(), key,
                             potentialPreviousPreviousEntry);
@@ -85,7 +84,7 @@ public class GetPreviousEntryQueryImpl<V> {
         return true;
     }
 
-    public Entry<FDate, V> getResult() {
+    public IHistoricalEntry<V> getResult() {
         return previousEntry;
     }
 
