@@ -47,14 +47,4 @@ public final class DelegateHistoricalCacheExtractKeyProvider<V> implements IHist
         }
     }
 
-    @Override
-    public int hashCode() {
-        return delegate.getExtractKeyProvider().hashCode();
-    }
-
-    @Override
-    public boolean equals(final Object obj) {
-        return delegate.equals(obj);
-    }
-
 }

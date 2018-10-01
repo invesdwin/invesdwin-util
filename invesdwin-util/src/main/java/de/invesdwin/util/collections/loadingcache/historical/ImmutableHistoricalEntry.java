@@ -55,7 +55,7 @@ public final class ImmutableHistoricalEntry<T> implements IHistoricalEntry<T> {
             final IHistoricalValue<T> cValue = (IHistoricalValue<T>) value;
             return (IHistoricalEntry<T>) cValue.asHistoricalEntry();
         } else {
-            final FDate valueKey = parent.extractKey(key, value);
+            final FDate valueKey = parent.extractKeyNoCasting(key, value);
             return ImmutableHistoricalEntry.of(valueKey, value);
         }
     }

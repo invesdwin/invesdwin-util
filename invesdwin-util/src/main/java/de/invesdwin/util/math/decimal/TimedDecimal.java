@@ -3,12 +3,10 @@ package de.invesdwin.util.math.decimal;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.assertions.Assertions;
-import de.invesdwin.util.collections.loadingcache.historical.IHistoricalEntry;
-import de.invesdwin.util.collections.loadingcache.historical.IHistoricalValue;
 import de.invesdwin.util.time.fdate.FDate;
 
 @Immutable
-public class TimedDecimal extends Decimal implements IHistoricalValue<TimedDecimal> {
+public class TimedDecimal extends Decimal {
 
     private final FDate time;
 
@@ -20,22 +18,6 @@ public class TimedDecimal extends Decimal implements IHistoricalValue<TimedDecim
 
     public FDate getTime() {
         return time;
-    }
-
-    @Override
-    public IHistoricalEntry<? extends TimedDecimal> asHistoricalEntry() {
-        return new IHistoricalEntry<TimedDecimal>() {
-
-            @Override
-            public FDate getKey() {
-                return TimedDecimal.this.getTime();
-            }
-
-            @Override
-            public TimedDecimal getValue() {
-                return TimedDecimal.this;
-            }
-        };
     }
 
 }

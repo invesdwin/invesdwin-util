@@ -154,7 +154,7 @@ public class DefaultHistoricalCacheQueryCore<V> implements IHistoricalCacheQuery
     @Override
     public IHistoricalEntry<V> computeEntry(final HistoricalCacheQuery<V> query, final FDate key,
             final HistoricalCacheAssertValue assertValue) {
-        IHistoricalEntry<V> entry = parent.computeEntry(key);
+        IHistoricalEntry<V> entry = parent.computeValue(key);
         if (entry != null) {
             final IHistoricalCacheQueryElementFilter<V> elementFilter = query.getElementFilter();
             if (elementFilter != null && !(elementFilter instanceof DisabledHistoricalCacheQueryElementFilter)) {
@@ -163,7 +163,7 @@ public class DefaultHistoricalCacheQueryCore<V> implements IHistoricalCacheQuery
                     entry = null;
                     //try earlier dates to find a valid element
                     final FDate previousKey = parent.calculatePreviousKey(entryKey);
-                    final IHistoricalEntry<V> previousEntry = parent.computeEntry(previousKey);
+                    final IHistoricalEntry<V> previousEntry = parent.computeValue(previousKey);
                     if (previousEntry == null) {
                         break;
                     }
