@@ -19,6 +19,12 @@ public class AdjustedFDate extends IndexedFDate {
         if (key == null) {
             return null;
         }
+        if (key instanceof AdjustedFDate) {
+            final AdjustedFDate cKey = (AdjustedFDate) key;
+            if (cKey.adjustKeyProviderIdentityHashCode == adjustKeyProvider.hashCode()) {
+                return cKey;
+            }
+        }
         return new AdjustedFDate(adjustKeyProvider, key);
     }
 

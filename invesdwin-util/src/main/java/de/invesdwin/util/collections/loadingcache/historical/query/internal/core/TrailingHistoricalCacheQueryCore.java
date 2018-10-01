@@ -473,7 +473,6 @@ public class TrailingHistoricalCacheQueryCore<V> extends ACachedEntriesHistorica
         }
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
     public void putPreviousKey(final FDate previousKey, final FDate valueKey) {
         if (!cachedQueryActiveLock.tryLock()) {
@@ -484,19 +483,19 @@ public class TrailingHistoricalCacheQueryCore<V> extends ACachedEntriesHistorica
                 return;
             }
             if (cachedPreviousEntries.isEmpty()) {
-                final IHistoricalEntry<V> newEntry = getParent().computeValue(valueKey);
+                final IHistoricalEntry<V> newEntry = getParent().computeEntry(valueKey);
                 putPrevious(previousKey, newEntry.getValue(), newEntry.getKey());
                 return;
             }
             final IHistoricalEntry<V> lastEntry = getLastCachedEntry();
             if (!lastEntry.getKey().equalsNotNullSafe(previousKey)) {
                 if (lastEntry.getKey().isBeforeNotNullSafe(previousKey)) {
-                    final IHistoricalEntry<V> newEntry = getParent().computeValue(valueKey);
+                    final IHistoricalEntry<V> newEntry = getParent().computeEntry(valueKey);
                     putPrevious(previousKey, newEntry.getValue(), newEntry.getKey());
                 }
                 return;
             }
-            final IHistoricalEntry<V> newEntry = getParent().computeValue(valueKey);
+            final IHistoricalEntry<V> newEntry = getParent().computeEntry(valueKey);
             getParent().getPutProvider().put(newEntry, lastEntry, true);
         } catch (final ResetCacheException e) {
             //should not happen here
