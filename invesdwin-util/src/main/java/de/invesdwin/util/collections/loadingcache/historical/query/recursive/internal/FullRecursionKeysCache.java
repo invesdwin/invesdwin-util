@@ -24,7 +24,7 @@ final class FullRecursionKeysCache extends AHistoricalCache<FullRecursionKeysRes
 
             @Override
             protected FullRecursionKeysResult getInitialValue(final FDate previousKey) {
-                return new FullRecursionKeysResult(previousKey, fullRecursionCount, parentQueryWithFutureNull)
+                return new FullRecursionKeysResult(previousKey, fullRecursionCount, parent, parentQueryWithFutureNull)
                         .maybeInit();
             }
 
@@ -40,7 +40,7 @@ final class FullRecursionKeysCache extends AHistoricalCache<FullRecursionKeysRes
     protected FullRecursionKeysResult loadValue(final FDate key) {
         final FDate previousKey = parentQueryWithFutureNull.getPreviousKey(key, 1);
         if (previousKey == null) {
-            return new FullRecursionKeysResult(key, fullRecursionCount, parentQueryWithFutureNull);
+            return new FullRecursionKeysResult(key, fullRecursionCount, parent, parentQueryWithFutureNull);
         } else {
             final FullRecursionKeysResult previousValue = recursiveQuery.getPreviousValue(key, previousKey);
             return previousValue.pushToNext(key);

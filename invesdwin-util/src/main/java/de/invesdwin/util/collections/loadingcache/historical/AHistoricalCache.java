@@ -571,7 +571,10 @@ public abstract class AHistoricalCache<V>
 
         @Override
         public FDate extractKey(final FDate key, final V value) {
-            return innerExtractKey(key, value);
+            final FDate innerExtractKey = innerExtractKey(key, value);
+            final IndexedFDate indexed = IndexedFDate.maybeWrap(innerExtractKey);
+            indexed.putExtractedKey(extractKeyProvider, adjustKeyProvider);
+            return indexed;
         }
 
         @Override

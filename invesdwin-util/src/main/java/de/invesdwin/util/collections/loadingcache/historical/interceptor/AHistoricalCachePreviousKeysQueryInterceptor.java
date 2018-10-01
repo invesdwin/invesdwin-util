@@ -5,7 +5,6 @@ import java.util.Optional;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
-import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQuery;
 import de.invesdwin.util.time.fdate.FDate;
 
@@ -15,8 +14,8 @@ public abstract class AHistoricalCachePreviousKeysQueryInterceptor
 
     private final IHistoricalCacheQuery<?> parentQuery;
 
-    public AHistoricalCachePreviousKeysQueryInterceptor(final AHistoricalCache<?> parent) {
-        this.parentQuery = parent.query();
+    public AHistoricalCachePreviousKeysQueryInterceptor(final IHistoricalCacheQuery<?> parentQuery) {
+        this.parentQuery = parentQuery;
     }
 
     @Override

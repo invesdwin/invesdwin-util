@@ -5,6 +5,8 @@ import java.util.Map.Entry;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
+import de.invesdwin.util.collections.loadingcache.historical.IHistoricalEntry;
+import de.invesdwin.util.collections.loadingcache.historical.IHistoricalValue;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQueryWithFuture;
 import de.invesdwin.util.time.fdate.FDate;
 
@@ -21,14 +23,28 @@ public final class DelegateHistoricalCacheExtractKeyProvider<V> implements IHist
 
     @Override
     public FDate extractKey(final FDate key, final V value) {
-        //might be a value key we got inside here which would obviouls already be adjusted
-        final FDate adjKey = delegate.getAdjustKeyProvider().newAlreadyAdjustedKey(key);
-        final Entry<FDate, Object> shiftKeysEntry = delegateQueryWithFuture.getEntry(adjKey);
-        if (shiftKeysEntry != null) {
-            return shiftKeysEntry.getKey();
+        FDate extractedKey;
+        if (value instanceof IHistoricalEntry) {
+            final IHistoricalEntry<?> cValue = (IHistoricalEntry<?>) value;
+            extractedKey = cValue.getKey();
+        } else if (value instanceof IHistoricalValue) {
+            final IHistoricalValue<?> cValue = (IHistoricalValue<?>) value;
+            extractedKey = cValue.asHistoricalEntry().getKey();
         } else {
-            return key;
+            //might be a value key we got inside here which would obviously already be adjusted
+            final FDate adjKey = delegate.getAdjustKeyProvider().newAlreadyAdjustedKey(key);
+            final Entry<FDate, Object> shiftKeysEntry = delegateQueryWithFuture.getEntry(adjKey);
+            if (shiftKeysEntry != null) {
+                extractedKey = shiftKeysEntry.getKey();
+            } else {
+                return adjKey;
+            }
         }
+        if (extractedKey.equalsNotNullSafe(key)) {
+            extractedKey = key;
+        }
+        extractedKey = delegate.getAdjustKeyProvider().newAlreadyAdjustedKey(extractedKey);
+        return extractedKey;
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })

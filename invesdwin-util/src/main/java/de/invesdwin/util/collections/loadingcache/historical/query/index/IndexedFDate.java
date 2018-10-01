@@ -2,8 +2,6 @@ package de.invesdwin.util.collections.loadingcache.historical.query.index;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import de.invesdwin.util.collections.loadingcache.historical.IHistoricalEntry;
-import de.invesdwin.util.collections.loadingcache.historical.IHistoricalValue;
 import de.invesdwin.util.collections.loadingcache.historical.key.IHistoricalCacheAdjustKeyProvider;
 import de.invesdwin.util.time.fdate.FDate;
 
@@ -24,6 +22,8 @@ public class IndexedFDate extends FDate {
             this.indexFalse = indexedKey.indexFalse;
             this.indexTrue = indexedKey.indexTrue;
             this.indexesRoundRobin = indexedKey.indexesRoundRobin;
+            this.extractKeyProviderHashCode = indexedKey.extractKeyProviderHashCode;
+            this.extractKeyProviderExtractedKey = indexedKey.extractKeyProviderExtractedKey;
         } else {
             key.setExtension(this);
             this.indexesRoundRobin = true;
@@ -120,25 +120,22 @@ public class IndexedFDate extends FDate {
     public <V> FDate maybeExtractKey(
             final de.invesdwin.util.collections.loadingcache.historical.key.internal.IHistoricalCacheExtractKeyProvider<V> extractKeyProvider,
             final IHistoricalCacheAdjustKeyProvider adjustKeyProvider, final V value) {
-
         final int identityHashCode = extractKeyProvider.hashCode();
         if (identityHashCode != extractKeyProviderHashCode) {
-            if (value instanceof IHistoricalEntry) {
-                final IHistoricalEntry<?> cValue = (IHistoricalEntry<?>) value;
-                extractKeyProviderExtractedKey = cValue.getKey();
-            } else if (value instanceof IHistoricalValue) {
-                final IHistoricalValue<?> cValue = (IHistoricalValue<?>) value;
-                extractKeyProviderExtractedKey = cValue.asHistoricalEntry().getKey();
-            } else {
-                extractKeyProviderExtractedKey = extractKeyProvider.extractKey(this, value);
-            }
-            if (extractKeyProviderExtractedKey.equalsNotNullSafe(this)) {
-                extractKeyProviderExtractedKey = this;
-            }
-            extractKeyProviderExtractedKey = adjustKeyProvider.maybeAdjustKey(extractKeyProviderExtractedKey);
+            extractKeyProviderExtractedKey = extractKeyProvider.extractKey(this, value);
             extractKeyProviderHashCode = identityHashCode;
         }
         return extractKeyProviderExtractedKey;
+    }
+
+    public void putExtractedKey(
+            final de.invesdwin.util.collections.loadingcache.historical.key.internal.IHistoricalCacheExtractKeyProvider<?> extractKeyProvider,
+            final IHistoricalCacheAdjustKeyProvider adjustKeyProvider) {
+        final int identityHashCode = extractKeyProvider.hashCode();
+        if (extractKeyProviderHashCode != identityHashCode) {
+            extractKeyProviderHashCode = identityHashCode;
+            extractKeyProviderExtractedKey = adjustKeyProvider.newAlreadyAdjustedKey(this);
+        }
     }
 
 }
