@@ -2,6 +2,9 @@ package de.invesdwin.util.collections.loadingcache.historical.query.index;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.util.collections.loadingcache.historical.IHistoricalEntry;
+import de.invesdwin.util.collections.loadingcache.historical.IHistoricalValue;
+import de.invesdwin.util.collections.loadingcache.historical.key.IHistoricalCacheAdjustKeyProvider;
 import de.invesdwin.util.time.fdate.FDate;
 
 @NotThreadSafe
@@ -10,6 +13,8 @@ public class IndexedFDate extends FDate {
     private IdentityQueryCoreIndex indexFalse;
     private IdentityQueryCoreIndex indexTrue;
     private boolean indexesRoundRobin;
+    private int extractKeyProviderHashCode = 0;
+    private FDate extractKeyProviderExtractedKey;
 
     @SuppressWarnings("deprecation")
     public IndexedFDate(final FDate key) {
@@ -110,6 +115,30 @@ public class IndexedFDate extends FDate {
             return true;
         }
         return false;
+    }
+
+    public <V> FDate maybeExtractKey(
+            final de.invesdwin.util.collections.loadingcache.historical.key.internal.IHistoricalCacheExtractKeyProvider<V> extractKeyProvider,
+            final IHistoricalCacheAdjustKeyProvider adjustKeyProvider, final V value) {
+
+        final int identityHashCode = extractKeyProvider.hashCode();
+        if (identityHashCode != extractKeyProviderHashCode) {
+            if (value instanceof IHistoricalEntry) {
+                final IHistoricalEntry<?> cValue = (IHistoricalEntry<?>) value;
+                extractKeyProviderExtractedKey = cValue.getKey();
+            } else if (value instanceof IHistoricalValue) {
+                final IHistoricalValue<?> cValue = (IHistoricalValue<?>) value;
+                extractKeyProviderExtractedKey = cValue.asHistoricalEntry().getKey();
+            } else {
+                extractKeyProviderExtractedKey = extractKeyProvider.extractKey(this, value);
+            }
+            if (extractKeyProviderExtractedKey.equalsNotNullSafe(this)) {
+                extractKeyProviderExtractedKey = this;
+            }
+            extractKeyProviderExtractedKey = adjustKeyProvider.maybeAdjustKey(extractKeyProviderExtractedKey);
+            extractKeyProviderHashCode = identityHashCode;
+        }
+        return extractKeyProviderExtractedKey;
     }
 
 }

@@ -37,6 +37,7 @@ import de.invesdwin.util.collections.loadingcache.historical.listener.IHistorica
 import de.invesdwin.util.collections.loadingcache.historical.listener.IHistoricalCacheOnClearListener;
 import de.invesdwin.util.collections.loadingcache.historical.listener.IHistoricalCachePutListener;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQuery;
+import de.invesdwin.util.collections.loadingcache.historical.query.index.IndexedFDate;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.HistoricalCacheQuery;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.IHistoricalCacheInternalMethods;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.CachedHistoricalCacheQueryCore;
@@ -326,28 +327,23 @@ public abstract class AHistoricalCache<V>
      * Should return the key if the value does not contain a key itself.
      */
     public final FDate extractKey(final FDate key, final V value) {
-        if (value instanceof IHistoricalEntry) {
-            final IHistoricalEntry<?> cValue = (IHistoricalEntry<?>) value;
-            return maybeMergeKey(key, cValue.getKey());
+        if (key == null) {
+            final FDate extractedKey;
+            if (value instanceof IHistoricalEntry) {
+                final IHistoricalEntry<?> cValue = (IHistoricalEntry<?>) value;
+                extractedKey = cValue.getKey();
+            } else if (value instanceof IHistoricalValue) {
+                final IHistoricalValue<?> cValue = (IHistoricalValue<?>) value;
+                extractedKey = cValue.asHistoricalEntry().getKey();
+            } else {
+                extractedKey = extractKeyProvider.extractKey(key, value);
+            }
+            return adjustKeyProvider.newAlreadyAdjustedKey(extractedKey);
+        } else {
+            final IndexedFDate indexedKey = IndexedFDate.maybeWrap(key);
+            final FDate extractedKey = indexedKey.maybeExtractKey(extractKeyProvider, adjustKeyProvider, value);
+            return extractedKey;
         }
-        if (value instanceof IHistoricalValue) {
-            final IHistoricalValue<?> cValue = (IHistoricalValue<?>) value;
-            return maybeMergeKey(key, cValue.asHistoricalEntry().getKey());
-        }
-        return extractKeyNoCasting(key, value);
-    }
-
-    private FDate maybeMergeKey(final FDate key, final FDate valueKey) {
-        FDate extractedKey = valueKey;
-        if (key != null && key.equalsNotNullSafe(valueKey)) {
-            extractedKey = key;
-        }
-        return adjustKeyProvider.newAlreadyAdjustedKey(extractedKey);
-    }
-
-    FDate extractKeyNoCasting(final FDate key, final V value) {
-        final FDate extractedKey = extractKeyProvider.extractKey(key, value);
-        return maybeMergeKey(key, extractedKey);
     }
 
     /**
@@ -557,7 +553,7 @@ public abstract class AHistoricalCache<V>
         }
 
         @Override
-        public IHistoricalEntry<V> computeValue(final FDate key) {
+        public IHistoricalEntry<V> computeEntry(final FDate key) {
             final V value = AHistoricalCache.this.loadValue(key);
             return ImmutableHistoricalEntry.maybeExtractKey(AHistoricalCache.this, key, value);
         }
@@ -571,9 +567,21 @@ public abstract class AHistoricalCache<V>
 
     private final class InnerHistoricalCacheExtractKeyProvider implements IHistoricalCacheExtractKeyProvider<V> {
 
+        private final int hashCode = super.hashCode();
+
         @Override
         public FDate extractKey(final FDate key, final V value) {
             return innerExtractKey(key, value);
+        }
+
+        @Override
+        public int hashCode() {
+            return hashCode;
+        }
+
+        @Override
+        public boolean equals(final Object obj) {
+            return obj.hashCode() == hashCode;
         }
 
     }
@@ -685,12 +693,12 @@ public abstract class AHistoricalCache<V>
         }
 
         @Override
-        public FDate newAlreadyAdjustedKey(final FDate key) {
+        public FDate maybeAdjustKey(final FDate key) {
             return key;
         }
 
         @Override
-        public FDate maybeAdjustKey(final FDate key) {
+        public FDate newAlreadyAdjustedKey(final FDate key) {
             return key;
         }
 

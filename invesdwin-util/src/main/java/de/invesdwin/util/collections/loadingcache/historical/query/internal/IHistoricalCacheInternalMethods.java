@@ -32,7 +32,7 @@ public interface IHistoricalCacheInternalMethods<V> {
 
     IHistoricalCacheQuery<?> newKeysQueryInterceptor();
 
-    IHistoricalEntry<V> computeValue(FDate key);
+    IHistoricalEntry<V> computeEntry(FDate key);
 
     IHistoricalCachePutProvider<V> getPutProvider();
 
