@@ -98,7 +98,7 @@ public class FDate implements IDate, Serializable, Cloneable, Comparable<Object>
 
     private final long millis;
     @Transient
-    private transient FDate extension;
+    private transient Object extension;
 
     private final int hashCode;
 
@@ -693,7 +693,7 @@ public class FDate implements IDate, Serializable, Cloneable, Comparable<Object>
      * WARNING: for framework use only.
      */
     @Deprecated
-    public FDate getExtension() {
+    public Object getExtension() {
         return extension;
     }
 
@@ -705,7 +705,7 @@ public class FDate implements IDate, Serializable, Cloneable, Comparable<Object>
      * WARNING: for framework use only.
      */
     @Deprecated
-    public void setExtension(final FDate extension) {
+    public void setExtension(final Object extension) {
         this.extension = extension;
     }
 
