@@ -128,7 +128,7 @@ public class IndexedFDate extends FDate {
         return extractKeyProviderExtractedKey;
     }
 
-    public void putExtractedKey(
+    public IndexedFDate putExtractedKey(
             final de.invesdwin.util.collections.loadingcache.historical.key.internal.IHistoricalCacheExtractKeyProvider<?> extractKeyProvider,
             final IHistoricalCacheAdjustKeyProvider adjustKeyProvider) {
         final int identityHashCode = extractKeyProvider.hashCode();
@@ -136,6 +136,7 @@ public class IndexedFDate extends FDate {
             extractKeyProviderHashCode = identityHashCode;
             extractKeyProviderExtractedKey = adjustKeyProvider.newAlreadyAdjustedKey(this);
         }
+        return this;
     }
 
 }

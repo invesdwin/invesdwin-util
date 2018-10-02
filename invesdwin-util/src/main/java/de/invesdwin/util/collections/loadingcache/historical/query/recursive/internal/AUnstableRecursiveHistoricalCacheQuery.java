@@ -98,8 +98,10 @@ public abstract class AUnstableRecursiveHistoricalCacheQuery<V> implements IRecu
         final int fullRecursionCount = recursionCount + unstableRecursionCount;
         this.fullRecursionKeysResults = new FullRecursionKeysCache(parent.getShiftKeyProvider().getParent(),
                 fullRecursionCount);
+        fullRecursionKeysResults.enableTrailingQueryCore();
         this.fullRecursionKeysResultsQueryWithFutureNull = fullRecursionKeysResults.query().withFutureNull();
         parent.increaseMaximumSize(fullRecursionCount * 2, "fullRecursionCount");
+        parent.getPutProvider().registerPutListener(fullRecursionKeysResults);
     }
 
     @Override

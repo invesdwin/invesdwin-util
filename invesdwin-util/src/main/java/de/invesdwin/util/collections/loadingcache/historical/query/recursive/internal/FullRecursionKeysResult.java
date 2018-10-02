@@ -7,12 +7,14 @@ import javax.annotation.concurrent.NotThreadSafe;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
 import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
+import de.invesdwin.util.collections.loadingcache.historical.IHistoricalEntry;
+import de.invesdwin.util.collections.loadingcache.historical.IHistoricalValue;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQuery;
 import de.invesdwin.util.collections.loadingcache.historical.query.index.IndexedFDate;
 import de.invesdwin.util.time.fdate.FDate;
 
 @NotThreadSafe
-final class FullRecursionKeysResult {
+final class FullRecursionKeysResult implements IHistoricalValue<FullRecursionKeysResult> {
 
     private final FDate key;
     private BufferingIterator<FDate> fullRecursionKeys;
@@ -22,7 +24,8 @@ final class FullRecursionKeysResult {
 
     FullRecursionKeysResult(final FDate key, final int fullRecursionCount, final AHistoricalCache<?> parent,
             final IHistoricalCacheQuery<?> parentQueryWithFutureNull) {
-        this.key = key;
+        this.key = IndexedFDate.maybeWrap(key).putExtractedKey(parent.getExtractKeyProvider(),
+                parent.getAdjustKeyProvider());
         this.fullRecursionCount = fullRecursionCount;
         this.parent = parent;
         this.parentQueryWithFutureNull = parentQueryWithFutureNull;
@@ -81,6 +84,22 @@ final class FullRecursionKeysResult {
             fullRecursionKeys = null;
             return nextResult;
         }
+    }
+
+    @Override
+    public IHistoricalEntry<? extends FullRecursionKeysResult> asHistoricalEntry() {
+        return new IHistoricalEntry<FullRecursionKeysResult>() {
+
+            @Override
+            public FDate getKey() {
+                return FullRecursionKeysResult.this.key;
+            }
+
+            @Override
+            public FullRecursionKeysResult getValue() {
+                return FullRecursionKeysResult.this;
+            }
+        };
     }
 
 }
