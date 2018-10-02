@@ -151,10 +151,6 @@ public abstract class AHistoricalCache<V>
         }
     }
 
-    public void setQueryCore(final IHistoricalCacheQueryCore<V> queryCore) {
-        this.queryCore = queryCore;
-    }
-
     @Override
     public int getMaximumSizeLimit() {
         return DEFAULT_MAXIMUM_SIZE_LIMIT;
