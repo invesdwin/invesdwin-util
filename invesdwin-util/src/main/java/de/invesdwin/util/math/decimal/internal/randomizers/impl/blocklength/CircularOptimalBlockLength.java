@@ -46,7 +46,7 @@ public class CircularOptimalBlockLength<E extends ADecimal<E>> {
         int lagIncrements = 0;
         int curLagIdx = 1;
         while (curLagIdx <= maxLag) {
-            final double absCorrelation = Math.abs(sampleAutoCorrelation(curLagIdx));
+            final double absCorrelation = Doubles.abs(sampleAutoCorrelation(curLagIdx));
             if (absCorrelation > correlationThreshold) {
                 prevHalfLag = curLagIdx;
                 lagIncrements = 0;
@@ -89,7 +89,7 @@ public class CircularOptimalBlockLength<E extends ADecimal<E>> {
     }
 
     private double determineOptimalBlockLength_lagMultiplicator(final double value) {
-        final double absValue = Math.abs(value);
+        final double absValue = Doubles.abs(value);
         if (absValue <= 0.5D) {
             return 1D;
         } else if (absValue <= 1D) {

@@ -16,6 +16,7 @@ import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.math.Bytes;
+import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.Floats;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.Longs;
@@ -148,7 +149,7 @@ public class DoubleDecimalImpl extends ADoubleDecimalImpl<DoubleDecimalImpl> {
 
     @Override
     public DoubleDecimalImpl abs() {
-        return newValueCopy(Math.abs(getValue()));
+        return newValueCopy(Doubles.abs(getValue()));
     }
 
     @Override
@@ -174,7 +175,7 @@ public class DoubleDecimalImpl extends ADoubleDecimalImpl<DoubleDecimalImpl> {
         final double b = exponent.doubleValue();
         double pow = Math.pow(a, b);
         if (Double.isNaN(pow) && a < 0D) {
-            final double absA = Math.abs(a);
+            final double absA = Doubles.abs(a);
             pow = -Math.pow(absA, b);
         }
         return newValueCopy(pow);
@@ -318,7 +319,7 @@ public class DoubleDecimalImpl extends ADoubleDecimalImpl<DoubleDecimalImpl> {
             final long longValue = (long) toBeRoundedValue;
             if (longValue % 2 == 0) {
                 //need to rounded here, since 0.5 can not be represented properly for doubles
-                final long firstFractionalDigit = Math.abs(Math.round(toBeRoundedValue % 1 * 10));
+                final long firstFractionalDigit = Longs.abs(Math.round(toBeRoundedValue % 1 * 10));
                 if (firstFractionalDigit == 5) {
                     roundedValue = longValue;
                     break;

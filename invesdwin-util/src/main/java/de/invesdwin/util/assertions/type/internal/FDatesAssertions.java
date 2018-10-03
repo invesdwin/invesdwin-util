@@ -42,6 +42,7 @@ import org.assertj.core.internal.StandardComparisonStrategy;
 import org.assertj.core.util.DateUtil;
 import org.assertj.core.util.VisibleForTesting;
 
+import de.invesdwin.util.math.Longs;
 import de.invesdwin.util.time.fdate.FDate;
 import de.invesdwin.util.time.fdate.FDates;
 
@@ -980,7 +981,7 @@ public class FDatesAssertions extends Dates {
             final long deltaInMilliseconds) {
         assertNotNull(info, actual);
         dateParameterIsNotNull(other);
-        final long difference = Math.abs(actual.millisValue() - other.millisValue());
+        final long difference = Longs.abs(actual.millisValue() - other.millisValue());
         if (difference <= deltaInMilliseconds) {
             return;
         }

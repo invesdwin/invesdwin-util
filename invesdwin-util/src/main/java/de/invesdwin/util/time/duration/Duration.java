@@ -13,6 +13,7 @@ import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.lang.ADelegateComparator;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.lang.Strings;
+import de.invesdwin.util.math.Longs;
 import de.invesdwin.util.math.decimal.Decimal;
 import de.invesdwin.util.time.Instant;
 import de.invesdwin.util.time.duration.internal.DurationParser;
@@ -204,7 +205,7 @@ public class Duration extends Number implements Comparable<Object> {
     //CHECKSTYLE:OFF NPath
     public String toString(final FTimeUnit smallestTimeUnit) {
         //CHECKSTYLE:ON
-        final long nanos = Math.abs(FTimeUnit.NANOSECONDS.convert(duration, this.timeUnit));
+        final long nanos = Longs.abs(FTimeUnit.NANOSECONDS.convert(duration, this.timeUnit));
         final long nanosAsMicros = FTimeUnit.NANOSECONDS.toMicros(nanos);
         final long nanosAsMillis = FTimeUnit.NANOSECONDS.toMillis(nanos);
         final long nanosAsSeconds = FTimeUnit.NANOSECONDS.toSeconds(nanos);
@@ -387,7 +388,7 @@ public class Duration extends Number implements Comparable<Object> {
     }
 
     public Duration abs() {
-        return new Duration(Math.abs(duration), timeUnit);
+        return new Duration(Longs.abs(duration), timeUnit);
     }
 
     public boolean isExactMultipleOfPeriod(final Duration period) {

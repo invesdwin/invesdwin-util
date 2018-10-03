@@ -2,6 +2,7 @@ package de.invesdwin.util.math.stream.decimal;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.decimal.ADecimal;
 import de.invesdwin.util.math.decimal.Decimal;
 import de.invesdwin.util.math.decimal.scaled.Percent;
@@ -25,7 +26,7 @@ public class DecimalStreamProfitFactor<E extends ADecimal<E>> implements IStream
     }
 
     public Percent getProfitFactor() {
-        return new Percent(new Decimal(profitSum), new Decimal(Math.abs(lossSum)));
+        return new Percent(new Decimal(profitSum), new Decimal(Doubles.abs(lossSum)));
     }
 
 }
