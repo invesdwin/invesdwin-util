@@ -1,4 +1,4 @@
-package de.invesdwin.util.collections.loadingcache.historical.key.internal;
+package de.invesdwin.util.collections.loadingcache.historical.key;
 
 import de.invesdwin.util.collections.loadingcache.ILoadingCache;
 import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
