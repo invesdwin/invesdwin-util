@@ -10,6 +10,7 @@ import org.apache.commons.math3.dfp.Dfp;
 import org.apache.commons.math3.dfp.DfpMath;
 
 import de.invesdwin.util.error.UnknownArgumentException;
+import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.decimal.ADecimal;
 
 @Immutable
@@ -54,7 +55,7 @@ public class DfpDecimalImpl extends AGenericDecimalImpl<DfpDecimalImpl, Dfp> {
     @Override
     public DfpDecimalImpl scaleByPowerOfTen(final int n) {
         //power10 method somehow messes things up badly, thus using the multiplication instead
-        return multiply(Math.pow(10, n));
+        return multiply(Doubles.pow(10, n));
     }
 
     @Override

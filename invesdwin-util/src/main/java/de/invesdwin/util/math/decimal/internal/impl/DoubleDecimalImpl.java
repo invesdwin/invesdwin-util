@@ -103,7 +103,7 @@ public class DoubleDecimalImpl extends ADoubleDecimalImpl<DoubleDecimalImpl> {
 
     @Override
     public DoubleDecimalImpl scaleByPowerOfTen(final int n) {
-        return multiply(Math.pow(10, n));
+        return multiply(Doubles.pow(10, n));
     }
 
     @Override

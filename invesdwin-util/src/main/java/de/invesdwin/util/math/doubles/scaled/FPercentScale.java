@@ -5,6 +5,7 @@ import java.text.DecimalFormatSymbols;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.lang.Strings;
+import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.doubles.IFDoubleScale;
 
 @Immutable
@@ -34,8 +35,8 @@ public enum FPercentScale implements IFDoubleScale<FPercent, FPercentScale> {
 
     @Override
     public double convertValue(final FPercent parent, final double value, final FPercentScale scale) {
-        final double rateValue = value * Math.pow(10, -scale.getScale());
-        return rateValue * Math.pow(10, getScale());
+        final double rateValue = Doubles.scaleByPowerOfTen(value, -scale.getScale());
+        return Doubles.scaleByPowerOfTen(rateValue, getScale());
     }
 
     @Override

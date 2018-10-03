@@ -395,4 +395,8 @@ public final class Doubles extends ADoublesStaticFacade {
         }
     }
 
+    public static double scaleByPowerOfTen(final double value, final int n) {
+        return value * pow(10, n);
+    }
+
 }

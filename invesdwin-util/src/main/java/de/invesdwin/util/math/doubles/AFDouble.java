@@ -421,7 +421,7 @@ public abstract class AFDouble<E extends AFDouble<E>> extends Number implements 
     }
 
     public E scaleByPowerOfTen(final int n) {
-        return newValueCopy(getValue() * Math.pow(10, n));
+        return newValueCopy(Doubles.scaleByPowerOfTen(getValue(), n));
     }
 
     public E round() {
