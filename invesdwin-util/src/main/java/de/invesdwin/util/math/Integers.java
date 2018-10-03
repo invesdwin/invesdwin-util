@@ -6,6 +6,8 @@ import java.util.List;
 
 import javax.annotation.concurrent.Immutable;
 
+import org.apache.commons.math3.util.FastMath;
+
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
 import de.invesdwin.util.lang.ADelegateComparator;
 import de.invesdwin.util.lang.Objects;
@@ -235,6 +237,10 @@ public final class Integers extends AIntegersStaticFacade {
             final List<? extends List<? extends Integer>> matrix, final Integer missingValue,
             final boolean appendMissingValues) {
         return Objects.fixInconsistentMatrixDimensionsAsList(matrix, missingValue, appendMissingValues);
+    }
+
+    public static int abs(final int value) {
+        return FastMath.abs(value);
     }
 
 }

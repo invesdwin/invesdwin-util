@@ -328,16 +328,16 @@ public abstract class AContinuousRecursiveHistoricalCacheQuery<V> implements IRe
         //        return parentQueryWithFuture.getKeys(start, from).iterator();
     }
 
-    protected boolean shouldUseInitialValueInsteadOfFullRecursion() {
-        return ARecursiveHistoricalCacheQuery.DEFAULT_SHOULD_USE_INITIAL_VALUE_INSTEAD_OF_FULL_RECURSION;
-    }
-
     protected FDate getFirstAvailableKey() {
         if (firstAvailableKey == null && !firstAvailableKeyRequested) {
             this.firstAvailableKey = parentQueryWithFuture.getKey(FDate.MIN_DATE);
             firstAvailableKeyRequested = true;
         }
         return firstAvailableKey;
+    }
+
+    protected boolean shouldUseInitialValueInsteadOfFullRecursion() {
+        return ARecursiveHistoricalCacheQuery.DEFAULT_SHOULD_USE_INITIAL_VALUE_INSTEAD_OF_FULL_RECURSION;
     }
 
     protected abstract V getInitialValue(FDate previousKey);
