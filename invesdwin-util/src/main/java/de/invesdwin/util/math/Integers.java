@@ -6,8 +6,6 @@ import java.util.List;
 
 import javax.annotation.concurrent.Immutable;
 
-import org.apache.commons.math3.util.FastMath;
-
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
 import de.invesdwin.util.lang.ADelegateComparator;
 import de.invesdwin.util.lang.Objects;
@@ -240,7 +238,7 @@ public final class Integers extends AIntegersStaticFacade {
     }
 
     public static int abs(final int value) {
-        return FastMath.abs(value);
+        return Math.abs(value);
     }
 
 }

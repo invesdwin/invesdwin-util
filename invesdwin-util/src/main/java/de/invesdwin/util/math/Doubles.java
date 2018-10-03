@@ -8,8 +8,6 @@ import java.util.List;
 
 import javax.annotation.concurrent.Immutable;
 
-import org.apache.commons.math3.util.FastMath;
-
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
 import de.invesdwin.util.lang.ADelegateComparator;
 import de.invesdwin.util.lang.Objects;
@@ -253,7 +251,7 @@ public final class Doubles extends ADoublesStaticFacade {
     }
 
     public static double abs(final double value) {
-        return FastMath.abs(value);
+        return Math.abs(value);
     }
 
 }
