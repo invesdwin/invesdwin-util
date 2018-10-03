@@ -8,6 +8,9 @@ import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.decimal.ADecimal;
 import de.invesdwin.util.math.decimal.AScaledDecimal;
 import de.invesdwin.util.math.decimal.Decimal;
+import de.invesdwin.util.math.decimal.IScaledNumber;
+import de.invesdwin.util.math.doubles.AFDouble;
+import de.invesdwin.util.math.doubles.AScaledFDouble;
 import de.invesdwin.util.time.duration.Duration;
 import de.invesdwin.util.time.fdate.FTimeUnit;
 
@@ -70,7 +73,7 @@ public class Percent extends AScaledDecimal<Percent, PercentScale> implements IP
      * programming issue.
      */
     @Deprecated
-    public Percent(final AScaledDecimal<?, ?> dividend, final Number divisor) throws Exception {
+    public Percent(final IScaledNumber dividend, final Number divisor) throws Exception {
         super(Decimal.ZERO, PercentScale.PERCENT);
         throw new UnsupportedOperationException();
     }
@@ -80,7 +83,7 @@ public class Percent extends AScaledDecimal<Percent, PercentScale> implements IP
      * programming issue.
      */
     @Deprecated
-    public Percent(final Number dividend, final AScaledDecimal<?, ?> divisor) throws Exception {
+    public Percent(final Number dividend, final IScaledNumber divisor) throws Exception {
         super(null, null);
         throw new UnsupportedOperationException();
     }
@@ -93,6 +96,15 @@ public class Percent extends AScaledDecimal<Percent, PercentScale> implements IP
         }
     }
 
+    public Percent(final AFDouble<?> dividend, final AFDouble<?> divisor) {
+        this(new Decimal(Doubles.divideHandlingZero(dividend.getDefaultValue(), divisor.getDefaultValue())),
+                PercentScale.RATE);
+        if (dividend instanceof AScaledFDouble) {
+            final AScaledFDouble<?, ?> cDividend = (AScaledFDouble<?, ?>) dividend;
+            cDividend.assertSameDefaultScale(divisor);
+        }
+    }
+
     public Percent(final Duration dividend, final Duration divisor) {
         this(dividend.doubleValue(FTimeUnit.MILLISECONDS), divisor.doubleValue(FTimeUnit.MILLISECONDS));
     }
@@ -100,6 +112,13 @@ public class Percent extends AScaledDecimal<Percent, PercentScale> implements IP
     public <T extends AScaledDecimal<T, ?>> Percent(final AScaledDecimal<T, ?> dividend,
             final AScaledDecimal<T, ?> divisor) {
         this(dividend.getDefaultValue().divide(divisor.getDefaultValue()), PercentScale.RATE);
+        dividend.assertSameDefaultScale(divisor);
+    }
+
+    public <T extends AScaledFDouble<T, ?>> Percent(final AScaledFDouble<T, ?> dividend,
+            final AScaledFDouble<T, ?> divisor) {
+        this(new Decimal(Doubles.divideHandlingZero(dividend.getDefaultValue(), divisor.getDefaultValue())),
+                PercentScale.RATE);
         dividend.assertSameDefaultScale(divisor);
     }
 

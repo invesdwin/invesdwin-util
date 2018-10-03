@@ -1,5 +1,6 @@
 package de.invesdwin.util.math;
 
+import java.math.RoundingMode;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -9,8 +10,10 @@ import java.util.List;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
+import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.lang.ADelegateComparator;
 import de.invesdwin.util.lang.Objects;
+import de.invesdwin.util.math.decimal.Decimal;
 import de.invesdwin.util.math.internal.ADoublesStaticFacade;
 import de.invesdwin.util.math.internal.CheckedCastDoubles;
 import de.invesdwin.util.math.internal.CheckedCastDoublesObj;
@@ -250,8 +253,146 @@ public final class Doubles extends ADoublesStaticFacade {
         }
     }
 
+    public static double round(final double value, final int scale, final RoundingMode roundingMode) {
+        if (value % 1 == 0) {
+            //nothing to round
+            return value;
+        }
+        final long factor = (long) Math.pow(10, scale);
+        final double toBeRoundedValue;
+        if (scale < Decimal.DEFAULT_ROUNDING_SCALE && roundingMode != Decimal.DEFAULT_ROUNDING_MODE) {
+            //fix 1 represented as 0.9999999 becoming 0 here instead of correctly being 1; for instance in FLOOR rounding mode
+            toBeRoundedValue = round(value, scale + Decimal.DEFAULT_ROUNDING_SCALE, Decimal.DEFAULT_ROUNDING_MODE)
+                    * factor;
+        } else {
+            toBeRoundedValue = value * factor;
+        }
+
+        final double roundedValue;
+        switch (roundingMode) {
+        case CEILING:
+            roundedValue = Math.ceil(toBeRoundedValue);
+            break;
+        case UP:
+            if (toBeRoundedValue >= 0) {
+                roundedValue = (long) (toBeRoundedValue + 1d);
+            } else {
+                roundedValue = (long) (toBeRoundedValue - 1d);
+            }
+            break;
+        case FLOOR:
+            roundedValue = Math.floor(toBeRoundedValue);
+            break;
+        case DOWN:
+            roundedValue = (long) toBeRoundedValue;
+            break;
+        case HALF_DOWN:
+            if (toBeRoundedValue >= 0) {
+                roundedValue = Math.ceil(toBeRoundedValue - 0.5d);
+            } else {
+                roundedValue = Math.floor(toBeRoundedValue + 0.5d);
+            }
+            break;
+        case HALF_EVEN:
+            //if the value is even and the fraction is 0.5, we need to round to the even number
+            final long longValue = (long) toBeRoundedValue;
+            if (longValue % 2 == 0) {
+                //need to rounded here, since 0.5 can not be represented properly for doubles
+                final long firstFractionalDigit = Longs.abs(Math.round(toBeRoundedValue % 1 * 10));
+                if (firstFractionalDigit == 5) {
+                    roundedValue = longValue;
+                    break;
+                }
+            }
+
+            //otherwise round to the nearest number
+            roundedValue = Math.rint(toBeRoundedValue);
+            break;
+        case HALF_UP:
+            if (toBeRoundedValue >= 0) {
+                roundedValue = Math.floor(toBeRoundedValue + 0.5d);
+            } else {
+                roundedValue = Math.ceil(toBeRoundedValue - 0.5);
+            }
+            break;
+        default:
+            throw UnknownArgumentException.newInstance(RoundingMode.class, roundingMode);
+        }
+        return roundedValue / factor;
+    }
+
     public static double abs(final double value) {
         return Math.abs(value);
+    }
+
+    public static double pow(final double a, final double b) {
+        return Math.pow(a, b);
+    }
+
+    public static double log(final double value) {
+        return Math.log(value);
+    }
+
+    public static double exp(final double value) {
+        return Math.exp(value);
+    }
+
+    public static double log10(final double value) {
+        return Math.log10(value);
+    }
+
+    public static double cos(final double value) {
+        return Math.cos(value);
+    }
+
+    public static double sin(final double value) {
+        return Math.sin(value);
+    }
+
+    public static double exp10(final double value) {
+        return Math.pow(10D, value);
+    }
+
+    public static double remainder(final double value, final double divisor) {
+        return value % divisor;
+    }
+
+    public static double sqrt(final double value) {
+        return Math.sqrt(value);
+    }
+
+    public static double root(final double value, final double n) {
+        final double log = Math.log(value);
+        final double result = Math.exp(log / n);
+        return result;
+    }
+
+    public static double nanToZero(final double value) {
+        if (isNaN(value)) {
+            return 0D;
+        } else {
+            return value;
+        }
+    }
+
+    public static boolean isNaN(final double value) {
+        return Double.isNaN(value);
+    }
+
+    public static double nullToZero(final Double value) {
+        if (value == null) {
+            return 0D;
+        } else {
+            return value.doubleValue();
+        }
+    }
+
+    public static double nullToZero(final Number value) {
+        if (value == null) {
+            return 0D;
+        } else {
+            return value.doubleValue();
+        }
     }
 
 }

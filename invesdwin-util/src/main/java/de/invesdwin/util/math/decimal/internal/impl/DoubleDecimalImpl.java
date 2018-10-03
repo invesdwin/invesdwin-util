@@ -13,7 +13,6 @@ import javax.annotation.concurrent.ThreadSafe;
 import org.apache.commons.math3.dfp.Dfp;
 
 import de.invesdwin.util.assertions.Assertions;
-import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.math.Bytes;
 import de.invesdwin.util.math.Doubles;
@@ -159,14 +158,12 @@ public class DoubleDecimalImpl extends ADoubleDecimalImpl<DoubleDecimalImpl> {
 
     @Override
     public DoubleDecimalImpl root(final Number n) {
-        final double log = Math.log(getValue());
-        final double result = Math.exp(log / n.doubleValue());
-        return newValueCopy(result);
+        return newValueCopy(Doubles.root(getValue(), n.doubleValue()));
     }
 
     @Override
     public DoubleDecimalImpl sqrt() {
-        return newValueCopy(Math.sqrt(getValue()));
+        return newValueCopy(Doubles.sqrt(getValue()));
     }
 
     @Override
@@ -220,42 +217,42 @@ public class DoubleDecimalImpl extends ADoubleDecimalImpl<DoubleDecimalImpl> {
 
     @Override
     public DoubleDecimalImpl remainder(final ADecimal<?> divisor) {
-        return newValueCopy(getValue() % divisor.doubleValueRaw());
+        return newValueCopy(Doubles.remainder(getValue(), divisor.doubleValueRaw()));
     }
 
     @Override
     public DoubleDecimalImpl remainder(final Number divisor) {
-        return newValueCopy(getValue() % divisor.doubleValue());
+        return newValueCopy(Doubles.remainder(getValue(), divisor.doubleValue()));
     }
 
     @Override
     public DoubleDecimalImpl log() {
-        return newValueCopy(Math.log(getValue()));
+        return newValueCopy(Doubles.log(getValue()));
     }
 
     @Override
     public DoubleDecimalImpl exp() {
-        return newValueCopy(Math.exp(getValue()));
+        return newValueCopy(Doubles.exp(getValue()));
     }
 
     @Override
     public DoubleDecimalImpl log10() {
-        return newValueCopy(Math.log10(getValue()));
+        return newValueCopy(Doubles.log10(getValue()));
     }
 
     @Override
     public DoubleDecimalImpl exp10() {
-        return newValueCopy(Math.pow(10D, getValue()));
+        return newValueCopy(Doubles.exp10(getValue()));
     }
 
     @Override
     public DoubleDecimalImpl cos() {
-        return newValueCopy(Math.cos(getValue()));
+        return newValueCopy(Doubles.cos(getValue()));
     }
 
     @Override
     public DoubleDecimalImpl sin() {
-        return newValueCopy(Math.sin(getValue()));
+        return newValueCopy(Doubles.sin(getValue()));
     }
 
     @Override
@@ -275,71 +272,7 @@ public class DoubleDecimalImpl extends ADoubleDecimalImpl<DoubleDecimalImpl> {
 
     @Override
     protected double internalRound(final double value, final int scale, final RoundingMode roundingMode) {
-        if (value % 1 == 0) {
-            //nothing to round
-            return value;
-        }
-        final long factor = (long) Math.pow(10, scale);
-        final double toBeRoundedValue;
-        if (scale < Decimal.DEFAULT_ROUNDING_SCALE && roundingMode != Decimal.DEFAULT_ROUNDING_MODE) {
-            //fix 1 represented as 0.9999999 becoming 0 here instead of correctly being 1; for instance in FLOOR rounding mode
-            toBeRoundedValue = internalRound(value, scale + Decimal.DEFAULT_ROUNDING_SCALE,
-                    Decimal.DEFAULT_ROUNDING_MODE) * factor;
-        } else {
-            toBeRoundedValue = value * factor;
-        }
-
-        final double roundedValue;
-        switch (roundingMode) {
-        case CEILING:
-            roundedValue = Math.ceil(toBeRoundedValue);
-            break;
-        case UP:
-            if (toBeRoundedValue >= 0) {
-                roundedValue = (long) (toBeRoundedValue + 1d);
-            } else {
-                roundedValue = (long) (toBeRoundedValue - 1d);
-            }
-            break;
-        case FLOOR:
-            roundedValue = Math.floor(toBeRoundedValue);
-            break;
-        case DOWN:
-            roundedValue = (long) toBeRoundedValue;
-            break;
-        case HALF_DOWN:
-            if (toBeRoundedValue >= 0) {
-                roundedValue = Math.ceil(toBeRoundedValue - 0.5d);
-            } else {
-                roundedValue = Math.floor(toBeRoundedValue + 0.5d);
-            }
-            break;
-        case HALF_EVEN:
-            //if the value is even and the fraction is 0.5, we need to round to the even number
-            final long longValue = (long) toBeRoundedValue;
-            if (longValue % 2 == 0) {
-                //need to rounded here, since 0.5 can not be represented properly for doubles
-                final long firstFractionalDigit = Longs.abs(Math.round(toBeRoundedValue % 1 * 10));
-                if (firstFractionalDigit == 5) {
-                    roundedValue = longValue;
-                    break;
-                }
-            }
-
-            //otherwise round to the nearest number
-            roundedValue = Math.rint(toBeRoundedValue);
-            break;
-        case HALF_UP:
-            if (toBeRoundedValue >= 0) {
-                roundedValue = Math.floor(toBeRoundedValue + 0.5d);
-            } else {
-                roundedValue = Math.ceil(toBeRoundedValue - 0.5);
-            }
-            break;
-        default:
-            throw UnknownArgumentException.newInstance(RoundingMode.class, roundingMode);
-        }
-        return roundedValue / factor;
+        return Doubles.round(value, scale, roundingMode);
     }
 
     @Override

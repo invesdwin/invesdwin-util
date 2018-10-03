@@ -19,7 +19,7 @@ import de.invesdwin.util.math.decimal.scaled.IDecimalScale;
 @SuppressWarnings({ "rawtypes" })
 @ThreadSafe
 public abstract class AScaledDecimal<T extends AScaledDecimal<T, S>, S extends IDecimalScale<T, S>> extends ADecimal<T>
-        implements Cloneable {
+        implements Cloneable, IScaledNumber {
 
     protected final S scale;
     @GuardedBy("none for performance")
@@ -195,8 +195,8 @@ public abstract class AScaledDecimal<T extends AScaledDecimal<T, S>, S extends I
     public T multiply(final ADecimal<T> multiplicant) {
         if (isZero()) {
             return getGenericThis();
-        } else if (multiplicant == null) {
-            return multiply(0);
+        } else if (multiplicant == null || multiplicant.isZero()) {
+            return zero();
         } else {
             final ADecimal<?> defaultScaledMultiplicant = maybeGetDefaultScaledNumber(multiplicant);
             final ADecimalImpl newDefault = getDefaultValue().getImpl().multiply(defaultScaledMultiplicant);
@@ -211,7 +211,7 @@ public abstract class AScaledDecimal<T extends AScaledDecimal<T, S>, S extends I
             //prevent NaN
             return getGenericThis();
         } else if (divisor == null || divisor.isZero()) {
-            return divide(0);
+            return zero();
         } else {
             final ADecimal<?> defaultScaledDivisor = maybeGetDefaultScaledNumber(divisor);
             final ADecimalImpl newDefault = getDefaultValue().getImpl().divide(defaultScaledDivisor);
@@ -225,7 +225,7 @@ public abstract class AScaledDecimal<T extends AScaledDecimal<T, S>, S extends I
         if (isZero()) {
             return getGenericThis();
         } else if (divisor == null || divisor.isZero()) {
-            return remainder(0);
+            return zero();
         } else {
             final ADecimal<?> defaultScaledDivisor = maybeGetDefaultScaledNumber(divisor);
             final ADecimalImpl newDefault = getDefaultValue().getImpl().remainder(defaultScaledDivisor);

@@ -1,12 +1,15 @@
-package de.invesdwin.util.math.decimal;
+package de.invesdwin.util.math.doubles;
 
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.MathContext;
 import java.math.RoundingMode;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -16,12 +19,22 @@ import org.assertj.core.description.TextDescription;
 import de.invesdwin.norva.marker.IDecimal;
 import de.invesdwin.util.lang.ADelegateComparator;
 import de.invesdwin.util.lang.Objects;
-import de.invesdwin.util.math.decimal.internal.impl.ADecimalImpl;
-import de.invesdwin.util.math.decimal.scaled.Percent;
-import de.invesdwin.util.math.decimal.scaled.PercentScale;
+import de.invesdwin.util.math.BigDecimals;
+import de.invesdwin.util.math.BigIntegers;
+import de.invesdwin.util.math.Bytes;
+import de.invesdwin.util.math.Doubles;
+import de.invesdwin.util.math.Floats;
+import de.invesdwin.util.math.Integers;
+import de.invesdwin.util.math.Longs;
+import de.invesdwin.util.math.Shorts;
+import de.invesdwin.util.math.decimal.ADecimal;
+import de.invesdwin.util.math.decimal.Decimal;
+import de.invesdwin.util.math.decimal.IScaledNumber;
+import de.invesdwin.util.math.doubles.scaled.FPercent;
+import de.invesdwin.util.math.doubles.scaled.FPercentScale;
 
 @Immutable
-public abstract class ADecimal<E extends ADecimal<E>> extends Number implements Comparable<Object>, IDecimal {
+public abstract class AFDouble<E extends AFDouble<E>> extends Number implements Comparable<Object>, IDecimal {
 
     public static final String NEGATIVE_SIGN = "-";
     public static final String POSITIVE_SIGN = "+";
@@ -30,49 +43,48 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
      */
     public static final RoundingMode DEFAULT_ROUNDING_MODE = RoundingMode.HALF_UP;
     public static final int DEFAULT_ROUNDING_SCALE = 9;
-    public static final ADelegateComparator<ADecimal<?>> COMPARATOR = new ADelegateComparator<ADecimal<?>>() {
+    public static final ADelegateComparator<AFDouble<?>> COMPARATOR = new ADelegateComparator<AFDouble<?>>() {
         @Override
-        protected Comparable<?> getCompareCriteria(final ADecimal<?> e) {
+        protected Comparable<?> getCompareCriteria(final AFDouble<?> e) {
             return e;
         }
     };
-    private static final Double MINUS_ONE_DOUBLE = -1D;
-
-    public abstract ADecimalImpl getImpl();
+    private static final double MINUS_ONE = -1D;
+    private static final double ZERO = 0D;
 
     /**
      * http://stackoverflow.com/questions/2170872/does-java-casting-introduce-overhead-why
      */
     protected abstract E getGenericThis();
 
-    protected abstract E newValueCopy(ADecimalImpl value);
+    protected abstract E newValueCopy(double value);
 
-    public abstract E fromDefaultValue(Decimal value);
+    public abstract E fromDefaultValue(double value);
 
-    public List<E> fromDefaultValueVector(final List<Decimal> vector) {
+    public List<E> fromDefaultValueVector(final List<Double> vector) {
         if (vector == null) {
             return null;
         }
         final List<E> converted = new ArrayList<E>(vector.size());
-        for (final Decimal value : vector) {
+        for (final Double value : vector) {
             converted.add(fromDefaultValue(value));
         }
         return converted;
     }
 
-    public List<List<E>> fromDefaultValueMatrix(final List<List<Decimal>> matrix) {
+    public List<List<E>> fromDefaultValueMatrix(final List<List<Double>> matrix) {
         if (matrix == null) {
             return null;
         }
         final List<List<E>> converted = new ArrayList<List<E>>(matrix.size());
-        for (final List<Decimal> vector : matrix) {
+        for (final List<Double> vector : matrix) {
             converted.add(fromDefaultValueVector(vector));
         }
         return converted;
     }
 
     @SuppressWarnings("unchecked")
-    public E[] fromDefaultValueVector(final Decimal[] vector) {
+    public E[] fromDefaultValueVector(final double[] vector) {
         if (vector == null) {
             return null;
         }
@@ -80,7 +92,7 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
         return fromDefaultValueVector(vector, destination);
     }
 
-    public E[] fromDefaultValueVector(final Decimal[] vector, final E[] destination) {
+    public E[] fromDefaultValueVector(final double[] vector, final E[] destination) {
         for (int i = 0; i < vector.length; i++) {
             destination[i] = fromDefaultValue(vector[i]);
         }
@@ -88,7 +100,7 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
     }
 
     @SuppressWarnings("unchecked")
-    public E[][] fromDefaultValueMatrix(final Decimal[][] matrix) {
+    public E[][] fromDefaultValueMatrix(final double[][] matrix) {
         if (matrix == null) {
             return null;
         }
@@ -97,7 +109,7 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
         return fromDefaultValueMatrix(matrix, destination);
     }
 
-    public E[][] fromDefaultValueMatrix(final Decimal[][] values, final E[][] destination) {
+    public E[][] fromDefaultValueMatrix(final double[][] values, final E[][] destination) {
         for (int i = 0; i < values.length; i++) {
             destination[i] = fromDefaultValueVector(values[i]);
         }
@@ -115,8 +127,8 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
         return converted;
     }
 
-    public E toObject(final Double value) {
-        return fromDefaultValue(new Decimal(value));
+    public E toObject(final double value) {
+        return fromDefaultValue(value);
     }
 
     public List<List<E>> toObjectMatrix(final List<List<Double>> matrix) {
@@ -167,27 +179,46 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
         return destination;
     }
 
-    public abstract Decimal getDefaultValue();
+    public abstract double getDefaultValue();
 
     @Override
     public int hashCode() {
         //force explicit default rounding if not done yet
-        return Objects.hashCode(getClass(), round().getImpl());
+        return Objects.hashCode(getClass(), round());
+    }
+
+    public int compareTo(final Double other) {
+        return Double.compare(getValue(), other.doubleValue());
+    }
+
+    protected abstract double getValue();
+
+    public int compareTo(final double other) {
+        return Double.compare(getValue(), other);
     }
 
     @Override
     public int compareTo(final Object other) {
-        return getImpl().compareTo(other);
+        final double doubleOther;
+        if (other instanceof ADecimal) {
+            final ADecimal<?> cOther = (ADecimal<?>) other;
+            doubleOther = cOther.getDefaultValue().doubleValueRaw();
+        } else if (other instanceof Number) {
+            final Number cOther = (Number) other;
+            doubleOther = cOther.doubleValue();
+        } else {
+            return 1;
+        }
+        return Double.compare(getValue(), doubleOther);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public boolean equals(final Object other) {
         if (other != null && getClass().isAssignableFrom(other.getClass())) {
-            final ADecimal<?> cOther = (ADecimal<?>) other;
+            final AFDouble<?> cOther = (AFDouble<?>) other;
             //force explicit default rounding if not done yet
-            final ADecimal<?> cOtherRounded = cOther.round();
-            return round().getImpl().equals(cOtherRounded);
+            final AFDouble<?> cOtherRounded = cOther.round();
+            return round().equals(cOtherRounded);
         } else {
             return false;
         }
@@ -195,60 +226,57 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
 
     @Override
     public String toString() {
-        return getImpl().toString();
+        final NumberFormat format = NumberFormat.getNumberInstance(Locale.ENGLISH);
+        format.setMaximumFractionDigits(MathContext.DECIMAL128.getPrecision());
+        format.setRoundingMode(Decimal.DEFAULT_ROUNDING_MODE);
+        format.setGroupingUsed(false);
+        return format.format(getValue());
     }
 
     @Override
     public int intValue() {
-        return getImpl().intValue();
+        return Integers.checkedCast(getValue());
     }
 
     @Override
     public long longValue() {
-        return getImpl().longValue();
+        return Longs.checkedCast(getValue());
     }
 
     @Override
     public float floatValue() {
-        return getImpl().floatValue();
+        return Floats.checkedCast(getValue());
     }
 
     @Override
     public double doubleValue() {
-        return getImpl().doubleValue();
-    }
-
-    /**
-     * This gives the raw value, thus not getting rounded for precision.
-     */
-    public double doubleValueRaw() {
-        return getImpl().doubleValueRaw();
+        return getValue();
     }
 
     @Override
     public byte byteValue() {
-        return getImpl().byteValue();
+        return Bytes.checkedCast(getValue());
     }
 
     @Override
     public short shortValue() {
-        return getImpl().shortValue();
+        return Shorts.checkedCast(getValue());
     }
 
     public BigDecimal bigDecimalValue() {
-        return getImpl().bigDecimalValue();
+        return BigDecimals.valueOf(getValue());
     }
 
     public BigInteger bigIntegerValue() {
-        return getImpl().bigIntegerValue();
+        return BigIntegers.valueOf(getValue());
     }
 
     public Dfp dfpValue() {
-        return getImpl().dfpValue();
+        return de.invesdwin.util.math.decimal.internal.impl.DfpDecimalImplFactory.toDfp(getValue());
     }
 
     public Number numberValue() {
-        return getImpl().numberValue();
+        return getValue();
     }
 
     /**
@@ -261,7 +289,7 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
      * WARNING: make sure this values gets cached, because this operation causes a large performance overhead!
      */
     public int getDecimalDigits() {
-        return getImpl().getDecimalDigits();
+        return new de.invesdwin.util.math.decimal.internal.impl.DecimalDigitsInfo(toString()).getDecimalDigits();
     }
 
     /**
@@ -274,7 +302,7 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
      * WARNING: make sure this values gets cached, because this operation causes a large performance overhead!
      */
     public int getWholeNumberDigits() {
-        return getImpl().getWholeNumberDigits();
+        return new de.invesdwin.util.math.decimal.internal.impl.DecimalDigitsInfo(toString()).getWholeNumberDigits();
     }
 
     /**
@@ -287,11 +315,11 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
      * WARNING: make sure this values gets cached, because this operation causes a large performance overhead!
      */
     public int getDigits() {
-        return getImpl().getDigits();
+        return new de.invesdwin.util.math.decimal.internal.impl.DecimalDigitsInfo(toString()).getDigits();
     }
 
     public boolean isZero() {
-        return getImpl().isZero();
+        return getValue() == ZERO;
     }
 
     public final boolean isNotZero() {
@@ -302,7 +330,7 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
      * 0 is counted as positive as well here to make things simpler.
      */
     public boolean isPositive() {
-        return getImpl().isPositive();
+        return getValue() >= 0;
     }
 
     /**
@@ -320,6 +348,17 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
         return !isPositiveNonZero();
     }
 
+    public boolean isGreaterThan(final double o) {
+        return compareTo(o) > 0;
+    }
+
+    public boolean isGreaterThan(final Double o) {
+        if (o == null) {
+            return false;
+        }
+        return compareTo(o) > 0;
+    }
+
     public boolean isGreaterThan(final Number o) {
         if (o == null) {
             return false;
@@ -327,8 +366,27 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
         return compareTo(o) > 0;
     }
 
+    public boolean isGreaterThanOrEqualTo(final double o) {
+        return !isLessThan(o);
+    }
+
+    public boolean isGreaterThanOrEqualTo(final Double o) {
+        return !isLessThan(o);
+    }
+
     public boolean isGreaterThanOrEqualTo(final Number o) {
         return !isLessThan(o);
+    }
+
+    public boolean isLessThan(final double o) {
+        return compareTo(o) < 0;
+    }
+
+    public boolean isLessThan(final Double o) {
+        if (o == null) {
+            return false;
+        }
+        return compareTo(o) < 0;
     }
 
     public boolean isLessThan(final Number o) {
@@ -338,8 +396,24 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
         return compareTo(o) < 0;
     }
 
+    public boolean isLessThanOrEqualTo(final double o) {
+        return !isGreaterThan(o);
+    }
+
+    public boolean isLessThanOrEqualTo(final Double o) {
+        return !isGreaterThan(o);
+    }
+
     public boolean isLessThanOrEqualTo(final Number o) {
         return !isGreaterThan(o);
+    }
+
+    public boolean isBetween(final double lowerBound, final double upperBound) {
+        return isGreaterThanOrEqualTo(lowerBound) && isLessThanOrEqualTo(upperBound);
+    }
+
+    public boolean isBetween(final Double lowerBound, final Double upperBound) {
+        return isGreaterThanOrEqualTo(lowerBound) && isLessThanOrEqualTo(upperBound);
     }
 
     public boolean isBetween(final Number lowerBound, final Number upperBound) {
@@ -347,7 +421,7 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
     }
 
     public E scaleByPowerOfTen(final int n) {
-        return newValueCopy(getImpl().scaleByPowerOfTen(n));
+        return newValueCopy(getValue() * Math.pow(10, n));
     }
 
     public E round() {
@@ -363,7 +437,7 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
     }
 
     public E round(final int scale, final RoundingMode roundingMode) {
-        return newValueCopy(getImpl().round(scale, roundingMode));
+        return newValueCopy(Doubles.round(getValue(), scale, roundingMode));
     }
 
     /**
@@ -373,15 +447,15 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
      * 
      * @see <a href="http://www.chemieonline.de/forum/showthread.php?t=101560">Source</a>
      */
-    public Percent growthRate(final ADecimal<E> nextValue) {
-        final Decimal nextDecimalValue = nextValue.getDefaultValue();
-        final Decimal thisDecimalValue = getGenericThis().getDefaultValue();
-        final Decimal rate = nextDecimalValue.subtract(thisDecimalValue).divide(thisDecimalValue.abs());
-        return new Percent(rate, PercentScale.RATE);
+    public FPercent growthRate(final AFDouble<E> nextValue) {
+        final double nextDecimalValue = nextValue.getDefaultValue();
+        final double thisDecimalValue = getGenericThis().getDefaultValue();
+        final double rate = (nextDecimalValue - thisDecimalValue) / Doubles.abs(thisDecimalValue);
+        return new FPercent(rate, FPercentScale.RATE);
     }
 
     public E abs() {
-        return newValueCopy(getImpl().abs());
+        return newValueCopy(Doubles.abs(getValue()));
     }
 
     /**
@@ -391,7 +465,7 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
         if (isNegativeOrZero()) {
             return zero();
         }
-        return newValueCopy(getImpl().log());
+        return newValueCopy(Doubles.log(getValue()));
     }
 
     /**
@@ -401,65 +475,85 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
         if (isNegativeOrZero()) {
             return zero();
         }
-        return newValueCopy(getImpl().log10());
+        return newValueCopy(Doubles.log10(getValue()));
     }
 
     /**
      * Returns Euler's number <i>e</i> raised to the power of this value.
      */
     public E exp() {
-        return newValueCopy(getImpl().exp());
+        return newValueCopy(Doubles.exp(getValue()));
     }
 
     public E cos() {
-        return newValueCopy(getImpl().cos());
+        return newValueCopy(Doubles.cos(getValue()));
     }
 
     public E sin() {
-        return newValueCopy(getImpl().sin());
+        return newValueCopy(Doubles.sin(getValue()));
     }
 
     /**
      * Returns 10 raised to the power of this value.
      */
     public E exp10() {
-        return newValueCopy(getImpl().exp10());
+        return newValueCopy(Doubles.exp10(getValue()));
     }
 
-    public E subtract(final ADecimal<E> subtrahend) {
+    public E subtract(final AFDouble<E> subtrahend) {
         if (subtrahend == null) {
             return getGenericThis();
         }
-        return newValueCopy(getImpl().subtract(subtrahend));
+        return newValueCopy(getValue() - subtrahend.doubleValue());
     }
 
-    public E add(final ADecimal<E> augend) {
+    public E add(final AFDouble<E> augend) {
         if (augend == null) {
             return getGenericThis();
         }
-        return newValueCopy(getImpl().add(augend));
+        return newValueCopy(getValue() + augend.doubleValue());
     }
 
-    public E multiply(final ADecimal<E> multiplicant) {
+    public E multiply(final AFDouble<E> multiplicant) {
         if (isZero()) {
             return getGenericThis();
         } else if (multiplicant == null || multiplicant.isZero()) {
             return zero();
         } else {
-            return newValueCopy(getImpl().multiply(multiplicant));
+            return newValueCopy(getValue() * multiplicant.doubleValue());
         }
     }
 
     /**
      * returns the remainder of the division.
      */
-    public E remainder(final ADecimal<E> divisor) {
+    public E remainder(final AFDouble<E> divisor) {
         if (isZero()) {
             return getGenericThis();
         } else if (divisor == null || divisor.isZero()) {
             return zero();
         } else {
-            return newValueCopy(getImpl().remainder(divisor));
+            return newValueCopy(Doubles.remainder(getValue(), divisor.doubleValue()));
+        }
+    }
+
+    public E remainder(final double divisor) {
+        if (isZero()) {
+            return getGenericThis();
+        } else if (divisor == 0D) {
+            return zero();
+        } else {
+            return newValueCopy(Doubles.remainder(getValue(), divisor));
+        }
+    }
+
+    public E remainder(final Double divisor) {
+        if (isZero()) {
+            return getGenericThis();
+        } else if (divisor == null || divisor.doubleValue() == 0D) {
+            return zero();
+        } else {
+            return newValueCopy(Doubles.remainder(getValue(), divisor));
         }
     }
 
@@ -476,7 +570,25 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
                         IScaledNumber.class.getSimpleName(), this.getClass().getSimpleName(), this,
                         divisor.getClass().getSimpleName(), divisor).toString());
             }
-            return newValueCopy(getImpl().remainder(divisor));
+            return newValueCopy(Doubles.remainder(getValue(), divisor.doubleValue()));
+        }
+    }
+
+    public E multiply(final double multiplicant) {
+        if (isZero()) {
+            return getGenericThis();
+        } else {
+            return newValueCopy(getValue() * multiplicant);
+        }
+    }
+
+    public E multiply(final Double multiplicant) {
+        if (isZero()) {
+            return getGenericThis();
+        } else if (multiplicant == null || multiplicant.doubleValue() == 0D) {
+            return zero();
+        } else {
+            return newValueCopy(getValue() * multiplicant.doubleValue());
         }
     }
 
@@ -492,21 +604,45 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
                         IScaledNumber.class.getSimpleName(), this.getClass().getSimpleName(), this,
                         multiplicant.getClass().getSimpleName(), multiplicant).toString());
             }
-            return newValueCopy(getImpl().multiply(multiplicant));
+            return newValueCopy(getValue() * multiplicant.doubleValue());
         }
     }
 
     /**
      * If the divisor is 0, 0 is returned. This goes against the mathematical rules, but makes a developers life easier.
      */
-    public E divide(final ADecimal<E> divisor) {
+    public E divide(final AFDouble<E> divisor) {
         if (isZero()) {
             //prevent NaN
             return getGenericThis();
         } else if (divisor == null || divisor.isZero()) {
             return zero();
         } else {
-            return newValueCopy(getImpl().divide(divisor));
+            return newValueCopy(getValue() / divisor.doubleValue());
+        }
+    }
+
+    public E divide(final double divisor) {
+        if (isZero()) {
+            //prevent NaN
+            return getGenericThis();
+        } else if (divisor == 0D) {
+            //results in 0, thus multiply by 0
+            return zero();
+        } else {
+            return newValueCopy(getValue() / divisor);
+        }
+    }
+
+    public E divide(final Double divisor) {
+        if (isZero()) {
+            //prevent NaN
+            return getGenericThis();
+        } else if (divisor == null || divisor.doubleValue() == 0D) {
+            //results in 0, thus multiply by 0
+            return zero();
+        } else {
+            return newValueCopy(getValue() / divisor.doubleValue());
         }
     }
 
@@ -527,24 +663,28 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
                         IScaledNumber.class.getSimpleName(), this.getClass().getSimpleName(), this,
                         divisor.getClass().getSimpleName(), divisor).toString());
             }
-            return newValueCopy(getImpl().divide(divisor));
+            return newValueCopy(getValue() / divisor.doubleValue());
         }
     }
 
     /**
      * With a step of 0.5: (Math.ceil(x * 2) / 2)
      */
-    public E roundToStep(final ADecimal<E> step) {
+    public E roundToStep(final AFDouble<E> step) {
         return roundToStep(step, DEFAULT_ROUNDING_MODE);
     }
 
-    public E roundToStep(final ADecimal<E> step, final RoundingMode roundingMode) {
+    public E roundToStep(final AFDouble<E> step, final RoundingMode roundingMode) {
         final E stepReciprocal = step.reciprocal();
         return multiply(stepReciprocal).round(0, roundingMode).divide(stepReciprocal);
     }
 
     public E reciprocal() {
-        return newValueCopy(Decimal.ONE.getImpl()).divide(getGenericThis());
+        if (isZero()) {
+            return zero();
+        } else {
+            return newValueCopy(1D / getValue());
+        }
     }
 
     public E orHigher(final E other) {
@@ -578,16 +718,32 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
         return orLower(max).orHigher(min);
     }
 
-    public E pow(final ADecimal<E> exponent) {
-        return newValueCopy(getImpl().pow(exponent));
+    public E pow(final AFDouble<E> exponent) {
+        return newValueCopy(Doubles.pow(getValue(), exponent.doubleValue()));
+    }
+
+    public E pow(final double exponent) {
+        return newValueCopy(Doubles.pow(getValue(), exponent));
+    }
+
+    public E pow(final Double exponent) {
+        return newValueCopy(Doubles.pow(getValue(), exponent.doubleValue()));
     }
 
     public E pow(final Number exponent) {
-        return newValueCopy(getImpl().pow(exponent));
+        return newValueCopy(Doubles.pow(getValue(), exponent.doubleValue()));
     }
 
     public E sqrt() {
-        return newValueCopy(getImpl().sqrt());
+        return newValueCopy(Doubles.sqrt(getValue()));
+    }
+
+    public E root(final double n) {
+        return newValueCopy(Doubles.root(getValue(), n));
+    }
+
+    public E root(final Double n) {
+        return newValueCopy(Doubles.root(getValue(), n.doubleValue()));
     }
 
     /**
@@ -596,15 +752,15 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
      * @see <a href="http://www.ee.ucl.ac.uk/~mflanaga/java/Stat.html#geom2">Source with BigDecimal</a>
      */
     public E root(final Number n) {
-        return newValueCopy(getImpl().root(n));
+        return newValueCopy(Doubles.root(getValue(), n.doubleValue()));
     }
 
-    public E distance(final ADecimal<E> to) {
+    public E distance(final AFDouble<E> to) {
         return subtract(to).abs();
     }
 
     public E negate() {
-        return multiply(MINUS_ONE_DOUBLE);
+        return multiply(MINUS_ONE);
     }
 
     public String getSign() {
@@ -637,7 +793,7 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
 
     public abstract E zero();
 
-    public static <T extends ADecimal<T>> T zeroToNull(final T value) {
+    public static <T extends AFDouble<T>> T zeroToNull(final T value) {
         if (value == null || value.isZero()) {
             return null;
         } else {
@@ -645,7 +801,7 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
         }
     }
 
-    public static <T extends ADecimal<T>> T sum(final T value1, final T value2) {
+    public static <T extends AFDouble<T>> T sum(final T value1, final T value2) {
         if (value1 == null) {
             return value2;
         } else {
@@ -653,7 +809,7 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
         }
     }
 
-    public static <T extends ADecimal<T>> T max(final T value1, final T value2) {
+    public static <T extends AFDouble<T>> T max(final T value1, final T value2) {
         if (value1 == null) {
             return value2;
         } else {
@@ -661,7 +817,7 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
         }
     }
 
-    public static <T extends ADecimal<T>> T min(final T value1, final T value2) {
+    public static <T extends AFDouble<T>> T min(final T value1, final T value2) {
         if (value1 == null) {
             return value2;
         } else {
@@ -669,7 +825,7 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
         }
     }
 
-    public static <T extends ADecimal<T>> T negate(final T value) {
+    public static <T extends AFDouble<T>> T negate(final T value) {
         if (value == null) {
             return null;
         } else {
@@ -677,7 +833,7 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
         }
     }
 
-    public static <T extends ADecimal<T>> T abs(final T value) {
+    public static <T extends AFDouble<T>> T abs(final T value) {
         if (value == null) {
             return null;
         } else {
@@ -685,14 +841,14 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
         }
     }
 
-    public static <T extends ADecimal<T>> List<T> asListVector(final T[] vector) {
+    public static <T extends AFDouble<T>> List<T> asListVector(final T[] vector) {
         if (vector == null) {
             return null;
         }
         return Arrays.asList(vector);
     }
 
-    public static <T extends ADecimal<T>> List<List<T>> asListMatrix(final T[][] matrix) {
+    public static <T extends AFDouble<T>> List<List<T>> asListMatrix(final T[][] matrix) {
         if (matrix == null) {
             return null;
         }
@@ -703,7 +859,7 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
         return matrixAsList;
     }
 
-    public static <T extends ADecimal<T>> T[][] fixInconsistentMatrixDimensions(final T[][] matrix) {
+    public static <T extends AFDouble<T>> T[][] fixInconsistentMatrixDimensions(final T[][] matrix) {
         T missingValue = null;
         OUTER: for (int i = 0; i < matrix.length; i++) {
             final T[] vector = matrix[i];
@@ -718,17 +874,17 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
         return fixInconsistentMatrixDimensions(matrix, missingValue);
     }
 
-    public static <T extends ADecimal<T>> T[][] fixInconsistentMatrixDimensions(final T[][] matrix,
+    public static <T extends AFDouble<T>> T[][] fixInconsistentMatrixDimensions(final T[][] matrix,
             final T missingValue) {
         return fixInconsistentMatrixDimensions(matrix, missingValue, Objects.DEFAULT_APPEND_MISSING_VALUES);
     }
 
-    public static <T extends ADecimal<T>> T[][] fixInconsistentMatrixDimensions(final T[][] matrix,
+    public static <T extends AFDouble<T>> T[][] fixInconsistentMatrixDimensions(final T[][] matrix,
             final T missingValue, final boolean appendMissingValues) {
         return Objects.fixInconsistentMatrixDimensions(matrix, missingValue, appendMissingValues);
     }
 
-    public static <T extends ADecimal<T>> List<? extends List<T>> fixInconsistentMatrixDimensionsAsList(
+    public static <T extends AFDouble<T>> List<? extends List<T>> fixInconsistentMatrixDimensionsAsList(
             final List<? extends List<? extends T>> matrix) {
         T missingValue = null;
         OUTER: for (int i = 0; i < matrix.size(); i++) {
@@ -744,12 +900,12 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
         return fixInconsistentMatrixDimensionsAsList(matrix, missingValue);
     }
 
-    public static <T extends ADecimal<T>> List<List<T>> fixInconsistentMatrixDimensionsAsList(
+    public static <T extends AFDouble<T>> List<List<T>> fixInconsistentMatrixDimensionsAsList(
             final List<? extends List<? extends T>> matrix, final T missingValue) {
         return fixInconsistentMatrixDimensionsAsList(matrix, missingValue, Objects.DEFAULT_APPEND_MISSING_VALUES);
     }
 
-    public static <T extends ADecimal<T>> List<List<T>> fixInconsistentMatrixDimensionsAsList(
+    public static <T extends AFDouble<T>> List<List<T>> fixInconsistentMatrixDimensionsAsList(
             final List<? extends List<? extends T>> matrix, final T missingValue, final boolean appendMissingValues) {
         return Objects.fixInconsistentMatrixDimensionsAsList(matrix, missingValue, appendMissingValues);
     }
