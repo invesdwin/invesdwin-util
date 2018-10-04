@@ -13,21 +13,21 @@ public class PercentTest {
     @Test
     public void test() {
         Assertions.assertThat(new Percent(1D, PercentScale.RATE).getValue(PercentScale.RATE)).isEqualTo(1D);
-        Assertions.assertThat(new Percent(1D, PercentScale.RATE).getValue(PercentScale.PERCENT))
+        Assertions.assertThat(new Decimal(new Percent(1D, PercentScale.RATE).getValue(PercentScale.PERCENT)))
                 .isEqualTo(new Decimal("100"));
-        Assertions.assertThat(new Percent(1D, PercentScale.RATE).getValue(PercentScale.PERMILLE))
+        Assertions.assertThat(new Decimal(new Percent(1D, PercentScale.RATE).getValue(PercentScale.PERMILLE)))
                 .isEqualTo(new Decimal("1000"));
 
         Assertions.assertThat(new Percent(1D, PercentScale.PERCENT).getValue(PercentScale.PERCENT)).isEqualTo(1D);
-        Assertions.assertThat(new Percent(1D, PercentScale.PERCENT).getValue(PercentScale.PERMILLE))
+        Assertions.assertThat(new Decimal(new Percent(1D, PercentScale.PERCENT).getValue(PercentScale.PERMILLE)))
                 .isEqualTo(new Decimal("10"));
-        Assertions.assertThat(new Percent(1D, PercentScale.PERCENT).getValue(PercentScale.RATE))
+        Assertions.assertThat(new Decimal(new Percent(1D, PercentScale.PERCENT).getValue(PercentScale.RATE)))
                 .isEqualTo(new Decimal("0.01"));
 
         Assertions.assertThat(new Percent(1D, PercentScale.PERMILLE).getValue(PercentScale.PERMILLE)).isEqualTo(1D);
-        Assertions.assertThat(new Percent(1D, PercentScale.PERMILLE).getValue(PercentScale.PERCENT))
+        Assertions.assertThat(new Decimal(new Percent(1D, PercentScale.PERMILLE).getValue(PercentScale.PERCENT)))
                 .isEqualTo(new Decimal("0.1"));
-        Assertions.assertThat(new Percent(1D, PercentScale.PERMILLE).getValue(PercentScale.RATE))
+        Assertions.assertThat(new Decimal(new Percent(1D, PercentScale.PERMILLE).getValue(PercentScale.RATE)))
                 .isEqualTo(new Decimal("0.001"));
 
         Assertions.assertThat(new Percent(1D, PercentScale.PERMILLE).toString(PercentScale.PERMILLE))
@@ -41,8 +41,7 @@ public class PercentTest {
                 .withScale(PercentScale.RATE)
                 .withDecimalDigits(5)
                 .toString()).isEqualTo("0.00001");
-        Assertions.assertThat(new Percent(0.001D, PercentScale.PERCENT).toString(PercentScale.PERCENT))
-                .isEqualTo("0%");
+        Assertions.assertThat(new Percent(0.001D, PercentScale.PERCENT).toString(PercentScale.PERCENT)).isEqualTo("0%");
         Assertions.assertThat(new Percent(0.001D, PercentScale.PERCENT).toStringBuilder()
                 .withScale(PercentScale.PERCENT)
                 .withDecimalDigits(3)
