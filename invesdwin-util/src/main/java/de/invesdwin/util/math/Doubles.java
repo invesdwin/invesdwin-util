@@ -372,7 +372,18 @@ public final class Doubles extends ADoublesStaticFacade {
         return result;
     }
 
+    public static double nanToZero(final Double value) {
+        if (value == null) {
+            return 0D;
+        } else {
+            return nanToZero(value.doubleValue());
+        }
+    }
+
     public static double nanToZero(final double value) {
+        if (isInfinite(value)) {
+            throw new IllegalArgumentException("Infinite: " + value);
+        }
         if (isNaN(value)) {
             return 0D;
         } else {
@@ -402,6 +413,29 @@ public final class Doubles extends ADoublesStaticFacade {
 
     public static double scaleByPowerOfTen(final double value, final int n) {
         return value * pow(10, n);
+    }
+
+    public static boolean isInfinite(final double value) {
+        return Double.isInfinite(value);
+    }
+
+    public static Double nanToNull(final Double value) {
+        if (value == null) {
+            return null;
+        } else {
+            return nanToNull(value.doubleValue());
+        }
+    }
+
+    public static Double nanToNull(final double value) {
+        if (isInfinite(value)) {
+            throw new IllegalArgumentException("Infinite: " + value);
+        }
+        if (isNaN(value)) {
+            return null;
+        } else {
+            return value;
+        }
     }
 
 }
