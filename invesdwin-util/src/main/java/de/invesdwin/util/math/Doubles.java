@@ -13,6 +13,7 @@ import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
 import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.lang.ADelegateComparator;
 import de.invesdwin.util.lang.Objects;
+import de.invesdwin.util.math.decimal.ADecimal;
 import de.invesdwin.util.math.decimal.Decimal;
 import de.invesdwin.util.math.internal.ADoublesStaticFacade;
 import de.invesdwin.util.math.internal.CheckedCastDoubles;
@@ -32,6 +33,9 @@ public final class Doubles extends ADoublesStaticFacade {
             return e;
         }
     };
+
+    private static final double FIRST_ABOVE_ZERO = 0.000000001;
+    private static final double FIRST_BELOW_ZERO = -0.000000001;
 
     private Doubles() {}
 
@@ -253,6 +257,10 @@ public final class Doubles extends ADoublesStaticFacade {
         }
     }
 
+    public static double round(final double value) {
+        return round(value, ADecimal.DEFAULT_ROUNDING_SCALE, ADecimal.DEFAULT_ROUNDING_MODE);
+    }
+
     public static double round(final double value, final int scale, final RoundingMode roundingMode) {
         if (value % 1 == 0 || roundingMode == RoundingMode.UNNECESSARY) {
             //nothing to round
@@ -444,6 +452,27 @@ public final class Doubles extends ADoublesStaticFacade {
 
     public static double min(final double a, final double b) {
         return Math.min(a, b);
+    }
+
+    public static int compare(final double value, final double otherValue) {
+        final double difference = value - otherValue;
+        if (difference > FIRST_ABOVE_ZERO) {
+            return 1;
+        } else if (difference < FIRST_BELOW_ZERO) {
+            return -1;
+        } else if (difference == 0D) {
+            return 0;
+        } else {
+            final double defaultRoundedValue = round(value);
+            final double roundedOther = round(otherValue);
+            if (defaultRoundedValue < roundedOther) {
+                return -1;
+            } else if (defaultRoundedValue > roundedOther) {
+                return 1;
+            } else {
+                return 0;
+            }
+        }
     }
 
 }

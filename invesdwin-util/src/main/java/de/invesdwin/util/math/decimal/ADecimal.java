@@ -185,13 +185,13 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
     }
 
     public int compareTo(final Double other) {
-        return Double.compare(getValue(), other.doubleValue());
+        return Doubles.compare(getValue(), other.doubleValue());
     }
 
     protected abstract double getValue();
 
     public int compareTo(final double other) {
-        return Double.compare(getValue(), other);
+        return Doubles.compare(getValue(), other);
     }
 
     @Override
@@ -206,7 +206,7 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
         } else {
             return 1;
         }
-        return Double.compare(getValue(), doubleOther);
+        return Doubles.compare(getValue(), doubleOther);
     }
 
     @Override
