@@ -450,7 +450,8 @@ public abstract class AFDouble<E extends AFDouble<E>> extends Number implements 
     public FPercent growthRate(final AFDouble<E> nextValue) {
         final double nextDecimalValue = nextValue.getDefaultValue();
         final double thisDecimalValue = getGenericThis().getDefaultValue();
-        final double rate = (nextDecimalValue - thisDecimalValue) / Doubles.abs(thisDecimalValue);
+        final double rate = Doubles.divideHandlingZero(nextDecimalValue - thisDecimalValue,
+                Doubles.abs(thisDecimalValue));
         return new FPercent(rate, FPercentScale.RATE);
     }
 
