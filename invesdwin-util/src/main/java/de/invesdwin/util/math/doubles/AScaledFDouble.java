@@ -8,10 +8,14 @@ import java.util.function.Function;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.Immutable;
 
+import de.invesdwin.util.collections.Lists;
+import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.decimal.Decimal;
 import de.invesdwin.util.math.decimal.IScaledNumber;
+import de.invesdwin.util.math.doubles.internal.DummyFDoubleAggregate;
+import de.invesdwin.util.math.doubles.internal.FDoubleAggregate;
 
 @Immutable
 public abstract class AScaledFDouble<T extends AScaledFDouble<T, S>, S extends IFDoubleScale<T, S>> extends AFDouble<T>
@@ -252,6 +256,26 @@ public abstract class AScaledFDouble<T extends AScaledFDouble<T, S>, S extends I
 
     public static <T, D extends AFDouble<D>> List<D> extractValues(final Function<T, D> getter, final T... objects) {
         return extractValues(getter, Arrays.asList(objects));
+    }
+
+    public static <D extends AFDouble<D>> IFDoubleAggregate<D> valueOf(final D... values) {
+        return valueOf(Arrays.asList(values));
+    }
+
+    public static <D extends AFDouble<D>> IFDoubleAggregate<D> valueOf(final ICloseableIterable<? extends D> values) {
+        return valueOf(Lists.toList(values));
+    }
+
+    public static <D extends AFDouble<D>> IFDoubleAggregate<D> valueOf(final Iterable<? extends D> values) {
+        return valueOf(Lists.toList(values));
+    }
+
+    public static <D extends AFDouble<D>> IFDoubleAggregate<D> valueOf(final List<? extends D> values) {
+        if (values == null || values.size() == 0) {
+            return DummyFDoubleAggregate.getInstance();
+        } else {
+            return new FDoubleAggregate<D>(values, null);
+        }
     }
 
 }

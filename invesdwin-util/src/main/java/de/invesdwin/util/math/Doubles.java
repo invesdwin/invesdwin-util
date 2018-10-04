@@ -254,7 +254,7 @@ public final class Doubles extends ADoublesStaticFacade {
     }
 
     public static double round(final double value, final int scale, final RoundingMode roundingMode) {
-        if (value % 1 == 0) {
+        if (value % 1 == 0 || roundingMode == RoundingMode.UNNECESSARY) {
             //nothing to round
             return value;
         }
@@ -326,7 +326,12 @@ public final class Doubles extends ADoublesStaticFacade {
     }
 
     public static double pow(final double a, final double b) {
-        return Math.pow(a, b);
+        double pow = Math.pow(a, b);
+        if (Double.isNaN(pow) && a < 0D) {
+            final double absA = Doubles.abs(a);
+            pow = -Math.pow(absA, b);
+        }
+        return pow;
     }
 
     public static double log(final double value) {

@@ -184,7 +184,7 @@ public abstract class AFDouble<E extends AFDouble<E>> extends Number implements 
     @Override
     public int hashCode() {
         //force explicit default rounding if not done yet
-        return Objects.hashCode(getClass(), round());
+        return Objects.hashCode(getClass(), round().doubleValue());
     }
 
     public int compareTo(final Double other) {
@@ -218,7 +218,7 @@ public abstract class AFDouble<E extends AFDouble<E>> extends Number implements 
             final AFDouble<?> cOther = (AFDouble<?>) other;
             //force explicit default rounding if not done yet
             final AFDouble<?> cOtherRounded = cOther.round();
-            return round().equals(cOtherRounded);
+            return round().doubleValue() == cOtherRounded.doubleValue();
         } else {
             return false;
         }

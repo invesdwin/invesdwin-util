@@ -168,13 +168,7 @@ public class DoubleDecimalImpl extends ADoubleDecimalImpl<DoubleDecimalImpl> {
 
     @Override
     public DoubleDecimalImpl pow(final Number exponent) {
-        final double a = getValue();
-        final double b = exponent.doubleValue();
-        double pow = Math.pow(a, b);
-        if (Double.isNaN(pow) && a < 0D) {
-            final double absA = Doubles.abs(a);
-            pow = -Math.pow(absA, b);
-        }
+        final double pow = Doubles.pow(getValue(), exponent.doubleValue());
         return newValueCopy(pow);
     }
 

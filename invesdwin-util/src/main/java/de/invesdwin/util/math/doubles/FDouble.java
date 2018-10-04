@@ -14,6 +14,8 @@ import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.decimal.AScaledDecimal;
 import de.invesdwin.util.math.decimal.Decimal;
 import de.invesdwin.util.math.decimal.IScaledNumber;
+import de.invesdwin.util.math.doubles.internal.DummyFDoubleAggregate;
+import de.invesdwin.util.math.doubles.internal.FDoubleAggregate;
 
 @Immutable
 public class FDouble extends AFDouble<FDouble> {
@@ -138,6 +140,10 @@ public class FDouble extends AFDouble<FDouble> {
         }
     }
 
+    public static FDouble valueOf(final double value) {
+        return new FDouble(value);
+    }
+
     public static FDouble valueOf(final Double value) {
         if (value == null) {
             return null;
@@ -215,6 +221,18 @@ public class FDouble extends AFDouble<FDouble> {
             return null;
         } else {
             return new FDouble(value);
+        }
+    }
+
+    public static IFDoubleAggregate<FDouble> valueOf(final FDouble... values) {
+        return valueOf(Arrays.asList(values));
+    }
+
+    public static IFDoubleAggregate<FDouble> valueOf(final List<? extends FDouble> values) {
+        if (values == null || values.size() == 0) {
+            return DummyFDoubleAggregate.getInstance();
+        } else {
+            return new FDoubleAggregate<FDouble>(values, FDouble.ZERO);
         }
     }
 
