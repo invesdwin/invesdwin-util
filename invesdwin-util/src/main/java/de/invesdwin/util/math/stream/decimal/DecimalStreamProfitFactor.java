@@ -16,7 +16,7 @@ public class DecimalStreamProfitFactor<E extends ADecimal<E>> implements IStream
 
     @Override
     public Void process(final E value) {
-        final double doubleValue = value.doubleValueRaw();
+        final double doubleValue = value.doubleValue();
         if (doubleValue > 0) {
             profitSum += doubleValue;
         } else {

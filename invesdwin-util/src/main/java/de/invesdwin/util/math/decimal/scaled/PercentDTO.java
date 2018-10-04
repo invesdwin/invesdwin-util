@@ -8,26 +8,26 @@ import de.invesdwin.util.math.decimal.Decimal;
 @NotThreadSafe
 public class PercentDTO implements IPercentData, ISerializableValueObject {
 
-    private Decimal rate;
+    private double rate = Double.NaN;
 
-    public PercentDTO(final Decimal rate) {
+    public PercentDTO(final double rate) {
         this.rate = rate;
     }
 
     public PercentDTO() {}
 
     @Override
-    public Decimal getRate() {
+    public double getRate() {
         return rate;
     }
 
-    public void setRate(final Decimal rate) {
+    public void setRate(final double rate) {
         this.rate = rate;
     }
 
     @Override
     public String toString() {
-        return String.valueOf(rate);
+        return String.valueOf(new Decimal(rate));
     }
 
 }

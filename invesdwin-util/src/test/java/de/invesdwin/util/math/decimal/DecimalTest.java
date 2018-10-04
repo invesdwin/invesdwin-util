@@ -19,28 +19,35 @@ public class DecimalTest {
     @Test
     public void testGrowthRate() {
         Assertions.assertThat(Decimal.ONE.growthRate(Decimal.TWO).toString()).isEqualTo("1");
-        Assertions.assertThat(Decimal.ONE.growthRate(Decimal.TWO).getRate()).isEqualTo(new Decimal("1"));
+        Assertions.assertThat(new Decimal(Decimal.ONE.growthRate(Decimal.TWO).getRate())).isEqualTo(new Decimal("1"));
 
         Assertions.assertThat(Decimal.MINUS_ONE.growthRate(Decimal.TWO).toString()).isEqualTo("3");
-        Assertions.assertThat(Decimal.MINUS_ONE.growthRate(Decimal.TWO).getRate()).isEqualTo(new Decimal("3"));
+        Assertions.assertThat(new Decimal(Decimal.MINUS_ONE.growthRate(Decimal.TWO).getRate()))
+                .isEqualTo(new Decimal("3"));
 
         Assertions.assertThat(Decimal.ONE.growthRate(Decimal.MINUS_TWO).toString()).isEqualTo("-3");
-        Assertions.assertThat(Decimal.ONE.growthRate(Decimal.MINUS_TWO).getRate()).isEqualTo(new Decimal("-3"));
+        Assertions.assertThat(new Decimal(Decimal.ONE.growthRate(Decimal.MINUS_TWO).getRate()))
+                .isEqualTo(new Decimal("-3"));
 
         Assertions.assertThat(Decimal.MINUS_ONE.growthRate(Decimal.MINUS_TWO).toString()).isEqualTo("-1");
-        Assertions.assertThat(Decimal.MINUS_ONE.growthRate(Decimal.MINUS_TWO).getRate()).isEqualTo(new Decimal("-1"));
+        Assertions.assertThat(new Decimal(Decimal.MINUS_ONE.growthRate(Decimal.MINUS_TWO).getRate()))
+                .isEqualTo(new Decimal("-1"));
 
         Assertions.assertThat(Decimal.TWO.growthRate(Decimal.ONE).toString()).isEqualTo("-0.5");
-        Assertions.assertThat(Decimal.TWO.growthRate(Decimal.ONE).getRate()).isEqualTo(new Decimal("-0.5"));
+        Assertions.assertThat(new Decimal(Decimal.TWO.growthRate(Decimal.ONE).getRate()))
+                .isEqualTo(new Decimal("-0.5"));
 
         Assertions.assertThat(Decimal.MINUS_TWO.growthRate(Decimal.ONE).toString()).isEqualTo("1.5");
-        Assertions.assertThat(Decimal.MINUS_TWO.growthRate(Decimal.ONE).getRate()).isEqualTo(new Decimal("1.5"));
+        Assertions.assertThat(new Decimal(Decimal.MINUS_TWO.growthRate(Decimal.ONE).getRate()))
+                .isEqualTo(new Decimal("1.5"));
 
         Assertions.assertThat(Decimal.TWO.growthRate(Decimal.MINUS_ONE).toString()).isEqualTo("-1.5");
-        Assertions.assertThat(Decimal.TWO.growthRate(Decimal.MINUS_ONE).getRate()).isEqualTo(new Decimal("-1.5"));
+        Assertions.assertThat(new Decimal(Decimal.TWO.growthRate(Decimal.MINUS_ONE).getRate()))
+                .isEqualTo(new Decimal("-1.5"));
 
         Assertions.assertThat(Decimal.MINUS_TWO.growthRate(Decimal.MINUS_ONE).toString()).isEqualTo("0.5");
-        Assertions.assertThat(Decimal.MINUS_TWO.growthRate(Decimal.MINUS_ONE).getRate()).isEqualTo(new Decimal("0.5"));
+        Assertions.assertThat(new Decimal(Decimal.MINUS_TWO.growthRate(Decimal.MINUS_ONE).getRate()))
+                .isEqualTo(new Decimal("0.5"));
 
     }
 
@@ -54,7 +61,7 @@ public class DecimalTest {
 
     @Test
     public void testDivide() {
-        Assertions.assertThat(new Decimal("1").divide(new Decimal("3")).toString()).isEqualTo("0.333333333");
+        Assertions.assertThat(new Decimal("1").divide(new Decimal("3")).toString()).isEqualTo("0.3333333333333333");
         Assertions.assertThat(new Decimal("1").divide(new Decimal("3"))).isEqualTo(new Decimal("0.333333333"));
         Assertions.assertThat(new Decimal("0").divide(new Decimal("3"))).isEqualTo(new Decimal("0"));
     }
@@ -116,7 +123,7 @@ public class DecimalTest {
         values.add(new Decimal("4"));
         values.add(new Decimal("5"));
         final IDecimalAggregate<Decimal> growthRates = Decimal.valueOf(values).growthRates().defaultValues();
-        Assertions.assertThat(growthRates.toString()).isEqualTo("[1, 0.5, 0.333333333, 0.25]");
+        Assertions.assertThat(growthRates.toString()).isEqualTo("[1, 0.5, 0.3333333333333333, 0.25]");
         final List<Decimal> expectedList = Arrays.asList(new Decimal("1"), new Decimal("0.5"),
                 new Decimal("0.333333333"), new Decimal("0.25"));
         Assertions.assertThat(Decimal.valueOf(values).growthRates().values().size())
@@ -126,12 +133,12 @@ public class DecimalTest {
         }
         Assertions.assertThat(growthRates.values()).isEqualTo(expectedList);
 
-        final Decimal avg = Decimal.valueOf(values).growthRates().avg().getRate();
-        Assertions.assertThat(avg.toString()).isEqualTo("0.520833333");
+        final Decimal avg = new Decimal(Decimal.valueOf(values).growthRates().avg().getRate());
+        Assertions.assertThat(avg.round().toString()).isEqualTo("0.520833333");
         Assertions.assertThat(avg).isEqualTo(new Decimal("0.520833333"));
 
         Assertions.assertThat(values.get(0).growthRate(values.get(values.size() - 1)).toString()).isEqualTo("4");
-        Assertions.assertThat(values.get(0).growthRate(values.get(values.size() - 1)).getRate())
+        Assertions.assertThat(new Decimal(values.get(0).growthRate(values.get(values.size() - 1)).getRate()))
                 .isEqualTo(new Decimal("4"));
     }
 
@@ -354,7 +361,7 @@ public class DecimalTest {
     }
 
     @Test
-    public void testGetDecimalDigits() {
+    public void testgetDecimalDigits() {
         Assertions.assertThat(new BigDecimal("37.95629787000").stripTrailingZeros().scale()).isEqualTo(8);
         Assertions.assertThat(new Decimal("37.95629787000").getDecimalDigits()).isEqualTo(8);
 

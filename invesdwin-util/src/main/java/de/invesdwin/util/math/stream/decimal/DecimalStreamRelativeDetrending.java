@@ -26,13 +26,13 @@ public class DecimalStreamRelativeDetrending<Y extends ADecimal<Y>>
         this.from = from;
         this.to = to;
         this.fromX = from.getX();
-        final double xChange = scaleChangeInX(to.getX().subtract(fromX)).getDefaultValue().doubleValueRaw();
+        final double xChange = scaleChangeInX(to.getX().subtract(fromX)).getDefaultValue();
         if (xChange <= 0D) {
             throw new IllegalArgumentException(
                     "from [" + from + "] -> to [" + to + "] has negative change per x: " + xChange);
         }
-        this.fromY = getY(from).getDefaultValue().doubleValueRaw();
-        final double toAdjY = getY(to).getDefaultValue().doubleValueRaw();
+        this.fromY = getY(from).getDefaultValue();
+        final double toAdjY = getY(to).getDefaultValue();
         this.logAvgChangeYperX = Math.log(toAdjY / fromY) / xChange;
     }
 
@@ -46,15 +46,15 @@ public class DecimalStreamRelativeDetrending<Y extends ADecimal<Y>>
     @Override
     public DecimalPoint<Decimal, Y> process(final DecimalPoint<Decimal, Y> value) {
         final Decimal curX = value.getX();
-        final double curY = getY(value).getDefaultValue().doubleValueRaw();
+        final double curY = getY(value).getDefaultValue();
 
-        final double changeInX = scaleChangeInX(curX.subtract(fromX)).getDefaultValue().doubleValueRaw();
+        final double changeInX = scaleChangeInX(curX.subtract(fromX)).getDefaultValue();
 
         final double logCurProfit = Math.log(curY / fromY);
         final double logMinusProfit = logAvgChangeYperX * changeInX;
         final double logDetrendedProfit = logCurProfit - logMinusProfit;
         final double detrendedY = fromY * Math.exp(logDetrendedProfit);
-        return new DecimalPoint<Decimal, Y>(curX, value.getY().fromDefaultValue(new Decimal(detrendedY)));
+        return new DecimalPoint<Decimal, Y>(curX, value.getY().fromDefaultValue(detrendedY));
     }
 
     private Y getY(final DecimalPoint<Decimal, Y> value) {

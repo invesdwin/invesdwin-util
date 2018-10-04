@@ -183,7 +183,7 @@ public final class CheckedCastBytes {
     }
 
     public static byte checkedCast(final ADecimal<?> value) {
-        return checkedCast(value.getDefaultValue().doubleValueRaw());
+        return checkedCast(value.getDefaultValue());
     }
 
     public static byte checkedCast(final BigDecimal value) {

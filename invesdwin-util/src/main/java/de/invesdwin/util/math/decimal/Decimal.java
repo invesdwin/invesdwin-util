@@ -12,11 +12,9 @@ import java.util.function.Function;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.lang.Strings;
+import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.decimal.internal.DecimalAggregate;
 import de.invesdwin.util.math.decimal.internal.DummyDecimalAggregate;
-import de.invesdwin.util.math.decimal.internal.impl.ADecimalImpl;
-import de.invesdwin.util.math.decimal.internal.impl.DoubleDecimalImplFactory;
-import de.invesdwin.util.math.decimal.internal.impl.IDecimalImplFactory;
 
 @Immutable
 public class Decimal extends ADecimal<Decimal> {
@@ -43,85 +41,46 @@ public class Decimal extends ADecimal<Decimal> {
     public static final Decimal ONE_HUNDRED;
     public static final Decimal PI;
 
-    /**
-     * Due to implementation simplifications of equals, hashCode and compareTo only one implementations cannot be mixed
-     * with each other.
-     */
-    private static final IDecimalImplFactory<?> DECIMAL_IMPL_FACTORY;
-
     static {
-        /*
-         * double is the fastest implementation, thus defaulting to that. The other ones are still there for comparison
-         * purposes.
-         */
-        DECIMAL_IMPL_FACTORY = new DoubleDecimalImplFactory();
-        MINUS_THREE = new Decimal("-3");
-        MINUS_TWO = new Decimal("-2");
-        MINUS_ONE = new Decimal("-1");
-        ZERO = new Decimal("0");
-        ONE = new Decimal("1");
-        TWO = new Decimal("2");
-        THREE = new Decimal("3");
-        FOUR = new Decimal("4");
-        FIVE = new Decimal("5");
-        SIX = new Decimal("6");
-        TEN = new Decimal("10");
-        FIFTY = new Decimal("50");
-        SEVENTYFIVE = new Decimal("75");
-        ONE_HUNDRED = new Decimal("100");
+        MINUS_THREE = new Decimal(-3D);
+        MINUS_TWO = new Decimal(-2D);
+        MINUS_ONE = new Decimal(-1D);
+        ZERO = new Decimal(0D);
+        ONE = new Decimal(1D);
+        TWO = new Decimal(2D);
+        THREE = new Decimal(3D);
+        FOUR = new Decimal(4D);
+        FIVE = new Decimal(5D);
+        SIX = new Decimal(6D);
+        TEN = new Decimal(10D);
+        FIFTY = new Decimal(50D);
+        SEVENTYFIVE = new Decimal(75D);
+        ONE_HUNDRED = new Decimal(100D);
 
         PI = new Decimal(Math.PI);
     }
 
-    private final ADecimalImpl<?> impl;
+    private final double value;
+
+    public Decimal(final double value) {
+        this.value = Doubles.nanToZero(value);
+    }
 
     public Decimal(final Number value) {
-        this(DECIMAL_IMPL_FACTORY.valueOf(value));
-    }
-
-    public Decimal(final Double value) {
-        this(DECIMAL_IMPL_FACTORY.valueOf(value));
-    }
-
-    public Decimal(final Float value) {
-        this(DECIMAL_IMPL_FACTORY.valueOf(value));
-    }
-
-    public Decimal(final Long value) {
-        this(DECIMAL_IMPL_FACTORY.valueOf(value));
-    }
-
-    public Decimal(final Integer value) {
-        this(DECIMAL_IMPL_FACTORY.valueOf(value));
-    }
-
-    public Decimal(final Short value) {
-        this(DECIMAL_IMPL_FACTORY.valueOf(value));
-    }
-
-    public Decimal(final Byte value) {
-        this(DECIMAL_IMPL_FACTORY.valueOf(value));
+        this(value.doubleValue());
     }
 
     public Decimal(final String value) {
-        this(DECIMAL_IMPL_FACTORY.valueOf(value));
-    }
-
-    public Decimal(final ADecimalImpl<?> impl) {
-        if (impl instanceof ScaledDecimalDelegateImpl) {
-            this.impl = ((ScaledDecimalDelegateImpl) impl).getDelegate();
-        } else {
-            this.impl = impl;
-        }
+        this(Double.parseDouble(value));
     }
 
     @Override
-    public ADecimalImpl getImpl() {
-        return impl;
+    protected double getValue() {
+        return value;
     }
 
     @Override
-    protected Decimal newValueCopy(final ADecimalImpl value) {
+    protected Decimal newValueCopy(final double value) {
         return new Decimal(value);
     }
 
@@ -144,25 +103,13 @@ public class Decimal extends ADecimal<Decimal> {
     }
 
     @Override
-    public Decimal fromDefaultValue(final Decimal value) {
-        return value;
+    public Decimal fromDefaultValue(final double value) {
+        return new Decimal(value);
     }
 
     @Override
-    public Decimal getDefaultValue() {
-        return this;
-    }
-
-    public static IDecimalAggregate<Decimal> valueOf(final Decimal... values) {
-        return valueOf(Arrays.asList(values));
-    }
-
-    public static IDecimalAggregate<Decimal> valueOf(final List<? extends Decimal> values) {
-        if (values == null || values.size() == 0) {
-            return DummyDecimalAggregate.getInstance();
-        } else {
-            return new DecimalAggregate<Decimal>(values, Decimal.ZERO);
-        }
+    public double getDefaultValue() {
+        return getValue();
     }
 
     public static <T> List<Decimal> extractValues(final Function<T, Decimal> getter, final List<T> objects) {
@@ -179,10 +126,10 @@ public class Decimal extends ADecimal<Decimal> {
     }
 
     /**
-     * Use default values of the scaled decimal instead!
+     * Use default values of the scaled Decimal instead!
      */
     @Deprecated
-    public static Decimal valueOf(final AScaledDecimal<?, ?> value) {
+    public static Decimal valueOf(final IScaledNumber value) {
         throw new UnsupportedOperationException();
     }
 
@@ -192,6 +139,10 @@ public class Decimal extends ADecimal<Decimal> {
         } else {
             return new Decimal(value);
         }
+    }
+
+    public static Decimal valueOf(final double value) {
+        return new Decimal(value);
     }
 
     public static Decimal valueOf(final Double value) {
@@ -208,17 +159,17 @@ public class Decimal extends ADecimal<Decimal> {
         } else if (value instanceof Decimal) {
             return (Decimal) value;
         } else {
-            if (value instanceof AScaledDecimal) {
+            if (value instanceof IScaledNumber) {
                 throw new IllegalArgumentException("value [" + value + "] should not be an instance of "
-                        + AScaledDecimal.class.getSimpleName() + ": " + value.getClass().getSimpleName());
+                        + IScaledNumber.class.getSimpleName() + ": " + value.getClass().getSimpleName());
             }
             return new Decimal(value);
         }
     }
 
-    public static Decimal fromDefaultValue(final AScaledDecimal<?, ?> scaledDecimal) {
-        if (scaledDecimal != null) {
-            return scaledDecimal.getDefaultValue();
+    public static Decimal fromDefaultValue(final AScaledDecimal<?, ?> scaled) {
+        if (scaled != null) {
+            return new Decimal(scaled.getDefaultValue());
         } else {
             return null;
         }
@@ -226,17 +177,55 @@ public class Decimal extends ADecimal<Decimal> {
 
     @Override
     public String toFormattedString() {
-        return toFormattedString(DEFAULT_DECIMAL_FORMAT);
+        return toFormattedString(Decimal.DEFAULT_DECIMAL_FORMAT);
     }
 
     @Override
     public String toFormattedString(final String format) {
-        final DecimalFormat dc = newDecimalFormatInstance(format);
+        final DecimalFormat dc = Decimal.newDecimalFormatInstance(format);
         final String str = dc.format(this);
         if (str.startsWith("-0") && str.matches("-0([\\.,](0)*)?")) {
             return Strings.removeStart(str, "-");
         } else {
             return str;
+        }
+    }
+
+    public static void putDecimal(final ByteBuffer buffer, final Decimal value) {
+        if (value == null) {
+            buffer.putDouble(Double.MIN_VALUE);
+        } else {
+            buffer.putDouble(value.doubleValue());
+        }
+    }
+
+    public static Decimal extractDecimal(final ByteBuffer buffer, final int index) {
+        final double value = buffer.getDouble(index);
+        return extractDecimal(value);
+    }
+
+    public static Decimal extractDecimal(final ByteBuffer buffer) {
+        final double value = buffer.getDouble();
+        return extractDecimal(value);
+    }
+
+    public static Decimal extractDecimal(final double value) {
+        if (value == Double.MIN_VALUE) {
+            return null;
+        } else {
+            return new Decimal(value);
+        }
+    }
+
+    public static IDecimalAggregate<Decimal> valueOf(final Decimal... values) {
+        return valueOf(Arrays.asList(values));
+    }
+
+    public static IDecimalAggregate<Decimal> valueOf(final List<? extends Decimal> values) {
+        if (values == null || values.size() == 0) {
+            return DummyDecimalAggregate.getInstance();
+        } else {
+            return new DecimalAggregate<Decimal>(values, Decimal.ZERO);
         }
     }
 
@@ -268,32 +257,6 @@ public class Decimal extends ADecimal<Decimal> {
         final DecimalFormat formatter = new DecimalFormat(format, symbols);
         formatter.setRoundingMode(ADecimal.DEFAULT_ROUNDING_MODE);
         return formatter;
-    }
-
-    public static void putDecimal(final ByteBuffer buffer, final Decimal value) {
-        if (value == null) {
-            buffer.putDouble(Double.MIN_VALUE);
-        } else {
-            buffer.putDouble(value.doubleValueRaw());
-        }
-    }
-
-    public static Decimal extractDecimal(final ByteBuffer buffer, final int index) {
-        final double value = buffer.getDouble(index);
-        return extractDecimal(value);
-    }
-
-    public static Decimal extractDecimal(final ByteBuffer buffer) {
-        final double value = buffer.getDouble();
-        return extractDecimal(value);
-    }
-
-    public static Decimal extractDecimal(final double value) {
-        if (value == Double.MIN_VALUE) {
-            return null;
-        } else {
-            return new Decimal(value);
-        }
     }
 
 }

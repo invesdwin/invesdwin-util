@@ -4,7 +4,6 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.norva.marker.ISerializableValueObject;
 import de.invesdwin.util.math.decimal.ADecimal;
-import de.invesdwin.util.math.decimal.Decimal;
 import de.invesdwin.util.math.stream.IStreamAlgorithm;
 
 @NotThreadSafe
@@ -24,7 +23,7 @@ public class DecimalStreamProduct<E extends ADecimal<E>>
         if (valueAdjustmentAddition == null) {
             this.valueAdjustmentAddition = 0;
         } else {
-            this.valueAdjustmentAddition = valueAdjustmentAddition.getDefaultValue().doubleValueRaw();
+            this.valueAdjustmentAddition = valueAdjustmentAddition.getDefaultValue();
         }
     }
 
@@ -34,7 +33,7 @@ public class DecimalStreamProduct<E extends ADecimal<E>>
 
     @Override
     public Void process(final E value) {
-        final double doubleValue = value.getDefaultValue().doubleValueRaw();
+        final double doubleValue = value.getDefaultValue();
         final double adjValue = doubleValue + valueAdjustmentAddition;
         if (adjValue > 0D) {
             /*
@@ -51,7 +50,7 @@ public class DecimalStreamProduct<E extends ADecimal<E>>
 
     public E getProduct() {
         if (product == null) {
-            product = converter.fromDefaultValue(new Decimal(getProductDouble()));
+            product = converter.fromDefaultValue(getProductDouble());
         }
         return product;
     }

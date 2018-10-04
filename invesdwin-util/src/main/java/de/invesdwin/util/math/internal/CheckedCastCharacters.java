@@ -174,7 +174,7 @@ public final class CheckedCastCharacters {
     }
 
     public static char checkedCast(final ADecimal<?> value) {
-        return checkedCast(value.getDefaultValue().doubleValueRaw());
+        return checkedCast(value.getDefaultValue());
     }
 
     public static char checkedCast(final BigDecimal value) {

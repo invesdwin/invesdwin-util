@@ -321,7 +321,7 @@ public final class CheckedCastStrings {
         if (value == null) {
             return null;
         }
-        return checkedCast(value.getDefaultValue().doubleValueRaw());
+        return checkedCast(value.getDefaultValue());
     }
 
     public static String checkedCast(final BigDecimal value) {

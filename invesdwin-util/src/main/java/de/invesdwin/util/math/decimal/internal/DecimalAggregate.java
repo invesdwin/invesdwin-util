@@ -37,6 +37,7 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
 
     private E converter;
     private final List<E> values;
+
     private final IDecimalAggregateRandomizers<E> randomizers = new DecimalAggregateRandomizers<E>(this);
 
     public DecimalAggregate(final List<? extends E> values, final E converter) {
@@ -128,12 +129,12 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
         int sumOfWeights = 0;
         double sumOfWeightedValues = 0D;
         for (int i = 0, weight = size(); i < size(); i++, weight--) {
-            final double weightedValue = values.get(i).getDefaultValue().doubleValueRaw() * weight;
+            final double weightedValue = values.get(i).getDefaultValue() * weight;
             sumOfWeights += weight;
             sumOfWeightedValues += weightedValue;
         }
         final double result = sumOfWeightedValues / sumOfWeights;
-        return getConverter().fromDefaultValue(new Decimal(result));
+        return getConverter().fromDefaultValue(result);
     }
 
     @Override
@@ -164,11 +165,11 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
         final RunningMedian runningMedian = new RunningMedian(values.size());
         for (int i = 0; i < values.size(); i++) {
             final E next = values.get(i);
-            final double nextDouble = next.getDefaultValue().doubleValueRaw();
+            final double nextDouble = next.getDefaultValue();
             runningMedian.add(nextDouble);
         }
         final double median = runningMedian.getMedian();
-        return getConverter().fromDefaultValue(new Decimal(median));
+        return getConverter().fromDefaultValue(median);
     }
 
     /**
@@ -624,7 +625,7 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
     public IDecimalAggregate<Decimal> defaultValues() {
         final List<Decimal> defaultValues = new ArrayList<Decimal>(values.size());
         for (int i = 0; i < size(); i++) {
-            defaultValues.add(values.get(i).getDefaultValue());
+            defaultValues.add(Decimal.valueOf(values.get(i).getDefaultValue()));
         }
         return new DecimalAggregate<Decimal>(defaultValues, Decimal.ZERO);
     }
@@ -638,4 +639,5 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
     public IDecimalAggregateRandomizers<E> randomize() {
         return randomizers;
     }
+
 }

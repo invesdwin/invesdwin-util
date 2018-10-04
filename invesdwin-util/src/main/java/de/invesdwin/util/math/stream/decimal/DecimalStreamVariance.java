@@ -3,7 +3,6 @@ package de.invesdwin.util.math.stream.decimal;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.math.decimal.ADecimal;
-import de.invesdwin.util.math.decimal.Decimal;
 import de.invesdwin.util.math.stream.IStreamAlgorithm;
 import de.invesdwin.util.math.stream.number.NumberStreamVariance;
 
@@ -20,7 +19,7 @@ public class DecimalStreamVariance<E extends ADecimal<E>> implements IStreamAlgo
 
     public E getSampleVariance() {
         final double result = variance.getSampleVariance();
-        return converter.fromDefaultValue(new Decimal(result));
+        return converter.fromDefaultValue(result);
     }
 
     /**
@@ -30,12 +29,12 @@ public class DecimalStreamVariance<E extends ADecimal<E>> implements IStreamAlgo
     @Deprecated
     public E getVariance() {
         final double result = variance.getVariance();
-        return converter.fromDefaultValue(new Decimal(result));
+        return converter.fromDefaultValue(result);
     }
 
     public E getAvg() {
         final double result = variance.getAvg();
-        return converter.fromDefaultValue(new Decimal(result));
+        return converter.fromDefaultValue(result);
     }
 
     public long getCount() {
@@ -44,7 +43,7 @@ public class DecimalStreamVariance<E extends ADecimal<E>> implements IStreamAlgo
 
     @Override
     public Void process(final E value) {
-        variance.process(value.getDefaultValue().doubleValueRaw());
+        variance.process(value.getDefaultValue());
         return null;
     }
 

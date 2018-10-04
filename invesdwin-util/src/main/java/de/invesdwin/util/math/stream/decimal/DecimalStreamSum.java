@@ -3,7 +3,6 @@ package de.invesdwin.util.math.stream.decimal;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.math.decimal.ADecimal;
-import de.invesdwin.util.math.decimal.Decimal;
 import de.invesdwin.util.math.stream.IStreamAlgorithm;
 
 @NotThreadSafe
@@ -19,13 +18,13 @@ public class DecimalStreamSum<E extends ADecimal<E>> implements IStreamAlgorithm
     @Override
     public Void process(final E value) {
         if (value != null) {
-            sum += value.getDefaultValue().doubleValueRaw();
+            sum += value.getDefaultValue();
         }
         return null;
     }
 
     public E getSum() {
-        return converter.fromDefaultValue(new Decimal(sum));
+        return converter.fromDefaultValue(sum);
     }
 
 }

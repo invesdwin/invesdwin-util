@@ -162,7 +162,7 @@ public final class CheckedCastLongs {
     }
 
     public static long checkedCast(final ADecimal<?> value) {
-        return checkedCast(value.getDefaultValue().doubleValueRaw());
+        return checkedCast(value.getDefaultValue());
     }
 
     public static long checkedCast(final BigDecimal value) {

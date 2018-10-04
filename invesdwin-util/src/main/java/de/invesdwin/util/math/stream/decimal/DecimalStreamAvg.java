@@ -3,7 +3,6 @@ package de.invesdwin.util.math.stream.decimal;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.math.decimal.ADecimal;
-import de.invesdwin.util.math.decimal.Decimal;
 import de.invesdwin.util.math.stream.IStreamAlgorithm;
 import de.invesdwin.util.math.stream.number.NumberStreamAvg;
 
@@ -19,13 +18,13 @@ public class DecimalStreamAvg<E extends ADecimal<E>> implements IStreamAlgorithm
 
     @Override
     public Void process(final E value) {
-        avg.process(value.getDefaultValue().doubleValueRaw());
+        avg.process(value.getDefaultValue());
         return null;
     }
 
     public E getAvg() {
         final double doubleResult = avg.getAvg();
-        return converter.fromDefaultValue(new Decimal(doubleResult));
+        return converter.fromDefaultValue(doubleResult);
     }
 
     public long getCount() {

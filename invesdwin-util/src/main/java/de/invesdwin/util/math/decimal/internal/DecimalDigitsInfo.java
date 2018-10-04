@@ -1,4 +1,4 @@
-package de.invesdwin.util.math.decimal.internal.impl;
+package de.invesdwin.util.math.decimal.internal;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;

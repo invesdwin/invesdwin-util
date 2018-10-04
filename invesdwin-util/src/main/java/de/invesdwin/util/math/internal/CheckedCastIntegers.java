@@ -165,7 +165,7 @@ public final class CheckedCastIntegers {
     }
 
     public static int checkedCast(final ADecimal<?> value) {
-        return checkedCast(value.getDefaultValue().doubleValueRaw());
+        return checkedCast(value.getDefaultValue());
     }
 
     public static int checkedCast(final BigDecimal value) {

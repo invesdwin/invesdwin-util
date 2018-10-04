@@ -191,7 +191,7 @@ public final class CheckedCastLongsObj {
         if (value == null) {
             return null;
         }
-        return checkedCastObj(value.getDefaultValue().doubleValueRaw());
+        return checkedCastObj(value.getDefaultValue());
     }
 
     public static Long checkedCastObj(final BigDecimal value) {

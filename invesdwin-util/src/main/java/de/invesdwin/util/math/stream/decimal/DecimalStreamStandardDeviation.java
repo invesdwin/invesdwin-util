@@ -3,7 +3,6 @@ package de.invesdwin.util.math.stream.decimal;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.math.decimal.ADecimal;
-import de.invesdwin.util.math.decimal.Decimal;
 import de.invesdwin.util.math.stream.IStreamAlgorithm;
 import de.invesdwin.util.math.stream.number.NumberStreamStandardDeviation;
 
@@ -25,17 +24,17 @@ public class DecimalStreamStandardDeviation<E extends ADecimal<E>> implements IS
     @Deprecated
     public E getStandardDeviation() {
         final double result = standardDeviation.getStandardDeviation();
-        return converter.fromDefaultValue(new Decimal(result));
+        return converter.fromDefaultValue(result);
     }
 
     public E getSampleStandardDeviation() {
         final double result = standardDeviation.getSampleStandardDeviation();
-        return converter.fromDefaultValue(new Decimal(result));
+        return converter.fromDefaultValue(result);
     }
 
     public E getSampleVariance() {
         final double result = standardDeviation.getSampleVariance();
-        return converter.fromDefaultValue(new Decimal(result));
+        return converter.fromDefaultValue(result);
     }
 
     /**
@@ -45,12 +44,12 @@ public class DecimalStreamStandardDeviation<E extends ADecimal<E>> implements IS
     @Deprecated
     public E getVariance() {
         final double result = standardDeviation.getVariance();
-        return converter.fromDefaultValue(new Decimal(result));
+        return converter.fromDefaultValue(result);
     }
 
     public E getAvg() {
         final double result = standardDeviation.getAvg();
-        return converter.fromDefaultValue(new Decimal(result));
+        return converter.fromDefaultValue(result);
     }
 
     public long getCount() {
@@ -59,7 +58,7 @@ public class DecimalStreamStandardDeviation<E extends ADecimal<E>> implements IS
 
     @Override
     public Void process(final E value) {
-        standardDeviation.process(value.getDefaultValue().doubleValueRaw());
+        standardDeviation.process(value.getDefaultValue());
         return null;
     }
 

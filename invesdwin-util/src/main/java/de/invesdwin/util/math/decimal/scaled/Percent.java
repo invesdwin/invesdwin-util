@@ -9,14 +9,11 @@ import de.invesdwin.util.math.decimal.ADecimal;
 import de.invesdwin.util.math.decimal.AScaledDecimal;
 import de.invesdwin.util.math.decimal.Decimal;
 import de.invesdwin.util.math.decimal.IScaledNumber;
-import de.invesdwin.util.math.doubles.AFDouble;
-import de.invesdwin.util.math.doubles.AScaledFDouble;
 import de.invesdwin.util.time.duration.Duration;
 import de.invesdwin.util.time.fdate.FTimeUnit;
 
-@SuppressWarnings("serial")
 @Immutable
-public class Percent extends AScaledDecimal<Percent, PercentScale> implements IPercentData {
+public class Percent extends AScaledDecimal<Percent, PercentScale> {
 
     public static final PercentScale DEFAULT_SCALE;
     public static final Percent THREE_HUNDRED_PERCENT;
@@ -38,34 +35,42 @@ public class Percent extends AScaledDecimal<Percent, PercentScale> implements IP
 
     static {
         DEFAULT_SCALE = PercentScale.RATE;
-        THREE_HUNDRED_PERCENT = new Percent(Decimal.THREE, PercentScale.RATE);
-        TWO_HUNDRED_PERCENT = new Percent(Decimal.TWO, PercentScale.RATE);
-        ONE_HUNDRED_PERCENT = new Percent(Decimal.ONE, PercentScale.RATE);
-        NINETY_PERCENT = new Percent(new Decimal("90"), PercentScale.PERCENT);
-        SEVENTYFIVE_PERCENT = new Percent(new Decimal("75"), PercentScale.PERCENT);
-        FIFTY_PERCENT = new Percent(new Decimal("50"), PercentScale.PERCENT);
-        TWENTYFIVE_PERCENT = new Percent(new Decimal("25"), PercentScale.PERCENT);
-        TEN_PERCENT = new Percent(new Decimal("10"), PercentScale.PERCENT);
-        FIVE_PERCENT = new Percent(new Decimal("5"), PercentScale.PERCENT);
-        TWO_PERCENT = new Percent(new Decimal("2"), PercentScale.PERCENT);
-        ONE_PERCENT = new Percent(Decimal.ONE, PercentScale.PERCENT);
-        ZERO_PERCENT = new Percent(Decimal.ZERO, PercentScale.RATE);
+        THREE_HUNDRED_PERCENT = new Percent(3D, PercentScale.RATE);
+        TWO_HUNDRED_PERCENT = new Percent(2D, PercentScale.RATE);
+        ONE_HUNDRED_PERCENT = new Percent(1D, PercentScale.RATE);
+        NINETY_PERCENT = new Percent(90D, PercentScale.PERCENT);
+        SEVENTYFIVE_PERCENT = new Percent(75D, PercentScale.PERCENT);
+        FIFTY_PERCENT = new Percent(50D, PercentScale.PERCENT);
+        TWENTYFIVE_PERCENT = new Percent(25D, PercentScale.PERCENT);
+        TEN_PERCENT = new Percent(10D, PercentScale.PERCENT);
+        FIVE_PERCENT = new Percent(5D, PercentScale.PERCENT);
+        TWO_PERCENT = new Percent(2D, PercentScale.PERCENT);
+        ONE_PERCENT = new Percent(1D, PercentScale.PERCENT);
+        ZERO_PERCENT = new Percent(0D, PercentScale.RATE);
         MINUS_ONE_PERCENT = ONE_PERCENT.negate();
         MINUS_TWO_PERCENT = TWO_PERCENT.negate();
         MINUS_FIVE_PERCENT = FIVE_PERCENT.negate();
         MINUS_TEN_PERCENT = TEN_PERCENT.negate();
     }
 
-    public Percent(final Decimal value, final PercentScale scale) {
+    public Percent(final double value, final PercentScale scale) {
         super(value, scale);
     }
 
+    public Percent(final Decimal value, final PercentScale scale) {
+        super(value.doubleValue(), scale);
+    }
+
     public Percent(final Number dividend, final Number divisor) {
-        this(Decimal.valueOf(dividend), Decimal.valueOf(divisor));
+        this(dividend.doubleValue(), divisor.doubleValue());
+    }
+
+    public Percent(final Double dividend, final Double divisor) {
+        this(dividend.doubleValue(), divisor.doubleValue());
     }
 
     public Percent(final double dividend, final double divisor) {
-        this(new Decimal(Doubles.divideHandlingZero(dividend, divisor)), PercentScale.RATE);
+        this(Doubles.divideHandlingZero(dividend, divisor), PercentScale.RATE);
     }
 
     /**
@@ -74,7 +79,7 @@ public class Percent extends AScaledDecimal<Percent, PercentScale> implements IP
      */
     @Deprecated
     public Percent(final IScaledNumber dividend, final Number divisor) throws Exception {
-        super(Decimal.ZERO, PercentScale.PERCENT);
+        super(0D, PercentScale.PERCENT);
         throw new UnsupportedOperationException();
     }
 
@@ -84,23 +89,14 @@ public class Percent extends AScaledDecimal<Percent, PercentScale> implements IP
      */
     @Deprecated
     public Percent(final Number dividend, final IScaledNumber divisor) throws Exception {
-        super(null, null);
+        super(0D, PercentScale.PERCENT);
         throw new UnsupportedOperationException();
     }
 
     public Percent(final ADecimal<?> dividend, final ADecimal<?> divisor) {
-        this(dividend.getDefaultValue().divide(divisor.getDefaultValue()), PercentScale.RATE);
+        this(Doubles.divideHandlingZero(dividend.getDefaultValue(), divisor.getDefaultValue()), PercentScale.RATE);
         if (dividend instanceof AScaledDecimal) {
             final AScaledDecimal<?, ?> cDividend = (AScaledDecimal<?, ?>) dividend;
-            cDividend.assertSameDefaultScale(divisor);
-        }
-    }
-
-    public Percent(final AFDouble<?> dividend, final AFDouble<?> divisor) {
-        this(new Decimal(Doubles.divideHandlingZero(dividend.getDefaultValue(), divisor.getDefaultValue())),
-                PercentScale.RATE);
-        if (dividend instanceof AScaledFDouble) {
-            final AScaledFDouble<?, ?> cDividend = (AScaledFDouble<?, ?>) dividend;
             cDividend.assertSameDefaultScale(divisor);
         }
     }
@@ -111,14 +107,7 @@ public class Percent extends AScaledDecimal<Percent, PercentScale> implements IP
 
     public <T extends AScaledDecimal<T, ?>> Percent(final AScaledDecimal<T, ?> dividend,
             final AScaledDecimal<T, ?> divisor) {
-        this(dividend.getDefaultValue().divide(divisor.getDefaultValue()), PercentScale.RATE);
-        dividend.assertSameDefaultScale(divisor);
-    }
-
-    public <T extends AScaledFDouble<T, ?>> Percent(final AScaledFDouble<T, ?> dividend,
-            final AScaledFDouble<T, ?> divisor) {
-        this(new Decimal(Doubles.divideHandlingZero(dividend.getDefaultValue(), divisor.getDefaultValue())),
-                PercentScale.RATE);
+        this(Doubles.divideHandlingZero(dividend.getDefaultValue(), divisor.getDefaultValue()), PercentScale.RATE);
         dividend.assertSameDefaultScale(divisor);
     }
 
@@ -137,7 +126,7 @@ public class Percent extends AScaledDecimal<Percent, PercentScale> implements IP
     }
 
     @Override
-    protected Percent newValueCopy(final Decimal value, final PercentScale scale) {
+    protected Percent newValueCopy(final double value, final PercentScale scale) {
         return new Percent(value, scale);
     }
 
@@ -154,8 +143,7 @@ public class Percent extends AScaledDecimal<Percent, PercentScale> implements IP
         }
     }
 
-    @Override
-    public Decimal getRate() {
+    public double getRate() {
         return getDefaultValue();
     }
 
@@ -171,7 +159,7 @@ public class Percent extends AScaledDecimal<Percent, PercentScale> implements IP
         if (value == null) {
             buffer.putDouble(Double.MIN_VALUE);
         } else {
-            buffer.putDouble(value.getRate().doubleValueRaw());
+            buffer.putDouble(value.getRate());
         }
     }
 
@@ -189,7 +177,7 @@ public class Percent extends AScaledDecimal<Percent, PercentScale> implements IP
         if (value == Double.MIN_VALUE) {
             return null;
         } else {
-            return new Percent(new Decimal(value), PercentScale.RATE);
+            return new Percent(value, PercentScale.RATE);
         }
     }
 

@@ -3,6 +3,7 @@ package de.invesdwin.util.math.decimal.scaled;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.lang.Strings;
+import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.decimal.Decimal;
 
 @NotThreadSafe
@@ -14,8 +15,8 @@ public enum ByteSizeScale implements IDecimalScale<ByteSize, ByteSizeScale> {
     TERABYTES("TeraBytes", 4, "TB"),
     PETABYTES("PetaBytes", 5, "PB");
 
-    private static final Decimal MULTIPLICATOR_1000 = new Decimal("1000");
-    private static final int SCALE_1000 = MULTIPLICATOR_1000.getDigits() - 1;
+    private static final double MULTIPLICATOR_1000 = 1000D;
+    private static final int SCALE_1000 = new Decimal(MULTIPLICATOR_1000).getDigits() - 1;
 
     private String text;
     private int multiplesOf1000;
@@ -37,9 +38,9 @@ public enum ByteSizeScale implements IDecimalScale<ByteSize, ByteSizeScale> {
     }
 
     @Override
-    public Decimal convertValue(final ByteSize parent, final Decimal value, final ByteSizeScale scale) {
-        final Decimal byteValue = value.multiply(MULTIPLICATOR_1000.pow(scale.getMultiplesOf1000()));
-        return byteValue.divide(MULTIPLICATOR_1000.pow(getMultiplesOf1000()));
+    public double convertValue(final ByteSize parent, final double value, final ByteSizeScale scale) {
+        final double byteValue = value * Doubles.pow(MULTIPLICATOR_1000, scale.getMultiplesOf1000());
+        return byteValue / Doubles.pow(MULTIPLICATOR_1000, getMultiplesOf1000());
     }
 
     @Override

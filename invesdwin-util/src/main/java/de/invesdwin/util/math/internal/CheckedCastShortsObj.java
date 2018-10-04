@@ -201,7 +201,7 @@ public final class CheckedCastShortsObj {
         if (value == null) {
             return null;
         }
-        return checkedCastObj(value.getDefaultValue().doubleValueRaw());
+        return checkedCastObj(value.getDefaultValue());
     }
 
     public static Short checkedCastObj(final BigDecimal value) {

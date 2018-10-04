@@ -31,7 +31,7 @@ public class CircularOptimalBlockLength<E extends ADecimal<E>> {
 
     public CircularOptimalBlockLength(final IDecimalAggregate<E> parent) {
         this.sample = parent.values();
-        this.sampleAvg = parent.avg().doubleValueRaw();
+        this.sampleAvg = parent.avg().doubleValue();
         this.sampleAutoCovariance0 = sampleAutoCovariance(0);
     }
 
@@ -151,8 +151,8 @@ public class CircularOptimalBlockLength<E extends ADecimal<E>> {
         double sum = 0D;
         final int maxIdx = length - lag - 1;
         for (int i = 0; i <= maxIdx; ++i) {
-            final double curAdj = sample.get(i).doubleValueRaw() - sampleAvg;
-            final double nextAdj = sample.get(i + lag).doubleValueRaw() - sampleAvg;
+            final double curAdj = sample.get(i).doubleValue() - sampleAvg;
+            final double nextAdj = sample.get(i + lag).doubleValue() - sampleAvg;
             sum += curAdj * nextAdj;
         }
         return sum / length;

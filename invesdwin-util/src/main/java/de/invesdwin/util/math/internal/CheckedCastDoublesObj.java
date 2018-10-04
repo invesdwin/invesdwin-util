@@ -186,7 +186,7 @@ public final class CheckedCastDoublesObj {
         if (value == null) {
             return null;
         }
-        return checkedCastObj(value.getDefaultValue().doubleValueRaw());
+        return checkedCastObj(value.getDefaultValue());
     }
 
     public static Double checkedCastObj(final BigDecimal value) {

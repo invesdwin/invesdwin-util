@@ -3,7 +3,6 @@ package de.invesdwin.util.math.stream.decimal;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.math.decimal.ADecimal;
-import de.invesdwin.util.math.decimal.Decimal;
 import de.invesdwin.util.math.stream.IStreamAlgorithm;
 
 @NotThreadSafe
@@ -21,7 +20,7 @@ public class DecimalStreamGeomAvg<E extends ADecimal<E>> implements IStreamAlgor
         if (valueAdjustmentAddition == null) {
             this.valueAdjustmentAddition = 0;
         } else {
-            this.valueAdjustmentAddition = valueAdjustmentAddition.getDefaultValue().doubleValueRaw();
+            this.valueAdjustmentAddition = valueAdjustmentAddition.getDefaultValue();
         }
     }
 
@@ -31,7 +30,7 @@ public class DecimalStreamGeomAvg<E extends ADecimal<E>> implements IStreamAlgor
 
     @Override
     public Void process(final E value) {
-        final double doubleValue = value.getDefaultValue().doubleValueRaw();
+        final double doubleValue = value.getDefaultValue();
         final double adjValue = doubleValue + valueAdjustmentAddition;
         if (adjValue > 0D) {
             /*
@@ -53,18 +52,13 @@ public class DecimalStreamGeomAvg<E extends ADecimal<E>> implements IStreamAlgor
     }
 
     private E calculateGeomAvg() {
-        final double doubleResult;
         if (count == 0) {
-            doubleResult = 0D;
-        } else {
-            doubleResult = Math.exp(logSum / count);
-        }
-        final Decimal result = new Decimal(doubleResult);
-        if (result.isZero()) {
             return converter.zero();
+        } else {
+            final double result = Math.exp(logSum / count);
+            final E geomAvg = converter.fromDefaultValue(result - valueAdjustmentAddition);
+            return geomAvg;
         }
-        final E geomAvg = converter.fromDefaultValue(result.subtract(new Decimal(valueAdjustmentAddition)));
-        return geomAvg;
     }
 
 }

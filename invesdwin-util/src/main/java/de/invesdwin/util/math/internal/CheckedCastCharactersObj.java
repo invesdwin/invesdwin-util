@@ -204,7 +204,7 @@ public final class CheckedCastCharactersObj {
         if (value == null) {
             return null;
         }
-        return checkedCastObj(value.getDefaultValue().doubleValueRaw());
+        return checkedCastObj(value.getDefaultValue());
     }
 
     public static Character checkedCastObj(final BigDecimal value) {

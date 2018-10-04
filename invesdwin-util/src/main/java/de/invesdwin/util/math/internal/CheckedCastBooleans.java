@@ -200,7 +200,7 @@ public final class CheckedCastBooleans {
     }
 
     public static boolean checkedCast(final ADecimal<?> value) {
-        return checkedCast(value.getDefaultValue().doubleValueRaw());
+        return checkedCast(value.getDefaultValue());
     }
 
     public static boolean checkedCast(final BigDecimal value) {

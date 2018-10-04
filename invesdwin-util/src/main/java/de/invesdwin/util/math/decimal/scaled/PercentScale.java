@@ -5,7 +5,7 @@ import java.text.DecimalFormatSymbols;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.lang.Strings;
-import de.invesdwin.util.math.decimal.Decimal;
+import de.invesdwin.util.math.Doubles;
 
 @Immutable
 public enum PercentScale implements IDecimalScale<Percent, PercentScale> {
@@ -33,9 +33,9 @@ public enum PercentScale implements IDecimalScale<Percent, PercentScale> {
     }
 
     @Override
-    public Decimal convertValue(final Percent parent, final Decimal value, final PercentScale scale) {
-        final Decimal rateValue = value.scaleByPowerOfTen(-scale.getScale());
-        return rateValue.scaleByPowerOfTen(getScale());
+    public double convertValue(final Percent parent, final double value, final PercentScale scale) {
+        final double rateValue = Doubles.scaleByPowerOfTen(value, -scale.getScale());
+        return Doubles.scaleByPowerOfTen(rateValue, getScale());
     }
 
     @Override

@@ -12,12 +12,12 @@ public class DecimalStreamDrawdown<E extends ADecimal<E>> implements IStreamAlgo
     private double maxEquity;
 
     public DecimalStreamDrawdown(final E initialEquity) {
-        this.maxEquity = initialEquity.getDefaultValue().doubleValueRaw();
+        this.maxEquity = initialEquity.getDefaultValue();
     }
 
     @Override
     public Percent process(final E equity) {
-        final double equityDouble = equity.getDefaultValue().doubleValueRaw();
+        final double equityDouble = equity.getDefaultValue();
         if (equityDouble >= maxEquity) {
             maxEquity = equityDouble;
             return Percent.ZERO_PERCENT;
@@ -25,7 +25,7 @@ public class DecimalStreamDrawdown<E extends ADecimal<E>> implements IStreamAlgo
             final double drawdown = maxEquity - equityDouble;
             //on multimarket strategies the drawdown can actually become positive for orders
             final Percent drawdownPercent = new Percent(drawdown, maxEquity);
-            if (drawdownPercent.getRate().doubleValueRaw() <= 0) {
+            if (drawdownPercent.getRate() <= 0) {
                 throw new IllegalStateException(maxEquity + " -> " + equityDouble + " => " + drawdownPercent);
             }
             return drawdownPercent;

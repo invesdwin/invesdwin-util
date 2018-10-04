@@ -3,7 +3,6 @@ package de.invesdwin.util.math.stream.decimal;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.math.decimal.ADecimal;
-import de.invesdwin.util.math.decimal.Decimal;
 import de.invesdwin.util.math.stream.IStreamAlgorithm;
 
 @NotThreadSafe
@@ -20,7 +19,7 @@ public class DecimalStreamAvgWeightedAsc<E extends ADecimal<E>> implements IStre
 
     @Override
     public Void process(final E value) {
-        final double weightedValue = value.getDefaultValue().doubleValueRaw() * weight;
+        final double weightedValue = value.getDefaultValue() * weight;
         sumOfWeights += weight;
         sumOfWeightedValues += weightedValue;
         weight++;
@@ -31,7 +30,7 @@ public class DecimalStreamAvgWeightedAsc<E extends ADecimal<E>> implements IStre
         if (sumOfWeights == 0) {
             return converter.zero();
         } else {
-            return converter.fromDefaultValue(new Decimal(sumOfWeightedValues / sumOfWeights));
+            return converter.fromDefaultValue(sumOfWeightedValues / sumOfWeights);
         }
     }
 

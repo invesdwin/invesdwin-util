@@ -171,7 +171,7 @@ public final class CheckedCastShorts {
     }
 
     public static short checkedCast(final ADecimal<?> value) {
-        return checkedCast(value.getDefaultValue().doubleValueRaw());
+        return checkedCast(value.getDefaultValue());
     }
 
     public static short checkedCast(final BigDecimal value) {

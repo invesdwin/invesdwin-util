@@ -194,7 +194,7 @@ public final class CheckedCastIntegersObj {
         if (value == null) {
             return null;
         }
-        return checkedCastObj(value.getDefaultValue().doubleValueRaw());
+        return checkedCastObj(value.getDefaultValue());
     }
 
     public static Integer checkedCastObj(final BigDecimal value) {

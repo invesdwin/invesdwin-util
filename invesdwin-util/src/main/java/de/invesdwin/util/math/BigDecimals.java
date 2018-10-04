@@ -12,7 +12,6 @@ import de.invesdwin.util.lang.ADelegateComparator;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.math.decimal.ADecimal;
 import de.invesdwin.util.math.decimal.Decimal;
-import de.invesdwin.util.math.decimal.internal.impl.BigDecimalDecimalImplFactory;
 
 @Immutable
 public final class BigDecimals {
@@ -38,7 +37,7 @@ public final class BigDecimals {
     }
 
     public static BigDecimal valueOf(final Number number) {
-        return BigDecimalDecimalImplFactory.toBigDecimal(number);
+        return new BigDecimal(number.doubleValue());
     }
 
     public static List<BigDecimal> valueOf(final Number... numbers) {

@@ -156,7 +156,7 @@ public final class CheckedCastDoubles {
     }
 
     public static double checkedCast(final ADecimal<?> value) {
-        return checkedCast(value.getDefaultValue().doubleValueRaw());
+        return checkedCast(value.getDefaultValue());
     }
 
     public static double checkedCast(final BigDecimal value) {

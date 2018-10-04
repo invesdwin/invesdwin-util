@@ -23,7 +23,7 @@ public class DecimalStreamPerformanceFromHoldingPeriodReturnsTest {
 
         final DecimalStreamPerformanceFromHoldingPeriodReturns laterGeomAvg = new DecimalStreamPerformanceFromHoldingPeriodReturns();
         final Decimal prevPerformance = perrormance.getPerformance();
-        laterGeomAvg.process(new Percent(prevPerformance.subtract(Decimal.ONE), PercentScale.RATE));
+        laterGeomAvg.process(new Percent(prevPerformance.subtract(Decimal.ONE).doubleValue(), PercentScale.RATE));
         laterGeomAvg.process(Percent.TEN_PERCENT);
 
         Assertions.assertThat(perrormance.getPerformance()).isSameAs(prevPerformance);

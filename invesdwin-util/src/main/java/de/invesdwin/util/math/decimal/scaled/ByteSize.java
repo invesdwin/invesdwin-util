@@ -5,14 +5,17 @@ import javax.annotation.concurrent.NotThreadSafe;
 import de.invesdwin.util.math.decimal.AScaledDecimal;
 import de.invesdwin.util.math.decimal.Decimal;
 
-@SuppressWarnings("serial")
 @NotThreadSafe
 public class ByteSize extends AScaledDecimal<ByteSize, ByteSizeScale> {
 
     public static final ByteSizeScale DEFAULT_SCALE = ByteSizeScale.BYTES;
-    public static final ByteSize ZERO = new ByteSize(Decimal.ZERO, DEFAULT_SCALE);
+    public static final ByteSize ZERO = new ByteSize(0D, DEFAULT_SCALE);
 
     public ByteSize(final Decimal value, final ByteSizeScale scale) {
+        super(value.doubleValue(), scale);
+    }
+
+    public ByteSize(final double value, final ByteSizeScale scale) {
         super(value, scale);
     }
 
@@ -27,7 +30,7 @@ public class ByteSize extends AScaledDecimal<ByteSize, ByteSizeScale> {
     }
 
     @Override
-    protected ByteSize newValueCopy(final Decimal value, final ByteSizeScale scale) {
+    protected ByteSize newValueCopy(final double value, final ByteSizeScale scale) {
         return new ByteSize(value, scale);
     }
 

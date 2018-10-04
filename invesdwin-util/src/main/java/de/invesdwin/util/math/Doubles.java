@@ -438,4 +438,12 @@ public final class Doubles extends ADoublesStaticFacade {
         }
     }
 
+    public static double max(final double a, final double b) {
+        return Math.max(a, b);
+    }
+
+    public static double min(final double a, final double b) {
+        return Math.min(a, b);
+    }
+
 }

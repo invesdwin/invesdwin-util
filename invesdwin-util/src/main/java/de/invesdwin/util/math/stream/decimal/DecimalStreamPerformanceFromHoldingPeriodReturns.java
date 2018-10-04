@@ -12,19 +12,19 @@ public class DecimalStreamPerformanceFromHoldingPeriodReturns
         implements IStreamAlgorithm<Percent, Void>, ISerializableValueObject {
 
     private Decimal performance = getInitialValue();
-    private Double performanceDouble = performance.doubleValueRaw();
+    private Double performanceDouble = performance.doubleValue();
     private final double initialPerformance = performanceDouble;
     private final DecimalStreamProduct<Decimal> product = new DecimalStreamProduct<Decimal>(Decimal.ZERO) {
         @Override
         protected Decimal getValueAdjustmentAddition() {
-            return Percent.ONE_HUNDRED_PERCENT.getRate();
+            return Decimal.valueOf(Percent.ONE_HUNDRED_PERCENT.getRate());
         }
     };
 
     @Override
     public Void process(final Percent holdingPeriodReturn) {
         //improve accuracy by using log sum instead of multiplication directly for the HPRs
-        product.process(holdingPeriodReturn.getRate());
+        product.process(Decimal.valueOf(holdingPeriodReturn.getRate()));
         performance = null;
         performanceDouble = null;
         return null;

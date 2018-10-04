@@ -159,7 +159,7 @@ public final class CheckedCastFloats {
     }
 
     public static float checkedCast(final ADecimal<?> value) {
-        return checkedCast(value.getDefaultValue().doubleValueRaw());
+        return checkedCast(value.getDefaultValue());
     }
 
     public static float checkedCast(final BigDecimal value) {

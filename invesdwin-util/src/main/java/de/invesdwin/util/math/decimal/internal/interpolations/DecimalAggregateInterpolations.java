@@ -166,13 +166,13 @@ public class DecimalAggregateInterpolations<E extends ADecimal<E>> implements ID
             final double multiplier = config.getValueMultiplicator().doubleValue();
             for (int i = 0; i < values.size(); i++) {
                 final double result = interpolated.value(i) / multiplier;
-                final E value = converter.fromDefaultValue(Decimal.valueOf(result));
+                final E value = converter.fromDefaultValue(result);
                 results.add(value);
             }
         } else {
             for (int i = 0; i < values.size(); i++) {
                 final double result = interpolated.value(i);
-                final E value = converter.fromDefaultValue(Decimal.valueOf(result));
+                final E value = converter.fromDefaultValue(result);
                 results.add(value);
             }
         }
@@ -191,7 +191,7 @@ public class DecimalAggregateInterpolations<E extends ADecimal<E>> implements ID
         final Pair<List<Double>, List<Double>> pair = fillInterpolationPoints(config, null);
         final List<Double> xval = pair.getFirst();
         final List<Double> yval = pair.getSecond();
-        double bandwidth = config.getSmoothness().getValue(PercentScale.RATE).doubleValue();
+        double bandwidth = config.getSmoothness().getValue(PercentScale.RATE);
         if (bandwidth * values.size() < 2) {
             bandwidth = Decimal.TWO.divide(values.size()).doubleValue();
         }
@@ -216,7 +216,7 @@ public class DecimalAggregateInterpolations<E extends ADecimal<E>> implements ID
         if (config.isPunishEdges() && values.size() >= 5) {
             Double minValue = null;
             Double maxValue = null;
-            for (final double y : yval) {
+            for (final Double y : yval) {
                 minValue = Doubles.min(minValue, y);
                 maxValue = Doubles.max(maxValue, y);
             }
@@ -322,16 +322,14 @@ public class DecimalAggregateInterpolations<E extends ADecimal<E>> implements ID
         final int countNeighbours = Math.max(MIN_NEIGHTBOURS_COUNT, values.size() / config.getMaxSegments());
         final double standardDeviation;
         if (isPunishEdges) {
-            standardDeviation = new DecimalAggregate<E>(values, converter).sampleStandardDeviation()
-                    .getDefaultValue()
-                    .doubleValueRaw();
+            standardDeviation = new DecimalAggregate<E>(values, converter).sampleStandardDeviation().getDefaultValue();
         } else {
             standardDeviation = 0;
         }
 
         final List<Double> doubleValues = new ArrayList<>();
         for (final E value : values) {
-            final double doubleValue = value.getDefaultValue().doubleValueRaw();
+            final double doubleValue = value.getDefaultValue();
             doubleValues.add(doubleValue);
         }
 
@@ -374,7 +372,7 @@ public class DecimalAggregateInterpolations<E extends ADecimal<E>> implements ID
             final double weightedAvg = weightedValuesSum / weightsSum;
             final double avg = valuesSum / valuesCount;
             final double pessimistic = pessimistic(isHigherBetter, weightedAvg, avg);
-            robustValues.add(converter.fromDefaultValue(Decimal.valueOf(pessimistic)));
+            robustValues.add(converter.fromDefaultValue(pessimistic));
         }
         return new DecimalAggregate<E>(robustValues, converter);
 

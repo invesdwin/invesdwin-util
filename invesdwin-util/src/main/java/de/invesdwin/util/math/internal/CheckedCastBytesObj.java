@@ -204,7 +204,7 @@ public final class CheckedCastBytesObj {
         if (value == null) {
             return null;
         }
-        return checkedCastObj(value.getDefaultValue().doubleValueRaw());
+        return checkedCastObj(value.getDefaultValue());
     }
 
     public static Byte checkedCastObj(final BigDecimal value) {
