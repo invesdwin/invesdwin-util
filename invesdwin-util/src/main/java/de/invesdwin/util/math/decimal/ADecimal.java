@@ -706,14 +706,17 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
 
     public E roundToStep(final ADecimal<E> step, final RoundingMode roundingMode) {
         final E stepReciprocal = step.reciprocal();
-        return multiply(stepReciprocal).round(0, roundingMode).divide(stepReciprocal);
+        final E multiplied = multiply(stepReciprocal);
+        final E rounded = multiplied.round(0, roundingMode);
+        final E divided = rounded.divide(stepReciprocal);
+        return divided;
     }
 
     public E reciprocal() {
         if (isZero()) {
             return zero();
         } else {
-            return newValueCopy(1D / getValue());
+            return newValueCopy(1D / getDefaultValue());
         }
     }
 
