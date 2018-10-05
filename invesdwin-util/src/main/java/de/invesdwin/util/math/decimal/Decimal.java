@@ -259,4 +259,23 @@ public class Decimal extends ADecimal<Decimal> {
         return formatter;
     }
 
+    public static Decimal nanToNull(final Double value) {
+        if (value == null) {
+            return null;
+        } else {
+            return nanToNull(value.doubleValue());
+        }
+    }
+
+    public static Decimal nanToNull(final double value) {
+        if (Doubles.isInfinite(value)) {
+            throw new IllegalArgumentException("Infinite: " + value);
+        }
+        if (Doubles.isNaN(value)) {
+            return null;
+        } else {
+            return new Decimal(value);
+        }
+    }
+
 }
