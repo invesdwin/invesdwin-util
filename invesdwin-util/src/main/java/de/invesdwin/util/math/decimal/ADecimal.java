@@ -206,7 +206,7 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
         } else {
             return 1;
         }
-        return Doubles.compare(getValue(), doubleOther);
+        return Doubles.compare(getDefaultValue(), doubleOther);
     }
 
     @Override
@@ -215,7 +215,7 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
             final ADecimal<?> cOther = (ADecimal<?>) other;
             //force explicit default rounding if not done yet
             final ADecimal<?> cOtherRounded = cOther.round();
-            return round().doubleValue() == cOtherRounded.doubleValue();
+            return round().getDefaultValue() == cOtherRounded.getDefaultValue();
         } else {
             return false;
         }
