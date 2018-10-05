@@ -273,15 +273,15 @@ public final class Doubles extends ADoublesStaticFacade {
         }
     }
 
-    public static double divideIfNotZero(final Double dividend, final Double divisor) {
+    public static double divide(final Double dividend, final Double divisor) {
         if (dividend == null || divisor == null) {
             return 0D;
         } else {
-            return divideHandlingZero(dividend.doubleValue(), divisor.doubleValue());
+            return divide(dividend.doubleValue(), divisor.doubleValue());
         }
     }
 
-    public static double divideHandlingZero(final double dividend, final double divisor) {
+    public static double divide(final double dividend, final double divisor) {
         if (divisor == 0D) {
             return 0D;
         } else {
@@ -359,6 +359,25 @@ public final class Doubles extends ADoublesStaticFacade {
             throw UnknownArgumentException.newInstance(RoundingMode.class, roundingMode);
         }
         return roundedValue / factor;
+    }
+
+    /**
+     * With a step of 0.5: (Math.ceil(x * 2) / 2)
+     */
+    public static double roundToStep(final double value, final double step) {
+        return roundToStep(value, step, ADecimal.DEFAULT_ROUNDING_MODE);
+    }
+
+    public static double roundToStep(final double value, final double step, final RoundingMode roundingMode) {
+        final double stepReciprocal = reciprocal(step);
+        final double multiplied = value * stepReciprocal;
+        final double rounded = round(multiplied, 0, roundingMode);
+        final double divided = divide(rounded, stepReciprocal);
+        return divided;
+    }
+
+    public static double reciprocal(final double value) {
+        return 1D / value;
     }
 
     public static double abs(final double value) {

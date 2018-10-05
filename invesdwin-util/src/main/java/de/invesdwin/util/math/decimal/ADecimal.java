@@ -443,7 +443,7 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
     public Percent growthRate(final ADecimal<E> nextValue) {
         final double nextDecimalValue = nextValue.getDefaultValue();
         final double thisDecimalValue = getGenericThis().getDefaultValue();
-        final double rate = Doubles.divideHandlingZero(nextDecimalValue - thisDecimalValue,
+        final double rate = Doubles.divide(nextDecimalValue - thisDecimalValue,
                 Doubles.abs(thisDecimalValue));
         return new Percent(rate, PercentScale.RATE);
     }
@@ -705,18 +705,14 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
     }
 
     public E roundToStep(final ADecimal<E> step, final RoundingMode roundingMode) {
-        final E stepReciprocal = step.reciprocal();
-        final E multiplied = multiply(stepReciprocal);
-        final E rounded = multiplied.round(0, roundingMode);
-        final E divided = rounded.divide(stepReciprocal);
-        return divided;
+        return fromDefaultValue((Doubles.roundToStep(getDefaultValue(), step.getDefaultValue())));
     }
 
     public E reciprocal() {
         if (isZero()) {
             return zero();
         } else {
-            return newValueCopy(1D / getDefaultValue());
+            return newValueCopy(Doubles.reciprocal(getDefaultValue()));
         }
     }
 

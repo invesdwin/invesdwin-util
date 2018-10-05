@@ -33,7 +33,7 @@ class OverflowingNumberStreamStandardDeviation<E extends Number> implements IStr
             sum += Math.pow(difference, 2);
         }
         final double divisor = values.size() - 1;
-        final double sqrt = Math.sqrt(Doubles.divideHandlingZero(sum, divisor));
+        final double sqrt = Math.sqrt(Doubles.divide(sum, divisor));
         return sqrt;
     }
 
@@ -48,7 +48,7 @@ class OverflowingNumberStreamStandardDeviation<E extends Number> implements IStr
             sum += Math.pow(difference, 2);
         }
         final double divisor = values.size();
-        final double sqrt = Math.sqrt(Doubles.divideHandlingZero(sum, divisor));
+        final double sqrt = Math.sqrt(Doubles.divide(sum, divisor));
         return sqrt;
     }
 

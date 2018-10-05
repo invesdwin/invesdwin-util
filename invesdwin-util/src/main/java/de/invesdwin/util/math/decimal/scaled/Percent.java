@@ -70,7 +70,7 @@ public class Percent extends AScaledDecimal<Percent, PercentScale> {
     }
 
     public Percent(final double dividend, final double divisor) {
-        this(Doubles.divideHandlingZero(dividend, divisor), PercentScale.RATE);
+        this(Doubles.divide(dividend, divisor), PercentScale.RATE);
     }
 
     /**
@@ -94,7 +94,7 @@ public class Percent extends AScaledDecimal<Percent, PercentScale> {
     }
 
     public Percent(final ADecimal<?> dividend, final ADecimal<?> divisor) {
-        this(Doubles.divideHandlingZero(dividend.getDefaultValue(), divisor.getDefaultValue()), PercentScale.RATE);
+        this(Doubles.divide(dividend.getDefaultValue(), divisor.getDefaultValue()), PercentScale.RATE);
         if (dividend instanceof AScaledDecimal) {
             final AScaledDecimal<?, ?> cDividend = (AScaledDecimal<?, ?>) dividend;
             cDividend.assertSameDefaultScale(divisor);
@@ -107,7 +107,7 @@ public class Percent extends AScaledDecimal<Percent, PercentScale> {
 
     public <T extends AScaledDecimal<T, ?>> Percent(final AScaledDecimal<T, ?> dividend,
             final AScaledDecimal<T, ?> divisor) {
-        this(Doubles.divideHandlingZero(dividend.getDefaultValue(), divisor.getDefaultValue()), PercentScale.RATE);
+        this(Doubles.divide(dividend.getDefaultValue(), divisor.getDefaultValue()), PercentScale.RATE);
         dividend.assertSameDefaultScale(divisor);
     }
 
