@@ -793,7 +793,7 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
     }
 
     public E negate() {
-        return multiply(MINUS_ONE);
+        return newValueCopy(Doubles.negate(getValue()));
     }
 
     public String getSign() {

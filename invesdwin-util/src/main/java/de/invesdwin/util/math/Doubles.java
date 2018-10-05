@@ -507,4 +507,8 @@ public final class Doubles extends ADoublesStaticFacade {
         }
     }
 
+    public static double negate(final double value) {
+        return value * -1D;
+    }
+
 }
