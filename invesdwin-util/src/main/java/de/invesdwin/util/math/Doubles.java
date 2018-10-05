@@ -108,13 +108,45 @@ public final class Doubles extends ADoublesStaticFacade {
         return matrixAsList;
     }
 
+    public static Double max(final double first, final Double second) {
+        if (second == null) {
+            return first;
+        } else {
+            return max(first, second.doubleValue());
+        }
+    }
+
+    public static Double max(final Double first, final double second) {
+        if (first == null) {
+            return second;
+        } else {
+            return max(first.doubleValue(), second);
+        }
+    }
+
     public static Double max(final Double first, final Double second) {
         if (first == null) {
             return second;
         } else if (second == null) {
             return first;
         } else {
-            return Math.max(first, second);
+            return max(first.doubleValue(), second.doubleValue());
+        }
+    }
+
+    public static Double min(final double first, final Double second) {
+        if (second == null) {
+            return first;
+        } else {
+            return min(first, second.doubleValue());
+        }
+    }
+
+    public static Double min(final Double first, final double second) {
+        if (first == null) {
+            return second;
+        } else {
+            return min(first.doubleValue(), second);
         }
     }
 
@@ -124,7 +156,7 @@ public final class Doubles extends ADoublesStaticFacade {
         } else if (second == null) {
             return first;
         } else {
-            return Math.min(first, second);
+            return min(first.doubleValue(), second.doubleValue());
         }
     }
 

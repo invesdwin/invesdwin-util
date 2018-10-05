@@ -216,7 +216,7 @@ public class DecimalAggregateInterpolations<E extends ADecimal<E>> implements ID
         if (config.isPunishEdges() && values.size() >= 5) {
             Double minValue = null;
             Double maxValue = null;
-            for (final Double y : yval) {
+            for (final double y : yval) {
                 minValue = Doubles.min(minValue, y);
                 maxValue = Doubles.max(maxValue, y);
             }

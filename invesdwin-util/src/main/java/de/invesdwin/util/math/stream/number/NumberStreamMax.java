@@ -12,7 +12,7 @@ public class NumberStreamMax<E extends Number> implements IStreamAlgorithm<E, Do
 
     @Override
     public Double process(final E value) {
-        max = Doubles.max(max, (Double) value.doubleValue());
+        max = Doubles.max(max, value.doubleValue());
         return max;
     }
 

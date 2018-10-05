@@ -13,6 +13,10 @@ public class TimedDecimal extends Decimal implements IHistoricalValue<TimedDecim
     private final FDate time;
 
     public TimedDecimal(final FDate time, final Decimal decimal) {
+        this(time, decimal.doubleValue());
+    }
+
+    public TimedDecimal(final FDate time, final double decimal) {
         super(decimal);
         Assertions.checkNotNull(time);
         this.time = time;
