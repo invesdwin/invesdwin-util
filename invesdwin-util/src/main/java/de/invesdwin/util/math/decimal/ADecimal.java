@@ -443,8 +443,7 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
     public Percent growthRate(final ADecimal<E> nextValue) {
         final double nextDecimalValue = nextValue.getDefaultValue();
         final double thisDecimalValue = getGenericThis().getDefaultValue();
-        final double rate = Doubles.divide(nextDecimalValue - thisDecimalValue,
-                Doubles.abs(thisDecimalValue));
+        final double rate = Doubles.growthRate(thisDecimalValue, nextDecimalValue);
         return new Percent(rate, PercentScale.RATE);
     }
 

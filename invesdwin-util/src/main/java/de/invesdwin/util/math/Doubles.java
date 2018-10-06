@@ -538,4 +538,9 @@ public final class Doubles extends ADoublesStaticFacade {
         return value * -1D;
     }
 
+    public static double growthRate(final double first, final double second) {
+        final double rate = Doubles.divide(second - first, Doubles.abs(first));
+        return rate;
+    }
+
 }
