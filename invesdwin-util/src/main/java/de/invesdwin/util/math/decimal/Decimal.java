@@ -278,4 +278,12 @@ public class Decimal extends ADecimal<Decimal> {
         }
     }
 
+    public static double nullToNan(final Decimal value) {
+        if (value == null) {
+            return Double.NaN;
+        } else {
+            return value.doubleValue();
+        }
+    }
+
 }

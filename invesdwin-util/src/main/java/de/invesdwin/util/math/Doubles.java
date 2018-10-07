@@ -543,4 +543,12 @@ public final class Doubles extends ADoublesStaticFacade {
         return rate;
     }
 
+    public static double nullToNan(final Double value) {
+        if (value == null) {
+            return Double.NaN;
+        } else {
+            return value.doubleValue();
+        }
+    }
+
 }
