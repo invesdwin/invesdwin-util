@@ -200,15 +200,19 @@ public class FilterDuplicateKeysList<V> extends ADelegateList<IHistoricalEntry<V
     }
 
     @Override
+    protected boolean isSetAllowed(final int index, final IHistoricalEntry<V> e) {
+        //we need to support reversal, thus allowing set in all cases
+        return true;
+    }
+
+    @Override
     public boolean isAddAllowed(final IHistoricalEntry<V> e) {
         if (minEntry == null) {
             minEntry = e;
             maxEntry = e;
             return true;
         } else {
-            //we need to support reversal, thus doing identity check
-            if (e.getKey().equals(minEntry.getKey()) && e != minEntry
-                    || e.getKey().equals(maxEntry.getKey()) && e != maxEntry) {
+            if (e.getKey().equals(minEntry.getKey()) || e.getKey().equals(maxEntry.getKey())) {
                 return false;
             } else {
                 if (e.getKey().isBefore(minEntry.getKey())) {

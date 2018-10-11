@@ -1,7 +1,10 @@
 package de.invesdwin.util.collections.loadingcache.historical.query.internal.core;
 
+import java.util.List;
+
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.loadingcache.historical.IHistoricalEntry;
+import de.invesdwin.util.collections.loadingcache.historical.query.internal.FilterDuplicateKeysList;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.HistoricalCacheAssertValue;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.HistoricalCacheQuery;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.IHistoricalCacheInternalMethods;
@@ -36,5 +39,9 @@ public interface IHistoricalCacheQueryCore<V> {
     void putPrevious(FDate previousKey, V value, FDate valueKey);
 
     void putPreviousKey(FDate previousKey, FDate valueKey);
+
+    default List<IHistoricalEntry<V>> newEntriesList(final int shiftBackUnits) {
+        return new FilterDuplicateKeysList<>(shiftBackUnits);
+    }
 
 }

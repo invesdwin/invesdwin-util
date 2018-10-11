@@ -10,13 +10,6 @@ public interface IHistoricalCacheQueryWithFuture<V> extends IHistoricalCacheQuer
     IHistoricalCacheQueryWithFuture<V> withElementFilter(IHistoricalCacheQueryElementFilter<V> elementFilter);
 
     /**
-     * Default is true. Filters key and thus values that have already been added to the result list. Thus the result
-     * list might contain less values than shiftBackUnits specified.
-     */
-    @Override
-    IHistoricalCacheQueryWithFuture<V> withFilterDuplicateKeys(boolean filterDuplicateKeys);
-
-    /**
      * Warning: throws an exception since withFuture() was already called
      */
     @Deprecated

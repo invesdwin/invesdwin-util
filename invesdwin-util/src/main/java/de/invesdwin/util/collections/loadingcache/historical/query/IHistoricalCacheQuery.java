@@ -9,12 +9,6 @@ public interface IHistoricalCacheQuery<V> extends IHistoricalCacheQueryInternalM
 
     IHistoricalCacheQuery<V> withElementFilter(IHistoricalCacheQueryElementFilter<V> elementFilter);
 
-    /**
-     * Default is true. Filters key and thus values that have already been added to the result list. Thus the result
-     * list might contain less values than shiftBackUnits specified.
-     */
-    IHistoricalCacheQuery<V> withFilterDuplicateKeys(boolean filterDuplicateKeys);
-
     IHistoricalCacheQuery<V> withFutureNull();
 
     IHistoricalCacheQueryWithFuture<V> withFuture();

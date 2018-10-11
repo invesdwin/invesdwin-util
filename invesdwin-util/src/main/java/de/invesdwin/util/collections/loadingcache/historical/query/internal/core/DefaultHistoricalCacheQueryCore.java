@@ -88,7 +88,7 @@ public class DefaultHistoricalCacheQueryCore<V> implements IHistoricalCacheQuery
     public ICloseableIterable<IHistoricalEntry<V>> getPreviousEntries(
             final IHistoricalCacheQueryInternalMethods<V> query, final FDate key, final int shiftBackUnits) {
         //This has to work with lists internally to support FilterDuplicateKeys option
-        final List<IHistoricalEntry<V>> trailing = query.newEntriesList(shiftBackUnits);
+        final List<IHistoricalEntry<V>> trailing = newEntriesList(shiftBackUnits);
         //With 10 units this iterates from 9 to 0
         //to go from past to future so that queries get minimized
         //only on the first call we risk multiple queries
@@ -111,7 +111,7 @@ public class DefaultHistoricalCacheQueryCore<V> implements IHistoricalCacheQuery
     public ICloseableIterable<IHistoricalEntry<V>> getNextEntries(final IHistoricalCacheQueryInternalMethods<V> query,
             final FDate key, final int shiftForwardUnits) {
         //This has to work with lists internally to support FilterDuplicateKeys option
-        final List<IHistoricalEntry<V>> trailing = query.newEntriesList(shiftForwardUnits);
+        final List<IHistoricalEntry<V>> trailing = newEntriesList(shiftForwardUnits);
         //With 10 units this iterates from 9 to 0
         //to go from past to future so that queries get minimized
         //only on the first call we risk multiple queries

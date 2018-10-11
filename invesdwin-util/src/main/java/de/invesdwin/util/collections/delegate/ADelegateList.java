@@ -36,11 +36,15 @@ public abstract class ADelegateList<E> extends ADelegateCollection<E> implements
 
     @Override
     public E set(final int index, final E element) {
-        if (isAddAllowed(element)) {
+        if (isSetAllowed(index, element)) {
             return getDelegate().set(index, element);
         } else {
             return get(index);
         }
+    }
+
+    protected boolean isSetAllowed(final int index, final E e) {
+        return isAddAllowed(e);
     }
 
     @Override

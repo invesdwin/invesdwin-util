@@ -1,6 +1,5 @@
 package de.invesdwin.util.collections.loadingcache.historical.query.internal.core;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.concurrent.GuardedBy;
@@ -19,8 +18,6 @@ public abstract class ACachedResultHistoricalCacheQueryCore<V> extends ACachedEn
     @GuardedBy("cachedQueryActiveLock")
     protected IndexedFDate cachedPreviousEntriesKey = null;
     @GuardedBy("cachedQueryActiveLock")
-    protected List<IHistoricalEntry<V>> cachedPreviousResult_notFilteringDuplicates = null;
-    @GuardedBy("cachedQueryActiveLock")
     protected List<IHistoricalEntry<V>> cachedPreviousResult_filteringDuplicates = null;
     @GuardedBy("cachedQueryActiveLock")
     protected Integer cachedPreviousResult_shiftBackUnits = null;
@@ -29,45 +26,13 @@ public abstract class ACachedResultHistoricalCacheQueryCore<V> extends ACachedEn
      * Use sublist if possible to reduce memory footprint of transient array lists to reduce garbage collection overhead
      */
     protected List<IHistoricalEntry<V>> tryCachedPreviousResult_sameKey(
-            final IHistoricalCacheQueryInternalMethods<V> query, final int shiftBackUnits,
-            final boolean filterDuplicateKeys) {
+            final IHistoricalCacheQueryInternalMethods<V> query, final int shiftBackUnits) {
         if (cachedPreviousResult_shiftBackUnits == null || cachedPreviousResult_shiftBackUnits < shiftBackUnits) {
             return null;
         }
-        if (filterDuplicateKeys) {
-            if (cachedPreviousResult_filteringDuplicates == null) {
-                if (cachedPreviousResult_notFilteringDuplicates == null) {
-                    return null;
-                } else {
-                    cachedPreviousResult_filteringDuplicates = newEntriesList(query,
-                            cachedPreviousResult_shiftBackUnits, true);
-                    cachedPreviousResult_filteringDuplicates.addAll(cachedPreviousResult_notFilteringDuplicates);
-                }
-            }
-            final int toIndex = cachedPreviousResult_filteringDuplicates.size();
-            final int fromIndex = Math.max(0, toIndex - shiftBackUnits);
-            return cachedPreviousResult_filteringDuplicates.subList(fromIndex, toIndex);
-        } else {
-            if (cachedPreviousResult_notFilteringDuplicates == null) {
-                if (cachedPreviousResult_filteringDuplicates == null) {
-                    return null;
-                } else {
-                    cachedPreviousResult_notFilteringDuplicates = new ArrayList<IHistoricalEntry<V>>(
-                            cachedPreviousResult_filteringDuplicates);
-                    final int duplicatesRemaining = cachedPreviousResult_shiftBackUnits
-                            - cachedPreviousResult_notFilteringDuplicates.size();
-                    if (duplicatesRemaining > 0 && !cachedPreviousResult_filteringDuplicates.isEmpty()) {
-                        final IHistoricalEntry<V> toBeDuplicated = cachedPreviousResult_filteringDuplicates.get(0);
-                        for (int i = 0; i < duplicatesRemaining; i++) {
-                            cachedPreviousResult_notFilteringDuplicates.add(0, toBeDuplicated);
-                        }
-                    }
-                }
-            }
-            final int toIndex = cachedPreviousResult_notFilteringDuplicates.size();
-            final int fromIndex = Math.max(0, toIndex - shiftBackUnits);
-            return cachedPreviousResult_notFilteringDuplicates.subList(fromIndex, toIndex);
-        }
+        final int toIndex = cachedPreviousResult_filteringDuplicates.size();
+        final int fromIndex = Math.max(0, toIndex - shiftBackUnits);
+        return cachedPreviousResult_filteringDuplicates.subList(fromIndex, toIndex);
     }
 
     /**
@@ -76,8 +41,7 @@ public abstract class ACachedResultHistoricalCacheQueryCore<V> extends ACachedEn
      * @throws ResetCacheException
      */
     protected void updateCachedPreviousResult(final IHistoricalCacheQueryInternalMethods<V> query,
-            final int shiftBackUnits, final List<IHistoricalEntry<V>> result, final boolean filterDuplicateKeys)
-            throws ResetCacheException {
+            final int shiftBackUnits, final List<IHistoricalEntry<V>> result) throws ResetCacheException {
         if (result.isEmpty() && query.getAssertValue() == HistoricalCacheAssertValue.ASSERT_VALUE_WITH_FUTURE_NULL) {
             //do not remember an empty result with future null (a call with future next might trip on it)
             return;
@@ -85,19 +49,12 @@ public abstract class ACachedResultHistoricalCacheQueryCore<V> extends ACachedEn
         if (cachedPreviousResult_shiftBackUnits != null && !cachedPreviousEntries.isEmpty() && result.size() > 1) {
             throw new IllegalStateException("cachedPreviousResult should have been reset by preceeding code!");
         }
-        if (filterDuplicateKeys) {
-            cachedPreviousResult_filteringDuplicates = result;
-            cachedPreviousResult_notFilteringDuplicates = null;
-        } else {
-            cachedPreviousResult_filteringDuplicates = null;
-            cachedPreviousResult_notFilteringDuplicates = result;
-        }
+        cachedPreviousResult_filteringDuplicates = result;
         cachedPreviousResult_shiftBackUnits = shiftBackUnits;
     }
 
     protected void resetCachedPreviousResult() {
         cachedPreviousResult_filteringDuplicates = null;
-        cachedPreviousResult_notFilteringDuplicates = null;
         cachedPreviousResult_shiftBackUnits = null;
     }
 
@@ -141,13 +98,6 @@ public abstract class ACachedResultHistoricalCacheQueryCore<V> extends ACachedEn
                     cachedPreviousResult_filteringDuplicates.remove(0);
                 }
             }
-            if (cachedPreviousResult_notFilteringDuplicates != null) {
-                //ensure we stay in size limit
-                cachedPreviousResult_notFilteringDuplicates.add(latestEntry);
-                if (cachedPreviousResult_notFilteringDuplicates.size() > cachedPreviousResult_shiftBackUnits) {
-                    cachedPreviousResult_notFilteringDuplicates.remove(0);
-                }
-            }
 
             final Integer maximumSize = getParent().getMaximumSize();
             if (maximumSize != null) {
@@ -173,13 +123,6 @@ public abstract class ACachedResultHistoricalCacheQueryCore<V> extends ACachedEn
                     .getKey();
             assertSameLastKey(lastCachedEntryKey, lastCachedResultKey);
         }
-        if (cachedPreviousResult_notFilteringDuplicates != null
-                && !cachedPreviousResult_notFilteringDuplicates.isEmpty()) {
-            final FDate lastCachedResultKey = cachedPreviousResult_notFilteringDuplicates
-                    .get(cachedPreviousResult_notFilteringDuplicates.size() - 1)
-                    .getKey();
-            assertSameLastKey(lastCachedEntryKey, lastCachedResultKey);
-        }
         return lastCachedEntryKey;
     }
 
@@ -197,15 +140,6 @@ public abstract class ACachedResultHistoricalCacheQueryCore<V> extends ACachedEn
         super.resetForRetry();
         cachedPreviousEntriesKey = null;
         resetCachedPreviousResult();
-    }
-
-    protected List<IHistoricalEntry<V>> newEntriesList(final IHistoricalCacheQueryInternalMethods<V> query,
-            final int shiftBackUnits, final boolean filterDuplicateKeys) {
-        if (filterDuplicateKeys) {
-            return query.newEntriesList(shiftBackUnits);
-        } else {
-            return new ArrayList<IHistoricalEntry<V>>();
-        }
     }
 
 }

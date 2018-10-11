@@ -1,7 +1,5 @@
 package de.invesdwin.util.collections.loadingcache.historical.query.internal;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 import javax.annotation.concurrent.NotThreadSafe;
@@ -21,12 +19,10 @@ import de.invesdwin.util.time.fdate.FDate;
 @NotThreadSafe
 public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
 
-    private static final boolean DEFAULT_FILTER_DUPLICATE_KEYS = true;
     private static final HistoricalCacheAssertValue DEFAULT_ASSERT_VALUE = HistoricalCacheAssertValue.ASSERT_VALUE_WITHOUT_FUTURE;
 
     protected final IHistoricalCacheQueryCore<V> core;
     protected HistoricalCacheAssertValue assertValue = DEFAULT_ASSERT_VALUE;
-    private boolean filterDuplicateKeys = DEFAULT_FILTER_DUPLICATE_KEYS;
     private IHistoricalCacheQueryElementFilter<V> elementFilter = DisabledHistoricalCacheQueryElementFilter
             .getInstance();
 
@@ -37,7 +33,6 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
     @Override
     public void resetQuerySettings() {
         assertValue = DEFAULT_ASSERT_VALUE;
-        filterDuplicateKeys = DEFAULT_FILTER_DUPLICATE_KEYS;
         elementFilter = null;
     }
 
@@ -52,23 +47,12 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
     }
 
     @Override
-    public boolean isFilterDuplicateKeys() {
-        return filterDuplicateKeys;
-    }
-
-    @Override
     public IHistoricalCacheQuery<V> withElementFilter(final IHistoricalCacheQueryElementFilter<V> elementFilter) {
         if (elementFilter == null) {
             this.elementFilter = DisabledHistoricalCacheQueryElementFilter.getInstance();
         } else {
             this.elementFilter = elementFilter;
         }
-        return this;
-    }
-
-    @Override
-    public IHistoricalCacheQuery<V> withFilterDuplicateKeys(final boolean filterDuplicateKeys) {
-        this.filterDuplicateKeys = filterDuplicateKeys;
         return this;
     }
 
@@ -620,7 +604,6 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public void copyQuerySettings(final IHistoricalCacheQuery copyFrom) {
         this.assertValue = copyFrom.getAssertValue();
-        this.filterDuplicateKeys = copyFrom.isFilterDuplicateKeys();
         this.elementFilter = copyFrom.getElementFilter();
     }
 
@@ -639,18 +622,6 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
             }
         }
         return null;
-    }
-
-    @Override
-    public final List<IHistoricalEntry<V>> newEntriesList(final int size) {
-        if (filterDuplicateKeys) {
-            /*
-             * duplicates will only occur on the edged, never in the middle, so we can use this fast implementation
-             */
-            return new FilterDuplicateKeysList<V>(size);
-        } else {
-            return new ArrayList<IHistoricalEntry<V>>(size);
-        }
     }
 
     private void checkAssertValueUnchangedAndSet(final HistoricalCacheAssertValue newAssertValue) {

@@ -1,7 +1,5 @@
 package de.invesdwin.util.collections.loadingcache.historical.query.internal.filter;
 
-import java.util.List;
-
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.assertions.Assertions;
@@ -30,12 +28,6 @@ public class FilteringHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V
     @Override
     public IHistoricalCacheQuery<V> withElementFilter(final IHistoricalCacheQueryElementFilter<V> elementFilter) {
         delegate.withElementFilter(elementFilter);
-        return this;
-    }
-
-    @Override
-    public IHistoricalCacheQuery<V> withFilterDuplicateKeys(final boolean filterDuplicateKeys) {
-        delegate.withFilterDuplicateKeys(filterDuplicateKeys);
         return this;
     }
 
@@ -349,11 +341,6 @@ public class FilteringHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V
     }
 
     @Override
-    public boolean isFilterDuplicateKeys() {
-        return delegate.isFilterDuplicateKeys();
-    }
-
-    @Override
     public IHistoricalCacheQueryElementFilter<V> getElementFilter() {
         return delegate.getElementFilter();
     }
@@ -361,11 +348,6 @@ public class FilteringHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V
     @Override
     public void resetQuerySettings() {
         delegate.resetQuerySettings();
-    }
-
-    @Override
-    public List<IHistoricalEntry<V>> newEntriesList(final int size) {
-        return delegate.newEntriesList(size);
     }
 
     @Override

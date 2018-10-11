@@ -31,12 +31,6 @@ public class FilteringHistoricalCacheQueryWithFuture<V> extends FilteringHistori
     }
 
     @Override
-    public IHistoricalCacheQueryWithFuture<V> withFilterDuplicateKeys(final boolean filterDuplicateKeys) {
-        delegate.withFilterDuplicateKeys(filterDuplicateKeys);
-        return this;
-    }
-
-    @Override
     public IHistoricalCacheQueryWithFuture<V> withFutureNull() {
         delegate.withFutureNull();
         return this;

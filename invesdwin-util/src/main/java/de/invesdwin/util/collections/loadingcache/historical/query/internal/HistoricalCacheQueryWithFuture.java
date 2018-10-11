@@ -25,11 +25,6 @@ public class HistoricalCacheQueryWithFuture<V> extends HistoricalCacheQuery<V>
         return (IHistoricalCacheQueryWithFuture<V>) super.withElementFilter(elementFilter);
     }
 
-    @Override
-    public IHistoricalCacheQueryWithFuture<V> withFilterDuplicateKeys(final boolean filterDuplicateKeys) {
-        return (IHistoricalCacheQueryWithFuture<V>) super.withFilterDuplicateKeys(filterDuplicateKeys);
-    }
-
     @Deprecated
     @Override
     public IHistoricalCacheQueryWithFuture<V> withFutureNull() {
