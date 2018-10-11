@@ -448,9 +448,7 @@ public final class Doubles extends ADoublesStaticFacade {
     }
 
     public static double nanToZero(final double value) {
-        if (isInfinite(value)) {
-            throw new IllegalArgumentException("Infinite: " + value);
-        }
+        assert isInfinite(value) : "Infinite: " + value;
         if (isNaN(value)) {
             return 0D;
         } else {
