@@ -19,11 +19,13 @@ public class StringAssert extends AbstractCharSequenceAssert<StringAssert, Strin
         super(actual, StringAssert.class);
     }
 
+    @Override
     public StringAssert isBlank() {
         assertBlank(info, actual);
         return myself;
     }
 
+    @Override
     public StringAssert isNotBlank() {
         assertNotBlank(info, actual);
         return myself;
