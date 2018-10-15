@@ -15,10 +15,12 @@ public final class DelegateHistoricalCacheExtractKeyProvider<V> implements IHist
 
     private final AHistoricalCache<Object> delegate;
     private final IHistoricalCacheQueryWithFuture<Object> delegateQueryWithFuture;
+    private final int hashCode;
 
     private DelegateHistoricalCacheExtractKeyProvider(final AHistoricalCache<Object> delegate) {
         this.delegate = delegate;
         this.delegateQueryWithFuture = delegate.query().withFuture();
+        this.hashCode = delegate.getExtractKeyProvider().hashCode();
     }
 
     @Override
@@ -65,7 +67,7 @@ public final class DelegateHistoricalCacheExtractKeyProvider<V> implements IHist
 
     @Override
     public int hashCode() {
-        return delegate.getExtractKeyProvider().hashCode();
+        return hashCode;
     }
 
     @Override
