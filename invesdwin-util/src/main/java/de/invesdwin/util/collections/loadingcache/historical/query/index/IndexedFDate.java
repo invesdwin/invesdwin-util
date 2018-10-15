@@ -8,11 +8,11 @@ import de.invesdwin.util.time.fdate.FDate;
 @NotThreadSafe
 public class IndexedFDate extends FDate {
 
-    private IdentityQueryCoreIndex indexFalse;
-    private IdentityQueryCoreIndex indexTrue;
-    private boolean indexesRoundRobin;
-    private int extractKeyProviderHashCode = 0;
-    private FDate extractKeyProviderExtractedKey;
+    private transient IdentityQueryCoreIndex indexFalse;
+    private transient IdentityQueryCoreIndex indexTrue;
+    private transient boolean indexesRoundRobin;
+    private transient int extractKeyProviderHashCode;
+    private transient FDate extractKeyProviderExtractedKey;
 
     @SuppressWarnings("deprecation")
     public IndexedFDate(final FDate key) {
