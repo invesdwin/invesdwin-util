@@ -6,6 +6,7 @@ import de.invesdwin.util.collections.loadingcache.historical.interceptor.IHistor
 import de.invesdwin.util.collections.loadingcache.historical.interceptor.IHistoricalCacheRangeQueryInterceptor;
 import de.invesdwin.util.collections.loadingcache.historical.key.IHistoricalCachePutProvider;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQuery;
+import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.IHistoricalCacheQueryCore;
 import de.invesdwin.util.time.fdate.FDate;
 
 public interface IHistoricalCacheInternalMethods<V> {
@@ -35,5 +36,7 @@ public interface IHistoricalCacheInternalMethods<V> {
     IHistoricalEntry<V> computeEntry(FDate key);
 
     IHistoricalCachePutProvider<V> getPutProvider();
+
+    IHistoricalCacheQueryCore<V> getQueryCore();
 
 }

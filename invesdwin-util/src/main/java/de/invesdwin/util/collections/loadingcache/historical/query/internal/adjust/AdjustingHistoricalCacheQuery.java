@@ -13,27 +13,27 @@ import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCa
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQueryWithFuture;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.HistoricalCacheAssertValue;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.HistoricalCacheQuery;
-import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.IHistoricalCacheQueryCore;
+import de.invesdwin.util.collections.loadingcache.historical.query.internal.IHistoricalCacheInternalMethods;
 import de.invesdwin.util.time.fdate.FDate;
 
 @Immutable
 public class AdjustingHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
 
-    private final IHistoricalCacheQueryCore<V> core;
+    private final IHistoricalCacheInternalMethods<V> internalMethods;
     private final IHistoricalCacheQuery<V> delegate;
 
-    public AdjustingHistoricalCacheQuery(final IHistoricalCacheQueryCore<V> core) {
-        this(core, new HistoricalCacheQuery<V>(core));
+    public AdjustingHistoricalCacheQuery(final IHistoricalCacheInternalMethods<V> internalMethods) {
+        this(internalMethods, new HistoricalCacheQuery<V>(internalMethods));
     }
 
-    protected AdjustingHistoricalCacheQuery(final IHistoricalCacheQueryCore<V> core,
+    protected AdjustingHistoricalCacheQuery(final IHistoricalCacheInternalMethods<V> internalMethods,
             final IHistoricalCacheQuery<V> delegate) {
-        this.core = core;
+        this.internalMethods = internalMethods;
         this.delegate = delegate;
     }
 
     protected FDate adjustKey(final FDate key) {
-        return core.getParent().adjustKey(key);
+        return internalMethods.adjustKey(key);
     }
 
     protected Iterable<FDate> adjustKey(final Iterable<FDate> keys) {
@@ -78,7 +78,7 @@ public class AdjustingHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V
     }
 
     protected AdjustingHistoricalCacheQueryWithFuture<V> newFutureQuery() {
-        return new AdjustingHistoricalCacheQueryWithFuture<V>(core, delegate.withFuture());
+        return new AdjustingHistoricalCacheQueryWithFuture<V>(internalMethods, delegate.withFuture());
     }
 
     @Override

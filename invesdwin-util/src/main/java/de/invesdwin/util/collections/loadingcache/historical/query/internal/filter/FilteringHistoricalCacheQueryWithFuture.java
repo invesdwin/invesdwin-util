@@ -8,7 +8,7 @@ import de.invesdwin.util.collections.loadingcache.historical.IHistoricalEntry;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQueryElementFilter;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQueryWithFuture;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.HistoricalCacheAssertValue;
-import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.IHistoricalCacheQueryCore;
+import de.invesdwin.util.collections.loadingcache.historical.query.internal.IHistoricalCacheInternalMethods;
 import de.invesdwin.util.time.fdate.FDate;
 
 @Immutable
@@ -17,9 +17,9 @@ public class FilteringHistoricalCacheQueryWithFuture<V> extends FilteringHistori
 
     private final IHistoricalCacheQueryWithFuture<V> delegate;
 
-    protected FilteringHistoricalCacheQueryWithFuture(final IHistoricalCacheQueryCore<V> core,
+    protected FilteringHistoricalCacheQueryWithFuture(final IHistoricalCacheInternalMethods<V> internalMethods,
             final IHistoricalCacheQueryWithFuture<V> delegate) {
-        super(core, delegate);
+        super(internalMethods, delegate);
         this.delegate = delegate;
     }
 
@@ -30,6 +30,7 @@ public class FilteringHistoricalCacheQueryWithFuture<V> extends FilteringHistori
         return this;
     }
 
+    @Deprecated
     @Override
     public IHistoricalCacheQueryWithFuture<V> withFutureNull() {
         delegate.withFutureNull();

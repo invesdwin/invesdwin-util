@@ -172,9 +172,9 @@ public abstract class APullingHistoricalCacheAdjustKeyProvider implements IHisto
 
     @Override
     public final <T> IHistoricalCacheQuery<T> newQuery(
-            final de.invesdwin.util.collections.loadingcache.historical.query.internal.core.IHistoricalCacheQueryCore<T> queryCore) {
+            final de.invesdwin.util.collections.loadingcache.historical.query.internal.IHistoricalCacheInternalMethods<T> internalMethods) {
         return new de.invesdwin.util.collections.loadingcache.historical.query.internal.adjust.AdjustingHistoricalCacheQuery<T>(
-                queryCore);
+                internalMethods);
     }
 
 }

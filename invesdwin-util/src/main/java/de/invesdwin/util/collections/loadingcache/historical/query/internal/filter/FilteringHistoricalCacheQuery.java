@@ -10,18 +10,18 @@ import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCa
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQueryElementFilter;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQueryWithFuture;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.HistoricalCacheAssertValue;
-import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.IHistoricalCacheQueryCore;
+import de.invesdwin.util.collections.loadingcache.historical.query.internal.IHistoricalCacheInternalMethods;
 import de.invesdwin.util.time.fdate.FDate;
 
 @Immutable
 public class FilteringHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
 
-    private final IHistoricalCacheQueryCore<V> core;
+    private final IHistoricalCacheInternalMethods<V> internalMethods;
     private final IHistoricalCacheQuery<V> delegate;
 
-    public FilteringHistoricalCacheQuery(final IHistoricalCacheQueryCore<V> core,
+    public FilteringHistoricalCacheQuery(final IHistoricalCacheInternalMethods<V> internalMethods,
             final IHistoricalCacheQuery<V> delegate) {
-        this.core = core;
+        this.internalMethods = internalMethods;
         this.delegate = delegate;
     }
 
@@ -43,7 +43,7 @@ public class FilteringHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V
     }
 
     protected FilteringHistoricalCacheQueryWithFuture<V> newFutureQuery() {
-        return new FilteringHistoricalCacheQueryWithFuture<V>(core, delegate.withFuture());
+        return new FilteringHistoricalCacheQueryWithFuture<V>(internalMethods, delegate.withFuture());
     }
 
     @Override

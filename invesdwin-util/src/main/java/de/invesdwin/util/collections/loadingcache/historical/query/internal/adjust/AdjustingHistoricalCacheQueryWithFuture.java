@@ -7,7 +7,7 @@ import de.invesdwin.util.collections.loadingcache.historical.IHistoricalEntry;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQueryElementFilter;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQueryWithFuture;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.HistoricalCacheQueryWithFuture;
-import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.IHistoricalCacheQueryCore;
+import de.invesdwin.util.collections.loadingcache.historical.query.internal.IHistoricalCacheInternalMethods;
 import de.invesdwin.util.time.fdate.FDate;
 
 @Immutable
@@ -16,13 +16,13 @@ public class AdjustingHistoricalCacheQueryWithFuture<V> extends AdjustingHistori
 
     private final IHistoricalCacheQueryWithFuture<V> delegate;
 
-    public AdjustingHistoricalCacheQueryWithFuture(final IHistoricalCacheQueryCore<V> core) {
-        this(core, new HistoricalCacheQueryWithFuture<V>(core));
+    public AdjustingHistoricalCacheQueryWithFuture(final IHistoricalCacheInternalMethods<V> internalMethods) {
+        this(internalMethods, new HistoricalCacheQueryWithFuture<V>(internalMethods));
     }
 
-    protected AdjustingHistoricalCacheQueryWithFuture(final IHistoricalCacheQueryCore<V> core,
+    protected AdjustingHistoricalCacheQueryWithFuture(final IHistoricalCacheInternalMethods<V> internalMethods,
             final IHistoricalCacheQueryWithFuture<V> delegate) {
-        super(core, delegate);
+        super(internalMethods, delegate);
         this.delegate = delegate;
     }
 

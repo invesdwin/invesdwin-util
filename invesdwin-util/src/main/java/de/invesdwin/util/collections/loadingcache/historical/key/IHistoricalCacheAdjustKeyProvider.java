@@ -21,7 +21,7 @@ public interface IHistoricalCacheAdjustKeyProvider {
     AHistoricalCache<?> getParent();
 
     <T> IHistoricalCacheQuery<T> newQuery(
-            de.invesdwin.util.collections.loadingcache.historical.query.internal.core.IHistoricalCacheQueryCore<T> queryCore);
+            de.invesdwin.util.collections.loadingcache.historical.query.internal.IHistoricalCacheInternalMethods<T> queryCore);
 
     boolean isAlreadyAdjustingKey();
 

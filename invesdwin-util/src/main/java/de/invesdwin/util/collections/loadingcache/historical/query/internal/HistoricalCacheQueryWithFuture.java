@@ -8,15 +8,14 @@ import de.invesdwin.util.collections.loadingcache.historical.IHistoricalEntry;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQuery;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQueryElementFilter;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQueryWithFuture;
-import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.IHistoricalCacheQueryCore;
 import de.invesdwin.util.time.fdate.FDate;
 
 @NotThreadSafe
 public class HistoricalCacheQueryWithFuture<V> extends HistoricalCacheQuery<V>
         implements IHistoricalCacheQueryWithFuture<V> {
 
-    public HistoricalCacheQueryWithFuture(final IHistoricalCacheQueryCore<V> core) {
-        super(core);
+    public HistoricalCacheQueryWithFuture(final IHistoricalCacheInternalMethods<V> internalMethods) {
+        super(internalMethods);
     }
 
     @Override
@@ -83,7 +82,7 @@ public class HistoricalCacheQueryWithFuture<V> extends HistoricalCacheQuery<V>
     @Override
     public IHistoricalEntry<V> getNextEntry(final FDate key, final int shiftForwardUnits) {
         assertShiftUnitsPositive(shiftForwardUnits);
-        return core.getNextEntry(this, key, shiftForwardUnits);
+        return internalMethods.getQueryCore().getNextEntry(this, key, shiftForwardUnits);
     }
 
     @Override
@@ -95,7 +94,7 @@ public class HistoricalCacheQueryWithFuture<V> extends HistoricalCacheQuery<V>
     @Override
     public ICloseableIterable<IHistoricalEntry<V>> getNextEntries(final FDate key, final int shiftForwardUnits) {
         assertShiftUnitsPositiveNonZero(shiftForwardUnits);
-        return core.getNextEntries(this, key, shiftForwardUnits);
+        return internalMethods.getQueryCore().getNextEntries(this, key, shiftForwardUnits);
     }
 
     @Override

@@ -12,7 +12,6 @@ import de.invesdwin.util.collections.loadingcache.historical.query.DisabledHisto
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQuery;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQueryElementFilter;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQueryWithFuture;
-import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.IHistoricalCacheQueryCore;
 import de.invesdwin.util.error.FastNoSuchElementException;
 import de.invesdwin.util.time.fdate.FDate;
 
@@ -21,13 +20,13 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
 
     private static final HistoricalCacheAssertValue DEFAULT_ASSERT_VALUE = HistoricalCacheAssertValue.ASSERT_VALUE_WITHOUT_FUTURE;
 
-    protected final IHistoricalCacheQueryCore<V> core;
+    protected final IHistoricalCacheInternalMethods<V> internalMethods;
     protected HistoricalCacheAssertValue assertValue = DEFAULT_ASSERT_VALUE;
     private IHistoricalCacheQueryElementFilter<V> elementFilter = DisabledHistoricalCacheQueryElementFilter
             .getInstance();
 
-    public HistoricalCacheQuery(final IHistoricalCacheQueryCore<V> core) {
-        this.core = core;
+    public HistoricalCacheQuery(final IHistoricalCacheInternalMethods<V> internalMethods) {
+        this.internalMethods = internalMethods;
     }
 
     @Override
@@ -76,12 +75,12 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
 
     @Override
     public final IHistoricalEntry<V> getEntry(final FDate key) {
-        return core.getEntry(this, key, assertValue);
+        return internalMethods.getQueryCore().getEntry(this, key, assertValue);
     }
 
     @Override
     public V getValue(final FDate key) {
-        return core.getValue(this, key, assertValue);
+        return internalMethods.getQueryCore().getValue(this, key, assertValue);
     }
 
     @Override
@@ -113,7 +112,8 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
 
                     @Override
                     public IHistoricalEntry<V> next() {
-                        return core.getEntry(HistoricalCacheQuery.this, keysIterator.next(), assertValue);
+                        return internalMethods.getQueryCore().getEntry(HistoricalCacheQuery.this, keysIterator.next(),
+                                assertValue);
                     }
 
                     @Override
@@ -162,7 +162,8 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
         if (key == null) {
             return null;
         }
-        return HistoricalCacheAssertValue.unwrapEntryKey(core.getEntry(this, key, assertValue));
+        return HistoricalCacheAssertValue
+                .unwrapEntryKey(internalMethods.getQueryCore().getEntry(this, key, assertValue));
     }
 
     @Override
@@ -172,8 +173,10 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
             return interceptor.getPreviousKey(key, shiftBackUnits);
         }
         assertShiftUnitsPositive(shiftBackUnits);
-        final Optional<FDate> optionalInterceptor = core.getParent().getPreviousKeysQueryInterceptor().getPreviousKey(
-                key, shiftBackUnits);
+        final Optional<FDate> optionalInterceptor = internalMethods.getQueryCore()
+                .getParent()
+                .getPreviousKeysQueryInterceptor()
+                .getPreviousKey(key, shiftBackUnits);
         if (optionalInterceptor != null) {
             return optionalInterceptor.get();
         }
@@ -192,7 +195,8 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
             return interceptor.getPreviousKeys(key, shiftBackUnits);
         }
         assertShiftUnitsPositiveNonZero(shiftBackUnits);
-        final ICloseableIterable<FDate> iterableInterceptor = core.getParent()
+        final ICloseableIterable<FDate> iterableInterceptor = internalMethods.getQueryCore()
+                .getParent()
                 .getPreviousKeysQueryInterceptor()
                 .getPreviousKeys(key, shiftBackUnits);
         if (iterableInterceptor != null) {
@@ -282,8 +286,10 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
         if (interceptor != null) {
             return interceptor.getKeys(from, to);
         }
-        final ICloseableIterable<FDate> iterableInterceptor = core.getParent().getRangeQueryInterceptor().getKeys(from,
-                to);
+        final ICloseableIterable<FDate> iterableInterceptor = internalMethods.getQueryCore()
+                .getParent()
+                .getRangeQueryInterceptor()
+                .getKeys(from, to);
         if (iterableInterceptor != null) {
             return iterableInterceptor;
         } else {
@@ -321,7 +327,8 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
      */
     @Override
     public ICloseableIterable<IHistoricalEntry<V>> getEntries(final FDate from, final FDate to) {
-        final ICloseableIterable<IHistoricalEntry<V>> iterableInterceptor = core.getParent()
+        final ICloseableIterable<IHistoricalEntry<V>> iterableInterceptor = internalMethods.getQueryCore()
+                .getParent()
                 .getRangeQueryInterceptor()
                 .getEntries(from, to);
         if (iterableInterceptor != null) {
@@ -608,14 +615,16 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
     }
 
     protected HistoricalCacheQueryWithFuture<V> newFutureQuery() {
-        final HistoricalCacheQueryWithFuture<V> query = new HistoricalCacheQueryWithFuture<V>(core);
+        final HistoricalCacheQueryWithFuture<V> query = new HistoricalCacheQueryWithFuture<V>(internalMethods);
         query.copyQuerySettings(this);
         return query;
     }
 
     protected IHistoricalCacheQuery<?> newKeysQueryInterceptor() {
         if (elementFilter == null || elementFilter instanceof DisabledHistoricalCacheQueryElementFilter) {
-            final IHistoricalCacheQuery<?> interceptor = core.getParent().newKeysQueryInterceptor();
+            final IHistoricalCacheQuery<?> interceptor = internalMethods.getQueryCore()
+                    .getParent()
+                    .newKeysQueryInterceptor();
             if (interceptor != null) {
                 interceptor.copyQuerySettings(this);
                 return interceptor;
@@ -636,7 +645,7 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
     @Override
     public final IHistoricalEntry<V> getPreviousEntry(final FDate key, final int shiftBackUnits) {
         assertShiftUnitsPositive(shiftBackUnits);
-        return core.getPreviousEntry(this, key, shiftBackUnits);
+        return internalMethods.getQueryCore().getPreviousEntry(this, key, shiftBackUnits);
     }
 
     /**
@@ -647,22 +656,24 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
     @Override
     public final ICloseableIterable<IHistoricalEntry<V>> getPreviousEntries(final FDate key, final int shiftBackUnits) {
         assertShiftUnitsPositiveNonZero(shiftBackUnits);
-        return core.getPreviousEntries(this, key, shiftBackUnits);
+        return internalMethods.getQueryCore().getPreviousEntries(this, key, shiftBackUnits);
     }
 
     @Override
     public IHistoricalEntry<V> computeEntry(final FDate key) {
-        return core.computeEntry(this, key, assertValue);
+        return internalMethods.getQueryCore().computeEntry(this, key, assertValue);
     }
 
     @Override
     public V computeValue(final FDate key) {
-        return HistoricalCacheAssertValue.unwrapEntryValue(core.computeEntry(this, key, assertValue));
+        return HistoricalCacheAssertValue
+                .unwrapEntryValue(internalMethods.getQueryCore().computeEntry(this, key, assertValue));
     }
 
     @Override
     public FDate computeKey(final FDate key) {
-        return HistoricalCacheAssertValue.unwrapEntryKey(core.computeEntry(this, key, assertValue));
+        return HistoricalCacheAssertValue
+                .unwrapEntryKey(internalMethods.getQueryCore().computeEntry(this, key, assertValue));
     }
 
 }

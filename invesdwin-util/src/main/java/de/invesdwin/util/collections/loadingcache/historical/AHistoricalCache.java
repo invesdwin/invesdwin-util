@@ -181,6 +181,9 @@ public abstract class AHistoricalCache<V>
     public void enableTrailingQueryCore() {
         if (!(queryCore instanceof TrailingHistoricalCacheQueryCore)) {
             queryCore = new TrailingHistoricalCacheQueryCore<>(internalMethods);
+            if (getShiftKeyProvider().getParent() != this) {
+                getShiftKeyProvider().getParent().enableTrailingQueryCore();
+            }
         }
     }
 
@@ -393,7 +396,7 @@ public abstract class AHistoricalCache<V>
      * Does not allow values from future per default.
      */
     public final IHistoricalCacheQuery<V> query() {
-        return new FilteringHistoricalCacheQuery<V>(queryCore, adjustKeyProvider.newQuery(queryCore));
+        return new FilteringHistoricalCacheQuery<V>(internalMethods, adjustKeyProvider.newQuery(internalMethods));
     }
 
     public boolean containsKey(final FDate key) {
@@ -559,6 +562,11 @@ public abstract class AHistoricalCache<V>
             return AHistoricalCache.this.getPutProvider();
         }
 
+        @Override
+        public IHistoricalCacheQueryCore<V> getQueryCore() {
+            return AHistoricalCache.this.queryCore;
+        }
+
     }
 
     private final class InnerHistoricalCacheExtractKeyProvider implements IHistoricalCacheExtractKeyProvider<V> {
@@ -720,8 +728,8 @@ public abstract class AHistoricalCache<V>
         }
 
         @Override
-        public <T> IHistoricalCacheQuery<T> newQuery(final IHistoricalCacheQueryCore<T> queryCore) {
-            return new HistoricalCacheQuery<T>(queryCore);
+        public <T> IHistoricalCacheQuery<T> newQuery(final IHistoricalCacheInternalMethods<T> internalMethods) {
+            return new HistoricalCacheQuery<T>(internalMethods);
         }
 
         @Override
