@@ -123,6 +123,9 @@ public class IndexedFDate extends FDate {
         final int identityHashCode = extractKeyProvider.hashCode();
         if (identityHashCode != extractKeyProviderHashCode) {
             extractKeyProviderExtractedKey = extractKeyProvider.extractKey(this, value);
+            if (extractKeyProviderExtractedKey == null) {
+                throw new IllegalStateException("extractKeyProviderExtractedKey should not be null");
+            }
             extractKeyProviderHashCode = identityHashCode;
         }
         return extractKeyProviderExtractedKey;
@@ -133,8 +136,11 @@ public class IndexedFDate extends FDate {
             final IHistoricalCacheAdjustKeyProvider adjustKeyProvider) {
         final int identityHashCode = extractKeyProvider.hashCode();
         if (extractKeyProviderHashCode != identityHashCode) {
-            extractKeyProviderHashCode = identityHashCode;
             extractKeyProviderExtractedKey = adjustKeyProvider.newAlreadyAdjustedKey(this);
+            if (extractKeyProviderExtractedKey == null) {
+                throw new IllegalStateException("extractKeyProviderExtractedKey should not be null");
+            }
+            extractKeyProviderHashCode = identityHashCode;
         }
         return this;
     }
