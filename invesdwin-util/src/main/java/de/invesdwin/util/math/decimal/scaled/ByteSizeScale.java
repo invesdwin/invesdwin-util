@@ -39,6 +39,10 @@ public enum ByteSizeScale implements IDecimalScale<ByteSize, ByteSizeScale> {
 
     @Override
     public double convertValue(final ByteSize parent, final double value, final ByteSizeScale scale) {
+        return convert(value, scale);
+    }
+
+    public double convert(final double value, final ByteSizeScale scale) {
         final double byteValue = value * Doubles.pow(MULTIPLICATOR_1000, scale.getMultiplesOf1000());
         return byteValue / Doubles.pow(MULTIPLICATOR_1000, getMultiplesOf1000());
     }

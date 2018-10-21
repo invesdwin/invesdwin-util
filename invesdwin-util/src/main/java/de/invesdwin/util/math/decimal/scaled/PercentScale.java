@@ -34,6 +34,10 @@ public enum PercentScale implements IDecimalScale<Percent, PercentScale> {
 
     @Override
     public double convertValue(final Percent parent, final double value, final PercentScale scale) {
+        return convert(value, scale);
+    }
+
+    public double convert(final double value, final PercentScale scale) {
         final double rateValue = Doubles.scaleByPowerOfTen(value, -scale.getScale());
         return Doubles.scaleByPowerOfTen(rateValue, getScale());
     }
