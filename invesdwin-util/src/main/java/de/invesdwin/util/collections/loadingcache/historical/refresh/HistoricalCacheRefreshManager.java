@@ -49,10 +49,10 @@ public final class HistoricalCacheRefreshManager {
     @GuardedBy("HistoricalCacheRefreshManager.class")
     private static ScheduledExecutorService executor;
 
-    private static final ALoadingCache<Class<?>, Set<AHistoricalCache<?>>> REGISTERED_CACHES = new ALoadingCache<Class<?>, Set<AHistoricalCache<?>>>() {
+    private static final ALoadingCache<String, Set<AHistoricalCache<?>>> REGISTERED_CACHES = new ALoadingCache<String, Set<AHistoricalCache<?>>>() {
 
         @Override
-        protected Set<AHistoricalCache<?>> loadValue(final Class<?> key) {
+        protected Set<AHistoricalCache<?>> loadValue(final String key) {
             final ConcurrentMap<AHistoricalCache<?>, Boolean> map = Caffeine.newBuilder()
                     .weakKeys()
                     .<AHistoricalCache<?>, Boolean> build()
@@ -138,7 +138,7 @@ public final class HistoricalCacheRefreshManager {
     }
 
     public static synchronized boolean register(final AHistoricalCache<?> cache) {
-        final Set<AHistoricalCache<?>> caches = REGISTERED_CACHES.get(cache.getClass());
+        final Set<AHistoricalCache<?>> caches = REGISTERED_CACHES.get(cache.toString());
         if (!caches.add(cache)) {
             return false;
         }
@@ -155,7 +155,7 @@ public final class HistoricalCacheRefreshManager {
     }
 
     public static synchronized boolean unregister(final AHistoricalCache<?> cache) {
-        final Set<AHistoricalCache<?>> caches = REGISTERED_CACHES.get(cache.getClass());
+        final Set<AHistoricalCache<?>> caches = REGISTERED_CACHES.get(cache.toString());
         return caches.remove(cache);
     }
 
