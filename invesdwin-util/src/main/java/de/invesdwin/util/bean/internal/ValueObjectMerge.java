@@ -113,7 +113,7 @@ public class ValueObjectMerge {
         }
 
         if (copy) {
-            final Class<?> type = thisPropertyElement.getModifier().getAccessor().getRawType().getType();
+            final Class<?> type = thisPropertyElement.getModifier().getBeanClassAccessor().getRawType().getType();
             final Object convertedValue = convertValue(valueThere, type);
             thisPropertyElement.getModifier().setValue(convertedValue);
         }
