@@ -219,6 +219,8 @@ public abstract class AHistoricalCache<V>
         }
         //propagate the maximum size setting downwards without risking an endless recursion
         registerIncreaseMaximumSizeListener(shiftKeyDelegate);
+        //and upwards
+        shiftKeyDelegate.registerIncreaseMaximumSizeListener(this);
         isPutDisabled = false;
     }
 

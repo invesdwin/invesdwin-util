@@ -1,12 +1,7 @@
 package de.invesdwin.util.collections.loadingcache.historical.internal;
 
-import java.util.NoSuchElementException;
-
 import javax.annotation.concurrent.NotThreadSafe;
 
-import de.invesdwin.util.collections.iterable.ICloseableIterable;
-import de.invesdwin.util.collections.iterable.ICloseableIterator;
-import de.invesdwin.util.collections.iterable.WrapperCloseableIterable;
 import de.invesdwin.util.collections.loadingcache.historical.AGapHistoricalCache;
 import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
 import de.invesdwin.util.time.duration.Duration;
@@ -62,7 +57,7 @@ public abstract class AGapHistoricalCacheMissCounter<V> {
             changed = true;
         }
         if (currentMaximumSize != null && currentMaximumSize > 0) {
-            final int newOptimalMaximumSize = determineNewOptimalMaximumSize();
+            final int newOptimalMaximumSize = currentMaximumSize * OPTIMAL_MULTIPLICATOR;
             if (newOptimalMaximumSize > currentMaximumSize) {
                 optimiumMaximumSize = newOptimalMaximumSize;
                 increaseOptimalMaximumSize(newOptimalMaximumSize,
@@ -99,29 +94,6 @@ public abstract class AGapHistoricalCacheMissCounter<V> {
     protected abstract Integer getInitialMaximumSize();
 
     protected abstract long getReadBackStepMillis();
-
-    private int determineNewOptimalMaximumSize() {
-        FDate curMaxDate = successiveCacheEvictionsToMinKey;
-        int newOptimalMaximumSize = 0;
-        while (curMaxDate.isBefore(successiveCacheEvictionsFromMaxKey)) {
-            final ICloseableIterable<? extends V> readAllValues = WrapperCloseableIterable
-                    .maybeWrap(readAllValuesAscendingFrom(curMaxDate));
-            final FDate prevMaxDate = curMaxDate;
-            try (ICloseableIterator<? extends V> readAllValuesIterator = readAllValues.iterator()) {
-                while (true) {
-                    final V v = readAllValuesIterator.next();
-                    newOptimalMaximumSize++;
-                    curMaxDate = extractKey(v);
-                }
-            } catch (final NoSuchElementException e) {
-                //end reached
-            }
-            if (prevMaxDate.equals(curMaxDate)) {
-                break;
-            }
-        }
-        return newOptimalMaximumSize * OPTIMAL_MULTIPLICATOR;
-    }
 
     private long determineNewOptimalReadBackStepMillis() {
         return getReadBackStepMillis() * maxSuccessiveCacheEvictions * OPTIMAL_MULTIPLICATOR;
