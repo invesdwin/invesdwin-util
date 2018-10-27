@@ -7,6 +7,8 @@ import javax.annotation.concurrent.Immutable;
 @Immutable
 public final class Locales {
 
+    public static final Locale SPANISH = new Locale("es", "ES");
+
     private Locales() {}
 
     public static boolean isSameLanguage(final Locale locale1, final Locale locale2) {
