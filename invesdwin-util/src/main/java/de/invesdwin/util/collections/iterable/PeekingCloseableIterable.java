@@ -5,9 +5,9 @@ import javax.annotation.concurrent.NotThreadSafe;
 @NotThreadSafe
 public class PeekingCloseableIterable<E> implements ICloseableIterable<E> {
 
-    private final ICloseableIterable<E> delegate;
+    private final ICloseableIterable<? extends E> delegate;
 
-    public PeekingCloseableIterable(final ICloseableIterable<E> delegate) {
+    public PeekingCloseableIterable(final ICloseableIterable<? extends E> delegate) {
         this.delegate = delegate;
     }
 

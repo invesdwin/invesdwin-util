@@ -8,10 +8,10 @@ import com.google.common.collect.PeekingIterator;
 @NotThreadSafe
 public class PeekingCloseableIterator<E> implements ICloseableIterator<E>, PeekingIterator<E> {
 
-    private final ICloseableIterator<E> delegate;
+    private final ICloseableIterator<? extends E> delegate;
     private final PeekingIterator<E> peekingDelegate;
 
-    public PeekingCloseableIterator(final ICloseableIterator<E> delegate) {
+    public PeekingCloseableIterator(final ICloseableIterator<? extends E> delegate) {
         this.delegate = delegate;
         this.peekingDelegate = Iterators.peekingIterator(delegate);
     }
