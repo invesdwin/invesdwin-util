@@ -4,6 +4,7 @@ import java.util.Optional;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.util.collections.iterable.ASkippingIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.collections.iterable.WrapperCloseableIterable;
@@ -112,8 +113,8 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
 
                     @Override
                     public IHistoricalEntry<V> next() {
-                        return internalMethods.getQueryCore().getEntry(HistoricalCacheQuery.this, keysIterator.next(),
-                                assertValue);
+                        return internalMethods.getQueryCore()
+                                .getEntry(HistoricalCacheQuery.this, keysIterator.next(), assertValue);
                     }
 
                     @Override
@@ -332,7 +333,20 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
                 .getRangeQueryInterceptor()
                 .getEntries(from, to);
         if (iterableInterceptor != null) {
-            return iterableInterceptor;
+            if (elementFilter == null || elementFilter instanceof DisabledHistoricalCacheQueryElementFilter) {
+                return iterableInterceptor;
+            } else {
+                return new ASkippingIterable<IHistoricalEntry<V>>(iterableInterceptor) {
+                    @Override
+                    protected boolean skip(final IHistoricalEntry<V> element) {
+                        if (!elementFilter.isValid(element.getKey(), element.getValue())) {
+                            throw new FastNoSuchElementException(
+                                    "HistoricalCacheQuery: getEntries elementFilter found not valid element");
+                        }
+                        return false;
+                    }
+                };
+            }
         } else {
             return new ICloseableIterable<IHistoricalEntry<V>>() {
                 @Override
