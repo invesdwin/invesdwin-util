@@ -519,4 +519,34 @@ public final class FDates {
         }
     }
 
+    public static int bisect(final FDate[] keys, final FDate skippingKeysAbove) {
+        int lo = 0;
+        int hi = keys.length;
+        while (lo < hi) {
+            final int mid = (lo + hi) / 2;
+            //if (x < list.get(mid)) {
+            final FDate midKey = keys[mid];
+            final int compareTo = midKey.compareToNotNullSafe(skippingKeysAbove);
+            switch (compareTo) {
+            case -1:
+                lo = mid + 1;
+                break;
+            case 0:
+                return mid;
+            case 1:
+                hi = mid;
+                break;
+            default:
+                throw UnknownArgumentException.newInstance(Integer.class, compareTo);
+            }
+        }
+        final FDate loTime = keys[lo];
+        if (loTime.isAfterNotNullSafe(skippingKeysAbove)) {
+            final int index = lo - 1;
+            return index;
+        } else {
+            return lo;
+        }
+    }
+
 }
