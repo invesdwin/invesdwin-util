@@ -143,7 +143,7 @@ public abstract class AHistoricalCache<V>
     }
 
     @Override
-    public final synchronized void increaseMaximumSize(final int maximumSize, final String reason) {
+    public final void increaseMaximumSize(final int maximumSize, final String reason) {
         final Integer existingMaximumSize = this.maximumSize;
         final int usedMaximumSize = Math.min(getMaximumSizeLimit(), maximumSize);
         if (existingMaximumSize == null || existingMaximumSize < usedMaximumSize) {

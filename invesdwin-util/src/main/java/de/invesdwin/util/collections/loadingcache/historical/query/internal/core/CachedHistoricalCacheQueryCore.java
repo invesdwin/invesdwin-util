@@ -34,8 +34,7 @@ public class CachedHistoricalCacheQueryCore<V> extends ACachedResultHistoricalCa
     private final DefaultHistoricalCacheQueryCore<V> delegate;
     @GuardedBy("cachedQueryActiveLock")
     private int countResets = 0;
-    @GuardedBy("cachedQueryActiveLock")
-    private int maxCachedIndex;
+    private volatile int maxCachedIndex;
     private final ILock cachedQueryActiveLock = Locks
             .newReentrantLock(getClass().getSimpleName() + "_cachedQueryActiveLock");
     @GuardedBy("cachedQueryActiveLock")
