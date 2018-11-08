@@ -25,7 +25,7 @@ import de.invesdwin.util.time.fdate.FDate;
 @ThreadSafe
 public class CachedHistoricalCacheQueryCore<V> extends ACachedResultHistoricalCacheQueryCore<V> {
 
-    private static final int INITIAL_MAX_CACHED_INDEX = 10000;
+    private static final Integer INITIAL_MAX_CACHED_INDEX = 10000;
     private static final org.slf4j.ext.XLogger LOG = org.slf4j.ext.XLoggerFactory
             .getXLogger(CachedHistoricalCacheQueryCore.class);
     private static final int REQUIRED_SIZE_MULTIPLICATOR = 2;

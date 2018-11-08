@@ -87,6 +87,14 @@ public final class Integers extends AIntegersStaticFacade {
         }
     }
 
+    public static int max(final int first, final int second) {
+        return Math.max(first, second);
+    }
+
+    public static int min(final int first, final int second) {
+        return Math.min(first, second);
+    }
+
     public static Integer min(final Integer first, final Integer second) {
         if (first == null) {
             return second;
