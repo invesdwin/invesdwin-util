@@ -108,7 +108,7 @@ public class FilteringHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V
     @Override
     public V getPreviousValue(final FDate key, final int shiftBackUnits) {
         final IHistoricalEntry<V> result = getPreviousEntry(key, shiftBackUnits);
-        return HistoricalCacheAssertValue.unwrapEntryValue(result);
+        return IHistoricalEntry.unwrapEntryValue(result);
     }
 
     @Override
@@ -235,7 +235,7 @@ public class FilteringHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V
     @Override
     public V getPreviousValueWithSameValueBetween(final FDate from, final FDate to, final V value) {
         final IHistoricalEntry<V> result = getPreviousEntryWithSameValueBetween(from, to, value);
-        return HistoricalCacheAssertValue.unwrapEntryValue(result);
+        return IHistoricalEntry.unwrapEntryValue(result);
     }
 
     @Override
@@ -261,7 +261,7 @@ public class FilteringHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V
     @Override
     public V getPreviousValueWithDifferentValueBetween(final FDate from, final FDate to, final V value) {
         final IHistoricalEntry<V> result = getPreviousEntryWithDifferentValueBetween(from, to, value);
-        return HistoricalCacheAssertValue.unwrapEntryValue(result);
+        return IHistoricalEntry.unwrapEntryValue(result);
     }
 
     @Override
@@ -288,7 +288,7 @@ public class FilteringHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V
     @Override
     public V getPreviousValueWithSameValue(final FDate key, final int maxShiftBackUnits, final V value) {
         final IHistoricalEntry<V> result = getPreviousEntryWithSameValue(key, maxShiftBackUnits, value);
-        return HistoricalCacheAssertValue.unwrapEntryValue(result);
+        return IHistoricalEntry.unwrapEntryValue(result);
     }
 
     @Override
@@ -315,7 +315,7 @@ public class FilteringHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V
     @Override
     public V getPreviousValueWithDifferentValue(final FDate key, final int maxShiftBackUnits, final V value) {
         final IHistoricalEntry<V> result = getPreviousEntryWithDifferentValue(key, maxShiftBackUnits, value);
-        return HistoricalCacheAssertValue.unwrapEntryValue(result);
+        return IHistoricalEntry.unwrapEntryValue(result);
     }
 
     @Override

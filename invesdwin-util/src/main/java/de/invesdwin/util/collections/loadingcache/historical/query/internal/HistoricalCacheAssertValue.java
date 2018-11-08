@@ -40,20 +40,4 @@ public enum HistoricalCacheAssertValue {
     public abstract <V> IHistoricalEntry<V> assertValue(IHistoricalCacheInternalMethods<V> parent, FDate key,
             IHistoricalEntry<V> entry);
 
-    public static <V> V unwrapEntryValue(final IHistoricalEntry<V> entry) {
-        if (entry == null) {
-            return null;
-        } else {
-            return entry.getValue();
-        }
-    }
-
-    public static <V> FDate unwrapEntryKey(final IHistoricalEntry<V> entry) {
-        if (entry == null) {
-            return null;
-        } else {
-            return entry.getKey(); //internalAssertValue already has made sure that the entry key is the valueKey
-        }
-    }
-
 }

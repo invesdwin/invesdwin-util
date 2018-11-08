@@ -64,7 +64,7 @@ public class DefaultHistoricalCacheQueryCore<V> implements IHistoricalCacheQuery
         if (key == null) {
             return null;
         }
-        return HistoricalCacheAssertValue.unwrapEntryValue(getEntry(query, key, assertValue));
+        return IHistoricalEntry.unwrapEntryValue(getEntry(query, key, assertValue));
     }
 
     @Override

@@ -7,7 +7,6 @@ import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.collections.loadingcache.historical.IHistoricalEntry;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQueryElementFilter;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQueryWithFuture;
-import de.invesdwin.util.collections.loadingcache.historical.query.internal.HistoricalCacheAssertValue;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.IHistoricalCacheInternalMethods;
 import de.invesdwin.util.time.fdate.FDate;
 
@@ -63,7 +62,7 @@ public class FilteringHistoricalCacheQueryWithFuture<V> extends FilteringHistori
     @Override
     public V getNextValue(final FDate key, final int shiftForwardUnits) {
         final IHistoricalEntry<V> result = getNextEntry(key, shiftForwardUnits);
-        return HistoricalCacheAssertValue.unwrapEntryValue(result);
+        return IHistoricalEntry.unwrapEntryValue(result);
     }
 
     @Override

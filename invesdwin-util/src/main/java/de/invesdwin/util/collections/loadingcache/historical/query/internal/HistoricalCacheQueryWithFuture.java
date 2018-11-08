@@ -43,7 +43,7 @@ public class HistoricalCacheQueryWithFuture<V> extends HistoricalCacheQuery<V>
             return interceptor.withFuture().getNextKey(key, shiftForwardUnits);
         }
         assertShiftUnitsPositive(shiftForwardUnits);
-        return HistoricalCacheAssertValue.unwrapEntryKey(getNextEntry(key, shiftForwardUnits));
+        return IHistoricalEntry.unwrapEntryKey(getNextEntry(key, shiftForwardUnits));
     }
 
     @Override
@@ -88,7 +88,7 @@ public class HistoricalCacheQueryWithFuture<V> extends HistoricalCacheQuery<V>
     @Override
     public V getNextValue(final FDate key, final int shiftForwardUnits) {
         assertShiftUnitsPositive(shiftForwardUnits);
-        return HistoricalCacheAssertValue.unwrapEntryValue(getNextEntry(key, shiftForwardUnits));
+        return IHistoricalEntry.unwrapEntryValue(getNextEntry(key, shiftForwardUnits));
     }
 
     @Override

@@ -11,4 +11,20 @@ public interface IHistoricalEntry<V> extends Entry<FDate, V> {
         throw new UnsupportedOperationException();
     }
 
+    static <V> V unwrapEntryValue(final IHistoricalEntry<V> entry) {
+        if (entry == null) {
+            return null;
+        } else {
+            return entry.getValue();
+        }
+    }
+
+    static <V> FDate unwrapEntryKey(final IHistoricalEntry<V> entry) {
+        if (entry == null) {
+            return null;
+        } else {
+            return entry.getKey(); //internalAssertValue already has made sure that the entry key is the valueKey
+        }
+    }
+
 }
