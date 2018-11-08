@@ -77,6 +77,22 @@ public final class Integers extends AIntegersStaticFacade {
         return matrixAsList;
     }
 
+    public static Integer max(final int first, final Integer second) {
+        if (second == null) {
+            return first;
+        } else {
+            return max(first, second.intValue());
+        }
+    }
+
+    public static Integer max(final Integer first, final int second) {
+        if (first == null) {
+            return second;
+        } else {
+            return max(first.intValue(), second);
+        }
+    }
+
     public static Integer max(final Integer first, final Integer second) {
         if (first == null) {
             return second;
@@ -93,6 +109,22 @@ public final class Integers extends AIntegersStaticFacade {
 
     public static int min(final int first, final int second) {
         return Math.min(first, second);
+    }
+
+    public static Integer min(final int first, final Integer second) {
+        if (second == null) {
+            return first;
+        } else {
+            return min(first, second.intValue());
+        }
+    }
+
+    public static Integer min(final Integer first, final int second) {
+        if (first == null) {
+            return second;
+        } else {
+            return min(first.intValue(), second);
+        }
     }
 
     public static Integer min(final Integer first, final Integer second) {
