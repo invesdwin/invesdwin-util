@@ -84,4 +84,8 @@ public class ArrayCloseableIterator<E> implements ICloseableIterator<E>, IFastTo
         }
     }
 
+    public static <T> ArrayCloseableIterator<T> fromTo(final T[] array, final int from, final int to) {
+        return new ArrayCloseableIterator<>(array, from, to - from);
+    }
+
 }
