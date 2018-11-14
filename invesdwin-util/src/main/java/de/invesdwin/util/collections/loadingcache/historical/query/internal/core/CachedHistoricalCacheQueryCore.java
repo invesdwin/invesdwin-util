@@ -551,6 +551,9 @@ public class CachedHistoricalCacheQueryCore<V> extends ACachedResultHistoricalCa
                 throw UnknownArgumentException.newInstance(Integer.class, compareTo);
             }
         }
+        if (lo >= list.size()) {
+            lo = lo - 1;
+        }
         final FDate loTime = list.get(lo).getKey();
         if (loTime.isAfterNotNullSafe(skippingKeysAbove)) {
             final int index = lo - 1;

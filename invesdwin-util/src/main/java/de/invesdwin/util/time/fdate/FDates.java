@@ -540,6 +540,9 @@ public final class FDates {
                 throw UnknownArgumentException.newInstance(Integer.class, compareTo);
             }
         }
+        if (lo >= keys.length) {
+            lo = lo - 1;
+        }
         final FDate loTime = keys[lo];
         if (loTime.isAfterNotNullSafe(skippingKeysAbove)) {
             final int index = lo - 1;
