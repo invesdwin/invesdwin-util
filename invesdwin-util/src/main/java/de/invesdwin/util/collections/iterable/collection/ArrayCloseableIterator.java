@@ -84,7 +84,23 @@ public class ArrayCloseableIterator<E> implements ICloseableIterator<E>, IFastTo
         }
     }
 
-    public static <T> ArrayCloseableIterator<T> fromTo(final T[] array, final int from, final int to) {
+    /**
+     * @param fromIndex
+     *            low endpoint (inclusive)
+     * @param toIndex
+     *            high endpoint (inclusive)
+     */
+    public static <T> ArrayCloseableIterator<T> fromToInclusive(final T[] array, final int from, final int to) {
+        return new ArrayCloseableIterator<>(array, from, to - from + 1);
+    }
+
+    /**
+     * @param fromIndex
+     *            low endpoint (inclusive)
+     * @param toIndex
+     *            high endpoint (exclusive)
+     */
+    public static <T> ArrayCloseableIterator<T> fromToExclusive(final T[] array, final int from, final int to) {
         return new ArrayCloseableIterator<>(array, from, to - from);
     }
 
