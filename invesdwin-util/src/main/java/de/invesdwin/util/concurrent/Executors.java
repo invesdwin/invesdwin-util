@@ -1,15 +1,15 @@
 package de.invesdwin.util.concurrent;
 
-import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.concurrent.Immutable;
 
+import com.google.common.util.concurrent.MoreExecutors;
+
 import de.invesdwin.util.concurrent.internal.WrappedThreadFactory;
 import io.netty.util.concurrent.DefaultThreadFactory;
-import io.netty.util.concurrent.ImmediateExecutor;
 
 /**
  * As an alternative to the java executors class. Here more conventions are kept for all executors.
@@ -23,7 +23,8 @@ public final class Executors {
     /**
      * This executor does not actually run tasks in parallel but instead runs them directly in the callers thread
      */
-    public static final Executor DISABLED_EXECUTOR = ImmediateExecutor.INSTANCE;
+    public static final WrappedExecutorService DISABLED_EXECUTOR = new WrappedExecutorService(
+            MoreExecutors.newDirectExecutorService(), "DISABLED").withDynamicThreadName(false);
 
     private static int cpuThreadPoolCount = Runtime.getRuntime().availableProcessors();
 

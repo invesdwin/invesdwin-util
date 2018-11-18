@@ -69,7 +69,7 @@ public class WrappedExecutorService implements ExecutorService {
     };
     private final AtomicLong pendingCount = new AtomicLong();
     private final Object pendingCountWaitLock = new Object();
-    private final java.util.concurrent.ThreadPoolExecutor delegate;
+    private final ExecutorService delegate;
     private volatile boolean logExceptions = true;
     private volatile boolean waitOnFullPendingCount = false;
     private volatile boolean dynamicThreadName = true;
@@ -78,7 +78,7 @@ public class WrappedExecutorService implements ExecutorService {
     @GuardedBy("this")
     private IShutdownHook shutdownHook;
 
-    protected WrappedExecutorService(final java.util.concurrent.ThreadPoolExecutor delegate, final String name) {
+    protected WrappedExecutorService(final ExecutorService delegate, final String name) {
         this.delegate = delegate;
         this.shutdownHook = newShutdownHook(delegate);
         this.name = name;
@@ -90,7 +90,7 @@ public class WrappedExecutorService implements ExecutorService {
     /**
      * Prevent reference leak to this instance by using a static method
      */
-    private static IShutdownHook newShutdownHook(final java.util.concurrent.ThreadPoolExecutor delegate) {
+    private static IShutdownHook newShutdownHook(final ExecutorService delegate) {
         return new IShutdownHook() {
             @Override
             public void shutdown() throws Exception {
@@ -126,7 +126,7 @@ public class WrappedExecutorService implements ExecutorService {
             synchronized (pendingCountWaitLock) {
                 //Only one waiting thread may be woken up when this limit is reached!
                 while (pendingCount.get() >= getFullPendingCount()) {
-                    awaitPendingCount(getWrappedInstance().getMaximumPoolSize() - 1);
+                    awaitPendingCount(getMaximumPoolSize() - 1);
                 }
                 notifyPendingCountListeners(pendingCount.incrementAndGet());
             }
@@ -160,27 +160,32 @@ public class WrappedExecutorService implements ExecutorService {
          * All executors should be shutdown on application shutdown.
          */
         ShutdownHookManager.register(shutdownHook);
-        /*
-         * All threads should stop after 60 seconds of idle time
-         */
-        delegate.setKeepAliveTime(FIXED_THREAD_KEEPALIVE_TIMEOUT.longValue(),
-                FIXED_THREAD_KEEPALIVE_TIMEOUT.getTimeUnit().timeUnitValue());
-        /*
-         * Fixes non starting with corepoolsize von 0 and not filled queue (Java Conurrency In Practice Chapter 8.3.1).
-         * If this bug can occur, a exception would be thrown here.
-         */
-        delegate.allowCoreThreadTimeOut(true);
-        /*
-         * Named threads improve debugging.
-         */
-        final WrappedThreadFactory threadFactory;
-        if (delegate.getThreadFactory() instanceof WrappedThreadFactory) {
-            threadFactory = (WrappedThreadFactory) delegate.getThreadFactory();
-        } else {
-            threadFactory = new WrappedThreadFactory(name, delegate.getThreadFactory());
-            delegate.setThreadFactory(threadFactory);
+
+        if (delegate instanceof java.util.concurrent.ThreadPoolExecutor) {
+            final java.util.concurrent.ThreadPoolExecutor cDelegate = (java.util.concurrent.ThreadPoolExecutor) delegate;
+            /*
+             * All threads should stop after 60 seconds of idle time
+             */
+            cDelegate.setKeepAliveTime(FIXED_THREAD_KEEPALIVE_TIMEOUT.longValue(),
+                    FIXED_THREAD_KEEPALIVE_TIMEOUT.getTimeUnit().timeUnitValue());
+            /*
+             * Fixes non starting with corepoolsize von 0 and not filled queue (Java Conurrency In Practice Chapter
+             * 8.3.1). If this bug can occur, a exception would be thrown here.
+             */
+            cDelegate.allowCoreThreadTimeOut(true);
+            /*
+             * Named threads improve debugging.
+             */
+            final WrappedThreadFactory threadFactory;
+            if (cDelegate.getThreadFactory() instanceof WrappedThreadFactory) {
+                threadFactory = (WrappedThreadFactory) cDelegate.getThreadFactory();
+            } else {
+                threadFactory = new WrappedThreadFactory(name, cDelegate.getThreadFactory());
+                cDelegate.setThreadFactory(threadFactory);
+            }
+            threadFactory.setParent(internal);
+
         }
-        threadFactory.setParent(internal);
     }
 
     private synchronized void unconfigure() {
@@ -199,7 +204,7 @@ public class WrappedExecutorService implements ExecutorService {
         return this;
     }
 
-    public java.util.concurrent.ThreadPoolExecutor getWrappedInstance() {
+    public ExecutorService getWrappedInstance() {
         return delegate;
     }
 
@@ -262,8 +267,17 @@ public class WrappedExecutorService implements ExecutorService {
         awaitPendingCount(getFullPendingCount());
     }
 
+    public int getMaximumPoolSize() {
+        final ExecutorService delegate = getWrappedInstance();
+        if (delegate instanceof java.util.concurrent.ThreadPoolExecutor) {
+            final java.util.concurrent.ThreadPoolExecutor cDelegate = (java.util.concurrent.ThreadPoolExecutor) delegate;
+            return cDelegate.getMaximumPoolSize();
+        }
+        return 0;
+    }
+
     public int getFullPendingCount() {
-        return getWrappedInstance().getMaximumPoolSize();
+        return getMaximumPoolSize();
     }
 
     @Override
