@@ -1,5 +1,7 @@
 package de.invesdwin.util.concurrent;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
 import java.util.concurrent.TimeUnit;
@@ -24,7 +26,17 @@ public final class Executors {
      * This executor does not actually run tasks in parallel but instead runs them directly in the callers thread
      */
     public static final WrappedExecutorService DISABLED_EXECUTOR = new WrappedExecutorService(
-            MoreExecutors.newDirectExecutorService(), "DISABLED").withDynamicThreadName(false);
+            MoreExecutors.newDirectExecutorService(), "DISABLED") {
+        @Override
+        public void shutdown() {
+            //noop
+        }
+
+        @Override
+        public List<Runnable> shutdownNow() {
+            return Collections.emptyList();
+        }
+    }.withDynamicThreadName(false);
 
     private static int cpuThreadPoolCount = Runtime.getRuntime().availableProcessors();
 

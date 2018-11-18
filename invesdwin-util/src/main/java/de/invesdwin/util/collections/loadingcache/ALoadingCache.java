@@ -8,6 +8,7 @@ import de.invesdwin.util.collections.eviction.EvictionMode;
 import de.invesdwin.util.collections.loadingcache.map.CaffeineLoadingCache;
 import de.invesdwin.util.collections.loadingcache.map.EvictionMapLoadingCache;
 import de.invesdwin.util.collections.loadingcache.map.NoCachingLoadingCache;
+import de.invesdwin.util.collections.loadingcache.map.SynchronizedEvictionMapLoadingCache;
 import de.invesdwin.util.collections.loadingcache.map.UnlimitedCachingLoadingCache;
 
 @ThreadSafe
@@ -17,21 +18,28 @@ public abstract class ALoadingCache<K, V> extends ADelegateLoadingCache<K, V> {
      * default unlimited size
      */
     protected Integer getInitialMaximumSize() {
-        return null;
+        return ALoadingCacheConfig.DEFAULT_INITIAL_MAXIMUM_SIZE;
     }
 
     /**
      * default is false, since this comes at a cost
      */
     protected boolean isHighConcurrency() {
-        return false;
+        return ALoadingCacheConfig.DEFAULT_HIGH_CONCURRENCY;
+    }
+
+    /**
+     * 
+     */
+    protected boolean isThreadSafe() {
+        return ALoadingCacheConfig.DEFAULT_THREAD_SAFE;
     }
 
     /**
      * default is true, otherwise it will evict the least recently added element
      */
     protected EvictionMode getEvictionMode() {
-        return EvictionMode.LeastRecentlyUsed;
+        return ALoadingCacheConfig.DEFAULT_EVICTION_MODE;
     }
 
     protected abstract V loadValue(K key);
@@ -52,7 +60,11 @@ public abstract class ALoadingCache<K, V> extends ADelegateLoadingCache<K, V> {
         } else if (maximumSize == 0) {
             return new NoCachingLoadingCache<K, V>(loadValue);
         } else {
-            return new EvictionMapLoadingCache<K, V>(loadValue, getEvictionMode().newMap(maximumSize));
+            if (isThreadSafe()) {
+                return new SynchronizedEvictionMapLoadingCache<K, V>(loadValue, getEvictionMode().newMap(maximumSize));
+            } else {
+                return new EvictionMapLoadingCache<>(loadValue, getEvictionMode().newMap(maximumSize));
+            }
         }
     }
 

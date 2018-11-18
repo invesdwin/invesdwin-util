@@ -7,40 +7,33 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.function.Function;
 
-import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.collections.loadingcache.ILoadingCache;
 
 @ThreadSafe
-public abstract class ASynchronizedLoadingCache<K, V> implements ILoadingCache<K, V> {
+public abstract class AMapLoadingCache<K, V> implements ILoadingCache<K, V> {
 
-    @GuardedBy("this")
     protected final Map<K, V> map;
     private final Function<K, V> loadValue;
 
-    public ASynchronizedLoadingCache(final Function<K, V> loadValue, final Map<K, V> map) {
+    public AMapLoadingCache(final Function<K, V> loadValue, final Map<K, V> map) {
         this.loadValue = loadValue;
         this.map = map;
     }
 
     @Override
     public V get(final K key) {
-        V v;
-        synchronized (this) {
-            v = map.get(key);
-        }
+        V v = map.get(key);
         if (v == null) {
             //bad idea to synchronize in apply, this might cause deadlocks when threads are used inside of it
             v = loadValue.apply(key);
             if (v != null) {
-                synchronized (this) {
-                    final V oldV = map.get(key);
-                    if (oldV != null) {
-                        v = oldV;
-                    } else {
-                        map.put(key, v);
-                    }
+                final V oldV = map.get(key);
+                if (oldV != null) {
+                    v = oldV;
+                } else {
+                    map.put(key, v);
                 }
             }
         }
@@ -48,58 +41,58 @@ public abstract class ASynchronizedLoadingCache<K, V> implements ILoadingCache<K
     }
 
     @Override
-    public synchronized V getIfPresent(final K key) {
+    public V getIfPresent(final K key) {
         final V v = map.get(key);
         return v;
     }
 
     @Override
-    public synchronized void clear() {
+    public void clear() {
         map.clear();
     }
 
     @Override
-    public synchronized boolean containsKey(final K key) {
+    public boolean containsKey(final K key) {
         return map.containsKey(key);
     }
 
     @Override
-    public synchronized void remove(final K key) {
+    public void remove(final K key) {
         map.remove(key);
     }
 
     @Override
-    public synchronized void put(final K key, final V value) {
+    public void put(final K key, final V value) {
         map.put(key, value);
     }
 
     @Override
-    public synchronized Set<Entry<K, V>> entrySet() {
+    public Set<Entry<K, V>> entrySet() {
         return map.entrySet();
     }
 
     @Override
-    public synchronized int size() {
+    public int size() {
         return map.size();
     }
 
     @Override
-    public synchronized Set<K> keySet() {
+    public Set<K> keySet() {
         return map.keySet();
     }
 
     @Override
-    public synchronized Collection<V> values() {
+    public Collection<V> values() {
         return map.values();
     }
 
     @Override
-    public synchronized Map<K, V> asMap() {
+    public Map<K, V> asMap() {
         return Collections.unmodifiableMap(map);
     }
 
     @Override
-    public synchronized boolean isEmpty() {
+    public boolean isEmpty() {
         return map.isEmpty();
     }
 
