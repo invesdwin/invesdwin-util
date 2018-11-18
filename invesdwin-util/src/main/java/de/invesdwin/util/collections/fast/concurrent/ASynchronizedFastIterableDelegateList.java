@@ -9,12 +9,12 @@ import java.util.ListIterator;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
-import de.invesdwin.util.collections.fast.IFastIterableCollection;
+import de.invesdwin.util.collections.fast.IFastIterableList;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
 
 @ThreadSafe
-public abstract class ASynchronizedFastIterableDelegateList<E> implements IFastIterableCollection<E>, List<E> {
+public abstract class ASynchronizedFastIterableDelegateList<E> implements IFastIterableList<E> {
 
     //arraylist wins in raw iterator speed compared to bufferingIterator since no remove is needed, though we need protection against concurrent modification
     @GuardedBy("this")

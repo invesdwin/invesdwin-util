@@ -9,7 +9,6 @@ import java.util.Set;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.NotThreadSafe;
 
-import de.invesdwin.norva.marker.ISerializableValueObject;
 import de.invesdwin.util.bean.tuple.ImmutableEntry;
 import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
 
@@ -20,7 +19,7 @@ import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
  * The iterator returned from this map is also suitable for concurrent modification during iteration.
  */
 @NotThreadSafe
-public abstract class AFastIterableDelegateMap<K, V> implements Map<K, V>, ISerializableValueObject {
+public abstract class AFastIterableDelegateMap<K, V> implements IFastIterableMap<K, V> {
 
     @GuardedBy("this")
     private BufferingIterator<Entry<K, V>> fastIterable;
@@ -330,6 +329,7 @@ public abstract class AFastIterableDelegateMap<K, V> implements Map<K, V>, ISeri
         return values;
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public V[] asValueArray(final Class<V> valueType) {
         if (valueArray == null) {
@@ -344,6 +344,7 @@ public abstract class AFastIterableDelegateMap<K, V> implements Map<K, V>, ISeri
         return keySet;
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public K[] asKeyArray(final Class<K> keyType) {
         if (keyArray == null) {
@@ -358,6 +359,7 @@ public abstract class AFastIterableDelegateMap<K, V> implements Map<K, V>, ISeri
         return entrySet;
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public Entry<K, V>[] asEntryArray() {
         if (entryArray == null) {

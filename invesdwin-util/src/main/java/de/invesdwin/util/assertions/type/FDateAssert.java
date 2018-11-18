@@ -15,8 +15,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.concurrent.Immutable;
@@ -29,6 +29,7 @@ import org.assertj.core.util.VisibleForTesting;
 import de.invesdwin.util.assertions.type.internal.FDatesAssertions;
 import de.invesdwin.util.time.fdate.FDate;
 import io.netty.util.concurrent.FastThreadLocal;
+import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
 
 /**
  * Base class for all implementations of assertions for {@link FDate}s.
@@ -68,10 +69,10 @@ public class FDateAssert extends AbstractAssert<FDateAssert, FDate> {
      * It keeps the instertion order so first format added will be first format used.
      */
     @VisibleForTesting
-    static FastThreadLocal<LinkedHashSet<DateFormat>> userDateFormats = new FastThreadLocal<LinkedHashSet<DateFormat>>() {
+    static FastThreadLocal<Set<DateFormat>> userDateFormats = new FastThreadLocal<Set<DateFormat>>() {
         @Override
-        protected LinkedHashSet<DateFormat> initialValue() {
-            return new LinkedHashSet<DateFormat>();
+        protected Set<DateFormat> initialValue() {
+            return new ObjectLinkedOpenHashSet<DateFormat>();
         }
     };
     @VisibleForTesting

@@ -9,8 +9,8 @@ import java.util.Set;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
-import de.invesdwin.norva.marker.ISerializableValueObject;
 import de.invesdwin.util.bean.tuple.ImmutableEntry;
+import de.invesdwin.util.collections.fast.IFastIterableMap;
 import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
 
 /**
@@ -20,7 +20,7 @@ import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
  * The iterator returned from this map is also suitable for concurrent modification during iteration.
  */
 @ThreadSafe
-public abstract class ASynchronizedFastIterableDelegateMap<K, V> implements Map<K, V>, ISerializableValueObject {
+public abstract class ASynchronizedFastIterableDelegateMap<K, V> implements IFastIterableMap<K, V> {
 
     //arraylist wins in raw iterator speed compared to bufferingIterator since no remove is needed, though we need protection against concurrent modification
     @GuardedBy("this")
@@ -358,6 +358,7 @@ public abstract class ASynchronizedFastIterableDelegateMap<K, V> implements Map<
     }
 
     @SuppressWarnings("unchecked")
+    @Override
     public synchronized V[] asValueArray(final Class<V> valueType) {
         if (valueArray == null) {
             final V[] empty = (V[]) Array.newInstance(valueType, delegate.size());
@@ -372,6 +373,7 @@ public abstract class ASynchronizedFastIterableDelegateMap<K, V> implements Map<
     }
 
     @SuppressWarnings("unchecked")
+    @Override
     public synchronized K[] asKeyArray(final Class<K> keyType) {
         if (keyArray == null) {
             final K[] empty = (K[]) Array.newInstance(keyType, delegate.size());
@@ -386,6 +388,7 @@ public abstract class ASynchronizedFastIterableDelegateMap<K, V> implements Map<
     }
 
     @SuppressWarnings("unchecked")
+    @Override
     public synchronized Entry<K, V>[] asEntryArray() {
         if (entryArray == null) {
             final Entry<K, V>[] empty = (Entry<K, V>[]) Array.newInstance(Entry.class, delegate.size());

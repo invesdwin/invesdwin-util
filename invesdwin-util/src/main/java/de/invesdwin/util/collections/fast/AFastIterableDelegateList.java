@@ -12,7 +12,7 @@ import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
 
 @ThreadSafe
-public abstract class AFastIterableDelegateList<E> implements IFastIterableCollection<E>, List<E> {
+public abstract class AFastIterableDelegateList<E> implements IFastIterableList<E> {
 
     private BufferingIterator<E> fastIterable;
     private E[] array;
