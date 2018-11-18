@@ -1,4 +1,4 @@
-package de.invesdwin.util.collections.concurrent;
+package de.invesdwin.util.collections.fast.concurrent;
 
 import java.util.Collection;
 import java.util.Iterator;

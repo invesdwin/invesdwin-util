@@ -39,6 +39,7 @@ public final class Objects extends AObjectsStaticFacade {
             return (Comparable<?>) e;
         }
     };
+    public static final Object[] EMPTY_ARRAY = new Object[0];
 
     static {
         //datanucleus enhancer fix

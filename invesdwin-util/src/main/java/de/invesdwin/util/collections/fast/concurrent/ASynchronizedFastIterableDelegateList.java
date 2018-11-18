@@ -1,25 +1,20 @@
-package de.invesdwin.util.collections.concurrent;
+package de.invesdwin.util.collections.fast.concurrent;
 
 import java.lang.reflect.Array;
 import java.util.Collection;
-import java.util.Set;
+import java.util.Collections;
+import java.util.List;
+import java.util.ListIterator;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
+import de.invesdwin.util.collections.fast.IFastIterableCollection;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
 
-/**
- * Boosts the iteration speed over the values by keeping a fast iterator instance that only gets modified when changes
- * to the map occur.
- * 
- * The iterator returned from this set is also suitable for concurrent modification during iteration.
- * 
- * http://stackoverflow.com/questions/1006395/fastest-way-to-iterate-an-array-in-java-loop-variable-vs-enhanced-for-statement
- */
 @ThreadSafe
-public abstract class AFastIterableDelegateSet<E> implements IFastIterable<E>, Set<E> {
+public abstract class ASynchronizedFastIterableDelegateList<E> implements IFastIterableCollection<E>, List<E> {
 
     //arraylist wins in raw iterator speed compared to bufferingIterator since no remove is needed, though we need protection against concurrent modification
     @GuardedBy("this")
@@ -27,17 +22,13 @@ public abstract class AFastIterableDelegateSet<E> implements IFastIterable<E>, S
     @GuardedBy("this")
     private E[] array;
     @GuardedBy("this")
-    private boolean empty;
-    @GuardedBy("this")
-    private int size;
-    @GuardedBy("this")
-    private final Set<E> delegate = newDelegate();
+    private final List<E> delegate = newDelegate();
 
-    public AFastIterableDelegateSet() {
+    public ASynchronizedFastIterableDelegateList() {
         refreshFastIterable();
     }
 
-    protected abstract Set<E> newDelegate();
+    protected abstract List<E> newDelegate();
 
     @Override
     public synchronized boolean add(final E e) {
@@ -53,8 +44,6 @@ public abstract class AFastIterableDelegateSet<E> implements IFastIterable<E>, S
             fastIterable.add(e);
         }
         array = null;
-        empty = false;
-        size++;
     }
 
     @Override
@@ -64,6 +53,21 @@ public abstract class AFastIterableDelegateSet<E> implements IFastIterable<E>, S
             refreshFastIterable();
         }
         return added;
+    }
+
+    @Override
+    public synchronized boolean addAll(final int index, final Collection<? extends E> c) {
+        final boolean added = delegate.addAll(index, c);
+        if (added) {
+            refreshFastIterable();
+        }
+        return added;
+    }
+
+    @Override
+    public synchronized void add(final int index, final E element) {
+        delegate.add(index, element);
+        refreshFastIterable();
     }
 
     @Override
@@ -84,14 +88,19 @@ public abstract class AFastIterableDelegateSet<E> implements IFastIterable<E>, S
         return removed;
     }
 
+    @Override
+    public synchronized E remove(final int index) {
+        final E removed = delegate.remove(index);
+        refreshFastIterable();
+        return removed;
+    }
+
     /**
      * protected so it can be used inside addToFastIterable to refresh instead if desired by overriding
      */
     protected void refreshFastIterable() {
         fastIterable = null;
         array = null;
-        size = delegate.size();
-        empty = size == 0;
     }
 
     @Override
@@ -99,8 +108,6 @@ public abstract class AFastIterableDelegateSet<E> implements IFastIterable<E>, S
         delegate.clear();
         fastIterable = new BufferingIterator<E>();
         array = null;
-        empty = true;
-        size = 0;
     }
 
     @Override
@@ -113,19 +120,19 @@ public abstract class AFastIterableDelegateSet<E> implements IFastIterable<E>, S
 
     @Override
     public synchronized boolean isEmpty() {
-        return empty;
+        return delegate.isEmpty();
     }
 
     @Override
     public synchronized int size() {
-        return size;
+        return delegate.size();
     }
 
-    @Override
     @SuppressWarnings("unchecked")
+    @Override
     public synchronized E[] asArray(final Class<E> type) {
         if (array == null) {
-            final E[] empty = (E[]) Array.newInstance(type, size);
+            final E[] empty = (E[]) Array.newInstance(type, delegate.size());
             array = toArray(empty);
         }
         return array;
@@ -154,6 +161,43 @@ public abstract class AFastIterableDelegateSet<E> implements IFastIterable<E>, S
     @Override
     public synchronized boolean retainAll(final Collection<?> c) {
         return delegate.retainAll(c);
+    }
+
+    @Override
+    public synchronized E get(final int index) {
+        return delegate.get(index);
+    }
+
+    @Override
+    public synchronized E set(final int index, final E element) {
+        final E prev = delegate.set(index, element);
+        refreshFastIterable();
+        return prev;
+    }
+
+    @Override
+    public synchronized int indexOf(final Object o) {
+        return delegate.indexOf(o);
+    }
+
+    @Override
+    public synchronized int lastIndexOf(final Object o) {
+        return delegate.lastIndexOf(o);
+    }
+
+    @Override
+    public synchronized ListIterator<E> listIterator() {
+        return Collections.unmodifiableList(delegate).listIterator();
+    }
+
+    @Override
+    public synchronized ListIterator<E> listIterator(final int index) {
+        return Collections.unmodifiableList(delegate).listIterator(index);
+    }
+
+    @Override
+    public synchronized List<E> subList(final int fromIndex, final int toIndex) {
+        return new SynchronizedList<E>(Collections.unmodifiableList(delegate).subList(fromIndex, toIndex), this);
     }
 
     @Override

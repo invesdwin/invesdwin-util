@@ -1,4 +1,4 @@
-package de.invesdwin.util.collections.concurrent;
+package de.invesdwin.util.collections.fast.concurrent;
 
 import java.lang.reflect.Array;
 import java.util.Collection;
@@ -20,15 +20,11 @@ import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
  * The iterator returned from this map is also suitable for concurrent modification during iteration.
  */
 @ThreadSafe
-public abstract class AFastIterableDelegateMap<K, V> implements Map<K, V>, ISerializableValueObject {
+public abstract class ASynchronizedFastIterableDelegateMap<K, V> implements Map<K, V>, ISerializableValueObject {
 
     //arraylist wins in raw iterator speed compared to bufferingIterator since no remove is needed, though we need protection against concurrent modification
     @GuardedBy("this")
     private BufferingIterator<Entry<K, V>> fastIterable;
-    @GuardedBy("this")
-    private boolean empty;
-    @GuardedBy("this")
-    private int size;
 
     @GuardedBy("this")
     private Entry<K, V>[] entryArray;
@@ -43,24 +39,24 @@ public abstract class AFastIterableDelegateMap<K, V> implements Map<K, V>, ISeri
     private final Set<Entry<K, V>> entrySet = new Set<Entry<K, V>>() {
         @Override
         public int size() {
-            return AFastIterableDelegateMap.this.size();
+            return ASynchronizedFastIterableDelegateMap.this.size();
         }
 
         @Override
         public boolean isEmpty() {
-            return AFastIterableDelegateMap.this.isEmpty();
+            return ASynchronizedFastIterableDelegateMap.this.isEmpty();
         }
 
         @Override
         public boolean contains(final Object o) {
-            synchronized (AFastIterableDelegateMap.this) {
+            synchronized (ASynchronizedFastIterableDelegateMap.this) {
                 return delegate.entrySet().contains(o);
             }
         }
 
         @Override
         public Iterator<Entry<K, V>> iterator() {
-            synchronized (AFastIterableDelegateMap.this) {
+            synchronized (ASynchronizedFastIterableDelegateMap.this) {
                 if (fastIterable == null) {
                     fastIterable = new BufferingIterator<Entry<K, V>>(delegate.entrySet());
                 }
@@ -70,14 +66,14 @@ public abstract class AFastIterableDelegateMap<K, V> implements Map<K, V>, ISeri
 
         @Override
         public Object[] toArray() {
-            synchronized (AFastIterableDelegateMap.this) {
+            synchronized (ASynchronizedFastIterableDelegateMap.this) {
                 return delegate.entrySet().toArray();
             }
         }
 
         @Override
         public <T> T[] toArray(final T[] a) {
-            synchronized (AFastIterableDelegateMap.this) {
+            synchronized (ASynchronizedFastIterableDelegateMap.this) {
                 return delegate.entrySet().toArray(a);
             }
         }
@@ -94,7 +90,7 @@ public abstract class AFastIterableDelegateMap<K, V> implements Map<K, V>, ISeri
 
         @Override
         public boolean containsAll(final Collection<?> c) {
-            synchronized (AFastIterableDelegateMap.this) {
+            synchronized (ASynchronizedFastIterableDelegateMap.this) {
                 return delegate.entrySet().containsAll(c);
             }
         }
@@ -123,17 +119,17 @@ public abstract class AFastIterableDelegateMap<K, V> implements Map<K, V>, ISeri
     private final Set<K> keySet = new Set<K>() {
         @Override
         public int size() {
-            return AFastIterableDelegateMap.this.size();
+            return ASynchronizedFastIterableDelegateMap.this.size();
         }
 
         @Override
         public boolean isEmpty() {
-            return AFastIterableDelegateMap.this.isEmpty();
+            return ASynchronizedFastIterableDelegateMap.this.isEmpty();
         }
 
         @Override
         public boolean contains(final Object o) {
-            synchronized (AFastIterableDelegateMap.this) {
+            synchronized (ASynchronizedFastIterableDelegateMap.this) {
                 return delegate.containsKey(o);
             }
         }
@@ -156,14 +152,14 @@ public abstract class AFastIterableDelegateMap<K, V> implements Map<K, V>, ISeri
 
         @Override
         public Object[] toArray() {
-            synchronized (AFastIterableDelegateMap.this) {
+            synchronized (ASynchronizedFastIterableDelegateMap.this) {
                 return delegate.keySet().toArray();
             }
         }
 
         @Override
         public <T> T[] toArray(final T[] a) {
-            synchronized (AFastIterableDelegateMap.this) {
+            synchronized (ASynchronizedFastIterableDelegateMap.this) {
                 return delegate.keySet().toArray(a);
             }
         }
@@ -180,7 +176,7 @@ public abstract class AFastIterableDelegateMap<K, V> implements Map<K, V>, ISeri
 
         @Override
         public boolean containsAll(final Collection<?> c) {
-            synchronized (AFastIterableDelegateMap.this) {
+            synchronized (ASynchronizedFastIterableDelegateMap.this) {
                 return delegate.keySet().containsAll(c);
             }
         }
@@ -209,17 +205,17 @@ public abstract class AFastIterableDelegateMap<K, V> implements Map<K, V>, ISeri
     private final Collection<V> values = new Collection<V>() {
         @Override
         public int size() {
-            return AFastIterableDelegateMap.this.size();
+            return ASynchronizedFastIterableDelegateMap.this.size();
         }
 
         @Override
         public boolean isEmpty() {
-            return AFastIterableDelegateMap.this.isEmpty();
+            return ASynchronizedFastIterableDelegateMap.this.isEmpty();
         }
 
         @Override
         public boolean contains(final Object o) {
-            synchronized (AFastIterableDelegateMap.this) {
+            synchronized (ASynchronizedFastIterableDelegateMap.this) {
                 return delegate.containsValue(o);
             }
         }
@@ -243,14 +239,14 @@ public abstract class AFastIterableDelegateMap<K, V> implements Map<K, V>, ISeri
 
         @Override
         public Object[] toArray() {
-            synchronized (AFastIterableDelegateMap.this) {
+            synchronized (ASynchronizedFastIterableDelegateMap.this) {
                 return delegate.values().toArray();
             }
         }
 
         @Override
         public <T> T[] toArray(final T[] a) {
-            synchronized (AFastIterableDelegateMap.this) {
+            synchronized (ASynchronizedFastIterableDelegateMap.this) {
                 return delegate.values().toArray(a);
             }
         }
@@ -267,7 +263,7 @@ public abstract class AFastIterableDelegateMap<K, V> implements Map<K, V>, ISeri
 
         @Override
         public boolean containsAll(final Collection<?> c) {
-            synchronized (AFastIterableDelegateMap.this) {
+            synchronized (ASynchronizedFastIterableDelegateMap.this) {
                 return delegate.values().containsAll(c);
             }
         }
@@ -293,7 +289,7 @@ public abstract class AFastIterableDelegateMap<K, V> implements Map<K, V>, ISeri
         }
     };
 
-    public AFastIterableDelegateMap() {
+    public ASynchronizedFastIterableDelegateMap() {
         refreshFastIterable();
     }
 
@@ -317,8 +313,6 @@ public abstract class AFastIterableDelegateMap<K, V> implements Map<K, V>, ISeri
         entryArray = null;
         keyArray = null;
         valueArray = null;
-        empty = false;
-        size++;
     }
 
     @Override
@@ -328,8 +322,6 @@ public abstract class AFastIterableDelegateMap<K, V> implements Map<K, V>, ISeri
         entryArray = null;
         keyArray = null;
         valueArray = null;
-        empty = true;
-        size = 0;
     }
 
     @Override
@@ -349,8 +341,6 @@ public abstract class AFastIterableDelegateMap<K, V> implements Map<K, V>, ISeri
         entryArray = null;
         keyArray = null;
         valueArray = null;
-        size = delegate.size();
-        empty = size == 0;
     }
 
     @Override
@@ -370,7 +360,7 @@ public abstract class AFastIterableDelegateMap<K, V> implements Map<K, V>, ISeri
     @SuppressWarnings("unchecked")
     public synchronized V[] asValueArray(final Class<V> valueType) {
         if (valueArray == null) {
-            final V[] empty = (V[]) Array.newInstance(valueType, size);
+            final V[] empty = (V[]) Array.newInstance(valueType, delegate.size());
             valueArray = values.toArray(empty);
         }
         return valueArray;
@@ -384,7 +374,7 @@ public abstract class AFastIterableDelegateMap<K, V> implements Map<K, V>, ISeri
     @SuppressWarnings("unchecked")
     public synchronized K[] asKeyArray(final Class<K> keyType) {
         if (keyArray == null) {
-            final K[] empty = (K[]) Array.newInstance(keyType, size);
+            final K[] empty = (K[]) Array.newInstance(keyType, delegate.size());
             keyArray = keySet.toArray(empty);
         }
         return keyArray;
@@ -398,7 +388,7 @@ public abstract class AFastIterableDelegateMap<K, V> implements Map<K, V>, ISeri
     @SuppressWarnings("unchecked")
     public synchronized Entry<K, V>[] asEntryArray() {
         if (entryArray == null) {
-            final Entry<K, V>[] empty = (Entry<K, V>[]) Array.newInstance(Entry.class, size);
+            final Entry<K, V>[] empty = (Entry<K, V>[]) Array.newInstance(Entry.class, delegate.size());
             entryArray = entrySet.toArray(empty);
         }
         return entryArray;
@@ -406,12 +396,12 @@ public abstract class AFastIterableDelegateMap<K, V> implements Map<K, V>, ISeri
 
     @Override
     public synchronized boolean isEmpty() {
-        return empty;
+        return delegate.isEmpty();
     }
 
     @Override
     public synchronized int size() {
-        return size;
+        return delegate.size();
     }
 
     private UnsupportedOperationException newUnmodifiableException() {

@@ -16,8 +16,8 @@ import org.assertj.core.description.TextDescription;
 import com.github.benmanes.caffeine.cache.Caffeine;
 
 import de.invesdwin.util.assertions.Assertions;
-import de.invesdwin.util.collections.concurrent.AFastIterableDelegateList;
 import de.invesdwin.util.collections.eviction.EvictionMode;
+import de.invesdwin.util.collections.fast.concurrent.ASynchronizedFastIterableDelegateList;
 import de.invesdwin.util.collections.loadingcache.ADelegateLoadingCache;
 import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 import de.invesdwin.util.collections.loadingcache.ILoadingCache;
@@ -745,7 +745,7 @@ public abstract class AHistoricalCache<V>
 
         private final Set<IHistoricalCachePutListener> putListeners = newListenerSet();
         @SuppressWarnings("rawtypes")
-        private final AFastIterableDelegateList<WeakReference> putListenersFast = new AFastIterableDelegateList<WeakReference>() {
+        private final ASynchronizedFastIterableDelegateList<WeakReference> putListenersFast = new ASynchronizedFastIterableDelegateList<WeakReference>() {
             @Override
             protected List<WeakReference> newDelegate() {
                 return new ArrayList<>();

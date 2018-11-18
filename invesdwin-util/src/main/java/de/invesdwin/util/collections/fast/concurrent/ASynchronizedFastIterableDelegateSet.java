@@ -1,19 +1,26 @@
-package de.invesdwin.util.collections.concurrent;
+package de.invesdwin.util.collections.fast.concurrent;
 
 import java.lang.reflect.Array;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.ListIterator;
+import java.util.Set;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
+import de.invesdwin.util.collections.fast.IFastIterableCollection;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
 
+/**
+ * Boosts the iteration speed over the values by keeping a fast iterator instance that only gets modified when changes
+ * to the map occur.
+ * 
+ * The iterator returned from this set is also suitable for concurrent modification during iteration.
+ * 
+ * http://stackoverflow.com/questions/1006395/fastest-way-to-iterate-an-array-in-java-loop-variable-vs-enhanced-for-statement
+ */
 @ThreadSafe
-public abstract class AFastIterableDelegateList<E> implements IFastIterable<E>, List<E> {
+public abstract class ASynchronizedFastIterableDelegateSet<E> implements IFastIterableCollection<E>, Set<E> {
 
     //arraylist wins in raw iterator speed compared to bufferingIterator since no remove is needed, though we need protection against concurrent modification
     @GuardedBy("this")
@@ -25,14 +32,13 @@ public abstract class AFastIterableDelegateList<E> implements IFastIterable<E>, 
     @GuardedBy("this")
     private int size;
     @GuardedBy("this")
-    private final List<E> delegate = newDelegate();
-    private final List<E> unmodifiableDelegate = Collections.unmodifiableList(delegate);
+    private final Set<E> delegate = newDelegate();
 
-    public AFastIterableDelegateList() {
+    public ASynchronizedFastIterableDelegateSet() {
         refreshFastIterable();
     }
 
-    protected abstract List<E> newDelegate();
+    protected abstract Set<E> newDelegate();
 
     @Override
     public synchronized boolean add(final E e) {
@@ -62,21 +68,6 @@ public abstract class AFastIterableDelegateList<E> implements IFastIterable<E>, 
     }
 
     @Override
-    public synchronized boolean addAll(final int index, final Collection<? extends E> c) {
-        final boolean added = delegate.addAll(index, c);
-        if (added) {
-            refreshFastIterable();
-        }
-        return added;
-    }
-
-    @Override
-    public synchronized void add(final int index, final E element) {
-        delegate.add(index, element);
-        refreshFastIterable();
-    }
-
-    @Override
     public synchronized boolean remove(final Object o) {
         final boolean removed = delegate.remove(o);
         if (removed) {
@@ -91,13 +82,6 @@ public abstract class AFastIterableDelegateList<E> implements IFastIterable<E>, 
         if (removed) {
             refreshFastIterable();
         }
-        return removed;
-    }
-
-    @Override
-    public synchronized E remove(final int index) {
-        final E removed = delegate.remove(index);
-        refreshFastIterable();
         return removed;
     }
 
@@ -138,8 +122,8 @@ public abstract class AFastIterableDelegateList<E> implements IFastIterable<E>, 
         return size;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
+    @SuppressWarnings("unchecked")
     public synchronized E[] asArray(final Class<E> type) {
         if (array == null) {
             final E[] empty = (E[]) Array.newInstance(type, size);
@@ -171,43 +155,6 @@ public abstract class AFastIterableDelegateList<E> implements IFastIterable<E>, 
     @Override
     public synchronized boolean retainAll(final Collection<?> c) {
         return delegate.retainAll(c);
-    }
-
-    @Override
-    public synchronized E get(final int index) {
-        return delegate.get(index);
-    }
-
-    @Override
-    public synchronized E set(final int index, final E element) {
-        final E prev = delegate.set(index, element);
-        refreshFastIterable();
-        return prev;
-    }
-
-    @Override
-    public synchronized int indexOf(final Object o) {
-        return delegate.indexOf(o);
-    }
-
-    @Override
-    public synchronized int lastIndexOf(final Object o) {
-        return delegate.lastIndexOf(o);
-    }
-
-    @Override
-    public synchronized ListIterator<E> listIterator() {
-        return unmodifiableDelegate.listIterator();
-    }
-
-    @Override
-    public synchronized ListIterator<E> listIterator(final int index) {
-        return unmodifiableDelegate.listIterator(index);
-    }
-
-    @Override
-    public synchronized List<E> subList(final int fromIndex, final int toIndex) {
-        return new SynchronizedList<E>(unmodifiableDelegate.subList(fromIndex, toIndex), this);
     }
 
     @Override
