@@ -2,6 +2,7 @@ package de.invesdwin.util.concurrent.nested;
 
 import javax.annotation.concurrent.ThreadSafe;
 
+import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 import de.invesdwin.util.concurrent.Threads;
 import de.invesdwin.util.concurrent.WrappedExecutorService;
@@ -18,7 +19,10 @@ public abstract class ANestedExecutor implements INestedExecutor {
 
         @Override
         protected WrappedExecutorService loadValue(final String key) {
-            return newNestedExecutor(name + NESTED_LEVEL_SEPARATOR + key);
+            final WrappedExecutorService executor = newNestedExecutor(name + NESTED_LEVEL_SEPARATOR + key);
+            Assertions.checkTrue(executor.isDynamicThreadName(),
+                    "%s does not work correctly without dynamicThreadNames", ANestedExecutor.class.getSimpleName());
+            return executor;
         }
 
     };

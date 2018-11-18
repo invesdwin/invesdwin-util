@@ -25,17 +25,22 @@ public class IndexedFDate extends FDate {
             this.extractKeyProviderHashCode = indexedKey.extractKeyProviderHashCode;
             this.extractKeyProviderExtractedKey = indexedKey.extractKeyProviderExtractedKey;
         } else {
-            key.setExtension(this);
+            final Object existingExtension = key.getExtension();
+            //don't replace an existing extension
+            if (existingExtension == null || existingExtension instanceof IndexedFDate) {
+                key.setExtension(this);
+            } else {
+                setExtension(existingExtension);
+            }
             this.indexesRoundRobin = true;
         }
     }
 
-    @SuppressWarnings("deprecation")
     public static IndexedFDate maybeWrap(final FDate key) {
         if (key instanceof IndexedFDate) {
             return (IndexedFDate) key;
         } else {
-            final IndexedFDate indexedFDate = (IndexedFDate) key.getExtension();
+            final IndexedFDate indexedFDate = getExtension(key);
             if (indexedFDate != null) {
                 return indexedFDate;
             } else {
@@ -45,11 +50,21 @@ public class IndexedFDate extends FDate {
     }
 
     @SuppressWarnings("deprecation")
+    private static IndexedFDate getExtension(final FDate key) {
+        final Object extension = key.getExtension();
+        if (extension instanceof IndexedFDate) {
+            return (IndexedFDate) extension;
+        } else {
+            return null;
+        }
+    }
+
+    @SuppressWarnings("deprecation")
     public static IndexedFDate maybeUnwrap(final FDate key) {
         if (key instanceof IndexedFDate) {
             return (IndexedFDate) key;
         } else {
-            final IndexedFDate indexedFDate = (IndexedFDate) key.getExtension();
+            final IndexedFDate indexedFDate = getExtension(key);
             if (indexedFDate != null) {
                 return indexedFDate;
             } else {
