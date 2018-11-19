@@ -14,8 +14,8 @@ import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
 @ThreadSafe
 public abstract class AFastIterableDelegateList<E> implements IFastIterableList<E> {
 
-    private BufferingIterator<E> fastIterable;
-    private E[] array;
+    private transient BufferingIterator<E> fastIterable;
+    private transient E[] array;
     private final List<E> delegate = newDelegate();
 
     public AFastIterableDelegateList() {

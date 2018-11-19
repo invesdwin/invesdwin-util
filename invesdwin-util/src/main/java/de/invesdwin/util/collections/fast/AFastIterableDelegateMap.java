@@ -6,7 +6,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.bean.tuple.ImmutableEntry;
@@ -21,17 +20,12 @@ import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
 @NotThreadSafe
 public abstract class AFastIterableDelegateMap<K, V> implements IFastIterableMap<K, V> {
 
-    @GuardedBy("this")
-    private BufferingIterator<Entry<K, V>> fastIterable;
+    private transient BufferingIterator<Entry<K, V>> fastIterable;
 
-    @GuardedBy("this")
-    private Entry<K, V>[] entryArray;
-    @GuardedBy("this")
-    private K[] keyArray;
-    @GuardedBy("this")
-    private V[] valueArray;
+    private transient Entry<K, V>[] entryArray;
+    private transient K[] keyArray;
+    private transient V[] valueArray;
 
-    @GuardedBy("this")
     private final Map<K, V> delegate = newDelegate();
 
     private final Set<Entry<K, V>> entrySet = new Set<Entry<K, V>>() {

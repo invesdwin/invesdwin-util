@@ -24,13 +24,9 @@ public abstract class ASynchronizedFastIterableDelegateSet<E> implements IFastIt
 
     //arraylist wins in raw iterator speed compared to bufferingIterator since no remove is needed, though we need protection against concurrent modification
     @GuardedBy("this")
-    private BufferingIterator<E> fastIterable;
+    private transient BufferingIterator<E> fastIterable;
     @GuardedBy("this")
-    private E[] array;
-    @GuardedBy("this")
-    private boolean empty;
-    @GuardedBy("this")
-    private int size;
+    private transient E[] array;
     @GuardedBy("this")
     private final Set<E> delegate = newDelegate();
 
@@ -54,8 +50,6 @@ public abstract class ASynchronizedFastIterableDelegateSet<E> implements IFastIt
             fastIterable.add(e);
         }
         array = null;
-        empty = false;
-        size++;
     }
 
     @Override
@@ -91,8 +85,6 @@ public abstract class ASynchronizedFastIterableDelegateSet<E> implements IFastIt
     protected void refreshFastIterable() {
         fastIterable = null;
         array = null;
-        size = delegate.size();
-        empty = size == 0;
     }
 
     @Override
@@ -100,8 +92,6 @@ public abstract class ASynchronizedFastIterableDelegateSet<E> implements IFastIt
         delegate.clear();
         fastIterable = new BufferingIterator<E>();
         array = null;
-        empty = true;
-        size = 0;
     }
 
     @Override
@@ -114,19 +104,19 @@ public abstract class ASynchronizedFastIterableDelegateSet<E> implements IFastIt
 
     @Override
     public synchronized boolean isEmpty() {
-        return empty;
+        return delegate.isEmpty();
     }
 
     @Override
     public synchronized int size() {
-        return size;
+        return delegate.size();
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public synchronized E[] asArray(final Class<E> type) {
         if (array == null) {
-            final E[] empty = (E[]) Array.newInstance(type, size);
+            final E[] empty = (E[]) Array.newInstance(type, delegate.size());
             array = toArray(empty);
         }
         return array;

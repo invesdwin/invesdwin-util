@@ -1,5 +1,6 @@
 package de.invesdwin.util.collections.fast.concurrent;
 
+import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.Iterator;
@@ -24,270 +25,23 @@ public abstract class ASynchronizedFastIterableDelegateMap<K, V> implements IFas
 
     //arraylist wins in raw iterator speed compared to bufferingIterator since no remove is needed, though we need protection against concurrent modification
     @GuardedBy("this")
-    private BufferingIterator<Entry<K, V>> fastIterable;
+    private transient BufferingIterator<Entry<K, V>> fastIterable;
 
     @GuardedBy("this")
-    private Entry<K, V>[] entryArray;
+    private transient Entry<K, V>[] entryArray;
     @GuardedBy("this")
-    private K[] keyArray;
+    private transient K[] keyArray;
     @GuardedBy("this")
-    private V[] valueArray;
+    private transient V[] valueArray;
 
     @GuardedBy("this")
     private final Map<K, V> delegate = newDelegate();
 
-    private final Set<Entry<K, V>> entrySet = new Set<Entry<K, V>>() {
-        @Override
-        public int size() {
-            return ASynchronizedFastIterableDelegateMap.this.size();
-        }
+    private final Set<Entry<K, V>> entrySet = new EntrySet();
 
-        @Override
-        public boolean isEmpty() {
-            return ASynchronizedFastIterableDelegateMap.this.isEmpty();
-        }
+    private final Set<K> keySet = new KeySet();
 
-        @Override
-        public boolean contains(final Object o) {
-            synchronized (ASynchronizedFastIterableDelegateMap.this) {
-                return delegate.entrySet().contains(o);
-            }
-        }
-
-        @Override
-        public Iterator<Entry<K, V>> iterator() {
-            synchronized (ASynchronizedFastIterableDelegateMap.this) {
-                if (fastIterable == null) {
-                    fastIterable = new BufferingIterator<Entry<K, V>>(delegate.entrySet());
-                }
-                return fastIterable.iterator();
-            }
-        }
-
-        @Override
-        public Object[] toArray() {
-            synchronized (ASynchronizedFastIterableDelegateMap.this) {
-                return delegate.entrySet().toArray();
-            }
-        }
-
-        @Override
-        public <T> T[] toArray(final T[] a) {
-            synchronized (ASynchronizedFastIterableDelegateMap.this) {
-                return delegate.entrySet().toArray(a);
-            }
-        }
-
-        @Override
-        public boolean add(final Entry<K, V> e) {
-            throw newUnmodifiableException();
-        }
-
-        @Override
-        public boolean remove(final Object o) {
-            throw newUnmodifiableException();
-        }
-
-        @Override
-        public boolean containsAll(final Collection<?> c) {
-            synchronized (ASynchronizedFastIterableDelegateMap.this) {
-                return delegate.entrySet().containsAll(c);
-            }
-        }
-
-        @Override
-        public boolean addAll(final Collection<? extends Entry<K, V>> c) {
-            throw newUnmodifiableException();
-        }
-
-        @Override
-        public boolean retainAll(final Collection<?> c) {
-            throw newUnmodifiableException();
-        }
-
-        @Override
-        public boolean removeAll(final Collection<?> c) {
-            throw newUnmodifiableException();
-        }
-
-        @Override
-        public void clear() {
-            throw newUnmodifiableException();
-        }
-    };
-
-    private final Set<K> keySet = new Set<K>() {
-        @Override
-        public int size() {
-            return ASynchronizedFastIterableDelegateMap.this.size();
-        }
-
-        @Override
-        public boolean isEmpty() {
-            return ASynchronizedFastIterableDelegateMap.this.isEmpty();
-        }
-
-        @Override
-        public boolean contains(final Object o) {
-            synchronized (ASynchronizedFastIterableDelegateMap.this) {
-                return delegate.containsKey(o);
-            }
-        }
-
-        @Override
-        public Iterator<K> iterator() {
-            final Iterator<Entry<K, V>> iterator = entrySet.iterator();
-            return new Iterator<K>() {
-                @Override
-                public boolean hasNext() {
-                    return iterator.hasNext();
-                }
-
-                @Override
-                public K next() {
-                    return iterator.next().getKey();
-                }
-            };
-        }
-
-        @Override
-        public Object[] toArray() {
-            synchronized (ASynchronizedFastIterableDelegateMap.this) {
-                return delegate.keySet().toArray();
-            }
-        }
-
-        @Override
-        public <T> T[] toArray(final T[] a) {
-            synchronized (ASynchronizedFastIterableDelegateMap.this) {
-                return delegate.keySet().toArray(a);
-            }
-        }
-
-        @Override
-        public boolean add(final K e) {
-            throw newUnmodifiableException();
-        }
-
-        @Override
-        public boolean remove(final Object o) {
-            throw newUnmodifiableException();
-        }
-
-        @Override
-        public boolean containsAll(final Collection<?> c) {
-            synchronized (ASynchronizedFastIterableDelegateMap.this) {
-                return delegate.keySet().containsAll(c);
-            }
-        }
-
-        @Override
-        public boolean addAll(final Collection<? extends K> c) {
-            throw newUnmodifiableException();
-        }
-
-        @Override
-        public boolean retainAll(final Collection<?> c) {
-            throw newUnmodifiableException();
-        }
-
-        @Override
-        public boolean removeAll(final Collection<?> c) {
-            throw newUnmodifiableException();
-        }
-
-        @Override
-        public void clear() {
-            throw newUnmodifiableException();
-        }
-    };
-
-    private final Collection<V> values = new Collection<V>() {
-        @Override
-        public int size() {
-            return ASynchronizedFastIterableDelegateMap.this.size();
-        }
-
-        @Override
-        public boolean isEmpty() {
-            return ASynchronizedFastIterableDelegateMap.this.isEmpty();
-        }
-
-        @Override
-        public boolean contains(final Object o) {
-            synchronized (ASynchronizedFastIterableDelegateMap.this) {
-                return delegate.containsValue(o);
-            }
-        }
-
-        @Override
-        public Iterator<V> iterator() {
-            final Iterator<Entry<K, V>> iterator = entrySet.iterator();
-            return new Iterator<V>() {
-                @Override
-                public boolean hasNext() {
-                    return iterator.hasNext();
-                }
-
-                @Override
-                public V next() {
-                    return iterator.next().getValue();
-                }
-
-            };
-        }
-
-        @Override
-        public Object[] toArray() {
-            synchronized (ASynchronizedFastIterableDelegateMap.this) {
-                return delegate.values().toArray();
-            }
-        }
-
-        @Override
-        public <T> T[] toArray(final T[] a) {
-            synchronized (ASynchronizedFastIterableDelegateMap.this) {
-                return delegate.values().toArray(a);
-            }
-        }
-
-        @Override
-        public boolean add(final V e) {
-            throw newUnmodifiableException();
-        }
-
-        @Override
-        public boolean remove(final Object o) {
-            throw newUnmodifiableException();
-        }
-
-        @Override
-        public boolean containsAll(final Collection<?> c) {
-            synchronized (ASynchronizedFastIterableDelegateMap.this) {
-                return delegate.values().containsAll(c);
-            }
-        }
-
-        @Override
-        public boolean addAll(final Collection<? extends V> c) {
-            throw newUnmodifiableException();
-        }
-
-        @Override
-        public boolean retainAll(final Collection<?> c) {
-            throw newUnmodifiableException();
-        }
-
-        @Override
-        public boolean removeAll(final Collection<?> c) {
-            throw newUnmodifiableException();
-        }
-
-        @Override
-        public void clear() {
-            throw newUnmodifiableException();
-        }
-    };
+    private final Collection<V> values = new ValuesCollection();
 
     public ASynchronizedFastIterableDelegateMap() {
         refreshFastIterable();
@@ -436,6 +190,259 @@ public abstract class ASynchronizedFastIterableDelegateMap<K, V> implements IFas
     @Override
     public synchronized String toString() {
         return delegate.toString();
+    }
+
+    private final class ValuesCollection implements Collection<V>, Serializable {
+        @Override
+        public int size() {
+            return ASynchronizedFastIterableDelegateMap.this.size();
+        }
+
+        @Override
+        public boolean isEmpty() {
+            return ASynchronizedFastIterableDelegateMap.this.isEmpty();
+        }
+
+        @Override
+        public boolean contains(final Object o) {
+            synchronized (ASynchronizedFastIterableDelegateMap.this) {
+                return delegate.containsValue(o);
+            }
+        }
+
+        @Override
+        public Iterator<V> iterator() {
+            final Iterator<Entry<K, V>> iterator = entrySet.iterator();
+            return new Iterator<V>() {
+                @Override
+                public boolean hasNext() {
+                    return iterator.hasNext();
+                }
+
+                @Override
+                public V next() {
+                    return iterator.next().getValue();
+                }
+
+            };
+        }
+
+        @Override
+        public Object[] toArray() {
+            synchronized (ASynchronizedFastIterableDelegateMap.this) {
+                return delegate.values().toArray();
+            }
+        }
+
+        @Override
+        public <T> T[] toArray(final T[] a) {
+            synchronized (ASynchronizedFastIterableDelegateMap.this) {
+                return delegate.values().toArray(a);
+            }
+        }
+
+        @Override
+        public boolean add(final V e) {
+            throw newUnmodifiableException();
+        }
+
+        @Override
+        public boolean remove(final Object o) {
+            throw newUnmodifiableException();
+        }
+
+        @Override
+        public boolean containsAll(final Collection<?> c) {
+            synchronized (ASynchronizedFastIterableDelegateMap.this) {
+                return delegate.values().containsAll(c);
+            }
+        }
+
+        @Override
+        public boolean addAll(final Collection<? extends V> c) {
+            throw newUnmodifiableException();
+        }
+
+        @Override
+        public boolean retainAll(final Collection<?> c) {
+            throw newUnmodifiableException();
+        }
+
+        @Override
+        public boolean removeAll(final Collection<?> c) {
+            throw newUnmodifiableException();
+        }
+
+        @Override
+        public void clear() {
+            throw newUnmodifiableException();
+        }
+    }
+
+    private final class KeySet implements Set<K>, Serializable {
+        @Override
+        public int size() {
+            return ASynchronizedFastIterableDelegateMap.this.size();
+        }
+
+        @Override
+        public boolean isEmpty() {
+            return ASynchronizedFastIterableDelegateMap.this.isEmpty();
+        }
+
+        @Override
+        public boolean contains(final Object o) {
+            synchronized (ASynchronizedFastIterableDelegateMap.this) {
+                return delegate.containsKey(o);
+            }
+        }
+
+        @Override
+        public Iterator<K> iterator() {
+            final Iterator<Entry<K, V>> iterator = entrySet.iterator();
+            return new Iterator<K>() {
+                @Override
+                public boolean hasNext() {
+                    return iterator.hasNext();
+                }
+
+                @Override
+                public K next() {
+                    return iterator.next().getKey();
+                }
+            };
+        }
+
+        @Override
+        public Object[] toArray() {
+            synchronized (ASynchronizedFastIterableDelegateMap.this) {
+                return delegate.keySet().toArray();
+            }
+        }
+
+        @Override
+        public <T> T[] toArray(final T[] a) {
+            synchronized (ASynchronizedFastIterableDelegateMap.this) {
+                return delegate.keySet().toArray(a);
+            }
+        }
+
+        @Override
+        public boolean add(final K e) {
+            throw newUnmodifiableException();
+        }
+
+        @Override
+        public boolean remove(final Object o) {
+            throw newUnmodifiableException();
+        }
+
+        @Override
+        public boolean containsAll(final Collection<?> c) {
+            synchronized (ASynchronizedFastIterableDelegateMap.this) {
+                return delegate.keySet().containsAll(c);
+            }
+        }
+
+        @Override
+        public boolean addAll(final Collection<? extends K> c) {
+            throw newUnmodifiableException();
+        }
+
+        @Override
+        public boolean retainAll(final Collection<?> c) {
+            throw newUnmodifiableException();
+        }
+
+        @Override
+        public boolean removeAll(final Collection<?> c) {
+            throw newUnmodifiableException();
+        }
+
+        @Override
+        public void clear() {
+            throw newUnmodifiableException();
+        }
+    }
+
+    private final class EntrySet implements Set<Entry<K, V>>, Serializable {
+        @Override
+        public int size() {
+            return ASynchronizedFastIterableDelegateMap.this.size();
+        }
+
+        @Override
+        public boolean isEmpty() {
+            return ASynchronizedFastIterableDelegateMap.this.isEmpty();
+        }
+
+        @Override
+        public boolean contains(final Object o) {
+            synchronized (ASynchronizedFastIterableDelegateMap.this) {
+                return delegate.entrySet().contains(o);
+            }
+        }
+
+        @Override
+        public Iterator<Entry<K, V>> iterator() {
+            synchronized (ASynchronizedFastIterableDelegateMap.this) {
+                if (fastIterable == null) {
+                    fastIterable = new BufferingIterator<Entry<K, V>>(delegate.entrySet());
+                }
+                return fastIterable.iterator();
+            }
+        }
+
+        @Override
+        public Object[] toArray() {
+            synchronized (ASynchronizedFastIterableDelegateMap.this) {
+                return delegate.entrySet().toArray();
+            }
+        }
+
+        @Override
+        public <T> T[] toArray(final T[] a) {
+            synchronized (ASynchronizedFastIterableDelegateMap.this) {
+                return delegate.entrySet().toArray(a);
+            }
+        }
+
+        @Override
+        public boolean add(final Entry<K, V> e) {
+            throw newUnmodifiableException();
+        }
+
+        @Override
+        public boolean remove(final Object o) {
+            throw newUnmodifiableException();
+        }
+
+        @Override
+        public boolean containsAll(final Collection<?> c) {
+            synchronized (ASynchronizedFastIterableDelegateMap.this) {
+                return delegate.entrySet().containsAll(c);
+            }
+        }
+
+        @Override
+        public boolean addAll(final Collection<? extends Entry<K, V>> c) {
+            throw newUnmodifiableException();
+        }
+
+        @Override
+        public boolean retainAll(final Collection<?> c) {
+            throw newUnmodifiableException();
+        }
+
+        @Override
+        public boolean removeAll(final Collection<?> c) {
+            throw newUnmodifiableException();
+        }
+
+        @Override
+        public void clear() {
+            throw newUnmodifiableException();
+        }
     }
 
 }

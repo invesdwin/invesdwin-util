@@ -5,6 +5,7 @@ import java.util.Iterator;
 
 import javax.annotation.concurrent.ThreadSafe;
 
+import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.concurrent.lock.ILock;
 import de.invesdwin.util.concurrent.lock.Locks;
 
@@ -43,6 +44,7 @@ public class LockedCollection<E> implements Collection<E> {
      */
     public LockedCollection(final Collection<E> collection, final ILock lock) {
         this.delegate = collection;
+        Assertions.checkNotNull(lock);
         this.lock = lock;
     }
 

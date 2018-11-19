@@ -18,9 +18,9 @@ public abstract class ASynchronizedFastIterableDelegateList<E> implements IFastI
 
     //arraylist wins in raw iterator speed compared to bufferingIterator since no remove is needed, though we need protection against concurrent modification
     @GuardedBy("this")
-    private BufferingIterator<E> fastIterable;
+    private transient BufferingIterator<E> fastIterable;
     @GuardedBy("this")
-    private E[] array;
+    private transient E[] array;
     @GuardedBy("this")
     private final List<E> delegate = newDelegate();
 
