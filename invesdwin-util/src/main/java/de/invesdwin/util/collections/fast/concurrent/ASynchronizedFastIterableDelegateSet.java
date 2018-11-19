@@ -7,7 +7,7 @@ import java.util.Set;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
-import de.invesdwin.util.collections.fast.IFastIterableCollection;
+import de.invesdwin.util.collections.fast.IFastIterableSet;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
 
@@ -20,7 +20,7 @@ import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
  * http://stackoverflow.com/questions/1006395/fastest-way-to-iterate-an-array-in-java-loop-variable-vs-enhanced-for-statement
  */
 @ThreadSafe
-public abstract class ASynchronizedFastIterableDelegateSet<E> implements IFastIterableCollection<E>, Set<E> {
+public abstract class ASynchronizedFastIterableDelegateSet<E> implements IFastIterableSet<E> {
 
     //arraylist wins in raw iterator speed compared to bufferingIterator since no remove is needed, though we need protection against concurrent modification
     @GuardedBy("this")

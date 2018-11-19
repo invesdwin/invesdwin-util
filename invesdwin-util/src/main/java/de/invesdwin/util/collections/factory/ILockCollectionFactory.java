@@ -2,10 +2,11 @@ package de.invesdwin.util.collections.factory;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
-import de.invesdwin.util.collections.fast.IFastIterableCollection;
 import de.invesdwin.util.collections.fast.IFastIterableList;
 import de.invesdwin.util.collections.fast.IFastIterableMap;
+import de.invesdwin.util.collections.fast.IFastIterableSet;
 import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 import de.invesdwin.util.collections.loadingcache.ALoadingCacheConfig;
 import de.invesdwin.util.concurrent.lock.ILock;
@@ -15,13 +16,15 @@ public interface ILockCollectionFactory {
 
     ILock newLock(String name);
 
-    <T> IFastIterableCollection<T> newFastIterableLinkedHashSet();
+    <T> IFastIterableSet<T> newFastIterableLinkedSet();
 
     <T> IFastIterableList<T> newFastIterableArrayList();
 
     <K, V> Map<K, V> newMap();
 
-    <K, V> IFastIterableMap<K, V> newFastIterableLinkedHashMap();
+    <K, V> IFastIterableMap<K, V> newFastIterableLinkedMap();
+
+    <T> IFastIterableSet<T> newFastIterableSet();
 
     <K, V> ALoadingCache<K, V> newLoadingCache(ALoadingCacheConfig<K, V> config);
 
@@ -44,5 +47,13 @@ public interface ILockCollectionFactory {
     <K, V> Map<K, V> newConcurrentMap();
 
     <T> List<T> newArrayList();
+
+    <K, V> IFastIterableMap<K, V> newFastIterableMap();
+
+    <K, V> Map<K, V> newLinkedMap();
+
+    <T> Set<T> newSet();
+
+    <T> Set<T> newLinkedSet();
 
 }

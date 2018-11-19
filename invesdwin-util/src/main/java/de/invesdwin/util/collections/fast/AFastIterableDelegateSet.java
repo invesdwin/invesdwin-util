@@ -18,7 +18,7 @@ import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
  * http://stackoverflow.com/questions/1006395/fastest-way-to-iterate-an-array-in-java-loop-variable-vs-enhanced-for-statement
  */
 @NotThreadSafe
-public abstract class AFastIterableDelegateSet<E> implements IFastIterableCollection<E>, Set<E> {
+public abstract class AFastIterableDelegateSet<E> implements IFastIterableSet<E> {
 
     private BufferingIterator<E> fastIterable;
     private E[] array;

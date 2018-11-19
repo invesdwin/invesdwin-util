@@ -1,11 +1,7 @@
 package de.invesdwin.util.collections.fast;
 
-public interface IFastIterableCollection<E> extends IFastIterable<E> {
+import java.util.Collection;
 
-    boolean add(E value);
-
-    boolean remove(E value);
-
-    void clear();
+public interface IFastIterableCollection<E> extends IFastIterable<E>, Collection<E> {
 
 }

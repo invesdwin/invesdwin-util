@@ -10,9 +10,9 @@ import javax.annotation.concurrent.Immutable;
 import de.invesdwin.util.collections.fast.AFastIterableDelegateList;
 import de.invesdwin.util.collections.fast.AFastIterableDelegateMap;
 import de.invesdwin.util.collections.fast.AFastIterableDelegateSet;
-import de.invesdwin.util.collections.fast.IFastIterableCollection;
 import de.invesdwin.util.collections.fast.IFastIterableList;
 import de.invesdwin.util.collections.fast.IFastIterableMap;
+import de.invesdwin.util.collections.fast.IFastIterableSet;
 import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 import de.invesdwin.util.collections.loadingcache.ALoadingCacheConfig;
 import de.invesdwin.util.concurrent.lock.ILock;
@@ -22,6 +22,7 @@ import de.invesdwin.util.concurrent.nested.INestedExecutor;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 
 @Immutable
 public final class DisabledLockCollectionFactory implements ILockCollectionFactory {
@@ -36,7 +37,7 @@ public final class DisabledLockCollectionFactory implements ILockCollectionFacto
     }
 
     @Override
-    public <T> IFastIterableCollection<T> newFastIterableLinkedHashSet() {
+    public <T> IFastIterableSet<T> newFastIterableLinkedSet() {
         return new AFastIterableDelegateSet<T>() {
             @Override
             protected Set<T> newDelegate() {
@@ -78,7 +79,7 @@ public final class DisabledLockCollectionFactory implements ILockCollectionFacto
     }
 
     @Override
-    public <K, V> IFastIterableMap<K, V> newFastIterableLinkedHashMap() {
+    public <K, V> IFastIterableMap<K, V> newFastIterableLinkedMap() {
         return new AFastIterableDelegateMap<K, V>() {
             @Override
             protected Map<K, V> newDelegate() {
@@ -95,6 +96,42 @@ public final class DisabledLockCollectionFactory implements ILockCollectionFacto
     @Override
     public <T> List<T> newArrayList() {
         return new ArrayList<>();
+    }
+
+    @Override
+    public <T> IFastIterableSet<T> newFastIterableSet() {
+        return new AFastIterableDelegateSet<T>() {
+            @Override
+            protected Set<T> newDelegate() {
+                return new ObjectOpenHashSet<>();
+            }
+        };
+    }
+
+    @Override
+    public <K, V> IFastIterableMap<K, V> newFastIterableMap() {
+        return new AFastIterableDelegateMap<K, V>() {
+
+            @Override
+            protected Map<K, V> newDelegate() {
+                return new Object2ObjectOpenHashMap<>();
+            }
+        };
+    }
+
+    @Override
+    public <K, V> Map<K, V> newLinkedMap() {
+        return new Object2ObjectLinkedOpenHashMap<>();
+    }
+
+    @Override
+    public <T> Set<T> newSet() {
+        return new ObjectOpenHashSet<>();
+    }
+
+    @Override
+    public <T> Set<T> newLinkedSet() {
+        return new ObjectLinkedOpenHashSet<>();
     }
 
 }

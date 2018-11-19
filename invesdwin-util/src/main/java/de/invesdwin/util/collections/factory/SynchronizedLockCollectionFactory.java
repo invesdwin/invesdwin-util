@@ -9,9 +9,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.concurrent.Immutable;
 
-import de.invesdwin.util.collections.fast.IFastIterableCollection;
 import de.invesdwin.util.collections.fast.IFastIterableList;
 import de.invesdwin.util.collections.fast.IFastIterableMap;
+import de.invesdwin.util.collections.fast.IFastIterableSet;
 import de.invesdwin.util.collections.fast.concurrent.ASynchronizedFastIterableDelegateList;
 import de.invesdwin.util.collections.fast.concurrent.ASynchronizedFastIterableDelegateMap;
 import de.invesdwin.util.collections.fast.concurrent.ASynchronizedFastIterableDelegateSet;
@@ -26,6 +26,7 @@ import de.invesdwin.util.concurrent.nested.INestedExecutor;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 
 @Immutable
 public final class SynchronizedLockCollectionFactory implements ILockCollectionFactory {
@@ -40,7 +41,7 @@ public final class SynchronizedLockCollectionFactory implements ILockCollectionF
     }
 
     @Override
-    public <T> IFastIterableCollection<T> newFastIterableLinkedHashSet() {
+    public <T> IFastIterableSet<T> newFastIterableLinkedSet() {
         return new ASynchronizedFastIterableDelegateSet<T>() {
             @Override
             protected Set<T> newDelegate() {
@@ -86,7 +87,7 @@ public final class SynchronizedLockCollectionFactory implements ILockCollectionF
     }
 
     @Override
-    public <K, V> IFastIterableMap<K, V> newFastIterableLinkedHashMap() {
+    public <K, V> IFastIterableMap<K, V> newFastIterableLinkedMap() {
         return new ASynchronizedFastIterableDelegateMap<K, V>() {
             @Override
             protected Map<K, V> newDelegate() {
@@ -105,4 +106,39 @@ public final class SynchronizedLockCollectionFactory implements ILockCollectionF
         return Collections.synchronizedList(new ArrayList<>());
     }
 
+    @Override
+    public <T> IFastIterableSet<T> newFastIterableSet() {
+        return new ASynchronizedFastIterableDelegateSet<T>() {
+            @Override
+            protected Set<T> newDelegate() {
+                return new ObjectOpenHashSet<>();
+            }
+        };
+    }
+
+    @Override
+    public <K, V> IFastIterableMap<K, V> newFastIterableMap() {
+        return new ASynchronizedFastIterableDelegateMap<K, V>() {
+
+            @Override
+            protected Map<K, V> newDelegate() {
+                return new Object2ObjectOpenHashMap<>();
+            }
+        };
+    }
+
+    @Override
+    public <K, V> Map<K, V> newLinkedMap() {
+        return Collections.synchronizedMap(new Object2ObjectLinkedOpenHashMap<>());
+    }
+
+    @Override
+    public <T> Set<T> newSet() {
+        return Collections.synchronizedSet(new ObjectOpenHashSet<>());
+    }
+
+    @Override
+    public <T> Set<T> newLinkedSet() {
+        return Collections.synchronizedSet(new ObjectLinkedOpenHashSet<>());
+    }
 }
