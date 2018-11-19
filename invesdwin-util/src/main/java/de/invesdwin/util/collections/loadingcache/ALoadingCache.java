@@ -9,6 +9,7 @@ import de.invesdwin.util.collections.loadingcache.map.CaffeineLoadingCache;
 import de.invesdwin.util.collections.loadingcache.map.EvictionMapLoadingCache;
 import de.invesdwin.util.collections.loadingcache.map.NoCachingLoadingCache;
 import de.invesdwin.util.collections.loadingcache.map.SynchronizedEvictionMapLoadingCache;
+import de.invesdwin.util.collections.loadingcache.map.SynchronizedUnlimitedCachingLoadingCache;
 import de.invesdwin.util.collections.loadingcache.map.UnlimitedCachingLoadingCache;
 
 @ThreadSafe
@@ -56,7 +57,11 @@ public abstract class ALoadingCache<K, V> extends ADelegateLoadingCache<K, V> {
         if (isHighConcurrency()) {
             return new CaffeineLoadingCache<K, V>(loadValue, maximumSize);
         } else if (maximumSize == null) {
-            return new UnlimitedCachingLoadingCache<K, V>(loadValue);
+            if (isThreadSafe()) {
+                return new SynchronizedUnlimitedCachingLoadingCache<K, V>(loadValue);
+            } else {
+                return new UnlimitedCachingLoadingCache<K, V>(loadValue);
+            }
         } else if (maximumSize == 0) {
             return new NoCachingLoadingCache<K, V>(loadValue);
         } else {

@@ -7,10 +7,10 @@ import javax.annotation.concurrent.ThreadSafe;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 
 @ThreadSafe
-public class UnlimitedCachingLoadingCache<K, V> extends ASynchronizedMapLoadingCache<K, V> {
+public class SynchronizedUnlimitedCachingLoadingCache<K, V> extends ASynchronizedMapLoadingCache<K, V> {
 
-    public UnlimitedCachingLoadingCache(final Function<K, V> loadValue) {
-        super(loadValue, new Object2ObjectOpenHashMap<K, V>());
+    public SynchronizedUnlimitedCachingLoadingCache(final Function<K, V> loadValue) {
+        super(loadValue, new Object2ObjectOpenHashMap<>());
     }
 
     @Override
