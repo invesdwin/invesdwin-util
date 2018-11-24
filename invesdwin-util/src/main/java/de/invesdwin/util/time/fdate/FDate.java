@@ -583,7 +583,7 @@ public class FDate implements IDate, Serializable, Cloneable, Comparable<Object>
     }
 
     private MutableDateTime newMutableDateTime() {
-        return new MutableDateTime(millis, FDates.getDefaultDateTimeZone());
+        return new MutableDateTime(millis, FDates.getDefaultChronology());
     }
 
     public boolean isBefore(final FDate other) {

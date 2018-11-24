@@ -8,7 +8,9 @@ import java.util.TimeZone;
 
 import javax.annotation.concurrent.ThreadSafe;
 
+import org.joda.time.Chronology;
 import org.joda.time.DateTimeZone;
+import org.joda.time.chrono.ISOChronology;
 
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
@@ -27,6 +29,7 @@ public final class FDates {
     private static Calendar templateCalendar;
     private static TimeZone defaultTimeZone;
     private static DateTimeZone defaultDateTimeZone;
+    private static Chronology defaultChronology;
 
     static {
         setDefaultTimeZone(TimeZone.getDefault());
@@ -37,6 +40,7 @@ public final class FDates {
     public static void setDefaultTimeZone(final TimeZone defaultTimeZone) {
         FDates.defaultTimeZone = defaultTimeZone;
         FDates.defaultDateTimeZone = DateTimeZone.forTimeZone(defaultTimeZone);
+        FDates.defaultChronology = ISOChronology.getInstance(defaultDateTimeZone);
         //CHECKSTYLE:OFF
         final Calendar cal = Calendar.getInstance();
         //CHECKSTYLE:ON
@@ -51,6 +55,10 @@ public final class FDates {
 
     public static DateTimeZone getDefaultDateTimeZone() {
         return defaultDateTimeZone;
+    }
+
+    public static Chronology getDefaultChronology() {
+        return defaultChronology;
     }
 
     public static Calendar newCalendar() {
