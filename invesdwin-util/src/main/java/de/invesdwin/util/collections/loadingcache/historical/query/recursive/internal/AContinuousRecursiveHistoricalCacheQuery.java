@@ -213,7 +213,7 @@ public abstract class AContinuousRecursiveHistoricalCacheQuery<V> implements IRe
             } catch (final NoSuchElementException e) {
                 //ignore
             }
-            if (!lastRecursionKey.equalsNotNullSafe(curRecursionKey)) {
+            if (!lastRecursionKey.equals(curRecursionKey)) {
                 throw new IllegalStateException("lastRecursionKey[" + lastRecursionKey
                         + "] should be equal to curRecursionKey[" + curRecursionKey + "]");
             }
@@ -278,10 +278,11 @@ public abstract class AContinuousRecursiveHistoricalCacheQuery<V> implements IRe
                  */
             }
         }
-        if (minRecursionIdx <= 0) {
+        if (minRecursionIdx <= 0 || recursionKeys.isEmpty()) {
             //we did not find any previous value to continue from, so start over from scratch
             return getFullRecursionKeysIterator(previousKey);
         } else {
+            recursionKeys.add(previousKey);
             final ICloseableIterator<FDate> recursionKeysIterator = WrapperCloseableIterable.maybeWrap(recursionKeys)
                     .iterator();
             return recursionKeysIterator;
