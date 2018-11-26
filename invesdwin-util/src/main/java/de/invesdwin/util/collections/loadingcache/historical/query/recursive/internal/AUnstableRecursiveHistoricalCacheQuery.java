@@ -141,33 +141,42 @@ public abstract class AUnstableRecursiveHistoricalCacheQuery<V> implements IRecu
             }
 
             if (recursionInProgress) {
-                final V cachedResult = cachedRecursionResults.getIfPresent(previousKey);
-                if (cachedResult != null) {
-                    return cachedResult;
-                } else if (previousKey.isBeforeOrEqualTo(firstRecursionKey)
-                        || lastRecursionKey.equals(firstAvailableKey) || key.equals(previousKey)) {
-                    return getInitialValue(previousKey);
-                } else {
-                    throw new IllegalStateException(parent + ": the values between " + firstRecursionKey + " and "
-                            + lastRecursionKey
+                return duringRecursion(key, previousKey, firstAvailableKey);
+            } else {
+                recursionInProgress = true;
+                try {
+                    return doRecursion(key, previousKey);
+                } finally {
+                    recursionInProgress = false;
+                }
+            }
+        }
+    }
+
+    private V doRecursion(final FDate key, final FDate previousKey) {
+        if (!cachedRecursionResultsKey.equals(key)) {
+            /*
+             * serve multiple requests for the same key with the same cached results; unstable period should allow for
+             * one or two previous values as a buffer without increasing the actual lookback
+             */
+            cachedRecursionResults.clear();
+            cachedRecursionResultsKey = key;
+        }
+        return cachedRecursionResults.get(parentQueryWithFuture.getKey(previousKey));
+    }
+
+    private V duringRecursion(final FDate key, final FDate previousKey, final FDate firstAvailableKey) {
+        final V cachedResult = cachedRecursionResults.getIfPresent(previousKey);
+        if (cachedResult != null) {
+            return cachedResult;
+        } else if (previousKey.isBeforeOrEqualTo(firstRecursionKey) || lastRecursionKey.equals(firstAvailableKey)
+                || key.equals(previousKey)) {
+            return getInitialValue(previousKey);
+        } else {
+            throw new IllegalStateException(
+                    parent + ": the values between " + firstRecursionKey + " and " + lastRecursionKey
                             + " should have been cached, maybe you are returning null values even if you should not: "
                             + previousKey);
-                }
-            }
-            recursionInProgress = true;
-            try {
-                if (!cachedRecursionResultsKey.equals(key)) {
-                    /*
-                     * serve multiple requests for the same key with the same cached results; unstable period should
-                     * allow for one or two previous values as a buffer without increasing the actual lookback
-                     */
-                    cachedRecursionResults.clear();
-                    cachedRecursionResultsKey = key;
-                }
-                return cachedRecursionResults.get(parentQueryWithFuture.getKey(previousKey));
-            } finally {
-                recursionInProgress = false;
-            }
         }
     }
 
@@ -178,23 +187,23 @@ public abstract class AUnstableRecursiveHistoricalCacheQuery<V> implements IRecu
             if (firstRecursionKey == null || firstRecursionKey.isAfterOrEqualTo(previousKey)) {
                 return getInitialValue(previousKey);
             }
-            FDate recursiveKey = null;
+            FDate curRecursionKey = null;
             V value = null;
             try {
                 while (true) {
                     //fill up the missing values
-                    recursiveKey = recursionKeysIterator.next();
-                    value = parentQuery.computeValue(recursiveKey);
-                    cachedRecursionResults.put(recursiveKey, value);
+                    curRecursionKey = recursionKeysIterator.next();
+                    value = parentQuery.computeValue(curRecursionKey);
+                    cachedRecursionResults.put(curRecursionKey, value);
                 }
             } catch (final NoSuchElementException e) {
                 //ignore
             }
-            if (recursiveKey != null && recursiveKey.equals(lastRecursionKey)) {
+            if (curRecursionKey != null && curRecursionKey.equals(lastRecursionKey)) {
                 return value;
             } else {
-                final V lastRecursionResult = parentQuery.computeValue(lastRecursionKey);
-                return lastRecursionResult;
+                throw new IllegalStateException("lastRecursionKey[" + lastRecursionKey
+                        + "] should be equal to curRecursionKey[" + curRecursionKey + "]");
             }
         } finally {
             firstRecursionKey = null;
