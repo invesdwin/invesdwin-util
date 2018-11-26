@@ -117,6 +117,7 @@ public abstract class AUnstableRecursiveHistoricalCacheQuery<V> implements IRecu
     @Override
     public void clear() {
         synchronized (parent) {
+            cachedResults.clear();
             cachedRecursionResults.clear();
             firstAvailableKey = null;
             firstAvailableKeyRequested = false;
