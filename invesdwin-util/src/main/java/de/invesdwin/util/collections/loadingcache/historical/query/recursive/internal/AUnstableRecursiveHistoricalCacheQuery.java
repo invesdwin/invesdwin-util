@@ -199,12 +199,11 @@ public abstract class AUnstableRecursiveHistoricalCacheQuery<V> implements IRecu
             } catch (final NoSuchElementException e) {
                 //ignore
             }
-            if (curRecursionKey != null && curRecursionKey.equals(lastRecursionKey)) {
-                return value;
-            } else {
+            if (!lastRecursionKey.equals(curRecursionKey)) {
                 throw new IllegalStateException("lastRecursionKey[" + lastRecursionKey
                         + "] should be equal to curRecursionKey[" + curRecursionKey + "]");
             }
+            return value;
         } finally {
             firstRecursionKey = null;
             lastRecursionKey = null;
