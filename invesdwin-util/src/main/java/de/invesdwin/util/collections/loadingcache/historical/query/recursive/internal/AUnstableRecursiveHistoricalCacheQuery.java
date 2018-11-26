@@ -51,7 +51,6 @@ public abstract class AUnstableRecursiveHistoricalCacheQuery<V> implements IRecu
     private FDate lastRecursionKey;
 
     //cache separately since the parent could encounter more evictions than this internal cache
-    private FDate cachedRecursionResultsKey = FDate.MIN_DATE;
     private final ALoadingCache<FDate, V> cachedRecursionResults;
 
     public AUnstableRecursiveHistoricalCacheQuery(final AHistoricalCache<V> parent, final int recursionCount,
@@ -147,21 +146,18 @@ public abstract class AUnstableRecursiveHistoricalCacheQuery<V> implements IRecu
                 try {
                     return doRecursion(key, previousKey);
                 } finally {
-                    recursionInProgress = false;
+                    resetRecursionInProgress();
                 }
             }
         }
     }
 
+    private void resetRecursionInProgress() {
+        recursionInProgress = false;
+        cachedRecursionResults.clear();
+    }
+
     private V doRecursion(final FDate key, final FDate previousKey) {
-        if (!cachedRecursionResultsKey.equals(key)) {
-            /*
-             * serve multiple requests for the same key with the same cached results; unstable period should allow for
-             * one or two previous values as a buffer without increasing the actual lookback
-             */
-            cachedRecursionResults.clear();
-            cachedRecursionResultsKey = key;
-        }
         return cachedRecursionResults.get(parentQueryWithFuture.getKey(previousKey));
     }
 
@@ -187,6 +183,9 @@ public abstract class AUnstableRecursiveHistoricalCacheQuery<V> implements IRecu
             if (firstRecursionKey == null || firstRecursionKey.isAfterOrEqualTo(previousKey)) {
                 return getInitialValue(previousKey);
             }
+            final String title = previousKey + " ********************************* " + parent;
+            final boolean interesting = title.startsWith(
+                    "2003-05-05T01:00:00.000 ********************************* LowPassIndicator[bars:2] with {AppliedPriceIndicator[Mean price (average of all ticks)] with");
             FDate curRecursionKey = null;
             V value = null;
             try {
