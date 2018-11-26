@@ -12,6 +12,7 @@ import com.google.common.collect.PeekingIterator;
 
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.eviction.EvictionMode;
+import de.invesdwin.util.collections.eviction.IEvictionMap;
 import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
 import de.invesdwin.util.collections.loadingcache.historical.listener.IHistoricalCacheOnClearListener;
@@ -51,7 +52,8 @@ public abstract class AUnstableRecursiveHistoricalCacheQuery<V> implements IRecu
     private FDate lastRecursionKey;
 
     //cache separately since the parent could encounter more evictions than this internal cache
-    private final ALoadingCache<FDate, V> cachedRecursionResults;
+    private ALoadingCache<FDate, V> cachedResults;
+    private final IEvictionMap<FDate, V> cachedRecursionResults;
 
     public AUnstableRecursiveHistoricalCacheQuery(final AHistoricalCache<V> parent, final int recursionCount,
             final int unstableRecursionCount) {
@@ -67,7 +69,13 @@ public abstract class AUnstableRecursiveHistoricalCacheQuery<V> implements IRecu
         this.unstableRecursionCount = unstableRecursionCount;
         this.parentQuery = parent.query();
         this.parentQueryWithFuture = parent.query().withFuture();
-        this.cachedRecursionResults = new ALoadingCache<FDate, V>() {
+        this.cachedResults = new ALoadingCache<FDate, V>() {
+
+            @Override
+            protected boolean isThreadSafe() {
+                return false;
+            }
+
             @Override
             protected V loadValue(final FDate key) {
                 return internalGetPreviousValueByRecursion(key);
@@ -82,7 +90,10 @@ public abstract class AUnstableRecursiveHistoricalCacheQuery<V> implements IRecu
             protected EvictionMode getEvictionMode() {
                 return AHistoricalCache.EVICTION_MODE;
             }
+
         };
+        this.cachedRecursionResults = AHistoricalCache.EVICTION_MODE
+                .newMap(Math.max(recursionCount, parent.getMaximumSize()));
         Assertions.checkTrue(parent.registerOnClearListener(new IHistoricalCacheOnClearListener() {
             @Override
             public void onClear() {
@@ -158,11 +169,11 @@ public abstract class AUnstableRecursiveHistoricalCacheQuery<V> implements IRecu
     }
 
     private V doRecursion(final FDate key, final FDate previousKey) {
-        return cachedRecursionResults.get(parentQueryWithFuture.getKey(previousKey));
+        return cachedResults.get(parentQueryWithFuture.getKey(previousKey));
     }
 
     private V duringRecursion(final FDate key, final FDate previousKey, final FDate firstAvailableKey) {
-        final V cachedResult = cachedRecursionResults.getIfPresent(previousKey);
+        final V cachedResult = cachedRecursionResults.get(previousKey);
         if (cachedResult != null) {
             return cachedResult;
         } else if (previousKey.isBeforeOrEqualTo(firstRecursionKey) || lastRecursionKey.equals(firstAvailableKey)
