@@ -213,7 +213,7 @@ public abstract class AContinuousRecursiveHistoricalCacheQuery<V> implements IRe
             } catch (final NoSuchElementException e) {
                 //ignore
             }
-            if (!lastRecursionKey.equals(curRecursionKey)) {
+            if (!lastRecursionKey.equalsNotNullSafe(curRecursionKey)) {
                 throw new IllegalStateException("lastRecursionKey[" + lastRecursionKey
                         + "] should be equal to curRecursionKey[" + curRecursionKey + "]");
             }
