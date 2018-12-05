@@ -42,12 +42,12 @@ public final class SynchronizedLockCollectionFactory implements ILockCollectionF
 
     @Override
     public <T> IFastIterableSet<T> newFastIterableLinkedSet() {
-        return new FastIterableLinkedSet<T>();
+        return new SynchronizedFastIterableLinkedSet<T>();
     }
 
     @Override
     public <T> IFastIterableList<T> newFastIterableArrayList() {
-        return new FastIterableArrayList<T>();
+        return new SynchronizedFastIterableArrayList<T>();
     }
 
     @Override
@@ -57,7 +57,7 @@ public final class SynchronizedLockCollectionFactory implements ILockCollectionF
 
     @Override
     public INestedExecutor newNestedExecutor(final String name) {
-        return new NestedExecutor(name);
+        return new SynchronizedNestedExecutor(name);
     }
 
     @Override
@@ -72,7 +72,7 @@ public final class SynchronizedLockCollectionFactory implements ILockCollectionF
 
     @Override
     public <K, V> IFastIterableMap<K, V> newFastIterableLinkedMap() {
-        return new FastIterableLinkedMap<K, V>();
+        return new SynchronizedFastIterableLinkedMap<K, V>();
     }
 
     @Override
@@ -87,12 +87,12 @@ public final class SynchronizedLockCollectionFactory implements ILockCollectionF
 
     @Override
     public <T> IFastIterableSet<T> newFastIterableSet() {
-        return new FastIterableSet<T>();
+        return new SynchronizedFastIterableSet<T>();
     }
 
     @Override
     public <K, V> IFastIterableMap<K, V> newFastIterableMap() {
-        return new FastIterableMap<K, V>();
+        return new SynchronizedFastIterableMap<K, V>();
     }
 
     @Override
@@ -110,29 +110,29 @@ public final class SynchronizedLockCollectionFactory implements ILockCollectionF
         return Collections.synchronizedSet(new ObjectLinkedOpenHashSet<>());
     }
 
-    private static final class FastIterableMap<K, V> extends ASynchronizedFastIterableDelegateMap<K, V> {
+    private static final class SynchronizedFastIterableMap<K, V> extends ASynchronizedFastIterableDelegateMap<K, V> {
         @Override
         protected Map<K, V> newDelegate() {
             return new Object2ObjectOpenHashMap<>();
         }
     }
 
-    private static final class FastIterableSet<T> extends ASynchronizedFastIterableDelegateSet<T> {
+    private static final class SynchronizedFastIterableSet<T> extends ASynchronizedFastIterableDelegateSet<T> {
         @Override
         protected Set<T> newDelegate() {
             return new ObjectOpenHashSet<>();
         }
     }
 
-    private static final class FastIterableLinkedMap<K, V> extends ASynchronizedFastIterableDelegateMap<K, V> {
+    private static final class SynchronizedFastIterableLinkedMap<K, V> extends ASynchronizedFastIterableDelegateMap<K, V> {
         @Override
         protected Map<K, V> newDelegate() {
             return new Object2ObjectLinkedOpenHashMap<K, V>();
         }
     }
 
-    private static final class NestedExecutor extends ANestedExecutor {
-        private NestedExecutor(final String name) {
+    private static final class SynchronizedNestedExecutor extends ANestedExecutor {
+        private SynchronizedNestedExecutor(final String name) {
             super(name);
         }
 
@@ -142,14 +142,14 @@ public final class SynchronizedLockCollectionFactory implements ILockCollectionF
         }
     }
 
-    private static final class FastIterableArrayList<T> extends ASynchronizedFastIterableDelegateList<T> {
+    private static final class SynchronizedFastIterableArrayList<T> extends ASynchronizedFastIterableDelegateList<T> {
         @Override
         protected List<T> newDelegate() {
             return new ArrayList<>();
         }
     }
 
-    private static final class FastIterableLinkedSet<T> extends ASynchronizedFastIterableDelegateSet<T> {
+    private static final class SynchronizedFastIterableLinkedSet<T> extends ASynchronizedFastIterableDelegateSet<T> {
         @Override
         protected Set<T> newDelegate() {
             return new ObjectLinkedOpenHashSet<>();

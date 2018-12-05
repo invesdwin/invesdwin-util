@@ -16,7 +16,7 @@ import de.invesdwin.util.collections.fast.IFastIterableSet;
 import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 import de.invesdwin.util.collections.loadingcache.ALoadingCacheConfig;
 import de.invesdwin.util.concurrent.lock.ILock;
-import de.invesdwin.util.concurrent.lock.Locks;
+import de.invesdwin.util.concurrent.lock.disabled.DisabledLock;
 import de.invesdwin.util.concurrent.nested.DisabledNestedExecutor;
 import de.invesdwin.util.concurrent.nested.INestedExecutor;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
@@ -33,17 +33,17 @@ public final class DisabledLockCollectionFactory implements ILockCollectionFacto
 
     @Override
     public ILock newLock(final String name) {
-        return Locks.newReentrantLock(name);
+        return DisabledLock.INSTANCE;
     }
 
     @Override
     public <T> IFastIterableSet<T> newFastIterableLinkedSet() {
-        return new FastIterableLinkedSet<T>();
+        return new DisabledFastIterableLinkedSet<T>();
     }
 
     @Override
     public <T> IFastIterableList<T> newFastIterableArrayList() {
-        return new FastIterableArrayList<T>();
+        return new DisabledFastIterableArrayList<T>();
     }
 
     @Override
@@ -70,7 +70,7 @@ public final class DisabledLockCollectionFactory implements ILockCollectionFacto
 
     @Override
     public <K, V> IFastIterableMap<K, V> newFastIterableLinkedMap() {
-        return new FastIterableLinkedMap<K, V>();
+        return new DisabledFastIterableLinkedMap<K, V>();
     }
 
     @Override
@@ -85,12 +85,12 @@ public final class DisabledLockCollectionFactory implements ILockCollectionFacto
 
     @Override
     public <T> IFastIterableSet<T> newFastIterableSet() {
-        return new FastIterableSet<T>();
+        return new DisabledFastIterableSet<T>();
     }
 
     @Override
     public <K, V> IFastIterableMap<K, V> newFastIterableMap() {
-        return new FastIterableMap<K, V>();
+        return new DisabledFastIterableMap<K, V>();
     }
 
     @Override
@@ -108,35 +108,35 @@ public final class DisabledLockCollectionFactory implements ILockCollectionFacto
         return new ObjectLinkedOpenHashSet<>();
     }
 
-    private static final class FastIterableMap<K, V> extends AFastIterableDelegateMap<K, V> {
+    private static final class DisabledFastIterableMap<K, V> extends AFastIterableDelegateMap<K, V> {
         @Override
         protected Map<K, V> newDelegate() {
             return new Object2ObjectOpenHashMap<>();
         }
     }
 
-    private static final class FastIterableSet<T> extends AFastIterableDelegateSet<T> {
+    private static final class DisabledFastIterableSet<T> extends AFastIterableDelegateSet<T> {
         @Override
         protected Set<T> newDelegate() {
             return new ObjectOpenHashSet<>();
         }
     }
 
-    private static final class FastIterableLinkedMap<K, V> extends AFastIterableDelegateMap<K, V> {
+    private static final class DisabledFastIterableLinkedMap<K, V> extends AFastIterableDelegateMap<K, V> {
         @Override
         protected Map<K, V> newDelegate() {
             return new Object2ObjectLinkedOpenHashMap<K, V>();
         }
     }
 
-    private static final class FastIterableArrayList<T> extends AFastIterableDelegateList<T> {
+    private static final class DisabledFastIterableArrayList<T> extends AFastIterableDelegateList<T> {
         @Override
         protected List<T> newDelegate() {
             return new ArrayList<>();
         }
     }
 
-    private static final class FastIterableLinkedSet<T> extends AFastIterableDelegateSet<T> {
+    private static final class DisabledFastIterableLinkedSet<T> extends AFastIterableDelegateSet<T> {
         @Override
         protected Set<T> newDelegate() {
             return new ObjectLinkedOpenHashSet<>();
