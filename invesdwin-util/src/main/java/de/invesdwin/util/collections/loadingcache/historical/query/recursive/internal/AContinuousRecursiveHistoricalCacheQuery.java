@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NavigableMap;
 import java.util.NoSuchElementException;
+import java.util.TreeMap;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
@@ -27,7 +28,6 @@ import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.time.fdate.FDate;
 import de.invesdwin.util.time.fdate.FTimeUnit;
 import de.invesdwin.util.time.range.TimeRange;
-import uk.co.omegaprime.btreemap.BTreeMap;
 
 /**
  * This variation calculates the values continuously when possible by using the previous value from the cache thus
@@ -61,8 +61,9 @@ public abstract class AContinuousRecursiveHistoricalCacheQuery<V> implements IRe
     private FDate firstRecursionKey;
     @GuardedBy("parent")
     private FDate lastRecursionKey;
+    //BTreeMap has problems with removing first entry so we use TreeMap
     @GuardedBy("parent")
-    private final NavigableMap<FDate, V> highestRecursionResultsAsc = BTreeMap.create(FDate.COMPARATOR);
+    private final NavigableMap<FDate, V> highestRecursionResultsAsc = new TreeMap<FDate, V>(FDate.COMPARATOR);
     private final int maxHighestRecursionResultsCount;
     @GuardedBy("parent")
     private boolean shouldAppendHighestRecursionResults;
@@ -258,13 +259,16 @@ public abstract class AContinuousRecursiveHistoricalCacheQuery<V> implements IRe
             firstRecursionKey = newPreviousKey;
             if (newPreviousKey.isAfterOrEqualTo(curPreviousKey)) {
                 //start reached
+                recursionKeys.add(curPreviousKey);
                 break;
             } else if (highestRecursionResultsAsc.containsKey(newPreviousKey)) {
                 shouldAppendHighestRecursionResults = true;
+                recursionKeys.add(curPreviousKey);
                 //point to continue from reached
                 break;
             } else if (parent.containsKey(newPreviousKey) || cachedRecursionResults.containsKey(newPreviousKey)) {
                 //point to continue from reached
+                recursionKeys.add(curPreviousKey);
                 break;
             } else {
                 //search further for a match to begin from
@@ -282,7 +286,6 @@ public abstract class AContinuousRecursiveHistoricalCacheQuery<V> implements IRe
             //we did not find any previous value to continue from, so start over from scratch
             return getFullRecursionKeysIterator(previousKey);
         } else {
-            recursionKeys.add(previousKey);
             final ICloseableIterator<FDate> recursionKeysIterator = WrapperCloseableIterable.maybeWrap(recursionKeys)
                     .iterator();
             return recursionKeysIterator;
