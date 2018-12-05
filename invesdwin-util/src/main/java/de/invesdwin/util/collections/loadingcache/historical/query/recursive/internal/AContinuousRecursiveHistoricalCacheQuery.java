@@ -231,8 +231,7 @@ public abstract class AContinuousRecursiveHistoricalCacheQuery<V> implements IRe
             if (!highestRecursionResultsAsc.isEmpty()) {
                 final FDate highestRecursionKey = highestRecursionResultsAsc.lastKey();
                 if (highestRecursionKey != null && highestRecursionKey.isAfter(key)) {
-                    throw new IllegalStateException("when appending a new highest recursion result [" + key
-                            + "], it should be after the last one [" + highestRecursionKey + "]");
+                    return;
                 }
             }
             highestRecursionResultsAsc.put(key, value);
@@ -257,20 +256,25 @@ public abstract class AContinuousRecursiveHistoricalCacheQuery<V> implements IRe
         while (minRecursionIdx > 0) {
             final FDate newPreviousKey = parentQueryWithFuture.getPreviousKey(curPreviousKey, 1);
             firstRecursionKey = newPreviousKey;
-            if (newPreviousKey.isAfterOrEqualTo(curPreviousKey)) {
-                //start reached
-                recursionKeys.add(curPreviousKey);
+            if (newPreviousKey.isAfterOrEqualTo(previousKey)) {
+                //start or end reached
+                if (recursionKeys.isEmpty()) {
+                    recursionKeys.add(previousKey);
+                }
                 break;
             } else if (highestRecursionResultsAsc.containsKey(newPreviousKey)) {
                 shouldAppendHighestRecursionResults = true;
-                recursionKeys.add(curPreviousKey);
+                recursionKeys.add(previousKey);
                 //point to continue from reached
                 break;
-            } else if (parent.containsKey(newPreviousKey) || cachedRecursionResults.containsKey(newPreviousKey)) {
-                //point to continue from reached
-                recursionKeys.add(curPreviousKey);
-                break;
+                //            } else if (parent.containsKey(newPreviousKey) || cachedRecursionResults.containsKey(newPreviousKey)) {
+                //                //point to continue from reached
+                //                recursionKeys.add(curPreviousKey);
+                //                break;
             } else {
+                if (recursionKeys.isEmpty() && !previousKey.equalsNotNullSafe(newPreviousKey)) {
+                    recursionKeys.add(previousKey);
+                }
                 //search further for a match to begin from
                 minRecursionIdx--;
                 recursionKeys.add(0, newPreviousKey);
