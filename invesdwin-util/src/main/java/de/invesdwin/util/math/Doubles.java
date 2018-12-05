@@ -547,4 +547,20 @@ public final class Doubles extends ADoublesStaticFacade {
         }
     }
 
+    public static double infinityToZero(final double value) {
+        if (isInfinite(value)) {
+            return 0D;
+        } else {
+            return 0;
+        }
+    }
+
+    public static double infinityToNan(final double value) {
+        if (isInfinite(value)) {
+            return Double.NaN;
+        } else {
+            return 0;
+        }
+    }
+
 }
