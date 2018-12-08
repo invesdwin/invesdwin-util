@@ -53,21 +53,26 @@ public abstract class AHistoricalCacheRangeQueryInterceptor<V> implements IHisto
 
     @Override
     public final ICloseableIterable<IHistoricalEntry<V>> getEntries(final FDate from, final FDate to) {
-        final ICloseableIterable<IHistoricalEntry<V>> innerGetEntries = innerGetEntries(from, to);
+        final ICloseableIterable<? extends IHistoricalEntry<V>> innerGetEntries = innerGetEntries(from, to);
         return new ATransformingCloseableIterable<IHistoricalEntry<V>, IHistoricalEntry<V>>(innerGetEntries) {
 
             private IHistoricalEntry<V> prevEntry;
 
             @Override
             protected IHistoricalEntry<V> transform(final IHistoricalEntry<V> newEntry) {
-                //fill cache for faster prev/next lookups
-                parent.getPutProvider().put(newEntry, prevEntry, false);
+                putIntoCache(newEntry, prevEntry);
                 prevEntry = newEntry;
                 return newEntry;
             }
+
         };
     }
 
-    protected abstract ICloseableIterable<IHistoricalEntry<V>> innerGetEntries(FDate from, FDate to);
+    protected void putIntoCache(final IHistoricalEntry<V> newEntry, final IHistoricalEntry<V> prevEntry) {
+        //fill cache for faster prev/next lookups
+        parent.getPutProvider().put(newEntry, prevEntry, false);
+    }
+
+    protected abstract ICloseableIterable<? extends IHistoricalEntry<V>> innerGetEntries(FDate from, FDate to);
 
 }
