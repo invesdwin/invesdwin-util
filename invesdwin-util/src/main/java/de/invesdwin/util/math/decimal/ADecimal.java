@@ -29,6 +29,7 @@ import de.invesdwin.util.math.Shorts;
 import de.invesdwin.util.math.decimal.internal.DecimalDigitsInfo;
 import de.invesdwin.util.math.decimal.scaled.Percent;
 import de.invesdwin.util.math.decimal.scaled.PercentScale;
+import io.netty.util.concurrent.FastThreadLocal;
 
 @Immutable
 public abstract class ADecimal<E extends ADecimal<E>> extends Number implements Comparable<Object>, IDecimal {
@@ -46,8 +47,17 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
             return e;
         }
     };
-    private static final double MINUS_ONE = -1D;
     private static final double ZERO = 0D;
+    private static final FastThreadLocal<NumberFormat> NUMBER_FORMAT = new FastThreadLocal<NumberFormat>() {
+        @Override
+        protected NumberFormat initialValue() throws Exception {
+            final NumberFormat format = NumberFormat.getNumberInstance(Locale.ENGLISH);
+            format.setMaximumFractionDigits(MathContext.DECIMAL128.getPrecision());
+            format.setRoundingMode(Decimal.DEFAULT_ROUNDING_MODE);
+            format.setGroupingUsed(false);
+            return format;
+        }
+    };
 
     /**
      * http://stackoverflow.com/questions/2170872/does-java-casting-introduce-overhead-why
@@ -223,11 +233,7 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
 
     @Override
     public String toString() {
-        final NumberFormat format = NumberFormat.getNumberInstance(Locale.ENGLISH);
-        format.setMaximumFractionDigits(MathContext.DECIMAL128.getPrecision());
-        format.setRoundingMode(Decimal.DEFAULT_ROUNDING_MODE);
-        format.setGroupingUsed(false);
-        return format.format(getValue());
+        return NUMBER_FORMAT.get().format(getValue());
     }
 
     @Override

@@ -10,7 +10,9 @@ import java.util.Map.Entry;
 
 import javax.annotation.concurrent.Immutable;
 
+import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 import de.invesdwin.util.math.decimal.Decimal;
+import io.netty.util.concurrent.FastThreadLocal;
 
 @Immutable
 public final class Currencies {
@@ -51,6 +53,25 @@ public final class Currencies {
     public static final Currency ZAR = Currency.getInstance("ZAR");
 
     private static final Map<String, String> CURRENCY_CODE_2_CURRENCY_SYMBOL = new HashMap<String, String>();
+    private static final ALoadingCache<Locale, FastThreadLocal<NumberFormat>> NUMBER_FORMAT = new ALoadingCache<Locale, FastThreadLocal<NumberFormat>>() {
+        @Override
+        protected FastThreadLocal<NumberFormat> loadValue(final Locale key) {
+            return new FastThreadLocal<NumberFormat>() {
+                @Override
+                protected NumberFormat initialValue() throws Exception {
+                    final NumberFormat nf = NumberFormat.getNumberInstance(key);
+                    nf.setMinimumFractionDigits(2);
+                    nf.setMaximumFractionDigits(2);
+                    return nf;
+                }
+            };
+        }
+
+        @Override
+        protected boolean isHighConcurrency() {
+            return true;
+        }
+    };
 
     static {
         //only put commonly (internationally) known symbols here
@@ -71,10 +92,7 @@ public final class Currencies {
      * The symbol is put behind the number with a space, to increase readability in tables.
      */
     public static String formatMoney(final Locale locale, final String currencyCode, final Decimal price) {
-        final NumberFormat nf = NumberFormat.getNumberInstance(locale);
-        nf.setMinimumFractionDigits(2);
-        nf.setMaximumFractionDigits(2);
-        String str = nf.format(price);
+        String str = NUMBER_FORMAT.get(locale).get().format(price);
         str += " " + formatCurrencyCode(currencyCode);
         return str;
     }
