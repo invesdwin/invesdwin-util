@@ -29,9 +29,7 @@ public abstract class AScaledDecimal<T extends AScaledDecimal<T, S>, S extends I
     protected AScaledDecimal(final double value, final S scale) {
         this.scale = scale;
         final S defaultScale = getDefaultScale();
-        if (defaultScale == null) {
-            throw new NullPointerException("defaultScale should not be null");
-        }
+        assert defaultScale != null : "defaultScale should not be null";
         validateScale(defaultScale);
         this.scaledValue = Doubles.nanToZero(value);
         validateScale(scale);
@@ -230,14 +228,23 @@ public abstract class AScaledDecimal<T extends AScaledDecimal<T, S>, S extends I
     }
 
     public void assertSameDefaultScale(final Number number) {
+        assert isSameDefaultScale(number) : newSameDefaultScaleErrorMessage(number);
+    }
+
+    private String newSameDefaultScaleErrorMessage(final Number number) {
+        final AScaledDecimal<?, ?> scaledNumber = (AScaledDecimal<?, ?>) number;
+        return "Cannot mix two different default scales on division: " + getDefaultScale() + " [" + this + "]  != "
+                + scaledNumber.getDefaultScale() + " [" + scaledNumber + "]";
+    }
+
+    private boolean isSameDefaultScale(final Number number) {
         if (number instanceof AScaledDecimal) {
             final AScaledDecimal<?, ?> scaledNumber = (AScaledDecimal<?, ?>) number;
             if (!scaledNumber.getDefaultScale().equals(getDefaultScale())) {
-                throw new IllegalArgumentException(
-                        "Cannot mix two different default scales on division: " + getDefaultScale() + " [" + this
-                                + "]  != " + scaledNumber.getDefaultScale() + " [" + scaledNumber + "]");
+                return false;
             }
         }
+        return true;
     }
 
     public static <T, D extends ADecimal<D>> List<D> extractValues(final Function<T, D> getter, final List<T> objects) {
