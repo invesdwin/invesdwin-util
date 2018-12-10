@@ -46,6 +46,10 @@ public abstract class AContinuousRecursiveHistoricalCacheQuery<V> implements IRe
      * Zorro has UnstablePeriod at a default of 40
      * 
      * http://zorro-trader.com/manual/en/lookback.htm
+     * 
+     * talib suggests 100 for most indicators
+     * 
+     * https://ta-lib.org/d_api/ta_setunstableperiod.html
      */
     private static final int MIN_RECURSION_LOOKBACK = 100;
     private static final int LARGE_RECALCULATION_WARNING_THRESHOLD = 10;
