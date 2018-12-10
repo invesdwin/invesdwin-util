@@ -86,4 +86,8 @@ public abstract class ARecursiveHistoricalCacheQuery<V> implements IRecursiveHis
 
     protected abstract V getInitialValue(FDate previousKey);
 
+    public static int newContinuousUnstablePeriod(final int recursionCount) {
+        return AContinuousRecursiveHistoricalCacheQuery.newContinuousUnstablePeriod(recursionCount);
+    }
+
 }

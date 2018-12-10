@@ -84,8 +84,7 @@ public abstract class AContinuousRecursiveHistoricalCacheQuery<V> implements IRe
         if (recursionCount <= 0) {
             throw new IllegalArgumentException("recursionCount should be greater than zero: " + recursionCount);
         }
-        this.recursionCount = Integers.max(recursionCount * RECURSION_COUNT_LOOKBACK_MULTIPLICATOR,
-                MIN_RECURSION_LOOKBACK);
+        this.recursionCount = newContinuousUnstablePeriod(recursionCount);
         this.maxHighestRecursionResultsCount = Integer.max(recursionCount, MIN_RECURSION_LOOKBACK);
         this.parentQuery = parent.query();
         this.parentQueryWithFuture = parent.query().withFuture();
@@ -116,6 +115,10 @@ public abstract class AContinuousRecursiveHistoricalCacheQuery<V> implements IRe
             }
         }));
         parent.increaseMaximumSize(recursionCount, "recursionCount");
+    }
+
+    public static int newContinuousUnstablePeriod(final int recursionCount) {
+        return Integers.max(recursionCount * RECURSION_COUNT_LOOKBACK_MULTIPLICATOR, MIN_RECURSION_LOOKBACK);
     }
 
     @Override
