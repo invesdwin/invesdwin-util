@@ -548,6 +548,9 @@ public final class FDates {
                 throw UnknownArgumentException.newInstance(Integer.class, compareTo);
             }
         }
+        if (lo <= 0) {
+            return 0;
+        }
         if (lo >= keys.length) {
             lo = lo - 1;
         }

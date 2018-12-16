@@ -551,6 +551,10 @@ public class CachedHistoricalCacheQueryCore<V> extends ACachedResultHistoricalCa
                 throw UnknownArgumentException.newInstance(Integer.class, compareTo);
             }
         }
+        if (lo <= 0) {
+            registerIndex(skippingKeysAbove, 0, useIndex);
+            return 0;
+        }
         if (lo >= list.size()) {
             lo = lo - 1;
         }
