@@ -44,11 +44,15 @@ public class ExpressionParser {
 
     private static final String[] MODIFY_INPUT = new String[] { " and ", " AND ", //
             " or ", " OR ", //
-            " <> ", " >< " //
+            " <> ", " >< ", //
+            " true ", " True ", " TRUE ", //
+            " false ", " False ", " FALSE " //
     };
     private static final String[] MODIFY_OUTPUT = new String[] { " && ", " && ", //
             " || ", " || ", //
-            " != ", " != " //
+            " != ", " != ", //
+            " 1 ", " 1 ", " 1 ", //
+            " 0 ", " 0 ", " 0 " //
     };
     private final Tokenizer tokenizer;
 
