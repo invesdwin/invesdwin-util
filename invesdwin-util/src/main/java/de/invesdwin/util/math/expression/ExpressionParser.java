@@ -42,14 +42,14 @@ public class ExpressionParser {
     private static final Map<String, IFunction> FUNCTION_TABLE;
     private static final Map<String, IParsedExpression> VARIABLE_TABLE;
 
-    private static final String[] MODIFY_INPUT = new String[] { " and ", " AND ", //
-            " or ", " OR ", //
+    private static final String[] MODIFY_INPUT = new String[] { " and ", " And ", " AND ", //
+            " or ", " Or ", " OR ", //
             " <> ", " >< ", //
             " true ", " True ", " TRUE ", //
             " false ", " False ", " FALSE " //
     };
-    private static final String[] MODIFY_OUTPUT = new String[] { " && ", " && ", //
-            " || ", " || ", //
+    private static final String[] MODIFY_OUTPUT = new String[] { " && ", " && ", " && ", //
+            " || ", " || ", " || ", //
             " != ", " != ", //
             " 1 ", " 1 ", " 1 ", //
             " 0 ", " 0 ", " 0 " //
