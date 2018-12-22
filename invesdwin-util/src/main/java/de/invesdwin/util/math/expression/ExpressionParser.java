@@ -30,7 +30,7 @@ import de.invesdwin.util.math.expression.variable.IVariable;
 import io.netty.util.concurrent.FastThreadLocal;
 
 @NotThreadSafe
-public class Parser {
+public class ExpressionParser {
 
     private static final FastThreadLocal<Tokenizer> TOKENIZER = new FastThreadLocal<Tokenizer>() {
         @Override
@@ -90,7 +90,7 @@ public class Parser {
         registerVariable(Variables.EULER);
     }
 
-    public Parser(final String input) {
+    public ExpressionParser(final String input) {
         tokenizer = TOKENIZER.get();
         tokenizer.init(new StringReader(modifyInput(input)));
     }
