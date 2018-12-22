@@ -1,4 +1,4 @@
-package de.invesdwin.util.math.expression.eval.binary;
+package de.invesdwin.util.math.expression.eval.operation;
 
 import javax.annotation.concurrent.Immutable;
 

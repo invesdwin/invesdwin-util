@@ -1,4 +1,4 @@
-package de.invesdwin.util.math.expression.eval.binary;
+package de.invesdwin.util.math.expression.eval.operation;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -7,58 +7,55 @@ import de.invesdwin.util.math.expression.eval.IParsedExpression;
 import de.invesdwin.util.time.fdate.FDate;
 
 @Immutable
-public class NotOperation extends BinaryOperation {
+public class OrOperation extends BinaryOperation {
 
-    public NotOperation(final IParsedExpression left, final IParsedExpression right) {
-        super(Op.NOT, left, right);
+    public OrOperation(final IParsedExpression left, final IParsedExpression right) {
+        super(Op.OR, left, right);
     }
 
     @Override
     public double evaluateDouble(final FDate key) {
-        final boolean check = right.evaluateBoolean(key);
+        final boolean check = left.evaluateBoolean(key) || right.evaluateBoolean(key);
         if (check) {
-            return -1D;
-        } else {
             return 1D;
+        } else {
+            return -1D;
         }
     }
 
     @Override
     public double evaluateDouble(final int key) {
-        final boolean check = right.evaluateBoolean(key);
+        final boolean check = left.evaluateBoolean(key) || right.evaluateBoolean(key);
         if (check) {
-            return -1D;
-        } else {
             return 1D;
+        } else {
+            return -1D;
         }
     }
 
     @Override
     public double evaluateDouble() {
-        final boolean check = right.evaluateBoolean();
+        final boolean check = left.evaluateBoolean() || right.evaluateBoolean();
         if (check) {
-            return -1D;
-        } else {
             return 1D;
+        } else {
+            return -1D;
         }
     }
 
     @Override
     public boolean evaluateBoolean(final FDate key) {
-        final boolean check = right.evaluateBoolean(key);
-        return !check;
+        return left.evaluateBoolean(key) || right.evaluateBoolean(key);
     }
 
     @Override
     public boolean evaluateBoolean(final int key) {
-        final boolean check = right.evaluateBoolean(key);
-        return !check;
+        return left.evaluateBoolean(key) || right.evaluateBoolean(key);
     }
 
     @Override
     public boolean evaluateBoolean() {
-        final boolean check = right.evaluateBoolean();
-        return !check;
+        return left.evaluateBoolean() || right.evaluateBoolean();
     }
 
     @Override
@@ -75,7 +72,7 @@ public class NotOperation extends BinaryOperation {
     @Override
     protected BinaryOperation newBinaryOperation(final Op op, final IParsedExpression left,
             final IParsedExpression right) {
-        return new NotOperation(left, right);
+        return new OrOperation(left, right);
     }
 
 }

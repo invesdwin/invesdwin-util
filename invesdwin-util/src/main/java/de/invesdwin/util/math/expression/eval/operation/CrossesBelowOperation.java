@@ -1,4 +1,4 @@
-package de.invesdwin.util.math.expression.eval.binary;
+package de.invesdwin.util.math.expression.eval.operation;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -8,29 +8,29 @@ import de.invesdwin.util.math.expression.eval.IParsedExpression;
 import de.invesdwin.util.time.fdate.FDate;
 
 @Immutable
-public class CrossesAboveOperation extends BinaryOperation {
+public class CrossesBelowOperation extends BinaryOperation {
 
     private final IPreviousKeyFunction previousKeyFunction;
 
-    public CrossesAboveOperation(final IParsedExpression left, final IParsedExpression right,
+    public CrossesBelowOperation(final IParsedExpression left, final IParsedExpression right,
             final IPreviousKeyFunction previousKeyFunction) {
-        super(Op.CROSSES_ABOVE, left, right);
+        super(Op.CROSSES_BELOW, left, right);
         this.previousKeyFunction = previousKeyFunction;
     }
 
     @Override
     public double evaluateDouble(final FDate key) {
-        //crosses above => left was below but went above right
+        //crosses below => left was above but went below right
 
         final double leftValue0 = left.evaluateDouble(key);
         final double rightValue0 = left.evaluateDouble(key);
-        //left is above or equal to right
-        if (leftValue0 >= rightValue0) {
+        //left is below or equal to right
+        if (leftValue0 <= rightValue0) {
             final FDate previousKey = previousKeyFunction.getPreviousKey(key, 1);
             final double leftValue1 = left.evaluateDouble(previousKey);
             final double rightValue1 = right.evaluateDouble(previousKey);
-            //previous left is below previous right
-            if (leftValue1 < rightValue1) {
+            //previous left is above previous right
+            if (leftValue1 > rightValue1) {
                 return 1D;
             }
         }
@@ -40,17 +40,17 @@ public class CrossesAboveOperation extends BinaryOperation {
 
     @Override
     public double evaluateDouble(final int key) {
-        //crosses above => left was below but went above right
+        //crosses below => left was above but went below right
 
         final double leftValue0 = left.evaluateDouble(key);
         final double rightValue0 = left.evaluateDouble(key);
-        //left is above or equal to right
-        if (leftValue0 >= rightValue0) {
+        //left is below or equal to right
+        if (leftValue0 <= rightValue0) {
             final int previousKey = key - 1;
             final double leftValue1 = left.evaluateDouble(previousKey);
             final double rightValue1 = right.evaluateDouble(previousKey);
-            //previous left is below previous right
-            if (leftValue1 < rightValue1) {
+            //previous left is above previous right
+            if (leftValue1 > rightValue1) {
                 return 1D;
             }
         }
@@ -65,17 +65,17 @@ public class CrossesAboveOperation extends BinaryOperation {
 
     @Override
     public boolean evaluateBoolean(final FDate key) {
-        //crosses above => left was below but went above right
+        //crosses below => left was above but went below right
 
         final double leftValue0 = left.evaluateDouble(key);
         final double rightValue0 = left.evaluateDouble(key);
-        //left is above or equal to right
-        if (leftValue0 >= rightValue0) {
+        //left is below or equal to right
+        if (leftValue0 <= rightValue0) {
             final FDate previousKey = previousKeyFunction.getPreviousKey(key, 1);
             final double leftValue1 = left.evaluateDouble(previousKey);
             final double rightValue1 = right.evaluateDouble(previousKey);
-            //previous left is below previous right
-            if (leftValue1 < rightValue1) {
+            //previous left is above previous right
+            if (leftValue1 > rightValue1) {
                 return true;
             }
         }
@@ -85,17 +85,17 @@ public class CrossesAboveOperation extends BinaryOperation {
 
     @Override
     public boolean evaluateBoolean(final int key) {
-        //crosses above => left was below but went above right
+        //crosses below => left was above but went below right
 
         final double leftValue0 = left.evaluateDouble(key);
         final double rightValue0 = left.evaluateDouble(key);
-        //left is above or equal to right
-        if (leftValue0 >= rightValue0) {
+        //left is below or equal to right
+        if (leftValue0 <= rightValue0) {
             final int previousKey = key - 1;
             final double leftValue1 = left.evaluateDouble(previousKey);
             final double rightValue1 = right.evaluateDouble(previousKey);
-            //previous left is below previous right
-            if (leftValue1 < rightValue1) {
+            //previous left is above previous right
+            if (leftValue1 > rightValue1) {
                 return true;
             }
         }
@@ -122,7 +122,7 @@ public class CrossesAboveOperation extends BinaryOperation {
     @Override
     protected BinaryOperation newBinaryOperation(final Op op, final IParsedExpression left,
             final IParsedExpression right) {
-        return new CrossesAboveOperation(left, right, previousKeyFunction);
+        return new CrossesBelowOperation(left, right, previousKeyFunction);
     }
 
 }
