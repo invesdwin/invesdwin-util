@@ -65,6 +65,8 @@ The popular [AssertJ](http://joel-costigliola.github.io/assertj) fluent API exte
 Ever wondered if your comparator will result in ascending or descending order? This class will make the desired order easier to get by making that an explicit decision during sort calls. You also only have to give it the property to compare and it will handle casting, null checks and other things for you.
 #### `Strings`, `Reflections`, `Objects`, ...
 Each one being a one-stop class to find the utility method you are searching for by providing a [static facade](https://github.com/subes/invesdwin-norva#static-facade) to the most useful frameworks and providing its own set of operations which are missing from the ones that already exist.
+#### `ExpressionParser`
+This is a major rewrite of the popular and fast [parsii](https://github.com/scireum/parsii) expression library. There are a lot of performance optimizations included (using final and immutable where possible, faster tokenizer and removing unneeded features). Also support was added for time series based expressions with `[x]` operator for looking up previous values and for operators like `crosses above` and `crosses below`. Functions can be referenced as variables and vice versa where possible. Thus the parentheses operator `()` becomes optional. Boolean expressions are processed efficiently by skipping unnecessary expression evaluations. And you can use double, boolean results for evaluations as well as `none, int and time` based indexing for evaluation by calling the appropriate expression method.
 
 ## Support
 
