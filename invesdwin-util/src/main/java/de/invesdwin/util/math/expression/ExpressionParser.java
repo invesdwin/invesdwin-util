@@ -96,13 +96,13 @@ public class ExpressionParser {
         registerVariable(Variables.EULER);
     }
 
-    public ExpressionParser(final String input) {
+    public ExpressionParser(final String expression) {
         tokenizer = TOKENIZER.get();
-        tokenizer.init(new StringReader(modifyInput(input)));
+        tokenizer.init(new StringReader(modifyInput(expression.toLowerCase())));
     }
 
-    protected String modifyInput(final String input) {
-        return Strings.replaceEach(input.toLowerCase(), MODIFY_INPUT, MODIFY_OUTPUT);
+    protected String modifyInput(final String expressionLowerCase) {
+        return Strings.replaceEach(expressionLowerCase, MODIFY_INPUT, MODIFY_OUTPUT);
     }
 
     public static void registerFunction(final IFunction function) {
