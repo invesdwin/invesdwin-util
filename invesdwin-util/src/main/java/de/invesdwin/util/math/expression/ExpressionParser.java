@@ -98,7 +98,8 @@ public class ExpressionParser {
 
     public ExpressionParser(final String expression) {
         tokenizer = TOKENIZER.get();
-        tokenizer.init(new StringReader(modifyExpression(expression.toLowerCase())));
+        //add space at the end so that replacements match properly
+        tokenizer.init(new StringReader(modifyExpression(expression.toLowerCase() + " ")));
     }
 
     protected String modifyExpression(final String expressionLowerCase) {
