@@ -311,6 +311,11 @@ public class FDate implements IDate, Serializable, Cloneable, Comparable<Object>
         return duration.subtractFrom(this);
     }
 
+    public int getWeekNumberOfYear() {
+        final MutableDateTime delegate = newMutableDateTime();
+        return delegate.getWeekOfWeekyear();
+    }
+
     public FDate truncate(final FDateField field) {
         final MutableDateTime delegate = newMutableDateTime();
         delegate.setRounding(field.jodaTimeValue().getField(delegate.getChronology()));

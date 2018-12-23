@@ -43,18 +43,18 @@ public class ExpressionParser {
     private static final Map<String, IParsedExpression> VARIABLE_TABLE;
 
     private static final String[] MODIFY_INPUT = new String[] { //
-            " and ", " And ", " AND ", //
-            " or ", " Or ", " OR ", //
+            " and ", //
+            " or ", //
             " <> ", " >< ", //
-            " true ", " True ", " TRUE ", //
-            " false ", " False ", " FALSE " //
+            " true ", //
+            " false " //
     };
     private static final String[] MODIFY_OUTPUT = new String[] { //
-            " && ", " && ", " && ", //
-            " || ", " || ", " || ", //
+            " && ", //
+            " || ", //
             " != ", " != ", //
-            " 1 ", " 1 ", " 1 ", //
-            " 0 ", " 0 ", " 0 " //
+            " 1 ", //
+            " 0 " //
     };
     private final Tokenizer tokenizer;
 
@@ -102,15 +102,15 @@ public class ExpressionParser {
     }
 
     protected String modifyInput(final String input) {
-        return Strings.replaceEach(input, MODIFY_INPUT, MODIFY_OUTPUT);
+        return Strings.replaceEach(input.toLowerCase(), MODIFY_INPUT, MODIFY_OUTPUT);
     }
 
     public static void registerFunction(final IFunction function) {
-        FUNCTION_TABLE.put(function.getName(), function);
+        FUNCTION_TABLE.put(function.getName().toLowerCase(), function);
     }
 
     public static void registerVariable(final IVariable variable) {
-        VARIABLE_TABLE.put(variable.getName(), new VariableReference(variable));
+        VARIABLE_TABLE.put(variable.getName().toLowerCase(), new VariableReference(variable));
     }
 
     public IExpression parse() {
