@@ -2,6 +2,7 @@ package de.invesdwin.util.math.expression.eval;
 
 import javax.annotation.concurrent.Immutable;
 
+import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.expression.IPreviousKeyFunction;
 import de.invesdwin.util.time.fdate.FDate;
 
@@ -15,6 +16,9 @@ public class ConstantPreviousKeyExpression implements IParsedExpression {
     public ConstantPreviousKeyExpression(final IParsedExpression expression, final int index,
             final IPreviousKeyFunction previousKeyFunction) {
         this.expression = expression;
+        if (index < 0) {
+            throw new IllegalArgumentException("index should not be negative: " + index);
+        }
         this.index = index;
         this.previousKeyFunction = previousKeyFunction;
     }
@@ -27,7 +31,7 @@ public class ConstantPreviousKeyExpression implements IParsedExpression {
 
     @Override
     public double evaluateDouble(final int key) {
-        final int previousKey = key - index;
+        final int previousKey = Integers.max(0, key - index);
         return expression.evaluateDouble(previousKey);
     }
 
@@ -44,7 +48,7 @@ public class ConstantPreviousKeyExpression implements IParsedExpression {
 
     @Override
     public boolean evaluateBoolean(final int key) {
-        final int previousKey = key - index;
+        final int previousKey = Integers.max(0, key - index);
         return expression.evaluateBoolean(previousKey);
     }
 

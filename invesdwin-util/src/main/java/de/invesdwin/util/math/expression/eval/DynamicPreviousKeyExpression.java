@@ -23,6 +23,9 @@ public class DynamicPreviousKeyExpression implements IParsedExpression {
     @Override
     public double evaluateDouble(final FDate key) {
         final int index = Integers.checkedCast(indexExpression.evaluateDouble(key));
+        if (index < 0) {
+            throw new IllegalArgumentException("index should not be negative: " + index);
+        }
         final FDate previousKey = previousKeyFunction.getPreviousKey(key, index);
         return expression.evaluateDouble(previousKey);
     }
@@ -30,7 +33,10 @@ public class DynamicPreviousKeyExpression implements IParsedExpression {
     @Override
     public double evaluateDouble(final int key) {
         final int index = Integers.checkedCast(indexExpression.evaluateDouble(key));
-        final int previousKey = key - index;
+        if (index < 0) {
+            throw new IllegalArgumentException("index should not be negative: " + index);
+        }
+        final int previousKey = Integers.max(0, key - index);
         return expression.evaluateDouble(previousKey);
     }
 
@@ -42,6 +48,9 @@ public class DynamicPreviousKeyExpression implements IParsedExpression {
     @Override
     public boolean evaluateBoolean(final FDate key) {
         final int index = Integers.checkedCast(indexExpression.evaluateDouble(key));
+        if (index < 0) {
+            throw new IllegalArgumentException("index should not be negative: " + index);
+        }
         final FDate previousKey = previousKeyFunction.getPreviousKey(key, index);
         return expression.evaluateBoolean(previousKey);
     }
@@ -49,7 +58,10 @@ public class DynamicPreviousKeyExpression implements IParsedExpression {
     @Override
     public boolean evaluateBoolean(final int key) {
         final int index = Integers.checkedCast(indexExpression.evaluateDouble(key));
-        final int previousKey = key - index;
+        if (index < 0) {
+            throw new IllegalArgumentException("index should not be negative: " + index);
+        }
+        final int previousKey = Integers.max(0, key - index);
         return expression.evaluateBoolean(previousKey);
     }
 
@@ -66,7 +78,7 @@ public class DynamicPreviousKeyExpression implements IParsedExpression {
     @Override
     public IParsedExpression simplify() {
         if (indexExpression.isConstant()) {
-            final int index = Integers.checkedCast(indexExpression.evaluateDouble(null));
+            final int index = Integers.checkedCast(indexExpression.evaluateDouble());
             return new ConstantPreviousKeyExpression(expression, index, previousKeyFunction).simplify();
         }
         if (expression.isConstant()) {
