@@ -98,10 +98,10 @@ public class ExpressionParser {
 
     public ExpressionParser(final String expression) {
         tokenizer = TOKENIZER.get();
-        tokenizer.init(new StringReader(modifyInput(expression.toLowerCase())));
+        tokenizer.init(new StringReader(modifyExpression(expression.toLowerCase())));
     }
 
-    protected String modifyInput(final String expressionLowerCase) {
+    protected String modifyExpression(final String expressionLowerCase) {
         return Strings.replaceEach(expressionLowerCase, MODIFY_INPUT, MODIFY_OUTPUT);
     }
 
