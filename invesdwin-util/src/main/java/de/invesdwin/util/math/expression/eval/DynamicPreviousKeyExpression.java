@@ -22,7 +22,7 @@ public class DynamicPreviousKeyExpression implements IParsedExpression {
 
     @Override
     public double evaluateDouble(final FDate key) {
-        final int index = Integers.checkedCast(indexExpression.evaluateDouble(key));
+        final int index = indexExpression.evaluateInteger(key);
         if (index < 0) {
             throw new IllegalArgumentException("index should not be negative: " + index);
         }
@@ -32,7 +32,7 @@ public class DynamicPreviousKeyExpression implements IParsedExpression {
 
     @Override
     public double evaluateDouble(final int key) {
-        final int index = Integers.checkedCast(indexExpression.evaluateDouble(key));
+        final int index = indexExpression.evaluateInteger(key);
         if (index < 0) {
             throw new IllegalArgumentException("index should not be negative: " + index);
         }
@@ -47,7 +47,7 @@ public class DynamicPreviousKeyExpression implements IParsedExpression {
 
     @Override
     public boolean evaluateBoolean(final FDate key) {
-        final int index = Integers.checkedCast(indexExpression.evaluateDouble(key));
+        final int index = indexExpression.evaluateInteger(key);
         if (index < 0) {
             throw new IllegalArgumentException("index should not be negative: " + index);
         }
@@ -57,7 +57,7 @@ public class DynamicPreviousKeyExpression implements IParsedExpression {
 
     @Override
     public boolean evaluateBoolean(final int key) {
-        final int index = Integers.checkedCast(indexExpression.evaluateDouble(key));
+        final int index = indexExpression.evaluateInteger(key);
         if (index < 0) {
             throw new IllegalArgumentException("index should not be negative: " + index);
         }
@@ -78,7 +78,7 @@ public class DynamicPreviousKeyExpression implements IParsedExpression {
     @Override
     public IParsedExpression simplify() {
         if (indexExpression.isConstant()) {
-            final int index = Integers.checkedCast(indexExpression.evaluateDouble());
+            final int index = indexExpression.evaluateInteger();
             return new ConstantPreviousKeyExpression(expression, index, previousKeyFunction).simplify();
         }
         if (expression.isConstant()) {
