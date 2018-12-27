@@ -509,6 +509,10 @@ public final class Doubles extends ADoublesStaticFacade {
         return Math.min(a, b);
     }
 
+    public static double cbrt(final double a) {
+        return Math.cbrt(a);
+    }
+
     public static int compare(final double value, final double otherValue) {
         final double difference = value - otherValue;
         if (difference > FIRST_ABOVE_ZERO) {
