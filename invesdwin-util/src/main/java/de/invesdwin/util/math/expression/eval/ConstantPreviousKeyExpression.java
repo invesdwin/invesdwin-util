@@ -2,7 +2,6 @@ package de.invesdwin.util.math.expression.eval;
 
 import javax.annotation.concurrent.Immutable;
 
-import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.expression.IPreviousKeyFunction;
 import de.invesdwin.util.time.fdate.FDate;
 
@@ -31,7 +30,7 @@ public class ConstantPreviousKeyExpression implements IParsedExpression {
 
     @Override
     public double evaluateDouble(final int key) {
-        final int previousKey = Integers.max(0, key - index);
+        final int previousKey = previousKeyFunction.getPreviousKey(key, index);
         return expression.evaluateDouble(previousKey);
     }
 
@@ -48,7 +47,7 @@ public class ConstantPreviousKeyExpression implements IParsedExpression {
 
     @Override
     public boolean evaluateBoolean(final int key) {
-        final int previousKey = Integers.max(0, key - index);
+        final int previousKey = previousKeyFunction.getPreviousKey(key, index);
         return expression.evaluateBoolean(previousKey);
     }
 

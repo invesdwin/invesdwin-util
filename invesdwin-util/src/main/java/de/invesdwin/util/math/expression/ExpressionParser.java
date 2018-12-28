@@ -179,11 +179,13 @@ public class ExpressionParser {
             if ("above".equals(next.getContents())) {
                 tokenizer.consume(2);
                 final IParsedExpression right = relationalExpression();
-                return new CrossesAboveOperation(left, right, getPreviousKeyFunction());
+                return new CrossesAboveOperation(left, right, getPreviousKeyFunction(left),
+                        getPreviousKeyFunction(right));
             } else if ("below".equals(next.getContents())) {
                 tokenizer.consume(2);
                 final IParsedExpression right = relationalExpression();
-                return new CrossesBelowOperation(left, right, getPreviousKeyFunction());
+                return new CrossesBelowOperation(left, right, getPreviousKeyFunction(left),
+                        getPreviousKeyFunction(right));
             }
         }
         return left;
@@ -247,9 +249,9 @@ public class ExpressionParser {
         case NOT:
             return new NotOperation(left, right);
         case CROSSES_ABOVE:
-            return new CrossesAboveOperation(left, right, getPreviousKeyFunction());
+            return new CrossesAboveOperation(left, right, getPreviousKeyFunction(left), getPreviousKeyFunction(right));
         case CROSSES_BELOW:
-            return new CrossesBelowOperation(left, right, getPreviousKeyFunction());
+            return new CrossesBelowOperation(left, right, getPreviousKeyFunction(left), getPreviousKeyFunction(right));
         default:
             return new BinaryOperation(op, left, right);
         }
@@ -271,9 +273,11 @@ public class ExpressionParser {
         case NOT:
             return target.setLeft(new NotOperation(newLeft, target.getLeft()));
         case CROSSES_ABOVE:
-            return target.setLeft(new CrossesAboveOperation(newLeft, target.getLeft(), getPreviousKeyFunction()));
+            return target.setLeft(new CrossesAboveOperation(newLeft, target.getLeft(), getPreviousKeyFunction(newLeft),
+                    getPreviousKeyFunction(target.getLeft())));
         case CROSSES_BELOW:
-            return target.setLeft(new CrossesBelowOperation(newLeft, target.getLeft(), getPreviousKeyFunction()));
+            return target.setLeft(new CrossesBelowOperation(newLeft, target.getLeft(), getPreviousKeyFunction(newLeft),
+                    getPreviousKeyFunction(target.getLeft())));
         default:
             return target.setLeft(new BinaryOperation(op, newLeft, target.getLeft()));
         }
@@ -330,7 +334,8 @@ public class ExpressionParser {
                 tokenizer.consume();
                 final IParsedExpression indexExpression = expression();
                 tokenizer.consumeExpectedSymbol("]");
-                return new DynamicPreviousKeyExpression(functionOrVariable, indexExpression, getPreviousKeyFunction());
+                return new DynamicPreviousKeyExpression(functionOrVariable, indexExpression,
+                        getPreviousKeyFunction(functionOrVariable));
             } else {
                 return functionOrVariable;
             }
@@ -352,7 +357,7 @@ public class ExpressionParser {
         return variable;
     }
 
-    protected IPreviousKeyFunction getPreviousKeyFunction() {
+    protected IPreviousKeyFunction getPreviousKeyFunction(final IExpression expression) {
         throw new UnsupportedOperationException("dynamic indexed expression needs to be implemented from the outside");
     }
 

@@ -6,4 +6,6 @@ public interface IPreviousKeyFunction {
 
     FDate getPreviousKey(FDate key, int index);
 
+    int getPreviousKey(int key, int index);
+
 }

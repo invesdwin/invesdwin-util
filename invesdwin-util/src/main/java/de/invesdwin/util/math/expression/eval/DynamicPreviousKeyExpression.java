@@ -2,7 +2,6 @@ package de.invesdwin.util.math.expression.eval;
 
 import javax.annotation.concurrent.Immutable;
 
-import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.expression.IPreviousKeyFunction;
 import de.invesdwin.util.time.fdate.FDate;
 
@@ -36,7 +35,7 @@ public class DynamicPreviousKeyExpression implements IParsedExpression {
         if (index < 0) {
             throw new IllegalArgumentException("index should not be negative: " + index);
         }
-        final int previousKey = Integers.max(0, key - index);
+        final int previousKey = previousKeyFunction.getPreviousKey(key, index);
         return expression.evaluateDouble(previousKey);
     }
 
@@ -61,7 +60,7 @@ public class DynamicPreviousKeyExpression implements IParsedExpression {
         if (index < 0) {
             throw new IllegalArgumentException("index should not be negative: " + index);
         }
-        final int previousKey = Integers.max(0, key - index);
+        final int previousKey = previousKeyFunction.getPreviousKey(key, index);
         return expression.evaluateBoolean(previousKey);
     }
 
