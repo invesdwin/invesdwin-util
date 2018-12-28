@@ -197,7 +197,7 @@ public class BinaryOperation implements IParsedExpression {
         DIVIDE(4, "/") {
             @Override
             protected double apply(final double a, final double b) {
-                return a / b;
+                return Doubles.divide(a, b);
             }
         },
         MODULO(4, "%") {
