@@ -190,7 +190,7 @@ public class Tokenizer extends ALookahead<Token> {
             if (input.current().is(GROUPING_SEPARATOR)) {
                 result.addToSource(input.consume());
             } else if (input.current().is(DECIMAL_SEPARATOR)) {
-                if (result.is(Token.TokenType.DECIMAL)) {
+                if (result.isDecimal()) {
                     throw new ParseException(input.current(), "Unexpected decimal separators");
                 } else {
                     final Token decimalToken = Token.create(Token.TokenType.DECIMAL, result);

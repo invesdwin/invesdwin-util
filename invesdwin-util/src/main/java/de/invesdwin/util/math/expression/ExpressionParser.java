@@ -415,7 +415,7 @@ public class ExpressionParser {
         }
         if (current.isNumber()) {
             double value = Double.parseDouble(tokenizer.consume().getContents());
-            if (tokenizer.current().is(Token.TokenType.ID)) {
+            if (tokenizer.current().isIdentifier()) {
                 //CHECKSTYLE:OFF
                 final String quantifier = tokenizer.current().getContents().intern();
                 if ("crosses" != quantifier) {
