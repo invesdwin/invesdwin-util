@@ -81,7 +81,7 @@ public class OrOperation extends BinaryOperation {
                 return newLeft;
             }
         }
-        return super.simplify();
+        return simplify(newLeft, newRight);
     }
 
     @Override

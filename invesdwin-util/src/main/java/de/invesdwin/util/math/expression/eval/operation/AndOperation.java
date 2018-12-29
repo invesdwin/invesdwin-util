@@ -81,7 +81,7 @@ public class AndOperation extends BinaryOperation {
                 return new ConstantExpression(0D);
             }
         }
-        return super.simplify();
+        return simplify(newLeft, newRight);
     }
 
     @Override

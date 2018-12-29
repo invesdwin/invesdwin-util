@@ -95,8 +95,15 @@ public class BinaryOperation implements IParsedExpression {
 
     @Override
     public IParsedExpression simplify() {
-        IParsedExpression newLeft = left.simplify();
-        IParsedExpression newRight = right.simplify();
+        final IParsedExpression newLeft = left.simplify();
+        final IParsedExpression newRight = right.simplify();
+        return simplify(newLeft, newRight);
+    }
+
+    protected IParsedExpression simplify(final IParsedExpression simplifiedLeft,
+            final IParsedExpression simplifiedRight) {
+        IParsedExpression newLeft = simplifiedLeft;
+        IParsedExpression newRight = simplifiedRight;
         // First of all we check of both sides are constant. If true, we can directly evaluate the result...
         if (newLeft.isConstant() && newRight.isConstant()) {
             return newConstantExpression();
