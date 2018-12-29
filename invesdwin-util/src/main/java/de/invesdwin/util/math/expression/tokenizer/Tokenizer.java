@@ -157,7 +157,7 @@ public class Tokenizer extends ALookahead<Token> {
     }
 
     private boolean isIdentifierChar(final Char current) {
-        return current.isDigit() || current.isLetter() || current.is('_');
+        return current.isDigit() || current.isLetter() || current.is('_', ':');
     }
 
     private Token fetchSymbol() {
