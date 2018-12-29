@@ -33,6 +33,20 @@ import io.netty.util.concurrent.FastThreadLocal;
 @NotThreadSafe
 public class ExpressionParser {
 
+    public static final String[] MODIFY_INPUT = new String[] { //
+            " and ", //
+            " or ", //
+            " <> ", " >< ", //
+            " true ", //
+            " false " //
+    };
+    public static final String[] MODIFY_OUTPUT = new String[] { //
+            " && ", //
+            " || ", //
+            " != ", " != ", //
+            " 1 ", //
+            " 0 " //
+    };
     private static final FastThreadLocal<Tokenizer> TOKENIZER = new FastThreadLocal<Tokenizer>() {
         @Override
         protected Tokenizer initialValue() throws Exception {
@@ -43,20 +57,6 @@ public class ExpressionParser {
     private static final Map<String, IFunction> FUNCTION_TABLE;
     private static final Map<String, IParsedExpression> VARIABLE_TABLE;
 
-    private static final String[] MODIFY_INPUT = new String[] { //
-            " and ", //
-            " or ", //
-            " <> ", " >< ", //
-            " true ", //
-            " false " //
-    };
-    private static final String[] MODIFY_OUTPUT = new String[] { //
-            " && ", //
-            " || ", //
-            " != ", " != ", //
-            " 1 ", //
-            " 0 " //
-    };
     private final Tokenizer tokenizer;
 
     static {
