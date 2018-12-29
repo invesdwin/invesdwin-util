@@ -140,66 +140,24 @@ public final class Token implements IPosition {
         return type != TokenType.EOI;
     }
 
-    public boolean matches(final TokenType type, final String trigger) {
-        if (!is(type)) {
-            return false;
-        }
-        if (trigger == null) {
-            throw new IllegalArgumentException("trigger must not be null");
-        }
-
+    public boolean matches(final String trigger) {
         return getTrigger() == trigger.intern();
-    }
-
-    public boolean wasTriggeredBy(final String... triggers) {
-        if (triggers.length == 0) {
-            return false;
-        }
-        for (int i = 0; i < triggers.length; i++) {
-            final String aTrigger = triggers[i];
-            if (aTrigger != null && aTrigger.intern() == getTrigger()) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    public boolean hasContent(final String content) {
-        if (content == null) {
-            throw new IllegalArgumentException("content must not be null");
-        }
-        return content.equalsIgnoreCase(getContents());
     }
 
     public boolean is(final TokenType type) {
         return this.type == type;
     }
 
-    public boolean isSymbol(final String... symbols) {
-        if (symbols.length == 0) {
-            return is(TokenType.SYMBOL);
-        }
-        for (int i = 0; i < symbols.length; i++) {
-            final String symbol = symbols[i];
-            if (matches(TokenType.SYMBOL, symbol)) {
-                return true;
-            }
-        }
-        return false;
+    public boolean isSymbol() {
+        return is(TokenType.SYMBOL);
     }
 
-    public boolean isIdentifier(final String... values) {
-        if (values.length == 0) {
-            return is(TokenType.ID);
-        }
-        for (int i = 0; i < values.length; i++) {
-            final String value = values[i];
-            if (matches(TokenType.ID, value)) {
-                return true;
-            }
-        }
-        return false;
+    public boolean isSymbol(final String trigger) {
+        return is(TokenType.SYMBOL) && matches(trigger);
+    }
+
+    public boolean isIdentifier() {
+        return is(TokenType.ID);
     }
 
     public boolean isInteger() {

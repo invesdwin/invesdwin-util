@@ -226,13 +226,14 @@ public class Tokenizer extends ALookahead<Token> {
     }
 
     public void consumeExpectedSymbol(final String symbol) {
-        if (current().matches(Token.TokenType.SYMBOL, symbol)) {
+        final Token current = current();
+        if (current.isSymbol() && current.matches(symbol)) {
             consume();
         } else {
             throw new RuntimeException(
                     ParseError
-                            .error(current(),
-                                    String.format("Unexpected token: '%s'. Expected: '%s'", current().getSource(),
+                            .error(current,
+                                    String.format("Unexpected token: '%s'. Expected: '%s'", current.getSource(),
                                             symbol))
                             .toString());
         }
