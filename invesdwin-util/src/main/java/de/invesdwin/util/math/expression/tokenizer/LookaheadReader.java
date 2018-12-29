@@ -39,7 +39,7 @@ public class LookaheadReader extends ALookahead<Char> {
             pos++;
             return new Char((char) character, line, pos);
         } catch (final IOException e) {
-            throw new RuntimeException(ParseError.error(new Char('\0', line, pos), e.getMessage()).toString());
+            throw new ParseException(new Char('\0', line, pos), e.getMessage());
         }
     }
 

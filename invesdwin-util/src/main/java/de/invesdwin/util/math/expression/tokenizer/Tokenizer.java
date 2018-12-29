@@ -76,10 +76,8 @@ public class Tokenizer extends ALookahead<Token> {
             return fetchSymbol();
         }
 
-        throw new RuntimeException(ParseError
-                .error(input.current(),
-                        String.format("Invalid character in input: '%s'", input.current().getStringValue()))
-                .toString());
+        throw new ParseException(input.current(),
+                String.format("Invalid character in input: '%s'", input.current().getStringValue()));
     }
 
     protected boolean isAtStartOfNumber() {
@@ -104,9 +102,8 @@ public class Tokenizer extends ALookahead<Token> {
             if (escapeChar != '\0' && input.current().is(escapeChar)) {
                 result.addToSource(input.consume());
                 if (!handleStringEscape(separator, escapeChar, result)) {
-                    throw new RuntimeException(ParseError.error(input.next(),
-                            String.format("Cannot use '%s' as escaped character", input.next().getStringValue()))
-                            .toString());
+                    throw new ParseException(input.next(),
+                            String.format("Cannot use '%s' as escaped character", input.next().getStringValue()));
                 }
             } else {
                 result.addToContent(input.consume());
@@ -115,8 +112,7 @@ public class Tokenizer extends ALookahead<Token> {
         if (input.current().is(separator)) {
             result.addToSource(input.consume());
         } else {
-            throw new RuntimeException(
-                    ParseError.error(input.current(), "Premature end of string constant").toString());
+            throw new ParseException(input.current(), "Premature end of string constant");
         }
         return result;
     }
@@ -195,8 +191,7 @@ public class Tokenizer extends ALookahead<Token> {
                 result.addToSource(input.consume());
             } else if (input.current().is(DECIMAL_SEPARATOR)) {
                 if (result.is(Token.TokenType.DECIMAL)) {
-                    throw new RuntimeException(
-                            ParseError.error(input.current(), "Unexpected decimal separators").toString());
+                    throw new ParseException(input.current(), "Unexpected decimal separators");
                 } else {
                     final Token decimalToken = Token.create(Token.TokenType.DECIMAL, result);
                     decimalToken.setContent(result.getContents() + DECIMAL_SEPARATOR);
@@ -230,12 +225,8 @@ public class Tokenizer extends ALookahead<Token> {
         if (current.isSymbol() && current.matches(symbol)) {
             consume();
         } else {
-            throw new RuntimeException(
-                    ParseError
-                            .error(current,
-                                    String.format("Unexpected token: '%s'. Expected: '%s'", current.getSource(),
-                                            symbol))
-                            .toString());
+            throw new ParseException(current,
+                    String.format("Unexpected token: '%s'. Expected: '%s'", current.getSource(), symbol));
         }
     }
 

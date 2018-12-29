@@ -24,7 +24,7 @@ import de.invesdwin.util.math.expression.eval.operation.CrossesAboveOperation;
 import de.invesdwin.util.math.expression.eval.operation.CrossesBelowOperation;
 import de.invesdwin.util.math.expression.eval.operation.NotOperation;
 import de.invesdwin.util.math.expression.eval.operation.OrOperation;
-import de.invesdwin.util.math.expression.tokenizer.ParseError;
+import de.invesdwin.util.math.expression.tokenizer.ParseException;
 import de.invesdwin.util.math.expression.tokenizer.Token;
 import de.invesdwin.util.math.expression.tokenizer.Tokenizer;
 import de.invesdwin.util.math.expression.variable.IVariable;
@@ -119,9 +119,8 @@ public class ExpressionParser {
         final IParsedExpression result = expressionComma().simplify();
         if (tokenizer.current().isNotEnd()) {
             final Token token = tokenizer.consume();
-            throw new RuntimeException(ParseError
-                    .error(token, String.format("Unexpected token: '%s'. Expected an expression.", token.getSource()))
-                    .toString());
+            throw new ParseException(token,
+                    String.format("Unexpected token: '%s'. Expected an expression.", token.getSource()));
         }
         return result;
     }
@@ -399,9 +398,7 @@ public class ExpressionParser {
         final Token variableName = tokenizer.consume();
         final IParsedExpression variable = findVariable(variableName.getContents());
         if (variable == null) {
-            throw new RuntimeException(
-                    ParseError.error(variableName, String.format("Unknown variable: '%s'", variableName.getContents()))
-                            .toString());
+            throw new ParseException(variableName, String.format("Unknown variable: '%s'", variableName.getContents()));
         }
         return variable;
     }
@@ -442,9 +439,8 @@ public class ExpressionParser {
                         tokenizer.consume();
                     } else {
                         final Token token = tokenizer.consume();
-                        throw new RuntimeException(ParseError.error(token, String
-                                .format("Unexpected token: '%s'. Expected a valid quantifier.", token.getSource()))
-                                .toString());
+                        throw new ParseException(token, String
+                                .format("Unexpected token: '%s'. Expected a valid quantifier.", token.getSource()));
                     }
                 }
                 //CHECKSTYLE:ON
@@ -452,18 +448,15 @@ public class ExpressionParser {
             return new ConstantExpression(value);
         }
         final Token token = tokenizer.consume();
-        throw new RuntimeException(ParseError
-                .error(token, String.format("Unexpected token: '%s'. Expected an expression.", token.getSource()))
-                .toString());
+        throw new ParseException(token,
+                String.format("Unexpected token: '%s'. Expected an expression.", token.getSource()));
     }
 
     protected IParsedExpression functionCall() {
         final Token funToken = tokenizer.consume();
         final IFunction fun = findFunction(funToken.getContents());
         if (fun == null) {
-            throw new RuntimeException(
-                    ParseError.error(funToken, String.format("Unknown function: '%s'", funToken.getContents()))
-                            .toString());
+            throw new ParseException(funToken, String.format("Unknown function: '%s'", funToken.getContents()));
         }
         tokenizer.consume();
         final List<IParsedExpression> parameters = new ArrayList<>();
@@ -475,10 +468,9 @@ public class ExpressionParser {
         }
         expect(Token.TokenType.SYMBOL, ")");
         if (parameters.size() != fun.getNumberOfArguments() && fun.getNumberOfArguments() >= 0) {
-            throw new RuntimeException(ParseError.error(funToken,
+            throw new ParseException(funToken,
                     String.format("Number of arguments for function '%s' do not match. Expected: %d, Found: %d",
-                            funToken.getContents(), fun.getNumberOfArguments(), parameters.size()))
-                    .toString());
+                            funToken.getContents(), fun.getNumberOfArguments(), parameters.size()));
         }
         final IParsedExpression[] parametersArray = parameters.toArray(new IParsedExpression[parameters.size()]);
         return new FunctionCall(fun, parametersArray);
@@ -529,12 +521,8 @@ public class ExpressionParser {
         if (current.is(type) && current.matches(trigger)) {
             tokenizer.consume();
         } else {
-            throw new RuntimeException(
-                    ParseError
-                            .error(current,
-                                    String.format("Unexpected token '%s'. Expected: '%s'", current.getSource(),
-                                            trigger))
-                            .toString());
+            throw new ParseException(current,
+                    String.format("Unexpected token '%s'. Expected: '%s'", current.getSource(), trigger));
         }
     }
 }
