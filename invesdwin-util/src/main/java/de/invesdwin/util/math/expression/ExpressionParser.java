@@ -209,8 +209,7 @@ public class ExpressionParser {
                 final IParsedExpression right = relationalExpression();
                 return reOrder(left, right, BinaryOperation.Op.NEQ);
             }
-        }
-        if ("crosses".equals(current.getContents())) {
+        } else if ("crosses".equals(current.getContents())) {
             final Token next = tokenizer.next();
             if ("above".equals(next.getContents())) {
                 tokenizer.consume(2);
@@ -241,8 +240,7 @@ public class ExpressionParser {
                 final IParsedExpression right = term();
                 return reOrder(left, right, BinaryOperation.Op.SUBTRACT);
             }
-        }
-        if (current.isNumber() && current.getContents().startsWith("-")) {
+        } else if (current.isNumber() && current.getContents().startsWith("-")) {
             final IParsedExpression right = term();
             return reOrder(left, right, BinaryOperation.Op.ADD);
         }
@@ -374,8 +372,7 @@ public class ExpressionParser {
                 expect(Token.TokenType.SYMBOL, "|");
                 return new FunctionCall(Functions.ABS, expression());
             }
-        }
-        if (current.isIdentifier()) {
+        } else if (current.isIdentifier()) {
             final IParsedExpression functionOrVariable = functionOrVariable();
             final Token newCurrent = tokenizer.current();
             if (newCurrent.isSymbol() && newCurrent.matches("[")) {
