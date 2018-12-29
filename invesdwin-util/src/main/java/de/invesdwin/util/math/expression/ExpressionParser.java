@@ -116,7 +116,7 @@ public class ExpressionParser {
     }
 
     public IExpression parse() {
-        final IParsedExpression result = expression(true).simplify();
+        final IParsedExpression result = expressionComma().simplify();
         if (tokenizer.current().isNotEnd()) {
             final Token token = tokenizer.consume();
             throw new RuntimeException(ParseError
@@ -126,22 +126,21 @@ public class ExpressionParser {
         return result;
     }
 
-    protected IParsedExpression expression(final boolean allowComma) {
+    protected IParsedExpression expressionComma() {
         final IParsedExpression left = relationalExpression();
-        //treat comma as and
-        if (allowComma && tokenizer.current().isSymbol(",")) {
+        if (tokenizer.current().isSymbol(",")) {
             tokenizer.consume();
-            final IParsedExpression right = expression(true);
+            final IParsedExpression right = expressionComma();
             return reOrder(left, right, getCommaOp());
         }
         if (tokenizer.current().isSymbol("&&")) {
             tokenizer.consume();
-            final IParsedExpression right = expression(true);
+            final IParsedExpression right = expressionComma();
             return reOrder(left, right, BinaryOperation.Op.AND);
         }
         if (tokenizer.current().isSymbol("||")) {
             tokenizer.consume();
-            final IParsedExpression right = expression(true);
+            final IParsedExpression right = expressionComma();
             return reOrder(left, right, BinaryOperation.Op.OR);
         }
         return left;
@@ -152,6 +151,21 @@ public class ExpressionParser {
      */
     protected Op getCommaOp() {
         return BinaryOperation.Op.AND;
+    }
+
+    protected IParsedExpression expression() {
+        final IParsedExpression left = relationalExpression();
+        if (tokenizer.current().isSymbol("&&")) {
+            tokenizer.consume();
+            final IParsedExpression right = expression();
+            return reOrder(left, right, BinaryOperation.Op.AND);
+        }
+        if (tokenizer.current().isSymbol("||")) {
+            tokenizer.consume();
+            final IParsedExpression right = expression();
+            return reOrder(left, right, BinaryOperation.Op.OR);
+        }
+        return left;
     }
 
     //CHECKSTYLE:OFF
@@ -330,7 +344,7 @@ public class ExpressionParser {
         }
         if (tokenizer.current().isSymbol("(")) {
             tokenizer.consume();
-            final IParsedExpression result = expression(true);
+            final IParsedExpression result = expressionComma();
             if (result instanceof BinaryOperation) {
                 ((BinaryOperation) result).seal();
             }
@@ -340,13 +354,13 @@ public class ExpressionParser {
         if (tokenizer.current().isSymbol("|")) {
             tokenizer.consume();
             expect(Token.TokenType.SYMBOL, "|");
-            return new FunctionCall(Functions.ABS, expression(false));
+            return new FunctionCall(Functions.ABS, expression());
         }
         if (tokenizer.current().isIdentifier()) {
             final IParsedExpression functionOrVariable = functionOrVariable();
             if (tokenizer.current().isSymbol("[")) {
                 tokenizer.consume();
-                final IParsedExpression indexExpression = expression(false);
+                final IParsedExpression indexExpression = expression();
                 tokenizer.consumeExpectedSymbol("]");
                 return new DynamicPreviousKeyExpression(functionOrVariable, indexExpression,
                         getPreviousKeyFunction(functionOrVariable));
@@ -435,7 +449,7 @@ public class ExpressionParser {
             if (!parameters.isEmpty()) {
                 expect(Token.TokenType.SYMBOL, ",");
             }
-            parameters.add(expression(false));
+            parameters.add(expression());
         }
         expect(Token.TokenType.SYMBOL, ")");
         if (parameters.size() != fun.getNumberOfArguments() && fun.getNumberOfArguments() >= 0) {
