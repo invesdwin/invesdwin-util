@@ -417,24 +417,25 @@ public class ExpressionParser {
             double value = Double.parseDouble(tokenizer.consume().getContents());
             if (tokenizer.current().isIdentifier()) {
                 //CHECKSTYLE:OFF
-                final String quantifier = tokenizer.current().getContents().intern();
-                if ("crosses" != quantifier) {
-                    if ("n" == quantifier) {
+                final String quantifierStr = tokenizer.current().getContents();
+                if (quantifierStr.length() == 1) {
+                    final char quantifier = quantifierStr.charAt(0);
+                    if ('n' == quantifier) {
                         value /= 1000000000d;
                         tokenizer.consume();
-                    } else if ("u" == quantifier) {
+                    } else if ('u' == quantifier) {
                         value /= 1000000d;
                         tokenizer.consume();
-                    } else if ("m" == quantifier) {
+                    } else if ('m' == quantifier) {
                         value /= 1000d;
                         tokenizer.consume();
-                    } else if ("K" == quantifier || "k" == quantifier) {
+                    } else if ('K' == quantifier || 'k' == quantifier) {
                         value *= 1000d;
                         tokenizer.consume();
-                    } else if ("M" == quantifier) {
+                    } else if ('M' == quantifier) {
                         value *= 1000000d;
                         tokenizer.consume();
-                    } else if ("G" == quantifier) {
+                    } else if ('G' == quantifier) {
                         value *= 1000000000d;
                         tokenizer.consume();
                     } else {
