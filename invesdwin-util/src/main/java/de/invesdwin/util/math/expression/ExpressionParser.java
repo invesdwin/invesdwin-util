@@ -408,10 +408,11 @@ public class ExpressionParser {
     }
 
     private IParsedExpression literalAtom() {
-        final Token current = tokenizer.current();
+        Token current = tokenizer.current();
         if (current.isSymbol("+") && tokenizer.next().isNumber()) {
             // Parse numbers with a leading + sign like +2.02 by simply ignoring the +
             tokenizer.consume();
+            current = tokenizer.current();
         }
         if (current.isNumber()) {
             double value = Double.parseDouble(tokenizer.consume().getContents());
