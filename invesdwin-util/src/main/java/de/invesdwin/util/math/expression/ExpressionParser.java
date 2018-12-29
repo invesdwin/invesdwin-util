@@ -19,6 +19,7 @@ import de.invesdwin.util.math.expression.eval.VariableReference;
 import de.invesdwin.util.math.expression.eval.Variables;
 import de.invesdwin.util.math.expression.eval.operation.AndOperation;
 import de.invesdwin.util.math.expression.eval.operation.BinaryOperation;
+import de.invesdwin.util.math.expression.eval.operation.BinaryOperation.Op;
 import de.invesdwin.util.math.expression.eval.operation.CrossesAboveOperation;
 import de.invesdwin.util.math.expression.eval.operation.CrossesBelowOperation;
 import de.invesdwin.util.math.expression.eval.operation.NotOperation;
@@ -127,6 +128,12 @@ public class ExpressionParser {
 
     protected IParsedExpression expression() {
         final IParsedExpression left = relationalExpression();
+        //treat comma as and
+        if (tokenizer.current().isSymbol(",")) {
+            tokenizer.consume();
+            final IParsedExpression right = expression();
+            return reOrder(left, right, getCommaOp());
+        }
         if (tokenizer.current().isSymbol("&&")) {
             tokenizer.consume();
             final IParsedExpression right = expression();
@@ -138,6 +145,13 @@ public class ExpressionParser {
             return reOrder(left, right, BinaryOperation.Op.OR);
         }
         return left;
+    }
+
+    /**
+     * Someone might want to switch to OR here
+     */
+    protected Op getCommaOp() {
+        return BinaryOperation.Op.AND;
     }
 
     //CHECKSTYLE:OFF
