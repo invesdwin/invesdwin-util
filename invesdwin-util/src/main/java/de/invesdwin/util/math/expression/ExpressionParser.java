@@ -116,7 +116,7 @@ public class ExpressionParser {
     }
 
     public IExpression parse() {
-        final IParsedExpression result = expression().simplify();
+        final IParsedExpression result = expression(true).simplify();
         if (tokenizer.current().isNotEnd()) {
             final Token token = tokenizer.consume();
             throw new RuntimeException(ParseError
@@ -126,22 +126,22 @@ public class ExpressionParser {
         return result;
     }
 
-    protected IParsedExpression expression() {
+    protected IParsedExpression expression(final boolean allowComma) {
         final IParsedExpression left = relationalExpression();
         //treat comma as and
-        if (tokenizer.current().isSymbol(",")) {
+        if (allowComma && tokenizer.current().isSymbol(",")) {
             tokenizer.consume();
-            final IParsedExpression right = expression();
+            final IParsedExpression right = expression(true);
             return reOrder(left, right, getCommaOp());
         }
         if (tokenizer.current().isSymbol("&&")) {
             tokenizer.consume();
-            final IParsedExpression right = expression();
+            final IParsedExpression right = expression(true);
             return reOrder(left, right, BinaryOperation.Op.AND);
         }
         if (tokenizer.current().isSymbol("||")) {
             tokenizer.consume();
-            final IParsedExpression right = expression();
+            final IParsedExpression right = expression(true);
             return reOrder(left, right, BinaryOperation.Op.OR);
         }
         return left;
@@ -330,7 +330,7 @@ public class ExpressionParser {
         }
         if (tokenizer.current().isSymbol("(")) {
             tokenizer.consume();
-            final IParsedExpression result = expression();
+            final IParsedExpression result = expression(true);
             if (result instanceof BinaryOperation) {
                 ((BinaryOperation) result).seal();
             }
@@ -340,13 +340,13 @@ public class ExpressionParser {
         if (tokenizer.current().isSymbol("|")) {
             tokenizer.consume();
             expect(Token.TokenType.SYMBOL, "|");
-            return new FunctionCall(Functions.ABS, expression());
+            return new FunctionCall(Functions.ABS, expression(false));
         }
         if (tokenizer.current().isIdentifier()) {
             final IParsedExpression functionOrVariable = functionOrVariable();
             if (tokenizer.current().isSymbol("[")) {
                 tokenizer.consume();
-                final IParsedExpression indexExpression = expression();
+                final IParsedExpression indexExpression = expression(false);
                 tokenizer.consumeExpectedSymbol("]");
                 return new DynamicPreviousKeyExpression(functionOrVariable, indexExpression,
                         getPreviousKeyFunction(functionOrVariable));
@@ -435,7 +435,7 @@ public class ExpressionParser {
             if (!parameters.isEmpty()) {
                 expect(Token.TokenType.SYMBOL, ",");
             }
-            parameters.add(expression());
+            parameters.add(expression(false));
         }
         expect(Token.TokenType.SYMBOL, ")");
         if (parameters.size() != fun.getNumberOfArguments() && fun.getNumberOfArguments() >= 0) {

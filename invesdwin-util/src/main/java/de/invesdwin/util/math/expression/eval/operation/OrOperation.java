@@ -64,6 +64,27 @@ public class OrOperation extends BinaryOperation {
     }
 
     @Override
+    public IParsedExpression simplify() {
+        final IParsedExpression newLeft = left.simplify();
+        final IParsedExpression newRight = right.simplify();
+        if (newLeft.isConstant()) {
+            if (newLeft.evaluateBoolean()) {
+                return new ConstantExpression(1D);
+            } else {
+                return newRight;
+            }
+        }
+        if (newRight.isConstant()) {
+            if (newRight.evaluateBoolean()) {
+                return new ConstantExpression(1D);
+            } else {
+                return newLeft;
+            }
+        }
+        return super.simplify();
+    }
+
+    @Override
     protected IParsedExpression newConstantExpression() {
         //expression will never be true
         return new ConstantExpression(0D);
