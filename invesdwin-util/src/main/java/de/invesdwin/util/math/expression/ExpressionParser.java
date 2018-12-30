@@ -112,7 +112,7 @@ public class ExpressionParser {
     }
 
     public static void registerVariable(final IVariable variable) {
-        VARIABLE_TABLE.put(variable.getName().toLowerCase(), new VariableReference(variable));
+        VARIABLE_TABLE.put(variable.getName().toLowerCase(), new VariableReference(null, variable));
     }
 
     public IExpression parse() {
@@ -370,7 +370,7 @@ public class ExpressionParser {
             if (current.matches("|")) {
                 tokenizer.consume();
                 expect(Token.TokenType.SYMBOL, "|");
-                return new FunctionCall(Functions.ABS, expression());
+                return new FunctionCall(null, Functions.ABS, expression());
             }
         } else if (current.isIdentifier()) {
             final IParsedExpression functionOrVariable = functionOrVariable();
@@ -392,10 +392,23 @@ public class ExpressionParser {
         if (tokenizer.next().isSymbol("(")) {
             return functionCall();
         }
-        final Token variableName = tokenizer.consume();
-        final IParsedExpression variable = findVariable(variableName.getContents());
+        final Token variableToken = tokenizer.consume();
+        final String variableStr = variableToken.getContents();
+        final String variableContext;
+        final String variableName;
+        if (variableStr.contains(":")) {
+            final String[] split = Strings.split(variableStr, ':');
+            variableContext = Strings.join(split, 0, split.length - 2);
+            variableName = split[split.length - 1];
+        } else {
+            variableContext = null;
+            variableName = variableStr;
+        }
+
+        final IParsedExpression variable = findVariable(variableContext, variableName);
         if (variable == null) {
-            throw new ParseException(variableName, String.format("Unknown variable: '%s'", variableName.getContents()));
+            throw new ParseException(variableToken,
+                    String.format("Unknown variable: '%s'", variableToken.getContents()));
         }
         return variable;
     }
@@ -453,9 +466,20 @@ public class ExpressionParser {
 
     protected IParsedExpression functionCall() {
         final Token funToken = tokenizer.consume();
-        final IFunction fun = findFunction(funToken.getContents());
+        final String functionStr = funToken.getContents();
+        final String functionContext;
+        final String functionName;
+        if (functionStr.contains(":")) {
+            final String[] split = Strings.split(functionStr, ':');
+            functionContext = Strings.join(split, 0, split.length - 2);
+            functionName = split[split.length - 1];
+        } else {
+            functionContext = null;
+            functionName = functionStr;
+        }
+        final IFunction fun = findFunction(functionContext, functionName);
         if (fun == null) {
-            throw new ParseException(funToken, String.format("Unknown function: '%s'", funToken.getContents()));
+            throw new ParseException(funToken, String.format("Unknown function: '%s'", functionStr));
         }
         tokenizer.consume();
         final List<IParsedExpression> parameters = new ArrayList<>();
@@ -469,45 +493,45 @@ public class ExpressionParser {
         if (parameters.size() != fun.getNumberOfArguments() && fun.getNumberOfArguments() >= 0) {
             throw new ParseException(funToken,
                     String.format("Number of arguments for function '%s' do not match. Expected: %d, Found: %d",
-                            funToken.getContents(), fun.getNumberOfArguments(), parameters.size()));
+                            functionStr, fun.getNumberOfArguments(), parameters.size()));
         }
         final IParsedExpression[] parametersArray = parameters.toArray(new IParsedExpression[parameters.size()]);
-        return new FunctionCall(fun, parametersArray);
+        return new FunctionCall(functionContext, fun, parametersArray);
     }
 
-    private IFunction findFunction(final String name) {
-        final IFunction function = getFunction(name);
+    private IFunction findFunction(final String context, final String name) {
+        final IFunction function = getFunction(context, name);
         if (function != null) {
             return function;
         }
 
         //redirect to variable if possible
-        final IParsedExpression variable = getVariable(name);
+        final IParsedExpression variable = getVariable(context, name);
         if (variable != null) {
-            return new VariableFunction(name, variable);
+            return new VariableFunction(context, name, variable);
         }
 
         return null;
     }
 
-    protected IFunction getFunction(final String name) {
+    protected IFunction getFunction(final String context, final String name) {
         return FUNCTION_TABLE.get(name);
     }
 
-    private IParsedExpression findVariable(final String name) {
-        final IParsedExpression variable = getVariable(name);
+    private IParsedExpression findVariable(final String context, final String name) {
+        final IParsedExpression variable = getVariable(context, name);
         if (variable != null) {
             return variable;
         }
         //redirect to function if possible
-        final IFunction function = getFunction(name);
+        final IFunction function = getFunction(context, name);
         if (function != null && function.getNumberOfArguments() == 0) {
-            return new FunctionCall(function);
+            return new FunctionCall(context, function);
         }
         return null;
     }
 
-    protected IParsedExpression getVariable(final String name) {
+    protected IParsedExpression getVariable(final String context, final String name) {
         final IParsedExpression variable = VARIABLE_TABLE.get(name);
         if (variable != null) {
             return variable;

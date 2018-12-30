@@ -307,4 +307,9 @@ public class BinaryOperation implements IParsedExpression {
 
     }
 
+    @Override
+    public String getContext() {
+        return null;
+    }
+
 }

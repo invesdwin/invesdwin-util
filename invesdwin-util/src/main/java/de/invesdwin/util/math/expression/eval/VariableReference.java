@@ -9,9 +9,11 @@ import de.invesdwin.util.time.fdate.FDate;
 @Immutable
 public class VariableReference implements IParsedExpression {
 
+    private final String context;
     private final IVariable var;
 
-    public VariableReference(final IVariable var) {
+    public VariableReference(final String context, final IVariable var) {
+        this.context = context;
         this.var = var;
     }
 
@@ -47,7 +49,13 @@ public class VariableReference implements IParsedExpression {
 
     @Override
     public String toString() {
-        return var.getName();
+        final StringBuilder sb = new StringBuilder();
+        if (context != null) {
+            sb.append(context);
+            sb.append(":");
+        }
+        sb.append(var.getName());
+        return sb.toString();
     }
 
     @Override
@@ -61,6 +69,11 @@ public class VariableReference implements IParsedExpression {
             return new ConstantExpression(evaluateDouble());
         }
         return this;
+    }
+
+    @Override
+    public String getContext() {
+        return context;
     }
 
 }

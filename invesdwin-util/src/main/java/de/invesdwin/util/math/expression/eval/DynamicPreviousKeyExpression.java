@@ -92,4 +92,9 @@ public class DynamicPreviousKeyExpression implements IParsedExpression {
         return expression + "[" + indexExpression + "]";
     }
 
+    @Override
+    public String getContext() {
+        return null;
+    }
+
 }

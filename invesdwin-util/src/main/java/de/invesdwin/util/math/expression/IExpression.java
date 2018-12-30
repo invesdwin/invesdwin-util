@@ -40,4 +40,6 @@ public interface IExpression {
 
     boolean isConstant();
 
+    String getContext();
+
 }

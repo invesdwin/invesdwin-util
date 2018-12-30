@@ -9,10 +9,12 @@ import de.invesdwin.util.time.fdate.FDate;
 @Immutable
 public class VariableFunction implements IFunction {
 
+    private final String context;
     private final String name;
     private final IParsedExpression variable;
 
-    public VariableFunction(final String name, final IParsedExpression variable) {
+    public VariableFunction(final String context, final String name, final IParsedExpression variable) {
+        this.context = context;
         this.name = name;
         this.variable = variable;
     }
@@ -49,7 +51,13 @@ public class VariableFunction implements IFunction {
 
     @Override
     public String toString() {
-        return name;
+        final StringBuilder sb = new StringBuilder();
+        if (context != null) {
+            sb.append(context);
+            sb.append(":");
+        }
+        sb.append(name);
+        return sb.toString();
     }
 
 }

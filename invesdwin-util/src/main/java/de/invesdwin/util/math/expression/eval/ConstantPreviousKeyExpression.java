@@ -74,4 +74,9 @@ public class ConstantPreviousKeyExpression implements IParsedExpression {
         return expression + "[" + index + "]";
     }
 
+    @Override
+    public String getContext() {
+        return null;
+    }
+
 }

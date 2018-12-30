@@ -59,4 +59,9 @@ public class ConstantExpression implements IParsedExpression {
     public IParsedExpression simplify() {
         return this;
     }
+
+    @Override
+    public String getContext() {
+        return null;
+    }
 }

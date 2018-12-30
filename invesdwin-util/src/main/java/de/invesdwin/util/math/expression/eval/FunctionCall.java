@@ -10,20 +10,24 @@ public class FunctionCall implements IParsedExpression {
 
     private static final IParsedExpression[] EMPTY_PARAMETERS = new IParsedExpression[0];
 
+    private final String context;
     private final IParsedExpression[] parameters;
     private final IFunction function;
 
-    public FunctionCall(final IFunction function, final IParsedExpression[] parameters) {
+    public FunctionCall(final String context, final IFunction function, final IParsedExpression[] parameters) {
+        this.context = context;
         this.function = function;
         this.parameters = parameters;
     }
 
-    public FunctionCall(final IFunction function, final IParsedExpression parameter) {
+    public FunctionCall(final String context, final IFunction function, final IParsedExpression parameter) {
+        this.context = context;
         this.function = function;
         this.parameters = new IParsedExpression[] { parameter };
     }
 
-    public FunctionCall(final IFunction function) {
+    public FunctionCall(final String context, final IFunction function) {
+        this.context = context;
         this.function = function;
         this.parameters = EMPTY_PARAMETERS;
     }
@@ -82,7 +86,12 @@ public class FunctionCall implements IParsedExpression {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder(function.getName());
+        final StringBuilder sb = new StringBuilder();
+        if (context != null) {
+            sb.append(context);
+            sb.append(":");
+        }
+        sb.append(function.getName());
         sb.append("(");
         for (int i = 0; i < parameters.length; i++) {
             if (i > 0) {
@@ -92,6 +101,11 @@ public class FunctionCall implements IParsedExpression {
         }
         sb.append(")");
         return sb.toString();
+    }
+
+    @Override
+    public String getContext() {
+        return null;
     }
 
 }
