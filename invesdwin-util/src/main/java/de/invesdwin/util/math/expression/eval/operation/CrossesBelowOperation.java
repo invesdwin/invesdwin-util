@@ -25,7 +25,7 @@ public class CrossesBelowOperation extends BinaryOperation {
         //crosses below => left was above but went below right
 
         final double leftValue0 = left.evaluateDouble(key);
-        final double rightValue0 = left.evaluateDouble(key);
+        final double rightValue0 = right.evaluateDouble(key);
         //left is below or equal to right
         if (leftValue0 <= rightValue0) {
             final FDate leftPreviousKey = leftPreviousKeyFunction.getPreviousKey(key, 1);
@@ -46,7 +46,7 @@ public class CrossesBelowOperation extends BinaryOperation {
         //crosses below => left was above but went below right
 
         final double leftValue0 = left.evaluateDouble(key);
-        final double rightValue0 = left.evaluateDouble(key);
+        final double rightValue0 = right.evaluateDouble(key);
         //left is below or equal to right
         if (leftValue0 <= rightValue0) {
             final int leftPreviousKey = leftPreviousKeyFunction.getPreviousKey(key, 1);
@@ -72,7 +72,7 @@ public class CrossesBelowOperation extends BinaryOperation {
         //crosses below => left was above but went below right
 
         final double leftValue0 = left.evaluateDouble(key);
-        final double rightValue0 = left.evaluateDouble(key);
+        final double rightValue0 = right.evaluateDouble(key);
         //left is below or equal to right
         if (leftValue0 <= rightValue0) {
             final FDate leftPreviousKey = leftPreviousKeyFunction.getPreviousKey(key, 1);
@@ -93,7 +93,7 @@ public class CrossesBelowOperation extends BinaryOperation {
         //crosses below => left was above but went below right
 
         final double leftValue0 = left.evaluateDouble(key);
-        final double rightValue0 = left.evaluateDouble(key);
+        final double rightValue0 = right.evaluateDouble(key);
         //left is below or equal to right
         if (leftValue0 <= rightValue0) {
             final int leftPreviousKey = leftPreviousKeyFunction.getPreviousKey(key, 1);
