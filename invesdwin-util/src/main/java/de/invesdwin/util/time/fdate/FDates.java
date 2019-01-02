@@ -563,4 +563,26 @@ public final class FDates {
         }
     }
 
+    public static int[] mapIndexes(final FDate[] fromKeys, final FDate[] toKeys) {
+        final int[] mappingFromTo = new int[fromKeys.length];
+        int toKeyIndex = 0;
+        for (int fromKeyIndex = 0; fromKeyIndex < fromKeys.length; fromKeyIndex++) {
+            final FDate fromKey = fromKeys[fromKeyIndex];
+            while (true) {
+                final int nextToKeyIndex = toKeyIndex + 1;
+                if (nextToKeyIndex >= toKeys.length) {
+                    break;
+                }
+                final FDate nextToKey = toKeys[nextToKeyIndex];
+                if (nextToKey.isBeforeOrEqualTo(fromKey)) {
+                    toKeyIndex = nextToKeyIndex;
+                } else {
+                    break;
+                }
+            }
+            mappingFromTo[fromKeyIndex] = toKeyIndex;
+        }
+        return mappingFromTo;
+    }
+
 }
