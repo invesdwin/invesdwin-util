@@ -26,7 +26,7 @@ public class DynamicPreviousKeyExpression implements IParsedExpression {
             throw new IllegalArgumentException("index should not be negative: " + index);
         }
         final FDate previousKey = previousKeyFunction.getPreviousKey(key, index);
-        return expression.evaluateDouble(previousKey);
+        return previousKeyFunction.evaluateDouble(expression, previousKey);
     }
 
     @Override
@@ -36,7 +36,7 @@ public class DynamicPreviousKeyExpression implements IParsedExpression {
             throw new IllegalArgumentException("index should not be negative: " + index);
         }
         final int previousKey = previousKeyFunction.getPreviousKey(key, index);
-        return expression.evaluateDouble(previousKey);
+        return previousKeyFunction.evaluateDouble(expression, previousKey);
     }
 
     @Override
@@ -51,7 +51,7 @@ public class DynamicPreviousKeyExpression implements IParsedExpression {
             throw new IllegalArgumentException("index should not be negative: " + index);
         }
         final FDate previousKey = previousKeyFunction.getPreviousKey(key, index);
-        return expression.evaluateBoolean(previousKey);
+        return previousKeyFunction.evaluateBoolean(expression, previousKey);
     }
 
     @Override
@@ -61,7 +61,7 @@ public class DynamicPreviousKeyExpression implements IParsedExpression {
             throw new IllegalArgumentException("index should not be negative: " + index);
         }
         final int previousKey = previousKeyFunction.getPreviousKey(key, index);
-        return expression.evaluateBoolean(previousKey);
+        return previousKeyFunction.evaluateBoolean(expression, previousKey);
     }
 
     @Override

@@ -25,13 +25,13 @@ public class ConstantPreviousKeyExpression implements IParsedExpression {
     @Override
     public double evaluateDouble(final FDate key) {
         final FDate previousKey = previousKeyFunction.getPreviousKey(key, index);
-        return expression.evaluateDouble(previousKey);
+        return previousKeyFunction.evaluateDouble(expression, previousKey);
     }
 
     @Override
     public double evaluateDouble(final int key) {
         final int previousKey = previousKeyFunction.getPreviousKey(key, index);
-        return expression.evaluateDouble(previousKey);
+        return previousKeyFunction.evaluateDouble(expression, previousKey);
     }
 
     @Override
@@ -42,13 +42,13 @@ public class ConstantPreviousKeyExpression implements IParsedExpression {
     @Override
     public boolean evaluateBoolean(final FDate key) {
         final FDate previousKey = previousKeyFunction.getPreviousKey(key, index);
-        return expression.evaluateBoolean(previousKey);
+        return previousKeyFunction.evaluateBoolean(expression, previousKey);
     }
 
     @Override
     public boolean evaluateBoolean(final int key) {
         final int previousKey = previousKeyFunction.getPreviousKey(key, index);
-        return expression.evaluateBoolean(previousKey);
+        return previousKeyFunction.evaluateBoolean(expression, previousKey);
     }
 
     @Override
