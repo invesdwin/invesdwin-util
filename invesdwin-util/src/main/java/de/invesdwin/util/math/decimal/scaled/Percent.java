@@ -155,6 +155,13 @@ public class Percent extends AScaledDecimal<Percent, PercentScale> {
         return new Percent(newValue.subtract(oldValue), oldValue.abs());
     }
 
+    /**
+     * (newValue - oldValue) / abs(oldValue)
+     */
+    public static Percent relativeDifference(final double oldValue, final double newValue) {
+        return new Percent(newValue - oldValue, Doubles.abs(oldValue));
+    }
+
     public static void putPercent(final ByteBuffer buffer, final Percent value) {
         if (value == null) {
             buffer.putDouble(Double.MIN_VALUE);
