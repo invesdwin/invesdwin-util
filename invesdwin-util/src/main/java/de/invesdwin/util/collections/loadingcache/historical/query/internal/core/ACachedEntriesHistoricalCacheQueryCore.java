@@ -86,7 +86,10 @@ public abstract class ACachedEntriesHistoricalCacheQueryCore<V> implements IHist
         return cachedPreviousEntries.get(cachedPreviousEntries.size() - 1);
     }
 
-    protected IHistoricalEntry<V> getFirstCachedEntry() {
+    protected IHistoricalEntry<V> getFirstCachedEntry() throws ResetCacheException {
+        if (cachedPreviousEntries.isEmpty()) {
+            throw new ResetCacheException("lastCachedEntry cannot be retrieved since cachedPreviousEntries is empty");
+        }
         return cachedPreviousEntries.get(0);
     }
 
