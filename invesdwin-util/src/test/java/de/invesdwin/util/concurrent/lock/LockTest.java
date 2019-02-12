@@ -2,6 +2,7 @@ package de.invesdwin.util.concurrent.lock;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import de.invesdwin.util.assertions.Assertions;
@@ -10,6 +11,7 @@ import de.invesdwin.util.time.Instant;
 
 // CHECKSTYLE:OFF
 @NotThreadSafe
+@Ignore("manual test")
 public class LockTest {
 
     private static final int ITERATIONS = 10_000_000;
