@@ -34,7 +34,6 @@
 		<version.fest-util>1.2.5</version.fest-util>
 		<version.fst>2.57</version.fst>
 		<version.jollyday>0.5.7</version.jollyday>
-		<version.dsiutils>2.5.4</version.dsiutils>
 		<version.btreemap>1.1.0</version.btreemap>
 		<version.concurrent-locks>1.0.0</version.concurrent-locks>
 		<version.classgraph>4.6.32</version.classgraph>
@@ -149,33 +148,10 @@
 		<dependency>
 			<groupId>it.unimi.dsi</groupId>
 			<artifactId>dsiutils</artifactId>
-			<version>${version.dsiutils}</version>
-			<exclusions>
-				<exclusion>
-					<groupId>ch.qos.logback</groupId>
-					<artifactId>logback-classic</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>commons-collections</groupId>
-					<artifactId>commons-collections</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>commons-logging</groupId>
-					<artifactId>commons-logging</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>commons-configuration</groupId>
-					<artifactId>commons-configuration</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>com.martiansoftware</groupId>
-					<artifactId>jsap</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.slf4j</groupId>
-					<artifactId>slf4j-api</artifactId>
-				</exclusion>
-			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>it.unimi.dsi</groupId>
+			<artifactId>fastutil</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.fasterxml.jackson.datatype</groupId>
