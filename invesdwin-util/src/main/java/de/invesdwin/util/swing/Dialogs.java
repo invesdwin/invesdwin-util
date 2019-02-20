@@ -16,6 +16,8 @@ import javax.swing.JDialog;
 import javax.swing.JEditorPane;
 import javax.swing.colorchooser.AbstractColorChooserPanel;
 import javax.swing.colorchooser.ColorChooserComponentFactory;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkEvent.EventType;
 import javax.swing.event.HyperlinkListener;
@@ -23,6 +25,7 @@ import javax.swing.event.HyperlinkListener;
 import de.invesdwin.util.concurrent.MutableReference;
 import de.invesdwin.util.lang.Reflections;
 import de.invesdwin.util.lang.uri.URIs;
+import de.invesdwin.util.swing.listener.IColorChooserListener;
 
 @Immutable
 public final class Dialogs extends javax.swing.JOptionPane {
@@ -219,9 +222,27 @@ public final class Dialogs extends javax.swing.JOptionPane {
         return ret;
     }
 
+    public static Color showColorChooserDialog(final Component component, final String name, final Color initialColor) {
+        return showColorChooserDialog(component, name, initialColor, true);
+    }
+
     public static Color showColorChooserDialog(final Component component, final String name, final Color initialColor,
-            final boolean colorTransparencySelectionEnabled) {
+            final boolean transparency) {
+        return showColorChooserDialog(component, name, initialColor, transparency, null);
+    }
+
+    public static Color showColorChooserDialog(final Component component, final String name, final Color initialColor,
+            final boolean transparency, final IColorChooserListener listener) {
         final JColorChooser pane = new JColorChooser(initialColor != null ? initialColor : Color.white);
+        if (listener != null) {
+            pane.getSelectionModel().addChangeListener(new ChangeListener() {
+                @Override
+                public void stateChanged(final ChangeEvent e) {
+                    listener.change(initialColor, pane.getColor());
+                }
+            });
+        }
+
         pane.setChooserPanels(ColorChooserComponentFactory.getDefaultChooserPanels());
         if (Reflections.classExists(EYE_DROPPER_COLOR_CHOOSER_PANEL_CLASS)) {
             final Class<Object> eyeDropperPanelClass = Reflections.classForName(EYE_DROPPER_COLOR_CHOOSER_PANEL_CLASS);
@@ -240,7 +261,7 @@ public final class Dialogs extends javax.swing.JOptionPane {
         for (final AbstractColorChooserPanel ccPanel : pane.getChooserPanels()) {
             if (setColorTransparencySelectionEnabledMethod != null) {
                 try {
-                    setColorTransparencySelectionEnabledMethod.invoke(ccPanel, colorTransparencySelectionEnabled);
+                    setColorTransparencySelectionEnabledMethod.invoke(ccPanel, transparency);
                 } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
                     throw new RuntimeException(e);
                 }
@@ -248,15 +269,25 @@ public final class Dialogs extends javax.swing.JOptionPane {
         }
         final MutableReference<Color> selectedColor = new MutableReference<>();
         selectedColor.set(initialColor);
-        final JDialog dialog = JColorChooser.createDialog(component, name, true, pane, new ActionListener() {
+        final ActionListener okListener = new ActionListener() {
             @Override
             public void actionPerformed(final ActionEvent actionEvent) {
                 final Color color = pane.getColor();
                 if (color != null) {
                     selectedColor.set(color);
                 }
+                listener.ok(initialColor, color);
             }
-        }, null);
+        };
+        final ActionListener cancelListener = new ActionListener() {
+            @Override
+            public void actionPerformed(final ActionEvent e) {
+                if (listener != null) {
+                    listener.cancel(initialColor, pane.getColor());
+                }
+            }
+        };
+        final JDialog dialog = JColorChooser.createDialog(component, name, true, pane, okListener, cancelListener);
         dialog.setVisible(true);
         return selectedColor.get();
     }

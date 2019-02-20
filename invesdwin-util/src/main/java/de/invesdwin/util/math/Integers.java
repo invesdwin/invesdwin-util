@@ -194,6 +194,10 @@ public final class Integers extends AIntegersStaticFacade {
         return max(min(value, max), min);
     }
 
+    public static int between(final int value, final int min, final int max) {
+        return max(min(value, max), min);
+    }
+
     public static <T> int[][] fixInconsistentMatrixDimensions(final int[][] matrix) {
         return fixInconsistentMatrixDimensions(matrix, DEFAULT_MISSING_VALUE);
     }
