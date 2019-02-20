@@ -1,6 +1,7 @@
 package de.invesdwin.util.collections.loadingcache.historical.query.internal.core;
 
 import java.util.Arrays;
+import java.util.ConcurrentModificationException;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -95,7 +96,7 @@ public class TrailingHistoricalCacheQueryCore<V> extends ACachedEntriesHistorica
                     final ICloseableIterable<IHistoricalEntry<V>> result = tryCachedGetPreviousEntriesIfAvailable(query,
                             key, shiftBackUnits);
                     return result;
-                } catch (final ResetCacheException e) {
+                } catch (final ResetCacheException | ConcurrentModificationException e) {
                     countResets++;
                     if (countResets % COUNT_RESETS_BEFORE_WARNING == 0
                             || AHistoricalCache.isDebugAutomaticReoptimization()) {
