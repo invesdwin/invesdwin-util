@@ -623,12 +623,14 @@ public class FDate implements IDate, Serializable, Cloneable, Comparable<Object>
         return millis >= other.millis;
     }
 
-    //CHECKSTYLE:OFF
     @Override
     public FDate clone() {
-        return new FDate(millis);
+        try {
+            return (FDate) super.clone();
+        } catch (final CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
     }
-    //CHECKSTYLE:ON
 
     public FDate getFirstWeekdayOfMonth(final FWeekday weekday) {
         final FDate firstWeekDay = withoutTime().setDay(1).setFWeekday(weekday);
