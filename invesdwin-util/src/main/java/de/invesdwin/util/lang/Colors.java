@@ -11,6 +11,8 @@ import de.invesdwin.util.math.decimal.scaled.PercentScale;
 @Immutable
 public final class Colors {
 
+    public static final Color INVISIBLE_COLOR = new Color(0, 0, 0, 0);
+
     public static final int MIN_ALPHA = 0;
     public static final int MAX_ALPHA = 255;
 
