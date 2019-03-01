@@ -25,8 +25,7 @@ import javax.swing.ImageIcon;
 @NotThreadSafe
 public class AlphaImageIcon extends ImageIcon {
 
-    private final Icon icon;
-    private Image image;
+    private final ImageIcon icon;
     private final float alpha;
 
     /**
@@ -38,7 +37,7 @@ public class AlphaImageIcon extends ImageIcon {
      * @param alpha
      *            the opacity
      */
-    public AlphaImageIcon(final Icon icon, final float alpha) {
+    public AlphaImageIcon(final ImageIcon icon, final float alpha) {
         this.icon = icon;
         this.alpha = alpha;
     }
@@ -50,7 +49,7 @@ public class AlphaImageIcon extends ImageIcon {
      */
     @Override
     public Image getImage() {
-        return image;
+        return icon.getImage();
     }
 
     /**
@@ -64,9 +63,7 @@ public class AlphaImageIcon extends ImageIcon {
      */
     @Override
     public void setImage(final Image image) {
-        if (icon instanceof ImageIcon) {
-            ((ImageIcon) icon).setImage(image);
-        }
+        icon.setImage(image);
     }
 
     /**
@@ -77,10 +74,7 @@ public class AlphaImageIcon extends ImageIcon {
      */
     @Override
     public int getImageLoadStatus() {
-        if (icon instanceof ImageIcon) {
-            return ((ImageIcon) icon).getImageLoadStatus();
-        }
-        return 0;
+        return icon.getImageLoadStatus();
     }
 
     /**
@@ -91,10 +85,7 @@ public class AlphaImageIcon extends ImageIcon {
      */
     @Override
     public ImageObserver getImageObserver() {
-        if (icon instanceof ImageIcon) {
-            return ((ImageIcon) icon).getImageObserver();
-        }
-        return null;
+        return icon.getImageObserver();
     }
 
     /**
@@ -105,9 +96,7 @@ public class AlphaImageIcon extends ImageIcon {
      */
     @Override
     public void setImageObserver(final ImageObserver observer) {
-        if (icon instanceof ImageIcon) {
-            ((ImageIcon) icon).setImageObserver(observer);
-        }
+        icon.setImageObserver(observer);
     }
 
     /**
@@ -142,11 +131,6 @@ public class AlphaImageIcon extends ImageIcon {
      */
     @Override
     public void paintIcon(final Component c, final Graphics g, final int x, final int y) {
-        if (icon instanceof ImageIcon) {
-            image = ((ImageIcon) icon).getImage();
-        } else {
-            image = null;
-        }
         final Graphics2D g2 = (Graphics2D) g.create();
         g2.setComposite(AlphaComposite.SrcAtop.derive(alpha));
         icon.paintIcon(c, g2, x, y);
