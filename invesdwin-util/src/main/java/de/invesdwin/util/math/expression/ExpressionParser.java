@@ -241,8 +241,9 @@ public class ExpressionParser {
                 return reOrder(left, right, BinaryOperation.Op.SUBTRACT);
             }
         } else if (current.isNumber() && current.getContents().startsWith("-")) {
+            current.setContent(current.getContents().substring(1));
             final IParsedExpression right = term();
-            return reOrder(left, right, BinaryOperation.Op.ADD);
+            return reOrder(left, right, BinaryOperation.Op.SUBTRACT);
         }
 
         return left;
