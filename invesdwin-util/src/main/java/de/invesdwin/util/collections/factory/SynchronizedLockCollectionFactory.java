@@ -1,6 +1,5 @@
 package de.invesdwin.util.collections.factory;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -23,10 +22,6 @@ import de.invesdwin.util.concurrent.lock.ILock;
 import de.invesdwin.util.concurrent.lock.Locks;
 import de.invesdwin.util.concurrent.nested.ANestedExecutor;
 import de.invesdwin.util.concurrent.nested.INestedExecutor;
-import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 
 @Immutable
 public final class SynchronizedLockCollectionFactory implements ILockCollectionFactory {
@@ -52,7 +47,7 @@ public final class SynchronizedLockCollectionFactory implements ILockCollectionF
 
     @Override
     public <K, V> Map<K, V> newMap() {
-        return Collections.synchronizedMap(new Object2ObjectOpenHashMap<K, V>());
+        return Collections.synchronizedMap(DisabledLockCollectionFactory.INSTANCE.newMap());
     }
 
     @Override
@@ -82,7 +77,7 @@ public final class SynchronizedLockCollectionFactory implements ILockCollectionF
 
     @Override
     public <T> List<T> newArrayList() {
-        return Collections.synchronizedList(new ArrayList<>());
+        return Collections.synchronizedList(DisabledLockCollectionFactory.INSTANCE.newArrayList());
     }
 
     @Override
@@ -97,37 +92,38 @@ public final class SynchronizedLockCollectionFactory implements ILockCollectionF
 
     @Override
     public <K, V> Map<K, V> newLinkedMap() {
-        return Collections.synchronizedMap(new Object2ObjectLinkedOpenHashMap<>());
+        return Collections.synchronizedMap(DisabledLockCollectionFactory.INSTANCE.newLinkedMap());
     }
 
     @Override
     public <T> Set<T> newSet() {
-        return Collections.synchronizedSet(new ObjectOpenHashSet<>());
+        return Collections.synchronizedSet(DisabledLockCollectionFactory.INSTANCE.newSet());
     }
 
     @Override
     public <T> Set<T> newLinkedSet() {
-        return Collections.synchronizedSet(new ObjectLinkedOpenHashSet<>());
+        return Collections.synchronizedSet(DisabledLockCollectionFactory.INSTANCE.newLinkedSet());
     }
 
     private static final class SynchronizedFastIterableMap<K, V> extends ASynchronizedFastIterableDelegateMap<K, V> {
         @Override
         protected Map<K, V> newDelegate() {
-            return new Object2ObjectOpenHashMap<>();
+            return DisabledLockCollectionFactory.INSTANCE.newMap();
         }
     }
 
     private static final class SynchronizedFastIterableSet<T> extends ASynchronizedFastIterableDelegateSet<T> {
         @Override
         protected Set<T> newDelegate() {
-            return new ObjectOpenHashSet<>();
+            return DisabledLockCollectionFactory.INSTANCE.newSet();
         }
     }
 
-    private static final class SynchronizedFastIterableLinkedMap<K, V> extends ASynchronizedFastIterableDelegateMap<K, V> {
+    private static final class SynchronizedFastIterableLinkedMap<K, V>
+            extends ASynchronizedFastIterableDelegateMap<K, V> {
         @Override
         protected Map<K, V> newDelegate() {
-            return new Object2ObjectLinkedOpenHashMap<K, V>();
+            return DisabledLockCollectionFactory.INSTANCE.newLinkedMap();
         }
     }
 
@@ -145,14 +141,15 @@ public final class SynchronizedLockCollectionFactory implements ILockCollectionF
     private static final class SynchronizedFastIterableArrayList<T> extends ASynchronizedFastIterableDelegateList<T> {
         @Override
         protected List<T> newDelegate() {
-            return new ArrayList<>();
+            return DisabledLockCollectionFactory.INSTANCE.newArrayList();
         }
     }
 
     private static final class SynchronizedFastIterableLinkedSet<T> extends ASynchronizedFastIterableDelegateSet<T> {
         @Override
         protected Set<T> newDelegate() {
-            return new ObjectLinkedOpenHashSet<>();
+            return DisabledLockCollectionFactory.INSTANCE.newLinkedSet();
         }
     }
+
 }

@@ -7,6 +7,11 @@ import java.util.Set;
 
 import javax.annotation.concurrent.Immutable;
 
+import com.google.common.collect.GuavaCompactHashMap;
+import com.google.common.collect.GuavaCompactHashSet;
+import com.google.common.collect.GuavaCompactLinkedHashMap;
+import com.google.common.collect.GuavaCompactLinkedHashSet;
+
 import de.invesdwin.util.collections.fast.AFastIterableDelegateList;
 import de.invesdwin.util.collections.fast.AFastIterableDelegateMap;
 import de.invesdwin.util.collections.fast.AFastIterableDelegateSet;
@@ -19,10 +24,6 @@ import de.invesdwin.util.concurrent.lock.ILock;
 import de.invesdwin.util.concurrent.lock.disabled.DisabledLock;
 import de.invesdwin.util.concurrent.nested.DisabledNestedExecutor;
 import de.invesdwin.util.concurrent.nested.INestedExecutor;
-import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 
 @Immutable
 public final class DisabledLockCollectionFactory implements ILockCollectionFactory {
@@ -48,7 +49,7 @@ public final class DisabledLockCollectionFactory implements ILockCollectionFacto
 
     @Override
     public <K, V> Map<K, V> newMap() {
-        return new Object2ObjectOpenHashMap<>();
+        return new GuavaCompactHashMap<>();
     }
 
     @Override
@@ -75,7 +76,7 @@ public final class DisabledLockCollectionFactory implements ILockCollectionFacto
 
     @Override
     public <K, V> Map<K, V> newConcurrentMap() {
-        return new Object2ObjectOpenHashMap<>();
+        return newMap();
     }
 
     @Override
@@ -95,51 +96,51 @@ public final class DisabledLockCollectionFactory implements ILockCollectionFacto
 
     @Override
     public <K, V> Map<K, V> newLinkedMap() {
-        return new Object2ObjectLinkedOpenHashMap<>();
+        return new GuavaCompactLinkedHashMap<>();
     }
 
     @Override
     public <T> Set<T> newSet() {
-        return new ObjectOpenHashSet<>();
+        return new GuavaCompactHashSet<>();
     }
 
     @Override
     public <T> Set<T> newLinkedSet() {
-        return new ObjectLinkedOpenHashSet<>();
+        return new GuavaCompactLinkedHashSet<>();
     }
 
     private static final class DisabledFastIterableMap<K, V> extends AFastIterableDelegateMap<K, V> {
         @Override
         protected Map<K, V> newDelegate() {
-            return new Object2ObjectOpenHashMap<>();
+            return INSTANCE.newMap();
         }
     }
 
     private static final class DisabledFastIterableSet<T> extends AFastIterableDelegateSet<T> {
         @Override
         protected Set<T> newDelegate() {
-            return new ObjectOpenHashSet<>();
+            return INSTANCE.newSet();
         }
     }
 
     private static final class DisabledFastIterableLinkedMap<K, V> extends AFastIterableDelegateMap<K, V> {
         @Override
         protected Map<K, V> newDelegate() {
-            return new Object2ObjectLinkedOpenHashMap<K, V>();
+            return INSTANCE.newLinkedMap();
         }
     }
 
     private static final class DisabledFastIterableArrayList<T> extends AFastIterableDelegateList<T> {
         @Override
         protected List<T> newDelegate() {
-            return new ArrayList<>();
+            return INSTANCE.newArrayList();
         }
     }
 
     private static final class DisabledFastIterableLinkedSet<T> extends AFastIterableDelegateSet<T> {
         @Override
         protected Set<T> newDelegate() {
-            return new ObjectLinkedOpenHashSet<>();
+            return INSTANCE.newLinkedSet();
         }
     }
 

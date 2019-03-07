@@ -27,9 +27,9 @@ import org.assertj.core.util.DateUtil;
 import org.assertj.core.util.VisibleForTesting;
 
 import de.invesdwin.util.assertions.type.internal.FDatesAssertions;
+import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.time.fdate.FDate;
 import io.netty.util.concurrent.FastThreadLocal;
-import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
 
 /**
  * Base class for all implementations of assertions for {@link FDate}s.
@@ -72,7 +72,7 @@ public class FDateAssert extends AbstractAssert<FDateAssert, FDate> {
     static FastThreadLocal<Set<DateFormat>> userDateFormats = new FastThreadLocal<Set<DateFormat>>() {
         @Override
         protected Set<DateFormat> initialValue() {
-            return new ObjectLinkedOpenHashSet<DateFormat>();
+            return ILockCollectionFactory.getInstance(false).newLinkedSet();
         }
     };
     @VisibleForTesting
