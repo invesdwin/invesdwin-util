@@ -17,14 +17,6 @@
 			<artifactId>invesdwin-norva</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>de.invesdwin</groupId>
-			<artifactId>invesdwin-util-xoroshiro</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>de.invesdwin</groupId>
-			<artifactId>invesdwin-util-koloboke</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>commons-collections</groupId>
 			<artifactId>commons-collections</artifactId>
 		</dependency>
@@ -63,6 +55,14 @@
 		<dependency>
 			<groupId>org.assertj</groupId>
 			<artifactId>assertj-joda-time</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>it.unimi.dsi</groupId>
+			<artifactId>dsiutils</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>it.unimi.dsi</groupId>
+			<artifactId>fastutil</artifactId>
 		</dependency>
 
 		<dependency>

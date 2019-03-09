@@ -7,11 +7,6 @@ import java.util.Set;
 
 import javax.annotation.concurrent.Immutable;
 
-import com.google.common.collect.GuavaCompactHashMap;
-import com.google.common.collect.GuavaCompactHashSet;
-import com.google.common.collect.GuavaCompactLinkedHashMap;
-import com.google.common.collect.GuavaCompactLinkedHashSet;
-
 import de.invesdwin.util.collections.fast.AFastIterableDelegateList;
 import de.invesdwin.util.collections.fast.AFastIterableDelegateMap;
 import de.invesdwin.util.collections.fast.AFastIterableDelegateSet;
@@ -24,6 +19,10 @@ import de.invesdwin.util.concurrent.lock.ILock;
 import de.invesdwin.util.concurrent.lock.disabled.DisabledLock;
 import de.invesdwin.util.concurrent.nested.DisabledNestedExecutor;
 import de.invesdwin.util.concurrent.nested.INestedExecutor;
+import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 
 @Immutable
 public final class DisabledLockCollectionFactory implements ILockCollectionFactory {
@@ -49,7 +48,7 @@ public final class DisabledLockCollectionFactory implements ILockCollectionFacto
 
     @Override
     public <K, V> Map<K, V> newMap() {
-        return new GuavaCompactHashMap<>();
+        return new Object2ObjectOpenHashMap<>();
     }
 
     @Override
@@ -96,17 +95,17 @@ public final class DisabledLockCollectionFactory implements ILockCollectionFacto
 
     @Override
     public <K, V> Map<K, V> newLinkedMap() {
-        return new GuavaCompactLinkedHashMap<>();
+        return new Object2ObjectLinkedOpenHashMap<>();
     }
 
     @Override
     public <T> Set<T> newSet() {
-        return new GuavaCompactHashSet<>();
+        return new ObjectOpenHashSet<>();
     }
 
     @Override
     public <T> Set<T> newLinkedSet() {
-        return new GuavaCompactLinkedHashSet<>();
+        return new ObjectLinkedOpenHashSet<>();
     }
 
     private static final class DisabledFastIterableMap<K, V> extends AFastIterableDelegateMap<K, V> {

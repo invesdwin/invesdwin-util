@@ -22,8 +22,6 @@
 
 	<modules>
 		<module>invesdwin-util</module>
-		<module>invesdwin-util-xoroshiro</module>
-		<module>invesdwin-util-koloboke</module>
 	</modules>
 
 	<properties>
@@ -51,22 +49,6 @@
 				<groupId>de.invesdwin</groupId>
 				<artifactId>invesdwin-norva</artifactId>
 				<version>${version.invesdwin-norva}</version>
-			</dependency>
-			<dependency>
-				<groupId>de.invesdwin</groupId>
-				<artifactId>invesdwin-util-xoroshiro</artifactId>
-				<version>${project.version}</version>
-				<exclusions>
-					<exclusion>
-						<groupId>*</groupId>
-						<artifactId>*</artifactId>
-					</exclusion>
-				</exclusions>
-			</dependency>
-			<dependency>
-				<groupId>de.invesdwin</groupId>
-				<artifactId>invesdwin-util-koloboke</artifactId>
-				<version>${project.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>de.jollyday</groupId>

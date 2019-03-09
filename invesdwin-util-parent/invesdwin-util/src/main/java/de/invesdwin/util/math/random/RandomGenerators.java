@@ -4,7 +4,7 @@ import javax.annotation.concurrent.Immutable;
 
 import org.apache.commons.math3.random.RandomGenerator;
 
-import de.invesdwin.util.math.random.internal.XoRoShiRo128PlusRandomGeneratorFactory;
+import it.unimi.dsi.util.XoRoShiRo128PlusRandomGenerator;
 
 @Immutable
 public final class RandomGenerators {
@@ -23,7 +23,7 @@ public final class RandomGenerators {
     }
 
     public static RandomGenerator newDefaultRandom() {
-        return XoRoShiRo128PlusRandomGeneratorFactory.newInstance();
+        return new XoRoShiRo128PlusRandomGenerator();
     }
 
 }
