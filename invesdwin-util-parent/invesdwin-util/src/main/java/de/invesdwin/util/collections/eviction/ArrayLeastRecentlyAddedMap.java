@@ -6,8 +6,8 @@ import java.util.Set;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.math.Integers;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 
 /**
  * This implemetation requires a lot less memory while being almost as fast as the commons implementation
@@ -24,11 +24,11 @@ public class ArrayLeastRecentlyAddedMap<K, V> implements Map<K, V>, IEvictionMap
     public ArrayLeastRecentlyAddedMap(final int maximumSize) {
         this.maximumSize = maximumSize;
         this.orderedKeys = new Object[0];
-        this.map = newMap(maximumSize);
+        this.map = newMap();
     }
 
-    protected Map<K, V> newMap(final int expectedSize) {
-        return new Object2ObjectOpenHashMap<>(expectedSize);
+    protected Map<K, V> newMap() {
+        return ILockCollectionFactory.getInstance(false).newMap();
     }
 
     @Override

@@ -16,15 +16,27 @@ public interface ILockCollectionFactory {
 
     ILock newLock(String name);
 
-    <T> IFastIterableSet<T> newFastIterableLinkedSet();
+    <T> List<T> newArrayList();
 
     <T> IFastIterableList<T> newFastIterableArrayList();
 
-    <K, V> Map<K, V> newMap();
-
-    <K, V> IFastIterableMap<K, V> newFastIterableLinkedMap();
+    <T> Set<T> newSet();
 
     <T> IFastIterableSet<T> newFastIterableSet();
+
+    <T> Set<T> newLinkedSet();
+
+    <T> IFastIterableSet<T> newFastIterableLinkedSet();
+
+    <K, V> Map<K, V> newMap();
+
+    <K, V> IFastIterableMap<K, V> newFastIterableMap();
+
+    <K, V> Map<K, V> newLinkedMap();
+
+    <K, V> Map<K, V> newConcurrentMap();
+
+    <K, V> IFastIterableMap<K, V> newFastIterableLinkedMap();
 
     <K, V> ALoadingCache<K, V> newLoadingCache(ALoadingCacheConfig<K, V> config);
 
@@ -43,17 +55,5 @@ public interface ILockCollectionFactory {
             return DisabledLockCollectionFactory.INSTANCE;
         }
     }
-
-    <K, V> Map<K, V> newConcurrentMap();
-
-    <T> List<T> newArrayList();
-
-    <K, V> IFastIterableMap<K, V> newFastIterableMap();
-
-    <K, V> Map<K, V> newLinkedMap();
-
-    <T> Set<T> newSet();
-
-    <T> Set<T> newLinkedSet();
 
 }

@@ -37,21 +37,6 @@ public final class DisabledLockCollectionFactory implements ILockCollectionFacto
     }
 
     @Override
-    public <T> IFastIterableSet<T> newFastIterableLinkedSet() {
-        return new DisabledFastIterableLinkedSet<T>();
-    }
-
-    @Override
-    public <T> IFastIterableList<T> newFastIterableArrayList() {
-        return new DisabledFastIterableArrayList<T>();
-    }
-
-    @Override
-    public <K, V> Map<K, V> newMap() {
-        return new Object2ObjectOpenHashMap<>();
-    }
-
-    @Override
     public INestedExecutor newNestedExecutor(final String name) {
         return DisabledNestedExecutor.INSTANCE;
     }
@@ -66,6 +51,21 @@ public final class DisabledLockCollectionFactory implements ILockCollectionFacto
         config.setHighConcurrencyOverride(false);
         config.setThreadSafeOverride(false);
         return config.newInstance();
+    }
+
+    @Override
+    public <T> IFastIterableSet<T> newFastIterableLinkedSet() {
+        return new DisabledFastIterableLinkedSet<T>();
+    }
+
+    @Override
+    public <T> IFastIterableList<T> newFastIterableArrayList() {
+        return new DisabledFastIterableArrayList<T>();
+    }
+
+    @Override
+    public <K, V> Map<K, V> newMap() {
+        return new Object2ObjectOpenHashMap<>();
     }
 
     @Override
