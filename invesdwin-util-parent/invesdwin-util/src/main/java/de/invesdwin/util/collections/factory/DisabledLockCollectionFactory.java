@@ -9,8 +9,10 @@ import java.util.Set;
 
 import javax.annotation.concurrent.Immutable;
 
-import com.koloboke.collect.map.hash.HashObjObjMaps;
-import com.koloboke.collect.set.hash.HashObjSets;
+import com.koloboke.collect.impl.hash.LHashObjSetFactoryImpl;
+import com.koloboke.collect.impl.hash.LHashParallelKVObjObjMapFactoryImpl;
+import com.koloboke.collect.map.hash.HashObjObjMapFactory;
+import com.koloboke.collect.set.hash.HashObjSetFactory;
 
 import de.invesdwin.util.collections.fast.AFastIterableDelegateList;
 import de.invesdwin.util.collections.fast.AFastIterableDelegateMap;
@@ -32,6 +34,9 @@ import uk.co.omegaprime.btreemap.BTreeMap;
 public final class DisabledLockCollectionFactory implements ILockCollectionFactory {
 
     public static final DisabledLockCollectionFactory INSTANCE = new DisabledLockCollectionFactory();
+    //ServiceLoader does not work properly during maven builds, thus directly reference the actual factories
+    private static final HashObjObjMapFactory<?, ?> kobolokeMapFactory = new LHashParallelKVObjObjMapFactoryImpl<Object, Object>();
+    private static final HashObjSetFactory<?> kobolokeSetFactory = new LHashObjSetFactoryImpl<Object>();
 
     private DisabledLockCollectionFactory() {}
 
@@ -67,10 +72,11 @@ public final class DisabledLockCollectionFactory implements ILockCollectionFacto
         return new DisabledFastIterableArrayList<T>();
     }
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
     public <K, V> Map<K, V> newMap() {
         //koboloke has the same memory efficiency as fastutil but is a bit faster
-        return HashObjObjMaps.newMutableMap();
+        return (Map) kobolokeMapFactory.newMutableMap();
     }
 
     @Override
@@ -103,10 +109,11 @@ public final class DisabledLockCollectionFactory implements ILockCollectionFacto
         return new Object2ObjectLinkedOpenHashMap<>();
     }
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
     public <T> Set<T> newSet() {
         //koboloke has the same memory efficiency as fastutil but is a bit faster
-        return HashObjSets.newMutableSet();
+        return (Set) kobolokeSetFactory.newMutableSet();
     }
 
     @Override
