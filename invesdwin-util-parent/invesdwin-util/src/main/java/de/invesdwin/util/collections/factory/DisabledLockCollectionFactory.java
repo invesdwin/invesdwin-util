@@ -1,8 +1,10 @@
 package de.invesdwin.util.collections.factory;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.NavigableMap;
 import java.util.Set;
 
 import javax.annotation.concurrent.Immutable;
@@ -23,6 +25,7 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import uk.co.omegaprime.btreemap.BTreeMap;
 
 @Immutable
 public final class DisabledLockCollectionFactory implements ILockCollectionFactory {
@@ -141,6 +144,18 @@ public final class DisabledLockCollectionFactory implements ILockCollectionFacto
         protected Set<T> newDelegate() {
             return INSTANCE.newLinkedSet();
         }
+    }
+
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @Override
+    public <K, V> NavigableMap<K, V> newTreeMap() {
+        return (NavigableMap) BTreeMap.create();
+    }
+
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @Override
+    public <K, V> NavigableMap<K, V> newTreeMap(final Comparator<? extends K> comparator) {
+        return (NavigableMap) BTreeMap.create(comparator);
     }
 
 }

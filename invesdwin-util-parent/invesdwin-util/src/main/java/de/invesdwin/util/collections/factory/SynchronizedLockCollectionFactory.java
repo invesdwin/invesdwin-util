@@ -1,8 +1,10 @@
 package de.invesdwin.util.collections.factory;
 
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.NavigableMap;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -48,6 +50,16 @@ public final class SynchronizedLockCollectionFactory implements ILockCollectionF
     @Override
     public <K, V> Map<K, V> newMap() {
         return Collections.synchronizedMap(DisabledLockCollectionFactory.INSTANCE.newMap());
+    }
+
+    @Override
+    public <K, V> NavigableMap<K, V> newTreeMap() {
+        return Collections.synchronizedNavigableMap(DisabledLockCollectionFactory.INSTANCE.newTreeMap());
+    }
+
+    @Override
+    public <K, V> NavigableMap<K, V> newTreeMap(final Comparator<? extends K> comparator) {
+        return Collections.synchronizedNavigableMap(DisabledLockCollectionFactory.INSTANCE.newTreeMap(comparator));
     }
 
     @Override

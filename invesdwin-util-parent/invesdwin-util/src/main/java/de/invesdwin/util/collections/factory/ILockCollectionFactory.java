@@ -1,7 +1,9 @@
 package de.invesdwin.util.collections.factory;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.NavigableMap;
 import java.util.Set;
 
 import de.invesdwin.util.collections.fast.IFastIterableList;
@@ -39,6 +41,10 @@ public interface ILockCollectionFactory {
     <K, V> IFastIterableMap<K, V> newFastIterableLinkedMap();
 
     <K, V> ALoadingCache<K, V> newLoadingCache(ALoadingCacheConfig<K, V> config);
+
+    <K, V> NavigableMap<K, V> newTreeMap();
+
+    <K, V> NavigableMap<K, V> newTreeMap(Comparator<? extends K> comparator);
 
     INestedExecutor newNestedExecutor(String name);
 
