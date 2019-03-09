@@ -16,10 +16,6 @@
 			<groupId>com.koloboke</groupId>
 			<artifactId>koloboke-impl-jdk8</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>com.koloboke</groupId>
-			<artifactId>koloboke-compile</artifactId>
-		</dependency>
 	</dependencies>
 
 </project>
