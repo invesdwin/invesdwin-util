@@ -56,8 +56,14 @@
 				<groupId>de.invesdwin</groupId>
 				<artifactId>invesdwin-util-xoroshiro</artifactId>
 				<version>${project.version}</version>
+				<exclusions>
+					<exclusion>
+						<groupId>*</groupId>
+						<artifactId>*</artifactId>
+					</exclusion>
+				</exclusions>
 			</dependency>
-				<dependency>
+			<dependency>
 				<groupId>de.invesdwin</groupId>
 				<artifactId>invesdwin-util-koloboke</artifactId>
 				<version>${project.version}</version>
