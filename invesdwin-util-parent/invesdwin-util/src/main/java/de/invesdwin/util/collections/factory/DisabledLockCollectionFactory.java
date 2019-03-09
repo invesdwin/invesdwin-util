@@ -10,6 +10,7 @@ import java.util.Set;
 import javax.annotation.concurrent.Immutable;
 
 import com.koloboke.collect.map.hash.HashObjObjMaps;
+import com.koloboke.collect.set.hash.HashObjSets;
 
 import de.invesdwin.util.collections.fast.AFastIterableDelegateList;
 import de.invesdwin.util.collections.fast.AFastIterableDelegateMap;
@@ -25,7 +26,6 @@ import de.invesdwin.util.concurrent.nested.DisabledNestedExecutor;
 import de.invesdwin.util.concurrent.nested.INestedExecutor;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import uk.co.omegaprime.btreemap.BTreeMap;
 
 @Immutable
@@ -105,7 +105,8 @@ public final class DisabledLockCollectionFactory implements ILockCollectionFacto
 
     @Override
     public <T> Set<T> newSet() {
-        return new ObjectOpenHashSet<>();
+        //koboloke has the same memory efficiency as fastutil but is a bit faster
+        return HashObjSets.newMutableSet();
     }
 
     @Override
