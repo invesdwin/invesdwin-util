@@ -19,7 +19,11 @@
 		</dependency>
 		<dependency>
 			<groupId>de.invesdwin</groupId>
-			<artifactId>invesdwin-util-xoroshiro-minimal</artifactId>
+			<artifactId>invesdwin-util-xoroshiro</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>de.invesdwin</groupId>
+			<artifactId>invesdwin-util-koloboke</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>commons-collections</groupId>

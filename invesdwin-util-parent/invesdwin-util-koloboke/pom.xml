@@ -9,17 +9,17 @@
 		<version>1.0.0-SNAPSHOT</version>
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
-	<artifactId>invesdwin-util-xoroshiro-minimal</artifactId>
+	<artifactId>invesdwin-util-koloboke</artifactId>
 	<packaging>jar</packaging>
 
 	<dependencies>
 		<dependency>
-			<groupId>it.unimi.dsi</groupId>
-			<artifactId>dsiutils</artifactId>
+			<groupId>com.koloboke</groupId>
+			<artifactId>koloboke-impl-jdk8</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>it.unimi.dsi</groupId>
-			<artifactId>fastutil</artifactId>
+			<groupId>com.koloboke</groupId>
+			<artifactId>koloboke-compile</artifactId>
 		</dependency>
 	</dependencies>
 

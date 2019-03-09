@@ -22,8 +22,8 @@
 
 	<modules>
 		<module>invesdwin-util</module>
-		<module>invesdwin-util-xoroshiro-minimal</module>
-		<module>invesdwin-util-koloboke-minimal</module>
+		<module>invesdwin-util-xoroshiro</module>
+		<module>invesdwin-util-koloboke</module>
 	</modules>
 
 	<properties>
@@ -54,7 +54,12 @@
 			</dependency>
 			<dependency>
 				<groupId>de.invesdwin</groupId>
-				<artifactId>invesdwin-util-xoroshiro-minimal</artifactId>
+				<artifactId>invesdwin-util-xoroshiro</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+				<dependency>
+				<groupId>de.invesdwin</groupId>
+				<artifactId>invesdwin-util-koloboke</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>

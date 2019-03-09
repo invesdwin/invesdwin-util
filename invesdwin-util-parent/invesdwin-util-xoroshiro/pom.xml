@@ -9,7 +9,7 @@
 		<version>1.0.0-SNAPSHOT</version>
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
-	<artifactId>invesdwin-util-koloboke-minimal</artifactId>
+	<artifactId>invesdwin-util-xoroshiro</artifactId>
 	<packaging>jar</packaging>
 
 	<dependencies>
