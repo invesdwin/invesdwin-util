@@ -12,13 +12,13 @@ import de.invesdwin.util.lang.Reflections;
  * apache commons LRUMap is faster than adjusted LinkedHashMap
  */
 @NotThreadSafe
-public class LeastRecentlyUsedMap<K, V> extends org.apache.commons.collections4.map.LRUMap<K, V>
+public class CommonsLeastRecentlyUsedMap<K, V> extends org.apache.commons.collections4.map.LRUMap<K, V>
         implements IEvictionMap<K, V> {
 
     private static final MethodHandle LRUMAP_MAXSIZE_SETTER;
 
     static {
-        final Field field = Reflections.findField(LeastRecentlyUsedMap.class, "maxSize");
+        final Field field = Reflections.findField(CommonsLeastRecentlyUsedMap.class, "maxSize");
         Reflections.makeAccessible(field);
         try {
             LRUMAP_MAXSIZE_SETTER = MethodHandles.lookup().unreflectSetter(field);
@@ -27,7 +27,7 @@ public class LeastRecentlyUsedMap<K, V> extends org.apache.commons.collections4.
         }
     }
 
-    public LeastRecentlyUsedMap(final int maximumSize) {
+    public CommonsLeastRecentlyUsedMap(final int maximumSize) {
         super(maximumSize);
     }
 

@@ -8,19 +8,20 @@ public enum EvictionMode {
     LeastRecentlyAdded {
         @Override
         public <K, V> IEvictionMap<K, V> newMap(final int maximumSize) {
-            return new LeastRecentlyAddedMap<>(maximumSize);
+            //we sacrifice a bit speed here to gain a halved memory consumption for historical caches
+            return new ArrayLeastRecentlyAddedMap<>(maximumSize);
         }
     },
     LeastRecentlyModified {
         @Override
         public <K, V> IEvictionMap<K, V> newMap(final int maximumSize) {
-            return new LeastRecentlyModifiedMap<>(maximumSize);
+            return new CommonsLeastRecentlyModifiedMap<>(maximumSize);
         }
     },
     LeastRecentlyUsed {
         @Override
         public <K, V> IEvictionMap<K, V> newMap(final int maximumSize) {
-            return new LeastRecentlyUsedMap<>(maximumSize);
+            return new CommonsLeastRecentlyUsedMap<>(maximumSize);
         }
     };
 

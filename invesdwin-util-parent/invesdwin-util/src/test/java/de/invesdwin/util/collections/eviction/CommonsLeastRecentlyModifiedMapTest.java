@@ -7,11 +7,11 @@ import org.junit.Test;
 import de.invesdwin.util.assertions.Assertions;
 
 @NotThreadSafe
-public class LeastRecentlyModifiedMapTest {
+public class CommonsLeastRecentlyModifiedMapTest {
 
     @Test
     public void testLeastRecentlyModifiedIsRemoved() {
-        final LeastRecentlyModifiedMap<String, Integer> map = new LeastRecentlyModifiedMap<>(3);
+        final CommonsLeastRecentlyModifiedMap<String, Integer> map = new CommonsLeastRecentlyModifiedMap<>(3);
         map.put("1", 1);
         map.put("2", 2);
         map.put("3", 3);

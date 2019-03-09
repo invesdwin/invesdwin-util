@@ -7,11 +7,11 @@ import org.junit.Test;
 import de.invesdwin.util.assertions.Assertions;
 
 @NotThreadSafe
-public class LeastRecentlyUsedMapTest {
+public class CommonsLeastRecentlyAddedMapTest {
 
     @Test
-    public void testLeastRecentlyUsedIsRemoved() {
-        final LeastRecentlyUsedMap<String, Integer> map = new LeastRecentlyUsedMap<>(3);
+    public void testLeastRecentlyAddedIsRemoved() {
+        final CommonsLeastRecentlyAddedMap<String, Integer> map = new CommonsLeastRecentlyAddedMap<>(3);
         map.put("1", 1);
         map.put("2", 2);
         map.put("3", 3);
@@ -28,7 +28,7 @@ public class LeastRecentlyUsedMapTest {
         map.put("5", 5);
         Assertions.assertThat(map).hasSize(3);
         Assertions.assertThat(map.get("1")).isNull();
-        Assertions.assertThat(map.get("3")).isNull();
+        Assertions.assertThat(map.get("2")).isNull();
     }
 
 }

@@ -7,9 +7,9 @@ import javax.annotation.concurrent.NotThreadSafe;
  * When an element is updated, it is being counted as modified. This improves performance a bit.
  */
 @NotThreadSafe
-public class LeastRecentlyModifiedMap<K, V> extends LeastRecentlyUsedMap<K, V> {
+public class CommonsLeastRecentlyModifiedMap<K, V> extends CommonsLeastRecentlyUsedMap<K, V> {
 
-    public LeastRecentlyModifiedMap(final int maximumSize) {
+    public CommonsLeastRecentlyModifiedMap(final int maximumSize) {
         super(maximumSize);
     }
 

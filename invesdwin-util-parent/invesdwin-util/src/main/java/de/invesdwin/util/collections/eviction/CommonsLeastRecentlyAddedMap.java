@@ -7,9 +7,9 @@ import javax.annotation.concurrent.NotThreadSafe;
  * Only the first time an element is added is counted. This improves performance a bit.
  */
 @NotThreadSafe
-public class LeastRecentlyAddedMap<K, V> extends LeastRecentlyModifiedMap<K, V> {
+public class CommonsLeastRecentlyAddedMap<K, V> extends CommonsLeastRecentlyModifiedMap<K, V> {
 
-    public LeastRecentlyAddedMap(final int maximumSize) {
+    public CommonsLeastRecentlyAddedMap(final int maximumSize) {
         super(maximumSize);
     }
 
