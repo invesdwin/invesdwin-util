@@ -9,23 +9,21 @@ import org.apache.commons.io.input.ClosedInputStream;
 
 import de.invesdwin.util.collections.iterable.ACloseableIterator;
 import de.invesdwin.util.error.Throwables;
+import de.invesdwin.util.lang.cleanable.ACleanableAction;
 
 @NotThreadSafe
 public abstract class ADelegateInputStream extends InputStream {
 
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(ACloseableIterator.class);
-    private final boolean debugStackTraceEnabled = Throwables.isDebugStackTraceEnabled();
-
-    private InputStream delegate;
-
-    private Exception initStackTrace;
-    private Exception readStackTrace;
+    private final WarningCleanableAction cleanable;
 
     public ADelegateInputStream() {
-        if (debugStackTraceEnabled) {
-            initStackTrace = new Exception();
-            initStackTrace.fillInStackTrace();
+        this.cleanable = new WarningCleanableAction();
+        if (cleanable.debugStackTraceEnabled) {
+            cleanable.initStackTrace = new Exception();
+            cleanable.initStackTrace.fillInStackTrace();
         }
+        cleanable.register(this);
     }
 
     @Override
@@ -34,53 +32,21 @@ public abstract class ADelegateInputStream extends InputStream {
     }
 
     protected InputStream getDelegate() {
-        if (delegate == null) {
-            delegate = newDelegate();
+        if (cleanable.delegate == null) {
+            cleanable.delegate = newDelegate();
         }
-        return delegate;
+        return cleanable.delegate;
     }
 
     protected abstract InputStream newDelegate();
 
     @Override
     public void close() throws IOException {
-        if (delegate != null) {
-            delegate.close();
-        }
-        //forget the reference to original inputstream to potentially free some memory
-        delegate = ClosedInputStream.CLOSED_INPUT_STREAM;
-    }
-
-    /**
-     * http://www.informit.com/articles/article.aspx?p=1216151&seqNum=7
-     */
-    @Override
-    protected void finalize() throws Throwable {
-        if (!isClosed()) {
-            if (delegate != null) {
-                String warning = "Finalizing unclosed " + InputStream.class.getSimpleName() + " ["
-                        + getClass().getName() + "]";
-                if (debugStackTraceEnabled) {
-                    final Exception stackTrace;
-                    if (initStackTrace != null) {
-                        warning += " which was initialized but never used";
-                        stackTrace = initStackTrace;
-                    } else {
-                        stackTrace = readStackTrace;
-                    }
-                    if (stackTrace != null) {
-                        warning += " from stacktrace:\n" + Throwables.getFullStackTrace(stackTrace);
-                    }
-                }
-                LOGGER.warn(warning);
-            }
-            close();
-        }
-        super.finalize();
+        cleanable.close();
     }
 
     public boolean isClosed() {
-        return delegate == ClosedInputStream.CLOSED_INPUT_STREAM;
+        return cleanable.isClosed();
     }
 
     @Override
@@ -100,10 +66,10 @@ public abstract class ADelegateInputStream extends InputStream {
 
     @Override
     public int read() throws IOException {
-        if (debugStackTraceEnabled && readStackTrace == null) {
-            initStackTrace = null;
-            readStackTrace = new Exception();
-            readStackTrace.fillInStackTrace();
+        if (cleanable.debugStackTraceEnabled && cleanable.readStackTrace == null) {
+            cleanable.initStackTrace = null;
+            cleanable.readStackTrace = new Exception();
+            cleanable.readStackTrace.fillInStackTrace();
         }
         final int read = getDelegate().read();
         if (shouldCloseOnMinus1Read() && read == -1) {
@@ -114,6 +80,56 @@ public abstract class ADelegateInputStream extends InputStream {
 
     protected boolean shouldCloseOnMinus1Read() {
         return true;
+    }
+
+    private static final class WarningCleanableAction extends ACleanableAction {
+
+        private final boolean debugStackTraceEnabled = Throwables.isDebugStackTraceEnabled();
+
+        private InputStream delegate;
+
+        private Exception initStackTrace;
+        private Exception readStackTrace;
+
+        @Override
+        protected void clean() {
+            if (delegate != null) {
+                try {
+                    delegate.close();
+                } catch (final IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            //forget the reference to original inputstream to potentially free some memory
+            delegate = ClosedInputStream.CLOSED_INPUT_STREAM;
+        }
+
+        @Override
+        protected void onRun() {
+            if (delegate != null) {
+                String warning = "Finalizing unclosed " + InputStream.class.getSimpleName() + " ["
+                        + getClass().getName() + "]";
+                if (debugStackTraceEnabled) {
+                    final Exception stackTrace;
+                    if (initStackTrace != null) {
+                        warning += " which was initialized but never used";
+                        stackTrace = initStackTrace;
+                    } else {
+                        stackTrace = readStackTrace;
+                    }
+                    if (stackTrace != null) {
+                        warning += " from stacktrace:\n" + Throwables.getFullStackTrace(stackTrace);
+                    }
+                }
+                LOGGER.warn(warning);
+            }
+        }
+
+        @Override
+        public boolean isClosed() {
+            return delegate == ClosedInputStream.CLOSED_INPUT_STREAM;
+        }
+
     }
 
 }

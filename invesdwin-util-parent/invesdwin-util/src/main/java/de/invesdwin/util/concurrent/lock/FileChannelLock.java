@@ -13,97 +13,63 @@ import javax.annotation.concurrent.ThreadSafe;
 
 import org.apache.commons.io.FileUtils;
 
+import de.invesdwin.util.lang.cleanable.ACleanableAction;
+
 @ThreadSafe
 public class FileChannelLock implements Closeable {
 
-    private final File file;
     @GuardedBy("this")
-    private RandomAccessFile raf;
-    @GuardedBy("this")
-    private FileChannel channel;
-    @GuardedBy("this")
-    private FileLock lock;
-    @GuardedBy("this")
-    private boolean locked;
+    private final UnlockingCleanableAction cleanable;
 
     public FileChannelLock(final File file) {
-        this.file = file;
+        this.cleanable = new UnlockingCleanableAction(file, isDeleteFileAfterUnlock());
     }
 
     public File getFile() {
-        return file;
+        return cleanable.file;
     }
 
     public synchronized boolean tryLock() {
         try {
-            if (!file.exists()) {
-                FileUtils.forceMkdirParent(file);
-                FileUtils.touch(file);
+            if (!cleanable.file.exists()) {
+                FileUtils.forceMkdirParent(cleanable.file);
+                FileUtils.touch(cleanable.file);
             }
             // Get a file channel for the file
-            raf = new RandomAccessFile(file, "rw");
-            channel = raf.getChannel();
+            cleanable.raf = new RandomAccessFile(cleanable.file, "rw");
+            cleanable.channel = cleanable.raf.getChannel();
 
             // Try acquiring the lock without blocking. This method returns
             // null or throws an exception if the file is already locked.
             try {
-                lock = channel.tryLock();
+                cleanable.lock = cleanable.channel.tryLock();
             } catch (final OverlappingFileLockException e) {
                 // File is already locked in this thread or virtual machine
                 unlock();
                 return false;
             }
-            if (lock == null) {
+            if (cleanable.lock == null) {
                 unlock();
                 return false;
             }
-            locked = true;
+            cleanable.locked = true;
+            cleanable.register(this);
             return true;
         } catch (final IOException e) {
-            throw new IllegalStateException("Unable to lock file: " + file, e);
+            throw new IllegalStateException("Unable to lock file: " + cleanable.file, e);
         }
     }
 
     public synchronized boolean isLocked() {
-        return locked;
+        return cleanable.locked;
     }
 
     public synchronized void unlock() {
-        // Release the lock - if it is not null!
-        if (lock != null) {
-            try {
-                lock.release();
-            } catch (final IOException e) {
-                //ignore
-            }
-            lock = null;
-        }
-
-        // Close the file
-        if (channel != null) {
-            try {
-                channel.close();
-            } catch (final IOException e) {
-                //ignore
-            }
-            channel = null;
-        }
-        if (raf != null) {
-            try {
-                raf.close();
-            } catch (final IOException e) {
-                //ignore
-            }
-            raf = null;
-        }
-        if (locked) {
-            locked = false;
-            deleteFileAfterUnlock();
-        }
+        cleanable.close();
     }
 
-    protected void deleteFileAfterUnlock() {
-        file.delete();
+    protected boolean isDeleteFileAfterUnlock() {
+        return true;
     }
 
     @Override
@@ -111,17 +77,69 @@ public class FileChannelLock implements Closeable {
         unlock();
     }
 
-    @Override
-    protected void finalize() throws Throwable {
-        super.finalize();
-        close();
-    }
-
     public FileChannelLock tryLockThrowing() {
         if (!tryLock()) {
-            throw new IllegalStateException("Unable to lock file: " + file);
+            throw new IllegalStateException("Unable to lock file: " + cleanable.file);
         }
         return this;
+    }
+
+    private static final class UnlockingCleanableAction extends ACleanableAction {
+
+        private final File file;
+        private final boolean deleteFileAfterUnlock;
+        private RandomAccessFile raf;
+        private FileChannel channel;
+        private FileLock lock;
+        private boolean locked;
+
+        private UnlockingCleanableAction(final File file, final boolean deleteFileAfterUnlock) {
+            this.file = file;
+            this.deleteFileAfterUnlock = deleteFileAfterUnlock;
+        }
+
+        @Override
+        protected void clean() {
+            // Release the lock - if it is not null!
+            if (lock != null) {
+                try {
+                    lock.release();
+                } catch (final IOException e) {
+                    //ignore
+                }
+                lock = null;
+            }
+
+            // Close the file
+            if (channel != null) {
+                try {
+                    channel.close();
+                } catch (final IOException e) {
+                    //ignore
+                }
+                channel = null;
+            }
+            if (raf != null) {
+                try {
+                    raf.close();
+                } catch (final IOException e) {
+                    //ignore
+                }
+                raf = null;
+            }
+            if (locked) {
+                locked = false;
+                if (deleteFileAfterUnlock) {
+                    file.delete();
+                }
+            }
+        }
+
+        @Override
+        public boolean isClosed() {
+            return locked;
+        }
+
     }
 
 }

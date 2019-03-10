@@ -88,6 +88,11 @@ public final class SynchronizedLockCollectionFactory implements ILockCollectionF
     }
 
     @Override
+    public <T> Set<T> newConcurrentSet() {
+        return Collections.newSetFromMap(newConcurrentMap());
+    }
+
+    @Override
     public <T> List<T> newArrayList() {
         return Collections.synchronizedList(DisabledLockCollectionFactory.INSTANCE.newArrayList());
     }

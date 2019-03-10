@@ -9,49 +9,81 @@ import org.apache.commons.io.output.ClosedOutputStream;
 
 import de.invesdwin.util.collections.iterable.ACloseableIterator;
 import de.invesdwin.util.error.Throwables;
+import de.invesdwin.util.lang.cleanable.ACleanableAction;
 
 @NotThreadSafe
 public abstract class ADelegateOutputStream extends OutputStream {
 
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(ACloseableIterator.class);
-    private final boolean debugStackTraceEnabled = Throwables.isDebugStackTraceEnabled();
 
-    private OutputStream delegate;
-
-    private Exception initStackTrace;
-    private Exception readStackTrace;
+    private final WarningCleanableAction cleanable;
 
     public ADelegateOutputStream() {
-        if (debugStackTraceEnabled) {
-            initStackTrace = new Exception();
-            initStackTrace.fillInStackTrace();
+        this.cleanable = new WarningCleanableAction();
+        if (cleanable.debugStackTraceEnabled) {
+            cleanable.initStackTrace = new Exception();
+            cleanable.initStackTrace.fillInStackTrace();
         }
+        cleanable.register(this);
     }
 
     protected OutputStream getDelegate() {
-        if (delegate == null) {
-            delegate = newDelegate();
+        if (cleanable.delegate == null) {
+            cleanable.delegate = newDelegate();
         }
-        return delegate;
+        return cleanable.delegate;
     }
 
     protected abstract OutputStream newDelegate();
 
     @Override
     public void close() throws IOException {
-        if (delegate != null) {
-            delegate.close();
-        }
-        //forget the reference to original outputstream to potentially free some memory
-        delegate = ClosedOutputStream.CLOSED_OUTPUT_STREAM;
+
     }
 
-    /**
-     * http://www.informit.com/articles/article.aspx?p=1216151&seqNum=7
-     */
+    public boolean isClosed() {
+        return cleanable.isClosed();
+    }
+
     @Override
-    protected void finalize() throws Throwable {
-        if (!isClosed()) {
+    public void write(final int b) throws IOException {
+        if (cleanable.debugStackTraceEnabled && cleanable.readStackTrace == null) {
+            cleanable.initStackTrace = null;
+            cleanable.readStackTrace = new Exception();
+            cleanable.readStackTrace.fillInStackTrace();
+        }
+        getDelegate().write(b);
+    }
+
+    @Override
+    public void flush() throws IOException {
+        getDelegate().flush();
+    }
+
+    private static final class WarningCleanableAction extends ACleanableAction {
+
+        private final boolean debugStackTraceEnabled = Throwables.isDebugStackTraceEnabled();
+
+        private OutputStream delegate;
+
+        private Exception initStackTrace;
+        private Exception readStackTrace;
+
+        @Override
+        protected void clean() {
+            if (delegate != null) {
+                try {
+                    delegate.close();
+                } catch (final IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            //forget the reference to original outputstream to potentially free some memory
+            delegate = ClosedOutputStream.CLOSED_OUTPUT_STREAM;
+        }
+
+        @Override
+        protected void onRun() {
             if (delegate != null) {
                 String warning = "Finalizing unclosed " + OutputStream.class.getSimpleName() + " ["
                         + getClass().getName() + "]";
@@ -69,28 +101,12 @@ public abstract class ADelegateOutputStream extends OutputStream {
                 }
                 LOGGER.warn(warning);
             }
-            close();
         }
-        super.finalize();
-    }
 
-    public boolean isClosed() {
-        return delegate == ClosedOutputStream.CLOSED_OUTPUT_STREAM;
-    }
-
-    @Override
-    public void write(final int b) throws IOException {
-        if (debugStackTraceEnabled && readStackTrace == null) {
-            initStackTrace = null;
-            readStackTrace = new Exception();
-            readStackTrace.fillInStackTrace();
+        @Override
+        public boolean isClosed() {
+            return delegate == ClosedOutputStream.CLOSED_OUTPUT_STREAM;
         }
-        getDelegate().write(b);
-    }
 
-    @Override
-    public void flush() throws IOException {
-        getDelegate().flush();
     }
-
 }

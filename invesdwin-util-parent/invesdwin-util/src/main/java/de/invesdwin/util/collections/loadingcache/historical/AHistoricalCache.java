@@ -120,16 +120,6 @@ public abstract class AHistoricalCache<V>
         return debugAutomaticReoptimization;
     }
 
-    @Override
-    protected void finalize() throws Throwable {
-        super.finalize();
-        final Integer size = getMaximumSize();
-        if (size == null || size > 0) {
-            //not checking if actually done so since during finalize the weak reference might already have been lost
-            HistoricalCacheRefreshManager.unregister(this);
-        }
-    }
-
     /**
      * null means unlimited and 0 means no caching at all.
      */

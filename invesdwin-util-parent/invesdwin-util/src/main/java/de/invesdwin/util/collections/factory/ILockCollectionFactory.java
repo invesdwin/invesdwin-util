@@ -38,6 +38,8 @@ public interface ILockCollectionFactory {
 
     <K, V> Map<K, V> newConcurrentMap();
 
+    <T> Set<T> newConcurrentSet();
+
     <K, V> IFastIterableMap<K, V> newFastIterableLinkedMap();
 
     <K, V> ALoadingCache<K, V> newLoadingCache(ALoadingCacheConfig<K, V> config);

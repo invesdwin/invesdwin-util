@@ -35,8 +35,8 @@ public final class DisabledLockCollectionFactory implements ILockCollectionFacto
 
     public static final DisabledLockCollectionFactory INSTANCE = new DisabledLockCollectionFactory();
     //ServiceLoader does not work properly during maven builds, thus directly reference the actual factories
-    private static final HashObjObjMapFactory<?, ?> kobolokeMapFactory = new LHashParallelKVObjObjMapFactoryImpl<Object, Object>();
-    private static final HashObjSetFactory<?> kobolokeSetFactory = new LHashObjSetFactoryImpl<Object>();
+    private static final HashObjObjMapFactory<?, ?> KOLOBOKE_MAP_FACTORY = new LHashParallelKVObjObjMapFactoryImpl<Object, Object>();
+    private static final HashObjSetFactory<?> KOLOBOKE_SET_FACTORY = new LHashObjSetFactoryImpl<Object>();
 
     private DisabledLockCollectionFactory() {}
 
@@ -76,7 +76,7 @@ public final class DisabledLockCollectionFactory implements ILockCollectionFacto
     @Override
     public <K, V> Map<K, V> newMap() {
         //koboloke has the same memory efficiency as fastutil but is a bit faster
-        return (Map) kobolokeMapFactory.newMutableMap();
+        return (Map) KOLOBOKE_MAP_FACTORY.newMutableMap();
     }
 
     @Override
@@ -113,7 +113,7 @@ public final class DisabledLockCollectionFactory implements ILockCollectionFacto
     @Override
     public <T> Set<T> newSet() {
         //koboloke has the same memory efficiency as fastutil but is a bit faster
-        return (Set) kobolokeSetFactory.newMutableSet();
+        return (Set) KOLOBOKE_SET_FACTORY.newMutableSet();
     }
 
     @Override
@@ -166,6 +166,11 @@ public final class DisabledLockCollectionFactory implements ILockCollectionFacto
     @Override
     public <K, V> NavigableMap<K, V> newTreeMap(final Comparator<? extends K> comparator) {
         return (NavigableMap) BTreeMap.create(comparator);
+    }
+
+    @Override
+    public <T> Set<T> newConcurrentSet() {
+        return newSet();
     }
 
 }
