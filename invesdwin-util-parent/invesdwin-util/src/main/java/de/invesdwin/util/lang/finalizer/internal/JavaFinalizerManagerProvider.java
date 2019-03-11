@@ -1,4 +1,4 @@
-package de.invesdwin.util.lang.cleanable.internal;
+package de.invesdwin.util.lang.finalizer.internal;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
@@ -11,12 +11,12 @@ import javax.annotation.concurrent.ThreadSafe;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.concurrent.Executors;
 import de.invesdwin.util.lang.Reflections;
-import de.invesdwin.util.lang.cleanable.ACleanableAction;
-import de.invesdwin.util.lang.cleanable.CleanableManager;
-import de.invesdwin.util.lang.cleanable.ICleanableReference;
+import de.invesdwin.util.lang.finalizer.AFinalizer;
+import de.invesdwin.util.lang.finalizer.FinalizerManager;
+import de.invesdwin.util.lang.finalizer.IFinalizerReference;
 
 @ThreadSafe
-public class JavaCleanableManagerProvider implements ICleanableManagerProvider {
+public class JavaFinalizerManagerProvider implements IFinalizerManagerProvider {
 
     private static final Object CLEANER;
     private static final MethodHandle CLEANER_REGISTER_METHOD;
@@ -24,7 +24,7 @@ public class JavaCleanableManagerProvider implements ICleanableManagerProvider {
 
     static {
         try {
-            final Class<Object> cleanerClass = Reflections.classForName(ICleanableManagerProvider.JAVA_CLEANER_CLASS);
+            final Class<Object> cleanerClass = Reflections.classForName(IFinalizerManagerProvider.JAVA_CLEANER_CLASS);
             final Method registerMethod = cleanerClass.getMethod("register", Object.class, Runnable.class);
             final Lookup lookup = MethodHandles.lookup();
             CLEANER_REGISTER_METHOD = lookup.unreflect(registerMethod);
@@ -32,7 +32,7 @@ public class JavaCleanableManagerProvider implements ICleanableManagerProvider {
             final Method createMethod = cleanerClass.getMethod("create", ThreadFactory.class);
 
             final ThreadFactory threadFactory = Executors
-                    .newFastThreadLocalThreadFactory(CleanableManager.class.getSimpleName());
+                    .newFastThreadLocalThreadFactory(FinalizerManager.class.getSimpleName());
             CLEANER = createMethod.invoke(null, threadFactory);
 
             final Class<Object> cleanableClass = Reflections.classForName("java.lang.ref.Cleaner.Cleanable");
@@ -43,11 +43,11 @@ public class JavaCleanableManagerProvider implements ICleanableManagerProvider {
         }
     }
 
-    private static final class CleanableInvoker implements ICleanableReference {
+    private static final class FubakuterReference implements IFinalizerReference {
 
         private Object cleanable;
 
-        private CleanableInvoker(final Object cleanable) {
+        private FubakuterReference(final Object cleanable) {
             Assertions.checkNotNull(cleanable);
             this.cleanable = cleanable;
         }
@@ -67,10 +67,10 @@ public class JavaCleanableManagerProvider implements ICleanableManagerProvider {
     }
 
     @Override
-    public ICleanableReference register(final Object obj, final ACleanableAction cleanableAction) {
+    public IFinalizerReference register(final Object obj, final AFinalizer cleanableAction) {
         try {
             final Object cleanable = CLEANER_REGISTER_METHOD.invoke(CLEANER, obj, cleanableAction);
-            return new CleanableInvoker(cleanable);
+            return new FubakuterReference(cleanable);
         } catch (final Throwable e) {
             throw new RuntimeException(e);
         }

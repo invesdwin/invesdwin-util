@@ -7,23 +7,23 @@ import javax.annotation.concurrent.NotThreadSafe;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.error.FastNoSuchElementException;
 import de.invesdwin.util.error.Throwables;
-import de.invesdwin.util.lang.cleanable.ACleanableAction;
+import de.invesdwin.util.lang.finalizer.AFinalizer;
 
 @NotThreadSafe
 public abstract class ACloseableIterator<E> implements ICloseableIterator<E> {
 
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(ACloseableIterator.class);
 
-    private final WarningCleanableAction cleanable;
+    private final CloseableIteratorFinalizer finalizer;
 
     public ACloseableIterator() {
-        this.cleanable = new WarningCleanableAction();
-        this.cleanable.register(this);
+        this.finalizer = new CloseableIteratorFinalizer();
+        this.finalizer.register(this);
     }
 
-    protected void registerCleanable(final ACleanableAction cleanableAction) {
-        Assertions.checkNull(cleanable.delegate);
-        cleanable.delegate = cleanableAction;
+    protected void registerFinalizer(final AFinalizer finalizerDelegate) {
+        Assertions.checkNull(finalizer.delegate);
+        finalizer.delegate = finalizerDelegate;
     }
 
     @Override
@@ -31,7 +31,7 @@ public abstract class ACloseableIterator<E> implements ICloseableIterator<E> {
         if (isClosed()) {
             return false;
         }
-        cleanable.createNextOrHasNextStackTrace();
+        finalizer.createNextOrHasNextStackTrace();
         final boolean hasNext = innerHasNext();
         if (!hasNext) {
             close();
@@ -46,7 +46,7 @@ public abstract class ACloseableIterator<E> implements ICloseableIterator<E> {
         if (isClosed()) {
             throw new FastNoSuchElementException("ACloseableIterator: next blocked because already closed");
         }
-        cleanable.createNextOrHasNextStackTrace();
+        finalizer.createNextOrHasNextStackTrace();
         final E next;
         try {
             next = innerNext();
@@ -77,22 +77,22 @@ public abstract class ACloseableIterator<E> implements ICloseableIterator<E> {
 
     @Override
     public final void close() {
-        cleanable.close();
+        finalizer.close();
     }
 
     public boolean isClosed() {
-        return cleanable.isClosed();
+        return finalizer.isClosed();
     }
 
-    private static final class WarningCleanableAction extends ACleanableAction {
+    private static final class CloseableIteratorFinalizer extends AFinalizer {
 
         private final boolean debugStackTraceEnabled = Throwables.isDebugStackTraceEnabled();
         private Exception initStackTrace;
         private Exception nextOrHasNextStackTrace;
-        private ACleanableAction delegate;
+        private AFinalizer delegate;
         private volatile boolean closed;
 
-        private WarningCleanableAction() {
+        private CloseableIteratorFinalizer() {
             createInitStackTrace();
         }
 

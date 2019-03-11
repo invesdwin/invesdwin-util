@@ -17,7 +17,7 @@ import de.invesdwin.util.concurrent.Executors;
 import de.invesdwin.util.concurrent.WrappedExecutorService;
 import de.invesdwin.util.concurrent.lock.Locks;
 import de.invesdwin.util.error.FastNoSuchElementException;
-import de.invesdwin.util.lang.cleanable.ACleanableAction;
+import de.invesdwin.util.lang.finalizer.AFinalizer;
 
 @NotThreadSafe
 public abstract class AGenericProducerQueueIterator<E> extends ACloseableIterator<E> {
@@ -35,11 +35,11 @@ public abstract class AGenericProducerQueueIterator<E> extends ACloseableIterato
                 };
                 AGenericProducerQueueIterator.this.internalProduce(consumer);
             } catch (final NoSuchElementException e) {
-                executorCleanableAction.close();
+                finalizer.close();
                 internalCloseProducer();
             } finally {
                 //closing does not prevent queue from getting drained completely
-                executorCleanableAction.close();
+                finalizer.close();
                 internalCloseProducer();
             }
         }
@@ -51,7 +51,7 @@ public abstract class AGenericProducerQueueIterator<E> extends ACloseableIterato
                     final boolean added = queue.offer(element);
                     if (!added && queue.remainingCapacity() == 0) {
                         if (utilizationDebugEnabled) {
-                            LOGGER.info(String.format("%s: queue is full", executorCleanableAction.name));
+                            LOGGER.info(String.format("%s: queue is full", finalizer.name));
                         }
                         drainedLock.lock();
                         try {
@@ -69,7 +69,7 @@ public abstract class AGenericProducerQueueIterator<E> extends ACloseableIterato
                 }
             } catch (final InterruptedException e) {
                 Thread.currentThread().interrupt();
-                executorCleanableAction.close();
+                finalizer.close();
                 internalCloseProducer();
             }
         }
@@ -80,7 +80,7 @@ public abstract class AGenericProducerQueueIterator<E> extends ACloseableIterato
             .getLogger(AGenericProducerQueueIterator.class);
 
     private final BlockingQueue<E> queue;
-    private final ExecutorCleanableAction executorCleanableAction;
+    private final GenericProducerQueueIteratorFinalizer finalizer;
 
     @GuardedBy("this")
     private E nextElement;
@@ -97,8 +97,8 @@ public abstract class AGenericProducerQueueIterator<E> extends ACloseableIterato
     }
 
     public AGenericProducerQueueIterator(final String name, final int queueSize) {
-        this.executorCleanableAction = new ExecutorCleanableAction(name);
-        registerCleanable(executorCleanableAction);
+        this.finalizer = new GenericProducerQueueIteratorFinalizer(name);
+        registerFinalizer(finalizer);
         this.queue = new LinkedBlockingDeque<E>(queueSize);
         this.queueSize = queueSize;
         this.drainedLock = Locks
@@ -107,8 +107,8 @@ public abstract class AGenericProducerQueueIterator<E> extends ACloseableIterato
     }
 
     protected void start() {
-        executorCleanableAction.started = true;
-        executorCleanableAction.executor.execute(new ProducerRunnable());
+        finalizer.started = true;
+        finalizer.executor.execute(new ProducerRunnable());
         //read first element
         this.nextElement = readNext();
     }
@@ -133,7 +133,7 @@ public abstract class AGenericProducerQueueIterator<E> extends ACloseableIterato
     protected synchronized boolean innerHasNext() {
         final boolean hasNext = !isInnerClosed() || !queue.isEmpty() || nextElement != null;
         if (!hasNext) {
-            executorCleanableAction.close();
+            finalizer.close();
         }
         return hasNext;
     }
@@ -162,7 +162,7 @@ public abstract class AGenericProducerQueueIterator<E> extends ACloseableIterato
             boolean firstPoll = true;
             while (hasNext()) {
                 if (!firstPoll && utilizationDebugEnabled) {
-                    LOGGER.info(String.format("%s: queue is empty", executorCleanableAction.name));
+                    LOGGER.info(String.format("%s: queue is empty", finalizer.name));
                 }
                 firstPoll = false;
                 final E element = queue.poll(1, TimeUnit.SECONDS);
@@ -184,17 +184,17 @@ public abstract class AGenericProducerQueueIterator<E> extends ACloseableIterato
     }
 
     protected boolean isInnerClosed() {
-        return executorCleanableAction.isClosed();
+        return finalizer.isClosed();
     }
 
-    private static final class ExecutorCleanableAction extends ACleanableAction {
+    private static final class GenericProducerQueueIteratorFinalizer extends AFinalizer {
 
         private final String name;
         private WrappedExecutorService executor;
         private boolean started;
         private volatile boolean closed;
 
-        private ExecutorCleanableAction(final String name) {
+        private GenericProducerQueueIteratorFinalizer(final String name) {
             this.name = name;
             this.executor = Executors.newFixedThreadPool(name, 1);
         }

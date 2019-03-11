@@ -9,21 +9,21 @@ import org.apache.commons.io.input.ClosedInputStream;
 
 import de.invesdwin.util.collections.iterable.ACloseableIterator;
 import de.invesdwin.util.error.Throwables;
-import de.invesdwin.util.lang.cleanable.ACleanableAction;
+import de.invesdwin.util.lang.finalizer.AFinalizer;
 
 @NotThreadSafe
 public abstract class ADelegateInputStream extends InputStream {
 
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(ACloseableIterator.class);
-    private final WarningCleanableAction cleanable;
+    private final DelegateInputStreamFinalizer finalizer;
 
     public ADelegateInputStream() {
-        this.cleanable = new WarningCleanableAction();
-        if (cleanable.debugStackTraceEnabled) {
-            cleanable.initStackTrace = new Exception();
-            cleanable.initStackTrace.fillInStackTrace();
+        this.finalizer = new DelegateInputStreamFinalizer();
+        if (finalizer.debugStackTraceEnabled) {
+            finalizer.initStackTrace = new Exception();
+            finalizer.initStackTrace.fillInStackTrace();
         }
-        cleanable.register(this);
+        finalizer.register(this);
     }
 
     @Override
@@ -32,21 +32,21 @@ public abstract class ADelegateInputStream extends InputStream {
     }
 
     protected InputStream getDelegate() {
-        if (cleanable.delegate == null) {
-            cleanable.delegate = newDelegate();
+        if (finalizer.delegate == null) {
+            finalizer.delegate = newDelegate();
         }
-        return cleanable.delegate;
+        return finalizer.delegate;
     }
 
     protected abstract InputStream newDelegate();
 
     @Override
     public void close() throws IOException {
-        cleanable.close();
+        finalizer.close();
     }
 
     public boolean isClosed() {
-        return cleanable.isClosed();
+        return finalizer.isClosed();
     }
 
     @Override
@@ -66,10 +66,10 @@ public abstract class ADelegateInputStream extends InputStream {
 
     @Override
     public int read() throws IOException {
-        if (cleanable.debugStackTraceEnabled && cleanable.readStackTrace == null) {
-            cleanable.initStackTrace = null;
-            cleanable.readStackTrace = new Exception();
-            cleanable.readStackTrace.fillInStackTrace();
+        if (finalizer.debugStackTraceEnabled && finalizer.readStackTrace == null) {
+            finalizer.initStackTrace = null;
+            finalizer.readStackTrace = new Exception();
+            finalizer.readStackTrace.fillInStackTrace();
         }
         final int read = getDelegate().read();
         if (shouldCloseOnMinus1Read() && read == -1) {
@@ -82,7 +82,7 @@ public abstract class ADelegateInputStream extends InputStream {
         return true;
     }
 
-    private static final class WarningCleanableAction extends ACleanableAction {
+    private static final class DelegateInputStreamFinalizer extends AFinalizer {
 
         private final boolean debugStackTraceEnabled = Throwables.isDebugStackTraceEnabled();
 

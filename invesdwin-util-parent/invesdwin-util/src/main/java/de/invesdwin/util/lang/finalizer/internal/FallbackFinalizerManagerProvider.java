@@ -1,4 +1,4 @@
-package de.invesdwin.util.lang.cleanable.internal;
+package de.invesdwin.util.lang.finalizer.internal;
 
 import java.lang.ref.PhantomReference;
 import java.lang.ref.ReferenceQueue;
@@ -11,20 +11,23 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.factory.ILockCollectionFactory;
-import de.invesdwin.util.lang.cleanable.ACleanableAction;
-import de.invesdwin.util.lang.cleanable.CleanableManager;
-import de.invesdwin.util.lang.cleanable.ICleanableReference;
+import de.invesdwin.util.lang.finalizer.AFinalizer;
+import de.invesdwin.util.lang.finalizer.FinalizerManager;
+import de.invesdwin.util.lang.finalizer.IFinalizerReference;
 import de.invesdwin.util.time.duration.Duration;
 import de.invesdwin.util.time.fdate.FTimeUnit;
 import io.netty.util.concurrent.FastThreadLocalThread;
 
+/**
+ * Adapted from io.netty.util.internal.ObjectCleaner
+ */
 @NotThreadSafe
-public class FallbackCleanableManagerProvider implements ICleanableManagerProvider {
+public class FallbackFinalizerManagerProvider implements IFinalizerManagerProvider {
 
     private static final int REFERENCE_QUEUE_POLL_TIMEOUT_MS = Duration.ONE_SECOND.intValue(FTimeUnit.MILLISECONDS);
 
     // This will hold a reference to the AutomaticCleanerReference which will be removed once we called cleanup()
-    private static final Set<AutomaticCleanerReference> ID_CLEANABLE = ILockCollectionFactory.getInstance(true)
+    private static final Set<AutomaticCleanerReference> CLEANERS = ILockCollectionFactory.getInstance(true)
             .newConcurrentSet();
     private static final ReferenceQueue<Object> REFERENCE_QUEUE = new ReferenceQueue<Object>();
     private static final AtomicBoolean CLEANER_RUNNING = new AtomicBoolean(false);
@@ -35,7 +38,7 @@ public class FallbackCleanableManagerProvider implements ICleanableManagerProvid
             while (true) {
                 // Keep on processing as long as the LIVE_SET is not empty and once it becomes empty
                 // See if we can let this thread complete.
-                while (!ID_CLEANABLE.isEmpty()) {
+                while (!CLEANERS.isEmpty()) {
                     final AutomaticCleanerReference reference;
                     try {
                         reference = (AutomaticCleanerReference) REFERENCE_QUEUE.remove(REFERENCE_QUEUE_POLL_TIMEOUT_MS);
@@ -51,14 +54,14 @@ public class FallbackCleanableManagerProvider implements ICleanableManagerProvid
                             // ignore exceptions, and don't log in case the logger throws an exception, blocks, or has
                             // other unexpected side effects.
                         }
-                        ID_CLEANABLE.remove(reference);
+                        CLEANERS.remove(reference);
                     }
                 }
                 CLEANER_RUNNING.set(false);
 
                 // Its important to first access the LIVE_SET and then CLEANER_RUNNING to ensure correct
                 // behavior in multi-threaded environments.
-                if (ID_CLEANABLE.isEmpty() || !CLEANER_RUNNING.compareAndSet(false, true)) {
+                if (CLEANERS.isEmpty() || !CLEANER_RUNNING.compareAndSet(false, true)) {
                     // There was nothing added after we set STARTED to false or some other cleanup Thread
                     // was started already so its safe to let this Thread complete now.
                     break;
@@ -79,13 +82,13 @@ public class FallbackCleanableManagerProvider implements ICleanableManagerProvid
      * anymore because it is not a cheap way to handle the cleanup.
      */
     @Override
-    public ICleanableReference register(final Object obj, final ACleanableAction action) {
+    public IFinalizerReference register(final Object obj, final AFinalizer finalizer) {
         Assertions.checkNotNull(obj);
-        Assertions.checkNotNull(action);
-        final AutomaticCleanerReference reference = new AutomaticCleanerReference(obj, action);
+        Assertions.checkNotNull(finalizer);
+        final AutomaticCleanerReference reference = new AutomaticCleanerReference(obj, finalizer);
         // Its important to add the reference to the LIVE_SET before we access CLEANER_RUNNING to ensure correct
         // behavior in multi-threaded environments.
-        ID_CLEANABLE.add(reference);
+        CLEANERS.add(reference);
 
         // Check if there is already a cleaner running.
         if (CLEANER_RUNNING.compareAndSet(false, true)) {
@@ -103,7 +106,7 @@ public class FallbackCleanableManagerProvider implements ICleanableManagerProvid
                     return null;
                 }
             });
-            cleanupThread.setName(CleanableManager.class.getSimpleName());
+            cleanupThread.setName(FinalizerManager.class.getSimpleName());
 
             // Mark this as a daemon thread to ensure that we the JVM can exit if this is the only thread that is
             // running.
@@ -111,7 +114,7 @@ public class FallbackCleanableManagerProvider implements ICleanableManagerProvid
             cleanupThread.start();
         }
 
-        return new CleanableInvoker(reference);
+        return new FinalizerReference(reference);
     }
 
     private static final class AutomaticCleanerReference extends PhantomReference<Object> {
@@ -133,16 +136,16 @@ public class FallbackCleanableManagerProvider implements ICleanableManagerProvid
 
         @Override
         public void clear() {
-            ID_CLEANABLE.remove(this);
+            CLEANERS.remove(this);
             super.clear();
         }
     }
 
-    public static final class CleanableInvoker implements ICleanableReference {
+    public static final class FinalizerReference implements IFinalizerReference {
 
         private AutomaticCleanerReference reference;
 
-        public CleanableInvoker(final AutomaticCleanerReference ref) {
+        public FinalizerReference(final AutomaticCleanerReference ref) {
             Assertions.checkNotNull(ref);
             this.reference = ref;
         }

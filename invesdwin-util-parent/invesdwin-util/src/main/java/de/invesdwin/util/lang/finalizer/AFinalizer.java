@@ -1,16 +1,16 @@
-package de.invesdwin.util.lang.cleanable;
+package de.invesdwin.util.lang.finalizer;
 
 import java.io.Closeable;
 import java.io.IOException;
 
-import javax.annotation.concurrent.ThreadSafe;
+import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.assertions.Assertions;
 
-@ThreadSafe
-public abstract class ACleanableAction implements Closeable, Runnable {
+@NotThreadSafe
+public abstract class AFinalizer implements Closeable, Runnable {
 
-    private ICleanableReference cleanableReference;
+    private IFinalizerReference finalizerReference;
 
     /**
      * the actual action
@@ -23,17 +23,14 @@ public abstract class ACleanableAction implements Closeable, Runnable {
     @Override
     public final void close() {
         if (!isClosed()) {
-            synchronized (this) {
-                if (!isClosed()) {
-                    onClose();
-                    clean();
-                    if (cleanableReference != null) {
-                        cleanableReference.cleanReference();
-                        cleanableReference = null;
-                    }
-                }
+            onClose();
+            clean();
+            if (finalizerReference != null) {
+                finalizerReference.cleanReference();
+                finalizerReference = null;
             }
         }
+
     }
 
     protected void onClose() {}
@@ -46,12 +43,8 @@ public abstract class ACleanableAction implements Closeable, Runnable {
     @Override
     public final void run() {
         if (!isClosed()) {
-            synchronized (this) {
-                if (!isClosed()) {
-                    onRun();
-                    clean();
-                }
-            }
+            onRun();
+            clean();
         }
     }
 
@@ -59,10 +52,10 @@ public abstract class ACleanableAction implements Closeable, Runnable {
 
     protected void onRun() {}
 
-    public static ACleanableAction valueOfCloseable(final Closeable closeable) {
-        return new ACleanableAction() {
+    public static AFinalizer valueOfCloseable(final Closeable closeable) {
+        return new AFinalizer() {
 
-            private volatile Closeable delegate = closeable;
+            private Closeable delegate = closeable;
 
             @Override
             protected void clean() {
@@ -81,9 +74,9 @@ public abstract class ACleanableAction implements Closeable, Runnable {
         };
     }
 
-    public static ACleanableAction valueOfRunnable(final Runnable runnable) {
-        return new ACleanableAction() {
-            private volatile Runnable delegate = runnable;
+    public static AFinalizer valueOfRunnable(final Runnable runnable) {
+        return new AFinalizer() {
+            private Runnable delegate = runnable;
 
             @Override
             protected void clean() {
@@ -98,10 +91,10 @@ public abstract class ACleanableAction implements Closeable, Runnable {
         };
     }
 
-    public static ACleanableAction valueOfCombined(final ACleanableAction... cleanableActions) {
-        return new ACleanableAction() {
+    public static AFinalizer valueOfCombined(final AFinalizer... finalizers) {
+        return new AFinalizer() {
 
-            private volatile ACleanableAction[] delegates = cleanableActions;
+            private AFinalizer[] delegates = finalizers;
 
             @Override
             protected void clean() {
@@ -130,16 +123,16 @@ public abstract class ACleanableAction implements Closeable, Runnable {
     }
 
     public void register(final Object obj) {
-        Assertions.checkNull(cleanableReference);
-        this.cleanableReference = CleanableManager.register(obj, this);
+        Assertions.checkNull(finalizerReference);
+        this.finalizerReference = FinalizerManager.register(obj, this);
     }
 
-    public ICleanableReference getCleanableReference() {
-        return cleanableReference;
+    public IFinalizerReference getFinalizerReference() {
+        return finalizerReference;
     }
 
-    public void setCleanableReference(final ICleanableReference cleanableReference) {
-        this.cleanableReference = cleanableReference;
+    public void setFinalizerReference(final IFinalizerReference cleanableReference) {
+        this.finalizerReference = cleanableReference;
     }
 
 }
