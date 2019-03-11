@@ -21,9 +21,9 @@ public abstract class ACloseableIterator<E> implements ICloseableIterator<E> {
         this.finalizer.register(this);
     }
 
-    protected void registerFinalizer(final AFinalizer finalizerDelegate) {
-        Assertions.checkNull(finalizer.delegate);
-        finalizer.delegate = finalizerDelegate;
+    protected void registerFinalizer(final AFinalizer finalizer) {
+        Assertions.checkNull(this.finalizer.delegate);
+        this.finalizer.delegate = finalizer;
     }
 
     @Override
