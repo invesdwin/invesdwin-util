@@ -200,10 +200,14 @@ public abstract class AGenericProducerQueueIterator<E> extends ACloseableIterato
         }
 
         @Override
-        protected void clean() {
+        protected void onClose() {
             if (!started) {
                 throw new IllegalStateException("start() was forgotten to be called right after the constructor");
             }
+        }
+
+        @Override
+        protected void clean() {
             //cannot wait here for executor to close completely since the thread could trigger it himself
             executor.shutdown();
             executor = null;

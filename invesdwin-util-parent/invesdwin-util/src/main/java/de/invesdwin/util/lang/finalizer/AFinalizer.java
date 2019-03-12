@@ -6,9 +6,12 @@ import java.io.IOException;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.assertions.Assertions;
+import de.invesdwin.util.error.Throwables;
 
 @NotThreadSafe
 public abstract class AFinalizer implements Closeable, Runnable {
+
+    private static final org.slf4j.ext.XLogger LOG = org.slf4j.ext.XLoggerFactory.getXLogger(AFinalizer.class);
 
     private IFinalizerReference finalizerReference;
 
@@ -42,9 +45,14 @@ public abstract class AFinalizer implements Closeable, Runnable {
     @Deprecated
     @Override
     public final void run() {
-        if (!isClosed()) {
-            onRun();
-            clean();
+        try {
+            if (!isClosed()) {
+                onRun();
+                clean();
+            }
+        } catch (final Throwable t) {
+            //don't propagate exceptions here or else the reference handling might eat the exception and worst case stop itself
+            LOG.error("Exception in finalizer [%s]: %s", getClass().getName(), Throwables.getFullStackTrace(t));
         }
     }
 
