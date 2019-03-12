@@ -19,11 +19,7 @@ public abstract class ADelegateInputStream extends InputStream {
 
     public ADelegateInputStream() {
         this.finalizer = new DelegateInputStreamFinalizer();
-        if (finalizer.debugStackTraceEnabled) {
-            finalizer.initStackTrace = new Exception();
-            finalizer.initStackTrace.fillInStackTrace();
-        }
-        finalizer.register(this);
+        this.finalizer.register(this);
     }
 
     @Override
@@ -90,6 +86,13 @@ public abstract class ADelegateInputStream extends InputStream {
 
         private Exception initStackTrace;
         private Exception readStackTrace;
+
+        private DelegateInputStreamFinalizer() {
+            if (debugStackTraceEnabled) {
+                initStackTrace = new Exception();
+                initStackTrace.fillInStackTrace();
+            }
+        }
 
         @Override
         protected void clean() {

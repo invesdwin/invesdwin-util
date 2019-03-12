@@ -20,11 +20,7 @@ public abstract class ADelegateOutputStream extends OutputStream {
 
     public ADelegateOutputStream() {
         this.finalizer = new DelegateOutputStreamFinalizer();
-        if (finalizer.debugStackTraceEnabled) {
-            finalizer.initStackTrace = new Exception();
-            finalizer.initStackTrace.fillInStackTrace();
-        }
-        finalizer.register(this);
+        this.finalizer.register(this);
     }
 
     protected OutputStream getDelegate() {
@@ -68,6 +64,13 @@ public abstract class ADelegateOutputStream extends OutputStream {
 
         private Exception initStackTrace;
         private Exception readStackTrace;
+
+        private DelegateOutputStreamFinalizer() {
+            if (debugStackTraceEnabled) {
+                initStackTrace = new Exception();
+                initStackTrace.fillInStackTrace();
+            }
+        }
 
         @Override
         protected void clean() {

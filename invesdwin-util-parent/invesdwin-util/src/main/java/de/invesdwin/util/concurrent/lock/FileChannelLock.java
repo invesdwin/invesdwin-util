@@ -137,7 +137,7 @@ public class FileChannelLock implements Closeable {
 
         @Override
         public boolean isClosed() {
-            return locked;
+            return !locked;
         }
 
     }
