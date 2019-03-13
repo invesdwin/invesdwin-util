@@ -4,7 +4,6 @@ import java.util.NoSuchElementException;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.error.FastNoSuchElementException;
 import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.lang.finalizer.AFinalizer;
@@ -19,11 +18,6 @@ public abstract class ACloseableIterator<E> implements ICloseableIterator<E> {
     public ACloseableIterator() {
         this.finalizer = new CloseableIteratorFinalizer();
         this.finalizer.register(this);
-    }
-
-    protected void registerFinalizer(final AFinalizer finalizer) {
-        Assertions.checkNull(this.finalizer.delegate);
-        this.finalizer.delegate = finalizer;
     }
 
     @Override
@@ -89,7 +83,6 @@ public abstract class ACloseableIterator<E> implements ICloseableIterator<E> {
         private final boolean debugStackTraceEnabled = Throwables.isDebugStackTraceEnabled();
         private Exception initStackTrace;
         private Exception nextOrHasNextStackTrace;
-        private AFinalizer delegate;
         private volatile boolean closed;
 
         private CloseableIteratorFinalizer() {
@@ -100,7 +93,6 @@ public abstract class ACloseableIterator<E> implements ICloseableIterator<E> {
         protected void clean() {
             initStackTrace = null;
             nextOrHasNextStackTrace = null;
-            delegate = null;
             closed = true;
         }
 
@@ -108,16 +100,6 @@ public abstract class ACloseableIterator<E> implements ICloseableIterator<E> {
         @Override
         public void onRun() {
             createUnclosedFinalizeMessageLog();
-            if (delegate != null) {
-                delegate.run();
-            }
-        }
-
-        @Override
-        public void onClose() {
-            if (delegate != null) {
-                delegate.close();
-            }
         }
 
         private void createInitStackTrace() {

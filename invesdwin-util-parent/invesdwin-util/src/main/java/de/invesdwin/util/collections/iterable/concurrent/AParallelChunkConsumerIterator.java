@@ -32,7 +32,7 @@ public abstract class AParallelChunkConsumerIterator<R, E> extends ACloseableIte
     public AParallelChunkConsumerIterator(final String name, final ICloseableIterator<R> requests,
             final int chunkSize) {
         this.finalizer = new ParallelChunkConsumerIteratorFinalizer<>(name, requests, chunkSize);
-        registerFinalizer(finalizer);
+        this.finalizer.register(this);
         this.futures = new ArrayList<Future<E>>(chunkSize);
     }
 
@@ -43,8 +43,8 @@ public abstract class AParallelChunkConsumerIterator<R, E> extends ACloseableIte
 
     @Override
     protected synchronized E innerNext() {
-        while (finalizer.requests.hasNext() && finalizer.consumerExecutor
-                .getPendingCount() < finalizer.consumerExecutor.getFullPendingCount()
+        while (finalizer.requests.hasNext()
+                && finalizer.consumerExecutor.getPendingCount() < finalizer.consumerExecutor.getFullPendingCount()
                 && futures.size() < finalizer.chunkSize) {
             final R request = finalizer.requests.next();
             final Future<E> submit = finalizer.consumerExecutor.submit(new Callable<E>() {
@@ -75,7 +75,8 @@ public abstract class AParallelChunkConsumerIterator<R, E> extends ACloseableIte
         private ICloseableIterator<_R> requests;
         private WrappedExecutorService consumerExecutor;
 
-        private ParallelChunkConsumerIteratorFinalizer(final String name, final ICloseableIterator<_R> requests, final int chunkSize) {
+        private ParallelChunkConsumerIteratorFinalizer(final String name, final ICloseableIterator<_R> requests,
+                final int chunkSize) {
             this.chunkSize = chunkSize;
             this.requests = requests;
             this.consumerExecutor = Executors.newFixedThreadPool(name, chunkSize);
