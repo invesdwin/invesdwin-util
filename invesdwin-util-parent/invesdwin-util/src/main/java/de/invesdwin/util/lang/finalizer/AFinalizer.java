@@ -4,7 +4,6 @@ import java.io.Closeable;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.error.Throwables;
 
 @NotThreadSafe
@@ -66,9 +65,13 @@ public abstract class AFinalizer implements Closeable, Runnable {
 
     protected void onRun() {}
 
+    /**
+     * If already registered, this method does nothing
+     */
     public void register(final Object obj) {
-        Assertions.checkNull(reference);
-        this.reference = FinalizerManager.register(obj, this);
+        if (this.reference == null) {
+            this.reference = FinalizerManager.register(obj, this);
+        }
     }
 
     public IFinalizerReference getReference() {
