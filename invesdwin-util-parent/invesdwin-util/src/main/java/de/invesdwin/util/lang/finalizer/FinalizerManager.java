@@ -11,6 +11,8 @@ import de.invesdwin.util.lang.finalizer.internal.JavaFinalizerManagerProvider;
 @ThreadSafe
 public final class FinalizerManager {
 
+    private static final org.slf4j.ext.XLogger LOG = org.slf4j.ext.XLoggerFactory.getXLogger(FinalizerManager.class);
+
     private static final IFinalizerManagerProvider PROVIDER;
 
     static {
@@ -25,7 +27,11 @@ public final class FinalizerManager {
 
     public static IFinalizerReference register(final Object obj, final AFinalizer finalizer) {
         if (Throwables.isDebugStackTraceEnabled()) {
-            Reflections.assertObjectNotReferenced(obj, finalizer);
+            try {
+                Reflections.assertObjectNotReferenced(obj, finalizer);
+            } catch (final Throwable t) {
+                LOG.error(Throwables.getFullStackTrace(t));
+            }
         }
         return PROVIDER.register(obj, finalizer);
     }

@@ -35,7 +35,7 @@ public class JavaFinalizerManagerProvider implements IFinalizerManagerProvider {
                     .newFastThreadLocalThreadFactory(FinalizerManager.class.getSimpleName());
             CLEANER = createMethod.invoke(null, threadFactory);
 
-            final Class<Object> cleanableClass = Reflections.classForName("java.lang.ref.Cleaner.Cleanable");
+            final Class<Object> cleanableClass = Reflections.classForName("java.lang.ref.Cleaner$Cleanable");
             final Method cleanMethod = cleanableClass.getMethod("clean");
             CLEANABLE_CLEAN_METHOD = lookup.unreflect(cleanMethod);
         } catch (final Exception e) {

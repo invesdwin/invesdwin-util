@@ -130,8 +130,8 @@ public final class Reflections extends AReflectionsStaticFacade {
             }
             makeAccessible(field);
             final Object parent = getField(field, in);
-            if (parent == in) {
-                return;
+            if (parent == null || parent == in) {
+                continue;
             } else if (parent == obj) {
                 throw new IllegalArgumentException("[" + obj.getClass().getName() + ":" + obj
                         + "] is reference leaked by [" + in.getClass().getName() + ":" + in + "]");

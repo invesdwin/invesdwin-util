@@ -15,7 +15,7 @@ import de.invesdwin.util.lang.Strings;
         org.fest.reflect.util.Throwables.class }, filterMethodSignatureExpressions = { ".* throwCause\\(.*" })
 public final class Throwables extends AThrowablesStaticFacade {
 
-    private static boolean debugStackTraceEnabled;
+    private static boolean debugStackTraceEnabled = false;
 
     private Throwables() {}
 
