@@ -2,6 +2,7 @@ package de.invesdwin.util.lang.finalizer;
 
 import javax.annotation.concurrent.ThreadSafe;
 
+import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.lang.Reflections;
 import de.invesdwin.util.lang.finalizer.internal.FallbackFinalizerManagerProvider;
 import de.invesdwin.util.lang.finalizer.internal.IFinalizerManagerProvider;
@@ -23,6 +24,9 @@ public final class FinalizerManager {
     private FinalizerManager() {}
 
     public static IFinalizerReference register(final Object obj, final AFinalizer finalizer) {
+        if (Throwables.isDebugStackTraceEnabled()) {
+            Reflections.assertObjectNotReferenced(obj, finalizer);
+        }
         return PROVIDER.register(obj, finalizer);
     }
 

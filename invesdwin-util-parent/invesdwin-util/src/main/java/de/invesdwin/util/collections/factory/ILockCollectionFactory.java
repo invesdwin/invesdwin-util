@@ -30,6 +30,10 @@ public interface ILockCollectionFactory {
 
     <T> IFastIterableSet<T> newFastIterableLinkedSet();
 
+    <T> Set<T> newConcurrentSet();
+
+    <T> Set<T> newIdentitySet();
+
     <K, V> Map<K, V> newMap();
 
     <K, V> IFastIterableMap<K, V> newFastIterableMap();
@@ -38,7 +42,7 @@ public interface ILockCollectionFactory {
 
     <K, V> Map<K, V> newConcurrentMap();
 
-    <T> Set<T> newConcurrentSet();
+    <K, V> Map<K, V> newIdentityMap();
 
     <K, V> IFastIterableMap<K, V> newFastIterableLinkedMap();
 

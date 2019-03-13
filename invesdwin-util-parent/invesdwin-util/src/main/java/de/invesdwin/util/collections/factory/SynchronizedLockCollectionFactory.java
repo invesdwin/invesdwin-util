@@ -169,4 +169,14 @@ public final class SynchronizedLockCollectionFactory implements ILockCollectionF
         }
     }
 
+    @Override
+    public <T> Set<T> newIdentitySet() {
+        return Collections.synchronizedSet(DisabledLockCollectionFactory.INSTANCE.newIdentitySet());
+    }
+
+    @Override
+    public <K, V> Map<K, V> newIdentityMap() {
+        return Collections.synchronizedMap(DisabledLockCollectionFactory.INSTANCE.newIdentityMap());
+    }
+
 }

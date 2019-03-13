@@ -1,7 +1,6 @@
 package de.invesdwin.util.lang.finalizer;
 
 import java.io.Closeable;
-import java.io.IOException;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
@@ -13,7 +12,7 @@ public abstract class AFinalizer implements Closeable, Runnable {
 
     private static final org.slf4j.ext.XLogger LOG = org.slf4j.ext.XLoggerFactory.getXLogger(AFinalizer.class);
 
-    private IFinalizerReference finalizerReference;
+    private IFinalizerReference reference;
 
     /**
      * the actual action
@@ -28,12 +27,19 @@ public abstract class AFinalizer implements Closeable, Runnable {
         if (!isClosed()) {
             onClose();
             clean();
-            if (finalizerReference != null) {
-                finalizerReference.cleanReference();
-                finalizerReference = null;
-            }
         }
+        //clean reference even if already closed (isClosed() might be implemented wrong)
+        cleanReference();
+    }
 
+    /**
+     * Can be overridden to disable reference cleanup.
+     */
+    protected void cleanReference() {
+        if (reference != null) {
+            reference.cleanReference();
+            reference = null;
+        }
     }
 
     protected void onClose() {}
@@ -60,87 +66,17 @@ public abstract class AFinalizer implements Closeable, Runnable {
 
     protected void onRun() {}
 
-    public static AFinalizer valueOfCloseable(final Closeable closeable) {
-        return new AFinalizer() {
-
-            private Closeable delegate = closeable;
-
-            @Override
-            protected void clean() {
-                try {
-                    delegate.close();
-                    delegate = null;
-                } catch (final IOException e) {
-                    new RuntimeException(e);
-                }
-            }
-
-            @Override
-            public boolean isClosed() {
-                return delegate == null;
-            }
-        };
-    }
-
-    public static AFinalizer valueOfRunnable(final Runnable runnable) {
-        return new AFinalizer() {
-            private Runnable delegate = runnable;
-
-            @Override
-            protected void clean() {
-                delegate.run();
-                delegate = null;
-            }
-
-            @Override
-            public boolean isClosed() {
-                return delegate == null;
-            }
-        };
-    }
-
-    public static AFinalizer valueOfCombined(final AFinalizer... finalizers) {
-        return new AFinalizer() {
-
-            private AFinalizer[] delegates = finalizers;
-
-            @Override
-            protected void clean() {
-                delegates = null;
-            }
-
-            @Override
-            protected void onRun() {
-                for (int i = 0; i < delegates.length; i++) {
-                    delegates[i].run();
-                }
-            }
-
-            @Override
-            protected void onClose() {
-                for (int i = 0; i < delegates.length; i++) {
-                    delegates[i].close();
-                }
-            }
-
-            @Override
-            public boolean isClosed() {
-                return delegates == null;
-            }
-        };
-    }
-
     public void register(final Object obj) {
-        Assertions.checkNull(finalizerReference);
-        this.finalizerReference = FinalizerManager.register(obj, this);
+        Assertions.checkNull(reference);
+        this.reference = FinalizerManager.register(obj, this);
     }
 
-    public IFinalizerReference getFinalizerReference() {
-        return finalizerReference;
+    public IFinalizerReference getReference() {
+        return reference;
     }
 
-    public void setFinalizerReference(final IFinalizerReference cleanableReference) {
-        this.finalizerReference = cleanableReference;
+    public void setReference(final IFinalizerReference reference) {
+        this.reference = reference;
     }
 
 }

@@ -4,6 +4,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.Set;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -12,6 +13,7 @@ import org.springframework.util.ClassUtils;
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
 import de.invesdwin.norva.beanpath.BeanPathReflections;
 import de.invesdwin.util.assertions.Assertions;
+import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.lang.internal.AReflectionsStaticFacade;
 
 @StaticFacadeDefinition(name = "de.invesdwin.util.lang.internal.AReflectionsStaticFacade", targets = {
@@ -108,6 +110,39 @@ public final class Reflections extends AReflectionsStaticFacade {
         }
 
         return null;
+    }
+
+    public static void assertObjectNotReferenced(final Object obj, final Object in) {
+        if (obj == in) {
+            return;
+        }
+        final Set<Object> visitedIdentitySet = ILockCollectionFactory.getInstance(false).newIdentitySet();
+        visitedIdentitySet.add(obj);
+        assertObjectNotReferencedRecursive(obj, in, visitedIdentitySet);
+    }
+
+    private static void assertObjectNotReferencedRecursive(final Object obj, final Object in,
+            final Set<Object> visitedIdentitySet) {
+        final Class<?> inClass = in.getClass();
+        for (final Field field : inClass.getDeclaredFields()) {
+            if (field.getType().isPrimitive() || field.getType().getPackageName().startsWith("java")) {
+                continue;
+            }
+            makeAccessible(field);
+            final Object parent = getField(field, in);
+            if (parent == in) {
+                return;
+            } else if (parent == obj) {
+                throw new IllegalArgumentException("[" + obj.getClass().getName() + ":" + obj
+                        + "] is reference leaked by [" + in.getClass().getName() + ":" + in + "]");
+            } else if (visitedIdentitySet.add(parent)) {
+                try {
+                    assertObjectNotReferencedRecursive(obj, parent, visitedIdentitySet);
+                } catch (final Throwable t) {
+                    throw new RuntimeException("Via [" + parent.getClass().getName() + ":" + parent + "]", t);
+                }
+            }
+        }
     }
 
 }

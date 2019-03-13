@@ -1,7 +1,9 @@
 package de.invesdwin.util.collections.factory;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
@@ -171,6 +173,16 @@ public final class DisabledLockCollectionFactory implements ILockCollectionFacto
     @Override
     public <T> Set<T> newConcurrentSet() {
         return newSet();
+    }
+
+    @Override
+    public <T> Set<T> newIdentitySet() {
+        return Collections.newSetFromMap(newIdentityMap());
+    }
+
+    @Override
+    public <K, V> Map<K, V> newIdentityMap() {
+        return new IdentityHashMap<K, V>();
     }
 
 }

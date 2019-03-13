@@ -70,7 +70,7 @@ public abstract class ACloseableIterator<E> implements ICloseableIterator<E> {
     }
 
     @Override
-    public final void close() {
+    public void close() {
         finalizer.close();
     }
 
