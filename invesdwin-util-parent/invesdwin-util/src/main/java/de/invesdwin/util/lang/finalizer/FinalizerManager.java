@@ -31,6 +31,7 @@ public final class FinalizerManager {
                 Reflections.assertObjectNotReferenced(obj, finalizer);
             } catch (final Throwable t) {
                 LOG.error(Throwables.getFullStackTrace(t));
+                throw t;
             }
         }
         return PROVIDER.register(obj, finalizer);
