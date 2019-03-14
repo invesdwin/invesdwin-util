@@ -98,7 +98,6 @@ public abstract class AGenericProducerQueueIterator<E> extends ACloseableIterato
 
     public AGenericProducerQueueIterator(final String name, final int queueSize) {
         this.finalizer = new GenericProducerQueueIteratorFinalizer(name);
-        this.finalizer.register(this);
         this.queue = new LinkedBlockingDeque<E>(queueSize);
         this.queueSize = queueSize;
         this.drainedLock = Locks
@@ -109,6 +108,7 @@ public abstract class AGenericProducerQueueIterator<E> extends ACloseableIterato
     protected void start() {
         finalizer.started = true;
         finalizer.executor.execute(new ProducerRunnable());
+        this.finalizer.register(this);
         //read first element
         this.nextElement = readNext();
     }

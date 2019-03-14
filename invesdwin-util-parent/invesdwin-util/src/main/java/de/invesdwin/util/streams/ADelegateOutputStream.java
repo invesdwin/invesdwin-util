@@ -34,7 +34,8 @@ public abstract class ADelegateOutputStream extends OutputStream {
 
     @Override
     public void close() throws IOException {
-
+        super.close();
+        finalizer.close();
     }
 
     public boolean isClosed() {

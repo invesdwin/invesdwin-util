@@ -38,6 +38,7 @@ public abstract class ADelegateInputStream extends InputStream {
 
     @Override
     public void close() throws IOException {
+        super.close();
         finalizer.close();
     }
 
