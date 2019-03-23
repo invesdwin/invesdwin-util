@@ -30,7 +30,7 @@ public abstract class AComponentFinder {
         return ImmutableList.copyOf(targetComponents);
     }
 
-    protected abstract boolean matches(Component component);
+    public abstract boolean matches(Component component);
 
     private void findComponents(final Component rootComponent, final Set<Component> targetComponents,
             final boolean onlyOne) {
