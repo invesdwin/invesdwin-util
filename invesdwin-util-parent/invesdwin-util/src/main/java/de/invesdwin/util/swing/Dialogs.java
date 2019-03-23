@@ -193,23 +193,8 @@ public final class Dialogs extends javax.swing.JOptionPane {
         if (message instanceof CharSequence) {
             final String messageString = message.toString();
             if (messageString.contains("<html>")) {
-                final JEditorPane messagePane = new JEditorPane();
-                messagePane.setContentType("text/html");
+                final JEditorPane messagePane = newHtmlMessagePane();
                 messagePane.setText(messageString);
-                messagePane.setEditable(false);
-                messagePane.setOpaque(false);
-                messagePane.addHyperlinkListener(new HyperlinkListener() {
-                    @Override
-                    public void hyperlinkUpdate(final HyperlinkEvent e) {
-                        if (e.getEventType() == EventType.ACTIVATED) {
-                            try {
-                                Desktop.getDesktop().browse(URIs.asUri(e.getURL()));
-                            } catch (final IOException e1) {
-                                throw new RuntimeException(e1);
-                            }
-                        }
-                    }
-                });
                 ret = messagePane;
             }
         }
@@ -220,6 +205,27 @@ public final class Dialogs extends javax.swing.JOptionPane {
         }
 
         return ret;
+    }
+
+    public static JEditorPane newHtmlMessagePane() {
+        final JEditorPane messagePane = new JEditorPane();
+        messagePane.setContentType("text/html");
+        messagePane.setEditable(false);
+        messagePane.setOpaque(false);
+        messagePane.addHyperlinkListener(new HyperlinkListener() {
+            @Override
+            public void hyperlinkUpdate(final HyperlinkEvent e) {
+                if (e.getEventType() == EventType.ACTIVATED) {
+                    try {
+                        Desktop.getDesktop().browse(URIs.asUri(e.getURL()));
+                    } catch (final IOException e1) {
+                        throw new RuntimeException(e1);
+                    }
+                }
+            }
+        });
+        messagePane.setDisabledTextColor(messagePane.getForeground());
+        return messagePane;
     }
 
     public static Color showColorChooserDialog(final Component component, final String name, final Color initialColor) {
