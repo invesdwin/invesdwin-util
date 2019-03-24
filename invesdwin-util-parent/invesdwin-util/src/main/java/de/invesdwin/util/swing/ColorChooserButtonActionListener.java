@@ -46,12 +46,20 @@ public class ColorChooserButtonActionListener implements ActionListener, IColorC
         }
 
         current = newColor;
-        button.setIcon(createIcon(current, 16, 16));
+        button.setIcon(createIcon(current, getIconWidth(), getIconHeight()));
         button.repaint();
     }
 
+    protected int getIconHeight() {
+        return 16;
+    }
+
+    protected int getIconWidth() {
+        return 16;
+    }
+
     public static ImageIcon createIcon(final Color main, final int width, final int height) {
-        final BufferedImage image = new BufferedImage(width, height, java.awt.image.BufferedImage.TYPE_INT_RGB);
+        final BufferedImage image = new BufferedImage(width, height, java.awt.image.BufferedImage.TYPE_INT_ARGB);
         final Graphics2D graphics = image.createGraphics();
         graphics.setColor(main);
         graphics.fillRect(0, 0, width, height);
