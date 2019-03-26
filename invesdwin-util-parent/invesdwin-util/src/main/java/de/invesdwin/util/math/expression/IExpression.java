@@ -5,6 +5,8 @@ import de.invesdwin.util.time.fdate.FDate;
 
 public interface IExpression {
 
+    IExpression[] EMPTY_EXPRESSIONS = new IExpression[0];
+
     /**
      * evaluates the expression using the current time key
      */
