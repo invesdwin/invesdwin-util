@@ -35,11 +35,9 @@ public abstract class ASynchronizedMapLoadingCache<K, V> implements ILoadingCach
             v = loadValue.apply(key);
             if (v != null) {
                 synchronized (this) {
-                    final V oldV = map.get(key);
+                    final V oldV = map.putIfAbsent(key, v);
                     if (oldV != null) {
                         v = oldV;
-                    } else {
-                        map.put(key, v);
                     }
                 }
             }

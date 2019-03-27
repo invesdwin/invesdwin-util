@@ -62,6 +62,15 @@ public abstract class ADelegateMap<K, V> implements Map<K, V>, ISerializableValu
     }
 
     @Override
+    public V putIfAbsent(final K key, final V value) {
+        if (isPutAllowed(key, value)) {
+            return getDelegate().putIfAbsent(key, value);
+        } else {
+            throw new IllegalArgumentException("isPutAllowed returned false! Check this before using put!");
+        }
+    }
+
+    @Override
     public V remove(final Object key) {
         return getDelegate().remove(key);
     }

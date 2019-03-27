@@ -73,27 +73,40 @@ public class ArrayLeastRecentlyAddedMap<K, V> implements Map<K, V>, IEvictionMap
     public V put(final K key, final V value) {
         final V put = map.put(key, value);
         if (put == null) {
-            mostRecentlyAddedKeyIndex++;
-            if (mostRecentlyAddedKeyIndex >= maximumSize) {
-                mostRecentlyAddedKeyIndex = 0;
-            }
-            if (orderedKeys.length <= mostRecentlyAddedKeyIndex) {
-                final Object[] oldArray = orderedKeys;
-                orderedKeys = new Object[Integers.max(1, Integers.min(maximumSize, oldArray.length * 2))];
-                System.arraycopy(oldArray, 0, orderedKeys, 0, oldArray.length);
-            }
-            while (map.size() > maximumSize) {
-                do {
-                    leastRecentlyAddedKeyIndex++;
-                    if (leastRecentlyAddedKeyIndex >= maximumSize) {
-                        leastRecentlyAddedKeyIndex = 0;
-                    }
-                    //jump over removed keys
-                } while (orderedKeys[leastRecentlyAddedKeyIndex] == null);
-                map.remove(orderedKeys[leastRecentlyAddedKeyIndex]);
-                orderedKeys[leastRecentlyAddedKeyIndex] = null;
-            }
-            orderedKeys[mostRecentlyAddedKeyIndex] = key;
+            updateMostRecentlyAdded(key);
+        }
+        return put;
+    }
+
+    private void updateMostRecentlyAdded(final K key) {
+        mostRecentlyAddedKeyIndex++;
+        if (mostRecentlyAddedKeyIndex >= maximumSize) {
+            mostRecentlyAddedKeyIndex = 0;
+        }
+        if (orderedKeys.length <= mostRecentlyAddedKeyIndex) {
+            final Object[] oldArray = orderedKeys;
+            orderedKeys = new Object[Integers.max(1, Integers.min(maximumSize, oldArray.length * 2))];
+            System.arraycopy(oldArray, 0, orderedKeys, 0, oldArray.length);
+        }
+        while (map.size() > maximumSize) {
+            do {
+                leastRecentlyAddedKeyIndex++;
+                if (leastRecentlyAddedKeyIndex >= maximumSize) {
+                    leastRecentlyAddedKeyIndex = 0;
+                }
+                //jump over removed keys
+            } while (orderedKeys[leastRecentlyAddedKeyIndex] == null);
+            map.remove(orderedKeys[leastRecentlyAddedKeyIndex]);
+            orderedKeys[leastRecentlyAddedKeyIndex] = null;
+        }
+        orderedKeys[mostRecentlyAddedKeyIndex] = key;
+    }
+
+    @Override
+    public V putIfAbsent(final K key, final V value) {
+        final V put = map.putIfAbsent(key, value);
+        if (put == null) {
+            updateMostRecentlyAdded(key);
         }
         return put;
     }

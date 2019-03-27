@@ -29,11 +29,9 @@ public abstract class AMapLoadingCache<K, V> implements ILoadingCache<K, V> {
             //bad idea to synchronize in apply, this might cause deadlocks when threads are used inside of it
             v = loadValue.apply(key);
             if (v != null) {
-                final V oldV = map.get(key);
+                final V oldV = map.putIfAbsent(key, v);
                 if (oldV != null) {
                     v = oldV;
-                } else {
-                    map.put(key, v);
                 }
             }
         }

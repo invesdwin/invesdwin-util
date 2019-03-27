@@ -80,6 +80,16 @@ public class OptionalValueWrapperMap<K, V> implements Map<K, V> {
     }
 
     @Override
+    public V putIfAbsent(final K key, final V value) {
+        if (isPutAllowed(key, value)) {
+            final Optional<V> previousValue = delegate.putIfAbsent(key, Optional.fromNullable(value));
+            return maybeGet(key, previousValue);
+        } else {
+            throw new IllegalArgumentException("isCacheAllowed(value) returned false, check this before using put!");
+        }
+    }
+
+    @Override
     public V remove(final Object key) {
         final Optional<V> value = delegate.remove(key);
         return maybeGet((K) key, value);

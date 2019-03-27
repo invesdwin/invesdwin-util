@@ -78,6 +78,16 @@ public class WrapperMap<K, V> implements Map<K, V> {
     }
 
     @Override
+    public V putIfAbsent(final K key, final V value) {
+        if (isPutAllowed(key, value)) {
+            final V previousValue = delegate.putIfAbsent(key, value);
+            return maybeGet(key, previousValue);
+        } else {
+            throw new IllegalArgumentException("isCacheAllowed(value) returned false, check this before using put!");
+        }
+    }
+
+    @Override
     public V remove(final Object key) {
         final V value = delegate.remove(key);
         return maybeGet((K) key, value);

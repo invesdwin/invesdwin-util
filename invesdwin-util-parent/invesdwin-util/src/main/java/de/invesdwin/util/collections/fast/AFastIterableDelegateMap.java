@@ -272,6 +272,17 @@ public abstract class AFastIterableDelegateMap<K, V> implements IFastIterableMap
         return prev;
     }
 
+    @Override
+    public V putIfAbsent(final K key, final V value) {
+        final V prev = delegate.putIfAbsent(key, value);
+        if (prev == null) {
+            addToFastIterable(key, value);
+        } else if (prev != value) {
+            refreshFastIterable();
+        }
+        return prev;
+    }
+
     protected void addToFastIterable(final K key, final V value) {
         if (fastIterable != null) {
             fastIterable.add(ImmutableEntry.of(key, value));

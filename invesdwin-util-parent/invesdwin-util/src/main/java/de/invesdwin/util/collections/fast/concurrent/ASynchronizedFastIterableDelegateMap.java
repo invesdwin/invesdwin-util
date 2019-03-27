@@ -60,6 +60,17 @@ public abstract class ASynchronizedFastIterableDelegateMap<K, V> implements IFas
         return prev;
     }
 
+    @Override
+    public synchronized V putIfAbsent(final K key, final V value) {
+        final V prev = delegate.putIfAbsent(key, value);
+        if (prev == null) {
+            addToFastIterable(key, value);
+        } else if (prev != value) {
+            refreshFastIterable();
+        }
+        return prev;
+    }
+
     protected void addToFastIterable(final K key, final V value) {
         if (fastIterable != null) {
             fastIterable.add(ImmutableEntry.of(key, value));

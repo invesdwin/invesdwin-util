@@ -60,6 +60,11 @@ public class WrapperLoadingCacheMap<K, V> implements ILoadingCacheMap<K, V> {
     }
 
     @Override
+    public V putIfAbsent(final K key, final V value) {
+        return delegateAsMap.putIfAbsent(key, value);
+    }
+
+    @Override
     public V remove(final Object key) {
         return delegateAsMap.remove(key);
     }
