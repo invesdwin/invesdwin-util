@@ -85,7 +85,9 @@ public abstract class AFinalizer implements Closeable, Runnable {
             }
         } catch (final Throwable t) {
             //don't propagate exceptions here or else the reference handling might eat the exception and worst case stop itself
-            LOG.error("Exception in finalizer [%s]: %s", getClass().getName(), Throwables.getFullStackTrace(t));
+            //CHECKSTYLE:OFF
+            LOG.error("Exception in finalizer [{}]: {}", getClass().getName(), Throwables.getFullStackTrace(t));
+            //CHECKSTYLE:ON
         }
     }
 

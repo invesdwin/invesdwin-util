@@ -15,6 +15,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 
+import de.invesdwin.util.lang.Closeables;
 import de.invesdwin.util.time.duration.Duration;
 import de.invesdwin.util.time.fdate.FTimeUnit;
 
@@ -116,7 +117,7 @@ public final class URIsConnect {
         } catch (final Throwable e) {
             return null;
         } finally {
-            IOUtils.closeQuietly(in);
+            Closeables.closeQuietly(in);
         }
     }
 
@@ -131,7 +132,7 @@ public final class URIsConnect {
             }
             return response;
         } finally {
-            IOUtils.closeQuietly(in);
+            Closeables.closeQuietly(in);
         }
     }
 
