@@ -20,12 +20,16 @@ public class UniqueNameGenerator {
      * Generates IDs in the schema of [Name]_[SequenceNumber].
      */
     public String get(final String name) {
-        final long sequenceNumberIncremented = nextSequenceNumber(name);
-        if (sequenceNumberIncremented == 1) {
+        final long nextSequenceNumber = nextSequenceNumber(name);
+        if (nextSequenceNumber == 1) {
             return name;
         } else {
-            return Strings.addSuffixToFileName(name, "_" + (sequenceNumberIncremented - 1));
+            return Strings.addSuffixToFileName(name, wrapSequenceNumber(nextSequenceNumber - 1));
         }
+    }
+
+    protected String wrapSequenceNumber(final long sequenceNumber) {
+        return "_" + sequenceNumber;
     }
 
     public synchronized long nextSequenceNumber(final String name) {
@@ -39,7 +43,7 @@ public class UniqueNameGenerator {
     }
 
     /**
-     * Initialize with 1 to skip the first value with a number
+     * Initialize with 1 to skip the first value without a number
      */
     protected long getInitialValue() {
         return 0;
