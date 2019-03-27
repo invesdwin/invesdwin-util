@@ -125,7 +125,7 @@ public final class Reflections extends AReflectionsStaticFacade {
             final Set<Object> visitedIdentitySet) {
         final Class<?> inClass = in.getClass();
         for (final Field field : inClass.getDeclaredFields()) {
-            if (field.getType().isPrimitive() || field.getType().getPackageName().startsWith("java")) {
+            if (field.getType().isPrimitive() || field.getType().getName().startsWith("java")) {
                 continue;
             }
             makeAccessible(field);
