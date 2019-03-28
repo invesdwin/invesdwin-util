@@ -75,7 +75,7 @@ public abstract class ASynchronizedMapLoadingCache<K, V> implements ILoadingCach
     }
 
     @Override
-    public synchronized Set<Entry<K, V>> entrySet() {
+    public Set<Entry<K, V>> entrySet() {
         return new SynchronizedSet<>(map.entrySet(), this);
     }
 
