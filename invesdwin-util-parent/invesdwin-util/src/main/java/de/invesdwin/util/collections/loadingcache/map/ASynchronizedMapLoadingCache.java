@@ -10,6 +10,9 @@ import java.util.function.Function;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
+import de.invesdwin.util.collections.fast.concurrent.SynchronizedCollection;
+import de.invesdwin.util.collections.fast.concurrent.SynchronizedMap;
+import de.invesdwin.util.collections.fast.concurrent.SynchronizedSet;
 import de.invesdwin.util.collections.loadingcache.ILoadingCache;
 
 @ThreadSafe
@@ -73,7 +76,7 @@ public abstract class ASynchronizedMapLoadingCache<K, V> implements ILoadingCach
 
     @Override
     public synchronized Set<Entry<K, V>> entrySet() {
-        return map.entrySet();
+        return new SynchronizedSet<>(map.entrySet(), this);
     }
 
     @Override
@@ -82,18 +85,18 @@ public abstract class ASynchronizedMapLoadingCache<K, V> implements ILoadingCach
     }
 
     @Override
-    public synchronized Set<K> keySet() {
-        return map.keySet();
+    public Set<K> keySet() {
+        return new SynchronizedSet<>(map.keySet(), this);
     }
 
     @Override
-    public synchronized Collection<V> values() {
-        return map.values();
+    public Collection<V> values() {
+        return new SynchronizedCollection<>(map.values(), this);
     }
 
     @Override
-    public synchronized Map<K, V> asMap() {
-        return Collections.unmodifiableMap(map);
+    public Map<K, V> asMap() {
+        return Collections.unmodifiableMap(new SynchronizedMap<>(map, this));
     }
 
     @Override
