@@ -27,20 +27,20 @@ public class ArraySubListCloseableIterable<E> implements ICloseableIterable<E>, 
         try {
             SUBLIST_CLASS = Reflections.classForName("java.util.ArrayList$SubList");
             final Field sublistSizeField = Reflections.findField(SUBLIST_CLASS, "size");
-            Reflections.makeAccessibleFinal(sublistSizeField);
+            Reflections.makeAccessible(sublistSizeField);
             SUBLIST_SIZE_GETTER = MethodHandles.lookup().unreflectGetter(sublistSizeField);
             final Field sublistOffsetField = Reflections.findField(SUBLIST_CLASS, "offset");
-            Reflections.makeAccessibleFinal(sublistOffsetField);
+            Reflections.makeAccessible(sublistOffsetField);
             SUBLIST_OFFSET_GETTER = MethodHandles.lookup().unreflectGetter(sublistOffsetField);
             final Field sublistRootField = Reflections.findField(SUBLIST_CLASS, "root");
             if (sublistRootField != null) {
                 //java 11, we can directly access the root
-                Reflections.makeAccessibleFinal(sublistRootField);
+                Reflections.makeAccessible(sublistRootField);
                 SUBLIST_PARENT_GETTER = MethodHandles.lookup().unreflectGetter(sublistRootField);
             } else {
                 //before java 11
                 final Field sublistParentField = Reflections.findField(SUBLIST_CLASS, "parent");
-                Reflections.makeAccessibleFinal(sublistParentField);
+                Reflections.makeAccessible(sublistParentField);
                 SUBLIST_PARENT_GETTER = MethodHandles.lookup().unreflectGetter(sublistParentField);
             }
         } catch (final IllegalAccessException e) {

@@ -54,21 +54,6 @@ public final class Reflections extends AReflectionsStaticFacade {
         }
     }
 
-    public static void makeAccessibleFinal(final Field field) {
-        try {
-            makeAccessible(field);
-            final Field modifiersField = Field.class.getDeclaredField("modifiers");
-            makeAccessible(modifiersField);
-            modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
-        } catch (final NoSuchFieldException e) {
-            handleReflectionException(e);
-        } catch (final IllegalArgumentException e) {
-            handleReflectionException(e);
-        } catch (final IllegalAccessException e) {
-            handleReflectionException(e);
-        }
-    }
-
     public static boolean isSynchronized(final Method method) {
         return Modifier.isSynchronized(method.getModifiers());
     }

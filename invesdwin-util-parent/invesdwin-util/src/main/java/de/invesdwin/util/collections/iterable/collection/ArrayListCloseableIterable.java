@@ -23,7 +23,7 @@ public class ArrayListCloseableIterable<E> implements ICloseableIterable<E>, IFa
     static {
         try {
             final Field arraylistElementDataField = Reflections.findField(ArrayList.class, "elementData");
-            Reflections.makeAccessibleFinal(arraylistElementDataField);
+            Reflections.makeAccessible(arraylistElementDataField);
             ARRAYLIST_ELEMENTDATA_GETTER = MethodHandles.lookup().unreflectGetter(arraylistElementDataField);
         } catch (final IllegalAccessException e) {
             throw new RuntimeException(e);
