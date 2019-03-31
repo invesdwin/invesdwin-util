@@ -2,6 +2,7 @@ package de.invesdwin.util.math.expression.eval;
 
 import javax.annotation.concurrent.Immutable;
 
+import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.time.fdate.FDate;
 
 @Immutable
@@ -52,7 +53,7 @@ public class ConstantExpression implements IParsedExpression {
 
     @Override
     public String toString() {
-        return String.valueOf(doubleValue);
+        return Strings.removeEnd(String.valueOf(doubleValue), ".0");
     }
 
     @Override
