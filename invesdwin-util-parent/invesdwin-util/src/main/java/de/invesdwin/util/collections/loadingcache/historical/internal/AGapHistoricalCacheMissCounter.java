@@ -22,7 +22,7 @@ public abstract class AGapHistoricalCacheMissCounter<V> {
     private int maxSuccessiveCacheEvictions = 1;
 
     private Integer optimiumMaximumSize = getInitialMaximumSize();
-    private Duration optimiumReadBackStepMillis = new Duration(getReadBackStepMillis(), FTimeUnit.MILLISECONDS);
+    private Duration optimumReadBackStepMillis = new Duration(getReadBackStepMillis(), FTimeUnit.MILLISECONDS);
     private Duration maxFutherValuesRange;
 
     public void checkSuccessiveCacheEvictions(final FDate key) {
@@ -47,13 +47,14 @@ public abstract class AGapHistoricalCacheMissCounter<V> {
     }
 
     private void maybeReoptimize() {
-        final Duration currentReadBackStepMillis = optimiumReadBackStepMillis;
+        final Duration currentReadBackStepMillis = optimumReadBackStepMillis;
         final Integer currentMaximumSize = optimiumMaximumSize;
         final Duration newOptimalReadBackStepMillis = new Duration(determineNewOptimalReadBackStepMillis(),
                 FTimeUnit.MILLISECONDS);
         boolean changed = false;
-        if (newOptimalReadBackStepMillis.isGreaterThan(currentReadBackStepMillis)) {
-            optimiumReadBackStepMillis = newOptimalReadBackStepMillis;
+        if (!newOptimalReadBackStepMillis.isZero()
+                && newOptimalReadBackStepMillis.isGreaterThan(currentReadBackStepMillis)) {
+            optimumReadBackStepMillis = newOptimalReadBackStepMillis;
             changed = true;
         }
         if (currentMaximumSize != null && currentMaximumSize > 0) {
@@ -75,8 +76,8 @@ public abstract class AGapHistoricalCacheMissCounter<V> {
             LOG.warn(AGapHistoricalCache.class.getSimpleName() + "[" + parentToString()
                     + "]: automatically adjusting getMaximumSize[current=" + currentMaximumSize + "|newOptimum="
                     + optimiumMaximumSize + "] and getReadBackStepMillis[current=" + currentReadBackStepMillis + "/"
-                    + currentReadBackStepMillis + "|newOptimum=" + optimiumReadBackStepMillis + "/"
-                    + optimiumReadBackStepMillis + "] for optimal performance. Encountered " + successiveCacheEvictions
+                    + currentReadBackStepMillis + "|newOptimum=" + optimumReadBackStepMillis + "/"
+                    + optimumReadBackStepMillis + "] for optimal performance. Encountered " + successiveCacheEvictions
                     + " successive lookback reloads due to cache evictions between: "
                     + successiveCacheEvictionsFromMaxKey + " -> " + successiveCacheEvictionsToMinKey + " = "
                     + new Duration(successiveCacheEvictionsToMinKey, successiveCacheEvictionsFromMaxKey));
@@ -88,7 +89,7 @@ public abstract class AGapHistoricalCacheMissCounter<V> {
     protected abstract void increaseOptimalMaximumSize(int optimalMaximumSize, String reason);
 
     public long getOptimalReadBackStepMillis() {
-        return optimiumReadBackStepMillis.longValue(FTimeUnit.MILLISECONDS);
+        return optimumReadBackStepMillis.longValue(FTimeUnit.MILLISECONDS);
     }
 
     protected abstract Integer getInitialMaximumSize();
@@ -104,10 +105,13 @@ public abstract class AGapHistoricalCacheMissCounter<V> {
     protected abstract Iterable<? extends V> readAllValuesAscendingFrom(FDate curMaxDate);
 
     public void maybeLimitOptimalReadBackStepByLoadFurtherValuesRange(final Duration duration) {
+        if (duration.isZero()) {
+            return;
+        }
         maxFutherValuesRange = Duration.max(maxFutherValuesRange, duration);
-        if (optimiumReadBackStepMillis.isGreaterThan(maxFutherValuesRange)) {
+        if (optimumReadBackStepMillis.isGreaterThan(maxFutherValuesRange)) {
             final Duration maximumReadBackStep = maxFutherValuesRange.divide(2);
-            optimiumReadBackStepMillis = maximumReadBackStep;
+            optimumReadBackStepMillis = maximumReadBackStep;
         }
     }
 

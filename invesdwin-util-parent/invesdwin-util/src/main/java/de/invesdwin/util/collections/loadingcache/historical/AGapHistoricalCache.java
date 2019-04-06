@@ -318,11 +318,7 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
                     break;
                 }
                 final FDate tailKey = innerExtractKey(null, furtherValues.getTail());
-                if (furtherValuesEmpty) {
-                    final FDate headKey = innerExtractKey(null, furtherValues.getHead());
-                    cacheMissCounter
-                            .maybeLimitOptimalReadBackStepByLoadFurtherValuesRange(new Duration(headKey, tailKey));
-                }
+                maybeLimitOptimalReadBackStepByLoadFurtherValuesRange(furtherValuesEmpty, tailKey);
                 if (tailKey.isAfterOrEqualTo(key) || tailKey.equals(maxKeyInDB)) {
                     //request fulfilled
                     break;
@@ -336,6 +332,15 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
             return true;
         }
         return false;
+    }
+
+    private void maybeLimitOptimalReadBackStepByLoadFurtherValuesRange(final boolean furtherValuesEmpty,
+            final FDate tailKey) {
+        //if the further values is less than 10 we might be at the beginning of the history, thus we should not count this
+        if (furtherValuesEmpty && furtherValues.size() > 10) {
+            final FDate headKey = innerExtractKey(null, furtherValues.getHead());
+            cacheMissCounter.maybeLimitOptimalReadBackStepByLoadFurtherValuesRange(new Duration(headKey, tailKey));
+        }
     }
 
     private void skipDuplicates(final FDate key, final FDate curKey,
