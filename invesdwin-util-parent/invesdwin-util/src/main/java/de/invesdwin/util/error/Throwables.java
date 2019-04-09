@@ -63,6 +63,21 @@ public final class Throwables extends AThrowablesStaticFacade {
         return sb.toString();
     }
 
+    public static String concatMessagesShort(final Throwable e) {
+        final StringBuilder sb = new StringBuilder();
+        Throwable cause = e;
+        while (cause != null) {
+            if (sb.length() > 0) {
+                sb.append("\nCaused by ");
+            }
+            sb.append(cause.getClass().getSimpleName());
+            sb.append(": ");
+            sb.append(cause.getMessage());
+            cause = cause.getCause();
+        }
+        return sb.toString();
+    }
+
     public static boolean isCausedByMessagePart(final Throwable e, final String messagePart) {
         Throwable cause = e;
         while (cause != null) {
