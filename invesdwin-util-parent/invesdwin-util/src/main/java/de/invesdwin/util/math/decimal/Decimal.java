@@ -19,8 +19,9 @@ import de.invesdwin.util.math.decimal.internal.DummyDecimalAggregate;
 @Immutable
 public class Decimal extends ADecimal<Decimal> {
 
+    public static final Locale DEFAULT_DECIMAL_FORMAT_LOCALE = Locale.ENGLISH;
     public static final DecimalFormatSymbols DEFAULT_DECIMAL_FORMAT_SYMBOLS = DecimalFormatSymbols
-            .getInstance(Locale.ENGLISH);
+            .getInstance(DEFAULT_DECIMAL_FORMAT_LOCALE);
     public static final String DEFAULT_DECIMAL_FORMAT = newDefaultDecimalFormat(2);
     public static final String INTEGER_DECIMAL_FORMAT = "#,##0";
     public static final String MONEY_DECIMAL_FORMAT = newMoneyDecimalFormat(2);

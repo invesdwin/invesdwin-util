@@ -2,7 +2,7 @@ package de.invesdwin.util.math.expression.eval;
 
 import javax.annotation.concurrent.Immutable;
 
-import de.invesdwin.util.lang.Strings;
+import de.invesdwin.util.math.decimal.Decimal;
 import de.invesdwin.util.time.fdate.FDate;
 
 @Immutable
@@ -53,7 +53,7 @@ public class ConstantExpression implements IParsedExpression {
 
     @Override
     public String toString() {
-        return Strings.removeEnd(String.valueOf(doubleValue), ".0");
+        return new Decimal(doubleValue).toString();
     }
 
     @Override
@@ -64,5 +64,20 @@ public class ConstantExpression implements IParsedExpression {
     @Override
     public String getContext() {
         return null;
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (obj instanceof ConstantExpression) {
+            final ConstantExpression cObj = (ConstantExpression) obj;
+            return doubleValue == cObj.doubleValue;
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        return ConstantExpression.class.hashCode() + Double.hashCode(doubleValue);
     }
 }
