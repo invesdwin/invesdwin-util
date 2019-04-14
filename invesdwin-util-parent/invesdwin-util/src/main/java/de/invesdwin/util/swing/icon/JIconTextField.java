@@ -3,6 +3,7 @@ package de.invesdwin.util.swing.icon;
 import java.awt.Graphics;
 import java.awt.Insets;
 
+import javax.annotation.concurrent.NotThreadSafe;
 import javax.swing.Icon;
 import javax.swing.JTextField;
 import javax.swing.UIManager;
@@ -11,6 +12,7 @@ import javax.swing.border.Border;
 /**
  * https://gmigdos.wordpress.com/2010/03/30/java-a-custom-jtextfield-for-searching/
  */
+@NotThreadSafe
 public class JIconTextField extends JTextField {
 
     private Icon icon;

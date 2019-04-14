@@ -5,6 +5,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 import org.junit.Test;
 
 import de.invesdwin.util.assertions.Assertions;
+import de.invesdwin.util.math.expression.tokenizer.ParseException;
 
 @NotThreadSafe
 public class ExpressionParserTest {
@@ -16,4 +17,18 @@ public class ExpressionParserTest {
         Assertions.checkEquals(-33D, evaluateDouble);
     }
 
+    @Test(expected = ParseException.class)
+    public void testNull() {
+        new ExpressionParser("").parse();
+    }
+
+    @Test(expected = ParseException.class)
+    public void testEmpty() {
+        new ExpressionParser("").parse();
+    }
+
+    @Test(expected = ParseException.class)
+    public void testBlank() {
+        new ExpressionParser(" ").parse();
+    }
 }
