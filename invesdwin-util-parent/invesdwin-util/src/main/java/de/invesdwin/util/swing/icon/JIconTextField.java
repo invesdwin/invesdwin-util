@@ -29,6 +29,7 @@ public class JIconTextField extends JTextField {
 
     public void setIcon(final Icon icon) {
         this.icon = icon;
+        repaint();
     }
 
     public Icon getIcon() {

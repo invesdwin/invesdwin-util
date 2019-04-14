@@ -20,6 +20,7 @@ public abstract class ALookahead<T> {
         itemBuffer.clear();
         endReached = false;
         current = null;
+        endOfInputIndicator = null;
     }
 
     public T current() {

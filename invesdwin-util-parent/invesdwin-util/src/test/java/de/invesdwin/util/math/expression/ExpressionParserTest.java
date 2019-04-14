@@ -17,6 +17,20 @@ public class ExpressionParserTest {
         Assertions.checkEquals(-33D, evaluateDouble);
     }
 
+    @Test
+    public void testConstantsAddition() {
+        final IExpression parsed = new ExpressionParser("1+2+3+4+5+6+7+8+9+10").parse();
+        final double evaluateDouble = parsed.evaluateDouble();
+        Assertions.checkEquals(55D, evaluateDouble);
+    }
+
+    @Test
+    public void testConstantsAdditionAndSubtraction() {
+        final IExpression parsed = new ExpressionParser("1+2+3+4+5+6+7+8+9-10").parse();
+        final double evaluateDouble = parsed.evaluateDouble();
+        Assertions.checkEquals(35D, evaluateDouble);
+    }
+
     @Test(expected = ParseException.class)
     public void testNull() {
         new ExpressionParser("").parse();

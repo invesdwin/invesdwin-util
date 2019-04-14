@@ -303,9 +303,16 @@ public class ExpressionParser {
         if (target.getLeft() instanceof BinaryOperation) {
             final BinaryOperation leftOp = (BinaryOperation) target.getLeft();
             if (!leftOp.isSealed() && leftOp.getOp().getPriority() == op.getPriority()) {
-                return replaceLeft(leftOp, newLeft, op);
+                final BinaryOperation replacedLeft = replaceLeft(leftOp, newLeft, op);
+                final BinaryOperation replacedTarget = target.setLeft(replacedLeft);
+                return replacedTarget;
             }
         }
+        return replaceLeftDirect(target, newLeft, op);
+    }
+
+    private BinaryOperation replaceLeftDirect(final BinaryOperation target, final IParsedExpression newLeft,
+            final BinaryOperation.Op op) {
         switch (op) {
         case AND:
             return target.setLeft(new AndOperation(newLeft, target.getLeft()));
