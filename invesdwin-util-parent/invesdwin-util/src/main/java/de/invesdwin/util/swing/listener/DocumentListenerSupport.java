@@ -1,10 +1,10 @@
 package de.invesdwin.util.swing.listener;
 
-import javax.annotation.concurrent.NotThreadSafe;
+import javax.annotation.concurrent.Immutable;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-@NotThreadSafe
+@Immutable
 public class DocumentListenerSupport implements DocumentListener {
 
     @Override
