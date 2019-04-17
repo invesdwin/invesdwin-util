@@ -9,6 +9,9 @@ import javax.annotation.concurrent.NotThreadSafe;
 @NotThreadSafe
 public class Tokenizer extends ALookahead<Token> {
 
+    private static final String LINE_COMMENT = "//";
+    private static final String BLOCK_COMMENT_START = "/*";
+    private static final String BLOCK_COMMENT_END = "*/";
     private static final char DECIMAL_SEPARATOR = '.';
     private static final char GROUPING_SEPARATOR = '_';
     private static final char[] BRACKETS = { '(', '[', '{', '}', ']', ')' };
@@ -48,6 +51,18 @@ public class Tokenizer extends ALookahead<Token> {
         // End of input reached? Pass end of input signal on...
         if (input.current().isEndOfInput()) {
             return null;
+        }
+
+        // Handle (and ignore) line comments
+        if (isAtStartOfLineComment(true)) {
+            skipToEndOfLine();
+            return fetch();
+        }
+
+        // Handle (and ignore) block comments
+        if (isAtStartOfBlockComment(true)) {
+            skipBlockComment();
+            return fetch();
         }
 
         // A digit signals the start of a number
@@ -228,6 +243,53 @@ public class Tokenizer extends ALookahead<Token> {
             throw new ParseException(current,
                     String.format("Unexpected token: '%s'. Expected: '%s'", current.getSource(), symbol));
         }
+    }
+
+    private boolean isAtStartOfLineComment(final boolean consume) {
+        if (LINE_COMMENT != null) {
+            return canConsumeThisString(LINE_COMMENT, consume);
+        } else {
+            return false;
+        }
+    }
+
+    private void skipToEndOfLine() {
+        while (!input.current().isEndOfInput() && !input.current().isNewLine()) {
+            input.consume();
+        }
+    }
+
+    private boolean isAtStartOfBlockComment(final boolean consume) {
+        return canConsumeThisString(BLOCK_COMMENT_START, consume);
+    }
+
+    private boolean isAtEndOfBlockComment() {
+        return canConsumeThisString(BLOCK_COMMENT_END, true);
+    }
+
+    private void skipBlockComment() {
+        while (!input.current().isEndOfInput()) {
+            if (isAtEndOfBlockComment()) {
+                return;
+            }
+            input.consume();
+        }
+        throw new ParseException(input.current(), "Premature end of block comment");
+    }
+
+    private boolean canConsumeThisString(final String string, final boolean consume) {
+        if (string == null) {
+            return false;
+        }
+        for (int i = 0; i < string.length(); i++) {
+            if (!input.next(i).is(string.charAt(i))) {
+                return false;
+            }
+        }
+        if (consume) {
+            input.consume(string.length());
+        }
+        return true;
     }
 
 }
