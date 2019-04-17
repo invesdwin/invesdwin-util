@@ -28,6 +28,11 @@ public class Char implements IPosition {
         return pos;
     }
 
+    @Override
+    public int getLength() {
+        return 1;
+    }
+
     public boolean isDigit() {
         return Character.isDigit(value);
     }

@@ -119,6 +119,11 @@ public final class Token implements IPosition {
         return pos;
     }
 
+    @Override
+    public int getLength() {
+        return getSource().length();
+    }
+
     public void setTrigger(final String trigger) {
         this.trigger = trigger;
         this.internTrigger = null;

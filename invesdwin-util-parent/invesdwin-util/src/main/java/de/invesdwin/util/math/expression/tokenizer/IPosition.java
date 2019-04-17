@@ -13,10 +13,17 @@ public interface IPosition {
         public int getPos() {
             return 0;
         }
+
+        @Override
+        public int getLength() {
+            return 0;
+        }
     };
 
     int getLine();
 
     int getPos();
+
+    int getLength();
 
 }
