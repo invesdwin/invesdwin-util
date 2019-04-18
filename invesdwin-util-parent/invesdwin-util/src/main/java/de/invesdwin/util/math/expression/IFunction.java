@@ -4,12 +4,14 @@ import de.invesdwin.util.time.fdate.FDate;
 
 public interface IFunction {
 
-    String getName();
+    String getExpressionName();
 
     /**
      * return a negative number for a variable number of arguments
      */
     int getNumberOfArguments();
+
+    IFunctionParameterInfo getParameterInfo(int index);
 
     double eval(FDate key, IExpression[] args);
 
@@ -22,5 +24,11 @@ public interface IFunction {
      * als arguments are constants, then this function can be simplified into a constant expression too.
      */
     boolean isNaturalFunction();
+
+    ExpressionType getReturnType();
+
+    String getName();
+
+    String getDescription();
 
 }

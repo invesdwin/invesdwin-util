@@ -2,6 +2,7 @@ package de.invesdwin.util.math.expression;
 
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -54,47 +55,47 @@ public class ExpressionParser {
         }
     };
 
-    private static final Map<String, IFunction> FUNCTION_TABLE;
-    private static final Map<String, IParsedExpression> VARIABLE_TABLE;
+    private static final Map<String, IFunction> DEFAULT_FUNCTIONS;
+    private static final Map<String, VariableReference> DEFAULT_VARIABLES;
 
     private final Tokenizer tokenizer;
 
     static {
-        FUNCTION_TABLE = new TreeMap<>();
+        DEFAULT_FUNCTIONS = new TreeMap<>();
 
-        registerFunction(Functions.SIN);
-        registerFunction(Functions.COS);
-        registerFunction(Functions.TAN);
-        registerFunction(Functions.SINH);
-        registerFunction(Functions.COSH);
-        registerFunction(Functions.TANH);
-        registerFunction(Functions.ASIN);
-        registerFunction(Functions.ACOS);
-        registerFunction(Functions.ATAN);
-        registerFunction(Functions.ATAN2);
-        registerFunction(Functions.DEG);
-        registerFunction(Functions.RAD);
-        registerFunction(Functions.ABS);
-        registerFunction(Functions.ROUND);
-        registerFunction(Functions.CEIL);
-        registerFunction(Functions.FLOOR);
-        registerFunction(Functions.EXP);
-        registerFunction(Functions.LN);
-        registerFunction(Functions.LOG);
-        registerFunction(Functions.SQRT);
-        registerFunction(Functions.POW);
-        registerFunction(Functions.MIN);
-        registerFunction(Functions.MAX);
-        registerFunction(Functions.RND);
-        registerFunction(Functions.SIGN);
-        registerFunction(Functions.IF);
-        registerFunction(Functions.ISNAN);
-        registerFunction(Functions.NEGATE);
+        registerDefaultFunction(Functions.SIN);
+        registerDefaultFunction(Functions.COS);
+        registerDefaultFunction(Functions.TAN);
+        registerDefaultFunction(Functions.SINH);
+        registerDefaultFunction(Functions.COSH);
+        registerDefaultFunction(Functions.TANH);
+        registerDefaultFunction(Functions.ASIN);
+        registerDefaultFunction(Functions.ACOS);
+        registerDefaultFunction(Functions.ATAN);
+        registerDefaultFunction(Functions.ATAN2);
+        registerDefaultFunction(Functions.DEG);
+        registerDefaultFunction(Functions.RAD);
+        registerDefaultFunction(Functions.ABS);
+        registerDefaultFunction(Functions.ROUND);
+        registerDefaultFunction(Functions.CEIL);
+        registerDefaultFunction(Functions.FLOOR);
+        registerDefaultFunction(Functions.EXP);
+        registerDefaultFunction(Functions.LN);
+        registerDefaultFunction(Functions.LOG);
+        registerDefaultFunction(Functions.SQRT);
+        registerDefaultFunction(Functions.POW);
+        registerDefaultFunction(Functions.MIN);
+        registerDefaultFunction(Functions.MAX);
+        registerDefaultFunction(Functions.RND);
+        registerDefaultFunction(Functions.SIGN);
+        registerDefaultFunction(Functions.IF);
+        registerDefaultFunction(Functions.ISNAN);
+        registerDefaultFunction(Functions.NEGATE);
 
-        VARIABLE_TABLE = new TreeMap<>();
+        DEFAULT_VARIABLES = new TreeMap<>();
 
-        registerVariable(Variables.PI);
-        registerVariable(Variables.EULER);
+        registerDefaultVariable(Variables.PI);
+        registerDefaultVariable(Variables.EULER);
     }
 
     public ExpressionParser(final String expression) {
@@ -107,12 +108,20 @@ public class ExpressionParser {
         return Strings.replaceEach(expressionLowerCase, MODIFY_INPUT, MODIFY_OUTPUT);
     }
 
-    public static void registerFunction(final IFunction function) {
-        FUNCTION_TABLE.put(function.getName().toLowerCase(), function);
+    public static void registerDefaultFunction(final IFunction function) {
+        DEFAULT_FUNCTIONS.put(function.getExpressionName().toLowerCase(), function);
     }
 
-    public static void registerVariable(final IVariable variable) {
-        VARIABLE_TABLE.put(variable.getName().toLowerCase(), new VariableReference(null, variable));
+    public static Collection<IFunction> getDefaultFunctions() {
+        return DEFAULT_FUNCTIONS.values();
+    }
+
+    public static void registerDefaultVariable(final IVariable variable) {
+        DEFAULT_VARIABLES.put(variable.getExpressionName().toLowerCase(), new VariableReference(null, variable));
+    }
+
+    public static Collection<VariableReference> getDefaultVariables() {
+        return DEFAULT_VARIABLES.values();
     }
 
     public IExpression parse() {
@@ -518,7 +527,7 @@ public class ExpressionParser {
         }
 
         //redirect to variable if possible
-        final IParsedExpression variable = getVariable(context, name);
+        final VariableReference variable = getVariable(context, name);
         if (variable != null) {
             return new VariableFunction(context, name, variable);
         }
@@ -527,7 +536,7 @@ public class ExpressionParser {
     }
 
     protected IFunction getFunction(final String context, final String name) {
-        return FUNCTION_TABLE.get(name);
+        return DEFAULT_FUNCTIONS.get(name);
     }
 
     private IParsedExpression findVariable(final String context, final String name) {
@@ -543,8 +552,8 @@ public class ExpressionParser {
         return null;
     }
 
-    protected IParsedExpression getVariable(final String context, final String name) {
-        final IParsedExpression variable = VARIABLE_TABLE.get(name);
+    protected VariableReference getVariable(final String context, final String name) {
+        final VariableReference variable = DEFAULT_VARIABLES.get(name);
         if (variable != null) {
             return variable;
         }

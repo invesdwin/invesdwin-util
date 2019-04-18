@@ -91,7 +91,7 @@ public class FunctionCall implements IParsedExpression {
             sb.append(context);
             sb.append(":");
         }
-        sb.append(function.getName());
+        sb.append(function.getExpressionName());
         sb.append("(");
         for (int i = 0; i < parameters.length; i++) {
             if (i > 0) {

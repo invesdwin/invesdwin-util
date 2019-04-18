@@ -2,7 +2,6 @@ package de.invesdwin.util.math.expression.eval;
 
 import javax.annotation.concurrent.Immutable;
 
-import de.invesdwin.util.math.expression.variable.Constant;
 import de.invesdwin.util.math.expression.variable.IVariable;
 import de.invesdwin.util.time.fdate.FDate;
 
@@ -10,41 +9,41 @@ import de.invesdwin.util.time.fdate.FDate;
 public class VariableReference implements IParsedExpression {
 
     private final String context;
-    private final IVariable var;
+    private final IVariable variable;
 
-    public VariableReference(final String context, final IVariable var) {
+    public VariableReference(final String context, final IVariable variable) {
         this.context = context;
-        this.var = var;
+        this.variable = variable;
     }
 
     @Override
     public double evaluateDouble(final FDate key) {
-        return var.getValue(key);
+        return variable.getValue(key);
     }
 
     @Override
     public double evaluateDouble(final int key) {
-        return var.getValue(key);
+        return variable.getValue(key);
     }
 
     @Override
     public double evaluateDouble() {
-        return var.getValue();
+        return variable.getValue();
     }
 
     @Override
     public boolean evaluateBoolean(final FDate key) {
-        return var.getValue() > 0D;
+        return variable.getValue() > 0D;
     }
 
     @Override
     public boolean evaluateBoolean(final int key) {
-        return var.getValue() > 0D;
+        return variable.getValue() > 0D;
     }
 
     @Override
     public boolean evaluateBoolean() {
-        return var.getValue() > 0D;
+        return variable.getValue() > 0D;
     }
 
     @Override
@@ -54,13 +53,13 @@ public class VariableReference implements IParsedExpression {
             sb.append(context);
             sb.append(":");
         }
-        sb.append(var.getName());
+        sb.append(variable.getExpressionName());
         return sb.toString();
     }
 
     @Override
     public boolean isConstant() {
-        return var instanceof Constant;
+        return variable.isConstant();
     }
 
     @Override
@@ -74,6 +73,10 @@ public class VariableReference implements IParsedExpression {
     @Override
     public String getContext() {
         return context;
+    }
+
+    public IVariable getVariable() {
+        return variable;
     }
 
 }

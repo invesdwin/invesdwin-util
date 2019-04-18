@@ -421,4 +421,17 @@ public final class Strings extends AStringsStaticFacade {
         return Objects.fixInconsistentMatrixDimensionsAsList(matrix, missingValue, appendMissingValues);
     }
 
+    public static String getPossibleValuesRegexString(final Enum<?>[] values) {
+        final StringBuilder b = new StringBuilder();
+        b.append("( ");
+        for (int i = 0; i < values.length; i++) {
+            if (i > 0) {
+                b.append(" | ");
+            }
+            b.append(values[i].name());
+        }
+        b.append(" )");
+        return b.toString();
+    }
+
 }

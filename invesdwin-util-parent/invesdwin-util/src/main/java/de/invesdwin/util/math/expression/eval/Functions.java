@@ -2,6 +2,7 @@ package de.invesdwin.util.math.expression.eval;
 
 import javax.annotation.concurrent.Immutable;
 
+import de.invesdwin.util.math.expression.ExpressionType;
 import de.invesdwin.util.math.expression.IExpression;
 import de.invesdwin.util.math.expression.IFunction;
 import de.invesdwin.util.time.fdate.FDate;
@@ -16,8 +17,13 @@ public final class Functions {
         }
 
         @Override
-        public String getName() {
+        public String getExpressionName() {
             return "sin";
+        }
+
+        @Override
+        public ExpressionType getReturnType() {
+            return ExpressionType.Double;
         }
     };
 
@@ -28,8 +34,13 @@ public final class Functions {
         }
 
         @Override
-        public String getName() {
+        public String getExpressionName() {
             return "sinh";
+        }
+
+        @Override
+        public ExpressionType getReturnType() {
+            return ExpressionType.Double;
         }
     };
 
@@ -40,8 +51,13 @@ public final class Functions {
         }
 
         @Override
-        public String getName() {
+        public String getExpressionName() {
             return "cos";
+        }
+
+        @Override
+        public ExpressionType getReturnType() {
+            return ExpressionType.Double;
         }
     };
 
@@ -52,8 +68,13 @@ public final class Functions {
         }
 
         @Override
-        public String getName() {
+        public String getExpressionName() {
             return "cosh";
+        }
+
+        @Override
+        public ExpressionType getReturnType() {
+            return ExpressionType.Double;
         }
     };
 
@@ -64,8 +85,13 @@ public final class Functions {
         }
 
         @Override
-        public String getName() {
+        public String getExpressionName() {
             return "tan";
+        }
+
+        @Override
+        public ExpressionType getReturnType() {
+            return ExpressionType.Double;
         }
     };
 
@@ -76,8 +102,13 @@ public final class Functions {
         }
 
         @Override
-        public String getName() {
+        public String getExpressionName() {
             return "tanh";
+        }
+
+        @Override
+        public ExpressionType getReturnType() {
+            return ExpressionType.Double;
         }
     };
 
@@ -88,8 +119,13 @@ public final class Functions {
         }
 
         @Override
-        public String getName() {
+        public String getExpressionName() {
             return "abs";
+        }
+
+        @Override
+        public ExpressionType getReturnType() {
+            return ExpressionType.Double;
         }
     };
 
@@ -100,8 +136,13 @@ public final class Functions {
         }
 
         @Override
-        public String getName() {
+        public String getExpressionName() {
             return "asin";
+        }
+
+        @Override
+        public ExpressionType getReturnType() {
+            return ExpressionType.Double;
         }
     };
 
@@ -112,8 +153,13 @@ public final class Functions {
         }
 
         @Override
-        public String getName() {
+        public String getExpressionName() {
             return "acos";
+        }
+
+        @Override
+        public ExpressionType getReturnType() {
+            return ExpressionType.Double;
         }
     };
 
@@ -124,8 +170,13 @@ public final class Functions {
         }
 
         @Override
-        public String getName() {
+        public String getExpressionName() {
             return "atan";
+        }
+
+        @Override
+        public ExpressionType getReturnType() {
+            return ExpressionType.Double;
         }
     };
 
@@ -136,9 +187,15 @@ public final class Functions {
         }
 
         @Override
-        public String getName() {
+        public String getExpressionName() {
             return "atan2";
         }
+
+        @Override
+        public ExpressionType getReturnType() {
+            return ExpressionType.Double;
+        }
+
     };
 
     public static final IFunction ROUND = new AUnaryFunction() {
@@ -148,8 +205,13 @@ public final class Functions {
         }
 
         @Override
-        public String getName() {
+        public String getExpressionName() {
             return "round";
+        }
+
+        @Override
+        public ExpressionType getReturnType() {
+            return ExpressionType.Double;
         }
     };
 
@@ -160,8 +222,13 @@ public final class Functions {
         }
 
         @Override
-        public String getName() {
+        public String getExpressionName() {
             return "floor";
+        }
+
+        @Override
+        public ExpressionType getReturnType() {
+            return ExpressionType.Double;
         }
     };
 
@@ -172,8 +239,13 @@ public final class Functions {
         }
 
         @Override
-        public String getName() {
+        public String getExpressionName() {
             return "ceil";
+        }
+
+        @Override
+        public ExpressionType getReturnType() {
+            return ExpressionType.Double;
         }
     };
 
@@ -184,8 +256,13 @@ public final class Functions {
         }
 
         @Override
-        public String getName() {
+        public String getExpressionName() {
             return "pow";
+        }
+
+        @Override
+        public ExpressionType getReturnType() {
+            return ExpressionType.Double;
         }
     };
 
@@ -196,8 +273,13 @@ public final class Functions {
         }
 
         @Override
-        public String getName() {
+        public String getExpressionName() {
             return "sqrt";
+        }
+
+        @Override
+        public ExpressionType getReturnType() {
+            return ExpressionType.Double;
         }
     };
 
@@ -208,8 +290,13 @@ public final class Functions {
         }
 
         @Override
-        public String getName() {
+        public String getExpressionName() {
             return "exp";
+        }
+
+        @Override
+        public ExpressionType getReturnType() {
+            return ExpressionType.Double;
         }
     };
 
@@ -220,8 +307,13 @@ public final class Functions {
         }
 
         @Override
-        public String getName() {
+        public String getExpressionName() {
             return "ln";
+        }
+
+        @Override
+        public ExpressionType getReturnType() {
+            return ExpressionType.Double;
         }
     };
 
@@ -232,8 +324,13 @@ public final class Functions {
         }
 
         @Override
-        public String getName() {
+        public String getExpressionName() {
             return "log";
+        }
+
+        @Override
+        public ExpressionType getReturnType() {
+            return ExpressionType.Double;
         }
     };
 
@@ -244,8 +341,13 @@ public final class Functions {
         }
 
         @Override
-        public String getName() {
+        public String getExpressionName() {
             return "min";
+        }
+
+        @Override
+        public ExpressionType getReturnType() {
+            return ExpressionType.Double;
         }
     };
 
@@ -256,8 +358,13 @@ public final class Functions {
         }
 
         @Override
-        public String getName() {
+        public String getExpressionName() {
             return "max";
+        }
+
+        @Override
+        public ExpressionType getReturnType() {
+            return ExpressionType.Double;
         }
     };
 
@@ -268,8 +375,13 @@ public final class Functions {
         }
 
         @Override
-        public String getName() {
+        public String getExpressionName() {
             return "rnd";
+        }
+
+        @Override
+        public ExpressionType getReturnType() {
+            return ExpressionType.Double;
         }
     };
 
@@ -280,8 +392,13 @@ public final class Functions {
         }
 
         @Override
-        public String getName() {
+        public String getExpressionName() {
             return "sign";
+        }
+
+        @Override
+        public ExpressionType getReturnType() {
+            return ExpressionType.Double;
         }
     };
 
@@ -292,8 +409,13 @@ public final class Functions {
         }
 
         @Override
-        public String getName() {
+        public String getExpressionName() {
             return "deg";
+        }
+
+        @Override
+        public ExpressionType getReturnType() {
+            return ExpressionType.Double;
         }
     };
 
@@ -304,15 +426,20 @@ public final class Functions {
         }
 
         @Override
-        public String getName() {
+        public String getExpressionName() {
             return "rad";
+        }
+
+        @Override
+        public ExpressionType getReturnType() {
+            return ExpressionType.Double;
         }
     };
 
     public static final IFunction IF = new IFunction() {
 
         @Override
-        public String getName() {
+        public String getExpressionName() {
             return "if";
         }
 
@@ -355,12 +482,17 @@ public final class Functions {
         public boolean isNaturalFunction() {
             return false;
         }
+
+        @Override
+        public ExpressionType getReturnType() {
+            return ExpressionType.Double;
+        }
     };
 
     public static final IFunction ISNAN = new IFunction() {
 
         @Override
-        public String getName() {
+        public String getExpressionName() {
             return "isNaN";
         }
 
@@ -403,12 +535,17 @@ public final class Functions {
                 return 0D;
             }
         }
+
+        @Override
+        public ExpressionType getReturnType() {
+            return ExpressionType.Boolean;
+        }
     };
 
     public static final IFunction NEGATE = new IFunction() {
 
         @Override
-        public String getName() {
+        public String getExpressionName() {
             return "negate";
         }
 
@@ -450,6 +587,11 @@ public final class Functions {
             } else {
                 return 1D;
             }
+        }
+
+        @Override
+        public ExpressionType getReturnType() {
+            return ExpressionType.Boolean;
         }
     };
 
