@@ -38,7 +38,7 @@ public class Char implements IPosition {
     }
 
     public boolean isLetter() {
-        return Character.isLetter(value);
+        return Character.isLetter(value) || value == '#';
     }
 
     public boolean isWhitepace() {

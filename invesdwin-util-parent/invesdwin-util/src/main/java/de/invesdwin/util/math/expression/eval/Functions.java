@@ -40,8 +40,13 @@ public final class Functions {
                 }
 
                 @Override
+                public String getExpressionName() {
+                    return "angle";
+                }
+
+                @Override
                 public String getName() {
-                    return "a";
+                    return "Angle";
                 }
 
                 @Override
@@ -91,8 +96,13 @@ public final class Functions {
                 }
 
                 @Override
+                public String getExpressionName() {
+                    return "value";
+                }
+
+                @Override
                 public String getName() {
-                    return "x";
+                    return "Value";
                 }
 
                 @Override
@@ -143,8 +153,13 @@ public final class Functions {
                 }
 
                 @Override
+                public String getExpressionName() {
+                    return "angleRadians";
+                }
+
+                @Override
                 public String getName() {
-                    return "a";
+                    return "Angle Radians";
                 }
 
                 @Override
@@ -194,8 +209,13 @@ public final class Functions {
                 }
 
                 @Override
+                public String getExpressionName() {
+                    return "value";
+                }
+
+                @Override
                 public String getName() {
-                    return "x";
+                    return "Value";
                 }
 
                 @Override
@@ -246,8 +266,13 @@ public final class Functions {
                 }
 
                 @Override
+                public String getExpressionName() {
+                    return "angleRadians";
+                }
+
+                @Override
                 public String getName() {
-                    return "a";
+                    return "Angle Radians";
                 }
 
                 @Override
@@ -297,8 +322,13 @@ public final class Functions {
                 }
 
                 @Override
+                public String getExpressionName() {
+                    return "value";
+                }
+
+                @Override
                 public String getName() {
-                    return "x";
+                    return "Value";
                 }
 
                 @Override
@@ -350,8 +380,13 @@ public final class Functions {
                 }
 
                 @Override
+                public String getExpressionName() {
+                    return "value";
+                }
+
+                @Override
                 public String getName() {
-                    return "a";
+                    return "Value";
                 }
 
                 @Override
@@ -402,8 +437,13 @@ public final class Functions {
                 }
 
                 @Override
+                public String getExpressionName() {
+                    return "value";
+                }
+
+                @Override
                 public String getName() {
-                    return "a";
+                    return "Value";
                 }
 
                 @Override
@@ -453,8 +493,13 @@ public final class Functions {
                 }
 
                 @Override
+                public String getExpressionName() {
+                    return "value";
+                }
+
+                @Override
                 public String getName() {
-                    return "a";
+                    return "Value";
                 }
 
                 @Override
@@ -504,8 +549,13 @@ public final class Functions {
                 }
 
                 @Override
+                public String getExpressionName() {
+                    return "value";
+                }
+
+                @Override
                 public String getName() {
-                    return "a";
+                    return "Value";
                 }
 
                 @Override
@@ -554,8 +604,13 @@ public final class Functions {
                     }
 
                     @Override
-                    public String getName() {
+                    public String getExpressionName() {
                         return "y";
+                    }
+
+                    @Override
+                    public String getName() {
+                        return "Y";
                     }
 
                     @Override
@@ -572,8 +627,13 @@ public final class Functions {
                     }
 
                     @Override
-                    public String getName() {
+                    public String getExpressionName() {
                         return "x";
+                    }
+
+                    @Override
+                    public String getName() {
+                        return "X";
                     }
 
                     @Override
@@ -627,8 +687,13 @@ public final class Functions {
                 }
 
                 @Override
+                public String getExpressionName() {
+                    return "value";
+                }
+
+                @Override
                 public String getName() {
-                    return "a";
+                    return "Value";
                 }
 
                 @Override
@@ -678,13 +743,18 @@ public final class Functions {
                 }
 
                 @Override
+                public String getExpressionName() {
+                    return "value";
+                }
+
+                @Override
                 public String getName() {
-                    return "a";
+                    return "Value";
                 }
 
                 @Override
                 public String getDescription() {
-                    return "A value.";
+                    return null;
                 }
             };
         }
@@ -730,13 +800,18 @@ public final class Functions {
                 }
 
                 @Override
+                public String getExpressionName() {
+                    return "value";
+                }
+
+                @Override
                 public String getName() {
-                    return "a";
+                    return "Value";
                 }
 
                 @Override
                 public String getDescription() {
-                    return "A value.";
+                    return null;
                 }
             };
         }
@@ -781,8 +856,13 @@ public final class Functions {
                     }
 
                     @Override
+                    public String getExpressionName() {
+                        return "base";
+                    }
+
+                    @Override
                     public String getName() {
-                        return "a";
+                        return "Base";
                     }
 
                     @Override
@@ -799,8 +879,13 @@ public final class Functions {
                     }
 
                     @Override
+                    public String getExpressionName() {
+                        return "exponent";
+                    }
+
+                    @Override
                     public String getName() {
-                        return "b";
+                        return "Exponent";
                     }
 
                     @Override
@@ -853,14 +938,20 @@ public final class Functions {
                 }
 
                 @Override
+                public String getExpressionName() {
+                    return "value";
+                }
+
+                @Override
                 public String getName() {
-                    return "a";
+                    return "Value";
                 }
 
                 @Override
                 public String getDescription() {
-                    return "A value.";
+                    return null;
                 }
+
             };
         }
 
@@ -904,8 +995,13 @@ public final class Functions {
                 }
 
                 @Override
+                public String getExpressionName() {
+                    return "exponent";
+                }
+
+                @Override
                 public String getName() {
-                    return "a";
+                    return "Exponent";
                 }
 
                 @Override
@@ -955,13 +1051,18 @@ public final class Functions {
                 }
 
                 @Override
+                public String getExpressionName() {
+                    return "value";
+                }
+
+                @Override
                 public String getName() {
-                    return "a";
+                    return "Value";
                 }
 
                 @Override
                 public String getDescription() {
-                    return "A value.";
+                    return null;
                 }
             };
         }
@@ -1006,13 +1107,18 @@ public final class Functions {
                 }
 
                 @Override
+                public String getExpressionName() {
+                    return "value";
+                }
+
+                @Override
                 public String getName() {
-                    return "a";
+                    return "Value";
                 }
 
                 @Override
                 public String getDescription() {
-                    return "A value.";
+                    return null;
                 }
             };
         }
@@ -1056,8 +1162,13 @@ public final class Functions {
                     }
 
                     @Override
+                    public String getExpressionName() {
+                        return "value1";
+                    }
+
+                    @Override
                     public String getName() {
-                        return "a";
+                        return "Value 1";
                     }
 
                     @Override
@@ -1074,8 +1185,13 @@ public final class Functions {
                     }
 
                     @Override
+                    public String getExpressionName() {
+                        return "value2";
+                    }
+
+                    @Override
                     public String getName() {
-                        return "b";
+                        return "Value 2";
                     }
 
                     @Override
@@ -1130,8 +1246,13 @@ public final class Functions {
                     }
 
                     @Override
+                    public String getExpressionName() {
+                        return "value1";
+                    }
+
+                    @Override
                     public String getName() {
-                        return "a";
+                        return "Value 1";
                     }
 
                     @Override
@@ -1148,8 +1269,13 @@ public final class Functions {
                     }
 
                     @Override
+                    public String getExpressionName() {
+                        return "value2";
+                    }
+
+                    @Override
                     public String getName() {
-                        return "b";
+                        return "Value 2";
                     }
 
                     @Override
@@ -1164,7 +1290,7 @@ public final class Functions {
 
         @Override
         public String getName() {
-            return "Maxiimum";
+            return "Maximum";
         }
 
         @Override
@@ -1205,13 +1331,18 @@ public final class Functions {
                 }
 
                 @Override
+                public String getExpressionName() {
+                    return "maxValue";
+                }
+
+                @Override
                 public String getName() {
-                    return "a";
+                    return "Max Value";
                 }
 
                 @Override
                 public String getDescription() {
-                    return "A value to multiply the random value with.";
+                    return "A value to multiply the random value with in order to define the maximum result (inclusive).";
                 }
             };
         }
@@ -1256,8 +1387,13 @@ public final class Functions {
                 }
 
                 @Override
+                public String getExpressionName() {
+                    return "value";
+                }
+
+                @Override
                 public String getName() {
-                    return "d";
+                    return "Value";
                 }
 
                 @Override
@@ -1308,8 +1444,13 @@ public final class Functions {
                 }
 
                 @Override
+                public String getExpressionName() {
+                    return "angleRadians";
+                }
+
+                @Override
                 public String getName() {
-                    return "angrad";
+                    return "Angle Radians";
                 }
 
                 @Override
@@ -1360,8 +1501,13 @@ public final class Functions {
                 }
 
                 @Override
+                public String getExpressionName() {
+                    return "angleDegrees";
+                }
+
+                @Override
                 public String getName() {
-                    return "angdeg";
+                    return "Angle Degrees";
                 }
 
                 @Override
@@ -1447,8 +1593,13 @@ public final class Functions {
                     }
 
                     @Override
-                    public String getName() {
+                    public String getExpressionName() {
                         return "condition";
+                    }
+
+                    @Override
+                    public String getName() {
+                        return "Condition";
                     }
 
                     @Override
@@ -1465,8 +1616,13 @@ public final class Functions {
                     }
 
                     @Override
-                    public String getName() {
+                    public String getExpressionName() {
                         return "then";
+                    }
+
+                    @Override
+                    public String getName() {
+                        return "Then";
                     }
 
                     @Override
@@ -1483,8 +1639,13 @@ public final class Functions {
                     }
 
                     @Override
-                    public String getName() {
+                    public String getExpressionName() {
                         return "else";
+                    }
+
+                    @Override
+                    public String getName() {
+                        return "Else";
                     }
 
                     @Override
@@ -1573,13 +1734,18 @@ public final class Functions {
                 }
 
                 @Override
+                public String getExpressionName() {
+                    return "value";
+                }
+
+                @Override
                 public String getName() {
-                    return "a";
+                    return "Value";
                 }
 
                 @Override
                 public String getDescription() {
-                    return "A value.";
+                    return null;
                 }
             };
         }
@@ -1660,8 +1826,13 @@ public final class Functions {
                 }
 
                 @Override
-                public String getName() {
+                public String getExpressionName() {
                     return "condition";
+                }
+
+                @Override
+                public String getName() {
+                    return "Condition";
                 }
 
                 @Override
@@ -1747,8 +1918,13 @@ public final class Functions {
                 }
 
                 @Override
-                public String getName() {
+                public String getExpressionName() {
                     return "condition";
+                }
+
+                @Override
+                public String getName() {
+                    return "Condition";
                 }
 
                 @Override
@@ -1822,8 +1998,13 @@ public final class Functions {
                 }
 
                 @Override
+                public String getExpressionName() {
+                    return "value";
+                }
+
+                @Override
                 public String getName() {
-                    return "v";
+                    return "Value";
                 }
 
                 @Override
@@ -1909,8 +2090,13 @@ public final class Functions {
                 }
 
                 @Override
-                public String getName() {
+                public String getExpressionName() {
                     return "condition";
+                }
+
+                @Override
+                public String getName() {
+                    return "Condition";
                 }
 
                 @Override

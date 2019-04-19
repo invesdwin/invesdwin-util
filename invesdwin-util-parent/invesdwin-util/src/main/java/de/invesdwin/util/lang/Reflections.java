@@ -22,6 +22,20 @@ import de.invesdwin.util.lang.internal.AReflectionsStaticFacade;
 @Immutable
 public final class Reflections extends AReflectionsStaticFacade {
 
+    /**
+     * https://stackoverflow.com/questions/2591083/getting-java-version-at-runtime/21112531
+     */
+    public static final double JAVA_VERSION;
+
+    static {
+        //CHECKSTYLE:OFF
+        final String version = System.getProperty("java.version");
+        //CHECKSTYLE:ON
+        int pos = version.indexOf('.');
+        pos = version.indexOf('.', pos + 1);
+        JAVA_VERSION = Double.parseDouble(version.substring(0, pos));
+    }
+
     private Reflections() {}
 
     public static boolean classExists(final String className) {
