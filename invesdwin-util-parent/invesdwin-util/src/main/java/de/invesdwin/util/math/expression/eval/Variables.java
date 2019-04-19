@@ -2,7 +2,7 @@ package de.invesdwin.util.math.expression.eval;
 
 import javax.annotation.concurrent.Immutable;
 
-import de.invesdwin.util.math.expression.ExpressionType;
+import de.invesdwin.util.math.expression.ExpressionReturnType;
 import de.invesdwin.util.math.expression.variable.AConstant;
 import de.invesdwin.util.math.expression.variable.IVariable;
 
@@ -28,8 +28,8 @@ public final class Variables {
         }
 
         @Override
-        public ExpressionType getType() {
-            return ExpressionType.Double;
+        public ExpressionReturnType getType() {
+            return ExpressionReturnType.Double;
         }
 
     };
@@ -53,8 +53,8 @@ public final class Variables {
         }
 
         @Override
-        public ExpressionType getType() {
-            return ExpressionType.Double;
+        public ExpressionReturnType getType() {
+            return ExpressionReturnType.Double;
         }
 
     };
@@ -77,8 +77,8 @@ public final class Variables {
         }
 
         @Override
-        public ExpressionType getType() {
-            return ExpressionType.Double;
+        public ExpressionReturnType getType() {
+            return ExpressionReturnType.Double;
         }
 
     };
@@ -101,8 +101,8 @@ public final class Variables {
         }
 
         @Override
-        public ExpressionType getType() {
-            return ExpressionType.Double;
+        public ExpressionReturnType getType() {
+            return ExpressionReturnType.Double;
         }
 
     };
@@ -125,8 +125,8 @@ public final class Variables {
         }
 
         @Override
-        public ExpressionType getType() {
-            return ExpressionType.Double;
+        public ExpressionReturnType getType() {
+            return ExpressionReturnType.Double;
         }
 
     };

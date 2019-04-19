@@ -37,7 +37,7 @@ public interface IFunction {
      */
     boolean isNaturalFunction();
 
-    ExpressionType getReturnType();
+    ExpressionReturnType getReturnType();
 
     String getName();
 

@@ -2,7 +2,7 @@ package de.invesdwin.util.math.expression.eval;
 
 import javax.annotation.concurrent.Immutable;
 
-import de.invesdwin.util.math.expression.ExpressionType;
+import de.invesdwin.util.math.expression.ExpressionReturnType;
 import de.invesdwin.util.math.expression.IExpression;
 import de.invesdwin.util.math.expression.IFunction;
 import de.invesdwin.util.math.expression.IFunctionParameterInfo;
@@ -78,7 +78,7 @@ public class VariableFunction implements IFunction {
     }
 
     @Override
-    public ExpressionType getReturnType() {
+    public ExpressionReturnType getReturnType() {
         return variable.getVariable().getType();
     }
 

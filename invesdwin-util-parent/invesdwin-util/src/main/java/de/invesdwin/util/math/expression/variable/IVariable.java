@@ -1,6 +1,6 @@
 package de.invesdwin.util.math.expression.variable;
 
-import de.invesdwin.util.math.expression.ExpressionType;
+import de.invesdwin.util.math.expression.ExpressionReturnType;
 import de.invesdwin.util.time.fdate.FDate;
 
 public interface IVariable {
@@ -17,7 +17,7 @@ public interface IVariable {
 
     String getDescription();
 
-    ExpressionType getType();
+    ExpressionReturnType getType();
 
     boolean isConstant();
 

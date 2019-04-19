@@ -2,7 +2,7 @@ package de.invesdwin.util.math.expression.eval;
 
 import javax.annotation.concurrent.Immutable;
 
-import de.invesdwin.util.math.expression.ExpressionType;
+import de.invesdwin.util.math.expression.ExpressionReturnType;
 import de.invesdwin.util.math.expression.IExpression;
 import de.invesdwin.util.math.expression.IFunction;
 import de.invesdwin.util.math.expression.IFunctionParameterInfo;
@@ -23,8 +23,8 @@ public final class Functions {
         }
 
         @Override
-        public ExpressionType getReturnType() {
-            return ExpressionType.Double;
+        public ExpressionReturnType getReturnType() {
+            return ExpressionReturnType.Double;
         }
 
         @Override
@@ -36,7 +36,7 @@ public final class Functions {
 
                 @Override
                 public String getType() {
-                    return ExpressionType.Double.toString();
+                    return ExpressionReturnType.Double.toString();
                 }
 
                 @Override
@@ -74,8 +74,8 @@ public final class Functions {
         }
 
         @Override
-        public ExpressionType getReturnType() {
-            return ExpressionType.Double;
+        public ExpressionReturnType getReturnType() {
+            return ExpressionReturnType.Double;
         }
 
         @Override
@@ -87,7 +87,7 @@ public final class Functions {
 
                 @Override
                 public String getType() {
-                    return ExpressionType.Double.toString();
+                    return ExpressionReturnType.Double.toString();
                 }
 
                 @Override
@@ -126,8 +126,8 @@ public final class Functions {
         }
 
         @Override
-        public ExpressionType getReturnType() {
-            return ExpressionType.Double;
+        public ExpressionReturnType getReturnType() {
+            return ExpressionReturnType.Double;
         }
 
         @Override
@@ -139,7 +139,7 @@ public final class Functions {
 
                 @Override
                 public String getType() {
-                    return ExpressionType.Double.toString();
+                    return ExpressionReturnType.Double.toString();
                 }
 
                 @Override
@@ -177,8 +177,8 @@ public final class Functions {
         }
 
         @Override
-        public ExpressionType getReturnType() {
-            return ExpressionType.Double;
+        public ExpressionReturnType getReturnType() {
+            return ExpressionReturnType.Double;
         }
 
         @Override
@@ -190,7 +190,7 @@ public final class Functions {
 
                 @Override
                 public String getType() {
-                    return ExpressionType.Double.toString();
+                    return ExpressionReturnType.Double.toString();
                 }
 
                 @Override
@@ -229,8 +229,8 @@ public final class Functions {
         }
 
         @Override
-        public ExpressionType getReturnType() {
-            return ExpressionType.Double;
+        public ExpressionReturnType getReturnType() {
+            return ExpressionReturnType.Double;
         }
 
         @Override
@@ -242,7 +242,7 @@ public final class Functions {
 
                 @Override
                 public String getType() {
-                    return ExpressionType.Double.toString();
+                    return ExpressionReturnType.Double.toString();
                 }
 
                 @Override
@@ -280,8 +280,8 @@ public final class Functions {
         }
 
         @Override
-        public ExpressionType getReturnType() {
-            return ExpressionType.Double;
+        public ExpressionReturnType getReturnType() {
+            return ExpressionReturnType.Double;
         }
 
         @Override
@@ -293,7 +293,7 @@ public final class Functions {
 
                 @Override
                 public String getType() {
-                    return ExpressionType.Double.toString();
+                    return ExpressionReturnType.Double.toString();
                 }
 
                 @Override
@@ -333,8 +333,8 @@ public final class Functions {
         }
 
         @Override
-        public ExpressionType getReturnType() {
-            return ExpressionType.Double;
+        public ExpressionReturnType getReturnType() {
+            return ExpressionReturnType.Double;
         }
 
         @Override
@@ -346,7 +346,7 @@ public final class Functions {
 
                 @Override
                 public String getType() {
-                    return ExpressionType.Double.toString();
+                    return ExpressionReturnType.Double.toString();
                 }
 
                 @Override
@@ -385,8 +385,8 @@ public final class Functions {
         }
 
         @Override
-        public ExpressionType getReturnType() {
-            return ExpressionType.Double;
+        public ExpressionReturnType getReturnType() {
+            return ExpressionReturnType.Double;
         }
 
         @Override
@@ -398,7 +398,7 @@ public final class Functions {
 
                 @Override
                 public String getType() {
-                    return ExpressionType.Double.toString();
+                    return ExpressionReturnType.Double.toString();
                 }
 
                 @Override
@@ -436,8 +436,8 @@ public final class Functions {
         }
 
         @Override
-        public ExpressionType getReturnType() {
-            return ExpressionType.Double;
+        public ExpressionReturnType getReturnType() {
+            return ExpressionReturnType.Double;
         }
 
         @Override
@@ -449,7 +449,7 @@ public final class Functions {
 
                 @Override
                 public String getType() {
-                    return ExpressionType.Double.toString();
+                    return ExpressionReturnType.Double.toString();
                 }
 
                 @Override
@@ -487,8 +487,8 @@ public final class Functions {
         }
 
         @Override
-        public ExpressionType getReturnType() {
-            return ExpressionType.Double;
+        public ExpressionReturnType getReturnType() {
+            return ExpressionReturnType.Double;
         }
 
         @Override
@@ -500,7 +500,7 @@ public final class Functions {
 
                 @Override
                 public String getType() {
-                    return ExpressionType.Double.toString();
+                    return ExpressionReturnType.Double.toString();
                 }
 
                 @Override
@@ -538,8 +538,8 @@ public final class Functions {
         }
 
         @Override
-        public ExpressionType getReturnType() {
-            return ExpressionType.Double;
+        public ExpressionReturnType getReturnType() {
+            return ExpressionReturnType.Double;
         }
 
         @Override
@@ -550,7 +550,7 @@ public final class Functions {
 
                     @Override
                     public String getType() {
-                        return ExpressionType.Double.toString();
+                        return ExpressionReturnType.Double.toString();
                     }
 
                     @Override
@@ -568,7 +568,7 @@ public final class Functions {
 
                     @Override
                     public String getType() {
-                        return ExpressionType.Double.toString();
+                        return ExpressionReturnType.Double.toString();
                     }
 
                     @Override
@@ -610,8 +610,8 @@ public final class Functions {
         }
 
         @Override
-        public ExpressionType getReturnType() {
-            return ExpressionType.Double;
+        public ExpressionReturnType getReturnType() {
+            return ExpressionReturnType.Double;
         }
 
         @Override
@@ -623,7 +623,7 @@ public final class Functions {
 
                 @Override
                 public String getType() {
-                    return ExpressionType.Double.toString();
+                    return ExpressionReturnType.Double.toString();
                 }
 
                 @Override
@@ -661,8 +661,8 @@ public final class Functions {
         }
 
         @Override
-        public ExpressionType getReturnType() {
-            return ExpressionType.Double;
+        public ExpressionReturnType getReturnType() {
+            return ExpressionReturnType.Double;
         }
 
         @Override
@@ -674,7 +674,7 @@ public final class Functions {
 
                 @Override
                 public String getType() {
-                    return ExpressionType.Double.toString();
+                    return ExpressionReturnType.Double.toString();
                 }
 
                 @Override
@@ -713,8 +713,8 @@ public final class Functions {
         }
 
         @Override
-        public ExpressionType getReturnType() {
-            return ExpressionType.Double;
+        public ExpressionReturnType getReturnType() {
+            return ExpressionReturnType.Double;
         }
 
         @Override
@@ -726,7 +726,7 @@ public final class Functions {
 
                 @Override
                 public String getType() {
-                    return ExpressionType.Double.toString();
+                    return ExpressionReturnType.Double.toString();
                 }
 
                 @Override
@@ -765,8 +765,8 @@ public final class Functions {
         }
 
         @Override
-        public ExpressionType getReturnType() {
-            return ExpressionType.Double;
+        public ExpressionReturnType getReturnType() {
+            return ExpressionReturnType.Double;
         }
 
         @Override
@@ -777,7 +777,7 @@ public final class Functions {
 
                     @Override
                     public String getType() {
-                        return ExpressionType.Double.toString();
+                        return ExpressionReturnType.Double.toString();
                     }
 
                     @Override
@@ -795,7 +795,7 @@ public final class Functions {
 
                     @Override
                     public String getType() {
-                        return ExpressionType.Double.toString();
+                        return ExpressionReturnType.Double.toString();
                     }
 
                     @Override
@@ -836,8 +836,8 @@ public final class Functions {
         }
 
         @Override
-        public ExpressionType getReturnType() {
-            return ExpressionType.Double;
+        public ExpressionReturnType getReturnType() {
+            return ExpressionReturnType.Double;
         }
 
         @Override
@@ -849,7 +849,7 @@ public final class Functions {
 
                 @Override
                 public String getType() {
-                    return ExpressionType.Double.toString();
+                    return ExpressionReturnType.Double.toString();
                 }
 
                 @Override
@@ -887,8 +887,8 @@ public final class Functions {
         }
 
         @Override
-        public ExpressionType getReturnType() {
-            return ExpressionType.Double;
+        public ExpressionReturnType getReturnType() {
+            return ExpressionReturnType.Double;
         }
 
         @Override
@@ -900,7 +900,7 @@ public final class Functions {
 
                 @Override
                 public String getType() {
-                    return ExpressionType.Double.toString();
+                    return ExpressionReturnType.Double.toString();
                 }
 
                 @Override
@@ -938,8 +938,8 @@ public final class Functions {
         }
 
         @Override
-        public ExpressionType getReturnType() {
-            return ExpressionType.Double;
+        public ExpressionReturnType getReturnType() {
+            return ExpressionReturnType.Double;
         }
 
         @Override
@@ -951,7 +951,7 @@ public final class Functions {
 
                 @Override
                 public String getType() {
-                    return ExpressionType.Double.toString();
+                    return ExpressionReturnType.Double.toString();
                 }
 
                 @Override
@@ -989,8 +989,8 @@ public final class Functions {
         }
 
         @Override
-        public ExpressionType getReturnType() {
-            return ExpressionType.Double;
+        public ExpressionReturnType getReturnType() {
+            return ExpressionReturnType.Double;
         }
 
         @Override
@@ -1002,7 +1002,7 @@ public final class Functions {
 
                 @Override
                 public String getType() {
-                    return ExpressionType.Double.toString();
+                    return ExpressionReturnType.Double.toString();
                 }
 
                 @Override
@@ -1040,8 +1040,8 @@ public final class Functions {
         }
 
         @Override
-        public ExpressionType getReturnType() {
-            return ExpressionType.Double;
+        public ExpressionReturnType getReturnType() {
+            return ExpressionReturnType.Double;
         }
 
         @Override
@@ -1052,7 +1052,7 @@ public final class Functions {
 
                     @Override
                     public String getType() {
-                        return ExpressionType.Double.toString();
+                        return ExpressionReturnType.Double.toString();
                     }
 
                     @Override
@@ -1070,7 +1070,7 @@ public final class Functions {
 
                     @Override
                     public String getType() {
-                        return ExpressionType.Double.toString();
+                        return ExpressionReturnType.Double.toString();
                     }
 
                     @Override
@@ -1114,8 +1114,8 @@ public final class Functions {
         }
 
         @Override
-        public ExpressionType getReturnType() {
-            return ExpressionType.Double;
+        public ExpressionReturnType getReturnType() {
+            return ExpressionReturnType.Double;
         }
 
         @Override
@@ -1126,7 +1126,7 @@ public final class Functions {
 
                     @Override
                     public String getType() {
-                        return ExpressionType.Double.toString();
+                        return ExpressionReturnType.Double.toString();
                     }
 
                     @Override
@@ -1144,7 +1144,7 @@ public final class Functions {
 
                     @Override
                     public String getType() {
-                        return ExpressionType.Double.toString();
+                        return ExpressionReturnType.Double.toString();
                     }
 
                     @Override
@@ -1188,8 +1188,8 @@ public final class Functions {
         }
 
         @Override
-        public ExpressionType getReturnType() {
-            return ExpressionType.Double;
+        public ExpressionReturnType getReturnType() {
+            return ExpressionReturnType.Double;
         }
 
         @Override
@@ -1201,7 +1201,7 @@ public final class Functions {
 
                 @Override
                 public String getType() {
-                    return ExpressionType.Double.toString();
+                    return ExpressionReturnType.Double.toString();
                 }
 
                 @Override
@@ -1239,8 +1239,8 @@ public final class Functions {
         }
 
         @Override
-        public ExpressionType getReturnType() {
-            return ExpressionType.Double;
+        public ExpressionReturnType getReturnType() {
+            return ExpressionReturnType.Double;
         }
 
         @Override
@@ -1252,7 +1252,7 @@ public final class Functions {
 
                 @Override
                 public String getType() {
-                    return ExpressionType.Double.toString();
+                    return ExpressionReturnType.Double.toString();
                 }
 
                 @Override
@@ -1291,8 +1291,8 @@ public final class Functions {
         }
 
         @Override
-        public ExpressionType getReturnType() {
-            return ExpressionType.Double;
+        public ExpressionReturnType getReturnType() {
+            return ExpressionReturnType.Double;
         }
 
         @Override
@@ -1304,7 +1304,7 @@ public final class Functions {
 
                 @Override
                 public String getType() {
-                    return ExpressionType.Double.toString();
+                    return ExpressionReturnType.Double.toString();
                 }
 
                 @Override
@@ -1343,8 +1343,8 @@ public final class Functions {
         }
 
         @Override
-        public ExpressionType getReturnType() {
-            return ExpressionType.Double;
+        public ExpressionReturnType getReturnType() {
+            return ExpressionReturnType.Double;
         }
 
         @Override
@@ -1356,7 +1356,7 @@ public final class Functions {
 
                 @Override
                 public String getType() {
-                    return ExpressionType.Double.toString();
+                    return ExpressionReturnType.Double.toString();
                 }
 
                 @Override
@@ -1431,8 +1431,8 @@ public final class Functions {
         }
 
         @Override
-        public ExpressionType getReturnType() {
-            return ExpressionType.Double;
+        public ExpressionReturnType getReturnType() {
+            return ExpressionReturnType.Double;
         }
 
         @Override
@@ -1443,7 +1443,7 @@ public final class Functions {
 
                     @Override
                     public String getType() {
-                        return ExpressionType.Boolean.toString();
+                        return ExpressionReturnType.Boolean.toString();
                     }
 
                     @Override
@@ -1461,7 +1461,7 @@ public final class Functions {
 
                     @Override
                     public String getType() {
-                        return ExpressionType.Double.toString();
+                        return ExpressionReturnType.Double.toString();
                     }
 
                     @Override
@@ -1479,7 +1479,7 @@ public final class Functions {
 
                     @Override
                     public String getType() {
-                        return ExpressionType.Double.toString();
+                        return ExpressionReturnType.Double.toString();
                     }
 
                     @Override
@@ -1556,8 +1556,8 @@ public final class Functions {
         }
 
         @Override
-        public ExpressionType getReturnType() {
-            return ExpressionType.Boolean;
+        public ExpressionReturnType getReturnType() {
+            return ExpressionReturnType.Boolean;
         }
 
         @Override
@@ -1569,7 +1569,7 @@ public final class Functions {
 
                 @Override
                 public String getType() {
-                    return ExpressionType.Double.toString();
+                    return ExpressionReturnType.Double.toString();
                 }
 
                 @Override
@@ -1643,8 +1643,8 @@ public final class Functions {
         }
 
         @Override
-        public ExpressionType getReturnType() {
-            return ExpressionType.Boolean;
+        public ExpressionReturnType getReturnType() {
+            return ExpressionReturnType.Boolean;
         }
 
         @Override
@@ -1656,7 +1656,7 @@ public final class Functions {
 
                 @Override
                 public String getType() {
-                    return ExpressionType.Double.toString();
+                    return ExpressionReturnType.Double.toString();
                 }
 
                 @Override
@@ -1730,8 +1730,8 @@ public final class Functions {
         }
 
         @Override
-        public ExpressionType getReturnType() {
-            return ExpressionType.Boolean;
+        public ExpressionReturnType getReturnType() {
+            return ExpressionReturnType.Boolean;
         }
 
         @Override
@@ -1743,7 +1743,7 @@ public final class Functions {
 
                 @Override
                 public String getType() {
-                    return ExpressionType.Double.toString();
+                    return ExpressionReturnType.Double.toString();
                 }
 
                 @Override
@@ -1805,8 +1805,8 @@ public final class Functions {
         }
 
         @Override
-        public ExpressionType getReturnType() {
-            return ExpressionType.Boolean;
+        public ExpressionReturnType getReturnType() {
+            return ExpressionReturnType.Boolean;
         }
 
         @Override
@@ -1818,7 +1818,7 @@ public final class Functions {
 
                 @Override
                 public String getType() {
-                    return ExpressionType.Double.toString();
+                    return ExpressionReturnType.Double.toString();
                 }
 
                 @Override
@@ -1892,8 +1892,8 @@ public final class Functions {
         }
 
         @Override
-        public ExpressionType getReturnType() {
-            return ExpressionType.Boolean;
+        public ExpressionReturnType getReturnType() {
+            return ExpressionReturnType.Boolean;
         }
 
         @Override
@@ -1905,7 +1905,7 @@ public final class Functions {
 
                 @Override
                 public String getType() {
-                    return ExpressionType.Double.toString();
+                    return ExpressionReturnType.Double.toString();
                 }
 
                 @Override
