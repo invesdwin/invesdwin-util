@@ -11,7 +11,19 @@ public interface IFunction {
      */
     int getNumberOfArguments();
 
+    /**
+     * The "0 to abs(numberOfArguments)-1" iteration will be used to get the parameter infos. Thus all indexes are
+     * positive. See getParameterInfos().
+     */
     IFunctionParameterInfo getParameterInfo(int index);
+
+    default IFunctionParameterInfo[] getParameterInfos() {
+        final IFunctionParameterInfo[] infos = new IFunctionParameterInfo[Math.abs(getNumberOfArguments())];
+        for (int i = 0; i < infos.length; i++) {
+            infos[i] = getParameterInfo(i);
+        }
+        return infos;
+    }
 
     double eval(FDate key, IExpression[] args);
 

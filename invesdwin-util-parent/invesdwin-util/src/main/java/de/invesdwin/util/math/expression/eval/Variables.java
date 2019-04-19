@@ -59,6 +59,78 @@ public final class Variables {
 
     };
 
+    public static final IVariable NAN = new AConstant(Double.NaN) {
+
+        @Override
+        public String getExpressionName() {
+            return "NaN";
+        }
+
+        @Override
+        public String getName() {
+            return "Not a Number (NaN)";
+        }
+
+        @Override
+        public String getDescription() {
+            return "This denotes a missing value as defined by Double.NaN: " + Double.NaN;
+        }
+
+        @Override
+        public ExpressionType getType() {
+            return ExpressionType.Double;
+        }
+
+    };
+
+    public static final IVariable TRUE = new AConstant(1D) {
+
+        @Override
+        public String getExpressionName() {
+            return "true";
+        }
+
+        @Override
+        public String getName() {
+            return "Boolean True";
+        }
+
+        @Override
+        public String getDescription() {
+            return "This is equal to 1 as a numerical value.";
+        }
+
+        @Override
+        public ExpressionType getType() {
+            return ExpressionType.Double;
+        }
+
+    };
+
+    public static final IVariable FALSE = new AConstant(0D) {
+
+        @Override
+        public String getExpressionName() {
+            return "false";
+        }
+
+        @Override
+        public String getName() {
+            return "Boolean False";
+        }
+
+        @Override
+        public String getDescription() {
+            return "This is equal to 0 as a numerical value.";
+        }
+
+        @Override
+        public ExpressionType getType() {
+            return ExpressionType.Double;
+        }
+
+    };
+
     private Variables() {}
 
 }

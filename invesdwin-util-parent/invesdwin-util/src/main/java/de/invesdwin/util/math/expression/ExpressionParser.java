@@ -38,15 +38,11 @@ public class ExpressionParser {
             " and ", //
             " or ", //
             " <> ", " >< ", //
-            " true ", //
-            " false " //
     };
     public static final String[] MODIFY_OUTPUT = new String[] { //
             " && ", //
             " || ", //
             " != ", " != ", //
-            " 1 ", //
-            " 0 " //
     };
     private static final FastThreadLocal<Tokenizer> TOKENIZER = new FastThreadLocal<Tokenizer>() {
         @Override
@@ -90,12 +86,18 @@ public class ExpressionParser {
         registerDefaultFunction(Functions.SIGN);
         registerDefaultFunction(Functions.IF);
         registerDefaultFunction(Functions.ISNAN);
+        registerDefaultFunction(Functions.ISTRUE);
+        registerDefaultFunction(Functions.ISFALSE);
         registerDefaultFunction(Functions.NEGATE);
+        registerDefaultFunction(Functions.NOT);
 
         DEFAULT_VARIABLES = new TreeMap<>();
 
         registerDefaultVariable(Variables.PI);
         registerDefaultVariable(Variables.EULER);
+        registerDefaultVariable(Variables.NAN);
+        registerDefaultVariable(Variables.TRUE);
+        registerDefaultVariable(Variables.FALSE);
     }
 
     public ExpressionParser(final String expression) {

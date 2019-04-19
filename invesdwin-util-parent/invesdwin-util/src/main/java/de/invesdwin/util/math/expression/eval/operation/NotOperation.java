@@ -17,7 +17,7 @@ public class NotOperation extends BinaryOperation {
     public double evaluateDouble(final FDate key) {
         final boolean check = right.evaluateBoolean(key);
         if (check) {
-            return -1D;
+            return 0D;
         } else {
             return 1D;
         }
@@ -27,7 +27,7 @@ public class NotOperation extends BinaryOperation {
     public double evaluateDouble(final int key) {
         final boolean check = right.evaluateBoolean(key);
         if (check) {
-            return -1D;
+            return 0D;
         } else {
             return 1D;
         }
@@ -37,7 +37,7 @@ public class NotOperation extends BinaryOperation {
     public double evaluateDouble() {
         final boolean check = right.evaluateBoolean();
         if (check) {
-            return -1D;
+            return 0D;
         } else {
             return 1D;
         }
