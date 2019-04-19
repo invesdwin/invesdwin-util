@@ -33,7 +33,11 @@ public final class Reflections extends AReflectionsStaticFacade {
         //CHECKSTYLE:ON
         int pos = version.indexOf('.');
         pos = version.indexOf('.', pos + 1);
-        JAVA_VERSION = Double.parseDouble(version.substring(0, pos));
+        if (pos >= 0) {
+            JAVA_VERSION = Double.parseDouble(version.substring(0, pos));
+        } else {
+            JAVA_VERSION = Double.parseDouble(version);
+        }
     }
 
     private Reflections() {}
