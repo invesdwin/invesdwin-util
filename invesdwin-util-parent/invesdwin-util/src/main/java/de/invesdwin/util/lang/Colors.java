@@ -33,9 +33,13 @@ public final class Colors {
     /**
      * Returns a value between 0 and 100
      */
-    public static Percent alphaToTransparency(final Color color) {
-        final int alpha = color.getAlpha();
+    public static Percent getTransparency(final Color color) {
+        final int alpha = getAlpha(color);
         return alphaToTransparency(alpha);
+    }
+
+    public static int getAlpha(final Color color) {
+        return color.getAlpha();
     }
 
     /**
@@ -51,7 +55,7 @@ public final class Colors {
     }
 
     public static Color modifyTransparencyBy(final Color color, final Percent modifyPercent) {
-        final int alpha = modifyTransparencyBy(color.getAlpha(), modifyPercent);
+        final int alpha = modifyTransparencyBy(getAlpha(color), modifyPercent);
         return setAlpha(color, alpha);
     }
 
@@ -61,7 +65,7 @@ public final class Colors {
     }
 
     public static Color modifyAlphaBy(final Color color, final int modifyAlpha) {
-        final int alpha = modifyAlphaBy(color.getAlpha(), modifyAlpha);
+        final int alpha = modifyAlphaBy(getAlpha(color), modifyAlpha);
         return setAlpha(color, alpha);
     }
 
