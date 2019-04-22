@@ -19,7 +19,7 @@ public class AndOperation extends BinaryOperation {
         if (check) {
             return 1D;
         } else {
-            return -1D;
+            return 0D;
         }
     }
 
@@ -29,7 +29,7 @@ public class AndOperation extends BinaryOperation {
         if (check) {
             return 1D;
         } else {
-            return -1D;
+            return 0D;
         }
     }
 
@@ -39,7 +39,7 @@ public class AndOperation extends BinaryOperation {
         if (check) {
             return 1D;
         } else {
-            return -1D;
+            return 0D;
         }
     }
 
