@@ -19,7 +19,7 @@ public class ExpressionParserTest {
 
     @Test
     public void testNotOperator() {
-        final IExpression parsed = new ExpressionParser("!isNaN(1) || !isNaN(NaN)").parse();
+        final IExpression parsed = new ExpressionParser("!!isNaN(1) || !isNaN(NaN)").parse();
         final double evaluateDouble = parsed.evaluateDouble();
         Assertions.checkEquals(0D, evaluateDouble);
     }

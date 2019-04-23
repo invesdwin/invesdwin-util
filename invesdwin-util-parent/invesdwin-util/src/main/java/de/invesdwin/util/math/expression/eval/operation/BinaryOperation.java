@@ -130,7 +130,7 @@ public class BinaryOperation implements IParsedExpression {
         return newBinaryOperation(op, newLeft, newRight);
     }
 
-    protected IParsedExpression newConstantExpression() {
+    private IParsedExpression newConstantExpression() {
         return new ConstantExpression(evaluateDouble());
     }
 

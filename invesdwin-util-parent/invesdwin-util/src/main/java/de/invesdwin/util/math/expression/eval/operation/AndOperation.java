@@ -85,12 +85,6 @@ public class AndOperation extends BinaryOperation {
     }
 
     @Override
-    protected IParsedExpression newConstantExpression() {
-        //expression will never be true
-        return new ConstantExpression(0D);
-    }
-
-    @Override
     protected BinaryOperation newBinaryOperation(final Op op, final IParsedExpression left,
             final IParsedExpression right) {
         return new AndOperation(left, right);

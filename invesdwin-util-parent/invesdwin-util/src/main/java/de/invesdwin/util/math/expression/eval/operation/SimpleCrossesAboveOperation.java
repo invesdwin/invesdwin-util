@@ -3,7 +3,6 @@ package de.invesdwin.util.math.expression.eval.operation;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.math.expression.IPreviousKeyFunction;
-import de.invesdwin.util.math.expression.eval.ConstantExpression;
 import de.invesdwin.util.math.expression.eval.IParsedExpression;
 import de.invesdwin.util.time.fdate.FDate;
 
@@ -111,12 +110,6 @@ public class SimpleCrossesAboveOperation extends BinaryOperation {
     @Override
     public boolean isConstant() {
         return false;
-    }
-
-    @Override
-    protected IParsedExpression newConstantExpression() {
-        //expression will never be true
-        return new ConstantExpression(0D);
     }
 
     @Override
