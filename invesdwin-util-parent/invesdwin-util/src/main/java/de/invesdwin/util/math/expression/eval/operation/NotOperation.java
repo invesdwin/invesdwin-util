@@ -78,4 +78,9 @@ public class NotOperation extends BinaryOperation {
         return new NotOperation(left, right);
     }
 
+    @Override
+    public String toString() {
+        return "!" + getRight();
+    }
+
 }

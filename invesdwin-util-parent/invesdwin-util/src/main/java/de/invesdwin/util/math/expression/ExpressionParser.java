@@ -513,10 +513,11 @@ public class ExpressionParser {
             parameters.add(expression());
         }
         expect(Token.TokenType.SYMBOL, ")");
-        if (parameters.size() != fun.getNumberOfArguments() && fun.getNumberOfArguments() >= 0) {
+        final int numberOfArguments = fun.getNumberOfArguments();
+        if (parameters.size() != numberOfArguments && numberOfArguments >= 0) {
             throw new ParseException(funToken,
                     String.format("Number of arguments for function '%s' do not match. Expected: %d, Found: %d",
-                            functionStr, fun.getNumberOfArguments(), parameters.size()));
+                            functionStr, numberOfArguments, parameters.size()));
         }
         final IParsedExpression[] parametersArray = parameters.toArray(new IParsedExpression[parameters.size()]);
         return new FunctionCall(functionContext, fun, parametersArray);

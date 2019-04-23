@@ -18,6 +18,13 @@ public class ExpressionParserTest {
     }
 
     @Test
+    public void testNotOperator() {
+        final IExpression parsed = new ExpressionParser("!isNaN(1) || !isNaN(NaN)").parse();
+        final double evaluateDouble = parsed.evaluateDouble();
+        Assertions.checkEquals(0D, evaluateDouble);
+    }
+
+    @Test
     public void testConstantsAddition() {
         final IExpression parsed = new ExpressionParser("1+2+3+4+5+6+7+8+9+10").parse();
         final double evaluateDouble = parsed.evaluateDouble();
