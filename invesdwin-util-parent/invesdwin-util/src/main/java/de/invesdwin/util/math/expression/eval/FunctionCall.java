@@ -64,15 +64,28 @@ public class FunctionCall implements IParsedExpression {
 
     @Override
     public IParsedExpression simplify() {
+        final FunctionCall simplifiedParameters = simplifyParameters();
         if (!function.isNaturalFunction()) {
-            return this;
+            return simplifiedParameters;
         }
-        for (int i = 0; i < parameters.length; i++) {
-            if (!parameters[i].isConstant()) {
-                return this;
+        for (int i = 0; i < simplifiedParameters.parameters.length; i++) {
+            if (!simplifiedParameters.parameters[i].isConstant()) {
+                return simplifiedParameters;
             }
         }
         return new ConstantExpression(evaluateDouble());
+    }
+
+    private FunctionCall simplifyParameters() {
+        if (parameters.length == 0) {
+            return this;
+        } else {
+            final IParsedExpression[] simplifiedParameters = new IParsedExpression[parameters.length];
+            for (int i = 0; i < simplifiedParameters.length; i++) {
+                simplifiedParameters[i] = parameters[i].simplify();
+            }
+            return new FunctionCall(context, function, simplifiedParameters);
+        }
     }
 
     public IParsedExpression[] getParameters() {
