@@ -10,4 +10,6 @@ public interface IFunctionParameterInfo {
 
     String getType();
 
+    boolean isOptional();
+
 }

@@ -2,16 +2,16 @@ package de.invesdwin.util.math.expression.eval;
 
 import javax.annotation.concurrent.Immutable;
 
+import de.invesdwin.util.math.expression.AFunction;
 import de.invesdwin.util.math.expression.ExpressionReturnType;
 import de.invesdwin.util.math.expression.IExpression;
-import de.invesdwin.util.math.expression.IFunction;
 import de.invesdwin.util.math.expression.IFunctionParameterInfo;
 import de.invesdwin.util.time.fdate.FDate;
 
 @Immutable
 public final class Functions {
 
-    public static final IFunction SIN = new AUnaryFunction() {
+    public static final AFunction SIN = new AUnaryFunction() {
         @Override
         protected double eval(final double a) {
             return Math.sin(a);
@@ -53,6 +53,11 @@ public final class Functions {
                 public String getDescription() {
                     return "An angle, in radians.";
                 }
+
+                @Override
+                public boolean isOptional() {
+                    return false;
+                }
             };
         }
 
@@ -67,7 +72,7 @@ public final class Functions {
         }
     };
 
-    public static final IFunction SINH = new AUnaryFunction() {
+    public static final AFunction SINH = new AUnaryFunction() {
         @Override
         protected double eval(final double a) {
             return Math.sinh(a);
@@ -109,6 +114,11 @@ public final class Functions {
                 public String getDescription() {
                     return "The number whose hyperbolic sine is to be returned.";
                 }
+
+                @Override
+                public boolean isOptional() {
+                    return false;
+                }
             };
         }
 
@@ -124,7 +134,7 @@ public final class Functions {
         }
     };
 
-    public static final IFunction COS = new AUnaryFunction() {
+    public static final AFunction COS = new AUnaryFunction() {
         @Override
         protected double eval(final double a) {
             return Math.cos(a);
@@ -166,6 +176,11 @@ public final class Functions {
                 public String getDescription() {
                     return "An angle, in radians.";
                 }
+
+                @Override
+                public boolean isOptional() {
+                    return false;
+                }
             };
         }
 
@@ -180,7 +195,7 @@ public final class Functions {
         }
     };
 
-    public static final IFunction COSH = new AUnaryFunction() {
+    public static final AFunction COSH = new AUnaryFunction() {
         @Override
         protected double eval(final double a) {
             return Math.cosh(a);
@@ -222,6 +237,11 @@ public final class Functions {
                 public String getDescription() {
                     return "The number whose hyperbolic cosine is to be returned.";
                 }
+
+                @Override
+                public boolean isOptional() {
+                    return false;
+                }
             };
         }
 
@@ -237,7 +257,7 @@ public final class Functions {
         }
     };
 
-    public static final IFunction TAN = new AUnaryFunction() {
+    public static final AFunction TAN = new AUnaryFunction() {
         @Override
         protected double eval(final double a) {
             return Math.tan(a);
@@ -279,6 +299,11 @@ public final class Functions {
                 public String getDescription() {
                     return "An angle, in radians.";
                 }
+
+                @Override
+                public boolean isOptional() {
+                    return false;
+                }
             };
         }
 
@@ -293,7 +318,7 @@ public final class Functions {
         }
     };
 
-    public static final IFunction TANH = new AUnaryFunction() {
+    public static final AFunction TANH = new AUnaryFunction() {
         @Override
         protected double eval(final double a) {
             return Math.tanh(a);
@@ -335,6 +360,11 @@ public final class Functions {
                 public String getDescription() {
                     return "The number whose hyperbolic tangent is to be returned.";
                 }
+
+                @Override
+                public boolean isOptional() {
+                    return false;
+                }
             };
         }
 
@@ -351,7 +381,7 @@ public final class Functions {
         }
     };
 
-    public static final IFunction ABS = new AUnaryFunction() {
+    public static final AFunction ABS = new AUnaryFunction() {
         @Override
         protected double eval(final double a) {
             return Math.abs(a);
@@ -393,6 +423,11 @@ public final class Functions {
                 public String getDescription() {
                     return "The argument whose absolute value is to be determined.";
                 }
+
+                @Override
+                public boolean isOptional() {
+                    return false;
+                }
             };
         }
 
@@ -408,7 +443,7 @@ public final class Functions {
         }
     };
 
-    public static final IFunction ASIN = new AUnaryFunction() {
+    public static final AFunction ASIN = new AUnaryFunction() {
         @Override
         protected double eval(final double a) {
             return Math.asin(a);
@@ -450,6 +485,11 @@ public final class Functions {
                 public String getDescription() {
                     return "The value whose arc sine is to be returned.";
                 }
+
+                @Override
+                public boolean isOptional() {
+                    return false;
+                }
             };
         }
 
@@ -464,7 +504,7 @@ public final class Functions {
         }
     };
 
-    public static final IFunction ACOS = new AUnaryFunction() {
+    public static final AFunction ACOS = new AUnaryFunction() {
         @Override
         protected double eval(final double a) {
             return Math.acos(a);
@@ -506,6 +546,11 @@ public final class Functions {
                 public String getDescription() {
                     return "The value whose arc cosine is to be returned.";
                 }
+
+                @Override
+                public boolean isOptional() {
+                    return false;
+                }
             };
         }
 
@@ -520,7 +565,7 @@ public final class Functions {
         }
     };
 
-    public static final IFunction ATAN = new AUnaryFunction() {
+    public static final AFunction ATAN = new AUnaryFunction() {
         @Override
         protected double eval(final double a) {
             return Math.atan(a);
@@ -562,6 +607,11 @@ public final class Functions {
                 public String getDescription() {
                     return "The value whose arc tangent is to be returned.";
                 }
+
+                @Override
+                public boolean isOptional() {
+                    return false;
+                }
             };
         }
 
@@ -576,7 +626,7 @@ public final class Functions {
         }
     };
 
-    public static final IFunction ATAN2 = new ABinaryFunction() {
+    public static final AFunction ATAN2 = new ABinaryFunction() {
         @Override
         protected double eval(final double a, final double b) {
             return Math.atan2(a, b);
@@ -617,6 +667,11 @@ public final class Functions {
                     public String getDescription() {
                         return "The ordinate coordinate.";
                     }
+
+                    @Override
+                    public boolean isOptional() {
+                        return false;
+                    }
                 };
             case 1:
                 return new IFunctionParameterInfo() {
@@ -640,6 +695,11 @@ public final class Functions {
                     public String getDescription() {
                         return "The abscissa coordinate.";
                     }
+
+                    @Override
+                    public boolean isOptional() {
+                        return false;
+                    }
                 };
             default:
                 throw new ArrayIndexOutOfBoundsException(index);
@@ -658,7 +718,7 @@ public final class Functions {
         }
     };
 
-    public static final IFunction ROUND = new AUnaryFunction() {
+    public static final AFunction ROUND = new AUnaryFunction() {
         @Override
         protected double eval(final double a) {
             return Math.round(a);
@@ -700,6 +760,11 @@ public final class Functions {
                 public String getDescription() {
                     return "A floating-point value to be rounded to a long.";
                 }
+
+                @Override
+                public boolean isOptional() {
+                    return false;
+                }
             };
         }
 
@@ -714,7 +779,7 @@ public final class Functions {
         }
     };
 
-    public static final IFunction FLOOR = new AUnaryFunction() {
+    public static final AFunction FLOOR = new AUnaryFunction() {
         @Override
         protected double eval(final double a) {
             return Math.floor(a);
@@ -756,6 +821,11 @@ public final class Functions {
                 public String getDescription() {
                     return null;
                 }
+
+                @Override
+                public boolean isOptional() {
+                    return false;
+                }
             };
         }
 
@@ -771,7 +841,7 @@ public final class Functions {
         }
     };
 
-    public static final IFunction CEIL = new AUnaryFunction() {
+    public static final AFunction CEIL = new AUnaryFunction() {
         @Override
         protected double eval(final double a) {
             return Math.ceil(a);
@@ -813,6 +883,11 @@ public final class Functions {
                 public String getDescription() {
                     return null;
                 }
+
+                @Override
+                public boolean isOptional() {
+                    return false;
+                }
             };
         }
 
@@ -828,7 +903,7 @@ public final class Functions {
         }
     };
 
-    public static final IFunction POW = new ABinaryFunction() {
+    public static final AFunction POW = new ABinaryFunction() {
         @Override
         protected double eval(final double a, final double b) {
             return Math.pow(a, b);
@@ -869,6 +944,11 @@ public final class Functions {
                     public String getDescription() {
                         return "The base.";
                     }
+
+                    @Override
+                    public boolean isOptional() {
+                        return false;
+                    }
                 };
             case 1:
                 return new IFunctionParameterInfo() {
@@ -892,6 +972,11 @@ public final class Functions {
                     public String getDescription() {
                         return "The exponent.";
                     }
+
+                    @Override
+                    public boolean isOptional() {
+                        return false;
+                    }
                 };
             default:
                 throw new ArrayIndexOutOfBoundsException(index);
@@ -909,7 +994,7 @@ public final class Functions {
         }
     };
 
-    public static final IFunction SQRT = new AUnaryFunction() {
+    public static final AFunction SQRT = new AUnaryFunction() {
         @Override
         protected double eval(final double a) {
             return Math.sqrt(a);
@@ -952,6 +1037,11 @@ public final class Functions {
                     return null;
                 }
 
+                @Override
+                public boolean isOptional() {
+                    return false;
+                }
+
             };
         }
 
@@ -966,7 +1056,7 @@ public final class Functions {
         }
     };
 
-    public static final IFunction EXP = new AUnaryFunction() {
+    public static final AFunction EXP = new AUnaryFunction() {
         @Override
         protected double eval(final double a) {
             return Math.exp(a);
@@ -1008,6 +1098,11 @@ public final class Functions {
                 public String getDescription() {
                     return "The exponent to raise e to.";
                 }
+
+                @Override
+                public boolean isOptional() {
+                    return false;
+                }
             };
         }
 
@@ -1022,7 +1117,7 @@ public final class Functions {
         }
     };
 
-    public static final IFunction LN = new AUnaryFunction() {
+    public static final AFunction LN = new AUnaryFunction() {
         @Override
         protected double eval(final double a) {
             return Math.log(a);
@@ -1064,6 +1159,11 @@ public final class Functions {
                 public String getDescription() {
                     return null;
                 }
+
+                @Override
+                public boolean isOptional() {
+                    return false;
+                }
             };
         }
 
@@ -1078,7 +1178,7 @@ public final class Functions {
         }
     };
 
-    public static final IFunction LOG = new AUnaryFunction() {
+    public static final AFunction LOG = new AUnaryFunction() {
         @Override
         protected double eval(final double a) {
             return Math.log10(a);
@@ -1120,6 +1220,11 @@ public final class Functions {
                 public String getDescription() {
                     return null;
                 }
+
+                @Override
+                public boolean isOptional() {
+                    return false;
+                }
             };
         }
 
@@ -1134,7 +1239,7 @@ public final class Functions {
         }
     };
 
-    public static final IFunction MIN = new ABinaryFunction() {
+    public static final AFunction MIN = new ABinaryFunction() {
         @Override
         protected double eval(final double a, final double b) {
             return Math.min(a, b);
@@ -1175,6 +1280,11 @@ public final class Functions {
                     public String getDescription() {
                         return "An argument.";
                     }
+
+                    @Override
+                    public boolean isOptional() {
+                        return false;
+                    }
                 };
             case 1:
                 return new IFunctionParameterInfo() {
@@ -1198,6 +1308,11 @@ public final class Functions {
                     public String getDescription() {
                         return "Another agument.";
                     }
+
+                    @Override
+                    public boolean isOptional() {
+                        return false;
+                    }
                 };
             default:
                 throw new ArrayIndexOutOfBoundsException(index);
@@ -1218,7 +1333,7 @@ public final class Functions {
         }
     };
 
-    public static final IFunction MAX = new ABinaryFunction() {
+    public static final AFunction MAX = new ABinaryFunction() {
         @Override
         protected double eval(final double a, final double b) {
             return Math.max(a, b);
@@ -1259,6 +1374,11 @@ public final class Functions {
                     public String getDescription() {
                         return "An argument.";
                     }
+
+                    @Override
+                    public boolean isOptional() {
+                        return false;
+                    }
                 };
             case 1:
                 return new IFunctionParameterInfo() {
@@ -1282,6 +1402,11 @@ public final class Functions {
                     public String getDescription() {
                         return "Another agument.";
                     }
+
+                    @Override
+                    public boolean isOptional() {
+                        return false;
+                    }
                 };
             default:
                 throw new ArrayIndexOutOfBoundsException(index);
@@ -1302,7 +1427,7 @@ public final class Functions {
         }
     };
 
-    public static final IFunction RND = new AUnaryFunction() {
+    public static final AFunction RND = new AUnaryFunction() {
         @Override
         protected double eval(final double a) {
             return Math.random() * a;
@@ -1344,6 +1469,11 @@ public final class Functions {
                 public String getDescription() {
                     return "A value to multiply the random value with in order to define the maximum result (inclusive).";
                 }
+
+                @Override
+                public boolean isOptional() {
+                    return false;
+                }
             };
         }
 
@@ -1358,7 +1488,7 @@ public final class Functions {
         }
     };
 
-    public static final IFunction SIGN = new AUnaryFunction() {
+    public static final AFunction SIGN = new AUnaryFunction() {
         @Override
         protected double eval(final double a) {
             return Math.signum(a);
@@ -1400,6 +1530,11 @@ public final class Functions {
                 public String getDescription() {
                     return "The floating-point value whose signum is to be returned.";
                 }
+
+                @Override
+                public boolean isOptional() {
+                    return false;
+                }
             };
         }
 
@@ -1415,7 +1550,7 @@ public final class Functions {
         }
     };
 
-    public static final IFunction DEG = new AUnaryFunction() {
+    public static final AFunction DEG = new AUnaryFunction() {
         @Override
         protected double eval(final double a) {
             return Math.toDegrees(a);
@@ -1457,6 +1592,11 @@ public final class Functions {
                 public String getDescription() {
                     return "An angle, in radians.";
                 }
+
+                @Override
+                public boolean isOptional() {
+                    return false;
+                }
             };
         }
 
@@ -1472,7 +1612,7 @@ public final class Functions {
         }
     };
 
-    public static final IFunction RAD = new AUnaryFunction() {
+    public static final AFunction RAD = new AUnaryFunction() {
         @Override
         protected double eval(final double a) {
             return Math.toRadians(a);
@@ -1514,6 +1654,11 @@ public final class Functions {
                 public String getDescription() {
                     return "An angle, in degrees.";
                 }
+
+                @Override
+                public boolean isOptional() {
+                    return false;
+                }
             };
         }
 
@@ -1529,7 +1674,7 @@ public final class Functions {
         }
     };
 
-    public static final IFunction IF = new IFunction() {
+    public static final AFunction IF = new AFunction() {
 
         @Override
         public String getExpressionName() {
@@ -1606,6 +1751,11 @@ public final class Functions {
                     public String getDescription() {
                         return "The boolean expression to evaluate. A value greater than 0 means true.";
                     }
+
+                    @Override
+                    public boolean isOptional() {
+                        return false;
+                    }
                 };
             case 1:
                 return new IFunctionParameterInfo() {
@@ -1628,6 +1778,11 @@ public final class Functions {
                     @Override
                     public String getDescription() {
                         return "The return value when the if condition is true.";
+                    }
+
+                    @Override
+                    public boolean isOptional() {
+                        return false;
                     }
                 };
             case 2:
@@ -1652,6 +1807,11 @@ public final class Functions {
                     public String getDescription() {
                         return "The return value when the if condition is not true.";
                     }
+
+                    @Override
+                    public boolean isOptional() {
+                        return false;
+                    }
                 };
             default:
                 throw new ArrayIndexOutOfBoundsException(index);
@@ -1669,7 +1829,7 @@ public final class Functions {
         }
     };
 
-    public static final IFunction ISNAN = new IFunction() {
+    public static final AFunction ISNAN = new AFunction() {
 
         @Override
         public String getExpressionName() {
@@ -1747,6 +1907,11 @@ public final class Functions {
                 public String getDescription() {
                     return null;
                 }
+
+                @Override
+                public boolean isOptional() {
+                    return false;
+                }
             };
         }
 
@@ -1761,7 +1926,7 @@ public final class Functions {
         }
     };
 
-    public static final IFunction ISTRUE = new IFunction() {
+    public static final AFunction ISTRUE = new AFunction() {
 
         @Override
         public String getExpressionName() {
@@ -1839,6 +2004,11 @@ public final class Functions {
                 public String getDescription() {
                     return "The boolean expression to evaluate.";
                 }
+
+                @Override
+                public boolean isOptional() {
+                    return false;
+                }
             };
         }
 
@@ -1853,7 +2023,7 @@ public final class Functions {
         }
     };
 
-    public static final IFunction ISFALSE = new IFunction() {
+    public static final AFunction ISFALSE = new AFunction() {
 
         @Override
         public String getExpressionName() {
@@ -1931,6 +2101,11 @@ public final class Functions {
                 public String getDescription() {
                     return "The boolean expression to evaluate.";
                 }
+
+                @Override
+                public boolean isOptional() {
+                    return false;
+                }
             };
         }
 
@@ -1945,7 +2120,7 @@ public final class Functions {
         }
     };
 
-    public static final IFunction NEGATE = new IFunction() {
+    public static final AFunction NEGATE = new AFunction() {
 
         @Override
         public String getExpressionName() {
@@ -2011,6 +2186,11 @@ public final class Functions {
                 public String getDescription() {
                     return "The value to negate.";
                 }
+
+                @Override
+                public boolean isOptional() {
+                    return false;
+                }
             };
         }
 
@@ -2025,7 +2205,7 @@ public final class Functions {
         }
     };
 
-    public static final IFunction NOT = new IFunction() {
+    public static final AFunction NOT = new AFunction() {
 
         @Override
         public String getExpressionName() {
@@ -2102,6 +2282,11 @@ public final class Functions {
                 @Override
                 public String getDescription() {
                     return "The boolean expression to negate.";
+                }
+
+                @Override
+                public boolean isOptional() {
+                    return false;
                 }
             };
         }

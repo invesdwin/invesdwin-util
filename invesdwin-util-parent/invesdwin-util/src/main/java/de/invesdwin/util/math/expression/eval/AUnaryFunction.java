@@ -2,12 +2,12 @@ package de.invesdwin.util.math.expression.eval;
 
 import javax.annotation.concurrent.Immutable;
 
+import de.invesdwin.util.math.expression.AFunction;
 import de.invesdwin.util.math.expression.IExpression;
-import de.invesdwin.util.math.expression.IFunction;
 import de.invesdwin.util.time.fdate.FDate;
 
 @Immutable
-public abstract class AUnaryFunction implements IFunction {
+public abstract class AUnaryFunction extends AFunction {
 
     @Override
     public int getNumberOfArguments() {

@@ -2,14 +2,14 @@ package de.invesdwin.util.math.expression.eval;
 
 import javax.annotation.concurrent.Immutable;
 
+import de.invesdwin.util.math.expression.AFunction;
 import de.invesdwin.util.math.expression.ExpressionReturnType;
 import de.invesdwin.util.math.expression.IExpression;
-import de.invesdwin.util.math.expression.IFunction;
 import de.invesdwin.util.math.expression.IFunctionParameterInfo;
 import de.invesdwin.util.time.fdate.FDate;
 
 @Immutable
-public class VariableFunction implements IFunction {
+public class VariableFunction extends AFunction {
 
     private final String context;
     private final String name;

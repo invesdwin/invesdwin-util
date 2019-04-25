@@ -2,7 +2,7 @@ package de.invesdwin.util.math.expression.eval;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import de.invesdwin.util.math.expression.IFunction;
+import de.invesdwin.util.math.expression.AFunction;
 import de.invesdwin.util.time.fdate.FDate;
 
 @NotThreadSafe
@@ -12,21 +12,21 @@ public class FunctionCall implements IParsedExpression {
 
     private final String context;
     private final IParsedExpression[] parameters;
-    private final IFunction function;
+    private final AFunction function;
 
-    public FunctionCall(final String context, final IFunction function, final IParsedExpression[] parameters) {
+    public FunctionCall(final String context, final AFunction function, final IParsedExpression[] parameters) {
         this.context = context;
         this.function = function;
         this.parameters = parameters;
     }
 
-    public FunctionCall(final String context, final IFunction function, final IParsedExpression parameter) {
+    public FunctionCall(final String context, final AFunction function, final IParsedExpression parameter) {
         this.context = context;
         this.function = function;
         this.parameters = new IParsedExpression[] { parameter };
     }
 
-    public FunctionCall(final String context, final IFunction function) {
+    public FunctionCall(final String context, final AFunction function) {
         this.context = context;
         this.function = function;
         this.parameters = EMPTY_PARAMETERS;

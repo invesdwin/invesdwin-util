@@ -51,7 +51,7 @@ public class ExpressionParser {
         }
     };
 
-    private static final Map<String, IFunction> DEFAULT_FUNCTIONS;
+    private static final Map<String, AFunction> DEFAULT_FUNCTIONS;
     private static final Map<String, VariableReference> DEFAULT_VARIABLES;
 
     private final Tokenizer tokenizer;
@@ -110,11 +110,11 @@ public class ExpressionParser {
         return Strings.replaceEach(expressionLowerCase, MODIFY_INPUT, MODIFY_OUTPUT);
     }
 
-    public static void registerDefaultFunction(final IFunction function) {
+    public static void registerDefaultFunction(final AFunction function) {
         DEFAULT_FUNCTIONS.put(function.getExpressionName().toLowerCase(), function);
     }
 
-    public static Collection<IFunction> getDefaultFunctions() {
+    public static Collection<AFunction> getDefaultFunctions() {
         return DEFAULT_FUNCTIONS.values();
     }
 
@@ -428,7 +428,7 @@ public class ExpressionParser {
             variableName = variableStr;
         }
 
-        final IParsedExpression variable = findVariable(variableContext, variableName);
+        final IParsedExpression variable = findVariable(variableToken, variableContext, variableName);
         if (variable == null) {
             throw new ParseException(variableToken,
                     String.format("Unknown variable: '%s'", variableToken.getContents()));
@@ -500,7 +500,7 @@ public class ExpressionParser {
             functionContext = null;
             functionName = functionStr;
         }
-        final IFunction fun = findFunction(functionContext, functionName);
+        final AFunction fun = findFunction(functionContext, functionName);
         if (fun == null) {
             throw new ParseException(funToken, String.format("Unknown function: '%s'", functionStr));
         }
@@ -513,18 +513,20 @@ public class ExpressionParser {
             parameters.add(expression());
         }
         expect(Token.TokenType.SYMBOL, ")");
-        final int numberOfArguments = fun.getNumberOfArguments();
-        if (parameters.size() != numberOfArguments && numberOfArguments >= 0) {
+        final int numberOfArgumentsMax = fun.getNumberOfArguments();
+        final int numberOfArgumentsMin = fun.getNumberOfArgumentsRequired();
+        final int arguments = parameters.size();
+        if (arguments < numberOfArgumentsMin || arguments > numberOfArgumentsMax) {
             throw new ParseException(funToken,
-                    String.format("Number of arguments for function '%s' do not match. Expected: %d, Found: %d",
-                            functionStr, numberOfArguments, parameters.size()));
+                    String.format("Number of arguments for function '%s' does not match. Expected: %d to %d, Found: %d",
+                            functionStr, numberOfArgumentsMin, numberOfArgumentsMax, arguments));
         }
-        final IParsedExpression[] parametersArray = parameters.toArray(new IParsedExpression[parameters.size()]);
+        final IParsedExpression[] parametersArray = parameters.toArray(new IParsedExpression[arguments]);
         return new FunctionCall(functionContext, fun, parametersArray);
     }
 
-    private IFunction findFunction(final String context, final String name) {
-        final IFunction function = getFunction(context, name);
+    private AFunction findFunction(final String context, final String name) {
+        final AFunction function = getFunction(context, name);
         if (function != null) {
             return function;
         }
@@ -538,19 +540,26 @@ public class ExpressionParser {
         return null;
     }
 
-    protected IFunction getFunction(final String context, final String name) {
+    protected AFunction getFunction(final String context, final String name) {
         return DEFAULT_FUNCTIONS.get(name);
     }
 
-    private IParsedExpression findVariable(final String context, final String name) {
+    private IParsedExpression findVariable(final Token variableToken, final String context, final String name) {
         final IParsedExpression variable = getVariable(context, name);
         if (variable != null) {
             return variable;
         }
         //redirect to function if possible
-        final IFunction function = getFunction(context, name);
-        if (function != null && function.getNumberOfArguments() == 0) {
-            return new FunctionCall(context, function);
+        final AFunction function = getFunction(context, name);
+        if (function != null) {
+            if (function.getNumberOfArgumentsRequired() == 0) {
+                return new FunctionCall(context, function);
+            } else {
+                throw new ParseException(variableToken,
+                        String.format(
+                                "Numberof arguments for function '%s' does not match. Exprected: %d to %d, Found 0",
+                                name, function.getNumberOfArgumentsRequired(), function.getNumberOfArguments()));
+            }
         }
         return null;
     }
