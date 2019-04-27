@@ -39,6 +39,11 @@ public class TimedDecimal extends Decimal implements IHistoricalValue<TimedDecim
             public TimedDecimal getValue() {
                 return TimedDecimal.this;
             }
+
+            @Override
+            public String toString() {
+                return getKey() + " -> " + getValue();
+            }
         };
     }
 

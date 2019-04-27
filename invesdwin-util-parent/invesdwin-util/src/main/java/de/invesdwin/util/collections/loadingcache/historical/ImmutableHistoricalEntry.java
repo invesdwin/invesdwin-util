@@ -59,4 +59,9 @@ public final class ImmutableHistoricalEntry<T> implements IHistoricalEntry<T> {
             return ImmutableHistoricalEntry.of(valueKey, value);
         }
     }
+
+    @Override
+    public String toString() {
+        return getKey() + " -> " + getValue();
+    }
 }

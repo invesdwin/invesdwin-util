@@ -725,6 +725,11 @@ public class FDate implements IDate, Serializable, Cloneable, Comparable<Object>
             public FDate getKey() {
                 return FDate.this;
             }
+
+            @Override
+            public String toString() {
+                return getKey() + " -> " + getValue();
+            }
         };
     }
 

@@ -24,8 +24,8 @@ final class FullRecursionKeysResult implements IHistoricalValue<FullRecursionKey
 
     FullRecursionKeysResult(final FDate key, final int fullRecursionCount, final AHistoricalCache<?> parent,
             final IHistoricalCacheQuery<?> parentQueryWithFutureNull) {
-        this.key = IndexedFDate.maybeWrap(key).putExtractedKey(parent.getExtractKeyProvider(),
-                parent.getAdjustKeyProvider());
+        this.key = IndexedFDate.maybeWrap(key)
+                .putExtractedKey(parent.getExtractKeyProvider(), parent.getAdjustKeyProvider());
         this.fullRecursionCount = fullRecursionCount;
         this.parent = parent;
         this.parentQueryWithFutureNull = parentQueryWithFutureNull;
@@ -98,6 +98,11 @@ final class FullRecursionKeysResult implements IHistoricalValue<FullRecursionKey
             @Override
             public FullRecursionKeysResult getValue() {
                 return FullRecursionKeysResult.this;
+            }
+
+            @Override
+            public String toString() {
+                return getKey() + " -> " + getValue();
             }
         };
     }
