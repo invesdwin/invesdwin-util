@@ -30,10 +30,6 @@ import de.invesdwin.util.time.fdate.FDate;
 @ThreadSafe
 public class TrailingHistoricalCacheQueryCore<V> extends ACachedEntriesHistoricalCacheQueryCore<V> {
 
-    //    private static final org.slf4j.ext.XLogger LOG = org.slf4j.ext.XLoggerFactory
-    //            .getXLogger(CachedHistoricalCacheQueryCore.class);
-    //    private static final int COUNT_RESETS_BEFORE_WARNING = 100;
-
     private final CachedHistoricalCacheQueryCore<V> delegate;
     @GuardedBy("cachedQueryActiveLock")
     private int countResets = 0;
@@ -99,33 +95,9 @@ public class TrailingHistoricalCacheQueryCore<V> extends ACachedEntriesHistorica
             }
         } else {
             cachedQueryActive.setTrue();
-            //                try {
             final ICloseableIterable<IHistoricalEntry<V>> result = tryCachedGetPreviousEntriesIfAvailable(query, key,
                     shiftBackUnits);
             return new UnlockingResultIterable(result);
-            //                } catch (final ResetCacheException e) {
-            //                    countResets++;
-            //                    if (countResets % COUNT_RESETS_BEFORE_WARNING == 0
-            //                            || AHistoricalCache.isDebugAutomaticReoptimization()) {
-            //                        if (LOG.isWarnEnabled()) {
-            //                            //CHECKSTYLE:OFF
-            //                            LOG.warn(
-            //                                    "{}: resetting {} for the {}. time now and retrying after exception [{}: {}], if this happens too often we might encounter bad performance due to inefficient caching",
-            //                                    delegate.getParent(), getClass().getSimpleName(), countResets,
-            //                                    e.getClass().getSimpleName(), e.getMessage());
-            //                            //CHECKSTYLE:ON
-            //                        }
-            //                    }
-            //                    resetForRetry();
-            //                    try {
-            //                        final ICloseableIterable<IHistoricalEntry<V>> result = tryCachedGetPreviousEntriesIfAvailable(
-            //                                query, key, shiftBackUnits);
-            //                        return result;
-            //                    } catch (final ResetCacheException e1) {
-            //                        throw new RuntimeException("Follow up " + ResetCacheException.class.getSimpleName()
-            //                                + " on retry after:" + e.toString(), e1);
-            //                    }
-            //                }
         }
     }
 

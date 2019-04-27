@@ -122,14 +122,9 @@ public class CachedHistoricalCacheQueryCore<V> extends ACachedResultHistoricalCa
             final List<IHistoricalEntry<V>> result = queryPreviousEntries(query, key, shiftBackUnits, trailing);
             return WrapperCloseableIterable.maybeWrap(result);
         } else {
-            try {
-                cachedQueryActive.setTrue();
-                final List<IHistoricalEntry<V>> result = getPreviousEntriesListUnlocked(query, key, shiftBackUnits);
-                return new UnlockingResultIterable(WrapperCloseableIterable.maybeWrap(result));
-            } finally {
-                cachedQueryActive.setFalse();
-                cachedQueryActiveLock.unlock();
-            }
+            cachedQueryActive.setTrue();
+            final List<IHistoricalEntry<V>> result = getPreviousEntriesListUnlocked(query, key, shiftBackUnits);
+            return new UnlockingResultIterable(WrapperCloseableIterable.maybeWrap(result));
         }
     }
 
