@@ -1,8 +1,8 @@
 package de.invesdwin.util.collections.loadingcache.historical.query.internal.core;
 
 import java.util.Collections;
-import java.util.ConcurrentModificationException;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
@@ -10,7 +10,6 @@ import javax.annotation.concurrent.ThreadSafe;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.SingleValueIterable;
 import de.invesdwin.util.collections.iterable.WrapperCloseableIterable;
-import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
 import de.invesdwin.util.collections.loadingcache.historical.IHistoricalEntry;
 import de.invesdwin.util.collections.loadingcache.historical.ImmutableHistoricalEntry;
 import de.invesdwin.util.collections.loadingcache.historical.query.index.IndexedFDate;
@@ -27,10 +26,9 @@ import de.invesdwin.util.time.fdate.FDate;
 public class CachedHistoricalCacheQueryCore<V> extends ACachedResultHistoricalCacheQueryCore<V> {
 
     private static final int INITIAL_MAX_CACHED_INDEX = 10000;
-    private static final org.slf4j.ext.XLogger LOG = org.slf4j.ext.XLoggerFactory
-            .getXLogger(CachedHistoricalCacheQueryCore.class);
     private static final int REQUIRED_SIZE_MULTIPLICATOR = 2;
-    private static final int COUNT_RESETS_BEFORE_WARNING = 100;
+
+    private final AtomicLong reqId = new AtomicLong(0);
 
     private final DefaultHistoricalCacheQueryCore<V> delegate;
     @GuardedBy("cachedQueryActiveLock")
@@ -39,7 +37,7 @@ public class CachedHistoricalCacheQueryCore<V> extends ACachedResultHistoricalCa
     private final ILock cachedQueryActiveLock = Locks
             .newReentrantLock(getClass().getSimpleName() + "_cachedQueryActiveLock");
     @GuardedBy("cachedQueryActiveLock")
-    private boolean cachedQueryActive = false;
+    private volatile boolean cachedQueryActive = false;
 
     public CachedHistoricalCacheQueryCore(final IHistoricalCacheInternalMethods<V> parent) {
         this.delegate = new DefaultHistoricalCacheQueryCore<V>(parent);
@@ -111,32 +109,41 @@ public class CachedHistoricalCacheQueryCore<V> extends ACachedResultHistoricalCa
         } else {
             try {
                 cachedQueryActive = true;
+                final String req = System.identityHashCode(this) + " " + Thread.currentThread().getName() + " - "
+                        + reqId.incrementAndGet();
                 try {
+                    System.out.println("++ normal " + req);
                     final List<IHistoricalEntry<V>> result = tryCachedGetPreviousEntriesIfAvailable(query, key,
                             shiftBackUnits);
+                    System.out.println("-- normal " + req);
                     return result;
-                } catch (final ResetCacheException | ConcurrentModificationException e) {
-                    countResets++;
-                    if (countResets % COUNT_RESETS_BEFORE_WARNING == 0
-                            || AHistoricalCache.isDebugAutomaticReoptimization()) {
-                        if (LOG.isWarnEnabled()) {
-                            //CHECKSTYLE:OFF
-                            LOG.warn(
-                                    "{}: resetting {} for the {}. time now and retrying after exception [{}: {}], if this happens too often we might encounter bad performance due to inefficient caching",
-                                    delegate.getParent(), getClass().getSimpleName(), countResets,
-                                    e.getClass().getSimpleName(), e.getMessage());
-                            //CHECKSTYLE:ON
-                        }
-                    }
-                    resetForRetry();
-                    try {
-                        final List<IHistoricalEntry<V>> result = tryCachedGetPreviousEntriesIfAvailable(query, key,
-                                shiftBackUnits);
-                        return result;
-                    } catch (final ResetCacheException e1) {
-                        throw new RuntimeException("Follow up " + ResetCacheException.class.getSimpleName()
-                                + " on retry after:" + e.toString(), e1);
-                    }
+                } catch (final Throwable e) {
+                    System.out.println("-- normal " + req + ": " + e.toString());
+                    throw new RuntimeException(e);
+                    //                    countResets++;
+                    //                    if (countResets % COUNT_RESETS_BEFORE_WARNING == 0
+                    //                            || AHistoricalCache.isDebugAutomaticReoptimization()) {
+                    //                        if (LOG.isWarnEnabled()) {
+                    //                            //CHECKSTYLE:OFF
+                    //                            LOG.warn(
+                    //                                    "{}: resetting {} for the {}. time now and retrying after exception [{}: {}], if this happens too often we might encounter bad performance due to inefficient caching",
+                    //                                    delegate.getParent(), getClass().getSimpleName(), countResets,
+                    //                                    e.getClass().getSimpleName(), e.getMessage());
+                    //                            //CHECKSTYLE:ON
+                    //                        }
+                    //                    }
+                    //                    resetForRetry();
+                    //                    try {
+                    //                        System.out.println("++ retry " + req);
+                    //                        final List<IHistoricalEntry<V>> result = tryCachedGetPreviousEntriesIfAvailable(query, key,
+                    //                                shiftBackUnits);
+                    //                        System.out.println("-- retry " + req);
+                    //                        return result;
+                    //                    } catch (final ResetCacheException e1) {
+                    //                        System.out.println("-- retry " + req + ": " + e1.toString());
+                    //                        throw new RuntimeException("Follow up " + ResetCacheException.class.getSimpleName()
+                    //                                + " on retry after:" + e.toString(), e1);
+                    //                    }
                 }
             } finally {
                 cachedQueryActive = false;
@@ -146,8 +153,7 @@ public class CachedHistoricalCacheQueryCore<V> extends ACachedResultHistoricalCa
     }
 
     private List<IHistoricalEntry<V>> tryCachedGetPreviousEntriesIfAvailable(
-            final IHistoricalCacheQueryInternalMethods<V> query, final FDate key, final int shiftBackUnits)
-            throws ResetCacheException {
+            final IHistoricalCacheQueryInternalMethods<V> query, final FDate key, final int shiftBackUnits) {
         final List<IHistoricalEntry<V>> result;
         if (!cachedPreviousEntries.isEmpty()) {
             result = cachedGetPreviousEntries(query, key, shiftBackUnits);
@@ -160,7 +166,7 @@ public class CachedHistoricalCacheQueryCore<V> extends ACachedResultHistoricalCa
     }
 
     private List<IHistoricalEntry<V>> cachedGetPreviousEntries(final IHistoricalCacheQueryInternalMethods<V> query,
-            final FDate key, final int shiftBackUnits) throws ResetCacheException {
+            final FDate key, final int shiftBackUnits) {
         final IHistoricalEntry<V> firstCachedEntry = getFirstCachedEntry();
         final IHistoricalEntry<V> lastCachedEntry = getLastCachedEntry();
         if (key.equalsNotNullSafe(cachedPreviousEntriesKey) || key.equalsNotNullSafe(lastCachedEntry.getKey())) {
@@ -214,12 +220,11 @@ public class CachedHistoricalCacheQueryCore<V> extends ACachedResultHistoricalCa
     /**
      * Use sublist if possible to reduce memory footprint of transient array lists to reduce garbage collection overhead
      * 
-     * @throws ResetCacheException
+     * @
      */
 
     private List<IHistoricalEntry<V>> tryCachedPreviousResult_incrementedKey(
-            final IHistoricalCacheQueryInternalMethods<V> query, final int shiftBackUnits, final FDate key)
-            throws ResetCacheException {
+            final IHistoricalCacheQueryInternalMethods<V> query, final int shiftBackUnits, final FDate key) {
         if (cachedPreviousEntries.isEmpty() || cachedPreviousResult_shiftBackUnits == null) {
             return null;
         }
@@ -257,7 +262,7 @@ public class CachedHistoricalCacheQueryCore<V> extends ACachedResultHistoricalCa
 
     private List<IHistoricalEntry<V>> cachedGetPreviousEntries_decrementedKey(
             final IHistoricalCacheQueryInternalMethods<V> query, final int shiftBackUnits, final FDate key,
-            final List<IHistoricalEntry<V>> trailing) throws ResetCacheException {
+            final List<IHistoricalEntry<V>> trailing) {
         int unitsBack = shiftBackUnits - 1;
         unitsBack = fillFromCacheAsFarAsPossible(trailing, unitsBack, key);
         if (unitsBack == -1) {
@@ -274,7 +279,7 @@ public class CachedHistoricalCacheQueryCore<V> extends ACachedResultHistoricalCa
 
     private List<IHistoricalEntry<V>> cachedGetPreviousEntries_incrementedKey(
             final IHistoricalCacheQueryInternalMethods<V> query, final int shiftBackUnits, final FDate key,
-            final List<IHistoricalEntry<V>> trailing) throws ResetCacheException {
+            final List<IHistoricalEntry<V>> trailing) {
         int unitsBack = fillFromQueryUntilCacheCanBeUsed(query, shiftBackUnits, key, trailing);
 
         if (unitsBack == -1) {
@@ -307,8 +312,7 @@ public class CachedHistoricalCacheQueryCore<V> extends ACachedResultHistoricalCa
     }
 
     private int fillFromQueryUntilCacheCanBeUsed(final IHistoricalCacheQueryInternalMethods<V> query,
-            final int shiftBackUnits, final FDate key, final List<IHistoricalEntry<V>> trailing)
-            throws ResetCacheException {
+            final int shiftBackUnits, final FDate key, final List<IHistoricalEntry<V>> trailing) {
         int unitsBack = shiftBackUnits - 1;
         //go through query as long as we found the first entry in the cache
         final GetPreviousEntryQueryImpl<V> impl = new GetPreviousEntryQueryImpl<V>(this, query, key, shiftBackUnits);
@@ -343,7 +347,7 @@ public class CachedHistoricalCacheQueryCore<V> extends ACachedResultHistoricalCa
     }
 
     private void prependCachedEntries(final FDate key, final List<IHistoricalEntry<V>> trailing,
-            final int trailingCountFoundInCache) throws ResetCacheException {
+            final int trailingCountFoundInCache) {
         for (int i = trailing.size() - trailingCountFoundInCache - 1; i >= 0; i--) {
             final IHistoricalEntry<V> prependEntry = trailing.get(i);
             if (!cachedPreviousEntries.isEmpty()) {
@@ -377,13 +381,13 @@ public class CachedHistoricalCacheQueryCore<V> extends ACachedResultHistoricalCa
     }
 
     private void appendCachedEntries(final FDate key, final List<IHistoricalEntry<V>> trailing,
-            final int trailingCountFoundInQuery) throws ResetCacheException {
+            final int trailingCountFoundInQuery) {
         for (int i = trailing.size() - trailingCountFoundInQuery; i < trailing.size(); i++) {
             final IHistoricalEntry<V> appendEntry = trailing.get(i);
             if (!cachedPreviousEntries.isEmpty()) {
                 final IHistoricalEntry<V> lastCachedEntry = getLastCachedEntry();
                 if (!appendEntry.getKey().isAfterNotNullSafe(lastCachedEntry.getKey())) {
-                    throw new ResetCacheException("appendEntry [" + appendEntry.getKey()
+                    throw new IllegalStateException("appendEntry [" + appendEntry.getKey()
                             + "] should be after lastCachedEntry [" + lastCachedEntry.getKey() + "]");
                 }
             }
@@ -410,7 +414,7 @@ public class CachedHistoricalCacheQueryCore<V> extends ACachedResultHistoricalCa
 
     private List<IHistoricalEntry<V>> cachedGetPreviousEntries_sameKey(
             final IHistoricalCacheQueryInternalMethods<V> query, final int shiftBackUnits, final FDate key,
-            final List<IHistoricalEntry<V>> trailing) throws ResetCacheException {
+            final List<IHistoricalEntry<V>> trailing) {
         int unitsBack = shiftBackUnits - 1;
         unitsBack = fillFromCacheAsFarAsPossible(trailing, unitsBack, null);
         if (unitsBack == -1) {
@@ -428,7 +432,7 @@ public class CachedHistoricalCacheQueryCore<V> extends ACachedResultHistoricalCa
     }
 
     private void loadFurtherTrailingValuesViaQuery(final IHistoricalCacheQueryInternalMethods<V> query,
-            final List<IHistoricalEntry<V>> trailing, final int unitsBack) throws ResetCacheException {
+            final List<IHistoricalEntry<V>> trailing, final int unitsBack) {
         assertUnitsBackNotExchausted(unitsBack);
         final FDate lastTrailingKey = trailing.get(0).getKey();
         //we need to load further values from the map
@@ -468,7 +472,7 @@ public class CachedHistoricalCacheQueryCore<V> extends ACachedResultHistoricalCa
         return newUnitsBack;
     }
 
-    private void assertUnitsBackNotExchausted(final int unitsBack) throws ResetCacheException {
+    private void assertUnitsBackNotExchausted(final int unitsBack) {
         if (unitsBack < 0) {
             throw new IllegalStateException("unitsBack should not become smaller than -1: " + unitsBack);
         }
@@ -484,9 +488,8 @@ public class CachedHistoricalCacheQueryCore<V> extends ACachedResultHistoricalCa
         return trailing;
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
     private int fillFromCacheAsFarAsPossible(final List<IHistoricalEntry<V>> trailing, final int unitsBack,
-            final FDate skippingKeysAbove) throws ResetCacheException {
+            final FDate skippingKeysAbove) {
         //prefill what is possible and add suffixes by query as needed
         final int cachedToIndex;
         if (skippingKeysAbove != null) {
@@ -507,15 +510,15 @@ public class CachedHistoricalCacheQueryCore<V> extends ACachedResultHistoricalCa
     //CHECKSTYLE:OFF
     @Override
     public int bisect(final FDate skippingKeysAbove, final List<IHistoricalEntry<V>> list, final Integer unitsBack,
-            final ACachedEntriesHistoricalCacheQueryCore<V> useIndex) throws ResetCacheException {
+            final ACachedEntriesHistoricalCacheQueryCore<V> useIndex) {
         //CHECKSTYLE:ON
         int lo = 0;
         int hi = list.size();
         if (unitsBack != null) {
             final FDate loTime = list.get(lo).getKey();
             if (skippingKeysAbove.isBeforeOrEqualToNotNullSafe(loTime) && hi >= maxCachedIndex) {
-                throw new ResetCacheException("Not enough data in cache for fillFromCacheAsFarAsPossible [" + unitsBack
-                        + "/" + maxCachedIndex + "/" + (hi - 1) + "]");
+                throw new IllegalStateException("Not enough data in cache for fillFromCacheAsFarAsPossible ["
+                        + unitsBack + "/" + maxCachedIndex + "/" + (hi - 1) + "]");
             }
         }
 
@@ -619,15 +622,11 @@ public class CachedHistoricalCacheQueryCore<V> extends ACachedResultHistoricalCa
                 return;
             }
             appendCachedEntryAndResult(valueKey, null, ImmutableHistoricalEntry.of(valueKey, value));
-        } catch (final ResetCacheException e) {
-            //should not happen here
-            throw new RuntimeException(e);
         } finally {
             cachedQueryActiveLock.unlock();
         }
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
     public void putPreviousKey(final FDate previousKey, final FDate valueKey) {
         if (!cachedQueryActiveLock.tryLock()) {
@@ -649,9 +648,6 @@ public class CachedHistoricalCacheQueryCore<V> extends ACachedResultHistoricalCa
             }
             final IHistoricalEntry<V> newEntry = getParent().computeEntry(valueKey);
             getParent().getPutProvider().put(newEntry, lastEntry, true);
-        } catch (final ResetCacheException e) {
-            //should not happen here
-            throw new RuntimeException(e);
         } finally {
             cachedQueryActiveLock.unlock();
         }

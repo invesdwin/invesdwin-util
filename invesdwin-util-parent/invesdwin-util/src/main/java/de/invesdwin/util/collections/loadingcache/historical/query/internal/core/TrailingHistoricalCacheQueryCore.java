@@ -1,7 +1,6 @@
 package de.invesdwin.util.collections.loadingcache.historical.query.internal.core;
 
 import java.util.Arrays;
-import java.util.ConcurrentModificationException;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -14,7 +13,6 @@ import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.collections.iterable.SingleValueIterable;
 import de.invesdwin.util.collections.iterable.WrapperCloseableIterable;
-import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
 import de.invesdwin.util.collections.loadingcache.historical.IHistoricalEntry;
 import de.invesdwin.util.collections.loadingcache.historical.ImmutableHistoricalEntry;
 import de.invesdwin.util.collections.loadingcache.historical.query.index.IndexedFDate;
@@ -27,17 +25,13 @@ import de.invesdwin.util.time.fdate.FDate;
 @ThreadSafe
 public class TrailingHistoricalCacheQueryCore<V> extends ACachedEntriesHistoricalCacheQueryCore<V> {
 
-    private static final org.slf4j.ext.XLogger LOG = org.slf4j.ext.XLoggerFactory
-            .getXLogger(CachedHistoricalCacheQueryCore.class);
-    private static final int COUNT_RESETS_BEFORE_WARNING = 100;
-
     private final CachedHistoricalCacheQueryCore<V> delegate;
     @GuardedBy("cachedQueryActiveLock")
     private int countResets = 0;
     private final ILock cachedQueryActiveLock = Locks
             .newReentrantLock(getClass().getSimpleName() + "_cachedQueryActiveLock");
     @GuardedBy("cachedQueryActiveLock")
-    private boolean cachedQueryActive = false;
+    private volatile boolean cachedQueryActive = false;
 
     public TrailingHistoricalCacheQueryCore(final IHistoricalCacheInternalMethods<V> parent) {
         this.delegate = new CachedHistoricalCacheQueryCore<V>(parent);
@@ -92,33 +86,9 @@ public class TrailingHistoricalCacheQueryCore<V> extends ACachedEntriesHistorica
         } else {
             try {
                 cachedQueryActive = true;
-                try {
-                    final ICloseableIterable<IHistoricalEntry<V>> result = tryCachedGetPreviousEntriesIfAvailable(query,
-                            key, shiftBackUnits);
-                    return result;
-                } catch (final ResetCacheException | ConcurrentModificationException e) {
-                    countResets++;
-                    if (countResets % COUNT_RESETS_BEFORE_WARNING == 0
-                            || AHistoricalCache.isDebugAutomaticReoptimization()) {
-                        if (LOG.isWarnEnabled()) {
-                            //CHECKSTYLE:OFF
-                            LOG.warn(
-                                    "{}: resetting {} for the {}. time now and retrying after exception [{}: {}], if this happens too often we might encounter bad performance due to inefficient caching",
-                                    delegate.getParent(), getClass().getSimpleName(), countResets,
-                                    e.getClass().getSimpleName(), e.getMessage());
-                            //CHECKSTYLE:ON
-                        }
-                    }
-                    resetForRetry();
-                    try {
-                        final ICloseableIterable<IHistoricalEntry<V>> result = tryCachedGetPreviousEntriesIfAvailable(
-                                query, key, shiftBackUnits);
-                        return result;
-                    } catch (final ResetCacheException e1) {
-                        throw new RuntimeException("Follow up " + ResetCacheException.class.getSimpleName()
-                                + " on retry after:" + e.toString(), e1);
-                    }
-                }
+                final ICloseableIterable<IHistoricalEntry<V>> result = tryCachedGetPreviousEntriesIfAvailable(query,
+                        key, shiftBackUnits);
+                return result;
             } finally {
                 cachedQueryActive = false;
                 cachedQueryActiveLock.unlock();
@@ -132,8 +102,7 @@ public class TrailingHistoricalCacheQueryCore<V> extends ACachedEntriesHistorica
     }
 
     private ICloseableIterable<IHistoricalEntry<V>> tryCachedGetPreviousEntriesIfAvailable(
-            final IHistoricalCacheQueryInternalMethods<V> query, final FDate key, final int shiftBackUnits)
-            throws ResetCacheException {
+            final IHistoricalCacheQueryInternalMethods<V> query, final FDate key, final int shiftBackUnits) {
         final ICloseableIterable<IHistoricalEntry<V>> result;
         if (!cachedPreviousEntries.isEmpty()) {
             result = cachedGetPreviousEntries(query, key, shiftBackUnits);
@@ -152,8 +121,7 @@ public class TrailingHistoricalCacheQueryCore<V> extends ACachedEntriesHistorica
     }
 
     private ICloseableIterable<IHistoricalEntry<V>> cachedGetPreviousEntries(
-            final IHistoricalCacheQueryInternalMethods<V> query, final FDate key, final int shiftBackUnits)
-            throws ResetCacheException {
+            final IHistoricalCacheQueryInternalMethods<V> query, final FDate key, final int shiftBackUnits) {
         final IHistoricalEntry<V> firstCachedEntry = getFirstCachedEntry();
         final IHistoricalEntry<V> lastCachedEntry = getLastCachedEntry();
         if (key.equalsNotNullSafe(lastCachedEntry.getKey())) {
@@ -183,8 +151,7 @@ public class TrailingHistoricalCacheQueryCore<V> extends ACachedEntriesHistorica
 
     private ICloseableIterable<IHistoricalEntry<V>> cachedGetPreviousEntries_somewhereInTheMiddle(
             final IHistoricalCacheQueryInternalMethods<V> query, final FDate key, final int shiftBackUnits,
-            final IHistoricalEntry<V> firstCachedEntry, final IHistoricalEntry<V> lastCachedEntry)
-            throws ResetCacheException {
+            final IHistoricalEntry<V> firstCachedEntry, final IHistoricalEntry<V> lastCachedEntry) {
         final CachedEntriesSubListIterable cachedIterable = fillFromCacheAsFarAsPossible(shiftBackUnits, key);
         final int newUnitsBack = cachedIterable.getNewUnitsBack();
         if (newUnitsBack <= 0) {
@@ -240,7 +207,6 @@ public class TrailingHistoricalCacheQueryCore<V> extends ACachedEntriesHistorica
         private final int newUnitsBack;
         private final List<IHistoricalEntry<V>> list;
 
-        @SuppressWarnings({ "unchecked", "rawtypes" })
         CachedEntriesSubListIterable(final int fromIndex, final int toIndex, final int newUnitsBack) {
             this.fromIndex = fromIndex - modIncrementIndex;
             this.toIndex = toIndex - modIncrementIndex;
@@ -269,9 +235,8 @@ public class TrailingHistoricalCacheQueryCore<V> extends ACachedEntriesHistorica
 
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
     private CachedEntriesSubListIterable fillFromCacheAsFarAsPossible(final int unitsBack,
-            final FDate skippingKeysAbove) throws ResetCacheException {
+            final FDate skippingKeysAbove) {
         //prefill what is possible and add suffixes by query as needed
         final int cachedToIndex;
         if (skippingKeysAbove != null) {
@@ -290,12 +255,12 @@ public class TrailingHistoricalCacheQueryCore<V> extends ACachedEntriesHistorica
 
     @Override
     protected int bisect(final FDate skippingKeysAbove, final List<IHistoricalEntry<V>> list, final Integer unitsBack,
-            final ACachedEntriesHistoricalCacheQueryCore<V> useIndex) throws ResetCacheException {
+            final ACachedEntriesHistoricalCacheQueryCore<V> useIndex) {
         return delegate.bisect(skippingKeysAbove, list, unitsBack, useIndex);
     }
 
     private void prependCachedEntries(final FDate key, final List<IHistoricalEntry<V>> trailing,
-            final int trailingCountFoundInCache) throws ResetCacheException {
+            final int trailingCountFoundInCache) {
         for (int i = trailing.size() - trailingCountFoundInCache - 1; i >= 0; i--) {
             final IHistoricalEntry<V> prependEntry = trailing.get(i);
             if (!cachedPreviousEntries.isEmpty()) {
@@ -319,13 +284,13 @@ public class TrailingHistoricalCacheQueryCore<V> extends ACachedEntriesHistorica
     }
 
     private void appendCachedEntries(final FDate key, final List<IHistoricalEntry<V>> trailing,
-            final int trailingCountFoundInQuery) throws ResetCacheException {
+            final int trailingCountFoundInQuery) {
         for (int i = trailing.size() - trailingCountFoundInQuery; i < trailing.size(); i++) {
             final IHistoricalEntry<V> appendEntry = trailing.get(i);
             if (!cachedPreviousEntries.isEmpty()) {
                 final IHistoricalEntry<V> lastCachedEntry = getLastCachedEntry();
                 if (!appendEntry.getKey().isAfterNotNullSafe(lastCachedEntry.getKey())) {
-                    throw new ResetCacheException("appendEntry [" + appendEntry.getKey()
+                    throw new IllegalStateException("appendEntry [" + appendEntry.getKey()
                             + "] should be after lastCachedEntry [" + lastCachedEntry.getKey() + "]");
                 }
             }
@@ -351,15 +316,14 @@ public class TrailingHistoricalCacheQueryCore<V> extends ACachedEntriesHistorica
 
     private List<IHistoricalEntry<V>> getPreviousEntries_newerData(final IHistoricalCacheQueryInternalMethods<V> query,
             final FDate key, final int shiftBackUnits, final IHistoricalEntry<V> firstCachedEntry,
-            final IHistoricalEntry<V> lastCachedEntry) throws ResetCacheException {
+            final IHistoricalEntry<V> lastCachedEntry) {
         final List<IHistoricalEntry<V>> result = delegate.getPreviousEntriesList(query, key, shiftBackUnits);
         mergeResult(key, firstCachedEntry, lastCachedEntry, result);
         return result;
     }
 
     private void mergeResult(final FDate key, final IHistoricalEntry<V> firstCachedEntry,
-            final IHistoricalEntry<V> lastCachedEntry, final List<IHistoricalEntry<V>> result)
-            throws ResetCacheException {
+            final IHistoricalEntry<V> lastCachedEntry, final List<IHistoricalEntry<V>> result) {
         final IHistoricalEntry<V> firstResultEntry = result.get(0);
         final IHistoricalEntry<V> lastResultEntry = result.get(result.size() - 1);
         if (firstResultEntry.getKey().isAfterNotNullSafe(lastCachedEntry.getKey())) {
@@ -392,7 +356,7 @@ public class TrailingHistoricalCacheQueryCore<V> extends ACachedEntriesHistorica
     }
 
     private void prependCachedEntriesKeepMaximumSize(final FDate key, final List<IHistoricalEntry<V>> result,
-            final Integer maximumSize, final int fromIndex, final int toIndex) throws ResetCacheException {
+            final Integer maximumSize, final int fromIndex, final int toIndex) {
         int usedFromIndex = fromIndex;
         if (maximumSize != null) {
             int maximumSizeExceededBy = cachedPreviousEntries.size() + toIndex - maximumSize - 1;
@@ -444,22 +408,17 @@ public class TrailingHistoricalCacheQueryCore<V> extends ACachedEntriesHistorica
                 return;
             }
             delegate.putPrevious(previousKey, value, valueKey);
-            try {
-                if (!cachedPreviousEntries.isEmpty()) {
-                    final IHistoricalEntry<V> lastEntry = getLastCachedEntry();
-                    if (lastEntry.getKey().isBeforeNotNullSafe(previousKey)) {
-                        //explicitly not calling updateCachedPreviousResult for it to be reset, it will get updated later
-                        replaceCachedEntries(valueKey, Arrays.asList(ImmutableHistoricalEntry.of(valueKey, value)));
-                        return;
-                    } else if (lastEntry.getKey().isAfterNotNullSafe(previousKey)) {
-                        return;
-                    }
+            if (!cachedPreviousEntries.isEmpty()) {
+                final IHistoricalEntry<V> lastEntry = getLastCachedEntry();
+                if (lastEntry.getKey().isBeforeNotNullSafe(previousKey)) {
+                    //explicitly not calling updateCachedPreviousResult for it to be reset, it will get updated later
+                    replaceCachedEntries(valueKey, Arrays.asList(ImmutableHistoricalEntry.of(valueKey, value)));
+                    return;
+                } else if (lastEntry.getKey().isAfterNotNullSafe(previousKey)) {
+                    return;
                 }
-                appendCachedEntry(valueKey, null, ImmutableHistoricalEntry.of(valueKey, value));
-            } catch (final ResetCacheException e) {
-                //should not happen here
-                throw new RuntimeException(e);
             }
+            appendCachedEntry(valueKey, null, ImmutableHistoricalEntry.of(valueKey, value));
         } finally {
             cachedQueryActiveLock.unlock();
         }
@@ -489,9 +448,6 @@ public class TrailingHistoricalCacheQueryCore<V> extends ACachedEntriesHistorica
             }
             final IHistoricalEntry<V> newEntry = getParent().computeEntry(valueKey);
             getParent().getPutProvider().put(newEntry, lastEntry, true);
-        } catch (final ResetCacheException e) {
-            //should not happen here
-            throw new RuntimeException(e);
         } finally {
             cachedQueryActiveLock.unlock();
         }

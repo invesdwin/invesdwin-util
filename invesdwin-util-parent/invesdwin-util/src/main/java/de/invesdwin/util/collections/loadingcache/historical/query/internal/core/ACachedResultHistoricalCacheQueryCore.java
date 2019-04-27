@@ -38,10 +38,10 @@ public abstract class ACachedResultHistoricalCacheQueryCore<V> extends ACachedEn
     /**
      * This needs to be called wherever replaceCachedEntries() was called before
      * 
-     * @throws ResetCacheException
+     * @
      */
     protected void updateCachedPreviousResult(final IHistoricalCacheQueryInternalMethods<V> query,
-            final int shiftBackUnits, final List<IHistoricalEntry<V>> result) throws ResetCacheException {
+            final int shiftBackUnits, final List<IHistoricalEntry<V>> result) {
         if (result.isEmpty() && query.getAssertValue() == HistoricalCacheAssertValue.ASSERT_VALUE_WITH_FUTURE_NULL) {
             //do not remember an empty result with future null (a call with future next might trip on it)
             return;
@@ -72,11 +72,11 @@ public abstract class ACachedResultHistoricalCacheQueryCore<V> extends ACachedEn
 
     //CHECKSTYLE:OFF
     protected void appendCachedEntryAndResult(final FDate key, final Integer shiftBackUnits,
-            final IHistoricalEntry<V> latestEntry) throws ResetCacheException {
+            final IHistoricalEntry<V> latestEntry) {
         //CHECKSTYLE:ON
         if (latestEntry != null) {
             if (shiftBackUnits != null && cachedPreviousResult_shiftBackUnits == null) {
-                throw new ResetCacheException(
+                throw new IllegalStateException(
                         "cachedPreviousResult_shiftBackUnits is null even though it should be extended");
             }
 
@@ -115,7 +115,7 @@ public abstract class ACachedResultHistoricalCacheQueryCore<V> extends ACachedEn
         cachedPreviousEntriesKey = indexedKey;
     }
 
-    protected FDate determineConsistentLastCachedEntryKey() throws ResetCacheException {
+    protected FDate determineConsistentLastCachedEntryKey() {
         final FDate lastCachedEntryKey = getLastCachedEntry().getKey();
         if (cachedPreviousResult_filteringDuplicates != null && !cachedPreviousResult_filteringDuplicates.isEmpty()) {
             final FDate lastCachedResultKey = cachedPreviousResult_filteringDuplicates
@@ -126,10 +126,9 @@ public abstract class ACachedResultHistoricalCacheQueryCore<V> extends ACachedEn
         return lastCachedEntryKey;
     }
 
-    private void assertSameLastKey(final FDate lastCachedEntryKey, final FDate lastCachedResultKey)
-            throws ResetCacheException {
+    private void assertSameLastKey(final FDate lastCachedEntryKey, final FDate lastCachedResultKey) {
         if (!lastCachedEntryKey.equalsNotNullSafe(lastCachedResultKey)) {
-            throw new ResetCacheException(
+            throw new IllegalStateException(
                     "lastCachedEntryKey[" + lastCachedEntryKey + "] != lastCachedResultKey[" + lastCachedResultKey
                             + "], might happen on far reaching recursive queries or long looped queries into the past");
         }
