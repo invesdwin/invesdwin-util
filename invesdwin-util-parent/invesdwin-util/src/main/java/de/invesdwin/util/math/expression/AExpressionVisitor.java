@@ -1,12 +1,12 @@
 package de.invesdwin.util.math.expression;
 
-import javax.annotation.concurrent.NotThreadSafe;
+import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.math.expression.eval.operation.BinaryOperation;
 import de.invesdwin.util.math.expression.eval.operation.BinaryOperation.Op;
 
-@NotThreadSafe
+@Immutable
 public abstract class AExpressionVisitor {
 
     public void process(final IExpression expression) {

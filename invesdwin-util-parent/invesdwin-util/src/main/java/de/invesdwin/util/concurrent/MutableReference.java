@@ -9,6 +9,12 @@ public class MutableReference<T> extends AValueObject {
 
     private volatile T value;
 
+    public MutableReference() {}
+
+    public MutableReference(final T value) {
+        this.value = value;
+    }
+
     public T get() {
         return value;
     }
