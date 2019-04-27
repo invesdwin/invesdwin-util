@@ -1,15 +1,13 @@
 package de.invesdwin.util.collections.loadingcache.historical.query.internal.core;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.function.Predicate;
-import java.util.function.UnaryOperator;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
-import de.invesdwin.util.collections.delegate.debug.DebugConcurrentModificationList;
+import org.apache.commons.lang3.mutable.MutableInt;
+
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.loadingcache.historical.IHistoricalEntry;
 import de.invesdwin.util.collections.loadingcache.historical.ImmutableHistoricalEntry;
@@ -24,118 +22,11 @@ import de.invesdwin.util.time.fdate.FDate;
 public abstract class ACachedEntriesHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryCore<V> {
 
     @GuardedBy("cachedQueryActiveLock")
-    protected int modCount = 0;
+    protected int cachedPreviousEntries_modCount = 0;
     @GuardedBy("cachedQueryActiveLock")
-    protected int modIncrementIndex = 0;
+    protected MutableInt cachedPreviousEntries_modIncrementIndex = new MutableInt(0);
     @GuardedBy("cachedQueryActiveLock")
-    protected final List<IHistoricalEntry<V>> cachedPreviousEntries = new DebugConcurrentModificationList<IHistoricalEntry<V>>(
-            new ArrayList<>()) {
-
-        @Override
-        public boolean add(final IHistoricalEntry<V> e) {
-            System.out.println(
-                    "cachedPreviousEntries " + System.identityHashCode(ACachedEntriesHistoricalCacheQueryCore.this)
-                            + " " + Thread.currentThread().getName() + " add");
-            return super.add(e);
-        }
-
-        @Override
-        public boolean addAll(final Collection<? extends IHistoricalEntry<V>> c) {
-            System.out.println(
-                    "cachedPreviousEntries " + System.identityHashCode(ACachedEntriesHistoricalCacheQueryCore.this)
-                            + " " + Thread.currentThread().getName() + " addAll");
-            return super.addAll(c);
-        }
-
-        @Override
-        public void clear() {
-            System.out.println(
-                    "cachedPreviousEntries " + System.identityHashCode(ACachedEntriesHistoricalCacheQueryCore.this)
-                            + " " + Thread.currentThread().getName() + " clear");
-            super.clear();
-        }
-
-        @Override
-        public boolean remove(final Object o) {
-            System.out.println(
-                    "cachedPreviousEntries " + System.identityHashCode(ACachedEntriesHistoricalCacheQueryCore.this)
-                            + " " + Thread.currentThread().getName() + " remove");
-            return super.remove(o);
-        }
-
-        @Override
-        public boolean removeAll(final Collection<?> c) {
-            System.out.println(
-                    "cachedPreviousEntries " + System.identityHashCode(ACachedEntriesHistoricalCacheQueryCore.this)
-                            + " " + Thread.currentThread().getName() + " removeAll");
-            return super.removeAll(c);
-        }
-
-        @Override
-        public boolean retainAll(final Collection<?> c) {
-            System.out.println(
-                    "cachedPreviousEntries " + System.identityHashCode(ACachedEntriesHistoricalCacheQueryCore.this)
-                            + " " + Thread.currentThread().getName() + " retainAll");
-            return super.retainAll(c);
-        }
-
-        @Override
-        public void add(final int index, final IHistoricalEntry<V> element) {
-            System.out.println(
-                    "cachedPreviousEntries " + System.identityHashCode(ACachedEntriesHistoricalCacheQueryCore.this)
-                            + " " + Thread.currentThread().getName() + " add idx");
-            super.add(index, element);
-        }
-
-        @Override
-        public boolean addAll(final int index, final Collection<? extends IHistoricalEntry<V>> c) {
-            System.out.println(
-                    "cachedPreviousEntries " + System.identityHashCode(ACachedEntriesHistoricalCacheQueryCore.this)
-                            + " " + Thread.currentThread().getName() + " addAll idx");
-            return super.addAll(index, c);
-        }
-
-        @Override
-        public IHistoricalEntry<V> remove(final int index) {
-            System.out.println(
-                    "cachedPreviousEntries " + System.identityHashCode(ACachedEntriesHistoricalCacheQueryCore.this)
-                            + " " + Thread.currentThread().getName() + " remove idx");
-            return super.remove(index);
-        }
-
-        @Override
-        public void replaceAll(final UnaryOperator<IHistoricalEntry<V>> operator) {
-            System.out.println(
-                    "cachedPreviousEntries " + System.identityHashCode(ACachedEntriesHistoricalCacheQueryCore.this)
-                            + " " + Thread.currentThread().getName() + " replaceAll");
-            super.replaceAll(operator);
-        }
-
-        @Override
-        public boolean removeIf(final Predicate<? super IHistoricalEntry<V>> filter) {
-            System.out.println(
-                    "cachedPreviousEntries " + System.identityHashCode(ACachedEntriesHistoricalCacheQueryCore.this)
-                            + " " + Thread.currentThread().getName() + " removeIf");
-            return super.removeIf(filter);
-        }
-
-        @Override
-        public IHistoricalEntry<V> set(final int index, final IHistoricalEntry<V> element) {
-            System.out.println(
-                    "cachedPreviousEntries " + System.identityHashCode(ACachedEntriesHistoricalCacheQueryCore.this)
-                            + " " + Thread.currentThread().getName() + " set");
-            return super.set(index, element);
-        }
-
-        @Override
-        public List<IHistoricalEntry<V>> subList(final int fromIndex, final int toIndex) {
-            System.out.println(
-                    "cachedPreviousEntries " + System.identityHashCode(ACachedEntriesHistoricalCacheQueryCore.this)
-                            + " " + Thread.currentThread().getName() + " subList");
-            return super.subList(fromIndex, toIndex);
-        }
-
-    };
+    protected List<IHistoricalEntry<V>> cachedPreviousEntries = new ArrayList<>();
     private final int hashCode = super.hashCode();
 
     @Override
@@ -165,13 +56,14 @@ public abstract class ACachedEntriesHistoricalCacheQueryCore<V> implements IHist
             return null;
         }
         maybeIncreaseMaximumSize(trailing.size());
-        modCount++;
-        modIncrementIndex = 0;
-        cachedPreviousEntries.clear();
+        cachedPreviousEntries_modCount++;
+        cachedPreviousEntries_modIncrementIndex = new MutableInt(0);
+        cachedPreviousEntries = new ArrayList<>();
         for (int i = 0; i < trailing.size(); i++) {
             final IHistoricalEntry<V> entry = trailing.get(i);
             final IndexedFDate indexedKey = IndexedFDate.maybeWrap(entry.getKey());
-            indexedKey.putQueryCoreIndex(this, new QueryCoreIndex(modCount, i - modIncrementIndex));
+            indexedKey.putQueryCoreIndex(this, new QueryCoreIndex(cachedPreviousEntries_modCount,
+                    i - cachedPreviousEntries_modIncrementIndex.intValue()));
             final IHistoricalEntry<V> indexedEntry = ImmutableHistoricalEntry.of(indexedKey, entry.getValue());
             cachedPreviousEntries.add(indexedEntry);
             trailing.set(i, indexedEntry);
@@ -179,8 +71,8 @@ public abstract class ACachedEntriesHistoricalCacheQueryCore<V> implements IHist
 
         //attach indexed key to outer key at least
         final IndexedFDate indexedKey = IndexedFDate.maybeWrap(key);
-        indexedKey.putQueryCoreIndex(this,
-                new QueryCoreIndex(modCount, cachedPreviousEntries.size() - 1 - modIncrementIndex));
+        indexedKey.putQueryCoreIndex(this, new QueryCoreIndex(cachedPreviousEntries_modCount,
+                cachedPreviousEntries.size() - 1 - cachedPreviousEntries_modIncrementIndex.intValue()));
         return indexedKey;
     }
 
@@ -205,9 +97,9 @@ public abstract class ACachedEntriesHistoricalCacheQueryCore<V> implements IHist
 
     protected void resetForRetry() {
         getDelegate().clear();
-        cachedPreviousEntries.clear();
-        modCount++;
-        modIncrementIndex = 0;
+        cachedPreviousEntries = new ArrayList<>();
+        cachedPreviousEntries_modCount++;
+        cachedPreviousEntries_modIncrementIndex = new MutableInt(0);
     }
 
     @Override
@@ -244,8 +136,8 @@ public abstract class ACachedEntriesHistoricalCacheQueryCore<V> implements IHist
             final IHistoricalEntry<V> latestEntry) {
         if (latestEntry != null) {
             final IndexedFDate indexedKey = IndexedFDate.maybeWrap(latestEntry.getKey());
-            indexedKey.putQueryCoreIndex(this,
-                    new QueryCoreIndex(modCount, cachedPreviousEntries.size() - modIncrementIndex));
+            indexedKey.putQueryCoreIndex(this, new QueryCoreIndex(cachedPreviousEntries_modCount,
+                    cachedPreviousEntries.size() - cachedPreviousEntries_modIncrementIndex.intValue()));
             final IHistoricalEntry<V> indexedEntry = ImmutableHistoricalEntry.of(indexedKey, latestEntry.getValue());
             cachedPreviousEntries.add(indexedEntry);
 
@@ -254,14 +146,14 @@ public abstract class ACachedEntriesHistoricalCacheQueryCore<V> implements IHist
                 //ensure we stay in size limit
                 while (cachedPreviousEntries.size() > maximumSize) {
                     cachedPreviousEntries.remove(0);
-                    modIncrementIndex--;
+                    cachedPreviousEntries_modIncrementIndex.decrement();
                 }
             }
         }
         //attach indexed key to outer key at least
         final IndexedFDate indexedKey = IndexedFDate.maybeWrap(key);
-        indexedKey.putQueryCoreIndex(this,
-                new QueryCoreIndex(modCount, cachedPreviousEntries.size() - 1 - modIncrementIndex));
+        indexedKey.putQueryCoreIndex(this, new QueryCoreIndex(cachedPreviousEntries_modCount,
+                cachedPreviousEntries.size() - 1 - cachedPreviousEntries_modIncrementIndex.intValue()));
     }
 
 }

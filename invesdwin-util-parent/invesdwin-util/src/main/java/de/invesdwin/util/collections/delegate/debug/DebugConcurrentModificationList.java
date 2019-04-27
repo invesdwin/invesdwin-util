@@ -17,10 +17,12 @@ import de.invesdwin.util.collections.iterable.ICloseableIterator;
 @NotThreadSafe
 public class DebugConcurrentModificationList<E> extends DelegateList<E> {
 
+    private final String id;
     private final AtomicLong openReaders = new AtomicLong();
 
-    public DebugConcurrentModificationList(final List<E> delegate) {
+    public DebugConcurrentModificationList(final List<E> delegate, final String id) {
         super(delegate);
+        this.id = id;
     }
 
     @Override
@@ -32,7 +34,7 @@ public class DebugConcurrentModificationList<E> extends DelegateList<E> {
     private void assertNoOpenReaders() {
         final long openReadersCount = openReaders.get();
         if (openReadersCount > 0) {
-            throw new IllegalStateException(openReadersCount + " > 0");
+            throw new IllegalStateException(id + ": " + openReadersCount + " > 0");
         }
     }
 

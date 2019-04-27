@@ -31,6 +31,11 @@ public class FilterDuplicateKeysList<V> extends ADelegateList<IHistoricalEntry<V
         return new ArrayList<IHistoricalEntry<V>>(initialCapacity);
     }
 
+    @Override
+    public List<IHistoricalEntry<V>> getDelegate() {
+        return super.getDelegate();
+    }
+
     public IHistoricalEntry<V> getMinEntry() {
         return minEntry;
     }

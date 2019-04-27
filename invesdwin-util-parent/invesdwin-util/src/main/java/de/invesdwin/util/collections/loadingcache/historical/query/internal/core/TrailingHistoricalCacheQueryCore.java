@@ -7,6 +7,8 @@ import java.util.NoSuchElementException;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
+import org.apache.commons.lang3.mutable.MutableInt;
+
 import de.invesdwin.util.collections.iterable.ASkippingIterable;
 import de.invesdwin.util.collections.iterable.FlatteningIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
@@ -24,6 +26,10 @@ import de.invesdwin.util.time.fdate.FDate;
 
 @ThreadSafe
 public class TrailingHistoricalCacheQueryCore<V> extends ACachedEntriesHistoricalCacheQueryCore<V> {
+
+    //    private static final org.slf4j.ext.XLogger LOG = org.slf4j.ext.XLoggerFactory
+    //            .getXLogger(CachedHistoricalCacheQueryCore.class);
+    //    private static final int COUNT_RESETS_BEFORE_WARNING = 100;
 
     private final CachedHistoricalCacheQueryCore<V> delegate;
     @GuardedBy("cachedQueryActiveLock")
@@ -86,9 +92,33 @@ public class TrailingHistoricalCacheQueryCore<V> extends ACachedEntriesHistorica
         } else {
             try {
                 cachedQueryActive = true;
+                //                try {
                 final ICloseableIterable<IHistoricalEntry<V>> result = tryCachedGetPreviousEntriesIfAvailable(query,
                         key, shiftBackUnits);
                 return result;
+                //                } catch (final ResetCacheException e) {
+                //                    countResets++;
+                //                    if (countResets % COUNT_RESETS_BEFORE_WARNING == 0
+                //                            || AHistoricalCache.isDebugAutomaticReoptimization()) {
+                //                        if (LOG.isWarnEnabled()) {
+                //                            //CHECKSTYLE:OFF
+                //                            LOG.warn(
+                //                                    "{}: resetting {} for the {}. time now and retrying after exception [{}: {}], if this happens too often we might encounter bad performance due to inefficient caching",
+                //                                    delegate.getParent(), getClass().getSimpleName(), countResets,
+                //                                    e.getClass().getSimpleName(), e.getMessage());
+                //                            //CHECKSTYLE:ON
+                //                        }
+                //                    }
+                //                    resetForRetry();
+                //                    try {
+                //                        final ICloseableIterable<IHistoricalEntry<V>> result = tryCachedGetPreviousEntriesIfAvailable(
+                //                                query, key, shiftBackUnits);
+                //                        return result;
+                //                    } catch (final ResetCacheException e1) {
+                //                        throw new RuntimeException("Follow up " + ResetCacheException.class.getSimpleName()
+                //                                + " on retry after:" + e.toString(), e1);
+                //                    }
+                //                }
             } finally {
                 cachedQueryActive = false;
                 cachedQueryActiveLock.unlock();
@@ -152,7 +182,7 @@ public class TrailingHistoricalCacheQueryCore<V> extends ACachedEntriesHistorica
     private ICloseableIterable<IHistoricalEntry<V>> cachedGetPreviousEntries_somewhereInTheMiddle(
             final IHistoricalCacheQueryInternalMethods<V> query, final FDate key, final int shiftBackUnits,
             final IHistoricalEntry<V> firstCachedEntry, final IHistoricalEntry<V> lastCachedEntry) {
-        final CachedEntriesSubListIterable cachedIterable = fillFromCacheAsFarAsPossible(shiftBackUnits, key);
+        final CachedEntriesSubListIterable<V> cachedIterable = fillFromCacheAsFarAsPossible(shiftBackUnits, key);
         final int newUnitsBack = cachedIterable.getNewUnitsBack();
         if (newUnitsBack <= 0) {
             return filterDuplicateKeys(cachedIterable);
@@ -199,43 +229,7 @@ public class TrailingHistoricalCacheQueryCore<V> extends ACachedEntriesHistorica
         };
     }
 
-    private class CachedEntriesSubListIterable implements ICloseableIterable<IHistoricalEntry<V>> {
-
-        private final int modCountSnapshot = TrailingHistoricalCacheQueryCore.this.modCount;
-        private final int fromIndex;
-        private final int toIndex;
-        private final int newUnitsBack;
-        private final List<IHistoricalEntry<V>> list;
-
-        CachedEntriesSubListIterable(final int fromIndex, final int toIndex, final int newUnitsBack) {
-            this.fromIndex = fromIndex - modIncrementIndex;
-            this.toIndex = toIndex - modIncrementIndex;
-            this.newUnitsBack = newUnitsBack;
-            this.list = cachedPreviousEntries;
-        }
-
-        public IHistoricalEntry<V> getFirstValueFromCache() {
-            return list.get(fromIndex + modIncrementIndex);
-        }
-
-        public int getNewUnitsBack() {
-            return newUnitsBack;
-        }
-
-        @Override
-        public ICloseableIterator<IHistoricalEntry<V>> iterator() {
-            if (modCountSnapshot != modCount) {
-                throw new IllegalStateException("Iterator is too old: modCountSnapshot[" + modCountSnapshot
-                        + "] != modCount[" + modCount + "]");
-            }
-            return WrapperCloseableIterable
-                    .maybeWrap(list.subList(fromIndex + modIncrementIndex, toIndex + modIncrementIndex))
-                    .iterator();
-        }
-
-    }
-
-    private CachedEntriesSubListIterable fillFromCacheAsFarAsPossible(final int unitsBack,
+    private CachedEntriesSubListIterable<V> fillFromCacheAsFarAsPossible(final int unitsBack,
             final FDate skippingKeysAbove) {
         //prefill what is possible and add suffixes by query as needed
         final int cachedToIndex;
@@ -250,7 +244,8 @@ public class TrailingHistoricalCacheQueryCore<V> extends ACachedEntriesHistorica
         final int size = toIndex - fromIndex;
         final int newUnitsBack = unitsBack - size;
 
-        return new CachedEntriesSubListIterable(fromIndex, toIndex, newUnitsBack);
+        return new CachedEntriesSubListIterable<V>(cachedPreviousEntries, cachedPreviousEntries_modIncrementIndex,
+                fromIndex, toIndex, newUnitsBack);
     }
 
     @Override
@@ -271,10 +266,11 @@ public class TrailingHistoricalCacheQueryCore<V> extends ACachedEntriesHistorica
                 }
             }
             final IndexedFDate indexedKey = IndexedFDate.maybeWrap(prependEntry.getKey());
-            indexedKey.putQueryCoreIndex(this, new QueryCoreIndex(modCount, -1 - modIncrementIndex));
+            indexedKey.putQueryCoreIndex(this, new QueryCoreIndex(cachedPreviousEntries_modCount,
+                    -1 - cachedPreviousEntries_modIncrementIndex.intValue()));
             final IHistoricalEntry<V> indexedEntry = ImmutableHistoricalEntry.of(indexedKey, prependEntry.getValue());
             cachedPreviousEntries.add(0, indexedEntry);
-            modIncrementIndex++;
+            cachedPreviousEntries_modIncrementIndex.increment();
         }
         final Integer maximumSize = getParent().getMaximumSize();
         if (maximumSize != null && cachedPreviousEntries.size() > maximumSize) {
@@ -295,21 +291,21 @@ public class TrailingHistoricalCacheQueryCore<V> extends ACachedEntriesHistorica
                 }
             }
             final IndexedFDate indexedKey = IndexedFDate.maybeWrap(appendEntry.getKey());
-            indexedKey.putQueryCoreIndex(this,
-                    new QueryCoreIndex(modCount, cachedPreviousEntries.size() - modIncrementIndex));
+            indexedKey.putQueryCoreIndex(this, new QueryCoreIndex(cachedPreviousEntries_modCount,
+                    cachedPreviousEntries.size() - cachedPreviousEntries_modIncrementIndex.intValue()));
             final IHistoricalEntry<V> indexedEntry = ImmutableHistoricalEntry.of(indexedKey, appendEntry.getValue());
             cachedPreviousEntries.add(indexedEntry);
         }
         final IndexedFDate indexedKey = IndexedFDate.maybeWrap(key);
-        indexedKey.putQueryCoreIndex(this,
-                new QueryCoreIndex(modCount, cachedPreviousEntries.size() - 1 - modIncrementIndex));
+        indexedKey.putQueryCoreIndex(this, new QueryCoreIndex(cachedPreviousEntries_modCount,
+                cachedPreviousEntries.size() - 1 - cachedPreviousEntries_modIncrementIndex.intValue()));
         Integer maximumSize = getParent().getMaximumSize();
         if (maximumSize != null) {
             maximumSize = maybeIncreaseMaximumSize(trailing.size());
             //ensure we stay in size limit
             while (cachedPreviousEntries.size() > maximumSize) {
                 cachedPreviousEntries.remove(0);
-                modIncrementIndex--;
+                cachedPreviousEntries_modIncrementIndex.decrement();
             }
         }
     }
@@ -451,6 +447,48 @@ public class TrailingHistoricalCacheQueryCore<V> extends ACachedEntriesHistorica
         } finally {
             cachedQueryActiveLock.unlock();
         }
+    }
+
+    private static class CachedEntriesSubListIterable<_V> implements ICloseableIterable<IHistoricalEntry<_V>> {
+
+        private final int fromIndex;
+        private final int toIndex;
+        private final int newUnitsBack;
+        private final List<IHistoricalEntry<_V>> list;
+        private final MutableInt modIncrementIndex;
+        private final IHistoricalEntry<_V> firstValueFromCache;
+
+        CachedEntriesSubListIterable(final List<IHistoricalEntry<_V>> list, final MutableInt modIncrementIndex,
+                final int fromIndex, final int toIndex, final int newUnitsBack) {
+            this.list = list;
+            this.modIncrementIndex = modIncrementIndex;
+            final int modIncrementIndexSnapshot = modIncrementIndex.intValue();
+            this.fromIndex = fromIndex - modIncrementIndexSnapshot;
+            this.toIndex = toIndex - modIncrementIndexSnapshot;
+            this.newUnitsBack = newUnitsBack;
+            this.firstValueFromCache = list.get(fromIndex);
+        }
+
+        public IHistoricalEntry<_V> getFirstValueFromCache() {
+            return firstValueFromCache;
+        }
+
+        public int getNewUnitsBack() {
+            return newUnitsBack;
+        }
+
+        @Override
+        public ICloseableIterator<IHistoricalEntry<_V>> iterator() {
+            final int modIncrementIndexSnapshot = modIncrementIndex.intValue();
+            final List<IHistoricalEntry<_V>> subList = list.subList(fromIndex + modIncrementIndexSnapshot,
+                    toIndex + modIncrementIndexSnapshot);
+            //            System.out.println(
+            //                    "TODO return a custom itrator that checks modIncrementIndex on each next() call to ensure we use the proper index for iteration "
+            //                            + "and get an exception if trailing moved too far, maybe also use AtomicInteger for modIncrementIndex? "
+            //                            + "or use some other means to handle decrements properly without synchronized (e.g. create copy on decrement and increase mod count?)");
+            return WrapperCloseableIterable.maybeWrap(subList).iterator();
+        }
+
     }
 
 }

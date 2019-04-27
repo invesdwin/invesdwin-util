@@ -56,8 +56,13 @@ public final class WrapperCloseableIterable<E> implements ICloseableIterable<E> 
 
     @SuppressWarnings("unchecked")
     public static <T> ICloseableIterable<T> maybeWrap(final List<? extends T> iterable) {
+        if (iterable instanceof ICloseableIterable) {
+            return (ICloseableIterable<T>) iterable;
+        }
         final List<? extends T> unwrappedList = ADelegateList.maybeUnwrapToRoot(iterable);
-        if (unwrappedList instanceof ArrayList) {
+        if (unwrappedList instanceof ICloseableIterable) {
+            return (ICloseableIterable<T>) iterable;
+        } else if (unwrappedList instanceof ArrayList) {
             return new ArrayListCloseableIterable<T>((ArrayList<T>) unwrappedList);
         } else if (unwrappedList.getClass().equals(ArraySubListCloseableIterable.SUBLIST_CLASS)) {
             return new ArraySubListCloseableIterable<T>(unwrappedList);
@@ -70,6 +75,8 @@ public final class WrapperCloseableIterable<E> implements ICloseableIterable<E> 
     public static <T> ICloseableIterable<T> maybeWrap(final Collection<? extends T> iterable) {
         if (iterable instanceof List) {
             return maybeWrap((List<T>) iterable);
+        } else if (iterable instanceof ICloseableIterable) {
+            return (ICloseableIterable<T>) iterable;
         } else {
             return new CollectionCloseableIterable<T>(iterable);
         }
