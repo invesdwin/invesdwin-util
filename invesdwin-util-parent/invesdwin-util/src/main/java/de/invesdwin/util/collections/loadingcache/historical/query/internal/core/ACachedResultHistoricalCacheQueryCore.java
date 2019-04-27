@@ -28,7 +28,7 @@ import de.invesdwin.util.time.fdate.FDate;
 public abstract class ACachedResultHistoricalCacheQueryCore<V> extends ACachedEntriesHistoricalCacheQueryCore<V> {
 
     @GuardedBy("cachedQueryActiveLock")
-    protected MutableInt cachedPreviousResult_modIncrementIndex = new MutableInt(0);
+    protected MutableInt cachedPreviousResult_modIncrementIndex = null;
     @GuardedBy("cachedQueryActiveLock")
     protected IndexedFDate cachedPreviousEntriesKey = null;
     @GuardedBy("cachedQueryActiveLock")
@@ -70,7 +70,7 @@ public abstract class ACachedResultHistoricalCacheQueryCore<V> extends ACachedEn
     protected void resetCachedPreviousResult() {
         cachedPreviousResult_filteringDuplicates = null;
         cachedPreviousResult_shiftBackUnits = null;
-        cachedPreviousResult_modIncrementIndex = new MutableInt(0);
+        cachedPreviousResult_modIncrementIndex = null;
     }
 
     @Override

@@ -7,6 +7,7 @@ import java.util.NoSuchElementException;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
+import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.apache.commons.lang3.mutable.MutableInt;
 
 import de.invesdwin.util.collections.iterable.ACloseableIterator;
@@ -39,11 +40,11 @@ public class TrailingHistoricalCacheQueryCore<V> extends ACachedEntriesHistorica
     private final ILock cachedQueryActiveLock = Locks
             .newReentrantLock(getClass().getSimpleName() + "_cachedQueryActiveLock");
     @GuardedBy("cachedQueryActiveLock")
-    private boolean cachedQueryActive = false;
+    private final MutableBoolean cachedQueryActive = new MutableBoolean(false);
 
     public TrailingHistoricalCacheQueryCore(final IHistoricalCacheInternalMethods<V> parent) {
         //reuse lock so that set methods on sublist are synchronized
-        this.delegate = new CachedHistoricalCacheQueryCore<V>(parent, cachedQueryActiveLock);
+        this.delegate = new CachedHistoricalCacheQueryCore<V>(parent, cachedQueryActiveLock, cachedQueryActive);
     }
 
     @Override
@@ -88,7 +89,7 @@ public class TrailingHistoricalCacheQueryCore<V> extends ACachedEntriesHistorica
          * don't want to do another nested cache lookup. Because of that, cachedQueryActive does not need to be
          * volatile!
          */
-        if (!cachedQueryActiveLocked || cachedQueryActive) {
+        if (!cachedQueryActiveLocked || cachedQueryActive.booleanValue()) {
             try {
                 return delegate.getPreviousEntries(query, key, shiftBackUnits);
             } finally {
@@ -97,7 +98,7 @@ public class TrailingHistoricalCacheQueryCore<V> extends ACachedEntriesHistorica
                 }
             }
         } else {
-            cachedQueryActive = true;
+            cachedQueryActive.setTrue();
             //                try {
             final ICloseableIterable<IHistoricalEntry<V>> result = tryCachedGetPreviousEntriesIfAvailable(query, key,
                     shiftBackUnits);
@@ -380,7 +381,7 @@ public class TrailingHistoricalCacheQueryCore<V> extends ACachedEntriesHistorica
     public void clear() {
         if (cachedQueryActiveLock.tryLock()) {
             try {
-                if (cachedQueryActive) {
+                if (cachedQueryActive.booleanValue()) {
                     return;
                 }
                 resetForRetry();
@@ -402,7 +403,7 @@ public class TrailingHistoricalCacheQueryCore<V> extends ACachedEntriesHistorica
             return;
         }
         try {
-            if (cachedQueryActive) {
+            if (cachedQueryActive.booleanValue()) {
                 return;
             }
             delegate.putPrevious(previousKey, value, valueKey);
@@ -428,7 +429,7 @@ public class TrailingHistoricalCacheQueryCore<V> extends ACachedEntriesHistorica
             return;
         }
         try {
-            if (cachedQueryActive) {
+            if (cachedQueryActive.booleanValue()) {
                 return;
             }
             if (cachedPreviousEntries.isEmpty()) {
@@ -518,7 +519,7 @@ public class TrailingHistoricalCacheQueryCore<V> extends ACachedEntriesHistorica
                         super.close();
                         if (!isClosed()) {
                             it.close();
-                            cachedQueryActive = false;
+                            cachedQueryActive.setFalse();
                             cachedQueryActiveLock.unlock();
                         }
                     }
@@ -543,7 +544,7 @@ public class TrailingHistoricalCacheQueryCore<V> extends ACachedEntriesHistorica
                     public void close() {
                         if (!closed) {
                             it.close();
-                            cachedQueryActive = false;
+                            cachedQueryActive.setFalse();
                             cachedQueryActiveLock.unlock();
                             closed = true;
                         }

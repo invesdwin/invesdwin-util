@@ -12,10 +12,9 @@ import javax.annotation.concurrent.ThreadSafe;
 import org.apache.commons.lang3.RandomUtils;
 import org.junit.Test;
 
-import com.google.common.collect.Iterables;
-
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.bean.tuple.Pair;
+import de.invesdwin.util.collections.Lists;
 import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
 import de.invesdwin.util.collections.loadingcache.historical.key.APullingHistoricalCacheAdjustKeyProvider;
 import de.invesdwin.util.collections.loadingcache.historical.key.APushingHistoricalCacheAdjustKeyProvider;
@@ -397,9 +396,7 @@ public class AGapHistoricalCacheTest {
     }
 
     private <T> List<T> asList(final Iterable<T> iterable) {
-        final List<T> list = new ArrayList<T>();
-        Iterables.addAll(list, iterable);
-        return list;
+        return Lists.toListWithoutHasNext(iterable);
     }
 
     @Test
@@ -1206,24 +1203,28 @@ public class AGapHistoricalCacheTest {
                 }
             }
         } catch (final Throwable t) {
-            //CHECKSTYLE:OFF
-            System.out.println(reproduce.size() + ". step: " + t.toString());
-            //CHECKSTYLE:ON
-            cache.clear();
-            for (int step = 1; step <= reproduce.size(); step++) {
-                final Pair<Integer, Integer> keyIndex_shiftBackUnits = reproduce.get(step - 1);
-                final int keyIndex = keyIndex_shiftBackUnits.getFirst();
-                final int shiftBackUnits = keyIndex_shiftBackUnits.getSecond();
-                final FDate key = entities.get(keyIndex);
-                final List<FDate> expectedValues = entities.subList(keyIndex - shiftBackUnits + 1, keyIndex + 1);
-                if (step == reproduce.size()) {
-                    //CHECKSTYLE:OFF
-                    System.out.println("now");
-                    //CHECKSTYLE:ON
-                }
-                final Collection<FDate> previousValues = asList(cache.query().getPreviousValues(key, shiftBackUnits));
-                Assertions.assertThat(previousValues).isEqualTo(expectedValues);
+            reproduce(reproduce, t);
+        }
+    }
+
+    private void reproduce(final List<Pair<Integer, Integer>> reproduce, final Throwable t) {
+        //CHECKSTYLE:OFF
+        System.out.println(reproduce.size() + ". step: " + t.toString());
+        //CHECKSTYLE:ON
+        cache.clear();
+        for (int step = 1; step <= reproduce.size(); step++) {
+            final Pair<Integer, Integer> keyIndex_shiftBackUnits = reproduce.get(step - 1);
+            final int keyIndex = keyIndex_shiftBackUnits.getFirst();
+            final int shiftBackUnits = keyIndex_shiftBackUnits.getSecond();
+            final FDate key = entities.get(keyIndex);
+            final List<FDate> expectedValues = entities.subList(keyIndex - shiftBackUnits + 1, keyIndex + 1);
+            if (step == reproduce.size()) {
+                //CHECKSTYLE:OFF
+                System.out.println("now");
+                //CHECKSTYLE:ON
             }
+            final Collection<FDate> previousValues = asList(cache.query().getPreviousValues(key, shiftBackUnits));
+            Assertions.assertThat(previousValues).isEqualTo(expectedValues);
         }
     }
 

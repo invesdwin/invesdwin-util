@@ -7,6 +7,8 @@ import java.util.NoSuchElementException;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
+import org.apache.commons.lang3.mutable.MutableBoolean;
+
 import de.invesdwin.util.collections.iterable.ACloseableIterator;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
@@ -41,16 +43,18 @@ public class CachedHistoricalCacheQueryCore<V> extends ACachedResultHistoricalCa
     private volatile int maxCachedIndex;
     private final ILock cachedQueryActiveLock;
     @GuardedBy("cachedQueryActiveLock")
-    private boolean cachedQueryActive = false;
+    private MutableBoolean cachedQueryActive;
 
     public CachedHistoricalCacheQueryCore(final IHistoricalCacheInternalMethods<V> parent) {
-        this(parent, Locks
-                .newReentrantLock(CachedHistoricalCacheQueryCore.class.getSimpleName() + "_cachedQueryActiveLock"));
+        this(parent,
+                Locks.newReentrantLock(CachedHistoricalCacheQueryCore.class.getSimpleName() + "_cachedQueryActiveLock"),
+                new MutableBoolean(false));
     }
 
     public CachedHistoricalCacheQueryCore(final IHistoricalCacheInternalMethods<V> parent,
-            final ILock cachedQueryActiveLock) {
+            final ILock cachedQueryActiveLock, final MutableBoolean cachedQueryActive) {
         this.cachedQueryActiveLock = cachedQueryActiveLock;
+        this.cachedQueryActive = cachedQueryActive;
         this.delegate = new DefaultHistoricalCacheQueryCore<V>(parent);
         this.maxCachedIndex = Integers.max(INITIAL_MAX_CACHED_INDEX, parent.getMaximumSize());
     }
@@ -109,7 +113,7 @@ public class CachedHistoricalCacheQueryCore<V> extends ACachedResultHistoricalCa
          * don't want to do another nested cache lookup. Because of that, cachedQueryActive does not need to be
          * volatile!
          */
-        if (!cachedQueryActiveLocked || cachedQueryActive) {
+        if (!cachedQueryActiveLocked || cachedQueryActive.booleanValue()) {
             if (cachedQueryActiveLocked) {
                 cachedQueryActiveLock.unlock();
             }
@@ -119,11 +123,11 @@ public class CachedHistoricalCacheQueryCore<V> extends ACachedResultHistoricalCa
             return WrapperCloseableIterable.maybeWrap(result);
         } else {
             try {
-                cachedQueryActive = true;
+                cachedQueryActive.setTrue();
                 final List<IHistoricalEntry<V>> result = getPreviousEntriesListUnlocked(query, key, shiftBackUnits);
                 return new UnlockingResultIterable(WrapperCloseableIterable.maybeWrap(result));
             } finally {
-                cachedQueryActive = false;
+                cachedQueryActive.setFalse();
                 cachedQueryActiveLock.unlock();
             }
         }
@@ -602,7 +606,7 @@ public class CachedHistoricalCacheQueryCore<V> extends ACachedResultHistoricalCa
     public void clear() {
         if (cachedQueryActiveLock.tryLock()) {
             try {
-                if (cachedQueryActive) {
+                if (cachedQueryActive.booleanValue()) {
                     return;
                 }
                 resetForRetry();
@@ -624,7 +628,7 @@ public class CachedHistoricalCacheQueryCore<V> extends ACachedResultHistoricalCa
             return;
         }
         try {
-            if (cachedQueryActive) {
+            if (cachedQueryActive.booleanValue()) {
                 return;
             }
             if (cachedPreviousEntries.isEmpty()) {
@@ -649,7 +653,7 @@ public class CachedHistoricalCacheQueryCore<V> extends ACachedResultHistoricalCa
             return;
         }
         try {
-            if (cachedQueryActive) {
+            if (cachedQueryActive.booleanValue()) {
                 return;
             }
             if (cachedPreviousEntries.isEmpty()) {
@@ -698,7 +702,7 @@ public class CachedHistoricalCacheQueryCore<V> extends ACachedResultHistoricalCa
                         super.close();
                         if (!isClosed()) {
                             it.close();
-                            cachedQueryActive = false;
+                            cachedQueryActive.setFalse();
                             cachedQueryActiveLock.unlock();
                         }
                     }
@@ -723,7 +727,7 @@ public class CachedHistoricalCacheQueryCore<V> extends ACachedResultHistoricalCa
                     public void close() {
                         if (!closed) {
                             it.close();
-                            cachedQueryActive = false;
+                            cachedQueryActive.setFalse();
                             cachedQueryActiveLock.unlock();
                             closed = true;
                         }
