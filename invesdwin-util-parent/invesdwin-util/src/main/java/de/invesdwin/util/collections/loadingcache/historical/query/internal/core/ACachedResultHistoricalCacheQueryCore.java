@@ -223,10 +223,6 @@ public abstract class ACachedResultHistoricalCacheQueryCore<V> extends ACachedEn
         @SuppressWarnings({ "rawtypes", "unchecked" })
         @Override
         public ICloseableIterator<IHistoricalEntry<_V>> iterator() {
-            //            System.out.println(
-            //                    "TODO return a custom itrator that checks modIncrementIndex on each next() call to ensure we use the proper index for iteration "
-            //                            + "and get an exception if trailing moved too far, maybe also use AtomicInteger for modIncrementIndex? "
-            //                            + "or use some other means to handle decrements properly without synchronized (e.g. create copy on decrement and increase mod count?)");
             try {
                 final Object[] array = (Object[]) ArrayListCloseableIterable.ARRAYLIST_ELEMENTDATA_GETTER.invoke(list);
                 return new ArrayCloseableIterator(array, offset + modIncrementIndex.intValue(), size);

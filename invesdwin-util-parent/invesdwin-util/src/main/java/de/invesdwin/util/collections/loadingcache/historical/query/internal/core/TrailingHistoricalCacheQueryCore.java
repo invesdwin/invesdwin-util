@@ -9,6 +9,7 @@ import javax.annotation.concurrent.ThreadSafe;
 
 import org.apache.commons.lang3.mutable.MutableInt;
 
+import de.invesdwin.util.collections.iterable.ACloseableIterator;
 import de.invesdwin.util.collections.iterable.ASkippingIterable;
 import de.invesdwin.util.collections.iterable.FlatteningIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
@@ -22,6 +23,7 @@ import de.invesdwin.util.collections.loadingcache.historical.query.index.QueryCo
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.IHistoricalCacheInternalMethods;
 import de.invesdwin.util.concurrent.lock.ILock;
 import de.invesdwin.util.concurrent.lock.Locks;
+import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.time.fdate.FDate;
 
 @ThreadSafe
@@ -37,7 +39,7 @@ public class TrailingHistoricalCacheQueryCore<V> extends ACachedEntriesHistorica
     private final ILock cachedQueryActiveLock = Locks
             .newReentrantLock(getClass().getSimpleName() + "_cachedQueryActiveLock");
     @GuardedBy("cachedQueryActiveLock")
-    private volatile boolean cachedQueryActive = false;
+    private boolean cachedQueryActive = false;
 
     public TrailingHistoricalCacheQueryCore(final IHistoricalCacheInternalMethods<V> parent) {
         //reuse lock so that set methods on sublist are synchronized
@@ -55,7 +57,6 @@ public class TrailingHistoricalCacheQueryCore<V> extends ACachedEntriesHistorica
         if (shiftBackUnits == 0) {
             return getDelegate().getPreviousEntry(query, key, 0);
         } else {
-            //use arraylist since we don't want to have the overhead of filtering duplicates
             final int incrementedShiftBackUnits = shiftBackUnits + 1;
             try (ICloseableIterator<IHistoricalEntry<V>> previousEntries = getPreviousEntriesList(query, key,
                     incrementedShiftBackUnits).iterator()) {
@@ -82,48 +83,48 @@ public class TrailingHistoricalCacheQueryCore<V> extends ACachedEntriesHistorica
     private ICloseableIterable<IHistoricalEntry<V>> getPreviousEntriesList(
             final IHistoricalCacheQueryInternalMethods<V> query, final FDate key, final int shiftBackUnits) {
         final boolean cachedQueryActiveLocked = cachedQueryActiveLock.tryLock();
+        /*
+         * cachedQueryActive is only checked here for recursive queries where the lock is anyway already held but we
+         * don't want to do another nested cache lookup. Because of that, cachedQueryActive does not need to be
+         * volatile!
+         */
         if (!cachedQueryActiveLocked || cachedQueryActive) {
             try {
-                return getPreviousEntries_tooOldData(query, key, shiftBackUnits);
+                return delegate.getPreviousEntries(query, key, shiftBackUnits);
             } finally {
                 if (cachedQueryActiveLocked) {
                     cachedQueryActiveLock.unlock();
                 }
             }
         } else {
-            try {
-                cachedQueryActive = true;
-                //                try {
-                final ICloseableIterable<IHistoricalEntry<V>> result = tryCachedGetPreviousEntriesIfAvailable(query,
-                        key, shiftBackUnits);
-                return result;
-                //                } catch (final ResetCacheException e) {
-                //                    countResets++;
-                //                    if (countResets % COUNT_RESETS_BEFORE_WARNING == 0
-                //                            || AHistoricalCache.isDebugAutomaticReoptimization()) {
-                //                        if (LOG.isWarnEnabled()) {
-                //                            //CHECKSTYLE:OFF
-                //                            LOG.warn(
-                //                                    "{}: resetting {} for the {}. time now and retrying after exception [{}: {}], if this happens too often we might encounter bad performance due to inefficient caching",
-                //                                    delegate.getParent(), getClass().getSimpleName(), countResets,
-                //                                    e.getClass().getSimpleName(), e.getMessage());
-                //                            //CHECKSTYLE:ON
-                //                        }
-                //                    }
-                //                    resetForRetry();
-                //                    try {
-                //                        final ICloseableIterable<IHistoricalEntry<V>> result = tryCachedGetPreviousEntriesIfAvailable(
-                //                                query, key, shiftBackUnits);
-                //                        return result;
-                //                    } catch (final ResetCacheException e1) {
-                //                        throw new RuntimeException("Follow up " + ResetCacheException.class.getSimpleName()
-                //                                + " on retry after:" + e.toString(), e1);
-                //                    }
-                //                }
-            } finally {
-                cachedQueryActive = false;
-                cachedQueryActiveLock.unlock();
-            }
+            cachedQueryActive = true;
+            //                try {
+            final ICloseableIterable<IHistoricalEntry<V>> result = tryCachedGetPreviousEntriesIfAvailable(query, key,
+                    shiftBackUnits);
+            return new UnlockingResultIterable(result);
+            //                } catch (final ResetCacheException e) {
+            //                    countResets++;
+            //                    if (countResets % COUNT_RESETS_BEFORE_WARNING == 0
+            //                            || AHistoricalCache.isDebugAutomaticReoptimization()) {
+            //                        if (LOG.isWarnEnabled()) {
+            //                            //CHECKSTYLE:OFF
+            //                            LOG.warn(
+            //                                    "{}: resetting {} for the {}. time now and retrying after exception [{}: {}], if this happens too often we might encounter bad performance due to inefficient caching",
+            //                                    delegate.getParent(), getClass().getSimpleName(), countResets,
+            //                                    e.getClass().getSimpleName(), e.getMessage());
+            //                            //CHECKSTYLE:ON
+            //                        }
+            //                    }
+            //                    resetForRetry();
+            //                    try {
+            //                        final ICloseableIterable<IHistoricalEntry<V>> result = tryCachedGetPreviousEntriesIfAvailable(
+            //                                query, key, shiftBackUnits);
+            //                        return result;
+            //                    } catch (final ResetCacheException e1) {
+            //                        throw new RuntimeException("Follow up " + ResetCacheException.class.getSimpleName()
+            //                                + " on retry after:" + e.toString(), e1);
+            //                    }
+            //                }
         }
     }
 
@@ -145,7 +146,7 @@ public class TrailingHistoricalCacheQueryCore<V> extends ACachedEntriesHistorica
 
     private ICloseableIterable<IHistoricalEntry<V>> defaultGetPreviousEntries(
             final IHistoricalCacheQueryInternalMethods<V> query, final FDate key, final int shiftBackUnits) {
-        final List<IHistoricalEntry<V>> result = delegate.getPreviousEntriesList(query, key, shiftBackUnits);
+        final List<IHistoricalEntry<V>> result = delegate.getPreviousEntriesListUnlocked(query, key, shiftBackUnits);
         //explicitly not calling updateCachedPreviousResult for it to be reset, it will get updated later
         replaceCachedEntries(key, result);
         return WrapperCloseableIterable.maybeWrap(result);
@@ -189,7 +190,7 @@ public class TrailingHistoricalCacheQueryCore<V> extends ACachedEntriesHistorica
             return filterDuplicateKeys(cachedIterable);
         } else {
             final IHistoricalEntry<V> fristValueFromCache = cachedIterable.getFirstValueFromCache();
-            final List<IHistoricalEntry<V>> remainingResult = delegate.getPreviousEntriesList(query,
+            final List<IHistoricalEntry<V>> remainingResult = delegate.getPreviousEntriesListUnlocked(query,
                     fristValueFromCache.getKey(), newUnitsBack + 1);
             final List<IHistoricalEntry<V>> remainingResultNoDuplicate;
             if (remainingResult.size() == 1) {
@@ -314,7 +315,7 @@ public class TrailingHistoricalCacheQueryCore<V> extends ACachedEntriesHistorica
     private List<IHistoricalEntry<V>> getPreviousEntries_newerData(final IHistoricalCacheQueryInternalMethods<V> query,
             final FDate key, final int shiftBackUnits, final IHistoricalEntry<V> firstCachedEntry,
             final IHistoricalEntry<V> lastCachedEntry) {
-        final List<IHistoricalEntry<V>> result = delegate.getPreviousEntriesList(query, key, shiftBackUnits);
+        final List<IHistoricalEntry<V>> result = delegate.getPreviousEntriesListUnlocked(query, key, shiftBackUnits);
         mergeResult(key, firstCachedEntry, lastCachedEntry, result);
         return result;
     }
@@ -371,7 +372,7 @@ public class TrailingHistoricalCacheQueryCore<V> extends ACachedEntriesHistorica
 
     private ICloseableIterable<IHistoricalEntry<V>> getPreviousEntries_tooOldData(
             final IHistoricalCacheQueryInternalMethods<V> query, final FDate key, final int shiftBackUnits) {
-        final List<IHistoricalEntry<V>> result = delegate.getPreviousEntriesList(query, key, shiftBackUnits);
+        final List<IHistoricalEntry<V>> result = delegate.getPreviousEntriesListUnlocked(query, key, shiftBackUnits);
         return WrapperCloseableIterable.maybeWrap(result);
     }
 
@@ -483,13 +484,73 @@ public class TrailingHistoricalCacheQueryCore<V> extends ACachedEntriesHistorica
             final int modIncrementIndexSnapshot = modIncrementIndex.intValue();
             final List<IHistoricalEntry<_V>> subList = list.subList(fromIndex + modIncrementIndexSnapshot,
                     toIndex + modIncrementIndexSnapshot);
-            //            System.out.println(
-            //                    "TODO return a custom itrator that checks modIncrementIndex on each next() call to ensure we use the proper index for iteration "
-            //                            + "and get an exception if trailing moved too far, maybe also use AtomicInteger for modIncrementIndex? "
-            //                            + "or use some other means to handle decrements properly without synchronized (e.g. create copy on decrement and increase mod count?)");
             return WrapperCloseableIterable.maybeWrap(subList).iterator();
         }
 
+    }
+
+    private final class UnlockingResultIterable implements ICloseableIterable<IHistoricalEntry<V>> {
+        private final ICloseableIterable<IHistoricalEntry<V>> result;
+
+        private UnlockingResultIterable(final ICloseableIterable<IHistoricalEntry<V>> result) {
+            this.result = result;
+        }
+
+        @Override
+        public ICloseableIterator<IHistoricalEntry<V>> iterator() {
+            if (Throwables.isDebugStackTraceEnabled()) {
+                return new ACloseableIterator<IHistoricalEntry<V>>() {
+
+                    private final ICloseableIterator<IHistoricalEntry<V>> it = result.iterator();
+
+                    @Override
+                    public boolean innerHasNext() {
+                        return it.hasNext();
+                    }
+
+                    @Override
+                    public IHistoricalEntry<V> innerNext() {
+                        return it.next();
+                    }
+
+                    @Override
+                    public void close() {
+                        super.close();
+                        if (!isClosed()) {
+                            it.close();
+                            cachedQueryActive = false;
+                            cachedQueryActiveLock.unlock();
+                        }
+                    }
+                };
+            } else {
+                return new ICloseableIterator<IHistoricalEntry<V>>() {
+
+                    private final ICloseableIterator<IHistoricalEntry<V>> it = result.iterator();
+                    private boolean closed = false;
+
+                    @Override
+                    public boolean hasNext() {
+                        return it.hasNext();
+                    }
+
+                    @Override
+                    public IHistoricalEntry<V> next() {
+                        return it.next();
+                    }
+
+                    @Override
+                    public void close() {
+                        if (!closed) {
+                            it.close();
+                            cachedQueryActive = false;
+                            cachedQueryActiveLock.unlock();
+                            closed = true;
+                        }
+                    }
+                };
+            }
+        }
     }
 
 }
