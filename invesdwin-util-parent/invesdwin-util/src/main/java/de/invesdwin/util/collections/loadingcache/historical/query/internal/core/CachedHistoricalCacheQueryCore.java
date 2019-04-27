@@ -35,12 +35,17 @@ public class CachedHistoricalCacheQueryCore<V> extends ACachedResultHistoricalCa
     @GuardedBy("cachedQueryActiveLock")
     private int countResets = 0;
     private volatile int maxCachedIndex;
-    private final ILock cachedQueryActiveLock = Locks
-            .newReentrantLock(getClass().getSimpleName() + "_cachedQueryActiveLock");
+    private final ILock cachedQueryActiveLock;
     @GuardedBy("cachedQueryActiveLock")
     private volatile boolean cachedQueryActive = false;
-
+    
     public CachedHistoricalCacheQueryCore(final IHistoricalCacheInternalMethods<V> parent) {
+        this(parent, Locks
+                .newReentrantLock(CachedHistoricalCacheQueryCore.class.getSimpleName() + "_cachedQueryActiveLock"));
+    }
+
+    public CachedHistoricalCacheQueryCore(final IHistoricalCacheInternalMethods<V> parent, ILock cachedQueryActiveLock) {
+        this.cachedQueryActiveLock = cachedQueryActiveLock;
         this.delegate = new DefaultHistoricalCacheQueryCore<V>(parent);
         this.maxCachedIndex = Integers.max(INITIAL_MAX_CACHED_INDEX, parent.getMaximumSize());
     }

@@ -40,7 +40,8 @@ public class TrailingHistoricalCacheQueryCore<V> extends ACachedEntriesHistorica
     private volatile boolean cachedQueryActive = false;
 
     public TrailingHistoricalCacheQueryCore(final IHistoricalCacheInternalMethods<V> parent) {
-        this.delegate = new CachedHistoricalCacheQueryCore<V>(parent);
+        //reuse lock so that set methods on sublist are synchronized
+        this.delegate = new CachedHistoricalCacheQueryCore<V>(parent, cachedQueryActiveLock);
     }
 
     @Override

@@ -52,8 +52,6 @@ public abstract class ACachedResultHistoricalCacheQueryCore<V> extends ACachedEn
 
     /**
      * This needs to be called wherever replaceCachedEntries() was called before
-     * 
-     * @
      */
     protected void updateCachedPreviousResult(final IHistoricalCacheQueryInternalMethods<V> query,
             final int shiftBackUnits, final List<IHistoricalEntry<V>> result) {
@@ -184,7 +182,7 @@ public abstract class ACachedResultHistoricalCacheQueryCore<V> extends ACachedEn
 
         @Override
         public IHistoricalEntry<_V> set(final int index, final IHistoricalEntry<_V> e) {
-            throw new UnsupportedOperationException("read only");
+            return list.set(offset + modIncrementIndex.intValue() + index, e);
         }
 
         @Override
