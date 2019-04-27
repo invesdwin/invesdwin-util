@@ -64,8 +64,7 @@ public abstract class ACachedResultHistoricalCacheQueryCore<V> extends ACachedEn
         }
         cachedPreviousResult_filteringDuplicates = result;
         cachedPreviousResult_shiftBackUnits = shiftBackUnits;
-        cachedPreviousEntries_modIncrementIndex = new MutableInt(0);
-        cachedPreviousEntries_modCount++;
+        cachedPreviousResult_modIncrementIndex = new MutableInt(0);
     }
 
     protected void resetCachedPreviousResult() {
