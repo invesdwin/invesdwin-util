@@ -486,11 +486,11 @@ public class TrailingHistoricalCacheQueryCore<V> extends ACachedEntriesHistorica
 
                     @Override
                     public void close() {
-                        super.close();
                         if (!isClosed()) {
                             it.close();
                             cachedQueryActive.setFalse();
                             cachedQueryActiveLock.unlock();
+                            super.close();
                         }
                     }
                 };
