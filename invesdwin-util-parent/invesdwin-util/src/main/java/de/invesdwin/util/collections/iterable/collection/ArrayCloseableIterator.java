@@ -55,7 +55,7 @@ public class ArrayCloseableIterator<E> implements ICloseableIterator<E>, IFastTo
             if (offset == 0 && size == array.length) {
                 return Arrays.asList(array);
             } else {
-                final ArrayList<E> list = new ArrayList<E>();
+                final ArrayList<E> list = new ArrayList<E>(size);
                 addAllTo(list);
                 return list;
             }

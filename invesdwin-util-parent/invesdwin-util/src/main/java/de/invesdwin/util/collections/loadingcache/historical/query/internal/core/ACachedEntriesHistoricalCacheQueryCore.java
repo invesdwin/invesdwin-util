@@ -58,7 +58,7 @@ public abstract class ACachedEntriesHistoricalCacheQueryCore<V> implements IHist
         maybeIncreaseMaximumSize(trailing.size());
         cachedPreviousEntries_modCount++;
         cachedPreviousEntries_modIncrementIndex = new MutableInt(0);
-        cachedPreviousEntries = new ArrayList<>();
+        cachedPreviousEntries = new ArrayList<>(trailing.size());
         for (int i = 0; i < trailing.size(); i++) {
             final IHistoricalEntry<V> entry = trailing.get(i);
             final IndexedFDate indexedKey = IndexedFDate.maybeWrap(entry.getKey());
@@ -97,7 +97,7 @@ public abstract class ACachedEntriesHistoricalCacheQueryCore<V> implements IHist
 
     protected void resetForRetry() {
         getDelegate().clear();
-        cachedPreviousEntries = new ArrayList<>();
+        cachedPreviousEntries = new ArrayList<>(cachedPreviousEntries.size());
         cachedPreviousEntries_modCount++;
         cachedPreviousEntries_modIncrementIndex = new MutableInt(0);
     }

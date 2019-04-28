@@ -111,7 +111,7 @@ public abstract class ACachedResultHistoricalCacheQueryCore<V> extends ACachedEn
                 cachedPreviousResult_filteringDuplicates.add(latestEntry);
                 if (cachedPreviousResult_filteringDuplicates.size() > cachedPreviousResult_shiftBackUnits) {
                     cachedPreviousResult_filteringDuplicates.remove(0);
-                    cachedPreviousEntries_modIncrementIndex.decrement();
+                    cachedPreviousResult_modIncrementIndex.decrement();
                 }
             }
 
@@ -176,7 +176,7 @@ public abstract class ACachedResultHistoricalCacheQueryCore<V> extends ACachedEn
             this.modIncrementIndex = modIncrementIndex;
             final int modIncrementIndexSnapshot = modIncrementIndex.intValue();
             this.offset = offset + fromIndex - modIncrementIndexSnapshot;
-            this.size = toIndex - fromIndex - modIncrementIndexSnapshot;
+            this.size = toIndex - fromIndex;
         }
 
         @Override
@@ -237,7 +237,8 @@ public abstract class ACachedResultHistoricalCacheQueryCore<V> extends ACachedEn
 
         @Override
         public List<IHistoricalEntry<_V>> subList(final int fromIndex, final int toIndex) {
-            return new CachedPreviousResultSubList<_V>(list, modIncrementIndex, offset, fromIndex, toIndex);
+            return new CachedPreviousResultSubList<_V>(list, modIncrementIndex, offset + modIncrementIndex.intValue(),
+                    fromIndex, toIndex);
         }
 
         @Override

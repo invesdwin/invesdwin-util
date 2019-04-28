@@ -153,7 +153,7 @@ public class DecimalAggregateInterpolations<E extends ADecimal<E>> implements ID
     private IDecimalAggregate<E> interpolate(final SplineInterpolationConfig config, final List<Double> xval,
             final List<Double> yval, final UnivariateInterpolator interpolator) {
         final UnivariateFunction interpolated = interpolator.interpolate(Doubles.toArray(xval), Doubles.toArray(yval));
-        final List<E> interpolatedValues = new ArrayList<E>();
+        final List<E> interpolatedValues = new ArrayList<E>(values.size());
         interpolateAndMaybeReverseMultiplier(config, interpolated, interpolatedValues);
         Assertions.assertThat(interpolatedValues).hasSameSizeAs(values);
         return new DecimalAggregate<E>(interpolatedValues, converter);
@@ -327,7 +327,7 @@ public class DecimalAggregateInterpolations<E extends ADecimal<E>> implements ID
             standardDeviation = 0;
         }
 
-        final List<Double> doubleValues = new ArrayList<>();
+        final List<Double> doubleValues = new ArrayList<>(values.size());
         for (final E value : values) {
             final double doubleValue = value.getDefaultValue();
             doubleValues.add(doubleValue);

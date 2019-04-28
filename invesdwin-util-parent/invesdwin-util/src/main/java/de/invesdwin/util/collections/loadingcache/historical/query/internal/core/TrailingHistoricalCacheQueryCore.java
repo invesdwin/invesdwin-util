@@ -431,7 +431,6 @@ public class TrailingHistoricalCacheQueryCore<V> extends ACachedEntriesHistorica
         private final int newUnitsBack;
         private final List<IHistoricalEntry<_V>> list;
         private final MutableInt modIncrementIndex;
-        private final IHistoricalEntry<_V> firstValueFromCache;
 
         CachedEntriesSubListIterable(final List<IHistoricalEntry<_V>> list, final MutableInt modIncrementIndex,
                 final int fromIndex, final int toIndex, final int newUnitsBack) {
@@ -441,11 +440,10 @@ public class TrailingHistoricalCacheQueryCore<V> extends ACachedEntriesHistorica
             this.fromIndex = fromIndex - modIncrementIndexSnapshot;
             this.toIndex = toIndex - modIncrementIndexSnapshot;
             this.newUnitsBack = newUnitsBack;
-            this.firstValueFromCache = list.get(fromIndex);
         }
 
         public IHistoricalEntry<_V> getFirstValueFromCache() {
-            return firstValueFromCache;
+            return list.get(fromIndex + modIncrementIndex.intValue());
         }
 
         public int getNewUnitsBack() {

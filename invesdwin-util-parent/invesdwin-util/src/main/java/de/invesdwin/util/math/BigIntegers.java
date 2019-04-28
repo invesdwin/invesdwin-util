@@ -51,7 +51,7 @@ public final class BigIntegers {
     }
 
     public static List<BigInteger> valueOf(final List<? extends Number> numbers) {
-        final List<BigInteger> bigDecimals = new ArrayList<BigInteger>();
+        final List<BigInteger> bigDecimals = new ArrayList<BigInteger>(numbers.size());
         for (final Number n : numbers) {
             bigDecimals.add(valueOf(n));
         }

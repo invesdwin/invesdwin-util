@@ -45,7 +45,7 @@ public final class BigDecimals {
     }
 
     public static List<BigDecimal> valueOf(final List<? extends Number> numbers) {
-        final List<BigDecimal> bigDecimals = new ArrayList<BigDecimal>();
+        final List<BigDecimal> bigDecimals = new ArrayList<BigDecimal>(numbers.size());
         for (final Number n : numbers) {
             bigDecimals.add(valueOf(n));
         }

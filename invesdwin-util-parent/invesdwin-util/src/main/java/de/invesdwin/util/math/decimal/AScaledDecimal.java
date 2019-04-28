@@ -248,7 +248,7 @@ public abstract class AScaledDecimal<T extends AScaledDecimal<T, S>, S extends I
     }
 
     public static <T, D extends ADecimal<D>> List<D> extractValues(final Function<T, D> getter, final List<T> objects) {
-        final List<D> decimals = new ArrayList<D>();
+        final List<D> decimals = new ArrayList<D>(objects.size());
         for (final T obj : objects) {
             final D decimal = getter.apply(obj);
             decimals.add(decimal);

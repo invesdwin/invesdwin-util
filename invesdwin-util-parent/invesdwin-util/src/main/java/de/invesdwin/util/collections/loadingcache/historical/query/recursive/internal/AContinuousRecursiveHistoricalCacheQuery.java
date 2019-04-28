@@ -259,7 +259,7 @@ public abstract class AContinuousRecursiveHistoricalCacheQuery<V> implements IRe
         //we seem to have started somewhere in the middle, thus try to continue from somewhere we left off before
         FDate curPreviousKey = lastRecursionKey;
         int minRecursionIdx = recursionCount;
-        final List<FDate> recursionKeys = new ArrayList<FDate>();
+        final List<FDate> recursionKeys = new ArrayList<FDate>(recursionCount);
         while (minRecursionIdx > 0) {
             final FDate newPreviousKey = parentQueryWithFuture.getPreviousKey(curPreviousKey, 1);
             firstRecursionKey = newPreviousKey;

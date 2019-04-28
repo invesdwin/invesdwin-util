@@ -42,6 +42,7 @@ import de.invesdwin.util.collections.loadingcache.historical.query.internal.Hist
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.IHistoricalCacheInternalMethods;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.CachedHistoricalCacheQueryCore;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.IHistoricalCacheQueryCore;
+import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.TrailingHistoricalCacheQueryCore;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.filter.FilteringHistoricalCacheQuery;
 import de.invesdwin.util.collections.loadingcache.historical.refresh.HistoricalCacheRefreshManager;
 import de.invesdwin.util.time.fdate.FDate;
@@ -63,7 +64,7 @@ public abstract class AHistoricalCache<V>
 
     protected final IHistoricalCacheInternalMethods<V> internalMethods = new HistoricalCacheInternalMethods();
 
-    private final IHistoricalCacheQueryCore<V> queryCore = newQueryCore();
+    private IHistoricalCacheQueryCore<V> queryCore = newQueryCore();
     private IHistoricalCacheAdjustKeyProvider adjustKeyProvider = new InnerHistoricalCacheAdjustKeyProvider();
     private final Set<IHistoricalCacheOnClearListener> onClearListeners = newListenerSet();
     private final Set<IHistoricalCacheIncreaseMaximumSizeListener> increaseMaximumSizeListeners = newListenerSet();
@@ -168,12 +169,12 @@ public abstract class AHistoricalCache<V>
      * slower with normal queries.
      */
     public void enableTrailingQueryCore() {
-        //        if (!(queryCore instanceof TrailingHistoricalCacheQueryCore)) {
-        //            queryCore = new TrailingHistoricalCacheQueryCore<>(internalMethods);
-        //            if (getShiftKeyProvider().getParent() != this) {
-        //                getShiftKeyProvider().getParent().enableTrailingQueryCore();
-        //            }
-        //        }
+        if (!(queryCore instanceof TrailingHistoricalCacheQueryCore)) {
+            queryCore = new TrailingHistoricalCacheQueryCore<>(internalMethods);
+            if (getShiftKeyProvider().getParent() != this) {
+                getShiftKeyProvider().getParent().enableTrailingQueryCore();
+            }
+        }
     }
 
     protected IHistoricalCacheQueryCore<V> newQueryCore() {

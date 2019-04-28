@@ -114,7 +114,7 @@ public class Decimal extends ADecimal<Decimal> {
     }
 
     public static <T> List<Decimal> extractValues(final Function<T, Decimal> getter, final List<T> objects) {
-        final List<Decimal> decimals = new ArrayList<Decimal>();
+        final List<Decimal> decimals = new ArrayList<Decimal>(objects.size());
         for (final T obj : objects) {
             final Decimal decimal = getter.apply(obj);
             decimals.add(decimal);

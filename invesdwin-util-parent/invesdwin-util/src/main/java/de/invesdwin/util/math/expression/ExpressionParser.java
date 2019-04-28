@@ -505,7 +505,8 @@ public class ExpressionParser {
             throw new ParseException(funToken, String.format("Unknown function: '%s'", functionStr));
         }
         tokenizer.consume();
-        final List<IParsedExpression> parameters = new ArrayList<>();
+        final int numberOfArgumentsMax = fun.getNumberOfArguments();
+        final List<IParsedExpression> parameters = new ArrayList<>(numberOfArgumentsMax);
         while (!tokenizer.current().isSymbol(")") && tokenizer.current().isNotEnd()) {
             if (!parameters.isEmpty()) {
                 expect(Token.TokenType.SYMBOL, ",");
@@ -513,7 +514,6 @@ public class ExpressionParser {
             parameters.add(expression());
         }
         expect(Token.TokenType.SYMBOL, ")");
-        final int numberOfArgumentsMax = fun.getNumberOfArguments();
         final int numberOfArgumentsMin = fun.getNumberOfArgumentsRequired();
         final int arguments = parameters.size();
         if (arguments < numberOfArgumentsMin || arguments > numberOfArgumentsMax) {

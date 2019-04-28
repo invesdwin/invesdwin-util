@@ -84,7 +84,7 @@ public abstract class ADelegateCollection<E> implements Collection<E>, ISerializ
     }
 
     protected Collection<E> filterAllowedElements(final Collection<? extends E> c) {
-        final List<E> allowedElements = new ArrayList<E>();
+        final List<E> allowedElements = new ArrayList<E>(c.size());
         for (final E e : c) {
             if (isAddAllowed(e)) {
                 allowedElements.add(e);
