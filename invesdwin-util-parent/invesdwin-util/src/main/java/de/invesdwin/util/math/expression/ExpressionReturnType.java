@@ -6,5 +6,6 @@ import javax.annotation.concurrent.Immutable;
 public enum ExpressionReturnType {
     Boolean,
     Integer,
-    Double;
+    Double,
+    Date;
 }

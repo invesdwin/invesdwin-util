@@ -733,4 +733,8 @@ public class FDate implements IDate, Serializable, Cloneable, Comparable<Object>
         };
     }
 
+    public int getWeekNumberOfMonth() {
+        return getWeekNumberOfYear() - truncate(FDateField.Month).getWeekNumberOfYear();
+    }
+
 }
