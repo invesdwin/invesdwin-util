@@ -96,6 +96,7 @@ public class ExpressionParser {
         registerDefaultVariable(Variables.PI);
         registerDefaultVariable(Variables.EULER);
         registerDefaultVariable(Variables.NAN);
+        registerDefaultVariable(Variables.NULL);
         registerDefaultVariable(Variables.TRUE);
         registerDefaultVariable(Variables.FALSE);
     }

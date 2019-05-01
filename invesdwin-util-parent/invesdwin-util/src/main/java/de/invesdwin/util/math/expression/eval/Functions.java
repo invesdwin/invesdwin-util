@@ -58,6 +58,11 @@ public final class Functions {
                 public boolean isOptional() {
                     return false;
                 }
+
+                @Override
+                public String getDefaultValue() {
+                    return getExpressionName();
+                }
             };
         }
 
@@ -118,6 +123,11 @@ public final class Functions {
                 @Override
                 public boolean isOptional() {
                     return false;
+                }
+
+                @Override
+                public String getDefaultValue() {
+                    return getExpressionName();
                 }
             };
         }
@@ -181,6 +191,11 @@ public final class Functions {
                 public boolean isOptional() {
                     return false;
                 }
+
+                @Override
+                public String getDefaultValue() {
+                    return getExpressionName();
+                }
             };
         }
 
@@ -241,6 +256,11 @@ public final class Functions {
                 @Override
                 public boolean isOptional() {
                     return false;
+                }
+
+                @Override
+                public String getDefaultValue() {
+                    return getExpressionName();
                 }
             };
         }
@@ -304,6 +324,11 @@ public final class Functions {
                 public boolean isOptional() {
                     return false;
                 }
+
+                @Override
+                public String getDefaultValue() {
+                    return getExpressionName();
+                }
             };
         }
 
@@ -364,6 +389,11 @@ public final class Functions {
                 @Override
                 public boolean isOptional() {
                     return false;
+                }
+
+                @Override
+                public String getDefaultValue() {
+                    return getExpressionName();
                 }
             };
         }
@@ -428,6 +458,11 @@ public final class Functions {
                 public boolean isOptional() {
                     return false;
                 }
+
+                @Override
+                public String getDefaultValue() {
+                    return getExpressionName();
+                }
             };
         }
 
@@ -490,6 +525,11 @@ public final class Functions {
                 public boolean isOptional() {
                     return false;
                 }
+
+                @Override
+                public String getDefaultValue() {
+                    return getExpressionName();
+                }
             };
         }
 
@@ -550,6 +590,11 @@ public final class Functions {
                 @Override
                 public boolean isOptional() {
                     return false;
+                }
+
+                @Override
+                public String getDefaultValue() {
+                    return getExpressionName();
                 }
             };
         }
@@ -612,6 +657,11 @@ public final class Functions {
                 public boolean isOptional() {
                     return false;
                 }
+
+                @Override
+                public String getDefaultValue() {
+                    return getExpressionName();
+                }
             };
         }
 
@@ -672,6 +722,11 @@ public final class Functions {
                     public boolean isOptional() {
                         return false;
                     }
+
+                    @Override
+                    public String getDefaultValue() {
+                        return getExpressionName();
+                    }
                 };
             case 1:
                 return new IFunctionParameterInfo() {
@@ -699,6 +754,11 @@ public final class Functions {
                     @Override
                     public boolean isOptional() {
                         return false;
+                    }
+
+                    @Override
+                    public String getDefaultValue() {
+                        return getExpressionName();
                     }
                 };
             default:
@@ -765,6 +825,11 @@ public final class Functions {
                 public boolean isOptional() {
                     return false;
                 }
+
+                @Override
+                public String getDefaultValue() {
+                    return getExpressionName();
+                }
             };
         }
 
@@ -825,6 +890,11 @@ public final class Functions {
                 @Override
                 public boolean isOptional() {
                     return false;
+                }
+
+                @Override
+                public String getDefaultValue() {
+                    return getExpressionName();
                 }
             };
         }
@@ -888,6 +958,11 @@ public final class Functions {
                 public boolean isOptional() {
                     return false;
                 }
+
+                @Override
+                public String getDefaultValue() {
+                    return getExpressionName();
+                }
             };
         }
 
@@ -949,6 +1024,11 @@ public final class Functions {
                     public boolean isOptional() {
                         return false;
                     }
+
+                    @Override
+                    public String getDefaultValue() {
+                        return getExpressionName();
+                    }
                 };
             case 1:
                 return new IFunctionParameterInfo() {
@@ -976,6 +1056,11 @@ public final class Functions {
                     @Override
                     public boolean isOptional() {
                         return false;
+                    }
+
+                    @Override
+                    public String getDefaultValue() {
+                        return getExpressionName();
                     }
                 };
             default:
@@ -1042,6 +1127,11 @@ public final class Functions {
                     return false;
                 }
 
+                @Override
+                public String getDefaultValue() {
+                    return getExpressionName();
+                }
+
             };
         }
 
@@ -1102,6 +1192,11 @@ public final class Functions {
                 @Override
                 public boolean isOptional() {
                     return false;
+                }
+
+                @Override
+                public String getDefaultValue() {
+                    return getExpressionName();
                 }
             };
         }
@@ -1164,6 +1259,11 @@ public final class Functions {
                 public boolean isOptional() {
                     return false;
                 }
+
+                @Override
+                public String getDefaultValue() {
+                    return getExpressionName();
+                }
             };
         }
 
@@ -1225,6 +1325,11 @@ public final class Functions {
                 public boolean isOptional() {
                     return false;
                 }
+
+                @Override
+                public String getDefaultValue() {
+                    return getExpressionName();
+                }
             };
         }
 
@@ -1285,6 +1390,11 @@ public final class Functions {
                     public boolean isOptional() {
                         return false;
                     }
+
+                    @Override
+                    public String getDefaultValue() {
+                        return getExpressionName();
+                    }
                 };
             case 1:
                 return new IFunctionParameterInfo() {
@@ -1312,6 +1422,11 @@ public final class Functions {
                     @Override
                     public boolean isOptional() {
                         return false;
+                    }
+
+                    @Override
+                    public String getDefaultValue() {
+                        return getExpressionName();
                     }
                 };
             default:
@@ -1379,6 +1494,11 @@ public final class Functions {
                     public boolean isOptional() {
                         return false;
                     }
+
+                    @Override
+                    public String getDefaultValue() {
+                        return getExpressionName();
+                    }
                 };
             case 1:
                 return new IFunctionParameterInfo() {
@@ -1406,6 +1526,11 @@ public final class Functions {
                     @Override
                     public boolean isOptional() {
                         return false;
+                    }
+
+                    @Override
+                    public String getDefaultValue() {
+                        return getExpressionName();
                     }
                 };
             default:
@@ -1474,6 +1599,11 @@ public final class Functions {
                 public boolean isOptional() {
                     return false;
                 }
+
+                @Override
+                public String getDefaultValue() {
+                    return getExpressionName();
+                }
             };
         }
 
@@ -1534,6 +1664,11 @@ public final class Functions {
                 @Override
                 public boolean isOptional() {
                     return false;
+                }
+
+                @Override
+                public String getDefaultValue() {
+                    return getExpressionName();
                 }
             };
         }
@@ -1597,6 +1732,11 @@ public final class Functions {
                 public boolean isOptional() {
                     return false;
                 }
+
+                @Override
+                public String getDefaultValue() {
+                    return getExpressionName();
+                }
             };
         }
 
@@ -1658,6 +1798,11 @@ public final class Functions {
                 @Override
                 public boolean isOptional() {
                     return false;
+                }
+
+                @Override
+                public String getDefaultValue() {
+                    return getExpressionName();
                 }
             };
         }
@@ -1756,6 +1901,11 @@ public final class Functions {
                     public boolean isOptional() {
                         return false;
                     }
+
+                    @Override
+                    public String getDefaultValue() {
+                        return getExpressionName();
+                    }
                 };
             case 1:
                 return new IFunctionParameterInfo() {
@@ -1784,6 +1934,11 @@ public final class Functions {
                     public boolean isOptional() {
                         return false;
                     }
+
+                    @Override
+                    public String getDefaultValue() {
+                        return getExpressionName();
+                    }
                 };
             case 2:
                 return new IFunctionParameterInfo() {
@@ -1811,6 +1966,11 @@ public final class Functions {
                     @Override
                     public boolean isOptional() {
                         return false;
+                    }
+
+                    @Override
+                    public String getDefaultValue() {
+                        return getExpressionName();
                     }
                 };
             default:
@@ -1912,6 +2072,11 @@ public final class Functions {
                 public boolean isOptional() {
                     return false;
                 }
+
+                @Override
+                public String getDefaultValue() {
+                    return getExpressionName();
+                }
             };
         }
 
@@ -2008,6 +2173,11 @@ public final class Functions {
                 @Override
                 public boolean isOptional() {
                     return false;
+                }
+
+                @Override
+                public String getDefaultValue() {
+                    return getExpressionName();
                 }
             };
         }
@@ -2106,6 +2276,11 @@ public final class Functions {
                 public boolean isOptional() {
                     return false;
                 }
+
+                @Override
+                public String getDefaultValue() {
+                    return getExpressionName();
+                }
             };
         }
 
@@ -2190,6 +2365,11 @@ public final class Functions {
                 @Override
                 public boolean isOptional() {
                     return false;
+                }
+
+                @Override
+                public String getDefaultValue() {
+                    return getExpressionName();
                 }
             };
         }
@@ -2287,6 +2467,11 @@ public final class Functions {
                 @Override
                 public boolean isOptional() {
                     return false;
+                }
+
+                @Override
+                public String getDefaultValue() {
+                    return getExpressionName();
                 }
             };
         }

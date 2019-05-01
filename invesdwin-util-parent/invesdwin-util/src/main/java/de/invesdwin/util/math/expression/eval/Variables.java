@@ -23,7 +23,7 @@ public final class Variables {
 
         @Override
         public String getDescription() {
-            return "The {@code double} value that is closer than any other to "
+            return "The double value that is closer than any other to "
                     + "<i>pi</i>, the ratio of the circumference of a circle to its diameter: " + Math.PI;
         }
 
@@ -68,12 +68,36 @@ public final class Variables {
 
         @Override
         public String getName() {
-            return "Not a Number (NaN)";
+            return "Missing Value";
         }
 
         @Override
         public String getDescription() {
-            return "This denotes a missing value as defined by Double.NaN: " + Double.NaN;
+            return "This denotes a missing value as defined by Double.NaN as a representation for \"Not a Number\" or \"NULL\"";
+        }
+
+        @Override
+        public ExpressionReturnType getType() {
+            return ExpressionReturnType.Double;
+        }
+
+    };
+
+    public static final IVariable NULL = new AConstant(Double.NaN) {
+
+        @Override
+        public String getExpressionName() {
+            return "NULL";
+        }
+
+        @Override
+        public String getName() {
+            return NAN.getName();
+        }
+
+        @Override
+        public String getDescription() {
+            return NAN.getDescription();
         }
 
         @Override
