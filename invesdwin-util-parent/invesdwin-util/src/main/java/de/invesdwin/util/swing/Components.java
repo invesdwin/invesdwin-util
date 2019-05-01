@@ -51,11 +51,16 @@ public final class Components {
     }
 
     public static boolean isMouseOverComponent(final Component component) {
-        final Point mouseLocation = MouseInfo.getPointerInfo().getLocation();
-        final Point componentLocation = component.getLocationOnScreen();
-        return mouseLocation.x >= componentLocation.x && mouseLocation.x <= componentLocation.x + component.getWidth()
-                && mouseLocation.y >= componentLocation.y
-                && mouseLocation.y <= componentLocation.y + component.getHeight();
+        if (!component.isShowing()) {
+            return false;
+        } else {
+            final Point mouseLocation = MouseInfo.getPointerInfo().getLocation();
+            final Point componentLocation = component.getLocationOnScreen();
+            return mouseLocation.x >= componentLocation.x
+                    && mouseLocation.x <= componentLocation.x + component.getWidth()
+                    && mouseLocation.y >= componentLocation.y
+                    && mouseLocation.y <= componentLocation.y + component.getHeight();
+        }
     }
 
 }
