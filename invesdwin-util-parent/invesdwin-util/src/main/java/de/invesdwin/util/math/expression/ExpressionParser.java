@@ -82,6 +82,7 @@ public class ExpressionParser {
         registerDefaultFunction(Functions.POW);
         registerDefaultFunction(Functions.MIN);
         registerDefaultFunction(Functions.MAX);
+        registerDefaultFunction(Functions.BETWEEN);
         registerDefaultFunction(Functions.RND);
         registerDefaultFunction(Functions.SIGN);
         registerDefaultFunction(Functions.IF);

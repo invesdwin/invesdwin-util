@@ -2,6 +2,7 @@ package de.invesdwin.util.math.expression.eval;
 
 import javax.annotation.concurrent.Immutable;
 
+import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.expression.AFunction;
 import de.invesdwin.util.math.expression.ExpressionReturnType;
 import de.invesdwin.util.math.expression.IExpression;
@@ -1549,6 +1550,142 @@ public final class Functions {
                     + "If the arguments have the same value, the result is that same value. If either value is NaN, then the result is NaN. "
                     + "Unlike the numerical comparison operators, this method considers negative zero to be strictly smaller than positive zero. "
                     + "If one argument is positive zero and the other negative zero, the result is positive zero.";
+        }
+    };
+
+    public static final AFunction BETWEEN = new ATernaryFunction() {
+        @Override
+        protected double eval(final double a, final double b, final double c) {
+            return Doubles.between(a, b, c);
+        }
+
+        @Override
+        public String getExpressionName() {
+            return "between";
+        }
+
+        @Override
+        public ExpressionReturnType getReturnType() {
+            return ExpressionReturnType.Double;
+        }
+
+        @Override
+        public IFunctionParameterInfo getParameterInfo(final int index) {
+            switch (index) {
+            case 0:
+                return new IFunctionParameterInfo() {
+
+                    @Override
+                    public String getType() {
+                        return ExpressionReturnType.Double.toString();
+                    }
+
+                    @Override
+                    public String getExpressionName() {
+                        return "value";
+                    }
+
+                    @Override
+                    public String getName() {
+                        return "Value";
+                    }
+
+                    @Override
+                    public String getDescription() {
+                        return "An argument.";
+                    }
+
+                    @Override
+                    public boolean isOptional() {
+                        return false;
+                    }
+
+                    @Override
+                    public String getDefaultValue() {
+                        return getExpressionName();
+                    }
+                };
+            case 1:
+                return new IFunctionParameterInfo() {
+
+                    @Override
+                    public String getType() {
+                        return ExpressionReturnType.Double.toString();
+                    }
+
+                    @Override
+                    public String getExpressionName() {
+                        return "min";
+                    }
+
+                    @Override
+                    public String getName() {
+                        return "Min";
+                    }
+
+                    @Override
+                    public String getDescription() {
+                        return "The minimum allowed value.";
+                    }
+
+                    @Override
+                    public boolean isOptional() {
+                        return false;
+                    }
+
+                    @Override
+                    public String getDefaultValue() {
+                        return getExpressionName();
+                    }
+                };
+            case 2:
+                return new IFunctionParameterInfo() {
+
+                    @Override
+                    public String getType() {
+                        return ExpressionReturnType.Double.toString();
+                    }
+
+                    @Override
+                    public String getExpressionName() {
+                        return "max";
+                    }
+
+                    @Override
+                    public String getName() {
+                        return "Max";
+                    }
+
+                    @Override
+                    public String getDescription() {
+                        return "The maximum allowed value.";
+                    }
+
+                    @Override
+                    public boolean isOptional() {
+                        return false;
+                    }
+
+                    @Override
+                    public String getDefaultValue() {
+                        return getExpressionName();
+                    }
+                };
+            default:
+                throw new ArrayIndexOutOfBoundsException(index);
+            }
+        }
+
+        @Override
+        public String getName() {
+            return "Between";
+        }
+
+        @Override
+        public String getDescription() {
+            return "Returns the value that is less or equal to max and higher or equal to min. "
+                    + "Thus ensuring maximum and minimum thresholds at the same time and returning "
+                    + "the maximum or minimum when one of them is breached.";
         }
     };
 
