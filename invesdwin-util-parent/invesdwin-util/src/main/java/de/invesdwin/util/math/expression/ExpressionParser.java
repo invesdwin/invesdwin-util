@@ -423,8 +423,13 @@ public class ExpressionParser {
         final String variableName;
         if (variableStr.contains(":")) {
             final String[] split = Strings.split(variableStr, ':');
-            variableContext = Strings.join(split, 0, split.length - 2);
-            variableName = split[split.length - 1];
+            if (split.length > 1) {
+                variableContext = modifyContext(Strings.join(split, ':', 0, split.length - 1));
+                variableName = split[split.length - 1];
+            } else {
+                variableContext = null;
+                variableName = variableStr;
+            }
         } else {
             variableContext = null;
             variableName = variableStr;
@@ -436,6 +441,10 @@ public class ExpressionParser {
                     String.format("Unknown variable: '%s'", variableToken.getContents()));
         }
         return variable;
+    }
+
+    protected String modifyContext(final String context) {
+        return context;
     }
 
     protected IPreviousKeyFunction getPreviousKeyFunction(final String context) {
@@ -496,12 +505,18 @@ public class ExpressionParser {
         final String functionName;
         if (functionStr.contains(":")) {
             final String[] split = Strings.split(functionStr, ':');
-            functionContext = Strings.join(split, 0, split.length - 2);
-            functionName = split[split.length - 1];
+            if (split.length > 1) {
+                functionContext = modifyContext(Strings.join(split, ':', 0, split.length - 1));
+                functionName = split[split.length - 1];
+            } else {
+                functionContext = null;
+                functionName = functionStr;
+            }
         } else {
             functionContext = null;
             functionName = functionStr;
         }
+
         final AFunction fun = findFunction(functionContext, functionName);
         if (fun == null) {
             throw new ParseException(funToken, String.format("Unknown function: '%s'", functionStr));
