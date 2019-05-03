@@ -54,4 +54,11 @@ public class LookaheadReader extends ALookahead<Char> {
         return line + ":" + pos + ": " + current() + ", " + next();
     }
 
+    public void skipCharacters(final int amount) {
+        for (int i = 0; i < amount; i++) {
+            fetch();
+        }
+        consume();
+    }
+
 }

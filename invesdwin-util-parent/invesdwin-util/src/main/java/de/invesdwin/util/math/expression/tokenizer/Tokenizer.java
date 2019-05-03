@@ -176,7 +176,8 @@ public class Tokenizer extends ALookahead<Token> {
         result.addToTrigger(input.consume());
         //CHECKSTYLE:OFF
         if (result.isSymbol("*") && input.current().is('*') || result.isSymbol("&") && input.current().is('&')
-                || result.isSymbol("|") && input.current().is('|') || result.isSymbol() && input.current().is('=')) {
+                || result.isSymbol("|") && input.current().is('|') || result.isSymbol()
+                        && (input.current().is('=') || input.current().is('>') || input.current().is('<'))) {
             //CHECKSTYLE:ON
             result.addToTrigger(input.consume());
         }
@@ -290,6 +291,10 @@ public class Tokenizer extends ALookahead<Token> {
             input.consume(string.length());
         }
         return true;
+    }
+
+    public void skipCharacters(final int amount) {
+        input.skipCharacters(amount);
     }
 
 }

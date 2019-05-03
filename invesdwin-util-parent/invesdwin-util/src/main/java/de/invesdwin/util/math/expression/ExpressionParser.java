@@ -9,7 +9,6 @@ import java.util.TreeMap;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.math.expression.eval.ConstantExpression;
 import de.invesdwin.util.math.expression.eval.DynamicPreviousKeyExpression;
 import de.invesdwin.util.math.expression.eval.FunctionCall;
@@ -25,6 +24,7 @@ import de.invesdwin.util.math.expression.eval.operation.CrossesAboveOperation;
 import de.invesdwin.util.math.expression.eval.operation.CrossesBelowOperation;
 import de.invesdwin.util.math.expression.eval.operation.NotOperation;
 import de.invesdwin.util.math.expression.eval.operation.OrOperation;
+import de.invesdwin.util.math.expression.tokenizer.IPosition;
 import de.invesdwin.util.math.expression.tokenizer.ParseException;
 import de.invesdwin.util.math.expression.tokenizer.Token;
 import de.invesdwin.util.math.expression.tokenizer.Tokenizer;
@@ -34,16 +34,6 @@ import io.netty.util.concurrent.FastThreadLocal;
 @NotThreadSafe
 public class ExpressionParser {
 
-    public static final String[] MODIFY_INPUT = new String[] { //
-            " and ", //
-            " or ", //
-            " <> ", " >< ", //
-    };
-    public static final String[] MODIFY_OUTPUT = new String[] { //
-            " && ", //
-            " || ", //
-            " != ", " != ", //
-    };
     private static final FastThreadLocal<Tokenizer> TOKENIZER = new FastThreadLocal<Tokenizer>() {
         @Override
         protected Tokenizer initialValue() throws Exception {
@@ -52,7 +42,7 @@ public class ExpressionParser {
     };
 
     private static final Map<String, AFunction> DEFAULT_FUNCTIONS;
-    private static final Map<String, VariableReference> DEFAULT_VARIABLES;
+    private static final Map<String, IVariable> DEFAULT_VARIABLES;
 
     private final Tokenizer tokenizer;
     private final String originalExpression;
@@ -106,13 +96,13 @@ public class ExpressionParser {
     public ExpressionParser(final String expression) {
         tokenizer = TOKENIZER.get();
         //add space at the end so that replacements match properly
-        originalExpression = modifyExpression(expression + " ");
+        originalExpression = modifyExpression(expression);
         //match variables and functions case insensitive by treating everything as lowercase
         tokenizer.init(new StringReader(originalExpression.toLowerCase()));
     }
 
-    protected String modifyExpression(final String expressionLowerCase) {
-        return Strings.replaceEachIgnoreCase(expressionLowerCase, MODIFY_INPUT, MODIFY_OUTPUT);
+    protected String modifyExpression(final String expression) {
+        return expression;
     }
 
     public static void registerDefaultFunction(final AFunction function) {
@@ -124,21 +114,25 @@ public class ExpressionParser {
     }
 
     public static void registerDefaultVariable(final IVariable variable) {
-        DEFAULT_VARIABLES.put(variable.getExpressionName().toLowerCase(), new VariableReference(null, variable));
+        DEFAULT_VARIABLES.put(variable.getExpressionName().toLowerCase(), variable);
     }
 
-    public static Collection<VariableReference> getDefaultVariables() {
+    public static Collection<IVariable> getDefaultVariables() {
         return DEFAULT_VARIABLES.values();
     }
 
     public IExpression parse() {
-        final IParsedExpression result = expressionComma().simplify();
+        final IParsedExpression result = simplify(expressionComma());
         if (tokenizer.current().isNotEnd()) {
             final Token token = tokenizer.consume();
             throw new ParseException(token,
                     String.format("Unexpected token: '%s'. Expected an expression.", token.getSource()));
         }
         return result;
+    }
+
+    protected IParsedExpression simplify(final IParsedExpression expression) {
+        return expression.simplify();
     }
 
     protected IParsedExpression expressionComma() {
@@ -160,6 +154,14 @@ public class ExpressionParser {
                 final IParsedExpression right = expressionComma();
                 return reOrder(left, right, BinaryOperation.Op.OR);
             }
+        } else if ("and".equals(current.getContents())) {
+            tokenizer.consume();
+            final IParsedExpression right = expressionComma();
+            return reOrder(left, right, BinaryOperation.Op.AND);
+        } else if ("or".equals(current.getContents())) {
+            tokenizer.consume();
+            final IParsedExpression right = expressionComma();
+            return reOrder(left, right, BinaryOperation.Op.OR);
         }
         return left;
     }
@@ -220,7 +222,7 @@ public class ExpressionParser {
                 final IParsedExpression right = relationalExpression();
                 return reOrder(left, right, BinaryOperation.Op.GT);
             }
-            if (current.matches("!=")) {
+            if (current.matches("!=") || current.matches("<>") || current.matches("><")) {
                 tokenizer.consume();
                 final IParsedExpression right = relationalExpression();
                 return reOrder(left, right, BinaryOperation.Op.NEQ);
@@ -420,9 +422,13 @@ public class ExpressionParser {
         if (tokenizer.next().isSymbol("(")) {
             return functionCall();
         }
+        return variableReference();
+    }
+
+    protected IParsedExpression variableReference() {
         final Token variableToken = tokenizer.consume();
         final String variableStr = variableToken.getContents();
-        final String variableContext;
+        String variableContext;
         final String variableName;
         final int lastIndexOfContextSeparator = variableStr.lastIndexOf(':');
         if (lastIndexOfContextSeparator > 0 && lastIndexOfContextSeparator < variableStr.length()) {
@@ -435,15 +441,100 @@ public class ExpressionParser {
             variableName = variableStr;
         }
 
-        final IParsedExpression variable = findVariable(variableToken, variableContext, variableName);
-        if (variable == null) {
-            throw new ParseException(variableToken,
-                    String.format("Unknown variable: '%s'", variableToken.getContents()));
+        if ("of".equals(tokenizer.current().getContents())) {
+            tokenizer.consume();
+            variableContext = ofContext(variableContext);
         }
+
+        final IParsedExpression variable = findVariable(variableToken, variableContext, variableName);
         return variable;
     }
 
+    protected IParsedExpression functionCall() {
+        final Token functionToken = tokenizer.consume();
+        final String functionStr = functionToken.getContents();
+        String functionContext;
+        final String functionName;
+        final int lastIndexOfContextSeparator = functionStr.lastIndexOf(':');
+        if (lastIndexOfContextSeparator > 0 && lastIndexOfContextSeparator < functionStr.length()) {
+            final int start = functionToken.getPos() - 1;
+            //keep original casing because contexts might be case sensitive (e.g. instrument IDs with parameters)
+            functionContext = modifyContext(originalExpression.substring(start, start + lastIndexOfContextSeparator));
+            functionName = functionStr.substring(lastIndexOfContextSeparator + 1);
+        } else {
+            functionContext = null;
+            functionName = functionStr;
+        }
+
+        tokenizer.consume();
+        final List<IParsedExpression> parameters = new ArrayList<>();
+        while (!tokenizer.current().isSymbol(")") && tokenizer.current().isNotEnd()) {
+            if (!parameters.isEmpty()) {
+                expect(Token.TokenType.SYMBOL, ",");
+            }
+            parameters.add(expression());
+        }
+        expect(Token.TokenType.SYMBOL, ")");
+
+        if ("of".equals(tokenizer.current().getContents())) {
+            tokenizer.consume();
+            functionContext = ofContext(functionContext);
+        }
+
+        final AFunction fun = findFunction(functionToken, functionContext, functionName);
+        final int numberOfArgumentsMax = fun.getNumberOfArguments();
+        final int numberOfArgumentsMin = fun.getNumberOfArgumentsRequired();
+        final int arguments = parameters.size();
+        if (arguments < numberOfArgumentsMin || arguments > numberOfArgumentsMax) {
+            throw new ParseException(functionToken,
+                    String.format("Number of arguments for function '%s' does not match. Expected: %d to %d, Found: %d",
+                            functionStr, numberOfArgumentsMin, numberOfArgumentsMax, arguments));
+        }
+        final IParsedExpression[] parametersArray = parameters.toArray(new IParsedExpression[arguments]);
+        return new FunctionCall(functionContext, fun, parametersArray);
+    }
+
     protected String modifyContext(final String context) {
+        return context;
+    }
+
+    protected String ofContext(final String existingContext) {
+        final Token contextToken = tokenizer.current();
+        tokenizer.consume();
+        final int start = contextToken.getPos() - 1;
+        int end = start + contextToken.getLength();
+        int skipCharacters = -1;
+        int skipBracketClose = -1;
+        while (true) {
+            if (originalExpression.length() <= end) {
+                break;
+            }
+            final char endCharacter = originalExpression.charAt(end);
+            if (endCharacter == '[') {
+                skipBracketClose++;
+            } else if (endCharacter == ']') {
+                skipBracketClose--;
+                skipCharacters++;
+                end++;
+            }
+            if (skipBracketClose >= 0) {
+                skipCharacters++;
+                end++;
+            } else {
+                break;
+            }
+        }
+
+        if (skipCharacters > 0) {
+            tokenizer.skipCharacters(skipCharacters);
+        }
+        final String context = modifyContext(originalExpression.substring(start, end));
+
+        if (existingContext != null && !existingContext.equals(context)) {
+            throw new ParseException(tokenizer.current(), "Ambiguous context defitions [" + existingContext + "] and ["
+                    + context + "] introduced by OF operator.");
+        }
+
         return context;
     }
 
@@ -498,48 +589,7 @@ public class ExpressionParser {
                 String.format("Unexpected token: '%s'. Expected an expression.", token.getSource()));
     }
 
-    protected IParsedExpression functionCall() {
-        final Token functionToken = tokenizer.consume();
-        final String functionStr = functionToken.getContents();
-        final String functionContext;
-        final String functionName;
-        final int lastIndexOfContextSeparator = functionStr.lastIndexOf(':');
-        if (lastIndexOfContextSeparator > 0 && lastIndexOfContextSeparator < functionStr.length()) {
-            final int start = functionToken.getPos() - 1;
-            //keep original casing because contexts might be case sensitive (e.g. instrument IDs with parameters)
-            functionContext = modifyContext(originalExpression.substring(start, start + lastIndexOfContextSeparator));
-            functionName = functionStr.substring(lastIndexOfContextSeparator + 1);
-        } else {
-            functionContext = null;
-            functionName = functionStr;
-        }
-
-        final AFunction fun = findFunction(functionContext, functionName);
-        if (fun == null) {
-            throw new ParseException(functionToken, String.format("Unknown function: '%s'", functionStr));
-        }
-        tokenizer.consume();
-        final int numberOfArgumentsMax = fun.getNumberOfArguments();
-        final List<IParsedExpression> parameters = new ArrayList<>(numberOfArgumentsMax);
-        while (!tokenizer.current().isSymbol(")") && tokenizer.current().isNotEnd()) {
-            if (!parameters.isEmpty()) {
-                expect(Token.TokenType.SYMBOL, ",");
-            }
-            parameters.add(expression());
-        }
-        expect(Token.TokenType.SYMBOL, ")");
-        final int numberOfArgumentsMin = fun.getNumberOfArgumentsRequired();
-        final int arguments = parameters.size();
-        if (arguments < numberOfArgumentsMin || arguments > numberOfArgumentsMax) {
-            throw new ParseException(functionToken,
-                    String.format("Number of arguments for function '%s' does not match. Expected: %d to %d, Found: %d",
-                            functionStr, numberOfArgumentsMin, numberOfArgumentsMax, arguments));
-        }
-        final IParsedExpression[] parametersArray = parameters.toArray(new IParsedExpression[arguments]);
-        return new FunctionCall(functionContext, fun, parametersArray);
-    }
-
-    private AFunction findFunction(final String context, final String name) {
+    private AFunction findFunction(final IPosition position, final String context, final String name) {
         final AFunction function = getFunction(context, name);
         if (function != null) {
             return function;
@@ -551,14 +601,14 @@ public class ExpressionParser {
             return new VariableFunction(context, name, variable);
         }
 
-        return null;
+        throw new ParseException(position, String.format("Unknown function: '%s'", name));
     }
 
     protected AFunction getFunction(final String context, final String name) {
         return DEFAULT_FUNCTIONS.get(name);
     }
 
-    private IParsedExpression findVariable(final Token variableToken, final String context, final String name) {
+    private IParsedExpression findVariable(final IPosition position, final String context, final String name) {
         final IParsedExpression variable = getVariable(context, name);
         if (variable != null) {
             return variable;
@@ -569,19 +619,20 @@ public class ExpressionParser {
             if (function.getNumberOfArgumentsRequired() == 0) {
                 return new FunctionCall(context, function);
             } else {
-                throw new ParseException(variableToken,
+                throw new ParseException(position,
                         String.format(
-                                "Numberof arguments for function '%s' does not match. Exprected: %d to %d, Found 0",
+                                "Number of arguments for function '%s' does not match. Exprected: %d to %d, Found 0",
                                 name, function.getNumberOfArgumentsRequired(), function.getNumberOfArguments()));
             }
         }
-        return null;
+
+        throw new ParseException(position, String.format("Unknown variable: '%s'", name));
     }
 
     protected VariableReference getVariable(final String context, final String name) {
-        final VariableReference variable = DEFAULT_VARIABLES.get(name);
+        final IVariable variable = DEFAULT_VARIABLES.get(name);
         if (variable != null) {
-            return variable;
+            return new VariableReference(context, variable);
         }
         return null;
     }

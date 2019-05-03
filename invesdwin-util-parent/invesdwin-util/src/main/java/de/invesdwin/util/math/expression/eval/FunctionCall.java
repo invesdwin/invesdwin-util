@@ -88,6 +88,10 @@ public class FunctionCall implements IParsedExpression {
         }
     }
 
+    public AFunction getFunction() {
+        return function;
+    }
+
     public IParsedExpression[] getParameters() {
         return parameters;
     }
@@ -120,7 +124,7 @@ public class FunctionCall implements IParsedExpression {
 
     @Override
     public String getContext() {
-        return null;
+        return context;
     }
 
 }
