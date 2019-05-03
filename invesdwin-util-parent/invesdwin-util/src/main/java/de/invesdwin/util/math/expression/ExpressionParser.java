@@ -55,6 +55,7 @@ public class ExpressionParser {
     private static final Map<String, VariableReference> DEFAULT_VARIABLES;
 
     private final Tokenizer tokenizer;
+    private final String originalExpression;
 
     static {
         DEFAULT_FUNCTIONS = new TreeMap<>();
@@ -105,11 +106,13 @@ public class ExpressionParser {
     public ExpressionParser(final String expression) {
         tokenizer = TOKENIZER.get();
         //add space at the end so that replacements match properly
-        tokenizer.init(new StringReader(modifyExpression(expression.toLowerCase() + " ")));
+        originalExpression = modifyExpression(expression + " ");
+        //match variables and functions case insensitive by treating everything as lowercase
+        tokenizer.init(new StringReader(originalExpression.toLowerCase()));
     }
 
     protected String modifyExpression(final String expressionLowerCase) {
-        return Strings.replaceEach(expressionLowerCase, MODIFY_INPUT, MODIFY_OUTPUT);
+        return Strings.replaceEachIgnoreCase(expressionLowerCase, MODIFY_INPUT, MODIFY_OUTPUT);
     }
 
     public static void registerDefaultFunction(final AFunction function) {
@@ -421,15 +424,12 @@ public class ExpressionParser {
         final String variableStr = variableToken.getContents();
         final String variableContext;
         final String variableName;
-        if (variableStr.contains(":")) {
-            final String[] split = Strings.split(variableStr, ':');
-            if (split.length > 1) {
-                variableContext = modifyContext(Strings.join(split, ':', 0, split.length - 1));
-                variableName = split[split.length - 1];
-            } else {
-                variableContext = null;
-                variableName = variableStr;
-            }
+        final int lastIndexOfContextSeparator = variableStr.lastIndexOf(':');
+        if (lastIndexOfContextSeparator > 0 && lastIndexOfContextSeparator < variableStr.length()) {
+            final int start = variableToken.getPos() - 1;
+            //keep original casing because contexts might be case sensitive (e.g. instrument IDs with parameters)
+            variableContext = modifyContext(originalExpression.substring(start, start + lastIndexOfContextSeparator));
+            variableName = variableStr.substring(lastIndexOfContextSeparator + 1);
         } else {
             variableContext = null;
             variableName = variableStr;
@@ -499,19 +499,16 @@ public class ExpressionParser {
     }
 
     protected IParsedExpression functionCall() {
-        final Token funToken = tokenizer.consume();
-        final String functionStr = funToken.getContents();
+        final Token functionToken = tokenizer.consume();
+        final String functionStr = functionToken.getContents();
         final String functionContext;
         final String functionName;
-        if (functionStr.contains(":")) {
-            final String[] split = Strings.split(functionStr, ':');
-            if (split.length > 1) {
-                functionContext = modifyContext(Strings.join(split, ':', 0, split.length - 1));
-                functionName = split[split.length - 1];
-            } else {
-                functionContext = null;
-                functionName = functionStr;
-            }
+        final int lastIndexOfContextSeparator = functionStr.lastIndexOf(':');
+        if (lastIndexOfContextSeparator > 0 && lastIndexOfContextSeparator < functionStr.length()) {
+            final int start = functionToken.getPos() - 1;
+            //keep original casing because contexts might be case sensitive (e.g. instrument IDs with parameters)
+            functionContext = modifyContext(originalExpression.substring(start, start + lastIndexOfContextSeparator));
+            functionName = functionStr.substring(lastIndexOfContextSeparator + 1);
         } else {
             functionContext = null;
             functionName = functionStr;
@@ -519,7 +516,7 @@ public class ExpressionParser {
 
         final AFunction fun = findFunction(functionContext, functionName);
         if (fun == null) {
-            throw new ParseException(funToken, String.format("Unknown function: '%s'", functionStr));
+            throw new ParseException(functionToken, String.format("Unknown function: '%s'", functionStr));
         }
         tokenizer.consume();
         final int numberOfArgumentsMax = fun.getNumberOfArguments();
@@ -534,7 +531,7 @@ public class ExpressionParser {
         final int numberOfArgumentsMin = fun.getNumberOfArgumentsRequired();
         final int arguments = parameters.size();
         if (arguments < numberOfArgumentsMin || arguments > numberOfArgumentsMax) {
-            throw new ParseException(funToken,
+            throw new ParseException(functionToken,
                     String.format("Number of arguments for function '%s' does not match. Expected: %d to %d, Found: %d",
                             functionStr, numberOfArgumentsMin, numberOfArgumentsMax, arguments));
         }
