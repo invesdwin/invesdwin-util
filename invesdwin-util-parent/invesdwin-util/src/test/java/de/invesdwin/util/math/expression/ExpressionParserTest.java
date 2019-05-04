@@ -19,6 +19,17 @@ public class ExpressionParserTest {
     }
 
     @Test
+    public void testContextFunctionSuffix() {
+        final IExpression parsed = new ExpressionParser("isNAN(NAN)JFOREX:EURUSD:[ASDF=1,UHgj=2] and 1") {
+            @Override
+            protected IParsedExpression simplify(final IParsedExpression expression) {
+                return expression;
+            }
+        }.parse();
+        Assertions.checkEquals(parsed.toString(), "(JFOREX:EURUSD:[ASDF=1,UHgj=2]:isNaN(NaN) && 1)");
+    }
+
+    @Test
     public void testOfContext() {
         final IExpression parsed = new ExpressionParser("isNaN(NaN of JFOREX:EURUSD) of JFOREX:EURUSD") {
             @Override

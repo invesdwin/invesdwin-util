@@ -474,7 +474,9 @@ public class ExpressionParser {
             }
             parameters.add(expression());
         }
-        expect(Token.TokenType.SYMBOL, ")");
+        final Token closingParenthesisToken = expect(Token.TokenType.SYMBOL, ")");
+
+        functionContext = contextSuffix(closingParenthesisToken.getPos(), functionContext);
 
         if ("of".equals(tokenizer.current().getContents())) {
             tokenizer.consume();
@@ -496,6 +498,16 @@ public class ExpressionParser {
 
     protected String modifyContext(final String context) {
         return context;
+    }
+
+    private String contextSuffix(final int suffixStart, final String existingContext) {
+        if (originalExpression.length() <= suffixStart) {
+            return null;
+        }
+        if (Character.isLetter(originalExpression.charAt(suffixStart))) {
+            return ofContext(existingContext);
+        }
+        return null;
     }
 
     protected String ofContext(final String existingContext) {
@@ -637,10 +649,11 @@ public class ExpressionParser {
         return null;
     }
 
-    protected void expect(final Token.TokenType type, final String trigger) {
+    protected Token expect(final Token.TokenType type, final String trigger) {
         final Token current = tokenizer.current();
         if (current.is(type) && current.matches(trigger)) {
             tokenizer.consume();
+            return current;
         } else {
             throw new ParseException(current,
                     String.format("Unexpected token '%s'. Expected: '%s'", current.getSource(), trigger));
