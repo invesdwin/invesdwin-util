@@ -15,6 +15,8 @@ import de.invesdwin.util.time.fdate.FWeekTime;
 @Immutable
 public class WeekRange extends AValueObject {
 
+    public static final String FROM_TO_SEPARATOR = "-";
+
     public static final ADelegateComparator<WeekRange> COMPARATOR = new ADelegateComparator<WeekRange>() {
         @Override
         protected Comparable<?> getCompareCriteria(final WeekRange e) {
@@ -54,7 +56,7 @@ public class WeekRange extends AValueObject {
 
     @Override
     public String toString() {
-        return getFrom() + "-" + getTo();
+        return getFrom() + FROM_TO_SEPARATOR + getTo();
     }
 
     public static List<Duration> extractDurations(final Iterable<WeekRange> timeRanges) {

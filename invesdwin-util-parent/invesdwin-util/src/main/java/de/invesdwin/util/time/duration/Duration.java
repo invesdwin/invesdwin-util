@@ -581,6 +581,9 @@ public class Duration extends Number implements Comparable<Object> {
             } catch (final IndexOutOfBoundsException e) {
                 return null;
             }
+        } else if (Strings.isNumeric(trimmedValue)) {
+            final long durationMillis = Long.valueOf(trimmedValue);
+            return new Duration(durationMillis, FTimeUnit.MILLISECONDS);
         } else {
             return new DurationParser(trimmedValue).parse();
         }
