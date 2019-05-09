@@ -573,4 +573,8 @@ public final class Strings extends AStringsStaticFacade {
         return replaceEachIgnoreCase(result, searchList, replacementList, repeat, timeToLive - 1);
     }
 
+    public static String normalizeFilename(final String name) {
+        return name.replace(":", "_").replace("@", "_");
+    }
+
 }

@@ -1,12 +1,14 @@
 package de.invesdwin.util.time.range;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.bean.AValueObject;
 import de.invesdwin.util.lang.ADelegateComparator;
+import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.time.duration.Duration;
 import de.invesdwin.util.time.fdate.FDate;
 import de.invesdwin.util.time.fdate.FDates;
@@ -99,5 +101,21 @@ public class WeekRange extends AValueObject {
     @Override
     public int compareTo(final Object o) {
         return COMPARATOR.compare(this, o);
+    }
+
+    public static WeekRange valueOf(final String value) {
+        final String[] args = Strings.split(value, FROM_TO_SEPARATOR);
+        try {
+            if (args.length == 2) {
+                final FWeekTime from = FWeekTime.valueOf(args[0]);
+                final FWeekTime to = FWeekTime.valueOf(args[1]);
+                return new WeekRange(from, to);
+            } else {
+                throw new IllegalArgumentException("Expecting two arguments for from and to (e.g. ["
+                        + new WeekRange(new FWeekTime(new FDate().addDays(-1)), new FWeekTime(new FDate())) + "])");
+            }
+        } catch (final Throwable t) {
+            throw new RuntimeException("Args: " + Arrays.toString(args) + " from " + value, t);
+        }
     }
 }

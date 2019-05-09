@@ -153,4 +153,33 @@ public class FWeekTime extends Number implements Comparable<Object> {
         return longValue();
     }
 
+    public static FWeekTime valueOf(final String value) {
+        if (Strings.isNumeric(value)) {
+            return valueOfNumeric(value);
+        } else {
+            return valueOfNumeric(value.replace("T", "").replace(":", "").replace(".", ""));
+        }
+    }
+
+    private static FWeekTime valueOfNumeric(final String value) {
+        if (value.length() != 10) {
+            throw new IllegalArgumentException(
+                    "Expecting exactly 10 characters but got " + value.length() + ": " + value);
+        }
+        try {
+            final FWeekday weekday = FWeekday.valueOfJodaTime(Integer.valueOf(value.substring(0, 1)));
+            final int hour = Integer.parseInt(value.substring(1, 3));
+            final int minute = Integer.parseInt(value.substring(3, 5));
+            final int second = Integer.parseInt(value.substring(5, 7));
+            final int millisecond = Integer.parseInt(value.substring(7, 10));
+            return new FWeekTime(weekday, hour, minute, second, millisecond);
+        } catch (final Throwable t) {
+            throw new RuntimeException("At: " + value, t);
+        }
+    }
+
+    public static FWeekTime valueOf(final long value) {
+        return valueOfNumeric(String.valueOf(value));
+    }
+
 }
