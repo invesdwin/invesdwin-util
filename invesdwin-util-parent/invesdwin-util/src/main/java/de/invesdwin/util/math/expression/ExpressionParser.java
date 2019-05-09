@@ -95,10 +95,8 @@ public class ExpressionParser {
 
     public ExpressionParser(final String expression) {
         tokenizer = TOKENIZER.get();
-        //add space at the end so that replacements match properly
         originalExpression = modifyExpression(expression);
-        //match variables and functions case insensitive by treating everything as lowercase
-        tokenizer.init(new StringReader(originalExpression.toLowerCase()));
+        tokenizer.init(new StringReader(originalExpression));
     }
 
     protected String modifyExpression(final String expression) {
@@ -154,11 +152,11 @@ public class ExpressionParser {
                 final IParsedExpression right = expressionComma();
                 return reOrder(left, right, BinaryOperation.Op.OR);
             }
-        } else if ("and".equals(current.getContents())) {
+        } else if ("and".equalsIgnoreCase(current.getContents())) {
             tokenizer.consume();
             final IParsedExpression right = expressionComma();
             return reOrder(left, right, BinaryOperation.Op.AND);
-        } else if ("or".equals(current.getContents())) {
+        } else if ("or".equalsIgnoreCase(current.getContents())) {
             tokenizer.consume();
             final IParsedExpression right = expressionComma();
             return reOrder(left, right, BinaryOperation.Op.OR);
@@ -422,13 +420,15 @@ public class ExpressionParser {
         Token token = tokenizer.current();
         final String str = collectContext();
         token = Token.create(token, str);
-        final char nextChar = originalExpression.charAt(token.getPos() + token.getLength() - 1);
-        if (nextChar == '(') {
-            expect(Token.TokenType.SYMBOL, "(");
-            return functionCall(token, str);
-        } else {
-            return variableReference(token, str);
+        final int nextCharIdx = token.getPos() + token.getLength() - 1;
+        if (nextCharIdx < originalExpression.length()) {
+            final char nextChar = originalExpression.charAt(nextCharIdx);
+            if (nextChar == '(') {
+                expect(Token.TokenType.SYMBOL, "(");
+                return functionCall(token, str);
+            }
         }
+        return variableReference(token, str);
     }
 
     protected IParsedExpression variableReference(final Token variableToken, final String variableStr) {
@@ -445,7 +445,7 @@ public class ExpressionParser {
             variableName = variableStr.toLowerCase();
         }
 
-        if ("of".equals(tokenizer.current().getContents())) {
+        if ("of".equalsIgnoreCase(tokenizer.current().getContents())) {
             tokenizer.consume();
             variableContext = ofContext(variableContext);
         }
