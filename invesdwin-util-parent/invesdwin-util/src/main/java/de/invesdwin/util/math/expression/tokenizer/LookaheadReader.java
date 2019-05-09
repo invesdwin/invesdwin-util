@@ -20,6 +20,10 @@ public class LookaheadReader extends ALookahead<Char> {
         pos = 0;
     }
 
+    public int getPos() {
+        return pos;
+    }
+
     @Override
     protected Char endOfInput() {
         return new Char('\0', line, pos);
@@ -58,7 +62,9 @@ public class LookaheadReader extends ALookahead<Char> {
         for (int i = 0; i < amount; i++) {
             fetch();
         }
-        consume();
+        if (current != null) {
+            consume();
+        }
     }
 
 }

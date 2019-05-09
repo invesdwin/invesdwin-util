@@ -155,7 +155,7 @@ public class Tokenizer extends ALookahead<Token> {
     }
 
     private boolean isAtStartOfIdentifier() {
-        return input.current().isLetter();
+        return input.current().isLetter() || input.current().is('@');
     }
 
     private Token fetchId() {
@@ -168,7 +168,7 @@ public class Tokenizer extends ALookahead<Token> {
     }
 
     private boolean isIdentifierChar(final Char current) {
-        return current.isDigit() || current.isLetter() || current.is('_', ':');
+        return current.isDigit() || current.isLetter() || current.is('_', ':', '@');
     }
 
     private Token fetchSymbol() {
@@ -295,6 +295,7 @@ public class Tokenizer extends ALookahead<Token> {
 
     public void skipCharacters(final int amount) {
         input.skipCharacters(amount);
+        itemBuffer.clear();
     }
 
 }

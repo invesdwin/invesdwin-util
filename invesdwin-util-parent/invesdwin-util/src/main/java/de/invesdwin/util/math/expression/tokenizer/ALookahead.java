@@ -14,7 +14,7 @@ public abstract class ALookahead<T> {
 
     protected T endOfInputIndicator;
 
-    private T current;
+    protected T current;
 
     protected void init() {
         itemBuffer.clear();

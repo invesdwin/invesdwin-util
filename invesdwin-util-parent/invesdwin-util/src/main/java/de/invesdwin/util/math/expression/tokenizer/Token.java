@@ -52,6 +52,17 @@ public final class Token implements IPosition {
         return result;
     }
 
+    public static Token create(final Token previous, final String newContent) {
+        final Token result = new Token();
+        result.type = previous.type;
+        result.line = previous.line;
+        result.pos = previous.pos;
+        result.trigger = newContent;
+        result.contents = newContent;
+        result.source = newContent;
+        return result;
+    }
+
     public static Token createAndFill(final TokenType type, final Char ch) {
         final Token result = new Token();
         result.type = type;

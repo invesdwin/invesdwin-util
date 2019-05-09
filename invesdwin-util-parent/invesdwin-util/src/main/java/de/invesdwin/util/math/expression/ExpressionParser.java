@@ -419,15 +419,19 @@ public class ExpressionParser {
     }
 
     private IParsedExpression functionOrVariable() {
-        if (tokenizer.next().isSymbol("(")) {
-            return functionCall();
+        Token token = tokenizer.current();
+        final String str = collectContext();
+        token = Token.create(token, str);
+        final char nextChar = originalExpression.charAt(token.getPos() + token.getLength() - 1);
+        if (nextChar == '(') {
+            expect(Token.TokenType.SYMBOL, "(");
+            return functionCall(token, str);
+        } else {
+            return variableReference(token, str);
         }
-        return variableReference();
     }
 
-    protected IParsedExpression variableReference() {
-        final Token variableToken = tokenizer.consume();
-        final String variableStr = variableToken.getContents();
+    protected IParsedExpression variableReference(final Token variableToken, final String variableStr) {
         String variableContext;
         final String variableName;
         final int lastIndexOfContextSeparator = variableStr.lastIndexOf(':');
@@ -435,10 +439,10 @@ public class ExpressionParser {
             final int start = variableToken.getPos() - 1;
             //keep original casing because contexts might be case sensitive (e.g. instrument IDs with parameters)
             variableContext = modifyContext(originalExpression.substring(start, start + lastIndexOfContextSeparator));
-            variableName = variableStr.substring(lastIndexOfContextSeparator + 1);
+            variableName = variableStr.substring(lastIndexOfContextSeparator + 1).toLowerCase();
         } else {
             variableContext = null;
-            variableName = variableStr;
+            variableName = variableStr.toLowerCase();
         }
 
         if ("of".equals(tokenizer.current().getContents())) {
@@ -450,9 +454,7 @@ public class ExpressionParser {
         return variable;
     }
 
-    protected IParsedExpression functionCall() {
-        final Token functionToken = tokenizer.consume();
-        final String functionStr = functionToken.getContents();
+    protected IParsedExpression functionCall(final Token functionToken, final String functionStr) {
         String functionContext;
         final String functionName;
         final int lastIndexOfContextSeparator = functionStr.lastIndexOf(':');
@@ -460,13 +462,12 @@ public class ExpressionParser {
             final int start = functionToken.getPos() - 1;
             //keep original casing because contexts might be case sensitive (e.g. instrument IDs with parameters)
             functionContext = modifyContext(originalExpression.substring(start, start + lastIndexOfContextSeparator));
-            functionName = functionStr.substring(lastIndexOfContextSeparator + 1);
+            functionName = functionStr.substring(lastIndexOfContextSeparator + 1).toLowerCase();
         } else {
             functionContext = null;
-            functionName = functionStr;
+            functionName = functionStr.toLowerCase();
         }
 
-        tokenizer.consume();
         final List<IParsedExpression> parameters = new ArrayList<>();
         while (!tokenizer.current().isSymbol(")") && tokenizer.current().isNotEnd()) {
             if (!parameters.isEmpty()) {
@@ -502,45 +503,17 @@ public class ExpressionParser {
 
     private String contextSuffix(final int suffixStart, final String existingContext) {
         if (originalExpression.length() <= suffixStart) {
-            return null;
+            return existingContext;
         }
         if (Character.isLetter(originalExpression.charAt(suffixStart))) {
             return ofContext(existingContext);
         }
-        return null;
+        return existingContext;
     }
 
     protected String ofContext(final String existingContext) {
-        final Token contextToken = tokenizer.current();
-        tokenizer.consume();
-        final int start = contextToken.getPos() - 1;
-        int end = start + contextToken.getLength();
-        int skipCharacters = -1;
-        int skipBracketClose = -1;
-        while (true) {
-            if (originalExpression.length() <= end) {
-                break;
-            }
-            final char endCharacter = originalExpression.charAt(end);
-            if (endCharacter == '[') {
-                skipBracketClose++;
-            } else if (endCharacter == ']') {
-                skipBracketClose--;
-                skipCharacters++;
-                end++;
-            }
-            if (skipBracketClose >= 0) {
-                skipCharacters++;
-                end++;
-            } else {
-                break;
-            }
-        }
-
-        if (skipCharacters > 0) {
-            tokenizer.skipCharacters(skipCharacters);
-        }
-        final String context = modifyContext(originalExpression.substring(start, end));
+        final String originalContext = collectContext();
+        final String context = modifyContext(originalContext);
 
         if (existingContext != null && !existingContext.equals(context)) {
             throw new ParseException(tokenizer.current(), "Ambiguous context defitions [" + existingContext + "] and ["
@@ -548,6 +521,54 @@ public class ExpressionParser {
         }
 
         return context;
+    }
+
+    private String collectContext() {
+        final StringBuilder context = new StringBuilder();
+        boolean consumeMore = true;
+        while (consumeMore) {
+            consumeMore = false;
+            final Token contextToken = tokenizer.current();
+            tokenizer.consume();
+            final int start = contextToken.getPos() - 1;
+            int end = start + contextToken.getLength();
+            int skipCharacters = -1;
+            int skipBracketClose = -1;
+            while (true) {
+                if (originalExpression.length() <= end) {
+                    break;
+                }
+                final char endCharacter = originalExpression.charAt(end);
+                if (endCharacter == '[') {
+                    skipBracketClose++;
+                } else if (endCharacter == ']') {
+                    skipBracketClose--;
+                    skipCharacters++;
+                    end++;
+                }
+                if (skipBracketClose >= 0) {
+                    skipCharacters++;
+                    end++;
+                } else {
+                    break;
+                }
+            }
+
+            final int next = end;
+            if (originalExpression.length() > next) {
+                final char nextCharacter = originalExpression.charAt(next);
+                if (nextCharacter == '@' || nextCharacter == ':') {
+                    consumeMore = true;
+                    skipCharacters++;
+                    end++;
+                }
+            }
+            if (skipCharacters > 0) {
+                tokenizer.skipCharacters(skipCharacters);
+            }
+            context.append(originalExpression.substring(start, end));
+        }
+        return context.toString();
     }
 
     protected IPreviousKeyFunction getPreviousKeyFunction(final String context) {
