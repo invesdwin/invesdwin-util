@@ -572,7 +572,7 @@ public class Duration extends Number implements Comparable<Object> {
             try {
                 final String[] values = trimmedValue.split(" ");
                 final int duration = Integer.valueOf(values[0]);
-                final FTimeUnit unit = FTimeUnit.valueOf(values[1]);
+                final FTimeUnit unit = FTimeUnit.valueOf(values[1].toUpperCase());
                 return new Duration(duration, unit);
             } catch (final NumberFormatException e) {
                 return null;
