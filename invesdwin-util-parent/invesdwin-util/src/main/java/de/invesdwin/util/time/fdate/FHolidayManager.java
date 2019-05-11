@@ -26,7 +26,11 @@ public final class FHolidayManager {
 
             @Override
             protected FHolidayManager loadValue(final String key) {
-                return new FHolidayManager(key);
+                try {
+                    return new FHolidayManager(key);
+                } catch (final Throwable t) {
+                    throw new RuntimeException("Invalid " + FHolidayManager.class.getSimpleName() + " id: " + key);
+                }
             }
         };
         ZORRO = getInstance("zorro");
