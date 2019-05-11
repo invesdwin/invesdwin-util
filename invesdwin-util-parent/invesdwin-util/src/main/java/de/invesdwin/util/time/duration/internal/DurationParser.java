@@ -190,7 +190,8 @@ public class DurationParser {
             smallestUnit = FTimeUnit.YEARS;
         } else {
             throw new IllegalStateException(
-                    "At least one timeunit with a non zero value expected when not \"P0\"" + trimmedValue);
+                    "At least one timeunit with a non zero value expected when not prefixed with \"P0\": "
+                            + trimmedValue);
         }
         return smallestUnit;
     }
