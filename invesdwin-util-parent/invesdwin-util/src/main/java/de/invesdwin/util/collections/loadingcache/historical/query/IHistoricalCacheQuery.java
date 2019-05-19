@@ -15,6 +15,11 @@ public interface IHistoricalCacheQuery<V> extends IHistoricalCacheQueryInternalM
 
     IHistoricalEntry<V> getEntry(FDate key);
 
+    /**
+     * Gets the entry only if it is available in cache, otherwise returns null if it would require computation.
+     */
+    IHistoricalEntry<V> getEntryIfPresent(FDate key);
+
     V getValue(FDate key);
 
     ICloseableIterable<IHistoricalEntry<V>> getEntries(Iterable<FDate> keys);

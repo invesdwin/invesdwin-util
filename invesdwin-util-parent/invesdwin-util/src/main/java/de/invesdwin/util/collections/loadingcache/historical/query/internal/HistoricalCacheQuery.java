@@ -80,6 +80,11 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
     }
 
     @Override
+    public IHistoricalEntry<V> getEntryIfPresent(final FDate key) {
+        return internalMethods.getQueryCore().getParent().getValuesMap().getIfPresent(key);
+    }
+
+    @Override
     public V getValue(final FDate key) {
         return internalMethods.getQueryCore().getValue(this, key, assertValue);
     }

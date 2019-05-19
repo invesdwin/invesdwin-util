@@ -87,6 +87,11 @@ public class AdjustingHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V
     }
 
     @Override
+    public IHistoricalEntry<V> getEntryIfPresent(final FDate key) {
+        return delegate.getEntryIfPresent(adjustKey(key));
+    }
+
+    @Override
     public V getValue(final FDate key) {
         return delegate.getValue(adjustKey(key));
     }

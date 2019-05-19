@@ -44,7 +44,7 @@ public abstract class ACaffeineLoadingCacheMap<K, V> extends ADelegateMap<K, V> 
 
     @Override
     public V getIfPresent(final K key) {
-        return null;
+        return getDelegate().getIfPresent(key);
     }
 
 }

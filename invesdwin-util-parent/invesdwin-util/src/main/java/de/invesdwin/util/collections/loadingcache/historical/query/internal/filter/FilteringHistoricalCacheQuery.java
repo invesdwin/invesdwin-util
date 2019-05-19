@@ -52,6 +52,11 @@ public class FilteringHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V
     }
 
     @Override
+    public IHistoricalEntry<V> getEntryIfPresent(final FDate key) {
+        return delegate.getEntryIfPresent(key);
+    }
+
+    @Override
     public V getValue(final FDate key) {
         return delegate.getValue(key);
     }

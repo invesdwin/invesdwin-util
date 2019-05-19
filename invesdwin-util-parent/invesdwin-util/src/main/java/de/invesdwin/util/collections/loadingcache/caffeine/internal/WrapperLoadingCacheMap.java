@@ -94,6 +94,7 @@ public class WrapperLoadingCacheMap<K, V> implements ILoadingCacheMap<K, V> {
         return delegateAsMap.entrySet();
     }
 
+    @SuppressWarnings("null")
     @Override
     public V getIfPresent(final K key) {
         return delegate.getIfPresent(key);
