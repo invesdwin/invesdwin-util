@@ -7,7 +7,7 @@ import javax.annotation.concurrent.ThreadSafe;
 import de.invesdwin.util.concurrent.lock.ILock;
 
 @ThreadSafe
-public class LockedSet<E> extends SynchronizedCollection<E> implements Set<E> {
+public class LockedSet<E> extends LockedCollection<E> implements Set<E> {
 
     public LockedSet(final Set<E> delegate) {
         super(delegate);
