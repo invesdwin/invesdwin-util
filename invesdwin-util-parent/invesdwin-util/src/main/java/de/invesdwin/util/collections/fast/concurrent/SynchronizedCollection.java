@@ -100,21 +100,32 @@ public class SynchronizedCollection<E> implements Collection<E> {
         }
     }
 
-    /**
-     * Iterators must be manually synchronized.
-     * 
-     * <pre>
-     * synchronized (coll) {
-     *     Iterator it = coll.iterator();
-     *     // do stuff with iterator
-     * }
-     * </pre>
-     *
-     * @return an iterator that must be manually synchronized on the collection
-     */
     @Override
     public Iterator<E> iterator() {
-        return getDelegate().iterator();
+        return new Iterator<E>() {
+
+            private Iterator<E> iterator;
+
+            {
+                synchronized (lock) {
+                    iterator = getDelegate().iterator();
+                }
+            }
+
+            @Override
+            public boolean hasNext() {
+                synchronized (lock) {
+                    return iterator.hasNext();
+                }
+            }
+
+            @Override
+            public E next() {
+                synchronized (lock) {
+                    return iterator.next();
+                }
+            }
+        };
     }
 
     @Override

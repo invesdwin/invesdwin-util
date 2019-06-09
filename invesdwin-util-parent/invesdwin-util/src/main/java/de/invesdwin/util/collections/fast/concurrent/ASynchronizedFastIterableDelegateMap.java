@@ -398,7 +398,11 @@ public abstract class ASynchronizedFastIterableDelegateMap<K, V> implements IFas
         public Iterator<Entry<K, V>> iterator() {
             synchronized (ASynchronizedFastIterableDelegateMap.this) {
                 if (fastIterable == null) {
-                    fastIterable = new BufferingIterator<Entry<K, V>>(delegate.entrySet());
+                    fastIterable = new BufferingIterator<Entry<K, V>>();
+                    for (final Entry<K, V> e : delegate.entrySet()) {
+                        //koloboke reuses/resets its entries, thus we have to make a safe copy
+                        fastIterable.add(ImmutableEntry.of(e.getKey(), e.getValue()));
+                    }
                 }
                 return fastIterable.iterator();
             }
