@@ -167,7 +167,7 @@ public final class DisabledLockCollectionFactory implements ILockCollectionFacto
     @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
     public <K, V> NavigableMap<K, V> newTreeMap(final Comparator<? extends K> comparator) {
-        return (NavigableMap) BTreeMap.create(comparator);
+        return BTreeMap.<K, V> create((Comparator) comparator);
     }
 
     @Override
