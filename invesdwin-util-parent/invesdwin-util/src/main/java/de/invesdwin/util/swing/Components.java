@@ -4,9 +4,13 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.MouseInfo;
 import java.awt.Point;
+import java.awt.event.MouseEvent;
 
 import javax.annotation.concurrent.Immutable;
+import javax.swing.JComponent;
 import javax.swing.JTable;
+import javax.swing.SwingUtilities;
+import javax.swing.ToolTipManager;
 import javax.swing.table.TableColumn;
 
 @Immutable
@@ -54,12 +58,28 @@ public final class Components {
         if (!component.isShowing()) {
             return false;
         } else {
-            final Point mouseLocation = MouseInfo.getPointerInfo().getLocation();
-            final Point componentLocation = component.getLocationOnScreen();
-            return mouseLocation.x >= componentLocation.x
-                    && mouseLocation.x <= componentLocation.x + component.getWidth()
-                    && mouseLocation.y >= componentLocation.y
-                    && mouseLocation.y <= componentLocation.y + component.getHeight();
+            final Point locationOnScreen = MouseInfo.getPointerInfo().getLocation();
+            final Point locationOnComponent = new Point(locationOnScreen);
+            SwingUtilities.convertPointFromScreen(locationOnComponent, component);
+            return component.contains(locationOnComponent);
+        }
+    }
+
+    /**
+     * https://stackoverflow.com/questions/12822819/dynamically-update-tooltip-currently-displayed
+     */
+    public static void setTooltipText(final JComponent component, final String text) {
+        component.setToolTipText(text);
+
+        if (component.isShowing()) {
+            final Point locationOnScreen = MouseInfo.getPointerInfo().getLocation();
+            final Point locationOnComponent = new Point(locationOnScreen);
+            SwingUtilities.convertPointFromScreen(locationOnComponent, component);
+            if (component.contains(locationOnComponent)) {
+                ToolTipManager.sharedInstance()
+                        .mouseMoved(new MouseEvent(component, -1, System.currentTimeMillis(), 0, locationOnComponent.x,
+                                locationOnComponent.y, locationOnScreen.x, locationOnScreen.y, 0, false, 0));
+            }
         }
     }
 
