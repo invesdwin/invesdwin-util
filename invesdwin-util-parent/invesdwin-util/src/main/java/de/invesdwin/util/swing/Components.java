@@ -65,12 +65,15 @@ public final class Components {
         }
     }
 
+    public static void setTooltipText(final JComponent component, final String text) {
+        component.setToolTipText(text);
+        updateTooltip(component);
+    }
+
     /**
      * https://stackoverflow.com/questions/12822819/dynamically-update-tooltip-currently-displayed
      */
-    public static void setTooltipText(final JComponent component, final String text) {
-        component.setToolTipText(text);
-
+    public static void updateTooltip(final Component component) {
         if (component.isShowing()) {
             final Point locationOnScreen = MouseInfo.getPointerInfo().getLocation();
             final Point locationOnComponent = new Point(locationOnScreen);
