@@ -15,6 +15,7 @@ public class SpinnerDecimalModel extends SpinnerNumberModel {
     protected Decimal minimum;
     protected Decimal maximum;
     protected ISpinnerDecimalModelValidator valueValidator;
+    protected boolean stateChangeEventFiring = false;
 
     public SpinnerDecimalModel() {
         this(Decimal.ZERO);
@@ -130,7 +131,10 @@ public class SpinnerDecimalModel extends SpinnerNumberModel {
     }
 
     public void setValue(final Decimal newValue) {
-        if ((this.value == null) || (!newValue.equals(this.value))) {
+        if (stateChangeEventFiring) {
+            return;
+        }
+        if (this.value == null || newValue == null || (!newValue.equals(this.value))) {
             boolean valid = true;
             if (((maximum != null) && (maximum.compareTo(newValue) < 0))
                     || ((minimum != null) && (minimum.compareTo(newValue) > 0))) {
@@ -150,7 +154,12 @@ public class SpinnerDecimalModel extends SpinnerNumberModel {
                 lastValidValue = this.value;
             }
 
-            fireStateChanged();
+            stateChangeEventFiring = true;
+            try {
+                fireStateChanged();
+            } finally {
+                stateChangeEventFiring = false;
+            }
         }
     }
 
@@ -159,6 +168,9 @@ public class SpinnerDecimalModel extends SpinnerNumberModel {
     }
 
     protected Decimal incrementValue() {
+        if (lastValidValue == null) {
+            return null;
+        }
         final Decimal result = lastValidValue.add(stepSize).round();
 
         if ((maximum != null) && (maximum.compareTo(result) < 0)) {
@@ -171,6 +183,9 @@ public class SpinnerDecimalModel extends SpinnerNumberModel {
     }
 
     protected Decimal decrementValue() {
+        if (lastValidValue == null) {
+            return null;
+        }
         final Decimal result = lastValidValue.subtract(stepSize).round();
 
         if ((maximum != null) && (maximum.compareTo(result) < 0)) {
