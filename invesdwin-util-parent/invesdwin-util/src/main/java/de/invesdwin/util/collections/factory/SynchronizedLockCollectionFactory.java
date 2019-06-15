@@ -22,6 +22,7 @@ import de.invesdwin.util.concurrent.Executors;
 import de.invesdwin.util.concurrent.WrappedExecutorService;
 import de.invesdwin.util.concurrent.lock.ILock;
 import de.invesdwin.util.concurrent.lock.Locks;
+import de.invesdwin.util.concurrent.lock.readwrite.IReadWriteLock;
 import de.invesdwin.util.concurrent.nested.ANestedExecutor;
 import de.invesdwin.util.concurrent.nested.INestedExecutor;
 
@@ -35,6 +36,11 @@ public final class SynchronizedLockCollectionFactory implements ILockCollectionF
     @Override
     public ILock newLock(final String name) {
         return Locks.newReentrantLock(name);
+    }
+
+    @Override
+    public IReadWriteLock newReadWriteLock(final String name) {
+        return Locks.newReentrantReadWriteLock(name);
     }
 
     @Override

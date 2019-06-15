@@ -26,6 +26,8 @@ import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 import de.invesdwin.util.collections.loadingcache.ALoadingCacheConfig;
 import de.invesdwin.util.concurrent.lock.ILock;
 import de.invesdwin.util.concurrent.lock.disabled.DisabledLock;
+import de.invesdwin.util.concurrent.lock.disabled.DisabledReadWriteLock;
+import de.invesdwin.util.concurrent.lock.readwrite.IReadWriteLock;
 import de.invesdwin.util.concurrent.nested.DisabledNestedExecutor;
 import de.invesdwin.util.concurrent.nested.INestedExecutor;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
@@ -45,6 +47,11 @@ public final class DisabledLockCollectionFactory implements ILockCollectionFacto
     @Override
     public ILock newLock(final String name) {
         return DisabledLock.INSTANCE;
+    }
+
+    @Override
+    public IReadWriteLock newReadWriteLock(final String name) {
+        return DisabledReadWriteLock.INSTANCE;
     }
 
     @Override

@@ -12,11 +12,14 @@ import de.invesdwin.util.collections.fast.IFastIterableSet;
 import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 import de.invesdwin.util.collections.loadingcache.ALoadingCacheConfig;
 import de.invesdwin.util.concurrent.lock.ILock;
+import de.invesdwin.util.concurrent.lock.readwrite.IReadWriteLock;
 import de.invesdwin.util.concurrent.nested.INestedExecutor;
 
 public interface ILockCollectionFactory {
 
     ILock newLock(String name);
+
+    IReadWriteLock newReadWriteLock(String name);
 
     <T> List<T> newArrayList();
 
