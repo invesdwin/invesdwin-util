@@ -26,6 +26,10 @@ public final class Reflections extends AReflectionsStaticFacade {
      * https://stackoverflow.com/questions/2591083/getting-java-version-at-runtime/21112531
      */
     public static final double JAVA_VERSION;
+    /**
+     * https://stackoverflow.com/questions/3776204/how-to-find-out-if-debug-mode-is-enabled
+     */
+    public static final boolean JAVA_DEBUG_MODE;
 
     static {
         //CHECKSTYLE:OFF
@@ -38,6 +42,10 @@ public final class Reflections extends AReflectionsStaticFacade {
         } else {
             JAVA_VERSION = Double.parseDouble(version);
         }
+        JAVA_DEBUG_MODE = java.lang.management.ManagementFactory.getRuntimeMXBean()
+                .getInputArguments()
+                .toString()
+                .indexOf("jdwp") >= 0;
     }
 
     private Reflections() {}
