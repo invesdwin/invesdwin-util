@@ -211,4 +211,9 @@
 		<tag>HEAD</tag>
 	</scm>
 	
+	<ciManagement>
+		<system>jenkins</system>
+		<url>https://invesdwin.de/jenkins/job/dgr-deploy-invesdwin-util/</url>
+	</ciManagement>
+	
 </project>
