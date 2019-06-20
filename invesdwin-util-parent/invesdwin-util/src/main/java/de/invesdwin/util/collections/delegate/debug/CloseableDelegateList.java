@@ -73,7 +73,7 @@ public class CloseableDelegateList<E> extends ADelegateList<E> implements Closea
         }
 
         @Override
-        public boolean isClosed() {
+        protected boolean isCleaned() {
             return closed;
         }
 

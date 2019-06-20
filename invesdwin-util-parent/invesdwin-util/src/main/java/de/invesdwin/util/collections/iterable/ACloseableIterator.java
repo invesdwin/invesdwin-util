@@ -135,7 +135,7 @@ public abstract class ACloseableIterator<E> implements ICloseableIterator<E> {
         }
 
         @Override
-        public boolean isClosed() {
+        protected boolean isCleaned() {
             return closed;
         }
 

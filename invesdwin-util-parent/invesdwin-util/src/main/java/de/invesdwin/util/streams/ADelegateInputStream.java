@@ -130,7 +130,7 @@ public abstract class ADelegateInputStream extends InputStream {
         }
 
         @Override
-        public boolean isClosed() {
+        protected boolean isCleaned() {
             return delegate == ClosedInputStream.CLOSED_INPUT_STREAM;
         }
 

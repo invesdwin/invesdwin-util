@@ -108,7 +108,7 @@ public abstract class ADelegateOutputStream extends OutputStream {
         }
 
         @Override
-        public boolean isClosed() {
+        protected boolean isCleaned() {
             return delegate == ClosedOutputStream.CLOSED_OUTPUT_STREAM;
         }
 

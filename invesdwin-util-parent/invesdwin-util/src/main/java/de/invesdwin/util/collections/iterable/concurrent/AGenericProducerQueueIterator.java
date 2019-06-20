@@ -192,7 +192,7 @@ public abstract class AGenericProducerQueueIterator<E> extends ACloseableIterato
         private final String name;
         private WrappedExecutorService executor;
         private boolean started;
-        private volatile boolean closed;
+        private volatile boolean cleaned;
 
         private GenericProducerQueueIteratorFinalizer(final String name) {
             this.name = name;
@@ -211,12 +211,12 @@ public abstract class AGenericProducerQueueIterator<E> extends ACloseableIterato
             //cannot wait here for executor to close completely since the thread could trigger it himself
             executor.shutdown();
             executor = null;
-            closed = true;
+            cleaned = true;
         }
 
         @Override
-        public boolean isClosed() {
-            return closed;
+        protected boolean isCleaned() {
+            return cleaned;
         }
 
     }

@@ -2,6 +2,7 @@ package de.invesdwin.util.lang.finalizer;
 
 import java.io.Closeable;
 
+import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.error.Throwables;
@@ -39,6 +40,7 @@ public abstract class AFinalizer implements Closeable, Runnable {
 
     private static final org.slf4j.ext.XLogger LOG = org.slf4j.ext.XLoggerFactory.getXLogger(AFinalizer.class);
 
+    @GuardedBy("this")
     private IFinalizerReference reference;
 
     /**
@@ -50,8 +52,8 @@ public abstract class AFinalizer implements Closeable, Runnable {
      * This method can be used to clean normally from the outside.
      */
     @Override
-    public final void close() {
-        if (!isClosed()) {
+    public final synchronized void close() {
+        if (!isCleaned()) {
             onClose();
             clean();
         }
@@ -77,9 +79,9 @@ public abstract class AFinalizer implements Closeable, Runnable {
      */
     @Deprecated
     @Override
-    public final void run() {
+    public final synchronized void run() {
         try {
-            if (!isClosed()) {
+            if (!isCleaned()) {
                 onRun();
                 clean();
             }
@@ -91,24 +93,28 @@ public abstract class AFinalizer implements Closeable, Runnable {
         }
     }
 
-    public abstract boolean isClosed();
+    public final synchronized boolean isClosed() {
+        return isCleaned();
+    }
+
+    protected abstract boolean isCleaned();
 
     protected void onRun() {}
 
     /**
      * If already registered, this method does nothing
      */
-    public void register(final Object obj) {
+    public synchronized void register(final Object obj) {
         if (this.reference == null) {
             this.reference = FinalizerManager.register(obj, this);
         }
     }
 
-    public IFinalizerReference getReference() {
+    public synchronized IFinalizerReference getReference() {
         return reference;
     }
 
-    public void setReference(final IFinalizerReference reference) {
+    public synchronized void setReference(final IFinalizerReference reference) {
         this.reference = reference;
     }
 

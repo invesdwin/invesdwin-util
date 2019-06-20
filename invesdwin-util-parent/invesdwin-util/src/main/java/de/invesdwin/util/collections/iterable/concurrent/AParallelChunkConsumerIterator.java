@@ -95,7 +95,7 @@ public abstract class AParallelChunkConsumerIterator<R, E> extends ACloseableIte
         }
 
         @Override
-        public boolean isClosed() {
+        protected boolean isCleaned() {
             return consumerExecutor == null;
         }
 
