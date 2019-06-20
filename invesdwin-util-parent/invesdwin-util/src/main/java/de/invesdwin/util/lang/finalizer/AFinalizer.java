@@ -16,7 +16,7 @@ import de.invesdwin.util.error.Throwables;
  * the heap dump)</li>
  * <li>The clean() method should contain your code that should be executed both on close() and on finalization via
  * run(). You can add specific functionality for both cases by overriding the onClose() and onRun() methods. If
- * isClosed() returns true, the clean method will not be invoked. The IFinalizerReference that was registered() will
+ * isCleaned() returns true, the clean method will not be invoked. The IFinalizerReference that was registered() will
  * still be removed.</li>
  * <li>Use only fields in the finalizer that don't introduce reference leaks of the outer class.</li>
  * <li>Don't lock/unlock anything in the finalizer, this might cause a deadlock during finalization.</li>
@@ -57,7 +57,7 @@ public abstract class AFinalizer implements Closeable, Runnable {
             onClose();
             clean();
         }
-        //clean reference even if already closed (isClosed() might be implemented wrong)
+        //clean reference even if already closed (isCleaned() might be implemented wrong)
         cleanReference();
     }
 
