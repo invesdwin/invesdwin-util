@@ -70,7 +70,8 @@ public class FDateTest {
     @Test
     public void testIterable() {
         int iterations = 0;
-        for (final FDate date : FDates.iterable(new FDate(), new FDate(), FTimeUnit.DAYS, 1)) {
+        final FDate time = new FDate();
+        for (final FDate date : FDates.iterable(time, time, FTimeUnit.DAYS, 1)) {
             System.out.println(String.format("%s", date)); //SUPPRESS CHECKSTYLE single line
             iterations++;
         }
@@ -80,7 +81,8 @@ public class FDateTest {
     @Test
     public void testIterableReverse() {
         int iterations = 0;
-        for (final FDate date : FDates.iterable(new FDate(), new FDate(), FTimeUnit.DAYS, -1)) {
+        final FDate time = new FDate();
+        for (final FDate date : FDates.iterable(time, time, FTimeUnit.DAYS, -1)) {
             System.out.println(String.format("%s", date)); //SUPPRESS CHECKSTYLE single line
             iterations++;
         }
