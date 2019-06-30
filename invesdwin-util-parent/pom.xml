@@ -28,9 +28,9 @@
 
 		<version.maven-source-plugin>3.0.1</version.maven-source-plugin>
 		<version.maven-processor-plugin>3.3.3</version.maven-processor-plugin>
-		<version.invesdwin-maven-plugin>1.0.5-SNAPSHOT</version.invesdwin-maven-plugin>
+		<project.version.invesdwin-maven-plugin>1.0.5-SNAPSHOT</project.version.invesdwin-maven-plugin>
 
-		<version.invesdwin-norva>1.0.0</version.invesdwin-norva>
+		<project.version.invesdwin-norva>1.0.0</project.version.invesdwin-norva>
 		<version.fest-reflect>1.4.1</version.fest-reflect>
 		<version.fest-util>1.2.5</version.fest-util>
 		<version.fst>2.57</version.fst>
@@ -45,12 +45,12 @@
 			<dependency>
 				<groupId>de.invesdwin</groupId>
 				<artifactId>invesdwin-maven-plugin</artifactId>
-				<version>${version.invesdwin-maven-plugin}</version>
+				<version>${project.version.invesdwin-maven-plugin}</version>
 			</dependency>
 			<dependency>
 				<groupId>de.invesdwin</groupId>
 				<artifactId>invesdwin-norva</artifactId>
-				<version>${version.invesdwin-norva}</version>
+				<version>${project.version.invesdwin-norva}</version>
 			</dependency>
 			<dependency>
 				<groupId>de.jollyday</groupId>
@@ -162,7 +162,7 @@
 			<plugin>
 				<groupId>de.invesdwin</groupId>
 				<artifactId>invesdwin-maven-plugin</artifactId>
-				<version>${version.invesdwin-maven-plugin}</version>
+				<version>${project.version.invesdwin-maven-plugin}</version>
 				<executions>
 					<execution>
 						<goals>
