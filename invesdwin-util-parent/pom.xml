@@ -31,7 +31,7 @@
 		<version.invesdwin-maven-plugin>1.0.4</version.invesdwin-maven-plugin>
 
 		<version.invesdwin-norva>1.0.0</version.invesdwin-norva>
-		<version.invesdwin-util>1.0.1-SNAPSHOT</version.invesdwin-util>
+		<version.invesdwin-util>${project.version}</version.invesdwin-util>
 		<version.fest-reflect>1.4.1</version.fest-reflect>
 		<version.fest-util>1.2.5</version.fest-util>
 		<version.fst>2.57</version.fst>
