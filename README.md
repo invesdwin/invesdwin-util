@@ -14,7 +14,7 @@ Dependency declaration:
 <dependency>
 	<groupId>de.invesdwin</groupId>
 	<artifactId>invesdwin-util</artifactId>
-	<version>1.0.0-SNAPSHOT</version><!---version.invesdwin-util-parent-->
+	<version>1.0.1</version><!---version.invesdwin-util-parent-->
 </dependency>
 ```
 
