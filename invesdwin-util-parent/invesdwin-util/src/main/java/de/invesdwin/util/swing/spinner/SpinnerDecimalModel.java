@@ -3,6 +3,7 @@ package de.invesdwin.util.swing.spinner;
 import javax.annotation.concurrent.NotThreadSafe;
 import javax.swing.SpinnerNumberModel;
 
+import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.math.decimal.Decimal;
 
 @NotThreadSafe
@@ -36,7 +37,7 @@ public class SpinnerDecimalModel extends SpinnerNumberModel {
     }
 
     public void setMinimum(final Decimal min) {
-        if (!min.equals(minimum)) {
+        if (!Objects.equals(min, minimum)) {
             minimum = min;
             if ((lastValidValue == null) || (min.compareTo(lastValidValue) == 1)) {
                 final boolean wasValid = isCurrentValueValid();
@@ -62,7 +63,7 @@ public class SpinnerDecimalModel extends SpinnerNumberModel {
     }
 
     public void setMaximum(final Decimal max) {
-        if (!max.equals(maximum)) {
+        if (!Objects.equals(max, maximum)) {
             maximum = max;
             if ((lastValidValue == null) || (max.compareTo(lastValidValue) == -1)) {
                 final boolean wasValid = isCurrentValueValid();
