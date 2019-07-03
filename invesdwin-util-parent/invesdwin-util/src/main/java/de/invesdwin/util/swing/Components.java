@@ -7,12 +7,14 @@ import java.awt.Point;
 import java.awt.event.MouseEvent;
 
 import javax.annotation.concurrent.Immutable;
+import javax.swing.AbstractButton;
 import javax.swing.JComponent;
 import javax.swing.JTable;
 import javax.swing.SwingUtilities;
 import javax.swing.ToolTipManager;
 import javax.swing.border.Border;
 import javax.swing.table.TableColumn;
+import javax.swing.text.JTextComponent;
 
 import de.invesdwin.util.lang.Objects;
 
@@ -106,6 +108,18 @@ public final class Components {
     public static void setBorder(final JComponent component, final Border border) {
         if (component.getBorder() != border) {
             component.setBorder(border);
+        }
+    }
+
+    public static void setText(final AbstractButton component, final String text) {
+        if (!Objects.equals(text, component.getText())) {
+            component.setText(text);
+        }
+    }
+
+    public static void setText(final JTextComponent component, final String text) {
+        if (!Objects.equals(text, component.getText())) {
+            component.setText(text);
         }
     }
 
