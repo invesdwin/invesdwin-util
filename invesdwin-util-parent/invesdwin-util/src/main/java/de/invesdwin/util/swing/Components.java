@@ -99,6 +99,12 @@ public final class Components {
         }
     }
 
+    public static void setEditable(final JTextComponent component, final boolean editable) {
+        if (component.isEditable() != editable) {
+            component.setEditable(editable);
+        }
+    }
+
     public static void setVisible(final Component component, final boolean visible) {
         if (component.isVisible() != visible) {
             component.setVisible(visible);
