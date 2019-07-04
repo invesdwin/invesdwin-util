@@ -2,8 +2,10 @@ package de.invesdwin.util.swing;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.MouseInfo;
 import java.awt.Point;
+import java.awt.Window;
 import java.awt.event.MouseEvent;
 
 import javax.annotation.concurrent.Immutable;
@@ -126,6 +128,17 @@ public final class Components {
     public static void setText(final JTextComponent component, final String text) {
         if (!Objects.equals(text, component.getText())) {
             component.setText(text);
+        }
+    }
+
+    public static void packHeight(final Window window) {
+        if (window != null) {
+            synchronized (window) {
+                final Dimension minimumSizeBefore = window.getMinimumSize();
+                window.setMinimumSize(new Dimension(window.getWidth(), 1));
+                window.pack();
+                window.setMinimumSize(minimumSizeBefore);
+            }
         }
     }
 
