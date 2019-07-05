@@ -34,16 +34,23 @@ public class DurationParser {
         //P[JY][MM][WW][TD][T[hH][mM][s[.f]S]]
         final String beforeT;
         final String afterT;
-        if (Strings.startsWith(trimmedValue, "PT")) {
-            beforeT = null;
+        if (trimmedValue.contains("T")) {
+            if (Strings.startsWith(trimmedValue, "PT")) {
+                beforeT = null;
+            } else {
+                beforeT = Strings.substringBetween(trimmedValue, "P", "T");
+            }
+            afterT = Strings.substringAfter(trimmedValue, "T");
         } else {
-            beforeT = Strings.substringBetween(trimmedValue, "P", "T");
+            beforeT = Strings.substringAfter(trimmedValue, "P");
+            afterT = null;
         }
-        afterT = Strings.substringAfter(trimmedValue, "T");
         if (beforeT != null) {
             parseBeforeT(beforeT);
         }
-        parseAfterT(afterT);
+        if (afterT != null) {
+            parseAfterT(afterT);
+        }
         final FTimeUnit smallestUnit = determineSmallestUnit();
         final long duration = calculateDuration(smallestUnit);
         return new Duration(duration, smallestUnit);

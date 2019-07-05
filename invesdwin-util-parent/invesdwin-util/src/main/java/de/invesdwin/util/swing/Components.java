@@ -11,6 +11,7 @@ import java.awt.event.MouseEvent;
 import javax.annotation.concurrent.Immutable;
 import javax.swing.AbstractButton;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JTable;
 import javax.swing.SwingUtilities;
 import javax.swing.ToolTipManager;
@@ -120,6 +121,12 @@ public final class Components {
     }
 
     public static void setText(final AbstractButton component, final String text) {
+        if (!Objects.equals(text, component.getText())) {
+            component.setText(text);
+        }
+    }
+
+    public static void setText(final JLabel component, final String text) {
         if (!Objects.equals(text, component.getText())) {
             component.setText(text);
         }
