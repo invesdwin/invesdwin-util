@@ -1,4 +1,4 @@
-package de.invesdwin.util.concurrent;
+package de.invesdwin.util.concurrent.reference;
 
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -7,15 +7,16 @@ import de.invesdwin.util.time.Instant;
 import de.invesdwin.util.time.duration.Duration;
 
 @ThreadSafe
-public class ExpiringReference<T> extends AValueObject {
+public class ExpiringFinalReference<T> extends AValueObject implements IReference {
 
     private volatile Instant lastAccess = new Instant();
     private final T value;
 
-    public ExpiringReference(final T value) {
+    public ExpiringFinalReference(final T value) {
         this.value = value;
     }
 
+    @Override
     public T get() {
         lastAccess = new Instant();
         return value;
@@ -42,9 +43,9 @@ public class ExpiringReference<T> extends AValueObject {
     public boolean equals(final Object obj) {
         if (value == null) {
             return super.equals(obj);
-        } else if (obj instanceof ExpiringReference) {
-            final ExpiringReference<?> cObj = (ExpiringReference<?>) obj;
-            return value.equals(cObj.value);
+        } else if (obj instanceof IReference) {
+            final IReference<?> cObj = (IReference<?>) obj;
+            return value.equals(cObj.get());
         } else {
             return value.equals(obj);
         }
