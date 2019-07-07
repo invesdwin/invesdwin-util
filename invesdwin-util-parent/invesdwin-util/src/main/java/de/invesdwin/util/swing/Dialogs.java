@@ -22,7 +22,7 @@ import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkEvent.EventType;
 import javax.swing.event.HyperlinkListener;
 
-import de.invesdwin.util.concurrent.reference.VolatileReference;
+import de.invesdwin.util.concurrent.reference.MutableReference;
 import de.invesdwin.util.lang.Reflections;
 import de.invesdwin.util.lang.uri.URIs;
 import de.invesdwin.util.swing.listener.IColorChooserListener;
@@ -273,7 +273,7 @@ public final class Dialogs extends javax.swing.JOptionPane {
                 }
             }
         }
-        final VolatileReference<Color> selectedColor = new VolatileReference<>();
+        final MutableReference<Color> selectedColor = new MutableReference<>();
         selectedColor.set(initialColor);
         final ActionListener okListener = new ActionListener() {
             @Override
