@@ -69,14 +69,30 @@ public class AndOperation extends BinaryOperation {
         final IParsedExpression newRight = right.simplify();
         if (newLeft.isConstant()) {
             if (newLeft.evaluateBoolean()) {
-                return newRight;
+                if (newRight.isConstant()) {
+                    if (newRight.evaluateBoolean()) {
+                        return new ConstantExpression(1D);
+                    } else {
+                        return new ConstantExpression(0D);
+                    }
+                } else {
+                    return newRight;
+                }
             } else {
                 return new ConstantExpression(0D);
             }
         }
         if (newRight.isConstant()) {
             if (newRight.evaluateBoolean()) {
-                return newLeft;
+                if (newLeft.isConstant()) {
+                    if (newLeft.evaluateBoolean()) {
+                        return new ConstantExpression(1D);
+                    } else {
+                        return new ConstantExpression(0D);
+                    }
+                } else {
+                    return newLeft;
+                }
             } else {
                 return new ConstantExpression(0D);
             }

@@ -90,6 +90,62 @@ public class ExpressionParserTest {
     }
 
     @Test
+    public void testAndNan() {
+        final IExpression parsed = new ExpressionParser("1 AND NaN").parse();
+        final double evaluateDouble = parsed.evaluateDouble();
+        Assertions.checkEquals(0D, evaluateDouble);
+    }
+
+    @Test
+    public void testOrNan() {
+        final IExpression parsed = new ExpressionParser("0 OR NaN OR 1").parse();
+        final double evaluateDouble = parsed.evaluateDouble();
+        Assertions.checkEquals(1D, evaluateDouble);
+    }
+
+    @Test
+    public void testAddNan() {
+        final IExpression parsed = new ExpressionParser("1 + NaN").parse();
+        final double evaluateDouble = parsed.evaluateDouble();
+        Assertions.checkEquals(Double.NaN, evaluateDouble);
+    }
+
+    @Test
+    public void testSubtractNan() {
+        final IExpression parsed = new ExpressionParser("1 - NaN").parse();
+        final double evaluateDouble = parsed.evaluateDouble();
+        Assertions.checkEquals(Double.NaN, evaluateDouble);
+    }
+
+    @Test
+    public void testMultiplyNan() {
+        final IExpression parsed = new ExpressionParser("1 * NaN").parse();
+        final double evaluateDouble = parsed.evaluateDouble();
+        Assertions.checkEquals(Double.NaN, evaluateDouble);
+    }
+
+    @Test
+    public void testDivideNan() {
+        final IExpression parsed = new ExpressionParser("1 / NaN").parse();
+        final double evaluateDouble = parsed.evaluateDouble();
+        Assertions.checkEquals(Double.NaN, evaluateDouble);
+    }
+
+    @Test
+    public void testModuloNan() {
+        final IExpression parsed = new ExpressionParser("1 % NaN").parse();
+        final double evaluateDouble = parsed.evaluateDouble();
+        Assertions.checkEquals(Double.NaN, evaluateDouble);
+    }
+
+    @Test
+    public void testExpNan() {
+        final IExpression parsed = new ExpressionParser("1 ^ NaN").parse();
+        final double evaluateDouble = parsed.evaluateDouble();
+        Assertions.checkEquals(Double.NaN, evaluateDouble);
+    }
+
+    @Test
     public void testNotOperator() {
         final IExpression parsed = new ExpressionParser("!!isNaN(1) || !isNaN(NaN)").parse();
         final double evaluateDouble = parsed.evaluateDouble();

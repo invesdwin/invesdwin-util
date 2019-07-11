@@ -71,14 +71,30 @@ public class OrOperation extends BinaryOperation {
             if (newLeft.evaluateBoolean()) {
                 return new ConstantExpression(1D);
             } else {
-                return newRight;
+                if (newRight.isConstant()) {
+                    if (newRight.evaluateBoolean()) {
+                        return new ConstantExpression(1D);
+                    } else {
+                        return new ConstantExpression(0D);
+                    }
+                } else {
+                    return newRight;
+                }
             }
         }
         if (newRight.isConstant()) {
             if (newRight.evaluateBoolean()) {
                 return new ConstantExpression(1D);
             } else {
-                return newLeft;
+                if (newLeft.isConstant()) {
+                    if (newLeft.evaluateBoolean()) {
+                        return new ConstantExpression(1D);
+                    } else {
+                        return new ConstantExpression(0D);
+                    }
+                } else {
+                    return newLeft;
+                }
             }
         }
         return simplify(newLeft, newRight);
