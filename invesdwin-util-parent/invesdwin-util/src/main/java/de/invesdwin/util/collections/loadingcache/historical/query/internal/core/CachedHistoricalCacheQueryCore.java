@@ -530,7 +530,10 @@ public class CachedHistoricalCacheQueryCore<V> extends ACachedResultHistoricalCa
         int hi = list.size();
         if (unitsBack != null) {
             final FDate loTime = list.get(lo).getKey();
-            if (skippingKeysAbove.isBeforeOrEqualToNotNullSafe(loTime) && hi >= maxCachedIndex) {
+            if (skippingKeysAbove.equalsNotNullSafe(loTime)) {
+                return lo;
+            }
+            if (skippingKeysAbove.isBeforeNotNullSafe(loTime) && hi >= maxCachedIndex) {
                 throw new IllegalStateException("Not enough data in cache for fillFromCacheAsFarAsPossible ["
                         + unitsBack + "/" + maxCachedIndex + "/" + (hi - 1) + "]");
             }
