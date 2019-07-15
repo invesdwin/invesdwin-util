@@ -2,6 +2,7 @@ package de.invesdwin.util.math.expression;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.time.fdate.FDate;
 
 @NotThreadSafe
@@ -78,7 +79,13 @@ public abstract class AFunction {
         final IFunctionParameterInfo[] parameters = getParameterInfos();
         final String[] defaultValues = new String[parameters.length];
         for (int i = 0; i < parameters.length; i++) {
-            defaultValues[i] = parameters[i].getDefaultValue();
+            final IFunctionParameterInfo parameter = parameters[i];
+            final String defaultValue = parameter.getDefaultValue();
+            if (Strings.isNotBlank(defaultValue)) {
+                defaultValues[i] = defaultValue;
+            } else {
+                defaultValues[i] = parameter.getExpressionName();
+            }
         }
         return defaultValues;
     }
