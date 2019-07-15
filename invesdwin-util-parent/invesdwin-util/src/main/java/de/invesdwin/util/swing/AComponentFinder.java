@@ -7,12 +7,29 @@ import java.util.List;
 import java.util.Set;
 
 import javax.annotation.concurrent.Immutable;
+import javax.swing.JComponent;
 import javax.swing.JRootPane;
+import javax.swing.JToggleButton;
+import javax.swing.text.JTextComponent;
 
 import com.google.common.collect.ImmutableList;
 
 @Immutable
 public abstract class AComponentFinder {
+
+    public static final AComponentFinder DEFAULT_FOCUS = new AComponentFinder() {
+        @Override
+        public boolean matches(final Component component) {
+            if (component instanceof JComponent
+                    && (component instanceof JTextComponent || component instanceof JToggleButton)) {
+                final JComponent cComponent = (JComponent) component;
+                if (cComponent.isFocusable()) {
+                    return true;
+                }
+            }
+            return false;
+        }
+    };
 
     public Component find(final Component rootComponent) {
         final Set<Component> targetComponents = new LinkedHashSet<Component>();

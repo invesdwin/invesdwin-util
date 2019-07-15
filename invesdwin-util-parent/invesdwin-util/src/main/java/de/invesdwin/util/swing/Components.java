@@ -13,7 +13,6 @@ import javax.swing.AbstractButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JTable;
-import javax.swing.JToggleButton;
 import javax.swing.SwingUtilities;
 import javax.swing.ToolTipManager;
 import javax.swing.border.Border;
@@ -24,20 +23,6 @@ import de.invesdwin.util.lang.Objects;
 
 @Immutable
 public final class Components {
-
-    public static final AComponentFinder DEFAULT_FOCUS_FINDER = new AComponentFinder() {
-        @Override
-        public boolean matches(final Component component) {
-            if (component instanceof JComponent
-                    && (component instanceof JTextComponent || component instanceof JToggleButton)) {
-                final JComponent cComponent = (JComponent) component;
-                if (cComponent.isFocusable()) {
-                    return true;
-                }
-            }
-            return false;
-        }
-    };
 
     private Components() {}
 
