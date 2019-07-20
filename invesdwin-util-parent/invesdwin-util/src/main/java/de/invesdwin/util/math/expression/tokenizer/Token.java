@@ -38,18 +38,18 @@ public final class Token implements IPosition {
     private String contents = "";
     private String source = "";
 
-    private int column;
-    private int line;
-    private int index;
+    private int columnOffset;
+    private int lineOffset;
+    private int indexOffset;
 
     private Token() {}
 
     public static Token create(final TokenType type, final IPosition pos) {
         final Token result = new Token();
         result.type = type;
-        result.line = pos.getLine();
-        result.column = pos.getColumn();
-        result.index = pos.getIndex();
+        result.lineOffset = pos.getLineOffset();
+        result.columnOffset = pos.getColumnOffset();
+        result.indexOffset = pos.getIndexOffset();
 
         return result;
     }
@@ -57,9 +57,9 @@ public final class Token implements IPosition {
     public static Token create(final Token previous, final String newContent) {
         final Token result = new Token();
         result.type = previous.type;
-        result.line = previous.line;
-        result.column = previous.column;
-        result.index = previous.index;
+        result.lineOffset = previous.lineOffset;
+        result.columnOffset = previous.columnOffset;
+        result.indexOffset = previous.indexOffset;
         result.trigger = newContent;
         result.contents = newContent;
         result.source = newContent;
@@ -69,9 +69,9 @@ public final class Token implements IPosition {
     public static Token createAndFill(final TokenType type, final Char ch) {
         final Token result = new Token();
         result.type = type;
-        result.line = ch.getLine();
-        result.column = ch.getColumn();
-        result.index = ch.getIndex();
+        result.lineOffset = ch.getLineOffset();
+        result.columnOffset = ch.getColumnOffset();
+        result.indexOffset = ch.getIndexOffset();
         result.contents = ch.getStringValue();
         result.trigger = ch.getStringValue();
         result.source = ch.toString();
@@ -125,18 +125,18 @@ public final class Token implements IPosition {
     }
 
     @Override
-    public int getLine() {
-        return line;
+    public int getLineOffset() {
+        return lineOffset;
     }
 
     @Override
-    public int getColumn() {
-        return column;
+    public int getColumnOffset() {
+        return columnOffset;
     }
 
     @Override
-    public int getIndex() {
-        return index;
+    public int getIndexOffset() {
+        return indexOffset;
     }
 
     @Override
@@ -203,6 +203,6 @@ public final class Token implements IPosition {
 
     @Override
     public String toString() {
-        return getType().toString() + ":" + getSource() + " (" + line + ":" + column + ")";
+        return getType().toString() + ":" + getSource() + " (" + lineOffset + ":" + columnOffset + ")";
     }
 }

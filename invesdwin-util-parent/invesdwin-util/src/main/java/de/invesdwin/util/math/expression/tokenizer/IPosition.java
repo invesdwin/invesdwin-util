@@ -5,18 +5,18 @@ public interface IPosition {
     IPosition UNKNOWN = new IPosition() {
 
         @Override
-        public int getLine() {
-            return 0;
+        public int getLineOffset() {
+            return -1;
         }
 
         @Override
-        public int getColumn() {
-            return 0;
+        public int getColumnOffset() {
+            return -1;
         }
 
         @Override
-        public int getIndex() {
-            return 0;
+        public int getIndexOffset() {
+            return -1;
         }
 
         @Override
@@ -25,12 +25,42 @@ public interface IPosition {
         }
     };
 
-    int getLine();
+    /**
+     * Starts counting at 1, 0 if undefined
+     */
+    default int getLine() {
+        return getLineOffset() + 1;
+    }
 
-    int getColumn();
+    /**
+     * Starts counting at 1, 0 if undefined
+     */
+    default int getColumn() {
+        return getColumnOffset() + 1;
+    }
 
-    int getIndex();
+    /**
+     * Starts counting at 1, 0 if undefined
+     */
+    default int getIndex() {
+        return getIndexOffset() + 1;
+    }
 
     int getLength();
+
+    /**
+     * Starts counting at 0, -1 if undefined
+     */
+    int getLineOffset();
+
+    /**
+     * Starts counting at 0, -1 if undefined
+     */
+    int getColumnOffset();
+
+    /**
+     * Starts counting at 0, -1 if undefined
+     */
+    int getIndexOffset();
 
 }

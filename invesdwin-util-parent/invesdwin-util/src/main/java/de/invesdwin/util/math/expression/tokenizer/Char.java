@@ -5,15 +5,15 @@ import javax.annotation.concurrent.Immutable;
 @Immutable
 public class Char implements IPosition {
     private final char value;
-    private final int line;
-    private final int column;
-    private final int index;
+    private final int lineOffset;
+    private final int columnOffset;
+    private final int indexOffset;
 
-    Char(final char value, final int line, final int column, final int index) {
+    Char(final char value, final int lineOffset, final int columnOffset, final int indexOffset) {
         this.value = value;
-        this.line = line;
-        this.column = column;
-        this.index = index;
+        this.lineOffset = lineOffset;
+        this.columnOffset = columnOffset;
+        this.indexOffset = indexOffset;
     }
 
     public char getValue() {
@@ -21,18 +21,18 @@ public class Char implements IPosition {
     }
 
     @Override
-    public int getLine() {
-        return line;
+    public int getLineOffset() {
+        return lineOffset;
     }
 
     @Override
-    public int getColumn() {
-        return column;
+    public int getColumnOffset() {
+        return columnOffset;
     }
 
     @Override
-    public int getIndex() {
-        return index;
+    public int getIndexOffset() {
+        return indexOffset;
     }
 
     @Override

@@ -10,29 +10,29 @@ import javax.annotation.concurrent.NotThreadSafe;
 public class LookaheadReader extends ALookahead<Char> {
 
     private Reader input;
-    private int line = 1;
-    private int column = 0;
-    private int index = 0;
+    private int lineOffset = 0;
+    private int columnOffset = -1;
+    private int indexOffset = -1;
 
     public void init(final Reader input) {
         super.init();
         this.input = new BufferedReader(input);
-        line = 1;
-        column = 0;
-        index = 0;
+        lineOffset = 0;
+        columnOffset = -1;
+        indexOffset = -1;
     }
 
-    public int getColumn() {
-        return column;
+    public int getColumnOffset() {
+        return columnOffset;
     }
 
-    public int getIndex() {
-        return index;
+    public int getIndexOffset() {
+        return indexOffset;
     }
 
     @Override
     protected Char endOfInput() {
-        return new Char('\0', line, column, index);
+        return new Char('\0', lineOffset, columnOffset, indexOffset);
     }
 
     @Override
@@ -43,26 +43,27 @@ public class LookaheadReader extends ALookahead<Char> {
                 return null;
             }
             if (character == '\n') {
-                line++;
-                column = 0;
+                lineOffset++;
+                columnOffset = -1;
+            } else {
+                columnOffset++;
             }
-            column++;
-            index++;
-            return new Char((char) character, line, column, index);
+            indexOffset++;
+            return new Char((char) character, lineOffset, columnOffset, indexOffset);
         } catch (final IOException e) {
-            throw new ParseException(new Char('\0', line, column, index), e.getMessage());
+            throw new ParseException(new Char('\0', lineOffset, columnOffset, indexOffset), e.getMessage());
         }
     }
 
     @Override
     public String toString() {
         if (itemBuffer.isEmpty()) {
-            return line + ":" + column + ": Buffer empty";
+            return lineOffset + ":" + columnOffset + ": Buffer empty";
         }
         if (itemBuffer.size() < 2) {
-            return line + ":" + column + ": " + current();
+            return lineOffset + ":" + columnOffset + ": " + current();
         }
-        return line + ":" + column + ": " + current() + ", " + next();
+        return lineOffset + ":" + columnOffset + ": " + current() + ", " + next();
     }
 
     public void skipCharacters(final int amount) {
