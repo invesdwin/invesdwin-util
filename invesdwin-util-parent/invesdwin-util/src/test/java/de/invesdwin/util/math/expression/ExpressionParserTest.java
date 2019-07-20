@@ -7,6 +7,7 @@ import org.junit.Test;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.math.expression.eval.IParsedExpression;
 import de.invesdwin.util.math.expression.tokenizer.ParseException;
+import de.invesdwin.util.time.fdate.FDate;
 
 @NotThreadSafe
 public class ExpressionParserTest {
@@ -19,16 +20,51 @@ public class ExpressionParserTest {
     }
 
     @Test
-    public void testContextFunctionSuffix() {
-        final IExpression parsed = new ExpressionParser(
-                "isNAN(NAN)JFOREX:EURUSD:[ASDF=1,UHgj=2]@TimeBarConfig[15 MINUTES, bla] and 1") {
+    public void testTwoComments() {
+        final String str = "  //one comment\n" //
+                + "1=1\n" //
+                + "    //only trade on monday and tuesday\n" //
+                + "       && 2=2\n";
+        final IExpression parsed = new ExpressionParser(str).parse();
+        final double evaluateDouble = parsed.evaluateDouble();
+        Assertions.checkEquals(1D, evaluateDouble);
+    }
+
+    @Test
+    public void testPreviousKey() {
+        final IExpression parsed = new ExpressionParser("isNaN(NaN[2])[5]") {
             @Override
-            protected IParsedExpression simplify(final IParsedExpression expression) {
-                return expression;
+            protected IPreviousKeyFunction getPreviousKeyFunction(final String context) {
+                return new IPreviousKeyFunction() {
+
+                    @Override
+                    public int getPreviousKey(final int key, final int index) {
+                        return key - index;
+                    }
+
+                    @Override
+                    public FDate getPreviousKey(final FDate key, final int index) {
+                        return key.addDays(-index);
+                    }
+                };
             }
         }.parse();
-        Assertions.checkEquals(parsed.toString(),
-                "(JFOREX:EURUSD:[ASDF=1,UHgj=2]@TimeBarConfig[15 MINUTES, bla]:isNaN(NaN) && 1)");
+        final double evaluateDouble = parsed.evaluateDouble(0);
+        Assertions.checkEquals(1D, evaluateDouble);
+    }
+
+    @Test
+    public void testLeadingComment() {
+        final IExpression parsed = new ExpressionParser("//bla\n3-6^2").parse();
+        final double evaluateDouble = parsed.evaluateDouble();
+        Assertions.checkEquals(-33D, evaluateDouble);
+    }
+
+    @Test
+    public void testLeadingCommentMultiline() {
+        final IExpression parsed = new ExpressionParser("/*bla\n*\n\n*/3-6^2").parse();
+        final double evaluateDouble = parsed.evaluateDouble();
+        Assertions.checkEquals(-33D, evaluateDouble);
     }
 
     @Test

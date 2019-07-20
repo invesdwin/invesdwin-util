@@ -9,6 +9,7 @@ import java.util.TreeMap;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.math.expression.eval.ConstantExpression;
 import de.invesdwin.util.math.expression.eval.DynamicPreviousKeyExpression;
 import de.invesdwin.util.math.expression.eval.FunctionCall;
@@ -418,7 +419,7 @@ public class ExpressionParser {
 
     private IParsedExpression functionOrVariable() {
         Token token = tokenizer.current();
-        final String str = collectContext();
+        final String str = collectContext(true);
         token = Token.create(token, str);
         final int nextCharIdx = token.getPos() + token.getLength() - 1;
         if (nextCharIdx < originalExpression.length()) {
@@ -475,9 +476,7 @@ public class ExpressionParser {
             }
             parameters.add(expression());
         }
-        final Token closingParenthesisToken = expect(Token.TokenType.SYMBOL, ")");
-
-        functionContext = contextSuffix(closingParenthesisToken.getPos(), functionContext);
+        expect(Token.TokenType.SYMBOL, ")");
 
         if ("of".equals(tokenizer.current().getContents())) {
             tokenizer.consume();
@@ -501,18 +500,8 @@ public class ExpressionParser {
         return context;
     }
 
-    private String contextSuffix(final int suffixStart, final String existingContext) {
-        if (originalExpression.length() <= suffixStart) {
-            return existingContext;
-        }
-        if (Character.isLetter(originalExpression.charAt(suffixStart))) {
-            return ofContext(existingContext);
-        }
-        return existingContext;
-    }
-
     protected String ofContext(final String existingContext) {
-        final String originalContext = collectContext();
+        final String originalContext = collectContext(false);
         final String context = modifyContext(originalContext);
 
         if (existingContext != null && !existingContext.equals(context)) {
@@ -523,7 +512,7 @@ public class ExpressionParser {
         return context;
     }
 
-    private String collectContext() {
+    private String collectContext(final boolean ignoreBracketsAtEnd) {
         final StringBuilder context = new StringBuilder();
         boolean consumeMore = true;
         while (consumeMore) {
@@ -563,12 +552,25 @@ public class ExpressionParser {
                     end++;
                 }
             }
-            if (skipCharacters > 0) {
-                tokenizer.skipCharacters(skipCharacters);
-            }
-            context.append(originalExpression.substring(start, end));
+            maybeSkipContextCharacters(ignoreBracketsAtEnd, context, consumeMore, start, end, skipCharacters);
         }
         return context.toString();
+    }
+
+    private void maybeSkipContextCharacters(final boolean ignoreBracketsAtEnd, final StringBuilder context,
+            final boolean consumeMore, final int start, final int end, final int skipCharacters) {
+        context.append(originalExpression.substring(start, end));
+        int usedSkipCharacters = skipCharacters;
+        if (ignoreBracketsAtEnd && !consumeMore && Strings.endsWith(context, "]")) {
+            final int lastIndexOf = context.lastIndexOf("[");
+            if (lastIndexOf >= 0) {
+                usedSkipCharacters -= context.length() - lastIndexOf + 1;
+                context.setLength(lastIndexOf);
+            }
+        }
+        if (usedSkipCharacters > 0) {
+            tokenizer.skipCharacters(skipCharacters);
+        }
     }
 
     protected IPreviousKeyFunction getPreviousKeyFunction(final String context) {
