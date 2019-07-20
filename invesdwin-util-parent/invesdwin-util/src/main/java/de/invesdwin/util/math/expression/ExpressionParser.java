@@ -421,7 +421,7 @@ public class ExpressionParser {
         Token token = tokenizer.current();
         final String str = collectContext(true);
         token = Token.create(token, str);
-        final int nextCharIdx = token.getPos() + token.getLength() - 1;
+        final int nextCharIdx = token.getIndex() + token.getLength() - 1;
         if (nextCharIdx < originalExpression.length()) {
             final char nextChar = originalExpression.charAt(nextCharIdx);
             if (nextChar == '(') {
@@ -437,7 +437,7 @@ public class ExpressionParser {
         final String variableName;
         final int lastIndexOfContextSeparator = variableStr.lastIndexOf(':');
         if (lastIndexOfContextSeparator > 0 && lastIndexOfContextSeparator < variableStr.length()) {
-            final int start = variableToken.getPos() - 1;
+            final int start = variableToken.getIndex() - 1;
             //keep original casing because contexts might be case sensitive (e.g. instrument IDs with parameters)
             variableContext = modifyContext(originalExpression.substring(start, start + lastIndexOfContextSeparator));
             variableName = variableStr.substring(lastIndexOfContextSeparator + 1).toLowerCase();
@@ -460,7 +460,7 @@ public class ExpressionParser {
         final String functionName;
         final int lastIndexOfContextSeparator = functionStr.lastIndexOf(':');
         if (lastIndexOfContextSeparator > 0 && lastIndexOfContextSeparator < functionStr.length()) {
-            final int start = functionToken.getPos() - 1;
+            final int start = functionToken.getIndex() - 1;
             //keep original casing because contexts might be case sensitive (e.g. instrument IDs with parameters)
             functionContext = modifyContext(originalExpression.substring(start, start + lastIndexOfContextSeparator));
             functionName = functionStr.substring(lastIndexOfContextSeparator + 1).toLowerCase();
@@ -519,7 +519,7 @@ public class ExpressionParser {
             consumeMore = false;
             final Token contextToken = tokenizer.current();
             tokenizer.consume();
-            final int start = contextToken.getPos() - 1;
+            final int start = contextToken.getIndex() - 1;
             int end = start + contextToken.getLength();
             int skipCharacters = -1;
             int skipBracketClose = -1;

@@ -247,11 +247,7 @@ public class Tokenizer extends ALookahead<Token> {
     }
 
     private boolean isAtStartOfLineComment(final boolean consume) {
-        if (LINE_COMMENT != null) {
-            return canConsumeThisString(LINE_COMMENT, consume);
-        } else {
-            return false;
-        }
+        return canConsumeThisString(LINE_COMMENT, consume);
     }
 
     private void skipToEndOfLine() {

@@ -54,6 +54,13 @@ public class ExpressionParserTest {
     }
 
     @Test
+    public void testPreviousKeyWithComment() {
+        final IExpression parsed = new ExpressionParser("//asdf\nNaN").parse();
+        final double evaluateDouble = parsed.evaluateDouble(0);
+        Assertions.checkEquals(Double.NaN, evaluateDouble);
+    }
+
+    @Test
     public void testLeadingComment() {
         final IExpression parsed = new ExpressionParser("//bla\n3-6^2").parse();
         final double evaluateDouble = parsed.evaluateDouble();

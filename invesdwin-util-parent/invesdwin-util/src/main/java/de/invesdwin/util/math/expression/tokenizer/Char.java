@@ -6,12 +6,14 @@ import javax.annotation.concurrent.Immutable;
 public class Char implements IPosition {
     private final char value;
     private final int line;
-    private final int pos;
+    private final int column;
+    private final int index;
 
-    Char(final char value, final int line, final int pos) {
+    Char(final char value, final int line, final int column, final int index) {
         this.value = value;
         this.line = line;
-        this.pos = pos;
+        this.column = column;
+        this.index = index;
     }
 
     public char getValue() {
@@ -24,8 +26,13 @@ public class Char implements IPosition {
     }
 
     @Override
-    public int getPos() {
-        return pos;
+    public int getColumn() {
+        return column;
+    }
+
+    @Override
+    public int getIndex() {
+        return index;
     }
 
     @Override

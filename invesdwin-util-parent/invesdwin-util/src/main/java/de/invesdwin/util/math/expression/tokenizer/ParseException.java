@@ -16,7 +16,7 @@ public final class ParseException extends RuntimeException {
 
     private static String newMessage(final IPosition pos, final String message) {
         if (pos.getLine() > 0) {
-            return "Line=" + pos.getLine() + ": Column=" + pos.getPos() + ": " + message;
+            return "Line=" + pos.getLine() + ": Column=" + pos.getColumn() + ": " + message;
         } else {
             return message;
         }

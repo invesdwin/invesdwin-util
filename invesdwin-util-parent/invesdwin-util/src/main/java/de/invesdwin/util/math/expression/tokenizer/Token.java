@@ -38,8 +38,9 @@ public final class Token implements IPosition {
     private String contents = "";
     private String source = "";
 
-    private int pos;
+    private int column;
     private int line;
+    private int index;
 
     private Token() {}
 
@@ -47,7 +48,8 @@ public final class Token implements IPosition {
         final Token result = new Token();
         result.type = type;
         result.line = pos.getLine();
-        result.pos = pos.getPos();
+        result.column = pos.getColumn();
+        result.index = pos.getIndex();
 
         return result;
     }
@@ -56,7 +58,8 @@ public final class Token implements IPosition {
         final Token result = new Token();
         result.type = previous.type;
         result.line = previous.line;
-        result.pos = previous.pos;
+        result.column = previous.column;
+        result.index = previous.index;
         result.trigger = newContent;
         result.contents = newContent;
         result.source = newContent;
@@ -67,7 +70,8 @@ public final class Token implements IPosition {
         final Token result = new Token();
         result.type = type;
         result.line = ch.getLine();
-        result.pos = ch.getPos();
+        result.column = ch.getColumn();
+        result.index = ch.getIndex();
         result.contents = ch.getStringValue();
         result.trigger = ch.getStringValue();
         result.source = ch.toString();
@@ -126,8 +130,13 @@ public final class Token implements IPosition {
     }
 
     @Override
-    public int getPos() {
-        return pos;
+    public int getColumn() {
+        return column;
+    }
+
+    @Override
+    public int getIndex() {
+        return index;
     }
 
     @Override
@@ -194,6 +203,6 @@ public final class Token implements IPosition {
 
     @Override
     public String toString() {
-        return getType().toString() + ":" + getSource() + " (" + line + ":" + pos + ")";
+        return getType().toString() + ":" + getSource() + " (" + line + ":" + column + ")";
     }
 }

@@ -10,7 +10,12 @@ public interface IPosition {
         }
 
         @Override
-        public int getPos() {
+        public int getColumn() {
+            return 0;
+        }
+
+        @Override
+        public int getIndex() {
             return 0;
         }
 
@@ -22,7 +27,9 @@ public interface IPosition {
 
     int getLine();
 
-    int getPos();
+    int getColumn();
+
+    int getIndex();
 
     int getLength();
 

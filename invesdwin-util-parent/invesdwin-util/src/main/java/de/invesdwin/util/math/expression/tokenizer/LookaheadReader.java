@@ -11,22 +11,28 @@ public class LookaheadReader extends ALookahead<Char> {
 
     private Reader input;
     private int line = 1;
-    private int pos = 0;
+    private int column = 0;
+    private int index = 0;
 
     public void init(final Reader input) {
         super.init();
         this.input = new BufferedReader(input);
         line = 1;
-        pos = 0;
+        column = 0;
+        index = 0;
     }
 
-    public int getPos() {
-        return pos;
+    public int getColumn() {
+        return column;
+    }
+
+    public int getIndex() {
+        return index;
     }
 
     @Override
     protected Char endOfInput() {
-        return new Char('\0', line, pos);
+        return new Char('\0', line, column, index);
     }
 
     @Override
@@ -38,24 +44,25 @@ public class LookaheadReader extends ALookahead<Char> {
             }
             if (character == '\n') {
                 line++;
-                pos = 0;
+                column = 0;
             }
-            pos++;
-            return new Char((char) character, line, pos);
+            column++;
+            index++;
+            return new Char((char) character, line, column, index);
         } catch (final IOException e) {
-            throw new ParseException(new Char('\0', line, pos), e.getMessage());
+            throw new ParseException(new Char('\0', line, column, index), e.getMessage());
         }
     }
 
     @Override
     public String toString() {
         if (itemBuffer.isEmpty()) {
-            return line + ":" + pos + ": Buffer empty";
+            return line + ":" + column + ": Buffer empty";
         }
         if (itemBuffer.size() < 2) {
-            return line + ":" + pos + ": " + current();
+            return line + ":" + column + ": " + current();
         }
-        return line + ":" + pos + ": " + current() + ", " + next();
+        return line + ":" + column + ": " + current() + ", " + next();
     }
 
     public void skipCharacters(final int amount) {
