@@ -78,12 +78,24 @@ public class LockedList<E> extends LockedCollection<E> implements List<E> {
 
     @Override
     public ListIterator<E> listIterator() {
-        return getDelegate().listIterator(); // manually synchronized
+        getLock().lock();
+        try {
+            final ListIterator<E> iterator = getDelegate().listIterator();
+            return new LockedListIterator<E>(iterator, getLock());
+        } finally {
+            getLock().unlock();
+        }
     }
 
     @Override
     public ListIterator<E> listIterator(final int index) {
-        return getDelegate().listIterator(index); // manually synchronized
+        getLock().lock();
+        try {
+            final ListIterator<E> iterator = getDelegate().listIterator(index);
+            return new LockedListIterator<E>(iterator, getLock());
+        } finally {
+            getLock().unlock();
+        }
     }
 
     @Override

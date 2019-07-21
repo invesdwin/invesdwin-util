@@ -125,39 +125,13 @@ public class LockedCollection<E> implements Collection<E> {
 
     @Override
     public Iterator<E> iterator() {
-        return new Iterator<E>() {
-
-            private Iterator<E> iterator;
-
-            {
-                lock.lock();
-                try {
-                    iterator = getDelegate().iterator();
-                } finally {
-                    lock.unlock();
-                }
-            }
-
-            @Override
-            public boolean hasNext() {
-                lock.lock();
-                try {
-                    return iterator.hasNext();
-                } finally {
-                    lock.unlock();
-                }
-            }
-
-            @Override
-            public E next() {
-                lock.lock();
-                try {
-                    return iterator.next();
-                } finally {
-                    lock.unlock();
-                }
-            }
-        };
+        lock.lock();
+        try {
+            final Iterator<E> iterator = getDelegate().iterator();
+            return new LockedIterator<E>(iterator, lock);
+        } finally {
+            lock.unlock();
+        }
     }
 
     @Override

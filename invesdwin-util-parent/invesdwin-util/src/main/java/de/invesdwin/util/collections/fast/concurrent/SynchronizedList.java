@@ -15,8 +15,8 @@ public class SynchronizedList<E> extends SynchronizedCollection<E> implements Li
         super(delegate);
     }
 
-    public SynchronizedList(final List<E> delegate, final Object mutex) {
-        super(delegate, mutex);
+    public SynchronizedList(final List<E> delegate, final Object lock) {
+        super(delegate, lock);
     }
 
     @Override
@@ -61,12 +61,18 @@ public class SynchronizedList<E> extends SynchronizedCollection<E> implements Li
 
     @Override
     public ListIterator<E> listIterator() {
-        return getDelegate().listIterator(); // manually synchronized
+        synchronized (getLock()) {
+            final ListIterator<E> iterator = getDelegate().listIterator();
+            return new SynchronizedListIterator<E>(iterator, getLock());
+        }
     }
 
     @Override
     public ListIterator<E> listIterator(final int index) {
-        return getDelegate().listIterator(index); // manually synchronized
+        synchronized (getLock()) {
+            final ListIterator<E> iterator = getDelegate().listIterator(index);
+            return new SynchronizedListIterator<E>(iterator, getLock());
+        }
     }
 
     @Override

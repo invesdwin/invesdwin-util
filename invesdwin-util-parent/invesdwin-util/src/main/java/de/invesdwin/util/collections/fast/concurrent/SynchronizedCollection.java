@@ -102,30 +102,10 @@ public class SynchronizedCollection<E> implements Collection<E> {
 
     @Override
     public Iterator<E> iterator() {
-        return new Iterator<E>() {
-
-            private Iterator<E> iterator;
-
-            {
-                synchronized (lock) {
-                    iterator = getDelegate().iterator();
-                }
-            }
-
-            @Override
-            public boolean hasNext() {
-                synchronized (lock) {
-                    return iterator.hasNext();
-                }
-            }
-
-            @Override
-            public E next() {
-                synchronized (lock) {
-                    return iterator.next();
-                }
-            }
-        };
+        synchronized (lock) {
+            final Iterator<E> iterator = getDelegate().iterator();
+            return new SynchronizedIterator<E>(iterator, lock);
+        }
     }
 
     @Override

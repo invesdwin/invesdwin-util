@@ -186,13 +186,17 @@ public abstract class ASynchronizedFastIterableDelegateList<E> implements IFastI
     }
 
     @Override
-    public synchronized ListIterator<E> listIterator() {
-        return Collections.unmodifiableList(delegate).listIterator();
+    public ListIterator<E> listIterator() {
+        final ListIterator<E> it = delegate.listIterator();
+        final RefreshingListIterator listIterator = new RefreshingListIterator(it);
+        return new SynchronizedListIterator<>(listIterator, this);
     }
 
     @Override
-    public synchronized ListIterator<E> listIterator(final int index) {
-        return Collections.unmodifiableList(delegate).listIterator(index);
+    public ListIterator<E> listIterator(final int index) {
+        final ListIterator<E> it = delegate.listIterator(index);
+        final RefreshingListIterator listIterator = new RefreshingListIterator(it);
+        return new SynchronizedListIterator<>(listIterator, this);
     }
 
     @Override
@@ -203,6 +207,64 @@ public abstract class ASynchronizedFastIterableDelegateList<E> implements IFastI
     @Override
     public synchronized String toString() {
         return delegate.toString();
+    }
+
+    private final class RefreshingListIterator implements ListIterator<E> {
+
+        private final ListIterator<E> it;
+
+        private RefreshingListIterator(final ListIterator<E> it) {
+            this.it = it;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return it.hasNext();
+        }
+
+        @Override
+        public E next() {
+            return it.next();
+        }
+
+        @Override
+        public boolean hasPrevious() {
+            return it.hasPrevious();
+        }
+
+        @Override
+        public E previous() {
+            return it.previous();
+        }
+
+        @Override
+        public int nextIndex() {
+            return it.nextIndex();
+        }
+
+        @Override
+        public int previousIndex() {
+            return it.previousIndex();
+        }
+
+        @Override
+        public void remove() {
+            it.remove();
+            refreshFastIterable();
+        }
+
+        @Override
+        public void set(final E e) {
+            it.set(e);
+            refreshFastIterable();
+        }
+
+        @Override
+        public void add(final E e) {
+            it.add(e);
+            refreshFastIterable();
+        }
+
     }
 
 }

@@ -181,12 +181,14 @@ public abstract class AFastIterableDelegateList<E> implements IFastIterableList<
 
     @Override
     public ListIterator<E> listIterator() {
-        return Collections.unmodifiableList(delegate).listIterator();
+        final ListIterator<E> it = delegate.listIterator();
+        return new RefreshingListIterator(it);
     }
 
     @Override
     public ListIterator<E> listIterator(final int index) {
-        return Collections.unmodifiableList(delegate).listIterator(index);
+        final ListIterator<E> it = delegate.listIterator(index);
+        return new RefreshingListIterator(it);
     }
 
     @Override
@@ -197,6 +199,64 @@ public abstract class AFastIterableDelegateList<E> implements IFastIterableList<
     @Override
     public String toString() {
         return delegate.toString();
+    }
+
+    private final class RefreshingListIterator implements ListIterator<E> {
+
+        private final ListIterator<E> it;
+
+        private RefreshingListIterator(final ListIterator<E> it) {
+            this.it = it;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return it.hasNext();
+        }
+
+        @Override
+        public E next() {
+            return it.next();
+        }
+
+        @Override
+        public boolean hasPrevious() {
+            return it.hasPrevious();
+        }
+
+        @Override
+        public E previous() {
+            return it.previous();
+        }
+
+        @Override
+        public int nextIndex() {
+            return it.nextIndex();
+        }
+
+        @Override
+        public int previousIndex() {
+            return it.previousIndex();
+        }
+
+        @Override
+        public void remove() {
+            it.remove();
+            refreshFastIterable();
+        }
+
+        @Override
+        public void set(final E e) {
+            it.set(e);
+            refreshFastIterable();
+        }
+
+        @Override
+        public void add(final E e) {
+            it.add(e);
+            refreshFastIterable();
+        }
+
     }
 
 }
