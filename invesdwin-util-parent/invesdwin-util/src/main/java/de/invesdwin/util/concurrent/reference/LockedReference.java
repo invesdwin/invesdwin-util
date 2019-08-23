@@ -3,58 +3,61 @@ package de.invesdwin.util.concurrent.reference;
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.bean.AValueObject;
+import de.invesdwin.util.concurrent.lock.ILock;
 
 @ThreadSafe
 public class LockedReference<T> extends AValueObject implements IMutableReference<T> {
 
-    private final Object lock;
+    private final ILock lock;
     private T value;
 
-    public LockedReference() {
-        this(null);
-    }
-
-    public LockedReference(final Object lock) {
+    public LockedReference(final ILock lock) {
         this(lock, null);
     }
 
-    public LockedReference(final Object lock, final T value) {
-        if (lock == null) {
-            this.lock = this;
-        } else {
-            this.lock = lock;
-        }
+    public LockedReference(final ILock lock, final T value) {
+        this.lock = lock;
         this.value = value;
     }
 
     @Override
     public T get() {
-        synchronized (lock) {
+        lock.lock();
+        try {
             return value;
+        } finally {
+            lock.unlock();
         }
     }
 
     @Override
     public void set(final T value) {
-        synchronized (lock) {
+        lock.lock();
+        try {
             this.value = value;
+        } finally {
+            lock.unlock();
         }
     }
 
     @Override
     public int hashCode() {
-        synchronized (lock) {
+        lock.lock();
+        try {
             if (value == null) {
                 return super.hashCode();
             } else {
                 return value.hashCode();
             }
+        } finally {
+            lock.unlock();
         }
     }
 
     @Override
     public boolean equals(final Object obj) {
-        synchronized (lock) {
+        lock.lock();
+        try {
             if (value == null) {
                 return super.equals(obj);
             } else if (obj instanceof IReference) {
@@ -63,6 +66,8 @@ public class LockedReference<T> extends AValueObject implements IMutableReferenc
             } else {
                 return value.equals(obj);
             }
+        } finally {
+            lock.unlock();
         }
     }
 
