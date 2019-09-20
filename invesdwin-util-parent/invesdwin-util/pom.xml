@@ -177,8 +177,8 @@
 			<artifactId>jaxb-runtime</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>jakarta.activation</groupId>
-			<artifactId>jakarta.activation-api</artifactId>
+			<groupId>com.sun.activation</groupId>
+			<artifactId>jakarta.activation</artifactId>
 		</dependency>
 	</dependencies>
 
