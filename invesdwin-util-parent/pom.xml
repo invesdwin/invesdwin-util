@@ -1,4 +1,6 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>de.invesdwin</groupId>
@@ -34,7 +36,6 @@
 		<version.fest-reflect>1.4.1</version.fest-reflect>
 		<version.fest-util>1.2.5</version.fest-util>
 		<version.fst>2.57</version.fst>
-		<version.jollyday>0.5.7</version.jollyday>
 		<version.btreemap>1.1.0</version.btreemap>
 		<version.concurrent-locks>1.0.0</version.concurrent-locks>
 		<version.classgraph>4.6.32</version.classgraph>
@@ -51,11 +52,6 @@
 				<groupId>de.invesdwin</groupId>
 				<artifactId>invesdwin-norva</artifactId>
 				<version>${project.version.invesdwin-norva}</version>
-			</dependency>
-			<dependency>
-				<groupId>de.jollyday</groupId>
-				<artifactId>jollyday</artifactId>
-				<version>${version.jollyday}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.easytesting</groupId>
