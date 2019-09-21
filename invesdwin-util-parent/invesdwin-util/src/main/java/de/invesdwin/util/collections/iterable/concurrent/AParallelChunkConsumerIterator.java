@@ -79,7 +79,7 @@ public abstract class AParallelChunkConsumerIterator<R, E> extends ACloseableIte
                 final int chunkSize) {
             this.chunkSize = chunkSize;
             this.requests = requests;
-            this.consumerExecutor = Executors.newFixedThreadPool(name, chunkSize);
+            this.consumerExecutor = Executors.newFixedThreadPool(name, chunkSize).withDynamicThreadName(false);
         }
 
         @Override
