@@ -20,10 +20,10 @@ import de.invesdwin.util.time.fdate.FTimeUnit;
 
 /**
  * WARNING: This class only exists for testing and debugging reasons since it can negatively impact the overall cache
- * performance. If you have problems new keys not properly arriving after a data update, you should rather look at
+ * performance. If you have problems with new keys not properly arriving after a data update, you should rather look at
  * pushing/pulling adjust key providers in your historical caches. Also try to set an appropriate instance in all of
  * your time sensitive historical caches. It is also a good approach to reuse adjust key providers in dependant
- * historical caches from a parent histrical cache.
+ * historical caches from a parent historical cache.
  * 
  * If you still think you need to use this, then you should know what you are doing and call this only after actual new
  * data has arrived. This might be legitimate when operating a scheduler updater that should update data in the whole

@@ -255,11 +255,35 @@ public abstract class AHistoricalCache<V>
         }
     }
 
+    public FDate getLastRefresh() {
+        return lastRefresh;
+    }
+
+    public boolean isChildRefreshRequested(final AHistoricalCache<?> child) {
+        return child != this && lastRefresh.isAfter(child.getLastRefresh());
+    }
+
     private void invokeRefreshIfRequested() {
-        if (refreshRequested) {
+        if (isRefreshRequested()) {
             maybeRefresh();
             refreshRequested = false;
         }
+    }
+
+    private boolean isRefreshRequested() {
+        if (refreshRequested) {
+            return true;
+        }
+        if (adjustKeyProvider.isChildRefreshRequested(this)) {
+            return true;
+        }
+        if (shiftKeyProvider.isChildRefreshRequested(this)) {
+            return true;
+        }
+        if (putProvider.isChildRefreshRequested(this)) {
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -682,6 +706,11 @@ public abstract class AHistoricalCache<V>
             return null;
         }
 
+        @Override
+        public boolean isChildRefreshRequested(final AHistoricalCache<?> child) {
+            return AHistoricalCache.this.isChildRefreshRequested(child);
+        }
+
     }
 
     private final class InnerHistoricalCacheAdjustKeyProvider implements IHistoricalCacheAdjustKeyProvider {
@@ -727,6 +756,11 @@ public abstract class AHistoricalCache<V>
         @Override
         public boolean isAlreadyAdjustingKey() {
             return APullingHistoricalCacheAdjustKeyProvider.isGlobalAlreadyAdjustingKey();
+        }
+
+        @Override
+        public boolean isChildRefreshRequested(final AHistoricalCache<?> child) {
+            return AHistoricalCache.this.isChildRefreshRequested(child);
         }
 
     }
@@ -892,6 +926,11 @@ public abstract class AHistoricalCache<V>
             } else {
                 return false;
             }
+        }
+
+        @Override
+        public boolean isChildRefreshRequested(final AHistoricalCache<?> child) {
+            return AHistoricalCache.this.isChildRefreshRequested(child);
         }
     }
 

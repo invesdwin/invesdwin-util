@@ -125,4 +125,9 @@ public abstract class APushingHistoricalCacheAdjustKeyProvider implements IHisto
                 internalMethods);
     }
 
+    @Override
+    public boolean isChildRefreshRequested(final AHistoricalCache<?> child) {
+        return pullingAdjustKeyProvider.isChildRefreshRequested(child);
+    }
+
 }

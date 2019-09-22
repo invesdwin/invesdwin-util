@@ -76,4 +76,9 @@ public abstract class AConvertingHistoricalCachePutProvider<FROM, TO> implements
         return delegate.unregisterPutListener(l);
     }
 
+    @Override
+    public boolean isChildRefreshRequested(final AHistoricalCache<?> child) {
+        return delegate.isChildRefreshRequested(child);
+    }
+
 }

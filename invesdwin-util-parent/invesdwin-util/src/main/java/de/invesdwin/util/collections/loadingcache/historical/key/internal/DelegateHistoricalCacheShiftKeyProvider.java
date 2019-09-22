@@ -69,4 +69,9 @@ public final class DelegateHistoricalCacheShiftKeyProvider implements IHistorica
         }
     }
 
+    @Override
+    public boolean isChildRefreshRequested(final AHistoricalCache<?> child) {
+        return delegate.isChildRefreshRequested(child);
+    }
+
 }

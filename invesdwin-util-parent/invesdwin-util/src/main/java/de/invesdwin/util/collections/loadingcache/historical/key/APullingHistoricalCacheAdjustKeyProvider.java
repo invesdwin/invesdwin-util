@@ -177,4 +177,9 @@ public abstract class APullingHistoricalCacheAdjustKeyProvider implements IHisto
                 internalMethods);
     }
 
+    @Override
+    public boolean isChildRefreshRequested(final AHistoricalCache<?> child) {
+        return parent.isChildRefreshRequested(child);
+    }
+
 }

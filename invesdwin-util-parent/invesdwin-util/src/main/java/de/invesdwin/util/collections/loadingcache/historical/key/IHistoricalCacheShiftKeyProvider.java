@@ -21,4 +21,6 @@ public interface IHistoricalCacheShiftKeyProvider {
 
     IHistoricalCacheQuery<?> newKeysQueryInterceptor();
 
+    boolean isChildRefreshRequested(AHistoricalCache<?> child);
+
 }
