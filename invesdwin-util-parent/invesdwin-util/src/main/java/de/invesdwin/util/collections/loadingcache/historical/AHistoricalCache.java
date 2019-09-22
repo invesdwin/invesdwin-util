@@ -280,9 +280,6 @@ public abstract class AHistoricalCache<V>
         if (shiftKeyProvider.isChildRefreshRequested(this)) {
             return true;
         }
-        if (putProvider.isChildRefreshRequested(this)) {
-            return true;
-        }
         return false;
     }
 
@@ -435,7 +432,7 @@ public abstract class AHistoricalCache<V>
 
     public void clear() {
         valuesMap.clear();
-        //when clearning other caches they might become inconsistent...
+        //when clearing other caches they might become inconsistent...
         if (adjustKeyProvider.getParent() == this) {
             adjustKeyProvider.clear();
         }
@@ -928,10 +925,6 @@ public abstract class AHistoricalCache<V>
             }
         }
 
-        @Override
-        public boolean isChildRefreshRequested(final AHistoricalCache<?> child) {
-            return AHistoricalCache.this.isChildRefreshRequested(child);
-        }
     }
 
     @Override

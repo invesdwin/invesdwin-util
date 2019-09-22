@@ -3,7 +3,6 @@ package de.invesdwin.util.collections.loadingcache.historical.key;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
 import de.invesdwin.util.collections.loadingcache.historical.listener.IHistoricalCachePutListener;
 import de.invesdwin.util.time.fdate.FDate;
 
@@ -32,7 +31,5 @@ public interface IHistoricalCachePutProvider<V> {
     boolean registerPutListener(IHistoricalCachePutListener l);
 
     boolean unregisterPutListener(IHistoricalCachePutListener l);
-
-    boolean isChildRefreshRequested(AHistoricalCache<?> child);
 
 }

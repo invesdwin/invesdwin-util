@@ -5,7 +5,6 @@ import java.util.Set;
 
 import javax.annotation.concurrent.Immutable;
 
-import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
 import de.invesdwin.util.collections.loadingcache.historical.key.IHistoricalCachePutProvider;
 import de.invesdwin.util.collections.loadingcache.historical.listener.IHistoricalCachePutListener;
 import de.invesdwin.util.time.fdate.FDate;
@@ -58,11 +57,6 @@ public final class DelegateHistoricalCachePutProvider<V> implements IHistoricalC
         } else {
             return new DelegateHistoricalCachePutProvider<T>((IHistoricalCachePutProvider<T>) delegate);
         }
-    }
-
-    @Override
-    public boolean isChildRefreshRequested(final AHistoricalCache<?> child) {
-        return delegate.isChildRefreshRequested(child);
     }
 
 }
