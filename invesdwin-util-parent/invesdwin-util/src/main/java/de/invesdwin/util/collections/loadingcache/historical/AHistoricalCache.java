@@ -274,10 +274,10 @@ public abstract class AHistoricalCache<V>
         if (refreshRequested) {
             return true;
         }
-        if (adjustKeyProvider.isChildRefreshRequested(cache)) {
+        if (adjustKeyProvider.getParent() != this && adjustKeyProvider.isChildRefreshRequested(cache)) {
             return true;
         }
-        if (shiftKeyProvider.isChildRefreshRequested(cache)) {
+        if (shiftKeyProvider.getParent() != this && shiftKeyProvider.isChildRefreshRequested(cache)) {
             return true;
         }
         return false;
