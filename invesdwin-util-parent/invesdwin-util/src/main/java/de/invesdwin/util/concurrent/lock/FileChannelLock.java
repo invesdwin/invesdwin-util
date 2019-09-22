@@ -7,6 +7,8 @@ import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.nio.channels.OverlappingFileLockException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Condition;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
@@ -14,10 +16,12 @@ import javax.annotation.concurrent.ThreadSafe;
 import org.apache.commons.io.FileUtils;
 
 import de.invesdwin.util.lang.finalizer.AFinalizer;
+import de.invesdwin.util.time.Instant;
+import de.invesdwin.util.time.duration.Duration;
 import de.invesdwin.util.time.fdate.FTimeUnit;
 
 @ThreadSafe
-public class FileChannelLock implements Closeable {
+public class FileChannelLock implements Closeable, ILock {
 
     @GuardedBy("this")
     private final FileChannelLockFinalizer finalizer;
@@ -30,16 +34,41 @@ public class FileChannelLock implements Closeable {
         return finalizer.file;
     }
 
+    @Override
+    public String getName() {
+        return getFile().getName();
+    }
+
+    @Override
     public void lock() {
-        while (!tryLock()) {
-            try {
-                FTimeUnit.MILLISECONDS.sleep(100);
-            } catch (final InterruptedException e) {
-                throw new RuntimeException(e);
-            }
+        try {
+            lockInterruptibly();
+        } catch (final InterruptedException e) {
+            throw new RuntimeException(e);
         }
     }
 
+    @Override
+    public void lockInterruptibly() throws InterruptedException {
+        while (!tryLock()) {
+            FTimeUnit.MILLISECONDS.sleep(1);
+        }
+    }
+
+    @Override
+    public boolean tryLock(final long time, final TimeUnit unit) throws InterruptedException {
+        final Duration maxDuration = new Duration(time, FTimeUnit.valueOfTimeUnit(unit));
+        final Instant start = new Instant();
+        while (!tryLock()) {
+            FTimeUnit.MILLISECONDS.sleep(1);
+            if (start.toDuration().isGreaterThan(maxDuration)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
     public synchronized boolean tryLock() {
         try {
             if (!finalizer.file.exists()) {
@@ -75,6 +104,7 @@ public class FileChannelLock implements Closeable {
         return finalizer.locked;
     }
 
+    @Override
     public synchronized void unlock() {
         finalizer.close();
     }
@@ -151,6 +181,12 @@ public class FileChannelLock implements Closeable {
             return !locked;
         }
 
+    }
+
+    @Deprecated
+    @Override
+    public Condition newCondition() {
+        throw new UnsupportedOperationException("not implemented");
     }
 
 }
