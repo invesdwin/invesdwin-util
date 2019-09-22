@@ -260,24 +260,24 @@ public abstract class AHistoricalCache<V>
     }
 
     public boolean isChildRefreshRequested(final AHistoricalCache<?> child) {
-        return child != this && lastRefresh.isAfter(child.getLastRefresh());
+        return child != this && (lastRefresh.isAfter(child.getLastRefresh()) || isRefreshRequested(child));
     }
 
     private void invokeRefreshIfRequested() {
-        if (isRefreshRequested()) {
+        if (isRefreshRequested(this)) {
             maybeRefresh();
             refreshRequested = false;
         }
     }
 
-    private boolean isRefreshRequested() {
+    private boolean isRefreshRequested(final AHistoricalCache<?> cache) {
         if (refreshRequested) {
             return true;
         }
-        if (adjustKeyProvider.isChildRefreshRequested(this)) {
+        if (adjustKeyProvider.isChildRefreshRequested(cache)) {
             return true;
         }
-        if (shiftKeyProvider.isChildRefreshRequested(this)) {
+        if (shiftKeyProvider.isChildRefreshRequested(cache)) {
             return true;
         }
         return false;
