@@ -14,6 +14,7 @@ import javax.annotation.concurrent.ThreadSafe;
 import org.apache.commons.io.FileUtils;
 
 import de.invesdwin.util.lang.finalizer.AFinalizer;
+import de.invesdwin.util.time.fdate.FTimeUnit;
 
 @ThreadSafe
 public class FileChannelLock implements Closeable {
@@ -27,6 +28,16 @@ public class FileChannelLock implements Closeable {
 
     public File getFile() {
         return finalizer.file;
+    }
+
+    public void lock() {
+        while (!tryLock()) {
+            try {
+                FTimeUnit.MILLISECONDS.sleep(100);
+            } catch (final InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     public synchronized boolean tryLock() {
