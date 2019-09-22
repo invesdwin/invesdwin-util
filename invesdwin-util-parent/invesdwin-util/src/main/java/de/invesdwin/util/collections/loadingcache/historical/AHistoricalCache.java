@@ -271,10 +271,12 @@ public abstract class AHistoricalCache<V>
     }
 
     private boolean isRecursiveRefreshRequested(final AHistoricalCache<?> cache) {
-        if (adjustKeyProvider.getParent() != this && adjustKeyProvider.isChildRefreshRequested(cache)) {
+        if (adjustKeyProvider.getParent() != this && adjustKeyProvider.getParent() != cache
+                && adjustKeyProvider.isChildRefreshRequested(cache)) {
             return true;
         }
-        if (shiftKeyProvider.getParent() != this && shiftKeyProvider.isChildRefreshRequested(cache)) {
+        if (shiftKeyProvider.getParent() != this && adjustKeyProvider.getParent() != cache
+                && shiftKeyProvider.isChildRefreshRequested(cache)) {
             return true;
         }
         return false;
