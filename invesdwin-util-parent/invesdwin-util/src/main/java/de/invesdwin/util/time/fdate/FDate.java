@@ -84,10 +84,18 @@ public class FDate implements IDate, Serializable, Cloneable, Comparable<Object>
     public static final String FORMAT_ISO_DATE_TIME_SPACE = FORMAT_ISO_DATE + " " + FORMAT_ISO_TIME;
     public static final String FORMAT_ISO_DATE_TIME_MS = FORMAT_ISO_DATE + "'T'" + FORMAT_ISO_TIME_MS;
     public static final String FORMAT_ISO_DATE_TIME_MS_SPACE = FORMAT_ISO_DATE + " " + FORMAT_ISO_TIME_MS;
-    public static final String FORMAT_TIMESTAMP_NUMBER = "yyyyMMddHHmmssSSS";
-    public static final String FORMAT_TIMESTAMP_UNDERSCORE = "yyyy_MM_dd_HH_mm_ss_SSS";
+
+    public static final String FORMAT_NUMBER_DATE = "yyyyMMdd";
+    public static final String FORMAT_NUMBER_TIME = "HHmmss";
+    public static final String FORMAT_NUMBER_TIME_MS = FORMAT_NUMBER_TIME + "SSS";
+    public static final String FORMAT_NUMBER_DATE_TIME = FORMAT_NUMBER_DATE + FORMAT_NUMBER_TIME;
+    public static final String FORMAT_NUMBER_DATE_TIME_MS = FORMAT_NUMBER_DATE + FORMAT_NUMBER_TIME_MS;
+
+    public static final String FORMAT_UNDERSCORE_DATE_TIME_MS = "yyyy_MM_dd_HH_mm_ss_SSS";
+
     public static final String FORMAT_GERMAN_DATE = "dd.MM.yyyy";
     public static final String FORMAT_GERMAN_DATE_TIME = FORMAT_GERMAN_DATE + " " + FORMAT_ISO_TIME;
+    public static final String FORMAT_GERMAN_DATE_TIME_MS = FORMAT_GERMAN_DATE + " " + FORMAT_ISO_TIME_MS;
 
     public static final ADelegateComparator<FDate> DATE_COMPARATOR = new ADelegateComparator<FDate>() {
         @Override
