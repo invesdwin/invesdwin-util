@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ExecutorService;
 import java.util.function.Function;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -929,6 +930,10 @@ public abstract class AHistoricalCache<V>
     @Override
     public void putPreviousKey(final FDate previousKey, final FDate valueKey) {
         queryCore.putPreviousKey(previousKey, valueKey);
+    }
+
+    public void preloadData(final ExecutorService executor) {
+        query().withFuture().getValue(FDate.MIN_DATE);
     }
 
 }
