@@ -22,6 +22,9 @@ public final class Files extends AFilesStaticFacade {
     private Files() {}
 
     public static void purgeOldFiles(final File directory, final Duration threshold) {
+        if (!directory.exists()) {
+            return;
+        }
         final FDate thresholdDate = new FDate().subtract(threshold);
         final Iterator<File> filesToDelete = FileUtils.iterateFiles(directory,
                 new AgeFileFilter(thresholdDate.dateValue(), true), TrueFileFilter.INSTANCE);
