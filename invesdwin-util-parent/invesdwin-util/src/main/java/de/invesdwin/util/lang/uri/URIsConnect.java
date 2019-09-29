@@ -72,8 +72,9 @@ public final class URIsConnect {
     public boolean isServerResponding() {
         try {
             final Socket socket = new Socket();
-            socket.connect(Addresses.asAddress(url.getHost(), url.getPort()),
-                    networkTimeout.intValue(FTimeUnit.MILLISECONDS));
+            final int timeoutMillis = networkTimeout.intValue(FTimeUnit.MILLISECONDS);
+            socket.setSoTimeout(timeoutMillis);
+            socket.connect(Addresses.asAddress(url.getHost(), url.getPort()), timeoutMillis);
             socket.close();
             return true;
         } catch (final Throwable e) {
