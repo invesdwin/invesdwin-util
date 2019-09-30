@@ -8,10 +8,11 @@ import java.util.concurrent.Callable;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.concurrent.Threads;
+import de.invesdwin.util.concurrent.priority.IPriorityProvider;
 import de.invesdwin.util.error.Throwables;
 
 @NotThreadSafe
-public final class WrappedCallable<V> implements Callable<V> {
+public final class WrappedCallable<V> implements Callable<V>, IPriorityProvider {
 
     private final String parentThreadName;
     private final Callable<V> delegate;
@@ -70,6 +71,15 @@ public final class WrappedCallable<V> implements Callable<V> {
     public static <T> WrappedCallable<T> newInstance(final IWrappedExecutorServiceInternal parent,
             final Callable<T> delegate) throws InterruptedException {
         return new WrappedCallable<T>(parent, delegate, false);
+    }
+
+    @Override
+    public double getPriority() {
+        if (delegate instanceof IPriorityProvider) {
+            final IPriorityProvider cDelegate = (IPriorityProvider) delegate;
+            return cDelegate.getPriority();
+        }
+        return MISSING_PRIORITY;
     }
 
 }

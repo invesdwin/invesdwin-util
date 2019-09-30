@@ -7,10 +7,12 @@ import java.util.List;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.concurrent.Threads;
+import de.invesdwin.util.concurrent.priority.IPriorityProvider;
+import de.invesdwin.util.concurrent.priority.IPriorityRunnable;
 import de.invesdwin.util.error.Throwables;
 
 @NotThreadSafe
-public final class WrappedRunnable implements Runnable {
+public final class WrappedRunnable implements IPriorityRunnable {
 
     private final String parentThreadName;
     private final Runnable delegate;
@@ -69,6 +71,15 @@ public final class WrappedRunnable implements Runnable {
     public static WrappedRunnable newInstance(final IWrappedExecutorServiceInternal parent, final Runnable delegate)
             throws InterruptedException {
         return new WrappedRunnable(parent, delegate, false);
+    }
+
+    @Override
+    public double getPriority() {
+        if (delegate instanceof IPriorityProvider) {
+            final IPriorityProvider cDelegate = (IPriorityProvider) delegate;
+            return cDelegate.getPriority();
+        }
+        return MISSING_PRIORITY;
     }
 
 }

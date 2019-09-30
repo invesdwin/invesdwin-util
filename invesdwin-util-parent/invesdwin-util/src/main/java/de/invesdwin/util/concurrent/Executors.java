@@ -11,6 +11,7 @@ import javax.annotation.concurrent.Immutable;
 import com.google.common.util.concurrent.MoreExecutors;
 
 import de.invesdwin.util.concurrent.internal.WrappedThreadFactory;
+import de.invesdwin.util.concurrent.priority.PriorityThreadPoolExecutor;
 import io.netty.util.concurrent.DefaultThreadFactory;
 
 /**
@@ -61,6 +62,12 @@ public final class Executors {
     public static WrappedExecutorService newFixedThreadPool(final String name, final int nThreads) {
         final java.util.concurrent.ThreadPoolExecutor ex = (java.util.concurrent.ThreadPoolExecutor) java.util.concurrent.Executors
                 .newFixedThreadPool(nThreads, newFastThreadLocalThreadFactory(name));
+        return new WrappedExecutorService(ex, name);
+    }
+
+    public static WrappedExecutorService newFixedPriorityThreadPool(final String name, final int nThreads) {
+        final java.util.concurrent.ThreadPoolExecutor ex = new PriorityThreadPoolExecutor(nThreads, nThreads, 0L,
+                TimeUnit.MILLISECONDS, newFastThreadLocalThreadFactory(name));
         return new WrappedExecutorService(ex, name);
     }
 
