@@ -195,7 +195,7 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
             //not updating highest allowed key, since this already happened during key adjustment
             final FDate newMaxKeyInDB = adjustKeyProvider.getHighestAllowedKey();
             if (newMaxKeyInDB != null) {
-                if (newMaxKeyInDB.isAfter(maxKeyInDB)) {
+                if (maxKeyInDB == null || newMaxKeyInDB.isAfterNotNullSafe(maxKeyInDB)) {
                     maxKeyInDB = newMaxKeyInDB;
                     return true;
                 } else {
