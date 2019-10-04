@@ -98,6 +98,14 @@ public final class Longs extends ALongsStaticFacade {
         }
     }
 
+    public static long min(final long time1, final long time2) {
+        if (time1 < time2) {
+            return time1;
+        } else {
+            return time2;
+        }
+    }
+
     public static Long max(final Long... times) {
         Long maxTime = null;
         for (final Long time : times) {
@@ -120,7 +128,19 @@ public final class Longs extends ALongsStaticFacade {
         }
     }
 
+    public static long max(final long time1, final long time2) {
+        if (time1 > time2) {
+            return time1;
+        } else {
+            return time2;
+        }
+    }
+
     public static Long between(final Long value, final Long min, final Long max) {
+        return max(min(value, max), min);
+    }
+
+    public static long between(final long value, final long min, final long max) {
         return max(min(value, max), min);
     }
 
