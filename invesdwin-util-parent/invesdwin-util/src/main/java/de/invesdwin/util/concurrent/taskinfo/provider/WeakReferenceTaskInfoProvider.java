@@ -13,10 +13,10 @@ public class WeakReferenceTaskInfoProvider implements ITaskInfoProvider {
     private final WeakReference<ITaskInfoProvider> reference;
     private final int identityHashCode;
 
-    public WeakReferenceTaskInfoProvider(final ITaskInfoProvider referent) {
+    public WeakReferenceTaskInfoProvider(final int identityHashCode, final ITaskInfoProvider referent) {
         this.name = referent.getName();
         this.reference = new WeakReference<ITaskInfoProvider>(referent);
-        this.identityHashCode = System.identityHashCode(referent);
+        this.identityHashCode = identityHashCode;
     }
 
     @Override

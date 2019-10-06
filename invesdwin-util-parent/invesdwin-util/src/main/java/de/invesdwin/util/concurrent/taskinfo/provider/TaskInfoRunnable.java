@@ -9,6 +9,7 @@ import javax.annotation.concurrent.ThreadSafe;
 import de.invesdwin.util.concurrent.priority.IPriorityProvider;
 import de.invesdwin.util.concurrent.priority.IPriorityRunnable;
 import de.invesdwin.util.concurrent.taskinfo.TaskInfoManager;
+import de.invesdwin.util.lang.Objects;
 
 @ThreadSafe
 public final class TaskInfoRunnable implements IPriorityRunnable, ITaskInfoProvider {
@@ -21,16 +22,17 @@ public final class TaskInfoRunnable implements IPriorityRunnable, ITaskInfoProvi
         this.name = name;
         this.delegate = delegate;
         this.status = TaskInfoStatus.CREATED;
-        TaskInfoManager.register(this);
+        TaskInfoManager.onCreated(this);
     }
 
     @Override
     public void run() {
-        this.status = TaskInfoStatus.RUNNING;
+        this.status = TaskInfoStatus.STARTED;
+        TaskInfoManager.onStarted(this);
         try {
             delegate.run();
         } finally {
-            TaskInfoManager.unregister(this);
+            TaskInfoManager.onCompleted(this);
             this.status = TaskInfoStatus.COMPLETED;
         }
     }
@@ -64,6 +66,11 @@ public final class TaskInfoRunnable implements IPriorityRunnable, ITaskInfoProvi
             wrapped.add(TaskInfoRunnable.of(name, task));
         }
         return wrapped;
+    }
+
+    @Override
+    public String toString() {
+        return Objects.toStringHelper(this).add("name", name).add("identity", hashCode()).toString();
     }
 
 }

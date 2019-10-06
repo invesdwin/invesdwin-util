@@ -5,6 +5,6 @@ import javax.annotation.concurrent.Immutable;
 @Immutable
 public enum TaskInfoStatus {
     CREATED,
-    RUNNING,
+    STARTED,
     COMPLETED;
 }

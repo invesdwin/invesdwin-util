@@ -6,6 +6,7 @@ import java.awt.Dimension;
 import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.Window;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 import javax.annotation.concurrent.Immutable;
@@ -94,6 +95,34 @@ public final class Components {
                                 locationOnComponent.y, locationOnScreen.x, locationOnScreen.y, 0, false, 0));
             }
         }
+    }
+
+    /**
+     * https://stackoverflow.com/questions/6473464/force-a-java-tooltip-to-appear
+     */
+    public static void showTooltipNow(final Component component) {
+        final ToolTipManager ttm = ToolTipManager.sharedInstance();
+        final int oldDelay = ttm.getInitialDelay();
+        ttm.setInitialDelay(0);
+        ttm.mouseMoved(new MouseEvent(component, 0, 0, 0, 0, 0, // X-Y of the mouse for the tool tip
+                0, false));
+        //CHECKSTYLE:OFF
+        SwingUtilities.invokeLater(new Runnable() {
+            //CHECKSTYLE:ON
+            @Override
+            public void run() {
+                ttm.setInitialDelay(oldDelay);
+            }
+        });
+    }
+
+    public static void showTooltipWithoutDelay(final Component component) {
+        component.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(final MouseEvent e) {
+                Components.showTooltipNow(component);
+            }
+        });
     }
 
     public static void setEnabled(final Component component, final boolean enabled) {

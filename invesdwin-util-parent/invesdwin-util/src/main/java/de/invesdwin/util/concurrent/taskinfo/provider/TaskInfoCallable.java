@@ -10,6 +10,7 @@ import javax.annotation.concurrent.ThreadSafe;
 import de.invesdwin.util.concurrent.priority.IPriorityCallable;
 import de.invesdwin.util.concurrent.priority.IPriorityProvider;
 import de.invesdwin.util.concurrent.taskinfo.TaskInfoManager;
+import de.invesdwin.util.lang.Objects;
 
 @ThreadSafe
 public final class TaskInfoCallable<V> implements IPriorityCallable<V>, ITaskInfoProvider {
@@ -22,16 +23,17 @@ public final class TaskInfoCallable<V> implements IPriorityCallable<V>, ITaskInf
         this.name = name;
         this.delegate = delegate;
         this.status = TaskInfoStatus.CREATED;
-        TaskInfoManager.register(this);
+        TaskInfoManager.onCreated(this);
     }
 
     @Override
     public V call() throws Exception {
-        this.status = TaskInfoStatus.RUNNING;
+        this.status = TaskInfoStatus.STARTED;
+        TaskInfoManager.onStarted(this);
         try {
             return delegate.call();
         } finally {
-            TaskInfoManager.unregister(this);
+            TaskInfoManager.onCompleted(this);
             this.status = TaskInfoStatus.COMPLETED;
         }
     }
@@ -66,6 +68,11 @@ public final class TaskInfoCallable<V> implements IPriorityCallable<V>, ITaskInf
             wrapped.add(TaskInfoCallable.of(taskName, task));
         }
         return wrapped;
+    }
+
+    @Override
+    public String toString() {
+        return Objects.toStringHelper(this).add("name", name).add("identity", hashCode()).toString();
     }
 
 }

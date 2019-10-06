@@ -2,18 +2,20 @@ package de.invesdwin.util.concurrent.taskinfo;
 
 import javax.annotation.concurrent.Immutable;
 
+import de.invesdwin.util.math.decimal.scaled.Percent;
+
 @Immutable
 public class TaskInfo {
 
     private final String name;
     private final int createdCount;
-    private final int runningCount;
+    private final int startedCount;
     private final int completedCount;
 
-    public TaskInfo(final String name, final int createdCount, final int runningCount, final int completedCount) {
+    public TaskInfo(final String name, final int createdCount, final int startedCount, final int completedCount) {
         this.name = name;
         this.createdCount = createdCount;
-        this.runningCount = runningCount;
+        this.startedCount = startedCount;
         this.completedCount = completedCount;
     }
 
@@ -25,8 +27,8 @@ public class TaskInfo {
         return createdCount;
     }
 
-    public int getRunningCount() {
-        return runningCount;
+    public int getStartedCount() {
+        return startedCount;
     }
 
     public int getCompletedCount() {
@@ -34,11 +36,25 @@ public class TaskInfo {
     }
 
     public int getTasksCount() {
-        return createdCount + runningCount + completedCount;
+        return createdCount + startedCount + completedCount;
     }
 
     public boolean isCompleted() {
         return getCompletedCount() == getTasksCount();
+    }
+
+    public Percent getProgress() {
+        final int tasksCount = getTasksCount();
+        if (tasksCount > 1) {
+            return new Percent(getCompletedCount(), tasksCount);
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public String toString() {
+        return super.toString();
     }
 
 }
