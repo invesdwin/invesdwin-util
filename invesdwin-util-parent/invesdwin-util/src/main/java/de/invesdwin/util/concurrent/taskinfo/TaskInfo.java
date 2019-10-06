@@ -1,11 +1,14 @@
 package de.invesdwin.util.concurrent.taskinfo;
 
+import java.util.Set;
+
 import javax.annotation.concurrent.Immutable;
 
+import de.invesdwin.util.bean.AValueObject;
 import de.invesdwin.util.math.decimal.scaled.Percent;
 
 @Immutable
-public class TaskInfo {
+public class TaskInfo extends AValueObject {
 
     private final String name;
     private final int createdCount;
@@ -13,15 +16,17 @@ public class TaskInfo {
     private final int completedCount;
     private final int tasksCount;
     private final Percent progress;
+    private final Set<String> descriptions;
 
     public TaskInfo(final String name, final int createdCount, final int startedCount, final int completedCount,
-            final int tasksCount, final Percent progress) {
+            final int tasksCount, final Percent progress, final Set<String> descriptions) {
         this.name = name;
         this.createdCount = createdCount;
         this.startedCount = startedCount;
         this.completedCount = completedCount;
         this.tasksCount = tasksCount;
         this.progress = progress;
+        this.descriptions = descriptions;
     }
 
     public String getName() {
@@ -52,9 +57,8 @@ public class TaskInfo {
         return progress;
     }
 
-    @Override
-    public String toString() {
-        return super.toString();
+    public Set<String> getDescriptions() {
+        return descriptions;
     }
 
 }

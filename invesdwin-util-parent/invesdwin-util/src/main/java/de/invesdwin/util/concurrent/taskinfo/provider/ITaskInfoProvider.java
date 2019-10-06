@@ -6,6 +6,8 @@ public interface ITaskInfoProvider {
 
     String getName();
 
+    String getDescription();
+
     TaskInfoStatus getStatus();
 
     Percent getProgress();

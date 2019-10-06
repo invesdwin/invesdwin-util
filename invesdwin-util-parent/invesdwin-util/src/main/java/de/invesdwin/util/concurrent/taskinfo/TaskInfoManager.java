@@ -2,9 +2,10 @@ package de.invesdwin.util.concurrent.taskinfo;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -21,6 +22,7 @@ import de.invesdwin.util.concurrent.taskinfo.provider.ITaskInfoProvider;
 import de.invesdwin.util.concurrent.taskinfo.provider.TaskInfoStatus;
 import de.invesdwin.util.concurrent.taskinfo.provider.WeakReferenceTaskInfoProvider;
 import de.invesdwin.util.error.UnknownArgumentException;
+import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.math.decimal.scaled.Percent;
 import io.netty.util.concurrent.FastThreadLocal;
 
@@ -36,6 +38,7 @@ public final class TaskInfoManager {
     private static final IFastIterableSet<ITaskInfoListener> LISTENERS = ILockCollectionFactory.getInstance(true)
             .newFastIterableLinkedSet();
     private static final FastThreadLocal<Stack<WeakReferenceTaskInfoProvider>> CURRENT_THREAD_TASK_INFO_NAME = new FastThreadLocal<>();
+    private static final int MAX_DESCRIPTIONS = 3;
 
     private TaskInfoManager() {}
 
@@ -44,15 +47,13 @@ public final class TaskInfoManager {
         Map<Integer, WeakReferenceTaskInfoProvider> tasks = NAME_TASKS.get(name);
         boolean added = false;
         if (tasks == null) {
-            tasks = new HashMap<>();
+            tasks = new LinkedHashMap<>();
             NAME_TASKS.put(name, tasks);
             added = true;
         } else {
             final TaskInfo taskInfo = getTaskInfo(name, tasks.values());
             if (taskInfo.isCompleted()) {
                 tasks.clear();
-                triggerOnTaskInfoRemoved(name);
-                added = true;
             }
         }
         final int identityHashCode = System.identityHashCode(taskInfoProvider);
@@ -91,11 +92,6 @@ public final class TaskInfoManager {
     }
 
     public static synchronized void onCompleted(final ITaskInfoProvider taskInfoProvider) {
-        final String name = taskInfoProvider.getName();
-        final Map<Integer, WeakReferenceTaskInfoProvider> tasks = NAME_TASKS.get(name);
-        if (tasks == null) {
-            throw new IllegalStateException("Not registered: " + taskInfoProvider);
-        }
         final Stack<WeakReferenceTaskInfoProvider> taskInfoNameList = CURRENT_THREAD_TASK_INFO_NAME.get();
         while (taskInfoNameList != null && !taskInfoNameList.isEmpty()) {
             final WeakReferenceTaskInfoProvider peek = taskInfoNameList.peek();
@@ -105,11 +101,17 @@ public final class TaskInfoManager {
                 break;
             }
         }
-        final TaskInfo taskInfo = getTaskInfo(name, tasks.values());
-        if (taskInfo.isCompleted()) {
+        final String name = taskInfoProvider.getName();
+        final Map<Integer, WeakReferenceTaskInfoProvider> tasks = NAME_TASKS.get(name);
+        if (tasks != null) {
+            final TaskInfo taskInfo = getTaskInfo(name, tasks.values());
+            if (taskInfo.isCompleted()) {
+                CURRENT_THREAD_TASK_INFO_NAME.remove();
+                Assertions.checkSame(NAME_TASKS.remove(name), tasks);
+                triggerOnTaskInfoRemoved(name);
+            }
+        } else {
             CURRENT_THREAD_TASK_INFO_NAME.remove();
-            Assertions.checkSame(NAME_TASKS.remove(name), tasks);
-            triggerOnTaskInfoRemoved(name);
         }
     }
 
@@ -172,12 +174,16 @@ public final class TaskInfoManager {
         }
     }
 
+    //CHECKSTYLE:OFF
     private static TaskInfo getTaskInfo(final String name, final Collection<WeakReferenceTaskInfoProvider> tasks) {
+        //CHECKSTYLE:ON
         int createdCount = 0;
         int startedCount = 0;
         int completedCount = 0;
         int tasksCount = 0;
         double sumProgressRate = 0;
+        Set<String> createdDescriptions = null;
+        Set<String> startedDescriptions = null;
         for (final WeakReferenceTaskInfoProvider task : tasks) {
             tasksCount++;
             final TaskInfoStatus status = task.getStatus();
@@ -202,9 +208,39 @@ public final class TaskInfoManager {
                     sumProgressRate += progress.getRate();
                 }
             }
+            //created descriptions are a fallback if there are no started descriptions
+            if (startedDescriptions == null && status == TaskInfoStatus.CREATED
+                    && (createdDescriptions == null || createdDescriptions.size() < MAX_DESCRIPTIONS)) {
+                final String description = task.getDescription();
+                if (Strings.isNotBlank(description)) {
+                    if (createdDescriptions == null) {
+                        createdDescriptions = new LinkedHashSet<>();
+                    }
+                    createdDescriptions.add(description);
+                }
+            }
+            if (status == TaskInfoStatus.STARTED
+                    && (startedDescriptions == null || startedDescriptions.size() < MAX_DESCRIPTIONS)) {
+                final String description = task.getDescription();
+                if (Strings.isNotBlank(description)) {
+                    if (startedDescriptions == null) {
+                        startedDescriptions = new LinkedHashSet<>();
+                        createdDescriptions = null;
+                    }
+                    startedDescriptions.add(description);
+                }
+            }
         }
-        return new TaskInfo(name, createdCount, startedCount, completedCount, tasksCount,
-                new Percent(sumProgressRate, tasksCount));
+        final Set<String> descriptions;
+        if (startedDescriptions != null) {
+            descriptions = startedDescriptions;
+        } else if (createdDescriptions != null) {
+            descriptions = createdDescriptions;
+        } else {
+            descriptions = Collections.emptySet();
+        }
+        final Percent progress = new Percent(sumProgressRate, tasksCount);
+        return new TaskInfo(name, createdCount, startedCount, completedCount, tasksCount, progress, descriptions);
     }
 
     public static IFastIterableSet<ITaskInfoListener> getListeners() {

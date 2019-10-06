@@ -18,6 +18,7 @@ import de.invesdwin.util.math.decimal.scaled.Percent;
 public final class TaskInfoCallable<V> implements IPriorityCallable<V>, ITaskInfoProvider {
 
     private final String name;
+    private volatile String description;
     private final Callable<V> delegate;
     private volatile TaskInfoStatus status;
     private final Callable<Percent> progress;
@@ -34,6 +35,11 @@ public final class TaskInfoCallable<V> implements IPriorityCallable<V>, ITaskInf
         TaskInfoManager.onCreated(this);
     }
 
+    public TaskInfoCallable<V> withDescription(final String description) {
+        this.description = description;
+        return this;
+    }
+
     @Override
     public V call() throws Exception {
         this.status = TaskInfoStatus.STARTED;
@@ -41,14 +47,19 @@ public final class TaskInfoCallable<V> implements IPriorityCallable<V>, ITaskInf
         try {
             return delegate.call();
         } finally {
-            TaskInfoManager.onCompleted(this);
             this.status = TaskInfoStatus.COMPLETED;
+            TaskInfoManager.onCompleted(this);
         }
     }
 
     @Override
     public String getName() {
         return name;
+    }
+
+    @Override
+    public String getDescription() {
+        return description;
     }
 
     @Override

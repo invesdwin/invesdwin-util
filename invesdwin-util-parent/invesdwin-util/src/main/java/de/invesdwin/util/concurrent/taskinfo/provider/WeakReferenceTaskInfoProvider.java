@@ -26,6 +26,16 @@ public class WeakReferenceTaskInfoProvider implements ITaskInfoProvider {
     }
 
     @Override
+    public String getDescription() {
+        final ITaskInfoProvider referent = reference.get();
+        if (referent != null) {
+            return referent.getDescription();
+        } else {
+            return null;
+        }
+    }
+
+    @Override
     public TaskInfoStatus getStatus() {
         final ITaskInfoProvider referent = reference.get();
         if (referent != null) {
