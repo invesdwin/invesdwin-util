@@ -194,7 +194,10 @@ public final class TaskInfoManager {
             default:
                 throw UnknownArgumentException.newInstance(TaskInfoStatus.class, status);
             }
-            sumProgressRate += task.getProgress().getRate();
+            final Percent progress = task.getProgress();
+            if (progress != null) {
+                sumProgressRate += progress.getRate();
+            }
         }
         return new TaskInfo(name, createdCount, startedCount, completedCount, tasksCount,
                 new Percent(sumProgressRate, tasksCount));
