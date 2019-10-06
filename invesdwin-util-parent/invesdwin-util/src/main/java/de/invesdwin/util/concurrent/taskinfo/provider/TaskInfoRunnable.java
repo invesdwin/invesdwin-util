@@ -1,5 +1,9 @@
 package de.invesdwin.util.concurrent.taskinfo.provider;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.concurrent.priority.IPriorityProvider;
@@ -52,6 +56,14 @@ public final class TaskInfoRunnable implements IPriorityRunnable, ITaskInfoProvi
 
     public static TaskInfoRunnable of(final String name, final Runnable runnable) {
         return new TaskInfoRunnable(name, runnable);
+    }
+
+    public static List<TaskInfoRunnable> of(final String name, final Collection<? extends Runnable> tasks) {
+        final List<TaskInfoRunnable> wrapped = new ArrayList<>(tasks.size());
+        for (final Runnable task : tasks) {
+            wrapped.add(TaskInfoRunnable.of(name, task));
+        }
+        return wrapped;
     }
 
 }

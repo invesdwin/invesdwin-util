@@ -18,6 +18,10 @@ import de.invesdwin.util.concurrent.taskinfo.provider.TaskInfoStatus;
 import de.invesdwin.util.concurrent.taskinfo.provider.WeakReferenceTaskInfoProvider;
 import de.invesdwin.util.error.UnknownArgumentException;
 
+/**
+ * This class can be used to track long running tasks that should be visualized in a UI in some way. The taskInfos can
+ * be polled periodically by the UI to display an indicator.
+ */
 @ThreadSafe
 public final class TaskInfoManager {
 

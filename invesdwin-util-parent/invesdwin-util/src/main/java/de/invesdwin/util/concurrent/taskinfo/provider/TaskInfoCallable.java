@@ -1,5 +1,8 @@
 package de.invesdwin.util.concurrent.taskinfo.provider;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.Callable;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -54,6 +57,15 @@ public final class TaskInfoCallable<V> implements IPriorityCallable<V>, ITaskInf
 
     public static <T> TaskInfoCallable<T> of(final String name, final Callable<T> callable) {
         return new TaskInfoCallable<>(name, callable);
+    }
+
+    public static <T> List<TaskInfoCallable<T>> of(final String taskName,
+            final Collection<? extends Callable<T>> tasks) {
+        final List<TaskInfoCallable<T>> wrapped = new ArrayList<>(tasks.size());
+        for (final Callable<T> task : tasks) {
+            wrapped.add(TaskInfoCallable.of(taskName, task));
+        }
+        return wrapped;
     }
 
 }
