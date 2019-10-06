@@ -3,13 +3,16 @@ package de.invesdwin.util.concurrent.taskinfo.provider;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 import javax.annotation.concurrent.ThreadSafe;
 
+import de.invesdwin.util.concurrent.callable.ImmutableCallable;
 import de.invesdwin.util.concurrent.priority.IPriorityProvider;
 import de.invesdwin.util.concurrent.priority.IPriorityRunnable;
 import de.invesdwin.util.concurrent.taskinfo.TaskInfoManager;
 import de.invesdwin.util.lang.Objects;
+import de.invesdwin.util.math.decimal.scaled.Percent;
 
 @ThreadSafe
 public final class TaskInfoRunnable implements IPriorityRunnable, ITaskInfoProvider {
@@ -17,10 +20,16 @@ public final class TaskInfoRunnable implements IPriorityRunnable, ITaskInfoProvi
     private final String name;
     private final Runnable delegate;
     private volatile TaskInfoStatus status;
+    private final Callable<Percent> progress;
 
-    private TaskInfoRunnable(final String name, final Runnable delegate) {
+    private TaskInfoRunnable(final String name, final Runnable delegate, final Callable<Percent> progress) {
         this.name = name;
         this.delegate = delegate;
+        if (progress == null) {
+            this.progress = new ImmutableCallable<Percent>(null);
+        } else {
+            this.progress = progress;
+        }
         this.status = TaskInfoStatus.CREATED;
         TaskInfoManager.onCreated(this);
     }
@@ -43,6 +52,15 @@ public final class TaskInfoRunnable implements IPriorityRunnable, ITaskInfoProvi
     }
 
     @Override
+    public Percent getProgress() {
+        try {
+            return progress.call();
+        } catch (final Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
     public TaskInfoStatus getStatus() {
         return status;
     }
@@ -57,7 +75,11 @@ public final class TaskInfoRunnable implements IPriorityRunnable, ITaskInfoProvi
     }
 
     public static TaskInfoRunnable of(final String name, final Runnable runnable) {
-        return new TaskInfoRunnable(name, runnable);
+        return of(name, runnable, null);
+    }
+
+    public static TaskInfoRunnable of(final String name, final Runnable runnable, final Callable<Percent> progress) {
+        return new TaskInfoRunnable(name, runnable, progress);
     }
 
     public static List<TaskInfoRunnable> of(final String name, final Collection<? extends Runnable> tasks) {

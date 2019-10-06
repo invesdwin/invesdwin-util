@@ -21,6 +21,7 @@ import de.invesdwin.util.concurrent.taskinfo.provider.ITaskInfoProvider;
 import de.invesdwin.util.concurrent.taskinfo.provider.TaskInfoStatus;
 import de.invesdwin.util.concurrent.taskinfo.provider.WeakReferenceTaskInfoProvider;
 import de.invesdwin.util.error.UnknownArgumentException;
+import de.invesdwin.util.math.decimal.scaled.Percent;
 import io.netty.util.concurrent.FastThreadLocal;
 
 /**
@@ -175,7 +176,10 @@ public final class TaskInfoManager {
         int createdCount = 0;
         int startedCount = 0;
         int completedCount = 0;
+        int tasksCount = 0;
+        double sumProgressRate = 0;
         for (final WeakReferenceTaskInfoProvider task : tasks) {
+            tasksCount++;
             final TaskInfoStatus status = task.getStatus();
             switch (status) {
             case CREATED:
@@ -190,8 +194,10 @@ public final class TaskInfoManager {
             default:
                 throw UnknownArgumentException.newInstance(TaskInfoStatus.class, status);
             }
+            sumProgressRate += task.getProgress().getRate();
         }
-        return new TaskInfo(name, createdCount, startedCount, completedCount);
+        return new TaskInfo(name, createdCount, startedCount, completedCount, tasksCount,
+                new Percent(sumProgressRate, tasksCount));
     }
 
     public static IFastIterableSet<ITaskInfoListener> getListeners() {

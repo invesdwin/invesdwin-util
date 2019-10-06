@@ -7,10 +7,12 @@ import java.util.concurrent.Callable;
 
 import javax.annotation.concurrent.ThreadSafe;
 
+import de.invesdwin.util.concurrent.callable.ImmutableCallable;
 import de.invesdwin.util.concurrent.priority.IPriorityCallable;
 import de.invesdwin.util.concurrent.priority.IPriorityProvider;
 import de.invesdwin.util.concurrent.taskinfo.TaskInfoManager;
 import de.invesdwin.util.lang.Objects;
+import de.invesdwin.util.math.decimal.scaled.Percent;
 
 @ThreadSafe
 public final class TaskInfoCallable<V> implements IPriorityCallable<V>, ITaskInfoProvider {
@@ -18,10 +20,16 @@ public final class TaskInfoCallable<V> implements IPriorityCallable<V>, ITaskInf
     private final String name;
     private final Callable<V> delegate;
     private volatile TaskInfoStatus status;
+    private final Callable<Percent> progress;
 
-    private TaskInfoCallable(final String name, final Callable<V> delegate) {
+    private TaskInfoCallable(final String name, final Callable<V> delegate, final Callable<Percent> progress) {
         this.name = name;
         this.delegate = delegate;
+        if (progress == null) {
+            this.progress = new ImmutableCallable<Percent>(null);
+        } else {
+            this.progress = progress;
+        }
         this.status = TaskInfoStatus.CREATED;
         TaskInfoManager.onCreated(this);
     }
@@ -49,6 +57,15 @@ public final class TaskInfoCallable<V> implements IPriorityCallable<V>, ITaskInf
     }
 
     @Override
+    public Percent getProgress() {
+        try {
+            return progress.call();
+        } catch (final Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
     public double getPriority() {
         if (delegate instanceof IPriorityProvider) {
             final IPriorityProvider cDelegate = (IPriorityProvider) delegate;
@@ -58,7 +75,12 @@ public final class TaskInfoCallable<V> implements IPriorityCallable<V>, ITaskInf
     }
 
     public static <T> TaskInfoCallable<T> of(final String name, final Callable<T> callable) {
-        return new TaskInfoCallable<>(name, callable);
+        return of(name, callable, null);
+    }
+
+    public static <T> TaskInfoCallable<T> of(final String name, final Callable<T> callable,
+            final Callable<Percent> progress) {
+        return new TaskInfoCallable<>(name, callable, progress);
     }
 
     public static <T> List<TaskInfoCallable<T>> of(final String taskName,

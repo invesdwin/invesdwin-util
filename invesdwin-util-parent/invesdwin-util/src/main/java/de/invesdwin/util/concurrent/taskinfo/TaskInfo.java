@@ -11,12 +11,17 @@ public class TaskInfo {
     private final int createdCount;
     private final int startedCount;
     private final int completedCount;
+    private final int tasksCount;
+    private final Percent progress;
 
-    public TaskInfo(final String name, final int createdCount, final int startedCount, final int completedCount) {
+    public TaskInfo(final String name, final int createdCount, final int startedCount, final int completedCount,
+            final int tasksCount, final Percent progress) {
         this.name = name;
         this.createdCount = createdCount;
         this.startedCount = startedCount;
         this.completedCount = completedCount;
+        this.tasksCount = tasksCount;
+        this.progress = progress;
     }
 
     public String getName() {
@@ -36,7 +41,7 @@ public class TaskInfo {
     }
 
     public int getTasksCount() {
-        return createdCount + startedCount + completedCount;
+        return tasksCount;
     }
 
     public boolean isCompleted() {
@@ -44,12 +49,7 @@ public class TaskInfo {
     }
 
     public Percent getProgress() {
-        final int tasksCount = getTasksCount();
-        if (tasksCount > 1) {
-            return new Percent(getCompletedCount(), tasksCount);
-        } else {
-            return null;
-        }
+        return progress;
     }
 
     @Override

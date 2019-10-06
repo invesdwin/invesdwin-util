@@ -5,6 +5,7 @@ import java.lang.ref.WeakReference;
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.lang.Objects;
+import de.invesdwin.util.math.decimal.scaled.Percent;
 
 @ThreadSafe
 public class WeakReferenceTaskInfoProvider implements ITaskInfoProvider {
@@ -31,6 +32,16 @@ public class WeakReferenceTaskInfoProvider implements ITaskInfoProvider {
             return referent.getStatus();
         } else {
             return TaskInfoStatus.COMPLETED;
+        }
+    }
+
+    @Override
+    public Percent getProgress() {
+        final ITaskInfoProvider referent = reference.get();
+        if (referent != null) {
+            return referent.getProgress();
+        } else {
+            return Percent.ONE_HUNDRED_PERCENT;
         }
     }
 
