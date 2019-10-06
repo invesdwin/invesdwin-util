@@ -933,7 +933,12 @@ public abstract class AHistoricalCache<V>
     }
 
     public void preloadData(final ExecutorService executor) {
-        query().withFuture().getValue(FDate.MIN_DATE);
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                query().withFuture().getValue(FDate.MIN_DATE);
+            }
+        });
     }
 
 }
