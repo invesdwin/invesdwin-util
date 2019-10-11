@@ -6,6 +6,8 @@ import java.util.List;
 
 import javax.annotation.concurrent.Immutable;
 
+import org.apache.commons.lang3.CharUtils;
+
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
 import de.invesdwin.util.lang.ADelegateComparator;
 import de.invesdwin.util.lang.Objects;
@@ -14,7 +16,8 @@ import de.invesdwin.util.math.internal.CheckedCastCharacters;
 import de.invesdwin.util.math.internal.CheckedCastCharactersObj;
 
 @StaticFacadeDefinition(name = "de.invesdwin.util.math.internal.ACharactersStaticFacade", targets = {
-        CheckedCastCharacters.class, CheckedCastCharactersObj.class, com.google.common.primitives.Chars.class })
+        CheckedCastCharacters.class, CheckedCastCharactersObj.class, com.google.common.primitives.Chars.class,
+        CharUtils.class }, filterSeeMethodSignatures = { "com.google.common.primitives.Chars#compare(char, char)" })
 
 @Immutable
 public final class Characters extends ACharactersStaticFacade {
