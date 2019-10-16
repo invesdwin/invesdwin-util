@@ -209,4 +209,11 @@ public class FDateTest {
         Assertions.assertThat(sunday).isEqualTo(FDateBuilder.newDate(2017, 1, 1, 1, 1));
     }
 
+    @Test
+    public void testTruncate() {
+        final FDate reference = FDateBuilder.newDate(2001, 12, 31, 23, 59, 59, 999);
+        Assertions.assertThat(reference.truncate(FDateField.Year))
+                .isEqualTo(FDateBuilder.newDate(2001, 1, 1, 0, 0, 0, 0));
+    }
+
 }
