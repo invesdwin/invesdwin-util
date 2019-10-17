@@ -13,10 +13,18 @@ public abstract class ADelegateFuture<E> implements Future<E> {
     private final Future<E> delegate;
 
     public ADelegateFuture() {
-        this.delegate = getDelegate();
+        this.delegate = newDelegate();
     }
 
-    protected abstract Future<E> getDelegate();
+    ADelegateFuture(final Future<E> delegate) {
+        this.delegate = delegate;
+    }
+
+    public Future<E> getDelegate() {
+        return delegate;
+    }
+
+    protected abstract Future<E> newDelegate();
 
     @Override
     public boolean cancel(final boolean mayInterruptIfRunning) {
