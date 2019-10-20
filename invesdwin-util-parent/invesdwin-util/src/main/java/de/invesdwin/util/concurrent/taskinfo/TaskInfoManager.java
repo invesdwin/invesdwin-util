@@ -59,9 +59,8 @@ public final class TaskInfoManager {
         final int identityHashCode = System.identityHashCode(taskInfoProvider);
         final WeakReferenceTaskInfoProvider weakReferenceTaskInfoProvider = new WeakReferenceTaskInfoProvider(
                 identityHashCode, taskInfoProvider);
-        if (tasks.put(identityHashCode, weakReferenceTaskInfoProvider) != null) {
-            throw new IllegalStateException("Already registered: " + taskInfoProvider);
-        }
+        //there might be hash collisions here which we just ignore
+        tasks.put(identityHashCode, weakReferenceTaskInfoProvider);
         if (added) {
             triggerOnTaskInfoAdded(name);
         }
