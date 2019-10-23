@@ -148,7 +148,7 @@ public abstract class AGenericProducerQueueIterator<E> extends ACloseableIterato
             final E curElement = nextElement;
             nextElement = null;
             if (curElement == null) {
-                throw new NullPointerException("should not happen, since hasNext was called!");
+                throw new FastNoSuchElementException("ProducerQueueIterator: curElement is null");
             }
             nextElement = readNext();
             return curElement;
