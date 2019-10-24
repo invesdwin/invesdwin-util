@@ -16,7 +16,7 @@ import de.invesdwin.util.time.fdate.FDate;
 
 @Immutable
 @StaticFacadeDefinition(name = "de.invesdwin.util.lang.internal.AFilesStaticFacade", targets = {
-        org.apache.commons.io.FileUtils.class })
+        org.apache.commons.io.FileUtils.class, java.nio.file.Files.class })
 public final class Files extends AFilesStaticFacade {
 
     private Files() {}
