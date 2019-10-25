@@ -58,7 +58,7 @@ public abstract class AHistoricalCache<V>
      * 10k is normally sufficient for daily bars of stocks and also fast enough for intraday ticks to load.
      */
     public static final Integer DEFAULT_MAXIMUM_SIZE = 100;
-    public static final int DEFAULT_MAXIMUM_SIZE_LIMIT = 10000;
+    public static final int DEFAULT_MAXIMUM_SIZE_LIMIT = 10_000;
     public static final EvictionMode EVICTION_MODE = EvictionMode.LeastRecentlyAdded;
     private static final org.slf4j.ext.XLogger LOG = org.slf4j.ext.XLoggerFactory.getXLogger(AHistoricalCache.class);
     private static boolean debugAutomaticReoptimization = false;
