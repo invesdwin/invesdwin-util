@@ -71,6 +71,9 @@ public class FileChannelLock implements Closeable, ILock {
     @Override
     public synchronized boolean tryLock() {
         try {
+            if (finalizer.locked) {
+                return true;
+            }
             if (!finalizer.file.exists()) {
                 FileUtils.forceMkdirParent(finalizer.file);
                 FileUtils.touch(finalizer.file);
