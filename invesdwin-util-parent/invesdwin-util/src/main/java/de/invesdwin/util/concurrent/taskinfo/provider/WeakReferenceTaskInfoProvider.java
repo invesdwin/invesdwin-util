@@ -70,4 +70,14 @@ public class WeakReferenceTaskInfoProvider implements ITaskInfoProvider {
         return Objects.toStringHelper(this).add("name", name).add("identity", identityHashCode).toString();
     }
 
+    @Override
+    public boolean isIneritable() {
+        final ITaskInfoProvider referent = reference.get();
+        if (referent != null) {
+            return referent.isIneritable();
+        } else {
+            return true;
+        }
+    }
+
 }

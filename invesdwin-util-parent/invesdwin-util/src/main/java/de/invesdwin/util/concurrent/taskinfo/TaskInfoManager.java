@@ -67,13 +67,15 @@ public final class TaskInfoManager {
     }
 
     public static void onStarted(final ITaskInfoProvider taskInfoProvider) {
-        Stack<WeakReferenceTaskInfoProvider> taskInfoNameList = CURRENT_THREAD_TASK_INFO_NAME.get();
-        if (taskInfoNameList == null) {
-            taskInfoNameList = new Stack<WeakReferenceTaskInfoProvider>();
-            CURRENT_THREAD_TASK_INFO_NAME.set(taskInfoNameList);
+        if (taskInfoProvider.isIneritable()) {
+            Stack<WeakReferenceTaskInfoProvider> taskInfoNameList = CURRENT_THREAD_TASK_INFO_NAME.get();
+            if (taskInfoNameList == null) {
+                taskInfoNameList = new Stack<WeakReferenceTaskInfoProvider>();
+                CURRENT_THREAD_TASK_INFO_NAME.set(taskInfoNameList);
+            }
+            final int identityHashCode = System.identityHashCode(taskInfoProvider);
+            taskInfoNameList.push(new WeakReferenceTaskInfoProvider(identityHashCode, taskInfoProvider));
         }
-        final int identityHashCode = System.identityHashCode(taskInfoProvider);
-        taskInfoNameList.push(new WeakReferenceTaskInfoProvider(identityHashCode, taskInfoProvider));
     }
 
     private static void triggerOnTaskInfoAdded(final String name) {
@@ -91,13 +93,15 @@ public final class TaskInfoManager {
     }
 
     public static synchronized void onCompleted(final ITaskInfoProvider taskInfoProvider) {
-        final Stack<WeakReferenceTaskInfoProvider> taskInfoNameList = CURRENT_THREAD_TASK_INFO_NAME.get();
-        while (taskInfoNameList != null && !taskInfoNameList.isEmpty()) {
-            final WeakReferenceTaskInfoProvider peek = taskInfoNameList.peek();
-            if (peek.equals(taskInfoProvider) || peek.getStatus() == TaskInfoStatus.COMPLETED) {
-                taskInfoNameList.pop();
-            } else {
-                break;
+        if (taskInfoProvider.isIneritable()) {
+            final Stack<WeakReferenceTaskInfoProvider> taskInfoNameList = CURRENT_THREAD_TASK_INFO_NAME.get();
+            while (taskInfoNameList != null && !taskInfoNameList.isEmpty()) {
+                final WeakReferenceTaskInfoProvider peek = taskInfoNameList.peek();
+                if (peek.equals(taskInfoProvider) || peek.getStatus() == TaskInfoStatus.COMPLETED) {
+                    taskInfoNameList.pop();
+                } else {
+                    break;
+                }
             }
         }
         final String name = taskInfoProvider.getName();
@@ -105,12 +109,16 @@ public final class TaskInfoManager {
         if (tasks != null) {
             final TaskInfo taskInfo = getTaskInfo(name, tasks.values());
             if (taskInfo.isCompleted()) {
-                CURRENT_THREAD_TASK_INFO_NAME.remove();
+                if (taskInfoProvider.isIneritable()) {
+                    CURRENT_THREAD_TASK_INFO_NAME.remove();
+                }
                 Assertions.checkSame(NAME_TASKS.remove(name), tasks);
                 triggerOnTaskInfoRemoved(name);
             }
         } else {
-            CURRENT_THREAD_TASK_INFO_NAME.remove();
+            if (taskInfoProvider.isIneritable()) {
+                CURRENT_THREAD_TASK_INFO_NAME.remove();
+            }
         }
     }
 

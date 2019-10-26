@@ -12,4 +12,6 @@ public interface ITaskInfoProvider {
 
     Percent getProgress();
 
+    boolean isIneritable();
+
 }

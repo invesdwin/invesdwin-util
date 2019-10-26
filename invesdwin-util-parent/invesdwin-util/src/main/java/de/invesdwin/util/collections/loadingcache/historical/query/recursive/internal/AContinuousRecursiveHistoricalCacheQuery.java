@@ -293,7 +293,7 @@ public abstract class AContinuousRecursiveHistoricalCacheQuery<V> implements IRe
                  */
             }
         }
-        if (minRecursionIdx <= 0 || recursionKeys.isEmpty()) {
+        if (minRecursionIdx < 0 || recursionKeys.isEmpty()) {
             //we did not find any previous value to continue from, so start over from scratch
             return getFullRecursionKeysIterator(previousKey);
         } else {

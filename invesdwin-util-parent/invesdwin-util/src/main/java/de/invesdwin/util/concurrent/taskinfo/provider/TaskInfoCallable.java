@@ -7,6 +7,7 @@ import java.util.concurrent.Callable;
 
 import javax.annotation.concurrent.ThreadSafe;
 
+import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.concurrent.callable.ImmutableCallable;
 import de.invesdwin.util.concurrent.priority.IPriorityCallable;
 import de.invesdwin.util.concurrent.priority.IPriorityProvider;
@@ -22,6 +23,7 @@ public final class TaskInfoCallable<V> implements IPriorityCallable<V>, ITaskInf
     private final Callable<V> delegate;
     private volatile TaskInfoStatus status;
     private final Callable<Percent> progress;
+    private volatile boolean inheritable;
 
     private TaskInfoCallable(final String name, final Callable<V> delegate, final Callable<Percent> progress) {
         this.name = name;
@@ -37,6 +39,12 @@ public final class TaskInfoCallable<V> implements IPriorityCallable<V>, ITaskInf
 
     public TaskInfoCallable<V> withDescription(final String description) {
         this.description = description;
+        return this;
+    }
+
+    public TaskInfoCallable<V> withInheritable(final boolean inheritable) {
+        Assertions.checkEquals(status, TaskInfoStatus.CREATED);
+        this.inheritable = inheritable;
         return this;
     }
 
@@ -106,6 +114,11 @@ public final class TaskInfoCallable<V> implements IPriorityCallable<V>, ITaskInf
     @Override
     public String toString() {
         return Objects.toStringHelper(this).add("name", name).add("identity", hashCode()).toString();
+    }
+
+    @Override
+    public boolean isIneritable() {
+        return inheritable;
     }
 
 }
