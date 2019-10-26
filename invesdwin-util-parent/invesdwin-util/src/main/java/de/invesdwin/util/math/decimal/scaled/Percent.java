@@ -116,6 +116,7 @@ public class Percent extends AScaledDecimal<Percent, PercentScale> {
     }
 
     private static double newRate(final double dividend, final double divisor) {
+        //workaround for both values being 0
         if (Doubles.compare(dividend, divisor) >= 0) {
             return 1D;
         } else {
