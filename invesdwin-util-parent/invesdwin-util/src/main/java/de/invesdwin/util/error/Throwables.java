@@ -6,6 +6,7 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
 import de.invesdwin.util.assertions.Assertions;
+import de.invesdwin.util.concurrent.Threads;
 import de.invesdwin.util.error.internal.AThrowablesStaticFacade;
 import de.invesdwin.util.lang.Strings;
 
@@ -136,6 +137,10 @@ public final class Throwables extends AThrowablesStaticFacade {
         } catch (final Throwable t) {
             return obj.getClass().getSimpleName() + ".toString[" + t.toString() + "]";
         }
+    }
+
+    public static boolean isCausedByInterrupt(final Throwable t) {
+        return Threads.isInterrupted() || Throwables.isCausedByType(t, InterruptedException.class);
     }
 
 }
