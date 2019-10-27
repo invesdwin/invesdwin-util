@@ -35,7 +35,8 @@ public final class TaskInfoManager {
 
     @GuardedBy("this.class")
     private static final Map<String, Map<Integer, WeakReferenceTaskInfoProvider>> NAME_TASKS = new LinkedHashMap<>();
-    private static final IFastIterableSet<ITaskInfoListener> LISTENERS = ILockCollectionFactory.getInstance(true)
+    @GuardedBy("this.class")
+    private static final IFastIterableSet<ITaskInfoListener> LISTENERS = ILockCollectionFactory.getInstance(false)
             .newFastIterableLinkedSet();
     private static final FastThreadLocal<Stack<WeakReferenceTaskInfoProvider>> CURRENT_THREAD_TASK_INFO_NAME = new FastThreadLocal<>();
     private static final int MAX_DESCRIPTIONS = 3;
@@ -250,7 +251,18 @@ public final class TaskInfoManager {
         return new TaskInfo(name, createdCount, startedCount, completedCount, tasksCount, progress, descriptions);
     }
 
-    public static IFastIterableSet<ITaskInfoListener> getListeners() {
-        return LISTENERS;
+    public static synchronized boolean registerListener(final ITaskInfoListener l) {
+        if (LISTENERS.add(l)) {
+            for (final String name : getTaskInfoNames()) {
+                l.onTaskInfoAdded(name);
+            }
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public static synchronized boolean unregisterListener(final ITaskInfoListener l) {
+        return LISTENERS.remove(l);
     }
 }
