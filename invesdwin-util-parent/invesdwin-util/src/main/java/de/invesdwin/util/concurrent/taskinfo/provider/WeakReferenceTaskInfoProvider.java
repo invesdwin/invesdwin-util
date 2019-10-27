@@ -80,4 +80,31 @@ public class WeakReferenceTaskInfoProvider implements ITaskInfoProvider {
         }
     }
 
+    public int getCreatedCount() {
+        final ITaskInfoProvider referent = reference.get();
+        if (referent != null) {
+            return referent.getCreatedCount();
+        } else {
+            return 0;
+        }
+    }
+
+    public int getStartedCount() {
+        final ITaskInfoProvider referent = reference.get();
+        if (referent != null) {
+            return referent.getStartedCount();
+        } else {
+            return 0;
+        }
+    }
+
+    public int getCompletedCount() {
+        final ITaskInfoProvider referent = reference.get();
+        if (referent != null) {
+            return referent.getCompletedCount();
+        } else {
+            return 1;
+        }
+    }
+
 }

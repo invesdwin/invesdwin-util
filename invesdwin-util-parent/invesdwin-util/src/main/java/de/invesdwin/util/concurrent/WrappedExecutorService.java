@@ -2,19 +2,22 @@ package de.invesdwin.util.concurrent;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
+import de.invesdwin.util.collections.factory.ILockCollectionFactory;
+import de.invesdwin.util.collections.fast.IFastIterableSet;
 import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 import de.invesdwin.util.concurrent.future.InterruptingFuture;
 import de.invesdwin.util.concurrent.internal.IWrappedExecutorServiceInternal;
@@ -61,13 +64,16 @@ public class WrappedExecutorService implements ExecutorService {
 
     };
     private final Lock pendingCountLock;
-    private final ALoadingCache<Long, Condition> pendingCount_limitListener = new ALoadingCache<Long, Condition>() {
+    private final ALoadingCache<Integer, Condition> pendingCount_condition = new ALoadingCache<Integer, Condition>() {
         @Override
-        protected Condition loadValue(final Long key) {
+        protected Condition loadValue(final Integer key) {
             return pendingCountLock.newCondition();
         }
     };
-    private final AtomicLong pendingCount = new AtomicLong();
+    private final IFastIterableSet<IPendingCountListener> pendingCountListeners = ILockCollectionFactory
+            .getInstance(true)
+            .newFastIterableLinkedSet();
+    private final AtomicInteger pendingCount = new AtomicInteger();
     private final Object pendingCountWaitLock = new Object();
     private final ExecutorService delegate;
     private volatile boolean logExceptions = true;
@@ -139,15 +145,24 @@ public class WrappedExecutorService implements ExecutorService {
         notifyPendingCountListeners(pendingCount.decrementAndGet());
     }
 
-    private void notifyPendingCountListeners(final Long currentPendingCount) {
+    private void notifyPendingCountListeners(final int currentPendingCount) {
         pendingCountLock.lock();
         try {
-            for (final Long limit : pendingCount_limitListener.keySet()) {
-                if (currentPendingCount <= limit) {
-                    final Condition condition = pendingCount_limitListener.get(limit);
-                    if (condition != null) {
-                        condition.signalAll();
+            if (!pendingCount_condition.isEmpty()) {
+                for (final Entry<Integer, Condition> e : pendingCount_condition.entrySet()) {
+                    final Integer limit = e.getKey();
+                    if (currentPendingCount <= limit) {
+                        final Condition condition = e.getValue();
+                        if (condition != null) {
+                            condition.signalAll();
+                        }
                     }
+                }
+            }
+            if (!pendingCountListeners.isEmpty()) {
+                final IPendingCountListener[] array = pendingCountListeners.asArray(IPendingCountListener.class);
+                for (int i = 0; i < array.length; i++) {
+                    array[i].onPendingCountChanged(currentPendingCount);
                 }
             }
         } finally {
@@ -240,7 +255,7 @@ public class WrappedExecutorService implements ExecutorService {
         return awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
     }
 
-    public long getPendingCount() {
+    public int getPendingCount() {
         return pendingCount.get();
     }
 
@@ -250,10 +265,10 @@ public class WrappedExecutorService implements ExecutorService {
      * WARNING: Pay attention when using this feature so that executors don't have circular task dependencies. If they
      * depend on each others pendingCount, this may cause a deadlock!
      */
-    public void awaitPendingCount(final long limit) throws InterruptedException {
+    public void awaitPendingCount(final int limit) throws InterruptedException {
         pendingCountLock.lock();
         try {
-            final Condition condition = pendingCount_limitListener.get(limit);
+            final Condition condition = pendingCount_condition.get(limit);
             while (getPendingCount() > limit) {
                 Threads.throwIfInterrupted();
                 condition.await();
@@ -340,6 +355,10 @@ public class WrappedExecutorService implements ExecutorService {
     public <T> T invokeAny(final Collection<? extends Callable<T>> tasks, final long timeout, final TimeUnit unit)
             throws InterruptedException, ExecutionException, TimeoutException {
         return getWrappedInstance().invokeAny(WrappedCallable.newInstance(internal, tasks), timeout, unit);
+    }
+
+    public IFastIterableSet<IPendingCountListener> getPendingCountListeners() {
+        return pendingCountListeners;
     }
 
 }

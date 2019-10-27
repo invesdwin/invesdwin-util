@@ -21,7 +21,6 @@ import de.invesdwin.util.collections.fast.IFastIterableSet;
 import de.invesdwin.util.concurrent.taskinfo.provider.ITaskInfoProvider;
 import de.invesdwin.util.concurrent.taskinfo.provider.TaskInfoStatus;
 import de.invesdwin.util.concurrent.taskinfo.provider.WeakReferenceTaskInfoProvider;
-import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.math.decimal.scaled.Percent;
 import io.netty.util.concurrent.FastThreadLocal;
@@ -188,26 +187,16 @@ public final class TaskInfoManager {
         int createdCount = 0;
         int startedCount = 0;
         int completedCount = 0;
-        int tasksCount = 0;
         double sumProgressRate = 0;
+        int progressCount = 0;
         Set<String> createdDescriptions = null;
         Set<String> startedDescriptions = null;
         for (final WeakReferenceTaskInfoProvider task : tasks) {
-            tasksCount++;
             final TaskInfoStatus status = task.getStatus();
-            switch (status) {
-            case CREATED:
-                createdCount++;
-                break;
-            case STARTED:
-                startedCount++;
-                break;
-            case COMPLETED:
-                completedCount++;
-                break;
-            default:
-                throw UnknownArgumentException.newInstance(TaskInfoStatus.class, status);
-            }
+            createdCount += task.getCreatedCount();
+            startedCount += task.getStartedCount();
+            completedCount += task.getCompletedCount();
+            progressCount++;
             if (status == TaskInfoStatus.COMPLETED) {
                 sumProgressRate += 1D;
             } else {
@@ -247,7 +236,8 @@ public final class TaskInfoManager {
         } else {
             descriptions = Collections.emptySet();
         }
-        final Percent progress = new Percent(sumProgressRate, tasksCount);
+        final Percent progress = new Percent(sumProgressRate, progressCount);
+        final int tasksCount = createdCount + startedCount + completedCount;
         return new TaskInfo(name, createdCount, startedCount, completedCount, tasksCount, progress, descriptions);
     }
 

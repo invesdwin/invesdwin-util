@@ -23,7 +23,7 @@ public final class TaskInfoCallable<V> implements IPriorityCallable<V>, ITaskInf
     private final Callable<V> delegate;
     private volatile TaskInfoStatus status;
     private final Callable<Percent> progress;
-    private volatile boolean inheritable;
+    private volatile boolean inheritable = true;
 
     private TaskInfoCallable(final String name, final Callable<V> delegate, final Callable<Percent> progress) {
         this.name = name;

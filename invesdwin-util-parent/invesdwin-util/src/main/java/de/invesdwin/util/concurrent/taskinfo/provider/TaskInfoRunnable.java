@@ -23,7 +23,7 @@ public final class TaskInfoRunnable implements IPriorityRunnable, ITaskInfoProvi
     private final Runnable delegate;
     private volatile TaskInfoStatus status;
     private final Callable<Percent> progress;
-    private volatile boolean inheritable;
+    private volatile boolean inheritable = true;
 
     private TaskInfoRunnable(final String name, final Runnable delegate, final Callable<Percent> progress) {
         this.name = name;
