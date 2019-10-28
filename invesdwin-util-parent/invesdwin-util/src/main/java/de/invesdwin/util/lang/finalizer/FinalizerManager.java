@@ -33,11 +33,7 @@ public final class FinalizerManager {
         public synchronized void cleanReference() {
             if (reference != null) {
                 finalizer = null;
-                final Set<ThreadLocalFinalizerReference> set = THREAD_LOCAL_FINALIZERS.get();
-                Assertions.checkTrue(set.remove(this));
-                if (set.isEmpty()) {
-                    THREAD_LOCAL_FINALIZERS.remove();
-                }
+                Assertions.checkTrue(THREAD_LOCAL_FINALIZERS.get().remove(this));
                 reference.cleanReference();
                 reference = null;
             }
