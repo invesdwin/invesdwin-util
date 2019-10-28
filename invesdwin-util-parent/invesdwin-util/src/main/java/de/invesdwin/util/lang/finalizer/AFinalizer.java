@@ -118,6 +118,11 @@ public abstract class AFinalizer implements Closeable, Runnable {
         this.reference = reference;
     }
 
+    /**
+     * Return true if this finalizer should be cleaned when the current thread context is left. This is useful to keep
+     * files/iterators as open as short as possible and to be able to release locks while still in the same thread.
+     * Otherwise finalization would fail.
+     */
     public abstract boolean isThreadLocal();
 
 }
