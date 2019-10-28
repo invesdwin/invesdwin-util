@@ -77,7 +77,8 @@ public final class FinalizerManager {
             Assertions.checkTrue(THREAD_LOCAL_FINALIZERS.get().add(this));
         }
 
-        public void setReference(final IFinalizerReference reference) {
+        //no need to synchronize here
+        private void setReference(final IFinalizerReference reference) {
             this.reference = reference;
         }
 
