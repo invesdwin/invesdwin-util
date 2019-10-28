@@ -11,7 +11,6 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.factory.ILockCollectionFactory;
-import de.invesdwin.util.lang.finalizer.AFinalizer;
 import de.invesdwin.util.lang.finalizer.FinalizerManager;
 import de.invesdwin.util.lang.finalizer.IFinalizerReference;
 import de.invesdwin.util.time.duration.Duration;
@@ -82,7 +81,7 @@ public class FallbackFinalizerManagerProvider implements IFinalizerManagerProvid
      * anymore because it is not a cheap way to handle the cleanup.
      */
     @Override
-    public IFinalizerReference register(final Object obj, final AFinalizer finalizer) {
+    public IFinalizerReference register(final Object obj, final Runnable finalizer) {
         Assertions.checkNotNull(obj);
         Assertions.checkNotNull(finalizer);
         final AutomaticCleanerReference reference = new AutomaticCleanerReference(obj, finalizer);

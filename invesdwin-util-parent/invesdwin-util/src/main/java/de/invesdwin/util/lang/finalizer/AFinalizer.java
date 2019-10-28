@@ -121,7 +121,7 @@ public abstract class AFinalizer implements Closeable, Runnable {
     /**
      * Return true if this finalizer should be cleaned when the current thread context is left. This is useful to keep
      * files/iterators as open as short as possible and to be able to release locks while still in the same thread.
-     * Otherwise finalization would fail.
+     * Otherwise finalization would fail. A cleanup can still happen earlier.
      */
     public abstract boolean isThreadLocal();
 

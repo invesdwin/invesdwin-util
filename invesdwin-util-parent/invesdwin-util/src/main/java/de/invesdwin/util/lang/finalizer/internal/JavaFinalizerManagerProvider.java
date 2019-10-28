@@ -11,7 +11,6 @@ import javax.annotation.concurrent.ThreadSafe;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.concurrent.Executors;
 import de.invesdwin.util.lang.Reflections;
-import de.invesdwin.util.lang.finalizer.AFinalizer;
 import de.invesdwin.util.lang.finalizer.FinalizerManager;
 import de.invesdwin.util.lang.finalizer.IFinalizerReference;
 
@@ -67,7 +66,7 @@ public class JavaFinalizerManagerProvider implements IFinalizerManagerProvider {
     }
 
     @Override
-    public IFinalizerReference register(final Object obj, final AFinalizer cleanableAction) {
+    public IFinalizerReference register(final Object obj, final Runnable cleanableAction) {
         try {
             final Object cleanable = CLEANER_REGISTER_METHOD.invoke(CLEANER, obj, cleanableAction);
             return new FinalizerReference(cleanable);

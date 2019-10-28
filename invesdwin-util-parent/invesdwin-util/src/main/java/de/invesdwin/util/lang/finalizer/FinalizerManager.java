@@ -56,10 +56,13 @@ public final class FinalizerManager {
                 throw t;
             }
         }
-        final IFinalizerReference reference = PROVIDER.register(obj, finalizer);
         if (finalizer.isThreadLocal()) {
-            return new ThreadLocalFinalizerReference(reference, finalizer);
+            final ThreadLocalFinalizerReference threadLocal = new ThreadLocalFinalizerReference(finalizer);
+            final IFinalizerReference reference = PROVIDER.register(obj, threadLocal);
+            threadLocal.setReference(reference);
+            return threadLocal;
         } else {
+            final IFinalizerReference reference = PROVIDER.register(obj, finalizer);
             return reference;
         }
     }
@@ -70,10 +73,13 @@ public final class FinalizerManager {
         @GuardedBy("this")
         private WeakReference<AFinalizer> finalizerRef;
 
-        private ThreadLocalFinalizerReference(final IFinalizerReference reference, final AFinalizer finalizer) {
-            this.referenceRef = new WeakReference<IFinalizerReference>(reference);
+        private ThreadLocalFinalizerReference(final AFinalizer finalizer) {
             this.finalizerRef = new WeakReference<AFinalizer>(finalizer);
             Assertions.checkTrue(THREAD_LOCAL_FINALIZERS.get().add(this));
+        }
+
+        public void setReference(final IFinalizerReference reference) {
+            this.referenceRef = new WeakReference<IFinalizerReference>(reference);
         }
 
         @Override
