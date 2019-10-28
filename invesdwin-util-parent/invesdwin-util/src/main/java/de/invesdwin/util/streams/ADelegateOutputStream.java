@@ -112,5 +112,10 @@ public abstract class ADelegateOutputStream extends OutputStream {
             return delegate == ClosedOutputStream.CLOSED_OUTPUT_STREAM;
         }
 
+        @Override
+        public boolean isThreadLocal() {
+            return true;
+        }
+
     }
 }

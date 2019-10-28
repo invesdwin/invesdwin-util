@@ -139,6 +139,11 @@ public abstract class ACloseableIterator<E> implements ICloseableIterator<E> {
             return closed;
         }
 
+        @Override
+        public boolean isThreadLocal() {
+            return true;
+        }
+
     }
 
 }

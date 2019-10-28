@@ -134,6 +134,11 @@ public abstract class ADelegateInputStream extends InputStream {
             return delegate == ClosedInputStream.CLOSED_INPUT_STREAM;
         }
 
+        @Override
+        public boolean isThreadLocal() {
+            return true;
+        }
+
     }
 
 }

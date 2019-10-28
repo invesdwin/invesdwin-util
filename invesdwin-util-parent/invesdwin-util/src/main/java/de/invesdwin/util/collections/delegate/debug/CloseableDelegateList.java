@@ -3,6 +3,7 @@ package de.invesdwin.util.collections.delegate.debug;
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
@@ -18,10 +19,12 @@ public class CloseableDelegateList<E> extends ADelegateList<E> implements Closea
 
     private final CloseableDelegateListFinalizer<E> finalizer;
 
-    public CloseableDelegateList(final List<E> delegate) {
+    public CloseableDelegateList(final List<E> delegate, final AtomicLong openReaders) {
         this.finalizer = new CloseableDelegateListFinalizer<E>();
         this.finalizer.register(this);
         this.finalizer.delegate = delegate;
+        this.finalizer.openReaders = openReaders;
+        openReaders.incrementAndGet();
     }
 
     @Override
@@ -31,6 +34,7 @@ public class CloseableDelegateList<E> extends ADelegateList<E> implements Closea
 
     private static final class CloseableDelegateListFinalizer<E> extends AFinalizer {
 
+        private AtomicLong openReaders;
         private List<E> delegate;
         private final boolean debugStackTraceEnabled = Throwables.isDebugStackTraceEnabled();
         private Exception initStackTrace;
@@ -47,6 +51,7 @@ public class CloseableDelegateList<E> extends ADelegateList<E> implements Closea
             if (delegate instanceof Closeable) {
                 Closeables.closeQuietly((Closeable) delegate);
             }
+            openReaders.decrementAndGet();
         }
 
         @Deprecated
@@ -75,6 +80,11 @@ public class CloseableDelegateList<E> extends ADelegateList<E> implements Closea
         @Override
         protected boolean isCleaned() {
             return closed;
+        }
+
+        @Override
+        public boolean isThreadLocal() {
+            return false;
         }
 
     }

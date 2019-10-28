@@ -99,6 +99,11 @@ public abstract class AParallelChunkConsumerIterator<R, E> extends ACloseableIte
             return consumerExecutor == null;
         }
 
+        @Override
+        public boolean isThreadLocal() {
+            return true;
+        }
+
     }
 
     @Override

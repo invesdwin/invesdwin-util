@@ -1,6 +1,5 @@
 package de.invesdwin.util.collections.delegate.debug;
 
-import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -131,16 +130,7 @@ public class DebugConcurrentModificationList<E> extends DelegateList<E> {
 
     @Override
     public List<E> subList(final int fromIndex, final int toIndex) {
-        openReaders.incrementAndGet();
-        return new CloseableDelegateList<E>(super.subList(fromIndex, toIndex)) {
-
-            @Override
-            public void close() throws IOException {
-                super.close();
-                openReaders.decrementAndGet();
-            }
-
-        };
+        return new CloseableDelegateList<E>(super.subList(fromIndex, toIndex), openReaders);
     }
 
 }

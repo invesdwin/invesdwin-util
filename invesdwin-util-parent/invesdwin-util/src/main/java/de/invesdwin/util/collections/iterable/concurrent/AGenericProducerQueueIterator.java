@@ -219,6 +219,11 @@ public abstract class AGenericProducerQueueIterator<E> extends ACloseableIterato
             return cleaned;
         }
 
+        @Override
+        public boolean isThreadLocal() {
+            return true;
+        }
+
     }
 
     @Override

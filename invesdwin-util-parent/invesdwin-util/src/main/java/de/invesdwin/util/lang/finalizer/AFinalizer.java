@@ -118,4 +118,6 @@ public abstract class AFinalizer implements Closeable, Runnable {
         this.reference = reference;
     }
 
+    public abstract boolean isThreadLocal();
+
 }

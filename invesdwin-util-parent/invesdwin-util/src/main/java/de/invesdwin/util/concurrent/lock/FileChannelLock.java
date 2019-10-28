@@ -184,6 +184,11 @@ public class FileChannelLock implements Closeable, ILock {
             return !locked;
         }
 
+        @Override
+        public boolean isThreadLocal() {
+            return false;
+        }
+
     }
 
     @Deprecated
