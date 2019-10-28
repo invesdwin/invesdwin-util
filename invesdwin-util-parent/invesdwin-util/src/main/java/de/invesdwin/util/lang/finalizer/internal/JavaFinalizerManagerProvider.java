@@ -43,17 +43,17 @@ public class JavaFinalizerManagerProvider implements IFinalizerManagerProvider {
         }
     }
 
-    private static final class FubakuterReference implements IFinalizerReference {
+    private static final class FinalizerReference implements IFinalizerReference {
 
         private Object cleanable;
 
-        private FubakuterReference(final Object cleanable) {
+        private FinalizerReference(final Object cleanable) {
             Assertions.checkNotNull(cleanable);
             this.cleanable = cleanable;
         }
 
         @Override
-        public void cleanReference() {
+        public synchronized void cleanReference() {
             if (cleanable != null) {
                 try {
                     CLEANABLE_CLEAN_METHOD.invoke(cleanable);
@@ -70,7 +70,7 @@ public class JavaFinalizerManagerProvider implements IFinalizerManagerProvider {
     public IFinalizerReference register(final Object obj, final AFinalizer cleanableAction) {
         try {
             final Object cleanable = CLEANER_REGISTER_METHOD.invoke(CLEANER, obj, cleanableAction);
-            return new FubakuterReference(cleanable);
+            return new FinalizerReference(cleanable);
         } catch (final Throwable e) {
             throw new RuntimeException(e);
         }

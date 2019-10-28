@@ -1,5 +1,6 @@
 package de.invesdwin.util.lang.finalizer;
 
+import java.lang.ref.WeakReference;
 import java.util.Set;
 
 import javax.annotation.concurrent.GuardedBy;
@@ -16,37 +17,6 @@ import io.netty.util.concurrent.FastThreadLocal;
 
 @ThreadSafe
 public final class FinalizerManager {
-
-    private static final class ThreadLocalFinalizerReference implements IFinalizerReference, Runnable {
-        @GuardedBy("this")
-        private IFinalizerReference reference;
-        @GuardedBy("this")
-        private AFinalizer finalizer;
-
-        private ThreadLocalFinalizerReference(final IFinalizerReference reference, final AFinalizer finalizer) {
-            this.reference = reference;
-            this.finalizer = finalizer;
-            Assertions.checkTrue(THREAD_LOCAL_FINALIZERS.get().add(this));
-        }
-
-        @Override
-        public synchronized void cleanReference() {
-            if (reference != null) {
-                finalizer = null;
-                Assertions.checkTrue(THREAD_LOCAL_FINALIZERS.get().remove(this));
-                reference.cleanReference();
-                reference = null;
-            }
-        }
-
-        @SuppressWarnings("deprecation")
-        @Override
-        public synchronized void run() {
-            if (finalizer != null) {
-                finalizer.run();
-            }
-        }
-    }
 
     private static final org.slf4j.ext.XLogger LOG = org.slf4j.ext.XLoggerFactory.getXLogger(FinalizerManager.class);
 
@@ -91,6 +61,48 @@ public final class FinalizerManager {
             return new ThreadLocalFinalizerReference(reference, finalizer);
         } else {
             return reference;
+        }
+    }
+
+    private static final class ThreadLocalFinalizerReference implements IFinalizerReference, Runnable {
+        @GuardedBy("this")
+        private WeakReference<IFinalizerReference> referenceRef;
+        @GuardedBy("this")
+        private WeakReference<AFinalizer> finalizerRef;
+
+        private ThreadLocalFinalizerReference(final IFinalizerReference reference, final AFinalizer finalizer) {
+            this.referenceRef = new WeakReference<IFinalizerReference>(reference);
+            this.finalizerRef = new WeakReference<AFinalizer>(finalizer);
+            Assertions.checkTrue(THREAD_LOCAL_FINALIZERS.get().add(this));
+        }
+
+        @Override
+        public synchronized void cleanReference() {
+            if (referenceRef != null) {
+                cleanReferenceLocked();
+            }
+        }
+
+        private void cleanReferenceLocked() {
+            finalizerRef = null;
+            Assertions.checkTrue(THREAD_LOCAL_FINALIZERS.get().remove(this));
+            final IFinalizerReference reference = referenceRef.get();
+            if (reference != null) {
+                reference.cleanReference();
+            }
+            referenceRef = null;
+        }
+
+        @SuppressWarnings("deprecation")
+        @Override
+        public synchronized void run() {
+            if (finalizerRef != null) {
+                final AFinalizer finalizer = finalizerRef.get();
+                if (finalizer != null) {
+                    finalizer.run();
+                }
+                cleanReferenceLocked();
+            }
         }
     }
 
