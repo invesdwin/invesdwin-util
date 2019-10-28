@@ -1,6 +1,5 @@
 package de.invesdwin.util.lang.finalizer;
 
-import java.lang.ref.WeakReference;
 import java.util.Set;
 
 import javax.annotation.concurrent.GuardedBy;
@@ -69,44 +68,38 @@ public final class FinalizerManager {
 
     private static final class ThreadLocalFinalizerReference implements IFinalizerReference, Runnable {
         @GuardedBy("this")
-        private WeakReference<IFinalizerReference> referenceRef;
+        private IFinalizerReference reference;
         @GuardedBy("this")
-        private WeakReference<AFinalizer> finalizerRef;
+        private AFinalizer finalizer;
 
         private ThreadLocalFinalizerReference(final AFinalizer finalizer) {
-            this.finalizerRef = new WeakReference<AFinalizer>(finalizer);
+            this.finalizer = finalizer;
             Assertions.checkTrue(THREAD_LOCAL_FINALIZERS.get().add(this));
         }
 
         public void setReference(final IFinalizerReference reference) {
-            this.referenceRef = new WeakReference<IFinalizerReference>(reference);
+            this.reference = reference;
         }
 
         @Override
         public synchronized void cleanReference() {
-            if (referenceRef != null) {
+            if (reference != null) {
                 cleanReferenceLocked();
             }
         }
 
         private void cleanReferenceLocked() {
-            finalizerRef = null;
+            finalizer = null;
             Assertions.checkTrue(THREAD_LOCAL_FINALIZERS.get().remove(this));
-            final IFinalizerReference reference = referenceRef.get();
-            if (reference != null) {
-                reference.cleanReference();
-            }
-            referenceRef = null;
+            reference.cleanReference();
+            reference = null;
         }
 
         @SuppressWarnings("deprecation")
         @Override
         public synchronized void run() {
-            if (finalizerRef != null) {
-                final AFinalizer finalizer = finalizerRef.get();
-                if (finalizer != null) {
-                    finalizer.run();
-                }
+            if (finalizer != null) {
+                finalizer.run();
                 cleanReferenceLocked();
             }
         }
