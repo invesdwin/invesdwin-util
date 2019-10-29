@@ -1,5 +1,6 @@
 package de.invesdwin.util.math;
 
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -156,6 +157,32 @@ public final class Booleans extends ABooleansStaticFacade {
             final List<? extends List<? extends Boolean>> matrix, final Boolean missingValue,
             final boolean appendMissingValues) {
         return Objects.fixInconsistentMatrixDimensionsAsList(matrix, missingValue, appendMissingValues);
+    }
+
+    public static void putBoolean(final ByteBuffer buffer, final Boolean value) {
+        if (value == null) {
+            buffer.put(Byte.MIN_VALUE);
+        } else {
+            buffer.put(Bytes.checkedCast(value));
+        }
+    }
+
+    public static Boolean extractBoolean(final ByteBuffer buffer, final int index) {
+        final byte value = buffer.get(index);
+        return extractBoolean(value);
+    }
+
+    public static Boolean extractBoolean(final ByteBuffer buffer) {
+        final byte value = buffer.get();
+        return extractBoolean(value);
+    }
+
+    public static Boolean extractBoolean(final byte value) {
+        if (value == Byte.MIN_VALUE) {
+            return null;
+        } else {
+            return Booleans.checkedCast(value);
+        }
     }
 
 }
