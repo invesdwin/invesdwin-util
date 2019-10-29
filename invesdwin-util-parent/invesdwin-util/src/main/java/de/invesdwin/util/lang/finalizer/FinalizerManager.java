@@ -67,9 +67,9 @@ public final class FinalizerManager {
     }
 
     private static final class ThreadLocalFinalizerReference implements IFinalizerReference, Runnable {
-        @GuardedBy("this")
+        @GuardedBy("finalizer")
         private IFinalizerReference reference;
-        @GuardedBy("this")
+        @GuardedBy("finalizer")
         private AFinalizer finalizer;
 
         private ThreadLocalFinalizerReference(final AFinalizer finalizer) {
@@ -83,9 +83,14 @@ public final class FinalizerManager {
         }
 
         @Override
-        public synchronized void cleanReference() {
-            if (reference != null) {
-                cleanReferenceLocked();
+        public void cleanReference() {
+            final AFinalizer sync = finalizer;
+            if (sync != null) {
+                synchronized (sync) {
+                    if (finalizer != null) {
+                        cleanReferenceLocked();
+                    }
+                }
             }
         }
 
@@ -98,10 +103,15 @@ public final class FinalizerManager {
 
         @SuppressWarnings("deprecation")
         @Override
-        public synchronized void run() {
-            if (finalizer != null) {
-                finalizer.run();
-                cleanReferenceLocked();
+        public void run() {
+            final AFinalizer sync = finalizer;
+            if (sync != null) {
+                synchronized (sync) {
+                    if (finalizer != null) {
+                        finalizer.run();
+                        cleanReferenceLocked();
+                    }
+                }
             }
         }
     }
