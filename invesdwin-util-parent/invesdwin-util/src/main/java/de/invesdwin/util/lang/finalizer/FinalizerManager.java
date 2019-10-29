@@ -5,7 +5,6 @@ import java.util.Set;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
-import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.lang.Reflections;
@@ -74,7 +73,7 @@ public final class FinalizerManager {
 
         private ThreadLocalFinalizerReference(final AFinalizer finalizer) {
             this.finalizer = finalizer;
-            Assertions.checkTrue(THREAD_LOCAL_FINALIZERS.get().add(this));
+            THREAD_LOCAL_FINALIZERS.get().add(this);
         }
 
         //no need to synchronize here
@@ -96,7 +95,7 @@ public final class FinalizerManager {
 
         private void cleanReferenceLocked() {
             finalizer = null;
-            Assertions.checkTrue(THREAD_LOCAL_FINALIZERS.get().remove(this));
+            THREAD_LOCAL_FINALIZERS.get().remove(this);
             reference.cleanReference();
             reference = null;
         }
