@@ -27,15 +27,24 @@ public abstract class ABufferingRetrievalCloseableIterable<T> implements IClosea
 
             private FDate curDate = fromDate;
             private IBufferingIterator<? extends T> curList = queryNext(curDate, getFirstRetrievalCount());
+            private boolean wasFullResponse = curList.size() >= getFirstRetrievalCount();
 
             private IBufferingIterator<? extends T> getList() {
                 if (curList == null) {
                     return null;
                 }
                 if (curList.isEmpty()) {
-                    curList = queryNext(curDate.addMilliseconds(1), retrievalCount);
-                    if (curList.isEmpty()) {
-                        close();
+                    final FDate nextDate = curDate.addMilliseconds(1);
+                    if (!wasFullResponse || nextDate.isAfter(toDate)) {
+                        close(); // end reached
+                    } else {
+                        curList = queryNext(nextDate, retrievalCount);
+                        if (curList.isEmpty()) {
+                            wasFullResponse = false;
+                            close();
+                        } else {
+                            wasFullResponse = curList.size() >= retrievalCount;
+                        }
                     }
                 }
                 return curList;
@@ -55,11 +64,18 @@ public abstract class ABufferingRetrievalCloseableIterable<T> implements IClosea
             public T next() {
                 final IBufferingIterator<? extends T> list = getList();
                 if (list == null) {
-                    throw new FastNoSuchElementException("ARedirectingCloseableIterable: list is null");
+                    throw new FastNoSuchElementException("ABufferingRetrievalCloseableIterable: list is null");
                 }
                 final T next = list.next();
-                curDate = extractTime(next);
-                return next;
+                final FDate nextDate = extractTime(next);
+                if (curDate.equals(nextDate)) {
+                    close();
+                    throw new FastNoSuchElementException(
+                            "ABufferingRetrievalCloseableIterable: nextDate is same as curDate");
+                } else {
+                    curDate = nextDate;
+                    return next;
+                }
             }
 
             @Override
