@@ -150,10 +150,14 @@ public class FallbackFinalizerManagerProvider implements IFinalizerManagerProvid
         }
 
         @Override
-        public synchronized void cleanReference() {
+        public void cleanReference() {
             if (reference != null) {
-                reference.clear();
-                reference = null;
+                synchronized (this) {
+                    if (reference != null) {
+                        reference.clear();
+                        reference = null;
+                    }
+                }
             }
         }
 

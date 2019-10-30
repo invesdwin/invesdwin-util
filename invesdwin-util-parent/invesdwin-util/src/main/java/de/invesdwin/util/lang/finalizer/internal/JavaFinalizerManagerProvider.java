@@ -52,13 +52,17 @@ public class JavaFinalizerManagerProvider implements IFinalizerManagerProvider {
         }
 
         @Override
-        public synchronized void cleanReference() {
+        public void cleanReference() {
             if (cleanable != null) {
-                try {
-                    CLEANABLE_CLEAN_METHOD.invoke(cleanable);
-                    cleanable = null;
-                } catch (final Throwable e) {
-                    throw new RuntimeException(e);
+                synchronized (this) {
+                    if (cleanable != null) {
+                        try {
+                            CLEANABLE_CLEAN_METHOD.invoke(cleanable);
+                            cleanable = null;
+                        } catch (final Throwable e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
                 }
             }
         }

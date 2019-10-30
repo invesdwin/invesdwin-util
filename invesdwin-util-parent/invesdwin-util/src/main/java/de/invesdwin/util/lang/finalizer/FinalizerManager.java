@@ -5,7 +5,6 @@ import java.util.Set;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
-import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.lang.Reflections;
@@ -67,14 +66,14 @@ public final class FinalizerManager {
     }
 
     private static final class ThreadLocalFinalizerReference implements IFinalizerReference, Runnable {
-        @GuardedBy("this")
+        @GuardedBy("finalizer")
         private IFinalizerReference reference;
-        @GuardedBy("this")
+        @GuardedBy("finalizer")
         private AFinalizer finalizer;
 
         private ThreadLocalFinalizerReference(final AFinalizer finalizer) {
             this.finalizer = finalizer;
-            Assertions.checkTrue(THREAD_LOCAL_FINALIZERS.get().add(this));
+            THREAD_LOCAL_FINALIZERS.get().add(this);
         }
 
         //no need to synchronize here
@@ -83,25 +82,35 @@ public final class FinalizerManager {
         }
 
         @Override
-        public synchronized void cleanReference() {
-            if (reference != null) {
-                cleanReferenceLocked();
+        public void cleanReference() {
+            final AFinalizer sync = finalizer;
+            if (sync != null) {
+                synchronized (sync) {
+                    if (finalizer != null) {
+                        cleanReferenceLocked();
+                    }
+                }
             }
         }
 
         private void cleanReferenceLocked() {
             finalizer = null;
-            Assertions.checkTrue(THREAD_LOCAL_FINALIZERS.get().remove(this));
+            THREAD_LOCAL_FINALIZERS.get().remove(this);
             reference.cleanReference();
             reference = null;
         }
 
         @SuppressWarnings("deprecation")
         @Override
-        public synchronized void run() {
-            if (finalizer != null) {
-                finalizer.run();
-                cleanReferenceLocked();
+        public void run() {
+            final AFinalizer sync = finalizer;
+            if (sync != null) {
+                synchronized (sync) {
+                    if (finalizer != null) {
+                        finalizer.run();
+                        cleanReferenceLocked();
+                    }
+                }
             }
         }
     }
