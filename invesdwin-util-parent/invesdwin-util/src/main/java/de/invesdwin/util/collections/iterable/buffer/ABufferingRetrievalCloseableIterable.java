@@ -27,6 +27,10 @@ public abstract class ABufferingRetrievalCloseableIterable<T> implements IClosea
 
             private FDate curDate = fromDate;
             private IBufferingIterator<? extends T> curList = queryNext(curDate, getFirstRetrievalCount());
+            /*
+             * If we got more than requested, then we might have gotten the whole dataset (or something is buggy
+             * downstream). In that case it is ok to not request another list.
+             */
             private boolean wasFullResponse = curList.size() == getFirstRetrievalCount();
 
             private IBufferingIterator<? extends T> getList() {
@@ -51,7 +55,12 @@ public abstract class ABufferingRetrievalCloseableIterable<T> implements IClosea
             }
 
             private IBufferingIterator<? extends T> queryNext(final FDate fromDate, final Integer retrievalCount) {
-                return query(fromDate, toDate, retrievalCount);
+                final IBufferingIterator<? extends T> list = query(fromDate, toDate, retrievalCount);
+                if (retrievalCount != null && list.size() > retrievalCount) {
+                    throw new IllegalStateException(
+                            "Got more results [" + list.size() + "] than requested [" + retrievalCount + "]");
+                }
+                return list;
             }
 
             @Override
