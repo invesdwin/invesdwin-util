@@ -27,7 +27,7 @@ public abstract class ABufferingRetrievalCloseableIterable<T> implements IClosea
 
             private FDate curDate = fromDate;
             private IBufferingIterator<? extends T> curList = queryNext(curDate, getFirstRetrievalCount());
-            private boolean wasFullResponse = curList.size() == getFirstRetrievalCount();
+            private boolean wasFullResponse = curList.size() >= getFirstRetrievalCount();
 
             private IBufferingIterator<? extends T> getList() {
                 if (curList == null) {
@@ -43,7 +43,7 @@ public abstract class ABufferingRetrievalCloseableIterable<T> implements IClosea
                             wasFullResponse = false;
                             close();
                         } else {
-                            wasFullResponse = curList.size() == retrievalCount;
+                            wasFullResponse = curList.size() >= retrievalCount;
                         }
                     }
                 }
