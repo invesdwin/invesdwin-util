@@ -10,6 +10,7 @@ import java.util.Map.Entry;
 
 import javax.annotation.concurrent.Immutable;
 
+import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 import de.invesdwin.util.math.decimal.Decimal;
 import io.netty.util.concurrent.FastThreadLocal;
@@ -93,12 +94,19 @@ public final class Currencies {
      */
     public static String formatMoney(final Locale locale, final String currencyCode, final Decimal price) {
         String str = NUMBER_FORMAT.get(locale).get().format(price);
-        str += " " + formatCurrencyCode(currencyCode);
+        str += " " + getSymbol(currencyCode);
         return str;
     }
 
-    public static String formatCurrencyCode(final String currencyCode) {
-        final String currencySymbol = CURRENCY_CODE_2_CURRENCY_SYMBOL.get(currencyCode);
+    public static String getSymbol(final String currencyCode) {
+        final Currency currency = Currencies.getInstanceOrNull(currencyCode);
+        final String symbol;
+        if (currency != null) {
+            symbol = currency.getSymbol();
+        } else {
+            symbol = currencyCode;
+        }
+        final String currencySymbol = CURRENCY_CODE_2_CURRENCY_SYMBOL.get(symbol);
         if (currencySymbol != null) {
             return currencySymbol;
         } else {
@@ -140,6 +148,15 @@ public final class Currencies {
         }
     }
 
+    public static void putCurrencyCode(final ByteBuffer buffer, final String currencyCode) {
+        if (currencyCode == null) {
+            buffer.put("___".getBytes());
+        } else {
+            Assertions.checkEquals(3, currencyCode.length());
+            buffer.put(currencyCode.getBytes());
+        }
+    }
+
     public static Currency extractCurrency(final ByteBuffer buffer, final int index) {
         final byte[] bytes = new byte[3];
         buffer.get(bytes);
@@ -148,6 +165,17 @@ public final class Currencies {
             return null;
         } else {
             return getInstance(currencyCode);
+        }
+    }
+
+    public static String extractCurrencyCode(final ByteBuffer buffer, final int index) {
+        final byte[] bytes = new byte[3];
+        buffer.get(bytes);
+        final String currencyCode = new String(bytes);
+        if ("___".equals(currencyCode)) {
+            return null;
+        } else {
+            return currencyCode;
         }
     }
 
