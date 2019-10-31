@@ -13,8 +13,7 @@ import java.util.concurrent.locks.Condition;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
-import org.apache.commons.io.FileUtils;
-
+import de.invesdwin.util.lang.Files;
 import de.invesdwin.util.lang.finalizer.AFinalizer;
 import de.invesdwin.util.time.Instant;
 import de.invesdwin.util.time.duration.Duration;
@@ -75,8 +74,8 @@ public class FileChannelLock implements Closeable, ILock {
                 return true;
             }
             if (!finalizer.file.exists()) {
-                FileUtils.forceMkdirParent(finalizer.file);
-                FileUtils.touch(finalizer.file);
+                Files.forceMkdirParent(finalizer.file);
+                Files.touch(finalizer.file);
             }
             // Get a file channel for the file
             finalizer.raf = new RandomAccessFile(finalizer.file, "rw");
