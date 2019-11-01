@@ -7,14 +7,15 @@ public abstract class ADelegateCloseableIterator<E> implements ICloseableIterato
 
     private ICloseableIterator<E> delegate;
 
+    @SuppressWarnings("unchecked")
     protected ICloseableIterator<E> getDelegate() {
         if (delegate == null) {
-            delegate = newDelegate();
+            delegate = (ICloseableIterator<E>) newDelegate();
         }
         return delegate;
     }
 
-    protected abstract ICloseableIterator<E> newDelegate();
+    protected abstract ICloseableIterator<? extends E> newDelegate();
 
     @Override
     public boolean hasNext() {
