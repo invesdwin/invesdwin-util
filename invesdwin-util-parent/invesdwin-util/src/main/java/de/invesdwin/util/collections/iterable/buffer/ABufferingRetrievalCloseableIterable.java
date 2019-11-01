@@ -85,7 +85,7 @@ public abstract class ABufferingRetrievalCloseableIterable<T> implements IClosea
                 final T next = list.next();
                 final FDate nextDate = extractTime(next);
                 if (nextDate == null) {
-                    throw new IllegalStateException("nextDate is null for " + next);
+                    throw new IllegalStateException("nextDate is null for [" + next + "]");
                 }
                 if (!curDate.equals(fromDate) && curDate.equals(nextDate)) {
                     close();
