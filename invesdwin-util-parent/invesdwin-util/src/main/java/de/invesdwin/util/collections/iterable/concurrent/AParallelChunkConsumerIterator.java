@@ -60,7 +60,8 @@ public abstract class AParallelChunkConsumerIterator<R, E> extends ACloseableIte
         }
         final Future<E> future = futures.remove(0);
         try {
-            return Futures.get(future);
+            final E result = Futures.get(future);
+            return result;
         } catch (final InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new FastNoSuchElementException("AParallelChunkConsumerIterator: InterrupedException received");
