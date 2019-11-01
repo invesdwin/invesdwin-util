@@ -36,7 +36,7 @@ public abstract class ASkippingIterator<E> implements ICloseableIterator<E> {
             return cachedReadNext;
         } else {
             try {
-                while (delegate.hasNext()) {
+                while (true) {
                     final E next = delegate.next();
                     if (!skip(next)) {
                         cachedReadNext = next;
@@ -46,7 +46,6 @@ public abstract class ASkippingIterator<E> implements ICloseableIterator<E> {
                 //catching nosuchelement might be faster sometimes than checking hasNext(), e.g. for LevelDB
             } catch (final NoSuchElementException e) {
                 close();
-                return null;
             }
             return cachedReadNext;
         }

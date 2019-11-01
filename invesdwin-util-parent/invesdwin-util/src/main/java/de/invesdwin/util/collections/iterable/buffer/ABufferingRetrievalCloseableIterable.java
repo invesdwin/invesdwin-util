@@ -25,8 +25,13 @@ public abstract class ABufferingRetrievalCloseableIterable<T> implements IClosea
     public ICloseableIterator<T> iterator() {
         return new ICloseableIterator<T>() {
 
-            private FDate curDate = fromDate;
-            private IBufferingIterator<? extends T> curList = queryNext(curDate, getFirstRetrievalCount());
+            private FDate curDate = null;
+            private IBufferingIterator<? extends T> curList = new ADelegateBufferingIterator<T>() {
+                @Override
+                protected IBufferingIterator<? extends T> newDelegate() {
+                    return queryNext(fromDate, getFirstRetrievalCount());
+                }
+            };
             /*
              * If we got more than requested, then we might have gotten the whole dataset (or something is buggy
              * downstream). In that case it is ok to not request another list.
@@ -77,7 +82,7 @@ public abstract class ABufferingRetrievalCloseableIterable<T> implements IClosea
                 }
                 final T next = list.next();
                 final FDate nextDate = extractTime(next);
-                if (curDate.equals(nextDate)) {
+                if (curDate != null && curDate.equals(nextDate)) {
                     close();
                     throw new FastNoSuchElementException(
                             "ABufferingRetrievalCloseableIterable: nextDate is same as curDate");
