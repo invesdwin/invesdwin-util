@@ -38,7 +38,10 @@ public abstract class ASkippingIterator<E> implements ICloseableIterator<E> {
             try {
                 while (true) {
                     final E next = delegate.next();
-                    if (!skip(next)) {
+                    if (next == null) {
+                        close();
+                        return cachedReadNext;
+                    } else if (!skip(next)) {
                         cachedReadNext = next;
                         break;
                     }
