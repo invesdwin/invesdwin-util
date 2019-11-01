@@ -2,6 +2,7 @@ package de.invesdwin.util.collections.iterable.buffer;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.error.FastNoSuchElementException;
@@ -16,6 +17,7 @@ public abstract class ABufferingRetrievalCloseableIterable<T> implements IClosea
 
     public ABufferingRetrievalCloseableIterable(final FDate fromDate, final FDate toDate,
             final Integer retrievalCount) {
+        Assertions.checkNotNull(fromDate);
         this.fromDate = fromDate;
         this.toDate = toDate;
         this.retrievalCount = retrievalCount;
@@ -82,6 +84,9 @@ public abstract class ABufferingRetrievalCloseableIterable<T> implements IClosea
                 }
                 final T next = list.next();
                 final FDate nextDate = extractTime(next);
+                if (nextDate == null) {
+                    throw new IllegalStateException("nextDate is null for " + next);
+                }
                 if (!curDate.equals(fromDate) && curDate.equals(nextDate)) {
                     close();
                     throw new FastNoSuchElementException(
