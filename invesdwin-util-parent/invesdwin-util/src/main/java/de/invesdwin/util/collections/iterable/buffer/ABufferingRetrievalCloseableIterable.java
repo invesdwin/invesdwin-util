@@ -25,11 +25,11 @@ public abstract class ABufferingRetrievalCloseableIterable<T> implements IClosea
     public ICloseableIterator<T> iterator() {
         return new ICloseableIterator<T>() {
 
-            private FDate curDate = null;
+            private FDate curDate = fromDate;
             private IBufferingIterator<? extends T> curList = new ADelegateBufferingIterator<T>() {
                 @Override
                 protected IBufferingIterator<? extends T> newDelegate() {
-                    return queryNext(fromDate, getFirstRetrievalCount());
+                    return queryNext(curDate, getFirstRetrievalCount());
                 }
             };
             /*
@@ -82,7 +82,7 @@ public abstract class ABufferingRetrievalCloseableIterable<T> implements IClosea
                 }
                 final T next = list.next();
                 final FDate nextDate = extractTime(next);
-                if (curDate != null && curDate.equals(nextDate)) {
+                if (!curDate.equals(fromDate) && curDate.equals(nextDate)) {
                     close();
                     throw new FastNoSuchElementException(
                             "ABufferingRetrievalCloseableIterable: nextDate is same as curDate");
