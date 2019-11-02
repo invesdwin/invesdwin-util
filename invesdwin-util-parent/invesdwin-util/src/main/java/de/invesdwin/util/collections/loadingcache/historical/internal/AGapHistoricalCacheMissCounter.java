@@ -12,6 +12,8 @@ import de.invesdwin.util.time.fdate.FTimeUnit;
 @NotThreadSafe
 public abstract class AGapHistoricalCacheMissCounter<V> {
 
+    private static final int MIN_SAMPLES_FOR_AVG_ELEMENTS_DISTANCE = AGapHistoricalCache.DEFAULT_READ_BACK_STEP_ELEMENTS;
+    private static final int MAX_SAMPLES_FOR_AVG_ELEMENTS_DISTANCE = 100_000;
     private static final int OPTIMAL_MULTIPLICATOR = 2;
     private static final int MAX_SUCCESSIVE_CACHE_EVICTIONS = 2;
     private static final org.slf4j.ext.XLogger LOG = org.slf4j.ext.XLoggerFactory
@@ -100,7 +102,7 @@ public abstract class AGapHistoricalCacheMissCounter<V> {
 
     private long determineNewOptimalReadBackStepMillis() {
         final long readBackStepMillis;
-        if (avgElementDistance.getCount() >= AGapHistoricalCache.DEFAULT_READ_BACK_STEP_ELEMENTS) {
+        if (avgElementDistance.getCount() >= MIN_SAMPLES_FOR_AVG_ELEMENTS_DISTANCE) {
             readBackStepMillis = (long) (avgElementDistance.getAvg()
                     * AGapHistoricalCache.DEFAULT_READ_BACK_STEP_ELEMENTS);
         } else {
@@ -121,7 +123,9 @@ public abstract class AGapHistoricalCacheMissCounter<V> {
     }
 
     public void recordElementDistance(final FDate prev, final FDate next) {
-        avgElementDistance.process(avgElementDistance.process(next.millisValue() - prev.millisValue()));
+        if (avgElementDistance.getCount() < MAX_SAMPLES_FOR_AVG_ELEMENTS_DISTANCE) {
+            avgElementDistance.process(next.millisValue() - prev.millisValue());
+        }
     }
 
 }
