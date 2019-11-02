@@ -569,7 +569,7 @@ public final class Doubles extends ADoublesStaticFacade {
         if (isInfinite(value)) {
             return 0D;
         } else {
-            return 0;
+            return value;
         }
     }
 
@@ -579,6 +579,13 @@ public final class Doubles extends ADoublesStaticFacade {
         } else {
             return 0;
         }
+    }
+
+    /**
+     * https://stats.stackexchange.com/questions/70801/how-to-normalize-data-to-0-1-range
+     */
+    public static double normalize(final double value, final double min, final double max) {
+        return infinityToZero((value - min) / (max - min));
     }
 
 }

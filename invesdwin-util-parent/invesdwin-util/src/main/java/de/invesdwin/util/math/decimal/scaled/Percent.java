@@ -197,4 +197,12 @@ public class Percent extends AScaledDecimal<Percent, PercentScale> {
         }
     }
 
+    public static <T extends ADecimal<?>> Percent normalize(final T value, final T min, final T max) {
+        return normalize(value.getDefaultValue(), min.getDefaultValue(), max.getDefaultValue());
+    }
+
+    public static Percent normalize(final double value, final double min, final double max) {
+        return new Percent(Doubles.normalize(value, min, max), PercentScale.RATE);
+    }
+
 }
