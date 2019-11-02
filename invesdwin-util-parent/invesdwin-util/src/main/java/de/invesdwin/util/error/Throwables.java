@@ -112,11 +112,36 @@ public final class Throwables extends AThrowablesStaticFacade {
     }
 
     /**
-     * Prints the first stack trace element with the exception info
+     * Prints the first X stack trace elements with the exception info
      */
-    public static String getShortStackTrace(final Throwable e) {
-        final StackTraceElement stackTraceElement = e.getStackTrace()[0];
-        return e.toString() + " -> " + stackTraceElement;
+    public static String getShortStackTrace(final Throwable e, final int maxStacks) {
+        final StringBuilder sb = new StringBuilder(e.toString());
+        final StackTraceElement[] stackTrace = e.getStackTrace();
+        for (int i = 0; i < maxStacks && i < stackTrace.length; i++) {
+            final StackTraceElement stackTraceElement = stackTrace[i];
+            sb.append(" -> ");
+            sb.append(stackTraceElement);
+        }
+        return sb.toString();
+    }
+
+    /**
+     * Prints the first X stack trace elements with the exception info filtered by base packages
+     */
+    public static String getShortStackTrace(final Throwable e, final int maxBasePackageStacks,
+            final String[] basePackages) {
+        final StringBuilder sb = new StringBuilder(e.toString());
+        final StackTraceElement[] stackTrace = e.getStackTrace();
+        int basePackageStacks = 0;
+        for (int i = 0; basePackageStacks <= maxBasePackageStacks && i < stackTrace.length; i++) {
+            final String stackTraceElement = stackTrace[i].toString();
+            sb.append(" -> ");
+            sb.append(stackTraceElement);
+            if (Strings.startsWithAny(stackTraceElement, basePackages)) {
+                basePackageStacks++;
+            }
+        }
+        return sb.toString();
     }
 
     public static RuntimeException newUnexpectedHereException(final Class<?> location, final Throwable e) {
