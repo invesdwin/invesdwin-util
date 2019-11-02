@@ -904,9 +904,9 @@ public class AGapHistoricalCacheWithNoCacheAndNoQueryCacheTest {
             final List<FDate> expectedValues = entities.subList(0, index + 1);
             Assertions.assertThat(previousValues).isEqualTo(expectedValues);
         }
-        Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(10);
-        Assertions.assertThat(countReadNewestValueTo).isEqualTo(8);
-        Assertions.assertThat(countInnerExtractKey).isEqualTo(10);
+        Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(12);
+        Assertions.assertThat(countReadNewestValueTo).isEqualTo(13);
+        Assertions.assertThat(countInnerExtractKey).isEqualTo(12);
         Assertions.assertThat(countAdjustKey).isEqualTo(0);
     }
 
