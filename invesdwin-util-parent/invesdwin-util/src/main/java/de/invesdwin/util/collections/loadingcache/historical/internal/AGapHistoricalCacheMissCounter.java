@@ -4,6 +4,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.collections.loadingcache.historical.AGapHistoricalCache;
 import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
+import de.invesdwin.util.math.stream.doubl.DoubleStreamAvg;
 import de.invesdwin.util.time.duration.Duration;
 import de.invesdwin.util.time.fdate.FDate;
 import de.invesdwin.util.time.fdate.FTimeUnit;
@@ -22,8 +23,9 @@ public abstract class AGapHistoricalCacheMissCounter<V> {
     private int maxSuccessiveCacheEvictions = 1;
 
     private Integer optimiumMaximumSize = getInitialMaximumSize();
-    private Duration optimumReadBackStepMillis = new Duration(getReadBackStepMillis(), FTimeUnit.MILLISECONDS);
+    private Duration optimumReadBackStepMillis = new Duration(getInitialReadBackStepMillis(), FTimeUnit.MILLISECONDS);
     private Duration maxFutherValuesRange;
+    private final DoubleStreamAvg avgElementDistance = new DoubleStreamAvg();
 
     public void checkSuccessiveCacheEvictions(final FDate key) {
         if (key.isBeforeOrEqualTo(successiveCacheEvictionsToMinKey)) {
@@ -94,15 +96,18 @@ public abstract class AGapHistoricalCacheMissCounter<V> {
 
     protected abstract Integer getInitialMaximumSize();
 
-    protected abstract long getReadBackStepMillis();
+    protected abstract long getInitialReadBackStepMillis();
 
     private long determineNewOptimalReadBackStepMillis() {
-        return getReadBackStepMillis() * maxSuccessiveCacheEvictions * OPTIMAL_MULTIPLICATOR;
+        final long readBackStepMillis;
+        if (avgElementDistance.getCount() >= AGapHistoricalCache.DEFAULT_READ_BACK_STEP_ELEMENTS) {
+            readBackStepMillis = (long) (avgElementDistance.getAvg()
+                    * AGapHistoricalCache.DEFAULT_READ_BACK_STEP_ELEMENTS);
+        } else {
+            readBackStepMillis = getInitialReadBackStepMillis() * OPTIMAL_MULTIPLICATOR;
+        }
+        return readBackStepMillis * maxSuccessiveCacheEvictions;
     }
-
-    protected abstract FDate extractKey(V v);
-
-    protected abstract Iterable<? extends V> readAllValuesAscendingFrom(FDate curMaxDate);
 
     public void maybeLimitOptimalReadBackStepByLoadFurtherValuesRange(final Duration duration) {
         if (duration.isZero()) {
@@ -113,6 +118,10 @@ public abstract class AGapHistoricalCacheMissCounter<V> {
             final Duration maximumReadBackStep = maxFutherValuesRange.divide(2);
             optimumReadBackStepMillis = maximumReadBackStep;
         }
+    }
+
+    public void recordElementDistance(final FDate prev, final FDate next) {
+        avgElementDistance.process(avgElementDistance.process(next.millisValue() - prev.millisValue()));
     }
 
 }

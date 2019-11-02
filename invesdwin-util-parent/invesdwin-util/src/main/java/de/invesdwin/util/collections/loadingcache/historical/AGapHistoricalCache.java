@@ -36,8 +36,9 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
     /**
      * 10 days is a good value for daily caches.
      */
-    public static final long DEFAULT_READ_BACK_STEP_MILLIS = new Duration(10, FTimeUnit.DAYS)
-            .intValue(FTimeUnit.MILLISECONDS);
+    public static final int DEFAULT_READ_BACK_STEP_ELEMENTS = 10;
+    public static final long DEFAULT_READ_BACK_STEP_MILLIS = new Duration(DEFAULT_READ_BACK_STEP_ELEMENTS,
+            FTimeUnit.DAYS).intValue(FTimeUnit.MILLISECONDS);
     /**
      * having 2 here helps with queries for elements that are filtered by end time
      */
@@ -56,18 +57,8 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
         }
 
         @Override
-        protected long getReadBackStepMillis() {
-            return AGapHistoricalCache.this.getReadBackStepMillis();
-        }
-
-        @Override
-        protected Iterable<? extends V> readAllValuesAscendingFrom(final FDate curMaxDate) {
-            return AGapHistoricalCache.this.readAllValuesAscendingFrom(curMaxDate);
-        }
-
-        @Override
-        protected FDate extractKey(final V v) {
-            return AGapHistoricalCache.this.extractKey(null, v);
+        protected long getInitialReadBackStepMillis() {
+            return AGapHistoricalCache.this.getInitialReadBackStepMillis();
         }
 
         @Override
@@ -415,7 +406,7 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
     private V searchInFurtherValues(final FDate key) {
         //Take the first matching value from the sorted list
         //Search for the newest value
-        V prevValue = (V) null;
+        V prevValue = null;
         FDate prevKey = null;
         if (!lastValuesFromFurtherValues.isEmpty()) {
             //though maybe use the last one for smaller increments than the data itself is loaded
@@ -452,6 +443,9 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
                 getPutProvider().put(newValueKey, newValue, prevKey, prevValue, false);
 
                 pushLastValueFromFurtherValues();
+                if (prevKey != null) {
+                    cacheMissCounter.recordElementDistance(prevKey, newValueKey);
+                }
                 //continue with the next one
                 prevValue = newValue;
                 prevKey = newValueKey;
@@ -492,7 +486,7 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
         return key.addMilliseconds(-readBackStepMillis);
     }
 
-    protected long getReadBackStepMillis() {
+    protected long getInitialReadBackStepMillis() {
         return DEFAULT_READ_BACK_STEP_MILLIS;
     }
 
