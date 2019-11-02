@@ -1,8 +1,6 @@
 package de.invesdwin.util.collections.loadingcache.historical.query.recursive.internal;
 
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 import java.util.NavigableMap;
 import java.util.NoSuchElementException;
 import java.util.TreeMap;
@@ -15,8 +13,7 @@ import com.google.common.collect.PeekingIterator;
 
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.eviction.EvictionMode;
-import de.invesdwin.util.collections.iterable.ICloseableIterator;
-import de.invesdwin.util.collections.iterable.WrapperCloseableIterable;
+import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
 import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
 import de.invesdwin.util.collections.loadingcache.historical.listener.IHistoricalCacheOnClearListener;
@@ -248,7 +245,9 @@ public abstract class AContinuousRecursiveHistoricalCacheQuery<V> implements IRe
         }
     }
 
+    //CHECKSTYLE:OFF
     private Iterator<FDate> newRecursionKeysIterator(final FDate previousKey) {
+        //CHECKSTYLE:ON
         if (highestRecursionResultsAsc.isEmpty()) {
             shouldAppendHighestRecursionResults = true;
         }
@@ -259,32 +258,28 @@ public abstract class AContinuousRecursiveHistoricalCacheQuery<V> implements IRe
         //we seem to have started somewhere in the middle, thus try to continue from somewhere we left off before
         FDate curPreviousKey = lastRecursionKey;
         int minRecursionIdx = recursionCount;
-        final List<FDate> recursionKeys = new ArrayList<FDate>(recursionCount);
+        final BufferingIterator<FDate> recursionKeys = new BufferingIterator<FDate>();
         while (minRecursionIdx > 0) {
             final FDate newPreviousKey = parentQueryWithFuture.getPreviousKey(curPreviousKey, 1);
             firstRecursionKey = newPreviousKey;
+            if (recursionKeys.isEmpty() && !previousKey.equalsNotNullSafe(newPreviousKey)) {
+                recursionKeys.add(previousKey);
+            }
             if (newPreviousKey.isAfterOrEqualTo(previousKey)) {
                 //start or end reached
-                if (recursionKeys.isEmpty()) {
-                    recursionKeys.add(previousKey);
-                }
                 break;
             } else if (highestRecursionResultsAsc.containsKey(newPreviousKey)) {
                 shouldAppendHighestRecursionResults = true;
-                recursionKeys.add(previousKey);
                 //point to continue from reached
                 break;
-                //            } else if (parent.containsKey(newPreviousKey) || cachedRecursionResults.containsKey(newPreviousKey)) {
-                //                //point to continue from reached
-                //                recursionKeys.add(curPreviousKey);
-                //                break;
+            } else if (parent.containsKey(newPreviousKey) || cachedRecursionResults.containsKey(newPreviousKey)) {
+                //point to continue from reached
+                recursionKeys.prepend(newPreviousKey);
+                break;
             } else {
-                if (recursionKeys.isEmpty() && !previousKey.equalsNotNullSafe(newPreviousKey)) {
-                    recursionKeys.add(previousKey);
-                }
                 //search further for a match to begin from
                 minRecursionIdx--;
-                recursionKeys.add(0, newPreviousKey);
+                recursionKeys.prepend(newPreviousKey);
                 curPreviousKey = newPreviousKey;
                 /*
                  * checking highest key and going with range query could lead to more values being recalculated than
@@ -297,9 +292,12 @@ public abstract class AContinuousRecursiveHistoricalCacheQuery<V> implements IRe
             //we did not find any previous value to continue from, so start over from scratch
             return getFullRecursionKeysIterator(previousKey);
         } else {
-            final ICloseableIterator<FDate> recursionKeysIterator = WrapperCloseableIterable.maybeWrap(recursionKeys)
-                    .iterator();
-            return recursionKeysIterator;
+            final FDate tailRecursionKey = recursionKeys.getTail();
+            if (!lastRecursionKey.equals(tailRecursionKey)) {
+                throw new IllegalStateException("lastRecursionKey[" + lastRecursionKey
+                        + "] should be equal to tailRecursionKey[" + tailRecursionKey + "]");
+            }
+            return recursionKeys;
         }
     }
 
