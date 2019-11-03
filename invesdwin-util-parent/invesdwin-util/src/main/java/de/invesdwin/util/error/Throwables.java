@@ -12,7 +12,7 @@ import de.invesdwin.util.lang.Strings;
 
 @Immutable
 @StaticFacadeDefinition(name = "de.invesdwin.util.error.internal.AThrowablesStaticFacade", targets = {
-        com.google.common.base.Throwables.class, org.fest.util.Throwables.class,
+        org.fest.util.Throwables.class,
         org.fest.reflect.util.Throwables.class }, filterMethodSignatureExpressions = { ".* throwCause\\(.*" })
 public final class Throwables extends AThrowablesStaticFacade {
 
@@ -166,6 +166,14 @@ public final class Throwables extends AThrowablesStaticFacade {
 
     public static boolean isCausedByInterrupt(final Throwable t) {
         return Threads.isInterrupted() || Throwables.isCausedByType(t, InterruptedException.class);
+    }
+
+    public static RuntimeException propagate(final Throwable t) {
+        if (t instanceof RuntimeException) {
+            return (RuntimeException) t;
+        } else {
+            return new RuntimeException(t);
+        }
     }
 
 }

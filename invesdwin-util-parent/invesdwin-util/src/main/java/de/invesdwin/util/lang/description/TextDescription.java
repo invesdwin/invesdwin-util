@@ -9,8 +9,8 @@ import de.invesdwin.util.lang.Objects;
 @NotThreadSafe
 public class TextDescription extends Description {
     private final String value;
-
     private final Object[] args;
+    private String formattedMessage;
 
     public TextDescription(final String value, final Object... args) {
         this.value = value;
@@ -19,7 +19,10 @@ public class TextDescription extends Description {
 
     @Override
     public String value() {
-        return TextDescriptionFormatter.format(value, args);
+        if (formattedMessage == null) {
+            formattedMessage = TextDescriptionFormatter.format(value, args);
+        }
+        return formattedMessage;
     }
 
     @Override
