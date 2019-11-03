@@ -17,6 +17,7 @@ import de.invesdwin.util.concurrent.Executors;
 import de.invesdwin.util.concurrent.WrappedExecutorService;
 import de.invesdwin.util.concurrent.lock.Locks;
 import de.invesdwin.util.error.FastNoSuchElementException;
+import de.invesdwin.util.lang.description.TextDescription;
 import de.invesdwin.util.lang.finalizer.AFinalizer;
 
 @NotThreadSafe
@@ -97,6 +98,7 @@ public abstract class AGenericProducerQueueIterator<E> extends ACloseableIterato
     }
 
     public AGenericProducerQueueIterator(final String name, final int queueSize) {
+        super(new TextDescription(name));
         this.finalizer = new GenericProducerQueueIteratorFinalizer(name);
         this.queue = new LinkedBlockingDeque<E>(queueSize);
         this.queueSize = queueSize;

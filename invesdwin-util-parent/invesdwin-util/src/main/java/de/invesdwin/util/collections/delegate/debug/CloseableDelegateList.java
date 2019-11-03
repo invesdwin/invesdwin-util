@@ -10,6 +10,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 import de.invesdwin.util.collections.delegate.ADelegateList;
 import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.lang.Closeables;
+import de.invesdwin.util.lang.description.TextDescription;
 import de.invesdwin.util.lang.finalizer.AFinalizer;
 
 @NotThreadSafe
@@ -19,8 +20,8 @@ public class CloseableDelegateList<E> extends ADelegateList<E> implements Closea
 
     private final CloseableDelegateListFinalizer<E> finalizer;
 
-    public CloseableDelegateList(final List<E> delegate, final AtomicLong openReaders) {
-        this.finalizer = new CloseableDelegateListFinalizer<E>();
+    public CloseableDelegateList(final TextDescription name, final List<E> delegate, final AtomicLong openReaders) {
+        this.finalizer = new CloseableDelegateListFinalizer<E>(name);
         this.finalizer.register(this);
         this.finalizer.delegate = delegate;
         this.finalizer.openReaders = openReaders;
@@ -34,13 +35,15 @@ public class CloseableDelegateList<E> extends ADelegateList<E> implements Closea
 
     private static final class CloseableDelegateListFinalizer<E> extends AFinalizer {
 
+        private final TextDescription name;
         private AtomicLong openReaders;
         private List<E> delegate;
         private final boolean debugStackTraceEnabled = Throwables.isDebugStackTraceEnabled();
         private Exception initStackTrace;
         private volatile boolean closed;
 
-        private CloseableDelegateListFinalizer() {
+        private CloseableDelegateListFinalizer(final TextDescription name) {
+            this.name = name;
             createInitStackTrace();
         }
 
@@ -68,7 +71,7 @@ public class CloseableDelegateList<E> extends ADelegateList<E> implements Closea
         }
 
         private void createUnclosedFinalizeMessageLog() {
-            String warning = "Finalizing unclosed iterator [" + getClass().getName() + "]";
+            String warning = "Finalizing unclosed iterator [" + getClass().getName() + "]: " + name;
             if (debugStackTraceEnabled) {
                 if (initStackTrace != null) {
                     warning += " from stacktrace:\n" + Throwables.getFullStackTrace(initStackTrace);

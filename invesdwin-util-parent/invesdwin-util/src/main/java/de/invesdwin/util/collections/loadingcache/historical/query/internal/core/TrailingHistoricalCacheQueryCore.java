@@ -25,6 +25,7 @@ import de.invesdwin.util.collections.loadingcache.historical.query.internal.IHis
 import de.invesdwin.util.concurrent.lock.ILock;
 import de.invesdwin.util.concurrent.lock.Locks;
 import de.invesdwin.util.error.Throwables;
+import de.invesdwin.util.lang.description.TextDescription;
 import de.invesdwin.util.time.fdate.FDate;
 
 @ThreadSafe
@@ -470,7 +471,9 @@ public class TrailingHistoricalCacheQueryCore<V> extends ACachedEntriesHistorica
         @Override
         public ICloseableIterator<IHistoricalEntry<V>> iterator() {
             if (Throwables.isDebugStackTraceEnabled()) {
-                return new ACloseableIterator<IHistoricalEntry<V>>() {
+                return new ACloseableIterator<IHistoricalEntry<V>>(new TextDescription("%s: %s.%s", getParent(),
+                        TrailingHistoricalCacheQueryCore.class.getSimpleName(),
+                        UnlockingResultIterable.class.getSimpleName())) {
 
                     private final ICloseableIterator<IHistoricalEntry<V>> it = result.iterator();
 

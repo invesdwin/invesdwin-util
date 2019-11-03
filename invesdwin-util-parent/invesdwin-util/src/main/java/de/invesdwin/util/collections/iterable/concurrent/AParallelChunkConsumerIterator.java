@@ -14,6 +14,7 @@ import de.invesdwin.util.concurrent.Executors;
 import de.invesdwin.util.concurrent.WrappedExecutorService;
 import de.invesdwin.util.concurrent.future.Futures;
 import de.invesdwin.util.error.FastNoSuchElementException;
+import de.invesdwin.util.lang.description.TextDescription;
 import de.invesdwin.util.lang.finalizer.AFinalizer;
 
 @ThreadSafe
@@ -31,6 +32,7 @@ public abstract class AParallelChunkConsumerIterator<R, E> extends ACloseableIte
 
     public AParallelChunkConsumerIterator(final String name, final ICloseableIterator<R> requests,
             final int chunkSize) {
+        super(new TextDescription(name));
         this.finalizer = new ParallelChunkConsumerIteratorFinalizer<>(name, requests, chunkSize);
         this.finalizer.register(this);
         this.futures = new ArrayList<Future<E>>(chunkSize);

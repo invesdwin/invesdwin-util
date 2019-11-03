@@ -12,6 +12,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 import de.invesdwin.util.collections.delegate.DelegateList;
 import de.invesdwin.util.collections.iterable.ACloseableIterator;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
+import de.invesdwin.util.lang.description.TextDescription;
 
 @NotThreadSafe
 public class DebugConcurrentModificationList<E> extends DelegateList<E> {
@@ -106,7 +107,8 @@ public class DebugConcurrentModificationList<E> extends DelegateList<E> {
     @Override
     public ICloseableIterator<E> iterator() {
         openReaders.incrementAndGet();
-        return new ACloseableIterator<E>() {
+        return new ACloseableIterator<E>(
+                new TextDescription("%s: iterator()", DebugConcurrentModificationList.class.getSimpleName())) {
 
             private final Iterator<E> delegate = DebugConcurrentModificationList.super.iterator();
 
@@ -130,7 +132,9 @@ public class DebugConcurrentModificationList<E> extends DelegateList<E> {
 
     @Override
     public List<E> subList(final int fromIndex, final int toIndex) {
-        return new CloseableDelegateList<E>(super.subList(fromIndex, toIndex), openReaders);
+        return new CloseableDelegateList<E>(
+                new TextDescription("%s: subList()", DebugConcurrentModificationList.class.getSimpleName()),
+                super.subList(fromIndex, toIndex), openReaders);
     }
 
 }

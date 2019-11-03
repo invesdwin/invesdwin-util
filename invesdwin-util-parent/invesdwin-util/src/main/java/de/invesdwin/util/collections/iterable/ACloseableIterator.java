@@ -6,6 +6,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.error.FastNoSuchElementException;
 import de.invesdwin.util.error.Throwables;
+import de.invesdwin.util.lang.description.TextDescription;
 import de.invesdwin.util.lang.finalizer.AFinalizer;
 
 @NotThreadSafe
@@ -15,8 +16,8 @@ public abstract class ACloseableIterator<E> implements ICloseableIterator<E> {
 
     private final CloseableIteratorFinalizer finalizer;
 
-    public ACloseableIterator() {
-        this.finalizer = new CloseableIteratorFinalizer();
+    public ACloseableIterator(final TextDescription name) {
+        this.finalizer = new CloseableIteratorFinalizer(name);
         this.finalizer.register(this);
     }
 
@@ -80,12 +81,14 @@ public abstract class ACloseableIterator<E> implements ICloseableIterator<E> {
 
     private static final class CloseableIteratorFinalizer extends AFinalizer {
 
+        private final TextDescription name;
         private final boolean debugStackTraceEnabled = Throwables.isDebugStackTraceEnabled();
         private Exception initStackTrace;
         private Exception nextOrHasNextStackTrace;
         private volatile boolean closed;
 
-        private CloseableIteratorFinalizer() {
+        private CloseableIteratorFinalizer(final TextDescription name) {
+            this.name = name;
             createInitStackTrace();
         }
 
@@ -118,7 +121,7 @@ public abstract class ACloseableIterator<E> implements ICloseableIterator<E> {
         }
 
         private void createUnclosedFinalizeMessageLog() {
-            String warning = "Finalizing unclosed iterator [" + getClass().getName() + "]";
+            String warning = "Finalizing unclosed iterator [" + getClass().getName() + "]: " + name;
             if (debugStackTraceEnabled) {
                 final Exception stackTrace;
                 if (initStackTrace != null) {

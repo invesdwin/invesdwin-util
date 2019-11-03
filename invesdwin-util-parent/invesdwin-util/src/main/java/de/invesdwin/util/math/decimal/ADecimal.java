@@ -13,11 +13,10 @@ import java.util.Locale;
 
 import javax.annotation.concurrent.Immutable;
 
-import org.assertj.core.description.TextDescription;
-
 import de.invesdwin.norva.marker.IDecimal;
 import de.invesdwin.util.lang.ADelegateComparator;
 import de.invesdwin.util.lang.Objects;
+import de.invesdwin.util.lang.description.TextDescription;
 import de.invesdwin.util.math.BigDecimals;
 import de.invesdwin.util.math.BigIntegers;
 import de.invesdwin.util.math.Bytes;

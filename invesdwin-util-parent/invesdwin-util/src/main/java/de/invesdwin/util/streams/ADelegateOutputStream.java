@@ -9,6 +9,7 @@ import org.apache.commons.io.output.ClosedOutputStream;
 
 import de.invesdwin.util.collections.iterable.ACloseableIterator;
 import de.invesdwin.util.error.Throwables;
+import de.invesdwin.util.lang.description.TextDescription;
 import de.invesdwin.util.lang.finalizer.AFinalizer;
 
 @NotThreadSafe
@@ -18,8 +19,8 @@ public abstract class ADelegateOutputStream extends OutputStream {
 
     private final DelegateOutputStreamFinalizer finalizer;
 
-    public ADelegateOutputStream() {
-        this.finalizer = new DelegateOutputStreamFinalizer();
+    public ADelegateOutputStream(final TextDescription name) {
+        this.finalizer = new DelegateOutputStreamFinalizer(name);
         this.finalizer.register(this);
     }
 
@@ -59,6 +60,7 @@ public abstract class ADelegateOutputStream extends OutputStream {
 
     private static final class DelegateOutputStreamFinalizer extends AFinalizer {
 
+        private final TextDescription name;
         private final boolean debugStackTraceEnabled = Throwables.isDebugStackTraceEnabled();
 
         private OutputStream delegate;
@@ -66,7 +68,8 @@ public abstract class ADelegateOutputStream extends OutputStream {
         private Exception initStackTrace;
         private Exception readStackTrace;
 
-        private DelegateOutputStreamFinalizer() {
+        private DelegateOutputStreamFinalizer(final TextDescription name) {
+            this.name = name;
             if (debugStackTraceEnabled) {
                 initStackTrace = new Exception();
                 initStackTrace.fillInStackTrace();
@@ -90,7 +93,7 @@ public abstract class ADelegateOutputStream extends OutputStream {
         protected void onRun() {
             if (delegate != null) {
                 String warning = "Finalizing unclosed " + OutputStream.class.getSimpleName() + " ["
-                        + getClass().getName() + "]";
+                        + getClass().getName() + "]: " + name;
                 if (debugStackTraceEnabled) {
                     final Exception stackTrace;
                     if (initStackTrace != null) {

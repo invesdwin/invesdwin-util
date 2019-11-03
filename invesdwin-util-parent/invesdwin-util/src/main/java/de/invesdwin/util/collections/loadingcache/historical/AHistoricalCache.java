@@ -12,8 +12,6 @@ import java.util.function.Function;
 
 import javax.annotation.concurrent.ThreadSafe;
 
-import org.assertj.core.description.TextDescription;
-
 import com.github.benmanes.caffeine.cache.Caffeine;
 
 import de.invesdwin.util.assertions.Assertions;
@@ -46,6 +44,7 @@ import de.invesdwin.util.collections.loadingcache.historical.query.internal.core
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.TrailingHistoricalCacheQueryCore;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.filter.FilteringHistoricalCacheQuery;
 import de.invesdwin.util.collections.loadingcache.historical.refresh.HistoricalCacheRefreshManager;
+import de.invesdwin.util.lang.description.TextDescription;
 import de.invesdwin.util.time.fdate.FDate;
 
 @ThreadSafe
@@ -835,8 +834,8 @@ public abstract class AHistoricalCache<V>
                 final boolean notifyPutListeners) {
             if (previousKey != null && nextKey != null) {
                 if (!(previousKey.compareTo(nextKey) <= 0)) {
-                    throw new IllegalArgumentException(new TextDescription(
-                            "%s: previousKey [%s] <= nextKey [%s] not matched", this, previousKey, nextKey).toString());
+                    throw new IllegalArgumentException(TextDescription
+                            .format("%s: previousKey [%s] <= nextKey [%s] not matched", this, previousKey, nextKey));
                 }
             }
             getValuesMap().put(valueKey, ImmutableHistoricalEntry.of(valueKey, value));
@@ -853,8 +852,8 @@ public abstract class AHistoricalCache<V>
                 final boolean notifyPutListeners) {
             final int compare = previousKey.compareTo(valueKey);
             if (!(compare <= 0)) {
-                throw new IllegalArgumentException(new TextDescription("%s: previousKey [%s] <= value [%s] not matched",
-                        this, previousKey, valueKey).toString());
+                throw new IllegalArgumentException(TextDescription
+                        .format("%s: previousKey [%s] <= value [%s] not matched", this, previousKey, valueKey));
             }
             if (compare != 0) {
                 shiftKeyProvider.getPreviousKeysCache().put(valueKey, previousKey);
@@ -881,8 +880,7 @@ public abstract class AHistoricalCache<V>
             final int compare = nextKey.compareTo(valueKey);
             if (!(compare >= 0)) {
                 throw new IllegalArgumentException(
-                        new TextDescription("%s: nextKey [%s] >= value [%s] not matched", this, nextKey, valueKey)
-                                .toString());
+                        TextDescription.format("%s: nextKey [%s] >= value [%s] not matched", this, nextKey, valueKey));
             }
             if (compare != 0) {
                 shiftKeyProvider.getNextKeysCache().put(valueKey, nextKey);

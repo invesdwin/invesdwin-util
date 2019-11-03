@@ -20,9 +20,9 @@ import de.invesdwin.util.lang.internal.MultilineToStringStyle;
 
 @Immutable
 @StaticFacadeDefinition(name = "de.invesdwin.util.lang.internal.AStringsStaticFacade", targets = {
-        CheckedCastStrings.class, BeanPathStrings.class,
-        com.google.common.base.Strings.class }, filterMethodSignatureExpressions = {
-                ".* java\\.lang\\.String repeat\\(java\\.lang\\.String str, int repeat\\).*" })
+        CheckedCastStrings.class, BeanPathStrings.class, com.google.common.base.Strings.class,
+        org.assertj.core.util.Strings.class }, filterMethodSignatureExpressions = {
+                ".* java\\.lang\\.String repeat\\(java\\.lang\\.String str, int repeat\\).*", ".* isNullOrEmpty\\(.*" })
 public final class Strings extends AStringsStaticFacade {
 
     public static final ADelegateComparator<String> COMPARATOR = new ADelegateComparator<String>() {
@@ -571,10 +571,6 @@ public final class Strings extends AStringsStaticFacade {
         }
 
         return replaceEachIgnoreCase(result, searchList, replacementList, repeat, timeToLive - 1);
-    }
-
-    public static String normalizeFilename(final String name) {
-        return name.replace(":", "_").replace("@", "_");
     }
 
 }

@@ -9,6 +9,7 @@ import org.apache.commons.io.input.ClosedInputStream;
 
 import de.invesdwin.util.collections.iterable.ACloseableIterator;
 import de.invesdwin.util.error.Throwables;
+import de.invesdwin.util.lang.description.TextDescription;
 import de.invesdwin.util.lang.finalizer.AFinalizer;
 
 @NotThreadSafe
@@ -17,8 +18,8 @@ public abstract class ADelegateInputStream extends InputStream {
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(ACloseableIterator.class);
     private final DelegateInputStreamFinalizer finalizer;
 
-    public ADelegateInputStream() {
-        this.finalizer = new DelegateInputStreamFinalizer();
+    public ADelegateInputStream(final TextDescription name) {
+        this.finalizer = new DelegateInputStreamFinalizer(name);
         this.finalizer.register(this);
     }
 
@@ -81,6 +82,7 @@ public abstract class ADelegateInputStream extends InputStream {
 
     private static final class DelegateInputStreamFinalizer extends AFinalizer {
 
+        private final TextDescription name;
         private final boolean debugStackTraceEnabled = Throwables.isDebugStackTraceEnabled();
 
         private InputStream delegate;
@@ -88,7 +90,8 @@ public abstract class ADelegateInputStream extends InputStream {
         private Exception initStackTrace;
         private Exception readStackTrace;
 
-        private DelegateInputStreamFinalizer() {
+        private DelegateInputStreamFinalizer(final TextDescription name) {
+            this.name = name;
             if (debugStackTraceEnabled) {
                 initStackTrace = new Exception();
                 initStackTrace.fillInStackTrace();
@@ -112,7 +115,7 @@ public abstract class ADelegateInputStream extends InputStream {
         protected void onRun() {
             if (delegate != null) {
                 String warning = "Finalizing unclosed " + InputStream.class.getSimpleName() + " ["
-                        + getClass().getName() + "]";
+                        + getClass().getName() + "]: " + name;
                 if (debugStackTraceEnabled) {
                     final Exception stackTrace;
                     if (initStackTrace != null) {

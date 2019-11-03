@@ -25,6 +25,7 @@ import de.invesdwin.util.concurrent.lock.ILock;
 import de.invesdwin.util.concurrent.lock.Locks;
 import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.error.UnknownArgumentException;
+import de.invesdwin.util.lang.description.TextDescription;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.time.fdate.FDate;
 
@@ -681,7 +682,9 @@ public class CachedHistoricalCacheQueryCore<V> extends ACachedResultHistoricalCa
         @Override
         public ICloseableIterator<IHistoricalEntry<V>> iterator() {
             if (Throwables.isDebugStackTraceEnabled()) {
-                return new ACloseableIterator<IHistoricalEntry<V>>() {
+                return new ACloseableIterator<IHistoricalEntry<V>>(new TextDescription("%s: %s.%s", getParent(),
+                        CachedHistoricalCacheQueryCore.class.getSimpleName(),
+                        UnlockingResultIterable.class.getSimpleName())) {
 
                     private final ICloseableIterator<IHistoricalEntry<V>> it = result.iterator();
 

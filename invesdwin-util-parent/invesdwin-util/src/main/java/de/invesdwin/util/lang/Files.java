@@ -59,4 +59,8 @@ public final class Files extends AFilesStaticFacade {
         return totalSize;
     }
 
+    public static String normalizeFilename(final String name) {
+        return name.replace(":", "_").replace("@", "_");
+    }
+
 }
