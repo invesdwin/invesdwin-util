@@ -1,5 +1,6 @@
 package de.invesdwin.util.concurrent.lock;
 
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -43,6 +44,8 @@ import de.invesdwin.util.time.duration.Duration;
         com.googlecode.concurentlocks.Locks.class })
 @Immutable
 public final class Locks extends ALocksStaticFacade {
+
+    private static final org.slf4j.ext.XLogger LOG = org.slf4j.ext.XLoggerFactory.getXLogger(Locks.class);
 
     private static final UniqueNameGenerator UNIQUE_NAME_GENERATOR = new UniqueNameGenerator() {
         @Override
@@ -268,6 +271,41 @@ public final class Locks extends ALocksStaticFacade {
 
     public static void setLockWaitTimeout(final Duration lockWaitTimeout) {
         Locks.lockWaitTimeout = lockWaitTimeout;
+    }
+
+    public static void timeoutLock(final ILock delegate, final Duration lockWaitTimeout) {
+        try {
+            int tryCount = 0;
+            while (!delegate.tryLock(lockWaitTimeout.longValue(), lockWaitTimeout.getTimeUnit().timeUnitValue())) {
+                tryCount++;
+                LOG.catching(Locks.getLockTrace()
+                        .handleLockException(delegate.getName(), newLockTimeoutException(lockWaitTimeout, tryCount)));
+            }
+        } catch (final InterruptedException e) {
+            throw Locks.getLockTrace().handleLockException(delegate.getName(), e);
+        }
+    }
+
+    private static TimeoutException newLockTimeoutException(final Duration lockWaitTimeout, final int tryCount) {
+        return new TimeoutException(
+                "timeout waiting for lock since [" + lockWaitTimeout.multiply(tryCount) + "] count: " + tryCount) {
+            @Override
+            public synchronized Throwable fillInStackTrace() {
+                if (tryCount == 1) {
+                    //only fill stack trace on first try
+                    return super.fillInStackTrace();
+                } else {
+                    return null;
+                }
+            }
+
+            @Override
+            public String toString() {
+                final String s = TimeoutException.class.getName();
+                final String message = getLocalizedMessage();
+                return (message != null) ? (s + ": " + message) : s;
+            }
+        };
     }
 
 }
