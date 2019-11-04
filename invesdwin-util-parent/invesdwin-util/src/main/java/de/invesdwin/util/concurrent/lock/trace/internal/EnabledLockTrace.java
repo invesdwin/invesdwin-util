@@ -78,11 +78,11 @@ public class EnabledLockTrace implements ILockTrace {
     @Override
     public RuntimeException handleLockException(final String lockName, final Throwable lockException) {
         final StringBuilder sb = new StringBuilder();
-        sb.append("CurrentLockName=");
+        sb.append("CurrentLockName [");
         sb.append(lockName);
-        sb.append(" CurrentThread=");
+        sb.append("] CurrentThread [");
         sb.append(Threads.getCurrentThreadName());
-        sb.append("\nThe following locks are currently being held:\n*****************************");
+        sb.append("]\nThe following locks are currently being held:\n*****************************");
         int countLocks = 0;
         for (final Entry<String, ConcurrentHashMap<String, LockTraceEntry>> e : lockName_threadName_stackTrace
                 .entrySet()) {
