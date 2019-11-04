@@ -15,7 +15,9 @@ import de.invesdwin.util.math.internal.CheckedCastBooleans;
 import de.invesdwin.util.math.internal.CheckedCastBooleansObj;
 
 @StaticFacadeDefinition(name = "de.invesdwin.util.math.internal.ABooleansStaticFacade", targets = {
-        CheckedCastBooleans.class, CheckedCastBooleansObj.class, com.google.common.primitives.Booleans.class })
+        CheckedCastBooleans.class, CheckedCastBooleansObj.class, com.google.common.primitives.Booleans.class,
+        org.apache.commons.lang3.BooleanUtils.class }, filterSeeMethodSignatures = {
+                "org.apache.commons.lang3.BooleanUtils#compare(boolean, boolean)" })
 @Immutable
 public final class Booleans extends ABooleansStaticFacade {
 
