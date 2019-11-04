@@ -7,12 +7,15 @@ import java.util.concurrent.locks.Condition;
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.concurrent.lock.Locks;
+import de.invesdwin.util.concurrent.lock.internal.TimeoutLock;
 import de.invesdwin.util.concurrent.lock.readwrite.IWriteLock;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.time.duration.Duration;
 
 @ThreadSafe
 public class TimeoutWriteLock implements IWriteLock {
+
+    private static final org.slf4j.ext.XLogger LOG = org.slf4j.ext.XLoggerFactory.getXLogger(TimeoutLock.class);
 
     private final IWriteLock delegate;
     private final Duration lockWaitTimeout;
@@ -30,10 +33,12 @@ public class TimeoutWriteLock implements IWriteLock {
     @Override
     public void lock() {
         try {
-            if (!delegate.tryLock(lockWaitTimeout.longValue(), lockWaitTimeout.getTimeUnit().timeUnitValue())) {
-                throw Locks.getLockTrace()
-                        .handleLockException(getName(),
-                                new TimeoutException("lock() wait timeout [" + lockWaitTimeout + "] exceeded"));
+            int count = 0;
+            while (!delegate.tryLock(lockWaitTimeout.longValue(), lockWaitTimeout.getTimeUnit().timeUnitValue())) {
+                count++;
+                LOG.catching(Locks.getLockTrace()
+                        .handleLockException(getName(), new TimeoutException(
+                                "lock() wait timeout [" + lockWaitTimeout.multiply(count) + "] exceeded: " + count)));
             }
         } catch (final InterruptedException e) {
             throw Locks.getLockTrace().handleLockException(getName(), e);
@@ -43,10 +48,12 @@ public class TimeoutWriteLock implements IWriteLock {
     @Override
     public void lockInterruptibly() throws InterruptedException {
         try {
-            if (!delegate.tryLock(lockWaitTimeout.longValue(), lockWaitTimeout.getTimeUnit().timeUnitValue())) {
-                throw Locks.getLockTrace()
-                        .handleLockException(getName(), new TimeoutException(
-                                "lockInterruptibly() wait timeout [" + lockWaitTimeout + "] exceeded"));
+            int count = 0;
+            while (!delegate.tryLock(lockWaitTimeout.longValue(), lockWaitTimeout.getTimeUnit().timeUnitValue())) {
+                count++;
+                LOG.catching(Locks.getLockTrace()
+                        .handleLockException(getName(), new TimeoutException("lockInterruptibly() wait timeout ["
+                                + lockWaitTimeout.multiply(count) + "] exceeded: " + count)));
             }
         } catch (final InterruptedException e) {
             throw Locks.getLockTrace().handleLockException(getName(), e);
