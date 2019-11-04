@@ -1,24 +1,24 @@
-package de.invesdwin.util.concurrent.lock.internal.readwrite;
+package de.invesdwin.util.concurrent.lock.internal.readwrite.write;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
+import java.util.concurrent.locks.Lock;
 
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.concurrent.Threads;
+import de.invesdwin.util.concurrent.lock.ILock;
 import de.invesdwin.util.concurrent.lock.Locks;
-import de.invesdwin.util.concurrent.lock.readwrite.IWriteLock;
 import de.invesdwin.util.lang.Objects;
 
 @ThreadSafe
-public class TracedWriteLock implements IWriteLock {
+public class TracedWriteLock implements ILock {
 
     private final String readLockName;
     private final String name;
-    private final WriteLock delegate;
+    private final Lock delegate;
 
-    public TracedWriteLock(final String readLockName, final String name, final WriteLock delegate) {
+    public TracedWriteLock(final String readLockName, final String name, final Lock delegate) {
         this.readLockName = name;
         this.name = name;
         this.delegate = delegate;
@@ -106,16 +106,6 @@ public class TracedWriteLock implements IWriteLock {
     @Override
     public Condition newCondition() {
         return delegate.newCondition();
-    }
-
-    @Override
-    public boolean isHeldByCurrentThread() {
-        return delegate.isHeldByCurrentThread();
-    }
-
-    @Override
-    public int getHoldCount() {
-        return delegate.getHoldCount();
     }
 
     @Override

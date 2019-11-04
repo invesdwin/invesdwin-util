@@ -2,7 +2,8 @@ package de.invesdwin.util.concurrent.lock.internal.readwrite;
 
 import javax.annotation.concurrent.ThreadSafe;
 
-import de.invesdwin.util.concurrent.lock.internal.TimeoutLock;
+import de.invesdwin.util.concurrent.lock.internal.readwrite.read.TimeoutReadLock;
+import de.invesdwin.util.concurrent.lock.internal.readwrite.write.TimeoutWriteLock;
 import de.invesdwin.util.concurrent.lock.readwrite.IReadWriteLock;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.time.duration.Duration;
@@ -11,13 +12,13 @@ import de.invesdwin.util.time.duration.Duration;
 public class TimeoutReadWriteLock implements IReadWriteLock {
 
     private final IReadWriteLock delegate;
-    private final TimeoutLock readLock;
-    private final TimeoutLock writeLock;
+    private final TimeoutReadLock readLock;
+    private final TimeoutWriteLock writeLock;
 
     public TimeoutReadWriteLock(final IReadWriteLock delegate, final Duration lockWaitTimeout) {
         this.delegate = delegate;
-        this.readLock = new TimeoutLock(delegate.readLock(), lockWaitTimeout);
-        this.writeLock = new TimeoutLock(delegate.writeLock(), lockWaitTimeout);
+        this.readLock = new TimeoutReadLock(delegate.readLock(), lockWaitTimeout);
+        this.writeLock = new TimeoutWriteLock(delegate.writeLock(), lockWaitTimeout);
     }
 
     @Override
@@ -26,12 +27,12 @@ public class TimeoutReadWriteLock implements IReadWriteLock {
     }
 
     @Override
-    public TimeoutLock readLock() {
+    public TimeoutReadLock readLock() {
         return readLock;
     }
 
     @Override
-    public TimeoutLock writeLock() {
+    public TimeoutWriteLock writeLock() {
         return writeLock;
     }
 

@@ -27,6 +27,6 @@ public interface IReentrantReadWriteLock extends IReadWriteLock {
     int getWaitQueueLength(Condition condition);
 
     @Override
-    IWriteLock writeLock();
+    IReentrantWriteLock writeLock();
 
 }

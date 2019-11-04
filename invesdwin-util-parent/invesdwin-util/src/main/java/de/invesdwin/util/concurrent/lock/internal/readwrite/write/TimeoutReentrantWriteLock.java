@@ -1,38 +1,39 @@
-package de.invesdwin.util.concurrent.lock.internal.readwrite;
+package de.invesdwin.util.concurrent.lock.internal.readwrite.write;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 
 import javax.annotation.concurrent.ThreadSafe;
 
-import de.invesdwin.util.concurrent.lock.readwrite.IWriteLock;
+import de.invesdwin.util.concurrent.lock.Locks;
+import de.invesdwin.util.concurrent.lock.readwrite.IReentrantWriteLock;
 import de.invesdwin.util.lang.Objects;
+import de.invesdwin.util.time.duration.Duration;
 
 @ThreadSafe
-public class WrappedWriteLock implements IWriteLock {
+public class TimeoutReentrantWriteLock implements IReentrantWriteLock {
 
-    private final String name;
-    private final WriteLock delegate;
+    private final IReentrantWriteLock delegate;
+    private final Duration lockWaitTimeout;
 
-    public WrappedWriteLock(final String name, final WriteLock delegate) {
-        this.name = name;
+    public TimeoutReentrantWriteLock(final IReentrantWriteLock delegate, final Duration lockWaitTimeout) {
         this.delegate = delegate;
+        this.lockWaitTimeout = lockWaitTimeout;
     }
 
     @Override
     public String getName() {
-        return name;
+        return delegate.getName();
     }
 
     @Override
     public void lock() {
-        delegate.lock();
+        Locks.timeoutLock(delegate, lockWaitTimeout);
     }
 
     @Override
     public void lockInterruptibly() throws InterruptedException {
-        delegate.lockInterruptibly();
+        Locks.timeoutLock(delegate, lockWaitTimeout);
     }
 
     @Override
@@ -67,7 +68,7 @@ public class WrappedWriteLock implements IWriteLock {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).addValue(name).addValue(delegate).toString();
+        return Objects.toStringHelper(this).addValue(delegate).toString();
     }
 
 }

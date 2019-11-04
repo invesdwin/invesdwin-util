@@ -4,7 +4,8 @@ import java.util.concurrent.locks.ReadWriteLock;
 
 import javax.annotation.concurrent.ThreadSafe;
 
-import de.invesdwin.util.concurrent.lock.internal.WrappedLock;
+import de.invesdwin.util.concurrent.lock.internal.readwrite.read.WrappedReadLock;
+import de.invesdwin.util.concurrent.lock.internal.readwrite.write.WrappedWriteLock;
 import de.invesdwin.util.concurrent.lock.readwrite.IReadWriteLock;
 import de.invesdwin.util.lang.Objects;
 
@@ -13,14 +14,14 @@ public class WrappedReadWriteLock implements IReadWriteLock {
 
     private final String name;
     private final ReadWriteLock delegate;
-    private final WrappedLock readLock;
-    private final WrappedLock writeLock;
+    private final WrappedReadLock readLock;
+    private final WrappedWriteLock writeLock;
 
     public WrappedReadWriteLock(final String name, final ReadWriteLock delegate) {
         this.name = name;
         this.delegate = delegate;
-        this.readLock = new WrappedLock(name + "_readLock", delegate.readLock());
-        this.writeLock = new WrappedLock(name + "_writeLock", delegate.writeLock());
+        this.readLock = new WrappedReadLock(name + "_readLock", delegate.readLock());
+        this.writeLock = new WrappedWriteLock(name + "_writeLock", delegate.writeLock());
     }
 
     @Override
@@ -29,12 +30,12 @@ public class WrappedReadWriteLock implements IReadWriteLock {
     }
 
     @Override
-    public WrappedLock readLock() {
+    public WrappedReadLock readLock() {
         return readLock;
     }
 
     @Override
-    public WrappedLock writeLock() {
+    public WrappedWriteLock writeLock() {
         return writeLock;
     }
 

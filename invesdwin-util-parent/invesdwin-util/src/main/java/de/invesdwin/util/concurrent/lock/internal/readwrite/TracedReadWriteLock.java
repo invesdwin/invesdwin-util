@@ -4,7 +4,8 @@ import java.util.concurrent.locks.ReadWriteLock;
 
 import javax.annotation.concurrent.ThreadSafe;
 
-import de.invesdwin.util.concurrent.lock.internal.TracedLock;
+import de.invesdwin.util.concurrent.lock.internal.readwrite.read.TracedReadLock;
+import de.invesdwin.util.concurrent.lock.internal.readwrite.write.TracedWriteLock;
 import de.invesdwin.util.concurrent.lock.readwrite.IReadWriteLock;
 import de.invesdwin.util.lang.Objects;
 
@@ -13,14 +14,14 @@ public class TracedReadWriteLock implements IReadWriteLock {
 
     private final String name;
     private final ReadWriteLock delegate;
-    private final TracedLock readLock;
-    private final TracedLock writeLock;
+    private final TracedReadLock readLock;
+    private final TracedWriteLock writeLock;
 
     public TracedReadWriteLock(final String name, final ReadWriteLock delegate) {
         this.name = name;
         this.delegate = delegate;
-        this.readLock = new TracedLock(name + "_readLock", delegate.readLock());
-        this.writeLock = new TracedLock(name + "_writeLock", delegate.writeLock());
+        this.readLock = new TracedReadLock(name + "_readLock", delegate.readLock());
+        this.writeLock = new TracedWriteLock(readLock.getName(), name + "_writeLock", delegate.writeLock());
     }
 
     @Override
@@ -29,12 +30,12 @@ public class TracedReadWriteLock implements IReadWriteLock {
     }
 
     @Override
-    public TracedLock readLock() {
+    public TracedReadLock readLock() {
         return readLock;
     }
 
     @Override
-    public TracedLock writeLock() {
+    public TracedWriteLock writeLock() {
         return writeLock;
     }
 
