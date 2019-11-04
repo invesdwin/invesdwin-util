@@ -35,6 +35,7 @@ import de.invesdwin.util.concurrent.lock.readwrite.IReentrantReadWriteLock;
 import de.invesdwin.util.concurrent.lock.trace.ILockTrace;
 import de.invesdwin.util.concurrent.lock.trace.internal.DisabledLockTrace;
 import de.invesdwin.util.concurrent.lock.trace.internal.EnabledLockTrace;
+import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.lang.UniqueNameGenerator;
 import de.invesdwin.util.time.duration.Duration;
 
@@ -43,7 +44,15 @@ import de.invesdwin.util.time.duration.Duration;
 @Immutable
 public final class Locks extends ALocksStaticFacade {
 
-    private static final UniqueNameGenerator UNIQUE_NAME_GENERATOR = new UniqueNameGenerator();
+    private static final UniqueNameGenerator UNIQUE_NAME_GENERATOR = new UniqueNameGenerator() {
+        @Override
+        public String get(final String name) {
+            if (Strings.isBlank(name)) {
+                throw new IllegalArgumentException("name should not be blank: " + name);
+            }
+            return super.get(name);
+        }
+    };
 
     private static ILockTrace lockTrace = DisabledLockTrace.INSTANCE;
     private static Duration lockWaitTimeout = null;
