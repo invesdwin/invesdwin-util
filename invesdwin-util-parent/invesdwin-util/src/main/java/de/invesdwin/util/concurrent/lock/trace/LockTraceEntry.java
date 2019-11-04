@@ -11,7 +11,7 @@ public final class LockTraceEntry extends Exception {
     private final String threadName;
 
     public LockTraceEntry(final String lockName, final String threadName) {
-        super("LockName=[" + lockName + "] ThreadName=[" + threadName + "]");
+        super("LockName [" + lockName + "] ThreadName [" + threadName + "]");
         this.lockName = lockName;
         this.threadName = threadName;
     }
