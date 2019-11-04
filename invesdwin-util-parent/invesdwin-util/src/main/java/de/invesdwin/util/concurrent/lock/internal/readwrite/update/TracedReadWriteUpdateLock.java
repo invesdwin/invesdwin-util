@@ -23,7 +23,7 @@ public class TracedReadWriteUpdateLock implements IReadWriteUpdateLock {
         this.delegate = delegate;
         this.readLock = new TracedReadLock(name + "_readLock", delegate.readLock());
         this.writeLock = new TracedWriteLock(readLock.getName(), name + "_writeLock", delegate.writeLock());
-        this.updateLock = new TracedUpdateLock(name + "_updateLock", delegate.updateLock());
+        this.updateLock = new TracedUpdateLock(readLock.getName(), name + "_updateLock", delegate.updateLock());
     }
 
     @Override
