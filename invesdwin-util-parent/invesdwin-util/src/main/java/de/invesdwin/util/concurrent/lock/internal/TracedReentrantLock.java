@@ -8,6 +8,7 @@ import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.concurrent.lock.IReentrantLock;
 import de.invesdwin.util.concurrent.lock.Locks;
+import de.invesdwin.util.lang.Objects;
 
 @ThreadSafe
 public class TracedReentrantLock implements IReentrantLock {
@@ -137,6 +138,6 @@ public class TracedReentrantLock implements IReentrantLock {
 
     @Override
     public String toString() {
-        return delegate.toString();
+        return Objects.toStringHelper(this).addValue(name).addValue(delegate).toString();
     }
 }

@@ -14,14 +14,19 @@ import com.googlecode.concurentlocks.ReentrantReadWriteUpdateLock;
 
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
 import de.invesdwin.util.concurrent.lock.internal.ALocksStaticFacade;
+import de.invesdwin.util.concurrent.lock.internal.TimeoutLock;
+import de.invesdwin.util.concurrent.lock.internal.TimeoutReentrantLock;
 import de.invesdwin.util.concurrent.lock.internal.TracedLock;
 import de.invesdwin.util.concurrent.lock.internal.TracedReentrantLock;
 import de.invesdwin.util.concurrent.lock.internal.WrappedLock;
 import de.invesdwin.util.concurrent.lock.internal.WrappedReentrantLock;
+import de.invesdwin.util.concurrent.lock.internal.readwrite.TimeoutReadWriteLock;
+import de.invesdwin.util.concurrent.lock.internal.readwrite.TimeoutReentrantReadWriteLock;
 import de.invesdwin.util.concurrent.lock.internal.readwrite.TracedReadWriteLock;
 import de.invesdwin.util.concurrent.lock.internal.readwrite.TracedReentrantReadWriteLock;
 import de.invesdwin.util.concurrent.lock.internal.readwrite.WrappedReadWriteLock;
 import de.invesdwin.util.concurrent.lock.internal.readwrite.WrappedReentrantReadWriteLock;
+import de.invesdwin.util.concurrent.lock.internal.readwrite.update.TimeoutReadWriteUpdateLock;
 import de.invesdwin.util.concurrent.lock.internal.readwrite.update.TracedReadWriteUpdateLock;
 import de.invesdwin.util.concurrent.lock.internal.readwrite.update.WrappedReadWriteUpdateLock;
 import de.invesdwin.util.concurrent.lock.readwrite.IReadWriteLock;
@@ -31,6 +36,7 @@ import de.invesdwin.util.concurrent.lock.trace.ILockTrace;
 import de.invesdwin.util.concurrent.lock.trace.internal.DisabledLockTrace;
 import de.invesdwin.util.concurrent.lock.trace.internal.EnabledLockTrace;
 import de.invesdwin.util.lang.UniqueNameGenerator;
+import de.invesdwin.util.time.duration.Duration;
 
 @StaticFacadeDefinition(name = "de.invesdwin.util.concurrent.lock.internal.ALocksStaticFacade", targets = {
         com.googlecode.concurentlocks.Locks.class })
@@ -40,6 +46,7 @@ public final class Locks extends ALocksStaticFacade {
     private static final UniqueNameGenerator UNIQUE_NAME_GENERATOR = new UniqueNameGenerator();
 
     private static ILockTrace lockTrace = DisabledLockTrace.INSTANCE;
+    private static Duration lockWaitTimeout = null;
 
     /**
      * Keep it disabled by default to keep best performance.
@@ -103,11 +110,24 @@ public final class Locks extends ALocksStaticFacade {
         if (lock instanceof ILock) {
             return (ILock) lock;
         } else {
-            if (isLockTraceEnabled()) {
-                return new TracedLock(lockName, lock);
-            } else {
-                return new WrappedLock(lockName, lock);
-            }
+            return maybeWrapTimeout(maybeWrapTrace(lockName, lock));
+        }
+    }
+
+    private static ILock maybeWrapTimeout(final ILock lock) {
+        final Duration lockWaitTimeoutCopy = getLockWaitTimeout();
+        if (lockWaitTimeoutCopy == null) {
+            return lock;
+        } else {
+            return new TimeoutLock(lock, lockWaitTimeoutCopy);
+        }
+    }
+
+    private static ILock maybeWrapTrace(final String lockName, final Lock lock) {
+        if (isLockTraceEnabled()) {
+            return new TracedLock(lockName, lock);
+        } else {
+            return new WrappedLock(lockName, lock);
         }
     }
 
@@ -115,11 +135,24 @@ public final class Locks extends ALocksStaticFacade {
         if (lock instanceof IReentrantLock) {
             return (IReentrantLock) lock;
         } else {
-            if (isLockTraceEnabled()) {
-                return new TracedReentrantLock(lockName, lock);
-            } else {
-                return new WrappedReentrantLock(lockName, lock);
-            }
+            return maybeWrapTimeout(maybeWrapTrace(lockName, lock));
+        }
+    }
+
+    private static IReentrantLock maybeWrapTimeout(final IReentrantLock lock) {
+        final Duration lockWaitTimeoutCopy = getLockWaitTimeout();
+        if (lockWaitTimeoutCopy == null) {
+            return lock;
+        } else {
+            return new TimeoutReentrantLock(lock, lockWaitTimeoutCopy);
+        }
+    }
+
+    private static IReentrantLock maybeWrapTrace(final String lockName, final ReentrantLock lock) {
+        if (isLockTraceEnabled()) {
+            return new TracedReentrantLock(lockName, lock);
+        } else {
+            return new WrappedReentrantLock(lockName, lock);
         }
     }
 
@@ -127,11 +160,24 @@ public final class Locks extends ALocksStaticFacade {
         if (lock instanceof IReadWriteLock) {
             return (IReadWriteLock) lock;
         } else {
-            if (isLockTraceEnabled()) {
-                return new TracedReadWriteLock(lockName, lock);
-            } else {
-                return new WrappedReadWriteLock(lockName, lock);
-            }
+            return maybeWrapTimeout(maybeWrapTrace(lockName, lock));
+        }
+    }
+
+    private static IReadWriteLock maybeWrapTimeout(final IReadWriteLock lock) {
+        final Duration lockWaitTimeoutCopy = getLockWaitTimeout();
+        if (lockWaitTimeoutCopy == null) {
+            return lock;
+        } else {
+            return new TimeoutReadWriteLock(lock, lockWaitTimeoutCopy);
+        }
+    }
+
+    private static IReadWriteLock maybeWrapTrace(final String lockName, final ReadWriteLock lock) {
+        if (isLockTraceEnabled()) {
+            return new TracedReadWriteLock(lockName, lock);
+        } else {
+            return new WrappedReadWriteLock(lockName, lock);
         }
     }
 
@@ -139,11 +185,24 @@ public final class Locks extends ALocksStaticFacade {
         if (lock instanceof IReentrantReadWriteLock) {
             return (IReentrantReadWriteLock) lock;
         } else {
-            if (isLockTraceEnabled()) {
-                return new TracedReentrantReadWriteLock(lockName, lock);
-            } else {
-                return new WrappedReentrantReadWriteLock(lockName, lock);
-            }
+            return maybeWrapTimeout(maybeWrapTrace(lockName, lock));
+        }
+    }
+
+    private static IReentrantReadWriteLock maybeWrapTimeout(final IReentrantReadWriteLock lock) {
+        final Duration lockWaitTimeoutCopy = getLockWaitTimeout();
+        if (lockWaitTimeoutCopy == null) {
+            return lock;
+        } else {
+            return new TimeoutReentrantReadWriteLock(lock, lockWaitTimeoutCopy);
+        }
+    }
+
+    private static IReentrantReadWriteLock maybeWrapTrace(final String lockName, final ReentrantReadWriteLock lock) {
+        if (isLockTraceEnabled()) {
+            return new TracedReentrantReadWriteLock(lockName, lock);
+        } else {
+            return new WrappedReentrantReadWriteLock(lockName, lock);
         }
     }
 
@@ -151,11 +210,24 @@ public final class Locks extends ALocksStaticFacade {
         if (lock instanceof IReadWriteUpdateLock) {
             return (IReadWriteUpdateLock) lock;
         } else {
-            if (isLockTraceEnabled()) {
-                return new TracedReadWriteUpdateLock(lockName, lock);
-            } else {
-                return new WrappedReadWriteUpdateLock(lockName, lock);
-            }
+            return maybeWrapTimeout(maybeWrapTrace(lockName, lock));
+        }
+    }
+
+    private static IReadWriteUpdateLock maybeWrapTimeout(final IReadWriteUpdateLock lock) {
+        final Duration lockWaitTimeoutCopy = getLockWaitTimeout();
+        if (lockWaitTimeoutCopy == null) {
+            return lock;
+        } else {
+            return new TimeoutReadWriteUpdateLock(lock, lockWaitTimeoutCopy);
+        }
+    }
+
+    private static IReadWriteUpdateLock maybeWrapTrace(final String lockName, final ReadWriteUpdateLock lock) {
+        if (isLockTraceEnabled()) {
+            return new TracedReadWriteUpdateLock(lockName, lock);
+        } else {
+            return new WrappedReadWriteUpdateLock(lockName, lock);
         }
     }
 
@@ -175,6 +247,18 @@ public final class Locks extends ALocksStaticFacade {
 
     public static boolean isLockTraceEnabled() {
         return Locks.lockTrace != DisabledLockTrace.INSTANCE;
+    }
+
+    public static boolean isLockWaitTimeoutEnabled() {
+        return lockWaitTimeout != null;
+    }
+
+    public static Duration getLockWaitTimeout() {
+        return lockWaitTimeout;
+    }
+
+    public static void setLockWaitTimeout(final Duration lockWaitTimeout) {
+        Locks.lockWaitTimeout = lockWaitTimeout;
     }
 
 }

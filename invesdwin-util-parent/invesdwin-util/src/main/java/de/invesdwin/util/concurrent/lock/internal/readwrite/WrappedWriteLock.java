@@ -7,6 +7,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.concurrent.lock.readwrite.IWriteLock;
+import de.invesdwin.util.lang.Objects;
 
 @ThreadSafe
 public class WrappedWriteLock implements IWriteLock {
@@ -62,6 +63,11 @@ public class WrappedWriteLock implements IWriteLock {
     @Override
     public int getHoldCount() {
         return delegate.getHoldCount();
+    }
+
+    @Override
+    public String toString() {
+        return Objects.toStringHelper(this).addValue(name).addValue(delegate).toString();
     }
 
 }

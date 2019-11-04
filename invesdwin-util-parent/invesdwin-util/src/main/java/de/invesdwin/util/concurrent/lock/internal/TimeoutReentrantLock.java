@@ -1,38 +1,56 @@
 package de.invesdwin.util.concurrent.lock.internal;
 
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.ReentrantLock;
 
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.concurrent.lock.IReentrantLock;
+import de.invesdwin.util.concurrent.lock.Locks;
 import de.invesdwin.util.lang.Objects;
+import de.invesdwin.util.time.duration.Duration;
 
 @ThreadSafe
-public class WrappedReentrantLock implements IReentrantLock {
+public class TimeoutReentrantLock implements IReentrantLock {
 
-    private final String name;
-    private final ReentrantLock delegate;
+    private final IReentrantLock delegate;
+    private final Duration lockWaitTimeout;
 
-    public WrappedReentrantLock(final String name, final ReentrantLock delegate) {
-        this.name = name;
+    public TimeoutReentrantLock(final IReentrantLock delegate, final Duration lockWaitTimeout) {
         this.delegate = delegate;
+        this.lockWaitTimeout = lockWaitTimeout;
     }
 
     @Override
     public String getName() {
-        return name;
+        return delegate.getName();
     }
 
     @Override
     public void lock() {
-        delegate.lock();
+        try {
+            if (!delegate.tryLock(lockWaitTimeout.longValue(), lockWaitTimeout.getTimeUnit().timeUnitValue())) {
+                throw Locks.getLockTrace()
+                        .handleLockException(getName(),
+                                new TimeoutException("lock() wait timeout [" + lockWaitTimeout + "] exceeded"));
+            }
+        } catch (final InterruptedException e) {
+            throw Locks.getLockTrace().handleLockException(getName(), e);
+        }
     }
 
     @Override
     public void lockInterruptibly() throws InterruptedException {
-        delegate.lockInterruptibly();
+        try {
+            if (!delegate.tryLock(lockWaitTimeout.longValue(), lockWaitTimeout.getTimeUnit().timeUnitValue())) {
+                throw Locks.getLockTrace()
+                        .handleLockException(getName(), new TimeoutException(
+                                "lockInterruptibly() wait timeout [" + lockWaitTimeout + "] exceeded"));
+            }
+        } catch (final InterruptedException e) {
+            throw Locks.getLockTrace().handleLockException(getName(), e);
+        }
     }
 
     @Override
@@ -102,6 +120,6 @@ public class WrappedReentrantLock implements IReentrantLock {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).addValue(name).addValue(delegate).toString();
+        return Objects.toStringHelper(this).addValue(delegate).toString();
     }
 }

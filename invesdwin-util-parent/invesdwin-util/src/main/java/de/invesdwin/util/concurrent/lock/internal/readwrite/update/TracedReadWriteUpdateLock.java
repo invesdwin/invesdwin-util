@@ -6,6 +6,7 @@ import com.googlecode.concurentlocks.ReadWriteUpdateLock;
 
 import de.invesdwin.util.concurrent.lock.internal.TracedLock;
 import de.invesdwin.util.concurrent.lock.readwrite.IReadWriteUpdateLock;
+import de.invesdwin.util.lang.Objects;
 
 @ThreadSafe
 public class TracedReadWriteUpdateLock implements IReadWriteUpdateLock {
@@ -46,6 +47,6 @@ public class TracedReadWriteUpdateLock implements IReadWriteUpdateLock {
 
     @Override
     public String toString() {
-        return delegate.toString();
+        return Objects.toStringHelper(this).addValue(name).addValue(delegate).toString();
     }
 }

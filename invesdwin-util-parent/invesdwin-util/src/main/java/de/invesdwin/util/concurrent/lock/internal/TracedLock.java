@@ -8,6 +8,7 @@ import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.concurrent.lock.ILock;
 import de.invesdwin.util.concurrent.lock.Locks;
+import de.invesdwin.util.lang.Objects;
 
 @ThreadSafe
 public final class TracedLock implements ILock {
@@ -92,7 +93,7 @@ public final class TracedLock implements ILock {
 
     @Override
     public String toString() {
-        return delegate.toString();
+        return Objects.toStringHelper(this).addValue(name).addValue(delegate).toString();
     }
 
 }

@@ -9,6 +9,7 @@ import javax.annotation.concurrent.ThreadSafe;
 import de.invesdwin.util.concurrent.Threads;
 import de.invesdwin.util.concurrent.lock.Locks;
 import de.invesdwin.util.concurrent.lock.readwrite.IWriteLock;
+import de.invesdwin.util.lang.Objects;
 
 @ThreadSafe
 public class TracedWriteLock implements IWriteLock {
@@ -41,9 +42,11 @@ public class TracedWriteLock implements IWriteLock {
 
     private void assertReadLockNotHeldByCurrentThread() {
         if (Locks.getLockTrace().isLockedByThisThread(readLockName)) {
-            throw Locks.getLockTrace().handleLockException(getName(),
-                    new IllegalStateException("read lock [" + readLockName + "] already held by current thread ["
-                            + Threads.getCurrentThreadName() + "] while trying to acquire write lock [" + name + "]"));
+            throw Locks.getLockTrace()
+                    .handleLockException(getName(),
+                            new IllegalStateException("read lock [" + readLockName
+                                    + "] already held by current thread [" + Threads.getCurrentThreadName()
+                                    + "] while trying to acquire write lock [" + name + "]"));
         }
     }
 
@@ -113,6 +116,11 @@ public class TracedWriteLock implements IWriteLock {
     @Override
     public int getHoldCount() {
         return delegate.getHoldCount();
+    }
+
+    @Override
+    public String toString() {
+        return Objects.toStringHelper(this).addValue(name).addValue(delegate).toString();
     }
 
 }

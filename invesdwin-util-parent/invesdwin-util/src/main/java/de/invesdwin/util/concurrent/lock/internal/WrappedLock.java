@@ -7,6 +7,7 @@ import java.util.concurrent.locks.Lock;
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.concurrent.lock.ILock;
+import de.invesdwin.util.lang.Objects;
 
 @ThreadSafe
 public final class WrappedLock implements ILock {
@@ -56,7 +57,7 @@ public final class WrappedLock implements ILock {
 
     @Override
     public String toString() {
-        return delegate.toString();
+        return Objects.toStringHelper(this).addValue(name).addValue(delegate).toString();
     }
 
 }

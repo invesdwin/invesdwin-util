@@ -6,6 +6,7 @@ import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.concurrent.lock.internal.TracedLock;
 import de.invesdwin.util.concurrent.lock.readwrite.IReadWriteLock;
+import de.invesdwin.util.lang.Objects;
 
 @ThreadSafe
 public class TracedReadWriteLock implements IReadWriteLock {
@@ -39,7 +40,7 @@ public class TracedReadWriteLock implements IReadWriteLock {
 
     @Override
     public String toString() {
-        return delegate.toString();
+        return Objects.toStringHelper(this).addValue(name).addValue(delegate).toString();
     }
 
 }

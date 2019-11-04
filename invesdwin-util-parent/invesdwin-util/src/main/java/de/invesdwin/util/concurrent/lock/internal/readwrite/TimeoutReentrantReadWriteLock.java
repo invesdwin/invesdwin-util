@@ -1,41 +1,39 @@
 package de.invesdwin.util.concurrent.lock.internal.readwrite;
 
 import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import javax.annotation.concurrent.ThreadSafe;
 
-import de.invesdwin.util.concurrent.lock.internal.TracedLock;
+import de.invesdwin.util.concurrent.lock.internal.TimeoutLock;
 import de.invesdwin.util.concurrent.lock.readwrite.IReentrantReadWriteLock;
 import de.invesdwin.util.lang.Objects;
+import de.invesdwin.util.time.duration.Duration;
 
 @ThreadSafe
-public class TracedReentrantReadWriteLock implements IReentrantReadWriteLock {
+public class TimeoutReentrantReadWriteLock implements IReentrantReadWriteLock {
 
-    private final String name;
-    private final ReentrantReadWriteLock delegate;
-    private final TracedLock readLock;
-    private final TracedWriteLock writeLock;
+    private final IReentrantReadWriteLock delegate;
+    private final TimeoutLock readLock;
+    private final TimeoutWriteLock writeLock;
 
-    public TracedReentrantReadWriteLock(final String name, final ReentrantReadWriteLock delegate) {
-        this.name = name;
+    public TimeoutReentrantReadWriteLock(final IReentrantReadWriteLock delegate, final Duration lockWaitTimeout) {
         this.delegate = delegate;
-        this.readLock = new TracedLock(name + "_readLock", delegate.readLock());
-        this.writeLock = new TracedWriteLock(readLock.getName(), name + "_writeLock", delegate.writeLock());
+        this.readLock = new TimeoutLock(delegate.readLock(), lockWaitTimeout);
+        this.writeLock = new TimeoutWriteLock(delegate.writeLock(), lockWaitTimeout);
     }
 
     @Override
     public String getName() {
-        return name;
+        return delegate.getName();
     }
 
     @Override
-    public TracedLock readLock() {
+    public TimeoutLock readLock() {
         return readLock;
     }
 
     @Override
-    public TracedWriteLock writeLock() {
+    public TimeoutWriteLock writeLock() {
         return writeLock;
     }
 
@@ -96,7 +94,7 @@ public class TracedReentrantReadWriteLock implements IReentrantReadWriteLock {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).addValue(name).addValue(delegate).toString();
+        return Objects.toStringHelper(this).addValue(delegate).toString();
     }
 
 }
