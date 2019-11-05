@@ -1,7 +1,5 @@
 package de.invesdwin.util.collections.iterable.buffer;
 
-import java.io.Closeable;
-import java.io.IOException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
@@ -11,6 +9,7 @@ import de.invesdwin.norva.marker.ISerializableValueObject;
 import de.invesdwin.util.collections.Lists;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.error.FastNoSuchElementException;
+import de.invesdwin.util.lang.Closeables;
 import de.invesdwin.util.lang.Objects;
 
 /**
@@ -151,14 +150,9 @@ public class BufferingIterator<E> implements IBufferingIterator<E>, ISerializabl
                     size++;
                 }
             } catch (final NoSuchElementException e) {
-                if (iterator instanceof Closeable) {
-                    final Closeable cIterator = (Closeable) iterator;
-                    try {
-                        cIterator.close();
-                    } catch (final IOException e1) {
-                        throw new RuntimeException(e1);
-                    }
-                }
+                //end reached
+            } finally {
+                Closeables.close(iterator);
             }
             tail = prev;
             return sizeBefore < size;

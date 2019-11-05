@@ -5,27 +5,37 @@ import java.io.IOException;
 
 import javax.annotation.concurrent.Immutable;
 
+import de.invesdwin.util.error.Throwables;
+
 @Immutable
 public final class Closeables {
 
     private Closeables() {}
 
-    public static void maybeClose(final Closeable closeable) throws IOException {
+    public static void close(final Closeable closeable) {
         if (closeable != null) {
-            closeable.close();
+            try {
+                closeable.close();
+            } catch (final IOException e) {
+                throw Throwables.propagate(e);
+            }
         }
     }
 
-    public static void maybeClose(final Object obj) throws IOException {
+    public static void close(final Object obj) {
         if (obj instanceof Closeable) {
             final Closeable cObj = (Closeable) obj;
-            cObj.close();
+            try {
+                cObj.close();
+            } catch (final IOException e) {
+                throw Throwables.propagate(e);
+            }
         }
     }
 
     public static void closeQuietly(final Object obj) {
         try {
-            maybeClose(obj);
+            close(obj);
         } catch (final Throwable e) {
             //ignore
         }
@@ -36,7 +46,7 @@ public final class Closeables {
      */
     public static void closeQuietly(final Closeable closeable) {
         try {
-            maybeClose(closeable);
+            close(closeable);
         } catch (final Throwable e) {
             //ignore
         }

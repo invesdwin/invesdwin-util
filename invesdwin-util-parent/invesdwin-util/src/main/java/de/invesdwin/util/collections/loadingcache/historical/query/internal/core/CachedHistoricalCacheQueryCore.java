@@ -10,6 +10,7 @@ import javax.annotation.concurrent.ThreadSafe;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 
 import de.invesdwin.util.collections.iterable.ACloseableIterator;
+import de.invesdwin.util.collections.iterable.EmptyCloseableIterator;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.collections.iterable.SingleValueIterable;
@@ -26,6 +27,7 @@ import de.invesdwin.util.concurrent.lock.Locks;
 import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.lang.description.TextDescription;
+import de.invesdwin.util.lang.finalizer.AFinalizer;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.time.fdate.FDate;
 
@@ -686,56 +688,92 @@ public class CachedHistoricalCacheQueryCore<V> extends ACachedResultHistoricalCa
                         CachedHistoricalCacheQueryCore.class.getSimpleName(),
                         UnlockingResultIterable.class.getSimpleName())) {
 
-                    private final ICloseableIterator<IHistoricalEntry<V>> it = result.iterator();
+                    private final UnlockingResultFinalizer<IHistoricalEntry<V>> finalizer = new UnlockingResultFinalizer<IHistoricalEntry<V>>(
+                            result.iterator(), cachedQueryActive, cachedQueryActiveLock);
+
+                    {
+                        this.finalizer.register(this);
+                    }
 
                     @Override
                     public boolean innerHasNext() {
-                        return it.hasNext();
+                        return finalizer.iterator.hasNext();
                     }
 
                     @Override
                     public IHistoricalEntry<V> innerNext() {
-                        return it.next();
+                        return finalizer.iterator.next();
                     }
 
                     @Override
                     public void close() {
                         super.close();
-                        if (!isClosed()) {
-                            it.close();
-                            cachedQueryActive.setFalse();
-                            cachedQueryActiveLock.unlock();
-                        }
+                        finalizer.close();
                     }
+
                 };
             } else {
                 return new ICloseableIterator<IHistoricalEntry<V>>() {
 
-                    private final ICloseableIterator<IHistoricalEntry<V>> it = result.iterator();
-                    private boolean closed = false;
+                    private final UnlockingResultFinalizer<IHistoricalEntry<V>> finalizer = new UnlockingResultFinalizer<IHistoricalEntry<V>>(
+                            result.iterator(), cachedQueryActive, cachedQueryActiveLock);
+
+                    {
+                        this.finalizer.register(this);
+                    }
 
                     @Override
                     public boolean hasNext() {
-                        return it.hasNext();
+                        return finalizer.iterator.hasNext();
                     }
 
                     @Override
                     public IHistoricalEntry<V> next() {
-                        return it.next();
+                        return finalizer.iterator.next();
                     }
 
                     @Override
                     public void close() {
-                        if (!closed) {
-                            it.close();
-                            cachedQueryActive.setFalse();
-                            cachedQueryActiveLock.unlock();
-                            closed = true;
-                        }
+                        finalizer.close();
                     }
+
                 };
             }
+
         }
+    }
+
+    private static final class UnlockingResultFinalizer<_V> extends AFinalizer {
+
+        private ICloseableIterator<_V> iterator;
+        private final MutableBoolean cachedQueryActive;
+        private final ILock cachedQueryActiveLock;
+
+        private UnlockingResultFinalizer(final ICloseableIterator<_V> iterator, final MutableBoolean cachedQueryActive,
+                final ILock cachedQueryActiveLock) {
+            this.iterator = iterator;
+            this.cachedQueryActive = cachedQueryActive;
+            this.cachedQueryActiveLock = cachedQueryActiveLock;
+        }
+
+        @Override
+        protected void clean() {
+            iterator.close();
+            iterator = EmptyCloseableIterator.getInstance();
+            cachedQueryActive.setFalse();
+            cachedQueryActiveLock.unlock();
+        }
+
+        @Override
+        protected boolean isCleaned() {
+            return iterator instanceof EmptyCloseableIterator;
+        }
+
+        @Override
+        public boolean isThreadLocal() {
+            return true;
+        }
+
     }
 
 }

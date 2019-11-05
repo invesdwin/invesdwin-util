@@ -332,11 +332,9 @@ public abstract class AContinuousRecursiveHistoricalCacheQuery<V> implements IRe
         if (shouldUseInitialValueInsteadOfFullRecursion()) {
             return null;
         } else {
-            return parentQueryWithFuture.getPreviousKeys(from, recursionCount).iterator();
+            //keep lock open as short as possible
+            return new BufferingIterator<FDate>(parentQueryWithFuture.getPreviousKeys(from, recursionCount));
         }
-        //we always start form the earliest date available, because otherwise we get wrong results when using recursion with calculations that depend on one another
-        //        final FDate start = getFirstAvailableKey();
-        //        return parentQueryWithFuture.getKeys(start, from).iterator();
     }
 
     protected FDate getFirstAvailableKey() {
