@@ -45,7 +45,7 @@ public class TrailingHistoricalCacheQueryCore<V> extends ACachedEntriesHistorica
         //CHECKSTYLE:OFF no cycle detection needed because we always back off locks via tryLock
         this.cachedQueryActiveLock = Locks.maybeWrap(
                 TrailingHistoricalCacheQueryCore.class.getSimpleName() + "_cachedQueryActiveLock", new ReentrantLock());
-        //CHECKSTYLE:ON;;
+        //CHECKSTYLE:ON
         //reuse lock so that set methods on sublist are synchronized
         this.delegate = new CachedHistoricalCacheQueryCore<V>(parent, cachedQueryActiveLock, cachedQueryActive);
     }
