@@ -1,6 +1,5 @@
 package de.invesdwin.util.collections.loadingcache.historical.query.recursive.internal;
 
-import java.util.Iterator;
 import java.util.NavigableMap;
 import java.util.NoSuchElementException;
 import java.util.TreeMap;
@@ -8,12 +7,10 @@ import java.util.TreeMap;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
-import com.google.common.collect.Iterators;
-import com.google.common.collect.PeekingIterator;
-
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.eviction.EvictionMode;
 import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
+import de.invesdwin.util.collections.iterable.buffer.IBufferingIterator;
 import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
 import de.invesdwin.util.collections.loadingcache.historical.listener.IHistoricalCacheOnClearListener;
@@ -201,7 +198,7 @@ public abstract class AContinuousRecursiveHistoricalCacheQuery<V> implements IRe
             if (highestRecursionResult != null) {
                 return highestRecursionResult;
             }
-            final Iterator<FDate> recursionKeysIterator = newRecursionKeysIterator(previousKey);
+            final IBufferingIterator<FDate> recursionKeysIterator = newRecursionKeysIterator(previousKey);
             if (firstRecursionKey == null || firstRecursionKey.isAfterOrEqualTo(previousKey)) {
                 return getInitialValue(previousKey);
             }
@@ -246,7 +243,7 @@ public abstract class AContinuousRecursiveHistoricalCacheQuery<V> implements IRe
     }
 
     //CHECKSTYLE:OFF
-    private Iterator<FDate> newRecursionKeysIterator(final FDate previousKey) {
+    private IBufferingIterator<FDate> newRecursionKeysIterator(final FDate previousKey) {
         //CHECKSTYLE:ON
         if (highestRecursionResultsAsc.isEmpty()) {
             shouldAppendHighestRecursionResults = true;
@@ -258,7 +255,7 @@ public abstract class AContinuousRecursiveHistoricalCacheQuery<V> implements IRe
         //we seem to have started somewhere in the middle, thus try to continue from somewhere we left off before
         FDate curPreviousKey = lastRecursionKey;
         int minRecursionIdx = recursionCount;
-        final BufferingIterator<FDate> recursionKeys = new BufferingIterator<FDate>();
+        final IBufferingIterator<FDate> recursionKeys = new BufferingIterator<FDate>();
         while (minRecursionIdx > 0) {
             final FDate newPreviousKey = parentQueryWithFuture.getPreviousKey(curPreviousKey, 1);
             firstRecursionKey = newPreviousKey;
@@ -301,15 +298,14 @@ public abstract class AContinuousRecursiveHistoricalCacheQuery<V> implements IRe
         }
     }
 
-    private Iterator<FDate> getFullRecursionKeysIterator(final FDate from) {
-        final Iterator<FDate> iterator = newFullRecursionKeysIterator(from);
+    private IBufferingIterator<FDate> getFullRecursionKeysIterator(final FDate from) {
+        final IBufferingIterator<FDate> iterator = newFullRecursionKeysIterator(from);
         if (iterator == null) {
             firstRecursionKey = null;
             return null;
         }
-        final PeekingIterator<FDate> peekingIterator = Iterators.peekingIterator(iterator);
         try {
-            firstRecursionKey = peekingIterator.peek();
+            firstRecursionKey = iterator.getHead();
             final TimeRange timeRange = new TimeRange(firstRecursionKey, from);
             if (timeRange.getDuration().intValue(FTimeUnit.YEARS) > 1) {
                 largeRecalculationsCount++;
@@ -321,14 +317,14 @@ public abstract class AContinuousRecursiveHistoricalCacheQuery<V> implements IRe
                     //CHECKSTYLE:ON
                 }
             }
-            return peekingIterator;
+            return iterator;
         } catch (final NoSuchElementException e) {
             firstRecursionKey = null;
             return null;
         }
     }
 
-    protected Iterator<FDate> newFullRecursionKeysIterator(final FDate from) {
+    protected BufferingIterator<FDate> newFullRecursionKeysIterator(final FDate from) {
         if (shouldUseInitialValueInsteadOfFullRecursion()) {
             return null;
         } else {
