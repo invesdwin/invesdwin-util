@@ -3,6 +3,7 @@ package de.invesdwin.util.collections.loadingcache.historical.query.internal.cor
 import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.concurrent.locks.ReentrantLock;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
@@ -36,12 +37,15 @@ public class TrailingHistoricalCacheQueryCore<V> extends ACachedEntriesHistorica
     private final CachedHistoricalCacheQueryCore<V> delegate;
     @GuardedBy("cachedQueryActiveLock")
     private int countResets = 0;
-    private final ILock cachedQueryActiveLock = Locks
-            .newReentrantLock(getClass().getSimpleName() + "_cachedQueryActiveLock");
+    private final ILock cachedQueryActiveLock;
     @GuardedBy("cachedQueryActiveLock")
     private final MutableBoolean cachedQueryActive = new MutableBoolean(false);
 
     public TrailingHistoricalCacheQueryCore(final IHistoricalCacheInternalMethods<V> parent) {
+        //CHECKSTYLE:OFF no cycle detection needed because we always back off locks via tryLock
+        this.cachedQueryActiveLock = Locks.maybeWrap(
+                TrailingHistoricalCacheQueryCore.class.getSimpleName() + "_cachedQueryActiveLock", new ReentrantLock());
+        //CHECKSTYLE:ON;;
         //reuse lock so that set methods on sublist are synchronized
         this.delegate = new CachedHistoricalCacheQueryCore<V>(parent, cachedQueryActiveLock, cachedQueryActive);
     }

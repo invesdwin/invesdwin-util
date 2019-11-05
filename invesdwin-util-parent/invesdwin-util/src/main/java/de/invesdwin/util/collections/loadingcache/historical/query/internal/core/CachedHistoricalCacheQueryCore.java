@@ -3,6 +3,7 @@ package de.invesdwin.util.collections.loadingcache.historical.query.internal.cor
 import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.concurrent.locks.ReentrantLock;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
@@ -50,7 +51,10 @@ public class CachedHistoricalCacheQueryCore<V> extends ACachedResultHistoricalCa
 
     public CachedHistoricalCacheQueryCore(final IHistoricalCacheInternalMethods<V> parent) {
         this(parent,
-                Locks.newReentrantLock(CachedHistoricalCacheQueryCore.class.getSimpleName() + "_cachedQueryActiveLock"),
+                //CHECKSTYLE:OFF no cycle detection needed because we always back off locks via tryLock
+                Locks.maybeWrap(CachedHistoricalCacheQueryCore.class.getSimpleName() + "_cachedQueryActiveLock",
+                        new ReentrantLock()),
+                //CHECKSTYLE:ON
                 new MutableBoolean(false));
     }
 
