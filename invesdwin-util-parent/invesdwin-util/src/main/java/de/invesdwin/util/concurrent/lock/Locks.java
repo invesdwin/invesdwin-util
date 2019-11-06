@@ -10,8 +10,6 @@ import javax.annotation.concurrent.Immutable;
 
 import com.google.common.util.concurrent.CycleDetectingLockFactory;
 import com.google.common.util.concurrent.CycleDetectingLockFactory.Policies;
-import com.googlecode.concurentlocks.ReadWriteUpdateLock;
-import com.googlecode.concurentlocks.ReentrantReadWriteUpdateLock;
 
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
 import de.invesdwin.util.concurrent.lock.internal.ALocksStaticFacade;
@@ -27,11 +25,7 @@ import de.invesdwin.util.concurrent.lock.internal.readwrite.TracedReadWriteLock;
 import de.invesdwin.util.concurrent.lock.internal.readwrite.TracedReentrantReadWriteLock;
 import de.invesdwin.util.concurrent.lock.internal.readwrite.WrappedReadWriteLock;
 import de.invesdwin.util.concurrent.lock.internal.readwrite.WrappedReentrantReadWriteLock;
-import de.invesdwin.util.concurrent.lock.internal.readwrite.update.TimeoutReadWriteUpdateLock;
-import de.invesdwin.util.concurrent.lock.internal.readwrite.update.TracedReadWriteUpdateLock;
-import de.invesdwin.util.concurrent.lock.internal.readwrite.update.WrappedReadWriteUpdateLock;
 import de.invesdwin.util.concurrent.lock.readwrite.IReadWriteLock;
-import de.invesdwin.util.concurrent.lock.readwrite.IReadWriteUpdateLock;
 import de.invesdwin.util.concurrent.lock.readwrite.IReentrantReadWriteLock;
 import de.invesdwin.util.concurrent.lock.trace.ILockTrace;
 import de.invesdwin.util.concurrent.lock.trace.internal.DisabledLockTrace;
@@ -90,20 +84,6 @@ public final class Locks extends ALocksStaticFacade {
     public static IReentrantReadWriteLock newReentrantReadWriteLock(final String lockName, final boolean fair) {
         final String name = UNIQUE_NAME_GENERATOR.get(lockName);
         final ReentrantReadWriteLock lock = cycleDetectingLockFactory.newReentrantReadWriteLock(name, fair);
-        return maybeWrap(name, lock);
-    }
-
-    /**
-     * The read write update lock is slow but can be used to debug scenarios where the same thread locks the read lock
-     * and then tries to upgrade to a write lock. This lock implementation will throw an exception for that case.
-     * Otherwise after the code works with this lock implementation, it is faster to create a different update lock
-     * yourself and use that in combination with a normal read write lock.
-     * 
-     * Though if performance is not critical, you can just stick to this implementation.
-     */
-    public static IReadWriteUpdateLock newReentrantReadWriteUpdateLock(final String lockName) {
-        final String name = UNIQUE_NAME_GENERATOR.get(lockName);
-        final ReentrantReadWriteUpdateLock lock = new ReentrantReadWriteUpdateLock();
         return maybeWrap(name, lock);
     }
 
@@ -216,31 +196,6 @@ public final class Locks extends ALocksStaticFacade {
             return new TracedReentrantReadWriteLock(lockName, lock);
         } else {
             return new WrappedReentrantReadWriteLock(lockName, lock);
-        }
-    }
-
-    public static IReadWriteUpdateLock maybeWrap(final String lockName, final ReadWriteUpdateLock lock) {
-        if (lock instanceof IReadWriteUpdateLock) {
-            return (IReadWriteUpdateLock) lock;
-        } else {
-            return maybeWrapTimeout(maybeWrapTrace(lockName, lock));
-        }
-    }
-
-    private static IReadWriteUpdateLock maybeWrapTimeout(final IReadWriteUpdateLock lock) {
-        final Duration lockWaitTimeoutCopy = getLockWaitTimeout();
-        if (lockWaitTimeoutCopy == null) {
-            return lock;
-        } else {
-            return new TimeoutReadWriteUpdateLock(lock, lockWaitTimeoutCopy, isLockWaitTimeoutOnlyWriteLocks());
-        }
-    }
-
-    private static IReadWriteUpdateLock maybeWrapTrace(final String lockName, final ReadWriteUpdateLock lock) {
-        if (isLockTraceEnabled()) {
-            return new TracedReadWriteUpdateLock(lockName, lock);
-        } else {
-            return new WrappedReadWriteUpdateLock(lockName, lock);
         }
     }
 
