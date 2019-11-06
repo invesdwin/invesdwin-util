@@ -1,69 +1,77 @@
 package de.invesdwin.util.collections.iterable;
 
-import java.util.NoSuchElementException;
-
 import javax.annotation.concurrent.NotThreadSafe;
 
-import de.invesdwin.util.error.FastNoSuchElementException;
+import de.invesdwin.util.collections.iterable.internal.ADebugCloseableIteratorImpl;
+import de.invesdwin.util.collections.iterable.internal.AFastCloseableIteratorImpl;
+import de.invesdwin.util.collections.iterable.internal.ICloseableIteratorImpl;
 import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.lang.description.TextDescription;
-import de.invesdwin.util.lang.finalizer.AFinalizer;
 
 @NotThreadSafe
 public abstract class ACloseableIterator<E> implements ICloseableIterator<E> {
 
-    private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(ACloseableIterator.class);
-
-    private final CloseableIteratorFinalizer finalizer;
+    private final ICloseableIteratorImpl<E> delegate;
 
     public ACloseableIterator(final TextDescription name) {
-        this.finalizer = new CloseableIteratorFinalizer(name);
-        this.finalizer.register(this);
+        if (Throwables.isDebugStackTraceEnabled()) {
+            this.delegate = new ADebugCloseableIteratorImpl<E>(name, getClass().getName()) {
+
+                @Override
+                protected boolean innerHasNext() {
+                    return ACloseableIterator.this.innerHasNext();
+                }
+
+                @Override
+                protected E innerNext() {
+                    return ACloseableIterator.this.innerNext();
+                }
+
+                @Override
+                protected void innerRemove() {
+                    ACloseableIterator.this.innerRemove();
+                }
+
+            };
+        } else {
+            this.delegate = new AFastCloseableIteratorImpl<E>(name, getClass().getName()) {
+
+                @Override
+                protected boolean innerHasNext() {
+                    return ACloseableIterator.this.innerHasNext();
+                }
+
+                @Override
+                protected E innerNext() {
+                    return ACloseableIterator.this.innerNext();
+                }
+
+                @Override
+                protected void innerRemove() {
+                    ACloseableIterator.this.innerRemove();
+                }
+
+            };
+        }
     }
 
     @Override
     public final boolean hasNext() {
-        if (isClosed()) {
-            return false;
-        }
-        finalizer.createNextOrHasNextStackTrace();
-        final boolean hasNext = innerHasNext();
-        if (!hasNext) {
-            close();
-        }
-        return hasNext;
+        return delegate.hasNext();
     }
 
     protected abstract boolean innerHasNext();
 
     @Override
     public final E next() {
-        if (isClosed()) {
-            throw new FastNoSuchElementException("ACloseableIterator: next blocked because already closed");
-        }
-        finalizer.createNextOrHasNextStackTrace();
-        final E next;
-        try {
-            next = innerNext();
-        } catch (final NoSuchElementException e) {
-            close();
-            throw FastNoSuchElementException.maybeReplace(e, "ACloseableIterator: innerNext threw");
-        }
-        if (next == null) {
-            close();
-            throw new FastNoSuchElementException("ACloseableIterator: next is null");
-        }
-        return next;
+        return delegate.next();
     }
 
     protected abstract E innerNext();
 
     @Override
     public final void remove() {
-        if (isClosed()) {
-            throw new FastNoSuchElementException("ACloseableIterator: remove blocked because already closed");
-        }
-        innerRemove();
+        delegate.remove();
     }
 
     protected void innerRemove() {
@@ -72,81 +80,11 @@ public abstract class ACloseableIterator<E> implements ICloseableIterator<E> {
 
     @Override
     public void close() {
-        finalizer.close();
+        delegate.close();
     }
 
     public boolean isClosed() {
-        return finalizer.isClosed();
-    }
-
-    private static final class CloseableIteratorFinalizer extends AFinalizer {
-
-        private final TextDescription name;
-        private final boolean debugStackTraceEnabled = Throwables.isDebugStackTraceEnabled();
-        private Exception initStackTrace;
-        private Exception nextOrHasNextStackTrace;
-        private volatile boolean closed;
-
-        private CloseableIteratorFinalizer(final TextDescription name) {
-            this.name = name;
-            createInitStackTrace();
-        }
-
-        @Override
-        protected void clean() {
-            initStackTrace = null;
-            nextOrHasNextStackTrace = null;
-            closed = true;
-        }
-
-        @Deprecated
-        @Override
-        public void onRun() {
-            createUnclosedFinalizeMessageLog();
-        }
-
-        private void createInitStackTrace() {
-            if (debugStackTraceEnabled) {
-                initStackTrace = new Exception();
-                initStackTrace.fillInStackTrace();
-            }
-        }
-
-        private void createNextOrHasNextStackTrace() {
-            if (debugStackTraceEnabled && nextOrHasNextStackTrace == null) {
-                initStackTrace = null;
-                nextOrHasNextStackTrace = new Exception();
-                nextOrHasNextStackTrace.fillInStackTrace();
-            }
-        }
-
-        private void createUnclosedFinalizeMessageLog() {
-            String warning = "Finalizing unclosed iterator [" + getClass().getName() + "]: " + name;
-            if (debugStackTraceEnabled) {
-                final Exception stackTrace;
-                if (initStackTrace != null) {
-                    warning += " which was initialized but never used";
-                    stackTrace = initStackTrace;
-                } else {
-                    stackTrace = nextOrHasNextStackTrace;
-                }
-                if (stackTrace != null) {
-                    warning += " from stacktrace:\n" + Throwables.getFullStackTrace(stackTrace);
-                }
-            }
-            LOGGER.warn(warning);
-        }
-
-        @Override
-        protected boolean isCleaned() {
-            return closed;
-        }
-
-        @Override
-        public boolean isThreadLocal() {
-            return true;
-        }
-
+        return delegate.isClosed();
     }
 
 }

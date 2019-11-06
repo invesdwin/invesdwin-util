@@ -26,7 +26,6 @@ import de.invesdwin.util.collections.loadingcache.historical.query.index.QueryCo
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.IHistoricalCacheInternalMethods;
 import de.invesdwin.util.concurrent.lock.ILock;
 import de.invesdwin.util.concurrent.lock.Locks;
-import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.lang.description.TextDescription;
 import de.invesdwin.util.lang.finalizer.AFinalizer;
 import de.invesdwin.util.time.fdate.FDate;
@@ -476,63 +475,34 @@ public class TrailingHistoricalCacheQueryCore<V> extends ACachedEntriesHistorica
 
         @Override
         public ICloseableIterator<IHistoricalEntry<V>> iterator() {
-            if (Throwables.isDebugStackTraceEnabled()) {
-                return new ACloseableIterator<IHistoricalEntry<V>>(new TextDescription("%s: %s.%s", getParent(),
-                        TrailingHistoricalCacheQueryCore.class.getSimpleName(),
-                        UnlockingResultIterable.class.getSimpleName())) {
+            return new ACloseableIterator<IHistoricalEntry<V>>(new TextDescription("%s: %s.%s", getParent(),
+                    TrailingHistoricalCacheQueryCore.class.getSimpleName(),
+                    UnlockingResultIterable.class.getSimpleName())) {
 
-                    private final UnlockingResultFinalizer<IHistoricalEntry<V>> finalizer = new UnlockingResultFinalizer<IHistoricalEntry<V>>(
-                            result.iterator(), cachedQueryActive, cachedQueryActiveLock);
+                private final UnlockingResultFinalizer<IHistoricalEntry<V>> finalizer = new UnlockingResultFinalizer<IHistoricalEntry<V>>(
+                        result.iterator(), cachedQueryActive, cachedQueryActiveLock);
 
-                    {
-                        this.finalizer.register(this);
-                    }
+                {
+                    this.finalizer.register(this);
+                }
 
-                    @Override
-                    public boolean innerHasNext() {
-                        return finalizer.iterator.hasNext();
-                    }
+                @Override
+                public boolean innerHasNext() {
+                    return finalizer.iterator.hasNext();
+                }
 
-                    @Override
-                    public IHistoricalEntry<V> innerNext() {
-                        return finalizer.iterator.next();
-                    }
+                @Override
+                public IHistoricalEntry<V> innerNext() {
+                    return finalizer.iterator.next();
+                }
 
-                    @Override
-                    public void close() {
-                        super.close();
-                        finalizer.close();
-                    }
+                @Override
+                public void close() {
+                    super.close();
+                    finalizer.close();
+                }
 
-                };
-            } else {
-                return new ICloseableIterator<IHistoricalEntry<V>>() {
-
-                    private final UnlockingResultFinalizer<IHistoricalEntry<V>> finalizer = new UnlockingResultFinalizer<IHistoricalEntry<V>>(
-                            result.iterator(), cachedQueryActive, cachedQueryActiveLock);
-
-                    {
-                        this.finalizer.register(this);
-                    }
-
-                    @Override
-                    public boolean hasNext() {
-                        return finalizer.iterator.hasNext();
-                    }
-
-                    @Override
-                    public IHistoricalEntry<V> next() {
-                        return finalizer.iterator.next();
-                    }
-
-                    @Override
-                    public void close() {
-                        finalizer.close();
-                    }
-
-                };
-            }
-
+            };
         }
     }
 
