@@ -79,6 +79,11 @@
 				<version>${version.btreemap}</version>
 			</dependency>
 			<dependency>
+				<groupId>com.googlecode.concurrent-locks</groupId>
+				<artifactId>concurrent-locks</artifactId>
+				<version>${version.concurrent-locks}</version>
+			</dependency>
+			<dependency>
 				<groupId>io.github.classgraph</groupId>
 				<artifactId>classgraph</artifactId>
 				<version>${version.classgraph}</version>
