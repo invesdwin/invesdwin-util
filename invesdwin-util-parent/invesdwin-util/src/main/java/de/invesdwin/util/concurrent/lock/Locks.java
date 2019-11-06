@@ -59,6 +59,7 @@ public final class Locks extends ALocksStaticFacade {
 
     private static ILockTrace lockTrace = DisabledLockTrace.INSTANCE;
     private static Duration lockWaitTimeout = null;
+    private static boolean lockWaitTimeoutOnlyWriteLocks = false;
 
     /**
      * Keep it disabled by default to keep best performance.
@@ -128,7 +129,7 @@ public final class Locks extends ALocksStaticFacade {
 
     private static ILock maybeWrapTimeout(final ILock lock) {
         final Duration lockWaitTimeoutCopy = getLockWaitTimeout();
-        if (lockWaitTimeoutCopy == null) {
+        if (lockWaitTimeoutCopy == null || isLockWaitTimeoutOnlyWriteLocks()) {
             return lock;
         } else {
             return new TimeoutLock(lock, lockWaitTimeoutCopy);
@@ -153,7 +154,7 @@ public final class Locks extends ALocksStaticFacade {
 
     private static IReentrantLock maybeWrapTimeout(final IReentrantLock lock) {
         final Duration lockWaitTimeoutCopy = getLockWaitTimeout();
-        if (lockWaitTimeoutCopy == null) {
+        if (lockWaitTimeoutCopy == null || isLockWaitTimeoutOnlyWriteLocks()) {
             return lock;
         } else {
             return new TimeoutReentrantLock(lock, lockWaitTimeoutCopy);
@@ -178,7 +179,7 @@ public final class Locks extends ALocksStaticFacade {
 
     private static IReadWriteLock maybeWrapTimeout(final IReadWriteLock lock) {
         final Duration lockWaitTimeoutCopy = getLockWaitTimeout();
-        if (lockWaitTimeoutCopy == null) {
+        if (lockWaitTimeoutCopy == null || isLockWaitTimeoutOnlyWriteLocks()) {
             return lock;
         } else {
             return new TimeoutReadWriteLock(lock, lockWaitTimeoutCopy);
@@ -206,7 +207,7 @@ public final class Locks extends ALocksStaticFacade {
         if (lockWaitTimeoutCopy == null) {
             return lock;
         } else {
-            return new TimeoutReentrantReadWriteLock(lock, lockWaitTimeoutCopy);
+            return new TimeoutReentrantReadWriteLock(lock, lockWaitTimeoutCopy, isLockWaitTimeoutOnlyWriteLocks());
         }
     }
 
@@ -231,7 +232,7 @@ public final class Locks extends ALocksStaticFacade {
         if (lockWaitTimeoutCopy == null) {
             return lock;
         } else {
-            return new TimeoutReadWriteUpdateLock(lock, lockWaitTimeoutCopy);
+            return new TimeoutReadWriteUpdateLock(lock, lockWaitTimeoutCopy, isLockWaitTimeoutOnlyWriteLocks());
         }
     }
 
@@ -269,8 +270,17 @@ public final class Locks extends ALocksStaticFacade {
         return lockWaitTimeout;
     }
 
+    public static boolean isLockWaitTimeoutOnlyWriteLocks() {
+        return lockWaitTimeoutOnlyWriteLocks;
+    }
+
     public static void setLockWaitTimeout(final Duration lockWaitTimeout) {
+        setLockWaitTimeout(lockWaitTimeout, false);
+    }
+
+    public static void setLockWaitTimeout(final Duration lockWaitTimeout, final boolean onlyWriteLocks) {
         Locks.lockWaitTimeout = lockWaitTimeout;
+        Locks.lockWaitTimeoutOnlyWriteLocks = onlyWriteLocks;
     }
 
     public static void timeoutLock(final ILock delegate, final Duration lockWaitTimeout) {
