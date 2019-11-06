@@ -238,13 +238,13 @@ public final class Locks extends ALocksStaticFacade {
         Locks.lockWaitTimeoutOnlyWriteLocks = onlyWriteLocks;
     }
 
-    public static void timeoutLock(final ILock delegate, final Duration lockWaitTimeout) {
+    public static void timeoutLock(final ILock lock, final Duration lockWaitTimeout) {
         try {
             int tryCount = 0;
-            while (!delegate.tryLock(lockWaitTimeout.longValue(), lockWaitTimeout.getTimeUnit().timeUnitValue())) {
+            while (!lock.tryLock(lockWaitTimeout.longValue(), lockWaitTimeout.getTimeUnit().timeUnitValue())) {
                 tryCount++;
                 LOG.catching(Locks.getLockTrace()
-                        .handleLockException(delegate.getName(), newLockTimeoutException(lockWaitTimeout, tryCount)));
+                        .handleLockException(lock.getName(), newLockTimeoutException(lockWaitTimeout, tryCount)));
             }
         } catch (final InterruptedException e) {
             Thread.currentThread().interrupt();
