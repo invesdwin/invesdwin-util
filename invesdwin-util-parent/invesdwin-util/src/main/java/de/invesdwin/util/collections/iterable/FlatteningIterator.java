@@ -37,6 +37,9 @@ public class FlatteningIterator<E> implements ICloseableIterator<E> {
     @SuppressWarnings("deprecation")
     private ICloseableIterator<? extends E> getIterator() {
         while (curIterator == null || !curIterator.hasNext()) {
+            if (curIterator != null) {
+                curIterator.close();
+            }
             curIterator = WrapperCloseableIterator.maybeWrap(delegate.next());
         }
         return curIterator;
