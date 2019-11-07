@@ -1,7 +1,9 @@
 package de.invesdwin.util.lang.uri;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.Socket;
 import java.net.URL;
 import java.net.URLConnection;
@@ -112,8 +114,7 @@ public final class URIsConnect {
     public String download() {
         InputStream in = null;
         try {
-            final URLConnection con = openConnection();
-            in = con.getInputStream();
+            in = getInputStream();
             return IOUtils.toString(in, Charset.defaultCharset());
         } catch (final Throwable e) {
             return null;
@@ -125,8 +126,7 @@ public final class URIsConnect {
     public String downloadThrowing() throws IOException {
         InputStream in = null;
         try {
-            final URLConnection con = openConnection();
-            in = con.getInputStream();
+            in = getInputStream();
             final String response = IOUtils.toString(in, Charset.defaultCharset());
             if (response == null) {
                 throw new IOException("response is null");
@@ -148,6 +148,35 @@ public final class URIsConnect {
             }
         }
         return con;
+    }
+
+    public InputStream getInputStream() throws IOException {
+        return getInputStream(openConnection());
+    }
+
+    public static InputStream getInputStream(final URLConnection con) throws IOException {
+        if (con instanceof HttpURLConnection) {
+            final HttpURLConnection cCon = (HttpURLConnection) con;
+            // https://stackoverflow.com/questions/613307/read-error-response-body-in-java
+            final int respCode = cCon.getResponseCode();
+            if (respCode >= HttpURLConnection.HTTP_BAD_REQUEST) {
+                if (respCode == HttpURLConnection.HTTP_NOT_FOUND || respCode == HttpURLConnection.HTTP_GONE) {
+                    throw new FileNotFoundException(con.getURL().toString());
+                } else {
+                    if (respCode == HttpURLConnection.HTTP_INTERNAL_ERROR) {
+                        final InputStream error = cCon.getErrorStream();
+                        final String errorStr = IOUtils.toString(error, Charset.defaultCharset());
+                        throw new java.io.IOException("Server returned HTTP" + " response code: " + respCode
+                                + " for URL: " + con.getURL().toString() + " error response:"
+                                + "\n*****************************" + errorStr + "*****************************");
+                    } else {
+                        throw new java.io.IOException("Server returned HTTP" + " response code: " + respCode
+                                + " for URL: " + con.getURL().toString());
+                    }
+                }
+            }
+        }
+        return con.getInputStream();
     }
 
     @Override
