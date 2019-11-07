@@ -13,10 +13,10 @@ public abstract class AFastCloseableIteratorImpl<E> implements ICloseableIterato
 
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(AFastCloseableIteratorImpl.class);
 
-    private final CloseableIteratorFinalizer finalizer;
+    private final FastCloseableIteratorFinalizer finalizer;
 
     public AFastCloseableIteratorImpl(final TextDescription name, final String className) {
-        this.finalizer = new CloseableIteratorFinalizer(name, className);
+        this.finalizer = new FastCloseableIteratorFinalizer(name, className);
         this.finalizer.register(this);
     }
 
@@ -75,13 +75,13 @@ public abstract class AFastCloseableIteratorImpl<E> implements ICloseableIterato
         return finalizer.isClosed();
     }
 
-    private static final class CloseableIteratorFinalizer extends AFinalizer {
+    private static final class FastCloseableIteratorFinalizer extends AFinalizer {
 
         private final TextDescription name;
         private final String className;
         private volatile boolean closed;
 
-        private CloseableIteratorFinalizer(final TextDescription name, final String className) {
+        private FastCloseableIteratorFinalizer(final TextDescription name, final String className) {
             this.name = name;
             this.className = className;
         }

@@ -14,10 +14,10 @@ public abstract class ADebugCloseableIteratorImpl<E> implements ICloseableIterat
 
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(ADebugCloseableIteratorImpl.class);
 
-    private final CloseableIteratorFinalizer finalizer;
+    private final DebugCloseableIteratorFinalizer finalizer;
 
     public ADebugCloseableIteratorImpl(final TextDescription name, final String className) {
-        this.finalizer = new CloseableIteratorFinalizer(name, className);
+        this.finalizer = new DebugCloseableIteratorFinalizer(name, className);
         this.finalizer.register(this);
     }
 
@@ -78,7 +78,7 @@ public abstract class ADebugCloseableIteratorImpl<E> implements ICloseableIterat
         return finalizer.isClosed();
     }
 
-    private static final class CloseableIteratorFinalizer extends AFinalizer {
+    private static final class DebugCloseableIteratorFinalizer extends AFinalizer {
 
         private final TextDescription name;
         private final String className;
@@ -86,7 +86,7 @@ public abstract class ADebugCloseableIteratorImpl<E> implements ICloseableIterat
         private Exception nextOrHasNextStackTrace;
         private volatile boolean closed;
 
-        private CloseableIteratorFinalizer(final TextDescription name, final String className) {
+        private DebugCloseableIteratorFinalizer(final TextDescription name, final String className) {
             this.name = name;
             this.className = className;
             createInitStackTrace();
