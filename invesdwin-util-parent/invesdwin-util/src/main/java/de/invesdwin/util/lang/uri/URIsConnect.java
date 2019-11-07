@@ -164,14 +164,20 @@ public final class URIsConnect {
                     throw new FileNotFoundException(con.getURL().toString());
                 } else {
                     if (respCode == HttpURLConnection.HTTP_INTERNAL_ERROR) {
-                        final InputStream error = cCon.getErrorStream();
-                        final String errorStr = IOUtils.toString(error, Charset.defaultCharset());
-                        throw new java.io.IOException("Server returned HTTP" + " response code: " + respCode
-                                + " for URL: " + con.getURL().toString() + " error response:"
-                                + "\n*****************************" + errorStr + "*****************************");
+                        try {
+                            final InputStream error = cCon.getErrorStream();
+                            final String errorStr = IOUtils.toString(error, Charset.defaultCharset());
+                            throw new IOException("Server returned HTTP" + " response code: " + respCode + " for URL: "
+                                    + con.getURL().toString() + " error response:" + "\n*****************************"
+                                    + errorStr + "*****************************");
+                        } catch (final Throwable t) {
+                            throw new IOException("Server returned HTTP" + " response code: " + respCode + " for URL: "
+                                    + con.getURL().toString() + " failed to retrieve error response: <" + t.toString()
+                                    + ">");
+                        }
                     } else {
-                        throw new java.io.IOException("Server returned HTTP" + " response code: " + respCode
-                                + " for URL: " + con.getURL().toString());
+                        throw new IOException("Server returned HTTP" + " response code: " + respCode + " for URL: "
+                                + con.getURL().toString());
                     }
                 }
             }
