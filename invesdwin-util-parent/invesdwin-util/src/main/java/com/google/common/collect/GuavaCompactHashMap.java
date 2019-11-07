@@ -9,12 +9,8 @@ public class GuavaCompactHashMap<K, V> extends CompactHashMap<K, V> {
         super();
     }
 
-    public GuavaCompactHashMap(final int capacity) {
-        super(capacity);
-    }
-
-    public GuavaCompactHashMap(final int expectedSize, final float loadFactor) {
-        super(expectedSize, loadFactor);
+    public GuavaCompactHashMap(final int expectedSize) {
+        super(expectedSize);
     }
 
 }

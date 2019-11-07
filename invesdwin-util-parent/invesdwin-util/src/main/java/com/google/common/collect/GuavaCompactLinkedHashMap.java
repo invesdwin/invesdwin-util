@@ -9,12 +9,12 @@ public class GuavaCompactLinkedHashMap<K, V> extends CompactLinkedHashMap<K, V> 
         super();
     }
 
-    public GuavaCompactLinkedHashMap(final int capacity) {
-        super(capacity);
+    public GuavaCompactLinkedHashMap(final int expectedSize) {
+        super(expectedSize);
     }
 
-    public GuavaCompactLinkedHashMap(final int expectedSize, final float loadFactor, final boolean accessOrder) {
-        super(expectedSize, loadFactor, accessOrder);
+    public GuavaCompactLinkedHashMap(final int expectedSize, final boolean accessOrder) {
+        super(expectedSize, accessOrder);
     }
 
 }

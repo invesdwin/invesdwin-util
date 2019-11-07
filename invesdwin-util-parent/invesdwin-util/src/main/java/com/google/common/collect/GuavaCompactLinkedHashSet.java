@@ -13,9 +13,4 @@ public class GuavaCompactLinkedHashSet<E> extends CompactLinkedHashSet<E> {
         super(expectedSize);
     }
 
-    public GuavaCompactLinkedHashSet(final int expectedSize, final float loadFactor) {
-        super(expectedSize);
-        init(expectedSize, loadFactor);
-    }
-
 }
