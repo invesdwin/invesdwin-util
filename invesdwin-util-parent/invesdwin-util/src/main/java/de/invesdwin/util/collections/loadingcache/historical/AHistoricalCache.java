@@ -265,7 +265,7 @@ public abstract class AHistoricalCache<V>
 
     private void invokeRefreshIfRequested() {
         if (refreshRequested || isRecursiveRefreshRequested(this)) {
-            maybeRefresh();
+            clear();
             refreshRequested = false;
         }
     }
@@ -280,17 +280,6 @@ public abstract class AHistoricalCache<V>
             return true;
         }
         return false;
-    }
-
-    /**
-     * Checks if the dependant data has changed and refreshes if it has to by clearing the cache.
-     * 
-     * Per default this does not check anything and just clears the cache. More complex logic can be added by overriding
-     * this method
-     */
-    protected boolean maybeRefresh() {
-        clear();
-        return true;
     }
 
     protected abstract V loadValue(FDate key);

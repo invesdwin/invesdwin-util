@@ -546,14 +546,6 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
     protected abstract V readLatestValueFor(FDate key);
 
     @Override
-    protected synchronized boolean maybeRefresh() {
-        if (eventuallyGetMinMaxKeysInDB(maxKey(), true)) {
-            return super.maybeRefresh();
-        }
-        return false;
-    }
-
-    @Override
     public synchronized void clear() {
         super.clear();
         //remove flags so that the limit check gets skipped if get has not been called yet and this method might be called again
