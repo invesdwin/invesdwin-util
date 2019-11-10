@@ -164,17 +164,17 @@ public final class URIsConnect {
                     throw new FileNotFoundException(con.getURL().toString());
                 } else {
                     if (respCode == HttpURLConnection.HTTP_INTERNAL_ERROR) {
-                        try {
-                            final InputStream error = cCon.getErrorStream();
-                            final String errorStr = IOUtils.toString(error, Charset.defaultCharset());
-                            throw new IOException("Server returned HTTP" + " response code: " + respCode + " for URL: "
-                                    + con.getURL().toString() + " error response:" + "\n*****************************"
-                                    + errorStr + "*****************************");
+                        final String errorStr;
+                        try (InputStream error = cCon.getErrorStream()) {
+                            errorStr = IOUtils.toString(error, Charset.defaultCharset());
                         } catch (final Throwable t) {
                             throw new IOException("Server returned HTTP" + " response code: " + respCode + " for URL: "
                                     + con.getURL().toString() + " failed to retrieve error response: <" + t.toString()
                                     + ">");
                         }
+                        throw new IOException("Server returned HTTP" + " response code: " + respCode + " for URL: "
+                                + con.getURL().toString() + " error response:" + "\n*****************************"
+                                + errorStr + "*****************************");
                     } else {
                         throw new IOException("Server returned HTTP" + " response code: " + respCode + " for URL: "
                                 + con.getURL().toString());
