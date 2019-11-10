@@ -123,8 +123,7 @@ public class DebugConcurrentModificationList<E> extends DelegateList<E> {
             }
 
             @Override
-            public void close() {
-                super.close();
+            protected void innerClose() {
                 openReaders.decrementAndGet();
             }
         };

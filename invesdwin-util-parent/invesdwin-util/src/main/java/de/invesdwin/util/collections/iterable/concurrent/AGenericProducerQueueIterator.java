@@ -229,8 +229,7 @@ public abstract class AGenericProducerQueueIterator<E> extends ACloseableIterato
     }
 
     @Override
-    public void close() {
-        super.close();
+    protected void innerClose() {
         finalizer.close();
     }
 

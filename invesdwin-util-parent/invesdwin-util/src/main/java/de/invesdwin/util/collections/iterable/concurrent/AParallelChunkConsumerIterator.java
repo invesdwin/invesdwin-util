@@ -110,8 +110,7 @@ public abstract class AParallelChunkConsumerIterator<R, E> extends ACloseableIte
     }
 
     @Override
-    public void close() {
-        super.close();
+    protected void innerClose() {
         finalizer.close();
     }
 

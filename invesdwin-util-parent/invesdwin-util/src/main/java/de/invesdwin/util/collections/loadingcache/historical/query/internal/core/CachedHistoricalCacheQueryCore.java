@@ -708,8 +708,7 @@ public class CachedHistoricalCacheQueryCore<V> extends ACachedResultHistoricalCa
                 }
 
                 @Override
-                public void close() {
-                    super.close();
+                protected void innerClose() {
                     finalizer.close();
                 }
 

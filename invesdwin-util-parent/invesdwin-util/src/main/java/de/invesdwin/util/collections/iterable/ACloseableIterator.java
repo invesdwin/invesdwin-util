@@ -32,6 +32,12 @@ public abstract class ACloseableIterator<E> implements ICloseableIterator<E> {
                     ACloseableIterator.this.innerRemove();
                 }
 
+                @Override
+                public void close() {
+                    super.close();
+                    ACloseableIterator.this.innerClose();
+                }
+
             };
         } else {
             this.delegate = new AFastCloseableIteratorImpl<E>(name, getClass().getName()) {
@@ -49,6 +55,12 @@ public abstract class ACloseableIterator<E> implements ICloseableIterator<E> {
                 @Override
                 protected void innerRemove() {
                     ACloseableIterator.this.innerRemove();
+                }
+
+                @Override
+                public void close() {
+                    super.close();
+                    ACloseableIterator.this.innerClose();
                 }
 
             };
@@ -79,9 +91,11 @@ public abstract class ACloseableIterator<E> implements ICloseableIterator<E> {
     }
 
     @Override
-    public void close() {
+    public final void close() {
         delegate.close();
     }
+
+    protected abstract void innerClose();
 
     public boolean isClosed() {
         return delegate.isClosed();

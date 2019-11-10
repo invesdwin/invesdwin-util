@@ -497,8 +497,7 @@ public class TrailingHistoricalCacheQueryCore<V> extends ACachedEntriesHistorica
                 }
 
                 @Override
-                public void close() {
-                    super.close();
+                protected void innerClose() {
                     finalizer.close();
                 }
 

@@ -25,8 +25,8 @@ import de.invesdwin.util.lang.Objects;
 @NotThreadSafe
 public class BufferingIterator<E> implements IBufferingIterator<E>, ISerializableValueObject {
 
-    private Node head;
-    private Node tail;
+    private Node<E> head;
+    private Node<E> tail;
     private int size = 0;
 
     public BufferingIterator() {}
@@ -87,7 +87,7 @@ public class BufferingIterator<E> implements IBufferingIterator<E>, ISerializabl
         if (element == null) {
             throw new NullPointerException();
         }
-        final Node newHead = new Node(element);
+        final Node<E> newHead = new Node<>(element);
         newHead.setNext(head);
         head = newHead;
         size++;
@@ -99,7 +99,7 @@ public class BufferingIterator<E> implements IBufferingIterator<E>, ISerializabl
         if (element == null) {
             throw new NullPointerException();
         }
-        final Node newTail = new Node(element);
+        final Node<E> newTail = new Node<>(element);
         if (head == null) {
             head = newTail;
         } else {
@@ -133,18 +133,18 @@ public class BufferingIterator<E> implements IBufferingIterator<E>, ISerializabl
         if (iterator == null) {
             return false;
         } else {
-            Node prev = tail;
+            Node<E> prev = tail;
             final int sizeBefore = size;
             try {
                 if (tail == null) {
-                    prev = new Node(iterator.next());
+                    prev = new Node<>(iterator.next());
                     size++;
                 }
                 if (head == null) {
                     head = prev;
                 }
                 while (true) {
-                    final Node next = new Node(iterator.next());
+                    final Node<E> next = new Node<>(iterator.next());
                     prev.setNext(next);
                     prev = next;
                     size++;
@@ -216,28 +216,23 @@ public class BufferingIterator<E> implements IBufferingIterator<E>, ISerializabl
         return size;
     }
 
-    private class Node implements ISerializableValueObject {
-        private final E value;
-        private Node next;
+    private static class Node<_E> implements ISerializableValueObject {
+        private final _E value;
+        private Node<_E> next;
 
-        Node(final E value) {
+        Node(final _E value) {
             this.value = value;
         }
 
-        Node(final Node copy) {
-            this.value = copy.value;
-            this.next = copy.next;
-        }
-
-        public E getValue() {
+        public _E getValue() {
             return value;
         }
 
-        public Node getNext() {
+        public Node<_E> getNext() {
             return next;
         }
 
-        public void setNext(final Node next) {
+        public void setNext(final Node<_E> next) {
             this.next = next;
         }
 
@@ -254,31 +249,35 @@ public class BufferingIterator<E> implements IBufferingIterator<E>, ISerializabl
 
     @Override
     public ICloseableIterator<E> iterator() {
-        return new ICloseableIterator<E>() {
+        return new BufferingIteratorIterator<E>(head);
+    }
 
-            private Node innerHead = head;
+    private static final class BufferingIteratorIterator<_E> implements ICloseableIterator<_E> {
+        private Node<_E> innerHead;
 
-            @Override
-            public boolean hasNext() {
-                return innerHead != null;
+        private BufferingIteratorIterator(final Node<_E> head) {
+            this.innerHead = head;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return innerHead != null;
+        }
+
+        @Override
+        public _E next() {
+            if (!hasNext()) {
+                throw new FastNoSuchElementException("BufferingIterator: hasNext is false");
             }
+            final _E value = innerHead.getValue();
+            innerHead = innerHead.getNext();
+            return value;
+        }
 
-            @Override
-            public E next() {
-                if (!hasNext()) {
-                    throw new FastNoSuchElementException("BufferingIterator: hasNext is false");
-                }
-                final E value = innerHead.getValue();
-                innerHead = innerHead.getNext();
-                return value;
-            }
-
-            @Override
-            public void close() {
-                innerHead = null;
-            }
-
-        };
+        @Override
+        public void close() {
+            innerHead = null;
+        }
     }
 
 }

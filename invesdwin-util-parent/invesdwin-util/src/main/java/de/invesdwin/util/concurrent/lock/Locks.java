@@ -1,5 +1,6 @@
 package de.invesdwin.util.concurrent.lock;
 
+import java.util.LinkedList;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -10,8 +11,10 @@ import javax.annotation.concurrent.Immutable;
 
 import com.google.common.util.concurrent.CycleDetectingLockFactory;
 import com.google.common.util.concurrent.CycleDetectingLockFactory.Policies;
+import com.googlecode.concurentlocks.CompositeLock;
 
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
+import de.invesdwin.util.concurrent.lock.disabled.DisabledLock;
 import de.invesdwin.util.concurrent.lock.internal.ALocksStaticFacade;
 import de.invesdwin.util.concurrent.lock.internal.TimeoutLock;
 import de.invesdwin.util.concurrent.lock.internal.TimeoutReentrantLock;
@@ -272,6 +275,26 @@ public final class Locks extends ALocksStaticFacade {
                 return (message != null) ? (s + ": " + message) : s;
             }
         };
+    }
+
+    public static Lock newCompositeLock(final Lock... locks) {
+        if (locks == null || locks.length == 0) {
+            return DisabledLock.INSTANCE;
+        }
+        final LinkedList<Lock> validLocks = new LinkedList<>();
+        for (int i = 0; i < locks.length; i++) {
+            final Lock lock = locks[i];
+            if (lock != DisabledLock.INSTANCE) {
+                validLocks.add(lock);
+            }
+        }
+        if (validLocks.isEmpty()) {
+            return DisabledLock.INSTANCE;
+        } else {
+            //CHECKSTYLE:OFF
+            return new CompositeLock(validLocks);
+            //CHECKSTYLE:ON
+        }
     }
 
 }
