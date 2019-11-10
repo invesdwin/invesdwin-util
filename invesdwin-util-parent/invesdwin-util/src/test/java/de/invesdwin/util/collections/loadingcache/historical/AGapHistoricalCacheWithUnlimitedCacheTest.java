@@ -752,6 +752,11 @@ public class AGapHistoricalCacheWithUnlimitedCacheTest {
             protected FDate innerGetHighestAllowedKey() {
                 return entities.get(entities.size() - 1);
             }
+
+            @Override
+            protected boolean isPullingRecursive() {
+                return false;
+            }
         });
         final List<FDate> newEntities = new ArrayList<FDate>(entities);
         final FDate newEntity = FDateBuilder.newDate(1996, 1, 1);

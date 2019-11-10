@@ -1,4 +1,4 @@
-package de.invesdwin.util.collections.loadingcache.historical.key;
+package de.invesdwin.util.collections.loadingcache.historical.key.internal;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -9,7 +9,8 @@ import java.util.Set;
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
-import de.invesdwin.util.collections.loadingcache.historical.key.internal.HistoricalCacheForClear;
+import de.invesdwin.util.collections.loadingcache.historical.key.AdjustedFDate;
+import de.invesdwin.util.collections.loadingcache.historical.key.IHistoricalCacheAdjustKeyProvider;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQuery;
 import de.invesdwin.util.time.fdate.FDate;
 

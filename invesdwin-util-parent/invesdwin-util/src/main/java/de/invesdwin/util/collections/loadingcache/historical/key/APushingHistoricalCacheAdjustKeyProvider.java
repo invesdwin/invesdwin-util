@@ -9,6 +9,8 @@ import java.util.Set;
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
+import de.invesdwin.util.collections.loadingcache.historical.key.internal.ANonRecursivePullingHistoricalCacheAdjustKeyProvider;
+import de.invesdwin.util.collections.loadingcache.historical.key.internal.ARecursivePullingHistoricalCacheAdjustKeyProvider;
 import de.invesdwin.util.collections.loadingcache.historical.key.internal.HistoricalCacheForClear;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQuery;
 import de.invesdwin.util.time.fdate.FDate;
@@ -24,7 +26,7 @@ public abstract class APushingHistoricalCacheAdjustKeyProvider implements IHisto
 
     public APushingHistoricalCacheAdjustKeyProvider(final AHistoricalCache<?> parent) {
         if (isPullingRecursive()) {
-            this.pullingAdjustKeyProvider = new APullingHistoricalCacheAdjustKeyProvider(parent) {
+            this.pullingAdjustKeyProvider = new ARecursivePullingHistoricalCacheAdjustKeyProvider(parent) {
                 @Override
                 protected FDate innerGetHighestAllowedKey() {
                     return getInitialHighestAllowedKey();
