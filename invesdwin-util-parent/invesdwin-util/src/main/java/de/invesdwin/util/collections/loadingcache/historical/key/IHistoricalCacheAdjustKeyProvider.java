@@ -25,6 +25,4 @@ public interface IHistoricalCacheAdjustKeyProvider {
 
     boolean isAlreadyAdjustingKey();
 
-    boolean isChildRefreshRequested(AHistoricalCache<?> child);
-
 }

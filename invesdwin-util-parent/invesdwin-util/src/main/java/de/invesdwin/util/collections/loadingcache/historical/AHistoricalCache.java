@@ -246,7 +246,10 @@ public abstract class AHistoricalCache<V>
     /**
      * Requests a refresh of the cache on the next get() operation. We would risk deadlocks if we did not make that
      * detour.
+     * 
+     * WARNING: Please use HistoricalCacheRefreshManager instead of directly requesting refresh here.
      */
+    @Deprecated
     public final void requestRefresh() {
         final FDate lastRefreshFromManager = HistoricalCacheRefreshManager.getLastRefresh();
         if (lastRefresh.isBefore(lastRefreshFromManager)) {
@@ -259,27 +262,11 @@ public abstract class AHistoricalCache<V>
         return lastRefresh;
     }
 
-    public boolean isChildRefreshRequested(final AHistoricalCache<?> child) {
-        return child != this && (lastRefresh.isAfter(child.getLastRefresh()) || isRecursiveRefreshRequested(child));
-    }
-
     private void invokeRefreshIfRequested() {
-        if (refreshRequested || isRecursiveRefreshRequested(this)) {
+        if (refreshRequested) {
             clear();
             refreshRequested = false;
         }
-    }
-
-    private boolean isRecursiveRefreshRequested(final AHistoricalCache<?> cache) {
-        if (adjustKeyProvider.getParent() != this && adjustKeyProvider.getParent() != cache
-                && adjustKeyProvider.isChildRefreshRequested(cache)) {
-            return true;
-        }
-        if (shiftKeyProvider.getParent() != this && adjustKeyProvider.getParent() != cache
-                && shiftKeyProvider.isChildRefreshRequested(cache)) {
-            return true;
-        }
-        return false;
     }
 
     protected abstract V loadValue(FDate key);
@@ -691,11 +678,6 @@ public abstract class AHistoricalCache<V>
             return null;
         }
 
-        @Override
-        public boolean isChildRefreshRequested(final AHistoricalCache<?> child) {
-            return AHistoricalCache.this.isChildRefreshRequested(child);
-        }
-
     }
 
     private final class InnerHistoricalCacheAdjustKeyProvider implements IHistoricalCacheAdjustKeyProvider {
@@ -741,11 +723,6 @@ public abstract class AHistoricalCache<V>
         @Override
         public boolean isAlreadyAdjustingKey() {
             return APullingHistoricalCacheAdjustKeyProvider.isGlobalAlreadyAdjustingKey();
-        }
-
-        @Override
-        public boolean isChildRefreshRequested(final AHistoricalCache<?> child) {
-            return AHistoricalCache.this.isChildRefreshRequested(child);
         }
 
     }

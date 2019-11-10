@@ -778,6 +778,11 @@ public class AGapHistoricalCacheWithNoCacheTest {
             protected FDate getInitialHighestAllowedKey() {
                 return null;
             }
+
+            @Override
+            protected boolean isPullingRecursive() {
+                return false;
+            }
         };
         cache.setAdjustKeyProvider(adjustKeyProvider);
         adjustKeyProvider.pushHighestAllowedKey(entities.get(entities.size() - 1));
@@ -807,6 +812,11 @@ public class AGapHistoricalCacheWithNoCacheTest {
             protected FDate getInitialHighestAllowedKey() {
                 return null;
             }
+
+            @Override
+            protected boolean isPullingRecursive() {
+                return false;
+            }
         };
         cache.setAdjustKeyProvider(adjustKeyProvider);
         final List<FDate> newEntities = new ArrayList<FDate>(entities);
@@ -834,6 +844,11 @@ public class AGapHistoricalCacheWithNoCacheTest {
             @Override
             protected FDate getInitialHighestAllowedKey() {
                 return entities.get(entities.size() - 1);
+            }
+
+            @Override
+            protected boolean isPullingRecursive() {
+                return false;
             }
         };
         cache.setAdjustKeyProvider(adjustKeyProvider);

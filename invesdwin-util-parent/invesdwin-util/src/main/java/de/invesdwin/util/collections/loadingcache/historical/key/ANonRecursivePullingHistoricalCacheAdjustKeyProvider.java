@@ -8,29 +8,22 @@ import java.util.Set;
 
 import javax.annotation.concurrent.ThreadSafe;
 
-import org.apache.commons.lang3.BooleanUtils;
-
 import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
 import de.invesdwin.util.collections.loadingcache.historical.key.internal.HistoricalCacheForClear;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQuery;
 import de.invesdwin.util.time.fdate.FDate;
-import io.netty.util.concurrent.FastThreadLocal;
 
 @ThreadSafe
-public abstract class APullingHistoricalCacheAdjustKeyProvider implements IHistoricalCacheAdjustKeyProvider {
-
-    private static final FastThreadLocal<Boolean> GLOBAL_ALREADY_ADJUSTING_KEY = new FastThreadLocal<Boolean>();
-    private final FastThreadLocal<Boolean> alreadyAdjustingKey = new FastThreadLocal<Boolean>();
+public abstract class ANonRecursivePullingHistoricalCacheAdjustKeyProvider
+        implements IHistoricalCacheAdjustKeyProvider {
 
     private volatile FDate curHighestAllowedKey;
-    private final Set<FDate> keysToRemoveOnNewHighestAllowedKey = Collections.synchronizedSet(new HashSet<FDate>());
     private final Set<HistoricalCacheForClear> historicalCachesForClear = Collections
             .synchronizedSet(new HashSet<HistoricalCacheForClear>());
     private final AHistoricalCache<?> parent;
     private final int hashCode = super.hashCode();
 
-    public APullingHistoricalCacheAdjustKeyProvider(final AHistoricalCache<?> parent) {
-        System.out.println("delegate to isPullingRecursive impls");
+    public ANonRecursivePullingHistoricalCacheAdjustKeyProvider(final AHistoricalCache<?> parent) {
         this.parent = parent;
     }
 
@@ -54,28 +47,15 @@ public abstract class APullingHistoricalCacheAdjustKeyProvider implements IHisto
         if (key == null) {
             return null;
         }
-        if (BooleanUtils.isNotTrue(alreadyAdjustingKey.get())) {
-            final Boolean prevGlobalAlreadyAdjustingKey = GLOBAL_ALREADY_ADJUSTING_KEY.get();
-            GLOBAL_ALREADY_ADJUSTING_KEY.set(true);
-            alreadyAdjustingKey.set(true);
-            try {
-                final FDate newHighestAllowedKey = getHighestAllowedKeyUpdateCached();
-                if (newHighestAllowedKey != null) {
-                    if (key.millisValue() > newHighestAllowedKey.millisValue()) {
-                        return newHighestAllowedKey;
-                    }
-                }
-            } finally {
-                GLOBAL_ALREADY_ADJUSTING_KEY.set(prevGlobalAlreadyAdjustingKey);
-                alreadyAdjustingKey.remove();
+        final FDate newHighestAllowedKey = getHighestAllowedKeyUpdateCached();
+        if (newHighestAllowedKey != null) {
+            if (key.millisValue() > newHighestAllowedKey.millisValue()) {
+                return newHighestAllowedKey;
             }
-        } else {
-            rememberKeyToRemove(key);
         }
         return key;
     }
 
-    @SuppressWarnings("deprecation")
     private FDate getHighestAllowedKeyUpdateCached() {
         final FDate newHighestAllowedKey = innerGetHighestAllowedKey();
         if (newHighestAllowedKey != null) {
@@ -87,13 +67,7 @@ public abstract class APullingHistoricalCacheAdjustKeyProvider implements IHisto
             }
 
             if (purge || curHighestAllowedKeyCopy.isBefore(newHighestAllowedKey)) {
-                for (final FDate keyToRemove : keysToRemoveOnNewHighestAllowedKey) {
-                    //only parent will actually be used to search without being adjusted
-                    //and we don't want to keep references to all those others using this properly
-                    parent.remove(keyToRemove);
-                }
                 curHighestAllowedKey = newHighestAllowedKey;
-                keysToRemoveOnNewHighestAllowedKey.clear();
             }
         }
         return newHighestAllowedKey;
@@ -102,42 +76,16 @@ public abstract class APullingHistoricalCacheAdjustKeyProvider implements IHisto
     @Override
     public FDate getHighestAllowedKey() {
         if (curHighestAllowedKey == null) {
-            if (BooleanUtils.isNotTrue(alreadyAdjustingKey.get())) {
-                final Boolean prevGlobalAlreadyAdjustingKey = GLOBAL_ALREADY_ADJUSTING_KEY.get();
-                GLOBAL_ALREADY_ADJUSTING_KEY.set(true);
-                alreadyAdjustingKey.set(true);
-                try {
-                    final FDate newHighestAllowedKey = getHighestAllowedKeyUpdateCached();
-                    curHighestAllowedKey = newHighestAllowedKey;
-                } finally {
-                    GLOBAL_ALREADY_ADJUSTING_KEY.set(prevGlobalAlreadyAdjustingKey);
-                    alreadyAdjustingKey.remove();
-                }
-            }
+            final FDate newHighestAllowedKey = getHighestAllowedKeyUpdateCached();
+            curHighestAllowedKey = newHighestAllowedKey;
         }
         return curHighestAllowedKey;
-    }
-
-    public static boolean isGlobalAlreadyAdjustingKey() {
-        return BooleanUtils.isTrue(GLOBAL_ALREADY_ADJUSTING_KEY.get());
-    }
-
-    @Override
-    public boolean isAlreadyAdjustingKey() {
-        return isGlobalAlreadyAdjustingKey();
-    }
-
-    private void rememberKeyToRemove(final FDate key) {
-        if (curHighestAllowedKey != null && key.isAfter(curHighestAllowedKey)) {
-            keysToRemoveOnNewHighestAllowedKey.add(key);
-        }
     }
 
     protected abstract FDate innerGetHighestAllowedKey();
 
     @Override
     public void clear() {
-        keysToRemoveOnNewHighestAllowedKey.clear();
         //        curHighestAllowedKey = null; // dont clear highestallowedkey or else backtests might get confused
         if (!historicalCachesForClear.isEmpty()) {
             //make copy to prevent recusion
@@ -169,6 +117,11 @@ public abstract class APullingHistoricalCacheAdjustKeyProvider implements IHisto
     @Override
     public FDate maybeAdjustKey(final FDate key) {
         return AdjustedFDate.maybeAdjustKey(this, key);
+    }
+
+    @Override
+    public boolean isAlreadyAdjustingKey() {
+        return false;
     }
 
     @Override

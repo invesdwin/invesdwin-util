@@ -19,17 +19,28 @@ public abstract class APushingHistoricalCacheAdjustKeyProvider implements IHisto
     private volatile FDate curHighestAllowedKey;
     private final Set<HistoricalCacheForClear> historicalCachesForClear = Collections
             .synchronizedSet(new HashSet<HistoricalCacheForClear>());
-    private final APullingHistoricalCacheAdjustKeyProvider pullingAdjustKeyProvider;
+    private final IHistoricalCacheAdjustKeyProvider pullingAdjustKeyProvider;
     private final int hashCode = super.hashCode();
 
     public APushingHistoricalCacheAdjustKeyProvider(final AHistoricalCache<?> parent) {
-        this.pullingAdjustKeyProvider = new APullingHistoricalCacheAdjustKeyProvider(parent) {
-            @Override
-            protected FDate innerGetHighestAllowedKey() {
-                return getInitialHighestAllowedKey();
-            }
-        };
+        if (isPullingRecursive()) {
+            this.pullingAdjustKeyProvider = new APullingHistoricalCacheAdjustKeyProvider(parent) {
+                @Override
+                protected FDate innerGetHighestAllowedKey() {
+                    return getInitialHighestAllowedKey();
+                }
+            };
+        } else {
+            this.pullingAdjustKeyProvider = new ANonRecursivePullingHistoricalCacheAdjustKeyProvider(parent) {
+                @Override
+                protected FDate innerGetHighestAllowedKey() {
+                    return getInitialHighestAllowedKey();
+                }
+            };
+        }
     }
+
+    protected abstract boolean isPullingRecursive();
 
     @Override
     public boolean equals(final Object obj) {
@@ -123,11 +134,6 @@ public abstract class APushingHistoricalCacheAdjustKeyProvider implements IHisto
             final de.invesdwin.util.collections.loadingcache.historical.query.internal.IHistoricalCacheInternalMethods<T> internalMethods) {
         return new de.invesdwin.util.collections.loadingcache.historical.query.internal.adjust.AdjustingHistoricalCacheQuery<T>(
                 internalMethods);
-    }
-
-    @Override
-    public boolean isChildRefreshRequested(final AHistoricalCache<?> child) {
-        return pullingAdjustKeyProvider.isChildRefreshRequested(child);
     }
 
 }

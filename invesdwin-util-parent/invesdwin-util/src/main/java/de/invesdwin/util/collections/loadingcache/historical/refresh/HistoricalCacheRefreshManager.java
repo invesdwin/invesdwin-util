@@ -77,6 +77,7 @@ public final class HistoricalCacheRefreshManager {
      * 
      * Calling this manually makes the caches refresh on the next call to get.
      */
+    @SuppressWarnings("deprecation")
     public static synchronized void forceRefresh() {
         //CHECKSTYLE:OFF
         LOG.warn("Forcing refresh on historical caches: {}", REGISTERED_CACHES.size());
