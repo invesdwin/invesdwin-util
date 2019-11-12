@@ -1,11 +1,14 @@
 package de.invesdwin.util.lang.finalizer;
 
+import java.util.Collections;
 import java.util.Set;
+import java.util.concurrent.ConcurrentMap;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
-import de.invesdwin.util.collections.factory.ILockCollectionFactory;
+import com.github.benmanes.caffeine.cache.Caffeine;
+
 import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.lang.Reflections;
 import de.invesdwin.util.lang.finalizer.internal.FallbackFinalizerManagerProvider;
@@ -23,7 +26,11 @@ public final class FinalizerManager {
     private static final FastThreadLocal<Set<ThreadLocalFinalizerReference>> THREAD_LOCAL_FINALIZERS = new FastThreadLocal<Set<ThreadLocalFinalizerReference>>() {
         @Override
         protected Set<ThreadLocalFinalizerReference> initialValue() throws Exception {
-            return ILockCollectionFactory.getInstance(false).newIdentitySet();
+            final ConcurrentMap<ThreadLocalFinalizerReference, Boolean> slaveDatasetListeners = Caffeine.newBuilder()
+                    .weakKeys()
+                    .<ThreadLocalFinalizerReference, Boolean> build()
+                    .asMap();
+            return Collections.newSetFromMap(slaveDatasetListeners);
         }
 
         @Override
