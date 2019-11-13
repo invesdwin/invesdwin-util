@@ -24,7 +24,7 @@ public class FlatteningIterable<E> implements ICloseableIterable<E> {
                 delegate.iterator()) {
             @Override
             protected Iterator<? extends E> transform(final Iterable<? extends E> value) {
-                return value.iterator();
+                return WrapperCloseableIterable.maybeWrap(value).iterator();
             }
         };
         return new FlatteningIterator<E>(transformingDelegate);

@@ -5,6 +5,8 @@ import java.util.NoSuchElementException;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.util.error.FastNoSuchElementException;
+
 @NotThreadSafe
 public class FlatteningIterator<E> implements ICloseableIterator<E> {
 
@@ -22,27 +24,38 @@ public class FlatteningIterator<E> implements ICloseableIterator<E> {
 
     @Override
     public boolean hasNext() {
-        try {
-            return getIterator().hasNext() || delegate.hasNext();
-        } catch (final NoSuchElementException e) {
-            return false;
+        if (delegate.hasNext()) {
+            return true;
         }
-    }
-
-    @Override
-    public E next() {
-        return getIterator().next();
+        if (curIterator != null && curIterator.hasNext()) {
+            return true;
+        }
+        return false;
     }
 
     @SuppressWarnings("deprecation")
-    private ICloseableIterator<? extends E> getIterator() {
-        while (curIterator == null || !curIterator.hasNext()) {
-            if (curIterator != null) {
-                curIterator.close();
-            }
+    private void nextIterator() {
+        curIterator.close();
+        curIterator = null;
+        //maybe throw another final NoSuchElement exception
+        curIterator = WrapperCloseableIterator.maybeWrap(delegate.next());
+    }
+
+    @SuppressWarnings("deprecation")
+    @Override
+    public E next() {
+        if (curIterator == null) {
+            //might throw a NoSuchElement exception
             curIterator = WrapperCloseableIterator.maybeWrap(delegate.next());
         }
-        return curIterator;
+        while (curIterator != null) {
+            try {
+                return curIterator.next();
+            } catch (final NoSuchElementException e) {
+                nextIterator();
+            }
+        }
+        throw new FastNoSuchElementException("FlatteningIterator: curIterator is null");
     }
 
     @Override
