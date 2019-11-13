@@ -48,6 +48,9 @@ public abstract class ANonRecursivePullingHistoricalCacheAdjustKeyProvider
         if (key == null) {
             return null;
         }
+        if (key.isBeforeOrEqualTo(curHighestAllowedKey)) {
+            return key;
+        }
         final FDate newHighestAllowedKey = getHighestAllowedKeyUpdateCached();
         if (newHighestAllowedKey != null) {
             if (key.millisValue() > newHighestAllowedKey.millisValue()) {

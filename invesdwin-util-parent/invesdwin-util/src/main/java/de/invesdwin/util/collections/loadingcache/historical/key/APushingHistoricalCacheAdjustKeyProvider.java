@@ -69,6 +69,9 @@ public abstract class APushingHistoricalCacheAdjustKeyProvider implements IHisto
         if (key == null) {
             return null;
         }
+        if (key.isBeforeOrEqualTo(curHighestAllowedKey)) {
+            return key;
+        }
         final FDate highestAllowedKey = getHighestAllowedKey();
         if (highestAllowedKey != null && key.millisValue() > highestAllowedKey.millisValue()) {
             return highestAllowedKey;

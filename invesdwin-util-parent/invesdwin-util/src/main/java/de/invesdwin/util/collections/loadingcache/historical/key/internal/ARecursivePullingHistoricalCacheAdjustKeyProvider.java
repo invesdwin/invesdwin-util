@@ -54,6 +54,9 @@ public abstract class ARecursivePullingHistoricalCacheAdjustKeyProvider implemen
         if (key == null) {
             return null;
         }
+        if (key.isBeforeOrEqualTo(curHighestAllowedKey)) {
+            return key;
+        }
         if (BooleanUtils.isNotTrue(alreadyAdjustingKey.get())) {
             final Boolean prevGlobalAlreadyAdjustingKey = GLOBAL_ALREADY_ADJUSTING_KEY.get();
             GLOBAL_ALREADY_ADJUSTING_KEY.set(true);
