@@ -22,13 +22,25 @@ public class FlatteningIterator<E> implements ICloseableIterator<E> {
         this.delegate = delegate;
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public boolean hasNext() {
         if (curIterator == null && delegate.hasNext()) {
             curIterator = WrapperCloseableIterator.maybeWrap(delegate.next());
         }
-        if (curIterator != null && curIterator.hasNext()) {
-            return true;
+        while (curIterator != null) {
+            if (curIterator.hasNext()) {
+                return true;
+            } else if (delegate.hasNext()) {
+                try {
+                    nextIterator();
+                } catch (final NoSuchElementException e) {
+                    //might happen on null value
+                    return false;
+                }
+            } else {
+                break;
+            }
         }
         return false;
     }
@@ -37,7 +49,7 @@ public class FlatteningIterator<E> implements ICloseableIterator<E> {
     private void nextIterator() {
         curIterator.close();
         curIterator = null;
-        //maybe throw another final NoSuchElement exception
+        //might throw another final NoSuchElement exception
         curIterator = WrapperCloseableIterator.maybeWrap(delegate.next());
     }
 
