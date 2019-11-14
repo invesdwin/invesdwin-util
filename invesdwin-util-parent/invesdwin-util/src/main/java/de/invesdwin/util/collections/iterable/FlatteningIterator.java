@@ -24,8 +24,8 @@ public class FlatteningIterator<E> implements ICloseableIterator<E> {
 
     @Override
     public boolean hasNext() {
-        if (delegate.hasNext()) {
-            return true;
+        if (curIterator == null && delegate.hasNext()) {
+            curIterator = WrapperCloseableIterator.maybeWrap(delegate.next());
         }
         if (curIterator != null && curIterator.hasNext()) {
             return true;
