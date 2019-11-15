@@ -4,7 +4,7 @@ import java.util.NoSuchElementException;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import de.invesdwin.util.collections.sorted.SortedList;
+import de.invesdwin.util.collections.list.SortedList;
 import de.invesdwin.util.error.FastNoSuchElementException;
 import de.invesdwin.util.lang.ADelegateComparator;
 

@@ -8,9 +8,9 @@ import java.util.List;
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.assertions.Assertions;
-import de.invesdwin.util.collections.Lists;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.collections.iterable.WrapperCloseableIterable;
+import de.invesdwin.util.collections.list.Lists;
 import de.invesdwin.util.math.decimal.ADecimal;
 import de.invesdwin.util.math.decimal.Decimal;
 import de.invesdwin.util.math.decimal.IDecimalAggregate;

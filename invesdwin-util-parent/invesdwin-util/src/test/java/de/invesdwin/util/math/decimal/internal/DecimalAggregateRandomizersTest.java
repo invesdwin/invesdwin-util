@@ -8,7 +8,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 import org.junit.Test;
 
 import de.invesdwin.util.assertions.Assertions;
-import de.invesdwin.util.collections.Lists;
+import de.invesdwin.util.collections.list.Lists;
 import de.invesdwin.util.math.decimal.Decimal;
 import de.invesdwin.util.math.decimal.IDecimalAggregate;
 import de.invesdwin.util.math.random.RandomGenerators;

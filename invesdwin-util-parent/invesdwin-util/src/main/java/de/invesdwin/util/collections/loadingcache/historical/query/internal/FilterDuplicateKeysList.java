@@ -8,8 +8,8 @@ import java.util.List;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import de.invesdwin.util.collections.Lists;
 import de.invesdwin.util.collections.delegate.ADelegateList;
+import de.invesdwin.util.collections.list.Lists;
 import de.invesdwin.util.collections.loadingcache.historical.IHistoricalEntry;
 
 /**

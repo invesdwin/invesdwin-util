@@ -8,7 +8,7 @@ import java.util.List;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.assertions.Assertions;
-import de.invesdwin.util.collections.sorted.BisectSortedList;
+import de.invesdwin.util.collections.list.BisectSortedList;
 import de.invesdwin.util.math.Doubles;
 
 /**

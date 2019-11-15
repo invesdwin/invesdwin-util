@@ -6,8 +6,8 @@ import java.util.List;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import de.invesdwin.util.collections.IFastToListProvider;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
+import de.invesdwin.util.collections.list.IFastToListProvider;
 import de.invesdwin.util.error.FastNoSuchElementException;
 
 @NotThreadSafe

@@ -8,7 +8,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 import org.apache.commons.math3.random.RandomGenerator;
 
 import de.invesdwin.util.bean.tuple.Pair;
-import de.invesdwin.util.collections.Lists;
+import de.invesdwin.util.collections.list.Lists;
 import de.invesdwin.util.math.decimal.ADecimal;
 import de.invesdwin.util.math.decimal.IDecimalAggregate;
 

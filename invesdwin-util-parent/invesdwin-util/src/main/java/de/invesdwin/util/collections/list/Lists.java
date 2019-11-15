@@ -1,4 +1,4 @@
-package de.invesdwin.util.collections;
+package de.invesdwin.util.collections.list;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -10,13 +10,13 @@ import java.util.NoSuchElementException;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
-import de.invesdwin.util.collections.internal.AListsStaticFacade;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.collections.iterable.WrapperCloseableIterable;
+import de.invesdwin.util.collections.list.internal.AListsStaticFacade;
 
 @Immutable
-@StaticFacadeDefinition(name = "de.invesdwin.util.collections.internal.AListsStaticFacade", targets = {
+@StaticFacadeDefinition(name = "de.invesdwin.util.collections.list.internal.AListsStaticFacade", targets = {
         com.google.common.collect.Lists.class, org.apache.commons.collections4.ListUtils.class })
 public final class Lists extends AListsStaticFacade {
 

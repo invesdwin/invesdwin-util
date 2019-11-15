@@ -6,8 +6,8 @@ import java.util.NoSuchElementException;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.norva.marker.ISerializableValueObject;
-import de.invesdwin.util.collections.Lists;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
+import de.invesdwin.util.collections.list.Lists;
 import de.invesdwin.util.error.FastNoSuchElementException;
 import de.invesdwin.util.lang.Closeables;
 import de.invesdwin.util.lang.Objects;

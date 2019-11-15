@@ -10,9 +10,9 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import org.apache.commons.lang3.ArrayUtils;
 
-import de.invesdwin.util.collections.IFastToListProvider;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
+import de.invesdwin.util.collections.list.IFastToListProvider;
 import de.invesdwin.util.lang.Reflections;
 
 @NotThreadSafe

@@ -1,4 +1,4 @@
-package de.invesdwin.util.collections;
+package de.invesdwin.util.collections.list;
 
 import java.util.ArrayList;
 import java.util.List;

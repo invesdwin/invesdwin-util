@@ -1,14 +1,12 @@
 package de.invesdwin.util.lang.finalizer;
 
-import java.util.Collections;
-import java.util.Set;
-import java.util.concurrent.ConcurrentMap;
+import java.util.ArrayList;
+import java.util.Collection;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
-import com.github.benmanes.caffeine.cache.Caffeine;
-
+import de.invesdwin.util.concurrent.reference.persistent.ACompressingWeakReference;
 import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.lang.Reflections;
 import de.invesdwin.util.lang.finalizer.internal.FallbackFinalizerManagerProvider;
@@ -23,21 +21,20 @@ public final class FinalizerManager {
 
     private static final IFinalizerManagerProvider PROVIDER;
 
-    private static final FastThreadLocal<Set<ThreadLocalFinalizerReference>> THREAD_LOCAL_FINALIZERS = new FastThreadLocal<Set<ThreadLocalFinalizerReference>>() {
+    private static final FastThreadLocal<Collection<WeakThreadLocalFinalizerReference>> THREAD_LOCAL_FINALIZERS = new FastThreadLocal<Collection<WeakThreadLocalFinalizerReference>>() {
         @Override
-        protected Set<ThreadLocalFinalizerReference> initialValue() throws Exception {
-            final ConcurrentMap<ThreadLocalFinalizerReference, Boolean> slaveDatasetListeners = Caffeine.newBuilder()
-                    .weakKeys()
-                    .<ThreadLocalFinalizerReference, Boolean> build()
-                    .asMap();
-            return Collections.newSetFromMap(slaveDatasetListeners);
+        protected Collection<WeakThreadLocalFinalizerReference> initialValue() throws Exception {
+            return new ArrayList<WeakThreadLocalFinalizerReference>();
         }
 
         @Override
-        protected void onRemoval(final Set<ThreadLocalFinalizerReference> value) throws Exception {
+        protected void onRemoval(final Collection<WeakThreadLocalFinalizerReference> value) throws Exception {
             //thread context changed, call finalizers
-            for (final ThreadLocalFinalizerReference finalizer : value) {
-                finalizer.run();
+            for (final WeakThreadLocalFinalizerReference v : value) {
+                final ThreadLocalFinalizerReference reference = v.get();
+                if (reference != null) {
+                    reference.run();
+                }
             }
         }
     };
@@ -72,7 +69,32 @@ public final class FinalizerManager {
         }
     }
 
+    private static final class WeakThreadLocalFinalizerReference
+            extends ACompressingWeakReference<ThreadLocalFinalizerReference, Void> {
+
+        private final Collection<WeakThreadLocalFinalizerReference> collection;
+
+        private WeakThreadLocalFinalizerReference(final Collection<WeakThreadLocalFinalizerReference> collection,
+                final ThreadLocalFinalizerReference referent) {
+            super(referent);
+            this.collection = collection;
+        }
+
+        @Override
+        protected Void toCompressed(final ThreadLocalFinalizerReference referent) throws Exception {
+            collection.remove(this);
+            return null;
+        }
+
+        @Override
+        protected ThreadLocalFinalizerReference fromCompressed(final Void compressed) throws Exception {
+            return null;
+        }
+
+    }
+
     private static final class ThreadLocalFinalizerReference implements IFinalizerReference, Runnable {
+        private final WeakThreadLocalFinalizerReference weakReference;
         @GuardedBy("finalizer")
         private IFinalizerReference reference;
         @GuardedBy("finalizer")
@@ -80,7 +102,9 @@ public final class FinalizerManager {
 
         private ThreadLocalFinalizerReference(final AFinalizer finalizer) {
             this.finalizer = finalizer;
-            THREAD_LOCAL_FINALIZERS.get().add(this);
+            final Collection<WeakThreadLocalFinalizerReference> collection = THREAD_LOCAL_FINALIZERS.get();
+            this.weakReference = new WeakThreadLocalFinalizerReference(collection, this);
+            collection.add(weakReference);
         }
 
         //no need to synchronize here
@@ -102,7 +126,8 @@ public final class FinalizerManager {
 
         private void cleanReferenceLocked() {
             finalizer = null;
-            THREAD_LOCAL_FINALIZERS.get().remove(this);
+            final Collection<WeakThreadLocalFinalizerReference> collection = THREAD_LOCAL_FINALIZERS.get();
+            collection.remove(weakReference);
             reference.cleanReference();
             reference = null;
         }

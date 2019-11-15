@@ -8,8 +8,8 @@ import java.util.function.Function;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.Immutable;
 
-import de.invesdwin.util.collections.Lists;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
+import de.invesdwin.util.collections.list.Lists;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.decimal.internal.DecimalAggregate;

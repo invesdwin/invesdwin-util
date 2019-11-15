@@ -5,7 +5,7 @@ import java.util.List;
 
 import javax.annotation.concurrent.Immutable;
 
-import de.invesdwin.util.collections.Lists;
+import de.invesdwin.util.collections.list.Lists;
 import de.invesdwin.util.math.Longs;
 import de.invesdwin.util.math.decimal.Decimal;
 import de.invesdwin.util.math.stream.number.NumberStreamAvg;
