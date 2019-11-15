@@ -26,7 +26,7 @@ public final class FinalizerManager {
     private static final FastThreadLocal<List<WeakThreadLocalFinalizerReference>> THREAD_LOCAL_FINALIZERS = new FastThreadLocal<List<WeakThreadLocalFinalizerReference>>() {
         @Override
         protected List<WeakThreadLocalFinalizerReference> initialValue() throws Exception {
-            //garbage collector thread accesses this too
+            //garbage collector thread accesses this too 
             return Collections.synchronizedList(new ArrayList<WeakThreadLocalFinalizerReference>());
         }
 
