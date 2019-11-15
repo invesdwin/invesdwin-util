@@ -2,6 +2,8 @@ package de.invesdwin.util.lang.finalizer;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
@@ -21,20 +23,28 @@ public final class FinalizerManager {
 
     private static final IFinalizerManagerProvider PROVIDER;
 
-    private static final FastThreadLocal<Collection<WeakThreadLocalFinalizerReference>> THREAD_LOCAL_FINALIZERS = new FastThreadLocal<Collection<WeakThreadLocalFinalizerReference>>() {
+    private static final FastThreadLocal<List<WeakThreadLocalFinalizerReference>> THREAD_LOCAL_FINALIZERS = new FastThreadLocal<List<WeakThreadLocalFinalizerReference>>() {
         @Override
-        protected Collection<WeakThreadLocalFinalizerReference> initialValue() throws Exception {
-            return new ArrayList<WeakThreadLocalFinalizerReference>();
+        protected List<WeakThreadLocalFinalizerReference> initialValue() throws Exception {
+            //garbage collector thread accesses this too
+            return Collections.synchronizedList(new ArrayList<WeakThreadLocalFinalizerReference>());
         }
 
         @Override
-        protected void onRemoval(final Collection<WeakThreadLocalFinalizerReference> value) throws Exception {
+        protected void onRemoval(final List<WeakThreadLocalFinalizerReference> value) throws Exception {
             //thread context changed, call finalizers
-            for (final WeakThreadLocalFinalizerReference v : value) {
-                final ThreadLocalFinalizerReference reference = v.get();
-                if (reference != null) {
-                    reference.run();
+            try {
+                for (int i = 0; i < value.size(); i++) {
+                    final WeakThreadLocalFinalizerReference v = value.get(i);
+                    if (v != null) {
+                        final ThreadLocalFinalizerReference reference = v.get();
+                        if (reference != null) {
+                            reference.run();
+                        }
+                    }
                 }
+            } catch (final ArrayIndexOutOfBoundsException e) {
+                //end reached, might happen due to compressing reference removing last element
             }
         }
     };
