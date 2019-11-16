@@ -8,6 +8,7 @@ import java.awt.Point;
 import java.awt.Window;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionListener;
 
 import javax.annotation.concurrent.Immutable;
 import javax.swing.AbstractButton;
@@ -21,6 +22,7 @@ import javax.swing.table.TableColumn;
 import javax.swing.text.JTextComponent;
 
 import de.invesdwin.util.lang.Objects;
+import de.invesdwin.util.swing.listener.ADelegateMouseMotionListener;
 
 @Immutable
 public final class Components {
@@ -81,18 +83,26 @@ public final class Components {
         }
     }
 
+    public static void updateToolTip(final Component component) {
+        triggerMouseMoved(component, new ADelegateMouseMotionListener() {
+            @Override
+            protected MouseMotionListener newDelegate() {
+                return ToolTipManager.sharedInstance();
+            }
+        });
+    }
+
     /**
      * https://stackoverflow.com/questions/12822819/dynamically-update-tooltip-currently-displayed
      */
-    public static void updateToolTip(final Component component) {
+    public static void triggerMouseMoved(final Component component, final MouseMotionListener listener) {
         if (component.isShowing()) {
             final Point locationOnScreen = MouseInfo.getPointerInfo().getLocation();
             final Point locationOnComponent = new Point(locationOnScreen);
             SwingUtilities.convertPointFromScreen(locationOnComponent, component);
             if (component.contains(locationOnComponent)) {
-                ToolTipManager.sharedInstance()
-                        .mouseMoved(new MouseEvent(component, -1, System.currentTimeMillis(), 0, locationOnComponent.x,
-                                locationOnComponent.y, locationOnScreen.x, locationOnScreen.y, 0, false, 0));
+                listener.mouseMoved(new MouseEvent(component, -1, System.currentTimeMillis(), 0, locationOnComponent.x,
+                        locationOnComponent.y, locationOnScreen.x, locationOnScreen.y, 0, false, 0));
             }
         }
     }
