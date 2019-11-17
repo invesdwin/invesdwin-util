@@ -573,4 +573,8 @@ public final class Strings extends AStringsStaticFacade {
         return replaceEachIgnoreCase(result, searchList, replacementList, repeat, timeToLive - 1);
     }
 
+    public static boolean isBlankOrNullText(final String str) {
+        return isBlank(str) || equalsIgnoreCase(str, NULL_TEXT);
+    }
+
 }
