@@ -134,9 +134,8 @@ public class Instant extends Number implements Comparable<Object> {
         if (obj == null || !(obj instanceof Instant)) {
             return false;
         } else {
-            final Instant o1 = this;
-            final Instant o2 = (Instant) obj;
-            return ((Long) o1.nanos).equals(o2.nanos);
+            final Instant cObj = (Instant) obj;
+            return nanos == cObj.nanos;
         }
     }
 
@@ -150,9 +149,8 @@ public class Instant extends Number implements Comparable<Object> {
         if (o == null || !(o instanceof Instant)) {
             return 1;
         } else {
-            final Instant o1 = this;
-            final Instant o2 = (Instant) o;
-            return ((Long) o1.nanos).compareTo(o2.nanos);
+            final Instant cO = (Instant) o;
+            return Long.compare(nanos, cO.nanos);
         }
     }
 

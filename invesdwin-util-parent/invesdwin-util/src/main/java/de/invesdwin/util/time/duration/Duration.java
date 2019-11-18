@@ -430,17 +430,11 @@ public class Duration extends Number implements Comparable<Object> {
 
     @Override
     public int compareTo(final Object o) {
-        if (o instanceof Duration) {
-            final Duration cO = (Duration) o;
-            if (isGreaterThan(cO)) {
-                return 1;
-            } else if (isLessThan(cO)) {
-                return -1;
-            } else {
-                return 0;
-            }
+        if (o == null || !(o instanceof Duration)) {
+            return 1;
         }
-        return -1;
+        final Duration cO = (Duration) o;
+        return Long.compare(nanosValue(), cO.nanosValue());
     }
 
     public static IDurationAggregate valueOf(final Duration... values) {
