@@ -11,7 +11,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.lang.ADelegateComparator;
-import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.math.Longs;
 import de.invesdwin.util.math.decimal.Decimal;
@@ -49,7 +48,7 @@ public class Duration extends Number implements Comparable<Object> {
     @GuardedBy("none for performance")
     @JsonIgnore
     @Transient
-    private Integer cachedHashCode;
+    private transient Long nanos;
 
     public Duration(final Instant start) {
         this(start, FTimeUnit.NANOSECONDS);
@@ -103,16 +102,20 @@ public class Duration extends Number implements Comparable<Object> {
      * Creates a new duration derived from this one by multipliying with the given factor.
      */
     public Duration multiply(final double factor) {
-        return new Duration((long) (longValue(FTimeUnit.NANOSECONDS) * factor), FTimeUnit.NANOSECONDS);
-    }
-
-    public boolean isGreaterThan(final long duration, final FTimeUnit timeUnit) {
-        final long comparableDuration = FTimeUnit.NANOSECONDS.convert(duration, timeUnit);
-        return longValue(FTimeUnit.NANOSECONDS) > comparableDuration;
+        return new Duration((long) (nanosValue() * factor), FTimeUnit.NANOSECONDS);
     }
 
     public boolean isGreaterThan(final Duration duration) {
         return isGreaterThan(duration.duration, duration.timeUnit);
+    }
+
+    public boolean isGreaterThan(final long duration, final FTimeUnit timeUnit) {
+        final long durationNanos = FTimeUnit.NANOSECONDS.convert(duration, timeUnit);
+        return isGreaterThanNanos(durationNanos);
+    }
+
+    public boolean isGreaterThanNanos(final long durationNanos) {
+        return nanosValue() > durationNanos;
     }
 
     public boolean isGreaterThanOrEqualTo(final Duration duration) {
@@ -120,24 +123,38 @@ public class Duration extends Number implements Comparable<Object> {
     }
 
     public boolean isGreaterThanOrEqualTo(final long duration, final FTimeUnit timeUnit) {
-        return !isLessThan(duration, timeUnit);
+        final long durationNanos = FTimeUnit.NANOSECONDS.convert(duration, timeUnit);
+        return isGreaterThanOrEqualToNanos(durationNanos);
     }
 
-    public boolean isLessThan(final long duration, final FTimeUnit timeUnit) {
-        final long comparableDuration = FTimeUnit.NANOSECONDS.convert(duration, timeUnit);
-        return longValue(FTimeUnit.NANOSECONDS) < comparableDuration;
+    public boolean isGreaterThanOrEqualToNanos(final long durationNanos) {
+        return nanosValue() >= durationNanos;
     }
 
     public boolean isLessThan(final Duration duration) {
         return isLessThan(duration.duration, duration.timeUnit);
     }
 
-    public boolean isLessThanOrEqualTo(final long duration, final FTimeUnit timeUnit) {
-        return !isGreaterThan(duration, timeUnit);
+    public boolean isLessThan(final long duration, final FTimeUnit timeUnit) {
+        final long durationNanos = FTimeUnit.NANOSECONDS.convert(duration, timeUnit);
+        return isLessThanNanos(durationNanos);
+    }
+
+    public boolean isLessThanNanos(final long durationNanos) {
+        return nanosValue() < durationNanos;
     }
 
     public boolean isLessThanOrEqualTo(final Duration duration) {
         return isLessThanOrEqualTo(duration.duration, duration.timeUnit);
+    }
+
+    public boolean isLessThanOrEqualTo(final long duration, final FTimeUnit timeUnit) {
+        final long durationNanos = FTimeUnit.NANOSECONDS.convert(duration, timeUnit);
+        return isLessThanOrEqualToNanos(durationNanos);
+    }
+
+    public boolean isLessThanOrEqualToNanos(final long durationNanos) {
+        return nanosValue() <= durationNanos;
     }
 
     public FTimeUnit getTimeUnit() {
@@ -157,13 +174,24 @@ public class Duration extends Number implements Comparable<Object> {
         return Long.valueOf(timeUnit.convert(duration, this.timeUnit)).intValue();
     }
 
+    public long nanosValue() {
+        if (nanos == null) {
+            nanos = FTimeUnit.NANOSECONDS.convert(duration, timeUnit);
+        }
+        return nanos;
+    }
+
     @Override
     public long longValue() {
         return longValue(timeUnit);
     }
 
     public long longValue(final FTimeUnit timeUnit) {
-        return Long.valueOf(timeUnit.convert(duration, this.timeUnit)).longValue();
+        if (timeUnit == FTimeUnit.NANOSECONDS) {
+            return nanosValue();
+        } else {
+            return timeUnit.convert(duration, this.timeUnit);
+        }
     }
 
     @Override
@@ -172,7 +200,7 @@ public class Duration extends Number implements Comparable<Object> {
     }
 
     public float floatValue(final FTimeUnit timeUnit) {
-        return Long.valueOf(timeUnit.convert(duration, this.timeUnit)).floatValue();
+        return Long.valueOf(longValue(timeUnit)).floatValue();
     }
 
     @Override
@@ -181,7 +209,7 @@ public class Duration extends Number implements Comparable<Object> {
     }
 
     public double doubleValue(final FTimeUnit timeUnit) {
-        return Long.valueOf(timeUnit.convert(duration, this.timeUnit)).doubleValue();
+        return Long.valueOf(longValue(timeUnit)).doubleValue();
     }
 
     public Decimal decimalValue() {
@@ -189,7 +217,7 @@ public class Duration extends Number implements Comparable<Object> {
     }
 
     public Decimal decimalValue(final FTimeUnit timeUnit) {
-        return new Decimal(timeUnit.convert(duration, this.timeUnit));
+        return new Decimal(longValue(timeUnit));
     }
 
     @Override
@@ -320,23 +348,21 @@ public class Duration extends Number implements Comparable<Object> {
      */
     public Duration add(final long duration, final FTimeUnit timeUnit) {
         final long comparableDuration = FTimeUnit.NANOSECONDS.convert(duration, timeUnit);
-        return new Duration(Math.addExact(this.longValue(FTimeUnit.NANOSECONDS), comparableDuration),
-                FTimeUnit.NANOSECONDS);
+        return new Duration(Math.addExact(nanosValue(), comparableDuration), FTimeUnit.NANOSECONDS);
     }
 
     public Duration subtract(final long duration, final FTimeUnit timeUnit) {
         final long comparableDuration = FTimeUnit.NANOSECONDS.convert(duration, timeUnit);
-        return new Duration(Math.subtractExact(this.longValue(FTimeUnit.NANOSECONDS), comparableDuration),
-                FTimeUnit.NANOSECONDS);
+        return new Duration(Math.subtractExact(nanosValue(), comparableDuration), FTimeUnit.NANOSECONDS);
     }
 
     public Duration divide(final Number dividend) {
-        final long divided = (long) (longValue(FTimeUnit.NANOSECONDS) / dividend.doubleValue());
+        final long divided = (long) (nanosValue() / dividend.doubleValue());
         return new Duration(divided, FTimeUnit.NANOSECONDS);
     }
 
     public Duration multiply(final Number multiplicant) {
-        final long multiplied = (long) (longValue(FTimeUnit.NANOSECONDS) * multiplicant.doubleValue());
+        final long multiplied = (long) (nanosValue() * multiplicant.doubleValue());
         return new Duration(multiplied, FTimeUnit.NANOSECONDS);
     }
 
@@ -363,18 +389,23 @@ public class Duration extends Number implements Comparable<Object> {
     public boolean equals(final Object obj) {
         if (obj instanceof Duration) {
             final Duration zObj = (Duration) obj;
-            return zObj.longValue(FTimeUnit.NANOSECONDS) == this.longValue(FTimeUnit.NANOSECONDS);
+            return equalsNotNullSafe(zObj);
         } else {
             return false;
         }
     }
 
+    public boolean equals(final Duration obj) {
+        return obj != null && equalsNotNullSafe(obj);
+    }
+
+    public boolean equalsNotNullSafe(final Duration obj) {
+        return nanosValue() == obj.nanosValue();
+    }
+
     @Override
     public int hashCode() {
-        if (cachedHashCode == null) {
-            cachedHashCode = Objects.hashCode(getClass(), longValue(FTimeUnit.NANOSECONDS));
-        }
-        return cachedHashCode;
+        return Long.hashCode(nanosValue());
     }
 
     public FDate subtractFrom(final FDate date) {
@@ -390,7 +421,7 @@ public class Duration extends Number implements Comparable<Object> {
     }
 
     public boolean isExactMultipleOfPeriod(final Duration period) {
-        return !isLessThan(period) && longValue(FTimeUnit.NANOSECONDS) % period.longValue(FTimeUnit.NANOSECONDS) == 0;
+        return !isLessThan(period) && nanosValue() % period.nanosValue() == 0;
     }
 
     public double getNumMultipleOfPeriod(final Duration period) {
