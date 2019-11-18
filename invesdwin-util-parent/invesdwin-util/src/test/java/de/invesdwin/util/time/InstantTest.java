@@ -29,6 +29,8 @@ public class InstantTest {
         Assertions.assertThat(new Duration(start, ende).isGreaterThan(iterations, FTimeUnit.MILLISECONDS)).isTrue();
         Assertions.assertThat(new Duration(start, ende).isGreaterThan((iterations * 3), FTimeUnit.MILLISECONDS))
                 .isFalse();
+        Assertions.assertThat(start.isGreaterThan(new Duration(iterations, FTimeUnit.MILLISECONDS))).isTrue();
+        Assertions.assertThat(start.isGreaterThan(new Duration((iterations * 3), FTimeUnit.MILLISECONDS))).isFalse();
     }
 
     @Test
