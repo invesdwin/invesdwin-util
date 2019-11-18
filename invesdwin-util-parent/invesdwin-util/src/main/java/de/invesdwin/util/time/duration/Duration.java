@@ -67,6 +67,10 @@ public class Duration extends Number implements Comparable<Object> {
         this(end.longValue(timeUnit) - start.longValue(timeUnit), timeUnit);
     }
 
+    public Duration(final long start, final long end, final FTimeUnit timeUnit) {
+        this(end - start, timeUnit);
+    }
+
     public Duration(final Duration start, final Duration end, final FTimeUnit timeUnit) {
         this(end.longValue(timeUnit) - start.longValue(timeUnit), timeUnit);
     }
@@ -205,63 +209,59 @@ public class Duration extends Number implements Comparable<Object> {
     //CHECKSTYLE:OFF NPath
     public String toString(final FTimeUnit smallestTimeUnit) {
         //CHECKSTYLE:ON
-        final long nanos = Longs.abs(FTimeUnit.NANOSECONDS.convert(duration, this.timeUnit));
-        final long nanosAsMicros = FTimeUnit.NANOSECONDS.toMicros(nanos);
-        final long nanosAsMillis = FTimeUnit.NANOSECONDS.toMillis(nanos);
-        final long nanosAsSeconds = FTimeUnit.NANOSECONDS.toSeconds(nanos);
-        final long nanosAsMinutes = FTimeUnit.NANOSECONDS.toMinutes(nanos);
-        final long nanosAsHours = FTimeUnit.NANOSECONDS.toHours(nanos);
-        final long nanosAsDays = FTimeUnit.NANOSECONDS.toDays(nanos);
-        final long nanosAsWeeks = FTimeUnit.NANOSECONDS.toWeeks(nanos);
-        final long nanosAsMonths = FTimeUnit.NANOSECONDS.toMonths(nanos);
-        final long nanosAsYears = FTimeUnit.NANOSECONDS.toYears(nanos);
+        long nanoseconds = Longs.abs(FTimeUnit.NANOSECONDS.convert(duration, this.timeUnit));
+        final long years = FTimeUnit.NANOSECONDS.toYears(nanoseconds);
+        nanoseconds -= FTimeUnit.YEARS.toNanos(years);
+        final long months = FTimeUnit.NANOSECONDS.toMonths(nanoseconds);
+        nanoseconds -= FTimeUnit.MONTHS.toNanos(months);
+        final long weeks = FTimeUnit.NANOSECONDS.toWeeks(nanoseconds);
+        nanoseconds -= FTimeUnit.WEEKS.toNanos(weeks);
+        final long days = FTimeUnit.NANOSECONDS.toDays(nanoseconds);
+        nanoseconds -= FTimeUnit.DAYS.toNanos(days);
+        final long hours = FTimeUnit.NANOSECONDS.toHours(nanoseconds);
+        nanoseconds -= FTimeUnit.HOURS.toNanos(hours);
+        final long minutes = FTimeUnit.NANOSECONDS.toMinutes(nanoseconds);
+        nanoseconds -= FTimeUnit.MINUTES.toNanos(minutes);
+        final long seconds = FTimeUnit.NANOSECONDS.toSeconds(nanoseconds);
+        nanoseconds -= FTimeUnit.SECONDS.toNanos(seconds);
+        final long milliseconds = FTimeUnit.NANOSECONDS.toMillis(nanoseconds);
+        nanoseconds -= FTimeUnit.MILLISECONDS.toNanos(milliseconds);
+        final long microseconds = FTimeUnit.NANOSECONDS.toMicros(nanoseconds);
+        nanoseconds -= FTimeUnit.MICROSECONDS.toNanos(microseconds);
 
         final StringBuilder sb = new StringBuilder();
-        long nanoseconds = 0;
-        long microseconds = 0;
-        long milliseconds = 0;
-        long seconds = 0;
-        final long years = nanosAsYears;
-        final long months = nanosAsMonths - years * FTimeUnit.MONTHS_IN_YEAR;
-        final long weeks = nanosAsWeeks - months * FTimeUnit.WEEKS_IN_MONTH - years * FTimeUnit.WEEKS_IN_YEAR;
         switch (smallestTimeUnit) {
         case NANOSECONDS:
-            nanoseconds = nanos - nanosAsMicros * FTimeUnit.NANOSECONDS_IN_MICROSECOND;
             if (nanoseconds > 0) {
                 sb.insert(0, Strings.leftPad(nanoseconds, 3, "0"));
                 sb.insert(0, ".");
             }
             // fall through
         case MICROSECONDS:
-            microseconds = nanosAsMicros - nanosAsMillis * FTimeUnit.MICROSECONDS_IN_MILLISECOND;
             if (microseconds + nanoseconds > 0) {
                 sb.insert(0, Strings.leftPad(microseconds, 3, "0"));
                 sb.insert(0, ".");
             }
             // fall through
         case MILLISECONDS:
-            milliseconds = nanosAsMillis - nanosAsSeconds * FTimeUnit.MILLISECONDS_IN_SECOND;
             if (milliseconds + microseconds + nanoseconds > 0) {
                 sb.insert(0, Strings.leftPad(milliseconds, 3, "0"));
                 sb.insert(0, ".");
             }
             // fall through
         case SECONDS:
-            seconds = nanosAsSeconds - nanosAsMinutes * FTimeUnit.SECONDS_IN_MINUTE;
             if (seconds + milliseconds + microseconds + nanoseconds > 0) {
                 sb.insert(0, seconds);
                 sb.append("S");
             }
             // fall through
         case MINUTES:
-            final long minutes = nanosAsMinutes - nanosAsHours * FTimeUnit.MINUTES_IN_HOUR;
             if (minutes > 0) {
                 sb.insert(0, "M");
                 sb.insert(0, minutes);
             }
             // fall through
         case HOURS:
-            final long hours = nanosAsHours - nanosAsDays * FTimeUnit.HOURS_IN_DAY;
             if (hours > 0) {
                 sb.insert(0, "H");
                 sb.insert(0, hours);
@@ -271,8 +271,6 @@ public class Duration extends Number implements Comparable<Object> {
             }
             // fall through
         case DAYS:
-            final long days = nanosAsDays - weeks * FTimeUnit.DAYS_IN_WEEK - months * FTimeUnit.DAYS_IN_MONTH
-                    - years * FTimeUnit.DAYS_IN_YEAR;
             if (days > 0) {
                 sb.insert(0, "D");
                 sb.insert(0, days);

@@ -60,7 +60,7 @@ public class FileChannelLock implements Closeable, ILock {
         final Instant start = new Instant();
         while (!tryLock()) {
             FTimeUnit.MILLISECONDS.sleep(1);
-            if (start.toDuration().isGreaterThan(maxDuration)) {
+            if (start.isGreaterThan(maxDuration)) {
                 return false;
             }
         }

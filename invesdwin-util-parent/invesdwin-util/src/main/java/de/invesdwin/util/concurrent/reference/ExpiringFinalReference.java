@@ -23,7 +23,7 @@ public class ExpiringFinalReference<T> extends AValueObject implements IReferenc
     }
 
     public boolean isExpired(final Duration timeout) {
-        return lastAccess.toDuration().isGreaterThan(timeout);
+        return lastAccess.isGreaterThan(timeout);
     }
 
     public Instant getLastAccess() {
