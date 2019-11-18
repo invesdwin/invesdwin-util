@@ -171,7 +171,7 @@ public class Duration extends Number implements Comparable<Object> {
     }
 
     public int intValue(final FTimeUnit timeUnit) {
-        return Long.valueOf(timeUnit.convert(duration, this.timeUnit)).intValue();
+        return Long.valueOf(longValue(timeUnit)).intValue();
     }
 
     public long nanosValue() {
@@ -237,7 +237,7 @@ public class Duration extends Number implements Comparable<Object> {
     //CHECKSTYLE:OFF NPath
     public String toString(final FTimeUnit smallestTimeUnit) {
         //CHECKSTYLE:ON
-        long nanoseconds = Longs.abs(FTimeUnit.NANOSECONDS.convert(duration, this.timeUnit));
+        long nanoseconds = Longs.abs(nanosValue());
         final long years = FTimeUnit.NANOSECONDS.toYears(nanoseconds);
         nanoseconds -= FTimeUnit.YEARS.toNanos(years);
         final long months = FTimeUnit.NANOSECONDS.toMonths(nanoseconds);
