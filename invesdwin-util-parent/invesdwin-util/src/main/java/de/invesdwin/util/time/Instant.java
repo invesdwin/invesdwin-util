@@ -142,7 +142,7 @@ public class Instant extends Number implements Comparable<Object> {
 
     @Override
     public int hashCode() {
-        return ((Long) nanos).hashCode();
+        return Long.hashCode(nanos);
     }
 
     @Override
