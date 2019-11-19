@@ -155,7 +155,7 @@ public class AGapHistoricalCacheWithNoCacheTest {
         for (final FDate entity : new HashSet<FDate>(entities)) {
             Assertions.assertThat(cache.query().getValue(entity.addDays(2))).isNotNull();
         }
-        Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(21);
+        Assertions.assertThat(countReadAllValuesAscendingFrom).isLessThanOrEqualTo(25);
         Assertions.assertThat(countReadNewestValueTo).isEqualTo(7);
 
         //simulate cache eviction
@@ -167,7 +167,7 @@ public class AGapHistoricalCacheWithNoCacheTest {
         for (final FDate entity : entities) {
             Assertions.assertThat(cache.query().getValue(entity.addDays(2))).isNotNull();
         }
-        Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(33);
+        Assertions.assertThat(countReadAllValuesAscendingFrom).isLessThanOrEqualTo(43);
         Assertions.assertThat(countReadNewestValueTo).isEqualTo(11);
     }
 
