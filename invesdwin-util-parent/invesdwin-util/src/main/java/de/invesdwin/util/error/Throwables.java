@@ -169,7 +169,10 @@ public final class Throwables extends AThrowablesStaticFacade {
     }
 
     public static RuntimeException propagate(final Throwable t) {
-        if (t instanceof RuntimeException) {
+        if (t instanceof Error) {
+            //rethrow error directly
+            throw (Error) t;
+        } else if (t instanceof RuntimeException) {
             return (RuntimeException) t;
         } else {
             return new RuntimeException(t);
