@@ -1,5 +1,8 @@
 package de.invesdwin.util.time.fdate;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.collections.loadingcache.ALoadingCache;
@@ -19,6 +22,8 @@ public final class FHolidayManager {
     public static final FHolidayManager ZORRO;
     public static final FHolidayManager GERMANY;
 
+    private static final Map<String, String> CALENDAR_ID;
+
     private static final ALoadingCache<String, FHolidayManager> ID_MANAGER;
 
     static {
@@ -33,6 +38,10 @@ public final class FHolidayManager {
                 }
             }
         };
+        CALENDAR_ID = new HashMap<>();
+        for (final HolidayCalendar cal : HolidayCalendar.values()) {
+            CALENDAR_ID.put(cal.name().toLowerCase(), cal.getId());
+        }
         ZORRO = getInstance("zorro");
         GERMANY = getInstance(HolidayCalendar.GERMANY);
     }
@@ -70,14 +79,26 @@ public final class FHolidayManager {
         if (holidayCalendarId == null) {
             return null;
         }
-        return ID_MANAGER.get(holidayCalendarId);
+        final String lowerCase = holidayCalendarId.toLowerCase();
+        final String replacedId = CALENDAR_ID.get(lowerCase);
+        if (replacedId != null) {
+            return ID_MANAGER.get(replacedId);
+        } else {
+            return ID_MANAGER.get(lowerCase);
+        }
     }
 
     public static FHolidayManager getInstance(final HolidayCalendar holidayCalendar) {
         if (holidayCalendar == null) {
             return null;
         }
-        return getInstance(holidayCalendar.getId());
+        final String lowerCase = holidayCalendar.getId().toLowerCase();
+        return ID_MANAGER.get(lowerCase);
+    }
+
+    @Override
+    public String toString() {
+        return calendarId;
     }
 
 }
