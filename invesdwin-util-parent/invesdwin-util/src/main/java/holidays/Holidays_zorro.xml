@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <tns:Configuration
-        hierarchy="dj_stoxx" description="DowJones STOXX"
+        hierarchy="zorro" description="Zorro Platform"
         xmlns:tns="http://www.example.org/Holiday"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://www.example.org/Holiday /Holiday.xsd">
