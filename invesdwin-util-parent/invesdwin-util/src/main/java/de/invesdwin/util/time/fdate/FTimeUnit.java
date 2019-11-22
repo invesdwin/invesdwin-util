@@ -19,7 +19,7 @@ import de.invesdwin.util.time.duration.Duration;
 @Immutable
 public enum FTimeUnit {
 
-    MILLENIA {
+    MILLENIA("MILLENIUM") {
         @Override
         public int calendarValue() {
             throw new UnsupportedOperationException();
@@ -100,7 +100,7 @@ public enum FTimeUnit {
             return duration * YEARS_IN_MILLENIUM;
         }
     },
-    CENTURIES {
+    CENTURIES("CENTURY") {
         @Override
         public int calendarValue() {
             throw new UnsupportedOperationException();
@@ -181,7 +181,7 @@ public enum FTimeUnit {
             return duration * YEARS_IN_CENTURY;
         }
     },
-    DECADES {
+    DECADES("DECADE") {
         @Override
         public int calendarValue() {
             throw new UnsupportedOperationException();
@@ -262,7 +262,7 @@ public enum FTimeUnit {
             return duration * YEARS_IN_DECADE;
         }
     },
-    YEARS {
+    YEARS("YEAR", "Y", "YR", "YRS") {
         @Override
         public int calendarValue() {
             return Calendar.YEAR;
@@ -344,7 +344,7 @@ public enum FTimeUnit {
         }
 
     },
-    MONTHS {
+    MONTHS("MONTH", "MON", "MONS") {
         @Override
         public int calendarValue() {
             return Calendar.MONTH;
@@ -426,7 +426,7 @@ public enum FTimeUnit {
         }
 
     },
-    WEEKS {
+    WEEKS("WEEK", "W") {
 
         @Override
         public int calendarValue() {
@@ -509,7 +509,7 @@ public enum FTimeUnit {
         }
 
     },
-    DAYS {
+    DAYS("DAY", "D") {
         @Override
         public int calendarValue() {
             return Calendar.DAY_OF_MONTH;
@@ -591,7 +591,7 @@ public enum FTimeUnit {
         }
 
     },
-    HOURS {
+    HOURS("HOUR", "H", "HR", "HRS") {
         @Override
         public int calendarValue() {
             return Calendar.HOUR_OF_DAY;
@@ -673,7 +673,7 @@ public enum FTimeUnit {
         }
 
     },
-    MINUTES {
+    MINUTES("MINUTE", "MIN", "MINS") {
         @Override
         public int calendarValue() {
             return Calendar.MINUTE;
@@ -755,7 +755,7 @@ public enum FTimeUnit {
         }
 
     },
-    SECONDS {
+    SECONDS("SECOND", "SEC", "SECS", "S") {
         @Override
         public int calendarValue() {
             return Calendar.SECOND;
@@ -837,7 +837,7 @@ public enum FTimeUnit {
         }
 
     },
-    MILLISECONDS {
+    MILLISECONDS("MILLISECOND", "MILLIS", "MS") {
         @Override
         public int calendarValue() {
             return Calendar.MILLISECOND;
@@ -919,7 +919,7 @@ public enum FTimeUnit {
         }
 
     },
-    MICROSECONDS {
+    MICROSECONDS("MICROSECOND", "MICROS") {
         @Override
         public int calendarValue() {
             throw new UnsupportedOperationException();
@@ -1001,7 +1001,7 @@ public enum FTimeUnit {
         }
 
     },
-    NANOSECONDS {
+    NANOSECONDS("NANOSECOND", "NANOS", "NS") {
         @Override
         public int calendarValue() {
             throw new UnsupportedOperationException();
@@ -1111,6 +1111,7 @@ public enum FTimeUnit {
     private static final Map<ChronoUnit, FTimeUnit> JAVA_TIME_LOOKUP = new HashMap<ChronoUnit, FTimeUnit>();
     private static final Map<DurationFieldType, FTimeUnit> JODA_TIME_LOOKUP = new HashMap<DurationFieldType, FTimeUnit>();
     private static final Map<Long, FTimeUnit> DURATION_NANOS_LOOKUP = new HashMap<Long, FTimeUnit>();
+    private static final Map<String, FTimeUnit> ALIAS_LOOKUP = new HashMap<>();
 
     static {
         for (final FTimeUnit f : values()) {
@@ -1135,7 +1136,23 @@ public enum FTimeUnit {
                 //ignore
             }
             DURATION_NANOS_LOOKUP.put(f.toNanos(1), f);
+            ALIAS_LOOKUP.put(f.name(), f);
+            for (final String alias : f.getAliases()) {
+                if (ALIAS_LOOKUP.put(alias, f) != null) {
+                    throw new IllegalArgumentException("Duplicate alias: " + alias);
+                }
+            }
         }
+    }
+
+    private String[] aliases;
+
+    FTimeUnit(final String... aliases) {
+        this.aliases = aliases;
+    }
+
+    public String[] getAliases() {
+        return aliases;
     }
 
     public abstract int calendarValue();
@@ -1205,6 +1222,10 @@ public enum FTimeUnit {
 
     public static FTimeUnit valueOf(final Duration duration) {
         return DURATION_NANOS_LOOKUP.get(duration.longValue(FTimeUnit.NANOSECONDS));
+    }
+
+    public static FTimeUnit valueOfAlias(final String nameOrAlias) {
+        return ALIAS_LOOKUP.get(nameOrAlias.toUpperCase());
     }
 
 }

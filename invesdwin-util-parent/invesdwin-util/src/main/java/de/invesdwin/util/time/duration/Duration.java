@@ -595,13 +595,12 @@ public class Duration extends Number implements Comparable<Object> {
             try {
                 final String[] values = trimmedValue.split(" ");
                 final int duration = Integer.valueOf(values[0]);
-                final FTimeUnit unit = FTimeUnit.valueOf(values[1].toUpperCase());
+                final FTimeUnit unit = FTimeUnit.valueOfAlias(values[1]);
+                if (unit == null) {
+                    return null;
+                }
                 return new Duration(duration, unit);
-            } catch (final NumberFormatException e) {
-                return null;
-            } catch (final IllegalArgumentException e) {
-                return null;
-            } catch (final IndexOutOfBoundsException e) {
+            } catch (final Throwable e) {
                 return null;
             }
         } else {

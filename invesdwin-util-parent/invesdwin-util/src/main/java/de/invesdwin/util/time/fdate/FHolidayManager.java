@@ -115,7 +115,7 @@ public final class FHolidayManager {
         final StringBuilder sb = new StringBuilder();
         for (final String calId : AVAILABLE_CALENDAR_IDS) {
             if (sb.length() > 0) {
-                sb.append("\n");
+                sb.append(" | ");
             }
             final HolidayCalendar alias = ID_CALENDAR.get(calId);
             if (alias != null) {
@@ -133,7 +133,7 @@ public final class FHolidayManager {
             }
             final HolidayManager manager = HolidayManager.getInstance(ManagerParameters.create(calId));
             final String description = extractDescription(manager);
-            if (description != null) {
+            if (description != null && (alias == null || !alias.name().equalsIgnoreCase(description))) {
                 sb.append(": ");
                 sb.append(description);
             }
@@ -175,7 +175,7 @@ public final class FHolidayManager {
         }
     }
 
-    public static String prepareHolidayCalendarId(final String holidayCalendarId) {
+    private static String prepareHolidayCalendarId(final String holidayCalendarId) {
         if (Strings.isBlank(holidayCalendarId)) {
             return null;
         }
@@ -193,6 +193,18 @@ public final class FHolidayManager {
     @Override
     public String toString() {
         return calendarId;
+    }
+
+    public static String validateHolidayCalendarId(final String holidayCalendarId) {
+        final String prepared = prepareHolidayCalendarId(holidayCalendarId);
+        if (prepared == null) {
+            return null;
+        }
+        if (!AVAILABLE_CALENDAR_IDS.contains(prepared) && !ID_CALENDAR.containsKey(prepared)) {
+            throw new RuntimeException("Invalid " + FHolidayManager.class.getSimpleName() + " id [" + prepared
+                    + "]. Available ids are: " + getAvailableCalendarIdsInfo());
+        }
+        return prepared;
     }
 
 }
