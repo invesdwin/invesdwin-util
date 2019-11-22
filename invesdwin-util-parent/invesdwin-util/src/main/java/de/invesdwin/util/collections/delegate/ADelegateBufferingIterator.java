@@ -16,8 +16,9 @@ public abstract class ADelegateBufferingIterator<E> implements IBufferingIterato
 
     private final IBufferingIterator<E> delegate;
 
+    @SuppressWarnings("unchecked")
     public ADelegateBufferingIterator() {
-        this.delegate = newDelegate();
+        this.delegate = (IBufferingIterator<E>) newDelegate();
     }
 
     ADelegateBufferingIterator(final IBufferingIterator<E> delegate) {
@@ -28,7 +29,7 @@ public abstract class ADelegateBufferingIterator<E> implements IBufferingIterato
         return delegate;
     }
 
-    protected abstract IBufferingIterator<E> newDelegate();
+    protected abstract IBufferingIterator<? extends E> newDelegate();
 
     @Override
     public int size() {

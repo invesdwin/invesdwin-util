@@ -55,7 +55,7 @@ public abstract class ABufferingRetrievalCloseableIterable<T> implements IClosea
                             wasFullResponse = false;
                             close();
                         } else {
-                            wasFullResponse = curList.size() == retrievalCount;
+                            wasFullResponse = retrievalCount == null || curList.size() == retrievalCount;
                         }
                     }
                 }
