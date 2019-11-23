@@ -262,7 +262,7 @@ public enum FTimeUnit {
             return duration * YEARS_IN_DECADE;
         }
     },
-    YEARS("YEAR", "Y", "YR", "YRS") {
+    YEARS("YEAR", "Y") {
         @Override
         public int calendarValue() {
             return Calendar.YEAR;
@@ -591,7 +591,7 @@ public enum FTimeUnit {
         }
 
     },
-    HOURS("HOUR", "H", "HR", "HRS") {
+    HOURS("HOUR", "H") {
         @Override
         public int calendarValue() {
             return Calendar.HOUR_OF_DAY;
@@ -673,7 +673,7 @@ public enum FTimeUnit {
         }
 
     },
-    MINUTES("MINUTE", "MIN", "MINS") {
+    MINUTES("MINUTE", "MIN", "MINS", "M") {
         @Override
         public int calendarValue() {
             return Calendar.MINUTE;
@@ -919,7 +919,7 @@ public enum FTimeUnit {
         }
 
     },
-    MICROSECONDS("MICROSECOND", "MICROS") {
+    MICROSECONDS("MICROSECOND", "MICROS", "MICRO") {
         @Override
         public int calendarValue() {
             throw new UnsupportedOperationException();
