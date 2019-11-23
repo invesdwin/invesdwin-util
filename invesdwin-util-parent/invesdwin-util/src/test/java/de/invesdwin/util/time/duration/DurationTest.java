@@ -80,4 +80,18 @@ public class DurationTest {
         final Duration duration = Duration.valueOf(durationStr);
         Assertions.assertThat(duration.stringValue()).isEqualTo(durationStr);
     }
+
+    @Test
+    public void testStringValueNoSpace() {
+        final String durationStr = " 1YEAR ";
+        final Duration duration = Duration.valueOf(durationStr);
+        Assertions.assertThat(duration.stringValue()).isEqualTo("1 YEARS");
+    }
+
+    @Test
+    public void testStringValueNoSpaceDurationParser() {
+        final String durationStr = " P1Y ";
+        final Duration duration = Duration.valueOf(durationStr);
+        Assertions.assertThat(duration.stringValue()).isEqualTo("1 YEARS");
+    }
 }

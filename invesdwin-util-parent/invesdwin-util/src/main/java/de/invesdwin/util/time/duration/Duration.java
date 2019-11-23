@@ -12,6 +12,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.lang.ADelegateComparator;
 import de.invesdwin.util.lang.Strings;
+import de.invesdwin.util.math.Characters;
 import de.invesdwin.util.math.Longs;
 import de.invesdwin.util.math.decimal.Decimal;
 import de.invesdwin.util.time.Instant;
@@ -590,10 +591,10 @@ public class Duration extends Number implements Comparable<Object> {
     }
 
     public static Duration valueOf(final String value) {
-        final String trimmedValue = Strings.trim(value);
-        if (Strings.contains(trimmedValue, " ")) {
+        final String normalizedValue = DurationParser.normalizeValue(value);
+        if (Strings.contains(normalizedValue, " ")) {
             try {
-                final String[] values = trimmedValue.split(" ");
+                final String[] values = normalizedValue.split(" ");
                 final int duration = Integer.valueOf(values[0]);
                 final FTimeUnit unit = FTimeUnit.valueOfAlias(values[1]);
                 if (unit == null) {
@@ -604,7 +605,32 @@ public class Duration extends Number implements Comparable<Object> {
                 return null;
             }
         } else {
-            return new DurationParser(trimmedValue).parse();
+            if (Characters.isAsciiNumeric(normalizedValue.charAt(0))
+                    && Characters.isAsciiAlpha(normalizedValue.charAt(normalizedValue.length() - 1))) {
+                for (final FTimeUnit unit : FTimeUnit.values()) {
+                    String number = null;
+                    if (Strings.endsWith(normalizedValue, unit.name())) {
+                        number = Strings.removeEnd(normalizedValue, unit.name());
+                    }
+                    if (number == null) {
+                        for (final String alias : unit.getAliases()) {
+                            if (Strings.endsWith(normalizedValue, alias)) {
+                                number = Strings.removeEnd(normalizedValue, alias);
+                                break;
+                            }
+                        }
+                    }
+                    if (number != null) {
+                        try {
+                            final int duration = Integer.valueOf(number);
+                            return new Duration(duration, unit);
+                        } catch (final Throwable e) {
+                            return null;
+                        }
+                    }
+                }
+            }
+            return new DurationParser(normalizedValue).parse();
         }
 
     }

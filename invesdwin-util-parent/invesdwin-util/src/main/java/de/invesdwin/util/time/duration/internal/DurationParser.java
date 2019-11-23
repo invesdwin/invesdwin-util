@@ -10,7 +10,7 @@ import de.invesdwin.util.time.fdate.FTimeUnit;
 @NotThreadSafe
 public class DurationParser {
 
-    private final String trimmedValue;
+    private final String normalizedValue;
     private long years = 0;
     private long months = 0;
     private long weeks = 0;
@@ -23,26 +23,26 @@ public class DurationParser {
     private long nanoseconds = 0;
     private int dotsCount = 0;
 
-    public DurationParser(final String trimmedValue) {
-        this.trimmedValue = trimmedValue;
+    public DurationParser(final String normalizedValue) {
+        this.normalizedValue = normalizedValue;
     }
 
     public Duration parse() {
-        if ("P0".equals(trimmedValue)) {
+        if ("P0".equals(normalizedValue)) {
             return Duration.ZERO;
         }
         //P[JY][MM][WW][TD][T[hH][mM][s[.f]S]]
         final String beforeT;
         final String afterT;
-        if (trimmedValue.contains("T")) {
-            if (Strings.startsWith(trimmedValue, "PT")) {
+        if (normalizedValue.contains("T")) {
+            if (Strings.startsWith(normalizedValue, "PT")) {
                 beforeT = null;
             } else {
-                beforeT = Strings.substringBetween(trimmedValue, "P", "T");
+                beforeT = Strings.substringBetween(normalizedValue, "P", "T");
             }
-            afterT = Strings.substringAfter(trimmedValue, "T");
+            afterT = Strings.substringAfter(normalizedValue, "T");
         } else {
-            beforeT = Strings.substringAfter(trimmedValue, "P");
+            beforeT = Strings.substringAfter(normalizedValue, "P");
             afterT = null;
         }
         if (beforeT != null) {
@@ -114,7 +114,7 @@ public class DurationParser {
                     numberStr.setLength(0);
                     break;
                 default:
-                    throw new IllegalStateException("More than 3 dots are invalid: " + trimmedValue);
+                    throw new IllegalStateException("More than 3 dots are invalid: " + normalizedValue);
                 }
                 dotsCount++;
                 break;
@@ -137,7 +137,7 @@ public class DurationParser {
                     numberStr.setLength(0);
                     break;
                 default:
-                    throw new IllegalStateException("More than 3 dots are invalid: " + trimmedValue);
+                    throw new IllegalStateException("More than 3 dots are invalid: " + normalizedValue);
                 }
                 break;
             default:
@@ -198,9 +198,13 @@ public class DurationParser {
         } else {
             throw new IllegalStateException(
                     "At least one timeunit with a non zero value expected when not prefixed with \"P0\": "
-                            + trimmedValue);
+                            + normalizedValue);
         }
         return smallestUnit;
+    }
+
+    public static String normalizeValue(final String value) {
+        return Strings.normalizeSpace(value).toUpperCase();
     }
 
 }
