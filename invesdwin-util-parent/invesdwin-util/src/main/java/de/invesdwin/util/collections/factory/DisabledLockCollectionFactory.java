@@ -56,7 +56,7 @@ public final class DisabledLockCollectionFactory implements ILockCollectionFacto
 
     @Override
     public INestedExecutor newNestedExecutor(final String name) {
-        return DisabledNestedExecutor.INSTANCE;
+        return new DisabledNestedExecutor(name);
     }
 
     @Override

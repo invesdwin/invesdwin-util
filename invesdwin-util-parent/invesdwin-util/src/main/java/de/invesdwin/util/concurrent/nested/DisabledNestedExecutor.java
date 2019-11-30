@@ -8,18 +8,20 @@ import de.invesdwin.util.concurrent.WrappedExecutorService;
 @Immutable
 public final class DisabledNestedExecutor implements INestedExecutor {
 
-    public static final DisabledNestedExecutor INSTANCE = new DisabledNestedExecutor();
+    private final WrappedExecutorService executor;
 
-    private DisabledNestedExecutor() {}
+    public DisabledNestedExecutor(final String name) {
+        this.executor = Executors.newDisabledExecutor(name);
+    }
 
     @Override
     public WrappedExecutorService getNestedExecutor() {
-        return Executors.DISABLED_EXECUTOR;
+        return executor;
     }
 
     @Override
     public WrappedExecutorService getNestedExecutor(final String suffix) {
-        return Executors.DISABLED_EXECUTOR;
+        return executor;
     }
 
     @Override

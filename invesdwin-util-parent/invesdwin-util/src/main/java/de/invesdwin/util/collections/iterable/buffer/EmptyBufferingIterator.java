@@ -16,7 +16,7 @@ public final class EmptyBufferingIterator<E> implements IBufferingIterator<E> {
     private EmptyBufferingIterator() {}
 
     @SuppressWarnings("unchecked")
-    public static <T> EmptyBufferingIterator<T> getInstance() {
+    public static <T> IBufferingIterator<T> getInstance() {
         return (EmptyBufferingIterator<T>) INSTANCE;
     }
 

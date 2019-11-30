@@ -22,6 +22,8 @@ import de.invesdwin.util.time.duration.Duration;
 @NotThreadSafe
 public class CaffeineLoadingCacheMapConfig {
 
+    public static final WrappedExecutorService DISABLED_EXECUTOR = Executors
+            .newDisabledExecutor(CaffeineLoadingCacheMapConfig.class.getSimpleName() + "_DISABLED");
     private static final WrappedExecutorService RECURSIVE_EXECUTOR = Executors
             .newCachedThreadPool(CaffeineLoadingCacheMapConfig.class.getSimpleName() + "_RECURSIVE")
             .withDynamicThreadName(false);
@@ -156,7 +158,7 @@ public class CaffeineLoadingCacheMapConfig {
         if (BooleanUtils.isTrue(recursiveLoading)) {
             builder.executor(RECURSIVE_EXECUTOR);
         } else {
-            builder.executor(Executors.DISABLED_EXECUTOR);
+            builder.executor(DISABLED_EXECUTOR);
         }
         if (maximumSize != null) {
             builder.maximumSize(maximumSize);

@@ -23,22 +23,6 @@ import io.netty.util.concurrent.DefaultThreadFactory;
 @Immutable
 public final class Executors {
 
-    /**
-     * This executor does not actually run tasks in parallel but instead runs them directly in the callers thread
-     */
-    public static final WrappedExecutorService DISABLED_EXECUTOR = new WrappedExecutorService(
-            MoreExecutors.newDirectExecutorService(), "DISABLED") {
-        @Override
-        public void shutdown() {
-            //noop
-        }
-
-        @Override
-        public List<Runnable> shutdownNow() {
-            return Collections.emptyList();
-        }
-    }.withDynamicThreadName(false);
-
     private static int cpuThreadPoolCount = Runtime.getRuntime().availableProcessors();
 
     private Executors() {}
@@ -113,6 +97,34 @@ public final class Executors {
 
     public static ConfiguredForkJoinPool newAsyncForkJoinPool(final String name, final int parallelism) {
         return new ConfiguredForkJoinPool(name, parallelism, true);
+    }
+
+    /**
+     * This executor does not actually run tasks in parallel but instead runs them directly in the callers thread
+     */
+    public static WrappedExecutorService newDisabledExecutor(final String name) {
+        return new WrappedExecutorService(MoreExecutors.newDirectExecutorService(), name) {
+
+            {
+                super.withDynamicThreadName(false);
+            }
+
+            @Override
+            public void shutdown() {
+                //noop
+            }
+
+            @Override
+            public List<Runnable> shutdownNow() {
+                return Collections.emptyList();
+            }
+
+            @Override
+            public WrappedExecutorService withDynamicThreadName(final boolean dynamicThreadName) {
+                //disabled
+                return this;
+            }
+        };
     }
 
 }
