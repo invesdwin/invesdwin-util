@@ -7,13 +7,15 @@ import org.junit.Test;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.time.fdate.FDate;
 import de.invesdwin.util.time.fdate.FWeekTime;
+import de.invesdwin.util.time.fdate.FWeekday;
 
 @NotThreadSafe
 public class WeekRangeTest {
 
     @Test
     public void testParse() {
-        final WeekRange range = new WeekRange(new FWeekTime(new FDate().addDays(-1)), new FWeekTime(new FDate()));
+        final FDate sunday = new FDate().setFWeekday(FWeekday.Sunday);
+        final WeekRange range = new WeekRange(new FWeekTime(sunday.addDays(-1)), new FWeekTime(sunday));
         final String str = range.toString();
         final WeekRange parsed = WeekRange.valueOf(str);
         Assertions.checkEquals(range, parsed);
