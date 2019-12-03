@@ -26,6 +26,9 @@ public final class TaskInfoRunnable implements IPriorityRunnable, ITaskInfoProvi
     private volatile boolean inheritable = true;
 
     private TaskInfoRunnable(final String name, final Runnable delegate, final Callable<Percent> progress) {
+        if (name == null) {
+            throw new NullPointerException("name should not be null");
+        }
         this.name = name;
         this.delegate = delegate;
         if (progress == null) {
@@ -91,6 +94,18 @@ public final class TaskInfoRunnable implements IPriorityRunnable, ITaskInfoProvi
             return cDelegate.getPriority();
         }
         return MISSING_PRIORITY;
+    }
+
+    public static Runnable ofNullable(final String name, final Runnable runnable) {
+        return ofNullable(name, runnable, null);
+    }
+
+    public static Runnable ofNullable(final String name, final Runnable runnable, final Callable<Percent> progress) {
+        if (name == null) {
+            return runnable;
+        } else {
+            return of(name, runnable, progress);
+        }
     }
 
     public static TaskInfoRunnable of(final String name, final Runnable runnable) {

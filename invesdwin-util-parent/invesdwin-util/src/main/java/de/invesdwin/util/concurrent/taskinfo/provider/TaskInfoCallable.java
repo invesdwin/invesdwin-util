@@ -93,6 +93,19 @@ public final class TaskInfoCallable<V> implements IPriorityCallable<V>, ITaskInf
         return MISSING_PRIORITY;
     }
 
+    public static <T> Callable<T> ofNullable(final String name, final Callable<T> callable) {
+        return ofNullable(name, callable, null);
+    }
+
+    public static <T> Callable<T> ofNullable(final String name, final Callable<T> callable,
+            final Callable<Percent> progress) {
+        if (name == null) {
+            return callable;
+        } else {
+            return of(name, callable, progress);
+        }
+    }
+
     public static <T> TaskInfoCallable<T> of(final String name, final Callable<T> callable) {
         return of(name, callable, null);
     }
