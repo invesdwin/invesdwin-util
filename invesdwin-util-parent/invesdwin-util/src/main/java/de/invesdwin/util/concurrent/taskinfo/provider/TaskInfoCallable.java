@@ -106,6 +106,15 @@ public final class TaskInfoCallable<V> implements IPriorityCallable<V>, ITaskInf
         }
     }
 
+    public static <T> List<? extends Callable<T>> ofNullable(final String name,
+            final Collection<? extends Callable<T>> tasks) {
+        if (name == null) {
+            return new ArrayList<>(tasks);
+        } else {
+            return of(name, tasks);
+        }
+    }
+
     public static <T> TaskInfoCallable<T> of(final String name, final Callable<T> callable) {
         return of(name, callable, null);
     }

@@ -108,6 +108,14 @@ public final class TaskInfoRunnable implements IPriorityRunnable, ITaskInfoProvi
         }
     }
 
+    public static List<? extends Runnable> ofNullable(final String name, final Collection<? extends Runnable> tasks) {
+        if (name == null) {
+            return new ArrayList<>(tasks);
+        } else {
+            return of(name, tasks);
+        }
+    }
+
     public static TaskInfoRunnable of(final String name, final Runnable runnable) {
         return of(name, runnable, null);
     }
