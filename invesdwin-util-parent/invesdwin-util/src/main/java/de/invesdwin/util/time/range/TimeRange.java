@@ -8,6 +8,7 @@ import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.bean.AValueObject;
 import de.invesdwin.util.lang.ADelegateComparator;
+import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.time.duration.Duration;
 import de.invesdwin.util.time.fdate.FDate;
 import de.invesdwin.util.time.fdate.FDates;
@@ -128,5 +129,20 @@ public class TimeRange extends AValueObject {
     @Override
     public int compareTo(final Object o) {
         return COMPARATOR.compare(this, o);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(TimeRange.class, from, to);
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (obj instanceof TimeRange) {
+            final TimeRange cObj = (TimeRange) obj;
+            return Objects.equals(from, cObj.from) && Objects.equals(to, cObj.to);
+        } else {
+            return false;
+        }
     }
 }
