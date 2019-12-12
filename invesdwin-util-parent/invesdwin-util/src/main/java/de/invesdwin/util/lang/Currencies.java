@@ -23,6 +23,7 @@ public final class Currencies {
     public static final String GBP_SYMBOL = "£";
     public static final String EUR_SYMBOL = "€";
     public static final String USD_SYMBOL = "$";
+    public static final String PCT_SYMBOL = "%";
 
     public static final Currency ARS = Currency.getInstance("ARS");
     public static final Currency AUD = Currency.getInstance("AUD");
@@ -53,6 +54,11 @@ public final class Currencies {
     public static final Currency USD = Currency.getInstance("USD");
     public static final Currency ZAR = Currency.getInstance("ZAR");
 
+    /**
+     * Fake currency to denote percent values that are stored in money objects.
+     */
+    public static final String PCT = "PCT";
+
     private static final Map<String, String> CURRENCY_CODE_2_CURRENCY_SYMBOL = new HashMap<String, String>();
     private static final ALoadingCache<Locale, FastThreadLocal<NumberFormat>> NUMBER_FORMAT = new ALoadingCache<Locale, FastThreadLocal<NumberFormat>>() {
         @Override
@@ -81,6 +87,7 @@ public final class Currencies {
         CURRENCY_CODE_2_CURRENCY_SYMBOL.put("GBP", GBP_SYMBOL);
         CURRENCY_CODE_2_CURRENCY_SYMBOL.put("JPY", JPY_SYMBOL);
         CURRENCY_CODE_2_CURRENCY_SYMBOL.put("CNY", CNY_SYMBOL);
+        CURRENCY_CODE_2_CURRENCY_SYMBOL.put("PCT", PCT_SYMBOL);
     }
 
     private Currencies() {}
