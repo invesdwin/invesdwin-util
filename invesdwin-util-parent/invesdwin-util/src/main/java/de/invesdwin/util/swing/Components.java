@@ -22,6 +22,7 @@ import javax.swing.table.TableColumn;
 import javax.swing.text.JTextComponent;
 
 import de.invesdwin.util.lang.Objects;
+import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.swing.listener.ADelegateMouseMotionListener;
 
 @Immutable
@@ -76,14 +77,22 @@ public final class Components {
         }
     }
 
-    public static void setToolTipText(final JComponent component, final String text) {
-        if (!Objects.equals(component.getToolTipText(), text)) {
-            component.setToolTipText(text);
-            updateToolTip(component);
+    public static void setToolTipText(final JComponent component, final String text, final boolean update) {
+        final String htmlText;
+        if (text != null) {
+            htmlText = Strings.eventuallyAddPrefix(text.replace("\n", "<br>"), "<html>");
+        } else {
+            htmlText = text;
+        }
+        if (!Objects.equals(component.getToolTipText(), htmlText)) {
+            component.setToolTipText(htmlText);
+            if (update) {
+                updateToolTip(component);
+            }
         }
     }
 
-    public static void updateToolTip(final Component component) {
+    public static void updateToolTip(final JComponent component) {
         triggerMouseMoved(component, new ADelegateMouseMotionListener() {
             @Override
             protected MouseMotionListener newDelegate() {
@@ -95,7 +104,7 @@ public final class Components {
     /**
      * https://stackoverflow.com/questions/12822819/dynamically-update-tooltip-currently-displayed
      */
-    public static void triggerMouseMoved(final Component component, final MouseMotionListener listener) {
+    public static void triggerMouseMoved(final JComponent component, final MouseMotionListener listener) {
         if (component.isShowing()) {
             final Point locationOnScreen = MouseInfo.getPointerInfo().getLocation();
             final Point locationOnComponent = new Point(locationOnScreen);
@@ -107,6 +116,20 @@ public final class Components {
         }
     }
 
+    public static Point getMouseLocationOnComponent(final Component component) {
+        if (!component.isShowing()) {
+            return null;
+        }
+        final Point locationOnScreen = MouseInfo.getPointerInfo().getLocation();
+        final Point locationOnComponent = new Point(locationOnScreen);
+        SwingUtilities.convertPointFromScreen(locationOnComponent, component);
+        if (component.contains(locationOnComponent)) {
+            return locationOnComponent;
+        } else {
+            return null;
+        }
+    }
+
     /**
      * https://stackoverflow.com/questions/6473464/force-a-java-tooltip-to-appear
      */
@@ -114,8 +137,24 @@ public final class Components {
         final ToolTipManager ttm = ToolTipManager.sharedInstance();
         final int oldDelay = ttm.getInitialDelay();
         ttm.setInitialDelay(0);
-        ttm.mouseMoved(new MouseEvent(component, 0, 0, 0, 0, 0, // X-Y of the mouse for the tool tip
-                0, false));
+
+        final Point mousePoint = getMouseLocationOnComponent(component);
+        final int id = -1;
+        final long when = System.currentTimeMillis();
+        final int modifiers = 0;
+        final int x;
+        final int y;
+        final int clickCount = 0;
+        final boolean popupTrigger = false;
+        if (mousePoint != null) {
+            x = mousePoint.x;
+            y = mousePoint.y;
+        } else {
+            x = 0;
+            y = 0;
+        }
+        final MouseEvent event = new MouseEvent(component, id, when, modifiers, x, y, clickCount, popupTrigger);
+        ttm.mouseMoved(event);
         //CHECKSTYLE:OFF
         SwingUtilities.invokeLater(new Runnable() {
             //CHECKSTYLE:ON
