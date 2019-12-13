@@ -6,6 +6,7 @@ import java.util.regex.Pattern;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.lang.Strings;
+import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.decimal.scaled.IDecimalScale;
 
 @NotThreadSafe
@@ -16,6 +17,7 @@ public class ScaledDecimalToStringBuilder<T extends AScaledDecimal<T, S>, S exte
     private boolean withSymbol = true;
     private Integer decimalDigits;
     private boolean decimalDigitsOptional = true;
+    private boolean decimalDigitsTrailing;
 
     public ScaledDecimalToStringBuilder(final T parent) {
         this.parent = parent;
@@ -60,6 +62,16 @@ public class ScaledDecimalToStringBuilder<T extends AScaledDecimal<T, S>, S exte
         return this;
     }
 
+    public ScaledDecimalToStringBuilder<T, S> withDecimalDigitsTrailing() {
+        withDecimalDigitsTrailing(true);
+        return this;
+    }
+
+    public ScaledDecimalToStringBuilder<T, S> withDecimalDigitsTrailing(final boolean decimalDigitsTrailing) {
+        this.decimalDigitsTrailing = decimalDigitsTrailing;
+        return this;
+    }
+
     public boolean isDecimalDigitsOptional() {
         return decimalDigitsOptional;
     }
@@ -74,13 +86,21 @@ public class ScaledDecimalToStringBuilder<T extends AScaledDecimal<T, S>, S exte
     }
 
     public String getFormat() {
-        final int usedDecimalDigits;
+        final int providedDecimalDigits;
         if (decimalDigits == null) {
-            usedDecimalDigits = getDefaultDecimalDigits();
+            providedDecimalDigits = getDefaultDecimalDigits();
         } else {
-            usedDecimalDigits = decimalDigits;
+            providedDecimalDigits = decimalDigits;
         }
-        final String formatStr = scale.getFormat(parent, withSymbol, usedDecimalDigits, decimalDigitsOptional);
+        final int trailingDecimalDigits;
+        if (decimalDigitsTrailing) {
+            final double value = parent.getValue(scale);
+            trailingDecimalDigits = Doubles.getTrailingDecimalDigitsScale(value, providedDecimalDigits,
+                    providedDecimalDigits * 3);
+        } else {
+            trailingDecimalDigits = providedDecimalDigits;
+        }
+        final String formatStr = scale.getFormat(parent, withSymbol, trailingDecimalDigits, decimalDigitsOptional);
         return formatStr;
     }
 

@@ -588,4 +588,26 @@ public final class Doubles extends ADoublesStaticFacade {
         return infinityToZero((value - min) / (max - min));
     }
 
+    /**
+     * https://stackoverflow.com/questions/38403240/truncating-float-to-the-two-first-non-zero-decimal-digits
+     */
+    public static int getTrailingDecimalDigitsScale(final double number, final int trailingDecimalDigits,
+            final int maxScale) {
+        final double abs = abs(number);
+        final int integral = (int) abs;
+        if (integral != 0) {
+            return trailingDecimalDigits;
+        }
+        double decimal = abs - integral;
+        int digits = 0;
+
+        final double threshold = Doubles.scaleByPowerOfTen(0.1, trailingDecimalDigits);
+        while (decimal < threshold && digits < maxScale) {
+            decimal *= 10;
+            digits++;
+        }
+
+        return digits;
+    }
+
 }

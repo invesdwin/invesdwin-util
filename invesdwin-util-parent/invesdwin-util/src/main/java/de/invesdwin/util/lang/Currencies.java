@@ -117,7 +117,7 @@ public final class Currencies {
         if (currencySymbol != null) {
             return currencySymbol;
         } else {
-            return currencyCode;
+            return symbol;
         }
     }
 
