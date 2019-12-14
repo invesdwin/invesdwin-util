@@ -9,6 +9,7 @@ import de.invesdwin.util.math.decimal.ADecimal;
 import de.invesdwin.util.math.decimal.AScaledDecimal;
 import de.invesdwin.util.math.decimal.Decimal;
 import de.invesdwin.util.math.decimal.IScaledNumber;
+import de.invesdwin.util.math.decimal.ScaledDecimalToStringBuilder;
 import de.invesdwin.util.time.duration.Duration;
 import de.invesdwin.util.time.fdate.FTimeUnit;
 
@@ -203,6 +204,11 @@ public class Percent extends AScaledDecimal<Percent, PercentScale> {
 
     public static Percent normalize(final double value, final double min, final double max) {
         return new Percent(Doubles.normalize(value, min, max), PercentScale.RATE);
+    }
+
+    @Override
+    public ScaledDecimalToStringBuilder<Percent, PercentScale> toStringBuilder() {
+        return super.toStringBuilder().withDecimalDigitsTrailing(true);
     }
 
 }
