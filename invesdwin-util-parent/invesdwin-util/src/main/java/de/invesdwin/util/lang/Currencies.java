@@ -125,8 +125,10 @@ public final class Currencies {
         String replaced = str;
         for (final Entry<String, String> entry : CURRENCY_CODE_2_CURRENCY_SYMBOL.entrySet()) {
             final String code = entry.getKey();
-            final String symbol = entry.getValue();
-            replaced = replaced.replace(symbol, code);
+            if (!PCT.equals(code)) { //except percent which might not be used as currency
+                final String symbol = entry.getValue();
+                replaced = replaced.replace(symbol, code);
+            }
         }
         return replaced;
     }
