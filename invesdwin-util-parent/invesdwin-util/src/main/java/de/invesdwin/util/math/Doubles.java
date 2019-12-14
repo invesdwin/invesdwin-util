@@ -594,6 +594,9 @@ public final class Doubles extends ADoublesStaticFacade {
     public static int getTrailingDecimalDigitsScale(final double number, final int trailingDecimalDigits,
             final int maxScale) {
         final double abs = abs(number);
+        if (abs < FIRST_ABOVE_ZERO) {
+            return trailingDecimalDigits;
+        }
         final int integral = (int) abs;
         if (integral != 0) {
             return trailingDecimalDigits;
