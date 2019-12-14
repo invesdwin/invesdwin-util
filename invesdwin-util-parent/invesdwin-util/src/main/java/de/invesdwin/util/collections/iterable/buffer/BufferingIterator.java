@@ -6,6 +6,7 @@ import java.util.NoSuchElementException;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.norva.marker.ISerializableValueObject;
+import de.invesdwin.util.collections.iterable.EmptyCloseableIterator;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.collections.list.Lists;
 import de.invesdwin.util.error.FastNoSuchElementException;
@@ -249,7 +250,11 @@ public class BufferingIterator<E> implements IBufferingIterator<E>, ISerializabl
 
     @Override
     public ICloseableIterator<E> iterator() {
-        return new BufferingIteratorIterator<E>(head);
+        if (head == null) {
+            return EmptyCloseableIterator.getInstance();
+        } else {
+            return new BufferingIteratorIterator<E>(head);
+        }
     }
 
     private static final class BufferingIteratorIterator<_E> implements ICloseableIterator<_E> {
