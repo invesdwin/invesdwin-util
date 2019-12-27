@@ -1,6 +1,9 @@
 package de.invesdwin.util.lang;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Path;
 import java.util.Iterator;
 
 import javax.annotation.concurrent.Immutable;
@@ -43,7 +46,6 @@ public final class Files extends AFilesStaticFacade {
         final String[] listFiles = f.list();
         long totalSize = 0;
         for (final String file : listFiles) {
-
             final File folder = new File(f, file);
             if (folder.isDirectory()) {
                 totalSize += deleteEmptyDirectories(folder);
@@ -61,6 +63,19 @@ public final class Files extends AFilesStaticFacade {
 
     public static String normalizeFilename(final String name) {
         return name.replace(":", "_").replace("@", "_");
+    }
+
+    public static boolean isDirectoryEmpty(final File directory) throws IOException {
+        return isDirectoryEmpty(directory.toPath());
+    }
+
+    public static boolean isDirectoryEmpty(final Path directory) throws IOException {
+        if (!isDirectory(directory)) {
+            return false;
+        }
+        try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(directory)) {
+            return !dirStream.iterator().hasNext();
+        }
     }
 
 }
