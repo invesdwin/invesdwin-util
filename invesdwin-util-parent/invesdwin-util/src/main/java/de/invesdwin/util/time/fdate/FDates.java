@@ -287,7 +287,8 @@ public final class FDates {
     }
 
     public static boolean isBetween(final FDate value, final FDate min, final FDate max) {
-        return between(value, min, max).equals(value);
+        final boolean outside = value.isBefore(min) || value.isAfter(max);
+        return !outside;
     }
 
     public static boolean isSameYear(final FDate date1, final FDate date2) {
