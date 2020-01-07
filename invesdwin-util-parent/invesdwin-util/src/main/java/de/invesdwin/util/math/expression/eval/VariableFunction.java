@@ -82,4 +82,9 @@ public class VariableFunction extends AFunction {
         return variable.getVariable().getType();
     }
 
+    @Override
+    public boolean shouldPersist() {
+        return variable.shouldPersist();
+    }
+
 }

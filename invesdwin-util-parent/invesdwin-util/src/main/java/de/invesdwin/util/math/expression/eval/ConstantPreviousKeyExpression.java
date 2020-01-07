@@ -79,4 +79,9 @@ public class ConstantPreviousKeyExpression implements IParsedExpression {
         return null;
     }
 
+    @Override
+    public boolean shouldPersist() {
+        return expression.shouldPersist();
+    }
+
 }

@@ -80,4 +80,9 @@ public class ConstantExpression implements IParsedExpression {
     public int hashCode() {
         return ConstantExpression.class.hashCode() + Double.hashCode(doubleValue);
     }
+
+    @Override
+    public boolean shouldPersist() {
+        return false;
+    }
 }

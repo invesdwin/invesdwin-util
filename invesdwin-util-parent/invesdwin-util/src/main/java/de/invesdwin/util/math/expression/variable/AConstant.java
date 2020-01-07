@@ -38,4 +38,9 @@ public abstract class AConstant implements IVariable {
         return true;
     }
 
+    @Override
+    public boolean shouldPersist() {
+        return false;
+    }
+
 }

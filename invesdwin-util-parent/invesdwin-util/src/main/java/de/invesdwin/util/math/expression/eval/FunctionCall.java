@@ -127,4 +127,17 @@ public class FunctionCall implements IParsedExpression {
         return context;
     }
 
+    @Override
+    public boolean shouldPersist() {
+        if (function.shouldPersist()) {
+            return true;
+        }
+        for (int i = 0; i < parameters.length; i++) {
+            if (parameters[i].shouldPersist()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 }

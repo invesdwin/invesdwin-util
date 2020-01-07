@@ -312,4 +312,9 @@ public class BinaryOperation implements IParsedExpression {
         return null;
     }
 
+    @Override
+    public boolean shouldPersist() {
+        return left.shouldPersist() || right.shouldPersist();
+    }
+
 }

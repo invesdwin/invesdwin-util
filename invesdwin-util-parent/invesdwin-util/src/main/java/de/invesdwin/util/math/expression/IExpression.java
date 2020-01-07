@@ -44,4 +44,10 @@ public interface IExpression {
 
     String getContext();
 
+    /**
+     * Return true if values are only availble point in time without history. E.g. dependant on active orders and thus
+     * should be persisted for charts.
+     */
+    boolean shouldPersist();
+
 }

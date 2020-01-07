@@ -97,4 +97,9 @@ public class DynamicPreviousKeyExpression implements IParsedExpression {
         return null;
     }
 
+    @Override
+    public boolean shouldPersist() {
+        return expression.shouldPersist() || indexExpression.shouldPersist();
+    }
+
 }

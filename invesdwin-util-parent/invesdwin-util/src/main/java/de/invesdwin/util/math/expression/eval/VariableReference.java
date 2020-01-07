@@ -79,4 +79,9 @@ public class VariableReference implements IParsedExpression {
         return variable;
     }
 
+    @Override
+    public boolean shouldPersist() {
+        return variable.shouldPersist();
+    }
+
 }

@@ -76,6 +76,11 @@ public final class Functions {
         public String getDescription() {
             return "Returns the trigonometric sine of an angle.";
         }
+
+        @Override
+        public boolean shouldPersist() {
+            return false;
+        }
     };
 
     public static final AFunction SINH = new AUnaryFunction() {
@@ -143,6 +148,11 @@ public final class Functions {
             return "Returns the hyperbolic sine of an angle. "
                     + "The hyperbolic sine of x is defined to be (ex - e-x)/2 where e is Euler's number.";
         }
+
+        @Override
+        public boolean shouldPersist() {
+            return false;
+        }
     };
 
     public static final AFunction COS = new AUnaryFunction() {
@@ -208,6 +218,11 @@ public final class Functions {
         @Override
         public String getDescription() {
             return "Returns the trigonometric cosine of an angle.";
+        }
+
+        @Override
+        public boolean shouldPersist() {
+            return false;
         }
     };
 
@@ -276,6 +291,11 @@ public final class Functions {
             return "Returns the hyperbolic cosine of a double value. "
                     + "The hyperbolic cosine of x is defined to be (ex + e-x)/2 where e is Euler's number.";
         }
+
+        @Override
+        public boolean shouldPersist() {
+            return false;
+        }
     };
 
     public static final AFunction TAN = new AUnaryFunction() {
@@ -341,6 +361,11 @@ public final class Functions {
         @Override
         public String getDescription() {
             return "Returns the trigonometric tangent of an angle.";
+        }
+
+        @Override
+        public boolean shouldPersist() {
+            return false;
         }
     };
 
@@ -410,6 +435,11 @@ public final class Functions {
                     + "The hyperbolic tangent of x is defined to be (ex - e-x)/(ex + e-x), in other words, sinh(x)/cosh(x). "
                     + "Note that the absolute value of the exact tanh is always less than 1.";
         }
+
+        @Override
+        public boolean shouldPersist() {
+            return false;
+        }
     };
 
     public static final AFunction ABS = new AUnaryFunction() {
@@ -477,6 +507,11 @@ public final class Functions {
             return "Returns the absolute value of a double value. If the argument is not negative, the argument is returned. "
                     + "If the argument is negative, the negation of the argument is returned.";
         }
+
+        @Override
+        public boolean shouldPersist() {
+            return false;
+        }
     };
 
     public static final AFunction ASIN = new AUnaryFunction() {
@@ -542,6 +577,11 @@ public final class Functions {
         @Override
         public String getDescription() {
             return "Returns the arc sine of a value; the returned angle is in the range -pi/2 through pi/2.";
+        }
+
+        @Override
+        public boolean shouldPersist() {
+            return false;
         }
     };
 
@@ -609,6 +649,11 @@ public final class Functions {
         public String getDescription() {
             return "Returns the arc cosine of a value; the returned angle is in the range 0.0 through pi.";
         }
+
+        @Override
+        public boolean shouldPersist() {
+            return false;
+        }
     };
 
     public static final AFunction ATAN = new AUnaryFunction() {
@@ -674,6 +719,11 @@ public final class Functions {
         @Override
         public String getDescription() {
             return "Returns the arc tangent of a value; the returned angle is in the range -pi/2 through pi/2.";
+        }
+
+        @Override
+        public boolean shouldPersist() {
+            return false;
         }
     };
 
@@ -777,6 +827,11 @@ public final class Functions {
             return "Returns the angle theta from the conversion of rectangular coordinates (x, y) to polar coordinates (r, theta). "
                     + "This method computes the phase theta by computing an arc tangent of y/x in the range of -pi to pi.";
         }
+
+        @Override
+        public boolean shouldPersist() {
+            return false;
+        }
     };
 
     public static final AFunction ROUND = new AUnaryFunction() {
@@ -842,6 +897,11 @@ public final class Functions {
         @Override
         public String getDescription() {
             return "Returns the closest long to the argument, with ties rounding to positive infinity.";
+        }
+
+        @Override
+        public boolean shouldPersist() {
+            return false;
         }
     };
 
@@ -910,6 +970,11 @@ public final class Functions {
             return "Returns the largest (closest to positive infinity) double value that is less than "
                     + "or equal to the argument and is equal to a mathematical integer.";
         }
+
+        @Override
+        public boolean shouldPersist() {
+            return false;
+        }
     };
 
     public static final AFunction CEIL = new AUnaryFunction() {
@@ -976,6 +1041,11 @@ public final class Functions {
         public String getDescription() {
             return "Returns the smallest (closest to negative infinity) double value that is greater than "
                     + "or equal to the argument and is equal to a mathematical integer.";
+        }
+
+        @Override
+        public boolean shouldPersist() {
+            return false;
         }
     };
 
@@ -1078,6 +1148,11 @@ public final class Functions {
         public String getDescription() {
             return "Returns the value of the first argument raised to the power of the second argument.";
         }
+
+        @Override
+        public boolean shouldPersist() {
+            return false;
+        }
     };
 
     public static final AFunction SQRT = new AUnaryFunction() {
@@ -1145,6 +1220,11 @@ public final class Functions {
         public String getDescription() {
             return "Returns the correctly rounded positive square root of a double value.";
         }
+
+        @Override
+        public boolean shouldPersist() {
+            return false;
+        }
     };
 
     public static final AFunction EXP = new AUnaryFunction() {
@@ -1210,6 +1290,11 @@ public final class Functions {
         @Override
         public String getDescription() {
             return "Returns Euler's number e raised to the power of a double value.";
+        }
+
+        @Override
+        public boolean shouldPersist() {
+            return false;
         }
     };
 
@@ -1277,6 +1362,11 @@ public final class Functions {
         public String getDescription() {
             return "Returns the natural logarithm (base e) of a double value.";
         }
+
+        @Override
+        public boolean shouldPersist() {
+            return false;
+        }
     };
 
     public static final AFunction LOG = new AUnaryFunction() {
@@ -1342,6 +1432,11 @@ public final class Functions {
         @Override
         public String getDescription() {
             return "Returns the base 10 logarithm of a double value.";
+        }
+
+        @Override
+        public boolean shouldPersist() {
+            return false;
         }
     };
 
@@ -1447,6 +1542,11 @@ public final class Functions {
                     + "Unlike the numerical comparison operators, this method considers negative zero to be strictly smaller than positive zero. "
                     + "If one argument is positive zero and the other is negative zero, the result is negative zero.";
         }
+
+        @Override
+        public boolean shouldPersist() {
+            return false;
+        }
     };
 
     public static final AFunction MAX = new ABinaryFunction() {
@@ -1550,6 +1650,11 @@ public final class Functions {
                     + "If the arguments have the same value, the result is that same value. If either value is NaN, then the result is NaN. "
                     + "Unlike the numerical comparison operators, this method considers negative zero to be strictly smaller than positive zero. "
                     + "If one argument is positive zero and the other negative zero, the result is positive zero.";
+        }
+
+        @Override
+        public boolean shouldPersist() {
+            return false;
         }
     };
 
@@ -1687,6 +1792,11 @@ public final class Functions {
                     + "Thus ensuring maximum and minimum thresholds at the same time and returning "
                     + "the maximum or minimum when one of them is breached.";
         }
+
+        @Override
+        public boolean shouldPersist() {
+            return false;
+        }
     };
 
     public static final AFunction RND = new AUnaryFunction() {
@@ -1752,6 +1862,11 @@ public final class Functions {
         @Override
         public String getDescription() {
             return "Returns a double value with a positive sign, greater than or equal to 0.0 and less than 1.0. This value is multiplied by the argument.";
+        }
+
+        @Override
+        public boolean shouldPersist() {
+            return false;
         }
     };
 
@@ -1820,6 +1935,11 @@ public final class Functions {
             return "Returns the signum function of the argument; zero if the argument is zero, "
                     + "1.0 if the argument is greater than zero, -1.0 if the argument is less than zero.";
         }
+
+        @Override
+        public boolean shouldPersist() {
+            return false;
+        }
     };
 
     public static final AFunction DEG = new AUnaryFunction() {
@@ -1887,6 +2007,11 @@ public final class Functions {
             return "Converts an angle measured in radians to an approximately equivalent angle measured in degrees. "
                     + "The conversion from radians to degrees is generally inexact; users should not expect cos(rad(90.0)) to exactly equal 0.0.";
         }
+
+        @Override
+        public boolean shouldPersist() {
+            return false;
+        }
     };
 
     public static final AFunction RAD = new AUnaryFunction() {
@@ -1953,6 +2078,11 @@ public final class Functions {
         public String getDescription() {
             return "Converts an angle measured in degrees to an approximately equivalent angle measured in radians. "
                     + "The conversion from degrees to radians is generally inexact.";
+        }
+
+        @Override
+        public boolean shouldPersist() {
+            return false;
         }
     };
 
@@ -2124,6 +2254,11 @@ public final class Functions {
         public String getDescription() {
             return "If the conditional evaluation is true, then the second argument is returned, otherwise the third argument is returned.";
         }
+
+        @Override
+        public boolean shouldPersist() {
+            return false;
+        }
     };
 
     public static final AFunction ISNAN = new AFunction() {
@@ -2225,6 +2360,11 @@ public final class Functions {
         @Override
         public String getDescription() {
             return "Evaluates to true when the argument is equal to NaN which denotes a missing value.";
+        }
+
+        @Override
+        public boolean shouldPersist() {
+            return false;
         }
     };
 
@@ -2328,6 +2468,11 @@ public final class Functions {
         public String getDescription() {
             return "A value greater than 0 means true.";
         }
+
+        @Override
+        public boolean shouldPersist() {
+            return false;
+        }
     };
 
     public static final AFunction ISFALSE = new AFunction() {
@@ -2430,6 +2575,11 @@ public final class Functions {
         public String getDescription() {
             return "A value less than or equal to 0 means true.";
         }
+
+        @Override
+        public boolean shouldPersist() {
+            return false;
+        }
     };
 
     public static final AFunction NEGATE = new AFunction() {
@@ -2519,6 +2669,11 @@ public final class Functions {
         @Override
         public String getDescription() {
             return "A positive number will become negative, a negative value will become positive. 0 will stay 0.";
+        }
+
+        @Override
+        public boolean shouldPersist() {
+            return false;
         }
     };
 
@@ -2621,6 +2776,11 @@ public final class Functions {
         @Override
         public String getDescription() {
             return "True will become false and false will become true.";
+        }
+
+        @Override
+        public boolean shouldPersist() {
+            return false;
         }
     };
 

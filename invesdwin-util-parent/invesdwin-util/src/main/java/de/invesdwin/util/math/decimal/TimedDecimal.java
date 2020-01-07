@@ -10,6 +10,7 @@ import de.invesdwin.util.time.fdate.FDate;
 @Immutable
 public class TimedDecimal extends Decimal implements IHistoricalValue<TimedDecimal> {
 
+    public static final TimedDecimal DUMMY = new TimedDecimal(FDate.MIN_DATE, Decimal.ZERO);
     private final FDate time;
 
     public TimedDecimal(final FDate time, final Decimal decimal) {

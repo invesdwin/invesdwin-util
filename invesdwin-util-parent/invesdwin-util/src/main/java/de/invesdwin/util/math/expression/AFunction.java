@@ -105,4 +105,10 @@ public abstract class AFunction {
         return sb.toString();
     }
 
+    /**
+     * Return true if values are only availble point in time without history. E.g. dependant on active orders and thus
+     * should be persisted for charts.
+     */
+    public abstract boolean shouldPersist();
+
 }
