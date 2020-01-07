@@ -2,6 +2,7 @@ package de.invesdwin.util.math.expression.eval;
 
 import javax.annotation.concurrent.Immutable;
 
+import de.invesdwin.util.math.expression.IExpression;
 import de.invesdwin.util.math.expression.variable.IVariable;
 import de.invesdwin.util.time.fdate.FDate;
 
@@ -82,6 +83,16 @@ public class VariableReference implements IParsedExpression {
     @Override
     public boolean shouldPersist() {
         return variable.shouldPersist();
+    }
+
+    @Override
+    public boolean shouldDraw() {
+        return variable.shouldDraw();
+    }
+
+    @Override
+    public IExpression[] getChildren() {
+        return EMPTY_EXPRESSIONS;
     }
 
 }

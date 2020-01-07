@@ -3,6 +3,7 @@ package de.invesdwin.util.math.expression.eval;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.math.decimal.Decimal;
+import de.invesdwin.util.math.expression.IExpression;
 import de.invesdwin.util.time.fdate.FDate;
 
 @Immutable
@@ -85,4 +86,15 @@ public class ConstantExpression implements IParsedExpression {
     public boolean shouldPersist() {
         return false;
     }
+
+    @Override
+    public boolean shouldDraw() {
+        return true;
+    }
+
+    @Override
+    public IExpression[] getChildren() {
+        return EMPTY_EXPRESSIONS;
+    }
+
 }

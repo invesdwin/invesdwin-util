@@ -2,6 +2,7 @@ package de.invesdwin.util.math.expression.eval;
 
 import javax.annotation.concurrent.Immutable;
 
+import de.invesdwin.util.math.expression.IExpression;
 import de.invesdwin.util.math.expression.IPreviousKeyFunction;
 import de.invesdwin.util.time.fdate.FDate;
 
@@ -84,4 +85,13 @@ public class ConstantPreviousKeyExpression implements IParsedExpression {
         return expression.shouldPersist();
     }
 
+    @Override
+    public boolean shouldDraw() {
+        return expression.shouldDraw();
+    }
+
+    @Override
+    public IExpression[] getChildren() {
+        return new IExpression[] { expression };
+    }
 }

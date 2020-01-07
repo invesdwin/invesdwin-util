@@ -3,6 +3,7 @@ package de.invesdwin.util.math.expression.eval;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.math.expression.AFunction;
+import de.invesdwin.util.math.expression.IExpression;
 import de.invesdwin.util.time.fdate.FDate;
 
 @NotThreadSafe
@@ -138,6 +139,16 @@ public class FunctionCall implements IParsedExpression {
             }
         }
         return false;
+    }
+
+    @Override
+    public boolean shouldDraw() {
+        return function.shouldDraw();
+    }
+
+    @Override
+    public IExpression[] getChildren() {
+        return parameters;
     }
 
 }

@@ -81,6 +81,11 @@ public final class Functions {
         public boolean shouldPersist() {
             return false;
         }
+
+        @Override
+        public boolean shouldDraw() {
+            return true;
+        }
     };
 
     public static final AFunction SINH = new AUnaryFunction() {
@@ -153,6 +158,11 @@ public final class Functions {
         public boolean shouldPersist() {
             return false;
         }
+
+        @Override
+        public boolean shouldDraw() {
+            return true;
+        }
     };
 
     public static final AFunction COS = new AUnaryFunction() {
@@ -223,6 +233,11 @@ public final class Functions {
         @Override
         public boolean shouldPersist() {
             return false;
+        }
+
+        @Override
+        public boolean shouldDraw() {
+            return true;
         }
     };
 
@@ -296,6 +311,11 @@ public final class Functions {
         public boolean shouldPersist() {
             return false;
         }
+
+        @Override
+        public boolean shouldDraw() {
+            return true;
+        }
     };
 
     public static final AFunction TAN = new AUnaryFunction() {
@@ -366,6 +386,11 @@ public final class Functions {
         @Override
         public boolean shouldPersist() {
             return false;
+        }
+
+        @Override
+        public boolean shouldDraw() {
+            return true;
         }
     };
 
@@ -440,6 +465,11 @@ public final class Functions {
         public boolean shouldPersist() {
             return false;
         }
+
+        @Override
+        public boolean shouldDraw() {
+            return true;
+        }
     };
 
     public static final AFunction ABS = new AUnaryFunction() {
@@ -512,6 +542,11 @@ public final class Functions {
         public boolean shouldPersist() {
             return false;
         }
+
+        @Override
+        public boolean shouldDraw() {
+            return true;
+        }
     };
 
     public static final AFunction ASIN = new AUnaryFunction() {
@@ -582,6 +617,11 @@ public final class Functions {
         @Override
         public boolean shouldPersist() {
             return false;
+        }
+
+        @Override
+        public boolean shouldDraw() {
+            return true;
         }
     };
 
@@ -654,6 +694,11 @@ public final class Functions {
         public boolean shouldPersist() {
             return false;
         }
+
+        @Override
+        public boolean shouldDraw() {
+            return true;
+        }
     };
 
     public static final AFunction ATAN = new AUnaryFunction() {
@@ -724,6 +769,11 @@ public final class Functions {
         @Override
         public boolean shouldPersist() {
             return false;
+        }
+
+        @Override
+        public boolean shouldDraw() {
+            return true;
         }
     };
 
@@ -832,6 +882,11 @@ public final class Functions {
         public boolean shouldPersist() {
             return false;
         }
+
+        @Override
+        public boolean shouldDraw() {
+            return true;
+        }
     };
 
     public static final AFunction ROUND = new AUnaryFunction() {
@@ -902,6 +957,11 @@ public final class Functions {
         @Override
         public boolean shouldPersist() {
             return false;
+        }
+
+        @Override
+        public boolean shouldDraw() {
+            return true;
         }
     };
 
@@ -975,6 +1035,11 @@ public final class Functions {
         public boolean shouldPersist() {
             return false;
         }
+
+        @Override
+        public boolean shouldDraw() {
+            return true;
+        }
     };
 
     public static final AFunction CEIL = new AUnaryFunction() {
@@ -1046,6 +1111,11 @@ public final class Functions {
         @Override
         public boolean shouldPersist() {
             return false;
+        }
+
+        @Override
+        public boolean shouldDraw() {
+            return true;
         }
     };
 
@@ -1153,6 +1223,11 @@ public final class Functions {
         public boolean shouldPersist() {
             return false;
         }
+
+        @Override
+        public boolean shouldDraw() {
+            return true;
+        }
     };
 
     public static final AFunction SQRT = new AUnaryFunction() {
@@ -1225,6 +1300,11 @@ public final class Functions {
         public boolean shouldPersist() {
             return false;
         }
+
+        @Override
+        public boolean shouldDraw() {
+            return true;
+        }
     };
 
     public static final AFunction EXP = new AUnaryFunction() {
@@ -1295,6 +1375,11 @@ public final class Functions {
         @Override
         public boolean shouldPersist() {
             return false;
+        }
+
+        @Override
+        public boolean shouldDraw() {
+            return true;
         }
     };
 
@@ -1367,6 +1452,11 @@ public final class Functions {
         public boolean shouldPersist() {
             return false;
         }
+
+        @Override
+        public boolean shouldDraw() {
+            return true;
+        }
     };
 
     public static final AFunction LOG = new AUnaryFunction() {
@@ -1437,6 +1527,11 @@ public final class Functions {
         @Override
         public boolean shouldPersist() {
             return false;
+        }
+
+        @Override
+        public boolean shouldDraw() {
+            return true;
         }
     };
 
@@ -1547,6 +1642,11 @@ public final class Functions {
         public boolean shouldPersist() {
             return false;
         }
+
+        @Override
+        public boolean shouldDraw() {
+            return true;
+        }
     };
 
     public static final AFunction MAX = new ABinaryFunction() {
@@ -1655,6 +1755,11 @@ public final class Functions {
         @Override
         public boolean shouldPersist() {
             return false;
+        }
+
+        @Override
+        public boolean shouldDraw() {
+            return true;
         }
     };
 
@@ -1797,6 +1902,11 @@ public final class Functions {
         public boolean shouldPersist() {
             return false;
         }
+
+        @Override
+        public boolean shouldDraw() {
+            return true;
+        }
     };
 
     public static final AFunction RND = new AUnaryFunction() {
@@ -1867,6 +1977,11 @@ public final class Functions {
         @Override
         public boolean shouldPersist() {
             return false;
+        }
+
+        @Override
+        public boolean shouldDraw() {
+            return true;
         }
     };
 
@@ -1940,6 +2055,11 @@ public final class Functions {
         public boolean shouldPersist() {
             return false;
         }
+
+        @Override
+        public boolean shouldDraw() {
+            return true;
+        }
     };
 
     public static final AFunction DEG = new AUnaryFunction() {
@@ -2012,6 +2132,11 @@ public final class Functions {
         public boolean shouldPersist() {
             return false;
         }
+
+        @Override
+        public boolean shouldDraw() {
+            return true;
+        }
     };
 
     public static final AFunction RAD = new AUnaryFunction() {
@@ -2083,6 +2208,11 @@ public final class Functions {
         @Override
         public boolean shouldPersist() {
             return false;
+        }
+
+        @Override
+        public boolean shouldDraw() {
+            return true;
         }
     };
 
@@ -2259,6 +2389,11 @@ public final class Functions {
         public boolean shouldPersist() {
             return false;
         }
+
+        @Override
+        public boolean shouldDraw() {
+            return true;
+        }
     };
 
     public static final AFunction ISNAN = new AFunction() {
@@ -2365,6 +2500,11 @@ public final class Functions {
         @Override
         public boolean shouldPersist() {
             return false;
+        }
+
+        @Override
+        public boolean shouldDraw() {
+            return true;
         }
     };
 
@@ -2473,6 +2613,11 @@ public final class Functions {
         public boolean shouldPersist() {
             return false;
         }
+
+        @Override
+        public boolean shouldDraw() {
+            return true;
+        }
     };
 
     public static final AFunction ISFALSE = new AFunction() {
@@ -2580,6 +2725,11 @@ public final class Functions {
         public boolean shouldPersist() {
             return false;
         }
+
+        @Override
+        public boolean shouldDraw() {
+            return true;
+        }
     };
 
     public static final AFunction NEGATE = new AFunction() {
@@ -2674,6 +2824,11 @@ public final class Functions {
         @Override
         public boolean shouldPersist() {
             return false;
+        }
+
+        @Override
+        public boolean shouldDraw() {
+            return true;
         }
     };
 
@@ -2781,6 +2936,11 @@ public final class Functions {
         @Override
         public boolean shouldPersist() {
             return false;
+        }
+
+        @Override
+        public boolean shouldDraw() {
+            return true;
         }
     };
 

@@ -87,4 +87,9 @@ public class VariableFunction extends AFunction {
         return variable.shouldPersist();
     }
 
+    @Override
+    public boolean shouldDraw() {
+        return variable.shouldDraw();
+    }
+
 }

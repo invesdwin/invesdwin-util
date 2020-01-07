@@ -3,6 +3,7 @@ package de.invesdwin.util.math.expression.eval.operation;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.math.Doubles;
+import de.invesdwin.util.math.expression.IExpression;
 import de.invesdwin.util.math.expression.eval.ConstantExpression;
 import de.invesdwin.util.math.expression.eval.IParsedExpression;
 import de.invesdwin.util.time.fdate.FDate;
@@ -315,6 +316,16 @@ public class BinaryOperation implements IParsedExpression {
     @Override
     public boolean shouldPersist() {
         return left.shouldPersist() || right.shouldPersist();
+    }
+
+    @Override
+    public boolean shouldDraw() {
+        return left.shouldDraw() || right.shouldDraw();
+    }
+
+    @Override
+    public IExpression[] getChildren() {
+        return new IExpression[] { left, right };
     }
 
 }

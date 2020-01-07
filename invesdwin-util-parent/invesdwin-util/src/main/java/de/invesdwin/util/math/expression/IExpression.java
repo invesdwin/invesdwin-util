@@ -50,4 +50,12 @@ public interface IExpression {
      */
     boolean shouldPersist();
 
+    /**
+     * Return true if this expression can be drawn. This might be false for command expressions that always return NaN.
+     * In that case the children might be drawn.
+     */
+    boolean shouldDraw();
+
+    IExpression[] getChildren();
+
 }

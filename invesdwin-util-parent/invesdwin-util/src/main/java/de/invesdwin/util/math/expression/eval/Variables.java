@@ -32,6 +32,11 @@ public final class Variables {
             return ExpressionReturnType.Double;
         }
 
+        @Override
+        public boolean shouldDraw() {
+            return true;
+        }
+
     };
 
     public static final IVariable EULER = new AConstant(Math.E) {
@@ -55,6 +60,11 @@ public final class Variables {
         @Override
         public ExpressionReturnType getType() {
             return ExpressionReturnType.Double;
+        }
+
+        @Override
+        public boolean shouldDraw() {
+            return true;
         }
 
     };
@@ -81,6 +91,11 @@ public final class Variables {
             return ExpressionReturnType.Double;
         }
 
+        @Override
+        public boolean shouldDraw() {
+            return false;
+        }
+
     };
 
     public static final IVariable NULL = new AConstant(Double.NaN) {
@@ -103,6 +118,11 @@ public final class Variables {
         @Override
         public ExpressionReturnType getType() {
             return ExpressionReturnType.Double;
+        }
+
+        @Override
+        public boolean shouldDraw() {
+            return false;
         }
 
     };
@@ -129,6 +149,11 @@ public final class Variables {
             return ExpressionReturnType.Double;
         }
 
+        @Override
+        public boolean shouldDraw() {
+            return true;
+        }
+
     };
 
     public static final IVariable FALSE = new AConstant(0D) {
@@ -151,6 +176,11 @@ public final class Variables {
         @Override
         public ExpressionReturnType getType() {
             return ExpressionReturnType.Double;
+        }
+
+        @Override
+        public boolean shouldDraw() {
+            return true;
         }
 
     };
