@@ -194,6 +194,9 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
     }
 
     public int compareTo(final Double other) {
+        if (other == null) {
+            return 1;
+        }
         return Doubles.compare(getValue(), other.doubleValue());
     }
 
