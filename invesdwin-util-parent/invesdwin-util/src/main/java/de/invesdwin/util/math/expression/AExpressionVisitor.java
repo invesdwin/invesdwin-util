@@ -57,14 +57,14 @@ public abstract class AExpressionVisitor {
 
     protected abstract void visitOther(IExpression expression);
 
-    public static IExpression getFirstDrawable(final IExpression expression) {
+    public static IExpression getDrawable(final IExpression expression) {
         if (expression.shouldDraw()) {
             return expression;
         }
         final IExpression[] children = expression.getChildren();
-        for (int i = 0; i < children.length; i++) {
-            final IExpression child = children[i];
-            final IExpression drawable = getFirstDrawable(child);
+        if (children.length == 1) {
+            final IExpression child = children[0];
+            final IExpression drawable = getDrawable(child);
             if (drawable != null) {
                 return drawable;
             }
