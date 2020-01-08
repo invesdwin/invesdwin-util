@@ -11,7 +11,7 @@ public abstract class AExpressionVisitor {
 
     public void process(final IExpression expression) {
         final IExpression e;
-        if (isDrawableOnly()) {
+        if (isDrawableOnly() && expression.getChildren().length == 1) {
             e = getDrawable(expression);
         } else {
             e = expression;
