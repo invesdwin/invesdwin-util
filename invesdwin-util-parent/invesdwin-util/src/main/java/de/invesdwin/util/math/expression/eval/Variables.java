@@ -83,7 +83,7 @@ public final class Variables {
 
         @Override
         public String getDescription() {
-            return "This denotes a missing value as defined by Double.NaN as a representation for \"Not a Number\" or \"NULL\"";
+            return "This denotes a missing value as defined by Double.NaN as a representation for \"Not a Number\" or \"NULL\". It evaluates to FALSE in boolean expressions.";
         }
 
         @Override
