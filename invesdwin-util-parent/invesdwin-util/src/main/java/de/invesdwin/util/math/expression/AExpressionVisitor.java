@@ -10,43 +10,60 @@ import de.invesdwin.util.math.expression.eval.operation.BinaryOperation.Op;
 public abstract class AExpressionVisitor {
 
     public void process(final IExpression expression) {
-        if (expression instanceof BinaryOperation) {
-            final BinaryOperation cExpression = (BinaryOperation) expression;
-            final boolean visitChildren;
-            switch (cExpression.getOp()) {
-            case AND:
-            case OR:
-                visitChildren = visitLogicalCombination(cExpression);
-                break;
-            case CROSSES_ABOVE:
-            case CROSSES_BELOW:
-            case EQ:
-            case GT:
-            case GT_EQ:
-            case LT:
-            case LT_EQ:
-            case NEQ:
-                visitChildren = visitComparison(cExpression);
-                break;
-            case DIVIDE:
-            case MODULO:
-            case MULTIPLY:
-            case NOT:
-            case POWER:
-            case SUBTRACT:
-            case ADD:
-                visitChildren = visitMath(cExpression);
-                break;
-            default:
-                throw UnknownArgumentException.newInstance(Op.class, cExpression.getOp());
-            }
+        final IExpression e;
+        if (isDrawableOnly()) {
+            e = getDrawable(expression);
+        } else {
+            e = expression;
+        }
+        if (e == null) {
+            return;
+        } else if (e instanceof BinaryOperation) {
+            final BinaryOperation cExpression = (BinaryOperation) e;
+            final boolean visitChildren = processBinaryOperation(cExpression);
             if (visitChildren) {
                 process(cExpression.getLeft());
                 process(cExpression.getRight());
             }
         } else {
-            visitOther(expression);
+            visitOther(e);
         }
+    }
+
+    protected boolean processBinaryOperation(final BinaryOperation expression) {
+        final boolean visitChildren;
+        switch (expression.getOp()) {
+        case AND:
+        case OR:
+            visitChildren = visitLogicalCombination(expression);
+            break;
+        case CROSSES_ABOVE:
+        case CROSSES_BELOW:
+        case EQ:
+        case GT:
+        case GT_EQ:
+        case LT:
+        case LT_EQ:
+        case NEQ:
+            visitChildren = visitComparison(expression);
+            break;
+        case DIVIDE:
+        case MODULO:
+        case MULTIPLY:
+        case NOT:
+        case POWER:
+        case SUBTRACT:
+        case ADD:
+            visitChildren = visitMath(expression);
+            break;
+        default:
+            throw UnknownArgumentException.newInstance(Op.class, expression.getOp());
+        }
+        return visitChildren;
+    }
+
+    protected boolean isDrawableOnly() {
+        return false;
     }
 
     protected abstract boolean visitLogicalCombination(BinaryOperation expression);
