@@ -208,11 +208,14 @@ public final class Dialogs extends javax.swing.JOptionPane {
     }
 
     public static JEditorPane newHtmlMessagePane() {
-        final JEditorPane messagePane = new JEditorPane();
-        messagePane.setContentType("text/html");
-        messagePane.setEditable(false);
-        messagePane.setOpaque(false);
-        messagePane.addHyperlinkListener(new HyperlinkListener() {
+        return newHtmlMessagePane(new JEditorPane());
+    }
+
+    public static JEditorPane newHtmlMessagePane(final JEditorPane editor) {
+        editor.setContentType("text/html");
+        editor.setEditable(false);
+        editor.setOpaque(false);
+        editor.addHyperlinkListener(new HyperlinkListener() {
             @Override
             public void hyperlinkUpdate(final HyperlinkEvent e) {
                 if (e.getEventType() == EventType.ACTIVATED) {
@@ -224,8 +227,8 @@ public final class Dialogs extends javax.swing.JOptionPane {
                 }
             }
         });
-        messagePane.setDisabledTextColor(messagePane.getForeground());
-        return messagePane;
+        editor.setDisabledTextColor(editor.getForeground());
+        return editor;
     }
 
     public static Color showColorChooserDialog(final Component component, final String name, final Color initialColor) {
