@@ -11,10 +11,13 @@ import java.util.function.Function;
 
 import javax.annotation.concurrent.Immutable;
 
+import de.invesdwin.util.bean.tuple.Pair;
+import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.decimal.internal.DecimalAggregate;
 import de.invesdwin.util.math.decimal.internal.DummyDecimalAggregate;
+import io.netty.util.concurrent.FastThreadLocal;
 
 @Immutable
 public class Decimal extends ADecimal<Decimal> {
@@ -41,6 +44,27 @@ public class Decimal extends ADecimal<Decimal> {
     public static final Decimal SEVENTYFIVE;
     public static final Decimal ONE_HUNDRED;
     public static final Decimal PI;
+
+    private static final ALoadingCache<Pair<String, DecimalFormatSymbols>, FastThreadLocal<DecimalFormat>> DECIMAL_FORMAT = new ALoadingCache<Pair<String, DecimalFormatSymbols>, FastThreadLocal<DecimalFormat>>() {
+        @Override
+        protected FastThreadLocal<DecimalFormat> loadValue(final Pair<String, DecimalFormatSymbols> key) {
+            final String format = key.getFirst();
+            final DecimalFormatSymbols symbols = key.getSecond();
+            return new FastThreadLocal<DecimalFormat>() {
+                @Override
+                protected DecimalFormat initialValue() throws Exception {
+                    final DecimalFormat formatter = new DecimalFormat(format, symbols);
+                    formatter.setRoundingMode(ADecimal.DEFAULT_ROUNDING_MODE);
+                    return formatter;
+                }
+            };
+        }
+
+        @Override
+        protected boolean isHighConcurrency() {
+            return true;
+        }
+    };
 
     static {
         MINUS_THREE = new Decimal(-3D);
@@ -255,9 +279,7 @@ public class Decimal extends ADecimal<Decimal> {
     }
 
     public static DecimalFormat newDecimalFormatInstance(final String format, final DecimalFormatSymbols symbols) {
-        final DecimalFormat formatter = new DecimalFormat(format, symbols);
-        formatter.setRoundingMode(ADecimal.DEFAULT_ROUNDING_MODE);
-        return formatter;
+        return DECIMAL_FORMAT.get(Pair.of(format, symbols)).get();
     }
 
     public static Decimal nanToNull(final Double value) {

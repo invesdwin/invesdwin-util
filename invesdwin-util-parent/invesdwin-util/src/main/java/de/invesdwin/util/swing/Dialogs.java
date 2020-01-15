@@ -5,6 +5,8 @@ import java.awt.Component;
 import java.awt.Desktop;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.WindowEvent;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -12,10 +14,15 @@ import java.net.URI;
 import java.net.URL;
 
 import javax.annotation.concurrent.Immutable;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.Icon;
 import javax.swing.JColorChooser;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JEditorPane;
+import javax.swing.JRootPane;
+import javax.swing.KeyStroke;
 import javax.swing.colorchooser.AbstractColorChooserPanel;
 import javax.swing.colorchooser.ColorChooserComponentFactory;
 import javax.swing.event.ChangeEvent;
@@ -31,6 +38,9 @@ import de.invesdwin.util.swing.listener.IColorChooserListener;
 
 @Immutable
 public final class Dialogs extends javax.swing.JOptionPane {
+
+    private static final KeyStroke WINDOW_CLOSING_STROKE = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0);
+    private static final String ESCAPE_STROKE_KEY = Dialogs.class.getName() + ":WINDOW_CLOSING";
 
     private static final String EYE_DROPPER_COLOR_CHOOSER_PANEL_CLASS = "org.jdesktop.swingx.color.EyeDropperColorChooserPanel";
 
@@ -310,8 +320,24 @@ public final class Dialogs extends javax.swing.JOptionPane {
             }
         };
         final JDialog dialog = JColorChooser.createDialog(component, name, true, pane, okListener, cancelListener);
+        installEscapeCloseOperation(dialog);
         dialog.setVisible(true);
         return selectedColor.get();
+    }
+
+    /**
+     * https://stackoverflow.com/questions/642925/swing-how-do-i-close-a-dialog-when-the-esc-key-is-pressed
+     */
+    public static void installEscapeCloseOperation(final JDialog dialog) {
+        final Action dispatchClosing = new AbstractAction() {
+            @Override
+            public void actionPerformed(final ActionEvent event) {
+                dialog.dispatchEvent(new WindowEvent(dialog, WindowEvent.WINDOW_CLOSING));
+            }
+        };
+        final JRootPane root = dialog.getRootPane();
+        root.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(WINDOW_CLOSING_STROKE, ESCAPE_STROKE_KEY);
+        root.getActionMap().put(ESCAPE_STROKE_KEY, dispatchClosing);
     }
 
 }
