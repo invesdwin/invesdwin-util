@@ -3,7 +3,6 @@ package de.invesdwin.util.lang;
 import java.nio.ByteBuffer;
 import java.text.NumberFormat;
 import java.util.Currency;
-import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -11,6 +10,7 @@ import java.util.Map.Entry;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.assertions.Assertions;
+import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 import de.invesdwin.util.math.decimal.Decimal;
 import io.netty.util.concurrent.FastThreadLocal;
@@ -59,7 +59,8 @@ public final class Currencies {
      */
     public static final String PCT = "PCT";
 
-    private static final Map<String, String> CURRENCY_CODE_2_CURRENCY_SYMBOL = new HashMap<String, String>();
+    private static final Map<String, String> CURRENCY_CODE_2_CURRENCY_SYMBOL = ILockCollectionFactory.getInstance(true)
+            .newConcurrentMap();
     private static final ALoadingCache<Locale, FastThreadLocal<NumberFormat>> NUMBER_FORMAT = new ALoadingCache<Locale, FastThreadLocal<NumberFormat>>() {
         @Override
         protected FastThreadLocal<NumberFormat> loadValue(final Locale key) {
@@ -106,6 +107,11 @@ public final class Currencies {
     }
 
     public static String getSymbol(final String currencyCode) {
+        final String currencySymbolFromCode = CURRENCY_CODE_2_CURRENCY_SYMBOL.get(currencyCode);
+        if (currencySymbolFromCode != null) {
+            return currencySymbolFromCode;
+        }
+
         final Currency currency = Currencies.getInstanceOrNull(currencyCode);
         final String symbol;
         if (currency != null) {
@@ -115,8 +121,13 @@ public final class Currencies {
         }
         final String currencySymbol = CURRENCY_CODE_2_CURRENCY_SYMBOL.get(symbol);
         if (currencySymbol != null) {
+            CURRENCY_CODE_2_CURRENCY_SYMBOL.put(currencyCode, currencySymbol);
+            if (!symbol.equals(currencySymbol)) {
+                CURRENCY_CODE_2_CURRENCY_SYMBOL.put(symbol, currencySymbol);
+            }
             return currencySymbol;
         } else {
+            CURRENCY_CODE_2_CURRENCY_SYMBOL.put(currencyCode, symbol);
             return symbol;
         }
     }

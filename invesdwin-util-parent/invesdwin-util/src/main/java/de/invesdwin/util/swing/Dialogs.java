@@ -223,10 +223,11 @@ public final class Dialogs extends javax.swing.JOptionPane {
                 if (e.getEventType() == EventType.ACTIVATED) {
                     try {
                         final URL url = e.getURL();
-                        if (url.getFile() != null) {
-                            if (!new File(url.getFile()).exists()) {
+                        final String file = url.getFile();
+                        if (file != null) {
+                            if (!new File(URIs.decode(file)).exists()) {
                                 Dialogs.showMessageDialog(Dialogs.getRootFrame(),
-                                        "<html><b>File does not exist:</b><br>" + url.getFile(), "File not found",
+                                        "<html><b>File does not exist:</b><br>" + file, "File not found",
                                         Dialogs.ERROR_MESSAGE);
                                 return;
                             }
