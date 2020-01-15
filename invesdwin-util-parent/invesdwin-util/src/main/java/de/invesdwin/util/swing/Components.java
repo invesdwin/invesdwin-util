@@ -80,7 +80,7 @@ public final class Components {
     public static void setToolTipText(final JComponent component, final String text, final boolean update) {
         final String htmlText;
         if (text != null) {
-            htmlText = Strings.eventuallyAddPrefix(text.replace("\n", "<br>"), "<html>");
+            htmlText = Strings.putPrefix(text.replace("\n", "<br>"), "<html>");
         } else {
             htmlText = text;
         }

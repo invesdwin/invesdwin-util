@@ -5,9 +5,11 @@ import java.awt.Component;
 import java.awt.Desktop;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
+import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.URI;
+import java.net.URL;
 
 import javax.annotation.concurrent.Immutable;
 import javax.swing.Icon;
@@ -220,8 +222,18 @@ public final class Dialogs extends javax.swing.JOptionPane {
             public void hyperlinkUpdate(final HyperlinkEvent e) {
                 if (e.getEventType() == EventType.ACTIVATED) {
                     try {
-                        Desktop.getDesktop().browse(URIs.asUri(e.getURL()));
-                    } catch (final IOException e1) {
+                        final URL url = e.getURL();
+                        if (url.getFile() != null) {
+                            if (!new File(url.getFile()).exists()) {
+                                Dialogs.showMessageDialog(Dialogs.getRootFrame(),
+                                        "<html><b>File does not exist:</b><br>" + url.getFile(), "File not found",
+                                        Dialogs.ERROR_MESSAGE);
+                                return;
+                            }
+                        }
+                        final URI uri = URIs.asUri(url);
+                        Desktop.getDesktop().browse(uri);
+                    } catch (final Throwable e1) {
                         throw new RuntimeException(e1);
                     }
                 }
