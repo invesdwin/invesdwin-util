@@ -18,7 +18,12 @@ import de.invesdwin.util.time.fdate.FDate;
 
 @Immutable
 @StaticFacadeDefinition(name = "de.invesdwin.util.lang.internal.AFilesStaticFacade", targets = {
-        org.apache.commons.io.FileUtils.class, java.nio.file.Files.class })
+        org.apache.commons.io.FileUtils.class, java.nio.file.Files.class }, filterSeeMethodSignatures = {
+                //these methods are not available in java 8
+                "java.nio.file.Files#readString(java.nio.file.Path)",
+                "java.nio.file.Files#readString(java.nio.file.Path, java.nio.charset.Charset)",
+                "java.nio.file.Files#writeString(java.nio.file.Path, java.lang.CharSequence, java.nio.file.OpenOption...)",
+                "java.nio.file.Files#writeString(java.nio.file.Path, java.lang.CharSequence, java.nio.charset.Charset, java.nio.file.OpenOption...)" })
 public final class Files extends AFilesStaticFacade {
 
     private Files() {}
