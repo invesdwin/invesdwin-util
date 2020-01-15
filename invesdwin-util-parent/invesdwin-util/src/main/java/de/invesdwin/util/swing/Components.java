@@ -28,6 +28,8 @@ import de.invesdwin.util.swing.listener.ADelegateMouseMotionListener;
 @Immutable
 public final class Components {
 
+    private static final int DEFAULT_TOOLTIP_MAX_SIZE = 75;
+
     private Components() {}
 
     public static void setForeground(final Component component, final Color foregroundColor) {
@@ -80,7 +82,7 @@ public final class Components {
     public static void setToolTipText(final JComponent component, final String text, final boolean update) {
         final String htmlText;
         if (text != null) {
-            htmlText = Strings.putPrefix(text.replace("\n", "<br>"), "<html>");
+            htmlText = MultiLineToolTips.splitToolTipText(Strings.putPrefix(text.replace("\n", "<br>"), "<html>"));
         } else {
             htmlText = text;
         }
