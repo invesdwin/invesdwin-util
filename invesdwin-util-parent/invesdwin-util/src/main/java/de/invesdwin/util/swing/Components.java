@@ -24,13 +24,22 @@ import javax.swing.text.JTextComponent;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.swing.listener.ADelegateMouseMotionListener;
+import de.invesdwin.util.swing.text.ToolTipFormatter;
 
 @Immutable
 public final class Components {
 
-    private static final int DEFAULT_TOOLTIP_MAX_SIZE = 75;
+    private static ToolTipFormatter defaultToolTipFormatter = new ToolTipFormatter();
 
     private Components() {}
+
+    public static void setDefaultToolTipFormatter(final ToolTipFormatter defaultToolTipFormatter) {
+        Components.defaultToolTipFormatter = defaultToolTipFormatter;
+    }
+
+    public static ToolTipFormatter getDefaultToolTipFormatter() {
+        return defaultToolTipFormatter;
+    }
 
     public static void setForeground(final Component component, final Color foregroundColor) {
         if (!foregroundColor.equals(component.getForeground())) {
@@ -80,9 +89,21 @@ public final class Components {
     }
 
     public static void setToolTipText(final JComponent component, final String text, final boolean update) {
+        setToolTipText(component, text, update, defaultToolTipFormatter);
+    }
+
+    public static void setToolTipText(final JComponent component, final String text, final boolean update,
+            final ToolTipFormatter formatter) {
         final String htmlText;
         if (text != null) {
-            htmlText = MultiLineToolTips.splitToolTipText(Strings.putPrefix(text.replace("\n", "<br>"), "<html>"));
+            final String replaced = text.replace("\n", "<br>");
+            final String formatted;
+            if (formatter != null) {
+                formatted = formatter.format(replaced);
+            } else {
+                formatted = replaced;
+            }
+            htmlText = Strings.putPrefix(formatted, "<html>");
         } else {
             htmlText = text;
         }
