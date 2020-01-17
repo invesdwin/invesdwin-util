@@ -1,7 +1,6 @@
 package de.invesdwin.util.math.decimal;
 
 import java.text.DecimalFormat;
-import java.util.regex.Pattern;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
@@ -112,12 +111,22 @@ public class ScaledDecimalToStringBuilder<T extends AScaledDecimal<T, S>, S exte
         final DecimalFormat formatter = Decimal.newDecimalFormatInstance(format);
         final double value = parent.getValue(scale);
         final String str = formatter.format(value);
-        String negativeZeroMatchStr = "-0([\\.,](0)*)?";
         if (withSymbol) {
-            negativeZeroMatchStr += Pattern.quote(scale.getSymbol());
+            return normalizeNegativeZero(str, scale.getSymbol().length());
+        } else {
+            return normalizeNegativeZero(str, 0);
         }
-        if (str.startsWith("-0") && str.matches(negativeZeroMatchStr)) {
-            return Strings.removeStart(str, "-");
+    }
+
+    public static String normalizeNegativeZero(final String str, final int skipSuffixLength) {
+        if (str.length() > 3 && str.charAt(0) == '-' && str.charAt(1) == '0'
+                && (str.charAt(2) == '.' || str.charAt(2) == ',')) {
+            for (int i = 3; i < str.length() - skipSuffixLength; i++) {
+                if (str.charAt(i) != '0') {
+                    return str;
+                }
+            }
+            return Strings.removeStart(str, 1);
         } else {
             return str;
         }
