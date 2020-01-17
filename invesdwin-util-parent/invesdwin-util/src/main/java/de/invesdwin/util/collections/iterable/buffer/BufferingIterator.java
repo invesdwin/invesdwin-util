@@ -7,10 +7,12 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.norva.marker.ISerializableValueObject;
 import de.invesdwin.util.collections.iterable.EmptyCloseableIterator;
+import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
+import de.invesdwin.util.collections.iterable.WrapperCloseableIterable;
+import de.invesdwin.util.collections.iterable.WrapperCloseableIterator;
 import de.invesdwin.util.collections.list.Lists;
 import de.invesdwin.util.error.FastNoSuchElementException;
-import de.invesdwin.util.lang.Closeables;
 import de.invesdwin.util.lang.Objects;
 
 /**
@@ -36,8 +38,17 @@ public class BufferingIterator<E> implements IBufferingIterator<E>, ISerializabl
         addAll(iterable);
     }
 
+    public BufferingIterator(final ICloseableIterator<? extends E> iterator) {
+        addAll(iterator);
+    }
+
+    @Deprecated
     public BufferingIterator(final Iterator<? extends E> iterator) {
         addAll(iterator);
+    }
+
+    public BufferingIterator(final ICloseableIterable<? extends E> iterable) {
+        addAll(iterable);
     }
 
     public BufferingIterator(final Iterable<? extends E> iterable) {
@@ -116,6 +127,15 @@ public class BufferingIterator<E> implements IBufferingIterator<E>, ISerializabl
         if (iterable == null) {
             return false;
         } else {
+            return addAll(WrapperCloseableIterable.maybeWrap(iterable));
+        }
+    }
+
+    @Override
+    public boolean addAll(final ICloseableIterable<? extends E> iterable) {
+        if (iterable == null) {
+            return false;
+        } else {
             return addAll(iterable.iterator());
         }
     }
@@ -129,8 +149,18 @@ public class BufferingIterator<E> implements IBufferingIterator<E>, ISerializabl
         }
     }
 
+    @Deprecated
     @Override
     public boolean addAll(final Iterator<? extends E> iterator) {
+        if (iterator == null) {
+            return false;
+        } else {
+            return addAll(WrapperCloseableIterator.maybeWrap(iterator));
+        }
+    }
+
+    @Override
+    public boolean addAll(final ICloseableIterator<? extends E> iterator) {
         if (iterator == null) {
             return false;
         } else {
@@ -153,7 +183,7 @@ public class BufferingIterator<E> implements IBufferingIterator<E>, ISerializabl
             } catch (final NoSuchElementException e) {
                 //end reached
             } finally {
-                Closeables.close(iterator);
+                iterator.close();
             }
             tail = prev;
             return sizeBefore < size;
@@ -169,10 +199,11 @@ public class BufferingIterator<E> implements IBufferingIterator<E>, ISerializabl
             final BufferingIterator<E> cIterable = (BufferingIterator<E>) iterable;
             return consume(cIterable);
         } else {
-            return addAll(iterable.iterator());
+            return addAll(iterable);
         }
     }
 
+    @Deprecated
     @Override
     public boolean consume(final Iterator<? extends E> iterator) {
         if (iterator == null) {

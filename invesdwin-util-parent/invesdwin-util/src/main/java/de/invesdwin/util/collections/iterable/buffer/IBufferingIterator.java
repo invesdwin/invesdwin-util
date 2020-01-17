@@ -23,9 +23,13 @@ public interface IBufferingIterator<E> extends ICloseableIterator<E>, ICloseable
      */
     boolean add(E element);
 
+    boolean addAll(ICloseableIterator<? extends E> iterator);
+
     boolean addAll(Iterator<? extends E> iterator);
 
     boolean addAll(Iterable<? extends E> iterable);
+
+    boolean addAll(ICloseableIterable<? extends E> iterable);
 
     boolean addAll(BufferingIterator<E> iterable);
 

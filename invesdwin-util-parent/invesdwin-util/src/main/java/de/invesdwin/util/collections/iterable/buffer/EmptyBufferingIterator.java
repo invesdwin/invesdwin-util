@@ -5,6 +5,7 @@ import java.util.Iterator;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.collections.iterable.EmptyCloseableIterator;
+import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.error.FastNoSuchElementException;
 
@@ -75,6 +76,16 @@ public final class EmptyBufferingIterator<E> implements IBufferingIterator<E> {
 
     @Override
     public boolean addAll(final BufferingIterator<E> iterable) {
+        return false;
+    }
+
+    @Override
+    public boolean addAll(final ICloseableIterable<? extends E> iterable) {
+        return false;
+    }
+
+    @Override
+    public boolean addAll(final ICloseableIterator<? extends E> iterator) {
         return false;
     }
 

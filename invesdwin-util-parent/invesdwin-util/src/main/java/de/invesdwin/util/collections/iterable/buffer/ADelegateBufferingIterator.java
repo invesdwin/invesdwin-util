@@ -4,6 +4,7 @@ import java.util.Iterator;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 
 @NotThreadSafe
@@ -79,6 +80,16 @@ public abstract class ADelegateBufferingIterator<E> implements IBufferingIterato
     @Override
     public boolean addAll(final BufferingIterator<E> iterable) {
         return getDelegate().addAll(iterable);
+    }
+
+    @Override
+    public boolean addAll(final ICloseableIterable<? extends E> iterable) {
+        return getDelegate().addAll(iterable);
+    }
+
+    @Override
+    public boolean addAll(final ICloseableIterator<? extends E> iterator) {
+        return getDelegate().addAll(iterator);
     }
 
     @Override

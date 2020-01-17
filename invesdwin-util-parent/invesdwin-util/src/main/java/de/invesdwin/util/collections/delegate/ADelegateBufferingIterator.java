@@ -5,6 +5,7 @@ import java.util.Iterator;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.collections.iterable.ASkippingIterator;
+import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.collections.iterable.WrapperCloseableIterable;
 import de.invesdwin.util.collections.iterable.WrapperCloseableIterator;
@@ -65,6 +66,18 @@ public abstract class ADelegateBufferingIterator<E> implements IBufferingIterato
     public boolean addAll(final Iterable<? extends E> iterable) {
         final ICloseableIterator<E> allowedElements = filterAllowedElements(
                 WrapperCloseableIterable.maybeWrap(iterable).iterator());
+        return getDelegate().addAll(allowedElements);
+    }
+
+    @Override
+    public boolean addAll(final ICloseableIterable<? extends E> iterable) {
+        final ICloseableIterator<E> allowedElements = filterAllowedElements(iterable.iterator());
+        return getDelegate().addAll(allowedElements);
+    }
+
+    @Override
+    public boolean addAll(final ICloseableIterator<? extends E> iterator) {
+        final ICloseableIterator<E> allowedElements = filterAllowedElements(iterator);
         return getDelegate().addAll(allowedElements);
     }
 
