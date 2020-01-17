@@ -8,7 +8,7 @@ import de.invesdwin.util.math.stream.IStreamAlgorithm;
 @NotThreadSafe
 public class DecimalStreamMinMax<E extends ADecimal<E>> implements IStreamAlgorithm<E, Void> {
 
-    private final DecimalStreamMin<E> minDelegate = new DecimalStreamMin<E>();;
+    private final DecimalStreamMin<E> minDelegate = new DecimalStreamMin<E>();
     private final DecimalStreamMax<E> maxDelegate = new DecimalStreamMax<E>();
 
     @Override

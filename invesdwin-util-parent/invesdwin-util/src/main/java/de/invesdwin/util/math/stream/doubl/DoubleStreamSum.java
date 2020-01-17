@@ -2,18 +2,14 @@ package de.invesdwin.util.math.stream.doubl;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import de.invesdwin.util.math.stream.IStreamAlgorithm;
-
 @NotThreadSafe
-public class DoubleStreamSum<E extends Number> implements IStreamAlgorithm<E, Double> {
+public class DoubleStreamSum implements IDoubleStreamAlgorithm {
 
     private double sum = 0;
 
     @Override
-    public Double process(final E value) {
-        if (value != null) {
-            sum += value.doubleValue();
-        }
+    public double process(final double value) {
+        sum += value;
         return sum;
     }
 

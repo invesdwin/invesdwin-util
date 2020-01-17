@@ -4,12 +4,12 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.math.decimal.ADecimal;
 import de.invesdwin.util.math.stream.IStreamAlgorithm;
-import de.invesdwin.util.math.stream.number.NumberStreamAvg;
+import de.invesdwin.util.math.stream.doubl.DoubleStreamAvg;
 
 @NotThreadSafe
 public class DecimalStreamAvg<E extends ADecimal<E>> implements IStreamAlgorithm<E, Void> {
 
-    private final NumberStreamAvg<Double> avg = new NumberStreamAvg<>();
+    private final DoubleStreamAvg avg = new DoubleStreamAvg();
     private final E converter;
 
     public DecimalStreamAvg(final E converter) {
