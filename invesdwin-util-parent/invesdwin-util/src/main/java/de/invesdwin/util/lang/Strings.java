@@ -21,7 +21,8 @@ import de.invesdwin.util.lang.internal.MultilineToStringStyle;
 @Immutable
 @StaticFacadeDefinition(name = "de.invesdwin.util.lang.internal.AStringsStaticFacade", targets = {
         CheckedCastStrings.class, BeanPathStrings.class, com.google.common.base.Strings.class,
-        org.assertj.core.util.Strings.class }, filterMethodSignatureExpressions = {
+        org.assertj.core.util.Strings.class, org.apache.commons.text.StringEscapeUtils.class,
+        org.apache.commons.text.WordUtils.class }, filterMethodSignatureExpressions = {
                 ".* java\\.lang\\.String repeat\\(java\\.lang\\.String str, int repeat\\).*", ".* isNullOrEmpty\\(.*" })
 public final class Strings extends AStringsStaticFacade {
 
