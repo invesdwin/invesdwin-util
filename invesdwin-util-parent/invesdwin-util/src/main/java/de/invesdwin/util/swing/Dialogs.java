@@ -46,6 +46,8 @@ public final class Dialogs extends javax.swing.JOptionPane {
 
     private static AComponentVisitor dialogVisitor;
 
+    private static final org.slf4j.ext.XLogger LOG = org.slf4j.ext.XLoggerFactory.getXLogger(Dialogs.class);
+
     private Dialogs() {}
 
     public static void setDialogVisitor(final AComponentVisitor dialogVisitor) {
@@ -233,7 +235,12 @@ public final class Dialogs extends javax.swing.JOptionPane {
                 if (e.getEventType() == EventType.ACTIVATED) {
                     try {
                         final URL url = e.getURL();
-                        final String file = url.getFile();
+                        final String file;
+                        if (url != null) {
+                            file = url.getFile();
+                        } else {
+                            file = null;
+                        }
                         if (file != null) {
                             if (!new File(URIs.decode(file)).exists()) {
                                 Dialogs.showMessageDialog(Dialogs.getRootFrame(),
@@ -242,8 +249,12 @@ public final class Dialogs extends javax.swing.JOptionPane {
                                 return;
                             }
                         }
-                        final URI uri = URIs.asUri(url);
-                        Desktop.getDesktop().browse(uri);
+                        if (url != null) {
+                            final URI uri = URIs.asUri(url);
+                            Desktop.getDesktop().browse(uri);
+                        } else {
+                            LOG.error("Invalid URL: %s", e.getDescription());
+                        }
                     } catch (final Throwable e1) {
                         throw new RuntimeException(e1);
                     }

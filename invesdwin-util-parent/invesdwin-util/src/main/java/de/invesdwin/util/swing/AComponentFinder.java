@@ -8,11 +8,14 @@ import java.util.Set;
 
 import javax.annotation.concurrent.Immutable;
 import javax.swing.JComponent;
+import javax.swing.JPopupMenu;
 import javax.swing.JRootPane;
 import javax.swing.JToggleButton;
 import javax.swing.text.JTextComponent;
 
 import com.google.common.collect.ImmutableList;
+
+import de.invesdwin.util.swing.button.JSplitButton;
 
 @Immutable
 public abstract class AComponentFinder {
@@ -76,6 +79,11 @@ public abstract class AComponentFinder {
         if (rootComponent instanceof JRootPane) {
             final JRootPane pane = (JRootPane) rootComponent;
             findComponents(pane.getJMenuBar(), targetComponents, onlyOne);
+        }
+        if (rootComponent instanceof JSplitButton) {
+            final JSplitButton component = (JSplitButton) rootComponent;
+            final JPopupMenu popupMenu = component.getPopupMenu();
+            findComponents(popupMenu, targetComponents, onlyOne);
         }
     }
 
