@@ -65,9 +65,11 @@ public abstract class AFunction {
 
     /**
      * return true if this function returns the same value for every key on the same arguments, if this is the case and
-     * als arguments are constants, then this function can be simplified into a constant expression too.
+     * all arguments are constants, then this function can be simplified into a constant expression too. You don't have
+     * to check the args yourself for being constant since this is being done on the outside, maybe only the length or
+     * type of the arguments influence this function (when having optional arguments that make it natural).
      */
-    public abstract boolean isNaturalFunction();
+    public abstract boolean isNaturalFunction(IExpression[] args);
 
     public abstract ExpressionReturnType getReturnType();
 

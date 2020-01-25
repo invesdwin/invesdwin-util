@@ -66,7 +66,7 @@ public class FunctionCall implements IParsedExpression {
     @Override
     public IParsedExpression simplify() {
         final FunctionCall simplifiedParameters = simplifyParameters();
-        if (!function.isNaturalFunction()) {
+        if (!function.isNaturalFunction(parameters)) {
             return simplifiedParameters;
         }
         for (int i = 0; i < simplifiedParameters.parameters.length; i++) {

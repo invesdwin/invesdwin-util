@@ -41,7 +41,7 @@ public abstract class ATernaryFunction extends AFunction {
     protected abstract double eval(double a, double b, double c);
 
     @Override
-    public boolean isNaturalFunction() {
+    public boolean isNaturalFunction(final IExpression[] args) {
         return true;
     }
 }

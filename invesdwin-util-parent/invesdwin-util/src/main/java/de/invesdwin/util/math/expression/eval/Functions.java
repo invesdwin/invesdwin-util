@@ -2259,8 +2259,8 @@ public final class Functions {
         }
 
         @Override
-        public boolean isNaturalFunction() {
-            return false;
+        public boolean isNaturalFunction(final IExpression[] args) {
+            return true;
         }
 
         @Override
@@ -2404,7 +2404,7 @@ public final class Functions {
         }
 
         @Override
-        public boolean isNaturalFunction() {
+        public boolean isNaturalFunction(final IExpression[] args) {
             return true;
         }
 
@@ -2516,7 +2516,7 @@ public final class Functions {
         }
 
         @Override
-        public boolean isNaturalFunction() {
+        public boolean isNaturalFunction(final IExpression[] args) {
             return true;
         }
 
@@ -2628,7 +2628,7 @@ public final class Functions {
         }
 
         @Override
-        public boolean isNaturalFunction() {
+        public boolean isNaturalFunction(final IExpression[] args) {
             return true;
         }
 
@@ -2740,7 +2740,7 @@ public final class Functions {
         }
 
         @Override
-        public boolean isNaturalFunction() {
+        public boolean isNaturalFunction(final IExpression[] args) {
             return true;
         }
 
@@ -2840,7 +2840,7 @@ public final class Functions {
         }
 
         @Override
-        public boolean isNaturalFunction() {
+        public boolean isNaturalFunction(final IExpression[] args) {
             return true;
         }
 

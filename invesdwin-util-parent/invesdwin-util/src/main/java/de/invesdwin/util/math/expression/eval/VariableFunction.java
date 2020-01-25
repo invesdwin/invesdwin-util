@@ -62,8 +62,8 @@ public class VariableFunction extends AFunction {
     }
 
     @Override
-    public boolean isNaturalFunction() {
-        return true;
+    public boolean isNaturalFunction(final IExpression[] args) {
+        return variable.isConstant();
     }
 
     @Override

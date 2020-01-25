@@ -35,7 +35,7 @@ public abstract class AUnaryFunction extends AFunction {
     protected abstract double eval(double a);
 
     @Override
-    public boolean isNaturalFunction() {
+    public boolean isNaturalFunction(final IExpression[] args) {
         return true;
     }
 }
