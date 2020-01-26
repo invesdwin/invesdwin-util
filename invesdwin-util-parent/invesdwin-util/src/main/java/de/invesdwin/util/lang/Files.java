@@ -23,10 +23,12 @@ import de.invesdwin.util.time.fdate.FDate;
                 "java.nio.file.Files#readString(java.nio.file.Path)",
                 "java.nio.file.Files#readString(java.nio.file.Path, java.nio.charset.Charset)",
                 "java.nio.file.Files#writeString(java.nio.file.Path, java.lang.CharSequence, java.nio.file.OpenOption...)",
-                "java.nio.file.Files#writeString(java.nio.file.Path, java.lang.CharSequence, java.nio.charset.Charset, java.nio.file.OpenOption...)" })
+                "java.nio.file.Files#writeString(java.nio.file.Path, java.lang.CharSequence, java.nio.charset.Charset, java.nio.file.OpenOption...)",
+                "java.nio.file.Files#mismatch(java.nio.file.Path, java.nio.file.Path)" })
 public final class Files extends AFilesStaticFacade {
 
-    private Files() {}
+    private Files() {
+    }
 
     public static void purgeOldFiles(final File directory, final Duration threshold) {
         if (!directory.exists()) {
