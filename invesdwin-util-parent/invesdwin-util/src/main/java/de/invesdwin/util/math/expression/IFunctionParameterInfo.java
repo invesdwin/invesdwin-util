@@ -10,6 +10,10 @@ public interface IFunctionParameterInfo {
 
     String getDescription();
 
+    default String getExpressionNameWithDetails() {
+        return isOptional() ? getExpressionName() + "?" : getExpressionName();
+    }
+
     default String getDescriptionWithDetails() {
         final StringBuilder sb = new StringBuilder();
         final String description = getDescription();
