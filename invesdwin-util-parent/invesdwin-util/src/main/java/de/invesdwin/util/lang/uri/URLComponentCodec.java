@@ -25,7 +25,6 @@ public final class URLComponentCodec implements StringEncoder, StringDecoder {
             return encode((String) obj);
         } else {
             throw new EncoderException("Objects of type " + obj.getClass().getName() + " cannot be URL encoded");
-
         }
     }
 
@@ -37,7 +36,6 @@ public final class URLComponentCodec implements StringEncoder, StringDecoder {
             return decode((String) obj);
         } else {
             throw new DecoderException("Objects of type " + obj.getClass().getName() + " cannot be URL decoded");
-
         }
     }
 
