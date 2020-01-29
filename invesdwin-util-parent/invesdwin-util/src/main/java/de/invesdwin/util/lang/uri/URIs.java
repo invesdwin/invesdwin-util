@@ -11,16 +11,16 @@ import javax.annotation.concurrent.Immutable;
 
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.EncoderException;
-import org.apache.commons.codec.net.URLCodec;
 
 import de.invesdwin.util.lang.Strings;
 
 @Immutable
 public final class URIs {
 
-    private static final URLCodec URL_CODEC = new URLCodec();
+    private static final URLComponentCodec URL_CODEC = new URLComponentCodec();
 
-    private URIs() {}
+    private URIs() {
+    }
 
     public static String encode(final String url) {
         try {
