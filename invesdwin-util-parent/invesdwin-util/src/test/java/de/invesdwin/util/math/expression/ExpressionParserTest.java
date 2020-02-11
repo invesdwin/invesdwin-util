@@ -209,6 +209,14 @@ public class ExpressionParserTest {
         Assertions.checkEquals(35D, evaluateDouble);
     }
 
+    @Test
+    public void testNegativeBoolean() {
+        final ExpressionParser expressionParser = new ExpressionParser("!(2>1 and 1<2)");
+        final IExpression parsed = expressionParser.parse();
+        final boolean evaluateDouble = parsed.evaluateBoolean();
+        Assertions.checkEquals(false, evaluateDouble);
+    }
+
     @Test(expected = ParseException.class)
     public void testNull() {
         new ExpressionParser("").parse();
