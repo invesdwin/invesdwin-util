@@ -6,7 +6,6 @@ import java.util.List;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.bean.AValueObject;
-import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.lang.Strings;
 
 /**
@@ -15,20 +14,21 @@ import de.invesdwin.util.lang.Strings;
 @Immutable
 public final class ToolTipFormatter extends AValueObject {
 
+    private static final String[] DEFAULT_LINE_BREAKS = new String[] { "<br>", "<li>", "<p>" };
     private static final int DEFAULT_MAX_LENGTH = 200;
-    private static final String DEFAULT_LINE_BREAK = "<br>";
 
     private int maxLength = DEFAULT_MAX_LENGTH;
-    private String lineBreak = DEFAULT_LINE_BREAK;
-    private boolean isDefaultLineBreak;
+    private String[] lineBreaks = DEFAULT_LINE_BREAKS.clone();
 
-    public String getLineBreak() {
-        return lineBreak;
+    public String[] getLineBreaks() {
+        return lineBreaks;
     }
 
-    public ToolTipFormatter withLineBreak(final String lineBreak) {
-        this.lineBreak = lineBreak;
-        isDefaultLineBreak = Objects.equals(lineBreak, DEFAULT_LINE_BREAK);
+    /**
+     * lineBreaks[0] will be used as the inserted line break
+     */
+    public ToolTipFormatter withLineBreaks(final String[] lineBreaks) {
+        this.lineBreaks = lineBreaks;
         return this;
     }
 
@@ -42,7 +42,7 @@ public final class ToolTipFormatter extends AValueObject {
     }
 
     public String format(final String str) {
-        if (maxLength < 1 || str.length() <= maxLength || Strings.isBlank(lineBreak)) {
+        if (maxLength < 1 || str.length() <= maxLength || lineBreaks == null || lineBreaks.length == 0) {
             return str;
         }
 
@@ -77,16 +77,9 @@ public final class ToolTipFormatter extends AValueObject {
     private void appendPart(final StringBuilder sb, final String part) {
         if (part.length() > 0) {
             if (sb.length() > 0) {
-                if (isDefaultLineBreak) {
-                    if (!Strings.startsWithIgnoreCase(part, DEFAULT_LINE_BREAK)
-                            && !Strings.endsWithIgnoreCase(sb, DEFAULT_LINE_BREAK)) {
-                        sb.append(lineBreak);
-                    }
-                } else {
-                    if (!Strings.startsWithAnyIgnoreCase(part, lineBreak, DEFAULT_LINE_BREAK)
-                            && !Strings.endsWithAnyIgnoreCase(sb, lineBreak, DEFAULT_LINE_BREAK)) {
-                        sb.append(lineBreak);
-                    }
+                if (!Strings.startsWithAnyIgnoreCase(part, lineBreaks)
+                        && !Strings.endsWithAnyIgnoreCase(sb, lineBreaks)) {
+                    sb.append(lineBreaks[0]);
                 }
             }
             sb.append(part);
@@ -94,10 +87,7 @@ public final class ToolTipFormatter extends AValueObject {
     }
 
     private int findSpace(final String tipSubstring) {
-        int lastSpace = Strings.lastIndexOfIgnoreCase(tipSubstring, lineBreak);
-        if (lastSpace == -1 && !isDefaultLineBreak) {
-            lastSpace = Strings.lastIndexOfIgnoreCase(tipSubstring, DEFAULT_LINE_BREAK);
-        }
+        int lastSpace = Strings.lastIndexOfAnyIgnoreCase(tipSubstring, lineBreaks);
         if (lastSpace == -1) {
             lastSpace = tipSubstring.lastIndexOf(' ');
         }
