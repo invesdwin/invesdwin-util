@@ -600,6 +600,9 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
         for (int i = 0; i < values.size(); i++) {
             final E event = values.get(i);
             if (event.isNegativeOrZero()) {
+                if (i == 0) {
+                    return DummyDecimalAggregate.getInstance();
+                }
                 final List<E> subList = values.subList(0, i - 1);
                 return new DecimalAggregate<E>(subList, getConverter());
             }

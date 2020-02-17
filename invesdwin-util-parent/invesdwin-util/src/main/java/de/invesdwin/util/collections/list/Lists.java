@@ -20,7 +20,8 @@ import de.invesdwin.util.collections.list.internal.AListsStaticFacade;
         com.google.common.collect.Lists.class, org.apache.commons.collections4.ListUtils.class })
 public final class Lists extends AListsStaticFacade {
 
-    private Lists() {}
+    private Lists() {
+    }
 
     public static <T> List<T> join(final Collection<? extends Collection<T>> lists) {
         final List<T> result = new ArrayList<T>();
@@ -86,7 +87,13 @@ public final class Lists extends AListsStaticFacade {
         } else if (unwrapped instanceof Collection) {
             return new ArrayList<E>((Collection<E>) unwrapped);
         }
-        return toListWithoutHasNext(iterable.iterator());
+        final ICloseableIterator<? extends E> iterator;
+        try {
+            iterator = iterable.iterator();
+        } catch (final NoSuchElementException e) {
+            return new ArrayList<>();
+        }
+        return toListWithoutHasNext(iterator);
     }
 
     @SuppressWarnings("unchecked")
@@ -116,7 +123,13 @@ public final class Lists extends AListsStaticFacade {
             list.addAll((Collection<E>) unwrapped);
             return list;
         } else {
-            return toList(iterable.iterator(), list);
+            final ICloseableIterator<? extends E> iterator;
+            try {
+                iterator = iterable.iterator();
+            } catch (final NoSuchElementException e) {
+                return new ArrayList<>();
+            }
+            return toList(iterator, list);
         }
     }
 
