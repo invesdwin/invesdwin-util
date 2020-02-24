@@ -231,4 +231,66 @@ public class ExpressionParserTest {
     public void testBlank() {
         new ExpressionParser(" ").parse();
     }
+
+    @Test
+    public void testCrossesBelow() {
+        //high[1] > open[2] and high[2] > high[9] and open[6] > close[7] and CompositeRSI(2,24)[0] crosses below 50
+        final IExpression parsed = new ExpressionParser(
+                "nan[1] > nan[2] and nan[2] > nan[9] and nan[6] > nan[7] and isNaN(nan)[0] crosses below 50") {
+            @Override
+            protected IParsedExpression simplify(final IParsedExpression expression) {
+                return expression;
+            }
+
+            @Override
+            protected IPreviousKeyFunction getPreviousKeyFunction(final String context) {
+                return new IPreviousKeyFunction() {
+
+                    @Override
+                    public int getPreviousKey(final int key, final int index) {
+                        return key - index;
+                    }
+
+                    @Override
+                    public FDate getPreviousKey(final FDate key, final int index) {
+                        return key.addDays(-index);
+                    }
+                };
+            }
+        }.parse();
+        Assertions.checkEquals(parsed.toString(),
+                "((((NaN[1] > NaN[2]) && (NaN[2] > NaN[9])) && (NaN[6] > NaN[7])) && (isNaN(NaN)[0] crosses below 50))");
+
+    }
+
+    @Test
+    public void testCrossesAbove() {
+        //high[1] > open[2] and high[2] > high[9] and open[6] > close[7] and CompositeRSI(2,24)[0] crosses below 50
+        final IExpression parsed = new ExpressionParser(
+                "nan[1] > nan[2] and nan[2] > nan[9] and nan[6] > nan[7] and isNaN(nan)[0] crosses above 50") {
+            @Override
+            protected IParsedExpression simplify(final IParsedExpression expression) {
+                return expression;
+            }
+
+            @Override
+            protected IPreviousKeyFunction getPreviousKeyFunction(final String context) {
+                return new IPreviousKeyFunction() {
+
+                    @Override
+                    public int getPreviousKey(final int key, final int index) {
+                        return key - index;
+                    }
+
+                    @Override
+                    public FDate getPreviousKey(final FDate key, final int index) {
+                        return key.addDays(-index);
+                    }
+                };
+            }
+        }.parse();
+        Assertions.checkEquals(parsed.toString(),
+                "((((NaN[1] > NaN[2]) && (NaN[2] > NaN[9])) && (NaN[6] > NaN[7])) && (isNaN(NaN)[0] crosses above 50))");
+
+    }
 }

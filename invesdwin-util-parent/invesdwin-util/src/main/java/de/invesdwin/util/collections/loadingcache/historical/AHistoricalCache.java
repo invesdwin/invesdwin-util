@@ -106,7 +106,8 @@ public abstract class AHistoricalCache<V>
     };
     private volatile boolean refreshRequested;
 
-    public AHistoricalCache() {}
+    public AHistoricalCache() {
+    }
 
     /**
      * You can enable this setting to get useful info when the automatic reoptimization happens, so you can hardcode the
@@ -311,7 +312,7 @@ public abstract class AHistoricalCache<V>
     }
 
     /**
-     * Should return the key if the value does not contain a key itself.
+     * Should return the key if the value does not contain a key itself. The time should be the end time for bars.
      */
     public final FDate extractKey(final FDate key, final V value) {
         if (key == null) {
@@ -698,7 +699,8 @@ public abstract class AHistoricalCache<V>
         }
 
         @Override
-        public void clear() {}
+        public void clear() {
+        }
 
         @Override
         public FDate getHighestAllowedKey() {

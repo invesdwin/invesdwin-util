@@ -63,7 +63,7 @@ public class TimeRangedPercent extends Percent {
         return minPeriod;
     }
 
-    public FDate getTime() {
+    public FDate getStartTime() {
         return getTimeRange().getFrom();
     }
 

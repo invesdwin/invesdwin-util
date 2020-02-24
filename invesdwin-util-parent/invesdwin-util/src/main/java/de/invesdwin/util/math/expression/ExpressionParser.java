@@ -213,13 +213,17 @@ public class ExpressionParser {
             if ("above".equals(next.getContents())) {
                 tokenizer.consume(2);
                 final IParsedExpression right = relationalExpression();
-                return new CrossesAboveOperation(left, right, getPreviousKeyFunction(left.getContext()),
-                        getPreviousKeyFunction(right.getContext()));
+                final CrossesAboveOperation result = new CrossesAboveOperation(left, right,
+                        getPreviousKeyFunction(left.getContext()), getPreviousKeyFunction(right.getContext()));
+                result.seal();
+                return result;
             } else if ("below".equals(next.getContents())) {
                 tokenizer.consume(2);
                 final IParsedExpression right = relationalExpression();
-                return new CrossesBelowOperation(left, right, getPreviousKeyFunction(left.getContext()),
-                        getPreviousKeyFunction(right.getContext()));
+                final CrossesBelowOperation result = new CrossesBelowOperation(left, right,
+                        getPreviousKeyFunction(left.getContext()), getPreviousKeyFunction(right.getContext()));
+                result.seal();
+                return result;
             }
         }
         return left;

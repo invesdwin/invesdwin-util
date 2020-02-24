@@ -24,7 +24,7 @@ public abstract class ATimeRangeSkippingIterable<E> implements ICloseableIterabl
         this.delegate = delegate;
     }
 
-    protected abstract FDate extractTime(E element);
+    protected abstract FDate extractEndTime(E element);
 
     protected abstract boolean isReverse();
 
@@ -45,7 +45,7 @@ public abstract class ATimeRangeSkippingIterable<E> implements ICloseableIterabl
             return new ASkippingIterator<E>(delegate.iterator()) {
                 @Override
                 protected boolean skip(final E element) {
-                    final FDate time = extractTime(element);
+                    final FDate time = extractEndTime(element);
                     if (time.isBeforeNotNullSafe(from)) {
                         return true;
                     }
@@ -59,7 +59,7 @@ public abstract class ATimeRangeSkippingIterable<E> implements ICloseableIterabl
             return new ASkippingIterator<E>(delegate.iterator()) {
                 @Override
                 protected boolean skip(final E element) {
-                    final FDate time = extractTime(element);
+                    final FDate time = extractEndTime(element);
                     if (time.isBeforeNotNullSafe(from)) {
                         return true;
                     }
@@ -70,7 +70,7 @@ public abstract class ATimeRangeSkippingIterable<E> implements ICloseableIterabl
             return new ASkippingIterator<E>(delegate.iterator()) {
                 @Override
                 protected boolean skip(final E element) {
-                    final FDate time = extractTime(element);
+                    final FDate time = extractEndTime(element);
                     if (time.isAfterNotNullSafe(to)) {
                         throw new FastNoSuchElementException(getName() + " end reached");
                     }
@@ -92,7 +92,7 @@ public abstract class ATimeRangeSkippingIterable<E> implements ICloseableIterabl
             return new ASkippingIterator<E>(delegate.iterator()) {
                 @Override
                 protected boolean skip(final E element) {
-                    final FDate time = extractTime(element);
+                    final FDate time = extractEndTime(element);
                     if (time.isAfterNotNullSafe(from)) {
                         return true;
                     }
@@ -106,7 +106,7 @@ public abstract class ATimeRangeSkippingIterable<E> implements ICloseableIterabl
             return new ASkippingIterator<E>(delegate.iterator()) {
                 @Override
                 protected boolean skip(final E element) {
-                    final FDate time = extractTime(element);
+                    final FDate time = extractEndTime(element);
                     if (time.isAfterNotNullSafe(from)) {
                         return true;
                     }
@@ -117,7 +117,7 @@ public abstract class ATimeRangeSkippingIterable<E> implements ICloseableIterabl
             return new ASkippingIterator<E>(delegate.iterator()) {
                 @Override
                 protected boolean skip(final E element) {
-                    final FDate time = extractTime(element);
+                    final FDate time = extractEndTime(element);
                     if (time.isBeforeNotNullSafe(to)) {
                         throw new FastNoSuchElementException(getName() + " end reached");
                     }
