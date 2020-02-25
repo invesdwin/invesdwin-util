@@ -2,7 +2,6 @@ package de.invesdwin.util.collections.loadingcache.historical.interceptor;
 
 import javax.annotation.concurrent.ThreadSafe;
 
-import de.invesdwin.util.collections.iterable.ATransformingCloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
@@ -24,8 +23,8 @@ public abstract class AHistoricalCacheRangeQueryInterceptor<V> implements IHisto
             @Override
             public ICloseableIterator<FDate> iterator() {
                 return new ICloseableIterator<FDate>() {
-                    private final ICloseableIterator<IHistoricalEntry<V>> entriesIterator = getEntries(from, to)
-                            .iterator();
+                    private final ICloseableIterator<? extends IHistoricalEntry<V>> entriesIterator = getEntries(from,
+                            to).iterator();
 
                     @Override
                     public boolean hasNext() {
@@ -51,26 +50,10 @@ public abstract class AHistoricalCacheRangeQueryInterceptor<V> implements IHisto
         };
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public final ICloseableIterable<IHistoricalEntry<V>> getEntries(final FDate from, final FDate to) {
-        final ICloseableIterable<? extends IHistoricalEntry<V>> innerGetEntries = innerGetEntries(from, to);
-        return new ATransformingCloseableIterable<IHistoricalEntry<V>, IHistoricalEntry<V>>(innerGetEntries) {
-
-            private IHistoricalEntry<V> prevEntry;
-
-            @Override
-            protected IHistoricalEntry<V> transform(final IHistoricalEntry<V> newEntry) {
-                putIntoCache(newEntry, prevEntry);
-                prevEntry = newEntry;
-                return newEntry;
-            }
-
-        };
-    }
-
-    protected void putIntoCache(final IHistoricalEntry<V> newEntry, final IHistoricalEntry<V> prevEntry) {
-        //fill cache for faster prev/next lookups
-        parent.getPutProvider().put(newEntry, prevEntry, false);
+        return (ICloseableIterable<IHistoricalEntry<V>>) innerGetEntries(from, to);
     }
 
     protected abstract ICloseableIterable<? extends IHistoricalEntry<V>> innerGetEntries(FDate from, FDate to);
