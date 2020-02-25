@@ -24,6 +24,7 @@ import de.invesdwin.norva.beanpath.BeanPathObjects;
 import de.invesdwin.norva.beanpath.IDeepCloneProvider;
 import de.invesdwin.util.lang.internal.AObjectsStaticFacade;
 import de.invesdwin.util.math.Integers;
+import io.netty.util.concurrent.FastThreadLocal;
 
 @Immutable
 @StaticFacadeDefinition(name = "de.invesdwin.util.lang.internal.AObjectsStaticFacade", targets = {
@@ -31,7 +32,13 @@ import de.invesdwin.util.math.Integers;
 public final class Objects extends AObjectsStaticFacade {
 
     public static final boolean DEFAULT_APPEND_MISSING_VALUES = true;
-    public static final FSTConfiguration SERIALIZATION_CONFIG;
+    public static final FSTConfiguration SERIALIZATION_CONFIG_TEMPLATE;
+    public static final FastThreadLocal<FSTConfiguration> SERIALIZATION_CONFIG_HOLDER = new FastThreadLocal<FSTConfiguration>() {
+        @Override
+        protected FSTConfiguration initialValue() throws Exception {
+            return SERIALIZATION_CONFIG_TEMPLATE.deriveConfiguration();
+        }
+    };
     public static final Set<String> REFLECTION_EXCLUDED_FIELDS = new HashSet<String>();
     public static final ADelegateComparator<Object> COMPARATOR = new ADelegateComparator<Object>() {
         @Override
@@ -54,8 +61,8 @@ public final class Objects extends AObjectsStaticFacade {
              */
             fstConfig = null;
         }
-        SERIALIZATION_CONFIG = fstConfig;
-        if (SERIALIZATION_CONFIG != null) {
+        SERIALIZATION_CONFIG_TEMPLATE = fstConfig;
+        if (SERIALIZATION_CONFIG_TEMPLATE != null) {
             //use FST in BeanPathObjects as deepClone fallback instead of java serialization
             BeanPathObjects.setDeepCloneProvider(new IDeepCloneProvider() {
                 @SuppressWarnings("unchecked")
@@ -71,7 +78,7 @@ public final class Objects extends AObjectsStaticFacade {
                 @Override
                 @SuppressWarnings("unchecked")
                 public <T> T deserialize(final byte[] objectData) {
-                    return (T) SERIALIZATION_CONFIG.asObject(objectData);
+                    return (T) SERIALIZATION_CONFIG_HOLDER.get().asObject(objectData);
                 }
 
                 @Override
@@ -86,13 +93,14 @@ public final class Objects extends AObjectsStaticFacade {
 
                 @Override
                 public byte[] serialize(final Serializable obj) {
-                    return SERIALIZATION_CONFIG.asByteArray(obj);
+                    return SERIALIZATION_CONFIG_HOLDER.get().asByteArray(obj);
                 }
             });
         }
     }
 
-    private Objects() {}
+    private Objects() {
+    }
 
     public static <T> T defaultIfNull(final T object, final T defaultValue) {
         return org.apache.commons.lang3.ObjectUtils.defaultIfNull(object, defaultValue);
