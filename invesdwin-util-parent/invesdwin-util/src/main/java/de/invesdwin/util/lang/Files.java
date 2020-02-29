@@ -68,6 +68,11 @@ public final class Files extends AFilesStaticFacade {
         return totalSize;
     }
 
+    public static boolean isEmptyDirectory(final File f) {
+        final String[] listFiles = f.list();
+        return listFiles == null || listFiles.length == 0;
+    }
+
     public static String normalizeFilename(final String name) {
         return name.replace(":", "_").replace("@", "_");
     }
