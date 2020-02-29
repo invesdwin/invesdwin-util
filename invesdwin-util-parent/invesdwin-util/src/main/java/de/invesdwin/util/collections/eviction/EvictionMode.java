@@ -8,7 +8,13 @@ public enum EvictionMode {
     LeastRecentlyAdded {
         @Override
         public <K, V> IEvictionMap<K, V> newMap(final int maximumSize) {
-            return new CommonsLeastRecentlyAddedMap<>(maximumSize);
+            /*
+             * we sacrifice a bit speed here to gain a halved memory consumption for historical caches
+             * 
+             * also it seems using commons map causes more cache misses in junit tests which causes more queries than
+             * needed
+             */
+            return new ArrayLeastRecentlyAddedMap<>(maximumSize);
         }
     },
     LeastRecentlyModified {
