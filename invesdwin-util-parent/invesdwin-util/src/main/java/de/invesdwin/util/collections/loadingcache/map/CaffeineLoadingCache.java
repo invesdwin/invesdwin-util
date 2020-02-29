@@ -104,4 +104,9 @@ public class CaffeineLoadingCache<K, V> implements ILoadingCache<K, V> {
         return delegate.getIfPresent(key);
     }
 
+    @Override
+    public V computeIfAbsent(final K key, final Function<K, V> mappingFunction) {
+        return delegate.computeIfAbsent(key, mappingFunction);
+    }
+
 }

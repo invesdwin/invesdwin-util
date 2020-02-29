@@ -3,6 +3,9 @@ package de.invesdwin.util.collections.loadingcache.guava.internal;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.function.Function;
 
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -50,7 +53,7 @@ public class WrapperLoadingCacheMap<K, V> implements ILoadingCacheMap<K, V> {
         try {
             return delegate.getUnchecked((K) key);
         } catch (final ClassCastException e) {
-            return (V) null;
+            return null;
         }
     }
 
@@ -97,6 +100,20 @@ public class WrapperLoadingCacheMap<K, V> implements ILoadingCacheMap<K, V> {
     @Override
     public V getIfPresent(final K key) {
         return delegate.getIfPresent(key);
+    }
+
+    @Override
+    public V computeIfAbsent(final K key, final Function<? super K, ? extends V> mappingFunction) {
+        try {
+            return delegate.get(key, new Callable<V>() {
+                @Override
+                public V call() throws Exception {
+                    return mappingFunction.apply(key);
+                }
+            });
+        } catch (final ExecutionException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }

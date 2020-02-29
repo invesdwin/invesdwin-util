@@ -4,6 +4,7 @@ import de.invesdwin.util.collections.loadingcache.ILoadingCache;
 import de.invesdwin.util.collections.loadingcache.historical.IHistoricalEntry;
 import de.invesdwin.util.collections.loadingcache.historical.interceptor.IHistoricalCachePreviousKeysQueryInterceptor;
 import de.invesdwin.util.collections.loadingcache.historical.interceptor.IHistoricalCacheRangeQueryInterceptor;
+import de.invesdwin.util.collections.loadingcache.historical.key.IHistoricalCacheAdjustKeyProvider;
 import de.invesdwin.util.collections.loadingcache.historical.key.IHistoricalCachePutProvider;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQuery;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.IHistoricalCacheQueryCore;
@@ -38,5 +39,17 @@ public interface IHistoricalCacheInternalMethods<V> {
     IHistoricalCachePutProvider<V> getPutProvider();
 
     IHistoricalCacheQueryCore<V> getQueryCore();
+
+    V loadValue(FDate key);
+
+    FDate innerCalculatePreviousKey(FDate key);
+
+    FDate innerCalculateNextKey(FDate key);
+
+    void invokeRefreshIfRequested();
+
+    void putDirectly(FDate key, IHistoricalEntry<V> value);
+
+    IHistoricalCacheAdjustKeyProvider getAdjustKeyProvider();
 
 }

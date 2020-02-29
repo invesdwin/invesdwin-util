@@ -3,6 +3,7 @@ package de.invesdwin.util.collections.loadingcache.caffeine.internal;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -50,7 +51,7 @@ public class WrapperLoadingCacheMap<K, V> implements ILoadingCacheMap<K, V> {
         try {
             return delegate.get((K) key);
         } catch (final ClassCastException e) {
-            return (V) null;
+            return null;
         }
     }
 
@@ -98,6 +99,11 @@ public class WrapperLoadingCacheMap<K, V> implements ILoadingCacheMap<K, V> {
     @Override
     public V getIfPresent(final K key) {
         return delegate.getIfPresent(key);
+    }
+
+    @Override
+    public V computeIfAbsent(final K key, final Function<? super K, ? extends V> mappingFunction) {
+        return delegate.get(key, mappingFunction);
     }
 
 }

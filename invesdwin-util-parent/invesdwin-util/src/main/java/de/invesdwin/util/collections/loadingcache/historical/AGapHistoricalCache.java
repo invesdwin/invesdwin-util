@@ -255,7 +255,7 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
 
         //maybe use max value
         if (maxKeyInDB != null && key.compareTo(maxKeyInDB) >= 0 && containsKey(maxKeyInDB)) {
-            return thisQueryWithFuture.getValue(maxKeyInDB);
+            return thisQueryWithFuture.getEntry(maxKeyInDB).getValueIfPresent();
         }
         return (V) null;
     }
@@ -266,14 +266,14 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
             final boolean afterMinKey = !newMinKey && key.compareTo(minKey) >= 0;
             if (afterMinKey && key.compareTo(minKeyInDB) <= 0 && containsKey(minKey)) {
                 //via readNewestValueTo
-                return thisQueryWithFuture.getValue(minKey);
+                return thisQueryWithFuture.getEntry(minKey).getValueIfPresent();
             }
             if (key.compareTo(minKeyInDB) <= 0 && containsKey(minKeyInDB)) {
                 //via searchInFurtherValues
-                return thisQueryWithFuture.getValue(minKeyInDB);
+                return thisQueryWithFuture.getEntry(minKeyInDB).getValueIfPresent();
             }
         }
-        return (V) null;
+        return null;
     }
 
     private boolean eventuallyLoadFurtherValues(final String source, final FDate key, final FDate adjustedKey,
@@ -510,7 +510,7 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
             //use the last maxKey
             //because this one is behind it and not a new one
             //thus working if the db does not have further values
-            return thisQueryWithFuture.getValue(previousMaxKey);
+            return thisQueryWithFuture.getEntry(previousMaxKey).getValueIfPresent();
         }
         return null;
     }

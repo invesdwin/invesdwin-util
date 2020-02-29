@@ -64,4 +64,5 @@ public final class ImmutableHistoricalEntry<T> implements IHistoricalEntry<T> {
     public String toString() {
         return getKey() + " -> " + getValue();
     }
+
 }

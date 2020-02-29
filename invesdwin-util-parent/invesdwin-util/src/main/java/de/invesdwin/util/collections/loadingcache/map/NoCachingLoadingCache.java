@@ -27,7 +27,8 @@ public class NoCachingLoadingCache<K, V> implements ILoadingCache<K, V> {
     }
 
     @Override
-    public void clear() {}
+    public void clear() {
+    }
 
     @Override
     public boolean containsKey(final K key) {
@@ -35,10 +36,12 @@ public class NoCachingLoadingCache<K, V> implements ILoadingCache<K, V> {
     }
 
     @Override
-    public void remove(final K key) {}
+    public void remove(final K key) {
+    }
 
     @Override
-    public void put(final K key, final V value) {}
+    public void put(final K key, final V value) {
+    }
 
     @Override
     public Set<Entry<K, V>> entrySet() {
@@ -78,6 +81,11 @@ public class NoCachingLoadingCache<K, V> implements ILoadingCache<K, V> {
     @Override
     public V getIfPresent(final K key) {
         return null;
+    }
+
+    @Override
+    public V computeIfAbsent(final K key, final Function<K, V> mappingFunction) {
+        return mappingFunction.apply(key);
     }
 
 }

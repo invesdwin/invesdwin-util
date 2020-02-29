@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.function.Function;
 
 public interface ILoadingCache<K, V> {
 
@@ -32,5 +33,7 @@ public interface ILoadingCache<K, V> {
     Map<K, V> asMap();
 
     void increaseMaximumSize(int maximumSize);
+
+    V computeIfAbsent(K key, Function<K, V> mappingFunction);
 
 }

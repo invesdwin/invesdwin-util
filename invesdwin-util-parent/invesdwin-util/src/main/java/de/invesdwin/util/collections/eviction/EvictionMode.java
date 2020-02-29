@@ -9,7 +9,8 @@ public enum EvictionMode {
         @Override
         public <K, V> IEvictionMap<K, V> newMap(final int maximumSize) {
             //we sacrifice a bit speed here to gain a halved memory consumption for historical caches
-            return new ArrayLeastRecentlyAddedMap<>(maximumSize);
+            //            return new ArrayLeastRecentlyAddedMap<>(maximumSize);
+            return new CommonsLeastRecentlyAddedMap<>(maximumSize);
         }
     },
     LeastRecentlyModified {

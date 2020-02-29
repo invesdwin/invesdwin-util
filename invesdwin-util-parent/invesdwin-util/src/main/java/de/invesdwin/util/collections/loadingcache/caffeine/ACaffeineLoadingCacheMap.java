@@ -1,5 +1,7 @@
 package de.invesdwin.util.collections.loadingcache.caffeine;
 
+import java.util.function.Function;
+
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.collections.delegate.ADelegateMap;
@@ -45,6 +47,11 @@ public abstract class ACaffeineLoadingCacheMap<K, V> extends ADelegateMap<K, V> 
     @Override
     public V getIfPresent(final K key) {
         return getDelegate().getIfPresent(key);
+    }
+
+    @Override
+    public V computeIfAbsent(final K key, final Function<? super K, ? extends V> mappingFunction) {
+        return getDelegate().computeIfAbsent(key, mappingFunction);
     }
 
 }

@@ -6,6 +6,7 @@ import de.invesdwin.util.time.fdate.FDate;
 
 public interface IHistoricalEntry<V> extends Entry<FDate, V> {
 
+    @Deprecated
     @Override
     default V setValue(final V value) {
         throw new UnsupportedOperationException();
@@ -25,6 +26,10 @@ public interface IHistoricalEntry<V> extends Entry<FDate, V> {
         } else {
             return entry.getKey(); //internalAssertValue already has made sure that the entry key is the valueKey
         }
+    }
+
+    default V getValueIfPresent() {
+        return getValue();
     }
 
 }

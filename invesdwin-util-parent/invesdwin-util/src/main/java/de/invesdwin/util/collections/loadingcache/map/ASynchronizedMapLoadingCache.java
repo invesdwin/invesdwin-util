@@ -49,6 +49,27 @@ public abstract class ASynchronizedMapLoadingCache<K, V> implements ILoadingCach
     }
 
     @Override
+    public V computeIfAbsent(final K key, final Function<K, V> mappingFunction) {
+        V v;
+        synchronized (this) {
+            v = map.get(key);
+        }
+        if (v == null) {
+            //bad idea to synchronize in apply, this might cause deadlocks when threads are used inside of it
+            v = mappingFunction.apply(key);
+            if (v != null) {
+                synchronized (this) {
+                    final V oldV = map.putIfAbsent(key, v);
+                    if (oldV != null) {
+                        v = oldV;
+                    }
+                }
+            }
+        }
+        return v;
+    }
+
+    @Override
     public synchronized V getIfPresent(final K key) {
         final V v = map.get(key);
         return v;

@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.function.Function;
 
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -86,6 +87,11 @@ public abstract class ADelegateLoadingCache<K, V> implements ILoadingCache<K, V>
     @Override
     public V getIfPresent(final K key) {
         return getDelegate().getIfPresent(key);
+    }
+
+    @Override
+    public V computeIfAbsent(final K key, final Function<K, V> mappingFunction) {
+        return getDelegate().computeIfAbsent(key, mappingFunction);
     }
 
 }
