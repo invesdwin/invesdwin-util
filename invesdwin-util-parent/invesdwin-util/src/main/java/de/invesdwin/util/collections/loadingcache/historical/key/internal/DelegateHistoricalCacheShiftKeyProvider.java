@@ -78,7 +78,7 @@ public final class DelegateHistoricalCacheShiftKeyProvider<V> implements IHistor
     @Override
     public IHistoricalEntry<V> maybeWrap(final FDate key, final V value) {
         //don't use index here
-        return ImmutableHistoricalEntry.maybeExtractKey(delegateCache, key, value);
+        return ImmutableHistoricalEntry.maybeExtractKey(parent.getParent(), key, value);
     }
 
     @Override

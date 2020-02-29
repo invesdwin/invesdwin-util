@@ -589,6 +589,11 @@ public abstract class AHistoricalCache<V>
             valuesMap.putDirectly(key, value);
         }
 
+        @Override
+        public AHistoricalCache<V> getParent() {
+            return AHistoricalCache.this;
+        }
+
     }
 
     private final class InnerHistoricalCacheExtractKeyProvider implements IHistoricalCacheExtractKeyProvider<V> {
