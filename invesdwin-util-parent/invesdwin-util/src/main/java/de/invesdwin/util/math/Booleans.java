@@ -10,6 +10,7 @@ import javax.annotation.concurrent.Immutable;
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
 import de.invesdwin.util.lang.ADelegateComparator;
 import de.invesdwin.util.lang.Objects;
+import de.invesdwin.util.math.decimal.Decimal;
 import de.invesdwin.util.math.internal.ABooleansStaticFacade;
 import de.invesdwin.util.math.internal.CheckedCastBooleans;
 import de.invesdwin.util.math.internal.CheckedCastBooleansObj;
@@ -30,7 +31,8 @@ public final class Booleans extends ABooleansStaticFacade {
         }
     };
 
-    private Booleans() {}
+    private Booleans() {
+    }
 
     public static boolean[] toArray(final Collection<Boolean> vector) {
         if (vector == null) {
@@ -185,6 +187,18 @@ public final class Booleans extends ABooleansStaticFacade {
         } else {
             return Booleans.checkedCast(value);
         }
+    }
+
+    public static boolean nullToFalse(final Boolean value) {
+        return isTrue(value);
+    }
+
+    public static boolean nullToFalse(final Double value) {
+        return nullToFalse(checkedCastObj(value));
+    }
+
+    public static boolean nullToFalse(final Decimal value) {
+        return nullToFalse(checkedCastObj(value));
     }
 
 }
