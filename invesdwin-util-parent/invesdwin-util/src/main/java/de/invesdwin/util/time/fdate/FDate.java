@@ -226,6 +226,12 @@ public class FDate implements IDate, Serializable, Cloneable, Comparable<Object>
         }
     }
 
+    public FDate setTime(final FDate time) {
+        return setHour(time.getHour()).setMinute(time.getMinute())
+                .setSecond(time.getSecond())
+                .setMillisecond(time.getMillisecond());
+    }
+
     public FDate setHour(final int hour) {
         return set(FDateField.Hour, hour);
     }
