@@ -6,11 +6,12 @@ import java.util.List;
 
 import javax.annotation.concurrent.Immutable;
 
-import de.invesdwin.util.collections.iterable.collection.fast.IFastToListCloseableIterable;
-import de.invesdwin.util.collections.iterable.collection.fast.IFastToListCloseableIterator;
+import de.invesdwin.util.collections.iterable.ICloseableIterable;
+import de.invesdwin.util.collections.iterable.ICloseableIterator;
+import de.invesdwin.util.collections.list.IFastToListProvider;
 
 @Immutable
-public class CollectionCloseableIterable<E> implements IFastToListCloseableIterable<E> {
+public class CollectionCloseableIterable<E> implements ICloseableIterable<E>, IFastToListProvider<E> {
 
     private final Collection<? extends E> collection;
 
@@ -19,7 +20,7 @@ public class CollectionCloseableIterable<E> implements IFastToListCloseableItera
     }
 
     @Override
-    public IFastToListCloseableIterator<E> iterator() {
+    public ICloseableIterator<E> iterator() {
         return new CollectionCloseableIterator<E>(collection);
     }
 
@@ -32,16 +33,6 @@ public class CollectionCloseableIterable<E> implements IFastToListCloseableItera
     public List<E> toList(final List<E> list) {
         list.addAll(collection);
         return list;
-    }
-
-    @Override
-    public E getHead() {
-        return collection.iterator().next();
-    }
-
-    @Override
-    public E getTail() {
-        throw new UnsupportedOperationException("too slow on collections");
     }
 
 }

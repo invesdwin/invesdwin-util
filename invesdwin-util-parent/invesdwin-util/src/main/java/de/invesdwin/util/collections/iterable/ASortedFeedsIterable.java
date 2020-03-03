@@ -14,7 +14,7 @@ public abstract class ASortedFeedsIterable<E> implements ICloseableIterable<E> {
 
     @Override
     public ICloseableIterator<E> iterator() {
-        final ATransformingIterable<Iterable<E>, ICloseableIterator<E>> iterators = new ATransformingIterable<Iterable<E>, ICloseableIterator<E>>(
+        final ATransformingCloseableIterable<Iterable<E>, ICloseableIterator<E>> iterators = new ATransformingCloseableIterable<Iterable<E>, ICloseableIterator<E>>(
                 WrapperCloseableIterable.maybeWrap(feeds)) {
             @Override
             protected ICloseableIterator<E> transform(final Iterable<E> value) {

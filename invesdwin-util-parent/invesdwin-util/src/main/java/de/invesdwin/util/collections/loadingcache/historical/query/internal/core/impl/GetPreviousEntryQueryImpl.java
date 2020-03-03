@@ -56,13 +56,13 @@ public class GetPreviousEntryQueryImpl<V> {
                         HistoricalCacheAssertValue.ASSERT_VALUE_WITH_FUTURE);
                 final IHistoricalEntry<V> previousPreviousEntry;
                 if (potentialPreviousPreviousEntry != null) {
-                    previousPreviousEntry = query.getAssertValue()
-                            .assertValue(core.getParent(), key, potentialPreviousPreviousEntry);
+                    previousPreviousEntry = query.getAssertValue().assertValue(core.getParent(), key,
+                            potentialPreviousPreviousEntry);
                 } else {
                     previousPreviousEntry = null;
                 }
                 if (previousPreviousEntry == null) {
-                    if (previousKey.equalsNotNullSafe(key)) {
+                    if (previousKey.equals(key)) {
                         previousEntry = null;
                         return true;
                     } else {
@@ -70,12 +70,8 @@ public class GetPreviousEntryQueryImpl<V> {
                     }
                 } else {
                     final FDate actualPreviousPreviousKey = previousPreviousEntry.getKey();
-                    if (iterations > 0 && actualPreviousPreviousKey.equalsNotNullSafe(previousKey)) {
+                    if (iterations > 0 && actualPreviousPreviousKey.equals(previousKey)) {
                         duplicateEncountered = true;
-                    }
-                    if (previousPreviousKey.equalsNotNullSafe(key)
-                            && actualPreviousPreviousKey.isBeforeNotNullSafe(previousKey)) {
-                        iterations++;
                     }
 
                     previousKey = actualPreviousPreviousKey;

@@ -12,10 +12,10 @@ import javax.annotation.concurrent.ThreadSafe;
 
 import org.apache.commons.lang3.mutable.MutableInt;
 
+import de.invesdwin.util.collections.iterable.ICloseableIterable;
+import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.collections.iterable.collection.ArrayCloseableIterator;
 import de.invesdwin.util.collections.iterable.collection.ArrayListCloseableIterable;
-import de.invesdwin.util.collections.iterable.collection.fast.IFastToListCloseableIterable;
-import de.invesdwin.util.collections.iterable.collection.fast.IFastToListCloseableIterator;
 import de.invesdwin.util.collections.loadingcache.historical.IHistoricalEntry;
 import de.invesdwin.util.collections.loadingcache.historical.ImmutableHistoricalEntry;
 import de.invesdwin.util.collections.loadingcache.historical.query.index.IndexedFDate;
@@ -159,7 +159,7 @@ public abstract class ACachedResultHistoricalCacheQueryCore<V> extends ACachedEn
     }
 
     private static class CachedPreviousResultSubList<_V> extends AbstractList<IHistoricalEntry<_V>>
-            implements RandomAccess, IFastToListCloseableIterable<IHistoricalEntry<_V>> {
+            implements RandomAccess, ICloseableIterable<IHistoricalEntry<_V>> {
         private final List<IHistoricalEntry<_V>> list;
         private final MutableInt modIncrementIndex;
         private final int offset;
@@ -221,7 +221,7 @@ public abstract class ACachedResultHistoricalCacheQueryCore<V> extends ACachedEn
 
         @SuppressWarnings({ "rawtypes", "unchecked" })
         @Override
-        public IFastToListCloseableIterator<IHistoricalEntry<_V>> iterator() {
+        public ICloseableIterator<IHistoricalEntry<_V>> iterator() {
             try {
                 final Object[] array = (Object[]) ArrayListCloseableIterable.ARRAYLIST_ELEMENTDATA_GETTER.invoke(list);
                 return new ArrayCloseableIterator(array, offset + modIncrementIndex.intValue(), size);
@@ -244,27 +244,6 @@ public abstract class ACachedResultHistoricalCacheQueryCore<V> extends ACachedEn
         @Override
         public Spliterator<IHistoricalEntry<_V>> spliterator() {
             throw new UnsupportedOperationException("not implemented");
-        }
-
-        @Override
-        public List<IHistoricalEntry<_V>> toList() {
-            return this;
-        }
-
-        @Override
-        public List<IHistoricalEntry<_V>> toList(final List<IHistoricalEntry<_V>> list) {
-            iterator().toList(list);
-            return list;
-        }
-
-        @Override
-        public IHistoricalEntry<_V> getHead() {
-            return iterator().getHead();
-        }
-
-        @Override
-        public IHistoricalEntry<_V> getTail() {
-            return iterator().getTail();
         }
     }
 

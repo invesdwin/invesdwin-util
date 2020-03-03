@@ -6,11 +6,12 @@ import java.util.List;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import de.invesdwin.util.collections.iterable.collection.fast.IFastToListCloseableIterator;
+import de.invesdwin.util.collections.iterable.ICloseableIterator;
+import de.invesdwin.util.collections.list.IFastToListProvider;
 import de.invesdwin.util.error.FastNoSuchElementException;
 
 @NotThreadSafe
-public class ArrayCloseableIterator<E> implements IFastToListCloseableIterator<E> {
+public class ArrayCloseableIterator<E> implements ICloseableIterator<E>, IFastToListProvider<E> {
 
     private final E[] array;
     private final int size;
@@ -101,30 +102,6 @@ public class ArrayCloseableIterator<E> implements IFastToListCloseableIterator<E
      */
     public static <T> ArrayCloseableIterator<T> fromToExclusive(final T[] array, final int from, final int to) {
         return new ArrayCloseableIterator<>(array, from, to - from);
-    }
-
-    @Override
-    public E getHead() {
-        if (!hasNext()) {
-            return null;
-        }
-        try {
-            return array[offset];
-        } catch (final ArrayIndexOutOfBoundsException e) {
-            return null;
-        }
-    }
-
-    @Override
-    public E getTail() {
-        if (!hasNext()) {
-            return null;
-        }
-        try {
-            return array[size - 1];
-        } catch (final ArrayIndexOutOfBoundsException e) {
-            return null;
-        }
     }
 
 }

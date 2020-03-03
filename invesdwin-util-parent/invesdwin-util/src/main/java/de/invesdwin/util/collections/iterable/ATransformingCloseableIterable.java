@@ -3,11 +3,11 @@ package de.invesdwin.util.collections.iterable;
 import javax.annotation.concurrent.Immutable;
 
 @Immutable
-public abstract class ATransformingIterable<S, R> implements ICloseableIterable<R> {
+public abstract class ATransformingCloseableIterable<S, R> implements ICloseableIterable<R> {
 
     private final ICloseableIterable<? extends S> delegate;
 
-    public ATransformingIterable(final ICloseableIterable<? extends S> delegate) {
+    public ATransformingCloseableIterable(final ICloseableIterable<? extends S> delegate) {
         if (delegate == null) {
             throw new NullPointerException("delegate must not be null");
         }
@@ -18,11 +18,11 @@ public abstract class ATransformingIterable<S, R> implements ICloseableIterable<
 
     @Override
     public ICloseableIterator<R> iterator() {
-        return new ATransformingIterator<S, R>(delegate.iterator()) {
+        return new ATransformingCloseableIterator<S, R>(delegate.iterator()) {
 
             @Override
             protected R transform(final S value) {
-                return ATransformingIterable.this.transform(value);
+                return ATransformingCloseableIterable.this.transform(value);
             }
 
         };

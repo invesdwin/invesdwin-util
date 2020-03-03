@@ -157,7 +157,6 @@ public abstract class AHistoricalCache<V>
          * the values map
          */
         return new CachedHistoricalCacheQueryCore<V>(internalMethods);
-        //        return new DefaultHistoricalCacheQueryCore<>(internalMethods);
     }
 
     private <T> Set<T> newListenerSet() {

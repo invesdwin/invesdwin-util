@@ -8,8 +8,4 @@ public interface IFastToListProvider<E> {
 
     List<E> toList(List<E> list);
 
-    E getHead();
-
-    E getTail();
-
 }

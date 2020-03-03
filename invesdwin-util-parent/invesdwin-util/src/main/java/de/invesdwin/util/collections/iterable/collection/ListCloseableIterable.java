@@ -4,11 +4,12 @@ import java.util.List;
 
 import javax.annotation.concurrent.Immutable;
 
-import de.invesdwin.util.collections.iterable.collection.fast.IFastToListCloseableIterable;
-import de.invesdwin.util.collections.iterable.collection.fast.IFastToListCloseableIterator;
+import de.invesdwin.util.collections.iterable.ICloseableIterable;
+import de.invesdwin.util.collections.iterable.ICloseableIterator;
+import de.invesdwin.util.collections.list.IFastToListProvider;
 
 @Immutable
-public class ListCloseableIterable<E> implements IFastToListCloseableIterable<E> {
+public class ListCloseableIterable<E> implements ICloseableIterable<E>, IFastToListProvider<E> {
 
     private final List<? extends E> list;
 
@@ -17,7 +18,7 @@ public class ListCloseableIterable<E> implements IFastToListCloseableIterable<E>
     }
 
     @Override
-    public IFastToListCloseableIterator<E> iterator() {
+    public ICloseableIterator<E> iterator() {
         /*
          * try to save us the effort for checking the mod count and bounds all the time by trying to directly go to the
          * underlying array
@@ -35,16 +36,6 @@ public class ListCloseableIterable<E> implements IFastToListCloseableIterable<E>
     public List<E> toList(final List<E> list) {
         list.addAll(this.list);
         return list;
-    }
-
-    @Override
-    public E getHead() {
-        return list.get(0);
-    }
-
-    @Override
-    public E getTail() {
-        return list.get(list.size() - 1);
     }
 
 }
