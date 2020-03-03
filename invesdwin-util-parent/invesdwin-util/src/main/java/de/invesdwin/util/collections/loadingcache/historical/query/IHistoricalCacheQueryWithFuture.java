@@ -38,6 +38,8 @@ public interface IHistoricalCacheQueryWithFuture<V> extends IHistoricalCacheQuer
     ICloseableIterable<FDate> getNextKeys(FDate key, int shiftForwardUnits);
 
     /**
+     * Jumps the specified shiftForwardUnits to the future instead of only one unit.
+     * 
      * key is inclusive
      * 
      * index 0 is the current value (above or equal to key), index 1 the next value and so on
@@ -45,6 +47,8 @@ public interface IHistoricalCacheQueryWithFuture<V> extends IHistoricalCacheQuer
     IHistoricalEntry<V> getNextEntry(FDate key, int shiftForwardUnits);
 
     /**
+     * Jumps the specified shiftForwardUnits to the future instead of only one unit.
+     * 
      * key is inclusive
      */
     ICloseableIterable<V> getNextValues(FDate key, int shiftForwardUnits);
@@ -59,6 +63,8 @@ public interface IHistoricalCacheQueryWithFuture<V> extends IHistoricalCacheQuer
     ICloseableIterable<IHistoricalEntry<V>> getNextEntries(FDate key, int shiftForwardUnits);
 
     /**
+     * Jumps the specified shiftForwardUnits to the future instead of only one unit.
+     * 
      * key is inclusive
      * 
      * index 0 is the current value (above or equal to key), index 1 the next value and so on
