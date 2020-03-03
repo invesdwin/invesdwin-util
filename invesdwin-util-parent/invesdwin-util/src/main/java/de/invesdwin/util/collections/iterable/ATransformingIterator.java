@@ -5,11 +5,11 @@ import javax.annotation.concurrent.NotThreadSafe;
 import de.invesdwin.util.error.FastNoSuchElementException;
 
 @NotThreadSafe
-public abstract class ATransformingCloseableIterator<S, R> implements ICloseableIterator<R> {
+public abstract class ATransformingIterator<S, R> implements ICloseableIterator<R> {
 
     private final ICloseableIterator<? extends S> delegate;
 
-    public ATransformingCloseableIterator(final ICloseableIterator<? extends S> delegate) {
+    public ATransformingIterator(final ICloseableIterator<? extends S> delegate) {
         this.delegate = delegate;
     }
 
