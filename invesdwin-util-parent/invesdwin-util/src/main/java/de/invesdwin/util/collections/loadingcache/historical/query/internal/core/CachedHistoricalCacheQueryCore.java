@@ -10,12 +10,12 @@ import javax.annotation.concurrent.ThreadSafe;
 
 import org.apache.commons.lang3.mutable.MutableBoolean;
 
-import de.invesdwin.util.collections.iterable.ACloseableIterator;
 import de.invesdwin.util.collections.iterable.EmptyCloseableIterator;
-import de.invesdwin.util.collections.iterable.ICloseableIterable;
-import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.collections.iterable.SingleValueIterable;
 import de.invesdwin.util.collections.iterable.WrapperCloseableIterable;
+import de.invesdwin.util.collections.iterable.collection.fast.AFastToListCloseableIterator;
+import de.invesdwin.util.collections.iterable.collection.fast.IFastToListCloseableIterable;
+import de.invesdwin.util.collections.iterable.collection.fast.IFastToListCloseableIterator;
 import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
 import de.invesdwin.util.collections.loadingcache.historical.IHistoricalEntry;
 import de.invesdwin.util.collections.loadingcache.historical.ImmutableHistoricalEntry;
@@ -90,9 +90,18 @@ public class CachedHistoricalCacheQueryCore<V> extends ACachedResultHistoricalCa
             return getDelegate().getPreviousEntry(query, key, 0);
         } else {
             final int incrementedShiftBackUnits = shiftBackUnits + 1;
-            try (ICloseableIterator<IHistoricalEntry<V>> previousEntries = getPreviousEntriesList(query, key,
-                    incrementedShiftBackUnits).iterator()) {
+            final IFastToListCloseableIterable<IHistoricalEntry<V>> iterable = getPreviousEntriesList(query, key,
+                    incrementedShiftBackUnits);
+            final IHistoricalEntry<V> tail = iterable.getTail();
+            try (IFastToListCloseableIterator<IHistoricalEntry<V>> previousEntries = iterable.iterator()) {
                 final IHistoricalEntry<V> next = previousEntries.next();
+                try {
+                    if (tail != null && tail.getKey().isBefore(key)) {
+                        return previousEntries.next();
+                    }
+                } catch (final NoSuchElementException e) {
+                    //end reached
+                }
                 return next;
             } catch (final NoSuchElementException e) {
                 return null;
@@ -101,18 +110,19 @@ public class CachedHistoricalCacheQueryCore<V> extends ACachedResultHistoricalCa
     }
 
     @Override
-    public ICloseableIterable<IHistoricalEntry<V>> getPreviousEntries(
+    public IFastToListCloseableIterable<IHistoricalEntry<V>> getPreviousEntries(
             final IHistoricalCacheQueryInternalMethods<V> query, final FDate key, final int shiftBackUnits) {
         if (shiftBackUnits == 1) {
             final IHistoricalEntry<V> entry = getDelegate().getPreviousEntry(query, key, 0);
             return new SingleValueIterable<IHistoricalEntry<V>>(entry);
         } else {
-            final ICloseableIterable<IHistoricalEntry<V>> result = getPreviousEntriesList(query, key, shiftBackUnits);
+            final IFastToListCloseableIterable<IHistoricalEntry<V>> result = getPreviousEntriesList(query, key,
+                    shiftBackUnits);
             return result;
         }
     }
 
-    private ICloseableIterable<IHistoricalEntry<V>> getPreviousEntriesList(
+    private IFastToListCloseableIterable<IHistoricalEntry<V>> getPreviousEntriesList(
             final IHistoricalCacheQueryInternalMethods<V> query, final FDate key, final int shiftBackUnits) {
         final boolean cachedQueryActiveLocked = cachedQueryActiveLock.tryLock();
         /*
@@ -127,11 +137,12 @@ public class CachedHistoricalCacheQueryCore<V> extends ACachedResultHistoricalCa
             //prevent nested/recursive cached queries that might f**k up the cache
             final List<IHistoricalEntry<V>> trailing = newEntriesList(shiftBackUnits);
             final List<IHistoricalEntry<V>> result = queryPreviousEntries(query, key, shiftBackUnits, trailing);
-            return WrapperCloseableIterable.maybeWrap(result);
+            return (IFastToListCloseableIterable<IHistoricalEntry<V>>) WrapperCloseableIterable.maybeWrap(result);
         } else {
             cachedQueryActive.setTrue();
             final List<IHistoricalEntry<V>> result = getPreviousEntriesListUnlocked(query, key, shiftBackUnits);
-            return new UnlockingResultIterable(WrapperCloseableIterable.maybeWrap(result));
+            return new UnlockingResultIterable(
+                    (IFastToListCloseableIterable<IHistoricalEntry<V>>) WrapperCloseableIterable.maybeWrap(result));
         }
     }
 
@@ -678,18 +689,18 @@ public class CachedHistoricalCacheQueryCore<V> extends ACachedResultHistoricalCa
         }
     }
 
-    private final class UnlockingResultIterable implements ICloseableIterable<IHistoricalEntry<V>> {
-        private final ICloseableIterable<IHistoricalEntry<V>> result;
+    private final class UnlockingResultIterable implements IFastToListCloseableIterable<IHistoricalEntry<V>> {
+        private final IFastToListCloseableIterable<IHistoricalEntry<V>> result;
 
-        private UnlockingResultIterable(final ICloseableIterable<IHistoricalEntry<V>> result) {
+        private UnlockingResultIterable(final IFastToListCloseableIterable<IHistoricalEntry<V>> result) {
             this.result = result;
         }
 
         @Override
-        public ICloseableIterator<IHistoricalEntry<V>> iterator() {
+        public IFastToListCloseableIterator<IHistoricalEntry<V>> iterator() {
             if (Throwables.isDebugStackTraceEnabled()) {
-                return new ACloseableIterator<IHistoricalEntry<V>>(new TextDescription("%s: %s.%s", getParent(),
-                        CachedHistoricalCacheQueryCore.class.getSimpleName(),
+                return new AFastToListCloseableIterator<IHistoricalEntry<V>>(new TextDescription("%s: %s.%s",
+                        getParent(), CachedHistoricalCacheQueryCore.class.getSimpleName(),
                         UnlockingResultIterable.class.getSimpleName())) {
 
                     private final UnlockingResultFinalizer<IHistoricalEntry<V>> finalizer = new UnlockingResultFinalizer<IHistoricalEntry<V>>(
@@ -714,9 +725,29 @@ public class CachedHistoricalCacheQueryCore<V> extends ACachedResultHistoricalCa
                         finalizer.close();
                     }
 
+                    @Override
+                    public List<IHistoricalEntry<V>> toList() {
+                        return finalizer.iterator.toList();
+                    }
+
+                    @Override
+                    public List<IHistoricalEntry<V>> toList(final List<IHistoricalEntry<V>> list) {
+                        return finalizer.iterator.toList(list);
+                    }
+
+                    @Override
+                    public IHistoricalEntry<V> getHead() {
+                        return finalizer.iterator.getHead();
+                    }
+
+                    @Override
+                    public IHistoricalEntry<V> getTail() {
+                        return finalizer.iterator.getTail();
+                    }
+
                 };
             } else {
-                return new ICloseableIterator<IHistoricalEntry<V>>() {
+                return new IFastToListCloseableIterator<IHistoricalEntry<V>>() {
 
                     private final UnlockingResultFinalizer<IHistoricalEntry<V>> finalizer = new UnlockingResultFinalizer<IHistoricalEntry<V>>(
                             result.iterator(), cachedQueryActive, cachedQueryActiveLock);
@@ -740,19 +771,59 @@ public class CachedHistoricalCacheQueryCore<V> extends ACachedResultHistoricalCa
                         finalizer.close();
                     }
 
+                    @Override
+                    public List<IHistoricalEntry<V>> toList() {
+                        return finalizer.iterator.toList();
+                    }
+
+                    @Override
+                    public List<IHistoricalEntry<V>> toList(final List<IHistoricalEntry<V>> list) {
+                        return finalizer.iterator.toList(list);
+                    }
+
+                    @Override
+                    public IHistoricalEntry<V> getHead() {
+                        return finalizer.iterator.getHead();
+                    }
+
+                    @Override
+                    public IHistoricalEntry<V> getTail() {
+                        return finalizer.iterator.getTail();
+                    }
+
                 };
             }
+        }
+
+        @Override
+        public List<IHistoricalEntry<V>> toList() {
+            return result.toList();
+        }
+
+        @Override
+        public List<IHistoricalEntry<V>> toList(final List<IHistoricalEntry<V>> list) {
+            return result.toList(list);
+        }
+
+        @Override
+        public IHistoricalEntry<V> getHead() {
+            return result.getHead();
+        }
+
+        @Override
+        public IHistoricalEntry<V> getTail() {
+            return result.getTail();
         }
     }
 
     private static final class UnlockingResultFinalizer<_V> extends AFinalizer {
 
-        private ICloseableIterator<_V> iterator;
+        private IFastToListCloseableIterator<_V> iterator;
         private final MutableBoolean cachedQueryActive;
         private final ILock cachedQueryActiveLock;
 
-        private UnlockingResultFinalizer(final ICloseableIterator<_V> iterator, final MutableBoolean cachedQueryActive,
-                final ILock cachedQueryActiveLock) {
+        private UnlockingResultFinalizer(final IFastToListCloseableIterator<_V> iterator,
+                final MutableBoolean cachedQueryActive, final ILock cachedQueryActiveLock) {
             this.iterator = iterator;
             this.cachedQueryActive = cachedQueryActive;
             this.cachedQueryActiveLock = cachedQueryActiveLock;

@@ -61,9 +61,13 @@ public class GetNextEntryQueryImpl<V> {
                     return true;
                 } else {
                     final FDate actualNextNextKey = nextNextEntry.getKey();
-                    if (iterations > 0 && actualNextNextKey.equals(nextKey)) {
+                    if (iterations > 0 && actualNextNextKey.equalsNotNullSafe(nextKey)) {
                         duplicateEncountered = true;
                     }
+                    if (nextNextKey.equalsNotNullSafe(key) && actualNextNextKey.isAfterNotNullSafe(nextKey)) {
+                        iterations++;
+                    }
+
                     nextKey = actualNextNextKey;
                     nextEntry = nextNextEntry;
                 }

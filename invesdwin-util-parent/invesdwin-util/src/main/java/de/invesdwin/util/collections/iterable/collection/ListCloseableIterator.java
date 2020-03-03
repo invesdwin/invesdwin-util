@@ -4,12 +4,11 @@ import java.util.List;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import de.invesdwin.util.collections.iterable.ICloseableIterator;
-import de.invesdwin.util.collections.list.IFastToListProvider;
+import de.invesdwin.util.collections.iterable.collection.fast.IFastToListCloseableIterator;
 import de.invesdwin.util.error.FastNoSuchElementException;
 
 @NotThreadSafe
-public class ListCloseableIterator<E> implements ICloseableIterator<E>, IFastToListProvider<E> {
+public class ListCloseableIterator<E> implements IFastToListCloseableIterator<E> {
 
     private final List<? extends E> list;
     private final int size;
@@ -56,6 +55,22 @@ public class ListCloseableIterator<E> implements ICloseableIterator<E>, IFastToL
     public List<E> toList(final List<E> list) {
         list.addAll(toList());
         return list;
+    }
+
+    @Override
+    public E getHead() {
+        if (!hasNext()) {
+            return null;
+        }
+        return list.get(i);
+    }
+
+    @Override
+    public E getTail() {
+        if (!hasNext()) {
+            return null;
+        }
+        return list.get(size - 1);
     }
 
 }

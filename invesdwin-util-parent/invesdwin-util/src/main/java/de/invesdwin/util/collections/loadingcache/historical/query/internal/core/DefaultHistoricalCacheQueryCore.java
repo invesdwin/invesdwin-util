@@ -7,6 +7,7 @@ import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.WrapperCloseableIterable;
+import de.invesdwin.util.collections.iterable.collection.fast.IFastToListCloseableIterable;
 import de.invesdwin.util.collections.loadingcache.historical.IHistoricalEntry;
 import de.invesdwin.util.collections.loadingcache.historical.query.DisabledHistoricalCacheQueryElementFilter;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQueryElementFilter;
@@ -85,7 +86,7 @@ public class DefaultHistoricalCacheQueryCore<V> implements IHistoricalCacheQuery
      * Fills the list with values from the past.
      */
     @Override
-    public ICloseableIterable<IHistoricalEntry<V>> getPreviousEntries(
+    public IFastToListCloseableIterable<IHistoricalEntry<V>> getPreviousEntries(
             final IHistoricalCacheQueryInternalMethods<V> query, final FDate key, final int shiftBackUnits) {
         //This has to work with lists internally to support FilterDuplicateKeys option
         final List<IHistoricalEntry<V>> trailing = newEntriesList(shiftBackUnits);
@@ -104,7 +105,7 @@ public class DefaultHistoricalCacheQueryCore<V> implements IHistoricalCacheQuery
             }
         }
         Collections.reverse(trailing);
-        return WrapperCloseableIterable.maybeWrap(trailing);
+        return (IFastToListCloseableIterable<IHistoricalEntry<V>>) WrapperCloseableIterable.maybeWrap(trailing);
     }
 
     @Override

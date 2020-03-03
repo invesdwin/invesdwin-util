@@ -10,13 +10,12 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import org.apache.commons.lang3.ArrayUtils;
 
-import de.invesdwin.util.collections.iterable.ICloseableIterable;
-import de.invesdwin.util.collections.iterable.ICloseableIterator;
-import de.invesdwin.util.collections.list.IFastToListProvider;
+import de.invesdwin.util.collections.iterable.collection.fast.IFastToListCloseableIterable;
+import de.invesdwin.util.collections.iterable.collection.fast.IFastToListCloseableIterator;
 import de.invesdwin.util.lang.Reflections;
 
 @NotThreadSafe
-public class ArrayListCloseableIterable<E> implements ICloseableIterable<E>, IFastToListProvider<E> {
+public class ArrayListCloseableIterable<E> implements IFastToListCloseableIterable<E> {
 
     public static final MethodHandle ARRAYLIST_ELEMENTDATA_GETTER;
 
@@ -45,7 +44,7 @@ public class ArrayListCloseableIterable<E> implements ICloseableIterable<E>, IFa
      * override this method to always do a refresh.
      */
     @Override
-    public ICloseableIterator<E> iterator() {
+    public IFastToListCloseableIterator<E> iterator() {
         if (cachedSize != arrayList.size()) {
             cachedSize = arrayList.size();
             try {
@@ -54,17 +53,7 @@ public class ArrayListCloseableIterable<E> implements ICloseableIterable<E>, IFa
                 throw new RuntimeException(e);
             }
         }
-        return new ArrayCloseableIterator<E>(cachedArray, 0, cachedSize) {
-            @Override
-            public List<E> toList() {
-                return ArrayListCloseableIterable.this.toList();
-            }
-
-            @Override
-            public List<E> toList(final List<E> list) {
-                return ArrayListCloseableIterable.this.toList();
-            }
-        };
+        return new ArrayCloseableIterator<E>(cachedArray, 0, cachedSize);
     }
 
     @SuppressWarnings("unchecked")
@@ -83,6 +72,22 @@ public class ArrayListCloseableIterable<E> implements ICloseableIterable<E>, IFa
     public List<E> toList(final List<E> list) {
         list.addAll(this.arrayList);
         return list;
+    }
+
+    @Override
+    public E getHead() {
+        if (arrayList.isEmpty()) {
+            return null;
+        }
+        return arrayList.get(0);
+    }
+
+    @Override
+    public E getTail() {
+        if (arrayList.isEmpty()) {
+            return null;
+        }
+        return arrayList.get(arrayList.size() - 1);
     }
 
 }

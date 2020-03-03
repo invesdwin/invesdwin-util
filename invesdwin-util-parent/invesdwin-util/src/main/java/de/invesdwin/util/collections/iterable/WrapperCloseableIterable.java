@@ -19,6 +19,9 @@ public final class WrapperCloseableIterable<E> implements ICloseableIterable<E> 
     private final Iterable<? extends E> delegate;
 
     private WrapperCloseableIterable(final Iterable<? extends E> delegate) {
+        if (delegate == null) {
+            throw new NullPointerException("delegate should not be null");
+        }
         this.delegate = delegate;
     }
 

@@ -4,7 +4,7 @@ import java.util.Iterator;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import de.invesdwin.util.collections.iterable.ATransformingCloseableIterator;
+import de.invesdwin.util.collections.iterable.ATransformingIterator;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 
@@ -34,7 +34,7 @@ public abstract class ATransformingBufferingIterator<S, R> implements IBuffering
 
     @Override
     public ICloseableIterator<R> iterator() {
-        return new ATransformingCloseableIterator<S, R>(delegate.iterator()) {
+        return new ATransformingIterator<S, R>(delegate.iterator()) {
             @Override
             protected R transform(final S value) {
                 return ATransformingBufferingIterator.this.transform(value);

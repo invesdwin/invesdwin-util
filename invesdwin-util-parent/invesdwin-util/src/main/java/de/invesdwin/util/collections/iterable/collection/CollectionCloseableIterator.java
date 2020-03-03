@@ -2,12 +2,13 @@ package de.invesdwin.util.collections.iterable.collection;
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.collections.iterable.EmptyCloseableIterator;
-import de.invesdwin.util.collections.iterable.ICloseableIterator;
+import de.invesdwin.util.collections.iterable.collection.fast.IFastToListCloseableIterator;
 import de.invesdwin.util.error.FastNoSuchElementException;
 
 /**
@@ -15,7 +16,7 @@ import de.invesdwin.util.error.FastNoSuchElementException;
  * already. This does not work too well with HashSets where the order is undefined. Thus just keep the default behavior.
  */
 @NotThreadSafe
-public class CollectionCloseableIterator<E> implements ICloseableIterator<E> {
+public class CollectionCloseableIterator<E> implements IFastToListCloseableIterator<E> {
 
     private Iterator<? extends E> delegate;
 
@@ -41,6 +42,26 @@ public class CollectionCloseableIterator<E> implements ICloseableIterator<E> {
     @Override
     public void close() {
         delegate = EmptyCloseableIterator.getInstance();
+    }
+
+    @Override
+    public List<E> toList() {
+        throw new UnsupportedOperationException("do this from the iterable");
+    }
+
+    @Override
+    public List<E> toList(final List<E> list) {
+        throw new UnsupportedOperationException("do this from the iterable");
+    }
+
+    @Override
+    public E getHead() {
+        throw new UnsupportedOperationException("do this from the iterable");
+    }
+
+    @Override
+    public E getTail() {
+        throw new UnsupportedOperationException("too slow on collections");
     }
 
 }

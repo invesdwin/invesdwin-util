@@ -20,14 +20,14 @@ public class FlatteningIterable<E> implements ICloseableIterable<E> {
 
     @Override
     public ICloseableIterator<E> iterator() {
-        final ATransformingCloseableIterator<Iterable<? extends E>, Iterator<? extends E>> transformingDelegate = new ATransformingCloseableIterator<Iterable<? extends E>, Iterator<? extends E>>(
-                delegate.iterator()) {
+        final ATransformingIterable<Iterable<? extends E>, Iterator<? extends E>> transformingDelegate = new ATransformingIterable<Iterable<? extends E>, Iterator<? extends E>>(
+                delegate) {
             @Override
             protected Iterator<? extends E> transform(final Iterable<? extends E> value) {
                 return WrapperCloseableIterable.maybeWrap(value).iterator();
             }
         };
-        return new FlatteningIterator<E>(transformingDelegate);
+        return new FlatteningIterator<E>(transformingDelegate.iterator());
     }
 
 }

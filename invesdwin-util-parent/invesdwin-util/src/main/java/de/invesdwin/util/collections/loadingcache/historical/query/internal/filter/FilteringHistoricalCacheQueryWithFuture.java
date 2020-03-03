@@ -38,20 +38,7 @@ public class FilteringHistoricalCacheQueryWithFuture<V> extends FilteringHistori
 
     @Override
     public FDate getNextKey(final FDate key, final int shiftForwardUnits) {
-        final FDate curKey = getKey(key);
-        if (curKey == null) {
-            return null;
-        }
-        final int adjShiftForwardUnits;
-        if (curKey.isBefore(key)) {
-            adjShiftForwardUnits = shiftForwardUnits + 1;
-        } else {
-            if (shiftForwardUnits == 0) {
-                return curKey;
-            }
-            adjShiftForwardUnits = shiftForwardUnits;
-        }
-        final FDate result = delegate.getNextKey(curKey, adjShiftForwardUnits);
+        final FDate result = delegate.getNextKey(key, shiftForwardUnits);
         if (result == null || result.isBefore(key)) {
             return null;
         } else {
@@ -67,20 +54,7 @@ public class FilteringHistoricalCacheQueryWithFuture<V> extends FilteringHistori
 
     @Override
     public IHistoricalEntry<V> getNextEntry(final FDate key, final int shiftForwardUnits) {
-        final IHistoricalEntry<V> curEntry = getEntry(key);
-        if (curEntry == null) {
-            return null;
-        }
-        final int adjShiftForwardUnits;
-        if (curEntry.getKey().isBefore(key)) {
-            adjShiftForwardUnits = shiftForwardUnits + 1;
-        } else {
-            if (shiftForwardUnits == 0) {
-                return curEntry;
-            }
-            adjShiftForwardUnits = shiftForwardUnits;
-        }
-        final IHistoricalEntry<V> result = delegate.getNextEntry(curEntry.getKey(), adjShiftForwardUnits);
+        final IHistoricalEntry<V> result = delegate.getNextEntry(key, shiftForwardUnits);
         if (result == null || result.getKey().isBefore(key)) {
             return null;
         } else {
@@ -124,20 +98,7 @@ public class FilteringHistoricalCacheQueryWithFuture<V> extends FilteringHistori
 
     @Override
     public ICloseableIterable<FDate> getNextKeys(final FDate key, final int shiftForwardUnits) {
-        /*
-         * need to go directly against getKey so that recursive queries work properly with shift keys delegates
-         */
-        final FDate curKey = getKey(key);
-        if (curKey == null) {
-            return null;
-        }
-        final int adjShiftForwardUnits;
-        if (curKey.isBefore(key)) {
-            adjShiftForwardUnits = shiftForwardUnits + 1;
-        } else {
-            adjShiftForwardUnits = shiftForwardUnits;
-        }
-        final ICloseableIterable<FDate> result = delegate.getNextKeys(curKey, adjShiftForwardUnits);
+        final ICloseableIterable<FDate> result = delegate.getNextKeys(key, shiftForwardUnits);
         return new AFilterSkippingIterable<FDate>(result) {
             @Override
             protected boolean skip(final FDate element) {
@@ -148,18 +109,7 @@ public class FilteringHistoricalCacheQueryWithFuture<V> extends FilteringHistori
 
     @Override
     public ICloseableIterable<IHistoricalEntry<V>> getNextEntries(final FDate key, final int shiftForwardUnits) {
-        final IHistoricalEntry<V> curEntry = getEntry(key);
-        if (curEntry == null) {
-            return null;
-        }
-        final int adjShiftForwardUnits;
-        if (curEntry.getKey().isBefore(key)) {
-            adjShiftForwardUnits = shiftForwardUnits + 1;
-        } else {
-            adjShiftForwardUnits = shiftForwardUnits;
-        }
-        final ICloseableIterable<IHistoricalEntry<V>> result = delegate.getNextEntries(curEntry.getKey(),
-                adjShiftForwardUnits);
+        final ICloseableIterable<IHistoricalEntry<V>> result = delegate.getNextEntries(key, shiftForwardUnits);
         return new AFilterSkippingIterable<IHistoricalEntry<V>>(result) {
             @Override
             protected boolean skip(final IHistoricalEntry<V> element) {

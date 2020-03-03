@@ -10,13 +10,12 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import org.apache.commons.lang3.ArrayUtils;
 
-import de.invesdwin.util.collections.iterable.ICloseableIterable;
-import de.invesdwin.util.collections.iterable.ICloseableIterator;
-import de.invesdwin.util.collections.list.IFastToListProvider;
+import de.invesdwin.util.collections.iterable.collection.fast.IFastToListCloseableIterable;
+import de.invesdwin.util.collections.iterable.collection.fast.IFastToListCloseableIterator;
 import de.invesdwin.util.lang.Reflections;
 
 @NotThreadSafe
-public class ArraySubListCloseableIterable<E> implements ICloseableIterable<E>, IFastToListProvider<E> {
+public class ArraySubListCloseableIterable<E> implements IFastToListCloseableIterable<E> {
 
     public static final Class<?> SUBLIST_CLASS;
     public static final MethodHandle SUBLIST_SIZE_GETTER;
@@ -69,7 +68,7 @@ public class ArraySubListCloseableIterable<E> implements ICloseableIterable<E>, 
      */
     @SuppressWarnings("unchecked")
     @Override
-    public ICloseableIterator<E> iterator() {
+    public IFastToListCloseableIterator<E> iterator() {
         try {
             final int size = (int) SUBLIST_SIZE_GETTER.invoke(arraySubList);
             if (cachedSize != size) {
@@ -116,6 +115,16 @@ public class ArraySubListCloseableIterable<E> implements ICloseableIterable<E>, 
     public List<E> toList(final List<E> list) {
         list.addAll(this.arraySubList);
         return list;
+    }
+
+    @Override
+    public E getHead() {
+        return arraySubList.get(0);
+    }
+
+    @Override
+    public E getTail() {
+        return arraySubList.get(arraySubList.size() - 1);
     }
 
 }
