@@ -1,6 +1,7 @@
 package de.invesdwin.util.time.fdate;
 
 import java.io.Serializable;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -180,7 +181,15 @@ public class FDate implements IDate, Serializable, Cloneable, Comparable<Object>
     }
 
     public TimeZone getTimeZone() {
-        return TimeZone.getDefault();
+        return FDates.getDefaultTimeZone();
+    }
+
+    public ZoneId getZoneId() {
+        return FDates.getDefaultZoneId();
+    }
+
+    public DateTimeZone getDateTimeZone() {
+        return FDates.getDefaultDateTimeZone();
     }
 
     public FDate setYear(final int year) {
@@ -212,7 +221,7 @@ public class FDate implements IDate, Serializable, Cloneable, Comparable<Object>
         return setWeekday(weekday.jodaTimeValue());
     }
 
-    public FDate setFWeekTime(final FWeekTime weekTime, final TimeZone timeZone) {
+    public FDate setFWeekTime(final FWeekTime weekTime, final ZoneId timeZone) {
         return revertTimeZoneOffset(timeZone).setFWeekTime(weekTime).applyTimeZoneOffset(timeZone);
     }
 
@@ -381,22 +390,22 @@ public class FDate implements IDate, Serializable, Cloneable, Comparable<Object>
         return truncate(FDateField.Day);
     }
 
-    public FDate withoutTime(final TimeZone timeZone) {
+    public FDate withoutTime(final ZoneId timeZone) {
         return revertTimeZoneOffset(timeZone).withoutTime().applyTimeZoneOffset(timeZone);
     }
 
-    public FDate applyTimeZoneOffset(final TimeZone timeZone) {
+    public FDate applyTimeZoneOffset(final ZoneId timeZone) {
         if (timeZone == null) {
             return this;
         }
-        return addMilliseconds(timeZone.getOffset(millis));
+        return addSeconds(timeZone.getRules().getOffset(java.time.Instant.ofEpochMilli(millis)).getTotalSeconds());
     }
 
-    public FDate revertTimeZoneOffset(final TimeZone timeZone) {
+    public FDate revertTimeZoneOffset(final ZoneId timeZone) {
         if (timeZone == null) {
             return this;
         }
-        return addMilliseconds(-timeZone.getOffset(millis));
+        return addSeconds(-timeZone.getRules().getOffset(java.time.Instant.ofEpochMilli(millis)).getTotalSeconds());
     }
 
     /**
@@ -708,8 +717,8 @@ public class FDate implements IDate, Serializable, Cloneable, Comparable<Object>
         return holidayManager.isHoliday(this);
     }
 
-    public boolean isHoliday(final FHolidayManager holidayManager, final TimeZone offsetTimeZone) {
-        return revertTimeZoneOffset(offsetTimeZone).isHoliday(holidayManager);
+    public boolean isHoliday(final FHolidayManager holidayManager, final ZoneId timeZone) {
+        return revertTimeZoneOffset(timeZone).isHoliday(holidayManager);
     }
 
     public FDate addWorkdays(final int workdays, final FHolidayManager holidayManager) {

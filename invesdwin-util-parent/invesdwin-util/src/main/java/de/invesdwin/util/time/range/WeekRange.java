@@ -1,9 +1,9 @@
 package de.invesdwin.util.time.range;
 
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.TimeZone;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -93,7 +93,7 @@ public class WeekRange extends AValueObject {
         return from == null || to == null || getDuration().isZero();
     }
 
-    public boolean contains(final FDate time, final TimeZone timeZone) {
+    public boolean contains(final FDate time, final ZoneId timeZone) {
         return contains(time.revertTimeZoneOffset(timeZone));
     }
 

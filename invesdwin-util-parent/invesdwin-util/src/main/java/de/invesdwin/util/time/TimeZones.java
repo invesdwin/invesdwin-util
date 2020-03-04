@@ -1,5 +1,6 @@
 package de.invesdwin.util.time;
 
+import java.time.ZoneId;
 import java.util.TimeZone;
 
 import javax.annotation.concurrent.Immutable;
@@ -37,6 +38,30 @@ public final class TimeZones {
             return null;
         }
         return tz;
+    }
+
+    public static ZoneId getZoneId(final String id) {
+        if (Strings.isBlank(id)) {
+            return null;
+        }
+        //CHECKSTYLE:OFF
+        final ZoneId tz = ZoneId.of(id);
+        //CHECKSTYLE:ON
+        return tz;
+    }
+
+    public static ZoneId getZoneIdOrNull(final String id) {
+        if (Strings.isBlankOrNullText(id)) {
+            return null;
+        }
+        try {
+            //CHECKSTYLE:OFF
+            final ZoneId tz = ZoneId.of(id);
+            //CHECKSTYLE:ON
+            return tz;
+        } catch (final Throwable t) {
+            return null;
+        }
     }
 
 }

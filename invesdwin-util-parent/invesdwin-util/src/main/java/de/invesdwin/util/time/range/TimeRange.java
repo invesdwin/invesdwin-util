@@ -1,9 +1,9 @@
 package de.invesdwin.util.time.range;
 
 import java.nio.ByteBuffer;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.TimeZone;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -147,7 +147,7 @@ public class TimeRange extends AValueObject {
         }
     }
 
-    public TimeRange applyTimeZoneOffset(final TimeZone offsetTimeZone) {
+    public TimeRange applyTimeZoneOffset(final ZoneId offsetTimeZone) {
         if (offsetTimeZone == null) {
             return this;
         } else {
@@ -155,12 +155,11 @@ public class TimeRange extends AValueObject {
         }
     }
 
-    public TimeRange revertTimeZoneOffset(final TimeZone offsetTimeZone) {
+    public TimeRange revertTimeZoneOffset(final ZoneId offsetTimeZone) {
         if (offsetTimeZone == null) {
             return this;
         } else {
-            return new TimeRange(from.revertTimeZoneOffset(offsetTimeZone),
-                    to.revertTimeZoneOffset(offsetTimeZone));
+            return new TimeRange(from.revertTimeZoneOffset(offsetTimeZone), to.revertTimeZoneOffset(offsetTimeZone));
         }
     }
 }
