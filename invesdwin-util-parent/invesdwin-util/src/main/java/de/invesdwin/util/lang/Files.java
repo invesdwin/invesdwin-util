@@ -27,6 +27,16 @@ import de.invesdwin.util.time.fdate.FDate;
                 "java.nio.file.Files#mismatch(java.nio.file.Path, java.nio.file.Path)" })
 public final class Files extends AFilesStaticFacade {
 
+    private static final String[] NORMALIZE_FILENAME_SEARCH = { ":", "@", "/", "\\", "*", "?", "<", ">", "\"", "|" };
+    private static final String[] NORMALIZE_FILENAME_REPLACE;
+
+    static {
+        NORMALIZE_FILENAME_REPLACE = new String[NORMALIZE_FILENAME_SEARCH.length];
+        for (int i = 0; i < NORMALIZE_FILENAME_REPLACE.length; i++) {
+            NORMALIZE_FILENAME_REPLACE[i] = "_";
+        }
+    }
+
     private Files() {
     }
 
@@ -74,7 +84,7 @@ public final class Files extends AFilesStaticFacade {
     }
 
     public static String normalizeFilename(final String name) {
-        return name.replace(":", "_").replace("@", "_");
+        return Strings.replaceEach(name, NORMALIZE_FILENAME_SEARCH, NORMALIZE_FILENAME_REPLACE);
     }
 
     public static boolean isDirectoryEmpty(final File directory) throws IOException {
