@@ -1,5 +1,6 @@
 package de.invesdwin.util.time.fdate;
 
+import java.time.format.DateTimeFormatter;
 import java.util.TimeZone;
 
 import javax.annotation.concurrent.NotThreadSafe;
@@ -214,6 +215,18 @@ public class FDateTest {
         final FDate reference = FDateBuilder.newDate(2001, 12, 31, 23, 59, 59, 999);
         Assertions.assertThat(reference.truncate(FDateField.Year))
                 .isEqualTo(FDateBuilder.newDate(2001, 1, 1, 0, 0, 0, 0));
+    }
+
+    @Test
+    public void testWeeknumberOfMonth() {
+        final FDate date = FDateBuilder.newDate(2020);
+        Assertions.assertThat(date.getWeekNumberOfMonth()).isEqualTo(1);
+        Assertions.assertThat(date.addWeeks(1).getWeekNumberOfMonth()).isEqualTo(2);
+        Assertions.assertThat(date.addDays(-1).getWeekNumberOfMonth()).isEqualTo(5);
+
+        Assertions.assertThat(DateTimeFormatter.ofPattern("W").format(date.javaTimeValue())).isEqualTo("1");
+        Assertions.assertThat(DateTimeFormatter.ofPattern("W").format(date.addWeeks(1).javaTimeValue())).isEqualTo("2");
+        Assertions.assertThat(DateTimeFormatter.ofPattern("W").format(date.addDays(-1).javaTimeValue())).isEqualTo("5");
     }
 
 }

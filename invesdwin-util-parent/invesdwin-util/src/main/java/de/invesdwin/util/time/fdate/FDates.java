@@ -1,6 +1,7 @@
 package de.invesdwin.util.time.fdate;
 
 import java.nio.ByteBuffer;
+import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
@@ -30,17 +31,20 @@ public final class FDates {
     private static TimeZone defaultTimeZone;
     private static DateTimeZone defaultDateTimeZone;
     private static Chronology defaultChronology;
+    private static ZoneId defaultZoneId;
 
     static {
         setDefaultTimeZone(TimeZone.getDefault());
     }
 
-    private FDates() {}
+    private FDates() {
+    }
 
     public static void setDefaultTimeZone(final TimeZone defaultTimeZone) {
         FDates.defaultTimeZone = defaultTimeZone;
         FDates.defaultDateTimeZone = DateTimeZone.forTimeZone(defaultTimeZone);
         FDates.defaultChronology = ISOChronology.getInstance(defaultDateTimeZone);
+        FDates.defaultZoneId = defaultTimeZone.toZoneId();
         //CHECKSTYLE:OFF
         final Calendar cal = Calendar.getInstance();
         //CHECKSTYLE:ON
@@ -59,6 +63,10 @@ public final class FDates {
 
     public static Chronology getDefaultChronology() {
         return defaultChronology;
+    }
+
+    public static ZoneId getDefaultZoneId() {
+        return defaultZoneId;
     }
 
     public static Calendar newCalendar() {

@@ -1,6 +1,7 @@
 package de.invesdwin.util.time.fdate;
 
 import java.io.Serializable;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -405,6 +406,18 @@ public class FDate implements IDate, Serializable, Cloneable, Comparable<Object>
         return new LocalDateTime(millis);
     }
 
+    public DateTime jodaTimeValueZoned() {
+        return new DateTime(millis, FDates.getDefaultChronology());
+    }
+
+    public ZonedDateTime javaTimeValueZoned() {
+        return java.time.Instant.ofEpochMilli(millis).atZone(FDates.getDefaultZoneId());
+    }
+
+    public java.time.LocalDateTime javaTimeValue() {
+        return javaTimeValueZoned().toLocalDateTime();
+    }
+
     public static FDate valueOf(final Long millis) {
         if (millis != null) {
             return new FDate(millis);
@@ -747,8 +760,13 @@ public class FDate implements IDate, Serializable, Cloneable, Comparable<Object>
         };
     }
 
+    /**
+     * https://stackoverflow.com/questions/24280370/get-week-of-month-with-joda-time
+     */
     public int getWeekNumberOfMonth() {
-        return getWeekNumberOfYear() - truncate(FDateField.Month).getWeekNumberOfYear();
+        //        final MutableDateTime delegate = newMutableDateTime();
+        //        return Weeks.weeksBetween(truncate(FDateField.Month).newMutableDateTime(), delegate).getWeeks() + 1;
+        return (getDay() / 7) + 1;
     }
 
 }
