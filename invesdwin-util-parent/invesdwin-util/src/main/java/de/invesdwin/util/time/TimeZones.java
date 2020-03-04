@@ -44,6 +44,10 @@ public final class TimeZones {
         if (Strings.isBlank(id)) {
             return null;
         }
+        final TimeZone timeZone = getTimeZoneOrNull(id);
+        if (timeZone != null) {
+            return timeZone.toZoneId();
+        }
         //CHECKSTYLE:OFF
         final ZoneId tz = ZoneId.of(id);
         //CHECKSTYLE:ON
@@ -55,6 +59,10 @@ public final class TimeZones {
             return null;
         }
         try {
+            final TimeZone timeZone = getTimeZoneOrNull(id);
+            if (timeZone != null) {
+                return timeZone.toZoneId();
+            }
             //CHECKSTYLE:OFF
             final ZoneId tz = ZoneId.of(id);
             //CHECKSTYLE:ON
