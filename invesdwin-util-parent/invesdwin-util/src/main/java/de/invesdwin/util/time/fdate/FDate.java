@@ -212,6 +212,10 @@ public class FDate implements IDate, Serializable, Cloneable, Comparable<Object>
         return setWeekday(weekday.jodaTimeValue());
     }
 
+    public FDate setFWeekTime(final FWeekTime weekTime, final TimeZone timeZone) {
+        return revertTimeZoneOffset(timeZone).setFWeekTime(weekTime).applyTimeZoneOffset(timeZone);
+    }
+
     public FDate setFWeekTime(final FWeekTime weekTime) {
         final MutableDateTime delegate = newMutableDateTime();
         delegate.set(FDateField.Weekday.jodaTimeValue(), weekTime.getWeekday());
@@ -293,6 +297,9 @@ public class FDate implements IDate, Serializable, Cloneable, Comparable<Object>
     }
 
     public FDate add(final FTimeUnit field, final int amount) {
+        if (amount == 0) {
+            return this;
+        }
         final MutableDateTime delegate = newMutableDateTime();
         final int usedAmount;
         final DurationFieldType usedField;
@@ -372,6 +379,24 @@ public class FDate implements IDate, Serializable, Cloneable, Comparable<Object>
      */
     public FDate withoutTime() {
         return truncate(FDateField.Day);
+    }
+
+    public FDate withoutTime(final TimeZone timeZone) {
+        return revertTimeZoneOffset(timeZone).withoutTime().applyTimeZoneOffset(timeZone);
+    }
+
+    public FDate applyTimeZoneOffset(final TimeZone timeZone) {
+        if (timeZone == null) {
+            return this;
+        }
+        return addMilliseconds(timeZone.getOffset(millis));
+    }
+
+    public FDate revertTimeZoneOffset(final TimeZone timeZone) {
+        if (timeZone == null) {
+            return this;
+        }
+        return addMilliseconds(-timeZone.getOffset(millis));
     }
 
     /**
@@ -683,6 +708,10 @@ public class FDate implements IDate, Serializable, Cloneable, Comparable<Object>
         return holidayManager.isHoliday(this);
     }
 
+    public boolean isHoliday(final FHolidayManager holidayManager, final TimeZone offsetTimeZone) {
+        return revertTimeZoneOffset(offsetTimeZone).isHoliday(holidayManager);
+    }
+
     public FDate addWorkdays(final int workdays, final FHolidayManager holidayManager) {
         int workdaysToShift = Integers.abs(workdays);
         if (getFWeekday().isWeekend() || isHoliday(holidayManager)) {
@@ -764,8 +793,6 @@ public class FDate implements IDate, Serializable, Cloneable, Comparable<Object>
      * https://stackoverflow.com/questions/24280370/get-week-of-month-with-joda-time
      */
     public int getWeekNumberOfMonth() {
-        //        final MutableDateTime delegate = newMutableDateTime();
-        //        return Weeks.weeksBetween(truncate(FDateField.Month).newMutableDateTime(), delegate).getWeeks() + 1;
         return (getDay() / 7) + 1;
     }
 

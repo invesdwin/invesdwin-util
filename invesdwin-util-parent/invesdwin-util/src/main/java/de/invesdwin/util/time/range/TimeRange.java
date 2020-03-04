@@ -3,6 +3,7 @@ package de.invesdwin.util.time.range;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TimeZone;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -143,6 +144,23 @@ public class TimeRange extends AValueObject {
             return Objects.equals(from, cObj.from) && Objects.equals(to, cObj.to);
         } else {
             return false;
+        }
+    }
+
+    public TimeRange applyTimeZoneOffset(final TimeZone offsetTimeZone) {
+        if (offsetTimeZone == null) {
+            return this;
+        } else {
+            return new TimeRange(from.applyTimeZoneOffset(offsetTimeZone), to.applyTimeZoneOffset(offsetTimeZone));
+        }
+    }
+
+    public TimeRange revertTimeZoneOffset(final TimeZone offsetTimeZone) {
+        if (offsetTimeZone == null) {
+            return this;
+        } else {
+            return new TimeRange(from.revertTimeZoneOffset(offsetTimeZone),
+                    to.revertTimeZoneOffset(offsetTimeZone));
         }
     }
 }
