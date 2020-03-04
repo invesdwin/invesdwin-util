@@ -2,7 +2,6 @@ package de.invesdwin.util.time.fdate;
 
 import java.io.Serializable;
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -128,6 +127,14 @@ public class FDate implements IDate, Serializable, Cloneable, Comparable<Object>
 
     public FDate(final LocalDateTime jodaTime) {
         this(jodaTime.toDateTime().getMillis());
+    }
+
+    public FDate(final java.time.ZonedDateTime javaTime) {
+        this(javaTime.toInstant().toEpochMilli());
+    }
+
+    public FDate(final java.time.Instant javaTime) {
+        this(javaTime.toEpochMilli());
     }
 
     public FDate(final Calendar calendar) {
@@ -444,7 +451,7 @@ public class FDate implements IDate, Serializable, Cloneable, Comparable<Object>
         return new DateTime(millis, FDates.getDefaultChronology());
     }
 
-    public ZonedDateTime javaTimeValueZoned() {
+    public java.time.ZonedDateTime javaTimeValueZoned() {
         return java.time.Instant.ofEpochMilli(millis).atZone(FDates.getDefaultZoneId());
     }
 
@@ -501,18 +508,22 @@ public class FDate implements IDate, Serializable, Cloneable, Comparable<Object>
     }
 
     public static FDate valueOf(final String str, final String... parsePatterns) {
-        return valueOf(str, null, null, parsePatterns);
+        return valueOf(str, (TimeZone) null, null, parsePatterns);
     }
 
     public static FDate valueOf(final String str, final String parsePattern) {
-        return valueOf(str, null, null, parsePattern);
+        return valueOf(str, (TimeZone) null, null, parsePattern);
     }
 
     public static FDate valueOf(final String str, final Locale locale, final String... parsePatterns) {
-        return valueOf(str, null, locale, parsePatterns);
+        return valueOf(str, (TimeZone) null, locale, parsePatterns);
     }
 
     public static FDate valueOf(final String str, final TimeZone timeZone, final String... parsePatterns) {
+        return valueOf(str, timeZone, null, parsePatterns);
+    }
+
+    public static FDate valueOf(final String str, final ZoneId timeZone, final String... parsePatterns) {
         return valueOf(str, timeZone, null, parsePatterns);
     }
 
@@ -532,12 +543,32 @@ public class FDate implements IDate, Serializable, Cloneable, Comparable<Object>
                 + "] matches the date string [" + str + "]");
     }
 
+    public static FDate valueOf(final String str, final ZoneId timeZone, final Locale locale,
+            final String... parsePatterns) {
+        if (parsePatterns == null || parsePatterns.length == 0) {
+            throw new IllegalArgumentException("atleast one parsePattern is needed");
+        }
+        for (final String parsePattern : parsePatterns) {
+            try {
+                return valueOf(str, timeZone, locale, parsePattern);
+            } catch (final IllegalArgumentException e) {
+                continue;
+            }
+        }
+        throw new IllegalArgumentException("None of the parsePatterns [" + Arrays.toString(parsePatterns)
+                + "] matches the date string [" + str + "]");
+    }
+
     public static FDate valueOf(final String str, final TimeZone timeZone, final String parsePattern) {
         return valueOf(str, timeZone, null, parsePattern);
     }
 
+    public static FDate valueOf(final String str, final ZoneId timeZone, final String parsePattern) {
+        return valueOf(str, timeZone, null, parsePattern);
+    }
+
     public static FDate valueOf(final String str, final Locale locale, final String parsePattern) {
-        return valueOf(str, null, locale, parsePattern);
+        return valueOf(str, (TimeZone) null, locale, parsePattern);
     }
 
     public static FDate valueOf(final String str, final TimeZone timeZone, final Locale locale,
@@ -553,6 +584,24 @@ public class FDate implements IDate, Serializable, Cloneable, Comparable<Object>
             df = df.withLocale(locale);
         }
         final DateTime date = df.parseDateTime(str);
+        return new FDate(date);
+    }
+
+    public static FDate valueOf(final String str, final ZoneId timeZone, final Locale locale,
+            final String parsePattern) {
+        if (Strings.isBlank(str)) {
+            return null;
+        }
+        java.time.format.DateTimeFormatter df = java.time.format.DateTimeFormatter.ofPattern(parsePattern);
+        if (timeZone != null) {
+            df = df.withZone(timeZone);
+        } else {
+            df = df.withZone(FDates.getDefaultZoneId());
+        }
+        if (locale != null) {
+            df = df.withLocale(locale);
+        }
+        final java.time.ZonedDateTime date = java.time.ZonedDateTime.parse(str, df);
         return new FDate(date);
     }
 
@@ -633,8 +682,12 @@ public class FDate implements IDate, Serializable, Cloneable, Comparable<Object>
         return toString(FORMAT_ISO_DATE_TIME_MS, timeZone);
     }
 
+    public String toString(final ZoneId timeZone) {
+        return toString(FORMAT_ISO_DATE_TIME_MS, timeZone);
+    }
+
     public String toString(final String format) {
-        return toString(format, null);
+        return toString(format, (TimeZone) null);
     }
 
     public String toString(final String format, final TimeZone timeZone) {
@@ -646,6 +699,17 @@ public class FDate implements IDate, Serializable, Cloneable, Comparable<Object>
             df = df.withZone(FDates.getDefaultDateTimeZone());
         }
         return df.print(delegate);
+    }
+
+    public String toString(final String format, final ZoneId timeZone) {
+        final java.time.ZonedDateTime delegate = javaTimeValueZoned();
+        java.time.format.DateTimeFormatter df = java.time.format.DateTimeFormatter.ofPattern(format);
+        if (timeZone != null) {
+            df = df.withZone(timeZone);
+        } else {
+            df = df.withZone(FDates.getDefaultZoneId());
+        }
+        return df.format(delegate);
     }
 
     private MutableDateTime newMutableDateTime() {

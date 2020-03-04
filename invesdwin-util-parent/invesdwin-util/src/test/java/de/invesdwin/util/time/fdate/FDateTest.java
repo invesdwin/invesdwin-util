@@ -1,5 +1,6 @@
 package de.invesdwin.util.time.fdate;
 
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.TimeZone;
 
@@ -227,6 +228,16 @@ public class FDateTest {
         Assertions.assertThat(DateTimeFormatter.ofPattern("W").format(date.javaTimeValue())).isEqualTo("1");
         Assertions.assertThat(DateTimeFormatter.ofPattern("W").format(date.addWeeks(1).javaTimeValue())).isEqualTo("2");
         Assertions.assertThat(DateTimeFormatter.ofPattern("W").format(date.addDays(-1).javaTimeValue())).isEqualTo("5");
+    }
+
+    @Test
+    public void testParseZoneId() {
+        final String joda = new FDate().toString();
+        final String java = FDate
+                .valueOf(new FDate().toString(FDate.FORMAT_GERMAN_DATE_TIME_MS, (ZoneId) null), (ZoneId) null, null,
+                        FDate.FORMAT_GERMAN_DATE_TIME_MS)
+                .toString();
+        Assertions.assertThat(java).isEqualTo(joda);
     }
 
 }
