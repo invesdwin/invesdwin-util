@@ -28,9 +28,9 @@
 
 		<version.maven-source-plugin>3.0.1</version.maven-source-plugin>
 		<version.maven-processor-plugin>3.3.3</version.maven-processor-plugin>
-		<project.version.invesdwin-maven-plugin>1.0.7</project.version.invesdwin-maven-plugin>
+		<project.version.invesdwin-maven-plugin>1.0.8-SNAPSHOT</project.version.invesdwin-maven-plugin>
 
-		<project.version.invesdwin-norva>1.0.2</project.version.invesdwin-norva>
+		<project.version.invesdwin-norva>1.0.3-SNAPSHOT</project.version.invesdwin-norva>
 		<version.fest-reflect>1.4.1</version.fest-reflect>
 		<version.fest-util>1.2.5</version.fest-util>
 		<version.fst>2.57</version.fst>
