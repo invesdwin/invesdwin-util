@@ -27,7 +27,7 @@ import de.invesdwin.util.time.fdate.FDate;
                 "java.nio.file.Files#mismatch(java.nio.file.Path, java.nio.file.Path)" })
 public final class Files extends AFilesStaticFacade {
 
-    private static final String[] NORMALIZE_FILENAME_SEARCH = { ":", "@", "/", "\\", "*", "?", "<", ">", "\"", "|" };
+    private static final String[] NORMALIZE_FILENAME_SEARCH = { ":", "@", "*", "?", "<", ">", "\"", "|" };
     private static final String[] NORMALIZE_FILENAME_REPLACE;
 
     static {
