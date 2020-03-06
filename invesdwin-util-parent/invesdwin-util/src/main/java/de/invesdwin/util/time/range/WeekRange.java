@@ -126,4 +126,19 @@ public class WeekRange extends AValueObject {
             throw new RuntimeException("Args: " + Arrays.toString(args) + " from " + value, t);
         }
     }
+
+    public static WeekRange valueOfOrNull(final String value) {
+        final String[] args = Strings.split(value, FROM_TO_SEPARATOR);
+        try {
+            if (args.length == 2) {
+                final FWeekTime from = FWeekTime.valueOf(args[0]);
+                final FWeekTime to = FWeekTime.valueOf(args[1]);
+                return new WeekRange(from, to);
+            } else {
+                return null;
+            }
+        } catch (final Throwable t) {
+            return null;
+        }
+    }
 }
