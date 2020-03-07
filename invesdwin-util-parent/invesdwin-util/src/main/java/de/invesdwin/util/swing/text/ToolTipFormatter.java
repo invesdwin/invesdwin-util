@@ -14,7 +14,7 @@ import de.invesdwin.util.lang.Strings;
 @Immutable
 public final class ToolTipFormatter extends AValueObject {
 
-    private static final String[] DEFAULT_LINE_BREAKS = new String[] { "<br>", "<li>", "<p>" };
+    private static final String[] DEFAULT_LINE_BREAKS = new String[] { "<br>", "<li>", "<p>", "<pre>" };
     private static final int DEFAULT_MAX_LENGTH = 200;
 
     private int maxLength = DEFAULT_MAX_LENGTH;
