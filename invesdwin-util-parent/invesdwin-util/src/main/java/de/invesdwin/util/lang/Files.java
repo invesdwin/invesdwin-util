@@ -27,13 +27,19 @@ import de.invesdwin.util.time.fdate.FDate;
                 "java.nio.file.Files#mismatch(java.nio.file.Path, java.nio.file.Path)" })
 public final class Files extends AFilesStaticFacade {
 
-    private static final String[] NORMALIZE_FILENAME_SEARCH = { ":", "@", "*", "?", "<", ">", "\"", "|" };
+    private static final String[] NORMALIZE_FILENAME_SEARCH = { ":", "@", "*", "?", "<", ">", "\"", "|", "/", "\\" };
     private static final String[] NORMALIZE_FILENAME_REPLACE;
+    private static final String[] NORMALIZE_PATH_SEARCH = { ":", "@", "*", "?", "<", ">", "\"", "|" };
+    private static final String[] NORMALIZE_PATH_REPLACE;
 
     static {
         NORMALIZE_FILENAME_REPLACE = new String[NORMALIZE_FILENAME_SEARCH.length];
         for (int i = 0; i < NORMALIZE_FILENAME_REPLACE.length; i++) {
             NORMALIZE_FILENAME_REPLACE[i] = "_";
+        }
+        NORMALIZE_PATH_REPLACE = new String[NORMALIZE_PATH_SEARCH.length];
+        for (int i = 0; i < NORMALIZE_PATH_REPLACE.length; i++) {
+            NORMALIZE_PATH_REPLACE[i] = "_";
         }
     }
 
@@ -85,6 +91,10 @@ public final class Files extends AFilesStaticFacade {
 
     public static String normalizeFilename(final String name) {
         return Strings.replaceEach(name, NORMALIZE_FILENAME_SEARCH, NORMALIZE_FILENAME_REPLACE);
+    }
+
+    public static String normalizePath(final String path) {
+        return Strings.replaceEach(path, NORMALIZE_PATH_SEARCH, NORMALIZE_PATH_REPLACE);
     }
 
     public static boolean isDirectoryEmpty(final File directory) throws IOException {
