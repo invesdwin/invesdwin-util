@@ -13,7 +13,7 @@ public class FWeekTimeTest {
     public void testParse() {
         final FWeekTime value = new FWeekTime(new FDate().addDays(-1));
         final String str = value.toString();
-        final FWeekTime parsed = FWeekTime.valueOf(str);
+        final FWeekTime parsed = FWeekTime.valueOf(str, false);
         Assertions.checkEquals(value, parsed);
         Assertions.checkEquals(str, parsed.toString());
     }
@@ -22,7 +22,7 @@ public class FWeekTimeTest {
     public void testParseLong() {
         final FWeekTime value = new FWeekTime(new FDate().addDays(-1));
         final long num = value.longValue();
-        final FWeekTime parsed = FWeekTime.valueOf(num);
+        final FWeekTime parsed = FWeekTime.valueOf(num, false);
         Assertions.checkEquals(value, parsed);
         Assertions.checkEquals(num, parsed.longValue());
     }

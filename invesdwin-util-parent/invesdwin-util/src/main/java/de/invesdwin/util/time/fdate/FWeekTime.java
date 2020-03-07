@@ -153,33 +153,71 @@ public class FWeekTime extends Number implements Comparable<Object> {
         return longValue();
     }
 
-    public static FWeekTime valueOf(final String value) {
+    public static FWeekTime valueOf(final String value, final boolean max) {
         if (Strings.isNumeric(value)) {
-            return valueOfNumeric(value);
+            return valueOfNumeric(value, max);
         } else {
-            return valueOfNumeric(value.replace("T", "").replace(":", "").replace(".", ""));
+            return valueOfNumeric(value.replace("T", "").replace(":", "").replace(".", ""), max);
         }
     }
 
-    private static FWeekTime valueOfNumeric(final String value) {
-        if (value.length() != 10) {
-            throw new IllegalArgumentException(
-                    "Expecting exactly 10 characters but got " + value.length() + ": " + value);
-        }
+    //CHECKSTYLE:OFF
+    private static FWeekTime valueOfNumeric(final String value, final boolean max) {
+        //CHECKSTYLE:ON
         try {
+            final int length = value.length();
+            if (length != 1 && length != 3 && length != 10) {
+                throw new IllegalArgumentException("Expecting between 1, 3, 5, 7 or 10 characters but got " + length);
+            }
             final FWeekday weekday = FWeekday.valueOfJodaTime(Integer.valueOf(value.substring(0, 1)));
-            final int hour = Integer.parseInt(value.substring(1, 3));
-            final int minute = Integer.parseInt(value.substring(3, 5));
-            final int second = Integer.parseInt(value.substring(5, 7));
-            final int millisecond = Integer.parseInt(value.substring(7, 10));
+            final int hour;
+            if (length > 1) {
+                hour = Integer.parseInt(value.substring(1, 3));
+            } else {
+                if (max) {
+                    hour = 23;
+                } else {
+                    hour = 0;
+                }
+            }
+            final int minute;
+            if (length > 3) {
+                minute = Integer.parseInt(value.substring(3, 5));
+            } else {
+                if (max) {
+                    minute = 59;
+                } else {
+                    minute = 0;
+                }
+            }
+            final int second;
+            if (length > 5) {
+                second = Integer.parseInt(value.substring(5, 7));
+            } else {
+                if (max) {
+                    second = 59;
+                } else {
+                    second = 0;
+                }
+            }
+            final int millisecond;
+            if (length > 7) {
+                millisecond = Integer.parseInt(value.substring(7, 10));
+            } else {
+                if (max) {
+                    millisecond = 999;
+                } else {
+                    millisecond = 0;
+                }
+            }
             return new FWeekTime(weekday, hour, minute, second, millisecond);
         } catch (final Throwable t) {
-            throw new RuntimeException("At: " + value, t);
+            throw new RuntimeException("Expected format D[1-7]HH[0-23]MM[0-59]SS[0-59]SSS[0-999] at: " + value, t);
         }
     }
 
-    public static FWeekTime valueOf(final long value) {
-        return valueOfNumeric(String.valueOf(value));
+    public static FWeekTime valueOf(final long value, final boolean max) {
+        return valueOfNumeric(String.valueOf(value), max);
     }
 
 }

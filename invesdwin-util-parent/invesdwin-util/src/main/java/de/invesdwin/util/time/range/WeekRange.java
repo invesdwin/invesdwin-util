@@ -115,8 +115,8 @@ public class WeekRange extends AValueObject {
         final String[] args = Strings.split(value, FROM_TO_SEPARATOR);
         try {
             if (args.length == 2) {
-                final FWeekTime from = FWeekTime.valueOf(args[0]);
-                final FWeekTime to = FWeekTime.valueOf(args[1]);
+                final FWeekTime from = FWeekTime.valueOf(args[0], false);
+                final FWeekTime to = FWeekTime.valueOf(args[1], true);
                 return new WeekRange(from, to);
             } else {
                 throw new IllegalArgumentException("Expecting two arguments for from and to (e.g. ["
@@ -131,8 +131,8 @@ public class WeekRange extends AValueObject {
         final String[] args = Strings.split(value, FROM_TO_SEPARATOR);
         try {
             if (args.length == 2) {
-                final FWeekTime from = FWeekTime.valueOf(args[0]);
-                final FWeekTime to = FWeekTime.valueOf(args[1]);
+                final FWeekTime from = FWeekTime.valueOf(args[0], false);
+                final FWeekTime to = FWeekTime.valueOf(args[1], true);
                 return new WeekRange(from, to);
             } else {
                 return null;
