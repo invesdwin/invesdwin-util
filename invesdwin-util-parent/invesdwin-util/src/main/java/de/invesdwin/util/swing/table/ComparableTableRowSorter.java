@@ -89,7 +89,7 @@ import javax.swing.table.TableStringConverter;
  */
 //CHECKSTYLE:OFF
 @NotThreadSafe
-public class ExtensibleTableRowSorter<M extends TableModel> extends ExtensibleDefaultRowSorter<M, Integer> {
+public class ComparableTableRowSorter<M extends TableModel> extends ComparableDefaultRowSorter<M, Integer> {
     /**
      * Comparator that uses compareTo on the contents.
      */
@@ -108,7 +108,7 @@ public class ExtensibleTableRowSorter<M extends TableModel> extends ExtensibleDe
     /**
      * Creates a <code>TableRowSorter</code> with an empty model.
      */
-    public ExtensibleTableRowSorter() {
+    public ComparableTableRowSorter() {
         this(null);
     }
 
@@ -118,7 +118,7 @@ public class ExtensibleTableRowSorter<M extends TableModel> extends ExtensibleDe
      * @param model
      *            the underlying <code>TableModel</code> to use, <code>null</code> is treated as an empty model
      */
-    public ExtensibleTableRowSorter(final M model) {
+    public ComparableTableRowSorter(final M model) {
         setModel(model);
     }
 
