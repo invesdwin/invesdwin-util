@@ -303,12 +303,30 @@ public final class FDates {
         return isSameTruncated(date1, date2, FDateField.Year);
     }
 
+    public static boolean isSameYear(final FDate date1, final FDate date2, final ZoneId timeZone) {
+        return isSameYear(date1.revertTimeZoneOffset(timeZone), date2.revertTimeZoneOffset(timeZone));
+    }
+
     public static boolean isSameMonth(final FDate date1, final FDate date2) {
         return isSameTruncated(date1, date2, FDateField.Month);
     }
 
+    public static boolean isSameMonth(final FDate date1, final FDate date2, final ZoneId timeZone) {
+        return isSameMonth(date1.revertTimeZoneOffset(timeZone), date2.revertTimeZoneOffset(timeZone));
+    }
+
     public static boolean isSameWeek(final FDate date1, final FDate date2) {
         return isSameWeekPart(date1, date2, FWeekday.Monday, FWeekday.Sunday);
+    }
+
+    public static boolean isSameWeek(final FDate date1, final FDate date2, final ZoneId timeZone) {
+        return isSameWeek(date1.revertTimeZoneOffset(timeZone), date2.revertTimeZoneOffset(timeZone));
+    }
+
+    public static boolean isSameWeekPart(final FDate date1, final FDate date2, final FWeekday statOfWeekPart,
+            final FWeekday endOfWeekPart, final ZoneId timeZone) {
+        return isSameWeekPart(date1.revertTimeZoneOffset(timeZone), date2.revertTimeZoneOffset(timeZone),
+                statOfWeekPart, endOfWeekPart);
     }
 
     public static boolean isSameWeekPart(final FDate date1, final FDate date2, final FWeekday statOfWeekPart,
@@ -322,6 +340,11 @@ public final class FDates {
             endOfWeek = endOfWeek.addWeeks(1);
         }
         return FDates.isBetween(date2, startOfWeek, endOfWeek);
+    }
+
+    public static boolean isWeekdayBetween(final FDate date1, final FDate date2, final FWeekday weekday,
+            final ZoneId timeZone) {
+        return isWeekdayBetween(date1.revertTimeZoneOffset(timeZone), date2.revertTimeZoneOffset(timeZone), weekday);
     }
 
     public static boolean isWeekdayBetween(final FDate date1, final FDate date2, final FWeekday weekday) {
@@ -338,8 +361,16 @@ public final class FDates {
         return false;
     }
 
+    public static boolean isSameDay(final FDate date1, final FDate date2, final ZoneId timeZone) {
+        return isSameDay(date1.revertTimeZoneOffset(timeZone), date2.revertTimeZoneOffset(timeZone));
+    }
+
     public static boolean isSameDay(final FDate date1, final FDate date2) {
         return isSameTruncated(date1, date2, FDateField.Day);
+    }
+
+    public static boolean isSameHour(final FDate date1, final FDate date2, final ZoneId timeZone) {
+        return isSameHour(date1.revertTimeZoneOffset(timeZone), date2.revertTimeZoneOffset(timeZone));
     }
 
     public static boolean isSameHour(final FDate date1, final FDate date2) {
@@ -370,6 +401,11 @@ public final class FDates {
                 || date1.truncate(field).millisValue() == date2.truncate(field).millisValue();
     }
 
+    public static boolean isSamePeriod(final FDate date1, final FDate date2, final FTimeUnit period,
+            final ZoneId timeZone) {
+        return isSamePeriod(date1.revertTimeZoneOffset(timeZone), date2.revertTimeZoneOffset(timeZone), period);
+    }
+
     public static boolean isSamePeriod(final FDate date1, final FDate date2, final FTimeUnit period) {
         switch (period) {
         case MILLISECONDS:
@@ -391,6 +427,11 @@ public final class FDates {
         default:
             throw UnknownArgumentException.newInstance(FTimeUnit.class, period);
         }
+    }
+
+    public static boolean isSameJulianPeriod(final FDate date1, final FDate date2, final FTimeUnit period,
+            final ZoneId timeZone) {
+        return isSameJulianPeriod(date1.revertTimeZoneOffset(timeZone), date2.revertTimeZoneOffset(timeZone), period);
     }
 
     public static boolean isSameJulianPeriod(final FDate date1, final FDate date2, final FTimeUnit period) {
@@ -416,6 +457,10 @@ public final class FDates {
         }
     }
 
+    public static boolean isSameJulianDay(final FDate date1, final FDate date2, final ZoneId timeZone) {
+        return isSameJulianDay(date1.revertTimeZoneOffset(timeZone), date2.revertTimeZoneOffset(timeZone));
+    }
+
     /**
      * Fast but unprecise variation of isSameDay(). Does not count in daylight saving time. Though does not matter when
      * working with UTC.
@@ -430,6 +475,10 @@ public final class FDates {
 
         // If they now are equal then it is the same day.
         return julianDayNumber1 == julianDayNumber2;
+    }
+
+    public static boolean isSameJulianHour(final FDate date1, final FDate date2, final ZoneId timeZone) {
+        return isSameJulianHour(date1.revertTimeZoneOffset(timeZone), date2.revertTimeZoneOffset(timeZone));
     }
 
     /**

@@ -145,8 +145,16 @@ public class FDate implements IDate, Serializable, Cloneable, Comparable<Object>
         this(date.getTime());
     }
 
+    public int getYear(final ZoneId timeZone) {
+        return revertTimeZoneOffset(timeZone).getYear();
+    }
+
     public int getYear() {
         return get(FDateField.Year);
+    }
+
+    public int getMonth(final ZoneId timeZone) {
+        return revertTimeZoneOffset(timeZone).getMonth();
     }
 
     public int getMonth() {
@@ -154,12 +162,24 @@ public class FDate implements IDate, Serializable, Cloneable, Comparable<Object>
         return get(FDateField.Month);
     }
 
+    public FMonth getFMonth(final ZoneId timeZone) {
+        return revertTimeZoneOffset(timeZone).getFMonth();
+    }
+
     public FMonth getFMonth() {
         return FMonth.valueOfIndex(getMonth());
     }
 
+    public int getDay(final ZoneId timeZone) {
+        return revertTimeZoneOffset(timeZone).getDay();
+    }
+
     public int getDay() {
         return get(FDateField.Day);
+    }
+
+    public int getWeekday(final ZoneId timeZone) {
+        return revertTimeZoneOffset(timeZone).getWeekday();
     }
 
     public int getWeekday() {
@@ -167,8 +187,16 @@ public class FDate implements IDate, Serializable, Cloneable, Comparable<Object>
         return get(FDateField.Weekday);
     }
 
+    public FWeekday getFWeekday(final ZoneId timeZone) {
+        return revertTimeZoneOffset(timeZone).getFWeekday();
+    }
+
     public FWeekday getFWeekday() {
         return FWeekday.valueOfIndex(getWeekday());
+    }
+
+    public int getHour(final ZoneId timeZone) {
+        return revertTimeZoneOffset(timeZone).getHour();
     }
 
     public int getHour() {
@@ -199,20 +227,40 @@ public class FDate implements IDate, Serializable, Cloneable, Comparable<Object>
         return FDates.getDefaultDateTimeZone();
     }
 
+    public FDate setYear(final int year, final ZoneId timeZone) {
+        return revertTimeZoneOffset(timeZone).setYear(year).applyTimeZoneOffset(timeZone);
+    }
+
     public FDate setYear(final int year) {
         return set(FDateField.Year, year);
+    }
+
+    public FDate setMonth(final int month, final ZoneId timeZone) {
+        return revertTimeZoneOffset(timeZone).setMonth(month).applyTimeZoneOffset(timeZone);
     }
 
     public FDate setMonth(final int month) {
         return set(FDateField.Month, month);
     }
 
+    public FDate setFMonth(final FMonth month, final ZoneId timeZone) {
+        return revertTimeZoneOffset(timeZone).setFMonth(month).applyTimeZoneOffset(timeZone);
+    }
+
     public FDate setFMonth(final FMonth month) {
         return setMonth(month.jodaTimeValue());
     }
 
+    public FDate setDay(final int day, final ZoneId timeZone) {
+        return revertTimeZoneOffset(timeZone).setDay(day).applyTimeZoneOffset(timeZone);
+    }
+
     public FDate setDay(final int day) {
         return set(FDateField.Day, day);
+    }
+
+    public FDate setWeekday(final int weekday, final ZoneId timeZone) {
+        return revertTimeZoneOffset(timeZone).setWeekday(weekday).applyTimeZoneOffset(timeZone);
     }
 
     public FDate setWeekday(final int weekday) {
@@ -222,6 +270,10 @@ public class FDate implements IDate, Serializable, Cloneable, Comparable<Object>
         } else {
             return modified;
         }
+    }
+
+    public FDate setFWeekday(final FWeekday weekday, final ZoneId timeZone) {
+        return revertTimeZoneOffset(timeZone).setFWeekday(weekday).applyTimeZoneOffset(timeZone);
     }
 
     public FDate setFWeekday(final FWeekday weekday) {
@@ -247,10 +299,18 @@ public class FDate implements IDate, Serializable, Cloneable, Comparable<Object>
         }
     }
 
+    public FDate setTime(final FDate time, final ZoneId timeZone) {
+        return revertTimeZoneOffset(timeZone).setTime(time).applyTimeZoneOffset(timeZone);
+    }
+
     public FDate setTime(final FDate time) {
         return setHour(time.getHour()).setMinute(time.getMinute())
                 .setSecond(time.getSecond())
                 .setMillisecond(time.getMillisecond());
+    }
+
+    public FDate setHour(final int hour, final ZoneId timeZone) {
+        return revertTimeZoneOffset(timeZone).setHour(hour).applyTimeZoneOffset(timeZone);
     }
 
     public FDate setHour(final int hour) {
@@ -269,20 +329,40 @@ public class FDate implements IDate, Serializable, Cloneable, Comparable<Object>
         return set(FDateField.Millisecond, millisecond);
     }
 
+    public FDate addYears(final int years, final ZoneId timeZone) {
+        return revertTimeZoneOffset(timeZone).addYears(years).applyTimeZoneOffset(timeZone);
+    }
+
     public FDate addYears(final int years) {
         return add(FTimeUnit.YEARS, years);
+    }
+
+    public FDate addMonths(final int months, final ZoneId timeZone) {
+        return revertTimeZoneOffset(timeZone).addMonths(months).applyTimeZoneOffset(timeZone);
     }
 
     public FDate addMonths(final int months) {
         return add(FTimeUnit.MONTHS, months);
     }
 
+    public FDate addDays(final int days, final ZoneId timeZone) {
+        return revertTimeZoneOffset(timeZone).addDays(days).applyTimeZoneOffset(timeZone);
+    }
+
     public FDate addDays(final int days) {
         return add(FTimeUnit.DAYS, days);
     }
 
+    public FDate addWeeks(final int weeks, final ZoneId timeZone) {
+        return revertTimeZoneOffset(timeZone).addWeeks(weeks).applyTimeZoneOffset(timeZone);
+    }
+
     public FDate addWeeks(final int weeks) {
         return addDays(weeks * FTimeUnit.DAYS_IN_WEEK);
+    }
+
+    public FDate addHours(final int hours, final ZoneId timeZone) {
+        return revertTimeZoneOffset(timeZone).addHours(hours).applyTimeZoneOffset(timeZone);
     }
 
     public FDate addHours(final int hours) {
@@ -301,15 +381,27 @@ public class FDate implements IDate, Serializable, Cloneable, Comparable<Object>
         return new FDate(millis + milliseconds);
     }
 
+    public int get(final FDateField field, final ZoneId timeZone) {
+        return revertTimeZoneOffset(timeZone).get(field);
+    }
+
     public int get(final FDateField field) {
         final MutableDateTime delegate = newMutableDateTime();
         return delegate.get(field.jodaTimeValue());
+    }
+
+    public FDate set(final FDateField field, final int value, final ZoneId timeZone) {
+        return revertTimeZoneOffset(timeZone).set(field, value).applyTimeZoneOffset(timeZone);
     }
 
     public FDate set(final FDateField field, final int value) {
         final MutableDateTime delegate = newMutableDateTime();
         delegate.set(field.jodaTimeValue(), value);
         return new FDate(delegate);
+    }
+
+    public FDate add(final FTimeUnit field, final int value, final ZoneId timeZone) {
+        return revertTimeZoneOffset(timeZone).add(field, value).applyTimeZoneOffset(timeZone);
     }
 
     public FDate add(final FTimeUnit field, final int amount) {
@@ -349,9 +441,28 @@ public class FDate implements IDate, Serializable, Cloneable, Comparable<Object>
         return duration.subtractFrom(this);
     }
 
+    public int getWeekNumberOfYear(final ZoneId timeZone) {
+        return revertTimeZoneOffset(timeZone).getWeekNumberOfYear();
+    }
+
     public int getWeekNumberOfYear() {
         final MutableDateTime delegate = newMutableDateTime();
         return delegate.getWeekOfWeekyear();
+    }
+
+    public int getWeekNumberOfMonth(final ZoneId timeZone) {
+        return revertTimeZoneOffset(timeZone).getWeekNumberOfMonth();
+    }
+
+    /**
+     * https://stackoverflow.com/questions/24280370/get-week-of-month-with-joda-time
+     */
+    public int getWeekNumberOfMonth() {
+        return (getDay() / 7) + 1;
+    }
+
+    public FDate truncate(final FDateField field, final ZoneId timeZone) {
+        return revertTimeZoneOffset(timeZone).truncate(field).applyTimeZoneOffset(timeZone);
     }
 
     public FDate truncate(final FDateField field) {
@@ -359,6 +470,10 @@ public class FDate implements IDate, Serializable, Cloneable, Comparable<Object>
         delegate.setRounding(field.jodaTimeValue().getField(delegate.getChronology()));
         final FDate truncated = new FDate(delegate);
         return truncated;
+    }
+
+    public FDate truncate(final FTimeUnit timeUnit, final ZoneId timeZone) {
+        return revertTimeZoneOffset(timeZone).truncate(timeUnit).applyTimeZoneOffset(timeZone);
     }
 
     public FDate truncate(final FTimeUnit timeUnit) {
@@ -420,6 +535,10 @@ public class FDate implements IDate, Serializable, Cloneable, Comparable<Object>
      */
     public FDate atEndOfDay() {
         return withoutTime().addDays(1).addMilliseconds(-1);
+    }
+
+    public FDate atEndOfDay(final ZoneId timeZone) {
+        return revertTimeZoneOffset(timeZone).atEndOfDay().applyTimeZoneOffset(timeZone);
     }
 
     /**
@@ -625,6 +744,10 @@ public class FDate implements IDate, Serializable, Cloneable, Comparable<Object>
         return new FDate();
     }
 
+    public static FDate today(final ZoneId timeZone) {
+        return now().withoutTime(timeZone);
+    }
+
     public static FDate today() {
         return now().withoutTime();
     }
@@ -757,6 +880,10 @@ public class FDate implements IDate, Serializable, Cloneable, Comparable<Object>
         }
     }
 
+    public FDate getFirstWeekdayOfMonth(final FWeekday weekday, final ZoneId timeZone) {
+        return revertTimeZoneOffset(timeZone).getFirstWeekdayOfMonth(weekday).applyTimeZoneOffset(timeZone);
+    }
+
     public FDate getFirstWeekdayOfMonth(final FWeekday weekday) {
         final FDate firstWeekDay = withoutTime().setDay(1).setFWeekday(weekday);
         if (!FDates.isSameMonth(this, firstWeekDay)) {
@@ -766,7 +893,11 @@ public class FDate implements IDate, Serializable, Cloneable, Comparable<Object>
         }
     }
 
-    public FDate getFirstWorkdayOfMonth(final FDate key, final FHolidayManager holidayManager) {
+    public FDate getFirstWorkdayOfMonth(final FHolidayManager holidayManager, final ZoneId timeZone) {
+        return revertTimeZoneOffset(timeZone).getFirstWorkdayOfMonth(holidayManager).applyTimeZoneOffset(timeZone);
+    }
+
+    public FDate getFirstWorkdayOfMonth(final FHolidayManager holidayManager) {
         FDate firstWorkdayDay = withoutTime().setDay(1);
         while (firstWorkdayDay.getFWeekday().isWeekend() || firstWorkdayDay.isHoliday(holidayManager)) {
             firstWorkdayDay = firstWorkdayDay.addDays(1);
@@ -783,6 +914,10 @@ public class FDate implements IDate, Serializable, Cloneable, Comparable<Object>
 
     public boolean isHoliday(final FHolidayManager holidayManager, final ZoneId timeZone) {
         return revertTimeZoneOffset(timeZone).isHoliday(holidayManager);
+    }
+
+    public FDate addWorkdays(final int workdays, final FHolidayManager holidayManager, final ZoneId timeZone) {
+        return revertTimeZoneOffset(timeZone).addWorkdays(workdays, holidayManager).applyTimeZoneOffset(timeZone);
     }
 
     public FDate addWorkdays(final int workdays, final FHolidayManager holidayManager) {
@@ -860,13 +995,6 @@ public class FDate implements IDate, Serializable, Cloneable, Comparable<Object>
                 return getKey() + " -> " + getValue();
             }
         };
-    }
-
-    /**
-     * https://stackoverflow.com/questions/24280370/get-week-of-month-with-joda-time
-     */
-    public int getWeekNumberOfMonth() {
-        return (getDay() / 7) + 1;
     }
 
 }
