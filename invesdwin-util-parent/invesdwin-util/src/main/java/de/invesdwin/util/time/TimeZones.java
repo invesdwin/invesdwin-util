@@ -13,6 +13,9 @@ public final class TimeZones {
 
     public static final TimeZone UTC = getTimeZone("UTC");
 
+    private static final String[] SEARCH_PREFIXES = new String[] { "UTC-", "UTC+", "GMT-", "GMT+", "UT-", "UT+" };
+    private static final String[] REPLACE_PREFIXES = new String[] { "UTC-", "UTC+", "UTC-", "UTC+", "UTC-", "UTC+" };
+
     private TimeZones() {
     }
 
@@ -74,9 +77,11 @@ public final class TimeZones {
         if (Strings.startsWithAny(id, "-", "+")) {
             return "UTC" + id;
         }
-        for (final String prefix : new String[] { "UTC-", "UTC+", "GMT-", "GMT+", "UT-", "UT+" }) {
-            if (Strings.startsWithIgnoreCase(id, prefix)) {
-                return prefix + Strings.removeStart(id, prefix.length());
+        for (int i = 0; i < SEARCH_PREFIXES.length; i++) {
+            final String searchPrefix = SEARCH_PREFIXES[i];
+            if (Strings.startsWithIgnoreCase(id, searchPrefix)) {
+                final String replacePrefix = REPLACE_PREFIXES[i];
+                return replacePrefix + Strings.removeStart(id, searchPrefix.length());
             }
         }
         if (Strings.equalsAnyIgnoreCase(id, "UTC", "GMT", "UT")) {
