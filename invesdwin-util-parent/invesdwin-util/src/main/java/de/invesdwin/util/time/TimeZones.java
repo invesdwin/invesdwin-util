@@ -44,14 +44,45 @@ public final class TimeZones {
         if (Strings.isBlank(id)) {
             return null;
         }
-        final TimeZone timeZone = getTimeZoneOrNull(id);
+        final String adjId = maybeReplacePrefix(id);
+        final TimeZone timeZone = getTimeZoneOrNull(adjId);
+
+        ZoneId tz = null;
         if (timeZone != null) {
-            return timeZone.toZoneId();
+            tz = timeZone.toZoneId();
         }
-        //CHECKSTYLE:OFF
-        final ZoneId tz = ZoneId.of(id);
-        //CHECKSTYLE:ON
-        return tz;
+        if (timeZone == null) {
+            //CHECKSTYLE:OFF
+            tz = ZoneId.of(adjId);
+            //CHECKSTYLE:ON
+        }
+        return maybeNormalizeZoneId(tz);
+    }
+
+    private static ZoneId maybeNormalizeZoneId(final ZoneId tz) {
+        final String tzId = tz.getId();
+        final String adjTzId = maybeReplacePrefix(tzId);
+        if (!tzId.equals(adjTzId)) {
+            //this adjusted zone id exists for sure
+            return getZoneId(adjTzId);
+        } else {
+            return tz;
+        }
+    }
+
+    private static String maybeReplacePrefix(final String id) {
+        if (Strings.startsWithAny(id, "-", "+")) {
+            return "UTC" + id;
+        }
+        for (final String prefix : new String[] { "UTC-", "UTC+", "GMT-", "GMT+", "UT-", "UT+" }) {
+            if (Strings.startsWithIgnoreCase(id, prefix)) {
+                return prefix + Strings.removeStart(id, prefix.length());
+            }
+        }
+        if (Strings.equalsAnyIgnoreCase(id, "UTC", "GMT", "UT")) {
+            return "UTC";
+        }
+        return id;
     }
 
     public static ZoneId getZoneIdOrNull(final String id) {
@@ -59,14 +90,7 @@ public final class TimeZones {
             return null;
         }
         try {
-            final TimeZone timeZone = getTimeZoneOrNull(id);
-            if (timeZone != null) {
-                return timeZone.toZoneId();
-            }
-            //CHECKSTYLE:OFF
-            final ZoneId tz = ZoneId.of(id);
-            //CHECKSTYLE:ON
-            return tz;
+            return getZoneId(id);
         } catch (final Throwable t) {
             return null;
         }
