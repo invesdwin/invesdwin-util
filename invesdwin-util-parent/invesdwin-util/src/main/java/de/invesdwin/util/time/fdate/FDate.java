@@ -31,6 +31,7 @@ import de.invesdwin.util.lang.ADelegateComparator;
 import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.decimal.scaled.Percent;
+import de.invesdwin.util.time.TimeZones;
 import de.invesdwin.util.time.duration.Duration;
 
 /**
@@ -516,18 +517,34 @@ public class FDate implements IDate, Serializable, Cloneable, Comparable<Object>
         return revertTimeZoneOffset(timeZone).withoutTime().applyTimeZoneOffset(timeZone);
     }
 
+    public FDate applyTimeZoneOffset(final TimeZone timeZone) {
+        return applyTimeZoneOffset(timeZone.toZoneId());
+    }
+
     public FDate applyTimeZoneOffset(final ZoneId timeZone) {
         if (timeZone == null) {
             return this;
         }
-        return addSeconds(timeZone.getRules().getOffset(java.time.Instant.ofEpochMilli(millis)).getTotalSeconds());
+        int seconds = TimeZones.getOffsetSeconds(timeZone, millis);
+        if (!FDates.isDefaultTimeZoneUTC()) {
+            seconds -= TimeZones.getOffsetSeconds(FDates.getDefaultZoneId(), millis);
+        }
+        return addSeconds(seconds);
+    }
+
+    public FDate revertTimeZoneOffset(final TimeZone timeZone) {
+        return revertTimeZoneOffset(timeZone.toZoneId());
     }
 
     public FDate revertTimeZoneOffset(final ZoneId timeZone) {
         if (timeZone == null) {
             return this;
         }
-        return addSeconds(-timeZone.getRules().getOffset(java.time.Instant.ofEpochMilli(millis)).getTotalSeconds());
+        int seconds = TimeZones.getOffsetSeconds(timeZone, millis);
+        if (!FDates.isDefaultTimeZoneUTC()) {
+            seconds -= TimeZones.getOffsetSeconds(FDates.getDefaultZoneId(), millis);
+        }
+        return addSeconds(-seconds);
     }
 
     /**

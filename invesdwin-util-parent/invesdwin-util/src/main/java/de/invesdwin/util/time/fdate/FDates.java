@@ -17,6 +17,7 @@ import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.error.FastNoSuchElementException;
 import de.invesdwin.util.error.UnknownArgumentException;
+import de.invesdwin.util.time.TimeZones;
 import de.invesdwin.util.time.duration.Duration;
 
 @ThreadSafe
@@ -29,6 +30,7 @@ public final class FDates {
 
     private static Calendar templateCalendar;
     private static TimeZone defaultTimeZone;
+    private static boolean isDefaultTimeZoneUTC;
     private static DateTimeZone defaultDateTimeZone;
     private static Chronology defaultChronology;
     private static ZoneId defaultZoneId;
@@ -42,6 +44,7 @@ public final class FDates {
 
     public static void setDefaultTimeZone(final TimeZone defaultTimeZone) {
         FDates.defaultTimeZone = defaultTimeZone;
+        FDates.isDefaultTimeZoneUTC = TimeZones.UTC.equals(defaultTimeZone);
         FDates.defaultDateTimeZone = DateTimeZone.forTimeZone(defaultTimeZone);
         FDates.defaultChronology = ISOChronology.getInstance(defaultDateTimeZone);
         FDates.defaultZoneId = defaultTimeZone.toZoneId();
@@ -55,6 +58,10 @@ public final class FDates {
 
     public static TimeZone getDefaultTimeZone() {
         return defaultTimeZone;
+    }
+
+    public static boolean isDefaultTimeZoneUTC() {
+        return isDefaultTimeZoneUTC;
     }
 
     public static DateTimeZone getDefaultDateTimeZone() {

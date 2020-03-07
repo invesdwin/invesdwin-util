@@ -72,4 +72,8 @@ public final class TimeZones {
         }
     }
 
+    public static int getOffsetSeconds(final ZoneId timeZone, final long millis) {
+        return timeZone.getRules().getOffset(java.time.Instant.ofEpochMilli(millis)).getTotalSeconds();
+    }
+
 }
