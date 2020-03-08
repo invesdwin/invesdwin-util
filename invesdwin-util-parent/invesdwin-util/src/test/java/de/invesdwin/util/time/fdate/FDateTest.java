@@ -220,7 +220,11 @@ public class FDateTest {
 
     @Test
     public void testWeeknumberOfMonth() {
-        final FDate date = FDateBuilder.newDate(2020);
+        Assertions.assertThat(FDateBuilder.newDate(1998, 4, 7).getWeekNumberOfMonth()).isEqualTo(2);
+        Assertions.assertThat(DateTimeFormatter.ofPattern("W").format(FDateBuilder.newDate(1998, 4, 7).javaTimeValue()))
+                .isEqualTo("2");
+
+        final FDate date = FDateBuilder.newDate(2020, 10, 1);
         Assertions.assertThat(date.getWeekNumberOfMonth()).isEqualTo(1);
         Assertions.assertThat(date.addWeeks(1).getWeekNumberOfMonth()).isEqualTo(2);
         Assertions.assertThat(date.addDays(-1).getWeekNumberOfMonth()).isEqualTo(5);
