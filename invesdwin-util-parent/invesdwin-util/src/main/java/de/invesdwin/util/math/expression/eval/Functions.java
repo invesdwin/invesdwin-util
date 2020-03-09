@@ -61,6 +61,11 @@ public final class Functions {
                 }
 
                 @Override
+                public boolean isVarArgs() {
+                    return false;
+                }
+
+                @Override
                 public String getDefaultValue() {
                     return null;
                 }
@@ -133,6 +138,11 @@ public final class Functions {
 
                 @Override
                 public boolean isOptional() {
+                    return false;
+                }
+
+                @Override
+                public boolean isVarArgs() {
                     return false;
                 }
 
@@ -214,6 +224,11 @@ public final class Functions {
                 }
 
                 @Override
+                public boolean isVarArgs() {
+                    return false;
+                }
+
+                @Override
                 public String getDefaultValue() {
                     return null;
                 }
@@ -286,6 +301,11 @@ public final class Functions {
 
                 @Override
                 public boolean isOptional() {
+                    return false;
+                }
+
+                @Override
+                public boolean isVarArgs() {
                     return false;
                 }
 
@@ -367,6 +387,11 @@ public final class Functions {
                 }
 
                 @Override
+                public boolean isVarArgs() {
+                    return false;
+                }
+
+                @Override
                 public String getDefaultValue() {
                     return null;
                 }
@@ -439,6 +464,11 @@ public final class Functions {
 
                 @Override
                 public boolean isOptional() {
+                    return false;
+                }
+
+                @Override
+                public boolean isVarArgs() {
                     return false;
                 }
 
@@ -521,6 +551,11 @@ public final class Functions {
                 }
 
                 @Override
+                public boolean isVarArgs() {
+                    return false;
+                }
+
+                @Override
                 public String getDefaultValue() {
                     return null;
                 }
@@ -594,6 +629,11 @@ public final class Functions {
 
                 @Override
                 public boolean isOptional() {
+                    return false;
+                }
+
+                @Override
+                public boolean isVarArgs() {
                     return false;
                 }
 
@@ -674,6 +714,11 @@ public final class Functions {
                 }
 
                 @Override
+                public boolean isVarArgs() {
+                    return false;
+                }
+
+                @Override
                 public String getDefaultValue() {
                     return null;
                 }
@@ -746,6 +791,11 @@ public final class Functions {
 
                 @Override
                 public boolean isOptional() {
+                    return false;
+                }
+
+                @Override
+                public boolean isVarArgs() {
                     return false;
                 }
 
@@ -825,6 +875,11 @@ public final class Functions {
                     }
 
                     @Override
+                    public boolean isVarArgs() {
+                        return false;
+                    }
+
+                    @Override
                     public String getDefaultValue() {
                         return null;
                     }
@@ -854,6 +909,11 @@ public final class Functions {
 
                     @Override
                     public boolean isOptional() {
+                        return false;
+                    }
+
+                    @Override
+                    public boolean isVarArgs() {
                         return false;
                     }
 
@@ -938,6 +998,11 @@ public final class Functions {
                 }
 
                 @Override
+                public boolean isVarArgs() {
+                    return false;
+                }
+
+                @Override
                 public String getDefaultValue() {
                     return null;
                 }
@@ -1010,6 +1075,11 @@ public final class Functions {
 
                 @Override
                 public boolean isOptional() {
+                    return false;
+                }
+
+                @Override
+                public boolean isVarArgs() {
                     return false;
                 }
 
@@ -1091,6 +1161,11 @@ public final class Functions {
                 }
 
                 @Override
+                public boolean isVarArgs() {
+                    return false;
+                }
+
+                @Override
                 public String getDefaultValue() {
                     return null;
                 }
@@ -1167,6 +1242,11 @@ public final class Functions {
                     }
 
                     @Override
+                    public boolean isVarArgs() {
+                        return false;
+                    }
+
+                    @Override
                     public String getDefaultValue() {
                         return null;
                     }
@@ -1196,6 +1276,11 @@ public final class Functions {
 
                     @Override
                     public boolean isOptional() {
+                        return false;
+                    }
+
+                    @Override
+                    public boolean isVarArgs() {
                         return false;
                     }
 
@@ -1279,6 +1364,11 @@ public final class Functions {
                 }
 
                 @Override
+                public boolean isVarArgs() {
+                    return false;
+                }
+
+                @Override
                 public String getDefaultValue() {
                     return null;
                 }
@@ -1352,6 +1442,11 @@ public final class Functions {
 
                 @Override
                 public boolean isOptional() {
+                    return false;
+                }
+
+                @Override
+                public boolean isVarArgs() {
                     return false;
                 }
 
@@ -1432,6 +1527,11 @@ public final class Functions {
                 }
 
                 @Override
+                public boolean isVarArgs() {
+                    return false;
+                }
+
+                @Override
                 public String getDefaultValue() {
                     return null;
                 }
@@ -1504,6 +1604,11 @@ public final class Functions {
 
                 @Override
                 public boolean isOptional() {
+                    return false;
+                }
+
+                @Override
+                public boolean isVarArgs() {
                     return false;
                 }
 
@@ -1583,6 +1688,11 @@ public final class Functions {
                     }
 
                     @Override
+                    public boolean isVarArgs() {
+                        return false;
+                    }
+
+                    @Override
                     public String getDefaultValue() {
                         return null;
                     }
@@ -1612,6 +1722,11 @@ public final class Functions {
 
                     @Override
                     public boolean isOptional() {
+                        return false;
+                    }
+
+                    @Override
+                    public boolean isVarArgs() {
                         return false;
                     }
 
@@ -1697,6 +1812,11 @@ public final class Functions {
                     }
 
                     @Override
+                    public boolean isVarArgs() {
+                        return false;
+                    }
+
+                    @Override
                     public String getDefaultValue() {
                         return null;
                     }
@@ -1726,6 +1846,11 @@ public final class Functions {
 
                     @Override
                     public boolean isOptional() {
+                        return false;
+                    }
+
+                    @Override
+                    public boolean isVarArgs() {
                         return false;
                     }
 
@@ -1811,6 +1936,11 @@ public final class Functions {
                     }
 
                     @Override
+                    public boolean isVarArgs() {
+                        return false;
+                    }
+
+                    @Override
                     public String getDefaultValue() {
                         return null;
                     }
@@ -1840,6 +1970,11 @@ public final class Functions {
 
                     @Override
                     public boolean isOptional() {
+                        return false;
+                    }
+
+                    @Override
+                    public boolean isVarArgs() {
                         return false;
                     }
 
@@ -1877,6 +2012,11 @@ public final class Functions {
                     }
 
                     @Override
+                    public boolean isVarArgs() {
+                        return false;
+                    }
+
+                    @Override
                     public String getDefaultValue() {
                         return null;
                     }
@@ -1909,81 +2049,9 @@ public final class Functions {
         }
     };
 
-    public static final AFunction RND = new AUnaryFunction() {
-        @Override
-        protected double eval(final double a) {
-            return Math.random() * a;
-        }
-
-        @Override
-        public String getExpressionName() {
-            return "rnd";
-        }
-
-        @Override
-        public ExpressionReturnType getReturnType() {
-            return ExpressionReturnType.Double;
-        }
-
-        @Override
-        public IFunctionParameterInfo getParameterInfo(final int index) {
-            if (index != 0) {
-                throw new ArrayIndexOutOfBoundsException(index);
-            }
-            return new IFunctionParameterInfo() {
-
-                @Override
-                public String getType() {
-                    return ExpressionReturnType.Double.toString();
-                }
-
-                @Override
-                public String getExpressionName() {
-                    return "maxValue";
-                }
-
-                @Override
-                public String getName() {
-                    return "Max Value";
-                }
-
-                @Override
-                public String getDescription() {
-                    return "A value to multiply the random value with in order to define the maximum result (inclusive).";
-                }
-
-                @Override
-                public boolean isOptional() {
-                    return false;
-                }
-
-                @Override
-                public String getDefaultValue() {
-                    return null;
-                }
-            };
-        }
-
-        @Override
-        public String getName() {
-            return "Random";
-        }
-
-        @Override
-        public String getDescription() {
-            return "Returns a double value with a positive sign, greater than or equal to 0.0 and less than 1.0. This value is multiplied by the argument.";
-        }
-
-        @Override
-        public boolean shouldPersist() {
-            return false;
-        }
-
-        @Override
-        public boolean shouldDraw() {
-            return true;
-        }
-    };
+    public static final AFunction RANDOM = newRandomFunction("random");
+    public static final AFunction RND = newRandomFunction("rnd");
+    public static final AFunction RNG = newRandomFunction("rng");
 
     public static final AFunction SIGN = new AUnaryFunction() {
         @Override
@@ -2030,6 +2098,11 @@ public final class Functions {
 
                 @Override
                 public boolean isOptional() {
+                    return false;
+                }
+
+                @Override
+                public boolean isVarArgs() {
                     return false;
                 }
 
@@ -2111,6 +2184,11 @@ public final class Functions {
                 }
 
                 @Override
+                public boolean isVarArgs() {
+                    return false;
+                }
+
+                @Override
                 public String getDefaultValue() {
                     return null;
                 }
@@ -2184,6 +2262,11 @@ public final class Functions {
 
                 @Override
                 public boolean isOptional() {
+                    return false;
+                }
+
+                @Override
+                public boolean isVarArgs() {
                     return false;
                 }
 
@@ -2300,6 +2383,11 @@ public final class Functions {
                     }
 
                     @Override
+                    public boolean isVarArgs() {
+                        return false;
+                    }
+
+                    @Override
                     public String getDefaultValue() {
                         return null;
                     }
@@ -2329,6 +2417,11 @@ public final class Functions {
 
                     @Override
                     public boolean isOptional() {
+                        return false;
+                    }
+
+                    @Override
+                    public boolean isVarArgs() {
                         return false;
                     }
 
@@ -2366,6 +2459,11 @@ public final class Functions {
                     }
 
                     @Override
+                    public boolean isVarArgs() {
+                        return false;
+                    }
+
+                    @Override
                     public String getDefaultValue() {
                         return null;
                     }
@@ -2395,6 +2493,11 @@ public final class Functions {
             return true;
         }
     };
+
+    public static final AFunction MAP = newMapFunction("map");
+    public static final AFunction SELECT = newMapFunction("select");
+    public static final AFunction ARRAY = newMapFunction("array");
+    public static final AFunction DECIDE = newMapFunction("decide");
 
     public static final AFunction ISNAN = new AFunction() {
 
@@ -2477,6 +2580,11 @@ public final class Functions {
 
                 @Override
                 public boolean isOptional() {
+                    return false;
+                }
+
+                @Override
+                public boolean isVarArgs() {
                     return false;
                 }
 
@@ -2593,6 +2701,11 @@ public final class Functions {
                 }
 
                 @Override
+                public boolean isVarArgs() {
+                    return false;
+                }
+
+                @Override
                 public String getDefaultValue() {
                     return null;
                 }
@@ -2705,6 +2818,11 @@ public final class Functions {
                 }
 
                 @Override
+                public boolean isVarArgs() {
+                    return false;
+                }
+
+                @Override
                 public String getDefaultValue() {
                     return null;
                 }
@@ -2801,6 +2919,11 @@ public final class Functions {
 
                 @Override
                 public boolean isOptional() {
+                    return false;
+                }
+
+                @Override
+                public boolean isVarArgs() {
                     return false;
                 }
 
@@ -2917,6 +3040,11 @@ public final class Functions {
                 }
 
                 @Override
+                public boolean isVarArgs() {
+                    return false;
+                }
+
+                @Override
                 public String getDefaultValue() {
                     return null;
                 }
@@ -2944,6 +3072,277 @@ public final class Functions {
         }
     };
 
-    private Functions() {}
+    private Functions() {
+    }
+
+    private static AUnaryFunction newRandomFunction(final String expressionName) {
+        return new AUnaryFunction() {
+            @Override
+            protected double eval(final double a) {
+                return Math.random() * a;
+            }
+
+            @Override
+            public String getExpressionName() {
+                return expressionName;
+            }
+
+            @Override
+            public ExpressionReturnType getReturnType() {
+                return ExpressionReturnType.Double;
+            }
+
+            @Override
+            public IFunctionParameterInfo getParameterInfo(final int index) {
+                if (index != 0) {
+                    throw new ArrayIndexOutOfBoundsException(index);
+                }
+                return new IFunctionParameterInfo() {
+
+                    @Override
+                    public String getType() {
+                        return ExpressionReturnType.Double.toString();
+                    }
+
+                    @Override
+                    public String getExpressionName() {
+                        return "maxValue";
+                    }
+
+                    @Override
+                    public String getName() {
+                        return "Max Value";
+                    }
+
+                    @Override
+                    public String getDescription() {
+                        return "A value to multiply the random value with in order to define the maximum result (inclusive).";
+                    }
+
+                    @Override
+                    public boolean isOptional() {
+                        return false;
+                    }
+
+                    @Override
+                    public boolean isVarArgs() {
+                        return false;
+                    }
+
+                    @Override
+                    public String getDefaultValue() {
+                        return null;
+                    }
+                };
+            }
+
+            @Override
+            public String getName() {
+                return "Random";
+            }
+
+            @Override
+            public String getDescription() {
+                return "Returns a double value with a positive sign, greater than or equal to 0.0 and less than 1.0. This value is multiplied by the argument.";
+            }
+
+            @Override
+            public boolean shouldPersist() {
+                return false;
+            }
+
+            @Override
+            public boolean shouldDraw() {
+                return true;
+            }
+        };
+    }
+
+    private static AFunction newMapFunction(final String expressionName) {
+        return new AFunction() {
+
+            @Override
+            public String getExpressionName() {
+                return expressionName;
+            }
+
+            @Override
+            public int getNumberOfArguments() {
+                return 3;
+            }
+
+            @Override
+            public double eval(final FDate key, final IExpression[] args) {
+                final int index = args[0].evaluateInteger(key);
+                return args[index].evaluateDouble(key);
+            }
+
+            @Override
+            public double eval(final int key, final IExpression[] args) {
+                final int index = args[0].evaluateInteger(key);
+                return args[index].evaluateDouble(key);
+            }
+
+            @Override
+            public double eval(final IExpression[] args) {
+                final int index = args[0].evaluateInteger();
+                return args[index].evaluateDouble();
+            }
+
+            @Override
+            public boolean isNaturalFunction(final IExpression[] args) {
+                return true;
+            }
+
+            @Override
+            public ExpressionReturnType getReturnType() {
+                return ExpressionReturnType.Double;
+            }
+
+            @Override
+            public IFunctionParameterInfo getParameterInfo(final int index) {
+                switch (index) {
+                case 0:
+                    return new IFunctionParameterInfo() {
+
+                        @Override
+                        public String getType() {
+                            return ExpressionReturnType.Boolean.toString();
+                        }
+
+                        @Override
+                        public String getExpressionName() {
+                            return "index";
+                        }
+
+                        @Override
+                        public String getName() {
+                            return "Index";
+                        }
+
+                        @Override
+                        public String getDescription() {
+                            return "This index defines which one of the following values should be used. "
+                                    + "Starting at index 0 and ending at valueCount-1. If the index is below 0, then 0 is used. If the index is above the last value index, then the last value is used.";
+                        }
+
+                        @Override
+                        public boolean isOptional() {
+                            return false;
+                        }
+
+                        @Override
+                        public boolean isVarArgs() {
+                            return false;
+                        }
+
+                        @Override
+                        public String getDefaultValue() {
+                            return null;
+                        }
+                    };
+                case 1:
+                    return new IFunctionParameterInfo() {
+
+                        @Override
+                        public String getType() {
+                            return ExpressionReturnType.Double.toString();
+                        }
+
+                        @Override
+                        public String getExpressionName() {
+                            return "valueAtIndex0";
+                        }
+
+                        @Override
+                        public String getName() {
+                            return "Value At Index 0";
+                        }
+
+                        @Override
+                        public String getDescription() {
+                            return "This is the first available value for index 0.";
+                        }
+
+                        @Override
+                        public boolean isOptional() {
+                            return false;
+                        }
+
+                        @Override
+                        public boolean isVarArgs() {
+                            return false;
+                        }
+
+                        @Override
+                        public String getDefaultValue() {
+                            return null;
+                        }
+                    };
+                case 2:
+                    return new IFunctionParameterInfo() {
+
+                        @Override
+                        public String getType() {
+                            return ExpressionReturnType.Double.toString();
+                        }
+
+                        @Override
+                        public String getExpressionName() {
+                            return "valueAtIndexN";
+                        }
+
+                        @Override
+                        public String getName() {
+                            return "Value At Index N";
+                        }
+
+                        @Override
+                        public String getDescription() {
+                            return "Further values with incremented index 1..N.";
+                        }
+
+                        @Override
+                        public boolean isOptional() {
+                            return false;
+                        }
+
+                        @Override
+                        public boolean isVarArgs() {
+                            return true;
+                        }
+
+                        @Override
+                        public String getDefaultValue() {
+                            return null;
+                        }
+                    };
+                default:
+                    throw new ArrayIndexOutOfBoundsException(index);
+                }
+            }
+
+            @Override
+            public String getName() {
+                return "Map";
+            }
+
+            @Override
+            public String getDescription() {
+                return "With this map function one can access alternative values depending on an index. "
+                        + "The index (and any indexed value) can be determined by a dynamic expression. Example: map(random*3, 10, 20, 10*3)";
+            }
+
+            @Override
+            public boolean shouldPersist() {
+                return false;
+            }
+
+            @Override
+            public boolean shouldDraw() {
+                return true;
+            }
+        };
+    }
 
 }

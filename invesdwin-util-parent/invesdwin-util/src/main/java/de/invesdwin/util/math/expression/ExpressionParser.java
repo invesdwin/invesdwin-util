@@ -3,13 +3,14 @@ package de.invesdwin.util.math.expression;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.lang.Strings;
+import de.invesdwin.util.lang.description.TextDescription;
 import de.invesdwin.util.math.expression.eval.ConstantExpression;
 import de.invesdwin.util.math.expression.eval.DynamicPreviousKeyExpression;
 import de.invesdwin.util.math.expression.eval.FunctionCall;
@@ -49,7 +50,7 @@ public class ExpressionParser {
     private final String originalExpression;
 
     static {
-        DEFAULT_FUNCTIONS = new TreeMap<>();
+        DEFAULT_FUNCTIONS = new LinkedHashMap<>();
 
         registerDefaultFunction(Functions.SIN);
         registerDefaultFunction(Functions.COS);
@@ -75,16 +76,22 @@ public class ExpressionParser {
         registerDefaultFunction(Functions.MIN);
         registerDefaultFunction(Functions.MAX);
         registerDefaultFunction(Functions.BETWEEN);
+        registerDefaultFunction(Functions.RANDOM);
         registerDefaultFunction(Functions.RND);
+        registerDefaultFunction(Functions.RNG);
         registerDefaultFunction(Functions.SIGN);
         registerDefaultFunction(Functions.IF);
+        registerDefaultFunction(Functions.MAP);
+        registerDefaultFunction(Functions.SELECT);
+        registerDefaultFunction(Functions.ARRAY);
+        registerDefaultFunction(Functions.DECIDE);
         registerDefaultFunction(Functions.ISNAN);
         registerDefaultFunction(Functions.ISTRUE);
         registerDefaultFunction(Functions.ISFALSE);
         registerDefaultFunction(Functions.NEGATE);
         registerDefaultFunction(Functions.NOT);
 
-        DEFAULT_VARIABLES = new TreeMap<>();
+        DEFAULT_VARIABLES = new LinkedHashMap<>();
 
         registerDefaultVariable(Variables.PI);
         registerDefaultVariable(Variables.EULER);
@@ -470,13 +477,21 @@ public class ExpressionParser {
         }
 
         final AFunction fun = findFunction(functionToken, functionContext, functionName);
-        final int numberOfArgumentsMax = fun.getNumberOfArguments();
-        final int numberOfArgumentsMin = fun.getNumberOfArgumentsRequired();
+        final int numberOfArgumentsMax = fun.getNumberOfArgumentsMax();
+        final int numberOfArgumentsMin = fun.getNumberOfArgumentsMin();
         final int arguments = parameters.size();
-        if (arguments < numberOfArgumentsMin || arguments > numberOfArgumentsMax) {
-            throw new ParseException(functionToken,
-                    String.format("Number of arguments for function '%s' does not match. Expected: %d to %d, Found: %d",
-                            functionStr, numberOfArgumentsMin, numberOfArgumentsMax, arguments));
+        if (fun.isVarArgs()) {
+            if (arguments < numberOfArgumentsMin || arguments > numberOfArgumentsMax) {
+                throw new ParseException(functionToken, TextDescription.format(
+                        "Wrong number of arguments for function '%s'. Expected at least min=%s with max=variable but found: %s",
+                        functionStr, numberOfArgumentsMin, arguments));
+            }
+        } else {
+            if (arguments < numberOfArgumentsMin || arguments > numberOfArgumentsMax) {
+                throw new ParseException(functionToken, TextDescription.format(
+                        "Wrong number of arguments for function '%s'. Expected between min=%s and max=%s but found: %s",
+                        functionStr, numberOfArgumentsMin, numberOfArgumentsMax, arguments));
+            }
         }
         final IParsedExpression[] parametersArray = parameters.toArray(new IParsedExpression[arguments]);
         return new FunctionCall(functionContext, fun, parametersArray);
@@ -637,13 +652,13 @@ public class ExpressionParser {
         //redirect to function if possible
         final AFunction function = getFunction(context, name);
         if (function != null) {
-            if (function.getNumberOfArgumentsRequired() == 0) {
+            if (function.getNumberOfArgumentsMin() == 0) {
                 return new FunctionCall(context, function);
             } else {
                 throw new ParseException(position,
-                        String.format(
-                                "Number of arguments for function '%s' does not match. Exprected: %d to %d, Found 0",
-                                name, function.getNumberOfArgumentsRequired(), function.getNumberOfArguments()));
+                        TextDescription.format(
+                                "Wrong number of arguments for function '%s'. Exprected at least %s but found 0", name,
+                                function.getNumberOfArgumentsMin()));
             }
         }
 

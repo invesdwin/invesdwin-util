@@ -11,21 +11,33 @@ public abstract class AFunction {
     public static final IFunctionParameterInfo[] NO_PARAMETER_INFOS = new IFunctionParameterInfo[0];
     private IFunctionParameterInfo[] parameterInfos;
     private int numberOfArgumentsRequired;
+    private int numberOfArgumentsOptional;
 
     public abstract String getExpressionName();
 
     /**
      * return a negative number for a variable number of arguments
      */
-    public final int getNumberOfArgumentsRequired() {
+    public final int getNumberOfArgumentsMin() {
         if (parameterInfos == null) {
             initParameterInfos();
         }
         return numberOfArgumentsRequired;
     }
 
-    public final int getNumberOfArgumentsOptional() {
-        return getNumberOfArguments() - getNumberOfArgumentsRequired();
+    public final int getNumberOfArgumentsMax() {
+        if (parameterInfos == null) {
+            initParameterInfos();
+        }
+        if (isVarArgs()) {
+            return -1;
+        } else {
+            return numberOfArgumentsRequired + numberOfArgumentsOptional;
+        }
+    }
+
+    public final boolean isVarArgs() {
+        return numberOfArgumentsOptional < 0;
     }
 
     public abstract int getNumberOfArguments();
@@ -44,15 +56,22 @@ public abstract class AFunction {
         }
         final IFunctionParameterInfo[] infos = new IFunctionParameterInfo[numberOfArguments];
         int infosRequired = 0;
+        int infosOptional = 0;
         for (int i = 0; i < infos.length; i++) {
             final IFunctionParameterInfo info = getParameterInfo(i);
             infos[i] = info;
             if (!info.isOptional()) {
                 infosRequired++;
+            } else if (infosOptional >= 0) {
+                infosOptional++;
+            }
+            if (info.isVarArgs()) {
+                infosOptional = -1;
             }
         }
         parameterInfos = infos;
         numberOfArgumentsRequired = infosRequired;
+        numberOfArgumentsOptional = infosOptional;
     }
 
     protected abstract IFunctionParameterInfo getParameterInfo(int index);

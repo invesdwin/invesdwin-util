@@ -1,5 +1,8 @@
 package de.invesdwin.util.math.expression;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import de.invesdwin.util.lang.Strings;
 
 public interface IFunctionParameterInfo {
@@ -14,7 +17,9 @@ public interface IFunctionParameterInfo {
         return isOptional() ? getExpressionName() + "?" : getExpressionName();
     }
 
+    //CHECKSTYLE:OFF
     default String getDescriptionWithDetails() {
+        //CHECKSTYLE:ON
         final StringBuilder sb = new StringBuilder();
         final String description = getDescription();
         if (Strings.isNotBlank(description)) {
@@ -23,27 +28,50 @@ public interface IFunctionParameterInfo {
         if (sb.length() > 0) {
             sb.append(" ");
         }
+        final List<String> modifiers = new ArrayList<>();
         final String defaultValue = getDefaultValue();
+        if (isVarArgs()) {
+            modifiers.add("VarArgs");
+        }
+        if (isOptional()) {
+            modifiers.add("Optional");
+        }
         if (Strings.isNotBlank(defaultValue)) {
+            final String defaultModifier;
             if (isOptional()) {
-                sb.append("<i>(Optional; Default=");
+                defaultModifier = "Default";
             } else {
-                sb.append("<i>(Example=");
+                defaultModifier = "Example";
             }
-            sb.append(defaultValue);
-            sb.append(")</i>");
-        } else {
-            if (isOptional()) {
-                sb.append("<i>(Optional)</i>");
+            modifiers.add(defaultModifier + "=" + defaultValue);
+        }
+        if (!modifiers.isEmpty()) {
+            sb.append("(");
+            for (int i = 0; i < modifiers.size(); i++) {
+                if (i != 0) {
+                    sb.append("; ");
+                }
+                sb.append(modifiers.get(i));
             }
+            sb.append(")");
         }
         return sb.toString();
     }
 
     String getType();
 
+    default String getTypeWithDetails() {
+        if (isVarArgs()) {
+            return getType() + "...";
+        } else {
+            return getType();
+        }
+    }
+
     String getDefaultValue();
 
     boolean isOptional();
+
+    boolean isVarArgs();
 
 }
