@@ -3075,13 +3075,8 @@ public final class Functions {
     private Functions() {
     }
 
-    private static AUnaryFunction newRandomFunction(final String expressionName) {
-        return new AUnaryFunction() {
-            @Override
-            protected double eval(final double a) {
-                return Math.random() * a;
-            }
-
+    private static AFunction newRandomFunction(final String expressionName) {
+        return new AFunction() {
             @Override
             public String getExpressionName() {
                 return expressionName;
@@ -3116,12 +3111,12 @@ public final class Functions {
 
                     @Override
                     public String getDescription() {
-                        return "A value to multiply the random value with in order to define the maximum result (inclusive).";
+                        return "A value to multiply the random value with in order to define the maximum result (exclusive), 0 (inclusive) is the minimum value.";
                     }
 
                     @Override
                     public boolean isOptional() {
-                        return false;
+                        return true;
                     }
 
                     @Override
@@ -3154,6 +3149,46 @@ public final class Functions {
             @Override
             public boolean shouldDraw() {
                 return true;
+            }
+
+            @Override
+            public int getNumberOfArguments() {
+                return 1;
+            }
+
+            @Override
+            public double eval(final FDate key, final IExpression[] args) {
+                if (args.length == 0) {
+                    return Math.random();
+                } else {
+                    final double a = args[0].evaluateDouble(key);
+                    return Math.random() * a;
+                }
+            }
+
+            @Override
+            public double eval(final int key, final IExpression[] args) {
+                if (args.length == 0) {
+                    return Math.random();
+                } else {
+                    final double a = args[0].evaluateDouble(key);
+                    return Math.random() * a;
+                }
+            }
+
+            @Override
+            public double eval(final IExpression[] args) {
+                if (args.length == 0) {
+                    return Math.random();
+                } else {
+                    final double a = args[0].evaluateDouble();
+                    return Math.random() * a;
+                }
+            }
+
+            @Override
+            public boolean isNaturalFunction(final IExpression[] args) {
+                return false;
             }
         };
     }
