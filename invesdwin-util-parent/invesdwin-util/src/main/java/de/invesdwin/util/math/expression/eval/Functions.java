@@ -3339,7 +3339,7 @@ public final class Functions {
 
                         @Override
                         public boolean isOptional() {
-                            return false;
+                            return true;
                         }
 
                         @Override
