@@ -9,7 +9,7 @@ public class EnumerationExpression extends ConstantExpression {
 
     public EnumerationExpression(final String name, final double value) {
         super(value);
-        this.name = name;
+        this.name = name.intern();
     }
 
     @Override
@@ -27,6 +27,21 @@ public class EnumerationExpression extends ConstantExpression {
             values[i] = valueOf(enumerationValues[i]);
         }
         return values;
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (obj instanceof EnumerationExpression) {
+            final EnumerationExpression cObj = (EnumerationExpression) obj;
+            return name == cObj.name;
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        return ConstantExpression.class.hashCode() + name.hashCode();
     }
 
 }
