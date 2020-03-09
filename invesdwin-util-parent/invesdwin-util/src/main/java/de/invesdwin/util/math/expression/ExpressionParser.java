@@ -481,7 +481,7 @@ public class ExpressionParser {
         final int numberOfArgumentsMin = fun.getNumberOfArgumentsMin();
         final int arguments = parameters.size();
         if (fun.isVarArgs()) {
-            if (arguments < numberOfArgumentsMin || arguments > numberOfArgumentsMax) {
+            if (arguments < numberOfArgumentsMin) {
                 throw new ParseException(functionToken, TextDescription.format(
                         "Wrong number of arguments for function '%s'. Expected at least min=%s with max=variable but found: %s",
                         functionStr, numberOfArgumentsMin, arguments));
