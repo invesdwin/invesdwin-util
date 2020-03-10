@@ -116,10 +116,13 @@ public abstract class AFunction {
         if (args.length > 0) {
             sb.append("(");
             for (int i = 0; i < args.length; i++) {
-                if (i > 0) {
-                    sb.append(",");
+                final String arg = args[i];
+                if (arg != null) {
+                    if (i > 0) {
+                        sb.append(",");
+                    }
+                    sb.append(arg);
                 }
-                sb.append(args[i]);
             }
             sb.append(")");
         }
