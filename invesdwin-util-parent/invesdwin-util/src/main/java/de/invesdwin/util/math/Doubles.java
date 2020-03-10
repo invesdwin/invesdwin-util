@@ -25,6 +25,7 @@ import de.invesdwin.util.math.internal.CheckedCastDoublesObj;
 @Immutable
 public final class Doubles extends ADoublesStaticFacade {
 
+    public static final double ONE_THIRD = 1D / 3D;
     public static final double DEFAULT_MISSING_VALUE = 0d;
     public static final Double DEFAULT_MISSING_VALUE_OBJ = DEFAULT_MISSING_VALUE;
     public static final ADelegateComparator<Double> COMPARATOR = new ADelegateComparator<Double>() {
@@ -37,7 +38,8 @@ public final class Doubles extends ADoublesStaticFacade {
     private static final double FIRST_ABOVE_ZERO = 0.000000001;
     private static final double FIRST_BELOW_ZERO = -0.000000001;
 
-    private Doubles() {}
+    private Doubles() {
+    }
 
     public static double[] toArray(final Collection<? extends Number> vector) {
         if (vector == null) {
