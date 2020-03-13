@@ -91,6 +91,10 @@ public class Instant extends Number implements Comparable<Object> {
         return Long.valueOf(timeUnit.convert(nanos, DEFAULT_TIME_UNIT)).longValue();
     }
 
+    /**
+     * Deprecated: Are you sure? Maybe you are looking for toDurationNanos() instead?
+     */
+    @Deprecated
     public long nanosValue() {
         return nanos;
     }
