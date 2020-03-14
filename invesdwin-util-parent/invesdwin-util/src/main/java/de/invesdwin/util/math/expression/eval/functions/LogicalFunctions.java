@@ -890,7 +890,7 @@ public final class LogicalFunctions {
 
             @Override
             public double eval(final FDate key, final IExpression[] args) {
-                final double threshold = args[0].evaluateDouble(key) * args.length - 1;
+                final double threshold = args[0].evaluateDouble(key) * (args.length - 1);
                 double sum = 0D;
                 for (int i = 1; i < args.length; i++) {
                     if (args[i].evaluateBoolean(key)) {
@@ -905,7 +905,7 @@ public final class LogicalFunctions {
 
             @Override
             public double eval(final int key, final IExpression[] args) {
-                final double threshold = args[0].evaluateDouble(key) * args.length - 1;
+                final double threshold = args[0].evaluateDouble(key) * (args.length - 1);
                 double sum = 0D;
                 for (int i = 1; i < args.length; i++) {
                     if (args[i].evaluateBoolean(key)) {
@@ -920,7 +920,7 @@ public final class LogicalFunctions {
 
             @Override
             public double eval(final IExpression[] args) {
-                final double threshold = args[0].evaluateDouble() * args.length - 1;
+                final double threshold = args[0].evaluateDouble() * (args.length - 1);
                 double sum = 0D;
                 for (int i = 1; i < args.length; i++) {
                     if (args[i].evaluateBoolean()) {
