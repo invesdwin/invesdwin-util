@@ -14,11 +14,12 @@ import de.invesdwin.util.lang.description.TextDescription;
 import de.invesdwin.util.math.expression.eval.ConstantExpression;
 import de.invesdwin.util.math.expression.eval.DynamicPreviousKeyExpression;
 import de.invesdwin.util.math.expression.eval.FunctionCall;
-import de.invesdwin.util.math.expression.eval.Functions;
 import de.invesdwin.util.math.expression.eval.IParsedExpression;
 import de.invesdwin.util.math.expression.eval.VariableFunction;
 import de.invesdwin.util.math.expression.eval.VariableReference;
 import de.invesdwin.util.math.expression.eval.Variables;
+import de.invesdwin.util.math.expression.eval.functions.LogicalFunctions;
+import de.invesdwin.util.math.expression.eval.functions.MathFunctions;
 import de.invesdwin.util.math.expression.eval.operation.AndOperation;
 import de.invesdwin.util.math.expression.eval.operation.BinaryOperation;
 import de.invesdwin.util.math.expression.eval.operation.BinaryOperation.Op;
@@ -52,52 +53,53 @@ public class ExpressionParser {
     static {
         DEFAULT_FUNCTIONS = new LinkedHashMap<>();
 
-        registerDefaultFunction(Functions.SIN);
-        registerDefaultFunction(Functions.COS);
-        registerDefaultFunction(Functions.TAN);
-        registerDefaultFunction(Functions.SINH);
-        registerDefaultFunction(Functions.COSH);
-        registerDefaultFunction(Functions.TANH);
-        registerDefaultFunction(Functions.ASIN);
-        registerDefaultFunction(Functions.ACOS);
-        registerDefaultFunction(Functions.ATAN);
-        registerDefaultFunction(Functions.ATAN2);
-        registerDefaultFunction(Functions.DEG);
-        registerDefaultFunction(Functions.RAD);
-        registerDefaultFunction(Functions.ABS);
-        registerDefaultFunction(Functions.ROUND);
-        registerDefaultFunction(Functions.CEIL);
-        registerDefaultFunction(Functions.FLOOR);
-        registerDefaultFunction(Functions.EXP);
-        registerDefaultFunction(Functions.LN);
-        registerDefaultFunction(Functions.LOG);
-        registerDefaultFunction(Functions.SQRT);
-        registerDefaultFunction(Functions.POW);
-        registerDefaultFunction(Functions.MIN);
-        registerDefaultFunction(Functions.MAX);
-        registerDefaultFunction(Functions.BETWEEN);
-        registerDefaultFunction(Functions.RANDOM);
-        registerDefaultFunction(Functions.RND);
-        registerDefaultFunction(Functions.RNG);
-        registerDefaultFunction(Functions.SIGN);
-        registerDefaultFunction(Functions.IF);
+        registerDefaultFunction(MathFunctions.SIN);
+        registerDefaultFunction(MathFunctions.COS);
+        registerDefaultFunction(MathFunctions.TAN);
+        registerDefaultFunction(MathFunctions.SINH);
+        registerDefaultFunction(MathFunctions.COSH);
+        registerDefaultFunction(MathFunctions.TANH);
+        registerDefaultFunction(MathFunctions.ASIN);
+        registerDefaultFunction(MathFunctions.ACOS);
+        registerDefaultFunction(MathFunctions.ATAN);
+        registerDefaultFunction(MathFunctions.ATAN2);
+        registerDefaultFunction(MathFunctions.DEG);
+        registerDefaultFunction(MathFunctions.RAD);
+        registerDefaultFunction(MathFunctions.ABS);
+        registerDefaultFunction(MathFunctions.ROUND);
+        registerDefaultFunction(MathFunctions.CEIL);
+        registerDefaultFunction(MathFunctions.FLOOR);
+        registerDefaultFunction(MathFunctions.EXP);
+        registerDefaultFunction(MathFunctions.LN);
+        registerDefaultFunction(MathFunctions.LOG);
+        registerDefaultFunction(MathFunctions.SQRT);
+        registerDefaultFunction(MathFunctions.POW);
+        registerDefaultFunction(MathFunctions.MIN);
+        registerDefaultFunction(MathFunctions.MAX);
+        registerDefaultFunction(MathFunctions.BETWEEN);
+        registerDefaultFunction(MathFunctions.RANDOM);
+        registerDefaultFunction(MathFunctions.RND);
+        registerDefaultFunction(MathFunctions.RNG);
+        registerDefaultFunction(MathFunctions.SIGN);
+        registerDefaultFunction(MathFunctions.NEGATE);
 
-        registerDefaultFunction(Functions.MAP);
-        registerDefaultFunction(Functions.SELECT);
-        registerDefaultFunction(Functions.ARRAY);
-        registerDefaultFunction(Functions.DECIDE);
+        registerDefaultFunction(LogicalFunctions.IF);
 
-        registerDefaultFunction(Functions.VOTE);
-        registerDefaultFunction(Functions.ENSEMBLE);
-        registerDefaultFunction(Functions.THRESHOLD);
-        registerDefaultFunction(Functions.MAJORITY);
-        registerDefaultFunction(Functions.FUZZY);
+        registerDefaultFunction(LogicalFunctions.MAP);
+        registerDefaultFunction(LogicalFunctions.SELECT);
+        registerDefaultFunction(LogicalFunctions.ARRAY);
+        registerDefaultFunction(LogicalFunctions.DECIDE);
 
-        registerDefaultFunction(Functions.ISNAN);
-        registerDefaultFunction(Functions.ISTRUE);
-        registerDefaultFunction(Functions.ISFALSE);
-        registerDefaultFunction(Functions.NEGATE);
-        registerDefaultFunction(Functions.NOT);
+        registerDefaultFunction(LogicalFunctions.VOTE);
+        registerDefaultFunction(LogicalFunctions.ENSEMBLE);
+        registerDefaultFunction(LogicalFunctions.THRESHOLD);
+        registerDefaultFunction(LogicalFunctions.MAJORITY);
+        registerDefaultFunction(LogicalFunctions.FUZZY);
+
+        registerDefaultFunction(LogicalFunctions.ISNAN);
+        registerDefaultFunction(LogicalFunctions.ISTRUE);
+        registerDefaultFunction(LogicalFunctions.ISFALSE);
+        registerDefaultFunction(LogicalFunctions.NOT);
 
         DEFAULT_VARIABLES = new LinkedHashMap<>();
 
@@ -400,7 +402,7 @@ public class ExpressionParser {
             if (current.matches("|")) {
                 tokenizer.consume();
                 expect(Token.TokenType.SYMBOL, "|");
-                return new FunctionCall(null, Functions.ABS, expression(false));
+                return new FunctionCall(null, MathFunctions.ABS, expression(false));
             }
         } else if (current.isIdentifier()) {
             final IParsedExpression functionOrVariable = functionOrVariable();
