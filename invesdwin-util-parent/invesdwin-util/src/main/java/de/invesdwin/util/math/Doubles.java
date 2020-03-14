@@ -508,10 +508,20 @@ public final class Doubles extends ADoublesStaticFacade {
     }
 
     public static double max(final double a, final double b) {
+        if (isNaN(a)) {
+            return b;
+        } else if (isNaN(b)) {
+            return a;
+        }
         return Math.max(a, b);
     }
 
     public static double min(final double a, final double b) {
+        if (isNaN(a)) {
+            return b;
+        } else if (isNaN(b)) {
+            return a;
+        }
         return Math.min(a, b);
     }
 
@@ -613,6 +623,22 @@ public final class Doubles extends ADoublesStaticFacade {
         }
 
         return digits;
+    }
+
+    public static double min(final double... array) {
+        double min = array[0];
+        for (int i = 1; i < array.length; i++) {
+            min = min(min, array[i]);
+        }
+        return min;
+    }
+
+    public static double max(final double... array) {
+        double max = array[0];
+        for (int i = 1; i < array.length; i++) {
+            max = max(max, array[i]);
+        }
+        return max;
     }
 
 }

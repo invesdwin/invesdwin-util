@@ -895,13 +895,12 @@ public final class LogicalFunctions {
                 for (int i = 1; i < args.length; i++) {
                     if (args[i].evaluateBoolean(key)) {
                         sum++;
+                        if (sum >= threshold) {
+                            return 1D;
+                        }
                     }
                 }
-                if (sum <= threshold) {
-                    return 1D;
-                } else {
-                    return 0D;
-                }
+                return 0D;
             }
 
             @Override
@@ -911,13 +910,12 @@ public final class LogicalFunctions {
                 for (int i = 1; i < args.length; i++) {
                     if (args[i].evaluateBoolean(key)) {
                         sum++;
+                        if (sum >= threshold) {
+                            return 1D;
+                        }
                     }
                 }
-                if (sum <= threshold) {
-                    return 1D;
-                } else {
-                    return 0D;
-                }
+                return 0D;
             }
 
             @Override
@@ -927,13 +925,12 @@ public final class LogicalFunctions {
                 for (int i = 1; i < args.length; i++) {
                     if (args[i].evaluateBoolean()) {
                         sum++;
+                        if (sum >= threshold) {
+                            return 1D;
+                        }
                     }
                 }
-                if (sum <= threshold) {
-                    return 1D;
-                } else {
-                    return 0D;
-                }
+                return 0D;
             }
 
             @Override
