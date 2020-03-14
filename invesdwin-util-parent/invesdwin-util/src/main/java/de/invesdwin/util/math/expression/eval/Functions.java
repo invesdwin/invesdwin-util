@@ -2499,6 +2499,12 @@ public final class Functions {
     public static final AFunction ARRAY = newMapFunction("array");
     public static final AFunction DECIDE = newMapFunction("decide");
 
+    public static final AFunction VOTE = newMapFunction("vote");
+    public static final AFunction ENSEMBLE = newMapFunction("ensemble");
+    public static final AFunction THRESHOLD = newMapFunction("threshold");
+    public static final AFunction MAJORITY = newMapFunction("majority");
+    public static final AFunction FUZZY = newMapFunction("fuzzy");
+
     public static final AFunction ISNAN = new AFunction() {
 
         @Override
@@ -3366,6 +3372,223 @@ public final class Functions {
             public String getDescription() {
                 return "With this map function one can access alternative values depending on an index. "
                         + "The index (and any indexed value) can be determined by a dynamic expression. Example: map(random*3, 10, 20, 10*3)";
+            }
+
+            @Override
+            public boolean shouldPersist() {
+                return false;
+            }
+
+            @Override
+            public boolean shouldDraw() {
+                return true;
+            }
+        };
+    }
+
+    private static AFunction newVoteFunction(final String expressionName) {
+        return new AFunction() {
+
+            @Override
+            public String getExpressionName() {
+                return expressionName;
+            }
+
+            @Override
+            public int getNumberOfArguments() {
+                return 3;
+            }
+
+            @Override
+            public double eval(final FDate key, final IExpression[] args) {
+                final double threshold = args[0].evaluateDouble(key) * args.length - 1;
+                double sum = 0D;
+                for (int i = 1; i < args.length; i++) {
+                    if (args[i].evaluateBoolean(key)) {
+                        sum++;
+                    }
+                }
+                if (sum <= threshold) {
+                    return 1D;
+                } else {
+                    return 0D;
+                }
+            }
+
+            @Override
+            public double eval(final int key, final IExpression[] args) {
+                final double threshold = args[0].evaluateDouble(key) * args.length - 1;
+                double sum = 0D;
+                for (int i = 1; i < args.length; i++) {
+                    if (args[i].evaluateBoolean(key)) {
+                        sum++;
+                    }
+                }
+                if (sum <= threshold) {
+                    return 1D;
+                } else {
+                    return 0D;
+                }
+            }
+
+            @Override
+            public double eval(final IExpression[] args) {
+                final double threshold = args[0].evaluateDouble() * args.length - 1;
+                double sum = 0D;
+                for (int i = 1; i < args.length; i++) {
+                    if (args[i].evaluateBoolean()) {
+                        sum++;
+                    }
+                }
+                if (sum <= threshold) {
+                    return 1D;
+                } else {
+                    return 0D;
+                }
+            }
+
+            @Override
+            public boolean isNaturalFunction(final IExpression[] args) {
+                return true;
+            }
+
+            @Override
+            public ExpressionReturnType getReturnType() {
+                return ExpressionReturnType.Double;
+            }
+
+            @Override
+            public IFunctionParameterInfo getParameterInfo(final int index) {
+                switch (index) {
+                case 0:
+                    return new IFunctionParameterInfo() {
+
+                        @Override
+                        public String getType() {
+                            return ExpressionReturnType.Boolean.toString();
+                        }
+
+                        @Override
+                        public String getExpressionName() {
+                            return "threshold";
+                        }
+
+                        @Override
+                        public String getName() {
+                            return "Threshold";
+                        }
+
+                        @Override
+                        public String getDescription() {
+                            return "This is the majority vote threshold expressed as a value between 0 and 1. E.g. 0.6 means that at least 60% of the conditions need to be true for the vote to succeed.";
+                        }
+
+                        @Override
+                        public boolean isOptional() {
+                            return false;
+                        }
+
+                        @Override
+                        public boolean isVarArgs() {
+                            return false;
+                        }
+
+                        @Override
+                        public String getDefaultValue() {
+                            return null;
+                        }
+                    };
+                case 1:
+                    return new IFunctionParameterInfo() {
+
+                        @Override
+                        public String getType() {
+                            return ExpressionReturnType.Double.toString();
+                        }
+
+                        @Override
+                        public String getExpressionName() {
+                            return "condition1";
+                        }
+
+                        @Override
+                        public String getName() {
+                            return "Condition 1";
+                        }
+
+                        @Override
+                        public String getDescription() {
+                            return "This is the first condition to participate in the vote.";
+                        }
+
+                        @Override
+                        public boolean isOptional() {
+                            return false;
+                        }
+
+                        @Override
+                        public boolean isVarArgs() {
+                            return false;
+                        }
+
+                        @Override
+                        public String getDefaultValue() {
+                            return null;
+                        }
+                    };
+                case 2:
+                    return new IFunctionParameterInfo() {
+
+                        @Override
+                        public String getType() {
+                            return ExpressionReturnType.Double.toString();
+                        }
+
+                        @Override
+                        public String getExpressionName() {
+                            return "conditionN";
+                        }
+
+                        @Override
+                        public String getName() {
+                            return "Condition N";
+                        }
+
+                        @Override
+                        public String getDescription() {
+                            return "Further conditions to participate in the vote.";
+                        }
+
+                        @Override
+                        public boolean isOptional() {
+                            return true;
+                        }
+
+                        @Override
+                        public boolean isVarArgs() {
+                            return true;
+                        }
+
+                        @Override
+                        public String getDefaultValue() {
+                            return null;
+                        }
+                    };
+                default:
+                    throw new ArrayIndexOutOfBoundsException(index);
+                }
+            }
+
+            @Override
+            public String getName() {
+                return "Vote";
+            }
+
+            @Override
+            public String getDescription() {
+                return "This function can be used to do a majority vote on multiple conditions. "
+                        + "This can also be used to define ensemble strategies. "
+                        + "Example: vote(0.6, close[0] > close[1], ema(25) > ema(5), vix > 10)";
             }
 
             @Override

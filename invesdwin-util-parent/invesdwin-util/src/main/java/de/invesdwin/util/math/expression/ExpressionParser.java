@@ -81,10 +81,18 @@ public class ExpressionParser {
         registerDefaultFunction(Functions.RNG);
         registerDefaultFunction(Functions.SIGN);
         registerDefaultFunction(Functions.IF);
+
         registerDefaultFunction(Functions.MAP);
         registerDefaultFunction(Functions.SELECT);
         registerDefaultFunction(Functions.ARRAY);
         registerDefaultFunction(Functions.DECIDE);
+
+        registerDefaultFunction(Functions.VOTE);
+        registerDefaultFunction(Functions.ENSEMBLE);
+        registerDefaultFunction(Functions.THRESHOLD);
+        registerDefaultFunction(Functions.MAJORITY);
+        registerDefaultFunction(Functions.FUZZY);
+
         registerDefaultFunction(Functions.ISNAN);
         registerDefaultFunction(Functions.ISTRUE);
         registerDefaultFunction(Functions.ISFALSE);
