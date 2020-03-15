@@ -123,8 +123,8 @@ public abstract class AHistoricalCache<V>
     protected void innerIncreaseMaximumSize(final int maximumSize, final String reason) {
         queryCore.increaseMaximumSize(maximumSize);
         if (isDebugAutomaticReoptimization() || maximumSize >= getMaximumSizeLimit()) {
-            if (getMaximumSize() != null && getMaximumSize() > 0 && LOG.isWarnEnabled()) {
-                LOG.warn(this + ": Increasing maximum size from [" + this.maximumSize + "] to [" + maximumSize
+            if (getMaximumSize() != null && getMaximumSize() > 0 && LOG.isDebugEnabled()) {
+                LOG.debug(this + ": Increasing maximum size from [" + this.maximumSize + "] to [" + maximumSize
                         + "] with reason [" + reason + "]");
             }
         }
