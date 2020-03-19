@@ -110,4 +110,11 @@ public final class Files extends AFilesStaticFacade {
         }
     }
 
+    public static boolean exists(final File file) {
+        if (file == null) {
+            return false;
+        }
+        return file.exists();
+    }
+
 }
