@@ -31,7 +31,8 @@ public final class Components {
 
     private static ToolTipFormatter defaultToolTipFormatter = new ToolTipFormatter();
 
-    private Components() {}
+    private Components() {
+    }
 
     public static void setDefaultToolTipFormatter(final ToolTipFormatter defaultToolTipFormatter) {
         Components.defaultToolTipFormatter = defaultToolTipFormatter;
@@ -78,7 +79,7 @@ public final class Components {
     }
 
     public static boolean isMouseOverComponent(final Component component) {
-        if (!component.isShowing()) {
+        if (!isShowingAndWindowIsActive(component)) {
             return false;
         } else {
             final Point locationOnScreen = MouseInfo.getPointerInfo().getLocation();
@@ -128,7 +129,7 @@ public final class Components {
      * https://stackoverflow.com/questions/12822819/dynamically-update-tooltip-currently-displayed
      */
     public static void triggerMouseMoved(final JComponent component, final MouseMotionListener listener) {
-        if (component.isShowing()) {
+        if (isShowingAndWindowIsActive(component)) {
             final Point locationOnScreen = MouseInfo.getPointerInfo().getLocation();
             final Point locationOnComponent = new Point(locationOnScreen);
             SwingUtilities.convertPointFromScreen(locationOnComponent, component);
@@ -139,8 +140,17 @@ public final class Components {
         }
     }
 
+    public static boolean isShowingAndWindowIsActive(final Component component) {
+        if (component.isShowing()) {
+            final Window window = SwingUtilities.getWindowAncestor(component);
+            return window.isActive();
+        } else {
+            return false;
+        }
+    }
+
     public static Point getMouseLocationOnComponent(final Component component) {
-        if (!component.isShowing()) {
+        if (isShowingAndWindowIsActive(component)) {
             return null;
         }
         final Point locationOnScreen = MouseInfo.getPointerInfo().getLocation();
