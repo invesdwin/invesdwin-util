@@ -33,6 +33,7 @@ import javax.swing.event.HyperlinkListener;
 
 import de.invesdwin.util.concurrent.reference.MutableReference;
 import de.invesdwin.util.lang.Reflections;
+import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.lang.uri.URIs;
 import de.invesdwin.util.swing.listener.IColorChooserListener;
 
@@ -48,7 +49,8 @@ public final class Dialogs extends javax.swing.JOptionPane {
 
     private static final org.slf4j.ext.XLogger LOG = org.slf4j.ext.XLoggerFactory.getXLogger(Dialogs.class);
 
-    private Dialogs() {}
+    private Dialogs() {
+    }
 
     public static void setDialogVisitor(final AComponentVisitor dialogVisitor) {
         Dialogs.dialogVisitor = dialogVisitor;
@@ -206,9 +208,11 @@ public final class Dialogs extends javax.swing.JOptionPane {
         Object ret = message;
         if (message instanceof CharSequence) {
             final String messageString = message.toString();
-            if (messageString.contains("<html>")) {
+            if (Strings.containsIgnoreCase(messageString, "<html>")) {
                 final JEditorPane messagePane = newHtmlMessagePane();
-                messagePane.setText(messageString);
+                final String adjMessageString = Components.getDefaultToolTipFormatter()
+                        .format(messageString.replace("\n", "<br>"));
+                messagePane.setText(adjMessageString);
                 ret = messagePane;
             }
         }
