@@ -3,6 +3,8 @@ package de.invesdwin.util.swing;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Desktop;
+import java.awt.EventQueue;
+import java.awt.FileDialog;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -353,6 +355,26 @@ public final class Dialogs extends javax.swing.JOptionPane {
         final JRootPane root = dialog.getRootPane();
         root.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(WINDOW_CLOSING_STROKE, ESCAPE_STROKE_KEY);
         root.getActionMap().put(ESCAPE_STROKE_KEY, dispatchClosing);
+    }
+
+    public static void showFileDialog(final FileDialog fileDialog) {
+        fileDialog.setModal(true);
+        fileDialog.setLocationByPlatform(false);
+        fileDialog.pack();
+        fileDialog.setSize(800, 600);
+        fileDialog.setLocationRelativeTo(Dialogs.getRootFrame());
+        fileDialog.setVisible(true);
+        //CHECKSTYLE:OFF
+        EventQueue.invokeLater(new Runnable() {
+            //CHECKSTYLE:ON
+            @Override
+            public void run() {
+                //ubuntu workarounds
+                fileDialog.setLocation(0, 0);
+                fileDialog.setLocationRelativeTo(Dialogs.getRootFrame());
+                fileDialog.requestFocus();
+            }
+        });
     }
 
 }
