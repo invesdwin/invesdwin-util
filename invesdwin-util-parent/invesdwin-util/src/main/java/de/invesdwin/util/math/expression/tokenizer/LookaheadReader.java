@@ -6,6 +6,8 @@ import java.io.Reader;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.util.error.Throwables;
+
 @NotThreadSafe
 public class LookaheadReader extends ALookahead<Char> {
 
@@ -51,7 +53,8 @@ public class LookaheadReader extends ALookahead<Char> {
             indexOffset++;
             return new Char((char) character, lineOffset, columnOffset, indexOffset);
         } catch (final IOException e) {
-            throw new ParseException(new Char('\0', lineOffset, columnOffset, indexOffset), e.getMessage());
+            throw new ParseException(new Char('\0', lineOffset, columnOffset, indexOffset),
+                    Throwables.concatMessagesShort(e));
         }
     }
 

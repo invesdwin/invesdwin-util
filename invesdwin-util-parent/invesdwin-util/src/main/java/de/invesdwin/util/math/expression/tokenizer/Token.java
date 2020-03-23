@@ -42,7 +42,8 @@ public final class Token implements IPosition {
     private int lineOffset;
     private int indexOffset;
 
-    private Token() {}
+    private Token() {
+    }
 
     public static Token create(final TokenType type, final IPosition pos) {
         final Token result = new Token();
@@ -141,7 +142,11 @@ public final class Token implements IPosition {
 
     @Override
     public int getLength() {
-        return getSource().length();
+        if (isEnd()) {
+            return 1;
+        } else {
+            return getSource().length();
+        }
     }
 
     public void setTrigger(final String trigger) {

@@ -55,7 +55,8 @@ public final class Strings extends AStringsStaticFacade {
         SYMBOL_ESCAPEDHTML.put("§", "&sect;");
     }
 
-    private Strings() {}
+    private Strings() {
+    }
 
     public static String escapeHtmlSymbolsWithoutDestroyingMarkup(final String str) {
         String escapedValue = str;
@@ -285,6 +286,9 @@ public final class Strings extends AStringsStaticFacade {
      *      </a>
      */
     public static String normalizeNewlines(final String s) {
+        if (s == null) {
+            return null;
+        }
         return s.replace("\r\n", "\n").replace("\r", "\n");
     }
 
