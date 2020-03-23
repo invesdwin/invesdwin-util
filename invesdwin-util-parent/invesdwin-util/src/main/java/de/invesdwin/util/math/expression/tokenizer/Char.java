@@ -85,4 +85,8 @@ public class Char implements IPosition {
         }
         return String.valueOf(value);
     }
+
+    public boolean isSemicolon() {
+        return value == ';';
+    }
 }

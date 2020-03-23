@@ -48,6 +48,13 @@ public class Tokenizer extends ALookahead<Token> {
             input.consume();
         }
 
+        if (input.current.isSemicolon()) {
+            //semicolon is an unsupported character, it is reserved for csv files containing expressions
+            throw new ParseException(input.current(),
+                    String.format("Semicolon is reserved for splitting multiple expressions in CSV files: '%s'",
+                            input.current().getStringValue()));
+        }
+
         // End of input reached? Pass end of input signal on...
         if (input.current().isEndOfInput()) {
             return null;
