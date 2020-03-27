@@ -23,7 +23,9 @@ public final class Currencies {
     public static final String GBP_SYMBOL = "£";
     public static final String EUR_SYMBOL = "€";
     public static final String USD_SYMBOL = "$";
+
     public static final String PCT_SYMBOL = "%";
+    public static final String PIP_SYMBOL = "pip";
 
     public static final Currency ARS = Currency.getInstance("ARS");
     public static final Currency AUD = Currency.getInstance("AUD");
@@ -58,6 +60,10 @@ public final class Currencies {
      * Fake currency to denote percent values that are stored in money objects.
      */
     public static final String PCT = "PCT";
+    /**
+     * Fake currency to denote pip values that are stored in money objects.
+     */
+    public static final String PIP = "PIP";
 
     private static final Map<String, String> CURRENCY_CODE_2_CURRENCY_SYMBOL = ILockCollectionFactory.getInstance(true)
             .newConcurrentMap();
@@ -88,10 +94,12 @@ public final class Currencies {
         CURRENCY_CODE_2_CURRENCY_SYMBOL.put("GBP", GBP_SYMBOL);
         CURRENCY_CODE_2_CURRENCY_SYMBOL.put("JPY", JPY_SYMBOL);
         CURRENCY_CODE_2_CURRENCY_SYMBOL.put("CNY", CNY_SYMBOL);
-        CURRENCY_CODE_2_CURRENCY_SYMBOL.put("PCT", PCT_SYMBOL);
+        CURRENCY_CODE_2_CURRENCY_SYMBOL.put(PCT, PCT_SYMBOL);
+        CURRENCY_CODE_2_CURRENCY_SYMBOL.put(PIP, PIP_SYMBOL);
     }
 
-    private Currencies() {}
+    private Currencies() {
+    }
 
     /**
      * This method uses symbols for the most common currencies.
