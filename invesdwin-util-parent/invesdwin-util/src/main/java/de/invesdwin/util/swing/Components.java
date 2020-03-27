@@ -43,13 +43,13 @@ public final class Components {
     }
 
     public static void setForeground(final Component component, final Color foregroundColor) {
-        if (!foregroundColor.equals(component.getForeground())) {
+        if (!Objects.equals(foregroundColor, component.getForeground())) {
             component.setForeground(foregroundColor);
         }
     }
 
     public static void setBackground(final Component component, final Color backgroundColor) {
-        if (!backgroundColor.equals(component.getBackground())) {
+        if (!Objects.equals(backgroundColor, component.getBackground())) {
             component.setBackground(backgroundColor);
         }
     }
