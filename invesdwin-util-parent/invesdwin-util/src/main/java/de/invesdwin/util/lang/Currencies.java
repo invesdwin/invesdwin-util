@@ -207,4 +207,8 @@ public final class Currencies {
         }
     }
 
+    public static boolean isFakeCurrency(final String currencyCode) {
+        return Strings.equalsAny(currencyCode, PCT, PIP);
+    }
+
 }
