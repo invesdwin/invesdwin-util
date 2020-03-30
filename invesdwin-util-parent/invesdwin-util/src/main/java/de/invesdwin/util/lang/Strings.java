@@ -582,7 +582,23 @@ public final class Strings extends AStringsStaticFacade {
     }
 
     public static boolean isBlankOrNullText(final String str) {
-        return isBlank(str) || equalsIgnoreCase(str, NULL_TEXT);
+        if (str == null) {
+            return true;
+        }
+        final String trim = str.trim();
+        return trim.length() == 0 || NULL_TEXT.equalsIgnoreCase(trim);
+    }
+
+    public static boolean isEmptyOrNullText(final String str) {
+        if (str == null) {
+            return true;
+        }
+        return str.length() == 0 || NULL_TEXT.equalsIgnoreCase(str);
+    }
+
+    public static String removeSpace(final String value) {
+        final String space = normalizeSpace(value);
+        return replace(space, " ", "");
     }
 
 }
