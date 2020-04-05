@@ -40,7 +40,8 @@ public final class TaskInfoManager {
     private static final FastThreadLocal<Stack<WeakReferenceTaskInfoProvider>> CURRENT_THREAD_TASK_INFO_NAME = new FastThreadLocal<>();
     private static final int MAX_DESCRIPTIONS = 3;
 
-    private TaskInfoManager() {}
+    private TaskInfoManager() {
+    }
 
     public static synchronized void onCreated(final ITaskInfoProvider taskInfoProvider) {
         final String name = taskInfoProvider.getName();
@@ -59,8 +60,10 @@ public final class TaskInfoManager {
         final int identityHashCode = System.identityHashCode(taskInfoProvider);
         final WeakReferenceTaskInfoProvider weakReferenceTaskInfoProvider = new WeakReferenceTaskInfoProvider(
                 identityHashCode, taskInfoProvider);
-        //there might be hash collisions here which we just ignore
-        tasks.put(identityHashCode, weakReferenceTaskInfoProvider);
+        if (tasks.put(identityHashCode, weakReferenceTaskInfoProvider) != null) {
+            System.out.println("TODO");
+            //            throw new IllegalStateException("Already registered: " + taskInfoProvider);
+        }
         if (added) {
             triggerOnTaskInfoAdded(name);
         }
