@@ -49,7 +49,7 @@ public final class TaskInfoManager {
         boolean added = false;
         if (tasks == null) {
             tasks = new LinkedHashMap<>();
-            NAME_TASKS.put(name, tasks);
+            Assertions.checkNull(NAME_TASKS.put(name, tasks));
             added = true;
         } else {
             final TaskInfo taskInfo = getTaskInfo(name, tasks.values());
@@ -60,10 +60,7 @@ public final class TaskInfoManager {
         final int identityHashCode = System.identityHashCode(taskInfoProvider);
         final WeakReferenceTaskInfoProvider weakReferenceTaskInfoProvider = new WeakReferenceTaskInfoProvider(
                 identityHashCode, taskInfoProvider);
-        if (tasks.put(identityHashCode, weakReferenceTaskInfoProvider) != null) {
-            System.out.println("TODO");
-            //            throw new IllegalStateException("Already registered: " + taskInfoProvider);
-        }
+        added = tasks.putIfAbsent(identityHashCode, weakReferenceTaskInfoProvider) == null && added;
         if (added) {
             triggerOnTaskInfoAdded(name);
         }
