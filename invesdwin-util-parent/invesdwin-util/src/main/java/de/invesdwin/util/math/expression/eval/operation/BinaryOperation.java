@@ -258,7 +258,7 @@ public class BinaryOperation implements IParsedExpression {
 
             @Override
             protected boolean applyBoolean(final double a, final double b) {
-                return a < b;
+                return Doubles.compare(a, b) < 0;
             }
         },
         LT_EQ(2, "<=") {
@@ -269,7 +269,7 @@ public class BinaryOperation implements IParsedExpression {
 
             @Override
             protected boolean applyBoolean(final double a, final double b) {
-                return a <= b;
+                return Doubles.compare(a, b) <= 0;
             }
         },
         EQ(2, "==") {
@@ -280,7 +280,7 @@ public class BinaryOperation implements IParsedExpression {
 
             @Override
             protected boolean applyBoolean(final double a, final double b) {
-                return a == b;
+                return Doubles.compare(a, b) == 0;
             }
         },
         GT_EQ(2, ">=") {
@@ -291,7 +291,7 @@ public class BinaryOperation implements IParsedExpression {
 
             @Override
             protected boolean applyBoolean(final double a, final double b) {
-                return a >= b;
+                return Doubles.compare(a, b) >= 0;
             }
         },
         GT(2, ">") {
@@ -302,7 +302,7 @@ public class BinaryOperation implements IParsedExpression {
 
             @Override
             protected boolean applyBoolean(final double a, final double b) {
-                return a > b;
+                return Doubles.compare(a, b) > 0;
             }
         },
         NEQ(2, "!=") {
@@ -313,7 +313,7 @@ public class BinaryOperation implements IParsedExpression {
 
             @Override
             protected boolean applyBoolean(final double a, final double b) {
-                return a != b;
+                return Doubles.compare(a, b) != 0;
             }
         },
         AND(1, "&&") {
