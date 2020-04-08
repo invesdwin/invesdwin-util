@@ -8,11 +8,13 @@ import java.util.function.Supplier;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.lang.Strings;
+import de.invesdwin.util.lang.description.TextDescription;
 
 @Immutable
 public final class AssertionUtils {
 
-    private AssertionUtils() {}
+    private AssertionUtils() {
+    }
 
     static void fail(final String message) {
         fail(() -> message);
@@ -55,10 +57,10 @@ public final class AssertionUtils {
         final String expectedString = toString(expected);
         final String actualString = toString(actual);
         if (expectedString.equals(actualString)) {
-            return String.format("expected: %s but was: %s", formatClassAndValue(expected, expectedString),
+            return TextDescription.format("expected: %s but was: %s", formatClassAndValue(expected, expectedString),
                     formatClassAndValue(actual, actualString));
         }
-        return String.format("expected: <%s> but was: <%s>", expectedString, actualString);
+        return TextDescription.format("expected: <%s> but was: <%s>", expectedString, actualString);
     }
 
     private static String formatClassAndValue(final Object value, final String valueString) {

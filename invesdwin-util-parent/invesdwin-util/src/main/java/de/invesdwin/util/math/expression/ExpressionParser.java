@@ -142,7 +142,7 @@ public class ExpressionParser {
         if (tokenizer.current().isNotEnd()) {
             final Token token = tokenizer.consume();
             throw new ParseException(token,
-                    String.format("Unexpected token: '%s'. Expected an expression.", token.getSource()));
+                    TextDescription.format("Unexpected token: '%s'. Expected an expression.", token.getSource()));
         }
         return result;
     }
@@ -632,7 +632,7 @@ public class ExpressionParser {
         }
         final Token token = tokenizer.consume();
         throw new ParseException(token,
-                String.format("Unexpected token: '%s'. Expected an expression.", token.getSource()));
+                TextDescription.format("Unexpected token: '%s'. Expected an expression.", token.getSource()));
     }
 
     private AFunction findFunction(final IPosition position, final String context, final String name) {
@@ -647,7 +647,7 @@ public class ExpressionParser {
             return new VariableFunction(context, name, variable);
         }
 
-        throw new ParseException(position, String.format("Unknown function: '%s'", name));
+        throw new ParseException(position, TextDescription.format("Unknown function: '%s'", name));
     }
 
     protected AFunction getFunction(final String context, final String name) {
@@ -672,7 +672,7 @@ public class ExpressionParser {
             }
         }
 
-        throw new ParseException(position, String.format("Unknown variable: '%s'", name));
+        throw new ParseException(position, TextDescription.format("Unknown variable: '%s'", name));
     }
 
     protected VariableReference getVariable(final String context, final String name) {
@@ -690,7 +690,7 @@ public class ExpressionParser {
             return current;
         } else {
             throw new ParseException(current,
-                    String.format("Unexpected token '%s'. Expected: '%s'", current.getSource(), trigger));
+                    TextDescription.format("Unexpected token '%s'. Expected: '%s'", current.getSource(), trigger));
         }
     }
 }

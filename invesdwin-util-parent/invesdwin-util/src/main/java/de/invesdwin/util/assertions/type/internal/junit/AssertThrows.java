@@ -5,11 +5,13 @@ import java.util.function.Supplier;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.assertions.Executable;
+import de.invesdwin.util.lang.description.TextDescription;
 
 @Immutable
 public final class AssertThrows {
 
-    private AssertThrows() {}
+    private AssertThrows() {
+    }
 
     static <T extends Throwable> T assertThrows(final Class<T> expectedType, final Executable executable) {
         return assertThrows(expectedType, executable, () -> null);
@@ -37,8 +39,9 @@ public final class AssertThrows {
             }
         }
 
-        final String message = AssertionUtils.buildPrefix(AssertionUtils.nullSafeGet(messageSupplier)) + String.format(
-                "Expected %s to be thrown, but nothing was thrown.", AssertionUtils.getCanonicalName(expectedType));
+        final String message = AssertionUtils.buildPrefix(AssertionUtils.nullSafeGet(messageSupplier))
+                + TextDescription.format("Expected %s to be thrown, but nothing was thrown.",
+                        AssertionUtils.getCanonicalName(expectedType));
         throw new AssertionError(message);
     }
 

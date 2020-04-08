@@ -8,6 +8,12 @@ public final class ParseException extends RuntimeException {
     private final IPosition pos;
     private final String originalMessage;
 
+    public ParseException(final IPosition pos, final String message, final Throwable cause) {
+        super(newMessage(pos, message), cause);
+        this.pos = pos;
+        this.originalMessage = message;
+    }
+
     public ParseException(final IPosition pos, final String message) {
         super(newMessage(pos, message));
         this.pos = pos;

@@ -6,6 +6,8 @@ import java.util.Map;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.util.lang.description.TextDescription;
+
 @NotThreadSafe
 public class Tokenizer extends ALookahead<Token> {
 
@@ -51,7 +53,8 @@ public class Tokenizer extends ALookahead<Token> {
         if (input.current.isSemicolon()) {
             //semicolon is an unsupported character, it is reserved for csv files containing expressions
             throw new ParseException(input.current(),
-                    String.format("Semicolon is reserved for splitting multiple expressions in CSV files: '%s'",
+                    TextDescription.format(
+                            "Semicolon is reserved for splitting multiple expressions in CSV files: '%s'",
                             input.current().getStringValue()));
         }
 
@@ -99,7 +102,7 @@ public class Tokenizer extends ALookahead<Token> {
         }
 
         throw new ParseException(input.current(),
-                String.format("Invalid character in input: '%s'", input.current().getStringValue()));
+                TextDescription.format("Invalid character in input: '%s'", input.current().getStringValue()));
     }
 
     protected boolean isAtStartOfNumber() {
@@ -124,8 +127,8 @@ public class Tokenizer extends ALookahead<Token> {
             if (escapeChar != '\0' && input.current().is(escapeChar)) {
                 result.addToSource(input.consume());
                 if (!handleStringEscape(separator, escapeChar, result)) {
-                    throw new ParseException(input.next(),
-                            String.format("Cannot use '%s' as escaped character", input.next().getStringValue()));
+                    throw new ParseException(input.next(), TextDescription
+                            .format("Cannot use '%s' as escaped character", input.next().getStringValue()));
                 }
             } else {
                 result.addToContent(input.consume());
@@ -249,7 +252,7 @@ public class Tokenizer extends ALookahead<Token> {
             consume();
         } else {
             throw new ParseException(current,
-                    String.format("Unexpected token: '%s'. Expected: '%s'", current.getSource(), symbol));
+                    TextDescription.format("Unexpected token: '%s'. Expected: '%s'", current.getSource(), symbol));
         }
     }
 

@@ -52,7 +52,7 @@ public abstract class AGenericProducerQueueIterator<E> extends ACloseableIterato
                     final boolean added = queue.offer(element);
                     if (!added && queue.remainingCapacity() == 0) {
                         if (utilizationDebugEnabled) {
-                            LOGGER.info(String.format("%s: queue is full", finalizer.name));
+                            LOGGER.info(TextDescription.format("%s: queue is full", finalizer.name));
                         }
                         drainedLock.lock();
                         try {
@@ -164,7 +164,7 @@ public abstract class AGenericProducerQueueIterator<E> extends ACloseableIterato
             boolean firstPoll = true;
             while (hasNext()) {
                 if (!firstPoll && utilizationDebugEnabled) {
-                    LOGGER.info(String.format("%s: queue is empty", finalizer.name));
+                    LOGGER.info(TextDescription.format("%s: queue is empty", finalizer.name));
                 }
                 firstPoll = false;
                 final E element = queue.poll(1, TimeUnit.SECONDS);

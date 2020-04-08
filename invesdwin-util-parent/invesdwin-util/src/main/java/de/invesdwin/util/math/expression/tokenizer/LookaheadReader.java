@@ -54,7 +54,7 @@ public class LookaheadReader extends ALookahead<Char> {
             return new Char((char) character, lineOffset, columnOffset, indexOffset);
         } catch (final IOException e) {
             throw new ParseException(new Char('\0', lineOffset, columnOffset, indexOffset),
-                    Throwables.concatMessagesShort(e));
+                    Throwables.concatMessagesShort(e), e);
         }
     }
 
