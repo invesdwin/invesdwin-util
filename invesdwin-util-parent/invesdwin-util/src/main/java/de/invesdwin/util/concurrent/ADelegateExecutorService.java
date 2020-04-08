@@ -25,54 +25,58 @@ public abstract class ADelegateExecutorService implements ExecutorService {
 
     protected abstract <T> Callable<T> newCallable(Callable<T> callable);
 
+    public ExecutorService getDelegate() {
+        return delegate;
+    }
+
     @Override
     public void execute(final Runnable command) {
-        delegate.execute(newRunnable(command));
+        getDelegate().execute(newRunnable(command));
     }
 
     @Override
     public void shutdown() {
-        delegate.shutdown();
+        getDelegate().shutdown();
     }
 
     @Override
     public List<Runnable> shutdownNow() {
-        return delegate.shutdownNow();
+        return getDelegate().shutdownNow();
     }
 
     @Override
     public boolean isShutdown() {
-        return delegate.isShutdown();
+        return getDelegate().isShutdown();
     }
 
     @Override
     public boolean isTerminated() {
-        return delegate.isTerminated();
+        return getDelegate().isTerminated();
     }
 
     @Override
     public boolean awaitTermination(final long timeout, final TimeUnit unit) throws InterruptedException {
-        return delegate.awaitTermination(timeout, unit);
+        return getDelegate().awaitTermination(timeout, unit);
     }
 
     @Override
     public <T> Future<T> submit(final Callable<T> task) {
-        return delegate.submit(newCallable(task));
+        return getDelegate().submit(newCallable(task));
     }
 
     @Override
     public <T> Future<T> submit(final Runnable task, final T result) {
-        return delegate.submit(newRunnable(task), result);
+        return getDelegate().submit(newRunnable(task), result);
     }
 
     @Override
     public Future<?> submit(final Runnable task) {
-        return delegate.submit(newRunnable(task));
+        return getDelegate().submit(newRunnable(task));
     }
 
     @Override
     public <T> List<Future<T>> invokeAll(final Collection<? extends Callable<T>> tasks) throws InterruptedException {
-        return delegate.invokeAll(newCallables(tasks));
+        return getDelegate().invokeAll(newCallables(tasks));
     }
 
     protected <T> Collection<? extends Callable<T>> newCallables(final Collection<? extends Callable<T>> tasks) {
@@ -86,19 +90,19 @@ public abstract class ADelegateExecutorService implements ExecutorService {
     @Override
     public <T> List<Future<T>> invokeAll(final Collection<? extends Callable<T>> tasks, final long timeout,
             final TimeUnit unit) throws InterruptedException {
-        return delegate.invokeAll(newCallables(tasks), timeout, unit);
+        return getDelegate().invokeAll(newCallables(tasks), timeout, unit);
     }
 
     @Override
     public <T> T invokeAny(final Collection<? extends Callable<T>> tasks)
             throws InterruptedException, ExecutionException {
-        return delegate.invokeAny(newCallables(tasks));
+        return getDelegate().invokeAny(newCallables(tasks));
     }
 
     @Override
     public <T> T invokeAny(final Collection<? extends Callable<T>> tasks, final long timeout, final TimeUnit unit)
             throws InterruptedException, ExecutionException, TimeoutException {
-        return delegate.invokeAny(newCallables(tasks), timeout, unit);
+        return getDelegate().invokeAny(newCallables(tasks), timeout, unit);
     }
 
 }
