@@ -12,6 +12,7 @@ import com.google.common.util.concurrent.MoreExecutors;
 
 import de.invesdwin.util.concurrent.internal.WrappedThreadFactory;
 import de.invesdwin.util.concurrent.priority.PriorityThreadPoolExecutor;
+import de.invesdwin.util.math.Integers;
 import io.netty.util.concurrent.DefaultThreadFactory;
 
 /**
@@ -25,7 +26,8 @@ public final class Executors {
 
     private static int cpuThreadPoolCount = Runtime.getRuntime().availableProcessors();
 
-    private Executors() {}
+    private Executors() {
+    }
 
     /**
      * @see java.util.concurrent.Executors.newCachedThreadPool
@@ -44,13 +46,15 @@ public final class Executors {
      * @see java.util.concurrent.Executors.newFixedThreadPool
      */
     public static WrappedExecutorService newFixedThreadPool(final String name, final int nThreads) {
+        final int theads = Integers.max(1, nThreads);
         final java.util.concurrent.ThreadPoolExecutor ex = (java.util.concurrent.ThreadPoolExecutor) java.util.concurrent.Executors
-                .newFixedThreadPool(nThreads, newFastThreadLocalThreadFactory(name));
+                .newFixedThreadPool(theads, newFastThreadLocalThreadFactory(name));
         return new WrappedExecutorService(ex, name);
     }
 
     public static WrappedExecutorService newFixedPriorityThreadPool(final String name, final int nThreads) {
-        final java.util.concurrent.ThreadPoolExecutor ex = new PriorityThreadPoolExecutor(nThreads, nThreads, 0L,
+        final int theads = Integers.max(1, nThreads);
+        final java.util.concurrent.ThreadPoolExecutor ex = new PriorityThreadPoolExecutor(theads, theads, 0L,
                 TimeUnit.MILLISECONDS, newFastThreadLocalThreadFactory(name));
         return new WrappedExecutorService(ex, name);
     }
@@ -68,14 +72,16 @@ public final class Executors {
      * @see java.util.concurrent.Executors.newScheduledThreadPool
      */
     public static WrappedScheduledExecutorService newScheduledThreadPool(final String name, final int corePoolSize) {
+        final int threads = Integers.max(1, corePoolSize);
         final java.util.concurrent.ScheduledThreadPoolExecutor ex = (java.util.concurrent.ScheduledThreadPoolExecutor) java.util.concurrent.Executors
-                .newScheduledThreadPool(corePoolSize, newFastThreadLocalThreadFactory(name));
+                .newScheduledThreadPool(threads, newFastThreadLocalThreadFactory(name));
         return new WrappedScheduledExecutorService(ex, name).withDynamicThreadName(false);
     }
 
     public static WrappedExecutorService newFixedCallerRunsThreadPool(final String name, final int nThreads) {
-        final java.util.concurrent.ThreadPoolExecutor ex = new java.util.concurrent.ThreadPoolExecutor(nThreads,
-                nThreads, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(nThreads),
+        final int threads = Integers.max(1, nThreads);
+        final java.util.concurrent.ThreadPoolExecutor ex = new java.util.concurrent.ThreadPoolExecutor(threads, threads,
+                0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(threads),
                 newFastThreadLocalThreadFactory(name), new CallerRunsPolicy());
         return new WrappedExecutorService(ex, name);
     }
@@ -88,15 +94,17 @@ public final class Executors {
     }
 
     public static void setCpuThreadPoolCount(final int cpuThreadPoolCount) {
-        Executors.cpuThreadPoolCount = cpuThreadPoolCount;
+        Executors.cpuThreadPoolCount = Integers.max(1, cpuThreadPoolCount);
     }
 
     public static ConfiguredForkJoinPool newForkJoinPool(final String name, final int parallelism) {
-        return new ConfiguredForkJoinPool(name, parallelism, false);
+        final int threads = Integers.max(1, parallelism);
+        return new ConfiguredForkJoinPool(name, threads, false);
     }
 
     public static ConfiguredForkJoinPool newAsyncForkJoinPool(final String name, final int parallelism) {
-        return new ConfiguredForkJoinPool(name, parallelism, true);
+        final int threads = Integers.max(1, parallelism);
+        return new ConfiguredForkJoinPool(name, threads, true);
     }
 
     /**
