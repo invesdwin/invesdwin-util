@@ -227,14 +227,14 @@ public class ExpressionParser {
             }
         } else if ("crosses".equals(current.getContents())) {
             final Token next = tokenizer.next();
-            if ("above".equals(next.getContents())) {
+            if ("above".equals(next.getContents()) || "over".equals(next.getContents())) {
                 tokenizer.consume(2);
                 final IParsedExpression right = relationalExpression();
                 final CrossesAboveOperation result = new CrossesAboveOperation(left, right,
                         getPreviousKeyFunction(left.getContext()), getPreviousKeyFunction(right.getContext()));
                 result.seal();
                 return result;
-            } else if ("below".equals(next.getContents())) {
+            } else if ("below".equals(next.getContents()) || "under".equals(next.getContents())) {
                 tokenizer.consume(2);
                 final IParsedExpression right = relationalExpression();
                 final CrossesBelowOperation result = new CrossesBelowOperation(left, right,
