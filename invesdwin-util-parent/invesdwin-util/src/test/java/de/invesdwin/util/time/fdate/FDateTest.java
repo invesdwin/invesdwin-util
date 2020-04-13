@@ -236,9 +236,10 @@ public class FDateTest {
 
     @Test
     public void testParseZoneId() {
-        final String joda = new FDate().toString();
+        final FDate time = new FDate();
+        final String joda = time.toString();
         final String java = FDate
-                .valueOf(new FDate().toString(FDate.FORMAT_GERMAN_DATE_TIME_MS, (ZoneId) null), (ZoneId) null, null,
+                .valueOf(time.toString(FDate.FORMAT_GERMAN_DATE_TIME_MS, (ZoneId) null), (ZoneId) null, null,
                         FDate.FORMAT_GERMAN_DATE_TIME_MS)
                 .toString();
         Assertions.assertThat(java).isEqualTo(joda);
