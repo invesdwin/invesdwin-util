@@ -235,7 +235,7 @@ public final class Strings extends AStringsStaticFacade {
         if (s == null) {
             return 0;
         }
-        final String[] lines = Strings.split(s, "\n");
+        final String[] lines = Strings.splitPreserveAllTokens(s, "\n");
         int maxLength = 0;
         for (int i = 0; i < lines.length; i++) {
             maxLength = Math.max(maxLength, lines[i].length());
@@ -247,7 +247,7 @@ public final class Strings extends AStringsStaticFacade {
         if (s == null) {
             return null;
         }
-        final String[] lines = Strings.split(s, "\n");
+        final String[] lines = Strings.splitPreserveAllTokens(s, "\n");
         String longestLine = "";
         for (int i = 0; i < lines.length; i++) {
             if (longestLine.length() < lines[i].length()) {
