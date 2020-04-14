@@ -88,27 +88,27 @@ public class ExpressionParserTest {
     @Test
     public void testOfContextWithParams() {
         final IExpression parsed = new ExpressionParser(
-                "isNaN(NaN of JFOREX:EURUSD:[asd=1,asdf=2]@TimeBarConfig[15 MINUTES, bla]) of JFOREX:EURUSD:[uhg=1,uhgj=2]@TimeBarConfig[15 MINUTES, bla]") {
+                "isNaN(NaN of JFOREX:EURUSD:[asd=1|asdf=2]@TimeBarConfig[15 MINUTES| bla]) of JFOREX:EURUSD:[uhg=1|uhgj=2]@TimeBarConfig[15 MINUTES| bla]") {
             @Override
             protected IParsedExpression simplify(final IParsedExpression expression) {
                 return expression;
             }
         }.parse();
         Assertions.checkEquals(parsed.toString(),
-                "JFOREX:EURUSD:[uhg=1,uhgj=2]@TimeBarConfig[15 MINUTES, bla]:isNaN(JFOREX:EURUSD:[asd=1,asdf=2]@TimeBarConfig[15 MINUTES, bla]:NaN)");
+                "JFOREX:EURUSD:[uhg=1|uhgj=2]@TimeBarConfig[15 MINUTES| bla]:isNaN(JFOREX:EURUSD:[asd=1|asdf=2]@TimeBarConfig[15 MINUTES| bla]:NaN)");
     }
 
     @Test
     public void testContextWithParams() {
         final IExpression parsed = new ExpressionParser(
-                "JFOREX:EURUSD:[uhg=1,uhgj=2]@TimeBarConfig[15 MINUTES, bla]:isNaN(JFOREX:EURUSD:[asd=1,asdf=2]@TimeBarConfig[15 MINUTES, bla]:NaN)") {
+                "JFOREX:EURUSD:[uhg=1 | uhgj=2]@TimeBarConfig[15 MINUTES| bla]:isNaN(JFOREX:EURUSD:[asd=1|asdf=2]@TimeBarConfig[15 MINUTES| bla]:NaN)") {
             @Override
             protected IParsedExpression simplify(final IParsedExpression expression) {
                 return expression;
             }
         }.parse();
         Assertions.checkEquals(parsed.toString(),
-                "JFOREX:EURUSD:[uhg=1,uhgj=2]@TimeBarConfig[15 MINUTES, bla]:isNaN(JFOREX:EURUSD:[asd=1,asdf=2]@TimeBarConfig[15 MINUTES, bla]:NaN)");
+                "JFOREX:EURUSD:[uhg=1 | uhgj=2]@TimeBarConfig[15 MINUTES| bla]:isNaN(JFOREX:EURUSD:[asd=1|asdf=2]@TimeBarConfig[15 MINUTES| bla]:NaN)");
     }
 
     @Test
