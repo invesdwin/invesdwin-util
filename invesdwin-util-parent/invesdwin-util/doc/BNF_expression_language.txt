@@ -1,0 +1,53 @@
+<program> ::= <statement>
+
+<statement> ::= <function_or_variable>
+ | <number_whitespace>
+ | <statement> <operators> <statement>
+ | <grouped_statement>
+ | <negated_statement>
+<grouped_statement> ::= "(" <statement> ")"
+<negated_statement> ::= "!" <statement>
+ 
+<function_or_variable> ::= <function_whitespace> 
+ | <variable_whitespace> 
+ | <context_lookup>
+ | <previous_lookup>
+ 
+<function_whitespace> ::= ( <whitespace> )* <function> ( <whitespace> )*
+<function> ::= <letters> "(" <function_parameters> ")"
+<function_parameters> ::= <statement> ( ( <whitespace> )? "," ( <whitespace> )? <statement> )*
+<variable_whitespace> ::= <letters_whitespace>
+
+<previous_lookup> ::= <function_or_variable> "[" <statement> "]"
+
+<operators> ::= ( <whitespace> )* <operator> ( <whitespace> )*
+<operator> ::= <math_operator> 
+ | <boolean_operator> 
+ | <equal_operator> 
+ | <compare_operator> 
+ | <crosses_operator>
+<math_operator> ::= "+" | "-" | "*" | "/" | "^"
+<boolean_operator> ::= "&&" | " and " | " AND " | "||" | " or " | " OR "
+<equal_operator> ::= "==" | "=" | "!=" | "<>" | "><"
+<compare_operator> ::= ">" | ">=" | "<" | "<="
+<crosses_operator> ::= " crosses above " | " crosses over " | " crosses below " | " crosses under "
+
+<letters_whitespace> ::= ( <whitespace> )* <letters> ( <whitespace> )*
+<letters> ::= ( <letter> )+
+<letter> ::= [a-z] | [A-Z]
+<number_whitespace> ::= ( <whitespace> )* <number> ( <whitespace> )*
+<number> ::= <positive_number> | <negative_number>
+<positive_number> ::= ("0" |  [1-9] [0-9]*) ("." [0-9]+ )?
+<negative_number> ::= "-" <positive_number>
+<whitespace> ::= " " | "\t" | "\n" | "\r"
+
+
+<context_lookup> ::= <context> ":" <function_or_variable>
+ | <function_or_variable> " of " <context>
+<context> ::= <instrument_id> ( "@" <bar_config_id> )?
+<instrument_id> ::= ( <data_source_id> ":" )? <letters> ( ":" )? ( "[" <context_parameters> "]" )?
+<data_source_id> ::= <letters>
+<bar_config_id> ::= <letters> "[" <context_parameters> "]"
+<context_parameters> ::= <context_parameter> ( ( <whitespace> )? "|" ( <whitespace> )? <context_parameter> )*
+<context_parameter> ::= <statement> | <statement> ( <whitespace> )+ <statement>
+
