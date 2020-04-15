@@ -57,9 +57,11 @@ public class StringsTest {
 
     @Test
     public void testAsStringReflective() {
-        System.out.println(String.format(new PrettyToStringVO().toString())); //SUPPRESS CHECKSTYLE single line
-        System.out.println(//SUPPRESS CHECKSTYLE single line
+        //CHECKSTYLE:OFF
+        System.out.println(String.format(new PrettyToStringVO().toString()));
+        System.out.println(
                 String.format(Strings.asStringReflective(new ArrayList<Integer>(Arrays.asList(1, 2, 3, 4, 5)))));
+        //CHECKSTYLE:ON
     }
 
     @Test
