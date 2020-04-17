@@ -401,8 +401,9 @@ public class ExpressionParser {
             }
             if (current.matches("|")) {
                 tokenizer.consume();
+                final IParsedExpression param = expression(false);
                 expect(Token.TokenType.SYMBOL, "|");
-                return new FunctionCall(null, MathFunctions.ABS, expression(false));
+                return new FunctionCall(null, MathFunctions.ABS, param);
             }
         } else if (current.isIdentifier()) {
             final IParsedExpression functionOrVariable = functionOrVariable();

@@ -19,6 +19,10 @@ public final class Token implements IPosition {
          */
         DECIMAL,
         /**
+         * Represents a decimal constant with a scientific notation
+         */
+        SCIENTIFIC_DECIMAL,
+        /**
          * Represents an integer constant
          */
         INTEGER,
@@ -194,12 +198,16 @@ public final class Token implements IPosition {
         return is(TokenType.INTEGER);
     }
 
+    public boolean isScientificDecimal() {
+        return is(TokenType.SCIENTIFIC_DECIMAL);
+    }
+
     public boolean isDecimal() {
         return is(TokenType.DECIMAL);
     }
 
     public boolean isNumber() {
-        return isInteger() || isDecimal();
+        return isInteger() || isDecimal() || isScientificDecimal();
     }
 
     public boolean isString() {

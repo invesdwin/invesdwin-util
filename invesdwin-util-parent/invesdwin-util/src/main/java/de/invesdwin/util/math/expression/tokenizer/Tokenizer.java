@@ -7,6 +7,7 @@ import java.util.Map;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.lang.description.TextDescription;
+import de.invesdwin.util.math.expression.tokenizer.Token.TokenType;
 
 @NotThreadSafe
 public class Tokenizer extends ALookahead<Token> {
@@ -18,6 +19,13 @@ public class Tokenizer extends ALookahead<Token> {
     private static final char GROUPING_SEPARATOR = '_';
     private static final char[] BRACKETS = { '(', '[', '{', '}', ']', ')' };
     private static final boolean TREAT_SINGLE_PIPE_AS_BRACKET = true;
+
+    /*
+     * Scientific notation separator (e.g. 3e2 = 3*10**2 = 300)
+     */
+    private static final char SCIENTIFIC_NOTATION_SEPARATOR = 'e';
+    private static final char UPPER_SCIENTIFIC_NOTATION_SEPARATOR = 'E';
+
     private static final Map<Character, Character> STRING_DELIMITERS = new IdentityHashMap<Character, Character>() {
         {
             put('"', '\\');
@@ -212,11 +220,11 @@ public class Tokenizer extends ALookahead<Token> {
         Token result = Token.create(Token.TokenType.INTEGER, input.current());
         result.addToContent(input.consume());
         while (input.current().isDigit() || input.current().is(DECIMAL_SEPARATOR)
-                || (input.current().is(GROUPING_SEPARATOR) && input.next().isDigit())) {
+                || (input.current().is(GROUPING_SEPARATOR) && input.next().isDigit()) || isScientificNumber()) {
             if (input.current().is(GROUPING_SEPARATOR)) {
                 result.addToSource(input.consume());
             } else if (input.current().is(DECIMAL_SEPARATOR)) {
-                if (result.isDecimal()) {
+                if (result.isDecimal() || result.isScientificDecimal()) {
                     throw new ParseException(input.current(), "Unexpected decimal separators");
                 } else {
                     final Token decimalToken = Token.create(Token.TokenType.DECIMAL, result);
@@ -225,12 +233,34 @@ public class Tokenizer extends ALookahead<Token> {
                     result = decimalToken;
                 }
                 result.addToSource(input.consume());
+            } else if (isScientificSeparator()) {
+                if (result.isScientificDecimal()) {
+                    throw new ParseException(input.current(), "Unexpected scientific notation separators");
+                } else {
+                    final Token scientificDecimalToken = Token.create(TokenType.SCIENTIFIC_DECIMAL, result);
+                    scientificDecimalToken.setContent(result.getContents() + SCIENTIFIC_NOTATION_SEPARATOR);
+                    scientificDecimalToken.setSource(result.getSource() + SCIENTIFIC_NOTATION_SEPARATOR);
+                    result = scientificDecimalToken;
+                    input.consume();
+                    if (input.current().is('+') || input.current().is('-')) {
+                        result.addToContent(input.consume());
+                    }
+                }
             } else {
                 result.addToContent(input.consume());
             }
         }
 
         return result;
+    }
+
+    private boolean isScientificNumber() {
+        return isScientificSeparator() && (input.next().isDigit() || input.next().is('+') || input.next().is('-'));
+    }
+
+    private boolean isScientificSeparator() {
+        return input.current().is(SCIENTIFIC_NOTATION_SEPARATOR)
+                || input.current().is(UPPER_SCIENTIFIC_NOTATION_SEPARATOR);
     }
 
     @Override
