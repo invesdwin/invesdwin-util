@@ -12,6 +12,8 @@ import de.invesdwin.util.math.expression.tokenizer.Token.TokenType;
 @NotThreadSafe
 public class Tokenizer extends ALookahead<Token> {
 
+    private static final char PLUS = '+';
+    private static final char MINUS = '-';
     private static final String LINE_COMMENT = "//";
     private static final String BLOCK_COMMENT_START = "/*";
     private static final String BLOCK_COMMENT_END = "*/";
@@ -115,9 +117,9 @@ public class Tokenizer extends ALookahead<Token> {
 
     protected boolean isAtStartOfNumber() {
         //CHECKSTYLE:OFF
-        return input.current().isDigit() || input.current().is('-') && input.next().isDigit()
-                || input.current().is('-') && input.next().is('.') && input.next(2).isDigit()
-                || input.current().is('.') && input.next().isDigit();
+        return input.current().isDigit() || input.current().is(MINUS) && input.next().isDigit()
+                || input.current().is(MINUS) && input.next().is(DECIMAL_SEPARATOR) && input.next(2).isDigit()
+                || input.current().is(DECIMAL_SEPARATOR) && input.next().isDigit();
         //CHECKSTYLE:ON
     }
 
@@ -242,7 +244,7 @@ public class Tokenizer extends ALookahead<Token> {
                     scientificDecimalToken.setSource(result.getSource() + SCIENTIFIC_NOTATION_SEPARATOR);
                     result = scientificDecimalToken;
                     input.consume();
-                    if (input.current().is('+') || input.current().is('-')) {
+                    if (input.current().is(PLUS) || input.current().is(MINUS)) {
                         result.addToContent(input.consume());
                     }
                 }
@@ -255,7 +257,7 @@ public class Tokenizer extends ALookahead<Token> {
     }
 
     private boolean isScientificNumber() {
-        return isScientificSeparator() && (input.next().isDigit() || input.next().is('+') || input.next().is('-'));
+        return isScientificSeparator() && (input.next().isDigit() || input.next().is(PLUS) || input.next().is(MINUS));
     }
 
     private boolean isScientificSeparator() {
