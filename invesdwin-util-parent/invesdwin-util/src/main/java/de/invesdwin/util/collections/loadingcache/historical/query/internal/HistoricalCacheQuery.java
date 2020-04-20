@@ -183,7 +183,7 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
                 .getPreviousKeysQueryInterceptor()
                 .getPreviousKey(key, shiftBackUnits);
         if (optionalInterceptor != null) {
-            return optionalInterceptor.get();
+            return optionalInterceptor.orElse(null);
         }
         return IHistoricalEntry.unwrapEntryKey(getPreviousEntry(key, shiftBackUnits));
     }
