@@ -43,10 +43,10 @@ public final class Reflections extends AReflectionsStaticFacade {
     }
 
     private static double determineJavaVersion() {
-        //CHECKSTYLE:OFF
-        final String version = System.getProperty("java.specification.version");
-        //CHECKSTYLE:ON
         try {
+            //CHECKSTYLE:OFF
+            final String version = System.getProperty("java.specification.version");
+            //CHECKSTYLE:ON
             return Double.parseDouble(version);
         } catch (final Throwable t) {
             return 1.8D; //use oldest
