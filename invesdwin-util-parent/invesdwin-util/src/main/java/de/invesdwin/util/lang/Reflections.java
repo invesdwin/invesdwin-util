@@ -32,23 +32,26 @@ public final class Reflections extends AReflectionsStaticFacade {
     public static final boolean JAVA_DEBUG_MODE;
 
     static {
-        //CHECKSTYLE:OFF
-        final String version = System.getProperty("java.version");
-        //CHECKSTYLE:ON
-        int pos = version.indexOf('.');
-        pos = version.indexOf('.', pos + 1);
-        if (pos >= 0) {
-            JAVA_VERSION = Double.parseDouble(version.substring(0, pos));
-        } else {
-            JAVA_VERSION = Double.parseDouble(version);
-        }
+        JAVA_VERSION = determineJavaVersion();
         JAVA_DEBUG_MODE = java.lang.management.ManagementFactory.getRuntimeMXBean()
                 .getInputArguments()
                 .toString()
                 .indexOf("jdwp") >= 0;
     }
 
-    private Reflections() {}
+    private Reflections() {
+    }
+
+    private static double determineJavaVersion() {
+        //CHECKSTYLE:OFF
+        final String version = System.getProperty("java.specification.version");
+        //CHECKSTYLE:ON
+        try {
+            return Double.parseDouble(version);
+        } catch (final Throwable t) {
+            return 1.8D; //use oldest
+        }
+    }
 
     public static boolean classExists(final String className) {
         try {
