@@ -766,8 +766,8 @@ public class FDateAssert extends AbstractAssert<FDateAssert, FDate> {
      * @throws AssertionError
      *             if the actual {@code FDate} is not before or equals to the given one.
      */
-    public FDateAssert isBeforeOrEqualsTo(final FDate other) {
-        dates.assertIsBeforeOrEqualsTo(info, actual, other);
+    public FDateAssert isBeforeOrEqualTo(final FDate other) {
+        dates.assertIsBeforeOrEqualTo(info, actual, other);
         return myself;
     }
 
@@ -815,8 +815,8 @@ public class FDateAssert extends AbstractAssert<FDateAssert, FDate> {
      * @throws AssertionError
      *             if the given date as String could not be converted to a FDate.
      */
-    public FDateAssert isBeforeOrEqualsTo(final String dateAsString) {
-        return isBeforeOrEqualsTo(parse(dateAsString));
+    public FDateAssert isBeforeOrEqualTo(final String dateAsString) {
+        return isBeforeOrEqualTo(parse(dateAsString));
     }
 
     /**
@@ -908,8 +908,8 @@ public class FDateAssert extends AbstractAssert<FDateAssert, FDate> {
      * @throws AssertionError
      *             if the actual {@code FDate} is not after or equals to the given one.
      */
-    public FDateAssert isAfterOrEqualsTo(final FDate other) {
-        dates.assertIsAfterOrEqualsTo(info, actual, other);
+    public FDateAssert isAfterOrEqualTo(final FDate other) {
+        dates.assertIsAfterOrEqualTo(info, actual, other);
         return myself;
     }
 
@@ -957,8 +957,8 @@ public class FDateAssert extends AbstractAssert<FDateAssert, FDate> {
      * @throws AssertionError
      *             if the given date as String could not be converted to a FDate.
      */
-    public FDateAssert isAfterOrEqualsTo(final String dateAsString) {
-        return isAfterOrEqualsTo(parse(dateAsString));
+    public FDateAssert isAfterOrEqualTo(final String dateAsString) {
+        return isAfterOrEqualTo(parse(dateAsString));
     }
 
     /**

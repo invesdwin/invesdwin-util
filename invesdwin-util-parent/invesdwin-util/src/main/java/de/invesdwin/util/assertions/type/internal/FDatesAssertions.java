@@ -3,10 +3,10 @@
 package de.invesdwin.util.assertions.type.internal;
 
 import static org.assertj.core.error.ShouldBeAfter.shouldBeAfter;
-import static org.assertj.core.error.ShouldBeAfterOrEqualsTo.shouldBeAfterOrEqualsTo;
+import static org.assertj.core.error.ShouldBeAfterOrEqualTo.shouldBeAfterOrEqualTo;
 import static org.assertj.core.error.ShouldBeAfterYear.shouldBeAfterYear;
 import static org.assertj.core.error.ShouldBeBefore.shouldBeBefore;
-import static org.assertj.core.error.ShouldBeBeforeOrEqualsTo.shouldBeBeforeOrEqualsTo;
+import static org.assertj.core.error.ShouldBeBeforeOrEqualTo.shouldBeBeforeOrEqualTo;
 import static org.assertj.core.error.ShouldBeBeforeYear.shouldBeBeforeYear;
 import static org.assertj.core.error.ShouldBeBetween.shouldBeBetween;
 import static org.assertj.core.error.ShouldBeCloseTo.shouldBeCloseTo;
@@ -131,14 +131,14 @@ public class FDatesAssertions extends Dates {
      * @throws AssertionError
      *             if the actual {@code FDate} is not before or equal to the given one.
      */
-    public void assertIsBeforeOrEqualsTo(final AssertionInfo info, final FDate actual, final FDate other) {
+    public void assertIsBeforeOrEqualTo(final AssertionInfo info, final FDate actual, final FDate other) {
         assertNotNull(info, actual);
         dateParameterIsNotNull(other);
         if (isBeforeOrEqualTo(actual, other)) {
             return;
         }
         throw failures.failure(info,
-                shouldBeBeforeOrEqualsTo(FDates.toDate(actual), FDates.toDate(other), comparisonStrategy));
+                shouldBeBeforeOrEqualTo(FDates.toDate(actual), FDates.toDate(other), comparisonStrategy));
     }
 
     /**
@@ -182,14 +182,14 @@ public class FDatesAssertions extends Dates {
      * @throws AssertionError
      *             if the actual {@code FDate} is not after or equal to the given one.
      */
-    public void assertIsAfterOrEqualsTo(final AssertionInfo info, final FDate actual, final FDate other) {
+    public void assertIsAfterOrEqualTo(final AssertionInfo info, final FDate actual, final FDate other) {
         assertNotNull(info, actual);
         dateParameterIsNotNull(other);
         if (isAfterOrEqualTo(actual, other)) {
             return;
         }
         throw failures.failure(info,
-                shouldBeAfterOrEqualsTo(FDates.toDate(actual), FDates.toDate(other), comparisonStrategy));
+                shouldBeAfterOrEqualTo(FDates.toDate(actual), FDates.toDate(other), comparisonStrategy));
     }
 
     /**

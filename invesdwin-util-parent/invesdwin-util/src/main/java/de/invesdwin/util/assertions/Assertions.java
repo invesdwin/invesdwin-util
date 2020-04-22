@@ -26,7 +26,8 @@ import de.invesdwin.util.time.fdate.FDate;
 @Immutable
 public final class Assertions extends AAssertionsStaticFacade {
 
-    private Assertions() {}
+    private Assertions() {
+    }
 
     public static <T extends ADecimal<T>> DecimalAssert<T> assertThat(final T actual) {
         return new DecimalAssert<T>(actual);
