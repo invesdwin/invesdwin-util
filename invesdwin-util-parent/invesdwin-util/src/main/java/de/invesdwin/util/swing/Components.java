@@ -231,6 +231,19 @@ public final class Components {
         }
     }
 
+    public static void setText(final JComponent component, final String text) {
+        if (component instanceof JTextComponent) {
+            final JTextComponent cComponent = (JTextComponent) component;
+            setText(cComponent, text);
+        } else if (component instanceof JLabel) {
+            final JLabel cComponent = (JLabel) component;
+            setText(cComponent, text);
+        } else if (component instanceof AbstractButton) {
+            final AbstractButton cComponent = (AbstractButton) component;
+            setText(cComponent, text);
+        }
+    }
+
     public static void setText(final AbstractButton component, final String text) {
         if (!Objects.equals(text, component.getText())) {
             component.setText(text);
