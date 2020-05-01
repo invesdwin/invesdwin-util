@@ -1,8 +1,7 @@
-package de.invesdwin.util.math.expression.eval.functions;
+package de.invesdwin.util.math.expression.function;
 
 import javax.annotation.concurrent.Immutable;
 
-import de.invesdwin.util.math.expression.AFunction;
 import de.invesdwin.util.math.expression.ExpressionReturnType;
 import de.invesdwin.util.math.expression.IExpression;
 import de.invesdwin.util.math.expression.IFunctionParameterInfo;
@@ -205,17 +204,6 @@ public final class LogicalFunctions {
             return true;
         }
     };
-
-    public static final AFunction MAP = newMapFunction("map");
-    public static final AFunction SELECT = newMapFunction("select");
-    public static final AFunction ARRAY = newMapFunction("array");
-    public static final AFunction DECIDE = newMapFunction("decide");
-
-    public static final AFunction VOTE = newVoteFunction("vote");
-    public static final AFunction ENSEMBLE = newVoteFunction("ensemble");
-    public static final AFunction THRESHOLD = newVoteFunction("threshold");
-    public static final AFunction MAJORITY = newVoteFunction("majority");
-    public static final AFunction FUZZY = newVoteFunction("fuzzy");
 
     public static final AFunction ISNAN = new AFunction() {
 
@@ -688,7 +676,7 @@ public final class LogicalFunctions {
     private LogicalFunctions() {
     }
 
-    private static AFunction newMapFunction(final String expressionName) {
+    public static AFunction newMapFunction(final String expressionName) {
         return new AFunction() {
 
             @Override
@@ -875,7 +863,7 @@ public final class LogicalFunctions {
         };
     }
 
-    private static AFunction newVoteFunction(final String expressionName) {
+    public static AFunction newVoteFunction(final String expressionName) {
         return new AFunction() {
 
             @Override

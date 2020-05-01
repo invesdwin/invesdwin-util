@@ -1,4 +1,4 @@
-package de.invesdwin.util.math.expression;
+package de.invesdwin.util.math.expression.function;
 
 import de.invesdwin.util.math.expression.eval.IParsedExpression;
 import de.invesdwin.util.time.fdate.FDate;

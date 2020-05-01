@@ -17,9 +17,6 @@ import de.invesdwin.util.math.expression.eval.FunctionCall;
 import de.invesdwin.util.math.expression.eval.IParsedExpression;
 import de.invesdwin.util.math.expression.eval.VariableFunction;
 import de.invesdwin.util.math.expression.eval.VariableReference;
-import de.invesdwin.util.math.expression.eval.Variables;
-import de.invesdwin.util.math.expression.eval.functions.LogicalFunctions;
-import de.invesdwin.util.math.expression.eval.functions.MathFunctions;
 import de.invesdwin.util.math.expression.eval.operation.AndOperation;
 import de.invesdwin.util.math.expression.eval.operation.BinaryOperation;
 import de.invesdwin.util.math.expression.eval.operation.BinaryOperation.Op;
@@ -27,11 +24,18 @@ import de.invesdwin.util.math.expression.eval.operation.CrossesAboveOperation;
 import de.invesdwin.util.math.expression.eval.operation.CrossesBelowOperation;
 import de.invesdwin.util.math.expression.eval.operation.NotOperation;
 import de.invesdwin.util.math.expression.eval.operation.OrOperation;
+import de.invesdwin.util.math.expression.function.AFunction;
+import de.invesdwin.util.math.expression.function.HistoricalFunctions;
+import de.invesdwin.util.math.expression.function.IFunctionFactory;
+import de.invesdwin.util.math.expression.function.IPreviousKeyFunction;
+import de.invesdwin.util.math.expression.function.LogicalFunctions;
+import de.invesdwin.util.math.expression.function.MathFunctions;
 import de.invesdwin.util.math.expression.tokenizer.IPosition;
 import de.invesdwin.util.math.expression.tokenizer.ParseException;
 import de.invesdwin.util.math.expression.tokenizer.Token;
 import de.invesdwin.util.math.expression.tokenizer.Tokenizer;
 import de.invesdwin.util.math.expression.variable.IVariable;
+import de.invesdwin.util.math.expression.variable.Variables;
 import io.netty.util.concurrent.FastThreadLocal;
 
 @NotThreadSafe
@@ -44,7 +48,7 @@ public class ExpressionParser {
         }
     };
 
-    private static final Map<String, AFunction> DEFAULT_FUNCTIONS;
+    private static final Map<String, IFunctionFactory> DEFAULT_FUNCTIONS;
     private static final Map<String, IVariable> DEFAULT_VARIABLES;
 
     private final Tokenizer tokenizer;
@@ -85,21 +89,36 @@ public class ExpressionParser {
 
         registerDefaultFunction(LogicalFunctions.IF);
 
-        registerDefaultFunction(LogicalFunctions.MAP);
-        registerDefaultFunction(LogicalFunctions.SELECT);
-        registerDefaultFunction(LogicalFunctions.ARRAY);
-        registerDefaultFunction(LogicalFunctions.DECIDE);
-
-        registerDefaultFunction(LogicalFunctions.VOTE);
-        registerDefaultFunction(LogicalFunctions.ENSEMBLE);
-        registerDefaultFunction(LogicalFunctions.THRESHOLD);
-        registerDefaultFunction(LogicalFunctions.MAJORITY);
-        registerDefaultFunction(LogicalFunctions.FUZZY);
+        for (final String name : new String[] { "map", "select", "array", "decide" }) {
+            registerDefaultFunction(LogicalFunctions.newMapFunction(name));
+        }
+        for (final String name : new String[] { "vote", "ensemble", "threshold", "majority", "fuzzy" }) {
+            registerDefaultFunction(LogicalFunctions.newVoteFunction(name));
+        }
 
         registerDefaultFunction(LogicalFunctions.ISNAN);
         registerDefaultFunction(LogicalFunctions.ISTRUE);
         registerDefaultFunction(LogicalFunctions.ISFALSE);
         registerDefaultFunction(LogicalFunctions.NOT);
+
+        for (final String name : new String[] { "once", "onceOnly", "onChange", "onChangeOnly", "onChangeOnlyOnce",
+                "changeOnly", "changed", "change", "single", "singleOnly" }) {
+            registerDefaultFunction(HistoricalFunctions.newOnceFunction(name));
+        }
+        for (final String name : new String[] { "stable", "onStable", "repeat", "repeatAnd", "loop", "loopAnd", "hist",
+                "histAnd", "historical", "historicalAnd" }) {
+            registerDefaultFunction(HistoricalFunctions.newStableFunction(name));
+            registerDefaultFunction(HistoricalFunctions.newStableFunction(name + "Both"));
+            registerDefaultFunction(HistoricalFunctions.newStableLeftFunction(name + "Left"));
+            registerDefaultFunction(HistoricalFunctions.newStableRightFunction(name + "Right"));
+        }
+        for (final String name : new String[] { "occurs", "onOccurs", "repeatOr", "loopOr", "histOr",
+                "historicalOr" }) {
+            registerDefaultFunction(HistoricalFunctions.newOccursFunction(name));
+            registerDefaultFunction(HistoricalFunctions.newOccursFunction(name + "Both"));
+            registerDefaultFunction(HistoricalFunctions.newOccursLeftFunction(name + "Left"));
+            registerDefaultFunction(HistoricalFunctions.newOccursRightFunction(name + "Right"));
+        }
 
         DEFAULT_VARIABLES = new LinkedHashMap<>();
 
@@ -121,11 +140,26 @@ public class ExpressionParser {
         return expression;
     }
 
-    public static void registerDefaultFunction(final AFunction function) {
+    public static void registerDefaultFunction(final IFunctionFactory function) {
         DEFAULT_FUNCTIONS.put(function.getExpressionName().toLowerCase(), function);
     }
 
-    public static Collection<AFunction> getDefaultFunctions() {
+    public static void registerDefaultFunction(final AFunction function) {
+        DEFAULT_FUNCTIONS.put(function.getExpressionName().toLowerCase(), new IFunctionFactory() {
+
+            @Override
+            public String getExpressionName() {
+                return function.getExpressionName();
+            }
+
+            @Override
+            public AFunction newFunction(final IPreviousKeyFunction previousKeyFunction) {
+                return function;
+            }
+        });
+    }
+
+    public static Collection<IFunctionFactory> getDefaultFunctions() {
         return DEFAULT_FUNCTIONS.values();
     }
 
@@ -231,14 +265,16 @@ public class ExpressionParser {
                 tokenizer.consume(2);
                 final IParsedExpression right = relationalExpression();
                 final CrossesAboveOperation result = new CrossesAboveOperation(left, right,
-                        getPreviousKeyFunction(left.getContext()), getPreviousKeyFunction(right.getContext()));
+                        getPreviousKeyFunctionOrThrow(left.getContext()),
+                        getPreviousKeyFunctionOrThrow(right.getContext()));
                 result.seal();
                 return result;
             } else if ("below".equals(next.getContents()) || "under".equals(next.getContents())) {
                 tokenizer.consume(2);
                 final IParsedExpression right = relationalExpression();
                 final CrossesBelowOperation result = new CrossesBelowOperation(left, right,
-                        getPreviousKeyFunction(left.getContext()), getPreviousKeyFunction(right.getContext()));
+                        getPreviousKeyFunctionOrThrow(left.getContext()),
+                        getPreviousKeyFunctionOrThrow(right.getContext()));
                 result.seal();
                 return result;
             }
@@ -308,11 +344,11 @@ public class ExpressionParser {
         case NOT:
             return new NotOperation(left, right);
         case CROSSES_ABOVE:
-            return new CrossesAboveOperation(left, right, getPreviousKeyFunction(left.getContext()),
-                    getPreviousKeyFunction(right.getContext()));
+            return new CrossesAboveOperation(left, right, getPreviousKeyFunctionOrThrow(left.getContext()),
+                    getPreviousKeyFunctionOrThrow(right.getContext()));
         case CROSSES_BELOW:
-            return new CrossesBelowOperation(left, right, getPreviousKeyFunction(left.getContext()),
-                    getPreviousKeyFunction(right.getContext()));
+            return new CrossesBelowOperation(left, right, getPreviousKeyFunctionOrThrow(left.getContext()),
+                    getPreviousKeyFunctionOrThrow(right.getContext()));
         default:
             return new BinaryOperation(op, left, right);
         }
@@ -341,13 +377,13 @@ public class ExpressionParser {
         case NOT:
             return target.setLeft(new NotOperation(newLeft, target.getLeft()));
         case CROSSES_ABOVE:
-            return target.setLeft(
-                    new CrossesAboveOperation(newLeft, target.getLeft(), getPreviousKeyFunction(newLeft.getContext()),
-                            getPreviousKeyFunction(target.getLeft().getContext())));
+            return target.setLeft(new CrossesAboveOperation(newLeft, target.getLeft(),
+                    getPreviousKeyFunctionOrThrow(newLeft.getContext()),
+                    getPreviousKeyFunctionOrThrow(target.getLeft().getContext())));
         case CROSSES_BELOW:
-            return target.setLeft(
-                    new CrossesBelowOperation(newLeft, target.getLeft(), getPreviousKeyFunction(newLeft.getContext()),
-                            getPreviousKeyFunction(target.getLeft().getContext())));
+            return target.setLeft(new CrossesBelowOperation(newLeft, target.getLeft(),
+                    getPreviousKeyFunctionOrThrow(newLeft.getContext()),
+                    getPreviousKeyFunctionOrThrow(target.getLeft().getContext())));
         default:
             return target.setLeft(new BinaryOperation(op, newLeft, target.getLeft()));
         }
@@ -413,7 +449,7 @@ public class ExpressionParser {
                 final IParsedExpression indexExpression = expression(false);
                 tokenizer.consumeExpectedSymbol("]");
                 return new DynamicPreviousKeyExpression(functionOrVariable, indexExpression,
-                        getPreviousKeyFunction(functionOrVariable.getContext()));
+                        getPreviousKeyFunctionOrThrow(functionOrVariable.getContext()));
             } else {
                 return functionOrVariable;
             }
@@ -585,8 +621,18 @@ public class ExpressionParser {
         }
     }
 
+    protected IPreviousKeyFunction getPreviousKeyFunctionOrThrow(final String context) {
+        final IPreviousKeyFunction previousKeyFunction = getPreviousKeyFunction(context);
+        if (previousKeyFunction == null) {
+            throw new UnsupportedOperationException(
+                    "getPreviousKeyFunction() needs to be implemented for indexed expressions");
+        } else {
+            return previousKeyFunction;
+        }
+    }
+
     protected IPreviousKeyFunction getPreviousKeyFunction(final String context) {
-        throw new UnsupportedOperationException("dynamic indexed expression needs to be implemented from the outside");
+        return null;
     }
 
     private IParsedExpression literalAtom() {
@@ -652,7 +698,7 @@ public class ExpressionParser {
     }
 
     protected AFunction getFunction(final String context, final String name) {
-        return DEFAULT_FUNCTIONS.get(name);
+        return DEFAULT_FUNCTIONS.get(name).newFunction(getPreviousKeyFunction(context));
     }
 
     private IParsedExpression findVariable(final IPosition position, final String context, final String name) {

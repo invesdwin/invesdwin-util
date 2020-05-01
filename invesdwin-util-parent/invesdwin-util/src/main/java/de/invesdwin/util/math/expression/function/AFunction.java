@@ -1,8 +1,11 @@
-package de.invesdwin.util.math.expression;
+package de.invesdwin.util.math.expression.function;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.lang.Strings;
+import de.invesdwin.util.math.expression.ExpressionReturnType;
+import de.invesdwin.util.math.expression.IExpression;
+import de.invesdwin.util.math.expression.IFunctionParameterInfo;
 import de.invesdwin.util.time.fdate.FDate;
 
 @NotThreadSafe

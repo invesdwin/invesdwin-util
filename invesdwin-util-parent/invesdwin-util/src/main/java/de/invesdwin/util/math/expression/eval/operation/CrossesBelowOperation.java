@@ -2,8 +2,8 @@ package de.invesdwin.util.math.expression.eval.operation;
 
 import javax.annotation.concurrent.Immutable;
 
-import de.invesdwin.util.math.expression.IPreviousKeyFunction;
 import de.invesdwin.util.math.expression.eval.IParsedExpression;
+import de.invesdwin.util.math.expression.function.IPreviousKeyFunction;
 import de.invesdwin.util.time.fdate.FDate;
 
 // AvgTrueRange(10) crosses below AvgTrueRange(20)

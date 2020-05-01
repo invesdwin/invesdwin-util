@@ -186,188 +186,188 @@ public class BinaryOperation implements IParsedExpression {
     public enum Op {
         ADD(3, "+") {
             @Override
-            protected double applyDouble(final double a, final double b) {
+            public double applyDouble(final double a, final double b) {
                 return a + b;
             }
 
             @Override
-            protected boolean applyBoolean(final double a, final double b) {
+            public boolean applyBoolean(final double a, final double b) {
                 return false;
             }
         },
         SUBTRACT(3, "-") {
             @Override
-            protected double applyDouble(final double a, final double b) {
+            public double applyDouble(final double a, final double b) {
                 return a - b;
             }
 
             @Override
-            protected boolean applyBoolean(final double a, final double b) {
+            public boolean applyBoolean(final double a, final double b) {
                 return applyDouble(a, b) > 0D;
             }
         },
         MULTIPLY(4, "*") {
             @Override
-            protected double applyDouble(final double a, final double b) {
+            public double applyDouble(final double a, final double b) {
                 return a * b;
             }
 
             @Override
-            protected boolean applyBoolean(final double a, final double b) {
+            public boolean applyBoolean(final double a, final double b) {
                 return applyDouble(a, b) > 0D;
             }
         },
         DIVIDE(4, "/") {
             @Override
-            protected double applyDouble(final double a, final double b) {
+            public double applyDouble(final double a, final double b) {
                 return Doubles.divide(a, b);
             }
 
             @Override
-            protected boolean applyBoolean(final double a, final double b) {
+            public boolean applyBoolean(final double a, final double b) {
                 return applyDouble(a, b) > 0D;
             }
         },
         MODULO(4, "%") {
             @Override
-            protected double applyDouble(final double a, final double b) {
+            public double applyDouble(final double a, final double b) {
                 return a % b;
             }
 
             @Override
-            protected boolean applyBoolean(final double a, final double b) {
+            public boolean applyBoolean(final double a, final double b) {
                 return applyDouble(a, b) > 0D;
             }
         },
         POWER(5, "^") {
             @Override
-            protected double applyDouble(final double a, final double b) {
+            public double applyDouble(final double a, final double b) {
                 return Math.pow(a, b);
             }
 
             @Override
-            protected boolean applyBoolean(final double a, final double b) {
+            public boolean applyBoolean(final double a, final double b) {
                 return applyDouble(a, b) > 0D;
             }
         },
         LT(2, "<") {
             @Override
-            protected double applyDouble(final double a, final double b) {
+            public double applyDouble(final double a, final double b) {
                 return applyBoolean(a, b) ? 1D : 0D;
             }
 
             @Override
-            protected boolean applyBoolean(final double a, final double b) {
+            public boolean applyBoolean(final double a, final double b) {
                 return Doubles.compare(a, b) < 0;
             }
         },
         LT_EQ(2, "<=") {
             @Override
-            protected double applyDouble(final double a, final double b) {
+            public double applyDouble(final double a, final double b) {
                 return applyBoolean(a, b) ? 1D : 0D;
             }
 
             @Override
-            protected boolean applyBoolean(final double a, final double b) {
+            public boolean applyBoolean(final double a, final double b) {
                 return Doubles.compare(a, b) <= 0;
             }
         },
         EQ(2, "==") {
             @Override
-            protected double applyDouble(final double a, final double b) {
+            public double applyDouble(final double a, final double b) {
                 return applyBoolean(a, b) ? 1D : 0D;
             }
 
             @Override
-            protected boolean applyBoolean(final double a, final double b) {
+            public boolean applyBoolean(final double a, final double b) {
                 return Doubles.compare(a, b) == 0;
             }
         },
         GT_EQ(2, ">=") {
             @Override
-            protected double applyDouble(final double a, final double b) {
+            public double applyDouble(final double a, final double b) {
                 return applyBoolean(a, b) ? 1D : 0D;
             }
 
             @Override
-            protected boolean applyBoolean(final double a, final double b) {
+            public boolean applyBoolean(final double a, final double b) {
                 return Doubles.compare(a, b) >= 0;
             }
         },
         GT(2, ">") {
             @Override
-            protected double applyDouble(final double a, final double b) {
+            public double applyDouble(final double a, final double b) {
                 return applyBoolean(a, b) ? 1D : 0D;
             }
 
             @Override
-            protected boolean applyBoolean(final double a, final double b) {
+            public boolean applyBoolean(final double a, final double b) {
                 return Doubles.compare(a, b) > 0;
             }
         },
         NEQ(2, "!=") {
             @Override
-            protected double applyDouble(final double a, final double b) {
+            public double applyDouble(final double a, final double b) {
                 return applyBoolean(a, b) ? 1D : 0D;
             }
 
             @Override
-            protected boolean applyBoolean(final double a, final double b) {
+            public boolean applyBoolean(final double a, final double b) {
                 return Doubles.compare(a, b) != 0;
             }
         },
         AND(1, "&&") {
             @Override
-            protected double applyDouble(final double a, final double b) {
+            public double applyDouble(final double a, final double b) {
                 throw new UnsupportedOperationException("use class " + AndOperation.class.getSimpleName());
             }
 
             @Override
-            protected boolean applyBoolean(final double a, final double b) {
+            public boolean applyBoolean(final double a, final double b) {
                 throw new UnsupportedOperationException("use class " + AndOperation.class.getSimpleName());
             }
         },
         OR(1, "||") {
             @Override
-            protected double applyDouble(final double a, final double b) {
+            public double applyDouble(final double a, final double b) {
                 throw new UnsupportedOperationException("use class " + OrOperation.class.getSimpleName());
             }
 
             @Override
-            protected boolean applyBoolean(final double a, final double b) {
+            public boolean applyBoolean(final double a, final double b) {
                 throw new UnsupportedOperationException("use class " + OrOperation.class.getSimpleName());
             }
         },
         NOT(1, "!") {
             @Override
-            protected double applyDouble(final double a, final double b) {
+            public double applyDouble(final double a, final double b) {
                 throw new UnsupportedOperationException("use class " + NotOperation.class.getSimpleName());
             }
 
             @Override
-            protected boolean applyBoolean(final double a, final double b) {
+            public boolean applyBoolean(final double a, final double b) {
                 throw new UnsupportedOperationException("use class " + NotOperation.class.getSimpleName());
             }
         },
         CROSSES_ABOVE(1, "crosses above") {
             @Override
-            protected double applyDouble(final double a, final double b) {
+            public double applyDouble(final double a, final double b) {
                 throw new UnsupportedOperationException("use class " + CrossesAboveOperation.class.getSimpleName());
             }
 
             @Override
-            protected boolean applyBoolean(final double a, final double b) {
+            public boolean applyBoolean(final double a, final double b) {
                 throw new UnsupportedOperationException("use class " + CrossesAboveOperation.class.getSimpleName());
             }
         },
         CROSSES_BELOW(1, "crosses below") {
             @Override
-            protected double applyDouble(final double a, final double b) {
+            public double applyDouble(final double a, final double b) {
                 throw new UnsupportedOperationException("use class " + CrossesBelowOperation.class.getSimpleName());
             }
 
             @Override
-            protected boolean applyBoolean(final double a, final double b) {
+            public boolean applyBoolean(final double a, final double b) {
                 throw new UnsupportedOperationException("use class " + CrossesBelowOperation.class.getSimpleName());
             }
         };
@@ -389,9 +389,9 @@ public class BinaryOperation implements IParsedExpression {
             return priority;
         }
 
-        protected abstract double applyDouble(double a, double b);
+        public abstract double applyDouble(double a, double b);
 
-        protected abstract boolean applyBoolean(double a, double b);
+        public abstract boolean applyBoolean(double a, double b);
 
     }
 
@@ -413,6 +413,29 @@ public class BinaryOperation implements IParsedExpression {
     @Override
     public IExpression[] getChildren() {
         return new IExpression[] { left, right };
+    }
+
+    public static BinaryOperation validateComparativeOperation(final IExpression condition) {
+        if (!(condition instanceof BinaryOperation)) {
+            throw new IllegalArgumentException(
+                    "condition needs to be a " + BinaryOperation.class.getSimpleName() + ": " + condition);
+        }
+        final BinaryOperation binaryOperation = (BinaryOperation) condition;
+        switch (binaryOperation.getOp()) {
+        case EQ:
+        case NEQ:
+        case GT:
+        case GT_EQ:
+        case LT:
+        case LT_EQ:
+            break;
+        default:
+            throw new IllegalArgumentException("Comparative " + BinaryOperation.class.getSimpleName()
+                    + " needs to be one of [" + BinaryOperation.Op.EQ + "," + BinaryOperation.Op.NEQ + ","
+                    + BinaryOperation.Op.GT + "," + BinaryOperation.Op.GT_EQ + "," + BinaryOperation.Op.LT + ","
+                    + BinaryOperation.Op.LT_EQ + "]: " + binaryOperation.getOp());
+        }
+        return binaryOperation;
     }
 
 }

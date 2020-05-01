@@ -1,9 +1,8 @@
-package de.invesdwin.util.math.expression.eval.functions;
+package de.invesdwin.util.math.expression.function;
 
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.math.Doubles;
-import de.invesdwin.util.math.expression.AFunction;
 import de.invesdwin.util.math.expression.ExpressionReturnType;
 import de.invesdwin.util.math.expression.IExpression;
 import de.invesdwin.util.math.expression.IFunctionParameterInfo;

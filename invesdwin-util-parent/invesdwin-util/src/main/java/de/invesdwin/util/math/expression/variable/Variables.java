@@ -1,10 +1,8 @@
-package de.invesdwin.util.math.expression.eval;
+package de.invesdwin.util.math.expression.variable;
 
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.math.expression.ExpressionReturnType;
-import de.invesdwin.util.math.expression.variable.AConstant;
-import de.invesdwin.util.math.expression.variable.IVariable;
 
 @Immutable
 public final class Variables {
