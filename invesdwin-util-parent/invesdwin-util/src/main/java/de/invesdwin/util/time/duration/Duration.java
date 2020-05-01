@@ -35,8 +35,11 @@ public class Duration extends Number implements Comparable<Object> {
     public static final Duration ONE_MICROSECOND = new Duration(1, FTimeUnit.MICROSECONDS);
     public static final Duration ONE_MILLISECOND = new Duration(1, FTimeUnit.MILLISECONDS);
     public static final Duration ONE_SECOND = new Duration(1, FTimeUnit.SECONDS);
+    public static final Duration THREE_SECONDS = new Duration(3, FTimeUnit.SECONDS);
+    public static final Duration FIVE_SECONDS = new Duration(5, FTimeUnit.SECONDS);
     public static final Duration ONE_MINUTE = new Duration(1, FTimeUnit.MINUTES);
-    public static final Duration FIVE_MINUTES = new Duration(1, FTimeUnit.MINUTES);
+    public static final Duration THREE_MINUTES = new Duration(3, FTimeUnit.MINUTES);
+    public static final Duration FIVE_MINUTES = new Duration(5, FTimeUnit.MINUTES);
     public static final Duration ONE_HOUR = new Duration(1, FTimeUnit.HOURS);
     public static final Duration ONE_DAY = new Duration(1, FTimeUnit.DAYS);
     public static final Duration ONE_WEEK = new Duration(1, FTimeUnit.WEEKS);
