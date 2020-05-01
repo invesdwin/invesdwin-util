@@ -2,6 +2,7 @@ package de.invesdwin.util.concurrent;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
 import java.util.concurrent.TimeUnit;
@@ -13,6 +14,7 @@ import com.google.common.util.concurrent.MoreExecutors;
 import de.invesdwin.util.concurrent.internal.WrappedThreadFactory;
 import de.invesdwin.util.concurrent.priority.PriorityThreadPoolExecutor;
 import de.invesdwin.util.math.Integers;
+import de.invesdwin.util.shutdown.IShutdownHook;
 import io.netty.util.concurrent.DefaultThreadFactory;
 
 /**
@@ -115,6 +117,12 @@ public final class Executors {
 
             {
                 super.withDynamicThreadName(false);
+            }
+
+            @Override
+            protected IShutdownHook newShutdownHook(final ExecutorService delegate) {
+                //shutdown hook disabled
+                return null;
             }
 
             @Override

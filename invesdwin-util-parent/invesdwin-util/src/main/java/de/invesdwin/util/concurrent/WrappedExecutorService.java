@@ -93,10 +93,14 @@ public class WrappedExecutorService implements ExecutorService {
         configure();
     }
 
+    protected IShutdownHook newShutdownHook(final ExecutorService delegate) {
+        return staticNewShutdownHook(delegate);
+    }
+
     /**
      * Prevent reference leak to this instance by using a static method
      */
-    private static IShutdownHook newShutdownHook(final ExecutorService delegate) {
+    protected static IShutdownHook staticNewShutdownHook(final ExecutorService delegate) {
         return new IShutdownHook() {
             @Override
             public void shutdown() throws Exception {
@@ -174,7 +178,9 @@ public class WrappedExecutorService implements ExecutorService {
         /*
          * All executors should be shutdown on application shutdown.
          */
-        ShutdownHookManager.register(shutdownHook);
+        if (shutdownHook != null) {
+            ShutdownHookManager.register(shutdownHook);
+        }
 
         if (delegate instanceof java.util.concurrent.ThreadPoolExecutor) {
             final java.util.concurrent.ThreadPoolExecutor cDelegate = (java.util.concurrent.ThreadPoolExecutor) delegate;
