@@ -97,7 +97,7 @@ public final class HistoricalFunctions {
 
                     @Override
                     public int getNumberOfArguments() {
-                        return 0;
+                        return 1;
                     }
 
                     @Override
@@ -276,7 +276,7 @@ public final class HistoricalFunctions {
 
                     @Override
                     public int getNumberOfArguments() {
-                        return 0;
+                        return 2;
                     }
 
                     @Override
@@ -460,7 +460,7 @@ public final class HistoricalFunctions {
 
                     @Override
                     public int getNumberOfArguments() {
-                        return 0;
+                        return 2;
                     }
 
                     @Override
@@ -649,7 +649,7 @@ public final class HistoricalFunctions {
 
                     @Override
                     public int getNumberOfArguments() {
-                        return 0;
+                        return 2;
                     }
 
                     @Override
@@ -837,7 +837,7 @@ public final class HistoricalFunctions {
 
                     @Override
                     public int getNumberOfArguments() {
-                        return 0;
+                        return 2;
                     }
 
                     @Override
@@ -1021,7 +1021,7 @@ public final class HistoricalFunctions {
 
                     @Override
                     public int getNumberOfArguments() {
-                        return 0;
+                        return 2;
                     }
 
                     @Override
@@ -1210,7 +1210,7 @@ public final class HistoricalFunctions {
 
                     @Override
                     public int getNumberOfArguments() {
-                        return 0;
+                        return 2;
                     }
 
                     @Override
