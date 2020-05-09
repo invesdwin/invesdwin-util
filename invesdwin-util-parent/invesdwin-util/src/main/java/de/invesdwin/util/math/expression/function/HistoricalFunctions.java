@@ -36,7 +36,7 @@ public final class HistoricalFunctions {
 
                     @Override
                     public boolean shouldDraw() {
-                        return false;
+                        return true;
                     }
 
                     @Override
@@ -177,7 +177,7 @@ public final class HistoricalFunctions {
 
                     @Override
                     public boolean shouldDraw() {
-                        return false;
+                        return true;
                     }
 
                     @Override
@@ -360,7 +360,7 @@ public final class HistoricalFunctions {
 
                     @Override
                     public boolean shouldDraw() {
-                        return false;
+                        return true;
                     }
 
                     @Override
@@ -549,7 +549,7 @@ public final class HistoricalFunctions {
 
                     @Override
                     public boolean shouldDraw() {
-                        return false;
+                        return true;
                     }
 
                     @Override
@@ -738,7 +738,7 @@ public final class HistoricalFunctions {
 
                     @Override
                     public boolean shouldDraw() {
-                        return false;
+                        return true;
                     }
 
                     @Override
@@ -921,7 +921,7 @@ public final class HistoricalFunctions {
 
                     @Override
                     public boolean shouldDraw() {
-                        return false;
+                        return true;
                     }
 
                     @Override
@@ -1110,7 +1110,7 @@ public final class HistoricalFunctions {
 
                     @Override
                     public boolean shouldDraw() {
-                        return false;
+                        return true;
                     }
 
                     @Override
