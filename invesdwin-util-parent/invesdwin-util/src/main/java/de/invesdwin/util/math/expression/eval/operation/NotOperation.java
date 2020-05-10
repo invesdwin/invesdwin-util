@@ -14,8 +14,10 @@ public class NotOperation extends BinaryOperation {
 
     @Override
     public double evaluateDouble(final FDate key) {
-        final boolean check = right.evaluateBoolean(key);
-        if (check) {
+        final Boolean check = evaluateBooleanNullable(key);
+        if (check == null) {
+            return Double.NaN;
+        } else if (check) {
             return 0D;
         } else {
             return 1D;
@@ -24,8 +26,10 @@ public class NotOperation extends BinaryOperation {
 
     @Override
     public double evaluateDouble(final int key) {
-        final boolean check = right.evaluateBoolean(key);
-        if (check) {
+        final Boolean check = evaluateBooleanNullable(key);
+        if (check == null) {
+            return Double.NaN;
+        } else if (check) {
             return 0D;
         } else {
             return 1D;
@@ -34,8 +38,10 @@ public class NotOperation extends BinaryOperation {
 
     @Override
     public double evaluateDouble() {
-        final boolean check = right.evaluateBoolean();
-        if (check) {
+        final Boolean check = evaluateBooleanNullable();
+        if (check == null) {
+            return Double.NaN;
+        } else if (check) {
             return 0D;
         } else {
             return 1D;
@@ -43,21 +49,39 @@ public class NotOperation extends BinaryOperation {
     }
 
     @Override
-    public boolean evaluateBoolean(final FDate key) {
-        final boolean check = right.evaluateBoolean(key);
-        return !check;
+    public Boolean evaluateBooleanNullable(final FDate key) {
+        final Boolean check = right.evaluateBooleanNullable(key);
+        if (check == null) {
+            return null;
+        } else if (check == Boolean.TRUE) {
+            return Boolean.FALSE;
+        } else {
+            return Boolean.TRUE;
+        }
     }
 
     @Override
-    public boolean evaluateBoolean(final int key) {
-        final boolean check = right.evaluateBoolean(key);
-        return !check;
+    public Boolean evaluateBooleanNullable(final int key) {
+        final Boolean check = right.evaluateBooleanNullable(key);
+        if (check == null) {
+            return null;
+        } else if (check == Boolean.TRUE) {
+            return Boolean.FALSE;
+        } else {
+            return Boolean.TRUE;
+        }
     }
 
     @Override
-    public boolean evaluateBoolean() {
-        final boolean check = right.evaluateBoolean();
-        return !check;
+    public Boolean evaluateBooleanNullable() {
+        final Boolean check = right.evaluateBooleanNullable();
+        if (check == null) {
+            return null;
+        } else if (check == Boolean.TRUE) {
+            return Boolean.FALSE;
+        } else {
+            return Boolean.TRUE;
+        }
     }
 
     @Override

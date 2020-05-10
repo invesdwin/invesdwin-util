@@ -2,6 +2,7 @@ package de.invesdwin.util.math.expression.eval;
 
 import javax.annotation.concurrent.Immutable;
 
+import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.expression.IExpression;
 import de.invesdwin.util.math.expression.variable.IVariable;
 import de.invesdwin.util.time.fdate.FDate;
@@ -33,18 +34,18 @@ public class VariableReference implements IParsedExpression {
     }
 
     @Override
-    public boolean evaluateBoolean(final FDate key) {
-        return variable.getValue() > 0D;
+    public Boolean evaluateBooleanNullable(final FDate key) {
+        return Doubles.doubleToBoolean(variable.getValue());
     }
 
     @Override
-    public boolean evaluateBoolean(final int key) {
-        return variable.getValue() > 0D;
+    public Boolean evaluateBooleanNullable(final int key) {
+        return Doubles.doubleToBoolean(variable.getValue());
     }
 
     @Override
-    public boolean evaluateBoolean() {
-        return variable.getValue() > 0D;
+    public Boolean evaluateBooleanNullable() {
+        return Doubles.doubleToBoolean(variable.getValue());
     }
 
     @Override

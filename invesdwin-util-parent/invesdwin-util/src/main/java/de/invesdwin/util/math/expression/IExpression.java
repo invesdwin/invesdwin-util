@@ -1,5 +1,6 @@
 package de.invesdwin.util.math.expression;
 
+import de.invesdwin.util.math.Booleans;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.time.fdate.FDate;
 
@@ -22,23 +23,62 @@ public interface IExpression {
      */
     double evaluateDouble();
 
+    /**
+     * Double.NaN is interpreted as 0.
+     */
     default int evaluateInteger(final FDate key) {
         return Integers.checkedCast(evaluateDouble(key));
     }
 
+    /**
+     * Double.NaN is interpreted as 0.
+     */
     default int evaluateInteger(final int key) {
         return Integers.checkedCast(evaluateDouble(key));
     }
 
+    /**
+     * Double.NaN is interpreted as 0.
+     */
     default int evaluateInteger() {
         return Integers.checkedCast(evaluateDouble());
     }
 
-    boolean evaluateBoolean();
+    /**
+     * Double.NaN is interpreted as false.
+     */
+    default boolean evaluateBoolean() {
+        return Booleans.isTrue(evaluateBooleanNullable());
+    }
 
-    boolean evaluateBoolean(FDate key);
+    /**
+     * Double.NaN is interpreted as false.
+     */
+    default boolean evaluateBoolean(final FDate key) {
+        return Booleans.isTrue(evaluateBooleanNullable(key));
+    }
 
-    boolean evaluateBoolean(int key);
+    /**
+     * Double.NaN is interpreted as false.
+     */
+    default boolean evaluateBoolean(final int key) {
+        return Booleans.isTrue(evaluateBooleanNullable(key));
+    }
+
+    /**
+     * Double.NaN is interpreted as null.
+     */
+    Boolean evaluateBooleanNullable();
+
+    /**
+     * Double.NaN is interpreted as null.
+     */
+    Boolean evaluateBooleanNullable(FDate key);
+
+    /**
+     * Double.NaN is interpreted as null.
+     */
+    Boolean evaluateBooleanNullable(int key);
 
     boolean isConstant();
 

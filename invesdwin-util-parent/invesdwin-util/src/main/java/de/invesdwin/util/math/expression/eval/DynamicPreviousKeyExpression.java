@@ -46,27 +46,27 @@ public class DynamicPreviousKeyExpression implements IParsedExpression {
     }
 
     @Override
-    public boolean evaluateBoolean(final FDate key) {
+    public Boolean evaluateBooleanNullable(final FDate key) {
         final int index = indexExpression.evaluateInteger(key);
         if (index < 0) {
             throw new IllegalArgumentException("index should not be negative: " + index);
         }
         final FDate previousKey = previousKeyFunction.getPreviousKey(key, index);
-        return previousKeyFunction.evaluateBoolean(expression, previousKey);
+        return previousKeyFunction.evaluateBooleanNullable(expression, previousKey);
     }
 
     @Override
-    public boolean evaluateBoolean(final int key) {
+    public Boolean evaluateBooleanNullable(final int key) {
         final int index = indexExpression.evaluateInteger(key);
         if (index < 0) {
             throw new IllegalArgumentException("index should not be negative: " + index);
         }
         final int previousKey = previousKeyFunction.getPreviousKey(key, index);
-        return previousKeyFunction.evaluateBoolean(expression, previousKey);
+        return previousKeyFunction.evaluateBooleanNullable(expression, previousKey);
     }
 
     @Override
-    public boolean evaluateBoolean() {
+    public Boolean evaluateBooleanNullable() {
         throw new UnsupportedOperationException("use time or int key instead");
     }
 

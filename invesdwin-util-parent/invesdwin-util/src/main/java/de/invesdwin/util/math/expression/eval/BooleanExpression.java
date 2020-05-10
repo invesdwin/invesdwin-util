@@ -13,7 +13,7 @@ public class BooleanExpression extends ConstantExpression {
 
     @Override
     public String toString() {
-        return String.valueOf(evaluateBoolean());
+        return String.valueOf(evaluateBooleanNullable());
     }
 
     public static EnumerationExpression valueOf(final Enum<?> enumerationValue) {

@@ -294,4 +294,10 @@ public class ExpressionParserTest {
                 "((((NaN[1] > NaN[2]) && (NaN[2] > NaN[9])) && (NaN[6] > NaN[7])) && (isNaN(NaN)[0] crosses above 50))");
 
     }
+
+    @Test
+    public void testIntegerNan() {
+        final int result = new ExpressionParser("NaN").parse().evaluateInteger();
+        Assertions.checkEquals(0, result);
+    }
 }

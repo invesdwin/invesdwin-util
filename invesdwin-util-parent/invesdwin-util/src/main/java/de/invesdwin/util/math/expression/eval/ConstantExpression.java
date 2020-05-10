@@ -2,6 +2,7 @@ package de.invesdwin.util.math.expression.eval;
 
 import javax.annotation.concurrent.Immutable;
 
+import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.decimal.Decimal;
 import de.invesdwin.util.math.expression.IExpression;
 import de.invesdwin.util.time.fdate.FDate;
@@ -10,11 +11,11 @@ import de.invesdwin.util.time.fdate.FDate;
 public class ConstantExpression implements IParsedExpression {
 
     private final double doubleValue;
-    private final boolean booleanValue;
+    private final Boolean booleanValue;
 
     public ConstantExpression(final double value) {
         this.doubleValue = value;
-        this.booleanValue = value > 0D;
+        this.booleanValue = Doubles.doubleToBoolean(value);
     }
 
     @Override
@@ -33,17 +34,17 @@ public class ConstantExpression implements IParsedExpression {
     }
 
     @Override
-    public boolean evaluateBoolean(final FDate key) {
+    public Boolean evaluateBooleanNullable(final FDate key) {
         return booleanValue;
     }
 
     @Override
-    public boolean evaluateBoolean(final int key) {
+    public Boolean evaluateBooleanNullable(final int key) {
         return booleanValue;
     }
 
     @Override
-    public boolean evaluateBoolean() {
+    public Boolean evaluateBooleanNullable() {
         return booleanValue;
     }
 

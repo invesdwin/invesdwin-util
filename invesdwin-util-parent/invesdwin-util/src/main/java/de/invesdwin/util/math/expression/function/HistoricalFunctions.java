@@ -2,6 +2,7 @@ package de.invesdwin.util.math.expression.function;
 
 import javax.annotation.concurrent.Immutable;
 
+import de.invesdwin.util.math.Booleans;
 import de.invesdwin.util.math.expression.ExpressionReturnType;
 import de.invesdwin.util.math.expression.IExpression;
 import de.invesdwin.util.math.expression.IFunctionParameterInfo;
@@ -305,8 +306,8 @@ public final class HistoricalFunctions {
                         final IExpression condition = args[1];
                         int curKey = key;
                         for (int i = 1; i <= count; i++) {
-                            final boolean result = condition.evaluateBoolean(curKey);
-                            if (!result) {
+                            final Boolean result = condition.evaluateBooleanNullable(curKey);
+                            if (result != null && !result) {
                                 return 0D;
                             }
                             if (i != count) {
@@ -322,8 +323,8 @@ public final class HistoricalFunctions {
                         final IExpression condition = args[1];
                         FDate curKey = key;
                         for (int i = 1; i <= count; i++) {
-                            final boolean result = condition.evaluateBoolean(curKey);
-                            if (!result) {
+                            final Boolean result = condition.evaluateBooleanNullable(curKey);
+                            if (result != null && !result) {
                                 return 0D;
                             }
                             if (i != count) {
@@ -492,8 +493,8 @@ public final class HistoricalFunctions {
                         int curKey = key;
                         for (int i = 1; i <= count; i++) {
                             final double leftResult = condition.getLeft().evaluateDouble(curKey);
-                            final boolean result = condition.getOp().applyBoolean(leftResult, rightResult);
-                            if (!result) {
+                            final Boolean result = condition.getOp().applyBooleanNullable(leftResult, rightResult);
+                            if (result != null && !result) {
                                 return 0D;
                             }
                             if (i != count) {
@@ -511,8 +512,8 @@ public final class HistoricalFunctions {
                         FDate curKey = key;
                         for (int i = 1; i <= count; i++) {
                             final double leftResult = condition.getLeft().evaluateDouble(curKey);
-                            final boolean result = condition.getOp().applyBoolean(leftResult, rightResult);
-                            if (!result) {
+                            final Boolean result = condition.getOp().applyBooleanNullable(leftResult, rightResult);
+                            if (result != null && !result) {
                                 return 0D;
                             }
                             if (i != count) {
@@ -681,8 +682,8 @@ public final class HistoricalFunctions {
                         int curKey = key;
                         for (int i = 1; i <= count; i++) {
                             final double rightResult = condition.getRight().evaluateDouble(curKey);
-                            final boolean result = condition.getOp().applyBoolean(leftResult, rightResult);
-                            if (!result) {
+                            final Boolean result = condition.getOp().applyBooleanNullable(leftResult, rightResult);
+                            if (result != null && !result) {
                                 return 0D;
                             }
                             if (i != count) {
@@ -700,8 +701,8 @@ public final class HistoricalFunctions {
                         FDate curKey = key;
                         for (int i = 1; i <= count; i++) {
                             final double rightResult = condition.getRight().evaluateDouble(curKey);
-                            final boolean result = condition.getOp().applyBoolean(leftResult, rightResult);
-                            if (!result) {
+                            final Boolean result = condition.getOp().applyBooleanNullable(leftResult, rightResult);
+                            if (result != null && !result) {
                                 return 0D;
                             }
                             if (i != count) {
@@ -866,7 +867,7 @@ public final class HistoricalFunctions {
                         final IExpression condition = args[1];
                         int curKey = key;
                         for (int i = 1; i <= count; i++) {
-                            final boolean result = condition.evaluateBoolean(curKey);
+                            final boolean result = Booleans.isTrue(condition.evaluateBooleanNullable(curKey));
                             if (result) {
                                 return 1D;
                             }
@@ -883,7 +884,7 @@ public final class HistoricalFunctions {
                         final IExpression condition = args[1];
                         FDate curKey = key;
                         for (int i = 1; i <= count; i++) {
-                            final boolean result = condition.evaluateBoolean(curKey);
+                            final boolean result = Booleans.isTrue(condition.evaluateBooleanNullable(curKey));
                             if (result) {
                                 return 1D;
                             }
@@ -1053,7 +1054,8 @@ public final class HistoricalFunctions {
                         int curKey = key;
                         for (int i = 1; i <= count; i++) {
                             final double leftResult = condition.getLeft().evaluateDouble(curKey);
-                            final boolean result = condition.getOp().applyBoolean(leftResult, rightResult);
+                            final boolean result = Booleans
+                                    .isTrue(condition.getOp().applyBooleanNullable(leftResult, rightResult));
                             if (result) {
                                 return 1D;
                             }
@@ -1072,7 +1074,8 @@ public final class HistoricalFunctions {
                         FDate curKey = key;
                         for (int i = 1; i <= count; i++) {
                             final double leftResult = condition.getLeft().evaluateDouble(curKey);
-                            final boolean result = condition.getOp().applyBoolean(leftResult, rightResult);
+                            final boolean result = Booleans
+                                    .isTrue(condition.getOp().applyBooleanNullable(leftResult, rightResult));
                             if (result) {
                                 return 1D;
                             }
@@ -1242,7 +1245,8 @@ public final class HistoricalFunctions {
                         int curKey = key;
                         for (int i = 1; i <= count; i++) {
                             final double rightResult = condition.getRight().evaluateDouble(curKey);
-                            final boolean result = condition.getOp().applyBoolean(leftResult, rightResult);
+                            final boolean result = Booleans
+                                    .isTrue(condition.getOp().applyBooleanNullable(leftResult, rightResult));
                             if (result) {
                                 return 1D;
                             }
@@ -1261,7 +1265,8 @@ public final class HistoricalFunctions {
                         FDate curKey = key;
                         for (int i = 1; i <= count; i++) {
                             final double rightResult = condition.getRight().evaluateDouble(curKey);
-                            final boolean result = condition.getOp().applyBoolean(leftResult, rightResult);
+                            final boolean result = Booleans
+                                    .isTrue(condition.getOp().applyBooleanNullable(leftResult, rightResult));
                             if (result) {
                                 return 1D;
                             }

@@ -341,8 +341,8 @@ public final class LogicalFunctions {
 
         @Override
         public double eval(final FDate key, final IExpression[] args) {
-            final boolean a = args[0].evaluateBoolean(key);
-            if (a) {
+            final Boolean a = args[0].evaluateBooleanNullable(key);
+            if (a != null && a == Boolean.TRUE) {
                 return 1D;
             } else {
                 return 0D;
@@ -351,8 +351,8 @@ public final class LogicalFunctions {
 
         @Override
         public double eval(final int key, final IExpression[] args) {
-            final boolean a = args[0].evaluateBoolean(key);
-            if (a) {
+            final Boolean a = args[0].evaluateBooleanNullable(key);
+            if (a != null && a == Boolean.TRUE) {
                 return 1D;
             } else {
                 return 0D;
@@ -361,8 +361,8 @@ public final class LogicalFunctions {
 
         @Override
         public double eval(final IExpression[] args) {
-            final boolean a = args[0].evaluateBoolean();
-            if (a) {
+            final Boolean a = args[0].evaluateBooleanNullable();
+            if (a != null && a == Boolean.TRUE) {
                 return 1D;
             } else {
                 return 0D;
@@ -458,8 +458,8 @@ public final class LogicalFunctions {
 
         @Override
         public double eval(final FDate key, final IExpression[] args) {
-            final boolean a = args[0].evaluateBoolean(key);
-            if (a) {
+            final Boolean a = args[0].evaluateBooleanNullable(key);
+            if (a == null || a == Boolean.TRUE) {
                 return 0D;
             } else {
                 return 1D;
@@ -468,8 +468,8 @@ public final class LogicalFunctions {
 
         @Override
         public double eval(final int key, final IExpression[] args) {
-            final boolean a = args[0].evaluateBoolean(key);
-            if (a) {
+            final Boolean a = args[0].evaluateBooleanNullable(key);
+            if (a == null || a == Boolean.TRUE) {
                 return 0D;
             } else {
                 return 1D;
@@ -478,8 +478,8 @@ public final class LogicalFunctions {
 
         @Override
         public double eval(final IExpression[] args) {
-            final boolean a = args[0].evaluateBoolean();
-            if (a) {
+            final Boolean a = args[0].evaluateBooleanNullable();
+            if (a == null || a == Boolean.TRUE) {
                 return 0D;
             } else {
                 return 1D;
@@ -575,8 +575,10 @@ public final class LogicalFunctions {
 
         @Override
         public double eval(final FDate key, final IExpression[] args) {
-            final boolean a = args[0].evaluateBoolean(key);
-            if (a) {
+            final Boolean a = args[0].evaluateBooleanNullable(key);
+            if (a == null) {
+                return Double.NaN;
+            } else if (a) {
                 return 0D;
             } else {
                 return 1D;
@@ -585,8 +587,10 @@ public final class LogicalFunctions {
 
         @Override
         public double eval(final int key, final IExpression[] args) {
-            final boolean a = args[0].evaluateBoolean(key);
-            if (a) {
+            final Boolean a = args[0].evaluateBooleanNullable(key);
+            if (a == null) {
+                return Double.NaN;
+            } else if (a) {
                 return 0D;
             } else {
                 return 1D;
@@ -595,8 +599,10 @@ public final class LogicalFunctions {
 
         @Override
         public double eval(final IExpression[] args) {
-            final boolean a = args[0].evaluateBoolean();
-            if (a) {
+            final Boolean a = args[0].evaluateBooleanNullable();
+            if (a == null) {
+                return Double.NaN;
+            } else if (a) {
                 return 0D;
             } else {
                 return 1D;

@@ -17,12 +17,12 @@ public interface IPreviousKeyFunction {
         return expression.evaluateDouble(previousKey);
     }
 
-    default boolean evaluateBoolean(final IParsedExpression expression, final FDate previousKey) {
-        return expression.evaluateBoolean(previousKey);
+    default Boolean evaluateBooleanNullable(final IParsedExpression expression, final FDate previousKey) {
+        return expression.evaluateBooleanNullable(previousKey);
     }
 
-    default boolean evaluateBoolean(final IParsedExpression expression, final int previousKey) {
-        return expression.evaluateBoolean(previousKey);
+    default Boolean evaluateBooleanNullable(final IParsedExpression expression, final int previousKey) {
+        return expression.evaluateBooleanNullable(previousKey);
     }
 
 }

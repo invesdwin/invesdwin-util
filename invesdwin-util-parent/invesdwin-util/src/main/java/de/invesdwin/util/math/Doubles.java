@@ -543,9 +543,10 @@ public final class Doubles extends ADoublesStaticFacade {
             if (valueNaN && otherValueNaN) {
                 return 0;
             } else if (valueNaN) {
-                return -1;
+                //treat NaN as 0
+                return compare(0D, otherValue);
             } else {
-                return 1;
+                return compare(value, 0D);
             }
         } else {
             final double defaultRoundedValue = round(value);
@@ -639,6 +640,26 @@ public final class Doubles extends ADoublesStaticFacade {
             max = max(max, array[i]);
         }
         return max;
+    }
+
+    public static Boolean doubleToBoolean(final double value) {
+        if (Doubles.isNaN(value)) {
+            return null;
+        } else if (value > 0D) {
+            return Boolean.TRUE;
+        } else {
+            return Boolean.FALSE;
+        }
+    }
+
+    public static double booleanToDouble(final Boolean value) {
+        if (value == null) {
+            return Double.NaN;
+        } else if (value) {
+            return 1D;
+        } else {
+            return 0D;
+        }
     }
 
 }

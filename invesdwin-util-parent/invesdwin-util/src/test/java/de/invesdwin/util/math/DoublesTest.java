@@ -13,9 +13,9 @@ public class DoublesTest {
     public void testCompareNaN() {
         Assertions.assertThat(Doubles.compare(Double.NaN, Double.NaN)).isEqualTo(0);
         Assertions.assertThat(Doubles.compare(1, Double.NaN)).isEqualTo(1);
-        Assertions.assertThat(Doubles.compare(-1, Double.NaN)).isEqualTo(1);
+        Assertions.assertThat(Doubles.compare(-1, Double.NaN)).isEqualTo(-1);
         Assertions.assertThat(Doubles.compare(Double.NaN, 1)).isEqualTo(-1);
-        Assertions.assertThat(Doubles.compare(Double.NaN, -1)).isEqualTo(-1);
+        Assertions.assertThat(Doubles.compare(Double.NaN, -1)).isEqualTo(1);
     }
 
 }

@@ -2,6 +2,7 @@ package de.invesdwin.util.math.expression.eval.operation;
 
 import javax.annotation.concurrent.Immutable;
 
+import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.expression.eval.ConstantExpression;
 import de.invesdwin.util.math.expression.eval.IParsedExpression;
 import de.invesdwin.util.time.fdate.FDate;
@@ -15,47 +16,50 @@ public class OrOperation extends BinaryOperation {
 
     @Override
     public double evaluateDouble(final FDate key) {
-        final boolean check = left.evaluateBoolean(key) || right.evaluateBoolean(key);
-        if (check) {
-            return 1D;
-        } else {
-            return 0D;
-        }
+        final Boolean check = evaluateBooleanNullable(key);
+        return Doubles.booleanToDouble(check);
     }
 
     @Override
     public double evaluateDouble(final int key) {
-        final boolean check = left.evaluateBoolean(key) || right.evaluateBoolean(key);
-        if (check) {
-            return 1D;
-        } else {
-            return 0D;
-        }
+        final Boolean check = evaluateBooleanNullable(key);
+        return Doubles.booleanToDouble(check);
     }
 
     @Override
     public double evaluateDouble() {
-        final boolean check = left.evaluateBoolean() || right.evaluateBoolean();
-        if (check) {
-            return 1D;
+        final Boolean check = evaluateBooleanNullable();
+        return Doubles.booleanToDouble(check);
+    }
+
+    @Override
+    public Boolean evaluateBooleanNullable(final FDate key) {
+        final Boolean leftResult = left.evaluateBooleanNullable(key);
+        if (leftResult == null || leftResult == Boolean.FALSE) {
+            return right.evaluateBooleanNullable(key);
         } else {
-            return 0D;
+            return Boolean.FALSE;
         }
     }
 
     @Override
-    public boolean evaluateBoolean(final FDate key) {
-        return left.evaluateBoolean(key) || right.evaluateBoolean(key);
+    public Boolean evaluateBooleanNullable(final int key) {
+        final Boolean leftResult = left.evaluateBooleanNullable(key);
+        if (leftResult == null || leftResult == Boolean.FALSE) {
+            return right.evaluateBooleanNullable(key);
+        } else {
+            return Boolean.FALSE;
+        }
     }
 
     @Override
-    public boolean evaluateBoolean(final int key) {
-        return left.evaluateBoolean(key) || right.evaluateBoolean(key);
-    }
-
-    @Override
-    public boolean evaluateBoolean() {
-        return left.evaluateBoolean() || right.evaluateBoolean();
+    public Boolean evaluateBooleanNullable() {
+        final Boolean leftResult = left.evaluateBooleanNullable();
+        if (leftResult == null || leftResult == Boolean.FALSE) {
+            return right.evaluateBooleanNullable();
+        } else {
+            return Boolean.FALSE;
+        }
     }
 
     @Override
@@ -68,30 +72,26 @@ public class OrOperation extends BinaryOperation {
         final IParsedExpression newLeft = left.simplify();
         final IParsedExpression newRight = right.simplify();
         if (newLeft.isConstant()) {
-            if (newLeft.evaluateBoolean()) {
+            final Boolean leftResult = newLeft.evaluateBooleanNullable();
+            if (leftResult != null && leftResult == Boolean.TRUE) {
                 return new ConstantExpression(1D);
             } else {
                 if (newRight.isConstant()) {
-                    if (newRight.evaluateBoolean()) {
-                        return new ConstantExpression(1D);
-                    } else {
-                        return new ConstantExpression(0D);
-                    }
+                    final Boolean rightResult = newRight.evaluateBooleanNullable();
+                    return new ConstantExpression(Doubles.booleanToDouble(rightResult));
                 } else {
                     return newRight;
                 }
             }
         }
         if (newRight.isConstant()) {
-            if (newRight.evaluateBoolean()) {
+            final Boolean rightResult = newRight.evaluateBooleanNullable();
+            if (rightResult != null && rightResult == Boolean.TRUE) {
                 return new ConstantExpression(1D);
             } else {
                 if (newLeft.isConstant()) {
-                    if (newLeft.evaluateBoolean()) {
-                        return new ConstantExpression(1D);
-                    } else {
-                        return new ConstantExpression(0D);
-                    }
+                    final Boolean leftResult = newLeft.evaluateBooleanNullable();
+                    return new ConstantExpression(Doubles.booleanToDouble(leftResult));
                 } else {
                     return newLeft;
                 }

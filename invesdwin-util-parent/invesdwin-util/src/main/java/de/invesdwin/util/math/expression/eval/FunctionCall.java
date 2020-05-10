@@ -2,6 +2,7 @@ package de.invesdwin.util.math.expression.eval;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.expression.IExpression;
 import de.invesdwin.util.math.expression.function.AFunction;
 import de.invesdwin.util.time.fdate.FDate;
@@ -49,18 +50,21 @@ public class FunctionCall implements IParsedExpression {
     }
 
     @Override
-    public boolean evaluateBoolean(final FDate key) {
-        return function.eval(key, parameters) > 0;
+    public Boolean evaluateBooleanNullable(final FDate key) {
+        final double eval = function.eval(key, parameters);
+        return Doubles.doubleToBoolean(eval);
     }
 
     @Override
-    public boolean evaluateBoolean(final int key) {
-        return function.eval(key, parameters) > 0;
+    public Boolean evaluateBooleanNullable(final int key) {
+        final double eval = function.eval(key, parameters);
+        return Doubles.doubleToBoolean(eval);
     }
 
     @Override
-    public boolean evaluateBoolean() {
-        return function.eval(parameters) > 0;
+    public Boolean evaluateBooleanNullable() {
+        final double eval = function.eval(parameters);
+        return Doubles.doubleToBoolean(eval);
     }
 
     @Override

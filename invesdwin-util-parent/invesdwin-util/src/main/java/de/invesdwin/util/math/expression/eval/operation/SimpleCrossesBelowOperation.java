@@ -2,6 +2,7 @@ package de.invesdwin.util.math.expression.eval.operation;
 
 import javax.annotation.concurrent.Immutable;
 
+import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.expression.eval.IParsedExpression;
 import de.invesdwin.util.math.expression.function.IPreviousKeyFunction;
 import de.invesdwin.util.time.fdate.FDate;
@@ -23,13 +24,13 @@ public class SimpleCrossesBelowOperation extends BinaryOperation {
 
         final double leftValue0 = left.evaluateDouble(key);
         final double rightValue0 = right.evaluateDouble(key);
-        //left is below or equal to right
-        if (leftValue0 <= rightValue0) {
+        //left is below right
+        if (Doubles.compare(leftValue0, rightValue0) < 0) {
             final FDate previousKey = previousKeyFunction.getPreviousKey(key, 1);
             final double leftValue1 = previousKeyFunction.evaluateDouble(left, previousKey);
             final double rightValue1 = previousKeyFunction.evaluateDouble(right, previousKey);
-            //previous left is above previous right
-            if (leftValue1 > rightValue1) {
+            //previous left is above or equal to previous right
+            if (Doubles.compare(leftValue1, rightValue1) >= 0) {
                 return 1D;
             }
         }
@@ -43,13 +44,13 @@ public class SimpleCrossesBelowOperation extends BinaryOperation {
 
         final double leftValue0 = left.evaluateDouble(key);
         final double rightValue0 = right.evaluateDouble(key);
-        //left is below or equal to right
-        if (leftValue0 <= rightValue0) {
+        //left is below right
+        if (Doubles.compare(leftValue0, rightValue0) < 0) {
             final int previousKey = previousKeyFunction.getPreviousKey(key, 1);
             final double leftValue1 = previousKeyFunction.evaluateDouble(left, previousKey);
             final double rightValue1 = previousKeyFunction.evaluateDouble(right, previousKey);
-            //previous left is above previous right
-            if (leftValue1 > rightValue1) {
+            //previous left is above or equal to previous right
+            if (Doubles.compare(leftValue1, rightValue1) >= 0) {
                 return 1D;
             }
         }
@@ -63,47 +64,47 @@ public class SimpleCrossesBelowOperation extends BinaryOperation {
     }
 
     @Override
-    public boolean evaluateBoolean(final FDate key) {
+    public Boolean evaluateBooleanNullable(final FDate key) {
         //crosses below => left was above but went below right
 
         final double leftValue0 = left.evaluateDouble(key);
         final double rightValue0 = right.evaluateDouble(key);
-        //left is below or equal to right
-        if (leftValue0 <= rightValue0) {
+        //left is below right
+        if (Doubles.compare(leftValue0, rightValue0) < 0) {
             final FDate previousKey = previousKeyFunction.getPreviousKey(key, 1);
             final double leftValue1 = previousKeyFunction.evaluateDouble(left, previousKey);
             final double rightValue1 = previousKeyFunction.evaluateDouble(right, previousKey);
-            //previous left is above previous right
-            if (leftValue1 > rightValue1) {
-                return true;
+            //previous left is above or equal to previous right
+            if (Doubles.compare(leftValue1, rightValue1) >= 0) {
+                return Boolean.TRUE;
             }
         }
 
-        return false;
+        return Boolean.FALSE;
     }
 
     @Override
-    public boolean evaluateBoolean(final int key) {
+    public Boolean evaluateBooleanNullable(final int key) {
         //crosses below => left was above but went below right
 
         final double leftValue0 = left.evaluateDouble(key);
         final double rightValue0 = right.evaluateDouble(key);
-        //left is below or equal to right
-        if (leftValue0 <= rightValue0) {
+        //left is below right
+        if (Doubles.compare(leftValue0, rightValue0) < 0) {
             final int previousKey = previousKeyFunction.getPreviousKey(key, 1);
             final double leftValue1 = previousKeyFunction.evaluateDouble(left, previousKey);
             final double rightValue1 = previousKeyFunction.evaluateDouble(right, previousKey);
-            //previous left is above previous right
-            if (leftValue1 > rightValue1) {
-                return true;
+            //previous left is above or equal to previous right
+            if (Doubles.compare(leftValue1, rightValue1) >= 0) {
+                return Boolean.TRUE;
             }
         }
 
-        return false;
+        return Boolean.FALSE;
     }
 
     @Override
-    public boolean evaluateBoolean() {
+    public Boolean evaluateBooleanNullable() {
         throw new UnsupportedOperationException("crosses below operation is only supported with time or int index");
     }
 

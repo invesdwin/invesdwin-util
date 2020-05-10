@@ -41,19 +41,19 @@ public class ConstantPreviousKeyExpression implements IParsedExpression {
     }
 
     @Override
-    public boolean evaluateBoolean(final FDate key) {
+    public Boolean evaluateBooleanNullable(final FDate key) {
         final FDate previousKey = previousKeyFunction.getPreviousKey(key, index);
-        return previousKeyFunction.evaluateBoolean(expression, previousKey);
+        return previousKeyFunction.evaluateBooleanNullable(expression, previousKey);
     }
 
     @Override
-    public boolean evaluateBoolean(final int key) {
+    public Boolean evaluateBooleanNullable(final int key) {
         final int previousKey = previousKeyFunction.getPreviousKey(key, index);
-        return previousKeyFunction.evaluateBoolean(expression, previousKey);
+        return previousKeyFunction.evaluateBooleanNullable(expression, previousKey);
     }
 
     @Override
-    public boolean evaluateBoolean() {
+    public Boolean evaluateBooleanNullable() {
         throw new UnsupportedOperationException("use time or int key instead");
     }
 
