@@ -578,7 +578,7 @@ public final class LogicalFunctions {
             final Boolean a = args[0].evaluateBooleanNullable(key);
             if (a == null) {
                 return Double.NaN;
-            } else if (a) {
+            } else if (a == Boolean.TRUE) {
                 return 0D;
             } else {
                 return 1D;
@@ -590,7 +590,7 @@ public final class LogicalFunctions {
             final Boolean a = args[0].evaluateBooleanNullable(key);
             if (a == null) {
                 return Double.NaN;
-            } else if (a) {
+            } else if (a == Boolean.TRUE) {
                 return 0D;
             } else {
                 return 1D;
@@ -602,7 +602,7 @@ public final class LogicalFunctions {
             final Boolean a = args[0].evaluateBooleanNullable();
             if (a == null) {
                 return Double.NaN;
-            } else if (a) {
+            } else if (a == Boolean.TRUE) {
                 return 0D;
             } else {
                 return 1D;

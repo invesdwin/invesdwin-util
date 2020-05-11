@@ -137,7 +137,7 @@ public class ExpressionParserTest {
     public void testAndNan() {
         final IExpression parsed = new ExpressionParser("1 AND NaN").parse();
         final double evaluateDouble = parsed.evaluateDouble();
-        Assertions.checkEquals(0D, evaluateDouble);
+        Assertions.checkEquals(1D, evaluateDouble);
     }
 
     @Test
@@ -211,8 +211,16 @@ public class ExpressionParserTest {
     }
 
     @Test
-    public void testNegativeBoolean() {
+    public void testNegativeBooleanAnd() {
         final ExpressionParser expressionParser = new ExpressionParser("!(2>1 and 1<2)");
+        final IExpression parsed = expressionParser.parse();
+        final boolean evaluateDouble = parsed.evaluateBoolean();
+        Assertions.checkEquals(false, evaluateDouble);
+    }
+
+    @Test
+    public void testNegativeBoolean() {
+        final ExpressionParser expressionParser = new ExpressionParser("!(true)");
         final IExpression parsed = expressionParser.parse();
         final boolean evaluateDouble = parsed.evaluateBoolean();
         Assertions.checkEquals(false, evaluateDouble);

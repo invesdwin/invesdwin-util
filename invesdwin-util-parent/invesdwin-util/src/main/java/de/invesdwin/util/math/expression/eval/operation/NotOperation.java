@@ -2,6 +2,7 @@ package de.invesdwin.util.math.expression.eval.operation;
 
 import javax.annotation.concurrent.Immutable;
 
+import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.expression.eval.IParsedExpression;
 import de.invesdwin.util.time.fdate.FDate;
 
@@ -15,37 +16,19 @@ public class NotOperation extends BinaryOperation {
     @Override
     public double evaluateDouble(final FDate key) {
         final Boolean check = evaluateBooleanNullable(key);
-        if (check == null) {
-            return Double.NaN;
-        } else if (check) {
-            return 0D;
-        } else {
-            return 1D;
-        }
+        return Doubles.booleanToDouble(check);
     }
 
     @Override
     public double evaluateDouble(final int key) {
         final Boolean check = evaluateBooleanNullable(key);
-        if (check == null) {
-            return Double.NaN;
-        } else if (check) {
-            return 0D;
-        } else {
-            return 1D;
-        }
+        return Doubles.booleanToDouble(check);
     }
 
     @Override
     public double evaluateDouble() {
         final Boolean check = evaluateBooleanNullable();
-        if (check == null) {
-            return Double.NaN;
-        } else if (check) {
-            return 0D;
-        } else {
-            return 1D;
-        }
+        return Doubles.booleanToDouble(check);
     }
 
     @Override

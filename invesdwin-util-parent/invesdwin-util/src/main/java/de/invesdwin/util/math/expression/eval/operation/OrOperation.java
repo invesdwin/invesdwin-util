@@ -78,7 +78,11 @@ public class OrOperation extends BinaryOperation {
             } else {
                 if (newRight.isConstant()) {
                     final Boolean rightResult = newRight.evaluateBooleanNullable();
-                    return new ConstantExpression(Doubles.booleanToDouble(rightResult));
+                    if (rightResult != null) {
+                        return new ConstantExpression(Doubles.booleanToDouble(rightResult));
+                    } else {
+                        return new ConstantExpression(Doubles.booleanToDouble(leftResult));
+                    }
                 } else {
                     return newRight;
                 }
@@ -91,7 +95,11 @@ public class OrOperation extends BinaryOperation {
             } else {
                 if (newLeft.isConstant()) {
                     final Boolean leftResult = newLeft.evaluateBooleanNullable();
-                    return new ConstantExpression(Doubles.booleanToDouble(leftResult));
+                    if (leftResult != null) {
+                        return new ConstantExpression(Doubles.booleanToDouble(leftResult));
+                    } else {
+                        return new ConstantExpression(Doubles.booleanToDouble(rightResult));
+                    }
                 } else {
                     return newLeft;
                 }
