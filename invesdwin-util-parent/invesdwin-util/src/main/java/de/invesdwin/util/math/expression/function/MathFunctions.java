@@ -1642,254 +1642,6 @@ public final class MathFunctions {
         }
     };
 
-    public static final AFunction MIN = new ABinaryFunction() {
-        @Override
-        protected double eval(final double a, final double b) {
-            return Math.min(a, b);
-        }
-
-        @Override
-        public String getExpressionName() {
-            return "min";
-        }
-
-        @Override
-        public ExpressionReturnType getReturnType() {
-            return ExpressionReturnType.Double;
-        }
-
-        @Override
-        public IFunctionParameterInfo getParameterInfo(final int index) {
-            switch (index) {
-            case 0:
-                return new IFunctionParameterInfo() {
-
-                    @Override
-                    public String getType() {
-                        return ExpressionReturnType.Double.toString();
-                    }
-
-                    @Override
-                    public String getExpressionName() {
-                        return "value1";
-                    }
-
-                    @Override
-                    public String getName() {
-                        return "Value 1";
-                    }
-
-                    @Override
-                    public String getDescription() {
-                        return "An argument.";
-                    }
-
-                    @Override
-                    public boolean isOptional() {
-                        return false;
-                    }
-
-                    @Override
-                    public boolean isVarArgs() {
-                        return false;
-                    }
-
-                    @Override
-                    public String getDefaultValue() {
-                        return null;
-                    }
-                };
-            case 1:
-                return new IFunctionParameterInfo() {
-
-                    @Override
-                    public String getType() {
-                        return ExpressionReturnType.Double.toString();
-                    }
-
-                    @Override
-                    public String getExpressionName() {
-                        return "value2";
-                    }
-
-                    @Override
-                    public String getName() {
-                        return "Value 2";
-                    }
-
-                    @Override
-                    public String getDescription() {
-                        return "Another agument.";
-                    }
-
-                    @Override
-                    public boolean isOptional() {
-                        return false;
-                    }
-
-                    @Override
-                    public boolean isVarArgs() {
-                        return false;
-                    }
-
-                    @Override
-                    public String getDefaultValue() {
-                        return null;
-                    }
-                };
-            default:
-                throw new ArrayIndexOutOfBoundsException(index);
-            }
-        }
-
-        @Override
-        public String getName() {
-            return "Minimum";
-        }
-
-        @Override
-        public String getDescription() {
-            return "Returns the smaller of two double values. That is, the result is the value closer to negative infinity. "
-                    + "If the arguments have the same value, the result is that same value. If either value is NaN, then the result is NaN. "
-                    + "Unlike the numerical comparison operators, this method considers negative zero to be strictly smaller than positive zero. "
-                    + "If one argument is positive zero and the other is negative zero, the result is negative zero.";
-        }
-
-        @Override
-        public boolean shouldPersist() {
-            return false;
-        }
-
-        @Override
-        public boolean shouldDraw() {
-            return true;
-        }
-    };
-
-    public static final AFunction MAX = new ABinaryFunction() {
-        @Override
-        protected double eval(final double a, final double b) {
-            return Math.max(a, b);
-        }
-
-        @Override
-        public String getExpressionName() {
-            return "max";
-        }
-
-        @Override
-        public ExpressionReturnType getReturnType() {
-            return ExpressionReturnType.Double;
-        }
-
-        @Override
-        public IFunctionParameterInfo getParameterInfo(final int index) {
-            switch (index) {
-            case 0:
-                return new IFunctionParameterInfo() {
-
-                    @Override
-                    public String getType() {
-                        return ExpressionReturnType.Double.toString();
-                    }
-
-                    @Override
-                    public String getExpressionName() {
-                        return "value1";
-                    }
-
-                    @Override
-                    public String getName() {
-                        return "Value 1";
-                    }
-
-                    @Override
-                    public String getDescription() {
-                        return "An argument.";
-                    }
-
-                    @Override
-                    public boolean isOptional() {
-                        return false;
-                    }
-
-                    @Override
-                    public boolean isVarArgs() {
-                        return false;
-                    }
-
-                    @Override
-                    public String getDefaultValue() {
-                        return null;
-                    }
-                };
-            case 1:
-                return new IFunctionParameterInfo() {
-
-                    @Override
-                    public String getType() {
-                        return ExpressionReturnType.Double.toString();
-                    }
-
-                    @Override
-                    public String getExpressionName() {
-                        return "value2";
-                    }
-
-                    @Override
-                    public String getName() {
-                        return "Value 2";
-                    }
-
-                    @Override
-                    public String getDescription() {
-                        return "Another agument.";
-                    }
-
-                    @Override
-                    public boolean isOptional() {
-                        return false;
-                    }
-
-                    @Override
-                    public boolean isVarArgs() {
-                        return false;
-                    }
-
-                    @Override
-                    public String getDefaultValue() {
-                        return null;
-                    }
-                };
-            default:
-                throw new ArrayIndexOutOfBoundsException(index);
-            }
-        }
-
-        @Override
-        public String getName() {
-            return "Maximum";
-        }
-
-        @Override
-        public String getDescription() {
-            return "Returns the greater of two double values. That is, the result is the argument closer to positive infinity. "
-                    + "If the arguments have the same value, the result is that same value. If either value is NaN, then the result is NaN. "
-                    + "Unlike the numerical comparison operators, this method considers negative zero to be strictly smaller than positive zero. "
-                    + "If one argument is positive zero and the other negative zero, the result is positive zero.";
-        }
-
-        @Override
-        public boolean shouldPersist() {
-            return false;
-        }
-
-        @Override
-        public boolean shouldDraw() {
-            return true;
-        }
-    };
-
     public static final AFunction BETWEEN = new ATernaryFunction() {
         @Override
         protected double eval(final double a, final double b, final double c) {
@@ -2523,6 +2275,320 @@ public final class MathFunctions {
             @Override
             public boolean isNaturalFunction(final IExpression[] args) {
                 return false;
+            }
+        };
+    }
+
+    public static AFunction newMinimumFunction(final String name) {
+        return new AFunction() {
+
+            @Override
+            public String getExpressionName() {
+                return name;
+            }
+
+            @Override
+            public ExpressionReturnType getReturnType() {
+                return ExpressionReturnType.Double;
+            }
+
+            @Override
+            public IFunctionParameterInfo getParameterInfo(final int index) {
+                switch (index) {
+                case 0:
+                    return new IFunctionParameterInfo() {
+
+                        @Override
+                        public String getType() {
+                            return ExpressionReturnType.Double.toString();
+                        }
+
+                        @Override
+                        public String getExpressionName() {
+                            return "value1";
+                        }
+
+                        @Override
+                        public String getName() {
+                            return "Value 1";
+                        }
+
+                        @Override
+                        public String getDescription() {
+                            return "An argument.";
+                        }
+
+                        @Override
+                        public boolean isOptional() {
+                            return false;
+                        }
+
+                        @Override
+                        public boolean isVarArgs() {
+                            return false;
+                        }
+
+                        @Override
+                        public String getDefaultValue() {
+                            return null;
+                        }
+                    };
+                case 1:
+                    return new IFunctionParameterInfo() {
+
+                        @Override
+                        public String getType() {
+                            return ExpressionReturnType.Double.toString();
+                        }
+
+                        @Override
+                        public String getExpressionName() {
+                            return "valueN";
+                        }
+
+                        @Override
+                        public String getName() {
+                            return "Value N";
+                        }
+
+                        @Override
+                        public String getDescription() {
+                            return "Another agument.";
+                        }
+
+                        @Override
+                        public boolean isOptional() {
+                            return false;
+                        }
+
+                        @Override
+                        public boolean isVarArgs() {
+                            return true;
+                        }
+
+                        @Override
+                        public String getDefaultValue() {
+                            return null;
+                        }
+                    };
+                default:
+                    throw new ArrayIndexOutOfBoundsException(index);
+                }
+            }
+
+            @Override
+            public String getName() {
+                return "Minimum";
+            }
+
+            @Override
+            public String getDescription() {
+                return "Returns the smaller of two or more double values. That is, the result is the value closer to negative infinity. "
+                        + "NaN is ignored.";
+            }
+
+            @Override
+            public boolean shouldPersist() {
+                return false;
+            }
+
+            @Override
+            public boolean shouldDraw() {
+                return true;
+            }
+
+            @Override
+            public int getNumberOfArguments() {
+                return 2;
+            }
+
+            @Override
+            public double eval(final FDate key, final IExpression[] args) {
+                double min = args[0].evaluateDouble(key);
+                for (int i = 1; i < args.length; i++) {
+                    min = Doubles.min(min, args[i].evaluateDouble(key));
+                }
+                return min;
+            }
+
+            @Override
+            public double eval(final int key, final IExpression[] args) {
+                double min = args[0].evaluateDouble(key);
+                for (int i = 1; i < args.length; i++) {
+                    min = Doubles.min(min, args[i].evaluateDouble(key));
+                }
+                return min;
+            }
+
+            @Override
+            public double eval(final IExpression[] args) {
+                double min = args[0].evaluateDouble();
+                for (int i = 1; i < args.length; i++) {
+                    min = Doubles.min(min, args[i].evaluateDouble());
+                }
+                return min;
+            }
+
+            @Override
+            public boolean isNaturalFunction(final IExpression[] args) {
+                return true;
+            }
+        };
+    }
+
+    public static AFunction newMaximumFunction(final String name) {
+        return new AFunction() {
+
+            @Override
+            public String getExpressionName() {
+                return name;
+            }
+
+            @Override
+            public ExpressionReturnType getReturnType() {
+                return ExpressionReturnType.Double;
+            }
+
+            @Override
+            public IFunctionParameterInfo getParameterInfo(final int index) {
+                switch (index) {
+                case 0:
+                    return new IFunctionParameterInfo() {
+
+                        @Override
+                        public String getType() {
+                            return ExpressionReturnType.Double.toString();
+                        }
+
+                        @Override
+                        public String getExpressionName() {
+                            return "value1";
+                        }
+
+                        @Override
+                        public String getName() {
+                            return "Value 1";
+                        }
+
+                        @Override
+                        public String getDescription() {
+                            return "An argument.";
+                        }
+
+                        @Override
+                        public boolean isOptional() {
+                            return false;
+                        }
+
+                        @Override
+                        public boolean isVarArgs() {
+                            return false;
+                        }
+
+                        @Override
+                        public String getDefaultValue() {
+                            return null;
+                        }
+                    };
+                case 1:
+                    return new IFunctionParameterInfo() {
+
+                        @Override
+                        public String getType() {
+                            return ExpressionReturnType.Double.toString();
+                        }
+
+                        @Override
+                        public String getExpressionName() {
+                            return "valueN";
+                        }
+
+                        @Override
+                        public String getName() {
+                            return "Value N";
+                        }
+
+                        @Override
+                        public String getDescription() {
+                            return "Another agument.";
+                        }
+
+                        @Override
+                        public boolean isOptional() {
+                            return false;
+                        }
+
+                        @Override
+                        public boolean isVarArgs() {
+                            return true;
+                        }
+
+                        @Override
+                        public String getDefaultValue() {
+                            return null;
+                        }
+                    };
+                default:
+                    throw new ArrayIndexOutOfBoundsException(index);
+                }
+            }
+
+            @Override
+            public String getName() {
+                return "Maximum";
+            }
+
+            @Override
+            public String getDescription() {
+                return "Returns the greater of two or more double values. That is, the result is the argument closer to positive infinity. "
+                        + "NaN is ignored.";
+            }
+
+            @Override
+            public boolean shouldPersist() {
+                return false;
+            }
+
+            @Override
+            public boolean shouldDraw() {
+                return true;
+            }
+
+            @Override
+            public int getNumberOfArguments() {
+                return 2;
+            }
+
+            @Override
+            public double eval(final FDate key, final IExpression[] args) {
+                double max = args[0].evaluateDouble(key);
+                for (int i = 1; i < args.length; i++) {
+                    max = Doubles.max(max, args[i].evaluateDouble(key));
+                }
+                return max;
+            }
+
+            @Override
+            public double eval(final int key, final IExpression[] args) {
+                double max = args[0].evaluateDouble(key);
+                for (int i = 1; i < args.length; i++) {
+                    max = Doubles.max(max, args[i].evaluateDouble(key));
+                }
+                return max;
+            }
+
+            @Override
+            public double eval(final IExpression[] args) {
+                double max = args[0].evaluateDouble();
+                for (int i = 1; i < args.length; i++) {
+                    max = Doubles.max(max, args[i].evaluateDouble());
+                }
+                return max;
+            }
+
+            @Override
+            public boolean isNaturalFunction(final IExpression[] args) {
+                return true;
             }
         };
     }

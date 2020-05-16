@@ -78,8 +78,12 @@ public class ExpressionParser {
         registerDefaultFunction(MathFunctions.LOG);
         registerDefaultFunction(MathFunctions.SQRT);
         registerDefaultFunction(MathFunctions.POW);
-        registerDefaultFunction(MathFunctions.MIN);
-        registerDefaultFunction(MathFunctions.MAX);
+        for (final String name : new String[] { "min", "minimum" }) {
+            registerDefaultFunction(MathFunctions.newMinimumFunction(name));
+        }
+        for (final String name : new String[] { "max", "maximum" }) {
+            registerDefaultFunction(MathFunctions.newMaximumFunction(name));
+        }
         registerDefaultFunction(MathFunctions.BETWEEN);
         registerDefaultFunction(MathFunctions.RANDOM);
         registerDefaultFunction(MathFunctions.RND);
