@@ -19,7 +19,8 @@ public class DoubleStreamZigZag implements IDoubleStreamAlgorithm {
     private long peakIndex = 0;
     private double peak = Double.NaN;
     private long curIndex = 0;
-    private double referenceValue = Double.NaN;
+    private double currentValue = Double.NaN;
+    private double previousValue = Double.NaN;
 
     public DoubleStreamZigZag() {
         this(DEFAULT_REVERSAL_THRESHOLD);
@@ -75,14 +76,16 @@ public class DoubleStreamZigZag implements IDoubleStreamAlgorithm {
                         //reference point was a trough, so we were falling before
                         peak = value;
                         peakIndex = curIndex;
-                        referenceValue = trough;
+                        previousValue = currentValue;
+                        currentValue = trough;
                     }
                 } else {
                     if (currentDirection != PriceDirection.FALLING) {
                         //reference point was a peak, so we were rising before
                         trough = value;
                         troughIndex = curIndex;
-                        referenceValue = peak;
+                        previousValue = currentValue;
+                        currentValue = peak;
                     }
                 }
             }
@@ -98,8 +101,12 @@ public class DoubleStreamZigZag implements IDoubleStreamAlgorithm {
         return peak;
     }
 
-    public double getReferenceValue() {
-        return referenceValue;
+    public double getCurrentValue() {
+        return currentValue;
+    }
+
+    public double getPreviousValue() {
+        return previousValue;
     }
 
     public PriceDirection getDirection() {
