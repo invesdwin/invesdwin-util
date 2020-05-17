@@ -1642,167 +1642,6 @@ public final class MathFunctions {
         }
     };
 
-    public static final AFunction BETWEEN = new ATernaryFunction() {
-        @Override
-        protected double eval(final double a, final double b, final double c) {
-            return Doubles.between(a, b, c);
-        }
-
-        @Override
-        public String getExpressionName() {
-            return "between";
-        }
-
-        @Override
-        public ExpressionReturnType getReturnType() {
-            return ExpressionReturnType.Double;
-        }
-
-        @Override
-        public IFunctionParameterInfo getParameterInfo(final int index) {
-            switch (index) {
-            case 0:
-                return new IFunctionParameterInfo() {
-
-                    @Override
-                    public String getType() {
-                        return ExpressionReturnType.Double.toString();
-                    }
-
-                    @Override
-                    public String getExpressionName() {
-                        return "value";
-                    }
-
-                    @Override
-                    public String getName() {
-                        return "Value";
-                    }
-
-                    @Override
-                    public String getDescription() {
-                        return "An argument.";
-                    }
-
-                    @Override
-                    public boolean isOptional() {
-                        return false;
-                    }
-
-                    @Override
-                    public boolean isVarArgs() {
-                        return false;
-                    }
-
-                    @Override
-                    public String getDefaultValue() {
-                        return null;
-                    }
-                };
-            case 1:
-                return new IFunctionParameterInfo() {
-
-                    @Override
-                    public String getType() {
-                        return ExpressionReturnType.Double.toString();
-                    }
-
-                    @Override
-                    public String getExpressionName() {
-                        return "min";
-                    }
-
-                    @Override
-                    public String getName() {
-                        return "Min";
-                    }
-
-                    @Override
-                    public String getDescription() {
-                        return "The minimum allowed value.";
-                    }
-
-                    @Override
-                    public boolean isOptional() {
-                        return false;
-                    }
-
-                    @Override
-                    public boolean isVarArgs() {
-                        return false;
-                    }
-
-                    @Override
-                    public String getDefaultValue() {
-                        return null;
-                    }
-                };
-            case 2:
-                return new IFunctionParameterInfo() {
-
-                    @Override
-                    public String getType() {
-                        return ExpressionReturnType.Double.toString();
-                    }
-
-                    @Override
-                    public String getExpressionName() {
-                        return "max";
-                    }
-
-                    @Override
-                    public String getName() {
-                        return "Max";
-                    }
-
-                    @Override
-                    public String getDescription() {
-                        return "The maximum allowed value.";
-                    }
-
-                    @Override
-                    public boolean isOptional() {
-                        return false;
-                    }
-
-                    @Override
-                    public boolean isVarArgs() {
-                        return false;
-                    }
-
-                    @Override
-                    public String getDefaultValue() {
-                        return null;
-                    }
-                };
-            default:
-                throw new ArrayIndexOutOfBoundsException(index);
-            }
-        }
-
-        @Override
-        public String getName() {
-            return "Between";
-        }
-
-        @Override
-        public String getDescription() {
-            return "Returns the value that is less or equal to max and higher or equal to min. "
-                    + "Thus ensuring maximum and minimum thresholds at the same time and returning "
-                    + "the maximum or minimum when one of them is breached.";
-        }
-
-        @Override
-        public boolean shouldPersist() {
-            return false;
-        }
-
-        @Override
-        public boolean shouldDraw() {
-            return true;
-        }
-    };
-
     public static final AFunction RANDOM = newRandomFunction("random");
     public static final AFunction RND = newRandomFunction("rnd");
     public static final AFunction RNG = newRandomFunction("rng");
@@ -2588,6 +2427,169 @@ public final class MathFunctions {
 
             @Override
             public boolean isNaturalFunction(final IExpression[] args) {
+                return true;
+            }
+        };
+    }
+
+    public static ATernaryFunction newBetweenFunction(final String name) {
+        return new ATernaryFunction() {
+            @Override
+            protected double eval(final double a, final double b, final double c) {
+                return Doubles.between(a, b, c);
+            }
+
+            @Override
+            public String getExpressionName() {
+                return name;
+            }
+
+            @Override
+            public ExpressionReturnType getReturnType() {
+                return ExpressionReturnType.Double;
+            }
+
+            @Override
+            public IFunctionParameterInfo getParameterInfo(final int index) {
+                switch (index) {
+                case 0:
+                    return new IFunctionParameterInfo() {
+
+                        @Override
+                        public String getType() {
+                            return ExpressionReturnType.Double.toString();
+                        }
+
+                        @Override
+                        public String getExpressionName() {
+                            return "value";
+                        }
+
+                        @Override
+                        public String getName() {
+                            return "Value";
+                        }
+
+                        @Override
+                        public String getDescription() {
+                            return "An argument.";
+                        }
+
+                        @Override
+                        public boolean isOptional() {
+                            return false;
+                        }
+
+                        @Override
+                        public boolean isVarArgs() {
+                            return false;
+                        }
+
+                        @Override
+                        public String getDefaultValue() {
+                            return null;
+                        }
+                    };
+                case 1:
+                    return new IFunctionParameterInfo() {
+
+                        @Override
+                        public String getType() {
+                            return ExpressionReturnType.Double.toString();
+                        }
+
+                        @Override
+                        public String getExpressionName() {
+                            return "min";
+                        }
+
+                        @Override
+                        public String getName() {
+                            return "Min";
+                        }
+
+                        @Override
+                        public String getDescription() {
+                            return "The minimum allowed value.";
+                        }
+
+                        @Override
+                        public boolean isOptional() {
+                            return false;
+                        }
+
+                        @Override
+                        public boolean isVarArgs() {
+                            return false;
+                        }
+
+                        @Override
+                        public String getDefaultValue() {
+                            return null;
+                        }
+                    };
+                case 2:
+                    return new IFunctionParameterInfo() {
+
+                        @Override
+                        public String getType() {
+                            return ExpressionReturnType.Double.toString();
+                        }
+
+                        @Override
+                        public String getExpressionName() {
+                            return "max";
+                        }
+
+                        @Override
+                        public String getName() {
+                            return "Max";
+                        }
+
+                        @Override
+                        public String getDescription() {
+                            return "The maximum allowed value.";
+                        }
+
+                        @Override
+                        public boolean isOptional() {
+                            return false;
+                        }
+
+                        @Override
+                        public boolean isVarArgs() {
+                            return false;
+                        }
+
+                        @Override
+                        public String getDefaultValue() {
+                            return null;
+                        }
+                    };
+                default:
+                    throw new ArrayIndexOutOfBoundsException(index);
+                }
+            }
+
+            @Override
+            public String getName() {
+                return "Between";
+            }
+
+            @Override
+            public String getDescription() {
+                return "Returns the value that is less or equal to max and higher or equal to min. "
+                        + "Thus ensuring maximum and minimum thresholds at the same time and returning "
+                        + "the maximum or minimum when one of them is breached.";
+            }
+
+            @Override
+            public boolean shouldPersist() {
+                return false;
+            }
+
+            @Override
+            public boolean shouldDraw() {
                 return true;
             }
         };

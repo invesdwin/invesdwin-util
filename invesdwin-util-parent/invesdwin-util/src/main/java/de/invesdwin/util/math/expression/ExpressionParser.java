@@ -54,7 +54,9 @@ public class ExpressionParser {
     private final Tokenizer tokenizer;
     private final String originalExpression;
 
+    //CHECKSTYLE:OFF
     static {
+        //CHECKSTYLE:ON
         DEFAULT_FUNCTIONS = new LinkedHashMap<>();
 
         registerDefaultFunction(MathFunctions.SIN);
@@ -84,7 +86,9 @@ public class ExpressionParser {
         for (final String name : new String[] { "max", "maximum" }) {
             registerDefaultFunction(MathFunctions.newMaximumFunction(name));
         }
-        registerDefaultFunction(MathFunctions.BETWEEN);
+        for (final String name : new String[] { "between", "clamp" }) {
+            registerDefaultFunction(MathFunctions.newBetweenFunction(name));
+        }
         registerDefaultFunction(MathFunctions.RANDOM);
         registerDefaultFunction(MathFunctions.RND);
         registerDefaultFunction(MathFunctions.RNG);
