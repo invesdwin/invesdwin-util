@@ -1642,10 +1642,6 @@ public final class MathFunctions {
         }
     };
 
-    public static final AFunction RANDOM = newRandomFunction("random");
-    public static final AFunction RND = newRandomFunction("rnd");
-    public static final AFunction RNG = newRandomFunction("rng");
-
     public static final AFunction SIGN = new AUnaryFunction() {
         @Override
         protected double eval(final double a) {
@@ -1997,10 +1993,170 @@ public final class MathFunctions {
         }
     };
 
+    public static final AFunction NORMALIZE_VALUE = new ATernaryFunction() {
+        @Override
+        protected double eval(final double a, final double b, final double c) {
+            return Doubles.between(a, b, c);
+        }
+
+        @Override
+        public String getExpressionName() {
+            return "normalizeValue";
+        }
+
+        @Override
+        public ExpressionReturnType getReturnType() {
+            return ExpressionReturnType.Double;
+        }
+
+        @Override
+        public IFunctionParameterInfo getParameterInfo(final int index) {
+            switch (index) {
+            case 0:
+                return new IFunctionParameterInfo() {
+
+                    @Override
+                    public String getType() {
+                        return ExpressionReturnType.Double.toString();
+                    }
+
+                    @Override
+                    public String getExpressionName() {
+                        return "value";
+                    }
+
+                    @Override
+                    public String getName() {
+                        return "Value";
+                    }
+
+                    @Override
+                    public String getDescription() {
+                        return "An argument.";
+                    }
+
+                    @Override
+                    public boolean isOptional() {
+                        return false;
+                    }
+
+                    @Override
+                    public boolean isVarArgs() {
+                        return false;
+                    }
+
+                    @Override
+                    public String getDefaultValue() {
+                        return null;
+                    }
+                };
+            case 1:
+                return new IFunctionParameterInfo() {
+
+                    @Override
+                    public String getType() {
+                        return ExpressionReturnType.Double.toString();
+                    }
+
+                    @Override
+                    public String getExpressionName() {
+                        return "min";
+                    }
+
+                    @Override
+                    public String getName() {
+                        return "Min";
+                    }
+
+                    @Override
+                    public String getDescription() {
+                        return "The minimum allowed value.";
+                    }
+
+                    @Override
+                    public boolean isOptional() {
+                        return false;
+                    }
+
+                    @Override
+                    public boolean isVarArgs() {
+                        return false;
+                    }
+
+                    @Override
+                    public String getDefaultValue() {
+                        return null;
+                    }
+                };
+            case 2:
+                return new IFunctionParameterInfo() {
+
+                    @Override
+                    public String getType() {
+                        return ExpressionReturnType.Double.toString();
+                    }
+
+                    @Override
+                    public String getExpressionName() {
+                        return "max";
+                    }
+
+                    @Override
+                    public String getName() {
+                        return "Max";
+                    }
+
+                    @Override
+                    public String getDescription() {
+                        return "The maximum allowed value.";
+                    }
+
+                    @Override
+                    public boolean isOptional() {
+                        return false;
+                    }
+
+                    @Override
+                    public boolean isVarArgs() {
+                        return false;
+                    }
+
+                    @Override
+                    public String getDefaultValue() {
+                        return null;
+                    }
+                };
+            default:
+                throw new ArrayIndexOutOfBoundsException(index);
+            }
+        }
+
+        @Override
+        public String getName() {
+            return "Normalize Value";
+        }
+
+        @Override
+        public String getDescription() {
+            return "This normalizes a series to a value between -1 and 1 using this formula: "
+                    + "<ul><li>2 * (value - min / (max - min) - 1D</li></ul>";
+        }
+
+        @Override
+        public boolean shouldPersist() {
+            return false;
+        }
+
+        @Override
+        public boolean shouldDraw() {
+            return true;
+        }
+    };
+
     private MathFunctions() {
     }
 
-    private static AFunction newRandomFunction(final String expressionName) {
+    public static AFunction newRandomFunction(final String expressionName) {
         return new AFunction() {
             @Override
             public String getExpressionName() {

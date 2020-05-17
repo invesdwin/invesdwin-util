@@ -89,9 +89,10 @@ public class ExpressionParser {
         for (final String name : new String[] { "between", "clamp" }) {
             registerDefaultFunction(MathFunctions.newBetweenFunction(name));
         }
-        registerDefaultFunction(MathFunctions.RANDOM);
-        registerDefaultFunction(MathFunctions.RND);
-        registerDefaultFunction(MathFunctions.RNG);
+        for (final String name : new String[] { "random", "rnd", "rng" }) {
+            registerDefaultFunction(MathFunctions.newRandomFunction(name));
+        }
+        registerDefaultFunction(MathFunctions.NORMALIZE_VALUE);
         registerDefaultFunction(MathFunctions.SIGN);
         registerDefaultFunction(MathFunctions.NEGATE);
 
