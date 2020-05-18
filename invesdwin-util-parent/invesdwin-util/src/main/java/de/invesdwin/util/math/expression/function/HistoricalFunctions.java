@@ -1282,6 +1282,195 @@ public final class HistoricalFunctions {
         };
     }
 
+    public static IFunctionFactory newFirstIndexOfFunction(final String name) {
+        return new IFunctionFactory() {
+            @Override
+            public String getExpressionName() {
+                return name;
+            }
+
+            @Override
+            public AFunction newFunction(final IPreviousKeyFunction previousKeyFunction) {
+                if (previousKeyFunction == null) {
+                    return null;
+                }
+
+                return new AFunction() {
+
+                    @Override
+                    public boolean shouldPersist() {
+                        return false;
+                    }
+
+                    @Override
+                    public boolean shouldDraw() {
+                        return true;
+                    }
+
+                    @Override
+                    public boolean isNaturalFunction(final IExpression[] args) {
+                        return false;
+                    }
+
+                    @Override
+                    public ExpressionReturnType getReturnType() {
+                        return ExpressionReturnType.Boolean;
+                    }
+
+                    @Override
+                    protected IFunctionParameterInfo getParameterInfo(final int index) {
+                        switch (index) {
+                        case 0:
+                            return new IFunctionParameterInfo() {
+
+                                @Override
+                                public String getType() {
+                                    return ExpressionReturnType.Integer.toString();
+                                }
+
+                                @Override
+                                public String getExpressionName() {
+                                    return "lookback";
+                                }
+
+                                @Override
+                                public String getName() {
+                                    return "Lookback";
+                                }
+
+                                @Override
+                                public String getDescription() {
+                                    return "How many previous keys/periods/bars should be checked?";
+                                }
+
+                                @Override
+                                public boolean isOptional() {
+                                    return false;
+                                }
+
+                                @Override
+                                public boolean isVarArgs() {
+                                    return false;
+                                }
+
+                                @Override
+                                public String getDefaultValue() {
+                                    return "100";
+                                }
+                            };
+                        case 1:
+                            return new IFunctionParameterInfo() {
+
+                                @Override
+                                public String getType() {
+                                    return ExpressionReturnType.Boolean.toString();
+                                }
+
+                                @Override
+                                public String getExpressionName() {
+                                    return "condition";
+                                }
+
+                                @Override
+                                public String getName() {
+                                    return "Condition";
+                                }
+
+                                @Override
+                                public String getDescription() {
+                                    return "The boolean expression to evaluate. A value greater than 0 means true.";
+                                }
+
+                                @Override
+                                public boolean isOptional() {
+                                    return false;
+                                }
+
+                                @Override
+                                public boolean isVarArgs() {
+                                    return false;
+                                }
+
+                                @Override
+                                public String getDefaultValue() {
+                                    return null;
+                                }
+                            };
+                        default:
+                            throw new ArrayIndexOutOfBoundsException(index);
+                        }
+                    }
+
+                    @Override
+                    public int getNumberOfArguments() {
+                        return 2;
+                    }
+
+                    @Override
+                    public String getName() {
+                        return "First Index Of";
+                    }
+
+                    @Override
+                    public String getExpressionName() {
+                        return name;
+                    }
+
+                    @Override
+                    public String getDescription() {
+                        return "Checks at which most distant index the given condition occurs as true over a range of previous keys. "
+                                + "Returns NaN when nothing was found which makes an index lookup invalid. "
+                                + "This is the underlying formula: if(condition[n-1], n-1, if(condition[n-2], n-2, ... if(condition[0], 0, NaN)";
+                    }
+
+                    @Override
+                    public double eval(final IExpression[] args) {
+                        throw new UnsupportedOperationException("use time or int key instead");
+                    }
+
+                    @Override
+                    public double eval(final int key, final IExpression[] args) {
+                        final int count = args[0].evaluateInteger(key);
+                        final IExpression condition = args[1];
+                        for (int i = count - 1; i >= 0; i--) {
+                            final int curKey;
+                            if (count == 0) {
+                                curKey = key;
+                            } else {
+                                curKey = previousKeyFunction.getPreviousKey(key, i);
+                            }
+                            final boolean result = Booleans.isTrue(condition.evaluateBooleanNullable(curKey));
+                            if (result) {
+                                return i;
+                            }
+                        }
+                        return Double.NaN;
+                    }
+
+                    @Override
+                    public double eval(final FDate key, final IExpression[] args) {
+                        final int count = args[0].evaluateInteger(key);
+                        final IExpression condition = args[1];
+                        for (int i = count - 1; i >= 0; i--) {
+                            final FDate curKey;
+                            if (count == 0) {
+                                curKey = key;
+                            } else {
+                                curKey = previousKeyFunction.getPreviousKey(key, i);
+                            }
+                            final boolean result = Booleans.isTrue(condition.evaluateBooleanNullable(curKey));
+                            if (result) {
+                                return i;
+                            }
+                        }
+                        return Double.NaN;
+                    }
+                };
+            }
+
+        };
+    }
+
     public static IFunctionFactory newLastIndexOfFunction(final String name) {
         return new IFunctionFactory() {
             @Override
@@ -1418,7 +1607,9 @@ public final class HistoricalFunctions {
 
                     @Override
                     public String getDescription() {
-                        return "Checks at which index the given condition occurs as true over a range of previous keys. Returns -1 when nothing was found.: if(condition[0], 0, if(condition[1], 1, ... if(condition[n-1], n-1, -1)";
+                        return "Checks at which most recent index the given condition occurs as true over a range of previous keys. "
+                                + "Returns NaN when nothing was found which makes an index lookup invalid. "
+                                + "This is the underlying formula: if(condition[0], 0, if(condition[1], 1, ... if(condition[n-1], n-1, NaN)";
                     }
 
                     @Override
@@ -1434,13 +1625,13 @@ public final class HistoricalFunctions {
                         for (int i = 1; i <= count; i++) {
                             final boolean result = Booleans.isTrue(condition.evaluateBooleanNullable(curKey));
                             if (result) {
-                                return 1D;
+                                return i - 1;
                             }
                             if (i != count) {
                                 curKey = previousKeyFunction.getPreviousKey(curKey, 1);
                             }
                         }
-                        return 0D;
+                        return Double.NaN;
                     }
 
                     @Override
@@ -1451,13 +1642,13 @@ public final class HistoricalFunctions {
                         for (int i = 1; i <= count; i++) {
                             final boolean result = Booleans.isTrue(condition.evaluateBooleanNullable(curKey));
                             if (result) {
-                                return 1D;
+                                return i - 1;
                             }
                             if (i != count) {
                                 curKey = previousKeyFunction.getPreviousKey(curKey, 1);
                             }
                         }
-                        return 0D;
+                        return Double.NaN;
                     }
                 };
             }

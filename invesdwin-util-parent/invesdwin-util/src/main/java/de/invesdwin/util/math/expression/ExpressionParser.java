@@ -128,6 +128,10 @@ public class ExpressionParser {
             registerDefaultFunction(HistoricalFunctions.newOccursLeftFunction(name + "Left"));
             registerDefaultFunction(HistoricalFunctions.newOccursRightFunction(name + "Right"));
         }
+        registerDefaultFunction(HistoricalFunctions.newFirstIndexOfFunction("firstIndexOf"));
+        for (final String name : new String[] { "indexOf", "lastIndexOf" }) {
+            registerDefaultFunction(HistoricalFunctions.newLastIndexOfFunction(name));
+        }
 
         DEFAULT_VARIABLES = new LinkedHashMap<>();
 
