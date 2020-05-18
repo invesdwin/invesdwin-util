@@ -199,44 +199,6 @@ public final class HistoricalFunctions {
 
                                 @Override
                                 public String getType() {
-                                    return ExpressionReturnType.Integer.toString();
-                                }
-
-                                @Override
-                                public String getExpressionName() {
-                                    return "count";
-                                }
-
-                                @Override
-                                public String getName() {
-                                    return "Count";
-                                }
-
-                                @Override
-                                public String getDescription() {
-                                    return "How many previous keys/periods/bars should be checked?";
-                                }
-
-                                @Override
-                                public boolean isOptional() {
-                                    return false;
-                                }
-
-                                @Override
-                                public boolean isVarArgs() {
-                                    return false;
-                                }
-
-                                @Override
-                                public String getDefaultValue() {
-                                    return null;
-                                }
-                            };
-                        case 1:
-                            return new IFunctionParameterInfo() {
-
-                                @Override
-                                public String getType() {
                                     return ExpressionReturnType.Boolean.toString();
                                 }
 
@@ -268,6 +230,44 @@ public final class HistoricalFunctions {
                                 @Override
                                 public String getDefaultValue() {
                                     return null;
+                                }
+                            };
+                        case 1:
+                            return new IFunctionParameterInfo() {
+
+                                @Override
+                                public String getType() {
+                                    return ExpressionReturnType.Integer.toString();
+                                }
+
+                                @Override
+                                public String getExpressionName() {
+                                    return "count";
+                                }
+
+                                @Override
+                                public String getName() {
+                                    return "Count";
+                                }
+
+                                @Override
+                                public String getDescription() {
+                                    return "How many previous keys/periods/bars should be checked?";
+                                }
+
+                                @Override
+                                public boolean isOptional() {
+                                    return false;
+                                }
+
+                                @Override
+                                public boolean isVarArgs() {
+                                    return false;
+                                }
+
+                                @Override
+                                public String getDefaultValue() {
+                                    return "100";
                                 }
                             };
                         default:
@@ -302,8 +302,8 @@ public final class HistoricalFunctions {
 
                     @Override
                     public double eval(final int key, final IExpression[] args) {
-                        final int count = args[0].evaluateInteger(key);
-                        final IExpression condition = args[1];
+                        final IExpression condition = args[0];
+                        final int count = args[1].evaluateInteger(key);
                         int curKey = key;
                         for (int i = 1; i <= count; i++) {
                             final Boolean result = condition.evaluateBooleanNullable(curKey);
@@ -319,8 +319,8 @@ public final class HistoricalFunctions {
 
                     @Override
                     public double eval(final FDate key, final IExpression[] args) {
-                        final int count = args[0].evaluateInteger(key);
-                        final IExpression condition = args[1];
+                        final IExpression condition = args[0];
+                        final int count = args[1].evaluateInteger(key);
                         FDate curKey = key;
                         for (int i = 1; i <= count; i++) {
                             final Boolean result = condition.evaluateBooleanNullable(curKey);
@@ -366,7 +366,7 @@ public final class HistoricalFunctions {
 
                     @Override
                     public boolean isNaturalFunction(final IExpression[] args) {
-                        BinaryOperation.validateComparativeOperation(args[1]);
+                        BinaryOperation.validateComparativeOperation(args[0]);
                         return false;
                     }
 
@@ -379,44 +379,6 @@ public final class HistoricalFunctions {
                     protected IFunctionParameterInfo getParameterInfo(final int index) {
                         switch (index) {
                         case 0:
-                            return new IFunctionParameterInfo() {
-
-                                @Override
-                                public String getType() {
-                                    return ExpressionReturnType.Integer.toString();
-                                }
-
-                                @Override
-                                public String getExpressionName() {
-                                    return "count";
-                                }
-
-                                @Override
-                                public String getName() {
-                                    return "Count";
-                                }
-
-                                @Override
-                                public String getDescription() {
-                                    return "How many previous keys/periods/bars should be checked?";
-                                }
-
-                                @Override
-                                public boolean isOptional() {
-                                    return false;
-                                }
-
-                                @Override
-                                public boolean isVarArgs() {
-                                    return false;
-                                }
-
-                                @Override
-                                public String getDefaultValue() {
-                                    return null;
-                                }
-                            };
-                        case 1:
                             return new IFunctionParameterInfo() {
 
                                 @Override
@@ -454,6 +416,44 @@ public final class HistoricalFunctions {
                                     return null;
                                 }
                             };
+                        case 1:
+                            return new IFunctionParameterInfo() {
+
+                                @Override
+                                public String getType() {
+                                    return ExpressionReturnType.Integer.toString();
+                                }
+
+                                @Override
+                                public String getExpressionName() {
+                                    return "count";
+                                }
+
+                                @Override
+                                public String getName() {
+                                    return "Count";
+                                }
+
+                                @Override
+                                public String getDescription() {
+                                    return "How many previous keys/periods/bars should be checked?";
+                                }
+
+                                @Override
+                                public boolean isOptional() {
+                                    return false;
+                                }
+
+                                @Override
+                                public boolean isVarArgs() {
+                                    return false;
+                                }
+
+                                @Override
+                                public String getDefaultValue() {
+                                    return "100";
+                                }
+                            };
                         default:
                             throw new ArrayIndexOutOfBoundsException(index);
                         }
@@ -487,8 +487,8 @@ public final class HistoricalFunctions {
 
                     @Override
                     public double eval(final int key, final IExpression[] args) {
-                        final int count = args[0].evaluateInteger(key);
-                        final BinaryOperation condition = BinaryOperation.validateComparativeOperation(args[1]);
+                        final BinaryOperation condition = BinaryOperation.validateComparativeOperation(args[0]);
+                        final int count = args[1].evaluateInteger(key);
                         final double rightResult = condition.getRight().evaluateDouble(key);
                         int curKey = key;
                         for (int i = 1; i <= count; i++) {
@@ -506,8 +506,8 @@ public final class HistoricalFunctions {
 
                     @Override
                     public double eval(final FDate key, final IExpression[] args) {
-                        final int count = args[0].evaluateInteger(key);
-                        final BinaryOperation condition = BinaryOperation.validateComparativeOperation(args[1]);
+                        final BinaryOperation condition = BinaryOperation.validateComparativeOperation(args[0]);
+                        final int count = args[1].evaluateInteger(key);
                         final double rightResult = condition.getRight().evaluateDouble(key);
                         FDate curKey = key;
                         for (int i = 1; i <= count; i++) {
@@ -555,7 +555,7 @@ public final class HistoricalFunctions {
 
                     @Override
                     public boolean isNaturalFunction(final IExpression[] args) {
-                        BinaryOperation.validateComparativeOperation(args[1]);
+                        BinaryOperation.validateComparativeOperation(args[0]);
                         return false;
                     }
 
@@ -568,44 +568,6 @@ public final class HistoricalFunctions {
                     protected IFunctionParameterInfo getParameterInfo(final int index) {
                         switch (index) {
                         case 0:
-                            return new IFunctionParameterInfo() {
-
-                                @Override
-                                public String getType() {
-                                    return ExpressionReturnType.Integer.toString();
-                                }
-
-                                @Override
-                                public String getExpressionName() {
-                                    return "count";
-                                }
-
-                                @Override
-                                public String getName() {
-                                    return "Count";
-                                }
-
-                                @Override
-                                public String getDescription() {
-                                    return "How many previous keys/periods/bars should be checked?";
-                                }
-
-                                @Override
-                                public boolean isOptional() {
-                                    return false;
-                                }
-
-                                @Override
-                                public boolean isVarArgs() {
-                                    return false;
-                                }
-
-                                @Override
-                                public String getDefaultValue() {
-                                    return null;
-                                }
-                            };
-                        case 1:
                             return new IFunctionParameterInfo() {
 
                                 @Override
@@ -643,6 +605,44 @@ public final class HistoricalFunctions {
                                     return null;
                                 }
                             };
+                        case 1:
+                            return new IFunctionParameterInfo() {
+
+                                @Override
+                                public String getType() {
+                                    return ExpressionReturnType.Integer.toString();
+                                }
+
+                                @Override
+                                public String getExpressionName() {
+                                    return "count";
+                                }
+
+                                @Override
+                                public String getName() {
+                                    return "Count";
+                                }
+
+                                @Override
+                                public String getDescription() {
+                                    return "How many previous keys/periods/bars should be checked?";
+                                }
+
+                                @Override
+                                public boolean isOptional() {
+                                    return false;
+                                }
+
+                                @Override
+                                public boolean isVarArgs() {
+                                    return false;
+                                }
+
+                                @Override
+                                public String getDefaultValue() {
+                                    return "100";
+                                }
+                            };
                         default:
                             throw new ArrayIndexOutOfBoundsException(index);
                         }
@@ -676,8 +676,8 @@ public final class HistoricalFunctions {
 
                     @Override
                     public double eval(final int key, final IExpression[] args) {
-                        final int count = args[0].evaluateInteger(key);
-                        final BinaryOperation condition = BinaryOperation.validateComparativeOperation(args[1]);
+                        final BinaryOperation condition = BinaryOperation.validateComparativeOperation(args[0]);
+                        final int count = args[1].evaluateInteger(key);
                         final double leftResult = condition.getLeft().evaluateDouble(key);
                         int curKey = key;
                         for (int i = 1; i <= count; i++) {
@@ -695,8 +695,8 @@ public final class HistoricalFunctions {
 
                     @Override
                     public double eval(final FDate key, final IExpression[] args) {
-                        final int count = args[0].evaluateInteger(key);
-                        final BinaryOperation condition = BinaryOperation.validateComparativeOperation(args[1]);
+                        final BinaryOperation condition = BinaryOperation.validateComparativeOperation(args[0]);
+                        final int count = args[1].evaluateInteger(key);
                         final double leftResult = condition.getLeft().evaluateDouble(key);
                         FDate curKey = key;
                         for (int i = 1; i <= count; i++) {
@@ -760,44 +760,6 @@ public final class HistoricalFunctions {
 
                                 @Override
                                 public String getType() {
-                                    return ExpressionReturnType.Integer.toString();
-                                }
-
-                                @Override
-                                public String getExpressionName() {
-                                    return "count";
-                                }
-
-                                @Override
-                                public String getName() {
-                                    return "Count";
-                                }
-
-                                @Override
-                                public String getDescription() {
-                                    return "How many previous keys/periods/bars should be checked?";
-                                }
-
-                                @Override
-                                public boolean isOptional() {
-                                    return false;
-                                }
-
-                                @Override
-                                public boolean isVarArgs() {
-                                    return false;
-                                }
-
-                                @Override
-                                public String getDefaultValue() {
-                                    return null;
-                                }
-                            };
-                        case 1:
-                            return new IFunctionParameterInfo() {
-
-                                @Override
-                                public String getType() {
                                     return ExpressionReturnType.Boolean.toString();
                                 }
 
@@ -829,6 +791,44 @@ public final class HistoricalFunctions {
                                 @Override
                                 public String getDefaultValue() {
                                     return null;
+                                }
+                            };
+                        case 1:
+                            return new IFunctionParameterInfo() {
+
+                                @Override
+                                public String getType() {
+                                    return ExpressionReturnType.Integer.toString();
+                                }
+
+                                @Override
+                                public String getExpressionName() {
+                                    return "count";
+                                }
+
+                                @Override
+                                public String getName() {
+                                    return "Count";
+                                }
+
+                                @Override
+                                public String getDescription() {
+                                    return "How many previous keys/periods/bars should be checked?";
+                                }
+
+                                @Override
+                                public boolean isOptional() {
+                                    return false;
+                                }
+
+                                @Override
+                                public boolean isVarArgs() {
+                                    return false;
+                                }
+
+                                @Override
+                                public String getDefaultValue() {
+                                    return "100";
                                 }
                             };
                         default:
@@ -863,8 +863,8 @@ public final class HistoricalFunctions {
 
                     @Override
                     public double eval(final int key, final IExpression[] args) {
-                        final int count = args[0].evaluateInteger(key);
-                        final IExpression condition = args[1];
+                        final IExpression condition = args[0];
+                        final int count = args[1].evaluateInteger(key);
                         int curKey = key;
                         for (int i = 1; i <= count; i++) {
                             final boolean result = Booleans.isTrue(condition.evaluateBooleanNullable(curKey));
@@ -880,8 +880,8 @@ public final class HistoricalFunctions {
 
                     @Override
                     public double eval(final FDate key, final IExpression[] args) {
-                        final int count = args[0].evaluateInteger(key);
-                        final IExpression condition = args[1];
+                        final IExpression condition = args[0];
+                        final int count = args[1].evaluateInteger(key);
                         FDate curKey = key;
                         for (int i = 1; i <= count; i++) {
                             final boolean result = Booleans.isTrue(condition.evaluateBooleanNullable(curKey));
@@ -927,7 +927,7 @@ public final class HistoricalFunctions {
 
                     @Override
                     public boolean isNaturalFunction(final IExpression[] args) {
-                        BinaryOperation.validateComparativeOperation(args[1]);
+                        BinaryOperation.validateComparativeOperation(args[0]);
                         return false;
                     }
 
@@ -940,44 +940,6 @@ public final class HistoricalFunctions {
                     protected IFunctionParameterInfo getParameterInfo(final int index) {
                         switch (index) {
                         case 0:
-                            return new IFunctionParameterInfo() {
-
-                                @Override
-                                public String getType() {
-                                    return ExpressionReturnType.Integer.toString();
-                                }
-
-                                @Override
-                                public String getExpressionName() {
-                                    return "count";
-                                }
-
-                                @Override
-                                public String getName() {
-                                    return "Count";
-                                }
-
-                                @Override
-                                public String getDescription() {
-                                    return "How many previous keys/periods/bars should be checked?";
-                                }
-
-                                @Override
-                                public boolean isOptional() {
-                                    return false;
-                                }
-
-                                @Override
-                                public boolean isVarArgs() {
-                                    return false;
-                                }
-
-                                @Override
-                                public String getDefaultValue() {
-                                    return null;
-                                }
-                            };
-                        case 1:
                             return new IFunctionParameterInfo() {
 
                                 @Override
@@ -1015,6 +977,44 @@ public final class HistoricalFunctions {
                                     return null;
                                 }
                             };
+                        case 1:
+                            return new IFunctionParameterInfo() {
+
+                                @Override
+                                public String getType() {
+                                    return ExpressionReturnType.Integer.toString();
+                                }
+
+                                @Override
+                                public String getExpressionName() {
+                                    return "count";
+                                }
+
+                                @Override
+                                public String getName() {
+                                    return "Count";
+                                }
+
+                                @Override
+                                public String getDescription() {
+                                    return "How many previous keys/periods/bars should be checked?";
+                                }
+
+                                @Override
+                                public boolean isOptional() {
+                                    return false;
+                                }
+
+                                @Override
+                                public boolean isVarArgs() {
+                                    return false;
+                                }
+
+                                @Override
+                                public String getDefaultValue() {
+                                    return "100";
+                                }
+                            };
                         default:
                             throw new ArrayIndexOutOfBoundsException(index);
                         }
@@ -1048,8 +1048,8 @@ public final class HistoricalFunctions {
 
                     @Override
                     public double eval(final int key, final IExpression[] args) {
-                        final int count = args[0].evaluateInteger(key);
-                        final BinaryOperation condition = BinaryOperation.validateComparativeOperation(args[1]);
+                        final BinaryOperation condition = BinaryOperation.validateComparativeOperation(args[0]);
+                        final int count = args[1].evaluateInteger(key);
                         final double rightResult = condition.getRight().evaluateDouble(key);
                         int curKey = key;
                         for (int i = 1; i <= count; i++) {
@@ -1068,8 +1068,8 @@ public final class HistoricalFunctions {
 
                     @Override
                     public double eval(final FDate key, final IExpression[] args) {
-                        final int count = args[0].evaluateInteger(key);
-                        final BinaryOperation condition = BinaryOperation.validateComparativeOperation(args[1]);
+                        final BinaryOperation condition = BinaryOperation.validateComparativeOperation(args[0]);
+                        final int count = args[1].evaluateInteger(key);
                         final double rightResult = condition.getRight().evaluateDouble(key);
                         FDate curKey = key;
                         for (int i = 1; i <= count; i++) {
@@ -1118,7 +1118,7 @@ public final class HistoricalFunctions {
 
                     @Override
                     public boolean isNaturalFunction(final IExpression[] args) {
-                        BinaryOperation.validateComparativeOperation(args[1]);
+                        BinaryOperation.validateComparativeOperation(args[0]);
                         return false;
                     }
 
@@ -1131,44 +1131,6 @@ public final class HistoricalFunctions {
                     protected IFunctionParameterInfo getParameterInfo(final int index) {
                         switch (index) {
                         case 0:
-                            return new IFunctionParameterInfo() {
-
-                                @Override
-                                public String getType() {
-                                    return ExpressionReturnType.Integer.toString();
-                                }
-
-                                @Override
-                                public String getExpressionName() {
-                                    return "count";
-                                }
-
-                                @Override
-                                public String getName() {
-                                    return "Count";
-                                }
-
-                                @Override
-                                public String getDescription() {
-                                    return "How many previous keys/periods/bars should be checked?";
-                                }
-
-                                @Override
-                                public boolean isOptional() {
-                                    return false;
-                                }
-
-                                @Override
-                                public boolean isVarArgs() {
-                                    return false;
-                                }
-
-                                @Override
-                                public String getDefaultValue() {
-                                    return null;
-                                }
-                            };
-                        case 1:
                             return new IFunctionParameterInfo() {
 
                                 @Override
@@ -1206,6 +1168,44 @@ public final class HistoricalFunctions {
                                     return null;
                                 }
                             };
+                        case 1:
+                            return new IFunctionParameterInfo() {
+
+                                @Override
+                                public String getType() {
+                                    return ExpressionReturnType.Integer.toString();
+                                }
+
+                                @Override
+                                public String getExpressionName() {
+                                    return "count";
+                                }
+
+                                @Override
+                                public String getName() {
+                                    return "Count";
+                                }
+
+                                @Override
+                                public String getDescription() {
+                                    return "How many previous keys/periods/bars should be checked?";
+                                }
+
+                                @Override
+                                public boolean isOptional() {
+                                    return false;
+                                }
+
+                                @Override
+                                public boolean isVarArgs() {
+                                    return false;
+                                }
+
+                                @Override
+                                public String getDefaultValue() {
+                                    return "100";
+                                }
+                            };
                         default:
                             throw new ArrayIndexOutOfBoundsException(index);
                         }
@@ -1239,8 +1239,8 @@ public final class HistoricalFunctions {
 
                     @Override
                     public double eval(final int key, final IExpression[] args) {
-                        final int count = args[0].evaluateInteger(key);
-                        final BinaryOperation condition = BinaryOperation.validateComparativeOperation(args[1]);
+                        final BinaryOperation condition = BinaryOperation.validateComparativeOperation(args[0]);
+                        final int count = args[1].evaluateInteger(key);
                         final double leftResult = condition.getLeft().evaluateDouble(key);
                         int curKey = key;
                         for (int i = 1; i <= count; i++) {
@@ -1259,8 +1259,8 @@ public final class HistoricalFunctions {
 
                     @Override
                     public double eval(final FDate key, final IExpression[] args) {
-                        final int count = args[0].evaluateInteger(key);
-                        final BinaryOperation condition = BinaryOperation.validateComparativeOperation(args[1]);
+                        final BinaryOperation condition = BinaryOperation.validateComparativeOperation(args[0]);
+                        final int count = args[1].evaluateInteger(key);
                         final double leftResult = condition.getLeft().evaluateDouble(key);
                         FDate curKey = key;
                         for (int i = 1; i <= count; i++) {
@@ -1325,44 +1325,6 @@ public final class HistoricalFunctions {
 
                                 @Override
                                 public String getType() {
-                                    return ExpressionReturnType.Integer.toString();
-                                }
-
-                                @Override
-                                public String getExpressionName() {
-                                    return "lookback";
-                                }
-
-                                @Override
-                                public String getName() {
-                                    return "Lookback";
-                                }
-
-                                @Override
-                                public String getDescription() {
-                                    return "How many previous keys/periods/bars should be checked?";
-                                }
-
-                                @Override
-                                public boolean isOptional() {
-                                    return false;
-                                }
-
-                                @Override
-                                public boolean isVarArgs() {
-                                    return false;
-                                }
-
-                                @Override
-                                public String getDefaultValue() {
-                                    return "100";
-                                }
-                            };
-                        case 1:
-                            return new IFunctionParameterInfo() {
-
-                                @Override
-                                public String getType() {
                                     return ExpressionReturnType.Boolean.toString();
                                 }
 
@@ -1396,6 +1358,45 @@ public final class HistoricalFunctions {
                                     return null;
                                 }
                             };
+                        case 1:
+                            return new IFunctionParameterInfo() {
+
+                                @Override
+                                public String getType() {
+                                    return ExpressionReturnType.Integer.toString();
+                                }
+
+                                @Override
+                                public String getExpressionName() {
+                                    return "lookback";
+                                }
+
+                                @Override
+                                public String getName() {
+                                    return "Lookback";
+                                }
+
+                                @Override
+                                public String getDescription() {
+                                    return "How many previous keys/periods/bars should be checked?";
+                                }
+
+                                @Override
+                                public boolean isOptional() {
+                                    return false;
+                                }
+
+                                @Override
+                                public boolean isVarArgs() {
+                                    return false;
+                                }
+
+                                @Override
+                                public String getDefaultValue() {
+                                    return "100";
+                                }
+                            };
+
                         default:
                             throw new ArrayIndexOutOfBoundsException(index);
                         }
@@ -1430,8 +1431,8 @@ public final class HistoricalFunctions {
 
                     @Override
                     public double eval(final int key, final IExpression[] args) {
-                        final int count = args[0].evaluateInteger(key);
-                        final IExpression condition = args[1];
+                        final IExpression condition = args[0];
+                        final int count = args[1].evaluateInteger(key);
                         for (int i = count - 1; i >= 0; i--) {
                             final int curKey;
                             if (count == 0) {
@@ -1449,8 +1450,8 @@ public final class HistoricalFunctions {
 
                     @Override
                     public double eval(final FDate key, final IExpression[] args) {
-                        final int count = args[0].evaluateInteger(key);
-                        final IExpression condition = args[1];
+                        final IExpression condition = args[0];
+                        final int count = args[1].evaluateInteger(key);
                         for (int i = count - 1; i >= 0; i--) {
                             final FDate curKey;
                             if (count == 0) {
@@ -1514,44 +1515,6 @@ public final class HistoricalFunctions {
 
                                 @Override
                                 public String getType() {
-                                    return ExpressionReturnType.Integer.toString();
-                                }
-
-                                @Override
-                                public String getExpressionName() {
-                                    return "lookback";
-                                }
-
-                                @Override
-                                public String getName() {
-                                    return "Lookback";
-                                }
-
-                                @Override
-                                public String getDescription() {
-                                    return "How many previous keys/periods/bars should be checked?";
-                                }
-
-                                @Override
-                                public boolean isOptional() {
-                                    return false;
-                                }
-
-                                @Override
-                                public boolean isVarArgs() {
-                                    return false;
-                                }
-
-                                @Override
-                                public String getDefaultValue() {
-                                    return "100";
-                                }
-                            };
-                        case 1:
-                            return new IFunctionParameterInfo() {
-
-                                @Override
-                                public String getType() {
                                     return ExpressionReturnType.Boolean.toString();
                                 }
 
@@ -1583,6 +1546,44 @@ public final class HistoricalFunctions {
                                 @Override
                                 public String getDefaultValue() {
                                     return null;
+                                }
+                            };
+                        case 1:
+                            return new IFunctionParameterInfo() {
+
+                                @Override
+                                public String getType() {
+                                    return ExpressionReturnType.Integer.toString();
+                                }
+
+                                @Override
+                                public String getExpressionName() {
+                                    return "lookback";
+                                }
+
+                                @Override
+                                public String getName() {
+                                    return "Lookback";
+                                }
+
+                                @Override
+                                public String getDescription() {
+                                    return "How many previous keys/periods/bars should be checked?";
+                                }
+
+                                @Override
+                                public boolean isOptional() {
+                                    return false;
+                                }
+
+                                @Override
+                                public boolean isVarArgs() {
+                                    return false;
+                                }
+
+                                @Override
+                                public String getDefaultValue() {
+                                    return "100";
                                 }
                             };
                         default:
@@ -1619,8 +1620,8 @@ public final class HistoricalFunctions {
 
                     @Override
                     public double eval(final int key, final IExpression[] args) {
-                        final int count = args[0].evaluateInteger(key);
-                        final IExpression condition = args[1];
+                        final IExpression condition = args[0];
+                        final int count = args[1].evaluateInteger(key);
                         int curKey = key;
                         for (int i = 1; i <= count; i++) {
                             final boolean result = Booleans.isTrue(condition.evaluateBooleanNullable(curKey));
@@ -1636,8 +1637,8 @@ public final class HistoricalFunctions {
 
                     @Override
                     public double eval(final FDate key, final IExpression[] args) {
-                        final int count = args[0].evaluateInteger(key);
-                        final IExpression condition = args[1];
+                        final IExpression condition = args[0];
+                        final int count = args[1].evaluateInteger(key);
                         FDate curKey = key;
                         for (int i = 1; i <= count; i++) {
                             final boolean result = Booleans.isTrue(condition.evaluateBooleanNullable(curKey));
