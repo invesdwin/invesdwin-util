@@ -10,16 +10,17 @@ import de.invesdwin.util.time.fdate.FDate;
 public class ConstantPreviousKeyExpression implements IParsedExpression {
 
     private final IParsedExpression expression;
-    private final int index;
+    private final Integer index;
     private final IPreviousKeyFunction previousKeyFunction;
 
-    public ConstantPreviousKeyExpression(final IParsedExpression expression, final int index,
+    public ConstantPreviousKeyExpression(final IParsedExpression expression, final Integer index,
             final IPreviousKeyFunction previousKeyFunction) {
         this.expression = expression;
         if (index < 0) {
-            throw new IllegalArgumentException("index should not be negative: " + index);
+            this.index = null;
+        } else {
+            this.index = index;
         }
-        this.index = index;
         this.previousKeyFunction = previousKeyFunction;
     }
 
@@ -64,7 +65,7 @@ public class ConstantPreviousKeyExpression implements IParsedExpression {
 
     @Override
     public IParsedExpression simplify() {
-        if (index == 0 || expression.isConstant()) {
+        if (index == null || index == 0 || expression.isConstant()) {
             return expression.simplify();
         }
         return this;

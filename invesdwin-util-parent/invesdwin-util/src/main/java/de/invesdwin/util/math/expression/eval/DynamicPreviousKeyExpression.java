@@ -22,9 +22,9 @@ public class DynamicPreviousKeyExpression implements IParsedExpression {
 
     @Override
     public double evaluateDouble(final FDate key) {
-        final int index = indexExpression.evaluateInteger(key);
-        if (index < 0) {
-            throw new IllegalArgumentException("index should not be negative: " + index);
+        final Integer index = indexExpression.evaluateInteger(key);
+        if (index == null || index < 0) {
+            return Double.NaN;
         }
         final FDate previousKey = previousKeyFunction.getPreviousKey(key, index);
         return previousKeyFunction.evaluateDouble(expression, previousKey);
@@ -32,9 +32,9 @@ public class DynamicPreviousKeyExpression implements IParsedExpression {
 
     @Override
     public double evaluateDouble(final int key) {
-        final int index = indexExpression.evaluateInteger(key);
-        if (index < 0) {
-            throw new IllegalArgumentException("index should not be negative: " + index);
+        final Integer index = indexExpression.evaluateInteger(key);
+        if (index == null || index < 0) {
+            return Double.NaN;
         }
         final int previousKey = previousKeyFunction.getPreviousKey(key, index);
         return previousKeyFunction.evaluateDouble(expression, previousKey);
@@ -47,9 +47,9 @@ public class DynamicPreviousKeyExpression implements IParsedExpression {
 
     @Override
     public Boolean evaluateBooleanNullable(final FDate key) {
-        final int index = indexExpression.evaluateInteger(key);
-        if (index < 0) {
-            throw new IllegalArgumentException("index should not be negative: " + index);
+        final Integer index = indexExpression.evaluateInteger(key);
+        if (index == null || index < 0) {
+            return null;
         }
         final FDate previousKey = previousKeyFunction.getPreviousKey(key, index);
         return previousKeyFunction.evaluateBooleanNullable(expression, previousKey);
@@ -57,9 +57,9 @@ public class DynamicPreviousKeyExpression implements IParsedExpression {
 
     @Override
     public Boolean evaluateBooleanNullable(final int key) {
-        final int index = indexExpression.evaluateInteger(key);
-        if (index < 0) {
-            throw new IllegalArgumentException("index should not be negative: " + index);
+        final Integer index = indexExpression.evaluateInteger(key);
+        if (index == null || index < 0) {
+            return null;
         }
         final int previousKey = previousKeyFunction.getPreviousKey(key, index);
         return previousKeyFunction.evaluateBooleanNullable(expression, previousKey);
@@ -78,7 +78,7 @@ public class DynamicPreviousKeyExpression implements IParsedExpression {
     @Override
     public IParsedExpression simplify() {
         if (indexExpression.isConstant()) {
-            final int index = indexExpression.evaluateInteger();
+            final Integer index = indexExpression.evaluateInteger();
             return new ConstantPreviousKeyExpression(expression, index, previousKeyFunction).simplify();
         }
         if (expression.isConstant()) {
