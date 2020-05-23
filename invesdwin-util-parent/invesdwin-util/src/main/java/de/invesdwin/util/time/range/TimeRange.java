@@ -162,4 +162,17 @@ public class TimeRange extends AValueObject {
             return new TimeRange(from.revertTimeZoneOffset(offsetTimeZone), to.revertTimeZoneOffset(offsetTimeZone));
         }
     }
+
+    public static void assertNotNull(final TimeRange timeRange) {
+        if (timeRange == null) {
+            throw new NullPointerException("timeRange should not be null");
+        }
+        if (timeRange.getFrom() == null) {
+            throw new NullPointerException("timeRange.from should not be null");
+        }
+        if (timeRange.getTo() == null) {
+            throw new NullPointerException("timeRange.to should not be null");
+        }
+
+    }
 }
