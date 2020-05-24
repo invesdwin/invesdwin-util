@@ -94,11 +94,35 @@ public class DoubleStreamZigZag implements IDoubleStreamAlgorithm {
     }
 
     public double getTrough() {
-        return trough;
+        final PriceDirection direction = getDirection();
+        switch (direction) {
+        case UNCHANGED:
+            return Double.NaN;
+        case FALLING:
+            //current is a peak, previous was trough
+            return previous;
+        case RISING:
+            //current is a trough, previous was peak
+            return current;
+        default:
+            throw UnknownArgumentException.newInstance(PriceDirection.class, direction);
+        }
     }
 
     public double getPeak() {
-        return peak;
+        final PriceDirection direction = getDirection();
+        switch (direction) {
+        case UNCHANGED:
+            return Double.NaN;
+        case FALLING:
+            //current is a trough, previous was peak
+            return current;
+        case RISING:
+            //current is a peak, previous was trough
+            return previous;
+        default:
+            throw UnknownArgumentException.newInstance(PriceDirection.class, direction);
+        }
     }
 
     public double getCurrent() {
