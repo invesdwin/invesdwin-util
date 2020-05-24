@@ -18,7 +18,7 @@ public abstract class ATernaryFunction extends AFunction {
     public double eval(final FDate key, final IExpression[] args) {
         final double a = args[0].evaluateDouble(key);
         final double b = args[1].evaluateDouble(key);
-        final double c = args[3].evaluateDouble(key);
+        final double c = args[2].evaluateDouble(key);
         return eval(a, b, c);
     }
 
@@ -26,7 +26,7 @@ public abstract class ATernaryFunction extends AFunction {
     public double eval(final int key, final IExpression[] args) {
         final double a = args[0].evaluateDouble(key);
         final double b = args[1].evaluateDouble(key);
-        final double c = args[3].evaluateDouble(key);
+        final double c = args[2].evaluateDouble(key);
         return eval(a, b, c);
     }
 
@@ -34,7 +34,7 @@ public abstract class ATernaryFunction extends AFunction {
     public double eval(final IExpression[] args) {
         final double a = args[0].evaluateDouble();
         final double b = args[1].evaluateDouble();
-        final double c = args[3].evaluateDouble();
+        final double c = args[2].evaluateDouble();
         return eval(a, b, c);
     }
 
