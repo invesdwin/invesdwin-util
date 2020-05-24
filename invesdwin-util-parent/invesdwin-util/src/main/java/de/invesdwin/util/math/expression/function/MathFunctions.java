@@ -1996,7 +1996,7 @@ public final class MathFunctions {
     public static final AFunction NORMALIZE_VALUE = new ATernaryFunction() {
         @Override
         protected double eval(final double a, final double b, final double c) {
-            return Doubles.between(a, b, c);
+            return Doubles.normalize(a, b, c);
         }
 
         @Override
