@@ -2,6 +2,7 @@ package de.invesdwin.util.math.expression.function;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.math.expression.ExpressionReturnType;
 import de.invesdwin.util.math.expression.IExpression;
@@ -143,5 +144,10 @@ public abstract class AFunction {
      * In that case the children might be drawn.
      */
     public abstract boolean shouldDraw();
+
+    @Override
+    public String toString() {
+        return Objects.toStringHelper(this).addValue(getExpressionName()).toString();
+    }
 
 }

@@ -9,6 +9,7 @@ import java.util.Map;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.lang.description.TextDescription;
 import de.invesdwin.util.math.expression.eval.ConstantExpression;
@@ -752,5 +753,10 @@ public class ExpressionParser {
             throw new ParseException(current,
                     TextDescription.format("Unexpected token '%s'. Expected: '%s'", current.getSource(), trigger));
         }
+    }
+
+    @Override
+    public String toString() {
+        return Objects.toStringHelper(this).addValue(originalExpression).toString();
     }
 }
