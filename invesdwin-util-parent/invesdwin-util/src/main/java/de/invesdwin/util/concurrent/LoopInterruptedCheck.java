@@ -14,6 +14,10 @@ public class LoopInterruptedCheck {
     private int checksPerInterval;
     private int checksInInterval;
 
+    public LoopInterruptedCheck() {
+        this(Duration.ONE_SECOND);
+    }
+
     public LoopInterruptedCheck(final Duration checkInterval) {
         this.currentThread = Thread.currentThread();
         this.checkIntervalNanos = checkInterval.longValue(FTimeUnit.NANOSECONDS);
