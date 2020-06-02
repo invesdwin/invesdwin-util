@@ -93,6 +93,10 @@ public class DoubleStreamZigZag implements IDoubleStreamAlgorithm {
         return Double.NaN;
     }
 
+    public boolean isEmpty() {
+        return curIndex == 0;
+    }
+
     public double getTrough() {
         final PriceDirection direction = getDirection();
         switch (direction) {
