@@ -351,6 +351,7 @@ public class BufferingIterator<E> implements IBufferingIterator<E>, ISerializabl
     }
 
     public ICloseableIterable<E> snapshot() {
+        final Node<E> head = this.head;
         final Node<E> tail = this.tail;
         return new ICloseableIterable<E>() {
             @Override
