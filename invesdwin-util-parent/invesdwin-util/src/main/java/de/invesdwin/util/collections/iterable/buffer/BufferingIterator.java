@@ -339,8 +339,9 @@ public class BufferingIterator<E> implements IBufferingIterator<E>, ISerializabl
             final _E value = innerHead.getValue();
             if (value == innerTail) {
                 innerHead = null;
+            } else {
+                innerHead = innerHead.getNext();
             }
-            innerHead = innerHead.getNext();
             return value;
         }
 
