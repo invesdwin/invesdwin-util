@@ -122,7 +122,7 @@ public class ExpressionParser {
             registerDefaultFunction(HistoricalFunctions.newStableLeftFunction(name + "Left"));
             registerDefaultFunction(HistoricalFunctions.newStableRightFunction(name + "Right"));
 
-            registerDefaultFunction(HistoricalFunctions.newStableCountFunction(name));
+            registerDefaultFunction(HistoricalFunctions.newStableCountFunction(name + "Count"));
             registerDefaultFunction(HistoricalFunctions.newStableCountFunction(name + "Count" + "Both"));
             registerDefaultFunction(HistoricalFunctions.newStableCountLeftFunction(name + "Count" + "Left"));
             registerDefaultFunction(HistoricalFunctions.newStableCountRightFunction(name + "Count" + "Right"));
@@ -721,7 +721,11 @@ public class ExpressionParser {
     }
 
     protected AFunction getFunction(final String context, final String name) {
-        return DEFAULT_FUNCTIONS.get(name).newFunction(getPreviousKeyFunction(context));
+        final IFunctionFactory functionFactory = DEFAULT_FUNCTIONS.get(name);
+        if (functionFactory == null) {
+            return null;
+        }
+        return functionFactory.newFunction(getPreviousKeyFunction(context));
     }
 
     private IParsedExpression findVariable(final IPosition position, final String context, final String name) {

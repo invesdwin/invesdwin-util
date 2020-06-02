@@ -35,12 +35,12 @@ public class VariableReference implements IParsedExpression {
 
     @Override
     public Boolean evaluateBooleanNullable(final FDate key) {
-        return Doubles.doubleToBoolean(variable.getValue());
+        return Doubles.doubleToBoolean(variable.getValue(key));
     }
 
     @Override
     public Boolean evaluateBooleanNullable(final int key) {
-        return Doubles.doubleToBoolean(variable.getValue());
+        return Doubles.doubleToBoolean(variable.getValue(key));
     }
 
     @Override
