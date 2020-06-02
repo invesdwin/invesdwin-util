@@ -112,7 +112,7 @@ public abstract class AContinuousRecursiveHistoricalCacheQuery<V> implements IRe
                 }
             }
         }));
-        parent.increaseMaximumSize(recursionCount, "recursionCount");
+        parent.increaseMaximumSize(this.recursionCount, "recursionCount");
     }
 
     public static int newContinuousUnstablePeriod(final int recursionCount) {
