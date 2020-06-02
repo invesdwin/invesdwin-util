@@ -115,19 +115,28 @@ public class ExpressionParser {
                 "changeOnly", "changed", "change", "single", "singleOnly" }) {
             registerDefaultFunction(HistoricalFunctions.newOnceFunction(name));
         }
-        for (final String name : new String[] { "stable", "onStable", "repeat", "repeatAnd", "loop", "loopAnd", "hist",
-                "histAnd", "historical", "historicalAnd" }) {
+        for (final String name : new String[] { "stable", "repeat", "repeatAnd", "loop", "loopAnd", "hist", "histAnd",
+                "historical", "historicalAnd" }) {
             registerDefaultFunction(HistoricalFunctions.newStableFunction(name));
             registerDefaultFunction(HistoricalFunctions.newStableFunction(name + "Both"));
             registerDefaultFunction(HistoricalFunctions.newStableLeftFunction(name + "Left"));
             registerDefaultFunction(HistoricalFunctions.newStableRightFunction(name + "Right"));
+
+            registerDefaultFunction(HistoricalFunctions.newStableCountFunction(name));
+            registerDefaultFunction(HistoricalFunctions.newStableCountFunction(name + "Count" + "Both"));
+            registerDefaultFunction(HistoricalFunctions.newStableCountLeftFunction(name + "Count" + "Left"));
+            registerDefaultFunction(HistoricalFunctions.newStableCountRightFunction(name + "Count" + "Right"));
         }
-        for (final String name : new String[] { "occurs", "onOccurs", "repeatOr", "loopOr", "histOr",
-                "historicalOr" }) {
+        for (final String name : new String[] { "occurs", "repeatOr", "loopOr", "histOr", "historicalOr" }) {
             registerDefaultFunction(HistoricalFunctions.newOccursFunction(name));
             registerDefaultFunction(HistoricalFunctions.newOccursFunction(name + "Both"));
             registerDefaultFunction(HistoricalFunctions.newOccursLeftFunction(name + "Left"));
             registerDefaultFunction(HistoricalFunctions.newOccursRightFunction(name + "Right"));
+
+            registerDefaultFunction(HistoricalFunctions.newOccursCountFunction(name + "Count"));
+            registerDefaultFunction(HistoricalFunctions.newOccursCountFunction(name + "Count" + "Both"));
+            registerDefaultFunction(HistoricalFunctions.newOccursCountLeftFunction(name + "Count" + "Left"));
+            registerDefaultFunction(HistoricalFunctions.newOccursCountRightFunction(name + "Count" + "Right"));
         }
         registerDefaultFunction(HistoricalFunctions.newFirstIndexOfFunction("firstIndexOf"));
         for (final String name : new String[] { "indexOf", "lastIndexOf" }) {
