@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.Proxy;
-import java.net.Proxy.Type;
 import java.net.Socket;
 import java.net.URL;
 import java.nio.charset.Charset;
@@ -32,7 +31,7 @@ import okhttp3.Response;
 public final class URIsConnect {
 
     private static Duration defaultNetworkTimeout = new Duration(30, FTimeUnit.SECONDS);
-    private static Proxy defaultProxy = getSystemProxy();
+    private static Proxy defaultProxy = null;
     private static OkHttpClient sharedClient = applyProxy(
             applyNetworkTimeout(new OkHttpClient.Builder(), defaultNetworkTimeout), defaultProxy).build();
 
@@ -64,6 +63,16 @@ public final class URIsConnect {
                 .writeTimeout(networkTimeout.intValue(), networkTimeout.getTimeUnit().timeUnitValue());
     }
 
+    public static Duration getDefaultNetworkTimeout() {
+        return defaultNetworkTimeout;
+    }
+
+    public static void setDefaultProxy(final Proxy defaultProxy) {
+        URIsConnect.defaultProxy = defaultProxy;
+        //create derived instances to share connections etc: https://github.com/square/okhttp/issues/3372
+        sharedClient = applyProxy(sharedClient.newBuilder(), defaultProxy).build();
+    }
+
     private static OkHttpClient.Builder applyProxy(final OkHttpClient.Builder builder, final Proxy proxy) {
         if (proxy != null) {
             return builder.proxy(proxy);
@@ -72,8 +81,8 @@ public final class URIsConnect {
         }
     }
 
-    public static Duration getDefaultNetworkTimeout() {
-        return defaultNetworkTimeout;
+    public static Proxy getDefaultProxy() {
+        return defaultProxy;
     }
 
     public URIsConnect withNetworkTimeout(final Duration networkTimeout) {
@@ -264,19 +273,6 @@ public final class URIsConnect {
     @Override
     public String toString() {
         return url.toString();
-    }
-
-    public static Proxy getSystemProxy() {
-        //CHECKSTYLE:OFF
-        final String httpProxyHost = System.getProperty("http.proxyHost");
-        final String httpProxyPort = System.getProperty("http.proxyPort");
-        //CHECKSTYLE:ON
-        if (httpProxyHost != null && httpProxyPort != null) {
-            final int port = Integer.parseInt(httpProxyPort);
-            return new Proxy(Type.HTTP, Addresses.asAddress(httpProxyHost, port));
-        } else {
-            return null;
-        }
     }
 
 }
