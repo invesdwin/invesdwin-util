@@ -40,6 +40,7 @@
 		<version.concurrent-locks>1.0.0</version.concurrent-locks>
 		<version.classgraph>4.6.32</version.classgraph>
 		<version.okhttp>4.7.2</version.okhttp>
+		<version.okio>2.6.0</version.okio>
 	</properties>
 
 	<dependencyManagement>
@@ -96,9 +97,9 @@
 				<version>${version.okhttp}</version>
 			</dependency>
 			<dependency>
-				<groupId>com.squareup.okhttp3</groupId>
-				<artifactId>okhttp-tls</artifactId>
-				<version>${version.okhttp}</version>
+				<groupId>com.squareup.okio</groupId>
+				<artifactId>okio</artifactId>
+				<version>${version.okio}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
