@@ -18,9 +18,6 @@ public class SynchronizedEvictionMapLoadingCache<K, V> extends ASynchronizedMapL
         final IEvictionMap<K, V> lru = (IEvictionMap<K, V>) map;
         if (lru.getMaximumSize() < maximumSize) {
             lru.setMaximumSize(maximumSize);
-        } else {
-            throw new IllegalArgumentException("maximumSize [" + maximumSize + "] needs to be greater than current ["
-                    + lru.getMaximumSize() + "]");
         }
     }
 
