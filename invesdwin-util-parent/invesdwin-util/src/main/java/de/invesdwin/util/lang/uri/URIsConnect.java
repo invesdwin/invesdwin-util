@@ -4,6 +4,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
+import java.net.Proxy;
+import java.net.Proxy.Type;
 import java.net.Socket;
 import java.net.URL;
 import java.nio.charset.Charset;
@@ -30,11 +32,13 @@ import okhttp3.Response;
 public final class URIsConnect {
 
     private static Duration defaultNetworkTimeout = new Duration(30, FTimeUnit.SECONDS);
-    private static OkHttpClient sharedClient = applyNetworkTimeout(new OkHttpClient.Builder(), defaultNetworkTimeout)
-            .build();
+    private static Proxy defaultProxy = getSystemProxy();
+    private static OkHttpClient sharedClient = applyProxy(
+            applyNetworkTimeout(new OkHttpClient.Builder(), defaultNetworkTimeout), defaultProxy).build();
 
     private final URL url;
     private Duration networkTimeout = defaultNetworkTimeout;
+    private Proxy proxy = defaultProxy;
 
     private Map<String, String> headers;
 
@@ -60,6 +64,14 @@ public final class URIsConnect {
                 .writeTimeout(networkTimeout.intValue(), networkTimeout.getTimeUnit().timeUnitValue());
     }
 
+    private static OkHttpClient.Builder applyProxy(final OkHttpClient.Builder builder, final Proxy proxy) {
+        if (proxy != null) {
+            return builder.proxy(proxy);
+        } else {
+            return builder;
+        }
+    }
+
     public static Duration getDefaultNetworkTimeout() {
         return defaultNetworkTimeout;
     }
@@ -71,6 +83,15 @@ public final class URIsConnect {
 
     public Duration getNetworkTimeout() {
         return networkTimeout;
+    }
+
+    public URIsConnect withProxy(final Proxy proxy) {
+        this.proxy = proxy;
+        return this;
+    }
+
+    public Proxy getProxy() {
+        return proxy;
     }
 
     public URL getUrl() {
@@ -187,8 +208,15 @@ public final class URIsConnect {
 
     public Call openConnection(final IRequestCustomizer customizer) {
         final OkHttpClient client;
-        if (networkTimeout != defaultNetworkTimeout) {
-            client = applyNetworkTimeout(sharedClient.newBuilder(), networkTimeout).build();
+        if (networkTimeout != defaultNetworkTimeout || proxy != defaultProxy) {
+            OkHttpClient.Builder builder = sharedClient.newBuilder();
+            if (networkTimeout != defaultNetworkTimeout) {
+                builder = applyNetworkTimeout(builder, networkTimeout);
+            }
+            if (proxy != defaultProxy) {
+                builder = applyProxy(builder, proxy);
+            }
+            client = builder.build();
         } else {
             client = sharedClient;
         }
@@ -236,6 +264,19 @@ public final class URIsConnect {
     @Override
     public String toString() {
         return url.toString();
+    }
+
+    public static Proxy getSystemProxy() {
+        //CHECKSTYLE:OFF
+        final String httpProxyHost = System.getProperty("http.proxyHost");
+        final String httpProxyPort = System.getProperty("http.proxyPort");
+        //CHECKSTYLE:ON
+        if (httpProxyHost != null && httpProxyPort != null) {
+            final int port = Integer.parseInt(httpProxyPort);
+            return new Proxy(Type.HTTP, Addresses.asAddress(httpProxyHost, port));
+        } else {
+            return null;
+        }
     }
 
 }
