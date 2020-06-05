@@ -11,7 +11,12 @@ public class URIsTest {
 
     @Test
     public void testIsDownloadPossible() {
-        Assertions.assertThat(URIs.connect("http://google.de").isDownloadPossible()).isTrue();
+        Assertions.assertThat(URIs.connect("https://invesdwin.de").isDownloadPossible()).isTrue();
+    }
+
+    @Test
+    public void testLastModified() {
+        Assertions.assertThat(URIs.connect("https://invesdwin.de").lastModified() > 0).isTrue();
     }
 
     @Test

@@ -6,8 +6,8 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.Socket;
 import java.net.URL;
-import java.net.URLConnection;
 import java.nio.charset.Charset;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -20,11 +20,19 @@ import org.apache.commons.io.IOUtils;
 import de.invesdwin.util.lang.Closeables;
 import de.invesdwin.util.time.duration.Duration;
 import de.invesdwin.util.time.fdate.FTimeUnit;
+import okhttp3.Call;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Request.Builder;
+import okhttp3.Response;
 
 @NotThreadSafe
 public final class URIsConnect {
 
     private static Duration defaultNetworkTimeout = new Duration(30, FTimeUnit.SECONDS);
+    private static OkHttpClient sharedClient = applyNetworkTimeout(new OkHttpClient.Builder(), defaultNetworkTimeout)
+            .build();
+
     private final URL url;
     private Duration networkTimeout = defaultNetworkTimeout;
 
@@ -35,8 +43,21 @@ public final class URIsConnect {
         this.url = url;
     }
 
+    public static OkHttpClient getHttpClient() {
+        return sharedClient;
+    }
+
     public static void setDefaultNetworkTimeout(final Duration defaultNetworkTimeout) {
         URIsConnect.defaultNetworkTimeout = defaultNetworkTimeout;
+        //create derived instances to share connections etc: https://github.com/square/okhttp/issues/3372
+        sharedClient = applyNetworkTimeout(sharedClient.newBuilder(), defaultNetworkTimeout).build();
+    }
+
+    private static OkHttpClient.Builder applyNetworkTimeout(final OkHttpClient.Builder builder,
+            final Duration networkTimeout) {
+        return builder.connectTimeout(networkTimeout.intValue(), networkTimeout.getTimeUnit().timeUnitValue())
+                .readTimeout(networkTimeout.intValue(), networkTimeout.getTimeUnit().timeUnitValue())
+                .writeTimeout(networkTimeout.intValue(), networkTimeout.getTimeUnit().timeUnitValue());
     }
 
     public static Duration getDefaultNetworkTimeout() {
@@ -86,26 +107,49 @@ public final class URIsConnect {
 
     /**
      * Tries to open a connection to the specified url and checks if the content is available there.
-     * 
-     * TODO: There seems to be a openjdk bug when the wlan module gets reloaded. It seems this causes dns information to
-     * get lost and causes UnknownHostExceptions here.
      */
     public boolean isDownloadPossible() {
         if (url == null) {
             return false;
         }
-        try {
-            final URLConnection con = openConnection();
-            return con.getInputStream().available() > 0;
+        final Call con = openConnection(new IRequestCustomizer() {
+            @Override
+            public Builder customize(final Builder request) {
+                return request.head();
+            }
+        });
+        try (Response response = con.execute()) {
+            if (!response.isSuccessful()) {
+                return false;
+            }
+            final String contentLength = response.headers().get("content-length");
+            if (contentLength != null) {
+                return Long.parseLong(contentLength) > 0;
+            } else {
+                return true;
+            }
         } catch (final Throwable e) {
             return false;
         }
     }
 
     public long lastModified() {
-        try {
-            final URLConnection con = openConnection();
-            return con.getLastModified();
+        final Call con = openConnection(new IRequestCustomizer() {
+            @Override
+            public Builder customize(final Builder request) {
+                return request.head();
+            }
+        });
+        try (Response response = con.execute()) {
+            if (!response.isSuccessful()) {
+                return -1;
+            }
+            final Date lastModified = response.headers().getDate("last-modified");
+            if (lastModified == null) {
+                return -1;
+            } else {
+                return lastModified.getTime();
+            }
         } catch (final IOException e) {
             return -1;
         }
@@ -137,52 +181,56 @@ public final class URIsConnect {
         }
     }
 
-    public URLConnection openConnection() throws IOException {
-        final URLConnection con = url.openConnection();
-        con.setUseCaches(false);
-        con.setConnectTimeout(networkTimeout.intValue(FTimeUnit.MILLISECONDS));
-        con.setReadTimeout(networkTimeout.intValue(FTimeUnit.MILLISECONDS));
+    public Call openConnection() {
+        return openConnection(null);
+    }
+
+    public Call openConnection(final IRequestCustomizer customizer) {
+        final OkHttpClient client;
+        if (networkTimeout != defaultNetworkTimeout) {
+            client = applyNetworkTimeout(sharedClient.newBuilder(), networkTimeout).build();
+        } else {
+            client = sharedClient;
+        }
+        Builder requestBuilder = new Request.Builder().url(url);
+        if (customizer != null) {
+            requestBuilder = customizer.customize(requestBuilder);
+        }
         if (headers != null) {
             for (final Entry<String, String> header : headers.entrySet()) {
-                con.setRequestProperty(header.getKey(), header.getValue());
+                requestBuilder.addHeader(header.getKey(), header.getValue());
             }
         }
-        return con;
+        final Request request = requestBuilder.build();
+        return client.newCall(request);
     }
 
     public InputStream getInputStream() throws IOException {
         return getInputStream(openConnection());
     }
 
-    public static InputStream getInputStream(final URLConnection con) throws IOException {
-        if (con instanceof HttpURLConnection) {
-            final HttpURLConnection cCon = (HttpURLConnection) con;
-            // https://stackoverflow.com/questions/613307/read-error-response-body-in-java
-            final int respCode = cCon.getResponseCode();
-            if (respCode >= HttpURLConnection.HTTP_BAD_REQUEST) {
-                if (respCode == HttpURLConnection.HTTP_NOT_FOUND || respCode == HttpURLConnection.HTTP_GONE) {
-                    throw new FileNotFoundException(con.getURL().toString());
+    public static InputStream getInputStream(final Call call) throws IOException {
+        final Response response = call.execute();
+        // https://stackoverflow.com/questions/613307/read-error-response-body-in-java
+        if (response.isSuccessful()) {
+            return response.body().byteStream();
+        } else {
+            final int respCode = response.code();
+            final String urlString = call.request().url().toString();
+            if (respCode == HttpURLConnection.HTTP_NOT_FOUND || respCode == HttpURLConnection.HTTP_GONE) {
+                throw new FileNotFoundException(urlString);
+            } else {
+                if (respCode == HttpURLConnection.HTTP_INTERNAL_ERROR) {
+                    final String errorStr = response.body().string();
+                    throw new IOException("Server returned HTTP" + " response code: " + respCode + " for URL: "
+                            + urlString + " error response:" + "\n*****************************" + errorStr
+                            + "*****************************");
                 } else {
-                    if (respCode == HttpURLConnection.HTTP_INTERNAL_ERROR) {
-                        final String errorStr;
-                        try (InputStream error = cCon.getErrorStream()) {
-                            errorStr = IOUtils.toString(error, Charset.defaultCharset());
-                        } catch (final Throwable t) {
-                            throw new IOException("Server returned HTTP" + " response code: " + respCode + " for URL: "
-                                    + con.getURL().toString() + " failed to retrieve error response: <" + t.toString()
-                                    + ">");
-                        }
-                        throw new IOException("Server returned HTTP" + " response code: " + respCode + " for URL: "
-                                + con.getURL().toString() + " error response:" + "\n*****************************"
-                                + errorStr + "*****************************");
-                    } else {
-                        throw new IOException("Server returned HTTP" + " response code: " + respCode + " for URL: "
-                                + con.getURL().toString());
-                    }
+                    throw new IOException(
+                            "Server returned HTTP" + " response code: " + respCode + " for URL: " + urlString);
                 }
             }
         }
-        return con.getInputStream();
     }
 
     @Override
