@@ -76,8 +76,8 @@ public final class URIsConnect {
                                 resetHttpClient();
                             }
                         };
+                        ShutdownHookManager.register(shutdownHook);
                     }
-                    ShutdownHookManager.register(shutdownHook);
                     httpClient = client;
                 }
             }
