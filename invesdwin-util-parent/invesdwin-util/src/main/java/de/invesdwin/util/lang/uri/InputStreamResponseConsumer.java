@@ -140,7 +140,7 @@ public class InputStreamResponseConsumer extends AbstractBinResponseConsumer<Htt
 
     private File newTempFile() {
         try {
-            return Files.createTempFile(tempDirPath, "download", ".bin").toFile();
+            return Files.createTempFile(tempDirPath, "download_", ".bin").toFile();
         } catch (final IOException e1) {
             if (!tempDir.exists()) {
                 try {
@@ -149,7 +149,7 @@ public class InputStreamResponseConsumer extends AbstractBinResponseConsumer<Htt
                     throw new RuntimeException(e);
                 }
                 try {
-                    return Files.createTempFile(tempDirPath, "download", ".bin").toFile();
+                    return Files.createTempFile(tempDirPath, "download_", ".bin").toFile();
                 } catch (final IOException e) {
                     throw new RuntimeException(e);
                 }
