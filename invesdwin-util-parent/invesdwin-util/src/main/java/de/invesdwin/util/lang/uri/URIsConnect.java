@@ -32,7 +32,7 @@ public final class URIsConnect {
 
     private static Duration defaultNetworkTimeout = new Duration(30, FTimeUnit.SECONDS);
     private static Proxy defaultProxy = null;
-    private static OkHttpClient sharedClient;
+    private static OkHttpClient httpClient;
 
     private final URL url;
     private Duration networkTimeout = defaultNetworkTimeout;
@@ -40,26 +40,31 @@ public final class URIsConnect {
 
     private Map<String, String> headers;
 
-    static {
-        OkHttpClient.Builder builder = new OkHttpClient.Builder();
-        builder = applyNetworkTimeout(builder, defaultNetworkTimeout);
-        builder = applyProxy(builder, defaultProxy);
-        sharedClient = builder.build();
-    }
-
     //package private
     URIsConnect(final URL url) {
         this.url = url;
     }
 
     public static OkHttpClient getHttpClient() {
-        return sharedClient;
+        if (httpClient == null) {
+            synchronized (URIsConnect.class) {
+                if (httpClient == null) {
+                    OkHttpClient.Builder builder = new OkHttpClient.Builder();
+                    builder = applyNetworkTimeout(builder, defaultNetworkTimeout);
+                    builder = applyProxy(builder, defaultProxy);
+                    httpClient = builder.build();
+                }
+            }
+        }
+        return httpClient;
     }
 
     public static void setDefaultNetworkTimeout(final Duration defaultNetworkTimeout) {
         URIsConnect.defaultNetworkTimeout = defaultNetworkTimeout;
         //create derived instances to share connections etc: https://github.com/square/okhttp/issues/3372
-        sharedClient = applyNetworkTimeout(sharedClient.newBuilder(), defaultNetworkTimeout).build();
+        if (httpClient != null) {
+            httpClient = applyNetworkTimeout(httpClient.newBuilder(), defaultNetworkTimeout).build();
+        }
     }
 
     private static OkHttpClient.Builder applyNetworkTimeout(final OkHttpClient.Builder builder,
@@ -76,7 +81,9 @@ public final class URIsConnect {
     public static void setDefaultProxy(final Proxy defaultProxy) {
         URIsConnect.defaultProxy = defaultProxy;
         //create derived instances to share connections etc: https://github.com/square/okhttp/issues/3372
-        sharedClient = applyProxy(sharedClient.newBuilder(), defaultProxy).build();
+        if (httpClient != null) {
+            httpClient = applyProxy(httpClient.newBuilder(), defaultProxy).build();
+        }
     }
 
     private static OkHttpClient.Builder applyProxy(final OkHttpClient.Builder builder, final Proxy proxy) {
@@ -224,7 +231,7 @@ public final class URIsConnect {
     public Call openConnection(final IRequestCustomizer customizer) {
         final OkHttpClient client;
         if (networkTimeout != defaultNetworkTimeout || proxy != defaultProxy) {
-            OkHttpClient.Builder builder = sharedClient.newBuilder();
+            OkHttpClient.Builder builder = getHttpClient().newBuilder();
             if (networkTimeout != defaultNetworkTimeout) {
                 builder = applyNetworkTimeout(builder, networkTimeout);
             }
@@ -233,7 +240,7 @@ public final class URIsConnect {
             }
             client = builder.build();
         } else {
-            client = sharedClient;
+            client = getHttpClient();
         }
         Builder requestBuilder = new Request.Builder().url(url);
         if (customizer != null) {
