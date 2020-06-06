@@ -126,11 +126,15 @@ public final class URIsConnect {
         return uri;
     }
 
+    /**
+     * WARNING: connection pooling will share authentication between requests. If this is not desired, then use a
+     * separate HttpClient where this information does not get shared!
+     */
     public URIsConnect withBasicAuth(final String username, final String password) {
         final String authString = username + ":" + password;
         final byte[] authEncBytes = Base64.encodeBase64(authString.getBytes());
         final String authStringEnc = new String(authEncBytes);
-        putHeader("Authorization", "Basic " + authStringEnc);
+        putHeader(HttpHeaders.AUTHORIZATION, "Basic " + authStringEnc);
         return this;
     }
 
