@@ -47,6 +47,7 @@ public final class URIsConnect {
     private static Duration defaultNetworkTimeout = new Duration(30, FTimeUnit.SECONDS);
     private static Proxy defaultProxy = null;
     private static CloseableHttpAsyncClient httpClient;
+    private static IShutdownHook shutdownHook;
     private static RequestConfig defaultRequestConfig = RequestConfig.DEFAULT;
 
     private final URI uri;
@@ -68,12 +69,15 @@ public final class URIsConnect {
                             .useSystemProperties() //use system proxy etc
                             .build();
                     client.start();
-                    ShutdownHookManager.register(new IShutdownHook() {
-                        @Override
-                        public void shutdown() throws Exception {
-                            client.close();
-                        }
-                    });
+                    if (shutdownHook == null) {
+                        shutdownHook = new IShutdownHook() {
+                            @Override
+                            public void shutdown() throws Exception {
+                                resetHttpClient();
+                            }
+                        };
+                    }
+                    ShutdownHookManager.register(shutdownHook);
                     httpClient = client;
                 }
             }
@@ -81,7 +85,7 @@ public final class URIsConnect {
         return httpClient;
     }
 
-    public static void reset() {
+    public static void resetHttpClient() {
         synchronized (URIsConnect.class) {
             if (httpClient != null) {
                 httpClient.close(CloseMode.GRACEFUL);
