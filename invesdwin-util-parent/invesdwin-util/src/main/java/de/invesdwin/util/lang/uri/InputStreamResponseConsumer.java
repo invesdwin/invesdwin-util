@@ -133,6 +133,7 @@ public class InputStreamResponseConsumer extends AbstractBinResponseConsumer<Htt
             }
             if (endOfStream) {
                 fileOut.close();
+                fileOut = null;
             }
         }
     }
