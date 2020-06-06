@@ -36,6 +36,7 @@ import org.apache.hc.core5.io.CloseMode;
 
 import de.invesdwin.util.concurrent.future.Futures;
 import de.invesdwin.util.lang.Closeables;
+import de.invesdwin.util.lang.description.HtmlToPlainText;
 import de.invesdwin.util.shutdown.IShutdownHook;
 import de.invesdwin.util.shutdown.ShutdownHookManager;
 import de.invesdwin.util.time.duration.Duration;
@@ -303,7 +304,8 @@ public final class URIsConnect {
                 throw new FileNotFoundException(uri.toString());
             } else {
                 if (responseCode == HttpURLConnection.HTTP_INTERNAL_ERROR) {
-                    final String errorStr = IOUtils.toString(response, Charset.defaultCharset());
+                    final String htmlStr = IOUtils.toString(response, Charset.defaultCharset());
+                    final String errorStr = HtmlToPlainText.htmlToPlainText(htmlStr);
                     throw new IOException("Server returned HTTP" + " response code: " + responseCode + " for URL: "
                             + uri.toString() + " error response:" + "\n*****************************" + errorStr
                             + "*****************************");
