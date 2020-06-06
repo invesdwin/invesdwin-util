@@ -4,55 +4,76 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
+import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.Socket;
-import java.net.URL;
+import java.net.URI;
 import java.nio.charset.Charset;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.Future;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
+import org.apache.hc.client5.http.async.methods.SimpleHttpRequest;
+import org.apache.hc.client5.http.async.methods.SimpleHttpRequests;
+import org.apache.hc.client5.http.async.methods.SimpleHttpResponse;
+import org.apache.hc.client5.http.async.methods.SimpleRequestProducer;
+import org.apache.hc.client5.http.async.methods.SimpleResponseConsumer;
+import org.apache.hc.client5.http.config.RequestConfig;
+import org.apache.hc.client5.http.impl.async.CloseableHttpAsyncClient;
+import org.apache.hc.client5.http.impl.async.HttpAsyncClientBuilder;
+import org.apache.hc.core5.concurrent.FutureCallback;
+import org.apache.hc.core5.http.HttpHeaders;
+import org.apache.hc.core5.http.HttpHost;
+import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.nio.AsyncResponseConsumer;
 
+import de.invesdwin.util.concurrent.future.Futures;
 import de.invesdwin.util.lang.Closeables;
+import de.invesdwin.util.shutdown.IShutdownHook;
+import de.invesdwin.util.shutdown.ShutdownHookManager;
 import de.invesdwin.util.time.duration.Duration;
 import de.invesdwin.util.time.fdate.FTimeUnit;
-import okhttp3.Call;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Request.Builder;
-import okhttp3.Response;
 
 @NotThreadSafe
 public final class URIsConnect {
 
     private static Duration defaultNetworkTimeout = new Duration(30, FTimeUnit.SECONDS);
     private static Proxy defaultProxy = null;
-    private static OkHttpClient httpClient;
+    private static CloseableHttpAsyncClient httpClient;
+    private static RequestConfig defaultRequestConfig = RequestConfig.DEFAULT;
 
-    private final URL url;
+    private final URI uri;
     private Duration networkTimeout = defaultNetworkTimeout;
-    private Proxy proxy = defaultProxy;
+    private Proxy proxy = null;
 
     private Map<String, String> headers;
 
     //package private
-    URIsConnect(final URL url) {
-        this.url = url;
+    URIsConnect(final URI url) {
+        this.uri = url;
     }
 
-    public static OkHttpClient getHttpClient() {
+    public static CloseableHttpAsyncClient getHttpClient() {
         if (httpClient == null) {
             synchronized (URIsConnect.class) {
                 if (httpClient == null) {
-                    OkHttpClient.Builder builder = new OkHttpClient.Builder();
-                    builder = applyNetworkTimeout(builder, defaultNetworkTimeout);
-                    builder = applyProxy(builder, defaultProxy);
-                    httpClient = builder.build();
+                    final CloseableHttpAsyncClient client = HttpAsyncClientBuilder.create()
+                            .useSystemProperties() //use system proxy etc
+                            .build();
+                    client.start();
+                    ShutdownHookManager.register(new IShutdownHook() {
+                        @Override
+                        public void shutdown() throws Exception {
+                            client.close();
+                        }
+                    });
+                    httpClient = client;
                 }
             }
         }
@@ -62,40 +83,26 @@ public final class URIsConnect {
     public static void setDefaultNetworkTimeout(final Duration defaultNetworkTimeout) {
         URIsConnect.defaultNetworkTimeout = defaultNetworkTimeout;
         //create derived instances to share connections etc: https://github.com/square/okhttp/issues/3372
-        if (httpClient != null) {
-            httpClient = applyNetworkTimeout(httpClient.newBuilder(), defaultNetworkTimeout).build();
-        }
+        defaultRequestConfig = applyNetworkTimeout(RequestConfig.copy(defaultRequestConfig), defaultNetworkTimeout)
+                .build();
     }
 
-    private static OkHttpClient.Builder applyNetworkTimeout(final OkHttpClient.Builder builder,
+    private static RequestConfig.Builder applyNetworkTimeout(final RequestConfig.Builder config,
             final Duration networkTimeout) {
-        return builder.connectTimeout(networkTimeout.intValue(), networkTimeout.getTimeUnit().timeUnitValue())
-                .readTimeout(networkTimeout.intValue(), networkTimeout.getTimeUnit().timeUnitValue())
-                .writeTimeout(networkTimeout.intValue(), networkTimeout.getTimeUnit().timeUnitValue());
+        return config
+                .setConnectionRequestTimeout(networkTimeout.longValue(), networkTimeout.getTimeUnit().timeUnitValue())
+                .setConnectTimeout(networkTimeout.longValue(), networkTimeout.getTimeUnit().timeUnitValue())
+                .setResponseTimeout(networkTimeout.longValue(), networkTimeout.getTimeUnit().timeUnitValue());
+    }
+
+    private static RequestConfig.Builder applyProxy(final RequestConfig.Builder config, final Proxy proxy) {
+        final InetSocketAddress address = (InetSocketAddress) proxy.address();
+        final HttpHost httpHost = new HttpHost(address.getHostName(), address.getPort());
+        return config.setProxy(httpHost);
     }
 
     public static Duration getDefaultNetworkTimeout() {
         return defaultNetworkTimeout;
-    }
-
-    public static void setDefaultProxy(final Proxy defaultProxy) {
-        URIsConnect.defaultProxy = defaultProxy;
-        //create derived instances to share connections etc: https://github.com/square/okhttp/issues/3372
-        if (httpClient != null) {
-            httpClient = applyProxy(httpClient.newBuilder(), defaultProxy).build();
-        }
-    }
-
-    private static OkHttpClient.Builder applyProxy(final OkHttpClient.Builder builder, final Proxy proxy) {
-        if (proxy != null) {
-            return builder.proxy(proxy);
-        } else {
-            return builder;
-        }
-    }
-
-    public static Proxy getDefaultProxy() {
-        return defaultProxy;
     }
 
     public URIsConnect withNetworkTimeout(final Duration networkTimeout) {
@@ -107,17 +114,16 @@ public final class URIsConnect {
         return networkTimeout;
     }
 
-    public URIsConnect withProxy(final Proxy proxy) {
+    public void withProxy(final Proxy proxy) {
         this.proxy = proxy;
-        return this;
     }
 
     public Proxy getProxy() {
         return proxy;
     }
 
-    public URL getUrl() {
-        return url;
+    public URI getUri() {
+        return uri;
     }
 
     public URIsConnect withBasicAuth(final String username, final String password) {
@@ -140,7 +146,7 @@ public final class URIsConnect {
             final Socket socket = new Socket();
             final int timeoutMillis = networkTimeout.intValue(FTimeUnit.MILLISECONDS);
             socket.setSoTimeout(timeoutMillis);
-            socket.connect(Addresses.asAddress(url.getHost(), url.getPort()), timeoutMillis);
+            socket.connect(Addresses.asAddress(uri.getHost(), uri.getPort()), timeoutMillis);
             socket.close();
             return true;
         } catch (final Throwable e) {
@@ -152,22 +158,20 @@ public final class URIsConnect {
      * Tries to open a connection to the specified url and checks if the content is available there.
      */
     public boolean isDownloadPossible() {
-        if (url == null) {
+        if (uri == null) {
             return false;
         }
-        final Call con = openConnection(new IRequestCustomizer() {
-            @Override
-            public Builder customize(final Builder request) {
-                return request.head();
-            }
-        });
-        try (Response response = con.execute()) {
-            if (!response.isSuccessful()) {
+        final Future<SimpleHttpResponse> future = openConnection(IRequestSettings.HEAD,
+                SimpleResponseConsumer.create());
+        try {
+            final SimpleHttpResponse response = Futures.get(future);
+            if (!isSuccessful(response)) {
                 return false;
             }
-            final String contentLength = response.headers().get("content-length");
-            if (contentLength != null) {
-                return Long.parseLong(contentLength) > 0;
+            final String contentLengthStr = response.getFirstHeader(HttpHeaders.CONTENT_LENGTH).getValue();
+            if (contentLengthStr != null) {
+                final long contentLength = Long.parseLong(contentLengthStr);
+                return contentLength > 0;
             } else {
                 return true;
             }
@@ -177,23 +181,21 @@ public final class URIsConnect {
     }
 
     public long lastModified() {
-        final Call con = openConnection(new IRequestCustomizer() {
-            @Override
-            public Builder customize(final Builder request) {
-                return request.head();
-            }
-        });
-        try (Response response = con.execute()) {
-            if (!response.isSuccessful()) {
+        final Future<SimpleHttpResponse> future = openConnection(IRequestSettings.HEAD,
+                SimpleResponseConsumer.create());
+        try {
+            final SimpleHttpResponse response = Futures.get(future);
+            if (!isSuccessful(response)) {
                 return -1;
             }
-            final Date lastModified = response.headers().getDate("last-modified");
+            final String lastModifiedStr = response.getFirstHeader(HttpHeaders.LAST_MODIFIED).getValue();
+            final Date lastModified = org.apache.hc.client5.http.utils.DateUtils.parseDate(lastModifiedStr);
             if (lastModified == null) {
                 return -1;
             } else {
                 return lastModified.getTime();
             }
-        } catch (final IOException e) {
+        } catch (final Throwable e) {
             return -1;
         }
     }
@@ -224,68 +226,88 @@ public final class URIsConnect {
         }
     }
 
-    public Call openConnection() {
-        return openConnection(null);
+    public Future<HttpInputStream> openConnection() {
+        return openConnection(IRequestSettings.GET, new InputStreamResponseConsumer(), null);
     }
 
-    public Call openConnection(final IRequestCustomizer customizer) {
-        final OkHttpClient client;
+    public <T> Future<T> openConnection(final IRequestSettings settings,
+            final AsyncResponseConsumer<T> responseConsumer) {
+        return openConnection(IRequestSettings.GET, responseConsumer, null);
+    }
+
+    public <T> Future<T> openConnection(final IRequestSettings settings,
+            final AsyncResponseConsumer<T> responseConsumer, final FutureCallback<T> callback) {
+        final SimpleHttpRequest request = SimpleHttpRequests.create(settings.getMethod(), uri);
+        request.setConfig(getRequestConfig());
+        if (headers != null) {
+            for (final Entry<String, String> header : headers.entrySet()) {
+                request.addHeader(header.getKey(), header.getValue());
+            }
+        }
+
+        final SimpleRequestProducer requestProducer = SimpleRequestProducer.create(request);
+        final Future<T> response = getHttpClient().execute(requestProducer, responseConsumer, callback);
+        return response;
+    }
+
+    private RequestConfig getRequestConfig() {
         if (networkTimeout != defaultNetworkTimeout || proxy != defaultProxy) {
-            OkHttpClient.Builder builder = getHttpClient().newBuilder();
+            RequestConfig.Builder builder = RequestConfig.copy(defaultRequestConfig);
             if (networkTimeout != defaultNetworkTimeout) {
                 builder = applyNetworkTimeout(builder, networkTimeout);
             }
             if (proxy != defaultProxy) {
                 builder = applyProxy(builder, proxy);
             }
-            client = builder.build();
+            return builder.build();
         } else {
-            client = getHttpClient();
+            return defaultRequestConfig;
         }
-        Builder requestBuilder = new Request.Builder().url(url);
-        if (customizer != null) {
-            requestBuilder = customizer.customize(requestBuilder);
-        }
-        if (headers != null) {
-            for (final Entry<String, String> header : headers.entrySet()) {
-                requestBuilder.addHeader(header.getKey(), header.getValue());
-            }
-        }
-        final Request request = requestBuilder.build();
-        return client.newCall(request);
     }
 
-    public InputStream getInputStream() throws IOException {
-        return getInputStream(openConnection());
+    public HttpInputStream getInputStream() throws IOException {
+        return getInputStream(openConnection(), uri);
     }
 
-    public static InputStream getInputStream(final Call call) throws IOException {
-        final Response response = call.execute();
+    public static HttpInputStream getInputStream(final Future<HttpInputStream> call, final URI uri) throws IOException {
+        final HttpInputStream response;
+        try {
+            response = Futures.get(call);
+        } catch (final InterruptedException e) {
+            throw new RuntimeException(e);
+        }
         // https://stackoverflow.com/questions/613307/read-error-response-body-in-java
-        if (response.isSuccessful()) {
-            return response.body().byteStream();
+        final int responseCode = response.getResponse().getCode();
+        if (isSuccessful(responseCode)) {
+            return response;
         } else {
-            final int respCode = response.code();
-            final String urlString = call.request().url().toString();
-            if (respCode == HttpURLConnection.HTTP_NOT_FOUND || respCode == HttpURLConnection.HTTP_GONE) {
-                throw new FileNotFoundException(urlString);
+            if (responseCode == HttpURLConnection.HTTP_NOT_FOUND || responseCode == HttpURLConnection.HTTP_GONE) {
+                throw new FileNotFoundException(uri.toString());
             } else {
-                if (respCode == HttpURLConnection.HTTP_INTERNAL_ERROR) {
-                    final String errorStr = response.body().string();
-                    throw new IOException("Server returned HTTP" + " response code: " + respCode + " for URL: "
-                            + urlString + " error response:" + "\n*****************************" + errorStr
+                if (responseCode == HttpURLConnection.HTTP_INTERNAL_ERROR) {
+                    final String errorStr = IOUtils.toString(response, Charset.defaultCharset());
+                    throw new IOException("Server returned HTTP" + " response code: " + responseCode + " for URL: "
+                            + uri.toString() + " error response:" + "\n*****************************" + errorStr
                             + "*****************************");
                 } else {
                     throw new IOException(
-                            "Server returned HTTP" + " response code: " + respCode + " for URL: " + urlString);
+                            "Server returned HTTP" + " response code: " + responseCode + " for URL: " + uri.toString());
                 }
             }
         }
     }
 
+    public static boolean isSuccessful(final HttpResponse response) {
+        return isSuccessful(response.getCode());
+    }
+
+    public static boolean isSuccessful(final int responseCode) {
+        return responseCode >= 200 && responseCode <= 299;
+    }
+
     @Override
     public String toString() {
-        return url.toString();
+        return uri.toString();
     }
 
 }

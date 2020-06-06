@@ -129,15 +129,15 @@ public final class URIs {
     }
 
     public static URIsConnect connect(final String uri) {
-        return connect(asUrl(uri));
+        return connect(asUri(uri));
     }
 
     public static URIsConnect connect(final URI uri) {
-        return connect(asUrl(uri));
+        return new URIsConnect(uri);
     }
 
     public static URIsConnect connect(final URL url) {
-        return new URIsConnect(url);
+        return connect(asUri(url));
     }
 
     public static URI setPort(final URI uri, final int port) {
