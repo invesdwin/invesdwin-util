@@ -32,6 +32,7 @@ import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.nio.AsyncResponseConsumer;
+import org.apache.hc.core5.io.CloseMode;
 
 import de.invesdwin.util.concurrent.future.Futures;
 import de.invesdwin.util.lang.Closeables;
@@ -78,6 +79,15 @@ public final class URIsConnect {
             }
         }
         return httpClient;
+    }
+
+    public static void reset() {
+        synchronized (URIsConnect.class) {
+            if (httpClient != null) {
+                httpClient.close(CloseMode.GRACEFUL);
+                httpClient = null;
+            }
+        }
     }
 
     public static void setDefaultNetworkTimeout(final Duration defaultNetworkTimeout) {
