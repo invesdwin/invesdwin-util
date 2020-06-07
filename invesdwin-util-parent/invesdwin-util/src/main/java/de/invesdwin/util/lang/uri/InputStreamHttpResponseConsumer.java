@@ -27,7 +27,7 @@ import de.invesdwin.util.streams.ADelegateInputStream;
 import de.invesdwin.util.streams.DeletingFileInputStream;
 
 @NotThreadSafe
-public class InputStreamResponseConsumer extends AbstractBinResponseConsumer<HttpInputStream> {
+public class InputStreamHttpResponseConsumer extends AbstractBinResponseConsumer<InputStreamHttpResponse> {
 
     private static File defaultTempDir;
     private static Path defaultTempDirPath;
@@ -42,7 +42,7 @@ public class InputStreamResponseConsumer extends AbstractBinResponseConsumer<Htt
     private FileOutputStream fileOut;
     private File file;
 
-    public InputStreamResponseConsumer() {
+    public InputStreamHttpResponseConsumer() {
     }
 
     /**
@@ -58,13 +58,13 @@ public class InputStreamResponseConsumer extends AbstractBinResponseConsumer<Htt
      * Use this method to change the default threshold of 512KB.
      */
     public static void setDefaultMaxSizeInMemory(final ByteSize defaultMaxSizeInMemory) {
-        InputStreamResponseConsumer.defaultMaxSizeInMemory = (int) defaultMaxSizeInMemory.getValue(ByteSizeScale.BYTES);
+        InputStreamHttpResponseConsumer.defaultMaxSizeInMemory = (int) defaultMaxSizeInMemory.getValue(ByteSizeScale.BYTES);
     }
 
     /**
      * Use this method to override the write cache directory. Null disables the write cache for this call.
      */
-    public InputStreamResponseConsumer withTempDir(final File tempDir) {
+    public InputStreamHttpResponseConsumer withTempDir(final File tempDir) {
         this.tempDir = tempDir;
         if (tempDir == null) {
             this.tempDirPath = null;
@@ -81,7 +81,7 @@ public class InputStreamResponseConsumer extends AbstractBinResponseConsumer<Htt
     /**
      * Use this method to override the default size limit for using the write cache.
      */
-    public InputStreamResponseConsumer withMaxSizeInMemory(final ByteSize maxSizeInMemory) {
+    public InputStreamHttpResponseConsumer withMaxSizeInMemory(final ByteSize maxSizeInMemory) {
         this.maxSizeInMemory = (int) maxSizeInMemory.getValue(ByteSizeScale.BYTES);
         return this;
     }
@@ -112,15 +112,15 @@ public class InputStreamResponseConsumer extends AbstractBinResponseConsumer<Htt
     }
 
     @Override
-    protected HttpInputStream buildResult() {
-        return new HttpInputStream(response, newDelegate());
+    protected InputStreamHttpResponse buildResult() {
+        return new InputStreamHttpResponse(response, newDelegate());
     }
 
     private InputStream newDelegate() {
         if (byteArrayOut != null) {
             return new ByteArrayInputStream(byteArrayOut.toByteArray());
         } else {
-            return new ADelegateInputStream(new TextDescription(InputStreamResponseConsumer.class.getSimpleName())) {
+            return new ADelegateInputStream(new TextDescription(InputStreamHttpResponseConsumer.class.getSimpleName())) {
                 @Override
                 protected InputStream newDelegate() {
                     try {

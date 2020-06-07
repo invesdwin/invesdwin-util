@@ -9,11 +9,11 @@ import org.apache.hc.core5.http.HttpResponse;
 import de.invesdwin.util.streams.ASimpleDelegateInputStream;
 
 @NotThreadSafe
-public class HttpInputStream extends ASimpleDelegateInputStream {
+public class InputStreamHttpResponse extends ASimpleDelegateInputStream {
 
     private final HttpResponse response;
 
-    public HttpInputStream(final HttpResponse response, final InputStream delegate) {
+    public InputStreamHttpResponse(final HttpResponse response, final InputStream delegate) {
         super(delegate);
         this.response = response;
     }

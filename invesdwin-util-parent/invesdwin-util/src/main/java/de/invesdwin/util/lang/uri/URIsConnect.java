@@ -244,12 +244,12 @@ public final class URIsConnect {
         }
     }
 
-    public Future<HttpInputStream> openConnection() {
-        return openConnection(IHttpRequestSettings.GET, new InputStreamResponseConsumer(), null);
+    public Future<InputStreamHttpResponse> openConnection() {
+        return openConnection(IHttpRequestSettings.GET, new InputStreamHttpResponseConsumer(), null);
     }
 
-    public Future<HttpInputStream> openConnection(final IHttpRequestSettings settings) {
-        return openConnection(settings, new InputStreamResponseConsumer(), null);
+    public Future<InputStreamHttpResponse> openConnection(final IHttpRequestSettings settings) {
+        return openConnection(settings, new InputStreamHttpResponseConsumer(), null);
     }
 
     public <T> Future<T> openConnection(final IHttpRequestSettings settings,
@@ -287,12 +287,12 @@ public final class URIsConnect {
         }
     }
 
-    public HttpInputStream getInputStream() throws IOException {
+    public InputStreamHttpResponse getInputStream() throws IOException {
         return getInputStream(openConnection(), uri);
     }
 
-    public static HttpInputStream getInputStream(final Future<HttpInputStream> call, final URI uri) throws IOException {
-        final HttpInputStream response;
+    public static InputStreamHttpResponse getInputStream(final Future<InputStreamHttpResponse> call, final URI uri) throws IOException {
+        final InputStreamHttpResponse response;
         try {
             response = Futures.get(call);
         } catch (final InterruptedException e) {
