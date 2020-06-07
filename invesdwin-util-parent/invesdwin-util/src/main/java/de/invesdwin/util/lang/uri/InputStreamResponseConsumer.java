@@ -21,14 +21,13 @@ import com.fasterxml.jackson.core.util.ByteArrayBuilder;
 
 import de.invesdwin.util.lang.Files;
 import de.invesdwin.util.lang.description.TextDescription;
-import de.invesdwin.util.math.decimal.scaled.ByteSizeScale;
 import de.invesdwin.util.streams.ADelegateInputStream;
 import de.invesdwin.util.streams.DeletingFileInputStream;
 
 @NotThreadSafe
 public class InputStreamResponseConsumer extends AbstractBinResponseConsumer<HttpInputStream> {
 
-    private static final int MAX_SIZE_IN_MEMORY = (int) ByteSizeScale.BYTES.convert(512, ByteSizeScale.KILOBYTES);
+    private static final int MAX_SIZE_IN_MEMORY = 1;
     private static File defaultTempDir;
     private static Path defaultTempDirPath;
 

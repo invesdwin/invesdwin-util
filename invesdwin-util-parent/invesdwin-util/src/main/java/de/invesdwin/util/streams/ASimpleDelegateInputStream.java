@@ -19,8 +19,6 @@ public abstract class ASimpleDelegateInputStream extends InputStream {
         return delegate.available();
     }
 
-    protected abstract InputStream newDelegate();
-
     @Override
     public void close() throws IOException {
         delegate.close();
