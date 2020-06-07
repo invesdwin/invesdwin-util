@@ -17,7 +17,7 @@ import org.apache.hc.core5.http.HttpResponse;
 
 import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.lang.uri.connect.IURIsConnect;
-import de.invesdwin.util.lang.uri.connect.java.URIsConnectURLConnection;
+import de.invesdwin.util.lang.uri.connect.okhttp.URIsConnectOkHttp;
 import de.invesdwin.util.time.duration.Duration;
 import de.invesdwin.util.time.fdate.FTimeUnit;
 
@@ -150,7 +150,7 @@ public final class URIs {
     }
 
     public static IURIsConnect connect(final URI uri) {
-        return new URIsConnectURLConnection(uri);
+        return new URIsConnectOkHttp(uri);
     }
 
     public static IURIsConnect connect(final URL url) {

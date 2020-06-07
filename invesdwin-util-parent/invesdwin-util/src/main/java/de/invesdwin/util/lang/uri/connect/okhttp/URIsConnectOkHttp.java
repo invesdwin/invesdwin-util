@@ -211,7 +211,7 @@ public final class URIsConnectOkHttp implements IURIsConnect {
     }
 
     public Call openConnection() {
-        return openConnection(null);
+        return openConnection(GET);
     }
 
     public Call openConnection(final String method) {
