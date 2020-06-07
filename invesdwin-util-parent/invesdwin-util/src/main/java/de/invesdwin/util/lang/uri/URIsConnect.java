@@ -36,6 +36,7 @@ import org.apache.hc.core5.io.CloseMode;
 
 import de.invesdwin.util.concurrent.future.Futures;
 import de.invesdwin.util.lang.Closeables;
+import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.shutdown.IShutdownHook;
 import de.invesdwin.util.shutdown.ShutdownHookManager;
 import de.invesdwin.util.time.duration.Duration;
@@ -291,12 +292,13 @@ public final class URIsConnect {
         return getInputStream(openConnection(), uri);
     }
 
-    public static InputStreamHttpResponse getInputStream(final Future<InputStreamHttpResponse> call, final URI uri) throws IOException {
+    public static InputStreamHttpResponse getInputStream(final Future<InputStreamHttpResponse> call, final URI uri)
+            throws IOException {
         final InputStreamHttpResponse response;
         try {
             response = Futures.get(call);
         } catch (final InterruptedException e) {
-            throw new RuntimeException(e);
+            throw new IOException(e);
         }
         // https://stackoverflow.com/questions/613307/read-error-response-body-in-java
         final int responseCode = response.getResponse().getCode();
@@ -308,12 +310,12 @@ public final class URIsConnect {
             } else {
                 if (responseCode == HttpURLConnection.HTTP_INTERNAL_ERROR) {
                     final String errorStr = IOUtils.toString(response, Charset.defaultCharset());
-                    throw new IOException("Server returned HTTP" + " response code: " + responseCode + " for URL: "
-                            + uri.toString() + " error response:" + "\n*****************************" + errorStr
-                            + "*****************************");
+                    throw new IOException("Server returned HTTP response code [" + responseCode + "] for URL ["
+                            + uri.toString() + "] with error:\n*****************************\n"
+                            + Strings.putSuffix(errorStr, "\n") + "*****************************");
                 } else {
-                    throw new IOException(
-                            "Server returned HTTP" + " response code: " + responseCode + " for URL: " + uri.toString());
+                    throw new IOException("Server returned HTTP response code [" + responseCode + "] for URL ["
+                            + uri.toString() + "]");
                 }
             }
         }
