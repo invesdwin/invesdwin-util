@@ -33,10 +33,8 @@ import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.nio.AsyncResponseConsumer;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.pool.PoolConcurrencyPolicy;
-import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.util.TimeValue;
 
-import de.invesdwin.util.concurrent.Executors;
 import de.invesdwin.util.concurrent.future.Futures;
 import de.invesdwin.util.lang.Closeables;
 import de.invesdwin.util.lang.uri.Addresses;
@@ -82,9 +80,6 @@ public final class URIsConnectApache implements IURIsConnect {
                                     .setMaxConnPerRoute(MAX_CONNECTIONS)
                                     .setMaxConnTotal(MAX_CONNECTIONS)
                                     .setPoolConcurrencyPolicy(PoolConcurrencyPolicy.LAX)
-                                    .build())
-                            .setIOReactorConfig(IOReactorConfig.custom()
-                                    .setIoThreadCount(Executors.getCpuThreadPoolCount() * 2)
                                     .build())
                             .build();
                     client.start();
