@@ -13,7 +13,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.concurrent.TimeUnit;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
@@ -36,7 +35,6 @@ import de.invesdwin.util.lang.Closeables;
 import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.lang.uri.Addresses;
 import de.invesdwin.util.lang.uri.URIs;
-import de.invesdwin.util.lang.uri.connect.IHttpRequest;
 import de.invesdwin.util.lang.uri.connect.IURIsConnect;
 import de.invesdwin.util.lang.uri.connect.InputStreamHttpResponse;
 import de.invesdwin.util.lang.uri.connect.InputStreamHttpResponseConsumer;
@@ -48,8 +46,8 @@ import de.invesdwin.util.time.fdate.FTimeUnit;
 @NotThreadSafe
 public final class URIsConnectApacheSync implements IURIsConnect {
 
-    private static final int MAX_CONNECTIONS = 1000;
-    private static final TimeValue EVICT_IDLE_CONNECTIONS_TIMEOUT = TimeValue.of(1, TimeUnit.MINUTES);
+    public static final int MAX_CONNECTIONS = URIsConnectApacheAsync.MAX_CONNECTIONS;
+    public static final TimeValue EVICT_IDLE_CONNECTIONS_TIMEOUT = URIsConnectApacheAsync.EVICT_IDLE_CONNECTIONS_TIMEOUT;
     private static CloseableHttpClient httpClient;
     private static IShutdownHook shutdownHook;
     private static RequestConfig defaultRequestConfig = RequestConfig.DEFAULT;
@@ -189,7 +187,7 @@ public final class URIsConnectApacheSync implements IURIsConnect {
         if (uri == null) {
             return false;
         }
-        try (CloseableHttpResponse response = openConnection(IHttpRequest.HEAD)) {
+        try (CloseableHttpResponse response = openConnection(HEAD)) {
             if (!URIs.isSuccessful(response)) {
                 return false;
             }
@@ -207,11 +205,14 @@ public final class URIsConnectApacheSync implements IURIsConnect {
 
     @Override
     public long lastModified() {
-        try (CloseableHttpResponse response = openConnection(IHttpRequest.HEAD)) {
+        try (CloseableHttpResponse response = openConnection(HEAD)) {
             if (!URIs.isSuccessful(response)) {
                 return -1;
             }
             final String lastModifiedStr = response.getFirstHeader(HttpHeaders.LAST_MODIFIED).getValue();
+            if (lastModifiedStr == null) {
+                return -1;
+            }
             final Date lastModified = org.apache.hc.client5.http.utils.DateUtils.parseDate(lastModifiedStr);
             if (lastModified == null) {
                 return -1;
@@ -252,11 +253,11 @@ public final class URIsConnectApacheSync implements IURIsConnect {
     }
 
     public CloseableHttpResponse openConnection() throws IOException {
-        return openConnection(IHttpRequest.GET);
+        return openConnection(GET);
     }
 
-    public CloseableHttpResponse openConnection(final IHttpRequest settings) throws IOException {
-        final HttpUriRequestBase request = (HttpUriRequestBase) ClassicHttpRequests.create(settings.getMethod(), uri);
+    public CloseableHttpResponse openConnection(final String method) throws IOException {
+        final HttpUriRequestBase request = (HttpUriRequestBase) ClassicHttpRequests.create(method, uri);
         request.setConfig(getRequestConfig());
         if (headers != null) {
             for (final Entry<String, String> header : headers.entrySet()) {
@@ -283,8 +284,8 @@ public final class URIsConnectApacheSync implements IURIsConnect {
         }
     }
 
-    public InputStreamHttpResponse getInputStream(final IHttpRequest settings) throws IOException {
-        return getInputStream(openConnection(settings), uri);
+    public InputStreamHttpResponse getInputStream(final String method) throws IOException {
+        return getInputStream(openConnection(method), uri);
     }
 
     @Override

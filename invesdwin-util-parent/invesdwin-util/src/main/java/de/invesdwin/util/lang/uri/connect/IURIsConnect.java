@@ -8,6 +8,9 @@ import de.invesdwin.util.time.duration.Duration;
 
 public interface IURIsConnect {
 
+    String HEAD = "HEAD";
+    String GET = "GET";
+
     IURIsConnect withNetworkTimeout(Duration networkTimeout);
 
     Duration getNetworkTimeout();

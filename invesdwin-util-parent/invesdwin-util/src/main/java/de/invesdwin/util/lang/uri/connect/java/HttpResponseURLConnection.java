@@ -1,4 +1,4 @@
-package de.invesdwin.util.lang.uri.connect.urlconnection;
+package de.invesdwin.util.lang.uri.connect.java;
 
 import java.util.List;
 import java.util.Map;

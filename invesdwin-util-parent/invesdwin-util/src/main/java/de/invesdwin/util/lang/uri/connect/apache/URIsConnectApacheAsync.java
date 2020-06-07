@@ -44,7 +44,6 @@ import de.invesdwin.util.lang.Closeables;
 import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.lang.uri.Addresses;
 import de.invesdwin.util.lang.uri.URIs;
-import de.invesdwin.util.lang.uri.connect.IHttpRequest;
 import de.invesdwin.util.lang.uri.connect.IURIsConnect;
 import de.invesdwin.util.lang.uri.connect.InputStreamHttpResponse;
 import de.invesdwin.util.shutdown.IShutdownHook;
@@ -55,8 +54,8 @@ import de.invesdwin.util.time.fdate.FTimeUnit;
 @NotThreadSafe
 public final class URIsConnectApacheAsync implements IURIsConnect {
 
-    private static final int MAX_CONNECTIONS = 1000;
-    private static final TimeValue EVICT_IDLE_CONNECTIONS_TIMEOUT = TimeValue.of(1, TimeUnit.MINUTES);
+    public static final int MAX_CONNECTIONS = 1000;
+    public static final TimeValue EVICT_IDLE_CONNECTIONS_TIMEOUT = TimeValue.of(1, TimeUnit.MINUTES);
     private static CloseableHttpAsyncClient httpClient;
     private static IShutdownHook shutdownHook;
     private static RequestConfig defaultRequestConfig = RequestConfig.DEFAULT;
@@ -199,7 +198,7 @@ public final class URIsConnectApacheAsync implements IURIsConnect {
         if (uri == null) {
             return false;
         }
-        final Future<SimpleHttpResponse> future = openConnection(IHttpRequest.HEAD, SimpleResponseConsumer.create());
+        final Future<SimpleHttpResponse> future = openConnection(HEAD, SimpleResponseConsumer.create());
         try {
             final SimpleHttpResponse response = Futures.get(future);
             if (!URIs.isSuccessful(response)) {
@@ -219,13 +218,16 @@ public final class URIsConnectApacheAsync implements IURIsConnect {
 
     @Override
     public long lastModified() {
-        final Future<SimpleHttpResponse> future = openConnection(IHttpRequest.HEAD, SimpleResponseConsumer.create());
+        final Future<SimpleHttpResponse> future = openConnection(HEAD, SimpleResponseConsumer.create());
         try {
             final SimpleHttpResponse response = Futures.get(future);
             if (!URIs.isSuccessful(response)) {
                 return -1;
             }
             final String lastModifiedStr = response.getFirstHeader(HttpHeaders.LAST_MODIFIED).getValue();
+            if (lastModifiedStr == null) {
+                return -1;
+            }
             final Date lastModified = org.apache.hc.client5.http.utils.DateUtils.parseDate(lastModifiedStr);
             if (lastModified == null) {
                 return -1;
@@ -266,20 +268,20 @@ public final class URIsConnectApacheAsync implements IURIsConnect {
     }
 
     public Future<InputStreamHttpResponse> openConnection() {
-        return openConnection(IHttpRequest.GET, new InputStreamHttpResponseConsumerApache(), null);
+        return openConnection(GET, new InputStreamHttpResponseConsumerApache(), null);
     }
 
-    public Future<InputStreamHttpResponse> openConnection(final IHttpRequest settings) {
-        return openConnection(settings, new InputStreamHttpResponseConsumerApache(), null);
+    public Future<InputStreamHttpResponse> openConnection(final String method) {
+        return openConnection(method, new InputStreamHttpResponseConsumerApache(), null);
     }
 
-    public <T> Future<T> openConnection(final IHttpRequest settings, final AsyncResponseConsumer<T> responseConsumer) {
-        return openConnection(IHttpRequest.GET, responseConsumer, null);
+    public <T> Future<T> openConnection(final String method, final AsyncResponseConsumer<T> responseConsumer) {
+        return openConnection(method, responseConsumer, null);
     }
 
-    public <T> Future<T> openConnection(final IHttpRequest settings, final AsyncResponseConsumer<T> responseConsumer,
+    public <T> Future<T> openConnection(final String method, final AsyncResponseConsumer<T> responseConsumer,
             final FutureCallback<T> callback) {
-        final SimpleHttpRequest request = SimpleHttpRequests.create(settings.getMethod(), uri);
+        final SimpleHttpRequest request = SimpleHttpRequests.create(method, uri);
         request.setConfig(getRequestConfig());
         if (headers != null) {
             for (final Entry<String, String> header : headers.entrySet()) {
@@ -305,6 +307,10 @@ public final class URIsConnectApacheAsync implements IURIsConnect {
         } else {
             return defaultRequestConfig;
         }
+    }
+
+    public InputStreamHttpResponse getInputStream(final String method) throws IOException {
+        return getInputStream(openConnection(method), uri);
     }
 
     @Override

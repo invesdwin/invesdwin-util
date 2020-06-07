@@ -1,13 +1,20 @@
-package de.invesdwin.util.lang.uri.connect.okhttp;
+package de.invesdwin.util.lang.uri.connect.java11;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
+import java.net.InetSocketAddress;
 import java.net.Proxy;
+import java.net.ProxySelector;
 import java.net.Socket;
 import java.net.URI;
-import java.net.URL;
+import java.net.http.HttpClient;
+import java.net.http.HttpClient.Version;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.net.http.HttpResponse.BodyHandler;
+import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.charset.Charset;
 import java.util.Date;
 import java.util.HashMap;
@@ -27,62 +34,22 @@ import de.invesdwin.util.lang.uri.connect.InputStreamHttpResponse;
 import de.invesdwin.util.lang.uri.connect.InputStreamHttpResponseConsumer;
 import de.invesdwin.util.time.duration.Duration;
 import de.invesdwin.util.time.fdate.FTimeUnit;
-import okhttp3.Call;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Request.Builder;
-import okhttp3.Response;
 
 @NotThreadSafe
-public final class URIsConnectOkHttp implements IURIsConnect {
+public final class URIsConnectHttpClient implements IURIsConnect {
 
-    private static OkHttpClient httpClient;
-
-    private final URL url;
+    private final URI uri;
     private Duration networkTimeout = URIs.getDefaultNetworkTimeout();
     private Proxy proxy;
 
     private Map<String, String> headers;
 
-    public URIsConnectOkHttp(final URL url) {
-        this.url = url;
-    }
-
-    public URIsConnectOkHttp(final URI url) {
-        this.url = URIs.asUrl(url);
-    }
-
-    public static OkHttpClient getHttpClient() {
-        if (httpClient == null) {
-            synchronized (URIsConnectOkHttp.class) {
-                if (httpClient == null) {
-                    OkHttpClient.Builder builder = new OkHttpClient.Builder();
-                    builder = applyNetworkTimeout(builder, URIs.getDefaultNetworkTimeout());
-                    builder = applyProxy(builder, URIs.getSystemProxy());
-                    httpClient = builder.build();
-                }
-            }
-        }
-        return httpClient;
-    }
-
-    private static OkHttpClient.Builder applyNetworkTimeout(final OkHttpClient.Builder builder,
-            final Duration networkTimeout) {
-        return builder.connectTimeout(networkTimeout.intValue(), networkTimeout.getTimeUnit().timeUnitValue())
-                .readTimeout(networkTimeout.intValue(), networkTimeout.getTimeUnit().timeUnitValue())
-                .writeTimeout(networkTimeout.intValue(), networkTimeout.getTimeUnit().timeUnitValue());
-    }
-
-    private static OkHttpClient.Builder applyProxy(final OkHttpClient.Builder builder, final Proxy proxy) {
-        if (proxy != null) {
-            return builder.proxy(proxy);
-        } else {
-            return builder;
-        }
+    public URIsConnectHttpClient(final URI uri) {
+        this.uri = uri;
     }
 
     @Override
-    public URIsConnectOkHttp withNetworkTimeout(final Duration networkTimeout) {
+    public URIsConnectHttpClient withNetworkTimeout(final Duration networkTimeout) {
         this.networkTimeout = networkTimeout;
         return this;
     }
@@ -93,7 +60,30 @@ public final class URIsConnectOkHttp implements IURIsConnect {
     }
 
     @Override
-    public URIsConnectOkHttp withProxy(final Proxy proxy) {
+    public URI getUri() {
+        return uri;
+    }
+
+    @Override
+    public URIsConnectHttpClient withBasicAuth(final String username, final String password) {
+        final String authString = username + ":" + password;
+        final byte[] authEncBytes = Base64.encodeBase64(authString.getBytes());
+        final String authStringEnc = new String(authEncBytes);
+        withHeader("Authorization", "Basic " + authStringEnc);
+        return this;
+    }
+
+    @Override
+    public URIsConnectHttpClient withHeader(final String key, final String value) {
+        if (headers == null) {
+            headers = new HashMap<String, String>();
+        }
+        headers.put(key, value);
+        return this;
+    }
+
+    @Override
+    public URIsConnectHttpClient withProxy(final Proxy proxy) {
         this.proxy = proxy;
         return this;
     }
@@ -104,35 +94,12 @@ public final class URIsConnectOkHttp implements IURIsConnect {
     }
 
     @Override
-    public URI getUri() {
-        return URIs.asUri(url);
-    }
-
-    @Override
-    public URIsConnectOkHttp withBasicAuth(final String username, final String password) {
-        final String authString = username + ":" + password;
-        final byte[] authEncBytes = Base64.encodeBase64(authString.getBytes());
-        final String authStringEnc = new String(authEncBytes);
-        withHeader("Authorization", "Basic " + authStringEnc);
-        return this;
-    }
-
-    @Override
-    public URIsConnectOkHttp withHeader(final String key, final String value) {
-        if (headers == null) {
-            headers = new HashMap<String, String>();
-        }
-        headers.put(key, value);
-        return this;
-    }
-
-    @Override
     public boolean isServerResponding() {
         try {
             final Socket socket = new Socket();
             final int timeoutMillis = networkTimeout.intValue(FTimeUnit.MILLISECONDS);
             socket.setSoTimeout(timeoutMillis);
-            socket.connect(Addresses.asAddress(url.getHost(), url.getPort()), timeoutMillis);
+            socket.connect(Addresses.asAddress(uri.getHost(), uri.getPort()), timeoutMillis);
             socket.close();
             return true;
         } catch (final Throwable e) {
@@ -145,15 +112,15 @@ public final class URIsConnectOkHttp implements IURIsConnect {
      */
     @Override
     public boolean isDownloadPossible() {
-        if (url == null) {
+        if (uri == null) {
             return false;
         }
-        final Call con = openConnection("HEAD");
-        try (Response response = con.execute()) {
-            if (!response.isSuccessful()) {
+        try {
+            final HttpResponse<Void> response = openConnection("HEAD", BodyHandlers.discarding());
+            if (!URIs.isSuccessful(response.statusCode())) {
                 return false;
             }
-            final String contentLength = response.headers().get("content-length");
+            final String contentLength = response.headers().firstValue("content-length").orElse(null);
             if (contentLength != null) {
                 return Long.parseLong(contentLength) > 0;
             } else {
@@ -166,12 +133,16 @@ public final class URIsConnectOkHttp implements IURIsConnect {
 
     @Override
     public long lastModified() {
-        final Call con = openConnection("HEAD");
-        try (Response response = con.execute()) {
-            if (!response.isSuccessful()) {
+        try {
+            final HttpResponse<Void> response = openConnection("HEAD", BodyHandlers.discarding());
+            if (!URIs.isSuccessful(response.statusCode())) {
                 return -1;
             }
-            final Date lastModified = response.headers().getDate("last-modified");
+            final String lastModifiedStr = response.headers().firstValue("last-modified").orElse(null);
+            if (lastModifiedStr == null) {
+                return -1;
+            }
+            final Date lastModified = org.apache.hc.client5.http.utils.DateUtils.parseDate(lastModifiedStr);
             if (lastModified == null) {
                 return -1;
             } else {
@@ -210,37 +181,36 @@ public final class URIsConnectOkHttp implements IURIsConnect {
         }
     }
 
-    public Call openConnection() {
-        return openConnection(null);
-    }
-
-    public Call openConnection(final String method) {
-        final OkHttpClient client;
-        if (networkTimeout != URIs.getDefaultNetworkTimeout() || proxy != null) {
-            OkHttpClient.Builder builder = getHttpClient().newBuilder();
-            if (networkTimeout != URIs.getDefaultNetworkTimeout()) {
-                builder = applyNetworkTimeout(builder, networkTimeout);
-            }
-            if (proxy != null) {
-                builder = applyProxy(builder, proxy);
-            }
-            client = builder.build();
-        } else {
-            client = getHttpClient();
+    public <T> HttpResponse<T> openConnection(final String method, final BodyHandler<T> bodyHandler)
+            throws IOException {
+        final HttpClient.Builder clientBuilder = HttpClient.newBuilder()
+                .version(Version.HTTP_2)
+                .connectTimeout(networkTimeout.javaTimeValue());
+        if (proxy != null) {
+            final InetSocketAddress address = (InetSocketAddress) proxy.address();
+            clientBuilder.proxy(ProxySelector.of(address));
         }
-        final Builder requestBuilder = new Request.Builder().url(url);
+        final HttpClient client = clientBuilder.build();
+        final HttpRequest.Builder requestBuilder = HttpRequest.newBuilder(uri);
         requestBuilder.method(method, null);
         if (headers != null) {
             for (final Entry<String, String> header : headers.entrySet()) {
-                requestBuilder.addHeader(header.getKey(), header.getValue());
+                requestBuilder.setHeader(header.getKey(), header.getValue());
             }
         }
-        final Request request = requestBuilder.build();
-        return client.newCall(request);
+        requestBuilder.timeout(networkTimeout.javaTimeValue());
+
+        final HttpRequest request = requestBuilder.build();
+
+        try {
+            return client.send(request, bodyHandler);
+        } catch (final InterruptedException e) {
+            throw new IOException(e);
+        }
     }
 
-    public InputStreamHttpResponse getInputStream(final String method) throws IOException {
-        return getInputStream(openConnection(method));
+    public HttpResponse<InputStream> openConnection() throws IOException {
+        return openConnection(GET, BodyHandlers.ofInputStream());
     }
 
     @Override
@@ -248,29 +218,22 @@ public final class URIsConnectOkHttp implements IURIsConnect {
         return getInputStream(openConnection());
     }
 
-    @Override
-    public String toString() {
-        return url.toString();
-    }
-
-    public static InputStreamHttpResponse getInputStream(final Call call) throws IOException {
-        final Response response = call.execute();
-        // https://stackoverflow.com/questions/613307/read-error-response-body-in-java
-        if (response.isSuccessful()) {
+    public static InputStreamHttpResponse getInputStream(final HttpResponse<InputStream> response) throws IOException {
+        final int respCode = response.statusCode();
+        if (URIs.isSuccessful(respCode)) {
             final InputStreamHttpResponseConsumer consumer = new InputStreamHttpResponseConsumer();
-            consumer.start(new HttpResponseOkHttp(response));
-            consumer.data(response.body().byteStream());
+            consumer.start(new HttpResponseHttpClient(response));
+            consumer.data(response.body());
             final InputStreamHttpResponse result = consumer.buildResult();
             consumer.releaseResources();
             return result;
         } else {
-            final int respCode = response.code();
-            final String urlString = call.request().url().toString();
+            final String urlString = response.uri().toString();
             if (respCode == HttpURLConnection.HTTP_NOT_FOUND || respCode == HttpURLConnection.HTTP_GONE) {
                 throw new FileNotFoundException(urlString);
             } else {
                 if (respCode == HttpURLConnection.HTTP_INTERNAL_ERROR) {
-                    final String errorStr = response.body().string();
+                    final String errorStr = IOUtils.toString(response.body(), Charset.defaultCharset());
                     throw new IOException("Server returned HTTP" + " response code: " + respCode + " for URL: "
                             + urlString + " error response:" + "\n*****************************" + errorStr
                             + "*****************************");
@@ -280,6 +243,11 @@ public final class URIsConnectOkHttp implements IURIsConnect {
                 }
             }
         }
+    }
+
+    @Override
+    public String toString() {
+        return uri.toString();
     }
 
 }
