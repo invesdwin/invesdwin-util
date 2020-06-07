@@ -1,7 +1,9 @@
 package de.invesdwin.util.lang.uri.connect.okhttp;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.Proxy;
 import java.net.Socket;
 import java.net.URI;
@@ -35,13 +37,11 @@ import okhttp3.Response;
 @NotThreadSafe
 public final class URIsConnectOkHttp implements IURIsConnect {
 
-    private static Duration defaultNetworkTimeout = new Duration(30, FTimeUnit.SECONDS);
-    private static Proxy defaultProxy = null;
     private static OkHttpClient httpClient;
 
     private final URL url;
-    private Duration networkTimeout = defaultNetworkTimeout;
-    private Proxy proxy = defaultProxy;
+    private Duration networkTimeout = URIs.getDefaultNetworkTimeout();
+    private Proxy proxy;
 
     private Map<String, String> headers;
 
@@ -58,21 +58,13 @@ public final class URIsConnectOkHttp implements IURIsConnect {
             synchronized (URIsConnectOkHttp.class) {
                 if (httpClient == null) {
                     OkHttpClient.Builder builder = new OkHttpClient.Builder();
-                    builder = applyNetworkTimeout(builder, defaultNetworkTimeout);
-                    builder = applyProxy(builder, defaultProxy);
+                    builder = applyNetworkTimeout(builder, URIs.getDefaultNetworkTimeout());
+                    builder = applyProxy(builder, URIs.getSystemProxy());
                     httpClient = builder.build();
                 }
             }
         }
         return httpClient;
-    }
-
-    public static void setDefaultNetworkTimeout(final Duration defaultNetworkTimeout) {
-        URIsConnectOkHttp.defaultNetworkTimeout = defaultNetworkTimeout;
-        //create derived instances to share connections etc: https://github.com/square/okhttp/issues/3372
-        if (httpClient != null) {
-            httpClient = applyNetworkTimeout(httpClient.newBuilder(), defaultNetworkTimeout).build();
-        }
     }
 
     private static OkHttpClient.Builder applyNetworkTimeout(final OkHttpClient.Builder builder,
@@ -82,28 +74,12 @@ public final class URIsConnectOkHttp implements IURIsConnect {
                 .writeTimeout(networkTimeout.intValue(), networkTimeout.getTimeUnit().timeUnitValue());
     }
 
-    public static Duration getDefaultNetworkTimeout() {
-        return defaultNetworkTimeout;
-    }
-
-    public static void setDefaultProxy(final Proxy defaultProxy) {
-        URIsConnectOkHttp.defaultProxy = defaultProxy;
-        //create derived instances to share connections etc: https://github.com/square/okhttp/issues/3372
-        if (httpClient != null) {
-            httpClient = applyProxy(httpClient.newBuilder(), defaultProxy).build();
-        }
-    }
-
     private static OkHttpClient.Builder applyProxy(final OkHttpClient.Builder builder, final Proxy proxy) {
         if (proxy != null) {
             return builder.proxy(proxy);
         } else {
             return builder;
         }
-    }
-
-    public static Proxy getDefaultProxy() {
-        return defaultProxy;
     }
 
     @Override
@@ -241,12 +217,12 @@ public final class URIsConnectOkHttp implements IURIsConnect {
 
     public Call openConnection(final IHttpRequest customizer) {
         final OkHttpClient client;
-        if (networkTimeout != defaultNetworkTimeout || proxy != defaultProxy) {
+        if (networkTimeout != URIs.getDefaultNetworkTimeout() || proxy != null) {
             OkHttpClient.Builder builder = getHttpClient().newBuilder();
-            if (networkTimeout != defaultNetworkTimeout) {
+            if (networkTimeout != URIs.getDefaultNetworkTimeout()) {
                 builder = applyNetworkTimeout(builder, networkTimeout);
             }
-            if (proxy != defaultProxy) {
+            if (proxy != null) {
                 builder = applyProxy(builder, proxy);
             }
             client = builder.build();
@@ -268,12 +244,41 @@ public final class URIsConnectOkHttp implements IURIsConnect {
 
     @Override
     public InputStreamHttpResponse getInputStream() throws IOException {
-        return InputStreamHttpResponseConsumer.getInputStream(openConnection());
+        return getInputStream(openConnection());
     }
 
     @Override
     public String toString() {
         return url.toString();
+    }
+
+    public static InputStreamHttpResponse getInputStream(final Call call) throws IOException {
+        final Response response = call.execute();
+        // https://stackoverflow.com/questions/613307/read-error-response-body-in-java
+        if (response.isSuccessful()) {
+            final InputStreamHttpResponseConsumer consumer = new InputStreamHttpResponseConsumer();
+            consumer.start(new HttpResponseOkHttp(response));
+            consumer.data(response.body().byteStream());
+            final InputStreamHttpResponse result = consumer.buildResult();
+            consumer.releaseResources();
+            return result;
+        } else {
+            final int respCode = response.code();
+            final String urlString = call.request().url().toString();
+            if (respCode == HttpURLConnection.HTTP_NOT_FOUND || respCode == HttpURLConnection.HTTP_GONE) {
+                throw new FileNotFoundException(urlString);
+            } else {
+                if (respCode == HttpURLConnection.HTTP_INTERNAL_ERROR) {
+                    final String errorStr = response.body().string();
+                    throw new IOException("Server returned HTTP" + " response code: " + respCode + " for URL: "
+                            + urlString + " error response:" + "\n*****************************" + errorStr
+                            + "*****************************");
+                } else {
+                    throw new IOException(
+                            "Server returned HTTP" + " response code: " + respCode + " for URL: " + urlString);
+                }
+            }
+        }
     }
 
 }

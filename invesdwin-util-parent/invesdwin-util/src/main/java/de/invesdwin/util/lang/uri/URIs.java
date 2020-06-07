@@ -1,6 +1,8 @@
 package de.invesdwin.util.lang.uri;
 
 import java.net.MalformedURLException;
+import java.net.Proxy;
+import java.net.Proxy.Type;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -11,17 +13,30 @@ import javax.annotation.concurrent.Immutable;
 
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.EncoderException;
+import org.apache.hc.core5.http.HttpResponse;
 
 import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.lang.uri.connect.IURIsConnect;
 import de.invesdwin.util.lang.uri.connect.okhttp.URIsConnectOkHttp;
+import de.invesdwin.util.time.duration.Duration;
+import de.invesdwin.util.time.fdate.FTimeUnit;
 
 @Immutable
 public final class URIs {
 
+    private static Duration defaultNetworkTimeout = new Duration(30, FTimeUnit.SECONDS);
+
     private static final URLComponentCodec URL_CODEC = new URLComponentCodec();
 
     private URIs() {
+    }
+
+    public static void setDefaultNetworkTimeout(final Duration defaultNetworkTimeout) {
+        URIs.defaultNetworkTimeout = defaultNetworkTimeout;
+    }
+
+    public static Duration getDefaultNetworkTimeout() {
+        return defaultNetworkTimeout;
     }
 
     public static String encode(final String url) {
@@ -162,6 +177,27 @@ public final class URIs {
             return newUri;
         } catch (final MalformedURLException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    public static boolean isSuccessful(final HttpResponse response) {
+        return isSuccessful(response.getCode());
+    }
+
+    public static boolean isSuccessful(final int responseCode) {
+        return responseCode >= 200 && responseCode <= 299;
+    }
+
+    public static Proxy getSystemProxy() {
+        //CHECKSTYLE:OFF
+        final String httpProxyHost = System.getProperty("http.proxyHost");
+        final String httpProxyPortStr = System.getProperty("http.proxyPort");
+        //CHECKSTYLE:ON
+        if (Strings.isNotBlank(httpProxyHost) && Strings.isNotBlank(httpProxyPortStr)) {
+            final Integer httpProxyPort = Integer.parseInt(httpProxyPortStr);
+            return new Proxy(Type.HTTP, Addresses.asAddress(httpProxyHost, httpProxyPort));
+        } else {
+            return null;
         }
     }
 

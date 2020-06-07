@@ -1,7 +1,9 @@
 package de.invesdwin.util.lang.uri.connect.apache;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.Socket;
@@ -11,33 +13,29 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
-import org.apache.hc.client5.http.async.methods.SimpleHttpRequest;
-import org.apache.hc.client5.http.async.methods.SimpleHttpRequests;
-import org.apache.hc.client5.http.async.methods.SimpleHttpResponse;
-import org.apache.hc.client5.http.async.methods.SimpleRequestProducer;
-import org.apache.hc.client5.http.async.methods.SimpleResponseConsumer;
+import org.apache.hc.client5.http.classic.methods.ClassicHttpRequests;
+import org.apache.hc.client5.http.classic.methods.HttpUriRequestBase;
 import org.apache.hc.client5.http.config.RequestConfig;
-import org.apache.hc.client5.http.impl.async.CloseableHttpAsyncClient;
-import org.apache.hc.client5.http.impl.async.HttpAsyncClientBuilder;
-import org.apache.hc.client5.http.impl.nio.PoolingAsyncClientConnectionManagerBuilder;
-import org.apache.hc.core5.concurrent.FutureCallback;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpHost;
-import org.apache.hc.core5.http.nio.AsyncResponseConsumer;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.pool.PoolConcurrencyPolicy;
 import org.apache.hc.core5.util.TimeValue;
 
-import de.invesdwin.util.concurrent.future.Futures;
 import de.invesdwin.util.lang.Closeables;
+import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.lang.uri.Addresses;
+import de.invesdwin.util.lang.uri.URIs;
 import de.invesdwin.util.lang.uri.connect.IHttpRequest;
 import de.invesdwin.util.lang.uri.connect.IURIsConnect;
 import de.invesdwin.util.lang.uri.connect.InputStreamHttpResponse;
@@ -48,41 +46,39 @@ import de.invesdwin.util.time.duration.Duration;
 import de.invesdwin.util.time.fdate.FTimeUnit;
 
 @NotThreadSafe
-public final class URIsConnectApache implements IURIsConnect {
+public final class URIsConnectApacheSync implements IURIsConnect {
 
     private static final int MAX_CONNECTIONS = 1000;
     private static final TimeValue EVICT_IDLE_CONNECTIONS_TIMEOUT = TimeValue.of(1, TimeUnit.MINUTES);
-    private static Duration defaultNetworkTimeout = new Duration(30, FTimeUnit.SECONDS);
-    private static Proxy defaultProxy = null;
-    private static CloseableHttpAsyncClient httpClient;
+    private static CloseableHttpClient httpClient;
     private static IShutdownHook shutdownHook;
     private static RequestConfig defaultRequestConfig = RequestConfig.DEFAULT;
 
     private final URI uri;
-    private Duration networkTimeout = defaultNetworkTimeout;
+    private Duration networkTimeout = URIs.getDefaultNetworkTimeout();
     private Proxy proxy = null;
 
     private Map<String, String> headers;
 
-    public URIsConnectApache(final URI url) {
+    //package private
+    URIsConnectApacheSync(final URI url) {
         this.uri = url;
     }
 
-    public static CloseableHttpAsyncClient getHttpClient() {
+    public static CloseableHttpClient getHttpClient() {
         if (httpClient == null) {
-            synchronized (URIsConnectApache.class) {
+            synchronized (URIsConnectApacheSync.class) {
                 if (httpClient == null) {
-                    final CloseableHttpAsyncClient client = HttpAsyncClientBuilder.create()
+                    final CloseableHttpClient client = HttpClientBuilder.create()
                             .useSystemProperties() //use system proxy etc
-                            .evictExpiredConnections()
-                            .evictIdleConnections(EVICT_IDLE_CONNECTIONS_TIMEOUT)
-                            .setConnectionManager(PoolingAsyncClientConnectionManagerBuilder.create()
+                            .setConnectionManager(PoolingHttpClientConnectionManagerBuilder.create()
                                     .setMaxConnPerRoute(MAX_CONNECTIONS)
                                     .setMaxConnTotal(MAX_CONNECTIONS)
                                     .setPoolConcurrencyPolicy(PoolConcurrencyPolicy.LAX)
                                     .build())
+                            .evictExpiredConnections()
+                            .evictIdleConnections(EVICT_IDLE_CONNECTIONS_TIMEOUT)
                             .build();
-                    client.start();
                     if (shutdownHook == null) {
                         shutdownHook = new IShutdownHook() {
                             @Override
@@ -100,19 +96,12 @@ public final class URIsConnectApache implements IURIsConnect {
     }
 
     public static void resetHttpClient() {
-        synchronized (URIsConnectApache.class) {
+        synchronized (URIsConnectApacheSync.class) {
             if (httpClient != null) {
                 httpClient.close(CloseMode.GRACEFUL);
                 httpClient = null;
             }
         }
-    }
-
-    public static void setDefaultNetworkTimeout(final Duration defaultNetworkTimeout) {
-        URIsConnectApache.defaultNetworkTimeout = defaultNetworkTimeout;
-        //create derived instances to share connections etc: https://github.com/square/okhttp/issues/3372
-        defaultRequestConfig = applyNetworkTimeout(RequestConfig.copy(defaultRequestConfig), defaultNetworkTimeout)
-                .build();
     }
 
     private static RequestConfig.Builder applyNetworkTimeout(final RequestConfig.Builder config,
@@ -129,12 +118,8 @@ public final class URIsConnectApache implements IURIsConnect {
         return config.setProxy(httpHost);
     }
 
-    public static Duration getDefaultNetworkTimeout() {
-        return defaultNetworkTimeout;
-    }
-
     @Override
-    public URIsConnectApache withNetworkTimeout(final Duration networkTimeout) {
+    public URIsConnectApacheSync withNetworkTimeout(final Duration networkTimeout) {
         this.networkTimeout = networkTimeout;
         return this;
     }
@@ -145,7 +130,7 @@ public final class URIsConnectApache implements IURIsConnect {
     }
 
     @Override
-    public URIsConnectApache withProxy(final Proxy proxy) {
+    public URIsConnectApacheSync withProxy(final Proxy proxy) {
         this.proxy = proxy;
         return this;
     }
@@ -165,7 +150,7 @@ public final class URIsConnectApache implements IURIsConnect {
      * separate HttpClient where this information does not get shared!
      */
     @Override
-    public URIsConnectApache withBasicAuth(final String username, final String password) {
+    public URIsConnectApacheSync withBasicAuth(final String username, final String password) {
         final String authString = username + ":" + password;
         final byte[] authEncBytes = Base64.encodeBase64(authString.getBytes());
         final String authStringEnc = new String(authEncBytes);
@@ -174,7 +159,7 @@ public final class URIsConnectApache implements IURIsConnect {
     }
 
     @Override
-    public URIsConnectApache withHeader(final String key, final String value) {
+    public URIsConnectApacheSync withHeader(final String key, final String value) {
         if (headers == null) {
             headers = new HashMap<String, String>();
         }
@@ -204,10 +189,8 @@ public final class URIsConnectApache implements IURIsConnect {
         if (uri == null) {
             return false;
         }
-        final Future<SimpleHttpResponse> future = openConnection(IHttpRequest.HEAD, SimpleResponseConsumer.create());
-        try {
-            final SimpleHttpResponse response = Futures.get(future);
-            if (!InputStreamHttpResponseConsumer.isSuccessful(response)) {
+        try (CloseableHttpResponse response = openConnection(IHttpRequest.HEAD)) {
+            if (!URIs.isSuccessful(response)) {
                 return false;
             }
             final String contentLengthStr = response.getFirstHeader(HttpHeaders.CONTENT_LENGTH).getValue();
@@ -224,10 +207,8 @@ public final class URIsConnectApache implements IURIsConnect {
 
     @Override
     public long lastModified() {
-        final Future<SimpleHttpResponse> future = openConnection(IHttpRequest.HEAD, SimpleResponseConsumer.create());
-        try {
-            final SimpleHttpResponse response = Futures.get(future);
-            if (!InputStreamHttpResponseConsumer.isSuccessful(response)) {
+        try (CloseableHttpResponse response = openConnection(IHttpRequest.HEAD)) {
+            if (!URIs.isSuccessful(response)) {
                 return -1;
             }
             final String lastModifiedStr = response.getFirstHeader(HttpHeaders.LAST_MODIFIED).getValue();
@@ -270,21 +251,12 @@ public final class URIsConnectApache implements IURIsConnect {
         }
     }
 
-    public Future<InputStreamHttpResponse> openConnection() {
-        return openConnection(IHttpRequest.GET, new InputStreamHttpResponseConsumer(), null);
+    public CloseableHttpResponse openConnection() throws IOException {
+        return openConnection(IHttpRequest.GET);
     }
 
-    public Future<InputStreamHttpResponse> openConnection(final IHttpRequest settings) {
-        return openConnection(settings, new InputStreamHttpResponseConsumer(), null);
-    }
-
-    public <T> Future<T> openConnection(final IHttpRequest settings, final AsyncResponseConsumer<T> responseConsumer) {
-        return openConnection(IHttpRequest.GET, responseConsumer, null);
-    }
-
-    public <T> Future<T> openConnection(final IHttpRequest settings, final AsyncResponseConsumer<T> responseConsumer,
-            final FutureCallback<T> callback) {
-        final SimpleHttpRequest request = SimpleHttpRequests.create(settings.getMethod(), uri);
+    public CloseableHttpResponse openConnection(final IHttpRequest settings) throws IOException {
+        final HttpUriRequestBase request = (HttpUriRequestBase) ClassicHttpRequests.create(settings.getMethod(), uri);
         request.setConfig(getRequestConfig());
         if (headers != null) {
             for (final Entry<String, String> header : headers.entrySet()) {
@@ -292,18 +264,17 @@ public final class URIsConnectApache implements IURIsConnect {
             }
         }
 
-        final SimpleRequestProducer requestProducer = SimpleRequestProducer.create(request);
-        final Future<T> response = getHttpClient().execute(requestProducer, responseConsumer, callback);
+        final CloseableHttpResponse response = getHttpClient().execute(request);
         return response;
     }
 
     private RequestConfig getRequestConfig() {
-        if (networkTimeout != defaultNetworkTimeout || proxy != defaultProxy) {
+        if (networkTimeout != URIs.getDefaultNetworkTimeout() || proxy != null) {
             RequestConfig.Builder builder = RequestConfig.copy(defaultRequestConfig);
-            if (networkTimeout != defaultNetworkTimeout) {
+            if (networkTimeout != URIs.getDefaultNetworkTimeout()) {
                 builder = applyNetworkTimeout(builder, networkTimeout);
             }
-            if (proxy != defaultProxy) {
+            if (proxy != null) {
                 builder = applyProxy(builder, proxy);
             }
             return builder.build();
@@ -312,14 +283,51 @@ public final class URIsConnectApache implements IURIsConnect {
         }
     }
 
+    public InputStreamHttpResponse getInputStream(final IHttpRequest settings) throws IOException {
+        return getInputStream(openConnection(settings), uri);
+    }
+
     @Override
     public InputStreamHttpResponse getInputStream() throws IOException {
-        return InputStreamHttpResponseConsumer.getInputStream(openConnection(), uri);
+        return getInputStream(openConnection(), uri);
     }
 
     @Override
     public String toString() {
         return uri.toString();
+    }
+
+    public static InputStreamHttpResponse getInputStream(final CloseableHttpResponse response, final URI uri)
+            throws IOException {
+        try {
+            // https://stackoverflow.com/questions/613307/read-error-response-body-in-java
+            final int responseCode = response.getCode();
+            if (URIs.isSuccessful(responseCode)) {
+                final InputStreamHttpResponseConsumer consumer = new InputStreamHttpResponseConsumer();
+                consumer.start(new HttpResponseApache(response));
+                consumer.data(response.getEntity().getContent());
+                final InputStreamHttpResponse result = consumer.buildResult();
+                consumer.releaseResources();
+                return result;
+            } else {
+                if (responseCode == HttpURLConnection.HTTP_NOT_FOUND || responseCode == HttpURLConnection.HTTP_GONE) {
+                    throw new FileNotFoundException(uri.toString());
+                } else {
+                    if (responseCode == HttpURLConnection.HTTP_INTERNAL_ERROR) {
+                        final String errorStr = IOUtils.toString(response.getEntity().getContent(),
+                                Charset.defaultCharset());
+                        throw new IOException("Server returned HTTP response code [" + responseCode + "] for URL ["
+                                + uri.toString() + "] with error:\n*****************************\n"
+                                + Strings.putSuffix(errorStr, "\n") + "*****************************");
+                    } else {
+                        throw new IOException("Server returned HTTP response code [" + responseCode + "] for URL ["
+                                + uri.toString() + "]");
+                    }
+                }
+            }
+        } finally {
+            response.close();
+        }
     }
 
 }
