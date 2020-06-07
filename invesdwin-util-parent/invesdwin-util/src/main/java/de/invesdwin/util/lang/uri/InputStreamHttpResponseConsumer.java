@@ -14,7 +14,6 @@ import javax.annotation.concurrent.NotThreadSafe;
 import org.apache.commons.io.IOUtils;
 import org.apache.hc.client5.http.async.methods.AbstractBinResponseConsumer;
 import org.apache.hc.core5.http.ContentType;
-import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpResponse;
 
 import com.fasterxml.jackson.core.util.ByteArrayBuilder;
@@ -28,6 +27,8 @@ import de.invesdwin.util.streams.DeletingFileInputStream;
 
 @NotThreadSafe
 public class InputStreamHttpResponseConsumer extends AbstractBinResponseConsumer<InputStreamHttpResponse> {
+
+    private static final int DEFAULT_BUFFER_SIZE = 1024 * 4;
 
     private static File defaultTempDir;
     private static Path defaultTempDirPath;
@@ -58,7 +59,8 @@ public class InputStreamHttpResponseConsumer extends AbstractBinResponseConsumer
      * Use this method to change the default threshold of 512KB.
      */
     public static void setDefaultMaxSizeInMemory(final ByteSize defaultMaxSizeInMemory) {
-        InputStreamHttpResponseConsumer.defaultMaxSizeInMemory = (int) defaultMaxSizeInMemory.getValue(ByteSizeScale.BYTES);
+        InputStreamHttpResponseConsumer.defaultMaxSizeInMemory = (int) defaultMaxSizeInMemory
+                .getValue(ByteSizeScale.BYTES);
     }
 
     /**
@@ -106,7 +108,7 @@ public class InputStreamHttpResponseConsumer extends AbstractBinResponseConsumer
     }
 
     @Override
-    protected void start(final HttpResponse response, final ContentType contentType) throws HttpException, IOException {
+    protected void start(final HttpResponse response, final ContentType contentType) {
         this.response = response;
         this.byteArrayOut = new ByteArrayBuilder();
     }
@@ -120,7 +122,8 @@ public class InputStreamHttpResponseConsumer extends AbstractBinResponseConsumer
         if (byteArrayOut != null) {
             return new ByteArrayInputStream(byteArrayOut.toByteArray());
         } else {
-            return new ADelegateInputStream(new TextDescription(InputStreamHttpResponseConsumer.class.getSimpleName())) {
+            return new ADelegateInputStream(
+                    new TextDescription(InputStreamHttpResponseConsumer.class.getSimpleName())) {
                 @Override
                 protected InputStream newDelegate() {
                     try {
@@ -167,6 +170,38 @@ public class InputStreamHttpResponseConsumer extends AbstractBinResponseConsumer
                 fileOut.close();
                 fileOut = null;
             }
+        }
+    }
+
+    public void consume(final InputStream src) throws FileNotFoundException, IOException {
+        final byte[] buffer = new byte[DEFAULT_BUFFER_SIZE];
+        if (byteArrayOut != null) {
+            if (defaultTempDir != null) {
+                int n;
+                while (IOUtils.EOF != (n = src.read(buffer))) {
+                    byteArrayOut.write(buffer, 0, n);
+                    if (byteArrayOut.size() > maxSizeInMemory) {
+                        Files.forceMkdir(tempDir);
+                        file = newTempFile();
+                        fileOut = new FileOutputStream(file);
+                        IOUtils.write(byteArrayOut.toByteArray(), fileOut);
+                        byteArrayOut = null;
+                        break;
+                    }
+                }
+            } else {
+                while (src.available() > 0) {
+                    byteArrayOut.write(src.read());
+                }
+            }
+        }
+        if (fileOut != null) {
+            int n;
+            while (IOUtils.EOF != (n = src.read(buffer))) {
+                fileOut.write(buffer, 0, n);
+            }
+            fileOut.close();
+            fileOut = null;
         }
     }
 
