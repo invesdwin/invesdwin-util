@@ -21,6 +21,7 @@ import com.fasterxml.jackson.core.util.ByteArrayBuilder;
 
 import de.invesdwin.util.lang.Files;
 import de.invesdwin.util.lang.description.TextDescription;
+import de.invesdwin.util.math.decimal.scaled.ByteSize;
 import de.invesdwin.util.math.decimal.scaled.ByteSizeScale;
 import de.invesdwin.util.streams.ADelegateInputStream;
 import de.invesdwin.util.streams.DeletingFileInputStream;
@@ -28,12 +29,13 @@ import de.invesdwin.util.streams.DeletingFileInputStream;
 @NotThreadSafe
 public class InputStreamResponseConsumer extends AbstractBinResponseConsumer<HttpInputStream> {
 
-    private static final int MAX_SIZE_IN_MEMORY = (int) ByteSizeScale.BYTES.convert(512, ByteSizeScale.KILOBYTES);
     private static File defaultTempDir;
     private static Path defaultTempDirPath;
+    private static int defaultMaxSizeInMemory = (int) ByteSizeScale.BYTES.convert(512, ByteSizeScale.KILOBYTES);
 
     private File tempDir = defaultTempDir;
     private Path tempDirPath = defaultTempDirPath;
+    private int maxSizeInMemory = defaultMaxSizeInMemory;
 
     private HttpResponse response;
     private ByteArrayBuilder byteArrayOut;
@@ -52,10 +54,40 @@ public class InputStreamResponseConsumer extends AbstractBinResponseConsumer<Htt
         defaultTempDirPath = defaultTempDir.toPath();
     }
 
+    /**
+     * Use this method to change the default threshold of 512KB.
+     */
+    public static void setDefaultMaxSizeInMemory(final ByteSize defaultMaxSizeInMemory) {
+        InputStreamResponseConsumer.defaultMaxSizeInMemory = (int) defaultMaxSizeInMemory.getValue(ByteSizeScale.BYTES);
+    }
+
+    /**
+     * Use this method to override the write cache directory. Null disables the write cache for this call.
+     */
     public InputStreamResponseConsumer withTempDir(final File tempDir) {
         this.tempDir = tempDir;
-        this.tempDirPath = tempDir.toPath();
+        if (tempDir == null) {
+            this.tempDirPath = null;
+        } else {
+            this.tempDirPath = tempDir.toPath();
+        }
         return this;
+    }
+
+    public File getTempDir() {
+        return tempDir;
+    }
+
+    /**
+     * Use this method to override the default size limit for using the write cache.
+     */
+    public InputStreamResponseConsumer withMaxSizeInMemory(final ByteSize maxSizeInMemory) {
+        this.maxSizeInMemory = (int) maxSizeInMemory.getValue(ByteSizeScale.BYTES);
+        return this;
+    }
+
+    public int getMaxSizeInMemory() {
+        return maxSizeInMemory;
     }
 
     @Override
@@ -112,7 +144,7 @@ public class InputStreamResponseConsumer extends AbstractBinResponseConsumer<Htt
             if (defaultTempDir != null) {
                 while (src.hasRemaining()) {
                     byteArrayOut.write(src.get());
-                    if (byteArrayOut.size() > MAX_SIZE_IN_MEMORY) {
+                    if (byteArrayOut.size() > maxSizeInMemory) {
                         Files.forceMkdir(tempDir);
                         file = newTempFile();
                         fileOut = new FileOutputStream(file);

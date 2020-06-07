@@ -248,6 +248,10 @@ public final class URIsConnect {
         return openConnection(IRequestSettings.GET, new InputStreamResponseConsumer(), null);
     }
 
+    public Future<HttpInputStream> openConnection(final IRequestSettings settings) {
+        return openConnection(settings, new InputStreamResponseConsumer(), null);
+    }
+
     public <T> Future<T> openConnection(final IRequestSettings settings,
             final AsyncResponseConsumer<T> responseConsumer) {
         return openConnection(IRequestSettings.GET, responseConsumer, null);
