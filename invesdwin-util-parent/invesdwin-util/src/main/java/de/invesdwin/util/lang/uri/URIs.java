@@ -13,11 +13,10 @@ import javax.annotation.concurrent.Immutable;
 
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.EncoderException;
-import org.apache.hc.core5.http.HttpResponse;
 
 import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.lang.uri.connect.IURIsConnect;
-import de.invesdwin.util.lang.uri.connect.okhttp.URIsConnectOkHttp;
+import de.invesdwin.util.lang.uri.connect.IURIsConnectFactory;
 import de.invesdwin.util.time.duration.Duration;
 import de.invesdwin.util.time.fdate.FTimeUnit;
 
@@ -27,6 +26,7 @@ public final class URIs {
     private static Duration defaultNetworkTimeout = new Duration(30, FTimeUnit.SECONDS);
 
     private static final URLComponentCodec URL_CODEC = new URLComponentCodec();
+    private static IURIsConnectFactory defaultUrisConnectFactory = IURIsConnectFactory.OK_HTTP;
 
     private URIs() {
     }
@@ -37,6 +37,14 @@ public final class URIs {
 
     public static Duration getDefaultNetworkTimeout() {
         return defaultNetworkTimeout;
+    }
+
+    public static void setDefaultUrisConnectFactory(final IURIsConnectFactory urisConnectFactory) {
+        URIs.defaultUrisConnectFactory = urisConnectFactory;
+    }
+
+    public static IURIsConnectFactory getDefaultUrisConnectFactory() {
+        return defaultUrisConnectFactory;
     }
 
     public static String encode(final String url) {
@@ -150,7 +158,7 @@ public final class URIs {
     }
 
     public static IURIsConnect connect(final URI uri) {
-        return new URIsConnectOkHttp(uri);
+        return defaultUrisConnectFactory.connect(uri);
     }
 
     public static IURIsConnect connect(final URL url) {
@@ -178,10 +186,6 @@ public final class URIs {
         } catch (final MalformedURLException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    public static boolean isSuccessful(final HttpResponse response) {
-        return isSuccessful(response.getCode());
     }
 
     public static boolean isSuccessful(final int responseCode) {

@@ -58,8 +58,7 @@ public final class URIsConnectApacheSync implements IURIsConnect {
 
     private Map<String, String> headers;
 
-    //package private
-    URIsConnectApacheSync(final URI url) {
+    public URIsConnectApacheSync(final URI url) {
         this.uri = url;
     }
 
@@ -188,7 +187,7 @@ public final class URIsConnectApacheSync implements IURIsConnect {
             return false;
         }
         try (CloseableHttpResponse response = openConnection(HEAD)) {
-            if (!URIs.isSuccessful(response)) {
+            if (!URIs.isSuccessful(response.getCode())) {
                 return false;
             }
             final String contentLengthStr = response.getFirstHeader(HttpHeaders.CONTENT_LENGTH).getValue();
@@ -206,7 +205,7 @@ public final class URIsConnectApacheSync implements IURIsConnect {
     @Override
     public long lastModified() {
         try (CloseableHttpResponse response = openConnection(HEAD)) {
-            if (!URIs.isSuccessful(response)) {
+            if (!URIs.isSuccessful(response.getCode())) {
                 return -1;
             }
             final String lastModifiedStr = response.getFirstHeader(HttpHeaders.LAST_MODIFIED).getValue();

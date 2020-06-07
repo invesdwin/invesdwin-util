@@ -201,7 +201,7 @@ public final class URIsConnectApacheAsync implements IURIsConnect {
         final Future<SimpleHttpResponse> future = openConnection(HEAD, SimpleResponseConsumer.create());
         try {
             final SimpleHttpResponse response = Futures.get(future);
-            if (!URIs.isSuccessful(response)) {
+            if (!URIs.isSuccessful(response.getCode())) {
                 return false;
             }
             final String contentLengthStr = response.getFirstHeader(HttpHeaders.CONTENT_LENGTH).getValue();
@@ -221,7 +221,7 @@ public final class URIsConnectApacheAsync implements IURIsConnect {
         final Future<SimpleHttpResponse> future = openConnection(HEAD, SimpleResponseConsumer.create());
         try {
             final SimpleHttpResponse response = Futures.get(future);
-            if (!URIs.isSuccessful(response)) {
+            if (!URIs.isSuccessful(response.getCode())) {
                 return -1;
             }
             final String lastModifiedStr = response.getFirstHeader(HttpHeaders.LAST_MODIFIED).getValue();
