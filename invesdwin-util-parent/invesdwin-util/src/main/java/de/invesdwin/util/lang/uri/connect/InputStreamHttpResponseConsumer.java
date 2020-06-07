@@ -1,4 +1,4 @@
-package de.invesdwin.util.lang.uri;
+package de.invesdwin.util.lang.uri.connect;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -27,10 +27,14 @@ import de.invesdwin.util.concurrent.future.Futures;
 import de.invesdwin.util.lang.Files;
 import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.lang.description.TextDescription;
+import de.invesdwin.util.lang.uri.connect.apache.HttpResponseApache;
+import de.invesdwin.util.lang.uri.connect.okhttp.HttpResponseOkHttp;
 import de.invesdwin.util.math.decimal.scaled.ByteSize;
 import de.invesdwin.util.math.decimal.scaled.ByteSizeScale;
 import de.invesdwin.util.streams.ADelegateInputStream;
 import de.invesdwin.util.streams.DeletingFileInputStream;
+import okhttp3.Call;
+import okhttp3.Response;
 
 @NotThreadSafe
 public class InputStreamHttpResponseConsumer extends AbstractBinResponseConsumer<InputStreamHttpResponse> {
@@ -45,7 +49,7 @@ public class InputStreamHttpResponseConsumer extends AbstractBinResponseConsumer
     private Path tempDirPath = defaultTempDirPath;
     private int maxSizeInMemory = defaultMaxSizeInMemory;
 
-    private HttpResponse response;
+    private IHttpResponse response;
     private ByteArrayBuilder byteArrayOut;
     private FileOutputStream fileOut;
     private File file;
@@ -116,6 +120,10 @@ public class InputStreamHttpResponseConsumer extends AbstractBinResponseConsumer
 
     @Override
     protected void start(final HttpResponse response, final ContentType contentType) {
+        start(new HttpResponseApache(response));
+    }
+
+    public void start(final IHttpResponse response) {
         this.response = response;
         this.byteArrayOut = new ByteArrayBuilder();
     }
@@ -273,7 +281,7 @@ public class InputStreamHttpResponseConsumer extends AbstractBinResponseConsumer
                 consumer.consume(response.getEntity().getContent());
                 final InputStreamHttpResponse result = consumer.buildResult();
                 consumer.releaseResources();
-                return new InputStreamHttpResponse(response, result);
+                return result;
             } else {
                 if (responseCode == HttpURLConnection.HTTP_NOT_FOUND || responseCode == HttpURLConnection.HTTP_GONE) {
                     throw new FileNotFoundException(uri.toString());
@@ -292,6 +300,35 @@ public class InputStreamHttpResponseConsumer extends AbstractBinResponseConsumer
             }
         } finally {
             response.close();
+        }
+    }
+
+    public static InputStreamHttpResponse getInputStream(final Call call) throws IOException {
+        final Response response = call.execute();
+        // https://stackoverflow.com/questions/613307/read-error-response-body-in-java
+        if (response.isSuccessful()) {
+            final InputStreamHttpResponseConsumer consumer = new InputStreamHttpResponseConsumer();
+            consumer.start(new HttpResponseOkHttp(response));
+            consumer.consume(response.body().byteStream());
+            final InputStreamHttpResponse result = consumer.buildResult();
+            consumer.releaseResources();
+            return result;
+        } else {
+            final int respCode = response.code();
+            final String urlString = call.request().url().toString();
+            if (respCode == HttpURLConnection.HTTP_NOT_FOUND || respCode == HttpURLConnection.HTTP_GONE) {
+                throw new FileNotFoundException(urlString);
+            } else {
+                if (respCode == HttpURLConnection.HTTP_INTERNAL_ERROR) {
+                    final String errorStr = response.body().string();
+                    throw new IOException("Server returned HTTP" + " response code: " + respCode + " for URL: "
+                            + urlString + " error response:" + "\n*****************************" + errorStr
+                            + "*****************************");
+                } else {
+                    throw new IOException(
+                            "Server returned HTTP" + " response code: " + respCode + " for URL: " + urlString);
+                }
+            }
         }
     }
 

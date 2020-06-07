@@ -1,4 +1,4 @@
-package de.invesdwin.util.lang.uri;
+package de.invesdwin.util.lang.uri.connect.apache;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -38,13 +38,18 @@ import org.apache.hc.core5.util.TimeValue;
 
 import de.invesdwin.util.concurrent.future.Futures;
 import de.invesdwin.util.lang.Closeables;
+import de.invesdwin.util.lang.uri.Addresses;
+import de.invesdwin.util.lang.uri.connect.IHttpRequest;
+import de.invesdwin.util.lang.uri.connect.IURIsConnect;
+import de.invesdwin.util.lang.uri.connect.InputStreamHttpResponse;
+import de.invesdwin.util.lang.uri.connect.InputStreamHttpResponseConsumer;
 import de.invesdwin.util.shutdown.IShutdownHook;
 import de.invesdwin.util.shutdown.ShutdownHookManager;
 import de.invesdwin.util.time.duration.Duration;
 import de.invesdwin.util.time.fdate.FTimeUnit;
 
 @NotThreadSafe
-public final class URIsConnect {
+public final class URIsConnectApache implements IURIsConnect {
 
     private static final int MAX_CONNECTIONS = 1000;
     private static final TimeValue EVICT_IDLE_CONNECTIONS_TIMEOUT = TimeValue.of(1, TimeUnit.MINUTES);
@@ -61,13 +66,13 @@ public final class URIsConnect {
     private Map<String, String> headers;
 
     //package private
-    URIsConnect(final URI url) {
+    URIsConnectApache(final URI url) {
         this.uri = url;
     }
 
     public static CloseableHttpAsyncClient getHttpClient() {
         if (httpClient == null) {
-            synchronized (URIsConnect.class) {
+            synchronized (URIsConnectApache.class) {
                 if (httpClient == null) {
                     final CloseableHttpAsyncClient client = HttpAsyncClientBuilder.create()
                             .useSystemProperties() //use system proxy etc
@@ -98,7 +103,7 @@ public final class URIsConnect {
     }
 
     public static void resetHttpClient() {
-        synchronized (URIsConnect.class) {
+        synchronized (URIsConnectApache.class) {
             if (httpClient != null) {
                 httpClient.close(CloseMode.GRACEFUL);
                 httpClient = null;
@@ -107,7 +112,7 @@ public final class URIsConnect {
     }
 
     public static void setDefaultNetworkTimeout(final Duration defaultNetworkTimeout) {
-        URIsConnect.defaultNetworkTimeout = defaultNetworkTimeout;
+        URIsConnectApache.defaultNetworkTimeout = defaultNetworkTimeout;
         //create derived instances to share connections etc: https://github.com/square/okhttp/issues/3372
         defaultRequestConfig = applyNetworkTimeout(RequestConfig.copy(defaultRequestConfig), defaultNetworkTimeout)
                 .build();
@@ -131,23 +136,29 @@ public final class URIsConnect {
         return defaultNetworkTimeout;
     }
 
-    public URIsConnect withNetworkTimeout(final Duration networkTimeout) {
+    @Override
+    public URIsConnectApache withNetworkTimeout(final Duration networkTimeout) {
         this.networkTimeout = networkTimeout;
         return this;
     }
 
+    @Override
     public Duration getNetworkTimeout() {
         return networkTimeout;
     }
 
-    public void withProxy(final Proxy proxy) {
+    @Override
+    public URIsConnectApache withProxy(final Proxy proxy) {
         this.proxy = proxy;
+        return this;
     }
 
+    @Override
     public Proxy getProxy() {
         return proxy;
     }
 
+    @Override
     public URI getUri() {
         return uri;
     }
@@ -156,21 +167,25 @@ public final class URIsConnect {
      * WARNING: connection pooling will share authentication between requests. If this is not desired, then use a
      * separate HttpClient where this information does not get shared!
      */
-    public URIsConnect withBasicAuth(final String username, final String password) {
+    @Override
+    public URIsConnectApache withBasicAuth(final String username, final String password) {
         final String authString = username + ":" + password;
         final byte[] authEncBytes = Base64.encodeBase64(authString.getBytes());
         final String authStringEnc = new String(authEncBytes);
-        putHeader(HttpHeaders.AUTHORIZATION, "Basic " + authStringEnc);
+        withHeader(HttpHeaders.AUTHORIZATION, "Basic " + authStringEnc);
         return this;
     }
 
-    private void putHeader(final String key, final String value) {
+    @Override
+    public URIsConnectApache withHeader(final String key, final String value) {
         if (headers == null) {
             headers = new HashMap<String, String>();
         }
         headers.put(key, value);
+        return this;
     }
 
+    @Override
     public boolean isServerResponding() {
         try {
             final Socket socket = new Socket();
@@ -187,11 +202,12 @@ public final class URIsConnect {
     /**
      * Tries to open a connection to the specified url and checks if the content is available there.
      */
+    @Override
     public boolean isDownloadPossible() {
         if (uri == null) {
             return false;
         }
-        final Future<SimpleHttpResponse> future = openConnection(IHttpRequestSettings.HEAD,
+        final Future<SimpleHttpResponse> future = openConnection(IHttpRequest.HEAD,
                 SimpleResponseConsumer.create());
         try {
             final SimpleHttpResponse response = Futures.get(future);
@@ -210,8 +226,9 @@ public final class URIsConnect {
         }
     }
 
+    @Override
     public long lastModified() {
-        final Future<SimpleHttpResponse> future = openConnection(IHttpRequestSettings.HEAD,
+        final Future<SimpleHttpResponse> future = openConnection(IHttpRequest.HEAD,
                 SimpleResponseConsumer.create());
         try {
             final SimpleHttpResponse response = Futures.get(future);
@@ -230,6 +247,7 @@ public final class URIsConnect {
         }
     }
 
+    @Override
     public String download() {
         InputStream in = null;
         try {
@@ -242,6 +260,7 @@ public final class URIsConnect {
         }
     }
 
+    @Override
     public String downloadThrowing() throws IOException {
         InputStream in = null;
         try {
@@ -257,19 +276,19 @@ public final class URIsConnect {
     }
 
     public Future<InputStreamHttpResponse> openConnection() {
-        return openConnection(IHttpRequestSettings.GET, new InputStreamHttpResponseConsumer(), null);
+        return openConnection(IHttpRequest.GET, new InputStreamHttpResponseConsumer(), null);
     }
 
-    public Future<InputStreamHttpResponse> openConnection(final IHttpRequestSettings settings) {
+    public Future<InputStreamHttpResponse> openConnection(final IHttpRequest settings) {
         return openConnection(settings, new InputStreamHttpResponseConsumer(), null);
     }
 
-    public <T> Future<T> openConnection(final IHttpRequestSettings settings,
+    public <T> Future<T> openConnection(final IHttpRequest settings,
             final AsyncResponseConsumer<T> responseConsumer) {
-        return openConnection(IHttpRequestSettings.GET, responseConsumer, null);
+        return openConnection(IHttpRequest.GET, responseConsumer, null);
     }
 
-    public <T> Future<T> openConnection(final IHttpRequestSettings settings,
+    public <T> Future<T> openConnection(final IHttpRequest settings,
             final AsyncResponseConsumer<T> responseConsumer, final FutureCallback<T> callback) {
         final SimpleHttpRequest request = SimpleHttpRequests.create(settings.getMethod(), uri);
         request.setConfig(getRequestConfig());
@@ -299,6 +318,7 @@ public final class URIsConnect {
         }
     }
 
+    @Override
     public InputStreamHttpResponse getInputStream() throws IOException {
         return InputStreamHttpResponseConsumer.getInputStream(openConnection(), uri);
     }

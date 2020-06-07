@@ -13,6 +13,8 @@ import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.EncoderException;
 
 import de.invesdwin.util.lang.Strings;
+import de.invesdwin.util.lang.uri.connect.IURIsConnect;
+import de.invesdwin.util.lang.uri.connect.okhttp.URIsConnectOkHttp;
 
 @Immutable
 public final class URIs {
@@ -128,15 +130,15 @@ public final class URIs {
         return map;
     }
 
-    public static URIsConnect connect(final String uri) {
+    public static IURIsConnect connect(final String uri) {
         return connect(asUri(uri));
     }
 
-    public static URIsConnect connect(final URI uri) {
-        return new URIsConnect(uri);
+    public static IURIsConnect connect(final URI uri) {
+        return new URIsConnectOkHttp(uri);
     }
 
-    public static URIsConnect connect(final URL url) {
+    public static IURIsConnect connect(final URL url) {
         return connect(asUri(url));
     }
 

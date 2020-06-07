@@ -1,11 +1,13 @@
-package de.invesdwin.util.lang.uri;
+package de.invesdwin.util.lang.uri.connect;
 
 import org.apache.hc.client5.http.async.methods.SimpleHttpRequest;
 import org.apache.hc.core5.http.Method;
 
-public interface IHttpRequestSettings {
+import okhttp3.Request;
 
-    IHttpRequestSettings GET = new IHttpRequestSettings() {
+public interface IHttpRequest {
+
+    IHttpRequest GET = new IHttpRequest() {
 
         @Override
         public Method getMethod() {
@@ -17,8 +19,13 @@ public interface IHttpRequestSettings {
             return request;
         }
 
+        @Override
+        public Request.Builder customize(final Request.Builder request) {
+            return request.get();
+        }
+
     };
-    IHttpRequestSettings HEAD = new IHttpRequestSettings() {
+    IHttpRequest HEAD = new IHttpRequest() {
 
         @Override
         public Method getMethod() {
@@ -30,10 +37,17 @@ public interface IHttpRequestSettings {
             return request;
         }
 
+        @Override
+        public Request.Builder customize(final Request.Builder request) {
+            return request.head();
+        }
+
     };
 
     Method getMethod();
 
     SimpleHttpRequest customize(SimpleHttpRequest request);
+
+    Request.Builder customize(Request.Builder request);
 
 }
