@@ -31,11 +31,12 @@ import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.nio.AsyncResponseConsumer;
-import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.pool.PoolConcurrencyPolicy;
+import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.util.TimeValue;
 
+import de.invesdwin.util.concurrent.Executors;
 import de.invesdwin.util.concurrent.future.Futures;
 import de.invesdwin.util.lang.Closeables;
 import de.invesdwin.util.lang.uri.Addresses;
@@ -65,8 +66,7 @@ public final class URIsConnectApache implements IURIsConnect {
 
     private Map<String, String> headers;
 
-    //package private
-    URIsConnectApache(final URI url) {
+    public URIsConnectApache(final URI url) {
         this.uri = url;
     }
 
@@ -83,7 +83,9 @@ public final class URIsConnectApache implements IURIsConnect {
                                     .setMaxConnTotal(MAX_CONNECTIONS)
                                     .setPoolConcurrencyPolicy(PoolConcurrencyPolicy.LAX)
                                     .build())
-                            .setVersionPolicy(HttpVersionPolicy.FORCE_HTTP_2)
+                            .setIOReactorConfig(IOReactorConfig.custom()
+                                    .setIoThreadCount(Executors.getCpuThreadPoolCount() * 2)
+                                    .build())
                             .build();
                     client.start();
                     if (shutdownHook == null) {
@@ -207,8 +209,7 @@ public final class URIsConnectApache implements IURIsConnect {
         if (uri == null) {
             return false;
         }
-        final Future<SimpleHttpResponse> future = openConnection(IHttpRequest.HEAD,
-                SimpleResponseConsumer.create());
+        final Future<SimpleHttpResponse> future = openConnection(IHttpRequest.HEAD, SimpleResponseConsumer.create());
         try {
             final SimpleHttpResponse response = Futures.get(future);
             if (!InputStreamHttpResponseConsumer.isSuccessful(response)) {
@@ -228,8 +229,7 @@ public final class URIsConnectApache implements IURIsConnect {
 
     @Override
     public long lastModified() {
-        final Future<SimpleHttpResponse> future = openConnection(IHttpRequest.HEAD,
-                SimpleResponseConsumer.create());
+        final Future<SimpleHttpResponse> future = openConnection(IHttpRequest.HEAD, SimpleResponseConsumer.create());
         try {
             final SimpleHttpResponse response = Futures.get(future);
             if (!InputStreamHttpResponseConsumer.isSuccessful(response)) {
@@ -283,13 +283,12 @@ public final class URIsConnectApache implements IURIsConnect {
         return openConnection(settings, new InputStreamHttpResponseConsumer(), null);
     }
 
-    public <T> Future<T> openConnection(final IHttpRequest settings,
-            final AsyncResponseConsumer<T> responseConsumer) {
+    public <T> Future<T> openConnection(final IHttpRequest settings, final AsyncResponseConsumer<T> responseConsumer) {
         return openConnection(IHttpRequest.GET, responseConsumer, null);
     }
 
-    public <T> Future<T> openConnection(final IHttpRequest settings,
-            final AsyncResponseConsumer<T> responseConsumer, final FutureCallback<T> callback) {
+    public <T> Future<T> openConnection(final IHttpRequest settings, final AsyncResponseConsumer<T> responseConsumer,
+            final FutureCallback<T> callback) {
         final SimpleHttpRequest request = SimpleHttpRequests.create(settings.getMethod(), uri);
         request.setConfig(getRequestConfig());
         if (headers != null) {
