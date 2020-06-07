@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
@@ -27,16 +28,22 @@ import org.apache.hc.client5.http.async.methods.SimpleResponseConsumer;
 import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.impl.async.CloseableHttpAsyncClient;
 import org.apache.hc.client5.http.impl.async.HttpAsyncClientBuilder;
+import org.apache.hc.client5.http.impl.nio.PoolingAsyncClientConnectionManagerBuilder;
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.nio.AsyncResponseConsumer;
 import org.apache.hc.core5.io.CloseMode;
+import org.apache.hc.core5.pool.PoolConcurrencyPolicy;
+import org.apache.hc.core5.reactor.IOReactorConfig;
+import org.apache.hc.core5.util.TimeValue;
 
+import de.invesdwin.util.concurrent.Executors;
 import de.invesdwin.util.concurrent.future.Futures;
 import de.invesdwin.util.lang.Closeables;
 import de.invesdwin.util.lang.Strings;
+import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.shutdown.IShutdownHook;
 import de.invesdwin.util.shutdown.ShutdownHookManager;
 import de.invesdwin.util.time.duration.Duration;
@@ -45,6 +52,9 @@ import de.invesdwin.util.time.fdate.FTimeUnit;
 @NotThreadSafe
 public final class URIsConnect {
 
+    public static final int IO_THREAD_COUNT = Integers.max(20, Executors.getCpuThreadPoolCount() * 2);
+    private static final int MAX_CONNECTIONS = 1000;
+    private static final TimeValue EVICT_IDLE_CONNECTIONS_TIMEOUT = TimeValue.of(1, TimeUnit.MINUTES);
     private static Duration defaultNetworkTimeout = new Duration(30, FTimeUnit.SECONDS);
     private static Proxy defaultProxy = null;
     private static CloseableHttpAsyncClient httpClient;
@@ -68,6 +78,14 @@ public final class URIsConnect {
                 if (httpClient == null) {
                     final CloseableHttpAsyncClient client = HttpAsyncClientBuilder.create()
                             .useSystemProperties() //use system proxy etc
+                            .evictExpiredConnections()
+                            .evictIdleConnections(EVICT_IDLE_CONNECTIONS_TIMEOUT)
+                            .setConnectionManager(PoolingAsyncClientConnectionManagerBuilder.create()
+                                    .setMaxConnPerRoute(MAX_CONNECTIONS)
+                                    .setMaxConnTotal(MAX_CONNECTIONS)
+                                    .setPoolConcurrencyPolicy(PoolConcurrencyPolicy.LAX)
+                                    .build())
+                            .setIOReactorConfig(IOReactorConfig.custom().setIoThreadCount(IO_THREAD_COUNT).build())
                             .build();
                     client.start();
                     if (shutdownHook == null) {
