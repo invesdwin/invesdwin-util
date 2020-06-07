@@ -15,12 +15,22 @@ public interface IURIsConnectFactory {
         public IURIsConnect connect(final URI uri) {
             return new URIsConnectApacheSync(uri);
         }
+
+        @Override
+        public void reset() {
+            URIsConnectApacheSync.resetHttpClient();
+        }
     };
     IURIsConnectFactory APACHE_ASYNC = new IURIsConnectFactory() {
 
         @Override
         public IURIsConnect connect(final URI uri) {
             return new URIsConnectApacheAsync(uri);
+        }
+
+        @Override
+        public void reset() {
+            URIsConnectApacheAsync.resetHttpClient();
         }
     };
     IURIsConnectFactory URL_CONNECTION = new IURIsConnectFactory() {
@@ -29,6 +39,11 @@ public interface IURIsConnectFactory {
         public IURIsConnect connect(final URI uri) {
             return new URIsConnectURLConnection(uri);
         }
+
+        @Override
+        public void reset() {
+            //noop
+        }
     };
     IURIsConnectFactory OK_HTTP = new IURIsConnectFactory() {
 
@@ -36,8 +51,15 @@ public interface IURIsConnectFactory {
         public IURIsConnect connect(final URI uri) {
             return new URIsConnectOkHttp(uri);
         }
+
+        @Override
+        public void reset() {
+            //noop
+        }
     };
 
     IURIsConnect connect(URI uri);
+
+    void reset();
 
 }
