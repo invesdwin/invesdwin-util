@@ -6,19 +6,26 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URI;
 import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 import java.nio.file.Path;
+import java.util.concurrent.Future;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.hc.client5.http.async.methods.AbstractBinResponseConsumer;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpResponse;
 
 import com.fasterxml.jackson.core.util.ByteArrayBuilder;
 
+import de.invesdwin.util.concurrent.future.Futures;
 import de.invesdwin.util.lang.Files;
+import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.lang.description.TextDescription;
 import de.invesdwin.util.math.decimal.scaled.ByteSize;
 import de.invesdwin.util.math.decimal.scaled.ByteSizeScale;
@@ -224,6 +231,76 @@ public class InputStreamHttpResponseConsumer extends AbstractBinResponseConsumer
                 throw new RuntimeException(e1);
             }
         }
+    }
+
+    public static InputStreamHttpResponse getInputStream(final Future<InputStreamHttpResponse> call, final URI uri)
+            throws IOException {
+        final InputStreamHttpResponse response;
+        try {
+            response = Futures.get(call);
+        } catch (final InterruptedException e) {
+            throw new IOException(e);
+        }
+        // https://stackoverflow.com/questions/613307/read-error-response-body-in-java
+        final int responseCode = response.getResponse().getCode();
+        if (isSuccessful(responseCode)) {
+            return response;
+        } else {
+            if (responseCode == HttpURLConnection.HTTP_NOT_FOUND || responseCode == HttpURLConnection.HTTP_GONE) {
+                throw new FileNotFoundException(uri.toString());
+            } else {
+                if (responseCode == HttpURLConnection.HTTP_INTERNAL_ERROR) {
+                    final String errorStr = IOUtils.toString(response, Charset.defaultCharset());
+                    throw new IOException("Server returned HTTP response code [" + responseCode + "] for URL ["
+                            + uri.toString() + "] with error:\n*****************************\n"
+                            + Strings.putSuffix(errorStr, "\n") + "*****************************");
+                } else {
+                    throw new IOException("Server returned HTTP response code [" + responseCode + "] for URL ["
+                            + uri.toString() + "]");
+                }
+            }
+        }
+    }
+
+    public static InputStreamHttpResponse getInputStream(final CloseableHttpResponse response, final URI uri)
+            throws IOException {
+        try {
+            // https://stackoverflow.com/questions/613307/read-error-response-body-in-java
+            final int responseCode = response.getCode();
+            if (isSuccessful(responseCode)) {
+                final InputStreamHttpResponseConsumer consumer = new InputStreamHttpResponseConsumer();
+                consumer.start(response, ContentType.DEFAULT_BINARY);
+                consumer.consume(response.getEntity().getContent());
+                final InputStreamHttpResponse result = consumer.buildResult();
+                consumer.releaseResources();
+                return new InputStreamHttpResponse(response, result);
+            } else {
+                if (responseCode == HttpURLConnection.HTTP_NOT_FOUND || responseCode == HttpURLConnection.HTTP_GONE) {
+                    throw new FileNotFoundException(uri.toString());
+                } else {
+                    if (responseCode == HttpURLConnection.HTTP_INTERNAL_ERROR) {
+                        final String errorStr = IOUtils.toString(response.getEntity().getContent(),
+                                Charset.defaultCharset());
+                        throw new IOException("Server returned HTTP response code [" + responseCode + "] for URL ["
+                                + uri.toString() + "] with error:\n*****************************\n"
+                                + Strings.putSuffix(errorStr, "\n") + "*****************************");
+                    } else {
+                        throw new IOException("Server returned HTTP response code [" + responseCode + "] for URL ["
+                                + uri.toString() + "]");
+                    }
+                }
+            }
+        } finally {
+            response.close();
+        }
+    }
+
+    public static boolean isSuccessful(final HttpResponse response) {
+        return isSuccessful(response.getCode());
+    }
+
+    public static boolean isSuccessful(final int responseCode) {
+        return responseCode >= 200 && responseCode <= 299;
     }
 
 }

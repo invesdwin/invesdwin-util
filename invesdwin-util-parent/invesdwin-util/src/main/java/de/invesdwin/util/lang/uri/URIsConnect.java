@@ -1,9 +1,7 @@
 package de.invesdwin.util.lang.uri;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.Socket;
@@ -13,29 +11,35 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
-import org.apache.hc.client5.http.classic.methods.ClassicHttpRequests;
-import org.apache.hc.client5.http.classic.methods.HttpUriRequestBase;
+import org.apache.hc.client5.http.async.methods.SimpleHttpRequest;
+import org.apache.hc.client5.http.async.methods.SimpleHttpRequests;
+import org.apache.hc.client5.http.async.methods.SimpleHttpResponse;
+import org.apache.hc.client5.http.async.methods.SimpleRequestProducer;
+import org.apache.hc.client5.http.async.methods.SimpleResponseConsumer;
 import org.apache.hc.client5.http.config.RequestConfig;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
-import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
-import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
-import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.client5.http.impl.async.CloseableHttpAsyncClient;
+import org.apache.hc.client5.http.impl.async.HttpAsyncClientBuilder;
+import org.apache.hc.client5.http.impl.nio.PoolingAsyncClientConnectionManagerBuilder;
+import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpHost;
-import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.nio.AsyncResponseConsumer;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.pool.PoolConcurrencyPolicy;
+import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.util.TimeValue;
 
+import de.invesdwin.util.concurrent.Executors;
+import de.invesdwin.util.concurrent.future.Futures;
 import de.invesdwin.util.lang.Closeables;
-import de.invesdwin.util.lang.Strings;
+import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.shutdown.IShutdownHook;
 import de.invesdwin.util.shutdown.ShutdownHookManager;
 import de.invesdwin.util.time.duration.Duration;
@@ -44,11 +48,12 @@ import de.invesdwin.util.time.fdate.FTimeUnit;
 @NotThreadSafe
 public final class URIsConnect {
 
+    public static final int IO_THREAD_COUNT = Integers.max(20, Executors.getCpuThreadPoolCount() * 2);
     private static final int MAX_CONNECTIONS = 1000;
     private static final TimeValue EVICT_IDLE_CONNECTIONS_TIMEOUT = TimeValue.of(1, TimeUnit.MINUTES);
     private static Duration defaultNetworkTimeout = new Duration(30, FTimeUnit.SECONDS);
     private static Proxy defaultProxy = null;
-    private static CloseableHttpClient httpClient;
+    private static CloseableHttpAsyncClient httpClient;
     private static IShutdownHook shutdownHook;
     private static RequestConfig defaultRequestConfig = RequestConfig.DEFAULT;
 
@@ -63,20 +68,22 @@ public final class URIsConnect {
         this.uri = url;
     }
 
-    public static CloseableHttpClient getHttpClient() {
+    public static CloseableHttpAsyncClient getHttpClient() {
         if (httpClient == null) {
             synchronized (URIsConnect.class) {
                 if (httpClient == null) {
-                    final CloseableHttpClient client = HttpClientBuilder.create()
+                    final CloseableHttpAsyncClient client = HttpAsyncClientBuilder.create()
                             .useSystemProperties() //use system proxy etc
-                            .setConnectionManager(PoolingHttpClientConnectionManagerBuilder.create()
+                            .evictExpiredConnections()
+                            .evictIdleConnections(EVICT_IDLE_CONNECTIONS_TIMEOUT)
+                            .setConnectionManager(PoolingAsyncClientConnectionManagerBuilder.create()
                                     .setMaxConnPerRoute(MAX_CONNECTIONS)
                                     .setMaxConnTotal(MAX_CONNECTIONS)
                                     .setPoolConcurrencyPolicy(PoolConcurrencyPolicy.LAX)
                                     .build())
-                            .evictExpiredConnections()
-                            .evictIdleConnections(EVICT_IDLE_CONNECTIONS_TIMEOUT)
+                            .setIOReactorConfig(IOReactorConfig.custom().setIoThreadCount(IO_THREAD_COUNT).build())
                             .build();
+                    client.start();
                     if (shutdownHook == null) {
                         shutdownHook = new IShutdownHook() {
                             @Override
@@ -187,8 +194,11 @@ public final class URIsConnect {
         if (uri == null) {
             return false;
         }
-        try (CloseableHttpResponse response = openConnection(IHttpRequestSettings.HEAD)) {
-            if (!isSuccessful(response)) {
+        final Future<SimpleHttpResponse> future = openConnection(IHttpRequestSettings.HEAD,
+                SimpleResponseConsumer.create());
+        try {
+            final SimpleHttpResponse response = Futures.get(future);
+            if (!InputStreamHttpResponseConsumer.isSuccessful(response)) {
                 return false;
             }
             final String contentLengthStr = response.getFirstHeader(HttpHeaders.CONTENT_LENGTH).getValue();
@@ -204,8 +214,11 @@ public final class URIsConnect {
     }
 
     public long lastModified() {
-        try (CloseableHttpResponse response = openConnection(IHttpRequestSettings.HEAD)) {
-            if (!isSuccessful(response)) {
+        final Future<SimpleHttpResponse> future = openConnection(IHttpRequestSettings.HEAD,
+                SimpleResponseConsumer.create());
+        try {
+            final SimpleHttpResponse response = Futures.get(future);
+            if (!InputStreamHttpResponseConsumer.isSuccessful(response)) {
                 return -1;
             }
             final String lastModifiedStr = response.getFirstHeader(HttpHeaders.LAST_MODIFIED).getValue();
@@ -246,12 +259,22 @@ public final class URIsConnect {
         }
     }
 
-    public CloseableHttpResponse openConnection() throws IOException {
-        return openConnection(IHttpRequestSettings.GET);
+    public Future<InputStreamHttpResponse> openConnection() {
+        return openConnection(IHttpRequestSettings.GET, new InputStreamHttpResponseConsumer(), null);
     }
 
-    public CloseableHttpResponse openConnection(final IHttpRequestSettings settings) throws IOException {
-        final HttpUriRequestBase request = (HttpUriRequestBase) ClassicHttpRequests.create(settings.getMethod(), uri);
+    public Future<InputStreamHttpResponse> openConnection(final IHttpRequestSettings settings) {
+        return openConnection(settings, new InputStreamHttpResponseConsumer(), null);
+    }
+
+    public <T> Future<T> openConnection(final IHttpRequestSettings settings,
+            final AsyncResponseConsumer<T> responseConsumer) {
+        return openConnection(IHttpRequestSettings.GET, responseConsumer, null);
+    }
+
+    public <T> Future<T> openConnection(final IHttpRequestSettings settings,
+            final AsyncResponseConsumer<T> responseConsumer, final FutureCallback<T> callback) {
+        final SimpleHttpRequest request = SimpleHttpRequests.create(settings.getMethod(), uri);
         request.setConfig(getRequestConfig());
         if (headers != null) {
             for (final Entry<String, String> header : headers.entrySet()) {
@@ -259,7 +282,8 @@ public final class URIsConnect {
             }
         }
 
-        final CloseableHttpResponse response = getHttpClient().execute(request);
+        final SimpleRequestProducer requestProducer = SimpleRequestProducer.create(request);
+        final Future<T> response = getHttpClient().execute(requestProducer, responseConsumer, callback);
         return response;
     }
 
@@ -278,53 +302,8 @@ public final class URIsConnect {
         }
     }
 
-    public InputStreamHttpResponse getInputStream(final IHttpRequestSettings settings) throws IOException {
-        return getInputStream(openConnection(settings), uri);
-    }
-
     public InputStreamHttpResponse getInputStream() throws IOException {
-        return getInputStream(openConnection(), uri);
-    }
-
-    public static InputStreamHttpResponse getInputStream(final CloseableHttpResponse response, final URI uri)
-            throws IOException {
-        try {
-            // https://stackoverflow.com/questions/613307/read-error-response-body-in-java
-            final int responseCode = response.getCode();
-            if (isSuccessful(responseCode)) {
-                final InputStreamHttpResponseConsumer consumer = new InputStreamHttpResponseConsumer();
-                consumer.start(response, ContentType.DEFAULT_BINARY);
-                consumer.consume(response.getEntity().getContent());
-                final InputStreamHttpResponse result = consumer.buildResult();
-                consumer.releaseResources();
-                return new InputStreamHttpResponse(response, result);
-            } else {
-                if (responseCode == HttpURLConnection.HTTP_NOT_FOUND || responseCode == HttpURLConnection.HTTP_GONE) {
-                    throw new FileNotFoundException(uri.toString());
-                } else {
-                    if (responseCode == HttpURLConnection.HTTP_INTERNAL_ERROR) {
-                        final String errorStr = IOUtils.toString(response.getEntity().getContent(),
-                                Charset.defaultCharset());
-                        throw new IOException("Server returned HTTP response code [" + responseCode + "] for URL ["
-                                + uri.toString() + "] with error:\n*****************************\n"
-                                + Strings.putSuffix(errorStr, "\n") + "*****************************");
-                    } else {
-                        throw new IOException("Server returned HTTP response code [" + responseCode + "] for URL ["
-                                + uri.toString() + "]");
-                    }
-                }
-            }
-        } finally {
-            response.close();
-        }
-    }
-
-    public static boolean isSuccessful(final HttpResponse response) {
-        return isSuccessful(response.getCode());
-    }
-
-    public static boolean isSuccessful(final int responseCode) {
-        return responseCode >= 200 && responseCode <= 299;
+        return InputStreamHttpResponseConsumer.getInputStream(openConnection(), uri);
     }
 
     @Override
