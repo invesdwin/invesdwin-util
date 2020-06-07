@@ -3,9 +3,9 @@ package de.invesdwin.util.lang.uri;
 import org.apache.hc.client5.http.async.methods.SimpleHttpRequest;
 import org.apache.hc.core5.http.Method;
 
-public interface IRequestSettings {
+public interface IHttpRequestSettings {
 
-    IRequestSettings GET = new IRequestSettings() {
+    IHttpRequestSettings GET = new IHttpRequestSettings() {
 
         @Override
         public Method getMethod() {
@@ -18,7 +18,7 @@ public interface IRequestSettings {
         }
 
     };
-    IRequestSettings HEAD = new IRequestSettings() {
+    IHttpRequestSettings HEAD = new IHttpRequestSettings() {
 
         @Override
         public Method getMethod() {

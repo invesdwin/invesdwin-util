@@ -179,7 +179,7 @@ public final class URIsConnect {
         if (uri == null) {
             return false;
         }
-        final Future<SimpleHttpResponse> future = openConnection(IRequestSettings.HEAD,
+        final Future<SimpleHttpResponse> future = openConnection(IHttpRequestSettings.HEAD,
                 SimpleResponseConsumer.create());
         try {
             final SimpleHttpResponse response = Futures.get(future);
@@ -199,7 +199,7 @@ public final class URIsConnect {
     }
 
     public long lastModified() {
-        final Future<SimpleHttpResponse> future = openConnection(IRequestSettings.HEAD,
+        final Future<SimpleHttpResponse> future = openConnection(IHttpRequestSettings.HEAD,
                 SimpleResponseConsumer.create());
         try {
             final SimpleHttpResponse response = Futures.get(future);
@@ -245,19 +245,19 @@ public final class URIsConnect {
     }
 
     public Future<HttpInputStream> openConnection() {
-        return openConnection(IRequestSettings.GET, new InputStreamResponseConsumer(), null);
+        return openConnection(IHttpRequestSettings.GET, new InputStreamResponseConsumer(), null);
     }
 
-    public Future<HttpInputStream> openConnection(final IRequestSettings settings) {
+    public Future<HttpInputStream> openConnection(final IHttpRequestSettings settings) {
         return openConnection(settings, new InputStreamResponseConsumer(), null);
     }
 
-    public <T> Future<T> openConnection(final IRequestSettings settings,
+    public <T> Future<T> openConnection(final IHttpRequestSettings settings,
             final AsyncResponseConsumer<T> responseConsumer) {
-        return openConnection(IRequestSettings.GET, responseConsumer, null);
+        return openConnection(IHttpRequestSettings.GET, responseConsumer, null);
     }
 
-    public <T> Future<T> openConnection(final IRequestSettings settings,
+    public <T> Future<T> openConnection(final IHttpRequestSettings settings,
             final AsyncResponseConsumer<T> responseConsumer, final FutureCallback<T> callback) {
         final SimpleHttpRequest request = SimpleHttpRequests.create(settings.getMethod(), uri);
         request.setConfig(getRequestConfig());
