@@ -31,15 +31,13 @@ import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.nio.AsyncResponseConsumer;
+import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.pool.PoolConcurrencyPolicy;
-import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.util.TimeValue;
 
-import de.invesdwin.util.concurrent.Executors;
 import de.invesdwin.util.concurrent.future.Futures;
 import de.invesdwin.util.lang.Closeables;
-import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.shutdown.IShutdownHook;
 import de.invesdwin.util.shutdown.ShutdownHookManager;
 import de.invesdwin.util.time.duration.Duration;
@@ -48,7 +46,6 @@ import de.invesdwin.util.time.fdate.FTimeUnit;
 @NotThreadSafe
 public final class URIsConnect {
 
-    public static final int IO_THREAD_COUNT = Integers.max(20, Executors.getCpuThreadPoolCount() * 2);
     private static final int MAX_CONNECTIONS = 1000;
     private static final TimeValue EVICT_IDLE_CONNECTIONS_TIMEOUT = TimeValue.of(1, TimeUnit.MINUTES);
     private static Duration defaultNetworkTimeout = new Duration(30, FTimeUnit.SECONDS);
@@ -81,7 +78,7 @@ public final class URIsConnect {
                                     .setMaxConnTotal(MAX_CONNECTIONS)
                                     .setPoolConcurrencyPolicy(PoolConcurrencyPolicy.LAX)
                                     .build())
-                            .setIOReactorConfig(IOReactorConfig.custom().setIoThreadCount(IO_THREAD_COUNT).build())
+                            .setVersionPolicy(HttpVersionPolicy.FORCE_HTTP_2)
                             .build();
                     client.start();
                     if (shutdownHook == null) {
