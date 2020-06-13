@@ -5,19 +5,22 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import javax.annotation.concurrent.ThreadSafe;
 
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.ListeningExecutorService;
+
 @ThreadSafe
-public abstract class ADelegateExecutorService implements ExecutorService {
+public abstract class ADelegateExecutorService implements ListeningExecutorService {
 
-    private final ExecutorService delegate;
+    private final ListeningExecutorService delegate;
 
-    public ADelegateExecutorService(final ExecutorService delegate) {
+    public ADelegateExecutorService(final ListeningExecutorService delegate) {
         this.delegate = delegate;
     }
 
@@ -25,13 +28,19 @@ public abstract class ADelegateExecutorService implements ExecutorService {
 
     protected abstract <T> Callable<T> newCallable(Callable<T> callable);
 
-    public ExecutorService getDelegate() {
+    public ListeningExecutorService getDelegate() {
         return delegate;
     }
 
     @Override
     public void execute(final Runnable command) {
-        getDelegate().execute(newRunnable(command));
+        final Runnable runnable = newRunnable(command);
+        try {
+            getDelegate().execute(runnable);
+        } catch (final RejectedExecutionException e) {
+            maybeCancelled(runnable);
+            throw e;
+        }
     }
 
     @Override
@@ -60,26 +69,38 @@ public abstract class ADelegateExecutorService implements ExecutorService {
     }
 
     @Override
-    public <T> Future<T> submit(final Callable<T> task) {
-        return getDelegate().submit(newCallable(task));
+    public <T> ListenableFuture<T> submit(final Callable<T> task) {
+        final Callable<T> callable = newCallable(task);
+        final ListenableFuture<T> future = getDelegate().submit(callable);
+        maybeCancelledInFuture(callable, future);
+        return future;
     }
 
     @Override
-    public <T> Future<T> submit(final Runnable task, final T result) {
-        return getDelegate().submit(newRunnable(task), result);
+    public <T> ListenableFuture<T> submit(final Runnable task, final T result) {
+        final Runnable runnable = newRunnable(task);
+        final ListenableFuture<T> future = getDelegate().submit(runnable, result);
+        maybeCancelledInFuture(runnable, future);
+        return future;
     }
 
     @Override
-    public Future<?> submit(final Runnable task) {
-        return getDelegate().submit(newRunnable(task));
+    public ListenableFuture<?> submit(final Runnable task) {
+        final Runnable runnable = newRunnable(task);
+        final ListenableFuture<?> future = getDelegate().submit(runnable);
+        maybeCancelledInFuture(runnable, future);
+        return future;
     }
 
     @Override
     public <T> List<Future<T>> invokeAll(final Collection<? extends Callable<T>> tasks) throws InterruptedException {
-        return getDelegate().invokeAll(newCallables(tasks));
+        final List<? extends Callable<T>> callables = newCallables(tasks);
+        final List<Future<T>> futures = getDelegate().invokeAll(callables);
+        maybeCancelledInFuture(callables, futures);
+        return futures;
     }
 
-    protected <T> Collection<? extends Callable<T>> newCallables(final Collection<? extends Callable<T>> tasks) {
+    protected <T> List<? extends Callable<T>> newCallables(final Collection<? extends Callable<T>> tasks) {
         final List<Callable<T>> wrapped = new ArrayList<>(tasks.size());
         for (final Callable<T> task : tasks) {
             wrapped.add(newCallable(task));
@@ -90,19 +111,69 @@ public abstract class ADelegateExecutorService implements ExecutorService {
     @Override
     public <T> List<Future<T>> invokeAll(final Collection<? extends Callable<T>> tasks, final long timeout,
             final TimeUnit unit) throws InterruptedException {
-        return getDelegate().invokeAll(newCallables(tasks), timeout, unit);
+        final List<? extends Callable<T>> callables = newCallables(tasks);
+        final List<Future<T>> futures = getDelegate().invokeAll(callables, timeout, unit);
+        maybeCancelledInFuture(callables, futures);
+        return futures;
     }
 
     @Override
     public <T> T invokeAny(final Collection<? extends Callable<T>> tasks)
             throws InterruptedException, ExecutionException {
-        return getDelegate().invokeAny(newCallables(tasks));
+        final List<? extends Callable<T>> callables = newCallables(tasks);
+        final T result = getDelegate().invokeAny(callables);
+        maybeCancelled(callables);
+        return result;
     }
 
     @Override
     public <T> T invokeAny(final Collection<? extends Callable<T>> tasks, final long timeout, final TimeUnit unit)
             throws InterruptedException, ExecutionException, TimeoutException {
-        return getDelegate().invokeAny(newCallables(tasks), timeout, unit);
+        final List<? extends Callable<T>> callables = newCallables(tasks);
+        final T result = getDelegate().invokeAny(callables, timeout, unit);
+        maybeCancelled(callables);
+        return result;
+    }
+
+    protected <T> void maybeCancelled(final List<? extends Callable<T>> callables) {
+        for (final Callable<T> callable : callables) {
+            maybeCancelled(callable);
+        }
+    }
+
+    protected abstract <T> void maybeCancelled(Callable<T> callable);
+
+    protected abstract void maybeCancelled(Runnable runnable);
+
+    protected <T> void maybeCancelledInFuture(final List<? extends Callable<T>> callables,
+            final List<Future<T>> futures) {
+        for (int i = 0; i < callables.size(); i++) {
+            final Callable<T> callable = callables.get(i);
+            final ListenableFuture<T> future = (ListenableFuture<T>) futures.get(i);
+            maybeCancelledInFuture(callable, future);
+        }
+    }
+
+    protected <T> void maybeCancelledInFuture(final Callable<T> callable, final ListenableFuture<T> future) {
+        future.addListener(new Runnable() {
+            @Override
+            public void run() {
+                if (future.isCancelled()) {
+                    maybeCancelled(callable);
+                }
+            }
+        }, Executors.SIMPLE_DISABLED_EXECUTOR);
+    }
+
+    protected void maybeCancelledInFuture(final Runnable runnable, final ListenableFuture<?> future) {
+        future.addListener(new Runnable() {
+            @Override
+            public void run() {
+                if (future.isCancelled()) {
+                    maybeCancelled(runnable);
+                }
+            }
+        }, Executors.SIMPLE_DISABLED_EXECUTOR);
     }
 
 }

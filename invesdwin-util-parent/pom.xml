@@ -153,6 +153,14 @@
 						</configuration>
 					</execution>
 				</executions>
+				<dependencies>
+					<dependency>
+						<!-- fix futures static facade -->
+						<groupId>com.google.guava</groupId>
+						<artifactId>guava</artifactId>
+						<version>${version.guava}</version>
+					</dependency>
+				</dependencies>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>

@@ -7,6 +7,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -15,6 +16,10 @@ import java.util.concurrent.locks.Lock;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
+
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.ListeningExecutorService;
+import com.google.common.util.concurrent.MoreExecutors;
 
 import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.collections.fast.IFastIterableSet;
@@ -31,7 +36,7 @@ import de.invesdwin.util.time.duration.Duration;
 import de.invesdwin.util.time.fdate.FTimeUnit;
 
 @ThreadSafe
-public class WrappedExecutorService implements ExecutorService {
+public class WrappedExecutorService implements ListeningExecutorService {
 
     private static final Duration FIXED_THREAD_KEEPALIVE_TIMEOUT = new Duration(60, FTimeUnit.SECONDS);
 
@@ -75,7 +80,7 @@ public class WrappedExecutorService implements ExecutorService {
             .newFastIterableLinkedSet();
     private final AtomicInteger pendingCount = new AtomicInteger();
     private final Object pendingCountWaitLock = new Object();
-    private final ExecutorService delegate;
+    private final ListeningExecutorService delegate;
     private volatile boolean logExceptions = true;
     private volatile boolean waitOnFullPendingCount = false;
     private volatile boolean dynamicThreadName = true;
@@ -85,12 +90,16 @@ public class WrappedExecutorService implements ExecutorService {
     private IShutdownHook shutdownHook;
 
     protected WrappedExecutorService(final ExecutorService delegate, final String name) {
-        this.delegate = delegate;
+        this.delegate = decorate(delegate);
         this.shutdownHook = newShutdownHook(delegate);
         this.name = name;
         this.pendingCountLock = Locks
                 .newReentrantLock(WrappedExecutorService.class.getSimpleName() + "_" + name + "_pendingCountLock");
         configure();
+    }
+
+    protected ListeningExecutorService decorate(final ExecutorService delegate) {
+        return MoreExecutors.listeningDecorator(delegate);
     }
 
     protected IShutdownHook newShutdownHook(final ExecutorService delegate) {
@@ -225,7 +234,7 @@ public class WrappedExecutorService implements ExecutorService {
         return this;
     }
 
-    public ExecutorService getWrappedInstance() {
+    public ListeningExecutorService getWrappedInstance() {
         return delegate;
     }
 
@@ -304,16 +313,25 @@ public class WrappedExecutorService implements ExecutorService {
     @Override
     public void execute(final Runnable command) {
         try {
-            getWrappedInstance().execute(WrappedRunnable.newInstance(internal, command));
+            final WrappedRunnable runnable = WrappedRunnable.newInstance(internal, command);
+            try {
+                getWrappedInstance().execute(runnable);
+            } catch (final RejectedExecutionException e) {
+                maybeCancelled(runnable);
+                throw e;
+            }
         } catch (final InterruptedException e) {
             Thread.currentThread().interrupt();
         }
     }
 
     @Override
-    public <T> Future<T> submit(final Callable<T> task) {
+    public <T> ListenableFuture<T> submit(final Callable<T> task) {
         try {
-            return getWrappedInstance().submit(WrappedCallable.newInstance(internal, task));
+            final WrappedCallable<T> callable = WrappedCallable.newInstance(internal, task);
+            final ListenableFuture<T> futures = getWrappedInstance().submit(callable);
+            maybeCancelledInFuture(callable, futures);
+            return futures;
         } catch (final InterruptedException e) {
             Thread.currentThread().interrupt();
             return new InterruptingFuture<T>();
@@ -321,9 +339,12 @@ public class WrappedExecutorService implements ExecutorService {
     }
 
     @Override
-    public <T> Future<T> submit(final Runnable task, final T result) {
+    public <T> ListenableFuture<T> submit(final Runnable task, final T result) {
         try {
-            return getWrappedInstance().submit(WrappedRunnable.newInstance(internal, task), result);
+            final WrappedRunnable runnable = WrappedRunnable.newInstance(internal, task);
+            final ListenableFuture<T> futures = getWrappedInstance().submit(runnable, result);
+            maybeCancelledInFuture(runnable, futures);
+            return futures;
         } catch (final InterruptedException e) {
             Thread.currentThread().interrupt();
             return new InterruptingFuture<T>();
@@ -331,9 +352,12 @@ public class WrappedExecutorService implements ExecutorService {
     }
 
     @Override
-    public Future<?> submit(final Runnable task) {
+    public ListenableFuture<?> submit(final Runnable task) {
         try {
-            return getWrappedInstance().submit(WrappedRunnable.newInstance(internal, task));
+            final WrappedRunnable runnable = WrappedRunnable.newInstance(internal, task);
+            final ListenableFuture<?> futures = getWrappedInstance().submit(runnable);
+            maybeCancelledInFuture(runnable, futures);
+            return futures;
         } catch (final InterruptedException e) {
             Thread.currentThread().interrupt();
             return new InterruptingFuture<Object>();
@@ -342,29 +366,85 @@ public class WrappedExecutorService implements ExecutorService {
 
     @Override
     public <T> List<Future<T>> invokeAll(final Collection<? extends Callable<T>> tasks) throws InterruptedException {
-        return getWrappedInstance().invokeAll(WrappedCallable.newInstance(internal, tasks));
+        final List<WrappedCallable<T>> callables = WrappedCallable.newInstance(internal, tasks);
+        final List<Future<T>> futures = getWrappedInstance().invokeAll(callables);
+        maybeCancelledInFuture(callables, futures);
+        return futures;
     }
 
     @Override
     public <T> List<Future<T>> invokeAll(final Collection<? extends Callable<T>> tasks, final long timeout,
             final TimeUnit unit) throws InterruptedException {
-        return getWrappedInstance().invokeAll(WrappedCallable.newInstance(internal, tasks), timeout, unit);
+        final List<WrappedCallable<T>> callables = WrappedCallable.newInstance(internal, tasks);
+        final List<Future<T>> futures = getWrappedInstance().invokeAll(callables, timeout, unit);
+        maybeCancelledInFuture(callables, futures);
+        return futures;
     }
 
     @Override
     public <T> T invokeAny(final Collection<? extends Callable<T>> tasks)
             throws InterruptedException, ExecutionException {
-        return getWrappedInstance().invokeAny(WrappedCallable.newInstance(internal, tasks));
+        final List<WrappedCallable<T>> callables = WrappedCallable.newInstance(internal, tasks);
+        final T result = getWrappedInstance().invokeAny(callables);
+        maybeCancelled(callables);
+        return result;
     }
 
     @Override
     public <T> T invokeAny(final Collection<? extends Callable<T>> tasks, final long timeout, final TimeUnit unit)
             throws InterruptedException, ExecutionException, TimeoutException {
-        return getWrappedInstance().invokeAny(WrappedCallable.newInstance(internal, tasks), timeout, unit);
+        final List<WrappedCallable<T>> callables = WrappedCallable.newInstance(internal, tasks);
+        final T result = getWrappedInstance().invokeAny(callables, timeout, unit);
+        maybeCancelled(callables);
+        return result;
     }
 
     public IFastIterableSet<IPendingCountListener> getPendingCountListeners() {
         return pendingCountListeners;
+    }
+
+    protected <T> void maybeCancelled(final List<WrappedCallable<T>> callables) {
+        for (final WrappedCallable<T> callable : callables) {
+            maybeCancelled(callable);
+        }
+    }
+
+    protected <T> void maybeCancelled(final WrappedCallable<T> callable) {
+        callable.maybeCancelled();
+    }
+
+    protected void maybeCancelled(final WrappedRunnable runnable) {
+        runnable.maybeCancelled();
+    }
+
+    protected <T> void maybeCancelledInFuture(final List<WrappedCallable<T>> callables, final List<Future<T>> futures) {
+        for (int i = 0; i < callables.size(); i++) {
+            final WrappedCallable<T> callable = callables.get(i);
+            final ListenableFuture<T> future = (ListenableFuture<T>) futures.get(i);
+            maybeCancelledInFuture(callable, future);
+        }
+    }
+
+    protected <T> void maybeCancelledInFuture(final WrappedCallable<T> callable, final ListenableFuture<T> future) {
+        future.addListener(new Runnable() {
+            @Override
+            public void run() {
+                if (future.isCancelled()) {
+                    maybeCancelled(callable);
+                }
+            }
+        }, Executors.SIMPLE_DISABLED_EXECUTOR);
+    }
+
+    protected void maybeCancelledInFuture(final WrappedRunnable runnable, final ListenableFuture<?> future) {
+        future.addListener(new Runnable() {
+            @Override
+            public void run() {
+                if (future.isCancelled()) {
+                    maybeCancelled(runnable);
+                }
+            }
+        }, Executors.SIMPLE_DISABLED_EXECUTOR);
     }
 
 }

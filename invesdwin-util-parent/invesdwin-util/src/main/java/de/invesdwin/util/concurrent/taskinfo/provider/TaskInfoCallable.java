@@ -60,6 +60,12 @@ public final class TaskInfoCallable<V> implements IPriorityCallable<V>, ITaskInf
         }
     }
 
+    public void maybeCancelled() {
+        if (status == TaskInfoStatus.STARTED) {
+            TaskInfoManager.onCompleted(this);
+        }
+    }
+
     @Override
     public String getName() {
         return name;

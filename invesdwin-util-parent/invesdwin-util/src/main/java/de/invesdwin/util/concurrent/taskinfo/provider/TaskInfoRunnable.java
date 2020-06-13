@@ -40,6 +40,12 @@ public final class TaskInfoRunnable implements IPriorityRunnable, ITaskInfoProvi
         TaskInfoManager.onCreated(this);
     }
 
+    public void maybeCancelled() {
+        if (status == TaskInfoStatus.STARTED) {
+            TaskInfoManager.onCompleted(this);
+        }
+    }
+
     public TaskInfoRunnable withDescription(final String description) {
         this.description = description;
         return this;

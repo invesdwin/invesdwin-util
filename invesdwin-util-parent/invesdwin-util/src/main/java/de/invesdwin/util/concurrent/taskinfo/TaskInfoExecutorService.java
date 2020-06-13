@@ -1,9 +1,10 @@
 package de.invesdwin.util.concurrent.taskinfo;
 
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
 
 import javax.annotation.concurrent.ThreadSafe;
+
+import com.google.common.util.concurrent.ListeningExecutorService;
 
 import de.invesdwin.util.concurrent.ADelegateExecutorService;
 import de.invesdwin.util.concurrent.taskinfo.provider.TaskInfoCallable;
@@ -14,7 +15,7 @@ public class TaskInfoExecutorService extends ADelegateExecutorService {
 
     private final String taskName;
 
-    public TaskInfoExecutorService(final String taskName, final ExecutorService delegate) {
+    public TaskInfoExecutorService(final String taskName, final ListeningExecutorService delegate) {
         super(delegate);
         this.taskName = taskName;
     }
@@ -27,6 +28,18 @@ public class TaskInfoExecutorService extends ADelegateExecutorService {
     @Override
     protected <T> Callable<T> newCallable(final Callable<T> callable) {
         return TaskInfoCallable.of(taskName, callable);
+    }
+
+    @Override
+    protected <T> void maybeCancelled(final Callable<T> callable) {
+        final TaskInfoCallable<T> taskInfo = (TaskInfoCallable<T>) callable;
+        taskInfo.maybeCancelled();
+    }
+
+    @Override
+    protected void maybeCancelled(final Runnable runnable) {
+        final TaskInfoRunnable taskInfo = (TaskInfoRunnable) runnable;
+        taskInfo.maybeCancelled();
     }
 
 }

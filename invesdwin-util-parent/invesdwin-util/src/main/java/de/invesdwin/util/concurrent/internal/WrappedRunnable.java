@@ -17,6 +17,7 @@ public final class WrappedRunnable implements IPriorityRunnable {
     private final String parentThreadName;
     private final Runnable delegate;
     private final IWrappedExecutorServiceInternal parent;
+    private volatile boolean started;
 
     private WrappedRunnable(final IWrappedExecutorServiceInternal parent, final Runnable delegate,
             final boolean skipWaitOnFullPendingCount) throws InterruptedException {
@@ -33,6 +34,7 @@ public final class WrappedRunnable implements IPriorityRunnable {
 
     @Override
     public void run() {
+        started = true;
         final String originalThreadName;
         if (parent != null && parent.isDynamicThreadName()) {
             originalThreadName = Threads.getCurrentRootThreadName();
@@ -54,6 +56,12 @@ public final class WrappedRunnable implements IPriorityRunnable {
             if (originalThreadName != null) {
                 Threads.setCurrentThreadName(originalThreadName);
             }
+        }
+    }
+
+    public void maybeCancelled() {
+        if (parent != null && !started) {
+            parent.decrementPendingCount();
         }
     }
 

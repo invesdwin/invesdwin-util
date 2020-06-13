@@ -17,6 +17,7 @@ public final class WrappedCallable<V> implements Callable<V>, IPriorityProvider 
     private final String parentThreadName;
     private final Callable<V> delegate;
     private final IWrappedExecutorServiceInternal parent;
+    private volatile boolean started;
 
     private WrappedCallable(final IWrappedExecutorServiceInternal parent, final Callable<V> delegate,
             final boolean skipWaitOnFullPendingCount) throws InterruptedException {
@@ -33,6 +34,7 @@ public final class WrappedCallable<V> implements Callable<V>, IPriorityProvider 
 
     @Override
     public V call() throws Exception {
+        started = true;
         final String originalThreadName;
         if (parent != null && parent.isDynamicThreadName()) {
             originalThreadName = Threads.getCurrentRootThreadName();
@@ -57,7 +59,13 @@ public final class WrappedCallable<V> implements Callable<V>, IPriorityProvider 
         }
     }
 
-    public static <T> Collection<WrappedCallable<T>> newInstance(final IWrappedExecutorServiceInternal parent,
+    public void maybeCancelled() {
+        if (parent != null && !started) {
+            parent.decrementPendingCount();
+        }
+    }
+
+    public static <T> List<WrappedCallable<T>> newInstance(final IWrappedExecutorServiceInternal parent,
             final Collection<? extends Callable<T>> tasks) throws InterruptedException {
         final List<WrappedCallable<T>> ret = new ArrayList<WrappedCallable<T>>(tasks.size());
         boolean skipWaitOnFullPendingCount = false;

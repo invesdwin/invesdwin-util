@@ -1,18 +1,52 @@
 package de.invesdwin.util.concurrent;
 
 import java.util.concurrent.Callable;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.concurrent.ThreadSafe;
 
+import com.google.common.util.concurrent.ListenableScheduledFuture;
+import com.google.common.util.concurrent.ListeningExecutorService;
+import com.google.common.util.concurrent.ListeningScheduledExecutorService;
+import com.google.common.util.concurrent.MoreExecutors;
+
 import de.invesdwin.util.concurrent.future.InterruptingFuture;
+import de.invesdwin.util.concurrent.internal.IWrappedExecutorServiceInternal;
 import de.invesdwin.util.concurrent.internal.WrappedCallable;
 import de.invesdwin.util.concurrent.internal.WrappedRunnable;
 
 @ThreadSafe
-public class WrappedScheduledExecutorService extends WrappedExecutorService implements ScheduledExecutorService {
+public class WrappedScheduledExecutorService extends WrappedExecutorService
+        implements ListeningScheduledExecutorService {
+
+    private final IWrappedExecutorServiceInternal scheduledInternal = new IWrappedExecutorServiceInternal() {
+
+        @Override
+        public boolean isLogExceptions() {
+            return internal.isLogExceptions();
+        }
+
+        @Override
+        public boolean isDynamicThreadName() {
+            return internal.isDynamicThreadName();
+        }
+
+        @Override
+        public void incrementPendingCount(final boolean skipWaitOnFullPendingCount) throws InterruptedException {
+            //noop, don't count scheduled tasks, would not work anyway
+        }
+
+        @Override
+        public String getName() {
+            return internal.getName();
+        }
+
+        @Override
+        public void decrementPendingCount() {
+            //noop, don't count scheduled tasks, would not work anyway
+        }
+    };
 
     WrappedScheduledExecutorService(final java.util.concurrent.ScheduledThreadPoolExecutor delegate,
             final String name) {
@@ -20,14 +54,20 @@ public class WrappedScheduledExecutorService extends WrappedExecutorService impl
     }
 
     @Override
-    public java.util.concurrent.ScheduledThreadPoolExecutor getWrappedInstance() {
-        return (java.util.concurrent.ScheduledThreadPoolExecutor) super.getWrappedInstance();
+    protected ListeningExecutorService decorate(final ExecutorService delegate) {
+        final java.util.concurrent.ScheduledThreadPoolExecutor scheduled = (java.util.concurrent.ScheduledThreadPoolExecutor) delegate;
+        return MoreExecutors.listeningDecorator(scheduled);
     }
 
     @Override
-    public ScheduledFuture<?> schedule(final Runnable command, final long delay, final TimeUnit unit) {
+    public ListeningScheduledExecutorService getWrappedInstance() {
+        return (ListeningScheduledExecutorService) super.getWrappedInstance();
+    }
+
+    @Override
+    public ListenableScheduledFuture<?> schedule(final Runnable command, final long delay, final TimeUnit unit) {
         try {
-            return getWrappedInstance().schedule(WrappedRunnable.newInstance(internal, command), delay, unit);
+            return getWrappedInstance().schedule(WrappedRunnable.newInstance(scheduledInternal, command), delay, unit);
         } catch (final InterruptedException e) {
             Thread.currentThread().interrupt();
             return new InterruptingFuture<Object>();
@@ -35,9 +75,10 @@ public class WrappedScheduledExecutorService extends WrappedExecutorService impl
     }
 
     @Override
-    public <V> ScheduledFuture<V> schedule(final Callable<V> callable, final long delay, final TimeUnit unit) {
+    public <V> ListenableScheduledFuture<V> schedule(final Callable<V> callable, final long delay,
+            final TimeUnit unit) {
         try {
-            return getWrappedInstance().schedule(WrappedCallable.newInstance(internal, callable), delay, unit);
+            return getWrappedInstance().schedule(WrappedCallable.newInstance(scheduledInternal, callable), delay, unit);
         } catch (final InterruptedException e) {
             Thread.currentThread().interrupt();
             return new InterruptingFuture<V>();
@@ -45,10 +86,10 @@ public class WrappedScheduledExecutorService extends WrappedExecutorService impl
     }
 
     @Override
-    public ScheduledFuture<?> scheduleAtFixedRate(final Runnable command, final long initialDelay, final long period,
-            final TimeUnit unit) {
+    public ListenableScheduledFuture<?> scheduleAtFixedRate(final Runnable command, final long initialDelay,
+            final long period, final TimeUnit unit) {
         try {
-            return getWrappedInstance().scheduleAtFixedRate(WrappedRunnable.newInstance(internal, command),
+            return getWrappedInstance().scheduleAtFixedRate(WrappedRunnable.newInstance(scheduledInternal, command),
                     initialDelay, period, unit);
         } catch (final InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -57,10 +98,10 @@ public class WrappedScheduledExecutorService extends WrappedExecutorService impl
     }
 
     @Override
-    public ScheduledFuture<?> scheduleWithFixedDelay(final Runnable command, final long initialDelay, final long delay,
-            final TimeUnit unit) {
+    public ListenableScheduledFuture<?> scheduleWithFixedDelay(final Runnable command, final long initialDelay,
+            final long delay, final TimeUnit unit) {
         try {
-            return getWrappedInstance().scheduleWithFixedDelay(WrappedRunnable.newInstance(internal, command),
+            return getWrappedInstance().scheduleWithFixedDelay(WrappedRunnable.newInstance(scheduledInternal, command),
                     initialDelay, delay, unit);
         } catch (final InterruptedException e) {
             Thread.currentThread().interrupt();

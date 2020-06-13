@@ -12,16 +12,21 @@ import java.util.concurrent.Future;
 
 import javax.annotation.concurrent.Immutable;
 
+import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
 import de.invesdwin.util.assertions.Assertions;
+import de.invesdwin.util.concurrent.future.internal.AFuturesStaticFacade;
 import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.time.duration.Duration;
 import de.invesdwin.util.time.fdate.FDate;
 import de.invesdwin.util.time.fdate.FTimeUnit;
 
 @Immutable
-public final class Futures {
+@StaticFacadeDefinition(name = "de.invesdwin.util.concurrent.future.internal.AFuturesStaticFacade", targets = {
+        com.google.common.util.concurrent.Futures.class })
+public final class Futures extends AFuturesStaticFacade {
 
-    private Futures() {}
+    private Futures() {
+    }
 
     public static <T> T get(final Future<T> future) throws InterruptedException {
         try {

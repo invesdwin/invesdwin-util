@@ -9,6 +9,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.annotation.concurrent.Immutable;
 
+import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 
 import de.invesdwin.util.concurrent.internal.WrappedThreadFactory;
@@ -25,6 +26,8 @@ import io.netty.util.concurrent.DefaultThreadFactory;
  */
 @Immutable
 public final class Executors {
+
+    public static final ListeningExecutorService SIMPLE_DISABLED_EXECUTOR = MoreExecutors.newDirectExecutorService();
 
     private static int cpuThreadPoolCount = Runtime.getRuntime().availableProcessors();
 
