@@ -31,6 +31,7 @@ import de.invesdwin.util.math.expression.function.IFunctionFactory;
 import de.invesdwin.util.math.expression.function.IPreviousKeyFunction;
 import de.invesdwin.util.math.expression.function.LogicalFunctions;
 import de.invesdwin.util.math.expression.function.MathFunctions;
+import de.invesdwin.util.math.expression.function.StatisticalFunctions;
 import de.invesdwin.util.math.expression.tokenizer.IPosition;
 import de.invesdwin.util.math.expression.tokenizer.ParseException;
 import de.invesdwin.util.math.expression.tokenizer.Token;
@@ -141,6 +142,34 @@ public class ExpressionParser {
         registerDefaultFunction(HistoricalFunctions.newFirstIndexOfFunction("firstIndexOf"));
         for (final String name : new String[] { "indexOf", "lastIndexOf" }) {
             registerDefaultFunction(HistoricalFunctions.newLastIndexOfFunction(name));
+        }
+
+        for (final String name : new String[] { "count", "countNotNaN", "countNotNull", "countExists" }) {
+            registerDefaultFunction(StatisticalFunctions.newCountFunction(name));
+        }
+        for (final String name : new String[] { "median", "runningMedian" }) {
+            registerDefaultFunction(StatisticalFunctions.newMedianFunction(name));
+        }
+        for (final String name : new String[] { "percentile", "quantile", "quartile" }) {
+            registerDefaultFunction(StatisticalFunctions.newPercentileFunction(name));
+        }
+        for (final String name : new String[] { "product", "runningProduct" }) {
+            registerDefaultFunction(StatisticalFunctions.newProductFunction(name));
+        }
+        for (final String name : new String[] { "sum", "runningSum" }) {
+            registerDefaultFunction(StatisticalFunctions.newSumFunction(name));
+        }
+        for (final String name : new String[] { "variance", "var" }) {
+            registerDefaultFunction(StatisticalFunctions.newVarianceFunction(name));
+        }
+        for (final String name : new String[] { "sampleVariance", "sampleVar" }) {
+            registerDefaultFunction(StatisticalFunctions.newSampleVarianceFunction(name));
+        }
+        for (final String name : new String[] { "standardDeviation", "stddev" }) {
+            registerDefaultFunction(StatisticalFunctions.newStandardDeviationFunction(name));
+        }
+        for (final String name : new String[] { "sampleStandardDeviation", "sampleStddev" }) {
+            registerDefaultFunction(StatisticalFunctions.newSampleStandardDeviationFunction(name));
         }
 
         DEFAULT_VARIABLES = new LinkedHashMap<>();
