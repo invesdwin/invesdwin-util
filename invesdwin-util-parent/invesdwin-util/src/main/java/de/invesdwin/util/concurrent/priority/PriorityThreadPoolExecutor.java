@@ -23,8 +23,12 @@ public class PriorityThreadPoolExecutor extends java.util.concurrent.ThreadPoolE
                 new PriorityBlockingQueue<Runnable>(10, PriorityFuture.COMPARATOR), threadFactory);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     protected <T> RunnableFuture<T> newTaskFor(final Runnable runnable, final T value) {
+        if (runnable instanceof PriorityFuture) {
+            return (RunnableFuture<T>) runnable;
+        }
         final RunnableFuture<T> newTaskFor = super.newTaskFor(runnable, value);
         final double priority;
         if (runnable instanceof IPriorityProvider) {
@@ -47,6 +51,11 @@ public class PriorityThreadPoolExecutor extends java.util.concurrent.ThreadPoolE
             priority = IPriorityProvider.MISSING_PRIORITY;
         }
         return new PriorityFuture<T>(newTaskFor, priority);
+    }
+
+    @Override
+    public void execute(final Runnable command) {
+        super.execute(newTaskFor(command, null));
     }
 
 }
