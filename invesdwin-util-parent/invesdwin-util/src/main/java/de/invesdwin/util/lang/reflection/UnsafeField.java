@@ -7,6 +7,9 @@ import javax.annotation.concurrent.NotThreadSafe;
 /**
  * Useful to access private field of private inner classes where methodhandles do not work. This also circumvents the
  * illegal reflection access warning that occurs for JVM internals.
+ * 
+ * This is also an alternative to VarHandle with MethodHandles.privateLookup in Java 8, since that feature was only
+ * added in Java 9.
  */
 @NotThreadSafe
 @SuppressWarnings("restriction")
