@@ -21,7 +21,7 @@ import de.invesdwin.util.lang.reflection.UnsafeField;
 public class PriorityThreadPoolExecutor extends java.util.concurrent.ThreadPoolExecutor {
 
     private static final Class<?> TRUSTED_LISTENABLE_FUTURE_TASK_CLASS;
-    private static final UnsafeField<?> TRUSTED_LISTENABLE_FUTURE_TASK_GETTER;
+    private static final UnsafeField<?> TRUSTED_LISTENABLE_FUTURE_TASK_FIELD;
     private static final Class<?> TRUSTED_FUTURE_INTERRUPTIBLE_TASK_CLASS;
     private static final UnsafeField<?> TRUSTED_FUTURE_INTERRUPTIBLE_TASK_FIELD;
     private static final Class<?> TRUSTED_FUTURE_INTERRUPTIBLE_ASYNC_TASK_CLASS;
@@ -32,7 +32,7 @@ public class PriorityThreadPoolExecutor extends java.util.concurrent.ThreadPoolE
     static {
         TRUSTED_LISTENABLE_FUTURE_TASK_CLASS = Reflections
                 .classForName("com.google.common.util.concurrent.TrustedListenableFutureTask");
-        TRUSTED_LISTENABLE_FUTURE_TASK_GETTER = new UnsafeField<Object>(
+        TRUSTED_LISTENABLE_FUTURE_TASK_FIELD = new UnsafeField<Object>(
                 Reflections.findField(TRUSTED_LISTENABLE_FUTURE_TASK_CLASS, "task"));
 
         TRUSTED_FUTURE_INTERRUPTIBLE_TASK_CLASS = Reflections.classForName(
@@ -74,7 +74,7 @@ public class PriorityThreadPoolExecutor extends java.util.concurrent.ThreadPoolE
                     final IPriorityProvider provider = (IPriorityProvider) unwrapped;
                     return provider.getPriority();
                 } else if (TRUSTED_LISTENABLE_FUTURE_TASK_CLASS.isAssignableFrom(unwrapped.getClass())) {
-                    unwrapped = TRUSTED_LISTENABLE_FUTURE_TASK_GETTER.get(unwrapped);
+                    unwrapped = TRUSTED_LISTENABLE_FUTURE_TASK_FIELD.get(unwrapped);
                 } else if (TRUSTED_FUTURE_INTERRUPTIBLE_TASK_CLASS.isAssignableFrom(unwrapped.getClass())) {
                     unwrapped = TRUSTED_FUTURE_INTERRUPTIBLE_TASK_FIELD.get(unwrapped);
                 } else if (TRUSTED_FUTURE_INTERRUPTIBLE_ASYNC_TASK_CLASS.isAssignableFrom(unwrapped.getClass())) {
