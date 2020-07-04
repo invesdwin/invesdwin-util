@@ -31,6 +31,9 @@ public final class Reflections extends AReflectionsStaticFacade {
      */
     public static final boolean JAVA_DEBUG_MODE;
 
+    @SuppressWarnings("restriction")
+    private static sun.misc.Unsafe unsafe;
+
     static {
         JAVA_VERSION = determineJavaVersion();
         JAVA_DEBUG_MODE = java.lang.management.ManagementFactory.getRuntimeMXBean()
@@ -157,6 +160,20 @@ public final class Reflections extends AReflectionsStaticFacade {
                 }
             }
         }
+    }
+
+    @SuppressWarnings("restriction")
+    public static sun.misc.Unsafe getUnsafe() {
+        if (unsafe == null) {
+            try {
+                final Field unsafeField = sun.misc.Unsafe.class.getDeclaredField("theUnsafe");
+                unsafeField.setAccessible(true);
+                unsafe = (sun.misc.Unsafe) unsafeField.get(null);
+            } catch (final Throwable e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return unsafe;
     }
 
 }
