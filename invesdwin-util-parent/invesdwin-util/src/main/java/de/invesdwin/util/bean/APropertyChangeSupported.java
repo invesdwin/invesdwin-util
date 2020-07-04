@@ -16,7 +16,7 @@ import com.querydsl.core.annotations.QuerySupertype;
 
 import de.invesdwin.norva.beanpath.annotation.Hidden;
 import de.invesdwin.util.lang.Objects;
-import de.invesdwin.util.lang.Reflections;
+import de.invesdwin.util.lang.reflection.Reflections;
 
 /**
  * Standard implementation of {@link PropertyChangeSupported}. This class is thread-safe and uses a lazily initialized

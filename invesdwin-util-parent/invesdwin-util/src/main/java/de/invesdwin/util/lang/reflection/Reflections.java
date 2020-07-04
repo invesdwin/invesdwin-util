@@ -1,4 +1,4 @@
-package de.invesdwin.util.lang;
+package de.invesdwin.util.lang.reflection;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -14,9 +14,9 @@ import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
 import de.invesdwin.norva.beanpath.BeanPathReflections;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.factory.ILockCollectionFactory;
-import de.invesdwin.util.lang.internal.AReflectionsStaticFacade;
+import de.invesdwin.util.lang.reflection.internal.AReflectionsStaticFacade;
 
-@StaticFacadeDefinition(name = "de.invesdwin.util.lang.internal.AReflectionsStaticFacade", targets = {
+@StaticFacadeDefinition(name = "de.invesdwin.util.lang.reflection.internal.AReflectionsStaticFacade", targets = {
         org.fest.reflect.core.Reflection.class, BeanPathReflections.class,
         org.springframework.core.GenericTypeResolver.class })
 @Immutable

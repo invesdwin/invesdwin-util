@@ -14,7 +14,7 @@ import de.invesdwin.norva.beanpath.spi.element.IBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.IPropertyBeanPathElement;
 import de.invesdwin.util.bean.AValueObject;
 import de.invesdwin.util.lang.Objects;
-import de.invesdwin.util.lang.Reflections;
+import de.invesdwin.util.lang.reflection.Reflections;
 
 @ThreadSafe
 public class ValueObjectMerge {

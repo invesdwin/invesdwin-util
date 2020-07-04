@@ -1,4 +1,4 @@
-package de.invesdwin.util.lang;
+package de.invesdwin.util.lang.reflection;
 
 import java.lang.reflect.Field;
 

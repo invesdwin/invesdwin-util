@@ -10,10 +10,10 @@ import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.concurrent.reference.persistent.ACompressingWeakReference;
 import de.invesdwin.util.error.Throwables;
-import de.invesdwin.util.lang.Reflections;
 import de.invesdwin.util.lang.finalizer.internal.FallbackFinalizerManagerProvider;
 import de.invesdwin.util.lang.finalizer.internal.IFinalizerManagerProvider;
 import de.invesdwin.util.lang.finalizer.internal.JavaFinalizerManagerProvider;
+import de.invesdwin.util.lang.reflection.Reflections;
 import io.netty.util.concurrent.FastThreadLocal;
 
 @ThreadSafe

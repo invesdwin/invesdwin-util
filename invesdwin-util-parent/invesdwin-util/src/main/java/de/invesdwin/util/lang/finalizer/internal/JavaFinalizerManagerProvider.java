@@ -10,9 +10,9 @@ import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.concurrent.Executors;
-import de.invesdwin.util.lang.Reflections;
 import de.invesdwin.util.lang.finalizer.FinalizerManager;
 import de.invesdwin.util.lang.finalizer.IFinalizerReference;
+import de.invesdwin.util.lang.reflection.Reflections;
 
 @ThreadSafe
 public class JavaFinalizerManagerProvider implements IFinalizerManagerProvider {

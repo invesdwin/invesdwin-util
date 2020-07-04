@@ -9,7 +9,7 @@ import java.util.NoSuchElementException;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.error.FastNoSuchElementException;
-import de.invesdwin.util.lang.Reflections;
+import de.invesdwin.util.lang.reflection.Reflections;
 
 @NotThreadSafe
 public final class WrapperCloseableIterator<E> implements ICloseableIterator<E> {

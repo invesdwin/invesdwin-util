@@ -13,7 +13,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.collections.list.IFastToListProvider;
-import de.invesdwin.util.lang.Reflections;
+import de.invesdwin.util.lang.reflection.Reflections;
 
 @NotThreadSafe
 public class ArraySubListCloseableIterable<E> implements ICloseableIterable<E>, IFastToListProvider<E> {

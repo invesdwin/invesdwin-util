@@ -6,7 +6,7 @@ import java.lang.reflect.Field;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import de.invesdwin.util.lang.Reflections;
+import de.invesdwin.util.lang.reflection.Reflections;
 
 /**
  * apache commons LRUMap is faster than adjusted LinkedHashMap
