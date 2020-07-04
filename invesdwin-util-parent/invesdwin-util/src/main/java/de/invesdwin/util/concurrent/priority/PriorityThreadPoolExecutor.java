@@ -62,11 +62,23 @@ public class PriorityThreadPoolExecutor extends java.util.concurrent.ThreadPoolE
             return (RunnableFuture<T>) runnable;
         }
         final RunnableFuture<T> newTaskFor = super.newTaskFor(runnable, value);
-        final double priority = extractPriority(runnable);
+        final double priority = extractRunnablePriority(runnable);
         return new PriorityFuture<T>(newTaskFor, priority);
     }
 
-    public double extractPriority(final Runnable runnable) {
+    @Override
+    protected <T> RunnableFuture<T> newTaskFor(final Callable<T> callable) {
+        final RunnableFuture<T> newTaskFor = super.newTaskFor(callable);
+        final double priority = extractCallablePriority(callable);
+        return new PriorityFuture<T>(newTaskFor, priority);
+    }
+
+    @Override
+    public void execute(final Runnable command) {
+        super.execute(newTaskFor(command, null));
+    }
+
+    private double extractRunnablePriority(final Runnable runnable) {
         try {
             Object unwrapped = runnable;
             while (unwrapped != null) {
@@ -91,22 +103,14 @@ public class PriorityThreadPoolExecutor extends java.util.concurrent.ThreadPoolE
         }
     }
 
-    @Override
-    protected <T> RunnableFuture<T> newTaskFor(final Callable<T> callable) {
-        final RunnableFuture<T> newTaskFor = super.newTaskFor(callable);
-        final double priority;
+    private double extractCallablePriority(final Callable<?> callable) {
+        //there is no nesting by guava for callables since execute(command) is called
         if (callable instanceof IPriorityProvider) {
             final IPriorityProvider provider = (IPriorityProvider) callable;
-            priority = provider.getPriority();
+            return provider.getPriority();
         } else {
-            priority = IPriorityProvider.MISSING_PRIORITY;
+            return IPriorityProvider.MISSING_PRIORITY;
         }
-        return new PriorityFuture<T>(newTaskFor, priority);
-    }
-
-    @Override
-    public void execute(final Runnable command) {
-        super.execute(newTaskFor(command, null));
     }
 
 }
