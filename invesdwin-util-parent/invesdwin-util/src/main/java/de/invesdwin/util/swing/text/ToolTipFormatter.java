@@ -42,26 +42,27 @@ public final class ToolTipFormatter extends AValueObject {
     }
 
     public String format(final String str) {
-        if (maxLength < 1 || str.length() <= maxLength || lineBreaks == null || lineBreaks.length == 0) {
-            return str;
+        final String usedStr = adjustStr(str);
+        if (maxLength < 1 || usedStr.length() <= maxLength || lineBreaks == null || lineBreaks.length == 0) {
+            return usedStr;
         }
 
         final List<String> parts = new ArrayList<>();
         int stringPosition = 0;
 
-        while (stringPosition < str.length()) {
-            if (stringPosition + maxLength < str.length()) {
-                final String tipSubstring = str.substring(stringPosition, stringPosition + maxLength);
+        while (stringPosition < usedStr.length()) {
+            if (stringPosition + maxLength < usedStr.length()) {
+                final String tipSubstring = usedStr.substring(stringPosition, stringPosition + maxLength);
                 final int lastSpace = findSpace(tipSubstring);
                 if (lastSpace == -1 || lastSpace == 0) {
-                    parts.add(str.substring(stringPosition, stringPosition + maxLength));
+                    parts.add(usedStr.substring(stringPosition, stringPosition + maxLength));
                     stringPosition += maxLength;
                 } else {
-                    parts.add(str.substring(stringPosition, stringPosition + lastSpace));
+                    parts.add(usedStr.substring(stringPosition, stringPosition + lastSpace));
                     stringPosition += lastSpace;
                 }
             } else {
-                parts.add(str.substring(stringPosition));
+                parts.add(usedStr.substring(stringPosition));
                 break;
             }
         }
@@ -72,6 +73,11 @@ public final class ToolTipFormatter extends AValueObject {
             appendPart(sb, part);
         }
         return sb.toString();
+    }
+
+    protected String adjustStr(final String str) {
+        final String usedStr = str.replace(" < ", " &lt; ");
+        return usedStr;
     }
 
     private void appendPart(final StringBuilder sb, final String part) {
