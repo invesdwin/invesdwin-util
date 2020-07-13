@@ -264,6 +264,7 @@ public class ComparableTableRowSorter<M extends TableModel> extends ComparableDe
             try {
                 return ((Comparable) o1).compareTo(o2);
             } catch (final Throwable t) {
+                //e.g. when comparing PCT money to real currency
                 return -1;
             }
         }
