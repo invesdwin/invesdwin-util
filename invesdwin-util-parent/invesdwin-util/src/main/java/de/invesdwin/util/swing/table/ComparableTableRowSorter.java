@@ -261,7 +261,11 @@ public class ComparableTableRowSorter<M extends TableModel> extends ComparableDe
         @Override
         @SuppressWarnings("unchecked")
         public int compare(final Object o1, final Object o2) {
-            return ((Comparable) o1).compareTo(o2);
+            try {
+                return ((Comparable) o1).compareTo(o2);
+            } catch (final Throwable t) {
+                return -1;
+            }
         }
     }
 }
