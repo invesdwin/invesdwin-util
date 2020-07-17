@@ -29,6 +29,7 @@ public final class Executors {
 
     public static final ListeningExecutorService SIMPLE_DISABLED_EXECUTOR = MoreExecutors.newDirectExecutorService();
 
+    private static final int MAX_CACHED_POOL_SIZE = 1000;
     private static int cpuThreadPoolCount = Runtime.getRuntime().availableProcessors();
 
     private Executors() {}
@@ -39,6 +40,7 @@ public final class Executors {
     public static WrappedExecutorService newCachedThreadPool(final String name) {
         final java.util.concurrent.ThreadPoolExecutor ex = (java.util.concurrent.ThreadPoolExecutor) java.util.concurrent.Executors
                 .newCachedThreadPool(newFastThreadLocalThreadFactory(name));
+        ex.setMaximumPoolSize(MAX_CACHED_POOL_SIZE);
         return new WrappedExecutorService(ex, name);
     }
 
@@ -68,7 +70,7 @@ public final class Executors {
      */
     public static WrappedScheduledExecutorService newScheduledThreadPool(final String name) {
         final java.util.concurrent.ScheduledThreadPoolExecutor ex = (java.util.concurrent.ScheduledThreadPoolExecutor) java.util.concurrent.Executors
-                .newScheduledThreadPool(100, newFastThreadLocalThreadFactory(name));
+                .newScheduledThreadPool(MAX_CACHED_POOL_SIZE, newFastThreadLocalThreadFactory(name));
         return new WrappedScheduledExecutorService(ex, name).withDynamicThreadName(false);
     }
 
