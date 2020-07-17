@@ -31,8 +31,7 @@ public final class Executors {
 
     private static int cpuThreadPoolCount = Runtime.getRuntime().availableProcessors();
 
-    private Executors() {
-    }
+    private Executors() {}
 
     /**
      * @see java.util.concurrent.Executors.newCachedThreadPool
@@ -69,7 +68,7 @@ public final class Executors {
      */
     public static WrappedScheduledExecutorService newScheduledThreadPool(final String name) {
         final java.util.concurrent.ScheduledThreadPoolExecutor ex = (java.util.concurrent.ScheduledThreadPoolExecutor) java.util.concurrent.Executors
-                .newScheduledThreadPool(Integer.MAX_VALUE, newFastThreadLocalThreadFactory(name));
+                .newScheduledThreadPool(100, newFastThreadLocalThreadFactory(name));
         return new WrappedScheduledExecutorService(ex, name).withDynamicThreadName(false);
     }
 

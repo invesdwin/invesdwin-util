@@ -90,16 +90,11 @@ public class WrappedExecutorService implements ListeningExecutorService {
     private IShutdownHook shutdownHook;
 
     protected WrappedExecutorService(final ExecutorService delegate, final String name) {
-        this.delegate = decorate(delegate);
         this.shutdownHook = newShutdownHook(delegate);
         this.name = name;
         this.pendingCountLock = Locks
                 .newReentrantLock(WrappedExecutorService.class.getSimpleName() + "_" + name + "_pendingCountLock");
-        configure();
-    }
-
-    protected ListeningExecutorService decorate(final ExecutorService delegate) {
-        return MoreExecutors.listeningDecorator(delegate);
+        this.delegate = configure(delegate);
     }
 
     protected IShutdownHook newShutdownHook(final ExecutorService delegate) {
@@ -183,7 +178,7 @@ public class WrappedExecutorService implements ListeningExecutorService {
         }
     }
 
-    private synchronized void configure() {
+    protected ListeningExecutorService configure(final ExecutorService delegate) {
         /*
          * All executors should be shutdown on application shutdown.
          */
@@ -199,8 +194,8 @@ public class WrappedExecutorService implements ListeningExecutorService {
             cDelegate.setKeepAliveTime(FIXED_THREAD_KEEPALIVE_TIMEOUT.longValue(),
                     FIXED_THREAD_KEEPALIVE_TIMEOUT.getTimeUnit().timeUnitValue());
             /*
-             * Fixes non starting with corepoolsize von 0 and not filled queue (Java Conurrency In Practice Chapter
-             * 8.3.1). If this bug can occur, a exception would be thrown here.
+             * Fixes non starting with corepoolsize of 0 and not filled queue (Java Concurrency In Practice Chapter
+             * 8.3.1). If this bug can occur, an exception would be thrown here.
              */
             cDelegate.allowCoreThreadTimeOut(true);
             /*
@@ -214,8 +209,9 @@ public class WrappedExecutorService implements ListeningExecutorService {
                 cDelegate.setThreadFactory(threadFactory);
             }
             threadFactory.setParent(internal);
-
         }
+
+        return MoreExecutors.listeningDecorator(delegate);
     }
 
     private synchronized void unconfigure() {
