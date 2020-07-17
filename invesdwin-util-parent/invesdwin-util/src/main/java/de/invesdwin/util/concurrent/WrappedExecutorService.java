@@ -211,6 +211,10 @@ public class WrappedExecutorService implements ListeningExecutorService {
             threadFactory.setParent(internal);
         }
 
+        return decorate(delegate);
+    }
+
+    protected ListeningExecutorService decorate(final ExecutorService delegate) {
         return MoreExecutors.listeningDecorator(delegate);
     }
 
