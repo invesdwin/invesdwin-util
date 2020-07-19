@@ -7,7 +7,7 @@ import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.math.expression.ExpressionReturnType;
 import de.invesdwin.util.math.expression.IExpression;
 import de.invesdwin.util.math.expression.IFunctionParameterInfo;
-import de.invesdwin.util.time.fdate.FDate;
+import de.invesdwin.util.math.expression.eval.IParsedExpression;
 
 @NotThreadSafe
 public abstract class AFunction {
@@ -80,12 +80,6 @@ public abstract class AFunction {
 
     protected abstract IFunctionParameterInfo getParameterInfo(int index);
 
-    public abstract double eval(FDate key, IExpression[] args);
-
-    public abstract double eval(int key, IExpression[] args);
-
-    public abstract double eval(IExpression[] args);
-
     /**
      * return true if this function returns the same value for every key on the same arguments, if this is the case and
      * all arguments are constants, then this function can be simplified into a constant expression too. You don't have
@@ -149,5 +143,9 @@ public abstract class AFunction {
     public String toString() {
         return Objects.toStringHelper(this).addValue(getExpressionName()).toString();
     }
+
+    public abstract IParsedExpression newCall(String context, IParsedExpression[] parameters);
+
+    public abstract FunctionType getType();
 
 }

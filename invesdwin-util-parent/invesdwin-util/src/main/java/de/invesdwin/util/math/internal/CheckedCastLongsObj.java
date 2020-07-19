@@ -4,6 +4,7 @@ import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -222,6 +223,9 @@ public final class CheckedCastLongsObj {
         } else if (value instanceof boolean[]) {
             final boolean[] cValue = (boolean[]) value;
             return checkedCastVectorObj(cValue);
+        } else if (value instanceof BitSet) {
+            final BitSet cValue = (BitSet) value;
+            return checkedCastVectorObj(cValue);
         } else if (value instanceof Boolean[]) {
             final Boolean[] cValue = (Boolean[]) value;
             return checkedCastVectorObj(cValue);
@@ -314,6 +318,17 @@ public final class CheckedCastLongsObj {
         final Long[] vector = new Long[value.length];
         for (int i = 0; i < value.length; i++) {
             vector[i] = checkedCastObj(value[i]);
+        }
+        return vector;
+    }
+    
+    public static Long[] checkedCastVectorObj(final BitSet value) {
+        if (value == null) {
+            return null;
+        }
+        final Long[] vector = new Long[value.size()];
+        for (int i = 0; i < value.size(); i++) {
+            vector[i] = checkedCastObj(value.get(i));
         }
         return vector;
     }
@@ -595,6 +610,9 @@ public final class CheckedCastLongsObj {
         } else if (value instanceof boolean[][]) {
             final boolean[][] cValue = (boolean[][]) value;
             return checkedCastMatrixObj(cValue);
+        } else if (value instanceof BitSet[]) {
+            final BitSet[] cValue = (BitSet[]) value;
+            return checkedCastMatrixObj(cValue);
         } else if (value instanceof Boolean[][]) {
             final Boolean[][] cValue = (Boolean[][]) value;
             return checkedCastMatrixObj(cValue);
@@ -758,6 +776,17 @@ public final class CheckedCastLongsObj {
     }
 
     public static Long[][] checkedCastMatrixObj(final boolean[][] value) {
+        if (value == null) {
+            return null;
+        }
+        final Long[][] matrix = new Long[value.length][];
+        for (int row = 0; row < value.length; row++) {
+            matrix[row] = checkedCastVectorObj(value[row]);
+        }
+        return matrix;
+    }
+    
+    public static Long[][] checkedCastMatrixObj(final BitSet[] value) {
         if (value == null) {
             return null;
         }

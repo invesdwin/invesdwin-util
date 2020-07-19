@@ -10,7 +10,7 @@ import de.invesdwin.util.time.fdate.FDate;
 @Immutable
 public final class LogicalFunctions {
 
-    public static final AFunction IF = new AFunction() {
+    public static final ADoubleFunction IF = new ADoubleFunction() {
 
         @Override
         public String getExpressionName() {
@@ -205,7 +205,7 @@ public final class LogicalFunctions {
         }
     };
 
-    public static final AFunction ISNAN = new AFunction() {
+    public static final ABooleanFunction ISNAN = new ABooleanFunction() {
 
         @Override
         public String getExpressionName() {
@@ -223,33 +223,21 @@ public final class LogicalFunctions {
         }
 
         @Override
-        public double eval(final FDate key, final IExpression[] args) {
+        public boolean eval(final FDate key, final IExpression[] args) {
             final double a = args[0].evaluateDouble(key);
-            if (Double.isNaN(a)) {
-                return 1D;
-            } else {
-                return 0D;
-            }
+            return Double.isNaN(a);
         }
 
         @Override
-        public double eval(final int key, final IExpression[] args) {
+        public boolean eval(final int key, final IExpression[] args) {
             final double a = args[0].evaluateDouble(key);
-            if (Double.isNaN(a)) {
-                return 1D;
-            } else {
-                return 0D;
-            }
+            return Double.isNaN(a);
         }
 
         @Override
-        public double eval(final IExpression[] args) {
+        public boolean eval(final IExpression[] args) {
             final double a = args[0].evaluateDouble();
-            if (Double.isNaN(a)) {
-                return 1D;
-            } else {
-                return 0D;
-            }
+            return Double.isNaN(a);
         }
 
         @Override
@@ -322,7 +310,7 @@ public final class LogicalFunctions {
         }
     };
 
-    public static final AFunction ISTRUE = new AFunction() {
+    public static final ABooleanFunction ISTRUE = new ABooleanFunction() {
 
         @Override
         public String getExpressionName() {
@@ -340,33 +328,21 @@ public final class LogicalFunctions {
         }
 
         @Override
-        public double eval(final FDate key, final IExpression[] args) {
+        public boolean eval(final FDate key, final IExpression[] args) {
             final Boolean a = args[0].evaluateBooleanNullable(key);
-            if (a != null && a == Boolean.TRUE) {
-                return 1D;
-            } else {
-                return 0D;
-            }
+            return a != null && a == Boolean.TRUE;
         }
 
         @Override
-        public double eval(final int key, final IExpression[] args) {
+        public boolean eval(final int key, final IExpression[] args) {
             final Boolean a = args[0].evaluateBooleanNullable(key);
-            if (a != null && a == Boolean.TRUE) {
-                return 1D;
-            } else {
-                return 0D;
-            }
+            return a != null && a == Boolean.TRUE;
         }
 
         @Override
-        public double eval(final IExpression[] args) {
+        public boolean eval(final IExpression[] args) {
             final Boolean a = args[0].evaluateBooleanNullable();
-            if (a != null && a == Boolean.TRUE) {
-                return 1D;
-            } else {
-                return 0D;
-            }
+            return a != null && a == Boolean.TRUE;
         }
 
         @Override
@@ -439,7 +415,7 @@ public final class LogicalFunctions {
         }
     };
 
-    public static final AFunction ISFALSE = new AFunction() {
+    public static final ABooleanFunction ISFALSE = new ABooleanFunction() {
 
         @Override
         public String getExpressionName() {
@@ -457,33 +433,21 @@ public final class LogicalFunctions {
         }
 
         @Override
-        public double eval(final FDate key, final IExpression[] args) {
+        public boolean eval(final FDate key, final IExpression[] args) {
             final Boolean a = args[0].evaluateBooleanNullable(key);
-            if (a == null || a == Boolean.TRUE) {
-                return 0D;
-            } else {
-                return 1D;
-            }
+            return !(a == null || a == Boolean.TRUE);
         }
 
         @Override
-        public double eval(final int key, final IExpression[] args) {
+        public boolean eval(final int key, final IExpression[] args) {
             final Boolean a = args[0].evaluateBooleanNullable(key);
-            if (a == null || a == Boolean.TRUE) {
-                return 0D;
-            } else {
-                return 1D;
-            }
+            return !(a == null || a == Boolean.TRUE);
         }
 
         @Override
-        public double eval(final IExpression[] args) {
+        public boolean eval(final IExpression[] args) {
             final Boolean a = args[0].evaluateBooleanNullable();
-            if (a == null || a == Boolean.TRUE) {
-                return 0D;
-            } else {
-                return 1D;
-            }
+            return !(a == null || a == Boolean.TRUE);
         }
 
         @Override
@@ -556,7 +520,7 @@ public final class LogicalFunctions {
         }
     };
 
-    public static final AFunction NOT = new AFunction() {
+    public static final ABooleanNullableFunction NOT = new ABooleanNullableFunction() {
 
         @Override
         public String getExpressionName() {
@@ -574,38 +538,32 @@ public final class LogicalFunctions {
         }
 
         @Override
-        public double eval(final FDate key, final IExpression[] args) {
+        public Boolean eval(final FDate key, final IExpression[] args) {
             final Boolean a = args[0].evaluateBooleanNullable(key);
             if (a == null) {
-                return Double.NaN;
-            } else if (a == Boolean.TRUE) {
-                return 0D;
+                return null;
             } else {
-                return 1D;
+                return !(a == Boolean.TRUE);
             }
         }
 
         @Override
-        public double eval(final int key, final IExpression[] args) {
+        public Boolean eval(final int key, final IExpression[] args) {
             final Boolean a = args[0].evaluateBooleanNullable(key);
             if (a == null) {
-                return Double.NaN;
-            } else if (a == Boolean.TRUE) {
-                return 0D;
+                return null;
             } else {
-                return 1D;
+                return !(a == Boolean.TRUE);
             }
         }
 
         @Override
-        public double eval(final IExpression[] args) {
+        public Boolean eval(final IExpression[] args) {
             final Boolean a = args[0].evaluateBooleanNullable();
             if (a == null) {
-                return Double.NaN;
-            } else if (a == Boolean.TRUE) {
-                return 0D;
+                return null;
             } else {
-                return 1D;
+                return !(a == Boolean.TRUE);
             }
         }
 
@@ -682,8 +640,8 @@ public final class LogicalFunctions {
     private LogicalFunctions() {
     }
 
-    public static AFunction newMapFunction(final String expressionName) {
-        return new AFunction() {
+    public static ADoubleFunction newMapFunction(final String expressionName) {
+        return new ADoubleFunction() {
 
             @Override
             public String getExpressionName() {
@@ -869,8 +827,8 @@ public final class LogicalFunctions {
         };
     }
 
-    public static AFunction newVoteFunction(final String expressionName) {
-        return new AFunction() {
+    public static ADoubleFunction newVoteFunction(final String expressionName) {
+        return new ADoubleFunction() {
 
             @Override
             public String getExpressionName() {

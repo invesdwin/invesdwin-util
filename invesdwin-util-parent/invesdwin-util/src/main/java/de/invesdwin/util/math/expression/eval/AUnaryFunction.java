@@ -3,11 +3,11 @@ package de.invesdwin.util.math.expression.eval;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.math.expression.IExpression;
-import de.invesdwin.util.math.expression.function.AFunction;
+import de.invesdwin.util.math.expression.function.ADoubleFunction;
 import de.invesdwin.util.time.fdate.FDate;
 
 @Immutable
-public abstract class AUnaryFunction extends AFunction {
+public abstract class AUnaryFunction extends ADoubleFunction {
 
     @Override
     public int getNumberOfArguments() {

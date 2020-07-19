@@ -5,11 +5,11 @@ import javax.annotation.concurrent.Immutable;
 import de.invesdwin.util.math.expression.ExpressionReturnType;
 import de.invesdwin.util.math.expression.IExpression;
 import de.invesdwin.util.math.expression.IFunctionParameterInfo;
-import de.invesdwin.util.math.expression.function.AFunction;
+import de.invesdwin.util.math.expression.function.ADoubleFunction;
 import de.invesdwin.util.time.fdate.FDate;
 
 @Immutable
-public class VariableFunction extends AFunction {
+public class VariableFunction extends ADoubleFunction {
 
     private final String context;
     private final String name;

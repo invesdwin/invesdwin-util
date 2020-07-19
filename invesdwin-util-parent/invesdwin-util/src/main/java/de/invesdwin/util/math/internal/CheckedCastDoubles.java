@@ -4,6 +4,7 @@ import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -181,6 +182,9 @@ public final class CheckedCastDoubles {
         } else if (value instanceof boolean[]) {
             final boolean[] cValue = (boolean[]) value;
             return checkedCastVector(cValue);
+        } else if (value instanceof BitSet) {
+            final BitSet cValue = (BitSet) value;
+            return checkedCastVector(cValue);
         } else if (value instanceof Boolean[]) {
             final Boolean[] cValue = (Boolean[]) value;
             return checkedCastVector(cValue);
@@ -273,6 +277,17 @@ public final class CheckedCastDoubles {
         final double[] vector = new double[value.length];
         for (int i = 0; i < value.length; i++) {
             vector[i] = checkedCast(value[i]);
+        }
+        return vector;
+    }
+    
+    public static double[] checkedCastVector(final BitSet value) {
+        if (value == null) {
+            return null;
+        }
+        final double[] vector = new double[value.size()];
+        for (int i = 0; i < value.size(); i++) {
+            vector[i] = checkedCast(value.get(i));
         }
         return vector;
     }
@@ -554,6 +569,9 @@ public final class CheckedCastDoubles {
         } else if (value instanceof boolean[][]) {
             final boolean[][] cValue = (boolean[][]) value;
             return checkedCastMatrix(cValue);
+        } else if (value instanceof BitSet[]) {
+            final BitSet[] cValue = (BitSet[]) value;
+            return checkedCastMatrix(cValue);
         } else if (value instanceof Boolean[][]) {
             final Boolean[][] cValue = (Boolean[][]) value;
             return checkedCastMatrix(cValue);
@@ -706,6 +724,17 @@ public final class CheckedCastDoubles {
     }
 
     public static double[][] checkedCastMatrix(final Boolean[][] value) {
+        if (value == null) {
+            return null;
+        }
+        final double[][] matrix = new double[value.length][];
+        for (int row = 0; row < value.length; row++) {
+            matrix[row] = checkedCastVector(value[row]);
+        }
+        return matrix;
+    }
+    
+    public static double[][] checkedCastMatrix(final BitSet[] value) {
         if (value == null) {
             return null;
         }

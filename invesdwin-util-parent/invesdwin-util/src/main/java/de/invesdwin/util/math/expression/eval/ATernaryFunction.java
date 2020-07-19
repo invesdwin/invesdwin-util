@@ -3,11 +3,11 @@ package de.invesdwin.util.math.expression.eval;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.math.expression.IExpression;
-import de.invesdwin.util.math.expression.function.AFunction;
+import de.invesdwin.util.math.expression.function.ADoubleFunction;
 import de.invesdwin.util.time.fdate.FDate;
 
 @NotThreadSafe
-public abstract class ATernaryFunction extends AFunction {
+public abstract class ATernaryFunction extends ADoubleFunction {
 
     @Override
     public int getNumberOfArguments() {

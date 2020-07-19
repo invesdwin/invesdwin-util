@@ -23,12 +23,12 @@ public final class HistoricalFunctions {
             }
 
             @Override
-            public AFunction newFunction(final IPreviousKeyFunction previousKeyFunction) {
+            public ABooleanFunction newFunction(final IPreviousKeyFunction previousKeyFunction) {
                 if (previousKeyFunction == null) {
                     return null;
                 }
 
-                return new AFunction() {
+                return new ABooleanFunction() {
 
                     @Override
                     public boolean shouldPersist() {
@@ -117,38 +117,38 @@ public final class HistoricalFunctions {
                     }
 
                     @Override
-                    public double eval(final IExpression[] args) {
+                    public boolean eval(final IExpression[] args) {
                         throw new UnsupportedOperationException("use time or int key instead");
                     }
 
                     @Override
-                    public double eval(final int key, final IExpression[] args) {
+                    public boolean eval(final int key, final IExpression[] args) {
                         final IExpression condition = args[0];
                         final boolean cur = condition.evaluateBoolean(key);
                         if (!cur) {
-                            return 0D;
+                            return false;
                         }
                         final int prevKey = previousKeyFunction.getPreviousKey(key, 1);
                         final boolean prev = condition.evaluateBoolean(prevKey);
                         if (prev) {
-                            return 0D;
+                            return false;
                         }
-                        return 1D;
+                        return true;
                     }
 
                     @Override
-                    public double eval(final FDate key, final IExpression[] args) {
+                    public boolean eval(final FDate key, final IExpression[] args) {
                         final IExpression condition = args[0];
                         final boolean cur = condition.evaluateBoolean(key);
                         if (!cur) {
-                            return 0D;
+                            return false;
                         }
                         final FDate prevKey = previousKeyFunction.getPreviousKey(key, 1);
                         final boolean prev = condition.evaluateBoolean(prevKey);
                         if (prev) {
-                            return 0D;
+                            return false;
                         }
-                        return 1D;
+                        return true;
                     }
                 };
             }
@@ -164,12 +164,12 @@ public final class HistoricalFunctions {
             }
 
             @Override
-            public AFunction newFunction(final IPreviousKeyFunction previousKeyFunction) {
+            public ABooleanFunction newFunction(final IPreviousKeyFunction previousKeyFunction) {
                 if (previousKeyFunction == null) {
                     return null;
                 }
 
-                return new AFunction() {
+                return new ABooleanFunction() {
 
                     @Override
                     public boolean shouldPersist() {
@@ -296,42 +296,42 @@ public final class HistoricalFunctions {
                     }
 
                     @Override
-                    public double eval(final IExpression[] args) {
+                    public boolean eval(final IExpression[] args) {
                         throw new UnsupportedOperationException("use time or int key instead");
                     }
 
                     @Override
-                    public double eval(final int key, final IExpression[] args) {
+                    public boolean eval(final int key, final IExpression[] args) {
                         final IExpression condition = args[0];
                         final int count = args[1].evaluateInteger(key);
                         int curKey = key;
                         for (int i = 1; i <= count; i++) {
                             final Boolean result = condition.evaluateBooleanNullable(curKey);
                             if (result != null && !result) {
-                                return 0D;
+                                return false;
                             }
                             if (i != count) {
                                 curKey = previousKeyFunction.getPreviousKey(curKey, 1);
                             }
                         }
-                        return 1D;
+                        return true;
                     }
 
                     @Override
-                    public double eval(final FDate key, final IExpression[] args) {
+                    public boolean eval(final FDate key, final IExpression[] args) {
                         final IExpression condition = args[0];
                         final int count = args[1].evaluateInteger(key);
                         FDate curKey = key;
                         for (int i = 1; i <= count; i++) {
                             final Boolean result = condition.evaluateBooleanNullable(curKey);
                             if (result != null && !result) {
-                                return 0D;
+                                return false;
                             }
                             if (i != count) {
                                 curKey = previousKeyFunction.getPreviousKey(curKey, 1);
                             }
                         }
-                        return 1D;
+                        return true;
                     }
                 };
             }
@@ -347,12 +347,12 @@ public final class HistoricalFunctions {
             }
 
             @Override
-            public AFunction newFunction(final IPreviousKeyFunction previousKeyFunction) {
+            public ADoubleFunction newFunction(final IPreviousKeyFunction previousKeyFunction) {
                 if (previousKeyFunction == null) {
                     return null;
                 }
 
-                return new AFunction() {
+                return new ADoubleFunction() {
 
                     @Override
                     public boolean shouldPersist() {
@@ -536,12 +536,12 @@ public final class HistoricalFunctions {
             }
 
             @Override
-            public AFunction newFunction(final IPreviousKeyFunction previousKeyFunction) {
+            public ABooleanFunction newFunction(final IPreviousKeyFunction previousKeyFunction) {
                 if (previousKeyFunction == null) {
                     return null;
                 }
 
-                return new AFunction() {
+                return new ABooleanFunction() {
 
                     @Override
                     public boolean shouldPersist() {
@@ -670,12 +670,12 @@ public final class HistoricalFunctions {
                     }
 
                     @Override
-                    public double eval(final IExpression[] args) {
+                    public boolean eval(final IExpression[] args) {
                         throw new UnsupportedOperationException("use time or int key instead");
                     }
 
                     @Override
-                    public double eval(final int key, final IExpression[] args) {
+                    public boolean eval(final int key, final IExpression[] args) {
                         final BinaryOperation condition = BinaryOperation.validateComparativeOperation(args[0]);
                         final int count = args[1].evaluateInteger(key);
                         final double rightResult = condition.getRight().evaluateDouble(key);
@@ -684,17 +684,17 @@ public final class HistoricalFunctions {
                             final double leftResult = condition.getLeft().evaluateDouble(curKey);
                             final Boolean result = condition.getOp().applyBooleanNullable(leftResult, rightResult);
                             if (result != null && !result) {
-                                return 0D;
+                                return false;
                             }
                             if (i != count) {
                                 curKey = previousKeyFunction.getPreviousKey(curKey, 1);
                             }
                         }
-                        return 1D;
+                        return true;
                     }
 
                     @Override
-                    public double eval(final FDate key, final IExpression[] args) {
+                    public boolean eval(final FDate key, final IExpression[] args) {
                         final BinaryOperation condition = BinaryOperation.validateComparativeOperation(args[0]);
                         final int count = args[1].evaluateInteger(key);
                         final double rightResult = condition.getRight().evaluateDouble(key);
@@ -703,13 +703,13 @@ public final class HistoricalFunctions {
                             final double leftResult = condition.getLeft().evaluateDouble(curKey);
                             final Boolean result = condition.getOp().applyBooleanNullable(leftResult, rightResult);
                             if (result != null && !result) {
-                                return 0D;
+                                return false;
                             }
                             if (i != count) {
                                 curKey = previousKeyFunction.getPreviousKey(curKey, 1);
                             }
                         }
-                        return 1D;
+                        return true;
                     }
                 };
             }
@@ -725,12 +725,12 @@ public final class HistoricalFunctions {
             }
 
             @Override
-            public AFunction newFunction(final IPreviousKeyFunction previousKeyFunction) {
+            public ADoubleFunction newFunction(final IPreviousKeyFunction previousKeyFunction) {
                 if (previousKeyFunction == null) {
                     return null;
                 }
 
-                return new AFunction() {
+                return new ADoubleFunction() {
 
                     @Override
                     public boolean shouldPersist() {
@@ -924,12 +924,12 @@ public final class HistoricalFunctions {
             }
 
             @Override
-            public AFunction newFunction(final IPreviousKeyFunction previousKeyFunction) {
+            public ABooleanFunction newFunction(final IPreviousKeyFunction previousKeyFunction) {
                 if (previousKeyFunction == null) {
                     return null;
                 }
 
-                return new AFunction() {
+                return new ABooleanFunction() {
 
                     @Override
                     public boolean shouldPersist() {
@@ -1058,12 +1058,12 @@ public final class HistoricalFunctions {
                     }
 
                     @Override
-                    public double eval(final IExpression[] args) {
+                    public boolean eval(final IExpression[] args) {
                         throw new UnsupportedOperationException("use time or int key instead");
                     }
 
                     @Override
-                    public double eval(final int key, final IExpression[] args) {
+                    public boolean eval(final int key, final IExpression[] args) {
                         final BinaryOperation condition = BinaryOperation.validateComparativeOperation(args[0]);
                         final int count = args[1].evaluateInteger(key);
                         final double leftResult = condition.getLeft().evaluateDouble(key);
@@ -1072,17 +1072,17 @@ public final class HistoricalFunctions {
                             final double rightResult = condition.getRight().evaluateDouble(curKey);
                             final Boolean result = condition.getOp().applyBooleanNullable(leftResult, rightResult);
                             if (result != null && !result) {
-                                return 0D;
+                                return false;
                             }
                             if (i != count) {
                                 curKey = previousKeyFunction.getPreviousKey(curKey, 1);
                             }
                         }
-                        return 1D;
+                        return true;
                     }
 
                     @Override
-                    public double eval(final FDate key, final IExpression[] args) {
+                    public boolean eval(final FDate key, final IExpression[] args) {
                         final BinaryOperation condition = BinaryOperation.validateComparativeOperation(args[0]);
                         final int count = args[1].evaluateInteger(key);
                         final double leftResult = condition.getLeft().evaluateDouble(key);
@@ -1091,13 +1091,13 @@ public final class HistoricalFunctions {
                             final double rightResult = condition.getRight().evaluateDouble(curKey);
                             final Boolean result = condition.getOp().applyBooleanNullable(leftResult, rightResult);
                             if (result != null && !result) {
-                                return 0D;
+                                return false;
                             }
                             if (i != count) {
                                 curKey = previousKeyFunction.getPreviousKey(curKey, 1);
                             }
                         }
-                        return 1D;
+                        return true;
                     }
                 };
             }
@@ -1113,12 +1113,12 @@ public final class HistoricalFunctions {
             }
 
             @Override
-            public AFunction newFunction(final IPreviousKeyFunction previousKeyFunction) {
+            public ADoubleFunction newFunction(final IPreviousKeyFunction previousKeyFunction) {
                 if (previousKeyFunction == null) {
                     return null;
                 }
 
-                return new AFunction() {
+                return new ADoubleFunction() {
 
                     @Override
                     public boolean shouldPersist() {
@@ -1312,12 +1312,12 @@ public final class HistoricalFunctions {
             }
 
             @Override
-            public AFunction newFunction(final IPreviousKeyFunction previousKeyFunction) {
+            public ABooleanFunction newFunction(final IPreviousKeyFunction previousKeyFunction) {
                 if (previousKeyFunction == null) {
                     return null;
                 }
 
-                return new AFunction() {
+                return new ABooleanFunction() {
 
                     @Override
                     public boolean shouldPersist() {
@@ -1444,42 +1444,42 @@ public final class HistoricalFunctions {
                     }
 
                     @Override
-                    public double eval(final IExpression[] args) {
+                    public boolean eval(final IExpression[] args) {
                         throw new UnsupportedOperationException("use time or int key instead");
                     }
 
                     @Override
-                    public double eval(final int key, final IExpression[] args) {
+                    public boolean eval(final int key, final IExpression[] args) {
                         final IExpression condition = args[0];
                         final int count = args[1].evaluateInteger(key);
                         int curKey = key;
                         for (int i = 1; i <= count; i++) {
                             final boolean result = Booleans.isTrue(condition.evaluateBooleanNullable(curKey));
                             if (result) {
-                                return 1D;
+                                return true;
                             }
                             if (i != count) {
                                 curKey = previousKeyFunction.getPreviousKey(curKey, 1);
                             }
                         }
-                        return 0D;
+                        return false;
                     }
 
                     @Override
-                    public double eval(final FDate key, final IExpression[] args) {
+                    public boolean eval(final FDate key, final IExpression[] args) {
                         final IExpression condition = args[0];
                         final int count = args[1].evaluateInteger(key);
                         FDate curKey = key;
                         for (int i = 1; i <= count; i++) {
                             final boolean result = Booleans.isTrue(condition.evaluateBooleanNullable(curKey));
                             if (result) {
-                                return 1D;
+                                return true;
                             }
                             if (i != count) {
                                 curKey = previousKeyFunction.getPreviousKey(curKey, 1);
                             }
                         }
-                        return 0D;
+                        return false;
                     }
                 };
             }
@@ -1495,12 +1495,12 @@ public final class HistoricalFunctions {
             }
 
             @Override
-            public AFunction newFunction(final IPreviousKeyFunction previousKeyFunction) {
+            public ADoubleFunction newFunction(final IPreviousKeyFunction previousKeyFunction) {
                 if (previousKeyFunction == null) {
                     return null;
                 }
 
-                return new AFunction() {
+                return new ADoubleFunction() {
 
                     @Override
                     public boolean shouldPersist() {
@@ -1680,12 +1680,12 @@ public final class HistoricalFunctions {
             }
 
             @Override
-            public AFunction newFunction(final IPreviousKeyFunction previousKeyFunction) {
+            public ABooleanFunction newFunction(final IPreviousKeyFunction previousKeyFunction) {
                 if (previousKeyFunction == null) {
                     return null;
                 }
 
-                return new AFunction() {
+                return new ABooleanFunction() {
 
                     @Override
                     public boolean shouldPersist() {
@@ -1814,12 +1814,12 @@ public final class HistoricalFunctions {
                     }
 
                     @Override
-                    public double eval(final IExpression[] args) {
+                    public boolean eval(final IExpression[] args) {
                         throw new UnsupportedOperationException("use time or int key instead");
                     }
 
                     @Override
-                    public double eval(final int key, final IExpression[] args) {
+                    public boolean eval(final int key, final IExpression[] args) {
                         final BinaryOperation condition = BinaryOperation.validateComparativeOperation(args[0]);
                         final int count = args[1].evaluateInteger(key);
                         final double rightResult = condition.getRight().evaluateDouble(key);
@@ -1829,17 +1829,17 @@ public final class HistoricalFunctions {
                             final boolean result = Booleans
                                     .isTrue(condition.getOp().applyBooleanNullable(leftResult, rightResult));
                             if (result) {
-                                return 1D;
+                                return true;
                             }
                             if (i != count) {
                                 curKey = previousKeyFunction.getPreviousKey(curKey, 1);
                             }
                         }
-                        return 0D;
+                        return false;
                     }
 
                     @Override
-                    public double eval(final FDate key, final IExpression[] args) {
+                    public boolean eval(final FDate key, final IExpression[] args) {
                         final BinaryOperation condition = BinaryOperation.validateComparativeOperation(args[0]);
                         final int count = args[1].evaluateInteger(key);
                         final double rightResult = condition.getRight().evaluateDouble(key);
@@ -1849,13 +1849,13 @@ public final class HistoricalFunctions {
                             final boolean result = Booleans
                                     .isTrue(condition.getOp().applyBooleanNullable(leftResult, rightResult));
                             if (result) {
-                                return 1D;
+                                return true;
                             }
                             if (i != count) {
                                 curKey = previousKeyFunction.getPreviousKey(curKey, 1);
                             }
                         }
-                        return 0D;
+                        return false;
                     }
                 };
             }
@@ -1871,12 +1871,12 @@ public final class HistoricalFunctions {
             }
 
             @Override
-            public AFunction newFunction(final IPreviousKeyFunction previousKeyFunction) {
+            public ADoubleFunction newFunction(final IPreviousKeyFunction previousKeyFunction) {
                 if (previousKeyFunction == null) {
                     return null;
                 }
 
-                return new AFunction() {
+                return new ADoubleFunction() {
 
                     @Override
                     public boolean shouldPersist() {
@@ -2064,12 +2064,12 @@ public final class HistoricalFunctions {
             }
 
             @Override
-            public AFunction newFunction(final IPreviousKeyFunction previousKeyFunction) {
+            public ABooleanFunction newFunction(final IPreviousKeyFunction previousKeyFunction) {
                 if (previousKeyFunction == null) {
                     return null;
                 }
 
-                return new AFunction() {
+                return new ABooleanFunction() {
 
                     @Override
                     public boolean shouldPersist() {
@@ -2198,12 +2198,12 @@ public final class HistoricalFunctions {
                     }
 
                     @Override
-                    public double eval(final IExpression[] args) {
+                    public boolean eval(final IExpression[] args) {
                         throw new UnsupportedOperationException("use time or int key instead");
                     }
 
                     @Override
-                    public double eval(final int key, final IExpression[] args) {
+                    public boolean eval(final int key, final IExpression[] args) {
                         final BinaryOperation condition = BinaryOperation.validateComparativeOperation(args[0]);
                         final int count = args[1].evaluateInteger(key);
                         final double leftResult = condition.getLeft().evaluateDouble(key);
@@ -2213,17 +2213,17 @@ public final class HistoricalFunctions {
                             final boolean result = Booleans
                                     .isTrue(condition.getOp().applyBooleanNullable(leftResult, rightResult));
                             if (result) {
-                                return 1D;
+                                return true;
                             }
                             if (i != count) {
                                 curKey = previousKeyFunction.getPreviousKey(curKey, 1);
                             }
                         }
-                        return 0D;
+                        return false;
                     }
 
                     @Override
-                    public double eval(final FDate key, final IExpression[] args) {
+                    public boolean eval(final FDate key, final IExpression[] args) {
                         final BinaryOperation condition = BinaryOperation.validateComparativeOperation(args[0]);
                         final int count = args[1].evaluateInteger(key);
                         final double leftResult = condition.getLeft().evaluateDouble(key);
@@ -2233,13 +2233,13 @@ public final class HistoricalFunctions {
                             final boolean result = Booleans
                                     .isTrue(condition.getOp().applyBooleanNullable(leftResult, rightResult));
                             if (result) {
-                                return 1D;
+                                return true;
                             }
                             if (i != count) {
                                 curKey = previousKeyFunction.getPreviousKey(curKey, 1);
                             }
                         }
-                        return 0D;
+                        return false;
                     }
                 };
             }
@@ -2255,12 +2255,12 @@ public final class HistoricalFunctions {
             }
 
             @Override
-            public AFunction newFunction(final IPreviousKeyFunction previousKeyFunction) {
+            public ADoubleFunction newFunction(final IPreviousKeyFunction previousKeyFunction) {
                 if (previousKeyFunction == null) {
                     return null;
                 }
 
-                return new AFunction() {
+                return new ADoubleFunction() {
 
                     @Override
                     public boolean shouldPersist() {
@@ -2448,12 +2448,12 @@ public final class HistoricalFunctions {
             }
 
             @Override
-            public AFunction newFunction(final IPreviousKeyFunction previousKeyFunction) {
+            public ADoubleFunction newFunction(final IPreviousKeyFunction previousKeyFunction) {
                 if (previousKeyFunction == null) {
                     return null;
                 }
 
-                return new AFunction() {
+                return new ADoubleFunction() {
 
                     @Override
                     public boolean shouldPersist() {
@@ -2638,12 +2638,12 @@ public final class HistoricalFunctions {
             }
 
             @Override
-            public AFunction newFunction(final IPreviousKeyFunction previousKeyFunction) {
+            public ADoubleFunction newFunction(final IPreviousKeyFunction previousKeyFunction) {
                 if (previousKeyFunction == null) {
                     return null;
                 }
 
-                return new AFunction() {
+                return new ADoubleFunction() {
 
                     @Override
                     public boolean shouldPersist() {

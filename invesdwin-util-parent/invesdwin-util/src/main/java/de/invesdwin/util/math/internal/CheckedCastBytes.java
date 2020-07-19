@@ -4,6 +4,7 @@ import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -16,7 +17,8 @@ import de.invesdwin.util.math.decimal.ADecimal;
 @Immutable
 public final class CheckedCastBytes {
 
-    private CheckedCastBytes() {}
+    private CheckedCastBytes() {
+    }
 
     public static byte checkedCast(final Object value) {
         if (value instanceof Number) {
@@ -208,6 +210,9 @@ public final class CheckedCastBytes {
         } else if (value instanceof boolean[]) {
             final boolean[] cValue = (boolean[]) value;
             return checkedCastVector(cValue);
+        } else if (value instanceof BitSet) {
+            final BitSet cValue = (BitSet) value;
+            return checkedCastVector(cValue);
         } else if (value instanceof Boolean[]) {
             final Boolean[] cValue = (Boolean[]) value;
             return checkedCastVector(cValue);
@@ -300,6 +305,17 @@ public final class CheckedCastBytes {
         final byte[] vector = new byte[value.length];
         for (int i = 0; i < value.length; i++) {
             vector[i] = checkedCast(value[i]);
+        }
+        return vector;
+    }
+
+    public static byte[] checkedCastVector(final BitSet value) {
+        if (value == null) {
+            return null;
+        }
+        final byte[] vector = new byte[value.size()];
+        for (int i = 0; i < value.size(); i++) {
+            vector[i] = checkedCast(value.get(i));
         }
         return vector;
     }
@@ -581,6 +597,9 @@ public final class CheckedCastBytes {
         } else if (value instanceof boolean[][]) {
             final boolean[][] cValue = (boolean[][]) value;
             return checkedCastMatrix(cValue);
+        } else if (value instanceof BitSet[]) {
+            final BitSet[] cValue = (BitSet[]) value;
+            return checkedCastMatrix(cValue);
         } else if (value instanceof Boolean[][]) {
             final Boolean[][] cValue = (Boolean[][]) value;
             return checkedCastMatrix(cValue);
@@ -726,6 +745,17 @@ public final class CheckedCastBytes {
     }
 
     public static byte[][] checkedCastMatrix(final Boolean[][] value) {
+        if (value == null) {
+            return null;
+        }
+        final byte[][] matrix = new byte[value.length][];
+        for (int row = 0; row < value.length; row++) {
+            matrix[row] = checkedCastVector(value[row]);
+        }
+        return matrix;
+    }
+
+    public static byte[][] checkedCastMatrix(final BitSet[] value) {
         if (value == null) {
             return null;
         }

@@ -25,12 +25,12 @@ public final class StatisticalFunctions {
             }
 
             @Override
-            public AFunction newFunction(final IPreviousKeyFunction previousKeyFunction) {
+            public ADoubleFunction newFunction(final IPreviousKeyFunction previousKeyFunction) {
                 if (previousKeyFunction == null) {
                     return null;
                 }
 
-                return new AFunction() {
+                return new ADoubleFunction() {
 
                     @Override
                     public boolean shouldPersist() {
@@ -210,12 +210,12 @@ public final class StatisticalFunctions {
             }
 
             @Override
-            public AFunction newFunction(final IPreviousKeyFunction previousKeyFunction) {
+            public ADoubleFunction newFunction(final IPreviousKeyFunction previousKeyFunction) {
                 if (previousKeyFunction == null) {
                     return null;
                 }
 
-                return new AFunction() {
+                return new ADoubleFunction() {
 
                     @Override
                     public boolean shouldPersist() {
@@ -395,12 +395,12 @@ public final class StatisticalFunctions {
             }
 
             @Override
-            public AFunction newFunction(final IPreviousKeyFunction previousKeyFunction) {
+            public ADoubleFunction newFunction(final IPreviousKeyFunction previousKeyFunction) {
                 if (previousKeyFunction == null) {
                     return null;
                 }
 
-                return new AFunction() {
+                return new ADoubleFunction() {
 
                     @Override
                     public boolean shouldPersist() {
@@ -580,12 +580,12 @@ public final class StatisticalFunctions {
             }
 
             @Override
-            public AFunction newFunction(final IPreviousKeyFunction previousKeyFunction) {
+            public ADoubleFunction newFunction(final IPreviousKeyFunction previousKeyFunction) {
                 if (previousKeyFunction == null) {
                     return null;
                 }
 
-                return new AFunction() {
+                return new ADoubleFunction() {
 
                     @Override
                     public boolean shouldPersist() {
@@ -767,12 +767,12 @@ public final class StatisticalFunctions {
             }
 
             @Override
-            public AFunction newFunction(final IPreviousKeyFunction previousKeyFunction) {
+            public ADoubleFunction newFunction(final IPreviousKeyFunction previousKeyFunction) {
                 if (previousKeyFunction == null) {
                     return null;
                 }
 
-                return new AFunction() {
+                return new ADoubleFunction() {
 
                     @Override
                     public boolean shouldPersist() {
@@ -952,12 +952,12 @@ public final class StatisticalFunctions {
             }
 
             @Override
-            public AFunction newFunction(final IPreviousKeyFunction previousKeyFunction) {
+            public ADoubleFunction newFunction(final IPreviousKeyFunction previousKeyFunction) {
                 if (previousKeyFunction == null) {
                     return null;
                 }
 
-                return new AFunction() {
+                return new ADoubleFunction() {
 
                     @Override
                     public boolean shouldPersist() {
@@ -1140,12 +1140,12 @@ public final class StatisticalFunctions {
             }
 
             @Override
-            public AFunction newFunction(final IPreviousKeyFunction previousKeyFunction) {
+            public ADoubleFunction newFunction(final IPreviousKeyFunction previousKeyFunction) {
                 if (previousKeyFunction == null) {
                     return null;
                 }
 
-                return new AFunction() {
+                return new ADoubleFunction() {
 
                     @Override
                     public boolean shouldPersist() {
@@ -1325,12 +1325,12 @@ public final class StatisticalFunctions {
             }
 
             @Override
-            public AFunction newFunction(final IPreviousKeyFunction previousKeyFunction) {
+            public ADoubleFunction newFunction(final IPreviousKeyFunction previousKeyFunction) {
                 if (previousKeyFunction == null) {
                     return null;
                 }
 
-                return new AFunction() {
+                return new ADoubleFunction() {
 
                     @Override
                     public boolean shouldPersist() {
@@ -1512,12 +1512,12 @@ public final class StatisticalFunctions {
             }
 
             @Override
-            public AFunction newFunction(final IPreviousKeyFunction previousKeyFunction) {
+            public ADoubleFunction newFunction(final IPreviousKeyFunction previousKeyFunction) {
                 if (previousKeyFunction == null) {
                     return null;
                 }
 
-                return new AFunction() {
+                return new ADoubleFunction() {
 
                     @Override
                     public boolean shouldPersist() {

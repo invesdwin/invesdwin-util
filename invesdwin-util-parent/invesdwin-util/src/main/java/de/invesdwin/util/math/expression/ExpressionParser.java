@@ -14,10 +14,10 @@ import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.lang.description.TextDescription;
 import de.invesdwin.util.math.expression.eval.ConstantExpression;
 import de.invesdwin.util.math.expression.eval.DynamicPreviousKeyExpression;
-import de.invesdwin.util.math.expression.eval.FunctionCall;
 import de.invesdwin.util.math.expression.eval.IParsedExpression;
 import de.invesdwin.util.math.expression.eval.VariableFunction;
 import de.invesdwin.util.math.expression.eval.VariableReference;
+import de.invesdwin.util.math.expression.eval.call.DoubleFunctionCall;
 import de.invesdwin.util.math.expression.eval.operation.AndOperation;
 import de.invesdwin.util.math.expression.eval.operation.BinaryOperation;
 import de.invesdwin.util.math.expression.eval.operation.BinaryOperation.Op;
@@ -491,7 +491,7 @@ public class ExpressionParser {
                 tokenizer.consume();
                 final IParsedExpression param = expression(false);
                 expect(Token.TokenType.SYMBOL, "|");
-                return new FunctionCall(null, MathFunctions.ABS, param);
+                return new DoubleFunctionCall(null, MathFunctions.ABS, param);
             }
         } else if (current.isIdentifier()) {
             final IParsedExpression functionOrVariable = functionOrVariable();
@@ -593,7 +593,7 @@ public class ExpressionParser {
             }
         }
         final IParsedExpression[] parametersArray = parameters.toArray(new IParsedExpression[arguments]);
-        return new FunctionCall(functionContext, fun, parametersArray);
+        return fun.newCall(functionContext, parametersArray);
     }
 
     protected String modifyContext(final String context) {
@@ -766,7 +766,7 @@ public class ExpressionParser {
         final AFunction function = getFunction(context, name);
         if (function != null) {
             if (function.getNumberOfArgumentsMin() == 0) {
-                return new FunctionCall(context, function);
+                return function.newCall(context, IParsedExpression.EMPTY_EXPRESSIONS);
             } else {
                 throw new ParseException(position,
                         TextDescription.format(

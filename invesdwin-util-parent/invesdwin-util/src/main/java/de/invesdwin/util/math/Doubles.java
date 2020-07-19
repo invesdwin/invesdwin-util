@@ -652,6 +652,14 @@ public final class Doubles extends ADoublesStaticFacade {
         }
     }
 
+    public static double booleanToDouble(final boolean value) {
+        if (value) {
+            return 1D;
+        } else {
+            return 0D;
+        }
+    }
+
     public static double booleanToDouble(final Boolean value) {
         if (value == null) {
             return Double.NaN;

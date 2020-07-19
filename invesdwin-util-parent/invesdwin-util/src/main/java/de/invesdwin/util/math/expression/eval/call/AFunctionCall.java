@@ -1,75 +1,41 @@
-package de.invesdwin.util.math.expression.eval;
+package de.invesdwin.util.math.expression.eval.call;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.expression.IExpression;
+import de.invesdwin.util.math.expression.eval.ConstantExpression;
+import de.invesdwin.util.math.expression.eval.IParsedExpression;
 import de.invesdwin.util.math.expression.function.AFunction;
-import de.invesdwin.util.time.fdate.FDate;
+import de.invesdwin.util.math.expression.function.FunctionType;
 
 @NotThreadSafe
-public class FunctionCall implements IParsedExpression {
+public abstract class AFunctionCall<F extends AFunction> implements IParsedExpression {
 
-    private static final IParsedExpression[] EMPTY_PARAMETERS = new IParsedExpression[0];
+    protected final String context;
+    protected final IParsedExpression[] parameters;
+    protected final F function;
 
-    private final String context;
-    private final IParsedExpression[] parameters;
-    private final AFunction function;
-
-    public FunctionCall(final String context, final AFunction function, final IParsedExpression[] parameters) {
+    public AFunctionCall(final String context, final F function, final IParsedExpression[] parameters) {
         this.context = context;
         this.function = function;
         this.parameters = parameters;
     }
 
-    public FunctionCall(final String context, final AFunction function, final IParsedExpression parameter) {
+    public AFunctionCall(final String context, final F function, final IParsedExpression parameter) {
         this.context = context;
         this.function = function;
         this.parameters = new IParsedExpression[] { parameter };
     }
 
-    public FunctionCall(final String context, final AFunction function) {
+    public AFunctionCall(final String context, final F function) {
         this.context = context;
         this.function = function;
-        this.parameters = EMPTY_PARAMETERS;
-    }
-
-    @Override
-    public double evaluateDouble(final FDate key) {
-        return function.eval(key, parameters);
-    }
-
-    @Override
-    public double evaluateDouble(final int key) {
-        return function.eval(key, parameters);
-    }
-
-    @Override
-    public double evaluateDouble() {
-        return function.eval(parameters);
-    }
-
-    @Override
-    public Boolean evaluateBooleanNullable(final FDate key) {
-        final double eval = function.eval(key, parameters);
-        return Doubles.doubleToBoolean(eval);
-    }
-
-    @Override
-    public Boolean evaluateBooleanNullable(final int key) {
-        final double eval = function.eval(key, parameters);
-        return Doubles.doubleToBoolean(eval);
-    }
-
-    @Override
-    public Boolean evaluateBooleanNullable() {
-        final double eval = function.eval(parameters);
-        return Doubles.doubleToBoolean(eval);
+        this.parameters = EMPTY_EXPRESSIONS;
     }
 
     @Override
     public IParsedExpression simplify() {
-        final FunctionCall simplifiedParameters = simplifyParameters();
+        final AFunctionCall<F> simplifiedParameters = simplifyParameters();
         if (!function.isNaturalFunction(parameters)) {
             return simplifiedParameters;
         }
@@ -81,7 +47,7 @@ public class FunctionCall implements IParsedExpression {
         return new ConstantExpression(evaluateDouble());
     }
 
-    private FunctionCall simplifyParameters() {
+    private AFunctionCall<F> simplifyParameters() {
         if (parameters.length == 0) {
             return this;
         } else {
@@ -89,11 +55,13 @@ public class FunctionCall implements IParsedExpression {
             for (int i = 0; i < simplifiedParameters.length; i++) {
                 simplifiedParameters[i] = parameters[i].simplify();
             }
-            return new FunctionCall(context, function, simplifiedParameters);
+            return newFunctionCall(context, function, simplifiedParameters);
         }
     }
 
-    public AFunction getFunction() {
+    protected abstract AFunctionCall<F> newFunctionCall(String context, F function, IParsedExpression[] parameters);
+
+    public F getFunction() {
         return function;
     }
 
@@ -153,6 +121,10 @@ public class FunctionCall implements IParsedExpression {
     @Override
     public IExpression[] getChildren() {
         return parameters;
+    }
+
+    public FunctionType getType() {
+        return function.getType();
     }
 
 }
