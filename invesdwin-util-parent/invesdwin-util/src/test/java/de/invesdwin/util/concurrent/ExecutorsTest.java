@@ -24,6 +24,7 @@ public class ExecutorsTest {
     @Test
     public void testSingleThreadExecutor() throws InterruptedException {
         final WrappedExecutorService executor = Executors.newFixedThreadPool("testSingleThreadExecutor", 1);
+        Assertions.assertThat(executor.getFullPendingCount()).isEqualTo(1);
         for (int i = 0; i < 2; i++) {
             executor.execute(new WaitingRunnable(i));
         }
@@ -133,7 +134,8 @@ public class ExecutorsTest {
             tasks.add(getWorker(i));
         }
 
-        final ExecutorService executor = Executors.newFixedThreadPool("testDynamic", 10);
+        final WrappedExecutorService executor = Executors.newFixedThreadPool("testDynamic", 10);
+        Assertions.assertThat(executor.getFullPendingCount()).isEqualTo(10);
         Futures.submitAndWait(executor, tasks);
         System.out.println("end"); //SUPPRESS CHECKSTYLE single line
     }
@@ -155,6 +157,7 @@ public class ExecutorsTest {
     public void testRecursiveWorker() throws InterruptedException {
         final int rekusionen = 100;
         final WrappedExecutorService executor = Executors.newFixedThreadPool("testRecursiveWorker", 2);
+        Assertions.assertThat(executor.getFullPendingCount()).isEqualTo(2);
         final Object result = new Object();
         final Future<Object> future = executor.submit(getRecursiveWorker(executor, rekusionen), result);
         Assertions.assertThat(Futures.get(future)).isSameAs(result);
