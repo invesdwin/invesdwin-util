@@ -81,6 +81,7 @@ public class WrappedExecutorService implements ListeningExecutorService {
     private final AtomicInteger pendingCount = new AtomicInteger();
     private final Object pendingCountWaitLock = new Object();
     private final ListeningExecutorService delegate;
+    private final ExecutorService originalDelegate;
     private volatile boolean logExceptions = true;
     private volatile boolean waitOnFullPendingCount = false;
     private volatile boolean dynamicThreadName = true;
@@ -94,6 +95,7 @@ public class WrappedExecutorService implements ListeningExecutorService {
         this.name = name;
         this.pendingCountLock = Locks
                 .newReentrantLock(WrappedExecutorService.class.getSimpleName() + "_" + name + "_pendingCountLock");
+        this.originalDelegate = delegate;
         this.delegate = configure(delegate);
     }
 
@@ -298,7 +300,7 @@ public class WrappedExecutorService implements ListeningExecutorService {
     }
 
     public int getMaximumPoolSize() {
-        final ExecutorService delegate = getWrappedInstance();
+        final ExecutorService delegate = originalDelegate;
         if (delegate instanceof java.util.concurrent.ThreadPoolExecutor) {
             final java.util.concurrent.ThreadPoolExecutor cDelegate = (java.util.concurrent.ThreadPoolExecutor) delegate;
             return cDelegate.getMaximumPoolSize();
