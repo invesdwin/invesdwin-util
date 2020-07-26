@@ -94,6 +94,8 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
 
     private final IHistoricalCacheQuery<V> thisQueryWithFuture = query().withFuture();
 
+    private boolean clearRequested;
+
     @Override
     protected void innerIncreaseMaximumSize(final int maximumSize, final String reason) {
         super.innerIncreaseMaximumSize(maximumSize, reason);
@@ -108,6 +110,7 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
      */
     @Override
     protected final synchronized V loadValue(final FDate key) {
+        maybeClear();
         eventuallyGetMinMaxKeysInDB(key, false);
 
         this.furtherValuesLoaded = false;
@@ -546,14 +549,22 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
     protected abstract V readLatestValueFor(FDate key);
 
     @Override
-    public synchronized void clear() {
+    public void clear() {
         super.clear();
-        //remove flags so that the limit check gets skipped if get has not been called yet and this method might be called again
-        maxKeyInDB = null;
-        minKeyInDB = null;
-        //a clear forces the list to be completely reloaded next time get is called
-        furtherValues.clear();
-        lastValuesFromFurtherValues.clear();
+        //don't synchronize this clear method, instead just set the flag so that next loadValue clears
+        clearRequested = true;
+    }
+
+    private void maybeClear() {
+        if (clearRequested) {
+            //remove flags so that the limit check gets skipped if get has not been called yet and this method might be called again
+            maxKeyInDB = null;
+            minKeyInDB = null;
+            //a clear forces the list to be completely reloaded next time get is called
+            furtherValues.clear();
+            lastValuesFromFurtherValues.clear();
+            clearRequested = false;
+        }
     }
 
 }
