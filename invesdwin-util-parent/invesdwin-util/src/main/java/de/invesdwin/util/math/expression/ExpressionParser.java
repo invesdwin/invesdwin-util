@@ -15,9 +15,7 @@ import de.invesdwin.util.lang.description.TextDescription;
 import de.invesdwin.util.math.expression.eval.ConstantExpression;
 import de.invesdwin.util.math.expression.eval.DynamicPreviousKeyExpression;
 import de.invesdwin.util.math.expression.eval.IParsedExpression;
-import de.invesdwin.util.math.expression.eval.VariableFunction;
-import de.invesdwin.util.math.expression.eval.VariableReference;
-import de.invesdwin.util.math.expression.eval.call.DoubleFunctionCall;
+import de.invesdwin.util.math.expression.eval.function.DoubleFunctionCall;
 import de.invesdwin.util.math.expression.eval.operation.AndOperation;
 import de.invesdwin.util.math.expression.eval.operation.BinaryOperation;
 import de.invesdwin.util.math.expression.eval.operation.BinaryOperation.Op;
@@ -25,6 +23,7 @@ import de.invesdwin.util.math.expression.eval.operation.CrossesAboveOperation;
 import de.invesdwin.util.math.expression.eval.operation.CrossesBelowOperation;
 import de.invesdwin.util.math.expression.eval.operation.NotOperation;
 import de.invesdwin.util.math.expression.eval.operation.OrOperation;
+import de.invesdwin.util.math.expression.eval.variable.AVariableReference;
 import de.invesdwin.util.math.expression.function.AFunction;
 import de.invesdwin.util.math.expression.function.HistoricalFunctions;
 import de.invesdwin.util.math.expression.function.IFunctionFactory;
@@ -61,125 +60,125 @@ public class ExpressionParser {
         //CHECKSTYLE:ON
         DEFAULT_FUNCTIONS = new LinkedHashMap<>();
 
-        registerDefaultFunction(MathFunctions.SIN);
-        registerDefaultFunction(MathFunctions.COS);
-        registerDefaultFunction(MathFunctions.TAN);
-        registerDefaultFunction(MathFunctions.SINH);
-        registerDefaultFunction(MathFunctions.COSH);
-        registerDefaultFunction(MathFunctions.TANH);
-        registerDefaultFunction(MathFunctions.ASIN);
-        registerDefaultFunction(MathFunctions.ACOS);
-        registerDefaultFunction(MathFunctions.ATAN);
-        registerDefaultFunction(MathFunctions.ATAN2);
-        registerDefaultFunction(MathFunctions.DEG);
-        registerDefaultFunction(MathFunctions.RAD);
-        registerDefaultFunction(MathFunctions.ABS);
-        registerDefaultFunction(MathFunctions.ROUND);
-        registerDefaultFunction(MathFunctions.CEIL);
-        registerDefaultFunction(MathFunctions.FLOOR);
-        registerDefaultFunction(MathFunctions.EXP);
-        registerDefaultFunction(MathFunctions.LN);
-        registerDefaultFunction(MathFunctions.LOG);
-        registerDefaultFunction(MathFunctions.SQRT);
-        registerDefaultFunction(MathFunctions.POW);
+        putDefaultFunction(MathFunctions.SIN);
+        putDefaultFunction(MathFunctions.COS);
+        putDefaultFunction(MathFunctions.TAN);
+        putDefaultFunction(MathFunctions.SINH);
+        putDefaultFunction(MathFunctions.COSH);
+        putDefaultFunction(MathFunctions.TANH);
+        putDefaultFunction(MathFunctions.ASIN);
+        putDefaultFunction(MathFunctions.ACOS);
+        putDefaultFunction(MathFunctions.ATAN);
+        putDefaultFunction(MathFunctions.ATAN2);
+        putDefaultFunction(MathFunctions.DEG);
+        putDefaultFunction(MathFunctions.RAD);
+        putDefaultFunction(MathFunctions.ABS);
+        putDefaultFunction(MathFunctions.ROUND);
+        putDefaultFunction(MathFunctions.CEIL);
+        putDefaultFunction(MathFunctions.FLOOR);
+        putDefaultFunction(MathFunctions.EXP);
+        putDefaultFunction(MathFunctions.LN);
+        putDefaultFunction(MathFunctions.LOG);
+        putDefaultFunction(MathFunctions.SQRT);
+        putDefaultFunction(MathFunctions.POW);
         for (final String name : new String[] { "min", "minimum" }) {
-            registerDefaultFunction(MathFunctions.newMinimumFunction(name));
+            putDefaultFunction(MathFunctions.newMinimumFunction(name));
         }
         for (final String name : new String[] { "max", "maximum" }) {
-            registerDefaultFunction(MathFunctions.newMaximumFunction(name));
+            putDefaultFunction(MathFunctions.newMaximumFunction(name));
         }
         for (final String name : new String[] { "between", "clamp" }) {
-            registerDefaultFunction(MathFunctions.newBetweenFunction(name));
+            putDefaultFunction(MathFunctions.newBetweenFunction(name));
         }
         for (final String name : new String[] { "random", "rnd", "rng" }) {
-            registerDefaultFunction(MathFunctions.newRandomFunction(name));
+            putDefaultFunction(MathFunctions.newRandomFunction(name));
         }
-        registerDefaultFunction(MathFunctions.NORMALIZE_VALUE);
-        registerDefaultFunction(MathFunctions.SIGN);
-        registerDefaultFunction(MathFunctions.NEGATE);
+        putDefaultFunction(MathFunctions.NORMALIZE_VALUE);
+        putDefaultFunction(MathFunctions.SIGN);
+        putDefaultFunction(MathFunctions.NEGATE);
 
-        registerDefaultFunction(LogicalFunctions.IF);
+        putDefaultFunction(LogicalFunctions.IF);
 
         for (final String name : new String[] { "map", "select", "array", "decide" }) {
-            registerDefaultFunction(LogicalFunctions.newMapFunction(name));
+            putDefaultFunction(LogicalFunctions.newMapFunction(name));
         }
         for (final String name : new String[] { "vote", "ensemble", "threshold", "majority", "fuzzy" }) {
-            registerDefaultFunction(LogicalFunctions.newVoteFunction(name));
+            putDefaultFunction(LogicalFunctions.newVoteFunction(name));
         }
 
-        registerDefaultFunction(LogicalFunctions.ISNAN);
-        registerDefaultFunction(LogicalFunctions.ISTRUE);
-        registerDefaultFunction(LogicalFunctions.ISFALSE);
-        registerDefaultFunction(LogicalFunctions.NOT);
+        putDefaultFunction(LogicalFunctions.ISNAN);
+        putDefaultFunction(LogicalFunctions.ISTRUE);
+        putDefaultFunction(LogicalFunctions.ISFALSE);
+        putDefaultFunction(LogicalFunctions.NOT);
 
         for (final String name : new String[] { "once", "onceOnly", "onChange", "onChangeOnly", "onChangeOnlyOnce",
                 "changeOnly", "changed", "change", "single", "singleOnly" }) {
-            registerDefaultFunction(HistoricalFunctions.newOnceFunction(name));
+            putDefaultFunction(HistoricalFunctions.newOnceFunction(name));
         }
         for (final String name : new String[] { "stable", "repeat", "repeatAnd", "loop", "loopAnd", "hist", "histAnd",
                 "historical", "historicalAnd" }) {
-            registerDefaultFunction(HistoricalFunctions.newStableFunction(name));
-            registerDefaultFunction(HistoricalFunctions.newStableFunction(name + "Both"));
-            registerDefaultFunction(HistoricalFunctions.newStableLeftFunction(name + "Left"));
-            registerDefaultFunction(HistoricalFunctions.newStableRightFunction(name + "Right"));
+            putDefaultFunction(HistoricalFunctions.newStableFunction(name));
+            putDefaultFunction(HistoricalFunctions.newStableFunction(name + "Both"));
+            putDefaultFunction(HistoricalFunctions.newStableLeftFunction(name + "Left"));
+            putDefaultFunction(HistoricalFunctions.newStableRightFunction(name + "Right"));
 
-            registerDefaultFunction(HistoricalFunctions.newStableCountFunction(name + "Count"));
-            registerDefaultFunction(HistoricalFunctions.newStableCountFunction(name + "Count" + "Both"));
-            registerDefaultFunction(HistoricalFunctions.newStableCountLeftFunction(name + "Count" + "Left"));
-            registerDefaultFunction(HistoricalFunctions.newStableCountRightFunction(name + "Count" + "Right"));
+            putDefaultFunction(HistoricalFunctions.newStableCountFunction(name + "Count"));
+            putDefaultFunction(HistoricalFunctions.newStableCountFunction(name + "Count" + "Both"));
+            putDefaultFunction(HistoricalFunctions.newStableCountLeftFunction(name + "Count" + "Left"));
+            putDefaultFunction(HistoricalFunctions.newStableCountRightFunction(name + "Count" + "Right"));
         }
         for (final String name : new String[] { "occurs", "repeatOr", "loopOr", "histOr", "historicalOr" }) {
-            registerDefaultFunction(HistoricalFunctions.newOccursFunction(name));
-            registerDefaultFunction(HistoricalFunctions.newOccursFunction(name + "Both"));
-            registerDefaultFunction(HistoricalFunctions.newOccursLeftFunction(name + "Left"));
-            registerDefaultFunction(HistoricalFunctions.newOccursRightFunction(name + "Right"));
+            putDefaultFunction(HistoricalFunctions.newOccursFunction(name));
+            putDefaultFunction(HistoricalFunctions.newOccursFunction(name + "Both"));
+            putDefaultFunction(HistoricalFunctions.newOccursLeftFunction(name + "Left"));
+            putDefaultFunction(HistoricalFunctions.newOccursRightFunction(name + "Right"));
 
-            registerDefaultFunction(HistoricalFunctions.newOccursCountFunction(name + "Count"));
-            registerDefaultFunction(HistoricalFunctions.newOccursCountFunction(name + "Count" + "Both"));
-            registerDefaultFunction(HistoricalFunctions.newOccursCountLeftFunction(name + "Count" + "Left"));
-            registerDefaultFunction(HistoricalFunctions.newOccursCountRightFunction(name + "Count" + "Right"));
+            putDefaultFunction(HistoricalFunctions.newOccursCountFunction(name + "Count"));
+            putDefaultFunction(HistoricalFunctions.newOccursCountFunction(name + "Count" + "Both"));
+            putDefaultFunction(HistoricalFunctions.newOccursCountLeftFunction(name + "Count" + "Left"));
+            putDefaultFunction(HistoricalFunctions.newOccursCountRightFunction(name + "Count" + "Right"));
         }
-        registerDefaultFunction(HistoricalFunctions.newFirstIndexOfFunction("firstIndexOf"));
+        putDefaultFunction(HistoricalFunctions.newFirstIndexOfFunction("firstIndexOf"));
         for (final String name : new String[] { "indexOf", "lastIndexOf" }) {
-            registerDefaultFunction(HistoricalFunctions.newLastIndexOfFunction(name));
+            putDefaultFunction(HistoricalFunctions.newLastIndexOfFunction(name));
         }
 
         for (final String name : new String[] { "count", "countNotNaN", "countNotNull", "countExists" }) {
-            registerDefaultFunction(StatisticalFunctions.newCountFunction(name));
+            putDefaultFunction(StatisticalFunctions.newCountFunction(name));
         }
         for (final String name : new String[] { "median", "runningMedian" }) {
-            registerDefaultFunction(StatisticalFunctions.newMedianFunction(name));
+            putDefaultFunction(StatisticalFunctions.newMedianFunction(name));
         }
         for (final String name : new String[] { "percentile", "quantile", "quartile" }) {
-            registerDefaultFunction(StatisticalFunctions.newPercentileFunction(name));
+            putDefaultFunction(StatisticalFunctions.newPercentileFunction(name));
         }
         for (final String name : new String[] { "product", "runningProduct" }) {
-            registerDefaultFunction(StatisticalFunctions.newProductFunction(name));
+            putDefaultFunction(StatisticalFunctions.newProductFunction(name));
         }
         for (final String name : new String[] { "sum", "runningSum" }) {
-            registerDefaultFunction(StatisticalFunctions.newSumFunction(name));
+            putDefaultFunction(StatisticalFunctions.newSumFunction(name));
         }
         for (final String name : new String[] { "variance", "var" }) {
-            registerDefaultFunction(StatisticalFunctions.newVarianceFunction(name));
+            putDefaultFunction(StatisticalFunctions.newVarianceFunction(name));
         }
         for (final String name : new String[] { "sampleVariance", "sampleVar" }) {
-            registerDefaultFunction(StatisticalFunctions.newSampleVarianceFunction(name));
+            putDefaultFunction(StatisticalFunctions.newSampleVarianceFunction(name));
         }
         for (final String name : new String[] { "standardDeviation", "stddev" }) {
-            registerDefaultFunction(StatisticalFunctions.newStandardDeviationFunction(name));
+            putDefaultFunction(StatisticalFunctions.newStandardDeviationFunction(name));
         }
         for (final String name : new String[] { "sampleStandardDeviation", "sampleStddev" }) {
-            registerDefaultFunction(StatisticalFunctions.newSampleStandardDeviationFunction(name));
+            putDefaultFunction(StatisticalFunctions.newSampleStandardDeviationFunction(name));
         }
 
         DEFAULT_VARIABLES = new LinkedHashMap<>();
 
-        registerDefaultVariable(Variables.PI);
-        registerDefaultVariable(Variables.EULER);
-        registerDefaultVariable(Variables.NAN);
-        registerDefaultVariable(Variables.NULL);
-        registerDefaultVariable(Variables.TRUE);
-        registerDefaultVariable(Variables.FALSE);
+        putDefaultVariable(Variables.PI);
+        putDefaultVariable(Variables.EULER);
+        putDefaultVariable(Variables.NAN);
+        putDefaultVariable(Variables.NULL);
+        putDefaultVariable(Variables.TRUE);
+        putDefaultVariable(Variables.FALSE);
     }
 
     public ExpressionParser(final String expression) {
@@ -192,12 +191,12 @@ public class ExpressionParser {
         return expression;
     }
 
-    public static void registerDefaultFunction(final IFunctionFactory function) {
-        DEFAULT_FUNCTIONS.put(function.getExpressionName().toLowerCase(), function);
+    public static IFunctionFactory putDefaultFunction(final IFunctionFactory function) {
+        return DEFAULT_FUNCTIONS.put(function.getExpressionName().toLowerCase(), function);
     }
 
-    public static void registerDefaultFunction(final AFunction function) {
-        DEFAULT_FUNCTIONS.put(function.getExpressionName().toLowerCase(), new IFunctionFactory() {
+    public static IFunctionFactory putDefaultFunction(final AFunction function) {
+        return DEFAULT_FUNCTIONS.put(function.getExpressionName().toLowerCase(), new IFunctionFactory() {
 
             @Override
             public String getExpressionName() {
@@ -215,8 +214,8 @@ public class ExpressionParser {
         return DEFAULT_FUNCTIONS.values();
     }
 
-    public static void registerDefaultVariable(final IVariable variable) {
-        DEFAULT_VARIABLES.put(variable.getExpressionName().toLowerCase(), variable);
+    public static IVariable putDefaultVariable(final IVariable variable) {
+        return DEFAULT_VARIABLES.put(variable.getExpressionName().toLowerCase(), variable);
     }
 
     public static Collection<IVariable> getDefaultVariables() {
@@ -741,9 +740,9 @@ public class ExpressionParser {
         }
 
         //redirect to variable if possible
-        final VariableReference variable = getVariable(context, name);
+        final AVariableReference<?> variable = getVariable(context, name);
         if (variable != null) {
-            return new VariableFunction(context, name, variable);
+            return variable.asFunction();
         }
 
         throw new ParseException(position, TextDescription.format("Unknown function: '%s'", name));
@@ -778,10 +777,10 @@ public class ExpressionParser {
         throw new ParseException(position, TextDescription.format("Unknown variable: '%s'", name));
     }
 
-    protected VariableReference getVariable(final String context, final String name) {
+    protected AVariableReference<?> getVariable(final String context, final String name) {
         final IVariable variable = DEFAULT_VARIABLES.get(name);
         if (variable != null) {
-            return new VariableReference(context, variable);
+            return variable.newReference(context);
         }
         return null;
     }

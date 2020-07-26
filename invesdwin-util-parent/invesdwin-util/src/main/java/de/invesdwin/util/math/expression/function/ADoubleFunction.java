@@ -4,7 +4,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.math.expression.IExpression;
 import de.invesdwin.util.math.expression.eval.IParsedExpression;
-import de.invesdwin.util.math.expression.eval.call.DoubleFunctionCall;
+import de.invesdwin.util.math.expression.eval.function.DoubleFunctionCall;
 import de.invesdwin.util.time.fdate.FDate;
 
 @NotThreadSafe

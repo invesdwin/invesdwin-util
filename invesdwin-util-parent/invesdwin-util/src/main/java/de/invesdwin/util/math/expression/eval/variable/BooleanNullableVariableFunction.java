@@ -1,29 +1,25 @@
-package de.invesdwin.util.math.expression.eval;
+package de.invesdwin.util.math.expression.eval.variable;
 
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.math.expression.ExpressionReturnType;
 import de.invesdwin.util.math.expression.IExpression;
 import de.invesdwin.util.math.expression.IFunctionParameterInfo;
-import de.invesdwin.util.math.expression.function.ADoubleFunction;
+import de.invesdwin.util.math.expression.function.ABooleanNullableFunction;
 import de.invesdwin.util.time.fdate.FDate;
 
 @Immutable
-public class VariableFunction extends ADoubleFunction {
+public class BooleanNullableVariableFunction extends ABooleanNullableFunction {
 
-    private final String context;
-    private final String name;
-    private final VariableReference variable;
+    private final BooleanNullableVariableReference variable;
 
-    public VariableFunction(final String context, final String name, final VariableReference variable) {
-        this.context = context;
-        this.name = name;
+    public BooleanNullableVariableFunction(final BooleanNullableVariableReference variable) {
         this.variable = variable;
     }
 
     @Override
     public String getExpressionName() {
-        return name;
+        return variable.getVariable().getExpressionName();
     }
 
     @Override
@@ -47,18 +43,18 @@ public class VariableFunction extends ADoubleFunction {
     }
 
     @Override
-    public double eval(final FDate key, final IExpression[] args) {
-        return variable.evaluateDouble(key);
+    public Boolean eval(final FDate key, final IExpression[] args) {
+        return variable.evaluateBoolean(key);
     }
 
     @Override
-    public double eval(final int key, final IExpression[] args) {
-        return variable.evaluateDouble(key);
+    public Boolean eval(final int key, final IExpression[] args) {
+        return variable.evaluateBoolean(key);
     }
 
     @Override
-    public double eval(final IExpression[] args) {
-        return variable.evaluateDouble();
+    public Boolean eval(final IExpression[] args) {
+        return variable.evaluateBoolean();
     }
 
     @Override
@@ -69,11 +65,12 @@ public class VariableFunction extends ADoubleFunction {
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder();
+        final String context = variable.getContext();
         if (context != null) {
             sb.append(context);
             sb.append(":");
         }
-        sb.append(name);
+        sb.append(getExpressionName());
         return sb.toString();
     }
 

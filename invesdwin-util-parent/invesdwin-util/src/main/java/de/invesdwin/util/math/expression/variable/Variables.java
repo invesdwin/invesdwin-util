@@ -7,7 +7,7 @@ import de.invesdwin.util.math.expression.ExpressionReturnType;
 @Immutable
 public final class Variables {
 
-    public static final IVariable PI = new AConstant(Math.PI) {
+    public static final IVariable PI = new ADoubleConstant(Math.PI) {
 
         @Override
         public String getExpressionName() {
@@ -37,7 +37,7 @@ public final class Variables {
 
     };
 
-    public static final IVariable EULER = new AConstant(Math.E) {
+    public static final IVariable EULER = new ADoubleConstant(Math.E) {
 
         @Override
         public String getExpressionName() {
@@ -67,7 +67,7 @@ public final class Variables {
 
     };
 
-    public static final IVariable NAN = new AConstant(Double.NaN) {
+    public static final IVariable NAN = new ADoubleConstant(Double.NaN) {
 
         @Override
         public String getExpressionName() {
@@ -96,7 +96,7 @@ public final class Variables {
 
     };
 
-    public static final IVariable NULL = new AConstant(Double.NaN) {
+    public static final IVariable NULL = new ADoubleConstant(Double.NaN) {
 
         @Override
         public String getExpressionName() {
@@ -125,7 +125,7 @@ public final class Variables {
 
     };
 
-    public static final IVariable TRUE = new AConstant(1D) {
+    public static final IVariable TRUE = new ABooleanConstant(true) {
 
         @Override
         public String getExpressionName() {
@@ -154,7 +154,7 @@ public final class Variables {
 
     };
 
-    public static final IVariable FALSE = new AConstant(0D) {
+    public static final IVariable FALSE = new ABooleanConstant(false) {
 
         @Override
         public String getExpressionName() {
@@ -183,6 +183,7 @@ public final class Variables {
 
     };
 
-    private Variables() {}
+    private Variables() {
+    }
 
 }

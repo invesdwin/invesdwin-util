@@ -1,51 +1,22 @@
-package de.invesdwin.util.math.expression.eval;
+package de.invesdwin.util.math.expression.eval.variable;
 
 import javax.annotation.concurrent.Immutable;
 
-import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.expression.IExpression;
+import de.invesdwin.util.math.expression.eval.ConstantExpression;
+import de.invesdwin.util.math.expression.eval.IParsedExpression;
+import de.invesdwin.util.math.expression.function.AFunction;
 import de.invesdwin.util.math.expression.variable.IVariable;
-import de.invesdwin.util.time.fdate.FDate;
 
 @Immutable
-public class VariableReference implements IParsedExpression {
+public abstract class AVariableReference<V extends IVariable> implements IParsedExpression {
 
-    private final String context;
-    private final IVariable variable;
+    protected final String context;
+    protected final V variable;
 
-    public VariableReference(final String context, final IVariable variable) {
+    public AVariableReference(final String context, final V variable) {
         this.context = context;
         this.variable = variable;
-    }
-
-    @Override
-    public double evaluateDouble(final FDate key) {
-        return variable.getValue(key);
-    }
-
-    @Override
-    public double evaluateDouble(final int key) {
-        return variable.getValue(key);
-    }
-
-    @Override
-    public double evaluateDouble() {
-        return variable.getValue();
-    }
-
-    @Override
-    public Boolean evaluateBooleanNullable(final FDate key) {
-        return Doubles.doubleToBoolean(variable.getValue(key));
-    }
-
-    @Override
-    public Boolean evaluateBooleanNullable(final int key) {
-        return Doubles.doubleToBoolean(variable.getValue(key));
-    }
-
-    @Override
-    public Boolean evaluateBooleanNullable() {
-        return Doubles.doubleToBoolean(variable.getValue());
     }
 
     @Override
@@ -77,7 +48,7 @@ public class VariableReference implements IParsedExpression {
         return context;
     }
 
-    public IVariable getVariable() {
+    public V getVariable() {
         return variable;
     }
 
@@ -95,5 +66,7 @@ public class VariableReference implements IParsedExpression {
     public IExpression[] getChildren() {
         return EMPTY_EXPRESSIONS;
     }
+
+    public abstract AFunction asFunction();
 
 }

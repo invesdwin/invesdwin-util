@@ -6,9 +6,9 @@ import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.expression.ExpressionReturnType;
 import de.invesdwin.util.math.expression.IExpression;
 import de.invesdwin.util.math.expression.IFunctionParameterInfo;
-import de.invesdwin.util.math.expression.eval.ABinaryFunction;
-import de.invesdwin.util.math.expression.eval.ATernaryFunction;
-import de.invesdwin.util.math.expression.eval.AUnaryFunction;
+import de.invesdwin.util.math.expression.eval.function.ABinaryFunction;
+import de.invesdwin.util.math.expression.eval.function.ATernaryFunction;
+import de.invesdwin.util.math.expression.eval.function.AUnaryFunction;
 import de.invesdwin.util.time.fdate.FDate;
 
 @Immutable
