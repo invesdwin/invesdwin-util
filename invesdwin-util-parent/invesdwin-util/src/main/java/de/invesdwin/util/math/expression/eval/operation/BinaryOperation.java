@@ -258,7 +258,7 @@ public class BinaryOperation implements IParsedExpression {
 
             @Override
             public Boolean applyBooleanNullable(final double a, final double b) {
-                return Doubles.compare(a, b) < 0;
+                return Doubles.isLessThan(a, b);
             }
         },
         LT_EQ(2, "<=") {
@@ -269,7 +269,7 @@ public class BinaryOperation implements IParsedExpression {
 
             @Override
             public Boolean applyBooleanNullable(final double a, final double b) {
-                return Doubles.compare(a, b) <= 0;
+                return Doubles.isLessThanOrEqualTo(a, b);
             }
         },
         EQ(2, "==") {
@@ -280,7 +280,7 @@ public class BinaryOperation implements IParsedExpression {
 
             @Override
             public Boolean applyBooleanNullable(final double a, final double b) {
-                return Doubles.compare(a, b) == 0;
+                return Doubles.equals(a, b);
             }
         },
         GT_EQ(2, ">=") {
@@ -291,7 +291,7 @@ public class BinaryOperation implements IParsedExpression {
 
             @Override
             public Boolean applyBooleanNullable(final double a, final double b) {
-                return Doubles.compare(a, b) >= 0;
+                return Doubles.isGreaterThanOrEqualTo(a, b);
             }
         },
         GT(2, ">") {
@@ -302,7 +302,7 @@ public class BinaryOperation implements IParsedExpression {
 
             @Override
             public Boolean applyBooleanNullable(final double a, final double b) {
-                return Doubles.compare(a, b) > 0;
+                return Doubles.isGreaterThan(a, b);
             }
         },
         NEQ(2, "!=") {
@@ -313,7 +313,7 @@ public class BinaryOperation implements IParsedExpression {
 
             @Override
             public Boolean applyBooleanNullable(final double a, final double b) {
-                return Doubles.compare(a, b) != 0;
+                return !Doubles.equals(a, b);
             }
         },
         AND(1, "&&") {

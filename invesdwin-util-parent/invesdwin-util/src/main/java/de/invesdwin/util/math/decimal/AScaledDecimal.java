@@ -40,7 +40,8 @@ public abstract class AScaledDecimal<T extends AScaledDecimal<T, S>, S extends I
         }
     }
 
-    protected void validateScale(final S scale) {}
+    protected void validateScale(final S scale) {
+    }
 
     protected abstract T newValueCopy(double value, S scale);
 
@@ -114,7 +115,7 @@ public abstract class AScaledDecimal<T extends AScaledDecimal<T, S>, S extends I
             final AScaledDecimal castedObj = (AScaledDecimal) obj;
             return castedObj.getDefaultScale().equals(this.getDefaultScale())
                     //force default rounding if not explicitly done yet
-                    && castedObj.getDefaultValue() == this.getDefaultValue();
+                    && Doubles.equals(castedObj.getDefaultValue(), this.getDefaultValue());
         } else {
             return false;
         }

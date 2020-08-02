@@ -29,13 +29,13 @@ public class CrossesBelowOperation extends BinaryOperation {
         final double leftValue0 = left.evaluateDouble(key);
         final double rightValue0 = right.evaluateDouble(key);
         //left is below right
-        if (Doubles.compare(leftValue0, rightValue0) < 0) {
+        if (Doubles.isLessThan(leftValue0, rightValue0)) {
             final FDate leftPreviousKey = leftPreviousKeyFunction.getPreviousKey(key, 1);
             final double leftValue1 = leftPreviousKeyFunction.evaluateDouble(left, leftPreviousKey);
             final FDate rightPreviousKey = rightPreviousKeyFunction.getPreviousKey(key, 1);
             final double rightValue1 = rightPreviousKeyFunction.evaluateDouble(right, rightPreviousKey);
             //previous left is above or equal to previous right
-            if (Doubles.compare(leftValue1, rightValue1) >= 0) {
+            if (Doubles.isGreaterThanOrEqualTo(leftValue1, rightValue1)) {
                 return 1D;
             }
         }
@@ -50,13 +50,13 @@ public class CrossesBelowOperation extends BinaryOperation {
         final double leftValue0 = left.evaluateDouble(key);
         final double rightValue0 = right.evaluateDouble(key);
         //left is below right
-        if (Doubles.compare(leftValue0, rightValue0) < 0) {
+        if (Doubles.isLessThan(leftValue0, rightValue0)) {
             final int leftPreviousKey = leftPreviousKeyFunction.getPreviousKey(key, 1);
             final double leftValue1 = leftPreviousKeyFunction.evaluateDouble(left, leftPreviousKey);
             final int rightPreviousKey = rightPreviousKeyFunction.getPreviousKey(key, 1);
             final double rightValue1 = rightPreviousKeyFunction.evaluateDouble(right, rightPreviousKey);
             //previous left is above or equal to previous right
-            if (Doubles.compare(leftValue1, rightValue1) >= 0) {
+            if (Doubles.isGreaterThanOrEqualTo(leftValue1, rightValue1)) {
                 return 1D;
             }
         }
@@ -76,13 +76,13 @@ public class CrossesBelowOperation extends BinaryOperation {
         final double leftValue0 = left.evaluateDouble(key);
         final double rightValue0 = right.evaluateDouble(key);
         //left is below right
-        if (Doubles.compare(leftValue0, rightValue0) < 0) {
+        if (Doubles.isLessThan(leftValue0, rightValue0)) {
             final FDate leftPreviousKey = leftPreviousKeyFunction.getPreviousKey(key, 1);
             final double leftValue1 = leftPreviousKeyFunction.evaluateDouble(left, leftPreviousKey);
             final FDate rightPreviousKey = rightPreviousKeyFunction.getPreviousKey(key, 1);
             final double rightValue1 = rightPreviousKeyFunction.evaluateDouble(right, rightPreviousKey);
             //previous left is above or equal to previous right
-            if (Doubles.compare(leftValue1, rightValue1) >= 0) {
+            if (Doubles.isGreaterThanOrEqualTo(leftValue1, rightValue1)) {
                 return Boolean.TRUE;
             }
         }
@@ -97,13 +97,13 @@ public class CrossesBelowOperation extends BinaryOperation {
         final double leftValue0 = left.evaluateDouble(key);
         final double rightValue0 = right.evaluateDouble(key);
         //left is below right
-        if (Doubles.compare(leftValue0, rightValue0) < 0) {
+        if (Doubles.isLessThan(leftValue0, rightValue0)) {
             final int leftPreviousKey = leftPreviousKeyFunction.getPreviousKey(key, 1);
             final double leftValue1 = leftPreviousKeyFunction.evaluateDouble(left, leftPreviousKey);
             final int rightPreviousKey = rightPreviousKeyFunction.getPreviousKey(key, 1);
             final double rightValue1 = rightPreviousKeyFunction.evaluateDouble(right, rightPreviousKey);
             //previous left is above or equal to previous right
-            if (Doubles.compare(leftValue1, rightValue1) >= 0) {
+            if (Doubles.isGreaterThanOrEqualTo(leftValue1, rightValue1)) {
                 return Boolean.TRUE;
             }
         }

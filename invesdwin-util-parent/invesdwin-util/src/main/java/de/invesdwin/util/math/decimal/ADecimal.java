@@ -46,7 +46,6 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
             return e;
         }
     };
-    private static final double ZERO = 0D;
     private static final FastThreadLocal<NumberFormat> NUMBER_FORMAT = new FastThreadLocal<NumberFormat>() {
         @Override
         protected NumberFormat initialValue() throws Exception {
@@ -225,9 +224,7 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
     public boolean equals(final Object other) {
         if (other != null && getClass().isAssignableFrom(other.getClass())) {
             final ADecimal<?> cOther = (ADecimal<?>) other;
-            //force explicit default rounding if not done yet
-            final ADecimal<?> cOtherRounded = cOther.round();
-            return round().getDefaultValue() == cOtherRounded.getDefaultValue();
+            return Doubles.equals(getDefaultValue(), cOther.getDefaultValue());
         } else {
             return false;
         }
@@ -320,93 +317,81 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
     }
 
     public boolean isZero() {
-        return getValue() == ZERO;
+        return Doubles.isZero(getValue());
     }
 
     public final boolean isNotZero() {
-        return !isZero();
+        return Doubles.isNotZero(getValue());
     }
 
     /**
      * 0 is counted as positive as well here to make things simpler.
      */
     public boolean isPositive() {
-        return getValue() >= 0;
+        return Doubles.isPositive(getValue());
     }
 
     /**
      * This one excludes 0 from positive.
      */
     public boolean isPositiveNonZero() {
-        return isPositive() && !isZero();
+        return Doubles.isPositiveNonZero(getValue());
     }
 
     public boolean isNegative() {
-        return !isPositive();
+        return Doubles.isNegative(getValue());
     }
 
     public boolean isNegativeOrZero() {
-        return !isPositiveNonZero();
+        return Doubles.isNegativeOrZero(getValue());
     }
 
     public boolean isGreaterThan(final double o) {
-        return compareTo(o) > 0;
+        return Doubles.isGreaterThan(getValue(), o);
     }
 
     public boolean isGreaterThan(final Double o) {
-        if (o == null) {
-            return false;
-        }
-        return compareTo(o) > 0;
+        return Doubles.isGreaterThan(getValue(), o);
     }
 
     public boolean isGreaterThan(final Number o) {
-        if (o == null) {
-            return false;
-        }
-        return compareTo(o) > 0;
+        return Doubles.isGreaterThan(getValue(), o);
     }
 
     public boolean isGreaterThanOrEqualTo(final double o) {
-        return !isLessThan(o);
+        return Doubles.isGreaterThanOrEqualTo(getValue(), o);
     }
 
     public boolean isGreaterThanOrEqualTo(final Double o) {
-        return !isLessThan(o);
+        return Doubles.isGreaterThanOrEqualTo(getValue(), o);
     }
 
     public boolean isGreaterThanOrEqualTo(final Number o) {
-        return !isLessThan(o);
+        return Doubles.isGreaterThanOrEqualTo(getValue(), o);
     }
 
     public boolean isLessThan(final double o) {
-        return compareTo(o) < 0;
+        return Doubles.isLessThan(getValue(), o);
     }
 
     public boolean isLessThan(final Double o) {
-        if (o == null) {
-            return false;
-        }
-        return compareTo(o) < 0;
+        return Doubles.isLessThan(getValue(), o);
     }
 
     public boolean isLessThan(final Number o) {
-        if (o == null) {
-            return false;
-        }
-        return compareTo(o) < 0;
+        return Doubles.isLessThan(getValue(), o);
     }
 
     public boolean isLessThanOrEqualTo(final double o) {
-        return !isGreaterThan(o);
+        return Doubles.isLessThanOrEqualTo(getValue(), o);
     }
 
     public boolean isLessThanOrEqualTo(final Double o) {
-        return !isGreaterThan(o);
+        return Doubles.isLessThanOrEqualTo(getValue(), o);
     }
 
     public boolean isLessThanOrEqualTo(final Number o) {
-        return !isGreaterThan(o);
+        return Doubles.isLessThanOrEqualTo(getValue(), o);
     }
 
     public boolean isBetween(final double lowerBound, final double upperBound) {
