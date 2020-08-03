@@ -563,7 +563,11 @@ public final class Doubles extends ADoublesStaticFacade {
 
     public static boolean equals(final double value, final double otherValue) {
         final double difference = value - otherValue;
-        if (difference == 0D) {
+        if (difference > FIRST_ABOVE_ZERO) {
+            return false;
+        } else if (difference < FIRST_BELOW_ZERO) {
+            return false;
+        } else if (difference == 0D) {
             return true;
         } else if (isNaN(difference)) {
             final boolean valueNaN = isNaN(value);
@@ -715,7 +719,7 @@ public final class Doubles extends ADoublesStaticFacade {
             return true;
         } else if (difference < FIRST_BELOW_ZERO) {
             return false;
-        } else if (difference <= 0D) {
+        } else if (difference == 0D) {
             return false;
         } else if (isNaN(difference)) {
             final boolean valueNaN = isNaN(value);
