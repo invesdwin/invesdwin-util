@@ -83,7 +83,7 @@ public class WrappedExecutorService implements ListeningExecutorService {
     private final ListeningExecutorService delegate;
     private final ExecutorService originalDelegate;
     private volatile boolean logExceptions = true;
-    private volatile boolean waitOnFullPendingCount = false;
+    private volatile int waitOnFullPendingCount = 0;
     private volatile boolean dynamicThreadName = true;
     private final String name;
 
@@ -138,11 +138,11 @@ public class WrappedExecutorService implements ListeningExecutorService {
     }
 
     private void incrementPendingCount(final boolean skipWaitOnFullPendingCount) throws InterruptedException {
-        if (waitOnFullPendingCount && !skipWaitOnFullPendingCount) {
+        if (isWaitOnFullPendingCount() && !skipWaitOnFullPendingCount) {
             synchronized (pendingCountWaitLock) {
                 //Only one waiting thread may be woken up when this limit is reached!
                 while (pendingCount.get() >= getFullPendingCount()) {
-                    awaitPendingCount(getMaximumPoolSize() - 1);
+                    awaitPendingCount(waitOnFullPendingCount);
                 }
                 notifyPendingCountListeners(pendingCount.incrementAndGet());
             }
@@ -228,10 +228,23 @@ public class WrappedExecutorService implements ListeningExecutorService {
     }
 
     public boolean isWaitOnFullPendingCount() {
+        return waitOnFullPendingCount > 0;
+    }
+
+    public int getWaitOnFullPendingCount() {
         return waitOnFullPendingCount;
     }
 
     public WrappedExecutorService withWaitOnFullPendingCount(final boolean waitOnFullPendingCount) {
+        if (waitOnFullPendingCount) {
+            this.waitOnFullPendingCount = getMaximumPoolSize() - 1;
+        } else {
+            this.waitOnFullPendingCount = 0;
+        }
+        return this;
+    }
+
+    public WrappedExecutorService withWaitOnFullPendingCount(final int waitOnFullPendingCount) {
         this.waitOnFullPendingCount = waitOnFullPendingCount;
         return this;
     }
