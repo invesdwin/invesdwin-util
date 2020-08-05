@@ -195,7 +195,8 @@ public abstract class AContinuousRecursiveHistoricalCacheQuery<V> implements IRe
             }
             recursionInProgress = true;
             try {
-                return retryGetPreviousValueByRecursion(previousKey);
+                final FDate adjPreviousKey = parentQueryWithFuture.getKey(previousKey);
+                return retryGetPreviousValueByRecursion(adjPreviousKey);
             } finally {
                 recursionInProgress = false;
             }
@@ -204,7 +205,7 @@ public abstract class AContinuousRecursiveHistoricalCacheQuery<V> implements IRe
 
     private V retryGetPreviousValueByRecursion(final FDate previousKey) {
         try {
-            return cachedRecursionResults.get(parentQueryWithFuture.getKey(previousKey));
+            return cachedRecursionResults.get(previousKey);
         } catch (final Throwable t) {
             if (Throwables.isCausedByType(t, ResetCacheRuntimeException.class)) {
                 countResets++;
@@ -221,7 +222,7 @@ public abstract class AContinuousRecursiveHistoricalCacheQuery<V> implements IRe
                 }
                 resetForRetry();
                 try {
-                    return cachedRecursionResults.get(parentQueryWithFuture.getKey(previousKey));
+                    return cachedRecursionResults.get(previousKey);
                 } catch (final Throwable t1) {
                     throw new RuntimeException("Follow up " + ResetCacheException.class.getSimpleName()
                             + " on retry after:" + t.toString(), t1);
