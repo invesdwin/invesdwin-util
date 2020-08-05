@@ -1,4 +1,4 @@
-package de.invesdwin.util.collections.loadingcache.historical.query.internal.core;
+package de.invesdwin.util.collections.loadingcache.historical.query.error;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
