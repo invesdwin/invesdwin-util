@@ -33,7 +33,7 @@ import de.invesdwin.util.time.range.TimeRange;
 @ThreadSafe
 public abstract class AContinuousRecursiveHistoricalCacheQuery<V> implements IRecursiveHistoricalCacheQuery<V> {
 
-    private static final int COUNT_RESETS_BEFORE_WARNING = 10;
+    public static final int COUNT_RESETS_BEFORE_WARNING = 10;
     /**
      * we should use 10 times the lookback period (bars count) in order to get 7 decimal points of accuracy against
      * calculating from the beginning of history (measured on lowpass indicator)
@@ -74,10 +74,12 @@ public abstract class AContinuousRecursiveHistoricalCacheQuery<V> implements IRe
     @GuardedBy("parent")
     private boolean firstAvailableKeyRequested;
     @GuardedBy("parent")
-    //cache separately since the parent could encounter more evictions than this internal cache
-    private final ALoadingCache<FDate, V> cachedRecursionResults;
-    private int largeRecalculationsCount = 0;
     private int countResets = 0;
+    //cache separately since the parent could encounter more evictions than this internal cache
+    @GuardedBy("parent")
+    private final ALoadingCache<FDate, V> cachedRecursionResults;
+    @GuardedBy("parent")
+    private int largeRecalculationsCount = 0;
 
     private final IHistoricalCacheQuery<V> parentQuery;
     private final IHistoricalCacheQueryWithFuture<V> parentQueryWithFuture;

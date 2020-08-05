@@ -18,8 +18,11 @@ import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
 import de.invesdwin.util.collections.loadingcache.historical.listener.IHistoricalCacheOnClearListener;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQuery;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQueryWithFuture;
+import de.invesdwin.util.collections.loadingcache.historical.query.error.ResetCacheException;
+import de.invesdwin.util.collections.loadingcache.historical.query.error.ResetCacheRuntimeException;
 import de.invesdwin.util.collections.loadingcache.historical.query.recursive.ARecursiveHistoricalCacheQuery;
 import de.invesdwin.util.collections.loadingcache.historical.query.recursive.IRecursiveHistoricalCacheQuery;
+import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.time.fdate.FDate;
 
 /**
@@ -29,6 +32,9 @@ import de.invesdwin.util.time.fdate.FDate;
  */
 @ThreadSafe
 public abstract class AUnstableRecursiveHistoricalCacheQuery<V> implements IRecursiveHistoricalCacheQuery<V> {
+
+    private static final org.slf4j.ext.XLogger LOG = org.slf4j.ext.XLoggerFactory
+            .getXLogger(AUnstableRecursiveHistoricalCacheQuery.class);
 
     private final AHistoricalCache<V> parent;
     private final int recursionCount;
@@ -50,6 +56,8 @@ public abstract class AUnstableRecursiveHistoricalCacheQuery<V> implements IRecu
     private FDate firstRecursionKey;
     @GuardedBy("parent")
     private FDate lastRecursionKey;
+    @GuardedBy("parent")
+    private int countResets = 0;
 
     //cache separately since the parent could encounter more evictions than this internal cache
     private ALoadingCache<FDate, V> cachedResults;
@@ -117,11 +125,16 @@ public abstract class AUnstableRecursiveHistoricalCacheQuery<V> implements IRecu
     @Override
     public void clear() {
         synchronized (parent) {
-            cachedResults.clear();
-            cachedRecursionResults.clear();
-            firstAvailableKey = null;
-            firstAvailableKeyRequested = false;
+            resetForRetry();
+            countResets = 0;
         }
+    }
+
+    private void resetForRetry() {
+        cachedResults.clear();
+        cachedRecursionResults.clear();
+        firstAvailableKey = null;
+        firstAvailableKeyRequested = false;
     }
 
     @Override
@@ -174,7 +187,7 @@ public abstract class AUnstableRecursiveHistoricalCacheQuery<V> implements IRecu
     }
 
     private V duringRecursion(final FDate key, final FDate previousKey, final FDate firstAvailableKey) {
-        final V cachedResult = cachedRecursionResults.get(previousKey);
+        final V cachedResult = retryGetPreviousValueByRecursion(previousKey);
         if (cachedResult != null) {
             return cachedResult;
         } else if (previousKey.isBeforeOrEqualTo(firstRecursionKey) || lastRecursionKey.equals(firstAvailableKey)
@@ -185,6 +198,36 @@ public abstract class AUnstableRecursiveHistoricalCacheQuery<V> implements IRecu
                     parent + ": the values between " + firstRecursionKey + " and " + lastRecursionKey
                             + " should have been cached, maybe you are returning null values even if you should not: "
                             + previousKey);
+        }
+    }
+
+    private V retryGetPreviousValueByRecursion(final FDate previousKey) {
+        try {
+            return cachedRecursionResults.get(parentQueryWithFuture.getKey(previousKey));
+        } catch (final Throwable t) {
+            if (Throwables.isCausedByType(t, ResetCacheRuntimeException.class)) {
+                countResets++;
+                if (countResets % AContinuousRecursiveHistoricalCacheQuery.COUNT_RESETS_BEFORE_WARNING == 0
+                        || AHistoricalCache.isDebugAutomaticReoptimization()) {
+                    if (LOG.isWarnEnabled()) {
+                        //CHECKSTYLE:OFF
+                        LOG.warn(
+                                "{}: resetting {} for the {}. time now and retrying after exception [{}: {}], if this happens too often we might encounter bad performance due to inefficient caching",
+                                parent, getClass().getSimpleName(), countResets, t.getClass().getSimpleName(),
+                                t.getMessage());
+                        //CHECKSTYLE:ON
+                    }
+                }
+                resetForRetry();
+                try {
+                    return cachedRecursionResults.get(parentQueryWithFuture.getKey(previousKey));
+                } catch (final Throwable t1) {
+                    throw new RuntimeException("Follow up " + ResetCacheException.class.getSimpleName()
+                            + " on retry after:" + t.toString(), t1);
+                }
+            } else {
+                throw t;
+            }
         }
     }
 
@@ -208,7 +251,7 @@ public abstract class AUnstableRecursiveHistoricalCacheQuery<V> implements IRecu
                 //ignore
             }
             if (!lastRecursionKey.equalsNotNullSafe(curRecursionKey)) {
-                throw new IllegalStateException("lastRecursionKey[" + lastRecursionKey
+                throw new ResetCacheRuntimeException("lastRecursionKey[" + lastRecursionKey
                         + "] should be equal to curRecursionKey[" + curRecursionKey + "]");
             }
             return value;
