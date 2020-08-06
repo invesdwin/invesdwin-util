@@ -198,6 +198,7 @@ public abstract class AUnstableRecursiveHistoricalCacheQuery<V> implements IRecu
                     }
                 }
                 resetForRetry();
+                parent.clear();
                 try {
                     final FDate adjPreviousKey = parentQueryWithFuture.getKey(previousKey);
                     return cachedRecursionResults.get(adjPreviousKey);

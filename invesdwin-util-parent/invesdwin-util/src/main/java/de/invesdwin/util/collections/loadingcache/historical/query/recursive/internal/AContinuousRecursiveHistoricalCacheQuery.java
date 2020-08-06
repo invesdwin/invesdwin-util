@@ -222,6 +222,7 @@ public abstract class AContinuousRecursiveHistoricalCacheQuery<V> implements IRe
                     }
                 }
                 resetForRetry();
+                parent.clear();
                 try {
                     final FDate adjPreviousKey = parentQueryWithFuture.getKey(previousKey);
                     return cachedRecursionResults.get(adjPreviousKey);
