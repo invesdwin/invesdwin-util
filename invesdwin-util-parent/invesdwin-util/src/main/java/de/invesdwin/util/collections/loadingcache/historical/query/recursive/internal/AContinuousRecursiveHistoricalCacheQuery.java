@@ -16,7 +16,6 @@ import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
 import de.invesdwin.util.collections.loadingcache.historical.listener.IHistoricalCacheOnClearListener;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQuery;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQueryWithFuture;
-import de.invesdwin.util.collections.loadingcache.historical.query.error.ResetCacheException;
 import de.invesdwin.util.collections.loadingcache.historical.query.error.ResetCacheRuntimeException;
 import de.invesdwin.util.collections.loadingcache.historical.query.recursive.ARecursiveHistoricalCacheQuery;
 import de.invesdwin.util.collections.loadingcache.historical.query.recursive.IRecursiveHistoricalCacheQuery;
@@ -222,12 +221,16 @@ public abstract class AContinuousRecursiveHistoricalCacheQuery<V> implements IRe
                     }
                 }
                 resetForRetry();
+                /*
+                 * also clear parent so that correct adjPreviousKey can be determined, sometimes it returns a non
+                 * existent value for weekends
+                 */
                 parent.clear();
                 try {
                     final FDate adjPreviousKey = parentQueryWithFuture.getKey(previousKey);
                     return cachedRecursionResults.get(adjPreviousKey);
                 } catch (final Throwable t1) {
-                    throw new RuntimeException("Follow up " + ResetCacheException.class.getSimpleName()
+                    throw new RuntimeException("Follow up " + ResetCacheRuntimeException.class.getSimpleName()
                             + " on retry after:" + t.toString(), t1);
                 }
             } else {
