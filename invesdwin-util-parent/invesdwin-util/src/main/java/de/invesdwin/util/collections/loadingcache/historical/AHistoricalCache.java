@@ -310,7 +310,7 @@ public abstract class AHistoricalCache<V>
     /**
      * This is only for internal purposes, use extractKey instead.
      */
-    protected FDate innerExtractKey(final FDate key, final V value) {
+    protected FDate innerExtractKey(final V value) {
         throw new UnsupportedOperationException(getClass().getSimpleName());
     }
 
@@ -602,7 +602,7 @@ public abstract class AHistoricalCache<V>
 
         @Override
         public FDate extractKey(final FDate key, final V value) {
-            final FDate innerExtractKey = innerExtractKey(key, value);
+            final FDate innerExtractKey = innerExtractKey(value);
             final IndexedFDate indexed = IndexedFDate.maybeWrap(innerExtractKey);
             indexed.putExtractedKey(extractKeyProvider, adjustKeyProvider);
             return indexed;

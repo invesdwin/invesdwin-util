@@ -35,7 +35,7 @@ public abstract class AIterableGapHistoricalCache<V> extends AGapHistoricalCache
     }
 
     @Override
-    protected abstract FDate innerExtractKey(FDate key, V value);
+    protected abstract FDate innerExtractKey(V value);
 
     @Override
     protected V readLatestValueFor(final FDate key) {

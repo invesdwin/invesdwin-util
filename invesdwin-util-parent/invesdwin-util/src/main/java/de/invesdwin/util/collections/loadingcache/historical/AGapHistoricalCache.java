@@ -296,8 +296,8 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
                 }
                 final boolean furtherValuesEmpty = furtherValues.isEmpty();
                 if (!furtherValuesEmpty) {
-                    final FDate tailKey = innerExtractKey(null, furtherValues.getTail());
-                    final FDate newTailKey = innerExtractKey(null, newFurtherValuesBuffer.getTail());
+                    final FDate tailKey = innerExtractKey(furtherValues.getTail());
+                    final FDate newTailKey = innerExtractKey(newFurtherValuesBuffer.getTail());
                     if (newTailKey.isAfter(tailKey)) {
                         //skip duplicates on further queries
                         skipDuplicates(key, curKey, newFurtherValuesBuffer);
@@ -311,7 +311,7 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
                     //end of data reached
                     break;
                 }
-                final FDate tailKey = innerExtractKey(null, furtherValues.getTail());
+                final FDate tailKey = innerExtractKey(furtherValues.getTail());
                 maybeLimitOptimalReadBackStepByLoadFurtherValuesRange(furtherValuesEmpty, tailKey);
                 if (tailKey.isAfterOrEqualTo(key) || tailKey.equals(maxKeyInDB)) {
                     //request fulfilled
@@ -332,7 +332,7 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
             final FDate tailKey) {
         //if the further values is less than 10 we might be at the beginning of the history, thus we should not count this
         if (furtherValuesEmpty && furtherValues.size() > 10) {
-            final FDate headKey = innerExtractKey(null, furtherValues.getHead());
+            final FDate headKey = innerExtractKey(furtherValues.getHead());
             cacheMissCounter.maybeLimitOptimalReadBackStepByLoadFurtherValuesRange(new Duration(headKey, tailKey));
         }
     }
@@ -340,7 +340,7 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
     private void skipDuplicates(final FDate key, final FDate curKey,
             final BufferingIterator<V> newFurtherValuesBuffer) {
         while (!newFurtherValuesBuffer.isEmpty()
-                && innerExtractKey(null, newFurtherValuesBuffer.getHead()).isBefore(curKey)) {
+                && innerExtractKey(newFurtherValuesBuffer.getHead()).isBefore(curKey)) {
             newFurtherValuesBuffer.next();
         }
     }

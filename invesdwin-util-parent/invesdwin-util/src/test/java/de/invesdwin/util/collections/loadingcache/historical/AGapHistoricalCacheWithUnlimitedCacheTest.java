@@ -1549,7 +1549,7 @@ public class AGapHistoricalCacheWithUnlimitedCacheTest {
         }
 
         @Override
-        protected FDate innerExtractKey(final FDate key, final FDate entity) {
+        protected FDate innerExtractKey(final FDate entity) {
             countInnerExtractKey++;
             return entity;
         }
