@@ -25,6 +25,9 @@ public final class DelegateHistoricalCacheExtractKeyProvider<V> implements IHist
 
     @Override
     public FDate extractKey(final FDate key, final V value) {
+        if (value == null) {
+            return null;
+        }
         FDate extractedKey;
         if (value instanceof IHistoricalEntry) {
             final IHistoricalEntry<?> cValue = (IHistoricalEntry<?>) value;

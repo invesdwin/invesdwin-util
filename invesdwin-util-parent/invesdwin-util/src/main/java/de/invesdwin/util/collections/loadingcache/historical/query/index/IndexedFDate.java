@@ -135,6 +135,9 @@ public class IndexedFDate extends FDate {
     public <V> FDate maybeExtractKey(
             final de.invesdwin.util.collections.loadingcache.historical.key.internal.IHistoricalCacheExtractKeyProvider<V> extractKeyProvider,
             final IHistoricalCacheAdjustKeyProvider adjustKeyProvider, final V value) {
+        if (value == null) {
+            return null;
+        }
         final int identityHashCode = extractKeyProvider.hashCode();
         if (identityHashCode != extractKeyProviderHashCode) {
             extractKeyProviderExtractedKey = extractKeyProvider.extractKey(this, value);
