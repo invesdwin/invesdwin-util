@@ -207,8 +207,30 @@ public class Decimal extends ADecimal<Decimal> {
 
     @Override
     public String toFormattedString(final String format) {
+        return toFormattedString(this, format);
+    }
+
+    public static String toFormattedString(final double number, final String format) {
         final DecimalFormat dc = Decimal.newDecimalFormatInstance(format);
-        final String str = dc.format(this);
+        return toFormattedString(number, dc);
+    }
+
+    public static String toFormattedString(final double number, final DecimalFormat format) {
+        final String str = format.format(number);
+        return postProcessFormattedString(str);
+    }
+
+    public static String toFormattedString(final Number number, final String format) {
+        final DecimalFormat dc = Decimal.newDecimalFormatInstance(format);
+        return toFormattedString(number, dc);
+    }
+
+    public static String toFormattedString(final Number number, final DecimalFormat format) {
+        final String str = format.format(number);
+        return postProcessFormattedString(str);
+    }
+
+    private static String postProcessFormattedString(final String str) {
         if (str.startsWith("-0") && str.matches("-0([\\.,](0)*)?")) {
             return Strings.removeStart(str, "-");
         } else {
