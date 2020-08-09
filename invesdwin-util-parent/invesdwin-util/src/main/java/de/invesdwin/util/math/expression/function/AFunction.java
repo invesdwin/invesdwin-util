@@ -1,5 +1,8 @@
 package de.invesdwin.util.math.expression.function;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.lang.Objects;
@@ -96,17 +99,17 @@ public abstract class AFunction {
 
     public final String[] getDefaultValues() {
         final IFunctionParameterInfo[] parameters = getParameterInfos();
-        final String[] defaultValues = new String[parameters.length];
+        final List<String> defaultValues = new ArrayList<>(parameters.length);
         for (int i = 0; i < parameters.length; i++) {
             final IFunctionParameterInfo parameter = parameters[i];
             final String defaultValue = parameter.getDefaultValue();
             if (Strings.isNotBlank(defaultValue)) {
-                defaultValues[i] = defaultValue;
-            } else {
-                defaultValues[i] = parameter.getExpressionName();
+                defaultValues.add(defaultValue);
+            } else if (!parameter.isVarArgs()) {
+                defaultValues.add(parameter.getExpressionName());
             }
         }
-        return defaultValues;
+        return defaultValues.toArray(new String[defaultValues.size()]);
     }
 
     public final String getExpressionString(final String[] args) {
