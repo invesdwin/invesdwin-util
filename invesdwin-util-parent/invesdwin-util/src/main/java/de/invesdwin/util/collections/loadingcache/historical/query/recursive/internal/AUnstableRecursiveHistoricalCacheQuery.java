@@ -181,7 +181,7 @@ public abstract class AUnstableRecursiveHistoricalCacheQuery<V> implements IRecu
         try {
             //need to fetch adj previous key inside retry, since that is sometimes wrong
             final FDate adjPreviousKey = parentQueryWithFuture.getKey(previousKey);
-            return cachedRecursionResults.get(adjPreviousKey);
+            return cachedResults.get(adjPreviousKey);
         } catch (final Throwable t) {
             if (Throwables.isCausedByType(t, ResetCacheRuntimeException.class)) {
                 countResets++;
@@ -204,7 +204,7 @@ public abstract class AUnstableRecursiveHistoricalCacheQuery<V> implements IRecu
                 parent.clear();
                 try {
                     final FDate adjPreviousKey = parentQueryWithFuture.getKey(previousKey);
-                    return cachedRecursionResults.get(adjPreviousKey);
+                    return cachedResults.get(adjPreviousKey);
                 } catch (final Throwable t1) {
                     throw new RuntimeException("Follow up " + ResetCacheRuntimeException.class.getSimpleName()
                             + " on retry after:" + t.toString(), t1);

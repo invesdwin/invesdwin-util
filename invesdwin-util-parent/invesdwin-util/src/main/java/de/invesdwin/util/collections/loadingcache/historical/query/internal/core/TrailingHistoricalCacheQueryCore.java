@@ -172,6 +172,9 @@ public class TrailingHistoricalCacheQueryCore<V> extends ACachedEntriesHistorica
             final IHistoricalEntry<V> fristValueFromCache = cachedIterable.getFirstValueFromCache();
             final List<IHistoricalEntry<V>> remainingResult = delegate.getPreviousEntriesListUnlocked(query,
                     fristValueFromCache.getKey(), newUnitsBack + 1);
+            if (remainingResult.isEmpty()) {
+                return filterDuplicateKeys(cachedIterable);
+            }
             final List<IHistoricalEntry<V>> remainingResultNoDuplicate;
             if (remainingResult.size() == 1) {
                 remainingResultNoDuplicate = remainingResult;
