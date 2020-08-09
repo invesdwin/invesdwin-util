@@ -46,6 +46,8 @@ public abstract class AUnstableRecursiveHistoricalCacheQuery<V> implements IRecu
     private final IHistoricalCacheQuery<FullRecursionKeysResult> fullRecursionKeysResultsQueryWithFutureNull;
 
     @GuardedBy("parent")
+    private FDate fromRecursionKey;
+    @GuardedBy("parent")
     private FDate firstAvailableKey;
     @GuardedBy("parent")
     private boolean firstAvailableKeyRequested;
@@ -159,7 +161,8 @@ public abstract class AUnstableRecursiveHistoricalCacheQuery<V> implements IRecu
                 //no data found
                 return null;
             }
-            if (previousKey == null || previousKey.isBeforeOrEqualTo(firstAvailableKey)) {
+            if (previousKey == null || previousKey.isBeforeOrEqualToNotNullSafe(firstAvailableKey)
+                    && key.equalsNotNullSafe(previousKey)) {
                 return getInitialValue(previousKey);
             }
 
@@ -168,8 +171,10 @@ public abstract class AUnstableRecursiveHistoricalCacheQuery<V> implements IRecu
             } else {
                 recursionInProgress = true;
                 try {
+                    fromRecursionKey = key;
                     return retryGetPreviousValueByRecursion(previousKey);
                 } finally {
+                    fromRecursionKey = null;
                     recursionInProgress = false;
                     cachedRecursionResults.clear();
                 }
@@ -234,7 +239,8 @@ public abstract class AUnstableRecursiveHistoricalCacheQuery<V> implements IRecu
         try {
             lastRecursionKey = previousKey;
             final Iterator<FDate> recursionKeysIterator = getFullRecursionKeysIterator(previousKey);
-            if (firstRecursionKey == null || firstRecursionKey.isAfterOrEqualTo(previousKey)) {
+            if (firstRecursionKey == null || (firstRecursionKey.isAfterOrEqualToNotNullSafe(previousKey)
+                    && previousKey.equalsNotNullSafe(fromRecursionKey))) {
                 return getInitialValue(previousKey);
             }
             FDate curRecursionKey = null;
