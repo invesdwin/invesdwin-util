@@ -13,6 +13,7 @@ import de.invesdwin.util.time.fdate.FDate;
 public final class HistoricalFunctions {
 
     private HistoricalFunctions() {
+        //TODO: duplicate these functions as indicators to make them faster by using a trailing previousValuesCache
     }
 
     public static IFunctionFactory newOnceFunction(final String name) {
