@@ -207,25 +207,25 @@ public class Decimal extends ADecimal<Decimal> {
 
     @Override
     public String toFormattedString(final String format) {
-        return toFormattedString(this, format);
+        return toFormattedString(format, this);
     }
 
-    public static String toFormattedString(final double number, final String format) {
+    public static String toFormattedString(final String format, final double number) {
         final DecimalFormat dc = Decimal.newDecimalFormatInstance(format);
-        return toFormattedString(number, dc);
+        return toFormattedString(dc, number);
     }
 
-    public static String toFormattedString(final double number, final DecimalFormat format) {
+    public static String toFormattedString(final DecimalFormat format, final double number) {
         final String str = format.format(number);
         return postProcessFormattedString(str);
     }
 
-    public static String toFormattedString(final Number number, final String format) {
+    public static String toFormattedString(final String format, final Number number) {
         final DecimalFormat dc = Decimal.newDecimalFormatInstance(format);
-        return toFormattedString(number, dc);
+        return toFormattedString(dc, number);
     }
 
-    public static String toFormattedString(final Number number, final DecimalFormat format) {
+    public static String toFormattedString(final DecimalFormat format, final Number number) {
         final String str = format.format(number);
         return postProcessFormattedString(str);
     }
