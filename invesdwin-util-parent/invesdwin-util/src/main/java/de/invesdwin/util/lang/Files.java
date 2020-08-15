@@ -12,6 +12,7 @@ import org.apache.commons.io.filefilter.AgeFileFilter;
 import org.apache.commons.io.filefilter.TrueFileFilter;
 
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
+import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.lang.internal.AFilesStaticFacade;
 import de.invesdwin.util.time.duration.Duration;
 import de.invesdwin.util.time.fdate.FDate;
@@ -27,20 +28,16 @@ import de.invesdwin.util.time.fdate.FDate;
                 "java.nio.file.Files#mismatch(java.nio.file.Path, java.nio.file.Path)" })
 public final class Files extends AFilesStaticFacade {
 
-    private static final String[] NORMALIZE_FILENAME_SEARCH = { ":", "@", "*", "?", "<", ">", "\"", "|", "/", "\\" };
-    private static final String[] NORMALIZE_FILENAME_REPLACE;
-    private static final String[] NORMALIZE_PATH_SEARCH = { ":", "@", "*", "?", "<", ">", "\"", "|" };
-    private static final String[] NORMALIZE_PATH_REPLACE;
+    private static final String[] NORMALIZE_FILENAME_SEARCH = { ":", "@", "*", "?", "<", ">", "=", "\"", "|", "/",
+            "\\" };
+    private static final String[] NORMALIZE_FILENAME_REPLACE = { "_", "_", "_", "_", "l", "g", "e", "_", "_", "_",
+            "_" };
+    private static final String[] NORMALIZE_PATH_SEARCH = { ":", "@", "*", "?", "<", ">", "=", "\"", "|" };
+    private static final String[] NORMALIZE_PATH_REPLACE = { "_", "_", "_", "_", "l", "g", "e", "_", "_" };
 
     static {
-        NORMALIZE_FILENAME_REPLACE = new String[NORMALIZE_FILENAME_SEARCH.length];
-        for (int i = 0; i < NORMALIZE_FILENAME_REPLACE.length; i++) {
-            NORMALIZE_FILENAME_REPLACE[i] = "_";
-        }
-        NORMALIZE_PATH_REPLACE = new String[NORMALIZE_PATH_SEARCH.length];
-        for (int i = 0; i < NORMALIZE_PATH_REPLACE.length; i++) {
-            NORMALIZE_PATH_REPLACE[i] = "_";
-        }
+        Assertions.assertThat(NORMALIZE_FILENAME_SEARCH.length).isEqualByComparingTo(NORMALIZE_FILENAME_REPLACE.length);
+        Assertions.assertThat(NORMALIZE_PATH_SEARCH.length).isEqualByComparingTo(NORMALIZE_PATH_REPLACE.length);
     }
 
     private Files() {
