@@ -2,7 +2,7 @@ package de.invesdwin.util.math.expression;
 
 import de.invesdwin.util.math.Booleans;
 import de.invesdwin.util.math.Integers;
-import de.invesdwin.util.time.fdate.FDate;
+import de.invesdwin.util.time.fdate.IFDateProvider;
 
 public interface IExpression {
 
@@ -11,7 +11,7 @@ public interface IExpression {
     /**
      * evaluates the expression using the current time key
      */
-    double evaluateDouble(FDate key);
+    double evaluateDouble(IFDateProvider key);
 
     /**
      * evaluates the expression using the current int key
@@ -26,7 +26,7 @@ public interface IExpression {
     /**
      * Double.NaN is interpreted as 0.
      */
-    default int evaluateInteger(final FDate key) {
+    default int evaluateInteger(final IFDateProvider key) {
         return Integers.checkedCast(evaluateDouble(key));
     }
 
@@ -54,7 +54,7 @@ public interface IExpression {
     /**
      * Double.NaN is interpreted as false.
      */
-    default boolean evaluateBoolean(final FDate key) {
+    default boolean evaluateBoolean(final IFDateProvider key) {
         return Booleans.isTrue(evaluateBooleanNullable(key));
     }
 
@@ -73,7 +73,7 @@ public interface IExpression {
     /**
      * Double.NaN is interpreted as null.
      */
-    Boolean evaluateBooleanNullable(FDate key);
+    Boolean evaluateBooleanNullable(IFDateProvider key);
 
     /**
      * Double.NaN is interpreted as null.

@@ -2,7 +2,7 @@ package de.invesdwin.util.math.expression.variable;
 
 import javax.annotation.concurrent.Immutable;
 
-import de.invesdwin.util.time.fdate.FDate;
+import de.invesdwin.util.time.fdate.IFDateProvider;
 
 @Immutable
 public abstract class ADoubleConstant extends AConstant implements IDoubleVariable {
@@ -19,7 +19,7 @@ public abstract class ADoubleConstant extends AConstant implements IDoubleVariab
     }
 
     @Override
-    public final double getValue(final FDate key) {
+    public final double getValue(final IFDateProvider key) {
         return value;
     }
 

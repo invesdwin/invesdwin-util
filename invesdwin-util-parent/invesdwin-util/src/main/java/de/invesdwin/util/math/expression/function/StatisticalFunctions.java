@@ -9,7 +9,7 @@ import de.invesdwin.util.math.expression.IFunctionParameterInfo;
 import de.invesdwin.util.math.statistics.RunningMedian;
 import de.invesdwin.util.math.stream.doubl.DoubleStreamStandardDeviation;
 import de.invesdwin.util.math.stream.doubl.DoubleStreamVariance;
-import de.invesdwin.util.time.fdate.FDate;
+import de.invesdwin.util.time.fdate.IFDateProvider;
 
 @Immutable
 public final class StatisticalFunctions {
@@ -180,11 +180,11 @@ public final class StatisticalFunctions {
                     }
 
                     @Override
-                    public double eval(final FDate key, final IExpression[] args) {
+                    public double eval(final IFDateProvider key, final IExpression[] args) {
                         final IExpression condition = args[0];
                         final int count = args[1].evaluateInteger(key);
                         double countNotNan = 0D;
-                        FDate curKey = key;
+                        IFDateProvider curKey = key;
                         for (int i = 1; i <= count; i++) {
                             final double result = condition.evaluateDouble(curKey);
                             if (!Doubles.isNaN(result)) {
@@ -365,11 +365,11 @@ public final class StatisticalFunctions {
                     }
 
                     @Override
-                    public double eval(final FDate key, final IExpression[] args) {
+                    public double eval(final IFDateProvider key, final IExpression[] args) {
                         final IExpression condition = args[0];
                         final int count = args[1].evaluateInteger(key);
                         double sum = 0D;
-                        FDate curKey = key;
+                        IFDateProvider curKey = key;
                         for (int i = 1; i <= count; i++) {
                             final double result = condition.evaluateDouble(curKey);
                             if (!Doubles.isNaN(result)) {
@@ -550,11 +550,11 @@ public final class StatisticalFunctions {
                     }
 
                     @Override
-                    public double eval(final FDate key, final IExpression[] args) {
+                    public double eval(final IFDateProvider key, final IExpression[] args) {
                         final IExpression condition = args[0];
                         final int count = args[1].evaluateInteger(key);
                         double sum = 0D;
-                        FDate curKey = key;
+                        IFDateProvider curKey = key;
                         for (int i = 1; i <= count; i++) {
                             final double result = condition.evaluateDouble(curKey);
                             if (!Doubles.isNaN(result)) {
@@ -737,11 +737,11 @@ public final class StatisticalFunctions {
                     }
 
                     @Override
-                    public double eval(final FDate key, final IExpression[] args) {
+                    public double eval(final IFDateProvider key, final IExpression[] args) {
                         final IExpression condition = args[0];
                         final int count = args[1].evaluateInteger(key);
                         final DoubleStreamVariance variance = new DoubleStreamVariance();
-                        FDate curKey = key;
+                        IFDateProvider curKey = key;
                         for (int i = 1; i <= count; i++) {
                             final double result = condition.evaluateDouble(curKey);
                             if (!Doubles.isNaN(result)) {
@@ -922,11 +922,11 @@ public final class StatisticalFunctions {
                     }
 
                     @Override
-                    public double eval(final FDate key, final IExpression[] args) {
+                    public double eval(final IFDateProvider key, final IExpression[] args) {
                         final IExpression condition = args[0];
                         final int count = args[1].evaluateInteger(key);
                         final DoubleStreamVariance variance = new DoubleStreamVariance();
-                        FDate curKey = key;
+                        IFDateProvider curKey = key;
                         for (int i = 1; i <= count; i++) {
                             final double result = condition.evaluateDouble(curKey);
                             if (!Doubles.isNaN(result)) {
@@ -1110,11 +1110,11 @@ public final class StatisticalFunctions {
 
                     @SuppressWarnings("deprecation")
                     @Override
-                    public double eval(final FDate key, final IExpression[] args) {
+                    public double eval(final IFDateProvider key, final IExpression[] args) {
                         final IExpression condition = args[0];
                         final int count = args[1].evaluateInteger(key);
                         final DoubleStreamStandardDeviation standardDeviation = new DoubleStreamStandardDeviation();
-                        FDate curKey = key;
+                        IFDateProvider curKey = key;
                         for (int i = 1; i <= count; i++) {
                             final double result = condition.evaluateDouble(curKey);
                             if (!Doubles.isNaN(result)) {
@@ -1295,11 +1295,11 @@ public final class StatisticalFunctions {
                     }
 
                     @Override
-                    public double eval(final FDate key, final IExpression[] args) {
+                    public double eval(final IFDateProvider key, final IExpression[] args) {
                         final IExpression condition = args[0];
                         final int count = args[1].evaluateInteger(key);
                         final DoubleStreamStandardDeviation standardDeviation = new DoubleStreamStandardDeviation();
-                        FDate curKey = key;
+                        IFDateProvider curKey = key;
                         for (int i = 1; i <= count; i++) {
                             final double result = condition.evaluateDouble(curKey);
                             if (!Doubles.isNaN(result)) {
@@ -1480,11 +1480,11 @@ public final class StatisticalFunctions {
                     }
 
                     @Override
-                    public double eval(final FDate key, final IExpression[] args) {
+                    public double eval(final IFDateProvider key, final IExpression[] args) {
                         final IExpression condition = args[0];
                         final int count = args[1].evaluateInteger(key);
                         final RunningMedian median = new RunningMedian(count);
-                        FDate curKey = key;
+                        IFDateProvider curKey = key;
                         for (int i = 1; i <= count; i++) {
                             final double result = condition.evaluateDouble(curKey);
                             if (!Doubles.isNaN(result)) {
@@ -1706,12 +1706,12 @@ public final class StatisticalFunctions {
                     }
 
                     @Override
-                    public double eval(final FDate key, final IExpression[] args) {
+                    public double eval(final IFDateProvider key, final IExpression[] args) {
                         final double percentile = args[0].evaluateDouble(key);
                         final IExpression condition = args[1];
                         final int count = args[2].evaluateInteger(key);
                         final RunningMedian median = new RunningMedian(count);
-                        FDate curKey = key;
+                        IFDateProvider curKey = key;
                         for (int i = 1; i <= count; i++) {
                             final double result = condition.evaluateDouble(curKey);
                             if (!Doubles.isNaN(result)) {

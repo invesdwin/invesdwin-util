@@ -8,7 +8,7 @@ import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.math.expression.eval.IParsedExpression;
 import de.invesdwin.util.math.expression.function.IPreviousKeyFunction;
 import de.invesdwin.util.math.expression.tokenizer.ParseException;
-import de.invesdwin.util.time.fdate.FDate;
+import de.invesdwin.util.time.fdate.IFDateProvider;
 
 @NotThreadSafe
 public class ExpressionParserTest {
@@ -44,8 +44,8 @@ public class ExpressionParserTest {
                     }
 
                     @Override
-                    public FDate getPreviousKey(final FDate key, final int index) {
-                        return key.addDays(-index);
+                    public IFDateProvider getPreviousKey(final IFDateProvider key, final int index) {
+                        return key.asFDate().addDays(-index);
                     }
                 };
             }
@@ -261,8 +261,8 @@ public class ExpressionParserTest {
                     }
 
                     @Override
-                    public FDate getPreviousKey(final FDate key, final int index) {
-                        return key.addDays(-index);
+                    public IFDateProvider getPreviousKey(final IFDateProvider key, final int index) {
+                        return key.asFDate().addDays(-index);
                     }
                 };
             }
@@ -292,8 +292,8 @@ public class ExpressionParserTest {
                     }
 
                     @Override
-                    public FDate getPreviousKey(final FDate key, final int index) {
-                        return key.addDays(-index);
+                    public IFDateProvider getPreviousKey(final IFDateProvider key, final int index) {
+                        return key.asFDate().addDays(-index);
                     }
                 };
             }

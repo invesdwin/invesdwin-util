@@ -9,7 +9,7 @@ import de.invesdwin.util.math.expression.IFunctionParameterInfo;
 import de.invesdwin.util.math.expression.eval.function.ABinaryFunction;
 import de.invesdwin.util.math.expression.eval.function.ATernaryFunction;
 import de.invesdwin.util.math.expression.eval.function.AUnaryFunction;
-import de.invesdwin.util.time.fdate.FDate;
+import de.invesdwin.util.time.fdate.IFDateProvider;
 
 @Immutable
 public final class MathFunctions {
@@ -1906,7 +1906,7 @@ public final class MathFunctions {
         }
 
         @Override
-        public double eval(final FDate key, final IExpression[] args) {
+        public double eval(final IFDateProvider key, final IExpression[] args) {
             final double a = args[0].evaluateDouble(key);
             return -a;
         }
@@ -2238,7 +2238,7 @@ public final class MathFunctions {
             }
 
             @Override
-            public double eval(final FDate key, final IExpression[] args) {
+            public double eval(final IFDateProvider key, final IExpression[] args) {
                 if (args.length == 0) {
                     return Math.random();
                 } else {
@@ -2398,7 +2398,7 @@ public final class MathFunctions {
             }
 
             @Override
-            public double eval(final FDate key, final IExpression[] args) {
+            public double eval(final IFDateProvider key, final IExpression[] args) {
                 double min = args[0].evaluateDouble(key);
                 for (int i = 1; i < args.length; i++) {
                     min = Doubles.min(min, args[i].evaluateDouble(key));
@@ -2555,7 +2555,7 @@ public final class MathFunctions {
             }
 
             @Override
-            public double eval(final FDate key, final IExpression[] args) {
+            public double eval(final IFDateProvider key, final IExpression[] args) {
                 double max = args[0].evaluateDouble(key);
                 for (int i = 1; i < args.length; i++) {
                     max = Doubles.max(max, args[i].evaluateDouble(key));

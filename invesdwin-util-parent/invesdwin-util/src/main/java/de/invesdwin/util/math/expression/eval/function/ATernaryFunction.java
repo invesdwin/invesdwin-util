@@ -4,7 +4,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.math.expression.IExpression;
 import de.invesdwin.util.math.expression.function.ADoubleFunction;
-import de.invesdwin.util.time.fdate.FDate;
+import de.invesdwin.util.time.fdate.IFDateProvider;
 
 @NotThreadSafe
 public abstract class ATernaryFunction extends ADoubleFunction {
@@ -15,7 +15,7 @@ public abstract class ATernaryFunction extends ADoubleFunction {
     }
 
     @Override
-    public double eval(final FDate key, final IExpression[] args) {
+    public double eval(final IFDateProvider key, final IExpression[] args) {
         final double a = args[0].evaluateDouble(key);
         final double b = args[1].evaluateDouble(key);
         final double c = args[2].evaluateDouble(key);

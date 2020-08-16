@@ -38,7 +38,8 @@ import de.invesdwin.util.time.duration.Duration;
  * FDate stands for an immutable Fast Date implementation by utilizing heavy caching.
  */
 @ThreadSafe
-public class FDate implements IDate, Serializable, Cloneable, Comparable<Object>, IHistoricalValue<FDate> {
+public class FDate
+        implements IDate, Serializable, Cloneable, Comparable<Object>, IHistoricalValue<FDate>, IFDateProvider {
 
     public static final ADelegateComparator<FDate> COMPARATOR = new ADelegateComparator<FDate>() {
         @Override
@@ -1012,6 +1013,11 @@ public class FDate implements IDate, Serializable, Cloneable, Comparable<Object>
                 return getKey() + " -> " + getValue();
             }
         };
+    }
+
+    @Override
+    public FDate asFDate() {
+        return this;
     }
 
 }

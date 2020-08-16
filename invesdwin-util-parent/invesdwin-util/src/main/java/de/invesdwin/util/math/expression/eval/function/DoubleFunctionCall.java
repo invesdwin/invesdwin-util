@@ -5,7 +5,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.expression.eval.IParsedExpression;
 import de.invesdwin.util.math.expression.function.ADoubleFunction;
-import de.invesdwin.util.time.fdate.FDate;
+import de.invesdwin.util.time.fdate.IFDateProvider;
 
 @NotThreadSafe
 public class DoubleFunctionCall extends AFunctionCall<ADoubleFunction> {
@@ -24,7 +24,7 @@ public class DoubleFunctionCall extends AFunctionCall<ADoubleFunction> {
     }
 
     @Override
-    public double evaluateDouble(final FDate key) {
+    public double evaluateDouble(final IFDateProvider key) {
         return function.eval(key, parameters);
     }
 
@@ -39,7 +39,7 @@ public class DoubleFunctionCall extends AFunctionCall<ADoubleFunction> {
     }
 
     @Override
-    public Boolean evaluateBooleanNullable(final FDate key) {
+    public Boolean evaluateBooleanNullable(final IFDateProvider key) {
         final double eval = function.eval(key, parameters);
         return Doubles.doubleToBoolean(eval);
     }

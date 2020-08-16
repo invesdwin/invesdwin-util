@@ -2,7 +2,7 @@ package de.invesdwin.util.math.expression.function;
 
 import javax.annotation.concurrent.Immutable;
 
-import de.invesdwin.util.time.fdate.FDate;
+import de.invesdwin.util.time.fdate.IFDateProvider;
 
 @Immutable
 public final class DummyPreviousKeyFunction implements IPreviousKeyFunction {
@@ -13,7 +13,7 @@ public final class DummyPreviousKeyFunction implements IPreviousKeyFunction {
     }
 
     @Override
-    public FDate getPreviousKey(final FDate key, final int index) {
+    public IFDateProvider getPreviousKey(final IFDateProvider key, final int index) {
         return key;
     }
 

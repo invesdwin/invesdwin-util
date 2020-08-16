@@ -5,7 +5,7 @@ import javax.annotation.concurrent.Immutable;
 import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.expression.function.AFunction;
 import de.invesdwin.util.math.expression.variable.IDoubleVariable;
-import de.invesdwin.util.time.fdate.FDate;
+import de.invesdwin.util.time.fdate.IFDateProvider;
 
 @Immutable
 public class DoubleVariableReference extends AVariableReference<IDoubleVariable> {
@@ -15,7 +15,7 @@ public class DoubleVariableReference extends AVariableReference<IDoubleVariable>
     }
 
     @Override
-    public double evaluateDouble(final FDate key) {
+    public double evaluateDouble(final IFDateProvider key) {
         return variable.getValue(key);
     }
 
@@ -30,7 +30,7 @@ public class DoubleVariableReference extends AVariableReference<IDoubleVariable>
     }
 
     @Override
-    public Boolean evaluateBooleanNullable(final FDate key) {
+    public Boolean evaluateBooleanNullable(final IFDateProvider key) {
         return Doubles.doubleToBoolean(variable.getValue(key));
     }
 

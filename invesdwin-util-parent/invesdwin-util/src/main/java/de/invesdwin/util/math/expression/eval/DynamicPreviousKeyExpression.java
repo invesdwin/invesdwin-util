@@ -4,7 +4,7 @@ import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.math.expression.IExpression;
 import de.invesdwin.util.math.expression.function.IPreviousKeyFunction;
-import de.invesdwin.util.time.fdate.FDate;
+import de.invesdwin.util.time.fdate.IFDateProvider;
 
 @Immutable
 public class DynamicPreviousKeyExpression implements IParsedExpression {
@@ -21,12 +21,12 @@ public class DynamicPreviousKeyExpression implements IParsedExpression {
     }
 
     @Override
-    public double evaluateDouble(final FDate key) {
+    public double evaluateDouble(final IFDateProvider key) {
         final Integer index = indexExpression.evaluateInteger(key);
         if (index == null || index < 0) {
             return Double.NaN;
         }
-        final FDate previousKey = previousKeyFunction.getPreviousKey(key, index);
+        final IFDateProvider previousKey = previousKeyFunction.getPreviousKey(key, index);
         return previousKeyFunction.evaluateDouble(expression, previousKey);
     }
 
@@ -46,12 +46,12 @@ public class DynamicPreviousKeyExpression implements IParsedExpression {
     }
 
     @Override
-    public Boolean evaluateBooleanNullable(final FDate key) {
+    public Boolean evaluateBooleanNullable(final IFDateProvider key) {
         final Integer index = indexExpression.evaluateInteger(key);
         if (index == null || index < 0) {
             return null;
         }
-        final FDate previousKey = previousKeyFunction.getPreviousKey(key, index);
+        final IFDateProvider previousKey = previousKeyFunction.getPreviousKey(key, index);
         return previousKeyFunction.evaluateBooleanNullable(expression, previousKey);
     }
 

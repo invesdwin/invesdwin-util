@@ -5,7 +5,7 @@ import javax.annotation.concurrent.Immutable;
 import de.invesdwin.util.math.expression.ExpressionReturnType;
 import de.invesdwin.util.math.expression.IExpression;
 import de.invesdwin.util.math.expression.IFunctionParameterInfo;
-import de.invesdwin.util.time.fdate.FDate;
+import de.invesdwin.util.time.fdate.IFDateProvider;
 
 @Immutable
 public final class LogicalFunctions {
@@ -23,7 +23,7 @@ public final class LogicalFunctions {
         }
 
         @Override
-        public double eval(final FDate key, final IExpression[] args) {
+        public double eval(final IFDateProvider key, final IExpression[] args) {
             final boolean check = args[0].evaluateBoolean(key);
             if (check) {
                 return args[1].evaluateDouble(key);
@@ -223,7 +223,7 @@ public final class LogicalFunctions {
         }
 
         @Override
-        public boolean eval(final FDate key, final IExpression[] args) {
+        public boolean eval(final IFDateProvider key, final IExpression[] args) {
             final double a = args[0].evaluateDouble(key);
             return Double.isNaN(a);
         }
@@ -328,7 +328,7 @@ public final class LogicalFunctions {
         }
 
         @Override
-        public boolean eval(final FDate key, final IExpression[] args) {
+        public boolean eval(final IFDateProvider key, final IExpression[] args) {
             final Boolean a = args[0].evaluateBooleanNullable(key);
             return a != null && a == Boolean.TRUE;
         }
@@ -433,7 +433,7 @@ public final class LogicalFunctions {
         }
 
         @Override
-        public boolean eval(final FDate key, final IExpression[] args) {
+        public boolean eval(final IFDateProvider key, final IExpression[] args) {
             final Boolean a = args[0].evaluateBooleanNullable(key);
             return !(a == null || a == Boolean.TRUE);
         }
@@ -538,7 +538,7 @@ public final class LogicalFunctions {
         }
 
         @Override
-        public Boolean eval(final FDate key, final IExpression[] args) {
+        public Boolean eval(final IFDateProvider key, final IExpression[] args) {
             final Boolean a = args[0].evaluateBooleanNullable(key);
             if (a == null) {
                 return null;
@@ -654,7 +654,7 @@ public final class LogicalFunctions {
             }
 
             @Override
-            public double eval(final FDate key, final IExpression[] args) {
+            public double eval(final IFDateProvider key, final IExpression[] args) {
                 final int index = args[0].evaluateInteger(key);
                 return args[index].evaluateDouble(key);
             }
@@ -841,7 +841,7 @@ public final class LogicalFunctions {
             }
 
             @Override
-            public double eval(final FDate key, final IExpression[] args) {
+            public double eval(final IFDateProvider key, final IExpression[] args) {
                 final double threshold = args[0].evaluateDouble(key) * (args.length - 1);
                 double sum = 0D;
                 for (int i = 1; i < args.length; i++) {

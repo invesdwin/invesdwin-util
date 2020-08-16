@@ -6,7 +6,7 @@ import de.invesdwin.util.math.Booleans;
 import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.decimal.Decimal;
 import de.invesdwin.util.math.expression.IExpression;
-import de.invesdwin.util.time.fdate.FDate;
+import de.invesdwin.util.time.fdate.IFDateProvider;
 
 @Immutable
 public class ConstantExpression implements IParsedExpression {
@@ -22,7 +22,7 @@ public class ConstantExpression implements IParsedExpression {
     }
 
     @Override
-    public double evaluateDouble(final FDate key) {
+    public double evaluateDouble(final IFDateProvider key) {
         return doubleValue;
     }
 
@@ -37,7 +37,7 @@ public class ConstantExpression implements IParsedExpression {
     }
 
     @Override
-    public Boolean evaluateBooleanNullable(final FDate key) {
+    public Boolean evaluateBooleanNullable(final IFDateProvider key) {
         return booleanNullableValue;
     }
 
@@ -52,7 +52,7 @@ public class ConstantExpression implements IParsedExpression {
     }
 
     @Override
-    public boolean evaluateBoolean(final FDate key) {
+    public boolean evaluateBoolean(final IFDateProvider key) {
         return booleanValue;
     }
 

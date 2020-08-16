@@ -2,11 +2,11 @@ package de.invesdwin.util.math.expression.variable;
 
 import de.invesdwin.util.math.expression.eval.variable.AVariableReference;
 import de.invesdwin.util.math.expression.eval.variable.BooleanVariableReference;
-import de.invesdwin.util.time.fdate.FDate;
+import de.invesdwin.util.time.fdate.IFDateProvider;
 
 public interface IBooleanVariable extends IVariable {
 
-    boolean getValue(FDate key);
+    boolean getValue(IFDateProvider key);
 
     boolean getValue(int key);
 

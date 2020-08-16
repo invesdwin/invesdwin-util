@@ -5,7 +5,7 @@ import javax.annotation.concurrent.Immutable;
 import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.expression.function.AFunction;
 import de.invesdwin.util.math.expression.variable.IBooleanNullableVariable;
-import de.invesdwin.util.time.fdate.FDate;
+import de.invesdwin.util.time.fdate.IFDateProvider;
 
 @Immutable
 public class BooleanNullableVariableReference extends AVariableReference<IBooleanNullableVariable> {
@@ -15,7 +15,7 @@ public class BooleanNullableVariableReference extends AVariableReference<IBoolea
     }
 
     @Override
-    public double evaluateDouble(final FDate key) {
+    public double evaluateDouble(final IFDateProvider key) {
         return Doubles.booleanToDouble(evaluateBoolean(key));
     }
 
@@ -30,7 +30,7 @@ public class BooleanNullableVariableReference extends AVariableReference<IBoolea
     }
 
     @Override
-    public boolean evaluateBoolean(final FDate key) {
+    public boolean evaluateBoolean(final IFDateProvider key) {
         return variable.getValue(key);
     }
 
@@ -45,7 +45,7 @@ public class BooleanNullableVariableReference extends AVariableReference<IBoolea
     }
 
     @Override
-    public Boolean evaluateBooleanNullable(final FDate key) {
+    public Boolean evaluateBooleanNullable(final IFDateProvider key) {
         return evaluateBoolean(key);
     }
 

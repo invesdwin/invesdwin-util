@@ -6,7 +6,7 @@ import de.invesdwin.util.math.expression.ExpressionReturnType;
 import de.invesdwin.util.math.expression.IExpression;
 import de.invesdwin.util.math.expression.IFunctionParameterInfo;
 import de.invesdwin.util.math.expression.function.ABooleanNullableFunction;
-import de.invesdwin.util.time.fdate.FDate;
+import de.invesdwin.util.time.fdate.IFDateProvider;
 
 @Immutable
 public class BooleanNullableVariableFunction extends ABooleanNullableFunction {
@@ -43,7 +43,7 @@ public class BooleanNullableVariableFunction extends ABooleanNullableFunction {
     }
 
     @Override
-    public Boolean eval(final FDate key, final IExpression[] args) {
+    public Boolean eval(final IFDateProvider key, final IExpression[] args) {
         return variable.evaluateBoolean(key);
     }
 

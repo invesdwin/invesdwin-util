@@ -2,7 +2,7 @@ package de.invesdwin.util.math.expression.variable;
 
 import javax.annotation.concurrent.Immutable;
 
-import de.invesdwin.util.time.fdate.FDate;
+import de.invesdwin.util.time.fdate.IFDateProvider;
 
 @Immutable
 public abstract class ABooleanConstant extends AConstant implements IBooleanVariable {
@@ -19,7 +19,7 @@ public abstract class ABooleanConstant extends AConstant implements IBooleanVari
     }
 
     @Override
-    public final boolean getValue(final FDate key) {
+    public final boolean getValue(final IFDateProvider key) {
         return value;
     }
 

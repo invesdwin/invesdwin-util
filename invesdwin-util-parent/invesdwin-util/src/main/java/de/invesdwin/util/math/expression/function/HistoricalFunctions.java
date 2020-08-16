@@ -7,7 +7,7 @@ import de.invesdwin.util.math.expression.ExpressionReturnType;
 import de.invesdwin.util.math.expression.IExpression;
 import de.invesdwin.util.math.expression.IFunctionParameterInfo;
 import de.invesdwin.util.math.expression.eval.operation.BinaryOperation;
-import de.invesdwin.util.time.fdate.FDate;
+import de.invesdwin.util.time.fdate.IFDateProvider;
 
 @Immutable
 public final class HistoricalFunctions {
@@ -138,13 +138,13 @@ public final class HistoricalFunctions {
                     }
 
                     @Override
-                    public boolean eval(final FDate key, final IExpression[] args) {
+                    public boolean eval(final IFDateProvider key, final IExpression[] args) {
                         final IExpression condition = args[0];
                         final boolean cur = condition.evaluateBoolean(key);
                         if (!cur) {
                             return false;
                         }
-                        final FDate prevKey = previousKeyFunction.getPreviousKey(key, 1);
+                        final IFDateProvider prevKey = previousKeyFunction.getPreviousKey(key, 1);
                         final boolean prev = condition.evaluateBoolean(prevKey);
                         if (prev) {
                             return false;
@@ -319,10 +319,10 @@ public final class HistoricalFunctions {
                     }
 
                     @Override
-                    public boolean eval(final FDate key, final IExpression[] args) {
+                    public boolean eval(final IFDateProvider key, final IExpression[] args) {
                         final IExpression condition = args[0];
                         final int count = args[1].evaluateInteger(key);
-                        FDate curKey = key;
+                        IFDateProvider curKey = key;
                         for (int i = 1; i <= count; i++) {
                             final Boolean result = condition.evaluateBooleanNullable(curKey);
                             if (result != null && !result) {
@@ -505,11 +505,11 @@ public final class HistoricalFunctions {
                     }
 
                     @Override
-                    public double eval(final FDate key, final IExpression[] args) {
+                    public double eval(final IFDateProvider key, final IExpression[] args) {
                         final IExpression condition = args[0];
                         final int count = args[1].evaluateInteger(key);
                         int stableCount = 0;
-                        FDate curKey = key;
+                        IFDateProvider curKey = key;
                         for (int i = 1; i <= count; i++) {
                             final Boolean result = condition.evaluateBooleanNullable(curKey);
                             if (result != null && !result) {
@@ -695,11 +695,11 @@ public final class HistoricalFunctions {
                     }
 
                     @Override
-                    public boolean eval(final FDate key, final IExpression[] args) {
+                    public boolean eval(final IFDateProvider key, final IExpression[] args) {
                         final BinaryOperation condition = BinaryOperation.validateComparativeOperation(args[0]);
                         final int count = args[1].evaluateInteger(key);
                         final double rightResult = condition.getRight().evaluateDouble(key);
-                        FDate curKey = key;
+                        IFDateProvider curKey = key;
                         for (int i = 1; i <= count; i++) {
                             final double leftResult = condition.getLeft().evaluateDouble(curKey);
                             final Boolean result = condition.getOp().applyBooleanNullable(leftResult, rightResult);
@@ -889,12 +889,12 @@ public final class HistoricalFunctions {
                     }
 
                     @Override
-                    public double eval(final FDate key, final IExpression[] args) {
+                    public double eval(final IFDateProvider key, final IExpression[] args) {
                         final BinaryOperation condition = BinaryOperation.validateComparativeOperation(args[0]);
                         final int count = args[1].evaluateInteger(key);
                         final double rightResult = condition.getRight().evaluateDouble(key);
                         int stableCount = 0;
-                        FDate curKey = key;
+                        IFDateProvider curKey = key;
                         for (int i = 1; i <= count; i++) {
                             final double leftResult = condition.getLeft().evaluateDouble(curKey);
                             final Boolean result = condition.getOp().applyBooleanNullable(leftResult, rightResult);
@@ -1083,11 +1083,11 @@ public final class HistoricalFunctions {
                     }
 
                     @Override
-                    public boolean eval(final FDate key, final IExpression[] args) {
+                    public boolean eval(final IFDateProvider key, final IExpression[] args) {
                         final BinaryOperation condition = BinaryOperation.validateComparativeOperation(args[0]);
                         final int count = args[1].evaluateInteger(key);
                         final double leftResult = condition.getLeft().evaluateDouble(key);
-                        FDate curKey = key;
+                        IFDateProvider curKey = key;
                         for (int i = 1; i <= count; i++) {
                             final double rightResult = condition.getRight().evaluateDouble(curKey);
                             final Boolean result = condition.getOp().applyBooleanNullable(leftResult, rightResult);
@@ -1277,12 +1277,12 @@ public final class HistoricalFunctions {
                     }
 
                     @Override
-                    public double eval(final FDate key, final IExpression[] args) {
+                    public double eval(final IFDateProvider key, final IExpression[] args) {
                         final BinaryOperation condition = BinaryOperation.validateComparativeOperation(args[0]);
                         final int count = args[1].evaluateInteger(key);
                         final double leftResult = condition.getLeft().evaluateDouble(key);
                         int stableCount = 0;
-                        FDate curKey = key;
+                        IFDateProvider curKey = key;
                         for (int i = 1; i <= count; i++) {
                             final double rightResult = condition.getRight().evaluateDouble(curKey);
                             final Boolean result = condition.getOp().applyBooleanNullable(leftResult, rightResult);
@@ -1467,10 +1467,10 @@ public final class HistoricalFunctions {
                     }
 
                     @Override
-                    public boolean eval(final FDate key, final IExpression[] args) {
+                    public boolean eval(final IFDateProvider key, final IExpression[] args) {
                         final IExpression condition = args[0];
                         final int count = args[1].evaluateInteger(key);
-                        FDate curKey = key;
+                        IFDateProvider curKey = key;
                         for (int i = 1; i <= count; i++) {
                             final boolean result = Booleans.isTrue(condition.evaluateBooleanNullable(curKey));
                             if (result) {
@@ -1651,11 +1651,11 @@ public final class HistoricalFunctions {
                     }
 
                     @Override
-                    public double eval(final FDate key, final IExpression[] args) {
+                    public double eval(final IFDateProvider key, final IExpression[] args) {
                         final IExpression condition = args[0];
                         final int count = args[1].evaluateInteger(key);
                         int occursCount = 0;
-                        FDate curKey = key;
+                        IFDateProvider curKey = key;
                         for (int i = 1; i <= count; i++) {
                             final boolean result = Booleans.isTrue(condition.evaluateBooleanNullable(curKey));
                             if (result) {
@@ -1840,11 +1840,11 @@ public final class HistoricalFunctions {
                     }
 
                     @Override
-                    public boolean eval(final FDate key, final IExpression[] args) {
+                    public boolean eval(final IFDateProvider key, final IExpression[] args) {
                         final BinaryOperation condition = BinaryOperation.validateComparativeOperation(args[0]);
                         final int count = args[1].evaluateInteger(key);
                         final double rightResult = condition.getRight().evaluateDouble(key);
-                        FDate curKey = key;
+                        IFDateProvider curKey = key;
                         for (int i = 1; i <= count; i++) {
                             final double leftResult = condition.getLeft().evaluateDouble(curKey);
                             final boolean result = Booleans
@@ -2032,12 +2032,12 @@ public final class HistoricalFunctions {
                     }
 
                     @Override
-                    public double eval(final FDate key, final IExpression[] args) {
+                    public double eval(final IFDateProvider key, final IExpression[] args) {
                         final BinaryOperation condition = BinaryOperation.validateComparativeOperation(args[0]);
                         final int count = args[1].evaluateInteger(key);
                         final double rightResult = condition.getRight().evaluateDouble(key);
                         int occursCount = 0;
-                        FDate curKey = key;
+                        IFDateProvider curKey = key;
                         for (int i = 1; i <= count; i++) {
                             final double leftResult = condition.getLeft().evaluateDouble(curKey);
                             final boolean result = Booleans
@@ -2224,11 +2224,11 @@ public final class HistoricalFunctions {
                     }
 
                     @Override
-                    public boolean eval(final FDate key, final IExpression[] args) {
+                    public boolean eval(final IFDateProvider key, final IExpression[] args) {
                         final BinaryOperation condition = BinaryOperation.validateComparativeOperation(args[0]);
                         final int count = args[1].evaluateInteger(key);
                         final double leftResult = condition.getLeft().evaluateDouble(key);
-                        FDate curKey = key;
+                        IFDateProvider curKey = key;
                         for (int i = 1; i <= count; i++) {
                             final double rightResult = condition.getRight().evaluateDouble(curKey);
                             final boolean result = Booleans
@@ -2416,12 +2416,12 @@ public final class HistoricalFunctions {
                     }
 
                     @Override
-                    public double eval(final FDate key, final IExpression[] args) {
+                    public double eval(final IFDateProvider key, final IExpression[] args) {
                         final BinaryOperation condition = BinaryOperation.validateComparativeOperation(args[0]);
                         final int count = args[1].evaluateInteger(key);
                         final double leftResult = condition.getLeft().evaluateDouble(key);
                         int occursCount = 0;
-                        FDate curKey = key;
+                        IFDateProvider curKey = key;
                         for (int i = 1; i <= count; i++) {
                             final double rightResult = condition.getRight().evaluateDouble(curKey);
                             final boolean result = Booleans
@@ -2608,11 +2608,11 @@ public final class HistoricalFunctions {
                     }
 
                     @Override
-                    public double eval(final FDate key, final IExpression[] args) {
+                    public double eval(final IFDateProvider key, final IExpression[] args) {
                         final IExpression condition = args[0];
                         final int count = args[1].evaluateInteger(key);
                         for (int i = count - 1; i >= 0; i--) {
-                            final FDate curKey;
+                            final IFDateProvider curKey;
                             if (count == 0) {
                                 curKey = key;
                             } else {
@@ -2795,10 +2795,10 @@ public final class HistoricalFunctions {
                     }
 
                     @Override
-                    public double eval(final FDate key, final IExpression[] args) {
+                    public double eval(final IFDateProvider key, final IExpression[] args) {
                         final IExpression condition = args[0];
                         final int count = args[1].evaluateInteger(key);
-                        FDate curKey = key;
+                        IFDateProvider curKey = key;
                         for (int i = 1; i <= count; i++) {
                             final boolean result = Booleans.isTrue(condition.evaluateBooleanNullable(curKey));
                             if (result) {

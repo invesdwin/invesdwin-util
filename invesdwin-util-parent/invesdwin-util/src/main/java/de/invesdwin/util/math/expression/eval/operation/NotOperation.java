@@ -4,7 +4,7 @@ import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.expression.eval.IParsedExpression;
-import de.invesdwin.util.time.fdate.FDate;
+import de.invesdwin.util.time.fdate.IFDateProvider;
 
 @Immutable
 public class NotOperation extends BinaryOperation {
@@ -14,7 +14,7 @@ public class NotOperation extends BinaryOperation {
     }
 
     @Override
-    public double evaluateDouble(final FDate key) {
+    public double evaluateDouble(final IFDateProvider key) {
         final Boolean check = evaluateBooleanNullable(key);
         return Doubles.booleanToDouble(check);
     }
@@ -32,7 +32,7 @@ public class NotOperation extends BinaryOperation {
     }
 
     @Override
-    public Boolean evaluateBooleanNullable(final FDate key) {
+    public Boolean evaluateBooleanNullable(final IFDateProvider key) {
         final Boolean check = right.evaluateBooleanNullable(key);
         if (check == null) {
             return null;

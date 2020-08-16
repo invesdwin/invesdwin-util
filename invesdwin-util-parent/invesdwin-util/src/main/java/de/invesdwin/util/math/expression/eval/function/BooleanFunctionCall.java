@@ -5,7 +5,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.expression.eval.IParsedExpression;
 import de.invesdwin.util.math.expression.function.ABooleanFunction;
-import de.invesdwin.util.time.fdate.FDate;
+import de.invesdwin.util.time.fdate.IFDateProvider;
 
 @NotThreadSafe
 public class BooleanFunctionCall extends AFunctionCall<ABooleanFunction> {
@@ -25,7 +25,7 @@ public class BooleanFunctionCall extends AFunctionCall<ABooleanFunction> {
     }
 
     @Override
-    public double evaluateDouble(final FDate key) {
+    public double evaluateDouble(final IFDateProvider key) {
         return Doubles.booleanToDouble(evaluateBoolean(key));
     }
 
@@ -40,7 +40,7 @@ public class BooleanFunctionCall extends AFunctionCall<ABooleanFunction> {
     }
 
     @Override
-    public Boolean evaluateBooleanNullable(final FDate key) {
+    public Boolean evaluateBooleanNullable(final IFDateProvider key) {
         return evaluateBoolean(key);
     }
 
@@ -55,7 +55,7 @@ public class BooleanFunctionCall extends AFunctionCall<ABooleanFunction> {
     }
 
     @Override
-    public boolean evaluateBoolean(final FDate key) {
+    public boolean evaluateBoolean(final IFDateProvider key) {
         final boolean eval = function.eval(key, parameters);
         return eval;
     }

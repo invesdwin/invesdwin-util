@@ -6,7 +6,7 @@ import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.expression.IExpression;
 import de.invesdwin.util.math.expression.eval.ConstantExpression;
 import de.invesdwin.util.math.expression.eval.IParsedExpression;
-import de.invesdwin.util.time.fdate.FDate;
+import de.invesdwin.util.time.fdate.IFDateProvider;
 
 @Immutable
 public class BinaryOperation implements IParsedExpression {
@@ -47,7 +47,7 @@ public class BinaryOperation implements IParsedExpression {
     }
 
     @Override
-    public double evaluateDouble(final FDate key) {
+    public double evaluateDouble(final IFDateProvider key) {
         final double a = left.evaluateDouble(key);
         final double b = right.evaluateDouble(key);
 
@@ -71,7 +71,7 @@ public class BinaryOperation implements IParsedExpression {
     }
 
     @Override
-    public Boolean evaluateBooleanNullable(final FDate key) {
+    public Boolean evaluateBooleanNullable(final IFDateProvider key) {
         final double a = left.evaluateDouble(key);
         final double b = right.evaluateDouble(key);
 

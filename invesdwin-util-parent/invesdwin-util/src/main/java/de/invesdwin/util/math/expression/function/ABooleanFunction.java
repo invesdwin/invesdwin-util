@@ -5,12 +5,12 @@ import javax.annotation.concurrent.NotThreadSafe;
 import de.invesdwin.util.math.expression.IExpression;
 import de.invesdwin.util.math.expression.eval.IParsedExpression;
 import de.invesdwin.util.math.expression.eval.function.BooleanFunctionCall;
-import de.invesdwin.util.time.fdate.FDate;
+import de.invesdwin.util.time.fdate.IFDateProvider;
 
 @NotThreadSafe
 public abstract class ABooleanFunction extends AFunction {
 
-    public abstract boolean eval(FDate key, IExpression[] args);
+    public abstract boolean eval(IFDateProvider key, IExpression[] args);
 
     public abstract boolean eval(int key, IExpression[] args);
 

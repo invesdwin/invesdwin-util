@@ -5,12 +5,12 @@ import javax.annotation.concurrent.NotThreadSafe;
 import de.invesdwin.util.math.expression.IExpression;
 import de.invesdwin.util.math.expression.eval.IParsedExpression;
 import de.invesdwin.util.math.expression.eval.function.DoubleFunctionCall;
-import de.invesdwin.util.time.fdate.FDate;
+import de.invesdwin.util.time.fdate.IFDateProvider;
 
 @NotThreadSafe
 public abstract class ADoubleFunction extends AFunction {
 
-    public abstract double eval(FDate key, IExpression[] args);
+    public abstract double eval(IFDateProvider key, IExpression[] args);
 
     public abstract double eval(int key, IExpression[] args);
 

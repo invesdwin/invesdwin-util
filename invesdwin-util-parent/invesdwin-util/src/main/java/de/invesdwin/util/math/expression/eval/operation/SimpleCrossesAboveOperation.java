@@ -5,7 +5,7 @@ import javax.annotation.concurrent.Immutable;
 import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.expression.eval.IParsedExpression;
 import de.invesdwin.util.math.expression.function.IPreviousKeyFunction;
-import de.invesdwin.util.time.fdate.FDate;
+import de.invesdwin.util.time.fdate.IFDateProvider;
 
 @Immutable
 public class SimpleCrossesAboveOperation extends BinaryOperation {
@@ -19,14 +19,14 @@ public class SimpleCrossesAboveOperation extends BinaryOperation {
     }
 
     @Override
-    public double evaluateDouble(final FDate key) {
+    public double evaluateDouble(final IFDateProvider key) {
         //crosses above => left was below but went above right
 
         final double leftValue0 = left.evaluateDouble(key);
         final double rightValue0 = right.evaluateDouble(key);
         //left is above right
         if (Doubles.isGreaterThan(leftValue0, rightValue0)) {
-            final FDate previousKey = previousKeyFunction.getPreviousKey(key, 1);
+            final IFDateProvider previousKey = previousKeyFunction.getPreviousKey(key, 1);
             final double leftValue1 = previousKeyFunction.evaluateDouble(left, previousKey);
             final double rightValue1 = previousKeyFunction.evaluateDouble(right, previousKey);
             //previous left is below or equal to previous right
@@ -64,14 +64,14 @@ public class SimpleCrossesAboveOperation extends BinaryOperation {
     }
 
     @Override
-    public Boolean evaluateBooleanNullable(final FDate key) {
+    public Boolean evaluateBooleanNullable(final IFDateProvider key) {
         //crosses above => left was below but went above right
 
         final double leftValue0 = left.evaluateDouble(key);
         final double rightValue0 = right.evaluateDouble(key);
         //left is above right
         if (Doubles.isGreaterThan(leftValue0, rightValue0)) {
-            final FDate previousKey = previousKeyFunction.getPreviousKey(key, 1);
+            final IFDateProvider previousKey = previousKeyFunction.getPreviousKey(key, 1);
             final double leftValue1 = previousKeyFunction.evaluateDouble(left, previousKey);
             final double rightValue1 = previousKeyFunction.evaluateDouble(right, previousKey);
             //previous left is below or equal to previous right

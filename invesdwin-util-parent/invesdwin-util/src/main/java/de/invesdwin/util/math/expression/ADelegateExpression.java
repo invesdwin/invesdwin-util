@@ -2,7 +2,7 @@ package de.invesdwin.util.math.expression;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import de.invesdwin.util.time.fdate.FDate;
+import de.invesdwin.util.time.fdate.IFDateProvider;
 
 @NotThreadSafe
 public abstract class ADelegateExpression implements IExpression {
@@ -10,7 +10,7 @@ public abstract class ADelegateExpression implements IExpression {
     protected abstract IExpression getDelegate();
 
     @Override
-    public double evaluateDouble(final FDate key) {
+    public double evaluateDouble(final IFDateProvider key) {
         return getDelegate().evaluateDouble(key);
     }
 
@@ -30,7 +30,7 @@ public abstract class ADelegateExpression implements IExpression {
     }
 
     @Override
-    public boolean evaluateBoolean(final FDate key) {
+    public boolean evaluateBoolean(final IFDateProvider key) {
         return getDelegate().evaluateBoolean(key);
     }
 
@@ -45,7 +45,7 @@ public abstract class ADelegateExpression implements IExpression {
     }
 
     @Override
-    public Boolean evaluateBooleanNullable(final FDate key) {
+    public Boolean evaluateBooleanNullable(final IFDateProvider key) {
         return getDelegate().evaluateBooleanNullable(key);
     }
 
