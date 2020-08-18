@@ -2,7 +2,6 @@ package de.invesdwin.util.math.expression.eval;
 
 import javax.annotation.concurrent.Immutable;
 
-import de.invesdwin.util.math.Booleans;
 import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.decimal.Decimal;
 import de.invesdwin.util.math.expression.IExpression;
@@ -18,7 +17,7 @@ public class ConstantExpression implements IParsedExpression {
     public ConstantExpression(final double value) {
         this.doubleValue = value;
         this.booleanNullableValue = Doubles.doubleToBoolean(value);
-        this.booleanValue = Booleans.isTrue(booleanNullableValue);
+        this.booleanValue = Doubles.doubleToBooleanPrimitive(value);
     }
 
     @Override

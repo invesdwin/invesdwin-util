@@ -671,6 +671,14 @@ public final class Doubles extends ADoublesStaticFacade {
         }
     }
 
+    public static boolean doubleToBooleanPrimitive(final double value) {
+        if (value > 0D) {
+            return Boolean.TRUE;
+        } else {
+            return Boolean.FALSE;
+        }
+    }
+
     public static double booleanToDouble(final boolean value) {
         if (value) {
             return 1D;
