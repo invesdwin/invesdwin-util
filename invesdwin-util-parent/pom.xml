@@ -41,6 +41,7 @@
 		<version.classgraph>4.6.32</version.classgraph>
 		<version.okhttp>4.7.2</version.okhttp>
 		<version.okio>2.6.0</version.okio>
+		<version.roaringbitmap>0.9.0</version.roaringbitmap>
 	</properties>
 
 	<dependencyManagement>
@@ -100,6 +101,11 @@
 				<groupId>com.squareup.okio</groupId>
 				<artifactId>okio</artifactId>
 				<version>${version.okio}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.roaringbitmap</groupId>
+				<artifactId>RoaringBitmap</artifactId>
+				<version>${version.roaringbitmap}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
