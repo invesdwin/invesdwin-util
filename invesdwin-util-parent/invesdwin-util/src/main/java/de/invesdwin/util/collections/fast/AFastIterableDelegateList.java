@@ -16,9 +16,15 @@ public abstract class AFastIterableDelegateList<E> implements IFastIterableList<
 
     private transient BufferingIterator<E> fastIterable;
     private transient E[] array;
-    private final List<E> delegate = newDelegate();
+    private final List<E> delegate;
+
+    protected AFastIterableDelegateList(final List<E> delegate) {
+        this.delegate = delegate;
+        refreshFastIterable();
+    }
 
     public AFastIterableDelegateList() {
+        this.delegate = newDelegate();
         refreshFastIterable();
     }
 

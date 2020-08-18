@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.NavigableMap;
 import java.util.Set;
 
+import de.invesdwin.util.collections.bitset.IBitSet;
 import de.invesdwin.util.collections.fast.IFastIterableList;
 import de.invesdwin.util.collections.fast.IFastIterableMap;
 import de.invesdwin.util.collections.fast.IFastIterableSet;
@@ -21,9 +22,17 @@ public interface ILockCollectionFactory {
 
     IReadWriteLock newReadWriteLock(String name);
 
+    IBitSet newBitSet();
+
+    IBitSet newBitSet(int expectedSize);
+
     <T> List<T> newArrayList();
 
     <T> IFastIterableList<T> newFastIterableArrayList();
+
+    <T> List<T> newArrayList(int expectedSize);
+
+    <T> IFastIterableList<T> newFastIterableArrayList(int expectedSize);
 
     <T> Set<T> newSet();
 

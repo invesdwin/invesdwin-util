@@ -16,6 +16,8 @@ import com.koloboke.collect.impl.hash.LHashParallelKVObjObjMapFactoryImpl;
 import com.koloboke.collect.map.hash.HashObjObjMapFactory;
 import com.koloboke.collect.set.hash.HashObjSetFactory;
 
+import de.invesdwin.util.collections.bitset.IBitSet;
+import de.invesdwin.util.collections.bitset.JavaBitSet;
 import de.invesdwin.util.collections.fast.AFastIterableDelegateList;
 import de.invesdwin.util.collections.fast.AFastIterableDelegateMap;
 import de.invesdwin.util.collections.fast.AFastIterableDelegateSet;
@@ -42,7 +44,8 @@ public final class DisabledLockCollectionFactory implements ILockCollectionFacto
     private static final HashObjObjMapFactory<?, ?> KOLOBOKE_MAP_FACTORY = new LHashParallelKVObjObjMapFactoryImpl<Object, Object>();
     private static final HashObjSetFactory<?> KOLOBOKE_SET_FACTORY = new LHashObjSetFactoryImpl<Object>();
 
-    private DisabledLockCollectionFactory() {}
+    private DisabledLockCollectionFactory() {
+    }
 
     @Override
     public ILock newLock(final String name) {
@@ -52,6 +55,16 @@ public final class DisabledLockCollectionFactory implements ILockCollectionFacto
     @Override
     public IReadWriteLock newReadWriteLock(final String name) {
         return DisabledReadWriteLock.INSTANCE;
+    }
+
+    @Override
+    public IBitSet newBitSet() {
+        return new JavaBitSet();
+    }
+
+    @Override
+    public IBitSet newBitSet(final int expectedSize) {
+        return new JavaBitSet(expectedSize);
     }
 
     @Override
@@ -81,6 +94,11 @@ public final class DisabledLockCollectionFactory implements ILockCollectionFacto
         return new DisabledFastIterableArrayList<T>();
     }
 
+    @Override
+    public <T> IFastIterableList<T> newFastIterableArrayList(final int expectedSize) {
+        return new DisabledFastIterableArrayListWithSize<T>(expectedSize);
+    }
+
     @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
     public <K, V> Map<K, V> newMap() {
@@ -101,6 +119,11 @@ public final class DisabledLockCollectionFactory implements ILockCollectionFacto
     @Override
     public <T> List<T> newArrayList() {
         return new ArrayList<>();
+    }
+
+    @Override
+    public <T> List<T> newArrayList(final int expectedSize) {
+        return new ArrayList<>(expectedSize);
     }
 
     @Override
@@ -155,6 +178,18 @@ public final class DisabledLockCollectionFactory implements ILockCollectionFacto
         @Override
         protected List<T> newDelegate() {
             return INSTANCE.newArrayList();
+        }
+    }
+
+    private static final class DisabledFastIterableArrayListWithSize<T> extends AFastIterableDelegateList<T> {
+
+        private DisabledFastIterableArrayListWithSize(final int expectedSize) {
+            super(INSTANCE.newArrayList(expectedSize));
+        }
+
+        @Override
+        protected List<T> newDelegate() {
+            throw new UnsupportedOperationException();
         }
     }
 

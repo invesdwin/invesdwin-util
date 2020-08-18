@@ -10,6 +10,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.concurrent.Immutable;
 
+import de.invesdwin.util.collections.bitset.IBitSet;
+import de.invesdwin.util.collections.bitset.SynchronizedBitSet;
 import de.invesdwin.util.collections.fast.IFastIterableList;
 import de.invesdwin.util.collections.fast.IFastIterableMap;
 import de.invesdwin.util.collections.fast.IFastIterableSet;
@@ -31,7 +33,8 @@ public final class SynchronizedLockCollectionFactory implements ILockCollectionF
 
     public static final SynchronizedLockCollectionFactory INSTANCE = new SynchronizedLockCollectionFactory();
 
-    private SynchronizedLockCollectionFactory() {}
+    private SynchronizedLockCollectionFactory() {
+    }
 
     @Override
     public ILock newLock(final String name) {
@@ -44,6 +47,16 @@ public final class SynchronizedLockCollectionFactory implements ILockCollectionF
     }
 
     @Override
+    public IBitSet newBitSet() {
+        return new SynchronizedBitSet(DisabledLockCollectionFactory.INSTANCE.newBitSet());
+    }
+
+    @Override
+    public IBitSet newBitSet(final int expectedSize) {
+        return new SynchronizedBitSet(DisabledLockCollectionFactory.INSTANCE.newBitSet(expectedSize));
+    }
+
+    @Override
     public <T> IFastIterableSet<T> newFastIterableLinkedSet() {
         return new SynchronizedFastIterableLinkedSet<T>();
     }
@@ -51,6 +64,11 @@ public final class SynchronizedLockCollectionFactory implements ILockCollectionF
     @Override
     public <T> IFastIterableList<T> newFastIterableArrayList() {
         return new SynchronizedFastIterableArrayList<T>();
+    }
+
+    @Override
+    public <T> IFastIterableList<T> newFastIterableArrayList(final int expectedSize) {
+        return new SynchronizedFastIterableArrayListWithSize<T>(expectedSize);
     }
 
     @Override
@@ -101,6 +119,11 @@ public final class SynchronizedLockCollectionFactory implements ILockCollectionF
     @Override
     public <T> List<T> newArrayList() {
         return Collections.synchronizedList(DisabledLockCollectionFactory.INSTANCE.newArrayList());
+    }
+
+    @Override
+    public <T> List<T> newArrayList(final int expectedSize) {
+        return Collections.synchronizedList(DisabledLockCollectionFactory.INSTANCE.newArrayList(expectedSize));
     }
 
     @Override
@@ -165,6 +188,19 @@ public final class SynchronizedLockCollectionFactory implements ILockCollectionF
         @Override
         protected List<T> newDelegate() {
             return DisabledLockCollectionFactory.INSTANCE.newArrayList();
+        }
+    }
+
+    private static final class SynchronizedFastIterableArrayListWithSize<T>
+            extends ASynchronizedFastIterableDelegateList<T> {
+
+        private SynchronizedFastIterableArrayListWithSize(final int expectedSize) {
+            super(DisabledLockCollectionFactory.INSTANCE.newArrayList());
+        }
+
+        @Override
+        protected List<T> newDelegate() {
+            throw new UnsupportedOperationException();
         }
     }
 

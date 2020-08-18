@@ -22,9 +22,15 @@ public abstract class AFastIterableDelegateSet<E> implements IFastIterableSet<E>
 
     private transient BufferingIterator<E> fastIterable;
     private transient E[] array;
-    private final Set<E> delegate = newDelegate();
+    private final Set<E> delegate;
+
+    protected AFastIterableDelegateSet(final Set<E> delegate) {
+        this.delegate = delegate;
+        refreshFastIterable();
+    }
 
     public AFastIterableDelegateSet() {
+        this.delegate = newDelegate();
         refreshFastIterable();
     }
 

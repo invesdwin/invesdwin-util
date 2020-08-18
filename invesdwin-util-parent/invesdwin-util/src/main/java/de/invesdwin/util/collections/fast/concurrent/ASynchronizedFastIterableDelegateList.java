@@ -22,9 +22,15 @@ public abstract class ASynchronizedFastIterableDelegateList<E> implements IFastI
     @GuardedBy("this")
     private transient E[] array;
     @GuardedBy("this")
-    private final List<E> delegate = newDelegate();
+    private final List<E> delegate;
+
+    protected ASynchronizedFastIterableDelegateList(final List<E> delegate) {
+        this.delegate = delegate;
+        refreshFastIterable();
+    }
 
     public ASynchronizedFastIterableDelegateList() {
+        this.delegate = newDelegate();
         refreshFastIterable();
     }
 

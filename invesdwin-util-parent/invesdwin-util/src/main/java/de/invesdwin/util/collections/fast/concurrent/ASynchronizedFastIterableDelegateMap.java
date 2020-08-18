@@ -35,7 +35,7 @@ public abstract class ASynchronizedFastIterableDelegateMap<K, V> implements IFas
     private transient V[] valueArray;
 
     @GuardedBy("this")
-    private final Map<K, V> delegate = newDelegate();
+    private final Map<K, V> delegate;
 
     private final Set<Entry<K, V>> entrySet = new EntrySet();
 
@@ -43,7 +43,13 @@ public abstract class ASynchronizedFastIterableDelegateMap<K, V> implements IFas
 
     private final Collection<V> values = new ValuesCollection();
 
+    protected ASynchronizedFastIterableDelegateMap(final Map<K, V> delegate) {
+        this.delegate = newDelegate();
+        refreshFastIterable();
+    }
+
     public ASynchronizedFastIterableDelegateMap() {
+        this.delegate = newDelegate();
         refreshFastIterable();
     }
 

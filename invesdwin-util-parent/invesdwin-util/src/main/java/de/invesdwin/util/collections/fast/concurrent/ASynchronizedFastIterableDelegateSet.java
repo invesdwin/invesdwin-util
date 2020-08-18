@@ -28,9 +28,15 @@ public abstract class ASynchronizedFastIterableDelegateSet<E> implements IFastIt
     @GuardedBy("this")
     private transient E[] array;
     @GuardedBy("this")
-    private final Set<E> delegate = newDelegate();
+    private final Set<E> delegate;
+
+    protected ASynchronizedFastIterableDelegateSet(final Set<E> delegate) {
+        this.delegate = delegate;
+        refreshFastIterable();
+    }
 
     public ASynchronizedFastIterableDelegateSet() {
+        this.delegate = newDelegate();
         refreshFastIterable();
     }
 
