@@ -78,10 +78,7 @@ public class ConstantPreviousKeyExpression implements IParsedExpression {
 
     @Override
     public IParsedExpression simplify() {
-        if (index < 0) {
-            return new ConstantExpression(Double.NaN);
-        }
-        if (index == 0 || expression.isConstant()) {
+        if (index <= 0 || expression.isConstant()) {
             return expression.simplify();
         }
         return this;
