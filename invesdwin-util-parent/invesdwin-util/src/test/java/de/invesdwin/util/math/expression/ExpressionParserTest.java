@@ -308,4 +308,50 @@ public class ExpressionParserTest {
         final int result = new ExpressionParser("NaN").parse().evaluateInteger();
         Assertions.checkEquals(0, result);
     }
+
+    @Test
+    public void testPreviousKeyMinus1() {
+        final IExpression parsed = new ExpressionParser("true[-1]") {
+            @Override
+            protected IPreviousKeyFunction getPreviousKeyFunction(final String context) {
+                return new IPreviousKeyFunction() {
+
+                    @Override
+                    public int getPreviousKey(final int key, final int index) {
+                        return key - index;
+                    }
+
+                    @Override
+                    public IFDateProvider getPreviousKey(final IFDateProvider key, final int index) {
+                        return key.asFDate().addDays(-index);
+                    }
+                };
+            }
+        }.parse();
+        final boolean result = parsed.evaluateBoolean();
+        Assertions.checkEquals(false, result);
+    }
+
+    @Test
+    public void testPreviousKeyNaN() {
+        final IExpression parsed = new ExpressionParser("true[NaN]") {
+            @Override
+            protected IPreviousKeyFunction getPreviousKeyFunction(final String context) {
+                return new IPreviousKeyFunction() {
+
+                    @Override
+                    public int getPreviousKey(final int key, final int index) {
+                        return key - index;
+                    }
+
+                    @Override
+                    public IFDateProvider getPreviousKey(final IFDateProvider key, final int index) {
+                        return key.asFDate().addDays(-index);
+                    }
+                };
+            }
+        }.parse();
+        final boolean result = parsed.evaluateBoolean();
+        Assertions.checkEquals(true, result);
+    }
 }

@@ -629,7 +629,7 @@ public class ExpressionParser {
                 final char endCharacter = originalExpression.charAt(end);
                 if (endCharacter == '[') {
                     skipBracketClose++;
-                } else if (endCharacter == ']') {
+                } else if (endCharacter == ']' && skipBracketClose > -1) {
                     skipBracketClose--;
                     skipCharacters++;
                     end++;
