@@ -25,4 +25,12 @@ public interface IPreviousKeyFunction {
         return expression.evaluateBooleanNullable(previousKey);
     }
 
+    default boolean evaluateBoolean(final IParsedExpression expression, final IFDateProvider previousKey) {
+        return expression.evaluateBoolean(previousKey);
+    }
+
+    default boolean evaluateBoolean(final IParsedExpression expression, final int previousKey) {
+        return expression.evaluateBoolean(previousKey);
+    }
+
 }

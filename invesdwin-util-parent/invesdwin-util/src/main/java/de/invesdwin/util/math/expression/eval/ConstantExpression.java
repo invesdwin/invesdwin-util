@@ -16,8 +16,8 @@ public class ConstantExpression implements IParsedExpression {
 
     public ConstantExpression(final double value) {
         this.doubleValue = value;
-        this.booleanNullableValue = Doubles.doubleToBoolean(value);
-        this.booleanValue = Doubles.doubleToBooleanPrimitive(value);
+        this.booleanNullableValue = Doubles.doubleToBooleanNullable(value);
+        this.booleanValue = Doubles.doubleToBoolean(value);
     }
 
     @Override

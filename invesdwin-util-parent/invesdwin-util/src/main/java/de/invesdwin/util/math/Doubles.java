@@ -580,6 +580,25 @@ public final class Doubles extends ADoublesStaticFacade {
         }
     }
 
+    public static boolean notEquals(final double value, final double otherValue) {
+        final double difference = value - otherValue;
+        if (difference > FIRST_ABOVE_ZERO) {
+            return true;
+        } else if (difference < FIRST_BELOW_ZERO) {
+            return true;
+        } else if (difference == 0D) {
+            return false;
+        } else if (isNaN(difference)) {
+            final boolean valueNaN = isNaN(value);
+            final boolean otherValueNaN = isNaN(otherValue);
+            return !(valueNaN && otherValueNaN);
+        } else {
+            final double defaultRoundedValue = round(value);
+            final double roundedOther = round(otherValue);
+            return defaultRoundedValue != roundedOther;
+        }
+    }
+
     public static double negate(final double value) {
         return value * -1D;
     }
@@ -661,7 +680,7 @@ public final class Doubles extends ADoublesStaticFacade {
         return max;
     }
 
-    public static Boolean doubleToBoolean(final double value) {
+    public static Boolean doubleToBooleanNullable(final double value) {
         if (Doubles.isNaN(value)) {
             return null;
         } else if (value > 0D) {
@@ -671,7 +690,7 @@ public final class Doubles extends ADoublesStaticFacade {
         }
     }
 
-    public static boolean doubleToBooleanPrimitive(final double value) {
+    public static boolean doubleToBoolean(final double value) {
         if (value > 0D) {
             return Boolean.TRUE;
         } else {

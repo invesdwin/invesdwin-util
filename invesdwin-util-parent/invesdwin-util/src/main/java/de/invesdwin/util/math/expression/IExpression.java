@@ -1,6 +1,5 @@
 package de.invesdwin.util.math.expression;
 
-import de.invesdwin.util.math.Booleans;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.time.fdate.IFDateProvider;
 
@@ -47,23 +46,17 @@ public interface IExpression {
     /**
      * Double.NaN is interpreted as false.
      */
-    default boolean evaluateBoolean() {
-        return Booleans.isTrue(evaluateBooleanNullable());
-    }
+    boolean evaluateBoolean();
 
     /**
      * Double.NaN is interpreted as false.
      */
-    default boolean evaluateBoolean(final IFDateProvider key) {
-        return Booleans.isTrue(evaluateBooleanNullable(key));
-    }
+    boolean evaluateBoolean(IFDateProvider key);
 
     /**
      * Double.NaN is interpreted as false.
      */
-    default boolean evaluateBoolean(final int key) {
-        return Booleans.isTrue(evaluateBooleanNullable(key));
-    }
+    boolean evaluateBoolean(int key);
 
     /**
      * Double.NaN is interpreted as null.

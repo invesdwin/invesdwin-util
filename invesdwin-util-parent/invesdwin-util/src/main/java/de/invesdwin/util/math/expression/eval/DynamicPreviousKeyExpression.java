@@ -22,8 +22,8 @@ public class DynamicPreviousKeyExpression implements IParsedExpression {
 
     @Override
     public double evaluateDouble(final IFDateProvider key) {
-        final Integer index = indexExpression.evaluateInteger(key);
-        if (index == null || index < 0) {
+        final int index = indexExpression.evaluateInteger(key);
+        if (index < 0) {
             return Double.NaN;
         }
         final IFDateProvider previousKey = previousKeyFunction.getPreviousKey(key, index);
@@ -32,8 +32,8 @@ public class DynamicPreviousKeyExpression implements IParsedExpression {
 
     @Override
     public double evaluateDouble(final int key) {
-        final Integer index = indexExpression.evaluateInteger(key);
-        if (index == null || index < 0) {
+        final int index = indexExpression.evaluateInteger(key);
+        if (index < 0) {
             return Double.NaN;
         }
         final int previousKey = previousKeyFunction.getPreviousKey(key, index);
@@ -47,8 +47,8 @@ public class DynamicPreviousKeyExpression implements IParsedExpression {
 
     @Override
     public Boolean evaluateBooleanNullable(final IFDateProvider key) {
-        final Integer index = indexExpression.evaluateInteger(key);
-        if (index == null || index < 0) {
+        final int index = indexExpression.evaluateInteger(key);
+        if (index < 0) {
             return null;
         }
         final IFDateProvider previousKey = previousKeyFunction.getPreviousKey(key, index);
@@ -57,12 +57,37 @@ public class DynamicPreviousKeyExpression implements IParsedExpression {
 
     @Override
     public Boolean evaluateBooleanNullable(final int key) {
-        final Integer index = indexExpression.evaluateInteger(key);
-        if (index == null || index < 0) {
+        final int index = indexExpression.evaluateInteger(key);
+        if (index < 0) {
             return null;
         }
         final int previousKey = previousKeyFunction.getPreviousKey(key, index);
         return previousKeyFunction.evaluateBooleanNullable(expression, previousKey);
+    }
+
+    @Override
+    public boolean evaluateBoolean() {
+        throw new UnsupportedOperationException("use time or int key instead");
+    }
+
+    @Override
+    public boolean evaluateBoolean(final IFDateProvider key) {
+        final int index = indexExpression.evaluateInteger(key);
+        if (index < 0) {
+            return false;
+        }
+        final IFDateProvider previousKey = previousKeyFunction.getPreviousKey(key, index);
+        return previousKeyFunction.evaluateBoolean(expression, previousKey);
+    }
+
+    @Override
+    public boolean evaluateBoolean(final int key) {
+        final int index = indexExpression.evaluateInteger(key);
+        if (index < 0) {
+            return false;
+        }
+        final int previousKey = previousKeyFunction.getPreviousKey(key, index);
+        return previousKeyFunction.evaluateBoolean(expression, previousKey);
     }
 
     @Override
@@ -78,7 +103,7 @@ public class DynamicPreviousKeyExpression implements IParsedExpression {
     @Override
     public IParsedExpression simplify() {
         if (indexExpression.isConstant()) {
-            final Integer index = indexExpression.evaluateInteger();
+            final int index = indexExpression.evaluateInteger();
             return new ConstantPreviousKeyExpression(expression, index, previousKeyFunction).simplify();
         }
         if (expression.isConstant()) {

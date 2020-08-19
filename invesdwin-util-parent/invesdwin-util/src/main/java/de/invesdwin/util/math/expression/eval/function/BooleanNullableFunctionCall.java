@@ -2,6 +2,7 @@ package de.invesdwin.util.math.expression.eval.function;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.util.math.Booleans;
 import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.expression.eval.IParsedExpression;
 import de.invesdwin.util.math.expression.function.ABooleanNullableFunction;
@@ -55,6 +56,21 @@ public class BooleanNullableFunctionCall extends AFunctionCall<ABooleanNullableF
     public Boolean evaluateBooleanNullable() {
         final Boolean eval = function.eval(parameters);
         return eval;
+    }
+
+    @Override
+    public boolean evaluateBoolean(final IFDateProvider key) {
+        return Booleans.isTrue(evaluateBooleanNullable(key));
+    }
+
+    @Override
+    public boolean evaluateBoolean(final int key) {
+        return Booleans.isTrue(evaluateBooleanNullable(key));
+    }
+
+    @Override
+    public boolean evaluateBoolean() {
+        return Booleans.isTrue(evaluateBooleanNullable());
     }
 
     @Override

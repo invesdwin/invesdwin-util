@@ -10,17 +10,13 @@ import de.invesdwin.util.time.fdate.IFDateProvider;
 public class ConstantPreviousKeyExpression implements IParsedExpression {
 
     private final IParsedExpression expression;
-    private final Integer index;
+    private final int index;
     private final IPreviousKeyFunction previousKeyFunction;
 
-    public ConstantPreviousKeyExpression(final IParsedExpression expression, final Integer index,
+    public ConstantPreviousKeyExpression(final IParsedExpression expression, final int index,
             final IPreviousKeyFunction previousKeyFunction) {
         this.expression = expression;
-        if (index < 0) {
-            this.index = null;
-        } else {
-            this.index = index;
-        }
+        this.index = index;
         this.previousKeyFunction = previousKeyFunction;
     }
 
@@ -54,6 +50,23 @@ public class ConstantPreviousKeyExpression implements IParsedExpression {
     }
 
     @Override
+    public boolean evaluateBoolean() {
+        throw new UnsupportedOperationException("use time or int key instead");
+    }
+
+    @Override
+    public boolean evaluateBoolean(final IFDateProvider key) {
+        final IFDateProvider previousKey = previousKeyFunction.getPreviousKey(key, index);
+        return previousKeyFunction.evaluateBoolean(expression, previousKey);
+    }
+
+    @Override
+    public boolean evaluateBoolean(final int key) {
+        final int previousKey = previousKeyFunction.getPreviousKey(key, index);
+        return previousKeyFunction.evaluateBoolean(expression, previousKey);
+    }
+
+    @Override
     public Boolean evaluateBooleanNullable() {
         throw new UnsupportedOperationException("use time or int key instead");
     }
@@ -65,7 +78,10 @@ public class ConstantPreviousKeyExpression implements IParsedExpression {
 
     @Override
     public IParsedExpression simplify() {
-        if (index == null || index == 0 || expression.isConstant()) {
+        if (index < 0) {
+            return new ConstantExpression(Double.NaN);
+        }
+        if (index == 0 || expression.isConstant()) {
             return expression.simplify();
         }
         return this;
