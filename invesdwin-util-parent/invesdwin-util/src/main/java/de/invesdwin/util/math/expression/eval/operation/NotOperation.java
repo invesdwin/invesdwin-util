@@ -68,6 +68,24 @@ public class NotOperation extends BinaryOperation {
     }
 
     @Override
+    public boolean evaluateBoolean(final IFDateProvider key) {
+        final boolean check = right.evaluateBoolean(key);
+        return !check;
+    }
+
+    @Override
+    public boolean evaluateBoolean(final int key) {
+        final boolean check = right.evaluateBoolean(key);
+        return !check;
+    }
+
+    @Override
+    public boolean evaluateBoolean() {
+        final boolean check = right.evaluateBoolean();
+        return !check;
+    }
+
+    @Override
     public boolean isConstant() {
         return false;
     }

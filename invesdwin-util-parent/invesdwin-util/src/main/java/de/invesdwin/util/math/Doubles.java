@@ -781,7 +781,29 @@ public final class Doubles extends ADoublesStaticFacade {
     }
 
     public static boolean isGreaterThanOrEqualTo(final double value, final double otherValue) {
-        return !isLessThan(value, otherValue);
+        final double difference = value - otherValue;
+        if (difference > FIRST_ABOVE_ZERO) {
+            return true;
+        } else if (difference < FIRST_BELOW_ZERO) {
+            return false;
+        } else if (difference == 0D) {
+            return true;
+        } else if (isNaN(difference)) {
+            final boolean valueNaN = isNaN(value);
+            final boolean otherValueNaN = isNaN(otherValue);
+            if (valueNaN && otherValueNaN) {
+                return true;
+            } else if (valueNaN) {
+                //treat NaN as 0
+                return isNegative(otherValue);
+            } else {
+                return isPositive(value);
+            }
+        } else {
+            final double defaultRoundedValue = round(value);
+            final double roundedOther = round(otherValue);
+            return defaultRoundedValue >= roundedOther;
+        }
     }
 
     public static boolean isGreaterThanOrEqualTo(final double value, final Double otherValue) {
@@ -839,7 +861,29 @@ public final class Doubles extends ADoublesStaticFacade {
     }
 
     public static boolean isLessThanOrEqualTo(final double value, final double otherValue) {
-        return !isGreaterThan(value, otherValue);
+        final double difference = value - otherValue;
+        if (difference > FIRST_ABOVE_ZERO) {
+            return false;
+        } else if (difference < FIRST_BELOW_ZERO) {
+            return true;
+        } else if (difference == 0D) {
+            return true;
+        } else if (isNaN(difference)) {
+            final boolean valueNaN = isNaN(value);
+            final boolean otherValueNaN = isNaN(otherValue);
+            if (valueNaN && otherValueNaN) {
+                return true;
+            } else if (valueNaN) {
+                //treat NaN as 0
+                return isPositive(otherValue);
+            } else {
+                return isNegative(value);
+            }
+        } else {
+            final double defaultRoundedValue = round(value);
+            final double roundedOther = round(otherValue);
+            return defaultRoundedValue <= roundedOther;
+        }
     }
 
     public static boolean isLessThanOrEqualTo(final double value, final Double otherValue) {

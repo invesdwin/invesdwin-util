@@ -35,30 +35,60 @@ public class OrOperation extends BinaryOperation {
     @Override
     public Boolean evaluateBooleanNullable(final IFDateProvider key) {
         final Boolean leftResult = left.evaluateBooleanNullable(key);
-        if (leftResult == null || leftResult == Boolean.FALSE) {
-            return right.evaluateBooleanNullable(key);
+        if (leftResult == Boolean.TRUE) {
+            return Boolean.TRUE;
         } else {
-            return Boolean.FALSE;
+            return right.evaluateBooleanNullable(key);
         }
     }
 
     @Override
     public Boolean evaluateBooleanNullable(final int key) {
         final Boolean leftResult = left.evaluateBooleanNullable(key);
-        if (leftResult == null || leftResult == Boolean.FALSE) {
-            return right.evaluateBooleanNullable(key);
+        if (leftResult == Boolean.TRUE) {
+            return Boolean.TRUE;
         } else {
-            return Boolean.FALSE;
+            return right.evaluateBooleanNullable(key);
         }
     }
 
     @Override
     public Boolean evaluateBooleanNullable() {
         final Boolean leftResult = left.evaluateBooleanNullable();
-        if (leftResult == null || leftResult == Boolean.FALSE) {
-            return right.evaluateBooleanNullable();
+        if (leftResult == Boolean.TRUE) {
+            return Boolean.TRUE;
         } else {
-            return Boolean.FALSE;
+            return right.evaluateBooleanNullable();
+        }
+    }
+
+    @Override
+    public boolean evaluateBoolean(final IFDateProvider key) {
+        final boolean leftResult = left.evaluateBoolean(key);
+        if (leftResult) {
+            return true;
+        } else {
+            return right.evaluateBooleanNullable(key);
+        }
+    }
+
+    @Override
+    public boolean evaluateBoolean(final int key) {
+        final boolean leftResult = left.evaluateBoolean(key);
+        if (leftResult) {
+            return true;
+        } else {
+            return right.evaluateBooleanNullable(key);
+        }
+    }
+
+    @Override
+    public boolean evaluateBoolean() {
+        final boolean leftResult = left.evaluateBoolean();
+        if (leftResult) {
+            return true;
+        } else {
+            return right.evaluateBooleanNullable();
         }
     }
 
