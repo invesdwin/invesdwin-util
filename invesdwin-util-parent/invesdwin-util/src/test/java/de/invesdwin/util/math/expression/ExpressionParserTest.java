@@ -329,7 +329,7 @@ public class ExpressionParserTest {
             }
         }.parse();
         final boolean result = parsed.evaluateBoolean();
-        Assertions.checkEquals(false, result);
+        Assertions.checkEquals(true, result);
     }
 
     @Test
