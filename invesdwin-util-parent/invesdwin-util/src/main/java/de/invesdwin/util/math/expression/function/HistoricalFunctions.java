@@ -47,11 +47,6 @@ public final class HistoricalFunctions {
                     }
 
                     @Override
-                    public ExpressionReturnType getReturnType() {
-                        return ExpressionReturnType.Boolean;
-                    }
-
-                    @Override
                     protected IFunctionParameterInfo getParameterInfo(final int index) {
                         switch (index) {
                         case 0:
@@ -185,11 +180,6 @@ public final class HistoricalFunctions {
                     @Override
                     public boolean isNaturalFunction(final IExpression[] args) {
                         return false;
-                    }
-
-                    @Override
-                    public ExpressionReturnType getReturnType() {
-                        return ExpressionReturnType.Boolean;
                     }
 
                     @Override
@@ -368,11 +358,6 @@ public final class HistoricalFunctions {
                     @Override
                     public boolean isNaturalFunction(final IExpression[] args) {
                         return false;
-                    }
-
-                    @Override
-                    public ExpressionReturnType getReturnType() {
-                        return ExpressionReturnType.Boolean;
                     }
 
                     @Override
@@ -561,11 +546,6 @@ public final class HistoricalFunctions {
                     }
 
                     @Override
-                    public ExpressionReturnType getReturnType() {
-                        return ExpressionReturnType.Boolean;
-                    }
-
-                    @Override
                     protected IFunctionParameterInfo getParameterInfo(final int index) {
                         switch (index) {
                         case 0:
@@ -747,11 +727,6 @@ public final class HistoricalFunctions {
                     public boolean isNaturalFunction(final IExpression[] args) {
                         BinaryOperation.validateComparativeOperation(args[0]);
                         return false;
-                    }
-
-                    @Override
-                    public ExpressionReturnType getReturnType() {
-                        return ExpressionReturnType.Boolean;
                     }
 
                     @Override
@@ -949,11 +924,6 @@ public final class HistoricalFunctions {
                     }
 
                     @Override
-                    public ExpressionReturnType getReturnType() {
-                        return ExpressionReturnType.Boolean;
-                    }
-
-                    @Override
                     protected IFunctionParameterInfo getParameterInfo(final int index) {
                         switch (index) {
                         case 0:
@@ -1135,11 +1105,6 @@ public final class HistoricalFunctions {
                     public boolean isNaturalFunction(final IExpression[] args) {
                         BinaryOperation.validateComparativeOperation(args[0]);
                         return false;
-                    }
-
-                    @Override
-                    public ExpressionReturnType getReturnType() {
-                        return ExpressionReturnType.Boolean;
                     }
 
                     @Override
@@ -1336,11 +1301,6 @@ public final class HistoricalFunctions {
                     }
 
                     @Override
-                    public ExpressionReturnType getReturnType() {
-                        return ExpressionReturnType.Boolean;
-                    }
-
-                    @Override
                     protected IFunctionParameterInfo getParameterInfo(final int index) {
                         switch (index) {
                         case 0:
@@ -1516,11 +1476,6 @@ public final class HistoricalFunctions {
                     @Override
                     public boolean isNaturalFunction(final IExpression[] args) {
                         return false;
-                    }
-
-                    @Override
-                    public ExpressionReturnType getReturnType() {
-                        return ExpressionReturnType.Boolean;
                     }
 
                     @Override
@@ -1702,11 +1657,6 @@ public final class HistoricalFunctions {
                     public boolean isNaturalFunction(final IExpression[] args) {
                         BinaryOperation.validateComparativeOperation(args[0]);
                         return false;
-                    }
-
-                    @Override
-                    public ExpressionReturnType getReturnType() {
-                        return ExpressionReturnType.Boolean;
                     }
 
                     @Override
@@ -1893,11 +1843,6 @@ public final class HistoricalFunctions {
                     public boolean isNaturalFunction(final IExpression[] args) {
                         BinaryOperation.validateComparativeOperation(args[0]);
                         return false;
-                    }
-
-                    @Override
-                    public ExpressionReturnType getReturnType() {
-                        return ExpressionReturnType.Boolean;
                     }
 
                     @Override
@@ -2089,11 +2034,6 @@ public final class HistoricalFunctions {
                     }
 
                     @Override
-                    public ExpressionReturnType getReturnType() {
-                        return ExpressionReturnType.Boolean;
-                    }
-
-                    @Override
                     protected IFunctionParameterInfo getParameterInfo(final int index) {
                         switch (index) {
                         case 0:
@@ -2277,11 +2217,6 @@ public final class HistoricalFunctions {
                     public boolean isNaturalFunction(final IExpression[] args) {
                         BinaryOperation.validateComparativeOperation(args[0]);
                         return false;
-                    }
-
-                    @Override
-                    public ExpressionReturnType getReturnType() {
-                        return ExpressionReturnType.Boolean;
                     }
 
                     @Override
@@ -2472,11 +2407,6 @@ public final class HistoricalFunctions {
                     }
 
                     @Override
-                    public ExpressionReturnType getReturnType() {
-                        return ExpressionReturnType.Integer;
-                    }
-
-                    @Override
                     protected IFunctionParameterInfo getParameterInfo(final int index) {
                         switch (index) {
                         case 0:
@@ -2659,11 +2589,6 @@ public final class HistoricalFunctions {
                     @Override
                     public boolean isNaturalFunction(final IExpression[] args) {
                         return false;
-                    }
-
-                    @Override
-                    public ExpressionReturnType getReturnType() {
-                        return ExpressionReturnType.Integer;
                     }
 
                     @Override

@@ -2,6 +2,7 @@ package de.invesdwin.util.math.expression.function;
 
 import javax.annotation.concurrent.Immutable;
 
+import de.invesdwin.util.math.Booleans;
 import de.invesdwin.util.math.expression.ExpressionReturnType;
 import de.invesdwin.util.math.expression.IExpression;
 import de.invesdwin.util.math.expression.IFunctionParameterInfo;
@@ -55,11 +56,6 @@ public final class LogicalFunctions {
         @Override
         public boolean isNaturalFunction(final IExpression[] args) {
             return true;
-        }
-
-        @Override
-        public ExpressionReturnType getReturnType() {
-            return ExpressionReturnType.Double;
         }
 
         @Override
@@ -241,11 +237,6 @@ public final class LogicalFunctions {
         }
 
         @Override
-        public ExpressionReturnType getReturnType() {
-            return ExpressionReturnType.Boolean;
-        }
-
-        @Override
         public IFunctionParameterInfo getParameterInfo(final int index) {
             if (index != 0) {
                 throw new ArrayIndexOutOfBoundsException(index);
@@ -330,24 +321,19 @@ public final class LogicalFunctions {
         @Override
         public boolean eval(final IFDateProvider key, final IExpression[] args) {
             final Boolean a = args[0].evaluateBooleanNullable(key);
-            return a != null && a == Boolean.TRUE;
+            return Booleans.isTrue(a);
         }
 
         @Override
         public boolean eval(final int key, final IExpression[] args) {
             final Boolean a = args[0].evaluateBooleanNullable(key);
-            return a != null && a == Boolean.TRUE;
+            return Booleans.isTrue(a);
         }
 
         @Override
         public boolean eval(final IExpression[] args) {
             final Boolean a = args[0].evaluateBooleanNullable();
-            return a != null && a == Boolean.TRUE;
-        }
-
-        @Override
-        public ExpressionReturnType getReturnType() {
-            return ExpressionReturnType.Boolean;
+            return Booleans.isTrue(a);
         }
 
         @Override
@@ -435,24 +421,19 @@ public final class LogicalFunctions {
         @Override
         public boolean eval(final IFDateProvider key, final IExpression[] args) {
             final Boolean a = args[0].evaluateBooleanNullable(key);
-            return !(a == null || a == Boolean.TRUE);
+            return Booleans.isFalse(a);
         }
 
         @Override
         public boolean eval(final int key, final IExpression[] args) {
             final Boolean a = args[0].evaluateBooleanNullable(key);
-            return !(a == null || a == Boolean.TRUE);
+            return Booleans.isFalse(a);
         }
 
         @Override
         public boolean eval(final IExpression[] args) {
             final Boolean a = args[0].evaluateBooleanNullable();
-            return !(a == null || a == Boolean.TRUE);
-        }
-
-        @Override
-        public ExpressionReturnType getReturnType() {
-            return ExpressionReturnType.Boolean;
+            return Booleans.isFalse(a);
         }
 
         @Override
@@ -568,11 +549,6 @@ public final class LogicalFunctions {
         }
 
         @Override
-        public ExpressionReturnType getReturnType() {
-            return ExpressionReturnType.Boolean;
-        }
-
-        @Override
         public IFunctionParameterInfo getParameterInfo(final int index) {
             if (index != 0) {
                 throw new ArrayIndexOutOfBoundsException(index);
@@ -674,11 +650,6 @@ public final class LogicalFunctions {
             @Override
             public boolean isNaturalFunction(final IExpression[] args) {
                 return true;
-            }
-
-            @Override
-            public ExpressionReturnType getReturnType() {
-                return ExpressionReturnType.Double;
             }
 
             @Override
@@ -827,8 +798,8 @@ public final class LogicalFunctions {
         };
     }
 
-    public static ADoubleFunction newVoteFunction(final String expressionName) {
-        return new ADoubleFunction() {
+    public static ABooleanFunction newVoteFunction(final String expressionName) {
+        return new ABooleanFunction() {
 
             @Override
             public String getExpressionName() {
@@ -841,58 +812,53 @@ public final class LogicalFunctions {
             }
 
             @Override
-            public double eval(final IFDateProvider key, final IExpression[] args) {
+            public boolean eval(final IFDateProvider key, final IExpression[] args) {
                 final double threshold = args[0].evaluateDouble(key) * (args.length - 1);
                 double sum = 0D;
                 for (int i = 1; i < args.length; i++) {
                     if (args[i].evaluateBoolean(key)) {
                         sum++;
                         if (sum >= threshold) {
-                            return 1D;
+                            return true;
                         }
                     }
                 }
-                return 0D;
+                return false;
             }
 
             @Override
-            public double eval(final int key, final IExpression[] args) {
+            public boolean eval(final int key, final IExpression[] args) {
                 final double threshold = args[0].evaluateDouble(key) * (args.length - 1);
                 double sum = 0D;
                 for (int i = 1; i < args.length; i++) {
                     if (args[i].evaluateBoolean(key)) {
                         sum++;
                         if (sum >= threshold) {
-                            return 1D;
+                            return true;
                         }
                     }
                 }
-                return 0D;
+                return false;
             }
 
             @Override
-            public double eval(final IExpression[] args) {
+            public boolean eval(final IExpression[] args) {
                 final double threshold = args[0].evaluateDouble() * (args.length - 1);
                 double sum = 0D;
                 for (int i = 1; i < args.length; i++) {
                     if (args[i].evaluateBoolean()) {
                         sum++;
                         if (sum >= threshold) {
-                            return 1D;
+                            return true;
                         }
                     }
                 }
-                return 0D;
+                return false;
             }
 
             @Override
             public boolean isNaturalFunction(final IExpression[] args) {
                 return true;
-            }
-
-            @Override
-            public ExpressionReturnType getReturnType() {
-                return ExpressionReturnType.Double;
             }
 
             @Override

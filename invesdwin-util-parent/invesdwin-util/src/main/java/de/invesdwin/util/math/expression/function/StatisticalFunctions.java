@@ -48,11 +48,6 @@ public final class StatisticalFunctions {
                     }
 
                     @Override
-                    public ExpressionReturnType getReturnType() {
-                        return ExpressionReturnType.Boolean;
-                    }
-
-                    @Override
                     protected IFunctionParameterInfo getParameterInfo(final int index) {
                         switch (index) {
                         case 0:
@@ -60,7 +55,7 @@ public final class StatisticalFunctions {
 
                                 @Override
                                 public String getType() {
-                                    return ExpressionReturnType.Boolean.toString();
+                                    return ExpressionReturnType.Double.toString();
                                 }
 
                                 @Override
@@ -233,11 +228,6 @@ public final class StatisticalFunctions {
                     }
 
                     @Override
-                    public ExpressionReturnType getReturnType() {
-                        return ExpressionReturnType.Boolean;
-                    }
-
-                    @Override
                     protected IFunctionParameterInfo getParameterInfo(final int index) {
                         switch (index) {
                         case 0:
@@ -245,7 +235,7 @@ public final class StatisticalFunctions {
 
                                 @Override
                                 public String getType() {
-                                    return ExpressionReturnType.Boolean.toString();
+                                    return ExpressionReturnType.Double.toString();
                                 }
 
                                 @Override
@@ -418,11 +408,6 @@ public final class StatisticalFunctions {
                     }
 
                     @Override
-                    public ExpressionReturnType getReturnType() {
-                        return ExpressionReturnType.Boolean;
-                    }
-
-                    @Override
                     protected IFunctionParameterInfo getParameterInfo(final int index) {
                         switch (index) {
                         case 0:
@@ -430,7 +415,7 @@ public final class StatisticalFunctions {
 
                                 @Override
                                 public String getType() {
-                                    return ExpressionReturnType.Boolean.toString();
+                                    return ExpressionReturnType.Double.toString();
                                 }
 
                                 @Override
@@ -603,11 +588,6 @@ public final class StatisticalFunctions {
                     }
 
                     @Override
-                    public ExpressionReturnType getReturnType() {
-                        return ExpressionReturnType.Boolean;
-                    }
-
-                    @Override
                     protected IFunctionParameterInfo getParameterInfo(final int index) {
                         switch (index) {
                         case 0:
@@ -615,7 +595,7 @@ public final class StatisticalFunctions {
 
                                 @Override
                                 public String getType() {
-                                    return ExpressionReturnType.Boolean.toString();
+                                    return ExpressionReturnType.Double.toString();
                                 }
 
                                 @Override
@@ -736,6 +716,7 @@ public final class StatisticalFunctions {
                         return variance.getVariance();
                     }
 
+                    @SuppressWarnings("deprecation")
                     @Override
                     public double eval(final IFDateProvider key, final IExpression[] args) {
                         final IExpression condition = args[0];
@@ -790,11 +771,6 @@ public final class StatisticalFunctions {
                     }
 
                     @Override
-                    public ExpressionReturnType getReturnType() {
-                        return ExpressionReturnType.Boolean;
-                    }
-
-                    @Override
                     protected IFunctionParameterInfo getParameterInfo(final int index) {
                         switch (index) {
                         case 0:
@@ -802,7 +778,7 @@ public final class StatisticalFunctions {
 
                                 @Override
                                 public String getType() {
-                                    return ExpressionReturnType.Boolean.toString();
+                                    return ExpressionReturnType.Double.toString();
                                 }
 
                                 @Override
@@ -975,11 +951,6 @@ public final class StatisticalFunctions {
                     }
 
                     @Override
-                    public ExpressionReturnType getReturnType() {
-                        return ExpressionReturnType.Boolean;
-                    }
-
-                    @Override
                     protected IFunctionParameterInfo getParameterInfo(final int index) {
                         switch (index) {
                         case 0:
@@ -987,7 +958,7 @@ public final class StatisticalFunctions {
 
                                 @Override
                                 public String getType() {
-                                    return ExpressionReturnType.Boolean.toString();
+                                    return ExpressionReturnType.Double.toString();
                                 }
 
                                 @Override
@@ -1163,11 +1134,6 @@ public final class StatisticalFunctions {
                     }
 
                     @Override
-                    public ExpressionReturnType getReturnType() {
-                        return ExpressionReturnType.Boolean;
-                    }
-
-                    @Override
                     protected IFunctionParameterInfo getParameterInfo(final int index) {
                         switch (index) {
                         case 0:
@@ -1175,7 +1141,7 @@ public final class StatisticalFunctions {
 
                                 @Override
                                 public String getType() {
-                                    return ExpressionReturnType.Boolean.toString();
+                                    return ExpressionReturnType.Double.toString();
                                 }
 
                                 @Override
@@ -1348,11 +1314,6 @@ public final class StatisticalFunctions {
                     }
 
                     @Override
-                    public ExpressionReturnType getReturnType() {
-                        return ExpressionReturnType.Boolean;
-                    }
-
-                    @Override
                     protected IFunctionParameterInfo getParameterInfo(final int index) {
                         switch (index) {
                         case 0:
@@ -1360,7 +1321,7 @@ public final class StatisticalFunctions {
 
                                 @Override
                                 public String getType() {
-                                    return ExpressionReturnType.Boolean.toString();
+                                    return ExpressionReturnType.Double.toString();
                                 }
 
                                 @Override
@@ -1535,11 +1496,6 @@ public final class StatisticalFunctions {
                     }
 
                     @Override
-                    public ExpressionReturnType getReturnType() {
-                        return ExpressionReturnType.Boolean;
-                    }
-
-                    @Override
                     protected IFunctionParameterInfo getParameterInfo(final int index) {
                         switch (index) {
                         case 0:
@@ -1547,7 +1503,7 @@ public final class StatisticalFunctions {
 
                                 @Override
                                 public String getType() {
-                                    return ExpressionReturnType.Boolean.toString();
+                                    return ExpressionReturnType.Double.toString();
                                 }
 
                                 @Override

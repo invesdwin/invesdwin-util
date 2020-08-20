@@ -2,6 +2,7 @@ package de.invesdwin.util.math.expression.function;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.util.math.expression.ExpressionReturnType;
 import de.invesdwin.util.math.expression.IExpression;
 import de.invesdwin.util.math.expression.eval.IParsedExpression;
 import de.invesdwin.util.math.expression.eval.function.IntegerFunctionCall;
@@ -19,6 +20,11 @@ public abstract class AIntegerFunction extends AFunction {
     @Override
     public final IParsedExpression newCall(final String context, final IParsedExpression[] parameters) {
         return new IntegerFunctionCall(context, this, parameters);
+    }
+
+    @Override
+    public ExpressionReturnType getReturnType() {
+        return ExpressionReturnType.Integer;
     }
 
     @Override

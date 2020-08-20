@@ -26,11 +26,6 @@ public final class MathFunctions {
         }
 
         @Override
-        public ExpressionReturnType getReturnType() {
-            return ExpressionReturnType.Double;
-        }
-
-        @Override
         public IFunctionParameterInfo getParameterInfo(final int index) {
             if (index != 0) {
                 throw new ArrayIndexOutOfBoundsException(index);
@@ -104,11 +99,6 @@ public final class MathFunctions {
         @Override
         public String getExpressionName() {
             return "sinh";
-        }
-
-        @Override
-        public ExpressionReturnType getReturnType() {
-            return ExpressionReturnType.Double;
         }
 
         @Override
@@ -189,11 +179,6 @@ public final class MathFunctions {
         }
 
         @Override
-        public ExpressionReturnType getReturnType() {
-            return ExpressionReturnType.Double;
-        }
-
-        @Override
         public IFunctionParameterInfo getParameterInfo(final int index) {
             if (index != 0) {
                 throw new ArrayIndexOutOfBoundsException(index);
@@ -267,11 +252,6 @@ public final class MathFunctions {
         @Override
         public String getExpressionName() {
             return "cosh";
-        }
-
-        @Override
-        public ExpressionReturnType getReturnType() {
-            return ExpressionReturnType.Double;
         }
 
         @Override
@@ -352,11 +332,6 @@ public final class MathFunctions {
         }
 
         @Override
-        public ExpressionReturnType getReturnType() {
-            return ExpressionReturnType.Double;
-        }
-
-        @Override
         public IFunctionParameterInfo getParameterInfo(final int index) {
             if (index != 0) {
                 throw new ArrayIndexOutOfBoundsException(index);
@@ -430,11 +405,6 @@ public final class MathFunctions {
         @Override
         public String getExpressionName() {
             return "tanh";
-        }
-
-        @Override
-        public ExpressionReturnType getReturnType() {
-            return ExpressionReturnType.Double;
         }
 
         @Override
@@ -516,11 +486,6 @@ public final class MathFunctions {
         }
 
         @Override
-        public ExpressionReturnType getReturnType() {
-            return ExpressionReturnType.Double;
-        }
-
-        @Override
         public IFunctionParameterInfo getParameterInfo(final int index) {
             if (index != 0) {
                 throw new ArrayIndexOutOfBoundsException(index);
@@ -595,11 +560,6 @@ public final class MathFunctions {
         @Override
         public String getExpressionName() {
             return "asin";
-        }
-
-        @Override
-        public ExpressionReturnType getReturnType() {
-            return ExpressionReturnType.Double;
         }
 
         @Override
@@ -679,11 +639,6 @@ public final class MathFunctions {
         }
 
         @Override
-        public ExpressionReturnType getReturnType() {
-            return ExpressionReturnType.Double;
-        }
-
-        @Override
         public IFunctionParameterInfo getParameterInfo(final int index) {
             if (index != 0) {
                 throw new ArrayIndexOutOfBoundsException(index);
@@ -760,11 +715,6 @@ public final class MathFunctions {
         }
 
         @Override
-        public ExpressionReturnType getReturnType() {
-            return ExpressionReturnType.Double;
-        }
-
-        @Override
         public IFunctionParameterInfo getParameterInfo(final int index) {
             if (index != 0) {
                 throw new ArrayIndexOutOfBoundsException(index);
@@ -838,11 +788,6 @@ public final class MathFunctions {
         @Override
         public String getExpressionName() {
             return "atan2";
-        }
-
-        @Override
-        public ExpressionReturnType getReturnType() {
-            return ExpressionReturnType.Double;
         }
 
         @Override
@@ -963,11 +908,6 @@ public final class MathFunctions {
         }
 
         @Override
-        public ExpressionReturnType getReturnType() {
-            return ExpressionReturnType.Double;
-        }
-
-        @Override
         public IFunctionParameterInfo getParameterInfo(final int index) {
             if (index != 0) {
                 throw new ArrayIndexOutOfBoundsException(index);
@@ -1041,11 +981,6 @@ public final class MathFunctions {
         @Override
         public String getExpressionName() {
             return "floor";
-        }
-
-        @Override
-        public ExpressionReturnType getReturnType() {
-            return ExpressionReturnType.Double;
         }
 
         @Override
@@ -1126,11 +1061,6 @@ public final class MathFunctions {
         }
 
         @Override
-        public ExpressionReturnType getReturnType() {
-            return ExpressionReturnType.Double;
-        }
-
-        @Override
         public IFunctionParameterInfo getParameterInfo(final int index) {
             if (index != 0) {
                 throw new ArrayIndexOutOfBoundsException(index);
@@ -1205,11 +1135,6 @@ public final class MathFunctions {
         @Override
         public String getExpressionName() {
             return "pow";
-        }
-
-        @Override
-        public ExpressionReturnType getReturnType() {
-            return ExpressionReturnType.Double;
         }
 
         @Override
@@ -1329,11 +1254,6 @@ public final class MathFunctions {
         }
 
         @Override
-        public ExpressionReturnType getReturnType() {
-            return ExpressionReturnType.Double;
-        }
-
-        @Override
         public IFunctionParameterInfo getParameterInfo(final int index) {
             if (index != 0) {
                 throw new ArrayIndexOutOfBoundsException(index);
@@ -1408,11 +1328,6 @@ public final class MathFunctions {
         @Override
         public String getExpressionName() {
             return "exp";
-        }
-
-        @Override
-        public ExpressionReturnType getReturnType() {
-            return ExpressionReturnType.Double;
         }
 
         @Override
@@ -1492,11 +1407,6 @@ public final class MathFunctions {
         }
 
         @Override
-        public ExpressionReturnType getReturnType() {
-            return ExpressionReturnType.Double;
-        }
-
-        @Override
         public IFunctionParameterInfo getParameterInfo(final int index) {
             if (index != 0) {
                 throw new ArrayIndexOutOfBoundsException(index);
@@ -1573,11 +1483,6 @@ public final class MathFunctions {
         }
 
         @Override
-        public ExpressionReturnType getReturnType() {
-            return ExpressionReturnType.Double;
-        }
-
-        @Override
         public IFunctionParameterInfo getParameterInfo(final int index) {
             if (index != 0) {
                 throw new ArrayIndexOutOfBoundsException(index);
@@ -1651,11 +1556,6 @@ public final class MathFunctions {
         @Override
         public String getExpressionName() {
             return "sign";
-        }
-
-        @Override
-        public ExpressionReturnType getReturnType() {
-            return ExpressionReturnType.Double;
         }
 
         @Override
@@ -1736,11 +1636,6 @@ public final class MathFunctions {
         }
 
         @Override
-        public ExpressionReturnType getReturnType() {
-            return ExpressionReturnType.Double;
-        }
-
-        @Override
         public IFunctionParameterInfo getParameterInfo(final int index) {
             if (index != 0) {
                 throw new ArrayIndexOutOfBoundsException(index);
@@ -1815,11 +1710,6 @@ public final class MathFunctions {
         @Override
         public String getExpressionName() {
             return "rad";
-        }
-
-        @Override
-        public ExpressionReturnType getReturnType() {
-            return ExpressionReturnType.Double;
         }
 
         @Override
@@ -1924,11 +1814,6 @@ public final class MathFunctions {
         }
 
         @Override
-        public ExpressionReturnType getReturnType() {
-            return ExpressionReturnType.Boolean;
-        }
-
-        @Override
         public IFunctionParameterInfo getParameterInfo(final int index) {
             if (index != 0) {
                 throw new ArrayIndexOutOfBoundsException(index);
@@ -2002,11 +1887,6 @@ public final class MathFunctions {
         @Override
         public String getExpressionName() {
             return "normalizeValue";
-        }
-
-        @Override
-        public ExpressionReturnType getReturnType() {
-            return ExpressionReturnType.Double;
         }
 
         @Override
@@ -2164,11 +2044,6 @@ public final class MathFunctions {
             }
 
             @Override
-            public ExpressionReturnType getReturnType() {
-                return ExpressionReturnType.Double;
-            }
-
-            @Override
             public IFunctionParameterInfo getParameterInfo(final int index) {
                 if (index != 0) {
                     throw new ArrayIndexOutOfBoundsException(index);
@@ -2280,11 +2155,6 @@ public final class MathFunctions {
             @Override
             public String getExpressionName() {
                 return name;
-            }
-
-            @Override
-            public ExpressionReturnType getReturnType() {
-                return ExpressionReturnType.Double;
             }
 
             @Override
@@ -2437,11 +2307,6 @@ public final class MathFunctions {
             @Override
             public String getExpressionName() {
                 return name;
-            }
-
-            @Override
-            public ExpressionReturnType getReturnType() {
-                return ExpressionReturnType.Double;
             }
 
             @Override
@@ -2598,11 +2463,6 @@ public final class MathFunctions {
             @Override
             public String getExpressionName() {
                 return name;
-            }
-
-            @Override
-            public ExpressionReturnType getReturnType() {
-                return ExpressionReturnType.Double;
             }
 
             @Override
