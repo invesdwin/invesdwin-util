@@ -2,8 +2,6 @@ package de.invesdwin.util.math.expression.variable;
 
 import javax.annotation.concurrent.Immutable;
 
-import de.invesdwin.util.math.expression.ExpressionReturnType;
-
 @Immutable
 public final class Variables {
 
@@ -23,11 +21,6 @@ public final class Variables {
         public String getDescription() {
             return "The double value that is closer than any other to "
                     + "<i>pi</i>, the ratio of the circumference of a circle to its diameter: " + Math.PI;
-        }
-
-        @Override
-        public ExpressionReturnType getType() {
-            return ExpressionReturnType.Double;
         }
 
         @Override
@@ -56,11 +49,6 @@ public final class Variables {
         }
 
         @Override
-        public ExpressionReturnType getType() {
-            return ExpressionReturnType.Double;
-        }
-
-        @Override
         public boolean shouldDraw() {
             return true;
         }
@@ -82,11 +70,6 @@ public final class Variables {
         @Override
         public String getDescription() {
             return "This denotes a missing value as defined by Double.NaN as a representation for \"Not a Number\" or \"NULL\". It evaluates to FALSE in boolean expressions.";
-        }
-
-        @Override
-        public ExpressionReturnType getType() {
-            return ExpressionReturnType.Double;
         }
 
         @Override
@@ -114,11 +97,6 @@ public final class Variables {
         }
 
         @Override
-        public ExpressionReturnType getType() {
-            return ExpressionReturnType.Double;
-        }
-
-        @Override
         public boolean shouldDraw() {
             return false;
         }
@@ -143,11 +121,6 @@ public final class Variables {
         }
 
         @Override
-        public ExpressionReturnType getType() {
-            return ExpressionReturnType.Double;
-        }
-
-        @Override
         public boolean shouldDraw() {
             return true;
         }
@@ -169,11 +142,6 @@ public final class Variables {
         @Override
         public String getDescription() {
             return "This is equal to 0 as a numerical value.";
-        }
-
-        @Override
-        public ExpressionReturnType getType() {
-            return ExpressionReturnType.Double;
         }
 
         @Override

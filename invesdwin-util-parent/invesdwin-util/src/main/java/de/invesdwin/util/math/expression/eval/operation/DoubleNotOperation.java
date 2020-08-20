@@ -7,9 +7,9 @@ import de.invesdwin.util.math.expression.eval.IParsedExpression;
 import de.invesdwin.util.time.fdate.IFDateProvider;
 
 @Immutable
-public class NotOperation extends BinaryOperation {
+public class DoubleNotOperation extends DoubleBinaryOperation {
 
-    public NotOperation(final IParsedExpression left, final IParsedExpression right) {
+    public DoubleNotOperation(final IParsedExpression left, final IParsedExpression right) {
         super(Op.NOT, left, right);
     }
 
@@ -88,9 +88,9 @@ public class NotOperation extends BinaryOperation {
     }
 
     @Override
-    protected BinaryOperation newBinaryOperation(final Op op, final IParsedExpression left,
+    protected DoubleBinaryOperation newBinaryOperation(final Op op, final IParsedExpression left,
             final IParsedExpression right) {
-        return new NotOperation(left, right);
+        return new DoubleNotOperation(left, right);
     }
 
     @Override

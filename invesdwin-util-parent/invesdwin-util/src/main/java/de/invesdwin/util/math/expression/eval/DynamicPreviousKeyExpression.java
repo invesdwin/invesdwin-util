@@ -2,6 +2,7 @@ package de.invesdwin.util.math.expression.eval;
 
 import javax.annotation.concurrent.Immutable;
 
+import de.invesdwin.util.math.expression.ExpressionType;
 import de.invesdwin.util.math.expression.IExpression;
 import de.invesdwin.util.math.expression.function.IPreviousKeyFunction;
 import de.invesdwin.util.time.fdate.IFDateProvider;
@@ -18,6 +19,11 @@ public class DynamicPreviousKeyExpression implements IParsedExpression {
         this.expression = expression;
         this.indexExpression = indexExpression;
         this.previousKeyFunction = previousKeyFunction;
+    }
+
+    @Override
+    public ExpressionType getType() {
+        return expression.getType();
     }
 
     @Override

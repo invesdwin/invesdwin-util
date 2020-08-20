@@ -8,6 +8,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.math.expression.ExpressionReturnType;
+import de.invesdwin.util.math.expression.ExpressionType;
 import de.invesdwin.util.math.expression.IExpression;
 import de.invesdwin.util.math.expression.IFunctionParameterInfo;
 import de.invesdwin.util.math.expression.eval.IParsedExpression;
@@ -149,6 +150,6 @@ public abstract class AFunction {
 
     public abstract IParsedExpression newCall(String context, IParsedExpression[] parameters);
 
-    public abstract FunctionType getType();
+    public abstract ExpressionType getType();
 
 }

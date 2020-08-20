@@ -3,14 +3,15 @@ package de.invesdwin.util.math.expression.eval.operation;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.math.Doubles;
+import de.invesdwin.util.math.expression.ExpressionType;
 import de.invesdwin.util.math.expression.eval.ConstantExpression;
 import de.invesdwin.util.math.expression.eval.IParsedExpression;
 import de.invesdwin.util.time.fdate.IFDateProvider;
 
 @Immutable
-public class AndOperation extends BinaryOperation {
+public class DoubleAndOperation extends DoubleBinaryOperation {
 
-    public AndOperation(final IParsedExpression left, final IParsedExpression right) {
+    public DoubleAndOperation(final IParsedExpression left, final IParsedExpression right) {
         super(Op.AND, left, right);
     }
 
@@ -92,15 +93,17 @@ public class AndOperation extends BinaryOperation {
                 if (newRight.isConstant()) {
                     final Boolean rightResult = newRight.evaluateBooleanNullable();
                     if (rightResult != null) {
-                        return new ConstantExpression(Doubles.booleanToDouble(rightResult));
+                        return new ConstantExpression(Doubles.booleanToDouble(rightResult),
+                                ExpressionType.determineBooleanType(rightResult));
                     } else {
-                        return new ConstantExpression(Doubles.booleanToDouble(leftResult));
+                        return new ConstantExpression(Doubles.booleanToDouble(leftResult),
+                                ExpressionType.determineBooleanType(leftResult));
                     }
                 } else {
                     return newRight;
                 }
             } else {
-                return new ConstantExpression(0D);
+                return new ConstantExpression(0D, ExpressionType.Boolean);
             }
         }
         if (newRight.isConstant()) {
@@ -109,24 +112,24 @@ public class AndOperation extends BinaryOperation {
                 if (newLeft.isConstant()) {
                     final Boolean leftResult = newLeft.evaluateBooleanNullable();
                     if (leftResult != null) {
-                        return new ConstantExpression(Doubles.booleanToDouble(leftResult));
+                        return new ConstantExpression(Doubles.booleanToDouble(leftResult), getType());
                     } else {
-                        return new ConstantExpression(Doubles.booleanToDouble(rightResult));
+                        return new ConstantExpression(Doubles.booleanToDouble(rightResult), getType());
                     }
                 } else {
                     return newLeft;
                 }
             } else {
-                return new ConstantExpression(0D);
+                return new ConstantExpression(0D, getType());
             }
         }
         return simplify(newLeft, newRight);
     }
 
     @Override
-    protected BinaryOperation newBinaryOperation(final Op op, final IParsedExpression left,
+    protected DoubleBinaryOperation newBinaryOperation(final Op op, final IParsedExpression left,
             final IParsedExpression right) {
-        return new AndOperation(left, right);
+        return new DoubleAndOperation(left, right);
     }
 
 }

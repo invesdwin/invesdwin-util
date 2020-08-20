@@ -4,6 +4,7 @@ import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.Integers;
+import de.invesdwin.util.math.expression.ExpressionType;
 import de.invesdwin.util.math.expression.function.AFunction;
 import de.invesdwin.util.math.expression.variable.IBooleanNullableVariable;
 import de.invesdwin.util.time.fdate.IFDateProvider;
@@ -13,6 +14,11 @@ public class BooleanNullableVariableReference extends AVariableReference<IBoolea
 
     public BooleanNullableVariableReference(final String context, final IBooleanNullableVariable variable) {
         super(context, variable);
+    }
+
+    @Override
+    public ExpressionType getType() {
+        return variable.getType();
     }
 
     @Override

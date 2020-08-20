@@ -896,4 +896,8 @@ public final class Doubles extends ADoublesStaticFacade {
         return isLessThanOrEqualTo(value, otherValue.doubleValue());
     }
 
+    public static boolean isInteger(final double value) {
+        return value == Integers.checkedCastNoOverflow(value);
+    }
+
 }

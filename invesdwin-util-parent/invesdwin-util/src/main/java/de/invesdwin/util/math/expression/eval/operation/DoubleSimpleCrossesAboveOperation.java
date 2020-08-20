@@ -8,11 +8,11 @@ import de.invesdwin.util.math.expression.function.IPreviousKeyFunction;
 import de.invesdwin.util.time.fdate.IFDateProvider;
 
 @Immutable
-public class SimpleCrossesAboveOperation extends BinaryOperation {
+public class DoubleSimpleCrossesAboveOperation extends DoubleBinaryOperation {
 
     private final IPreviousKeyFunction previousKeyFunction;
 
-    public SimpleCrossesAboveOperation(final IParsedExpression left, final IParsedExpression right,
+    public DoubleSimpleCrossesAboveOperation(final IParsedExpression left, final IParsedExpression right,
             final IPreviousKeyFunction previousKeyFunction) {
         super(Op.CROSSES_ABOVE, left, right);
         this.previousKeyFunction = previousKeyFunction;
@@ -159,9 +159,9 @@ public class SimpleCrossesAboveOperation extends BinaryOperation {
     }
 
     @Override
-    protected BinaryOperation newBinaryOperation(final Op op, final IParsedExpression left,
+    protected DoubleBinaryOperation newBinaryOperation(final Op op, final IParsedExpression left,
             final IParsedExpression right) {
-        return new SimpleCrossesAboveOperation(left, right, previousKeyFunction);
+        return new DoubleSimpleCrossesAboveOperation(left, right, previousKeyFunction);
     }
 
 }

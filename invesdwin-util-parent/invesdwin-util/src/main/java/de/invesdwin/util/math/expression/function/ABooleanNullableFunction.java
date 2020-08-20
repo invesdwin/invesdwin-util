@@ -3,6 +3,7 @@ package de.invesdwin.util.math.expression.function;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.math.expression.ExpressionReturnType;
+import de.invesdwin.util.math.expression.ExpressionType;
 import de.invesdwin.util.math.expression.IExpression;
 import de.invesdwin.util.math.expression.eval.IParsedExpression;
 import de.invesdwin.util.math.expression.eval.function.BooleanNullableFunctionCall;
@@ -28,8 +29,8 @@ public abstract class ABooleanNullableFunction extends AFunction {
     }
 
     @Override
-    public final FunctionType getType() {
-        return FunctionType.BooleanNullable;
+    public final ExpressionType getType() {
+        return ExpressionType.BooleanNullable;
     }
 
 }

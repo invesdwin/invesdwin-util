@@ -1,6 +1,7 @@
 package de.invesdwin.util.math.expression.variable;
 
 import de.invesdwin.util.math.expression.ExpressionReturnType;
+import de.invesdwin.util.math.expression.ExpressionType;
 import de.invesdwin.util.math.expression.eval.variable.AVariableReference;
 
 public interface IVariable {
@@ -11,7 +12,9 @@ public interface IVariable {
 
     String getDescription();
 
-    ExpressionReturnType getType();
+    ExpressionReturnType getReturnType();
+
+    ExpressionType getType();
 
     boolean isConstant();
 

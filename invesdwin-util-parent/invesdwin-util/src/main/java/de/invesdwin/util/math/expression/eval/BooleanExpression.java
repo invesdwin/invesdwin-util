@@ -3,12 +3,13 @@ package de.invesdwin.util.math.expression.eval;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.math.Doubles;
+import de.invesdwin.util.math.expression.ExpressionType;
 
 @Immutable
 public class BooleanExpression extends ConstantExpression {
 
     public BooleanExpression(final boolean value) {
-        super(Doubles.checkedCast(value));
+        super(Doubles.checkedCast(value), ExpressionType.Boolean);
     }
 
     @Override

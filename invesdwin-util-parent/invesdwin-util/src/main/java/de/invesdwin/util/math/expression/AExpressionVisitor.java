@@ -3,8 +3,8 @@ package de.invesdwin.util.math.expression;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.error.UnknownArgumentException;
-import de.invesdwin.util.math.expression.eval.operation.BinaryOperation;
-import de.invesdwin.util.math.expression.eval.operation.BinaryOperation.Op;
+import de.invesdwin.util.math.expression.eval.operation.DoubleBinaryOperation;
+import de.invesdwin.util.math.expression.eval.operation.Op;
 
 @Immutable
 public abstract class AExpressionVisitor {
@@ -18,8 +18,8 @@ public abstract class AExpressionVisitor {
         }
         if (e == null) {
             return;
-        } else if (e instanceof BinaryOperation) {
-            final BinaryOperation cExpression = (BinaryOperation) e;
+        } else if (e instanceof DoubleBinaryOperation) {
+            final DoubleBinaryOperation cExpression = (DoubleBinaryOperation) e;
             final boolean visitChildren = processBinaryOperation(cExpression);
             if (visitChildren) {
                 process(cExpression.getLeft());
@@ -30,7 +30,7 @@ public abstract class AExpressionVisitor {
         }
     }
 
-    protected boolean processBinaryOperation(final BinaryOperation expression) {
+    protected boolean processBinaryOperation(final DoubleBinaryOperation expression) {
         final boolean visitChildren;
         switch (expression.getOp()) {
         case AND:
@@ -66,11 +66,11 @@ public abstract class AExpressionVisitor {
         return false;
     }
 
-    protected abstract boolean visitLogicalCombination(BinaryOperation expression);
+    protected abstract boolean visitLogicalCombination(DoubleBinaryOperation expression);
 
-    protected abstract boolean visitComparison(BinaryOperation expression);
+    protected abstract boolean visitComparison(DoubleBinaryOperation expression);
 
-    protected abstract boolean visitMath(BinaryOperation expression);
+    protected abstract boolean visitMath(DoubleBinaryOperation expression);
 
     protected abstract void visitOther(IExpression expression);
 

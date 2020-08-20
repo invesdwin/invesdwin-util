@@ -2,11 +2,11 @@ package de.invesdwin.util.math.expression.eval.function;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.util.math.expression.ExpressionType;
 import de.invesdwin.util.math.expression.IExpression;
 import de.invesdwin.util.math.expression.eval.ConstantExpression;
 import de.invesdwin.util.math.expression.eval.IParsedExpression;
 import de.invesdwin.util.math.expression.function.AFunction;
-import de.invesdwin.util.math.expression.function.FunctionType;
 
 @NotThreadSafe
 public abstract class AFunctionCall<F extends AFunction> implements IParsedExpression {
@@ -44,7 +44,7 @@ public abstract class AFunctionCall<F extends AFunction> implements IParsedExpre
                 return simplifiedParameters;
             }
         }
-        return new ConstantExpression(evaluateDouble());
+        return new ConstantExpression(evaluateDouble(), getType());
     }
 
     private AFunctionCall<F> simplifyParameters() {
@@ -123,7 +123,8 @@ public abstract class AFunctionCall<F extends AFunction> implements IParsedExpre
         return parameters;
     }
 
-    public FunctionType getType() {
+    @Override
+    public ExpressionType getType() {
         return function.getType();
     }
 

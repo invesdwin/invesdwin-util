@@ -2,13 +2,15 @@ package de.invesdwin.util.math.expression.eval;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.util.math.expression.ExpressionType;
+
 @NotThreadSafe
 public class EnumerationExpression extends ConstantExpression {
 
     private final String name;
 
     public EnumerationExpression(final String name, final double value) {
-        super(value);
+        super(value, ExpressionType.Integer);
         this.name = name;
     }
 

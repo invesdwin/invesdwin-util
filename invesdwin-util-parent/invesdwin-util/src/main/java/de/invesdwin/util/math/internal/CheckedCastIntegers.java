@@ -43,6 +43,29 @@ public final class CheckedCastIntegers {
         throw UnknownArgumentException.newInstance(Object.class, value);
     }
 
+    public static int checkedCastNoOverflow(final Object value) {
+        if (value instanceof Number) {
+            final Number cValue = (Number) value;
+            return checkedCastNoOverflow(cValue);
+        } else if (value instanceof Boolean) {
+            final boolean cValue = (Boolean) value;
+            return checkedCast(cValue);
+        } else if (value instanceof Character) {
+            final char cValue = (Character) value;
+            return checkedCast(cValue);
+        } else if (value instanceof CharSequence) {
+            final CharSequence cValue = (CharSequence) value;
+            return checkedCast(cValue);
+        } else if (value.getClass().isArray()) {
+            final int length = Array.getLength(value);
+            if (length == 1) {
+                final Object cValue = Array.get(value, 0);
+                return checkedCastNoOverflow(cValue);
+            }
+        }
+        throw UnknownArgumentException.newInstance(Object.class, value);
+    }
+
     public static int checkedCast(final Number value) {
         if (value instanceof Double) {
             final double cValue = value.doubleValue();
@@ -75,6 +98,41 @@ public final class CheckedCastIntegers {
             //fallback to double
             final double doubleValue = value.doubleValue();
             return checkedCast(doubleValue);
+        }
+    }
+
+    public static int checkedCastNoOverflow(final Number value) {
+        if (value instanceof Double) {
+            final double cValue = value.doubleValue();
+            return checkedCastNoOverflow(cValue);
+        } else if (value instanceof Float) {
+            final float cValue = value.floatValue();
+            return checkedCastNoOverflow(cValue);
+        } else if (value instanceof Long) {
+            final long cValue = value.longValue();
+            return checkedCastNoOverflow(cValue);
+        } else if (value instanceof Integer) {
+            final int cValue = value.intValue();
+            return checkedCast(cValue);
+        } else if (value instanceof Short) {
+            final short cValue = value.shortValue();
+            return checkedCast(cValue);
+        } else if (value instanceof Byte) {
+            final byte cValue = value.byteValue();
+            return checkedCast(cValue);
+        } else if (value instanceof ADecimal<?>) {
+            final ADecimal<?> cValue = (ADecimal<?>) value;
+            return checkedCastNoOverflow(cValue);
+        } else if (value instanceof BigDecimal) {
+            final BigDecimal cValue = (BigDecimal) value;
+            return checkedCastNoOverflow(cValue);
+        } else if (value instanceof BigInteger) {
+            final BigInteger cValue = (BigInteger) value;
+            return checkedCastNoOverflow(cValue);
+        } else {
+            //fallback to double
+            final double doubleValue = value.doubleValue();
+            return checkedCastNoOverflow(doubleValue);
         }
     }
 
@@ -137,11 +195,29 @@ public final class CheckedCastIntegers {
         return checkedCast((long) value);
     }
 
+    public static int checkedCastNoOverflow(final Long value) {
+        return checkedCastNoOverflow((long) value);
+    }
+
     public static int checkedCast(final long value) {
         if (value < Integer.MIN_VALUE || value > Integer.MAX_VALUE) {
             throw new ArithmeticException("int overflow: " + value);
         }
         return (int) value;
+    }
+
+    public static int checkedCastNoOverflow(final long value) {
+        if (value < Integer.MIN_VALUE) {
+            return Integer.MIN_VALUE;
+        }
+        if (value > Integer.MAX_VALUE) {
+            return Integer.MAX_VALUE;
+        }
+        return (int) value;
+    }
+
+    public static int checkedCastNoOverflow(final Float value) {
+        return checkedCastNoOverflow((float) value);
     }
 
     public static int checkedCast(final Float value) {
@@ -155,8 +231,22 @@ public final class CheckedCastIntegers {
         return (int) value;
     }
 
+    public static int checkedCastNoOverflow(final float value) {
+        if (value < Integer.MIN_VALUE) {
+            return Integer.MIN_VALUE;
+        }
+        if (value > Integer.MAX_VALUE) {
+            return Integer.MAX_VALUE;
+        }
+        return (int) value;
+    }
+
     public static int checkedCast(final Double value) {
         return checkedCast((double) value);
+    }
+
+    public static int checkedCastNoOverflow(final Double value) {
+        return checkedCastNoOverflow((double) value);
     }
 
     public static int checkedCast(final double value) {
@@ -180,12 +270,24 @@ public final class CheckedCastIntegers {
         return checkedCast(value.getDefaultValue());
     }
 
+    public static int checkedCastNoOverflow(final ADecimal<?> value) {
+        return checkedCastNoOverflow(value.getDefaultValue());
+    }
+
     public static int checkedCast(final BigDecimal value) {
         return checkedCast(value.doubleValue());
     }
 
+    public static int checkedCastNoOverflow(final BigDecimal value) {
+        return checkedCastNoOverflow(value.doubleValue());
+    }
+
     public static int checkedCast(final BigInteger value) {
         return checkedCast(value.doubleValue());
+    }
+
+    public static int checkedCastNoOverflow(final BigInteger value) {
+        return checkedCastNoOverflow(value.doubleValue());
     }
 
     //CHECKSTYLE:OFF

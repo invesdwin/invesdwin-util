@@ -5,18 +5,21 @@ import javax.annotation.concurrent.Immutable;
 import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.decimal.Decimal;
+import de.invesdwin.util.math.expression.ExpressionType;
 import de.invesdwin.util.math.expression.IExpression;
 import de.invesdwin.util.time.fdate.IFDateProvider;
 
 @Immutable
 public class ConstantExpression implements IParsedExpression {
 
+    private final ExpressionType type;
     private final double doubleValue;
     private final int intValue;
     private final Boolean booleanNullableValue;
     private final boolean booleanValue;
 
-    public ConstantExpression(final double value) {
+    public ConstantExpression(final double value, final ExpressionType type) {
+        this.type = type;
         this.doubleValue = value;
         this.intValue = Integers.checkedCastNoOverflow(value);
         this.booleanNullableValue = Doubles.doubleToBooleanNullable(value);
@@ -131,6 +134,11 @@ public class ConstantExpression implements IParsedExpression {
     @Override
     public IExpression[] getChildren() {
         return EMPTY_EXPRESSIONS;
+    }
+
+    @Override
+    public ExpressionType getType() {
+        return type;
     }
 
 }

@@ -10,12 +10,12 @@ import de.invesdwin.util.time.fdate.IFDateProvider;
 // AvgTrueRange(10) crosses above AvgTrueRange(20)
 // ATR(10)[0] > ATR(20)[0] && ATR(10)[1] <= ATR(20)[1]
 @Immutable
-public class CrossesAboveOperation extends BinaryOperation {
+public class DoubleCrossesAboveOperation extends DoubleBinaryOperation {
 
     private final IPreviousKeyFunction leftPreviousKeyFunction;
     private final IPreviousKeyFunction rightPreviousKeyFunction;
 
-    public CrossesAboveOperation(final IParsedExpression left, final IParsedExpression right,
+    public DoubleCrossesAboveOperation(final IParsedExpression left, final IParsedExpression right,
             final IPreviousKeyFunction leftPreviousKeyFunction, final IPreviousKeyFunction rightPreviousKeyFunction) {
         super(Op.CROSSES_ABOVE, left, right);
         this.leftPreviousKeyFunction = leftPreviousKeyFunction;
@@ -169,15 +169,15 @@ public class CrossesAboveOperation extends BinaryOperation {
     }
 
     @Override
-    protected BinaryOperation newBinaryOperation(final Op op, final IParsedExpression left,
+    protected DoubleBinaryOperation newBinaryOperation(final Op op, final IParsedExpression left,
             final IParsedExpression right) {
-        return new CrossesAboveOperation(left, right, leftPreviousKeyFunction, rightPreviousKeyFunction);
+        return new DoubleCrossesAboveOperation(left, right, leftPreviousKeyFunction, rightPreviousKeyFunction);
     }
 
     @Override
     public IParsedExpression simplify() {
         if (leftPreviousKeyFunction == rightPreviousKeyFunction) {
-            return new SimpleCrossesAboveOperation(left, right, leftPreviousKeyFunction).simplify();
+            return new DoubleSimpleCrossesAboveOperation(left, right, leftPreviousKeyFunction).simplify();
         } else {
             return super.simplify();
         }

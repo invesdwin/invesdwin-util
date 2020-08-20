@@ -4,6 +4,7 @@ import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.Integers;
+import de.invesdwin.util.math.expression.ExpressionType;
 import de.invesdwin.util.math.expression.function.AFunction;
 import de.invesdwin.util.math.expression.variable.IDoubleVariable;
 import de.invesdwin.util.time.fdate.IFDateProvider;
@@ -13,6 +14,11 @@ public class DoubleVariableReference extends AVariableReference<IDoubleVariable>
 
     public DoubleVariableReference(final String context, final IDoubleVariable variable) {
         super(context, variable);
+    }
+
+    @Override
+    public ExpressionType getType() {
+        return variable.getType();
     }
 
     @Override

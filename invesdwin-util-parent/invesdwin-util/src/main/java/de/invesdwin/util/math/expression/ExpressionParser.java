@@ -16,13 +16,13 @@ import de.invesdwin.util.math.expression.eval.ConstantExpression;
 import de.invesdwin.util.math.expression.eval.DynamicPreviousKeyExpression;
 import de.invesdwin.util.math.expression.eval.IParsedExpression;
 import de.invesdwin.util.math.expression.eval.function.DoubleFunctionCall;
-import de.invesdwin.util.math.expression.eval.operation.AndOperation;
-import de.invesdwin.util.math.expression.eval.operation.BinaryOperation;
-import de.invesdwin.util.math.expression.eval.operation.BinaryOperation.Op;
-import de.invesdwin.util.math.expression.eval.operation.CrossesAboveOperation;
-import de.invesdwin.util.math.expression.eval.operation.CrossesBelowOperation;
-import de.invesdwin.util.math.expression.eval.operation.NotOperation;
-import de.invesdwin.util.math.expression.eval.operation.OrOperation;
+import de.invesdwin.util.math.expression.eval.operation.DoubleAndOperation;
+import de.invesdwin.util.math.expression.eval.operation.DoubleBinaryOperation;
+import de.invesdwin.util.math.expression.eval.operation.DoubleCrossesAboveOperation;
+import de.invesdwin.util.math.expression.eval.operation.DoubleCrossesBelowOperation;
+import de.invesdwin.util.math.expression.eval.operation.DoubleNotOperation;
+import de.invesdwin.util.math.expression.eval.operation.DoubleOrOperation;
+import de.invesdwin.util.math.expression.eval.operation.Op;
 import de.invesdwin.util.math.expression.eval.variable.AVariableReference;
 import de.invesdwin.util.math.expression.function.AFunction;
 import de.invesdwin.util.math.expression.function.HistoricalFunctions;
@@ -248,21 +248,21 @@ public class ExpressionParser {
             if (current.matches("&&")) {
                 tokenizer.consume();
                 final IParsedExpression right = expression(commaAllowed);
-                return reOrder(left, right, BinaryOperation.Op.AND);
+                return reOrder(left, right, Op.AND);
             }
             if (current.matches("||")) {
                 tokenizer.consume();
                 final IParsedExpression right = expression(commaAllowed);
-                return reOrder(left, right, BinaryOperation.Op.OR);
+                return reOrder(left, right, Op.OR);
             }
         } else if ("and".equalsIgnoreCase(current.getContents())) {
             tokenizer.consume();
             final IParsedExpression right = expression(commaAllowed);
-            return reOrder(left, right, BinaryOperation.Op.AND);
+            return reOrder(left, right, Op.AND);
         } else if ("or".equalsIgnoreCase(current.getContents())) {
             tokenizer.consume();
             final IParsedExpression right = expression(commaAllowed);
-            return reOrder(left, right, BinaryOperation.Op.OR);
+            return reOrder(left, right, Op.OR);
         }
         return left;
     }
@@ -271,7 +271,7 @@ public class ExpressionParser {
      * Someone might want to switch to OR here
      */
     protected Op getCommaOp() {
-        return BinaryOperation.Op.AND;
+        return Op.AND;
     }
 
     //CHECKSTYLE:OFF
@@ -283,39 +283,39 @@ public class ExpressionParser {
             if (current.matches("<")) {
                 tokenizer.consume();
                 final IParsedExpression right = relationalExpression();
-                return reOrder(left, right, BinaryOperation.Op.LT);
+                return reOrder(left, right, Op.LT);
             }
             if (current.matches("<=")) {
                 tokenizer.consume();
                 final IParsedExpression right = relationalExpression();
-                return reOrder(left, right, BinaryOperation.Op.LT_EQ);
+                return reOrder(left, right, Op.LT_EQ);
             }
             if (current.matches("=") || current.matches("==")) {
                 tokenizer.consume();
                 final IParsedExpression right = relationalExpression();
-                return reOrder(left, right, BinaryOperation.Op.EQ);
+                return reOrder(left, right, Op.EQ);
             }
             if (current.matches(">=")) {
                 tokenizer.consume();
                 final IParsedExpression right = relationalExpression();
-                return reOrder(left, right, BinaryOperation.Op.GT_EQ);
+                return reOrder(left, right, Op.GT_EQ);
             }
             if (current.matches(">")) {
                 tokenizer.consume();
                 final IParsedExpression right = relationalExpression();
-                return reOrder(left, right, BinaryOperation.Op.GT);
+                return reOrder(left, right, Op.GT);
             }
             if (current.matches("!=") || current.matches("<>") || current.matches("><")) {
                 tokenizer.consume();
                 final IParsedExpression right = relationalExpression();
-                return reOrder(left, right, BinaryOperation.Op.NEQ);
+                return reOrder(left, right, Op.NEQ);
             }
         } else if ("crosses".equals(current.getContents())) {
             final Token next = tokenizer.next();
             if ("above".equals(next.getContents()) || "over".equals(next.getContents())) {
                 tokenizer.consume(2);
                 final IParsedExpression right = relationalExpression();
-                final CrossesAboveOperation result = new CrossesAboveOperation(left, right,
+                final DoubleCrossesAboveOperation result = new DoubleCrossesAboveOperation(left, right,
                         getPreviousKeyFunctionOrThrow(left.getContext()),
                         getPreviousKeyFunctionOrThrow(right.getContext()));
                 result.seal();
@@ -323,7 +323,7 @@ public class ExpressionParser {
             } else if ("below".equals(next.getContents()) || "under".equals(next.getContents())) {
                 tokenizer.consume(2);
                 final IParsedExpression right = relationalExpression();
-                final CrossesBelowOperation result = new CrossesBelowOperation(left, right,
+                final DoubleCrossesBelowOperation result = new DoubleCrossesBelowOperation(left, right,
                         getPreviousKeyFunctionOrThrow(left.getContext()),
                         getPreviousKeyFunctionOrThrow(right.getContext()));
                 result.seal();
@@ -340,17 +340,17 @@ public class ExpressionParser {
             if (current.matches("+")) {
                 tokenizer.consume();
                 final IParsedExpression right = term();
-                return reOrder(left, right, BinaryOperation.Op.ADD);
+                return reOrder(left, right, Op.ADD);
             }
             if (current.matches("-")) {
                 tokenizer.consume();
                 final IParsedExpression right = term();
-                return reOrder(left, right, BinaryOperation.Op.SUBTRACT);
+                return reOrder(left, right, Op.SUBTRACT);
             }
         } else if (current.isNumber() && current.getContents().startsWith("-")) {
             current.setContent(current.getContents().substring(1));
             final IParsedExpression right = term();
-            return reOrder(left, right, BinaryOperation.Op.SUBTRACT);
+            return reOrder(left, right, Op.SUBTRACT);
         }
 
         return left;
@@ -363,80 +363,79 @@ public class ExpressionParser {
             if (current.matches("*")) {
                 tokenizer.consume();
                 final IParsedExpression right = product();
-                return reOrder(left, right, BinaryOperation.Op.MULTIPLY);
+                return reOrder(left, right, Op.MULTIPLY);
             }
             if (current.matches("/")) {
                 tokenizer.consume();
                 final IParsedExpression right = product();
-                return reOrder(left, right, BinaryOperation.Op.DIVIDE);
+                return reOrder(left, right, Op.DIVIDE);
             }
             if (current.matches("%")) {
                 tokenizer.consume();
                 final IParsedExpression right = product();
-                return reOrder(left, right, BinaryOperation.Op.MODULO);
+                return reOrder(left, right, Op.MODULO);
             }
         }
         return left;
     }
 
-    protected IParsedExpression reOrder(final IParsedExpression left, final IParsedExpression right,
-            final BinaryOperation.Op op) {
-        if (right instanceof BinaryOperation) {
-            final BinaryOperation rightOp = (BinaryOperation) right;
+    protected IParsedExpression reOrder(final IParsedExpression left, final IParsedExpression right, final Op op) {
+        if (right instanceof DoubleBinaryOperation) {
+            final DoubleBinaryOperation rightOp = (DoubleBinaryOperation) right;
             if (!rightOp.isSealed() && rightOp.getOp().getPriority() == op.getPriority()) {
                 return replaceLeft(rightOp, left, op);
             }
         }
         switch (op) {
         case AND:
-            return new AndOperation(left, right);
+            return new DoubleAndOperation(left, right);
         case OR:
-            return new OrOperation(left, right);
+            return new DoubleOrOperation(left, right);
         case NOT:
-            return new NotOperation(left, right);
+            return new DoubleNotOperation(left, right);
         case CROSSES_ABOVE:
-            return new CrossesAboveOperation(left, right, getPreviousKeyFunctionOrThrow(left.getContext()),
+            return new DoubleCrossesAboveOperation(left, right, getPreviousKeyFunctionOrThrow(left.getContext()),
                     getPreviousKeyFunctionOrThrow(right.getContext()));
         case CROSSES_BELOW:
-            return new CrossesBelowOperation(left, right, getPreviousKeyFunctionOrThrow(left.getContext()),
+            return new DoubleCrossesBelowOperation(left, right, getPreviousKeyFunctionOrThrow(left.getContext()),
                     getPreviousKeyFunctionOrThrow(right.getContext()));
         default:
-            return new BinaryOperation(op, left, right);
+            return new DoubleBinaryOperation(op, left, right);
         }
     }
 
-    protected BinaryOperation replaceLeft(final BinaryOperation target, final IParsedExpression newLeft,
-            final BinaryOperation.Op op) {
-        if (target.getLeft() instanceof BinaryOperation) {
-            final BinaryOperation leftOp = (BinaryOperation) target.getLeft();
+    protected DoubleBinaryOperation replaceLeft(final DoubleBinaryOperation target, final IParsedExpression newLeft,
+            final Op op) {
+        if (target.getLeft() instanceof DoubleBinaryOperation) {
+            final DoubleBinaryOperation leftOp = (DoubleBinaryOperation) target.getLeft();
             if (!leftOp.isSealed() && leftOp.getOp().getPriority() == op.getPriority()) {
-                final BinaryOperation replacedLeft = replaceLeft(leftOp, newLeft, op);
-                final BinaryOperation replacedTarget = target.setLeft(replacedLeft);
+                final DoubleBinaryOperation replacedLeft = replaceLeft(leftOp, newLeft, op);
+                final DoubleBinaryOperation replacedTarget = target.setLeft(replacedLeft);
                 return replacedTarget;
             }
         }
         return replaceLeftDirect(target, newLeft, op);
     }
 
-    private BinaryOperation replaceLeftDirect(final BinaryOperation target, final IParsedExpression newLeft,
-            final BinaryOperation.Op op) {
+    private DoubleBinaryOperation replaceLeftDirect(final DoubleBinaryOperation target, final IParsedExpression newLeft,
+            final Op op) {
         switch (op) {
         case AND:
-            return target.setLeft(new AndOperation(newLeft, target.getLeft()));
+            return target.setLeft(new DoubleAndOperation(newLeft, target.getLeft()));
         case OR:
-            return target.setLeft(new OrOperation(newLeft, target.getLeft()));
+            return target.setLeft(new DoubleOrOperation(newLeft, target.getLeft()));
         case NOT:
-            return target.setLeft(new NotOperation(newLeft, target.getLeft()));
+            return target.setLeft(new DoubleNotOperation(newLeft, target.getLeft()));
         case CROSSES_ABOVE:
-            return target.setLeft(new CrossesAboveOperation(newLeft, target.getLeft(),
+            return target.setLeft(new DoubleCrossesAboveOperation(newLeft, target.getLeft(),
                     getPreviousKeyFunctionOrThrow(newLeft.getContext()),
                     getPreviousKeyFunctionOrThrow(target.getLeft().getContext())));
         case CROSSES_BELOW:
-            return target.setLeft(new CrossesBelowOperation(newLeft, target.getLeft(),
+            return target.setLeft(new DoubleCrossesBelowOperation(newLeft, target.getLeft(),
                     getPreviousKeyFunctionOrThrow(newLeft.getContext()),
                     getPreviousKeyFunctionOrThrow(target.getLeft().getContext())));
         default:
-            return target.setLeft(new BinaryOperation(op, newLeft, target.getLeft()));
+            return target.setLeft(new DoubleBinaryOperation(op, newLeft, target.getLeft()));
         }
     }
 
@@ -447,7 +446,7 @@ public class ExpressionParser {
             if (current.matches("^") || current.matches("**")) {
                 tokenizer.consume();
                 final IParsedExpression right = power();
-                return reOrder(left, right, BinaryOperation.Op.POWER);
+                return reOrder(left, right, Op.POWER);
             }
         }
         return left;
@@ -460,14 +459,15 @@ public class ExpressionParser {
         if (current.isSymbol()) {
             if (current.matches("-")) {
                 tokenizer.consume();
-                final BinaryOperation result = new BinaryOperation(BinaryOperation.Op.SUBTRACT,
-                        new ConstantExpression(0d), atom());
+                final DoubleBinaryOperation result = new DoubleBinaryOperation(Op.SUBTRACT,
+                        new ConstantExpression(0D, ExpressionType.Boolean), atom());
                 result.seal();
                 return result;
             }
             if (current.matches("!")) {
                 tokenizer.consume();
-                final BinaryOperation result = new NotOperation(new ConstantExpression(0d), atom());
+                final DoubleBinaryOperation result = new DoubleNotOperation(
+                        new ConstantExpression(0D, ExpressionType.Boolean), atom());
                 result.seal();
                 return result;
             }
@@ -480,8 +480,8 @@ public class ExpressionParser {
             if (current.matches("(")) {
                 tokenizer.consume();
                 final IParsedExpression result = expression(false);
-                if (result instanceof BinaryOperation) {
-                    ((BinaryOperation) result).seal();
+                if (result instanceof DoubleBinaryOperation) {
+                    ((DoubleBinaryOperation) result).seal();
                 }
                 expect(Token.TokenType.SYMBOL, ")");
                 return result;
@@ -694,7 +694,8 @@ public class ExpressionParser {
             current = tokenizer.current();
         }
         if (current.isNumber()) {
-            double value = Double.parseDouble(tokenizer.consume().getContents());
+            final String valueStr = tokenizer.consume().getContents();
+            double value = Double.parseDouble(valueStr);
             if (tokenizer.current().isIdentifier()) {
                 //CHECKSTYLE:OFF
                 final String quantifierStr = tokenizer.current().getContents();
@@ -726,7 +727,7 @@ public class ExpressionParser {
                 }
                 //CHECKSTYLE:ON
             }
-            return new ConstantExpression(value);
+            return new ConstantExpression(value, ExpressionType.determineDecimalType(value));
         }
         final Token token = tokenizer.consume();
         throw new ParseException(token,

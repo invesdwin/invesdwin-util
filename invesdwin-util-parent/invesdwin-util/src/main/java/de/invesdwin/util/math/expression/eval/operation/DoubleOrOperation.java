@@ -3,14 +3,15 @@ package de.invesdwin.util.math.expression.eval.operation;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.math.Doubles;
+import de.invesdwin.util.math.expression.ExpressionType;
 import de.invesdwin.util.math.expression.eval.ConstantExpression;
 import de.invesdwin.util.math.expression.eval.IParsedExpression;
 import de.invesdwin.util.time.fdate.IFDateProvider;
 
 @Immutable
-public class OrOperation extends BinaryOperation {
+public class DoubleOrOperation extends DoubleBinaryOperation {
 
-    public OrOperation(final IParsedExpression left, final IParsedExpression right) {
+    public DoubleOrOperation(final IParsedExpression left, final IParsedExpression right) {
         super(Op.OR, left, right);
     }
 
@@ -89,14 +90,16 @@ public class OrOperation extends BinaryOperation {
         if (newLeft.isConstant()) {
             final Boolean leftResult = newLeft.evaluateBooleanNullable();
             if (leftResult != null && leftResult == Boolean.TRUE) {
-                return new ConstantExpression(1D);
+                return new ConstantExpression(1D, ExpressionType.Boolean);
             } else {
                 if (newRight.isConstant()) {
                     final Boolean rightResult = newRight.evaluateBooleanNullable();
                     if (rightResult != null) {
-                        return new ConstantExpression(Doubles.booleanToDouble(rightResult));
+                        return new ConstantExpression(Doubles.booleanToDouble(rightResult),
+                                ExpressionType.determineBooleanType(rightResult));
                     } else {
-                        return new ConstantExpression(Doubles.booleanToDouble(leftResult));
+                        return new ConstantExpression(Doubles.booleanToDouble(leftResult),
+                                ExpressionType.determineBooleanType(leftResult));
                     }
                 } else {
                     return newRight;
@@ -106,14 +109,16 @@ public class OrOperation extends BinaryOperation {
         if (newRight.isConstant()) {
             final Boolean rightResult = newRight.evaluateBooleanNullable();
             if (rightResult != null && rightResult == Boolean.TRUE) {
-                return new ConstantExpression(1D);
+                return new ConstantExpression(1D, ExpressionType.Boolean);
             } else {
                 if (newLeft.isConstant()) {
                     final Boolean leftResult = newLeft.evaluateBooleanNullable();
                     if (leftResult != null) {
-                        return new ConstantExpression(Doubles.booleanToDouble(leftResult));
+                        return new ConstantExpression(Doubles.booleanToDouble(leftResult),
+                                ExpressionType.determineBooleanType(leftResult));
                     } else {
-                        return new ConstantExpression(Doubles.booleanToDouble(rightResult));
+                        return new ConstantExpression(Doubles.booleanToDouble(rightResult),
+                                ExpressionType.determineBooleanType(rightResult));
                     }
                 } else {
                     return newLeft;
@@ -124,9 +129,9 @@ public class OrOperation extends BinaryOperation {
     }
 
     @Override
-    protected BinaryOperation newBinaryOperation(final Op op, final IParsedExpression left,
+    protected DoubleBinaryOperation newBinaryOperation(final Op op, final IParsedExpression left,
             final IParsedExpression right) {
-        return new OrOperation(left, right);
+        return new DoubleOrOperation(left, right);
     }
 
 }

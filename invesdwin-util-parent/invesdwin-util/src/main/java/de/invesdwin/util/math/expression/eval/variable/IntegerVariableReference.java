@@ -3,6 +3,7 @@ package de.invesdwin.util.math.expression.eval.variable;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.math.Integers;
+import de.invesdwin.util.math.expression.ExpressionType;
 import de.invesdwin.util.math.expression.function.AFunction;
 import de.invesdwin.util.math.expression.variable.IIntegerVariable;
 import de.invesdwin.util.time.fdate.IFDateProvider;
@@ -12,6 +13,11 @@ public class IntegerVariableReference extends AVariableReference<IIntegerVariabl
 
     public IntegerVariableReference(final String context, final IIntegerVariable variable) {
         super(context, variable);
+    }
+
+    @Override
+    public ExpressionType getType() {
+        return variable.getType();
     }
 
     @Override

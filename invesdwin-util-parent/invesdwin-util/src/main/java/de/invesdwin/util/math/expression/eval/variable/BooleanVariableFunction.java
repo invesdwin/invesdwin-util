@@ -76,7 +76,7 @@ public class BooleanVariableFunction extends ABooleanFunction {
 
     @Override
     public ExpressionReturnType getReturnType() {
-        return variable.getVariable().getType();
+        return variable.getVariable().getReturnType();
     }
 
     @Override
