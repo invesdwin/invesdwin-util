@@ -13,11 +13,69 @@ import de.invesdwin.util.math.expression.lambda.IEvaluateInteger;
 import de.invesdwin.util.math.expression.lambda.IEvaluateIntegerFDate;
 import de.invesdwin.util.math.expression.lambda.IEvaluateIntegerKey;
 
-public interface IExpression extends IEvaluateDoubleFDate, IEvaluateDoubleKey, IEvaluateDouble, IEvaluateIntegerFDate,
-        IEvaluateIntegerKey, IEvaluateInteger, IEvaluateBooleanNullableFDate, IEvaluateBooleanNullableKey,
-        IEvaluateBooleanNullable, IEvaluateBooleanFDate, IEvaluateBooleanKey, IEvaluateBoolean {
+public interface IExpression {
 
     IExpression[] EMPTY_EXPRESSIONS = new IExpression[0];
+
+    /**
+     * evaluates the expression using the current time key
+     */
+    IEvaluateDoubleFDate newEvaluateDoubleFDate();
+
+    /**
+     * evaluates the expression using the current int key
+     */
+    IEvaluateDoubleKey newEvaluateDoubleKey();
+
+    /**
+     * evaluates the expression using the current available time/int key
+     */
+    IEvaluateDouble newEvaluateDouble();
+
+    /**
+     * Double.NaN is interpreted as 0.
+     */
+    IEvaluateIntegerFDate newEvaluateIntegerFDate();
+
+    /**
+     * Double.NaN is interpreted as 0.
+     */
+    IEvaluateIntegerKey newEvaluateIntegerKey();
+
+    /**
+     * Double.NaN is interpreted as 0.
+     */
+    IEvaluateInteger newEvaluateInteger();
+
+    /**
+     * Double.NaN is interpreted as false.
+     */
+    IEvaluateBoolean newEvaluateBoolean();
+
+    /**
+     * Double.NaN is interpreted as false.
+     */
+    IEvaluateBooleanFDate newEvaluateBooleanFDate();
+
+    /**
+     * Double.NaN is interpreted as false.
+     */
+    IEvaluateBooleanKey newEvaluateBooleanKey();
+
+    /**
+     * Double.NaN is interpreted as null.
+     */
+    IEvaluateBooleanNullable newEvaluateBooleanNullable();
+
+    /**
+     * Double.NaN is interpreted as null.
+     */
+    IEvaluateBooleanNullableFDate newEvaluateBooleanNullableFDate();
+
+    /**
+     * Double.NaN is interpreted as null.
+     */
+    IEvaluateBooleanNullableKey newEvaluateBooleanNullableKey();
 
     boolean isConstant();
 

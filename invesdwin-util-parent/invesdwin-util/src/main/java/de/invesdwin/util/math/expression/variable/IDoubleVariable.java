@@ -4,15 +4,17 @@ import de.invesdwin.util.math.expression.ExpressionReturnType;
 import de.invesdwin.util.math.expression.ExpressionType;
 import de.invesdwin.util.math.expression.eval.variable.AVariableReference;
 import de.invesdwin.util.math.expression.eval.variable.DoubleVariableReference;
-import de.invesdwin.util.time.fdate.IFDateProvider;
+import de.invesdwin.util.math.expression.lambda.IEvaluateDouble;
+import de.invesdwin.util.math.expression.lambda.IEvaluateDoubleFDate;
+import de.invesdwin.util.math.expression.lambda.IEvaluateDoubleKey;
 
 public interface IDoubleVariable extends IVariable {
 
-    double getValue(IFDateProvider key);
+    IEvaluateDoubleFDate newEvaluateDoubleFDate();
 
-    double getValue(int key);
+    IEvaluateDoubleKey newEvaluateDoubleKey();
 
-    double getValue();
+    IEvaluateDouble newEvaluateDouble();
 
     @Override
     default ExpressionReturnType getReturnType() {

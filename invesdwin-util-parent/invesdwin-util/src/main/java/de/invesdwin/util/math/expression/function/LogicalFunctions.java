@@ -25,31 +25,31 @@ public final class LogicalFunctions {
 
         @Override
         public double eval(final IFDateProvider key, final IExpression[] args) {
-            final boolean check = args[0].evaluateBoolean(key);
+            final boolean check = args[0].newEvaluateBooleanFDate().evaluateBoolean(key);
             if (check) {
-                return args[1].evaluateDouble(key);
+                return args[1].newEvaluateDoubleFDate().evaluateDouble(key);
             } else {
-                return args[2].evaluateDouble(key);
+                return args[2].newEvaluateDoubleFDate().evaluateDouble(key);
             }
         }
 
         @Override
         public double eval(final int key, final IExpression[] args) {
-            final boolean check = args[0].evaluateBoolean(key);
+            final boolean check = args[0].newEvaluateBooleanKey().evaluateBoolean(key);
             if (check) {
-                return args[1].evaluateDouble(key);
+                return args[1].newEvaluateDoubleKey().evaluateDouble(key);
             } else {
-                return args[2].evaluateDouble(key);
+                return args[2].newEvaluateDoubleKey().evaluateDouble(key);
             }
         }
 
         @Override
         public double eval(final IExpression[] args) {
-            final boolean check = args[0].evaluateBoolean();
+            final boolean check = args[0].newEvaluateBoolean().evaluateBoolean();
             if (check) {
-                return args[1].evaluateDouble();
+                return args[1].newEvaluateDouble().evaluateDouble();
             } else {
-                return args[2].evaluateDouble();
+                return args[2].newEvaluateDouble().evaluateDouble();
             }
         }
 
@@ -220,19 +220,19 @@ public final class LogicalFunctions {
 
         @Override
         public boolean eval(final IFDateProvider key, final IExpression[] args) {
-            final double a = args[0].evaluateDouble(key);
+            final double a = args[0].newEvaluateDoubleFDate().evaluateDouble(key);
             return Double.isNaN(a);
         }
 
         @Override
         public boolean eval(final int key, final IExpression[] args) {
-            final double a = args[0].evaluateDouble(key);
+            final double a = args[0].newEvaluateDouble().evaluateDouble(key);
             return Double.isNaN(a);
         }
 
         @Override
         public boolean eval(final IExpression[] args) {
-            final double a = args[0].evaluateDouble();
+            final double a = args[0].newEvaluateDouble().evaluateDouble();
             return Double.isNaN(a);
         }
 

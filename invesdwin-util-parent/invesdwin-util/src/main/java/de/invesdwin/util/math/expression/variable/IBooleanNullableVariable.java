@@ -4,15 +4,17 @@ import de.invesdwin.util.math.expression.ExpressionReturnType;
 import de.invesdwin.util.math.expression.ExpressionType;
 import de.invesdwin.util.math.expression.eval.variable.AVariableReference;
 import de.invesdwin.util.math.expression.eval.variable.BooleanNullableVariableReference;
-import de.invesdwin.util.time.fdate.IFDateProvider;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanNullable;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanNullableFDate;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanNullableKey;
 
 public interface IBooleanNullableVariable extends IVariable {
 
-    Boolean getValue(IFDateProvider key);
+    IEvaluateBooleanNullableFDate newEvaluateBooleanNullableFDate();
 
-    Boolean getValue(int key);
+    IEvaluateBooleanNullableKey newEvaluateBooleanNullableKey();
 
-    Boolean getValue();
+    IEvaluateBooleanNullable newEvaluateBooleanNullable();
 
     @Override
     default ExpressionReturnType getReturnType() {

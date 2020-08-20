@@ -38,7 +38,7 @@ public abstract class AVariableReference<V extends IVariable> implements IParsed
     @Override
     public IParsedExpression simplify() {
         if (isConstant()) {
-            return new ConstantExpression(evaluateDouble());
+            return new ConstantExpression(newEvaluateDouble().evaluateDouble());
         }
         return this;
     }

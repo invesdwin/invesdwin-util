@@ -7,6 +7,17 @@ import de.invesdwin.util.math.expression.ExpressionReturnType;
 import de.invesdwin.util.math.expression.IExpression;
 import de.invesdwin.util.math.expression.IFunctionParameterInfo;
 import de.invesdwin.util.math.expression.eval.operation.IBinaryOperation;
+import de.invesdwin.util.math.expression.eval.operation.lambda.IBooleanNullableFromDoublesBinaryOp;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBoolean;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanFDate;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanKey;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanNullableFDate;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanNullableKey;
+import de.invesdwin.util.math.expression.lambda.IEvaluateDoubleFDate;
+import de.invesdwin.util.math.expression.lambda.IEvaluateDoubleKey;
+import de.invesdwin.util.math.expression.lambda.IEvaluateInteger;
+import de.invesdwin.util.math.expression.lambda.IEvaluateIntegerFDate;
+import de.invesdwin.util.math.expression.lambda.IEvaluateIntegerKey;
 import de.invesdwin.util.time.fdate.IFDateProvider;
 
 @Immutable
@@ -113,38 +124,42 @@ public final class HistoricalFunctions {
                     }
 
                     @Override
-                    public boolean eval(final IExpression[] args) {
+                    public IEvaluateBoolean newEvaluateBoolean(final IExpression[] args) {
                         throw new UnsupportedOperationException("use time or int key instead");
                     }
 
                     @Override
-                    public boolean eval(final int key, final IExpression[] args) {
-                        final IExpression condition = args[0];
-                        final boolean cur = condition.evaluateBoolean(key);
-                        if (!cur) {
-                            return false;
-                        }
-                        final int prevKey = previousKeyFunction.getPreviousKey(key, 1);
-                        final boolean prev = condition.evaluateBoolean(prevKey);
-                        if (prev) {
-                            return false;
-                        }
-                        return true;
+                    public IEvaluateBooleanKey newEvaluateBooleanKey(final IExpression[] args) {
+                        final IEvaluateBooleanKey conditionF = args[0].newEvaluateBooleanKey();
+                        return key -> {
+                            final boolean cur = conditionF.evaluateBoolean(key);
+                            if (!cur) {
+                                return false;
+                            }
+                            final int prevKey = previousKeyFunction.getPreviousKey(key, 1);
+                            final boolean prev = conditionF.evaluateBoolean(prevKey);
+                            if (prev) {
+                                return false;
+                            }
+                            return true;
+                        };
                     }
 
                     @Override
-                    public boolean eval(final IFDateProvider key, final IExpression[] args) {
-                        final IExpression condition = args[0];
-                        final boolean cur = condition.evaluateBoolean(key);
-                        if (!cur) {
-                            return false;
-                        }
-                        final IFDateProvider prevKey = previousKeyFunction.getPreviousKey(key, 1);
-                        final boolean prev = condition.evaluateBoolean(prevKey);
-                        if (prev) {
-                            return false;
-                        }
-                        return true;
+                    public IEvaluateBooleanFDate newEvaluateBooleanFDate(final IExpression[] args) {
+                        final IEvaluateBooleanFDate condition = args[0].newEvaluateBooleanFDate();
+                        return key -> {
+                            final boolean cur = condition.evaluateBoolean(key);
+                            if (!cur) {
+                                return false;
+                            }
+                            final IFDateProvider prevKey = previousKeyFunction.getPreviousKey(key, 1);
+                            final boolean prev = condition.evaluateBoolean(prevKey);
+                            if (prev) {
+                                return false;
+                            }
+                            return true;
+                        };
                     }
                 };
             }
@@ -287,42 +302,48 @@ public final class HistoricalFunctions {
                     }
 
                     @Override
-                    public boolean eval(final IExpression[] args) {
+                    public IEvaluateBoolean newEvaluateBoolean(final IExpression[] args) {
                         throw new UnsupportedOperationException("use time or int key instead");
                     }
 
                     @Override
-                    public boolean eval(final int key, final IExpression[] args) {
-                        final IExpression condition = args[0];
-                        final int count = args[1].evaluateInteger(key);
-                        int curKey = key;
-                        for (int i = 1; i <= count; i++) {
-                            final Boolean result = condition.evaluateBooleanNullable(curKey);
-                            if (result != null && !result) {
-                                return false;
+                    public IEvaluateBooleanKey newEvaluateBooleanKey(final IExpression[] args) {
+                        final IEvaluateBooleanNullableKey conditionF = args[0].newEvaluateBooleanNullableKey();
+                        final IEvaluateIntegerKey countF = args[1].newEvaluateIntegerKey();
+                        return key -> {
+                            final int count = countF.evaluateInteger(key);
+                            int curKey = key;
+                            for (int i = 1; i <= count; i++) {
+                                final Boolean result = conditionF.evaluateBooleanNullable(curKey);
+                                if (result != null && !result) {
+                                    return false;
+                                }
+                                if (i != count) {
+                                    curKey = previousKeyFunction.getPreviousKey(curKey, 1);
+                                }
                             }
-                            if (i != count) {
-                                curKey = previousKeyFunction.getPreviousKey(curKey, 1);
-                            }
-                        }
-                        return true;
+                            return true;
+                        };
                     }
 
                     @Override
-                    public boolean eval(final IFDateProvider key, final IExpression[] args) {
-                        final IExpression condition = args[0];
-                        final int count = args[1].evaluateInteger(key);
-                        IFDateProvider curKey = key;
-                        for (int i = 1; i <= count; i++) {
-                            final Boolean result = condition.evaluateBooleanNullable(curKey);
-                            if (result != null && !result) {
-                                return false;
+                    public IEvaluateBooleanFDate newEvaluateBooleanFDate(final IExpression[] args) {
+                        final IEvaluateBooleanNullableFDate conditionF = args[0].newEvaluateBooleanNullableFDate();
+                        final IEvaluateIntegerFDate countF = args[1].newEvaluateIntegerFDate();
+                        return key -> {
+                            final int count = countF.evaluateInteger(key);
+                            IFDateProvider curKey = key;
+                            for (int i = 1; i <= count; i++) {
+                                final Boolean result = conditionF.evaluateBooleanNullable(curKey);
+                                if (result != null && !result) {
+                                    return false;
+                                }
+                                if (i != count) {
+                                    curKey = previousKeyFunction.getPreviousKey(curKey, 1);
+                                }
                             }
-                            if (i != count) {
-                                curKey = previousKeyFunction.getPreviousKey(curKey, 1);
-                            }
-                        }
-                        return true;
+                            return true;
+                        };
                     }
                 };
             }
@@ -465,48 +486,54 @@ public final class HistoricalFunctions {
                     }
 
                     @Override
-                    public int eval(final IExpression[] args) {
+                    public IEvaluateInteger newEvaluateInteger(final IExpression[] args) {
                         throw new UnsupportedOperationException("use time or int key instead");
                     }
 
                     @Override
-                    public int eval(final int key, final IExpression[] args) {
-                        final IExpression condition = args[0];
-                        final int count = args[1].evaluateInteger(key);
-                        int stableCount = 0;
-                        int curKey = key;
-                        for (int i = 1; i <= count; i++) {
-                            final Boolean result = condition.evaluateBooleanNullable(curKey);
-                            if (result != null && !result) {
-                                return stableCount;
-                            } else if (result != null && result) {
-                                stableCount++;
+                    public IEvaluateIntegerKey newEvaluateIntegerKey(final IExpression[] args) {
+                        final IEvaluateBooleanNullableKey conditionF = args[0].newEvaluateBooleanNullableKey();
+                        final IEvaluateIntegerKey countF = args[1].newEvaluateIntegerKey();
+                        return key -> {
+                            final int count = countF.evaluateInteger(key);
+                            int stableCount = 0;
+                            int curKey = key;
+                            for (int i = 1; i <= count; i++) {
+                                final Boolean result = conditionF.evaluateBooleanNullable(curKey);
+                                if (result != null && !result) {
+                                    return stableCount;
+                                } else if (result != null && result) {
+                                    stableCount++;
+                                }
+                                if (i != count) {
+                                    curKey = previousKeyFunction.getPreviousKey(curKey, 1);
+                                }
                             }
-                            if (i != count) {
-                                curKey = previousKeyFunction.getPreviousKey(curKey, 1);
-                            }
-                        }
-                        return stableCount;
+                            return stableCount;
+                        };
                     }
 
                     @Override
-                    public int eval(final IFDateProvider key, final IExpression[] args) {
-                        final IExpression condition = args[0];
-                        final int count = args[1].evaluateInteger(key);
-                        int stableCount = 0;
-                        IFDateProvider curKey = key;
-                        for (int i = 1; i <= count; i++) {
-                            final Boolean result = condition.evaluateBooleanNullable(curKey);
-                            if (result != null && !result) {
-                                return stableCount;
-                            } else if (result != null && result) {
-                                stableCount++;
+                    public IEvaluateIntegerFDate newEvaluateIntegerFDate(final IExpression[] args) {
+                        final IEvaluateBooleanNullableFDate conditionF = args[0].newEvaluateBooleanNullableFDate();
+                        final IEvaluateIntegerFDate countF = args[1].newEvaluateIntegerFDate();
+                        return key -> {
+                            final int count = countF.evaluateInteger(key);
+                            int stableCount = 0;
+                            IFDateProvider curKey = key;
+                            for (int i = 1; i <= count; i++) {
+                                final Boolean result = conditionF.evaluateBooleanNullable(curKey);
+                                if (result != null && !result) {
+                                    return stableCount;
+                                } else if (result != null && result) {
+                                    stableCount++;
+                                }
+                                if (i != count) {
+                                    curKey = previousKeyFunction.getPreviousKey(curKey, 1);
+                                }
                             }
-                            if (i != count) {
-                                curKey = previousKeyFunction.getPreviousKey(curKey, 1);
-                            }
-                        }
-                        return stableCount;
+                            return stableCount;
+                        };
                     }
                 };
             }
@@ -651,46 +678,60 @@ public final class HistoricalFunctions {
                     }
 
                     @Override
-                    public boolean eval(final IExpression[] args) {
+                    public IEvaluateBoolean newEvaluateBoolean(final IExpression[] args) {
                         throw new UnsupportedOperationException("use time or int key instead");
                     }
 
                     @Override
-                    public boolean eval(final int key, final IExpression[] args) {
+                    public IEvaluateBooleanKey newEvaluateBooleanKey(final IExpression[] args) {
                         final IBinaryOperation condition = IBinaryOperation.validateComparativeOperation(args[0]);
-                        final int count = args[1].evaluateInteger(key);
-                        final double rightResult = condition.getRight().evaluateDouble(key);
-                        int curKey = key;
-                        for (int i = 1; i <= count; i++) {
-                            final double leftResult = condition.getLeft().evaluateDouble(curKey);
-                            final Boolean result = condition.getOp().applyBooleanNullable(leftResult, rightResult);
-                            if (result != null && !result) {
-                                return false;
+                        final IEvaluateDoubleKey conditionRightF = condition.getRight().newEvaluateDoubleKey();
+                        final IEvaluateDoubleKey conditionLeftF = condition.getLeft().newEvaluateDoubleKey();
+                        final IEvaluateIntegerKey countF = args[1].newEvaluateIntegerKey();
+                        final IBooleanNullableFromDoublesBinaryOp opF = condition.getOp()
+                                .newBooleanNullableFromDoubles();
+                        return key -> {
+                            final int count = countF.evaluateInteger(key);
+                            final double rightResult = conditionRightF.evaluateDouble(key);
+                            int curKey = key;
+                            for (int i = 1; i <= count; i++) {
+                                final double leftResult = conditionLeftF.evaluateDouble(curKey);
+                                final Boolean result = opF.applyBooleanNullableFromDoubles(leftResult, rightResult);
+                                if (result != null && !result) {
+                                    return false;
+                                }
+                                if (i != count) {
+                                    curKey = previousKeyFunction.getPreviousKey(curKey, 1);
+                                }
                             }
-                            if (i != count) {
-                                curKey = previousKeyFunction.getPreviousKey(curKey, 1);
-                            }
-                        }
-                        return true;
+                            return true;
+                        };
                     }
 
                     @Override
-                    public boolean eval(final IFDateProvider key, final IExpression[] args) {
+                    public IEvaluateBooleanFDate newEvaluateBooleanFDate(final IExpression[] args) {
                         final IBinaryOperation condition = IBinaryOperation.validateComparativeOperation(args[0]);
-                        final int count = args[1].evaluateInteger(key);
-                        final double rightResult = condition.getRight().evaluateDouble(key);
-                        IFDateProvider curKey = key;
-                        for (int i = 1; i <= count; i++) {
-                            final double leftResult = condition.getLeft().evaluateDouble(curKey);
-                            final Boolean result = condition.getOp().applyBooleanNullable(leftResult, rightResult);
-                            if (result != null && !result) {
-                                return false;
+                        final IEvaluateDoubleFDate conditionRightF = condition.getRight().newEvaluateDoubleFDate();
+                        final IEvaluateDoubleFDate conditionLeftF = condition.getLeft().newEvaluateDoubleFDate();
+                        final IEvaluateIntegerFDate countF = args[1].newEvaluateIntegerFDate();
+                        final IBooleanNullableFromDoublesBinaryOp opF = condition.getOp()
+                                .newBooleanNullableFromDoubles();
+                        return key -> {
+                            final int count = countF.evaluateInteger(key);
+                            final double rightResult = conditionRightF.evaluateDouble(key);
+                            IFDateProvider curKey = key;
+                            for (int i = 1; i <= count; i++) {
+                                final double leftResult = conditionLeftF.evaluateDouble(curKey);
+                                final Boolean result = opF.applyBooleanNullableFromDoubles(leftResult, rightResult);
+                                if (result != null && !result) {
+                                    return false;
+                                }
+                                if (i != count) {
+                                    curKey = previousKeyFunction.getPreviousKey(curKey, 1);
+                                }
                             }
-                            if (i != count) {
-                                curKey = previousKeyFunction.getPreviousKey(curKey, 1);
-                            }
-                        }
-                        return true;
+                            return true;
+                        };
                     }
                 };
             }
@@ -835,56 +876,70 @@ public final class HistoricalFunctions {
                     }
 
                     @Override
-                    public int eval(final IExpression[] args) {
+                    public IEvaluateInteger newEvaluateInteger(final IExpression[] args) {
                         throw new UnsupportedOperationException("use time or int key instead");
                     }
 
                     @Override
-                    public int eval(final int key, final IExpression[] args) {
+                    public IEvaluateIntegerKey newEvaluateIntegerKey(final IExpression[] args) {
                         final IBinaryOperation condition = IBinaryOperation.validateComparativeOperation(args[0]);
-                        final int count = args[1].evaluateInteger(key);
-                        final double rightResult = condition.getRight().evaluateDouble(key);
-                        int stableCount = 0;
-                        int curKey = key;
-                        for (int i = 1; i <= count; i++) {
-                            final double leftResult = condition.getLeft().evaluateDouble(curKey);
-                            final Boolean result = condition.getOp().applyBooleanNullable(leftResult, rightResult);
-                            if (result != null) {
-                                if (result) {
-                                    stableCount++;
-                                } else {
-                                    return stableCount;
+                        final IEvaluateDoubleKey conditionRightF = condition.getRight().newEvaluateDoubleKey();
+                        final IEvaluateDoubleKey conditionLeftF = condition.getLeft().newEvaluateDoubleKey();
+                        final IEvaluateIntegerKey countF = args[1].newEvaluateIntegerKey();
+                        final IBooleanNullableFromDoublesBinaryOp opF = condition.getOp()
+                                .newBooleanNullableFromDoubles();
+                        return key -> {
+                            final int count = countF.evaluateInteger(key);
+                            final double rightResult = conditionRightF.evaluateDouble(key);
+                            int stableCount = 0;
+                            int curKey = key;
+                            for (int i = 1; i <= count; i++) {
+                                final double leftResult = conditionLeftF.evaluateDouble(curKey);
+                                final Boolean result = opF.applyBooleanNullableFromDoubles(leftResult, rightResult);
+                                if (result != null) {
+                                    if (result) {
+                                        stableCount++;
+                                    } else {
+                                        return stableCount;
+                                    }
+                                }
+                                if (i != count) {
+                                    curKey = previousKeyFunction.getPreviousKey(curKey, 1);
                                 }
                             }
-                            if (i != count) {
-                                curKey = previousKeyFunction.getPreviousKey(curKey, 1);
-                            }
-                        }
-                        return stableCount;
+                            return stableCount;
+                        };
                     }
 
                     @Override
-                    public int eval(final IFDateProvider key, final IExpression[] args) {
+                    public IEvaluateIntegerFDate newEvaluateIntegerFDate(final IExpression[] args) {
                         final IBinaryOperation condition = IBinaryOperation.validateComparativeOperation(args[0]);
-                        final int count = args[1].evaluateInteger(key);
-                        final double rightResult = condition.getRight().evaluateDouble(key);
-                        int stableCount = 0;
-                        IFDateProvider curKey = key;
-                        for (int i = 1; i <= count; i++) {
-                            final double leftResult = condition.getLeft().evaluateDouble(curKey);
-                            final Boolean result = condition.getOp().applyBooleanNullable(leftResult, rightResult);
-                            if (result != null) {
-                                if (result) {
-                                    stableCount++;
-                                } else {
-                                    return stableCount;
+                        final IEvaluateDoubleFDate conditionRightF = condition.getRight().newEvaluateDoubleFDate();
+                        final IEvaluateDoubleFDate conditionLeftF = condition.getLeft().newEvaluateDoubleFDate();
+                        final IEvaluateIntegerFDate countF = args[1].newEvaluateIntegerFDate();
+                        final IBooleanNullableFromDoublesBinaryOp opF = condition.getOp()
+                                .newBooleanNullableFromDoubles();
+                        return key -> {
+                            final int count = countF.evaluateInteger(key);
+                            final double rightResult = conditionRightF.evaluateDouble(key);
+                            int stableCount = 0;
+                            IFDateProvider curKey = key;
+                            for (int i = 1; i <= count; i++) {
+                                final double leftResult = conditionLeftF.evaluateDouble(curKey);
+                                final Boolean result = opF.applyBooleanNullableFromDoubles(leftResult, rightResult);
+                                if (result != null) {
+                                    if (result) {
+                                        stableCount++;
+                                    } else {
+                                        return stableCount;
+                                    }
+                                }
+                                if (i != count) {
+                                    curKey = previousKeyFunction.getPreviousKey(curKey, 1);
                                 }
                             }
-                            if (i != count) {
-                                curKey = previousKeyFunction.getPreviousKey(curKey, 1);
-                            }
-                        }
-                        return stableCount;
+                            return stableCount;
+                        };
                     }
                 };
             }
@@ -1041,7 +1096,8 @@ public final class HistoricalFunctions {
                         int curKey = key;
                         for (int i = 1; i <= count; i++) {
                             final double rightResult = condition.getRight().evaluateDouble(curKey);
-                            final Boolean result = condition.getOp().applyBooleanNullable(leftResult, rightResult);
+                            final Boolean result = condition.getOp()
+                                    .applyBooleanNullableFromDoubles(leftResult, rightResult);
                             if (result != null && !result) {
                                 return false;
                             }
@@ -1060,7 +1116,8 @@ public final class HistoricalFunctions {
                         IFDateProvider curKey = key;
                         for (int i = 1; i <= count; i++) {
                             final double rightResult = condition.getRight().evaluateDouble(curKey);
-                            final Boolean result = condition.getOp().applyBooleanNullable(leftResult, rightResult);
+                            final Boolean result = condition.getOp()
+                                    .applyBooleanNullableFromDoubles(leftResult, rightResult);
                             if (result != null && !result) {
                                 return false;
                             }
@@ -1226,7 +1283,8 @@ public final class HistoricalFunctions {
                         int curKey = key;
                         for (int i = 1; i <= count; i++) {
                             final double rightResult = condition.getRight().evaluateDouble(curKey);
-                            final Boolean result = condition.getOp().applyBooleanNullable(leftResult, rightResult);
+                            final Boolean result = condition.getOp()
+                                    .applyBooleanNullableFromDoubles(leftResult, rightResult);
                             if (result != null) {
                                 if (result) {
                                     stableCount++;
@@ -1250,7 +1308,8 @@ public final class HistoricalFunctions {
                         IFDateProvider curKey = key;
                         for (int i = 1; i <= count; i++) {
                             final double rightResult = condition.getRight().evaluateDouble(curKey);
-                            final Boolean result = condition.getOp().applyBooleanNullable(leftResult, rightResult);
+                            final Boolean result = condition.getOp()
+                                    .applyBooleanNullableFromDoubles(leftResult, rightResult);
                             if (result != null) {
                                 if (result) {
                                     stableCount++;
@@ -1778,7 +1837,7 @@ public final class HistoricalFunctions {
                         for (int i = 1; i <= count; i++) {
                             final double leftResult = condition.getLeft().evaluateDouble(curKey);
                             final boolean result = Booleans
-                                    .isTrue(condition.getOp().applyBooleanNullable(leftResult, rightResult));
+                                    .isTrue(condition.getOp().applyBooleanNullableFromDoubles(leftResult, rightResult));
                             if (result) {
                                 return true;
                             }
@@ -1798,7 +1857,7 @@ public final class HistoricalFunctions {
                         for (int i = 1; i <= count; i++) {
                             final double leftResult = condition.getLeft().evaluateDouble(curKey);
                             final boolean result = Booleans
-                                    .isTrue(condition.getOp().applyBooleanNullable(leftResult, rightResult));
+                                    .isTrue(condition.getOp().applyBooleanNullableFromDoubles(leftResult, rightResult));
                             if (result) {
                                 return true;
                             }
@@ -1965,7 +2024,7 @@ public final class HistoricalFunctions {
                         for (int i = 1; i <= count; i++) {
                             final double leftResult = condition.getLeft().evaluateDouble(curKey);
                             final boolean result = Booleans
-                                    .isTrue(condition.getOp().applyBooleanNullable(leftResult, rightResult));
+                                    .isTrue(condition.getOp().applyBooleanNullableFromDoubles(leftResult, rightResult));
                             if (result) {
                                 occursCount++;
                             }
@@ -1986,7 +2045,7 @@ public final class HistoricalFunctions {
                         for (int i = 1; i <= count; i++) {
                             final double leftResult = condition.getLeft().evaluateDouble(curKey);
                             final boolean result = Booleans
-                                    .isTrue(condition.getOp().applyBooleanNullable(leftResult, rightResult));
+                                    .isTrue(condition.getOp().applyBooleanNullableFromDoubles(leftResult, rightResult));
                             if (result) {
                                 occursCount++;
                             }
@@ -2152,7 +2211,7 @@ public final class HistoricalFunctions {
                         for (int i = 1; i <= count; i++) {
                             final double rightResult = condition.getRight().evaluateDouble(curKey);
                             final boolean result = Booleans
-                                    .isTrue(condition.getOp().applyBooleanNullable(leftResult, rightResult));
+                                    .isTrue(condition.getOp().applyBooleanNullableFromDoubles(leftResult, rightResult));
                             if (result) {
                                 return true;
                             }
@@ -2172,7 +2231,7 @@ public final class HistoricalFunctions {
                         for (int i = 1; i <= count; i++) {
                             final double rightResult = condition.getRight().evaluateDouble(curKey);
                             final boolean result = Booleans
-                                    .isTrue(condition.getOp().applyBooleanNullable(leftResult, rightResult));
+                                    .isTrue(condition.getOp().applyBooleanNullableFromDoubles(leftResult, rightResult));
                             if (result) {
                                 return true;
                             }
@@ -2339,7 +2398,7 @@ public final class HistoricalFunctions {
                         for (int i = 1; i <= count; i++) {
                             final double rightResult = condition.getRight().evaluateDouble(curKey);
                             final boolean result = Booleans
-                                    .isTrue(condition.getOp().applyBooleanNullable(leftResult, rightResult));
+                                    .isTrue(condition.getOp().applyBooleanNullableFromDoubles(leftResult, rightResult));
                             if (result) {
                                 occursCount++;
                             }
@@ -2360,7 +2419,7 @@ public final class HistoricalFunctions {
                         for (int i = 1; i <= count; i++) {
                             final double rightResult = condition.getRight().evaluateDouble(curKey);
                             final boolean result = Booleans
-                                    .isTrue(condition.getOp().applyBooleanNullable(leftResult, rightResult));
+                                    .isTrue(condition.getOp().applyBooleanNullableFromDoubles(leftResult, rightResult));
                             if (result) {
                                 occursCount++;
                             }

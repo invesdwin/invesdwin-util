@@ -2,7 +2,9 @@ package de.invesdwin.util.math.expression.variable;
 
 import javax.annotation.concurrent.Immutable;
 
-import de.invesdwin.util.time.fdate.IFDateProvider;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBoolean;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanFDate;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanKey;
 
 @Immutable
 public abstract class ABooleanConstant extends AConstant implements IBooleanVariable {
@@ -14,23 +16,23 @@ public abstract class ABooleanConstant extends AConstant implements IBooleanVari
     }
 
     @Override
-    public final boolean getValue() {
-        return value;
+    public final IEvaluateBoolean newEvaluateBoolean() {
+        return () -> value;
     }
 
     @Override
-    public final boolean getValue(final IFDateProvider key) {
-        return value;
+    public final IEvaluateBooleanFDate newEvaluateBooleanFDate() {
+        return key -> value;
     }
 
     @Override
-    public final boolean getValue(final int key) {
-        return value;
+    public final IEvaluateBooleanKey newEvaluateBooleanKey() {
+        return key -> value;
     }
 
     @Override
     public String toString() {
-        return getExpressionName() + ": " + getValue();
+        return getExpressionName() + ": " + value;
     }
 
 }

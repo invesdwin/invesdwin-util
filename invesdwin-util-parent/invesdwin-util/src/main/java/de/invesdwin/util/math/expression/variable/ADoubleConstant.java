@@ -2,7 +2,9 @@ package de.invesdwin.util.math.expression.variable;
 
 import javax.annotation.concurrent.Immutable;
 
-import de.invesdwin.util.time.fdate.IFDateProvider;
+import de.invesdwin.util.math.expression.lambda.IEvaluateDouble;
+import de.invesdwin.util.math.expression.lambda.IEvaluateDoubleFDate;
+import de.invesdwin.util.math.expression.lambda.IEvaluateDoubleKey;
 
 @Immutable
 public abstract class ADoubleConstant extends AConstant implements IDoubleVariable {
@@ -14,23 +16,23 @@ public abstract class ADoubleConstant extends AConstant implements IDoubleVariab
     }
 
     @Override
-    public final double getValue() {
-        return value;
+    public final IEvaluateDouble newEvaluateDouble() {
+        return () -> value;
     }
 
     @Override
-    public final double getValue(final IFDateProvider key) {
-        return value;
+    public final IEvaluateDoubleFDate newEvaluateDoubleFDate() {
+        return key -> value;
     }
 
     @Override
-    public final double getValue(final int key) {
-        return value;
+    public final IEvaluateDoubleKey newEvaluateDoubleKey() {
+        return key -> value;
     }
 
     @Override
     public String toString() {
-        return getExpressionName() + ": " + getValue();
+        return getExpressionName() + ": " + value;
     }
 
 }

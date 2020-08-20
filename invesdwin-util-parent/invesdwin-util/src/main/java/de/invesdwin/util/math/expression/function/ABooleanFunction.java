@@ -7,16 +7,18 @@ import de.invesdwin.util.math.expression.ExpressionType;
 import de.invesdwin.util.math.expression.IExpression;
 import de.invesdwin.util.math.expression.eval.IParsedExpression;
 import de.invesdwin.util.math.expression.eval.function.BooleanFunctionCall;
-import de.invesdwin.util.time.fdate.IFDateProvider;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBoolean;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanFDate;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanKey;
 
 @NotThreadSafe
 public abstract class ABooleanFunction extends AFunction {
 
-    public abstract boolean eval(IFDateProvider key, IExpression[] args);
+    public abstract IEvaluateBooleanFDate newEvaluateBooleanFDate(IExpression[] args);
 
-    public abstract boolean eval(int key, IExpression[] args);
+    public abstract IEvaluateBooleanKey newEvaluateBooleanKey(IExpression[] args);
 
-    public abstract boolean eval(IExpression[] args);
+    public abstract IEvaluateBoolean newEvaluateBoolean(IExpression[] args);
 
     @Override
     public final IParsedExpression newCall(final String context, final IParsedExpression[] parameters) {

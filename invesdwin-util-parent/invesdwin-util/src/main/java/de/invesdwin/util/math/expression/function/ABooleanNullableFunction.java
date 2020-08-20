@@ -7,16 +7,18 @@ import de.invesdwin.util.math.expression.ExpressionType;
 import de.invesdwin.util.math.expression.IExpression;
 import de.invesdwin.util.math.expression.eval.IParsedExpression;
 import de.invesdwin.util.math.expression.eval.function.BooleanNullableFunctionCall;
-import de.invesdwin.util.time.fdate.IFDateProvider;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanNullable;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanNullableFDate;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanNullableKey;
 
 @NotThreadSafe
 public abstract class ABooleanNullableFunction extends AFunction {
 
-    public abstract Boolean eval(IFDateProvider key, IExpression[] args);
+    public abstract IEvaluateBooleanNullableFDate newEvaluateBooleanNullableFDate(IExpression[] args);
 
-    public abstract Boolean eval(int key, IExpression[] args);
+    public abstract IEvaluateBooleanNullableKey newEvaluateBooleanNullableKey(IExpression[] args);
 
-    public abstract Boolean eval(IExpression[] args);
+    public abstract IEvaluateBooleanNullable newEvaluateBooleanNullable(IExpression[] args);
 
     @Override
     public final IParsedExpression newCall(final String context, final IParsedExpression[] parameters) {

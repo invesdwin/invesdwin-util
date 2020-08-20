@@ -2,7 +2,18 @@ package de.invesdwin.util.math.expression;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import de.invesdwin.util.time.fdate.IFDateProvider;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBoolean;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanFDate;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanKey;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanNullable;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanNullableFDate;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanNullableKey;
+import de.invesdwin.util.math.expression.lambda.IEvaluateDouble;
+import de.invesdwin.util.math.expression.lambda.IEvaluateDoubleFDate;
+import de.invesdwin.util.math.expression.lambda.IEvaluateDoubleKey;
+import de.invesdwin.util.math.expression.lambda.IEvaluateInteger;
+import de.invesdwin.util.math.expression.lambda.IEvaluateIntegerFDate;
+import de.invesdwin.util.math.expression.lambda.IEvaluateIntegerKey;
 
 @NotThreadSafe
 public abstract class ADelegateExpression implements IExpression {
@@ -10,63 +21,63 @@ public abstract class ADelegateExpression implements IExpression {
     protected abstract IExpression getDelegate();
 
     @Override
-    public double evaluateDouble(final IFDateProvider key) {
-        return getDelegate().evaluateDouble(key);
+    public IEvaluateBoolean newEvaluateBoolean() {
+        return getDelegate().newEvaluateBoolean();
     }
 
     @Override
-    public double evaluateDouble(final int key) {
-        return getDelegate().evaluateDouble(key);
+    public IEvaluateBooleanFDate newEvaluateBooleanFDate() {
+        return getDelegate().newEvaluateBooleanFDate();
     }
 
     @Override
-    public double evaluateDouble() {
-        return getDelegate().evaluateDouble();
+    public IEvaluateBooleanKey newEvaluateBooleanKey() {
+        return getDelegate().newEvaluateBooleanKey();
     }
 
     @Override
-    public int evaluateInteger(final IFDateProvider key) {
-        return getDelegate().evaluateInteger(key);
+    public IEvaluateBooleanNullable newEvaluateBooleanNullable() {
+        return getDelegate().newEvaluateBooleanNullable();
     }
 
     @Override
-    public int evaluateInteger(final int key) {
-        return getDelegate().evaluateInteger(key);
+    public IEvaluateBooleanNullableFDate newEvaluateBooleanNullableFDate() {
+        return getDelegate().newEvaluateBooleanNullableFDate();
     }
 
     @Override
-    public int evaluateInteger() {
-        return getDelegate().evaluateInteger();
+    public IEvaluateBooleanNullableKey newEvaluateBooleanNullableKey() {
+        return getDelegate().newEvaluateBooleanNullableKey();
     }
 
     @Override
-    public boolean evaluateBoolean() {
-        return getDelegate().evaluateBoolean();
+    public IEvaluateDouble newEvaluateDouble() {
+        return getDelegate().newEvaluateDouble();
     }
 
     @Override
-    public boolean evaluateBoolean(final IFDateProvider key) {
-        return getDelegate().evaluateBoolean(key);
+    public IEvaluateDoubleFDate newEvaluateDoubleFDate() {
+        return getDelegate().newEvaluateDoubleFDate();
     }
 
     @Override
-    public boolean evaluateBoolean(final int key) {
-        return getDelegate().evaluateBoolean(key);
+    public IEvaluateDoubleKey newEvaluateDoubleKey() {
+        return getDelegate().newEvaluateDoubleKey();
     }
 
     @Override
-    public Boolean evaluateBooleanNullable() {
-        return getDelegate().evaluateBooleanNullable();
+    public IEvaluateInteger newEvaluateInteger() {
+        return getDelegate().newEvaluateInteger();
     }
 
     @Override
-    public Boolean evaluateBooleanNullable(final IFDateProvider key) {
-        return getDelegate().evaluateBooleanNullable(key);
+    public IEvaluateIntegerFDate newEvaluateIntegerFDate() {
+        return getDelegate().newEvaluateIntegerFDate();
     }
 
     @Override
-    public Boolean evaluateBooleanNullable(final int key) {
-        return getDelegate().evaluateBooleanNullable(key);
+    public IEvaluateIntegerKey newEvaluateIntegerKey() {
+        return getDelegate().newEvaluateIntegerKey();
     }
 
     @Override

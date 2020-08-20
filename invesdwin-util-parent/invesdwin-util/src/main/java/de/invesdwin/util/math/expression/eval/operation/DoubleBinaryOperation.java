@@ -7,8 +7,23 @@ import de.invesdwin.util.math.expression.ExpressionType;
 import de.invesdwin.util.math.expression.IExpression;
 import de.invesdwin.util.math.expression.eval.ConstantExpression;
 import de.invesdwin.util.math.expression.eval.IParsedExpression;
+import de.invesdwin.util.math.expression.eval.operation.lambda.IBooleanFromDoublesBinaryOp;
+import de.invesdwin.util.math.expression.eval.operation.lambda.IBooleanNullableFromDoublesBinaryOp;
+import de.invesdwin.util.math.expression.eval.operation.lambda.IDoubleFromDoublesBinaryOp;
+import de.invesdwin.util.math.expression.eval.operation.lambda.IIntegerFromDoublesBinaryOp;
 import de.invesdwin.util.math.expression.eval.operation.simple.IntegerBinaryOperation;
-import de.invesdwin.util.time.fdate.IFDateProvider;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBoolean;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanFDate;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanKey;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanNullable;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanNullableFDate;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanNullableKey;
+import de.invesdwin.util.math.expression.lambda.IEvaluateDouble;
+import de.invesdwin.util.math.expression.lambda.IEvaluateDoubleFDate;
+import de.invesdwin.util.math.expression.lambda.IEvaluateDoubleKey;
+import de.invesdwin.util.math.expression.lambda.IEvaluateInteger;
+import de.invesdwin.util.math.expression.lambda.IEvaluateIntegerFDate;
+import de.invesdwin.util.math.expression.lambda.IEvaluateIntegerKey;
 
 @Immutable
 public class DoubleBinaryOperation implements IBinaryOperation {
@@ -55,99 +70,147 @@ public class DoubleBinaryOperation implements IBinaryOperation {
     }
 
     @Override
-    public double evaluateDouble(final IFDateProvider key) {
-        final double a = left.evaluateDouble(key);
-        final double b = right.evaluateDouble(key);
-
-        return op.applyDouble(a, b);
+    public IEvaluateDoubleFDate newEvaluateDoubleFDate() {
+        final IEvaluateDoubleFDate leftF = left.newEvaluateDoubleFDate();
+        final IEvaluateDoubleFDate rightF = right.newEvaluateDoubleFDate();
+        final IDoubleFromDoublesBinaryOp opF = op.newDoubleFromDoubles();
+        return key -> {
+            final double a = leftF.evaluateDouble(key);
+            final double b = rightF.evaluateDouble(key);
+            return opF.applyDoubleFromDoubles(a, b);
+        };
     }
 
     @Override
-    public double evaluateDouble(final int key) {
-        final double a = left.evaluateDouble(key);
-        final double b = right.evaluateDouble(key);
-
-        return op.applyDouble(a, b);
+    public IEvaluateDoubleKey newEvaluateDoubleKey() {
+        final IEvaluateDoubleKey leftF = left.newEvaluateDoubleKey();
+        final IEvaluateDoubleKey rightF = right.newEvaluateDoubleKey();
+        final IDoubleFromDoublesBinaryOp opF = op.newDoubleFromDoubles();
+        return key -> {
+            final double a = leftF.evaluateDouble(key);
+            final double b = rightF.evaluateDouble(key);
+            return opF.applyDoubleFromDoubles(a, b);
+        };
     }
 
     @Override
-    public double evaluateDouble() {
-        final double a = left.evaluateDouble();
-        final double b = right.evaluateDouble();
-
-        return op.applyDouble(a, b);
+    public IEvaluateDouble newEvaluateDouble() {
+        final IEvaluateDouble leftF = left.newEvaluateDouble();
+        final IEvaluateDouble rightF = right.newEvaluateDouble();
+        final IDoubleFromDoublesBinaryOp opF = op.newDoubleFromDoubles();
+        return () -> {
+            final double a = leftF.evaluateDouble();
+            final double b = rightF.evaluateDouble();
+            return opF.applyDoubleFromDoubles(a, b);
+        };
     }
 
     @Override
-    public int evaluateInteger(final IFDateProvider key) {
-        final double a = left.evaluateDouble(key);
-        final double b = right.evaluateDouble(key);
-
-        return op.applyInteger(a, b);
+    public IEvaluateIntegerFDate newEvaluateIntegerFDate() {
+        final IEvaluateDoubleFDate leftF = left.newEvaluateDoubleFDate();
+        final IEvaluateDoubleFDate rightF = right.newEvaluateDoubleFDate();
+        final IIntegerFromDoublesBinaryOp opF = op.newIntegerFromDoubles();
+        return key -> {
+            final double a = leftF.evaluateDouble(key);
+            final double b = rightF.evaluateDouble(key);
+            return opF.applyIntegerFromDoubles(a, b);
+        };
     }
 
     @Override
-    public int evaluateInteger(final int key) {
-        final double a = left.evaluateDouble(key);
-        final double b = right.evaluateDouble(key);
-
-        return op.applyInteger(a, b);
+    public IEvaluateIntegerKey newEvaluateIntegerKey() {
+        final IEvaluateDoubleKey leftF = left.newEvaluateDoubleKey();
+        final IEvaluateDoubleKey rightF = right.newEvaluateDoubleKey();
+        final IIntegerFromDoublesBinaryOp opF = op.newIntegerFromDoubles();
+        return key -> {
+            final double a = leftF.evaluateDouble(key);
+            final double b = rightF.evaluateDouble(key);
+            return opF.applyIntegerFromDoubles(a, b);
+        };
     }
 
     @Override
-    public int evaluateInteger() {
-        final double a = left.evaluateDouble();
-        final double b = right.evaluateDouble();
-
-        return op.applyInteger(a, b);
+    public IEvaluateInteger newEvaluateInteger() {
+        final IEvaluateDouble leftF = left.newEvaluateDouble();
+        final IEvaluateDouble rightF = right.newEvaluateDouble();
+        final IIntegerFromDoublesBinaryOp opF = op.newIntegerFromDoubles();
+        return () -> {
+            final double a = leftF.evaluateDouble();
+            final double b = rightF.evaluateDouble();
+            return opF.applyIntegerFromDoubles(a, b);
+        };
     }
 
     @Override
-    public Boolean evaluateBooleanNullable(final IFDateProvider key) {
-        final double a = left.evaluateDouble(key);
-        final double b = right.evaluateDouble(key);
-
-        return op.applyBooleanNullable(a, b);
+    public IEvaluateBooleanNullableFDate newEvaluateBooleanNullableFDate() {
+        final IEvaluateDoubleFDate leftF = left.newEvaluateDoubleFDate();
+        final IEvaluateDoubleFDate rightF = right.newEvaluateDoubleFDate();
+        final IBooleanNullableFromDoublesBinaryOp opF = op.newBooleanNullableFromDoubles();
+        return key -> {
+            final double a = leftF.evaluateDouble(key);
+            final double b = rightF.evaluateDouble(key);
+            return opF.applyBooleanNullableFromDoubles(a, b);
+        };
     }
 
     @Override
-    public Boolean evaluateBooleanNullable(final int key) {
-        final double a = left.evaluateDouble(key);
-        final double b = right.evaluateDouble(key);
-
-        return op.applyBooleanNullable(a, b);
+    public IEvaluateBooleanNullableKey newEvaluateBooleanNullableKey() {
+        final IEvaluateDoubleKey leftF = left.newEvaluateDoubleKey();
+        final IEvaluateDoubleKey rightF = right.newEvaluateDoubleKey();
+        final IBooleanNullableFromDoublesBinaryOp opF = op.newBooleanNullableFromDoubles();
+        return key -> {
+            final double a = leftF.evaluateDouble(key);
+            final double b = rightF.evaluateDouble(key);
+            return opF.applyBooleanNullableFromDoubles(a, b);
+        };
     }
 
     @Override
-    public Boolean evaluateBooleanNullable() {
-        final double a = left.evaluateDouble();
-        final double b = right.evaluateDouble();
-
-        return op.applyBooleanNullable(a, b);
+    public IEvaluateBooleanNullable newEvaluateBooleanNullable() {
+        final IEvaluateDouble leftF = left.newEvaluateDouble();
+        final IEvaluateDouble rightF = right.newEvaluateDouble();
+        final IBooleanNullableFromDoublesBinaryOp opF = op.newBooleanNullableFromDoubles();
+        return () -> {
+            final double a = leftF.evaluateDouble();
+            final double b = rightF.evaluateDouble();
+            return opF.applyBooleanNullableFromDoubles(a, b);
+        };
     }
 
     @Override
-    public boolean evaluateBoolean(final IFDateProvider key) {
-        final double a = left.evaluateDouble(key);
-        final double b = right.evaluateDouble(key);
-
-        return op.applyBoolean(a, b);
+    public IEvaluateBooleanFDate newEvaluateBooleanFDate() {
+        final IEvaluateDoubleFDate leftF = left.newEvaluateDoubleFDate();
+        final IEvaluateDoubleFDate rightF = right.newEvaluateDoubleFDate();
+        final IBooleanFromDoublesBinaryOp opF = op.newBooleanFromDoubles();
+        return key -> {
+            final double a = leftF.evaluateDouble(key);
+            final double b = rightF.evaluateDouble(key);
+            return opF.applyBooleanFromDoubles(a, b);
+        };
     }
 
     @Override
-    public boolean evaluateBoolean(final int key) {
-        final double a = left.evaluateDouble(key);
-        final double b = right.evaluateDouble(key);
-
-        return op.applyBoolean(a, b);
+    public IEvaluateBooleanKey newEvaluateBooleanKey() {
+        final IEvaluateDoubleKey leftF = left.newEvaluateDoubleKey();
+        final IEvaluateDoubleKey rightF = right.newEvaluateDoubleKey();
+        final IBooleanFromDoublesBinaryOp opF = op.newBooleanFromDoubles();
+        return key -> {
+            final double a = leftF.evaluateDouble(key);
+            final double b = rightF.evaluateDouble(key);
+            return opF.applyBooleanFromDoubles(a, b);
+        };
     }
 
     @Override
-    public boolean evaluateBoolean() {
-        final double a = left.evaluateDouble();
-        final double b = right.evaluateDouble();
-
-        return op.applyBoolean(a, b);
+    public IEvaluateBoolean newEvaluateBoolean() {
+        final IEvaluateDouble leftF = left.newEvaluateDouble();
+        final IEvaluateDouble rightF = right.newEvaluateDouble();
+        final IBooleanFromDoublesBinaryOp opF = op.newBooleanFromDoubles();
+        return () -> {
+            final double a = leftF.evaluateDouble();
+            final double b = rightF.evaluateDouble();
+            return opF.applyBooleanFromDoubles(a, b);
+        };
     }
 
     @Override
@@ -188,7 +251,7 @@ public class DoubleBinaryOperation implements IBinaryOperation {
     }
 
     private IParsedExpression newConstantExpression() {
-        return new ConstantExpression(evaluateDouble());
+        return new ConstantExpression(newEvaluateDouble().evaluateDouble());
     }
 
     protected IBinaryOperation newBinaryOperation(final IParsedExpression left, final IParsedExpression right) {
@@ -215,13 +278,17 @@ public class DoubleBinaryOperation implements IBinaryOperation {
             if (childOp.getLeft().isConstant()) {
                 if (op == Op.ADD) {
                     return newBinaryOperation(
-                            new ConstantExpression(newLeft.evaluateDouble() + childOp.getLeft().evaluateDouble(),
+                            new ConstantExpression(
+                                    newLeft.newEvaluateDouble().evaluateDouble()
+                                            + childOp.getLeft().newEvaluateDouble().evaluateDouble(),
                                     ExpressionType.determineType(getType(), newLeft, childOp.getLeft())),
                             childOp.getRight());
                 }
                 if (op == Op.MULTIPLY) {
                     return newBinaryOperation(
-                            new ConstantExpression(newLeft.evaluateDouble() * childOp.getLeft().evaluateDouble(),
+                            new ConstantExpression(
+                                    newLeft.newEvaluateDouble().evaluateDouble()
+                                            * childOp.getLeft().newEvaluateDouble().evaluateDouble(),
                                     ExpressionType.determineType(getType(), newLeft, childOp.getLeft())),
                             childOp.getRight());
                 }

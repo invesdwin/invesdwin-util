@@ -4,15 +4,17 @@ import de.invesdwin.util.math.expression.ExpressionReturnType;
 import de.invesdwin.util.math.expression.ExpressionType;
 import de.invesdwin.util.math.expression.eval.variable.AVariableReference;
 import de.invesdwin.util.math.expression.eval.variable.BooleanVariableReference;
-import de.invesdwin.util.time.fdate.IFDateProvider;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBoolean;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanFDate;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanKey;
 
 public interface IBooleanVariable extends IVariable {
 
-    boolean getValue(IFDateProvider key);
+    IEvaluateBooleanFDate newEvaluateBooleanFDate();
 
-    boolean getValue(int key);
+    IEvaluateBooleanKey newEvaluateBooleanKey();
 
-    boolean getValue();
+    IEvaluateBoolean newEvaluateBoolean();
 
     @Override
     default ExpressionReturnType getReturnType() {

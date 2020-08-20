@@ -7,16 +7,18 @@ import de.invesdwin.util.math.expression.ExpressionType;
 import de.invesdwin.util.math.expression.IExpression;
 import de.invesdwin.util.math.expression.eval.IParsedExpression;
 import de.invesdwin.util.math.expression.eval.function.IntegerFunctionCall;
-import de.invesdwin.util.time.fdate.IFDateProvider;
+import de.invesdwin.util.math.expression.lambda.IEvaluateInteger;
+import de.invesdwin.util.math.expression.lambda.IEvaluateIntegerFDate;
+import de.invesdwin.util.math.expression.lambda.IEvaluateIntegerKey;
 
 @NotThreadSafe
 public abstract class AIntegerFunction extends AFunction {
 
-    public abstract int eval(IFDateProvider key, IExpression[] args);
+    public abstract IEvaluateIntegerFDate newEvaluateIntegerFDate(IExpression[] args);
 
-    public abstract int eval(int key, IExpression[] args);
+    public abstract IEvaluateIntegerKey newEvaluateIntegerKey(IExpression[] args);
 
-    public abstract int eval(IExpression[] args);
+    public abstract IEvaluateInteger newEvaluateInteger(IExpression[] args);
 
     @Override
     public final IParsedExpression newCall(final String context, final IParsedExpression[] parameters) {

@@ -7,16 +7,18 @@ import de.invesdwin.util.math.expression.ExpressionType;
 import de.invesdwin.util.math.expression.IExpression;
 import de.invesdwin.util.math.expression.eval.IParsedExpression;
 import de.invesdwin.util.math.expression.eval.function.DoubleFunctionCall;
-import de.invesdwin.util.time.fdate.IFDateProvider;
+import de.invesdwin.util.math.expression.lambda.IEvaluateDouble;
+import de.invesdwin.util.math.expression.lambda.IEvaluateDoubleFDate;
+import de.invesdwin.util.math.expression.lambda.IEvaluateDoubleKey;
 
 @NotThreadSafe
 public abstract class ADoubleFunction extends AFunction {
 
-    public abstract double eval(IFDateProvider key, IExpression[] args);
+    public abstract IEvaluateDoubleFDate newEvaluateDoubleFDate(IExpression[] args);
 
-    public abstract double eval(int key, IExpression[] args);
+    public abstract IEvaluateDoubleKey newEvaluateDoubleKey(IExpression[] args);
 
-    public abstract double eval(IExpression[] args);
+    public abstract IEvaluateDouble newEvaluateDouble(IExpression[] args);
 
     @Override
     public final IParsedExpression newCall(final String context, final IParsedExpression[] parameters) {
