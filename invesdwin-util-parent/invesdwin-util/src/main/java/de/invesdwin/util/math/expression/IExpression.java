@@ -1,70 +1,23 @@
 package de.invesdwin.util.math.expression;
 
-import de.invesdwin.util.time.fdate.IFDateProvider;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBoolean;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanFDate;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanKey;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanNullable;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanNullableFDate;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanNullableKey;
+import de.invesdwin.util.math.expression.lambda.IEvaluateDouble;
+import de.invesdwin.util.math.expression.lambda.IEvaluateDoubleFDate;
+import de.invesdwin.util.math.expression.lambda.IEvaluateDoubleKey;
+import de.invesdwin.util.math.expression.lambda.IEvaluateInteger;
+import de.invesdwin.util.math.expression.lambda.IEvaluateIntegerFDate;
+import de.invesdwin.util.math.expression.lambda.IEvaluateIntegerKey;
 
-public interface IExpression {
+public interface IExpression extends IEvaluateDoubleFDate, IEvaluateDoubleKey, IEvaluateDouble, IEvaluateIntegerFDate,
+        IEvaluateIntegerKey, IEvaluateInteger, IEvaluateBooleanNullableFDate, IEvaluateBooleanNullableKey,
+        IEvaluateBooleanNullable, IEvaluateBooleanFDate, IEvaluateBooleanKey, IEvaluateBoolean {
 
     IExpression[] EMPTY_EXPRESSIONS = new IExpression[0];
-
-    /**
-     * evaluates the expression using the current time key
-     */
-    double evaluateDouble(IFDateProvider key);
-
-    /**
-     * evaluates the expression using the current int key
-     */
-    double evaluateDouble(int key);
-
-    /**
-     * evaluates the expression using the current available time/int key
-     */
-    double evaluateDouble();
-
-    /**
-     * Double.NaN is interpreted as 0.
-     */
-    int evaluateInteger(IFDateProvider key);
-
-    /**
-     * Double.NaN is interpreted as 0.
-     */
-    int evaluateInteger(int key);
-
-    /**
-     * Double.NaN is interpreted as 0.
-     */
-    int evaluateInteger();
-
-    /**
-     * Double.NaN is interpreted as false.
-     */
-    boolean evaluateBoolean();
-
-    /**
-     * Double.NaN is interpreted as false.
-     */
-    boolean evaluateBoolean(IFDateProvider key);
-
-    /**
-     * Double.NaN is interpreted as false.
-     */
-    boolean evaluateBoolean(int key);
-
-    /**
-     * Double.NaN is interpreted as null.
-     */
-    Boolean evaluateBooleanNullable();
-
-    /**
-     * Double.NaN is interpreted as null.
-     */
-    Boolean evaluateBooleanNullable(IFDateProvider key);
-
-    /**
-     * Double.NaN is interpreted as null.
-     */
-    Boolean evaluateBooleanNullable(int key);
 
     boolean isConstant();
 

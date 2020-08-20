@@ -1,5 +1,6 @@
 package de.invesdwin.util.concurrent.priority;
 
+@FunctionalInterface
 public interface IPriorityProvider {
 
     double MISSING_PRIORITY = Double.NaN;
