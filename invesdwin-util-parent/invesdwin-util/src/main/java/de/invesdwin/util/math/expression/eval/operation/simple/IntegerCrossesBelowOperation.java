@@ -6,7 +6,6 @@ import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.expression.ExpressionType;
 import de.invesdwin.util.math.expression.eval.IParsedExpression;
 import de.invesdwin.util.math.expression.eval.operation.DoubleCrossesBelowOperation;
-import de.invesdwin.util.math.expression.eval.operation.IBinaryOperation;
 import de.invesdwin.util.math.expression.function.IPreviousKeyFunction;
 import de.invesdwin.util.time.fdate.IFDateProvider;
 
@@ -206,11 +205,6 @@ public class IntegerCrossesBelowOperation extends DoubleCrossesBelowOperation {
     @Override
     public boolean evaluateBoolean() {
         throw new UnsupportedOperationException("crosses below operation is only supported with time or int index");
-    }
-
-    @Override
-    protected IBinaryOperation newBinaryOperation(final IParsedExpression left, final IParsedExpression right) {
-        throw new UnsupportedOperationException("already simplified");
     }
 
     @Override

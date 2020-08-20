@@ -7,7 +7,6 @@ import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.expression.ExpressionType;
 import de.invesdwin.util.math.expression.eval.IParsedExpression;
 import de.invesdwin.util.math.expression.eval.operation.BooleanNullableAndOperation;
-import de.invesdwin.util.math.expression.eval.operation.IBinaryOperation;
 import de.invesdwin.util.time.fdate.IFDateProvider;
 
 @Immutable
@@ -66,11 +65,6 @@ public class BooleanAndOperation extends BooleanNullableAndOperation {
     @Override
     public Boolean evaluateBooleanNullable() {
         return evaluateBoolean();
-    }
-
-    @Override
-    protected IBinaryOperation newBinaryOperation(final IParsedExpression left, final IParsedExpression right) {
-        throw new UnsupportedOperationException("already simplified");
     }
 
     @Override

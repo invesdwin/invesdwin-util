@@ -5,7 +5,6 @@ import javax.annotation.concurrent.Immutable;
 import de.invesdwin.util.math.expression.ExpressionType;
 import de.invesdwin.util.math.expression.eval.IParsedExpression;
 import de.invesdwin.util.math.expression.eval.operation.DoubleBinaryOperation;
-import de.invesdwin.util.math.expression.eval.operation.IBinaryOperation;
 import de.invesdwin.util.math.expression.eval.operation.Op;
 import de.invesdwin.util.time.fdate.IFDateProvider;
 
@@ -110,11 +109,6 @@ public class IntegerBinaryOperation extends DoubleBinaryOperation {
         final int b = right.evaluateInteger();
 
         return op.applyBoolean(a, b);
-    }
-
-    @Override
-    protected IBinaryOperation newBinaryOperation(final IParsedExpression left, final IParsedExpression right) {
-        throw new UnsupportedOperationException("already simplified");
     }
 
     @Override
