@@ -739,15 +739,19 @@ public final class HistoricalFunctions {
         };
     }
 
+    //CHECKSTYLE:OFF
     public static IFunctionFactory newStableCountLeftFunction(final String name) {
+        //CHECKSTYLE:ON
         return new IFunctionFactory() {
             @Override
             public String getExpressionName() {
                 return name;
             }
 
+            //CHECKSTYLE:OFF
             @Override
             public AIntegerFunction newFunction(final IPreviousKeyFunction previousKeyFunction) {
+                //CHECKSTYLE:ON
                 if (previousKeyFunction == null) {
                     return null;
                 }
