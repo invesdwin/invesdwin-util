@@ -12,7 +12,7 @@ public enum PriceDirection {
      */
     RISING("Rising") {
         @Override
-        public double getPosition() {
+        public int getPosition() {
             return 1;
         }
     },
@@ -21,13 +21,13 @@ public enum PriceDirection {
      */
     FALLING("Falling") {
         @Override
-        public double getPosition() {
+        public int getPosition() {
             return -1;
         }
     },
     UNCHANGED("Unchanged") {
         @Override
-        public double getPosition() {
+        public int getPosition() {
             return 0;
         }
     };
@@ -64,6 +64,6 @@ public enum PriceDirection {
         }
     }
 
-    public abstract double getPosition();
+    public abstract int getPosition();
 
 }

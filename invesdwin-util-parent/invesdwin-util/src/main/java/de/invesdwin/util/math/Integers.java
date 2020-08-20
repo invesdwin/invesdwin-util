@@ -1,5 +1,6 @@
 package de.invesdwin.util.math;
 
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -344,6 +345,24 @@ public final class Integers extends AIntegersStaticFacade {
         } else {
             return a / b;
         }
+    }
+
+    public static void putInteger(final ByteBuffer buffer, final Integer value) {
+        if (value == null) {
+            buffer.putInt(Integer.MIN_VALUE);
+        } else {
+            buffer.putInt(value);
+        }
+    }
+
+    public static Integer extractInteger(final ByteBuffer buffer, final int index) {
+        final int value = buffer.getInt(index);
+        return value;
+    }
+
+    public static Integer extractInteger(final ByteBuffer buffer) {
+        final int value = buffer.getInt();
+        return value;
     }
 
 }
