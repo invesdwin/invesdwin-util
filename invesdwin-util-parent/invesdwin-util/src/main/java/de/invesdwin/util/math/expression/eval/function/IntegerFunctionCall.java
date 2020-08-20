@@ -57,37 +57,37 @@ public class IntegerFunctionCall extends AFunctionCall<AIntegerFunction> {
     @Override
     public Boolean evaluateBooleanNullable(final IFDateProvider key) {
         final int eval = function.eval(key, parameters);
-        return Integers.integerToBooleanNullable(eval);
+        return Integers.toBooleanNullable(eval);
     }
 
     @Override
     public Boolean evaluateBooleanNullable(final int key) {
         final int eval = function.eval(key, parameters);
-        return Integers.integerToBooleanNullable(eval);
+        return Integers.toBooleanNullable(eval);
     }
 
     @Override
     public Boolean evaluateBooleanNullable() {
         final int eval = function.eval(parameters);
-        return Integers.integerToBooleanNullable(eval);
+        return Integers.toBooleanNullable(eval);
     }
 
     @Override
     public boolean evaluateBoolean(final IFDateProvider key) {
         final int eval = function.eval(key, parameters);
-        return Integers.integerToBoolean(eval);
+        return Integers.toBoolean(eval);
     }
 
     @Override
     public boolean evaluateBoolean(final int key) {
         final int eval = function.eval(key, parameters);
-        return Integers.integerToBoolean(eval);
+        return Integers.toBoolean(eval);
     }
 
     @Override
     public boolean evaluateBoolean() {
         final int eval = function.eval(parameters);
-        return Integers.integerToBoolean(eval);
+        return Integers.toBoolean(eval);
     }
 
     @Override

@@ -57,37 +57,37 @@ public class DoubleFunctionCall extends AFunctionCall<ADoubleFunction> {
     @Override
     public Boolean evaluateBooleanNullable(final IFDateProvider key) {
         final double eval = function.eval(key, parameters);
-        return Doubles.doubleToBooleanNullable(eval);
+        return Doubles.toBooleanNullable(eval);
     }
 
     @Override
     public Boolean evaluateBooleanNullable(final int key) {
         final double eval = function.eval(key, parameters);
-        return Doubles.doubleToBooleanNullable(eval);
+        return Doubles.toBooleanNullable(eval);
     }
 
     @Override
     public Boolean evaluateBooleanNullable() {
         final double eval = function.eval(parameters);
-        return Doubles.doubleToBooleanNullable(eval);
+        return Doubles.toBooleanNullable(eval);
     }
 
     @Override
     public boolean evaluateBoolean(final IFDateProvider key) {
         final double eval = function.eval(key, parameters);
-        return Doubles.doubleToBoolean(eval);
+        return Doubles.toBoolean(eval);
     }
 
     @Override
     public boolean evaluateBoolean(final int key) {
         final double eval = function.eval(key, parameters);
-        return Doubles.doubleToBoolean(eval);
+        return Doubles.toBoolean(eval);
     }
 
     @Override
     public boolean evaluateBoolean() {
         final double eval = function.eval(parameters);
-        return Doubles.doubleToBoolean(eval);
+        return Doubles.toBoolean(eval);
     }
 
     @Override

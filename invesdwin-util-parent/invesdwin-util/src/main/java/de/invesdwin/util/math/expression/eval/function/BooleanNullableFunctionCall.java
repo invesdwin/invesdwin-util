@@ -28,32 +28,32 @@ public class BooleanNullableFunctionCall extends AFunctionCall<ABooleanNullableF
 
     @Override
     public double evaluateDouble(final IFDateProvider key) {
-        return Doubles.booleanToDouble(evaluateBooleanNullable(key));
+        return Doubles.fromBoolean(evaluateBooleanNullable(key));
     }
 
     @Override
     public double evaluateDouble(final int key) {
-        return Doubles.booleanToDouble(evaluateBooleanNullable(key));
+        return Doubles.fromBoolean(evaluateBooleanNullable(key));
     }
 
     @Override
     public double evaluateDouble() {
-        return Doubles.booleanToDouble(evaluateBooleanNullable());
+        return Doubles.fromBoolean(evaluateBooleanNullable());
     }
 
     @Override
     public int evaluateInteger(final IFDateProvider key) {
-        return Integers.booleanToInteger(evaluateBooleanNullable(key));
+        return Integers.fromBoolean(evaluateBooleanNullable(key));
     }
 
     @Override
     public int evaluateInteger(final int key) {
-        return Integers.booleanToInteger(evaluateBooleanNullable(key));
+        return Integers.fromBoolean(evaluateBooleanNullable(key));
     }
 
     @Override
     public int evaluateInteger() {
-        return Integers.booleanToInteger(evaluateBooleanNullable());
+        return Integers.fromBoolean(evaluateBooleanNullable());
     }
 
     @Override

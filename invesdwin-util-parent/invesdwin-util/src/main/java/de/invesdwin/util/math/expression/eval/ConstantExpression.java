@@ -18,12 +18,16 @@ public class ConstantExpression implements IParsedExpression {
     private final Boolean booleanNullableValue;
     private final boolean booleanValue;
 
+    public ConstantExpression(final double value) {
+        this(value, ExpressionType.determineSmallestDecimalType(value));
+    }
+
     public ConstantExpression(final double value, final ExpressionType type) {
         this.type = type;
         this.doubleValue = value;
         this.intValue = Integers.checkedCastNoOverflow(value);
-        this.booleanNullableValue = Doubles.doubleToBooleanNullable(value);
-        this.booleanValue = Doubles.doubleToBoolean(value);
+        this.booleanNullableValue = Doubles.toBooleanNullable(value);
+        this.booleanValue = Doubles.toBoolean(value);
     }
 
     @Override

@@ -6,7 +6,7 @@ import de.invesdwin.util.math.Booleans;
 import de.invesdwin.util.math.expression.ExpressionReturnType;
 import de.invesdwin.util.math.expression.IExpression;
 import de.invesdwin.util.math.expression.IFunctionParameterInfo;
-import de.invesdwin.util.math.expression.eval.operation.DoubleBinaryOperation;
+import de.invesdwin.util.math.expression.eval.operation.IBinaryOperation;
 import de.invesdwin.util.time.fdate.IFDateProvider;
 
 @Immutable
@@ -541,7 +541,7 @@ public final class HistoricalFunctions {
 
                     @Override
                     public boolean isNaturalFunction(final IExpression[] args) {
-                        DoubleBinaryOperation.validateComparativeOperation(args[0]);
+                        IBinaryOperation.validateComparativeOperation(args[0]);
                         return false;
                     }
 
@@ -657,7 +657,7 @@ public final class HistoricalFunctions {
 
                     @Override
                     public boolean eval(final int key, final IExpression[] args) {
-                        final DoubleBinaryOperation condition = DoubleBinaryOperation.validateComparativeOperation(args[0]);
+                        final IBinaryOperation condition = IBinaryOperation.validateComparativeOperation(args[0]);
                         final int count = args[1].evaluateInteger(key);
                         final double rightResult = condition.getRight().evaluateDouble(key);
                         int curKey = key;
@@ -676,7 +676,7 @@ public final class HistoricalFunctions {
 
                     @Override
                     public boolean eval(final IFDateProvider key, final IExpression[] args) {
-                        final DoubleBinaryOperation condition = DoubleBinaryOperation.validateComparativeOperation(args[0]);
+                        final IBinaryOperation condition = IBinaryOperation.validateComparativeOperation(args[0]);
                         final int count = args[1].evaluateInteger(key);
                         final double rightResult = condition.getRight().evaluateDouble(key);
                         IFDateProvider curKey = key;
@@ -725,7 +725,7 @@ public final class HistoricalFunctions {
 
                     @Override
                     public boolean isNaturalFunction(final IExpression[] args) {
-                        DoubleBinaryOperation.validateComparativeOperation(args[0]);
+                        IBinaryOperation.validateComparativeOperation(args[0]);
                         return false;
                     }
 
@@ -841,7 +841,7 @@ public final class HistoricalFunctions {
 
                     @Override
                     public int eval(final int key, final IExpression[] args) {
-                        final DoubleBinaryOperation condition = DoubleBinaryOperation.validateComparativeOperation(args[0]);
+                        final IBinaryOperation condition = IBinaryOperation.validateComparativeOperation(args[0]);
                         final int count = args[1].evaluateInteger(key);
                         final double rightResult = condition.getRight().evaluateDouble(key);
                         int stableCount = 0;
@@ -865,7 +865,7 @@ public final class HistoricalFunctions {
 
                     @Override
                     public int eval(final IFDateProvider key, final IExpression[] args) {
-                        final DoubleBinaryOperation condition = DoubleBinaryOperation.validateComparativeOperation(args[0]);
+                        final IBinaryOperation condition = IBinaryOperation.validateComparativeOperation(args[0]);
                         final int count = args[1].evaluateInteger(key);
                         final double rightResult = condition.getRight().evaluateDouble(key);
                         int stableCount = 0;
@@ -919,7 +919,7 @@ public final class HistoricalFunctions {
 
                     @Override
                     public boolean isNaturalFunction(final IExpression[] args) {
-                        DoubleBinaryOperation.validateComparativeOperation(args[0]);
+                        IBinaryOperation.validateComparativeOperation(args[0]);
                         return false;
                     }
 
@@ -1035,7 +1035,7 @@ public final class HistoricalFunctions {
 
                     @Override
                     public boolean eval(final int key, final IExpression[] args) {
-                        final DoubleBinaryOperation condition = DoubleBinaryOperation.validateComparativeOperation(args[0]);
+                        final IBinaryOperation condition = IBinaryOperation.validateComparativeOperation(args[0]);
                         final int count = args[1].evaluateInteger(key);
                         final double leftResult = condition.getLeft().evaluateDouble(key);
                         int curKey = key;
@@ -1054,7 +1054,7 @@ public final class HistoricalFunctions {
 
                     @Override
                     public boolean eval(final IFDateProvider key, final IExpression[] args) {
-                        final DoubleBinaryOperation condition = DoubleBinaryOperation.validateComparativeOperation(args[0]);
+                        final IBinaryOperation condition = IBinaryOperation.validateComparativeOperation(args[0]);
                         final int count = args[1].evaluateInteger(key);
                         final double leftResult = condition.getLeft().evaluateDouble(key);
                         IFDateProvider curKey = key;
@@ -1103,7 +1103,7 @@ public final class HistoricalFunctions {
 
                     @Override
                     public boolean isNaturalFunction(final IExpression[] args) {
-                        DoubleBinaryOperation.validateComparativeOperation(args[0]);
+                        IBinaryOperation.validateComparativeOperation(args[0]);
                         return false;
                     }
 
@@ -1219,7 +1219,7 @@ public final class HistoricalFunctions {
 
                     @Override
                     public int eval(final int key, final IExpression[] args) {
-                        final DoubleBinaryOperation condition = DoubleBinaryOperation.validateComparativeOperation(args[0]);
+                        final IBinaryOperation condition = IBinaryOperation.validateComparativeOperation(args[0]);
                         final int count = args[1].evaluateInteger(key);
                         final double leftResult = condition.getLeft().evaluateDouble(key);
                         int stableCount = 0;
@@ -1243,7 +1243,7 @@ public final class HistoricalFunctions {
 
                     @Override
                     public int eval(final IFDateProvider key, final IExpression[] args) {
-                        final DoubleBinaryOperation condition = DoubleBinaryOperation.validateComparativeOperation(args[0]);
+                        final IBinaryOperation condition = IBinaryOperation.validateComparativeOperation(args[0]);
                         final int count = args[1].evaluateInteger(key);
                         final double leftResult = condition.getLeft().evaluateDouble(key);
                         int stableCount = 0;
@@ -1655,7 +1655,7 @@ public final class HistoricalFunctions {
 
                     @Override
                     public boolean isNaturalFunction(final IExpression[] args) {
-                        DoubleBinaryOperation.validateComparativeOperation(args[0]);
+                        IBinaryOperation.validateComparativeOperation(args[0]);
                         return false;
                     }
 
@@ -1771,7 +1771,7 @@ public final class HistoricalFunctions {
 
                     @Override
                     public boolean eval(final int key, final IExpression[] args) {
-                        final DoubleBinaryOperation condition = DoubleBinaryOperation.validateComparativeOperation(args[0]);
+                        final IBinaryOperation condition = IBinaryOperation.validateComparativeOperation(args[0]);
                         final int count = args[1].evaluateInteger(key);
                         final double rightResult = condition.getRight().evaluateDouble(key);
                         int curKey = key;
@@ -1791,7 +1791,7 @@ public final class HistoricalFunctions {
 
                     @Override
                     public boolean eval(final IFDateProvider key, final IExpression[] args) {
-                        final DoubleBinaryOperation condition = DoubleBinaryOperation.validateComparativeOperation(args[0]);
+                        final IBinaryOperation condition = IBinaryOperation.validateComparativeOperation(args[0]);
                         final int count = args[1].evaluateInteger(key);
                         final double rightResult = condition.getRight().evaluateDouble(key);
                         IFDateProvider curKey = key;
@@ -1841,7 +1841,7 @@ public final class HistoricalFunctions {
 
                     @Override
                     public boolean isNaturalFunction(final IExpression[] args) {
-                        DoubleBinaryOperation.validateComparativeOperation(args[0]);
+                        IBinaryOperation.validateComparativeOperation(args[0]);
                         return false;
                     }
 
@@ -1957,7 +1957,7 @@ public final class HistoricalFunctions {
 
                     @Override
                     public int eval(final int key, final IExpression[] args) {
-                        final DoubleBinaryOperation condition = DoubleBinaryOperation.validateComparativeOperation(args[0]);
+                        final IBinaryOperation condition = IBinaryOperation.validateComparativeOperation(args[0]);
                         final int count = args[1].evaluateInteger(key);
                         final double rightResult = condition.getRight().evaluateDouble(key);
                         int occursCount = 0;
@@ -1978,7 +1978,7 @@ public final class HistoricalFunctions {
 
                     @Override
                     public int eval(final IFDateProvider key, final IExpression[] args) {
-                        final DoubleBinaryOperation condition = DoubleBinaryOperation.validateComparativeOperation(args[0]);
+                        final IBinaryOperation condition = IBinaryOperation.validateComparativeOperation(args[0]);
                         final int count = args[1].evaluateInteger(key);
                         final double rightResult = condition.getRight().evaluateDouble(key);
                         int occursCount = 0;
@@ -2029,7 +2029,7 @@ public final class HistoricalFunctions {
 
                     @Override
                     public boolean isNaturalFunction(final IExpression[] args) {
-                        DoubleBinaryOperation.validateComparativeOperation(args[0]);
+                        IBinaryOperation.validateComparativeOperation(args[0]);
                         return false;
                     }
 
@@ -2145,7 +2145,7 @@ public final class HistoricalFunctions {
 
                     @Override
                     public boolean eval(final int key, final IExpression[] args) {
-                        final DoubleBinaryOperation condition = DoubleBinaryOperation.validateComparativeOperation(args[0]);
+                        final IBinaryOperation condition = IBinaryOperation.validateComparativeOperation(args[0]);
                         final int count = args[1].evaluateInteger(key);
                         final double leftResult = condition.getLeft().evaluateDouble(key);
                         int curKey = key;
@@ -2165,7 +2165,7 @@ public final class HistoricalFunctions {
 
                     @Override
                     public boolean eval(final IFDateProvider key, final IExpression[] args) {
-                        final DoubleBinaryOperation condition = DoubleBinaryOperation.validateComparativeOperation(args[0]);
+                        final IBinaryOperation condition = IBinaryOperation.validateComparativeOperation(args[0]);
                         final int count = args[1].evaluateInteger(key);
                         final double leftResult = condition.getLeft().evaluateDouble(key);
                         IFDateProvider curKey = key;
@@ -2215,7 +2215,7 @@ public final class HistoricalFunctions {
 
                     @Override
                     public boolean isNaturalFunction(final IExpression[] args) {
-                        DoubleBinaryOperation.validateComparativeOperation(args[0]);
+                        IBinaryOperation.validateComparativeOperation(args[0]);
                         return false;
                     }
 
@@ -2331,7 +2331,7 @@ public final class HistoricalFunctions {
 
                     @Override
                     public int eval(final int key, final IExpression[] args) {
-                        final DoubleBinaryOperation condition = DoubleBinaryOperation.validateComparativeOperation(args[0]);
+                        final IBinaryOperation condition = IBinaryOperation.validateComparativeOperation(args[0]);
                         final int count = args[1].evaluateInteger(key);
                         final double leftResult = condition.getLeft().evaluateDouble(key);
                         int occursCount = 0;
@@ -2352,7 +2352,7 @@ public final class HistoricalFunctions {
 
                     @Override
                     public int eval(final IFDateProvider key, final IExpression[] args) {
-                        final DoubleBinaryOperation condition = DoubleBinaryOperation.validateComparativeOperation(args[0]);
+                        final IBinaryOperation condition = IBinaryOperation.validateComparativeOperation(args[0]);
                         final int count = args[1].evaluateInteger(key);
                         final double leftResult = condition.getLeft().evaluateDouble(key);
                         int occursCount = 0;

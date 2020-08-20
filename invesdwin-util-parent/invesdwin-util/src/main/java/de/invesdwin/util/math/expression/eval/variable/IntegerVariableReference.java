@@ -52,32 +52,32 @@ public class IntegerVariableReference extends AVariableReference<IIntegerVariabl
 
     @Override
     public Boolean evaluateBooleanNullable(final IFDateProvider key) {
-        return Integers.integerToBooleanNullable(variable.getValue(key));
+        return Integers.toBooleanNullable(variable.getValue(key));
     }
 
     @Override
     public Boolean evaluateBooleanNullable(final int key) {
-        return Integers.integerToBooleanNullable(variable.getValue(key));
+        return Integers.toBooleanNullable(variable.getValue(key));
     }
 
     @Override
     public Boolean evaluateBooleanNullable() {
-        return Integers.integerToBooleanNullable(variable.getValue());
+        return Integers.toBooleanNullable(variable.getValue());
     }
 
     @Override
     public boolean evaluateBoolean(final IFDateProvider key) {
-        return Integers.integerToBoolean(variable.getValue(key));
+        return Integers.toBoolean(variable.getValue(key));
     }
 
     @Override
     public boolean evaluateBoolean(final int key) {
-        return Integers.integerToBoolean(variable.getValue(key));
+        return Integers.toBoolean(variable.getValue(key));
     }
 
     @Override
     public boolean evaluateBoolean() {
-        return Integers.integerToBoolean(variable.getValue());
+        return Integers.toBoolean(variable.getValue());
     }
 
     @Override

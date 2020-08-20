@@ -680,7 +680,7 @@ public final class Doubles extends ADoublesStaticFacade {
         return max;
     }
 
-    public static Boolean doubleToBooleanNullable(final double value) {
+    public static Boolean toBooleanNullable(final double value) {
         if (Doubles.isNaN(value)) {
             return null;
         } else if (value > 0D) {
@@ -690,11 +690,11 @@ public final class Doubles extends ADoublesStaticFacade {
         }
     }
 
-    public static boolean doubleToBoolean(final double value) {
+    public static boolean toBoolean(final double value) {
         return value > 0D;
     }
 
-    public static double booleanToDouble(final boolean value) {
+    public static double fromBoolean(final boolean value) {
         if (value) {
             return 1D;
         } else {
@@ -702,7 +702,7 @@ public final class Doubles extends ADoublesStaticFacade {
         }
     }
 
-    public static double booleanToDouble(final Boolean value) {
+    public static double fromBoolean(final Boolean value) {
         if (value == null) {
             return Double.NaN;
         } else if (value) {

@@ -16,12 +16,13 @@ import de.invesdwin.util.math.expression.eval.ConstantExpression;
 import de.invesdwin.util.math.expression.eval.DynamicPreviousKeyExpression;
 import de.invesdwin.util.math.expression.eval.IParsedExpression;
 import de.invesdwin.util.math.expression.eval.function.DoubleFunctionCall;
-import de.invesdwin.util.math.expression.eval.operation.DoubleAndOperation;
+import de.invesdwin.util.math.expression.eval.operation.BooleanNullableAndOperation;
 import de.invesdwin.util.math.expression.eval.operation.DoubleBinaryOperation;
 import de.invesdwin.util.math.expression.eval.operation.DoubleCrossesAboveOperation;
 import de.invesdwin.util.math.expression.eval.operation.DoubleCrossesBelowOperation;
-import de.invesdwin.util.math.expression.eval.operation.DoubleNotOperation;
-import de.invesdwin.util.math.expression.eval.operation.DoubleOrOperation;
+import de.invesdwin.util.math.expression.eval.operation.BooleanNullableNotOperation;
+import de.invesdwin.util.math.expression.eval.operation.BooleanNullableOrOperation;
+import de.invesdwin.util.math.expression.eval.operation.IBinaryOperation;
 import de.invesdwin.util.math.expression.eval.operation.Op;
 import de.invesdwin.util.math.expression.eval.variable.AVariableReference;
 import de.invesdwin.util.math.expression.function.AFunction;
@@ -380,19 +381,19 @@ public class ExpressionParser {
     }
 
     protected IParsedExpression reOrder(final IParsedExpression left, final IParsedExpression right, final Op op) {
-        if (right instanceof DoubleBinaryOperation) {
-            final DoubleBinaryOperation rightOp = (DoubleBinaryOperation) right;
+        if (right instanceof IBinaryOperation) {
+            final IBinaryOperation rightOp = (IBinaryOperation) right;
             if (!rightOp.isSealed() && rightOp.getOp().getPriority() == op.getPriority()) {
                 return replaceLeft(rightOp, left, op);
             }
         }
         switch (op) {
         case AND:
-            return new DoubleAndOperation(left, right);
+            return new BooleanNullableAndOperation(left, right);
         case OR:
-            return new DoubleOrOperation(left, right);
+            return new BooleanNullableOrOperation(left, right);
         case NOT:
-            return new DoubleNotOperation(left, right);
+            return new BooleanNullableNotOperation(left, right);
         case CROSSES_ABOVE:
             return new DoubleCrossesAboveOperation(left, right, getPreviousKeyFunctionOrThrow(left.getContext()),
                     getPreviousKeyFunctionOrThrow(right.getContext()));
@@ -404,28 +405,28 @@ public class ExpressionParser {
         }
     }
 
-    protected DoubleBinaryOperation replaceLeft(final DoubleBinaryOperation target, final IParsedExpression newLeft,
+    protected IBinaryOperation replaceLeft(final IBinaryOperation target, final IParsedExpression newLeft,
             final Op op) {
-        if (target.getLeft() instanceof DoubleBinaryOperation) {
-            final DoubleBinaryOperation leftOp = (DoubleBinaryOperation) target.getLeft();
+        if (target.getLeft() instanceof IBinaryOperation) {
+            final IBinaryOperation leftOp = (IBinaryOperation) target.getLeft();
             if (!leftOp.isSealed() && leftOp.getOp().getPriority() == op.getPriority()) {
-                final DoubleBinaryOperation replacedLeft = replaceLeft(leftOp, newLeft, op);
-                final DoubleBinaryOperation replacedTarget = target.setLeft(replacedLeft);
+                final IBinaryOperation replacedLeft = replaceLeft(leftOp, newLeft, op);
+                final IBinaryOperation replacedTarget = target.setLeft(replacedLeft);
                 return replacedTarget;
             }
         }
         return replaceLeftDirect(target, newLeft, op);
     }
 
-    private DoubleBinaryOperation replaceLeftDirect(final DoubleBinaryOperation target, final IParsedExpression newLeft,
+    private IBinaryOperation replaceLeftDirect(final IBinaryOperation target, final IParsedExpression newLeft,
             final Op op) {
         switch (op) {
         case AND:
-            return target.setLeft(new DoubleAndOperation(newLeft, target.getLeft()));
+            return target.setLeft(new BooleanNullableAndOperation(newLeft, target.getLeft()));
         case OR:
-            return target.setLeft(new DoubleOrOperation(newLeft, target.getLeft()));
+            return target.setLeft(new BooleanNullableOrOperation(newLeft, target.getLeft()));
         case NOT:
-            return target.setLeft(new DoubleNotOperation(newLeft, target.getLeft()));
+            return target.setLeft(new BooleanNullableNotOperation(newLeft, target.getLeft()));
         case CROSSES_ABOVE:
             return target.setLeft(new DoubleCrossesAboveOperation(newLeft, target.getLeft(),
                     getPreviousKeyFunctionOrThrow(newLeft.getContext()),
@@ -466,7 +467,7 @@ public class ExpressionParser {
             }
             if (current.matches("!")) {
                 tokenizer.consume();
-                final DoubleBinaryOperation result = new DoubleNotOperation(
+                final DoubleBinaryOperation result = new BooleanNullableNotOperation(
                         new ConstantExpression(0D, ExpressionType.Boolean), atom());
                 result.seal();
                 return result;
@@ -480,8 +481,8 @@ public class ExpressionParser {
             if (current.matches("(")) {
                 tokenizer.consume();
                 final IParsedExpression result = expression(false);
-                if (result instanceof DoubleBinaryOperation) {
-                    ((DoubleBinaryOperation) result).seal();
+                if (result instanceof IBinaryOperation) {
+                    ((IBinaryOperation) result).seal();
                 }
                 expect(Token.TokenType.SYMBOL, ")");
                 return result;
@@ -727,7 +728,7 @@ public class ExpressionParser {
                 }
                 //CHECKSTYLE:ON
             }
-            return new ConstantExpression(value, ExpressionType.determineDecimalType(value));
+            return new ConstantExpression(value);
         }
         final Token token = tokenizer.consume();
         throw new ParseException(token,

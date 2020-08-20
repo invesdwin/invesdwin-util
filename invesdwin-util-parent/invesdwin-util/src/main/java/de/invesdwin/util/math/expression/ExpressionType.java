@@ -8,10 +8,16 @@ import de.invesdwin.util.math.expression.eval.IParsedExpression;
 
 @Immutable
 public enum ExpressionType {
-    Double,
-    Integer,
-    Boolean,
-    BooleanNullable;
+    Double(4),
+    Integer(3),
+    BooleanNullable(2),
+    Boolean(1);
+
+    private final int size;
+
+    ExpressionType(final int size) {
+        this.size = size;
+    }
 
     public static ExpressionType determineType(final ExpressionType defaultType,
             final IParsedExpression... expressions) {
@@ -77,19 +83,31 @@ public enum ExpressionType {
         }
     }
 
-    public static ExpressionType determineDecimalType(final double value) {
-        if (Doubles.isInteger(Doubles.round(value))) {
-            return ExpressionType.Integer;
+    public static ExpressionType determineSmallestDecimalType(final double value) {
+        final double roundedValue = Doubles.round(value);
+        if (Doubles.isNaN(roundedValue)) {
+            return ExpressionType.BooleanNullable;
+        } else if (Doubles.isInteger(roundedValue)) {
+            final int intValue = (int) roundedValue;
+            if (intValue == 1 || intValue == 0) {
+                return ExpressionType.Boolean;
+            } else {
+                return ExpressionType.Integer;
+            }
         } else {
             return ExpressionType.Double;
         }
     }
 
-    public static ExpressionType determineBooleanType(final Boolean result) {
+    public static ExpressionType determineSmallestBooleanType(final Boolean result) {
         if (result == null) {
             return ExpressionType.BooleanNullable;
         } else {
             return ExpressionType.Boolean;
         }
+    }
+
+    public boolean isSmallerThanOrEqualTo(final ExpressionType type) {
+        return size <= type.size;
     }
 }

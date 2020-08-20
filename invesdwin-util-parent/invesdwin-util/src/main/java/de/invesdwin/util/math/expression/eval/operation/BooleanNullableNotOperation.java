@@ -2,33 +2,55 @@ package de.invesdwin.util.math.expression.eval.operation;
 
 import javax.annotation.concurrent.Immutable;
 
+import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.math.Doubles;
+import de.invesdwin.util.math.Integers;
+import de.invesdwin.util.math.expression.ExpressionType;
 import de.invesdwin.util.math.expression.eval.IParsedExpression;
+import de.invesdwin.util.math.expression.eval.operation.simple.BooleanNotOperation;
 import de.invesdwin.util.time.fdate.IFDateProvider;
 
 @Immutable
-public class DoubleNotOperation extends DoubleBinaryOperation {
+public class BooleanNullableNotOperation extends DoubleBinaryOperation {
 
-    public DoubleNotOperation(final IParsedExpression left, final IParsedExpression right) {
+    public BooleanNullableNotOperation(final IParsedExpression left, final IParsedExpression right) {
         super(Op.NOT, left, right);
     }
 
     @Override
     public double evaluateDouble(final IFDateProvider key) {
         final Boolean check = evaluateBooleanNullable(key);
-        return Doubles.booleanToDouble(check);
+        return Doubles.fromBoolean(check);
     }
 
     @Override
     public double evaluateDouble(final int key) {
         final Boolean check = evaluateBooleanNullable(key);
-        return Doubles.booleanToDouble(check);
+        return Doubles.fromBoolean(check);
     }
 
     @Override
     public double evaluateDouble() {
         final Boolean check = evaluateBooleanNullable();
-        return Doubles.booleanToDouble(check);
+        return Doubles.fromBoolean(check);
+    }
+
+    @Override
+    public int evaluateInteger(final IFDateProvider key) {
+        final Boolean check = evaluateBooleanNullable(key);
+        return Integers.fromBoolean(check);
+    }
+
+    @Override
+    public int evaluateInteger(final int key) {
+        final Boolean check = evaluateBooleanNullable(key);
+        return Integers.fromBoolean(check);
+    }
+
+    @Override
+    public int evaluateInteger() {
+        final Boolean check = evaluateBooleanNullable();
+        return Integers.fromBoolean(check);
     }
 
     @Override
@@ -88,9 +110,15 @@ public class DoubleNotOperation extends DoubleBinaryOperation {
     }
 
     @Override
-    protected DoubleBinaryOperation newBinaryOperation(final Op op, final IParsedExpression left,
-            final IParsedExpression right) {
-        return new DoubleNotOperation(left, right);
+    protected IBinaryOperation newBinaryOperation(final IParsedExpression left, final IParsedExpression right) {
+        final ExpressionType simplifyType = op.simplifyType(left, right);
+        if (simplifyType == null) {
+            return new BooleanNullableNotOperation(left, right);
+        } else if (simplifyType == ExpressionType.Boolean) {
+            return new BooleanNotOperation(left, right);
+        } else {
+            throw UnknownArgumentException.newInstance(ExpressionType.class, simplifyType);
+        }
     }
 
     @Override

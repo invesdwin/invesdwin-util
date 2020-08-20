@@ -5,13 +5,28 @@ import javax.annotation.concurrent.Immutable;
 import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.expression.ExpressionType;
+import de.invesdwin.util.math.expression.eval.IParsedExpression;
 
 @Immutable
 public enum Op {
     ADD(3, "+") {
         @Override
-        public ExpressionType getType() {
+        public ExpressionType getReturnType() {
             return ExpressionType.Double;
+        }
+
+        @Override
+        public ExpressionType getSimplifiedReturnType() {
+            return ExpressionType.Integer;
+        }
+
+        @Override
+        public ExpressionType simplifyType(final ExpressionType left, final ExpressionType right) {
+            if (left.isSmallerThanOrEqualTo(ExpressionType.Integer)
+                    && right.isSmallerThanOrEqualTo(ExpressionType.Integer)) {
+                return ExpressionType.Integer;
+            }
+            return null;
         }
 
         @Override
@@ -26,12 +41,12 @@ public enum Op {
 
         @Override
         public Boolean applyBooleanNullable(final double a, final double b) {
-            return Doubles.doubleToBooleanNullable(applyDouble(a, b));
+            return Doubles.toBooleanNullable(applyDouble(a, b));
         }
 
         @Override
         public boolean applyBoolean(final double a, final double b) {
-            return Doubles.doubleToBoolean(applyDouble(a, b));
+            return Doubles.toBoolean(applyDouble(a, b));
         }
 
         @Override
@@ -46,18 +61,33 @@ public enum Op {
 
         @Override
         public Boolean applyBooleanNullable(final int a, final int b) {
-            return Doubles.doubleToBooleanNullable(applyDouble(a, b));
+            return Doubles.toBooleanNullable(applyDouble(a, b));
         }
 
         @Override
         public boolean applyBoolean(final int a, final int b) {
-            return Doubles.doubleToBoolean(applyDouble(a, b));
+            return Doubles.toBoolean(applyDouble(a, b));
         }
+
     },
     SUBTRACT(3, "-") {
         @Override
-        public ExpressionType getType() {
+        public ExpressionType getReturnType() {
             return ExpressionType.Double;
+        }
+
+        @Override
+        public ExpressionType getSimplifiedReturnType() {
+            return ExpressionType.Integer;
+        }
+
+        @Override
+        public ExpressionType simplifyType(final ExpressionType left, final ExpressionType right) {
+            if (left.isSmallerThanOrEqualTo(ExpressionType.Integer)
+                    && right.isSmallerThanOrEqualTo(ExpressionType.Integer)) {
+                return ExpressionType.Integer;
+            }
+            return null;
         }
 
         @Override
@@ -72,12 +102,12 @@ public enum Op {
 
         @Override
         public Boolean applyBooleanNullable(final double a, final double b) {
-            return Doubles.doubleToBooleanNullable(applyDouble(a, b));
+            return Doubles.toBooleanNullable(applyDouble(a, b));
         }
 
         @Override
         public boolean applyBoolean(final double a, final double b) {
-            return Doubles.doubleToBoolean(applyDouble(a, b));
+            return Doubles.toBoolean(applyDouble(a, b));
         }
 
         @Override
@@ -92,18 +122,32 @@ public enum Op {
 
         @Override
         public Boolean applyBooleanNullable(final int a, final int b) {
-            return Integers.integerToBooleanNullable(applyInteger(a, b));
+            return Integers.toBooleanNullable(applyInteger(a, b));
         }
 
         @Override
         public boolean applyBoolean(final int a, final int b) {
-            return Integers.integerToBoolean(applyInteger(a, b));
+            return Integers.toBoolean(applyInteger(a, b));
         }
     },
     MULTIPLY(4, "*") {
         @Override
-        public ExpressionType getType() {
+        public ExpressionType getReturnType() {
             return ExpressionType.Double;
+        }
+
+        @Override
+        public ExpressionType getSimplifiedReturnType() {
+            return ExpressionType.Integer;
+        }
+
+        @Override
+        public ExpressionType simplifyType(final ExpressionType left, final ExpressionType right) {
+            if (left.isSmallerThanOrEqualTo(ExpressionType.Integer)
+                    && right.isSmallerThanOrEqualTo(ExpressionType.Integer)) {
+                return ExpressionType.Integer;
+            }
+            return null;
         }
 
         @Override
@@ -118,12 +162,12 @@ public enum Op {
 
         @Override
         public Boolean applyBooleanNullable(final double a, final double b) {
-            return Doubles.doubleToBooleanNullable(applyDouble(a, b));
+            return Doubles.toBooleanNullable(applyDouble(a, b));
         }
 
         @Override
         public boolean applyBoolean(final double a, final double b) {
-            return Doubles.doubleToBoolean(applyDouble(a, b));
+            return Doubles.toBoolean(applyDouble(a, b));
         }
 
         @Override
@@ -138,18 +182,28 @@ public enum Op {
 
         @Override
         public Boolean applyBooleanNullable(final int a, final int b) {
-            return Doubles.doubleToBooleanNullable(applyInteger(a, b));
+            return Doubles.toBooleanNullable(applyInteger(a, b));
         }
 
         @Override
         public boolean applyBoolean(final int a, final int b) {
-            return Doubles.doubleToBoolean(applyInteger(a, b));
+            return Doubles.toBoolean(applyInteger(a, b));
         }
     },
     DIVIDE(4, "/") {
         @Override
-        public ExpressionType getType() {
+        public ExpressionType getReturnType() {
             return ExpressionType.Double;
+        }
+
+        @Override
+        public ExpressionType getSimplifiedReturnType() {
+            return ExpressionType.Double;
+        }
+
+        @Override
+        public ExpressionType simplifyType(final ExpressionType left, final ExpressionType right) {
+            return null;
         }
 
         @Override
@@ -164,12 +218,12 @@ public enum Op {
 
         @Override
         public Boolean applyBooleanNullable(final double a, final double b) {
-            return Doubles.doubleToBooleanNullable(applyDouble(a, b));
+            return Doubles.toBooleanNullable(applyDouble(a, b));
         }
 
         @Override
         public boolean applyBoolean(final double a, final double b) {
-            return Doubles.doubleToBoolean(applyDouble(a, b));
+            return Doubles.toBoolean(applyDouble(a, b));
         }
 
         @Override
@@ -184,18 +238,32 @@ public enum Op {
 
         @Override
         public Boolean applyBooleanNullable(final int a, final int b) {
-            return Doubles.doubleToBooleanNullable(applyInteger(a, b));
+            return Doubles.toBooleanNullable(applyInteger(a, b));
         }
 
         @Override
         public boolean applyBoolean(final int a, final int b) {
-            return Doubles.doubleToBoolean(applyInteger(a, b));
+            return Doubles.toBoolean(applyInteger(a, b));
         }
     },
     MODULO(4, "%") {
         @Override
-        public ExpressionType getType() {
+        public ExpressionType getReturnType() {
             return ExpressionType.Double;
+        }
+
+        @Override
+        public ExpressionType getSimplifiedReturnType() {
+            return ExpressionType.Integer;
+        }
+
+        @Override
+        public ExpressionType simplifyType(final ExpressionType left, final ExpressionType right) {
+            if (left.isSmallerThanOrEqualTo(ExpressionType.Integer)
+                    && right.isSmallerThanOrEqualTo(ExpressionType.Integer)) {
+                return ExpressionType.Integer;
+            }
+            return null;
         }
 
         @Override
@@ -210,12 +278,12 @@ public enum Op {
 
         @Override
         public Boolean applyBooleanNullable(final double a, final double b) {
-            return Doubles.doubleToBooleanNullable(applyDouble(a, b));
+            return Doubles.toBooleanNullable(applyDouble(a, b));
         }
 
         @Override
         public boolean applyBoolean(final double a, final double b) {
-            return Doubles.doubleToBoolean(applyDouble(a, b));
+            return Doubles.toBoolean(applyDouble(a, b));
         }
 
         @Override
@@ -230,18 +298,28 @@ public enum Op {
 
         @Override
         public Boolean applyBooleanNullable(final int a, final int b) {
-            return Doubles.doubleToBooleanNullable(applyInteger(a, b));
+            return Doubles.toBooleanNullable(applyInteger(a, b));
         }
 
         @Override
         public boolean applyBoolean(final int a, final int b) {
-            return Doubles.doubleToBoolean(applyInteger(a, b));
+            return Doubles.toBoolean(applyInteger(a, b));
         }
     },
     POWER(5, "^") {
         @Override
-        public ExpressionType getType() {
+        public ExpressionType getReturnType() {
             return ExpressionType.Double;
+        }
+
+        @Override
+        public ExpressionType getSimplifiedReturnType() {
+            return ExpressionType.Double;
+        }
+
+        @Override
+        public ExpressionType simplifyType(final ExpressionType left, final ExpressionType right) {
+            return null;
         }
 
         @Override
@@ -256,12 +334,12 @@ public enum Op {
 
         @Override
         public Boolean applyBooleanNullable(final double a, final double b) {
-            return Doubles.doubleToBooleanNullable(applyDouble(a, b));
+            return Doubles.toBooleanNullable(applyDouble(a, b));
         }
 
         @Override
         public boolean applyBoolean(final double a, final double b) {
-            return Doubles.doubleToBoolean(applyDouble(a, b));
+            return Doubles.toBoolean(applyDouble(a, b));
         }
 
         @Override
@@ -276,28 +354,42 @@ public enum Op {
 
         @Override
         public Boolean applyBooleanNullable(final int a, final int b) {
-            return Doubles.doubleToBooleanNullable(applyDouble(a, b));
+            return Doubles.toBooleanNullable(applyDouble(a, b));
         }
 
         @Override
         public boolean applyBoolean(final int a, final int b) {
-            return Doubles.doubleToBoolean(applyDouble(a, b));
+            return Doubles.toBoolean(applyDouble(a, b));
         }
     },
     LT(2, "<") {
         @Override
-        public ExpressionType getType() {
+        public ExpressionType getReturnType() {
             return ExpressionType.Boolean;
         }
 
         @Override
+        public ExpressionType getSimplifiedReturnType() {
+            return ExpressionType.Boolean;
+        }
+
+        @Override
+        public ExpressionType simplifyType(final ExpressionType left, final ExpressionType right) {
+            if (left.isSmallerThanOrEqualTo(ExpressionType.Integer)
+                    && right.isSmallerThanOrEqualTo(ExpressionType.Integer)) {
+                return ExpressionType.Integer;
+            }
+            return null;
+        }
+
+        @Override
         public double applyDouble(final double a, final double b) {
-            return Doubles.booleanToDouble(applyBoolean(a, b));
+            return Doubles.fromBoolean(applyBoolean(a, b));
         }
 
         @Override
         public int applyInteger(final double a, final double b) {
-            return Integers.booleanToInteger(applyBoolean(a, b));
+            return Integers.fromBoolean(applyBoolean(a, b));
         }
 
         @Override
@@ -312,12 +404,12 @@ public enum Op {
 
         @Override
         public double applyDouble(final int a, final int b) {
-            return Doubles.booleanToDouble(applyBoolean(a, b));
+            return Doubles.fromBoolean(applyBoolean(a, b));
         }
 
         @Override
         public int applyInteger(final int a, final int b) {
-            return Integers.booleanToInteger(applyBoolean(a, b));
+            return Integers.fromBoolean(applyBoolean(a, b));
         }
 
         @Override
@@ -332,18 +424,32 @@ public enum Op {
     },
     LT_EQ(2, "<=") {
         @Override
-        public ExpressionType getType() {
+        public ExpressionType getReturnType() {
             return ExpressionType.Boolean;
         }
 
         @Override
+        public ExpressionType getSimplifiedReturnType() {
+            return ExpressionType.Boolean;
+        }
+
+        @Override
+        public ExpressionType simplifyType(final ExpressionType left, final ExpressionType right) {
+            if (left.isSmallerThanOrEqualTo(ExpressionType.Integer)
+                    && right.isSmallerThanOrEqualTo(ExpressionType.Integer)) {
+                return ExpressionType.Integer;
+            }
+            return null;
+        }
+
+        @Override
         public double applyDouble(final double a, final double b) {
-            return Doubles.booleanToDouble(applyBoolean(a, b));
+            return Doubles.fromBoolean(applyBoolean(a, b));
         }
 
         @Override
         public int applyInteger(final double a, final double b) {
-            return Integers.booleanToInteger(applyBoolean(a, b));
+            return Integers.fromBoolean(applyBoolean(a, b));
         }
 
         @Override
@@ -358,12 +464,12 @@ public enum Op {
 
         @Override
         public double applyDouble(final int a, final int b) {
-            return Doubles.booleanToDouble(applyBoolean(a, b));
+            return Doubles.fromBoolean(applyBoolean(a, b));
         }
 
         @Override
         public int applyInteger(final int a, final int b) {
-            return Integers.booleanToInteger(applyBoolean(a, b));
+            return Integers.fromBoolean(applyBoolean(a, b));
         }
 
         @Override
@@ -378,18 +484,32 @@ public enum Op {
     },
     EQ(2, "==") {
         @Override
-        public ExpressionType getType() {
+        public ExpressionType getReturnType() {
             return ExpressionType.Boolean;
         }
 
         @Override
+        public ExpressionType getSimplifiedReturnType() {
+            return ExpressionType.Boolean;
+        }
+
+        @Override
+        public ExpressionType simplifyType(final ExpressionType left, final ExpressionType right) {
+            if (left.isSmallerThanOrEqualTo(ExpressionType.Integer)
+                    && right.isSmallerThanOrEqualTo(ExpressionType.Integer)) {
+                return ExpressionType.Integer;
+            }
+            return null;
+        }
+
+        @Override
         public double applyDouble(final double a, final double b) {
-            return Doubles.booleanToDouble(applyBoolean(a, b));
+            return Doubles.fromBoolean(applyBoolean(a, b));
         }
 
         @Override
         public int applyInteger(final double a, final double b) {
-            return Integers.booleanToInteger(applyBoolean(a, b));
+            return Integers.fromBoolean(applyBoolean(a, b));
         }
 
         @Override
@@ -404,12 +524,12 @@ public enum Op {
 
         @Override
         public double applyDouble(final int a, final int b) {
-            return Doubles.booleanToDouble(applyBoolean(a, b));
+            return Doubles.fromBoolean(applyBoolean(a, b));
         }
 
         @Override
         public int applyInteger(final int a, final int b) {
-            return Integers.booleanToInteger(applyBoolean(a, b));
+            return Integers.fromBoolean(applyBoolean(a, b));
         }
 
         @Override
@@ -424,18 +544,32 @@ public enum Op {
     },
     GT_EQ(2, ">=") {
         @Override
-        public ExpressionType getType() {
+        public ExpressionType getReturnType() {
             return ExpressionType.Boolean;
         }
 
         @Override
+        public ExpressionType getSimplifiedReturnType() {
+            return ExpressionType.Boolean;
+        }
+
+        @Override
+        public ExpressionType simplifyType(final ExpressionType left, final ExpressionType right) {
+            if (left.isSmallerThanOrEqualTo(ExpressionType.Integer)
+                    && right.isSmallerThanOrEqualTo(ExpressionType.Integer)) {
+                return ExpressionType.Integer;
+            }
+            return null;
+        }
+
+        @Override
         public double applyDouble(final double a, final double b) {
-            return Doubles.booleanToDouble(applyBoolean(a, b));
+            return Doubles.fromBoolean(applyBoolean(a, b));
         }
 
         @Override
         public int applyInteger(final double a, final double b) {
-            return Integers.booleanToInteger(applyBoolean(a, b));
+            return Integers.fromBoolean(applyBoolean(a, b));
         }
 
         @Override
@@ -450,12 +584,12 @@ public enum Op {
 
         @Override
         public double applyDouble(final int a, final int b) {
-            return Doubles.booleanToDouble(applyBoolean(a, b));
+            return Doubles.fromBoolean(applyBoolean(a, b));
         }
 
         @Override
         public int applyInteger(final int a, final int b) {
-            return Integers.booleanToInteger(applyBoolean(a, b));
+            return Integers.fromBoolean(applyBoolean(a, b));
         }
 
         @Override
@@ -470,18 +604,32 @@ public enum Op {
     },
     GT(2, ">") {
         @Override
-        public ExpressionType getType() {
+        public ExpressionType getReturnType() {
             return ExpressionType.Boolean;
         }
 
         @Override
+        public ExpressionType getSimplifiedReturnType() {
+            return ExpressionType.Boolean;
+        }
+
+        @Override
+        public ExpressionType simplifyType(final ExpressionType left, final ExpressionType right) {
+            if (left.isSmallerThanOrEqualTo(ExpressionType.Integer)
+                    && right.isSmallerThanOrEqualTo(ExpressionType.Integer)) {
+                return ExpressionType.Integer;
+            }
+            return null;
+        }
+
+        @Override
         public double applyDouble(final double a, final double b) {
-            return Doubles.booleanToDouble(applyBoolean(a, b));
+            return Doubles.fromBoolean(applyBoolean(a, b));
         }
 
         @Override
         public int applyInteger(final double a, final double b) {
-            return Integers.booleanToInteger(applyBoolean(a, b));
+            return Integers.fromBoolean(applyBoolean(a, b));
         }
 
         @Override
@@ -496,12 +644,12 @@ public enum Op {
 
         @Override
         public double applyDouble(final int a, final int b) {
-            return Doubles.booleanToDouble(applyBoolean(a, b));
+            return Doubles.fromBoolean(applyBoolean(a, b));
         }
 
         @Override
         public int applyInteger(final int a, final int b) {
-            return Integers.booleanToInteger(applyBoolean(a, b));
+            return Integers.fromBoolean(applyBoolean(a, b));
         }
 
         @Override
@@ -516,18 +664,32 @@ public enum Op {
     },
     NEQ(2, "!=") {
         @Override
-        public ExpressionType getType() {
+        public ExpressionType getReturnType() {
             return ExpressionType.Boolean;
         }
 
         @Override
+        public ExpressionType getSimplifiedReturnType() {
+            return ExpressionType.Boolean;
+        }
+
+        @Override
+        public ExpressionType simplifyType(final ExpressionType left, final ExpressionType right) {
+            if (left.isSmallerThanOrEqualTo(ExpressionType.Integer)
+                    && right.isSmallerThanOrEqualTo(ExpressionType.Integer)) {
+                return ExpressionType.Integer;
+            }
+            return null;
+        }
+
+        @Override
         public double applyDouble(final double a, final double b) {
-            return Doubles.booleanToDouble(applyBoolean(a, b));
+            return Doubles.fromBoolean(applyBoolean(a, b));
         }
 
         @Override
         public int applyInteger(final double a, final double b) {
-            return Integers.booleanToInteger(applyBoolean(a, b));
+            return Integers.fromBoolean(applyBoolean(a, b));
         }
 
         @Override
@@ -542,12 +704,12 @@ public enum Op {
 
         @Override
         public double applyDouble(final int a, final int b) {
-            return Doubles.booleanToDouble(applyBoolean(a, b));
+            return Doubles.fromBoolean(applyBoolean(a, b));
         }
 
         @Override
         public int applyInteger(final int a, final int b) {
-            return Integers.booleanToInteger(applyBoolean(a, b));
+            return Integers.fromBoolean(applyBoolean(a, b));
         }
 
         @Override
@@ -562,146 +724,201 @@ public enum Op {
     },
     AND(1, "&&") {
         @Override
-        public ExpressionType getType() {
+        public ExpressionType getReturnType() {
             return ExpressionType.Boolean;
         }
 
         @Override
+        public ExpressionType getSimplifiedReturnType() {
+            return ExpressionType.Boolean;
+        }
+
+        @Override
+        public ExpressionType simplifyType(final ExpressionType left, final ExpressionType right) {
+            if (left.isSmallerThanOrEqualTo(ExpressionType.Boolean)
+                    && right.isSmallerThanOrEqualTo(ExpressionType.Boolean)) {
+                return ExpressionType.Boolean;
+            }
+            return null;
+        }
+
+        @Override
         public double applyDouble(final double a, final double b) {
-            throw new UnsupportedOperationException("use class " + DoubleAndOperation.class.getSimpleName());
+            throw new UnsupportedOperationException("use class " + BooleanNullableAndOperation.class.getSimpleName());
         }
 
         @Override
         public int applyInteger(final double a, final double b) {
-            throw new UnsupportedOperationException("use class " + DoubleAndOperation.class.getSimpleName());
+            throw new UnsupportedOperationException("use class " + BooleanNullableAndOperation.class.getSimpleName());
         }
 
         @Override
         public Boolean applyBooleanNullable(final double a, final double b) {
-            throw new UnsupportedOperationException("use class " + DoubleAndOperation.class.getSimpleName());
+            throw new UnsupportedOperationException("use class " + BooleanNullableAndOperation.class.getSimpleName());
         }
 
         @Override
         public boolean applyBoolean(final double a, final double b) {
-            throw new UnsupportedOperationException("use class " + DoubleAndOperation.class.getSimpleName());
+            throw new UnsupportedOperationException("use class " + BooleanNullableAndOperation.class.getSimpleName());
         }
 
         @Override
         public double applyDouble(final int a, final int b) {
-            throw new UnsupportedOperationException("use class " + DoubleAndOperation.class.getSimpleName());
+            throw new UnsupportedOperationException("use class " + BooleanNullableAndOperation.class.getSimpleName());
         }
 
         @Override
         public int applyInteger(final int a, final int b) {
-            throw new UnsupportedOperationException("use class " + DoubleAndOperation.class.getSimpleName());
+            throw new UnsupportedOperationException("use class " + BooleanNullableAndOperation.class.getSimpleName());
         }
 
         @Override
         public Boolean applyBooleanNullable(final int a, final int b) {
-            throw new UnsupportedOperationException("use class " + DoubleAndOperation.class.getSimpleName());
+            throw new UnsupportedOperationException("use class " + BooleanNullableAndOperation.class.getSimpleName());
         }
 
         @Override
         public boolean applyBoolean(final int a, final int b) {
-            throw new UnsupportedOperationException("use class " + DoubleAndOperation.class.getSimpleName());
+            throw new UnsupportedOperationException("use class " + BooleanNullableAndOperation.class.getSimpleName());
         }
     },
     OR(1, "||") {
         @Override
-        public ExpressionType getType() {
+        public ExpressionType getReturnType() {
             return ExpressionType.Boolean;
         }
 
         @Override
+        public ExpressionType getSimplifiedReturnType() {
+            return ExpressionType.Boolean;
+        }
+
+        @Override
+        public ExpressionType simplifyType(final ExpressionType left, final ExpressionType right) {
+            if (left.isSmallerThanOrEqualTo(ExpressionType.Boolean)
+                    && right.isSmallerThanOrEqualTo(ExpressionType.Boolean)) {
+                return ExpressionType.Boolean;
+            }
+            return null;
+        }
+
+        @Override
         public double applyDouble(final double a, final double b) {
-            throw new UnsupportedOperationException("use class " + DoubleOrOperation.class.getSimpleName());
+            throw new UnsupportedOperationException("use class " + BooleanNullableOrOperation.class.getSimpleName());
         }
 
         @Override
         public int applyInteger(final double a, final double b) {
-            throw new UnsupportedOperationException("use class " + DoubleOrOperation.class.getSimpleName());
+            throw new UnsupportedOperationException("use class " + BooleanNullableOrOperation.class.getSimpleName());
         }
 
         @Override
         public Boolean applyBooleanNullable(final double a, final double b) {
-            throw new UnsupportedOperationException("use class " + DoubleOrOperation.class.getSimpleName());
+            throw new UnsupportedOperationException("use class " + BooleanNullableOrOperation.class.getSimpleName());
         }
 
         @Override
         public boolean applyBoolean(final double a, final double b) {
-            throw new UnsupportedOperationException("use class " + DoubleOrOperation.class.getSimpleName());
+            throw new UnsupportedOperationException("use class " + BooleanNullableOrOperation.class.getSimpleName());
         }
 
         @Override
         public double applyDouble(final int a, final int b) {
-            throw new UnsupportedOperationException("use class " + DoubleOrOperation.class.getSimpleName());
+            throw new UnsupportedOperationException("use class " + BooleanNullableOrOperation.class.getSimpleName());
         }
 
         @Override
         public int applyInteger(final int a, final int b) {
-            throw new UnsupportedOperationException("use class " + DoubleOrOperation.class.getSimpleName());
+            throw new UnsupportedOperationException("use class " + BooleanNullableOrOperation.class.getSimpleName());
         }
 
         @Override
         public Boolean applyBooleanNullable(final int a, final int b) {
-            throw new UnsupportedOperationException("use class " + DoubleOrOperation.class.getSimpleName());
+            throw new UnsupportedOperationException("use class " + BooleanNullableOrOperation.class.getSimpleName());
         }
 
         @Override
         public boolean applyBoolean(final int a, final int b) {
-            throw new UnsupportedOperationException("use class " + DoubleOrOperation.class.getSimpleName());
+            throw new UnsupportedOperationException("use class " + BooleanNullableOrOperation.class.getSimpleName());
         }
     },
     NOT(1, "!") {
         @Override
-        public ExpressionType getType() {
+        public ExpressionType getReturnType() {
             return ExpressionType.Boolean;
+        }
+
+        @Override
+        public ExpressionType getSimplifiedReturnType() {
+            return ExpressionType.Boolean;
+        }
+
+        @Override
+        public ExpressionType simplifyType(final ExpressionType left, final ExpressionType right) {
+            if (right.isSmallerThanOrEqualTo(ExpressionType.Boolean)) {
+                return ExpressionType.Boolean;
+            }
+            return null;
         }
 
         @Override
         public double applyDouble(final double a, final double b) {
-            throw new UnsupportedOperationException("use class " + DoubleNotOperation.class.getSimpleName());
+            throw new UnsupportedOperationException("use class " + BooleanNullableNotOperation.class.getSimpleName());
         }
 
         @Override
         public int applyInteger(final double a, final double b) {
-            throw new UnsupportedOperationException("use class " + DoubleNotOperation.class.getSimpleName());
+            throw new UnsupportedOperationException("use class " + BooleanNullableNotOperation.class.getSimpleName());
         }
 
         @Override
         public Boolean applyBooleanNullable(final double a, final double b) {
-            throw new UnsupportedOperationException("use class " + DoubleNotOperation.class.getSimpleName());
+            throw new UnsupportedOperationException("use class " + BooleanNullableNotOperation.class.getSimpleName());
         }
 
         @Override
         public boolean applyBoolean(final double a, final double b) {
-            throw new UnsupportedOperationException("use class " + DoubleNotOperation.class.getSimpleName());
+            throw new UnsupportedOperationException("use class " + BooleanNullableNotOperation.class.getSimpleName());
         }
 
         @Override
         public double applyDouble(final int a, final int b) {
-            throw new UnsupportedOperationException("use class " + DoubleNotOperation.class.getSimpleName());
+            throw new UnsupportedOperationException("use class " + BooleanNullableNotOperation.class.getSimpleName());
         }
 
         @Override
         public int applyInteger(final int a, final int b) {
-            throw new UnsupportedOperationException("use class " + DoubleNotOperation.class.getSimpleName());
+            throw new UnsupportedOperationException("use class " + BooleanNullableNotOperation.class.getSimpleName());
         }
 
         @Override
         public Boolean applyBooleanNullable(final int a, final int b) {
-            throw new UnsupportedOperationException("use class " + DoubleNotOperation.class.getSimpleName());
+            throw new UnsupportedOperationException("use class " + BooleanNullableNotOperation.class.getSimpleName());
         }
 
         @Override
         public boolean applyBoolean(final int a, final int b) {
-            throw new UnsupportedOperationException("use class " + DoubleNotOperation.class.getSimpleName());
+            throw new UnsupportedOperationException("use class " + BooleanNullableNotOperation.class.getSimpleName());
         }
     },
     CROSSES_ABOVE(1, "crosses above") {
         @Override
-        public ExpressionType getType() {
+        public ExpressionType getReturnType() {
             return ExpressionType.Boolean;
+        }
+
+        @Override
+        public ExpressionType getSimplifiedReturnType() {
+            return ExpressionType.Boolean;
+        }
+
+        @Override
+        public ExpressionType simplifyType(final ExpressionType left, final ExpressionType right) {
+            if (left.isSmallerThanOrEqualTo(ExpressionType.Integer)
+                    && right.isSmallerThanOrEqualTo(ExpressionType.Integer)) {
+                return ExpressionType.Integer;
+            }
+            return null;
         }
 
         @Override
@@ -746,8 +963,22 @@ public enum Op {
     },
     CROSSES_BELOW(1, "crosses below") {
         @Override
-        public ExpressionType getType() {
+        public ExpressionType getReturnType() {
             return ExpressionType.Boolean;
+        }
+
+        @Override
+        public ExpressionType getSimplifiedReturnType() {
+            return ExpressionType.Boolean;
+        }
+
+        @Override
+        public ExpressionType simplifyType(final ExpressionType left, final ExpressionType right) {
+            if (left.isSmallerThanOrEqualTo(ExpressionType.Integer)
+                    && right.isSmallerThanOrEqualTo(ExpressionType.Integer)) {
+                return ExpressionType.Integer;
+            }
+            return null;
         }
 
         @Override
@@ -792,7 +1023,7 @@ public enum Op {
     };
 
     private final int priority;
-    private String text;
+    private final String text;
 
     Op(final int priority, final String text) {
         this.priority = priority;
@@ -824,6 +1055,14 @@ public enum Op {
 
     public abstract boolean applyBoolean(int a, int b);
 
-    public abstract ExpressionType getType();
+    public abstract ExpressionType getReturnType();
+
+    public abstract ExpressionType getSimplifiedReturnType();
+
+    public ExpressionType simplifyType(final IParsedExpression left, final IParsedExpression right) {
+        return simplifyType(left.getType(), right.getType());
+    }
+
+    public abstract ExpressionType simplifyType(ExpressionType left, ExpressionType right);
 
 }

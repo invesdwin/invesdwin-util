@@ -287,7 +287,7 @@ public final class Integers extends AIntegersStaticFacade {
         return Math.abs(value);
     }
 
-    public static Boolean integerToBooleanNullable(final int value) {
+    public static Boolean toBooleanNullable(final int value) {
         if (value > 0) {
             return Boolean.TRUE;
         } else {
@@ -295,11 +295,11 @@ public final class Integers extends AIntegersStaticFacade {
         }
     }
 
-    public static boolean integerToBoolean(final int value) {
+    public static boolean toBoolean(final int value) {
         return value > 0;
     }
 
-    public static int booleanToInteger(final boolean value) {
+    public static int fromBoolean(final boolean value) {
         if (value) {
             return 1;
         } else {
@@ -307,7 +307,7 @@ public final class Integers extends AIntegersStaticFacade {
         }
     }
 
-    public static int booleanToInteger(final Boolean value) {
+    public static int fromBoolean(final Boolean value) {
         if (Booleans.isTrue(value)) {
             return 1;
         } else {

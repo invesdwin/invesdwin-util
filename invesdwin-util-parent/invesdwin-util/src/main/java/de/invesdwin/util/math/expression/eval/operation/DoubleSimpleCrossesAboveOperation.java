@@ -2,15 +2,18 @@ package de.invesdwin.util.math.expression.eval.operation;
 
 import javax.annotation.concurrent.Immutable;
 
+import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.math.Doubles;
+import de.invesdwin.util.math.expression.ExpressionType;
 import de.invesdwin.util.math.expression.eval.IParsedExpression;
+import de.invesdwin.util.math.expression.eval.operation.simple.IntegerSimpleCrossesAboveOperation;
 import de.invesdwin.util.math.expression.function.IPreviousKeyFunction;
 import de.invesdwin.util.time.fdate.IFDateProvider;
 
 @Immutable
 public class DoubleSimpleCrossesAboveOperation extends DoubleBinaryOperation {
 
-    private final IPreviousKeyFunction previousKeyFunction;
+    protected final IPreviousKeyFunction previousKeyFunction;
 
     public DoubleSimpleCrossesAboveOperation(final IParsedExpression left, final IParsedExpression right,
             final IPreviousKeyFunction previousKeyFunction) {
@@ -60,6 +63,51 @@ public class DoubleSimpleCrossesAboveOperation extends DoubleBinaryOperation {
 
     @Override
     public double evaluateDouble() {
+        throw new UnsupportedOperationException("crosses below operation is only supported with time or int index");
+    }
+
+    @Override
+    public int evaluateInteger(final IFDateProvider key) {
+        //crosses above => left was below but went above right
+
+        final double leftValue0 = left.evaluateDouble(key);
+        final double rightValue0 = right.evaluateDouble(key);
+        //left is above right
+        if (Doubles.isGreaterThan(leftValue0, rightValue0)) {
+            final IFDateProvider previousKey = previousKeyFunction.getPreviousKey(key, 1);
+            final double leftValue1 = previousKeyFunction.evaluateDouble(left, previousKey);
+            final double rightValue1 = previousKeyFunction.evaluateDouble(right, previousKey);
+            //previous left is below or equal to previous right
+            if (Doubles.isLessThanOrEqualTo(leftValue1, rightValue1)) {
+                return 1;
+            }
+        }
+
+        return 0;
+    }
+
+    @Override
+    public int evaluateInteger(final int key) {
+        //crosses above => left was below but went above right
+
+        final double leftValue0 = left.evaluateDouble(key);
+        final double rightValue0 = right.evaluateDouble(key);
+        //left is above right
+        if (Doubles.isGreaterThan(leftValue0, rightValue0)) {
+            final int previousKey = previousKeyFunction.getPreviousKey(key, 1);
+            final double leftValue1 = previousKeyFunction.evaluateDouble(left, previousKey);
+            final double rightValue1 = previousKeyFunction.evaluateDouble(right, previousKey);
+            //previous left is below or equal to previous right
+            if (Doubles.isLessThanOrEqualTo(leftValue1, rightValue1)) {
+                return 1;
+            }
+        }
+
+        return 0;
+    }
+
+    @Override
+    public int evaluateInteger() {
         throw new UnsupportedOperationException("crosses below operation is only supported with time or int index");
     }
 
@@ -159,9 +207,15 @@ public class DoubleSimpleCrossesAboveOperation extends DoubleBinaryOperation {
     }
 
     @Override
-    protected DoubleBinaryOperation newBinaryOperation(final Op op, final IParsedExpression left,
-            final IParsedExpression right) {
-        return new DoubleSimpleCrossesAboveOperation(left, right, previousKeyFunction);
+    protected IBinaryOperation newBinaryOperation(final IParsedExpression left, final IParsedExpression right) {
+        final ExpressionType simplifyType = op.simplifyType(left, right);
+        if (simplifyType == null) {
+            return new DoubleSimpleCrossesAboveOperation(left, right, previousKeyFunction);
+        } else if (simplifyType == ExpressionType.Integer) {
+            return new IntegerSimpleCrossesAboveOperation(left, right, previousKeyFunction);
+        } else {
+            throw UnknownArgumentException.newInstance(ExpressionType.class, simplifyType);
+        }
     }
 
 }

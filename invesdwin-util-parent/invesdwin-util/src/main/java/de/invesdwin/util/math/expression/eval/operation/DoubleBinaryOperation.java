@@ -2,18 +2,20 @@ package de.invesdwin.util.math.expression.eval.operation;
 
 import javax.annotation.concurrent.Immutable;
 
+import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.math.expression.ExpressionType;
 import de.invesdwin.util.math.expression.IExpression;
 import de.invesdwin.util.math.expression.eval.ConstantExpression;
 import de.invesdwin.util.math.expression.eval.IParsedExpression;
+import de.invesdwin.util.math.expression.eval.operation.simple.IntegerBinaryOperation;
 import de.invesdwin.util.time.fdate.IFDateProvider;
 
 @Immutable
-public class DoubleBinaryOperation implements IParsedExpression {
+public class DoubleBinaryOperation implements IBinaryOperation {
 
+    protected final Op op;
     protected final IParsedExpression left;
     protected final IParsedExpression right;
-    private final Op op;
     private boolean sealed = false;
 
     public DoubleBinaryOperation(final Op op, final IParsedExpression left, final IParsedExpression right) {
@@ -22,26 +24,32 @@ public class DoubleBinaryOperation implements IParsedExpression {
         this.right = right;
     }
 
+    @Override
     public Op getOp() {
         return op;
     }
 
+    @Override
     public IParsedExpression getLeft() {
         return left;
     }
 
-    public DoubleBinaryOperation setLeft(final IParsedExpression left) {
-        return newBinaryOperation(op, left, right);
+    @Override
+    public IBinaryOperation setLeft(final IParsedExpression left) {
+        return newBinaryOperation(left, right);
     }
 
+    @Override
     public IParsedExpression getRight() {
         return right;
     }
 
+    @Override
     public void seal() {
         sealed = true;
     }
 
+    @Override
     public boolean isSealed() {
         return sealed;
     }
@@ -167,7 +175,7 @@ public class DoubleBinaryOperation implements IParsedExpression {
                 newLeft = tmp;
             }
 
-            if (newRight instanceof DoubleBinaryOperation) {
+            if (newRight instanceof IBinaryOperation) {
                 final IParsedExpression childOp = trySimplifyRightSide(newLeft, newRight);
                 if (childOp != null) {
                     //we can directly use the child instead of this one
@@ -176,21 +184,27 @@ public class DoubleBinaryOperation implements IParsedExpression {
             }
         }
 
-        return newBinaryOperation(op, newLeft, newRight);
+        return newBinaryOperation(newLeft, newRight);
     }
 
     private IParsedExpression newConstantExpression() {
-        return new ConstantExpression(evaluateDouble(), getType());
+        return new ConstantExpression(evaluateDouble());
     }
 
-    protected DoubleBinaryOperation newBinaryOperation(final Op op, final IParsedExpression left,
-            final IParsedExpression right) {
-        return new DoubleBinaryOperation(op, left, right);
+    protected IBinaryOperation newBinaryOperation(final IParsedExpression left, final IParsedExpression right) {
+        final ExpressionType simplifyType = op.simplifyType(left, right);
+        if (simplifyType == null) {
+            return new DoubleBinaryOperation(op, left, right);
+        } else if (simplifyType == ExpressionType.Integer) {
+            return new IntegerBinaryOperation(op, left, right);
+        } else {
+            throw UnknownArgumentException.newInstance(ExpressionType.class, simplifyType);
+        }
     }
 
     private IParsedExpression trySimplifyRightSide(final IParsedExpression newLeft, final IParsedExpression newRight) {
-        final DoubleBinaryOperation childOp = (DoubleBinaryOperation) newRight;
-        if (op != childOp.op) {
+        final IBinaryOperation childOp = (IBinaryOperation) newRight;
+        if (op != childOp.getOp()) {
             return null;
         }
 
@@ -198,24 +212,26 @@ public class DoubleBinaryOperation implements IParsedExpression {
         if (newLeft.isConstant()) {
             // Left side is constant, we therefore can combine constants. We can rely on the constant
             // being on the left side, since we reorder commutative operations (see above)
-            if (childOp.left.isConstant()) {
+            if (childOp.getLeft().isConstant()) {
                 if (op == Op.ADD) {
-                    return newBinaryOperation(op,
-                            new ConstantExpression(newLeft.evaluateDouble() + childOp.left.evaluateDouble(), getType()),
-                            childOp.right);
+                    return newBinaryOperation(
+                            new ConstantExpression(newLeft.evaluateDouble() + childOp.getLeft().evaluateDouble(),
+                                    ExpressionType.determineType(getType(), newLeft, childOp.getLeft())),
+                            childOp.getRight());
                 }
                 if (op == Op.MULTIPLY) {
-                    return newBinaryOperation(op,
-                            new ConstantExpression(newLeft.evaluateDouble() * childOp.left.evaluateDouble(), getType()),
-                            childOp.right);
+                    return newBinaryOperation(
+                            new ConstantExpression(newLeft.evaluateDouble() * childOp.getLeft().evaluateDouble(),
+                                    ExpressionType.determineType(getType(), newLeft, childOp.getLeft())),
+                            childOp.getRight());
                 }
             }
         }
 
-        if (childOp.left.isConstant()) {
+        if (childOp.getLeft().isConstant()) {
             // Since our left side is non constant, but the left side of the child expression is,
             // we push the constant up, to support further optimizations
-            return newBinaryOperation(op, childOp.left, newBinaryOperation(op, newLeft, childOp.right));
+            return newBinaryOperation(childOp.getLeft(), newBinaryOperation(newLeft, childOp.getRight()));
         }
 
         return null;
@@ -251,31 +267,9 @@ public class DoubleBinaryOperation implements IParsedExpression {
         return new IExpression[] { left, right };
     }
 
-    public static DoubleBinaryOperation validateComparativeOperation(final IExpression condition) {
-        if (!(condition instanceof DoubleBinaryOperation)) {
-            throw new IllegalArgumentException(
-                    "condition needs to be a " + DoubleBinaryOperation.class.getSimpleName() + ": " + condition);
-        }
-        final DoubleBinaryOperation binaryOperation = (DoubleBinaryOperation) condition;
-        switch (binaryOperation.getOp()) {
-        case EQ:
-        case NEQ:
-        case GT:
-        case GT_EQ:
-        case LT:
-        case LT_EQ:
-            break;
-        default:
-            throw new IllegalArgumentException("Comparative " + DoubleBinaryOperation.class.getSimpleName()
-                    + " needs to be one of [" + Op.EQ + "," + Op.NEQ + "," + Op.GT + "," + Op.GT_EQ + "," + Op.LT + ","
-                    + Op.LT_EQ + "]: " + binaryOperation.getOp());
-        }
-        return binaryOperation;
-    }
-
     @Override
     public ExpressionType getType() {
-        return op.getType();
+        return op.getReturnType();
     }
 
 }

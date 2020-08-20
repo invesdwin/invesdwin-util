@@ -53,32 +53,32 @@ public class DoubleVariableReference extends AVariableReference<IDoubleVariable>
 
     @Override
     public Boolean evaluateBooleanNullable(final IFDateProvider key) {
-        return Doubles.doubleToBooleanNullable(variable.getValue(key));
+        return Doubles.toBooleanNullable(variable.getValue(key));
     }
 
     @Override
     public Boolean evaluateBooleanNullable(final int key) {
-        return Doubles.doubleToBooleanNullable(variable.getValue(key));
+        return Doubles.toBooleanNullable(variable.getValue(key));
     }
 
     @Override
     public Boolean evaluateBooleanNullable() {
-        return Doubles.doubleToBooleanNullable(variable.getValue());
+        return Doubles.toBooleanNullable(variable.getValue());
     }
 
     @Override
     public boolean evaluateBoolean(final IFDateProvider key) {
-        return Doubles.doubleToBoolean(variable.getValue(key));
+        return Doubles.toBoolean(variable.getValue(key));
     }
 
     @Override
     public boolean evaluateBoolean(final int key) {
-        return Doubles.doubleToBoolean(variable.getValue(key));
+        return Doubles.toBoolean(variable.getValue(key));
     }
 
     @Override
     public boolean evaluateBoolean() {
-        return Doubles.doubleToBoolean(variable.getValue());
+        return Doubles.toBoolean(variable.getValue());
     }
 
     @Override

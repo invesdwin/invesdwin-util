@@ -23,32 +23,32 @@ public class BooleanNullableVariableReference extends AVariableReference<IBoolea
 
     @Override
     public double evaluateDouble(final IFDateProvider key) {
-        return Doubles.booleanToDouble(evaluateBoolean(key));
+        return Doubles.fromBoolean(evaluateBoolean(key));
     }
 
     @Override
     public double evaluateDouble(final int key) {
-        return Doubles.booleanToDouble(evaluateBoolean(key));
+        return Doubles.fromBoolean(evaluateBoolean(key));
     }
 
     @Override
     public double evaluateDouble() {
-        return Doubles.booleanToDouble(evaluateBoolean());
+        return Doubles.fromBoolean(evaluateBoolean());
     }
 
     @Override
     public int evaluateInteger(final IFDateProvider key) {
-        return Integers.booleanToInteger(evaluateBoolean(key));
+        return Integers.fromBoolean(evaluateBoolean(key));
     }
 
     @Override
     public int evaluateInteger(final int key) {
-        return Integers.booleanToInteger(evaluateBoolean(key));
+        return Integers.fromBoolean(evaluateBoolean(key));
     }
 
     @Override
     public int evaluateInteger() {
-        return Integers.booleanToInteger(evaluateBoolean());
+        return Integers.fromBoolean(evaluateBoolean());
     }
 
     @Override
