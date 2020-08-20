@@ -3,6 +3,7 @@ package de.invesdwin.util.math.expression.eval.variable;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.math.Doubles;
+import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.expression.function.AFunction;
 import de.invesdwin.util.math.expression.variable.IDoubleVariable;
 import de.invesdwin.util.time.fdate.IFDateProvider;
@@ -27,6 +28,21 @@ public class DoubleVariableReference extends AVariableReference<IDoubleVariable>
     @Override
     public double evaluateDouble() {
         return variable.getValue();
+    }
+
+    @Override
+    public int evaluateInteger(final IFDateProvider key) {
+        return Integers.checkedCastNoOverflow(variable.getValue(key));
+    }
+
+    @Override
+    public int evaluateInteger(final int key) {
+        return Integers.checkedCastNoOverflow(variable.getValue(key));
+    }
+
+    @Override
+    public int evaluateInteger() {
+        return Integers.checkedCastNoOverflow(variable.getValue());
     }
 
     @Override

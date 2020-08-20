@@ -38,6 +38,23 @@ public class ConstantPreviousKeyExpression implements IParsedExpression {
     }
 
     @Override
+    public int evaluateInteger(final IFDateProvider key) {
+        final IFDateProvider previousKey = previousKeyFunction.getPreviousKey(key, index);
+        return previousKeyFunction.evaluateInteger(expression, previousKey);
+    }
+
+    @Override
+    public int evaluateInteger(final int key) {
+        final int previousKey = previousKeyFunction.getPreviousKey(key, index);
+        return previousKeyFunction.evaluateInteger(expression, previousKey);
+    }
+
+    @Override
+    public int evaluateInteger() {
+        throw new UnsupportedOperationException("use time or int key instead");
+    }
+
+    @Override
     public Boolean evaluateBooleanNullable(final IFDateProvider key) {
         final IFDateProvider previousKey = previousKeyFunction.getPreviousKey(key, index);
         return previousKeyFunction.evaluateBooleanNullable(expression, previousKey);

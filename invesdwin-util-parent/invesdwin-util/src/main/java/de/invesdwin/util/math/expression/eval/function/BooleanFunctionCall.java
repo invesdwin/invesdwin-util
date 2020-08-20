@@ -3,6 +3,7 @@ package de.invesdwin.util.math.expression.eval.function;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.math.Doubles;
+import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.expression.eval.IParsedExpression;
 import de.invesdwin.util.math.expression.function.ABooleanFunction;
 import de.invesdwin.util.time.fdate.IFDateProvider;
@@ -37,6 +38,21 @@ public class BooleanFunctionCall extends AFunctionCall<ABooleanFunction> {
     @Override
     public double evaluateDouble() {
         return Doubles.booleanToDouble(evaluateBoolean());
+    }
+
+    @Override
+    public int evaluateInteger(final IFDateProvider key) {
+        return Integers.booleanToInteger(evaluateBoolean(key));
+    }
+
+    @Override
+    public int evaluateInteger(final int key) {
+        return Integers.booleanToInteger(evaluateBoolean(key));
+    }
+
+    @Override
+    public int evaluateInteger() {
+        return Integers.booleanToInteger(evaluateBoolean());
     }
 
     @Override

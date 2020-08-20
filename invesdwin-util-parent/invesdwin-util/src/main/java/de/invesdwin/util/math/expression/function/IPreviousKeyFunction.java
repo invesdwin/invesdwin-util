@@ -33,4 +33,12 @@ public interface IPreviousKeyFunction {
         return expression.evaluateBoolean(previousKey);
     }
 
+    default int evaluateInteger(final IParsedExpression expression, final IFDateProvider previousKey) {
+        return expression.evaluateInteger(previousKey);
+    }
+
+    default int evaluateInteger(final IParsedExpression expression, final int previousKey) {
+        return expression.evaluateInteger(previousKey);
+    }
+
 }

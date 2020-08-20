@@ -17,7 +17,8 @@ import de.invesdwin.util.math.decimal.ADecimal;
 @Immutable
 public final class CheckedCastIntegers {
 
-    private CheckedCastIntegers() {}
+    private CheckedCastIntegers() {
+    }
 
     public static int checkedCast(final Object value) {
         if (value instanceof Number) {
@@ -165,6 +166,16 @@ public final class CheckedCastIntegers {
         return (int) value;
     }
 
+    public static int checkedCastNoOverflow(final double value) {
+        if (value < Integer.MIN_VALUE) {
+            return Integer.MIN_VALUE;
+        }
+        if (value > Integer.MAX_VALUE) {
+            return Integer.MAX_VALUE;
+        }
+        return (int) value;
+    }
+
     public static int checkedCast(final ADecimal<?> value) {
         return checkedCast(value.getDefaultValue());
     }
@@ -289,7 +300,7 @@ public final class CheckedCastIntegers {
         }
         return vector;
     }
-    
+
     public static int[] checkedCastVector(final BitSet value) {
         if (value == null) {
             return null;
@@ -742,7 +753,7 @@ public final class CheckedCastIntegers {
         }
         return matrix;
     }
-    
+
     public static int[][] checkedCastMatrix(final BitSet[] value) {
         if (value == null) {
             return null;

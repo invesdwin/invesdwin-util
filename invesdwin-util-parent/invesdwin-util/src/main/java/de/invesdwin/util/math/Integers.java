@@ -29,7 +29,8 @@ public final class Integers extends AIntegersStaticFacade {
         }
     };
 
-    private Integers() {}
+    private Integers() {
+    }
 
     public static int[] toArray(final Collection<? extends Number> vector) {
         if (vector == null) {
@@ -283,6 +284,66 @@ public final class Integers extends AIntegersStaticFacade {
 
     public static int abs(final int value) {
         return Math.abs(value);
+    }
+
+    public static Boolean integerToBooleanNullable(final int value) {
+        if (value > 0) {
+            return Boolean.TRUE;
+        } else {
+            return Boolean.FALSE;
+        }
+    }
+
+    public static boolean integerToBoolean(final int value) {
+        return value > 0;
+    }
+
+    public static int booleanToInteger(final boolean value) {
+        if (value) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+
+    public static int booleanToInteger(final Boolean value) {
+        if (Booleans.isTrue(value)) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+
+    public static boolean notEquals(final int a, final int b) {
+        return a != b;
+    }
+
+    public static boolean isGreaterThan(final int a, final int b) {
+        return a > b;
+    }
+
+    public static boolean isGreaterThanOrEqualTo(final int a, final int b) {
+        return a >= b;
+    }
+
+    public static boolean equals(final int a, final int b) {
+        return a == b;
+    }
+
+    public static boolean isLessThanOrEqualTo(final int a, final int b) {
+        return a <= b;
+    }
+
+    public static boolean isLessThan(final int a, final int b) {
+        return a < b;
+    }
+
+    public static int divide(final int a, final int b) {
+        if (b == 0) {
+            return 0;
+        } else {
+            return a / b;
+        }
     }
 
 }

@@ -3,6 +3,7 @@ package de.invesdwin.util.math.expression.eval.operation;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.math.Doubles;
+import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.expression.IExpression;
 import de.invesdwin.util.math.expression.eval.ConstantExpression;
 import de.invesdwin.util.math.expression.eval.IParsedExpression;
@@ -68,6 +69,30 @@ public class BinaryOperation implements IParsedExpression {
         final double b = right.evaluateDouble();
 
         return op.applyDouble(a, b);
+    }
+
+    @Override
+    public int evaluateInteger(final IFDateProvider key) {
+        final double a = left.evaluateDouble(key);
+        final double b = right.evaluateDouble(key);
+
+        return op.applyInteger(a, b);
+    }
+
+    @Override
+    public int evaluateInteger(final int key) {
+        final double a = left.evaluateDouble(key);
+        final double b = right.evaluateDouble(key);
+
+        return op.applyInteger(a, b);
+    }
+
+    @Override
+    public int evaluateInteger() {
+        final double a = left.evaluateDouble();
+        final double b = right.evaluateDouble();
+
+        return op.applyInteger(a, b);
     }
 
     @Override
@@ -215,12 +240,37 @@ public class BinaryOperation implements IParsedExpression {
             }
 
             @Override
+            public int applyInteger(final double a, final double b) {
+                return Integers.checkedCastNoOverflow(applyDouble(a, b));
+            }
+
+            @Override
             public Boolean applyBooleanNullable(final double a, final double b) {
                 return Doubles.doubleToBooleanNullable(applyDouble(a, b));
             }
 
             @Override
             public boolean applyBoolean(final double a, final double b) {
+                return Doubles.doubleToBoolean(applyDouble(a, b));
+            }
+
+            @Override
+            public double applyDouble(final int a, final int b) {
+                return applyDouble((double) a, (double) b);
+            }
+
+            @Override
+            public int applyInteger(final int a, final int b) {
+                return Integers.checkedCastNoOverflow(applyDouble(a, b));
+            }
+
+            @Override
+            public Boolean applyBooleanNullable(final int a, final int b) {
+                return Doubles.doubleToBooleanNullable(applyDouble(a, b));
+            }
+
+            @Override
+            public boolean applyBoolean(final int a, final int b) {
                 return Doubles.doubleToBoolean(applyDouble(a, b));
             }
         },
@@ -231,6 +281,11 @@ public class BinaryOperation implements IParsedExpression {
             }
 
             @Override
+            public int applyInteger(final double a, final double b) {
+                return Integers.checkedCastNoOverflow(applyDouble(a, b));
+            }
+
+            @Override
             public Boolean applyBooleanNullable(final double a, final double b) {
                 return Doubles.doubleToBooleanNullable(applyDouble(a, b));
             }
@@ -238,6 +293,26 @@ public class BinaryOperation implements IParsedExpression {
             @Override
             public boolean applyBoolean(final double a, final double b) {
                 return Doubles.doubleToBoolean(applyDouble(a, b));
+            }
+
+            @Override
+            public double applyDouble(final int a, final int b) {
+                return a - b;
+            }
+
+            @Override
+            public int applyInteger(final int a, final int b) {
+                return a - b;
+            }
+
+            @Override
+            public Boolean applyBooleanNullable(final int a, final int b) {
+                return Integers.integerToBooleanNullable(applyInteger(a, b));
+            }
+
+            @Override
+            public boolean applyBoolean(final int a, final int b) {
+                return Integers.integerToBoolean(applyInteger(a, b));
             }
         },
         MULTIPLY(4, "*") {
@@ -247,6 +322,11 @@ public class BinaryOperation implements IParsedExpression {
             }
 
             @Override
+            public int applyInteger(final double a, final double b) {
+                return Integers.checkedCastNoOverflow(applyDouble(a, b));
+            }
+
+            @Override
             public Boolean applyBooleanNullable(final double a, final double b) {
                 return Doubles.doubleToBooleanNullable(applyDouble(a, b));
             }
@@ -254,6 +334,26 @@ public class BinaryOperation implements IParsedExpression {
             @Override
             public boolean applyBoolean(final double a, final double b) {
                 return Doubles.doubleToBoolean(applyDouble(a, b));
+            }
+
+            @Override
+            public double applyDouble(final int a, final int b) {
+                return applyDouble((double) a, (double) b);
+            }
+
+            @Override
+            public int applyInteger(final int a, final int b) {
+                return Integers.checkedCastNoOverflow(applyDouble(a, b));
+            }
+
+            @Override
+            public Boolean applyBooleanNullable(final int a, final int b) {
+                return Doubles.doubleToBooleanNullable(applyInteger(a, b));
+            }
+
+            @Override
+            public boolean applyBoolean(final int a, final int b) {
+                return Doubles.doubleToBoolean(applyInteger(a, b));
             }
         },
         DIVIDE(4, "/") {
@@ -263,6 +363,11 @@ public class BinaryOperation implements IParsedExpression {
             }
 
             @Override
+            public int applyInteger(final double a, final double b) {
+                return Integers.checkedCastNoOverflow(applyDouble(a, b));
+            }
+
+            @Override
             public Boolean applyBooleanNullable(final double a, final double b) {
                 return Doubles.doubleToBooleanNullable(applyDouble(a, b));
             }
@@ -270,6 +375,26 @@ public class BinaryOperation implements IParsedExpression {
             @Override
             public boolean applyBoolean(final double a, final double b) {
                 return Doubles.doubleToBoolean(applyDouble(a, b));
+            }
+
+            @Override
+            public double applyDouble(final int a, final int b) {
+                return Doubles.divide(a, b);
+            }
+
+            @Override
+            public int applyInteger(final int a, final int b) {
+                return Integers.divide(a, b);
+            }
+
+            @Override
+            public Boolean applyBooleanNullable(final int a, final int b) {
+                return Doubles.doubleToBooleanNullable(applyInteger(a, b));
+            }
+
+            @Override
+            public boolean applyBoolean(final int a, final int b) {
+                return Doubles.doubleToBoolean(applyInteger(a, b));
             }
         },
         MODULO(4, "%") {
@@ -279,6 +404,11 @@ public class BinaryOperation implements IParsedExpression {
             }
 
             @Override
+            public int applyInteger(final double a, final double b) {
+                return Integers.checkedCastNoOverflow(applyDouble(a, b));
+            }
+
+            @Override
             public Boolean applyBooleanNullable(final double a, final double b) {
                 return Doubles.doubleToBooleanNullable(applyDouble(a, b));
             }
@@ -286,6 +416,26 @@ public class BinaryOperation implements IParsedExpression {
             @Override
             public boolean applyBoolean(final double a, final double b) {
                 return Doubles.doubleToBoolean(applyDouble(a, b));
+            }
+
+            @Override
+            public double applyDouble(final int a, final int b) {
+                return applyInteger(a, b);
+            }
+
+            @Override
+            public int applyInteger(final int a, final int b) {
+                return a % b;
+            }
+
+            @Override
+            public Boolean applyBooleanNullable(final int a, final int b) {
+                return Doubles.doubleToBooleanNullable(applyInteger(a, b));
+            }
+
+            @Override
+            public boolean applyBoolean(final int a, final int b) {
+                return Doubles.doubleToBoolean(applyInteger(a, b));
             }
         },
         POWER(5, "^") {
@@ -295,6 +445,11 @@ public class BinaryOperation implements IParsedExpression {
             }
 
             @Override
+            public int applyInteger(final double a, final double b) {
+                return Integers.checkedCastNoOverflow(applyDouble(a, b));
+            }
+
+            @Override
             public Boolean applyBooleanNullable(final double a, final double b) {
                 return Doubles.doubleToBooleanNullable(applyDouble(a, b));
             }
@@ -303,11 +458,36 @@ public class BinaryOperation implements IParsedExpression {
             public boolean applyBoolean(final double a, final double b) {
                 return Doubles.doubleToBoolean(applyDouble(a, b));
             }
+
+            @Override
+            public double applyDouble(final int a, final int b) {
+                return Math.pow(a, b);
+            }
+
+            @Override
+            public int applyInteger(final int a, final int b) {
+                return Integers.checkedCastNoOverflow(applyDouble(a, b));
+            }
+
+            @Override
+            public Boolean applyBooleanNullable(final int a, final int b) {
+                return Doubles.doubleToBooleanNullable(applyDouble(a, b));
+            }
+
+            @Override
+            public boolean applyBoolean(final int a, final int b) {
+                return Doubles.doubleToBoolean(applyDouble(a, b));
+            }
         },
         LT(2, "<") {
             @Override
             public double applyDouble(final double a, final double b) {
-                return applyBoolean(a, b) ? 1D : 0D;
+                return Doubles.booleanToDouble(applyBoolean(a, b));
+            }
+
+            @Override
+            public int applyInteger(final double a, final double b) {
+                return Integers.booleanToInteger(applyBoolean(a, b));
             }
 
             @Override
@@ -319,11 +499,36 @@ public class BinaryOperation implements IParsedExpression {
             public boolean applyBoolean(final double a, final double b) {
                 return Doubles.isLessThan(a, b);
             }
+
+            @Override
+            public double applyDouble(final int a, final int b) {
+                return Doubles.booleanToDouble(applyBoolean(a, b));
+            }
+
+            @Override
+            public int applyInteger(final int a, final int b) {
+                return Integers.booleanToInteger(applyBoolean(a, b));
+            }
+
+            @Override
+            public Boolean applyBooleanNullable(final int a, final int b) {
+                return applyBoolean(a, b);
+            }
+
+            @Override
+            public boolean applyBoolean(final int a, final int b) {
+                return Integers.isLessThan(a, b);
+            }
         },
         LT_EQ(2, "<=") {
             @Override
             public double applyDouble(final double a, final double b) {
                 return Doubles.booleanToDouble(applyBoolean(a, b));
+            }
+
+            @Override
+            public int applyInteger(final double a, final double b) {
+                return Integers.booleanToInteger(applyBoolean(a, b));
             }
 
             @Override
@@ -335,11 +540,36 @@ public class BinaryOperation implements IParsedExpression {
             public boolean applyBoolean(final double a, final double b) {
                 return Doubles.isLessThanOrEqualTo(a, b);
             }
+
+            @Override
+            public double applyDouble(final int a, final int b) {
+                return Doubles.booleanToDouble(applyBoolean(a, b));
+            }
+
+            @Override
+            public int applyInteger(final int a, final int b) {
+                return Integers.booleanToInteger(applyBoolean(a, b));
+            }
+
+            @Override
+            public Boolean applyBooleanNullable(final int a, final int b) {
+                return applyBoolean(a, b);
+            }
+
+            @Override
+            public boolean applyBoolean(final int a, final int b) {
+                return Integers.isLessThanOrEqualTo(a, b);
+            }
         },
         EQ(2, "==") {
             @Override
             public double applyDouble(final double a, final double b) {
                 return Doubles.booleanToDouble(applyBoolean(a, b));
+            }
+
+            @Override
+            public int applyInteger(final double a, final double b) {
+                return Integers.booleanToInteger(applyBoolean(a, b));
             }
 
             @Override
@@ -351,11 +581,36 @@ public class BinaryOperation implements IParsedExpression {
             public boolean applyBoolean(final double a, final double b) {
                 return Doubles.equals(a, b);
             }
+
+            @Override
+            public double applyDouble(final int a, final int b) {
+                return Doubles.booleanToDouble(applyBoolean(a, b));
+            }
+
+            @Override
+            public int applyInteger(final int a, final int b) {
+                return Integers.booleanToInteger(applyBoolean(a, b));
+            }
+
+            @Override
+            public Boolean applyBooleanNullable(final int a, final int b) {
+                return applyBoolean(a, b);
+            }
+
+            @Override
+            public boolean applyBoolean(final int a, final int b) {
+                return Integers.equals(a, b);
+            }
         },
         GT_EQ(2, ">=") {
             @Override
             public double applyDouble(final double a, final double b) {
                 return Doubles.booleanToDouble(applyBoolean(a, b));
+            }
+
+            @Override
+            public int applyInteger(final double a, final double b) {
+                return Integers.booleanToInteger(applyBoolean(a, b));
             }
 
             @Override
@@ -367,11 +622,36 @@ public class BinaryOperation implements IParsedExpression {
             public boolean applyBoolean(final double a, final double b) {
                 return Doubles.isGreaterThanOrEqualTo(a, b);
             }
+
+            @Override
+            public double applyDouble(final int a, final int b) {
+                return Doubles.booleanToDouble(applyBoolean(a, b));
+            }
+
+            @Override
+            public int applyInteger(final int a, final int b) {
+                return Integers.booleanToInteger(applyBoolean(a, b));
+            }
+
+            @Override
+            public Boolean applyBooleanNullable(final int a, final int b) {
+                return applyBoolean(a, b);
+            }
+
+            @Override
+            public boolean applyBoolean(final int a, final int b) {
+                return Integers.isGreaterThanOrEqualTo(a, b);
+            }
         },
         GT(2, ">") {
             @Override
             public double applyDouble(final double a, final double b) {
                 return Doubles.booleanToDouble(applyBoolean(a, b));
+            }
+
+            @Override
+            public int applyInteger(final double a, final double b) {
+                return Integers.booleanToInteger(applyBoolean(a, b));
             }
 
             @Override
@@ -383,11 +663,36 @@ public class BinaryOperation implements IParsedExpression {
             public boolean applyBoolean(final double a, final double b) {
                 return Doubles.isGreaterThan(a, b);
             }
+
+            @Override
+            public double applyDouble(final int a, final int b) {
+                return Doubles.booleanToDouble(applyBoolean(a, b));
+            }
+
+            @Override
+            public int applyInteger(final int a, final int b) {
+                return Integers.booleanToInteger(applyBoolean(a, b));
+            }
+
+            @Override
+            public Boolean applyBooleanNullable(final int a, final int b) {
+                return applyBoolean(a, b);
+            }
+
+            @Override
+            public boolean applyBoolean(final int a, final int b) {
+                return Integers.isGreaterThan(a, b);
+            }
         },
         NEQ(2, "!=") {
             @Override
             public double applyDouble(final double a, final double b) {
                 return Doubles.booleanToDouble(applyBoolean(a, b));
+            }
+
+            @Override
+            public int applyInteger(final double a, final double b) {
+                return Integers.booleanToInteger(applyBoolean(a, b));
             }
 
             @Override
@@ -399,10 +704,35 @@ public class BinaryOperation implements IParsedExpression {
             public boolean applyBoolean(final double a, final double b) {
                 return Doubles.notEquals(a, b);
             }
+
+            @Override
+            public double applyDouble(final int a, final int b) {
+                return Doubles.booleanToDouble(applyBoolean(a, b));
+            }
+
+            @Override
+            public int applyInteger(final int a, final int b) {
+                return Integers.booleanToInteger(applyBoolean(a, b));
+            }
+
+            @Override
+            public Boolean applyBooleanNullable(final int a, final int b) {
+                return applyBoolean(a, b);
+            }
+
+            @Override
+            public boolean applyBoolean(final int a, final int b) {
+                return Integers.notEquals(a, b);
+            }
         },
         AND(1, "&&") {
             @Override
             public double applyDouble(final double a, final double b) {
+                throw new UnsupportedOperationException("use class " + AndOperation.class.getSimpleName());
+            }
+
+            @Override
+            public int applyInteger(final double a, final double b) {
                 throw new UnsupportedOperationException("use class " + AndOperation.class.getSimpleName());
             }
 
@@ -413,6 +743,26 @@ public class BinaryOperation implements IParsedExpression {
 
             @Override
             public boolean applyBoolean(final double a, final double b) {
+                throw new UnsupportedOperationException("use class " + AndOperation.class.getSimpleName());
+            }
+
+            @Override
+            public double applyDouble(final int a, final int b) {
+                throw new UnsupportedOperationException("use class " + AndOperation.class.getSimpleName());
+            }
+
+            @Override
+            public int applyInteger(final int a, final int b) {
+                throw new UnsupportedOperationException("use class " + AndOperation.class.getSimpleName());
+            }
+
+            @Override
+            public Boolean applyBooleanNullable(final int a, final int b) {
+                throw new UnsupportedOperationException("use class " + AndOperation.class.getSimpleName());
+            }
+
+            @Override
+            public boolean applyBoolean(final int a, final int b) {
                 throw new UnsupportedOperationException("use class " + AndOperation.class.getSimpleName());
             }
         },
@@ -423,12 +773,37 @@ public class BinaryOperation implements IParsedExpression {
             }
 
             @Override
+            public int applyInteger(final double a, final double b) {
+                throw new UnsupportedOperationException("use class " + OrOperation.class.getSimpleName());
+            }
+
+            @Override
             public Boolean applyBooleanNullable(final double a, final double b) {
                 throw new UnsupportedOperationException("use class " + OrOperation.class.getSimpleName());
             }
 
             @Override
             public boolean applyBoolean(final double a, final double b) {
+                throw new UnsupportedOperationException("use class " + OrOperation.class.getSimpleName());
+            }
+
+            @Override
+            public double applyDouble(final int a, final int b) {
+                throw new UnsupportedOperationException("use class " + OrOperation.class.getSimpleName());
+            }
+
+            @Override
+            public int applyInteger(final int a, final int b) {
+                throw new UnsupportedOperationException("use class " + OrOperation.class.getSimpleName());
+            }
+
+            @Override
+            public Boolean applyBooleanNullable(final int a, final int b) {
+                throw new UnsupportedOperationException("use class " + OrOperation.class.getSimpleName());
+            }
+
+            @Override
+            public boolean applyBoolean(final int a, final int b) {
                 throw new UnsupportedOperationException("use class " + OrOperation.class.getSimpleName());
             }
         },
@@ -439,12 +814,37 @@ public class BinaryOperation implements IParsedExpression {
             }
 
             @Override
+            public int applyInteger(final double a, final double b) {
+                throw new UnsupportedOperationException("use class " + NotOperation.class.getSimpleName());
+            }
+
+            @Override
             public Boolean applyBooleanNullable(final double a, final double b) {
                 throw new UnsupportedOperationException("use class " + NotOperation.class.getSimpleName());
             }
 
             @Override
             public boolean applyBoolean(final double a, final double b) {
+                throw new UnsupportedOperationException("use class " + NotOperation.class.getSimpleName());
+            }
+
+            @Override
+            public double applyDouble(final int a, final int b) {
+                throw new UnsupportedOperationException("use class " + NotOperation.class.getSimpleName());
+            }
+
+            @Override
+            public int applyInteger(final int a, final int b) {
+                throw new UnsupportedOperationException("use class " + NotOperation.class.getSimpleName());
+            }
+
+            @Override
+            public Boolean applyBooleanNullable(final int a, final int b) {
+                throw new UnsupportedOperationException("use class " + NotOperation.class.getSimpleName());
+            }
+
+            @Override
+            public boolean applyBoolean(final int a, final int b) {
                 throw new UnsupportedOperationException("use class " + NotOperation.class.getSimpleName());
             }
         },
@@ -455,12 +855,37 @@ public class BinaryOperation implements IParsedExpression {
             }
 
             @Override
+            public int applyInteger(final double a, final double b) {
+                throw new UnsupportedOperationException("use class " + CrossesAboveOperation.class.getSimpleName());
+            }
+
+            @Override
             public Boolean applyBooleanNullable(final double a, final double b) {
                 throw new UnsupportedOperationException("use class " + CrossesAboveOperation.class.getSimpleName());
             }
 
             @Override
             public boolean applyBoolean(final double a, final double b) {
+                throw new UnsupportedOperationException("use class " + CrossesAboveOperation.class.getSimpleName());
+            }
+
+            @Override
+            public double applyDouble(final int a, final int b) {
+                throw new UnsupportedOperationException("use class " + CrossesAboveOperation.class.getSimpleName());
+            }
+
+            @Override
+            public int applyInteger(final int a, final int b) {
+                throw new UnsupportedOperationException("use class " + CrossesAboveOperation.class.getSimpleName());
+            }
+
+            @Override
+            public Boolean applyBooleanNullable(final int a, final int b) {
+                throw new UnsupportedOperationException("use class " + CrossesAboveOperation.class.getSimpleName());
+            }
+
+            @Override
+            public boolean applyBoolean(final int a, final int b) {
                 throw new UnsupportedOperationException("use class " + CrossesAboveOperation.class.getSimpleName());
             }
         },
@@ -471,12 +896,37 @@ public class BinaryOperation implements IParsedExpression {
             }
 
             @Override
+            public int applyInteger(final double a, final double b) {
+                throw new UnsupportedOperationException("use class " + CrossesBelowOperation.class.getSimpleName());
+            }
+
+            @Override
             public Boolean applyBooleanNullable(final double a, final double b) {
                 throw new UnsupportedOperationException("use class " + CrossesBelowOperation.class.getSimpleName());
             }
 
             @Override
             public boolean applyBoolean(final double a, final double b) {
+                throw new UnsupportedOperationException("use class " + CrossesBelowOperation.class.getSimpleName());
+            }
+
+            @Override
+            public double applyDouble(final int a, final int b) {
+                throw new UnsupportedOperationException("use class " + CrossesBelowOperation.class.getSimpleName());
+            }
+
+            @Override
+            public int applyInteger(final int a, final int b) {
+                throw new UnsupportedOperationException("use class " + CrossesBelowOperation.class.getSimpleName());
+            }
+
+            @Override
+            public Boolean applyBooleanNullable(final int a, final int b) {
+                throw new UnsupportedOperationException("use class " + CrossesBelowOperation.class.getSimpleName());
+            }
+
+            @Override
+            public boolean applyBoolean(final int a, final int b) {
                 throw new UnsupportedOperationException("use class " + CrossesBelowOperation.class.getSimpleName());
             }
         };
@@ -500,9 +950,19 @@ public class BinaryOperation implements IParsedExpression {
 
         public abstract double applyDouble(double a, double b);
 
+        protected abstract int applyInteger(double a, double b);
+
         public abstract Boolean applyBooleanNullable(double a, double b);
 
         public abstract boolean applyBoolean(double a, double b);
+
+        public abstract double applyDouble(int a, int b);
+
+        protected abstract int applyInteger(int a, int b);
+
+        public abstract Boolean applyBooleanNullable(int a, int b);
+
+        public abstract boolean applyBoolean(int a, int b);
 
     }
 

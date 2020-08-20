@@ -4,6 +4,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.math.Booleans;
 import de.invesdwin.util.math.Doubles;
+import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.expression.eval.IParsedExpression;
 import de.invesdwin.util.math.expression.function.ABooleanNullableFunction;
 import de.invesdwin.util.time.fdate.IFDateProvider;
@@ -38,6 +39,21 @@ public class BooleanNullableFunctionCall extends AFunctionCall<ABooleanNullableF
     @Override
     public double evaluateDouble() {
         return Doubles.booleanToDouble(evaluateBooleanNullable());
+    }
+
+    @Override
+    public int evaluateInteger(final IFDateProvider key) {
+        return Integers.booleanToInteger(evaluateBooleanNullable(key));
+    }
+
+    @Override
+    public int evaluateInteger(final int key) {
+        return Integers.booleanToInteger(evaluateBooleanNullable(key));
+    }
+
+    @Override
+    public int evaluateInteger() {
+        return Integers.booleanToInteger(evaluateBooleanNullable());
     }
 
     @Override

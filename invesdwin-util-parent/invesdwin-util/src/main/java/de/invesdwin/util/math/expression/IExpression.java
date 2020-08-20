@@ -1,6 +1,5 @@
 package de.invesdwin.util.math.expression;
 
-import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.time.fdate.IFDateProvider;
 
 public interface IExpression {
@@ -25,23 +24,17 @@ public interface IExpression {
     /**
      * Double.NaN is interpreted as 0.
      */
-    default int evaluateInteger(final IFDateProvider key) {
-        return Integers.checkedCast(evaluateDouble(key));
-    }
+    int evaluateInteger(IFDateProvider key);
 
     /**
      * Double.NaN is interpreted as 0.
      */
-    default int evaluateInteger(final int key) {
-        return Integers.checkedCast(evaluateDouble(key));
-    }
+    int evaluateInteger(int key);
 
     /**
      * Double.NaN is interpreted as 0.
      */
-    default int evaluateInteger() {
-        return Integers.checkedCast(evaluateDouble());
-    }
+    int evaluateInteger();
 
     /**
      * Double.NaN is interpreted as false.

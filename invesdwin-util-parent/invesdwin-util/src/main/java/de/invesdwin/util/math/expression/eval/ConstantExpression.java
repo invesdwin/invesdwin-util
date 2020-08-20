@@ -3,6 +3,7 @@ package de.invesdwin.util.math.expression.eval;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.math.Doubles;
+import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.decimal.Decimal;
 import de.invesdwin.util.math.expression.IExpression;
 import de.invesdwin.util.time.fdate.IFDateProvider;
@@ -11,11 +12,13 @@ import de.invesdwin.util.time.fdate.IFDateProvider;
 public class ConstantExpression implements IParsedExpression {
 
     private final double doubleValue;
+    private final int intValue;
     private final Boolean booleanNullableValue;
     private final boolean booleanValue;
 
     public ConstantExpression(final double value) {
         this.doubleValue = value;
+        this.intValue = Integers.checkedCastNoOverflow(value);
         this.booleanNullableValue = Doubles.doubleToBooleanNullable(value);
         this.booleanValue = Doubles.doubleToBoolean(value);
     }
@@ -33,6 +36,21 @@ public class ConstantExpression implements IParsedExpression {
     @Override
     public double evaluateDouble() {
         return doubleValue;
+    }
+
+    @Override
+    public int evaluateInteger(final IFDateProvider key) {
+        return intValue;
+    }
+
+    @Override
+    public int evaluateInteger(final int key) {
+        return intValue;
+    }
+
+    @Override
+    public int evaluateInteger() {
+        return intValue;
     }
 
     @Override

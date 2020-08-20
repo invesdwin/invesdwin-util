@@ -3,6 +3,7 @@ package de.invesdwin.util.math.expression.eval.function;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.math.Doubles;
+import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.expression.eval.IParsedExpression;
 import de.invesdwin.util.math.expression.function.ADoubleFunction;
 import de.invesdwin.util.time.fdate.IFDateProvider;
@@ -36,6 +37,21 @@ public class DoubleFunctionCall extends AFunctionCall<ADoubleFunction> {
     @Override
     public double evaluateDouble() {
         return function.eval(parameters);
+    }
+
+    @Override
+    public int evaluateInteger(final IFDateProvider key) {
+        return Integers.checkedCastNoOverflow(function.eval(key, parameters));
+    }
+
+    @Override
+    public int evaluateInteger(final int key) {
+        return Integers.checkedCastNoOverflow(function.eval(key, parameters));
+    }
+
+    @Override
+    public int evaluateInteger() {
+        return Integers.checkedCastNoOverflow(function.eval(parameters));
     }
 
     @Override

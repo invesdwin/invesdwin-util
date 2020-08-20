@@ -25,6 +25,21 @@ public abstract class ADelegateExpression implements IExpression {
     }
 
     @Override
+    public int evaluateInteger(final IFDateProvider key) {
+        return getDelegate().evaluateInteger(key);
+    }
+
+    @Override
+    public int evaluateInteger(final int key) {
+        return getDelegate().evaluateInteger(key);
+    }
+
+    @Override
+    public int evaluateInteger() {
+        return getDelegate().evaluateInteger();
+    }
+
+    @Override
     public boolean evaluateBoolean() {
         return getDelegate().evaluateBoolean();
     }
