@@ -64,32 +64,17 @@ public class AndOperation extends BinaryOperation {
 
     @Override
     public boolean evaluateBoolean(final IFDateProvider key) {
-        final boolean leftResult = left.evaluateBoolean(key);
-        if (leftResult) {
-            return right.evaluateBoolean(key);
-        } else {
-            return false;
-        }
+        return left.evaluateBoolean(key) && right.evaluateBoolean(key);
     }
 
     @Override
     public boolean evaluateBoolean(final int key) {
-        final boolean leftResult = left.evaluateBoolean(key);
-        if (leftResult) {
-            return right.evaluateBoolean(key);
-        } else {
-            return false;
-        }
+        return left.evaluateBoolean(key) && right.evaluateBoolean(key);
     }
 
     @Override
     public boolean evaluateBoolean() {
-        final boolean leftResult = left.evaluateBoolean();
-        if (leftResult) {
-            return right.evaluateBoolean();
-        } else {
-            return false;
-        }
+        return left.evaluateBoolean() && right.evaluateBoolean();
     }
 
     @Override

@@ -64,32 +64,17 @@ public class OrOperation extends BinaryOperation {
 
     @Override
     public boolean evaluateBoolean(final IFDateProvider key) {
-        final boolean leftResult = left.evaluateBoolean(key);
-        if (leftResult) {
-            return true;
-        } else {
-            return right.evaluateBooleanNullable(key);
-        }
+        return left.evaluateBoolean(key) || right.evaluateBooleanNullable(key);
     }
 
     @Override
     public boolean evaluateBoolean(final int key) {
-        final boolean leftResult = left.evaluateBoolean(key);
-        if (leftResult) {
-            return true;
-        } else {
-            return right.evaluateBooleanNullable(key);
-        }
+        return left.evaluateBoolean(key) || right.evaluateBooleanNullable(key);
     }
 
     @Override
     public boolean evaluateBoolean() {
-        final boolean leftResult = left.evaluateBoolean();
-        if (leftResult) {
-            return true;
-        } else {
-            return right.evaluateBooleanNullable();
-        }
+        return left.evaluateBoolean() || right.evaluateBooleanNullable();
     }
 
     @Override
