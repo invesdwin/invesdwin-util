@@ -25,12 +25,12 @@ public final class StatisticalFunctions {
             }
 
             @Override
-            public ADoubleFunction newFunction(final IPreviousKeyFunction previousKeyFunction) {
+            public AIntegerFunction newFunction(final IPreviousKeyFunction previousKeyFunction) {
                 if (previousKeyFunction == null) {
                     return null;
                 }
 
-                return new ADoubleFunction() {
+                return new AIntegerFunction() {
 
                     @Override
                     public boolean shouldPersist() {
@@ -157,15 +157,15 @@ public final class StatisticalFunctions {
                     }
 
                     @Override
-                    public double eval(final IExpression[] args) {
+                    public int eval(final IExpression[] args) {
                         throw new UnsupportedOperationException("use time or int key instead");
                     }
 
                     @Override
-                    public double eval(final int key, final IExpression[] args) {
+                    public int eval(final int key, final IExpression[] args) {
                         final IExpression condition = args[0];
                         final int count = args[1].evaluateInteger(key);
-                        double countNotNan = 0D;
+                        int countNotNan = 0;
                         int curKey = key;
                         for (int i = 1; i <= count; i++) {
                             final double result = condition.evaluateDouble(curKey);
@@ -180,10 +180,10 @@ public final class StatisticalFunctions {
                     }
 
                     @Override
-                    public double eval(final IFDateProvider key, final IExpression[] args) {
+                    public int eval(final IFDateProvider key, final IExpression[] args) {
                         final IExpression condition = args[0];
                         final int count = args[1].evaluateInteger(key);
-                        double countNotNan = 0D;
+                        int countNotNan = 0;
                         IFDateProvider curKey = key;
                         for (int i = 1; i <= count; i++) {
                             final double result = condition.evaluateDouble(curKey);

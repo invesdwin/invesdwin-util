@@ -348,12 +348,12 @@ public final class HistoricalFunctions {
             }
 
             @Override
-            public ADoubleFunction newFunction(final IPreviousKeyFunction previousKeyFunction) {
+            public AIntegerFunction newFunction(final IPreviousKeyFunction previousKeyFunction) {
                 if (previousKeyFunction == null) {
                     return null;
                 }
 
-                return new ADoubleFunction() {
+                return new AIntegerFunction() {
 
                     @Override
                     public boolean shouldPersist() {
@@ -480,12 +480,12 @@ public final class HistoricalFunctions {
                     }
 
                     @Override
-                    public double eval(final IExpression[] args) {
+                    public int eval(final IExpression[] args) {
                         throw new UnsupportedOperationException("use time or int key instead");
                     }
 
                     @Override
-                    public double eval(final int key, final IExpression[] args) {
+                    public int eval(final int key, final IExpression[] args) {
                         final IExpression condition = args[0];
                         final int count = args[1].evaluateInteger(key);
                         int stableCount = 0;
@@ -505,7 +505,7 @@ public final class HistoricalFunctions {
                     }
 
                     @Override
-                    public double eval(final IFDateProvider key, final IExpression[] args) {
+                    public int eval(final IFDateProvider key, final IExpression[] args) {
                         final IExpression condition = args[0];
                         final int count = args[1].evaluateInteger(key);
                         int stableCount = 0;
@@ -726,12 +726,12 @@ public final class HistoricalFunctions {
             }
 
             @Override
-            public ADoubleFunction newFunction(final IPreviousKeyFunction previousKeyFunction) {
+            public AIntegerFunction newFunction(final IPreviousKeyFunction previousKeyFunction) {
                 if (previousKeyFunction == null) {
                     return null;
                 }
 
-                return new ADoubleFunction() {
+                return new AIntegerFunction() {
 
                     @Override
                     public boolean shouldPersist() {
@@ -860,12 +860,12 @@ public final class HistoricalFunctions {
                     }
 
                     @Override
-                    public double eval(final IExpression[] args) {
+                    public int eval(final IExpression[] args) {
                         throw new UnsupportedOperationException("use time or int key instead");
                     }
 
                     @Override
-                    public double eval(final int key, final IExpression[] args) {
+                    public int eval(final int key, final IExpression[] args) {
                         final BinaryOperation condition = BinaryOperation.validateComparativeOperation(args[0]);
                         final int count = args[1].evaluateInteger(key);
                         final double rightResult = condition.getRight().evaluateDouble(key);
@@ -889,7 +889,7 @@ public final class HistoricalFunctions {
                     }
 
                     @Override
-                    public double eval(final IFDateProvider key, final IExpression[] args) {
+                    public int eval(final IFDateProvider key, final IExpression[] args) {
                         final BinaryOperation condition = BinaryOperation.validateComparativeOperation(args[0]);
                         final int count = args[1].evaluateInteger(key);
                         final double rightResult = condition.getRight().evaluateDouble(key);
@@ -1114,12 +1114,12 @@ public final class HistoricalFunctions {
             }
 
             @Override
-            public ADoubleFunction newFunction(final IPreviousKeyFunction previousKeyFunction) {
+            public AIntegerFunction newFunction(final IPreviousKeyFunction previousKeyFunction) {
                 if (previousKeyFunction == null) {
                     return null;
                 }
 
-                return new ADoubleFunction() {
+                return new AIntegerFunction() {
 
                     @Override
                     public boolean shouldPersist() {
@@ -1248,12 +1248,12 @@ public final class HistoricalFunctions {
                     }
 
                     @Override
-                    public double eval(final IExpression[] args) {
+                    public int eval(final IExpression[] args) {
                         throw new UnsupportedOperationException("use time or int key instead");
                     }
 
                     @Override
-                    public double eval(final int key, final IExpression[] args) {
+                    public int eval(final int key, final IExpression[] args) {
                         final BinaryOperation condition = BinaryOperation.validateComparativeOperation(args[0]);
                         final int count = args[1].evaluateInteger(key);
                         final double leftResult = condition.getLeft().evaluateDouble(key);
@@ -1277,7 +1277,7 @@ public final class HistoricalFunctions {
                     }
 
                     @Override
-                    public double eval(final IFDateProvider key, final IExpression[] args) {
+                    public int eval(final IFDateProvider key, final IExpression[] args) {
                         final BinaryOperation condition = BinaryOperation.validateComparativeOperation(args[0]);
                         final int count = args[1].evaluateInteger(key);
                         final double leftResult = condition.getLeft().evaluateDouble(key);
@@ -1496,12 +1496,12 @@ public final class HistoricalFunctions {
             }
 
             @Override
-            public ADoubleFunction newFunction(final IPreviousKeyFunction previousKeyFunction) {
+            public AIntegerFunction newFunction(final IPreviousKeyFunction previousKeyFunction) {
                 if (previousKeyFunction == null) {
                     return null;
                 }
 
-                return new ADoubleFunction() {
+                return new AIntegerFunction() {
 
                     @Override
                     public boolean shouldPersist() {
@@ -1628,12 +1628,12 @@ public final class HistoricalFunctions {
                     }
 
                     @Override
-                    public double eval(final IExpression[] args) {
+                    public int eval(final IExpression[] args) {
                         throw new UnsupportedOperationException("use time or int key instead");
                     }
 
                     @Override
-                    public double eval(final int key, final IExpression[] args) {
+                    public int eval(final int key, final IExpression[] args) {
                         final IExpression condition = args[0];
                         final int count = args[1].evaluateInteger(key);
                         int occursCount = 0;
@@ -1651,7 +1651,7 @@ public final class HistoricalFunctions {
                     }
 
                     @Override
-                    public double eval(final IFDateProvider key, final IExpression[] args) {
+                    public int eval(final IFDateProvider key, final IExpression[] args) {
                         final IExpression condition = args[0];
                         final int count = args[1].evaluateInteger(key);
                         int occursCount = 0;
@@ -1872,12 +1872,12 @@ public final class HistoricalFunctions {
             }
 
             @Override
-            public ADoubleFunction newFunction(final IPreviousKeyFunction previousKeyFunction) {
+            public AIntegerFunction newFunction(final IPreviousKeyFunction previousKeyFunction) {
                 if (previousKeyFunction == null) {
                     return null;
                 }
 
-                return new ADoubleFunction() {
+                return new AIntegerFunction() {
 
                     @Override
                     public boolean shouldPersist() {
@@ -2006,12 +2006,12 @@ public final class HistoricalFunctions {
                     }
 
                     @Override
-                    public double eval(final IExpression[] args) {
+                    public int eval(final IExpression[] args) {
                         throw new UnsupportedOperationException("use time or int key instead");
                     }
 
                     @Override
-                    public double eval(final int key, final IExpression[] args) {
+                    public int eval(final int key, final IExpression[] args) {
                         final BinaryOperation condition = BinaryOperation.validateComparativeOperation(args[0]);
                         final int count = args[1].evaluateInteger(key);
                         final double rightResult = condition.getRight().evaluateDouble(key);
@@ -2032,7 +2032,7 @@ public final class HistoricalFunctions {
                     }
 
                     @Override
-                    public double eval(final IFDateProvider key, final IExpression[] args) {
+                    public int eval(final IFDateProvider key, final IExpression[] args) {
                         final BinaryOperation condition = BinaryOperation.validateComparativeOperation(args[0]);
                         final int count = args[1].evaluateInteger(key);
                         final double rightResult = condition.getRight().evaluateDouble(key);
@@ -2256,12 +2256,12 @@ public final class HistoricalFunctions {
             }
 
             @Override
-            public ADoubleFunction newFunction(final IPreviousKeyFunction previousKeyFunction) {
+            public AIntegerFunction newFunction(final IPreviousKeyFunction previousKeyFunction) {
                 if (previousKeyFunction == null) {
                     return null;
                 }
 
-                return new ADoubleFunction() {
+                return new AIntegerFunction() {
 
                     @Override
                     public boolean shouldPersist() {
@@ -2390,12 +2390,12 @@ public final class HistoricalFunctions {
                     }
 
                     @Override
-                    public double eval(final IExpression[] args) {
+                    public int eval(final IExpression[] args) {
                         throw new UnsupportedOperationException("use time or int key instead");
                     }
 
                     @Override
-                    public double eval(final int key, final IExpression[] args) {
+                    public int eval(final int key, final IExpression[] args) {
                         final BinaryOperation condition = BinaryOperation.validateComparativeOperation(args[0]);
                         final int count = args[1].evaluateInteger(key);
                         final double leftResult = condition.getLeft().evaluateDouble(key);
@@ -2416,7 +2416,7 @@ public final class HistoricalFunctions {
                     }
 
                     @Override
-                    public double eval(final IFDateProvider key, final IExpression[] args) {
+                    public int eval(final IFDateProvider key, final IExpression[] args) {
                         final BinaryOperation condition = BinaryOperation.validateComparativeOperation(args[0]);
                         final int count = args[1].evaluateInteger(key);
                         final double leftResult = condition.getLeft().evaluateDouble(key);
@@ -2449,12 +2449,12 @@ public final class HistoricalFunctions {
             }
 
             @Override
-            public ADoubleFunction newFunction(final IPreviousKeyFunction previousKeyFunction) {
+            public AIntegerFunction newFunction(final IPreviousKeyFunction previousKeyFunction) {
                 if (previousKeyFunction == null) {
                     return null;
                 }
 
-                return new ADoubleFunction() {
+                return new AIntegerFunction() {
 
                     @Override
                     public boolean shouldPersist() {
@@ -2473,7 +2473,7 @@ public final class HistoricalFunctions {
 
                     @Override
                     public ExpressionReturnType getReturnType() {
-                        return ExpressionReturnType.Boolean;
+                        return ExpressionReturnType.Integer;
                     }
 
                     @Override
@@ -2584,12 +2584,12 @@ public final class HistoricalFunctions {
                     }
 
                     @Override
-                    public double eval(final IExpression[] args) {
+                    public int eval(final IExpression[] args) {
                         throw new UnsupportedOperationException("use time or int key instead");
                     }
 
                     @Override
-                    public double eval(final int key, final IExpression[] args) {
+                    public int eval(final int key, final IExpression[] args) {
                         final IExpression condition = args[0];
                         final int count = args[1].evaluateInteger(key);
                         for (int i = count - 1; i >= 0; i--) {
@@ -2604,11 +2604,11 @@ public final class HistoricalFunctions {
                                 return i;
                             }
                         }
-                        return Double.NaN;
+                        return -1;
                     }
 
                     @Override
-                    public double eval(final IFDateProvider key, final IExpression[] args) {
+                    public int eval(final IFDateProvider key, final IExpression[] args) {
                         final IExpression condition = args[0];
                         final int count = args[1].evaluateInteger(key);
                         for (int i = count - 1; i >= 0; i--) {
@@ -2623,7 +2623,7 @@ public final class HistoricalFunctions {
                                 return i;
                             }
                         }
-                        return Double.NaN;
+                        return -1;
                     }
                 };
             }
@@ -2639,12 +2639,12 @@ public final class HistoricalFunctions {
             }
 
             @Override
-            public ADoubleFunction newFunction(final IPreviousKeyFunction previousKeyFunction) {
+            public AIntegerFunction newFunction(final IPreviousKeyFunction previousKeyFunction) {
                 if (previousKeyFunction == null) {
                     return null;
                 }
 
-                return new ADoubleFunction() {
+                return new AIntegerFunction() {
 
                     @Override
                     public boolean shouldPersist() {
@@ -2663,7 +2663,7 @@ public final class HistoricalFunctions {
 
                     @Override
                     public ExpressionReturnType getReturnType() {
-                        return ExpressionReturnType.Boolean;
+                        return ExpressionReturnType.Integer;
                     }
 
                     @Override
@@ -2773,12 +2773,12 @@ public final class HistoricalFunctions {
                     }
 
                     @Override
-                    public double eval(final IExpression[] args) {
+                    public int eval(final IExpression[] args) {
                         throw new UnsupportedOperationException("use time or int key instead");
                     }
 
                     @Override
-                    public double eval(final int key, final IExpression[] args) {
+                    public int eval(final int key, final IExpression[] args) {
                         final IExpression condition = args[0];
                         final int count = args[1].evaluateInteger(key);
                         int curKey = key;
@@ -2791,11 +2791,11 @@ public final class HistoricalFunctions {
                                 curKey = previousKeyFunction.getPreviousKey(curKey, 1);
                             }
                         }
-                        return Double.NaN;
+                        return -1;
                     }
 
                     @Override
-                    public double eval(final IFDateProvider key, final IExpression[] args) {
+                    public int eval(final IFDateProvider key, final IExpression[] args) {
                         final IExpression condition = args[0];
                         final int count = args[1].evaluateInteger(key);
                         IFDateProvider curKey = key;
@@ -2808,7 +2808,7 @@ public final class HistoricalFunctions {
                                 curKey = previousKeyFunction.getPreviousKey(curKey, 1);
                             }
                         }
-                        return Double.NaN;
+                        return -1;
                     }
                 };
             }
