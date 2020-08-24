@@ -5,6 +5,18 @@ import javax.annotation.concurrent.Immutable;
 import de.invesdwin.util.math.expression.ExpressionType;
 import de.invesdwin.util.math.expression.IExpression;
 import de.invesdwin.util.math.expression.function.IPreviousKeyFunction;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBoolean;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanFDate;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanKey;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanNullable;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanNullableFDate;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanNullableKey;
+import de.invesdwin.util.math.expression.lambda.IEvaluateDouble;
+import de.invesdwin.util.math.expression.lambda.IEvaluateDoubleFDate;
+import de.invesdwin.util.math.expression.lambda.IEvaluateDoubleKey;
+import de.invesdwin.util.math.expression.lambda.IEvaluateInteger;
+import de.invesdwin.util.math.expression.lambda.IEvaluateIntegerFDate;
+import de.invesdwin.util.math.expression.lambda.IEvaluateIntegerKey;
 import de.invesdwin.util.time.fdate.IFDateProvider;
 
 @Immutable
@@ -27,7 +39,7 @@ public class DynamicPreviousKeyExpression implements IParsedExpression {
     }
 
     @Override
-    public double evaluateDouble(final IFDateProvider key) {
+    public IEvaluateDoubleFDate newEvaluateDoubleFDate() {
         final int index = indexExpression.evaluateInteger(key);
         if (index <= 0) {
             return expression.evaluateDouble(key);
@@ -38,7 +50,7 @@ public class DynamicPreviousKeyExpression implements IParsedExpression {
     }
 
     @Override
-    public double evaluateDouble(final int key) {
+    public IEvaluateDoubleKey newEvaluateDoubleKey() {
         final int index = indexExpression.evaluateInteger(key);
         if (index <= 0) {
             return expression.evaluateDouble(key);
@@ -49,12 +61,12 @@ public class DynamicPreviousKeyExpression implements IParsedExpression {
     }
 
     @Override
-    public double evaluateDouble() {
+    public IEvaluateDouble newEvaluateDouble() {
         throw new UnsupportedOperationException("use time or int key instead");
     }
 
     @Override
-    public int evaluateInteger(final IFDateProvider key) {
+    public IEvaluateIntegerFDate newEvaluateIntegerFDate() {
         final int index = indexExpression.evaluateInteger(key);
         if (index <= 0) {
             return expression.evaluateInteger(key);
@@ -65,7 +77,7 @@ public class DynamicPreviousKeyExpression implements IParsedExpression {
     }
 
     @Override
-    public int evaluateInteger(final int key) {
+    public IEvaluateIntegerKey newEvaluateIntegerKey() {
         final int index = indexExpression.evaluateInteger(key);
         if (index <= 0) {
             return expression.evaluateInteger(key);
@@ -76,12 +88,12 @@ public class DynamicPreviousKeyExpression implements IParsedExpression {
     }
 
     @Override
-    public int evaluateInteger() {
+    public IEvaluateInteger newEvaluateInteger() {
         throw new UnsupportedOperationException("use time or int key instead");
     }
 
     @Override
-    public Boolean evaluateBooleanNullable(final IFDateProvider key) {
+    public IEvaluateBooleanNullableFDate newEvaluateBooleanNullableFDate() {
         final int index = indexExpression.evaluateInteger(key);
         if (index <= 0) {
             return expression.evaluateBooleanNullable(key);
@@ -92,7 +104,7 @@ public class DynamicPreviousKeyExpression implements IParsedExpression {
     }
 
     @Override
-    public Boolean evaluateBooleanNullable(final int key) {
+    public IEvaluateBooleanNullableKey newEvaluateBooleanNullableKey() {
         final int index = indexExpression.evaluateInteger(key);
         if (index <= 0) {
             return expression.evaluateBooleanNullable(key);
@@ -103,12 +115,12 @@ public class DynamicPreviousKeyExpression implements IParsedExpression {
     }
 
     @Override
-    public boolean evaluateBoolean() {
+    public IEvaluateBooleanNullable newEvaluateBooleanNullable() {
         throw new UnsupportedOperationException("use time or int key instead");
     }
 
     @Override
-    public boolean evaluateBoolean(final IFDateProvider key) {
+    public IEvaluateBooleanFDate newEvaluateBooleanFDate() {
         final int index = indexExpression.evaluateInteger(key);
         if (index <= 0) {
             return expression.evaluateBoolean(key);
@@ -119,7 +131,7 @@ public class DynamicPreviousKeyExpression implements IParsedExpression {
     }
 
     @Override
-    public boolean evaluateBoolean(final int key) {
+    public IEvaluateBooleanKey newEvaluateBooleanKey() {
         final int index = indexExpression.evaluateInteger(key);
         if (index <= 0) {
             return expression.evaluateBoolean(key);
@@ -130,7 +142,7 @@ public class DynamicPreviousKeyExpression implements IParsedExpression {
     }
 
     @Override
-    public Boolean evaluateBooleanNullable() {
+    public IEvaluateBoolean newEvaluateBoolean() {
         throw new UnsupportedOperationException("use time or int key instead");
     }
 
@@ -142,7 +154,7 @@ public class DynamicPreviousKeyExpression implements IParsedExpression {
     @Override
     public IParsedExpression simplify() {
         if (indexExpression.isConstant()) {
-            final int index = indexExpression.evaluateInteger();
+            final int index = indexExpression.newEvaluateInteger().evaluateInteger();
             return new ConstantPreviousKeyExpression(expression, index, previousKeyFunction).simplify();
         }
         if (expression.isConstant()) {
