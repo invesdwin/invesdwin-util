@@ -873,7 +873,9 @@ public final class LogicalFunctions {
         };
     }
 
+    //CHECKSTYLE:OFF
     public static ABooleanFunction newVoteFunction(final String expressionName) {
+        //CHECKSTYLE:ON
         return new ABooleanFunction() {
 
             @Override
@@ -887,48 +889,69 @@ public final class LogicalFunctions {
             }
 
             @Override
-            public IEvaluateDoubleFDate newEvaluateDoubleFDate(final IExpression[] args) {
-                final double threshold = args[0].evaluateDouble(key) * (args.length - 1);
-                double sum = 0D;
+            public IEvaluateBooleanFDate newEvaluateBooleanFDate(final IExpression[] args) {
+                final IEvaluateDoubleFDate thresholdF = args[0].newEvaluateDoubleFDate();
+                final IEvaluateBooleanFDate[] argsF = new IEvaluateBooleanFDate[args.length - 1];
                 for (int i = 1; i < args.length; i++) {
-                    if (args[i].evaluateBoolean(key)) {
-                        sum++;
-                        if (sum >= threshold) {
-                            return true;
+                    argsF[i - 1] = args[i].newEvaluateBooleanFDate();
+                }
+                return key -> {
+                    final double threshold = thresholdF.evaluateDouble(key) * (args.length - 1);
+                    double sum = 0D;
+                    for (int i = 0; i < argsF.length; i++) {
+                        if (argsF[i].evaluateBoolean(key)) {
+                            sum++;
+                            if (sum >= threshold) {
+                                return true;
+                            }
                         }
                     }
-                }
-                return false;
+                    return false;
+                };
             }
 
             @Override
-            public IEvaluateDoubleKey newEvaluateDoubleKey(final IExpression[] args) {
-                final double threshold = args[0].evaluateDouble(key) * (args.length - 1);
-                double sum = 0D;
+            public IEvaluateBooleanKey newEvaluateBooleanKey(final IExpression[] args) {
+                final IEvaluateDoubleKey thresholdF = args[0].newEvaluateDoubleKey();
+                final IEvaluateBooleanKey[] argsF = new IEvaluateBooleanKey[args.length - 1];
                 for (int i = 1; i < args.length; i++) {
-                    if (args[i].evaluateBoolean(key)) {
-                        sum++;
-                        if (sum >= threshold) {
-                            return true;
+                    argsF[i - 1] = args[i].newEvaluateBooleanKey();
+                }
+                return key -> {
+                    final double threshold = thresholdF.evaluateDouble(key) * (args.length - 1);
+                    double sum = 0D;
+                    for (int i = 0; i < argsF.length; i++) {
+                        if (argsF[i].evaluateBoolean(key)) {
+                            sum++;
+                            if (sum >= threshold) {
+                                return true;
+                            }
                         }
                     }
-                }
-                return false;
+                    return false;
+                };
             }
 
             @Override
-            public IEvaluateDouble newEvaluateDouble(final IExpression[] args) {
-                final double threshold = args[0].evaluateDouble() * (args.length - 1);
-                double sum = 0D;
+            public IEvaluateBoolean newEvaluateBoolean(final IExpression[] args) {
+                final IEvaluateDouble thresholdF = args[0].newEvaluateDouble();
+                final IEvaluateBoolean[] argsF = new IEvaluateBoolean[args.length - 1];
                 for (int i = 1; i < args.length; i++) {
-                    if (args[i].evaluateBoolean()) {
-                        sum++;
-                        if (sum >= threshold) {
-                            return true;
+                    argsF[i - 1] = args[i].newEvaluateBoolean();
+                }
+                return () -> {
+                    final double threshold = thresholdF.evaluateDouble() * (args.length - 1);
+                    double sum = 0D;
+                    for (int i = 1; i < argsF.length; i++) {
+                        if (argsF[i].evaluateBoolean()) {
+                            sum++;
+                            if (sum >= threshold) {
+                                return true;
+                            }
                         }
                     }
-                }
-                return false;
+                    return false;
+                };
             }
 
             @Override
