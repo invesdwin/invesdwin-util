@@ -6,6 +6,12 @@ import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.expression.ExpressionReturnType;
 import de.invesdwin.util.math.expression.IExpression;
 import de.invesdwin.util.math.expression.IFunctionParameterInfo;
+import de.invesdwin.util.math.expression.lambda.IEvaluateDouble;
+import de.invesdwin.util.math.expression.lambda.IEvaluateDoubleFDate;
+import de.invesdwin.util.math.expression.lambda.IEvaluateDoubleKey;
+import de.invesdwin.util.math.expression.lambda.IEvaluateInteger;
+import de.invesdwin.util.math.expression.lambda.IEvaluateIntegerFDate;
+import de.invesdwin.util.math.expression.lambda.IEvaluateIntegerKey;
 import de.invesdwin.util.math.statistics.RunningMedian;
 import de.invesdwin.util.math.stream.doubl.DoubleStreamStandardDeviation;
 import de.invesdwin.util.math.stream.doubl.DoubleStreamVariance;
@@ -152,44 +158,50 @@ public final class StatisticalFunctions {
                     }
 
                     @Override
-                    public int eval(final IExpression[] args) {
+                    public IEvaluateInteger newEvaluateInteger(final IExpression[] args) {
                         throw new UnsupportedOperationException("use time or int key instead");
                     }
 
                     @Override
-                    public int eval(final int key, final IExpression[] args) {
-                        final IExpression condition = args[0];
-                        final int count = args[1].evaluateInteger(key);
-                        int countNotNan = 0;
-                        int curKey = key;
-                        for (int i = 1; i <= count; i++) {
-                            final double result = condition.evaluateDouble(curKey);
-                            if (!Doubles.isNaN(result)) {
-                                countNotNan++;
+                    public IEvaluateIntegerKey newEvaluateIntegerKey(final IExpression[] args) {
+                        final IEvaluateDoubleKey conditionF = args[0].newEvaluateDoubleKey();
+                        final IEvaluateIntegerKey countF = args[1].newEvaluateIntegerKey();
+                        return key -> {
+                            final int count = countF.evaluateInteger(key);
+                            int countNotNan = 0;
+                            int curKey = key;
+                            for (int i = 1; i <= count; i++) {
+                                final double result = conditionF.evaluateDouble(curKey);
+                                if (!Doubles.isNaN(result)) {
+                                    countNotNan++;
+                                }
+                                if (i != count) {
+                                    curKey = previousKeyFunction.getPreviousKey(curKey, 1);
+                                }
                             }
-                            if (i != count) {
-                                curKey = previousKeyFunction.getPreviousKey(curKey, 1);
-                            }
-                        }
-                        return countNotNan;
+                            return countNotNan;
+                        };
                     }
 
                     @Override
-                    public int eval(final IFDateProvider key, final IExpression[] args) {
-                        final IExpression condition = args[0];
-                        final int count = args[1].evaluateInteger(key);
-                        int countNotNan = 0;
-                        IFDateProvider curKey = key;
-                        for (int i = 1; i <= count; i++) {
-                            final double result = condition.evaluateDouble(curKey);
-                            if (!Doubles.isNaN(result)) {
-                                countNotNan++;
+                    public IEvaluateIntegerFDate newEvaluateIntegerFDate(final IExpression[] args) {
+                        final IEvaluateDoubleFDate conditionF = args[0].newEvaluateDoubleFDate();
+                        final IEvaluateIntegerFDate countF = args[1].newEvaluateIntegerFDate();
+                        return key -> {
+                            final int count = countF.evaluateInteger(key);
+                            int countNotNan = 0;
+                            IFDateProvider curKey = key;
+                            for (int i = 1; i <= count; i++) {
+                                final double result = conditionF.evaluateDouble(curKey);
+                                if (!Doubles.isNaN(result)) {
+                                    countNotNan++;
+                                }
+                                if (i != count) {
+                                    curKey = previousKeyFunction.getPreviousKey(curKey, 1);
+                                }
                             }
-                            if (i != count) {
-                                curKey = previousKeyFunction.getPreviousKey(curKey, 1);
-                            }
-                        }
-                        return countNotNan;
+                            return countNotNan;
+                        };
                     }
                 };
             }
@@ -332,44 +344,50 @@ public final class StatisticalFunctions {
                     }
 
                     @Override
-                    public double eval(final IExpression[] args) {
+                    public IEvaluateDouble newEvaluateDouble(final IExpression[] args) {
                         throw new UnsupportedOperationException("use time or int key instead");
                     }
 
                     @Override
-                    public double eval(final int key, final IExpression[] args) {
-                        final IExpression condition = args[0];
-                        final int count = args[1].evaluateInteger(key);
-                        double sum = 0D;
-                        int curKey = key;
-                        for (int i = 1; i <= count; i++) {
-                            final double result = condition.evaluateDouble(curKey);
-                            if (!Doubles.isNaN(result)) {
-                                sum += result;
+                    public IEvaluateDoubleKey newEvaluateDoubleKey(final IExpression[] args) {
+                        final IEvaluateDoubleKey conditionF = args[0].newEvaluateDoubleKey();
+                        final IEvaluateIntegerKey countF = args[1].newEvaluateIntegerKey();
+                        return key -> {
+                            final int count = countF.evaluateInteger(key);
+                            double sum = 0D;
+                            int curKey = key;
+                            for (int i = 1; i <= count; i++) {
+                                final double result = conditionF.evaluateDouble(curKey);
+                                if (!Doubles.isNaN(result)) {
+                                    sum += result;
+                                }
+                                if (i != count) {
+                                    curKey = previousKeyFunction.getPreviousKey(curKey, 1);
+                                }
                             }
-                            if (i != count) {
-                                curKey = previousKeyFunction.getPreviousKey(curKey, 1);
-                            }
-                        }
-                        return sum;
+                            return sum;
+                        };
                     }
 
                     @Override
-                    public double eval(final IFDateProvider key, final IExpression[] args) {
-                        final IExpression condition = args[0];
-                        final int count = args[1].evaluateInteger(key);
-                        double sum = 0D;
-                        IFDateProvider curKey = key;
-                        for (int i = 1; i <= count; i++) {
-                            final double result = condition.evaluateDouble(curKey);
-                            if (!Doubles.isNaN(result)) {
-                                sum += result;
+                    public IEvaluateDoubleFDate newEvaluateDoubleFDate(final IExpression[] args) {
+                        final IEvaluateDoubleFDate conditionF = args[0].newEvaluateDoubleFDate();
+                        final IEvaluateIntegerFDate countF = args[1].newEvaluateIntegerFDate();
+                        return key -> {
+                            final int count = countF.evaluateInteger(key);
+                            double sum = 0D;
+                            IFDateProvider curKey = key;
+                            for (int i = 1; i <= count; i++) {
+                                final double result = conditionF.evaluateDouble(curKey);
+                                if (!Doubles.isNaN(result)) {
+                                    sum += result;
+                                }
+                                if (i != count) {
+                                    curKey = previousKeyFunction.getPreviousKey(curKey, 1);
+                                }
                             }
-                            if (i != count) {
-                                curKey = previousKeyFunction.getPreviousKey(curKey, 1);
-                            }
-                        }
-                        return sum;
+                            return sum;
+                        };
                     }
                 };
             }
@@ -512,44 +530,50 @@ public final class StatisticalFunctions {
                     }
 
                     @Override
-                    public double eval(final IExpression[] args) {
+                    public IEvaluateDouble newEvaluateDouble(final IExpression[] args) {
                         throw new UnsupportedOperationException("use time or int key instead");
                     }
 
                     @Override
-                    public double eval(final int key, final IExpression[] args) {
-                        final IExpression condition = args[0];
-                        final int count = args[1].evaluateInteger(key);
-                        double sum = 0D;
-                        int curKey = key;
-                        for (int i = 1; i <= count; i++) {
-                            final double result = condition.evaluateDouble(curKey);
-                            if (!Doubles.isNaN(result)) {
-                                sum *= result;
+                    public IEvaluateDoubleKey newEvaluateDoubleKey(final IExpression[] args) {
+                        final IEvaluateDoubleKey conditionF = args[0].newEvaluateDoubleKey();
+                        final IEvaluateIntegerKey countF = args[1].newEvaluateIntegerKey();
+                        return key -> {
+                            final int count = countF.evaluateInteger(key);
+                            double sum = 0D;
+                            int curKey = key;
+                            for (int i = 1; i <= count; i++) {
+                                final double result = conditionF.evaluateDouble(curKey);
+                                if (!Doubles.isNaN(result)) {
+                                    sum *= result;
+                                }
+                                if (i != count) {
+                                    curKey = previousKeyFunction.getPreviousKey(curKey, 1);
+                                }
                             }
-                            if (i != count) {
-                                curKey = previousKeyFunction.getPreviousKey(curKey, 1);
-                            }
-                        }
-                        return sum;
+                            return sum;
+                        };
                     }
 
                     @Override
-                    public double eval(final IFDateProvider key, final IExpression[] args) {
-                        final IExpression condition = args[0];
-                        final int count = args[1].evaluateInteger(key);
-                        double sum = 0D;
-                        IFDateProvider curKey = key;
-                        for (int i = 1; i <= count; i++) {
-                            final double result = condition.evaluateDouble(curKey);
-                            if (!Doubles.isNaN(result)) {
-                                sum *= result;
+                    public IEvaluateDoubleFDate newEvaluateDoubleFDate(final IExpression[] args) {
+                        final IEvaluateDoubleFDate conditionF = args[0].newEvaluateDoubleFDate();
+                        final IEvaluateIntegerFDate countF = args[1].newEvaluateIntegerFDate();
+                        return key -> {
+                            final int count = countF.evaluateInteger(key);
+                            double sum = 0D;
+                            IFDateProvider curKey = key;
+                            for (int i = 1; i <= count; i++) {
+                                final double result = conditionF.evaluateDouble(curKey);
+                                if (!Doubles.isNaN(result)) {
+                                    sum *= result;
+                                }
+                                if (i != count) {
+                                    curKey = previousKeyFunction.getPreviousKey(curKey, 1);
+                                }
                             }
-                            if (i != count) {
-                                curKey = previousKeyFunction.getPreviousKey(curKey, 1);
-                            }
-                        }
-                        return sum;
+                            return sum;
+                        };
                     }
                 };
             }
@@ -693,46 +717,52 @@ public final class StatisticalFunctions {
                     }
 
                     @Override
-                    public double eval(final IExpression[] args) {
+                    public IEvaluateDouble newEvaluateDouble(final IExpression[] args) {
                         throw new UnsupportedOperationException("use time or int key instead");
                     }
 
                     @SuppressWarnings("deprecation")
                     @Override
-                    public double eval(final int key, final IExpression[] args) {
-                        final IExpression condition = args[0];
-                        final int count = args[1].evaluateInteger(key);
-                        final DoubleStreamVariance variance = new DoubleStreamVariance();
-                        int curKey = key;
-                        for (int i = 1; i <= count; i++) {
-                            final double result = condition.evaluateDouble(curKey);
-                            if (!Doubles.isNaN(result)) {
-                                variance.process(result);
+                    public IEvaluateDoubleKey newEvaluateDoubleKey(final IExpression[] args) {
+                        final IEvaluateDoubleKey conditionF = args[0].newEvaluateDoubleKey();
+                        final IEvaluateIntegerKey countF = args[1].newEvaluateIntegerKey();
+                        return key -> {
+                            final int count = countF.evaluateInteger(key);
+                            final DoubleStreamVariance variance = new DoubleStreamVariance();
+                            int curKey = key;
+                            for (int i = 1; i <= count; i++) {
+                                final double result = conditionF.evaluateDouble(curKey);
+                                if (!Doubles.isNaN(result)) {
+                                    variance.process(result);
+                                }
+                                if (i != count) {
+                                    curKey = previousKeyFunction.getPreviousKey(curKey, 1);
+                                }
                             }
-                            if (i != count) {
-                                curKey = previousKeyFunction.getPreviousKey(curKey, 1);
-                            }
-                        }
-                        return variance.getVariance();
+                            return variance.getVariance();
+                        };
                     }
 
                     @SuppressWarnings("deprecation")
                     @Override
-                    public double eval(final IFDateProvider key, final IExpression[] args) {
-                        final IExpression condition = args[0];
-                        final int count = args[1].evaluateInteger(key);
-                        final DoubleStreamVariance variance = new DoubleStreamVariance();
-                        IFDateProvider curKey = key;
-                        for (int i = 1; i <= count; i++) {
-                            final double result = condition.evaluateDouble(curKey);
-                            if (!Doubles.isNaN(result)) {
-                                variance.process(result);
+                    public IEvaluateDoubleFDate newEvaluateDoubleFDate(final IExpression[] args) {
+                        final IEvaluateDoubleFDate conditionF = args[0].newEvaluateDoubleFDate();
+                        final IEvaluateIntegerFDate countF = args[1].newEvaluateIntegerFDate();
+                        return key -> {
+                            final int count = countF.evaluateInteger(key);
+                            final DoubleStreamVariance variance = new DoubleStreamVariance();
+                            IFDateProvider curKey = key;
+                            for (int i = 1; i <= count; i++) {
+                                final double result = conditionF.evaluateDouble(curKey);
+                                if (!Doubles.isNaN(result)) {
+                                    variance.process(result);
+                                }
+                                if (i != count) {
+                                    curKey = previousKeyFunction.getPreviousKey(curKey, 1);
+                                }
                             }
-                            if (i != count) {
-                                curKey = previousKeyFunction.getPreviousKey(curKey, 1);
-                            }
-                        }
-                        return variance.getVariance();
+                            return variance.getVariance();
+                        };
                     }
                 };
             }
@@ -875,44 +905,50 @@ public final class StatisticalFunctions {
                     }
 
                     @Override
-                    public double eval(final IExpression[] args) {
+                    public IEvaluateDouble newEvaluateDouble(final IExpression[] args) {
                         throw new UnsupportedOperationException("use time or int key instead");
                     }
 
                     @Override
-                    public double eval(final int key, final IExpression[] args) {
-                        final IExpression condition = args[0];
-                        final int count = args[1].evaluateInteger(key);
-                        final DoubleStreamVariance variance = new DoubleStreamVariance();
-                        int curKey = key;
-                        for (int i = 1; i <= count; i++) {
-                            final double result = condition.evaluateDouble(curKey);
-                            if (!Doubles.isNaN(result)) {
-                                variance.process(result);
+                    public IEvaluateDoubleKey newEvaluateDoubleKey(final IExpression[] args) {
+                        final IEvaluateDoubleKey conditionF = args[0].newEvaluateDoubleKey();
+                        final IEvaluateIntegerKey countF = args[1].newEvaluateIntegerKey();
+                        return key -> {
+                            final int count = countF.evaluateInteger(key);
+                            final DoubleStreamVariance variance = new DoubleStreamVariance();
+                            int curKey = key;
+                            for (int i = 1; i <= count; i++) {
+                                final double result = conditionF.evaluateDouble(curKey);
+                                if (!Doubles.isNaN(result)) {
+                                    variance.process(result);
+                                }
+                                if (i != count) {
+                                    curKey = previousKeyFunction.getPreviousKey(curKey, 1);
+                                }
                             }
-                            if (i != count) {
-                                curKey = previousKeyFunction.getPreviousKey(curKey, 1);
-                            }
-                        }
-                        return variance.getSampleVariance();
+                            return variance.getSampleVariance();
+                        };
                     }
 
                     @Override
-                    public double eval(final IFDateProvider key, final IExpression[] args) {
-                        final IExpression condition = args[0];
-                        final int count = args[1].evaluateInteger(key);
-                        final DoubleStreamVariance variance = new DoubleStreamVariance();
-                        IFDateProvider curKey = key;
-                        for (int i = 1; i <= count; i++) {
-                            final double result = condition.evaluateDouble(curKey);
-                            if (!Doubles.isNaN(result)) {
-                                variance.process(result);
+                    public IEvaluateDoubleFDate newEvaluateDoubleFDate(final IExpression[] args) {
+                        final IEvaluateDoubleFDate conditionF = args[0].newEvaluateDoubleFDate();
+                        final IEvaluateIntegerFDate countF = args[1].newEvaluateIntegerFDate();
+                        return key1 -> {
+                            final int count = countF.evaluateInteger(key1);
+                            final DoubleStreamVariance variance = new DoubleStreamVariance();
+                            IFDateProvider curKey = key1;
+                            for (int i = 1; i <= count; i++) {
+                                final double result = conditionF.evaluateDouble(curKey);
+                                if (!Doubles.isNaN(result)) {
+                                    variance.process(result);
+                                }
+                                if (i != count) {
+                                    curKey = previousKeyFunction.getPreviousKey(curKey, 1);
+                                }
                             }
-                            if (i != count) {
-                                curKey = previousKeyFunction.getPreviousKey(curKey, 1);
-                            }
-                        }
-                        return variance.getSampleVariance();
+                            return variance.getSampleVariance();
+                        };
                     }
                 };
             }
@@ -1056,46 +1092,52 @@ public final class StatisticalFunctions {
                     }
 
                     @Override
-                    public double eval(final IExpression[] args) {
+                    public IEvaluateDouble newEvaluateDouble(final IExpression[] args) {
                         throw new UnsupportedOperationException("use time or int key instead");
                     }
 
                     @SuppressWarnings("deprecation")
                     @Override
-                    public double eval(final int key, final IExpression[] args) {
-                        final IExpression condition = args[0];
-                        final int count = args[1].evaluateInteger(key);
-                        final DoubleStreamStandardDeviation standardDeviation = new DoubleStreamStandardDeviation();
-                        int curKey = key;
-                        for (int i = 1; i <= count; i++) {
-                            final double result = condition.evaluateDouble(curKey);
-                            if (!Doubles.isNaN(result)) {
-                                standardDeviation.process(result);
+                    public IEvaluateDoubleKey newEvaluateDoubleKey(final IExpression[] args) {
+                        final IEvaluateDoubleKey conditionF = args[0].newEvaluateDoubleKey();
+                        final IEvaluateIntegerKey countF = args[1].newEvaluateIntegerKey();
+                        return key -> {
+                            final int count = countF.evaluateInteger(key);
+                            final DoubleStreamStandardDeviation standardDeviation = new DoubleStreamStandardDeviation();
+                            int curKey = key;
+                            for (int i = 1; i <= count; i++) {
+                                final double result = conditionF.evaluateDouble(curKey);
+                                if (!Doubles.isNaN(result)) {
+                                    standardDeviation.process(result);
+                                }
+                                if (i != count) {
+                                    curKey = previousKeyFunction.getPreviousKey(curKey, 1);
+                                }
                             }
-                            if (i != count) {
-                                curKey = previousKeyFunction.getPreviousKey(curKey, 1);
-                            }
-                        }
-                        return standardDeviation.getStandardDeviation();
+                            return standardDeviation.getStandardDeviation();
+                        };
                     }
 
                     @SuppressWarnings("deprecation")
                     @Override
-                    public double eval(final IFDateProvider key, final IExpression[] args) {
-                        final IExpression condition = args[0];
-                        final int count = args[1].evaluateInteger(key);
-                        final DoubleStreamStandardDeviation standardDeviation = new DoubleStreamStandardDeviation();
-                        IFDateProvider curKey = key;
-                        for (int i = 1; i <= count; i++) {
-                            final double result = condition.evaluateDouble(curKey);
-                            if (!Doubles.isNaN(result)) {
-                                standardDeviation.process(result);
+                    public IEvaluateDoubleFDate newEvaluateDoubleFDate(final IExpression[] args) {
+                        final IEvaluateDoubleFDate conditionF = args[0].newEvaluateDoubleFDate();
+                        final IEvaluateIntegerFDate countF = args[1].newEvaluateIntegerFDate();
+                        return key -> {
+                            final int count = countF.evaluateInteger(key);
+                            final DoubleStreamStandardDeviation standardDeviation = new DoubleStreamStandardDeviation();
+                            IFDateProvider curKey = key;
+                            for (int i = 1; i <= count; i++) {
+                                final double result = conditionF.evaluateDouble(curKey);
+                                if (!Doubles.isNaN(result)) {
+                                    standardDeviation.process(result);
+                                }
+                                if (i != count) {
+                                    curKey = previousKeyFunction.getPreviousKey(curKey, 1);
+                                }
                             }
-                            if (i != count) {
-                                curKey = previousKeyFunction.getPreviousKey(curKey, 1);
-                            }
-                        }
-                        return standardDeviation.getStandardDeviation();
+                            return standardDeviation.getStandardDeviation();
+                        };
                     }
                 };
             }
@@ -1238,44 +1280,50 @@ public final class StatisticalFunctions {
                     }
 
                     @Override
-                    public double eval(final IExpression[] args) {
+                    public IEvaluateDouble newEvaluateDouble(final IExpression[] args) {
                         throw new UnsupportedOperationException("use time or int key instead");
                     }
 
                     @Override
-                    public double eval(final int key, final IExpression[] args) {
-                        final IExpression condition = args[0];
-                        final int count = args[1].evaluateInteger(key);
-                        final DoubleStreamStandardDeviation standardDeviation = new DoubleStreamStandardDeviation();
-                        int curKey = key;
-                        for (int i = 1; i <= count; i++) {
-                            final double result = condition.evaluateDouble(curKey);
-                            if (!Doubles.isNaN(result)) {
-                                standardDeviation.process(result);
+                    public IEvaluateDoubleKey newEvaluateDoubleKey(final IExpression[] args) {
+                        final IEvaluateDoubleKey conditionF = args[0].newEvaluateDoubleKey();
+                        final IEvaluateIntegerKey countF = args[1].newEvaluateIntegerKey();
+                        return key -> {
+                            final int count = countF.evaluateInteger(key);
+                            final DoubleStreamStandardDeviation standardDeviation = new DoubleStreamStandardDeviation();
+                            int curKey = key;
+                            for (int i = 1; i <= count; i++) {
+                                final double result = conditionF.evaluateDouble(curKey);
+                                if (!Doubles.isNaN(result)) {
+                                    standardDeviation.process(result);
+                                }
+                                if (i != count) {
+                                    curKey = previousKeyFunction.getPreviousKey(curKey, 1);
+                                }
                             }
-                            if (i != count) {
-                                curKey = previousKeyFunction.getPreviousKey(curKey, 1);
-                            }
-                        }
-                        return standardDeviation.getSampleStandardDeviation();
+                            return standardDeviation.getSampleStandardDeviation();
+                        };
                     }
 
                     @Override
-                    public double eval(final IFDateProvider key, final IExpression[] args) {
-                        final IExpression condition = args[0];
-                        final int count = args[1].evaluateInteger(key);
-                        final DoubleStreamStandardDeviation standardDeviation = new DoubleStreamStandardDeviation();
-                        IFDateProvider curKey = key;
-                        for (int i = 1; i <= count; i++) {
-                            final double result = condition.evaluateDouble(curKey);
-                            if (!Doubles.isNaN(result)) {
-                                standardDeviation.process(result);
+                    public IEvaluateDoubleFDate newEvaluateDoubleFDate(final IExpression[] args) {
+                        final IEvaluateDoubleFDate conditionF = args[0].newEvaluateDoubleFDate();
+                        final IEvaluateIntegerFDate countF = args[1].newEvaluateIntegerFDate();
+                        return key -> {
+                            final int count = countF.evaluateInteger(key);
+                            final DoubleStreamStandardDeviation standardDeviation = new DoubleStreamStandardDeviation();
+                            IFDateProvider curKey = key;
+                            for (int i = 1; i <= count; i++) {
+                                final double result = conditionF.evaluateDouble(curKey);
+                                if (!Doubles.isNaN(result)) {
+                                    standardDeviation.process(result);
+                                }
+                                if (i != count) {
+                                    curKey = previousKeyFunction.getPreviousKey(curKey, 1);
+                                }
                             }
-                            if (i != count) {
-                                curKey = previousKeyFunction.getPreviousKey(curKey, 1);
-                            }
-                        }
-                        return standardDeviation.getSampleStandardDeviation();
+                            return standardDeviation.getSampleStandardDeviation();
+                        };
                     }
                 };
             }
@@ -1418,44 +1466,50 @@ public final class StatisticalFunctions {
                     }
 
                     @Override
-                    public double eval(final IExpression[] args) {
+                    public IEvaluateDouble newEvaluateDouble(final IExpression[] args) {
                         throw new UnsupportedOperationException("use time or int key instead");
                     }
 
                     @Override
-                    public double eval(final int key, final IExpression[] args) {
-                        final IExpression condition = args[0];
-                        final int count = args[1].evaluateInteger(key);
-                        final RunningMedian median = new RunningMedian(count);
-                        int curKey = key;
-                        for (int i = 1; i <= count; i++) {
-                            final double result = condition.evaluateDouble(curKey);
-                            if (!Doubles.isNaN(result)) {
-                                median.add(result);
+                    public IEvaluateDoubleKey newEvaluateDoubleKey(final IExpression[] args) {
+                        final IEvaluateDoubleKey conditionF = args[0].newEvaluateDoubleKey();
+                        final IEvaluateIntegerKey countF = args[1].newEvaluateIntegerKey();
+                        return key -> {
+                            final int count = countF.evaluateInteger(key);
+                            final RunningMedian median = new RunningMedian(count);
+                            int curKey = key;
+                            for (int i = 1; i <= count; i++) {
+                                final double result = conditionF.evaluateDouble(curKey);
+                                if (!Doubles.isNaN(result)) {
+                                    median.add(result);
+                                }
+                                if (i != count) {
+                                    curKey = previousKeyFunction.getPreviousKey(curKey, 1);
+                                }
                             }
-                            if (i != count) {
-                                curKey = previousKeyFunction.getPreviousKey(curKey, 1);
-                            }
-                        }
-                        return median.getMedian();
+                            return median.getMedian();
+                        };
                     }
 
                     @Override
-                    public double eval(final IFDateProvider key, final IExpression[] args) {
-                        final IExpression condition = args[0];
-                        final int count = args[1].evaluateInteger(key);
-                        final RunningMedian median = new RunningMedian(count);
-                        IFDateProvider curKey = key;
-                        for (int i = 1; i <= count; i++) {
-                            final double result = condition.evaluateDouble(curKey);
-                            if (!Doubles.isNaN(result)) {
-                                median.add(result);
+                    public IEvaluateDoubleFDate newEvaluateDoubleFDate(final IExpression[] args) {
+                        final IEvaluateDoubleFDate conditionF = args[0].newEvaluateDoubleFDate();
+                        final IEvaluateIntegerFDate countF = args[1].newEvaluateIntegerFDate();
+                        return key -> {
+                            final int count = countF.evaluateInteger(key);
+                            final RunningMedian median = new RunningMedian(count);
+                            IFDateProvider curKey = key;
+                            for (int i = 1; i <= count; i++) {
+                                final double result = conditionF.evaluateDouble(curKey);
+                                if (!Doubles.isNaN(result)) {
+                                    median.add(result);
+                                }
+                                if (i != count) {
+                                    curKey = previousKeyFunction.getPreviousKey(curKey, 1);
+                                }
                             }
-                            if (i != count) {
-                                curKey = previousKeyFunction.getPreviousKey(curKey, 1);
-                            }
-                        }
-                        return median.getMedian();
+                            return median.getMedian();
+                        };
                     }
                 };
             }
@@ -1463,9 +1517,7 @@ public final class StatisticalFunctions {
         };
     }
 
-    //CHECKSTYLE:OFF
     public static IFunctionFactory newPercentileFunction(final String name) {
-        //CHECKSTYLE:ON
         return new IFunctionFactory() {
             @Override
             public String getExpressionName() {
@@ -1638,46 +1690,54 @@ public final class StatisticalFunctions {
                     }
 
                     @Override
-                    public double eval(final IExpression[] args) {
+                    public IEvaluateDouble newEvaluateDouble(final IExpression[] args) {
                         throw new UnsupportedOperationException("use time or int key instead");
                     }
 
                     @Override
-                    public double eval(final int key, final IExpression[] args) {
-                        final double percentile = args[0].evaluateDouble(key);
-                        final IExpression condition = args[1];
-                        final int count = args[2].evaluateInteger(key);
-                        final RunningMedian median = new RunningMedian(count);
-                        int curKey = key;
-                        for (int i = 1; i <= count; i++) {
-                            final double result = condition.evaluateDouble(curKey);
-                            if (!Doubles.isNaN(result)) {
-                                median.add(result);
+                    public IEvaluateDoubleKey newEvaluateDoubleKey(final IExpression[] args) {
+                        final IEvaluateDoubleKey percentileF = args[0].newEvaluateDoubleKey();
+                        final IEvaluateDoubleKey condition = args[1].newEvaluateDoubleKey();
+                        final IEvaluateIntegerKey countF = args[2].newEvaluateIntegerKey();
+                        return key -> {
+                            final double percentile = percentileF.evaluateDouble(key);
+                            final int count = countF.evaluateInteger(key);
+                            final RunningMedian median = new RunningMedian(count);
+                            int curKey = key;
+                            for (int i = 1; i <= count; i++) {
+                                final double result = condition.evaluateDouble(curKey);
+                                if (!Doubles.isNaN(result)) {
+                                    median.add(result);
+                                }
+                                if (i != count) {
+                                    curKey = previousKeyFunction.getPreviousKey(curKey, 1);
+                                }
                             }
-                            if (i != count) {
-                                curKey = previousKeyFunction.getPreviousKey(curKey, 1);
-                            }
-                        }
-                        return median.getPercentile(percentile);
+                            return median.getPercentile(percentile);
+                        };
                     }
 
                     @Override
-                    public double eval(final IFDateProvider key, final IExpression[] args) {
-                        final double percentile = args[0].evaluateDouble(key);
-                        final IExpression condition = args[1];
-                        final int count = args[2].evaluateInteger(key);
-                        final RunningMedian median = new RunningMedian(count);
-                        IFDateProvider curKey = key;
-                        for (int i = 1; i <= count; i++) {
-                            final double result = condition.evaluateDouble(curKey);
-                            if (!Doubles.isNaN(result)) {
-                                median.add(result);
+                    public IEvaluateDoubleFDate newEvaluateDoubleFDate(final IExpression[] args) {
+                        final IEvaluateDoubleFDate percentileF = args[0].newEvaluateDoubleFDate();
+                        final IEvaluateDoubleFDate condition = args[1].newEvaluateDoubleFDate();
+                        final IEvaluateIntegerFDate countF = args[2].newEvaluateIntegerFDate();
+                        return key -> {
+                            final double percentile = percentileF.evaluateDouble(key);
+                            final int count = countF.evaluateInteger(key);
+                            final RunningMedian median = new RunningMedian(count);
+                            IFDateProvider curKey = key;
+                            for (int i = 1; i <= count; i++) {
+                                final double result = condition.evaluateDouble(curKey);
+                                if (!Doubles.isNaN(result)) {
+                                    median.add(result);
+                                }
+                                if (i != count) {
+                                    curKey = previousKeyFunction.getPreviousKey(curKey, 1);
+                                }
                             }
-                            if (i != count) {
-                                curKey = previousKeyFunction.getPreviousKey(curKey, 1);
-                            }
-                        }
-                        return median.getPercentile(percentile);
+                            return median.getPercentile(percentile);
+                        };
                     }
                 };
             }

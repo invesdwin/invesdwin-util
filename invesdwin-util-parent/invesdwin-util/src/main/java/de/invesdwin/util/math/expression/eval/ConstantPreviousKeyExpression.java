@@ -5,6 +5,18 @@ import javax.annotation.concurrent.Immutable;
 import de.invesdwin.util.math.expression.ExpressionType;
 import de.invesdwin.util.math.expression.IExpression;
 import de.invesdwin.util.math.expression.function.IPreviousKeyFunction;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBoolean;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanFDate;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanKey;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanNullable;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanNullableFDate;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanNullableKey;
+import de.invesdwin.util.math.expression.lambda.IEvaluateDouble;
+import de.invesdwin.util.math.expression.lambda.IEvaluateDoubleFDate;
+import de.invesdwin.util.math.expression.lambda.IEvaluateDoubleKey;
+import de.invesdwin.util.math.expression.lambda.IEvaluateInteger;
+import de.invesdwin.util.math.expression.lambda.IEvaluateIntegerFDate;
+import de.invesdwin.util.math.expression.lambda.IEvaluateIntegerKey;
 import de.invesdwin.util.time.fdate.IFDateProvider;
 
 @Immutable
@@ -27,70 +39,94 @@ public class ConstantPreviousKeyExpression implements IParsedExpression {
     }
 
     @Override
-    public double evaluateDouble(final IFDateProvider key) {
-        final IFDateProvider previousKey = previousKeyFunction.getPreviousKey(key, index);
-        return previousKeyFunction.evaluateDouble(expression, previousKey);
+    public IEvaluateDoubleFDate newEvaluateDoubleFDate() {
+        final IEvaluateDoubleFDate prevF = previousKeyFunction.newEvaluateDoubleFDate(expression);
+        return key -> {
+            final IFDateProvider previousKey = previousKeyFunction.getPreviousKey(key, index);
+            return prevF.evaluateDouble(previousKey);
+        };
     }
 
     @Override
-    public double evaluateDouble(final int key) {
-        final int previousKey = previousKeyFunction.getPreviousKey(key, index);
-        return previousKeyFunction.evaluateDouble(expression, previousKey);
+    public IEvaluateDoubleKey newEvaluateDoubleKey() {
+        final IEvaluateDoubleKey prevF = previousKeyFunction.newEvaluateDoubleKey(expression);
+        return key -> {
+            final int previousKey = previousKeyFunction.getPreviousKey(key, index);
+            return prevF.evaluateDouble(previousKey);
+        };
     }
 
     @Override
-    public double evaluateDouble() {
+    public IEvaluateDouble newEvaluateDouble() {
         throw new UnsupportedOperationException("use time or int key instead");
     }
 
     @Override
-    public int evaluateInteger(final IFDateProvider key) {
-        final IFDateProvider previousKey = previousKeyFunction.getPreviousKey(key, index);
-        return previousKeyFunction.evaluateInteger(expression, previousKey);
+    public IEvaluateIntegerFDate newEvaluateIntegerFDate() {
+        final IEvaluateIntegerFDate prevF = previousKeyFunction.newEvaluateIntegerFDate(expression);
+        return key -> {
+            final IFDateProvider previousKey = previousKeyFunction.getPreviousKey(key, index);
+            return prevF.evaluateInteger(previousKey);
+        };
     }
 
     @Override
-    public int evaluateInteger(final int key) {
-        final int previousKey = previousKeyFunction.getPreviousKey(key, index);
-        return previousKeyFunction.evaluateInteger(expression, previousKey);
+    public IEvaluateIntegerKey newEvaluateIntegerKey() {
+        final IEvaluateIntegerKey prevF = previousKeyFunction.newEvaluateIntegerKey(expression);
+        return key -> {
+            final int previousKey = previousKeyFunction.getPreviousKey(key, index);
+            return prevF.evaluateInteger(previousKey);
+        };
     }
 
     @Override
-    public int evaluateInteger() {
+    public IEvaluateInteger newEvaluateInteger() {
         throw new UnsupportedOperationException("use time or int key instead");
     }
 
     @Override
-    public Boolean evaluateBooleanNullable(final IFDateProvider key) {
-        final IFDateProvider previousKey = previousKeyFunction.getPreviousKey(key, index);
-        return previousKeyFunction.evaluateBooleanNullable(expression, previousKey);
+    public IEvaluateBooleanNullableFDate newEvaluateBooleanNullableFDate() {
+        final IEvaluateBooleanNullableFDate prevF = previousKeyFunction.newEvaluateBooleanNullableFDate(expression);
+        return key -> {
+            final IFDateProvider previousKey = previousKeyFunction.getPreviousKey(key, index);
+            return prevF.evaluateBooleanNullable(previousKey);
+        };
     }
 
     @Override
-    public Boolean evaluateBooleanNullable(final int key) {
-        final int previousKey = previousKeyFunction.getPreviousKey(key, index);
-        return previousKeyFunction.evaluateBooleanNullable(expression, previousKey);
+    public IEvaluateBooleanNullableKey newEvaluateBooleanNullableKey() {
+        final IEvaluateBooleanNullableKey prevF = previousKeyFunction.newEvaluateBooleanNullableKey(expression);
+        return key -> {
+            final int previousKey = previousKeyFunction.getPreviousKey(key, index);
+            return prevF.evaluateBooleanNullable(previousKey);
+        };
     }
 
     @Override
-    public boolean evaluateBoolean() {
+    public IEvaluateBooleanNullable newEvaluateBooleanNullable() {
         throw new UnsupportedOperationException("use time or int key instead");
     }
 
     @Override
-    public boolean evaluateBoolean(final IFDateProvider key) {
-        final IFDateProvider previousKey = previousKeyFunction.getPreviousKey(key, index);
-        return previousKeyFunction.evaluateBoolean(expression, previousKey);
+    public IEvaluateBooleanFDate newEvaluateBooleanFDate() {
+        final IEvaluateBooleanFDate prevF = previousKeyFunction.newEvaluateBooleanFDate(expression);
+        return key -> {
+            final IFDateProvider previousKey = previousKeyFunction.getPreviousKey(key, index);
+            return prevF.evaluateBoolean(previousKey);
+        };
     }
 
     @Override
-    public boolean evaluateBoolean(final int key) {
-        final int previousKey = previousKeyFunction.getPreviousKey(key, index);
-        return previousKeyFunction.evaluateBoolean(expression, previousKey);
+    public IEvaluateBooleanKey newEvaluateBooleanKey() {
+        final IEvaluateBooleanKey prevF = previousKeyFunction.newEvaluateBooleanKey(expression);
+        return key -> {
+            final int previousKey = previousKeyFunction.getPreviousKey(key, index);
+            return prevF.evaluateBoolean(previousKey);
+        };
     }
 
     @Override
-    public Boolean evaluateBooleanNullable() {
+    public IEvaluateBoolean newEvaluateBoolean() {
         throw new UnsupportedOperationException("use time or int key instead");
     }
 

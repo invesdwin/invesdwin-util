@@ -7,7 +7,18 @@ import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.decimal.Decimal;
 import de.invesdwin.util.math.expression.ExpressionType;
 import de.invesdwin.util.math.expression.IExpression;
-import de.invesdwin.util.time.fdate.IFDateProvider;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBoolean;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanFDate;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanKey;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanNullable;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanNullableFDate;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanNullableKey;
+import de.invesdwin.util.math.expression.lambda.IEvaluateDouble;
+import de.invesdwin.util.math.expression.lambda.IEvaluateDoubleFDate;
+import de.invesdwin.util.math.expression.lambda.IEvaluateDoubleKey;
+import de.invesdwin.util.math.expression.lambda.IEvaluateInteger;
+import de.invesdwin.util.math.expression.lambda.IEvaluateIntegerFDate;
+import de.invesdwin.util.math.expression.lambda.IEvaluateIntegerKey;
 
 @Immutable
 public class ConstantExpression implements IParsedExpression {
@@ -31,63 +42,63 @@ public class ConstantExpression implements IParsedExpression {
     }
 
     @Override
-    public double evaluateDouble(final IFDateProvider key) {
-        return doubleValue;
+    public IEvaluateDoubleFDate newEvaluateDoubleFDate() {
+        return key -> doubleValue;
     }
 
     @Override
-    public double evaluateDouble(final int key) {
-        return doubleValue;
+    public IEvaluateDoubleKey newEvaluateDoubleKey() {
+        return key -> doubleValue;
     }
 
     @Override
-    public double evaluateDouble() {
-        return doubleValue;
+    public IEvaluateDouble newEvaluateDouble() {
+        return () -> doubleValue;
     }
 
     @Override
-    public int evaluateInteger(final IFDateProvider key) {
-        return intValue;
+    public IEvaluateIntegerFDate newEvaluateIntegerFDate() {
+        return key -> intValue;
     }
 
     @Override
-    public int evaluateInteger(final int key) {
-        return intValue;
+    public IEvaluateIntegerKey newEvaluateIntegerKey() {
+        return key -> intValue;
     }
 
     @Override
-    public int evaluateInteger() {
-        return intValue;
+    public IEvaluateInteger newEvaluateInteger() {
+        return () -> intValue;
     }
 
     @Override
-    public Boolean evaluateBooleanNullable(final IFDateProvider key) {
-        return booleanNullableValue;
+    public IEvaluateBooleanNullableFDate newEvaluateBooleanNullableFDate() {
+        return key -> booleanNullableValue;
     }
 
     @Override
-    public Boolean evaluateBooleanNullable(final int key) {
-        return booleanNullableValue;
+    public IEvaluateBooleanNullableKey newEvaluateBooleanNullableKey() {
+        return key -> booleanNullableValue;
     }
 
     @Override
-    public Boolean evaluateBooleanNullable() {
-        return booleanNullableValue;
+    public IEvaluateBooleanNullable newEvaluateBooleanNullable() {
+        return () -> booleanNullableValue;
     }
 
     @Override
-    public boolean evaluateBoolean(final IFDateProvider key) {
-        return booleanValue;
+    public IEvaluateBooleanFDate newEvaluateBooleanFDate() {
+        return key -> booleanValue;
     }
 
     @Override
-    public boolean evaluateBoolean(final int key) {
-        return booleanValue;
+    public IEvaluateBooleanKey newEvaluateBooleanKey() {
+        return key -> booleanValue;
     }
 
     @Override
-    public boolean evaluateBoolean() {
-        return booleanValue;
+    public IEvaluateBoolean newEvaluateBoolean() {
+        return () -> booleanValue;
     }
 
     @Override

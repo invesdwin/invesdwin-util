@@ -14,7 +14,7 @@ public class BooleanExpression extends ConstantExpression {
 
     @Override
     public String toString() {
-        return String.valueOf(evaluateBooleanNullable());
+        return String.valueOf(newEvaluateBoolean().evaluateBoolean());
     }
 
     public static EnumerationExpression valueOf(final Enum<?> enumerationValue) {

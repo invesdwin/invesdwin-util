@@ -873,9 +873,7 @@ public final class LogicalFunctions {
         };
     }
 
-    //CHECKSTYLE:OFF
     public static ABooleanFunction newVoteFunction(final String expressionName) {
-        //CHECKSTYLE:ON
         return new ABooleanFunction() {
 
             @Override
