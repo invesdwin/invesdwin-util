@@ -40,24 +40,34 @@ public class DynamicPreviousKeyExpression implements IParsedExpression {
 
     @Override
     public IEvaluateDoubleFDate newEvaluateDoubleFDate() {
-        final int index = indexExpression.evaluateInteger(key);
-        if (index <= 0) {
-            return expression.evaluateDouble(key);
-        } else {
-            final IFDateProvider previousKey = previousKeyFunction.getPreviousKey(key, index);
-            return previousKeyFunction.evaluateDouble(expression, previousKey);
-        }
+        final IEvaluateIntegerFDate indexF = indexExpression.newEvaluateIntegerFDate();
+        final IEvaluateDoubleFDate expressionF = expression.newEvaluateDoubleFDate();
+        final IEvaluateDoubleFDate prevF = previousKeyFunction.newEvaluateDoubleFDate(expression);
+        return key -> {
+            final int index = indexF.evaluateInteger(key);
+            if (index <= 0) {
+                return expressionF.evaluateDouble(key);
+            } else {
+                final IFDateProvider previousKey = previousKeyFunction.getPreviousKey(key, index);
+                return prevF.evaluateDouble(previousKey);
+            }
+        };
     }
 
     @Override
     public IEvaluateDoubleKey newEvaluateDoubleKey() {
-        final int index = indexExpression.evaluateInteger(key);
-        if (index <= 0) {
-            return expression.evaluateDouble(key);
-        } else {
-            final int previousKey = previousKeyFunction.getPreviousKey(key, index);
-            return previousKeyFunction.evaluateDouble(expression, previousKey);
-        }
+        final IEvaluateIntegerKey indexF = indexExpression.newEvaluateIntegerKey();
+        final IEvaluateDoubleKey expressionF = expression.newEvaluateDoubleKey();
+        final IEvaluateDoubleKey prevF = previousKeyFunction.newEvaluateDoubleKey(expression);
+        return key -> {
+            final int index = indexF.evaluateInteger(key);
+            if (index <= 0) {
+                return expressionF.evaluateDouble(key);
+            } else {
+                final int previousKey = previousKeyFunction.getPreviousKey(key, index);
+                return prevF.evaluateDouble(previousKey);
+            }
+        };
     }
 
     @Override
