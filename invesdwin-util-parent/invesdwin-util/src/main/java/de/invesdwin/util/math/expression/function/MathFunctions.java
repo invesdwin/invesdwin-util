@@ -9,7 +9,9 @@ import de.invesdwin.util.math.expression.IFunctionParameterInfo;
 import de.invesdwin.util.math.expression.eval.function.ADoubleBinaryFunction;
 import de.invesdwin.util.math.expression.eval.function.ADoubleTernaryFunction;
 import de.invesdwin.util.math.expression.eval.function.ADoubleUnaryFunction;
-import de.invesdwin.util.time.fdate.IFDateProvider;
+import de.invesdwin.util.math.expression.lambda.IEvaluateDouble;
+import de.invesdwin.util.math.expression.lambda.IEvaluateDoubleFDate;
+import de.invesdwin.util.math.expression.lambda.IEvaluateDoubleKey;
 
 @Immutable
 public final class MathFunctions {
@@ -1796,21 +1798,30 @@ public final class MathFunctions {
         }
 
         @Override
-        public double eval(final IFDateProvider key, final IExpression[] args) {
-            final double a = args[0].evaluateDouble(key);
-            return -a;
+        public IEvaluateDoubleFDate newEvaluateDoubleFDate(final IExpression[] args) {
+            final IEvaluateDoubleFDate aF = args[0].newEvaluateDoubleFDate();
+            return key -> {
+                final double a = aF.evaluateDouble(key);
+                return -a;
+            };
         }
 
         @Override
-        public double eval(final int key, final IExpression[] args) {
-            final double a = args[0].evaluateDouble(key);
-            return -a;
+        public IEvaluateDoubleKey newEvaluateDoubleKey(final IExpression[] args) {
+            final IEvaluateDoubleKey aF = args[0].newEvaluateDoubleKey();
+            return key -> {
+                final double a = aF.evaluateDouble(key);
+                return -a;
+            };
         }
 
         @Override
-        public double eval(final IExpression[] args) {
-            final double a = args[0].evaluateDouble();
-            return -a;
+        public IEvaluateDouble newEvaluateDouble(final IExpression[] args) {
+            final IEvaluateDouble aF = args[0].newEvaluateDouble();
+            return () -> {
+                final double a = aF.evaluateDouble();
+                return -a;
+            };
         }
 
         @Override
@@ -2113,32 +2124,41 @@ public final class MathFunctions {
             }
 
             @Override
-            public double eval(final IFDateProvider key, final IExpression[] args) {
+            public IEvaluateDoubleFDate newEvaluateDoubleFDate(final IExpression[] args) {
                 if (args.length == 0) {
-                    return Math.random();
+                    return key -> Math.random();
                 } else {
-                    final double a = args[0].evaluateDouble(key);
-                    return Math.random() * a;
+                    final IEvaluateDoubleFDate aF = args[0].newEvaluateDoubleFDate();
+                    return key -> {
+                        final double a = aF.evaluateDouble(key);
+                        return Math.random() * a;
+                    };
                 }
             }
 
             @Override
-            public double eval(final int key, final IExpression[] args) {
+            public IEvaluateDoubleKey newEvaluateDoubleKey(final IExpression[] args) {
                 if (args.length == 0) {
-                    return Math.random();
+                    return key -> Math.random();
                 } else {
-                    final double a = args[0].evaluateDouble(key);
-                    return Math.random() * a;
+                    final IEvaluateDoubleKey aF = args[0].newEvaluateDoubleKey();
+                    return key -> {
+                        final double a = aF.evaluateDouble(key);
+                        return Math.random() * a;
+                    };
                 }
             }
 
             @Override
-            public double eval(final IExpression[] args) {
+            public IEvaluateDouble newEvaluateDouble(final IExpression[] args) {
                 if (args.length == 0) {
-                    return Math.random();
+                    return () -> Math.random();
                 } else {
-                    final double a = args[0].evaluateDouble();
-                    return Math.random() * a;
+                    final IEvaluateDouble aF = args[0].newEvaluateDouble();
+                    return () -> {
+                        final double a = aF.evaluateDouble();
+                        return Math.random() * a;
+                    };
                 }
             }
 
@@ -2268,30 +2288,48 @@ public final class MathFunctions {
             }
 
             @Override
-            public double eval(final IFDateProvider key, final IExpression[] args) {
-                double min = args[0].evaluateDouble(key);
-                for (int i = 1; i < args.length; i++) {
-                    min = Doubles.min(min, args[i].evaluateDouble(key));
+            public IEvaluateDoubleFDate newEvaluateDoubleFDate(final IExpression[] args) {
+                final IEvaluateDoubleFDate[] argsF = new IEvaluateDoubleFDate[args.length];
+                for (int i = 0; i < args.length; i++) {
+                    argsF[i] = args[i].newEvaluateDoubleFDate();
                 }
-                return min;
+                return key -> {
+                    double min = argsF[0].evaluateDouble(key);
+                    for (int i = 1; i < argsF.length; i++) {
+                        min = Doubles.min(min, argsF[i].evaluateDouble(key));
+                    }
+                    return min;
+                };
             }
 
             @Override
-            public double eval(final int key, final IExpression[] args) {
-                double min = args[0].evaluateDouble(key);
-                for (int i = 1; i < args.length; i++) {
-                    min = Doubles.min(min, args[i].evaluateDouble(key));
+            public IEvaluateDoubleKey newEvaluateDoubleKey(final IExpression[] args) {
+                final IEvaluateDoubleKey[] argsF = new IEvaluateDoubleKey[args.length];
+                for (int i = 0; i < args.length; i++) {
+                    argsF[i] = args[i].newEvaluateDoubleKey();
                 }
-                return min;
+                return key -> {
+                    double min = argsF[0].evaluateDouble(key);
+                    for (int i = 1; i < argsF.length; i++) {
+                        min = Doubles.min(min, argsF[i].evaluateDouble(key));
+                    }
+                    return min;
+                };
             }
 
             @Override
-            public double eval(final IExpression[] args) {
-                double min = args[0].evaluateDouble();
-                for (int i = 1; i < args.length; i++) {
-                    min = Doubles.min(min, args[i].evaluateDouble());
+            public IEvaluateDouble newEvaluateDouble(final IExpression[] args) {
+                final IEvaluateDouble[] argsF = new IEvaluateDouble[args.length];
+                for (int i = 0; i < args.length; i++) {
+                    argsF[i] = args[i].newEvaluateDouble();
                 }
-                return min;
+                return () -> {
+                    double min = argsF[0].evaluateDouble();
+                    for (int i = 1; i < argsF.length; i++) {
+                        min = Doubles.min(min, argsF[i].evaluateDouble());
+                    }
+                    return min;
+                };
             }
 
             @Override
@@ -2420,30 +2458,48 @@ public final class MathFunctions {
             }
 
             @Override
-            public double eval(final IFDateProvider key, final IExpression[] args) {
-                double max = args[0].evaluateDouble(key);
-                for (int i = 1; i < args.length; i++) {
-                    max = Doubles.max(max, args[i].evaluateDouble(key));
+            public IEvaluateDoubleFDate newEvaluateDoubleFDate(final IExpression[] args) {
+                final IEvaluateDoubleFDate[] argsF = new IEvaluateDoubleFDate[args.length];
+                for (int i = 0; i < args.length; i++) {
+                    argsF[i] = args[i].newEvaluateDoubleFDate();
                 }
-                return max;
+                return key -> {
+                    double max = argsF[0].evaluateDouble(key);
+                    for (int i = 1; i < argsF.length; i++) {
+                        max = Doubles.max(max, argsF[i].evaluateDouble(key));
+                    }
+                    return max;
+                };
             }
 
             @Override
-            public double eval(final int key, final IExpression[] args) {
-                double max = args[0].evaluateDouble(key);
-                for (int i = 1; i < args.length; i++) {
-                    max = Doubles.max(max, args[i].evaluateDouble(key));
+            public IEvaluateDoubleKey newEvaluateDoubleKey(final IExpression[] args) {
+                final IEvaluateDoubleKey[] argsF = new IEvaluateDoubleKey[args.length];
+                for (int i = 0; i < args.length; i++) {
+                    argsF[i] = args[i].newEvaluateDoubleKey();
                 }
-                return max;
+                return key -> {
+                    double max = argsF[0].evaluateDouble(key);
+                    for (int i = 1; i < argsF.length; i++) {
+                        max = Doubles.max(max, argsF[i].evaluateDouble(key));
+                    }
+                    return max;
+                };
             }
 
             @Override
-            public double eval(final IExpression[] args) {
-                double max = args[0].evaluateDouble();
-                for (int i = 1; i < args.length; i++) {
-                    max = Doubles.max(max, args[i].evaluateDouble());
+            public IEvaluateDouble newEvaluateDouble(final IExpression[] args) {
+                final IEvaluateDouble[] argsF = new IEvaluateDouble[args.length];
+                for (int i = 0; i < args.length; i++) {
+                    argsF[i] = args[i].newEvaluateDouble();
                 }
-                return max;
+                return () -> {
+                    double max = argsF[0].evaluateDouble();
+                    for (int i = 1; i < argsF.length; i++) {
+                        max = Doubles.max(max, argsF[i].evaluateDouble());
+                    }
+                    return max;
+                };
             }
 
             @Override
