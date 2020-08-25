@@ -6,7 +6,9 @@ import de.invesdwin.util.math.expression.ExpressionReturnType;
 import de.invesdwin.util.math.expression.IExpression;
 import de.invesdwin.util.math.expression.IFunctionParameterInfo;
 import de.invesdwin.util.math.expression.function.ABooleanFunction;
-import de.invesdwin.util.time.fdate.IFDateProvider;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBoolean;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanFDate;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanKey;
 
 @Immutable
 public class BooleanVariableFunction extends ABooleanFunction {
@@ -43,18 +45,18 @@ public class BooleanVariableFunction extends ABooleanFunction {
     }
 
     @Override
-    public boolean eval(final IFDateProvider key, final IExpression[] args) {
-        return variable.evaluateBoolean(key);
+    public IEvaluateBooleanFDate newEvaluateBooleanFDate(final IExpression[] args) {
+        return key -> variable.evaluateBoolean(key);
     }
 
     @Override
-    public boolean eval(final int key, final IExpression[] args) {
-        return variable.evaluateBoolean(key);
+    public IEvaluateBooleanKey newEvaluateBooleanKey(final IExpression[] args) {
+        return key -> variable.evaluateBoolean(key);
     }
 
     @Override
-    public boolean eval(final IExpression[] args) {
-        return variable.evaluateBoolean();
+    public IEvaluateBoolean newEvaluateBoolean(final IExpression[] args) {
+        return () -> variable.evaluateBoolean();
     }
 
     @Override

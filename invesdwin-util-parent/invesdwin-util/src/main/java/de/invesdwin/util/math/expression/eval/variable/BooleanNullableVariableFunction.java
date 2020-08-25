@@ -6,7 +6,9 @@ import de.invesdwin.util.math.expression.ExpressionReturnType;
 import de.invesdwin.util.math.expression.IExpression;
 import de.invesdwin.util.math.expression.IFunctionParameterInfo;
 import de.invesdwin.util.math.expression.function.ABooleanNullableFunction;
-import de.invesdwin.util.time.fdate.IFDateProvider;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanNullable;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanNullableFDate;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanNullableKey;
 
 @Immutable
 public class BooleanNullableVariableFunction extends ABooleanNullableFunction {
@@ -43,18 +45,18 @@ public class BooleanNullableVariableFunction extends ABooleanNullableFunction {
     }
 
     @Override
-    public Boolean eval(final IFDateProvider key, final IExpression[] args) {
-        return variable.evaluateBoolean(key);
+    public IEvaluateBooleanNullableFDate newEvaluateBooleanNullableFDate(final IExpression[] args) {
+        return variable.newEvaluateBooleanNullableFDate();
     }
 
     @Override
-    public Boolean eval(final int key, final IExpression[] args) {
-        return variable.evaluateBoolean(key);
+    public IEvaluateBooleanNullableKey newEvaluateBooleanNullableKey(final IExpression[] args) {
+        return variable.newEvaluateBooleanNullableKey();
     }
 
     @Override
-    public Boolean eval(final IExpression[] args) {
-        return variable.evaluateBoolean();
+    public IEvaluateBooleanNullable newEvaluateBooleanNullable(final IExpression[] args) {
+        return variable.newEvaluateBooleanNullable();
     }
 
     @Override

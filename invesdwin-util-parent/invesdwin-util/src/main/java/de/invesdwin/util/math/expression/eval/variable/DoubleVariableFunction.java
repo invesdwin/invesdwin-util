@@ -6,7 +6,9 @@ import de.invesdwin.util.math.expression.ExpressionReturnType;
 import de.invesdwin.util.math.expression.IExpression;
 import de.invesdwin.util.math.expression.IFunctionParameterInfo;
 import de.invesdwin.util.math.expression.function.ADoubleFunction;
-import de.invesdwin.util.time.fdate.IFDateProvider;
+import de.invesdwin.util.math.expression.lambda.IEvaluateDouble;
+import de.invesdwin.util.math.expression.lambda.IEvaluateDoubleFDate;
+import de.invesdwin.util.math.expression.lambda.IEvaluateDoubleKey;
 
 @Immutable
 public class DoubleVariableFunction extends ADoubleFunction {
@@ -43,18 +45,18 @@ public class DoubleVariableFunction extends ADoubleFunction {
     }
 
     @Override
-    public double eval(final IFDateProvider key, final IExpression[] args) {
-        return variable.evaluateDouble(key);
+    public IEvaluateDoubleFDate newEvaluateDoubleFDate(final IExpression[] args) {
+        return variable.newEvaluateDoubleFDate();
     }
 
     @Override
-    public double eval(final int key, final IExpression[] args) {
-        return variable.evaluateDouble(key);
+    public IEvaluateDoubleKey newEvaluateDoubleKey(final IExpression[] args) {
+        return variable.newEvaluateDoubleKey();
     }
 
     @Override
-    public double eval(final IExpression[] args) {
-        return variable.evaluateDouble();
+    public IEvaluateDouble newEvaluateDouble(final IExpression[] args) {
+        return variable.newEvaluateDouble();
     }
 
     @Override

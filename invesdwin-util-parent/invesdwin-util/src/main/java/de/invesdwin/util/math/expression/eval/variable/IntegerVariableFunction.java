@@ -6,7 +6,9 @@ import de.invesdwin.util.math.expression.ExpressionReturnType;
 import de.invesdwin.util.math.expression.IExpression;
 import de.invesdwin.util.math.expression.IFunctionParameterInfo;
 import de.invesdwin.util.math.expression.function.AIntegerFunction;
-import de.invesdwin.util.time.fdate.IFDateProvider;
+import de.invesdwin.util.math.expression.lambda.IEvaluateInteger;
+import de.invesdwin.util.math.expression.lambda.IEvaluateIntegerFDate;
+import de.invesdwin.util.math.expression.lambda.IEvaluateIntegerKey;
 
 @Immutable
 public class IntegerVariableFunction extends AIntegerFunction {
@@ -43,18 +45,18 @@ public class IntegerVariableFunction extends AIntegerFunction {
     }
 
     @Override
-    public int eval(final IFDateProvider key, final IExpression[] args) {
-        return variable.evaluateInteger(key);
+    public IEvaluateIntegerFDate newEvaluateIntegerFDate(final IExpression[] args) {
+        return variable.newEvaluateIntegerFDate();
     }
 
     @Override
-    public int eval(final int key, final IExpression[] args) {
-        return variable.evaluateInteger(key);
+    public IEvaluateIntegerKey newEvaluateIntegerKey(final IExpression[] args) {
+        return variable.newEvaluateIntegerKey();
     }
 
     @Override
-    public int eval(final IExpression[] args) {
-        return variable.evaluateInteger();
+    public IEvaluateInteger newEvaluateInteger(final IExpression[] args) {
+        return variable.newEvaluateInteger();
     }
 
     @Override

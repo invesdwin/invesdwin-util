@@ -5,8 +5,19 @@ import javax.annotation.concurrent.Immutable;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.expression.ExpressionType;
 import de.invesdwin.util.math.expression.function.AFunction;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBoolean;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanFDate;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanKey;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanNullable;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanNullableFDate;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanNullableKey;
+import de.invesdwin.util.math.expression.lambda.IEvaluateDouble;
+import de.invesdwin.util.math.expression.lambda.IEvaluateDoubleFDate;
+import de.invesdwin.util.math.expression.lambda.IEvaluateDoubleKey;
+import de.invesdwin.util.math.expression.lambda.IEvaluateInteger;
+import de.invesdwin.util.math.expression.lambda.IEvaluateIntegerFDate;
+import de.invesdwin.util.math.expression.lambda.IEvaluateIntegerKey;
 import de.invesdwin.util.math.expression.variable.IIntegerVariable;
-import de.invesdwin.util.time.fdate.IFDateProvider;
 
 @Immutable
 public class IntegerVariableReference extends AVariableReference<IIntegerVariable> {
@@ -21,63 +32,72 @@ public class IntegerVariableReference extends AVariableReference<IIntegerVariabl
     }
 
     @Override
-    public double evaluateDouble(final IFDateProvider key) {
-        return variable.getValue(key);
+    public IEvaluateDoubleFDate newEvaluateDoubleFDate() {
+        final IEvaluateIntegerFDate f = newEvaluateIntegerFDate();
+        return key -> f.evaluateInteger(key);
     }
 
     @Override
-    public double evaluateDouble(final int key) {
-        return variable.getValue(key);
+    public IEvaluateDoubleKey newEvaluateDoubleKey() {
+        final IEvaluateIntegerKey f = newEvaluateIntegerKey();
+        return key -> f.evaluateInteger(key);
     }
 
     @Override
-    public double evaluateDouble() {
-        return variable.getValue();
+    public IEvaluateDouble newEvaluateDouble() {
+        final IEvaluateInteger f = newEvaluateInteger();
+        return () -> f.evaluateInteger();
     }
 
     @Override
-    public int evaluateInteger(final IFDateProvider key) {
-        return variable.getValue(key);
+    public IEvaluateIntegerFDate newEvaluateIntegerFDate() {
+        return variable.newEvaluateIntegerFDate();
     }
 
     @Override
-    public int evaluateInteger(final int key) {
-        return variable.getValue(key);
+    public IEvaluateIntegerKey newEvaluateIntegerKey() {
+        return variable.newEvaluateIntegerKey();
     }
 
     @Override
-    public int evaluateInteger() {
-        return variable.getValue();
+    public IEvaluateInteger newEvaluateInteger() {
+        return variable.newEvaluateInteger();
     }
 
     @Override
-    public Boolean evaluateBooleanNullable(final IFDateProvider key) {
-        return Integers.toBooleanNullable(variable.getValue(key));
+    public IEvaluateBooleanNullableFDate newEvaluateBooleanNullableFDate() {
+        final IEvaluateIntegerFDate f = newEvaluateIntegerFDate();
+        return key -> Integers.toBooleanNullable(f.evaluateInteger(key));
     }
 
     @Override
-    public Boolean evaluateBooleanNullable(final int key) {
-        return Integers.toBooleanNullable(variable.getValue(key));
+    public IEvaluateBooleanNullableKey newEvaluateBooleanNullableKey() {
+        final IEvaluateIntegerKey f = newEvaluateIntegerKey();
+        return key -> Integers.toBooleanNullable(f.evaluateInteger(key));
     }
 
     @Override
-    public Boolean evaluateBooleanNullable() {
-        return Integers.toBooleanNullable(variable.getValue());
+    public IEvaluateBooleanNullable newEvaluateBooleanNullable() {
+        final IEvaluateInteger f = newEvaluateInteger();
+        return () -> Integers.toBooleanNullable(f.evaluateInteger());
     }
 
     @Override
-    public boolean evaluateBoolean(final IFDateProvider key) {
-        return Integers.toBoolean(variable.getValue(key));
+    public IEvaluateBooleanFDate newEvaluateBooleanFDate() {
+        final IEvaluateIntegerFDate f = newEvaluateIntegerFDate();
+        return key -> Integers.toBoolean(f.evaluateInteger(key));
     }
 
     @Override
-    public boolean evaluateBoolean(final int key) {
-        return Integers.toBoolean(variable.getValue(key));
+    public IEvaluateBooleanKey newEvaluateBooleanKey() {
+        final IEvaluateIntegerKey f = newEvaluateIntegerKey();
+        return key -> Integers.toBoolean(f.evaluateInteger(key));
     }
 
     @Override
-    public boolean evaluateBoolean() {
-        return Integers.toBoolean(variable.getValue());
+    public IEvaluateBoolean newEvaluateBoolean() {
+        final IEvaluateInteger f = newEvaluateInteger();
+        return () -> Integers.toBoolean(f.evaluateInteger());
     }
 
     @Override

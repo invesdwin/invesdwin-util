@@ -6,8 +6,19 @@ import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.expression.ExpressionType;
 import de.invesdwin.util.math.expression.function.AFunction;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBoolean;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanFDate;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanKey;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanNullable;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanNullableFDate;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanNullableKey;
+import de.invesdwin.util.math.expression.lambda.IEvaluateDouble;
+import de.invesdwin.util.math.expression.lambda.IEvaluateDoubleFDate;
+import de.invesdwin.util.math.expression.lambda.IEvaluateDoubleKey;
+import de.invesdwin.util.math.expression.lambda.IEvaluateInteger;
+import de.invesdwin.util.math.expression.lambda.IEvaluateIntegerFDate;
+import de.invesdwin.util.math.expression.lambda.IEvaluateIntegerKey;
 import de.invesdwin.util.math.expression.variable.IDoubleVariable;
-import de.invesdwin.util.time.fdate.IFDateProvider;
 
 @Immutable
 public class DoubleVariableReference extends AVariableReference<IDoubleVariable> {
@@ -22,63 +33,72 @@ public class DoubleVariableReference extends AVariableReference<IDoubleVariable>
     }
 
     @Override
-    public double evaluateDouble(final IFDateProvider key) {
-        return variable.getValue(key);
+    public IEvaluateDoubleFDate newEvaluateDoubleFDate() {
+        return variable.newEvaluateDoubleFDate();
     }
 
     @Override
-    public double evaluateDouble(final int key) {
-        return variable.getValue(key);
+    public IEvaluateDoubleKey newEvaluateDoubleKey() {
+        return variable.newEvaluateDoubleKey();
     }
 
     @Override
-    public double evaluateDouble() {
-        return variable.getValue();
+    public IEvaluateDouble newEvaluateDouble() {
+        return variable.newEvaluateDouble();
     }
 
     @Override
-    public int evaluateInteger(final IFDateProvider key) {
-        return Integers.checkedCastNoOverflow(variable.getValue(key));
+    public IEvaluateIntegerFDate newEvaluateIntegerFDate() {
+        final IEvaluateDoubleFDate f = newEvaluateDoubleFDate();
+        return key -> Integers.checkedCastNoOverflow(f.evaluateDouble(key));
     }
 
     @Override
-    public int evaluateInteger(final int key) {
-        return Integers.checkedCastNoOverflow(variable.getValue(key));
+    public IEvaluateIntegerKey newEvaluateIntegerKey() {
+        final IEvaluateDoubleKey f = newEvaluateDoubleKey();
+        return key -> Integers.checkedCastNoOverflow(f.evaluateDouble(key));
     }
 
     @Override
-    public int evaluateInteger() {
-        return Integers.checkedCastNoOverflow(variable.getValue());
+    public IEvaluateInteger newEvaluateInteger() {
+        final IEvaluateDouble f = newEvaluateDouble();
+        return () -> Integers.checkedCastNoOverflow(f.evaluateDouble());
     }
 
     @Override
-    public Boolean evaluateBooleanNullable(final IFDateProvider key) {
-        return Doubles.toBooleanNullable(variable.getValue(key));
+    public IEvaluateBooleanNullableFDate newEvaluateBooleanNullableFDate() {
+        final IEvaluateDoubleFDate f = newEvaluateDoubleFDate();
+        return key -> Doubles.toBooleanNullable(f.evaluateDouble(key));
     }
 
     @Override
-    public Boolean evaluateBooleanNullable(final int key) {
-        return Doubles.toBooleanNullable(variable.getValue(key));
+    public IEvaluateBooleanNullableKey newEvaluateBooleanNullableKey() {
+        final IEvaluateDoubleKey f = newEvaluateDoubleKey();
+        return key -> Doubles.toBooleanNullable(f.evaluateDouble(key));
     }
 
     @Override
-    public Boolean evaluateBooleanNullable() {
-        return Doubles.toBooleanNullable(variable.getValue());
+    public IEvaluateBooleanNullable newEvaluateBooleanNullable() {
+        final IEvaluateDouble f = newEvaluateDouble();
+        return () -> Doubles.toBooleanNullable(f.evaluateDouble());
     }
 
     @Override
-    public boolean evaluateBoolean(final IFDateProvider key) {
-        return Doubles.toBoolean(variable.getValue(key));
+    public IEvaluateBooleanFDate newEvaluateBooleanFDate() {
+        final IEvaluateDouble f = newEvaluateDouble();
+        return key -> Doubles.toBoolean(f.evaluateDouble());
     }
 
     @Override
-    public boolean evaluateBoolean(final int key) {
-        return Doubles.toBoolean(variable.getValue(key));
+    public IEvaluateBooleanKey newEvaluateBooleanKey() {
+        final IEvaluateDoubleKey f = newEvaluateDoubleKey();
+        return key -> Doubles.toBoolean(f.evaluateDouble(key));
     }
 
     @Override
-    public boolean evaluateBoolean() {
-        return Doubles.toBoolean(variable.getValue());
+    public IEvaluateBoolean newEvaluateBoolean() {
+        final IEvaluateDouble f = newEvaluateDouble();
+        return () -> Doubles.toBoolean(f.evaluateDouble());
     }
 
     @Override
