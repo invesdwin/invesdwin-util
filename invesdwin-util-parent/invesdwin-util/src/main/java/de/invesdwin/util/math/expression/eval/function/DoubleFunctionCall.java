@@ -6,7 +6,18 @@ import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.expression.eval.IParsedExpression;
 import de.invesdwin.util.math.expression.function.ADoubleFunction;
-import de.invesdwin.util.time.fdate.IFDateProvider;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBoolean;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanFDate;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanKey;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanNullable;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanNullableFDate;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanNullableKey;
+import de.invesdwin.util.math.expression.lambda.IEvaluateDouble;
+import de.invesdwin.util.math.expression.lambda.IEvaluateDoubleFDate;
+import de.invesdwin.util.math.expression.lambda.IEvaluateDoubleKey;
+import de.invesdwin.util.math.expression.lambda.IEvaluateInteger;
+import de.invesdwin.util.math.expression.lambda.IEvaluateIntegerFDate;
+import de.invesdwin.util.math.expression.lambda.IEvaluateIntegerKey;
 
 @NotThreadSafe
 public class DoubleFunctionCall extends AFunctionCall<ADoubleFunction> {
@@ -25,69 +36,70 @@ public class DoubleFunctionCall extends AFunctionCall<ADoubleFunction> {
     }
 
     @Override
-    public double evaluateDouble(final IFDateProvider key) {
-        return function.eval(key, parameters);
+    public IEvaluateDoubleFDate newEvaluateDoubleFDate() {
+        return function.newEvaluateDoubleFDate(parameters);
     }
 
     @Override
-    public double evaluateDouble(final int key) {
-        return function.eval(key, parameters);
+    public IEvaluateDoubleKey newEvaluateDoubleKey() {
+        return function.newEvaluateDoubleKey(parameters);
     }
 
     @Override
-    public double evaluateDouble() {
-        return function.eval(parameters);
+    public IEvaluateDouble newEvaluateDouble() {
+        return function.newEvaluateDouble(parameters);
     }
 
     @Override
-    public int evaluateInteger(final IFDateProvider key) {
-        return Integers.checkedCastNoOverflow(function.eval(key, parameters));
+    public IEvaluateIntegerFDate newEvaluateIntegerFDate() {
+        return key -> Integers.checkedCastNoOverflow(newEvaluateDoubleFDate().evaluateDouble(key));
     }
 
     @Override
-    public int evaluateInteger(final int key) {
-        return Integers.checkedCastNoOverflow(function.eval(key, parameters));
+    public IEvaluateIntegerKey newEvaluateIntegerKey() {
+        return key -> Integers.checkedCastNoOverflow(newEvaluateDoubleKey().evaluateDouble(key));
     }
 
     @Override
-    public int evaluateInteger() {
-        return Integers.checkedCastNoOverflow(function.eval(parameters));
+    public IEvaluateInteger newEvaluateInteger() {
+        final IEvaluateDouble f = newEvaluateDouble();
+        return () -> Integers.checkedCastNoOverflow(f.evaluateDouble());
     }
 
     @Override
-    public Boolean evaluateBooleanNullable(final IFDateProvider key) {
-        final double eval = function.eval(key, parameters);
-        return Doubles.toBooleanNullable(eval);
+    public IEvaluateBooleanNullableFDate newEvaluateBooleanNullableFDate() {
+        final IEvaluateDoubleFDate f = newEvaluateDoubleFDate();
+        return key -> Doubles.toBooleanNullable(f.evaluateDouble(key));
     }
 
     @Override
-    public Boolean evaluateBooleanNullable(final int key) {
-        final double eval = function.eval(key, parameters);
-        return Doubles.toBooleanNullable(eval);
+    public IEvaluateBooleanNullableKey newEvaluateBooleanNullableKey() {
+        final IEvaluateDoubleKey f = newEvaluateDoubleKey();
+        return key -> Doubles.toBooleanNullable(f.evaluateDouble(key));
     }
 
     @Override
-    public Boolean evaluateBooleanNullable() {
-        final double eval = function.eval(parameters);
-        return Doubles.toBooleanNullable(eval);
+    public IEvaluateBooleanNullable newEvaluateBooleanNullable() {
+        final IEvaluateDouble f = newEvaluateDouble();
+        return () -> Doubles.toBooleanNullable(f.evaluateDouble());
     }
 
     @Override
-    public boolean evaluateBoolean(final IFDateProvider key) {
-        final double eval = function.eval(key, parameters);
-        return Doubles.toBoolean(eval);
+    public IEvaluateBooleanFDate newEvaluateBooleanFDate() {
+        final IEvaluateDoubleFDate f = newEvaluateDoubleFDate();
+        return key -> Doubles.toBoolean(f.evaluateDouble(key));
     }
 
     @Override
-    public boolean evaluateBoolean(final int key) {
-        final double eval = function.eval(key, parameters);
-        return Doubles.toBoolean(eval);
+    public IEvaluateBooleanKey newEvaluateBooleanKey() {
+        final IEvaluateDoubleKey f = newEvaluateDoubleKey();
+        return key -> Doubles.toBoolean(f.evaluateDouble(key));
     }
 
     @Override
-    public boolean evaluateBoolean() {
-        final double eval = function.eval(parameters);
-        return Doubles.toBoolean(eval);
+    public IEvaluateBoolean newEvaluateBoolean() {
+        final IEvaluateDouble f = newEvaluateDouble();
+        return () -> Doubles.toBoolean(f.evaluateDouble());
     }
 
     @Override

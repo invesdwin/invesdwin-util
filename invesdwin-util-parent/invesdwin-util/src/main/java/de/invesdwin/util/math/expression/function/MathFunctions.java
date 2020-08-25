@@ -6,15 +6,15 @@ import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.expression.ExpressionReturnType;
 import de.invesdwin.util.math.expression.IExpression;
 import de.invesdwin.util.math.expression.IFunctionParameterInfo;
-import de.invesdwin.util.math.expression.eval.function.ABinaryFunction;
-import de.invesdwin.util.math.expression.eval.function.ATernaryFunction;
-import de.invesdwin.util.math.expression.eval.function.AUnaryFunction;
+import de.invesdwin.util.math.expression.eval.function.ADoubleBinaryFunction;
+import de.invesdwin.util.math.expression.eval.function.ADoubleTernaryFunction;
+import de.invesdwin.util.math.expression.eval.function.ADoubleUnaryFunction;
 import de.invesdwin.util.time.fdate.IFDateProvider;
 
 @Immutable
 public final class MathFunctions {
 
-    public static final ADoubleFunction SIN = new AUnaryFunction() {
+    public static final ADoubleFunction SIN = new ADoubleUnaryFunction() {
         @Override
         protected double eval(final double a) {
             return Math.sin(a);
@@ -90,7 +90,7 @@ public final class MathFunctions {
         }
     };
 
-    public static final ADoubleFunction SINH = new AUnaryFunction() {
+    public static final ADoubleFunction SINH = new ADoubleUnaryFunction() {
         @Override
         protected double eval(final double a) {
             return Math.sinh(a);
@@ -167,7 +167,7 @@ public final class MathFunctions {
         }
     };
 
-    public static final ADoubleFunction COS = new AUnaryFunction() {
+    public static final ADoubleFunction COS = new ADoubleUnaryFunction() {
         @Override
         protected double eval(final double a) {
             return Math.cos(a);
@@ -243,7 +243,7 @@ public final class MathFunctions {
         }
     };
 
-    public static final ADoubleFunction COSH = new AUnaryFunction() {
+    public static final ADoubleFunction COSH = new ADoubleUnaryFunction() {
         @Override
         protected double eval(final double a) {
             return Math.cosh(a);
@@ -320,7 +320,7 @@ public final class MathFunctions {
         }
     };
 
-    public static final ADoubleFunction TAN = new AUnaryFunction() {
+    public static final ADoubleFunction TAN = new ADoubleUnaryFunction() {
         @Override
         protected double eval(final double a) {
             return Math.tan(a);
@@ -396,7 +396,7 @@ public final class MathFunctions {
         }
     };
 
-    public static final ADoubleFunction TANH = new AUnaryFunction() {
+    public static final ADoubleFunction TANH = new ADoubleUnaryFunction() {
         @Override
         protected double eval(final double a) {
             return Math.tanh(a);
@@ -474,7 +474,7 @@ public final class MathFunctions {
         }
     };
 
-    public static final ADoubleFunction ABS = new AUnaryFunction() {
+    public static final ADoubleFunction ABS = new ADoubleUnaryFunction() {
         @Override
         protected double eval(final double a) {
             return Math.abs(a);
@@ -551,7 +551,7 @@ public final class MathFunctions {
         }
     };
 
-    public static final ADoubleFunction ASIN = new AUnaryFunction() {
+    public static final ADoubleFunction ASIN = new ADoubleUnaryFunction() {
         @Override
         protected double eval(final double a) {
             return Math.asin(a);
@@ -627,7 +627,7 @@ public final class MathFunctions {
         }
     };
 
-    public static final ADoubleFunction ACOS = new AUnaryFunction() {
+    public static final ADoubleFunction ACOS = new ADoubleUnaryFunction() {
         @Override
         protected double eval(final double a) {
             return Math.acos(a);
@@ -703,7 +703,7 @@ public final class MathFunctions {
         }
     };
 
-    public static final ADoubleFunction ATAN = new AUnaryFunction() {
+    public static final ADoubleFunction ATAN = new ADoubleUnaryFunction() {
         @Override
         protected double eval(final double a) {
             return Math.atan(a);
@@ -779,7 +779,7 @@ public final class MathFunctions {
         }
     };
 
-    public static final ADoubleFunction ATAN2 = new ABinaryFunction() {
+    public static final ADoubleFunction ATAN2 = new ADoubleBinaryFunction() {
         @Override
         protected double eval(final double a, final double b) {
             return Math.atan2(a, b);
@@ -896,7 +896,7 @@ public final class MathFunctions {
         }
     };
 
-    public static final ADoubleFunction ROUND = new AUnaryFunction() {
+    public static final ADoubleFunction ROUND = new ADoubleUnaryFunction() {
         @Override
         protected double eval(final double a) {
             return Math.round(a);
@@ -972,7 +972,7 @@ public final class MathFunctions {
         }
     };
 
-    public static final ADoubleFunction FLOOR = new AUnaryFunction() {
+    public static final ADoubleFunction FLOOR = new ADoubleUnaryFunction() {
         @Override
         protected double eval(final double a) {
             return Math.floor(a);
@@ -1049,7 +1049,7 @@ public final class MathFunctions {
         }
     };
 
-    public static final ADoubleFunction CEIL = new AUnaryFunction() {
+    public static final ADoubleFunction CEIL = new ADoubleUnaryFunction() {
         @Override
         protected double eval(final double a) {
             return Math.ceil(a);
@@ -1126,7 +1126,7 @@ public final class MathFunctions {
         }
     };
 
-    public static final ADoubleFunction POW = new ABinaryFunction() {
+    public static final ADoubleFunction POW = new ADoubleBinaryFunction() {
         @Override
         protected double eval(final double a, final double b) {
             return Math.pow(a, b);
@@ -1242,7 +1242,7 @@ public final class MathFunctions {
         }
     };
 
-    public static final ADoubleFunction SQRT = new AUnaryFunction() {
+    public static final ADoubleFunction SQRT = new ADoubleUnaryFunction() {
         @Override
         protected double eval(final double a) {
             return Math.sqrt(a);
@@ -1319,7 +1319,7 @@ public final class MathFunctions {
         }
     };
 
-    public static final ADoubleFunction EXP = new AUnaryFunction() {
+    public static final ADoubleFunction EXP = new ADoubleUnaryFunction() {
         @Override
         protected double eval(final double a) {
             return Math.exp(a);
@@ -1395,7 +1395,7 @@ public final class MathFunctions {
         }
     };
 
-    public static final ADoubleFunction LN = new AUnaryFunction() {
+    public static final ADoubleFunction LN = new ADoubleUnaryFunction() {
         @Override
         protected double eval(final double a) {
             return Math.log(a);
@@ -1471,7 +1471,7 @@ public final class MathFunctions {
         }
     };
 
-    public static final ADoubleFunction LOG = new AUnaryFunction() {
+    public static final ADoubleFunction LOG = new ADoubleUnaryFunction() {
         @Override
         protected double eval(final double a) {
             return Math.log10(a);
@@ -1547,7 +1547,7 @@ public final class MathFunctions {
         }
     };
 
-    public static final ADoubleFunction SIGN = new AUnaryFunction() {
+    public static final ADoubleFunction SIGN = new ADoubleUnaryFunction() {
         @Override
         protected double eval(final double a) {
             return Math.signum(a);
@@ -1624,7 +1624,7 @@ public final class MathFunctions {
         }
     };
 
-    public static final ADoubleFunction DEG = new AUnaryFunction() {
+    public static final ADoubleFunction DEG = new ADoubleUnaryFunction() {
         @Override
         protected double eval(final double a) {
             return Math.toDegrees(a);
@@ -1701,7 +1701,7 @@ public final class MathFunctions {
         }
     };
 
-    public static final ADoubleFunction RAD = new AUnaryFunction() {
+    public static final ADoubleFunction RAD = new ADoubleUnaryFunction() {
         @Override
         protected double eval(final double a) {
             return Math.toRadians(a);
@@ -1878,7 +1878,7 @@ public final class MathFunctions {
         }
     };
 
-    public static final ADoubleFunction NORMALIZE_VALUE = new ATernaryFunction() {
+    public static final ADoubleFunction NORMALIZE_VALUE = new ADoubleTernaryFunction() {
         @Override
         protected double eval(final double a, final double b, final double c) {
             return Doubles.normalize(a, b, c);
@@ -2453,8 +2453,8 @@ public final class MathFunctions {
         };
     }
 
-    public static ATernaryFunction newBetweenFunction(final String name) {
-        return new ATernaryFunction() {
+    public static ADoubleTernaryFunction newBetweenFunction(final String name) {
+        return new ADoubleTernaryFunction() {
             @Override
             protected double eval(final double a, final double b, final double c) {
                 return Doubles.between(a, b, c);

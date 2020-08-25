@@ -7,7 +7,18 @@ import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.expression.eval.IParsedExpression;
 import de.invesdwin.util.math.expression.function.ABooleanNullableFunction;
-import de.invesdwin.util.time.fdate.IFDateProvider;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBoolean;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanFDate;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanKey;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanNullable;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanNullableFDate;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanNullableKey;
+import de.invesdwin.util.math.expression.lambda.IEvaluateDouble;
+import de.invesdwin.util.math.expression.lambda.IEvaluateDoubleFDate;
+import de.invesdwin.util.math.expression.lambda.IEvaluateDoubleKey;
+import de.invesdwin.util.math.expression.lambda.IEvaluateInteger;
+import de.invesdwin.util.math.expression.lambda.IEvaluateIntegerFDate;
+import de.invesdwin.util.math.expression.lambda.IEvaluateIntegerKey;
 
 @NotThreadSafe
 public class BooleanNullableFunctionCall extends AFunctionCall<ABooleanNullableFunction> {
@@ -27,66 +38,72 @@ public class BooleanNullableFunctionCall extends AFunctionCall<ABooleanNullableF
     }
 
     @Override
-    public double evaluateDouble(final IFDateProvider key) {
-        return Doubles.fromBoolean(evaluateBooleanNullable(key));
+    public IEvaluateDoubleFDate newEvaluateDoubleFDate() {
+        final IEvaluateBooleanNullableFDate f = newEvaluateBooleanNullableFDate();
+        return key -> Doubles.fromBoolean(f.evaluateBooleanNullable(key));
     }
 
     @Override
-    public double evaluateDouble(final int key) {
-        return Doubles.fromBoolean(evaluateBooleanNullable(key));
+    public IEvaluateDoubleKey newEvaluateDoubleKey() {
+        final IEvaluateBooleanNullableKey f = newEvaluateBooleanNullableKey();
+        return key -> Doubles.fromBoolean(f.evaluateBooleanNullable(key));
     }
 
     @Override
-    public double evaluateDouble() {
-        return Doubles.fromBoolean(evaluateBooleanNullable());
+    public IEvaluateDouble newEvaluateDouble() {
+        final IEvaluateBooleanNullable f = newEvaluateBooleanNullable();
+        return () -> Doubles.fromBoolean(f.evaluateBooleanNullable());
     }
 
     @Override
-    public int evaluateInteger(final IFDateProvider key) {
-        return Integers.fromBoolean(evaluateBooleanNullable(key));
+    public IEvaluateIntegerFDate newEvaluateIntegerFDate() {
+        final IEvaluateBooleanNullableFDate f = newEvaluateBooleanNullableFDate();
+        return key -> Integers.fromBoolean(f.evaluateBooleanNullable(key));
     }
 
     @Override
-    public int evaluateInteger(final int key) {
-        return Integers.fromBoolean(evaluateBooleanNullable(key));
+    public IEvaluateIntegerKey newEvaluateIntegerKey() {
+        final IEvaluateBooleanNullableKey f = newEvaluateBooleanNullableKey();
+        return key -> Integers.fromBoolean(f.evaluateBooleanNullable(key));
     }
 
     @Override
-    public int evaluateInteger() {
-        return Integers.fromBoolean(evaluateBooleanNullable());
+    public IEvaluateInteger newEvaluateInteger() {
+        final IEvaluateBooleanNullable f = newEvaluateBooleanNullable();
+        return () -> Integers.fromBoolean(f.evaluateBooleanNullable());
     }
 
     @Override
-    public Boolean evaluateBooleanNullable(final IFDateProvider key) {
-        final Boolean eval = function.eval(key, parameters);
-        return eval;
+    public IEvaluateBooleanNullableFDate newEvaluateBooleanNullableFDate() {
+        return function.newEvaluateBooleanNullableFDate(parameters);
     }
 
     @Override
-    public Boolean evaluateBooleanNullable(final int key) {
-        final Boolean eval = function.eval(key, parameters);
-        return eval;
+    public IEvaluateBooleanNullableKey newEvaluateBooleanNullableKey() {
+        return function.newEvaluateBooleanNullableKey(parameters);
     }
 
     @Override
-    public Boolean evaluateBooleanNullable() {
-        final Boolean eval = function.eval(parameters);
-        return eval;
+    public IEvaluateBooleanNullable newEvaluateBooleanNullable() {
+        return function.newEvaluateBooleanNullable(parameters);
     }
 
     @Override
-    public boolean evaluateBoolean(final IFDateProvider key) {
-        return Booleans.isTrue(evaluateBooleanNullable(key));
+    public IEvaluateBooleanFDate newEvaluateBooleanFDate() {
+        final IEvaluateBooleanNullableFDate f = newEvaluateBooleanNullableFDate();
+        return key -> Booleans.isTrue(f.evaluateBooleanNullable(key));
     }
 
     @Override
-    public boolean evaluateBoolean(final int key) {
-        return Booleans.isTrue(evaluateBooleanNullable(key));
+    public IEvaluateBooleanKey newEvaluateBooleanKey() {
+        final IEvaluateBooleanNullableKey f = newEvaluateBooleanNullableKey();
+        return key -> Booleans.isTrue(f.evaluateBooleanNullable(key));
     }
 
     @Override
-    public boolean evaluateBoolean() {
-        return Booleans.isTrue(evaluateBooleanNullable());
+    public IEvaluateBoolean newEvaluateBoolean() {
+        final IEvaluateBooleanNullable f = newEvaluateBooleanNullable();
+        return () -> Booleans.isTrue(f.evaluateBooleanNullable());
     }
 
     @Override

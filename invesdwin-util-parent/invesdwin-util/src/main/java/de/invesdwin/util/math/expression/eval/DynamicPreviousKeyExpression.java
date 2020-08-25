@@ -77,24 +77,34 @@ public class DynamicPreviousKeyExpression implements IParsedExpression {
 
     @Override
     public IEvaluateIntegerFDate newEvaluateIntegerFDate() {
-        final int index = indexExpression.evaluateInteger(key);
-        if (index <= 0) {
-            return expression.evaluateInteger(key);
-        } else {
-            final IFDateProvider previousKey = previousKeyFunction.getPreviousKey(key, index);
-            return previousKeyFunction.evaluateInteger(expression, previousKey);
-        }
+        final IEvaluateIntegerFDate indexF = indexExpression.newEvaluateIntegerFDate();
+        final IEvaluateIntegerFDate expressionF = expression.newEvaluateIntegerFDate();
+        final IEvaluateIntegerFDate prevF = previousKeyFunction.newEvaluateIntegerFDate(expression);
+        return key -> {
+            final int index = indexF.evaluateInteger(key);
+            if (index <= 0) {
+                return expressionF.evaluateInteger(key);
+            } else {
+                final IFDateProvider previousKey = previousKeyFunction.getPreviousKey(key, index);
+                return prevF.evaluateInteger(previousKey);
+            }
+        };
     }
 
     @Override
     public IEvaluateIntegerKey newEvaluateIntegerKey() {
-        final int index = indexExpression.evaluateInteger(key);
-        if (index <= 0) {
-            return expression.evaluateInteger(key);
-        } else {
-            final int previousKey = previousKeyFunction.getPreviousKey(key, index);
-            return previousKeyFunction.evaluateInteger(expression, previousKey);
-        }
+        final IEvaluateIntegerKey indexF = indexExpression.newEvaluateIntegerKey();
+        final IEvaluateIntegerKey expressionF = expression.newEvaluateIntegerKey();
+        final IEvaluateIntegerKey prevF = previousKeyFunction.newEvaluateIntegerKey(expression);
+        return key -> {
+            final int index = indexF.evaluateInteger(key);
+            if (index <= 0) {
+                return expressionF.evaluateInteger(key);
+            } else {
+                final int previousKey = previousKeyFunction.getPreviousKey(key, index);
+                return prevF.evaluateInteger(previousKey);
+            }
+        };
     }
 
     @Override
@@ -104,24 +114,34 @@ public class DynamicPreviousKeyExpression implements IParsedExpression {
 
     @Override
     public IEvaluateBooleanNullableFDate newEvaluateBooleanNullableFDate() {
-        final int index = indexExpression.evaluateInteger(key);
-        if (index <= 0) {
-            return expression.evaluateBooleanNullable(key);
-        } else {
-            final IFDateProvider previousKey = previousKeyFunction.getPreviousKey(key, index);
-            return previousKeyFunction.evaluateBooleanNullable(expression, previousKey);
-        }
+        final IEvaluateIntegerFDate indexF = indexExpression.newEvaluateIntegerFDate();
+        final IEvaluateBooleanNullableFDate expressionF = expression.newEvaluateBooleanNullableFDate();
+        final IEvaluateBooleanNullableFDate prevF = previousKeyFunction.newEvaluateBooleanNullableFDate(expression);
+        return key -> {
+            final int index = indexF.evaluateInteger(key);
+            if (index <= 0) {
+                return expressionF.evaluateBooleanNullable(key);
+            } else {
+                final IFDateProvider previousKey = previousKeyFunction.getPreviousKey(key, index);
+                return prevF.evaluateBooleanNullable(previousKey);
+            }
+        };
     }
 
     @Override
     public IEvaluateBooleanNullableKey newEvaluateBooleanNullableKey() {
-        final int index = indexExpression.evaluateInteger(key);
-        if (index <= 0) {
-            return expression.evaluateBooleanNullable(key);
-        } else {
-            final int previousKey = previousKeyFunction.getPreviousKey(key, index);
-            return previousKeyFunction.evaluateBooleanNullable(expression, previousKey);
-        }
+        final IEvaluateIntegerKey indexF = indexExpression.newEvaluateIntegerKey();
+        final IEvaluateBooleanNullableKey expressionF = expression.newEvaluateBooleanNullableKey();
+        final IEvaluateBooleanNullableKey prevF = previousKeyFunction.newEvaluateBooleanNullableKey(expression);
+        return key -> {
+            final int index = indexF.evaluateInteger(key);
+            if (index <= 0) {
+                return expressionF.evaluateBooleanNullable(key);
+            } else {
+                final int previousKey = previousKeyFunction.getPreviousKey(key, index);
+                return prevF.evaluateBooleanNullable(previousKey);
+            }
+        };
     }
 
     @Override
@@ -131,24 +151,34 @@ public class DynamicPreviousKeyExpression implements IParsedExpression {
 
     @Override
     public IEvaluateBooleanFDate newEvaluateBooleanFDate() {
-        final int index = indexExpression.evaluateInteger(key);
-        if (index <= 0) {
-            return expression.evaluateBoolean(key);
-        } else {
-            final IFDateProvider previousKey = previousKeyFunction.getPreviousKey(key, index);
-            return previousKeyFunction.evaluateBoolean(expression, previousKey);
-        }
+        final IEvaluateIntegerFDate indexF = indexExpression.newEvaluateIntegerFDate();
+        final IEvaluateBooleanFDate expressionF = expression.newEvaluateBooleanFDate();
+        final IEvaluateBooleanFDate prevF = previousKeyFunction.newEvaluateBooleanFDate(expression);
+        return key -> {
+            final int index = indexF.evaluateInteger(key);
+            if (index <= 0) {
+                return expressionF.evaluateBoolean(key);
+            } else {
+                final IFDateProvider previousKey = previousKeyFunction.getPreviousKey(key, index);
+                return prevF.evaluateBoolean(previousKey);
+            }
+        };
     }
 
     @Override
     public IEvaluateBooleanKey newEvaluateBooleanKey() {
-        final int index = indexExpression.evaluateInteger(key);
-        if (index <= 0) {
-            return expression.evaluateBoolean(key);
-        } else {
-            final int previousKey = previousKeyFunction.getPreviousKey(key, index);
-            return previousKeyFunction.evaluateBoolean(expression, previousKey);
-        }
+        final IEvaluateIntegerKey indexF = indexExpression.newEvaluateIntegerKey();
+        final IEvaluateBooleanKey expressionF = expression.newEvaluateBooleanKey();
+        final IEvaluateBooleanKey prevF = previousKeyFunction.newEvaluateBooleanKey(expression);
+        return key -> {
+            final int index = indexF.evaluateInteger(key);
+            if (index <= 0) {
+                return expressionF.evaluateBoolean(key);
+            } else {
+                final int previousKey = previousKeyFunction.getPreviousKey(key, index);
+                return prevF.evaluateBoolean(previousKey);
+            }
+        };
     }
 
     @Override

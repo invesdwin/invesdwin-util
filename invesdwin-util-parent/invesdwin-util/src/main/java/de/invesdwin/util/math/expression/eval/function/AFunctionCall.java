@@ -44,7 +44,7 @@ public abstract class AFunctionCall<F extends AFunction> implements IParsedExpre
                 return simplifiedParameters;
             }
         }
-        return new ConstantExpression(evaluateDouble());
+        return new ConstantExpression(newEvaluateDouble().evaluateDouble());
     }
 
     private AFunctionCall<F> simplifyParameters() {
