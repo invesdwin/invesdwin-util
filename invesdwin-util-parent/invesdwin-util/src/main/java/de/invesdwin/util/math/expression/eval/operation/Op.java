@@ -805,7 +805,7 @@ public enum Op {
     AND(1, "&&") {
         @Override
         public ExpressionType getReturnType() {
-            return ExpressionType.Boolean;
+            return ExpressionType.BooleanNullable;
         }
 
         @Override
@@ -865,7 +865,7 @@ public enum Op {
     OR(1, "||") {
         @Override
         public ExpressionType getReturnType() {
-            return ExpressionType.Boolean;
+            return ExpressionType.BooleanNullable;
         }
 
         @Override
@@ -925,7 +925,7 @@ public enum Op {
     NOT(1, "!") {
         @Override
         public ExpressionType getReturnType() {
-            return ExpressionType.Boolean;
+            return ExpressionType.BooleanNullable;
         }
 
         @Override

@@ -3,13 +3,25 @@ package de.invesdwin.util.math.expression.eval.operation;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.error.UnknownArgumentException;
+import de.invesdwin.util.math.Booleans;
 import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.expression.ExpressionType;
 import de.invesdwin.util.math.expression.eval.ConstantExpression;
 import de.invesdwin.util.math.expression.eval.IParsedExpression;
 import de.invesdwin.util.math.expression.eval.operation.simple.BooleanOrOperation;
-import de.invesdwin.util.time.fdate.IFDateProvider;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBoolean;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanFDate;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanKey;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanNullable;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanNullableFDate;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanNullableKey;
+import de.invesdwin.util.math.expression.lambda.IEvaluateDouble;
+import de.invesdwin.util.math.expression.lambda.IEvaluateDoubleFDate;
+import de.invesdwin.util.math.expression.lambda.IEvaluateDoubleKey;
+import de.invesdwin.util.math.expression.lambda.IEvaluateInteger;
+import de.invesdwin.util.math.expression.lambda.IEvaluateIntegerFDate;
+import de.invesdwin.util.math.expression.lambda.IEvaluateIntegerKey;
 
 @Immutable
 public class BooleanNullableOrOperation extends DoubleBinaryOperation {
@@ -19,84 +31,120 @@ public class BooleanNullableOrOperation extends DoubleBinaryOperation {
     }
 
     @Override
-    public double evaluateDouble(final IFDateProvider key) {
-        final Boolean check = evaluateBooleanNullable(key);
-        return Doubles.fromBoolean(check);
+    public IEvaluateDoubleFDate newEvaluateDoubleFDate() {
+        final IEvaluateBooleanNullableFDate f = newEvaluateBooleanNullableFDate();
+        return key -> {
+            final Boolean check = f.evaluateBooleanNullable(key);
+            return Doubles.fromBoolean(check);
+        };
     }
 
     @Override
-    public double evaluateDouble(final int key) {
-        final Boolean check = evaluateBooleanNullable(key);
-        return Doubles.fromBoolean(check);
+    public IEvaluateDoubleKey newEvaluateDoubleKey() {
+        final IEvaluateBooleanNullableKey f = newEvaluateBooleanNullableKey();
+        return key -> {
+            final Boolean check = f.evaluateBooleanNullable(key);
+            return Doubles.fromBoolean(check);
+        };
     }
 
     @Override
-    public double evaluateDouble() {
-        final Boolean check = evaluateBooleanNullable();
-        return Doubles.fromBoolean(check);
+    public IEvaluateDouble newEvaluateDouble() {
+        final IEvaluateBooleanNullable f = newEvaluateBooleanNullable();
+        return () -> {
+            final Boolean check = f.evaluateBooleanNullable();
+            return Doubles.fromBoolean(check);
+        };
     }
 
     @Override
-    public int evaluateInteger(final IFDateProvider key) {
-        final Boolean check = evaluateBooleanNullable(key);
-        return Integers.fromBoolean(check);
+    public IEvaluateIntegerFDate newEvaluateIntegerFDate() {
+        final IEvaluateBooleanFDate f = newEvaluateBooleanFDate();
+        return key -> {
+            final boolean check = f.evaluateBoolean(key);
+            return Integers.fromBoolean(check);
+        };
     }
 
     @Override
-    public int evaluateInteger(final int key) {
-        final Boolean check = evaluateBooleanNullable(key);
-        return Integers.fromBoolean(check);
+    public IEvaluateIntegerKey newEvaluateIntegerKey() {
+        final IEvaluateBooleanKey f = newEvaluateBooleanKey();
+        return key -> {
+            final boolean check = f.evaluateBoolean(key);
+            return Integers.fromBoolean(check);
+        };
     }
 
     @Override
-    public int evaluateInteger() {
-        final Boolean check = evaluateBooleanNullable();
-        return Integers.fromBoolean(check);
+    public IEvaluateInteger newEvaluateInteger() {
+        final IEvaluateBoolean f = newEvaluateBoolean();
+        return () -> {
+            final boolean check = f.evaluateBoolean();
+            return Integers.fromBoolean(check);
+        };
     }
 
     @Override
-    public Boolean evaluateBooleanNullable(final IFDateProvider key) {
-        final Boolean leftResult = left.evaluateBooleanNullable(key);
-        if (leftResult == Boolean.TRUE) {
-            return Boolean.TRUE;
-        } else {
-            return right.evaluateBooleanNullable(key);
-        }
+    public IEvaluateBooleanNullableFDate newEvaluateBooleanNullableFDate() {
+        final IEvaluateBooleanFDate leftF = left.newEvaluateBooleanFDate();
+        final IEvaluateBooleanNullableFDate rightF = right.newEvaluateBooleanNullableFDate();
+        return key -> {
+            final boolean leftResult = leftF.evaluateBoolean(key);
+            if (leftResult) {
+                return Boolean.TRUE;
+            } else {
+                return rightF.evaluateBooleanNullable(key);
+            }
+        };
     }
 
     @Override
-    public Boolean evaluateBooleanNullable(final int key) {
-        final Boolean leftResult = left.evaluateBooleanNullable(key);
-        if (leftResult == Boolean.TRUE) {
-            return Boolean.TRUE;
-        } else {
-            return right.evaluateBooleanNullable(key);
-        }
+    public IEvaluateBooleanNullableKey newEvaluateBooleanNullableKey() {
+        final IEvaluateBooleanKey leftF = left.newEvaluateBooleanKey();
+        final IEvaluateBooleanNullableKey rightF = right.newEvaluateBooleanNullableKey();
+        return key -> {
+            final boolean leftResult = leftF.evaluateBoolean(key);
+            if (leftResult) {
+                return Boolean.TRUE;
+            } else {
+                return rightF.evaluateBooleanNullable(key);
+            }
+        };
     }
 
     @Override
-    public Boolean evaluateBooleanNullable() {
-        final Boolean leftResult = left.evaluateBooleanNullable();
-        if (leftResult == Boolean.TRUE) {
-            return Boolean.TRUE;
-        } else {
-            return right.evaluateBooleanNullable();
-        }
+    public IEvaluateBooleanNullable newEvaluateBooleanNullable() {
+        final IEvaluateBoolean leftF = left.newEvaluateBoolean();
+        final IEvaluateBooleanNullable rightF = right.newEvaluateBooleanNullable();
+        return () -> {
+            final boolean leftResult = leftF.evaluateBoolean();
+            if (leftResult) {
+                return Boolean.TRUE;
+            } else {
+                return rightF.evaluateBooleanNullable();
+            }
+        };
     }
 
     @Override
-    public boolean evaluateBoolean(final IFDateProvider key) {
-        return left.evaluateBoolean(key) || right.evaluateBooleanNullable(key);
+    public IEvaluateBooleanFDate newEvaluateBooleanFDate() {
+        final IEvaluateBooleanFDate leftF = left.newEvaluateBooleanFDate();
+        final IEvaluateBooleanFDate rightF = right.newEvaluateBooleanFDate();
+        return key -> leftF.evaluateBoolean(key) || rightF.evaluateBoolean(key);
     }
 
     @Override
-    public boolean evaluateBoolean(final int key) {
-        return left.evaluateBoolean(key) || right.evaluateBooleanNullable(key);
+    public IEvaluateBooleanKey newEvaluateBooleanKey() {
+        final IEvaluateBooleanKey leftF = left.newEvaluateBooleanKey();
+        final IEvaluateBooleanKey rightF = right.newEvaluateBooleanKey();
+        return key -> leftF.evaluateBoolean(key) || rightF.evaluateBoolean(key);
     }
 
     @Override
-    public boolean evaluateBoolean() {
-        return left.evaluateBoolean() || right.evaluateBooleanNullable();
+    public IEvaluateBoolean newEvaluateBoolean() {
+        final IEvaluateBoolean leftF = left.newEvaluateBoolean();
+        final IEvaluateBoolean rightF = right.newEvaluateBoolean();
+        return () -> leftF.evaluateBoolean() || rightF.evaluateBoolean();
     }
 
     @Override
@@ -109,12 +157,12 @@ public class BooleanNullableOrOperation extends DoubleBinaryOperation {
         final IParsedExpression newLeft = left.simplify();
         final IParsedExpression newRight = right.simplify();
         if (newLeft.isConstant()) {
-            final Boolean leftResult = newLeft.evaluateBooleanNullable();
-            if (leftResult != null && leftResult == Boolean.TRUE) {
+            final Boolean leftResult = newLeft.newEvaluateBooleanNullable().evaluateBooleanNullable();
+            if (Booleans.isTrue(leftResult)) {
                 return new ConstantExpression(1D, ExpressionType.Boolean);
             } else {
                 if (newRight.isConstant()) {
-                    final Boolean rightResult = newRight.evaluateBooleanNullable();
+                    final Boolean rightResult = newRight.newEvaluateBooleanNullable().evaluateBooleanNullable();
                     if (rightResult != null) {
                         return new ConstantExpression(Doubles.fromBoolean(rightResult),
                                 ExpressionType.determineSmallestBooleanType(rightResult));
@@ -128,12 +176,12 @@ public class BooleanNullableOrOperation extends DoubleBinaryOperation {
             }
         }
         if (newRight.isConstant()) {
-            final Boolean rightResult = newRight.evaluateBooleanNullable();
-            if (rightResult != null && rightResult == Boolean.TRUE) {
+            final Boolean rightResult = newRight.newEvaluateBooleanNullable().evaluateBooleanNullable();
+            if (Booleans.isTrue(rightResult)) {
                 return new ConstantExpression(1D, ExpressionType.Boolean);
             } else {
                 if (newLeft.isConstant()) {
-                    final Boolean leftResult = newLeft.evaluateBooleanNullable();
+                    final Boolean leftResult = newLeft.newEvaluateBooleanNullable().evaluateBooleanNullable();
                     if (leftResult != null) {
                         return new ConstantExpression(Doubles.fromBoolean(leftResult),
                                 ExpressionType.determineSmallestBooleanType(leftResult));

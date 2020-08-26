@@ -7,6 +7,9 @@ import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.expression.ExpressionType;
 import de.invesdwin.util.math.expression.eval.IParsedExpression;
 import de.invesdwin.util.math.expression.eval.operation.BooleanNullableAndOperation;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBoolean;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanFDate;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanKey;
 import de.invesdwin.util.time.fdate.IFDateProvider;
 
 @Immutable
@@ -65,6 +68,27 @@ public class BooleanAndOperation extends BooleanNullableAndOperation {
     @Override
     public Boolean evaluateBooleanNullable() {
         return evaluateBoolean();
+    }
+
+    @Override
+    public IEvaluateBooleanFDate newEvaluateBooleanFDate() {
+        final IEvaluateBooleanFDate leftF = left.newEvaluateBooleanFDate();
+        final IEvaluateBooleanFDate rightF = right.newEvaluateBooleanFDate();
+        return key -> leftF.evaluateBoolean(key) && rightF.evaluateBoolean(key);
+    }
+
+    @Override
+    public IEvaluateBooleanKey newEvaluateBooleanKey() {
+        final IEvaluateBooleanKey leftF = left.newEvaluateBooleanKey();
+        final IEvaluateBooleanKey rightF = right.newEvaluateBooleanKey();
+        return key -> leftF.evaluateBoolean(key) && rightF.evaluateBoolean(key);
+    }
+
+    @Override
+    public IEvaluateBoolean newEvaluateBoolean() {
+        final IEvaluateBoolean leftF = left.newEvaluateBoolean();
+        final IEvaluateBoolean rightF = right.newEvaluateBoolean();
+        return () -> leftF.evaluateBoolean() && rightF.evaluateBoolean();
     }
 
     @Override

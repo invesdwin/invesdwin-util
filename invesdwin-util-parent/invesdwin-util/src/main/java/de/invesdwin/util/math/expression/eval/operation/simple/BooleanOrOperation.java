@@ -7,6 +7,9 @@ import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.expression.ExpressionType;
 import de.invesdwin.util.math.expression.eval.IParsedExpression;
 import de.invesdwin.util.math.expression.eval.operation.BooleanNullableOrOperation;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBoolean;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanFDate;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanKey;
 import de.invesdwin.util.time.fdate.IFDateProvider;
 
 @Immutable
@@ -65,6 +68,21 @@ public class BooleanOrOperation extends BooleanNullableOrOperation {
     @Override
     public Boolean evaluateBooleanNullable() {
         return evaluateBoolean();
+    }
+
+    @Override
+    public IEvaluateBooleanFDate newEvaluateBooleanFDate() {
+        return left.evaluateBoolean(key) || right.evaluateBoolean(key);
+    }
+
+    @Override
+    public IEvaluateBooleanKey newEvaluateBooleanKey() {
+        return left.evaluateBoolean(key) || right.evaluateBoolean(key);
+    }
+
+    @Override
+    public IEvaluateBoolean newEvaluateBoolean() {
+        return left.evaluateBoolean() || right.evaluateBoolean();
     }
 
     @Override
