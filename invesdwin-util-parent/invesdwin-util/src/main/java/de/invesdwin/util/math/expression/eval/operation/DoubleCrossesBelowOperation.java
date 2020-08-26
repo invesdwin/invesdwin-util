@@ -8,6 +8,18 @@ import de.invesdwin.util.math.expression.ExpressionType;
 import de.invesdwin.util.math.expression.eval.IParsedExpression;
 import de.invesdwin.util.math.expression.eval.operation.simple.IntegerCrossesBelowOperation;
 import de.invesdwin.util.math.expression.function.IPreviousKeyFunction;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBoolean;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanFDate;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanKey;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanNullable;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanNullableFDate;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanNullableKey;
+import de.invesdwin.util.math.expression.lambda.IEvaluateDouble;
+import de.invesdwin.util.math.expression.lambda.IEvaluateDoubleFDate;
+import de.invesdwin.util.math.expression.lambda.IEvaluateDoubleKey;
+import de.invesdwin.util.math.expression.lambda.IEvaluateInteger;
+import de.invesdwin.util.math.expression.lambda.IEvaluateIntegerFDate;
+import de.invesdwin.util.math.expression.lambda.IEvaluateIntegerKey;
 import de.invesdwin.util.time.fdate.IFDateProvider;
 
 // AvgTrueRange(10) crosses below AvgTrueRange(20)
@@ -26,190 +38,246 @@ public class DoubleCrossesBelowOperation extends DoubleBinaryOperation {
     }
 
     @Override
-    public double evaluateDouble(final IFDateProvider key) {
+    public IEvaluateDoubleFDate newEvaluateDoubleFDate() {
         //crosses below => left was above but went below right
 
-        final double leftValue0 = left.evaluateDouble(key);
-        final double rightValue0 = right.evaluateDouble(key);
-        //left is below right
-        if (Doubles.isLessThan(leftValue0, rightValue0)) {
-            final IFDateProvider leftPreviousKey = leftPreviousKeyFunction.getPreviousKey(key, 1);
-            final double leftValue1 = leftPreviousKeyFunction.evaluateDouble(left, leftPreviousKey);
-            final IFDateProvider rightPreviousKey = rightPreviousKeyFunction.getPreviousKey(key, 1);
-            final double rightValue1 = rightPreviousKeyFunction.evaluateDouble(right, rightPreviousKey);
-            //previous left is above or equal to previous right
-            if (Doubles.isGreaterThanOrEqualTo(leftValue1, rightValue1)) {
-                return 1D;
-            }
-        }
+        final IEvaluateDoubleFDate leftF = left.newEvaluateDoubleFDate();
+        final IEvaluateDoubleFDate rightF = right.newEvaluateDoubleFDate();
+        final IEvaluateDoubleFDate prevLeftF = leftPreviousKeyFunction.newEvaluateDoubleFDate(left);
+        final IEvaluateDoubleFDate prevRightF = rightPreviousKeyFunction.newEvaluateDoubleFDate(right);
 
-        return 0D;
+        return key -> {
+            final double leftValue0 = leftF.evaluateDouble(key);
+            final double rightValue0 = rightF.evaluateDouble(key);
+            //left is below right
+            if (Doubles.isLessThan(leftValue0, rightValue0)) {
+                final IFDateProvider leftPreviousKey = leftPreviousKeyFunction.getPreviousKey(key, 1);
+                final double leftValue1 = prevLeftF.evaluateDouble(leftPreviousKey);
+                final IFDateProvider rightPreviousKey = rightPreviousKeyFunction.getPreviousKey(key, 1);
+                final double rightValue1 = prevRightF.evaluateDouble(rightPreviousKey);
+                //previous left is above or equal to previous right
+                if (Doubles.isGreaterThanOrEqualTo(leftValue1, rightValue1)) {
+                    return 1D;
+                }
+            }
+
+            return 0D;
+        };
     }
 
     @Override
-    public double evaluateDouble(final int key) {
+    public IEvaluateDoubleKey newEvaluateDoubleKey() {
         //crosses below => left was above but went below right
 
-        final double leftValue0 = left.evaluateDouble(key);
-        final double rightValue0 = right.evaluateDouble(key);
-        //left is below right
-        if (Doubles.isLessThan(leftValue0, rightValue0)) {
-            final int leftPreviousKey = leftPreviousKeyFunction.getPreviousKey(key, 1);
-            final double leftValue1 = leftPreviousKeyFunction.evaluateDouble(left, leftPreviousKey);
-            final int rightPreviousKey = rightPreviousKeyFunction.getPreviousKey(key, 1);
-            final double rightValue1 = rightPreviousKeyFunction.evaluateDouble(right, rightPreviousKey);
-            //previous left is above or equal to previous right
-            if (Doubles.isGreaterThanOrEqualTo(leftValue1, rightValue1)) {
-                return 1D;
-            }
-        }
+        final IEvaluateDoubleKey leftF = left.newEvaluateDoubleKey();
+        final IEvaluateDoubleKey rightF = right.newEvaluateDoubleKey();
+        final IEvaluateDoubleKey prevLeftF = leftPreviousKeyFunction.newEvaluateDoubleKey(left);
+        final IEvaluateDoubleKey prevRightF = rightPreviousKeyFunction.newEvaluateDoubleKey(right);
 
-        return 0D;
+        return key -> {
+            final double leftValue0 = leftF.evaluateDouble(key);
+            final double rightValue0 = rightF.evaluateDouble(key);
+            //left is below right
+            if (Doubles.isLessThan(leftValue0, rightValue0)) {
+                final int leftPreviousKey = leftPreviousKeyFunction.getPreviousKey(key, 1);
+                final double leftValue1 = prevLeftF.evaluateDouble(leftPreviousKey);
+                final int rightPreviousKey = rightPreviousKeyFunction.getPreviousKey(key, 1);
+                final double rightValue1 = prevRightF.evaluateDouble(rightPreviousKey);
+                //previous left is above or equal to previous right
+                if (Doubles.isGreaterThanOrEqualTo(leftValue1, rightValue1)) {
+                    return 1D;
+                }
+            }
+
+            return 0D;
+        };
     }
 
     @Override
-    public double evaluateDouble() {
+    public IEvaluateDouble newEvaluateDouble() {
         throw new UnsupportedOperationException("crosses below operation is only supported with time or int index");
     }
 
     @Override
-    public int evaluateInteger(final IFDateProvider key) {
+    public IEvaluateIntegerFDate newEvaluateIntegerFDate() {
         //crosses below => left was above but went below right
 
-        final double leftValue0 = left.evaluateDouble(key);
-        final double rightValue0 = right.evaluateDouble(key);
-        //left is below right
-        if (Doubles.isLessThan(leftValue0, rightValue0)) {
-            final IFDateProvider leftPreviousKey = leftPreviousKeyFunction.getPreviousKey(key, 1);
-            final double leftValue1 = leftPreviousKeyFunction.evaluateDouble(left, leftPreviousKey);
-            final IFDateProvider rightPreviousKey = rightPreviousKeyFunction.getPreviousKey(key, 1);
-            final double rightValue1 = rightPreviousKeyFunction.evaluateDouble(right, rightPreviousKey);
-            //previous left is above or equal to previous right
-            if (Doubles.isGreaterThanOrEqualTo(leftValue1, rightValue1)) {
-                return 1;
-            }
-        }
+        final IEvaluateDoubleFDate leftF = left.newEvaluateDoubleFDate();
+        final IEvaluateDoubleFDate rightF = right.newEvaluateDoubleFDate();
+        final IEvaluateDoubleFDate prevLeftF = leftPreviousKeyFunction.newEvaluateDoubleFDate(left);
+        final IEvaluateDoubleFDate prevRightF = rightPreviousKeyFunction.newEvaluateDoubleFDate(right);
 
-        return 0;
+        return key -> {
+            final double leftValue0 = leftF.evaluateDouble(key);
+            final double rightValue0 = rightF.evaluateDouble(key);
+            //left is below right
+            if (Doubles.isLessThan(leftValue0, rightValue0)) {
+                final IFDateProvider leftPreviousKey = leftPreviousKeyFunction.getPreviousKey(key, 1);
+                final double leftValue1 = prevLeftF.evaluateDouble(leftPreviousKey);
+                final IFDateProvider rightPreviousKey = rightPreviousKeyFunction.getPreviousKey(key, 1);
+                final double rightValue1 = prevRightF.evaluateDouble(rightPreviousKey);
+                //previous left is above or equal to previous right
+                if (Doubles.isGreaterThanOrEqualTo(leftValue1, rightValue1)) {
+                    return 1;
+                }
+            }
+
+            return 0;
+        };
     }
 
     @Override
-    public int evaluateInteger(final int key) {
+    public IEvaluateIntegerKey newEvaluateIntegerKey() {
         //crosses below => left was above but went below right
 
-        final double leftValue0 = left.evaluateDouble(key);
-        final double rightValue0 = right.evaluateDouble(key);
-        //left is below right
-        if (Doubles.isLessThan(leftValue0, rightValue0)) {
-            final int leftPreviousKey = leftPreviousKeyFunction.getPreviousKey(key, 1);
-            final double leftValue1 = leftPreviousKeyFunction.evaluateDouble(left, leftPreviousKey);
-            final int rightPreviousKey = rightPreviousKeyFunction.getPreviousKey(key, 1);
-            final double rightValue1 = rightPreviousKeyFunction.evaluateDouble(right, rightPreviousKey);
-            //previous left is above or equal to previous right
-            if (Doubles.isGreaterThanOrEqualTo(leftValue1, rightValue1)) {
-                return 1;
-            }
-        }
+        final IEvaluateDoubleKey leftF = left.newEvaluateDoubleKey();
+        final IEvaluateDoubleKey rightF = right.newEvaluateDoubleKey();
+        final IEvaluateDoubleKey prevLeftF = leftPreviousKeyFunction.newEvaluateDoubleKey(left);
+        final IEvaluateDoubleKey prevRightF = rightPreviousKeyFunction.newEvaluateDoubleKey(right);
 
-        return 0;
+        return key -> {
+            final double leftValue0 = leftF.evaluateDouble(key);
+            final double rightValue0 = rightF.evaluateDouble(key);
+            //left is below right
+            if (Doubles.isLessThan(leftValue0, rightValue0)) {
+                final int leftPreviousKey = leftPreviousKeyFunction.getPreviousKey(key, 1);
+                final double leftValue1 = prevLeftF.evaluateDouble(leftPreviousKey);
+                final int rightPreviousKey = rightPreviousKeyFunction.getPreviousKey(key, 1);
+                final double rightValue1 = prevRightF.evaluateDouble(rightPreviousKey);
+                //previous left is above or equal to previous right
+                if (Doubles.isGreaterThanOrEqualTo(leftValue1, rightValue1)) {
+                    return 1;
+                }
+            }
+
+            return 0;
+        };
     }
 
     @Override
-    public int evaluateInteger() {
+    public IEvaluateInteger newEvaluateInteger() {
         throw new UnsupportedOperationException("crosses below operation is only supported with time or int index");
     }
 
     @Override
-    public Boolean evaluateBooleanNullable(final IFDateProvider key) {
+    public IEvaluateBooleanNullableFDate newEvaluateBooleanNullableFDate() {
         //crosses below => left was above but went below right
 
-        final double leftValue0 = left.evaluateDouble(key);
-        final double rightValue0 = right.evaluateDouble(key);
-        //left is below right
-        if (Doubles.isLessThan(leftValue0, rightValue0)) {
-            final IFDateProvider leftPreviousKey = leftPreviousKeyFunction.getPreviousKey(key, 1);
-            final double leftValue1 = leftPreviousKeyFunction.evaluateDouble(left, leftPreviousKey);
-            final IFDateProvider rightPreviousKey = rightPreviousKeyFunction.getPreviousKey(key, 1);
-            final double rightValue1 = rightPreviousKeyFunction.evaluateDouble(right, rightPreviousKey);
-            //previous left is above or equal to previous right
-            if (Doubles.isGreaterThanOrEqualTo(leftValue1, rightValue1)) {
-                return Boolean.TRUE;
-            }
-        }
+        final IEvaluateDoubleFDate leftF = left.newEvaluateDoubleFDate();
+        final IEvaluateDoubleFDate rightF = right.newEvaluateDoubleFDate();
+        final IEvaluateDoubleFDate prevLeftF = leftPreviousKeyFunction.newEvaluateDoubleFDate(left);
+        final IEvaluateDoubleFDate prevRightF = rightPreviousKeyFunction.newEvaluateDoubleFDate(right);
 
-        return Boolean.FALSE;
+        return key -> {
+            final double leftValue0 = leftF.evaluateDouble(key);
+            final double rightValue0 = rightF.evaluateDouble(key);
+            //left is below right
+            if (Doubles.isLessThan(leftValue0, rightValue0)) {
+                final IFDateProvider leftPreviousKey = leftPreviousKeyFunction.getPreviousKey(key, 1);
+                final double leftValue1 = prevLeftF.evaluateDouble(leftPreviousKey);
+                final IFDateProvider rightPreviousKey = rightPreviousKeyFunction.getPreviousKey(key, 1);
+                final double rightValue1 = prevRightF.evaluateDouble(rightPreviousKey);
+                //previous left is above or equal to previous right
+                if (Doubles.isGreaterThanOrEqualTo(leftValue1, rightValue1)) {
+                    return Boolean.TRUE;
+                }
+            }
+
+            return Boolean.FALSE;
+        };
     }
 
     @Override
-    public Boolean evaluateBooleanNullable(final int key) {
+    public IEvaluateBooleanNullableKey newEvaluateBooleanNullableKey() {
         //crosses below => left was above but went below right
 
-        final double leftValue0 = left.evaluateDouble(key);
-        final double rightValue0 = right.evaluateDouble(key);
-        //left is below right
-        if (Doubles.isLessThan(leftValue0, rightValue0)) {
-            final int leftPreviousKey = leftPreviousKeyFunction.getPreviousKey(key, 1);
-            final double leftValue1 = leftPreviousKeyFunction.evaluateDouble(left, leftPreviousKey);
-            final int rightPreviousKey = rightPreviousKeyFunction.getPreviousKey(key, 1);
-            final double rightValue1 = rightPreviousKeyFunction.evaluateDouble(right, rightPreviousKey);
-            //previous left is above or equal to previous right
-            if (Doubles.isGreaterThanOrEqualTo(leftValue1, rightValue1)) {
-                return Boolean.TRUE;
-            }
-        }
+        final IEvaluateDoubleKey leftF = left.newEvaluateDoubleKey();
+        final IEvaluateDoubleKey rightF = right.newEvaluateDoubleKey();
+        final IEvaluateDoubleKey prevLeftF = leftPreviousKeyFunction.newEvaluateDoubleKey(left);
+        final IEvaluateDoubleKey prevRightF = rightPreviousKeyFunction.newEvaluateDoubleKey(right);
 
-        return Boolean.FALSE;
+        return key -> {
+            final double leftValue0 = leftF.evaluateDouble(key);
+            final double rightValue0 = rightF.evaluateDouble(key);
+            //left is below right
+            if (Doubles.isLessThan(leftValue0, rightValue0)) {
+                final int leftPreviousKey = leftPreviousKeyFunction.getPreviousKey(key, 1);
+                final double leftValue1 = prevLeftF.evaluateDouble(leftPreviousKey);
+                final int rightPreviousKey = rightPreviousKeyFunction.getPreviousKey(key, 1);
+                final double rightValue1 = prevRightF.evaluateDouble(rightPreviousKey);
+                //previous left is above or equal to previous right
+                if (Doubles.isGreaterThanOrEqualTo(leftValue1, rightValue1)) {
+                    return Boolean.TRUE;
+                }
+            }
+
+            return Boolean.FALSE;
+        };
     }
 
     @Override
-    public Boolean evaluateBooleanNullable() {
+    public IEvaluateBooleanNullable newEvaluateBooleanNullable() {
         throw new UnsupportedOperationException("crosses below operation is only supported with time or int index");
     }
 
     @Override
-    public boolean evaluateBoolean(final IFDateProvider key) {
+    public IEvaluateBooleanFDate newEvaluateBooleanFDate() {
         //crosses below => left was above but went below right
 
-        final double leftValue0 = left.evaluateDouble(key);
-        final double rightValue0 = right.evaluateDouble(key);
-        //left is below right
-        if (Doubles.isLessThan(leftValue0, rightValue0)) {
-            final IFDateProvider leftPreviousKey = leftPreviousKeyFunction.getPreviousKey(key, 1);
-            final double leftValue1 = leftPreviousKeyFunction.evaluateDouble(left, leftPreviousKey);
-            final IFDateProvider rightPreviousKey = rightPreviousKeyFunction.getPreviousKey(key, 1);
-            final double rightValue1 = rightPreviousKeyFunction.evaluateDouble(right, rightPreviousKey);
-            //previous left is above or equal to previous right
-            if (Doubles.isGreaterThanOrEqualTo(leftValue1, rightValue1)) {
-                return true;
-            }
-        }
+        final IEvaluateDoubleFDate leftF = left.newEvaluateDoubleFDate();
+        final IEvaluateDoubleFDate rightF = right.newEvaluateDoubleFDate();
+        final IEvaluateDoubleFDate prevLeftF = leftPreviousKeyFunction.newEvaluateDoubleFDate(left);
+        final IEvaluateDoubleFDate prevRightF = rightPreviousKeyFunction.newEvaluateDoubleFDate(right);
 
-        return false;
+        return key -> {
+            final double leftValue0 = leftF.evaluateDouble(key);
+            final double rightValue0 = rightF.evaluateDouble(key);
+            //left is below right
+            if (Doubles.isLessThan(leftValue0, rightValue0)) {
+                final IFDateProvider leftPreviousKey = leftPreviousKeyFunction.getPreviousKey(key, 1);
+                final double leftValue1 = prevLeftF.evaluateDouble(leftPreviousKey);
+                final IFDateProvider rightPreviousKey = rightPreviousKeyFunction.getPreviousKey(key, 1);
+                final double rightValue1 = prevRightF.evaluateDouble(rightPreviousKey);
+                //previous left is above or equal to previous right
+                if (Doubles.isGreaterThanOrEqualTo(leftValue1, rightValue1)) {
+                    return true;
+                }
+            }
+
+            return false;
+        };
     }
 
     @Override
-    public boolean evaluateBoolean(final int key) {
+    public IEvaluateBooleanKey newEvaluateBooleanKey() {
         //crosses below => left was above but went below right
 
-        final double leftValue0 = left.evaluateDouble(key);
-        final double rightValue0 = right.evaluateDouble(key);
-        //left is below right
-        if (Doubles.isLessThan(leftValue0, rightValue0)) {
-            final int leftPreviousKey = leftPreviousKeyFunction.getPreviousKey(key, 1);
-            final double leftValue1 = leftPreviousKeyFunction.evaluateDouble(left, leftPreviousKey);
-            final int rightPreviousKey = rightPreviousKeyFunction.getPreviousKey(key, 1);
-            final double rightValue1 = rightPreviousKeyFunction.evaluateDouble(right, rightPreviousKey);
-            //previous left is above or equal to previous right
-            if (Doubles.isGreaterThanOrEqualTo(leftValue1, rightValue1)) {
-                return true;
-            }
-        }
+        final IEvaluateDoubleKey leftF = left.newEvaluateDoubleKey();
+        final IEvaluateDoubleKey rightF = right.newEvaluateDoubleKey();
+        final IEvaluateDoubleKey prevLeftF = leftPreviousKeyFunction.newEvaluateDoubleKey(left);
+        final IEvaluateDoubleKey prevRightF = rightPreviousKeyFunction.newEvaluateDoubleKey(right);
 
-        return false;
+        return key -> {
+            final double leftValue0 = leftF.evaluateDouble(key);
+            final double rightValue0 = rightF.evaluateDouble(key);
+            //left is below right
+            if (Doubles.isLessThan(leftValue0, rightValue0)) {
+                final int leftPreviousKey = leftPreviousKeyFunction.getPreviousKey(key, 1);
+                final double leftValue1 = prevLeftF.evaluateDouble(leftPreviousKey);
+                final int rightPreviousKey = rightPreviousKeyFunction.getPreviousKey(key, 1);
+                final double rightValue1 = prevRightF.evaluateDouble(rightPreviousKey);
+                //previous left is above or equal to previous right
+                if (Doubles.isGreaterThanOrEqualTo(leftValue1, rightValue1)) {
+                    return true;
+                }
+            }
+
+            return false;
+        };
     }
 
     @Override
-    public boolean evaluateBoolean() {
+    public IEvaluateBoolean newEvaluateBoolean() {
         throw new UnsupportedOperationException("crosses below operation is only supported with time or int index");
     }
 
