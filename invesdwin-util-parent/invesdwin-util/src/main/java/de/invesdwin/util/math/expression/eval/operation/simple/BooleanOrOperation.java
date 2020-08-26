@@ -10,7 +10,15 @@ import de.invesdwin.util.math.expression.eval.operation.BooleanNullableOrOperati
 import de.invesdwin.util.math.expression.lambda.IEvaluateBoolean;
 import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanFDate;
 import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanKey;
-import de.invesdwin.util.time.fdate.IFDateProvider;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanNullable;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanNullableFDate;
+import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanNullableKey;
+import de.invesdwin.util.math.expression.lambda.IEvaluateDouble;
+import de.invesdwin.util.math.expression.lambda.IEvaluateDoubleFDate;
+import de.invesdwin.util.math.expression.lambda.IEvaluateDoubleKey;
+import de.invesdwin.util.math.expression.lambda.IEvaluateInteger;
+import de.invesdwin.util.math.expression.lambda.IEvaluateIntegerFDate;
+import de.invesdwin.util.math.expression.lambda.IEvaluateIntegerKey;
 
 @Immutable
 public class BooleanOrOperation extends BooleanNullableOrOperation {
@@ -20,69 +28,96 @@ public class BooleanOrOperation extends BooleanNullableOrOperation {
     }
 
     @Override
-    public double evaluateDouble(final IFDateProvider key) {
-        final boolean check = evaluateBoolean(key);
-        return Doubles.fromBoolean(check);
+    public IEvaluateDoubleFDate newEvaluateDoubleFDate() {
+        final IEvaluateBooleanFDate f = newEvaluateBooleanFDate();
+        return key -> {
+            final boolean check = f.evaluateBoolean(key);
+            return Doubles.fromBoolean(check);
+        };
     }
 
     @Override
-    public double evaluateDouble(final int key) {
-        final boolean check = evaluateBoolean(key);
-        return Doubles.fromBoolean(check);
+    public IEvaluateDoubleKey newEvaluateDoubleKey() {
+        final IEvaluateBooleanKey f = newEvaluateBooleanKey();
+        return key -> {
+            final boolean check = f.evaluateBoolean(key);
+            return Doubles.fromBoolean(check);
+        };
     }
 
     @Override
-    public double evaluateDouble() {
-        final boolean check = evaluateBoolean();
-        return Doubles.fromBoolean(check);
+    public IEvaluateDouble newEvaluateDouble() {
+        final IEvaluateBoolean f = newEvaluateBoolean();
+        return () -> {
+            final boolean check = f.evaluateBoolean();
+            return Doubles.fromBoolean(check);
+        };
     }
 
     @Override
-    public int evaluateInteger(final IFDateProvider key) {
-        final boolean check = evaluateBoolean(key);
-        return Integers.fromBoolean(check);
+    public IEvaluateIntegerFDate newEvaluateIntegerFDate() {
+        final IEvaluateBooleanFDate f = newEvaluateBooleanFDate();
+        return key -> {
+            final boolean check = f.evaluateBoolean(key);
+            return Integers.fromBoolean(check);
+        };
     }
 
     @Override
-    public int evaluateInteger(final int key) {
-        final boolean check = evaluateBoolean(key);
-        return Integers.fromBoolean(check);
+    public IEvaluateIntegerKey newEvaluateIntegerKey() {
+        final IEvaluateBooleanKey f = newEvaluateBooleanKey();
+        return key -> {
+            final boolean check = f.evaluateBoolean(key);
+            return Integers.fromBoolean(check);
+        };
     }
 
     @Override
-    public int evaluateInteger() {
-        final boolean check = evaluateBoolean();
-        return Integers.fromBoolean(check);
+    public IEvaluateInteger newEvaluateInteger() {
+        final IEvaluateBoolean f = newEvaluateBoolean();
+        return () -> {
+            final boolean check = f.evaluateBoolean();
+            return Integers.fromBoolean(check);
+        };
     }
 
     @Override
-    public Boolean evaluateBooleanNullable(final IFDateProvider key) {
-        return evaluateBoolean(key);
+    public IEvaluateBooleanNullableFDate newEvaluateBooleanNullableFDate() {
+        final IEvaluateBooleanFDate f = newEvaluateBooleanFDate();
+        return key -> f.evaluateBoolean(key);
     }
 
     @Override
-    public Boolean evaluateBooleanNullable(final int key) {
-        return evaluateBoolean(key);
+    public IEvaluateBooleanNullableKey newEvaluateBooleanNullableKey() {
+        final IEvaluateBooleanKey f = newEvaluateBooleanKey();
+        return key -> f.evaluateBoolean(key);
     }
 
     @Override
-    public Boolean evaluateBooleanNullable() {
-        return evaluateBoolean();
+    public IEvaluateBooleanNullable newEvaluateBooleanNullable() {
+        final IEvaluateBoolean f = newEvaluateBoolean();
+        return () -> f.evaluateBoolean();
     }
 
     @Override
     public IEvaluateBooleanFDate newEvaluateBooleanFDate() {
-        return left.evaluateBoolean(key) || right.evaluateBoolean(key);
+        final IEvaluateBooleanFDate leftF = left.newEvaluateBooleanFDate();
+        final IEvaluateBooleanFDate rightF = right.newEvaluateBooleanFDate();
+        return key -> leftF.evaluateBoolean(key) || rightF.evaluateBoolean(key);
     }
 
     @Override
     public IEvaluateBooleanKey newEvaluateBooleanKey() {
-        return left.evaluateBoolean(key) || right.evaluateBoolean(key);
+        final IEvaluateBooleanKey leftF = left.newEvaluateBooleanKey();
+        final IEvaluateBooleanKey rightF = right.newEvaluateBooleanKey();
+        return key -> leftF.evaluateBoolean(key) || rightF.evaluateBoolean(key);
     }
 
     @Override
     public IEvaluateBoolean newEvaluateBoolean() {
-        return left.evaluateBoolean() || right.evaluateBoolean();
+        final IEvaluateBoolean leftF = left.newEvaluateBoolean();
+        final IEvaluateBoolean rightF = right.newEvaluateBoolean();
+        return () -> leftF.evaluateBoolean() || rightF.evaluateBoolean();
     }
 
     @Override
