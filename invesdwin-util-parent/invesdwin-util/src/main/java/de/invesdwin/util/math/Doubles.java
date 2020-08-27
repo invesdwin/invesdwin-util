@@ -900,4 +900,20 @@ public final class Doubles extends ADoublesStaticFacade {
         return value == Integers.checkedCastNoOverflow(value);
     }
 
+    public static double multiply(final double value, final double otherValue) {
+        return value * otherValue;
+    }
+
+    public static double subtract(final double value, final double otherValue) {
+        return value - otherValue;
+    }
+
+    public static double add(final double value, final double otherValue) {
+        return value + otherValue;
+    }
+
+    public static double modulo(final double value, final double otherValue) {
+        return value % otherValue;
+    }
+
 }

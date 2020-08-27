@@ -339,14 +339,6 @@ public final class Integers extends AIntegersStaticFacade {
         return a < b;
     }
 
-    public static int divide(final int a, final int b) {
-        if (b == 0) {
-            return 0;
-        } else {
-            return a / b;
-        }
-    }
-
     public static void putInteger(final ByteBuffer buffer, final Integer value) {
         if (value == null) {
             buffer.putInt(Integer.MIN_VALUE);
@@ -363,6 +355,58 @@ public final class Integers extends AIntegersStaticFacade {
     public static Integer extractInteger(final ByteBuffer buffer) {
         final int value = buffer.getInt();
         return value;
+    }
+
+    public static int add(final double value, final double otherValue) {
+        return checkedCastNoOverflow(Doubles.add(value, otherValue));
+    }
+
+    public static int add(final int value, final int otherValue) {
+        return checkedCastNoOverflow(Doubles.add(value, otherValue));
+    }
+
+    public static int subtract(final int value, final int otherValue) {
+        return value - otherValue;
+    }
+
+    public static int subtract(final double value, final double otherValue) {
+        return checkedCastNoOverflow(Doubles.subtract(value, otherValue));
+    }
+
+    public static int multiply(final double value, final double otherValue) {
+        return checkedCastNoOverflow(Doubles.multiply(value, otherValue));
+    }
+
+    public static int multiply(final int value, final int otherValue) {
+        return checkedCastNoOverflow(Doubles.multiply(value, otherValue));
+    }
+
+    public static int divide(final int a, final int b) {
+        if (b == 0) {
+            return 0;
+        } else {
+            return a / b;
+        }
+    }
+
+    public static int divide(final double value, final double otherValue) {
+        return checkedCastNoOverflow(Doubles.divide(value, otherValue));
+    }
+
+    public static int modulo(final int a, final int b) {
+        return a % b;
+    }
+
+    public static int modulo(final double value, final double otherValue) {
+        return checkedCastNoOverflow(Doubles.modulo(value, otherValue));
+    }
+
+    public static int pow(final double value, final double otherValue) {
+        return checkedCastNoOverflow(Doubles.pow(value, otherValue));
+    }
+
+    public static int pow(final int value, final int otherValue) {
+        return checkedCastNoOverflow(Doubles.pow(value, otherValue));
     }
 
 }

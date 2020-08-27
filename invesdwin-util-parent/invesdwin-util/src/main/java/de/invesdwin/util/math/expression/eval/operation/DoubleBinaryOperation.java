@@ -1,8 +1,11 @@
+// CHECKSTYLE:OFF
 package de.invesdwin.util.math.expression.eval.operation;
 
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.error.UnknownArgumentException;
+import de.invesdwin.util.math.Doubles;
+import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.expression.ExpressionType;
 import de.invesdwin.util.math.expression.IExpression;
 import de.invesdwin.util.math.expression.eval.ConstantExpression;
@@ -25,6 +28,10 @@ import de.invesdwin.util.math.expression.lambda.IEvaluateInteger;
 import de.invesdwin.util.math.expression.lambda.IEvaluateIntegerFDate;
 import de.invesdwin.util.math.expression.lambda.IEvaluateIntegerKey;
 
+/**
+ * We flatten the operations here so that they become simpler for the JIT so they get inlined/optimized more
+ * aggressively.
+ */
 @Immutable
 public class DoubleBinaryOperation implements IBinaryOperation {
 
@@ -71,146 +78,2774 @@ public class DoubleBinaryOperation implements IBinaryOperation {
 
     @Override
     public IEvaluateDoubleFDate newEvaluateDoubleFDate() {
-        final IEvaluateDoubleFDate leftF = left.newEvaluateDoubleFDate();
-        final IEvaluateDoubleFDate rightF = right.newEvaluateDoubleFDate();
-        final IDoubleFromDoublesBinaryOp opF = op.newDoubleFromDoubles();
-        return key -> {
-            final double a = leftF.evaluateDouble(key);
-            final double b = rightF.evaluateDouble(key);
-            return opF.applyDoubleFromDoubles(a, b);
-        };
+        if (left.isConstant() && right.isConstant()) {
+            final double a = left.newEvaluateDouble().evaluateDouble();
+            final double b = right.newEvaluateDouble().evaluateDouble();
+            final IDoubleFromDoublesBinaryOp opF = op.newDoubleFromDoubles();
+            final double result = opF.applyDoubleFromDoubles(a, b);
+            return key -> {
+                return result;
+            };
+        } else if (left.isConstant()) {
+            final double a = left.newEvaluateDouble().evaluateDouble();
+            final IEvaluateDoubleFDate rightF = right.newEvaluateDoubleFDate();
+            switch (op) {
+            case GT:
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.fromBoolean(Doubles.isGreaterThan(a, b));
+                };
+            case GT_EQ:
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.fromBoolean(Doubles.isGreaterThanOrEqualTo(a, b));
+                };
+            case LT:
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.fromBoolean(Doubles.isLessThan(a, b));
+                };
+            case LT_EQ:
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.fromBoolean(Doubles.isLessThanOrEqualTo(a, b));
+                };
+            case EQ:
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.fromBoolean(Doubles.equals(a, b));
+                };
+            case NEQ:
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.fromBoolean(Doubles.notEquals(a, b));
+                };
+            case ADD:
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.add(a, b);
+                };
+            case SUBTRACT:
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.subtract(a, b);
+                };
+            case MODULO:
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.modulo(a, b);
+                };
+            case DIVIDE:
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.divide(a, b);
+                };
+            case MULTIPLY:
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.multiply(a, b);
+                };
+            case POWER:
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.pow(a, b);
+                };
+            default:
+                final IDoubleFromDoublesBinaryOp opF = op.newDoubleFromDoubles();
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return opF.applyDoubleFromDoubles(a, b);
+                };
+            }
+        } else if (right.isConstant()) {
+            final IEvaluateDoubleFDate leftF = left.newEvaluateDoubleFDate();
+            final double b = right.newEvaluateDouble().evaluateDouble();
+            switch (op) {
+            case GT:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return Doubles.fromBoolean(Doubles.isGreaterThan(a, b));
+                };
+            case GT_EQ:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return Doubles.fromBoolean(Doubles.isGreaterThanOrEqualTo(a, b));
+                };
+            case LT:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return Doubles.fromBoolean(Doubles.isLessThan(a, b));
+                };
+            case LT_EQ:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return Doubles.fromBoolean(Doubles.isLessThanOrEqualTo(a, b));
+                };
+            case EQ:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return Doubles.fromBoolean(Doubles.equals(a, b));
+                };
+            case NEQ:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return Doubles.fromBoolean(Doubles.notEquals(a, b));
+                };
+            case ADD:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return Doubles.add(a, b);
+                };
+            case SUBTRACT:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return Doubles.subtract(a, b);
+                };
+            case MODULO:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return Doubles.modulo(a, b);
+                };
+            case DIVIDE:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return Doubles.divide(a, b);
+                };
+            case MULTIPLY:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return Doubles.multiply(a, b);
+                };
+            case POWER:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return Doubles.pow(a, b);
+                };
+            default:
+                final IDoubleFromDoublesBinaryOp opF = op.newDoubleFromDoubles();
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return opF.applyDoubleFromDoubles(a, b);
+                };
+            }
+        } else {
+            final IEvaluateDoubleFDate leftF = left.newEvaluateDoubleFDate();
+            final IEvaluateDoubleFDate rightF = right.newEvaluateDoubleFDate();
+            switch (op) {
+            case GT:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.fromBoolean(Doubles.isGreaterThan(a, b));
+                };
+            case GT_EQ:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.fromBoolean(Doubles.isGreaterThanOrEqualTo(a, b));
+                };
+            case LT:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.fromBoolean(Doubles.isLessThan(a, b));
+                };
+            case LT_EQ:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.fromBoolean(Doubles.isLessThanOrEqualTo(a, b));
+                };
+            case EQ:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.fromBoolean(Doubles.equals(a, b));
+                };
+            case NEQ:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.fromBoolean(Doubles.notEquals(a, b));
+                };
+            case ADD:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.add(a, b);
+                };
+            case SUBTRACT:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.subtract(a, b);
+                };
+            case MODULO:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.modulo(a, b);
+                };
+            case DIVIDE:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.divide(a, b);
+                };
+            case MULTIPLY:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.multiply(a, b);
+                };
+            case POWER:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.pow(a, b);
+                };
+            default:
+                final IDoubleFromDoublesBinaryOp opF = op.newDoubleFromDoubles();
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return opF.applyDoubleFromDoubles(a, b);
+                };
+            }
+        }
     }
 
     @Override
     public IEvaluateDoubleKey newEvaluateDoubleKey() {
-        final IEvaluateDoubleKey leftF = left.newEvaluateDoubleKey();
-        final IEvaluateDoubleKey rightF = right.newEvaluateDoubleKey();
-        final IDoubleFromDoublesBinaryOp opF = op.newDoubleFromDoubles();
-        return key -> {
-            final double a = leftF.evaluateDouble(key);
-            final double b = rightF.evaluateDouble(key);
-            return opF.applyDoubleFromDoubles(a, b);
-        };
+        if (left.isConstant() && right.isConstant()) {
+            final double a = left.newEvaluateDouble().evaluateDouble();
+            final double b = right.newEvaluateDouble().evaluateDouble();
+            final IDoubleFromDoublesBinaryOp opF = op.newDoubleFromDoubles();
+            final double result = opF.applyDoubleFromDoubles(a, b);
+            return key -> {
+                return result;
+            };
+        } else if (left.isConstant()) {
+            final double a = left.newEvaluateDouble().evaluateDouble();
+            final IEvaluateDoubleKey rightF = right.newEvaluateDoubleKey();
+            switch (op) {
+            case GT:
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.fromBoolean(Doubles.isGreaterThan(a, b));
+                };
+            case GT_EQ:
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.fromBoolean(Doubles.isGreaterThanOrEqualTo(a, b));
+                };
+            case LT:
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.fromBoolean(Doubles.isLessThan(a, b));
+                };
+            case LT_EQ:
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.fromBoolean(Doubles.isLessThanOrEqualTo(a, b));
+                };
+            case EQ:
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.fromBoolean(Doubles.equals(a, b));
+                };
+            case NEQ:
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.fromBoolean(Doubles.notEquals(a, b));
+                };
+            case ADD:
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.add(a, b);
+                };
+            case SUBTRACT:
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.subtract(a, b);
+                };
+            case MODULO:
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.modulo(a, b);
+                };
+            case DIVIDE:
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.divide(a, b);
+                };
+            case MULTIPLY:
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.multiply(a, b);
+                };
+            case POWER:
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.pow(a, b);
+                };
+            default:
+                final IDoubleFromDoublesBinaryOp opF = op.newDoubleFromDoubles();
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return opF.applyDoubleFromDoubles(a, b);
+                };
+            }
+        } else if (right.isConstant()) {
+            final IEvaluateDoubleKey leftF = left.newEvaluateDoubleKey();
+            final double b = right.newEvaluateDouble().evaluateDouble();
+            switch (op) {
+            case GT:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return Doubles.fromBoolean(Doubles.isGreaterThan(a, b));
+                };
+            case GT_EQ:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return Doubles.fromBoolean(Doubles.isGreaterThanOrEqualTo(a, b));
+                };
+            case LT:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return Doubles.fromBoolean(Doubles.isLessThan(a, b));
+                };
+            case LT_EQ:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return Doubles.fromBoolean(Doubles.isLessThanOrEqualTo(a, b));
+                };
+            case EQ:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return Doubles.fromBoolean(Doubles.equals(a, b));
+                };
+            case NEQ:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return Doubles.fromBoolean(Doubles.notEquals(a, b));
+                };
+            case ADD:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return Doubles.add(a, b);
+                };
+            case SUBTRACT:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return Doubles.subtract(a, b);
+                };
+            case MODULO:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return Doubles.modulo(a, b);
+                };
+            case DIVIDE:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return Doubles.divide(a, b);
+                };
+            case MULTIPLY:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return Doubles.multiply(a, b);
+                };
+            case POWER:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return Doubles.pow(a, b);
+                };
+            default:
+                final IDoubleFromDoublesBinaryOp opF = op.newDoubleFromDoubles();
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return opF.applyDoubleFromDoubles(a, b);
+                };
+            }
+        } else {
+            final IEvaluateDoubleKey leftF = left.newEvaluateDoubleKey();
+            final IEvaluateDoubleKey rightF = right.newEvaluateDoubleKey();
+            switch (op) {
+            case GT:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.fromBoolean(Doubles.isGreaterThan(a, b));
+                };
+            case GT_EQ:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.fromBoolean(Doubles.isGreaterThanOrEqualTo(a, b));
+                };
+            case LT:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.fromBoolean(Doubles.isLessThan(a, b));
+                };
+            case LT_EQ:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.fromBoolean(Doubles.isLessThanOrEqualTo(a, b));
+                };
+            case EQ:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.fromBoolean(Doubles.equals(a, b));
+                };
+            case NEQ:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.fromBoolean(Doubles.notEquals(a, b));
+                };
+            case ADD:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.add(a, b);
+                };
+            case SUBTRACT:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.subtract(a, b);
+                };
+            case MODULO:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.modulo(a, b);
+                };
+            case DIVIDE:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.divide(a, b);
+                };
+            case MULTIPLY:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.multiply(a, b);
+                };
+            case POWER:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.pow(a, b);
+                };
+            default:
+                final IDoubleFromDoublesBinaryOp opF = op.newDoubleFromDoubles();
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return opF.applyDoubleFromDoubles(a, b);
+                };
+            }
+        }
     }
 
     @Override
     public IEvaluateDouble newEvaluateDouble() {
-        final IEvaluateDouble leftF = left.newEvaluateDouble();
-        final IEvaluateDouble rightF = right.newEvaluateDouble();
-        final IDoubleFromDoublesBinaryOp opF = op.newDoubleFromDoubles();
-        return () -> {
-            final double a = leftF.evaluateDouble();
-            final double b = rightF.evaluateDouble();
-            return opF.applyDoubleFromDoubles(a, b);
-        };
+        if (left.isConstant() && right.isConstant()) {
+            final double a = left.newEvaluateDouble().evaluateDouble();
+            final double b = right.newEvaluateDouble().evaluateDouble();
+            final IDoubleFromDoublesBinaryOp opF = op.newDoubleFromDoubles();
+            final double result = opF.applyDoubleFromDoubles(a, b);
+            return () -> {
+                return result;
+            };
+        } else if (left.isConstant()) {
+            final double a = left.newEvaluateDouble().evaluateDouble();
+            final IEvaluateDouble rightF = right.newEvaluateDouble();
+            switch (op) {
+            case GT:
+                return () -> {
+                    final double b = rightF.evaluateDouble();
+                    return Doubles.fromBoolean(Doubles.isGreaterThan(a, b));
+                };
+            case GT_EQ:
+                return () -> {
+                    final double b = rightF.evaluateDouble();
+                    return Doubles.fromBoolean(Doubles.isGreaterThanOrEqualTo(a, b));
+                };
+            case LT:
+                return () -> {
+                    final double b = rightF.evaluateDouble();
+                    return Doubles.fromBoolean(Doubles.isLessThan(a, b));
+                };
+            case LT_EQ:
+                return () -> {
+                    final double b = rightF.evaluateDouble();
+                    return Doubles.fromBoolean(Doubles.isLessThanOrEqualTo(a, b));
+                };
+            case EQ:
+                return () -> {
+                    final double b = rightF.evaluateDouble();
+                    return Doubles.fromBoolean(Doubles.equals(a, b));
+                };
+            case NEQ:
+                return () -> {
+                    final double b = rightF.evaluateDouble();
+                    return Doubles.fromBoolean(Doubles.notEquals(a, b));
+                };
+            case ADD:
+                return () -> {
+                    final double b = rightF.evaluateDouble();
+                    return Doubles.add(a, b);
+                };
+            case SUBTRACT:
+                return () -> {
+                    final double b = rightF.evaluateDouble();
+                    return Doubles.subtract(a, b);
+                };
+            case MODULO:
+                return () -> {
+                    final double b = rightF.evaluateDouble();
+                    return Doubles.modulo(a, b);
+                };
+            case DIVIDE:
+                return () -> {
+                    final double b = rightF.evaluateDouble();
+                    return Doubles.divide(a, b);
+                };
+            case MULTIPLY:
+                return () -> {
+                    final double b = rightF.evaluateDouble();
+                    return Doubles.multiply(a, b);
+                };
+            case POWER:
+                return () -> {
+                    final double b = rightF.evaluateDouble();
+                    return Doubles.pow(a, b);
+                };
+            default:
+                final IDoubleFromDoublesBinaryOp opF = op.newDoubleFromDoubles();
+                return () -> {
+                    final double b = rightF.evaluateDouble();
+                    return opF.applyDoubleFromDoubles(a, b);
+                };
+            }
+        } else if (right.isConstant()) {
+            final IEvaluateDouble leftF = left.newEvaluateDouble();
+            final double b = right.newEvaluateDouble().evaluateDouble();
+            switch (op) {
+            case GT:
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    return Doubles.fromBoolean(Doubles.isGreaterThan(a, b));
+                };
+            case GT_EQ:
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    return Doubles.fromBoolean(Doubles.isGreaterThanOrEqualTo(a, b));
+                };
+            case LT:
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    return Doubles.fromBoolean(Doubles.isLessThan(a, b));
+                };
+            case LT_EQ:
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    return Doubles.fromBoolean(Doubles.isLessThanOrEqualTo(a, b));
+                };
+            case EQ:
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    return Doubles.fromBoolean(Doubles.equals(a, b));
+                };
+            case NEQ:
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    return Doubles.fromBoolean(Doubles.notEquals(a, b));
+                };
+            case ADD:
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    return Doubles.add(a, b);
+                };
+            case SUBTRACT:
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    return Doubles.subtract(a, b);
+                };
+            case MODULO:
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    return Doubles.modulo(a, b);
+                };
+            case DIVIDE:
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    return Doubles.divide(a, b);
+                };
+            case MULTIPLY:
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    return Doubles.multiply(a, b);
+                };
+            case POWER:
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    return Doubles.pow(a, b);
+                };
+            default:
+                final IDoubleFromDoublesBinaryOp opF = op.newDoubleFromDoubles();
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    return opF.applyDoubleFromDoubles(a, b);
+                };
+            }
+        } else {
+            final IEvaluateDouble leftF = left.newEvaluateDouble();
+            final IEvaluateDouble rightF = right.newEvaluateDouble();
+            switch (op) {
+            case GT:
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    final double b = rightF.evaluateDouble();
+                    return Doubles.fromBoolean(Doubles.isGreaterThan(a, b));
+                };
+            case GT_EQ:
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    final double b = rightF.evaluateDouble();
+                    return Doubles.fromBoolean(Doubles.isGreaterThanOrEqualTo(a, b));
+                };
+            case LT:
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    final double b = rightF.evaluateDouble();
+                    return Doubles.fromBoolean(Doubles.isLessThan(a, b));
+                };
+            case LT_EQ:
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    final double b = rightF.evaluateDouble();
+                    return Doubles.fromBoolean(Doubles.isLessThanOrEqualTo(a, b));
+                };
+            case EQ:
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    final double b = rightF.evaluateDouble();
+                    return Doubles.fromBoolean(Doubles.equals(a, b));
+                };
+            case NEQ:
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    final double b = rightF.evaluateDouble();
+                    return Doubles.fromBoolean(Doubles.notEquals(a, b));
+                };
+            case ADD:
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    final double b = rightF.evaluateDouble();
+                    return Doubles.add(a, b);
+                };
+            case SUBTRACT:
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    final double b = rightF.evaluateDouble();
+                    return Doubles.subtract(a, b);
+                };
+            case MODULO:
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    final double b = rightF.evaluateDouble();
+                    return Doubles.modulo(a, b);
+                };
+            case DIVIDE:
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    final double b = rightF.evaluateDouble();
+                    return Doubles.divide(a, b);
+                };
+            case MULTIPLY:
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    final double b = rightF.evaluateDouble();
+                    return Doubles.multiply(a, b);
+                };
+            case POWER:
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    final double b = rightF.evaluateDouble();
+                    return Doubles.pow(a, b);
+                };
+            default:
+                final IDoubleFromDoublesBinaryOp opF = op.newDoubleFromDoubles();
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    final double b = rightF.evaluateDouble();
+                    return opF.applyDoubleFromDoubles(a, b);
+                };
+            }
+        }
     }
 
     @Override
     public IEvaluateIntegerFDate newEvaluateIntegerFDate() {
-        final IEvaluateDoubleFDate leftF = left.newEvaluateDoubleFDate();
-        final IEvaluateDoubleFDate rightF = right.newEvaluateDoubleFDate();
-        final IIntegerFromDoublesBinaryOp opF = op.newIntegerFromDoubles();
-        return key -> {
-            final double a = leftF.evaluateDouble(key);
-            final double b = rightF.evaluateDouble(key);
-            return opF.applyIntegerFromDoubles(a, b);
-        };
+        if (left.isConstant() && right.isConstant()) {
+            final double a = left.newEvaluateDouble().evaluateDouble();
+            final double b = right.newEvaluateDouble().evaluateDouble();
+            final IIntegerFromDoublesBinaryOp opF = op.newIntegerFromDoubles();
+            final int result = opF.applyIntegerFromDoubles(a, b);
+            return key -> {
+                return result;
+            };
+        } else if (left.isConstant()) {
+            final double a = left.newEvaluateDouble().evaluateDouble();
+            final IEvaluateDoubleFDate rightF = right.newEvaluateDoubleFDate();
+            switch (op) {
+            case GT:
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return Integers.fromBoolean(Doubles.isGreaterThan(a, b));
+                };
+            case GT_EQ:
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return Integers.fromBoolean(Doubles.isGreaterThanOrEqualTo(a, b));
+                };
+            case LT:
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return Integers.fromBoolean(Doubles.isLessThan(a, b));
+                };
+            case LT_EQ:
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return Integers.fromBoolean(Doubles.isLessThanOrEqualTo(a, b));
+                };
+            case EQ:
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return Integers.fromBoolean(Doubles.equals(a, b));
+                };
+            case NEQ:
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return Integers.fromBoolean(Doubles.notEquals(a, b));
+                };
+            case ADD:
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return Integers.add(a, b);
+                };
+            case SUBTRACT:
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return Integers.subtract(a, b);
+                };
+            case MODULO:
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return Integers.modulo(a, b);
+                };
+            case DIVIDE:
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return Integers.divide(a, b);
+                };
+            case MULTIPLY:
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return Integers.multiply(a, b);
+                };
+            case POWER:
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return Integers.pow(a, b);
+                };
+            default:
+                final IIntegerFromDoublesBinaryOp opF = op.newIntegerFromDoubles();
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return opF.applyIntegerFromDoubles(a, b);
+                };
+            }
+        } else if (right.isConstant()) {
+            final IEvaluateDoubleFDate leftF = left.newEvaluateDoubleFDate();
+            final double b = right.newEvaluateDouble().evaluateDouble();
+            switch (op) {
+            case GT:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return Integers.fromBoolean(Doubles.isGreaterThan(a, b));
+                };
+            case GT_EQ:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return Integers.fromBoolean(Doubles.isGreaterThanOrEqualTo(a, b));
+                };
+            case LT:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return Integers.fromBoolean(Doubles.isLessThan(a, b));
+                };
+            case LT_EQ:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return Integers.fromBoolean(Doubles.isLessThanOrEqualTo(a, b));
+                };
+            case EQ:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return Integers.fromBoolean(Doubles.equals(a, b));
+                };
+            case NEQ:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return Integers.fromBoolean(Doubles.notEquals(a, b));
+                };
+            case ADD:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return Integers.add(a, b);
+                };
+            case SUBTRACT:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return Integers.subtract(a, b);
+                };
+            case MODULO:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return Integers.modulo(a, b);
+                };
+            case DIVIDE:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return Integers.divide(a, b);
+                };
+            case MULTIPLY:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return Integers.multiply(a, b);
+                };
+            case POWER:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return Integers.pow(a, b);
+                };
+            default:
+                final IIntegerFromDoublesBinaryOp opF = op.newIntegerFromDoubles();
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return opF.applyIntegerFromDoubles(a, b);
+                };
+            }
+        } else {
+            final IEvaluateDoubleFDate leftF = left.newEvaluateDoubleFDate();
+            final IEvaluateDoubleFDate rightF = right.newEvaluateDoubleFDate();
+            switch (op) {
+            case GT:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return Integers.fromBoolean(Doubles.isGreaterThan(a, b));
+                };
+            case GT_EQ:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return Integers.fromBoolean(Doubles.isGreaterThanOrEqualTo(a, b));
+                };
+            case LT:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return Integers.fromBoolean(Doubles.isLessThan(a, b));
+                };
+            case LT_EQ:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return Integers.fromBoolean(Doubles.isLessThanOrEqualTo(a, b));
+                };
+            case EQ:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return Integers.fromBoolean(Doubles.equals(a, b));
+                };
+            case NEQ:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return Integers.fromBoolean(Doubles.notEquals(a, b));
+                };
+            case ADD:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return Integers.add(a, b);
+                };
+            case SUBTRACT:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return Integers.subtract(a, b);
+                };
+            case MODULO:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return Integers.modulo(a, b);
+                };
+            case DIVIDE:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return Integers.divide(a, b);
+                };
+            case MULTIPLY:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return Integers.multiply(a, b);
+                };
+            case POWER:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return Integers.pow(a, b);
+                };
+            default:
+                final IIntegerFromDoublesBinaryOp opF = op.newIntegerFromDoubles();
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return opF.applyIntegerFromDoubles(a, b);
+                };
+            }
+        }
     }
 
     @Override
     public IEvaluateIntegerKey newEvaluateIntegerKey() {
-        final IEvaluateDoubleKey leftF = left.newEvaluateDoubleKey();
-        final IEvaluateDoubleKey rightF = right.newEvaluateDoubleKey();
-        final IIntegerFromDoublesBinaryOp opF = op.newIntegerFromDoubles();
-        return key -> {
-            final double a = leftF.evaluateDouble(key);
-            final double b = rightF.evaluateDouble(key);
-            return opF.applyIntegerFromDoubles(a, b);
-        };
+        if (left.isConstant() && right.isConstant()) {
+            final double a = left.newEvaluateDouble().evaluateDouble();
+            final double b = right.newEvaluateDouble().evaluateDouble();
+            final IIntegerFromDoublesBinaryOp opF = op.newIntegerFromDoubles();
+            final int result = opF.applyIntegerFromDoubles(a, b);
+            return key -> {
+                return result;
+            };
+        } else if (left.isConstant()) {
+            final double a = left.newEvaluateDouble().evaluateDouble();
+            final IEvaluateDoubleKey rightF = right.newEvaluateDoubleKey();
+            switch (op) {
+            case GT:
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return Integers.fromBoolean(Doubles.isGreaterThan(a, b));
+                };
+            case GT_EQ:
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return Integers.fromBoolean(Doubles.isGreaterThanOrEqualTo(a, b));
+                };
+            case LT:
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return Integers.fromBoolean(Doubles.isLessThan(a, b));
+                };
+            case LT_EQ:
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return Integers.fromBoolean(Doubles.isLessThanOrEqualTo(a, b));
+                };
+            case EQ:
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return Integers.fromBoolean(Doubles.equals(a, b));
+                };
+            case NEQ:
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return Integers.fromBoolean(Doubles.notEquals(a, b));
+                };
+            case ADD:
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return Integers.add(a, b);
+                };
+            case SUBTRACT:
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return Integers.subtract(a, b);
+                };
+            case MODULO:
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return Integers.modulo(a, b);
+                };
+            case DIVIDE:
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return Integers.divide(a, b);
+                };
+            case MULTIPLY:
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return Integers.multiply(a, b);
+                };
+            case POWER:
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return Integers.pow(a, b);
+                };
+            default:
+                final IIntegerFromDoublesBinaryOp opF = op.newIntegerFromDoubles();
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return opF.applyIntegerFromDoubles(a, b);
+                };
+            }
+        } else if (right.isConstant()) {
+            final IEvaluateDoubleKey leftF = left.newEvaluateDoubleKey();
+            final double b = right.newEvaluateDouble().evaluateDouble();
+            switch (op) {
+            case GT:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return Integers.fromBoolean(Doubles.isGreaterThan(a, b));
+                };
+            case GT_EQ:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return Integers.fromBoolean(Doubles.isGreaterThanOrEqualTo(a, b));
+                };
+            case LT:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return Integers.fromBoolean(Doubles.isLessThan(a, b));
+                };
+            case LT_EQ:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return Integers.fromBoolean(Doubles.isLessThanOrEqualTo(a, b));
+                };
+            case EQ:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return Integers.fromBoolean(Doubles.equals(a, b));
+                };
+            case NEQ:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return Integers.fromBoolean(Doubles.notEquals(a, b));
+                };
+            case ADD:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return Integers.add(a, b);
+                };
+            case SUBTRACT:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return Integers.subtract(a, b);
+                };
+            case MODULO:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return Integers.modulo(a, b);
+                };
+            case DIVIDE:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return Integers.divide(a, b);
+                };
+            case MULTIPLY:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return Integers.multiply(a, b);
+                };
+            case POWER:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return Integers.pow(a, b);
+                };
+            default:
+                final IIntegerFromDoublesBinaryOp opF = op.newIntegerFromDoubles();
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return opF.applyIntegerFromDoubles(a, b);
+                };
+            }
+        } else {
+            final IEvaluateDoubleKey leftF = left.newEvaluateDoubleKey();
+            final IEvaluateDoubleKey rightF = right.newEvaluateDoubleKey();
+            switch (op) {
+            case GT:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return Integers.fromBoolean(Doubles.isGreaterThan(a, b));
+                };
+            case GT_EQ:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return Integers.fromBoolean(Doubles.isGreaterThanOrEqualTo(a, b));
+                };
+            case LT:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return Integers.fromBoolean(Doubles.isLessThan(a, b));
+                };
+            case LT_EQ:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return Integers.fromBoolean(Doubles.isLessThanOrEqualTo(a, b));
+                };
+            case EQ:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return Integers.fromBoolean(Doubles.equals(a, b));
+                };
+            case NEQ:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return Integers.fromBoolean(Doubles.notEquals(a, b));
+                };
+            case ADD:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return Integers.add(a, b);
+                };
+            case SUBTRACT:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return Integers.subtract(a, b);
+                };
+            case MODULO:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return Integers.modulo(a, b);
+                };
+            case DIVIDE:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return Integers.divide(a, b);
+                };
+            case MULTIPLY:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return Integers.multiply(a, b);
+                };
+            case POWER:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return Integers.pow(a, b);
+                };
+            default:
+                final IIntegerFromDoublesBinaryOp opF = op.newIntegerFromDoubles();
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return opF.applyIntegerFromDoubles(a, b);
+                };
+            }
+        }
     }
 
     @Override
     public IEvaluateInteger newEvaluateInteger() {
-        final IEvaluateDouble leftF = left.newEvaluateDouble();
-        final IEvaluateDouble rightF = right.newEvaluateDouble();
-        final IIntegerFromDoublesBinaryOp opF = op.newIntegerFromDoubles();
-        return () -> {
-            final double a = leftF.evaluateDouble();
-            final double b = rightF.evaluateDouble();
-            return opF.applyIntegerFromDoubles(a, b);
-        };
+        if (left.isConstant() && right.isConstant()) {
+            final double a = left.newEvaluateDouble().evaluateDouble();
+            final double b = right.newEvaluateDouble().evaluateDouble();
+            final IIntegerFromDoublesBinaryOp opF = op.newIntegerFromDoubles();
+            final int result = opF.applyIntegerFromDoubles(a, b);
+            return () -> {
+                return result;
+            };
+        } else if (left.isConstant()) {
+            final double a = left.newEvaluateDouble().evaluateDouble();
+            final IEvaluateDouble rightF = right.newEvaluateDouble();
+            switch (op) {
+            case GT:
+                return () -> {
+                    final double b = rightF.evaluateDouble();
+                    return Integers.fromBoolean(Doubles.isGreaterThan(a, b));
+                };
+            case GT_EQ:
+                return () -> {
+                    final double b = rightF.evaluateDouble();
+                    return Integers.fromBoolean(Doubles.isGreaterThanOrEqualTo(a, b));
+                };
+            case LT:
+                return () -> {
+                    final double b = rightF.evaluateDouble();
+                    return Integers.fromBoolean(Doubles.isLessThan(a, b));
+                };
+            case LT_EQ:
+                return () -> {
+                    final double b = rightF.evaluateDouble();
+                    return Integers.fromBoolean(Doubles.isLessThanOrEqualTo(a, b));
+                };
+            case EQ:
+                return () -> {
+                    final double b = rightF.evaluateDouble();
+                    return Integers.fromBoolean(Doubles.equals(a, b));
+                };
+            case NEQ:
+                return () -> {
+                    final double b = rightF.evaluateDouble();
+                    return Integers.fromBoolean(Doubles.notEquals(a, b));
+                };
+            case ADD:
+                return () -> {
+                    final double b = rightF.evaluateDouble();
+                    return Integers.add(a, b);
+                };
+            case SUBTRACT:
+                return () -> {
+                    final double b = rightF.evaluateDouble();
+                    return Integers.subtract(a, b);
+                };
+            case MODULO:
+                return () -> {
+                    final double b = rightF.evaluateDouble();
+                    return Integers.modulo(a, b);
+                };
+            case DIVIDE:
+                return () -> {
+                    final double b = rightF.evaluateDouble();
+                    return Integers.divide(a, b);
+                };
+            case MULTIPLY:
+                return () -> {
+                    final double b = rightF.evaluateDouble();
+                    return Integers.multiply(a, b);
+                };
+            case POWER:
+                return () -> {
+                    final double b = rightF.evaluateDouble();
+                    return Integers.pow(a, b);
+                };
+            default:
+                final IIntegerFromDoublesBinaryOp opF = op.newIntegerFromDoubles();
+                return () -> {
+                    final double b = rightF.evaluateDouble();
+                    return opF.applyIntegerFromDoubles(a, b);
+                };
+            }
+        } else if (right.isConstant()) {
+            final IEvaluateDouble leftF = left.newEvaluateDouble();
+            final double b = right.newEvaluateDouble().evaluateDouble();
+            switch (op) {
+            case GT:
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    return Integers.fromBoolean(Doubles.isGreaterThan(a, b));
+                };
+            case GT_EQ:
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    return Integers.fromBoolean(Doubles.isGreaterThanOrEqualTo(a, b));
+                };
+            case LT:
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    return Integers.fromBoolean(Doubles.isLessThan(a, b));
+                };
+            case LT_EQ:
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    return Integers.fromBoolean(Doubles.isLessThanOrEqualTo(a, b));
+                };
+            case EQ:
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    return Integers.fromBoolean(Doubles.equals(a, b));
+                };
+            case NEQ:
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    return Integers.fromBoolean(Doubles.notEquals(a, b));
+                };
+            case ADD:
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    return Integers.add(a, b);
+                };
+            case SUBTRACT:
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    return Integers.subtract(a, b);
+                };
+            case MODULO:
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    return Integers.modulo(a, b);
+                };
+            case DIVIDE:
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    return Integers.divide(a, b);
+                };
+            case MULTIPLY:
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    return Integers.multiply(a, b);
+                };
+            case POWER:
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    return Integers.pow(a, b);
+                };
+            default:
+                final IIntegerFromDoublesBinaryOp opF = op.newIntegerFromDoubles();
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    return opF.applyIntegerFromDoubles(a, b);
+                };
+            }
+        } else {
+            final IEvaluateDouble leftF = left.newEvaluateDouble();
+            final IEvaluateDouble rightF = right.newEvaluateDouble();
+            switch (op) {
+            case GT:
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    final double b = rightF.evaluateDouble();
+                    return Integers.fromBoolean(Doubles.isGreaterThan(a, b));
+                };
+            case GT_EQ:
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    final double b = rightF.evaluateDouble();
+                    return Integers.fromBoolean(Doubles.isGreaterThanOrEqualTo(a, b));
+                };
+            case LT:
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    final double b = rightF.evaluateDouble();
+                    return Integers.fromBoolean(Doubles.isLessThan(a, b));
+                };
+            case LT_EQ:
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    final double b = rightF.evaluateDouble();
+                    return Integers.fromBoolean(Doubles.isLessThanOrEqualTo(a, b));
+                };
+            case EQ:
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    final double b = rightF.evaluateDouble();
+                    return Integers.fromBoolean(Doubles.equals(a, b));
+                };
+            case NEQ:
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    final double b = rightF.evaluateDouble();
+                    return Integers.fromBoolean(Doubles.notEquals(a, b));
+                };
+            case ADD:
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    final double b = rightF.evaluateDouble();
+                    return Integers.add(a, b);
+                };
+            case SUBTRACT:
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    final double b = rightF.evaluateDouble();
+                    return Integers.subtract(a, b);
+                };
+            case MODULO:
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    final double b = rightF.evaluateDouble();
+                    return Integers.modulo(a, b);
+                };
+            case DIVIDE:
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    final double b = rightF.evaluateDouble();
+                    return Integers.divide(a, b);
+                };
+            case MULTIPLY:
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    final double b = rightF.evaluateDouble();
+                    return Integers.multiply(a, b);
+                };
+            case POWER:
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    final double b = rightF.evaluateDouble();
+                    return Integers.pow(a, b);
+                };
+            default:
+                final IIntegerFromDoublesBinaryOp opF = op.newIntegerFromDoubles();
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    final double b = rightF.evaluateDouble();
+                    return opF.applyIntegerFromDoubles(a, b);
+                };
+            }
+        }
     }
 
     @Override
     public IEvaluateBooleanNullableFDate newEvaluateBooleanNullableFDate() {
-        final IEvaluateDoubleFDate leftF = left.newEvaluateDoubleFDate();
-        final IEvaluateDoubleFDate rightF = right.newEvaluateDoubleFDate();
-        final IBooleanNullableFromDoublesBinaryOp opF = op.newBooleanNullableFromDoubles();
-        return key -> {
-            final double a = leftF.evaluateDouble(key);
-            final double b = rightF.evaluateDouble(key);
-            return opF.applyBooleanNullableFromDoubles(a, b);
-        };
+        if (left.isConstant() && right.isConstant()) {
+            final double a = left.newEvaluateDouble().evaluateDouble();
+            final double b = right.newEvaluateDouble().evaluateDouble();
+            final IBooleanNullableFromDoublesBinaryOp opF = op.newBooleanNullableFromDoubles();
+            final Boolean result = opF.applyBooleanNullableFromDoubles(a, b);
+            return key -> {
+                return result;
+            };
+        } else if (left.isConstant()) {
+            final double a = left.newEvaluateDouble().evaluateDouble();
+            final IEvaluateDoubleFDate rightF = right.newEvaluateDoubleFDate();
+            switch (op) {
+            case GT:
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.isGreaterThan(a, b);
+                };
+            case GT_EQ:
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.isGreaterThanOrEqualTo(a, b);
+                };
+            case LT:
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.isLessThan(a, b);
+                };
+            case LT_EQ:
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.isLessThanOrEqualTo(a, b);
+                };
+            case EQ:
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.equals(a, b);
+                };
+            case NEQ:
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.notEquals(a, b);
+                };
+            case ADD:
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.toBooleanNullable(Doubles.add(a, b));
+                };
+            case SUBTRACT:
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.toBooleanNullable(Doubles.subtract(a, b));
+                };
+            case MODULO:
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.toBooleanNullable(Doubles.modulo(a, b));
+                };
+            case DIVIDE:
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.toBooleanNullable(Doubles.divide(a, b));
+                };
+            case MULTIPLY:
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.toBooleanNullable(Doubles.multiply(a, b));
+                };
+            default:
+                final IBooleanNullableFromDoublesBinaryOp opF = op.newBooleanNullableFromDoubles();
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return opF.applyBooleanNullableFromDoubles(a, b);
+                };
+            }
+        } else if (right.isConstant()) {
+            final IEvaluateDoubleFDate leftF = left.newEvaluateDoubleFDate();
+            final double b = right.newEvaluateDouble().evaluateDouble();
+            switch (op) {
+            case GT:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return Doubles.isGreaterThan(a, b);
+                };
+            case GT_EQ:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return Doubles.isGreaterThanOrEqualTo(a, b);
+                };
+            case LT:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return Doubles.isLessThan(a, b);
+                };
+            case LT_EQ:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return Doubles.isLessThanOrEqualTo(a, b);
+                };
+            case EQ:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return Doubles.equals(a, b);
+                };
+            case NEQ:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return Doubles.notEquals(a, b);
+                };
+            case ADD:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return Doubles.toBooleanNullable(Doubles.add(a, b));
+                };
+            case SUBTRACT:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return Doubles.toBooleanNullable(Doubles.subtract(a, b));
+                };
+            case MODULO:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return Doubles.toBooleanNullable(Doubles.modulo(a, b));
+                };
+            case DIVIDE:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return Doubles.toBooleanNullable(Doubles.divide(a, b));
+                };
+            case MULTIPLY:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return Doubles.toBooleanNullable(Doubles.multiply(a, b));
+                };
+            default:
+                final IBooleanNullableFromDoublesBinaryOp opF = op.newBooleanNullableFromDoubles();
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return opF.applyBooleanNullableFromDoubles(a, b);
+                };
+            }
+        } else {
+            final IEvaluateDoubleFDate leftF = left.newEvaluateDoubleFDate();
+            final IEvaluateDoubleFDate rightF = right.newEvaluateDoubleFDate();
+            switch (op) {
+            case GT:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.isGreaterThan(a, b);
+                };
+            case GT_EQ:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.isGreaterThanOrEqualTo(a, b);
+                };
+            case LT:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.isLessThan(a, b);
+                };
+            case LT_EQ:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.isLessThanOrEqualTo(a, b);
+                };
+            case EQ:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.equals(a, b);
+                };
+            case NEQ:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.notEquals(a, b);
+                };
+            case ADD:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.toBooleanNullable(Doubles.add(a, b));
+                };
+            case SUBTRACT:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.toBooleanNullable(Doubles.subtract(a, b));
+                };
+            case MODULO:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.toBooleanNullable(Doubles.modulo(a, b));
+                };
+            case DIVIDE:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.toBooleanNullable(Doubles.divide(a, b));
+                };
+            case MULTIPLY:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.toBooleanNullable(Doubles.multiply(a, b));
+                };
+            default:
+                final IBooleanNullableFromDoublesBinaryOp opF = op.newBooleanNullableFromDoubles();
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return opF.applyBooleanNullableFromDoubles(a, b);
+                };
+            }
+        }
     }
 
     @Override
     public IEvaluateBooleanNullableKey newEvaluateBooleanNullableKey() {
-        final IEvaluateDoubleKey leftF = left.newEvaluateDoubleKey();
-        final IEvaluateDoubleKey rightF = right.newEvaluateDoubleKey();
-        final IBooleanNullableFromDoublesBinaryOp opF = op.newBooleanNullableFromDoubles();
-        return key -> {
-            final double a = leftF.evaluateDouble(key);
-            final double b = rightF.evaluateDouble(key);
-            return opF.applyBooleanNullableFromDoubles(a, b);
-        };
+        if (left.isConstant() && right.isConstant()) {
+            final double a = left.newEvaluateDouble().evaluateDouble();
+            final double b = right.newEvaluateDouble().evaluateDouble();
+            final IBooleanNullableFromDoublesBinaryOp opF = op.newBooleanNullableFromDoubles();
+            final Boolean result = opF.applyBooleanNullableFromDoubles(a, b);
+            return key -> {
+                return result;
+            };
+        } else if (left.isConstant()) {
+            final double a = left.newEvaluateDouble().evaluateDouble();
+            final IEvaluateDoubleKey rightF = right.newEvaluateDoubleKey();
+            switch (op) {
+            case GT:
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.isGreaterThan(a, b);
+                };
+            case GT_EQ:
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.isGreaterThanOrEqualTo(a, b);
+                };
+            case LT:
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.isLessThan(a, b);
+                };
+            case LT_EQ:
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.isLessThanOrEqualTo(a, b);
+                };
+            case EQ:
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.equals(a, b);
+                };
+            case NEQ:
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.notEquals(a, b);
+                };
+            case ADD:
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.toBooleanNullable(Doubles.add(a, b));
+                };
+            case SUBTRACT:
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.toBooleanNullable(Doubles.subtract(a, b));
+                };
+            case MODULO:
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.toBooleanNullable(Doubles.modulo(a, b));
+                };
+            case DIVIDE:
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.toBooleanNullable(Doubles.divide(a, b));
+                };
+            case MULTIPLY:
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.toBooleanNullable(Doubles.multiply(a, b));
+                };
+            default:
+                final IBooleanNullableFromDoublesBinaryOp opF = op.newBooleanNullableFromDoubles();
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return opF.applyBooleanNullableFromDoubles(a, b);
+                };
+            }
+        } else if (right.isConstant()) {
+            final IEvaluateDoubleKey leftF = left.newEvaluateDoubleKey();
+            final double b = right.newEvaluateDouble().evaluateDouble();
+            switch (op) {
+            case GT:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return Doubles.isGreaterThan(a, b);
+                };
+            case GT_EQ:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return Doubles.isGreaterThanOrEqualTo(a, b);
+                };
+            case LT:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return Doubles.isLessThan(a, b);
+                };
+            case LT_EQ:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return Doubles.isLessThanOrEqualTo(a, b);
+                };
+            case EQ:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return Doubles.equals(a, b);
+                };
+            case NEQ:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return Doubles.notEquals(a, b);
+                };
+            case ADD:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return Doubles.toBooleanNullable(Doubles.add(a, b));
+                };
+            case SUBTRACT:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return Doubles.toBooleanNullable(Doubles.subtract(a, b));
+                };
+            case MODULO:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return Doubles.toBooleanNullable(Doubles.modulo(a, b));
+                };
+            case DIVIDE:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return Doubles.toBooleanNullable(Doubles.divide(a, b));
+                };
+            case MULTIPLY:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return Doubles.toBooleanNullable(Doubles.multiply(a, b));
+                };
+            default:
+                final IBooleanNullableFromDoublesBinaryOp opF = op.newBooleanNullableFromDoubles();
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return opF.applyBooleanNullableFromDoubles(a, b);
+                };
+            }
+        } else {
+            final IEvaluateDoubleKey leftF = left.newEvaluateDoubleKey();
+            final IEvaluateDoubleKey rightF = right.newEvaluateDoubleKey();
+            switch (op) {
+            case GT:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.isGreaterThan(a, b);
+                };
+            case GT_EQ:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.isGreaterThanOrEqualTo(a, b);
+                };
+            case LT:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.isLessThan(a, b);
+                };
+            case LT_EQ:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.isLessThanOrEqualTo(a, b);
+                };
+            case EQ:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.equals(a, b);
+                };
+            case NEQ:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.notEquals(a, b);
+                };
+            case ADD:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.toBooleanNullable(Doubles.add(a, b));
+                };
+            case SUBTRACT:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.toBooleanNullable(Doubles.subtract(a, b));
+                };
+            case MODULO:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.toBooleanNullable(Doubles.modulo(a, b));
+                };
+            case DIVIDE:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.toBooleanNullable(Doubles.divide(a, b));
+                };
+            case MULTIPLY:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.toBooleanNullable(Doubles.multiply(a, b));
+                };
+            default:
+                final IBooleanNullableFromDoublesBinaryOp opF = op.newBooleanNullableFromDoubles();
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return opF.applyBooleanNullableFromDoubles(a, b);
+                };
+            }
+        }
     }
 
     @Override
     public IEvaluateBooleanNullable newEvaluateBooleanNullable() {
-        final IEvaluateDouble leftF = left.newEvaluateDouble();
-        final IEvaluateDouble rightF = right.newEvaluateDouble();
-        final IBooleanNullableFromDoublesBinaryOp opF = op.newBooleanNullableFromDoubles();
-        return () -> {
-            final double a = leftF.evaluateDouble();
-            final double b = rightF.evaluateDouble();
-            return opF.applyBooleanNullableFromDoubles(a, b);
-        };
+        if (left.isConstant() && right.isConstant()) {
+            final double a = left.newEvaluateDouble().evaluateDouble();
+            final double b = right.newEvaluateDouble().evaluateDouble();
+            final IBooleanNullableFromDoublesBinaryOp opF = op.newBooleanNullableFromDoubles();
+            final Boolean result = opF.applyBooleanNullableFromDoubles(a, b);
+            return () -> {
+                return result;
+            };
+        } else if (left.isConstant()) {
+            final double a = left.newEvaluateDouble().evaluateDouble();
+            final IEvaluateDouble rightF = right.newEvaluateDouble();
+            switch (op) {
+            case GT:
+                return () -> {
+                    final double b = rightF.evaluateDouble();
+                    return Doubles.isGreaterThan(a, b);
+                };
+            case GT_EQ:
+                return () -> {
+                    final double b = rightF.evaluateDouble();
+                    return Doubles.isGreaterThanOrEqualTo(a, b);
+                };
+            case LT:
+                return () -> {
+                    final double b = rightF.evaluateDouble();
+                    return Doubles.isLessThan(a, b);
+                };
+            case LT_EQ:
+                return () -> {
+                    final double b = rightF.evaluateDouble();
+                    return Doubles.isLessThanOrEqualTo(a, b);
+                };
+            case EQ:
+                return () -> {
+                    final double b = rightF.evaluateDouble();
+                    return Doubles.equals(a, b);
+                };
+            case NEQ:
+                return () -> {
+                    final double b = rightF.evaluateDouble();
+                    return Doubles.notEquals(a, b);
+                };
+            case ADD:
+                return () -> {
+                    final double b = rightF.evaluateDouble();
+                    return Doubles.toBooleanNullable(Doubles.add(a, b));
+                };
+            case SUBTRACT:
+                return () -> {
+                    final double b = rightF.evaluateDouble();
+                    return Doubles.toBooleanNullable(Doubles.subtract(a, b));
+                };
+            case MODULO:
+                return () -> {
+                    final double b = rightF.evaluateDouble();
+                    return Doubles.toBooleanNullable(Doubles.modulo(a, b));
+                };
+            case DIVIDE:
+                return () -> {
+                    final double b = rightF.evaluateDouble();
+                    return Doubles.toBooleanNullable(Doubles.divide(a, b));
+                };
+            case MULTIPLY:
+                return () -> {
+                    final double b = rightF.evaluateDouble();
+                    return Doubles.toBooleanNullable(Doubles.multiply(a, b));
+                };
+            default:
+                final IBooleanNullableFromDoublesBinaryOp opF = op.newBooleanNullableFromDoubles();
+                return () -> {
+                    final double b = rightF.evaluateDouble();
+                    return opF.applyBooleanNullableFromDoubles(a, b);
+                };
+            }
+        } else if (right.isConstant()) {
+            final IEvaluateDouble leftF = left.newEvaluateDouble();
+            final double b = right.newEvaluateDouble().evaluateDouble();
+            switch (op) {
+            case GT:
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    return Doubles.isGreaterThan(a, b);
+                };
+            case GT_EQ:
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    return Doubles.isGreaterThanOrEqualTo(a, b);
+                };
+            case LT:
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    return Doubles.isLessThan(a, b);
+                };
+            case LT_EQ:
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    return Doubles.isLessThanOrEqualTo(a, b);
+                };
+            case EQ:
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    return Doubles.equals(a, b);
+                };
+            case NEQ:
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    return Doubles.notEquals(a, b);
+                };
+            case ADD:
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    return Doubles.toBooleanNullable(Doubles.add(a, b));
+                };
+            case SUBTRACT:
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    return Doubles.toBooleanNullable(Doubles.subtract(a, b));
+                };
+            case MODULO:
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    return Doubles.toBooleanNullable(Doubles.modulo(a, b));
+                };
+            case DIVIDE:
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    return Doubles.toBooleanNullable(Doubles.divide(a, b));
+                };
+            case MULTIPLY:
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    return Doubles.toBooleanNullable(Doubles.multiply(a, b));
+                };
+            default:
+                final IBooleanNullableFromDoublesBinaryOp opF = op.newBooleanNullableFromDoubles();
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    return opF.applyBooleanNullableFromDoubles(a, b);
+                };
+            }
+        } else {
+            final IEvaluateDouble leftF = left.newEvaluateDouble();
+            final IEvaluateDouble rightF = right.newEvaluateDouble();
+            switch (op) {
+            case GT:
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    final double b = rightF.evaluateDouble();
+                    return Doubles.isGreaterThan(a, b);
+                };
+            case GT_EQ:
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    final double b = rightF.evaluateDouble();
+                    return Doubles.isGreaterThanOrEqualTo(a, b);
+                };
+            case LT:
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    final double b = rightF.evaluateDouble();
+                    return Doubles.isLessThan(a, b);
+                };
+            case LT_EQ:
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    final double b = rightF.evaluateDouble();
+                    return Doubles.isLessThanOrEqualTo(a, b);
+                };
+            case EQ:
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    final double b = rightF.evaluateDouble();
+                    return Doubles.equals(a, b);
+                };
+            case NEQ:
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    final double b = rightF.evaluateDouble();
+                    return Doubles.notEquals(a, b);
+                };
+            case ADD:
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    final double b = rightF.evaluateDouble();
+                    return Doubles.toBooleanNullable(Doubles.add(a, b));
+                };
+            case SUBTRACT:
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    final double b = rightF.evaluateDouble();
+                    return Doubles.toBooleanNullable(Doubles.subtract(a, b));
+                };
+            case MODULO:
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    final double b = rightF.evaluateDouble();
+                    return Doubles.toBooleanNullable(Doubles.modulo(a, b));
+                };
+            case DIVIDE:
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    final double b = rightF.evaluateDouble();
+                    return Doubles.toBooleanNullable(Doubles.divide(a, b));
+                };
+            case MULTIPLY:
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    final double b = rightF.evaluateDouble();
+                    return Doubles.toBooleanNullable(Doubles.multiply(a, b));
+                };
+            default:
+                final IBooleanNullableFromDoublesBinaryOp opF = op.newBooleanNullableFromDoubles();
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    final double b = rightF.evaluateDouble();
+                    return opF.applyBooleanNullableFromDoubles(a, b);
+                };
+            }
+        }
     }
 
     @Override
     public IEvaluateBooleanFDate newEvaluateBooleanFDate() {
-        final IEvaluateDoubleFDate leftF = left.newEvaluateDoubleFDate();
-        final IEvaluateDoubleFDate rightF = right.newEvaluateDoubleFDate();
-        final IBooleanFromDoublesBinaryOp opF = op.newBooleanFromDoubles();
-        return key -> {
-            final double a = leftF.evaluateDouble(key);
-            final double b = rightF.evaluateDouble(key);
-            return opF.applyBooleanFromDoubles(a, b);
-        };
+        if (left.isConstant() && right.isConstant()) {
+            final double a = left.newEvaluateDouble().evaluateDouble();
+            final double b = right.newEvaluateDouble().evaluateDouble();
+            final IBooleanFromDoublesBinaryOp opF = op.newBooleanFromDoubles();
+            final boolean result = opF.applyBooleanFromDoubles(a, b);
+            return key -> {
+                return result;
+            };
+        } else if (left.isConstant()) {
+            final double a = left.newEvaluateDouble().evaluateDouble();
+            final IEvaluateDoubleFDate rightF = right.newEvaluateDoubleFDate();
+            switch (op) {
+            case GT:
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.isGreaterThan(a, b);
+                };
+            case GT_EQ:
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.isGreaterThanOrEqualTo(a, b);
+                };
+            case LT:
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.isLessThan(a, b);
+                };
+            case LT_EQ:
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.isLessThanOrEqualTo(a, b);
+                };
+            case EQ:
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.equals(a, b);
+                };
+            case NEQ:
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.notEquals(a, b);
+                };
+            case ADD:
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.toBoolean(Doubles.add(a, b));
+                };
+            case SUBTRACT:
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.toBoolean(Doubles.subtract(a, b));
+                };
+            case MODULO:
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.toBoolean(Doubles.modulo(a, b));
+                };
+            case DIVIDE:
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.toBoolean(Doubles.divide(a, b));
+                };
+            case MULTIPLY:
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.toBoolean(Doubles.multiply(a, b));
+                };
+            default:
+                final IBooleanFromDoublesBinaryOp opF = op.newBooleanFromDoubles();
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return opF.applyBooleanFromDoubles(a, b);
+                };
+            }
+        } else if (right.isConstant()) {
+            final IEvaluateDoubleFDate leftF = left.newEvaluateDoubleFDate();
+            final double b = right.newEvaluateDouble().evaluateDouble();
+            switch (op) {
+            case GT:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return Doubles.isGreaterThan(a, b);
+                };
+            case GT_EQ:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return Doubles.isGreaterThanOrEqualTo(a, b);
+                };
+            case LT:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return Doubles.isLessThan(a, b);
+                };
+            case LT_EQ:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return Doubles.isLessThanOrEqualTo(a, b);
+                };
+            case EQ:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return Doubles.equals(a, b);
+                };
+            case NEQ:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return Doubles.notEquals(a, b);
+                };
+            case ADD:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return Doubles.toBoolean(Doubles.add(a, b));
+                };
+            case SUBTRACT:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return Doubles.toBoolean(Doubles.subtract(a, b));
+                };
+            case MODULO:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return Doubles.toBoolean(Doubles.modulo(a, b));
+                };
+            case DIVIDE:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return Doubles.toBoolean(Doubles.divide(a, b));
+                };
+            case MULTIPLY:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return Doubles.toBoolean(Doubles.multiply(a, b));
+                };
+            default:
+                final IBooleanFromDoublesBinaryOp opF = op.newBooleanFromDoubles();
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return opF.applyBooleanFromDoubles(a, b);
+                };
+            }
+        } else {
+            final IEvaluateDoubleFDate leftF = left.newEvaluateDoubleFDate();
+            final IEvaluateDoubleFDate rightF = right.newEvaluateDoubleFDate();
+            switch (op) {
+            case GT:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.isGreaterThan(a, b);
+                };
+            case GT_EQ:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.isGreaterThanOrEqualTo(a, b);
+                };
+            case LT:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.isLessThan(a, b);
+                };
+            case LT_EQ:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.isLessThanOrEqualTo(a, b);
+                };
+            case EQ:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.equals(a, b);
+                };
+            case NEQ:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.notEquals(a, b);
+                };
+            case ADD:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.toBoolean(Doubles.add(a, b));
+                };
+            case SUBTRACT:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.toBoolean(Doubles.subtract(a, b));
+                };
+            case MODULO:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.toBoolean(Doubles.modulo(a, b));
+                };
+            case DIVIDE:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.toBoolean(Doubles.divide(a, b));
+                };
+            case MULTIPLY:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.toBoolean(Doubles.multiply(a, b));
+                };
+            default:
+                final IBooleanFromDoublesBinaryOp opF = op.newBooleanFromDoubles();
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return opF.applyBooleanFromDoubles(a, b);
+                };
+            }
+        }
     }
 
     @Override
     public IEvaluateBooleanKey newEvaluateBooleanKey() {
-        final IEvaluateDoubleKey leftF = left.newEvaluateDoubleKey();
-        final IEvaluateDoubleKey rightF = right.newEvaluateDoubleKey();
-        final IBooleanFromDoublesBinaryOp opF = op.newBooleanFromDoubles();
-        return key -> {
-            final double a = leftF.evaluateDouble(key);
-            final double b = rightF.evaluateDouble(key);
-            return opF.applyBooleanFromDoubles(a, b);
-        };
+        if (left.isConstant() && right.isConstant()) {
+            final double a = left.newEvaluateDouble().evaluateDouble();
+            final double b = right.newEvaluateDouble().evaluateDouble();
+            final IBooleanFromDoublesBinaryOp opF = op.newBooleanFromDoubles();
+            final boolean result = opF.applyBooleanFromDoubles(a, b);
+            return key -> {
+                return result;
+            };
+        } else if (left.isConstant()) {
+            final double a = left.newEvaluateDouble().evaluateDouble();
+            final IEvaluateDoubleKey rightF = right.newEvaluateDoubleKey();
+            switch (op) {
+            case GT:
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.isGreaterThan(a, b);
+                };
+            case GT_EQ:
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.isGreaterThanOrEqualTo(a, b);
+                };
+            case LT:
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.isLessThan(a, b);
+                };
+            case LT_EQ:
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.isLessThanOrEqualTo(a, b);
+                };
+            case EQ:
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.equals(a, b);
+                };
+            case NEQ:
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.notEquals(a, b);
+                };
+            case ADD:
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.toBoolean(Doubles.add(a, b));
+                };
+            case SUBTRACT:
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.toBoolean(Doubles.subtract(a, b));
+                };
+            case MODULO:
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.toBoolean(Doubles.modulo(a, b));
+                };
+            case DIVIDE:
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.toBoolean(Doubles.divide(a, b));
+                };
+            case MULTIPLY:
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.toBoolean(Doubles.multiply(a, b));
+                };
+            default:
+                final IBooleanFromDoublesBinaryOp opF = op.newBooleanFromDoubles();
+                return key -> {
+                    final double b = rightF.evaluateDouble(key);
+                    return opF.applyBooleanFromDoubles(a, b);
+                };
+            }
+        } else if (right.isConstant()) {
+            final IEvaluateDoubleKey leftF = left.newEvaluateDoubleKey();
+            final double b = right.newEvaluateDouble().evaluateDouble();
+            switch (op) {
+            case GT:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return Doubles.isGreaterThan(a, b);
+                };
+            case GT_EQ:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return Doubles.isGreaterThanOrEqualTo(a, b);
+                };
+            case LT:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return Doubles.isLessThan(a, b);
+                };
+            case LT_EQ:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return Doubles.isLessThanOrEqualTo(a, b);
+                };
+            case EQ:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return Doubles.equals(a, b);
+                };
+            case NEQ:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return Doubles.notEquals(a, b);
+                };
+            case ADD:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return Doubles.toBoolean(Doubles.add(a, b));
+                };
+            case SUBTRACT:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return Doubles.toBoolean(Doubles.subtract(a, b));
+                };
+            case MODULO:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return Doubles.toBoolean(Doubles.modulo(a, b));
+                };
+            case DIVIDE:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return Doubles.toBoolean(Doubles.divide(a, b));
+                };
+            case MULTIPLY:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return Doubles.toBoolean(Doubles.multiply(a, b));
+                };
+            default:
+                final IBooleanFromDoublesBinaryOp opF = op.newBooleanFromDoubles();
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    return opF.applyBooleanFromDoubles(a, b);
+                };
+            }
+        } else {
+            final IEvaluateDoubleKey leftF = left.newEvaluateDoubleKey();
+            final IEvaluateDoubleKey rightF = right.newEvaluateDoubleKey();
+            switch (op) {
+            case GT:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.isGreaterThan(a, b);
+                };
+            case GT_EQ:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.isGreaterThanOrEqualTo(a, b);
+                };
+            case LT:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.isLessThan(a, b);
+                };
+            case LT_EQ:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.isLessThanOrEqualTo(a, b);
+                };
+            case EQ:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.equals(a, b);
+                };
+            case NEQ:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.notEquals(a, b);
+                };
+            case ADD:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.toBoolean(Doubles.add(a, b));
+                };
+            case SUBTRACT:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.toBoolean(Doubles.subtract(a, b));
+                };
+            case MODULO:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.toBoolean(Doubles.modulo(a, b));
+                };
+            case DIVIDE:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.toBoolean(Doubles.divide(a, b));
+                };
+            case MULTIPLY:
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return Doubles.toBoolean(Doubles.multiply(a, b));
+                };
+            default:
+                final IBooleanFromDoublesBinaryOp opF = op.newBooleanFromDoubles();
+                return key -> {
+                    final double a = leftF.evaluateDouble(key);
+                    final double b = rightF.evaluateDouble(key);
+                    return opF.applyBooleanFromDoubles(a, b);
+                };
+            }
+        }
     }
 
     @Override
     public IEvaluateBoolean newEvaluateBoolean() {
-        final IEvaluateDouble leftF = left.newEvaluateDouble();
-        final IEvaluateDouble rightF = right.newEvaluateDouble();
-        final IBooleanFromDoublesBinaryOp opF = op.newBooleanFromDoubles();
-        return () -> {
-            final double a = leftF.evaluateDouble();
-            final double b = rightF.evaluateDouble();
-            return opF.applyBooleanFromDoubles(a, b);
-        };
+        if (left.isConstant() && right.isConstant()) {
+            final double a = left.newEvaluateDouble().evaluateDouble();
+            final double b = right.newEvaluateDouble().evaluateDouble();
+            final IBooleanFromDoublesBinaryOp opF = op.newBooleanFromDoubles();
+            final boolean result = opF.applyBooleanFromDoubles(a, b);
+            return () -> {
+                return result;
+            };
+        } else if (left.isConstant()) {
+            final double a = left.newEvaluateDouble().evaluateDouble();
+            final IEvaluateDouble rightF = right.newEvaluateDouble();
+            switch (op) {
+            case GT:
+                return () -> {
+                    final double b = rightF.evaluateDouble();
+                    return Doubles.isGreaterThan(a, b);
+                };
+            case GT_EQ:
+                return () -> {
+                    final double b = rightF.evaluateDouble();
+                    return Doubles.isGreaterThanOrEqualTo(a, b);
+                };
+            case LT:
+                return () -> {
+                    final double b = rightF.evaluateDouble();
+                    return Doubles.isLessThan(a, b);
+                };
+            case LT_EQ:
+                return () -> {
+                    final double b = rightF.evaluateDouble();
+                    return Doubles.isLessThanOrEqualTo(a, b);
+                };
+            case EQ:
+                return () -> {
+                    final double b = rightF.evaluateDouble();
+                    return Doubles.equals(a, b);
+                };
+            case NEQ:
+                return () -> {
+                    final double b = rightF.evaluateDouble();
+                    return Doubles.notEquals(a, b);
+                };
+            case ADD:
+                return () -> {
+                    final double b = rightF.evaluateDouble();
+                    return Doubles.toBoolean(Doubles.add(a, b));
+                };
+            case SUBTRACT:
+                return () -> {
+                    final double b = rightF.evaluateDouble();
+                    return Doubles.toBoolean(Doubles.subtract(a, b));
+                };
+            case MODULO:
+                return () -> {
+                    final double b = rightF.evaluateDouble();
+                    return Doubles.toBoolean(Doubles.modulo(a, b));
+                };
+            case DIVIDE:
+                return () -> {
+                    final double b = rightF.evaluateDouble();
+                    return Doubles.toBoolean(Doubles.divide(a, b));
+                };
+            case MULTIPLY:
+                return () -> {
+                    final double b = rightF.evaluateDouble();
+                    return Doubles.toBoolean(Doubles.multiply(a, b));
+                };
+            default:
+                final IBooleanFromDoublesBinaryOp opF = op.newBooleanFromDoubles();
+                return () -> {
+                    final double b = rightF.evaluateDouble();
+                    return opF.applyBooleanFromDoubles(a, b);
+                };
+            }
+        } else if (right.isConstant()) {
+            final IEvaluateDouble leftF = left.newEvaluateDouble();
+            final double b = right.newEvaluateDouble().evaluateDouble();
+            switch (op) {
+            case GT:
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    return Doubles.isGreaterThan(a, b);
+                };
+            case GT_EQ:
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    return Doubles.isGreaterThanOrEqualTo(a, b);
+                };
+            case LT:
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    return Doubles.isLessThan(a, b);
+                };
+            case LT_EQ:
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    return Doubles.isLessThanOrEqualTo(a, b);
+                };
+            case EQ:
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    return Doubles.equals(a, b);
+                };
+            case NEQ:
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    return Doubles.notEquals(a, b);
+                };
+            case ADD:
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    return Doubles.toBoolean(Doubles.add(a, b));
+                };
+            case SUBTRACT:
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    return Doubles.toBoolean(Doubles.subtract(a, b));
+                };
+            case MODULO:
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    return Doubles.toBoolean(Doubles.modulo(a, b));
+                };
+            case DIVIDE:
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    return Doubles.toBoolean(Doubles.divide(a, b));
+                };
+            case MULTIPLY:
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    return Doubles.toBoolean(Doubles.multiply(a, b));
+                };
+            default:
+                final IBooleanFromDoublesBinaryOp opF = op.newBooleanFromDoubles();
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    return opF.applyBooleanFromDoubles(a, b);
+                };
+            }
+        } else {
+            final IEvaluateDouble leftF = left.newEvaluateDouble();
+            final IEvaluateDouble rightF = right.newEvaluateDouble();
+            switch (op) {
+            case GT:
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    final double b = rightF.evaluateDouble();
+                    return Doubles.isGreaterThan(a, b);
+                };
+            case GT_EQ:
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    final double b = rightF.evaluateDouble();
+                    return Doubles.isGreaterThanOrEqualTo(a, b);
+                };
+            case LT:
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    final double b = rightF.evaluateDouble();
+                    return Doubles.isLessThan(a, b);
+                };
+            case LT_EQ:
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    final double b = rightF.evaluateDouble();
+                    return Doubles.isLessThanOrEqualTo(a, b);
+                };
+            case EQ:
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    final double b = rightF.evaluateDouble();
+                    return Doubles.equals(a, b);
+                };
+            case NEQ:
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    final double b = rightF.evaluateDouble();
+                    return Doubles.notEquals(a, b);
+                };
+            case ADD:
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    final double b = rightF.evaluateDouble();
+                    return Doubles.toBoolean(Doubles.add(a, b));
+                };
+            case SUBTRACT:
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    final double b = rightF.evaluateDouble();
+                    return Doubles.toBoolean(Doubles.subtract(a, b));
+                };
+            case MODULO:
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    final double b = rightF.evaluateDouble();
+                    return Doubles.toBoolean(Doubles.modulo(a, b));
+                };
+            case DIVIDE:
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    final double b = rightF.evaluateDouble();
+                    return Doubles.toBoolean(Doubles.divide(a, b));
+                };
+            case MULTIPLY:
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    final double b = rightF.evaluateDouble();
+                    return Doubles.toBoolean(Doubles.multiply(a, b));
+                };
+            default:
+                final IBooleanFromDoublesBinaryOp opF = op.newBooleanFromDoubles();
+                return () -> {
+                    final double a = leftF.evaluateDouble();
+                    final double b = rightF.evaluateDouble();
+                    return opF.applyBooleanFromDoubles(a, b);
+                };
+            }
+        }
     }
 
     @Override

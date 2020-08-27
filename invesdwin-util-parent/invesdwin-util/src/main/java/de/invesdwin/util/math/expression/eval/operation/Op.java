@@ -39,13 +39,12 @@ public enum Op {
 
         @Override
         public IDoubleFromDoublesBinaryOp newDoubleFromDoubles() {
-            return (a, b) -> a + b;
+            return (a, b) -> Doubles.add(a, b);
         }
 
         @Override
         public IIntegerFromDoublesBinaryOp newIntegerFromDoubles() {
-            final IDoubleFromDoublesBinaryOp doubleFromDoublesF = newDoubleFromDoubles();
-            return (a, b) -> Integers.checkedCastNoOverflow(doubleFromDoublesF.applyDoubleFromDoubles(a, b));
+            return (a, b) -> Integers.add(a, b);
         }
 
         @Override
@@ -62,14 +61,12 @@ public enum Op {
 
         @Override
         public IDoubleFromIntegersBinaryOp newDoubleFromIntegers() {
-            final IDoubleFromDoublesBinaryOp doubleFromDoublesF = newDoubleFromDoubles();
-            return (a, b) -> doubleFromDoublesF.applyDoubleFromDoubles(a, b);
+            return (a, b) -> Doubles.add(a, b);
         }
 
         @Override
         public IIntegerFromIntegersBinaryOp newIntegerFromIntegers() {
-            final IDoubleFromIntegersBinaryOp doubleFromIntegersF = newDoubleFromIntegers();
-            return (a, b) -> Integers.checkedCastNoOverflow(doubleFromIntegersF.applyDoubleFromIntegers(a, b));
+            return (a, b) -> Integers.add(a, b);
         }
 
         @Override
@@ -107,13 +104,12 @@ public enum Op {
 
         @Override
         public IDoubleFromDoublesBinaryOp newDoubleFromDoubles() {
-            return (a, b) -> a - b;
+            return (a, b) -> Doubles.subtract(a, b);
         }
 
         @Override
         public IIntegerFromDoublesBinaryOp newIntegerFromDoubles() {
-            final IDoubleFromDoublesBinaryOp doubleFromDoublesF = newDoubleFromDoubles();
-            return (a, b) -> Integers.checkedCastNoOverflow(doubleFromDoublesF.applyDoubleFromDoubles(a, b));
+            return (a, b) -> Integers.subtract(a, b);
         }
 
         @Override
@@ -130,12 +126,12 @@ public enum Op {
 
         @Override
         public IDoubleFromIntegersBinaryOp newDoubleFromIntegers() {
-            return (a, b) -> a - b;
+            return (a, b) -> Doubles.subtract(a, b);
         }
 
         @Override
         public IIntegerFromIntegersBinaryOp newIntegerFromIntegers() {
-            return (a, b) -> a - b;
+            return (a, b) -> Integers.subtract(a, b);
         }
 
         @Override
@@ -172,13 +168,12 @@ public enum Op {
 
         @Override
         public IDoubleFromDoublesBinaryOp newDoubleFromDoubles() {
-            return (a, b) -> a * b;
+            return (a, b) -> Doubles.multiply(a, b);
         }
 
         @Override
         public IIntegerFromDoublesBinaryOp newIntegerFromDoubles() {
-            final IDoubleFromDoublesBinaryOp doubleFromDoublesF = newDoubleFromDoubles();
-            return (a, b) -> Integers.checkedCastNoOverflow(doubleFromDoublesF.applyDoubleFromDoubles(a, b));
+            return (a, b) -> Integers.multiply(a, b);
         }
 
         @Override
@@ -195,14 +190,12 @@ public enum Op {
 
         @Override
         public IDoubleFromIntegersBinaryOp newDoubleFromIntegers() {
-            final IDoubleFromDoublesBinaryOp doubleFromDoublesF = newDoubleFromDoubles();
-            return (a, b) -> doubleFromDoublesF.applyDoubleFromDoubles(a, b);
+            return (a, b) -> Doubles.multiply(a, b);
         }
 
         @Override
         public IIntegerFromIntegersBinaryOp newIntegerFromIntegers() {
-            final IDoubleFromIntegersBinaryOp doubleFromIntegersF = newDoubleFromIntegers();
-            return (a, b) -> Integers.checkedCastNoOverflow(doubleFromIntegersF.applyDoubleFromIntegers(a, b));
+            return (a, b) -> Integers.multiply(a, b);
         }
 
         @Override
@@ -240,8 +233,7 @@ public enum Op {
 
         @Override
         public IIntegerFromDoublesBinaryOp newIntegerFromDoubles() {
-            final IDoubleFromDoublesBinaryOp doubleFromDoublesF = newDoubleFromDoubles();
-            return (a, b) -> Integers.checkedCastNoOverflow(doubleFromDoublesF.applyDoubleFromDoubles(a, b));
+            return (a, b) -> Integers.divide(a, b);
         }
 
         @Override
@@ -300,13 +292,12 @@ public enum Op {
 
         @Override
         public IDoubleFromDoublesBinaryOp newDoubleFromDoubles() {
-            return (a, b) -> a % b;
+            return (a, b) -> Doubles.modulo(a, b);
         }
 
         @Override
         public IIntegerFromDoublesBinaryOp newIntegerFromDoubles() {
-            final IDoubleFromDoublesBinaryOp doubleFromDoubleF = newDoubleFromDoubles();
-            return (a, b) -> Integers.checkedCastNoOverflow(doubleFromDoubleF.applyDoubleFromDoubles(a, b));
+            return (a, b) -> Integers.modulo(a, b);
         }
 
         @Override
@@ -323,13 +314,12 @@ public enum Op {
 
         @Override
         public IDoubleFromIntegersBinaryOp newDoubleFromIntegers() {
-            final IIntegerFromIntegersBinaryOp integerFromIntegersF = newIntegerFromIntegers();
-            return (a, b) -> integerFromIntegersF.applyIntegerFromIntegers(a, b);
+            return (a, b) -> Doubles.modulo(a, b);
         }
 
         @Override
         public IIntegerFromIntegersBinaryOp newIntegerFromIntegers() {
-            return (a, b) -> a % b;
+            return (a, b) -> Integers.modulo(a, b);
         }
 
         @Override
@@ -362,13 +352,12 @@ public enum Op {
 
         @Override
         public IDoubleFromDoublesBinaryOp newDoubleFromDoubles() {
-            return (a, b) -> Math.pow(a, b);
+            return (a, b) -> Doubles.pow(a, b);
         }
 
         @Override
         public IIntegerFromDoublesBinaryOp newIntegerFromDoubles() {
-            final IDoubleFromDoublesBinaryOp doubleFromDoublesF = newDoubleFromDoubles();
-            return (a, b) -> Integers.checkedCastNoOverflow(doubleFromDoublesF.applyDoubleFromDoubles(a, b));
+            return (a, b) -> Integers.pow(a, b);
         }
 
         @Override
@@ -385,13 +374,12 @@ public enum Op {
 
         @Override
         public IDoubleFromIntegersBinaryOp newDoubleFromIntegers() {
-            return (a, b) -> Math.pow(a, b);
+            return (a, b) -> Doubles.pow(a, b);
         }
 
         @Override
         public IIntegerFromIntegersBinaryOp newIntegerFromIntegers() {
-            final IDoubleFromIntegersBinaryOp doubleFromIntegersF = newDoubleFromIntegers();
-            return (a, b) -> Integers.checkedCastNoOverflow(doubleFromIntegersF.applyDoubleFromIntegers(a, b));
+            return (a, b) -> Integers.pow(a, b);
         }
 
         @Override
@@ -667,7 +655,7 @@ public enum Op {
 
         @Override
         public IBooleanFromIntegersBinaryOp newBooleanFromIntegers() {
-            return (a, b) -> Integers.isGreaterThanOrEqualTo(a, b);
+            return (a, b) -> a >= b;
         }
     },
     GT(2, ">") {

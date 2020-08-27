@@ -28,7 +28,8 @@ public final class Longs extends ALongsStaticFacade {
         }
     };
 
-    private Longs() {}
+    private Longs() {
+    }
 
     public static long[] toArray(final Collection<? extends Number> vector) {
         if (vector == null) {
