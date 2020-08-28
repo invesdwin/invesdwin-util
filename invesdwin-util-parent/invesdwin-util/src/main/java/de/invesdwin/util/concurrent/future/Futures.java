@@ -44,9 +44,23 @@ public final class Futures extends AFuturesStaticFacade {
         }
     }
 
+    public static <T> T getNoInterrupt(final Future<T> future) {
+        try {
+            return get(future);
+        } catch (final InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException(e);
+        }
+    }
+
     @SafeVarargs
     public static <T> List<T> get(final Future<T>... futures) throws InterruptedException {
         return get(Arrays.asList(futures));
+    }
+
+    @SafeVarargs
+    public static <T> List<T> getNoInterrupt(final Future<T>... futures) {
+        return getNoInterrupt(Arrays.asList(futures));
     }
 
     public static <T> List<T> get(final Iterable<? extends Future<T>> futures) throws InterruptedException {
@@ -59,6 +73,19 @@ public final class Futures extends AFuturesStaticFacade {
         } catch (final InterruptedException e) {
             cancel(futures);
             throw e;
+        }
+    }
+
+    public static <T> List<T> getNoInterrupt(final Iterable<? extends Future<T>> futures) {
+        try {
+            final List<T> results = new ArrayList<T>();
+            for (final Future<T> future : futures) {
+                results.add(get(future));
+            }
+            return results;
+        } catch (final InterruptedException e) {
+            cancel(futures);
+            throw new RuntimeException(e);
         }
     }
 
@@ -84,6 +111,11 @@ public final class Futures extends AFuturesStaticFacade {
         wait(future);
     }
 
+    public static void submitAndWaitNoInterrupt(final ExecutorService executor, final Runnable task) {
+        final Future<?> future = executor.submit(task);
+        waitNoInterrupt(future);
+    }
+
     public static void submitAndWait(final ExecutorService executor, final Collection<? extends Runnable> tasks)
             throws InterruptedException {
         final List<Future<?>> futures = new ArrayList<Future<?>>(tasks.size());
@@ -94,12 +126,38 @@ public final class Futures extends AFuturesStaticFacade {
         wait(futures);
     }
 
+    public static void submitAndWaitNoInterrupt(final ExecutorService executor,
+            final Collection<? extends Runnable> tasks) {
+        final List<Future<?>> futures = new ArrayList<Future<?>>(tasks.size());
+
+        for (final Runnable task : tasks) {
+            futures.add(executor.submit(task));
+        }
+        waitNoInterrupt(futures);
+    }
+
     /**
      * Returns with the first exception and aborts remaining tasks. This is useful for caller runs or similar throttled
      * executors.
      */
     public static void submitAndWaitFailFast(final ExecutorService executor, final Collection<? extends Runnable> tasks)
             throws InterruptedException {
+        final List<Future<?>> futures = checkFailFast(executor, tasks);
+        wait(futures);
+    }
+
+    /**
+     * Returns with the first exception and aborts remaining tasks. This is useful for caller runs or similar throttled
+     * executors.
+     */
+    public static void submitAndWaitFailFastNoInterrupt(final ExecutorService executor,
+            final Collection<? extends Runnable> tasks) {
+        final List<Future<?>> futures = checkFailFast(executor, tasks);
+        waitNoInterrupt(futures);
+    }
+
+    private static List<Future<?>> checkFailFast(final ExecutorService executor,
+            final Collection<? extends Runnable> tasks) {
         final List<Future<?>> futures = new CopyOnWriteArrayList<Future<?>>();
 
         FDate lastFailFastCheck = FDate.MIN_DATE;
@@ -123,7 +181,7 @@ public final class Futures extends AFuturesStaticFacade {
                 lastFailFastCheck = new FDate();
             }
         }
-        wait(futures);
+        return futures;
     }
 
     public static <T> T submitAndGet(final ExecutorService executor, final Callable<T> task)
@@ -132,15 +190,36 @@ public final class Futures extends AFuturesStaticFacade {
         return get(future);
     }
 
+    public static <T> T submitAndGetNoInterrupt(final ExecutorService executor, final Callable<T> task) {
+        final Future<T> future = executor.submit(task);
+        return getNoInterrupt(future);
+    }
+
     public static <T> List<T> submitAndGet(final ExecutorService executor,
             final Collection<? extends Callable<T>> tasks) throws InterruptedException {
         final List<Future<T>> futures = executor.invokeAll(tasks);
         return get(futures);
     }
 
+    public static <T> List<T> submitAndGetNoInterrupt(final ExecutorService executor,
+            final Collection<? extends Callable<T>> tasks) {
+        try {
+            final List<Future<T>> futures = executor.invokeAll(tasks);
+            return getNoInterrupt(futures);
+        } catch (final InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException(e);
+        }
+    }
+
     @SafeVarargs
     public static <T> void wait(final Future<? extends T>... futures) throws InterruptedException {
         wait(Arrays.asList(futures));
+    }
+
+    @SafeVarargs
+    public static <T> void waitNoInterrupt(final Future<? extends T>... futures) {
+        waitNoInterrupt(Arrays.asList(futures));
     }
 
     public static <T> void wait(final Iterable<? extends Future<? extends T>> futures) throws InterruptedException {
@@ -154,7 +233,22 @@ public final class Futures extends AFuturesStaticFacade {
         }
     }
 
+    public static <T> void waitNoInterrupt(final Iterable<? extends Future<? extends T>> futures) {
+        try {
+            for (final Future<?> future : futures) {
+                wait(future);
+            }
+        } catch (final InterruptedException e) {
+            cancel(futures);
+            throw new RuntimeException(e);
+        }
+    }
+
     public static <T> void wait(final Future<? extends T> future) throws InterruptedException {
         Assertions.assertThat(get(future)).isNull();
+    }
+
+    public static <T> void waitNoInterrupt(final Future<? extends T> future) {
+        Assertions.assertThat(getNoInterrupt(future)).isNull();
     }
 }
