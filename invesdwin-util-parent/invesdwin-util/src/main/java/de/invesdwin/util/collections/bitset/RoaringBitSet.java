@@ -2,6 +2,7 @@ package de.invesdwin.util.collections.bitset;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import org.roaringbitmap.FastAggregation;
 import org.roaringbitmap.PeekableIntIterator;
 import org.roaringbitmap.RoaringBitmap;
 
@@ -47,11 +48,13 @@ public class RoaringBitSet implements IBitSet {
 
     @Override
     public IBitSet and(final IBitSet... others) {
-        final RoaringBitmap combined = bitSet.clone();
+        final RoaringBitmap[] cOthers = new RoaringBitmap[others.length + 1];
+        cOthers[0] = bitSet;
         for (int i = 0; i < others.length; i++) {
             final RoaringBitSet cOther = (RoaringBitSet) others[i];
-            combined.and(cOther.bitSet);
+            cOthers[i + 1] = cOther.bitSet;
         }
+        final RoaringBitmap combined = FastAggregation.and(cOthers);
         return new RoaringBitSet(combined);
     }
 

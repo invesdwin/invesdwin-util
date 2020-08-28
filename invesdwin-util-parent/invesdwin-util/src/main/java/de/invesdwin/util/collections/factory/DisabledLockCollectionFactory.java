@@ -59,11 +59,13 @@ public final class DisabledLockCollectionFactory implements ILockCollectionFacto
 
     @Override
     public IBitSet newBitSet() {
+        //we save lots of memory by using roaring bit sets, they are also faster in some cases
         return new RoaringBitSet();
     }
 
     @Override
     public IBitSet newBitSet(final int expectedSize) {
+        //we save lots of memory by using roaring bit sets, they are also faster in some cases
         return new RoaringBitSet();
     }
 

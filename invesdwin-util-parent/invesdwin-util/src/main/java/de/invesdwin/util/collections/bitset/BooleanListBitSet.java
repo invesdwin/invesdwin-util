@@ -9,6 +9,7 @@ import it.unimi.dsi.fastutil.booleans.BooleanList;
 public class BooleanListBitSet implements IBitSet {
 
     private final BooleanList bitSet;
+    private int trueCount = 0;
 
     public BooleanListBitSet() {
         this.bitSet = new BooleanArrayList();
@@ -24,12 +25,14 @@ public class BooleanListBitSet implements IBitSet {
             bitSet.add(false);
         }
         bitSet.set(index, true);
+        trueCount++;
     }
 
     @Override
     public void remove(final int index) {
         if (bitSet.size() < index) {
             bitSet.set(index, false);
+            trueCount--;
         }
     }
 
@@ -54,12 +57,12 @@ public class BooleanListBitSet implements IBitSet {
 
     @Override
     public int getTrueCount() {
-        throw new UnsupportedOperationException();
+        return trueCount;
     }
 
     @Override
     public boolean isEmpty() {
-        throw new UnsupportedOperationException();
+        return trueCount > 0;
     }
 
     @Override
