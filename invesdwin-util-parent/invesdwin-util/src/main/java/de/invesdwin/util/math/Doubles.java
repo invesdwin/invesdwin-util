@@ -300,11 +300,11 @@ public final class Doubles extends ADoublesStaticFacade {
     }
 
     public static double round(final double value, final RoundingMode roundingMode) {
-        return round(ADecimal.DEFAULT_ROUNDING_SCALE, roundingMode);
+        return round(value, ADecimal.DEFAULT_ROUNDING_SCALE, roundingMode);
     }
 
     public static double round(final double value, final int scale) {
-        return round(scale, ADecimal.DEFAULT_ROUNDING_MODE);
+        return round(value, scale, ADecimal.DEFAULT_ROUNDING_MODE);
     }
 
     public static double round(final double value, final int scale, final RoundingMode roundingMode) {
