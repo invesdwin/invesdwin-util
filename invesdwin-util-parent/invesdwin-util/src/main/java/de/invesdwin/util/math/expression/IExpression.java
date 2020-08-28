@@ -13,7 +13,7 @@ import de.invesdwin.util.math.expression.lambda.IEvaluateInteger;
 import de.invesdwin.util.math.expression.lambda.IEvaluateIntegerFDate;
 import de.invesdwin.util.math.expression.lambda.IEvaluateIntegerKey;
 
-public interface IExpression {
+public interface IExpression extends IParsedExpressionProvider {
 
     IExpression[] EMPTY_EXPRESSIONS = new IExpression[0];
 

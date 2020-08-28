@@ -2,6 +2,7 @@ package de.invesdwin.util.math.expression;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.util.math.expression.eval.IParsedExpression;
 import de.invesdwin.util.math.expression.lambda.IEvaluateBoolean;
 import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanFDate;
 import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanKey;
@@ -103,6 +104,11 @@ public abstract class ADelegateExpression implements IExpression {
     @Override
     public IExpression[] getChildren() {
         return getDelegate().getChildren();
+    }
+
+    @Override
+    public IParsedExpression asParsedExpression() {
+        return getDelegate().asParsedExpression();
     }
 
 }

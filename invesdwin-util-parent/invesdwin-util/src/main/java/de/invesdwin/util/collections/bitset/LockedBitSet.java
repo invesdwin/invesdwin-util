@@ -61,4 +61,56 @@ public class LockedBitSet implements IBitSet {
         }
     }
 
+    @Override
+    public int getTrueCount() {
+        lock.lock();
+        try {
+            return delegate.getTrueCount();
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
+    public IBitSet and(final IBitSet... others) {
+        lock.lock();
+        try {
+            return delegate.and(others);
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
+    public boolean isEmpty() {
+        lock.lock();
+        try {
+            return delegate.isEmpty();
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
+    public ISkippingIndexProvider newSkippingIndexProvider() {
+        final ISkippingIndexProvider f;
+        lock.lock();
+        try {
+            f = delegate.newSkippingIndexProvider();
+        } finally {
+            lock.unlock();
+        }
+        if (f == null) {
+            return null;
+        }
+        return cur -> {
+            lock.lock();
+            try {
+                return f.next(cur);
+            } finally {
+                lock.unlock();
+            }
+        };
+    }
+
 }

@@ -11,4 +11,9 @@ public interface IParsedExpression extends IExpression {
 
     ExpressionType getType();
 
+    @Override
+    default IParsedExpression asParsedExpression() {
+        return this;
+    }
+
 }

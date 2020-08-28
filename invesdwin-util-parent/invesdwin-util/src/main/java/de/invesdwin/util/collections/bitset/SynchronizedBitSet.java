@@ -46,4 +46,41 @@ public class SynchronizedBitSet implements IBitSet {
         }
     }
 
+    @Override
+    public int getTrueCount() {
+        synchronized (lock) {
+            return delegate.getTrueCount();
+        }
+    }
+
+    @Override
+    public IBitSet and(final IBitSet... others) {
+        synchronized (lock) {
+            return delegate.and(others);
+        }
+    }
+
+    @Override
+    public boolean isEmpty() {
+        synchronized (lock) {
+            return delegate.isEmpty();
+        }
+    }
+
+    @Override
+    public ISkippingIndexProvider newSkippingIndexProvider() {
+        final ISkippingIndexProvider f;
+        synchronized (lock) {
+            f = delegate.newSkippingIndexProvider();
+        }
+        if (f == null) {
+            return null;
+        }
+        return cur -> {
+            synchronized (lock) {
+                return f.next(cur);
+            }
+        };
+    }
+
 }

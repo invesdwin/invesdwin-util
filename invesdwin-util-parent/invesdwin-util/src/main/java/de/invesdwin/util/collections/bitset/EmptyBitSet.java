@@ -1,54 +1,49 @@
 package de.invesdwin.util.collections.bitset;
 
-import javax.annotation.concurrent.NotThreadSafe;
+import javax.annotation.concurrent.Immutable;
 
-@NotThreadSafe
-public class BooleanArrayBitSet implements IBitSet {
+@Immutable
+public class EmptyBitSet implements IBitSet {
 
-    private final boolean[] bitSet;
-
-    public BooleanArrayBitSet(final int expectedSize) {
-        this.bitSet = new boolean[expectedSize];
-    }
+    public static final EmptyBitSet INSTANCE = new EmptyBitSet();
 
     @Override
     public void add(final int index) {
-        bitSet[index] = true;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public void remove(final int index) {
-        bitSet[index] = false;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public boolean contains(final int index) {
-        return bitSet[index];
+        return false;
     }
 
     @Override
     public void optimize() {
-        //noop
     }
 
     @Override
     public IBitSet and(final IBitSet... others) {
-        throw new UnsupportedOperationException();
+        return INSTANCE;
     }
 
     @Override
     public int getTrueCount() {
-        throw new UnsupportedOperationException();
+        return 0;
     }
 
     @Override
     public boolean isEmpty() {
-        throw new UnsupportedOperationException();
+        return true;
     }
 
     @Override
     public ISkippingIndexProvider newSkippingIndexProvider() {
-        return null;
+        return key -> key + 1;
     }
 
 }

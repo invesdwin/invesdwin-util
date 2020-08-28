@@ -10,4 +10,12 @@ public interface IBitSet {
 
     void optimize();
 
+    IBitSet and(IBitSet... others);
+
+    int getTrueCount();
+
+    boolean isEmpty();
+
+    ISkippingIndexProvider newSkippingIndexProvider();
+
 }

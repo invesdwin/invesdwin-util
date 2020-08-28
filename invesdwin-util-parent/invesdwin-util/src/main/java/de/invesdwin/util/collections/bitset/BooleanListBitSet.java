@@ -47,4 +47,24 @@ public class BooleanListBitSet implements IBitSet {
         //noop
     }
 
+    @Override
+    public IBitSet and(final IBitSet... others) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public int getTrueCount() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean isEmpty() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public ISkippingIndexProvider newSkippingIndexProvider() {
+        return null;
+    }
+
 }
