@@ -73,7 +73,7 @@ public class JavaBitSet implements IBitSet {
         return cur -> {
             final int next = bitSet.nextSetBit(cur + 1);
             if (next == -1) {
-                return Integer.MAX_VALUE;
+                return ISkippingIndexProvider.END;
             } else {
                 return next;
             }
