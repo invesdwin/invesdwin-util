@@ -59,7 +59,6 @@ public final class DisabledLockCollectionFactory implements ILockCollectionFacto
 
     @Override
     public IBitSet newBitSet() {
-        //java bitset is faster than roaring bitset
         return new RoaringBitSet();
     }
 
