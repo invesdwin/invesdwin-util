@@ -80,13 +80,9 @@ public class RoaringBitSet implements IBitSet {
         final PeekableIntIterator delegate = bitSet.getIntIterator();
         return new ISkippingIndexProvider() {
 
-            private final int prev = -1;
-
             @Override
             public int next(final int cur) {
-                if (cur - prev > 10) {
-                    delegate.advanceIfNeeded(cur);
-                }
+                delegate.advanceIfNeeded(cur);
                 if (!delegate.hasNext()) {
                     return Integer.MAX_VALUE;
                 }

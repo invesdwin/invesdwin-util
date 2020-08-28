@@ -70,7 +70,14 @@ public class JavaBitSet implements IBitSet {
 
     @Override
     public ISkippingIndexProvider newSkippingIndexProvider() {
-        return null;
+        return cur -> {
+            final int next = bitSet.nextSetBit(cur + 1);
+            if (next == -1) {
+                return Integer.MAX_VALUE;
+            } else {
+                return next;
+            }
+        };
     }
 
 }
