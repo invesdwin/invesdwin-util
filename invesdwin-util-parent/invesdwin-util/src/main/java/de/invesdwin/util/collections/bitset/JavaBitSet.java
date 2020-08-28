@@ -8,9 +8,11 @@ import javax.annotation.concurrent.NotThreadSafe;
 public class JavaBitSet implements IBitSet {
 
     private final BitSet bitSet;
+    private int trueCount = 0;
 
     public JavaBitSet() {
         this.bitSet = new BitSet();
+        this.trueCount = -1;
     }
 
     public JavaBitSet(final BitSet bitSet) {
@@ -24,11 +26,13 @@ public class JavaBitSet implements IBitSet {
     @Override
     public void add(final int index) {
         bitSet.set(index);
+        trueCount++;
     }
 
     @Override
     public void remove(final int index) {
         bitSet.clear(index);
+        trueCount = -1;
     }
 
     @Override
@@ -53,7 +57,10 @@ public class JavaBitSet implements IBitSet {
 
     @Override
     public int getTrueCount() {
-        return bitSet.cardinality();
+        if (trueCount == -1) {
+            trueCount = bitSet.cardinality();
+        }
+        return trueCount;
     }
 
     @Override
