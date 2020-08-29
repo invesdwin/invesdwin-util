@@ -224,13 +224,18 @@ public class ExpressionParser {
     }
 
     public IExpression parse() {
-        final IParsedExpression result = simplify(expression(true));
-        if (tokenizer.current().isNotEnd()) {
-            final Token token = tokenizer.consume();
-            throw new ParseException(token, TextDescription.format("Unexpected token: '%s'. Expected an expression: %s",
-                    token.getSource(), originalExpression));
+        try {
+            final IParsedExpression result = simplify(expression(true));
+            if (tokenizer.current().isNotEnd()) {
+                final Token token = tokenizer.consume();
+                throw new ParseException(token,
+                        TextDescription.format("Unexpected token: '%s'. Expected an expression", token.getSource()));
+            }
+            return result;
+        } catch (final ParseException e) {
+            throw new ParseException(e.getPosition(),
+                    TextDescription.format("%s (%s)", e.getMessage(), originalExpression));
         }
-        return result;
     }
 
     protected IParsedExpression simplify(final IParsedExpression expression) {
