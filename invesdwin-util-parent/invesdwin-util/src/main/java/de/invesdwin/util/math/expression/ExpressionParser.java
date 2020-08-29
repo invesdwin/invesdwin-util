@@ -9,6 +9,7 @@ import java.util.Map;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.lang.description.TextDescription;
@@ -233,8 +234,18 @@ public class ExpressionParser {
             }
             return result;
         } catch (final ParseException e) {
-            throw new ParseException(e.getPosition(),
-                    TextDescription.format("%s (%s)", e.getMessage(), originalExpression));
+            if (Throwables.isDebugStackTraceEnabled()) {
+                throw new ParseException(e.getPosition(),
+                        TextDescription.format("%s (%s)", e.getMessage(), originalExpression));
+            } else {
+                throw e;
+            }
+        } catch (final Throwable t) {
+            if (Throwables.isDebugStackTraceEnabled()) {
+                throw new RuntimeException("At: " + originalExpression, t);
+            } else {
+                throw t;
+            }
         }
     }
 
