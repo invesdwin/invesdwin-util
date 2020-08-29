@@ -23,7 +23,8 @@ public class EmptyBitSet implements IBitSet {
     }
 
     @Override
-    public void optimize() {
+    public IBitSet optimize() {
+        return this;
     }
 
     @Override
@@ -43,7 +44,7 @@ public class EmptyBitSet implements IBitSet {
 
     @Override
     public ISkippingIndexProvider newSkippingIndexProvider() {
-        return key -> key + 1;
+        return key -> ISkippingIndexProvider.END;
     }
 
 }

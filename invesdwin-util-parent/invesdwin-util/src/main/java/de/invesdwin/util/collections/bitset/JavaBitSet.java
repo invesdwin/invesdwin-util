@@ -41,15 +41,23 @@ public class JavaBitSet implements IBitSet {
     }
 
     @Override
-    public void optimize() {
-        //noop
+    public IBitSet optimize() {
+        if (isEmpty()) {
+            return EmptyBitSet.INSTANCE;
+        } else {
+            return this;
+        }
     }
 
     @Override
     public IBitSet and(final IBitSet... others) {
         final BitSet combined = (BitSet) bitSet.clone();
         for (int i = 0; i < others.length; i++) {
-            final JavaBitSet cOther = (JavaBitSet) others[i];
+            final IBitSet other = others[i];
+            if (other.isEmpty()) {
+                return EmptyBitSet.INSTANCE;
+            }
+            final JavaBitSet cOther = (JavaBitSet) other;
             combined.and(cOther.bitSet);
         }
         return new JavaBitSet(combined);

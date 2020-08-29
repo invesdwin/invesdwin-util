@@ -8,7 +8,7 @@ public interface IBitSet {
 
     boolean contains(int index);
 
-    void optimize();
+    IBitSet optimize();
 
     IBitSet and(IBitSet... others);
 

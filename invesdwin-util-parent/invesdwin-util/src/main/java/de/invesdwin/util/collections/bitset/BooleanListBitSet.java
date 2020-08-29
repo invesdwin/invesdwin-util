@@ -46,8 +46,12 @@ public class BooleanListBitSet implements IBitSet {
     }
 
     @Override
-    public void optimize() {
-        //noop
+    public IBitSet optimize() {
+        if (isEmpty()) {
+            return EmptyBitSet.INSTANCE;
+        } else {
+            return this;
+        }
     }
 
     @Override

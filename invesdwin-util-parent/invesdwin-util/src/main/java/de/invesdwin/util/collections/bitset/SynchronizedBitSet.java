@@ -40,9 +40,9 @@ public class SynchronizedBitSet implements IBitSet {
     }
 
     @Override
-    public void optimize() {
+    public IBitSet optimize() {
         synchronized (lock) {
-            delegate.optimize();
+            return delegate.optimize();
         }
     }
 

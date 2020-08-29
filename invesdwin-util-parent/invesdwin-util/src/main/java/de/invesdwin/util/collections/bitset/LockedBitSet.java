@@ -52,10 +52,10 @@ public class LockedBitSet implements IBitSet {
     }
 
     @Override
-    public void optimize() {
+    public IBitSet optimize() {
         lock.lock();
         try {
-            delegate.optimize();
+            return delegate.optimize();
         } finally {
             lock.unlock();
         }

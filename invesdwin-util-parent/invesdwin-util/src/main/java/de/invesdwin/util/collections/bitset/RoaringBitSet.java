@@ -41,9 +41,14 @@ public class RoaringBitSet implements IBitSet {
     }
 
     @Override
-    public void optimize() {
-        bitSet.trim();
-        bitSet.runOptimize();
+    public IBitSet optimize() {
+        if (isEmpty()) {
+            return EmptyBitSet.INSTANCE;
+        } else {
+            bitSet.trim();
+            bitSet.runOptimize();
+            return this;
+        }
     }
 
     @Override
@@ -51,7 +56,11 @@ public class RoaringBitSet implements IBitSet {
         final RoaringBitmap[] cOthers = new RoaringBitmap[others.length + 1];
         cOthers[0] = bitSet;
         for (int i = 0; i < others.length; i++) {
-            final RoaringBitSet cOther = (RoaringBitSet) others[i];
+            final IBitSet other = others[i];
+            if (other.isEmpty()) {
+                return EmptyBitSet.INSTANCE;
+            }
+            final RoaringBitSet cOther = (RoaringBitSet) other;
             cOthers[i + 1] = cOther.bitSet;
         }
         final RoaringBitmap combined = FastAggregation.and(cOthers);
@@ -79,16 +88,14 @@ public class RoaringBitSet implements IBitSet {
     public ISkippingIndexProvider newSkippingIndexProvider() {
         final PeekableIntIterator delegate = bitSet.getIntIterator();
         return cur -> {
-            if (!delegate.hasNext()) {
-                return ISkippingIndexProvider.END;
-            }
-            int next = delegate.next();
-            while (next <= cur) {
+            delegate.advanceIfNeeded(cur + 1);
+            int next;
+            do {
                 if (!delegate.hasNext()) {
                     return ISkippingIndexProvider.END;
                 }
                 next = delegate.next();
-            }
+            } while (next <= cur);
             return next;
         };
     }
