@@ -17,11 +17,11 @@ import de.invesdwin.util.math.expression.eval.DynamicPreviousKeyExpression;
 import de.invesdwin.util.math.expression.eval.IParsedExpression;
 import de.invesdwin.util.math.expression.eval.function.DoubleFunctionCall;
 import de.invesdwin.util.math.expression.eval.operation.BooleanNullableAndOperation;
+import de.invesdwin.util.math.expression.eval.operation.BooleanNullableNotOperation;
+import de.invesdwin.util.math.expression.eval.operation.BooleanNullableOrOperation;
 import de.invesdwin.util.math.expression.eval.operation.DoubleBinaryOperation;
 import de.invesdwin.util.math.expression.eval.operation.DoubleCrossesAboveOperation;
 import de.invesdwin.util.math.expression.eval.operation.DoubleCrossesBelowOperation;
-import de.invesdwin.util.math.expression.eval.operation.BooleanNullableNotOperation;
-import de.invesdwin.util.math.expression.eval.operation.BooleanNullableOrOperation;
 import de.invesdwin.util.math.expression.eval.operation.IBinaryOperation;
 import de.invesdwin.util.math.expression.eval.operation.Op;
 import de.invesdwin.util.math.expression.eval.variable.AVariableReference;
@@ -227,8 +227,8 @@ public class ExpressionParser {
         final IParsedExpression result = simplify(expression(true));
         if (tokenizer.current().isNotEnd()) {
             final Token token = tokenizer.consume();
-            throw new ParseException(token,
-                    TextDescription.format("Unexpected token: '%s'. Expected an expression.", token.getSource()));
+            throw new ParseException(token, TextDescription.format("Unexpected token: '%s'. Expected an expression: %s",
+                    token.getSource(), originalExpression));
         }
         return result;
     }
