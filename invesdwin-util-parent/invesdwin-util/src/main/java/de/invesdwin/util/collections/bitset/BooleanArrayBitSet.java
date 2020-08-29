@@ -50,7 +50,7 @@ public class BooleanArrayBitSet implements IBitSet {
 
     @Override
     public boolean isEmpty() {
-        return trueCount > 0;
+        return trueCount == 0;
     }
 
     @Override
