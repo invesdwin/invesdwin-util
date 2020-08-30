@@ -60,7 +60,7 @@ public class BooleanNullableNotOperation extends DoubleBinaryOperation {
     public IEvaluateIntegerFDate newEvaluateIntegerFDate() {
         final IEvaluateBooleanFDate f = newEvaluateBooleanFDate();
         return key -> {
-            final Boolean check = f.evaluateBoolean(key);
+            final boolean check = f.evaluateBoolean(key);
             return Integers.fromBoolean(check);
         };
     }
@@ -69,7 +69,7 @@ public class BooleanNullableNotOperation extends DoubleBinaryOperation {
     public IEvaluateIntegerKey newEvaluateIntegerKey() {
         final IEvaluateBooleanKey f = newEvaluateBooleanKey();
         return key -> {
-            final Boolean check = f.evaluateBoolean(key);
+            final boolean check = f.evaluateBoolean(key);
             return Integers.fromBoolean(check);
         };
     }
@@ -78,7 +78,7 @@ public class BooleanNullableNotOperation extends DoubleBinaryOperation {
     public IEvaluateInteger newEvaluateInteger() {
         final IEvaluateBoolean f = newEvaluateBoolean();
         return () -> {
-            final Boolean check = f.evaluateBoolean();
+            final boolean check = f.evaluateBoolean();
             return Integers.fromBoolean(check);
         };
     }
@@ -112,20 +112,20 @@ public class BooleanNullableNotOperation extends DoubleBinaryOperation {
 
     @Override
     public IEvaluateBooleanFDate newEvaluateBooleanFDate() {
-        final IEvaluateBooleanFDate rightF = right.newEvaluateBooleanFDate();
-        return key -> !rightF.evaluateBoolean(key);
+        final IEvaluateBooleanNullableFDate f = newEvaluateBooleanNullableFDate();
+        return key -> Booleans.isTrue(f.evaluateBooleanNullable(key));
     }
 
     @Override
     public IEvaluateBooleanKey newEvaluateBooleanKey() {
-        final IEvaluateBooleanKey rightF = right.newEvaluateBooleanKey();
-        return key -> !rightF.evaluateBoolean(key);
+        final IEvaluateBooleanNullableKey f = newEvaluateBooleanNullableKey();
+        return key -> Booleans.isTrue(f.evaluateBooleanNullable(key));
     }
 
     @Override
     public IEvaluateBoolean newEvaluateBoolean() {
-        final IEvaluateBoolean rightF = right.newEvaluateBoolean();
-        return () -> !rightF.evaluateBoolean();
+        final IEvaluateBooleanNullable f = newEvaluateBooleanNullable();
+        return () -> Booleans.isTrue(f.evaluateBooleanNullable());
     }
 
     @Override
