@@ -15,7 +15,7 @@ public class PeekingSkippingIndexProvider implements ISkippingIndexProvider {
 
     public int peek(final int cur) {
         if (this.peek < cur) {
-            this.peek = delegate.next(cur);
+            this.peek = delegate.next(cur - 1);
         }
         return peek;
     }

@@ -14,14 +14,18 @@ public class AndSkippingIndexProvider implements ISkippingIndexProvider {
     @Override
     public int next(final int cur) {
         int max = cur + 1;
-        for (int i = 0; i < delegates.length; i++) {
+        int i = 0;
+        while (i < delegates.length) {
             final int newMax = delegates[i].peek(max);
             if (max < newMax) {
                 max = newMax;
                 if (i > 0) {
+                    //start at 0 again
                     i = 0;
+                    continue;
                 }
             }
+            i++;
         }
         return max;
     }
