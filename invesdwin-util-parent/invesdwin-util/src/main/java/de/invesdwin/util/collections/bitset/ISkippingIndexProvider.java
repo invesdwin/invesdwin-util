@@ -4,6 +4,6 @@ public interface ISkippingIndexProvider {
 
     int END = Integer.MAX_VALUE - 1;
 
-    int next(int cur);
+    int next(int nextCandidate);
 
 }

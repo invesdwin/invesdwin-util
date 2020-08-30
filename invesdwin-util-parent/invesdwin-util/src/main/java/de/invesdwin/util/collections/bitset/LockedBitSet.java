@@ -103,10 +103,10 @@ public class LockedBitSet implements IBitSet {
         if (f == null) {
             return null;
         }
-        return cur -> {
+        return nextCandidate -> {
             lock.lock();
             try {
-                return f.next(cur);
+                return f.next(nextCandidate);
             } finally {
                 lock.unlock();
             }

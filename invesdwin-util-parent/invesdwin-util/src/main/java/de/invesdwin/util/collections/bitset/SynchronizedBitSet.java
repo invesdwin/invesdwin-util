@@ -76,9 +76,9 @@ public class SynchronizedBitSet implements IBitSet {
         if (f == null) {
             return null;
         }
-        return cur -> {
+        return nextCandidate -> {
             synchronized (lock) {
-                return f.next(cur);
+                return f.next(nextCandidate);
             }
         };
     }

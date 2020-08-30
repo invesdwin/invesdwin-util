@@ -12,8 +12,8 @@ public class AndSkippingIndexProvider implements ISkippingIndexProvider {
     }
 
     @Override
-    public int next(final int cur) {
-        int max = cur + 1;
+    public int next(final int nextCandidate) {
+        int max = nextCandidate;
         int i = 0;
         while (i < delegates.length) {
             final int newMax = delegates[i].peek(max);

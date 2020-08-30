@@ -44,7 +44,7 @@ public class EmptyBitSet implements IBitSet {
 
     @Override
     public ISkippingIndexProvider newSkippingIndexProvider() {
-        return key -> ISkippingIndexProvider.END;
+        return nextCandidate -> ISkippingIndexProvider.END;
     }
 
 }

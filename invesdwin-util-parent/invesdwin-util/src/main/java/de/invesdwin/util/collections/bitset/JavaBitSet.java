@@ -78,8 +78,8 @@ public class JavaBitSet implements IBitSet {
 
     @Override
     public ISkippingIndexProvider newSkippingIndexProvider() {
-        return cur -> {
-            final int next = bitSet.nextSetBit(cur + 1);
+        return nextCandidate -> {
+            final int next = bitSet.nextSetBit(nextCandidate);
             if (next < 0) {
                 return ISkippingIndexProvider.END;
             } else {

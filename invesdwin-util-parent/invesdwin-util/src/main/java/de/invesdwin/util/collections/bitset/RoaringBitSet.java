@@ -87,15 +87,15 @@ public class RoaringBitSet implements IBitSet {
     @Override
     public ISkippingIndexProvider newSkippingIndexProvider() {
         final PeekableIntIterator delegate = bitSet.getIntIterator();
-        return cur -> {
-            delegate.advanceIfNeeded(cur + 1);
+        return nextCandidate -> {
+            delegate.advanceIfNeeded(nextCandidate);
             int next;
             do {
                 if (!delegate.hasNext()) {
                     return ISkippingIndexProvider.END;
                 }
                 next = delegate.next();
-            } while (next <= cur);
+            } while (next < nextCandidate);
             return next;
         };
     }
