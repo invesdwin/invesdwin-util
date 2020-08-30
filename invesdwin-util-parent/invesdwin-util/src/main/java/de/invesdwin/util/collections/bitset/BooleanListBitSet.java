@@ -74,4 +74,9 @@ public class BooleanListBitSet implements IBitSet {
         return null;
     }
 
+    @Override
+    public IBitSet unwrap() {
+        return this;
+    }
+
 }

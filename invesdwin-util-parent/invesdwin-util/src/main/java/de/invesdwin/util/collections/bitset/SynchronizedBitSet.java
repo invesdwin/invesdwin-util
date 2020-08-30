@@ -83,4 +83,9 @@ public class SynchronizedBitSet implements IBitSet {
         };
     }
 
+    @Override
+    public IBitSet unwrap() {
+        return delegate.unwrap();
+    }
+
 }

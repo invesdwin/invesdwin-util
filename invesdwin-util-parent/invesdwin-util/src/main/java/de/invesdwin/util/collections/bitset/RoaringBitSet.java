@@ -60,7 +60,7 @@ public class RoaringBitSet implements IBitSet {
             if (other.isEmpty()) {
                 return EmptyBitSet.INSTANCE;
             }
-            final RoaringBitSet cOther = (RoaringBitSet) other;
+            final RoaringBitSet cOther = (RoaringBitSet) other.unwrap();
             cOthers[i + 1] = cOther.bitSet;
         }
         final RoaringBitmap combined = FastAggregation.and(cOthers);
@@ -98,6 +98,11 @@ public class RoaringBitSet implements IBitSet {
             } while (next < nextCandidate);
             return next;
         };
+    }
+
+    @Override
+    public IBitSet unwrap() {
+        return this;
     }
 
 }

@@ -57,7 +57,7 @@ public class JavaBitSet implements IBitSet {
             if (other.isEmpty()) {
                 return EmptyBitSet.INSTANCE;
             }
-            final JavaBitSet cOther = (JavaBitSet) other;
+            final JavaBitSet cOther = (JavaBitSet) other.unwrap();
             combined.and(cOther.bitSet);
         }
         return new JavaBitSet(combined);
@@ -86,6 +86,11 @@ public class JavaBitSet implements IBitSet {
                 return next;
             }
         };
+    }
+
+    @Override
+    public IBitSet unwrap() {
+        return this;
     }
 
 }

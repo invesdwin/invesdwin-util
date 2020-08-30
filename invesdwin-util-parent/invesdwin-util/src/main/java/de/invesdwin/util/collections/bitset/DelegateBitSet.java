@@ -3,64 +3,65 @@ package de.invesdwin.util.collections.bitset;
 import javax.annotation.concurrent.NotThreadSafe;
 
 @NotThreadSafe
-public class BooleanArrayBitSet implements IBitSet {
+public class DelegateBitSet implements IBitSet {
 
-    private final boolean[] bitSet;
-    private int trueCount = 0;
+    private IBitSet delegate;
 
-    public BooleanArrayBitSet(final int expectedSize) {
-        this.bitSet = new boolean[expectedSize];
+    public DelegateBitSet(final IBitSet delegate) {
+        this.delegate = delegate;
+    }
+
+    public void setDelegate(final IBitSet delegate) {
+        this.delegate = delegate;
+    }
+
+    public IBitSet getDelegate() {
+        return delegate;
     }
 
     @Override
     public void add(final int index) {
-        bitSet[index] = true;
-        trueCount++;
+        delegate.add(index);
     }
 
     @Override
     public void remove(final int index) {
-        bitSet[index] = false;
-        trueCount--;
+        delegate.remove(index);
     }
 
     @Override
     public boolean contains(final int index) {
-        return bitSet[index];
+        return delegate.contains(index);
     }
 
     @Override
     public IBitSet optimize() {
-        if (isEmpty()) {
-            return EmptyBitSet.INSTANCE;
-        } else {
-            return this;
-        }
+        return delegate.optimize();
     }
 
     @Override
     public IBitSet and(final IBitSet... others) {
-        throw new UnsupportedOperationException();
+        return delegate.and(others);
     }
 
     @Override
     public int getTrueCount() {
-        return trueCount;
+        return delegate.getTrueCount();
     }
 
     @Override
     public boolean isEmpty() {
-        return trueCount == 0;
+        return delegate.isEmpty();
     }
 
     @Override
     public ISkippingIndexProvider newSkippingIndexProvider() {
-        return null;
+        return delegate.newSkippingIndexProvider();
     }
 
     @Override
     public IBitSet unwrap() {
-        return this;
+        return delegate.unwrap();
     }
 
 }

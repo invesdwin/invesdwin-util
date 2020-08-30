@@ -113,4 +113,9 @@ public class LockedBitSet implements IBitSet {
         };
     }
 
+    @Override
+    public IBitSet unwrap() {
+        return delegate.unwrap();
+    }
+
 }

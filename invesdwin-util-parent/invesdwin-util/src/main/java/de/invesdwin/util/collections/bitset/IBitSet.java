@@ -18,4 +18,6 @@ public interface IBitSet {
 
     ISkippingIndexProvider newSkippingIndexProvider();
 
+    IBitSet unwrap();
+
 }
