@@ -232,7 +232,11 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
 
     @Override
     public String toString() {
-        return NUMBER_FORMAT.get().format(getValue());
+        return toString(getValue());
+    }
+
+    public static String toString(final double value) {
+        return NUMBER_FORMAT.get().format(value);
     }
 
     @Override
