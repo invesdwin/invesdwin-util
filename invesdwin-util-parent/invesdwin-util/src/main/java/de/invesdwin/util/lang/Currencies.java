@@ -26,6 +26,7 @@ public final class Currencies {
 
     public static final String PCT_SYMBOL = "%";
     public static final String PIP_SYMBOL = "pip";
+    public static final String ABS_SYMBOL = "";
 
     public static final Currency ARS = Currency.getInstance("ARS");
     public static final Currency AUD = Currency.getInstance("AUD");
@@ -64,6 +65,10 @@ public final class Currencies {
      * Fake currency to denote pip values that are stored in money objects.
      */
     public static final String PIP = "PIP";
+    /**
+     * Fake currency to denote absolute values that are stored in money objects.
+     */
+    public static final String ABS = "ABS";
 
     private static final Map<String, String> CURRENCY_CODE_2_CURRENCY_SYMBOL = ILockCollectionFactory.getInstance(true)
             .newConcurrentMap();
@@ -96,6 +101,7 @@ public final class Currencies {
         CURRENCY_CODE_2_CURRENCY_SYMBOL.put("CNY", CNY_SYMBOL);
         CURRENCY_CODE_2_CURRENCY_SYMBOL.put(PCT, PCT_SYMBOL);
         CURRENCY_CODE_2_CURRENCY_SYMBOL.put(PIP, PIP_SYMBOL);
+        CURRENCY_CODE_2_CURRENCY_SYMBOL.put(ABS, ABS_SYMBOL);
     }
 
     private Currencies() {
@@ -208,7 +214,7 @@ public final class Currencies {
     }
 
     public static boolean isFakeCurrency(final String currencyCode) {
-        return Strings.equalsAny(currencyCode, PCT, PIP);
+        return Strings.equalsAny(currencyCode, PCT, PIP, ABS);
     }
 
 }
