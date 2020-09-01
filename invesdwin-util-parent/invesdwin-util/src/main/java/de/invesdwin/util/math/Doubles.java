@@ -25,6 +25,11 @@ import de.invesdwin.util.math.internal.CheckedCastDoublesObj;
 @Immutable
 public final class Doubles extends ADoublesStaticFacade {
 
+    //CHECKSTYLE:OFF
+    public static final double MAX_VALUE = Double.MAX_VALUE;
+    public static final double MIN_VALUE = -Double.MAX_VALUE;
+    public static final double SMALLEST_VALUE = Double.MIN_VALUE;
+    //CHECKSTYLE:ON
     public static final double ONE_THIRD = 1D / 3D;
     public static final double DEFAULT_MISSING_VALUE = 0d;
     public static final Double DEFAULT_MISSING_VALUE_OBJ = DEFAULT_MISSING_VALUE;
@@ -255,7 +260,7 @@ public final class Doubles extends ADoublesStaticFacade {
 
     public static void putDouble(final ByteBuffer buffer, final Double value) {
         if (value == null) {
-            buffer.putDouble(Double.MIN_VALUE);
+            buffer.putDouble(Double.NaN);
         } else {
             buffer.putDouble(value);
         }
@@ -272,7 +277,7 @@ public final class Doubles extends ADoublesStaticFacade {
     }
 
     public static Double extractDouble(final double value) {
-        if (value == Double.MIN_VALUE) {
+        if (Doubles.isNaN(value)) {
             return null;
         } else {
             return value;

@@ -240,7 +240,7 @@ public class Decimal extends ADecimal<Decimal> {
 
     public static void putDecimal(final ByteBuffer buffer, final Decimal value) {
         if (value == null) {
-            buffer.putDouble(Double.MIN_VALUE);
+            buffer.putDouble(Double.NaN);
         } else {
             buffer.putDouble(value.doubleValue());
         }
@@ -257,7 +257,7 @@ public class Decimal extends ADecimal<Decimal> {
     }
 
     public static Decimal extractDecimal(final double value) {
-        if (value == Double.MIN_VALUE) {
+        if (Doubles.isNaN(value)) {
             return null;
         } else {
             return new Decimal(value);

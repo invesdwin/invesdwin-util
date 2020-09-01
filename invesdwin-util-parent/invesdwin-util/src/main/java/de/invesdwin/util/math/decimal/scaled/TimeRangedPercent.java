@@ -6,6 +6,7 @@ import java.util.List;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.assertions.Assertions;
+import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.time.fdate.FDate;
 import de.invesdwin.util.time.range.TimeRange;
 
@@ -13,7 +14,7 @@ import de.invesdwin.util.time.range.TimeRange;
 public class TimeRangedPercent extends Percent {
 
     public static final TimeRangedPercent INVALID_ROW = new TimeRangedPercent(
-            new TimeRange(FDate.MIN_DATE, FDate.MAX_DATE), new Percent(Double.MIN_VALUE, PercentScale.RATE));
+            new TimeRange(FDate.MIN_DATE, FDate.MAX_DATE), new Percent(Doubles.MIN_VALUE, PercentScale.RATE));
 
     private final TimeRange timeRange;
 

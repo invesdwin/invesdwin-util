@@ -11,7 +11,7 @@ import de.invesdwin.util.time.fdate.FTimeUnit;
 public class DurationStreamMin implements IStreamAlgorithm<Duration, Double> {
 
     private final FTimeUnit precision;
-    private double min = Double.MAX_VALUE; // our online mean estimate
+    private double min = Doubles.MAX_VALUE; // our online mean estimate
 
     public DurationStreamMin() {
         this(FTimeUnit.MILLISECONDS);
@@ -29,7 +29,7 @@ public class DurationStreamMin implements IStreamAlgorithm<Duration, Double> {
     }
 
     public Duration getMin() {
-        if (min == Double.MAX_VALUE) {
+        if (min == Doubles.MAX_VALUE) {
             return null;
         } else {
             return new Duration((long) min, precision);
