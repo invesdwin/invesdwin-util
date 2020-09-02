@@ -17,7 +17,7 @@ import com.koloboke.collect.map.hash.HashObjObjMapFactory;
 import com.koloboke.collect.set.hash.HashObjSetFactory;
 
 import de.invesdwin.util.collections.bitset.IBitSet;
-import de.invesdwin.util.collections.bitset.RoaringBitSet;
+import de.invesdwin.util.collections.bitset.JavaBitSet;
 import de.invesdwin.util.collections.fast.AFastIterableDelegateList;
 import de.invesdwin.util.collections.fast.AFastIterableDelegateMap;
 import de.invesdwin.util.collections.fast.AFastIterableDelegateSet;
@@ -59,14 +59,20 @@ public final class DisabledLockCollectionFactory implements ILockCollectionFacto
 
     @Override
     public IBitSet newBitSet() {
-        //we save lots of memory by using roaring bit sets, they are also faster in some cases
-        return new RoaringBitSet();
+        /*
+         * java bitsets are about twice as fast as roaring bitsets, though roaring might interesting to use with larger
+         * sizes
+         */
+        return new JavaBitSet();
     }
 
     @Override
     public IBitSet newBitSet(final int expectedSize) {
-        //we save lots of memory by using roaring bit sets, they are also faster in some cases
-        return new RoaringBitSet();
+        /*
+         * java bitsets are about twice as fast as roaring bitsets, though roaring might interesting to use with larger
+         * sizes
+         */
+        return new JavaBitSet(expectedSize);
     }
 
     @Override
