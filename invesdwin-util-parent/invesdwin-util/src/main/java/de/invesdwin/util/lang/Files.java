@@ -30,10 +30,10 @@ public final class Files extends AFilesStaticFacade {
 
     private static final String[] NORMALIZE_FILENAME_SEARCH = { ":", "@", "*", "?", "<", ">", "=", "\"", "|", "/",
             "\\" };
-    private static final String[] NORMALIZE_FILENAME_REPLACE = { "_", "_", "_", "_", "l", "g", "e", "_", "_", "_",
-            "_" };
+    private static final String[] NORMALIZE_FILENAME_REPLACE = { "c", "a", "m", "q", "l", "g", "e", "u", "p", "s",
+            "b" };
     private static final String[] NORMALIZE_PATH_SEARCH = { ":", "@", "*", "?", "<", ">", "=", "\"", "|" };
-    private static final String[] NORMALIZE_PATH_REPLACE = { "_", "_", "_", "_", "l", "g", "e", "_", "_" };
+    private static final String[] NORMALIZE_PATH_REPLACE = { "c", "a", "m", "q", "l", "g", "e", "b", "p" };
 
     static {
         Assertions.assertThat(NORMALIZE_FILENAME_SEARCH.length).isEqualByComparingTo(NORMALIZE_FILENAME_REPLACE.length);
