@@ -30,6 +30,10 @@ public final class Files extends AFilesStaticFacade {
 
     private static final String[] NORMALIZE_FILENAME_SEARCH = { ":", "@", "*", "?", "<", ">", "=", "\"", "|", "/",
             "\\" };
+    /**
+     * need to use distinct characters here so that expressions don't become mixed if they only differ in an operator
+     * that gets escaped here
+     */
     private static final String[] NORMALIZE_FILENAME_REPLACE = { "c", "a", "m", "q", "l", "g", "e", "u", "p", "s",
             "b" };
     private static final String[] NORMALIZE_PATH_SEARCH = { ":", "@", "*", "?", "<", ">", "=", "\"", "|" };
