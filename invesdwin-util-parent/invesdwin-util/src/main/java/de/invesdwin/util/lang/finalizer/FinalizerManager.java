@@ -26,7 +26,7 @@ public final class FinalizerManager {
     private static final FastThreadLocal<List<WeakThreadLocalFinalizerReference>> THREAD_LOCAL_FINALIZERS = new FastThreadLocal<List<WeakThreadLocalFinalizerReference>>() {
         @Override
         protected List<WeakThreadLocalFinalizerReference> initialValue() throws Exception {
-            //garbage collector thread accesses this too 
+            //garbage collector thread accesses this too
             return Collections.synchronizedList(new ArrayList<WeakThreadLocalFinalizerReference>());
         }
 
@@ -57,7 +57,8 @@ public final class FinalizerManager {
         }
     }
 
-    private FinalizerManager() {}
+    private FinalizerManager() {
+    }
 
     public static IFinalizerReference register(final Object obj, final AFinalizer finalizer) {
         if (Throwables.isDebugStackTraceEnabled()) {
@@ -92,7 +93,9 @@ public final class FinalizerManager {
 
         @Override
         protected Void toCompressed(final ThreadLocalFinalizerReference referent) throws Exception {
-            collection.remove(this);
+            if (collection != null) {
+                collection.remove(this);
+            }
             return null;
         }
 
