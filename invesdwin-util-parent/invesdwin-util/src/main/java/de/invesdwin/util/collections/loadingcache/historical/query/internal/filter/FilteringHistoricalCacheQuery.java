@@ -80,7 +80,8 @@ public class FilteringHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V
     public FDate getPreviousKey(final FDate key, final int shiftBackUnits) {
         final FDate result = delegate.getPreviousKey(key, shiftBackUnits);
         if (result == null || result.isAfter(key)) {
-            return null;
+            //prevent nullpointers
+            return key;
         } else {
             return result;
         }
