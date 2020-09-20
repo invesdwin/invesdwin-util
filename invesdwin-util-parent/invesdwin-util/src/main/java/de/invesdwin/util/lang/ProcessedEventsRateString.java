@@ -38,7 +38,11 @@ public class ProcessedEventsRateString {
             final double ratePerSecond = countEvents / seconds;
             return new Decimal(ratePerSecond).round(2) + "/s";
         } else {
-            return new Decimal(ratePerMillisecond).round(2) + "/ms";
+            if (ratePerMillisecond > 10_000) {
+                return new Decimal(ratePerMillisecond / 1000).round(2) + "/µs";
+            } else {
+                return new Decimal(ratePerMillisecond).round(2) + "/ms";
+            }
         }
     }
 
