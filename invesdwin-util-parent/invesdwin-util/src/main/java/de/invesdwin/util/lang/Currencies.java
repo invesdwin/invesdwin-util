@@ -175,7 +175,7 @@ public final class Currencies {
     }
 
     public static void putCurrency(final ByteBuffer buffer, final Currency currency) {
-        if (currency == + +null) {
+        if (currency == null) {
             buffer.put("___".getBytes());
         } else {
             buffer.put(currency.getCurrencyCode().getBytes());
