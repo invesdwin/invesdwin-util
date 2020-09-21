@@ -150,7 +150,7 @@ public final class Currencies {
         String replaced = str;
         for (final Entry<String, String> entry : CURRENCY_CODE_2_CURRENCY_SYMBOL.entrySet()) {
             final String code = entry.getKey();
-            if (!PCT.equals(code)) { //except percent which might not be used as currency
+            if (!isFakeCurrency(code)) { //except percent which might not be used as currency
                 final String symbol = entry.getValue();
                 replaced = replaced.replace(symbol, code);
             }
@@ -175,7 +175,7 @@ public final class Currencies {
     }
 
     public static void putCurrency(final ByteBuffer buffer, final Currency currency) {
-        if (currency == null) {
+        if (currency == + +null) {
             buffer.put("___".getBytes());
         } else {
             buffer.put(currency.getCurrencyCode().getBytes());
