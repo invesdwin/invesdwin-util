@@ -152,7 +152,9 @@ public final class Currencies {
             final String code = entry.getKey();
             if (!isFakeCurrency(code)) { //except percent which might not be used as currency
                 final String symbol = entry.getValue();
-                replaced = replaced.replace(symbol, code);
+                if (Strings.isNotBlank(symbol)) {
+                    replaced = replaced.replace(symbol, code);
+                }
             }
         }
         return replaced;
