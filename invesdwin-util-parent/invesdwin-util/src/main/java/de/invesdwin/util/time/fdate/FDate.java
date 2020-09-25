@@ -152,7 +152,7 @@ public class FDate
     }
 
     public int getYear() {
-        return get(FDateField.Year);
+        return FDates.getDefaultChronology().year().get(millis);
     }
 
     public int getMonth(final ZoneId timeZone) {
@@ -161,7 +161,7 @@ public class FDate
 
     public int getMonth() {
         //no conversion needed since joda time has same index
-        return get(FDateField.Month);
+        return FDates.getDefaultChronology().monthOfYear().get(millis);
     }
 
     public FMonth getFMonth(final ZoneId timeZone) {
@@ -177,7 +177,7 @@ public class FDate
     }
 
     public int getDay() {
-        return get(FDateField.Day);
+        return FDates.getDefaultChronology().dayOfMonth().get(millis);
     }
 
     public int getWeekday(final ZoneId timeZone) {
@@ -186,7 +186,7 @@ public class FDate
 
     public int getWeekday() {
         //no conversion needed since joda time has same index
-        return get(FDateField.Weekday);
+        return FDates.getDefaultChronology().dayOfWeek().get(millis);
     }
 
     public FWeekday getFWeekday(final ZoneId timeZone) {
@@ -202,19 +202,19 @@ public class FDate
     }
 
     public int getHour() {
-        return get(FDateField.Hour);
+        return FDates.getDefaultChronology().hourOfDay().get(millis);
     }
 
     public int getMinute() {
-        return get(FDateField.Minute);
+        return FDates.getDefaultChronology().minuteOfHour().get(millis);
     }
 
     public int getSecond() {
-        return get(FDateField.Second);
+        return FDates.getDefaultChronology().secondOfMinute().get(millis);
     }
 
     public int getMillisecond() {
-        return get(FDateField.Millisecond);
+        return FDates.getDefaultChronology().millisOfSecond().get(millis);
     }
 
     public TimeZone getTimeZone() {
@@ -234,7 +234,8 @@ public class FDate
     }
 
     public FDate setYear(final int year) {
-        return set(FDateField.Year, year);
+        final long newMillis = FDates.getDefaultChronology().year().set(millis, year);
+        return new FDate(newMillis);
     }
 
     public FDate setMonth(final int month, final ZoneId timeZone) {
@@ -242,7 +243,8 @@ public class FDate
     }
 
     public FDate setMonth(final int month) {
-        return set(FDateField.Month, month);
+        final long newMillis = FDates.getDefaultChronology().monthOfYear().set(millis, month);
+        return new FDate(newMillis);
     }
 
     public FDate setFMonth(final FMonth month, final ZoneId timeZone) {
@@ -258,7 +260,8 @@ public class FDate
     }
 
     public FDate setDay(final int day) {
-        return set(FDateField.Day, day);
+        final long newMillis = FDates.getDefaultChronology().dayOfMonth().set(millis, day);
+        return new FDate(newMillis);
     }
 
     public FDate setWeekday(final int weekday, final ZoneId timeZone) {
@@ -266,7 +269,8 @@ public class FDate
     }
 
     public FDate setWeekday(final int weekday) {
-        final FDate modified = set(FDateField.Weekday, weekday);
+        final long newMillis = FDates.getDefaultChronology().dayOfWeek().set(millis, weekday);
+        final FDate modified = new FDate(newMillis);
         if (!FDates.isSameJulianDay(modified, this) && modified.isAfter(this)) {
             return modified.addWeeks(-1);
         } else {
@@ -316,19 +320,23 @@ public class FDate
     }
 
     public FDate setHour(final int hour) {
-        return set(FDateField.Hour, hour);
+        final long newMillis = FDates.getDefaultChronology().hourOfDay().set(millis, hour);
+        return new FDate(newMillis);
     }
 
     public FDate setMinute(final int minute) {
-        return set(FDateField.Minute, minute);
+        final long newMillis = FDates.getDefaultChronology().minuteOfHour().set(millis, minute);
+        return new FDate(newMillis);
     }
 
     public FDate setSecond(final int second) {
-        return set(FDateField.Second, second);
+        final long newMillis = FDates.getDefaultChronology().secondOfMinute().set(millis, second);
+        return new FDate(newMillis);
     }
 
     public FDate setMillisecond(final int millisecond) {
-        return set(FDateField.Millisecond, millisecond);
+        final long newMillis = FDates.getDefaultChronology().millisOfSecond().set(millis, millisecond);
+        return new FDate(newMillis);
     }
 
     public FDate addYears(final int years, final ZoneId timeZone) {
@@ -388,8 +396,7 @@ public class FDate
     }
 
     public int get(final FDateField field) {
-        final MutableDateTime delegate = newMutableDateTime();
-        return delegate.get(field.jodaTimeValue());
+        return field.jodaTimeValue().getField(FDates.getDefaultChronology()).get(millis);
     }
 
     public FDate set(final FDateField field, final int value, final ZoneId timeZone) {
