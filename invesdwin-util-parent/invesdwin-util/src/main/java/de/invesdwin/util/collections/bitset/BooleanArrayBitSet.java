@@ -44,6 +44,11 @@ public class BooleanArrayBitSet implements IBitSet {
     }
 
     @Override
+    public IBitSet andRange(final int fromInclusive, final int toExclusive, final IBitSet[] others) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public int getTrueCount() {
         return trueCount;
     }

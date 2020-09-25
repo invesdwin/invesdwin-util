@@ -82,6 +82,16 @@ public class LockedBitSet implements IBitSet {
     }
 
     @Override
+    public IBitSet andRange(final int fromInclusive, final int toExclusive, final IBitSet[] others) {
+        lock.lock();
+        try {
+            return delegate.andRange(fromInclusive, toExclusive, others);
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
     public boolean isEmpty() {
         lock.lock();
         try {
@@ -115,7 +125,12 @@ public class LockedBitSet implements IBitSet {
 
     @Override
     public IBitSet unwrap() {
-        return delegate.unwrap();
+        lock.lock();
+        try {
+            return delegate.unwrap();
+        } finally {
+            lock.unlock();
+        }
     }
 
 }

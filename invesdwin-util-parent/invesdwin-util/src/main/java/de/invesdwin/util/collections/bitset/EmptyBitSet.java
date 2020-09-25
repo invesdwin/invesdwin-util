@@ -33,6 +33,11 @@ public class EmptyBitSet implements IBitSet {
     }
 
     @Override
+    public IBitSet andRange(final int fromInclusive, final int toExclusive, final IBitSet[] others) {
+        return INSTANCE;
+    }
+
+    @Override
     public int getTrueCount() {
         return 0;
     }

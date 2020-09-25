@@ -6,6 +6,8 @@ import org.roaringbitmap.FastAggregation;
 import org.roaringbitmap.PeekableIntIterator;
 import org.roaringbitmap.RoaringBitmap;
 
+import de.invesdwin.util.collections.iterable.collection.ArrayCloseableIterator;
+
 @NotThreadSafe
 public class RoaringBitSet implements IBitSet {
 
@@ -64,6 +66,23 @@ public class RoaringBitSet implements IBitSet {
             cOthers[i + 1] = cOther.bitSet;
         }
         final RoaringBitmap combined = FastAggregation.and(cOthers);
+        return new RoaringBitSet(combined);
+    }
+
+    @Override
+    public IBitSet andRange(final int fromInclusive, final int toExclusive, final IBitSet[] others) {
+        final RoaringBitmap[] cOthers = new RoaringBitmap[others.length + 1];
+        cOthers[0] = bitSet;
+        for (int i = 0; i < others.length; i++) {
+            final IBitSet other = others[i];
+            if (other.isEmpty()) {
+                return EmptyBitSet.INSTANCE;
+            }
+            final RoaringBitSet cOther = (RoaringBitSet) other.unwrap();
+            cOthers[i + 1] = cOther.bitSet;
+        }
+        final RoaringBitmap combined = RoaringBitmap.and(new ArrayCloseableIterator<RoaringBitmap>(cOthers),
+                fromInclusive, (long) toExclusive);
         return new RoaringBitSet(combined);
     }
 

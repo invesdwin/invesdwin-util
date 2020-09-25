@@ -61,6 +61,13 @@ public class SynchronizedBitSet implements IBitSet {
     }
 
     @Override
+    public IBitSet andRange(final int fromInclusive, final int toExclusive, final IBitSet[] others) {
+        synchronized (lock) {
+            return delegate.andRange(fromInclusive, toExclusive, others);
+        }
+    }
+
+    @Override
     public boolean isEmpty() {
         synchronized (lock) {
             return delegate.isEmpty();
@@ -85,7 +92,9 @@ public class SynchronizedBitSet implements IBitSet {
 
     @Override
     public IBitSet unwrap() {
-        return delegate.unwrap();
+        synchronized (lock) {
+            return delegate.unwrap();
+        }
     }
 
 }

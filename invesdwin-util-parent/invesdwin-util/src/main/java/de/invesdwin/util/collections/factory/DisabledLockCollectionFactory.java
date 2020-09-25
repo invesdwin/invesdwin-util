@@ -60,8 +60,8 @@ public final class DisabledLockCollectionFactory implements ILockCollectionFacto
     @Override
     public IBitSet newBitSet() {
         /*
-         * java bitsets are about twice as fast as roaring bitsets, though roaring might interesting to use with larger
-         * sizes
+         * java bitsets are about twice as fast as roaring bitsets, though roaring might be interesting to use with
+         * larger sizes
          */
         return new JavaBitSet();
     }
@@ -69,8 +69,8 @@ public final class DisabledLockCollectionFactory implements ILockCollectionFacto
     @Override
     public IBitSet newBitSet(final int expectedSize) {
         /*
-         * java bitsets are about twice as fast as roaring bitsets, though roaring might interesting to use with larger
-         * sizes
+         * java bitsets are about twice as fast as roaring bitsets, though roaring might be interesting to use with
+         * larger sizes
          */
         return new JavaBitSet(expectedSize);
     }

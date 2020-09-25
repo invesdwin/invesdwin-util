@@ -4,6 +4,8 @@ import java.util.BitSet;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.util.math.BitSets;
+
 @NotThreadSafe
 public class JavaBitSet implements IBitSet {
 
@@ -59,6 +61,20 @@ public class JavaBitSet implements IBitSet {
             }
             final JavaBitSet cOther = (JavaBitSet) other.unwrap();
             combined.and(cOther.bitSet);
+        }
+        return new JavaBitSet(combined);
+    }
+
+    @Override
+    public IBitSet andRange(final int fromInclusive, final int toExclusive, final IBitSet[] others) {
+        final BitSet combined = (BitSet) bitSet.clone();
+        for (int i = 0; i < others.length; i++) {
+            final IBitSet other = others[i];
+            if (other.isEmpty()) {
+                return EmptyBitSet.INSTANCE;
+            }
+            final JavaBitSet cOther = (JavaBitSet) other.unwrap();
+            BitSets.andRange(combined, cOther.bitSet, fromInclusive, toExclusive);
         }
         return new JavaBitSet(combined);
     }

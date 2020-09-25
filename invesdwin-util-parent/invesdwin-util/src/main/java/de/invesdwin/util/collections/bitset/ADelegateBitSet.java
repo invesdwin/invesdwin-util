@@ -36,6 +36,11 @@ public abstract class ADelegateBitSet implements IBitSet {
     }
 
     @Override
+    public IBitSet andRange(final int fromInclusive, final int toExclusive, final IBitSet[] others) {
+        return getDelegate().andRange(fromInclusive, toExclusive, others);
+    }
+
+    @Override
     public int getTrueCount() {
         return getDelegate().getTrueCount();
     }
