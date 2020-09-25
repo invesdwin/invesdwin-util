@@ -22,8 +22,6 @@ public interface ILockCollectionFactory {
 
     IReadWriteLock newReadWriteLock(String name);
 
-    IBitSet newBitSet();
-
     IBitSet newBitSet(int expectedSize);
 
     <T> List<T> newArrayList();

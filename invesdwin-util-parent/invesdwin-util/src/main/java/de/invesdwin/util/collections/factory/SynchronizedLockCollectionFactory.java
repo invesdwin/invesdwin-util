@@ -47,11 +47,6 @@ public final class SynchronizedLockCollectionFactory implements ILockCollectionF
     }
 
     @Override
-    public IBitSet newBitSet() {
-        return new SynchronizedBitSet(DisabledLockCollectionFactory.INSTANCE.newBitSet());
-    }
-
-    @Override
     public IBitSet newBitSet(final int expectedSize) {
         return new SynchronizedBitSet(DisabledLockCollectionFactory.INSTANCE.newBitSet(expectedSize));
     }

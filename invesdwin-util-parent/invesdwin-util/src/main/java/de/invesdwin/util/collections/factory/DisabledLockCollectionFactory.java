@@ -18,6 +18,7 @@ import com.koloboke.collect.set.hash.HashObjSetFactory;
 
 import de.invesdwin.util.collections.bitset.IBitSet;
 import de.invesdwin.util.collections.bitset.JavaBitSet;
+import de.invesdwin.util.collections.bitset.RoaringBitSet;
 import de.invesdwin.util.collections.fast.AFastIterableDelegateList;
 import de.invesdwin.util.collections.fast.AFastIterableDelegateMap;
 import de.invesdwin.util.collections.fast.AFastIterableDelegateSet;
@@ -39,6 +40,8 @@ import uk.co.omegaprime.btreemap.BTreeMap;
 @Immutable
 public final class DisabledLockCollectionFactory implements ILockCollectionFactory {
 
+    public static final int ROARING_BITMAP_THRESHOLD = 250000;
+
     public static final DisabledLockCollectionFactory INSTANCE = new DisabledLockCollectionFactory();
     //ServiceLoader does not work properly during maven builds, thus directly reference the actual factories
     private static final HashObjObjMapFactory<?, ?> KOLOBOKE_MAP_FACTORY = new LHashParallelKVObjObjMapFactoryImpl<Object, Object>();
@@ -58,21 +61,16 @@ public final class DisabledLockCollectionFactory implements ILockCollectionFacto
     }
 
     @Override
-    public IBitSet newBitSet() {
-        /*
-         * java bitsets are about twice as fast as roaring bitsets, though roaring might be interesting to use with
-         * larger sizes
-         */
-        return new JavaBitSet();
-    }
-
-    @Override
     public IBitSet newBitSet(final int expectedSize) {
         /*
          * java bitsets are about twice as fast as roaring bitsets, though roaring might be interesting to use with
-         * larger sizes
+         * larger sizes to stay in memory limits
          */
-        return new JavaBitSet(expectedSize);
+        if (expectedSize > ROARING_BITMAP_THRESHOLD) {
+            return new RoaringBitSet();
+        } else {
+            return new JavaBitSet(expectedSize);
+        }
     }
 
     @Override
