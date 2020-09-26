@@ -175,4 +175,21 @@ public class TimeRange extends AValueObject {
         }
 
     }
+
+    public boolean isUnlimited() {
+        return isUnlimited(from, to);
+    }
+
+    public static boolean isUnlimited(final FDate from, final FDate to) {
+        return (from == null || FDate.MIN_DATE.equalsNotNullSafe(from))
+                && (to == null || FDate.MAX_DATE.equalsNotNullSafe(to));
+    }
+
+    public TimeRange limit(final TimeRange timeRange) {
+        return limit(timeRange.getFrom(), timeRange.getTo());
+    }
+
+    public TimeRange limit(final FDate from, final FDate to) {
+        return new TimeRange(getFrom().orHigher(from), getTo().orLower(to));
+    }
 }

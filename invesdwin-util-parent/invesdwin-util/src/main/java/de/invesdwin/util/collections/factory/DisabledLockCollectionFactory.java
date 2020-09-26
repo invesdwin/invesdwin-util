@@ -40,12 +40,15 @@ import uk.co.omegaprime.btreemap.BTreeMap;
 @Immutable
 public final class DisabledLockCollectionFactory implements ILockCollectionFactory {
 
-    public static final int ROARING_BITMAP_THRESHOLD = 250000;
-
     public static final DisabledLockCollectionFactory INSTANCE = new DisabledLockCollectionFactory();
     //ServiceLoader does not work properly during maven builds, thus directly reference the actual factories
     private static final HashObjObjMapFactory<?, ?> KOLOBOKE_MAP_FACTORY = new LHashParallelKVObjObjMapFactoryImpl<Object, Object>();
     private static final HashObjSetFactory<?> KOLOBOKE_SET_FACTORY = new LHashObjSetFactoryImpl<Object>();
+    /**
+     * At 100k elements the speed of roaring bitmap is similar to that of java bitset. Thus prefer the memory saver
+     * version.
+     */
+    private static final int ROARING_BITMAP_THRESHOLD = 100_000;
 
     private DisabledLockCollectionFactory() {
     }
