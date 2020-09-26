@@ -45,10 +45,10 @@ public final class DisabledLockCollectionFactory implements ILockCollectionFacto
     private static final HashObjObjMapFactory<?, ?> KOLOBOKE_MAP_FACTORY = new LHashParallelKVObjObjMapFactoryImpl<Object, Object>();
     private static final HashObjSetFactory<?> KOLOBOKE_SET_FACTORY = new LHashObjSetFactoryImpl<Object>();
     /**
-     * At 100k elements the speed of roaring bitmap is similar to that of java bitset. Thus prefer the memory saver
-     * version.
+     * At a few 100k elements the speed of roaring bitmap is similar to that of java bitset (about 20-30% slower instead
+     * of 50%). Thus prefer the memory saver version at some threshold.
      */
-    private static final int ROARING_BITMAP_THRESHOLD = 100_000;
+    private static final int ROARING_BITMAP_THRESHOLD = 1_000_000;
 
     private DisabledLockCollectionFactory() {
     }
