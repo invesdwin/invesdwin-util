@@ -100,7 +100,7 @@ public final class BitSets extends ABitSetsStaticFacade {
         return matrixAsList;
     }
 
-    public static void andRange(final BitSet combinedInto, final BitSet other, final int fromInclusive,
+    public static void andRangeFast(final BitSet combinedInto, final BitSet other, final int fromInclusive,
             final int toExclusive) {
         //        public void and(BitSet set) {
         //            if (this == set)

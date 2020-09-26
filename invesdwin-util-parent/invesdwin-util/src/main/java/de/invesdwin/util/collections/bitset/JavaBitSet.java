@@ -74,7 +74,7 @@ public class JavaBitSet implements IBitSet {
                 return EmptyBitSet.INSTANCE;
             }
             final JavaBitSet cOther = (JavaBitSet) other.unwrap();
-            BitSets.andRange(combined, cOther.bitSet, fromInclusive, toExclusive);
+            BitSets.andRangeFast(combined, cOther.bitSet, fromInclusive, toExclusive);
         }
         return new JavaBitSet(combined);
     }
