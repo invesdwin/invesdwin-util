@@ -307,7 +307,7 @@ public final class FDates {
     }
 
     public static boolean isSameYear(final FDate date1, final FDate date2) {
-        return date1.getYear() == date2.getYear();
+        return isSameTruncated(date1, date2, FDateField.Year);
     }
 
     public static boolean isSameYear(final FDate date1, final FDate date2, final ZoneId timeZone) {
@@ -315,7 +315,7 @@ public final class FDates {
     }
 
     public static boolean isSameMonth(final FDate date1, final FDate date2) {
-        return date1.getMonth() == date2.getMonth() && isSameYear(date1, date2);
+        return isSameTruncated(date1, date2, FDateField.Month);
     }
 
     public static boolean isSameMonth(final FDate date1, final FDate date2, final ZoneId timeZone) {
