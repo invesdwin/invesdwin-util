@@ -71,6 +71,9 @@ public class RoaringBitSet implements IBitSet {
 
     @Override
     public IBitSet andRange(final int fromInclusive, final int toExclusive, final IBitSet[] others) {
+        if (fromInclusive == 0 && toExclusive >= bitSet.last()) {
+            return and(others);
+        }
         final RoaringBitmap[] cOthers = new RoaringBitmap[others.length + 1];
         cOthers[0] = bitSet;
         for (int i = 0; i < others.length; i++) {
