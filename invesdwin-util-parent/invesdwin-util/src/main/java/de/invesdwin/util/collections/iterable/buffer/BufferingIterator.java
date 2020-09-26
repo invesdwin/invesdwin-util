@@ -337,7 +337,7 @@ public class BufferingIterator<E> implements IBufferingIterator<E>, ISerializabl
                 throw new FastNoSuchElementException("BufferingIterator: hasNext is false");
             }
             final _E value = innerHead.getValue();
-            if (value == innerTail) {
+            if (innerHead == innerTail) {
                 innerHead = null;
             } else {
                 innerHead = innerHead.getNext();
