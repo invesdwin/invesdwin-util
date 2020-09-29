@@ -24,6 +24,8 @@ public class TimeRange extends AValueObject {
         }
     };
 
+    public static final TimeRange UNLIMITED = new TimeRange(null, null);
+
     private final FDate from;
     private final FDate to;
 
