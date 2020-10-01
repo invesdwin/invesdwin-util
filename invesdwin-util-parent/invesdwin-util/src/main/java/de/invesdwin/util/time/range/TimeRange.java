@@ -13,6 +13,7 @@ import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.time.duration.Duration;
 import de.invesdwin.util.time.fdate.FDate;
 import de.invesdwin.util.time.fdate.FDates;
+import de.invesdwin.util.time.fdate.IFDateProvider;
 
 @Immutable
 public class TimeRange extends AValueObject {
@@ -55,16 +56,16 @@ public class TimeRange extends AValueObject {
         return getFrom() + " -> " + getTo() + " => " + getDuration();
     }
 
-    public TimeRange asNonNull(final FDate fromNullReplacement, final FDate toNullReplacement) {
+    public TimeRange asNonNull(final IFDateProvider fromNullReplacement, final IFDateProvider toNullReplacement) {
         final FDate usedFrom;
         if (from == null) {
-            usedFrom = fromNullReplacement;
+            usedFrom = fromNullReplacement.asFDate();
         } else {
             usedFrom = from;
         }
         final FDate usedTo;
         if (to == null) {
-            usedTo = toNullReplacement;
+            usedTo = toNullReplacement.asFDate();
         } else {
             usedTo = to;
         }
@@ -183,8 +184,8 @@ public class TimeRange extends AValueObject {
     }
 
     public static boolean isUnlimited(final FDate from, final FDate to) {
-        return (from == null || FDate.MIN_DATE.equalsNotNullSafe(from))
-                && (to == null || FDate.MAX_DATE.equalsNotNullSafe(to));
+        return (from == null || from.isBeforeOrEqualToNotNullSafe(FDate.MIN_DATE))
+                && (to == null || to.isAfterOrEqualToNotNullSafe(FDate.MAX_DATE));
     }
 
     public TimeRange limit(final TimeRange timeRange) {
@@ -194,4 +195,26 @@ public class TimeRange extends AValueObject {
     public TimeRange limit(final FDate from, final FDate to) {
         return new TimeRange(getFrom().orHigher(from), getTo().orLower(to));
     }
+
+    @Override
+    public TimeRange clone() {
+        return (TimeRange) super.clone();
+    }
+
+    public TimeRange asNonUnlimited(final IFDateProvider minProvider, final IFDateProvider maxProvider) {
+        final FDate usedFrom;
+        if (from == null || from.isBeforeOrEqualToNotNullSafe(FDate.MIN_DATE)) {
+            usedFrom = minProvider.asFDate();
+        } else {
+            usedFrom = from;
+        }
+        final FDate usedTo;
+        if (to == null || to.isAfterOrEqualToNotNullSafe(FDate.MAX_DATE)) {
+            usedTo = maxProvider.asFDate();
+        } else {
+            usedTo = to;
+        }
+        return new TimeRange(usedFrom, usedTo);
+    }
+
 }
