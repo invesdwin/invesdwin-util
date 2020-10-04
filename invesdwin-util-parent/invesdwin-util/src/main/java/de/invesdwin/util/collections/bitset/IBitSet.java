@@ -30,6 +30,8 @@ public interface IBitSet {
 
     int getTrueCount();
 
+    int getExpectedSize();
+
     boolean isEmpty();
 
     ISkippingIndexProvider newSkippingIndexProvider();

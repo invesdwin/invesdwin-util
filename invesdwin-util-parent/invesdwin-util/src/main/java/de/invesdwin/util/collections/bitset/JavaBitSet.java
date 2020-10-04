@@ -10,18 +10,19 @@ import de.invesdwin.util.math.BitSets;
 public class JavaBitSet implements IBitSet {
 
     private final BitSet bitSet;
+    private final int expectedSize;
     private int trueCount = 0;
-    private int expectedSize;
 
-    public JavaBitSet(final BitSet bitSet) {
+    public JavaBitSet(final BitSet bitSet, final int expectedSize) {
         this.bitSet = bitSet;
+        this.expectedSize = expectedSize;
         this.trueCount = -1;
     }
 
     public JavaBitSet(final int expectedSize) {
         this.bitSet = new BitSet(expectedSize);
-        //leaving trueCount explicitly at 0 so that add works properly
         this.expectedSize = expectedSize;
+        //leaving trueCount explicitly at 0 so that add works properly
     }
 
     @Override
@@ -61,7 +62,7 @@ public class JavaBitSet implements IBitSet {
             final JavaBitSet cOther = (JavaBitSet) other.unwrap();
             combined.and(cOther.bitSet);
         }
-        return new JavaBitSet(combined);
+        return new JavaBitSet(combined, expectedSize);
     }
 
     @Override
@@ -75,14 +76,31 @@ public class JavaBitSet implements IBitSet {
             final JavaBitSet cOther = (JavaBitSet) other.unwrap();
             BitSets.andRangeFast(combined, cOther.bitSet, fromInclusive, toExclusive);
         }
-        return new JavaBitSet(combined);
+        return new JavaBitSet(combined, expectedSize);
     }
 
     @Override
     public IBitSet negate() {
         final BitSet negated = (BitSet) bitSet.clone();
         negated.flip(0, expectedSize);
-        return new JavaBitSet(negated);
+        return new JavaBitSet(negated, expectedSize);
+    }
+
+    @Override
+    public IBitSet negateShallow() {
+        return new ShallowNegatedBitSet(this) {
+            @Override
+            public ISkippingIndexProvider newSkippingIndexProvider() {
+                return nextCandidate -> {
+                    final int next = bitSet.nextClearBit(nextCandidate);
+                    if (next < 0) {
+                        return ISkippingIndexProvider.END;
+                    } else {
+                        return next;
+                    }
+                };
+            }
+        };
     }
 
     @Override
@@ -91,6 +109,11 @@ public class JavaBitSet implements IBitSet {
             trueCount = bitSet.cardinality();
         }
         return trueCount;
+    }
+
+    @Override
+    public int getExpectedSize() {
+        return expectedSize;
     }
 
     @Override

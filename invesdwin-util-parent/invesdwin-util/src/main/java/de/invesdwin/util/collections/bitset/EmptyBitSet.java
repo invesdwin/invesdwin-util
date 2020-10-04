@@ -61,6 +61,11 @@ public class EmptyBitSet implements IBitSet {
     }
 
     @Override
+    public int getExpectedSize() {
+        return 0;
+    }
+
+    @Override
     public boolean isEmpty() {
         return true;
     }

@@ -54,6 +54,13 @@ public class SynchronizedBitSet implements IBitSet {
     }
 
     @Override
+    public int getExpectedSize() {
+        synchronized (lock) {
+            return delegate.getExpectedSize();
+        }
+    }
+
+    @Override
     public IBitSet and(final IBitSet... others) {
         synchronized (lock) {
             return delegate.and(others);

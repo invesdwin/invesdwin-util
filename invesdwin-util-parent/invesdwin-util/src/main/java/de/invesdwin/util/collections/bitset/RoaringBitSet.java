@@ -17,14 +17,14 @@ public class RoaringBitSet implements IBitSet {
 
     public RoaringBitSet(final RoaringBitmap bitSet, final int expectedSize) {
         this.bitSet = bitSet;
-        this.trueCount = -1;
         this.expectedSize = expectedSize;
+        this.trueCount = -1;
     }
 
     public RoaringBitSet(final int expectedSize) {
         this.bitSet = new RoaringBitmap();
-        //leaving trueCount explicitly at 0 so that add works properly
         this.expectedSize = expectedSize;
+        //leaving trueCount explicitly at 0 so that add works properly
     }
 
     @Override
@@ -101,11 +101,21 @@ public class RoaringBitSet implements IBitSet {
     }
 
     @Override
+    public IBitSet negateShallow() {
+        return new ShallowNegatedBitSet(this);
+    }
+
+    @Override
     public int getTrueCount() {
         if (trueCount == -1) {
             trueCount = bitSet.getCardinality();
         }
         return trueCount;
+    }
+
+    @Override
+    public int getExpectedSize() {
+        return expectedSize;
     }
 
     @Override
@@ -120,16 +130,24 @@ public class RoaringBitSet implements IBitSet {
     @Override
     public ISkippingIndexProvider newSkippingIndexProvider() {
         final PeekableIntIterator delegate = bitSet.getIntIterator();
-        return nextCandidate -> {
-            delegate.advanceIfNeeded(nextCandidate);
-            int next;
-            do {
-                if (!delegate.hasNext()) {
-                    return ISkippingIndexProvider.END;
+        return new ISkippingIndexProvider() {
+
+            private int cur = -1;
+
+            @Override
+            public int next(final int nextCandidate) {
+                if (cur == nextCandidate) {
+                    return nextCandidate;
                 }
-                next = delegate.next();
-            } while (next < nextCandidate);
-            return next;
+                delegate.advanceIfNeeded(nextCandidate);
+                do {
+                    if (!delegate.hasNext()) {
+                        return ISkippingIndexProvider.END;
+                    }
+                    cur = delegate.next();
+                } while (cur < nextCandidate);
+                return cur;
+            }
         };
     }
 

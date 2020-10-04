@@ -13,6 +13,11 @@ public class BooleanArrayBitSet implements IBitSet {
     }
 
     @Override
+    public int getExpectedSize() {
+        return bitSet.length;
+    }
+
+    @Override
     public void add(final int index) {
         bitSet[index] = true;
         trueCount++;

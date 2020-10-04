@@ -82,6 +82,11 @@ public final class ShiftedIndexDelegateBitSet implements IBitSet {
     }
 
     @Override
+    public int getExpectedSize() {
+        return delegate.getExpectedSize() - subtractFromIndex;
+    }
+
+    @Override
     public boolean isEmpty() {
         return delegate.isEmpty();
     }
