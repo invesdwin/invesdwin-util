@@ -41,6 +41,16 @@ public abstract class ADelegateBitSet implements IBitSet {
     }
 
     @Override
+    public IBitSet negate() {
+        return getDelegate().negate();
+    }
+
+    @Override
+    public IBitSet negateShallow() {
+        return getDelegate().negateShallow();
+    }
+
+    @Override
     public int getTrueCount() {
         return getDelegate().getTrueCount();
     }

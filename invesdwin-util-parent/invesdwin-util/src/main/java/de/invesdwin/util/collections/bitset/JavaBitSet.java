@@ -11,18 +11,17 @@ public class JavaBitSet implements IBitSet {
 
     private final BitSet bitSet;
     private int trueCount = 0;
-
-    public JavaBitSet() {
-        this.bitSet = new BitSet();
-        this.trueCount = -1;
-    }
+    private int expectedSize;
 
     public JavaBitSet(final BitSet bitSet) {
         this.bitSet = bitSet;
+        this.trueCount = -1;
     }
 
     public JavaBitSet(final int expectedSize) {
         this.bitSet = new BitSet(expectedSize);
+        //leaving trueCount explicitly at 0 so that add works properly
+        this.expectedSize = expectedSize;
     }
 
     @Override
@@ -77,6 +76,13 @@ public class JavaBitSet implements IBitSet {
             BitSets.andRangeFast(combined, cOther.bitSet, fromInclusive, toExclusive);
         }
         return new JavaBitSet(combined);
+    }
+
+    @Override
+    public IBitSet negate() {
+        final BitSet negated = (BitSet) bitSet.clone();
+        negated.flip(0, expectedSize);
+        return new JavaBitSet(negated);
     }
 
     @Override

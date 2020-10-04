@@ -12,15 +12,19 @@ import de.invesdwin.util.collections.iterable.collection.ArrayCloseableIterator;
 public class RoaringBitSet implements IBitSet {
 
     private final RoaringBitmap bitSet;
+    private final int expectedSize;
     private int trueCount = 0;
 
-    public RoaringBitSet(final RoaringBitmap bitSet) {
+    public RoaringBitSet(final RoaringBitmap bitSet, final int expectedSize) {
         this.bitSet = bitSet;
         this.trueCount = -1;
+        this.expectedSize = expectedSize;
     }
 
-    public RoaringBitSet() {
+    public RoaringBitSet(final int expectedSize) {
         this.bitSet = new RoaringBitmap();
+        //leaving trueCount explicitly at 0 so that add works properly
+        this.expectedSize = expectedSize;
     }
 
     @Override
@@ -66,7 +70,7 @@ public class RoaringBitSet implements IBitSet {
             cOthers[i + 1] = cOther.bitSet;
         }
         final RoaringBitmap combined = FastAggregation.and(cOthers);
-        return new RoaringBitSet(combined);
+        return new RoaringBitSet(combined, expectedSize);
     }
 
     @Override
@@ -86,7 +90,14 @@ public class RoaringBitSet implements IBitSet {
         }
         final RoaringBitmap combined = RoaringBitmap.and(new ArrayCloseableIterator<RoaringBitmap>(cOthers),
                 fromInclusive, (long) toExclusive);
-        return new RoaringBitSet(combined);
+        return new RoaringBitSet(combined, expectedSize);
+    }
+
+    @Override
+    public IBitSet negate() {
+        final RoaringBitmap negated = bitSet.clone();
+        negated.flip(0L, expectedSize);
+        return new RoaringBitSet(negated, expectedSize);
     }
 
     @Override

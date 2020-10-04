@@ -18,6 +18,16 @@ public interface IBitSet {
      */
     IBitSet andRange(int fromInclusive, int toExclusive, IBitSet[] others);
 
+    /**
+     * This creates a negated copy of the underlying bitset.
+     */
+    IBitSet negate();
+
+    /**
+     * This creates a wrapper around the underlying bitset that negates its values.
+     */
+    IBitSet negateShallow();
+
     int getTrueCount();
 
     boolean isEmpty();

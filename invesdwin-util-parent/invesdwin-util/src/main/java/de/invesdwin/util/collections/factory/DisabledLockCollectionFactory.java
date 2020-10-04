@@ -70,7 +70,7 @@ public final class DisabledLockCollectionFactory implements ILockCollectionFacto
          * larger sizes to stay in memory limits
          */
         if (expectedSize > ROARING_BITMAP_THRESHOLD) {
-            return new RoaringBitSet();
+            return new RoaringBitSet(expectedSize);
         } else {
             return new JavaBitSet(expectedSize);
         }

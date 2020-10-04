@@ -92,6 +92,29 @@ public class LockedBitSet implements IBitSet {
     }
 
     @Override
+    public IBitSet negate() {
+        lock.lock();
+        try {
+            return delegate.negate();
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    /**
+     * Since we still operate on the underlying bitset, we reuse the lock here.
+     */
+    @Override
+    public IBitSet negateShallow() {
+        lock.lock();
+        try {
+            return new LockedBitSet(delegate.negateShallow(), lock);
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
     public boolean isEmpty() {
         lock.lock();
         try {

@@ -68,6 +68,23 @@ public class SynchronizedBitSet implements IBitSet {
     }
 
     @Override
+    public IBitSet negate() {
+        synchronized (lock) {
+            return delegate.negate();
+        }
+    }
+
+    /**
+     * Since we still operate on the underlying bitset, we reuse the lock here.
+     */
+    @Override
+    public IBitSet negateShallow() {
+        synchronized (lock) {
+            return new SynchronizedBitSet(delegate.negateShallow(), lock);
+        }
+    }
+
+    @Override
     public boolean isEmpty() {
         synchronized (lock) {
             return delegate.isEmpty();

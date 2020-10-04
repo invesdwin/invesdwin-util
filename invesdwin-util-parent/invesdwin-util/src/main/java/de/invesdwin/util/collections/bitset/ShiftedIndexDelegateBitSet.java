@@ -67,6 +67,16 @@ public final class ShiftedIndexDelegateBitSet implements IBitSet {
     }
 
     @Override
+    public IBitSet negate() {
+        return of(delegate.negate(), subtractFromIndex);
+    }
+
+    @Override
+    public IBitSet negateShallow() {
+        return of(delegate.negateShallow(), subtractFromIndex);
+    }
+
+    @Override
     public int getTrueCount() {
         return delegate.getTrueCount();
     }

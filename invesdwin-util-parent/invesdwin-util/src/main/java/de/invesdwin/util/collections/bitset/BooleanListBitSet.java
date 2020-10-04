@@ -65,6 +65,16 @@ public class BooleanListBitSet implements IBitSet {
     }
 
     @Override
+    public IBitSet negate() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public IBitSet negateShallow() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public int getTrueCount() {
         return trueCount;
     }

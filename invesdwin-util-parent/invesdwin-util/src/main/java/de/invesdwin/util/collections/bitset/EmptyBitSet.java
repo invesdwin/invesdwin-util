@@ -27,6 +27,24 @@ public class EmptyBitSet implements IBitSet {
         return this;
     }
 
+    /**
+     * We explicitly don't return an always true instance here because it does not add any knowledge and should instead
+     * be skipped. A negated empty array is still empty, that is the rationale.
+     */
+    @Override
+    public IBitSet negate() {
+        return INSTANCE;
+    }
+
+    /**
+     * We explicitly don't return an always true instance here because it does not add any knowledge and should instead
+     * be skipped. A negated empty array is still empty, that is the rationale.
+     */
+    @Override
+    public IBitSet negateShallow() {
+        return INSTANCE;
+    }
+
     @Override
     public IBitSet and(final IBitSet... others) {
         return INSTANCE;
