@@ -20,6 +20,7 @@ import de.invesdwin.util.math.expression.eval.function.DoubleFunctionCall;
 import de.invesdwin.util.math.expression.eval.operation.BooleanNullableAndOperation;
 import de.invesdwin.util.math.expression.eval.operation.BooleanNullableNotOperation;
 import de.invesdwin.util.math.expression.eval.operation.BooleanNullableOrOperation;
+import de.invesdwin.util.math.expression.eval.operation.BooleanNullableXorOperation;
 import de.invesdwin.util.math.expression.eval.operation.DoubleBinaryOperation;
 import de.invesdwin.util.math.expression.eval.operation.DoubleCrossesAboveOperation;
 import de.invesdwin.util.math.expression.eval.operation.DoubleCrossesBelowOperation;
@@ -280,6 +281,10 @@ public class ExpressionParser {
             tokenizer.consume();
             final IParsedExpression right = expression(commaAllowed);
             return reOrder(left, right, Op.OR);
+        } else if ("xor".equalsIgnoreCase(current.getContents())) {
+            tokenizer.consume();
+            final IParsedExpression right = expression(commaAllowed);
+            return reOrder(left, right, Op.XOR);
         }
         return left;
     }
@@ -408,6 +413,8 @@ public class ExpressionParser {
             return new BooleanNullableAndOperation(left, right);
         case OR:
             return new BooleanNullableOrOperation(left, right);
+        case XOR:
+            return new BooleanNullableXorOperation(left, right);
         case NOT:
             return new BooleanNullableNotOperation(left, right);
         case CROSSES_ABOVE:
@@ -441,6 +448,8 @@ public class ExpressionParser {
             return target.setLeft(new BooleanNullableAndOperation(newLeft, target.getLeft()));
         case OR:
             return target.setLeft(new BooleanNullableOrOperation(newLeft, target.getLeft()));
+        case XOR:
+            return target.setLeft(new BooleanNullableXorOperation(newLeft, target.getLeft()));
         case NOT:
             return target.setLeft(new BooleanNullableNotOperation(newLeft, target.getLeft()));
         case CROSSES_ABOVE:

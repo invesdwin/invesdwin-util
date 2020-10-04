@@ -21,6 +21,48 @@ public class ExpressionParserTest {
     }
 
     @Test
+    public void testXor() {
+        final IExpression parsed = new ExpressionParser("true xor false").parse();
+        final double evaluateDouble = parsed.newEvaluateDouble().evaluateDouble();
+        Assertions.checkEquals(1D, evaluateDouble);
+    }
+
+    @Test
+    public void testXorLeftNaN() {
+        final IExpression parsed = new ExpressionParser("NaN xOr true").parse();
+        final double evaluateDouble = parsed.newEvaluateDouble().evaluateDouble();
+        Assertions.checkEquals(1D, evaluateDouble);
+    }
+
+    @Test
+    public void testXorRightNaN() {
+        final IExpression parsed = new ExpressionParser("true XOR NaN").parse();
+        final double evaluateDouble = parsed.newEvaluateDouble().evaluateDouble();
+        Assertions.checkEquals(1D, evaluateDouble);
+    }
+
+    @Test
+    public void testXorFalseFromTrue() {
+        final IExpression parsed = new ExpressionParser("true xor true").parse();
+        final double evaluateDouble = parsed.newEvaluateDouble().evaluateDouble();
+        Assertions.checkEquals(0D, evaluateDouble);
+    }
+
+    @Test
+    public void testXorFalseFromFalse() {
+        final IExpression parsed = new ExpressionParser("false xor false").parse();
+        final double evaluateDouble = parsed.newEvaluateDouble().evaluateDouble();
+        Assertions.checkEquals(0D, evaluateDouble);
+    }
+
+    @Test
+    public void testXorNanFromNan() {
+        final IExpression parsed = new ExpressionParser("NaN xor NaN").parse();
+        final double evaluateDouble = parsed.newEvaluateDouble().evaluateDouble();
+        Assertions.checkEquals(Double.NaN, evaluateDouble);
+    }
+
+    @Test
     public void testTwoComments() {
         final String str = "  //one comment\n" //
                 + "1=1\n" //

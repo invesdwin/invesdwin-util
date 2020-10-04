@@ -201,4 +201,21 @@ public final class Booleans extends ABooleansStaticFacade {
         return nullToFalse(checkedCastObj(value));
     }
 
+    public static Boolean xor(final Boolean value1, final Boolean value2) {
+        if (value1 == null) {
+            return value2;
+        } else if (value2 == null) {
+            return value1;
+        }
+        if (xor(value1.booleanValue(), value2.booleanValue())) {
+            return Boolean.TRUE;
+        } else {
+            return Boolean.FALSE;
+        }
+    }
+
+    public static boolean xor(final boolean value1, final boolean value2) {
+        return value1 ^ value2;
+    }
+
 }
