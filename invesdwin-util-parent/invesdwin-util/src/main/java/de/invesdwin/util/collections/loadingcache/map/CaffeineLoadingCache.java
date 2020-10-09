@@ -23,7 +23,7 @@ public class CaffeineLoadingCache<K, V> implements ILoadingCache<K, V> {
         }
 
         @Override
-        protected CaffeineLoadingCacheMapConfig getConfig() {
+        protected CaffeineLoadingCacheMapConfig newConfig() {
             return CaffeineLoadingCache.this.getConfig();
         }
     };

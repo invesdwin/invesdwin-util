@@ -13,7 +13,7 @@ public abstract class ACaffeineLoadingCacheMap<K, V> extends ADelegateMap<K, V> 
 
     @Override
     protected final ILoadingCacheMap<K, V> newDelegate() {
-        return getConfig().newMap(this);
+        return newConfig().newMap(this);
     }
 
     @Override
@@ -27,9 +27,9 @@ public abstract class ACaffeineLoadingCacheMap<K, V> extends ADelegateMap<K, V> 
      * It is unknown if the calculations should only be kept temporarily. Such an assumption here would cause problems
      * elsewhere, thus we don't do eviction per default.
      * 
-     * Null may be returned by this.
+     * Null may not be returned by this.
      */
-    protected CaffeineLoadingCacheMapConfig getConfig() {
+    protected CaffeineLoadingCacheMapConfig newConfig() {
         return new CaffeineLoadingCacheMapConfig();
     }
 
