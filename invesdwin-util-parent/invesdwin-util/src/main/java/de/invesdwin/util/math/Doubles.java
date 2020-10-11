@@ -921,4 +921,14 @@ public final class Doubles extends ADoublesStaticFacade {
         return value % otherValue;
     }
 
+    public static double sum(final double a, final double b) {
+        if (isNaN(a)) {
+            return b;
+        } else if (isNaN(b)) {
+            return a;
+        } else {
+            return add(a, b);
+        }
+    }
+
 }
