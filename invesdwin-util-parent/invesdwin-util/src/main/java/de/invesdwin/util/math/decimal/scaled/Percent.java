@@ -157,6 +157,10 @@ public class Percent extends AScaledDecimal<Percent, PercentScale> {
         return getDefaultValue();
     }
 
+    public double getPercent() {
+        return getValue(PercentScale.PERCENT);
+    }
+
     /**
      * (newValue - oldValue) / abs(oldValue)
      */

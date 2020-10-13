@@ -16,6 +16,12 @@ public class TimedPercent extends Percent {
         this.time = time;
     }
 
+    public TimedPercent(final FDate time, final double value, final PercentScale scale) {
+        super(value, scale);
+        Assertions.checkNotNull(time);
+        this.time = time;
+    }
+
     public FDate getTime() {
         return time;
     }
