@@ -125,6 +125,14 @@ public class Percent extends AScaledDecimal<Percent, PercentScale> {
         }
     }
 
+    /**
+     * AKA: HoldingPeriodReturnPerUnit
+     */
+    public static double newProfitLossPerUnitPercent(final double openPriceAbsolute,
+            final double profitLossPerUnitAbsolute) {
+        return Doubles.divide(profitLossPerUnitAbsolute, openPriceAbsolute) * 100D;
+    }
+
     @Override
     public PercentScale getDefaultScale() {
         return DEFAULT_SCALE;
