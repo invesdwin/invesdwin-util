@@ -33,7 +33,7 @@ public final class ToStringHelper {
     }
 
     public ToStringHelper add(final String name, @Nullable final Object value) {
-        checkNameAndAppend(name).append(value);
+        checkNameAndAppend(name).append(toString(value));
         return this;
     }
 
@@ -68,7 +68,7 @@ public final class ToStringHelper {
     }
 
     public ToStringHelper addValue(@Nullable final Object value) {
-        maybeAppendSeparator().append(value);
+        maybeAppendSeparator().append(toString(value));
         return this;
     }
 
@@ -124,6 +124,15 @@ public final class ToStringHelper {
             colon = ":";
         }
         return append.append(colon);
+    }
+
+    private String toString(final Object value) {
+        final String str = Strings.asStringNullText(value);
+        if (multiline) {
+            return Strings.replace(str, "\n", "\n" + INDENT);
+        } else {
+            return str;
+        }
     }
 
     @Override
