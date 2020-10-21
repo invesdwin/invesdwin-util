@@ -334,11 +334,15 @@ public class Duration extends Number implements Comparable<Object> {
             sb.append("0");
         }
         sb.insert(0, "P");
-        if (duration < 0 && !"P0".equals(sb.toString())) {
+        if (duration < 0 && !isP0(sb)) {
             sb.insert(0, "-");
         }
 
         return sb.toString();
+    }
+
+    private boolean isP0(final StringBuilder sb) {
+        return sb.length() == 2 && sb.charAt(0) == 'P' && sb.charAt(1) == '0';
     }
 
     /**
