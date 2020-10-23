@@ -603,7 +603,7 @@ public class Duration extends Number implements Comparable<Object> {
         if (Strings.contains(normalizedValue, " ")) {
             try {
                 final String[] values = normalizedValue.split(" ");
-                final int duration = Integer.valueOf(values[0]);
+                final int duration = Integer.parseInt(values[0]);
                 final FTimeUnit unit = FTimeUnit.valueOfAlias(values[1]);
                 if (unit == null) {
                     return null;
@@ -630,7 +630,7 @@ public class Duration extends Number implements Comparable<Object> {
                     }
                     if (number != null) {
                         try {
-                            final int duration = Integer.valueOf(number);
+                            final int duration = Integer.parseInt(number);
                             return new Duration(duration, unit);
                         } catch (final Throwable e) {
                             return null;

@@ -169,7 +169,7 @@ public class FWeekTime extends Number implements Comparable<Object> {
             if (length != 1 && length != 3 && length != 10) {
                 throw new IllegalArgumentException("Expecting between 1, 3, 5, 7 or 10 characters but got " + length);
             }
-            final FWeekday weekday = FWeekday.valueOfJodaTime(Integer.valueOf(value.substring(0, 1)));
+            final FWeekday weekday = FWeekday.valueOfJodaTime(Integer.parseInt(value.substring(0, 1)));
             final int hour;
             if (length > 1) {
                 hour = Integer.parseInt(value.substring(1, 3));

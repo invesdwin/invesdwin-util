@@ -29,7 +29,7 @@ public abstract class ATransformingBufferingIterator<S, R> implements IBuffering
 
     @Override
     public R next() {
-        return null;
+        return transform(delegate.next());
     }
 
     @Override

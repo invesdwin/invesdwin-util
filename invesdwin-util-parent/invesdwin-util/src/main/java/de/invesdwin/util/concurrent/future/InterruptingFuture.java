@@ -10,6 +10,8 @@ import javax.annotation.concurrent.Immutable;
 
 import com.google.common.util.concurrent.ListenableScheduledFuture;
 
+import de.invesdwin.util.math.Longs;
+
 /**
  * May be delivered if a task cannot be started because an InterruptedException occured. In this case the interrupt is
  * propagated. Executors cannot propagate InterruptedExceptions otherwise sometimes.
@@ -53,7 +55,7 @@ public class InterruptingFuture<V> implements ListenableScheduledFuture<V> {
 
     @Override
     public int compareTo(final Delayed o) {
-        return Long.valueOf(getDelay(TimeUnit.NANOSECONDS)).compareTo(o.getDelay(TimeUnit.NANOSECONDS));
+        return Longs.compare(getDelay(TimeUnit.NANOSECONDS), o.getDelay(TimeUnit.NANOSECONDS));
     }
 
     @Override

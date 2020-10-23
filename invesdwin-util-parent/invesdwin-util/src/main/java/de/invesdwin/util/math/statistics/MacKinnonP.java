@@ -107,8 +107,7 @@ public final class MacKinnonP {
                             { 3.8637, 6.7852, -2.6286, -3.1381 }, { 4.2736, 7.6199, -2.1534, -2.4026 },
                             { 4.6679, 8.2618, -1.822, -1.9147 }, { 5.0009, 8.3735, -1.6994, -1.6928 } });
 
-            for (final RegressionMethod key : keySet()) {
-                final double[][] arr = get(key);
+            for (final double[][] arr : values()) {
                 for (final double[] subarr : arr) {
                     for (int i = 0; i < 4; i++) {
                         subarr[i] = ADF_LARGE_SCALING[i] * subarr[i];

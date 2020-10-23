@@ -34,7 +34,7 @@ public final class Addresses {
 
     public static boolean isPort(final String port) {
         try {
-            return isPort(Integer.valueOf(port));
+            return isPort(Integer.parseInt(port));
         } catch (final NumberFormatException e) {
             return false;
         }

@@ -34,13 +34,7 @@ public class PriorityFuture<T> implements RunnableFuture<T>, IPriorityProvider {
                 } else if (p2NaN) {
                     return -1;
                 } else {
-                    if (p1 == p2) {
-                        return 0;
-                    } else if (p1 < p2) {
-                        return -1;
-                    } else {
-                        return 1;
-                    }
+                    return Doubles.compare(p1, p2);
                 }
             }
         }
