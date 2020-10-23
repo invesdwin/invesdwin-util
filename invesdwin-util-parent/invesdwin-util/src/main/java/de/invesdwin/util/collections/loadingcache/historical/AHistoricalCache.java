@@ -392,9 +392,6 @@ public abstract class AHistoricalCache<V>
     }
 
     public boolean registerOnClearListener(final IHistoricalCacheOnClearListener l) {
-        if (l == this) {
-            return false;
-        }
         return onClearListeners.add(l);
     }
 

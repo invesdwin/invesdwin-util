@@ -39,7 +39,7 @@ public class SpinnerDecimalModel extends SpinnerNumberModel {
     public void setMinimum(final Decimal min) {
         if (!Objects.equals(min, minimum)) {
             minimum = min;
-            if ((lastValidValue == null) || (min.compareTo(lastValidValue) == 1)) {
+            if ((lastValidValue == null) || (min.compareTo(lastValidValue) > 0)) {
                 final boolean wasValid = isCurrentValueValid();
                 lastValidValue = min;
                 if (wasValid != isCurrentValueValid()) {
@@ -65,7 +65,7 @@ public class SpinnerDecimalModel extends SpinnerNumberModel {
     public void setMaximum(final Decimal max) {
         if (!Objects.equals(max, maximum)) {
             maximum = max;
-            if ((lastValidValue == null) || (max.compareTo(lastValidValue) == -1)) {
+            if ((lastValidValue == null) || (max.compareTo(lastValidValue) < 0)) {
                 final boolean wasValid = isCurrentValueValid();
                 lastValidValue = max;
                 if (wasValid != isCurrentValueValid()) {
