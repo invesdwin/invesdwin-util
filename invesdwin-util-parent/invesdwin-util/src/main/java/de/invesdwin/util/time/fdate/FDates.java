@@ -39,8 +39,7 @@ public final class FDates {
         setDefaultTimeZone(TimeZone.getDefault());
     }
 
-    private FDates() {
-    }
+    private FDates() {}
 
     public static void setDefaultTimeZone(final TimeZone defaultTimeZone) {
         FDates.defaultTimeZone = defaultTimeZone;
@@ -596,7 +595,8 @@ public final class FDates {
         int lo = 0;
         int hi = keys.length;
         while (lo < hi) {
-            final int mid = (lo + hi) / 2;
+            // same as (low+high)/2
+            final int mid = (lo + hi) >>> 1;
             //if (x < list.get(mid)) {
             final FDate midKey = keys[mid];
             final int compareTo = midKey.compareToNotNullSafe(skippingKeysAbove);

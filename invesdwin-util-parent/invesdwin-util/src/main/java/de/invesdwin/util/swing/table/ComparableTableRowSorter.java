@@ -1,5 +1,6 @@
 package de.invesdwin.util.swing.table;
 
+import java.io.Serializable;
 import java.text.Collator;
 import java.util.Comparator;
 
@@ -257,7 +258,7 @@ public class ComparableTableRowSorter<M extends TableModel> extends ComparableDe
         }
     }
 
-    private static class ComparableComparator implements Comparator<Object> {
+    private static class ComparableComparator implements Comparator<Object>, Serializable {
         @Override
         @SuppressWarnings("unchecked")
         public int compare(final Object o1, final Object o2) {
