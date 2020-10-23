@@ -23,7 +23,8 @@ import de.invesdwin.util.lang.internal.MultilineToStringStyle;
         CheckedCastStrings.class, BeanPathStrings.class, com.google.common.base.Strings.class,
         org.assertj.core.util.Strings.class, org.apache.commons.text.StringEscapeUtils.class,
         org.apache.commons.text.WordUtils.class }, filterMethodSignatureExpressions = {
-                ".* java\\.lang\\.String repeat\\(java\\.lang\\.String str, int repeat\\).*", ".* isNullOrEmpty\\(.*" })
+                ".* isNullOrEmpty\\(.*" }, filterSeeMethodSignatures = {
+                        "com.google.common.base.Strings#repeat(java.lang.String, int)" })
 public final class Strings extends AStringsStaticFacade {
 
     public static final ADelegateComparator<String> COMPARATOR = new ADelegateComparator<String>() {
