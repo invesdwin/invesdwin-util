@@ -6,7 +6,7 @@ This project consists of common utilities and helpers that make a developers lif
 
 Releases and snapshots are deployed to this maven repository:
 ```
-https://invesdwin.de/artifactory/invesdwin-oss-remote
+https://invesdwin.de/repo/invesdwin-oss-remote
 ```
 
 Dependency declaration:
