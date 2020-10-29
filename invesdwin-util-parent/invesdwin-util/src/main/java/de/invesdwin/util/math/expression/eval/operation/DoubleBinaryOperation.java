@@ -88,37 +88,40 @@ public class DoubleBinaryOperation implements IBinaryOperation {
             };
         } else if (left.isConstant()) {
             final double a = left.newEvaluateDouble().evaluateDouble();
+            if (Doubles.isNaN(a)) {
+                return key -> Double.NaN;
+            }
             final IEvaluateDoubleFDate rightF = right.newEvaluateDoubleFDate();
             switch (op) {
             case GT:
                 return key -> {
                     final double b = rightF.evaluateDouble(key);
-                    return Doubles.fromBoolean(Doubles.isGreaterThan(a, b));
+                    return Doubles.fromBoolean(Doubles.isGreaterThanNullable(a, b));
                 };
             case GT_EQ:
                 return key -> {
                     final double b = rightF.evaluateDouble(key);
-                    return Doubles.fromBoolean(Doubles.isGreaterThanOrEqualTo(a, b));
+                    return Doubles.fromBoolean(Doubles.isGreaterThanOrEqualToNullable(a, b));
                 };
             case LT:
                 return key -> {
                     final double b = rightF.evaluateDouble(key);
-                    return Doubles.fromBoolean(Doubles.isLessThan(a, b));
+                    return Doubles.fromBoolean(Doubles.isLessThanNullable(a, b));
                 };
             case LT_EQ:
                 return key -> {
                     final double b = rightF.evaluateDouble(key);
-                    return Doubles.fromBoolean(Doubles.isLessThanOrEqualTo(a, b));
+                    return Doubles.fromBoolean(Doubles.isLessThanOrEqualToNullable(a, b));
                 };
             case EQ:
                 return key -> {
                     final double b = rightF.evaluateDouble(key);
-                    return Doubles.fromBoolean(Doubles.equals(a, b));
+                    return Doubles.fromBoolean(Doubles.equalsNullable(a, b));
                 };
             case NEQ:
                 return key -> {
                     final double b = rightF.evaluateDouble(key);
-                    return Doubles.fromBoolean(Doubles.notEquals(a, b));
+                    return Doubles.fromBoolean(Doubles.notEqualsNullable(a, b));
                 };
             case ADD:
                 return key -> {
@@ -160,36 +163,39 @@ public class DoubleBinaryOperation implements IBinaryOperation {
         } else if (right.isConstant()) {
             final IEvaluateDoubleFDate leftF = left.newEvaluateDoubleFDate();
             final double b = right.newEvaluateDouble().evaluateDouble();
+            if (Doubles.isNaN(b)) {
+                return key -> Double.NaN;
+            }
             switch (op) {
             case GT:
                 return key -> {
                     final double a = leftF.evaluateDouble(key);
-                    return Doubles.fromBoolean(Doubles.isGreaterThan(a, b));
+                    return Doubles.fromBoolean(Doubles.isGreaterThanNullable(a, b));
                 };
             case GT_EQ:
                 return key -> {
                     final double a = leftF.evaluateDouble(key);
-                    return Doubles.fromBoolean(Doubles.isGreaterThanOrEqualTo(a, b));
+                    return Doubles.fromBoolean(Doubles.isGreaterThanOrEqualToNullable(a, b));
                 };
             case LT:
                 return key -> {
                     final double a = leftF.evaluateDouble(key);
-                    return Doubles.fromBoolean(Doubles.isLessThan(a, b));
+                    return Doubles.fromBoolean(Doubles.isLessThanNullable(a, b));
                 };
             case LT_EQ:
                 return key -> {
                     final double a = leftF.evaluateDouble(key);
-                    return Doubles.fromBoolean(Doubles.isLessThanOrEqualTo(a, b));
+                    return Doubles.fromBoolean(Doubles.isLessThanOrEqualToNullable(a, b));
                 };
             case EQ:
                 return key -> {
                     final double a = leftF.evaluateDouble(key);
-                    return Doubles.fromBoolean(Doubles.equals(a, b));
+                    return Doubles.fromBoolean(Doubles.equalsNullable(a, b));
                 };
             case NEQ:
                 return key -> {
                     final double a = leftF.evaluateDouble(key);
-                    return Doubles.fromBoolean(Doubles.notEquals(a, b));
+                    return Doubles.fromBoolean(Doubles.notEqualsNullable(a, b));
                 };
             case ADD:
                 return key -> {
@@ -236,37 +242,37 @@ public class DoubleBinaryOperation implements IBinaryOperation {
                 return key -> {
                     final double a = leftF.evaluateDouble(key);
                     final double b = rightF.evaluateDouble(key);
-                    return Doubles.fromBoolean(Doubles.isGreaterThan(a, b));
+                    return Doubles.fromBoolean(Doubles.isGreaterThanNullable(a, b));
                 };
             case GT_EQ:
                 return key -> {
                     final double a = leftF.evaluateDouble(key);
                     final double b = rightF.evaluateDouble(key);
-                    return Doubles.fromBoolean(Doubles.isGreaterThanOrEqualTo(a, b));
+                    return Doubles.fromBoolean(Doubles.isGreaterThanOrEqualToNullable(a, b));
                 };
             case LT:
                 return key -> {
                     final double a = leftF.evaluateDouble(key);
                     final double b = rightF.evaluateDouble(key);
-                    return Doubles.fromBoolean(Doubles.isLessThan(a, b));
+                    return Doubles.fromBoolean(Doubles.isLessThanNullable(a, b));
                 };
             case LT_EQ:
                 return key -> {
                     final double a = leftF.evaluateDouble(key);
                     final double b = rightF.evaluateDouble(key);
-                    return Doubles.fromBoolean(Doubles.isLessThanOrEqualTo(a, b));
+                    return Doubles.fromBoolean(Doubles.isLessThanOrEqualToNullable(a, b));
                 };
             case EQ:
                 return key -> {
                     final double a = leftF.evaluateDouble(key);
                     final double b = rightF.evaluateDouble(key);
-                    return Doubles.fromBoolean(Doubles.equals(a, b));
+                    return Doubles.fromBoolean(Doubles.equalsNullable(a, b));
                 };
             case NEQ:
                 return key -> {
                     final double a = leftF.evaluateDouble(key);
                     final double b = rightF.evaluateDouble(key);
-                    return Doubles.fromBoolean(Doubles.notEquals(a, b));
+                    return Doubles.fromBoolean(Doubles.notEqualsNullable(a, b));
                 };
             case ADD:
                 return key -> {
@@ -327,37 +333,40 @@ public class DoubleBinaryOperation implements IBinaryOperation {
             };
         } else if (left.isConstant()) {
             final double a = left.newEvaluateDouble().evaluateDouble();
+            if (Doubles.isNaN(a)) {
+                return key -> Double.NaN;
+            }
             final IEvaluateDoubleKey rightF = right.newEvaluateDoubleKey();
             switch (op) {
             case GT:
                 return key -> {
                     final double b = rightF.evaluateDouble(key);
-                    return Doubles.fromBoolean(Doubles.isGreaterThan(a, b));
+                    return Doubles.fromBoolean(Doubles.isGreaterThanNullable(a, b));
                 };
             case GT_EQ:
                 return key -> {
                     final double b = rightF.evaluateDouble(key);
-                    return Doubles.fromBoolean(Doubles.isGreaterThanOrEqualTo(a, b));
+                    return Doubles.fromBoolean(Doubles.isGreaterThanOrEqualToNullable(a, b));
                 };
             case LT:
                 return key -> {
                     final double b = rightF.evaluateDouble(key);
-                    return Doubles.fromBoolean(Doubles.isLessThan(a, b));
+                    return Doubles.fromBoolean(Doubles.isLessThanNullable(a, b));
                 };
             case LT_EQ:
                 return key -> {
                     final double b = rightF.evaluateDouble(key);
-                    return Doubles.fromBoolean(Doubles.isLessThanOrEqualTo(a, b));
+                    return Doubles.fromBoolean(Doubles.isLessThanOrEqualToNullable(a, b));
                 };
             case EQ:
                 return key -> {
                     final double b = rightF.evaluateDouble(key);
-                    return Doubles.fromBoolean(Doubles.equals(a, b));
+                    return Doubles.fromBoolean(Doubles.equalsNullable(a, b));
                 };
             case NEQ:
                 return key -> {
                     final double b = rightF.evaluateDouble(key);
-                    return Doubles.fromBoolean(Doubles.notEquals(a, b));
+                    return Doubles.fromBoolean(Doubles.notEqualsNullable(a, b));
                 };
             case ADD:
                 return key -> {
@@ -399,36 +408,39 @@ public class DoubleBinaryOperation implements IBinaryOperation {
         } else if (right.isConstant()) {
             final IEvaluateDoubleKey leftF = left.newEvaluateDoubleKey();
             final double b = right.newEvaluateDouble().evaluateDouble();
+            if (Doubles.isNaN(b)) {
+                return key -> Double.NaN;
+            }
             switch (op) {
             case GT:
                 return key -> {
                     final double a = leftF.evaluateDouble(key);
-                    return Doubles.fromBoolean(Doubles.isGreaterThan(a, b));
+                    return Doubles.fromBoolean(Doubles.isGreaterThanNullable(a, b));
                 };
             case GT_EQ:
                 return key -> {
                     final double a = leftF.evaluateDouble(key);
-                    return Doubles.fromBoolean(Doubles.isGreaterThanOrEqualTo(a, b));
+                    return Doubles.fromBoolean(Doubles.isGreaterThanOrEqualToNullable(a, b));
                 };
             case LT:
                 return key -> {
                     final double a = leftF.evaluateDouble(key);
-                    return Doubles.fromBoolean(Doubles.isLessThan(a, b));
+                    return Doubles.fromBoolean(Doubles.isLessThanNullable(a, b));
                 };
             case LT_EQ:
                 return key -> {
                     final double a = leftF.evaluateDouble(key);
-                    return Doubles.fromBoolean(Doubles.isLessThanOrEqualTo(a, b));
+                    return Doubles.fromBoolean(Doubles.isLessThanOrEqualToNullable(a, b));
                 };
             case EQ:
                 return key -> {
                     final double a = leftF.evaluateDouble(key);
-                    return Doubles.fromBoolean(Doubles.equals(a, b));
+                    return Doubles.fromBoolean(Doubles.equalsNullable(a, b));
                 };
             case NEQ:
                 return key -> {
                     final double a = leftF.evaluateDouble(key);
-                    return Doubles.fromBoolean(Doubles.notEquals(a, b));
+                    return Doubles.fromBoolean(Doubles.notEqualsNullable(a, b));
                 };
             case ADD:
                 return key -> {
@@ -475,37 +487,37 @@ public class DoubleBinaryOperation implements IBinaryOperation {
                 return key -> {
                     final double a = leftF.evaluateDouble(key);
                     final double b = rightF.evaluateDouble(key);
-                    return Doubles.fromBoolean(Doubles.isGreaterThan(a, b));
+                    return Doubles.fromBoolean(Doubles.isGreaterThanNullable(a, b));
                 };
             case GT_EQ:
                 return key -> {
                     final double a = leftF.evaluateDouble(key);
                     final double b = rightF.evaluateDouble(key);
-                    return Doubles.fromBoolean(Doubles.isGreaterThanOrEqualTo(a, b));
+                    return Doubles.fromBoolean(Doubles.isGreaterThanOrEqualToNullable(a, b));
                 };
             case LT:
                 return key -> {
                     final double a = leftF.evaluateDouble(key);
                     final double b = rightF.evaluateDouble(key);
-                    return Doubles.fromBoolean(Doubles.isLessThan(a, b));
+                    return Doubles.fromBoolean(Doubles.isLessThanNullable(a, b));
                 };
             case LT_EQ:
                 return key -> {
                     final double a = leftF.evaluateDouble(key);
                     final double b = rightF.evaluateDouble(key);
-                    return Doubles.fromBoolean(Doubles.isLessThanOrEqualTo(a, b));
+                    return Doubles.fromBoolean(Doubles.isLessThanOrEqualToNullable(a, b));
                 };
             case EQ:
                 return key -> {
                     final double a = leftF.evaluateDouble(key);
                     final double b = rightF.evaluateDouble(key);
-                    return Doubles.fromBoolean(Doubles.equals(a, b));
+                    return Doubles.fromBoolean(Doubles.equalsNullable(a, b));
                 };
             case NEQ:
                 return key -> {
                     final double a = leftF.evaluateDouble(key);
                     final double b = rightF.evaluateDouble(key);
-                    return Doubles.fromBoolean(Doubles.notEquals(a, b));
+                    return Doubles.fromBoolean(Doubles.notEqualsNullable(a, b));
                 };
             case ADD:
                 return key -> {
@@ -566,37 +578,40 @@ public class DoubleBinaryOperation implements IBinaryOperation {
             };
         } else if (left.isConstant()) {
             final double a = left.newEvaluateDouble().evaluateDouble();
+            if (Doubles.isNaN(a)) {
+                return () -> Double.NaN;
+            }
             final IEvaluateDouble rightF = right.newEvaluateDouble();
             switch (op) {
             case GT:
                 return () -> {
                     final double b = rightF.evaluateDouble();
-                    return Doubles.fromBoolean(Doubles.isGreaterThan(a, b));
+                    return Doubles.fromBoolean(Doubles.isGreaterThanNullable(a, b));
                 };
             case GT_EQ:
                 return () -> {
                     final double b = rightF.evaluateDouble();
-                    return Doubles.fromBoolean(Doubles.isGreaterThanOrEqualTo(a, b));
+                    return Doubles.fromBoolean(Doubles.isGreaterThanOrEqualToNullable(a, b));
                 };
             case LT:
                 return () -> {
                     final double b = rightF.evaluateDouble();
-                    return Doubles.fromBoolean(Doubles.isLessThan(a, b));
+                    return Doubles.fromBoolean(Doubles.isLessThanNullable(a, b));
                 };
             case LT_EQ:
                 return () -> {
                     final double b = rightF.evaluateDouble();
-                    return Doubles.fromBoolean(Doubles.isLessThanOrEqualTo(a, b));
+                    return Doubles.fromBoolean(Doubles.isLessThanOrEqualToNullable(a, b));
                 };
             case EQ:
                 return () -> {
                     final double b = rightF.evaluateDouble();
-                    return Doubles.fromBoolean(Doubles.equals(a, b));
+                    return Doubles.fromBoolean(Doubles.equalsNullable(a, b));
                 };
             case NEQ:
                 return () -> {
                     final double b = rightF.evaluateDouble();
-                    return Doubles.fromBoolean(Doubles.notEquals(a, b));
+                    return Doubles.fromBoolean(Doubles.notEqualsNullable(a, b));
                 };
             case ADD:
                 return () -> {
@@ -638,36 +653,39 @@ public class DoubleBinaryOperation implements IBinaryOperation {
         } else if (right.isConstant()) {
             final IEvaluateDouble leftF = left.newEvaluateDouble();
             final double b = right.newEvaluateDouble().evaluateDouble();
+            if (Doubles.isNaN(b)) {
+                return () -> Double.NaN;
+            }
             switch (op) {
             case GT:
                 return () -> {
                     final double a = leftF.evaluateDouble();
-                    return Doubles.fromBoolean(Doubles.isGreaterThan(a, b));
+                    return Doubles.fromBoolean(Doubles.isGreaterThanNullable(a, b));
                 };
             case GT_EQ:
                 return () -> {
                     final double a = leftF.evaluateDouble();
-                    return Doubles.fromBoolean(Doubles.isGreaterThanOrEqualTo(a, b));
+                    return Doubles.fromBoolean(Doubles.isGreaterThanOrEqualToNullable(a, b));
                 };
             case LT:
                 return () -> {
                     final double a = leftF.evaluateDouble();
-                    return Doubles.fromBoolean(Doubles.isLessThan(a, b));
+                    return Doubles.fromBoolean(Doubles.isLessThanNullable(a, b));
                 };
             case LT_EQ:
                 return () -> {
                     final double a = leftF.evaluateDouble();
-                    return Doubles.fromBoolean(Doubles.isLessThanOrEqualTo(a, b));
+                    return Doubles.fromBoolean(Doubles.isLessThanOrEqualToNullable(a, b));
                 };
             case EQ:
                 return () -> {
                     final double a = leftF.evaluateDouble();
-                    return Doubles.fromBoolean(Doubles.equals(a, b));
+                    return Doubles.fromBoolean(Doubles.equalsNullable(a, b));
                 };
             case NEQ:
                 return () -> {
                     final double a = leftF.evaluateDouble();
-                    return Doubles.fromBoolean(Doubles.notEquals(a, b));
+                    return Doubles.fromBoolean(Doubles.notEqualsNullable(a, b));
                 };
             case ADD:
                 return () -> {
@@ -714,37 +732,37 @@ public class DoubleBinaryOperation implements IBinaryOperation {
                 return () -> {
                     final double a = leftF.evaluateDouble();
                     final double b = rightF.evaluateDouble();
-                    return Doubles.fromBoolean(Doubles.isGreaterThan(a, b));
+                    return Doubles.fromBoolean(Doubles.isGreaterThanNullable(a, b));
                 };
             case GT_EQ:
                 return () -> {
                     final double a = leftF.evaluateDouble();
                     final double b = rightF.evaluateDouble();
-                    return Doubles.fromBoolean(Doubles.isGreaterThanOrEqualTo(a, b));
+                    return Doubles.fromBoolean(Doubles.isGreaterThanOrEqualToNullable(a, b));
                 };
             case LT:
                 return () -> {
                     final double a = leftF.evaluateDouble();
                     final double b = rightF.evaluateDouble();
-                    return Doubles.fromBoolean(Doubles.isLessThan(a, b));
+                    return Doubles.fromBoolean(Doubles.isLessThanNullable(a, b));
                 };
             case LT_EQ:
                 return () -> {
                     final double a = leftF.evaluateDouble();
                     final double b = rightF.evaluateDouble();
-                    return Doubles.fromBoolean(Doubles.isLessThanOrEqualTo(a, b));
+                    return Doubles.fromBoolean(Doubles.isLessThanOrEqualToNullable(a, b));
                 };
             case EQ:
                 return () -> {
                     final double a = leftF.evaluateDouble();
                     final double b = rightF.evaluateDouble();
-                    return Doubles.fromBoolean(Doubles.equals(a, b));
+                    return Doubles.fromBoolean(Doubles.equalsNullable(a, b));
                 };
             case NEQ:
                 return () -> {
                     final double a = leftF.evaluateDouble();
                     final double b = rightF.evaluateDouble();
-                    return Doubles.fromBoolean(Doubles.notEquals(a, b));
+                    return Doubles.fromBoolean(Doubles.notEqualsNullable(a, b));
                 };
             case ADD:
                 return () -> {
@@ -805,6 +823,9 @@ public class DoubleBinaryOperation implements IBinaryOperation {
             };
         } else if (left.isConstant()) {
             final double a = left.newEvaluateDouble().evaluateDouble();
+            if (Doubles.isNaN(a)) {
+                return key -> Integers.DEFAULT_MISSING_VALUE;
+            }
             final IEvaluateDoubleFDate rightF = right.newEvaluateDoubleFDate();
             switch (op) {
             case GT:
@@ -877,6 +898,9 @@ public class DoubleBinaryOperation implements IBinaryOperation {
         } else if (right.isConstant()) {
             final IEvaluateDoubleFDate leftF = left.newEvaluateDoubleFDate();
             final double b = right.newEvaluateDouble().evaluateDouble();
+            if (Doubles.isNaN(b)) {
+                return key -> Integers.DEFAULT_MISSING_VALUE;
+            }
             switch (op) {
             case GT:
                 return key -> {
@@ -1044,6 +1068,9 @@ public class DoubleBinaryOperation implements IBinaryOperation {
             };
         } else if (left.isConstant()) {
             final double a = left.newEvaluateDouble().evaluateDouble();
+            if (Doubles.isNaN(a)) {
+                return key -> Integers.DEFAULT_MISSING_VALUE;
+            }
             final IEvaluateDoubleKey rightF = right.newEvaluateDoubleKey();
             switch (op) {
             case GT:
@@ -1116,6 +1143,9 @@ public class DoubleBinaryOperation implements IBinaryOperation {
         } else if (right.isConstant()) {
             final IEvaluateDoubleKey leftF = left.newEvaluateDoubleKey();
             final double b = right.newEvaluateDouble().evaluateDouble();
+            if (Doubles.isNaN(b)) {
+                return key -> Integers.DEFAULT_MISSING_VALUE;
+            }
             switch (op) {
             case GT:
                 return key -> {
@@ -1283,6 +1313,9 @@ public class DoubleBinaryOperation implements IBinaryOperation {
             };
         } else if (left.isConstant()) {
             final double a = left.newEvaluateDouble().evaluateDouble();
+            if (Doubles.isNaN(a)) {
+                return () -> Integers.DEFAULT_MISSING_VALUE;
+            }
             final IEvaluateDouble rightF = right.newEvaluateDouble();
             switch (op) {
             case GT:
@@ -1355,6 +1388,9 @@ public class DoubleBinaryOperation implements IBinaryOperation {
         } else if (right.isConstant()) {
             final IEvaluateDouble leftF = left.newEvaluateDouble();
             final double b = right.newEvaluateDouble().evaluateDouble();
+            if (Doubles.isNaN(b)) {
+                return () -> Integers.DEFAULT_MISSING_VALUE;
+            }
             switch (op) {
             case GT:
                 return () -> {
@@ -1431,37 +1467,37 @@ public class DoubleBinaryOperation implements IBinaryOperation {
                 return () -> {
                     final double a = leftF.evaluateDouble();
                     final double b = rightF.evaluateDouble();
-                    return Integers.fromBoolean(Doubles.isGreaterThan(a, b));
+                    return Integers.fromBoolean(Doubles.isGreaterThanNullable(a, b));
                 };
             case GT_EQ:
                 return () -> {
                     final double a = leftF.evaluateDouble();
                     final double b = rightF.evaluateDouble();
-                    return Integers.fromBoolean(Doubles.isGreaterThanOrEqualTo(a, b));
+                    return Integers.fromBoolean(Doubles.isGreaterThanOrEqualToNullable(a, b));
                 };
             case LT:
                 return () -> {
                     final double a = leftF.evaluateDouble();
                     final double b = rightF.evaluateDouble();
-                    return Integers.fromBoolean(Doubles.isLessThan(a, b));
+                    return Integers.fromBoolean(Doubles.isLessThanNullable(a, b));
                 };
             case LT_EQ:
                 return () -> {
                     final double a = leftF.evaluateDouble();
                     final double b = rightF.evaluateDouble();
-                    return Integers.fromBoolean(Doubles.isLessThanOrEqualTo(a, b));
+                    return Integers.fromBoolean(Doubles.isLessThanOrEqualToNullable(a, b));
                 };
             case EQ:
                 return () -> {
                     final double a = leftF.evaluateDouble();
                     final double b = rightF.evaluateDouble();
-                    return Integers.fromBoolean(Doubles.equals(a, b));
+                    return Integers.fromBoolean(Doubles.equalsNullable(a, b));
                 };
             case NEQ:
                 return () -> {
                     final double a = leftF.evaluateDouble();
                     final double b = rightF.evaluateDouble();
-                    return Integers.fromBoolean(Doubles.notEquals(a, b));
+                    return Integers.fromBoolean(Doubles.notEqualsNullable(a, b));
                 };
             case ADD:
                 return () -> {
@@ -1522,37 +1558,40 @@ public class DoubleBinaryOperation implements IBinaryOperation {
             };
         } else if (left.isConstant()) {
             final double a = left.newEvaluateDouble().evaluateDouble();
+            if (Doubles.isNaN(a)) {
+                return key -> null;
+            }
             final IEvaluateDoubleFDate rightF = right.newEvaluateDoubleFDate();
             switch (op) {
             case GT:
                 return key -> {
                     final double b = rightF.evaluateDouble(key);
-                    return Doubles.isGreaterThan(a, b);
+                    return Doubles.isGreaterThanNullable(a, b);
                 };
             case GT_EQ:
                 return key -> {
                     final double b = rightF.evaluateDouble(key);
-                    return Doubles.isGreaterThanOrEqualTo(a, b);
+                    return Doubles.isGreaterThanOrEqualToNullable(a, b);
                 };
             case LT:
                 return key -> {
                     final double b = rightF.evaluateDouble(key);
-                    return Doubles.isLessThan(a, b);
+                    return Doubles.isLessThanNullable(a, b);
                 };
             case LT_EQ:
                 return key -> {
                     final double b = rightF.evaluateDouble(key);
-                    return Doubles.isLessThanOrEqualTo(a, b);
+                    return Doubles.isLessThanOrEqualToNullable(a, b);
                 };
             case EQ:
                 return key -> {
                     final double b = rightF.evaluateDouble(key);
-                    return Doubles.equals(a, b);
+                    return Doubles.equalsNullable(a, b);
                 };
             case NEQ:
                 return key -> {
                     final double b = rightF.evaluateDouble(key);
-                    return Doubles.notEquals(a, b);
+                    return Doubles.notEqualsNullable(a, b);
                 };
             case ADD:
                 return key -> {
@@ -1589,36 +1628,39 @@ public class DoubleBinaryOperation implements IBinaryOperation {
         } else if (right.isConstant()) {
             final IEvaluateDoubleFDate leftF = left.newEvaluateDoubleFDate();
             final double b = right.newEvaluateDouble().evaluateDouble();
+            if (Doubles.isNaN(b)) {
+                return key -> null;
+            }
             switch (op) {
             case GT:
                 return key -> {
                     final double a = leftF.evaluateDouble(key);
-                    return Doubles.isGreaterThan(a, b);
+                    return Doubles.isGreaterThanNullable(a, b);
                 };
             case GT_EQ:
                 return key -> {
                     final double a = leftF.evaluateDouble(key);
-                    return Doubles.isGreaterThanOrEqualTo(a, b);
+                    return Doubles.isGreaterThanOrEqualToNullable(a, b);
                 };
             case LT:
                 return key -> {
                     final double a = leftF.evaluateDouble(key);
-                    return Doubles.isLessThan(a, b);
+                    return Doubles.isLessThanNullable(a, b);
                 };
             case LT_EQ:
                 return key -> {
                     final double a = leftF.evaluateDouble(key);
-                    return Doubles.isLessThanOrEqualTo(a, b);
+                    return Doubles.isLessThanOrEqualToNullable(a, b);
                 };
             case EQ:
                 return key -> {
                     final double a = leftF.evaluateDouble(key);
-                    return Doubles.equals(a, b);
+                    return Doubles.equalsNullable(a, b);
                 };
             case NEQ:
                 return key -> {
                     final double a = leftF.evaluateDouble(key);
-                    return Doubles.notEquals(a, b);
+                    return Doubles.notEqualsNullable(a, b);
                 };
             case ADD:
                 return key -> {
@@ -1660,37 +1702,37 @@ public class DoubleBinaryOperation implements IBinaryOperation {
                 return key -> {
                     final double a = leftF.evaluateDouble(key);
                     final double b = rightF.evaluateDouble(key);
-                    return Doubles.isGreaterThan(a, b);
+                    return Doubles.isGreaterThanNullable(a, b);
                 };
             case GT_EQ:
                 return key -> {
                     final double a = leftF.evaluateDouble(key);
                     final double b = rightF.evaluateDouble(key);
-                    return Doubles.isGreaterThanOrEqualTo(a, b);
+                    return Doubles.isGreaterThanOrEqualToNullable(a, b);
                 };
             case LT:
                 return key -> {
                     final double a = leftF.evaluateDouble(key);
                     final double b = rightF.evaluateDouble(key);
-                    return Doubles.isLessThan(a, b);
+                    return Doubles.isLessThanNullable(a, b);
                 };
             case LT_EQ:
                 return key -> {
                     final double a = leftF.evaluateDouble(key);
                     final double b = rightF.evaluateDouble(key);
-                    return Doubles.isLessThanOrEqualTo(a, b);
+                    return Doubles.isLessThanOrEqualToNullable(a, b);
                 };
             case EQ:
                 return key -> {
                     final double a = leftF.evaluateDouble(key);
                     final double b = rightF.evaluateDouble(key);
-                    return Doubles.equals(a, b);
+                    return Doubles.equalsNullable(a, b);
                 };
             case NEQ:
                 return key -> {
                     final double a = leftF.evaluateDouble(key);
                     final double b = rightF.evaluateDouble(key);
-                    return Doubles.notEquals(a, b);
+                    return Doubles.notEqualsNullable(a, b);
                 };
             case ADD:
                 return key -> {
@@ -1745,37 +1787,40 @@ public class DoubleBinaryOperation implements IBinaryOperation {
             };
         } else if (left.isConstant()) {
             final double a = left.newEvaluateDouble().evaluateDouble();
+            if (Doubles.isNaN(a)) {
+                return key -> null;
+            }
             final IEvaluateDoubleKey rightF = right.newEvaluateDoubleKey();
             switch (op) {
             case GT:
                 return key -> {
                     final double b = rightF.evaluateDouble(key);
-                    return Doubles.isGreaterThan(a, b);
+                    return Doubles.isGreaterThanNullable(a, b);
                 };
             case GT_EQ:
                 return key -> {
                     final double b = rightF.evaluateDouble(key);
-                    return Doubles.isGreaterThanOrEqualTo(a, b);
+                    return Doubles.isGreaterThanOrEqualToNullable(a, b);
                 };
             case LT:
                 return key -> {
                     final double b = rightF.evaluateDouble(key);
-                    return Doubles.isLessThan(a, b);
+                    return Doubles.isLessThanNullable(a, b);
                 };
             case LT_EQ:
                 return key -> {
                     final double b = rightF.evaluateDouble(key);
-                    return Doubles.isLessThanOrEqualTo(a, b);
+                    return Doubles.isLessThanOrEqualToNullable(a, b);
                 };
             case EQ:
                 return key -> {
                     final double b = rightF.evaluateDouble(key);
-                    return Doubles.equals(a, b);
+                    return Doubles.equalsNullable(a, b);
                 };
             case NEQ:
                 return key -> {
                     final double b = rightF.evaluateDouble(key);
-                    return Doubles.notEquals(a, b);
+                    return Doubles.notEqualsNullable(a, b);
                 };
             case ADD:
                 return key -> {
@@ -1812,36 +1857,39 @@ public class DoubleBinaryOperation implements IBinaryOperation {
         } else if (right.isConstant()) {
             final IEvaluateDoubleKey leftF = left.newEvaluateDoubleKey();
             final double b = right.newEvaluateDouble().evaluateDouble();
+            if (Doubles.isNaN(b)) {
+                return key -> null;
+            }
             switch (op) {
             case GT:
                 return key -> {
                     final double a = leftF.evaluateDouble(key);
-                    return Doubles.isGreaterThan(a, b);
+                    return Doubles.isGreaterThanNullable(a, b);
                 };
             case GT_EQ:
                 return key -> {
                     final double a = leftF.evaluateDouble(key);
-                    return Doubles.isGreaterThanOrEqualTo(a, b);
+                    return Doubles.isGreaterThanOrEqualToNullable(a, b);
                 };
             case LT:
                 return key -> {
                     final double a = leftF.evaluateDouble(key);
-                    return Doubles.isLessThan(a, b);
+                    return Doubles.isLessThanNullable(a, b);
                 };
             case LT_EQ:
                 return key -> {
                     final double a = leftF.evaluateDouble(key);
-                    return Doubles.isLessThanOrEqualTo(a, b);
+                    return Doubles.isLessThanOrEqualToNullable(a, b);
                 };
             case EQ:
                 return key -> {
                     final double a = leftF.evaluateDouble(key);
-                    return Doubles.equals(a, b);
+                    return Doubles.equalsNullable(a, b);
                 };
             case NEQ:
                 return key -> {
                     final double a = leftF.evaluateDouble(key);
-                    return Doubles.notEquals(a, b);
+                    return Doubles.notEqualsNullable(a, b);
                 };
             case ADD:
                 return key -> {
@@ -1883,37 +1931,37 @@ public class DoubleBinaryOperation implements IBinaryOperation {
                 return key -> {
                     final double a = leftF.evaluateDouble(key);
                     final double b = rightF.evaluateDouble(key);
-                    return Doubles.isGreaterThan(a, b);
+                    return Doubles.isGreaterThanNullable(a, b);
                 };
             case GT_EQ:
                 return key -> {
                     final double a = leftF.evaluateDouble(key);
                     final double b = rightF.evaluateDouble(key);
-                    return Doubles.isGreaterThanOrEqualTo(a, b);
+                    return Doubles.isGreaterThanOrEqualToNullable(a, b);
                 };
             case LT:
                 return key -> {
                     final double a = leftF.evaluateDouble(key);
                     final double b = rightF.evaluateDouble(key);
-                    return Doubles.isLessThan(a, b);
+                    return Doubles.isLessThanNullable(a, b);
                 };
             case LT_EQ:
                 return key -> {
                     final double a = leftF.evaluateDouble(key);
                     final double b = rightF.evaluateDouble(key);
-                    return Doubles.isLessThanOrEqualTo(a, b);
+                    return Doubles.isLessThanOrEqualToNullable(a, b);
                 };
             case EQ:
                 return key -> {
                     final double a = leftF.evaluateDouble(key);
                     final double b = rightF.evaluateDouble(key);
-                    return Doubles.equals(a, b);
+                    return Doubles.equalsNullable(a, b);
                 };
             case NEQ:
                 return key -> {
                     final double a = leftF.evaluateDouble(key);
                     final double b = rightF.evaluateDouble(key);
-                    return Doubles.notEquals(a, b);
+                    return Doubles.notEqualsNullable(a, b);
                 };
             case ADD:
                 return key -> {
@@ -1968,37 +2016,40 @@ public class DoubleBinaryOperation implements IBinaryOperation {
             };
         } else if (left.isConstant()) {
             final double a = left.newEvaluateDouble().evaluateDouble();
+            if (Doubles.isNaN(a)) {
+                return () -> null;
+            }
             final IEvaluateDouble rightF = right.newEvaluateDouble();
             switch (op) {
             case GT:
                 return () -> {
                     final double b = rightF.evaluateDouble();
-                    return Doubles.isGreaterThan(a, b);
+                    return Doubles.isGreaterThanNullable(a, b);
                 };
             case GT_EQ:
                 return () -> {
                     final double b = rightF.evaluateDouble();
-                    return Doubles.isGreaterThanOrEqualTo(a, b);
+                    return Doubles.isGreaterThanOrEqualToNullable(a, b);
                 };
             case LT:
                 return () -> {
                     final double b = rightF.evaluateDouble();
-                    return Doubles.isLessThan(a, b);
+                    return Doubles.isLessThanNullable(a, b);
                 };
             case LT_EQ:
                 return () -> {
                     final double b = rightF.evaluateDouble();
-                    return Doubles.isLessThanOrEqualTo(a, b);
+                    return Doubles.isLessThanOrEqualToNullable(a, b);
                 };
             case EQ:
                 return () -> {
                     final double b = rightF.evaluateDouble();
-                    return Doubles.equals(a, b);
+                    return Doubles.equalsNullable(a, b);
                 };
             case NEQ:
                 return () -> {
                     final double b = rightF.evaluateDouble();
-                    return Doubles.notEquals(a, b);
+                    return Doubles.notEqualsNullable(a, b);
                 };
             case ADD:
                 return () -> {
@@ -2035,36 +2086,39 @@ public class DoubleBinaryOperation implements IBinaryOperation {
         } else if (right.isConstant()) {
             final IEvaluateDouble leftF = left.newEvaluateDouble();
             final double b = right.newEvaluateDouble().evaluateDouble();
+            if (Doubles.isNaN(b)) {
+                return () -> null;
+            }
             switch (op) {
             case GT:
                 return () -> {
                     final double a = leftF.evaluateDouble();
-                    return Doubles.isGreaterThan(a, b);
+                    return Doubles.isGreaterThanNullable(a, b);
                 };
             case GT_EQ:
                 return () -> {
                     final double a = leftF.evaluateDouble();
-                    return Doubles.isGreaterThanOrEqualTo(a, b);
+                    return Doubles.isGreaterThanOrEqualToNullable(a, b);
                 };
             case LT:
                 return () -> {
                     final double a = leftF.evaluateDouble();
-                    return Doubles.isLessThan(a, b);
+                    return Doubles.isLessThanNullable(a, b);
                 };
             case LT_EQ:
                 return () -> {
                     final double a = leftF.evaluateDouble();
-                    return Doubles.isLessThanOrEqualTo(a, b);
+                    return Doubles.isLessThanOrEqualToNullable(a, b);
                 };
             case EQ:
                 return () -> {
                     final double a = leftF.evaluateDouble();
-                    return Doubles.equals(a, b);
+                    return Doubles.equalsNullable(a, b);
                 };
             case NEQ:
                 return () -> {
                     final double a = leftF.evaluateDouble();
-                    return Doubles.notEquals(a, b);
+                    return Doubles.notEqualsNullable(a, b);
                 };
             case ADD:
                 return () -> {
@@ -2106,37 +2160,37 @@ public class DoubleBinaryOperation implements IBinaryOperation {
                 return () -> {
                     final double a = leftF.evaluateDouble();
                     final double b = rightF.evaluateDouble();
-                    return Doubles.isGreaterThan(a, b);
+                    return Doubles.isGreaterThanNullable(a, b);
                 };
             case GT_EQ:
                 return () -> {
                     final double a = leftF.evaluateDouble();
                     final double b = rightF.evaluateDouble();
-                    return Doubles.isGreaterThanOrEqualTo(a, b);
+                    return Doubles.isGreaterThanOrEqualToNullable(a, b);
                 };
             case LT:
                 return () -> {
                     final double a = leftF.evaluateDouble();
                     final double b = rightF.evaluateDouble();
-                    return Doubles.isLessThan(a, b);
+                    return Doubles.isLessThanNullable(a, b);
                 };
             case LT_EQ:
                 return () -> {
                     final double a = leftF.evaluateDouble();
                     final double b = rightF.evaluateDouble();
-                    return Doubles.isLessThanOrEqualTo(a, b);
+                    return Doubles.isLessThanOrEqualToNullable(a, b);
                 };
             case EQ:
                 return () -> {
                     final double a = leftF.evaluateDouble();
                     final double b = rightF.evaluateDouble();
-                    return Doubles.equals(a, b);
+                    return Doubles.equalsNullable(a, b);
                 };
             case NEQ:
                 return () -> {
                     final double a = leftF.evaluateDouble();
                     final double b = rightF.evaluateDouble();
-                    return Doubles.notEquals(a, b);
+                    return Doubles.notEqualsNullable(a, b);
                 };
             case ADD:
                 return () -> {
@@ -2191,6 +2245,9 @@ public class DoubleBinaryOperation implements IBinaryOperation {
             };
         } else if (left.isConstant()) {
             final double a = left.newEvaluateDouble().evaluateDouble();
+            if (Doubles.isNaN(a)) {
+                return key -> false;
+            }
             final IEvaluateDoubleFDate rightF = right.newEvaluateDoubleFDate();
             switch (op) {
             case GT:
@@ -2258,6 +2315,9 @@ public class DoubleBinaryOperation implements IBinaryOperation {
         } else if (right.isConstant()) {
             final IEvaluateDoubleFDate leftF = left.newEvaluateDoubleFDate();
             final double b = right.newEvaluateDouble().evaluateDouble();
+            if (Doubles.isNaN(b)) {
+                return key -> false;
+            }
             switch (op) {
             case GT:
                 return key -> {
@@ -2414,6 +2474,9 @@ public class DoubleBinaryOperation implements IBinaryOperation {
             };
         } else if (left.isConstant()) {
             final double a = left.newEvaluateDouble().evaluateDouble();
+            if (Doubles.isNaN(a)) {
+                return key -> false;
+            }
             final IEvaluateDoubleKey rightF = right.newEvaluateDoubleKey();
             switch (op) {
             case GT:
@@ -2481,6 +2544,9 @@ public class DoubleBinaryOperation implements IBinaryOperation {
         } else if (right.isConstant()) {
             final IEvaluateDoubleKey leftF = left.newEvaluateDoubleKey();
             final double b = right.newEvaluateDouble().evaluateDouble();
+            if (Doubles.isNaN(b)) {
+                return key -> false;
+            }
             switch (op) {
             case GT:
                 return key -> {
@@ -2637,6 +2703,9 @@ public class DoubleBinaryOperation implements IBinaryOperation {
             };
         } else if (left.isConstant()) {
             final double a = left.newEvaluateDouble().evaluateDouble();
+            if (Doubles.isNaN(a)) {
+                return () -> false;
+            }
             final IEvaluateDouble rightF = right.newEvaluateDouble();
             switch (op) {
             case GT:
@@ -2704,6 +2773,9 @@ public class DoubleBinaryOperation implements IBinaryOperation {
         } else if (right.isConstant()) {
             final IEvaluateDouble leftF = left.newEvaluateDouble();
             final double b = right.newEvaluateDouble().evaluateDouble();
+            if (Doubles.isNaN(b)) {
+                return () -> false;
+            }
             switch (op) {
             case GT:
                 return () -> {

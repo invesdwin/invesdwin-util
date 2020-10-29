@@ -534,76 +534,6 @@ public final class Doubles extends ADoublesStaticFacade {
         return Math.cbrt(a);
     }
 
-    public static int compare(final double value, final double otherValue) {
-        final double difference = value - otherValue;
-        if (difference > FIRST_ABOVE_ZERO) {
-            return 1;
-        } else if (difference < FIRST_BELOW_ZERO) {
-            return -1;
-        } else if (difference == 0D) {
-            return 0;
-        } else if (isNaN(difference)) {
-            final boolean valueNaN = isNaN(value);
-            final boolean otherValueNaN = isNaN(otherValue);
-            if (valueNaN && otherValueNaN) {
-                return 0;
-            } else if (valueNaN) {
-                //treat NaN as 0
-                return compare(0D, otherValue);
-            } else {
-                return compare(value, 0D);
-            }
-        } else {
-            final double defaultRoundedValue = round(value);
-            final double roundedOther = round(otherValue);
-            if (defaultRoundedValue < roundedOther) {
-                return -1;
-            } else if (defaultRoundedValue > roundedOther) {
-                return 1;
-            } else {
-                return 0;
-            }
-        }
-    }
-
-    public static boolean equals(final double value, final double otherValue) {
-        final double difference = value - otherValue;
-        if (difference > FIRST_ABOVE_ZERO) {
-            return false;
-        } else if (difference < FIRST_BELOW_ZERO) {
-            return false;
-        } else if (difference == 0D) {
-            return true;
-        } else if (isNaN(difference)) {
-            final boolean valueNaN = isNaN(value);
-            final boolean otherValueNaN = isNaN(otherValue);
-            return valueNaN && otherValueNaN;
-        } else {
-            final double defaultRoundedValue = round(value);
-            final double roundedOther = round(otherValue);
-            return defaultRoundedValue == roundedOther;
-        }
-    }
-
-    public static boolean notEquals(final double value, final double otherValue) {
-        final double difference = value - otherValue;
-        if (difference > FIRST_ABOVE_ZERO) {
-            return true;
-        } else if (difference < FIRST_BELOW_ZERO) {
-            return true;
-        } else if (difference == 0D) {
-            return false;
-        } else if (isNaN(difference)) {
-            final boolean valueNaN = isNaN(value);
-            final boolean otherValueNaN = isNaN(otherValue);
-            return !(valueNaN && otherValueNaN);
-        } else {
-            final double defaultRoundedValue = round(value);
-            final double roundedOther = round(otherValue);
-            return defaultRoundedValue != roundedOther;
-        }
-    }
-
     public static double negate(final double value) {
         return value * -1D;
     }
@@ -717,190 +647,6 @@ public final class Doubles extends ADoublesStaticFacade {
         }
     }
 
-    public static boolean isZero(final double value) {
-        return value == 0D;
-    }
-
-    public static boolean isNotZero(final double value) {
-        return !isZero(value);
-    }
-
-    public static boolean isPositive(final double value) {
-        return value >= 0;
-    }
-
-    public static boolean isPositiveNonZero(final double value) {
-        return isPositive(value) && !isZero(value);
-    }
-
-    public static boolean isNegative(final double value) {
-        return !isPositive(value);
-    }
-
-    public static boolean isNegativeOrZero(final double value) {
-        return !isPositiveNonZero(value);
-    }
-
-    public static boolean isGreaterThan(final double value, final double otherValue) {
-        final double difference = value - otherValue;
-        if (difference > FIRST_ABOVE_ZERO) {
-            return true;
-        } else if (difference < FIRST_BELOW_ZERO) {
-            return false;
-        } else if (difference == 0D) {
-            return false;
-        } else if (isNaN(difference)) {
-            final boolean valueNaN = isNaN(value);
-            final boolean otherValueNaN = isNaN(otherValue);
-            if (valueNaN && otherValueNaN) {
-                return false;
-            } else if (valueNaN) {
-                //treat NaN as 0
-                return isNegative(otherValue);
-            } else {
-                return isPositive(value);
-            }
-        } else {
-            final double defaultRoundedValue = round(value);
-            final double roundedOther = round(otherValue);
-            return defaultRoundedValue > roundedOther;
-        }
-    }
-
-    public static boolean isGreaterThan(final double value, final Double otherValue) {
-        if (otherValue == null) {
-            return false;
-        }
-        return isGreaterThan(value, otherValue.doubleValue());
-    }
-
-    public static boolean isGreaterThan(final double value, final Number otherValue) {
-        if (otherValue == null) {
-            return false;
-        }
-        return isGreaterThan(value, otherValue.doubleValue());
-    }
-
-    public static boolean isGreaterThanOrEqualTo(final double value, final double otherValue) {
-        final double difference = value - otherValue;
-        if (difference > FIRST_ABOVE_ZERO) {
-            return true;
-        } else if (difference < FIRST_BELOW_ZERO) {
-            return false;
-        } else if (difference == 0D) {
-            return true;
-        } else if (isNaN(difference)) {
-            final boolean valueNaN = isNaN(value);
-            final boolean otherValueNaN = isNaN(otherValue);
-            if (valueNaN && otherValueNaN) {
-                return true;
-            } else if (valueNaN) {
-                //treat NaN as 0
-                return isNegative(otherValue);
-            } else {
-                return isPositive(value);
-            }
-        } else {
-            final double defaultRoundedValue = round(value);
-            final double roundedOther = round(otherValue);
-            return defaultRoundedValue >= roundedOther;
-        }
-    }
-
-    public static boolean isGreaterThanOrEqualTo(final double value, final Double otherValue) {
-        if (otherValue == null) {
-            return false;
-        }
-        return isGreaterThanOrEqualTo(value, otherValue.doubleValue());
-    }
-
-    public static boolean isGreaterThanOrEqualTo(final double value, final Number otherValue) {
-        if (otherValue == null) {
-            return false;
-        }
-        return isGreaterThanOrEqualTo(value, otherValue.doubleValue());
-    }
-
-    public static boolean isLessThan(final double value, final double otherValue) {
-        final double difference = value - otherValue;
-        if (difference > FIRST_ABOVE_ZERO) {
-            return false;
-        } else if (difference < FIRST_BELOW_ZERO) {
-            return true;
-        } else if (difference == 0D) {
-            return false;
-        } else if (isNaN(difference)) {
-            final boolean valueNaN = isNaN(value);
-            final boolean otherValueNaN = isNaN(otherValue);
-            if (valueNaN && otherValueNaN) {
-                return false;
-            } else if (valueNaN) {
-                //treat NaN as 0
-                return isPositive(otherValue);
-            } else {
-                return isNegative(value);
-            }
-        } else {
-            final double defaultRoundedValue = round(value);
-            final double roundedOther = round(otherValue);
-            return defaultRoundedValue < roundedOther;
-        }
-    }
-
-    public static boolean isLessThan(final double value, final Double otherValue) {
-        if (otherValue == null) {
-            return false;
-        }
-        return isLessThan(value, otherValue.doubleValue());
-    }
-
-    public static boolean isLessThan(final double value, final Number otherValue) {
-        if (otherValue == null) {
-            return false;
-        }
-        return isLessThan(value, otherValue.doubleValue());
-    }
-
-    public static boolean isLessThanOrEqualTo(final double value, final double otherValue) {
-        final double difference = value - otherValue;
-        if (difference > FIRST_ABOVE_ZERO) {
-            return false;
-        } else if (difference < FIRST_BELOW_ZERO) {
-            return true;
-        } else if (difference == 0D) {
-            return true;
-        } else if (isNaN(difference)) {
-            final boolean valueNaN = isNaN(value);
-            final boolean otherValueNaN = isNaN(otherValue);
-            if (valueNaN && otherValueNaN) {
-                return true;
-            } else if (valueNaN) {
-                //treat NaN as 0
-                return isPositive(otherValue);
-            } else {
-                return isNegative(value);
-            }
-        } else {
-            final double defaultRoundedValue = round(value);
-            final double roundedOther = round(otherValue);
-            return defaultRoundedValue <= roundedOther;
-        }
-    }
-
-    public static boolean isLessThanOrEqualTo(final double value, final Double otherValue) {
-        if (otherValue == null) {
-            return false;
-        }
-        return isLessThanOrEqualTo(value, otherValue.doubleValue());
-    }
-
-    public static boolean isLessThanOrEqualTo(final double value, final Number otherValue) {
-        if (otherValue == null) {
-            return false;
-        }
-        return isLessThanOrEqualTo(value, otherValue.doubleValue());
-    }
-
     public static boolean isInteger(final double value) {
         return value == Integers.checkedCastNoOverflow(value);
     }
@@ -928,6 +674,334 @@ public final class Doubles extends ADoublesStaticFacade {
             return a;
         } else {
             return add(a, b);
+        }
+    }
+
+    public static boolean isZero(final double value) {
+        return value == 0D;
+    }
+
+    public static boolean isNotZero(final double value) {
+        return !isZero(value);
+    }
+
+    public static boolean isPositive(final double value) {
+        return value >= 0;
+    }
+
+    public static boolean isPositiveNonZero(final double value) {
+        return isPositive(value) && !isZero(value);
+    }
+
+    public static boolean isNegative(final double value) {
+        return !isPositive(value);
+    }
+
+    public static boolean isNegativeOrZero(final double value) {
+        return !isPositiveNonZero(value);
+    }
+
+    public static boolean isLessThan(final double value, final Double otherValue) {
+        if (otherValue == null) {
+            return false;
+        }
+        return isLessThan(value, otherValue.doubleValue());
+    }
+
+    public static boolean isLessThan(final double value, final Number otherValue) {
+        if (otherValue == null) {
+            return false;
+        }
+        return isLessThan(value, otherValue.doubleValue());
+    }
+
+    public static boolean isGreaterThan(final double value, final Double otherValue) {
+        if (otherValue == null) {
+            return false;
+        }
+        return isGreaterThan(value, otherValue.doubleValue());
+    }
+
+    public static boolean isGreaterThan(final double value, final Number otherValue) {
+        if (otherValue == null) {
+            return false;
+        }
+        return isGreaterThan(value, otherValue.doubleValue());
+    }
+
+    public static boolean isGreaterThanOrEqualTo(final double value, final Double otherValue) {
+        if (otherValue == null) {
+            return false;
+        }
+        return isGreaterThanOrEqualTo(value, otherValue.doubleValue());
+    }
+
+    public static boolean isGreaterThanOrEqualTo(final double value, final Number otherValue) {
+        if (otherValue == null) {
+            return false;
+        }
+        return isGreaterThanOrEqualTo(value, otherValue.doubleValue());
+    }
+
+    public static boolean isLessThanOrEqualTo(final double value, final Double otherValue) {
+        if (otherValue == null) {
+            return false;
+        }
+        return isLessThanOrEqualTo(value, otherValue.doubleValue());
+    }
+
+    public static boolean isLessThanOrEqualTo(final double value, final Number otherValue) {
+        if (otherValue == null) {
+            return false;
+        }
+        return isLessThanOrEqualTo(value, otherValue.doubleValue());
+    }
+
+    public static int compare(final double value, final double otherValue) {
+        final double difference = value - otherValue;
+        if (difference > FIRST_ABOVE_ZERO) {
+            return 1;
+        } else if (difference < FIRST_BELOW_ZERO) {
+            return -1;
+        } else if (difference == 0D) {
+            return 0;
+        } else if (isNaN(difference)) {
+            final boolean valueNaN = isNaN(value);
+            final boolean otherValueNaN = isNaN(otherValue);
+            if (valueNaN && otherValueNaN) {
+                return 0;
+            } else if (valueNaN) {
+                //treat NaN as 0
+                return compare(0D, otherValue);
+            } else {
+                return compare(value, 0D);
+            }
+        } else {
+            final double defaultRoundedValue = round(value);
+            final double roundedOther = round(otherValue);
+            if (defaultRoundedValue < roundedOther) {
+                return -1;
+            } else if (defaultRoundedValue > roundedOther) {
+                return 1;
+            } else {
+                return 0;
+            }
+        }
+    }
+
+    public static boolean equals(final double value, final double otherValue) {
+        final double difference = value - otherValue;
+        if (difference > FIRST_ABOVE_ZERO) {
+            return false;
+        } else if (difference < FIRST_BELOW_ZERO) {
+            return false;
+        } else if (difference == 0D) {
+            return true;
+        } else if (isNaN(difference)) {
+            //treat as missing
+            return false;
+        } else {
+            final double defaultRoundedValue = round(value);
+            final double roundedOther = round(otherValue);
+            return defaultRoundedValue == roundedOther;
+        }
+    }
+
+    public static Boolean equalsNullable(final double value, final double otherValue) {
+        final double difference = value - otherValue;
+        if (difference > FIRST_ABOVE_ZERO) {
+            return Boolean.FALSE;
+        } else if (difference < FIRST_BELOW_ZERO) {
+            return Boolean.FALSE;
+        } else if (difference == 0D) {
+            return Boolean.TRUE;
+        } else if (isNaN(difference)) {
+            //treat as missing
+            return null;
+        } else {
+            final double defaultRoundedValue = round(value);
+            final double roundedOther = round(otherValue);
+            return defaultRoundedValue == roundedOther;
+        }
+    }
+
+    public static boolean notEquals(final double value, final double otherValue) {
+        final double difference = value - otherValue;
+        if (difference > FIRST_ABOVE_ZERO) {
+            return true;
+        } else if (difference < FIRST_BELOW_ZERO) {
+            return true;
+        } else if (difference == 0D) {
+            return false;
+        } else if (isNaN(difference)) {
+            //treat as missing
+            return false;
+        } else {
+            final double defaultRoundedValue = round(value);
+            final double roundedOther = round(otherValue);
+            return defaultRoundedValue != roundedOther;
+        }
+    }
+
+    public static Boolean notEqualsNullable(final double value, final double otherValue) {
+        final double difference = value - otherValue;
+        if (difference > FIRST_ABOVE_ZERO) {
+            return Boolean.TRUE;
+        } else if (difference < FIRST_BELOW_ZERO) {
+            return Boolean.TRUE;
+        } else if (difference == 0D) {
+            return Boolean.FALSE;
+        } else if (isNaN(difference)) {
+            //treat as missing
+            return null;
+        } else {
+            final double defaultRoundedValue = round(value);
+            final double roundedOther = round(otherValue);
+            return defaultRoundedValue != roundedOther;
+        }
+    }
+
+    public static boolean isGreaterThan(final double value, final double otherValue) {
+        final double difference = value - otherValue;
+        if (difference > FIRST_ABOVE_ZERO) {
+            return true;
+        } else if (difference < FIRST_BELOW_ZERO) {
+            return false;
+        } else if (difference == 0D) {
+            return false;
+        } else if (isNaN(difference)) {
+            //treat as missing
+            return false;
+        } else {
+            final double defaultRoundedValue = round(value);
+            final double roundedOther = round(otherValue);
+            return defaultRoundedValue > roundedOther;
+        }
+    }
+
+    public static Boolean isGreaterThanNullable(final double value, final double otherValue) {
+        final double difference = value - otherValue;
+        if (difference > FIRST_ABOVE_ZERO) {
+            return Boolean.TRUE;
+        } else if (difference < FIRST_BELOW_ZERO) {
+            return Boolean.FALSE;
+        } else if (difference == 0D) {
+            return Boolean.FALSE;
+        } else if (isNaN(difference)) {
+            //treat as missing
+            return null;
+        } else {
+            final double defaultRoundedValue = round(value);
+            final double roundedOther = round(otherValue);
+            return defaultRoundedValue > roundedOther;
+        }
+    }
+
+    public static boolean isGreaterThanOrEqualTo(final double value, final double otherValue) {
+        final double difference = value - otherValue;
+        if (difference > FIRST_ABOVE_ZERO) {
+            return true;
+        } else if (difference < FIRST_BELOW_ZERO) {
+            return false;
+        } else if (difference == 0D) {
+            return true;
+        } else if (isNaN(difference)) {
+            //treat as missing
+            return false;
+        } else {
+            final double defaultRoundedValue = round(value);
+            final double roundedOther = round(otherValue);
+            return defaultRoundedValue >= roundedOther;
+        }
+    }
+
+    public static Boolean isGreaterThanOrEqualToNullable(final double value, final double otherValue) {
+        final double difference = value - otherValue;
+        if (difference > FIRST_ABOVE_ZERO) {
+            return Boolean.TRUE;
+        } else if (difference < FIRST_BELOW_ZERO) {
+            return Boolean.FALSE;
+        } else if (difference == 0D) {
+            return Boolean.TRUE;
+        } else if (isNaN(difference)) {
+            //treat as missing
+            return null;
+        } else {
+            final double defaultRoundedValue = round(value);
+            final double roundedOther = round(otherValue);
+            return defaultRoundedValue >= roundedOther;
+        }
+    }
+
+    public static boolean isLessThan(final double value, final double otherValue) {
+        final double difference = value - otherValue;
+        if (difference > FIRST_ABOVE_ZERO) {
+            return false;
+        } else if (difference < FIRST_BELOW_ZERO) {
+            return true;
+        } else if (difference == 0D) {
+            return false;
+        } else if (isNaN(difference)) {
+            //treat as missing
+            return false;
+        } else {
+            final double defaultRoundedValue = round(value);
+            final double roundedOther = round(otherValue);
+            return defaultRoundedValue < roundedOther;
+        }
+    }
+
+    public static Boolean isLessThanNullable(final double value, final double otherValue) {
+        final double difference = value - otherValue;
+        if (difference > FIRST_ABOVE_ZERO) {
+            return Boolean.FALSE;
+        } else if (difference < FIRST_BELOW_ZERO) {
+            return Boolean.TRUE;
+        } else if (difference == 0D) {
+            return Boolean.FALSE;
+        } else if (isNaN(difference)) {
+            //treat as missing
+            return null;
+        } else {
+            final double defaultRoundedValue = round(value);
+            final double roundedOther = round(otherValue);
+            return defaultRoundedValue < roundedOther;
+        }
+    }
+
+    public static boolean isLessThanOrEqualTo(final double value, final double otherValue) {
+        final double difference = value - otherValue;
+        if (difference > FIRST_ABOVE_ZERO) {
+            return false;
+        } else if (difference < FIRST_BELOW_ZERO) {
+            return true;
+        } else if (difference == 0D) {
+            return true;
+        } else if (isNaN(difference)) {
+            //treat as missing
+            return false;
+        } else {
+            final double defaultRoundedValue = round(value);
+            final double roundedOther = round(otherValue);
+            return defaultRoundedValue <= roundedOther;
+        }
+    }
+
+    public static Boolean isLessThanOrEqualToNullable(final double value, final double otherValue) {
+        final double difference = value - otherValue;
+        if (difference > FIRST_ABOVE_ZERO) {
+            return Boolean.FALSE;
+        } else if (difference < FIRST_BELOW_ZERO) {
+            return Boolean.TRUE;
+        } else if (difference == 0D) {
+            return Boolean.TRUE;
+        } else if (isNaN(difference)) {
+            //treat as missing
+            return null;
+        } else {
+            final double defaultRoundedValue = round(value);
+            final double roundedOther = round(otherValue);
+            return defaultRoundedValue <= roundedOther;
         }
     }
 

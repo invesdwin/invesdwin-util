@@ -416,8 +416,8 @@ public enum Op {
 
         @Override
         public IDoubleFromDoublesBinaryOp newDoubleFromDoubles() {
-            final IBooleanFromDoublesBinaryOp booleanFromDoublesF = newBooleanFromDoubles();
-            return (a, b) -> Doubles.fromBoolean(booleanFromDoublesF.applyBooleanFromDoubles(a, b));
+            final IBooleanNullableFromDoublesBinaryOp booleanNullableFromDoublesF = newBooleanNullableFromDoubles();
+            return (a, b) -> Doubles.fromBoolean(booleanNullableFromDoublesF.applyBooleanNullableFromDoubles(a, b));
         }
 
         @Override
@@ -428,8 +428,7 @@ public enum Op {
 
         @Override
         public IBooleanNullableFromDoublesBinaryOp newBooleanNullableFromDoubles() {
-            final IBooleanFromDoublesBinaryOp booleanFromDoublesF = newBooleanFromDoubles();
-            return (a, b) -> booleanFromDoublesF.applyBooleanFromDoubles(a, b);
+            return (a, b) -> Doubles.isLessThanNullable(a, b);
         }
 
         @Override
@@ -482,8 +481,8 @@ public enum Op {
 
         @Override
         public IDoubleFromDoublesBinaryOp newDoubleFromDoubles() {
-            final IBooleanFromDoublesBinaryOp booleanFromDoublesF = newBooleanFromDoubles();
-            return (a, b) -> Doubles.fromBoolean(booleanFromDoublesF.applyBooleanFromDoubles(a, b));
+            final IBooleanNullableFromDoublesBinaryOp booleanNullableFromDoublesF = newBooleanNullableFromDoubles();
+            return (a, b) -> Doubles.fromBoolean(booleanNullableFromDoublesF.applyBooleanNullableFromDoubles(a, b));
         }
 
         @Override
@@ -494,8 +493,7 @@ public enum Op {
 
         @Override
         public IBooleanNullableFromDoublesBinaryOp newBooleanNullableFromDoubles() {
-            final IBooleanFromDoublesBinaryOp booleanFromDoublesF = newBooleanFromDoubles();
-            return (a, b) -> booleanFromDoublesF.applyBooleanFromDoubles(a, b);
+            return (a, b) -> Doubles.isLessThanOrEqualToNullable(a, b);
         }
 
         @Override
@@ -548,8 +546,8 @@ public enum Op {
 
         @Override
         public IDoubleFromDoublesBinaryOp newDoubleFromDoubles() {
-            final IBooleanFromDoublesBinaryOp booleanFromDoublesF = newBooleanFromDoubles();
-            return (a, b) -> Doubles.fromBoolean(booleanFromDoublesF.applyBooleanFromDoubles(a, b));
+            final IBooleanNullableFromDoublesBinaryOp booleanNullableFromDoublesF = newBooleanNullableFromDoubles();
+            return (a, b) -> Doubles.fromBoolean(booleanNullableFromDoublesF.applyBooleanNullableFromDoubles(a, b));
         }
 
         @Override
@@ -560,8 +558,7 @@ public enum Op {
 
         @Override
         public IBooleanNullableFromDoublesBinaryOp newBooleanNullableFromDoubles() {
-            final IBooleanFromDoublesBinaryOp booleanFromDoublesF = newBooleanFromDoubles();
-            return (a, b) -> booleanFromDoublesF.applyBooleanFromDoubles(a, b);
+            return (a, b) -> Doubles.equalsNullable(a, b);
         }
 
         @Override
@@ -614,8 +611,8 @@ public enum Op {
 
         @Override
         public IDoubleFromDoublesBinaryOp newDoubleFromDoubles() {
-            final IBooleanFromDoublesBinaryOp booleanFromDoublesF = newBooleanFromDoubles();
-            return (a, b) -> Doubles.fromBoolean(booleanFromDoublesF.applyBooleanFromDoubles(a, b));
+            final IBooleanNullableFromDoublesBinaryOp booleanNullableFromDoublesF = newBooleanNullableFromDoubles();
+            return (a, b) -> Doubles.fromBoolean(booleanNullableFromDoublesF.applyBooleanNullableFromDoubles(a, b));
         }
 
         @Override
@@ -626,8 +623,7 @@ public enum Op {
 
         @Override
         public IBooleanNullableFromDoublesBinaryOp newBooleanNullableFromDoubles() {
-            final IBooleanFromDoublesBinaryOp booleanFromDoublesF = newBooleanFromDoubles();
-            return (a, b) -> booleanFromDoublesF.applyBooleanFromDoubles(a, b);
+            return (a, b) -> Doubles.isGreaterThanOrEqualToNullable(a, b);
         }
 
         @Override
@@ -680,8 +676,8 @@ public enum Op {
 
         @Override
         public IDoubleFromDoublesBinaryOp newDoubleFromDoubles() {
-            final IBooleanFromDoublesBinaryOp booleanFromDoublesF = newBooleanFromDoubles();
-            return (a, b) -> Doubles.fromBoolean(booleanFromDoublesF.applyBooleanFromDoubles(a, b));
+            final IBooleanNullableFromDoublesBinaryOp booleanNullableFromDoublesF = newBooleanNullableFromDoubles();
+            return (a, b) -> Doubles.fromBoolean(booleanNullableFromDoublesF.applyBooleanNullableFromDoubles(a, b));
         }
 
         @Override
@@ -692,8 +688,7 @@ public enum Op {
 
         @Override
         public IBooleanNullableFromDoublesBinaryOp newBooleanNullableFromDoubles() {
-            final IBooleanFromDoublesBinaryOp booleanFromDoublesF = newBooleanFromDoubles();
-            return (a, b) -> booleanFromDoublesF.applyBooleanFromDoubles(a, b);
+            return (a, b) -> Doubles.isGreaterThanNullable(a, b);
         }
 
         @Override
@@ -746,8 +741,8 @@ public enum Op {
 
         @Override
         public IDoubleFromDoublesBinaryOp newDoubleFromDoubles() {
-            final IBooleanFromDoublesBinaryOp booleanFromDoublesF = newBooleanFromDoubles();
-            return (a, b) -> Doubles.fromBoolean(booleanFromDoublesF.applyBooleanFromDoubles(a, b));
+            final IBooleanNullableFromDoublesBinaryOp booleanNullableFromDoublesF = newBooleanNullableFromDoubles();
+            return (a, b) -> Doubles.fromBoolean(booleanNullableFromDoublesF.applyBooleanNullableFromDoubles(a, b));
         }
 
         @Override
@@ -758,8 +753,7 @@ public enum Op {
 
         @Override
         public IBooleanNullableFromDoublesBinaryOp newBooleanNullableFromDoubles() {
-            final IBooleanFromDoublesBinaryOp booleanFromDoublesF = newBooleanFromDoubles();
-            return (a, b) -> booleanFromDoublesF.applyBooleanFromDoubles(a, b);
+            return (a, b) -> Doubles.notEqualsNullable(a, b);
         }
 
         @Override

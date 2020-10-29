@@ -232,6 +232,90 @@ public class ExpressionParserTest {
     }
 
     @Test
+    public void testGreaterThanNan() {
+        final IExpression parsed = new ExpressionParser("1 > NaN").parse();
+        final double evaluateDouble = parsed.newEvaluateDouble().evaluateDouble();
+        Assertions.checkEquals(Double.NaN, evaluateDouble);
+    }
+
+    @Test
+    public void testGreaterThanNanReverse() {
+        final IExpression parsed = new ExpressionParser("NaN > 1").parse();
+        final double evaluateDouble = parsed.newEvaluateDouble().evaluateDouble();
+        Assertions.checkEquals(Double.NaN, evaluateDouble);
+    }
+
+    @Test
+    public void testGreaterThanOrEqualToNan() {
+        final IExpression parsed = new ExpressionParser("1 >= NaN").parse();
+        final double evaluateDouble = parsed.newEvaluateDouble().evaluateDouble();
+        Assertions.checkEquals(Double.NaN, evaluateDouble);
+    }
+
+    @Test
+    public void testGreaterThanOrEqualToNanReverse() {
+        final IExpression parsed = new ExpressionParser("NaN >= 1").parse();
+        final double evaluateDouble = parsed.newEvaluateDouble().evaluateDouble();
+        Assertions.checkEquals(Double.NaN, evaluateDouble);
+    }
+
+    @Test
+    public void testLessThanNan() {
+        final IExpression parsed = new ExpressionParser("1 < NaN").parse();
+        final double evaluateDouble = parsed.newEvaluateDouble().evaluateDouble();
+        Assertions.checkEquals(Double.NaN, evaluateDouble);
+    }
+
+    @Test
+    public void testLessThanNanReverse() {
+        final IExpression parsed = new ExpressionParser("NaN < 1").parse();
+        final double evaluateDouble = parsed.newEvaluateDouble().evaluateDouble();
+        Assertions.checkEquals(Double.NaN, evaluateDouble);
+    }
+
+    @Test
+    public void testLessThanOrEqualToNan() {
+        final IExpression parsed = new ExpressionParser("1 <= NaN").parse();
+        final double evaluateDouble = parsed.newEvaluateDouble().evaluateDouble();
+        Assertions.checkEquals(Double.NaN, evaluateDouble);
+    }
+
+    @Test
+    public void testLessThanOrEqualToNanReverse() {
+        final IExpression parsed = new ExpressionParser("NaN <= 1").parse();
+        final double evaluateDouble = parsed.newEvaluateDouble().evaluateDouble();
+        Assertions.checkEquals(Double.NaN, evaluateDouble);
+    }
+
+    @Test
+    public void testEqualsNan() {
+        final IExpression parsed = new ExpressionParser("1 == NaN").parse();
+        final double evaluateDouble = parsed.newEvaluateDouble().evaluateDouble();
+        Assertions.checkEquals(Double.NaN, evaluateDouble);
+    }
+
+    @Test
+    public void testEqualsNanReverse() {
+        final IExpression parsed = new ExpressionParser("NaN == 1").parse();
+        final double evaluateDouble = parsed.newEvaluateDouble().evaluateDouble();
+        Assertions.checkEquals(Double.NaN, evaluateDouble);
+    }
+
+    @Test
+    public void testNotEqualsNan() {
+        final IExpression parsed = new ExpressionParser("1 != NaN").parse();
+        final double evaluateDouble = parsed.newEvaluateDouble().evaluateDouble();
+        Assertions.checkEquals(Double.NaN, evaluateDouble);
+    }
+
+    @Test
+    public void testNotEqualsNanReverse() {
+        final IExpression parsed = new ExpressionParser("NaN != 1").parse();
+        final double evaluateDouble = parsed.newEvaluateDouble().evaluateDouble();
+        Assertions.checkEquals(Double.NaN, evaluateDouble);
+    }
+
+    @Test
     public void testNotOperator() {
         final IExpression parsed = new ExpressionParser("!!isNaN(1) || !isNaN(NaN)").parse();
         final double evaluateDouble = parsed.newEvaluateDouble().evaluateDouble();
