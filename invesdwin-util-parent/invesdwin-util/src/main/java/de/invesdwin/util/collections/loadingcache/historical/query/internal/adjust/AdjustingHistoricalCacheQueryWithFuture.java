@@ -33,6 +33,7 @@ public class AdjustingHistoricalCacheQueryWithFuture<V> extends AdjustingHistori
         return this;
     }
 
+    @Deprecated
     @Override
     public IHistoricalCacheQueryWithFuture<V> withFutureNull() {
         delegate.withFutureNull();
