@@ -55,8 +55,8 @@ public class ExpressionParser {
     private static final Map<String, IFunctionFactory> DEFAULT_FUNCTIONS;
     private static final Map<String, IVariable> DEFAULT_VARIABLES;
 
-    private final Tokenizer tokenizer;
     private final String originalExpression;
+    private Tokenizer tokenizer;
 
     //CHECKSTYLE:OFF
     static {
@@ -185,9 +185,7 @@ public class ExpressionParser {
     }
 
     public ExpressionParser(final String expression) {
-        tokenizer = TOKENIZER.get();
         originalExpression = modifyExpression(expression);
-        tokenizer.init(new StringReader(originalExpression));
     }
 
     protected String modifyExpression(final String expression) {
@@ -227,6 +225,8 @@ public class ExpressionParser {
 
     public IExpression parse() {
         try {
+            tokenizer = TOKENIZER.get();
+            tokenizer.init(new StringReader(originalExpression));
             final IParsedExpression result = simplify(expression(true));
             if (tokenizer.current().isNotEnd()) {
                 final Token token = tokenizer.consume();
@@ -247,6 +247,8 @@ public class ExpressionParser {
             } else {
                 throw t;
             }
+        } finally {
+            tokenizer = null;
         }
     }
 
