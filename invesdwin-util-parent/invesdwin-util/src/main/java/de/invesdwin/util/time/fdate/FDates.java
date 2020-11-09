@@ -23,6 +23,7 @@ import de.invesdwin.util.time.duration.Duration;
 @ThreadSafe
 public final class FDates {
 
+    public static final int MISSING_INDEX = -1;
     private static final long MILLISECONDS_IN_DAY = FTimeUnit.MILLISECONDS_IN_DAY;
     private static final long MILLISECONDS_IN_HOUR = FTimeUnit.MILLISECONDS_IN_HOUR;
     private static final long MILLISECONDS_IN_MINUTE = FTimeUnit.MILLISECONDS_IN_MINUTE;
@@ -39,7 +40,8 @@ public final class FDates {
         setDefaultTimeZone(TimeZone.getDefault());
     }
 
-    private FDates() {}
+    private FDates() {
+    }
 
     public static void setDefaultTimeZone(final TimeZone defaultTimeZone) {
         FDates.defaultTimeZone = defaultTimeZone;
@@ -341,7 +343,7 @@ public final class FDates {
             return false;
         }
         final FDate startOfWeek = date1.withoutTime().setFWeekday(statOfWeekPart);
-        FDate endOfWeek = date1.withoutTime().setFWeekday(endOfWeekPart).addDays(1).addMilliseconds(-1);
+        FDate endOfWeek = date1.withoutTime().setFWeekday(endOfWeekPart).addDays(1).addMilliseconds(MISSING_INDEX);
         if (startOfWeek.isAfterOrEqualTo(endOfWeek)) {
             endOfWeek = endOfWeek.addWeeks(1);
         }
@@ -601,7 +603,7 @@ public final class FDates {
             final FDate midKey = keys[mid];
             final int compareTo = midKey.compareToNotNullSafe(skippingKeysAbove);
             switch (compareTo) {
-            case -1:
+            case MISSING_INDEX:
                 lo = mid + 1;
                 break;
             case 0:
@@ -630,7 +632,7 @@ public final class FDates {
 
     public static int[] mapIndexes(final FDate[] fromKeys, final FDate[] toKeys) {
         final int[] mappingFromTo = new int[fromKeys.length];
-        int toKeyIndex = 0;
+        int toKeyIndex = MISSING_INDEX;
         for (int fromKeyIndex = 0; fromKeyIndex < fromKeys.length; fromKeyIndex++) {
             final FDate fromKey = fromKeys[fromKeyIndex];
             while (true) {

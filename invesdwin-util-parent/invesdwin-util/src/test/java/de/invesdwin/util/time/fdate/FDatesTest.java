@@ -33,11 +33,12 @@ public class FDatesTest {
 
     @Test
     public void testMapIndexes() throws Exception {
-        final FDate[] from = { FDateBuilder.newDate(2000), FDateBuilder.newDate(2001), FDateBuilder.newDate(2002) };
+        final FDate[] from = { FDateBuilder.newDate(1999), FDateBuilder.newDate(2000), FDateBuilder.newDate(2001),
+                FDateBuilder.newDate(2002) };
         final FDate[] to = { FDateBuilder.newDate(2000), FDateBuilder.newDate(2000, 6), FDateBuilder.newDate(2001),
                 FDateBuilder.newDate(2001, 6), FDateBuilder.newDate(2002).addDays(-1), FDateBuilder.newDate(2002, 6) };
         final int[] mapIndexes = FDates.mapIndexes(from, to);
-        final int[] expectedIndexes = { 0, 2, 4 };
+        final int[] expectedIndexes = { -1, 0, 2, 4 };
         //CHECKSTYLE:OFF
         System.out.println(Arrays.toString(mapIndexes));
         //CHECKSTYLE:ON
