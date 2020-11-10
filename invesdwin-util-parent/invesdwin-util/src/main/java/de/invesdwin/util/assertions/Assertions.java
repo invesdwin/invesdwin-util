@@ -5,6 +5,8 @@ import java.util.Map;
 
 import javax.annotation.concurrent.Immutable;
 
+import org.junit.ComparisonFailure;
+
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
 import de.invesdwin.util.assertions.internal.AAssertionsStaticFacade;
 import de.invesdwin.util.assertions.type.DecimalAssert;
@@ -13,6 +15,8 @@ import de.invesdwin.util.assertions.type.StringAssert;
 import de.invesdwin.util.assertions.type.internal.junit.JUnitAssertions;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.lang.Strings;
+import de.invesdwin.util.lang.description.TextDescriptionFormatter;
+import de.invesdwin.util.lang.reflection.Reflections;
 import de.invesdwin.util.math.decimal.ADecimal;
 import de.invesdwin.util.time.duration.Duration;
 import de.invesdwin.util.time.fdate.FDate;
@@ -25,6 +29,12 @@ import de.invesdwin.util.time.fdate.FDate;
                 ".* fail\\(java\\.lang\\.String .*" })
 @Immutable
 public final class Assertions extends AAssertionsStaticFacade {
+
+    private static final boolean JUNIT_AVAILABLE;
+
+    static {
+        JUNIT_AVAILABLE = Reflections.classExists("org.junit.Assert");
+    }
 
     private Assertions() {
     }
@@ -41,30 +51,82 @@ public final class Assertions extends AAssertionsStaticFacade {
         return new FDateAssert(actual);
     }
 
-    public static void checkEquals(final Object o1, final Object o2) {
-        if (!Objects.equals(o1, o2)) {
-            assertThat(o1).isEqualTo(o2);
+    public static void checkEquals(final Object expected, final Object actual) {
+        if (!Objects.equals(expected, actual)) {
+            if (expected instanceof String && actual instanceof String && JUNIT_AVAILABLE) {
+                checkEqualsJunit((String) expected, (String) actual);
+            } else {
+                assertThat(actual).isEqualTo(expected);
+            }
             failExceptionExpected();
         }
     }
 
-    public static void checkEquals(final Object o1, final Object o2, final String message, final Object... args) {
-        if (!Objects.equals(o1, o2)) {
-            assertThat(o1).as(message, args).isEqualTo(o2);
+    public static void checkEquals(final Object expected, final Object actual, final String message,
+            final Object... args) {
+        if (!Objects.equals(expected, actual)) {
+            if (expected instanceof String && actual instanceof String && JUNIT_AVAILABLE) {
+                checkEqualsJunit((String) expected, (String) actual, message, args);
+            } else {
+                assertThat(actual).as(message, args).isEqualTo(expected);
+            }
             failExceptionExpected();
         }
     }
 
-    public static void checkNotEquals(final Object o1, final Object o2) {
-        if (Objects.equals(o1, o2)) {
-            assertThat(o1).isNotEqualTo(o2);
+    public static void checkEquals(final String expected, final String actual, final String message,
+            final Object... args) {
+        if (!Objects.equals(expected, actual)) {
+            if (JUNIT_AVAILABLE) {
+                checkEqualsJunit(expected, actual, message, args);
+            } else {
+                assertThat(actual).as(message, args).isEqualTo(expected);
+            }
             failExceptionExpected();
         }
     }
 
-    public static void checkNotEquals(final Object o1, final Object o2, final String message, final Object... args) {
-        if (Objects.equals(o1, o2)) {
-            assertThat(o1).as(message, args).isNotEqualTo(o2);
+    private static void checkEqualsJunit(final String expected, final String actual, final String message,
+            final Object... args) throws ComparisonFailure {
+        try {
+            org.junit.Assert.assertEquals(TextDescriptionFormatter.format(message, args), expected, actual);
+        } catch (final org.junit.ComparisonFailure e) {
+            final String abbreviatedMessage = Strings.abbreviate(e.getMessage(), 1000);
+            throw new org.junit.ComparisonFailure(abbreviatedMessage, e.getExpected(), e.getActual()) {
+                @Override
+                public String getMessage() {
+                    return abbreviatedMessage;
+                }
+            };
+        }
+    }
+
+    private static void checkEqualsJunit(final String expected, final String actual) throws ComparisonFailure {
+        try {
+            org.junit.Assert.assertEquals(expected, actual);
+        } catch (final org.junit.ComparisonFailure e) {
+            //limit message length or else eclipse freezes in junit dialog
+            final String abbreviatedMessage = Strings.abbreviate(e.getMessage(), 1000);
+            throw new org.junit.ComparisonFailure(abbreviatedMessage, e.getExpected(), e.getActual()) {
+                @Override
+                public String getMessage() {
+                    return abbreviatedMessage;
+                }
+            };
+        }
+    }
+
+    public static void checkNotEquals(final Object expected, final Object actual) {
+        if (Objects.equals(expected, actual)) {
+            assertThat(actual).isNotEqualTo(expected);
+            failExceptionExpected();
+        }
+    }
+
+    public static void checkNotEquals(final Object expected, final Object actual, final String message,
+            final Object... args) {
+        if (Objects.equals(expected, actual)) {
+            assertThat(actual).as(message, args).isNotEqualTo(expected);
             failExceptionExpected();
         }
     }
@@ -73,16 +135,17 @@ public final class Assertions extends AAssertionsStaticFacade {
         fail("Exception expected");
     }
 
-    public static void checkSame(final Object o1, final Object o2) {
-        if (o1 != o2) {
-            assertThat(o1).isSameAs(o2);
+    public static void checkSame(final Object expected, final Object actual) {
+        if (expected != actual) {
+            assertThat(actual).isSameAs(expected);
             failExceptionExpected();
         }
     }
 
-    public static void checkSame(final Object o1, final Object o2, final String message, final Object... args) {
-        if (o1 != o2) {
-            assertThat(o1).as(message, args).isSameAs(o2);
+    public static void checkSame(final Object expected, final Object actual, final String message,
+            final Object... args) {
+        if (expected != actual) {
+            assertThat(actual).as(message, args).isSameAs(expected);
             failExceptionExpected();
         }
     }
