@@ -51,6 +51,55 @@ public final class Assertions extends AAssertionsStaticFacade {
         return new FDateAssert(actual);
     }
 
+    public static void checkEquals(final char expected, final char actual) {
+        if (expected != actual) {
+            assertThat(actual).isEqualTo(expected);
+            failExceptionExpected();
+        }
+    }
+
+    public static void checkEquals(final byte expected, final byte actual) {
+        if (expected != actual) {
+            assertThat(actual).isEqualTo(expected);
+            failExceptionExpected();
+        }
+    }
+
+    public static void checkEquals(final short expected, final short actual) {
+        if (expected != actual) {
+            assertThat(actual).isEqualTo(expected);
+            failExceptionExpected();
+        }
+    }
+
+    public static void checkEquals(final int expected, final int actual) {
+        if (expected != actual) {
+            assertThat(actual).isEqualTo(expected);
+            failExceptionExpected();
+        }
+    }
+
+    public static void checkEquals(final long expected, final long actual) {
+        if (expected != actual) {
+            assertThat(actual).isEqualTo(expected);
+            failExceptionExpected();
+        }
+    }
+
+    public static void checkEquals(final float expected, final float actual) {
+        if (expected != actual) {
+            assertThat(actual).isEqualTo(expected);
+            failExceptionExpected();
+        }
+    }
+
+    public static void checkEquals(final double expected, final double actual) {
+        if (expected != actual) {
+            assertThat(actual).isEqualTo(expected);
+            failExceptionExpected();
+        }
+    }
+
     public static void checkEquals(final Object expected, final Object actual) {
         if (!Objects.equals(expected, actual)) {
             if (expected instanceof String && actual instanceof String && JUNIT_AVAILABLE) {
@@ -58,6 +107,58 @@ public final class Assertions extends AAssertionsStaticFacade {
             } else {
                 assertThat(actual).isEqualTo(expected);
             }
+            failExceptionExpected();
+        }
+    }
+
+    public static void checkEquals(final char expected, final char actual, final String message, final Object... args) {
+        if (expected != actual) {
+            assertThat(actual).as(message, args).isEqualTo(expected);
+            failExceptionExpected();
+        }
+    }
+
+    public static void checkEquals(final byte expected, final byte actual, final String message, final Object... args) {
+        if (expected != actual) {
+            assertThat(actual).as(message, args).isEqualTo(expected);
+            failExceptionExpected();
+        }
+    }
+
+    public static void checkEquals(final short expected, final short actual, final String message,
+            final Object... args) {
+        if (expected != actual) {
+            assertThat(actual).as(message, args).isEqualTo(expected);
+            failExceptionExpected();
+        }
+    }
+
+    public static void checkEquals(final int expected, final int actual, final String message, final Object... args) {
+        if (expected != actual) {
+            assertThat(actual).as(message, args).isEqualTo(expected);
+            failExceptionExpected();
+        }
+    }
+
+    public static void checkEquals(final long expected, final long actual, final String message, final Object... args) {
+        if (expected != actual) {
+            assertThat(actual).as(message, args).isEqualTo(expected);
+            failExceptionExpected();
+        }
+    }
+
+    public static void checkEquals(final float expected, final float actual, final String message,
+            final Object... args) {
+        if (expected != actual) {
+            assertThat(actual).as(message, args).isEqualTo(expected);
+            failExceptionExpected();
+        }
+    }
+
+    public static void checkEquals(final double expected, final double actual, final String message,
+            final Object... args) {
+        if (expected != actual) {
+            assertThat(actual).as(message, args).isEqualTo(expected);
             failExceptionExpected();
         }
     }
