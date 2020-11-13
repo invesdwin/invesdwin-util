@@ -128,7 +128,7 @@ public abstract class AScaledDecimal<T extends AScaledDecimal<T, S>, S extends I
     public abstract S getDefaultScale();
 
     @Override
-    public final String toString() {
+    public String toString() {
         return toString(scale);
     }
 

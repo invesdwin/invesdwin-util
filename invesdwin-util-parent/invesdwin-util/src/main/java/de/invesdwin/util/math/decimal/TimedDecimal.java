@@ -48,4 +48,9 @@ public class TimedDecimal extends Decimal implements IHistoricalValue<TimedDecim
         };
     }
 
+    @Override
+    public String toString() {
+        return time + ": " + super.toString();
+    }
+
 }

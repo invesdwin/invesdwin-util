@@ -5,6 +5,7 @@ import javax.annotation.concurrent.Immutable;
 import de.invesdwin.util.collections.loadingcache.historical.IHistoricalEntry;
 import de.invesdwin.util.collections.loadingcache.historical.IHistoricalValue;
 import de.invesdwin.util.lang.Objects;
+import de.invesdwin.util.math.decimal.Decimal;
 import de.invesdwin.util.time.fdate.FDate;
 
 @Immutable
@@ -97,6 +98,11 @@ public class TimedDouble extends Number implements IHistoricalValue<TimedDouble>
     @Override
     public double doubleValue() {
         return value;
+    }
+
+    @Override
+    public String toString() {
+        return time + ": " + Decimal.toString(value);
     }
 
 }

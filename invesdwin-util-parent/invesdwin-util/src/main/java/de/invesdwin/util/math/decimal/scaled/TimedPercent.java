@@ -26,4 +26,9 @@ public class TimedPercent extends Percent {
         return time;
     }
 
+    @Override
+    public String toString() {
+        return time + ": " + super.toString();
+    }
+
 }
