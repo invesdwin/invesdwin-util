@@ -40,8 +40,8 @@ public final class Doubles extends ADoublesStaticFacade {
         }
     };
 
-    private static final double FIRST_ABOVE_ZERO = 0.000000001;
-    private static final double FIRST_BELOW_ZERO = -0.000000001;
+    public static final double FIRST_ABOVE_ZERO = 0.000000001;
+    public static final double FIRST_BELOW_ZERO = -0.000000001;
 
     private Doubles() {
     }
