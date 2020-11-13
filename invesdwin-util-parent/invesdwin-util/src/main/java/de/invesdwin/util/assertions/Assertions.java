@@ -100,6 +100,104 @@ public final class Assertions extends AAssertionsStaticFacade {
         }
     }
 
+    public static void checkEquals(final char expected, final Character actual) {
+        if (actual == null || expected != actual.charValue()) {
+            assertThat(actual).isEqualTo(expected);
+            failExceptionExpected();
+        }
+    }
+
+    public static void checkEquals(final byte expected, final Byte actual) {
+        if (actual == null || expected != actual.byteValue()) {
+            assertThat(actual).isEqualTo(expected);
+            failExceptionExpected();
+        }
+    }
+
+    public static void checkEquals(final short expected, final Short actual) {
+        if (actual == null || expected != actual.shortValue()) {
+            assertThat(actual).isEqualTo(expected);
+            failExceptionExpected();
+        }
+    }
+
+    public static void checkEquals(final int expected, final Integer actual) {
+        if (actual == null || expected != actual.intValue()) {
+            assertThat(actual).isEqualTo(expected);
+            failExceptionExpected();
+        }
+    }
+
+    public static void checkEquals(final long expected, final Long actual) {
+        if (actual == null || expected != actual.longValue()) {
+            assertThat(actual).isEqualTo(expected);
+            failExceptionExpected();
+        }
+    }
+
+    public static void checkEquals(final float expected, final Float actual) {
+        if (actual == null || expected != actual.floatValue()) {
+            assertThat(actual).isEqualTo(expected);
+            failExceptionExpected();
+        }
+    }
+
+    public static void checkEquals(final double expected, final Double actual) {
+        if (actual == null || expected != actual.doubleValue()) {
+            assertThat(actual).isEqualTo(expected);
+            failExceptionExpected();
+        }
+    }
+
+    public static void checkEquals(final Character expected, final char actual) {
+        if (expected == null || expected.charValue() != actual) {
+            assertThat(actual).isEqualTo(expected);
+            failExceptionExpected();
+        }
+    }
+
+    public static void checkEquals(final Byte expected, final byte actual) {
+        if (expected == null || expected.byteValue() != actual) {
+            assertThat(actual).isEqualTo(expected);
+            failExceptionExpected();
+        }
+    }
+
+    public static void checkEquals(final Short expected, final short actual) {
+        if (expected == null || expected.shortValue() != actual) {
+            assertThat(actual).isEqualTo(expected);
+            failExceptionExpected();
+        }
+    }
+
+    public static void checkEquals(final Integer expected, final int actual) {
+        if (expected == null || expected.intValue() != actual) {
+            assertThat(actual).isEqualTo(expected);
+            failExceptionExpected();
+        }
+    }
+
+    public static void checkEquals(final Long expected, final long actual) {
+        if (expected == null || expected.longValue() != actual) {
+            assertThat(actual).isEqualTo(expected);
+            failExceptionExpected();
+        }
+    }
+
+    public static void checkEquals(final Float expected, final float actual) {
+        if (expected == null || expected.floatValue() != actual) {
+            assertThat(actual).isEqualTo(expected);
+            failExceptionExpected();
+        }
+    }
+
+    public static void checkEquals(final Double expected, final double actual) {
+        if (expected == null || expected.doubleValue() != actual) {
+            assertThat(actual).isEqualTo(expected);
+            failExceptionExpected();
+        }
+    }
+
     public static void checkEquals(final Object expected, final Object actual) {
         if (!Objects.equals(expected, actual)) {
             if (expected instanceof String && actual instanceof String && JUNIT_AVAILABLE) {
@@ -107,58 +205,6 @@ public final class Assertions extends AAssertionsStaticFacade {
             } else {
                 assertThat(actual).isEqualTo(expected);
             }
-            failExceptionExpected();
-        }
-    }
-
-    public static void checkEquals(final char expected, final char actual, final String message, final Object... args) {
-        if (expected != actual) {
-            assertThat(actual).as(message, args).isEqualTo(expected);
-            failExceptionExpected();
-        }
-    }
-
-    public static void checkEquals(final byte expected, final byte actual, final String message, final Object... args) {
-        if (expected != actual) {
-            assertThat(actual).as(message, args).isEqualTo(expected);
-            failExceptionExpected();
-        }
-    }
-
-    public static void checkEquals(final short expected, final short actual, final String message,
-            final Object... args) {
-        if (expected != actual) {
-            assertThat(actual).as(message, args).isEqualTo(expected);
-            failExceptionExpected();
-        }
-    }
-
-    public static void checkEquals(final int expected, final int actual, final String message, final Object... args) {
-        if (expected != actual) {
-            assertThat(actual).as(message, args).isEqualTo(expected);
-            failExceptionExpected();
-        }
-    }
-
-    public static void checkEquals(final long expected, final long actual, final String message, final Object... args) {
-        if (expected != actual) {
-            assertThat(actual).as(message, args).isEqualTo(expected);
-            failExceptionExpected();
-        }
-    }
-
-    public static void checkEquals(final float expected, final float actual, final String message,
-            final Object... args) {
-        if (expected != actual) {
-            assertThat(actual).as(message, args).isEqualTo(expected);
-            failExceptionExpected();
-        }
-    }
-
-    public static void checkEquals(final double expected, final double actual, final String message,
-            final Object... args) {
-        if (expected != actual) {
-            assertThat(actual).as(message, args).isEqualTo(expected);
             failExceptionExpected();
         }
     }
