@@ -53,17 +53,17 @@ public final class Doubles extends ADoublesStaticFacade {
         return com.google.common.primitives.Doubles.toArray(vector);
     }
 
-    public static double[] toArrayVector(final Collection<Double> vector) {
+    public static double[] toArrayVector(final Collection<? extends Number> vector) {
         return toArray(vector);
     }
 
-    public static double[][] toArrayMatrix(final List<? extends List<Double>> matrix) {
+    public static double[][] toArrayMatrix(final List<? extends List<? extends Number>> matrix) {
         if (matrix == null) {
             return null;
         }
         final double[][] arrayMatrix = new double[matrix.size()][];
         for (int i = 0; i < matrix.size(); i++) {
-            final List<Double> vector = matrix.get(i);
+            final List<? extends Number> vector = matrix.get(i);
             arrayMatrix[i] = toArrayVector(vector);
         }
         return arrayMatrix;
