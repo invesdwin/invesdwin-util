@@ -52,12 +52,14 @@ public class DoubleFunctionCall extends AFunctionCall<ADoubleFunction> {
 
     @Override
     public IEvaluateIntegerFDate newEvaluateIntegerFDate() {
-        return key -> Integers.checkedCastNoOverflow(newEvaluateDoubleFDate().evaluateDouble(key));
+        final IEvaluateDoubleFDate f = newEvaluateDoubleFDate();
+        return key -> Integers.checkedCastNoOverflow(f.evaluateDouble(key));
     }
 
     @Override
     public IEvaluateIntegerKey newEvaluateIntegerKey() {
-        return key -> Integers.checkedCastNoOverflow(newEvaluateDoubleKey().evaluateDouble(key));
+        final IEvaluateDoubleKey f = newEvaluateDoubleKey();
+        return key -> Integers.checkedCastNoOverflow(f.evaluateDouble(key));
     }
 
     @Override

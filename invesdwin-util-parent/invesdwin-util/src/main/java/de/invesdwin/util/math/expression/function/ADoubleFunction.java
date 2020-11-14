@@ -21,7 +21,7 @@ public abstract class ADoubleFunction extends AFunction {
     public abstract IEvaluateDouble newEvaluateDouble(IExpression[] args);
 
     @Override
-    public final IParsedExpression newCall(final String context, final IParsedExpression[] parameters) {
+    public IParsedExpression newCall(final String context, final IParsedExpression[] parameters) {
         return new DoubleFunctionCall(context, this, parameters);
     }
 

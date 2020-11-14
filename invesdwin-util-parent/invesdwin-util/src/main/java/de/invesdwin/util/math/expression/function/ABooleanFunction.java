@@ -21,7 +21,7 @@ public abstract class ABooleanFunction extends AFunction {
     public abstract IEvaluateBoolean newEvaluateBoolean(IExpression[] args);
 
     @Override
-    public final IParsedExpression newCall(final String context, final IParsedExpression[] parameters) {
+    public IParsedExpression newCall(final String context, final IParsedExpression[] parameters) {
         return new BooleanFunctionCall(context, this, parameters);
     }
 

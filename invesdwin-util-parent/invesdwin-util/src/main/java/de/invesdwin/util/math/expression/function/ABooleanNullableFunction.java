@@ -21,7 +21,7 @@ public abstract class ABooleanNullableFunction extends AFunction {
     public abstract IEvaluateBooleanNullable newEvaluateBooleanNullable(IExpression[] args);
 
     @Override
-    public final IParsedExpression newCall(final String context, final IParsedExpression[] parameters) {
+    public IParsedExpression newCall(final String context, final IParsedExpression[] parameters) {
         return new BooleanNullableFunctionCall(context, this, parameters);
     }
 

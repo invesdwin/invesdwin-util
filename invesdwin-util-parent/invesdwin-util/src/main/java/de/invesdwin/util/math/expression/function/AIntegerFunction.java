@@ -21,7 +21,7 @@ public abstract class AIntegerFunction extends AFunction {
     public abstract IEvaluateInteger newEvaluateInteger(IExpression[] args);
 
     @Override
-    public final IParsedExpression newCall(final String context, final IParsedExpression[] parameters) {
+    public IParsedExpression newCall(final String context, final IParsedExpression[] parameters) {
         return new IntegerFunctionCall(context, this, parameters);
     }
 
