@@ -121,16 +121,29 @@ public class Percent extends AScaledDecimal<Percent, PercentScale> {
         if (Doubles.equals(dividend, divisor)) {
             return 1D;
         } else {
-            return Doubles.divide(dividend, divisor);
+            return newHoldingPeriodReturnRate(divisor, dividend);
         }
     }
 
     /**
-     * AKA: HoldingPeriodReturnPerUnit
+     * AKA: HoldingPeriodReturnPerUnit in Percent (multiplied by 100)
      */
     public static double newProfitLossPerUnitPercent(final double openPriceAbsolute,
             final double profitLossPerUnitAbsolute) {
-        return Doubles.divide(profitLossPerUnitAbsolute, openPriceAbsolute) * 100D;
+        return newHoldingPeriodReturnRate(openPriceAbsolute, profitLossPerUnitAbsolute) * 100D;
+    }
+
+    public static double newHoldingPeriodReturnRate(final double initialValue, final double changeInValue) {
+        final double hpr = Doubles.divide(changeInValue, initialValue);
+        if (initialValue < 0D) {
+            return Doubles.negate(hpr);
+        } else {
+            return hpr;
+        }
+    }
+
+    public static double newGrowthRate(final double initialValue, final double finalValue) {
+        return newHoldingPeriodReturnRate(initialValue, finalValue - initialValue);
     }
 
     @Override
