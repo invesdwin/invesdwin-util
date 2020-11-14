@@ -30,6 +30,7 @@ import de.invesdwin.util.time.fdate.FDate;
 @Immutable
 public final class Assertions extends AAssertionsStaticFacade {
 
+    public static final int COMPARISON_FAILURE_MESSAGE_LIMIT = 1000;
     private static final boolean JUNIT_AVAILABLE;
 
     static {
@@ -238,7 +239,7 @@ public final class Assertions extends AAssertionsStaticFacade {
         try {
             org.junit.Assert.assertEquals(TextDescriptionFormatter.format(message, args), expected, actual);
         } catch (final org.junit.ComparisonFailure e) {
-            final String abbreviatedMessage = Strings.abbreviate(e.getMessage(), 250);
+            final String abbreviatedMessage = Strings.abbreviate(e.getMessage(), COMPARISON_FAILURE_MESSAGE_LIMIT);
             throw new org.junit.ComparisonFailure(abbreviatedMessage, e.getExpected(), e.getActual()) {
                 @Override
                 public String getMessage() {
@@ -253,7 +254,7 @@ public final class Assertions extends AAssertionsStaticFacade {
             org.junit.Assert.assertEquals(expected, actual);
         } catch (final org.junit.ComparisonFailure e) {
             //limit message length or else eclipse freezes in junit dialog
-            final String abbreviatedMessage = Strings.abbreviate(e.getMessage(), 1000);
+            final String abbreviatedMessage = Strings.abbreviate(e.getMessage(), COMPARISON_FAILURE_MESSAGE_LIMIT);
             throw new org.junit.ComparisonFailure(abbreviatedMessage, e.getExpected(), e.getActual()) {
                 @Override
                 public String getMessage() {
