@@ -39,8 +39,8 @@ public class ArrayCloseableIterator<E> implements ICloseableIterator<E>, IFastTo
         }
         try {
             return array[offset++];
-        } catch (final ArrayIndexOutOfBoundsException e) {
-            throw new FastNoSuchElementException("ArrayCloseableIterator: next threw ArrayIndexOutOfBoundsException");
+        } catch (final IndexOutOfBoundsException e) {
+            throw new FastNoSuchElementException("ArrayCloseableIterator: next threw IndexOutOfBoundsException");
         }
     }
 

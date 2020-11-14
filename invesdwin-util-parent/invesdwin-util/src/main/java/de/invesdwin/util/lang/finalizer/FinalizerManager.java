@@ -43,7 +43,7 @@ public final class FinalizerManager {
                         }
                     }
                 }
-            } catch (final ArrayIndexOutOfBoundsException e) {
+            } catch (final IndexOutOfBoundsException e) {
                 //end reached, might happen due to compressing reference removing last element
             }
         }

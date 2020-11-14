@@ -12,9 +12,13 @@ public abstract class ACachedCallable<E> implements Callable<E> {
     private E cached;
 
     @Override
-    public synchronized E call() {
+    public E call() {
         if (cached == null) {
-            cached = innerCall();
+            synchronized (this) {
+                if (cached == null) {
+                    cached = innerCall();
+                }
+            }
         }
         return cached;
     }
