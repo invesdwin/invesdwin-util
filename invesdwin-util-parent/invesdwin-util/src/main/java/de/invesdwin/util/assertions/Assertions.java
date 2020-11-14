@@ -238,7 +238,7 @@ public final class Assertions extends AAssertionsStaticFacade {
         try {
             org.junit.Assert.assertEquals(TextDescriptionFormatter.format(message, args), expected, actual);
         } catch (final org.junit.ComparisonFailure e) {
-            final String abbreviatedMessage = Strings.abbreviate(e.getMessage(), 1000);
+            final String abbreviatedMessage = Strings.abbreviate(e.getMessage(), 250);
             throw new org.junit.ComparisonFailure(abbreviatedMessage, e.getExpected(), e.getActual()) {
                 @Override
                 public String getMessage() {
