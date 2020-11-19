@@ -182,6 +182,10 @@ public class Percent extends AScaledDecimal<Percent, PercentScale> {
         return getValue(PercentScale.PERCENT);
     }
 
+    public double getPermille() {
+        return getValue(PercentScale.PERMILLE);
+    }
+
     /**
      * (newValue - oldValue) / abs(oldValue)
      */
@@ -249,6 +253,22 @@ public class Percent extends AScaledDecimal<Percent, PercentScale> {
             return null;
         } else {
             return value.toString(PercentScale.PERCENT);
+        }
+    }
+
+    public static double toValueInPermille(final Percent value) {
+        if (value == null) {
+            return Double.NaN;
+        } else {
+            return value.getPermille();
+        }
+    }
+
+    public static String toStringInPermille(final Percent value) {
+        if (value == null) {
+            return null;
+        } else {
+            return value.toString(PercentScale.PERMILLE);
         }
     }
 
