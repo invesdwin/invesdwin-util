@@ -167,14 +167,18 @@ public class Decimal extends ADecimal<Decimal> {
     }
 
     public static Decimal valueOf(final double value) {
-        return new Decimal(value);
+        if (Doubles.isNaN(value)) {
+            return null;
+        } else {
+            return new Decimal(value);
+        }
     }
 
     public static Decimal valueOf(final Double value) {
         if (value == null) {
             return null;
         } else {
-            return new Decimal(value);
+            return valueOf(value.doubleValue());
         }
     }
 
@@ -188,7 +192,7 @@ public class Decimal extends ADecimal<Decimal> {
                 throw new IllegalArgumentException("value [" + value + "] should not be an instance of "
                         + IScaledNumber.class.getSimpleName() + ": " + value.getClass().getSimpleName());
             }
-            return new Decimal(value);
+            return valueOf(value.doubleValue());
         }
     }
 
