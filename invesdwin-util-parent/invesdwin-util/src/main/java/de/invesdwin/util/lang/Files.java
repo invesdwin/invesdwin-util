@@ -9,7 +9,6 @@ import java.util.Iterator;
 
 import javax.annotation.concurrent.Immutable;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.AgeFileFilter;
 import org.apache.commons.io.filefilter.TrueFileFilter;
 
@@ -124,7 +123,7 @@ public final class Files extends AFilesStaticFacade {
         boolean write;
         if (file.exists()) {
             try {
-                final String existingContent = FileUtils.readFileToString(file, Charset.defaultCharset());
+                final String existingContent = readFileToString(file, Charset.defaultCharset());
                 write = !existingContent.equals(newContent);
             } catch (final IOException e) {
                 write = true;
