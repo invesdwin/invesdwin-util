@@ -2,12 +2,14 @@ package de.invesdwin.util.lang;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Path;
 import java.util.Iterator;
 
 import javax.annotation.concurrent.Immutable;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.AgeFileFilter;
 import org.apache.commons.io.filefilter.TrueFileFilter;
 
@@ -116,6 +118,30 @@ public final class Files extends AFilesStaticFacade {
             return false;
         }
         return file.exists();
+    }
+
+    public static boolean writeStringToFileIfDifferent(final File file, final String newContent) {
+        boolean write;
+        if (file.exists()) {
+            try {
+                final String existingContent = FileUtils.readFileToString(file, Charset.defaultCharset());
+                write = !existingContent.equals(newContent);
+            } catch (final IOException e) {
+                write = true;
+            }
+        } else {
+            write = true;
+        }
+        if (write) {
+            try {
+                writeStringToFile(file, newContent, Charset.defaultCharset());
+                return true;
+            } catch (final IOException e) {
+                return false;
+            }
+        } else {
+            return false;
+        }
     }
 
 }
