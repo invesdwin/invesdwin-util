@@ -18,7 +18,6 @@ import de.invesdwin.util.math.decimal.Decimal;
 import de.invesdwin.util.math.internal.ADoublesStaticFacade;
 import de.invesdwin.util.math.internal.CheckedCastDoubles;
 import de.invesdwin.util.math.internal.CheckedCastDoublesObj;
-import de.invesdwin.util.math.stream.doubl.DoubleStreamAvg;
 
 @StaticFacadeDefinition(name = "de.invesdwin.util.math.internal.ADoublesStaticFacade", targets = {
         CheckedCastDoubles.class, CheckedCastDoublesObj.class,
@@ -1003,18 +1002,6 @@ public final class Doubles extends ADoublesStaticFacade {
             final double defaultRoundedValue = round(value);
             final double roundedOther = round(otherValue);
             return defaultRoundedValue <= roundedOther;
-        }
-    }
-
-    public static double avg(final Iterable<Double> values) {
-        final DoubleStreamAvg avg = new DoubleStreamAvg();
-        for (final Double value : values) {
-            avg.process(value);
-        }
-        if (avg.getCount() == 0L) {
-            return Double.NaN;
-        } else {
-            return avg.getAvg();
         }
     }
 
