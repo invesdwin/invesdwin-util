@@ -4,6 +4,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.math.decimal.ADecimal;
 import de.invesdwin.util.math.decimal.scaled.Percent;
+import de.invesdwin.util.math.decimal.scaled.PercentScale;
 import de.invesdwin.util.math.stream.IStreamAlgorithm;
 import de.invesdwin.util.math.stream.doubl.DoubleStreamProfitFactor;
 
@@ -20,7 +21,7 @@ public class DecimalStreamProfitFactor<E extends ADecimal<E>> implements IStream
     }
 
     public Percent getProfitFactor() {
-        return delegate.getProfitFactor();
+        return new Percent(delegate.getProfitFactor(), PercentScale.RATE);
     }
 
 }

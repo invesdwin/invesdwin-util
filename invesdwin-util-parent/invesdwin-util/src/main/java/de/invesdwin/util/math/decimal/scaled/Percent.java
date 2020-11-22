@@ -240,6 +240,22 @@ public class Percent extends AScaledDecimal<Percent, PercentScale> {
         return super.toStringBuilder().withDecimalDigitsTrailing(true);
     }
 
+    public static double toValue(final Percent value, final PercentScale scale) {
+        if (value == null) {
+            return Double.NaN;
+        } else {
+            return value.getValue(scale);
+        }
+    }
+
+    public static String toString(final Percent value, final PercentScale scale) {
+        if (value == null) {
+            return null;
+        } else {
+            return value.toString(scale);
+        }
+    }
+
     public static double toValueInRate(final Percent value) {
         if (value == null) {
             return Double.NaN;
@@ -286,6 +302,13 @@ public class Percent extends AScaledDecimal<Percent, PercentScale> {
         } else {
             return value.toString(PercentScale.PERMILLE);
         }
+    }
+
+    public static Percent valueOf(final double value, final PercentScale scale) {
+        if (Doubles.isNaN(value)) {
+            return null;
+        }
+        return new Percent(value, scale);
     }
 
 }

@@ -21,8 +21,8 @@ public class DoubleStreamProfitFactor implements IDoubleStreamAlgorithm {
         return Double.NaN;
     }
 
-    public Percent getProfitFactor() {
-        return new Percent(profitSum, Doubles.abs(lossSum));
+    public double getProfitFactor() {
+        return Percent.newRate(profitSum, Doubles.abs(lossSum));
     }
 
 }
