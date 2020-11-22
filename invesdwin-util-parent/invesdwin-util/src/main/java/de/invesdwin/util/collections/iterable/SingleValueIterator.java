@@ -34,4 +34,12 @@ public class SingleValueIterator<E> implements ICloseableIterator<E> {
         singleValue = null;
     }
 
+    public static <T> ICloseableIterator<T> valueOf(final T singleValue) {
+        if (singleValue == null) {
+            return EmptyCloseableIterator.getInstance();
+        } else {
+            return new SingleValueIterator<>(singleValue);
+        }
+    }
+
 }

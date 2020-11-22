@@ -34,4 +34,12 @@ public class SingleValueIterable<E> implements IFastIterable<E> {
         return (E[]) new Object[] { singleValue };
     }
 
+    public static <T> ICloseableIterable<T> valueOf(final T singleValue) {
+        if (singleValue == null) {
+            return EmptyCloseableIterable.getInstance();
+        } else {
+            return new SingleValueIterable<>(singleValue);
+        }
+    }
+
 }
