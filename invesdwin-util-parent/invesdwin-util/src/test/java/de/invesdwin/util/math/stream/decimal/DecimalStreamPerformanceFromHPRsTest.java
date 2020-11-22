@@ -5,25 +5,25 @@ import javax.annotation.concurrent.NotThreadSafe;
 import org.junit.Test;
 
 import de.invesdwin.util.assertions.Assertions;
-import de.invesdwin.util.math.decimal.Decimal;
 import de.invesdwin.util.math.decimal.scaled.Percent;
 import de.invesdwin.util.math.decimal.scaled.PercentScale;
 
 @NotThreadSafe
-public class DecimalStreamPerformanceFromHoldingPeriodReturnsTest {
+public class DecimalStreamPerformanceFromHPRsTest {
 
     @Test
     public void testProcessAll() {
-        final DecimalStreamPerformanceFromHoldingPeriodReturns perrormance = new DecimalStreamPerformanceFromHoldingPeriodReturns();
+        final DecimalStreamPerformanceFromHPRs perrormance = new DecimalStreamPerformanceFromHPRs();
         perrormance.process(Percent.TEN_PERCENT);
         perrormance.process(Percent.MINUS_TWO_PERCENT);
         perrormance.process(Percent.TEN_PERCENT);
         perrormance.process(Percent.ONE_PERCENT);
         perrormance.process(Percent.MINUS_FIVE_PERCENT);
 
-        final DecimalStreamPerformanceFromHoldingPeriodReturns laterGeomAvg = new DecimalStreamPerformanceFromHoldingPeriodReturns();
-        final Decimal prevPerformance = perrormance.getPerformance();
-        laterGeomAvg.process(new Percent(prevPerformance.subtract(Decimal.ONE).doubleValue(), PercentScale.RATE));
+        final DecimalStreamPerformanceFromHPRs laterGeomAvg = new DecimalStreamPerformanceFromHPRs();
+        final Percent prevPerformance = perrormance.getPerformance();
+        laterGeomAvg.process(
+                new Percent(prevPerformance.subtract(Percent.ONE_HUNDRED_PERCENT).doubleValue(), PercentScale.RATE));
         laterGeomAvg.process(Percent.TEN_PERCENT);
 
         Assertions.assertThat(perrormance.getPerformance()).isSameAs(prevPerformance);
