@@ -18,6 +18,7 @@ import de.invesdwin.util.math.decimal.Decimal;
 import de.invesdwin.util.math.internal.ADoublesStaticFacade;
 import de.invesdwin.util.math.internal.CheckedCastDoubles;
 import de.invesdwin.util.math.internal.CheckedCastDoublesObj;
+import de.invesdwin.util.math.stream.doubl.DoubleStreamAvg;
 
 @StaticFacadeDefinition(name = "de.invesdwin.util.math.internal.ADoublesStaticFacade", targets = {
         CheckedCastDoubles.class, CheckedCastDoublesObj.class,
@@ -1002,6 +1003,41 @@ public final class Doubles extends ADoublesStaticFacade {
             final double defaultRoundedValue = round(value);
             final double roundedOther = round(otherValue);
             return defaultRoundedValue <= roundedOther;
+        }
+    }
+
+    public static double avgSkipNaN(final double[] array) {
+        final DoubleStreamAvg avg = new DoubleStreamAvg();
+        for (int i = 0; i < array.length; i++) {
+            final double value = array[i];
+            if (!isNaN(value)) {
+                avg.process(value);
+            }
+        }
+        if (avg.getCount() == 0L) {
+            return Double.NaN;
+        } else {
+            return avg.getAvg();
+        }
+    }
+
+    public static double[] newArrayNaN(final int size) {
+        final double[] result = new double[size];
+        for (int i = 0; i < result.length; i++) {
+            result[i] = Double.NaN;
+        }
+        return result;
+    }
+
+    public static double avg(final Iterable<Double> values) {
+        final DoubleStreamAvg avg = new DoubleStreamAvg();
+        for (final Double value : values) {
+            avg.process(value);
+        }
+        if (avg.getCount() == 0L) {
+            return Double.NaN;
+        } else {
+            return avg.getAvg();
         }
     }
 
