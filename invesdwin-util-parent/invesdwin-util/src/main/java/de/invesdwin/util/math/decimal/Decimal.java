@@ -211,7 +211,27 @@ public class Decimal extends ADecimal<Decimal> {
 
     @Override
     public String toFormattedString(final String format) {
-        return toFormattedString(format, this);
+        return toFormattedString(format, doubleValue());
+    }
+
+    public static String toFormattedString(final Decimal number) {
+        if (number == null) {
+            return null;
+        } else {
+            return number.toFormattedString();
+        }
+    }
+
+    public static String toFormattedString(final String format, final Decimal number) {
+        if (number == null) {
+            return null;
+        } else {
+            return number.toFormattedString(format);
+        }
+    }
+
+    public static String toFormattedString(final double number) {
+        return toFormattedString(Decimal.DEFAULT_DECIMAL_FORMAT, number);
     }
 
     public static String toFormattedString(final String format, final double number) {

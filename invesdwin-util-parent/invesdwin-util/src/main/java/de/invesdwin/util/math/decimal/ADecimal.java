@@ -816,6 +816,14 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
 
     public abstract String toFormattedString(String format);
 
+    public static String toString(final ADecimal<?> value) {
+        if (value == null) {
+            return null;
+        } else {
+            return value.toString();
+        }
+    }
+
     public abstract E zero();
 
     public static <T extends ADecimal<T>> T zeroToNull(final T value) {
