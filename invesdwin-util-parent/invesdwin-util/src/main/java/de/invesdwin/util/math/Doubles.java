@@ -1006,29 +1006,6 @@ public final class Doubles extends ADoublesStaticFacade {
         }
     }
 
-    public static double avgSkipNaN(final double[] array) {
-        final DoubleStreamAvg avg = new DoubleStreamAvg();
-        for (int i = 0; i < array.length; i++) {
-            final double value = array[i];
-            if (!isNaN(value)) {
-                avg.process(value);
-            }
-        }
-        if (avg.getCount() == 0L) {
-            return Double.NaN;
-        } else {
-            return avg.getAvg();
-        }
-    }
-
-    public static double[] newArrayNaN(final int size) {
-        final double[] result = new double[size];
-        for (int i = 0; i < result.length; i++) {
-            result[i] = Double.NaN;
-        }
-        return result;
-    }
-
     public static double avg(final Iterable<Double> values) {
         final DoubleStreamAvg avg = new DoubleStreamAvg();
         for (final Double value : values) {
