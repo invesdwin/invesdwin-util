@@ -28,7 +28,7 @@ import de.invesdwin.util.math.stream.decimal.DecimalStreamNormalization;
 import de.invesdwin.util.math.stream.decimal.DecimalStreamProduct;
 import de.invesdwin.util.math.stream.decimal.DecimalStreamRelativeDetrending;
 import de.invesdwin.util.math.stream.decimal.DecimalStreamRemoveFlatSequences;
-import de.invesdwin.util.math.stream.decimal.DecimalStreamStandardDeviation;
+import de.invesdwin.util.math.stream.decimal.DecimalStreamStdev;
 import de.invesdwin.util.math.stream.decimal.DecimalStreamSum;
 import de.invesdwin.util.math.stream.decimal.DecimalStreamVariance;
 
@@ -249,7 +249,7 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
      */
     @Override
     public E sampleStandardDeviation() {
-        final DecimalStreamStandardDeviation<E> variance = new DecimalStreamStandardDeviation<E>(getConverter());
+        final DecimalStreamStdev<E> variance = new DecimalStreamStdev<E>(getConverter());
         for (final E value : values) {
             variance.process(value);
         }
@@ -265,7 +265,7 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
     @Deprecated
     @Override
     public E standardDeviation() {
-        final DecimalStreamStandardDeviation<E> variance = new DecimalStreamStandardDeviation<E>(getConverter());
+        final DecimalStreamStdev<E> variance = new DecimalStreamStdev<E>(getConverter());
         for (final E value : values) {
             variance.process(value);
         }

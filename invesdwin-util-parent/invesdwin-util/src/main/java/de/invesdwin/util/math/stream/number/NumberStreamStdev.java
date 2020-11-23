@@ -5,7 +5,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 import de.invesdwin.util.math.stream.IStreamAlgorithm;
 
 @NotThreadSafe
-public class NumberStreamStandardDeviation<E extends Number> implements IStreamAlgorithm<E, Void> {
+public class NumberStreamStdev<E extends Number> implements IStreamAlgorithm<E, Void> {
 
     private final NumberStreamVariance<Double> variance = new NumberStreamVariance<>();
 

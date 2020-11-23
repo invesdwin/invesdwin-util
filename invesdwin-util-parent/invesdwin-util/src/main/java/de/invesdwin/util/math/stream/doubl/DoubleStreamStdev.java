@@ -3,7 +3,7 @@ package de.invesdwin.util.math.stream.doubl;
 import javax.annotation.concurrent.NotThreadSafe;
 
 @NotThreadSafe
-public class DoubleStreamStandardDeviation implements IDoubleStreamAlgorithm {
+public class DoubleStreamStdev implements IDoubleStreamAlgorithm {
 
     private final DoubleStreamVariance variance = new DoubleStreamVariance();
 

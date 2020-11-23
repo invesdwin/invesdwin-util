@@ -13,7 +13,7 @@ import de.invesdwin.util.math.expression.lambda.IEvaluateInteger;
 import de.invesdwin.util.math.expression.lambda.IEvaluateIntegerFDate;
 import de.invesdwin.util.math.expression.lambda.IEvaluateIntegerKey;
 import de.invesdwin.util.math.statistics.RunningMedian;
-import de.invesdwin.util.math.stream.doubl.DoubleStreamStandardDeviation;
+import de.invesdwin.util.math.stream.doubl.DoubleStreamStdev;
 import de.invesdwin.util.math.stream.doubl.DoubleStreamVariance;
 import de.invesdwin.util.time.fdate.IFDateProvider;
 
@@ -1103,7 +1103,7 @@ public final class StatisticalFunctions {
                         final IEvaluateIntegerKey countF = args[1].newEvaluateIntegerKey();
                         return key -> {
                             final int count = countF.evaluateInteger(key);
-                            final DoubleStreamStandardDeviation standardDeviation = new DoubleStreamStandardDeviation();
+                            final DoubleStreamStdev standardDeviation = new DoubleStreamStdev();
                             int curKey = key;
                             for (int i = 1; i <= count; i++) {
                                 final double result = conditionF.evaluateDouble(curKey);
@@ -1125,7 +1125,7 @@ public final class StatisticalFunctions {
                         final IEvaluateIntegerFDate countF = args[1].newEvaluateIntegerFDate();
                         return key -> {
                             final int count = countF.evaluateInteger(key);
-                            final DoubleStreamStandardDeviation standardDeviation = new DoubleStreamStandardDeviation();
+                            final DoubleStreamStdev standardDeviation = new DoubleStreamStdev();
                             IFDateProvider curKey = key;
                             for (int i = 1; i <= count; i++) {
                                 final double result = conditionF.evaluateDouble(curKey);
@@ -1290,7 +1290,7 @@ public final class StatisticalFunctions {
                         final IEvaluateIntegerKey countF = args[1].newEvaluateIntegerKey();
                         return key -> {
                             final int count = countF.evaluateInteger(key);
-                            final DoubleStreamStandardDeviation standardDeviation = new DoubleStreamStandardDeviation();
+                            final DoubleStreamStdev standardDeviation = new DoubleStreamStdev();
                             int curKey = key;
                             for (int i = 1; i <= count; i++) {
                                 final double result = conditionF.evaluateDouble(curKey);
@@ -1311,7 +1311,7 @@ public final class StatisticalFunctions {
                         final IEvaluateIntegerFDate countF = args[1].newEvaluateIntegerFDate();
                         return key -> {
                             final int count = countF.evaluateInteger(key);
-                            final DoubleStreamStandardDeviation standardDeviation = new DoubleStreamStandardDeviation();
+                            final DoubleStreamStdev standardDeviation = new DoubleStreamStdev();
                             IFDateProvider curKey = key;
                             for (int i = 1; i <= count; i++) {
                                 final double result = conditionF.evaluateDouble(curKey);

@@ -3,9 +3,9 @@ package de.invesdwin.util.math.stream;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.math.decimal.ADecimal;
-import de.invesdwin.util.math.stream.decimal.DecimalStreamStandardDeviation;
-import de.invesdwin.util.math.stream.doubl.DoubleStreamStandardDeviation;
-import de.invesdwin.util.math.stream.number.NumberStreamStandardDeviation;
+import de.invesdwin.util.math.stream.decimal.DecimalStreamStdev;
+import de.invesdwin.util.math.stream.doubl.DoubleStreamStdev;
+import de.invesdwin.util.math.stream.number.NumberStreamStdev;
 
 @Immutable
 public enum StandardDeviationType {
@@ -16,40 +16,40 @@ public enum StandardDeviationType {
     @Deprecated
     Population {
         @Override
-        public double get(final DoubleStreamStandardDeviation stream) {
+        public double get(final DoubleStreamStdev stream) {
             return stream.getStandardDeviation();
         }
 
         @Override
-        public double get(final NumberStreamStandardDeviation<?> stream) {
+        public double get(final NumberStreamStdev<?> stream) {
             return stream.getStandardDeviation();
         }
 
         @Override
-        public <T extends ADecimal<T>> T get(final DecimalStreamStandardDeviation<T> stream) {
+        public <T extends ADecimal<T>> T get(final DecimalStreamStdev<T> stream) {
             return stream.getStandardDeviation();
         }
     },
     Sample {
         @Override
-        public double get(final DoubleStreamStandardDeviation stream) {
+        public double get(final DoubleStreamStdev stream) {
             return stream.getSampleStandardDeviation();
         }
 
         @Override
-        public double get(final NumberStreamStandardDeviation<?> stream) {
+        public double get(final NumberStreamStdev<?> stream) {
             return stream.getSampleStandardDeviation();
         }
 
         @Override
-        public <T extends ADecimal<T>> T get(final DecimalStreamStandardDeviation<T> stream) {
+        public <T extends ADecimal<T>> T get(final DecimalStreamStdev<T> stream) {
             return stream.getSampleStandardDeviation();
         }
     };
 
-    public abstract double get(DoubleStreamStandardDeviation stream);
+    public abstract double get(DoubleStreamStdev stream);
 
-    public abstract double get(NumberStreamStandardDeviation<?> stream);
+    public abstract double get(NumberStreamStdev<?> stream);
 
-    public abstract <T extends ADecimal<T>> T get(DecimalStreamStandardDeviation<T> stream);
+    public abstract <T extends ADecimal<T>> T get(DecimalStreamStdev<T> stream);
 }

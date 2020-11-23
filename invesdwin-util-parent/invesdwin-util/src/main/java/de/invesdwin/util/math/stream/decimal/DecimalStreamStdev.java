@@ -4,16 +4,16 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.math.decimal.ADecimal;
 import de.invesdwin.util.math.stream.IStreamAlgorithm;
-import de.invesdwin.util.math.stream.number.NumberStreamStandardDeviation;
+import de.invesdwin.util.math.stream.number.NumberStreamStdev;
 
 @NotThreadSafe
-public class DecimalStreamStandardDeviation<E extends ADecimal<E>> implements IStreamAlgorithm<E, Void> {
+public class DecimalStreamStdev<E extends ADecimal<E>> implements IStreamAlgorithm<E, Void> {
 
-    private final NumberStreamStandardDeviation<Double> standardDeviation = new NumberStreamStandardDeviation<>();
+    private final NumberStreamStdev<Double> standardDeviation = new NumberStreamStdev<>();
 
     private final E converter;
 
-    public DecimalStreamStandardDeviation(final E converter) {
+    public DecimalStreamStdev(final E converter) {
         this.converter = converter;
     }
 

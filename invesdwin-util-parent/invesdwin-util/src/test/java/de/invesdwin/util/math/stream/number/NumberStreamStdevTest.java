@@ -7,12 +7,12 @@ import org.junit.Test;
 import de.invesdwin.util.assertions.Assertions;
 
 @NotThreadSafe
-public class NumberStreamStandardDeviationTest {
+public class NumberStreamStdevTest {
 
     @Test
     public void test() {
         final OverflowingNumberStreamStandardDeviation<Double> avg = new OverflowingNumberStreamStandardDeviation<>();
-        final NumberStreamStandardDeviation<Double> avgEstimate = new NumberStreamStandardDeviation<>();
+        final NumberStreamStdev<Double> avgEstimate = new NumberStreamStdev<>();
 
         for (double i = 0; i < 1000; i++) {
             avg.process(i);
