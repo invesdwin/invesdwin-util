@@ -403,6 +403,10 @@ public final class Doubles extends ADoublesStaticFacade {
         return Math.abs(value);
     }
 
+    public static double square(final double a) {
+        return a * a;
+    }
+
     public static double pow(final double a, final double b) {
         double pow = Math.pow(a, b);
         if (Double.isNaN(pow) && a < 0D) {
