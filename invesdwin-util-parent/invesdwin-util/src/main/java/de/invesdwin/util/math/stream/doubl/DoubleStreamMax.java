@@ -7,7 +7,7 @@ import de.invesdwin.util.math.Doubles;
 @NotThreadSafe
 public class DoubleStreamMax implements IDoubleStreamAlgorithm {
 
-    private double max = Doubles.MIN_VALUE;
+    private double max = Double.NaN;
 
     @Override
     public double process(final double value) {
@@ -16,11 +16,7 @@ public class DoubleStreamMax implements IDoubleStreamAlgorithm {
     }
 
     public double getMax() {
-        if (max == Doubles.MIN_VALUE) {
-            return Double.NaN;
-        } else {
-            return max;
-        }
+        return max;
     }
 
 }
