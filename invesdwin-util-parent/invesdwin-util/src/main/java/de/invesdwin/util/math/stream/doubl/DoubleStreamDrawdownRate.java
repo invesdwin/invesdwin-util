@@ -22,10 +22,11 @@ public class DoubleStreamDrawdownRate implements IDoubleStreamAlgorithm {
             final double drawdown = maxEquity - equity;
             //on multimarket strategies the drawdown can actually become positive for orders
             final double drawdownRate = Percent.newRate(drawdown, maxEquity);
-            if (drawdownRate <= 0) {
-                throw new IllegalStateException(maxEquity + " -> " + equity + " => " + drawdownRate);
+            if (drawdownRate < 0D) {
+                return 0D;
+            } else {
+                return drawdownRate;
             }
-            return drawdownRate;
         }
     }
 
