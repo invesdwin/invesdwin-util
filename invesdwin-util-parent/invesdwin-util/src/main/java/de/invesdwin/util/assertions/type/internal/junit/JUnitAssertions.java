@@ -6,6 +6,8 @@ import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.assertions.Executable;
 import de.invesdwin.util.assertions.ThrowingSupplier;
+import de.invesdwin.util.assertions.type.internal.junit.AssertThrows;
+import de.invesdwin.util.assertions.type.internal.junit.AssertTimeout;
 import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.lang.description.TextDescriptionFormatter;
 
