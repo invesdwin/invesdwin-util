@@ -13,7 +13,6 @@ import de.invesdwin.util.assertions.type.StringAssert;
 import de.invesdwin.util.assertions.type.internal.junit.JUnitAssertions;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.lang.Strings;
-import de.invesdwin.util.lang.description.TextDescriptionFormatter;
 import de.invesdwin.util.lang.reflection.Reflections;
 import de.invesdwin.util.math.decimal.ADecimal;
 import de.invesdwin.util.time.duration.Duration;
@@ -28,7 +27,6 @@ import de.invesdwin.util.time.fdate.FDate;
 @Immutable
 public final class Assertions extends AAssertionsStaticFacade {
 
-    public static final int COMPARISON_FAILURE_MESSAGE_LIMIT = 1000;
     private static final boolean JUNIT_AVAILABLE;
 
     static {
@@ -200,7 +198,7 @@ public final class Assertions extends AAssertionsStaticFacade {
     public static void checkEquals(final Object expected, final Object actual) {
         if (!Objects.equals(expected, actual)) {
             if (JUNIT_AVAILABLE && expected instanceof String && actual instanceof String) {
-                checkEqualsJunit((String) expected, (String) actual);
+                de.invesdwin.util.assertions.type.JUnitAssertions.checkEqualsJunit((String) expected, (String) actual);
             } else {
                 assertThat(actual).isEqualTo(expected);
             }
@@ -212,7 +210,8 @@ public final class Assertions extends AAssertionsStaticFacade {
             final Object... args) {
         if (!Objects.equals(expected, actual)) {
             if (JUNIT_AVAILABLE && expected instanceof String && actual instanceof String) {
-                checkEqualsJunit((String) expected, (String) actual, message, args);
+                de.invesdwin.util.assertions.type.JUnitAssertions.checkEqualsJunit((String) expected, (String) actual,
+                        message, args);
             } else {
                 assertThat(actual).as(message, args).isEqualTo(expected);
             }
@@ -224,41 +223,11 @@ public final class Assertions extends AAssertionsStaticFacade {
             final Object... args) {
         if (!Objects.equals(expected, actual)) {
             if (JUNIT_AVAILABLE) {
-                checkEqualsJunit(expected, actual, message, args);
+                de.invesdwin.util.assertions.type.JUnitAssertions.checkEqualsJunit(expected, actual, message, args);
             } else {
                 assertThat(actual).as(message, args).isEqualTo(expected);
             }
             failExceptionExpected();
-        }
-    }
-
-    private static void checkEqualsJunit(final String expected, final String actual, final String message,
-            final Object... args) {
-        try {
-            org.junit.Assert.assertEquals(TextDescriptionFormatter.format(message, args), expected, actual);
-        } catch (final org.junit.ComparisonFailure e) {
-            final String abbreviatedMessage = Strings.abbreviate(e.getMessage(), COMPARISON_FAILURE_MESSAGE_LIMIT);
-            throw new org.junit.ComparisonFailure(abbreviatedMessage, e.getExpected(), e.getActual()) {
-                @Override
-                public String getMessage() {
-                    return abbreviatedMessage;
-                }
-            };
-        }
-    }
-
-    private static void checkEqualsJunit(final String expected, final String actual) {
-        try {
-            org.junit.Assert.assertEquals(expected, actual);
-        } catch (final org.junit.ComparisonFailure e) {
-            //limit message length or else eclipse freezes in junit dialog
-            final String abbreviatedMessage = Strings.abbreviate(e.getMessage(), COMPARISON_FAILURE_MESSAGE_LIMIT);
-            throw new org.junit.ComparisonFailure(abbreviatedMessage, e.getExpected(), e.getActual()) {
-                @Override
-                public String getMessage() {
-                    return abbreviatedMessage;
-                }
-            };
         }
     }
 
