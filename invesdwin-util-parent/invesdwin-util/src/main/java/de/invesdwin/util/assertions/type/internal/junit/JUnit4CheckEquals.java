@@ -11,10 +11,10 @@ public final class JUnit4CheckEquals {
 
     private static final int COMPARISON_FAILURE_MESSAGE_LIMIT = Assertions.COMPARISON_FAILURE_MESSAGE_LIMIT;
 
-    public JUnit4CheckEquals() {
+    private JUnit4CheckEquals() {
     }
 
-    public void checkEqualsJunit(final String expected, final String actual, final String message,
+    public static void checkEqualsJunit(final String expected, final String actual, final String message,
             final Object... args) {
         try {
             org.junit.Assert.assertEquals(TextDescriptionFormatter.format(message, args), expected, actual);
@@ -29,7 +29,7 @@ public final class JUnit4CheckEquals {
         }
     }
 
-    public void checkEqualsJunit(final String expected, final String actual) {
+    public static void checkEqualsJunit(final String expected, final String actual) {
         try {
             org.junit.Assert.assertEquals(expected, actual);
         } catch (final org.junit.ComparisonFailure e) {
