@@ -1,4 +1,4 @@
-package de.invesdwin.util.assertions.type.internal.junit;
+package de.invesdwin.util.assertions.type;
 
 import java.util.function.Supplier;
 
@@ -19,11 +19,11 @@ import de.invesdwin.util.lang.description.TextDescriptionFormatter;
  *
  */
 @Immutable
-public final class JUnitAssertions {
+public final class JUnit4Assertions {
 
     public static final int COMPARISON_FAILURE_MESSAGE_LIMIT = 1000;
 
-    private JUnitAssertions() {
+    private JUnit4Assertions() {
     }
 
     // --- assert exceptions ---------------------------------------------------
