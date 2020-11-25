@@ -1,19 +1,20 @@
-package de.invesdwin.util.assertions.type;
+package de.invesdwin.util.assertions.type.internal.junit;
 
 import javax.annotation.concurrent.Immutable;
 
+import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.lang.description.TextDescriptionFormatter;
 
 @Immutable
-public final class JUnitAssertions {
+public final class JUnit4CheckEquals {
 
-    public static final int COMPARISON_FAILURE_MESSAGE_LIMIT = 1000;
+    private static final int COMPARISON_FAILURE_MESSAGE_LIMIT = Assertions.COMPARISON_FAILURE_MESSAGE_LIMIT;
 
-    private JUnitAssertions() {
+    public JUnit4CheckEquals() {
     }
 
-    public static void checkEqualsJunit(final String expected, final String actual, final String message,
+    public void checkEqualsJunit(final String expected, final String actual, final String message,
             final Object... args) {
         try {
             org.junit.Assert.assertEquals(TextDescriptionFormatter.format(message, args), expected, actual);
@@ -28,7 +29,7 @@ public final class JUnitAssertions {
         }
     }
 
-    public static void checkEqualsJunit(final String expected, final String actual) {
+    public void checkEqualsJunit(final String expected, final String actual) {
         try {
             org.junit.Assert.assertEquals(expected, actual);
         } catch (final org.junit.ComparisonFailure e) {
