@@ -119,11 +119,12 @@ public class ScaledDecimalToStringBuilder<T extends AScaledDecimal<T, S>, S exte
     }
 
     public static String normalizeNegativeZero(final String str, final int skipSuffixLength) {
-        if (str.length() > 3 && str.charAt(0) == '-' && str.charAt(1) == '0'
-                && (str.charAt(2) == '.' || str.charAt(2) == ',')) {
-            for (int i = 3; i < str.length() - skipSuffixLength; i++) {
-                if (str.charAt(i) != '0') {
-                    return str;
+        if (str.length() >= 2 && str.charAt(0) == '-' && str.charAt(1) == '0') {
+            if (str.length() > 3 && (str.charAt(2) == '.' || str.charAt(2) == ',')) {
+                for (int i = 3; i < str.length() - skipSuffixLength; i++) {
+                    if (str.charAt(i) != '0') {
+                        return str;
+                    }
                 }
             }
             return Strings.removeStart(str, 1);

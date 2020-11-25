@@ -381,6 +381,20 @@ public final class Assertions extends AAssertionsStaticFacade {
         }
     }
 
+    public static void checkEmpty(final Map<?, ?> map) {
+        if (!map.isEmpty()) {
+            assertThat(map).isEmpty();
+            failExceptionExpected();
+        }
+    }
+
+    public static void checkEmpty(final Map<?, ?> map, final String message, final Object... args) {
+        if (!map.isEmpty()) {
+            assertThat(map).as(message, args).isEmpty();
+            failExceptionExpected();
+        }
+    }
+
     public static <S> void checkEmpty(final Collection<S> collection) {
         if (!collection.isEmpty()) {
             assertThat(collection).isEmpty();
