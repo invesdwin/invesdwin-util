@@ -199,7 +199,7 @@ public final class Assertions extends AAssertionsStaticFacade {
 
     public static void checkEquals(final Object expected, final Object actual) {
         if (!Objects.equals(expected, actual)) {
-            if (expected instanceof String && actual instanceof String && JUNIT_AVAILABLE) {
+            if (JUNIT_AVAILABLE && expected instanceof String && actual instanceof String) {
                 checkEqualsJunit((String) expected, (String) actual);
             } else {
                 assertThat(actual).isEqualTo(expected);
@@ -211,7 +211,7 @@ public final class Assertions extends AAssertionsStaticFacade {
     public static void checkEquals(final Object expected, final Object actual, final String message,
             final Object... args) {
         if (!Objects.equals(expected, actual)) {
-            if (expected instanceof String && actual instanceof String && JUNIT_AVAILABLE) {
+            if (JUNIT_AVAILABLE && expected instanceof String && actual instanceof String) {
                 checkEqualsJunit((String) expected, (String) actual, message, args);
             } else {
                 assertThat(actual).as(message, args).isEqualTo(expected);
