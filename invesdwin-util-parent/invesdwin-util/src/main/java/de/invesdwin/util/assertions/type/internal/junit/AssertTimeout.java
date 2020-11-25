@@ -25,19 +25,17 @@ import de.invesdwin.util.error.Throwables;
 @Immutable
 public final class AssertTimeout {
 
-    private AssertTimeout() {
-    }
+    private AssertTimeout() {}
 
-    public static void assertTimeout(final java.time.Duration timeout, final Executable executable) {
+    static void assertTimeout(final java.time.Duration timeout, final Executable executable) {
         assertTimeout(timeout, executable, () -> null);
     }
 
-    public static void assertTimeout(final java.time.Duration timeout, final Executable executable,
-            final String message) {
+    static void assertTimeout(final java.time.Duration timeout, final Executable executable, final String message) {
         assertTimeout(timeout, executable, () -> message);
     }
 
-    public static void assertTimeout(final java.time.Duration timeout, final Executable executable,
+    static void assertTimeout(final java.time.Duration timeout, final Executable executable,
             final Supplier<String> messageSupplier) {
         assertTimeout(timeout, () -> {
             executable.execute();
@@ -45,16 +43,16 @@ public final class AssertTimeout {
         }, messageSupplier);
     }
 
-    public static <T> T assertTimeout(final java.time.Duration timeout, final ThrowingSupplier<T> supplier) {
+    static <T> T assertTimeout(final java.time.Duration timeout, final ThrowingSupplier<T> supplier) {
         return assertTimeout(timeout, supplier, () -> null);
     }
 
-    public static <T> T assertTimeout(final java.time.Duration timeout, final ThrowingSupplier<T> supplier,
+    static <T> T assertTimeout(final java.time.Duration timeout, final ThrowingSupplier<T> supplier,
             final String message) {
         return assertTimeout(timeout, supplier, () -> message);
     }
 
-    public static <T> T assertTimeout(final java.time.Duration timeout, final ThrowingSupplier<T> supplier,
+    static <T> T assertTimeout(final java.time.Duration timeout, final ThrowingSupplier<T> supplier,
             final Supplier<String> messageSupplier) {
         final long timeoutInMillis = timeout.toMillis();
         final long start = System.currentTimeMillis();
@@ -74,16 +72,16 @@ public final class AssertTimeout {
         return result;
     }
 
-    public static void assertTimeoutPreemptively(final java.time.Duration timeout, final Executable executable) {
+    static void assertTimeoutPreemptively(final java.time.Duration timeout, final Executable executable) {
         assertTimeoutPreemptively(timeout, executable, () -> null);
     }
 
-    public static void assertTimeoutPreemptively(final java.time.Duration timeout, final Executable executable,
+    static void assertTimeoutPreemptively(final java.time.Duration timeout, final Executable executable,
             final String message) {
         assertTimeoutPreemptively(timeout, executable, () -> message);
     }
 
-    public static void assertTimeoutPreemptively(final java.time.Duration timeout, final Executable executable,
+    static void assertTimeoutPreemptively(final java.time.Duration timeout, final Executable executable,
             final Supplier<String> messageSupplier) {
         assertTimeoutPreemptively(timeout, () -> {
             executable.execute();
@@ -91,17 +89,16 @@ public final class AssertTimeout {
         }, messageSupplier);
     }
 
-    public static <T> T assertTimeoutPreemptively(final java.time.Duration timeout,
-            final ThrowingSupplier<T> supplier) {
+    static <T> T assertTimeoutPreemptively(final java.time.Duration timeout, final ThrowingSupplier<T> supplier) {
         return assertTimeoutPreemptively(timeout, supplier, () -> null);
     }
 
-    public static <T> T assertTimeoutPreemptively(final java.time.Duration timeout, final ThrowingSupplier<T> supplier,
+    static <T> T assertTimeoutPreemptively(final java.time.Duration timeout, final ThrowingSupplier<T> supplier,
             final String message) {
         return assertTimeoutPreemptively(timeout, supplier, () -> message);
     }
 
-    public static <T> T assertTimeoutPreemptively(final java.time.Duration timeout, final ThrowingSupplier<T> supplier,
+    static <T> T assertTimeoutPreemptively(final java.time.Duration timeout, final ThrowingSupplier<T> supplier,
             final Supplier<String> messageSupplier) {
         final ExecutorService executorService = java.util.concurrent.Executors.newSingleThreadExecutor();
 

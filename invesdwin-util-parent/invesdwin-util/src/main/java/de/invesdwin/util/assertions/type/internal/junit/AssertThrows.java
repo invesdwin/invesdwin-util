@@ -13,17 +13,17 @@ public final class AssertThrows {
     private AssertThrows() {
     }
 
-    public static <T extends Throwable> T assertThrows(final Class<T> expectedType, final Executable executable) {
+    static <T extends Throwable> T assertThrows(final Class<T> expectedType, final Executable executable) {
         return assertThrows(expectedType, executable, () -> null);
     }
 
-    public static <T extends Throwable> T assertThrows(final Class<T> expectedType, final Executable executable,
+    static <T extends Throwable> T assertThrows(final Class<T> expectedType, final Executable executable,
             final String message) {
         return assertThrows(expectedType, executable, () -> message);
     }
 
     @SuppressWarnings("unchecked")
-    public static <T extends Throwable> T assertThrows(final Class<T> expectedType, final Executable executable,
+    static <T extends Throwable> T assertThrows(final Class<T> expectedType, final Executable executable,
             final Supplier<String> messageSupplier) {
 
         try {

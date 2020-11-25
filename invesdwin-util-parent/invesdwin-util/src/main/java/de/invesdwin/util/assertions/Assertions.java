@@ -9,8 +9,8 @@ import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
 import de.invesdwin.util.assertions.internal.AAssertionsStaticFacade;
 import de.invesdwin.util.assertions.type.DecimalAssert;
 import de.invesdwin.util.assertions.type.FDateAssert;
-import de.invesdwin.util.assertions.type.JUnit4Assertions;
 import de.invesdwin.util.assertions.type.StringAssert;
+import de.invesdwin.util.assertions.type.internal.junit.JUnitAssertions;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.lang.reflection.Reflections;
@@ -20,17 +20,17 @@ import de.invesdwin.util.time.fdate.FDate;
 
 @StaticFacadeDefinition(name = "de.invesdwin.util.assertions.internal.AAssertionsStaticFacade", targets = {
         org.assertj.core.api.Assertions.class, org.assertj.guava.api.Assertions.class,
-        com.google.common.base.Preconditions.class, JUnit4Assertions.class,
+        com.google.common.base.Preconditions.class, JUnitAssertions.class,
         org.assertj.jodatime.api.Assertions.class }, filterMethodSignatureExpressions = {
                 ".* org\\.assertj\\.core\\.api\\.StringAssert assertThat\\(java\\.lang\\.String .*",
                 ".* fail\\(java\\.lang\\.String .*" })
 @Immutable
 public final class Assertions extends AAssertionsStaticFacade {
 
-    private static final boolean JUNIT4_AVAILABLE;
+    private static final boolean JUNIT_AVAILABLE;
 
     static {
-        JUNIT4_AVAILABLE = Reflections.classExists("org.junit.Assert");
+        JUNIT_AVAILABLE = Reflections.classExists("org.junit.Assert");
     }
 
     private Assertions() {
@@ -197,8 +197,8 @@ public final class Assertions extends AAssertionsStaticFacade {
 
     public static void checkEquals(final Object expected, final Object actual) {
         if (!Objects.equals(expected, actual)) {
-            if (JUNIT4_AVAILABLE && expected instanceof String && actual instanceof String) {
-                de.invesdwin.util.assertions.type.JUnit4Assertions.checkEqualsJunit((String) expected, (String) actual);
+            if (JUNIT_AVAILABLE && expected instanceof String && actual instanceof String) {
+                de.invesdwin.util.assertions.type.JUnitAssertions.checkEqualsJunit((String) expected, (String) actual);
             } else {
                 assertThat(actual).isEqualTo(expected);
             }
@@ -209,8 +209,8 @@ public final class Assertions extends AAssertionsStaticFacade {
     public static void checkEquals(final Object expected, final Object actual, final String message,
             final Object... args) {
         if (!Objects.equals(expected, actual)) {
-            if (JUNIT4_AVAILABLE && expected instanceof String && actual instanceof String) {
-                de.invesdwin.util.assertions.type.JUnit4Assertions.checkEqualsJunit((String) expected, (String) actual,
+            if (JUNIT_AVAILABLE && expected instanceof String && actual instanceof String) {
+                de.invesdwin.util.assertions.type.JUnitAssertions.checkEqualsJunit((String) expected, (String) actual,
                         message, args);
             } else {
                 assertThat(actual).as(message, args).isEqualTo(expected);
@@ -222,8 +222,8 @@ public final class Assertions extends AAssertionsStaticFacade {
     public static void checkEquals(final String expected, final String actual, final String message,
             final Object... args) {
         if (!Objects.equals(expected, actual)) {
-            if (JUNIT4_AVAILABLE) {
-                de.invesdwin.util.assertions.type.JUnit4Assertions.checkEqualsJunit(expected, actual, message, args);
+            if (JUNIT_AVAILABLE) {
+                de.invesdwin.util.assertions.type.JUnitAssertions.checkEqualsJunit(expected, actual, message, args);
             } else {
                 assertThat(actual).as(message, args).isEqualTo(expected);
             }
@@ -429,60 +429,60 @@ public final class Assertions extends AAssertionsStaticFacade {
     }
 
     public static void assertTimeout(final Duration timeout, final Executable executable) {
-        JUnit4Assertions.assertTimeout(timeout.javaTimeValue(), executable);
+        JUnitAssertions.assertTimeout(timeout.javaTimeValue(), executable);
     }
 
     public static void assertTimeout(final Duration timeout, final Executable executable, final String message) {
-        JUnit4Assertions.assertTimeout(timeout.javaTimeValue(), executable, message);
+        JUnitAssertions.assertTimeout(timeout.javaTimeValue(), executable, message);
     }
 
     public static void assertTimeout(final Duration timeout, final Executable executable,
             final java.util.function.Supplier<String> messageSupplier) {
-        JUnit4Assertions.assertTimeout(timeout.javaTimeValue(), executable, messageSupplier);
+        JUnitAssertions.assertTimeout(timeout.javaTimeValue(), executable, messageSupplier);
     }
 
     public static <T extends java.lang.Object> T assertTimeout(final Duration timeout,
             final ThrowingSupplier<T> supplier) {
-        return JUnit4Assertions.assertTimeout(timeout.javaTimeValue(), supplier);
+        return JUnitAssertions.assertTimeout(timeout.javaTimeValue(), supplier);
     }
 
     public static <T extends java.lang.Object> T assertTimeout(final Duration timeout,
             final ThrowingSupplier<T> supplier, final String message) {
-        return JUnit4Assertions.assertTimeout(timeout.javaTimeValue(), supplier, message);
+        return JUnitAssertions.assertTimeout(timeout.javaTimeValue(), supplier, message);
     }
 
     public static <T extends java.lang.Object> T assertTimeout(final Duration timeout,
             final ThrowingSupplier<T> supplier, final java.util.function.Supplier<String> messageSupplier) {
-        return JUnit4Assertions.assertTimeout(timeout.javaTimeValue(), supplier, messageSupplier);
+        return JUnitAssertions.assertTimeout(timeout.javaTimeValue(), supplier, messageSupplier);
     }
 
     public static void assertTimeoutPreemptively(final Duration timeout, final Executable executable) {
-        JUnit4Assertions.assertTimeoutPreemptively(timeout.javaTimeValue(), executable);
+        JUnitAssertions.assertTimeoutPreemptively(timeout.javaTimeValue(), executable);
     }
 
     public static void assertTimeoutPreemptively(final Duration timeout, final Executable executable,
             final String message) {
-        JUnit4Assertions.assertTimeoutPreemptively(timeout.javaTimeValue(), executable, message);
+        JUnitAssertions.assertTimeoutPreemptively(timeout.javaTimeValue(), executable, message);
     }
 
     public static void assertTimeoutPreemptively(final Duration timeout, final Executable executable,
             final java.util.function.Supplier<String> messageSupplier) {
-        JUnit4Assertions.assertTimeoutPreemptively(timeout.javaTimeValue(), executable, messageSupplier);
+        JUnitAssertions.assertTimeoutPreemptively(timeout.javaTimeValue(), executable, messageSupplier);
     }
 
     public static <T extends java.lang.Object> T assertTimeoutPreemptively(final Duration timeout,
             final ThrowingSupplier<T> supplier) {
-        return JUnit4Assertions.assertTimeoutPreemptively(timeout.javaTimeValue(), supplier);
+        return JUnitAssertions.assertTimeoutPreemptively(timeout.javaTimeValue(), supplier);
     }
 
     public static <T extends java.lang.Object> T assertTimeoutPreemptively(final Duration timeout,
             final ThrowingSupplier<T> supplier, final String message) {
-        return JUnit4Assertions.assertTimeoutPreemptively(timeout.javaTimeValue(), supplier, message);
+        return JUnitAssertions.assertTimeoutPreemptively(timeout.javaTimeValue(), supplier, message);
     }
 
     public static <T extends java.lang.Object> T assertTimeoutPreemptively(final Duration timeout,
             final ThrowingSupplier<T> supplier, final java.util.function.Supplier<String> messageSupplier) {
-        return JUnit4Assertions.assertTimeoutPreemptively(timeout.javaTimeValue(), supplier, messageSupplier);
+        return JUnitAssertions.assertTimeoutPreemptively(timeout.javaTimeValue(), supplier, messageSupplier);
     }
 
 }
