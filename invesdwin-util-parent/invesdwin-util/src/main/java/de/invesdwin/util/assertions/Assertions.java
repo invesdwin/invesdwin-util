@@ -5,8 +5,6 @@ import java.util.Map;
 
 import javax.annotation.concurrent.Immutable;
 
-import org.junit.ComparisonFailure;
-
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
 import de.invesdwin.util.assertions.internal.AAssertionsStaticFacade;
 import de.invesdwin.util.assertions.type.DecimalAssert;
@@ -235,7 +233,7 @@ public final class Assertions extends AAssertionsStaticFacade {
     }
 
     private static void checkEqualsJunit(final String expected, final String actual, final String message,
-            final Object... args) throws ComparisonFailure {
+            final Object... args) {
         try {
             org.junit.Assert.assertEquals(TextDescriptionFormatter.format(message, args), expected, actual);
         } catch (final org.junit.ComparisonFailure e) {
@@ -249,7 +247,7 @@ public final class Assertions extends AAssertionsStaticFacade {
         }
     }
 
-    private static void checkEqualsJunit(final String expected, final String actual) throws ComparisonFailure {
+    private static void checkEqualsJunit(final String expected, final String actual) {
         try {
             org.junit.Assert.assertEquals(expected, actual);
         } catch (final org.junit.ComparisonFailure e) {
