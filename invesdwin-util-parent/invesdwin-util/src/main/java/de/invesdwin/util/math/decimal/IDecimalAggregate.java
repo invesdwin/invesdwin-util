@@ -177,12 +177,21 @@ public interface IDecimalAggregate<E extends ADecimal<E>> {
     @Deprecated
     E coefficientOfVariation();
 
+    @Deprecated
+    default E relativeStandardDeviation() {
+        return coefficientOfVariation();
+    }
+
     /**
      * CV(x) = samplestddev(x) / expectedValue(x)
      * 
      * Also known as relative standard deviation.
      */
     E sampleCoefficientOfVariation();
+
+    default E sampleRelativeStandardDeviation() {
+        return sampleCoefficientOfVariation();
+    }
 
     int size();
 

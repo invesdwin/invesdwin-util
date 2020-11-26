@@ -259,8 +259,8 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
     /**
      * s = (1/(n) * sum((x_i - x_quer)^2))^1/2
      * 
-     * Warning: normally one will use the sampleCoefficientOfVariation since it is hard to come by a complete set of
-     * values representing the distribution of reality
+     * Warning: normally one will use the sampleStandardDeviation since it is hard to come by a complete set of values
+     * representing the distribution of reality
      */
     @Deprecated
     @Override
@@ -277,8 +277,8 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
      * 
      * <a href="http://de.wikipedia.org/wiki/Stichprobenvarianz">Source</a>
      * 
-     * Warning: normally one will use the sampleCoefficientOfVariation since it is hard to come by a complete set of
-     * values representing the distribution of reality
+     * Warning: normally one will use the sampleVariance since it is hard to come by a complete set of values
+     * representing the distribution of reality
      */
     @Deprecated
     @Override

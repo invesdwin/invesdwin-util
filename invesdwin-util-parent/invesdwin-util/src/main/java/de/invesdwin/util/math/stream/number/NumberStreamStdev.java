@@ -10,8 +10,8 @@ public class NumberStreamStdev<E extends Number> implements IStreamAlgorithm<E, 
     private final NumberStreamVariance<Double> variance = new NumberStreamVariance<>();
 
     /**
-     * Warning: normally one will use the sampleCoefficientOfVariation since it is hard to come by a complete set of
-     * values representing the distribution of reality
+     * Warning: normally one will use the sampleStandardDeviation since it is hard to come by a complete set of values
+     * representing the distribution of reality
      */
     @Deprecated
     public double getStandardDeviation() {
@@ -27,8 +27,8 @@ public class NumberStreamStdev<E extends Number> implements IStreamAlgorithm<E, 
     }
 
     /**
-     * Warning: normally one will use the sampleCoefficientOfVariation since it is hard to come by a complete set of
-     * values representing the distribution of reality
+     * Warning: normally one will use the sampleVariance since it is hard to come by a complete set of values
+     * representing the distribution of reality
      */
     @Deprecated
     public double getVariance() {
