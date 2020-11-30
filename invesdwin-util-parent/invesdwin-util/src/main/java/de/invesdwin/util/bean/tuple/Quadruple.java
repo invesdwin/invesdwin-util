@@ -6,7 +6,8 @@ import de.invesdwin.util.lang.Objects;
 
 @SuppressWarnings("serial")
 @Immutable
-public class Quadruple<FIRST, SECOND, THIRD, FOURTH> extends Triple<FIRST, SECOND, THIRD> {
+public class Quadruple<FIRST, SECOND, THIRD, FOURTH> extends Triple<FIRST, SECOND, THIRD>
+        implements IQuadruple<FIRST, SECOND, THIRD, FOURTH> {
 
     private final FOURTH fourth;
 
@@ -15,6 +16,7 @@ public class Quadruple<FIRST, SECOND, THIRD, FOURTH> extends Triple<FIRST, SECON
         this.fourth = fourth;
     }
 
+    @Override
     public FOURTH getFourth() {
         return fourth;
     }
@@ -26,13 +28,13 @@ public class Quadruple<FIRST, SECOND, THIRD, FOURTH> extends Triple<FIRST, SECON
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(getClass(), getFirst(), getSecond(), getThird(), getFourth());
+        return Objects.hashCode(IQuadruple.class, getFirst(), getSecond(), getThird(), getFourth());
     }
 
     @Override
     public boolean equals(final Object obj) {
-        if (obj instanceof Quadruple) {
-            final Quadruple<?, ?, ?, ?> castObj = (Quadruple<?, ?, ?, ?>) obj;
+        if (obj instanceof IQuadruple) {
+            final IQuadruple<?, ?, ?, ?> castObj = (IQuadruple<?, ?, ?, ?>) obj;
             return Objects.equals(getFirst(), castObj.getFirst()) && Objects.equals(getSecond(), castObj.getSecond())
                     && Objects.equals(getThird(), castObj.getThird())
                     && Objects.equals(getFourth(), castObj.getFourth());

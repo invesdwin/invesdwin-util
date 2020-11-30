@@ -3,10 +3,11 @@ package de.invesdwin.util.math.decimal.scaled;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.assertions.Assertions;
+import de.invesdwin.util.bean.tuple.IPair;
 import de.invesdwin.util.time.fdate.FDate;
 
 @Immutable
-public class TimedPercent extends Percent {
+public class TimedPercent extends Percent implements IPair<FDate, Percent> {
 
     private final FDate time;
 
@@ -29,6 +30,16 @@ public class TimedPercent extends Percent {
     @Override
     public String toString() {
         return time + ": " + super.toString();
+    }
+
+    @Override
+    public FDate getFirst() {
+        return getTime();
+    }
+
+    @Override
+    public Percent getSecond() {
+        return this;
     }
 
 }

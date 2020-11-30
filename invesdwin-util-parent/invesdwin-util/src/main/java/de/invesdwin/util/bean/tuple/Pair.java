@@ -18,7 +18,7 @@ import de.invesdwin.util.lang.Objects;
  */
 @SuppressWarnings("serial")
 @Immutable
-public class Pair<FIRST, SECOND> extends AValueObject {
+public class Pair<FIRST, SECOND> extends AValueObject implements IPair<FIRST, SECOND> {
 
     /** The first value in this tuple. */
     private final FIRST first;
@@ -39,10 +39,12 @@ public class Pair<FIRST, SECOND> extends AValueObject {
         this.second = second;
     }
 
+    @Override
     public FIRST getFirst() {
         return first;
     }
 
+    @Override
     public SECOND getSecond() {
         return second;
     }
@@ -53,13 +55,13 @@ public class Pair<FIRST, SECOND> extends AValueObject {
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(getClass(), getFirst(), getSecond());
+        return Objects.hashCode(IPair.class, getFirst(), getSecond());
     }
 
     @Override
     public boolean equals(final Object obj) {
-        if (obj instanceof Pair) {
-            final Pair<?, ?> castObj = (Pair<?, ?>) obj;
+        if (obj instanceof IPair) {
+            final IPair<?, ?> castObj = (IPair<?, ?>) obj;
             return Objects.equals(getFirst(), castObj.getFirst()) && Objects.equals(getSecond(), castObj.getSecond());
         } else {
             return false;
