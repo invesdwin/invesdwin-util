@@ -8,6 +8,7 @@ import java.util.List;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.bean.AValueObject;
+import de.invesdwin.util.bean.tuple.IPair;
 import de.invesdwin.util.lang.ADelegateComparator;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.time.duration.Duration;
@@ -215,6 +216,12 @@ public class TimeRange extends AValueObject {
             usedTo = to;
         }
         return new TimeRange(usedFrom, usedTo);
+    }
+
+    public static TimeRange valueOf(final List<? extends IPair<FDate, ?>> equityCurve) {
+        final IPair<FDate, ?> initialEquity = equityCurve.get(0);
+        final IPair<FDate, ?> finalEquity = equityCurve.get(equityCurve.size() - 1);
+        return new TimeRange(initialEquity.getFirst(), finalEquity.getFirst());
     }
 
 }

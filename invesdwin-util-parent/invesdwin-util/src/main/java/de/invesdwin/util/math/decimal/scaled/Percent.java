@@ -133,8 +133,8 @@ public class Percent extends AScaledDecimal<Percent, PercentScale> {
         return newHoldingPeriodReturnRate(openPriceAbsolute, profitLossPerUnitAbsolute) * 100D;
     }
 
-    public static double newHoldingPeriodReturnRate(final double initialValue, final double changeInValue) {
-        final double hpr = Doubles.divide(changeInValue, initialValue);
+    public static double newHoldingPeriodReturnRate(final double initialValue, final double profitLoss) {
+        final double hpr = Doubles.divide(profitLoss, initialValue);
         if (initialValue < 0D) {
             return Doubles.negate(hpr);
         } else {
