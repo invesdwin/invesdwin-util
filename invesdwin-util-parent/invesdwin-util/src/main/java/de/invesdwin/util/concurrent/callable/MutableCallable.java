@@ -16,7 +16,7 @@ public class MutableCallable<E> implements Callable<E>, ISerializableValueObject
     }
 
     @Override
-    public E call() throws Exception {
+    public E call() {
         return value;
     }
 
