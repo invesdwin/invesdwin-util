@@ -29,6 +29,11 @@ public enum StandardDeviationType {
         public <T extends ADecimal<T>> T get(final DecimalStreamStdev<T> stream) {
             return stream.getStandardDeviation();
         }
+
+        @Override
+        public int adjustSize(final int size) {
+            return size;
+        }
     },
     Sample {
         @Override
@@ -45,11 +50,20 @@ public enum StandardDeviationType {
         public <T extends ADecimal<T>> T get(final DecimalStreamStdev<T> stream) {
             return stream.getSampleStandardDeviation();
         }
+
+        @Override
+        public int adjustSize(final int size) {
+            return size - 1;
+        }
     };
+
+    public static final StandardDeviationType DEFAULT = StandardDeviationType.Sample;
 
     public abstract double get(DoubleStreamStdev stream);
 
     public abstract double get(NumberStreamStdev<?> stream);
 
     public abstract <T extends ADecimal<T>> T get(DecimalStreamStdev<T> stream);
+
+    public abstract int adjustSize(int size);
 }
