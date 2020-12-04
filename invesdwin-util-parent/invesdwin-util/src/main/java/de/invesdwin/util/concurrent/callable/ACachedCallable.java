@@ -1,12 +1,13 @@
 package de.invesdwin.util.concurrent.callable;
 
 import java.util.concurrent.Callable;
+import java.util.function.Supplier;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
 @ThreadSafe
-public abstract class ACachedCallable<E> implements Callable<E> {
+public abstract class ACachedCallable<E> implements Callable<E>, Supplier<E> {
 
     @GuardedBy("this")
     private E cached;
@@ -21,6 +22,11 @@ public abstract class ACachedCallable<E> implements Callable<E> {
             }
         }
         return cached;
+    }
+
+    @Override
+    public E get() {
+        return call();
     }
 
     protected abstract E innerCall();
