@@ -31,8 +31,8 @@ public class DoubleStreamCorrelation implements ICorrelation {
         sumXxY += x * y;
         sumX += x;
         sumY += y;
-        sumXquadr += Doubles.pow(x, 2D);
-        sumYquadr += Doubles.pow(y, 2D);
+        sumXquadr += Doubles.square(x);
+        sumYquadr += Doubles.square(y);
     }
 
     @Override
