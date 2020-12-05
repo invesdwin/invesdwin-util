@@ -42,8 +42,8 @@ public class DoubleStreamCorrelation implements ICorrelation {
         final double s2 = sumX * sumY;
         final double dividend = s1 - s2;
         //(sqrt(n*sum(x^2)-(sum(x))^2) * sqrt(n*sum(y^2)-(sum(y))^2))
-        final double s3 = Doubles.sqrt(Doubles.abs(n * sumXquadr - Doubles.pow(sumX, 2D)));
-        final double s4 = Doubles.sqrt(Doubles.abs(n * sumYquadr - Doubles.pow(sumY, 2D)));
+        final double s3 = Doubles.sqrt(Doubles.abs(n * sumXquadr - Doubles.square(sumX)));
+        final double s4 = Doubles.sqrt(Doubles.abs(n * sumYquadr - Doubles.square(sumY)));
         final double divisor = s3 * s4;
         //r = ((n*sum(x*y)) - (sum(x)*sum(y))) / (sqrt(n*sum(x^2)-(sum(x))^2) * sqrt(n*sum(y^2)-(sum(y))^2))
         final double r = Doubles.divide(dividend, divisor);
