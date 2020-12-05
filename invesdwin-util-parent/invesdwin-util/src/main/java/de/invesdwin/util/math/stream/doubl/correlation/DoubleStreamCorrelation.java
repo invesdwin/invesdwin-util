@@ -59,7 +59,7 @@ public class DoubleStreamCorrelation implements ICorrelation {
      */
     @Override
     public Percent getCoefficientOfDetermination() {
-        return getCorrelation().pow(2);
+        return getCorrelation().square();
     }
 
 }
