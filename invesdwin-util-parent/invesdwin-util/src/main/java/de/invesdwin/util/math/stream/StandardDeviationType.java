@@ -57,8 +57,6 @@ public enum StandardDeviationType {
         }
     };
 
-    public static final StandardDeviationType DEFAULT = StandardDeviationType.Sample;
-
     public abstract double get(DoubleStreamStdev stream);
 
     public abstract double get(NumberStreamStdev<?> stream);
