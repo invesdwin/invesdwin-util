@@ -50,16 +50,4 @@ public class DoubleStreamCorrelation implements ICorrelation {
         return new Percent(r, PercentScale.RATE);
     }
 
-    /**
-     * R^2
-     * 
-     * CorrCoef: Correlation Coefficient is a measure of how linear an equity curve is. If it jumps around or is
-     * non-linear in shape then this value will be low, but if it progress with a slope close to 1 then the value shall
-     * be close to 1. The higher this value the more linear the account growth or equity curve is.
-     */
-    @Override
-    public Percent getCoefficientOfDetermination() {
-        return getCorrelation().square();
-    }
-
 }
