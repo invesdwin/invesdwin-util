@@ -19,7 +19,7 @@ public final class MathFunctions {
     public static final ADoubleFunction SIN = new ADoubleUnaryFunction() {
         @Override
         protected double eval(final double a) {
-            return Math.sin(a);
+            return Doubles.sin(a);
         }
 
         @Override
@@ -172,7 +172,7 @@ public final class MathFunctions {
     public static final ADoubleFunction COS = new ADoubleUnaryFunction() {
         @Override
         protected double eval(final double a) {
-            return Math.cos(a);
+            return Doubles.cos(a);
         }
 
         @Override
@@ -479,7 +479,7 @@ public final class MathFunctions {
     public static final ADoubleFunction ABS = new ADoubleUnaryFunction() {
         @Override
         protected double eval(final double a) {
-            return Math.abs(a);
+            return Doubles.abs(a);
         }
 
         @Override
@@ -901,7 +901,7 @@ public final class MathFunctions {
     public static final ADoubleFunction ROUND = new ADoubleUnaryFunction() {
         @Override
         protected double eval(final double a) {
-            return Math.round(a);
+            return Doubles.round(a);
         }
 
         @Override
@@ -1131,7 +1131,7 @@ public final class MathFunctions {
     public static final ADoubleFunction POW = new ADoubleBinaryFunction() {
         @Override
         protected double eval(final double a, final double b) {
-            return Math.pow(a, b);
+            return Doubles.pow(a, b);
         }
 
         @Override
@@ -1247,7 +1247,7 @@ public final class MathFunctions {
     public static final ADoubleFunction SQRT = new ADoubleUnaryFunction() {
         @Override
         protected double eval(final double a) {
-            return Math.sqrt(a);
+            return Doubles.sqrt(a);
         }
 
         @Override
@@ -1401,7 +1401,7 @@ public final class MathFunctions {
     public static final ADoubleFunction EXP = new ADoubleUnaryFunction() {
         @Override
         protected double eval(final double a) {
-            return Math.exp(a);
+            return Doubles.exp(a);
         }
 
         @Override
@@ -1477,7 +1477,7 @@ public final class MathFunctions {
     public static final ADoubleFunction LN = new ADoubleUnaryFunction() {
         @Override
         protected double eval(final double a) {
-            return Math.log(a);
+            return Doubles.log(a);
         }
 
         @Override
@@ -1553,7 +1553,7 @@ public final class MathFunctions {
     public static final ADoubleFunction LOG = new ADoubleUnaryFunction() {
         @Override
         protected double eval(final double a) {
-            return Math.log10(a);
+            return Doubles.log10(a);
         }
 
         @Override
