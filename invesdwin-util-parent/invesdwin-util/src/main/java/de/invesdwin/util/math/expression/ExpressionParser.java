@@ -83,6 +83,7 @@ public class ExpressionParser {
         putDefaultFunction(MathFunctions.LN);
         putDefaultFunction(MathFunctions.LOG);
         putDefaultFunction(MathFunctions.SQRT);
+        putDefaultFunction(MathFunctions.SQUARE);
         putDefaultFunction(MathFunctions.POW);
         for (final String name : new String[] { "min", "minimum" }) {
             putDefaultFunction(MathFunctions.newMinimumFunction(name));

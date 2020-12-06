@@ -1321,6 +1321,83 @@ public final class MathFunctions {
         }
     };
 
+    public static final ADoubleFunction SQUARE = new ADoubleUnaryFunction() {
+        @Override
+        protected double eval(final double a) {
+            return Doubles.square(a);
+        }
+
+        @Override
+        public String getExpressionName() {
+            return "square";
+        }
+
+        @Override
+        public IFunctionParameterInfo getParameterInfo(final int index) {
+            if (index != 0) {
+                throw new ArrayIndexOutOfBoundsException(index);
+            }
+            return new IFunctionParameterInfo() {
+
+                @Override
+                public String getType() {
+                    return ExpressionReturnType.Double.toString();
+                }
+
+                @Override
+                public String getExpressionName() {
+                    return "value";
+                }
+
+                @Override
+                public String getName() {
+                    return "Value";
+                }
+
+                @Override
+                public String getDescription() {
+                    return null;
+                }
+
+                @Override
+                public boolean isOptional() {
+                    return false;
+                }
+
+                @Override
+                public boolean isVarArgs() {
+                    return false;
+                }
+
+                @Override
+                public String getDefaultValue() {
+                    return null;
+                }
+
+            };
+        }
+
+        @Override
+        public String getName() {
+            return "Square";
+        }
+
+        @Override
+        public String getDescription() {
+            return "Returns the square of the given value: value^2";
+        }
+
+        @Override
+        public boolean shouldPersist() {
+            return false;
+        }
+
+        @Override
+        public boolean shouldDraw() {
+            return true;
+        }
+    };
+
     public static final ADoubleFunction EXP = new ADoubleUnaryFunction() {
         @Override
         protected double eval(final double a) {
