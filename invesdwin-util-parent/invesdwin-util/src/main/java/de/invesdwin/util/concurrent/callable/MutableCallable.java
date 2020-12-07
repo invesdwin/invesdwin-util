@@ -12,6 +12,14 @@ public class MutableCallable<E> implements Callable<E>, Supplier<E>, ISerializab
 
     private E value;
 
+    public MutableCallable(final E initialValue) {
+        this.value = initialValue;
+    }
+
+    public MutableCallable() {
+
+    }
+
     public void setValue(final E value) {
         this.value = value;
     }
