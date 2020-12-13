@@ -24,10 +24,10 @@ import de.invesdwin.util.time.duration.Duration;
 public final class FDates {
 
     public static final int MISSING_INDEX = -1;
-    private static final long MILLISECONDS_IN_DAY = FTimeUnit.MILLISECONDS_IN_DAY;
-    private static final long MILLISECONDS_IN_HOUR = FTimeUnit.MILLISECONDS_IN_HOUR;
-    private static final long MILLISECONDS_IN_MINUTE = FTimeUnit.MILLISECONDS_IN_MINUTE;
-    private static final long MILLISECONDS_IN_SECOND = FTimeUnit.MILLISECONDS_IN_SECOND;
+    public static final long MILLISECONDS_IN_DAY = FTimeUnit.MILLISECONDS_IN_DAY;
+    public static final long MILLISECONDS_IN_HOUR = FTimeUnit.MILLISECONDS_IN_HOUR;
+    public static final long MILLISECONDS_IN_MINUTE = FTimeUnit.MILLISECONDS_IN_MINUTE;
+    public static final long MILLISECONDS_IN_SECOND = FTimeUnit.MILLISECONDS_IN_SECOND;
 
     private static Calendar templateCalendar;
     private static TimeZone defaultTimeZone;
