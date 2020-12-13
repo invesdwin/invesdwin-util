@@ -2,6 +2,7 @@ package de.invesdwin.util.math;
 
 import javax.annotation.concurrent.Immutable;
 
+import de.invesdwin.util.bean.tuple.IPair;
 import de.invesdwin.util.collections.loadingcache.historical.IHistoricalEntry;
 import de.invesdwin.util.collections.loadingcache.historical.IHistoricalValue;
 import de.invesdwin.util.lang.Objects;
@@ -9,7 +10,8 @@ import de.invesdwin.util.math.decimal.Decimal;
 import de.invesdwin.util.time.fdate.FDate;
 
 @Immutable
-public class TimedDouble extends Number implements IHistoricalValue<TimedDouble>, Comparable<Object> {
+public class TimedDouble extends Number
+        implements IHistoricalValue<TimedDouble>, Comparable<Object>, IPair<FDate, Number> {
 
     public static final TimedDouble DUMMY = new TimedDouble(FDate.MIN_DATE, Double.NaN);
 
@@ -103,6 +105,16 @@ public class TimedDouble extends Number implements IHistoricalValue<TimedDouble>
     @Override
     public String toString() {
         return time + ": " + Decimal.toString(value);
+    }
+
+    @Override
+    public FDate getFirst() {
+        return time;
+    }
+
+    @Override
+    public Number getSecond() {
+        return this;
     }
 
 }
