@@ -3,7 +3,6 @@ package de.invesdwin.util.collections.iterable.buffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
-import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -92,7 +91,7 @@ public class BufferingIteratorIterateTest {
 
     private static long iteratorPerformanceTestList(final int curTest) {
         final Instant start = new Instant();
-        final List<Long> list = new ArrayList<Long>(COUNT_RAND);
+        final ArrayList<Long> list = new ArrayList<Long>(COUNT_RAND);
         final RandomDataGenerator r = new RandomDataGenerator(RandomGenerators.newDefaultRandom());
         for (long ilong = 0L; ilong < COUNT_RAND; ilong++) {
             list.add(r.nextLong(Long.MIN_VALUE, Long.MAX_VALUE));
