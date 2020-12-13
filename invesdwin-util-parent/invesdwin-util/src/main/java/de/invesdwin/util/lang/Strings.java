@@ -35,6 +35,7 @@ public final class Strings extends AStringsStaticFacade {
     };
 
     public static final String EMPTY = org.apache.commons.lang3.StringUtils.EMPTY;
+    public static final String[] EMPTY_ARRAY = new String[0];
     public static final String NULL_TEXT = "null";
     public static final String DEFAULT_MISSING_VALUE = null;
 
