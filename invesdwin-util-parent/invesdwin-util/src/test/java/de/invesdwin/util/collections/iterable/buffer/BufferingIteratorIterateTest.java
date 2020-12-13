@@ -1,9 +1,10 @@
 package de.invesdwin.util.collections.iterable.buffer;
 
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Set;
+import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
@@ -78,8 +79,12 @@ public class BufferingIteratorIterateTest {
         }
         for (int i = 0; i < COUNT_LOOPS; i++) {
             final ICloseableIterator<Long> iterator = list.iterator();
-            while (iterator.hasNext()) {
-                iterator.next().hashCode();
+            try {
+                while (true) {
+                    iterator.next().hashCode();
+                }
+            } catch (final NoSuchElementException e) {
+                //end reached
             }
         }
         return start.longValue();
@@ -87,15 +92,24 @@ public class BufferingIteratorIterateTest {
 
     private static long iteratorPerformanceTestList(final int curTest) {
         final Instant start = new Instant();
-        final Set<Long> list = new HashSet<Long>(COUNT_RAND);
+        final List<Long> list = new ArrayList<Long>(COUNT_RAND);
         final RandomDataGenerator r = new RandomDataGenerator(RandomGenerators.newDefaultRandom());
         for (long ilong = 0L; ilong < COUNT_RAND; ilong++) {
             list.add(r.nextLong(Long.MIN_VALUE, Long.MAX_VALUE));
         }
+        //        for (int i = 0; i < COUNT_LOOPS; i++) {
+        //            for (int idx = 0; idx < list.size(); idx++) {
+        //                list.get(idx).hashCode();
+        //            }
+        //        }
         for (int i = 0; i < COUNT_LOOPS; i++) {
             final Iterator<Long> iterator = list.iterator();
-            while (iterator.hasNext()) {
-                iterator.next().hashCode();
+            try {
+                while (true) {
+                    iterator.next().hashCode();
+                }
+            } catch (final NoSuchElementException e) {
+                //end reached
             }
         }
         return start.longValue();
