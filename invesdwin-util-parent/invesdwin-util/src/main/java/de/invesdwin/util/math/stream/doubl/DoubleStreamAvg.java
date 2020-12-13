@@ -24,4 +24,9 @@ public class DoubleStreamAvg implements IDoubleStreamAlgorithm {
         return count;
     }
 
+    public void reset() {
+        count = 0;
+        avg = 0D;
+    }
+
 }

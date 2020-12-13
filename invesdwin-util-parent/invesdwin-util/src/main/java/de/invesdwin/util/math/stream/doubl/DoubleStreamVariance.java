@@ -5,7 +5,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 @NotThreadSafe
 public class DoubleStreamVariance implements IDoubleStreamAlgorithm {
 
-    private double squareSum = 0.0;
+    private double squareSum = 0D;
     private final DoubleStreamAvg avg = new DoubleStreamAvg();
 
     public double getSampleVariance() {
@@ -46,6 +46,11 @@ public class DoubleStreamVariance implements IDoubleStreamAlgorithm {
         final double delta = avg.process(value);
         squareSum += delta * (value - avg.getAvg());
         return Double.NaN;
+    }
+
+    public void reset() {
+        squareSum = 0D;
+        avg.reset();
     }
 
 }

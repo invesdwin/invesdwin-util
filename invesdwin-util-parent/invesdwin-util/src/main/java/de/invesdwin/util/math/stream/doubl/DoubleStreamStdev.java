@@ -47,4 +47,8 @@ public class DoubleStreamStdev implements IDoubleStreamAlgorithm {
         return Double.NaN;
     }
 
+    public void reset() {
+        variance.reset();
+    }
+
 }

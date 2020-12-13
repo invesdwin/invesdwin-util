@@ -7,6 +7,10 @@ public class DoubleStreamDrawdownAbsolute implements IDoubleStreamAlgorithm {
 
     private double maxEquity;
 
+    public DoubleStreamDrawdownAbsolute() {
+        this.maxEquity = 0D;
+    }
+
     public DoubleStreamDrawdownAbsolute(final double initialEquity) {
         this.maxEquity = initialEquity;
     }
@@ -28,6 +32,14 @@ public class DoubleStreamDrawdownAbsolute implements IDoubleStreamAlgorithm {
                 return drawdown;
             }
         }
+    }
+
+    public void reset() {
+        this.maxEquity = 0D;
+    }
+
+    public void reset(final double initialEquity) {
+        this.maxEquity = initialEquity;
     }
 
 }

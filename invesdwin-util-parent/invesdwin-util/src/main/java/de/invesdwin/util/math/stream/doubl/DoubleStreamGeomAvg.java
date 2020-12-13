@@ -7,10 +7,9 @@ import de.invesdwin.util.math.Doubles;
 @NotThreadSafe
 public class DoubleStreamGeomAvg implements IDoubleStreamAlgorithm {
 
+    private final double valueAdjustmentAddition;
     private double logSum = 0D;
     private int count;
-    private final double valueAdjustmentAddition;
-    private double geomAvg = Double.NaN;
 
     public DoubleStreamGeomAvg() {
         final double valueAdjustmentAddition = getValueAdjustmentAddition();
@@ -37,18 +36,10 @@ public class DoubleStreamGeomAvg implements IDoubleStreamAlgorithm {
             logSum += Math.log(adjValue);
         }
         count++;
-        geomAvg = Double.NaN;
         return Double.NaN;
     }
 
     public double getGeomAvg() {
-        if (Doubles.isNaN(geomAvg)) {
-            geomAvg = calculateGeomAvg();
-        }
-        return geomAvg;
-    }
-
-    private double calculateGeomAvg() {
         if (count == 0) {
             return 0D;
         } else {
@@ -56,6 +47,11 @@ public class DoubleStreamGeomAvg implements IDoubleStreamAlgorithm {
             final double geomAvg = result - valueAdjustmentAddition;
             return geomAvg;
         }
+    }
+
+    public void reset() {
+        logSum = 0D;
+        count = 0;
     }
 
 }

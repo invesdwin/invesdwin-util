@@ -25,4 +25,12 @@ public class LoopIsSameJulianDayCheck {
         }
     }
 
+    public void reset() {
+        prevJulianDay = 0L;
+    }
+
+    public void reset(final FDate initialTime) {
+        prevJulianDay = initialTime.millisValue() / FDates.MILLISECONDS_IN_DAY;
+    }
+
 }

@@ -9,6 +9,10 @@ public class DoubleStreamDrawdownRate implements IDoubleStreamAlgorithm {
 
     private double maxEquity;
 
+    public DoubleStreamDrawdownRate() {
+        this.maxEquity = 0D;
+    }
+
     public DoubleStreamDrawdownRate(final double initialEquity) {
         this.maxEquity = initialEquity;
     }
@@ -32,6 +36,14 @@ public class DoubleStreamDrawdownRate implements IDoubleStreamAlgorithm {
                 return drawdownRate;
             }
         }
+    }
+
+    public void reset() {
+        this.maxEquity = 0D;
+    }
+
+    public void reset(final double initialEquity) {
+        this.maxEquity = initialEquity;
     }
 
 }
