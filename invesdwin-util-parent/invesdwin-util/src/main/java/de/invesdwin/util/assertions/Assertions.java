@@ -14,6 +14,7 @@ import de.invesdwin.util.assertions.type.internal.junit.JUnitAssertions;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.lang.reflection.Reflections;
+import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.decimal.ADecimal;
 import de.invesdwin.util.time.duration.Duration;
 import de.invesdwin.util.time.fdate.FDate;
@@ -94,6 +95,9 @@ public final class Assertions extends AAssertionsStaticFacade {
 
     public static void checkEquals(final double expected, final double actual) {
         if (expected != actual) {
+            if (Doubles.isNaN(expected) && Doubles.isNaN(actual)) {
+                return;
+            }
             assertThat(actual).isEqualTo(expected);
             failExceptionExpected();
         }
