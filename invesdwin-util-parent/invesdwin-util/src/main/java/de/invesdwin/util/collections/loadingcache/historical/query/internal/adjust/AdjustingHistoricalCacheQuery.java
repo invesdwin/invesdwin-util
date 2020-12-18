@@ -172,6 +172,36 @@ public class AdjustingHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V
     }
 
     @Override
+    public ICloseableIterable<FDate> getKeysCached(final FDate from, final FDate to) {
+        final FDate adjFrom = adjustKey(from);
+        if (adjFrom != null && adjFrom.isBefore(from)) {
+            return EmptyCloseableIterable.getInstance();
+        }
+        final FDate adjTo = adjustKey(to);
+        return delegate.getKeysCached(adjFrom, adjTo);
+    }
+
+    @Override
+    public ICloseableIterable<IHistoricalEntry<V>> getEntriesCached(final FDate from, final FDate to) {
+        final FDate adjFrom = adjustKey(from);
+        if (adjFrom != null && adjFrom.isBefore(from)) {
+            return EmptyCloseableIterable.getInstance();
+        }
+        final FDate adjTo = adjustKey(to);
+        return delegate.getEntriesCached(adjFrom, adjTo);
+    }
+
+    @Override
+    public ICloseableIterable<V> getValuesCached(final FDate from, final FDate to) {
+        final FDate adjFrom = adjustKey(from);
+        if (adjFrom != null && adjFrom.isBefore(from)) {
+            return EmptyCloseableIterable.getInstance();
+        }
+        final FDate adjTo = adjustKey(to);
+        return delegate.getValuesCached(adjFrom, adjTo);
+    }
+
+    @Override
     public FDate getPreviousKeyWithSameValueBetween(final FDate from, final FDate to, final V value) {
         final FDate adjFrom = adjustKey(from);
         if (adjFrom != null && adjFrom.isBefore(from)) {

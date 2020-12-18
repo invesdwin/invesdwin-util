@@ -88,6 +88,21 @@ public interface IHistoricalCacheQuery<V> extends IHistoricalCacheQueryInternalM
     /**
      * from and to are inclusive
      */
+    ICloseableIterable<FDate> getKeysCached(FDate from, FDate to);
+
+    /**
+     * from and to are inclusive
+     */
+    ICloseableIterable<IHistoricalEntry<V>> getEntriesCached(FDate from, FDate to);
+
+    /**
+     * from and to are inclusive
+     */
+    ICloseableIterable<V> getValuesCached(FDate from, FDate to);
+
+    /**
+     * from and to are inclusive
+     */
     FDate getPreviousKeyWithSameValueBetween(FDate from, FDate to, V value);
 
     /**

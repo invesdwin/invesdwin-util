@@ -298,33 +298,38 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
         if (iterableInterceptor != null) {
             return iterableInterceptor;
         } else {
-            return new ICloseableIterable<FDate>() {
-                @Override
-                public ICloseableIterator<FDate> iterator() {
-                    return new ICloseableIterator<FDate>() {
-
-                        private final ICloseableIterator<IHistoricalEntry<V>> entriesIterator = getEntries(from, to)
-                                .iterator();
-
-                        @Override
-                        public boolean hasNext() {
-                            return entriesIterator.hasNext();
-                        }
-
-                        @Override
-                        public FDate next() {
-                            return entriesIterator.next().getKey();
-                        }
-
-                        @Override
-                        public void close() {
-                            entriesIterator.close();
-                        }
-
-                    };
-                }
-            };
+            return getKeysCached(from, to);
         }
+    }
+
+    @Override
+    public ICloseableIterable<FDate> getKeysCached(final FDate from, final FDate to) {
+        return new ICloseableIterable<FDate>() {
+            @Override
+            public ICloseableIterator<FDate> iterator() {
+                return new ICloseableIterator<FDate>() {
+
+                    private final ICloseableIterator<IHistoricalEntry<V>> entriesIterator = getEntries(from, to)
+                            .iterator();
+
+                    @Override
+                    public boolean hasNext() {
+                        return entriesIterator.hasNext();
+                    }
+
+                    @Override
+                    public FDate next() {
+                        return entriesIterator.next().getKey();
+                    }
+
+                    @Override
+                    public void close() {
+                        entriesIterator.close();
+                    }
+
+                };
+            }
+        };
     }
 
     /**
@@ -352,64 +357,68 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
                 };
             }
         } else {
-            return new ICloseableIterable<IHistoricalEntry<V>>() {
-                @Override
-                public ICloseableIterator<IHistoricalEntry<V>> iterator() {
-                    return new ICloseableIterator<IHistoricalEntry<V>>() {
-                        private final IHistoricalCacheQueryWithFuture<V> future = withFuture();
-                        private IHistoricalEntry<V> nextEntry;
-                        private FDate nextEntryKey;
-
-                        {
-                            nextEntry = future.getNextEntry(from, 0);
-                            if (nextEntry != null) {
-                                nextEntryKey = extractKey(nextEntry);
-                                if (nextEntryKey.isBefore(from)) {
-                                    //skip initial value if it is not inside requested range
-                                    nextEntry = future.getNextEntry(nextEntryKey, 1);
-                                    nextEntryKey = extractKey(nextEntry);
-                                }
-                            }
-                        }
-
-                        @Override
-                        public boolean hasNext() {
-                            return nextEntryKey != null && !nextEntryKey.isAfter(to);
-                        }
-
-                        private FDate extractKey(final IHistoricalEntry<V> e) {
-                            return IHistoricalEntry.unwrapEntryKey(e);
-                        }
-
-                        @Override
-                        public IHistoricalEntry<V> next() {
-                            if (hasNext()) {
-                                //always returning current and reading ahead once
-                                final IHistoricalEntry<V> currentEntry = nextEntry;
-                                final FDate currentEntryKey = extractKey(currentEntry);
-                                nextEntry = future.getNextEntry(currentEntryKey, 1);
-                                nextEntryKey = extractKey(nextEntry);
-                                if (nextEntry != null && !nextEntryKey.isAfter(currentEntryKey)) {
-                                    nextEntry = null;
-                                    nextEntryKey = null;
-                                }
-                                return currentEntry;
-                            } else {
-                                throw new FastNoSuchElementException(
-                                        "HistoricalCacheQuery: getEntries hasNext is false");
-                            }
-                        }
-
-                        @Override
-                        public void close() {
-                            nextEntry = null;
-                            nextEntryKey = null;
-                        }
-
-                    };
-                }
-            };
+            return getEntriesCached(from, to);
         }
+    }
+
+    @Override
+    public ICloseableIterable<IHistoricalEntry<V>> getEntriesCached(final FDate from, final FDate to) {
+        return new ICloseableIterable<IHistoricalEntry<V>>() {
+            @Override
+            public ICloseableIterator<IHistoricalEntry<V>> iterator() {
+                return new ICloseableIterator<IHistoricalEntry<V>>() {
+                    private final IHistoricalCacheQueryWithFuture<V> future = withFuture();
+                    private IHistoricalEntry<V> nextEntry;
+                    private FDate nextEntryKey;
+
+                    {
+                        nextEntry = future.getNextEntry(from, 0);
+                        if (nextEntry != null) {
+                            nextEntryKey = extractKey(nextEntry);
+                            if (nextEntryKey.isBefore(from)) {
+                                //skip initial value if it is not inside requested range
+                                nextEntry = future.getNextEntry(nextEntryKey, 1);
+                                nextEntryKey = extractKey(nextEntry);
+                            }
+                        }
+                    }
+
+                    @Override
+                    public boolean hasNext() {
+                        return nextEntryKey != null && !nextEntryKey.isAfter(to);
+                    }
+
+                    private FDate extractKey(final IHistoricalEntry<V> e) {
+                        return IHistoricalEntry.unwrapEntryKey(e);
+                    }
+
+                    @Override
+                    public IHistoricalEntry<V> next() {
+                        if (hasNext()) {
+                            //always returning current and reading ahead once
+                            final IHistoricalEntry<V> currentEntry = nextEntry;
+                            final FDate currentEntryKey = extractKey(currentEntry);
+                            nextEntry = future.getNextEntry(currentEntryKey, 1);
+                            nextEntryKey = extractKey(nextEntry);
+                            if (nextEntry != null && !nextEntryKey.isAfter(currentEntryKey)) {
+                                nextEntry = null;
+                                nextEntryKey = null;
+                            }
+                            return currentEntry;
+                        } else {
+                            throw new FastNoSuchElementException("HistoricalCacheQuery: getEntries hasNext is false");
+                        }
+                    }
+
+                    @Override
+                    public void close() {
+                        nextEntry = null;
+                        nextEntryKey = null;
+                    }
+
+                };
+            }
+        };
     }
 
     @Override
@@ -423,6 +432,40 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
 
                     {
                         final ICloseableIterable<IHistoricalEntry<V>> entries = getEntries(from, to);
+                        entriesIterator = entries.iterator();
+                    }
+
+                    @Override
+                    public boolean hasNext() {
+                        return entriesIterator.hasNext();
+                    }
+
+                    @Override
+                    public V next() {
+                        return entriesIterator.next().getValue();
+                    }
+
+                    @Override
+                    public void close() {
+                        entriesIterator.close();
+                    }
+
+                };
+            }
+        };
+    }
+
+    @Override
+    public ICloseableIterable<V> getValuesCached(final FDate from, final FDate to) {
+        return new ICloseableIterable<V>() {
+            @Override
+            public ICloseableIterator<V> iterator() {
+                return new ICloseableIterator<V>() {
+
+                    private final ICloseableIterator<IHistoricalEntry<V>> entriesIterator;
+
+                    {
+                        final ICloseableIterable<IHistoricalEntry<V>> entries = getEntriesCached(from, to);
                         entriesIterator = entries.iterator();
                     }
 

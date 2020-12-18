@@ -229,6 +229,72 @@ public class FilteringHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V
     }
 
     @Override
+    public ICloseableIterable<FDate> getKeysCached(final FDate from, final FDate to) {
+        return new AFilterSkippingIterable<FDate>(delegate.getKeysCached(from, to)) {
+            @Override
+            protected boolean skip(final FDate element) {
+                if (element.isAfter(to)) {
+                    return true;
+                }
+                if (element.isBefore(from)) {
+                    return true;
+                }
+                return false;
+            }
+        };
+    }
+
+    @Override
+    public ICloseableIterable<IHistoricalEntry<V>> getEntriesCached(final FDate from, final FDate to) {
+        return new AFilterSkippingIterable<IHistoricalEntry<V>>(delegate.getEntriesCached(from, to)) {
+            @Override
+            protected boolean skip(final IHistoricalEntry<V> element) {
+                if (element.getKey().isAfter(to)) {
+                    return true;
+                }
+                if (element.getKey().isBefore(from)) {
+                    return true;
+                }
+                return false;
+            }
+        };
+    }
+
+    @Override
+    public ICloseableIterable<V> getValuesCached(final FDate from, final FDate to) {
+        return new ICloseableIterable<V>() {
+            @Override
+            public ICloseableIterator<V> iterator() {
+                return new ICloseableIterator<V>() {
+
+                    private final ICloseableIterator<IHistoricalEntry<V>> entriesIterator;
+
+                    {
+                        final ICloseableIterable<IHistoricalEntry<V>> entries = getEntriesCached(from, to);
+                        entriesIterator = entries.iterator();
+                    }
+
+                    @Override
+                    public boolean hasNext() {
+                        return entriesIterator.hasNext();
+                    }
+
+                    @Override
+                    public V next() {
+                        return entriesIterator.next().getValue();
+                    }
+
+                    @Override
+                    public void close() {
+                        entriesIterator.close();
+                    }
+
+                };
+            }
+        };
+    }
+
+    @Override
     public FDate getPreviousKeyWithSameValueBetween(final FDate from, final FDate to, final V value) {
         final FDate result = delegate.getPreviousKeyWithSameValueBetween(from, to, value);
         if (result == null || (result.isBefore(from) || result.isAfter(to))) {
