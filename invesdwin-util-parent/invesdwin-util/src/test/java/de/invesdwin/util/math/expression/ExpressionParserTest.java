@@ -159,6 +159,12 @@ public class ExpressionParserTest {
         final IExpression parsed = new ExpressionParser("1 <> 2 && 1 >< 2 && 1 != 2").parse();
         final double evaluateDouble = parsed.newEvaluateDouble().evaluateDouble();
         Assertions.checkEquals(1D, evaluateDouble);
+
+        final Boolean evaluateBooleanNullable = parsed.newEvaluateBooleanNullable().evaluateBooleanNullable();
+        Assertions.checkEquals(Boolean.TRUE, evaluateBooleanNullable);
+
+        final Boolean evaluateBoolean = parsed.newEvaluateBoolean().evaluateBoolean();
+        Assertions.checkEquals(true, evaluateBoolean);
     }
 
     @Test
@@ -166,6 +172,12 @@ public class ExpressionParserTest {
         final IExpression parsed = new ExpressionParser("1 AND 0").parse();
         final double evaluateDouble = parsed.newEvaluateDouble().evaluateDouble();
         Assertions.checkEquals(0D, evaluateDouble);
+
+        final Boolean evaluateBooleanNullable = parsed.newEvaluateBooleanNullable().evaluateBooleanNullable();
+        Assertions.checkEquals(Boolean.FALSE, evaluateBooleanNullable);
+
+        final Boolean evaluateBoolean = parsed.newEvaluateBoolean().evaluateBoolean();
+        Assertions.checkEquals(false, evaluateBoolean);
     }
 
     @Test
@@ -173,6 +185,12 @@ public class ExpressionParserTest {
         final IExpression parsed = new ExpressionParser("1 OR 0").parse();
         final double evaluateDouble = parsed.newEvaluateDouble().evaluateDouble();
         Assertions.checkEquals(1D, evaluateDouble);
+
+        final Boolean evaluateBooleanNullable = parsed.newEvaluateBooleanNullable().evaluateBooleanNullable();
+        Assertions.checkEquals(Boolean.TRUE, evaluateBooleanNullable);
+
+        final Boolean evaluateBoolean = parsed.newEvaluateBoolean().evaluateBoolean();
+        Assertions.checkEquals(true, evaluateBoolean);
     }
 
     @Test
@@ -180,6 +198,12 @@ public class ExpressionParserTest {
         final IExpression parsed = new ExpressionParser("1 AND NaN").parse();
         final double evaluateDouble = parsed.newEvaluateDouble().evaluateDouble();
         Assertions.checkEquals(1D, evaluateDouble);
+
+        final Boolean evaluateBooleanNullable = parsed.newEvaluateBooleanNullable().evaluateBooleanNullable();
+        Assertions.checkEquals(Boolean.TRUE, evaluateBooleanNullable);
+
+        final Boolean evaluateBoolean = parsed.newEvaluateBoolean().evaluateBoolean();
+        Assertions.checkEquals(true, evaluateBoolean);
     }
 
     @Test
@@ -187,6 +211,12 @@ public class ExpressionParserTest {
         final IExpression parsed = new ExpressionParser("0 OR NaN OR 1").parse();
         final double evaluateDouble = parsed.newEvaluateDouble().evaluateDouble();
         Assertions.checkEquals(1D, evaluateDouble);
+
+        final Boolean evaluateBooleanNullable = parsed.newEvaluateBooleanNullable().evaluateBooleanNullable();
+        Assertions.checkEquals(Boolean.TRUE, evaluateBooleanNullable);
+
+        final Boolean evaluateBoolean = parsed.newEvaluateBoolean().evaluateBoolean();
+        Assertions.checkEquals(true, evaluateBoolean);
     }
 
     @Test
@@ -194,6 +224,12 @@ public class ExpressionParserTest {
         final IExpression parsed = new ExpressionParser("1 + NaN").parse();
         final double evaluateDouble = parsed.newEvaluateDouble().evaluateDouble();
         Assertions.checkEquals(Double.NaN, evaluateDouble);
+
+        final Boolean evaluateBooleanNullable = parsed.newEvaluateBooleanNullable().evaluateBooleanNullable();
+        Assertions.checkEquals(null, evaluateBooleanNullable);
+
+        final Boolean evaluateBoolean = parsed.newEvaluateBoolean().evaluateBoolean();
+        Assertions.checkEquals(false, evaluateBoolean);
     }
 
     @Test
@@ -201,6 +237,12 @@ public class ExpressionParserTest {
         final IExpression parsed = new ExpressionParser("1 - NaN").parse();
         final double evaluateDouble = parsed.newEvaluateDouble().evaluateDouble();
         Assertions.checkEquals(Double.NaN, evaluateDouble);
+
+        final Boolean evaluateBooleanNullable = parsed.newEvaluateBooleanNullable().evaluateBooleanNullable();
+        Assertions.checkEquals(null, evaluateBooleanNullable);
+
+        final Boolean evaluateBoolean = parsed.newEvaluateBoolean().evaluateBoolean();
+        Assertions.checkEquals(false, evaluateBoolean);
     }
 
     @Test
@@ -208,6 +250,12 @@ public class ExpressionParserTest {
         final IExpression parsed = new ExpressionParser("1 * NaN").parse();
         final double evaluateDouble = parsed.newEvaluateDouble().evaluateDouble();
         Assertions.checkEquals(Double.NaN, evaluateDouble);
+
+        final Boolean evaluateBooleanNullable = parsed.newEvaluateBooleanNullable().evaluateBooleanNullable();
+        Assertions.checkEquals(null, evaluateBooleanNullable);
+
+        final Boolean evaluateBoolean = parsed.newEvaluateBoolean().evaluateBoolean();
+        Assertions.checkEquals(false, evaluateBoolean);
     }
 
     @Test
@@ -215,6 +263,12 @@ public class ExpressionParserTest {
         final IExpression parsed = new ExpressionParser("1 / NaN").parse();
         final double evaluateDouble = parsed.newEvaluateDouble().evaluateDouble();
         Assertions.checkEquals(Double.NaN, evaluateDouble);
+
+        final Boolean evaluateBooleanNullable = parsed.newEvaluateBooleanNullable().evaluateBooleanNullable();
+        Assertions.checkEquals(null, evaluateBooleanNullable);
+
+        final Boolean evaluateBoolean = parsed.newEvaluateBoolean().evaluateBoolean();
+        Assertions.checkEquals(false, evaluateBoolean);
     }
 
     @Test
@@ -222,6 +276,12 @@ public class ExpressionParserTest {
         final IExpression parsed = new ExpressionParser("1 % NaN").parse();
         final double evaluateDouble = parsed.newEvaluateDouble().evaluateDouble();
         Assertions.checkEquals(Double.NaN, evaluateDouble);
+
+        final Boolean evaluateBooleanNullable = parsed.newEvaluateBooleanNullable().evaluateBooleanNullable();
+        Assertions.checkEquals(null, evaluateBooleanNullable);
+
+        final Boolean evaluateBoolean = parsed.newEvaluateBoolean().evaluateBoolean();
+        Assertions.checkEquals(false, evaluateBoolean);
     }
 
     @Test
@@ -229,6 +289,12 @@ public class ExpressionParserTest {
         final IExpression parsed = new ExpressionParser("1 ^ NaN").parse();
         final double evaluateDouble = parsed.newEvaluateDouble().evaluateDouble();
         Assertions.checkEquals(Double.NaN, evaluateDouble);
+
+        final Boolean evaluateBooleanNullable = parsed.newEvaluateBooleanNullable().evaluateBooleanNullable();
+        Assertions.checkEquals(null, evaluateBooleanNullable);
+
+        final Boolean evaluateBoolean = parsed.newEvaluateBoolean().evaluateBoolean();
+        Assertions.checkEquals(false, evaluateBoolean);
     }
 
     @Test
@@ -236,6 +302,12 @@ public class ExpressionParserTest {
         final IExpression parsed = new ExpressionParser("1 > NaN").parse();
         final double evaluateDouble = parsed.newEvaluateDouble().evaluateDouble();
         Assertions.checkEquals(Double.NaN, evaluateDouble);
+
+        final Boolean evaluateBooleanNullable = parsed.newEvaluateBooleanNullable().evaluateBooleanNullable();
+        Assertions.checkEquals(null, evaluateBooleanNullable);
+
+        final Boolean evaluateBoolean = parsed.newEvaluateBoolean().evaluateBoolean();
+        Assertions.checkEquals(false, evaluateBoolean);
     }
 
     @Test
@@ -243,6 +315,12 @@ public class ExpressionParserTest {
         final IExpression parsed = new ExpressionParser("NaN > 1").parse();
         final double evaluateDouble = parsed.newEvaluateDouble().evaluateDouble();
         Assertions.checkEquals(Double.NaN, evaluateDouble);
+
+        final Boolean evaluateBooleanNullable = parsed.newEvaluateBooleanNullable().evaluateBooleanNullable();
+        Assertions.checkEquals(null, evaluateBooleanNullable);
+
+        final Boolean evaluateBoolean = parsed.newEvaluateBoolean().evaluateBoolean();
+        Assertions.checkEquals(false, evaluateBoolean);
     }
 
     @Test
@@ -250,6 +328,12 @@ public class ExpressionParserTest {
         final IExpression parsed = new ExpressionParser("1 >= NaN").parse();
         final double evaluateDouble = parsed.newEvaluateDouble().evaluateDouble();
         Assertions.checkEquals(Double.NaN, evaluateDouble);
+
+        final Boolean evaluateBooleanNullable = parsed.newEvaluateBooleanNullable().evaluateBooleanNullable();
+        Assertions.checkEquals(null, evaluateBooleanNullable);
+
+        final Boolean evaluateBoolean = parsed.newEvaluateBoolean().evaluateBoolean();
+        Assertions.checkEquals(false, evaluateBoolean);
     }
 
     @Test
@@ -257,6 +341,12 @@ public class ExpressionParserTest {
         final IExpression parsed = new ExpressionParser("NaN >= 1").parse();
         final double evaluateDouble = parsed.newEvaluateDouble().evaluateDouble();
         Assertions.checkEquals(Double.NaN, evaluateDouble);
+
+        final Boolean evaluateBooleanNullable = parsed.newEvaluateBooleanNullable().evaluateBooleanNullable();
+        Assertions.checkEquals(null, evaluateBooleanNullable);
+
+        final Boolean evaluateBoolean = parsed.newEvaluateBoolean().evaluateBoolean();
+        Assertions.checkEquals(false, evaluateBoolean);
     }
 
     @Test
@@ -264,6 +354,12 @@ public class ExpressionParserTest {
         final IExpression parsed = new ExpressionParser("1 < NaN").parse();
         final double evaluateDouble = parsed.newEvaluateDouble().evaluateDouble();
         Assertions.checkEquals(Double.NaN, evaluateDouble);
+
+        final Boolean evaluateBooleanNullable = parsed.newEvaluateBooleanNullable().evaluateBooleanNullable();
+        Assertions.checkEquals(null, evaluateBooleanNullable);
+
+        final Boolean evaluateBoolean = parsed.newEvaluateBoolean().evaluateBoolean();
+        Assertions.checkEquals(false, evaluateBoolean);
     }
 
     @Test
@@ -271,6 +367,12 @@ public class ExpressionParserTest {
         final IExpression parsed = new ExpressionParser("NaN < 1").parse();
         final double evaluateDouble = parsed.newEvaluateDouble().evaluateDouble();
         Assertions.checkEquals(Double.NaN, evaluateDouble);
+
+        final Boolean evaluateBooleanNullable = parsed.newEvaluateBooleanNullable().evaluateBooleanNullable();
+        Assertions.checkEquals(null, evaluateBooleanNullable);
+
+        final Boolean evaluateBoolean = parsed.newEvaluateBoolean().evaluateBoolean();
+        Assertions.checkEquals(false, evaluateBoolean);
     }
 
     @Test
@@ -278,6 +380,12 @@ public class ExpressionParserTest {
         final IExpression parsed = new ExpressionParser("1 <= NaN").parse();
         final double evaluateDouble = parsed.newEvaluateDouble().evaluateDouble();
         Assertions.checkEquals(Double.NaN, evaluateDouble);
+
+        final Boolean evaluateBooleanNullable = parsed.newEvaluateBooleanNullable().evaluateBooleanNullable();
+        Assertions.checkEquals(null, evaluateBooleanNullable);
+
+        final Boolean evaluateBoolean = parsed.newEvaluateBoolean().evaluateBoolean();
+        Assertions.checkEquals(false, evaluateBoolean);
     }
 
     @Test
@@ -285,6 +393,12 @@ public class ExpressionParserTest {
         final IExpression parsed = new ExpressionParser("NaN <= 1").parse();
         final double evaluateDouble = parsed.newEvaluateDouble().evaluateDouble();
         Assertions.checkEquals(Double.NaN, evaluateDouble);
+
+        final Boolean evaluateBooleanNullable = parsed.newEvaluateBooleanNullable().evaluateBooleanNullable();
+        Assertions.checkEquals(null, evaluateBooleanNullable);
+
+        final Boolean evaluateBoolean = parsed.newEvaluateBoolean().evaluateBoolean();
+        Assertions.checkEquals(false, evaluateBoolean);
     }
 
     @Test
@@ -292,6 +406,12 @@ public class ExpressionParserTest {
         final IExpression parsed = new ExpressionParser("1 == NaN").parse();
         final double evaluateDouble = parsed.newEvaluateDouble().evaluateDouble();
         Assertions.checkEquals(Double.NaN, evaluateDouble);
+
+        final Boolean evaluateBooleanNullable = parsed.newEvaluateBooleanNullable().evaluateBooleanNullable();
+        Assertions.checkEquals(null, evaluateBooleanNullable);
+
+        final Boolean evaluateBoolean = parsed.newEvaluateBoolean().evaluateBoolean();
+        Assertions.checkEquals(false, evaluateBoolean);
     }
 
     @Test
@@ -299,6 +419,12 @@ public class ExpressionParserTest {
         final IExpression parsed = new ExpressionParser("NaN == 1").parse();
         final double evaluateDouble = parsed.newEvaluateDouble().evaluateDouble();
         Assertions.checkEquals(Double.NaN, evaluateDouble);
+
+        final Boolean evaluateBooleanNullable = parsed.newEvaluateBooleanNullable().evaluateBooleanNullable();
+        Assertions.checkEquals(null, evaluateBooleanNullable);
+
+        final Boolean evaluateBoolean = parsed.newEvaluateBoolean().evaluateBoolean();
+        Assertions.checkEquals(false, evaluateBoolean);
     }
 
     @Test
@@ -306,6 +432,38 @@ public class ExpressionParserTest {
         final IExpression parsed = new ExpressionParser("1 != NaN").parse();
         final double evaluateDouble = parsed.newEvaluateDouble().evaluateDouble();
         Assertions.checkEquals(Double.NaN, evaluateDouble);
+
+        final Boolean evaluateBooleanNullable = parsed.newEvaluateBooleanNullable().evaluateBooleanNullable();
+        Assertions.checkEquals(null, evaluateBooleanNullable);
+
+        final Boolean evaluateBoolean = parsed.newEvaluateBoolean().evaluateBoolean();
+        Assertions.checkEquals(false, evaluateBoolean);
+    }
+
+    @Test
+    public void testNanNotEqualsNan() {
+        final IExpression parsed = new ExpressionParser("NaN != NaN").parse();
+        final double evaluateDouble = parsed.newEvaluateDouble().evaluateDouble();
+        Assertions.checkEquals(Double.NaN, evaluateDouble);
+
+        final Boolean evaluateBooleanNullable = parsed.newEvaluateBooleanNullable().evaluateBooleanNullable();
+        Assertions.checkEquals(null, evaluateBooleanNullable);
+
+        final Boolean evaluateBoolean = parsed.newEvaluateBoolean().evaluateBoolean();
+        Assertions.checkEquals(false, evaluateBoolean);
+    }
+
+    @Test
+    public void testNanEqualsNan() {
+        final IExpression parsed = new ExpressionParser("NaN = NaN").parse();
+        final double evaluateDouble = parsed.newEvaluateDouble().evaluateDouble();
+        Assertions.checkEquals(Double.NaN, evaluateDouble);
+
+        final Boolean evaluateBooleanNullable = parsed.newEvaluateBooleanNullable().evaluateBooleanNullable();
+        Assertions.checkEquals(null, evaluateBooleanNullable);
+
+        final Boolean evaluateBoolean = parsed.newEvaluateBoolean().evaluateBoolean();
+        Assertions.checkEquals(false, evaluateBoolean);
     }
 
     @Test
@@ -313,6 +471,12 @@ public class ExpressionParserTest {
         final IExpression parsed = new ExpressionParser("NaN != 1").parse();
         final double evaluateDouble = parsed.newEvaluateDouble().evaluateDouble();
         Assertions.checkEquals(Double.NaN, evaluateDouble);
+
+        final Boolean evaluateBooleanNullable = parsed.newEvaluateBooleanNullable().evaluateBooleanNullable();
+        Assertions.checkEquals(null, evaluateBooleanNullable);
+
+        final Boolean evaluateBoolean = parsed.newEvaluateBoolean().evaluateBoolean();
+        Assertions.checkEquals(false, evaluateBoolean);
     }
 
     @Test

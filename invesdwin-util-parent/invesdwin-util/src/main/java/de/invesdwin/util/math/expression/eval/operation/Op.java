@@ -397,7 +397,7 @@ public enum Op {
     LT(2, "<") {
         @Override
         public ExpressionType getReturnType() {
-            return ExpressionType.Boolean;
+            return ExpressionType.BooleanNullable;
         }
 
         @Override
@@ -462,7 +462,7 @@ public enum Op {
     LT_EQ(2, "<=") {
         @Override
         public ExpressionType getReturnType() {
-            return ExpressionType.Boolean;
+            return ExpressionType.BooleanNullable;
         }
 
         @Override
@@ -527,7 +527,7 @@ public enum Op {
     EQ(2, "==") {
         @Override
         public ExpressionType getReturnType() {
-            return ExpressionType.Boolean;
+            return ExpressionType.BooleanNullable;
         }
 
         @Override
@@ -592,7 +592,7 @@ public enum Op {
     GT_EQ(2, ">=") {
         @Override
         public ExpressionType getReturnType() {
-            return ExpressionType.Boolean;
+            return ExpressionType.BooleanNullable;
         }
 
         @Override
@@ -657,7 +657,7 @@ public enum Op {
     GT(2, ">") {
         @Override
         public ExpressionType getReturnType() {
-            return ExpressionType.Boolean;
+            return ExpressionType.BooleanNullable;
         }
 
         @Override
@@ -722,7 +722,7 @@ public enum Op {
     NEQ(2, "!=") {
         @Override
         public ExpressionType getReturnType() {
-            return ExpressionType.Boolean;
+            return ExpressionType.BooleanNullable;
         }
 
         @Override
