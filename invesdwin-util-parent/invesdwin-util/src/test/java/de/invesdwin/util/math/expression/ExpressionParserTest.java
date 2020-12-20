@@ -529,7 +529,7 @@ public class ExpressionParserTest {
         final ExpressionParser expressionParser = new ExpressionParser("-True");
         final IExpression parsed = expressionParser.parse();
         final double evaluateDouble = parsed.newEvaluateDouble().evaluateDouble();
-        Assertions.checkEquals(-1, evaluateDouble);
+        Assertions.checkEquals(-1D, evaluateDouble);
     }
 
     @Test(expected = ParseException.class)
