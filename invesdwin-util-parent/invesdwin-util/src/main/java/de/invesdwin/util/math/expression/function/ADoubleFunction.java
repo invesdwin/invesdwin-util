@@ -14,11 +14,11 @@ import de.invesdwin.util.math.expression.lambda.IEvaluateDoubleKey;
 @NotThreadSafe
 public abstract class ADoubleFunction extends AFunction {
 
-    public abstract IEvaluateDoubleFDate newEvaluateDoubleFDate(IExpression[] args);
+    public abstract IEvaluateDoubleFDate newEvaluateDoubleFDate(String context, IExpression[] args);
 
-    public abstract IEvaluateDoubleKey newEvaluateDoubleKey(IExpression[] args);
+    public abstract IEvaluateDoubleKey newEvaluateDoubleKey(String context, IExpression[] args);
 
-    public abstract IEvaluateDouble newEvaluateDouble(IExpression[] args);
+    public abstract IEvaluateDouble newEvaluateDouble(String context, IExpression[] args);
 
     @Override
     public IParsedExpression newCall(final String context, final IParsedExpression[] parameters) {

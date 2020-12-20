@@ -37,17 +37,17 @@ public class DoubleFunctionCall extends AFunctionCall<ADoubleFunction> {
 
     @Override
     public IEvaluateDoubleFDate newEvaluateDoubleFDate() {
-        return function.newEvaluateDoubleFDate(parameters);
+        return function.newEvaluateDoubleFDate(getContext(), parameters);
     }
 
     @Override
     public IEvaluateDoubleKey newEvaluateDoubleKey() {
-        return function.newEvaluateDoubleKey(parameters);
+        return function.newEvaluateDoubleKey(getContext(), parameters);
     }
 
     @Override
     public IEvaluateDouble newEvaluateDouble() {
-        return function.newEvaluateDouble(parameters);
+        return function.newEvaluateDouble(getContext(), parameters);
     }
 
     @Override

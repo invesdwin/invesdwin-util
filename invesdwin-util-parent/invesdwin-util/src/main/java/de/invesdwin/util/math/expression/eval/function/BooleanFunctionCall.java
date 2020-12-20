@@ -92,17 +92,17 @@ public class BooleanFunctionCall extends AFunctionCall<ABooleanFunction> {
 
     @Override
     public IEvaluateBooleanFDate newEvaluateBooleanFDate() {
-        return function.newEvaluateBooleanFDate(parameters);
+        return function.newEvaluateBooleanFDate(getContext(), parameters);
     }
 
     @Override
     public IEvaluateBooleanKey newEvaluateBooleanKey() {
-        return function.newEvaluateBooleanKey(parameters);
+        return function.newEvaluateBooleanKey(getContext(), parameters);
     }
 
     @Override
     public IEvaluateBoolean newEvaluateBoolean() {
-        return function.newEvaluateBoolean(parameters);
+        return function.newEvaluateBoolean(getContext(), parameters);
     }
 
     @Override

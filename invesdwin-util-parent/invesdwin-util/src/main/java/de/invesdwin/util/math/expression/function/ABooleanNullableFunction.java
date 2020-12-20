@@ -14,11 +14,11 @@ import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanNullableKey;
 @NotThreadSafe
 public abstract class ABooleanNullableFunction extends AFunction {
 
-    public abstract IEvaluateBooleanNullableFDate newEvaluateBooleanNullableFDate(IExpression[] args);
+    public abstract IEvaluateBooleanNullableFDate newEvaluateBooleanNullableFDate(String context, IExpression[] args);
 
-    public abstract IEvaluateBooleanNullableKey newEvaluateBooleanNullableKey(IExpression[] args);
+    public abstract IEvaluateBooleanNullableKey newEvaluateBooleanNullableKey(String context, IExpression[] args);
 
-    public abstract IEvaluateBooleanNullable newEvaluateBooleanNullable(IExpression[] args);
+    public abstract IEvaluateBooleanNullable newEvaluateBooleanNullable(String context, IExpression[] args);
 
     @Override
     public IParsedExpression newCall(final String context, final IParsedExpression[] parameters) {

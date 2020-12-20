@@ -51,17 +51,17 @@ public class IntegerVariableReference extends AVariableReference<IIntegerVariabl
 
     @Override
     public IEvaluateIntegerFDate newEvaluateIntegerFDate() {
-        return variable.newEvaluateIntegerFDate();
+        return variable.newEvaluateIntegerFDate(getContext());
     }
 
     @Override
     public IEvaluateIntegerKey newEvaluateIntegerKey() {
-        return variable.newEvaluateIntegerKey();
+        return variable.newEvaluateIntegerKey(getContext());
     }
 
     @Override
     public IEvaluateInteger newEvaluateInteger() {
-        return variable.newEvaluateInteger();
+        return variable.newEvaluateInteger(getContext());
     }
 
     @Override

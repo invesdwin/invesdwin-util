@@ -45,17 +45,17 @@ public class BooleanVariableFunction extends ABooleanFunction {
     }
 
     @Override
-    public IEvaluateBooleanFDate newEvaluateBooleanFDate(final IExpression[] args) {
+    public IEvaluateBooleanFDate newEvaluateBooleanFDate(final String context, final IExpression[] args) {
         return variable.newEvaluateBooleanFDate();
     }
 
     @Override
-    public IEvaluateBooleanKey newEvaluateBooleanKey(final IExpression[] args) {
+    public IEvaluateBooleanKey newEvaluateBooleanKey(final String context, final IExpression[] args) {
         return variable.newEvaluateBooleanKey();
     }
 
     @Override
-    public IEvaluateBoolean newEvaluateBoolean(final IExpression[] args) {
+    public IEvaluateBoolean newEvaluateBoolean(final String context, final IExpression[] args) {
         return variable.newEvaluateBoolean();
     }
 

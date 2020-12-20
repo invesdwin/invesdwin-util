@@ -17,7 +17,7 @@ public abstract class ADoubleUnaryFunction extends ADoubleFunction {
     }
 
     @Override
-    public IEvaluateDoubleFDate newEvaluateDoubleFDate(final IExpression[] args) {
+    public IEvaluateDoubleFDate newEvaluateDoubleFDate(final String context, final IExpression[] args) {
         final IEvaluateDoubleFDate aF = args[0].newEvaluateDoubleFDate();
         return key -> {
             final double a = aF.evaluateDouble(key);
@@ -26,7 +26,7 @@ public abstract class ADoubleUnaryFunction extends ADoubleFunction {
     }
 
     @Override
-    public IEvaluateDoubleKey newEvaluateDoubleKey(final IExpression[] args) {
+    public IEvaluateDoubleKey newEvaluateDoubleKey(final String context, final IExpression[] args) {
         final IEvaluateDoubleKey aF = args[0].newEvaluateDoubleKey();
         return key -> {
             final double a = aF.evaluateDouble(key);
@@ -35,7 +35,7 @@ public abstract class ADoubleUnaryFunction extends ADoubleFunction {
     }
 
     @Override
-    public IEvaluateDouble newEvaluateDouble(final IExpression[] args) {
+    public IEvaluateDouble newEvaluateDouble(final String context, final IExpression[] args) {
         final IEvaluateDouble aF = args[0].newEvaluateDouble();
         return () -> {
             final double a = aF.evaluateDouble();

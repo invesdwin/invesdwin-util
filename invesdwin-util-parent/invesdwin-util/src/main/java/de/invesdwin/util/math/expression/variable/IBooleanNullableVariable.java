@@ -10,11 +10,11 @@ import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanNullableKey;
 
 public interface IBooleanNullableVariable extends IVariable {
 
-    IEvaluateBooleanNullableFDate newEvaluateBooleanNullableFDate();
+    IEvaluateBooleanNullableFDate newEvaluateBooleanNullableFDate(String context);
 
-    IEvaluateBooleanNullableKey newEvaluateBooleanNullableKey();
+    IEvaluateBooleanNullableKey newEvaluateBooleanNullableKey(String context);
 
-    IEvaluateBooleanNullable newEvaluateBooleanNullable();
+    IEvaluateBooleanNullable newEvaluateBooleanNullable(String context);
 
     @Override
     default ExpressionReturnType getReturnType() {

@@ -1875,7 +1875,7 @@ public final class MathFunctions {
         }
 
         @Override
-        public IEvaluateDoubleFDate newEvaluateDoubleFDate(final IExpression[] args) {
+        public IEvaluateDoubleFDate newEvaluateDoubleFDate(final String context, final IExpression[] args) {
             final IEvaluateDoubleFDate aF = args[0].newEvaluateDoubleFDate();
             return key -> {
                 final double a = aF.evaluateDouble(key);
@@ -1884,7 +1884,7 @@ public final class MathFunctions {
         }
 
         @Override
-        public IEvaluateDoubleKey newEvaluateDoubleKey(final IExpression[] args) {
+        public IEvaluateDoubleKey newEvaluateDoubleKey(final String context, final IExpression[] args) {
             final IEvaluateDoubleKey aF = args[0].newEvaluateDoubleKey();
             return key -> {
                 final double a = aF.evaluateDouble(key);
@@ -1893,7 +1893,7 @@ public final class MathFunctions {
         }
 
         @Override
-        public IEvaluateDouble newEvaluateDouble(final IExpression[] args) {
+        public IEvaluateDouble newEvaluateDouble(final String context, final IExpression[] args) {
             final IEvaluateDouble aF = args[0].newEvaluateDouble();
             return () -> {
                 final double a = aF.evaluateDouble();
@@ -2201,7 +2201,7 @@ public final class MathFunctions {
             }
 
             @Override
-            public IEvaluateDoubleFDate newEvaluateDoubleFDate(final IExpression[] args) {
+            public IEvaluateDoubleFDate newEvaluateDoubleFDate(final String context, final IExpression[] args) {
                 if (args.length == 0) {
                     return key -> Math.random();
                 } else {
@@ -2214,7 +2214,7 @@ public final class MathFunctions {
             }
 
             @Override
-            public IEvaluateDoubleKey newEvaluateDoubleKey(final IExpression[] args) {
+            public IEvaluateDoubleKey newEvaluateDoubleKey(final String context, final IExpression[] args) {
                 if (args.length == 0) {
                     return key -> Math.random();
                 } else {
@@ -2227,7 +2227,7 @@ public final class MathFunctions {
             }
 
             @Override
-            public IEvaluateDouble newEvaluateDouble(final IExpression[] args) {
+            public IEvaluateDouble newEvaluateDouble(final String context, final IExpression[] args) {
                 if (args.length == 0) {
                     return () -> Math.random();
                 } else {
@@ -2365,7 +2365,7 @@ public final class MathFunctions {
             }
 
             @Override
-            public IEvaluateDoubleFDate newEvaluateDoubleFDate(final IExpression[] args) {
+            public IEvaluateDoubleFDate newEvaluateDoubleFDate(final String context, final IExpression[] args) {
                 final IEvaluateDoubleFDate[] argsF = new IEvaluateDoubleFDate[args.length];
                 for (int i = 0; i < args.length; i++) {
                     argsF[i] = args[i].newEvaluateDoubleFDate();
@@ -2380,7 +2380,7 @@ public final class MathFunctions {
             }
 
             @Override
-            public IEvaluateDoubleKey newEvaluateDoubleKey(final IExpression[] args) {
+            public IEvaluateDoubleKey newEvaluateDoubleKey(final String context, final IExpression[] args) {
                 final IEvaluateDoubleKey[] argsF = new IEvaluateDoubleKey[args.length];
                 for (int i = 0; i < args.length; i++) {
                     argsF[i] = args[i].newEvaluateDoubleKey();
@@ -2395,7 +2395,7 @@ public final class MathFunctions {
             }
 
             @Override
-            public IEvaluateDouble newEvaluateDouble(final IExpression[] args) {
+            public IEvaluateDouble newEvaluateDouble(final String context, final IExpression[] args) {
                 final IEvaluateDouble[] argsF = new IEvaluateDouble[args.length];
                 for (int i = 0; i < args.length; i++) {
                     argsF[i] = args[i].newEvaluateDouble();
@@ -2535,7 +2535,7 @@ public final class MathFunctions {
             }
 
             @Override
-            public IEvaluateDoubleFDate newEvaluateDoubleFDate(final IExpression[] args) {
+            public IEvaluateDoubleFDate newEvaluateDoubleFDate(final String context, final IExpression[] args) {
                 final IEvaluateDoubleFDate[] argsF = new IEvaluateDoubleFDate[args.length];
                 for (int i = 0; i < args.length; i++) {
                     argsF[i] = args[i].newEvaluateDoubleFDate();
@@ -2550,7 +2550,7 @@ public final class MathFunctions {
             }
 
             @Override
-            public IEvaluateDoubleKey newEvaluateDoubleKey(final IExpression[] args) {
+            public IEvaluateDoubleKey newEvaluateDoubleKey(final String context, final IExpression[] args) {
                 final IEvaluateDoubleKey[] argsF = new IEvaluateDoubleKey[args.length];
                 for (int i = 0; i < args.length; i++) {
                     argsF[i] = args[i].newEvaluateDoubleKey();
@@ -2565,7 +2565,7 @@ public final class MathFunctions {
             }
 
             @Override
-            public IEvaluateDouble newEvaluateDouble(final IExpression[] args) {
+            public IEvaluateDouble newEvaluateDouble(final String context, final IExpression[] args) {
                 final IEvaluateDouble[] argsF = new IEvaluateDouble[args.length];
                 for (int i = 0; i < args.length; i++) {
                     argsF[i] = args[i].newEvaluateDouble();

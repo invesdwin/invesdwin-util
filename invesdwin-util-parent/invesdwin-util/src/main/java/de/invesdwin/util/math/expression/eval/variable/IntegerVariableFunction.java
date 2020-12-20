@@ -45,17 +45,17 @@ public class IntegerVariableFunction extends AIntegerFunction {
     }
 
     @Override
-    public IEvaluateIntegerFDate newEvaluateIntegerFDate(final IExpression[] args) {
+    public IEvaluateIntegerFDate newEvaluateIntegerFDate(final String context, final IExpression[] args) {
         return variable.newEvaluateIntegerFDate();
     }
 
     @Override
-    public IEvaluateIntegerKey newEvaluateIntegerKey(final IExpression[] args) {
+    public IEvaluateIntegerKey newEvaluateIntegerKey(final String context, final IExpression[] args) {
         return variable.newEvaluateIntegerKey();
     }
 
     @Override
-    public IEvaluateInteger newEvaluateInteger(final IExpression[] args) {
+    public IEvaluateInteger newEvaluateInteger(final String context, final IExpression[] args) {
         return variable.newEvaluateInteger();
     }
 

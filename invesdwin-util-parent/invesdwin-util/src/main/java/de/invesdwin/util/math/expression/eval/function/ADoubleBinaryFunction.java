@@ -17,7 +17,7 @@ public abstract class ADoubleBinaryFunction extends ADoubleFunction {
     }
 
     @Override
-    public IEvaluateDoubleFDate newEvaluateDoubleFDate(final IExpression[] args) {
+    public IEvaluateDoubleFDate newEvaluateDoubleFDate(final String context, final IExpression[] args) {
         final IEvaluateDoubleFDate aF = args[0].newEvaluateDoubleFDate();
         final IEvaluateDoubleFDate bF = args[1].newEvaluateDoubleFDate();
         return key1 -> {
@@ -28,7 +28,7 @@ public abstract class ADoubleBinaryFunction extends ADoubleFunction {
     }
 
     @Override
-    public IEvaluateDoubleKey newEvaluateDoubleKey(final IExpression[] args) {
+    public IEvaluateDoubleKey newEvaluateDoubleKey(final String context, final IExpression[] args) {
         final IEvaluateDoubleKey aF = args[0].newEvaluateDoubleKey();
         final IEvaluateDoubleKey bF = args[1].newEvaluateDoubleKey();
         return key -> {
@@ -39,7 +39,7 @@ public abstract class ADoubleBinaryFunction extends ADoubleFunction {
     }
 
     @Override
-    public IEvaluateDouble newEvaluateDouble(final IExpression[] args) {
+    public IEvaluateDouble newEvaluateDouble(final String context, final IExpression[] args) {
         final IEvaluateDouble aF = args[0].newEvaluateDouble();
         final IEvaluateDouble bF = args[1].newEvaluateDouble();
         return () -> {

@@ -34,17 +34,17 @@ public class DoubleVariableReference extends AVariableReference<IDoubleVariable>
 
     @Override
     public IEvaluateDoubleFDate newEvaluateDoubleFDate() {
-        return variable.newEvaluateDoubleFDate();
+        return variable.newEvaluateDoubleFDate(getContext());
     }
 
     @Override
     public IEvaluateDoubleKey newEvaluateDoubleKey() {
-        return variable.newEvaluateDoubleKey();
+        return variable.newEvaluateDoubleKey(getContext());
     }
 
     @Override
     public IEvaluateDouble newEvaluateDouble() {
-        return variable.newEvaluateDouble();
+        return variable.newEvaluateDouble(getContext());
     }
 
     @Override

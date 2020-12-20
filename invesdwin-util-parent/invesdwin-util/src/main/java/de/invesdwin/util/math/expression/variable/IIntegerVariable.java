@@ -10,11 +10,11 @@ import de.invesdwin.util.math.expression.lambda.IEvaluateIntegerKey;
 
 public interface IIntegerVariable extends IVariable {
 
-    IEvaluateIntegerFDate newEvaluateIntegerFDate();
+    IEvaluateIntegerFDate newEvaluateIntegerFDate(String context);
 
-    IEvaluateIntegerKey newEvaluateIntegerKey();
+    IEvaluateIntegerKey newEvaluateIntegerKey(String context);
 
-    IEvaluateInteger newEvaluateInteger();
+    IEvaluateInteger newEvaluateInteger(String context);
 
     @Override
     default ExpressionReturnType getReturnType() {

@@ -45,17 +45,18 @@ public class BooleanNullableVariableFunction extends ABooleanNullableFunction {
     }
 
     @Override
-    public IEvaluateBooleanNullableFDate newEvaluateBooleanNullableFDate(final IExpression[] args) {
+    public IEvaluateBooleanNullableFDate newEvaluateBooleanNullableFDate(final String context,
+            final IExpression[] args) {
         return variable.newEvaluateBooleanNullableFDate();
     }
 
     @Override
-    public IEvaluateBooleanNullableKey newEvaluateBooleanNullableKey(final IExpression[] args) {
+    public IEvaluateBooleanNullableKey newEvaluateBooleanNullableKey(final String context, final IExpression[] args) {
         return variable.newEvaluateBooleanNullableKey();
     }
 
     @Override
-    public IEvaluateBooleanNullable newEvaluateBooleanNullable(final IExpression[] args) {
+    public IEvaluateBooleanNullable newEvaluateBooleanNullable(final String context, final IExpression[] args) {
         return variable.newEvaluateBooleanNullable();
     }
 

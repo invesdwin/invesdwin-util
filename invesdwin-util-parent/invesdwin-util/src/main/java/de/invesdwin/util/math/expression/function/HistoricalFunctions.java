@@ -124,12 +124,12 @@ public final class HistoricalFunctions {
                     }
 
                     @Override
-                    public IEvaluateBoolean newEvaluateBoolean(final IExpression[] args) {
+                    public IEvaluateBoolean newEvaluateBoolean(final String context, final IExpression[] args) {
                         throw new UnsupportedOperationException("use time or int key instead");
                     }
 
                     @Override
-                    public IEvaluateBooleanKey newEvaluateBooleanKey(final IExpression[] args) {
+                    public IEvaluateBooleanKey newEvaluateBooleanKey(final String context, final IExpression[] args) {
                         final IEvaluateBooleanKey conditionF = args[0].newEvaluateBooleanKey();
                         return key -> {
                             final boolean cur = conditionF.evaluateBoolean(key);
@@ -146,7 +146,8 @@ public final class HistoricalFunctions {
                     }
 
                     @Override
-                    public IEvaluateBooleanFDate newEvaluateBooleanFDate(final IExpression[] args) {
+                    public IEvaluateBooleanFDate newEvaluateBooleanFDate(final String context,
+                            final IExpression[] args) {
                         final IEvaluateBooleanFDate condition = args[0].newEvaluateBooleanFDate();
                         return key -> {
                             final boolean cur = condition.evaluateBoolean(key);
@@ -302,12 +303,12 @@ public final class HistoricalFunctions {
                     }
 
                     @Override
-                    public IEvaluateBoolean newEvaluateBoolean(final IExpression[] args) {
+                    public IEvaluateBoolean newEvaluateBoolean(final String context, final IExpression[] args) {
                         throw new UnsupportedOperationException("use time or int key instead");
                     }
 
                     @Override
-                    public IEvaluateBooleanKey newEvaluateBooleanKey(final IExpression[] args) {
+                    public IEvaluateBooleanKey newEvaluateBooleanKey(final String context, final IExpression[] args) {
                         final IEvaluateBooleanNullableKey conditionF = args[0].newEvaluateBooleanNullableKey();
                         final IEvaluateIntegerKey countF = args[1].newEvaluateIntegerKey();
                         return key -> {
@@ -327,7 +328,8 @@ public final class HistoricalFunctions {
                     }
 
                     @Override
-                    public IEvaluateBooleanFDate newEvaluateBooleanFDate(final IExpression[] args) {
+                    public IEvaluateBooleanFDate newEvaluateBooleanFDate(final String context,
+                            final IExpression[] args) {
                         final IEvaluateBooleanNullableFDate conditionF = args[0].newEvaluateBooleanNullableFDate();
                         final IEvaluateIntegerFDate countF = args[1].newEvaluateIntegerFDate();
                         return key -> {
@@ -486,12 +488,12 @@ public final class HistoricalFunctions {
                     }
 
                     @Override
-                    public IEvaluateInteger newEvaluateInteger(final IExpression[] args) {
+                    public IEvaluateInteger newEvaluateInteger(final String context, final IExpression[] args) {
                         throw new UnsupportedOperationException("use time or int key instead");
                     }
 
                     @Override
-                    public IEvaluateIntegerKey newEvaluateIntegerKey(final IExpression[] args) {
+                    public IEvaluateIntegerKey newEvaluateIntegerKey(final String context, final IExpression[] args) {
                         final IEvaluateBooleanNullableKey conditionF = args[0].newEvaluateBooleanNullableKey();
                         final IEvaluateIntegerKey countF = args[1].newEvaluateIntegerKey();
                         return key -> {
@@ -514,7 +516,8 @@ public final class HistoricalFunctions {
                     }
 
                     @Override
-                    public IEvaluateIntegerFDate newEvaluateIntegerFDate(final IExpression[] args) {
+                    public IEvaluateIntegerFDate newEvaluateIntegerFDate(final String context,
+                            final IExpression[] args) {
                         final IEvaluateBooleanNullableFDate conditionF = args[0].newEvaluateBooleanNullableFDate();
                         final IEvaluateIntegerFDate countF = args[1].newEvaluateIntegerFDate();
                         return key -> {
@@ -678,12 +681,12 @@ public final class HistoricalFunctions {
                     }
 
                     @Override
-                    public IEvaluateBoolean newEvaluateBoolean(final IExpression[] args) {
+                    public IEvaluateBoolean newEvaluateBoolean(final String context, final IExpression[] args) {
                         throw new UnsupportedOperationException("use time or int key instead");
                     }
 
                     @Override
-                    public IEvaluateBooleanKey newEvaluateBooleanKey(final IExpression[] args) {
+                    public IEvaluateBooleanKey newEvaluateBooleanKey(final String context, final IExpression[] args) {
                         final IBinaryOperation condition = IBinaryOperation.validateComparativeOperation(args[0]);
                         final IEvaluateDoubleKey conditionRightF = condition.getRight().newEvaluateDoubleKey();
                         final IEvaluateDoubleKey conditionLeftF = condition.getLeft().newEvaluateDoubleKey();
@@ -709,7 +712,8 @@ public final class HistoricalFunctions {
                     }
 
                     @Override
-                    public IEvaluateBooleanFDate newEvaluateBooleanFDate(final IExpression[] args) {
+                    public IEvaluateBooleanFDate newEvaluateBooleanFDate(final String context,
+                            final IExpression[] args) {
                         final IBinaryOperation condition = IBinaryOperation.validateComparativeOperation(args[0]);
                         final IEvaluateDoubleFDate conditionRightF = condition.getRight().newEvaluateDoubleFDate();
                         final IEvaluateDoubleFDate conditionLeftF = condition.getLeft().newEvaluateDoubleFDate();
@@ -876,12 +880,12 @@ public final class HistoricalFunctions {
                     }
 
                     @Override
-                    public IEvaluateInteger newEvaluateInteger(final IExpression[] args) {
+                    public IEvaluateInteger newEvaluateInteger(final String context, final IExpression[] args) {
                         throw new UnsupportedOperationException("use time or int key instead");
                     }
 
                     @Override
-                    public IEvaluateIntegerKey newEvaluateIntegerKey(final IExpression[] args) {
+                    public IEvaluateIntegerKey newEvaluateIntegerKey(final String context, final IExpression[] args) {
                         final IBinaryOperation condition = IBinaryOperation.validateComparativeOperation(args[0]);
                         final IEvaluateDoubleKey conditionRightF = condition.getRight().newEvaluateDoubleKey();
                         final IEvaluateDoubleKey conditionLeftF = condition.getLeft().newEvaluateDoubleKey();
@@ -912,7 +916,8 @@ public final class HistoricalFunctions {
                     }
 
                     @Override
-                    public IEvaluateIntegerFDate newEvaluateIntegerFDate(final IExpression[] args) {
+                    public IEvaluateIntegerFDate newEvaluateIntegerFDate(final String context,
+                            final IExpression[] args) {
                         final IBinaryOperation condition = IBinaryOperation.validateComparativeOperation(args[0]);
                         final IEvaluateDoubleFDate conditionRightF = condition.getRight().newEvaluateDoubleFDate();
                         final IEvaluateDoubleFDate conditionLeftF = condition.getLeft().newEvaluateDoubleFDate();
@@ -1084,12 +1089,12 @@ public final class HistoricalFunctions {
                     }
 
                     @Override
-                    public IEvaluateBoolean newEvaluateBoolean(final IExpression[] args) {
+                    public IEvaluateBoolean newEvaluateBoolean(final String context, final IExpression[] args) {
                         throw new UnsupportedOperationException("use time or int key instead");
                     }
 
                     @Override
-                    public IEvaluateBooleanKey newEvaluateBooleanKey(final IExpression[] args) {
+                    public IEvaluateBooleanKey newEvaluateBooleanKey(final String context, final IExpression[] args) {
                         final IBinaryOperation condition = IBinaryOperation.validateComparativeOperation(args[0]);
                         final IEvaluateIntegerKey countF = args[1].newEvaluateIntegerKey();
                         final IEvaluateDoubleKey conditionLeftF = condition.getLeft().newEvaluateDoubleKey();
@@ -1115,7 +1120,8 @@ public final class HistoricalFunctions {
                     }
 
                     @Override
-                    public IEvaluateBooleanFDate newEvaluateBooleanFDate(final IExpression[] args) {
+                    public IEvaluateBooleanFDate newEvaluateBooleanFDate(final String context,
+                            final IExpression[] args) {
                         final IBinaryOperation condition = IBinaryOperation.validateComparativeOperation(args[0]);
                         final IEvaluateIntegerFDate countF = args[1].newEvaluateIntegerFDate();
                         final IEvaluateDoubleFDate conditionLeftF = condition.getLeft().newEvaluateDoubleFDate();
@@ -1282,12 +1288,12 @@ public final class HistoricalFunctions {
                     }
 
                     @Override
-                    public IEvaluateInteger newEvaluateInteger(final IExpression[] args) {
+                    public IEvaluateInteger newEvaluateInteger(final String context, final IExpression[] args) {
                         throw new UnsupportedOperationException("use time or int key instead");
                     }
 
                     @Override
-                    public IEvaluateIntegerKey newEvaluateIntegerKey(final IExpression[] args) {
+                    public IEvaluateIntegerKey newEvaluateIntegerKey(final String context, final IExpression[] args) {
                         final IBinaryOperation condition = IBinaryOperation.validateComparativeOperation(args[0]);
                         final IEvaluateIntegerKey countF = args[1].newEvaluateIntegerKey();
                         final IEvaluateDoubleKey conditionLeftF = condition.getLeft().newEvaluateDoubleKey();
@@ -1318,7 +1324,8 @@ public final class HistoricalFunctions {
                     }
 
                     @Override
-                    public IEvaluateIntegerFDate newEvaluateIntegerFDate(final IExpression[] args) {
+                    public IEvaluateIntegerFDate newEvaluateIntegerFDate(final String context,
+                            final IExpression[] args) {
                         final IBinaryOperation condition = IBinaryOperation.validateComparativeOperation(args[0]);
                         final IEvaluateIntegerFDate countF = args[1].newEvaluateIntegerFDate();
                         final IEvaluateDoubleFDate conditionLeftF = condition.getLeft().newEvaluateDoubleFDate();
@@ -1488,12 +1495,12 @@ public final class HistoricalFunctions {
                     }
 
                     @Override
-                    public IEvaluateBoolean newEvaluateBoolean(final IExpression[] args) {
+                    public IEvaluateBoolean newEvaluateBoolean(final String context, final IExpression[] args) {
                         throw new UnsupportedOperationException("use time or int key instead");
                     }
 
                     @Override
-                    public IEvaluateBooleanKey newEvaluateBooleanKey(final IExpression[] args) {
+                    public IEvaluateBooleanKey newEvaluateBooleanKey(final String context, final IExpression[] args) {
                         final IExpression condition = args[0];
                         final IEvaluateBooleanKey conditionF = condition.newEvaluateBooleanKey();
                         final IEvaluateIntegerKey countF = args[1].newEvaluateIntegerKey();
@@ -1514,7 +1521,8 @@ public final class HistoricalFunctions {
                     }
 
                     @Override
-                    public IEvaluateBooleanFDate newEvaluateBooleanFDate(final IExpression[] args) {
+                    public IEvaluateBooleanFDate newEvaluateBooleanFDate(final String context,
+                            final IExpression[] args) {
                         final IExpression condition = args[0];
                         final IEvaluateBooleanFDate conditionF = condition.newEvaluateBooleanFDate();
                         final IEvaluateIntegerFDate countF = args[1].newEvaluateIntegerFDate();
@@ -1674,12 +1682,12 @@ public final class HistoricalFunctions {
                     }
 
                     @Override
-                    public IEvaluateInteger newEvaluateInteger(final IExpression[] args) {
+                    public IEvaluateInteger newEvaluateInteger(final String context, final IExpression[] args) {
                         throw new UnsupportedOperationException("use time or int key instead");
                     }
 
                     @Override
-                    public IEvaluateIntegerKey newEvaluateIntegerKey(final IExpression[] args) {
+                    public IEvaluateIntegerKey newEvaluateIntegerKey(final String context, final IExpression[] args) {
                         final IExpression condition = args[0];
                         final IEvaluateBooleanKey conditionF = condition.newEvaluateBooleanKey();
                         final IEvaluateIntegerKey countF = args[1].newEvaluateIntegerKey();
@@ -1701,7 +1709,8 @@ public final class HistoricalFunctions {
                     }
 
                     @Override
-                    public IEvaluateIntegerFDate newEvaluateIntegerFDate(final IExpression[] args) {
+                    public IEvaluateIntegerFDate newEvaluateIntegerFDate(final String context,
+                            final IExpression[] args) {
                         final IExpression condition = args[0];
                         final IEvaluateBooleanFDate conditionF = condition.newEvaluateBooleanFDate();
                         final IEvaluateIntegerFDate countF = args[1].newEvaluateIntegerFDate();
@@ -1864,12 +1873,12 @@ public final class HistoricalFunctions {
                     }
 
                     @Override
-                    public IEvaluateBoolean newEvaluateBoolean(final IExpression[] args) {
+                    public IEvaluateBoolean newEvaluateBoolean(final String context, final IExpression[] args) {
                         throw new UnsupportedOperationException("use time or int key instead");
                     }
 
                     @Override
-                    public IEvaluateBooleanKey newEvaluateBooleanKey(final IExpression[] args) {
+                    public IEvaluateBooleanKey newEvaluateBooleanKey(final String context, final IExpression[] args) {
                         final IBinaryOperation condition = (IBinaryOperation) args[0];
                         final IEvaluateIntegerKey countF = args[1].newEvaluateIntegerKey();
                         final IEvaluateDoubleKey conditionRightF = condition.getRight().newEvaluateDoubleKey();
@@ -1894,7 +1903,8 @@ public final class HistoricalFunctions {
                     }
 
                     @Override
-                    public IEvaluateBooleanFDate newEvaluateBooleanFDate(final IExpression[] args) {
+                    public IEvaluateBooleanFDate newEvaluateBooleanFDate(final String context,
+                            final IExpression[] args) {
                         final IBinaryOperation condition = (IBinaryOperation) args[0];
                         final IEvaluateIntegerFDate countF = args[1].newEvaluateIntegerFDate();
                         final IEvaluateDoubleFDate conditionRightF = condition.getRight().newEvaluateDoubleFDate();
@@ -2060,12 +2070,12 @@ public final class HistoricalFunctions {
                     }
 
                     @Override
-                    public IEvaluateInteger newEvaluateInteger(final IExpression[] args) {
+                    public IEvaluateInteger newEvaluateInteger(final String context, final IExpression[] args) {
                         throw new UnsupportedOperationException("use time or int key instead");
                     }
 
                     @Override
-                    public IEvaluateIntegerKey newEvaluateIntegerKey(final IExpression[] args) {
+                    public IEvaluateIntegerKey newEvaluateIntegerKey(final String context, final IExpression[] args) {
                         final IBinaryOperation condition = (IBinaryOperation) args[0];
                         final IEvaluateIntegerKey countF = args[1].newEvaluateIntegerKey();
                         final IEvaluateDoubleKey conditionRightF = condition.getRight().newEvaluateDoubleKey();
@@ -2091,7 +2101,8 @@ public final class HistoricalFunctions {
                     }
 
                     @Override
-                    public IEvaluateIntegerFDate newEvaluateIntegerFDate(final IExpression[] args) {
+                    public IEvaluateIntegerFDate newEvaluateIntegerFDate(final String context,
+                            final IExpression[] args) {
                         final IBinaryOperation condition = (IBinaryOperation) args[0];
                         final IEvaluateIntegerFDate countF = args[1].newEvaluateIntegerFDate();
                         final IEvaluateDoubleFDate conditionRightF = condition.getRight().newEvaluateDoubleFDate();
@@ -2258,12 +2269,12 @@ public final class HistoricalFunctions {
                     }
 
                     @Override
-                    public IEvaluateBoolean newEvaluateBoolean(final IExpression[] args) {
+                    public IEvaluateBoolean newEvaluateBoolean(final String context, final IExpression[] args) {
                         throw new UnsupportedOperationException("use time or int key instead");
                     }
 
                     @Override
-                    public IEvaluateBooleanKey newEvaluateBooleanKey(final IExpression[] args) {
+                    public IEvaluateBooleanKey newEvaluateBooleanKey(final String context, final IExpression[] args) {
                         final IBinaryOperation condition = (IBinaryOperation) args[0];
                         final IEvaluateIntegerKey countF = args[1].newEvaluateIntegerKey();
                         final IEvaluateDoubleKey conditionRightF = condition.getRight().newEvaluateDoubleKey();
@@ -2288,7 +2299,8 @@ public final class HistoricalFunctions {
                     }
 
                     @Override
-                    public IEvaluateBooleanFDate newEvaluateBooleanFDate(final IExpression[] args) {
+                    public IEvaluateBooleanFDate newEvaluateBooleanFDate(final String context,
+                            final IExpression[] args) {
                         final IBinaryOperation condition = (IBinaryOperation) args[0];
                         final IEvaluateIntegerFDate countF = args[1].newEvaluateIntegerFDate();
                         final IEvaluateDoubleFDate conditionRightF = condition.getRight().newEvaluateDoubleFDate();
@@ -2454,12 +2466,12 @@ public final class HistoricalFunctions {
                     }
 
                     @Override
-                    public IEvaluateInteger newEvaluateInteger(final IExpression[] args) {
+                    public IEvaluateInteger newEvaluateInteger(final String context, final IExpression[] args) {
                         throw new UnsupportedOperationException("use time or int key instead");
                     }
 
                     @Override
-                    public IEvaluateIntegerKey newEvaluateIntegerKey(final IExpression[] args) {
+                    public IEvaluateIntegerKey newEvaluateIntegerKey(final String context, final IExpression[] args) {
                         final IBinaryOperation condition = IBinaryOperation.validateComparativeOperation(args[0]);
                         final IEvaluateIntegerKey countF = args[1].newEvaluateIntegerKey();
                         final IEvaluateDoubleKey conditionLeftF = condition.getLeft().newEvaluateDoubleKey();
@@ -2485,7 +2497,8 @@ public final class HistoricalFunctions {
                     }
 
                     @Override
-                    public IEvaluateIntegerFDate newEvaluateIntegerFDate(final IExpression[] args) {
+                    public IEvaluateIntegerFDate newEvaluateIntegerFDate(final String context,
+                            final IExpression[] args) {
                         final IBinaryOperation condition = IBinaryOperation.validateComparativeOperation(args[0]);
                         final IEvaluateIntegerFDate countF = args[1].newEvaluateIntegerFDate();
                         final IEvaluateDoubleFDate conditionLeftF = condition.getLeft().newEvaluateDoubleFDate();
@@ -2653,12 +2666,12 @@ public final class HistoricalFunctions {
                     }
 
                     @Override
-                    public IEvaluateInteger newEvaluateInteger(final IExpression[] args) {
+                    public IEvaluateInteger newEvaluateInteger(final String context, final IExpression[] args) {
                         throw new UnsupportedOperationException("use time or int key instead");
                     }
 
                     @Override
-                    public IEvaluateIntegerKey newEvaluateIntegerKey(final IExpression[] args) {
+                    public IEvaluateIntegerKey newEvaluateIntegerKey(final String context, final IExpression[] args) {
                         final IExpression condition = args[0];
                         final IEvaluateIntegerKey countF = args[1].newEvaluateIntegerKey();
                         final IEvaluateBooleanKey conditionF = condition.newEvaluateBooleanKey();
@@ -2681,7 +2694,8 @@ public final class HistoricalFunctions {
                     }
 
                     @Override
-                    public IEvaluateIntegerFDate newEvaluateIntegerFDate(final IExpression[] args) {
+                    public IEvaluateIntegerFDate newEvaluateIntegerFDate(final String context,
+                            final IExpression[] args) {
                         final IExpression condition = args[0];
                         final IEvaluateIntegerFDate countF = args[1].newEvaluateIntegerFDate();
                         final IEvaluateBooleanFDate conditionF = condition.newEvaluateBooleanFDate();
@@ -2845,12 +2859,12 @@ public final class HistoricalFunctions {
                     }
 
                     @Override
-                    public IEvaluateInteger newEvaluateInteger(final IExpression[] args) {
+                    public IEvaluateInteger newEvaluateInteger(final String context, final IExpression[] args) {
                         throw new UnsupportedOperationException("use time or int key instead");
                     }
 
                     @Override
-                    public IEvaluateIntegerKey newEvaluateIntegerKey(final IExpression[] args) {
+                    public IEvaluateIntegerKey newEvaluateIntegerKey(final String context, final IExpression[] args) {
                         final IExpression condition = args[0];
                         final IEvaluateIntegerKey countF = args[1].newEvaluateIntegerKey();
                         final IEvaluateBooleanKey conditionF = condition.newEvaluateBooleanKey();
@@ -2871,7 +2885,8 @@ public final class HistoricalFunctions {
                     }
 
                     @Override
-                    public IEvaluateIntegerFDate newEvaluateIntegerFDate(final IExpression[] args) {
+                    public IEvaluateIntegerFDate newEvaluateIntegerFDate(final String context,
+                            final IExpression[] args) {
                         final IExpression condition = args[0];
                         final IEvaluateIntegerFDate countF = args[1].newEvaluateIntegerFDate();
                         final IEvaluateBooleanFDate conditionF = condition.newEvaluateBooleanFDate();

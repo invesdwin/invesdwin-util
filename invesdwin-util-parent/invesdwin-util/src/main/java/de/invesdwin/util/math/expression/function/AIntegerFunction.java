@@ -14,11 +14,11 @@ import de.invesdwin.util.math.expression.lambda.IEvaluateIntegerKey;
 @NotThreadSafe
 public abstract class AIntegerFunction extends AFunction {
 
-    public abstract IEvaluateIntegerFDate newEvaluateIntegerFDate(IExpression[] args);
+    public abstract IEvaluateIntegerFDate newEvaluateIntegerFDate(String context, IExpression[] args);
 
-    public abstract IEvaluateIntegerKey newEvaluateIntegerKey(IExpression[] args);
+    public abstract IEvaluateIntegerKey newEvaluateIntegerKey(String context, IExpression[] args);
 
-    public abstract IEvaluateInteger newEvaluateInteger(IExpression[] args);
+    public abstract IEvaluateInteger newEvaluateInteger(String context, IExpression[] args);
 
     @Override
     public IParsedExpression newCall(final String context, final IParsedExpression[] parameters) {

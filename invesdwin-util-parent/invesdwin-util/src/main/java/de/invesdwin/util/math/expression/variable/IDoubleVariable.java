@@ -10,11 +10,11 @@ import de.invesdwin.util.math.expression.lambda.IEvaluateDoubleKey;
 
 public interface IDoubleVariable extends IVariable {
 
-    IEvaluateDoubleFDate newEvaluateDoubleFDate();
+    IEvaluateDoubleFDate newEvaluateDoubleFDate(String context);
 
-    IEvaluateDoubleKey newEvaluateDoubleKey();
+    IEvaluateDoubleKey newEvaluateDoubleKey(String context);
 
-    IEvaluateDouble newEvaluateDouble();
+    IEvaluateDouble newEvaluateDouble(String context);
 
     @Override
     default ExpressionReturnType getReturnType() {

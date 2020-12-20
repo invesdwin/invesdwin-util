@@ -34,17 +34,17 @@ public class BooleanVariableReference extends AVariableReference<IBooleanVariabl
 
     @Override
     public IEvaluateBooleanFDate newEvaluateBooleanFDate() {
-        return variable.newEvaluateBooleanFDate();
+        return variable.newEvaluateBooleanFDate(getContext());
     }
 
     @Override
     public IEvaluateBooleanKey newEvaluateBooleanKey() {
-        return variable.newEvaluateBooleanKey();
+        return variable.newEvaluateBooleanKey(getContext());
     }
 
     @Override
     public IEvaluateBoolean newEvaluateBoolean() {
-        return variable.newEvaluateBoolean();
+        return variable.newEvaluateBoolean(getContext());
     }
 
     @Override

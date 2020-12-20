@@ -16,17 +16,17 @@ public abstract class ADoubleConstant extends AConstant implements IDoubleVariab
     }
 
     @Override
-    public final IEvaluateDouble newEvaluateDouble() {
+    public final IEvaluateDouble newEvaluateDouble(final String context) {
         return () -> value;
     }
 
     @Override
-    public final IEvaluateDoubleFDate newEvaluateDoubleFDate() {
+    public final IEvaluateDoubleFDate newEvaluateDoubleFDate(final String context) {
         return key -> value;
     }
 
     @Override
-    public final IEvaluateDoubleKey newEvaluateDoubleKey() {
+    public final IEvaluateDoubleKey newEvaluateDoubleKey(final String context) {
         return key -> value;
     }
 

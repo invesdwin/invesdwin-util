@@ -36,7 +36,7 @@ public final class LogicalFunctions {
         }
 
         @Override
-        public IEvaluateDoubleFDate newEvaluateDoubleFDate(final IExpression[] args) {
+        public IEvaluateDoubleFDate newEvaluateDoubleFDate(final String context, final IExpression[] args) {
             final IEvaluateBooleanFDate checkF = args[0].newEvaluateBooleanFDate();
             final IEvaluateDoubleFDate trueF = args[1].newEvaluateDoubleFDate();
             final IEvaluateDoubleFDate falseF = args[2].newEvaluateDoubleFDate();
@@ -51,7 +51,7 @@ public final class LogicalFunctions {
         }
 
         @Override
-        public IEvaluateDoubleKey newEvaluateDoubleKey(final IExpression[] args) {
+        public IEvaluateDoubleKey newEvaluateDoubleKey(final String context, final IExpression[] args) {
             final IEvaluateBooleanKey checkF = args[0].newEvaluateBooleanKey();
             final IEvaluateDoubleKey trueF = args[1].newEvaluateDoubleKey();
             final IEvaluateDoubleKey falseF = args[2].newEvaluateDoubleKey();
@@ -66,7 +66,7 @@ public final class LogicalFunctions {
         }
 
         @Override
-        public IEvaluateDouble newEvaluateDouble(final IExpression[] args) {
+        public IEvaluateDouble newEvaluateDouble(final String context, final IExpression[] args) {
             final IEvaluateBoolean checkF = args[0].newEvaluateBoolean();
             final IEvaluateDouble trueF = args[1].newEvaluateDouble();
             final IEvaluateDouble falseF = args[2].newEvaluateDouble();
@@ -246,7 +246,7 @@ public final class LogicalFunctions {
         }
 
         @Override
-        public IEvaluateBooleanFDate newEvaluateBooleanFDate(final IExpression[] args) {
+        public IEvaluateBooleanFDate newEvaluateBooleanFDate(final String context, final IExpression[] args) {
             final IEvaluateDoubleFDate argF = args[0].newEvaluateDoubleFDate();
             return key -> {
                 final double a = argF.evaluateDouble(key);
@@ -255,7 +255,7 @@ public final class LogicalFunctions {
         }
 
         @Override
-        public IEvaluateBooleanKey newEvaluateBooleanKey(final IExpression[] args) {
+        public IEvaluateBooleanKey newEvaluateBooleanKey(final String context, final IExpression[] args) {
             final IEvaluateDoubleKey argF = args[0].newEvaluateDoubleKey();
             return key -> {
                 final double a = argF.evaluateDouble(key);
@@ -264,7 +264,7 @@ public final class LogicalFunctions {
         }
 
         @Override
-        public IEvaluateBoolean newEvaluateBoolean(final IExpression[] args) {
+        public IEvaluateBoolean newEvaluateBoolean(final String context, final IExpression[] args) {
             final IEvaluateDouble argF = args[0].newEvaluateDouble();
             return () -> {
                 final double a = argF.evaluateDouble();
@@ -355,19 +355,19 @@ public final class LogicalFunctions {
         }
 
         @Override
-        public IEvaluateBooleanFDate newEvaluateBooleanFDate(final IExpression[] args) {
+        public IEvaluateBooleanFDate newEvaluateBooleanFDate(final String context, final IExpression[] args) {
             final IEvaluateBooleanFDate argF = args[0].newEvaluateBooleanFDate();
             return key -> argF.evaluateBoolean(key);
         }
 
         @Override
-        public IEvaluateBooleanKey newEvaluateBooleanKey(final IExpression[] args) {
+        public IEvaluateBooleanKey newEvaluateBooleanKey(final String context, final IExpression[] args) {
             final IEvaluateBooleanKey argF = args[0].newEvaluateBooleanKey();
             return key -> argF.evaluateBoolean(key);
         }
 
         @Override
-        public IEvaluateBoolean newEvaluateBoolean(final IExpression[] args) {
+        public IEvaluateBoolean newEvaluateBoolean(final String context, final IExpression[] args) {
             final IEvaluateBoolean argF = args[0].newEvaluateBoolean();
             return () -> argF.evaluateBoolean();
         }
@@ -455,7 +455,7 @@ public final class LogicalFunctions {
         }
 
         @Override
-        public IEvaluateBooleanFDate newEvaluateBooleanFDate(final IExpression[] args) {
+        public IEvaluateBooleanFDate newEvaluateBooleanFDate(final String context, final IExpression[] args) {
             final IEvaluateBooleanNullableFDate argF = args[0].newEvaluateBooleanNullableFDate();
             return key -> {
                 final Boolean a = argF.evaluateBooleanNullable(key);
@@ -464,7 +464,7 @@ public final class LogicalFunctions {
         }
 
         @Override
-        public IEvaluateBooleanKey newEvaluateBooleanKey(final IExpression[] args) {
+        public IEvaluateBooleanKey newEvaluateBooleanKey(final String context, final IExpression[] args) {
             final IEvaluateBooleanNullableKey argF = args[0].newEvaluateBooleanNullableKey();
             return key -> {
                 final Boolean a = argF.evaluateBooleanNullable(key);
@@ -473,7 +473,7 @@ public final class LogicalFunctions {
         }
 
         @Override
-        public IEvaluateBoolean newEvaluateBoolean(final IExpression[] args) {
+        public IEvaluateBoolean newEvaluateBoolean(final String context, final IExpression[] args) {
             final IEvaluateBooleanNullable argF = args[0].newEvaluateBooleanNullable();
             return () -> {
                 final Boolean a = argF.evaluateBooleanNullable();
@@ -564,7 +564,8 @@ public final class LogicalFunctions {
         }
 
         @Override
-        public IEvaluateBooleanNullableFDate newEvaluateBooleanNullableFDate(final IExpression[] args) {
+        public IEvaluateBooleanNullableFDate newEvaluateBooleanNullableFDate(final String context,
+                final IExpression[] args) {
             final IEvaluateBooleanNullableFDate argF = args[0].newEvaluateBooleanNullableFDate();
             return key -> {
                 final Boolean a = argF.evaluateBooleanNullable(key);
@@ -577,7 +578,8 @@ public final class LogicalFunctions {
         }
 
         @Override
-        public IEvaluateBooleanNullableKey newEvaluateBooleanNullableKey(final IExpression[] args) {
+        public IEvaluateBooleanNullableKey newEvaluateBooleanNullableKey(final String context,
+                final IExpression[] args) {
             final IEvaluateBooleanNullableKey argF = args[0].newEvaluateBooleanNullableKey();
             return key -> {
                 final Boolean a = argF.evaluateBooleanNullable(key);
@@ -590,7 +592,7 @@ public final class LogicalFunctions {
         }
 
         @Override
-        public IEvaluateBooleanNullable newEvaluateBooleanNullable(final IExpression[] args) {
+        public IEvaluateBooleanNullable newEvaluateBooleanNullable(final String context, final IExpression[] args) {
             final IEvaluateBooleanNullable argF = args[0].newEvaluateBooleanNullable();
             return () -> {
                 final Boolean a = argF.evaluateBooleanNullable();
@@ -684,7 +686,7 @@ public final class LogicalFunctions {
             }
 
             @Override
-            public IEvaluateDoubleFDate newEvaluateDoubleFDate(final IExpression[] args) {
+            public IEvaluateDoubleFDate newEvaluateDoubleFDate(final String context, final IExpression[] args) {
                 final IEvaluateIntegerFDate indexF = args[0].newEvaluateIntegerFDate();
                 final IEvaluateDoubleFDate[] argsF = new IEvaluateDoubleFDate[args.length - 1];
                 for (int i = 1; i < args.length; i++) {
@@ -697,7 +699,7 @@ public final class LogicalFunctions {
             }
 
             @Override
-            public IEvaluateDoubleKey newEvaluateDoubleKey(final IExpression[] args) {
+            public IEvaluateDoubleKey newEvaluateDoubleKey(final String context, final IExpression[] args) {
                 final IEvaluateIntegerKey indexF = args[0].newEvaluateIntegerKey();
                 final IEvaluateDoubleKey[] argsF = new IEvaluateDoubleKey[args.length - 1];
                 for (int i = 1; i < args.length; i++) {
@@ -710,7 +712,7 @@ public final class LogicalFunctions {
             }
 
             @Override
-            public IEvaluateDouble newEvaluateDouble(final IExpression[] args) {
+            public IEvaluateDouble newEvaluateDouble(final String context, final IExpression[] args) {
                 final IEvaluateInteger indexF = args[0].newEvaluateInteger();
                 final IEvaluateDouble[] argsF = new IEvaluateDouble[args.length - 1];
                 for (int i = 1; i < args.length; i++) {
@@ -887,7 +889,7 @@ public final class LogicalFunctions {
             }
 
             @Override
-            public IEvaluateBooleanFDate newEvaluateBooleanFDate(final IExpression[] args) {
+            public IEvaluateBooleanFDate newEvaluateBooleanFDate(final String context, final IExpression[] args) {
                 final IEvaluateDoubleFDate thresholdF = args[0].newEvaluateDoubleFDate();
                 final IEvaluateBooleanFDate[] argsF = new IEvaluateBooleanFDate[args.length - 1];
                 for (int i = 1; i < args.length; i++) {
@@ -909,7 +911,7 @@ public final class LogicalFunctions {
             }
 
             @Override
-            public IEvaluateBooleanKey newEvaluateBooleanKey(final IExpression[] args) {
+            public IEvaluateBooleanKey newEvaluateBooleanKey(final String context, final IExpression[] args) {
                 final IEvaluateDoubleKey thresholdF = args[0].newEvaluateDoubleKey();
                 final IEvaluateBooleanKey[] argsF = new IEvaluateBooleanKey[args.length - 1];
                 for (int i = 1; i < args.length; i++) {
@@ -931,7 +933,7 @@ public final class LogicalFunctions {
             }
 
             @Override
-            public IEvaluateBoolean newEvaluateBoolean(final IExpression[] args) {
+            public IEvaluateBoolean newEvaluateBoolean(final String context, final IExpression[] args) {
                 final IEvaluateDouble thresholdF = args[0].newEvaluateDouble();
                 final IEvaluateBoolean[] argsF = new IEvaluateBoolean[args.length - 1];
                 for (int i = 1; i < args.length; i++) {

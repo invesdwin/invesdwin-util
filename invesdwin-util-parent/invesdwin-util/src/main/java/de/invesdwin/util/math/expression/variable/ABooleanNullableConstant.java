@@ -16,17 +16,17 @@ public abstract class ABooleanNullableConstant extends AConstant implements IBoo
     }
 
     @Override
-    public final IEvaluateBooleanNullable newEvaluateBooleanNullable() {
+    public final IEvaluateBooleanNullable newEvaluateBooleanNullable(final String context) {
         return () -> value;
     }
 
     @Override
-    public final IEvaluateBooleanNullableFDate newEvaluateBooleanNullableFDate() {
+    public final IEvaluateBooleanNullableFDate newEvaluateBooleanNullableFDate(final String context) {
         return key -> value;
     }
 
     @Override
-    public final IEvaluateBooleanNullableKey newEvaluateBooleanNullableKey() {
+    public final IEvaluateBooleanNullableKey newEvaluateBooleanNullableKey(final String context) {
         return key -> value;
     }
 

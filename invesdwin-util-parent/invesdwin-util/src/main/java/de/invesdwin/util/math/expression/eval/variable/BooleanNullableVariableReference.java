@@ -89,17 +89,17 @@ public class BooleanNullableVariableReference extends AVariableReference<IBoolea
 
     @Override
     public IEvaluateBooleanNullableFDate newEvaluateBooleanNullableFDate() {
-        return variable.newEvaluateBooleanNullableFDate();
+        return variable.newEvaluateBooleanNullableFDate(getContext());
     }
 
     @Override
     public IEvaluateBooleanNullableKey newEvaluateBooleanNullableKey() {
-        return variable.newEvaluateBooleanNullableKey();
+        return variable.newEvaluateBooleanNullableKey(getContext());
     }
 
     @Override
     public IEvaluateBooleanNullable newEvaluateBooleanNullable() {
-        return variable.newEvaluateBooleanNullable();
+        return variable.newEvaluateBooleanNullable(getContext());
     }
 
     @Override

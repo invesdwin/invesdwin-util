@@ -14,11 +14,11 @@ import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanKey;
 @NotThreadSafe
 public abstract class ABooleanFunction extends AFunction {
 
-    public abstract IEvaluateBooleanFDate newEvaluateBooleanFDate(IExpression[] args);
+    public abstract IEvaluateBooleanFDate newEvaluateBooleanFDate(String context, IExpression[] args);
 
-    public abstract IEvaluateBooleanKey newEvaluateBooleanKey(IExpression[] args);
+    public abstract IEvaluateBooleanKey newEvaluateBooleanKey(String context, IExpression[] args);
 
-    public abstract IEvaluateBoolean newEvaluateBoolean(IExpression[] args);
+    public abstract IEvaluateBoolean newEvaluateBoolean(String context, IExpression[] args);
 
     @Override
     public IParsedExpression newCall(final String context, final IParsedExpression[] parameters) {

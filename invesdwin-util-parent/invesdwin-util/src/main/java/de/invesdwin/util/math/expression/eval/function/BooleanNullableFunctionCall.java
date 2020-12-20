@@ -75,17 +75,17 @@ public class BooleanNullableFunctionCall extends AFunctionCall<ABooleanNullableF
 
     @Override
     public IEvaluateBooleanNullableFDate newEvaluateBooleanNullableFDate() {
-        return function.newEvaluateBooleanNullableFDate(parameters);
+        return function.newEvaluateBooleanNullableFDate(getContext(), parameters);
     }
 
     @Override
     public IEvaluateBooleanNullableKey newEvaluateBooleanNullableKey() {
-        return function.newEvaluateBooleanNullableKey(parameters);
+        return function.newEvaluateBooleanNullableKey(getContext(), parameters);
     }
 
     @Override
     public IEvaluateBooleanNullable newEvaluateBooleanNullable() {
-        return function.newEvaluateBooleanNullable(parameters);
+        return function.newEvaluateBooleanNullable(getContext(), parameters);
     }
 
     @Override

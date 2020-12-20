@@ -16,17 +16,17 @@ public abstract class ABooleanConstant extends AConstant implements IBooleanVari
     }
 
     @Override
-    public final IEvaluateBoolean newEvaluateBoolean() {
+    public final IEvaluateBoolean newEvaluateBoolean(final String context) {
         return () -> value;
     }
 
     @Override
-    public final IEvaluateBooleanFDate newEvaluateBooleanFDate() {
+    public final IEvaluateBooleanFDate newEvaluateBooleanFDate(final String context) {
         return key -> value;
     }
 
     @Override
-    public final IEvaluateBooleanKey newEvaluateBooleanKey() {
+    public final IEvaluateBooleanKey newEvaluateBooleanKey(final String context) {
         return key -> value;
     }
 

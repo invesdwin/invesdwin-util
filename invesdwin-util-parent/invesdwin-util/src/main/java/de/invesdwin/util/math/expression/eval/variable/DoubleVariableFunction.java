@@ -45,17 +45,17 @@ public class DoubleVariableFunction extends ADoubleFunction {
     }
 
     @Override
-    public IEvaluateDoubleFDate newEvaluateDoubleFDate(final IExpression[] args) {
+    public IEvaluateDoubleFDate newEvaluateDoubleFDate(final String context, final IExpression[] args) {
         return variable.newEvaluateDoubleFDate();
     }
 
     @Override
-    public IEvaluateDoubleKey newEvaluateDoubleKey(final IExpression[] args) {
+    public IEvaluateDoubleKey newEvaluateDoubleKey(final String context, final IExpression[] args) {
         return variable.newEvaluateDoubleKey();
     }
 
     @Override
-    public IEvaluateDouble newEvaluateDouble(final IExpression[] args) {
+    public IEvaluateDouble newEvaluateDouble(final String context, final IExpression[] args) {
         return variable.newEvaluateDouble();
     }
 

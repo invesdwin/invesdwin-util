@@ -37,17 +37,17 @@ public class IntegerFunctionCall extends AFunctionCall<AIntegerFunction> {
 
     @Override
     public IEvaluateIntegerFDate newEvaluateIntegerFDate() {
-        return function.newEvaluateIntegerFDate(parameters);
+        return function.newEvaluateIntegerFDate(getContext(), parameters);
     }
 
     @Override
     public IEvaluateIntegerKey newEvaluateIntegerKey() {
-        return function.newEvaluateIntegerKey(parameters);
+        return function.newEvaluateIntegerKey(getContext(), parameters);
     }
 
     @Override
     public IEvaluateInteger newEvaluateInteger() {
-        return function.newEvaluateInteger(parameters);
+        return function.newEvaluateInteger(getContext(), parameters);
     }
 
     @Override

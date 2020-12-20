@@ -158,12 +158,12 @@ public final class StatisticalFunctions {
                     }
 
                     @Override
-                    public IEvaluateInteger newEvaluateInteger(final IExpression[] args) {
+                    public IEvaluateInteger newEvaluateInteger(final String context, final IExpression[] args) {
                         throw new UnsupportedOperationException("use time or int key instead");
                     }
 
                     @Override
-                    public IEvaluateIntegerKey newEvaluateIntegerKey(final IExpression[] args) {
+                    public IEvaluateIntegerKey newEvaluateIntegerKey(final String context, final IExpression[] args) {
                         final IEvaluateDoubleKey conditionF = args[0].newEvaluateDoubleKey();
                         final IEvaluateIntegerKey countF = args[1].newEvaluateIntegerKey();
                         return key -> {
@@ -184,7 +184,8 @@ public final class StatisticalFunctions {
                     }
 
                     @Override
-                    public IEvaluateIntegerFDate newEvaluateIntegerFDate(final IExpression[] args) {
+                    public IEvaluateIntegerFDate newEvaluateIntegerFDate(final String context,
+                            final IExpression[] args) {
                         final IEvaluateDoubleFDate conditionF = args[0].newEvaluateDoubleFDate();
                         final IEvaluateIntegerFDate countF = args[1].newEvaluateIntegerFDate();
                         return key -> {
@@ -344,12 +345,12 @@ public final class StatisticalFunctions {
                     }
 
                     @Override
-                    public IEvaluateDouble newEvaluateDouble(final IExpression[] args) {
+                    public IEvaluateDouble newEvaluateDouble(final String context, final IExpression[] args) {
                         throw new UnsupportedOperationException("use time or int key instead");
                     }
 
                     @Override
-                    public IEvaluateDoubleKey newEvaluateDoubleKey(final IExpression[] args) {
+                    public IEvaluateDoubleKey newEvaluateDoubleKey(final String context, final IExpression[] args) {
                         final IEvaluateDoubleKey conditionF = args[0].newEvaluateDoubleKey();
                         final IEvaluateIntegerKey countF = args[1].newEvaluateIntegerKey();
                         return key -> {
@@ -370,7 +371,7 @@ public final class StatisticalFunctions {
                     }
 
                     @Override
-                    public IEvaluateDoubleFDate newEvaluateDoubleFDate(final IExpression[] args) {
+                    public IEvaluateDoubleFDate newEvaluateDoubleFDate(final String context, final IExpression[] args) {
                         final IEvaluateDoubleFDate conditionF = args[0].newEvaluateDoubleFDate();
                         final IEvaluateIntegerFDate countF = args[1].newEvaluateIntegerFDate();
                         return key -> {
@@ -530,12 +531,12 @@ public final class StatisticalFunctions {
                     }
 
                     @Override
-                    public IEvaluateDouble newEvaluateDouble(final IExpression[] args) {
+                    public IEvaluateDouble newEvaluateDouble(final String context, final IExpression[] args) {
                         throw new UnsupportedOperationException("use time or int key instead");
                     }
 
                     @Override
-                    public IEvaluateDoubleKey newEvaluateDoubleKey(final IExpression[] args) {
+                    public IEvaluateDoubleKey newEvaluateDoubleKey(final String context, final IExpression[] args) {
                         final IEvaluateDoubleKey conditionF = args[0].newEvaluateDoubleKey();
                         final IEvaluateIntegerKey countF = args[1].newEvaluateIntegerKey();
                         return key -> {
@@ -556,7 +557,7 @@ public final class StatisticalFunctions {
                     }
 
                     @Override
-                    public IEvaluateDoubleFDate newEvaluateDoubleFDate(final IExpression[] args) {
+                    public IEvaluateDoubleFDate newEvaluateDoubleFDate(final String context, final IExpression[] args) {
                         final IEvaluateDoubleFDate conditionF = args[0].newEvaluateDoubleFDate();
                         final IEvaluateIntegerFDate countF = args[1].newEvaluateIntegerFDate();
                         return key -> {
@@ -717,13 +718,13 @@ public final class StatisticalFunctions {
                     }
 
                     @Override
-                    public IEvaluateDouble newEvaluateDouble(final IExpression[] args) {
+                    public IEvaluateDouble newEvaluateDouble(final String context, final IExpression[] args) {
                         throw new UnsupportedOperationException("use time or int key instead");
                     }
 
                     @SuppressWarnings("deprecation")
                     @Override
-                    public IEvaluateDoubleKey newEvaluateDoubleKey(final IExpression[] args) {
+                    public IEvaluateDoubleKey newEvaluateDoubleKey(final String context, final IExpression[] args) {
                         final IEvaluateDoubleKey conditionF = args[0].newEvaluateDoubleKey();
                         final IEvaluateIntegerKey countF = args[1].newEvaluateIntegerKey();
                         return key -> {
@@ -745,7 +746,7 @@ public final class StatisticalFunctions {
 
                     @SuppressWarnings("deprecation")
                     @Override
-                    public IEvaluateDoubleFDate newEvaluateDoubleFDate(final IExpression[] args) {
+                    public IEvaluateDoubleFDate newEvaluateDoubleFDate(final String context, final IExpression[] args) {
                         final IEvaluateDoubleFDate conditionF = args[0].newEvaluateDoubleFDate();
                         final IEvaluateIntegerFDate countF = args[1].newEvaluateIntegerFDate();
                         return key -> {
@@ -905,12 +906,12 @@ public final class StatisticalFunctions {
                     }
 
                     @Override
-                    public IEvaluateDouble newEvaluateDouble(final IExpression[] args) {
+                    public IEvaluateDouble newEvaluateDouble(final String context, final IExpression[] args) {
                         throw new UnsupportedOperationException("use time or int key instead");
                     }
 
                     @Override
-                    public IEvaluateDoubleKey newEvaluateDoubleKey(final IExpression[] args) {
+                    public IEvaluateDoubleKey newEvaluateDoubleKey(final String context, final IExpression[] args) {
                         final IEvaluateDoubleKey conditionF = args[0].newEvaluateDoubleKey();
                         final IEvaluateIntegerKey countF = args[1].newEvaluateIntegerKey();
                         return key -> {
@@ -931,7 +932,7 @@ public final class StatisticalFunctions {
                     }
 
                     @Override
-                    public IEvaluateDoubleFDate newEvaluateDoubleFDate(final IExpression[] args) {
+                    public IEvaluateDoubleFDate newEvaluateDoubleFDate(final String context, final IExpression[] args) {
                         final IEvaluateDoubleFDate conditionF = args[0].newEvaluateDoubleFDate();
                         final IEvaluateIntegerFDate countF = args[1].newEvaluateIntegerFDate();
                         return key1 -> {
@@ -1092,13 +1093,13 @@ public final class StatisticalFunctions {
                     }
 
                     @Override
-                    public IEvaluateDouble newEvaluateDouble(final IExpression[] args) {
+                    public IEvaluateDouble newEvaluateDouble(final String context, final IExpression[] args) {
                         throw new UnsupportedOperationException("use time or int key instead");
                     }
 
                     @SuppressWarnings("deprecation")
                     @Override
-                    public IEvaluateDoubleKey newEvaluateDoubleKey(final IExpression[] args) {
+                    public IEvaluateDoubleKey newEvaluateDoubleKey(final String context, final IExpression[] args) {
                         final IEvaluateDoubleKey conditionF = args[0].newEvaluateDoubleKey();
                         final IEvaluateIntegerKey countF = args[1].newEvaluateIntegerKey();
                         return key -> {
@@ -1120,7 +1121,7 @@ public final class StatisticalFunctions {
 
                     @SuppressWarnings("deprecation")
                     @Override
-                    public IEvaluateDoubleFDate newEvaluateDoubleFDate(final IExpression[] args) {
+                    public IEvaluateDoubleFDate newEvaluateDoubleFDate(final String context, final IExpression[] args) {
                         final IEvaluateDoubleFDate conditionF = args[0].newEvaluateDoubleFDate();
                         final IEvaluateIntegerFDate countF = args[1].newEvaluateIntegerFDate();
                         return key -> {
@@ -1280,12 +1281,12 @@ public final class StatisticalFunctions {
                     }
 
                     @Override
-                    public IEvaluateDouble newEvaluateDouble(final IExpression[] args) {
+                    public IEvaluateDouble newEvaluateDouble(final String context, final IExpression[] args) {
                         throw new UnsupportedOperationException("use time or int key instead");
                     }
 
                     @Override
-                    public IEvaluateDoubleKey newEvaluateDoubleKey(final IExpression[] args) {
+                    public IEvaluateDoubleKey newEvaluateDoubleKey(final String context, final IExpression[] args) {
                         final IEvaluateDoubleKey conditionF = args[0].newEvaluateDoubleKey();
                         final IEvaluateIntegerKey countF = args[1].newEvaluateIntegerKey();
                         return key -> {
@@ -1306,7 +1307,7 @@ public final class StatisticalFunctions {
                     }
 
                     @Override
-                    public IEvaluateDoubleFDate newEvaluateDoubleFDate(final IExpression[] args) {
+                    public IEvaluateDoubleFDate newEvaluateDoubleFDate(final String context, final IExpression[] args) {
                         final IEvaluateDoubleFDate conditionF = args[0].newEvaluateDoubleFDate();
                         final IEvaluateIntegerFDate countF = args[1].newEvaluateIntegerFDate();
                         return key -> {
@@ -1466,12 +1467,12 @@ public final class StatisticalFunctions {
                     }
 
                     @Override
-                    public IEvaluateDouble newEvaluateDouble(final IExpression[] args) {
+                    public IEvaluateDouble newEvaluateDouble(final String context, final IExpression[] args) {
                         throw new UnsupportedOperationException("use time or int key instead");
                     }
 
                     @Override
-                    public IEvaluateDoubleKey newEvaluateDoubleKey(final IExpression[] args) {
+                    public IEvaluateDoubleKey newEvaluateDoubleKey(final String context, final IExpression[] args) {
                         final IEvaluateDoubleKey conditionF = args[0].newEvaluateDoubleKey();
                         final IEvaluateIntegerKey countF = args[1].newEvaluateIntegerKey();
                         return key -> {
@@ -1492,7 +1493,7 @@ public final class StatisticalFunctions {
                     }
 
                     @Override
-                    public IEvaluateDoubleFDate newEvaluateDoubleFDate(final IExpression[] args) {
+                    public IEvaluateDoubleFDate newEvaluateDoubleFDate(final String context, final IExpression[] args) {
                         final IEvaluateDoubleFDate conditionF = args[0].newEvaluateDoubleFDate();
                         final IEvaluateIntegerFDate countF = args[1].newEvaluateIntegerFDate();
                         return key -> {
@@ -1690,12 +1691,12 @@ public final class StatisticalFunctions {
                     }
 
                     @Override
-                    public IEvaluateDouble newEvaluateDouble(final IExpression[] args) {
+                    public IEvaluateDouble newEvaluateDouble(final String context, final IExpression[] args) {
                         throw new UnsupportedOperationException("use time or int key instead");
                     }
 
                     @Override
-                    public IEvaluateDoubleKey newEvaluateDoubleKey(final IExpression[] args) {
+                    public IEvaluateDoubleKey newEvaluateDoubleKey(final String context, final IExpression[] args) {
                         final IEvaluateDoubleKey percentileF = args[0].newEvaluateDoubleKey();
                         final IEvaluateDoubleKey condition = args[1].newEvaluateDoubleKey();
                         final IEvaluateIntegerKey countF = args[2].newEvaluateIntegerKey();
@@ -1718,7 +1719,7 @@ public final class StatisticalFunctions {
                     }
 
                     @Override
-                    public IEvaluateDoubleFDate newEvaluateDoubleFDate(final IExpression[] args) {
+                    public IEvaluateDoubleFDate newEvaluateDoubleFDate(final String context, final IExpression[] args) {
                         final IEvaluateDoubleFDate percentileF = args[0].newEvaluateDoubleFDate();
                         final IEvaluateDoubleFDate condition = args[1].newEvaluateDoubleFDate();
                         final IEvaluateIntegerFDate countF = args[2].newEvaluateIntegerFDate();
