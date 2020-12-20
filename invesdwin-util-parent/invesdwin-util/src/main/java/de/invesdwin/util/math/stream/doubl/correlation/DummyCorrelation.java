@@ -14,7 +14,17 @@ public final class DummyCorrelation implements ICorrelation {
 
     @Override
     public Percent getCorrelation() {
-        return Percent.ZERO_PERCENT;
+        return null;
+    }
+
+    @Override
+    public Percent getCoefficientOfDetermination() {
+        return null;
+    }
+
+    @Override
+    public CorrelationType getCorrelationType() {
+        return null;
     }
 
 }

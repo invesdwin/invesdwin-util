@@ -198,18 +198,7 @@ public class ExpressionParser {
     }
 
     public static IFunctionFactory putDefaultFunction(final AFunction function) {
-        return DEFAULT_FUNCTIONS.put(function.getExpressionName().toLowerCase(), new IFunctionFactory() {
-
-            @Override
-            public String getExpressionName() {
-                return function.getExpressionName();
-            }
-
-            @Override
-            public AFunction newFunction(final IPreviousKeyFunction previousKeyFunction) {
-                return function;
-            }
-        });
+        return DEFAULT_FUNCTIONS.put(function.getExpressionName().toLowerCase(), IFunctionFactory.valueOf(function));
     }
 
     public static Collection<IFunctionFactory> getDefaultFunctions() {
