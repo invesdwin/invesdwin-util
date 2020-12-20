@@ -516,6 +516,22 @@ public class ExpressionParserTest {
         Assertions.checkEquals(false, evaluateDouble);
     }
 
+    @Test
+    public void testNegativeVariable() {
+        final ExpressionParser expressionParser = new ExpressionParser("-PI");
+        final IExpression parsed = expressionParser.parse();
+        final double evaluateDouble = parsed.newEvaluateDouble().evaluateDouble();
+        Assertions.checkEquals(-Math.PI, evaluateDouble);
+    }
+
+    @Test
+    public void testNegativeTrue() {
+        final ExpressionParser expressionParser = new ExpressionParser("-True");
+        final IExpression parsed = expressionParser.parse();
+        final double evaluateDouble = parsed.newEvaluateDouble().evaluateDouble();
+        Assertions.checkEquals(-1, evaluateDouble);
+    }
+
     @Test(expected = ParseException.class)
     public void testNull() {
         new ExpressionParser("").parse();
