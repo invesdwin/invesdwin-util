@@ -7,6 +7,8 @@ import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanNullableFDate;
 import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanNullableKey;
 import de.invesdwin.util.math.expression.lambda.IEvaluateDoubleFDate;
 import de.invesdwin.util.math.expression.lambda.IEvaluateDoubleKey;
+import de.invesdwin.util.math.expression.lambda.IEvaluateGenericFDate;
+import de.invesdwin.util.math.expression.lambda.IEvaluateGenericKey;
 import de.invesdwin.util.math.expression.lambda.IEvaluateIntegerFDate;
 import de.invesdwin.util.math.expression.lambda.IEvaluateIntegerKey;
 import de.invesdwin.util.time.fdate.IFDateProvider;
@@ -39,6 +41,22 @@ public interface IPreviousKeyFunction {
 
     default IEvaluateBooleanKey newEvaluateBooleanKey(final IParsedExpression expression) {
         return expression.newEvaluateBooleanKey();
+    }
+
+    default IEvaluateGenericFDate<String> newEvaluateFalseReasonFDate(final IParsedExpression expression) {
+        return expression.newEvaluateFalseReasonFDate();
+    }
+
+    default IEvaluateGenericKey<String> newEvaluateFalseReasonKey(final IParsedExpression expression) {
+        return expression.newEvaluateFalseReasonKey();
+    }
+
+    default IEvaluateGenericFDate<String> newEvaluateTrueReasonFDate(final IParsedExpression expression) {
+        return expression.newEvaluateTrueReasonFDate();
+    }
+
+    default IEvaluateGenericKey<String> newEvaluateTrueReasonKey(final IParsedExpression expression) {
+        return expression.newEvaluateTrueReasonKey();
     }
 
     default IEvaluateIntegerFDate newEvaluateIntegerFDate(final IParsedExpression expression) {

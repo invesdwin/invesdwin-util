@@ -13,6 +13,9 @@ import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanNullableKey;
 import de.invesdwin.util.math.expression.lambda.IEvaluateDouble;
 import de.invesdwin.util.math.expression.lambda.IEvaluateDoubleFDate;
 import de.invesdwin.util.math.expression.lambda.IEvaluateDoubleKey;
+import de.invesdwin.util.math.expression.lambda.IEvaluateGeneric;
+import de.invesdwin.util.math.expression.lambda.IEvaluateGenericFDate;
+import de.invesdwin.util.math.expression.lambda.IEvaluateGenericKey;
 import de.invesdwin.util.math.expression.lambda.IEvaluateInteger;
 import de.invesdwin.util.math.expression.lambda.IEvaluateIntegerFDate;
 import de.invesdwin.util.math.expression.lambda.IEvaluateIntegerKey;
@@ -82,6 +85,51 @@ public final class UnsupportedExpression implements IParsedExpression {
 
     @Override
     public IEvaluateBoolean newEvaluateBoolean() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public IEvaluateGenericFDate<String> newEvaluateFalseReasonFDate() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public IEvaluateGenericKey<String> newEvaluateFalseReasonKey() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public IEvaluateGeneric<String> newEvaluateFalseReason() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public IEvaluateGenericFDate<String> newEvaluateTrueReasonFDate() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public IEvaluateGenericKey<String> newEvaluateTrueReasonKey() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public IEvaluateGeneric<String> newEvaluateTrueReason() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public IEvaluateGenericFDate<String> newEvaluateNullReasonFDate() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public IEvaluateGenericKey<String> newEvaluateNullReasonKey() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public IEvaluateGeneric<String> newEvaluateNullReason() {
         throw new UnsupportedOperationException();
     }
 

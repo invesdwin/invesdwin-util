@@ -4,6 +4,8 @@ package de.invesdwin.util.math.expression.eval.operation;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.error.UnknownArgumentException;
+import de.invesdwin.util.lang.Objects;
+import de.invesdwin.util.math.Booleans;
 import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.expression.ExpressionType;
@@ -24,6 +26,9 @@ import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanNullableKey;
 import de.invesdwin.util.math.expression.lambda.IEvaluateDouble;
 import de.invesdwin.util.math.expression.lambda.IEvaluateDoubleFDate;
 import de.invesdwin.util.math.expression.lambda.IEvaluateDoubleKey;
+import de.invesdwin.util.math.expression.lambda.IEvaluateGeneric;
+import de.invesdwin.util.math.expression.lambda.IEvaluateGenericFDate;
+import de.invesdwin.util.math.expression.lambda.IEvaluateGenericKey;
 import de.invesdwin.util.math.expression.lambda.IEvaluateInteger;
 import de.invesdwin.util.math.expression.lambda.IEvaluateIntegerFDate;
 import de.invesdwin.util.math.expression.lambda.IEvaluateIntegerKey;
@@ -2918,6 +2923,114 @@ public class DoubleBinaryOperation implements IBinaryOperation {
                 };
             }
         }
+    }
+
+    @Override
+    public IEvaluateGenericKey<String> newEvaluateFalseReasonKey() {
+        final IEvaluateBooleanNullableKey f = newEvaluateBooleanNullableKey();
+        return key -> {
+            if (Booleans.isFalse(f.evaluateBooleanNullable(key))) {
+                return DoubleBinaryOperation.this.toString();
+            } else {
+                return null;
+            }
+        };
+    }
+
+    @Override
+    public IEvaluateGeneric<String> newEvaluateFalseReason() {
+        final IEvaluateBooleanNullable f = newEvaluateBooleanNullable();
+        return () -> {
+            if (Booleans.isFalse(f.evaluateBooleanNullable())) {
+                return DoubleBinaryOperation.this.toString();
+            } else {
+                return null;
+            }
+        };
+    }
+
+    @Override
+    public IEvaluateGenericFDate<String> newEvaluateFalseReasonFDate() {
+        final IEvaluateBooleanNullableFDate f = newEvaluateBooleanNullableFDate();
+        return key -> {
+            if (Booleans.isFalse(f.evaluateBooleanNullable(key))) {
+                return DoubleBinaryOperation.this.toString();
+            } else {
+                return null;
+            }
+        };
+    }
+
+    @Override
+    public IEvaluateGenericKey<String> newEvaluateTrueReasonKey() {
+        final IEvaluateBooleanNullableKey f = newEvaluateBooleanNullableKey();
+        return key -> {
+            if (Booleans.isTrue(f.evaluateBooleanNullable(key))) {
+                return DoubleBinaryOperation.this.toString();
+            } else {
+                return null;
+            }
+        };
+    }
+
+    @Override
+    public IEvaluateGeneric<String> newEvaluateTrueReason() {
+        final IEvaluateBooleanNullable f = newEvaluateBooleanNullable();
+        return () -> {
+            if (Booleans.isTrue(f.evaluateBooleanNullable())) {
+                return DoubleBinaryOperation.this.toString();
+            } else {
+                return null;
+            }
+        };
+    }
+
+    @Override
+    public IEvaluateGenericFDate<String> newEvaluateTrueReasonFDate() {
+        final IEvaluateBooleanNullableFDate f = newEvaluateBooleanNullableFDate();
+        return key -> {
+            if (Booleans.isTrue(f.evaluateBooleanNullable(key))) {
+                return DoubleBinaryOperation.this.toString();
+            } else {
+                return null;
+            }
+        };
+    }
+
+    @Override
+    public IEvaluateGenericKey<String> newEvaluateNullReasonKey() {
+        final IEvaluateBooleanNullableKey f = newEvaluateBooleanNullableKey();
+        return key -> {
+            if (Objects.isNull(f.evaluateBooleanNullable(key))) {
+                return DoubleBinaryOperation.this.toString();
+            } else {
+                return null;
+            }
+        };
+    }
+
+    @Override
+    public IEvaluateGeneric<String> newEvaluateNullReason() {
+        final IEvaluateBooleanNullable f = newEvaluateBooleanNullable();
+        return () -> {
+            if (Objects.isNull(f.evaluateBooleanNullable())) {
+                return DoubleBinaryOperation.this.toString();
+            } else {
+                return null;
+            }
+        };
+    }
+
+    @Override
+    public IEvaluateGenericFDate<String> newEvaluateNullReasonFDate() {
+        final IEvaluateBooleanNullableFDate f = newEvaluateBooleanNullableFDate();
+        return key -> {
+            if (Objects.isNull(f.evaluateBooleanNullable(key))) {
+                return DoubleBinaryOperation.this.toString();
+            } else {
+                return null;
+            }
+        };
     }
 
     @Override

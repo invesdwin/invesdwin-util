@@ -9,6 +9,9 @@ import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanNullableKey;
 import de.invesdwin.util.math.expression.lambda.IEvaluateDouble;
 import de.invesdwin.util.math.expression.lambda.IEvaluateDoubleFDate;
 import de.invesdwin.util.math.expression.lambda.IEvaluateDoubleKey;
+import de.invesdwin.util.math.expression.lambda.IEvaluateGeneric;
+import de.invesdwin.util.math.expression.lambda.IEvaluateGenericFDate;
+import de.invesdwin.util.math.expression.lambda.IEvaluateGenericKey;
 import de.invesdwin.util.math.expression.lambda.IEvaluateInteger;
 import de.invesdwin.util.math.expression.lambda.IEvaluateIntegerFDate;
 import de.invesdwin.util.math.expression.lambda.IEvaluateIntegerKey;
@@ -76,6 +79,51 @@ public interface IExpression extends IParsedExpressionProvider {
      * Double.NaN is interpreted as null.
      */
     IEvaluateBooleanNullableKey newEvaluateBooleanNullableKey();
+
+    /**
+     * Double.NaN is interpreted as null.
+     */
+    IEvaluateGeneric<String> newEvaluateFalseReason();
+
+    /**
+     * Double.NaN is interpreted as null.
+     */
+    IEvaluateGenericFDate<String> newEvaluateFalseReasonFDate();
+
+    /**
+     * Double.NaN is interpreted as null.
+     */
+    IEvaluateGenericKey<String> newEvaluateFalseReasonKey();
+
+    /**
+     * Double.NaN is interpreted as null.
+     */
+    IEvaluateGeneric<String> newEvaluateTrueReason();
+
+    /**
+     * Double.NaN is interpreted as null.
+     */
+    IEvaluateGenericFDate<String> newEvaluateTrueReasonFDate();
+
+    /**
+     * Double.NaN is interpreted as null.
+     */
+    IEvaluateGenericKey<String> newEvaluateTrueReasonKey();
+
+    /**
+     * Double.NaN is interpreted as null.
+     */
+    IEvaluateGeneric<String> newEvaluateNullReason();
+
+    /**
+     * Double.NaN is interpreted as null.
+     */
+    IEvaluateGenericFDate<String> newEvaluateNullReasonFDate();
+
+    /**
+     * Double.NaN is interpreted as null.
+     */
+    IEvaluateGenericKey<String> newEvaluateNullReasonKey();
 
     boolean isConstant();
 

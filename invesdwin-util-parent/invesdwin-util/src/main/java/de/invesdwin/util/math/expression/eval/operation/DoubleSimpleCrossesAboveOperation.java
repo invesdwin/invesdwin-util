@@ -17,6 +17,9 @@ import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanNullableKey;
 import de.invesdwin.util.math.expression.lambda.IEvaluateDouble;
 import de.invesdwin.util.math.expression.lambda.IEvaluateDoubleFDate;
 import de.invesdwin.util.math.expression.lambda.IEvaluateDoubleKey;
+import de.invesdwin.util.math.expression.lambda.IEvaluateGeneric;
+import de.invesdwin.util.math.expression.lambda.IEvaluateGenericFDate;
+import de.invesdwin.util.math.expression.lambda.IEvaluateGenericKey;
 import de.invesdwin.util.math.expression.lambda.IEvaluateInteger;
 import de.invesdwin.util.math.expression.lambda.IEvaluateIntegerFDate;
 import de.invesdwin.util.math.expression.lambda.IEvaluateIntegerKey;
@@ -267,6 +270,78 @@ public class DoubleSimpleCrossesAboveOperation extends DoubleBinaryOperation {
     @Override
     public IEvaluateBoolean newEvaluateBoolean() {
         throw new UnsupportedOperationException("crosses below operation is only supported with time or int index");
+    }
+
+    @Override
+    public IEvaluateGenericKey<String> newEvaluateFalseReasonKey() {
+        final IEvaluateBooleanKey f = newEvaluateBooleanKey();
+        return key -> {
+            if (!f.evaluateBoolean(key)) {
+                return DoubleSimpleCrossesAboveOperation.this.toString();
+            } else {
+                return null;
+            }
+        };
+    }
+
+    @Override
+    public IEvaluateGeneric<String> newEvaluateFalseReason() {
+        final IEvaluateBoolean f = newEvaluateBoolean();
+        return () -> {
+            if (!f.evaluateBoolean()) {
+                return DoubleSimpleCrossesAboveOperation.this.toString();
+            } else {
+                return null;
+            }
+        };
+    }
+
+    @Override
+    public IEvaluateGenericFDate<String> newEvaluateFalseReasonFDate() {
+        final IEvaluateBooleanFDate f = newEvaluateBooleanFDate();
+        return key -> {
+            if (!f.evaluateBoolean(key)) {
+                return DoubleSimpleCrossesAboveOperation.this.toString();
+            } else {
+                return null;
+            }
+        };
+    }
+
+    @Override
+    public IEvaluateGenericKey<String> newEvaluateTrueReasonKey() {
+        final IEvaluateBooleanKey f = newEvaluateBooleanKey();
+        return key -> {
+            if (f.evaluateBoolean(key)) {
+                return DoubleSimpleCrossesAboveOperation.this.toString();
+            } else {
+                return null;
+            }
+        };
+    }
+
+    @Override
+    public IEvaluateGeneric<String> newEvaluateTrueReason() {
+        final IEvaluateBoolean f = newEvaluateBoolean();
+        return () -> {
+            if (f.evaluateBoolean()) {
+                return DoubleSimpleCrossesAboveOperation.this.toString();
+            } else {
+                return null;
+            }
+        };
+    }
+
+    @Override
+    public IEvaluateGenericFDate<String> newEvaluateTrueReasonFDate() {
+        final IEvaluateBooleanFDate f = newEvaluateBooleanFDate();
+        return key -> {
+            if (f.evaluateBoolean(key)) {
+                return DoubleSimpleCrossesAboveOperation.this.toString();
+            } else {
+                return null;
+            }
+        };
     }
 
     @Override

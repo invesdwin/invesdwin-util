@@ -18,6 +18,9 @@ import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanNullableKey;
 import de.invesdwin.util.math.expression.lambda.IEvaluateDouble;
 import de.invesdwin.util.math.expression.lambda.IEvaluateDoubleFDate;
 import de.invesdwin.util.math.expression.lambda.IEvaluateDoubleKey;
+import de.invesdwin.util.math.expression.lambda.IEvaluateGeneric;
+import de.invesdwin.util.math.expression.lambda.IEvaluateGenericFDate;
+import de.invesdwin.util.math.expression.lambda.IEvaluateGenericKey;
 import de.invesdwin.util.math.expression.lambda.IEvaluateInteger;
 import de.invesdwin.util.math.expression.lambda.IEvaluateIntegerFDate;
 import de.invesdwin.util.math.expression.lambda.IEvaluateIntegerKey;
@@ -135,6 +138,66 @@ public class BooleanNullableXorOperation extends DoubleBinaryOperation {
         final IEvaluateBoolean leftF = left.newEvaluateBoolean();
         final IEvaluateBoolean rightF = right.newEvaluateBoolean();
         return () -> Booleans.xor(leftF.evaluateBoolean(), rightF.evaluateBoolean());
+    }
+
+    @Override
+    public IEvaluateGenericKey<String> newEvaluateTrueReasonKey() {
+        final IEvaluateBooleanNullableKey leftF = left.newEvaluateBooleanNullableKey();
+        final IEvaluateBooleanNullableKey rightF = right.newEvaluateBooleanNullableKey();
+        return key -> {
+            final Boolean leftResult = leftF.evaluateBooleanNullable(key);
+            final Boolean rightResult = rightF.evaluateBooleanNullable(key);
+            final Boolean result = Booleans.xor(leftResult, rightResult);
+            if (Booleans.isTrue(result)) {
+                if (Booleans.isTrue(leftResult)) {
+                    return left.toString();
+                } else {
+                    return right.toString();
+                }
+            } else {
+                return null;
+            }
+        };
+    }
+
+    @Override
+    public IEvaluateGeneric<String> newEvaluateTrueReason() {
+        final IEvaluateBooleanNullable leftF = left.newEvaluateBooleanNullable();
+        final IEvaluateBooleanNullable rightF = right.newEvaluateBooleanNullable();
+        return () -> {
+            final Boolean leftResult = leftF.evaluateBooleanNullable();
+            final Boolean rightResult = rightF.evaluateBooleanNullable();
+            final Boolean result = Booleans.xor(leftResult, rightResult);
+            if (Booleans.isTrue(result)) {
+                if (Booleans.isTrue(leftResult)) {
+                    return left.toString();
+                } else {
+                    return right.toString();
+                }
+            } else {
+                return null;
+            }
+        };
+    }
+
+    @Override
+    public IEvaluateGenericFDate<String> newEvaluateTrueReasonFDate() {
+        final IEvaluateBooleanNullableFDate leftF = left.newEvaluateBooleanNullableFDate();
+        final IEvaluateBooleanNullableFDate rightF = right.newEvaluateBooleanNullableFDate();
+        return key -> {
+            final Boolean leftResult = leftF.evaluateBooleanNullable(key);
+            final Boolean rightResult = rightF.evaluateBooleanNullable(key);
+            final Boolean result = Booleans.xor(leftResult, rightResult);
+            if (Booleans.isTrue(result)) {
+                if (Booleans.isTrue(leftResult)) {
+                    return left.toString();
+                } else {
+                    return right.toString();
+                }
+            } else {
+                return null;
+            }
+        };
     }
 
     @Override

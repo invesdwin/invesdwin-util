@@ -19,6 +19,9 @@ import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanNullableKey;
 import de.invesdwin.util.math.expression.lambda.IEvaluateDouble;
 import de.invesdwin.util.math.expression.lambda.IEvaluateDoubleFDate;
 import de.invesdwin.util.math.expression.lambda.IEvaluateDoubleKey;
+import de.invesdwin.util.math.expression.lambda.IEvaluateGeneric;
+import de.invesdwin.util.math.expression.lambda.IEvaluateGenericFDate;
+import de.invesdwin.util.math.expression.lambda.IEvaluateGenericKey;
 import de.invesdwin.util.math.expression.lambda.IEvaluateInteger;
 import de.invesdwin.util.math.expression.lambda.IEvaluateIntegerFDate;
 import de.invesdwin.util.math.expression.lambda.IEvaluateIntegerKey;
@@ -145,6 +148,48 @@ public class BooleanNullableOrOperation extends DoubleBinaryOperation {
         final IEvaluateBoolean leftF = left.newEvaluateBoolean();
         final IEvaluateBoolean rightF = right.newEvaluateBoolean();
         return () -> leftF.evaluateBoolean() || rightF.evaluateBoolean();
+    }
+
+    @Override
+    public IEvaluateGenericKey<String> newEvaluateTrueReasonKey() {
+        final IEvaluateGenericKey<String> leftF = left.newEvaluateTrueReasonKey();
+        final IEvaluateGenericKey<String> rightF = right.newEvaluateTrueReasonKey();
+        return key -> {
+            final String leftStr = leftF.evaluateGeneric(key);
+            if (leftStr != null) {
+                return leftStr;
+            }
+            final String rightStr = rightF.evaluateGeneric(key);
+            return rightStr;
+        };
+    }
+
+    @Override
+    public IEvaluateGeneric<String> newEvaluateTrueReason() {
+        final IEvaluateGeneric<String> leftF = left.newEvaluateTrueReason();
+        final IEvaluateGeneric<String> rightF = right.newEvaluateTrueReason();
+        return () -> {
+            final String leftStr = leftF.evaluateGeneric();
+            if (leftStr != null) {
+                return leftStr;
+            }
+            final String rightStr = rightF.evaluateGeneric();
+            return rightStr;
+        };
+    }
+
+    @Override
+    public IEvaluateGenericFDate<String> newEvaluateTrueReasonFDate() {
+        final IEvaluateGenericFDate<String> leftF = left.newEvaluateTrueReasonFDate();
+        final IEvaluateGenericFDate<String> rightF = right.newEvaluateTrueReasonFDate();
+        return key -> {
+            final String leftStr = leftF.evaluateGeneric(key);
+            if (leftStr != null) {
+                return leftStr;
+            }
+            final String rightStr = rightF.evaluateGeneric(key);
+            return rightStr;
+        };
     }
 
     @Override

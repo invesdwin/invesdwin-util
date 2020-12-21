@@ -385,4 +385,8 @@ public final class Objects extends AObjectsStaticFacade {
         return fixedMatrix;
     }
 
+    public static boolean isNull(final Object obj) {
+        return obj == null;
+    }
+
 }

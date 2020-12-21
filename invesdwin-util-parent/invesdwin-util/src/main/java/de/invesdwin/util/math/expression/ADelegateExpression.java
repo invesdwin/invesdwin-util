@@ -12,6 +12,9 @@ import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanNullableKey;
 import de.invesdwin.util.math.expression.lambda.IEvaluateDouble;
 import de.invesdwin.util.math.expression.lambda.IEvaluateDoubleFDate;
 import de.invesdwin.util.math.expression.lambda.IEvaluateDoubleKey;
+import de.invesdwin.util.math.expression.lambda.IEvaluateGeneric;
+import de.invesdwin.util.math.expression.lambda.IEvaluateGenericFDate;
+import de.invesdwin.util.math.expression.lambda.IEvaluateGenericKey;
 import de.invesdwin.util.math.expression.lambda.IEvaluateInteger;
 import de.invesdwin.util.math.expression.lambda.IEvaluateIntegerFDate;
 import de.invesdwin.util.math.expression.lambda.IEvaluateIntegerKey;
@@ -79,6 +82,51 @@ public abstract class ADelegateExpression implements IExpression {
     @Override
     public IEvaluateIntegerKey newEvaluateIntegerKey() {
         return getDelegate().newEvaluateIntegerKey();
+    }
+
+    @Override
+    public IEvaluateGeneric<String> newEvaluateFalseReason() {
+        return getDelegate().newEvaluateFalseReason();
+    }
+
+    @Override
+    public IEvaluateGenericFDate<String> newEvaluateFalseReasonFDate() {
+        return getDelegate().newEvaluateFalseReasonFDate();
+    }
+
+    @Override
+    public IEvaluateGenericKey<String> newEvaluateFalseReasonKey() {
+        return getDelegate().newEvaluateFalseReasonKey();
+    }
+
+    @Override
+    public IEvaluateGeneric<String> newEvaluateTrueReason() {
+        return getDelegate().newEvaluateTrueReason();
+    }
+
+    @Override
+    public IEvaluateGenericFDate<String> newEvaluateTrueReasonFDate() {
+        return getDelegate().newEvaluateTrueReasonFDate();
+    }
+
+    @Override
+    public IEvaluateGenericKey<String> newEvaluateTrueReasonKey() {
+        return getDelegate().newEvaluateTrueReasonKey();
+    }
+
+    @Override
+    public IEvaluateGeneric<String> newEvaluateNullReason() {
+        return getDelegate().newEvaluateNullReason();
+    }
+
+    @Override
+    public IEvaluateGenericFDate<String> newEvaluateNullReasonFDate() {
+        return getDelegate().newEvaluateNullReasonFDate();
+    }
+
+    @Override
+    public IEvaluateGenericKey<String> newEvaluateNullReasonKey() {
+        return getDelegate().newEvaluateNullReasonKey();
     }
 
     @Override

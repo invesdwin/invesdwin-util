@@ -14,6 +14,9 @@ import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanNullableKey;
 import de.invesdwin.util.math.expression.lambda.IEvaluateDouble;
 import de.invesdwin.util.math.expression.lambda.IEvaluateDoubleFDate;
 import de.invesdwin.util.math.expression.lambda.IEvaluateDoubleKey;
+import de.invesdwin.util.math.expression.lambda.IEvaluateGeneric;
+import de.invesdwin.util.math.expression.lambda.IEvaluateGenericFDate;
+import de.invesdwin.util.math.expression.lambda.IEvaluateGenericKey;
 import de.invesdwin.util.math.expression.lambda.IEvaluateInteger;
 import de.invesdwin.util.math.expression.lambda.IEvaluateIntegerFDate;
 import de.invesdwin.util.math.expression.lambda.IEvaluateIntegerKey;
@@ -183,6 +186,97 @@ public class DynamicPreviousKeyExpression implements IParsedExpression {
 
     @Override
     public IEvaluateBoolean newEvaluateBoolean() {
+        throw new UnsupportedOperationException("use time or int key instead");
+    }
+
+    @Override
+    public IEvaluateGenericFDate<String> newEvaluateFalseReasonFDate() {
+        final IEvaluateIntegerFDate indexF = indexExpression.newEvaluateIntegerFDate();
+        final IEvaluateGenericFDate<String> expressionF = expression.newEvaluateFalseReasonFDate();
+        final IEvaluateGenericFDate<String> prevF = previousKeyFunction.newEvaluateFalseReasonFDate(expression);
+        return key -> {
+            final int index = indexF.evaluateInteger(key);
+            if (index <= 0) {
+                return expressionF.evaluateGeneric(key);
+            } else {
+                final IFDateProvider previousKey = previousKeyFunction.getPreviousKey(key, index);
+                return prevF.evaluateGeneric(previousKey);
+            }
+        };
+    }
+
+    @Override
+    public IEvaluateGenericKey<String> newEvaluateFalseReasonKey() {
+        final IEvaluateIntegerKey indexF = indexExpression.newEvaluateIntegerKey();
+        final IEvaluateGenericKey<String> expressionF = expression.newEvaluateFalseReasonKey();
+        final IEvaluateGenericKey<String> prevF = previousKeyFunction.newEvaluateFalseReasonKey(expression);
+        return key -> {
+            final int index = indexF.evaluateInteger(key);
+            if (index <= 0) {
+                return expressionF.evaluateGeneric(key);
+            } else {
+                final int previousKey = previousKeyFunction.getPreviousKey(key, index);
+                return prevF.evaluateGeneric(previousKey);
+            }
+        };
+    }
+
+    @Override
+    public IEvaluateGeneric<String> newEvaluateFalseReason() {
+        throw new UnsupportedOperationException("use time or int key instead");
+    }
+
+    @Override
+    public IEvaluateGenericFDate<String> newEvaluateTrueReasonFDate() {
+        final IEvaluateIntegerFDate indexF = indexExpression.newEvaluateIntegerFDate();
+        final IEvaluateGenericFDate<String> expressionF = expression.newEvaluateTrueReasonFDate();
+        final IEvaluateGenericFDate<String> prevF = previousKeyFunction.newEvaluateTrueReasonFDate(expression);
+        return key -> {
+            final int index = indexF.evaluateInteger(key);
+            if (index <= 0) {
+                return expressionF.evaluateGeneric(key);
+            } else {
+                final IFDateProvider previousKey = previousKeyFunction.getPreviousKey(key, index);
+                return prevF.evaluateGeneric(previousKey);
+            }
+        };
+    }
+
+    @Override
+    public IEvaluateGenericKey<String> newEvaluateTrueReasonKey() {
+        final IEvaluateIntegerKey indexF = indexExpression.newEvaluateIntegerKey();
+        final IEvaluateGenericKey<String> expressionF = expression.newEvaluateTrueReasonKey();
+        final IEvaluateGenericKey<String> prevF = previousKeyFunction.newEvaluateTrueReasonKey(expression);
+        return key -> {
+            final int index = indexF.evaluateInteger(key);
+            if (index <= 0) {
+                return expressionF.evaluateGeneric(key);
+            } else {
+                final int previousKey = previousKeyFunction.getPreviousKey(key, index);
+                return prevF.evaluateGeneric(previousKey);
+            }
+        };
+    }
+
+    @Override
+    public IEvaluateGeneric<String> newEvaluateTrueReason() {
+        throw new UnsupportedOperationException("use time or int key instead");
+    }
+
+    @Override
+    public IEvaluateGenericFDate<String> newEvaluateNullReasonFDate() {
+        //not nullable
+        return key -> null;
+    }
+
+    @Override
+    public IEvaluateGenericKey<String> newEvaluateNullReasonKey() {
+        //not nullable
+        return key -> null;
+    }
+
+    @Override
+    public IEvaluateGeneric<String> newEvaluateNullReason() {
         throw new UnsupportedOperationException("use time or int key instead");
     }
 
