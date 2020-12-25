@@ -7,4 +7,12 @@ public interface IParsedExpressionProvider {
 
     IParsedExpression asParsedExpression();
 
+    static IParsedExpression toParsedExpression(final IParsedExpressionProvider provider) {
+        if (provider == null) {
+            return null;
+        } else {
+            return provider.asParsedExpression();
+        }
+    }
+
 }
