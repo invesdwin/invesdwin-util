@@ -8,7 +8,7 @@ import de.invesdwin.util.time.fdate.FTimeUnit;
 @NotThreadSafe
 public class LoopInterruptedCheck {
 
-    private final Thread currentThread;
+    protected final Thread currentThread;
     private final long checkIntervalNanos;
     private long nextIntervalNanos;
     private int checksPerInterval;

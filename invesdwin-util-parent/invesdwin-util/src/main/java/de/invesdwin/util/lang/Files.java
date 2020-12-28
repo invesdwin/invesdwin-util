@@ -14,6 +14,8 @@ import org.apache.commons.io.filefilter.TrueFileFilter;
 
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
 import de.invesdwin.util.assertions.Assertions;
+import de.invesdwin.util.concurrent.LoopInterruptedCheck;
+import de.invesdwin.util.concurrent.WrappedExecutorService;
 import de.invesdwin.util.lang.internal.AFilesStaticFacade;
 import de.invesdwin.util.time.duration.Duration;
 import de.invesdwin.util.time.fdate.FDate;
@@ -59,8 +61,11 @@ public final class Files extends AFilesStaticFacade {
             final File fileToDelete = filesToDelete.next();
             fileToDelete.delete();
         }
-        for (final File f : directory.listFiles()) {
-            deleteEmptyDirectories(f);
+        final File[] listFiles = directory.listFiles();
+        if (listFiles != null && listFiles.length > 0) {
+            for (final File f : listFiles) {
+                deleteEmptyDirectories(f);
+            }
         }
     }
 
@@ -69,7 +74,10 @@ public final class Files extends AFilesStaticFacade {
      */
     public static long deleteEmptyDirectories(final File f) {
         final String[] listFiles = f.list();
-        long totalSize = 0;
+        if (listFiles == null || listFiles.length == 0) {
+            return 0L;
+        }
+        long totalSize = 0L;
         for (final String file : listFiles) {
             final File folder = new File(f, file);
             if (folder.isDirectory()) {
@@ -141,6 +149,49 @@ public final class Files extends AFilesStaticFacade {
         } else {
             return false;
         }
+    }
+
+    public static void deleteInParallel(final WrappedExecutorService executor, final File f)
+            throws InterruptedException {
+        final LoopInterruptedCheck interruptedCheck = new LoopInterruptedCheck() {
+            @Override
+            protected void onInterval() throws InterruptedException {
+                if (currentThread.isInterrupted()) {
+                    throw new InterruptedException();
+                }
+            }
+        };
+
+        //delete all files in parallel
+        deleteInParallelFiles(executor, interruptedCheck, f);
+
+        executor.awaitPendingCount(0);
+
+        //delete empty folders
+        deleteQuietly(f);
+    }
+
+    private static void deleteInParallelFiles(final WrappedExecutorService executor,
+            final LoopInterruptedCheck interruptedCheck, final File f) throws InterruptedException {
+        final String[] listFiles = f.list();
+        if (listFiles == null || listFiles.length == 0) {
+            deleteInParallelFile(executor, interruptedCheck, f);
+        } else {
+            for (final String file : listFiles) {
+                final File folderOrFile = new File(f, file);
+                if (folderOrFile.isDirectory()) {
+                    deleteInParallelFiles(executor, interruptedCheck, folderOrFile);
+                } else {
+                    deleteInParallelFile(executor, interruptedCheck, folderOrFile);
+                }
+            }
+        }
+    }
+
+    private static void deleteInParallelFile(final WrappedExecutorService executor,
+            final LoopInterruptedCheck interruptedCheck, final File f) throws InterruptedException {
+        interruptedCheck.check();
+        executor.execute(() -> deleteQuietly(f));
     }
 
 }

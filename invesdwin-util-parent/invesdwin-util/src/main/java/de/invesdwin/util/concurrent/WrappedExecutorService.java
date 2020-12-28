@@ -90,7 +90,7 @@ public class WrappedExecutorService implements ListeningExecutorService {
     @GuardedBy("this")
     private IShutdownHook shutdownHook;
 
-    protected WrappedExecutorService(final ExecutorService delegate, final String name) {
+    public WrappedExecutorService(final ExecutorService delegate, final String name) {
         this.shutdownHook = newShutdownHook(delegate);
         this.name = name;
         this.pendingCountLock = Locks
@@ -300,12 +300,16 @@ public class WrappedExecutorService implements ListeningExecutorService {
         try {
             final Condition condition = pendingCount_condition.get(limit);
             while (getPendingCount() > limit) {
-                Threads.throwIfInterrupted();
+                throwIfInterrupted();
                 condition.await();
             }
         } finally {
             pendingCountLock.unlock();
         }
+    }
+
+    protected void throwIfInterrupted() throws InterruptedException {
+        Threads.throwIfInterrupted();
     }
 
     public void waitOnFullPendingCount() throws InterruptedException {
