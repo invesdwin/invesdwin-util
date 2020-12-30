@@ -254,29 +254,30 @@ public final class URIsConnectOkHttp implements IURIsConnect {
     }
 
     public static InputStreamHttpResponse getInputStream(final Call call) throws IOException {
-        final Response response = call.execute();
-        // https://stackoverflow.com/questions/613307/read-error-response-body-in-java
-        if (response.isSuccessful()) {
-            final InputStreamHttpResponseConsumer consumer = new InputStreamHttpResponseConsumer();
-            consumer.start(new HttpResponseOkHttp(response));
-            consumer.data(response.body().byteStream());
-            final InputStreamHttpResponse result = consumer.buildResult();
-            consumer.releaseResources();
-            return result;
-        } else {
-            final int respCode = response.code();
-            final String urlString = call.request().url().toString();
-            if (respCode == HttpURLConnection.HTTP_NOT_FOUND || respCode == HttpURLConnection.HTTP_GONE) {
-                throw new FileNotFoundException(urlString);
+        try (Response response = call.execute()) {
+            // https://stackoverflow.com/questions/613307/read-error-response-body-in-java
+            if (response.isSuccessful()) {
+                final InputStreamHttpResponseConsumer consumer = new InputStreamHttpResponseConsumer();
+                consumer.start(new HttpResponseOkHttp(response));
+                consumer.data(response.body().byteStream());
+                final InputStreamHttpResponse result = consumer.buildResult();
+                consumer.releaseResources();
+                return result;
             } else {
-                if (respCode == HttpURLConnection.HTTP_INTERNAL_ERROR) {
-                    final String errorStr = response.body().string();
-                    throw new IOException("Server returned HTTP" + " response code: " + respCode + " for URL: "
-                            + urlString + " error response:" + "\n*****************************" + errorStr
-                            + "*****************************");
+                final int respCode = response.code();
+                final String urlString = call.request().url().toString();
+                if (respCode == HttpURLConnection.HTTP_NOT_FOUND || respCode == HttpURLConnection.HTTP_GONE) {
+                    throw new FileNotFoundException(urlString);
                 } else {
-                    throw new IOException(
-                            "Server returned HTTP" + " response code: " + respCode + " for URL: " + urlString);
+                    if (respCode == HttpURLConnection.HTTP_INTERNAL_ERROR) {
+                        final String errorStr = response.body().string();
+                        throw new IOException("Server returned HTTP" + " response code: " + respCode + " for URL: "
+                                + urlString + " error response:" + "\n*****************************" + errorStr
+                                + "*****************************");
+                    } else {
+                        throw new IOException(
+                                "Server returned HTTP" + " response code: " + respCode + " for URL: " + urlString);
+                    }
                 }
             }
         }
