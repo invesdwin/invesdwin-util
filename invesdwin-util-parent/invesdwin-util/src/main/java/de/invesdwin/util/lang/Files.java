@@ -41,12 +41,15 @@ public final class Files extends AFilesStaticFacade {
     private static final String[] NORMALIZE_PATH_SEARCH = { ":", "@", "*", "?", "<", ">", "=", "\"", "|" };
     private static final String[] NORMALIZE_PATH_REPLACE = { "c", "a", "m", "q", "l", "g", "e", "u", "p" };
 
-    private static Boolean deleteNativeUnixAvailable = true;
-    private static Boolean deleteNativeWindowsAvailable = OperatingSystem.isWindows();
+    private static Boolean deleteNativeUnixAvailable = null;
+    private static Boolean deleteNativeWindowsAvailable = null;
 
     static {
         Assertions.assertThat(NORMALIZE_FILENAME_SEARCH.length).isEqualByComparingTo(NORMALIZE_FILENAME_REPLACE.length);
         Assertions.assertThat(NORMALIZE_PATH_SEARCH.length).isEqualByComparingTo(NORMALIZE_PATH_REPLACE.length);
+        if (!OperatingSystem.isWindows()) {
+            deleteNativeWindowsAvailable = false;
+        }
     }
 
     private Files() {
