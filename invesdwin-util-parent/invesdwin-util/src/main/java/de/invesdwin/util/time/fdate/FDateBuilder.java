@@ -4,24 +4,34 @@ import java.util.TimeZone;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import org.joda.time.DateTime;
+import org.joda.time.Chronology;
 import org.joda.time.DateTimeZone;
-import org.joda.time.MutableDateTime;
-
-import de.invesdwin.util.lang.Objects;
+import org.joda.time.chrono.ISOChronology;
 
 @NotThreadSafe
 public class FDateBuilder {
 
-    private Integer years;
-    private Integer months;
+    private int years = 1;
+    private int months = 1;
     private FWeekday weekday;
-    private Integer days;
-    private Integer hours;
-    private Integer minutes;
-    private Integer seconds;
-    private Integer milliseconds;
-    private TimeZone timeZone;
+    private int days = 0;
+    private int hours = 0;
+    private int minutes = 0;
+    private int seconds = 0;
+    private int milliseconds = 0;
+    private Chronology timeZone = FDates.getDefaultChronology();
+
+    public void reset() {
+        years = 1;
+        months = 1;
+        weekday = null;
+        days = 0;
+        hours = 0;
+        minutes = 0;
+        seconds = 0;
+        milliseconds = 0;
+        timeZone = FDates.getDefaultChronology();
+    }
 
     public FDateBuilder withDate(final FDate date) {
         this.years = date.getYear();
@@ -40,17 +50,17 @@ public class FDateBuilder {
 
     public FDateBuilder withWeekTime(final FWeekTime weekTime) {
         this.weekday = weekTime.getFWeekday();
-        this.hours = (int) weekTime.getHour();
-        this.minutes = (int) weekTime.getMinute();
+        this.hours = weekTime.getHour();
+        this.minutes = weekTime.getMinute();
         return this;
     }
 
-    public FDateBuilder withYears(final Integer years) {
+    public FDateBuilder withYears(final int years) {
         this.years = years;
         return this;
     }
 
-    public FDateBuilder withMonths(final Integer months) {
+    public FDateBuilder withMonths(final int months) {
         this.months = months;
         return this;
     }
@@ -60,107 +70,152 @@ public class FDateBuilder {
         return this;
     }
 
-    public FDateBuilder withWeekday(final Integer weekday) {
-        if (weekday == null) {
-            this.weekday = null;
-        } else {
-            this.weekday = FWeekday.valueOfIndex(weekday);
-        }
+    public FDateBuilder withWeekday(final int weekday) {
+        this.weekday = FWeekday.valueOfIndex(weekday);
         return this;
     }
 
-    public FDateBuilder withDays(final Integer days) {
+    public FDateBuilder withDays(final int days) {
         this.days = days;
         return this;
     }
 
-    public FDateBuilder withHours(final Integer hours) {
+    public FDateBuilder withHours(final int hours) {
         this.hours = hours;
         return this;
     }
 
-    public FDateBuilder withMinutes(final Integer minutes) {
+    public FDateBuilder withMinutes(final int minutes) {
         this.minutes = minutes;
         return this;
     }
 
-    public FDateBuilder withSeconds(final Integer seconds) {
+    public FDateBuilder withSeconds(final int seconds) {
         this.seconds = seconds;
         return this;
     }
 
-    public FDateBuilder withMilliseconds(final Integer milliseconds) {
+    public FDateBuilder withMilliseconds(final int milliseconds) {
         this.milliseconds = milliseconds;
         return this;
     }
 
     public FDateBuilder withTimeZone(final TimeZone timeZone) {
+        this.timeZone = ISOChronology.getInstance(DateTimeZone.forTimeZone(timeZone));
+        return this;
+    }
+
+    public FDateBuilder withTimeZone(final Chronology timeZone) {
         this.timeZone = timeZone;
         return this;
     }
 
-    public FDate get() {
-        final int year = Objects.defaultIfNull(years, 1);
-        final int monthOfYear = Objects.defaultIfNull(months, 1);
-        final int dayOfMonth = Objects.defaultIfNull(days, 0);
-        final int hourOfDay = Objects.defaultIfNull(hours, 0);
-        final int minuteOfHour = Objects.defaultIfNull(minutes, 0);
-        final int secondOfMinute = Objects.defaultIfNull(seconds, 0);
-        final int millisOfSecond = Objects.defaultIfNull(milliseconds, 0);
-        final DateTimeZone zone;
-        if (timeZone != null) {
-            zone = DateTimeZone.forTimeZone(timeZone);
-        } else {
-            zone = DateTimeZone.getDefault();
-        }
-        final DateTime dateTime = new DateTime(year, monthOfYear, dayOfMonth, hourOfDay, minuteOfHour, secondOfMinute,
-                millisOfSecond, zone);
+    public FDate getDate() {
+        return new FDate(getMillis());
+    }
+
+    public long getMillis() {
+        final long dateTime = timeZone.getDateTimeMillis(years, months, days, hours, minutes, seconds, milliseconds);
         if (weekday == null) {
-            return new FDate(dateTime);
+            return dateTime;
         } else {
-            final MutableDateTime mutableDateTime = dateTime.toMutableDateTime();
-            mutableDateTime.set(FDateField.Weekday.jodaTimeValue(), weekday.jodaTimeValue());
-            return new FDate(mutableDateTime);
+            final long dateTimeWeekday = FDateField.Weekday.jodaTimeValue()
+                    .getField(timeZone)
+                    .set(dateTime, weekday.jodaTimeValue());
+            return dateTimeWeekday;
         }
     }
 
-    public static FDate newDate(final Integer years) {
+    public static FDate newDate(final int years) {
         return newDate(years, 1);
     }
 
-    public static FDate newDate(final Integer years, final Integer months) {
+    public static FDate newDate(final int years, final int months) {
         return newDate(years, months, 1);
     }
 
-    public static FDate newDate(final Integer years, final Integer months, final Integer days) {
+    public static FDate newDate(final int years, final int months, final int days) {
         return newDate(years, months, days, 0);
     }
 
-    public static FDate newDate(final Integer years, final Integer months, final Integer days, final Integer hours) {
+    public static FDate newDate(final int years, final int months, final int days, final int hours) {
         return newDate(years, months, days, hours, 0);
     }
 
-    public static FDate newDate(final Integer years, final Integer months, final Integer days, final Integer hours,
-            final Integer minutes) {
+    public static FDate newDate(final int years, final int months, final int days, final int hours, final int minutes) {
         return newDate(years, months, days, hours, minutes, 0);
     }
 
-    public static FDate newDate(final Integer years, final Integer months, final Integer days, final Integer hours,
-            final Integer minutes, final Integer seconds) {
+    public static FDate newDate(final int years, final int months, final int days, final int hours, final int minutes,
+            final int seconds) {
         return newDate(years, months, days, hours, minutes, seconds, 0);
     }
 
-    public static FDate newDate(final Integer years, final Integer months, final Integer days, final Integer hours,
-            final Integer minutes, final Integer seconds, final Integer milliseconds) {
-        final FDateBuilder db = new FDateBuilder();
-        db.withYears(years);
-        db.withMonths(months);
-        db.withDays(days);
-        db.withHours(hours);
-        db.withMinutes(minutes);
-        db.withSeconds(seconds);
-        db.withMilliseconds(milliseconds);
-        return db.get();
+    public static FDate newDate(final int years, final int months, final int days, final int hours, final int minutes,
+            final int seconds, final int milliseconds) {
+        return newDate(years, months, days, hours, minutes, seconds, milliseconds, FDates.getDefaultChronology());
+    }
+
+    //CHECKSTYLE:OFF
+    public static FDate newDate(final int years, final int months, final int days, final int hours, final int minutes,
+            final int seconds, final int milliseconds, final TimeZone timeZone) {
+        //CHECKSTYLE:ON
+        final ISOChronology chronology = ISOChronology.getInstance(DateTimeZone.forTimeZone(timeZone));
+        return newDate(years, months, days, hours, minutes, seconds, milliseconds, chronology);
+    }
+
+    //CHECKSTYLE:OFF
+    public static FDate newDate(final int years, final int months, final int days, final int hours, final int minutes,
+            final int seconds, final int milliseconds, final Chronology timeZone) {
+        //CHECKSTYLE:ON
+        return new FDate(newMillis(years, months, days, hours, minutes, seconds, milliseconds, timeZone));
+    }
+
+    public static long newMillis(final int years) {
+        return newMillis(years, 1);
+    }
+
+    public static long newMillis(final int years, final int months) {
+        return newMillis(years, months, 1);
+    }
+
+    public static long newMillis(final int years, final int months, final int days) {
+        return newMillis(years, months, days, 0);
+    }
+
+    public static long newMillis(final int years, final int months, final int days, final int hours) {
+        return newMillis(years, months, days, hours, 0);
+    }
+
+    public static long newMillis(final int years, final int months, final int days, final int hours,
+            final int minutes) {
+        return newMillis(years, months, days, hours, minutes, 0);
+    }
+
+    public static long newMillis(final int years, final int months, final int days, final int hours, final int minutes,
+            final int seconds) {
+        return newMillis(years, months, days, hours, minutes, seconds, 0);
+    }
+
+    public static long newMillis(final int years, final int months, final int days, final int hours, final int minutes,
+            final int seconds, final int milliseconds) {
+        return newMillis(years, months, days, hours, minutes, seconds, milliseconds, FDates.getDefaultChronology());
+    }
+
+    //CHECKSTYLE:OFF
+    public static long newMillis(final int years, final int months, final int days, final int hours, final int minutes,
+            final int seconds, final int milliseconds, final TimeZone timeZone) {
+        //CHECKSTYLE:ON
+        final ISOChronology chronology = ISOChronology.getInstance(DateTimeZone.forTimeZone(timeZone));
+        return newMillis(years, months, days, hours, minutes, seconds, milliseconds, chronology);
+    }
+
+    //CHECKSTYLE:OFF
+    public static long newMillis(final int years, final int months, final int days, final int hours, final int minutes,
+            final int seconds, final int milliseconds, final Chronology timeZone) {
+        //CHECKSTYLE:ON
+        final long dateTime = timeZone.getDateTimeMillis(years, months, days, hours, minutes, seconds, milliseconds);
+        return dateTime;
     }
 
 }

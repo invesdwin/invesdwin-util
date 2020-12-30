@@ -232,4 +232,21 @@ public enum FWeekday {
         return !isWeekend();
     }
 
+    public static FWeekday valueOfMillis(final long millis) {
+        //no conversion needed since joda time has same index
+        final int index = indexOfMillis(millis);
+        return valueOfIndex(index);
+    }
+
+    public static int indexOfMillis(final long millis) {
+        //no conversion needed since joda time has same index
+        final int index = FDates.getDefaultChronology().dayOfWeek().get(millis);
+        return index;
+    }
+
+    public static boolean isWeekendMillis(final long millis) {
+        final int indexOfMillis = indexOfMillis(millis);
+        return indexOfMillis >= DateTimeConstants.SATURDAY;
+    }
+
 }

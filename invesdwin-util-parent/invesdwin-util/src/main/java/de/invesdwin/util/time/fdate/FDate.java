@@ -14,11 +14,12 @@ import java.util.TimeZone;
 import javax.annotation.concurrent.ThreadSafe;
 import javax.persistence.Transient;
 
+import org.joda.time.Chronology;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeField;
 import org.joda.time.DateTimeZone;
 import org.joda.time.DurationFieldType;
 import org.joda.time.LocalDateTime;
-import org.joda.time.MutableDateTime;
 import org.joda.time.ReadableDateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -291,13 +292,16 @@ public class FDate
     }
 
     public FDate setFWeekTime(final FWeekTime weekTime) {
-        final MutableDateTime delegate = newMutableDateTime();
-        delegate.set(FDateField.Weekday.jodaTimeValue(), weekTime.getWeekday());
-        delegate.set(FDateField.Hour.jodaTimeValue(), weekTime.getHour());
-        delegate.set(FDateField.Minute.jodaTimeValue(), weekTime.getMinute());
-        delegate.set(FDateField.Second.jodaTimeValue(), weekTime.getSecond());
-        delegate.set(FDateField.Millisecond.jodaTimeValue(), weekTime.getMillisecond());
-        final FDate modified = new FDate(delegate);
+        final Chronology chronology = FDates.getDefaultChronology();
+        long newMillis = millis;
+        newMillis = FDateField.Weekday.jodaTimeValue().getField(chronology).set(newMillis, weekTime.getWeekday());
+        newMillis = FDateField.Hour.jodaTimeValue().getField(chronology).set(newMillis, weekTime.getHour());
+        newMillis = FDateField.Minute.jodaTimeValue().getField(chronology).set(newMillis, weekTime.getMinute());
+        newMillis = FDateField.Second.jodaTimeValue().getField(chronology).set(newMillis, weekTime.getSecond());
+        newMillis = FDateField.Millisecond.jodaTimeValue()
+                .getField(chronology)
+                .set(newMillis, weekTime.getMillisecond());
+        final FDate modified = new FDate(newMillis);
         if (!FDates.isSameJulianDay(modified, this) && modified.isAfter(this)) {
             return modified.addWeeks(-1);
         } else {
@@ -360,7 +364,7 @@ public class FDate
     }
 
     public FDate addDays(final int days) {
-        return add(FTimeUnit.DAYS, days);
+        return addMilliseconds(FDates.MILLISECONDS_IN_DAY * days);
     }
 
     public FDate addWeeks(final int weeks, final ZoneId timeZone) {
@@ -376,15 +380,15 @@ public class FDate
     }
 
     public FDate addHours(final int hours) {
-        return add(FTimeUnit.HOURS, hours);
+        return addMilliseconds(FDates.MILLISECONDS_IN_HOUR * hours);
     }
 
     public FDate addMinutes(final int minutes) {
-        return add(FTimeUnit.MINUTES, minutes);
+        return addMilliseconds(FDates.MILLISECONDS_IN_MINUTE * minutes);
     }
 
     public FDate addSeconds(final int seconds) {
-        return add(FTimeUnit.SECONDS, seconds);
+        return addMilliseconds(FDates.MILLISECONDS_IN_SECOND * seconds);
     }
 
     public FDate addMilliseconds(final long milliseconds) {
@@ -404,9 +408,8 @@ public class FDate
     }
 
     public FDate set(final FDateField field, final int value) {
-        final MutableDateTime delegate = newMutableDateTime();
-        delegate.set(field.jodaTimeValue(), value);
-        return new FDate(delegate);
+        final long newMillis = field.jodaTimeValue().getField(FDates.getDefaultChronology()).set(millis, value);
+        return new FDate(newMillis);
     }
 
     public FDate add(final FTimeUnit field, final int value, final ZoneId timeZone) {
@@ -417,7 +420,6 @@ public class FDate
         if (amount == 0) {
             return this;
         }
-        final MutableDateTime delegate = newMutableDateTime();
         final int usedAmount;
         final DurationFieldType usedField;
         switch (field) {
@@ -438,8 +440,9 @@ public class FDate
             usedAmount = amount;
             break;
         }
-        delegate.add(usedField, usedAmount);
-        return new FDate(delegate);
+        final Chronology chronology = FDates.getDefaultChronology();
+        final long newMillis = usedField.getField(chronology).add(millis, usedAmount);
+        return new FDate(newMillis);
     }
 
     public FDate add(final Duration duration) {
@@ -455,8 +458,7 @@ public class FDate
     }
 
     public int getWeekNumberOfYear() {
-        final MutableDateTime delegate = newMutableDateTime();
-        return delegate.getWeekOfWeekyear();
+        return FDates.getDefaultChronology().weekOfWeekyear().get(millis);
     }
 
     public int getWeekNumberOfMonth(final ZoneId timeZone) {
@@ -475,9 +477,9 @@ public class FDate
     }
 
     public FDate truncate(final FDateField field) {
-        final MutableDateTime delegate = newMutableDateTime();
-        delegate.setRounding(field.jodaTimeValue().getField(delegate.getChronology()));
-        final FDate truncated = new FDate(delegate);
+        final DateTimeField jodaField = field.jodaTimeValue().getField(FDates.getDefaultChronology());
+        final long newMillis = jodaField.roundFloor(millis);
+        final FDate truncated = new FDate(newMillis);
         return truncated;
     }
 
@@ -839,7 +841,7 @@ public class FDate
     }
 
     public String toString(final String format, final TimeZone timeZone) {
-        final MutableDateTime delegate = newMutableDateTime();
+        final DateTime delegate = new DateTime(millis, FDates.getDefaultChronology());
         DateTimeFormatter df = DateTimeFormat.forPattern(format);
         if (timeZone != null) {
             df = df.withZone(DateTimeZone.forTimeZone(timeZone));
@@ -858,10 +860,6 @@ public class FDate
             df = df.withZone(FDates.getDefaultZoneId());
         }
         return df.format(delegate);
-    }
-
-    private MutableDateTime newMutableDateTime() {
-        return new MutableDateTime(millis, FDates.getDefaultChronology());
     }
 
     public boolean isBefore(final FDate other) {

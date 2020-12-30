@@ -31,13 +31,13 @@ public class TimeZonesTest {
 
     private void showTimeZoneInfo(final TimeZone targetTimeZone) {
         final FDateBuilder db = new FDateBuilder().withHours(8).withTimeZone(targetTimeZone);
-        final FDate inDst = db.withDate(FDateBuilder.newDate(2013, 8, 1)).get();
+        final FDate inDst = db.withDate(FDateBuilder.newDate(2013, 8, 1)).getDate();
         System.out.println(String.format("%s: %s dst=%s", targetTimeZone.getID(), inDst, //SUPPRESS CHECKSTYLE single line
                 targetTimeZone.inDaylightTime(inDst.dateValue())));
         final TimeZone universalTimeZone = TimeZones.getTimeZone("UTC");
         System.out.println(String.format("%s: %s dst=%s", universalTimeZone.getID(), inDst.toString(universalTimeZone), //SUPPRESS CHECKSTYLE single line
                 targetTimeZone.inDaylightTime(inDst.dateValue())));
-        final FDate noDst = db.withDate(FDateBuilder.newDate(2013, 3, 1)).get();
+        final FDate noDst = db.withDate(FDateBuilder.newDate(2013, 3, 1)).getDate();
         System.out.println(String.format("%s: %s dst=%s", targetTimeZone.getID(), noDst, //SUPPRESS CHECKSTYLE single line
                 targetTimeZone.inDaylightTime(noDst.dateValue())));
         System.out.println(String.format("%s: %s dst=%s", universalTimeZone.getID(), noDst.toString(universalTimeZone), //SUPPRESS CHECKSTYLE single line
