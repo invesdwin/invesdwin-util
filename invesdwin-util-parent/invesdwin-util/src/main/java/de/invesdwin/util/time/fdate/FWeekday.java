@@ -232,22 +232,33 @@ public enum FWeekday {
         return !isWeekend();
     }
 
-    public static FWeekday valueOfMillis(final long millis) {
+    public static FWeekday valueOfJulian(final FDate date) {
+        return valueOfJulian(date.millisValue());
+    }
+
+    public static FWeekday valueOfJulian(final long millis) {
         //no conversion needed since joda time has same index
-        final int index = indexOfMillis(millis);
+        final int index = indexOfJulian(millis);
         return valueOfIndex(index);
     }
 
-    public static int indexOfMillis(final long millis) {
-        //Extracted from: final int index = FDates.getDefaultChronology().dayOfWeek().get(millis);
+    public static int indexOfJulian(final FDate date) {
+        return indexOfJulian(date.millisValue());
+    }
+
+    public static int indexOfJulian(final long millis) {
         // 1970-01-01 is day of week 4, Thursday.
         final long daysSince19700101 = millis / FTimeUnit.MILLISECONDS_IN_DAY;
         return 1 + (int) ((daysSince19700101 + 3) % 7);
     }
 
-    public static boolean isWeekendMillis(final long millis) {
-        final int indexOfMillis = indexOfMillis(millis);
+    public static boolean isJulianWeekend(final long millis) {
+        final int indexOfMillis = indexOfJulian(millis);
         return indexOfMillis >= DateTimeConstants.SATURDAY;
+    }
+
+    public static boolean isJulianWeekend(final FDate date) {
+        return isJulianWeekend(date.millisValue());
     }
 
 }
