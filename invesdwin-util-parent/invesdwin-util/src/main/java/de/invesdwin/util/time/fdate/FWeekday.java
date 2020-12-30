@@ -239,9 +239,10 @@ public enum FWeekday {
     }
 
     public static int indexOfMillis(final long millis) {
-        //no conversion needed since joda time has same index
-        final int index = FDates.getDefaultChronology().dayOfWeek().get(millis);
-        return index;
+        //Extracted from: final int index = FDates.getDefaultChronology().dayOfWeek().get(millis);
+        // 1970-01-01 is day of week 4, Thursday.
+        final long daysSince19700101 = millis / FTimeUnit.MILLISECONDS_IN_DAY;
+        return 1 + (int) ((daysSince19700101 + 3) % 7);
     }
 
     public static boolean isWeekendMillis(final long millis) {
