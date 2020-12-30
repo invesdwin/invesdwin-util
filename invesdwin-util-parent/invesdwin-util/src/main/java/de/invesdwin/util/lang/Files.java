@@ -14,8 +14,7 @@ import org.apache.commons.io.filefilter.TrueFileFilter;
 
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
 import de.invesdwin.util.assertions.Assertions;
-import de.invesdwin.util.concurrent.LoopInterruptedCheck;
-import de.invesdwin.util.concurrent.WrappedExecutorService;
+import de.invesdwin.util.concurrent.Threads;
 import de.invesdwin.util.lang.internal.AFilesStaticFacade;
 import de.invesdwin.util.time.duration.Duration;
 import de.invesdwin.util.time.fdate.FDate;
@@ -41,6 +40,9 @@ public final class Files extends AFilesStaticFacade {
             "b" };
     private static final String[] NORMALIZE_PATH_SEARCH = { ":", "@", "*", "?", "<", ">", "=", "\"", "|" };
     private static final String[] NORMALIZE_PATH_REPLACE = { "c", "a", "m", "q", "l", "g", "e", "u", "p" };
+
+    private static Boolean deleteNativeUnixAvailable = true;
+    private static Boolean deleteNativeWindowsAvailable = OperatingSystem.isWindows();
 
     static {
         Assertions.assertThat(NORMALIZE_FILENAME_SEARCH.length).isEqualByComparingTo(NORMALIZE_FILENAME_REPLACE.length);
@@ -151,47 +153,115 @@ public final class Files extends AFilesStaticFacade {
         }
     }
 
-    public static void deleteInParallel(final WrappedExecutorService executor, final File f)
-            throws InterruptedException {
-        final LoopInterruptedCheck interruptedCheck = new LoopInterruptedCheck() {
-            @Override
-            protected void onInterval() throws InterruptedException {
-                if (currentThread.isInterrupted()) {
-                    throw new InterruptedException();
-                }
-            }
-        };
-
-        //delete all files in parallel
-        deleteInParallelFiles(executor, interruptedCheck, f);
-
-        executor.awaitPendingCount(0);
-
-        //delete empty folders
-        deleteQuietly(f);
+    public static boolean deleteFast(final File file) {
+        //rm with cygwin is also faster on windows because it does an unlink only
+        if (deleteNativeUnixIfAvailable(file)) {
+            return true;
+        }
+        if (deleteNativeWindowsIfAvailable(file)) {
+            return true;
+        }
+        return deleteQuietly(file);
     }
 
-    private static void deleteInParallelFiles(final WrappedExecutorService executor,
-            final LoopInterruptedCheck interruptedCheck, final File f) throws InterruptedException {
-        final String[] listFiles = f.list();
-        if (listFiles == null || listFiles.length == 0) {
-            deleteInParallelFile(executor, interruptedCheck, f);
-        } else {
-            for (final String file : listFiles) {
-                final File folderOrFile = new File(f, file);
-                if (folderOrFile.isDirectory()) {
-                    deleteInParallelFiles(executor, interruptedCheck, folderOrFile);
-                } else {
-                    deleteInParallelFile(executor, interruptedCheck, folderOrFile);
+    private static boolean deleteNativeUnixIfAvailable(final File file) {
+        if (deleteNativeUnixAvailable == null) {
+            final boolean success = deleteNativeUnix(file) && !file.exists();
+            if (success) {
+                deleteNativeUnixAvailable = true;
+                return true;
+            } else {
+                if (!Threads.isInterrupted()) {
+                    try {
+                        final File tempDir = createNativeDeleteTestDir();
+                        final boolean returnCode = deleteNativeUnix(tempDir);
+                        final boolean stillExists = tempDir.exists();
+                        if (stillExists) {
+                            deleteQuietly(tempDir);
+                        }
+                        deleteNativeUnixAvailable = returnCode && stillExists;
+                    } catch (final IOException e) {
+                        //we just give up
+                        deleteNativeUnixAvailable = false;
+                    }
                 }
+                return false;
             }
+        } else if (!deleteNativeUnixAvailable) {
+            return false;
+        } else {
+            return deleteNativeUnix(file);
         }
     }
 
-    private static void deleteInParallelFile(final WrappedExecutorService executor,
-            final LoopInterruptedCheck interruptedCheck, final File f) throws InterruptedException {
-        interruptedCheck.check();
-        executor.execute(() -> deleteQuietly(f));
+    /**
+     * https://stackoverflow.com/questions/186737/whats-the-fastest-way-to-delete-a-large-folder-in-windows/6208144#6208144
+     */
+    private static boolean deleteNativeWindowsIfAvailable(final File file) {
+        if (deleteNativeWindowsAvailable == null) {
+            final boolean success = deleteNativeWindows(file) && !file.exists();
+            if (success) {
+                deleteNativeWindowsAvailable = true;
+                return true;
+            } else {
+                if (!Threads.isInterrupted()) {
+                    try {
+                        final File tempDir = createNativeDeleteTestDir();
+                        final boolean returnCode = deleteNativeWindows(tempDir);
+                        final boolean stillExists = tempDir.exists();
+                        if (stillExists) {
+                            deleteQuietly(tempDir);
+                        }
+                        deleteNativeWindowsAvailable = returnCode && stillExists;
+                    } catch (final IOException e) {
+                        //we just give up
+                        deleteNativeWindowsAvailable = false;
+                    }
+                }
+                return false;
+            }
+        } else if (!deleteNativeWindowsAvailable) {
+            return false;
+        } else {
+            return deleteNativeWindows(file);
+        }
+    }
+
+    private static File createNativeDeleteTestDir() throws IOException {
+        final String nativeDeleteTest = "nativeDeleteTest";
+        final File tempDir = createTempDirectory(nativeDeleteTest).toFile();
+        writeStringToFile(new File(tempDir, nativeDeleteTest + ".txt"), nativeDeleteTest, Charset.defaultCharset());
+        return tempDir;
+    }
+
+    private static boolean deleteNativeUnix(final File file) {
+        try {
+            final String deleteCommand = "rm -rf " + file.getAbsolutePath();
+            final Runtime runtime = Runtime.getRuntime();
+            final Process process = runtime.exec(deleteCommand);
+            final int returnCode = process.waitFor();
+            return returnCode == 0;
+        } catch (final Exception e) {
+            return false;
+        }
+    }
+
+    private static boolean deleteNativeWindows(final File file) {
+        try {
+            final String path = file.getAbsolutePath();
+            final String deleteCommand;
+            if (file.isDirectory()) {
+                deleteCommand = "del /f/s/q " + path + " > nul && rmdir /s/q " + path + " > nul";
+            } else {
+                deleteCommand = "del /f/s/q " + path + " > nul";
+            }
+            final Runtime runtime = Runtime.getRuntime();
+            final Process process = runtime.exec(deleteCommand);
+            final int returnCode = process.waitFor();
+            return returnCode == 0;
+        } catch (final Exception e) {
+            return false;
+        }
     }
 
 }
