@@ -254,8 +254,9 @@ public final class Files extends AFilesStaticFacade {
             final String path = file.getAbsolutePath();
             final String deleteCommand;
             if (file.isDirectory()) {
-                deleteCommand = "del /f/s/q " + path + " > nul && rmdir /s/q " + path + " > nul";
+                deleteCommand = "del /f/s/q " + path + " > nul & rmdir /s/q " + path + " > nul";
             } else {
+                //rmdir would give a 9009 return code if file does not exist
                 deleteCommand = "del /f/s/q " + path + " > nul";
             }
             final Runtime runtime = Runtime.getRuntime();
