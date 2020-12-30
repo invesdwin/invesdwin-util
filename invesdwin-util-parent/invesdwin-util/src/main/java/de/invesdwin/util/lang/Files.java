@@ -197,9 +197,6 @@ public final class Files extends AFilesStaticFacade {
         }
     }
 
-    /**
-     * https://stackoverflow.com/questions/186737/whats-the-fastest-way-to-delete-a-large-folder-in-windows/6208144#6208144
-     */
     private static boolean deleteNativeWindowsIfAvailable(final File file) {
         if (deleteNativeWindowsAvailable == null) {
             final boolean success = deleteNativeWindows(file) && !file.exists();
@@ -249,6 +246,9 @@ public final class Files extends AFilesStaticFacade {
         }
     }
 
+    /**
+     * https://stackoverflow.com/questions/186737/whats-the-fastest-way-to-delete-a-large-folder-in-windows/6208144#6208144
+     */
     private static boolean deleteNativeWindows(final File file) {
         try {
             final String path = file.getAbsolutePath();
