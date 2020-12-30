@@ -156,7 +156,7 @@ public final class Files extends AFilesStaticFacade {
         }
     }
 
-    public static boolean deleteFast(final File file) {
+    public static boolean deleteNative(final File file) {
         //rm with cygwin is also faster on windows because it does an unlink only
         if (deleteNativeUnixIfAvailable(file)) {
             return true;
