@@ -236,7 +236,7 @@ public final class Files extends AFilesStaticFacade {
 
     private static boolean deleteNativeUnix(final File file) {
         try {
-            final String deleteCommand = "rm -rf " + file.getAbsolutePath();
+            final String deleteCommand = "rm -rf \"" + file.getAbsolutePath() + "\"";
             final Runtime runtime = Runtime.getRuntime();
             final Process process = runtime.exec(deleteCommand);
             final int returnCode = process.waitFor();
@@ -254,10 +254,10 @@ public final class Files extends AFilesStaticFacade {
             final String path = file.getAbsolutePath();
             final String deleteCommand;
             if (file.isDirectory()) {
-                deleteCommand = "del /f/s/q " + path + " > nul & rmdir /s/q " + path + " > nul";
+                deleteCommand = "del /f/s/q \"" + path + "\" > nul & rmdir /s/q \"" + path + "\" > nul";
             } else {
                 //rmdir would give a 9009 return code if file does not exist
-                deleteCommand = "del /f/s/q " + path + " > nul";
+                deleteCommand = "del /f/s/q \"" + path + "\" > nul";
             }
             final Runtime runtime = Runtime.getRuntime();
             final Process process = runtime.exec(deleteCommand);
