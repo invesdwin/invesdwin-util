@@ -1,15 +1,18 @@
 package de.invesdwin.util.lang;
 
-import java.util.Random;
 import java.util.UUID;
-import java.util.concurrent.ThreadLocalRandom;
 
 import javax.annotation.concurrent.Immutable;
+
+import org.apache.commons.math3.random.RandomGenerator;
+
+import de.invesdwin.util.math.random.RandomGenerators;
 
 @Immutable
 public final class UUIDs {
 
-    private UUIDs() {}
+    private UUIDs() {
+    }
 
     public static String newRandomUUID() {
         return UUID.randomUUID().toString();
@@ -22,7 +25,7 @@ public final class UUIDs {
      * See: http://stackoverflow.com/questions/14532976/performance-of-random-uuid-generation-with-java-7-or-java-6
      */
     public static String newPseudorandomUUID() {
-        final Random random = ThreadLocalRandom.current();
+        final RandomGenerator random = RandomGenerators.currentThreadLocalRandom();
         return new UUID(random.nextLong(), random.nextLong()).toString();
     }
 
