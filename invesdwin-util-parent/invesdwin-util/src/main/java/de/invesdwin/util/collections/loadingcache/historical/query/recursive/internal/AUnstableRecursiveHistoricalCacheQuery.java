@@ -187,21 +187,12 @@ public abstract class AUnstableRecursiveHistoricalCacheQuery<V> implements IRecu
                 }
             }
         } catch (final ResetCacheException e) {
-            countResets++;
-            if (countResets % AContinuousRecursiveHistoricalCacheQuery.COUNT_RESETS_BEFORE_WARNING == 0
-                    || AHistoricalCache.isDebugAutomaticReoptimization()) {
-                if (LOG.isWarnEnabled()) {
-                    //CHECKSTYLE:OFF
-                    LOG.warn(
-                            "{}: resetting {} for the {}. time now and retrying after exception [{}: {}], if this happens too often we might encounter bad performance due to inefficient caching",
-                            parent, getClass().getSimpleName(), countResets, e.getClass().getSimpleName(),
-                            e.getMessage());
-                    //CHECKSTYLE:ON
-                }
-            }
             final int newTries = tries + 1;
             if (newTries <= AContinuousRecursiveHistoricalCacheQuery.MAX_TRIES) {
-                LOG.warn("%s: Trying " + newTries + ". recovery from: %s", parent.toString(), e.toString());
+                incrementResets(e);
+                //CHECKSTYLE:OFF
+                LOG.warn("{}: Trying " + newTries + ". recovery from: {}", parent.toString(), e.toString());
+                //CHECKSTYLE:ON
                 try {
                     //give it some time, might be initializing
                     AContinuousRecursiveHistoricalCacheQuery.RETRY_SLEEP.sleep();
@@ -216,6 +207,20 @@ public abstract class AUnstableRecursiveHistoricalCacheQuery<V> implements IRecu
         }
     }
 
+    private void incrementResets(final Throwable e) {
+        countResets++;
+        if (countResets % AContinuousRecursiveHistoricalCacheQuery.COUNT_RESETS_BEFORE_WARNING == 0
+                || AHistoricalCache.isDebugAutomaticReoptimization()) {
+            if (LOG.isWarnEnabled()) {
+                //CHECKSTYLE:OFF
+                LOG.warn(
+                        "{}: resetting {} for the {}. time now and retrying after exception [{}: {}], if this happens too often we might encounter bad performance due to inefficient caching",
+                        parent, getClass().getSimpleName(), countResets, e.getClass().getSimpleName(), e.getMessage());
+                //CHECKSTYLE:ON
+            }
+        }
+    }
+
     private V retryGetPreviousValueByRecursion(final FDate previousKey) throws ResetCacheException {
         try {
             //need to fetch adj previous key inside retry, since that is sometimes wrong
@@ -223,18 +228,7 @@ public abstract class AUnstableRecursiveHistoricalCacheQuery<V> implements IRecu
             return cachedResults.get(adjPreviousKey);
         } catch (final Throwable t) {
             if (Throwables.isCausedByType(t, ResetCacheRuntimeException.class)) {
-                countResets++;
-                if (countResets % AContinuousRecursiveHistoricalCacheQuery.COUNT_RESETS_BEFORE_WARNING == 0
-                        || AHistoricalCache.isDebugAutomaticReoptimization()) {
-                    if (LOG.isWarnEnabled()) {
-                        //CHECKSTYLE:OFF
-                        LOG.warn(
-                                "{}: resetting {} for the {}. time now and retrying after exception [{}: {}], if this happens too often we might encounter bad performance due to inefficient caching",
-                                parent, getClass().getSimpleName(), countResets, t.getClass().getSimpleName(),
-                                t.getMessage());
-                        //CHECKSTYLE:ON
-                    }
-                }
+                incrementResets(t);
                 resetForRetry();
                 /*
                  * also clear parent so that correct adjPreviousKey can be determined, sometimes it returns a non
