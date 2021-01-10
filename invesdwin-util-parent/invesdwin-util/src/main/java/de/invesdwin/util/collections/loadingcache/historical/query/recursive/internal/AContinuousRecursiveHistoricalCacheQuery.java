@@ -16,11 +16,13 @@ import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
 import de.invesdwin.util.collections.loadingcache.historical.listener.IHistoricalCacheOnClearListener;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQuery;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQueryWithFuture;
+import de.invesdwin.util.collections.loadingcache.historical.query.error.ResetCacheException;
 import de.invesdwin.util.collections.loadingcache.historical.query.error.ResetCacheRuntimeException;
 import de.invesdwin.util.collections.loadingcache.historical.query.recursive.ARecursiveHistoricalCacheQuery;
 import de.invesdwin.util.collections.loadingcache.historical.query.recursive.IRecursiveHistoricalCacheQuery;
 import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.math.Integers;
+import de.invesdwin.util.time.duration.Duration;
 import de.invesdwin.util.time.fdate.FDate;
 import de.invesdwin.util.time.fdate.FTimeUnit;
 import de.invesdwin.util.time.range.TimeRange;
@@ -32,7 +34,9 @@ import de.invesdwin.util.time.range.TimeRange;
 @ThreadSafe
 public abstract class AContinuousRecursiveHistoricalCacheQuery<V> implements IRecursiveHistoricalCacheQuery<V> {
 
-    public static final int COUNT_RESETS_BEFORE_WARNING = 10;
+    public static final int COUNT_RESETS_BEFORE_WARNING = 100;
+    public static final Duration RETRY_SLEEP = Duration.ONE_SECOND;
+    public static final int MAX_TRIES = 10;
     /**
      * we should use 10 times the lookback period (bars count) in order to get 7 decimal points of accuracy against
      * calculating from the beginning of history (measured on lowpass indicator)
@@ -163,45 +167,77 @@ public abstract class AContinuousRecursiveHistoricalCacheQuery<V> implements IRe
     }
 
     private V getPreviousValueByRecursion(final FDate key, final FDate previousKey) {
-        synchronized (parent) {
-            final FDate firstAvailableKey = getFirstAvailableKey();
-            if (firstAvailableKey == null) {
-                //no data found
-                return null;
-            }
-            if (previousKey == null || previousKey.isBeforeOrEqualTo(firstAvailableKey)) {
-                return getInitialValue(previousKey);
-            }
+        return getPreviousValueByRecusionTry(key, previousKey, 0);
+    }
 
-            if (recursionInProgress) {
-                final V highestRecursionResult = highestRecursionResultsAsc.get(previousKey);
-                if (highestRecursionResult != null) {
-                    return highestRecursionResult;
-                } else {
-                    final V cachedResult = cachedRecursionResults.getIfPresent(previousKey);
-                    if (cachedResult != null) {
-                        return cachedResult;
-                    } else if (previousKey.isBeforeOrEqualTo(firstRecursionKey)
-                            || lastRecursionKey.equals(firstAvailableKey) || key.equals(previousKey)) {
-                        return getInitialValue(previousKey);
+    private V getPreviousValueByRecusionTry(final FDate key, final FDate previousKey, final int tries) {
+        try {
+            synchronized (parent) {
+                final FDate firstAvailableKey = getFirstAvailableKey();
+                if (firstAvailableKey == null) {
+                    //no data found
+                    return null;
+                }
+                if (previousKey == null || previousKey.isBeforeOrEqualTo(firstAvailableKey)) {
+                    return getInitialValue(previousKey);
+                }
+
+                if (recursionInProgress) {
+                    final V highestRecursionResult = highestRecursionResultsAsc.get(previousKey);
+                    if (highestRecursionResult != null) {
+                        return highestRecursionResult;
                     } else {
-                        throw new IllegalStateException(parent + ": the values between " + firstRecursionKey + " and "
-                                + lastRecursionKey
-                                + " should have been cached, maybe you are returning null values even if you should not: "
-                                + previousKey);
+                        final V cachedResult = cachedRecursionResults.getIfPresent(previousKey);
+                        if (cachedResult != null) {
+                            return cachedResult;
+                        } else if (previousKey.isBeforeOrEqualTo(firstRecursionKey)
+                                || lastRecursionKey.equals(firstAvailableKey) || key.equals(previousKey)) {
+                            return getInitialValue(previousKey);
+                        } else {
+                            throw new ResetCacheRuntimeException(parent + ": the values between " + firstRecursionKey
+                                    + " and " + lastRecursionKey
+                                    + " should have been cached, maybe you are returning null values even if you should not: "
+                                    + previousKey);
+                        }
                     }
                 }
+                recursionInProgress = true;
+                try {
+                    return retryGetPreviousValueByRecursion(previousKey);
+                } finally {
+                    recursionInProgress = false;
+                }
             }
-            recursionInProgress = true;
-            try {
-                return retryGetPreviousValueByRecursion(previousKey);
-            } finally {
-                recursionInProgress = false;
+        } catch (final ResetCacheException e) {
+            countResets++;
+            if (countResets % COUNT_RESETS_BEFORE_WARNING == 0 || AHistoricalCache.isDebugAutomaticReoptimization()) {
+                if (LOG.isWarnEnabled()) {
+                    //CHECKSTYLE:OFF
+                    LOG.warn(
+                            "{}: resetting {} for the {}. time now and retrying after exception [{}: {}], if this happens too often we might encounter bad performance due to inefficient caching",
+                            parent, getClass().getSimpleName(), countResets, e.getClass().getSimpleName(),
+                            e.getMessage());
+                    //CHECKSTYLE:ON
+                }
+            }
+            final int newTries = tries + 1;
+            if (newTries <= MAX_TRIES) {
+                LOG.warn("%s: Trying " + newTries + ". recovery from: %s", parent.toString(), e.toString());
+                try {
+                    //give it some time, might be initializing
+                    RETRY_SLEEP.sleep();
+                } catch (final InterruptedException e1) {
+                    throw new RuntimeException(e1);
+                }
+                return getPreviousValueByRecusionTry(key, previousKey, newTries);
+            } else {
+                throw new RuntimeException(
+                        parent.toString() + ": Unable to recover after " + newTries + " tries, giving up", e);
             }
         }
     }
 
-    private V retryGetPreviousValueByRecursion(final FDate previousKey) {
+    private V retryGetPreviousValueByRecursion(final FDate previousKey) throws ResetCacheException {
         try {
             //need to fetch adj previous key inside retry, since that is sometimes wrong
             final FDate adjPreviousKey = parentQueryWithFuture.getKey(previousKey);
@@ -230,7 +266,7 @@ public abstract class AContinuousRecursiveHistoricalCacheQuery<V> implements IRe
                     final FDate adjPreviousKey = parentQueryWithFuture.getKey(previousKey);
                     return cachedRecursionResults.get(adjPreviousKey);
                 } catch (final Throwable t1) {
-                    throw new RuntimeException("Follow up " + ResetCacheRuntimeException.class.getSimpleName()
+                    throw new ResetCacheException("Follow up " + ResetCacheRuntimeException.class.getSimpleName()
                             + " on retry after:" + t.toString(), t1);
                 }
             } else {

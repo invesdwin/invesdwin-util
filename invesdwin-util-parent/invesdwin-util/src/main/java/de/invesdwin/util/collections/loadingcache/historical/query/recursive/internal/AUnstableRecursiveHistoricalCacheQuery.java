@@ -18,6 +18,7 @@ import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
 import de.invesdwin.util.collections.loadingcache.historical.listener.IHistoricalCacheOnClearListener;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQuery;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQueryWithFuture;
+import de.invesdwin.util.collections.loadingcache.historical.query.error.ResetCacheException;
 import de.invesdwin.util.collections.loadingcache.historical.query.error.ResetCacheRuntimeException;
 import de.invesdwin.util.collections.loadingcache.historical.query.recursive.ARecursiveHistoricalCacheQuery;
 import de.invesdwin.util.collections.loadingcache.historical.query.recursive.IRecursiveHistoricalCacheQuery;
@@ -155,34 +156,67 @@ public abstract class AUnstableRecursiveHistoricalCacheQuery<V> implements IRecu
     }
 
     private V getPreviousValueByRecursion(final FDate key, final FDate previousKey) {
-        synchronized (parent) {
-            final FDate firstAvailableKey = getFirstAvailableKey();
-            if (firstAvailableKey == null) {
-                //no data found
-                return null;
-            }
-            if (previousKey == null || previousKey.isBeforeOrEqualToNotNullSafe(firstAvailableKey)
-                    && key.equalsNotNullSafe(previousKey)) {
-                return getInitialValue(previousKey);
-            }
+        return getPreviousValueByRecusionTry(key, previousKey, 0);
+    }
 
-            if (recursionInProgress) {
-                return duringRecursion(key, previousKey, firstAvailableKey);
-            } else {
-                recursionInProgress = true;
-                try {
-                    fromRecursionKey = key;
-                    return retryGetPreviousValueByRecursion(previousKey);
-                } finally {
-                    fromRecursionKey = null;
-                    recursionInProgress = false;
-                    cachedRecursionResults.clear();
+    private V getPreviousValueByRecusionTry(final FDate key, final FDate previousKey, final int tries) {
+        try {
+            synchronized (parent) {
+                final FDate firstAvailableKey = getFirstAvailableKey();
+                if (firstAvailableKey == null) {
+                    //no data found
+                    return null;
                 }
+                if (previousKey == null || previousKey.isBeforeOrEqualToNotNullSafe(firstAvailableKey)
+                        && key.equalsNotNullSafe(previousKey)) {
+                    return getInitialValue(previousKey);
+                }
+
+                if (recursionInProgress) {
+                    return duringRecursion(key, previousKey, firstAvailableKey);
+                } else {
+                    recursionInProgress = true;
+                    try {
+                        fromRecursionKey = key;
+                        return retryGetPreviousValueByRecursion(previousKey);
+                    } finally {
+                        fromRecursionKey = null;
+                        recursionInProgress = false;
+                        cachedRecursionResults.clear();
+                    }
+                }
+            }
+        } catch (final ResetCacheException e) {
+            countResets++;
+            if (countResets % AContinuousRecursiveHistoricalCacheQuery.COUNT_RESETS_BEFORE_WARNING == 0
+                    || AHistoricalCache.isDebugAutomaticReoptimization()) {
+                if (LOG.isWarnEnabled()) {
+                    //CHECKSTYLE:OFF
+                    LOG.warn(
+                            "{}: resetting {} for the {}. time now and retrying after exception [{}: {}], if this happens too often we might encounter bad performance due to inefficient caching",
+                            parent, getClass().getSimpleName(), countResets, e.getClass().getSimpleName(),
+                            e.getMessage());
+                    //CHECKSTYLE:ON
+                }
+            }
+            final int newTries = tries + 1;
+            if (newTries <= AContinuousRecursiveHistoricalCacheQuery.MAX_TRIES) {
+                LOG.warn("%s: Trying " + newTries + ". recovery from: %s", parent.toString(), e.toString());
+                try {
+                    //give it some time, might be initializing
+                    AContinuousRecursiveHistoricalCacheQuery.RETRY_SLEEP.sleep();
+                } catch (final InterruptedException e1) {
+                    throw new RuntimeException(e1);
+                }
+                return getPreviousValueByRecusionTry(key, previousKey, newTries);
+            } else {
+                throw new RuntimeException(
+                        parent.toString() + ": Unable to recover after " + newTries + " tries, giving up", e);
             }
         }
     }
 
-    private V retryGetPreviousValueByRecursion(final FDate previousKey) {
+    private V retryGetPreviousValueByRecursion(final FDate previousKey) throws ResetCacheException {
         try {
             //need to fetch adj previous key inside retry, since that is sometimes wrong
             final FDate adjPreviousKey = parentQueryWithFuture.getKey(previousKey);
@@ -211,7 +245,7 @@ public abstract class AUnstableRecursiveHistoricalCacheQuery<V> implements IRecu
                     final FDate adjPreviousKey = parentQueryWithFuture.getKey(previousKey);
                     return cachedResults.get(adjPreviousKey);
                 } catch (final Throwable t1) {
-                    throw new RuntimeException("Follow up " + ResetCacheRuntimeException.class.getSimpleName()
+                    throw new ResetCacheException("Follow up " + ResetCacheRuntimeException.class.getSimpleName()
                             + " on retry after:" + t.toString(), t1);
                 }
             } else {
@@ -228,7 +262,7 @@ public abstract class AUnstableRecursiveHistoricalCacheQuery<V> implements IRecu
                 || key.equals(previousKey)) {
             return getInitialValue(previousKey);
         } else {
-            throw new IllegalStateException(
+            throw new ResetCacheRuntimeException(
                     parent + ": the values between " + firstRecursionKey + " and " + lastRecursionKey
                             + " should have been cached, maybe you are returning null values even if you should not: "
                             + previousKey);
