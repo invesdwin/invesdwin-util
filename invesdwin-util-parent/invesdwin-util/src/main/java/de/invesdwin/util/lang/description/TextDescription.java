@@ -51,7 +51,7 @@ public class TextDescription extends Description {
      */
     @Deprecated
     public static String format(final String messagePattern) {
-        return TextDescriptionFormatter.format(messagePattern);
+        return messagePattern;
     }
 
     public static String format(final String messagePattern, final Object arg) {
