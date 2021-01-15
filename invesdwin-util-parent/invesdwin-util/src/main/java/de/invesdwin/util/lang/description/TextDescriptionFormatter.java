@@ -17,7 +17,7 @@ import de.invesdwin.util.lang.Strings;
  *
  */
 @Immutable
-public final class TextDescriptionFormatter {
+final class TextDescriptionFormatter {
     private static final String DELIM_START = "%";
     private static final String DELIM_STR = DELIM_START + "s";
     private static final char ESCAPE_CHAR = '\\';
@@ -25,15 +25,7 @@ public final class TextDescriptionFormatter {
     private TextDescriptionFormatter() {
     }
 
-    public static String format(final String messagePattern, final Object arg) {
-        return format(messagePattern, new Object[] { arg });
-    }
-
-    public static String format(final String messagePattern, final Object arg1, final Object arg2) {
-        return format(messagePattern, new Object[] { arg1, arg2 });
-    }
-
-    public static String format(final String messagePattern, final Object... argArray) {
+    static String format(final String messagePattern, final Object[] argArray) {
 
         if (Strings.isBlank(messagePattern)) {
             return Arrays.toString(argArray);

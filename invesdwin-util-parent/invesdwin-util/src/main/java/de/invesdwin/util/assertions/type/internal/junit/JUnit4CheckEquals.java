@@ -4,7 +4,7 @@ import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.lang.Strings;
-import de.invesdwin.util.lang.description.TextDescriptionFormatter;
+import de.invesdwin.util.lang.description.TextDescription;
 
 @Immutable
 public final class JUnit4CheckEquals {
@@ -17,7 +17,7 @@ public final class JUnit4CheckEquals {
     public static void checkEqualsJunit(final String expected, final String actual, final String message,
             final Object... args) {
         try {
-            org.junit.Assert.assertEquals(TextDescriptionFormatter.format(message, args), expected, actual);
+            org.junit.Assert.assertEquals(TextDescription.format(message, args), expected, actual);
         } catch (final org.junit.ComparisonFailure e) {
             final String abbreviatedMessage = Strings.abbreviate(e.getMessage(), COMPARISON_FAILURE_MESSAGE_LIMIT);
             throw new org.junit.ComparisonFailure(abbreviatedMessage, e.getExpected(), e.getActual()) {

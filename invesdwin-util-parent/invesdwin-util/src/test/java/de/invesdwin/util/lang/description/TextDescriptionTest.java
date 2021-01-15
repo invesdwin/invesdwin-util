@@ -20,7 +20,7 @@ public class TextDescriptionTest {
     }
 
     private String format(final String string, final Object... args) {
-        return TextDescriptionFormatter.format(string, args);
+        return TextDescription.format(string, args);
     }
 
     @Test

@@ -20,7 +20,7 @@ public class TextDescription extends Description {
     @Override
     public String value() {
         if (formattedMessage == null) {
-            formattedMessage = TextDescriptionFormatter.format(value, args);
+            formattedMessage = TextDescription.format(value, args);
         }
         return formattedMessage;
     }
@@ -45,7 +45,23 @@ public class TextDescription extends Description {
         return Objects.equals(value, other.value) && Objects.equals(args, other.args);
     }
 
-    public static String format(final String value, final Object... args) {
-        return TextDescriptionFormatter.format(value, args);
+    /**
+     * WARNING: Did you forget to add args?
+     */
+    @Deprecated
+    public static String format(final String messagePattern) {
+        return messagePattern;
+    }
+
+    public static String format(final String messagePattern, final Object arg) {
+        return TextDescriptionFormatter.format(messagePattern, new Object[] { arg });
+    }
+
+    public static String format(final String messagePattern, final Object arg1, final Object arg2) {
+        return TextDescriptionFormatter.format(messagePattern, new Object[] { arg1, arg2 });
+    }
+
+    public static String format(final String messagePattern, final Object... args) {
+        return TextDescriptionFormatter.format(messagePattern, args);
     }
 }
