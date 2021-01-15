@@ -5,6 +5,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 import org.assertj.core.description.Description;
 
 import de.invesdwin.util.lang.Objects;
+import de.invesdwin.util.lang.description.internal.TextDescriptionFormatter;
 
 @NotThreadSafe
 public class TextDescription extends Description {
@@ -50,15 +51,15 @@ public class TextDescription extends Description {
      */
     @Deprecated
     public static String format(final String messagePattern) {
-        return messagePattern;
+        return TextDescriptionFormatter.format(messagePattern);
     }
 
     public static String format(final String messagePattern, final Object arg) {
-        return TextDescriptionFormatter.format(messagePattern, new Object[] { arg });
+        return TextDescriptionFormatter.format(messagePattern, arg);
     }
 
     public static String format(final String messagePattern, final Object arg1, final Object arg2) {
-        return TextDescriptionFormatter.format(messagePattern, new Object[] { arg1, arg2 });
+        return TextDescriptionFormatter.format(messagePattern, arg1, arg2);
     }
 
     public static String format(final String messagePattern, final Object... args) {
