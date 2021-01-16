@@ -25,9 +25,10 @@ public class Decimal extends ADecimal<Decimal> {
     public static final Locale DEFAULT_DECIMAL_FORMAT_LOCALE = Locale.ENGLISH;
     public static final DecimalFormatSymbols DEFAULT_DECIMAL_FORMAT_SYMBOLS = DecimalFormatSymbols
             .getInstance(DEFAULT_DECIMAL_FORMAT_LOCALE);
-    public static final String DEFAULT_DECIMAL_FORMAT = newDefaultDecimalFormat(2);
+    public static final int MONEY_PRECISION = 2;
+    public static final String DEFAULT_DECIMAL_FORMAT = newDefaultDecimalFormat(MONEY_PRECISION);
     public static final String INTEGER_DECIMAL_FORMAT = "#,##0";
-    public static final String MONEY_DECIMAL_FORMAT = newMoneyDecimalFormat(2);
+    public static final String MONEY_DECIMAL_FORMAT = newMoneyDecimalFormat(MONEY_PRECISION);
 
     public static final Decimal MINUS_THREE;
     public static final Decimal MINUS_TWO;
