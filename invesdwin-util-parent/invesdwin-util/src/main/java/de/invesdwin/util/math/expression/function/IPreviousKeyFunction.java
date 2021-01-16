@@ -59,6 +59,14 @@ public interface IPreviousKeyFunction {
         return expression.newEvaluateTrueReasonKey();
     }
 
+    default IEvaluateGenericFDate<String> newEvaluateNullReasonFDate(final IParsedExpression expression) {
+        return expression.newEvaluateNullReasonFDate();
+    }
+
+    default IEvaluateGenericKey<String> newEvaluateNullReasonKey(final IParsedExpression expression) {
+        return expression.newEvaluateNullReasonKey();
+    }
+
     default IEvaluateIntegerFDate newEvaluateIntegerFDate(final IParsedExpression expression) {
         return expression.newEvaluateIntegerFDate();
     }

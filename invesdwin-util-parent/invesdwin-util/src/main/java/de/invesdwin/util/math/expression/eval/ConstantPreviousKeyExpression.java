@@ -186,14 +186,20 @@ public class ConstantPreviousKeyExpression implements IParsedExpression {
 
     @Override
     public IEvaluateGenericFDate<String> newEvaluateNullReasonFDate() {
-        //not nullable
-        return key -> null;
+        final IEvaluateGenericFDate<String> prevF = previousKeyFunction.newEvaluateNullReasonFDate(expression);
+        return key -> {
+            final IFDateProvider previousKey = previousKeyFunction.getPreviousKey(key, index);
+            return prevF.evaluateGeneric(previousKey);
+        };
     }
 
     @Override
     public IEvaluateGenericKey<String> newEvaluateNullReasonKey() {
-        //not nullable
-        return key -> null;
+        final IEvaluateGenericKey<String> prevF = previousKeyFunction.newEvaluateNullReasonKey(expression);
+        return key -> {
+            final int previousKey = previousKeyFunction.getPreviousKey(key, index);
+            return prevF.evaluateGeneric(previousKey);
+        };
     }
 
     @Override

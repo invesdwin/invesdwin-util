@@ -265,14 +265,34 @@ public class DynamicPreviousKeyExpression implements IParsedExpression {
 
     @Override
     public IEvaluateGenericFDate<String> newEvaluateNullReasonFDate() {
-        //not nullable
-        return key -> null;
+        final IEvaluateIntegerFDate indexF = indexExpression.newEvaluateIntegerFDate();
+        final IEvaluateGenericFDate<String> expressionF = expression.newEvaluateNullReasonFDate();
+        final IEvaluateGenericFDate<String> prevF = previousKeyFunction.newEvaluateNullReasonFDate(expression);
+        return key -> {
+            final int index = indexF.evaluateInteger(key);
+            if (index <= 0) {
+                return expressionF.evaluateGeneric(key);
+            } else {
+                final IFDateProvider previousKey = previousKeyFunction.getPreviousKey(key, index);
+                return prevF.evaluateGeneric(previousKey);
+            }
+        };
     }
 
     @Override
     public IEvaluateGenericKey<String> newEvaluateNullReasonKey() {
-        //not nullable
-        return key -> null;
+        final IEvaluateIntegerKey indexF = indexExpression.newEvaluateIntegerKey();
+        final IEvaluateGenericKey<String> expressionF = expression.newEvaluateNullReasonKey();
+        final IEvaluateGenericKey<String> prevF = previousKeyFunction.newEvaluateNullReasonKey(expression);
+        return key -> {
+            final int index = indexF.evaluateInteger(key);
+            if (index <= 0) {
+                return expressionF.evaluateGeneric(key);
+            } else {
+                final int previousKey = previousKeyFunction.getPreviousKey(key, index);
+                return prevF.evaluateGeneric(previousKey);
+            }
+        };
     }
 
     @Override
