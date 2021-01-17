@@ -21,13 +21,17 @@ public class LoopInterruptedCheck {
     public LoopInterruptedCheck(final Duration checkInterval) {
         this.currentThread = Thread.currentThread();
         this.checkIntervalNanos = checkInterval.longValue(FTimeUnit.NANOSECONDS);
-        this.nextIntervalNanos = System.nanoTime() + checkIntervalNanos;
+        this.nextIntervalNanos = getInitialNanoTime() + checkIntervalNanos;
+    }
+
+    protected long getInitialNanoTime() {
+        return System.nanoTime();
     }
 
     public boolean check() throws InterruptedException {
         checksInInterval++;
         if (checksInInterval > checksPerInterval) {
-            final long newIntervalNanos = System.nanoTime();
+            final long newIntervalNanos = getInitialNanoTime();
             if (newIntervalNanos > nextIntervalNanos) {
                 onInterval();
                 checksPerInterval = checksInInterval;
