@@ -311,4 +311,13 @@ public final class Lists extends AListsStaticFacade {
         return size - 1 - i;
     }
 
+    public static <T> int indexOfIdentity(final List<T> list, final Object item) {
+        for (int i = 0; i < list.size(); i++) {
+            if (list.get(i) == item) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
 }
