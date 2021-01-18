@@ -3,6 +3,8 @@ package de.invesdwin.util.collections.list;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -318,6 +320,18 @@ public final class Lists extends AListsStaticFacade {
             }
         }
         return -1;
+    }
+
+    /**
+     * https://stackoverflow.com/questions/16764007/insert-into-an-already-sorted-list/16764413
+     */
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public static <T> void insertSorted(final List<T> list, final T item, final Comparator comparator) {
+        int index = Collections.binarySearch(list, item, comparator);
+        if (index < 0) {
+            index = -index - 1;
+        }
+        list.add(index, item);
     }
 
 }
