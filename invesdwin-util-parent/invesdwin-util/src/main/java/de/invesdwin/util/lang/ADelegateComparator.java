@@ -23,6 +23,7 @@ public abstract class ADelegateComparator<E> implements Comparator<Object>, ISer
     };
 
     private final Class<E> genericType;
+    private final DescendingComparator descending = new DescendingComparator();
 
     public ADelegateComparator() {
         this.genericType = findGenericType();
@@ -81,7 +82,7 @@ public abstract class ADelegateComparator<E> implements Comparator<Object>, ISer
     }
 
     public Comparator<Object> asDescending() {
-        return new DescendingComparator();
+        return descending;
     }
 
     public <T extends E> void sort(final List<? extends T> list, final boolean ascending) {
