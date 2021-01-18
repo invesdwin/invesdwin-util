@@ -14,11 +14,11 @@ import de.invesdwin.util.math.decimal.Decimal;
 import de.invesdwin.util.math.random.RandomGenerators;
 
 @NotThreadSafe
-public class SortedListTest {
+public class HighLowSortedListTest {
 
     @Test
     public void testAdd() {
-        final List<Decimal> sorted = new SortedList<Decimal>(Decimal.COMPARATOR);
+        final List<Decimal> sorted = new HighLowSortedList<Decimal>(Decimal.COMPARATOR);
         sorted.add(Decimal.TWO);
         sorted.add(Decimal.THREE);
         sorted.add(Decimal.ONE);
@@ -30,7 +30,7 @@ public class SortedListTest {
 
     @Test
     public void testAddIndex() {
-        final List<Decimal> sorted = new SortedList<Decimal>(Decimal.COMPARATOR);
+        final List<Decimal> sorted = new HighLowSortedList<Decimal>(Decimal.COMPARATOR);
         sorted.add(0, Decimal.TWO);
         sorted.add(0, Decimal.THREE);
         sorted.add(0, Decimal.ONE);
@@ -42,7 +42,7 @@ public class SortedListTest {
 
     @Test
     public void testRandomReplay() {
-        final List<Decimal> sorted = new SortedList<Decimal>(Decimal.COMPARATOR);
+        final List<Decimal> sorted = new HighLowSortedList<Decimal>(Decimal.COMPARATOR);
         sorted.add(new Decimal("10"));
         sorted.add(0, new Decimal("5"));
         Decimal.COMPARATOR.assertOrder(sorted, true);
@@ -62,7 +62,7 @@ public class SortedListTest {
             final List<Decimal> input = new ArrayList<Decimal>(original);
             final RandomGenerator random = RandomGenerators.newDefaultRandom();
             Collections.shuffle(input, new RandomAdaptor(random));
-            final List<Decimal> sorted = new SortedList<Decimal>(Decimal.COMPARATOR);
+            final List<Decimal> sorted = new HighLowSortedList<Decimal>(Decimal.COMPARATOR);
             //            System.out.println("----------------"); //SUPPRESS CHECKSTYLE single line
             for (final Decimal in : input) {
                 final boolean add0 = random.nextBoolean();

@@ -4,7 +4,7 @@ import java.util.NoSuchElementException;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import de.invesdwin.util.collections.list.SortedList;
+import de.invesdwin.util.collections.list.HighLowSortedList;
 import de.invesdwin.util.error.FastNoSuchElementException;
 import de.invesdwin.util.lang.ADelegateComparator;
 
@@ -17,7 +17,7 @@ public abstract class ASortedFeedsIterator<E> implements ICloseableIterator<E> {
             return ASortedFeedsIterator.this.getCompareCriteria(e.peek());
         }
     };
-    private final SortedList<PeekingCloseableIterator<? extends E>> peekingFeeds = new SortedList<>(comparator);
+    private final HighLowSortedList<PeekingCloseableIterator<? extends E>> peekingFeeds = new HighLowSortedList<>(comparator);
 
     public ASortedFeedsIterator(final Iterable<? extends ICloseableIterator<? extends E>> feeds) {
         for (final ICloseableIterator<? extends E> feed : feeds) {

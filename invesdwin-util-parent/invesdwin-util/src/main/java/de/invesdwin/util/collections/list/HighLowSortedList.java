@@ -13,11 +13,11 @@ import de.invesdwin.util.collections.delegate.ADelegateList;
  * A performant way to keep a list of ordered elements when the elements arrive in a more or less ordered fashion
  */
 @NotThreadSafe
-public class SortedList<E> extends ADelegateList<E> {
+public class HighLowSortedList<E> extends ADelegateList<E> {
     private final Comparator<E> comparator;
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    public SortedList(final Comparator comparator) {
+    public HighLowSortedList(final Comparator comparator) {
         this.comparator = comparator;
     }
 
