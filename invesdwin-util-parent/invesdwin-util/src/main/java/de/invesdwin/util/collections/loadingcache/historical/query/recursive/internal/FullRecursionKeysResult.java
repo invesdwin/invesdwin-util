@@ -2,7 +2,7 @@ package de.invesdwin.util.collections.loadingcache.historical.query.recursive.in
 
 import java.util.NoSuchElementException;
 
-import javax.annotation.concurrent.NotThreadSafe;
+import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
@@ -13,7 +13,7 @@ import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCa
 import de.invesdwin.util.collections.loadingcache.historical.query.index.IndexedFDate;
 import de.invesdwin.util.time.fdate.FDate;
 
-@NotThreadSafe
+@ThreadSafe
 final class FullRecursionKeysResult implements IHistoricalValue<FullRecursionKeysResult> {
 
     private final FDate key;
@@ -31,12 +31,12 @@ final class FullRecursionKeysResult implements IHistoricalValue<FullRecursionKey
         this.parentQueryWithFutureNull = parentQueryWithFutureNull;
     }
 
-    public ICloseableIterator<FDate> getFullRecursionKeys() {
+    public synchronized ICloseableIterator<FDate> getFullRecursionKeys() {
         maybeInit();
         return fullRecursionKeys.iterator();
     }
 
-    public FullRecursionKeysResult maybeInit() {
+    public synchronized FullRecursionKeysResult maybeInit() {
         if (fullRecursionKeys == null) {
             fullRecursionKeys = new BufferingIterator<>();
             try (ICloseableIterator<FDate> values = parentQueryWithFutureNull.getPreviousKeys(key, fullRecursionCount)
@@ -54,7 +54,7 @@ final class FullRecursionKeysResult implements IHistoricalValue<FullRecursionKey
         return this;
     }
 
-    public FullRecursionKeysResult pushToNext(final FDate key) {
+    public synchronized FullRecursionKeysResult pushToNext(final FDate key) {
         if (key.equals(this.key)) {
             return this;
         }
