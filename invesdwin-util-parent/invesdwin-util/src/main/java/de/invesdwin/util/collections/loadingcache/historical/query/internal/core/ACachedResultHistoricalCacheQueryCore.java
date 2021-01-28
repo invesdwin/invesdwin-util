@@ -55,13 +55,14 @@ public abstract class ACachedResultHistoricalCacheQueryCore<V> extends ACachedEn
      * This needs to be called wherever replaceCachedEntries() was called before
      */
     protected void updateCachedPreviousResult(final IHistoricalCacheQueryInternalMethods<V> query,
-            final int shiftBackUnits, final List<IHistoricalEntry<V>> result) {
+            final int shiftBackUnits, final List<IHistoricalEntry<V>> result) throws ResetCacheException {
         if (result.isEmpty() && query.getAssertValue() == HistoricalCacheAssertValue.ASSERT_VALUE_WITH_FUTURE_NULL) {
             //do not remember an empty result with future null (a call with future next might trip on it)
             return;
         }
         if (cachedPreviousResult_shiftBackUnits != null && !cachedPreviousEntries.isEmpty() && result.size() > 1) {
-            throw new IllegalStateException("cachedPreviousResult should have been reset by preceeding code!");
+            //somehow this does not happen in debugger, maybe some JVM optimization
+            throw new ResetCacheException("cachedPreviousResult should have been reset by preceeding code!");
         }
         cachedPreviousResult_filteringDuplicates = result;
         cachedPreviousResult_shiftBackUnits = shiftBackUnits;
