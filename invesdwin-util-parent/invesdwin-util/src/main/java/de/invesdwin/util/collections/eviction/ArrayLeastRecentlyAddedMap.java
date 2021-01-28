@@ -95,7 +95,8 @@ public class ArrayLeastRecentlyAddedMap<K, V> implements Map<K, V>, IEvictionMap
             while (map.size() > maximumSize) {
                 do {
                     leastRecentlyAddedKeyIndex++;
-                    if (leastRecentlyAddedKeyIndex >= evictionSize) {
+                    if (leastRecentlyAddedKeyIndex >= evictionSize
+                            || leastRecentlyAddedKeyIndex >= orderedKeys.length) {
                         leastRecentlyAddedKeyIndex = 0;
                     }
                     //jump over removed keys
