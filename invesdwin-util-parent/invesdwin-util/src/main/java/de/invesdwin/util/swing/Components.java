@@ -19,6 +19,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.ToolTipManager;
 import javax.swing.border.Border;
 import javax.swing.table.TableColumn;
+import javax.swing.text.DefaultCaret;
 import javax.swing.text.JTextComponent;
 
 import de.invesdwin.util.lang.Objects;
@@ -271,6 +272,14 @@ public final class Components {
                 window.setMinimumSize(minimumSizeBefore);
             }
         }
+    }
+
+    /**
+     * https://stackoverflow.com/questions/2039373/maintaing-jtextarea-scroll-position
+     */
+    public static void disableCaretScrolling(final JTextComponent component) {
+        final DefaultCaret caret = (DefaultCaret) component.getCaret();
+        caret.setUpdatePolicy(DefaultCaret.NEVER_UPDATE);
     }
 
 }
