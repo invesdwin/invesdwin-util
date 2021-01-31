@@ -38,7 +38,7 @@ public class ResizingDelegateTableCellRenderer implements TableCellRenderer {
         if (component instanceof JProgressBar) {
             return component;
         }
-        resizeColumn(table, isSelected, column, row, component);
+        resizeColumn(table, isSelected, row, column, component);
         return component;
     }
 
