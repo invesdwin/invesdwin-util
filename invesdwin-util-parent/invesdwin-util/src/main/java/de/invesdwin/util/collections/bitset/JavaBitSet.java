@@ -56,7 +56,7 @@ public class JavaBitSet implements IBitSet {
         final BitSet combined = (BitSet) bitSet.clone();
         for (int i = 0; i < others.length; i++) {
             final IBitSet other = others[i];
-            if (other.isEmpty()) {
+            if (other.isEmpty() || combined.isEmpty()) {
                 return EmptyBitSet.INSTANCE;
             }
             final JavaBitSet cOther = (JavaBitSet) other.unwrap();
@@ -70,7 +70,7 @@ public class JavaBitSet implements IBitSet {
         final BitSet combined = (BitSet) bitSet.clone();
         for (int i = 0; i < others.length; i++) {
             final IBitSet other = others[i];
-            if (other.isEmpty()) {
+            if (other.isEmpty() || combined.isEmpty()) {
                 return EmptyBitSet.INSTANCE;
             }
             final JavaBitSet cOther = (JavaBitSet) other.unwrap();
