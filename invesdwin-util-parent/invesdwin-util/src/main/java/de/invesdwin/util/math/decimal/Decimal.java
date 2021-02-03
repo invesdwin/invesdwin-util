@@ -235,17 +235,27 @@ public class Decimal extends ADecimal<Decimal> {
         return toFormattedString(Decimal.DEFAULT_DECIMAL_FORMAT, number);
     }
 
+    public static String toFormattedString(final Number number) {
+        return toFormattedString(Decimal.DEFAULT_DECIMAL_FORMAT, number);
+    }
+
     public static String toFormattedString(final String format, final double number) {
         final DecimalFormat dc = Decimal.newDecimalFormatInstance(format);
         return toFormattedString(dc, number);
     }
 
     public static String toFormattedString(final DecimalFormat format, final double number) {
+        if (Doubles.isNaN(number)) {
+            return Doubles.NAN_STR;
+        }
         final String str = format.format(number);
         return postProcessFormattedString(str);
     }
 
     public static String toFormattedString(final String format, final Number number) {
+        if (number instanceof Double && Doubles.isNaN(number.doubleValue())) {
+            return Doubles.NAN_STR;
+        }
         final DecimalFormat dc = Decimal.newDecimalFormatInstance(format);
         return toFormattedString(dc, number);
     }
