@@ -336,6 +336,34 @@ public final class Assertions extends AAssertionsStaticFacade {
         }
     }
 
+    public static void checkNotNaN(final double value) {
+        if (Doubles.isNaN(value)) {
+            assertThat(value).isNotNaN();
+            failExceptionExpected();
+        }
+    }
+
+    public static void checkNotNaN(final double value, final String message, final Object... args) {
+        if (Doubles.isNaN(value)) {
+            assertThat(value).as(message, args).isNotNaN();
+            failExceptionExpected();
+        }
+    }
+
+    public static void checkNotNaN(final Number value) {
+        if (Doubles.isNaN(value)) {
+            assertThat(value.doubleValue()).isNotNaN();
+            failExceptionExpected();
+        }
+    }
+
+    public static void checkNotNaN(final Number value, final String message, final Object... args) {
+        if (Doubles.isNaN(value)) {
+            assertThat(value.doubleValue()).as(message, args).isNotNaN();
+            failExceptionExpected();
+        }
+    }
+
     public static void checkFalse(final boolean expression, final String message, final Object... args) {
         if (expression) {
             assertThat(expression).as(message, args).isFalse();

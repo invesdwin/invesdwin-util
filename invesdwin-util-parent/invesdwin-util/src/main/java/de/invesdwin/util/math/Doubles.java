@@ -476,6 +476,10 @@ public final class Doubles extends ADoublesStaticFacade {
         return Double.isNaN(value);
     }
 
+    public static boolean isNaN(final Number number) {
+        return number instanceof Double && Doubles.isNaN(number.doubleValue());
+    }
+
     public static double nullToZero(final Double value) {
         if (value == null) {
             return 0D;

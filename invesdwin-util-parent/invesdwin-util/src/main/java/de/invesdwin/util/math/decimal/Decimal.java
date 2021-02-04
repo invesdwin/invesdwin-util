@@ -253,7 +253,7 @@ public class Decimal extends ADecimal<Decimal> {
     }
 
     public static String toFormattedString(final String format, final Number number) {
-        if (number instanceof Double && Doubles.isNaN(number.doubleValue())) {
+        if (Doubles.isNaN(number)) {
             return Doubles.NAN_STR;
         }
         final DecimalFormat dc = Decimal.newDecimalFormatInstance(format);
