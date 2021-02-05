@@ -10,12 +10,16 @@ import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.collections.iterable.EmptyCloseableIterator;
 
+/**
+ * Does not throw any exceptions like Collections.emptyList() does on modification.
+ */
 @Immutable
-public final class EmptyList<E> implements List<E> {
+public final class DisabledList<E> implements List<E> {
 
-    private static final EmptyList INSTANCE = new EmptyList<>();
+    @SuppressWarnings("rawtypes")
+    private static final DisabledList INSTANCE = new DisabledList<>();
 
-    private EmptyList() {
+    private DisabledList() {
     }
 
     @Override
@@ -131,7 +135,8 @@ public final class EmptyList<E> implements List<E> {
         return this;
     }
 
-    public static <T> EmptyList<T> getInstance() {
+    @SuppressWarnings("unchecked")
+    public static <T> DisabledList<T> getInstance() {
         return INSTANCE;
     }
 
