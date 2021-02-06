@@ -36,14 +36,16 @@ public class Tokenizer extends ALookahead<Token> {
     };
 
     protected final LookaheadReader input;
+    private boolean semicolonAllowed;
 
     public Tokenizer() {
         this.input = new LookaheadReader();
     }
 
-    public void init(final Reader input) {
+    public void init(final Reader input, final boolean semicolonAllowed) {
         super.init();
         this.input.init(input);
+        this.semicolonAllowed = semicolonAllowed;
     }
 
     @Override
@@ -60,7 +62,7 @@ public class Tokenizer extends ALookahead<Token> {
             input.consume();
         }
 
-        if (input.current.isSemicolon()) {
+        if (input.current.isSemicolon() && !semicolonAllowed) {
             //semicolon is an unsupported character, it is reserved for csv files containing expressions
             throw new ParseException(input.current(),
                     TextDescription.format(

@@ -2,6 +2,7 @@ package de.invesdwin.util.math.expression;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import org.junit.ComparisonFailure;
 import org.junit.Test;
 
 import de.invesdwin.util.assertions.Assertions;
@@ -12,6 +13,9 @@ import de.invesdwin.util.time.fdate.IFDateProvider;
 
 @NotThreadSafe
 public class ExpressionParserTest {
+
+    private static final String[] ESCAPE_STRS = new String[] { ".", ",", "+", "-", "^", "*", "/", "\\", ":", ";", "!",
+            "§", "$", "%", "&", "{", "}", "?", "#", "~", "¸", "´", "|", "<", ">", "=", "€", "ß" };
 
     @Test
     public void testExponent() {
@@ -125,7 +129,166 @@ public class ExpressionParserTest {
                 return expression;
             }
         }.parse();
-        Assertions.checkEquals(parsed.toString(), "JFOREX:EURUSD:isNaN(JFOREX:EURUSD:NaN)");
+        Assertions.checkEquals("JFOREX:EURUSD:isNaN(JFOREX:EURUSD:NaN)", parsed.toString());
+
+        final IExpression parsedAgain = new ExpressionParser(parsed.toString()) {
+            @Override
+            protected IParsedExpression simplify(final IParsedExpression expression) {
+                return expression;
+            }
+        }.parse();
+        Assertions.checkEquals(parsed.toString(), parsedAgain.toString());
+    }
+
+    @Test
+    public void testOfContextEscapeStart() {
+        for (final String escapeStr : ESCAPE_STRS) {
+            try {
+                final IExpression parsed = new ExpressionParser(
+                        "isNaN(NaN of STOOQ:" + escapeStr + "dax) of STOOQ:" + escapeStr + "dax") {
+                    @Override
+                    protected IParsedExpression simplify(final IParsedExpression expression) {
+                        return expression;
+                    }
+
+                    @Override
+                    protected boolean isSemicolonAllowed() {
+                        return true;
+                    }
+                }.parse();
+                Assertions.checkEquals("STOOQ:" + escapeStr + "dax:isNaN(STOOQ:" + escapeStr + "dax:NaN)",
+                        parsed.toString());
+
+                final IExpression parsedAgain = new ExpressionParser(parsed.toString()) {
+                    @Override
+                    protected IParsedExpression simplify(final IParsedExpression expression) {
+                        return expression;
+                    }
+
+                    @Override
+                    protected boolean isSemicolonAllowed() {
+                        return true;
+                    }
+                }.parse();
+                Assertions.checkEquals(parsed.toString(), parsedAgain.toString());
+            } catch (final Throwable t) {
+                if (t instanceof ComparisonFailure) {
+                    throw t;
+                } else {
+                    throw new RuntimeException("At: " + escapeStr, t);
+                }
+            }
+        }
+    }
+
+    @Test
+    public void testOfContextEscapeMiddle() {
+        for (final String escapeStr : ESCAPE_STRS) {
+            try {
+                final IExpression parsed = new ExpressionParser(
+                        "isNaN(NaN of STOOQ:vi" + escapeStr + "c) of STOOQ:vi" + escapeStr + "c") {
+                    @Override
+                    protected IParsedExpression simplify(final IParsedExpression expression) {
+                        return expression;
+                    }
+
+                    @Override
+                    protected boolean isSemicolonAllowed() {
+                        return true;
+                    }
+                }.parse();
+                Assertions.checkEquals("STOOQ:vi" + escapeStr + "c:isNaN(STOOQ:vi" + escapeStr + "c:NaN)",
+                        parsed.toString());
+
+                final IExpression parsedAgain = new ExpressionParser(parsed.toString()) {
+                    @Override
+                    protected IParsedExpression simplify(final IParsedExpression expression) {
+                        return expression;
+                    }
+
+                    @Override
+                    protected boolean isSemicolonAllowed() {
+                        return true;
+                    }
+                }.parse();
+                Assertions.checkEquals(parsed.toString(), parsedAgain.toString());
+            } catch (final Throwable t) {
+                if (t instanceof ComparisonFailure) {
+                    throw t;
+                } else {
+                    throw new RuntimeException("At: " + escapeStr, t);
+                }
+            }
+        }
+    }
+
+    @Test
+    public void testOfContextEscapeEnd() {
+        for (final String escapeStr : ESCAPE_STRS) {
+            try {
+                final IExpression parsed = new ExpressionParser(
+                        "isNaN(NaN of STOOQ:vic" + escapeStr + ") of STOOQ:vic" + escapeStr + "") {
+                    @Override
+                    protected IParsedExpression simplify(final IParsedExpression expression) {
+                        return expression;
+                    }
+
+                    @Override
+                    protected boolean isSemicolonAllowed() {
+                        return true;
+                    }
+                }.parse();
+                Assertions.checkEquals("STOOQ:vic" + escapeStr + ":isNaN(STOOQ:vic" + escapeStr + ":NaN)",
+                        parsed.toString());
+
+                final IExpression parsedAgain = new ExpressionParser(parsed.toString()) {
+                    @Override
+                    protected IParsedExpression simplify(final IParsedExpression expression) {
+                        return expression;
+                    }
+
+                    @Override
+                    protected boolean isSemicolonAllowed() {
+                        return true;
+                    }
+                }.parse();
+                Assertions.checkEquals(parsed.toString(), parsedAgain.toString());
+            } catch (final Throwable t) {
+                if (t instanceof ComparisonFailure) {
+                    throw t;
+                } else {
+                    throw new RuntimeException("At: " + escapeStr, t);
+                }
+            }
+        }
+    }
+
+    @Test
+    public void testContextEscapeEnd() {
+        for (final String escapeStr : ESCAPE_STRS) {
+            try {
+                final IExpression parsed = new ExpressionParser(
+                        "STOOQ:vic" + escapeStr + ":isNaN(STOOQ:vic" + escapeStr + ":NaN)") {
+                    @Override
+                    protected IParsedExpression simplify(final IParsedExpression expression) {
+                        return expression;
+                    }
+
+                    @Override
+                    protected boolean isSemicolonAllowed() {
+                        return true;
+                    }
+                }.parse();
+                Assertions.checkEquals("STOOQ:vic" + escapeStr + ":isNaN(STOOQ:vic" + escapeStr + ":NaN)",
+                        parsed.toString());
+            } catch (final Throwable t) {
+                if (t instanceof ComparisonFailure) {
+                    throw t;
+                } else {
+                    throw new RuntimeException("At: " + escapeStr, t);
+                }
+            }
+        }
     }
 
     @Test
@@ -137,8 +300,17 @@ public class ExpressionParserTest {
                 return expression;
             }
         }.parse();
-        Assertions.checkEquals(parsed.toString(),
-                "JFOREX:EURUSD:[uhg=1|uhgj=2]@TimeBarConfig[15 MINUTES| bla]:isNaN(JFOREX:EURUSD:[asd=1|asdf=2]@TimeBarConfig[15 MINUTES| bla]:NaN)");
+        Assertions.checkEquals(
+                "JFOREX:EURUSD:[uhg=1|uhgj=2]@TimeBarConfig[15 MINUTES| bla]:isNaN(JFOREX:EURUSD:[asd=1|asdf=2]@TimeBarConfig[15 MINUTES| bla]:NaN)",
+                parsed.toString());
+
+        final IExpression parsedAgain = new ExpressionParser(parsed.toString()) {
+            @Override
+            protected IParsedExpression simplify(final IParsedExpression expression) {
+                return expression;
+            }
+        }.parse();
+        Assertions.checkEquals(parsed.toString(), parsedAgain.toString());
     }
 
     @Test
@@ -150,8 +322,17 @@ public class ExpressionParserTest {
                 return expression;
             }
         }.parse();
-        Assertions.checkEquals(parsed.toString(),
-                "JFOREX:EURUSD:[uhg=1 | uhgj=2]@TimeBarConfig[15 MINUTES| bla]:isNaN(JFOREX:EURUSD:[asd=1|asdf=2]@TimeBarConfig[15 MINUTES| bla]:NaN)");
+        Assertions.checkEquals(
+                "JFOREX:EURUSD:[uhg=1 | uhgj=2]@TimeBarConfig[15 MINUTES| bla]:isNaN(JFOREX:EURUSD:[asd=1|asdf=2]@TimeBarConfig[15 MINUTES| bla]:NaN)",
+                parsed.toString());
+
+        final IExpression parsedAgain = new ExpressionParser(parsed.toString()) {
+            @Override
+            protected IParsedExpression simplify(final IParsedExpression expression) {
+                return expression;
+            }
+        }.parse();
+        Assertions.checkEquals(parsed.toString(), parsedAgain.toString());
     }
 
     @Test

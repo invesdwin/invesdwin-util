@@ -216,7 +216,7 @@ public class ExpressionParser {
     public IExpression parse() {
         try {
             tokenizer = TOKENIZER.get();
-            tokenizer.init(new StringReader(originalExpression));
+            tokenizer.init(new StringReader(originalExpression), isSemicolonAllowed());
             final IParsedExpression result = simplify(expression(true));
             if (tokenizer.current().isNotEnd()) {
                 final Token token = tokenizer.consume();
@@ -240,6 +240,10 @@ public class ExpressionParser {
         } finally {
             tokenizer = null;
         }
+    }
+
+    protected boolean isSemicolonAllowed() {
+        return false;
     }
 
     protected IParsedExpression simplify(final IParsedExpression expression) {
@@ -629,12 +633,25 @@ public class ExpressionParser {
         return context;
     }
 
+    //CHECKSTYLE:OFF
     private String collectContext(final boolean ignoreBracketsAtEnd) {
+        //CHECKSTYLE:ON
         final StringBuilder context = new StringBuilder();
         boolean consumeMore = true;
         while (consumeMore) {
             consumeMore = false;
             final Token contextToken = tokenizer.current();
+
+            if (")".equals(contextToken.getContents())) {
+                break;
+            }
+            if (contextToken.isEnd()) {
+                break;
+            }
+            if (":".equals(contextToken.getSource())) {
+                consumeMore = true;
+            }
+
             tokenizer.consume();
             final int start = contextToken.getIndexOffset();
             int end = start + contextToken.getLength();
@@ -663,13 +680,50 @@ public class ExpressionParser {
             final int next = end;
             if (originalExpression.length() > next) {
                 final char nextCharacter = originalExpression.charAt(next);
-                if (nextCharacter == '@' || nextCharacter == ':') {
+                switch (nextCharacter) {
+                case '@':
+                case ':':
                     consumeMore = true;
                     skipCharacters++;
                     end++;
+                    break;
+                case '.':
+                case ',':
+                case '+':
+                case '-':
+                case '^':
+                case '*':
+                case '/':
+                case '\\':
+                case ';':
+                case '!':
+                case '§':
+                case '$':
+                case '%':
+                case '&':
+                case '{':
+                case '}':
+                case '?':
+                case '#':
+                case '~':
+                case '¸':
+                case '´':
+                case '|':
+                case '<':
+                case '>':
+                case '=':
+                case '€':
+                case 'ß':
+                    consumeMore = true;
+                    end++;
+                    tokenizer.consume();
+                    break;
+                default:
+                    //nothing to do
                 }
             }
             maybeSkipContextCharacters(ignoreBracketsAtEnd, context, consumeMore, start, end, skipCharacters);
+
         }
         return context.toString();
     }
