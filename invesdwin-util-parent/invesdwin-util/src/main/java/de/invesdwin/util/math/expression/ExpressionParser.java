@@ -739,7 +739,6 @@ public class ExpressionParser {
     private boolean isContextEscapedCharacter(final char character) {
         switch (character) {
         case '.':
-        case ',':
         case '+':
         case '-':
         case '^':

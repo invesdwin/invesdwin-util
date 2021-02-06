@@ -14,8 +14,8 @@ import de.invesdwin.util.time.fdate.IFDateProvider;
 @NotThreadSafe
 public class ExpressionParserTest {
 
-    private static final String[] ESCAPE_STRS = new String[] { "*", ".", ",", "+", "-", "^", "\\", ":", ";", "!", "§",
-            "$", "%", "&", "{", "}", "?", "#", "~", "¸", "´", "|", "<", ">", "=", "€", "ß", "@", "/" };
+    private static final String[] ESCAPE_STRS = new String[] { "*", ".", "+", "-", "^", "\\", ":", ";", "!", "§", "$",
+            "%", "&", "{", "}", "?", "#", "~", "¸", "´", "|", "<", ">", "=", "€", "ß", "@", "/" };
 
     @Test
     public void testExponent() {
