@@ -638,21 +638,41 @@ public class ExpressionParser {
         //CHECKSTYLE:ON
         final StringBuilder context = new StringBuilder();
         boolean consumeMore = true;
-        while (consumeMore) {
+        OUTER: while (consumeMore) {
             consumeMore = false;
             final Token contextToken = tokenizer.current();
 
-            if (")".equals(contextToken.getContents())) {
-                break;
-            }
             if (contextToken.isEnd()) {
                 break;
             }
-            if (":".equals(contextToken.getSource())) {
-                consumeMore = true;
+
+            final String source = contextToken.getSource();
+            if (source.length() == 1) {
+                final char contextCharacter = source.charAt(0);
+                if (contextCharacter == ')') {
+                    //stop looking, we are inside parameters that now get closed
+                    break OUTER;
+                } else if (contextCharacter == ':' || contextCharacter == '@') {
+                    consumeMore = true;
+                }
             }
 
+            if (!consumeMore) {
+                int voteConsumeMoreCharacters = 0;
+                for (int i = 0; i < source.length(); i++) {
+                    final char contextCharacter = source.charAt(i);
+                    if (isContextEscapedCharacter(contextCharacter)) {
+                        voteConsumeMoreCharacters++;
+                    } else {
+                        break;
+                    }
+                }
+                if (voteConsumeMoreCharacters == source.length()) {
+                    consumeMore = true;
+                }
+            }
             tokenizer.consume();
+
             final int start = contextToken.getIndexOffset();
             int end = start + contextToken.getLength();
             int skipCharacters = -1;
@@ -677,61 +697,108 @@ public class ExpressionParser {
                 }
             }
 
-            final int next = end;
-            if (originalExpression.length() > next) {
-                final char nextCharacter = originalExpression.charAt(next);
-                switch (nextCharacter) {
-                case '@':
-                case ':':
-                    consumeMore = true;
-                    skipCharacters++;
-                    end++;
-                    break;
-                case '.':
-                case ',':
-                case '+':
-                case '-':
-                case '^':
-                case '*':
-                case '/':
-                case '\\':
-                case ';':
-                case '!':
-                case '§':
-                case '$':
-                case '%':
-                case '&':
-                case '{':
-                case '}':
-                case '?':
-                case '#':
-                case '~':
-                case '¸':
-                case '´':
-                case '|':
-                case '<':
-                case '>':
-                case '=':
-                case '€':
-                case 'ß':
-                    consumeMore = true;
-                    end++;
-                    tokenizer.consume();
-                    break;
-                default:
-                    //nothing to do
+            if (!consumeMore) {
+                final int next = end;
+                if (originalExpression.length() > next) {
+                    final char nextCharacter = originalExpression.charAt(next);
+                    if (nextCharacter == '@' || nextCharacter == ':') {
+                        consumeMore = true;
+                        skipCharacters++;
+                        end++;
+                    }
                 }
             }
-            maybeSkipContextCharacters(ignoreBracketsAtEnd, context, consumeMore, start, end, skipCharacters);
 
+            if (!consumeMore) {
+                boolean checkMoreEscapeCharacters = true;
+                while (checkMoreEscapeCharacters) {
+                    final int next = end;
+                    if (originalExpression.length() > next) {
+                        final char nextCharacter = originalExpression.charAt(next);
+                        if (isContextEscapedCharacter(nextCharacter)) {
+                            consumeMore = true;
+                            end++;
+                            skipCharacters++;
+                        } else {
+                            checkMoreEscapeCharacters = false;
+                        }
+                    } else {
+                        checkMoreEscapeCharacters = false;
+                    }
+                }
+            }
+            final boolean endsWithComment = maybeSkipContextCharacters(ignoreBracketsAtEnd, context, consumeMore, start,
+                    end, skipCharacters);
+            if (endsWithComment) {
+                consumeMore = true;
+            }
         }
         return context.toString();
     }
 
-    private void maybeSkipContextCharacters(final boolean ignoreBracketsAtEnd, final StringBuilder context,
+    private boolean isContextEscapedCharacter(final char character) {
+        switch (character) {
+        case '.':
+        case ',':
+        case '+':
+        case '-':
+        case '^':
+        case '*':
+        case '/':
+        case '\\':
+        case ';':
+        case '!':
+        case '§':
+        case '$':
+        case '%':
+        case '&':
+        case '{':
+        case '}':
+        case '?':
+        case '#':
+        case '~':
+        case '¸':
+        case '´':
+        case '|':
+        case '<':
+        case '>':
+        case '=':
+        case '€':
+        case 'ß':
+            return true;
+        default:
+            return false;
+        }
+    }
+
+    private boolean maybeSkipContextCharacters(final boolean ignoreBracketsAtEnd, final StringBuilder context,
             final boolean consumeMore, final int start, final int end, final int skipCharacters) {
-        context.append(originalExpression.substring(start, end));
         int usedSkipCharacters = skipCharacters;
+
+        boolean endsWithComment = false;
+        final String substring = originalExpression.substring(start, end);
+        if (substring.endsWith("//")) {
+            endsWithComment = true;
+            final String substringWithoutComment = Strings.removeEnd(substring, 2);
+            context.append(substringWithoutComment);
+            final int commentEnd = originalExpression.indexOf('\n', end + 1);
+            if (commentEnd >= 0) {
+                usedSkipCharacters += commentEnd - end + 1;
+            } else {
+                usedSkipCharacters += originalExpression.length() - end + 1;
+            }
+        } else if (substring.endsWith("/*")) {
+            endsWithComment = true;
+            final String substringWithoutComment = Strings.removeEnd(substring, 2);
+            context.append(substringWithoutComment);
+            final int commentEnd = originalExpression.indexOf("*/", end + 1);
+            if (commentEnd >= 0) {
+                usedSkipCharacters += commentEnd - end + 2;
+            }
+        } else {
+            context.append(substring);
+        }
+
         if (ignoreBracketsAtEnd && !consumeMore && Strings.endsWith(context, "]")) {
             final int lastIndexOf = context.lastIndexOf("[");
             if (lastIndexOf >= 0) {
@@ -739,9 +806,10 @@ public class ExpressionParser {
                 context.setLength(lastIndexOf);
             }
         }
-        if (usedSkipCharacters > 0) {
-            tokenizer.skipCharacters(skipCharacters);
+        if (usedSkipCharacters >= 0) {
+            tokenizer.skipCharacters(usedSkipCharacters);
         }
+        return endsWithComment;
     }
 
     protected IPreviousKeyFunction getPreviousKeyFunctionOrThrow(final String context) {
