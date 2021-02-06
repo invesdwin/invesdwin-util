@@ -1,27 +1,23 @@
 package de.invesdwin.util.math.expression.tokenizer;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.Reader;
-
 import javax.annotation.concurrent.NotThreadSafe;
-
-import de.invesdwin.util.error.Throwables;
 
 @NotThreadSafe
 public class LookaheadReader extends ALookahead<Char> {
 
-    private Reader input;
+    private String input;
     private int lineOffset = 0;
     private int columnOffset = -1;
     private int indexOffset = -1;
+    private int lastIndexOffset = -1;
 
-    public void init(final Reader input) {
+    public void init(final String input) {
         super.init();
-        this.input = new BufferedReader(input);
+        this.input = input;
         lineOffset = 0;
         columnOffset = -1;
         indexOffset = -1;
+        lastIndexOffset = input.length() - 1;
     }
 
     public int getColumnOffset() {
@@ -39,23 +35,18 @@ public class LookaheadReader extends ALookahead<Char> {
 
     @Override
     protected Char fetch() {
-        try {
-            final int character = input.read();
-            if (character == -1) {
-                return null;
-            }
-            if (character == '\n') {
-                lineOffset++;
-                columnOffset = -1;
-            } else {
-                columnOffset++;
-            }
-            indexOffset++;
-            return new Char((char) character, lineOffset, columnOffset, indexOffset);
-        } catch (final IOException e) {
-            throw new ParseException(new Char('\0', lineOffset, columnOffset, indexOffset),
-                    Throwables.concatMessagesShort(e), e);
+        if (indexOffset >= lastIndexOffset) {
+            return null;
         }
+        indexOffset++;
+        final char character = input.charAt(indexOffset);
+        if (character == '\n') {
+            lineOffset++;
+            columnOffset = -1;
+        } else {
+            columnOffset++;
+        }
+        return new Char(character, lineOffset, columnOffset, indexOffset);
     }
 
     @Override
@@ -76,6 +67,16 @@ public class LookaheadReader extends ALookahead<Char> {
         if (current != null) {
             consume();
         }
+    }
+
+    public void setPosition(final IPosition position) {
+        lineOffset = position.getLineOffset();
+        columnOffset = position.getColumnOffset();
+        indexOffset = position.getIndexOffset();
+    }
+
+    public IPosition getPosition() {
+        return new Char(input.charAt(indexOffset), lineOffset, columnOffset, indexOffset);
     }
 
 }

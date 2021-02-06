@@ -1,6 +1,5 @@
 package de.invesdwin.util.math.expression;
 
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -11,7 +10,6 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.lang.Objects;
-import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.lang.description.TextDescription;
 import de.invesdwin.util.math.expression.eval.ConstantExpression;
 import de.invesdwin.util.math.expression.eval.DynamicPreviousKeyExpression;
@@ -34,6 +32,7 @@ import de.invesdwin.util.math.expression.function.IPreviousKeyFunction;
 import de.invesdwin.util.math.expression.function.LogicalFunctions;
 import de.invesdwin.util.math.expression.function.MathFunctions;
 import de.invesdwin.util.math.expression.function.StatisticalFunctions;
+import de.invesdwin.util.math.expression.tokenizer.ExpressionContextUtil;
 import de.invesdwin.util.math.expression.tokenizer.IPosition;
 import de.invesdwin.util.math.expression.tokenizer.ParseException;
 import de.invesdwin.util.math.expression.tokenizer.Token;
@@ -216,7 +215,7 @@ public class ExpressionParser {
     public IExpression parse() {
         try {
             tokenizer = TOKENIZER.get();
-            tokenizer.init(new StringReader(originalExpression), isSemicolonAllowed());
+            tokenizer.init(originalExpression, isSemicolonAllowed());
             final IParsedExpression result = simplify(expression(true));
             if (tokenizer.current().isNotEnd()) {
                 final Token token = tokenizer.consume();
@@ -532,7 +531,7 @@ public class ExpressionParser {
 
     private IParsedExpression functionOrVariable() {
         Token token = tokenizer.current();
-        final String str = collectContext(true);
+        final String str = ExpressionContextUtil.collectContext(tokenizer, originalExpression, false);
         token = Token.create(token, str);
         final int nextCharIdx = token.getIndexOffset() + token.getLength();
         if (nextCharIdx < originalExpression.length()) {
@@ -622,7 +621,7 @@ public class ExpressionParser {
     }
 
     protected String ofContext(final String existingContext) {
-        final String originalContext = collectContext(false);
+        final String originalContext = ExpressionContextUtil.collectContext(tokenizer, originalExpression, true);
         final String context = modifyContext(originalContext);
 
         if (existingContext != null && !existingContext.equals(context)) {
@@ -631,184 +630,6 @@ public class ExpressionParser {
         }
 
         return context;
-    }
-
-    //CHECKSTYLE:OFF
-    private String collectContext(final boolean ignoreBracketsAtEnd) {
-        //CHECKSTYLE:ON
-        final StringBuilder context = new StringBuilder();
-        boolean consumeMore = true;
-        OUTER: while (consumeMore) {
-            consumeMore = false;
-            final Token contextToken = tokenizer.current();
-
-            if (contextToken.isEnd()) {
-                break;
-            }
-
-            final String source = contextToken.getSource();
-            if (source.length() == 1) {
-                final char contextCharacter = source.charAt(0);
-                if (contextCharacter == ')') {
-                    //stop looking, we are inside parameters that now get closed
-                    break OUTER;
-                } else if (contextCharacter == ':' || contextCharacter == '@') {
-                    consumeMore = true;
-                }
-            }
-
-            if (!consumeMore) {
-                int voteConsumeMoreCharacters = 0;
-                for (int i = 0; i < source.length(); i++) {
-                    final char contextCharacter = source.charAt(i);
-                    if (isContextEscapedCharacter(contextCharacter)) {
-                        voteConsumeMoreCharacters++;
-                    } else {
-                        break;
-                    }
-                }
-                if (voteConsumeMoreCharacters == source.length()) {
-                    consumeMore = true;
-                }
-            }
-            tokenizer.consume();
-
-            final int start = contextToken.getIndexOffset();
-            int end = start + contextToken.getLength();
-            int skipCharacters = -1;
-            int skipBracketClose = -1;
-            while (true) {
-                if (originalExpression.length() <= end) {
-                    break;
-                }
-                final char endCharacter = originalExpression.charAt(end);
-                if (endCharacter == '[') {
-                    skipBracketClose++;
-                } else if (endCharacter == ']' && skipBracketClose > -1) {
-                    skipBracketClose--;
-                    skipCharacters++;
-                    end++;
-                }
-                if (skipBracketClose >= 0) {
-                    skipCharacters++;
-                    end++;
-                } else {
-                    break;
-                }
-            }
-
-            if (!consumeMore) {
-                final int next = end;
-                if (originalExpression.length() > next) {
-                    final char nextCharacter = originalExpression.charAt(next);
-                    if (nextCharacter == '@' || nextCharacter == ':') {
-                        consumeMore = true;
-                        skipCharacters++;
-                        end++;
-                    }
-                }
-            }
-
-            if (!consumeMore) {
-                boolean checkMoreEscapeCharacters = true;
-                while (checkMoreEscapeCharacters) {
-                    final int next = end;
-                    if (originalExpression.length() > next) {
-                        final char nextCharacter = originalExpression.charAt(next);
-                        if (isContextEscapedCharacter(nextCharacter)) {
-                            consumeMore = true;
-                            end++;
-                            skipCharacters++;
-                        } else {
-                            checkMoreEscapeCharacters = false;
-                        }
-                    } else {
-                        checkMoreEscapeCharacters = false;
-                    }
-                }
-            }
-            final boolean endsWithComment = maybeSkipContextCharacters(ignoreBracketsAtEnd, context, consumeMore, start,
-                    end, skipCharacters);
-            if (endsWithComment) {
-                consumeMore = true;
-            }
-        }
-        return context.toString();
-    }
-
-    private boolean isContextEscapedCharacter(final char character) {
-        switch (character) {
-        case '.':
-        case '+':
-        case '-':
-        case '^':
-        case '*':
-        case '/':
-        case '\\':
-        case ';':
-        case '!':
-        case '§':
-        case '$':
-        case '%':
-        case '&':
-        case '{':
-        case '}':
-        case '?':
-        case '#':
-        case '~':
-        case '¸':
-        case '´':
-        case '|':
-        case '<':
-        case '>':
-        case '=':
-        case '€':
-        case 'ß':
-            return true;
-        default:
-            return false;
-        }
-    }
-
-    private boolean maybeSkipContextCharacters(final boolean ignoreBracketsAtEnd, final StringBuilder context,
-            final boolean consumeMore, final int start, final int end, final int skipCharacters) {
-        int usedSkipCharacters = skipCharacters;
-
-        boolean endsWithComment = false;
-        final String substring = originalExpression.substring(start, end);
-        if (substring.endsWith("//")) {
-            endsWithComment = true;
-            final String substringWithoutComment = Strings.removeEnd(substring, 2);
-            context.append(substringWithoutComment);
-            final int commentEnd = originalExpression.indexOf('\n', end + 1);
-            if (commentEnd >= 0) {
-                usedSkipCharacters += commentEnd - end + 1;
-            } else {
-                usedSkipCharacters += originalExpression.length() - end + 1;
-            }
-        } else if (substring.endsWith("/*")) {
-            endsWithComment = true;
-            final String substringWithoutComment = Strings.removeEnd(substring, 2);
-            context.append(substringWithoutComment);
-            final int commentEnd = originalExpression.indexOf("*/", end + 1);
-            if (commentEnd >= 0) {
-                usedSkipCharacters += commentEnd - end + 2;
-            }
-        } else {
-            context.append(substring);
-        }
-
-        if (ignoreBracketsAtEnd && !consumeMore && Strings.endsWith(context, "]")) {
-            final int lastIndexOf = context.lastIndexOf("[");
-            if (lastIndexOf >= 0) {
-                usedSkipCharacters -= context.length() - lastIndexOf + 1;
-                context.setLength(lastIndexOf);
-            }
-        }
-        if (usedSkipCharacters >= 0) {
-            tokenizer.skipCharacters(usedSkipCharacters);
-        }
-        return endsWithComment;
     }
 
     protected IPreviousKeyFunction getPreviousKeyFunctionOrThrow(final String context) {

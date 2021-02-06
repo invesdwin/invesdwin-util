@@ -9,6 +9,7 @@ import de.invesdwin.util.math.expression.function.ABooleanFunction;
 import de.invesdwin.util.math.expression.lambda.IEvaluateBoolean;
 import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanFDate;
 import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanKey;
+import de.invesdwin.util.math.expression.tokenizer.ExpressionContextUtil;
 
 @Immutable
 public class BooleanVariableFunction extends ABooleanFunction {
@@ -68,10 +69,7 @@ public class BooleanVariableFunction extends ABooleanFunction {
     public String toString() {
         final StringBuilder sb = new StringBuilder();
         final String context = variable.getContext();
-        if (context != null) {
-            sb.append(context);
-            sb.append(":");
-        }
+        ExpressionContextUtil.putContext(context, sb);
         sb.append(getExpressionName());
         return sb.toString();
     }

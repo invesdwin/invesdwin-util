@@ -6,7 +6,9 @@ import org.junit.ComparisonFailure;
 import org.junit.Test;
 
 import de.invesdwin.util.assertions.Assertions;
+import de.invesdwin.util.math.Characters;
 import de.invesdwin.util.math.expression.eval.IParsedExpression;
+import de.invesdwin.util.math.expression.eval.operation.Op;
 import de.invesdwin.util.math.expression.function.IPreviousKeyFunction;
 import de.invesdwin.util.math.expression.tokenizer.ParseException;
 import de.invesdwin.util.time.fdate.IFDateProvider;
@@ -14,8 +16,8 @@ import de.invesdwin.util.time.fdate.IFDateProvider;
 @NotThreadSafe
 public class ExpressionParserTest {
 
-    private static final String[] ESCAPE_STRS = new String[] { "*", ".", "+", "-", "^", "\\", ":", ";", "!", "§", "$",
-            "%", "&", "{", "}", "?", "#", "~", "¸", "´", "|", "<", ">", "=", "€", "ß", "@", "/" };
+    private static final String[] ESCAPE_STRS = new String[] { "*", ".", ",", "+", "-", "^", "\\", ":", ";", "!", "§",
+            "$", "%", "&", "{", "}", "?", "#", "~", "¸", "´", "|", "<", ">", "=", "€", "ß", "@", "/" };
 
     @Test
     public void testExponent() {
@@ -138,6 +140,42 @@ public class ExpressionParserTest {
             }
         }.parse();
         Assertions.checkEquals(parsed.toString(), parsedAgain.toString());
+    }
+
+    @Test
+    public void testIfParametersOperator() {
+        for (final Op op : Op.values()) {
+            if (op == Op.NOT || op == Op.CROSSES_ABOVE || op == Op.CROSSES_BELOW) {
+                continue;
+            }
+            try {
+                String opStr = op.toString();
+                if (Characters.isAsciiAlpha(opStr.charAt(0))) {
+                    opStr = " " + opStr + " ";
+                }
+                final IExpression parsed = new ExpressionParser("if(random" + opStr + "random,1,0)") {
+                    @Override
+                    protected IParsedExpression simplify(final IParsedExpression expression) {
+                        return expression;
+                    }
+                }.parse();
+                Assertions.checkEquals("if((random " + op + " random), 1, 0)", parsed.toString());
+
+                final IExpression parsedAgain = new ExpressionParser(parsed.toString()) {
+                    @Override
+                    protected IParsedExpression simplify(final IParsedExpression expression) {
+                        return expression;
+                    }
+                }.parse();
+                Assertions.checkEquals(parsed.toString(), parsedAgain.toString());
+            } catch (final Throwable t) {
+                if (t instanceof ComparisonFailure) {
+                    throw t;
+                } else {
+                    throw new RuntimeException("At: " + op, t);
+                }
+            }
+        }
     }
 
     @Test

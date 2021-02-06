@@ -7,6 +7,7 @@ import de.invesdwin.util.math.expression.IExpression;
 import de.invesdwin.util.math.expression.eval.ConstantExpression;
 import de.invesdwin.util.math.expression.eval.IParsedExpression;
 import de.invesdwin.util.math.expression.function.AFunction;
+import de.invesdwin.util.math.expression.tokenizer.ExpressionContextUtil;
 
 @NotThreadSafe
 public abstract class AFunctionCall<F extends AFunction> implements IParsedExpression {
@@ -77,10 +78,7 @@ public abstract class AFunctionCall<F extends AFunction> implements IParsedExpre
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder();
-        if (context != null) {
-            sb.append(context);
-            sb.append(":");
-        }
+        ExpressionContextUtil.putContext(context, sb);
         sb.append(function.getExpressionName());
         if (parameters.length > 0) {
             sb.append("(");

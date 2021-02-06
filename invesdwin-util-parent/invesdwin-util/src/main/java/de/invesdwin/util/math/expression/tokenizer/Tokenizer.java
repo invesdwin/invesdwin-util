@@ -1,6 +1,5 @@
 package de.invesdwin.util.math.expression.tokenizer;
 
-import java.io.Reader;
 import java.util.IdentityHashMap;
 import java.util.Map;
 
@@ -42,7 +41,7 @@ public class Tokenizer extends ALookahead<Token> {
         this.input = new LookaheadReader();
     }
 
-    public void init(final Reader input, final boolean semicolonAllowed) {
+    public void init(final String input, final boolean semicolonAllowed) {
         super.init();
         this.input.init(input);
         this.semicolonAllowed = semicolonAllowed;
@@ -336,6 +335,15 @@ public class Tokenizer extends ALookahead<Token> {
     public void skipCharacters(final int amount) {
         input.skipCharacters(amount);
         itemBuffer.clear();
+    }
+
+    public void setPostition(final IPosition position) {
+        input.setPosition(position);
+        itemBuffer.clear();
+    }
+
+    public IPosition getPosition() {
+        return input.getPosition();
     }
 
 }

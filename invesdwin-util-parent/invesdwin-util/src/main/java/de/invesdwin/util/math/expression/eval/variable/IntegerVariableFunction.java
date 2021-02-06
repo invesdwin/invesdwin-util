@@ -9,6 +9,7 @@ import de.invesdwin.util.math.expression.function.AIntegerFunction;
 import de.invesdwin.util.math.expression.lambda.IEvaluateInteger;
 import de.invesdwin.util.math.expression.lambda.IEvaluateIntegerFDate;
 import de.invesdwin.util.math.expression.lambda.IEvaluateIntegerKey;
+import de.invesdwin.util.math.expression.tokenizer.ExpressionContextUtil;
 
 @Immutable
 public class IntegerVariableFunction extends AIntegerFunction {
@@ -68,10 +69,7 @@ public class IntegerVariableFunction extends AIntegerFunction {
     public String toString() {
         final StringBuilder sb = new StringBuilder();
         final String context = variable.getContext();
-        if (context != null) {
-            sb.append(context);
-            sb.append(":");
-        }
+        ExpressionContextUtil.putContext(context, sb);
         sb.append(getExpressionName());
         return sb.toString();
     }

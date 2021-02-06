@@ -6,6 +6,7 @@ import de.invesdwin.util.math.expression.IExpression;
 import de.invesdwin.util.math.expression.eval.ConstantExpression;
 import de.invesdwin.util.math.expression.eval.IParsedExpression;
 import de.invesdwin.util.math.expression.function.AFunction;
+import de.invesdwin.util.math.expression.tokenizer.ExpressionContextUtil;
 import de.invesdwin.util.math.expression.variable.IVariable;
 
 @Immutable
@@ -22,10 +23,7 @@ public abstract class AVariableReference<V extends IVariable> implements IParsed
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder();
-        if (context != null) {
-            sb.append(context);
-            sb.append(":");
-        }
+        ExpressionContextUtil.putContext(context, sb);
         sb.append(variable.getExpressionName());
         return sb.toString();
     }

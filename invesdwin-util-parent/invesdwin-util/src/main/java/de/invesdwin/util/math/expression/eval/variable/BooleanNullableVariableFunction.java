@@ -9,6 +9,7 @@ import de.invesdwin.util.math.expression.function.ABooleanNullableFunction;
 import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanNullable;
 import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanNullableFDate;
 import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanNullableKey;
+import de.invesdwin.util.math.expression.tokenizer.ExpressionContextUtil;
 
 @Immutable
 public class BooleanNullableVariableFunction extends ABooleanNullableFunction {
@@ -69,10 +70,7 @@ public class BooleanNullableVariableFunction extends ABooleanNullableFunction {
     public String toString() {
         final StringBuilder sb = new StringBuilder();
         final String context = variable.getContext();
-        if (context != null) {
-            sb.append(context);
-            sb.append(":");
-        }
+        ExpressionContextUtil.putContext(context, sb);
         sb.append(getExpressionName());
         return sb.toString();
     }

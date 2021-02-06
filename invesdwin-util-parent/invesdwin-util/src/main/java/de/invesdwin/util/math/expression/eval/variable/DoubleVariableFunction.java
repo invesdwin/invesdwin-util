@@ -9,6 +9,7 @@ import de.invesdwin.util.math.expression.function.ADoubleFunction;
 import de.invesdwin.util.math.expression.lambda.IEvaluateDouble;
 import de.invesdwin.util.math.expression.lambda.IEvaluateDoubleFDate;
 import de.invesdwin.util.math.expression.lambda.IEvaluateDoubleKey;
+import de.invesdwin.util.math.expression.tokenizer.ExpressionContextUtil;
 
 @Immutable
 public class DoubleVariableFunction extends ADoubleFunction {
@@ -68,10 +69,7 @@ public class DoubleVariableFunction extends ADoubleFunction {
     public String toString() {
         final StringBuilder sb = new StringBuilder();
         final String context = variable.getContext();
-        if (context != null) {
-            sb.append(context);
-            sb.append(":");
-        }
+        ExpressionContextUtil.putContext(context, sb);
         sb.append(getExpressionName());
         return sb.toString();
     }
