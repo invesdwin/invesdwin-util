@@ -17,6 +17,14 @@ public class AttributesMap extends ADelegateMap<String, Object> {
         return Collections.synchronizedMap(new HashMap<String, Object>());
     }
 
+    @Override
+    public Object getOrDefault(final Object key, final Object defaultValue) {
+        final Map<String, Object> delegate = getDelegate();
+        synchronized (delegate) {
+            return delegate.getOrDefault(key, defaultValue);
+        }
+    }
+
     @SuppressWarnings("unchecked")
     public <T> T getOrCreate(final String key, final Callable<T> createCallable) {
         T v;
