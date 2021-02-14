@@ -143,6 +143,14 @@ public abstract class AFunction {
      */
     public abstract boolean shouldDraw();
 
+    /**
+     * Return true if this function does not depend on an outside context, e.g. current trade information, strategy
+     * samples or values from other indicators.
+     * 
+     * When this is true, results might be cached and compressed as double/integer/boolean arrays or bitsets.
+     */
+    public abstract boolean shouldCompress();
+
     @Override
     public String toString() {
         return Objects.toStringHelper(this).addValue(getExpressionName()).toString();

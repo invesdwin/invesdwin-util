@@ -218,6 +218,11 @@ public final class LogicalFunctions {
         }
 
         @Override
+        public boolean shouldCompress() {
+            return true;
+        }
+
+        @Override
         public boolean shouldPersist() {
             return false;
         }
@@ -327,6 +332,11 @@ public final class LogicalFunctions {
         }
 
         @Override
+        public boolean shouldCompress() {
+            return true;
+        }
+
+        @Override
         public boolean shouldPersist() {
             return false;
         }
@@ -424,6 +434,11 @@ public final class LogicalFunctions {
         @Override
         public String getDescription() {
             return "A value greater than 0 means true.";
+        }
+
+        @Override
+        public boolean shouldCompress() {
+            return true;
         }
 
         @Override
@@ -533,6 +548,11 @@ public final class LogicalFunctions {
         @Override
         public String getDescription() {
             return "A value less than or equal to 0 means true.";
+        }
+
+        @Override
+        public boolean shouldCompress() {
+            return true;
         }
 
         @Override
@@ -656,6 +676,11 @@ public final class LogicalFunctions {
         @Override
         public String getDescription() {
             return "True will become false and false will become true.";
+        }
+
+        @Override
+        public boolean shouldCompress() {
+            return true;
         }
 
         @Override
@@ -861,6 +886,11 @@ public final class LogicalFunctions {
             public String getDescription() {
                 return "With this map function one can access alternative values depending on an index. "
                         + "The index (and any indexed value) can be determined by a dynamic expression. Example: map(random*3, 10, 20, 10*3)";
+            }
+
+            @Override
+            public boolean shouldCompress() {
+                return true;
             }
 
             @Override
@@ -1091,6 +1121,11 @@ public final class LogicalFunctions {
                 return "This function can be used to do a majority vote on multiple conditions. "
                         + "This can also be used to define ensemble strategies. "
                         + "Example: vote(0.6, close[0] > close[1], ema(25) > ema(5), vix > 10)";
+            }
+
+            @Override
+            public boolean shouldCompress() {
+                return true;
             }
 
             @Override

@@ -226,6 +226,11 @@ public class ConstantPreviousKeyExpression implements IParsedExpression {
     }
 
     @Override
+    public boolean shouldCompress() {
+        return expression.shouldCompress();
+    }
+
+    @Override
     public boolean shouldPersist() {
         return expression.shouldPersist();
     }

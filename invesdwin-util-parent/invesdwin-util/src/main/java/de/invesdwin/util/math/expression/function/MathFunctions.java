@@ -82,6 +82,11 @@ public final class MathFunctions {
         }
 
         @Override
+        public boolean shouldCompress() {
+            return true;
+        }
+
+        @Override
         public boolean shouldPersist() {
             return false;
         }
@@ -159,6 +164,11 @@ public final class MathFunctions {
         }
 
         @Override
+        public boolean shouldCompress() {
+            return true;
+        }
+
+        @Override
         public boolean shouldPersist() {
             return false;
         }
@@ -232,6 +242,11 @@ public final class MathFunctions {
         @Override
         public String getDescription() {
             return "Returns the trigonometric cosine of an angle.";
+        }
+
+        @Override
+        public boolean shouldCompress() {
+            return true;
         }
 
         @Override
@@ -312,6 +327,11 @@ public final class MathFunctions {
         }
 
         @Override
+        public boolean shouldCompress() {
+            return true;
+        }
+
+        @Override
         public boolean shouldPersist() {
             return false;
         }
@@ -385,6 +405,11 @@ public final class MathFunctions {
         @Override
         public String getDescription() {
             return "Returns the trigonometric tangent of an angle.";
+        }
+
+        @Override
+        public boolean shouldCompress() {
+            return true;
         }
 
         @Override
@@ -466,6 +491,11 @@ public final class MathFunctions {
         }
 
         @Override
+        public boolean shouldCompress() {
+            return true;
+        }
+
+        @Override
         public boolean shouldPersist() {
             return false;
         }
@@ -540,6 +570,11 @@ public final class MathFunctions {
         public String getDescription() {
             return "Returns the absolute value of a double value. If the argument is not negative, the argument is returned. "
                     + "If the argument is negative, the negation of the argument is returned.";
+        }
+
+        @Override
+        public boolean shouldCompress() {
+            return true;
         }
 
         @Override
@@ -619,6 +654,11 @@ public final class MathFunctions {
         }
 
         @Override
+        public boolean shouldCompress() {
+            return true;
+        }
+
+        @Override
         public boolean shouldPersist() {
             return false;
         }
@@ -695,6 +735,11 @@ public final class MathFunctions {
         }
 
         @Override
+        public boolean shouldCompress() {
+            return true;
+        }
+
+        @Override
         public boolean shouldPersist() {
             return false;
         }
@@ -768,6 +813,11 @@ public final class MathFunctions {
         @Override
         public String getDescription() {
             return "Returns the arc tangent of a value; the returned angle is in the range -pi/2 through pi/2.";
+        }
+
+        @Override
+        public boolean shouldCompress() {
+            return true;
         }
 
         @Override
@@ -888,6 +938,11 @@ public final class MathFunctions {
         }
 
         @Override
+        public boolean shouldCompress() {
+            return true;
+        }
+
+        @Override
         public boolean shouldPersist() {
             return false;
         }
@@ -961,6 +1016,11 @@ public final class MathFunctions {
         @Override
         public String getDescription() {
             return "Returns the closest long to the argument, with ties rounding to positive infinity.";
+        }
+
+        @Override
+        public boolean shouldCompress() {
+            return true;
         }
 
         @Override
@@ -1041,6 +1101,11 @@ public final class MathFunctions {
         }
 
         @Override
+        public boolean shouldCompress() {
+            return true;
+        }
+
+        @Override
         public boolean shouldPersist() {
             return false;
         }
@@ -1115,6 +1180,11 @@ public final class MathFunctions {
         public String getDescription() {
             return "Returns the smallest (closest to negative infinity) double value that is greater than "
                     + "or equal to the argument and is equal to a mathematical integer.";
+        }
+
+        @Override
+        public boolean shouldCompress() {
+            return true;
         }
 
         @Override
@@ -1234,6 +1304,11 @@ public final class MathFunctions {
         }
 
         @Override
+        public boolean shouldCompress() {
+            return true;
+        }
+
+        @Override
         public boolean shouldPersist() {
             return false;
         }
@@ -1308,6 +1383,11 @@ public final class MathFunctions {
         @Override
         public String getDescription() {
             return "Returns the correctly rounded positive square root of a double value.";
+        }
+
+        @Override
+        public boolean shouldCompress() {
+            return true;
         }
 
         @Override
@@ -1388,6 +1468,11 @@ public final class MathFunctions {
         }
 
         @Override
+        public boolean shouldCompress() {
+            return true;
+        }
+
+        @Override
         public boolean shouldPersist() {
             return false;
         }
@@ -1461,6 +1546,11 @@ public final class MathFunctions {
         @Override
         public String getDescription() {
             return "Returns Euler's number e raised to the power of a double value.";
+        }
+
+        @Override
+        public boolean shouldCompress() {
+            return true;
         }
 
         @Override
@@ -1540,6 +1630,11 @@ public final class MathFunctions {
         }
 
         @Override
+        public boolean shouldCompress() {
+            return true;
+        }
+
+        @Override
         public boolean shouldPersist() {
             return false;
         }
@@ -1613,6 +1708,11 @@ public final class MathFunctions {
         @Override
         public String getDescription() {
             return "Returns the base 10 logarithm of a double value.";
+        }
+
+        @Override
+        public boolean shouldCompress() {
+            return true;
         }
 
         @Override
@@ -1693,6 +1793,11 @@ public final class MathFunctions {
         }
 
         @Override
+        public boolean shouldCompress() {
+            return true;
+        }
+
+        @Override
         public boolean shouldPersist() {
             return false;
         }
@@ -1770,6 +1875,11 @@ public final class MathFunctions {
         }
 
         @Override
+        public boolean shouldCompress() {
+            return true;
+        }
+
+        @Override
         public boolean shouldPersist() {
             return false;
         }
@@ -1844,6 +1954,11 @@ public final class MathFunctions {
         public String getDescription() {
             return "Converts an angle measured in degrees to an approximately equivalent angle measured in radians. "
                     + "The conversion from degrees to radians is generally inexact.";
+        }
+
+        @Override
+        public boolean shouldCompress() {
+            return true;
         }
 
         @Override
@@ -1953,6 +2068,11 @@ public final class MathFunctions {
         @Override
         public String getDescription() {
             return "A positive number will become negative, a negative value will become positive. 0 will stay 0.";
+        }
+
+        @Override
+        public boolean shouldCompress() {
+            return true;
         }
 
         @Override
@@ -2111,6 +2231,11 @@ public final class MathFunctions {
         }
 
         @Override
+        public boolean shouldCompress() {
+            return true;
+        }
+
+        @Override
         public boolean shouldPersist() {
             return false;
         }
@@ -2183,6 +2308,11 @@ public final class MathFunctions {
             @Override
             public String getDescription() {
                 return "Returns a double value with a positive sign, greater than or equal to 0.0 and less than 1.0. This value is multiplied by the argument.";
+            }
+
+            @Override
+            public boolean shouldCompress() {
+                return true;
             }
 
             @Override
@@ -2347,6 +2477,11 @@ public final class MathFunctions {
             public String getDescription() {
                 return "Returns the smaller of two or more double values. That is, the result is the value closer to negative infinity. "
                         + "NaN is ignored.";
+            }
+
+            @Override
+            public boolean shouldCompress() {
+                return true;
             }
 
             @Override
@@ -2517,6 +2652,11 @@ public final class MathFunctions {
             public String getDescription() {
                 return "Returns the greater of two or more double values. That is, the result is the argument closer to positive infinity. "
                         + "NaN is ignored.";
+            }
+
+            @Override
+            public boolean shouldCompress() {
+                return true;
             }
 
             @Override
@@ -2730,6 +2870,11 @@ public final class MathFunctions {
                 return "Returns the value that is less or equal to max and higher or equal to min. "
                         + "Thus ensuring maximum and minimum thresholds at the same time and returning "
                         + "the maximum or minimum when one of them is breached.";
+            }
+
+            @Override
+            public boolean shouldCompress() {
+                return true;
             }
 
             @Override

@@ -43,6 +43,11 @@ public final class HistoricalFunctions {
                 return new ABooleanFunction() {
 
                     @Override
+                    public boolean shouldCompress() {
+                        return true;
+                    }
+
+                    @Override
                     public boolean shouldPersist() {
                         return false;
                     }
@@ -182,6 +187,11 @@ public final class HistoricalFunctions {
                 }
 
                 return new ABooleanFunction() {
+
+                    @Override
+                    public boolean shouldCompress() {
+                        return true;
+                    }
 
                     @Override
                     public boolean shouldPersist() {
@@ -367,6 +377,11 @@ public final class HistoricalFunctions {
                 }
 
                 return new AIntegerFunction() {
+
+                    @Override
+                    public boolean shouldCompress() {
+                        return true;
+                    }
 
                     @Override
                     public boolean shouldPersist() {
@@ -558,6 +573,11 @@ public final class HistoricalFunctions {
                 }
 
                 return new ABooleanFunction() {
+
+                    @Override
+                    public boolean shouldCompress() {
+                        return true;
+                    }
 
                     @Override
                     public boolean shouldPersist() {
@@ -757,6 +777,11 @@ public final class HistoricalFunctions {
                 }
 
                 return new AIntegerFunction() {
+
+                    @Override
+                    public boolean shouldCompress() {
+                        return true;
+                    }
 
                     @Override
                     public boolean shouldPersist() {
@@ -968,6 +993,11 @@ public final class HistoricalFunctions {
                 return new ABooleanFunction() {
 
                     @Override
+                    public boolean shouldCompress() {
+                        return true;
+                    }
+
+                    @Override
                     public boolean shouldPersist() {
                         return false;
                     }
@@ -1165,6 +1195,11 @@ public final class HistoricalFunctions {
                 }
 
                 return new AIntegerFunction() {
+
+                    @Override
+                    public boolean shouldCompress() {
+                        return true;
+                    }
 
                     @Override
                     public boolean shouldPersist() {
@@ -1376,6 +1411,11 @@ public final class HistoricalFunctions {
                 return new ABooleanFunction() {
 
                     @Override
+                    public boolean shouldCompress() {
+                        return true;
+                    }
+
+                    @Override
                     public boolean shouldPersist() {
                         return false;
                     }
@@ -1561,6 +1601,11 @@ public final class HistoricalFunctions {
                 }
 
                 return new AIntegerFunction() {
+
+                    @Override
+                    public boolean shouldCompress() {
+                        return true;
+                    }
 
                     @Override
                     public boolean shouldPersist() {
@@ -1750,6 +1795,11 @@ public final class HistoricalFunctions {
                 }
 
                 return new ABooleanFunction() {
+
+                    @Override
+                    public boolean shouldCompress() {
+                        return true;
+                    }
 
                     @Override
                     public boolean shouldPersist() {
@@ -1947,6 +1997,11 @@ public final class HistoricalFunctions {
                 }
 
                 return new AIntegerFunction() {
+
+                    @Override
+                    public boolean shouldCompress() {
+                        return true;
+                    }
 
                     @Override
                     public boolean shouldPersist() {
@@ -2148,6 +2203,11 @@ public final class HistoricalFunctions {
                 return new ABooleanFunction() {
 
                     @Override
+                    public boolean shouldCompress() {
+                        return true;
+                    }
+
+                    @Override
                     public boolean shouldPersist() {
                         return false;
                     }
@@ -2343,6 +2403,11 @@ public final class HistoricalFunctions {
                 }
 
                 return new AIntegerFunction() {
+
+                    @Override
+                    public boolean shouldCompress() {
+                        return true;
+                    }
 
                     @Override
                     public boolean shouldPersist() {
@@ -2544,6 +2609,11 @@ public final class HistoricalFunctions {
                 return new AIntegerFunction() {
 
                     @Override
+                    public boolean shouldCompress() {
+                        return true;
+                    }
+
+                    @Override
                     public boolean shouldPersist() {
                         return false;
                     }
@@ -2736,6 +2806,11 @@ public final class HistoricalFunctions {
                 }
 
                 return new AIntegerFunction() {
+
+                    @Override
+                    public boolean shouldCompress() {
+                        return true;
+                    }
 
                     @Override
                     public boolean shouldPersist() {

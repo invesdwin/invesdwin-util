@@ -80,6 +80,11 @@ public class BooleanVariableFunction extends ABooleanFunction {
     }
 
     @Override
+    public boolean shouldCompress() {
+        return variable.shouldCompress();
+    }
+
+    @Override
     public boolean shouldPersist() {
         return variable.shouldPersist();
     }

@@ -39,6 +39,11 @@ public final class StatisticalFunctions {
                 return new AIntegerFunction() {
 
                     @Override
+                    public boolean shouldCompress() {
+                        return true;
+                    }
+
+                    @Override
                     public boolean shouldPersist() {
                         return false;
                     }
@@ -224,6 +229,11 @@ public final class StatisticalFunctions {
                 }
 
                 return new ADoubleFunction() {
+
+                    @Override
+                    public boolean shouldCompress() {
+                        return true;
+                    }
 
                     @Override
                     public boolean shouldPersist() {
@@ -412,6 +422,11 @@ public final class StatisticalFunctions {
                 return new ADoubleFunction() {
 
                     @Override
+                    public boolean shouldCompress() {
+                        return true;
+                    }
+
+                    @Override
                     public boolean shouldPersist() {
                         return false;
                     }
@@ -596,6 +611,11 @@ public final class StatisticalFunctions {
                 }
 
                 return new ADoubleFunction() {
+
+                    @Override
+                    public boolean shouldCompress() {
+                        return true;
+                    }
 
                     @Override
                     public boolean shouldPersist() {
@@ -787,6 +807,11 @@ public final class StatisticalFunctions {
                 return new ADoubleFunction() {
 
                     @Override
+                    public boolean shouldCompress() {
+                        return true;
+                    }
+
+                    @Override
                     public boolean shouldPersist() {
                         return false;
                     }
@@ -971,6 +996,11 @@ public final class StatisticalFunctions {
                 }
 
                 return new ADoubleFunction() {
+
+                    @Override
+                    public boolean shouldCompress() {
+                        return true;
+                    }
 
                     @Override
                     public boolean shouldPersist() {
@@ -1162,6 +1192,11 @@ public final class StatisticalFunctions {
                 return new ADoubleFunction() {
 
                     @Override
+                    public boolean shouldCompress() {
+                        return true;
+                    }
+
+                    @Override
                     public boolean shouldPersist() {
                         return false;
                     }
@@ -1348,6 +1383,11 @@ public final class StatisticalFunctions {
                 return new ADoubleFunction() {
 
                     @Override
+                    public boolean shouldCompress() {
+                        return true;
+                    }
+
+                    @Override
                     public boolean shouldPersist() {
                         return false;
                     }
@@ -1532,6 +1572,11 @@ public final class StatisticalFunctions {
                 }
 
                 return new ADoubleFunction() {
+
+                    @Override
+                    public boolean shouldCompress() {
+                        return true;
+                    }
 
                     @Override
                     public boolean shouldPersist() {

@@ -30,6 +30,14 @@ public interface IVariable {
      */
     boolean shouldDraw();
 
+    /**
+     * Return true if this variable does not depend on an outside context, e.g. current trade information, strategy
+     * samples or values from other indicators.
+     * 
+     * When this is true, results might be cached and compressed as double/integer/boolean arrays or bitsets.
+     */
+    boolean shouldCompress();
+
     AVariableReference<?> newReference(String context);
 
 }

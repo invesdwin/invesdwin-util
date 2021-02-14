@@ -81,6 +81,11 @@ public class BooleanNullableVariableFunction extends ABooleanNullableFunction {
     }
 
     @Override
+    public boolean shouldCompress() {
+        return variable.shouldCompress();
+    }
+
+    @Override
     public boolean shouldPersist() {
         return variable.shouldPersist();
     }
