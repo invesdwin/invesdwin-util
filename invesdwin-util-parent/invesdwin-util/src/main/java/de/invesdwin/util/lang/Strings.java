@@ -629,6 +629,13 @@ public final class Strings extends AStringsStaticFacade {
                 sb.setCharAt(i, Character.toLowerCase(character));
                 changed = true;
             } else {
+                if (sb != null && i > 1 && i < str.length() - 1) {
+                    //workaround for ADGRLong -> adgrLong
+                    //though still uncapitalize AverageDailyGrowthRate -> averageDailyGrowthRate
+                    final int prevIndex = i - 1;
+                    final char prevChar = sb.charAt(prevIndex);
+                    sb.setCharAt(prevIndex, Character.toUpperCase(prevChar));
+                }
                 break;
             }
         }
