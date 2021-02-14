@@ -7,6 +7,7 @@ import de.invesdwin.util.math.Booleans;
 import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.expression.ExpressionType;
+import de.invesdwin.util.math.expression.eval.BooleanConstantExpression;
 import de.invesdwin.util.math.expression.eval.ConstantExpression;
 import de.invesdwin.util.math.expression.eval.IParsedExpression;
 import de.invesdwin.util.math.expression.eval.operation.simple.BooleanOrOperation;
@@ -204,7 +205,7 @@ public class BooleanNullableOrOperation extends DoubleBinaryOperation {
         if (newLeft.isConstant()) {
             final Boolean leftResult = newLeft.newEvaluateBooleanNullable().evaluateBooleanNullable();
             if (Booleans.isTrue(leftResult)) {
-                return new ConstantExpression(1D, ExpressionType.Boolean);
+                return BooleanConstantExpression.TRUE;
             } else {
                 if (newRight.isConstant()) {
                     final Boolean rightResult = newRight.newEvaluateBooleanNullable().evaluateBooleanNullable();
@@ -223,7 +224,7 @@ public class BooleanNullableOrOperation extends DoubleBinaryOperation {
         if (newRight.isConstant()) {
             final Boolean rightResult = newRight.newEvaluateBooleanNullable().evaluateBooleanNullable();
             if (Booleans.isTrue(rightResult)) {
-                return new ConstantExpression(1D, ExpressionType.Boolean);
+                return BooleanConstantExpression.TRUE;
             } else {
                 if (newLeft.isConstant()) {
                     final Boolean leftResult = newLeft.newEvaluateBooleanNullable().evaluateBooleanNullable();

@@ -7,6 +7,7 @@ import de.invesdwin.util.math.Booleans;
 import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.expression.ExpressionType;
+import de.invesdwin.util.math.expression.eval.BooleanConstantExpression;
 import de.invesdwin.util.math.expression.eval.ConstantExpression;
 import de.invesdwin.util.math.expression.eval.IParsedExpression;
 import de.invesdwin.util.math.expression.eval.operation.simple.BooleanAndOperation;
@@ -217,7 +218,7 @@ public class BooleanNullableAndOperation extends DoubleBinaryOperation {
                     return newRight;
                 }
             } else {
-                return new ConstantExpression(0D, ExpressionType.Boolean);
+                return BooleanConstantExpression.FALSE;
             }
         }
         if (newRight.isConstant()) {
@@ -236,7 +237,7 @@ public class BooleanNullableAndOperation extends DoubleBinaryOperation {
                     return newLeft;
                 }
             } else {
-                return new ConstantExpression(0D, ExpressionType.Boolean);
+                return BooleanConstantExpression.FALSE;
             }
         }
         return simplify(newLeft, newRight);

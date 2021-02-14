@@ -11,6 +11,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.lang.description.TextDescription;
+import de.invesdwin.util.math.expression.eval.BooleanConstantExpression;
 import de.invesdwin.util.math.expression.eval.ConstantExpression;
 import de.invesdwin.util.math.expression.eval.DynamicPreviousKeyExpression;
 import de.invesdwin.util.math.expression.eval.IParsedExpression;
@@ -481,14 +482,14 @@ public class ExpressionParser {
             if (current.matches("-")) {
                 tokenizer.consume();
                 final DoubleBinaryOperation result = new DoubleBinaryOperation(Op.SUBTRACT,
-                        new ConstantExpression(0D, ExpressionType.Boolean), atom());
+                        BooleanConstantExpression.FALSE, atom());
                 result.seal();
                 return result;
             }
             if (current.matches("!")) {
                 tokenizer.consume();
-                final DoubleBinaryOperation result = new BooleanNullableNotOperation(
-                        new ConstantExpression(0D, ExpressionType.Boolean), atom());
+                final DoubleBinaryOperation result = new BooleanNullableNotOperation(BooleanConstantExpression.FALSE,
+                        atom());
                 result.seal();
                 return result;
             }

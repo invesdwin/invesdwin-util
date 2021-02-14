@@ -7,6 +7,7 @@ import de.invesdwin.util.math.Booleans;
 import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.expression.ExpressionType;
+import de.invesdwin.util.math.expression.eval.BooleanConstantExpression;
 import de.invesdwin.util.math.expression.eval.IParsedExpression;
 import de.invesdwin.util.math.expression.eval.operation.simple.BooleanNotOperation;
 import de.invesdwin.util.math.expression.lambda.IEvaluateBoolean;
@@ -30,7 +31,7 @@ public class BooleanNullableNotOperation extends DoubleBinaryOperation {
     }
 
     public BooleanNullableNotOperation(final IParsedExpression right) {
-        super(Op.NOT, null, right);
+        super(Op.NOT, BooleanConstantExpression.FALSE, right);
     }
 
     @Override
