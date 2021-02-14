@@ -617,4 +617,26 @@ public final class Strings extends AStringsStaticFacade {
         return null;
     }
 
+    public static String uncapitalizeMultipleStart(final String str) {
+        StringBuilder sb = null;
+        boolean changed = false;
+        for (int i = 0; i < str.length(); i++) {
+            final char character = str.charAt(i);
+            if (Character.isUpperCase(character)) {
+                if (sb == null) {
+                    sb = new StringBuilder(str);
+                }
+                sb.setCharAt(i, Character.toLowerCase(character));
+                changed = true;
+            } else {
+                break;
+            }
+        }
+        if (changed) {
+            return sb.toString();
+        } else {
+            return str;
+        }
+    }
+
 }
