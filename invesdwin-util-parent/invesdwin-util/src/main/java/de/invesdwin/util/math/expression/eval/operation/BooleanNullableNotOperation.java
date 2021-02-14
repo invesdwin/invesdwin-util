@@ -29,6 +29,10 @@ public class BooleanNullableNotOperation extends DoubleBinaryOperation {
         super(Op.NOT, left, right);
     }
 
+    public BooleanNullableNotOperation(final IParsedExpression right) {
+        super(Op.NOT, null, right);
+    }
+
     @Override
     public IEvaluateDoubleFDate newEvaluateDoubleFDate() {
         final IEvaluateBooleanNullableFDate f = newEvaluateBooleanNullableFDate();

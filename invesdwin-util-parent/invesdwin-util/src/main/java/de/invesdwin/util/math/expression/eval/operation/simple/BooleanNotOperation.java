@@ -30,6 +30,10 @@ public class BooleanNotOperation extends BooleanNullableNotOperation {
         super(left, right);
     }
 
+    public BooleanNotOperation(final IParsedExpression right) {
+        super(right);
+    }
+
     @Override
     public IEvaluateDoubleFDate newEvaluateDoubleFDate() {
         final IEvaluateBooleanFDate f = newEvaluateBooleanFDate();
