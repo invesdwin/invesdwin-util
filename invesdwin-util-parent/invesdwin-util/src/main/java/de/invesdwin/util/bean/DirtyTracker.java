@@ -22,7 +22,7 @@ import de.invesdwin.norva.beanpath.impl.object.BeanObjectContext;
 import de.invesdwin.norva.beanpath.impl.object.BeanObjectProcessor;
 import de.invesdwin.norva.beanpath.spi.BeanPathUtil;
 import de.invesdwin.norva.beanpath.spi.element.IPropertyBeanPathElement;
-import de.invesdwin.norva.beanpath.spi.element.table.ITableColumnBeanPathElement;
+import de.invesdwin.norva.beanpath.spi.element.table.column.ITableColumnBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.visitor.SimpleBeanPathVisitorSupport;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.fast.concurrent.ASynchronizedFastIterableDelegateSet;
