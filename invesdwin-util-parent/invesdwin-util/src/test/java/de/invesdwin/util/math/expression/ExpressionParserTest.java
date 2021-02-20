@@ -179,6 +179,24 @@ public class ExpressionParserTest {
     }
 
     @Test
+    public void testPiPlusPi() {
+        final IExpression parsed = new ExpressionParser("PI+PI") {
+            @Override
+            protected IParsedExpression simplify(final IParsedExpression expression) {
+                return expression;
+            }
+        }.parse();
+        Assertions.checkEquals("(pi + pi)", parsed.toString());
+        final IExpression parsedAgain = new ExpressionParser(parsed.toString()) {
+            @Override
+            protected IParsedExpression simplify(final IParsedExpression expression) {
+                return expression;
+            }
+        }.parse();
+        Assertions.checkEquals(parsed.toString(), parsedAgain.toString());
+    }
+
+    @Test
     public void testIfParametersLiteral() {
         final IExpression parsed = new ExpressionParser("if(random,true,false)") {
             @Override

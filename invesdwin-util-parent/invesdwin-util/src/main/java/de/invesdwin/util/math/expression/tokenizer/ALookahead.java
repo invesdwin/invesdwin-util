@@ -17,10 +17,14 @@ public abstract class ALookahead<T> {
     protected T current;
 
     protected void init() {
+        clear();
+        endOfInputIndicator = null;
+    }
+
+    public void clear() {
         itemBuffer.clear();
         endReached = false;
         current = null;
-        endOfInputIndicator = null;
     }
 
     public T current() {

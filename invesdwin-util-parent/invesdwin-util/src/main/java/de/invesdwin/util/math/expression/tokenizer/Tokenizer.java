@@ -339,7 +339,13 @@ public class Tokenizer extends ALookahead<Token> {
 
     public void setPostition(final IPosition position) {
         input.setPosition(position);
-        itemBuffer.clear();
+        clear();
+    }
+
+    @Override
+    public void clear() {
+        super.clear();
+        input.clear();
     }
 
     public IPosition getPosition() {
