@@ -2,6 +2,8 @@ package de.invesdwin.util.math.expression.function;
 
 import javax.annotation.concurrent.Immutable;
 
+import org.apache.commons.math3.random.RandomGenerator;
+
 import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.expression.ExpressionReturnType;
 import de.invesdwin.util.math.expression.IExpression;
@@ -12,6 +14,7 @@ import de.invesdwin.util.math.expression.eval.function.ADoubleUnaryFunction;
 import de.invesdwin.util.math.expression.lambda.IEvaluateDouble;
 import de.invesdwin.util.math.expression.lambda.IEvaluateDoubleFDate;
 import de.invesdwin.util.math.expression.lambda.IEvaluateDoubleKey;
+import de.invesdwin.util.math.random.RandomGenerators;
 
 @Immutable
 public final class MathFunctions {
@@ -2270,17 +2273,17 @@ public final class MathFunctions {
 
                     @Override
                     public String getExpressionName() {
-                        return "maxValue";
+                        return "seed";
                     }
 
                     @Override
                     public String getName() {
-                        return "Max Value";
+                        return "Seed";
                     }
 
                     @Override
                     public String getDescription() {
-                        return "A value to multiply the random value with in order to define the maximum result (exclusive), 0 (inclusive) is the minimum value.";
+                        return "A seed to initialize the random generator with";
                     }
 
                     @Override
@@ -2333,12 +2336,14 @@ public final class MathFunctions {
             @Override
             public IEvaluateDoubleFDate newEvaluateDoubleFDate(final String context, final IExpression[] args) {
                 if (args.length == 0) {
-                    return key -> Math.random();
+                    final RandomGenerator random = RandomGenerators.newDefaultRandom();
+                    return key -> random.nextDouble();
                 } else {
-                    final IEvaluateDoubleFDate aF = args[0].newEvaluateDoubleFDate();
+                    final IEvaluateDouble aF = args[0].newEvaluateDouble();
+                    final long seed = (long) aF.evaluateDouble();
+                    final RandomGenerator random = RandomGenerators.newDefaultRandom(seed);
                     return key -> {
-                        final double a = aF.evaluateDouble(key);
-                        return Math.random() * a;
+                        return random.nextDouble();
                     };
                 }
             }
@@ -2346,12 +2351,14 @@ public final class MathFunctions {
             @Override
             public IEvaluateDoubleKey newEvaluateDoubleKey(final String context, final IExpression[] args) {
                 if (args.length == 0) {
-                    return key -> Math.random();
+                    final RandomGenerator random = RandomGenerators.newDefaultRandom();
+                    return key -> random.nextDouble();
                 } else {
-                    final IEvaluateDoubleKey aF = args[0].newEvaluateDoubleKey();
+                    final IEvaluateDouble aF = args[0].newEvaluateDouble();
+                    final long seed = (long) aF.evaluateDouble();
+                    final RandomGenerator random = RandomGenerators.newDefaultRandom(seed);
                     return key -> {
-                        final double a = aF.evaluateDouble(key);
-                        return Math.random() * a;
+                        return random.nextDouble();
                     };
                 }
             }
@@ -2359,12 +2366,14 @@ public final class MathFunctions {
             @Override
             public IEvaluateDouble newEvaluateDouble(final String context, final IExpression[] args) {
                 if (args.length == 0) {
-                    return () -> Math.random();
+                    final RandomGenerator random = RandomGenerators.newDefaultRandom();
+                    return () -> random.nextDouble();
                 } else {
                     final IEvaluateDouble aF = args[0].newEvaluateDouble();
+                    final long seed = (long) aF.evaluateDouble();
+                    final RandomGenerator random = RandomGenerators.newDefaultRandom(seed);
                     return () -> {
-                        final double a = aF.evaluateDouble();
-                        return Math.random() * a;
+                        return random.nextDouble();
                     };
                 }
             }

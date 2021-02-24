@@ -16,7 +16,8 @@ public final class RandomGenerators {
         }
     };
 
-    private RandomGenerators() {}
+    private RandomGenerators() {
+    }
 
     public static RandomGenerator currentThreadLocalRandom() {
         return THREAD_LOCAL.get();
@@ -24,6 +25,10 @@ public final class RandomGenerators {
 
     public static RandomGenerator newDefaultRandom() {
         return new XoRoShiRo128PlusRandomGenerator();
+    }
+
+    public static RandomGenerator newDefaultRandom(final long seed) {
+        return new XoRoShiRo128PlusRandomGenerator(seed);
     }
 
 }
