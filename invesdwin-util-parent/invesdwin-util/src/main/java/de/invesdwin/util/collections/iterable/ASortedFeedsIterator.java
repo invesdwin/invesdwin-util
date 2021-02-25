@@ -1,5 +1,7 @@
 package de.invesdwin.util.collections.iterable;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 import javax.annotation.concurrent.NotThreadSafe;
@@ -17,7 +19,13 @@ public abstract class ASortedFeedsIterator<E> implements ICloseableIterator<E> {
             return ASortedFeedsIterator.this.getCompareCriteria(e.peek());
         }
     };
-    private final HighLowSortedList<PeekingCloseableIterator<? extends E>> peekingFeeds = new HighLowSortedList<>(comparator);
+    private final HighLowSortedList<PeekingCloseableIterator<? extends E>> peekingFeeds = new HighLowSortedList<PeekingCloseableIterator<? extends E>>(
+            comparator) {
+        @Override
+        protected List<PeekingCloseableIterator<? extends E>> newDelegate() {
+            return new LinkedList<>();
+        }
+    };
 
     public ASortedFeedsIterator(final Iterable<? extends ICloseableIterator<? extends E>> feeds) {
         for (final ICloseableIterator<? extends E> feed : feeds) {
