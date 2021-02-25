@@ -334,4 +334,12 @@ public final class Lists extends AListsStaticFacade {
         list.add(index, item);
     }
 
+    public static <T> List<T> singletonListNullable(final T value) {
+        if (value == null) {
+            return Collections.emptyList();
+        } else {
+            return Collections.singletonList(value);
+        }
+    }
+
 }
