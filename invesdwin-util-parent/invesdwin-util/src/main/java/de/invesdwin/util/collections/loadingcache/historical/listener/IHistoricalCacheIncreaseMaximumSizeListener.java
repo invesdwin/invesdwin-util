@@ -9,6 +9,14 @@ public interface IHistoricalCacheIncreaseMaximumSizeListener {
      */
     Integer getMaximumSize();
 
+    default Integer getMaximumSizeIfCachingEnabled() {
+        if (isCachingEnabled()) {
+            return getMaximumSize();
+        } else {
+            return 0;
+        }
+    }
+
     int getMaximumSizeLimit();
 
     boolean isCachingEnabled();
