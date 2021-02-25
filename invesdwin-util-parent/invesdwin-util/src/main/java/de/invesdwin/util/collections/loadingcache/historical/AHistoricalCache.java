@@ -107,6 +107,11 @@ public abstract class AHistoricalCache<V>
     }
 
     @Override
+    public boolean isCachingEnabled() {
+        return !isPutDisabled;
+    }
+
+    @Override
     public final void increaseMaximumSize(final int maximumSize, final String reason) {
         final Integer existingMaximumSize = this.maximumSize;
         final int usedMaximumSize = Math.min(getMaximumSizeLimit(), maximumSize);
@@ -279,6 +284,11 @@ public abstract class AHistoricalCache<V>
             @Override
             public int getMaximumSizeLimit() {
                 return AHistoricalCache.this.getMaximumSizeLimit();
+            }
+
+            @Override
+            public boolean isCachingEnabled() {
+                return AHistoricalCache.this.isCachingEnabled();
             }
         });
         return loadingCache;
