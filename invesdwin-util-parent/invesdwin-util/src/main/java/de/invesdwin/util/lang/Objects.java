@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Function;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
@@ -387,6 +388,27 @@ public final class Objects extends AObjectsStaticFacade {
 
     public static boolean isNull(final Object obj) {
         return obj == null;
+    }
+
+    public static <T> String arrayToStringFunction(final T[] a, final Function<T, String> toString) {
+        if (a == null) {
+            return "null";
+        }
+
+        final int iMax = a.length - 1;
+        if (iMax == -1) {
+            return "[]";
+        }
+
+        final StringBuilder b = new StringBuilder();
+        b.append('[');
+        for (int i = 0;; i++) {
+            b.append(toString.apply(a[i]));
+            if (i == iMax) {
+                return b.append(']').toString();
+            }
+            b.append(", ");
+        }
     }
 
 }
