@@ -15,7 +15,7 @@ public class TimeRangeStreamAvg<E extends TimeRange> implements IStreamAlgorithm
 
     @Override
     public Void process(final E value) {
-        if (value != null) {
+        if (value != null && value.getFrom() != null && value.getTo() != null) {
             avgFrom.process(value.getFrom().millisValue());
             avgTo.process(value.getTo().millisValue());
         }
