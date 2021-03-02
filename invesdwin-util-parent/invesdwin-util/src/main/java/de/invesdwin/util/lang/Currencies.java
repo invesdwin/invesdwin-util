@@ -188,8 +188,9 @@ public final class Currencies {
         if (currencyCode == null) {
             buffer.put("___".getBytes());
         } else {
-            Assertions.checkEquals(3, currencyCode.length());
-            buffer.put(currencyCode.getBytes());
+            final byte[] bytes = currencyCode.getBytes();
+            Assertions.checkEquals(3, bytes.length);
+            buffer.put(bytes);
         }
     }
 

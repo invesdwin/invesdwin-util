@@ -1,5 +1,6 @@
 package de.invesdwin.util.lang;
 
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -17,6 +18,7 @@ import de.invesdwin.util.lang.internal.AStringsStaticFacade;
 import de.invesdwin.util.lang.internal.CheckedCastStrings;
 import de.invesdwin.util.lang.internal.DefaultToStringStyle;
 import de.invesdwin.util.lang.internal.MultilineToStringStyle;
+import de.invesdwin.util.math.Bytes;
 
 @Immutable
 @StaticFacadeDefinition(name = "de.invesdwin.util.lang.internal.AStringsStaticFacade", targets = {
@@ -644,6 +646,35 @@ public final class Strings extends AStringsStaticFacade {
         } else {
             return str;
         }
+    }
+
+    public static byte[] putStringBytes(final String string) {
+        if (string == null) {
+            return Bytes.EMPTY_ARRAY;
+        } else {
+            return string.getBytes();
+        }
+    }
+
+    public static void putString(final ByteBuffer buffer, final byte[] stringBytes) {
+        if (stringBytes == null || stringBytes.length == 0) {
+            return;
+        }
+        buffer.put(stringBytes);
+    }
+
+    public static String extractString(final ByteBuffer buffer, final int index, final int size) {
+        if (size == 0) {
+            return null;
+        }
+        final byte[] bytes = new byte[size];
+        buffer.get(bytes);
+        final String string = new String(bytes);
+        return string;
+    }
+
+    public static int calculateBytesCount(final String string) {
+        return string.getBytes().length;
     }
 
 }
