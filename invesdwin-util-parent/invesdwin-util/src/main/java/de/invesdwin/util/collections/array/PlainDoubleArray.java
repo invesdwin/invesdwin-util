@@ -2,6 +2,8 @@ package de.invesdwin.util.collections.array;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import org.apache.commons.lang3.ArrayUtils;
+
 @NotThreadSafe
 public class PlainDoubleArray implements IDoubleArray {
 
@@ -9,6 +11,10 @@ public class PlainDoubleArray implements IDoubleArray {
 
     public PlainDoubleArray(final int size) {
         this.values = new double[size];
+    }
+
+    public PlainDoubleArray(final double[] values) {
+        this.values = values;
     }
 
     @Override
@@ -24,6 +30,16 @@ public class PlainDoubleArray implements IDoubleArray {
     @Override
     public int size() {
         return values.length;
+    }
+
+    @Override
+    public IDoubleArray subarray(final int startIndexInclusive, final int endIndexExclusive) {
+        return new PlainDoubleArray(ArrayUtils.subarray(values, startIndexInclusive, endIndexExclusive));
+    }
+
+    @Override
+    public double[] asArray() {
+        return values;
     }
 
 }

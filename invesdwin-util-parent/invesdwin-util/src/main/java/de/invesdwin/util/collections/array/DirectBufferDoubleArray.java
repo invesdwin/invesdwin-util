@@ -30,4 +30,14 @@ public class DirectBufferDoubleArray implements IDoubleArray {
         return size;
     }
 
+    @Override
+    public IDoubleArray subarray(final int startIndexInclusive, final int endIndexExclusive) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public double[] asArray() {
+        throw new UnsupportedOperationException();
+    }
+
 }
