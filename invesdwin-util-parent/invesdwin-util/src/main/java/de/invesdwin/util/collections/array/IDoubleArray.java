@@ -13,6 +13,7 @@ public interface IDoubleArray {
     double[] asArray();
 
     static IDoubleArray newInstance(final int size) {
+        //plain arrays are significantly faster than direct buffers
         return new PlainDoubleArray(size);
     }
 
