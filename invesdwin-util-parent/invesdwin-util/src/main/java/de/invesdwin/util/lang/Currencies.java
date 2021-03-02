@@ -18,6 +18,8 @@ import io.netty.util.concurrent.FastThreadLocal;
 @Immutable
 public final class Currencies {
 
+    public static final int BYTES = 3;
+
     public static final String CNY_SYMBOL = "元";
     public static final String JPY_SYMBOL = "¥";
     public static final String GBP_SYMBOL = "£";
