@@ -196,8 +196,8 @@ public final class Strings extends AStringsStaticFacade {
                 .replace("]", " ]")
                 .replace("{", "{ ")
                 .replace("}", " }")
-                .replace("->", " ->")
-                .replace("=>", " =>")
+                .replace("->", " -> ")
+                .replace("=>", " => ")
                 .replace("  ", " ");
     }
 
