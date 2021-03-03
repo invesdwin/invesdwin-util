@@ -130,12 +130,10 @@ public class Percent extends AScaledDecimal<Percent, PercentScale> {
     }
 
     public static double relativeStdev(final double stdev, final double avg) {
-        if (Doubles.equals(stdev, avg)) {
-            if (stdev == 0D || avg == 0D) {
-                return 0D;
-            } else {
-                return 1D;
-            }
+        if (stdev == 0D || avg == 0D) {
+            return 0D;
+        } else if (Doubles.equals(stdev, avg)) {
+            return 1D;
         } else {
             return newHoldingPeriodReturnRate(avg, stdev);
         }
