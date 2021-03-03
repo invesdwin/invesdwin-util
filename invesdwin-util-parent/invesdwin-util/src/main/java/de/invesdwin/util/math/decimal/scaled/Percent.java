@@ -137,7 +137,7 @@ public class Percent extends AScaledDecimal<Percent, PercentScale> {
                 return 1D;
             }
         } else {
-            return newHoldingPeriodReturnRate(stdev, avg);
+            return newHoldingPeriodReturnRate(avg, stdev);
         }
     }
 
