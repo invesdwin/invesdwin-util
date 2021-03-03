@@ -125,11 +125,11 @@ public class Percent extends AScaledDecimal<Percent, PercentScale> {
         }
     }
 
-    public static Percent relativeStdev(final ADecimal<?> stdev, final ADecimal<?> avg) {
-        return new Percent(relativeStdev(stdev.getDefaultValue(), avg.getDefaultValue()), PercentScale.RATE);
+    public static Percent newRateZero(final ADecimal<?> stdev, final ADecimal<?> avg) {
+        return new Percent(newRateZero(stdev.getDefaultValue(), avg.getDefaultValue()), PercentScale.RATE);
     }
 
-    public static double relativeStdev(final double stdev, final double avg) {
+    public static double newRateZero(final double stdev, final double avg) {
         if (stdev == 0D || avg == 0D) {
             return 0D;
         } else if (Doubles.equals(stdev, avg)) {
