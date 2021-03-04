@@ -668,7 +668,7 @@ public final class Strings extends AStringsStaticFacade {
             return null;
         }
         final byte[] bytes = new byte[size];
-        buffer.get(bytes);
+        Buffers.get(buffer, index, bytes);
         final String string = new String(bytes);
         return string;
     }

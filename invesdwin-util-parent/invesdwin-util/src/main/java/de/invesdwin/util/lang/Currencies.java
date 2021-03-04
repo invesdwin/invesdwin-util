@@ -191,14 +191,14 @@ public final class Currencies {
             buffer.put("___".getBytes());
         } else {
             final byte[] bytes = currencyCode.getBytes();
-            Assertions.checkEquals(3, bytes.length);
+            Assertions.checkEquals(BYTES, bytes.length);
             buffer.put(bytes);
         }
     }
 
     public static Currency extractCurrency(final ByteBuffer buffer, final int index) {
-        final byte[] bytes = new byte[3];
-        buffer.get(bytes);
+        final byte[] bytes = new byte[BYTES];
+        Buffers.get(buffer, index, bytes);
         final String currencyCode = new String(bytes);
         if ("___".equals(currencyCode)) {
             return null;
@@ -208,8 +208,8 @@ public final class Currencies {
     }
 
     public static String extractCurrencyCode(final ByteBuffer buffer, final int index) {
-        final byte[] bytes = new byte[3];
-        buffer.get(bytes);
+        final byte[] bytes = new byte[BYTES];
+        Buffers.get(buffer, index, bytes);
         final String currencyCode = new String(bytes);
         if ("___".equals(currencyCode)) {
             return null;
