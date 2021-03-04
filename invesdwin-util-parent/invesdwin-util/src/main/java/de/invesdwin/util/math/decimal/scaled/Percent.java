@@ -125,17 +125,17 @@ public class Percent extends AScaledDecimal<Percent, PercentScale> {
         }
     }
 
-    public static Percent newRateZero(final ADecimal<?> stdev, final ADecimal<?> avg) {
-        return new Percent(newRateZero(stdev.getDefaultValue(), avg.getDefaultValue()), PercentScale.RATE);
+    public static Percent newRateZero(final ADecimal<?> dividend, final ADecimal<?> divisor) {
+        return new Percent(newRateZero(dividend.getDefaultValue(), divisor.getDefaultValue()), PercentScale.RATE);
     }
 
-    public static double newRateZero(final double stdev, final double avg) {
-        if (stdev == 0D || avg == 0D) {
+    public static double newRateZero(final double dividend, final double divisor) {
+        if (dividend == 0D || divisor == 0D) {
             return 0D;
-        } else if (Doubles.equals(stdev, avg)) {
+        } else if (Doubles.equals(dividend, divisor)) {
             return 1D;
         } else {
-            return newHoldingPeriodReturnRate(avg, stdev);
+            return newHoldingPeriodReturnRate(divisor, dividend);
         }
     }
 
