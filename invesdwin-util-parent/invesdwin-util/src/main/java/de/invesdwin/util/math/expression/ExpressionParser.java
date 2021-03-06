@@ -30,6 +30,7 @@ import de.invesdwin.util.math.expression.function.AFunction;
 import de.invesdwin.util.math.expression.function.HistoricalFunctions;
 import de.invesdwin.util.math.expression.function.IFunctionFactory;
 import de.invesdwin.util.math.expression.function.IPreviousKeyFunction;
+import de.invesdwin.util.math.expression.function.IndexOfFunctions;
 import de.invesdwin.util.math.expression.function.LogicalFunctions;
 import de.invesdwin.util.math.expression.function.MathFunctions;
 import de.invesdwin.util.math.expression.function.StatisticalFunctions;
@@ -142,9 +143,15 @@ public class ExpressionParser {
             putDefaultFunction(HistoricalFunctions.newOccursCountLeftFunction(name + "Count" + "Left"));
             putDefaultFunction(HistoricalFunctions.newOccursCountRightFunction(name + "Count" + "Right"));
         }
-        putDefaultFunction(HistoricalFunctions.newFirstIndexOfFunction("firstIndexOf"));
+        putDefaultFunction(IndexOfFunctions.newFirstIndexOfFunction("firstIndexOf"));
         for (final String name : new String[] { "indexOf", "lastIndexOf" }) {
-            putDefaultFunction(HistoricalFunctions.newLastIndexOfFunction(name));
+            putDefaultFunction(IndexOfFunctions.newLastIndexOfFunction(name));
+        }
+        for (final String name : new String[] { "previousIndexOf", "prevIndexOf" }) {
+            putDefaultFunction(IndexOfFunctions.newPreviousIndexOfFunction(name));
+        }
+        for (final String name : new String[] { "latestIndexOf" }) {
+            putDefaultFunction(IndexOfFunctions.newLatestIndexOfFunction(name));
         }
 
         for (final String name : new String[] { "count", "countNotNaN", "countNotNull", "countExists" }) {

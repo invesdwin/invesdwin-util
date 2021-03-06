@@ -13,7 +13,7 @@ import de.invesdwin.util.error.UnknownArgumentException;
 
 @Immutable
 public enum FWeekday {
-    Monday {
+    Monday("Mon") {
         @Override
         public int calendarValue() {
             return Calendar.MONDAY;
@@ -34,7 +34,7 @@ public enum FWeekday {
             return false;
         }
     },
-    Tuesday {
+    Tuesday("Tues", "Tue") {
         @Override
         public int calendarValue() {
             return Calendar.TUESDAY;
@@ -55,7 +55,7 @@ public enum FWeekday {
             return false;
         }
     },
-    Wednesday {
+    Wednesday("Wed") {
         @Override
         public int calendarValue() {
             return Calendar.WEDNESDAY;
@@ -76,7 +76,7 @@ public enum FWeekday {
             return false;
         }
     },
-    Thursday {
+    Thursday("Thur", "Thu") {
         @Override
         public int calendarValue() {
             return Calendar.THURSDAY;
@@ -97,7 +97,7 @@ public enum FWeekday {
             return false;
         }
     },
-    Friday {
+    Friday("Fri") {
         @Override
         public int calendarValue() {
             return Calendar.FRIDAY;
@@ -118,7 +118,7 @@ public enum FWeekday {
             return false;
         }
     },
-    Saturday {
+    Saturday("Sat") {
         @Override
         public int calendarValue() {
             return Calendar.SATURDAY;
@@ -139,7 +139,7 @@ public enum FWeekday {
             return true;
         }
     },
-    Sunday {
+    Sunday("Sun") {
         @Override
         public int calendarValue() {
             return Calendar.SUNDAY;
@@ -164,13 +164,28 @@ public enum FWeekday {
     private static final Map<Integer, FWeekday> CALENDAR_LOOKUP = new HashMap<Integer, FWeekday>();
     private static final Map<DayOfWeek, FWeekday> JAVA_TIME_LOOKUP = new HashMap<DayOfWeek, FWeekday>();
     private static final Map<Integer, FWeekday> JODA_TIME_LOOKUP = new HashMap<Integer, FWeekday>();
+    private static final Map<String, FWeekday> ALIAS_LOOKUP = new HashMap<>();
 
     static {
         for (final FWeekday f : FWeekday.values()) {
             CALENDAR_LOOKUP.put(f.calendarValue(), f);
             JAVA_TIME_LOOKUP.put(f.javaTimeValue(), f);
             JODA_TIME_LOOKUP.put(f.jodaTimeValue(), f);
+            ALIAS_LOOKUP.put(f.name().toLowerCase(), f);
+            for (final String alias : f.getAliases()) {
+                ALIAS_LOOKUP.put(alias.toLowerCase(), f);
+            }
         }
+    }
+
+    private String[] aliases;
+
+    FWeekday(final String... aliases) {
+        this.aliases = aliases;
+    }
+
+    public String[] getAliases() {
+        return aliases;
     }
 
     public static FWeekday valueOfIndex(final int weekday) {
@@ -202,10 +217,16 @@ public enum FWeekday {
         }
     }
 
+    /**
+     * 1-7 from sunday to saturday
+     */
     public abstract int calendarValue();
 
     public abstract DayOfWeek javaTimeValue();
 
+    /**
+     * 1-7 from monday to sunday
+     */
     public abstract int jodaTimeValue();
 
     public int indexValue() {
@@ -260,6 +281,15 @@ public enum FWeekday {
 
     public static boolean isJulianWeekend(final FDate date) {
         return isJulianWeekend(date.millisValue());
+    }
+
+    public static FWeekday valueOfAlias(final String alias) {
+        final FWeekday value = ALIAS_LOOKUP.get(alias.toLowerCase());
+        if (value == null) {
+            throw UnknownArgumentException.newInstance(String.class, alias);
+        } else {
+            return value;
+        }
     }
 
 }

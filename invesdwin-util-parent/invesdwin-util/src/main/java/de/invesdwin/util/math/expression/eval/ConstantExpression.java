@@ -28,6 +28,9 @@ import de.invesdwin.util.math.expression.lambda.IEvaluateIntegerKey;
 @Immutable
 public class ConstantExpression implements IParsedExpression {
 
+    //CHECKSTYLE:OFF
+    public static final ConstantExpression NaN = new ConstantExpression(Double.NaN);
+    //CHECKSTYLE:ON
     private final ExpressionType type;
     private final double doubleValue;
     private final int intValue;

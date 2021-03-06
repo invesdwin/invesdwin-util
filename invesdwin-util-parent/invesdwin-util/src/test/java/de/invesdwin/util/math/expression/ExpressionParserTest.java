@@ -103,6 +103,29 @@ public class ExpressionParserTest {
     }
 
     @Test
+    public void testNegativePreviousKey() {
+        final IExpression parsed = new ExpressionParser("isNaN(NaN[2])[-1]") {
+            @Override
+            protected IPreviousKeyFunction getPreviousKeyFunction(final String context) {
+                return new IPreviousKeyFunction() {
+
+                    @Override
+                    public int getPreviousKey(final int key, final int index) {
+                        return key - index;
+                    }
+
+                    @Override
+                    public IFDateProvider getPreviousKey(final IFDateProvider key, final int index) {
+                        return key.asFDate().addDays(-index);
+                    }
+                };
+            }
+        }.parse();
+        final double evaluateDouble = parsed.newEvaluateDoubleKey().evaluateDouble(0);
+        Assertions.checkEquals(Double.NaN, evaluateDouble);
+    }
+
+    @Test
     public void testPreviousKeyWithComment() {
         final IExpression parsed = new ExpressionParser("//asdf\nNaN").parse();
         final double evaluateDouble = parsed.newEvaluateDoubleKey().evaluateDouble(0);
@@ -1369,7 +1392,7 @@ public class ExpressionParserTest {
             }
         }.parse();
         final boolean result = parsed.newEvaluateBoolean().evaluateBoolean();
-        Assertions.checkEquals(true, result);
+        Assertions.checkEquals(false, result);
     }
 
     @Test
@@ -1392,6 +1415,6 @@ public class ExpressionParserTest {
             }
         }.parse();
         final boolean result = parsed.newEvaluateBoolean().evaluateBoolean();
-        Assertions.checkEquals(true, result);
+        Assertions.checkEquals(false, result);
     }
 }

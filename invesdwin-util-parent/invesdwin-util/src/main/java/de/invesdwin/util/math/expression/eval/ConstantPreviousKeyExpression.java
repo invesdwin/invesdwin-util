@@ -44,19 +44,31 @@ public class ConstantPreviousKeyExpression implements IParsedExpression {
     @Override
     public IEvaluateDoubleFDate newEvaluateDoubleFDate() {
         final IEvaluateDoubleFDate prevF = previousKeyFunction.newEvaluateDoubleFDate(expression);
-        return key -> {
-            final IFDateProvider previousKey = previousKeyFunction.getPreviousKey(key, index);
-            return prevF.evaluateDouble(previousKey);
-        };
+        if (index < 0) {
+            return key -> Double.NaN;
+        } else if (index == 0) {
+            return prevF;
+        } else {
+            return key -> {
+                final IFDateProvider previousKey = previousKeyFunction.getPreviousKey(key, index);
+                return prevF.evaluateDouble(previousKey);
+            };
+        }
     }
 
     @Override
     public IEvaluateDoubleKey newEvaluateDoubleKey() {
         final IEvaluateDoubleKey prevF = previousKeyFunction.newEvaluateDoubleKey(expression);
-        return key -> {
-            final int previousKey = previousKeyFunction.getPreviousKey(key, index);
-            return prevF.evaluateDouble(previousKey);
-        };
+        if (index < 0) {
+            return key -> Double.NaN;
+        } else if (index == 0) {
+            return prevF;
+        } else {
+            return key -> {
+                final int previousKey = previousKeyFunction.getPreviousKey(key, index);
+                return prevF.evaluateDouble(previousKey);
+            };
+        }
     }
 
     @Override
@@ -67,19 +79,31 @@ public class ConstantPreviousKeyExpression implements IParsedExpression {
     @Override
     public IEvaluateIntegerFDate newEvaluateIntegerFDate() {
         final IEvaluateIntegerFDate prevF = previousKeyFunction.newEvaluateIntegerFDate(expression);
-        return key -> {
-            final IFDateProvider previousKey = previousKeyFunction.getPreviousKey(key, index);
-            return prevF.evaluateInteger(previousKey);
-        };
+        if (index < 0) {
+            return key -> 0;
+        } else if (index == 0) {
+            return prevF;
+        } else {
+            return key -> {
+                final IFDateProvider previousKey = previousKeyFunction.getPreviousKey(key, index);
+                return prevF.evaluateInteger(previousKey);
+            };
+        }
     }
 
     @Override
     public IEvaluateIntegerKey newEvaluateIntegerKey() {
         final IEvaluateIntegerKey prevF = previousKeyFunction.newEvaluateIntegerKey(expression);
-        return key -> {
-            final int previousKey = previousKeyFunction.getPreviousKey(key, index);
-            return prevF.evaluateInteger(previousKey);
-        };
+        if (index < 0) {
+            return key -> 0;
+        } else if (index == 0) {
+            return prevF;
+        } else {
+            return key -> {
+                final int previousKey = previousKeyFunction.getPreviousKey(key, index);
+                return prevF.evaluateInteger(previousKey);
+            };
+        }
     }
 
     @Override
@@ -90,19 +114,31 @@ public class ConstantPreviousKeyExpression implements IParsedExpression {
     @Override
     public IEvaluateBooleanNullableFDate newEvaluateBooleanNullableFDate() {
         final IEvaluateBooleanNullableFDate prevF = previousKeyFunction.newEvaluateBooleanNullableFDate(expression);
-        return key -> {
-            final IFDateProvider previousKey = previousKeyFunction.getPreviousKey(key, index);
-            return prevF.evaluateBooleanNullable(previousKey);
-        };
+        if (index < 0) {
+            return key -> null;
+        } else if (index == 0) {
+            return prevF;
+        } else {
+            return key -> {
+                final IFDateProvider previousKey = previousKeyFunction.getPreviousKey(key, index);
+                return prevF.evaluateBooleanNullable(previousKey);
+            };
+        }
     }
 
     @Override
     public IEvaluateBooleanNullableKey newEvaluateBooleanNullableKey() {
         final IEvaluateBooleanNullableKey prevF = previousKeyFunction.newEvaluateBooleanNullableKey(expression);
-        return key -> {
-            final int previousKey = previousKeyFunction.getPreviousKey(key, index);
-            return prevF.evaluateBooleanNullable(previousKey);
-        };
+        if (index < 0) {
+            return key -> null;
+        } else if (index == 0) {
+            return prevF;
+        } else {
+            return key -> {
+                final int previousKey = previousKeyFunction.getPreviousKey(key, index);
+                return prevF.evaluateBooleanNullable(previousKey);
+            };
+        }
     }
 
     @Override
@@ -113,19 +149,31 @@ public class ConstantPreviousKeyExpression implements IParsedExpression {
     @Override
     public IEvaluateBooleanFDate newEvaluateBooleanFDate() {
         final IEvaluateBooleanFDate prevF = previousKeyFunction.newEvaluateBooleanFDate(expression);
-        return key -> {
-            final IFDateProvider previousKey = previousKeyFunction.getPreviousKey(key, index);
-            return prevF.evaluateBoolean(previousKey);
-        };
+        if (index < 0) {
+            return key -> false;
+        } else if (index == 0) {
+            return prevF;
+        } else {
+            return key -> {
+                final IFDateProvider previousKey = previousKeyFunction.getPreviousKey(key, index);
+                return prevF.evaluateBoolean(previousKey);
+            };
+        }
     }
 
     @Override
     public IEvaluateBooleanKey newEvaluateBooleanKey() {
         final IEvaluateBooleanKey prevF = previousKeyFunction.newEvaluateBooleanKey(expression);
-        return key -> {
-            final int previousKey = previousKeyFunction.getPreviousKey(key, index);
-            return prevF.evaluateBoolean(previousKey);
-        };
+        if (index < 0) {
+            return key -> false;
+        } else if (index == 0) {
+            return prevF;
+        } else {
+            return key -> {
+                final int previousKey = previousKeyFunction.getPreviousKey(key, index);
+                return prevF.evaluateBoolean(previousKey);
+            };
+        }
     }
 
     @Override
@@ -141,19 +189,31 @@ public class ConstantPreviousKeyExpression implements IParsedExpression {
     @Override
     public IEvaluateGenericFDate<String> newEvaluateFalseReasonFDate() {
         final IEvaluateGenericFDate<String> prevF = previousKeyFunction.newEvaluateFalseReasonFDate(expression);
-        return key -> {
-            final IFDateProvider previousKey = previousKeyFunction.getPreviousKey(key, index);
-            return prevF.evaluateGeneric(previousKey);
-        };
+        if (index < 0) {
+            return key -> toString();
+        } else if (index == 0) {
+            return prevF;
+        } else {
+            return key -> {
+                final IFDateProvider previousKey = previousKeyFunction.getPreviousKey(key, index);
+                return prevF.evaluateGeneric(previousKey);
+            };
+        }
     }
 
     @Override
     public IEvaluateGenericKey<String> newEvaluateFalseReasonKey() {
         final IEvaluateGenericKey<String> prevF = previousKeyFunction.newEvaluateFalseReasonKey(expression);
-        return key -> {
-            final int previousKey = previousKeyFunction.getPreviousKey(key, index);
-            return prevF.evaluateGeneric(previousKey);
-        };
+        if (index < 0) {
+            return key -> toString();
+        } else if (index == 0) {
+            return prevF;
+        } else {
+            return key -> {
+                final int previousKey = previousKeyFunction.getPreviousKey(key, index);
+                return prevF.evaluateGeneric(previousKey);
+            };
+        }
     }
 
     @Override
@@ -164,19 +224,31 @@ public class ConstantPreviousKeyExpression implements IParsedExpression {
     @Override
     public IEvaluateGenericFDate<String> newEvaluateTrueReasonFDate() {
         final IEvaluateGenericFDate<String> prevF = previousKeyFunction.newEvaluateTrueReasonFDate(expression);
-        return key -> {
-            final IFDateProvider previousKey = previousKeyFunction.getPreviousKey(key, index);
-            return prevF.evaluateGeneric(previousKey);
-        };
+        if (index < 0) {
+            return key -> null;
+        } else if (index == 0) {
+            return prevF;
+        } else {
+            return key -> {
+                final IFDateProvider previousKey = previousKeyFunction.getPreviousKey(key, index);
+                return prevF.evaluateGeneric(previousKey);
+            };
+        }
     }
 
     @Override
     public IEvaluateGenericKey<String> newEvaluateTrueReasonKey() {
         final IEvaluateGenericKey<String> prevF = previousKeyFunction.newEvaluateTrueReasonKey(expression);
-        return key -> {
-            final int previousKey = previousKeyFunction.getPreviousKey(key, index);
-            return prevF.evaluateGeneric(previousKey);
-        };
+        if (index < 0) {
+            return key -> null;
+        } else if (index == 0) {
+            return prevF;
+        } else {
+            return key -> {
+                final int previousKey = previousKeyFunction.getPreviousKey(key, index);
+                return prevF.evaluateGeneric(previousKey);
+            };
+        }
     }
 
     @Override
@@ -187,19 +259,31 @@ public class ConstantPreviousKeyExpression implements IParsedExpression {
     @Override
     public IEvaluateGenericFDate<String> newEvaluateNullReasonFDate() {
         final IEvaluateGenericFDate<String> prevF = previousKeyFunction.newEvaluateNullReasonFDate(expression);
-        return key -> {
-            final IFDateProvider previousKey = previousKeyFunction.getPreviousKey(key, index);
-            return prevF.evaluateGeneric(previousKey);
-        };
+        if (index < 0) {
+            return key -> toString();
+        } else if (index == 0) {
+            return prevF;
+        } else {
+            return key -> {
+                final IFDateProvider previousKey = previousKeyFunction.getPreviousKey(key, index);
+                return prevF.evaluateGeneric(previousKey);
+            };
+        }
     }
 
     @Override
     public IEvaluateGenericKey<String> newEvaluateNullReasonKey() {
         final IEvaluateGenericKey<String> prevF = previousKeyFunction.newEvaluateNullReasonKey(expression);
-        return key -> {
-            final int previousKey = previousKeyFunction.getPreviousKey(key, index);
-            return prevF.evaluateGeneric(previousKey);
-        };
+        if (index < 0) {
+            return key -> toString();
+        } else if (index == 0) {
+            return prevF;
+        } else {
+            return key -> {
+                final int previousKey = previousKeyFunction.getPreviousKey(key, index);
+                return prevF.evaluateGeneric(previousKey);
+            };
+        }
     }
 
     @Override
@@ -209,7 +293,9 @@ public class ConstantPreviousKeyExpression implements IParsedExpression {
 
     @Override
     public IParsedExpression simplify() {
-        if (index <= 0 || expression.isConstant()) {
+        if (index < 0) {
+            return ConstantExpression.NaN;
+        } else if (index == 0 || expression.isConstant()) {
             return expression.simplify();
         }
         return this;
