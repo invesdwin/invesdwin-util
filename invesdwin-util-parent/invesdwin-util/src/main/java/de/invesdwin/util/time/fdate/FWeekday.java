@@ -285,11 +285,16 @@ public enum FWeekday {
 
     public static FWeekday valueOfAlias(final String alias) {
         final FWeekday value = ALIAS_LOOKUP.get(alias.toLowerCase());
-        if (value == null) {
-            throw UnknownArgumentException.newInstance(String.class, alias);
-        } else {
+        if (value != null) {
             return value;
+        } else {
+            throw UnknownArgumentException.newInstance(String.class, alias);
         }
+    }
+
+    public static FWeekday valueOfAliasNullable(final String alias) {
+        final FWeekday value = ALIAS_LOOKUP.get(alias.toLowerCase());
+        return value;
     }
 
 }
