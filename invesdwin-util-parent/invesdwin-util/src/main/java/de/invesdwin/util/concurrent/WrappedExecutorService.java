@@ -301,13 +301,19 @@ public class WrappedExecutorService implements ListeningExecutorService {
         pendingCountLock.lock();
         try {
             final PendingCountCondition condition = pendingCount_condition.get(limit);
-            try {
-                condition.getSpinWait().awaitFulfill(new Instant(), () -> getPendingCount() <= limit);
-            } catch (final InterruptedException e) {
-                Thread.currentThread().interrupt();
-                throw e;
-            } catch (final Exception e) {
-                throw new RuntimeException(e);
+            //            try {
+            //                while (getPendingCount() > limit) {
+            //                    condition.getSpinWait().awaitFulfill(new Instant(), () -> getPendingCount() <= limit);
+            //                }
+            //            } catch (final InterruptedException e) {
+            //                Thread.currentThread().interrupt();
+            //                throw e;
+            //            } catch (final Exception e) {
+            //                throw new RuntimeException(e);
+            //            }
+            while (getPendingCount() > limit) {
+                Threads.throwIfInterrupted();
+                condition.getCondition().await();
             }
         } finally {
             pendingCountLock.unlock();
@@ -482,8 +488,12 @@ public class WrappedExecutorService implements ListeningExecutorService {
             this.spinWait = new ASpinWait() {
                 @Override
                 protected boolean isConditionFulfilled(final BooleanSupplier outerCondition) throws Exception {
+                    if (outerCondition.getAsBoolean()) {
+                        return true;
+                    }
                     throwIfInterrupted();
-                    return condition.await(maxTimedSpinDuration, TIMEUNIT);
+                    condition.await();
+                    return true;
                 }
 
                 @Override
