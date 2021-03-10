@@ -164,7 +164,7 @@ public class WrappedExecutorService implements ListeningExecutorService {
                     if (currentPendingCount <= limit) {
                         final Condition condition = e.getValue();
                         if (condition != null) {
-                            condition.signal();
+                            condition.signalAll();
                         }
                     }
                 }
