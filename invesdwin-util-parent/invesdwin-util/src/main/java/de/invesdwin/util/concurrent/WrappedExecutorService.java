@@ -13,7 +13,6 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
-import java.util.function.BooleanSupplier;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
@@ -33,7 +32,6 @@ import de.invesdwin.util.concurrent.internal.WrappedThreadFactory;
 import de.invesdwin.util.concurrent.lock.Locks;
 import de.invesdwin.util.shutdown.IShutdownHook;
 import de.invesdwin.util.shutdown.ShutdownHookManager;
-import de.invesdwin.util.time.Instant;
 import de.invesdwin.util.time.duration.Duration;
 import de.invesdwin.util.time.fdate.FTimeUnit;
 
@@ -71,10 +69,10 @@ public class WrappedExecutorService implements ListeningExecutorService {
 
     };
     private final Lock pendingCountLock;
-    private final ALoadingCache<Integer, PendingCountCondition> pendingCount_condition = new ALoadingCache<Integer, PendingCountCondition>() {
+    private final ALoadingCache<Integer, Condition> pendingCount_condition = new ALoadingCache<Integer, Condition>() {
         @Override
-        protected PendingCountCondition loadValue(final Integer key) {
-            return new PendingCountCondition(pendingCountLock.newCondition());
+        protected Condition loadValue(final Integer key) {
+            return pendingCountLock.newCondition();
         }
     };
     private final IFastIterableSet<IPendingCountListener> pendingCountListeners = ILockCollectionFactory
@@ -161,12 +159,12 @@ public class WrappedExecutorService implements ListeningExecutorService {
         pendingCountLock.lock();
         try {
             if (!pendingCount_condition.isEmpty()) {
-                for (final Entry<Integer, PendingCountCondition> e : pendingCount_condition.entrySet()) {
+                for (final Entry<Integer, Condition> e : pendingCount_condition.entrySet()) {
                     final Integer limit = e.getKey();
                     if (currentPendingCount <= limit) {
-                        final PendingCountCondition condition = e.getValue();
+                        final Condition condition = e.getValue();
                         if (condition != null) {
-                            condition.getCondition().signal();
+                            condition.signal();
                         }
                     }
                 }
@@ -300,20 +298,10 @@ public class WrappedExecutorService implements ListeningExecutorService {
     public void awaitPendingCount(final int limit) throws InterruptedException {
         pendingCountLock.lock();
         try {
-            final PendingCountCondition condition = pendingCount_condition.get(limit);
-            //            try {
-            //                while (getPendingCount() > limit) {
-            //                    condition.getSpinWait().awaitFulfill(new Instant(), () -> getPendingCount() <= limit);
-            //                }
-            //            } catch (final InterruptedException e) {
-            //                Thread.currentThread().interrupt();
-            //                throw e;
-            //            } catch (final Exception e) {
-            //                throw new RuntimeException(e);
-            //            }
+            final Condition condition = pendingCount_condition.get(limit);
             while (getPendingCount() > limit) {
-                Threads.throwIfInterrupted();
-                condition.getCondition().await();
+                throwIfInterrupted();
+                condition.await();
             }
         } finally {
             pendingCountLock.unlock();
@@ -476,41 +464,6 @@ public class WrappedExecutorService implements ListeningExecutorService {
                 }
             }
         }, Executors.SIMPLE_DISABLED_EXECUTOR);
-    }
-
-    private final class PendingCountCondition {
-
-        private final Condition condition;
-        private ASpinWait spinWait;
-
-        private PendingCountCondition(final Condition condition) {
-            this.condition = condition;
-            this.spinWait = new ASpinWait() {
-                @Override
-                protected boolean isConditionFulfilled(final BooleanSupplier outerCondition) throws Exception {
-                    if (outerCondition.getAsBoolean()) {
-                        return true;
-                    }
-                    throwIfInterrupted();
-                    condition.await();
-                    return true;
-                }
-
-                @Override
-                protected boolean isSpinAllowed(final Instant waitingSince) {
-                    return false; //preserve CPU
-                }
-            };
-        }
-
-        public Condition getCondition() {
-            return condition;
-        }
-
-        public ASpinWait getSpinWait() {
-            return spinWait;
-        }
-
     }
 
 }
