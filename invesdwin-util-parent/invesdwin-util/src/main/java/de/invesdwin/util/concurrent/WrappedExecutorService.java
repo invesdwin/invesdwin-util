@@ -296,15 +296,17 @@ public class WrappedExecutorService implements ListeningExecutorService {
      * depend on each others pendingCount, this may cause a deadlock!
      */
     public void awaitPendingCount(final int limit) throws InterruptedException {
-        pendingCountLock.lock();
-        try {
-            final Condition condition = pendingCount_condition.get(limit);
-            while (getPendingCount() > limit) {
-                throwIfInterrupted();
-                condition.await();
+        if (getPendingCount() > limit) {
+            pendingCountLock.lock();
+            try {
+                final Condition condition = pendingCount_condition.get(limit);
+                while (getPendingCount() > limit) {
+                    throwIfInterrupted();
+                    condition.await();
+                }
+            } finally {
+                pendingCountLock.unlock();
             }
-        } finally {
-            pendingCountLock.unlock();
         }
     }
 

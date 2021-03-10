@@ -39,12 +39,15 @@ public abstract class ACachedResultHistoricalCacheQueryCore<V> extends ACachedEn
 
     /**
      * Use sublist if possible to reduce memory footprint of transient array lists to reduce garbage collection overhead
+     *
+     * @throws ResetCacheException
      */
     protected List<IHistoricalEntry<V>> tryCachedPreviousResult_sameKey(
-            final IHistoricalCacheQueryInternalMethods<V> query, final int shiftBackUnits) {
+            final IHistoricalCacheQueryInternalMethods<V> query, final int shiftBackUnits) throws ResetCacheException {
         if (cachedPreviousResult_shiftBackUnits == null || cachedPreviousResult_shiftBackUnits < shiftBackUnits) {
             return null;
         }
+        determineConsistentLastCachedEntryKey(); //ensure the key is consistent
         final int toIndex = cachedPreviousResult_filteringDuplicates.size();
         final int fromIndex = Math.max(0, toIndex - shiftBackUnits);
         return new CachedPreviousResultSubList<V>(cachedPreviousResult_filteringDuplicates,
@@ -53,8 +56,10 @@ public abstract class ACachedResultHistoricalCacheQueryCore<V> extends ACachedEn
 
     /**
      * This needs to be called wherever replaceCachedEntries() was called before
+     *
+     * @param key
      */
-    protected void updateCachedPreviousResult(final IHistoricalCacheQueryInternalMethods<V> query,
+    protected void updateCachedPreviousResult(final IHistoricalCacheQueryInternalMethods<V> query, final FDate key,
             final int shiftBackUnits, final List<IHistoricalEntry<V>> result) throws ResetCacheException {
         if (result.isEmpty() && query.getAssertValue() == HistoricalCacheAssertValue.ASSERT_VALUE_WITH_FUTURE_NULL) {
             //do not remember an empty result with future null (a call with future next might trip on it)
@@ -64,9 +69,12 @@ public abstract class ACachedResultHistoricalCacheQueryCore<V> extends ACachedEn
             //somehow this does not happen in debugger, maybe some JVM optimization
             throw new ResetCacheException("cachedPreviousResult should have been reset by preceeding code!");
         }
-        cachedPreviousResult_filteringDuplicates = result;
-        cachedPreviousResult_shiftBackUnits = shiftBackUnits;
-        cachedPreviousResult_modIncrementIndex = new MutableInt(0);
+        final IndexedFDate replaced = super.replaceCachedEntries(key, result);
+        if (replaced != null) {
+            cachedPreviousResult_filteringDuplicates = result;
+            cachedPreviousResult_shiftBackUnits = shiftBackUnits;
+            cachedPreviousResult_modIncrementIndex = new MutableInt(0);
+        }
     }
 
     protected void resetCachedPreviousResult() {

@@ -175,7 +175,7 @@ public class CachedHistoricalCacheQueryCore<V> extends ACachedResultHistoricalCa
         } else {
             final List<IHistoricalEntry<V>> trailing = newEntriesList(shiftBackUnits);
             result = defaultGetPreviousEntries(query, key, shiftBackUnits, trailing);
-            updateCachedPreviousResult(query, shiftBackUnits, result);
+            updateCachedPreviousResult(query, key, shiftBackUnits, result);
         }
         return result;
     }
@@ -193,7 +193,7 @@ public class CachedHistoricalCacheQueryCore<V> extends ACachedResultHistoricalCa
                 final List<IHistoricalEntry<V>> trailing = newEntriesList(shiftBackUnits);
                 final List<IHistoricalEntry<V>> result = cachedGetPreviousEntries_sameKey(query, shiftBackUnits, key,
                         trailing);
-                updateCachedPreviousResult(query, shiftBackUnits, result);
+                updateCachedPreviousResult(query, key, shiftBackUnits, result);
                 return result;
             }
         } else if ((key.isAfterNotNullSafe(cachedPreviousEntriesKey)
@@ -212,7 +212,7 @@ public class CachedHistoricalCacheQueryCore<V> extends ACachedResultHistoricalCa
                 final List<IHistoricalEntry<V>> trailing = newEntriesList(shiftBackUnits);
                 final List<IHistoricalEntry<V>> result = cachedGetPreviousEntries_incrementedKey(query, shiftBackUnits,
                         key, trailing);
-                updateCachedPreviousResult(query, shiftBackUnits, result);
+                updateCachedPreviousResult(query, key, shiftBackUnits, result);
                 return result;
             }
         } else if (key.isBeforeOrEqualToNotNullSafe(cachedPreviousEntriesKey)
@@ -227,7 +227,7 @@ public class CachedHistoricalCacheQueryCore<V> extends ACachedResultHistoricalCa
              */
             final List<IHistoricalEntry<V>> trailing = newEntriesList(shiftBackUnits);
             final List<IHistoricalEntry<V>> result = defaultGetPreviousEntries(query, key, shiftBackUnits, trailing);
-            updateCachedPreviousResult(query, shiftBackUnits, result);
+            updateCachedPreviousResult(query, key, shiftBackUnits, result);
             return result;
         }
     }
