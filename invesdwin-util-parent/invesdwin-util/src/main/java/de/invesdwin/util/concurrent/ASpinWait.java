@@ -105,30 +105,34 @@ public abstract class ASpinWait {
 
     protected abstract boolean isConditionFulfilled(BooleanSupplier outerCondition) throws Exception;
 
-    protected boolean isSpinAllowed(final Instant waitingSince) {
-        return waitingSince.toDurationNanos() < skipSpinAfterWaitingSince;
+    protected boolean isSpinAllowed(final long waitingSinceNanos) {
+        return (System.nanoTime() - waitingSinceNanos) < skipSpinAfterWaitingSince;
     }
 
-    public boolean awaitFulfill(final Instant waitingSince) throws Exception {
-        return awaitFulfill(waitingSince, (BooleanSupplier) null);
+    public boolean awaitFulfill(final long waitingSinceNanos) throws Exception {
+        return awaitFulfill(waitingSinceNanos, (BooleanSupplier) null);
     }
 
-    public boolean awaitFulfill(final Instant waitingSince, final BooleanSupplier outerCondition) throws Exception {
+    public boolean awaitFulfill(final long waitingSinceNanos, final BooleanSupplier outerCondition) throws Exception {
         while (true) {
-            awaitFulfill(waitingSince, Duration.ONE_DAY, outerCondition);
+            awaitFulfill(waitingSinceNanos, Duration.ONE_DAY, outerCondition);
         }
     }
 
     public boolean awaitFulfill(final Instant waitingSince, final Duration maxWait) throws Exception {
-        return awaitFulfill(waitingSince, maxWait, null);
+        return awaitFulfill(waitingSince.longValue(), maxWait);
     }
 
-    public boolean awaitFulfill(final Instant waitingSince, final Duration maxWait,
+    public boolean awaitFulfill(final long waitingSinceNanos, final Duration maxWait) throws Exception {
+        return awaitFulfill(waitingSinceNanos, maxWait, null);
+    }
+
+    public boolean awaitFulfill(final long waitingSinceNanos, final Duration maxWait,
             final BooleanSupplier outerCondition) throws Exception {
         if (isConditionFulfilled(outerCondition)) {
             return true;
         }
-        final boolean spinAllowedNow = spinAllowed && isSpinAllowed(waitingSince);
+        final boolean spinAllowedNow = spinAllowed && isSpinAllowed(waitingSinceNanos);
         if (spinAllowedNow) {
             for (int untimedSpins = 0; untimedSpins < maxUntimedSpins; untimedSpins++) {
                 if (isConditionFulfilled(outerCondition)) {

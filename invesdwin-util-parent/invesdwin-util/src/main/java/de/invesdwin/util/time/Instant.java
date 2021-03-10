@@ -25,6 +25,10 @@ public class Instant extends Number implements Comparable<Object> {
         this.nanos = System.nanoTime();
     }
 
+    public Instant(final long startNanos) {
+        this.nanos = startNanos;
+    }
+
     public Instant(final long start, final FTimeUnit timeUnit) {
         this.nanos = DEFAULT_TIME_UNIT.convert(start, timeUnit);
     }
@@ -84,11 +88,11 @@ public class Instant extends Number implements Comparable<Object> {
 
     @Override
     public long longValue() {
-        return longValue(DEFAULT_TIME_UNIT);
+        return nanos;
     }
 
     public long longValue(final FTimeUnit timeUnit) {
-        return Long.valueOf(timeUnit.convert(nanos, DEFAULT_TIME_UNIT)).longValue();
+        return timeUnit.convert(nanos, DEFAULT_TIME_UNIT);
     }
 
     /**
