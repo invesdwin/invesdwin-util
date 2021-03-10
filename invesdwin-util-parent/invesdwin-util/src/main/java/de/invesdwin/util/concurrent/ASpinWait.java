@@ -109,8 +109,16 @@ public abstract class ASpinWait {
         return (System.nanoTime() - waitingSinceNanos) < skipSpinAfterWaitingSince;
     }
 
+    public boolean awaitFulfill(final Instant waitingSince) throws Exception {
+        return awaitFulfill(waitingSince.longValue());
+    }
+
     public boolean awaitFulfill(final long waitingSinceNanos) throws Exception {
         return awaitFulfill(waitingSinceNanos, (BooleanSupplier) null);
+    }
+
+    public boolean awaitFulfill(final Instant waitingSince, final BooleanSupplier outerCondition) throws Exception {
+        return awaitFulfill(waitingSince.longValue(), outerCondition);
     }
 
     public boolean awaitFulfill(final long waitingSinceNanos, final BooleanSupplier outerCondition) throws Exception {
@@ -125,6 +133,11 @@ public abstract class ASpinWait {
 
     public boolean awaitFulfill(final long waitingSinceNanos, final Duration maxWait) throws Exception {
         return awaitFulfill(waitingSinceNanos, maxWait, null);
+    }
+
+    public boolean awaitFulfill(final Instant waitingSince, final Duration maxWait,
+            final BooleanSupplier outerCondition) throws Exception {
+        return awaitFulfill(waitingSince.longValue(), maxWait, outerCondition);
     }
 
     public boolean awaitFulfill(final long waitingSinceNanos, final Duration maxWait,
