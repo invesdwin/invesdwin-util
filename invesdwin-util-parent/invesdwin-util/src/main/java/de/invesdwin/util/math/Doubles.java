@@ -816,6 +816,23 @@ public final class Doubles extends ADoublesStaticFacade {
         }
     }
 
+    public static boolean equalsNaNable(final double value, final double otherValue) {
+        final double difference = value - otherValue;
+        if (difference > FIRST_ABOVE_ZERO) {
+            return false;
+        } else if (difference < FIRST_BELOW_ZERO) {
+            return false;
+        } else if (difference == 0D) {
+            return true;
+        } else if (isNaN(difference)) {
+            return isNaN(value) == isNaN(otherValue);
+        } else {
+            final double defaultRoundedValue = round(value);
+            final double roundedOther = round(otherValue);
+            return defaultRoundedValue == roundedOther;
+        }
+    }
+
     public static Boolean equalsNullable(final double value, final double otherValue) {
         final double difference = value - otherValue;
         if (difference > FIRST_ABOVE_ZERO) {
@@ -845,6 +862,23 @@ public final class Doubles extends ADoublesStaticFacade {
         } else if (isNaN(difference)) {
             //treat as missing
             return false;
+        } else {
+            final double defaultRoundedValue = round(value);
+            final double roundedOther = round(otherValue);
+            return defaultRoundedValue != roundedOther;
+        }
+    }
+
+    public static boolean notEqualsNaNable(final double value, final double otherValue) {
+        final double difference = value - otherValue;
+        if (difference > FIRST_ABOVE_ZERO) {
+            return true;
+        } else if (difference < FIRST_BELOW_ZERO) {
+            return true;
+        } else if (difference == 0D) {
+            return false;
+        } else if (isNaN(difference)) {
+            return isNaN(value) != isNaN(otherValue);
         } else {
             final double defaultRoundedValue = round(value);
             final double roundedOther = round(otherValue);
@@ -888,6 +922,23 @@ public final class Doubles extends ADoublesStaticFacade {
         }
     }
 
+    public static boolean isGreaterThanNaNable(final double value, final double otherValue) {
+        final double difference = value - otherValue;
+        if (difference > FIRST_ABOVE_ZERO) {
+            return true;
+        } else if (difference < FIRST_BELOW_ZERO) {
+            return false;
+        } else if (difference == 0D) {
+            return false;
+        } else if (isNaN(difference)) {
+            return isNaN(otherValue);
+        } else {
+            final double defaultRoundedValue = round(value);
+            final double roundedOther = round(otherValue);
+            return defaultRoundedValue > roundedOther;
+        }
+    }
+
     public static Boolean isGreaterThanNullable(final double value, final double otherValue) {
         final double difference = value - otherValue;
         if (difference > FIRST_ABOVE_ZERO) {
@@ -917,6 +968,29 @@ public final class Doubles extends ADoublesStaticFacade {
         } else if (isNaN(difference)) {
             //treat as missing
             return false;
+        } else {
+            final double defaultRoundedValue = round(value);
+            final double roundedOther = round(otherValue);
+            return defaultRoundedValue >= roundedOther;
+        }
+    }
+
+    public static boolean isGreaterThanOrEqualToNaNable(final double value, final double otherValue) {
+        final double difference = value - otherValue;
+        if (difference > FIRST_ABOVE_ZERO) {
+            return true;
+        } else if (difference < FIRST_BELOW_ZERO) {
+            return false;
+        } else if (difference == 0D) {
+            return true;
+        } else if (isNaN(difference)) {
+            final boolean valueNaN = isNaN(value);
+            final boolean otherValueNaN = isNaN(otherValue);
+            if (valueNaN && otherValueNaN) {
+                return true;
+            } else {
+                return otherValueNaN;
+            }
         } else {
             final double defaultRoundedValue = round(value);
             final double roundedOther = round(otherValue);
@@ -960,6 +1034,23 @@ public final class Doubles extends ADoublesStaticFacade {
         }
     }
 
+    public static boolean isLessThanNaNable(final double value, final double otherValue) {
+        final double difference = value - otherValue;
+        if (difference > FIRST_ABOVE_ZERO) {
+            return false;
+        } else if (difference < FIRST_BELOW_ZERO) {
+            return true;
+        } else if (difference == 0D) {
+            return false;
+        } else if (isNaN(difference)) {
+            return isNaN(value);
+        } else {
+            final double defaultRoundedValue = round(value);
+            final double roundedOther = round(otherValue);
+            return defaultRoundedValue < roundedOther;
+        }
+    }
+
     public static Boolean isLessThanNullable(final double value, final double otherValue) {
         final double difference = value - otherValue;
         if (difference > FIRST_ABOVE_ZERO) {
@@ -989,6 +1080,29 @@ public final class Doubles extends ADoublesStaticFacade {
         } else if (isNaN(difference)) {
             //treat as missing
             return false;
+        } else {
+            final double defaultRoundedValue = round(value);
+            final double roundedOther = round(otherValue);
+            return defaultRoundedValue <= roundedOther;
+        }
+    }
+
+    public static boolean isLessThanOrEqualToNaNable(final double value, final double otherValue) {
+        final double difference = value - otherValue;
+        if (difference > FIRST_ABOVE_ZERO) {
+            return false;
+        } else if (difference < FIRST_BELOW_ZERO) {
+            return true;
+        } else if (difference == 0D) {
+            return true;
+        } else if (isNaN(difference)) {
+            final boolean valueNaN = isNaN(value);
+            final boolean otherValueNaN = isNaN(otherValue);
+            if (valueNaN && otherValueNaN) {
+                return true;
+            } else {
+                return valueNaN;
+            }
         } else {
             final double defaultRoundedValue = round(value);
             final double roundedOther = round(otherValue);
