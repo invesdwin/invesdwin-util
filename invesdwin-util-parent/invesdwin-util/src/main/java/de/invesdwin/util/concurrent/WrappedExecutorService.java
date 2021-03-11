@@ -141,11 +141,16 @@ public class WrappedExecutorService implements ListeningExecutorService {
     private void incrementPendingCount(final boolean skipWaitOnFullPendingCount) throws InterruptedException {
         if (isWaitOnFullPendingCount() && !skipWaitOnFullPendingCount) {
             if (pendingCount.get() >= fullPendingCountCondition.getLimit()) {
+                /*
+                 * Only one waiting thread may be woken up when this limit is reached, this is ensured by the while loop
+                 * inside awaitPendingCount and the outer lock
+                 */
                 synchronized (pendingCountWaitLock) {
-                    //Only one waiting thread may be woken up when this limit is reached!
-                    while (pendingCount.get() >= fullPendingCountCondition.getLimit()) {
-                        awaitPendingCount(fullPendingCountCondition);
-                    }
+                    /*
+                     * Üutting another while loop here significantly reduces performance since it seems to spin a lot.
+                     * Though that loop is not needed here anyway
+                     */
+                    awaitPendingCount(fullPendingCountCondition);
                     notifyPendingCountListeners(pendingCount.incrementAndGet());
                 }
             } else {
@@ -303,7 +308,6 @@ public class WrappedExecutorService implements ListeningExecutorService {
             pendingCountLock.lock();
             try {
                 while (getPendingCount() > condition.getLimit()) {
-                    throwIfInterrupted();
                     condition.getCondition().await();
                 }
             } finally {
@@ -345,7 +349,7 @@ public class WrappedExecutorService implements ListeningExecutorService {
     public void awaitPendingCountFull() throws InterruptedException {
         awaitPendingCount(fullPendingCountCondition);
     }
-    
+
     public void awaitPendingCountZero() throws InterruptedException {
         awaitPendingCount(zeroPendingCountCondition);
     }
