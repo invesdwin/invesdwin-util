@@ -5,7 +5,6 @@ import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.LockSupport;
-import java.util.function.BooleanSupplier;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -103,7 +102,7 @@ public abstract class ASpinWait {
         return new Duration(10, FTimeUnit.MICROSECONDS);
     }
 
-    protected abstract boolean isConditionFulfilled(BooleanSupplier outerCondition) throws Exception;
+    protected abstract boolean isConditionFulfilled() throws Exception;
 
     protected boolean isSpinAllowed(final long waitingSinceNanos) {
         return (System.nanoTime() - waitingSinceNanos) < skipSpinAfterWaitingSince;
@@ -114,17 +113,7 @@ public abstract class ASpinWait {
     }
 
     public boolean awaitFulfill(final long waitingSinceNanos) throws Exception {
-        return awaitFulfill(waitingSinceNanos, (BooleanSupplier) null);
-    }
-
-    public boolean awaitFulfill(final Instant waitingSince, final BooleanSupplier outerCondition) throws Exception {
-        return awaitFulfill(waitingSince.longValue(), outerCondition);
-    }
-
-    public boolean awaitFulfill(final long waitingSinceNanos, final BooleanSupplier outerCondition) throws Exception {
-        while (true) {
-            awaitFulfill(waitingSinceNanos, Duration.ONE_DAY, outerCondition);
-        }
+        return awaitFulfill(waitingSinceNanos, Duration.ONE_YEAR);
     }
 
     public boolean awaitFulfill(final Instant waitingSince, final Duration maxWait) throws Exception {
@@ -132,23 +121,13 @@ public abstract class ASpinWait {
     }
 
     public boolean awaitFulfill(final long waitingSinceNanos, final Duration maxWait) throws Exception {
-        return awaitFulfill(waitingSinceNanos, maxWait, null);
-    }
-
-    public boolean awaitFulfill(final Instant waitingSince, final Duration maxWait,
-            final BooleanSupplier outerCondition) throws Exception {
-        return awaitFulfill(waitingSince.longValue(), maxWait, outerCondition);
-    }
-
-    public boolean awaitFulfill(final long waitingSinceNanos, final Duration maxWait,
-            final BooleanSupplier outerCondition) throws Exception {
-        if (isConditionFulfilled(outerCondition)) {
+        if (isConditionFulfilled()) {
             return true;
         }
         final boolean spinAllowedNow = spinAllowed && isSpinAllowed(waitingSinceNanos);
         if (spinAllowedNow) {
             for (int untimedSpins = 0; untimedSpins < maxUntimedSpins; untimedSpins++) {
-                if (isConditionFulfilled(outerCondition)) {
+                if (isConditionFulfilled()) {
                     return true;
                 }
                 onSpinWait();
@@ -159,7 +138,7 @@ public abstract class ASpinWait {
         final Thread w = Thread.currentThread();
         int timedSpins = 0;
         while (true) {
-            if (isConditionFulfilled(outerCondition)) {
+            if (isConditionFulfilled()) {
                 return true;
             }
             nanosRemaining = waitDeadline - System.nanoTime();

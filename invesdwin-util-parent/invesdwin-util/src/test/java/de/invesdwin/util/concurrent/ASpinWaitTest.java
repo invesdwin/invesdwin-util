@@ -1,7 +1,5 @@
 package de.invesdwin.util.concurrent;
 
-import java.util.function.BooleanSupplier;
-
 import javax.annotation.concurrent.NotThreadSafe;
 
 import org.junit.Test;
@@ -20,7 +18,7 @@ public class ASpinWaitTest {
         final ASpinWait waitingSpinWait = new ASpinWait() {
 
             @Override
-            protected boolean isConditionFulfilled(final BooleanSupplier outerCondition) {
+            protected boolean isConditionFulfilled() {
                 return false;
             }
         };
@@ -35,7 +33,7 @@ public class ASpinWaitTest {
         final ASpinWait waitingSpinWait = new ASpinWait() {
 
             @Override
-            protected boolean isConditionFulfilled(final BooleanSupplier outerCondition) {
+            protected boolean isConditionFulfilled() {
                 return true;
             }
         };

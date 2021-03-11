@@ -2,7 +2,6 @@ package de.invesdwin.util.concurrent;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -13,7 +12,6 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
-import java.util.function.BooleanSupplier;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
@@ -23,8 +21,8 @@ import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 
 import de.invesdwin.util.collections.factory.ILockCollectionFactory;
+import de.invesdwin.util.collections.fast.IFastIterableMap;
 import de.invesdwin.util.collections.fast.IFastIterableSet;
-import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 import de.invesdwin.util.concurrent.future.InterruptingFuture;
 import de.invesdwin.util.concurrent.internal.IWrappedExecutorServiceInternal;
 import de.invesdwin.util.concurrent.internal.WrappedCallable;
@@ -70,12 +68,9 @@ public class WrappedExecutorService implements ListeningExecutorService {
 
     };
     private final Lock pendingCountLock;
-    private final ALoadingCache<Integer, PendingCountCondition> pendingCount_condition = new ALoadingCache<Integer, PendingCountCondition>() {
-        @Override
-        protected PendingCountCondition loadValue(final Integer key) {
-            return new PendingCountCondition(pendingCountLock.newCondition());
-        }
-    };
+    private final IFastIterableMap<Integer, PendingCountCondition> pendingCount_condition = ILockCollectionFactory
+            .getInstance(true)
+            .newFastIterableMap();
     private final IFastIterableSet<IPendingCountListener> pendingCountListeners = ILockCollectionFactory
             .getInstance(true)
             .newFastIterableLinkedSet();
@@ -84,9 +79,11 @@ public class WrappedExecutorService implements ListeningExecutorService {
     private final ListeningExecutorService delegate;
     private final ExecutorService originalDelegate;
     private volatile boolean logExceptions = true;
-    private volatile int waitOnFullPendingCount = 0;
     private volatile boolean dynamicThreadName = true;
     private final String name;
+    private final PendingCountCondition zeroPendingCountCondition;
+    private final PendingCountCondition fullPendingCountCondition;
+    private volatile PendingCountCondition waitOnFullPendingCountCondition;
 
     @GuardedBy("this")
     private IShutdownHook shutdownHook;
@@ -98,6 +95,9 @@ public class WrappedExecutorService implements ListeningExecutorService {
                 .newReentrantLock(WrappedExecutorService.class.getSimpleName() + "_" + name + "_pendingCountLock");
         this.originalDelegate = delegate;
         this.delegate = configure(delegate);
+        this.zeroPendingCountCondition = getOrCreatePendingCountCondition(0);
+        this.fullPendingCountCondition = getOrCreatePendingCountCondition(getMaximumPoolSize());
+        this.waitOnFullPendingCountCondition = zeroPendingCountCondition;
     }
 
     protected IShutdownHook newShutdownHook(final ExecutorService delegate) {
@@ -140,11 +140,15 @@ public class WrappedExecutorService implements ListeningExecutorService {
 
     private void incrementPendingCount(final boolean skipWaitOnFullPendingCount) throws InterruptedException {
         if (isWaitOnFullPendingCount() && !skipWaitOnFullPendingCount) {
-            synchronized (pendingCountWaitLock) {
-                //Only one waiting thread may be woken up when this limit is reached!
-                while (pendingCount.get() >= getFullPendingCount()) {
-                    awaitPendingCount(waitOnFullPendingCount);
+            if (pendingCount.get() >= fullPendingCountCondition.getLimit()) {
+                synchronized (pendingCountWaitLock) {
+                    //Only one waiting thread may be woken up when this limit is reached!
+                    while (pendingCount.get() >= fullPendingCountCondition.getLimit()) {
+                        awaitPendingCount(fullPendingCountCondition);
+                    }
+                    notifyPendingCountListeners(pendingCount.incrementAndGet());
                 }
+            } else {
                 notifyPendingCountListeners(pendingCount.incrementAndGet());
             }
         } else {
@@ -157,27 +161,21 @@ public class WrappedExecutorService implements ListeningExecutorService {
     }
 
     private void notifyPendingCountListeners(final int currentPendingCount) {
-        pendingCountLock.lock();
-        try {
-            if (!pendingCount_condition.isEmpty()) {
-                for (final Entry<Integer, PendingCountCondition> e : pendingCount_condition.entrySet()) {
-                    final Integer limit = e.getKey();
-                    if (currentPendingCount <= limit) {
-                        final PendingCountCondition condition = e.getValue();
-                        if (condition != null) {
-                            condition.getCondition().signalAll();
-                        }
-                    }
+        final PendingCountCondition[] conditionArray = pendingCount_condition.asValueArray(PendingCountCondition.class);
+        for (int i = 0; i < conditionArray.length; i++) {
+            final PendingCountCondition condition = conditionArray[i];
+            if (currentPendingCount <= condition.getLimit()) {
+                pendingCountLock.lock();
+                try {
+                    condition.getCondition().signalAll();
+                } finally {
+                    pendingCountLock.unlock();
                 }
             }
-            if (!pendingCountListeners.isEmpty()) {
-                final IPendingCountListener[] array = pendingCountListeners.asArray(IPendingCountListener.class);
-                for (int i = 0; i < array.length; i++) {
-                    array[i].onPendingCountChanged(currentPendingCount);
-                }
-            }
-        } finally {
-            pendingCountLock.unlock();
+        }
+        final IPendingCountListener[] listenerArray = pendingCountListeners.asArray(IPendingCountListener.class);
+        for (int i = 0; i < listenerArray.length; i++) {
+            listenerArray[i].onPendingCountChanged(currentPendingCount);
         }
     }
 
@@ -229,24 +227,28 @@ public class WrappedExecutorService implements ListeningExecutorService {
     }
 
     public boolean isWaitOnFullPendingCount() {
-        return waitOnFullPendingCount > 0;
+        return waitOnFullPendingCountCondition.getLimit() > 0;
     }
 
     public int getWaitOnFullPendingCount() {
-        return waitOnFullPendingCount;
+        return waitOnFullPendingCountCondition.getLimit();
     }
 
     public WrappedExecutorService withWaitOnFullPendingCount(final boolean waitOnFullPendingCount) {
         if (waitOnFullPendingCount) {
-            this.waitOnFullPendingCount = getMaximumPoolSize() - 1;
+            this.waitOnFullPendingCountCondition = fullPendingCountCondition;
         } else {
-            this.waitOnFullPendingCount = 0;
+            this.waitOnFullPendingCountCondition = zeroPendingCountCondition;
         }
         return this;
     }
 
     public WrappedExecutorService withWaitOnFullPendingCount(final int waitOnFullPendingCount) {
-        this.waitOnFullPendingCount = waitOnFullPendingCount;
+        if (waitOnFullPendingCount <= 0) {
+            this.waitOnFullPendingCountCondition = zeroPendingCountCondition;
+        } else {
+            this.waitOnFullPendingCountCondition = getOrCreatePendingCountCondition(waitOnFullPendingCount);
+        }
         return this;
     }
 
@@ -296,27 +298,11 @@ public class WrappedExecutorService implements ListeningExecutorService {
      * WARNING: Pay attention when using this feature so that executors don't have circular task dependencies. If they
      * depend on each others pendingCount, this may cause a deadlock!
      */
-    public void awaitPendingCount(final int limit) throws InterruptedException {
-        PendingCountCondition condition = null;
-        //        if (getPendingCount() > limit * 2) {
-        //            //use spinwait first on large queue to reduce cpu overhead on lock condition
-        //            condition = pendingCount_condition.get(limit);
-        //            try {
-        //                condition.getSpinWait().awaitFulfill(System.nanoTime(), () -> getPendingCount() <= limit);
-        //            } catch (final InterruptedException e) {
-        //                Thread.currentThread().interrupt();
-        //                throw e;
-        //            } catch (final Exception e) {
-        //                throw new RuntimeException(e);
-        //            }
-        //        }
-        if (getPendingCount() > limit) {
+    public void awaitPendingCount(final PendingCountCondition condition) throws InterruptedException {
+        if (getPendingCount() > condition.getLimit()) {
             pendingCountLock.lock();
             try {
-                if (condition == null) {
-                    condition = pendingCount_condition.get(limit);
-                }
-                while (getPendingCount() > limit) {
+                while (getPendingCount() > condition.getLimit()) {
                     throwIfInterrupted();
                     condition.getCondition().await();
                 }
@@ -326,12 +312,42 @@ public class WrappedExecutorService implements ListeningExecutorService {
         }
     }
 
+    public PendingCountCondition getOrCreatePendingCountCondition(final int limit) {
+        PendingCountCondition condition = pendingCount_condition.get(limit);
+        if (condition == null) {
+            synchronized (pendingCount_condition) {
+                condition = pendingCount_condition.get(limit);
+                if (condition == null) {
+                    condition = new PendingCountCondition(limit, pendingCountLock.newCondition());
+                    pendingCount_condition.put(limit, condition);
+                }
+            }
+        }
+        return condition;
+    }
+
+    public void awaitPendingCountSpinWait(final PendingCountCondition condition) throws InterruptedException {
+        //use spinwait first on large queue to reduce cpu overhead on lock condition
+        try {
+            condition.getSpinWait().awaitFulfill(System.nanoTime());
+        } catch (final InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw e;
+        } catch (final Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     protected void throwIfInterrupted() throws InterruptedException {
         Threads.throwIfInterrupted();
     }
 
-    public void waitOnFullPendingCount() throws InterruptedException {
-        awaitPendingCount(getFullPendingCount());
+    public void awaitPendingCountFull() throws InterruptedException {
+        awaitPendingCount(fullPendingCountCondition);
+    }
+    
+    public void awaitPendingCountZero() throws InterruptedException {
+        awaitPendingCount(zeroPendingCountCondition);
     }
 
     public int getMaximumPoolSize() {
@@ -343,8 +359,8 @@ public class WrappedExecutorService implements ListeningExecutorService {
         return 0;
     }
 
-    public int getFullPendingCount() {
-        return getMaximumPoolSize();
+    public PendingCountCondition getFullPendingCountCondition() {
+        return fullPendingCountCondition;
     }
 
     @Override
@@ -484,17 +500,19 @@ public class WrappedExecutorService implements ListeningExecutorService {
         }, Executors.SIMPLE_DISABLED_EXECUTOR);
     }
 
-    private final class PendingCountCondition {
+    public final class PendingCountCondition {
 
+        private final int limit;
         private final Condition condition;
-        private ASpinWait spinWait;
+        private final ASpinWait spinWait;
 
-        private PendingCountCondition(final Condition condition) {
+        private PendingCountCondition(final int limit, final Condition condition) {
+            this.limit = limit;
             this.condition = condition;
             this.spinWait = new ASpinWait() {
                 @Override
-                protected boolean isConditionFulfilled(final BooleanSupplier outerCondition) throws Exception {
-                    return outerCondition.getAsBoolean();
+                protected boolean isConditionFulfilled() throws Exception {
+                    return getPendingCount() <= limit;
                 }
 
                 @Override
@@ -502,6 +520,10 @@ public class WrappedExecutorService implements ListeningExecutorService {
                     return false; //preserve CPU
                 }
             };
+        }
+
+        public int getLimit() {
+            return limit;
         }
 
         public Condition getCondition() {
