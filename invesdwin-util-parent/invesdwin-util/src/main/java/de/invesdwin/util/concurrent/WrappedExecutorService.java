@@ -330,18 +330,6 @@ public class WrappedExecutorService implements ListeningExecutorService {
         return condition;
     }
 
-    public void awaitPendingCountSpinWait(final PendingCountCondition condition) throws InterruptedException {
-        //use spinwait first on large queue to reduce cpu overhead on lock condition
-        try {
-            condition.getSpinWait().awaitFulfill(System.nanoTime());
-        } catch (final InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw e;
-        } catch (final Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     protected void throwIfInterrupted() throws InterruptedException {
         Threads.throwIfInterrupted();
     }
@@ -508,22 +496,10 @@ public class WrappedExecutorService implements ListeningExecutorService {
 
         private final int limit;
         private final Condition condition;
-        private final ASpinWait spinWait;
 
         private PendingCountCondition(final int limit, final Condition condition) {
             this.limit = limit;
             this.condition = condition;
-            this.spinWait = new ASpinWait() {
-                @Override
-                protected boolean isConditionFulfilled() throws Exception {
-                    return getPendingCount() <= limit;
-                }
-
-                @Override
-                protected boolean isSpinAllowed(final long waitingSinceNanos) {
-                    return false; //preserve CPU
-                }
-            };
         }
 
         public int getLimit() {
@@ -532,10 +508,6 @@ public class WrappedExecutorService implements ListeningExecutorService {
 
         public Condition getCondition() {
             return condition;
-        }
-
-        public ASpinWait getSpinWait() {
-            return spinWait;
         }
 
     }
