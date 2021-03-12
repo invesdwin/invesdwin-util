@@ -52,4 +52,6 @@ public interface IBufferingIterator<E> extends ICloseableIterator<E>, ICloseable
      */
     boolean consume(BufferingIterator<E> iterator);
 
+    ICloseableIterable<E> snapshot();
+
 }

@@ -4,6 +4,7 @@ import java.util.Iterator;
 
 import javax.annotation.concurrent.Immutable;
 
+import de.invesdwin.util.collections.iterable.EmptyCloseableIterable;
 import de.invesdwin.util.collections.iterable.EmptyCloseableIterator;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
@@ -14,7 +15,8 @@ public final class EmptyBufferingIterator<E> implements IBufferingIterator<E> {
 
     private static final EmptyBufferingIterator<?> INSTANCE = new EmptyBufferingIterator<>();
 
-    private EmptyBufferingIterator() {}
+    private EmptyBufferingIterator() {
+    }
 
     @SuppressWarnings("unchecked")
     public static <T> IBufferingIterator<T> getInstance() {
@@ -22,7 +24,8 @@ public final class EmptyBufferingIterator<E> implements IBufferingIterator<E> {
     }
 
     @Override
-    public void close() {}
+    public void close() {
+    }
 
     @Override
     public boolean hasNext() {
@@ -90,7 +93,8 @@ public final class EmptyBufferingIterator<E> implements IBufferingIterator<E> {
     }
 
     @Override
-    public void clear() {}
+    public void clear() {
+    }
 
     @Override
     public int size() {
@@ -110,6 +114,11 @@ public final class EmptyBufferingIterator<E> implements IBufferingIterator<E> {
     @Override
     public boolean consume(final BufferingIterator<E> iterator) {
         return false;
+    }
+
+    @Override
+    public ICloseableIterable<E> snapshot() {
+        return EmptyCloseableIterable.getInstance();
     }
 
 }

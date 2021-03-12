@@ -4,6 +4,7 @@ import java.util.Iterator;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.util.collections.iterable.ATransformingIterable;
 import de.invesdwin.util.collections.iterable.ATransformingIterator;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
@@ -132,6 +133,16 @@ public abstract class ATransformingBufferingIterator<S, R> implements IBuffering
     @Override
     public boolean consume(final BufferingIterator<R> iterator) {
         throw new UnsupportedOperationException("can not add");
+    }
+
+    @Override
+    public ICloseableIterable<R> snapshot() {
+        return new ATransformingIterable<S, R>(delegate.snapshot()) {
+            @Override
+            protected R transform(final S value) {
+                return ATransformingBufferingIterator.this.transform(value);
+            }
+        };
     }
 
 }

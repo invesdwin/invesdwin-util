@@ -184,4 +184,9 @@ public abstract class ADelegateBufferingIterator<E> implements IBufferingIterato
         return getDelegate().next();
     }
 
+    @Override
+    public ICloseableIterable<E> snapshot() {
+        return getDelegate().snapshot();
+    }
+
 }
