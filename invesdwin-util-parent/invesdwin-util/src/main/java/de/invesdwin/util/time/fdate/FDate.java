@@ -309,6 +309,23 @@ public class FDate
         }
     }
 
+    public FDate setFDayTime(final FDayTime dayTime, final ZoneId timeZone) {
+        return revertTimeZoneOffset(timeZone).setFDayTime(dayTime).applyTimeZoneOffset(timeZone);
+    }
+
+    public FDate setFDayTime(final FDayTime dayTime) {
+        final Chronology chronology = FDates.getDefaultChronology();
+        long newMillis = millis;
+        newMillis = FDateField.Hour.jodaTimeValue().getField(chronology).set(newMillis, dayTime.getHour());
+        newMillis = FDateField.Minute.jodaTimeValue().getField(chronology).set(newMillis, dayTime.getMinute());
+        newMillis = FDateField.Second.jodaTimeValue().getField(chronology).set(newMillis, dayTime.getSecond());
+        newMillis = FDateField.Millisecond.jodaTimeValue()
+                .getField(chronology)
+                .set(newMillis, dayTime.getMillisecond());
+        final FDate modified = new FDate(newMillis);
+        return modified;
+    }
+
     public FDate setTime(final FDate time, final ZoneId timeZone) {
         return revertTimeZoneOffset(timeZone).setTime(time).applyTimeZoneOffset(timeZone);
     }
