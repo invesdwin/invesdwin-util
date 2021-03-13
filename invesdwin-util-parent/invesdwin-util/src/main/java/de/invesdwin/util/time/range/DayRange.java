@@ -120,7 +120,7 @@ public class DayRange extends AValueObject {
         try {
             if (args.length == 2) {
                 final FDayTime from = FDayTime.valueOf(args[0], false);
-                final FDayTime to = FDayTime.valueOf(args[1], true);
+                final FDayTime to = FDayTime.valueOf(args[1], false);
                 return new DayRange(from, to);
             } else {
                 throw new IllegalArgumentException("Expecting two arguments for from and to (e.g. ["
@@ -136,7 +136,7 @@ public class DayRange extends AValueObject {
         try {
             if (args.length == 2) {
                 final FDayTime from = FDayTime.valueOf(args[0], false);
-                final FDayTime to = FDayTime.valueOf(args[1], true);
+                final FDayTime to = FDayTime.valueOf(args[1], false);
                 return new DayRange(from, to);
             } else {
                 return null;
