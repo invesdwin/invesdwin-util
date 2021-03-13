@@ -145,4 +145,5 @@ public class DayRange extends AValueObject {
             return null;
         }
     }
+
 }
