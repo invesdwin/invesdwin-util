@@ -18,6 +18,8 @@ public class FWeekTime extends FDayTime {
 
     private final FWeekday weekday;
 
+    private transient Long cachedLongValue;
+
     public FWeekTime(final FDate date) {
         this(date.getFWeekday(), date.getHour(), date.getMinute(), date.getSecond(), date.getMillisecond());
     }
@@ -93,8 +95,11 @@ public class FWeekTime extends FDayTime {
 
     @Override
     public long longValue() {
-        final String concatNumber = toNumberString();
-        return Long.parseLong(concatNumber);
+        if (cachedLongValue == null) {
+            final String concatNumber = toNumberString();
+            cachedLongValue = Long.valueOf(concatNumber);
+        }
+        return cachedLongValue;
     }
 
     @Override

@@ -14,7 +14,7 @@ public class FDayTime extends Number implements Comparable<Object> {
     public static final ADelegateComparator<FDayTime> COMPARATOR = new ADelegateComparator<FDayTime>() {
         @Override
         protected Comparable<?> getCompareCriteria(final FDayTime e) {
-            return e.longValue();
+            return e.intValue();
         }
     };
 
@@ -28,6 +28,8 @@ public class FDayTime extends Number implements Comparable<Object> {
     private final byte minute;
     private final byte second;
     private final short millisecond;
+
+    private transient Integer cachedIntValue;
 
     public FDayTime(final FDate date) {
         this(date.getHour(), date.getMinute(), date.getSecond(), date.getMillisecond());
@@ -121,24 +123,26 @@ public class FDayTime extends Number implements Comparable<Object> {
 
     @Override
     public int intValue() {
-        final String concatNumber = toNumberString();
-        return Integer.parseInt(concatNumber);
+        if (cachedIntValue == null) {
+            final String concatNumber = toNumberString();
+            cachedIntValue = Integer.valueOf(concatNumber);
+        }
+        return cachedIntValue;
     }
 
     @Override
     public long longValue() {
-        final String concatNumber = toNumberString();
-        return Long.parseLong(concatNumber);
+        return intValue();
     }
 
     @Override
     public float floatValue() {
-        return longValue();
+        return intValue();
     }
 
     @Override
     public double doubleValue() {
-        return longValue();
+        return intValue();
     }
 
     public static FDayTime valueOf(final String value, final boolean max) {
