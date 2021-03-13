@@ -65,6 +65,10 @@ public class WeekRange extends AValueObject {
         return getFrom() + FROM_TO_SEPARATOR + getTo();
     }
 
+    public String toNumberString() {
+        return getFrom().toNumberString() + FROM_TO_SEPARATOR + getTo().toNumberString();
+    }
+
     public static List<Duration> extractDurations(final Iterable<WeekRange> timeRanges) {
         final List<Duration> durations = new ArrayList<Duration>();
         for (final WeekRange pr : timeRanges) {
