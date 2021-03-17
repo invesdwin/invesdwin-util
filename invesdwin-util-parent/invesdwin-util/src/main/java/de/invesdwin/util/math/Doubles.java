@@ -1043,7 +1043,7 @@ public final class Doubles extends ADoublesStaticFacade {
         } else if (difference == 0D) {
             return false;
         } else if (isNaN(difference)) {
-            return isNaN(value);
+            return isNaN(otherValue);
         } else {
             final double defaultRoundedValue = round(value);
             final double roundedOther = round(otherValue);
@@ -1101,7 +1101,7 @@ public final class Doubles extends ADoublesStaticFacade {
             if (valueNaN && otherValueNaN) {
                 return true;
             } else {
-                return valueNaN;
+                return otherValueNaN;
             }
         } else {
             final double defaultRoundedValue = round(value);
