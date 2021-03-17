@@ -766,6 +766,10 @@ public final class Doubles extends ADoublesStaticFacade {
         return isLessThanOrEqualTo(value, otherValue.doubleValue());
     }
 
+    /**
+     * NaN is treated as 0 for comparison purposes. This method is normally used for comparisons in the UI or arbitraty
+     * lists.
+     */
     public static int compare(final double value, final double otherValue) {
         final double difference = value - otherValue;
         if (difference > FIRST_ABOVE_ZERO) {
@@ -798,6 +802,10 @@ public final class Doubles extends ADoublesStaticFacade {
         }
     }
 
+    /**
+     * Here we use classical java logic than a comparison with NaN always results in false. Since in math you can not
+     * compare an existing value with a missing one.
+     */
     public static boolean equals(final double value, final double otherValue) {
         final double difference = value - otherValue;
         if (difference > FIRST_ABOVE_ZERO) {
@@ -816,6 +824,10 @@ public final class Doubles extends ADoublesStaticFacade {
         }
     }
 
+    /**
+     * NaN always loses, an existing value wins. Useful for comparison if a new takeProfit/stopLoss is better than
+     * missing one.
+     */
     public static boolean equalsNaNable(final double value, final double otherValue) {
         final double difference = value - otherValue;
         if (difference > FIRST_ABOVE_ZERO) {
@@ -833,6 +845,10 @@ public final class Doubles extends ADoublesStaticFacade {
         }
     }
 
+    /**
+     * Either value is NaN results in a null result. Thus comparison is propagated as MISSING. Useful in expression
+     * language to deactivate missing calculations.
+     */
     public static Boolean equalsNullable(final double value, final double otherValue) {
         final double difference = value - otherValue;
         if (difference > FIRST_ABOVE_ZERO) {
@@ -851,6 +867,10 @@ public final class Doubles extends ADoublesStaticFacade {
         }
     }
 
+    /**
+     * Here we use classical java logic than a comparison with NaN always results in false. Since in math you can not
+     * compare an existing value with a missing one.
+     */
     public static boolean notEquals(final double value, final double otherValue) {
         final double difference = value - otherValue;
         if (difference > FIRST_ABOVE_ZERO) {
@@ -869,6 +889,10 @@ public final class Doubles extends ADoublesStaticFacade {
         }
     }
 
+    /**
+     * NaN always loses, an existing value wins. Useful for comparison if a new takeProfit/stopLoss is better than
+     * missing one.
+     */
     public static boolean notEqualsNaNable(final double value, final double otherValue) {
         final double difference = value - otherValue;
         if (difference > FIRST_ABOVE_ZERO) {
@@ -886,6 +910,10 @@ public final class Doubles extends ADoublesStaticFacade {
         }
     }
 
+    /**
+     * Either value is NaN results in a null result. Thus comparison is propagated as MISSING. Useful in expression
+     * language to deactivate missing calculations.
+     */
     public static Boolean notEqualsNullable(final double value, final double otherValue) {
         final double difference = value - otherValue;
         if (difference > FIRST_ABOVE_ZERO) {
@@ -904,6 +932,10 @@ public final class Doubles extends ADoublesStaticFacade {
         }
     }
 
+    /**
+     * Here we use classical java logic than a comparison with NaN always results in false. Since in math you can not
+     * compare an existing value with a missing one.
+     */
     public static boolean isGreaterThan(final double value, final double otherValue) {
         final double difference = value - otherValue;
         if (difference > FIRST_ABOVE_ZERO) {
@@ -922,6 +954,10 @@ public final class Doubles extends ADoublesStaticFacade {
         }
     }
 
+    /**
+     * NaN always loses, an existing value wins. Useful for comparison if a new takeProfit/stopLoss is better than
+     * missing one.
+     */
     public static boolean isGreaterThanNaNable(final double value, final double otherValue) {
         final double difference = value - otherValue;
         if (difference > FIRST_ABOVE_ZERO) {
@@ -939,6 +975,10 @@ public final class Doubles extends ADoublesStaticFacade {
         }
     }
 
+    /**
+     * Either value is NaN results in a null result. Thus comparison is propagated as MISSING. Useful in expression
+     * language to deactivate missing calculations.
+     */
     public static Boolean isGreaterThanNullable(final double value, final double otherValue) {
         final double difference = value - otherValue;
         if (difference > FIRST_ABOVE_ZERO) {
@@ -957,6 +997,10 @@ public final class Doubles extends ADoublesStaticFacade {
         }
     }
 
+    /**
+     * Here we use classical java logic than a comparison with NaN always results in false. Since in math you can not
+     * compare an existing value with a missing one.
+     */
     public static boolean isGreaterThanOrEqualTo(final double value, final double otherValue) {
         final double difference = value - otherValue;
         if (difference > FIRST_ABOVE_ZERO) {
@@ -975,6 +1019,10 @@ public final class Doubles extends ADoublesStaticFacade {
         }
     }
 
+    /**
+     * NaN always loses, an existing value wins. Useful for comparison if a new takeProfit/stopLoss is better than
+     * missing one.
+     */
     public static boolean isGreaterThanOrEqualToNaNable(final double value, final double otherValue) {
         final double difference = value - otherValue;
         if (difference > FIRST_ABOVE_ZERO) {
@@ -998,6 +1046,10 @@ public final class Doubles extends ADoublesStaticFacade {
         }
     }
 
+    /**
+     * Either value is NaN results in a null result. Thus comparison is propagated as MISSING. Useful in expression
+     * language to deactivate missing calculations.
+     */
     public static Boolean isGreaterThanOrEqualToNullable(final double value, final double otherValue) {
         final double difference = value - otherValue;
         if (difference > FIRST_ABOVE_ZERO) {
@@ -1016,6 +1068,10 @@ public final class Doubles extends ADoublesStaticFacade {
         }
     }
 
+    /**
+     * Here we use classical java logic than a comparison with NaN always results in false. Since in math you can not
+     * compare an existing value with a missing one.
+     */
     public static boolean isLessThan(final double value, final double otherValue) {
         final double difference = value - otherValue;
         if (difference > FIRST_ABOVE_ZERO) {
@@ -1034,6 +1090,10 @@ public final class Doubles extends ADoublesStaticFacade {
         }
     }
 
+    /**
+     * NaN always loses, an existing value wins. Useful for comparison if a new takeProfit/stopLoss is better than
+     * missing one.
+     */
     public static boolean isLessThanNaNable(final double value, final double otherValue) {
         final double difference = value - otherValue;
         if (difference > FIRST_ABOVE_ZERO) {
@@ -1051,6 +1111,10 @@ public final class Doubles extends ADoublesStaticFacade {
         }
     }
 
+    /**
+     * Either value is NaN results in a null result. Thus comparison is propagated as MISSING. Useful in expression
+     * language to deactivate missing calculations.
+     */
     public static Boolean isLessThanNullable(final double value, final double otherValue) {
         final double difference = value - otherValue;
         if (difference > FIRST_ABOVE_ZERO) {
@@ -1069,6 +1133,10 @@ public final class Doubles extends ADoublesStaticFacade {
         }
     }
 
+    /**
+     * Here we use classical java logic than a comparison with NaN always results in false. Since in math you can not
+     * compare an existing value with a missing one.
+     */
     public static boolean isLessThanOrEqualTo(final double value, final double otherValue) {
         final double difference = value - otherValue;
         if (difference > FIRST_ABOVE_ZERO) {
@@ -1087,6 +1155,10 @@ public final class Doubles extends ADoublesStaticFacade {
         }
     }
 
+    /**
+     * NaN always loses, an existing value wins. Useful for comparison if a new takeProfit/stopLoss is better than
+     * missing one.
+     */
     public static boolean isLessThanOrEqualToNaNable(final double value, final double otherValue) {
         final double difference = value - otherValue;
         if (difference > FIRST_ABOVE_ZERO) {
@@ -1110,6 +1182,10 @@ public final class Doubles extends ADoublesStaticFacade {
         }
     }
 
+    /**
+     * Either value is NaN results in a null result. Thus comparison is propagated as MISSING. Useful in expression
+     * language to deactivate missing calculations.
+     */
     public static Boolean isLessThanOrEqualToNullable(final double value, final double otherValue) {
         final double difference = value - otherValue;
         if (difference > FIRST_ABOVE_ZERO) {
