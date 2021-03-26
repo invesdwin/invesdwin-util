@@ -47,9 +47,9 @@ public final class ImmutableHistoricalEntry<T> implements IHistoricalEntry<T> {
     public static <T> IHistoricalEntry<T> maybeExtractKey(final AHistoricalCache<T> parent, final FDate key,
             final T value) {
         if (value == null) {
-            return null;
-        }
-        if (value instanceof IHistoricalEntry) {
+            //null entries are valid and we still need to be able to query further back in time
+            return ImmutableHistoricalEntry.of(key, null);
+        } else if (value instanceof IHistoricalEntry) {
             return (IHistoricalEntry<T>) value;
         } else if (value instanceof IHistoricalValue) {
             final IHistoricalValue<T> cValue = (IHistoricalValue<T>) value;
