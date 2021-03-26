@@ -43,6 +43,8 @@ public final class Doubles extends ADoublesStaticFacade {
 
     public static final double FIRST_ABOVE_ZERO = 0.000000001;
     public static final double FIRST_BELOW_ZERO = -0.000000001;
+    public static final double FALSE = 0D;
+    public static final double TRUE = 1D;
 
     private Doubles() {
     }
@@ -635,14 +637,14 @@ public final class Doubles extends ADoublesStaticFacade {
     }
 
     public static boolean toBoolean(final double value) {
-        return value > 0D;
+        return value > FALSE;
     }
 
     public static double fromBoolean(final boolean value) {
         if (value) {
-            return 1D;
+            return TRUE;
         } else {
-            return 0D;
+            return FALSE;
         }
     }
 
@@ -650,9 +652,9 @@ public final class Doubles extends ADoublesStaticFacade {
         if (value == null) {
             return Double.NaN;
         } else if (value) {
-            return 1D;
+            return TRUE;
         } else {
-            return 0D;
+            return FALSE;
         }
     }
 
