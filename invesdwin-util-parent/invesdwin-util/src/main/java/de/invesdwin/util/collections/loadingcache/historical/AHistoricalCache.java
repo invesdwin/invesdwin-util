@@ -39,6 +39,7 @@ import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCa
 import de.invesdwin.util.collections.loadingcache.historical.query.index.IndexedFDate;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.HistoricalCacheQuery;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.IHistoricalCacheInternalMethods;
+import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.AFilteringDelegateHistoricalCacheQueryCore;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.CachedHistoricalCacheQueryCore;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.IHistoricalCacheQueryCore;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.TrailingHistoricalCacheQueryCore;
@@ -65,6 +66,12 @@ public abstract class AHistoricalCache<V>
     protected final IHistoricalCacheInternalMethods<V> internalMethods = new HistoricalCacheInternalMethods();
 
     private IHistoricalCacheQueryCore<V> queryCore = newQueryCore();
+    private final AFilteringDelegateHistoricalCacheQueryCore<V> filteringQueryCore = new AFilteringDelegateHistoricalCacheQueryCore<V>() {
+        @Override
+        protected IHistoricalCacheQueryCore<V> getDelegate() {
+            return queryCore;
+        }
+    };
     private IHistoricalCacheAdjustKeyProvider adjustKeyProvider = new InnerHistoricalCacheAdjustKeyProvider();
     private final Set<IHistoricalCacheOnClearListener> onClearListeners = newListenerSet();
     private final Set<IHistoricalCacheIncreaseMaximumSizeListener> increaseMaximumSizeListeners = newListenerSet();
@@ -563,7 +570,7 @@ public abstract class AHistoricalCache<V>
 
         @Override
         public IHistoricalCacheQueryCore<V> getQueryCore() {
-            return AHistoricalCache.this.queryCore;
+            return AHistoricalCache.this.filteringQueryCore;
         }
 
         @Override
