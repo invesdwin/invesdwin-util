@@ -1,7 +1,5 @@
 package de.invesdwin.util.collections.loadingcache.historical;
 
-import java.util.Optional;
-
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.IHistoricalCacheInternalMethods;
@@ -13,7 +11,7 @@ public final class IndexedHistoricalEntry<V> implements IHistoricalEntry<V> {
 
     private final IHistoricalCacheInternalMethods<V> parent;
     private FDate key;
-    private Optional<V> value;
+    private V value;
     private FDate prevKey;
     private FDate nextKey;
 
@@ -25,7 +23,7 @@ public final class IndexedHistoricalEntry<V> implements IHistoricalEntry<V> {
     public IndexedHistoricalEntry(final IHistoricalCacheInternalMethods<V> parent, final FDate key, final V value) {
         this.parent = parent;
         this.key = parent.getAdjustKeyProvider().newAlreadyAdjustedKey(key);
-        this.value = Optional.ofNullable(value);
+        this.value = value;
     }
 
     @Override
@@ -38,21 +36,17 @@ public final class IndexedHistoricalEntry<V> implements IHistoricalEntry<V> {
         if (value == null) {
             loadValue();
         }
-        return value.orElse(null);
+        return value;
     }
 
     @Override
     public V getValueIfPresent() {
-        if (value == null) {
-            return null;
-        } else {
-            return value.orElse(null);
-        }
+        return value;
     }
 
     public void setValue(final FDate key, final V value) {
         this.key = parent.getAdjustKeyProvider().newAlreadyAdjustedKey(key);
-        this.value = Optional.ofNullable(value);
+        this.value = value;
     }
 
     @SuppressWarnings("unchecked")
@@ -60,21 +54,20 @@ public final class IndexedHistoricalEntry<V> implements IHistoricalEntry<V> {
         if (value != null) {
             return;
         }
-        final V v = parent.loadValue(key);
-        value = Optional.ofNullable(v);
-        if (v == null) {
+        value = parent.loadValue(key);
+        if (value == null) {
             return;
         }
         final FDate unadj;
-        if (v instanceof IHistoricalEntry) {
-            final IHistoricalEntry<V> cValue = (IHistoricalEntry<V>) v;
+        if (value instanceof IHistoricalEntry) {
+            final IHistoricalEntry<V> cValue = (IHistoricalEntry<V>) value;
             unadj = cValue.getKey();
-        } else if (v instanceof IHistoricalValue) {
-            final IHistoricalValue<V> cValue = (IHistoricalValue<V>) v;
+        } else if (value instanceof IHistoricalValue) {
+            final IHistoricalValue<V> cValue = (IHistoricalValue<V>) value;
             final IHistoricalEntry<V> ccValue = (IHistoricalEntry<V>) cValue.asHistoricalEntry();
             unadj = ccValue.getKey();
         } else {
-            unadj = parent.extractKey(key, v);
+            unadj = parent.extractKey(key, value);
         }
         key = parent.getAdjustKeyProvider().newAlreadyAdjustedKey(unadj);
     }
