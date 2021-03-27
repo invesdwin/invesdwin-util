@@ -84,6 +84,10 @@ public interface IHistoricalEntry<V> extends Entry<FDate, V> {
         }
     }
 
+    default boolean isValuePresent() {
+        return true;
+    }
+
     default V getValueIfPresent() {
         return getValue();
     }

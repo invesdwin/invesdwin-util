@@ -28,7 +28,8 @@ public abstract class AFilteringDelegateHistoricalCacheQueryCore<V> implements I
         if (entry == null) {
             return null;
         }
-        if (entry.getValue() == null) {
+        //check if present to prevent stack overflow during lazy loading
+        if (entry.isValuePresent() && entry.getValueIfPresent() == null) {
             return null;
         }
         return entry;
@@ -41,7 +42,8 @@ public abstract class AFilteringDelegateHistoricalCacheQueryCore<V> implements I
                 if (element == null) {
                     return true;
                 }
-                if (element.getValue() == null) {
+                //check if present to prevent stack overflow during lazy loading
+                if (element.isValuePresent() && element.getValueIfPresent() == null) {
                     return true;
                 }
                 return false;

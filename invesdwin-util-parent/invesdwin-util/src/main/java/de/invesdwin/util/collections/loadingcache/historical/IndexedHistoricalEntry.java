@@ -42,6 +42,11 @@ public final class IndexedHistoricalEntry<V> implements IHistoricalEntry<V> {
     }
 
     @Override
+    public boolean isValuePresent() {
+        return value != null;
+    }
+
+    @Override
     public V getValueIfPresent() {
         if (value == null) {
             return null;
