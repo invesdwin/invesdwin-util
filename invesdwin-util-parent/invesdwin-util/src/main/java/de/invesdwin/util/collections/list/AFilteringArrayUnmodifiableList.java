@@ -4,6 +4,9 @@ import java.util.Iterator;
 
 import javax.annotation.concurrent.Immutable;
 
+import de.invesdwin.util.collections.iterable.ASkippingIterator;
+import de.invesdwin.util.collections.iterable.collection.ArrayCloseableIterator;
+
 @Immutable
 public abstract class AFilteringArrayUnmodifiableList<E> extends AUnmodifiableList<E> {
 
@@ -33,7 +36,7 @@ public abstract class AFilteringArrayUnmodifiableList<E> extends AUnmodifiableLi
                 return false;
             }
         }
-        return false;
+        return true;
     }
 
     @Override
@@ -48,17 +51,28 @@ public abstract class AFilteringArrayUnmodifiableList<E> extends AUnmodifiableLi
                 size++;
             }
         }
-        return null;
+        throw new IndexOutOfBoundsException(index);
     }
 
     @Override
     public boolean contains(final Object o) {
-        throw new UnsupportedOperationException();
+        for (int i = 0; i < elements.length; i++) {
+            final E element = elements[i];
+            if (isAccepted(element) && o.equals(element)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
     public Iterator<E> iterator() {
-        throw new UnsupportedOperationException();
+        return new ASkippingIterator<E>(new ArrayCloseableIterator<E>(elements)) {
+            @Override
+            protected boolean skip(final E element) {
+                return !isAccepted(element);
+            }
+        };
     }
 
     @Override
@@ -73,12 +87,33 @@ public abstract class AFilteringArrayUnmodifiableList<E> extends AUnmodifiableLi
 
     @Override
     public int indexOf(final Object o) {
-        throw new UnsupportedOperationException();
+        int size = 0;
+        for (int i = 0; i < elements.length; i++) {
+            final E element = elements[i];
+            if (isAccepted(element)) {
+                if (o.equals(element)) {
+                    return size;
+                }
+                size++;
+            }
+        }
+        return -1;
     }
 
     @Override
     public int lastIndexOf(final Object o) {
-        throw new UnsupportedOperationException();
+        int size = 0;
+        int lastIndexOf = -1;
+        for (int i = 0; i < elements.length; i++) {
+            final E element = elements[i];
+            if (isAccepted(element)) {
+                if (o.equals(element)) {
+                    lastIndexOf = size;
+                }
+                size++;
+            }
+        }
+        return lastIndexOf;
     }
 
 }
