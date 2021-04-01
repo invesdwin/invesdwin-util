@@ -10,14 +10,4 @@ public abstract class AConstant implements IVariable {
         return true;
     }
 
-    @Override
-    public boolean shouldCompress() {
-        return true;
-    }
-
-    @Override
-    public boolean shouldPersist() {
-        return false;
-    }
-
 }

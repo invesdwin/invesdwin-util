@@ -140,18 +140,8 @@ public abstract class ADelegateExpression implements IExpression {
     }
 
     @Override
-    public boolean shouldCompress() {
-        return getDelegate().shouldCompress();
-    }
-
-    @Override
-    public boolean shouldPersist() {
-        return getDelegate().shouldPersist();
-    }
-
-    @Override
-    public boolean shouldDraw() {
-        return getDelegate().shouldDraw();
+    public Object getProperty(final String property) {
+        return getDelegate().getProperty(property);
     }
 
     @Override

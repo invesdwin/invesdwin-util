@@ -218,19 +218,10 @@ public final class LogicalFunctions {
         }
 
         @Override
-        public boolean shouldCompress() {
-            return true;
+        public Object getProperty(final String property) {
+            return null;
         }
 
-        @Override
-        public boolean shouldPersist() {
-            return false;
-        }
-
-        @Override
-        public boolean shouldDraw() {
-            return true;
-        }
     };
 
     public static final ABooleanFunction ISNAN = new ABooleanFunction() {
@@ -332,19 +323,10 @@ public final class LogicalFunctions {
         }
 
         @Override
-        public boolean shouldCompress() {
-            return true;
+        public Object getProperty(final String property) {
+            return null;
         }
 
-        @Override
-        public boolean shouldPersist() {
-            return false;
-        }
-
-        @Override
-        public boolean shouldDraw() {
-            return true;
-        }
     };
 
     public static final ABooleanFunction ISTRUE = new ABooleanFunction() {
@@ -437,19 +419,10 @@ public final class LogicalFunctions {
         }
 
         @Override
-        public boolean shouldCompress() {
-            return true;
+        public Object getProperty(final String property) {
+            return null;
         }
 
-        @Override
-        public boolean shouldPersist() {
-            return false;
-        }
-
-        @Override
-        public boolean shouldDraw() {
-            return true;
-        }
     };
 
     public static final ABooleanFunction ISFALSE = new ABooleanFunction() {
@@ -551,19 +524,10 @@ public final class LogicalFunctions {
         }
 
         @Override
-        public boolean shouldCompress() {
-            return true;
+        public Object getProperty(final String property) {
+            return null;
         }
 
-        @Override
-        public boolean shouldPersist() {
-            return false;
-        }
-
-        @Override
-        public boolean shouldDraw() {
-            return true;
-        }
     };
 
     public static final ABooleanNullableFunction NOT = new ABooleanNullableFunction() {
@@ -679,19 +643,10 @@ public final class LogicalFunctions {
         }
 
         @Override
-        public boolean shouldCompress() {
-            return true;
+        public Object getProperty(final String property) {
+            return null;
         }
 
-        @Override
-        public boolean shouldPersist() {
-            return false;
-        }
-
-        @Override
-        public boolean shouldDraw() {
-            return true;
-        }
     };
 
     private LogicalFunctions() {
@@ -889,19 +844,10 @@ public final class LogicalFunctions {
             }
 
             @Override
-            public boolean shouldCompress() {
-                return true;
+            public Object getProperty(final String property) {
+                return null;
             }
 
-            @Override
-            public boolean shouldPersist() {
-                return false;
-            }
-
-            @Override
-            public boolean shouldDraw() {
-                return true;
-            }
         };
     }
 
@@ -1124,19 +1070,10 @@ public final class LogicalFunctions {
             }
 
             @Override
-            public boolean shouldCompress() {
-                return true;
+            public Object getProperty(final String property) {
+                return null;
             }
 
-            @Override
-            public boolean shouldPersist() {
-                return false;
-            }
-
-            @Override
-            public boolean shouldDraw() {
-                return true;
-            }
         };
     }
 

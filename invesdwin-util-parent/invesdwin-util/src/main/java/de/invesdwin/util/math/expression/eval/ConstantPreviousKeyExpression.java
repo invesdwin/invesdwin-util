@@ -312,18 +312,8 @@ public class ConstantPreviousKeyExpression implements IParsedExpression {
     }
 
     @Override
-    public boolean shouldCompress() {
-        return expression.shouldCompress();
-    }
-
-    @Override
-    public boolean shouldPersist() {
-        return expression.shouldPersist();
-    }
-
-    @Override
-    public boolean shouldDraw() {
-        return expression.shouldDraw();
+    public Object getProperty(final String property) {
+        return null;
     }
 
     @Override

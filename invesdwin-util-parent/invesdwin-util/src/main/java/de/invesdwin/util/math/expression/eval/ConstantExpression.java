@@ -253,18 +253,8 @@ public class ConstantExpression implements IParsedExpression {
     }
 
     @Override
-    public boolean shouldCompress() {
-        return true;
-    }
-
-    @Override
-    public boolean shouldPersist() {
-        return false;
-    }
-
-    @Override
-    public boolean shouldDraw() {
-        return true;
+    public Object getProperty(final String property) {
+        return null;
     }
 
     @Override

@@ -39,18 +39,8 @@ public final class StatisticalFunctions {
                 return new AIntegerFunction() {
 
                     @Override
-                    public boolean shouldCompress() {
-                        return true;
-                    }
-
-                    @Override
-                    public boolean shouldPersist() {
-                        return false;
-                    }
-
-                    @Override
-                    public boolean shouldDraw() {
-                        return true;
+                    public Object getProperty(final String property) {
+                        return null;
                     }
 
                     @Override
@@ -231,18 +221,8 @@ public final class StatisticalFunctions {
                 return new ADoubleFunction() {
 
                     @Override
-                    public boolean shouldCompress() {
-                        return true;
-                    }
-
-                    @Override
-                    public boolean shouldPersist() {
-                        return false;
-                    }
-
-                    @Override
-                    public boolean shouldDraw() {
-                        return true;
+                    public Object getProperty(final String property) {
+                        return null;
                     }
 
                     @Override
@@ -422,18 +402,8 @@ public final class StatisticalFunctions {
                 return new ADoubleFunction() {
 
                     @Override
-                    public boolean shouldCompress() {
-                        return true;
-                    }
-
-                    @Override
-                    public boolean shouldPersist() {
-                        return false;
-                    }
-
-                    @Override
-                    public boolean shouldDraw() {
-                        return true;
+                    public Object getProperty(final String property) {
+                        return null;
                     }
 
                     @Override
@@ -613,18 +583,8 @@ public final class StatisticalFunctions {
                 return new ADoubleFunction() {
 
                     @Override
-                    public boolean shouldCompress() {
-                        return true;
-                    }
-
-                    @Override
-                    public boolean shouldPersist() {
-                        return false;
-                    }
-
-                    @Override
-                    public boolean shouldDraw() {
-                        return true;
+                    public Object getProperty(final String property) {
+                        return null;
                     }
 
                     @Override
@@ -807,18 +767,8 @@ public final class StatisticalFunctions {
                 return new ADoubleFunction() {
 
                     @Override
-                    public boolean shouldCompress() {
-                        return true;
-                    }
-
-                    @Override
-                    public boolean shouldPersist() {
-                        return false;
-                    }
-
-                    @Override
-                    public boolean shouldDraw() {
-                        return true;
+                    public Object getProperty(final String property) {
+                        return null;
                     }
 
                     @Override
@@ -998,18 +948,8 @@ public final class StatisticalFunctions {
                 return new ADoubleFunction() {
 
                     @Override
-                    public boolean shouldCompress() {
-                        return true;
-                    }
-
-                    @Override
-                    public boolean shouldPersist() {
-                        return false;
-                    }
-
-                    @Override
-                    public boolean shouldDraw() {
-                        return true;
+                    public Object getProperty(final String property) {
+                        return null;
                     }
 
                     @Override
@@ -1192,18 +1132,8 @@ public final class StatisticalFunctions {
                 return new ADoubleFunction() {
 
                     @Override
-                    public boolean shouldCompress() {
-                        return true;
-                    }
-
-                    @Override
-                    public boolean shouldPersist() {
-                        return false;
-                    }
-
-                    @Override
-                    public boolean shouldDraw() {
-                        return true;
+                    public Object getProperty(final String property) {
+                        return null;
                     }
 
                     @Override
@@ -1383,18 +1313,8 @@ public final class StatisticalFunctions {
                 return new ADoubleFunction() {
 
                     @Override
-                    public boolean shouldCompress() {
-                        return true;
-                    }
-
-                    @Override
-                    public boolean shouldPersist() {
-                        return false;
-                    }
-
-                    @Override
-                    public boolean shouldDraw() {
-                        return true;
+                    public Object getProperty(final String property) {
+                        return null;
                     }
 
                     @Override
@@ -1574,18 +1494,8 @@ public final class StatisticalFunctions {
                 return new ADoubleFunction() {
 
                     @Override
-                    public boolean shouldCompress() {
-                        return true;
-                    }
-
-                    @Override
-                    public boolean shouldPersist() {
-                        return false;
-                    }
-
-                    @Override
-                    public boolean shouldDraw() {
-                        return true;
+                    public Object getProperty(final String property) {
+                        return null;
                     }
 
                     @Override

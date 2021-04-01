@@ -51,18 +51,8 @@ public abstract class AVariableReference<V extends IVariable> implements IParsed
     }
 
     @Override
-    public boolean shouldCompress() {
-        return variable.shouldCompress();
-    }
-
-    @Override
-    public boolean shouldPersist() {
-        return variable.shouldPersist();
-    }
-
-    @Override
-    public boolean shouldDraw() {
-        return variable.shouldDraw();
+    public Object getProperty(final String property) {
+        return variable.getProperty(property);
     }
 
     @Override

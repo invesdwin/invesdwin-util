@@ -99,34 +99,8 @@ public abstract class AFunctionCall<F extends AFunction> implements IParsedExpre
     }
 
     @Override
-    public boolean shouldCompress() {
-        if (!function.shouldCompress()) {
-            return false;
-        }
-        for (int i = 0; i < parameters.length; i++) {
-            if (!parameters[i].shouldCompress()) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    @Override
-    public boolean shouldPersist() {
-        if (function.shouldPersist()) {
-            return true;
-        }
-        for (int i = 0; i < parameters.length; i++) {
-            if (parameters[i].shouldPersist()) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    @Override
-    public boolean shouldDraw() {
-        return function.shouldDraw();
+    public Object getProperty(final String property) {
+        return function.getProperty(property);
     }
 
     @Override

@@ -2,6 +2,8 @@ package de.invesdwin.util.math.expression.variable;
 
 import javax.annotation.concurrent.Immutable;
 
+import de.invesdwin.util.math.expression.visitor.ExpressionProperties;
+
 @Immutable
 public final class Variables {
 
@@ -24,8 +26,8 @@ public final class Variables {
         }
 
         @Override
-        public boolean shouldDraw() {
-            return true;
+        public Object getProperty(final String property) {
+            return null;
         }
 
     };
@@ -49,8 +51,8 @@ public final class Variables {
         }
 
         @Override
-        public boolean shouldDraw() {
-            return true;
+        public Object getProperty(final String property) {
+            return null;
         }
 
     };
@@ -73,8 +75,13 @@ public final class Variables {
         }
 
         @Override
-        public boolean shouldDraw() {
-            return false;
+        public Object getProperty(final String property) {
+            switch (property) {
+            case ExpressionProperties.DRAW:
+                return false;
+            default:
+                return null;
+            }
         }
 
     };
@@ -97,8 +104,13 @@ public final class Variables {
         }
 
         @Override
-        public boolean shouldDraw() {
-            return false;
+        public Object getProperty(final String property) {
+            switch (property) {
+            case ExpressionProperties.DRAW:
+                return false;
+            default:
+                return null;
+            }
         }
 
     };
@@ -121,8 +133,8 @@ public final class Variables {
         }
 
         @Override
-        public boolean shouldDraw() {
-            return true;
+        public Object getProperty(final String property) {
+            return null;
         }
 
     };
@@ -145,8 +157,8 @@ public final class Variables {
         }
 
         @Override
-        public boolean shouldDraw() {
-            return true;
+        public Object getProperty(final String property) {
+            return null;
         }
 
     };

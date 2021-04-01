@@ -131,25 +131,7 @@ public abstract class AFunction {
         return sb.toString();
     }
 
-    /**
-     * Return true if values are only availble point in time without history. E.g. dependant on active orders and thus
-     * should be persisted for charts.
-     */
-    public abstract boolean shouldPersist();
-
-    /**
-     * Return true if this expression can be drawn. This might be false for command expressions that always return NaN.
-     * In that case the children might be drawn.
-     */
-    public abstract boolean shouldDraw();
-
-    /**
-     * Return true if this function does not depend on an outside context, e.g. current trade information, strategy
-     * samples or values from other indicators.
-     * 
-     * When this is true, results might be cached and compressed as double/integer/boolean arrays or bitsets.
-     */
-    public abstract boolean shouldCompress();
+    public abstract Object getProperty(String property);
 
     @Override
     public String toString() {

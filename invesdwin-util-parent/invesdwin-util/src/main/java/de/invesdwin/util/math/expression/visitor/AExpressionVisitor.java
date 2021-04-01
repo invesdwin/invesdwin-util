@@ -1,8 +1,9 @@
-package de.invesdwin.util.math.expression;
+package de.invesdwin.util.math.expression.visitor;
 
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.error.UnknownArgumentException;
+import de.invesdwin.util.math.expression.IExpression;
 import de.invesdwin.util.math.expression.eval.operation.IBinaryOperation;
 import de.invesdwin.util.math.expression.eval.operation.Op;
 
@@ -10,23 +11,17 @@ import de.invesdwin.util.math.expression.eval.operation.Op;
 public abstract class AExpressionVisitor {
 
     public void process(final IExpression expression) {
-        final IExpression e;
-        if (isDrawableOnly() && expression.getChildren().length == 1) {
-            e = getDrawable(expression);
-        } else {
-            e = expression;
-        }
-        if (e == null) {
+        if (expression == null) {
             return;
-        } else if (e instanceof IBinaryOperation) {
-            final IBinaryOperation cExpression = (IBinaryOperation) e;
+        } else if (expression instanceof IBinaryOperation) {
+            final IBinaryOperation cExpression = (IBinaryOperation) expression;
             final boolean visitChildren = processBinaryOperation(cExpression);
             if (visitChildren) {
                 process(cExpression.getLeft());
                 process(cExpression.getRight());
             }
         } else {
-            visitOther(e);
+            visitOther(expression);
         }
     }
 
@@ -62,10 +57,6 @@ public abstract class AExpressionVisitor {
         return visitChildren;
     }
 
-    protected boolean isDrawableOnly() {
-        return false;
-    }
-
     protected abstract boolean visitLogicalCombination(IBinaryOperation expression);
 
     protected abstract boolean visitComparison(IBinaryOperation expression);
@@ -74,18 +65,4 @@ public abstract class AExpressionVisitor {
 
     protected abstract void visitOther(IExpression expression);
 
-    public static IExpression getDrawable(final IExpression expression) {
-        if (expression.shouldDraw()) {
-            return expression;
-        }
-        final IExpression[] children = expression.getChildren();
-        if (children.length == 1) {
-            final IExpression child = children[0];
-            final IExpression drawable = getDrawable(child);
-            if (drawable != null) {
-                return drawable;
-            }
-        }
-        return null;
-    }
 }

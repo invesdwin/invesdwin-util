@@ -85,19 +85,10 @@ public final class MathFunctions {
         }
 
         @Override
-        public boolean shouldCompress() {
-            return true;
+        public Object getProperty(final String property) {
+            return null;
         }
 
-        @Override
-        public boolean shouldPersist() {
-            return false;
-        }
-
-        @Override
-        public boolean shouldDraw() {
-            return true;
-        }
     };
 
     public static final ADoubleFunction SINH = new ADoubleUnaryFunction() {
@@ -167,19 +158,10 @@ public final class MathFunctions {
         }
 
         @Override
-        public boolean shouldCompress() {
-            return true;
+        public Object getProperty(final String property) {
+            return null;
         }
 
-        @Override
-        public boolean shouldPersist() {
-            return false;
-        }
-
-        @Override
-        public boolean shouldDraw() {
-            return true;
-        }
     };
 
     public static final ADoubleFunction COS = new ADoubleUnaryFunction() {
@@ -248,19 +230,10 @@ public final class MathFunctions {
         }
 
         @Override
-        public boolean shouldCompress() {
-            return true;
+        public Object getProperty(final String property) {
+            return null;
         }
 
-        @Override
-        public boolean shouldPersist() {
-            return false;
-        }
-
-        @Override
-        public boolean shouldDraw() {
-            return true;
-        }
     };
 
     public static final ADoubleFunction COSH = new ADoubleUnaryFunction() {
@@ -330,19 +303,10 @@ public final class MathFunctions {
         }
 
         @Override
-        public boolean shouldCompress() {
-            return true;
+        public Object getProperty(final String property) {
+            return null;
         }
 
-        @Override
-        public boolean shouldPersist() {
-            return false;
-        }
-
-        @Override
-        public boolean shouldDraw() {
-            return true;
-        }
     };
 
     public static final ADoubleFunction TAN = new ADoubleUnaryFunction() {
@@ -411,19 +375,10 @@ public final class MathFunctions {
         }
 
         @Override
-        public boolean shouldCompress() {
-            return true;
+        public Object getProperty(final String property) {
+            return null;
         }
 
-        @Override
-        public boolean shouldPersist() {
-            return false;
-        }
-
-        @Override
-        public boolean shouldDraw() {
-            return true;
-        }
     };
 
     public static final ADoubleFunction TANH = new ADoubleUnaryFunction() {
@@ -494,19 +449,10 @@ public final class MathFunctions {
         }
 
         @Override
-        public boolean shouldCompress() {
-            return true;
+        public Object getProperty(final String property) {
+            return null;
         }
 
-        @Override
-        public boolean shouldPersist() {
-            return false;
-        }
-
-        @Override
-        public boolean shouldDraw() {
-            return true;
-        }
     };
 
     public static final ADoubleFunction ABS = new ADoubleUnaryFunction() {
@@ -576,19 +522,10 @@ public final class MathFunctions {
         }
 
         @Override
-        public boolean shouldCompress() {
-            return true;
+        public Object getProperty(final String property) {
+            return null;
         }
 
-        @Override
-        public boolean shouldPersist() {
-            return false;
-        }
-
-        @Override
-        public boolean shouldDraw() {
-            return true;
-        }
     };
 
     public static final ADoubleFunction ASIN = new ADoubleUnaryFunction() {
@@ -657,19 +594,10 @@ public final class MathFunctions {
         }
 
         @Override
-        public boolean shouldCompress() {
-            return true;
+        public Object getProperty(final String property) {
+            return null;
         }
 
-        @Override
-        public boolean shouldPersist() {
-            return false;
-        }
-
-        @Override
-        public boolean shouldDraw() {
-            return true;
-        }
     };
 
     public static final ADoubleFunction ACOS = new ADoubleUnaryFunction() {
@@ -738,19 +666,10 @@ public final class MathFunctions {
         }
 
         @Override
-        public boolean shouldCompress() {
-            return true;
+        public Object getProperty(final String property) {
+            return null;
         }
 
-        @Override
-        public boolean shouldPersist() {
-            return false;
-        }
-
-        @Override
-        public boolean shouldDraw() {
-            return true;
-        }
     };
 
     public static final ADoubleFunction ATAN = new ADoubleUnaryFunction() {
@@ -819,19 +738,10 @@ public final class MathFunctions {
         }
 
         @Override
-        public boolean shouldCompress() {
-            return true;
+        public Object getProperty(final String property) {
+            return null;
         }
 
-        @Override
-        public boolean shouldPersist() {
-            return false;
-        }
-
-        @Override
-        public boolean shouldDraw() {
-            return true;
-        }
     };
 
     public static final ADoubleFunction ATAN2 = new ADoubleBinaryFunction() {
@@ -941,19 +851,10 @@ public final class MathFunctions {
         }
 
         @Override
-        public boolean shouldCompress() {
-            return true;
+        public Object getProperty(final String property) {
+            return null;
         }
 
-        @Override
-        public boolean shouldPersist() {
-            return false;
-        }
-
-        @Override
-        public boolean shouldDraw() {
-            return true;
-        }
     };
 
     public static final ADoubleFunction ROUND = new ADoubleUnaryFunction() {
@@ -1022,19 +923,10 @@ public final class MathFunctions {
         }
 
         @Override
-        public boolean shouldCompress() {
-            return true;
+        public Object getProperty(final String property) {
+            return null;
         }
 
-        @Override
-        public boolean shouldPersist() {
-            return false;
-        }
-
-        @Override
-        public boolean shouldDraw() {
-            return true;
-        }
     };
 
     public static final ADoubleFunction FLOOR = new ADoubleUnaryFunction() {
@@ -1104,19 +996,10 @@ public final class MathFunctions {
         }
 
         @Override
-        public boolean shouldCompress() {
-            return true;
+        public Object getProperty(final String property) {
+            return null;
         }
 
-        @Override
-        public boolean shouldPersist() {
-            return false;
-        }
-
-        @Override
-        public boolean shouldDraw() {
-            return true;
-        }
     };
 
     public static final ADoubleFunction CEIL = new ADoubleUnaryFunction() {
@@ -1186,19 +1069,10 @@ public final class MathFunctions {
         }
 
         @Override
-        public boolean shouldCompress() {
-            return true;
+        public Object getProperty(final String property) {
+            return null;
         }
 
-        @Override
-        public boolean shouldPersist() {
-            return false;
-        }
-
-        @Override
-        public boolean shouldDraw() {
-            return true;
-        }
     };
 
     public static final ADoubleFunction POW = new ADoubleBinaryFunction() {
@@ -1307,19 +1181,10 @@ public final class MathFunctions {
         }
 
         @Override
-        public boolean shouldCompress() {
-            return true;
+        public Object getProperty(final String property) {
+            return null;
         }
 
-        @Override
-        public boolean shouldPersist() {
-            return false;
-        }
-
-        @Override
-        public boolean shouldDraw() {
-            return true;
-        }
     };
 
     public static final ADoubleFunction SQRT = new ADoubleUnaryFunction() {
@@ -1389,19 +1254,10 @@ public final class MathFunctions {
         }
 
         @Override
-        public boolean shouldCompress() {
-            return true;
+        public Object getProperty(final String property) {
+            return null;
         }
 
-        @Override
-        public boolean shouldPersist() {
-            return false;
-        }
-
-        @Override
-        public boolean shouldDraw() {
-            return true;
-        }
     };
 
     public static final ADoubleFunction SQUARE = new ADoubleUnaryFunction() {
@@ -1471,19 +1327,10 @@ public final class MathFunctions {
         }
 
         @Override
-        public boolean shouldCompress() {
-            return true;
+        public Object getProperty(final String property) {
+            return null;
         }
 
-        @Override
-        public boolean shouldPersist() {
-            return false;
-        }
-
-        @Override
-        public boolean shouldDraw() {
-            return true;
-        }
     };
 
     public static final ADoubleFunction EXP = new ADoubleUnaryFunction() {
@@ -1552,19 +1399,10 @@ public final class MathFunctions {
         }
 
         @Override
-        public boolean shouldCompress() {
-            return true;
+        public Object getProperty(final String property) {
+            return null;
         }
 
-        @Override
-        public boolean shouldPersist() {
-            return false;
-        }
-
-        @Override
-        public boolean shouldDraw() {
-            return true;
-        }
     };
 
     public static final ADoubleFunction LN = new ADoubleUnaryFunction() {
@@ -1633,19 +1471,10 @@ public final class MathFunctions {
         }
 
         @Override
-        public boolean shouldCompress() {
-            return true;
+        public Object getProperty(final String property) {
+            return null;
         }
 
-        @Override
-        public boolean shouldPersist() {
-            return false;
-        }
-
-        @Override
-        public boolean shouldDraw() {
-            return true;
-        }
     };
 
     public static final ADoubleFunction LOG = new ADoubleUnaryFunction() {
@@ -1714,19 +1543,10 @@ public final class MathFunctions {
         }
 
         @Override
-        public boolean shouldCompress() {
-            return true;
+        public Object getProperty(final String property) {
+            return null;
         }
 
-        @Override
-        public boolean shouldPersist() {
-            return false;
-        }
-
-        @Override
-        public boolean shouldDraw() {
-            return true;
-        }
     };
 
     public static final ADoubleFunction SIGN = new ADoubleUnaryFunction() {
@@ -1796,19 +1616,10 @@ public final class MathFunctions {
         }
 
         @Override
-        public boolean shouldCompress() {
-            return true;
+        public Object getProperty(final String property) {
+            return null;
         }
 
-        @Override
-        public boolean shouldPersist() {
-            return false;
-        }
-
-        @Override
-        public boolean shouldDraw() {
-            return true;
-        }
     };
 
     public static final ADoubleFunction DEG = new ADoubleUnaryFunction() {
@@ -1878,19 +1689,10 @@ public final class MathFunctions {
         }
 
         @Override
-        public boolean shouldCompress() {
-            return true;
+        public Object getProperty(final String property) {
+            return null;
         }
 
-        @Override
-        public boolean shouldPersist() {
-            return false;
-        }
-
-        @Override
-        public boolean shouldDraw() {
-            return true;
-        }
     };
 
     public static final ADoubleFunction RAD = new ADoubleUnaryFunction() {
@@ -1960,19 +1762,10 @@ public final class MathFunctions {
         }
 
         @Override
-        public boolean shouldCompress() {
-            return true;
+        public Object getProperty(final String property) {
+            return null;
         }
 
-        @Override
-        public boolean shouldPersist() {
-            return false;
-        }
-
-        @Override
-        public boolean shouldDraw() {
-            return true;
-        }
     };
 
     public static final ADoubleFunction NEGATE = new ADoubleFunction() {
@@ -2074,19 +1867,10 @@ public final class MathFunctions {
         }
 
         @Override
-        public boolean shouldCompress() {
-            return true;
+        public Object getProperty(final String property) {
+            return null;
         }
 
-        @Override
-        public boolean shouldPersist() {
-            return false;
-        }
-
-        @Override
-        public boolean shouldDraw() {
-            return true;
-        }
     };
 
     public static final ADoubleFunction NORMALIZE_VALUE = new ADoubleTernaryFunction() {
@@ -2234,19 +2018,10 @@ public final class MathFunctions {
         }
 
         @Override
-        public boolean shouldCompress() {
-            return true;
+        public Object getProperty(final String property) {
+            return null;
         }
 
-        @Override
-        public boolean shouldPersist() {
-            return false;
-        }
-
-        @Override
-        public boolean shouldDraw() {
-            return true;
-        }
     };
 
     private MathFunctions() {
@@ -2314,18 +2089,8 @@ public final class MathFunctions {
             }
 
             @Override
-            public boolean shouldCompress() {
-                return true;
-            }
-
-            @Override
-            public boolean shouldPersist() {
-                return false;
-            }
-
-            @Override
-            public boolean shouldDraw() {
-                return true;
+            public Object getProperty(final String property) {
+                return null;
             }
 
             @Override
@@ -2489,18 +2254,8 @@ public final class MathFunctions {
             }
 
             @Override
-            public boolean shouldCompress() {
-                return true;
-            }
-
-            @Override
-            public boolean shouldPersist() {
-                return false;
-            }
-
-            @Override
-            public boolean shouldDraw() {
-                return true;
+            public Object getProperty(final String property) {
+                return null;
             }
 
             @Override
@@ -2664,18 +2419,8 @@ public final class MathFunctions {
             }
 
             @Override
-            public boolean shouldCompress() {
-                return true;
-            }
-
-            @Override
-            public boolean shouldPersist() {
-                return false;
-            }
-
-            @Override
-            public boolean shouldDraw() {
-                return true;
+            public Object getProperty(final String property) {
+                return null;
             }
 
             @Override
@@ -2882,19 +2627,10 @@ public final class MathFunctions {
             }
 
             @Override
-            public boolean shouldCompress() {
-                return true;
+            public Object getProperty(final String property) {
+                return null;
             }
 
-            @Override
-            public boolean shouldPersist() {
-                return false;
-            }
-
-            @Override
-            public boolean shouldDraw() {
-                return true;
-            }
         };
     }
 

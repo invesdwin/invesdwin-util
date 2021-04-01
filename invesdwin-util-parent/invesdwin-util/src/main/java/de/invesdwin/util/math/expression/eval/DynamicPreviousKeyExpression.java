@@ -362,18 +362,8 @@ public class DynamicPreviousKeyExpression implements IParsedExpression {
     }
 
     @Override
-    public boolean shouldCompress() {
-        return expression.shouldCompress() && indexExpression.shouldCompress();
-    }
-
-    @Override
-    public boolean shouldPersist() {
-        return expression.shouldPersist() || indexExpression.shouldPersist();
-    }
-
-    @Override
-    public boolean shouldDraw() {
-        return expression.shouldDraw();
+    public Object getProperty(final String property) {
+        return null;
     }
 
     @Override

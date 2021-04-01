@@ -80,18 +80,8 @@ public class BooleanVariableFunction extends ABooleanFunction {
     }
 
     @Override
-    public boolean shouldCompress() {
-        return variable.shouldCompress();
-    }
-
-    @Override
-    public boolean shouldPersist() {
-        return variable.shouldPersist();
-    }
-
-    @Override
-    public boolean shouldDraw() {
-        return variable.shouldDraw();
+    public Object getProperty(final String property) {
+        return variable.getProperty(property);
     }
 
 }

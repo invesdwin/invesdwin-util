@@ -164,17 +164,7 @@ public final class UnsupportedExpression implements IParsedExpression {
     }
 
     @Override
-    public boolean shouldCompress() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public boolean shouldPersist() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public boolean shouldDraw() {
+    public Object getProperty(final String property) {
         throw new UnsupportedOperationException();
     }
 

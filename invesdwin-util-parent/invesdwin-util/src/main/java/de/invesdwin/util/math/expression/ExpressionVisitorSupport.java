@@ -3,6 +3,7 @@ package de.invesdwin.util.math.expression;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.math.expression.eval.operation.IBinaryOperation;
+import de.invesdwin.util.math.expression.visitor.AExpressionVisitor;
 
 @Immutable
 public class ExpressionVisitorSupport extends AExpressionVisitor {

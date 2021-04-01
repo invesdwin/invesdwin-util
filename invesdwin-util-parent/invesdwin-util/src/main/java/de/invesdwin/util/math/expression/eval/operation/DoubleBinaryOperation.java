@@ -3140,18 +3140,8 @@ public class DoubleBinaryOperation implements IBinaryOperation {
     }
 
     @Override
-    public boolean shouldCompress() {
-        return left.shouldCompress() && right.shouldCompress();
-    }
-
-    @Override
-    public boolean shouldPersist() {
-        return left.shouldPersist() || right.shouldPersist();
-    }
-
-    @Override
-    public boolean shouldDraw() {
-        return left.shouldDraw() || right.shouldDraw();
+    public Object getProperty(final String property) {
+        return null;
     }
 
     @Override
