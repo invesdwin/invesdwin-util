@@ -652,4 +652,12 @@ public final class FDates {
         return mappingFromTo;
     }
 
+    public static FDate nullToNow(final FDate time) {
+        if (time == null) {
+            return new FDate();
+        } else {
+            return time;
+        }
+    }
+
 }

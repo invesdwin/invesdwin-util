@@ -1,6 +1,7 @@
 package de.invesdwin.util.time.fdate;
 
 import java.io.Serializable;
+import java.nio.ByteBuffer;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -49,6 +50,7 @@ public class FDate
         }
     };
 
+    public static final int BYTES = Long.BYTES;
     /**
      * Somehow leveldb-jni does not like going higher than this year...
      */
@@ -1040,6 +1042,32 @@ public class FDate
     @Override
     public FDate asFDate() {
         return this;
+    }
+
+    public static void putFDate(final ByteBuffer buffer, final FDate value) {
+        if (value == null) {
+            buffer.putDouble(Long.MIN_VALUE);
+        } else {
+            buffer.putDouble(value.millisValue());
+        }
+    }
+
+    public static FDate extractFDate(final ByteBuffer buffer, final int index) {
+        final long value = buffer.getLong(index);
+        return extractFDate(value);
+    }
+
+    public static FDate extractFDate(final ByteBuffer buffer) {
+        final long value = buffer.getLong();
+        return extractFDate(value);
+    }
+
+    public static FDate extractFDate(final long value) {
+        if (value == Long.MIN_VALUE) {
+            return null;
+        } else {
+            return new FDate(value);
+        }
     }
 
 }
