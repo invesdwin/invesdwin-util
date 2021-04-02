@@ -11,6 +11,7 @@ public class ThreadLocalReference<T> implements IMutableReference<T> {
 
     @Override
     public T get() {
+        System.out.println("fixme");
         return threadLocal.get();
     }
 
