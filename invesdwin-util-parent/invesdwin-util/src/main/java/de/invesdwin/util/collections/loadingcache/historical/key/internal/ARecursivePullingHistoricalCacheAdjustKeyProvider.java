@@ -14,6 +14,7 @@ import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
 import de.invesdwin.util.collections.loadingcache.historical.key.AdjustedFDate;
 import de.invesdwin.util.collections.loadingcache.historical.key.IHistoricalCacheAdjustKeyProvider;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQuery;
+import de.invesdwin.util.concurrent.reference.WeakThreadLocalReference;
 import de.invesdwin.util.time.fdate.FDate;
 import io.netty.util.concurrent.FastThreadLocal;
 
@@ -21,7 +22,7 @@ import io.netty.util.concurrent.FastThreadLocal;
 public abstract class ARecursivePullingHistoricalCacheAdjustKeyProvider implements IHistoricalCacheAdjustKeyProvider {
 
     private static final FastThreadLocal<Boolean> GLOBAL_ALREADY_ADJUSTING_KEY = new FastThreadLocal<Boolean>();
-    private final FastThreadLocal<Boolean> alreadyAdjustingKey = new FastThreadLocal<Boolean>();
+    private final WeakThreadLocalReference<Boolean> alreadyAdjustingKey = new WeakThreadLocalReference<Boolean>();
 
     private volatile FDate curHighestAllowedKey;
     private final Set<FDate> keysToRemoveOnNewHighestAllowedKey = Collections.synchronizedSet(new HashSet<FDate>());
@@ -32,7 +33,6 @@ public abstract class ARecursivePullingHistoricalCacheAdjustKeyProvider implemen
 
     public ARecursivePullingHistoricalCacheAdjustKeyProvider(final AHistoricalCache<?> parent) {
         this.parent = parent;
-        System.out.println("fixme");
     }
 
     @Override
