@@ -9,6 +9,8 @@ import io.netty.util.concurrent.FastThreadLocal;
 /**
  * WARNING: Instances of this object should always be defined in static variables or else the threadLocal instances
  * might cause memory leaks.
+ * 
+ * Use WeakThreadLocalReference instead for instance thread locals without memory leaks.
  */
 @ThreadSafe
 public class ThreadLocalReference<T> implements IMutableReference<T> {

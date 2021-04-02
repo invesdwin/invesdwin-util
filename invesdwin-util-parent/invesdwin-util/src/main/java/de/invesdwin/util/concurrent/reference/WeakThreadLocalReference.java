@@ -9,6 +9,12 @@ import com.github.benmanes.caffeine.cache.LoadingCache;
 
 import io.netty.util.concurrent.FastThreadLocal;
 
+/**
+ * WARNING: Instances of ThreadLocal objects should always be defined in static variables or else the threadLocal
+ * instances might cause memory leaks.
+ * 
+ * Use WeakThreadLocalReference instead for instance thread locals without memory leaks.
+ */
 @ThreadSafe
 public class WeakThreadLocalReference<V> implements IMutableReference<V> {
 
