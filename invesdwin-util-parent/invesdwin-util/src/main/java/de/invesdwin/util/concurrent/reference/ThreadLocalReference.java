@@ -4,6 +4,10 @@ import javax.annotation.concurrent.ThreadSafe;
 
 import io.netty.util.concurrent.FastThreadLocal;
 
+/**
+ * WARNING: Instances of this object should always be defined in static variables or else the threadLocal instances
+ * might cause memory leaks.
+ */
 @ThreadSafe
 public class ThreadLocalReference<T> implements IMutableReference<T> {
 
@@ -11,7 +15,6 @@ public class ThreadLocalReference<T> implements IMutableReference<T> {
 
     @Override
     public T get() {
-        System.out.println("fixme");
         return threadLocal.get();
     }
 
