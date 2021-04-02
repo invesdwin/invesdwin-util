@@ -4,12 +4,13 @@ import javax.annotation.concurrent.Immutable;
 
 import org.apache.commons.math3.random.RandomGenerator;
 
+import io.netty.util.concurrent.FastThreadLocal;
 import it.unimi.dsi.util.XoRoShiRo128PlusRandomGenerator;
 
 @Immutable
 public final class RandomGenerators {
 
-    private static final ThreadLocal<RandomGenerator> THREAD_LOCAL = new ThreadLocal<RandomGenerator>() {
+    private static final FastThreadLocal<RandomGenerator> THREAD_LOCAL = new FastThreadLocal<RandomGenerator>() {
         @Override
         protected RandomGenerator initialValue() {
             return newDefaultRandom();
