@@ -258,7 +258,9 @@ public abstract class AUnstableRecursiveHistoricalCacheQuery<V> implements IRecu
             return getInitialValue(previousKey);
         } else {
             throw new ResetCacheRuntimeException(parent + ": the values between " + firstRecursionKey + " and "
-                    + lastRecursionKey + " should have been cached: " + previousKey);
+                    + lastRecursionKey
+                    + " should have been cached, maybe you are mixing an attachToNode and an indicator previous key query with different time frames: "
+                    + previousKey);
         }
     }
 

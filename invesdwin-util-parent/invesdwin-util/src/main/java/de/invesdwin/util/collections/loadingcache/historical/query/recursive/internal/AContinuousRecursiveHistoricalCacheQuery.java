@@ -196,7 +196,9 @@ public abstract class AContinuousRecursiveHistoricalCacheQuery<V> implements IRe
                             return getInitialValue(previousKey);
                         } else {
                             throw new ResetCacheRuntimeException(parent + ": the values between " + firstRecursionKey
-                                    + " and " + lastRecursionKey + " should have been cached: " + previousKey);
+                                    + " and " + lastRecursionKey
+                                    + " should have been cached, maybe you are mixing an attachToNode and an indicator previous key query with different time frames: "
+                                    + previousKey);
                         }
                     }
                 }
