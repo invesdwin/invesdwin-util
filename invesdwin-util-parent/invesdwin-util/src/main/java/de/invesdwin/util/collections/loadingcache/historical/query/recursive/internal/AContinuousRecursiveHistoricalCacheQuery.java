@@ -2,6 +2,7 @@ package de.invesdwin.util.collections.loadingcache.historical.query.recursive.in
 
 import java.util.NavigableMap;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.TreeMap;
 
 import javax.annotation.concurrent.GuardedBy;
@@ -80,7 +81,7 @@ public abstract class AContinuousRecursiveHistoricalCacheQuery<V> implements IRe
     private int countResets = 0;
     //cache separately since the parent could encounter more evictions than this internal cache
     @GuardedBy("parent")
-    private final ALoadingCache<FDate, V> cachedRecursionResults;
+    private final ALoadingCache<FDate, Optional<V>> cachedRecursionResults;
     @GuardedBy("parent")
     private int largeRecalculationsCount = 0;
 
@@ -96,10 +97,10 @@ public abstract class AContinuousRecursiveHistoricalCacheQuery<V> implements IRe
         this.maxHighestRecursionResultsCount = Integer.max(recursionCount, MIN_RECURSION_LOOKBACK);
         this.parentQuery = parent.query();
         this.parentQueryWithFuture = parent.query().withFuture();
-        this.cachedRecursionResults = new ALoadingCache<FDate, V>() {
+        this.cachedRecursionResults = new ALoadingCache<FDate, Optional<V>>() {
             @Override
-            protected V loadValue(final FDate key) {
-                return internalGetPreviousValueByRecursion(key);
+            protected Optional<V> loadValue(final FDate key) {
+                return Optional.ofNullable(internalGetPreviousValueByRecursion(key));
             }
 
             @Override
@@ -187,17 +188,15 @@ public abstract class AContinuousRecursiveHistoricalCacheQuery<V> implements IRe
                     if (highestRecursionResult != null) {
                         return highestRecursionResult;
                     } else {
-                        final V cachedResult = cachedRecursionResults.getIfPresent(previousKey);
+                        final Optional<V> cachedResult = cachedRecursionResults.getIfPresent(previousKey);
                         if (cachedResult != null) {
-                            return cachedResult;
+                            return cachedResult.orElse(null);
                         } else if (previousKey.isBeforeOrEqualTo(firstRecursionKey)
                                 || lastRecursionKey.equals(firstAvailableKey) || key.equals(previousKey)) {
                             return getInitialValue(previousKey);
                         } else {
                             throw new ResetCacheRuntimeException(parent + ": the values between " + firstRecursionKey
-                                    + " and " + lastRecursionKey
-                                    + " should have been cached, maybe you are returning null values even if you should not: "
-                                    + previousKey);
+                                    + " and " + lastRecursionKey + " should have been cached: " + previousKey);
                         }
                     }
                 }
@@ -246,7 +245,7 @@ public abstract class AContinuousRecursiveHistoricalCacheQuery<V> implements IRe
         try {
             //need to fetch adj previous key inside retry, since that is sometimes wrong
             final FDate adjPreviousKey = parentQueryWithFuture.getKey(previousKey);
-            return cachedRecursionResults.get(adjPreviousKey);
+            return cachedRecursionResults.get(adjPreviousKey).orElse(null);
         } catch (final Throwable t) {
             if (Throwables.isCausedByType(t, ResetCacheRuntimeException.class)) {
                 incrementResets(t);
@@ -258,7 +257,7 @@ public abstract class AContinuousRecursiveHistoricalCacheQuery<V> implements IRe
                 parent.clear();
                 try {
                     final FDate adjPreviousKey = parentQueryWithFuture.getKey(previousKey);
-                    return cachedRecursionResults.get(adjPreviousKey);
+                    return cachedRecursionResults.get(adjPreviousKey).orElse(null);
                 } catch (final Throwable t1) {
                     throw new ResetCacheException("Follow up " + ResetCacheRuntimeException.class.getSimpleName()
                             + " on retry after:" + t.toString(), t1);
@@ -289,7 +288,7 @@ public abstract class AContinuousRecursiveHistoricalCacheQuery<V> implements IRe
                     curRecursionKey = recursionKeysIterator.next();
                     value = parentQuery.getValue(curRecursionKey);
                     appendHighestRecursionResult(curRecursionKey, value);
-                    cachedRecursionResults.put(curRecursionKey, value);
+                    cachedRecursionResults.put(curRecursionKey, Optional.ofNullable(value));
                 }
             } catch (final NoSuchElementException e) {
                 //ignore

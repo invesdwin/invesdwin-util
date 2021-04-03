@@ -3,6 +3,7 @@ package de.invesdwin.util.collections.loadingcache.historical.query.recursive.in
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
@@ -63,7 +64,7 @@ public abstract class AUnstableRecursiveHistoricalCacheQuery<V> implements IRecu
 
     //cache separately since the parent could encounter more evictions than this internal cache
     private ALoadingCache<FDate, V> cachedResults;
-    private final IEvictionMap<FDate, V> cachedRecursionResults;
+    private final IEvictionMap<FDate, Optional<V>> cachedRecursionResults;
 
     public AUnstableRecursiveHistoricalCacheQuery(final AHistoricalCache<V> parent, final int recursionCount,
             final int unstableRecursionCount) {
@@ -249,17 +250,15 @@ public abstract class AUnstableRecursiveHistoricalCacheQuery<V> implements IRecu
     }
 
     private V duringRecursion(final FDate key, final FDate previousKey, final FDate firstAvailableKey) {
-        final V cachedResult = cachedRecursionResults.get(previousKey);
+        final Optional<V> cachedResult = cachedRecursionResults.get(previousKey);
         if (cachedResult != null) {
-            return cachedResult;
+            return cachedResult.orElse(null);
         } else if (previousKey.isBeforeOrEqualTo(firstRecursionKey) || lastRecursionKey.equals(firstAvailableKey)
                 || key.equals(previousKey)) {
             return getInitialValue(previousKey);
         } else {
-            throw new ResetCacheRuntimeException(
-                    parent + ": the values between " + firstRecursionKey + " and " + lastRecursionKey
-                            + " should have been cached, maybe you are returning null values even if you should not: "
-                            + previousKey);
+            throw new ResetCacheRuntimeException(parent + ": the values between " + firstRecursionKey + " and "
+                    + lastRecursionKey + " should have been cached: " + previousKey);
         }
     }
 
@@ -278,7 +277,7 @@ public abstract class AUnstableRecursiveHistoricalCacheQuery<V> implements IRecu
                     //fill up the missing values
                     curRecursionKey = recursionKeysIterator.next();
                     value = parentQuery.computeValue(curRecursionKey);
-                    cachedRecursionResults.put(curRecursionKey, value);
+                    cachedRecursionResults.put(curRecursionKey, Optional.ofNullable(value));
                 }
             } catch (final NoSuchElementException e) {
                 //ignore
