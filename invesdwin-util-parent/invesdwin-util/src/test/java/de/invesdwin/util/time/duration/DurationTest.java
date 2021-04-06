@@ -94,4 +94,22 @@ public class DurationTest {
         final Duration duration = Duration.valueOf(durationStr);
         Assertions.assertThat(duration.stringValue()).isEqualTo("1 YEARS");
     }
+
+    @Test
+    public void testConvertToSeconds() {
+        final String[] durations = new String[] { //
+                "PT2H2M22.517.800S", //
+                "PT33M14.970.100S", //
+                "PT9M16.168.200S", //
+                "PT2M49.191.700S", //
+                "PT1M17.103.900S", //
+                "PT56.499.700S" //
+        };
+        for (int i = 0; i < durations.length; i++) {
+            //CHECKSTYLE:OFF
+            System.out.println(Duration.valueOf(durations[i]).doubleValue(FTimeUnit.MILLISECONDS)
+                    / FTimeUnit.MILLISECONDS_IN_SECOND);
+            //CHECKSTYLE:ON
+        }
+    }
 }
