@@ -4,12 +4,14 @@ import java.util.function.BooleanSupplier;
 
 import javax.annotation.concurrent.Immutable;
 
+import de.invesdwin.norva.marker.ISerializableValueObject;
+
 @Immutable
-public class ImmutableBooleanSupplier implements BooleanSupplier {
+public final class ImmutableBooleanSupplier implements BooleanSupplier, ISerializableValueObject {
 
     private final boolean value;
 
-    public ImmutableBooleanSupplier(final boolean value) {
+    private ImmutableBooleanSupplier(final boolean value) {
         this.value = value;
     }
 
@@ -18,7 +20,18 @@ public class ImmutableBooleanSupplier implements BooleanSupplier {
         return value;
     }
 
-    public ImmutableBooleanSupplier valueOf(final BooleanSupplier supplier) {
+    public static ImmutableBooleanSupplier valueOf(final Boolean value) {
+        if (value == null) {
+            return null;
+        }
+        return new ImmutableBooleanSupplier(value.booleanValue());
+    }
+
+    public static ImmutableBooleanSupplier valueOf(final boolean value) {
+        return new ImmutableBooleanSupplier(value);
+    }
+
+    public static ImmutableBooleanSupplier valueOf(final BooleanSupplier supplier) {
         if (supplier == null) {
             return null;
         }

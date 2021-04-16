@@ -30,6 +30,7 @@ public final class Booleans extends ABooleansStaticFacade {
             return e;
         }
     };
+    public static final int BYTES = 1;
 
     private Booleans() {
     }
