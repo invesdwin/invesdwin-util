@@ -1,4 +1,4 @@
-package de.invesdwin.util.concurrent.callable;
+package de.invesdwin.util.concurrent.lambda.callable;
 
 import java.util.concurrent.Callable;
 import java.util.function.Supplier;
