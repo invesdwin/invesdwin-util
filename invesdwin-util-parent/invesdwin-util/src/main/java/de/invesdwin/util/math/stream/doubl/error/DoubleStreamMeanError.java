@@ -17,7 +17,7 @@ public class DoubleStreamMeanError implements IDoubleDoubleStreamAlgorithm {
         return Double.NaN;
     }
 
-    public double getMeanAbsoluteError() {
+    public double getMeanError() {
         return avg.getAvg();
     }
 
