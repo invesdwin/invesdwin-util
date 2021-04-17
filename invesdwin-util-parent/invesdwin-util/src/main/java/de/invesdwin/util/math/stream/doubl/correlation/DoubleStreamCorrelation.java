@@ -5,6 +5,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.decimal.scaled.Percent;
 import de.invesdwin.util.math.decimal.scaled.PercentScale;
+import de.invesdwin.util.math.stream.doubl.IDoubleDoubleStreamAlgorithm;
 
 /**
  * Single Pass Calculation:
@@ -17,7 +18,7 @@ import de.invesdwin.util.math.decimal.scaled.PercentScale;
  * -Pass</a>
  */
 @NotThreadSafe
-public class DoubleStreamCorrelation implements ICorrelation {
+public class DoubleStreamCorrelation implements ICorrelation, IDoubleDoubleStreamAlgorithm {
 
     private double n = 0D;
     private double sumXxY = 0D;
@@ -26,13 +27,15 @@ public class DoubleStreamCorrelation implements ICorrelation {
     private double sumXquadr = 0D;
     private double sumYquadr = 0D;
 
-    public void process(final double x, final double y) {
+    @Override
+    public double process(final double x, final double y) {
         n++;
         sumXxY += x * y;
         sumX += x;
         sumY += y;
         sumXquadr += Doubles.square(x);
         sumYquadr += Doubles.square(y);
+        return Double.NaN;
     }
 
     @Override

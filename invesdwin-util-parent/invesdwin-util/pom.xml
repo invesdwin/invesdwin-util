@@ -78,6 +78,10 @@
 			<artifactId>curvesapi</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>com.tdunning</groupId>
+			<artifactId>t-digest</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
 		</dependency>
