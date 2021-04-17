@@ -1,4 +1,4 @@
-package de.invesdwin.util.time.range;
+package de.invesdwin.util.time.range.day;
 
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -16,9 +16,7 @@ import de.invesdwin.util.time.fdate.FDates;
 import de.invesdwin.util.time.fdate.FDayTime;
 
 @Immutable
-public class DayRange extends AValueObject {
-
-    public static final String FROM_TO_SEPARATOR = "-";
+public class DayRange extends AValueObject implements IDayRangeData {
 
     public static final ADelegateComparator<DayRange> COMPARATOR = new ADelegateComparator<DayRange>() {
         @Override
@@ -44,10 +42,12 @@ public class DayRange extends AValueObject {
         this.to = to;
     }
 
+    @Override
     public FDayTime getFrom() {
         return from;
     }
 
+    @Override
     public FDayTime getTo() {
         return to;
     }
@@ -121,7 +121,12 @@ public class DayRange extends AValueObject {
             if (args.length == 2) {
                 final FDayTime from = FDayTime.valueOf(args[0], false);
                 final FDayTime to = FDayTime.valueOf(args[1], false);
-                return new DayRange(from, to);
+                if (from.equals(to)) {
+                    //no session
+                    return null;
+                } else {
+                    return new DayRange(from, to);
+                }
             } else {
                 throw new IllegalArgumentException("Expecting two arguments for from and to (e.g. ["
                         + new DayRange(new FDayTime(new FDate().addDays(-1)), new FDayTime(new FDate())) + "])");
@@ -137,12 +142,27 @@ public class DayRange extends AValueObject {
             if (args.length == 2) {
                 final FDayTime from = FDayTime.valueOf(args[0], false);
                 final FDayTime to = FDayTime.valueOf(args[1], false);
-                return new DayRange(from, to);
+                if (from.equals(to)) {
+                    //no session
+                    return null;
+                } else {
+                    return new DayRange(from, to);
+                }
             } else {
                 return null;
             }
         } catch (final Throwable t) {
             return null;
+        }
+    }
+
+    public static DayRange valueOf(final IDayRangeData value) {
+        if (value == null) {
+            return null;
+        } else if (value instanceof DayRange) {
+            return (DayRange) value;
+        } else {
+            return new DayRange(FDayTime.valueOf(value.getFrom()), FDayTime.valueOf(value.getTo()));
         }
     }
 

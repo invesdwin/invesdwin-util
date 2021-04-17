@@ -12,6 +12,7 @@ import de.invesdwin.util.lang.Strings;
 public final class TimeZones {
 
     public static final TimeZone UTC = getTimeZone("UTC");
+    public static final TimeZone EET = getTimeZone("EET");
 
     private static final String[] SEARCH_PREFIXES = new String[] { "UTC-", "UTC+", "GMT-", "GMT+", "UT-", "UT+" };
     private static final String[] REPLACE_PREFIXES = new String[] { "UTC-", "UTC+", "UTC-", "UTC+", "UTC-", "UTC+" };
@@ -44,7 +45,7 @@ public final class TimeZones {
     }
 
     public static ZoneId getZoneId(final String id) {
-        if (Strings.isBlank(id)) {
+        if (Strings.isBlankOrNullText(id)) {
             return null;
         }
         final String adjId = maybeReplacePrefix(id);

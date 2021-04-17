@@ -7,9 +7,10 @@ import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.math.Bytes;
 import de.invesdwin.util.math.Shorts;
+import de.invesdwin.util.time.range.day.IDayTimeData;
 
 @Immutable
-public class FDayTime extends Number implements Comparable<Object> {
+public class FDayTime extends Number implements Comparable<Object>, IDayTimeData {
 
     public static final ADelegateComparator<FDayTime> COMPARATOR = new ADelegateComparator<FDayTime>() {
         @Override
@@ -233,8 +234,22 @@ public class FDayTime extends Number implements Comparable<Object> {
         }
     }
 
+    public static FDayTime valueOf(final int value, final boolean max) {
+        return valueOfNumeric(String.valueOf(value), max);
+    }
+
     public static FDayTime valueOf(final long value, final boolean max) {
         return valueOfNumeric(String.valueOf(value), max);
+    }
+
+    public static FDayTime valueOf(final IDayTimeData value) {
+        if (value == null) {
+            return null;
+        } else if (value instanceof FDayTime) {
+            return (FDayTime) value;
+        } else {
+            return valueOf(value.intValue(), false);
+        }
     }
 
 }

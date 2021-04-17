@@ -15,6 +15,12 @@ public final class ExpressionProperties {
      */
     public static final String ENTER_ORDER = "ENTER_ORDER";
     /**
+     * Returns true when a function is used that acceses ITechnicalAnalysisLastTrades queries
+     * 
+     * DEFAULT when undefined is false.
+     */
+    public static final String LAST_TRADES = "LAST_TRADES";
+    /**
      * Return true if this variable does not depend on an outside context, e.g. current trade information, strategy
      * samples or values from other indicators.
      * 
@@ -68,12 +74,25 @@ public final class ExpressionProperties {
     }
 
     public static boolean isEnterOrder(final IExpression expression) {
-        if (Booleans.isTrue((Boolean) expression.getProperty(PERSIST))) {
+        if (Booleans.isTrue((Boolean) expression.getProperty(ENTER_ORDER))) {
             return true;
         }
         final IExpression[] parameters = expression.getChildren();
         for (int i = 0; i < parameters.length; i++) {
             if (isEnterOrder(parameters[i])) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean isLastTrades(final IExpression expression) {
+        if (Booleans.isTrue((Boolean) expression.getProperty(LAST_TRADES))) {
+            return true;
+        }
+        final IExpression[] parameters = expression.getChildren();
+        for (int i = 0; i < parameters.length; i++) {
+            if (isLastTrades(parameters[i])) {
                 return true;
             }
         }

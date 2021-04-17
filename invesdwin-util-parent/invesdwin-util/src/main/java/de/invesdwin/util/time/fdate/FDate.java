@@ -411,6 +411,9 @@ public class FDate
     }
 
     public FDate addMilliseconds(final long milliseconds) {
+        if (milliseconds == 0) {
+            return this;
+        }
         return new FDate(millis + milliseconds);
     }
 
@@ -551,14 +554,19 @@ public class FDate
     }
 
     public FDate applyTimeZoneOffset(final ZoneId timeZone) {
+        final int milliseconds = getTimeZoneOffsetMilliseconds(timeZone);
+        return addMilliseconds(milliseconds);
+    }
+
+    public int getTimeZoneOffsetMilliseconds(final ZoneId timeZone) {
         if (timeZone == null) {
-            return this;
+            return 0;
         }
         int seconds = TimeZones.getOffsetSeconds(timeZone, millis);
         if (!FDates.isDefaultTimeZoneUTC()) {
             seconds -= TimeZones.getOffsetSeconds(FDates.getDefaultZoneId(), millis);
         }
-        return addSeconds(seconds);
+        return seconds * FTimeUnit.MILLISECONDS_IN_SECOND;
     }
 
     public FDate revertTimeZoneOffset(final TimeZone timeZone) {
@@ -566,14 +574,8 @@ public class FDate
     }
 
     public FDate revertTimeZoneOffset(final ZoneId timeZone) {
-        if (timeZone == null) {
-            return this;
-        }
-        int seconds = TimeZones.getOffsetSeconds(timeZone, millis);
-        if (!FDates.isDefaultTimeZoneUTC()) {
-            seconds -= TimeZones.getOffsetSeconds(FDates.getDefaultZoneId(), millis);
-        }
-        return addSeconds(-seconds);
+        final int milliseconds = getTimeZoneOffsetMilliseconds(timeZone);
+        return addMilliseconds(-milliseconds);
     }
 
     /**
