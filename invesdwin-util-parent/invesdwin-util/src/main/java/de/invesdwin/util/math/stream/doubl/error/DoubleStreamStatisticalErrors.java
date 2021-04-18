@@ -2,7 +2,6 @@ package de.invesdwin.util.math.stream.doubl.error;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import de.invesdwin.util.math.decimal.scaled.Percent;
 import de.invesdwin.util.math.stream.doubl.IDoubleDoubleStreamAlgorithm;
 
 @NotThreadSafe
@@ -41,16 +40,6 @@ public class DoubleStreamStatisticalErrors implements IDoubleDoubleStreamAlgorit
     @Override
     public double getMeanAbsolutePercentageErrorRate() {
         return meanAbsolutePercentageError.getMeanAbsolutePercentageErrorRate();
-    }
-
-    @Override
-    public double getMeanAbsolutePercentageErrorPercent() {
-        return meanAbsolutePercentageError.getMeanAbsolutePercentageErrorPercent();
-    }
-
-    @Override
-    public Percent getMeanAbsolutePercentageError() {
-        return meanAbsolutePercentageError.getMeanAbsolutePercentageError();
     }
 
     @Override

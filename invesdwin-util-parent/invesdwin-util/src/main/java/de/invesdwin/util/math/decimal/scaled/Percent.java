@@ -332,6 +332,14 @@ public class Percent extends AScaledDecimal<Percent, PercentScale> {
         }
     }
 
+    public static Percent valueOfRate(final double value) {
+        return valueOf(value, PercentScale.RATE);
+    }
+
+    public static Percent valueOfPercent(final double value) {
+        return valueOf(value, PercentScale.PERCENT);
+    }
+
     public static Percent valueOf(final double value, final PercentScale scale) {
         if (Doubles.isNaN(value)) {
             return null;
