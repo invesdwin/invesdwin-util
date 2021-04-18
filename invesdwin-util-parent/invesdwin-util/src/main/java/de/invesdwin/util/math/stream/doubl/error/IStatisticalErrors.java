@@ -12,6 +12,8 @@ public interface IStatisticalErrors {
 
     double getMeanAbsolutePercentageErrorRate();
 
+    double getMeanAbsolutePercentageErrorPercent();
+
     double getMeanError();
 
     double getMedianAbsoluteDeviation();

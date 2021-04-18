@@ -35,4 +35,8 @@ public class DoubleStreamMeanAbsolutePercentageError implements IDoubleDoubleStr
         return avg.getAvg();
     }
 
+    public double getMeanAbsolutePercentageErrorPercent() {
+        return getMeanAbsolutePercentageErrorRate() * 100D;
+    }
+
 }

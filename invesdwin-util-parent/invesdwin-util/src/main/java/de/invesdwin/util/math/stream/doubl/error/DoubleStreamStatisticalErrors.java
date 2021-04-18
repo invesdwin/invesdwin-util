@@ -44,6 +44,11 @@ public class DoubleStreamStatisticalErrors implements IDoubleDoubleStreamAlgorit
     }
 
     @Override
+    public double getMeanAbsolutePercentageErrorPercent() {
+        return meanAbsolutePercentageError.getMeanAbsolutePercentageErrorPercent();
+    }
+
+    @Override
     public Percent getMeanAbsolutePercentageError() {
         return meanAbsolutePercentageError.getMeanAbsolutePercentageError();
     }
