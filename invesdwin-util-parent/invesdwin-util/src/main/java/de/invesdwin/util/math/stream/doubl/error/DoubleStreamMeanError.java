@@ -11,8 +11,8 @@ public class DoubleStreamMeanError implements IDoubleDoubleStreamAlgorithm {
     private final DoubleStreamAvg avg = new DoubleStreamAvg();
 
     @Override
-    public double process(final double prediction, final double actual) {
-        final double error = DoubleStreamError.error(prediction, actual);
+    public double process(final double actual, final double prediction) {
+        final double error = DoubleStreamError.error(actual, prediction);
         avg.process(error);
         return Double.NaN;
     }

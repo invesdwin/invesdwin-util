@@ -18,11 +18,11 @@ public final class DoubleStreamError implements IDoubleDoubleStreamAlgorithm {
     }
 
     @Override
-    public double process(final double prediction, final double actual) {
-        return error(prediction, actual);
+    public double process(final double actual, final double prediction) {
+        return error(actual, prediction);
     }
 
-    public static double error(final double prediction, final double actual) {
+    public static double error(final double actual, final double prediction) {
         return prediction - actual;
     }
 

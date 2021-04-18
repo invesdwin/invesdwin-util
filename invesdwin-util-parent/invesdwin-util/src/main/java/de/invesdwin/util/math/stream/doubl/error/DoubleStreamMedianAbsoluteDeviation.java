@@ -23,8 +23,8 @@ public class DoubleStreamMedianAbsoluteDeviation implements IDoubleDoubleStreamA
     private final DoubleStreamMedian mad = new DoubleStreamMedian();
 
     @Override
-    public double process(final double prediction, final double actual) {
-        final double error = DoubleStreamError.error(prediction, actual);
+    public double process(final double actual, final double prediction) {
+        final double error = DoubleStreamError.error(actual, prediction);
         median.process(error);
         final double medianE = median.getMedian();
         mad.process(Doubles.abs(error - medianE));

@@ -19,13 +19,13 @@ public class DoubleStreamMeanAbsoluteDeviation implements IDoubleDoubleStreamAlg
     private int count;
 
     @Override
-    public double process(final double prediction, final double actual) {
+    public double process(final double actual, final double prediction) {
         //        M2=0
         //        mean=0
         //        out <- numeric(n)
         //        for(i in 1:n) {
         count++;
-        final double error = DoubleStreamError.error(prediction, actual);
+        final double error = DoubleStreamError.error(actual, prediction);
         //            delta <- x[i] - mean
         final double delta = error - mean;
         //            mean <- mean + delta/i

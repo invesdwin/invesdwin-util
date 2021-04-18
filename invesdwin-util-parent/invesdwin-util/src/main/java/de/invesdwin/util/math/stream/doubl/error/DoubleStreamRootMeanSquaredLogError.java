@@ -18,7 +18,7 @@ public class DoubleStreamRootMeanSquaredLogError implements IDoubleDoubleStreamA
     private final DoubleStreamAvg avg = new DoubleStreamAvg();
 
     @Override
-    public double process(final double prediction, final double actual) {
+    public double process(final double actual, final double prediction) {
         final double difference = Doubles.log(prediction + 1) - Doubles.log(actual + 1);
         avg.process(difference * difference);
         return Double.NaN;

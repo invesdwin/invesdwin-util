@@ -21,7 +21,7 @@ public class DoubleStreamMeanAbsolutePercentageError implements IDoubleDoubleStr
     private final DoubleStreamAvg avg = new DoubleStreamAvg();
 
     @Override
-    public double process(final double prediction, final double actual) {
+    public double process(final double actual, final double prediction) {
         avg.process(Doubles.abs(Doubles.divide(actual - prediction, actual)));
         return Double.NaN;
     }

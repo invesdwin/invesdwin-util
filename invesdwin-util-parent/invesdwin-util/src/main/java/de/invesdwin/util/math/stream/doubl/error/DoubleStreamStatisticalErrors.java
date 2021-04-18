@@ -16,14 +16,14 @@ public class DoubleStreamStatisticalErrors implements IDoubleDoubleStreamAlgorit
     private final DoubleStreamRootMeanSquaredLogError rootMeanSquaredLogError = new DoubleStreamRootMeanSquaredLogError();
 
     @Override
-    public double process(final double prediction, final double actual) {
-        meanError.process(prediction, actual);
-        meanAbsoluteError.process(prediction, actual);
-        meanAbsolutePercentageError.process(prediction, actual);
-        meanAbsoluteDeviation.process(prediction, actual);
-        medianAbsoluteDeviation.process(prediction, actual);
-        rootMeanSquaredError.process(prediction, actual);
-        rootMeanSquaredLogError.process(prediction, actual);
+    public double process(final double actual, final double prediction) {
+        meanError.process(actual, prediction);
+        meanAbsoluteError.process(actual, prediction);
+        meanAbsolutePercentageError.process(actual, prediction);
+        meanAbsoluteDeviation.process(actual, prediction);
+        medianAbsoluteDeviation.process(actual, prediction);
+        rootMeanSquaredError.process(actual, prediction);
+        rootMeanSquaredLogError.process(actual, prediction);
         return Double.NaN;
     }
 
