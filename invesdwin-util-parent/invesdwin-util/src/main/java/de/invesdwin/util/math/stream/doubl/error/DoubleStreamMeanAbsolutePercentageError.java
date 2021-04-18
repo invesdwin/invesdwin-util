@@ -13,8 +13,7 @@ import de.invesdwin.util.math.stream.doubl.IDoubleDoubleStreamAlgorithm;
  * 
  * MAPE = sum(|(actual-prediction)/actual|)/n
  *
- * This is the only statistic that is maximized instead of minimized as a fitness measure. A higher value is thus
- * better.
+ * A lower value is better.
  */
 @NotThreadSafe
 public class DoubleStreamMeanAbsolutePercentageError implements IDoubleDoubleStreamAlgorithm {
