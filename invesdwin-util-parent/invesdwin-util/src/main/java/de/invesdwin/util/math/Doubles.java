@@ -411,24 +411,43 @@ public final class Doubles extends ADoublesStaticFacade {
     }
 
     public static double pow(final double a, final double b) {
-        double pow = Math.pow(a, b);
+        final double pow = Math.pow(a, b);
         if (Double.isNaN(pow) && a < 0D) {
             final double absA = Doubles.abs(a);
-            pow = -Math.pow(absA, b);
+            return -Math.pow(absA, b);
+        } else {
+            return pow;
         }
-        return pow;
     }
 
+    /**
+     * Has special handling for 0 and negative values to work around exception cases.
+     */
     public static double log(final double value) {
-        return Math.log(value);
+        if (value == 0D) {
+            return 0D;
+        } else if (value < 0D) {
+            return -Math.log(abs(value));
+        } else {
+            return Math.log(value);
+        }
     }
 
     public static double exp(final double value) {
         return Math.exp(value);
     }
 
+    /**
+     * Has special handling for 0 and negative values to work around exception cases.
+     */
     public static double log10(final double value) {
-        return Math.log10(value);
+        if (value == 0D) {
+            return 0D;
+        } else if (value < 0D) {
+            return -Math.log10(abs(value));
+        } else {
+            return Math.log10(value);
+        }
     }
 
     public static double cos(final double value) {
@@ -447,13 +466,20 @@ public final class Doubles extends ADoublesStaticFacade {
         return value % divisor;
     }
 
+    /**
+     * Has special handling for 0 and negative values to work around exception cases.
+     */
     public static double sqrt(final double value) {
-        return Math.sqrt(value);
+        if (value < 0D) {
+            return -Math.sqrt(value);
+        } else {
+            return Math.sqrt(value);
+        }
     }
 
     public static double root(final double value, final double n) {
-        final double log = Math.log(value);
-        final double result = Math.exp(log / n);
+        final double log = log(value);
+        final double result = exp(divide(log, n));
         return result;
     }
 
