@@ -20,7 +20,7 @@ public class FDayTime extends Number implements Comparable<Object>, IDayTimeData
     };
 
     public static final int MIN = 0;
-    public static final int MAX_HOUR = 24;
+    public static final int MAX_HOUR = 23;
     public static final int MAX_MINUTE = 59;
     public static final int MAX_SECOND = 59;
     public static final int MAX_MILLISECOND = 999;
