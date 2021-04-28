@@ -995,7 +995,13 @@ public final class Doubles extends ADoublesStaticFacade {
         } else if (difference == 0D) {
             return false;
         } else if (isNaN(difference)) {
-            return isNaN(otherValue);
+            final boolean valueNaN = isNaN(value);
+            final boolean otherValueNaN = isNaN(otherValue);
+            if (valueNaN && otherValueNaN) {
+                return false;
+            } else {
+                return otherValueNaN;
+            }
         } else {
             final double defaultRoundedValue = round(value);
             final double roundedOther = round(otherValue);
@@ -1131,7 +1137,13 @@ public final class Doubles extends ADoublesStaticFacade {
         } else if (difference == 0D) {
             return false;
         } else if (isNaN(difference)) {
-            return isNaN(otherValue);
+            final boolean valueNaN = isNaN(value);
+            final boolean otherValueNaN = isNaN(otherValue);
+            if (valueNaN && otherValueNaN) {
+                return false;
+            } else {
+                return otherValueNaN;
+            }
         } else {
             final double defaultRoundedValue = round(value);
             final double roundedOther = round(otherValue);
