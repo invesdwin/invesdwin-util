@@ -215,6 +215,15 @@ public class Percent extends AScaledDecimal<Percent, PercentScale> {
     }
 
     /**
+     * Turns a rate of 1.1 into 0.9 and a rate of 0.9 into 1.1
+     * 
+     * Turns a rate of 1.9 into 0.1 and a rate of 0.1 into 1.9
+     */
+    public static double inverseRate(final double value) {
+        return 1 + 1 - abs(value);
+    }
+
+    /**
      * (newValue - oldValue) / abs(oldValue)
      */
     public static <T extends ADecimal<T>> Percent relativeDifference(final ADecimal<T> oldValue,

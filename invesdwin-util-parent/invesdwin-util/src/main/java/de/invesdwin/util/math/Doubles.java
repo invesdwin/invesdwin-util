@@ -459,10 +459,6 @@ public final class Doubles extends ADoublesStaticFacade {
         }
     }
 
-    public static double inverseRate(final double value) {
-        return 1 + 1 - abs(value);
-    }
-
     public static double exp10(final double value) {
         if (value == 0D) {
             if (Double.doubleToRawLongBits(value) == RAW_BITS_NEGATIVE_ZERO) {
