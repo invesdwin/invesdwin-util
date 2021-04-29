@@ -29,7 +29,7 @@ public class DoublesTest {
         final double in = holdingPeriodReturn;
         final double log = Doubles.log(in);
         final double exp = Doubles.round(Doubles.exp(log));
-        Assertions.assertThat(exp).as("in=%s log=%s exp=%s", in, log, exp).isEqualTo(in);
+        Assertions.assertThat(exp).as("in=%s log=%s exp=%s", in, log, exp).isEqualTo(1D);
     }
 
     @Test
@@ -46,7 +46,7 @@ public class DoublesTest {
         final double in = -1D;
         final double log = Doubles.log(in);
         final double exp = Doubles.exp(log);
-        Assertions.assertThat(exp).as("in=%s log=%s exp=%s", in, log, exp).isEqualTo(in);
+        Assertions.assertThat(exp).as("in=%s log=%s exp=%s", in, log, exp).isEqualTo(1D);
     }
 
     @Test
@@ -62,7 +62,7 @@ public class DoublesTest {
         final double in = -1D;
         final double log = Doubles.log10(in);
         final double exp = Doubles.exp10(log);
-        Assertions.assertThat(exp).as("in=%s log=%s exp=%s", in, log, exp).isEqualTo(in);
+        Assertions.assertThat(exp).as("in=%s log=%s exp=%s", in, log, exp).isEqualTo(1D);
     }
 
     @Test
@@ -78,7 +78,7 @@ public class DoublesTest {
         final double in = -1.1D;
         final double log = Doubles.log(in);
         final double exp = Doubles.exp(log);
-        Assertions.assertThat(exp).as("in=%s log=%s exp=%s", in, log, exp).isEqualTo(Doubles.inverseRate(in));
+        Assertions.assertThat(exp).as("in=%s log=%s exp=%s", in, log, exp).isEqualTo(1D);
     }
 
     @Test
@@ -94,7 +94,7 @@ public class DoublesTest {
         final double in = -1.1D;
         final double log = Doubles.log10(in);
         final double exp = Doubles.exp10(log);
-        Assertions.assertThat(exp).as("in=%s log=%s exp=%s", in, log, exp).isEqualTo(Doubles.inverseRate(in));
+        Assertions.assertThat(exp).as("in=%s log=%s exp=%s", in, log, exp).isEqualTo(1D);
     }
 
     @Test
@@ -110,7 +110,7 @@ public class DoublesTest {
         final double in = -0.9D;
         final double log = Doubles.log(in);
         final double exp = Doubles.exp(log);
-        Assertions.assertThat(exp).as("in=%s log=%s exp=%s", in, log, exp).isEqualTo(Doubles.inverseRate(in));
+        Assertions.assertThat(exp).as("in=%s log=%s exp=%s", in, log, exp).isEqualTo(1D);
     }
 
     @Test
@@ -126,7 +126,7 @@ public class DoublesTest {
         final double in = -0.9D;
         final double log = Doubles.log10(in);
         final double exp = Doubles.exp10(log);
-        Assertions.assertThat(exp).as("in=%s log=%s exp=%s", in, log, exp).isEqualTo(Doubles.inverseRate(in));
+        Assertions.assertThat(exp).as("in=%s log=%s exp=%s", in, log, exp).isEqualTo(1D);
     }
 
     @Test
