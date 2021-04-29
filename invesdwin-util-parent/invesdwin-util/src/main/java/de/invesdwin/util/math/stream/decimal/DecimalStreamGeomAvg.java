@@ -2,6 +2,7 @@ package de.invesdwin.util.math.stream.decimal;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.decimal.ADecimal;
 import de.invesdwin.util.math.stream.IStreamAlgorithm;
 
@@ -32,13 +33,7 @@ public class DecimalStreamGeomAvg<E extends ADecimal<E>> implements IStreamAlgor
     public Void process(final E value) {
         final double doubleValue = value.getDefaultValue();
         final double adjValue = doubleValue + valueAdjustmentAddition;
-        if (adjValue > 0D) {
-            /*
-             * though this is not nice, when trying to calculate the compoundDailyGrowthRate from a detrended equity
-             * curve that goes negative, this is needed
-             */
-            logSum += Math.log(adjValue);
-        }
+        logSum += Doubles.log(adjValue);
         count++;
         geomAvg = null;
         return null;

@@ -30,7 +30,7 @@ public class DoubleStreamRelativeDetrending {
                     + "] has negative change per x: " + xChange);
         }
         final double toAdjY = getY(toY);
-        this.logAvgChangeYperX = Math.log(toAdjY / fromY) / xChange;
+        this.logAvgChangeYperX = Doubles.log(toAdjY / fromY) / xChange;
     }
 
     /**
@@ -44,7 +44,7 @@ public class DoubleStreamRelativeDetrending {
 
         final double changeInX = scaleChangeInX(x - fromX);
 
-        final double logCurProfit = Math.log(y / fromY);
+        final double logCurProfit = Doubles.log(y / fromY);
         final double logMinusProfit = logAvgChangeYperX * changeInX;
         final double logDetrendedProfit = logCurProfit - logMinusProfit;
         final double detrendedY = fromY * Math.exp(logDetrendedProfit);

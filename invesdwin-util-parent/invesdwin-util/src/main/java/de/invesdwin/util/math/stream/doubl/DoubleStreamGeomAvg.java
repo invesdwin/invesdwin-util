@@ -28,13 +28,8 @@ public class DoubleStreamGeomAvg implements IDoubleStreamAlgorithm {
     public double process(final double value) {
         final double doubleValue = value;
         final double adjValue = doubleValue + valueAdjustmentAddition;
-        if (adjValue > 0D) {
-            /*
-             * though this is not nice, when trying to calculate the compoundDailyGrowthRate from a detrended equity
-             * curve that goes negative, this is needed
-             */
-            logSum += Math.log(adjValue);
-        }
+        logSum += Doubles.log(adjValue);
+
         count++;
         return Double.NaN;
     }

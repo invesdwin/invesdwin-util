@@ -45,6 +45,7 @@ public final class Doubles extends ADoublesStaticFacade {
     public static final double FIRST_BELOW_ZERO = -0.000000001;
     public static final double FALSE = 0D;
     public static final double TRUE = 1D;
+    private static final long RAW_BITS_NEGATIVE_ZERO = Double.doubleToRawLongBits(-0.0);
 
     private Doubles() {
     }
@@ -424,29 +425,50 @@ public final class Doubles extends ADoublesStaticFacade {
      * Has special handling for 0 and negative values to work around exception cases.
      */
     public static double log(final double value) {
-        if (value == 0D) {
+        if (value <= 0D) {
             return 0D;
-        } else if (value < 0D) {
-            return -Math.log(abs(value));
         } else {
             return Math.log(value);
         }
     }
 
     public static double exp(final double value) {
-        return Math.exp(value);
+        if (value == 0D) {
+            if (Double.doubleToRawLongBits(value) == RAW_BITS_NEGATIVE_ZERO) {
+                return -1D;
+            } else {
+                return 1D;
+            }
+        } else {
+            return Math.exp(value);
+        }
     }
 
     /**
      * Has special handling for 0 and negative values to work around exception cases.
      */
     public static double log10(final double value) {
-        if (value == 0D) {
+        if (value <= 0D) {
+            /*
+             * make returns < -100% neutral, we ignore those since we can not calculate with them
+             * 
+             * exp of 0 is 1 as growth multiplier, thus the initial value stays the same when multiplied by that
+             */
             return 0D;
-        } else if (value < 0D) {
-            return -Math.log10(abs(value));
         } else {
             return Math.log10(value);
+        }
+    }
+
+    public static double exp10(final double value) {
+        if (value == 0D) {
+            if (Double.doubleToRawLongBits(value) == RAW_BITS_NEGATIVE_ZERO) {
+                return -1D;
+            } else {
+                return 1D;
+            }
+        } else {
+            return Math.pow(10D, value);
         }
     }
 
@@ -456,10 +478,6 @@ public final class Doubles extends ADoublesStaticFacade {
 
     public static double sin(final double value) {
         return Math.sin(value);
-    }
-
-    public static double exp10(final double value) {
-        return Math.pow(10D, value);
     }
 
     public static double remainder(final double value, final double divisor) {

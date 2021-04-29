@@ -2,6 +2,7 @@ package de.invesdwin.util.math.stream.decimal;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.decimal.ADecimal;
 import de.invesdwin.util.math.decimal.Decimal;
 import de.invesdwin.util.math.stream.IStreamAlgorithm;
@@ -33,7 +34,7 @@ public class DecimalStreamRelativeDetrending<Y extends ADecimal<Y>>
         }
         this.fromY = getY(from).getDefaultValue();
         final double toAdjY = getY(to).getDefaultValue();
-        this.logAvgChangeYperX = Math.log(toAdjY / fromY) / xChange;
+        this.logAvgChangeYperX = Doubles.log(toAdjY / fromY) / xChange;
     }
 
     /**
@@ -50,7 +51,7 @@ public class DecimalStreamRelativeDetrending<Y extends ADecimal<Y>>
 
         final double changeInX = scaleChangeInX(curX.subtract(fromX)).getDefaultValue();
 
-        final double logCurProfit = Math.log(curY / fromY);
+        final double logCurProfit = Doubles.log(curY / fromY);
         final double logMinusProfit = logAvgChangeYperX * changeInX;
         final double logDetrendedProfit = logCurProfit - logMinusProfit;
         final double detrendedY = fromY * Math.exp(logDetrendedProfit);
