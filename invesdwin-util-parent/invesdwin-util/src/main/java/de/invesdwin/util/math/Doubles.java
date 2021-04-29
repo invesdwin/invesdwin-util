@@ -423,10 +423,16 @@ public final class Doubles extends ADoublesStaticFacade {
 
     /**
      * Has special handling for 0 and negative values to work around exception cases.
+     * 
+     * -1.1 becomes a 0.9 exp, thus a reduction in profitablity when used as a growth multiplier
+     * 
+     * -0.9 becomes a 1.1 exp, thus an increase in profitability when used as a growth multiplier
      */
     public static double log(final double value) {
-        if (value <= 0D) {
+        if (value == 0D) {
             return 0D;
+        } else if (value < 0D) {
+            return -Math.log(1 / inverseRate(value));
         } else {
             return Math.log(value);
         }
@@ -448,16 +454,17 @@ public final class Doubles extends ADoublesStaticFacade {
      * Has special handling for 0 and negative values to work around exception cases.
      */
     public static double log10(final double value) {
-        if (value <= 0D) {
-            /*
-             * make returns < -100% neutral, we ignore those since we can not calculate with them
-             * 
-             * exp of 0 is 1 as growth multiplier, thus the initial value stays the same when multiplied by that
-             */
+        if (value == 0D) {
             return 0D;
+        } else if (value < 0D) {
+            return -Math.log10(1 / inverseRate(value));
         } else {
             return Math.log10(value);
         }
+    }
+
+    public static double inverseRate(final double value) {
+        return 1 + 1 - abs(value);
     }
 
     public static double exp10(final double value) {
