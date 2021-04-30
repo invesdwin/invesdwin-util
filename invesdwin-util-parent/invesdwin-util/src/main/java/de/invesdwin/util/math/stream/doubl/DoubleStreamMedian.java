@@ -8,9 +8,8 @@ import com.tdunning.math.stats.TDigest;
 @NotThreadSafe
 public class DoubleStreamMedian implements IDoubleStreamAlgorithm {
 
-    //AVLTreeDigest has good accuracy with 20 compression
     //https://github.com/tdunning/t-digest/blob/main/benchmark/src/main/java/com/tdunning/TDigestBench.java
-    public static final double DEFAULT_COMPRESSION = 20D;
+    public static final double DEFAULT_COMPRESSION = 100D;
     public static final double MEDIAN_QUANTILE = 0.5D;
 
     private final TDigest digest;
