@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.function.Function;
+import java.util.regex.Pattern;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -45,6 +46,8 @@ public class Decimal extends ADecimal<Decimal> {
     public static final Decimal SEVENTYFIVE;
     public static final Decimal ONE_HUNDRED;
     public static final Decimal PI;
+
+    private static final Pattern MINUS_ZERO_PATTERN = Pattern.compile("-0([\\.,](0)*)?");
 
     private static final ALoadingCache<Pair<String, DecimalFormatSymbols>, FastThreadLocal<DecimalFormat>> DECIMAL_FORMAT = new ALoadingCache<Pair<String, DecimalFormatSymbols>, FastThreadLocal<DecimalFormat>>() {
         @Override
@@ -266,7 +269,7 @@ public class Decimal extends ADecimal<Decimal> {
     }
 
     private static String postProcessFormattedString(final String str) {
-        if (str.startsWith("-0") && str.matches("-0([\\.,](0)*)?")) {
+        if (str.startsWith("-0") && MINUS_ZERO_PATTERN.matcher(str).matches()) {
             return Strings.removeStart(str, "-");
         } else {
             return str;
