@@ -2,22 +2,30 @@ package de.invesdwin.util.math.stream.doubl;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import com.tdunning.math.stats.MergingDigest;
+import com.tdunning.math.stats.AVLTreeDigest;
+import com.tdunning.math.stats.TDigest;
 
 @NotThreadSafe
 public class DoubleStreamMedian implements IDoubleStreamAlgorithm {
 
-    public static final double DEFAULT_COMPRESSION = 100D;
+    //AVLTreeDigest has good accuracy with 20 compression
+    //https://github.com/tdunning/t-digest/blob/main/benchmark/src/main/java/com/tdunning/TDigestBench.java
+    public static final double DEFAULT_COMPRESSION = 20D;
     public static final double MEDIAN_QUANTILE = 0.5D;
 
-    private final MergingDigest digest;
+    private final TDigest digest;
 
     public DoubleStreamMedian() {
         this(DEFAULT_COMPRESSION);
     }
 
     public DoubleStreamMedian(final double compression) {
-        this.digest = new MergingDigest(compression);
+        //AVLTreeDigest is a lot faster than MergingDigest (though MergingDigest saves lots of memory supposedly)
+        this(new AVLTreeDigest(compression));
+    }
+
+    public DoubleStreamMedian(final TDigest digest) {
+        this.digest = digest;
     }
 
     @Override

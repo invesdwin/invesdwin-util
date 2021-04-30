@@ -78,7 +78,7 @@
 			<artifactId>curvesapi</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.tdunning</groupId>
+			<groupId>com.techascent</groupId>
 			<artifactId>t-digest</artifactId>
 		</dependency>
 		<dependency>

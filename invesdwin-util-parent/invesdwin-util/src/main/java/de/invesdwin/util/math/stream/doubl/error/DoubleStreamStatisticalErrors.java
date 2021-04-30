@@ -49,7 +49,7 @@ public class DoubleStreamStatisticalErrors implements IDoubleDoubleStreamAlgorit
 
     @Override
     public double getMedianAbsoluteDeviation() {
-        return meanAbsoluteDeviation.getMeanAbsoluteDeviation();
+        return medianAbsoluteDeviation.getMedianAbsoluteDeviation();
     }
 
     @Override
