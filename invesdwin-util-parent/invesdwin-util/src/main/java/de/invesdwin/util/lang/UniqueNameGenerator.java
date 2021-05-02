@@ -53,4 +53,14 @@ public class UniqueNameGenerator {
         return Long.MAX_VALUE;
     }
 
+    public boolean revertSequenceNumber(final String name, final int lastSequenceNumer) {
+        final AtomicLong sequenceNumber = name_sequencenumber.get(name);
+        if (sequenceNumber.get() == lastSequenceNumer) {
+            sequenceNumber.decrementAndGet();
+            return true;
+        } else {
+            return false;
+        }
+    }
+
 }
