@@ -116,6 +116,9 @@ public class WeekRange extends AValueObject {
     }
 
     public static WeekRange valueOf(final String value) {
+        if (Strings.isBlankOrNullText(value)) {
+            return null;
+        }
         final String[] args = Strings.splitPreserveAllTokens(value, FROM_TO_SEPARATOR);
         try {
             if (args.length == 2) {
@@ -132,6 +135,9 @@ public class WeekRange extends AValueObject {
     }
 
     public static WeekRange valueOfOrNull(final String value) {
+        if (Strings.isBlankOrNullText(value)) {
+            return null;
+        }
         final String[] args = Strings.splitPreserveAllTokens(value, FROM_TO_SEPARATOR);
         try {
             if (args.length == 2) {

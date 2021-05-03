@@ -116,6 +116,9 @@ public class DayRange extends AValueObject implements IDayRangeData {
     }
 
     public static DayRange valueOf(final String value) {
+        if (Strings.isBlankOrNullText(value)) {
+            return null;
+        }
         final String[] args = Strings.splitPreserveAllTokens(value, FROM_TO_SEPARATOR);
         try {
             if (args.length == 2) {
@@ -137,6 +140,9 @@ public class DayRange extends AValueObject implements IDayRangeData {
     }
 
     public static DayRange valueOfOrNull(final String value) {
+        if (Strings.isBlankOrNullText(value)) {
+            return null;
+        }
         final String[] args = Strings.splitPreserveAllTokens(value, FROM_TO_SEPARATOR);
         try {
             if (args.length == 2) {
