@@ -5,6 +5,8 @@ import java.util.TimeZone;
 
 import javax.annotation.concurrent.Immutable;
 
+import org.joda.time.DateTimeZone;
+
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.lang.Strings;
 
@@ -104,6 +106,24 @@ public final class TimeZones {
 
     public static int getOffsetSeconds(final ZoneId timeZone, final long millis) {
         return timeZone.getRules().getOffset(java.time.Instant.ofEpochMilli(millis)).getTotalSeconds();
+    }
+
+    public static TimeZone getTimeZone(final ZoneId timeZone) {
+        if (timeZone == null) {
+            return null;
+        } else {
+            //CHECKSTYLE:OFF
+            return TimeZone.getTimeZone(timeZone);
+            //CHECKSTYLE:ON
+        }
+    }
+
+    public static DateTimeZone getDateTimeZone(final ZoneId zoneId) {
+        if (zoneId == null) {
+            return null;
+        } else {
+            return DateTimeZone.forID(zoneId.getId());
+        }
     }
 
 }

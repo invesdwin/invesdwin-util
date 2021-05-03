@@ -7,6 +7,7 @@ import java.util.Map;
 
 import javax.annotation.concurrent.Immutable;
 
+import org.joda.time.DateTimeField;
 import org.joda.time.DateTimeFieldType;
 
 import de.invesdwin.util.error.UnknownArgumentException;
@@ -29,6 +30,11 @@ public enum FDateField {
         public DateTimeFieldType jodaTimeValue() {
             return DateTimeFieldType.year();
         }
+
+        @Override
+        public DateTimeField dateTimeFieldValue() {
+            return FDates.getDefaultChronologyYearField();
+        }
     },
     Month {
         @Override
@@ -44,6 +50,11 @@ public enum FDateField {
         @Override
         public DateTimeFieldType jodaTimeValue() {
             return DateTimeFieldType.monthOfYear();
+        }
+
+        @Override
+        public DateTimeField dateTimeFieldValue() {
+            return FDates.getDefaultChronologyMonthField();
         }
     },
     /**
@@ -64,6 +75,11 @@ public enum FDateField {
         public DateTimeFieldType jodaTimeValue() {
             return DateTimeFieldType.dayOfMonth();
         }
+
+        @Override
+        public DateTimeField dateTimeFieldValue() {
+            return FDates.getDefaultChronologyDayField();
+        }
     },
     Weekday {
         @Override
@@ -79,6 +95,11 @@ public enum FDateField {
         @Override
         public DateTimeFieldType jodaTimeValue() {
             return DateTimeFieldType.dayOfWeek();
+        }
+
+        @Override
+        public DateTimeField dateTimeFieldValue() {
+            return FDates.getDefaultChronologyWeekdayField();
         }
     },
     Hour {
@@ -96,6 +117,11 @@ public enum FDateField {
         public DateTimeFieldType jodaTimeValue() {
             return DateTimeFieldType.hourOfDay();
         }
+
+        @Override
+        public DateTimeField dateTimeFieldValue() {
+            return FDates.getDefaultChronologyHourField();
+        }
     },
     Minute {
         @Override
@@ -111,6 +137,11 @@ public enum FDateField {
         @Override
         public DateTimeFieldType jodaTimeValue() {
             return DateTimeFieldType.minuteOfHour();
+        }
+
+        @Override
+        public DateTimeField dateTimeFieldValue() {
+            return FDates.getDefaultChronologyMinuteField();
         }
     },
     Second {
@@ -128,6 +159,11 @@ public enum FDateField {
         public DateTimeFieldType jodaTimeValue() {
             return DateTimeFieldType.secondOfMinute();
         }
+
+        @Override
+        public DateTimeField dateTimeFieldValue() {
+            return FDates.getDefaultChronologySecondField();
+        }
     },
     Millisecond {
         @Override
@@ -144,6 +180,12 @@ public enum FDateField {
         public DateTimeFieldType jodaTimeValue() {
             return DateTimeFieldType.millisOfSecond();
         }
+
+        @Override
+        public DateTimeField dateTimeFieldValue() {
+            return FDates.getDefaultChronologyMillisecondField();
+        }
+
     };
 
     private static final Map<Integer, FDateField> CALENDAR_LOOKUP = new HashMap<Integer, FDateField>();
@@ -163,6 +205,8 @@ public enum FDateField {
     public abstract ChronoField javaTimeValue();
 
     public abstract DateTimeFieldType jodaTimeValue();
+
+    public abstract DateTimeField dateTimeFieldValue();
 
     public static FDateField valueOfCalendar(final int field) {
         return lookup(CALENDAR_LOOKUP, field);

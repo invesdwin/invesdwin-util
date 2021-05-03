@@ -10,6 +10,7 @@ import java.util.TimeZone;
 import javax.annotation.concurrent.ThreadSafe;
 
 import org.joda.time.Chronology;
+import org.joda.time.DateTimeField;
 import org.joda.time.DateTimeZone;
 import org.joda.time.chrono.ISOChronology;
 
@@ -33,8 +34,16 @@ public final class FDates {
     private static TimeZone defaultTimeZone;
     private static boolean isDefaultTimeZoneUTC;
     private static DateTimeZone defaultDateTimeZone;
-    private static Chronology defaultChronology;
     private static ZoneId defaultZoneId;
+    private static Chronology defaultChronology;
+    private static DateTimeField defaultChronologyYearField;
+    private static DateTimeField defaultChronologyMonthField;
+    private static DateTimeField defaultChronologyDayField;
+    private static DateTimeField defaultChronologyWeekdayField;
+    private static DateTimeField defaultChronologyHourField;
+    private static DateTimeField defaultChronologyMinuteField;
+    private static DateTimeField defaultChronologySecondField;
+    private static DateTimeField defaultChronologyMillisecondField;
 
     static {
         setDefaultTimeZone(TimeZone.getDefault());
@@ -47,7 +56,6 @@ public final class FDates {
         FDates.defaultTimeZone = defaultTimeZone;
         FDates.isDefaultTimeZoneUTC = TimeZones.UTC.equals(defaultTimeZone);
         FDates.defaultDateTimeZone = DateTimeZone.forTimeZone(defaultTimeZone);
-        FDates.defaultChronology = ISOChronology.getInstance(defaultDateTimeZone);
         FDates.defaultZoneId = defaultTimeZone.toZoneId();
         //CHECKSTYLE:OFF
         final Calendar cal = Calendar.getInstance();
@@ -55,6 +63,15 @@ public final class FDates {
         cal.clear();
         cal.setTimeZone(defaultTimeZone);
         templateCalendar = cal;
+        FDates.defaultChronology = ISOChronology.getInstance(defaultDateTimeZone);
+        FDates.defaultChronologyYearField = FDateField.Year.jodaTimeValue().getField(defaultChronology);
+        FDates.defaultChronologyMonthField = FDateField.Month.jodaTimeValue().getField(defaultChronology);
+        FDates.defaultChronologyDayField = FDateField.Day.jodaTimeValue().getField(defaultChronology);
+        FDates.defaultChronologyWeekdayField = FDateField.Weekday.jodaTimeValue().getField(defaultChronology);
+        FDates.defaultChronologyHourField = FDateField.Hour.jodaTimeValue().getField(defaultChronology);
+        FDates.defaultChronologyMinuteField = FDateField.Minute.jodaTimeValue().getField(defaultChronology);
+        FDates.defaultChronologySecondField = FDateField.Second.jodaTimeValue().getField(defaultChronology);
+        FDates.defaultChronologyMillisecondField = FDateField.Millisecond.jodaTimeValue().getField(defaultChronology);
     }
 
     public static TimeZone getDefaultTimeZone() {
@@ -71,6 +88,38 @@ public final class FDates {
 
     public static Chronology getDefaultChronology() {
         return defaultChronology;
+    }
+
+    public static DateTimeField getDefaultChronologyYearField() {
+        return defaultChronologyYearField;
+    }
+
+    public static DateTimeField getDefaultChronologyMonthField() {
+        return defaultChronologyMonthField;
+    }
+
+    public static DateTimeField getDefaultChronologyDayField() {
+        return defaultChronologyDayField;
+    }
+
+    public static DateTimeField getDefaultChronologyWeekdayField() {
+        return defaultChronologyWeekdayField;
+    }
+
+    public static DateTimeField getDefaultChronologyHourField() {
+        return defaultChronologyHourField;
+    }
+
+    public static DateTimeField getDefaultChronologyMinuteField() {
+        return defaultChronologyMinuteField;
+    }
+
+    public static DateTimeField getDefaultChronologySecondField() {
+        return defaultChronologySecondField;
+    }
+
+    public static DateTimeField getDefaultChronologyMillisecondField() {
+        return defaultChronologyMillisecondField;
     }
 
     public static ZoneId getDefaultZoneId() {
