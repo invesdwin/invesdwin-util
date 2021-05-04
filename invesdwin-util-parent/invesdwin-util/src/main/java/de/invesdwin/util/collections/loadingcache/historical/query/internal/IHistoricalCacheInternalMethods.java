@@ -9,6 +9,7 @@ import de.invesdwin.util.collections.loadingcache.historical.key.IHistoricalCach
 import de.invesdwin.util.collections.loadingcache.historical.key.IHistoricalCachePutProvider;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQuery;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.IHistoricalCacheQueryCore;
+import de.invesdwin.util.math.expression.lambda.IEvaluateGenericFDate;
 import de.invesdwin.util.time.fdate.FDate;
 
 public interface IHistoricalCacheInternalMethods<V> {
@@ -35,13 +36,13 @@ public interface IHistoricalCacheInternalMethods<V> {
 
     IHistoricalCacheQuery<?> newKeysQueryInterceptor();
 
-    IHistoricalEntry<V> computeEntry(FDate key);
+    IEvaluateGenericFDate<IHistoricalEntry<V>> newComputeEntry();
 
     IHistoricalCachePutProvider<V> getPutProvider();
 
     IHistoricalCacheQueryCore<V> getQueryCore();
 
-    V loadValue(FDate key);
+    IEvaluateGenericFDate<V> newLoadValue();
 
     FDate innerCalculatePreviousKey(FDate key);
 

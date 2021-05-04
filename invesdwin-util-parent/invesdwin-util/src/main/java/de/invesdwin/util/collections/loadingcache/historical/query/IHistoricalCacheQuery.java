@@ -3,6 +3,7 @@ package de.invesdwin.util.collections.loadingcache.historical.query;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.loadingcache.historical.IHistoricalEntry;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.IHistoricalCacheQueryInternalMethods;
+import de.invesdwin.util.math.expression.lambda.IEvaluateGenericFDate;
 import de.invesdwin.util.time.fdate.FDate;
 
 public interface IHistoricalCacheQuery<V> extends IHistoricalCacheQueryInternalMethods<V> {
@@ -21,6 +22,12 @@ public interface IHistoricalCacheQuery<V> extends IHistoricalCacheQueryInternalM
     IHistoricalEntry<V> getEntryIfPresent(FDate key);
 
     V getValue(FDate key);
+
+    IEvaluateGenericFDate<V> newGetValue();
+
+    IEvaluateGenericFDate<FDate> newGetKey();
+
+    IEvaluateGenericFDate<IHistoricalEntry<V>> newGetEntry();
 
     ICloseableIterable<IHistoricalEntry<V>> getEntries(Iterable<FDate> keys);
 

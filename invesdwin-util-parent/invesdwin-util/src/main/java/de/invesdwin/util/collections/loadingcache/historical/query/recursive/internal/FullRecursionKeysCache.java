@@ -4,6 +4,7 @@ import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQuery;
+import de.invesdwin.util.math.expression.lambda.IEvaluateGenericFDate;
 import de.invesdwin.util.time.fdate.FDate;
 
 @ThreadSafe
@@ -37,14 +38,17 @@ final class FullRecursionKeysCache extends AHistoricalCache<FullRecursionKeysRes
     }
 
     @Override
-    protected FullRecursionKeysResult loadValue(final FDate key) {
-        final FDate previousKey = parentQueryWithFutureNull.getPreviousKey(key, 1);
-        if (previousKey == null) {
-            return new FullRecursionKeysResult(key, fullRecursionCount, parent, parentQueryWithFutureNull);
-        } else {
-            final FullRecursionKeysResult previousValue = recursiveQuery.getPreviousValue(key, previousKey);
-            return previousValue.pushToNext(key);
-        }
+    protected IEvaluateGenericFDate<FullRecursionKeysResult> newLoadValue() {
+        return pKey -> {
+            final FDate key = pKey.asFDate();
+            final FDate previousKey = parentQueryWithFutureNull.getPreviousKey(key, 1);
+            if (previousKey == null) {
+                return new FullRecursionKeysResult(key, fullRecursionCount, parent, parentQueryWithFutureNull);
+            } else {
+                final FullRecursionKeysResult previousValue = recursiveQuery.getPreviousValue(key, previousKey);
+                return previousValue.pushToNext(key);
+            }
+        };
     }
 
 }

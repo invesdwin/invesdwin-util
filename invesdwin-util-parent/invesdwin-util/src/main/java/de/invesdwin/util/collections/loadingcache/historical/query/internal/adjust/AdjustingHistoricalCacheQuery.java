@@ -14,6 +14,7 @@ import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCa
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.HistoricalCacheAssertValue;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.HistoricalCacheQuery;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.IHistoricalCacheInternalMethods;
+import de.invesdwin.util.math.expression.lambda.IEvaluateGenericFDate;
 import de.invesdwin.util.time.fdate.FDate;
 
 @Immutable
@@ -58,6 +59,24 @@ public class AdjustingHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V
                 };
             }
         };
+    }
+
+    @Override
+    public IEvaluateGenericFDate<IHistoricalEntry<V>> newGetEntry() {
+        final IEvaluateGenericFDate<IHistoricalEntry<V>> getEntryF = delegate.newGetEntry();
+        return (key) -> getEntryF.evaluateGeneric(() -> adjustKey(key.asFDate()));
+    }
+
+    @Override
+    public IEvaluateGenericFDate<FDate> newGetKey() {
+        final IEvaluateGenericFDate<FDate> getKeyF = delegate.newGetKey();
+        return (key) -> getKeyF.evaluateGeneric(() -> adjustKey(key.asFDate()));
+    }
+
+    @Override
+    public IEvaluateGenericFDate<V> newGetValue() {
+        final IEvaluateGenericFDate<V> getValueF = delegate.newGetValue();
+        return (key) -> getValueF.evaluateGeneric(() -> adjustKey(key.asFDate()));
     }
 
     @Override

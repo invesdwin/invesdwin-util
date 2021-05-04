@@ -10,6 +10,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
 import java.util.function.Function;
 
+import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
 import com.github.benmanes.caffeine.cache.Caffeine;
@@ -46,7 +47,9 @@ import de.invesdwin.util.collections.loadingcache.historical.query.internal.core
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.filter.FilteringHistoricalCacheQuery;
 import de.invesdwin.util.collections.loadingcache.historical.refresh.HistoricalCacheRefreshManager;
 import de.invesdwin.util.lang.description.TextDescription;
+import de.invesdwin.util.math.expression.lambda.IEvaluateGenericFDate;
 import de.invesdwin.util.time.fdate.FDate;
+import de.invesdwin.util.time.fdate.IFDateProvider;
 
 @ThreadSafe
 public abstract class AHistoricalCache<V>
@@ -83,7 +86,8 @@ public abstract class AHistoricalCache<V>
     private volatile Integer maximumSize = getInitialMaximumSize();
     private IHistoricalCacheShiftKeyProvider<V> shiftKeyProvider = new InnerHistoricalCacheShiftKeyProvider();
     private IHistoricalCacheExtractKeyProvider<V> extractKeyProvider = new InnerHistoricalCacheExtractKeyProvider();
-    private final InnerLoadingCache valuesMap = new InnerLoadingCache();
+    @GuardedBy("this only during initialization")
+    private InnerLoadingCache valuesMap;
     private volatile boolean refreshRequested;
 
     public AHistoricalCache() {
@@ -255,7 +259,7 @@ public abstract class AHistoricalCache<V>
         }
     }
 
-    protected abstract V loadValue(FDate key);
+    protected abstract IEvaluateGenericFDate<V> newLoadValue();
 
     protected <T> ILoadingCache<FDate, T> newLoadingCacheProvider(final Function<FDate, T> loadValue,
             final Integer maximumSize) {
@@ -304,7 +308,7 @@ public abstract class AHistoricalCache<V>
     /**
      * Should return the key if the value does not contain a key itself. The time should be the end time for bars.
      */
-    public final FDate extractKey(final FDate key, final V value) {
+    public final FDate extractKey(final IFDateProvider key, final V value) {
         if (key == null) {
             final FDate extractedKey;
             if (value instanceof IHistoricalEntry) {
@@ -389,7 +393,9 @@ public abstract class AHistoricalCache<V>
     }
 
     public void clear() {
-        valuesMap.clear();
+        if (valuesMap != null) {
+            valuesMap.clear();
+        }
         //when clearing other caches they might become inconsistent...
         if (adjustKeyProvider.getParent() == this) {
             adjustKeyProvider.clear();
@@ -447,6 +453,21 @@ public abstract class AHistoricalCache<V>
     }
 
     protected ILoadingCache<FDate, IHistoricalEntry<V>> getValuesMap() {
+        return getOrCreateValuesMap();
+    }
+
+    private InnerLoadingCache getOrCreateValuesMap() {
+        /*
+         * initialize lazy, so that caches that are never used occupy less memory and so that newLoadValue is called
+         * only after constructor
+         */
+        if (valuesMap == null) {
+            synchronized (this) {
+                if (valuesMap == null) {
+                    valuesMap = new InnerLoadingCache();
+                }
+            }
+        }
         return valuesMap;
     }
 
@@ -472,17 +493,14 @@ public abstract class AHistoricalCache<V>
             if (size == null || size > 0) {
                 Assertions.checkTrue(HistoricalCacheRefreshManager.register(AHistoricalCache.this));
             }
-            return newLoadingCacheProvider(new Function<FDate, IHistoricalEntry<V>>() {
-                @Override
-                public IHistoricalEntry<V> apply(final FDate key) {
-                    try {
-                        final V value = AHistoricalCache.this.loadValue(key);
-                        return shiftKeyProvider.maybeWrap(key, value);
-                    } catch (final Throwable t) {
-                        throw new RuntimeException("At: " + AHistoricalCache.this.toString(), t);
-                    }
+            final IEvaluateGenericFDate<V> loadValueF = internalMethods.newLoadValue();
+            return newLoadingCacheProvider(key -> {
+                try {
+                    final V value = loadValueF.evaluateGeneric(key);
+                    return shiftKeyProvider.maybeWrap(key, value);
+                } catch (final Throwable t) {
+                    throw new RuntimeException("At: " + AHistoricalCache.this.toString(), t);
                 }
-
             }, size);
         }
 
@@ -497,6 +515,10 @@ public abstract class AHistoricalCache<V>
     }
 
     private final class HistoricalCacheInternalMethods implements IHistoricalCacheInternalMethods<V> {
+
+        private IEvaluateGenericFDate<V> loadValueF;
+        private IEvaluateGenericFDate<IHistoricalEntry<V>> computeEntryF;
+
         @Override
         public IHistoricalCacheRangeQueryInterceptor<V> getRangeQueryInterceptor() {
             return AHistoricalCache.this.getRangeQueryInterceptor();
@@ -558,9 +580,15 @@ public abstract class AHistoricalCache<V>
         }
 
         @Override
-        public IHistoricalEntry<V> computeEntry(final FDate key) {
-            final V value = AHistoricalCache.this.loadValue(key);
-            return ImmutableHistoricalEntry.maybeExtractKey(AHistoricalCache.this, key, value);
+        public IEvaluateGenericFDate<IHistoricalEntry<V>> newComputeEntry() {
+            if (computeEntryF == null) {
+                final IEvaluateGenericFDate<V> loadValueF = newLoadValue();
+                computeEntryF = (key) -> {
+                    final V value = loadValueF.evaluateGeneric(key);
+                    return ImmutableHistoricalEntry.maybeExtractKey(AHistoricalCache.this, key, value);
+                };
+            }
+            return computeEntryF;
         }
 
         @Override
@@ -574,8 +602,11 @@ public abstract class AHistoricalCache<V>
         }
 
         @Override
-        public V loadValue(final FDate key) {
-            return AHistoricalCache.this.loadValue(key);
+        public IEvaluateGenericFDate<V> newLoadValue() {
+            if (loadValueF == null) {
+                loadValueF = AHistoricalCache.this.newLoadValue();
+            }
+            return loadValueF;
         }
 
         @Override
@@ -600,7 +631,7 @@ public abstract class AHistoricalCache<V>
 
         @Override
         public void putDirectly(final FDate key, final IHistoricalEntry<V> value) {
-            valuesMap.putDirectly(key, value);
+            AHistoricalCache.this.getOrCreateValuesMap().putDirectly(key, value);
         }
 
         @Override
@@ -615,7 +646,7 @@ public abstract class AHistoricalCache<V>
         private final int hashCode = super.hashCode();
 
         @Override
-        public FDate extractKey(final FDate key, final V value) {
+        public FDate extractKey(final IFDateProvider key, final V value) {
             final FDate innerExtractKey = innerExtractKey(value);
             final IndexedFDate indexed = IndexedFDate.maybeWrap(innerExtractKey);
             indexed.putExtractedKey(extractKeyProvider, adjustKeyProvider);

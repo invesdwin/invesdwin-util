@@ -11,6 +11,7 @@ import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCa
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQueryWithFuture;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.HistoricalCacheAssertValue;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.IHistoricalCacheInternalMethods;
+import de.invesdwin.util.math.expression.lambda.IEvaluateGenericFDate;
 import de.invesdwin.util.time.fdate.FDate;
 
 @Immutable
@@ -44,6 +45,21 @@ public class FilteringHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V
 
     protected FilteringHistoricalCacheQueryWithFuture<V> newFutureQuery() {
         return new FilteringHistoricalCacheQueryWithFuture<V>(internalMethods, delegate.withFuture());
+    }
+
+    @Override
+    public IEvaluateGenericFDate<IHistoricalEntry<V>> newGetEntry() {
+        return delegate.newGetEntry();
+    }
+
+    @Override
+    public IEvaluateGenericFDate<FDate> newGetKey() {
+        return delegate.newGetKey();
+    }
+
+    @Override
+    public IEvaluateGenericFDate<V> newGetValue() {
+        return delegate.newGetValue();
     }
 
     @Override

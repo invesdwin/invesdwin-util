@@ -15,6 +15,7 @@ import de.invesdwin.util.collections.loadingcache.historical.query.internal.Hist
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.IHistoricalCacheInternalMethods;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.impl.GetNextEntryQueryImpl;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.impl.GetPreviousEntryQueryImpl;
+import de.invesdwin.util.math.expression.lambda.IEvaluateGenericFDate;
 import de.invesdwin.util.time.fdate.FDate;
 
 @Immutable
@@ -154,7 +155,8 @@ public class DefaultHistoricalCacheQueryCore<V> implements IHistoricalCacheQuery
     @Override
     public IHistoricalEntry<V> computeEntry(final HistoricalCacheQuery<V> query, final FDate key,
             final HistoricalCacheAssertValue assertValue) {
-        IHistoricalEntry<V> entry = parent.computeEntry(key);
+        final IEvaluateGenericFDate<IHistoricalEntry<V>> computeEntryF = parent.newComputeEntry();
+        IHistoricalEntry<V> entry = computeEntryF.evaluateGeneric(key);
         if (entry != null) {
             final IHistoricalCacheQueryElementFilter<V> elementFilter = query.getElementFilter();
             if (elementFilter != null && !(elementFilter instanceof DisabledHistoricalCacheQueryElementFilter)) {
@@ -163,7 +165,7 @@ public class DefaultHistoricalCacheQueryCore<V> implements IHistoricalCacheQuery
                     entry = null;
                     //try earlier dates to find a valid element
                     final FDate previousKey = parent.calculatePreviousKey(entryKey);
-                    final IHistoricalEntry<V> previousEntry = parent.computeEntry(previousKey);
+                    final IHistoricalEntry<V> previousEntry = computeEntryF.evaluateGeneric(previousKey);
                     if (previousEntry == null) {
                         break;
                     }

@@ -8,10 +8,12 @@ import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
 import de.invesdwin.util.collections.loadingcache.historical.internal.AGapHistoricalCacheMissCounter;
 import de.invesdwin.util.collections.loadingcache.historical.key.IHistoricalCacheAdjustKeyProvider;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQuery;
+import de.invesdwin.util.math.expression.lambda.IEvaluateGenericFDate;
 import de.invesdwin.util.time.duration.Duration;
 import de.invesdwin.util.time.fdate.FDate;
 import de.invesdwin.util.time.fdate.FDates;
 import de.invesdwin.util.time.fdate.FTimeUnit;
+import de.invesdwin.util.time.fdate.IFDateProvider;
 
 /**
  * Tries to fill gaps via an intelligent caching algorithm to reduce the number of queries. This is also tolerant to
@@ -109,8 +111,13 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
      * strategy
      */
     @Override
-    protected final synchronized V loadValue(final FDate key) {
+    protected final IEvaluateGenericFDate<V> newLoadValue() {
+        return this::loadValue;
+    }
+
+    private synchronized V loadValue(final IFDateProvider pKey) {
         maybeClear();
+        final FDate key = pKey.asFDate();
         eventuallyGetMinMaxKeysInDB(key, false);
 
         this.furtherValuesLoaded = false;

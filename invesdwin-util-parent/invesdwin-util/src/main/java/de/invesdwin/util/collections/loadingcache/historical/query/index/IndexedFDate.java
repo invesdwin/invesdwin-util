@@ -4,6 +4,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.collections.loadingcache.historical.key.IHistoricalCacheAdjustKeyProvider;
 import de.invesdwin.util.time.fdate.FDate;
+import de.invesdwin.util.time.fdate.IFDateProvider;
 
 @NotThreadSafe
 public class IndexedFDate extends FDate {
@@ -36,15 +37,20 @@ public class IndexedFDate extends FDate {
         }
     }
 
-    public static IndexedFDate maybeWrap(final FDate key) {
-        if (key instanceof IndexedFDate) {
-            return (IndexedFDate) key;
+    public static IndexedFDate maybeWrap(final IFDateProvider pKey) {
+        if (pKey instanceof IndexedFDate) {
+            return (IndexedFDate) pKey;
         } else {
-            final IndexedFDate indexedFDate = getExtension(key);
-            if (indexedFDate != null) {
-                return indexedFDate;
+            final FDate key = pKey.asFDate();
+            if (key instanceof IndexedFDate) {
+                return (IndexedFDate) key;
             } else {
-                return new IndexedFDate(key);
+                final IndexedFDate indexedFDate = getExtension(key);
+                if (indexedFDate != null) {
+                    return indexedFDate;
+                } else {
+                    return new IndexedFDate(key);
+                }
             }
         }
     }

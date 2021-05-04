@@ -29,6 +29,7 @@ import de.invesdwin.util.concurrent.lock.Locks;
 import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.lang.description.TextDescription;
 import de.invesdwin.util.lang.finalizer.AFinalizer;
+import de.invesdwin.util.math.expression.lambda.IEvaluateGenericFDate;
 import de.invesdwin.util.time.fdate.FDate;
 
 @ThreadSafe
@@ -414,20 +415,21 @@ public class TrailingHistoricalCacheQueryCore<V> extends ACachedEntriesHistorica
             if (cachedQueryActive.booleanValue()) {
                 return;
             }
+            final IEvaluateGenericFDate<IHistoricalEntry<V>> computeEntryF = getParent().newComputeEntry();
             if (cachedPreviousEntries.isEmpty()) {
-                final IHistoricalEntry<V> newEntry = getParent().computeEntry(valueKey);
+                final IHistoricalEntry<V> newEntry = computeEntryF.evaluateGeneric(valueKey);
                 putPrevious(previousKey, newEntry.getValue(), newEntry.getKey());
                 return;
             }
             final IHistoricalEntry<V> lastEntry = getLastCachedEntry();
             if (!lastEntry.getKey().equalsNotNullSafe(previousKey)) {
                 if (lastEntry.getKey().isBeforeNotNullSafe(previousKey)) {
-                    final IHistoricalEntry<V> newEntry = getParent().computeEntry(valueKey);
+                    final IHistoricalEntry<V> newEntry = computeEntryF.evaluateGeneric(valueKey);
                     putPrevious(previousKey, newEntry.getValue(), newEntry.getKey());
                 }
                 return;
             }
-            final IHistoricalEntry<V> newEntry = getParent().computeEntry(valueKey);
+            final IHistoricalEntry<V> newEntry = computeEntryF.evaluateGeneric(valueKey);
             getParent().getPutProvider().put(newEntry, lastEntry, true);
         } finally {
             cachedQueryActiveLock.unlock();

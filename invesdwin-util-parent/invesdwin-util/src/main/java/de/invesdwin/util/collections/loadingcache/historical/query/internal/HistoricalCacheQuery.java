@@ -14,6 +14,7 @@ import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCa
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQueryElementFilter;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQueryWithFuture;
 import de.invesdwin.util.error.FastNoSuchElementException;
+import de.invesdwin.util.math.expression.lambda.IEvaluateGenericFDate;
 import de.invesdwin.util.time.fdate.FDate;
 
 @NotThreadSafe
@@ -72,6 +73,21 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
     public final IHistoricalCacheQueryWithFuture<V> withFuture() {
         checkAssertValueUnchangedAndSet(HistoricalCacheAssertValue.ASSERT_VALUE_WITH_FUTURE);
         return newFutureQuery();
+    }
+
+    @Override
+    public IEvaluateGenericFDate<IHistoricalEntry<V>> newGetEntry() {
+        return key -> getEntry(key.asFDate());
+    }
+
+    @Override
+    public IEvaluateGenericFDate<FDate> newGetKey() {
+        return key -> getKey(key.asFDate());
+    }
+
+    @Override
+    public IEvaluateGenericFDate<V> newGetValue() {
+        return key -> getValue(key.asFDate());
     }
 
     @Override

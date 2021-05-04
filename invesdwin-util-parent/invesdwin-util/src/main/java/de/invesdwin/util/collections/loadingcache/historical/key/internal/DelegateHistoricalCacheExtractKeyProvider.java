@@ -9,6 +9,7 @@ import de.invesdwin.util.collections.loadingcache.historical.IHistoricalEntry;
 import de.invesdwin.util.collections.loadingcache.historical.IHistoricalValue;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQueryWithFuture;
 import de.invesdwin.util.time.fdate.FDate;
+import de.invesdwin.util.time.fdate.IFDateProvider;
 
 @Immutable
 public final class DelegateHistoricalCacheExtractKeyProvider<V> implements IHistoricalCacheExtractKeyProvider<V> {
@@ -24,10 +25,11 @@ public final class DelegateHistoricalCacheExtractKeyProvider<V> implements IHist
     }
 
     @Override
-    public FDate extractKey(final FDate key, final V value) {
+    public FDate extractKey(final IFDateProvider pKey, final V value) {
         if (value == null) {
             return null;
         }
+        final FDate key = pKey.asFDate();
         FDate extractedKey;
         if (value instanceof IHistoricalEntry) {
             final IHistoricalEntry<?> cValue = (IHistoricalEntry<?>) value;

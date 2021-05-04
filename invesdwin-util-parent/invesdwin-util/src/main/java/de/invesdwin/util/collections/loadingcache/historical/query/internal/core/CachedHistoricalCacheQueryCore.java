@@ -672,7 +672,7 @@ public class CachedHistoricalCacheQueryCore<V> extends ACachedResultHistoricalCa
             if (!lastEntry.getKey().equalsNotNullSafe(previousKey)) {
                 return;
             }
-            final IHistoricalEntry<V> newEntry = getParent().computeEntry(valueKey);
+            final IHistoricalEntry<V> newEntry = getParent().newComputeEntry().evaluateGeneric(valueKey);
             getParent().getPutProvider().put(newEntry, lastEntry, true);
         } finally {
             cachedQueryActiveLock.unlock();

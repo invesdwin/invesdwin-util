@@ -4,6 +4,7 @@ import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.time.fdate.FDate;
+import de.invesdwin.util.time.fdate.IFDateProvider;
 
 @Immutable
 public final class ImmutableHistoricalEntry<T> implements IHistoricalEntry<T> {
@@ -39,12 +40,12 @@ public final class ImmutableHistoricalEntry<T> implements IHistoricalEntry<T> {
         return false;
     }
 
-    public static <T> IHistoricalEntry<T> of(final FDate key, final T value) {
-        return new ImmutableHistoricalEntry<T>(key, value);
+    public static <T> IHistoricalEntry<T> of(final IFDateProvider key, final T value) {
+        return new ImmutableHistoricalEntry<T>(key.asFDate(), value);
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> IHistoricalEntry<T> maybeExtractKey(final AHistoricalCache<T> parent, final FDate key,
+    public static <T> IHistoricalEntry<T> maybeExtractKey(final AHistoricalCache<T> parent, final IFDateProvider key,
             final T value) {
         if (value == null) {
             //null entries are valid and we still need to be able to query further back in time

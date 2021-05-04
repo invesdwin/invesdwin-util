@@ -65,7 +65,7 @@ public final class IndexedHistoricalEntry<V> implements IHistoricalEntry<V> {
         if (value != null) {
             return;
         }
-        final V v = parent.loadValue(key);
+        final V v = parent.newLoadValue().evaluateGeneric(key);
         value = Optional.ofNullable(v);
         if (v == null) {
             return;
