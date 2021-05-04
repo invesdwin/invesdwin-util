@@ -1,6 +1,5 @@
 package de.invesdwin.util.time.fdate;
 
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.TimeZone;
 
@@ -20,7 +19,7 @@ public class FDateTest {
     @BeforeClass
     public static void beforeClass() {
         final TimeZone newTimeZone = TimeZones.getTimeZone("UTC");
-        FDates.setDefaultTimeZone(newTimeZone);
+        FDates.setDefaultTimeZone(new FTimeZone(newTimeZone));
         final FDate curDate = new FDate();
         final String dateStr = curDate.toString();
         TimeZone.setDefault(newTimeZone);
@@ -239,7 +238,7 @@ public class FDateTest {
         final FDate time = new FDate();
         final String joda = time.toString();
         final String java = FDate
-                .valueOf(time.toString(FDate.FORMAT_GERMAN_DATE_TIME_MS, (ZoneId) null), (ZoneId) null, null,
+                .valueOf(time.toString(FDate.FORMAT_GERMAN_DATE_TIME_MS, (FTimeZone) null), (FTimeZone) null, null,
                         FDate.FORMAT_GERMAN_DATE_TIME_MS)
                 .toString();
         Assertions.assertThat(java).isEqualTo(joda);

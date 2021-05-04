@@ -1,12 +1,6 @@
 package de.invesdwin.util.time.fdate;
 
-import java.util.TimeZone;
-
 import javax.annotation.concurrent.NotThreadSafe;
-
-import org.joda.time.Chronology;
-import org.joda.time.DateTimeZone;
-import org.joda.time.chrono.ISOChronology;
 
 @NotThreadSafe
 public class FDateBuilder {
@@ -19,7 +13,7 @@ public class FDateBuilder {
     private int minutes = 0;
     private int seconds = 0;
     private int milliseconds = 0;
-    private Chronology timeZone = FDates.getDefaultChronology();
+    private FTimeZone timeZone = FDates.getDefaultTimeZone();
 
     public void reset() {
         years = 1;
@@ -30,7 +24,7 @@ public class FDateBuilder {
         minutes = 0;
         seconds = 0;
         milliseconds = 0;
-        timeZone = FDates.getDefaultChronology();
+        timeZone = FDates.getDefaultTimeZone();
     }
 
     public FDateBuilder withDate(final FDate date) {
@@ -100,12 +94,7 @@ public class FDateBuilder {
         return this;
     }
 
-    public FDateBuilder withTimeZone(final TimeZone timeZone) {
-        this.timeZone = ISOChronology.getInstance(DateTimeZone.forTimeZone(timeZone));
-        return this;
-    }
-
-    public FDateBuilder withTimeZone(final Chronology timeZone) {
+    public FDateBuilder withTimeZone(final FTimeZone timeZone) {
         this.timeZone = timeZone;
         return this;
     }
@@ -115,15 +104,11 @@ public class FDateBuilder {
     }
 
     public long getMillis() {
-        final long dateTime = timeZone.getDateTimeMillis(years, months, days, hours, minutes, seconds, milliseconds);
-        if (weekday == null) {
-            return dateTime;
-        } else {
-            final long dateTimeWeekday = FDateField.Weekday.jodaTimeValue()
-                    .getField(timeZone)
-                    .set(dateTime, weekday.jodaTimeValue());
-            return dateTimeWeekday;
+        long dateTime = newMillis(years, months, days, hours, minutes, seconds, milliseconds, timeZone);
+        if (weekday != null) {
+            dateTime = timeZone.getDateTimeFieldWeekday().set(dateTime, weekday.jodaTimeValue());
         }
+        return dateTime;
     }
 
     public static FDate newDate(final int years) {
@@ -153,20 +138,12 @@ public class FDateBuilder {
 
     public static FDate newDate(final int years, final int months, final int days, final int hours, final int minutes,
             final int seconds, final int milliseconds) {
-        return newDate(years, months, days, hours, minutes, seconds, milliseconds, FDates.getDefaultChronology());
+        return newDate(years, months, days, hours, minutes, seconds, milliseconds, FDates.getDefaultTimeZone());
     }
 
     //CHECKSTYLE:OFF
     public static FDate newDate(final int years, final int months, final int days, final int hours, final int minutes,
-            final int seconds, final int milliseconds, final TimeZone timeZone) {
-        //CHECKSTYLE:ON
-        final ISOChronology chronology = ISOChronology.getInstance(DateTimeZone.forTimeZone(timeZone));
-        return newDate(years, months, days, hours, minutes, seconds, milliseconds, chronology);
-    }
-
-    //CHECKSTYLE:OFF
-    public static FDate newDate(final int years, final int months, final int days, final int hours, final int minutes,
-            final int seconds, final int milliseconds, final Chronology timeZone) {
+            final int seconds, final int milliseconds, final FTimeZone timeZone) {
         //CHECKSTYLE:ON
         return new FDate(newMillis(years, months, days, hours, minutes, seconds, milliseconds, timeZone));
     }
@@ -199,22 +176,20 @@ public class FDateBuilder {
 
     public static long newMillis(final int years, final int months, final int days, final int hours, final int minutes,
             final int seconds, final int milliseconds) {
-        return newMillis(years, months, days, hours, minutes, seconds, milliseconds, FDates.getDefaultChronology());
+        return newMillis(years, months, days, hours, minutes, seconds, milliseconds, FDates.getDefaultTimeZone());
     }
 
     //CHECKSTYLE:OFF
     public static long newMillis(final int years, final int months, final int days, final int hours, final int minutes,
-            final int seconds, final int milliseconds, final TimeZone timeZone) {
+            final int seconds, final int milliseconds, final FTimeZone timeZone) {
         //CHECKSTYLE:ON
-        final ISOChronology chronology = ISOChronology.getInstance(DateTimeZone.forTimeZone(timeZone));
-        return newMillis(years, months, days, hours, minutes, seconds, milliseconds, chronology);
-    }
-
-    //CHECKSTYLE:OFF
-    public static long newMillis(final int years, final int months, final int days, final int hours, final int minutes,
-            final int seconds, final int milliseconds, final Chronology timeZone) {
-        //CHECKSTYLE:ON
-        final long dateTime = timeZone.getDateTimeMillis(years, months, days, hours, minutes, seconds, milliseconds);
+        long dateTime = timeZone.getDateTimeFieldYear().set(0L, years);
+        dateTime = timeZone.getDateTimeFieldYear().set(dateTime, months);
+        dateTime = timeZone.getDateTimeFieldYear().set(dateTime, days);
+        dateTime = timeZone.getDateTimeFieldYear().set(dateTime, hours);
+        dateTime = timeZone.getDateTimeFieldYear().set(dateTime, minutes);
+        dateTime = timeZone.getDateTimeFieldYear().set(dateTime, seconds);
+        dateTime = timeZone.getDateTimeFieldYear().set(dateTime, milliseconds);
         return dateTime;
     }
 

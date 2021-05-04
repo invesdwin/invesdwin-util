@@ -10,6 +10,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.annotation.concurrent.Immutable;
 
+import org.joda.time.DurationField;
 import org.joda.time.DurationFieldType;
 
 import de.invesdwin.util.error.UnknownArgumentException;
@@ -37,6 +38,11 @@ public enum FTimeUnit {
 
         @Override
         public DurationFieldType jodaTimeValue() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public DurationField durationFieldValue() {
             throw new UnsupportedOperationException();
         }
 
@@ -122,6 +128,11 @@ public enum FTimeUnit {
         }
 
         @Override
+        public DurationField durationFieldValue() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
         public void sleep(final long timeout) throws InterruptedException {
             YEARS.sleep(YEARS_IN_CENTURY);
         }
@@ -199,6 +210,11 @@ public enum FTimeUnit {
 
         @Override
         public DurationFieldType jodaTimeValue() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public DurationField durationFieldValue() {
             throw new UnsupportedOperationException();
         }
 
@@ -284,6 +300,11 @@ public enum FTimeUnit {
         }
 
         @Override
+        public DurationField durationFieldValue() {
+            return FDates.getDefaultTimeZone().getDurationFieldYears();
+        }
+
+        @Override
         public long convert(final long duration, final FTimeUnit timeUnit) {
             return timeUnit.toYears(duration);
         }
@@ -358,6 +379,11 @@ public enum FTimeUnit {
         @Override
         public DurationFieldType jodaTimeValue() {
             return DurationFieldType.months();
+        }
+
+        @Override
+        public DurationField durationFieldValue() {
+            return FDates.getDefaultTimeZone().getDurationFieldMonths();
         }
 
         @Override
@@ -444,6 +470,11 @@ public enum FTimeUnit {
         }
 
         @Override
+        public DurationField durationFieldValue() {
+            return FDates.getDefaultTimeZone().getDurationFieldWeeks();
+        }
+
+        @Override
         public TimeUnit timeUnitValue() {
             throw new UnsupportedOperationException();
         }
@@ -523,6 +554,11 @@ public enum FTimeUnit {
         @Override
         public DurationFieldType jodaTimeValue() {
             return DurationFieldType.days();
+        }
+
+        @Override
+        public DurationField durationFieldValue() {
+            return FDates.getDefaultTimeZone().getDurationFieldDays();
         }
 
         @Override
@@ -608,6 +644,11 @@ public enum FTimeUnit {
         }
 
         @Override
+        public DurationField durationFieldValue() {
+            return FDates.getDefaultTimeZone().getDurationFieldHours();
+        }
+
+        @Override
         public TimeUnit timeUnitValue() {
             return TimeUnit.HOURS;
         }
@@ -687,6 +728,11 @@ public enum FTimeUnit {
         @Override
         public DurationFieldType jodaTimeValue() {
             return DurationFieldType.minutes();
+        }
+
+        @Override
+        public DurationField durationFieldValue() {
+            return FDates.getDefaultTimeZone().getDurationFieldMinutes();
         }
 
         @Override
@@ -772,6 +818,11 @@ public enum FTimeUnit {
         }
 
         @Override
+        public DurationField durationFieldValue() {
+            return FDates.getDefaultTimeZone().getDurationFieldSeconds();
+        }
+
+        @Override
         public TimeUnit timeUnitValue() {
             return TimeUnit.SECONDS;
         }
@@ -851,6 +902,11 @@ public enum FTimeUnit {
         @Override
         public DurationFieldType jodaTimeValue() {
             return DurationFieldType.millis();
+        }
+
+        @Override
+        public DurationField durationFieldValue() {
+            return FDates.getDefaultTimeZone().getDurationFieldMilliseconds();
         }
 
         @Override
@@ -936,6 +992,11 @@ public enum FTimeUnit {
         }
 
         @Override
+        public DurationField durationFieldValue() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
         public TimeUnit timeUnitValue() {
             return TimeUnit.MICROSECONDS;
         }
@@ -1014,6 +1075,11 @@ public enum FTimeUnit {
 
         @Override
         public DurationFieldType jodaTimeValue() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public DurationField durationFieldValue() {
             throw new UnsupportedOperationException();
         }
 
@@ -1219,6 +1285,8 @@ public enum FTimeUnit {
     public abstract long toMonths(long duration);
 
     public abstract long toYears(long duration);
+
+    public abstract DurationField durationFieldValue();
 
     public static FTimeUnit valueOf(final Duration duration) {
         return DURATION_NANOS_LOOKUP.get(duration.longValue(FTimeUnit.NANOSECONDS));

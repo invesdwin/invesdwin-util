@@ -33,7 +33,7 @@ public enum FDateField {
 
         @Override
         public DateTimeField dateTimeFieldValue() {
-            return FDates.getDefaultChronologyYearField();
+            return FDates.getDefaultTimeZone().getDateTimeFieldYear();
         }
     },
     Month {
@@ -54,7 +54,7 @@ public enum FDateField {
 
         @Override
         public DateTimeField dateTimeFieldValue() {
-            return FDates.getDefaultChronologyMonthField();
+            return FDates.getDefaultTimeZone().getDateTimeFieldMonth();
         }
     },
     /**
@@ -78,7 +78,7 @@ public enum FDateField {
 
         @Override
         public DateTimeField dateTimeFieldValue() {
-            return FDates.getDefaultChronologyDayField();
+            return FDates.getDefaultTimeZone().getDateTimeFieldDay();
         }
     },
     Weekday {
@@ -99,7 +99,7 @@ public enum FDateField {
 
         @Override
         public DateTimeField dateTimeFieldValue() {
-            return FDates.getDefaultChronologyWeekdayField();
+            return FDates.getDefaultTimeZone().getDateTimeFieldWeekday();
         }
     },
     Hour {
@@ -120,7 +120,7 @@ public enum FDateField {
 
         @Override
         public DateTimeField dateTimeFieldValue() {
-            return FDates.getDefaultChronologyHourField();
+            return FDates.getDefaultTimeZone().getDateTimeFieldHour();
         }
     },
     Minute {
@@ -141,7 +141,7 @@ public enum FDateField {
 
         @Override
         public DateTimeField dateTimeFieldValue() {
-            return FDates.getDefaultChronologyMinuteField();
+            return FDates.getDefaultTimeZone().getDateTimeFieldMinute();
         }
     },
     Second {
@@ -162,7 +162,7 @@ public enum FDateField {
 
         @Override
         public DateTimeField dateTimeFieldValue() {
-            return FDates.getDefaultChronologySecondField();
+            return FDates.getDefaultTimeZone().getDateTimeFieldSecond();
         }
     },
     Millisecond {
@@ -183,7 +183,7 @@ public enum FDateField {
 
         @Override
         public DateTimeField dateTimeFieldValue() {
-            return FDates.getDefaultChronologyMillisecondField();
+            return FDates.getDefaultTimeZone().getDateTimeFieldMillisecond();
         }
 
     };

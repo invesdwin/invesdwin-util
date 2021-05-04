@@ -9,6 +9,7 @@ import org.joda.time.DateTimeZone;
 
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.lang.Strings;
+import de.invesdwin.util.time.fdate.FTimeZone;
 
 @Immutable
 public final class TimeZones {
@@ -44,6 +45,17 @@ public final class TimeZones {
             return null;
         }
         return tz;
+    }
+
+    public static FTimeZone getFTimeZone(final String timeZoneId) {
+        final ZoneId zoneId = getZoneId(timeZoneId);
+        if (zoneId == null) {
+            return null;
+        } else {
+            //CHECKSTYLE:OFF
+            return new FTimeZone(zoneId);
+            //CHECKSTYLE:ON
+        }
     }
 
     public static ZoneId getZoneId(final String id) {

@@ -1,6 +1,5 @@
 package de.invesdwin.util.time.range;
 
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -13,6 +12,7 @@ import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.time.duration.Duration;
 import de.invesdwin.util.time.fdate.FDate;
 import de.invesdwin.util.time.fdate.FDates;
+import de.invesdwin.util.time.fdate.FTimeZone;
 import de.invesdwin.util.time.fdate.FWeekTime;
 
 @Immutable
@@ -97,7 +97,7 @@ public class WeekRange extends AValueObject {
         return from == null || to == null || getDuration().isZero();
     }
 
-    public boolean contains(final FDate time, final ZoneId timeZone) {
+    public boolean contains(final FDate time, final FTimeZone timeZone) {
         return contains(time.revertTimeZoneOffset(timeZone));
     }
 

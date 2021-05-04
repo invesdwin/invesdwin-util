@@ -1,7 +1,6 @@
 package de.invesdwin.util.time.range;
 
 import java.nio.ByteBuffer;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,6 +13,7 @@ import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.time.duration.Duration;
 import de.invesdwin.util.time.fdate.FDate;
 import de.invesdwin.util.time.fdate.FDates;
+import de.invesdwin.util.time.fdate.FTimeZone;
 import de.invesdwin.util.time.fdate.IFDateProvider;
 
 @Immutable
@@ -151,7 +151,7 @@ public class TimeRange extends AValueObject {
         }
     }
 
-    public TimeRange applyTimeZoneOffset(final ZoneId offsetTimeZone) {
+    public TimeRange applyTimeZoneOffset(final FTimeZone offsetTimeZone) {
         if (offsetTimeZone == null) {
             return this;
         } else {
@@ -159,7 +159,7 @@ public class TimeRange extends AValueObject {
         }
     }
 
-    public TimeRange revertTimeZoneOffset(final ZoneId offsetTimeZone) {
+    public TimeRange revertTimeZoneOffset(final FTimeZone offsetTimeZone) {
         if (offsetTimeZone == null) {
             return this;
         } else {

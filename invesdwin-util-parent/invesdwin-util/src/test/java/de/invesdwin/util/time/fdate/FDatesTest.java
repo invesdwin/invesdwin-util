@@ -24,10 +24,10 @@ public class FDatesTest {
     @Test
     public void testRevertTimeZone() {
         final FDate now = new FDate();
-        final FDate utcTime = now.applyTimeZoneOffset(TimeZones.UTC);
+        final FDate utcTime = now.applyTimeZoneOffset(FTimeZone.UTC);
         //CHECKSTYLE:OFF
         System.out.println(
-                now + " (" + now.getTimeZone().getID() + ") -> " + utcTime + " (" + TimeZones.UTC.getID() + ")");
+                now + " (" + now.getTimeZone().getId() + ") -> " + utcTime + " (" + TimeZones.UTC.getID() + ")");
         //CHECKSTYLE:ON
     }
 

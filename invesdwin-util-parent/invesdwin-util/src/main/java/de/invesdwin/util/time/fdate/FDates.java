@@ -1,24 +1,16 @@
 package de.invesdwin.util.time.fdate;
 
 import java.nio.ByteBuffer;
-import java.time.ZoneId;
-import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.TimeZone;
 
 import javax.annotation.concurrent.ThreadSafe;
 
-import org.joda.time.Chronology;
-import org.joda.time.DateTimeField;
-import org.joda.time.DateTimeZone;
-import org.joda.time.chrono.ISOChronology;
-
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.error.FastNoSuchElementException;
 import de.invesdwin.util.error.UnknownArgumentException;
-import de.invesdwin.util.time.TimeZones;
 import de.invesdwin.util.time.duration.Duration;
 
 @ThreadSafe
@@ -29,105 +21,21 @@ public final class FDates {
     public static final long MILLISECONDS_IN_HOUR = FTimeUnit.MILLISECONDS_IN_HOUR;
     public static final long MILLISECONDS_IN_MINUTE = FTimeUnit.MILLISECONDS_IN_MINUTE;
     public static final long MILLISECONDS_IN_SECOND = FTimeUnit.MILLISECONDS_IN_SECOND;
-
-    private static Calendar templateCalendar;
-    private static TimeZone defaultTimeZone;
-    private static boolean isDefaultTimeZoneUTC;
-    private static DateTimeZone defaultDateTimeZone;
-    private static ZoneId defaultZoneId;
-    private static Chronology defaultChronology;
-    private static DateTimeField defaultChronologyYearField;
-    private static DateTimeField defaultChronologyMonthField;
-    private static DateTimeField defaultChronologyDayField;
-    private static DateTimeField defaultChronologyWeekdayField;
-    private static DateTimeField defaultChronologyHourField;
-    private static DateTimeField defaultChronologyMinuteField;
-    private static DateTimeField defaultChronologySecondField;
-    private static DateTimeField defaultChronologyMillisecondField;
+    private static FTimeZone defaultTimeZone;
 
     static {
-        setDefaultTimeZone(TimeZone.getDefault());
+        setDefaultTimeZone(new FTimeZone(TimeZone.getDefault()));
     }
 
     private FDates() {
     }
 
-    public static void setDefaultTimeZone(final TimeZone defaultTimeZone) {
+    public static void setDefaultTimeZone(final FTimeZone defaultTimeZone) {
         FDates.defaultTimeZone = defaultTimeZone;
-        FDates.isDefaultTimeZoneUTC = TimeZones.UTC.equals(defaultTimeZone);
-        FDates.defaultDateTimeZone = DateTimeZone.forTimeZone(defaultTimeZone);
-        FDates.defaultZoneId = defaultTimeZone.toZoneId();
-        //CHECKSTYLE:OFF
-        final Calendar cal = Calendar.getInstance();
-        //CHECKSTYLE:ON
-        cal.clear();
-        cal.setTimeZone(defaultTimeZone);
-        templateCalendar = cal;
-        FDates.defaultChronology = ISOChronology.getInstance(defaultDateTimeZone);
-        FDates.defaultChronologyYearField = FDateField.Year.jodaTimeValue().getField(defaultChronology);
-        FDates.defaultChronologyMonthField = FDateField.Month.jodaTimeValue().getField(defaultChronology);
-        FDates.defaultChronologyDayField = FDateField.Day.jodaTimeValue().getField(defaultChronology);
-        FDates.defaultChronologyWeekdayField = FDateField.Weekday.jodaTimeValue().getField(defaultChronology);
-        FDates.defaultChronologyHourField = FDateField.Hour.jodaTimeValue().getField(defaultChronology);
-        FDates.defaultChronologyMinuteField = FDateField.Minute.jodaTimeValue().getField(defaultChronology);
-        FDates.defaultChronologySecondField = FDateField.Second.jodaTimeValue().getField(defaultChronology);
-        FDates.defaultChronologyMillisecondField = FDateField.Millisecond.jodaTimeValue().getField(defaultChronology);
     }
 
-    public static TimeZone getDefaultTimeZone() {
+    public static FTimeZone getDefaultTimeZone() {
         return defaultTimeZone;
-    }
-
-    public static boolean isDefaultTimeZoneUTC() {
-        return isDefaultTimeZoneUTC;
-    }
-
-    public static DateTimeZone getDefaultDateTimeZone() {
-        return defaultDateTimeZone;
-    }
-
-    public static Chronology getDefaultChronology() {
-        return defaultChronology;
-    }
-
-    public static DateTimeField getDefaultChronologyYearField() {
-        return defaultChronologyYearField;
-    }
-
-    public static DateTimeField getDefaultChronologyMonthField() {
-        return defaultChronologyMonthField;
-    }
-
-    public static DateTimeField getDefaultChronologyDayField() {
-        return defaultChronologyDayField;
-    }
-
-    public static DateTimeField getDefaultChronologyWeekdayField() {
-        return defaultChronologyWeekdayField;
-    }
-
-    public static DateTimeField getDefaultChronologyHourField() {
-        return defaultChronologyHourField;
-    }
-
-    public static DateTimeField getDefaultChronologyMinuteField() {
-        return defaultChronologyMinuteField;
-    }
-
-    public static DateTimeField getDefaultChronologySecondField() {
-        return defaultChronologySecondField;
-    }
-
-    public static DateTimeField getDefaultChronologyMillisecondField() {
-        return defaultChronologyMillisecondField;
-    }
-
-    public static ZoneId getDefaultZoneId() {
-        return defaultZoneId;
-    }
-
-    public static Calendar newCalendar() {
-        return (Calendar) templateCalendar.clone();
     }
 
     public static ICloseableIterable<FDate> iterable(final FDate start, final FDate end, final Duration increment) {
@@ -266,7 +174,7 @@ public final class FDates {
         }
     }
 
-    public static String toString(final FDate date, final TimeZone timeZone) {
+    public static String toString(final FDate date, final FTimeZone timeZone) {
         if (date == null) {
             return null;
         }
@@ -280,7 +188,7 @@ public final class FDates {
         return date.toString(format);
     }
 
-    public static String toString(final FDate date, final String format, final TimeZone timeZone) {
+    public static String toString(final FDate date, final String format, final FTimeZone timeZone) {
         if (date == null) {
             return null;
         }
@@ -360,7 +268,7 @@ public final class FDates {
         return isSameTruncated(date1, date2, FDateField.Year);
     }
 
-    public static boolean isSameYear(final FDate date1, final FDate date2, final ZoneId timeZone) {
+    public static boolean isSameYear(final FDate date1, final FDate date2, final FTimeZone timeZone) {
         return isSameYear(date1.revertTimeZoneOffset(timeZone), date2.revertTimeZoneOffset(timeZone));
     }
 
@@ -368,7 +276,7 @@ public final class FDates {
         return isSameTruncated(date1, date2, FDateField.Month);
     }
 
-    public static boolean isSameMonth(final FDate date1, final FDate date2, final ZoneId timeZone) {
+    public static boolean isSameMonth(final FDate date1, final FDate date2, final FTimeZone timeZone) {
         return isSameMonth(date1.revertTimeZoneOffset(timeZone), date2.revertTimeZoneOffset(timeZone));
     }
 
@@ -376,12 +284,12 @@ public final class FDates {
         return isSameWeekPart(date1, date2, FWeekday.Monday, FWeekday.Sunday);
     }
 
-    public static boolean isSameWeek(final FDate date1, final FDate date2, final ZoneId timeZone) {
+    public static boolean isSameWeek(final FDate date1, final FDate date2, final FTimeZone timeZone) {
         return isSameWeek(date1.revertTimeZoneOffset(timeZone), date2.revertTimeZoneOffset(timeZone));
     }
 
     public static boolean isSameWeekPart(final FDate date1, final FDate date2, final FWeekday statOfWeekPart,
-            final FWeekday endOfWeekPart, final ZoneId timeZone) {
+            final FWeekday endOfWeekPart, final FTimeZone timeZone) {
         return isSameWeekPart(date1.revertTimeZoneOffset(timeZone), date2.revertTimeZoneOffset(timeZone),
                 statOfWeekPart, endOfWeekPart);
     }
@@ -400,7 +308,7 @@ public final class FDates {
     }
 
     public static boolean isWeekdayBetween(final FDate date1, final FDate date2, final FWeekday weekday,
-            final ZoneId timeZone) {
+            final FTimeZone timeZone) {
         return isWeekdayBetween(date1.revertTimeZoneOffset(timeZone), date2.revertTimeZoneOffset(timeZone), weekday);
     }
 
@@ -418,7 +326,7 @@ public final class FDates {
         return false;
     }
 
-    public static boolean isSameDay(final FDate date1, final FDate date2, final ZoneId timeZone) {
+    public static boolean isSameDay(final FDate date1, final FDate date2, final FTimeZone timeZone) {
         return isSameDay(date1.revertTimeZoneOffset(timeZone), date2.revertTimeZoneOffset(timeZone));
     }
 
@@ -426,7 +334,7 @@ public final class FDates {
         return isSameTruncated(date1, date2, FDateField.Day);
     }
 
-    public static boolean isSameHour(final FDate date1, final FDate date2, final ZoneId timeZone) {
+    public static boolean isSameHour(final FDate date1, final FDate date2, final FTimeZone timeZone) {
         return isSameHour(date1.revertTimeZoneOffset(timeZone), date2.revertTimeZoneOffset(timeZone));
     }
 
@@ -459,7 +367,7 @@ public final class FDates {
     }
 
     public static boolean isSamePeriod(final FDate date1, final FDate date2, final FTimeUnit period,
-            final ZoneId timeZone) {
+            final FTimeZone timeZone) {
         return isSamePeriod(date1.revertTimeZoneOffset(timeZone), date2.revertTimeZoneOffset(timeZone), period);
     }
 
@@ -487,7 +395,7 @@ public final class FDates {
     }
 
     public static boolean isSameJulianPeriod(final FDate date1, final FDate date2, final FTimeUnit period,
-            final ZoneId timeZone) {
+            final FTimeZone timeZone) {
         return isSameJulianPeriod(date1.revertTimeZoneOffset(timeZone), date2.revertTimeZoneOffset(timeZone), period);
     }
 
@@ -514,7 +422,7 @@ public final class FDates {
         }
     }
 
-    public static boolean isSameJulianDay(final FDate date1, final FDate date2, final ZoneId timeZone) {
+    public static boolean isSameJulianDay(final FDate date1, final FDate date2, final FTimeZone timeZone) {
         return isSameJulianDay(date1.revertTimeZoneOffset(timeZone), date2.revertTimeZoneOffset(timeZone));
     }
 
@@ -534,7 +442,7 @@ public final class FDates {
         return julianDayNumber1 == julianDayNumber2;
     }
 
-    public static boolean isSameJulianHour(final FDate date1, final FDate date2, final ZoneId timeZone) {
+    public static boolean isSameJulianHour(final FDate date1, final FDate date2, final FTimeZone timeZone) {
         return isSameJulianHour(date1.revertTimeZoneOffset(timeZone), date2.revertTimeZoneOffset(timeZone));
     }
 

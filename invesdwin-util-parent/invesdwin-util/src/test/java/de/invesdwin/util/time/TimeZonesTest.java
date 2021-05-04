@@ -1,7 +1,5 @@
 package de.invesdwin.util.time;
 
-import java.util.TimeZone;
-
 import javax.annotation.concurrent.NotThreadSafe;
 
 import org.junit.Test;
@@ -9,14 +7,15 @@ import org.junit.Test;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.time.fdate.FDate;
 import de.invesdwin.util.time.fdate.FDateBuilder;
+import de.invesdwin.util.time.fdate.FTimeZone;
 
 @NotThreadSafe
 public class TimeZonesTest {
 
     @Test
     public void testTimeZones() {
-        showTimeZoneInfo(TimeZones.getTimeZone("Europe/London"));
-        showTimeZoneInfo(TimeZones.getTimeZone("America/New_York"));
+        showTimeZoneInfo(TimeZones.getFTimeZone("Europe/London"));
+        showTimeZoneInfo(TimeZones.getFTimeZone("America/New_York"));
     }
 
     @Test
@@ -29,19 +28,19 @@ public class TimeZonesTest {
         }
     }
 
-    private void showTimeZoneInfo(final TimeZone targetTimeZone) {
+    private void showTimeZoneInfo(final FTimeZone targetTimeZone) {
         final FDateBuilder db = new FDateBuilder().withHours(8).withTimeZone(targetTimeZone);
         final FDate inDst = db.withDate(FDateBuilder.newDate(2013, 8, 1)).getDate();
-        System.out.println(String.format("%s: %s dst=%s", targetTimeZone.getID(), inDst, //SUPPRESS CHECKSTYLE single line
-                targetTimeZone.inDaylightTime(inDst.dateValue())));
-        final TimeZone universalTimeZone = TimeZones.getTimeZone("UTC");
-        System.out.println(String.format("%s: %s dst=%s", universalTimeZone.getID(), inDst.toString(universalTimeZone), //SUPPRESS CHECKSTYLE single line
-                targetTimeZone.inDaylightTime(inDst.dateValue())));
+        System.out.println(String.format("%s: %s dst=%s", targetTimeZone.getId(), inDst, //SUPPRESS CHECKSTYLE single line
+                targetTimeZone.isDST(inDst.millisValue())));
+        final FTimeZone universalTimeZone = FTimeZone.UTC;
+        System.out.println(String.format("%s: %s dst=%s", universalTimeZone.getId(), inDst.toString(universalTimeZone), //SUPPRESS CHECKSTYLE single line
+                targetTimeZone.isDST(inDst.millisValue())));
         final FDate noDst = db.withDate(FDateBuilder.newDate(2013, 3, 1)).getDate();
-        System.out.println(String.format("%s: %s dst=%s", targetTimeZone.getID(), noDst, //SUPPRESS CHECKSTYLE single line
-                targetTimeZone.inDaylightTime(noDst.dateValue())));
-        System.out.println(String.format("%s: %s dst=%s", universalTimeZone.getID(), noDst.toString(universalTimeZone), //SUPPRESS CHECKSTYLE single line
-                targetTimeZone.inDaylightTime(noDst.dateValue())));
+        System.out.println(String.format("%s: %s dst=%s", targetTimeZone.getId(), noDst, //SUPPRESS CHECKSTYLE single line
+                targetTimeZone.isDST(noDst.millisValue())));
+        System.out.println(String.format("%s: %s dst=%s", universalTimeZone.getId(), noDst.toString(universalTimeZone), //SUPPRESS CHECKSTYLE single line
+                targetTimeZone.isDST(noDst.millisValue())));
     }
 
 }
