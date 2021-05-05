@@ -110,4 +110,9 @@ public abstract class AMapLoadingCache<K, V> implements ILoadingCache<K, V> {
         return map.isEmpty();
     }
 
+    @Override
+    public String toString() {
+        return map.toString();
+    }
+
 }

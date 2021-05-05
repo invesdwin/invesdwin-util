@@ -109,4 +109,9 @@ public class GuavaLoadingCache<K, V> implements ILoadingCache<K, V> {
         return delegate.computeIfAbsent(key, mappingFunction);
     }
 
+    @Override
+    public String toString() {
+        return delegate.toString();
+    }
+
 }

@@ -125,4 +125,9 @@ public abstract class ASynchronizedMapLoadingCache<K, V> implements ILoadingCach
         return map.isEmpty();
     }
 
+    @Override
+    public String toString() {
+        return map.toString();
+    }
+
 }

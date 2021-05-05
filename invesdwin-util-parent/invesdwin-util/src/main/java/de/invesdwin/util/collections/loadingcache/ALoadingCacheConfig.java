@@ -118,6 +118,7 @@ public abstract class ALoadingCacheConfig<K, V> {
             protected V loadValue(final K key) {
                 return ALoadingCacheConfig.this.loadValue(key);
             }
+
         };
     }
 

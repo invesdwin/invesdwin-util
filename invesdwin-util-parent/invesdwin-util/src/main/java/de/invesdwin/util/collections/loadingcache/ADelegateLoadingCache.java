@@ -94,4 +94,9 @@ public abstract class ADelegateLoadingCache<K, V> implements ILoadingCache<K, V>
         return getDelegate().computeIfAbsent(key, mappingFunction);
     }
 
+    @Override
+    public String toString() {
+        return getDelegate().toString();
+    }
+
 }
