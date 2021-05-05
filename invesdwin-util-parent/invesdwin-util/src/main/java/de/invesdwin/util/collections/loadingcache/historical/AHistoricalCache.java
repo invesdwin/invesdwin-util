@@ -84,6 +84,11 @@ public abstract class AHistoricalCache<V>
 
     private volatile FDate lastRefresh = HistoricalCacheRefreshManager.getLastRefresh();
     private volatile Integer maximumSize = getInitialMaximumSize();
+    /*
+     * need to remember this, so that valuesMap lazy initialization uses the correct impl, since actual maximumSize
+     * might increase afterwards before lazy init
+     */
+    private final Integer initialMaximumSize = maximumSize;
     private IHistoricalCacheShiftKeyProvider<V> shiftKeyProvider = new InnerHistoricalCacheShiftKeyProvider();
     private IHistoricalCacheExtractKeyProvider<V> extractKeyProvider = new InnerHistoricalCacheExtractKeyProvider();
     @GuardedBy("this only during initialization")
@@ -465,6 +470,9 @@ public abstract class AHistoricalCache<V>
             synchronized (this) {
                 if (valuesMap == null) {
                     valuesMap = new InnerLoadingCache();
+                    if (maximumSize != null && maximumSize != initialMaximumSize) {
+                        innerIncreaseMaximumSize(maximumSize, "innerLoadCache lazy init");
+                    }
                 }
             }
         }
@@ -489,7 +497,7 @@ public abstract class AHistoricalCache<V>
 
         @Override
         protected ILoadingCache<FDate, IHistoricalEntry<V>> createDelegate() {
-            final Integer size = getMaximumSize();
+            final Integer size = initialMaximumSize;
             if (size == null || size > 0) {
                 Assertions.checkTrue(HistoricalCacheRefreshManager.register(AHistoricalCache.this));
             }
