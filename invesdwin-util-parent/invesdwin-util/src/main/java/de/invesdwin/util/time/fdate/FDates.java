@@ -218,7 +218,11 @@ public final class FDates {
             return date1;
         }
 
-        if (date1.isBefore(date2)) {
+        return minNotNullSafe(date1, date2);
+    }
+
+    public static FDate minNotNullSafe(final FDate date1, final FDate date2) {
+        if (date1.isBeforeNotNullSafe(date2)) {
             return date1;
         } else {
             return date2;
@@ -248,7 +252,11 @@ public final class FDates {
             return date1;
         }
 
-        if (date1.isAfter(date2)) {
+        return maxNotNullSafe(date1, date2);
+    }
+
+    public static FDate maxNotNullSafe(final FDate date1, final FDate date2) {
+        if (date1.isAfterNotNullSafe(date2)) {
             return date1;
         } else {
             return date2;
