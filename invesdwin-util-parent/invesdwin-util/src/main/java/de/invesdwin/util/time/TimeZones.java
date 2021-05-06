@@ -16,6 +16,7 @@ public final class TimeZones {
 
     public static final TimeZone UTC = getTimeZone("UTC");
     public static final TimeZone EET = getTimeZone("EET");
+    public static final TimeZone EUROPE_BERLIN = getTimeZone("Europe/Berlin");
 
     private static final String[] SEARCH_PREFIXES = new String[] { "UTC-", "UTC+", "GMT-", "GMT+", "UT-", "UT+" };
     private static final String[] REPLACE_PREFIXES = new String[] { "UTC-", "UTC+", "UTC-", "UTC+", "UTC-", "UTC+" };

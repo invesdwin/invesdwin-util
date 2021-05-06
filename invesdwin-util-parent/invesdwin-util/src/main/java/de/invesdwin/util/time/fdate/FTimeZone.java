@@ -20,6 +20,8 @@ public class FTimeZone {
 
     public static final FTimeZone UTC = new FTimeZone(TimeZones.UTC);
 
+    public static final FTimeZone EUROPE_BERLIN = new FTimeZone(TimeZones.EUROPE_BERLIN);
+
     private final Calendar templateCalendar;
     private final TimeZone timeZone;
     private final boolean isUTC;
