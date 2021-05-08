@@ -534,11 +534,17 @@ public class FDate
         return applyTimeZoneOffset(offset).withoutTime().revertTimeZoneOffset(offset);
     }
 
+    /**
+     * Pretend that this date is inside the given timezone. E.g. UTC will add 2 hours for becoming EET.
+     */
     public FDate applyTimeZoneOffset(final FTimeZone timeZone) {
         final long offset = getTimeZoneOffsetMilliseconds(timeZone);
         return applyTimeZoneOffset(offset);
     }
 
+    /**
+     * Pretend that this date is inside the given timezone. E.g. UTC will add 2 hours for becoming EET.
+     */
     public FDate applyTimeZoneOffset(final long timeZoneOffsetMilliseconsd) {
         return addMilliseconds(timeZoneOffsetMilliseconsd);
     }
@@ -554,11 +560,17 @@ public class FDate
         return milliseconds;
     }
 
+    /**
+     * Go back to the default timezone for a data that was converted into another timezone.
+     */
     public FDate revertTimeZoneOffset(final FTimeZone timeZone) {
         final long offset = getTimeZoneOffsetMilliseconds(timeZone);
         return revertTimeZoneOffset(offset);
     }
 
+    /**
+     * Go back to the default timezone for a data that was converted into another timezone.
+     */
     public FDate revertTimeZoneOffset(final long timeZoneOffsetMilliseconsd) {
         return addMilliseconds(-timeZoneOffsetMilliseconsd);
     }
