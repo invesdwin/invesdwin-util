@@ -206,13 +206,8 @@ public class FTimeZone {
         return durationFieldMilliseconds;
     }
 
-    public int getOffsetSeconds(final long millis) {
-        return dateTimeZone.getOffset(millis);
-    }
-
     public long getOffsetMilliseconds(final long millis) {
-        final long seconds = dateTimeZone.getOffset(millis);
-        return seconds * FTimeUnit.MILLISECONDS_IN_SECOND;
+        return dateTimeZone.getOffset(millis);
     }
 
     public boolean isFixed() {

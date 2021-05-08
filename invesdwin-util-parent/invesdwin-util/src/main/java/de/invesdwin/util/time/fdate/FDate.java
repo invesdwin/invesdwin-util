@@ -562,11 +562,11 @@ public class FDate
         if (timeZone == null) {
             return 0;
         }
-        long seconds = timeZone.getOffsetSeconds(millis);
+        long milliseconds = timeZone.getOffsetMilliseconds(millis);
         if (!FDates.getDefaultTimeZone().isUTC()) {
-            seconds -= FDates.getDefaultTimeZone().getOffsetSeconds(millis);
+            milliseconds -= FDates.getDefaultTimeZone().getOffsetMilliseconds(millis);
         }
-        return seconds * FTimeUnit.MILLISECONDS_IN_SECOND;
+        return milliseconds;
     }
 
     public FDate revertTimeZoneOffset(final FTimeZone timeZone) {
