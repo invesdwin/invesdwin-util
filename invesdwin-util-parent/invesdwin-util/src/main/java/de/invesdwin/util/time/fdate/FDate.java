@@ -586,8 +586,7 @@ public class FDate
     }
 
     public FDate atEndOfDay(final FTimeZone timeZone) {
-        final long offset = getTimeZoneOffsetMilliseconds(timeZone);
-        return revertTimeZoneOffset(offset).atEndOfDay().applyTimeZoneOffset(offset);
+        return atEndOfDay().revertTimeZoneOffset(timeZone);
     }
 
     /**
