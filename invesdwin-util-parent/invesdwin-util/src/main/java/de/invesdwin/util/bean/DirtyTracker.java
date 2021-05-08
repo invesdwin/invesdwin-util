@@ -113,7 +113,7 @@ public class DirtyTracker implements Serializable {
     /**
      * Tells if this tracker is currently being updated by PropertyChangeEvents of its properties and children
      * properties directly. This method checks of startTrackingChanges() was actually called on this instance and the
-     * tracking is not happening because of a parent object. Or atleast that the tracking will continue even after a
+     * tracking is not happening because of a parent object. Or at least that the tracking will continue even after a
      * parent object stops tracking.
      */
     public synchronized boolean isTrackingChangesDirectly() {

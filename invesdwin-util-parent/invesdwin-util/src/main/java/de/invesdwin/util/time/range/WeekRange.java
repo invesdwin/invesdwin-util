@@ -98,7 +98,7 @@ public class WeekRange extends AValueObject {
     }
 
     public boolean contains(final FDate time, final FTimeZone timeZone) {
-        return contains(time.revertTimeZoneOffset(timeZone));
+        return contains(time.applyTimeZoneOffset(timeZone));
     }
 
     public boolean contains(final FDate time) {

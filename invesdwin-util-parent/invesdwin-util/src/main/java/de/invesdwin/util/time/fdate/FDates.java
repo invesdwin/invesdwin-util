@@ -277,7 +277,7 @@ public final class FDates {
     }
 
     public static boolean isSameYear(final FDate date1, final FDate date2, final FTimeZone timeZone) {
-        return isSameYear(date1.revertTimeZoneOffset(timeZone), date2.revertTimeZoneOffset(timeZone));
+        return isSameYear(date1.applyTimeZoneOffset(timeZone), date2.applyTimeZoneOffset(timeZone));
     }
 
     public static boolean isSameMonth(final FDate date1, final FDate date2) {
@@ -285,7 +285,7 @@ public final class FDates {
     }
 
     public static boolean isSameMonth(final FDate date1, final FDate date2, final FTimeZone timeZone) {
-        return isSameMonth(date1.revertTimeZoneOffset(timeZone), date2.revertTimeZoneOffset(timeZone));
+        return isSameMonth(date1.applyTimeZoneOffset(timeZone), date2.applyTimeZoneOffset(timeZone));
     }
 
     public static boolean isSameWeek(final FDate date1, final FDate date2) {
@@ -293,13 +293,13 @@ public final class FDates {
     }
 
     public static boolean isSameWeek(final FDate date1, final FDate date2, final FTimeZone timeZone) {
-        return isSameWeek(date1.revertTimeZoneOffset(timeZone), date2.revertTimeZoneOffset(timeZone));
+        return isSameWeek(date1.applyTimeZoneOffset(timeZone), date2.applyTimeZoneOffset(timeZone));
     }
 
     public static boolean isSameWeekPart(final FDate date1, final FDate date2, final FWeekday statOfWeekPart,
             final FWeekday endOfWeekPart, final FTimeZone timeZone) {
-        return isSameWeekPart(date1.revertTimeZoneOffset(timeZone), date2.revertTimeZoneOffset(timeZone),
-                statOfWeekPart, endOfWeekPart);
+        return isSameWeekPart(date1.applyTimeZoneOffset(timeZone), date2.applyTimeZoneOffset(timeZone), statOfWeekPart,
+                endOfWeekPart);
     }
 
     public static boolean isSameWeekPart(final FDate date1, final FDate date2, final FWeekday statOfWeekPart,
@@ -317,7 +317,7 @@ public final class FDates {
 
     public static boolean isWeekdayBetween(final FDate date1, final FDate date2, final FWeekday weekday,
             final FTimeZone timeZone) {
-        return isWeekdayBetween(date1.revertTimeZoneOffset(timeZone), date2.revertTimeZoneOffset(timeZone), weekday);
+        return isWeekdayBetween(date1.applyTimeZoneOffset(timeZone), date2.applyTimeZoneOffset(timeZone), weekday);
     }
 
     public static boolean isWeekdayBetween(final FDate date1, final FDate date2, final FWeekday weekday) {
@@ -335,7 +335,7 @@ public final class FDates {
     }
 
     public static boolean isSameDay(final FDate date1, final FDate date2, final FTimeZone timeZone) {
-        return isSameDay(date1.revertTimeZoneOffset(timeZone), date2.revertTimeZoneOffset(timeZone));
+        return isSameDay(date1.applyTimeZoneOffset(timeZone), date2.applyTimeZoneOffset(timeZone));
     }
 
     public static boolean isSameDay(final FDate date1, final FDate date2) {
@@ -343,7 +343,7 @@ public final class FDates {
     }
 
     public static boolean isSameHour(final FDate date1, final FDate date2, final FTimeZone timeZone) {
-        return isSameHour(date1.revertTimeZoneOffset(timeZone), date2.revertTimeZoneOffset(timeZone));
+        return isSameHour(date1.applyTimeZoneOffset(timeZone), date2.applyTimeZoneOffset(timeZone));
     }
 
     public static boolean isSameHour(final FDate date1, final FDate date2) {
@@ -376,7 +376,7 @@ public final class FDates {
 
     public static boolean isSamePeriod(final FDate date1, final FDate date2, final FTimeUnit period,
             final FTimeZone timeZone) {
-        return isSamePeriod(date1.revertTimeZoneOffset(timeZone), date2.revertTimeZoneOffset(timeZone), period);
+        return isSamePeriod(date1.applyTimeZoneOffset(timeZone), date2.applyTimeZoneOffset(timeZone), period);
     }
 
     public static boolean isSamePeriod(final FDate date1, final FDate date2, final FTimeUnit period) {
@@ -404,7 +404,7 @@ public final class FDates {
 
     public static boolean isSameJulianPeriod(final FDate date1, final FDate date2, final FTimeUnit period,
             final FTimeZone timeZone) {
-        return isSameJulianPeriod(date1.revertTimeZoneOffset(timeZone), date2.revertTimeZoneOffset(timeZone), period);
+        return isSameJulianPeriod(date1.applyTimeZoneOffset(timeZone), date2.applyTimeZoneOffset(timeZone), period);
     }
 
     public static boolean isSameJulianPeriod(final FDate date1, final FDate date2, final FTimeUnit period) {
@@ -431,7 +431,7 @@ public final class FDates {
     }
 
     public static boolean isSameJulianDay(final FDate date1, final FDate date2, final FTimeZone timeZone) {
-        return isSameJulianDay(date1.revertTimeZoneOffset(timeZone), date2.revertTimeZoneOffset(timeZone));
+        return isSameJulianDay(date1.applyTimeZoneOffset(timeZone), date2.applyTimeZoneOffset(timeZone));
     }
 
     /**
@@ -451,7 +451,7 @@ public final class FDates {
     }
 
     public static boolean isSameJulianHour(final FDate date1, final FDate date2, final FTimeZone timeZone) {
-        return isSameJulianHour(date1.revertTimeZoneOffset(timeZone), date2.revertTimeZoneOffset(timeZone));
+        return isSameJulianHour(date1.applyTimeZoneOffset(timeZone), date2.applyTimeZoneOffset(timeZone));
     }
 
     /**

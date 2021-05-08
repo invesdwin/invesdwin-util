@@ -22,13 +22,25 @@ public class FDatesTest {
     }
 
     @Test
-    public void testRevertTimeZone() {
+    public void testApplyTimeZone() {
         final FDate now = new FDate();
         final FDate utcTime = now.applyTimeZoneOffset(FTimeZone.UTC);
         //CHECKSTYLE:OFF
         System.out.println(
                 now + " (" + now.getTimeZone().getId() + ") -> " + utcTime + " (" + TimeZones.UTC.getID() + ")");
         //CHECKSTYLE:ON
+    }
+
+    @Test
+    public void testWithoutTime() {
+        final FDate now = new FDate().withoutTime(FTimeZone.UTC);
+        final FDate utcTime = now.applyTimeZoneOffset(FTimeZone.UTC);
+        //CHECKSTYLE:OFF
+        System.out.println(
+                now + " (" + now.getTimeZone().getId() + ") -> " + utcTime + " (" + TimeZones.UTC.getID() + ")");
+        //CHECKSTYLE:ON
+        Assertions.checkEquals(0, now.getHour(FTimeZone.UTC));
+        Assertions.checkEquals(now.getHour(), now.getHour(now.getTimeZone()));
     }
 
     @Test

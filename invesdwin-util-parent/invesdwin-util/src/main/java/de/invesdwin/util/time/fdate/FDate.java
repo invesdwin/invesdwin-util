@@ -146,7 +146,7 @@ public class FDate
     }
 
     public int getYear(final FTimeZone timeZone) {
-        return revertTimeZoneOffset(timeZone).getYear();
+        return applyTimeZoneOffset(timeZone).getYear();
     }
 
     public int getYear() {
@@ -154,7 +154,7 @@ public class FDate
     }
 
     public int getMonth(final FTimeZone timeZone) {
-        return revertTimeZoneOffset(timeZone).getMonth();
+        return applyTimeZoneOffset(timeZone).getMonth();
     }
 
     public int getMonth() {
@@ -163,7 +163,7 @@ public class FDate
     }
 
     public FMonth getFMonth(final FTimeZone timeZone) {
-        return revertTimeZoneOffset(timeZone).getFMonth();
+        return applyTimeZoneOffset(timeZone).getFMonth();
     }
 
     public FMonth getFMonth() {
@@ -171,7 +171,7 @@ public class FDate
     }
 
     public int getDay(final FTimeZone timeZone) {
-        return revertTimeZoneOffset(timeZone).getDay();
+        return applyTimeZoneOffset(timeZone).getDay();
     }
 
     public int getDay() {
@@ -179,7 +179,7 @@ public class FDate
     }
 
     public int getWeekday(final FTimeZone timeZone) {
-        return revertTimeZoneOffset(timeZone).getWeekday();
+        return applyTimeZoneOffset(timeZone).getWeekday();
     }
 
     public int getWeekday() {
@@ -188,7 +188,7 @@ public class FDate
     }
 
     public FWeekday getFWeekday(final FTimeZone timeZone) {
-        return revertTimeZoneOffset(timeZone).getFWeekday();
+        return applyTimeZoneOffset(timeZone).getFWeekday();
     }
 
     public FWeekday getFWeekday() {
@@ -196,7 +196,7 @@ public class FDate
     }
 
     public int getHour(final FTimeZone timeZone) {
-        return revertTimeZoneOffset(timeZone).getHour();
+        return applyTimeZoneOffset(timeZone).getHour();
     }
 
     public int getHour() {
@@ -221,7 +221,7 @@ public class FDate
 
     public FDate setYear(final int year, final FTimeZone timeZone) {
         final long offset = getTimeZoneOffsetMilliseconds(timeZone);
-        return revertTimeZoneOffset(offset).setYear(year).applyTimeZoneOffset(offset);
+        return applyTimeZoneOffset(offset).setYear(year).revertTimeZoneOffset(offset);
     }
 
     public FDate setYear(final int year) {
@@ -231,7 +231,7 @@ public class FDate
 
     public FDate setMonth(final int month, final FTimeZone timeZone) {
         final long offset = getTimeZoneOffsetMilliseconds(timeZone);
-        return revertTimeZoneOffset(offset).setMonth(month).applyTimeZoneOffset(offset);
+        return applyTimeZoneOffset(offset).setMonth(month).revertTimeZoneOffset(offset);
     }
 
     public FDate setMonth(final int month) {
@@ -241,7 +241,7 @@ public class FDate
 
     public FDate setFMonth(final FMonth month, final FTimeZone timeZone) {
         final long offset = getTimeZoneOffsetMilliseconds(timeZone);
-        return revertTimeZoneOffset(offset).setFMonth(month).applyTimeZoneOffset(offset);
+        return applyTimeZoneOffset(offset).setFMonth(month).revertTimeZoneOffset(offset);
     }
 
     public FDate setFMonth(final FMonth month) {
@@ -250,7 +250,7 @@ public class FDate
 
     public FDate setDay(final int day, final FTimeZone timeZone) {
         final long offset = getTimeZoneOffsetMilliseconds(timeZone);
-        return revertTimeZoneOffset(offset).setDay(day).applyTimeZoneOffset(offset);
+        return applyTimeZoneOffset(offset).setDay(day).revertTimeZoneOffset(offset);
     }
 
     public FDate setDay(final int day) {
@@ -260,7 +260,7 @@ public class FDate
 
     public FDate setWeekday(final int weekday, final FTimeZone timeZone) {
         final long offset = getTimeZoneOffsetMilliseconds(timeZone);
-        return revertTimeZoneOffset(offset).setWeekday(weekday).applyTimeZoneOffset(offset);
+        return applyTimeZoneOffset(offset).setWeekday(weekday).revertTimeZoneOffset(offset);
     }
 
     public FDate setWeekday(final int weekday) {
@@ -275,7 +275,7 @@ public class FDate
 
     public FDate setFWeekday(final FWeekday weekday, final FTimeZone timeZone) {
         final long offset = getTimeZoneOffsetMilliseconds(timeZone);
-        return revertTimeZoneOffset(offset).setFWeekday(weekday).applyTimeZoneOffset(offset);
+        return applyTimeZoneOffset(offset).setFWeekday(weekday).revertTimeZoneOffset(offset);
     }
 
     public FDate setFWeekday(final FWeekday weekday) {
@@ -284,7 +284,7 @@ public class FDate
 
     public FDate setFWeekTime(final FWeekTime weekTime, final FTimeZone timeZone) {
         final long offset = getTimeZoneOffsetMilliseconds(timeZone);
-        return revertTimeZoneOffset(offset).setFWeekTime(weekTime).applyTimeZoneOffset(offset);
+        return applyTimeZoneOffset(offset).setFWeekTime(weekTime).revertTimeZoneOffset(offset);
     }
 
     public FDate setFWeekTime(final FWeekTime weekTime) {
@@ -304,7 +304,7 @@ public class FDate
 
     public FDate setFDayTime(final FDayTime dayTime, final FTimeZone timeZone) {
         final long offset = getTimeZoneOffsetMilliseconds(timeZone);
-        return revertTimeZoneOffset(offset).setFDayTime(dayTime).applyTimeZoneOffset(offset);
+        return applyTimeZoneOffset(offset).setFDayTime(dayTime).revertTimeZoneOffset(offset);
     }
 
     public FDate setFDayTime(final FDayTime dayTime) {
@@ -319,7 +319,7 @@ public class FDate
 
     public FDate setTime(final FDate time, final FTimeZone timeZone) {
         final long offset = getTimeZoneOffsetMilliseconds(timeZone);
-        return revertTimeZoneOffset(offset).setTime(time).applyTimeZoneOffset(offset);
+        return applyTimeZoneOffset(offset).setTime(time).revertTimeZoneOffset(offset);
     }
 
     public FDate setTime(final FDate time) {
@@ -330,7 +330,7 @@ public class FDate
 
     public FDate setHour(final int hour, final FTimeZone timeZone) {
         final long offset = getTimeZoneOffsetMilliseconds(timeZone);
-        return revertTimeZoneOffset(offset).setHour(hour).applyTimeZoneOffset(offset);
+        return applyTimeZoneOffset(offset).setHour(hour).revertTimeZoneOffset(offset);
     }
 
     public FDate setHour(final int hour) {
@@ -355,7 +355,7 @@ public class FDate
 
     public FDate addYears(final int years, final FTimeZone timeZone) {
         final long offset = getTimeZoneOffsetMilliseconds(timeZone);
-        return revertTimeZoneOffset(offset).addYears(years).applyTimeZoneOffset(offset);
+        return applyTimeZoneOffset(offset).addYears(years).revertTimeZoneOffset(offset);
     }
 
     public FDate addYears(final int years) {
@@ -364,34 +364,19 @@ public class FDate
 
     public FDate addMonths(final int months, final FTimeZone timeZone) {
         final long offset = getTimeZoneOffsetMilliseconds(timeZone);
-        return revertTimeZoneOffset(offset).addMonths(months).applyTimeZoneOffset(offset);
+        return applyTimeZoneOffset(offset).addMonths(months).revertTimeZoneOffset(offset);
     }
 
     public FDate addMonths(final int months) {
         return add(FTimeUnit.MONTHS, months);
     }
 
-    public FDate addDays(final int days, final FTimeZone timeZone) {
-        final long offset = getTimeZoneOffsetMilliseconds(timeZone);
-        return revertTimeZoneOffset(offset).addDays(days).applyTimeZoneOffset(offset);
-    }
-
-    public FDate addDays(final int days) {
-        return addMilliseconds(FDates.MILLISECONDS_IN_DAY * days);
-    }
-
-    public FDate addWeeks(final int weeks, final FTimeZone timeZone) {
-        final long offset = getTimeZoneOffsetMilliseconds(timeZone);
-        return revertTimeZoneOffset(offset).addWeeks(weeks).applyTimeZoneOffset(offset);
-    }
-
     public FDate addWeeks(final int weeks) {
         return addDays(weeks * FTimeUnit.DAYS_IN_WEEK);
     }
 
-    public FDate addHours(final int hours, final FTimeZone timeZone) {
-        final long offset = getTimeZoneOffsetMilliseconds(timeZone);
-        return revertTimeZoneOffset(offset).addHours(hours).applyTimeZoneOffset(offset);
+    public FDate addDays(final int days) {
+        return addMilliseconds(FDates.MILLISECONDS_IN_DAY * days);
     }
 
     public FDate addHours(final int hours) {
@@ -414,7 +399,7 @@ public class FDate
     }
 
     public int get(final FDateField field, final FTimeZone timeZone) {
-        return revertTimeZoneOffset(timeZone).get(field);
+        return applyTimeZoneOffset(timeZone).get(field);
     }
 
     public int get(final FDateField field) {
@@ -423,7 +408,7 @@ public class FDate
 
     public FDate set(final FDateField field, final int value, final FTimeZone timeZone) {
         final long offset = getTimeZoneOffsetMilliseconds(timeZone);
-        return revertTimeZoneOffset(offset).set(field, value).applyTimeZoneOffset(offset);
+        return applyTimeZoneOffset(offset).set(field, value).revertTimeZoneOffset(offset);
     }
 
     public FDate set(final FDateField field, final int value) {
@@ -433,7 +418,7 @@ public class FDate
 
     public FDate add(final FTimeUnit field, final int value, final FTimeZone timeZone) {
         final long offset = getTimeZoneOffsetMilliseconds(timeZone);
-        return revertTimeZoneOffset(offset).add(field, value).applyTimeZoneOffset(offset);
+        return applyTimeZoneOffset(offset).add(field, value).revertTimeZoneOffset(offset);
     }
 
     public FDate add(final FTimeUnit field, final int amount) {
@@ -473,7 +458,7 @@ public class FDate
     }
 
     public int getWeekNumberOfYear(final FTimeZone timeZone) {
-        return revertTimeZoneOffset(timeZone).getWeekNumberOfYear();
+        return applyTimeZoneOffset(timeZone).getWeekNumberOfYear();
     }
 
     public int getWeekNumberOfYear() {
@@ -481,7 +466,7 @@ public class FDate
     }
 
     public int getWeekNumberOfMonth(final FTimeZone timeZone) {
-        return revertTimeZoneOffset(timeZone).getWeekNumberOfMonth();
+        return applyTimeZoneOffset(timeZone).getWeekNumberOfMonth();
     }
 
     /**
@@ -493,7 +478,7 @@ public class FDate
 
     public FDate truncate(final FDateField field, final FTimeZone timeZone) {
         final long offset = getTimeZoneOffsetMilliseconds(timeZone);
-        return revertTimeZoneOffset(offset).truncate(field).applyTimeZoneOffset(offset);
+        return applyTimeZoneOffset(offset).truncate(field).revertTimeZoneOffset(offset);
     }
 
     public FDate truncate(final FDateField field) {
@@ -505,7 +490,7 @@ public class FDate
 
     public FDate truncate(final FTimeUnit timeUnit, final FTimeZone timeZone) {
         final long offset = getTimeZoneOffsetMilliseconds(timeZone);
-        return revertTimeZoneOffset(offset).truncate(timeUnit).applyTimeZoneOffset(offset);
+        return applyTimeZoneOffset(offset).truncate(timeUnit).revertTimeZoneOffset(offset);
     }
 
     public FDate truncate(final FTimeUnit timeUnit) {
@@ -546,7 +531,7 @@ public class FDate
 
     public FDate withoutTime(final FTimeZone timeZone) {
         final long offset = getTimeZoneOffsetMilliseconds(timeZone);
-        return revertTimeZoneOffset(offset).withoutTime().applyTimeZoneOffset(offset);
+        return applyTimeZoneOffset(offset).withoutTime().revertTimeZoneOffset(offset);
     }
 
     public FDate applyTimeZoneOffset(final FTimeZone timeZone) {
@@ -586,7 +571,8 @@ public class FDate
     }
 
     public FDate atEndOfDay(final FTimeZone timeZone) {
-        return atEndOfDay().revertTimeZoneOffset(timeZone);
+        final long offset = getTimeZoneOffsetMilliseconds(timeZone);
+        return applyTimeZoneOffset(offset).atEndOfDay().revertTimeZoneOffset(offset);
     }
 
     /**
@@ -693,7 +679,7 @@ public class FDate
     public static FDate valueOf(final String str, final FTimeZone timeZone, final Locale locale,
             final String... parsePatterns) {
         if (parsePatterns == null || parsePatterns.length == 0) {
-            throw new IllegalArgumentException("atleast one parsePattern is needed");
+            throw new IllegalArgumentException("at least one parsePattern is needed");
         }
         for (final String parsePattern : parsePatterns) {
             try {
@@ -871,7 +857,7 @@ public class FDate
 
     public FDate getFirstWeekdayOfMonth(final FWeekday weekday, final FTimeZone timeZone) {
         final long offset = getTimeZoneOffsetMilliseconds(timeZone);
-        return revertTimeZoneOffset(offset).getFirstWeekdayOfMonth(weekday).applyTimeZoneOffset(offset);
+        return applyTimeZoneOffset(offset).getFirstWeekdayOfMonth(weekday).revertTimeZoneOffset(offset);
     }
 
     public FDate getFirstWeekdayOfMonth(final FWeekday weekday) {
@@ -885,7 +871,7 @@ public class FDate
 
     public FDate getFirstWorkdayOfMonth(final FHolidayManager holidayManager, final FTimeZone timeZone) {
         final long offset = getTimeZoneOffsetMilliseconds(timeZone);
-        return revertTimeZoneOffset(offset).getFirstWorkdayOfMonth(holidayManager).applyTimeZoneOffset(offset);
+        return applyTimeZoneOffset(offset).getFirstWorkdayOfMonth(holidayManager).revertTimeZoneOffset(offset);
     }
 
     public FDate getFirstWorkdayOfMonth(final FHolidayManager holidayManager) {
@@ -904,12 +890,12 @@ public class FDate
     }
 
     public boolean isHoliday(final FHolidayManager holidayManager, final FTimeZone timeZone) {
-        return revertTimeZoneOffset(timeZone).isHoliday(holidayManager);
+        return applyTimeZoneOffset(timeZone).isHoliday(holidayManager);
     }
 
     public FDate addWorkdays(final int workdays, final FHolidayManager holidayManager, final FTimeZone timeZone) {
         final long offset = getTimeZoneOffsetMilliseconds(timeZone);
-        return revertTimeZoneOffset(offset).addWorkdays(workdays, holidayManager).applyTimeZoneOffset(offset);
+        return applyTimeZoneOffset(offset).addWorkdays(workdays, holidayManager).revertTimeZoneOffset(offset);
     }
 
     public FDate addWorkdays(final int workdays, final FHolidayManager holidayManager) {
