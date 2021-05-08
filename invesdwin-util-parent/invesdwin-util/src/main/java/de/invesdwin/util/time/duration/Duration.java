@@ -647,4 +647,12 @@ public class Duration extends Number implements Comparable<Object> {
         return duration + " " + timeUnit;
     }
 
+    public void sleepNoInterrupt() {
+        try {
+            sleep();
+        } catch (final InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }

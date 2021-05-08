@@ -229,6 +229,7 @@ public final class Futures extends AFuturesStaticFacade {
             }
         } catch (final InterruptedException e) {
             cancel(futures);
+            Thread.currentThread().interrupt();
             throw e;
         }
     }
@@ -240,6 +241,7 @@ public final class Futures extends AFuturesStaticFacade {
             }
         } catch (final InterruptedException e) {
             cancel(futures);
+            Thread.currentThread().interrupt();
             throw new RuntimeException(e);
         }
     }
