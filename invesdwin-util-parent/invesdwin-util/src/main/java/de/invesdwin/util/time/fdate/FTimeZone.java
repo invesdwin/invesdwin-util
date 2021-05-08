@@ -210,8 +210,9 @@ public class FTimeZone {
         return dateTimeZone.getOffset(millis);
     }
 
-    public int getOffsetMilliseconds(final long millis) {
-        return dateTimeZone.getOffset(millis) * FTimeUnit.MILLISECONDS_IN_SECOND;
+    public long getOffsetMilliseconds(final long millis) {
+        final long seconds = dateTimeZone.getOffset(millis);
+        return seconds * FTimeUnit.MILLISECONDS_IN_SECOND;
     }
 
     public boolean isFixed() {
@@ -240,4 +241,8 @@ public class FTimeZone {
         return Objects.hashCode(FTimeZone.class, getId());
     }
 
+    @Override
+    public String toString() {
+        return getId();
+    }
 }
