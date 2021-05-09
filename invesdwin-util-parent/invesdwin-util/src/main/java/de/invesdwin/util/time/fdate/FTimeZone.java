@@ -19,8 +19,8 @@ import de.invesdwin.util.time.TimeZones;
 public class FTimeZone {
 
     public static final FTimeZone UTC = new FTimeZone(TimeZones.UTC);
-
     public static final FTimeZone EUROPE_BERLIN = new FTimeZone(TimeZones.EUROPE_BERLIN);
+    public static final FTimeZone EET = new FTimeZone(TimeZones.EET);
 
     private final Calendar templateCalendar;
     private final TimeZone timeZone;
