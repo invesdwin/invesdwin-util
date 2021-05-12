@@ -1,5 +1,7 @@
 package de.invesdwin.util.collections.fast;
 
+import java.lang.reflect.Array;
+
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.collections.iterable.EmptyCloseableIterator;
@@ -13,9 +15,10 @@ public final class EmptyFastIterable<E> implements IFastIterable<E> {
     private static final EmptyFastIterable INSTANCE = new EmptyFastIterable<>();
 
     @SuppressWarnings("unchecked")
-    private final E[] array = (E[]) Objects.EMPTY_ARRAY;
+    private E[] array = (E[]) Objects.EMPTY_ARRAY;
 
-    private EmptyFastIterable() {}
+    private EmptyFastIterable() {
+    }
 
     @Override
     public ICloseableIterator<E> iterator() {
@@ -32,9 +35,17 @@ public final class EmptyFastIterable<E> implements IFastIterable<E> {
         return false;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public E[] asArray(final Class<E> type) {
-        return array;
+        final E[] arrayCopy = array;
+        if (arrayCopy.getClass().arrayType().equals(type)) {
+            return arrayCopy;
+        } else {
+            final E[] newArray = (E[]) Array.newInstance(type, 0);
+            array = newArray;
+            return newArray;
+        }
     }
 
     @SuppressWarnings("unchecked")
