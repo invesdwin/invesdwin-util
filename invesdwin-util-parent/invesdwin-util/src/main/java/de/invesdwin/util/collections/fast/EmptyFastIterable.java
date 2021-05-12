@@ -39,7 +39,7 @@ public final class EmptyFastIterable<E> implements IFastIterable<E> {
     @Override
     public E[] asArray(final Class<E> type) {
         final E[] arrayCopy = array;
-        if (arrayCopy.getClass().arrayType().equals(type)) {
+        if (arrayCopy.getClass().getComponentType().equals(type)) {
             return arrayCopy;
         } else {
             final E[] newArray = (E[]) Array.newInstance(type, 0);
