@@ -148,6 +148,7 @@ public abstract class AValueObject extends APropertyChangeSupported
         return Objects.deepClone(this);
     }
 
+    @Hidden(skip = true)
     @SuppressWarnings("unchecked")
     public final <T extends AValueObject> T cloneGeneric() {
         return (T) clone();
