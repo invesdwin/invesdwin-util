@@ -95,7 +95,7 @@ public abstract class AContinuousRecursiveHistoricalCacheQuery<V> implements IRe
         }
         this.recursionCount = newContinuousUnstablePeriod(recursionCount);
         this.maxHighestRecursionResultsCount = Integer.max(recursionCount, MIN_RECURSION_LOOKBACK);
-        this.parentQuery = parent.query();
+        this.parentQuery = parent.query().withFutureNull();
         this.parentQueryWithFuture = parent.query().withFuture();
         this.cachedRecursionResults = new ALoadingCache<FDate, Optional<V>>() {
             @Override

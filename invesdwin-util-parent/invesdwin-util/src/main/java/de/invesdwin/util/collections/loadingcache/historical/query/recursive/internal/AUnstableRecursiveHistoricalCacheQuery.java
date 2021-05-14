@@ -78,7 +78,7 @@ public abstract class AUnstableRecursiveHistoricalCacheQuery<V> implements IRecu
                     "unstableRecursionCount should not be negative: " + unstableRecursionCount);
         }
         this.unstableRecursionCount = unstableRecursionCount;
-        this.parentQuery = parent.query();
+        this.parentQuery = parent.query().withFutureNull();
         this.parentQueryWithFuture = parent.query().withFuture();
         this.cachedResults = new ALoadingCache<FDate, V>() {
 
