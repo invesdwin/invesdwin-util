@@ -14,6 +14,7 @@ import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
 import de.invesdwin.util.collections.iterable.buffer.IBufferingIterator;
 import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
+import de.invesdwin.util.collections.loadingcache.historical.IHistoricalEntry;
 import de.invesdwin.util.collections.loadingcache.historical.listener.IHistoricalCacheOnClearListener;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQuery;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQueryWithFuture;
@@ -159,9 +160,12 @@ public abstract class AContinuousRecursiveHistoricalCacheQuery<V> implements IRe
     @Override
     public V getPreviousValue(final FDate key, final FDate previousKey) {
         if (parent.containsKey(previousKey)) {
-            final V value = parentQuery.getEntry(previousKey).getValueIfPresent();
-            if (value != null) {
-                return value;
+            final IHistoricalEntry<V> entry = parentQuery.getEntry(previousKey);
+            if (entry != null) {
+                final V value = entry.getValueIfPresent();
+                if (value != null) {
+                    return value;
+                }
             }
         }
         return getPreviousValueByRecursion(key, previousKey);
