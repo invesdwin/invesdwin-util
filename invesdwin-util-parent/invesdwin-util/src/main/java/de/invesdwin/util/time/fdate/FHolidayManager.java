@@ -16,6 +16,7 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
 import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 import de.invesdwin.util.lang.Strings;
+import de.invesdwin.util.time.fdate.millis.FDateMillis;
 import de.jollyday.HolidayCalendar;
 import de.jollyday.HolidayManager;
 import de.jollyday.HolidayType;
@@ -160,6 +161,10 @@ public final class FHolidayManager {
 
     public boolean isHoliday(final FDate date) {
         return day_holiday.get(date.withoutTime());
+    }
+
+    public boolean isHoliday(final long millis) {
+        return day_holiday.get(new FDate(FDateMillis.withoutTime(millis)));
     }
 
     public static FHolidayManager getInstance(final String holidayCalendarId) {

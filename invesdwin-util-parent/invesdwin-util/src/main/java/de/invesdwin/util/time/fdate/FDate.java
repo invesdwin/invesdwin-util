@@ -14,8 +14,6 @@ import javax.annotation.concurrent.ThreadSafe;
 import javax.persistence.Transient;
 
 import org.joda.time.DateTime;
-import org.joda.time.DateTimeField;
-import org.joda.time.DurationField;
 import org.joda.time.LocalDateTime;
 import org.joda.time.ReadableDateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -24,12 +22,12 @@ import org.joda.time.format.DateTimeFormatter;
 import de.invesdwin.norva.marker.IDate;
 import de.invesdwin.util.collections.loadingcache.historical.IHistoricalEntry;
 import de.invesdwin.util.collections.loadingcache.historical.IHistoricalValue;
-import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.lang.ADelegateComparator;
 import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.decimal.scaled.Percent;
 import de.invesdwin.util.time.duration.Duration;
+import de.invesdwin.util.time.fdate.millis.FDateMillis;
 
 /**
  * FDate stands for an immutable Fast Date implementation by utilizing heavy caching.
@@ -146,73 +144,71 @@ public class FDate
     }
 
     public int getYear(final FTimeZone timeZone) {
-        return applyTimeZoneOffset(timeZone).getYear();
+        return FDateMillis.getYear(millis, timeZone);
     }
 
     public int getYear() {
-        return FDates.getDefaultTimeZone().getDateTimeFieldYear().get(millis);
+        return FDateMillis.getYear(millis);
     }
 
     public int getMonth(final FTimeZone timeZone) {
-        return applyTimeZoneOffset(timeZone).getMonth();
+        return FDateMillis.getMonth(millis, timeZone);
     }
 
     public int getMonth() {
-        //no conversion needed since joda time has same index
-        return FDates.getDefaultTimeZone().getDateTimeFieldMonth().get(millis);
+        return FDateMillis.getMonth(millis);
     }
 
     public FMonth getFMonth(final FTimeZone timeZone) {
-        return applyTimeZoneOffset(timeZone).getFMonth();
+        return FDateMillis.getFMonth(millis, timeZone);
     }
 
     public FMonth getFMonth() {
-        return FMonth.valueOfIndex(getMonth());
+        return FDateMillis.getFMonth(millis);
     }
 
     public int getDay(final FTimeZone timeZone) {
-        return applyTimeZoneOffset(timeZone).getDay();
+        return FDateMillis.getDay(millis, timeZone);
     }
 
     public int getDay() {
-        return FDates.getDefaultTimeZone().getDateTimeFieldDay().get(millis);
+        return FDateMillis.getDay(millis);
     }
 
     public int getWeekday(final FTimeZone timeZone) {
-        return applyTimeZoneOffset(timeZone).getWeekday();
+        return FDateMillis.getWeekday(millis, timeZone);
     }
 
     public int getWeekday() {
-        //no conversion needed since joda time has same index
-        return FDates.getDefaultTimeZone().getDateTimeFieldWeekday().get(millis);
+        return FDateMillis.getWeekday(millis);
     }
 
     public FWeekday getFWeekday(final FTimeZone timeZone) {
-        return applyTimeZoneOffset(timeZone).getFWeekday();
+        return FDateMillis.getFWeekday(millis, timeZone);
     }
 
     public FWeekday getFWeekday() {
-        return FWeekday.valueOfIndex(getWeekday());
+        return FDateMillis.getFWeekday(millis);
     }
 
     public int getHour(final FTimeZone timeZone) {
-        return applyTimeZoneOffset(timeZone).getHour();
+        return FDateMillis.getHour(millis, timeZone);
     }
 
     public int getHour() {
-        return FDates.getDefaultTimeZone().getDateTimeFieldHour().get(millis);
+        return FDateMillis.getHour(millis);
     }
 
     public int getMinute() {
-        return FDates.getDefaultTimeZone().getDateTimeFieldMinute().get(millis);
+        return FDateMillis.getMinute(millis);
     }
 
     public int getSecond() {
-        return FDates.getDefaultTimeZone().getDateTimeFieldSecond().get(millis);
+        return FDateMillis.getSecond(millis);
     }
 
     public int getMillisecond() {
-        return FDates.getDefaultTimeZone().getDateTimeFieldMillisecond().get(millis);
+        return FDateMillis.getMillisecond(millis);
     }
 
     public FTimeZone getTimeZone() {
@@ -220,233 +216,201 @@ public class FDate
     }
 
     public FDate setYear(final int year, final FTimeZone timeZone) {
-        final long offset = getTimeZoneOffsetMilliseconds(timeZone);
-        return applyTimeZoneOffset(offset).setYear(year).revertTimeZoneOffset(offset);
+        return new FDate(FDateMillis.setYear(millis, year, timeZone));
     }
 
     public FDate setYear(final int year) {
-        final long newMillis = FDates.getDefaultTimeZone().getDateTimeFieldYear().set(millis, year);
-        return new FDate(newMillis);
+        return new FDate(FDateMillis.setYear(millis, year));
     }
 
     public FDate setMonth(final int month, final FTimeZone timeZone) {
-        final long offset = getTimeZoneOffsetMilliseconds(timeZone);
-        return applyTimeZoneOffset(offset).setMonth(month).revertTimeZoneOffset(offset);
+        return new FDate(FDateMillis.setMonth(millis, month, timeZone));
     }
 
     public FDate setMonth(final int month) {
-        final long newMillis = FDates.getDefaultTimeZone().getDateTimeFieldMonth().set(millis, month);
-        return new FDate(newMillis);
+        return new FDate(FDateMillis.setMonth(millis, month));
     }
 
     public FDate setFMonth(final FMonth month, final FTimeZone timeZone) {
-        final long offset = getTimeZoneOffsetMilliseconds(timeZone);
-        return applyTimeZoneOffset(offset).setFMonth(month).revertTimeZoneOffset(offset);
+        return new FDate(FDateMillis.setFMonth(millis, month, timeZone));
     }
 
     public FDate setFMonth(final FMonth month) {
-        return setMonth(month.jodaTimeValue());
+        return new FDate(FDateMillis.setFMonth(millis, month));
     }
 
     public FDate setDay(final int day, final FTimeZone timeZone) {
-        final long offset = getTimeZoneOffsetMilliseconds(timeZone);
-        return applyTimeZoneOffset(offset).setDay(day).revertTimeZoneOffset(offset);
+        return new FDate(FDateMillis.setDay(millis, day, timeZone));
     }
 
     public FDate setDay(final int day) {
-        final long newMillis = FDates.getDefaultTimeZone().getDateTimeFieldDay().set(millis, day);
-        return new FDate(newMillis);
+        return new FDate(FDateMillis.setDay(millis, day));
     }
 
     public FDate setWeekday(final int weekday, final FTimeZone timeZone) {
-        final long offset = getTimeZoneOffsetMilliseconds(timeZone);
-        return applyTimeZoneOffset(offset).setWeekday(weekday).revertTimeZoneOffset(offset);
+        return new FDate(FDateMillis.setWeekday(millis, weekday, timeZone));
     }
 
     public FDate setWeekday(final int weekday) {
-        final long newMillis = FDates.getDefaultTimeZone().getDateTimeFieldWeekday().set(millis, weekday);
-        final FDate modified = new FDate(newMillis);
-        if (!FDates.isSameJulianDay(modified, this) && modified.isAfter(this)) {
-            return modified.addWeeks(-1);
-        } else {
-            return modified;
-        }
+        return new FDate(FDateMillis.setWeekday(millis, weekday));
     }
 
     public FDate setFWeekday(final FWeekday weekday, final FTimeZone timeZone) {
-        final long offset = getTimeZoneOffsetMilliseconds(timeZone);
-        return applyTimeZoneOffset(offset).setFWeekday(weekday).revertTimeZoneOffset(offset);
+        return new FDate(FDateMillis.setFWeekday(millis, weekday, timeZone));
     }
 
     public FDate setFWeekday(final FWeekday weekday) {
-        return setWeekday(weekday.jodaTimeValue());
+        return new FDate(FDateMillis.setFWeekday(millis, weekday));
     }
 
     public FDate setFWeekTime(final FWeekTime weekTime, final FTimeZone timeZone) {
-        final long offset = getTimeZoneOffsetMilliseconds(timeZone);
-        return applyTimeZoneOffset(offset).setFWeekTime(weekTime).revertTimeZoneOffset(offset);
+        return new FDate(FDateMillis.setFWeekTime(millis, weekTime, timeZone));
     }
 
     public FDate setFWeekTime(final FWeekTime weekTime) {
-        long newMillis = millis;
-        newMillis = FDates.getDefaultTimeZone().getDateTimeFieldWeekday().set(newMillis, weekTime.getWeekday());
-        newMillis = FDates.getDefaultTimeZone().getDateTimeFieldHour().set(newMillis, weekTime.getHour());
-        newMillis = FDates.getDefaultTimeZone().getDateTimeFieldMinute().set(newMillis, weekTime.getMinute());
-        newMillis = FDates.getDefaultTimeZone().getDateTimeFieldSecond().set(newMillis, weekTime.getSecond());
-        newMillis = FDates.getDefaultTimeZone().getDateTimeFieldMillisecond().set(newMillis, weekTime.getMillisecond());
-        final FDate modified = new FDate(newMillis);
-        if (!FDates.isSameJulianDay(modified, this) && modified.isAfter(this)) {
-            return modified.addWeeks(-1);
-        } else {
-            return modified;
-        }
+        return new FDate(FDateMillis.setFWeekTime(millis, weekTime));
     }
 
     public FDate setFDayTime(final FDayTime dayTime, final FTimeZone timeZone) {
-        final long offset = getTimeZoneOffsetMilliseconds(timeZone);
-        return applyTimeZoneOffset(offset).setFDayTime(dayTime).revertTimeZoneOffset(offset);
+        return new FDate(FDateMillis.setFDayTime(millis, dayTime, timeZone));
     }
 
     public FDate setFDayTime(final FDayTime dayTime) {
-        long newMillis = millis;
-        newMillis = FDates.getDefaultTimeZone().getDateTimeFieldHour().set(newMillis, dayTime.getHour());
-        newMillis = FDates.getDefaultTimeZone().getDateTimeFieldMinute().set(newMillis, dayTime.getMinute());
-        newMillis = FDates.getDefaultTimeZone().getDateTimeFieldSecond().set(newMillis, dayTime.getSecond());
-        newMillis = FDates.getDefaultTimeZone().getDateTimeFieldMillisecond().set(newMillis, dayTime.getMillisecond());
-        final FDate modified = new FDate(newMillis);
-        return modified;
+        return new FDate(FDateMillis.setFDayTime(millis, dayTime));
     }
 
     public FDate setTime(final FDate time, final FTimeZone timeZone) {
-        final long offset = getTimeZoneOffsetMilliseconds(timeZone);
-        return applyTimeZoneOffset(offset).setTime(time).revertTimeZoneOffset(offset);
+        return new FDate(FDateMillis.setTime(millis, time.millisValue(), timeZone));
     }
 
     public FDate setTime(final FDate time) {
-        return setHour(time.getHour()).setMinute(time.getMinute())
-                .setSecond(time.getSecond())
-                .setMillisecond(time.getMillisecond());
+        return new FDate(FDateMillis.setTime(millis, time.millisValue()));
     }
 
     public FDate setHour(final int hour, final FTimeZone timeZone) {
-        final long offset = getTimeZoneOffsetMilliseconds(timeZone);
-        return applyTimeZoneOffset(offset).setHour(hour).revertTimeZoneOffset(offset);
+        return new FDate(FDateMillis.setHour(millis, hour, timeZone));
     }
 
     public FDate setHour(final int hour) {
-        final long newMillis = FDates.getDefaultTimeZone().getDateTimeFieldHour().set(millis, hour);
-        return new FDate(newMillis);
+        return new FDate(FDateMillis.setHour(millis, hour));
     }
 
     public FDate setMinute(final int minute) {
-        final long newMillis = FDates.getDefaultTimeZone().getDateTimeFieldMinute().set(millis, minute);
-        return new FDate(newMillis);
+        return new FDate(FDateMillis.setMinute(millis, minute));
     }
 
     public FDate setSecond(final int second) {
-        final long newMillis = FDates.getDefaultTimeZone().getDateTimeFieldSecond().set(millis, second);
-        return new FDate(newMillis);
+        return new FDate(FDateMillis.setSecond(millis, second));
     }
 
     public FDate setMillisecond(final int millisecond) {
-        final long newMillis = FDates.getDefaultTimeZone().getDateTimeFieldMillisecond().set(millis, millisecond);
-        return new FDate(newMillis);
+        return new FDate(FDateMillis.setMillisecond(millis, millisecond));
     }
 
     public FDate addYears(final int years, final FTimeZone timeZone) {
-        final long offset = getTimeZoneOffsetMilliseconds(timeZone);
-        return applyTimeZoneOffset(offset).addYears(years).revertTimeZoneOffset(offset);
+        if (years == 0) {
+            return this;
+        }
+        return new FDate(FDateMillis.addYears(millis, years, timeZone));
     }
 
     public FDate addYears(final int years) {
-        return add(FTimeUnit.YEARS, years);
+        if (years == 0) {
+            return this;
+        }
+        return new FDate(FDateMillis.addYears(millis, years));
     }
 
     public FDate addMonths(final int months, final FTimeZone timeZone) {
-        final long offset = getTimeZoneOffsetMilliseconds(timeZone);
-        return applyTimeZoneOffset(offset).addMonths(months).revertTimeZoneOffset(offset);
+        if (months == 0) {
+            return this;
+        }
+        return new FDate(FDateMillis.addMonths(millis, months, timeZone));
     }
 
     public FDate addMonths(final int months) {
-        return add(FTimeUnit.MONTHS, months);
+        if (months == 0) {
+            return this;
+        }
+        return new FDate(FDateMillis.addMonths(millis, months));
     }
 
     public FDate addWeeks(final int weeks) {
-        return addDays(weeks * FTimeUnit.DAYS_IN_WEEK);
+        if (weeks == 0) {
+            return this;
+        }
+        return new FDate(FDateMillis.addWeeks(millis, weeks));
     }
 
     public FDate addDays(final int days) {
-        return addMilliseconds(FDates.MILLISECONDS_IN_DAY * days);
+        if (days == 0) {
+            return this;
+        }
+        return new FDate(FDateMillis.addDays(millis, days));
     }
 
     public FDate addHours(final int hours) {
-        return addMilliseconds(FDates.MILLISECONDS_IN_HOUR * hours);
+        if (hours == 0) {
+            return this;
+        }
+        return new FDate(FDateMillis.addHours(millis, hours));
     }
 
     public FDate addMinutes(final int minutes) {
-        return addMilliseconds(FDates.MILLISECONDS_IN_MINUTE * minutes);
+        if (minutes == 0) {
+            return this;
+        }
+        return new FDate(FDateMillis.addMinutes(millis, minutes));
     }
 
     public FDate addSeconds(final int seconds) {
-        return addMilliseconds(FDates.MILLISECONDS_IN_SECOND * seconds);
+        if (seconds == 0) {
+            return this;
+        }
+        return new FDate(FDateMillis.addSeconds(millis, seconds));
     }
 
     public FDate addMilliseconds(final long milliseconds) {
         if (milliseconds == 0) {
             return this;
         }
-        return new FDate(millis + milliseconds);
+        return new FDate(FDateMillis.addMilliseconds(millis, milliseconds));
     }
 
     public int get(final FDateField field, final FTimeZone timeZone) {
-        return applyTimeZoneOffset(timeZone).get(field);
+        return FDateMillis.get(millis, field, timeZone);
     }
 
     public int get(final FDateField field) {
-        return field.dateTimeFieldValue().get(millis);
+        return FDateMillis.get(millis, field);
     }
 
     public FDate set(final FDateField field, final int value, final FTimeZone timeZone) {
-        final long offset = getTimeZoneOffsetMilliseconds(timeZone);
-        return applyTimeZoneOffset(offset).set(field, value).revertTimeZoneOffset(offset);
+        if (value == 0) {
+            return this;
+        }
+        return new FDate(FDateMillis.set(millis, field, value, timeZone));
     }
 
     public FDate set(final FDateField field, final int value) {
-        final long newMillis = field.dateTimeFieldValue().set(millis, value);
-        return new FDate(newMillis);
+        if (value == 0) {
+            return this;
+        }
+        return new FDate(FDateMillis.set(millis, field, value));
     }
 
     public FDate add(final FTimeUnit field, final int value, final FTimeZone timeZone) {
-        final long offset = getTimeZoneOffsetMilliseconds(timeZone);
-        return applyTimeZoneOffset(offset).add(field, value).revertTimeZoneOffset(offset);
-    }
-
-    public FDate add(final FTimeUnit field, final int amount) {
-        if (amount == 0) {
+        if (value == 0) {
             return this;
         }
-        final int usedAmount;
-        final DurationField usedField;
-        switch (field) {
-        case MILLENIA:
-            usedField = FTimeUnit.YEARS.durationFieldValue();
-            usedAmount = amount * FTimeUnit.YEARS_IN_MILLENIUM;
-            break;
-        case CENTURIES:
-            usedField = FTimeUnit.YEARS.durationFieldValue();
-            usedAmount = amount * FTimeUnit.YEARS_IN_CENTURY;
-            break;
-        case DECADES:
-            usedField = FTimeUnit.YEARS.durationFieldValue();
-            usedAmount = amount * FTimeUnit.YEARS_IN_DECADE;
-            break;
-        default:
-            usedField = field.durationFieldValue();
-            usedAmount = amount;
-            break;
+        return new FDate(FDateMillis.add(millis, field, value, timeZone));
+    }
+
+    public FDate add(final FTimeUnit field, final int value) {
+        if (value == 0) {
+            return this;
         }
-        final long newMillis = usedField.add(millis, usedAmount);
-        return new FDate(newMillis);
+        return new FDate(FDateMillis.add(millis, field, value));
     }
 
     public FDate add(final Duration duration) {
@@ -458,133 +422,101 @@ public class FDate
     }
 
     public int getWeekNumberOfYear(final FTimeZone timeZone) {
-        return applyTimeZoneOffset(timeZone).getWeekNumberOfYear();
+        return FDateMillis.getWeekNumberOfYear(millis, timeZone);
     }
 
     public int getWeekNumberOfYear() {
-        return FDates.getDefaultTimeZone().getDateTimeFieldWeekNumberOfYear().get(millis);
+        return FDateMillis.getWeekNumberOfYear(millis);
     }
 
     public int getWeekNumberOfMonth(final FTimeZone timeZone) {
-        return applyTimeZoneOffset(timeZone).getWeekNumberOfMonth();
+        return FDateMillis.getWeekNumberOfMonth(millis, timeZone);
     }
 
-    /**
-     * https://stackoverflow.com/questions/24280370/get-week-of-month-with-joda-time
-     */
     public int getWeekNumberOfMonth() {
-        return (getDay() / 7) + 1;
+        return FDateMillis.getWeekNumberOfMonth(millis);
     }
 
     public FDate truncate(final FDateField field, final FTimeZone timeZone) {
-        final long offset = getTimeZoneOffsetMilliseconds(timeZone);
-        return applyTimeZoneOffset(offset).truncate(field).revertTimeZoneOffset(offset);
+        return new FDate(FDateMillis.truncate(millis, field, timeZone));
     }
 
     public FDate truncate(final FDateField field) {
-        final DateTimeField jodaField = field.dateTimeFieldValue();
-        final long newMillis = jodaField.roundFloor(millis);
-        final FDate truncated = new FDate(newMillis);
-        return truncated;
+        return new FDate(FDateMillis.truncate(millis, field));
     }
 
     public FDate truncate(final FTimeUnit timeUnit, final FTimeZone timeZone) {
-        final long offset = getTimeZoneOffsetMilliseconds(timeZone);
-        return applyTimeZoneOffset(offset).truncate(timeUnit).revertTimeZoneOffset(offset);
+        return new FDate(FDateMillis.truncate(millis, timeUnit, timeZone));
     }
 
     public FDate truncate(final FTimeUnit timeUnit) {
-        switch (timeUnit) {
-        case MILLENIA:
-            return truncate(FDateField.Year).addYears(-getYear() % FTimeUnit.YEARS_IN_MILLENIUM);
-        case CENTURIES:
-            return truncate(FDateField.Year).addYears(-getYear() % FTimeUnit.YEARS_IN_CENTURY);
-        case DECADES:
-            return truncate(FDateField.Year).addYears(-getYear() % FTimeUnit.YEARS_IN_DECADE);
-        case YEARS:
-            return truncate(FDateField.Year);
-        case MONTHS:
-            return truncate(FDateField.Month);
-        case WEEKS:
-            return withoutTime().setFWeekday(FWeekday.Monday);
-        case DAYS:
-            return truncate(FDateField.Day);
-        case HOURS:
-            return truncate(FDateField.Hour);
-        case MINUTES:
-            return truncate(FDateField.Minute);
-        case SECONDS:
-            return truncate(FDateField.Second);
-        case MILLISECONDS:
-            return truncate(FDateField.Millisecond);
-        default:
-            throw UnknownArgumentException.newInstance(FTimeUnit.class, timeUnit);
-        }
+        return new FDate(FDateMillis.truncate(millis, timeUnit));
     }
 
     /**
      * sets hour, minute, second and millisecond each to 0.
      */
     public FDate withoutTime() {
-        return truncate(FDateField.Day);
+        return new FDate(FDateMillis.withoutTime(millis));
     }
 
     public FDate withoutTime(final FTimeZone timeZone) {
-        final long offset = getTimeZoneOffsetMilliseconds(timeZone);
-        return applyTimeZoneOffset(offset).withoutTime().revertTimeZoneOffset(offset);
+        return new FDate(FDateMillis.withoutTime(millis, timeZone));
     }
 
     /**
      * Pretend that this date is inside the given timezone. E.g. UTC will add 2 hours for becoming EET.
      */
     public FDate applyTimeZoneOffset(final FTimeZone timeZone) {
-        final long offset = getTimeZoneOffsetMilliseconds(timeZone);
-        return applyTimeZoneOffset(offset);
+        if (timeZone == null || timeZone.equals(getTimeZone())) {
+            return this;
+        }
+        return new FDate(FDateMillis.applyTimeZoneOffset(millis, timeZone));
     }
 
     /**
      * Pretend that this date is inside the given timezone. E.g. UTC will add 2 hours for becoming EET.
      */
-    public FDate applyTimeZoneOffset(final long timeZoneOffsetMilliseconsd) {
-        return addMilliseconds(timeZoneOffsetMilliseconsd);
+    public FDate applyTimeZoneOffset(final long timeZoneOffsetMilliseconds) {
+        if (timeZoneOffsetMilliseconds == 0) {
+            return this;
+        }
+        return new FDate(FDateMillis.applyTimeZoneOffset(millis, timeZoneOffsetMilliseconds));
     }
 
     public long getTimeZoneOffsetMilliseconds(final FTimeZone timeZone) {
-        if (timeZone == null) {
-            return 0;
-        }
-        long milliseconds = timeZone.getOffsetMilliseconds(millis);
-        if (!FDates.getDefaultTimeZone().isUTC()) {
-            milliseconds -= FDates.getDefaultTimeZone().getOffsetMilliseconds(millis);
-        }
-        return milliseconds;
+        return FDateMillis.getTimeZoneOffsetMilliseconds(millis, timeZone);
     }
 
     /**
      * Go back to the default timezone for a data that was converted into another timezone.
      */
     public FDate revertTimeZoneOffset(final FTimeZone timeZone) {
-        final long offset = getTimeZoneOffsetMilliseconds(timeZone);
-        return revertTimeZoneOffset(offset);
+        if (timeZone == null || timeZone.equals(getTimeZone())) {
+            return this;
+        }
+        return new FDate(FDateMillis.revertTimeZoneOffset(millis, timeZone));
     }
 
     /**
      * Go back to the default timezone for a data that was converted into another timezone.
      */
-    public FDate revertTimeZoneOffset(final long timeZoneOffsetMilliseconsd) {
-        return addMilliseconds(-timeZoneOffsetMilliseconsd);
+    public FDate revertTimeZoneOffset(final long timeZoneOffsetMilliseconds) {
+        if (timeZoneOffsetMilliseconds == 0) {
+            return this;
+        }
+        return new FDate(FDateMillis.revertTimeZoneOffset(millis, timeZoneOffsetMilliseconds));
     }
 
     /**
      * sets hour, minute, second and millisecond each to 23:59:999.
      */
     public FDate atEndOfDay() {
-        return withoutTime().addDays(1).addMilliseconds(-1);
+        return new FDate(FDateMillis.atEndOfDay(millis));
     }
 
     public FDate atEndOfDay(final FTimeZone timeZone) {
-        final long offset = getTimeZoneOffsetMilliseconds(timeZone);
-        return applyTimeZoneOffset(offset).atEndOfDay().revertTimeZoneOffset(offset);
+        return new FDate(FDateMillis.atEndOfDay(millis, timeZone));
     }
 
     /**
@@ -595,33 +527,31 @@ public class FDate
     }
 
     public Date dateValue() {
-        return calendarValue().getTime();
+        return FDateMillis.dateValue(millis);
     }
 
     public long longValue(final FTimeUnit timeUnit) {
-        return timeUnit.convert(millis, FTimeUnit.MILLISECONDS);
+        return FDateMillis.longValue(millis, timeUnit);
     }
 
     public Calendar calendarValue() {
-        final Calendar cal = FDates.getDefaultTimeZone().newCalendar();
-        cal.setTimeInMillis(millis);
-        return cal;
+        return FDateMillis.calendarValue(millis);
     }
 
     public LocalDateTime jodaTimeValue() {
-        return new LocalDateTime(millis);
+        return FDateMillis.jodaTimeValue(millis);
     }
 
     public DateTime jodaTimeValueZoned() {
-        return new DateTime(millis, FDates.getDefaultTimeZone().getChronology());
+        return FDateMillis.jodaTimeValueZoned(millis);
     }
 
     public java.time.ZonedDateTime javaTimeValueZoned() {
-        return java.time.Instant.ofEpochMilli(millis).atZone(FDates.getDefaultTimeZone().getZoneId());
+        return FDateMillis.javaTimeValueZoned(millis);
     }
 
     public java.time.LocalDateTime javaTimeValue() {
-        return javaTimeValueZoned().toLocalDateTime();
+        return FDateMillis.javaTimeValue(millis);
     }
 
     public static FDate valueOf(final Long millis) {
@@ -751,11 +681,11 @@ public class FDate
     }
 
     public static FDate today(final FTimeZone timeZone) {
-        return now().withoutTime(timeZone);
+        return new FDate(FDateMillis.today(timeZone));
     }
 
     public static FDate today() {
-        return now().withoutTime();
+        return new FDate(FDateMillis.today());
     }
 
     @Override
@@ -804,26 +734,19 @@ public class FDate
 
     @Override
     public String toString() {
-        return toString(FORMAT_ISO_DATE_TIME_MS);
+        return FDateMillis.toString(millis);
     }
 
     public String toString(final FTimeZone timeZone) {
-        return toString(FORMAT_ISO_DATE_TIME_MS, timeZone);
+        return FDateMillis.toString(millis, timeZone);
     }
 
     public String toString(final String format) {
-        return toString(format, null);
+        return FDateMillis.toString(millis, format);
     }
 
     public String toString(final String format, final FTimeZone timeZone) {
-        final DateTime delegate = new DateTime(millis, FDates.getDefaultTimeZone().getChronology());
-        DateTimeFormatter df = DateTimeFormat.forPattern(format);
-        if (timeZone != null) {
-            df = df.withZone(timeZone.getDateTimeZone());
-        } else {
-            df = df.withZone(FDates.getDefaultTimeZone().getDateTimeZone());
-        }
-        return df.print(delegate);
+        return FDateMillis.toString(millis, format, timeZone);
     }
 
     public boolean isBefore(final FDate other) {
@@ -868,30 +791,19 @@ public class FDate
     }
 
     public FDate getFirstWeekdayOfMonth(final FWeekday weekday, final FTimeZone timeZone) {
-        final long offset = getTimeZoneOffsetMilliseconds(timeZone);
-        return applyTimeZoneOffset(offset).getFirstWeekdayOfMonth(weekday).revertTimeZoneOffset(offset);
+        return new FDate(FDateMillis.getFirstWeekdayOfMonth(millis, weekday, timeZone));
     }
 
     public FDate getFirstWeekdayOfMonth(final FWeekday weekday) {
-        final FDate firstWeekDay = withoutTime().setDay(1).setFWeekday(weekday);
-        if (!FDates.isSameMonth(this, firstWeekDay)) {
-            return firstWeekDay.addWeeks(1);
-        } else {
-            return firstWeekDay;
-        }
+        return new FDate(FDateMillis.getFirstWeekdayOfMonth(millis, weekday));
     }
 
     public FDate getFirstWorkdayOfMonth(final FHolidayManager holidayManager, final FTimeZone timeZone) {
-        final long offset = getTimeZoneOffsetMilliseconds(timeZone);
-        return applyTimeZoneOffset(offset).getFirstWorkdayOfMonth(holidayManager).revertTimeZoneOffset(offset);
+        return new FDate(FDateMillis.getFirstWorkdayOfMonth(millis, holidayManager, timeZone));
     }
 
     public FDate getFirstWorkdayOfMonth(final FHolidayManager holidayManager) {
-        FDate firstWorkdayDay = withoutTime().setDay(1);
-        while (firstWorkdayDay.getFWeekday().isWeekend() || firstWorkdayDay.isHoliday(holidayManager)) {
-            firstWorkdayDay = firstWorkdayDay.addDays(1);
-        }
-        return firstWorkdayDay;
+        return new FDate(FDateMillis.getFirstWorkdayOfMonth(millis, holidayManager));
     }
 
     public boolean isHoliday(final FHolidayManager holidayManager) {

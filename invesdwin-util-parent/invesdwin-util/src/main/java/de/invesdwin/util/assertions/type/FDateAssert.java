@@ -1889,7 +1889,7 @@ public class FDateAssert extends AbstractAssert<FDateAssert, FDate> {
      * assertThat(myFDate).isWithinHour(hourOfDayOf(otherFDate))
      * </pre>
      * 
-     * see {@link org.assertj.core.util.FDatesAssertions#hourOfDayOf(java.util.FDate) hourOfDayOf} to get the hour of a
+     * see {@link org.assertj.core.util.FDatesAssertions#hourOfDayOf(java.util.FDateMillis) hourOfDayOf} to get the hour of a
      * given FDate.
      * <p/>
      * Note that using a custom comparator has no effect on this assertion (see {@link #usingComparator(Comparator)}).
@@ -1910,7 +1910,7 @@ public class FDateAssert extends AbstractAssert<FDateAssert, FDate> {
     }
 
     /**
-     * Same assertion as {@link #isInSameHourWindowAs(java.util.FDate)} but given date is represented as String either
+     * Same assertion as {@link #isInSameHourWindowAs(java.util.FDateMillis)} but given date is represented as String either
      * with one of the supported defaults date format or a user custom date format (set with method
      * {@link #withDateFormat(DateFormat)}).
      * <p/>
@@ -1967,7 +1967,7 @@ public class FDateAssert extends AbstractAssert<FDateAssert, FDate> {
      * </pre>
      * 
      * If you want to assert that two dates are chronologically in the same hour time window use
-     * {@link #isInSameHourWindowAs(java.util.FDate) isInSameHourWindowAs} assertion (note that if
+     * {@link #isInSameHourWindowAs(java.util.FDateMillis) isInSameHourWindowAs} assertion (note that if
      * <code>isInSameHourAs</code> succeeds then <code>isInSameHourWindowAs</code> will succeed too).
      * <p/>
      * If you want to compare hour only (without day, month and year), you could write :
@@ -2138,7 +2138,7 @@ public class FDateAssert extends AbstractAssert<FDateAssert, FDate> {
      * </pre>
      * 
      * If you want to assert that two dates are in the same minute time window use
-     * {@link #isInSameMinuteWindowAs(java.util.FDate) isInSameMinuteWindowAs} assertion (note that if
+     * {@link #isInSameMinuteWindowAs(java.util.FDateMillis) isInSameMinuteWindowAs} assertion (note that if
      * <code>isInSameMinuteAs</code> succeeds then <code>isInSameMinuteWindowAs</code> will succeed too).
      * <p/>
      * If you want to compare minute field only (without hour, day, month and year), you could write :
@@ -2309,7 +2309,7 @@ public class FDateAssert extends AbstractAssert<FDateAssert, FDate> {
      * </pre>
      * 
      * If you want to assert that two dates are in the same second time window use
-     * {@link #isInSameSecondWindowAs(java.util.FDate) isInSameSecondWindowAs} assertion.
+     * {@link #isInSameSecondWindowAs(java.util.FDateMillis) isInSameSecondWindowAs} assertion.
      * <p/>
      * If you want to compare second fields only (without minute, hour, day, month and year), you could write :
      * <code>assertThat(myFDate).isWithinSecond(secondOf(otherFDate))</code><br>

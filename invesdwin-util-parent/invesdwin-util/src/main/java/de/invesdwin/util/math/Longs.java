@@ -232,4 +232,8 @@ public final class Longs extends ALongsStaticFacade {
         return Math.abs(value);
     }
 
+    public static boolean isBetween(final long value, final long min, final long max) {
+        return min <= value && value <= max;
+    }
+
 }

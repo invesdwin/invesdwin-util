@@ -12,6 +12,7 @@ import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.error.FastNoSuchElementException;
 import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.time.duration.Duration;
+import de.invesdwin.util.time.fdate.millis.FDatesMillis;
 
 @ThreadSafe
 public final class FDates {
@@ -273,33 +274,54 @@ public final class FDates {
     }
 
     public static boolean isSameYear(final FDate date1, final FDate date2) {
-        return isSameTruncated(date1, date2, FDateField.Year);
+        if (date1 == null || date2 == null) {
+            return false;
+        }
+        return FDatesMillis.isSameYear(date1.millisValue(), date2.millisValue());
     }
 
     public static boolean isSameYear(final FDate date1, final FDate date2, final FTimeZone timeZone) {
-        return isSameYear(date1.applyTimeZoneOffset(timeZone), date2.applyTimeZoneOffset(timeZone));
+        if (date1 == null || date2 == null) {
+            return false;
+        }
+        return FDatesMillis.isSameYear(date1.millisValue(), date2.millisValue(), timeZone);
     }
 
     public static boolean isSameMonth(final FDate date1, final FDate date2) {
-        return isSameTruncated(date1, date2, FDateField.Month);
+        if (date1 == null || date2 == null) {
+            return false;
+        }
+        return FDatesMillis.isSameMonth(date1.millisValue(), date2.millisValue());
     }
 
     public static boolean isSameMonth(final FDate date1, final FDate date2, final FTimeZone timeZone) {
-        return isSameMonth(date1.applyTimeZoneOffset(timeZone), date2.applyTimeZoneOffset(timeZone));
+        if (date1 == null || date2 == null) {
+            return false;
+        }
+        return FDatesMillis.isSameMonth(date1.millisValue(), date2.millisValue(), timeZone);
     }
 
     public static boolean isSameWeek(final FDate date1, final FDate date2) {
-        return isSameWeekPart(date1, date2, FWeekday.Monday, FWeekday.Sunday);
+        if (date1 == null || date2 == null) {
+            return false;
+        }
+        return FDatesMillis.isSameWeek(date1.millisValue(), date2.millisValue());
     }
 
     public static boolean isSameWeek(final FDate date1, final FDate date2, final FTimeZone timeZone) {
-        return isSameWeek(date1.applyTimeZoneOffset(timeZone), date2.applyTimeZoneOffset(timeZone));
+        if (date1 == null || date2 == null) {
+            return false;
+        }
+        return FDatesMillis.isSameWeek(date1.millisValue(), date2.millisValue(), timeZone);
     }
 
     public static boolean isSameWeekPart(final FDate date1, final FDate date2, final FWeekday statOfWeekPart,
             final FWeekday endOfWeekPart, final FTimeZone timeZone) {
-        return isSameWeekPart(date1.applyTimeZoneOffset(timeZone), date2.applyTimeZoneOffset(timeZone), statOfWeekPart,
-                endOfWeekPart);
+        if (date1 == null || date2 == null) {
+            return false;
+        }
+        return FDatesMillis.isSameWeekPart(date1.millisValue(), date2.millisValue(), statOfWeekPart, endOfWeekPart,
+                timeZone);
     }
 
     public static boolean isSameWeekPart(final FDate date1, final FDate date2, final FWeekday statOfWeekPart,
@@ -307,55 +329,57 @@ public final class FDates {
         if (date1 == null || date2 == null) {
             return false;
         }
-        final FDate startOfWeek = date1.withoutTime().setFWeekday(statOfWeekPart);
-        FDate endOfWeek = date1.withoutTime().setFWeekday(endOfWeekPart).addDays(1).addMilliseconds(MISSING_INDEX);
-        if (startOfWeek.isAfterOrEqualTo(endOfWeek)) {
-            endOfWeek = endOfWeek.addWeeks(1);
-        }
-        return FDates.isBetween(date2, startOfWeek, endOfWeek);
+        return FDatesMillis.isSameWeekPart(date1.millisValue(), date2.millisValue(), statOfWeekPart, endOfWeekPart);
     }
 
     public static boolean isWeekdayBetween(final FDate date1, final FDate date2, final FWeekday weekday,
             final FTimeZone timeZone) {
-        return isWeekdayBetween(date1.applyTimeZoneOffset(timeZone), date2.applyTimeZoneOffset(timeZone), weekday);
+        if (date1 == null || date2 == null) {
+            return false;
+        }
+        return FDatesMillis.isWeekdayBetween(date1.millisValue(), date2.millisValue(), weekday, timeZone);
     }
 
     public static boolean isWeekdayBetween(final FDate date1, final FDate date2, final FWeekday weekday) {
-        final FDate from = date1.withoutTime();
-        final FDate to = date2.withoutTime();
-        if (to.isBefore(from)) {
+        if (date1 == null || date2 == null) {
             return false;
         }
-        for (final FDate day : iterable(from, to, FTimeUnit.DAYS, 1)) {
-            if (day.getFWeekday() == weekday) {
-                return true;
-            }
-        }
-        return false;
+        return FDatesMillis.isWeekdayBetween(date1.millisValue(), date2.millisValue(), weekday);
     }
 
     public static boolean isSameDay(final FDate date1, final FDate date2, final FTimeZone timeZone) {
-        return isSameDay(date1.applyTimeZoneOffset(timeZone), date2.applyTimeZoneOffset(timeZone));
+        if (date1 == null || date2 == null) {
+            return false;
+        }
+        return FDatesMillis.isSameDay(date1.millisValue(), date2.millisValue(), timeZone);
     }
 
     public static boolean isSameDay(final FDate date1, final FDate date2) {
-        return isSameTruncated(date1, date2, FDateField.Day);
-    }
-
-    public static boolean isSameHour(final FDate date1, final FDate date2, final FTimeZone timeZone) {
-        return isSameHour(date1.applyTimeZoneOffset(timeZone), date2.applyTimeZoneOffset(timeZone));
+        if (date1 == null || date2 == null) {
+            return false;
+        }
+        return FDatesMillis.isSameDay(date1.millisValue(), date2.millisValue());
     }
 
     public static boolean isSameHour(final FDate date1, final FDate date2) {
-        return isSameTruncated(date1, date2, FDateField.Hour);
+        if (date1 == null || date2 == null) {
+            return false;
+        }
+        return FDatesMillis.isSameHour(date1.millisValue(), date2.millisValue());
     }
 
     public static boolean isSameMinute(final FDate date1, final FDate date2) {
-        return isSameTruncated(date1, date2, FDateField.Minute);
+        if (date1 == null || date2 == null) {
+            return false;
+        }
+        return FDatesMillis.isSameMinute(date1.millisValue(), date2.millisValue());
     }
 
     public static boolean isSameSecond(final FDate date1, final FDate date2) {
-        return isSameTruncated(date1, date2, FDateField.Second);
+        if (date1 == null || date2 == null) {
+            return false;
+        }
+        return FDatesMillis.isSameSecond(date1.millisValue(), date2.millisValue());
     }
 
     public static boolean isSameMillisecond(final FDate date1, final FDate date2) {
@@ -366,72 +390,48 @@ public final class FDates {
         }
     }
 
-    private static boolean isSameTruncated(final FDate date1, final FDate date2, final FDateField field) {
+    public static boolean isSameTruncated(final FDate date1, final FDate date2, final FDateField field) {
         if (date1 == null || date2 == null) {
             return false;
         }
-        return date1.millisValue() == date2.millisValue()
-                || date1.truncate(field).millisValue() == date2.truncate(field).millisValue();
+        return FDatesMillis.isSameTruncated(date1.millisValue(), date2.millisValue(), field);
     }
 
     public static boolean isSamePeriod(final FDate date1, final FDate date2, final FTimeUnit period,
             final FTimeZone timeZone) {
-        return isSamePeriod(date1.applyTimeZoneOffset(timeZone), date2.applyTimeZoneOffset(timeZone), period);
+        if (date1 == null || date2 == null) {
+            return false;
+        }
+        return FDatesMillis.isSamePeriod(date1.millisValue(), date2.millisValue(), period, timeZone);
     }
 
     public static boolean isSamePeriod(final FDate date1, final FDate date2, final FTimeUnit period) {
-        switch (period) {
-        case MILLISECONDS:
-            return isSameMillisecond(date1, date2);
-        case SECONDS:
-            return isSameSecond(date1, date2);
-        case MINUTES:
-            return isSameMinute(date1, date2);
-        case HOURS:
-            return isSameHour(date1, date2);
-        case DAYS:
-            return isSameDay(date1, date2);
-        case WEEKS:
-            return isSameWeek(date1, date2);
-        case MONTHS:
-            return isSameMonth(date1, date2);
-        case YEARS:
-            return isSameYear(date1, date2);
-        default:
-            throw UnknownArgumentException.newInstance(FTimeUnit.class, period);
+        if (date1 == null || date2 == null) {
+            return false;
         }
+        return FDatesMillis.isSamePeriod(date1.millisValue(), date2.millisValue(), period);
     }
 
     public static boolean isSameJulianPeriod(final FDate date1, final FDate date2, final FTimeUnit period,
             final FTimeZone timeZone) {
-        return isSameJulianPeriod(date1.applyTimeZoneOffset(timeZone), date2.applyTimeZoneOffset(timeZone), period);
+        if (date1 == null || date2 == null) {
+            return false;
+        }
+        return FDatesMillis.isSameJulianPeriod(date1.millisValue(), date2.millisValue(), period, timeZone);
     }
 
     public static boolean isSameJulianPeriod(final FDate date1, final FDate date2, final FTimeUnit period) {
-        switch (period) {
-        case MILLISECONDS:
-            return isSameMillisecond(date1, date2);
-        case SECONDS:
-            return isSameJulianSecond(date1, date2);
-        case MINUTES:
-            return isSameJulianMinute(date1, date2);
-        case HOURS:
-            return isSameJulianHour(date1, date2);
-        case DAYS:
-            return isSameJulianDay(date1, date2);
-        case WEEKS:
-            return isSameWeek(date1, date2);
-        case MONTHS:
-            return isSameMonth(date1, date2);
-        case YEARS:
-            return isSameYear(date1, date2);
-        default:
-            throw UnknownArgumentException.newInstance(FTimeUnit.class, period);
+        if (date1 == null || date2 == null) {
+            return false;
         }
+        return FDatesMillis.isSameJulianPeriod(date1.millisValue(), date2.millisValue(), period);
     }
 
     public static boolean isSameJulianDay(final FDate date1, final FDate date2, final FTimeZone timeZone) {
-        return isSameJulianDay(date1.applyTimeZoneOffset(timeZone), date2.applyTimeZoneOffset(timeZone));
+        if (date1 == null || date2 == null) {
+            return false;
+        }
+        return FDatesMillis.isSameJulianDay(date1.millisValue(), date2.millisValue(), timeZone);
     }
 
     /**
@@ -442,16 +442,7 @@ public final class FDates {
         if (date1 == null || date2 == null) {
             return false;
         }
-        // Strip out the time part of each date.
-        final long julianDayNumber1 = date1.millisValue() / MILLISECONDS_IN_DAY;
-        final long julianDayNumber2 = date2.millisValue() / MILLISECONDS_IN_DAY;
-
-        // If they now are equal then it is the same day.
-        return julianDayNumber1 == julianDayNumber2;
-    }
-
-    public static boolean isSameJulianHour(final FDate date1, final FDate date2, final FTimeZone timeZone) {
-        return isSameJulianHour(date1.applyTimeZoneOffset(timeZone), date2.applyTimeZoneOffset(timeZone));
+        return FDatesMillis.isSameJulianDay(date1.millisValue(), date2.millisValue());
     }
 
     /**
@@ -462,12 +453,7 @@ public final class FDates {
         if (date1 == null || date2 == null) {
             return false;
         }
-        // Strip out the time part of each date.
-        final long julianHourNumber1 = date1.millisValue() / MILLISECONDS_IN_HOUR;
-        final long julianHourNumber2 = date2.millisValue() / MILLISECONDS_IN_HOUR;
-
-        // If they now are equal then it is the same day.
-        return julianHourNumber1 == julianHourNumber2;
+        return FDatesMillis.isSameJulianHour(date1.millisValue(), date2.millisValue());
     }
 
     /**
@@ -478,12 +464,7 @@ public final class FDates {
         if (date1 == null || date2 == null) {
             return false;
         }
-        // Strip out the time part of each date.
-        final long julianMinuteNumber1 = date1.millisValue() / MILLISECONDS_IN_MINUTE;
-        final long julianMinuteNumber2 = date2.millisValue() / MILLISECONDS_IN_MINUTE;
-
-        // If they now are equal then it is the same day.
-        return julianMinuteNumber1 == julianMinuteNumber2;
+        return FDatesMillis.isSameJulianMinute(date1.millisValue(), date2.millisValue());
     }
 
     /**
@@ -494,12 +475,7 @@ public final class FDates {
         if (date1 == null || date2 == null) {
             return false;
         }
-        // Strip out the time part of each date.
-        final long julianSecondNumber1 = date1.millisValue() / MILLISECONDS_IN_SECOND;
-        final long julianSecondNumber2 = date2.millisValue() / MILLISECONDS_IN_SECOND;
-
-        // If they now are equal then it is the same day.
-        return julianSecondNumber1 == julianSecondNumber2;
+        return FDatesMillis.isSameJulianSecond(date1.millisValue(), date2.millisValue());
     }
 
     public static Date toDate(final FDate date) {

@@ -425,6 +425,14 @@ public class Duration extends Number implements Comparable<Object> {
         return new FDate(date.millisValue() + longValue(FTimeUnit.MILLISECONDS));
     }
 
+    public long subtractFrom(final long millis) {
+        return millis - longValue(FTimeUnit.MILLISECONDS);
+    }
+
+    public long addTo(final long millis) {
+        return millis + longValue(FTimeUnit.MILLISECONDS);
+    }
+
     public Duration abs() {
         return new Duration(Longs.abs(duration), timeUnit);
     }
