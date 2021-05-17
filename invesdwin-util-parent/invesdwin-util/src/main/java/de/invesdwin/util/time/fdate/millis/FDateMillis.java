@@ -35,6 +35,8 @@ import de.invesdwin.util.time.fdate.FWeekday;
 @Immutable
 public final class FDateMillis {
 
+    public static final long MISSING_VALUE = Long.MIN_VALUE;
+
     private FDateMillis() {
     }
 
@@ -507,20 +509,44 @@ public final class FDateMillis {
         return timeUnit.toMillis(value);
     }
 
+    public static long valueOf(final FDate date) {
+        if (date == null) {
+            return MISSING_VALUE;
+        } else {
+            return date.millisValue();
+        }
+    }
+
     public static long valueOf(final Date date) {
-        return date.getTime();
+        if (date == null) {
+            return MISSING_VALUE;
+        } else {
+            return date.getTime();
+        }
     }
 
     public static long valueOf(final Calendar calendar) {
-        return calendar.getTimeInMillis();
+        if (calendar == null) {
+            return MISSING_VALUE;
+        } else {
+            return calendar.getTimeInMillis();
+        }
     }
 
     public static long valueOf(final ReadableDateTime jodaTime) {
-        return jodaTime.getMillis();
+        if (jodaTime == null) {
+            return MISSING_VALUE;
+        } else {
+            return jodaTime.getMillis();
+        }
     }
 
     public static long valueOf(final LocalDateTime jodaTime) {
-        return jodaTime.toDateTime().getMillis();
+        if (jodaTime == null) {
+            return MISSING_VALUE;
+        } else {
+            return jodaTime.toDateTime().getMillis();
+        }
     }
 
     public static long valueOf(final String str, final String... parsePatterns) {
