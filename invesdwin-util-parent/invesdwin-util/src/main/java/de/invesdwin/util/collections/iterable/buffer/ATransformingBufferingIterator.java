@@ -94,7 +94,7 @@ public abstract class ATransformingBufferingIterator<S, R> implements IBuffering
 
     @Deprecated
     @Override
-    public boolean addAll(final BufferingIterator<R> iterable) {
+    public boolean addAll(final IBufferingIterator<R> iterable) {
         throw new UnsupportedOperationException("can not add");
     }
 

@@ -78,7 +78,7 @@ public final class EmptyBufferingIterator<E> implements IBufferingIterator<E> {
     }
 
     @Override
-    public boolean addAll(final BufferingIterator<E> iterable) {
+    public boolean addAll(final IBufferingIterator<E> iterable) {
         return false;
     }
 

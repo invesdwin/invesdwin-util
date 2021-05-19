@@ -31,7 +31,7 @@ public interface IBufferingIterator<E> extends ICloseableIterator<E>, ICloseable
 
     boolean addAll(ICloseableIterable<? extends E> iterable);
 
-    boolean addAll(BufferingIterator<E> iterable);
+    boolean addAll(IBufferingIterator<E> iterable);
 
     void clear();
 

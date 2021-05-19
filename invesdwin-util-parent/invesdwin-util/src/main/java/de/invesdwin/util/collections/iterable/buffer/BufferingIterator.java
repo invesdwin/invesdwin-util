@@ -35,7 +35,7 @@ public class BufferingIterator<E> implements IBufferingIterator<E>, ISerializabl
     public BufferingIterator() {
     }
 
-    public BufferingIterator(final BufferingIterator<E> iterable) {
+    public BufferingIterator(final IBufferingIterator<E> iterable) {
         addAll(iterable);
     }
 
@@ -142,7 +142,7 @@ public class BufferingIterator<E> implements IBufferingIterator<E>, ISerializabl
     }
 
     @Override
-    public boolean addAll(final BufferingIterator<E> iterable) {
+    public boolean addAll(final IBufferingIterator<E> iterable) {
         if (iterable == null) {
             return false;
         } else {
