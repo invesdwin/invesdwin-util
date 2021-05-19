@@ -40,6 +40,7 @@ public final class Files extends AFilesStaticFacade {
             "b" };
     private static final String[] NORMALIZE_PATH_SEARCH = { ":", "@", "*", "?", "<", ">", "=", "\"", "|" };
     private static final String[] NORMALIZE_PATH_REPLACE = { "c", "a", "m", "q", "l", "g", "e", "u", "p" };
+    private static final int MAX_FILE_NAME_LENGTH = 255;
 
     private static Boolean deleteNativeUnixAvailable = null;
     private static Boolean deleteNativeWindowsAvailable = null;
@@ -105,11 +106,34 @@ public final class Files extends AFilesStaticFacade {
     }
 
     public static String normalizeFilename(final String name) {
-        return Strings.replaceEach(name, NORMALIZE_FILENAME_SEARCH, NORMALIZE_FILENAME_REPLACE);
+        return normalizePathMaxLength(Strings.replaceEach(name, NORMALIZE_FILENAME_SEARCH, NORMALIZE_FILENAME_REPLACE));
     }
 
     public static String normalizePath(final String path) {
-        return Strings.replaceEach(path, NORMALIZE_PATH_SEARCH, NORMALIZE_PATH_REPLACE);
+        return normalizePathMaxLength(Strings.replaceEach(path, NORMALIZE_PATH_SEARCH, NORMALIZE_PATH_REPLACE));
+    }
+
+    private static String normalizePathMaxLength(final String path) {
+        final StringBuilder sb = new StringBuilder();
+        int lengthSinceLastSeparator = 0;
+        for (int i = 0; i < path.length(); i++) {
+            final char c = path.charAt(i);
+            if (c == '/' || c == '\\') {
+                lengthSinceLastSeparator = 0;
+            } else {
+                lengthSinceLastSeparator++;
+                if (lengthSinceLastSeparator >= MAX_FILE_NAME_LENGTH) {
+                    sb.append(File.separatorChar);
+                    lengthSinceLastSeparator = 0;
+                }
+            }
+            sb.append(c);
+        }
+        if (sb.length() != path.length()) {
+            return sb.toString();
+        } else {
+            return path;
+        }
     }
 
     public static boolean isDirectoryEmpty(final File directory) throws IOException {
