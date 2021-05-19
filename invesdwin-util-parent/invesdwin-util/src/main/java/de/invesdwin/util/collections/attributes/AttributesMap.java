@@ -1,4 +1,4 @@
-package de.invesdwin.util.collections;
+package de.invesdwin.util.collections.attributes;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -11,19 +11,11 @@ import javax.annotation.concurrent.ThreadSafe;
 import de.invesdwin.util.collections.delegate.ADelegateMap;
 
 @ThreadSafe
-public class AttributesMap extends ADelegateMap<String, Object> {
+public class AttributesMap extends ADelegateMap<String, Object> implements IAttributesMap {
 
     @Override
     protected Map<String, Object> newDelegate() {
         return Collections.synchronizedMap(new HashMap<String, Object>());
-    }
-
-    @Override
-    public Object getOrDefault(final Object key, final Object defaultValue) {
-        final Map<String, Object> delegate = getDelegate();
-        synchronized (delegate) {
-            return delegate.getOrDefault(key, defaultValue);
-        }
     }
 
     /**
@@ -54,6 +46,7 @@ public class AttributesMap extends ADelegateMap<String, Object> {
         return v;
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public <T> T getOrCreate(final String key, final Supplier<T> createSupplier) {
         T v;
@@ -78,4 +71,11 @@ public class AttributesMap extends ADelegateMap<String, Object> {
         return v;
     }
 
+    public SoftAttributesMap getSoft() {
+        return getOrCreate(SoftAttributesMap.class.getSimpleName() + "_INSTANCE", () -> new SoftAttributesMap());
+    }
+
+    public WeakAttributesMap getWeak() {
+        return getOrCreate(WeakAttributesMap.class.getSimpleName() + "_INSTANCE", () -> new WeakAttributesMap());
+    }
 }
