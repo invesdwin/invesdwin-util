@@ -41,6 +41,16 @@ public abstract class ADelegateBitSet implements IBitSet {
     }
 
     @Override
+    public IBitSet or(final IBitSet... others) {
+        return getDelegate().or(others);
+    }
+
+    @Override
+    public IBitSet orRange(final int fromInclusive, final int toExclusive, final IBitSet[] others) {
+        return getDelegate().orRange(fromInclusive, toExclusive, others);
+    }
+
+    @Override
     public IBitSet negate() {
         return getDelegate().negate();
     }

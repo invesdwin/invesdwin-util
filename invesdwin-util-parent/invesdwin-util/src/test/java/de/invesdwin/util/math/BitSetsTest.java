@@ -70,7 +70,7 @@ public class BitSetsTest {
         final int startSub = 1000;
         final int endSub = 10000;
         final RoaringBitmap roaringBitmapAndFastSub = RoaringBitmap
-                .and(Arrays.asList(roaringBitmap, roaringBitmap2).iterator(), (long) startSub, (long) endSub);
+                .and(Arrays.asList(roaringBitmap, roaringBitmap2).iterator(), startSub, (long) endSub + 1);
         final BitSet bitSetAndFastSub = (BitSet) bitSet.clone();
         BitSets.andRangeFast(bitSetAndFastSub, bitSet2, startSub, endSub);
 
@@ -94,6 +94,85 @@ public class BitSetsTest {
         //        }
         for (int i = 0; i < endSub - startSub; i++) {
             Assertions.assertThat(bitSetAndFastSubGet.get(i)).as("i: " + i).isEqualTo(boolAnd[i + startSub]);
+        }
+    }
+
+    @Test
+    public void testOrRangeFast() throws Exception {
+        final int size = 1000000;
+        final boolean[] bool = new boolean[size];
+        final boolean[] bool2 = new boolean[size];
+        final boolean[] boolOr = new boolean[size];
+        final BitSet bitSet = new BitSet(size);
+        final BitSet bitSet2 = new BitSet(size);
+        final RoaringBitmap roaringBitmap = new RoaringBitmap();
+        final RoaringBitmap roaringBitmap2 = new RoaringBitmap();
+        for (int i = 0; i < size; i++) {
+            final boolean value = i % 2 == 0;
+            bool[i] = value;
+            final boolean value2 = i % 3 == 0;
+            bool2[i] = value2;
+            if (value) {
+                bitSet.set(i);
+                roaringBitmap.add(i);
+            }
+            if (value2) {
+                bitSet2.set(i);
+                roaringBitmap2.add(i);
+            }
+            boolOr[i] = value || value2;
+        }
+        final RoaringBitmap roaringBitmapOr = FastAggregation.or(roaringBitmap, roaringBitmap2);
+        final BitSet bitSetOr = (BitSet) bitSet.clone();
+        bitSetOr.or(bitSet2);
+
+        final RoaringBitmap roaringBitmapOrFast = RoaringBitmap
+                .or(Arrays.asList(roaringBitmap, roaringBitmap2).iterator(), (long) 0, (long) bool.length);
+        final BitSet bitSetOrFast = (BitSet) bitSet.clone();
+        BitSets.orRangeFast(bitSetOrFast, bitSet2, 0, bool.length);
+
+        //test contains with or working properly
+        for (int i = 0; i < bool.length; i++) {
+            Assertions.assertThat(bitSet.get(i)).as("i: " + i).isEqualTo(bool[i]);
+            Assertions.assertThat(roaringBitmap.contains(i)).as("i: " + i).isEqualTo(bool[i]);
+            Assertions.assertThat(bitSet2.get(i)).as("i: " + i).isEqualTo(bool2[i]);
+            Assertions.assertThat(roaringBitmap2.contains(i)).as("i: " + i).isEqualTo(bool2[i]);
+
+            Assertions.assertThat(bitSetOr.get(i)).as("i: " + i).isEqualTo(boolOr[i]);
+            Assertions.assertThat(roaringBitmapOr.contains(i)).as("i: " + i).isEqualTo(boolOr[i]);
+
+            Assertions.assertThat(bitSetOrFast.get(i)).as("i: " + i).isEqualTo(boolOr[i]);
+            Assertions.assertThat(roaringBitmapOrFast.contains(i)).as("i: " + i).isEqualTo(boolOr[i]);
+        }
+
+        //test orRange working properly
+        final int startSub = 1000;
+        final int endSub = 10000;
+        final RoaringBitmap roaringBitmapOrFastSub = RoaringBitmap
+                .or(Arrays.asList(roaringBitmap, roaringBitmap2).iterator(), startSub, (long) endSub + 1);
+        final BitSet bitSetOrFastSub = (BitSet) bitSet.clone();
+        BitSets.orRangeFast(bitSetOrFastSub, bitSet2, startSub, endSub);
+
+        final BitSet bitSetOrFastSubGet = bitSet.get(startSub, endSub);
+        for (int i = 0; i < endSub - startSub; i++) {
+            Assertions.assertThat(bitSetOrFastSubGet.get(i)).as("i: " + i).isEqualTo(bool[i + startSub]);
+        }
+        final BitSet bitSet2SubGet = bitSet2.get(startSub, endSub);
+        for (int i = 0; i < endSub - startSub; i++) {
+            Assertions.assertThat(bitSet2SubGet.get(i)).as("i: " + i).isEqualTo(bool2[i + startSub]);
+        }
+        bitSetOrFastSubGet.or(bitSet2SubGet);
+
+        for (int i = startSub; i <= endSub; i++) {
+            Assertions.assertThat(bitSetOrFastSub.get(i)).as("i: " + i).isEqualTo(boolOr[i]);
+            Assertions.assertThat(roaringBitmapOrFastSub.contains(i)).as("i: " + i).isEqualTo(boolOr[i]);
+        }
+        //explicitly not accurate
+        //        for (int i = 0; i < bool.length; i++) {
+        //            Assertions.assertThat(roaringBitmapOrFastSub.contains(i)).as("i: " + i).isEqualTo(bitSetOrFastSub.get(i));
+        //        }
+        for (int i = 0; i < endSub - startSub; i++) {
+            Assertions.assertThat(bitSetOrFastSubGet.get(i)).as("i: " + i).isEqualTo(boolOr[i + startSub]);
         }
     }
 

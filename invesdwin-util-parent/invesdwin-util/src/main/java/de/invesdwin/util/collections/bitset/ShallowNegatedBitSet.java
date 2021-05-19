@@ -54,6 +54,16 @@ public class ShallowNegatedBitSet implements IBitSet {
     }
 
     @Override
+    public IBitSet or(final IBitSet... others) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public IBitSet orRange(final int fromInclusive, final int toExclusive, final IBitSet[] others) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public IBitSet negate() {
         return delegate;
     }

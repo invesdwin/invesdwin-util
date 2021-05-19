@@ -75,6 +75,20 @@ public class SynchronizedBitSet implements IBitSet {
     }
 
     @Override
+    public IBitSet or(final IBitSet... others) {
+        synchronized (lock) {
+            return delegate.or(others);
+        }
+    }
+
+    @Override
+    public IBitSet orRange(final int fromInclusive, final int toExclusive, final IBitSet[] others) {
+        synchronized (lock) {
+            return delegate.orRange(fromInclusive, toExclusive, others);
+        }
+    }
+
+    @Override
     public IBitSet negate() {
         synchronized (lock) {
             return delegate.negate();

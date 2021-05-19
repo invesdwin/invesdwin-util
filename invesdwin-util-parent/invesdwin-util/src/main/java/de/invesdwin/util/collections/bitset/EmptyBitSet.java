@@ -56,6 +56,38 @@ public class EmptyBitSet implements IBitSet {
     }
 
     @Override
+    public IBitSet or(final IBitSet... others) {
+        if (others.length == 0) {
+            return INSTANCE;
+        } else if (others.length == 1) {
+            return others[0];
+        } else {
+            final IBitSet first = others[0];
+            final IBitSet[] rest = new IBitSet[others.length - 1];
+            for (int i = 1; i < others.length; i++) {
+                rest[i - 1] = others[i];
+            }
+            return first.or(rest);
+        }
+    }
+
+    @Override
+    public IBitSet orRange(final int fromInclusive, final int toExclusive, final IBitSet[] others) {
+        if (others.length == 0) {
+            return INSTANCE;
+        } else if (others.length == 1) {
+            return others[0];
+        } else {
+            final IBitSet first = others[0];
+            final IBitSet[] rest = new IBitSet[others.length - 1];
+            for (int i = 1; i < others.length; i++) {
+                rest[i - 1] = others[i];
+            }
+            return first.orRange(fromInclusive, toExclusive, rest);
+        }
+    }
+
+    @Override
     public int getTrueCount() {
         return 0;
     }

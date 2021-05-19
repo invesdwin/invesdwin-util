@@ -30,6 +30,7 @@ public final class BitSets extends ABitSetsStaticFacade {
     private static final MethodHandle BITSET_WORDS_IN_USE_GETTER;
     private static final MethodHandle BITSET_WORDS_IN_USE_SETTER;
     private static final MethodHandle BITSET_RECALCULATE_WORDS_IN_USE_METHOD;
+    private static final MethodHandle BITSET_ENSURE_CAPACITY_METHOD;
 
     static {
         try {
@@ -60,6 +61,10 @@ public final class BitSets extends ABitSetsStaticFacade {
                     "recalculateWordsInUse");
             Reflections.makeAccessible(bitSetRecalculateWordsInUseMethod);
             BITSET_RECALCULATE_WORDS_IN_USE_METHOD = lookup.unreflect(bitSetRecalculateWordsInUseMethod);
+
+            final Method bitSetEnsureCapacityMethod = Reflections.findMethod(BitSet.class, "ensureCapacity", int.class);
+            Reflections.makeAccessible(bitSetEnsureCapacityMethod);
+            BITSET_ENSURE_CAPACITY_METHOD = lookup.unreflect(bitSetEnsureCapacityMethod);
 
         } catch (final Exception e) {
             throw new RuntimeException(e);
@@ -119,7 +124,9 @@ public final class BitSets extends ABitSetsStaticFacade {
             final int toWordExclusive = Integers.min(thisWordsInUse, wordIndex(toExclusive) + 1, otherWordsInUse);
 
             final int fromWord = wordIndex(fromInclusive);
-            BITSET_WORDS_IN_USE_SETTER.invoke(combinedInto, toWordExclusive);
+            if (toWordExclusive != thisWordsInUse) {
+                BITSET_WORDS_IN_USE_SETTER.invoke(combinedInto, toWordExclusive);
+            }
             //
             //            // Perform logical AND on words in common
             //            for (int i = 0; i < wordsInUse; i++)
@@ -134,6 +141,64 @@ public final class BitSets extends ABitSetsStaticFacade {
             //            checkInvariants();
             //skipping that method
             //        }
+        } catch (final Throwable e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void orRangeFast(final BitSet combinedInto, final BitSet other, final int fromInclusive,
+            final int toExclusive) {
+        //        public void or(BitSet set) {
+        //            if (this == set)
+        //                return;
+        if (combinedInto == other) {
+            return;
+        }
+        try {
+            int thisWordsInUse = (int) BITSET_WORDS_IN_USE_GETTER.invoke(combinedInto);
+            final int otherWordsInUse = (int) BITSET_WORDS_IN_USE_GETTER.invoke(other);
+            final long[] otherWords = (long[]) BITSET_WORDS_GETTER.invoke(other);
+            //        int wordsInCommon = Math.min(wordsInUse, set.wordsInUse);
+            final int wordsInCommon = Math.min(thisWordsInUse, otherWordsInUse);
+
+            //        if (wordsInUse < set.wordsInUse) {
+            //            ensureCapacity(set.wordsInUse);
+            //            wordsInUse = set.wordsInUse;
+            //        }
+            if (thisWordsInUse < otherWordsInUse) {
+                BITSET_ENSURE_CAPACITY_METHOD.invoke(combinedInto, otherWordsInUse);
+                BITSET_WORDS_IN_USE_SETTER.invoke(combinedInto, otherWordsInUse);
+                thisWordsInUse = otherWordsInUse;
+            }
+            final long[] thisWords = (long[]) BITSET_WORDS_GETTER.invoke(combinedInto);
+
+            // Perform logical OR on words in common
+            //        for (int i = 0; i < wordsInCommon; i++)
+            //            words[i] |= set.words[i];
+            final int fromWord = wordIndex(fromInclusive);
+            final int toWordInCommonExclusive = Integers.min(wordIndex(toExclusive) + 1, wordsInCommon);
+            for (int i = fromWord; i < toWordInCommonExclusive; i++) {
+                thisWords[i] |= otherWords[i];
+            }
+
+            final int toWordExclusive = Integers.min(wordIndex(toExclusive) + 1,
+                    Integers.max(thisWordsInUse, otherWordsInUse));
+            // Copy any remaining words
+            //        if (wordsInCommon < set.wordsInUse)
+            //            System.arraycopy(set.words, wordsInCommon,
+            //                             words, wordsInCommon,
+            //                             wordsInUse - wordsInCommon);
+            if (wordsInCommon < toWordExclusive) {
+                System.arraycopy(otherWords, wordsInCommon, thisWords, wordsInCommon, thisWordsInUse - toWordExclusive);
+            }
+            if (toWordExclusive != thisWordsInUse) {
+                BITSET_WORDS_IN_USE_SETTER.invoke(combinedInto, toWordExclusive);
+            }
+
+            //         recalculateWordsInUse() is unnecessary
+            //        checkInvariants();
+            //skipping that method
+
         } catch (final Throwable e) {
             throw new RuntimeException(e);
         }

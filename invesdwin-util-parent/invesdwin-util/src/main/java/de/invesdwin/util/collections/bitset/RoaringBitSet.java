@@ -94,6 +94,42 @@ public class RoaringBitSet implements IBitSet {
     }
 
     @Override
+    public IBitSet or(final IBitSet... others) {
+        final RoaringBitmap[] cOthers = new RoaringBitmap[others.length + 1];
+        cOthers[0] = bitSet;
+        for (int i = 0; i < others.length; i++) {
+            final IBitSet other = others[i];
+            if (other.isEmpty()) {
+                continue;
+            }
+            final RoaringBitSet cOther = (RoaringBitSet) other.unwrap();
+            cOthers[i + 1] = cOther.bitSet;
+        }
+        final RoaringBitmap combined = FastAggregation.or(cOthers);
+        return new RoaringBitSet(combined, expectedSize);
+    }
+
+    @Override
+    public IBitSet orRange(final int fromInclusive, final int toExclusive, final IBitSet[] others) {
+        if (fromInclusive == 0 && toExclusive >= bitSet.last()) {
+            return and(others);
+        }
+        final RoaringBitmap[] cOthers = new RoaringBitmap[others.length + 1];
+        cOthers[0] = bitSet;
+        for (int i = 0; i < others.length; i++) {
+            final IBitSet other = others[i];
+            if (other.isEmpty()) {
+                continue;
+            }
+            final RoaringBitSet cOther = (RoaringBitSet) other.unwrap();
+            cOthers[i + 1] = cOther.bitSet;
+        }
+        final RoaringBitmap combined = RoaringBitmap.or(new ArrayCloseableIterator<RoaringBitmap>(cOthers),
+                fromInclusive, (long) toExclusive);
+        return new RoaringBitSet(combined, expectedSize);
+    }
+
+    @Override
     public IBitSet negate() {
         final RoaringBitmap negated = bitSet.clone();
         negated.flip(0L, expectedSize);

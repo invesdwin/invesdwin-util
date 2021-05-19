@@ -67,6 +67,16 @@ public final class ShiftedIndexDelegateBitSet implements IBitSet {
     }
 
     @Override
+    public IBitSet or(final IBitSet... others) {
+        throw new UnsupportedOperationException("Indexes might get mangled");
+    }
+
+    @Override
+    public IBitSet orRange(final int fromInclusive, final int toExclusive, final IBitSet[] others) {
+        throw new UnsupportedOperationException("Indexes might get mangled");
+    }
+
+    @Override
     public IBitSet negate() {
         return of(delegate.negate(), subtractFromIndex);
     }

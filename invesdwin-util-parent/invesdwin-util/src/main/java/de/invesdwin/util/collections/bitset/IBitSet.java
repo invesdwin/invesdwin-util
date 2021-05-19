@@ -18,6 +18,14 @@ public interface IBitSet {
      */
     IBitSet andRange(int fromInclusive, int toExclusive, IBitSet[] others);
 
+    IBitSet or(IBitSet... others);
+
+    /**
+     * WARNING: The resulting bitset will not be accurate outside of the given range due to performance reasons. The
+     * resulting values might be randomg outside of the range depending on the implementation. Indexes are preserved.
+     */
+    IBitSet orRange(int fromInclusive, int toExclusive, IBitSet[] others);
+
     /**
      * This creates a negated copy of the underlying bitset.
      */

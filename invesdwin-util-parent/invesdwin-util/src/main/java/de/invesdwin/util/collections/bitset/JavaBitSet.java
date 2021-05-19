@@ -80,6 +80,34 @@ public class JavaBitSet implements IBitSet {
     }
 
     @Override
+    public IBitSet or(final IBitSet... others) {
+        final BitSet combined = (BitSet) bitSet.clone();
+        for (int i = 0; i < others.length; i++) {
+            final IBitSet other = others[i];
+            if (other.isEmpty() || combined.isEmpty()) {
+                continue;
+            }
+            final JavaBitSet cOther = (JavaBitSet) other.unwrap();
+            combined.or(cOther.bitSet);
+        }
+        return new JavaBitSet(combined, expectedSize);
+    }
+
+    @Override
+    public IBitSet orRange(final int fromInclusive, final int toExclusive, final IBitSet[] others) {
+        final BitSet combined = (BitSet) bitSet.clone();
+        for (int i = 0; i < others.length; i++) {
+            final IBitSet other = others[i];
+            if (other.isEmpty() || combined.isEmpty()) {
+                continue;
+            }
+            final JavaBitSet cOther = (JavaBitSet) other.unwrap();
+            BitSets.orRangeFast(combined, cOther.bitSet, fromInclusive, toExclusive);
+        }
+        return new JavaBitSet(combined, expectedSize);
+    }
+
+    @Override
     public IBitSet negate() {
         final BitSet negated = (BitSet) bitSet.clone();
         negated.flip(0, expectedSize);

@@ -102,6 +102,26 @@ public class LockedBitSet implements IBitSet {
     }
 
     @Override
+    public IBitSet or(final IBitSet... others) {
+        lock.lock();
+        try {
+            return delegate.or(others);
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
+    public IBitSet orRange(final int fromInclusive, final int toExclusive, final IBitSet[] others) {
+        lock.lock();
+        try {
+            return delegate.orRange(fromInclusive, toExclusive, others);
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
     public IBitSet negate() {
         lock.lock();
         try {
