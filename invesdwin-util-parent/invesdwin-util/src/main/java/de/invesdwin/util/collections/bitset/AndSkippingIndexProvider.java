@@ -1,11 +1,17 @@
 package de.invesdwin.util.collections.bitset;
 
+import java.util.Collection;
+
 import javax.annotation.concurrent.NotThreadSafe;
 
 @NotThreadSafe
 public class AndSkippingIndexProvider implements ISkippingIndexProvider {
 
     private final PeekingSkippingIndexProvider[] delegates;
+
+    public AndSkippingIndexProvider(final Collection<PeekingSkippingIndexProvider> delegates) {
+        this.delegates = delegates.toArray(new PeekingSkippingIndexProvider[delegates.size()]);
+    }
 
     public AndSkippingIndexProvider(final PeekingSkippingIndexProvider... delegates) {
         this.delegates = delegates;
