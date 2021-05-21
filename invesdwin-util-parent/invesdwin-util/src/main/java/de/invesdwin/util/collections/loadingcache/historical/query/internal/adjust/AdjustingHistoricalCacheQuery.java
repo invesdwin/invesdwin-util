@@ -1,6 +1,7 @@
 package de.invesdwin.util.collections.loadingcache.historical.query.internal.adjust;
 
 import java.util.Iterator;
+import java.util.Optional;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -22,6 +23,7 @@ public class AdjustingHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V
 
     private final IHistoricalCacheInternalMethods<V> internalMethods;
     private final IHistoricalCacheQuery<V> delegate;
+    private Optional<IHistoricalCacheQuery<?>> keysQueryInterceptorWithFutureNull;
 
     public AdjustingHistoricalCacheQuery(final IHistoricalCacheInternalMethods<V> internalMethods) {
         this(internalMethods, new HistoricalCacheQuery<V>(internalMethods));
@@ -36,9 +38,7 @@ public class AdjustingHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V
     protected FDate alignAndAdjustKey(final FDate key) {
         if (internalMethods.isAlignKeys()) {
             if (!internalMethods.isAdjustedKey(key)) {
-                final IHistoricalCacheQuery<?> interceptor = internalMethods.getQueryCore()
-                        .getParent()
-                        .newKeysQueryInterceptorWithFutureNull();
+                final IHistoricalCacheQuery<?> interceptor = getKeysQueryInterceptorWithFutureNull();
                 if (interceptor != null) {
                     //align to reduce cache misses (which are very expensive in recursive queries)
                     final FDate aligned = interceptor.getKey(key);
@@ -53,6 +53,14 @@ public class AdjustingHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V
         } else {
             return adjustKey(key);
         }
+    }
+
+    private IHistoricalCacheQuery<?> getKeysQueryInterceptorWithFutureNull() {
+        if (keysQueryInterceptorWithFutureNull == null) {
+            keysQueryInterceptorWithFutureNull = Optional
+                    .ofNullable(internalMethods.getQueryCore().getParent().newKeysQueryInterceptorWithFutureNull());
+        }
+        return keysQueryInterceptorWithFutureNull.orElse(null);
     }
 
     protected FDate adjustKey(final FDate key) {

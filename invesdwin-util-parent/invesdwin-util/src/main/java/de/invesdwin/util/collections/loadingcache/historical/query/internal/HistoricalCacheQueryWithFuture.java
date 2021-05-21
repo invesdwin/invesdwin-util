@@ -38,7 +38,7 @@ public class HistoricalCacheQueryWithFuture<V> extends HistoricalCacheQuery<V>
 
     @Override
     public final FDate getNextKey(final FDate key, final int shiftForwardUnits) {
-        final IHistoricalCacheQuery<?> interceptor = newKeysQueryInterceptor();
+        final IHistoricalCacheQuery<?> interceptor = getKeysQueryInterceptor();
         if (interceptor != null) {
             return interceptor.withFuture().getNextKey(key, shiftForwardUnits);
         }
@@ -48,7 +48,7 @@ public class HistoricalCacheQueryWithFuture<V> extends HistoricalCacheQuery<V>
 
     @Override
     public ICloseableIterable<FDate> getNextKeys(final FDate key, final int shiftForwardUnits) {
-        final IHistoricalCacheQuery<?> interceptor = newKeysQueryInterceptor();
+        final IHistoricalCacheQuery<?> interceptor = getKeysQueryInterceptor();
         if (interceptor != null) {
             return interceptor.withFuture().getNextKeys(key, shiftForwardUnits);
         }

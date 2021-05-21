@@ -23,9 +23,10 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
     private static final HistoricalCacheAssertValue DEFAULT_ASSERT_VALUE = HistoricalCacheAssertValue.ASSERT_VALUE_WITHOUT_FUTURE;
 
     protected final IHistoricalCacheInternalMethods<V> internalMethods;
-    protected HistoricalCacheAssertValue assertValue = DEFAULT_ASSERT_VALUE;
+    private HistoricalCacheAssertValue assertValue = DEFAULT_ASSERT_VALUE;
     private IHistoricalCacheQueryElementFilter<V> elementFilter = DisabledHistoricalCacheQueryElementFilter
             .getInstance();
+    private Optional<IHistoricalCacheQuery<?>> keysQueryInterceptor;
 
     public HistoricalCacheQuery(final IHistoricalCacheInternalMethods<V> internalMethods) {
         this.internalMethods = internalMethods;
@@ -35,6 +36,7 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
     public void resetQuerySettings() {
         assertValue = DEFAULT_ASSERT_VALUE;
         elementFilter = null;
+        keysQueryInterceptor = null;
     }
 
     @Override
@@ -54,6 +56,7 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
         } else {
             this.elementFilter = elementFilter;
         }
+        this.keysQueryInterceptor = null;
         return this;
     }
 
@@ -177,7 +180,7 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
 
     @Override
     public FDate getKey(final FDate key) {
-        final IHistoricalCacheQuery<?> interceptor = newKeysQueryInterceptor();
+        final IHistoricalCacheQuery<?> interceptor = getKeysQueryInterceptor();
         if (interceptor != null) {
             return interceptor.getKey(key);
         }
@@ -189,7 +192,7 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
 
     @Override
     public final FDate getPreviousKey(final FDate key, final int shiftBackUnits) {
-        final IHistoricalCacheQuery<?> interceptor = newKeysQueryInterceptor();
+        final IHistoricalCacheQuery<?> interceptor = getKeysQueryInterceptor();
         if (interceptor != null) {
             return interceptor.getPreviousKey(key, shiftBackUnits);
         }
@@ -211,7 +214,7 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
      */
     @Override
     public final ICloseableIterable<FDate> getPreviousKeys(final FDate key, final int shiftBackUnits) {
-        final IHistoricalCacheQuery<?> interceptor = newKeysQueryInterceptor();
+        final IHistoricalCacheQuery<?> interceptor = getKeysQueryInterceptor();
         if (interceptor != null) {
             return interceptor.getPreviousKeys(key, shiftBackUnits);
         }
@@ -303,7 +306,7 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
      */
     @Override
     public ICloseableIterable<FDate> getKeys(final FDate from, final FDate to) {
-        final IHistoricalCacheQuery<?> interceptor = newKeysQueryInterceptor();
+        final IHistoricalCacheQuery<?> interceptor = getKeysQueryInterceptor();
         if (interceptor != null) {
             return interceptor.getKeys(from, to);
         }
@@ -697,7 +700,14 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
         return query;
     }
 
-    protected IHistoricalCacheQuery<?> newKeysQueryInterceptor() {
+    protected IHistoricalCacheQuery<?> getKeysQueryInterceptor() {
+        if (keysQueryInterceptor == null) {
+            keysQueryInterceptor = Optional.ofNullable(newKeysQueryInterceptor());
+        }
+        return keysQueryInterceptor.orElse(null);
+    }
+
+    private IHistoricalCacheQuery<?> newKeysQueryInterceptor() {
         if (elementFilter == null || elementFilter instanceof DisabledHistoricalCacheQueryElementFilter) {
             final IHistoricalCacheQuery<?> interceptor = internalMethods.getQueryCore()
                     .getParent()
@@ -716,6 +726,7 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
                 throw new IllegalStateException("Either withFuture() or withFutureNull() can be used, but not both!");
             }
             this.assertValue = newAssertValue;
+            this.keysQueryInterceptor = null;
         }
     }
 
