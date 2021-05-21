@@ -25,7 +25,7 @@ public final class DelegateHistoricalCacheShiftKeyProvider<V> implements IHistor
         this.delegateCache = delegateCache;
         this.delegate = delegate;
         this.delegateQuery = delegateCache.query();
-        this.delegateQueryWithFutureNull = delegateCache.query();
+        this.delegateQueryWithFutureNull = delegateCache.query().withFutureNull();
     }
 
     @Override
