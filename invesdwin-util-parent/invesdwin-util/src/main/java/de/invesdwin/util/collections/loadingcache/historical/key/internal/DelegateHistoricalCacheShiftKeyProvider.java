@@ -15,7 +15,6 @@ public final class DelegateHistoricalCacheShiftKeyProvider<V> implements IHistor
     private final de.invesdwin.util.collections.loadingcache.historical.query.internal.IHistoricalCacheInternalMethods<V> parent;
     private final AHistoricalCache<V> delegateCache;
     private final IHistoricalCacheShiftKeyProvider<V> delegate;
-    private final IHistoricalCacheQuery<?> delegateQuery;
     private final IHistoricalCacheQuery<V> delegateQueryWithFutureNull;
 
     private DelegateHistoricalCacheShiftKeyProvider(
@@ -24,7 +23,6 @@ public final class DelegateHistoricalCacheShiftKeyProvider<V> implements IHistor
         this.parent = parent;
         this.delegateCache = delegateCache;
         this.delegate = delegate;
-        this.delegateQuery = delegateCache.query();
         this.delegateQueryWithFutureNull = delegateCache.query().withFutureNull();
     }
 
@@ -54,7 +52,7 @@ public final class DelegateHistoricalCacheShiftKeyProvider<V> implements IHistor
 
     @Override
     public IHistoricalCacheQuery<?> newKeysQueryInterceptor() {
-        return delegateQuery;
+        return delegateCache.query();
     }
 
     @Override
