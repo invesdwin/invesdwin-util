@@ -55,6 +55,11 @@ public abstract class AContinuousRecursiveHistoricalCacheQuery<V> implements IRe
      * https://ta-lib.org/d_api/ta_setunstableperiod.html
      */
     private static final int MIN_RECURSION_LOOKBACK = 100;
+    /**
+     * Don't multiply by 10 or very large recursion lookbacks.
+     */
+    private static final Integer MAX_RECURSION_MULTIPLIED_LOOKBACK = 10000;
+    private static final Integer MAX_RECURSION_LOOKBACK_LIMIT = 20000;
     private static final int LARGE_RECALCULATION_WARNING_THRESHOLD = 10;
 
     private static final org.slf4j.ext.XLogger LOG = org.slf4j.ext.XLoggerFactory
@@ -94,7 +99,8 @@ public abstract class AContinuousRecursiveHistoricalCacheQuery<V> implements IRe
         if (recursionCount <= 0) {
             throw new IllegalArgumentException("recursionCount should be greater than zero: " + recursionCount);
         }
-        this.recursionCount = newContinuousUnstablePeriod(recursionCount);
+        this.recursionCount = newContinuousUnstablePeriod(recursionCount,
+                shouldUseInitialValueInsteadOfFullRecursion());
         this.maxHighestRecursionResultsCount = Integer.max(recursionCount, MIN_RECURSION_LOOKBACK);
         this.parentQuery = parent.query().withFutureNull();
         this.parentQueryWithFuture = parent.query().withFuture();
@@ -127,8 +133,20 @@ public abstract class AContinuousRecursiveHistoricalCacheQuery<V> implements IRe
         parent.increaseMaximumSize(this.recursionCount, "recursionCount");
     }
 
-    public static int newContinuousUnstablePeriod(final int recursionCount) {
-        return Integers.max(recursionCount * RECURSION_COUNT_LOOKBACK_MULTIPLICATOR, MIN_RECURSION_LOOKBACK);
+    public static int newContinuousUnstablePeriod(final int recursionCount,
+            final boolean shouldUseInitialValueInsteadOfFullRecursion) {
+        if (shouldUseInitialValueInsteadOfFullRecursion) {
+            final int atLeastMin = Integers.max(recursionCount, MIN_RECURSION_LOOKBACK);
+            final Integer limited = Integers.min(MAX_RECURSION_LOOKBACK_LIMIT, atLeastMin);
+            return limited;
+        } else {
+            final int multiplied = recursionCount * RECURSION_COUNT_LOOKBACK_MULTIPLICATOR;
+            final Integer multipliedLimit = Integers.max(recursionCount, MAX_RECURSION_MULTIPLIED_LOOKBACK);
+            final Integer multipliedLimited = Integers.min(multiplied, multipliedLimit);
+            final int atLeastMin = Integers.max(multipliedLimited, MIN_RECURSION_LOOKBACK);
+            final Integer limited = Integers.min(MAX_RECURSION_LOOKBACK_LIMIT, atLeastMin);
+            return limited;
+        }
     }
 
     @Override
