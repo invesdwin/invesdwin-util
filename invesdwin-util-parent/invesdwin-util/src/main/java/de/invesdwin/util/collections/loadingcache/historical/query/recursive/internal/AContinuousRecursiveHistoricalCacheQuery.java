@@ -96,6 +96,7 @@ public abstract class AContinuousRecursiveHistoricalCacheQuery<V> implements IRe
 
     public AContinuousRecursiveHistoricalCacheQuery(final AHistoricalCache<V> parent, final int recursionCount) {
         this.parent = parent;
+        this.parent.setAlignKeys(true);
         if (recursionCount <= 0) {
             throw new IllegalArgumentException("recursionCount should be greater than zero: " + recursionCount);
         }

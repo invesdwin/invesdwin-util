@@ -57,4 +57,28 @@ public class AdjustedFDate extends IndexedFDate {
         }
     }
 
+    @SuppressWarnings("deprecation")
+    public static boolean isAdjustedKey(final IHistoricalCacheAdjustKeyProvider adjustKeyProvider, final FDate key) {
+        if (key == null) {
+            return false;
+        }
+        if (key instanceof AdjustedFDate) {
+            final AdjustedFDate cKey = (AdjustedFDate) key;
+            return isAdjustedKey(adjustKeyProvider, cKey);
+        } else {
+            final Object extension = key.getExtension();
+            if (extension instanceof AdjustedFDate) {
+                final AdjustedFDate cKey = (AdjustedFDate) extension;
+                return isAdjustedKey(adjustKeyProvider, cKey);
+            } else {
+                return false;
+            }
+        }
+    }
+
+    private static boolean isAdjustedKey(final IHistoricalCacheAdjustKeyProvider adjustKeyProvider,
+            final AdjustedFDate cKey) {
+        return adjustKeyProvider.hashCode() == cKey.adjustKeyProviderIdentityHashCode;
+    }
+
 }

@@ -94,6 +94,7 @@ public abstract class AHistoricalCache<V>
     @GuardedBy("this only during initialization")
     private InnerLoadingCache valuesMap;
     private volatile boolean refreshRequested;
+    private boolean alignKeys;
 
     public AHistoricalCache() {
     }
@@ -236,6 +237,21 @@ public abstract class AHistoricalCache<V>
 
     protected FDate adjustKey(final FDate key) {
         return adjustKeyProvider.maybeAdjustKey(key);
+    }
+
+    protected boolean isAdjustedKey(final FDate key) {
+        return adjustKeyProvider.isAdjustedKey(key);
+    }
+
+    /**
+     * Keys should be aligned when cache misses are especially expensive. E.g. for recursive queries.
+     */
+    public void setAlignKeys(final boolean alignKeys) {
+        this.alignKeys = alignKeys;
+    }
+
+    public boolean isAlignKeys() {
+        return alignKeys;
     }
 
     /**
@@ -558,6 +574,11 @@ public abstract class AHistoricalCache<V>
         }
 
         @Override
+        public boolean isAdjustedKey(final FDate key) {
+            return AHistoricalCache.this.isAdjustedKey(key);
+        }
+
+        @Override
         public void remove(final FDate key) {
             AHistoricalCache.this.remove(key);
         }
@@ -645,6 +666,11 @@ public abstract class AHistoricalCache<V>
         @Override
         public AHistoricalCache<V> getParent() {
             return AHistoricalCache.this;
+        }
+
+        @Override
+        public boolean isAlignKeys() {
+            return AHistoricalCache.this.isAlignKeys();
         }
 
     }
@@ -768,6 +794,11 @@ public abstract class AHistoricalCache<V>
         @Override
         public FDate adjustKey(final FDate key) {
             return key;
+        }
+
+        @Override
+        public boolean isAdjustedKey(final FDate key) {
+            return true;
         }
 
         @Override

@@ -6,6 +6,8 @@ import de.invesdwin.util.time.fdate.FDate;
 
 public interface IHistoricalCacheAdjustKeyProvider {
 
+    boolean isAdjustedKey(FDate key);
+
     FDate adjustKey(FDate key);
 
     FDate maybeAdjustKey(FDate key);

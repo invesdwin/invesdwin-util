@@ -33,6 +33,28 @@ public class AdjustingHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V
         this.delegate = delegate;
     }
 
+    protected FDate alignAndAdjustKey(final FDate key) {
+        if (internalMethods.isAlignKeys()) {
+            if (!internalMethods.isAdjustedKey(key)) {
+                final IHistoricalCacheQuery<?> interceptor = internalMethods.getQueryCore()
+                        .getParent()
+                        .newKeysQueryInterceptor();
+                if (interceptor != null) {
+                    //align to reduce cache misses (which are very expensive in recursive queries)
+                    final FDate aligned = interceptor.getKey(key);
+                    if (aligned != null) {
+                        return adjustKey(aligned);
+                    }
+                }
+                return adjustKey(key);
+            } else {
+                return key;
+            }
+        } else {
+            return adjustKey(key);
+        }
+    }
+
     protected FDate adjustKey(final FDate key) {
         return internalMethods.adjustKey(key);
     }
@@ -64,7 +86,7 @@ public class AdjustingHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V
     @Override
     public IEvaluateGenericFDate<IHistoricalEntry<V>> newGetEntry() {
         final IEvaluateGenericFDate<IHistoricalEntry<V>> getEntryF = delegate.newGetEntry();
-        return (key) -> getEntryF.evaluateGeneric(() -> adjustKey(key.asFDate()));
+        return (key) -> getEntryF.evaluateGeneric(() -> alignAndAdjustKey(key.asFDate()));
     }
 
     @Override
@@ -76,7 +98,7 @@ public class AdjustingHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V
     @Override
     public IEvaluateGenericFDate<V> newGetValue() {
         final IEvaluateGenericFDate<V> getValueF = delegate.newGetValue();
-        return (key) -> getValueF.evaluateGeneric(() -> adjustKey(key.asFDate()));
+        return (key) -> getValueF.evaluateGeneric(() -> alignAndAdjustKey(key.asFDate()));
     }
 
     @Override
@@ -102,17 +124,17 @@ public class AdjustingHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V
 
     @Override
     public IHistoricalEntry<V> getEntry(final FDate key) {
-        return delegate.getEntry(adjustKey(key));
+        return delegate.getEntry(alignAndAdjustKey(key));
     }
 
     @Override
     public IHistoricalEntry<V> getEntryIfPresent(final FDate key) {
-        return delegate.getEntryIfPresent(adjustKey(key));
+        return delegate.getEntryIfPresent(alignAndAdjustKey(key));
     }
 
     @Override
     public V getValue(final FDate key) {
-        return delegate.getValue(adjustKey(key));
+        return delegate.getValue(alignAndAdjustKey(key));
     }
 
     @Override
@@ -336,17 +358,17 @@ public class AdjustingHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V
 
     @Override
     public IHistoricalEntry<V> computeEntry(final FDate key) {
-        return delegate.computeEntry(adjustKey(key));
+        return delegate.computeEntry(alignAndAdjustKey(key));
     }
 
     @Override
     public FDate computeKey(final FDate key) {
-        return delegate.computeKey(adjustKey(key));
+        return delegate.computeKey(alignAndAdjustKey(key));
     }
 
     @Override
     public V computeValue(final FDate key) {
-        return delegate.computeValue(adjustKey(key));
+        return delegate.computeValue(alignAndAdjustKey(key));
     }
 
 }

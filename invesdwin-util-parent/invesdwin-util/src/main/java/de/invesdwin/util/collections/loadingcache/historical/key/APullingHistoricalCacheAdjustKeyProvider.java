@@ -46,6 +46,11 @@ public abstract class APullingHistoricalCacheAdjustKeyProvider implements IHisto
     }
 
     @Override
+    public boolean isAdjustedKey(final FDate key) {
+        return delegate.isAdjustedKey(key);
+    }
+
+    @Override
     public FDate newAlreadyAdjustedKey(final FDate key) {
         return delegate.newAlreadyAdjustedKey(key);
     }

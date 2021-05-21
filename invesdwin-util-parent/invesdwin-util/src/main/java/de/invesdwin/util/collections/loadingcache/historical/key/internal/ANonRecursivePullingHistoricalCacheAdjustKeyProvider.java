@@ -124,6 +124,11 @@ public abstract class ANonRecursivePullingHistoricalCacheAdjustKeyProvider
     }
 
     @Override
+    public boolean isAdjustedKey(final FDate key) {
+        return AdjustedFDate.isAdjustedKey(this, key);
+    }
+
+    @Override
     public boolean isAlreadyAdjustingKey() {
         return false;
     }

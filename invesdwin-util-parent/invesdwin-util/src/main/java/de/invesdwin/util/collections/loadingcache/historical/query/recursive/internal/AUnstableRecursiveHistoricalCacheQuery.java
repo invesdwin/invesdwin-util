@@ -69,6 +69,7 @@ public abstract class AUnstableRecursiveHistoricalCacheQuery<V> implements IRecu
     public AUnstableRecursiveHistoricalCacheQuery(final AHistoricalCache<V> parent, final int recursionCount,
             final int unstableRecursionCount) {
         this.parent = parent;
+        this.parent.setAlignKeys(true);
         if (recursionCount <= 0) {
             throw new IllegalArgumentException("recursionCount should be greater than zero: " + recursionCount);
         }

@@ -26,6 +26,8 @@ public interface IHistoricalCacheInternalMethods<V> {
 
     FDate adjustKey(FDate key);
 
+    boolean isAdjustedKey(FDate key);
+
     void remove(FDate key);
 
     FDate extractKey(FDate key, V value);
@@ -55,5 +57,7 @@ public interface IHistoricalCacheInternalMethods<V> {
     IHistoricalCacheAdjustKeyProvider getAdjustKeyProvider();
 
     AHistoricalCache<V> getParent();
+
+    boolean isAlignKeys();
 
 }
