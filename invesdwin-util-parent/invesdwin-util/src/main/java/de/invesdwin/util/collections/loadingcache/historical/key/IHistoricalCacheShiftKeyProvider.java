@@ -17,6 +17,8 @@ public interface IHistoricalCacheShiftKeyProvider<V> {
 
     IHistoricalCacheQuery<?> newKeysQueryInterceptor();
 
+    IHistoricalCacheQuery<?> newKeysQueryInterceptorWithFutureNull();
+
     IHistoricalEntry<V> maybeWrap(FDate key, V value);
 
     IHistoricalEntry<V> maybeWrap(FDate key, IHistoricalEntry<V> value);

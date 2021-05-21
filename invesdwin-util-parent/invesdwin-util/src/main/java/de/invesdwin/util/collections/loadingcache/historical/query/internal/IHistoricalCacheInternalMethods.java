@@ -38,6 +38,8 @@ public interface IHistoricalCacheInternalMethods<V> {
 
     IHistoricalCacheQuery<?> newKeysQueryInterceptor();
 
+    IHistoricalCacheQuery<?> newKeysQueryInterceptorWithFutureNull();
+
     IEvaluateGenericFDate<IHistoricalEntry<V>> newComputeEntry();
 
     IHistoricalCachePutProvider<V> getPutProvider();

@@ -604,6 +604,11 @@ public abstract class AHistoricalCache<V>
         }
 
         @Override
+        public IHistoricalCacheQuery<?> newKeysQueryInterceptorWithFutureNull() {
+            return AHistoricalCache.this.getShiftKeyProvider().newKeysQueryInterceptorWithFutureNull();
+        }
+
+        @Override
         public String toString() {
             return AHistoricalCache.this.toString();
         }
@@ -733,6 +738,11 @@ public abstract class AHistoricalCache<V>
 
         @Override
         public IHistoricalCacheQuery<?> newKeysQueryInterceptor() {
+            return null;
+        }
+
+        @Override
+        public IHistoricalCacheQuery<?> newKeysQueryInterceptorWithFutureNull() {
             return null;
         }
 

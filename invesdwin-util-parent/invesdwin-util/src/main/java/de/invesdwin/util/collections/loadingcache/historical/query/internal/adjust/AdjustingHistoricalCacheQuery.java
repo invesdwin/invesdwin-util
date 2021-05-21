@@ -38,7 +38,7 @@ public class AdjustingHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V
             if (!internalMethods.isAdjustedKey(key)) {
                 final IHistoricalCacheQuery<?> interceptor = internalMethods.getQueryCore()
                         .getParent()
-                        .newKeysQueryInterceptor();
+                        .newKeysQueryInterceptorWithFutureNull();
                 if (interceptor != null) {
                     //align to reduce cache misses (which are very expensive in recursive queries)
                     final FDate aligned = interceptor.getKey(key);
