@@ -25,9 +25,9 @@ import de.invesdwin.util.time.fdate.FDayTime;
 import de.invesdwin.util.time.fdate.FHolidayManager;
 import de.invesdwin.util.time.fdate.FMonth;
 import de.invesdwin.util.time.fdate.FTimeUnit;
-import de.invesdwin.util.time.fdate.FTimeZone;
 import de.invesdwin.util.time.fdate.FWeekTime;
 import de.invesdwin.util.time.fdate.FWeekday;
+import de.invesdwin.util.time.fdate.ftimezone.FTimeZone;
 
 /**
  * FDate stands for an immutable Fast Date implementation by utilizing heavy caching.

@@ -11,8 +11,8 @@ import de.invesdwin.util.time.duration.Duration;
 import de.invesdwin.util.time.fdate.FDateField;
 import de.invesdwin.util.time.fdate.FDates;
 import de.invesdwin.util.time.fdate.FTimeUnit;
-import de.invesdwin.util.time.fdate.FTimeZone;
 import de.invesdwin.util.time.fdate.FWeekday;
+import de.invesdwin.util.time.fdate.ftimezone.FTimeZone;
 import it.unimi.dsi.fastutil.longs.LongIterable;
 import it.unimi.dsi.fastutil.longs.LongIterator;
 

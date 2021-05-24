@@ -7,7 +7,8 @@ import javax.annotation.concurrent.NotThreadSafe;
 import org.junit.Test;
 
 import de.invesdwin.util.assertions.Assertions;
-import de.invesdwin.util.time.TimeZones;
+import de.invesdwin.util.time.fdate.ftimezone.FTimeZone;
+import de.invesdwin.util.time.fdate.ftimezone.TimeZones;
 
 @NotThreadSafe
 public class FDatesTest {

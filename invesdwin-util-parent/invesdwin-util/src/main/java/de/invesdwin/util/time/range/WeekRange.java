@@ -12,8 +12,8 @@ import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.time.duration.Duration;
 import de.invesdwin.util.time.fdate.FDate;
 import de.invesdwin.util.time.fdate.FDates;
-import de.invesdwin.util.time.fdate.FTimeZone;
 import de.invesdwin.util.time.fdate.FWeekTime;
+import de.invesdwin.util.time.fdate.ftimezone.FTimeZone;
 
 @Immutable
 public class WeekRange extends AValueObject {

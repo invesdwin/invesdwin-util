@@ -1,4 +1,4 @@
-package de.invesdwin.util.time.fdate;
+package de.invesdwin.util.time.fdate.ftimezone;
 
 import java.time.ZoneId;
 import java.util.Calendar;
@@ -13,10 +13,11 @@ import org.joda.time.DurationField;
 import org.joda.time.chrono.ISOChronology;
 
 import de.invesdwin.util.lang.Objects;
-import de.invesdwin.util.time.TimeZones;
+import de.invesdwin.util.time.fdate.FDateField;
+import de.invesdwin.util.time.fdate.FTimeUnit;
 
 @Immutable
-public class FTimeZone {
+public class FTimeZone implements IFTimeZoneProvider {
 
     public static final FTimeZone UTC = new FTimeZone(TimeZones.UTC);
     public static final FTimeZone EUROPE_BERLIN = new FTimeZone(TimeZones.EUROPE_BERLIN);
@@ -240,4 +241,10 @@ public class FTimeZone {
     public String toString() {
         return getId();
     }
+
+    @Override
+    public FTimeZone asFTimeZone() {
+        return this;
+    }
+
 }

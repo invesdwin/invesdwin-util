@@ -1,4 +1,4 @@
-package de.invesdwin.util.time;
+package de.invesdwin.util.time.fdate.ftimezone;
 
 import java.time.ZoneId;
 import java.util.TimeZone;
@@ -9,7 +9,6 @@ import org.joda.time.DateTimeZone;
 
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.lang.Strings;
-import de.invesdwin.util.time.fdate.FTimeZone;
 
 @Immutable
 public final class TimeZones {

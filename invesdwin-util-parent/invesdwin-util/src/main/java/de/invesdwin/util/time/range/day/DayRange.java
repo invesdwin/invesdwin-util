@@ -13,7 +13,7 @@ import de.invesdwin.util.time.duration.Duration;
 import de.invesdwin.util.time.fdate.FDate;
 import de.invesdwin.util.time.fdate.FDates;
 import de.invesdwin.util.time.fdate.FDayTime;
-import de.invesdwin.util.time.fdate.FTimeZone;
+import de.invesdwin.util.time.fdate.ftimezone.FTimeZone;
 
 @Immutable
 public class DayRange extends AValueObject implements IDayRangeData {

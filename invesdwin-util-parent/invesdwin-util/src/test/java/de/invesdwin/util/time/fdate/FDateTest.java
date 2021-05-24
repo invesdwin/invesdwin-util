@@ -11,7 +11,8 @@ import org.junit.Test;
 
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
-import de.invesdwin.util.time.TimeZones;
+import de.invesdwin.util.time.fdate.ftimezone.FTimeZone;
+import de.invesdwin.util.time.fdate.ftimezone.TimeZones;
 
 @NotThreadSafe
 public class FDateTest {
