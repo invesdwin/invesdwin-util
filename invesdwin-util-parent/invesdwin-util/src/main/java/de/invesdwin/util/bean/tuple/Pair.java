@@ -20,6 +20,9 @@ import de.invesdwin.util.lang.Objects;
 @Immutable
 public class Pair<FIRST, SECOND> extends AValueObject implements IPair<FIRST, SECOND> {
 
+    @SuppressWarnings("rawtypes")
+    private static final Pair EMPTY = Pair.of(null, null);
+
     /** The first value in this tuple. */
     private final FIRST first;
 
@@ -66,6 +69,11 @@ public class Pair<FIRST, SECOND> extends AValueObject implements IPair<FIRST, SE
         } else {
             return false;
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <_FIRST, _SECOND> Pair<_FIRST, _SECOND> empty() {
+        return EMPTY;
     }
 
 }
