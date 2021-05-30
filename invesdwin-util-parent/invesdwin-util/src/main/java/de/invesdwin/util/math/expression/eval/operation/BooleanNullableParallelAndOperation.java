@@ -95,14 +95,12 @@ public class BooleanNullableParallelAndOperation extends DoubleBinaryOperation {
         return key -> {
             final Boolean leftResult = leftF.evaluateBooleanNullable(key);
             final Boolean rightResult = rightF.evaluateBooleanNullable(key);
-            if (Booleans.isFalse(leftResult)) {
+            if (leftResult == null) {
+                return rightResult;
+            } else if (!leftResult.booleanValue()) {
                 return Boolean.FALSE;
             } else {
-                if (rightResult == null) {
-                    return leftResult;
-                } else {
-                    return rightResult;
-                }
+                return rightResult;
             }
         };
     }
@@ -114,14 +112,12 @@ public class BooleanNullableParallelAndOperation extends DoubleBinaryOperation {
         return key -> {
             final Boolean leftResult = leftF.evaluateBooleanNullable(key);
             final Boolean rightResult = rightF.evaluateBooleanNullable(key);
-            if (Booleans.isFalse(leftResult)) {
+            if (leftResult == null) {
+                return rightResult;
+            } else if (!leftResult.booleanValue()) {
                 return Boolean.FALSE;
             } else {
-                if (rightResult == null) {
-                    return leftResult;
-                } else {
-                    return rightResult;
-                }
+                return rightResult;
             }
         };
     }
@@ -133,14 +129,12 @@ public class BooleanNullableParallelAndOperation extends DoubleBinaryOperation {
         return () -> {
             final Boolean leftResult = leftF.evaluateBooleanNullable();
             final Boolean rightResult = rightF.evaluateBooleanNullable();
-            if (Booleans.isFalse(leftResult)) {
+            if (leftResult == null) {
+                return rightResult;
+            } else if (!leftResult.booleanValue()) {
                 return Boolean.FALSE;
             } else {
-                if (rightResult == null) {
-                    return leftResult;
-                } else {
-                    return rightResult;
-                }
+                return rightResult;
             }
         };
     }
@@ -152,14 +146,12 @@ public class BooleanNullableParallelAndOperation extends DoubleBinaryOperation {
         return key -> {
             final Boolean leftResult = leftF.evaluateBooleanNullable(key);
             final Boolean rightResult = rightF.evaluateBooleanNullable(key);
-            if (Booleans.isFalse(leftResult)) {
+            if (leftResult == null) {
+                return Booleans.isTrue(rightResult);
+            } else if (!leftResult.booleanValue()) {
                 return false;
             } else {
-                if (rightResult == null) {
-                    return Booleans.isTrue(leftResult);
-                } else {
-                    return rightResult;
-                }
+                return Booleans.isTrue(rightResult);
             }
         };
     }
@@ -171,14 +163,12 @@ public class BooleanNullableParallelAndOperation extends DoubleBinaryOperation {
         return key -> {
             final Boolean leftResult = leftF.evaluateBooleanNullable(key);
             final Boolean rightResult = rightF.evaluateBooleanNullable(key);
-            if (Booleans.isFalse(leftResult)) {
+            if (leftResult == null) {
+                return Booleans.isTrue(rightResult);
+            } else if (!leftResult.booleanValue()) {
                 return false;
             } else {
-                if (rightResult == null) {
-                    return Booleans.isTrue(leftResult);
-                } else {
-                    return rightResult;
-                }
+                return Booleans.isTrue(rightResult);
             }
         };
     }
@@ -190,14 +180,12 @@ public class BooleanNullableParallelAndOperation extends DoubleBinaryOperation {
         return () -> {
             final Boolean leftResult = leftF.evaluateBooleanNullable();
             final Boolean rightResult = rightF.evaluateBooleanNullable();
-            if (Booleans.isFalse(leftResult)) {
+            if (leftResult == null) {
+                return Booleans.isTrue(rightResult);
+            } else if (!leftResult.booleanValue()) {
                 return false;
             } else {
-                if (rightResult == null) {
-                    return Booleans.isTrue(leftResult);
-                } else {
-                    return rightResult;
-                }
+                return Booleans.isTrue(rightResult);
             }
         };
     }
