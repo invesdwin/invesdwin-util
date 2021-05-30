@@ -90,42 +90,57 @@ public class BooleanNullableOrOperation extends DoubleBinaryOperation {
 
     @Override
     public IEvaluateBooleanNullableFDate newEvaluateBooleanNullableFDate() {
-        final IEvaluateBooleanFDate leftF = left.newEvaluateBooleanFDate();
+        final IEvaluateBooleanNullableFDate leftF = left.newEvaluateBooleanNullableFDate();
         final IEvaluateBooleanNullableFDate rightF = right.newEvaluateBooleanNullableFDate();
         return key -> {
-            final boolean leftResult = leftF.evaluateBoolean(key);
-            if (leftResult) {
+            final Boolean leftResult = leftF.evaluateBooleanNullable(key);
+            if (Booleans.isTrue(leftResult)) {
                 return Boolean.TRUE;
             } else {
-                return rightF.evaluateBooleanNullable(key);
+                final Boolean rightResult = rightF.evaluateBooleanNullable(key);
+                if (rightResult == null) {
+                    return leftResult;
+                } else {
+                    return rightResult;
+                }
             }
         };
     }
 
     @Override
     public IEvaluateBooleanNullableKey newEvaluateBooleanNullableKey() {
-        final IEvaluateBooleanKey leftF = left.newEvaluateBooleanKey();
+        final IEvaluateBooleanNullableKey leftF = left.newEvaluateBooleanNullableKey();
         final IEvaluateBooleanNullableKey rightF = right.newEvaluateBooleanNullableKey();
         return key -> {
-            final boolean leftResult = leftF.evaluateBoolean(key);
-            if (leftResult) {
+            final Boolean leftResult = leftF.evaluateBooleanNullable(key);
+            if (Booleans.isTrue(leftResult)) {
                 return Boolean.TRUE;
             } else {
-                return rightF.evaluateBooleanNullable(key);
+                final Boolean rightResult = rightF.evaluateBooleanNullable(key);
+                if (rightResult == null) {
+                    return leftResult;
+                } else {
+                    return rightResult;
+                }
             }
         };
     }
 
     @Override
     public IEvaluateBooleanNullable newEvaluateBooleanNullable() {
-        final IEvaluateBoolean leftF = left.newEvaluateBoolean();
+        final IEvaluateBooleanNullable leftF = left.newEvaluateBooleanNullable();
         final IEvaluateBooleanNullable rightF = right.newEvaluateBooleanNullable();
         return () -> {
-            final boolean leftResult = leftF.evaluateBoolean();
-            if (leftResult) {
+            final Boolean leftResult = leftF.evaluateBooleanNullable();
+            if (Booleans.isTrue(leftResult)) {
                 return Boolean.TRUE;
             } else {
-                return rightF.evaluateBooleanNullable();
+                final Boolean rightResult = rightF.evaluateBooleanNullable();
+                if (rightResult == null) {
+                    return leftResult;
+                } else {
+                    return rightResult;
+                }
             }
         };
     }

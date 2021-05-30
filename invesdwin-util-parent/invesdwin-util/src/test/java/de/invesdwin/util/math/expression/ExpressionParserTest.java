@@ -1417,4 +1417,5 @@ public class ExpressionParserTest {
         final boolean result = parsed.newEvaluateBoolean().evaluateBoolean();
         Assertions.checkEquals(false, result);
     }
+
 }
