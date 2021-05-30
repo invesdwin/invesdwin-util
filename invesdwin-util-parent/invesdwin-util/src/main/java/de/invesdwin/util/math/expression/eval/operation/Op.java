@@ -806,42 +806,118 @@ public enum Op {
 
         @Override
         public IDoubleFromDoublesBinaryOp newDoubleFromDoubles() {
-            throw new UnsupportedOperationException("use class " + BooleanNullableAndOperation.class.getSimpleName());
+            throw new UnsupportedOperationException(
+                    "use class " + BooleanNullableAndLazyOperation.class.getSimpleName());
         }
 
         @Override
         public IIntegerFromDoublesBinaryOp newIntegerFromDoubles() {
-            throw new UnsupportedOperationException("use class " + BooleanNullableAndOperation.class.getSimpleName());
+            throw new UnsupportedOperationException(
+                    "use class " + BooleanNullableAndLazyOperation.class.getSimpleName());
         }
 
         @Override
         public IBooleanNullableFromDoublesBinaryOp newBooleanNullableFromDoubles() {
-            throw new UnsupportedOperationException("use class " + BooleanNullableAndOperation.class.getSimpleName());
+            throw new UnsupportedOperationException(
+                    "use class " + BooleanNullableAndLazyOperation.class.getSimpleName());
         }
 
         @Override
         public IBooleanFromDoublesBinaryOp newBooleanFromDoubles() {
-            throw new UnsupportedOperationException("use class " + BooleanNullableAndOperation.class.getSimpleName());
+            throw new UnsupportedOperationException(
+                    "use class " + BooleanNullableAndLazyOperation.class.getSimpleName());
         }
 
         @Override
         public IDoubleFromIntegersBinaryOp newDoubleFromIntegers() {
-            throw new UnsupportedOperationException("use class " + BooleanNullableAndOperation.class.getSimpleName());
+            throw new UnsupportedOperationException(
+                    "use class " + BooleanNullableAndLazyOperation.class.getSimpleName());
         }
 
         @Override
         public IIntegerFromIntegersBinaryOp newIntegerFromIntegers() {
-            throw new UnsupportedOperationException("use class " + BooleanNullableAndOperation.class.getSimpleName());
+            throw new UnsupportedOperationException(
+                    "use class " + BooleanNullableAndLazyOperation.class.getSimpleName());
         }
 
         @Override
         public IBooleanNullableFromIntegersBinaryOp newBooleanNullableFromIntegers() {
-            throw new UnsupportedOperationException("use class " + BooleanNullableAndOperation.class.getSimpleName());
+            throw new UnsupportedOperationException(
+                    "use class " + BooleanNullableAndLazyOperation.class.getSimpleName());
         }
 
         @Override
         public IBooleanFromIntegersBinaryOp newBooleanFromIntegers() {
-            throw new UnsupportedOperationException("use class " + BooleanNullableAndOperation.class.getSimpleName());
+            throw new UnsupportedOperationException(
+                    "use class " + BooleanNullableAndLazyOperation.class.getSimpleName());
+        }
+    },
+    PAND(1, "PAND") {
+        @Override
+        public ExpressionType getReturnType() {
+            return ExpressionType.BooleanNullable;
+        }
+
+        @Override
+        public ExpressionType getSimplifiedReturnType() {
+            return ExpressionType.Boolean;
+        }
+
+        @Override
+        public ExpressionType simplifyType(final ExpressionType left, final ExpressionType right) {
+            if (left.isSmallerThanOrEqualTo(ExpressionType.Boolean)
+                    && right.isSmallerThanOrEqualTo(ExpressionType.Boolean)) {
+                return ExpressionType.Boolean;
+            }
+            return null;
+        }
+
+        @Override
+        public IDoubleFromDoublesBinaryOp newDoubleFromDoubles() {
+            throw new UnsupportedOperationException(
+                    "use class " + BooleanNullableAndEagerOperation.class.getSimpleName());
+        }
+
+        @Override
+        public IIntegerFromDoublesBinaryOp newIntegerFromDoubles() {
+            throw new UnsupportedOperationException(
+                    "use class " + BooleanNullableAndEagerOperation.class.getSimpleName());
+        }
+
+        @Override
+        public IBooleanNullableFromDoublesBinaryOp newBooleanNullableFromDoubles() {
+            throw new UnsupportedOperationException(
+                    "use class " + BooleanNullableAndEagerOperation.class.getSimpleName());
+        }
+
+        @Override
+        public IBooleanFromDoublesBinaryOp newBooleanFromDoubles() {
+            throw new UnsupportedOperationException(
+                    "use class " + BooleanNullableAndEagerOperation.class.getSimpleName());
+        }
+
+        @Override
+        public IDoubleFromIntegersBinaryOp newDoubleFromIntegers() {
+            throw new UnsupportedOperationException(
+                    "use class " + BooleanNullableAndEagerOperation.class.getSimpleName());
+        }
+
+        @Override
+        public IIntegerFromIntegersBinaryOp newIntegerFromIntegers() {
+            throw new UnsupportedOperationException(
+                    "use class " + BooleanNullableAndEagerOperation.class.getSimpleName());
+        }
+
+        @Override
+        public IBooleanNullableFromIntegersBinaryOp newBooleanNullableFromIntegers() {
+            throw new UnsupportedOperationException(
+                    "use class " + BooleanNullableAndEagerOperation.class.getSimpleName());
+        }
+
+        @Override
+        public IBooleanFromIntegersBinaryOp newBooleanFromIntegers() {
+            throw new UnsupportedOperationException(
+                    "use class " + BooleanNullableAndEagerOperation.class.getSimpleName());
         }
     },
     OR(1, "||") {
@@ -866,42 +942,118 @@ public enum Op {
 
         @Override
         public IDoubleFromDoublesBinaryOp newDoubleFromDoubles() {
-            throw new UnsupportedOperationException("use class " + BooleanNullableOrOperation.class.getSimpleName());
+            throw new UnsupportedOperationException(
+                    "use class " + BooleanNullableOrLazyOperation.class.getSimpleName());
         }
 
         @Override
         public IIntegerFromDoublesBinaryOp newIntegerFromDoubles() {
-            throw new UnsupportedOperationException("use class " + BooleanNullableOrOperation.class.getSimpleName());
+            throw new UnsupportedOperationException(
+                    "use class " + BooleanNullableOrLazyOperation.class.getSimpleName());
         }
 
         @Override
         public IBooleanNullableFromDoublesBinaryOp newBooleanNullableFromDoubles() {
-            throw new UnsupportedOperationException("use class " + BooleanNullableOrOperation.class.getSimpleName());
+            throw new UnsupportedOperationException(
+                    "use class " + BooleanNullableOrLazyOperation.class.getSimpleName());
         }
 
         @Override
         public IBooleanFromDoublesBinaryOp newBooleanFromDoubles() {
-            throw new UnsupportedOperationException("use class " + BooleanNullableOrOperation.class.getSimpleName());
+            throw new UnsupportedOperationException(
+                    "use class " + BooleanNullableOrLazyOperation.class.getSimpleName());
         }
 
         @Override
         public IDoubleFromIntegersBinaryOp newDoubleFromIntegers() {
-            throw new UnsupportedOperationException("use class " + BooleanNullableOrOperation.class.getSimpleName());
+            throw new UnsupportedOperationException(
+                    "use class " + BooleanNullableOrLazyOperation.class.getSimpleName());
         }
 
         @Override
         public IIntegerFromIntegersBinaryOp newIntegerFromIntegers() {
-            throw new UnsupportedOperationException("use class " + BooleanNullableOrOperation.class.getSimpleName());
+            throw new UnsupportedOperationException(
+                    "use class " + BooleanNullableOrLazyOperation.class.getSimpleName());
         }
 
         @Override
         public IBooleanNullableFromIntegersBinaryOp newBooleanNullableFromIntegers() {
-            throw new UnsupportedOperationException("use class " + BooleanNullableOrOperation.class.getSimpleName());
+            throw new UnsupportedOperationException(
+                    "use class " + BooleanNullableOrLazyOperation.class.getSimpleName());
         }
 
         @Override
         public IBooleanFromIntegersBinaryOp newBooleanFromIntegers() {
-            throw new UnsupportedOperationException("use class " + BooleanNullableOrOperation.class.getSimpleName());
+            throw new UnsupportedOperationException(
+                    "use class " + BooleanNullableOrLazyOperation.class.getSimpleName());
+        }
+    },
+    POR(1, "POR") {
+        @Override
+        public ExpressionType getReturnType() {
+            return ExpressionType.BooleanNullable;
+        }
+
+        @Override
+        public ExpressionType getSimplifiedReturnType() {
+            return ExpressionType.Boolean;
+        }
+
+        @Override
+        public ExpressionType simplifyType(final ExpressionType left, final ExpressionType right) {
+            if (left.isSmallerThanOrEqualTo(ExpressionType.Boolean)
+                    && right.isSmallerThanOrEqualTo(ExpressionType.Boolean)) {
+                return ExpressionType.Boolean;
+            }
+            return null;
+        }
+
+        @Override
+        public IDoubleFromDoublesBinaryOp newDoubleFromDoubles() {
+            throw new UnsupportedOperationException(
+                    "use class " + BooleanNullableOrEagerOperation.class.getSimpleName());
+        }
+
+        @Override
+        public IIntegerFromDoublesBinaryOp newIntegerFromDoubles() {
+            throw new UnsupportedOperationException(
+                    "use class " + BooleanNullableOrEagerOperation.class.getSimpleName());
+        }
+
+        @Override
+        public IBooleanNullableFromDoublesBinaryOp newBooleanNullableFromDoubles() {
+            throw new UnsupportedOperationException(
+                    "use class " + BooleanNullableOrEagerOperation.class.getSimpleName());
+        }
+
+        @Override
+        public IBooleanFromDoublesBinaryOp newBooleanFromDoubles() {
+            throw new UnsupportedOperationException(
+                    "use class " + BooleanNullableOrEagerOperation.class.getSimpleName());
+        }
+
+        @Override
+        public IDoubleFromIntegersBinaryOp newDoubleFromIntegers() {
+            throw new UnsupportedOperationException(
+                    "use class " + BooleanNullableOrEagerOperation.class.getSimpleName());
+        }
+
+        @Override
+        public IIntegerFromIntegersBinaryOp newIntegerFromIntegers() {
+            throw new UnsupportedOperationException(
+                    "use class " + BooleanNullableOrEagerOperation.class.getSimpleName());
+        }
+
+        @Override
+        public IBooleanNullableFromIntegersBinaryOp newBooleanNullableFromIntegers() {
+            throw new UnsupportedOperationException(
+                    "use class " + BooleanNullableOrEagerOperation.class.getSimpleName());
+        }
+
+        @Override
+        public IBooleanFromIntegersBinaryOp newBooleanFromIntegers() {
+            throw new UnsupportedOperationException(
+                    "use class " + BooleanNullableOrEagerOperation.class.getSimpleName());
         }
     },
     XOR(1, "XOR") {

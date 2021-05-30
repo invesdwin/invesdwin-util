@@ -29,7 +29,9 @@ public abstract class AExpressionVisitor {
         final boolean visitChildren;
         switch (expression.getOp()) {
         case AND:
+        case PAND:
         case OR:
+        case POR:
             visitChildren = visitLogicalCombination(expression);
             break;
         case CROSSES_ABOVE:

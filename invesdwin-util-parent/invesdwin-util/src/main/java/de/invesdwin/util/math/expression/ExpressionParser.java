@@ -16,9 +16,11 @@ import de.invesdwin.util.math.expression.eval.ConstantExpression;
 import de.invesdwin.util.math.expression.eval.DynamicPreviousKeyExpression;
 import de.invesdwin.util.math.expression.eval.IParsedExpression;
 import de.invesdwin.util.math.expression.eval.function.DoubleFunctionCall;
-import de.invesdwin.util.math.expression.eval.operation.BooleanNullableAndOperation;
+import de.invesdwin.util.math.expression.eval.operation.BooleanNullableAndEagerOperation;
+import de.invesdwin.util.math.expression.eval.operation.BooleanNullableAndLazyOperation;
 import de.invesdwin.util.math.expression.eval.operation.BooleanNullableNotOperation;
-import de.invesdwin.util.math.expression.eval.operation.BooleanNullableOrOperation;
+import de.invesdwin.util.math.expression.eval.operation.BooleanNullableOrEagerOperation;
+import de.invesdwin.util.math.expression.eval.operation.BooleanNullableOrLazyOperation;
 import de.invesdwin.util.math.expression.eval.operation.BooleanNullableXorOperation;
 import de.invesdwin.util.math.expression.eval.operation.DoubleBinaryOperation;
 import de.invesdwin.util.math.expression.eval.operation.DoubleCrossesAboveOperation;
@@ -288,6 +290,14 @@ public class ExpressionParser {
             tokenizer.consume();
             final IParsedExpression right = expression(commaAllowed);
             return reOrder(left, right, Op.XOR);
+        } else if ("pand".equalsIgnoreCase(current.getContents())) {
+            tokenizer.consume();
+            final IParsedExpression right = expression(commaAllowed);
+            return reOrder(left, right, Op.PAND);
+        } else if ("por".equalsIgnoreCase(current.getContents())) {
+            tokenizer.consume();
+            final IParsedExpression right = expression(commaAllowed);
+            return reOrder(left, right, Op.POR);
         }
         return left;
     }
@@ -335,9 +345,9 @@ public class ExpressionParser {
                 final IParsedExpression right = relationalExpression();
                 return reOrder(left, right, Op.NEQ);
             }
-        } else if ("crosses".equals(current.getContents())) {
+        } else if ("crosses".equalsIgnoreCase(current.getContents())) {
             final Token next = tokenizer.next();
-            if ("above".equals(next.getContents()) || "over".equals(next.getContents())) {
+            if ("above".equalsIgnoreCase(next.getContents()) || "over".equalsIgnoreCase(next.getContents())) {
                 tokenizer.consume(2);
                 final IParsedExpression right = relationalExpression();
                 final DoubleCrossesAboveOperation result = new DoubleCrossesAboveOperation(left, right,
@@ -345,7 +355,7 @@ public class ExpressionParser {
                         getPreviousKeyFunctionOrThrow(right.getContext()));
                 result.seal();
                 return result;
-            } else if ("below".equals(next.getContents()) || "under".equals(next.getContents())) {
+            } else if ("below".equalsIgnoreCase(next.getContents()) || "under".equalsIgnoreCase(next.getContents())) {
                 tokenizer.consume(2);
                 final IParsedExpression right = relationalExpression();
                 final DoubleCrossesBelowOperation result = new DoubleCrossesBelowOperation(left, right,
@@ -413,9 +423,13 @@ public class ExpressionParser {
         }
         switch (op) {
         case AND:
-            return new BooleanNullableAndOperation(left, right);
+            return new BooleanNullableAndLazyOperation(left, right);
+        case PAND:
+            return new BooleanNullableAndEagerOperation(left, right);
         case OR:
-            return new BooleanNullableOrOperation(left, right);
+            return new BooleanNullableOrLazyOperation(left, right);
+        case POR:
+            return new BooleanNullableOrEagerOperation(left, right);
         case XOR:
             return new BooleanNullableXorOperation(left, right);
         case NOT:
@@ -448,9 +462,13 @@ public class ExpressionParser {
             final Op op) {
         switch (op) {
         case AND:
-            return target.setLeft(new BooleanNullableAndOperation(newLeft, target.getLeft()));
+            return target.setLeft(new BooleanNullableAndLazyOperation(newLeft, target.getLeft()));
+        case PAND:
+            return target.setLeft(new BooleanNullableAndEagerOperation(newLeft, target.getLeft()));
         case OR:
-            return target.setLeft(new BooleanNullableOrOperation(newLeft, target.getLeft()));
+            return target.setLeft(new BooleanNullableOrLazyOperation(newLeft, target.getLeft()));
+        case POR:
+            return target.setLeft(new BooleanNullableOrEagerOperation(newLeft, target.getLeft()));
         case XOR:
             return target.setLeft(new BooleanNullableXorOperation(newLeft, target.getLeft()));
         case NOT:

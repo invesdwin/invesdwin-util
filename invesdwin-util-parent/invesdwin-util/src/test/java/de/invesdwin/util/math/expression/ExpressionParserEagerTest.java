@@ -99,7 +99,7 @@ public class ExpressionParserEagerTest {
         final MutableBoolean firstNanFunctionCalled = new MutableBoolean();
         final MutableBoolean secondNanFunctionCalled = new MutableBoolean();
         final ExpressionParser parser = new ExpressionParser(
-                "(falseFunction() && firstNanFunction()) & (trueFunction() && secondNanFunction())") {
+                "(falseFunction() && firstNanFunction()) PAND (trueFunction() && secondNanFunction())") {
             @Override
             protected AFunction getFunction(final String context, final String name) {
                 if ("firstNanFunction".equalsIgnoreCase(name)) {
@@ -121,21 +121,21 @@ public class ExpressionParserEagerTest {
         final double evaluateDouble = parsed.newEvaluateDouble().evaluateDouble();
         Assertions.checkEquals(0D, evaluateDouble);
         Assertions.checkFalse(firstNanFunctionCalled.booleanValue());
-        Assertions.checkFalse(secondNanFunctionCalled.booleanValue());
+        Assertions.checkTrue(secondNanFunctionCalled.booleanValue());
         firstNanFunctionCalled.setFalse();
         secondNanFunctionCalled.setFalse();
 
         final Boolean evaluateBooleanNullable = parsed.newEvaluateBooleanNullable().evaluateBooleanNullable();
         Assertions.checkEquals(Boolean.FALSE, evaluateBooleanNullable);
         Assertions.checkFalse(firstNanFunctionCalled.booleanValue());
-        Assertions.checkFalse(secondNanFunctionCalled.booleanValue());
+        Assertions.checkTrue(secondNanFunctionCalled.booleanValue());
         firstNanFunctionCalled.setFalse();
         secondNanFunctionCalled.setFalse();
 
         final Boolean evaluateBoolean = parsed.newEvaluateBoolean().evaluateBoolean();
         Assertions.checkEquals(false, evaluateBoolean);
         Assertions.checkFalse(firstNanFunctionCalled.booleanValue());
-        Assertions.checkFalse(secondNanFunctionCalled.booleanValue());
+        Assertions.checkTrue(secondNanFunctionCalled.booleanValue());
         firstNanFunctionCalled.setFalse();
         secondNanFunctionCalled.setFalse();
     }
@@ -145,7 +145,7 @@ public class ExpressionParserEagerTest {
         final MutableBoolean firstNanFunctionCalled = new MutableBoolean();
         final MutableBoolean secondNanFunctionCalled = new MutableBoolean();
         final ExpressionParser parser = new ExpressionParser(
-                "(trueFunction() && firstNanFunction()) & (falseFunction() && secondNanFunction())") {
+                "(trueFunction() && firstNanFunction()) PAND (falseFunction() && secondNanFunction())") {
             @Override
             protected AFunction getFunction(final String context, final String name) {
                 if ("firstNanFunction".equalsIgnoreCase(name)) {
@@ -191,7 +191,7 @@ public class ExpressionParserEagerTest {
         final MutableBoolean firstNanFunctionCalled = new MutableBoolean();
         final MutableBoolean secondNanFunctionCalled = new MutableBoolean();
         final ExpressionParser parser = new ExpressionParser(
-                "(trueFunction() && firstNanFunction()) & (trueFunction() && secondNanFunction())") {
+                "(trueFunction() && firstNanFunction()) PAND (trueFunction() && secondNanFunction())") {
             @Override
             protected AFunction getFunction(final String context, final String name) {
                 if ("firstNanFunction".equalsIgnoreCase(name)) {
@@ -212,21 +212,21 @@ public class ExpressionParserEagerTest {
         Assertions.checkFalse(firstNanFunctionCalled.booleanValue());
         Assertions.checkFalse(secondNanFunctionCalled.booleanValue());
         final double evaluateDouble = parsed.newEvaluateDouble().evaluateDouble();
-        Assertions.checkEquals(Double.NaN, evaluateDouble);
+        Assertions.checkEquals(1D, evaluateDouble);
         Assertions.checkTrue(firstNanFunctionCalled.booleanValue());
         Assertions.checkTrue(secondNanFunctionCalled.booleanValue());
         firstNanFunctionCalled.setFalse();
         secondNanFunctionCalled.setFalse();
 
         final Boolean evaluateBooleanNullable = parsed.newEvaluateBooleanNullable().evaluateBooleanNullable();
-        Assertions.checkEquals(null, evaluateBooleanNullable);
+        Assertions.checkEquals(Boolean.TRUE, evaluateBooleanNullable);
         Assertions.checkTrue(firstNanFunctionCalled.booleanValue());
         Assertions.checkTrue(secondNanFunctionCalled.booleanValue());
         firstNanFunctionCalled.setFalse();
         secondNanFunctionCalled.setFalse();
 
         final Boolean evaluateBoolean = parsed.newEvaluateBoolean().evaluateBoolean();
-        Assertions.checkEquals(false, evaluateBoolean);
+        Assertions.checkEquals(true, evaluateBoolean);
         Assertions.checkTrue(firstNanFunctionCalled.booleanValue());
         Assertions.checkTrue(secondNanFunctionCalled.booleanValue());
         firstNanFunctionCalled.setFalse();
@@ -238,7 +238,7 @@ public class ExpressionParserEagerTest {
         final MutableBoolean firstNanFunctionCalled = new MutableBoolean();
         final MutableBoolean secondNanFunctionCalled = new MutableBoolean();
         final ExpressionParser parser = new ExpressionParser(
-                "(falseFunction() && firstNanFunction()) | (trueFunction() && secondNanFunction())") {
+                "(falseFunction() && firstNanFunction()) POR (trueFunction() && secondNanFunction())") {
             @Override
             protected AFunction getFunction(final String context, final String name) {
                 if ("firstNanFunction".equalsIgnoreCase(name)) {
@@ -258,21 +258,21 @@ public class ExpressionParserEagerTest {
         Assertions.checkFalse(firstNanFunctionCalled.booleanValue());
         Assertions.checkFalse(secondNanFunctionCalled.booleanValue());
         final double evaluateDouble = parsed.newEvaluateDouble().evaluateDouble();
-        Assertions.checkEquals(0D, evaluateDouble);
+        Assertions.checkEquals(1D, evaluateDouble);
         Assertions.checkFalse(firstNanFunctionCalled.booleanValue());
         Assertions.checkTrue(secondNanFunctionCalled.booleanValue());
         firstNanFunctionCalled.setFalse();
         secondNanFunctionCalled.setFalse();
 
         final Boolean evaluateBooleanNullable = parsed.newEvaluateBooleanNullable().evaluateBooleanNullable();
-        Assertions.checkEquals(Boolean.FALSE, evaluateBooleanNullable);
+        Assertions.checkEquals(Boolean.TRUE, evaluateBooleanNullable);
         Assertions.checkFalse(firstNanFunctionCalled.booleanValue());
         Assertions.checkTrue(secondNanFunctionCalled.booleanValue());
         firstNanFunctionCalled.setFalse();
         secondNanFunctionCalled.setFalse();
 
         final Boolean evaluateBoolean = parsed.newEvaluateBoolean().evaluateBoolean();
-        Assertions.checkEquals(false, evaluateBoolean);
+        Assertions.checkEquals(true, evaluateBoolean);
         Assertions.checkFalse(firstNanFunctionCalled.booleanValue());
         Assertions.checkTrue(secondNanFunctionCalled.booleanValue());
         firstNanFunctionCalled.setFalse();
@@ -284,7 +284,7 @@ public class ExpressionParserEagerTest {
         final MutableBoolean firstNanFunctionCalled = new MutableBoolean();
         final MutableBoolean secondNanFunctionCalled = new MutableBoolean();
         final ExpressionParser parser = new ExpressionParser(
-                "(trueFunction() && firstNanFunction()) | (falseFunction() && secondNanFunction())") {
+                "(trueFunction() && firstNanFunction()) POR (falseFunction() && secondNanFunction())") {
             @Override
             protected AFunction getFunction(final String context, final String name) {
                 if ("firstNanFunction".equalsIgnoreCase(name)) {
@@ -304,21 +304,21 @@ public class ExpressionParserEagerTest {
         Assertions.checkFalse(firstNanFunctionCalled.booleanValue());
         Assertions.checkFalse(secondNanFunctionCalled.booleanValue());
         final double evaluateDouble = parsed.newEvaluateDouble().evaluateDouble();
-        Assertions.checkEquals(0D, evaluateDouble);
+        Assertions.checkEquals(1D, evaluateDouble);
         Assertions.checkTrue(firstNanFunctionCalled.booleanValue());
         Assertions.checkFalse(secondNanFunctionCalled.booleanValue());
         firstNanFunctionCalled.setFalse();
         secondNanFunctionCalled.setFalse();
 
         final Boolean evaluateBooleanNullable = parsed.newEvaluateBooleanNullable().evaluateBooleanNullable();
-        Assertions.checkEquals(Boolean.FALSE, evaluateBooleanNullable);
+        Assertions.checkEquals(Boolean.TRUE, evaluateBooleanNullable);
         Assertions.checkTrue(firstNanFunctionCalled.booleanValue());
         Assertions.checkFalse(secondNanFunctionCalled.booleanValue());
         firstNanFunctionCalled.setFalse();
         secondNanFunctionCalled.setFalse();
 
         final Boolean evaluateBoolean = parsed.newEvaluateBoolean().evaluateBoolean();
-        Assertions.checkEquals(false, evaluateBoolean);
+        Assertions.checkEquals(true, evaluateBoolean);
         Assertions.checkTrue(firstNanFunctionCalled.booleanValue());
         Assertions.checkFalse(secondNanFunctionCalled.booleanValue());
         firstNanFunctionCalled.setFalse();
@@ -330,7 +330,7 @@ public class ExpressionParserEagerTest {
         final MutableBoolean firstNanFunctionCalled = new MutableBoolean();
         final MutableBoolean secondNanFunctionCalled = new MutableBoolean();
         final ExpressionParser parser = new ExpressionParser(
-                "(trueFunction() && firstNanFunction()) | (trueFunction() && secondNanFunction())") {
+                "(trueFunction() && firstNanFunction()) POR (trueFunction() && secondNanFunction())") {
             @Override
             protected AFunction getFunction(final String context, final String name) {
                 if ("firstNanFunction".equalsIgnoreCase(name)) {
@@ -351,21 +351,21 @@ public class ExpressionParserEagerTest {
         Assertions.checkFalse(firstNanFunctionCalled.booleanValue());
         Assertions.checkFalse(secondNanFunctionCalled.booleanValue());
         final double evaluateDouble = parsed.newEvaluateDouble().evaluateDouble();
-        Assertions.checkEquals(Double.NaN, evaluateDouble);
+        Assertions.checkEquals(1D, evaluateDouble);
         Assertions.checkTrue(firstNanFunctionCalled.booleanValue());
         Assertions.checkTrue(secondNanFunctionCalled.booleanValue());
         firstNanFunctionCalled.setFalse();
         secondNanFunctionCalled.setFalse();
 
         final Boolean evaluateBooleanNullable = parsed.newEvaluateBooleanNullable().evaluateBooleanNullable();
-        Assertions.checkEquals(null, evaluateBooleanNullable);
+        Assertions.checkEquals(Boolean.TRUE, evaluateBooleanNullable);
         Assertions.checkTrue(firstNanFunctionCalled.booleanValue());
         Assertions.checkTrue(secondNanFunctionCalled.booleanValue());
         firstNanFunctionCalled.setFalse();
         secondNanFunctionCalled.setFalse();
 
         final Boolean evaluateBoolean = parsed.newEvaluateBoolean().evaluateBoolean();
-        Assertions.checkEquals(false, evaluateBoolean);
+        Assertions.checkEquals(true, evaluateBoolean);
         Assertions.checkTrue(firstNanFunctionCalled.booleanValue());
         Assertions.checkTrue(secondNanFunctionCalled.booleanValue());
         firstNanFunctionCalled.setFalse();

@@ -212,21 +212,21 @@ public class ExpressionParserLazyTest {
         Assertions.checkFalse(firstNanFunctionCalled.booleanValue());
         Assertions.checkFalse(secondNanFunctionCalled.booleanValue());
         final double evaluateDouble = parsed.newEvaluateDouble().evaluateDouble();
-        Assertions.checkEquals(Double.NaN, evaluateDouble);
+        Assertions.checkEquals(1D, evaluateDouble);
         Assertions.checkTrue(firstNanFunctionCalled.booleanValue());
         Assertions.checkTrue(secondNanFunctionCalled.booleanValue());
         firstNanFunctionCalled.setFalse();
         secondNanFunctionCalled.setFalse();
 
         final Boolean evaluateBooleanNullable = parsed.newEvaluateBooleanNullable().evaluateBooleanNullable();
-        Assertions.checkEquals(null, evaluateBooleanNullable);
+        Assertions.checkEquals(Boolean.TRUE, evaluateBooleanNullable);
         Assertions.checkTrue(firstNanFunctionCalled.booleanValue());
         Assertions.checkTrue(secondNanFunctionCalled.booleanValue());
         firstNanFunctionCalled.setFalse();
         secondNanFunctionCalled.setFalse();
 
         final Boolean evaluateBoolean = parsed.newEvaluateBoolean().evaluateBoolean();
-        Assertions.checkEquals(false, evaluateBoolean);
+        Assertions.checkEquals(true, evaluateBoolean);
         Assertions.checkTrue(firstNanFunctionCalled.booleanValue());
         Assertions.checkTrue(secondNanFunctionCalled.booleanValue());
         firstNanFunctionCalled.setFalse();
@@ -258,21 +258,21 @@ public class ExpressionParserLazyTest {
         Assertions.checkFalse(firstNanFunctionCalled.booleanValue());
         Assertions.checkFalse(secondNanFunctionCalled.booleanValue());
         final double evaluateDouble = parsed.newEvaluateDouble().evaluateDouble();
-        Assertions.checkEquals(0D, evaluateDouble);
+        Assertions.checkEquals(1D, evaluateDouble);
         Assertions.checkFalse(firstNanFunctionCalled.booleanValue());
         Assertions.checkTrue(secondNanFunctionCalled.booleanValue());
         firstNanFunctionCalled.setFalse();
         secondNanFunctionCalled.setFalse();
 
         final Boolean evaluateBooleanNullable = parsed.newEvaluateBooleanNullable().evaluateBooleanNullable();
-        Assertions.checkEquals(Boolean.FALSE, evaluateBooleanNullable);
+        Assertions.checkEquals(Boolean.TRUE, evaluateBooleanNullable);
         Assertions.checkFalse(firstNanFunctionCalled.booleanValue());
         Assertions.checkTrue(secondNanFunctionCalled.booleanValue());
         firstNanFunctionCalled.setFalse();
         secondNanFunctionCalled.setFalse();
 
         final Boolean evaluateBoolean = parsed.newEvaluateBoolean().evaluateBoolean();
-        Assertions.checkEquals(false, evaluateBoolean);
+        Assertions.checkEquals(true, evaluateBoolean);
         Assertions.checkFalse(firstNanFunctionCalled.booleanValue());
         Assertions.checkTrue(secondNanFunctionCalled.booleanValue());
         firstNanFunctionCalled.setFalse();
@@ -304,21 +304,21 @@ public class ExpressionParserLazyTest {
         Assertions.checkFalse(firstNanFunctionCalled.booleanValue());
         Assertions.checkFalse(secondNanFunctionCalled.booleanValue());
         final double evaluateDouble = parsed.newEvaluateDouble().evaluateDouble();
-        Assertions.checkEquals(0D, evaluateDouble);
+        Assertions.checkEquals(1D, evaluateDouble);
         Assertions.checkTrue(firstNanFunctionCalled.booleanValue());
         Assertions.checkFalse(secondNanFunctionCalled.booleanValue());
         firstNanFunctionCalled.setFalse();
         secondNanFunctionCalled.setFalse();
 
         final Boolean evaluateBooleanNullable = parsed.newEvaluateBooleanNullable().evaluateBooleanNullable();
-        Assertions.checkEquals(Boolean.FALSE, evaluateBooleanNullable);
+        Assertions.checkEquals(Boolean.TRUE, evaluateBooleanNullable);
         Assertions.checkTrue(firstNanFunctionCalled.booleanValue());
         Assertions.checkFalse(secondNanFunctionCalled.booleanValue());
         firstNanFunctionCalled.setFalse();
         secondNanFunctionCalled.setFalse();
 
         final Boolean evaluateBoolean = parsed.newEvaluateBoolean().evaluateBoolean();
-        Assertions.checkEquals(false, evaluateBoolean);
+        Assertions.checkEquals(true, evaluateBoolean);
         Assertions.checkTrue(firstNanFunctionCalled.booleanValue());
         Assertions.checkFalse(secondNanFunctionCalled.booleanValue());
         firstNanFunctionCalled.setFalse();
@@ -351,23 +351,23 @@ public class ExpressionParserLazyTest {
         Assertions.checkFalse(firstNanFunctionCalled.booleanValue());
         Assertions.checkFalse(secondNanFunctionCalled.booleanValue());
         final double evaluateDouble = parsed.newEvaluateDouble().evaluateDouble();
-        Assertions.checkEquals(Double.NaN, evaluateDouble);
+        Assertions.checkEquals(1D, evaluateDouble);
         Assertions.checkTrue(firstNanFunctionCalled.booleanValue());
-        Assertions.checkTrue(secondNanFunctionCalled.booleanValue());
+        Assertions.checkFalse(secondNanFunctionCalled.booleanValue());
         firstNanFunctionCalled.setFalse();
         secondNanFunctionCalled.setFalse();
 
         final Boolean evaluateBooleanNullable = parsed.newEvaluateBooleanNullable().evaluateBooleanNullable();
-        Assertions.checkEquals(null, evaluateBooleanNullable);
+        Assertions.checkEquals(Boolean.TRUE, evaluateBooleanNullable);
         Assertions.checkTrue(firstNanFunctionCalled.booleanValue());
-        Assertions.checkTrue(secondNanFunctionCalled.booleanValue());
+        Assertions.checkFalse(secondNanFunctionCalled.booleanValue());
         firstNanFunctionCalled.setFalse();
         secondNanFunctionCalled.setFalse();
 
         final Boolean evaluateBoolean = parsed.newEvaluateBoolean().evaluateBoolean();
-        Assertions.checkEquals(false, evaluateBoolean);
+        Assertions.checkEquals(true, evaluateBoolean);
         Assertions.checkTrue(firstNanFunctionCalled.booleanValue());
-        Assertions.checkTrue(secondNanFunctionCalled.booleanValue());
+        Assertions.checkFalse(secondNanFunctionCalled.booleanValue());
         firstNanFunctionCalled.setFalse();
         secondNanFunctionCalled.setFalse();
     }

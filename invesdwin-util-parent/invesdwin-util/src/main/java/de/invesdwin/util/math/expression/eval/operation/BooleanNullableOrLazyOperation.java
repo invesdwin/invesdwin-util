@@ -10,7 +10,7 @@ import de.invesdwin.util.math.expression.ExpressionType;
 import de.invesdwin.util.math.expression.eval.BooleanConstantExpression;
 import de.invesdwin.util.math.expression.eval.ConstantExpression;
 import de.invesdwin.util.math.expression.eval.IParsedExpression;
-import de.invesdwin.util.math.expression.eval.operation.simple.BooleanAndOperation;
+import de.invesdwin.util.math.expression.eval.operation.simple.BooleanOrLazyOperation;
 import de.invesdwin.util.math.expression.lambda.IEvaluateBoolean;
 import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanFDate;
 import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanKey;
@@ -28,10 +28,10 @@ import de.invesdwin.util.math.expression.lambda.IEvaluateIntegerFDate;
 import de.invesdwin.util.math.expression.lambda.IEvaluateIntegerKey;
 
 @Immutable
-public class BooleanNullableAndOperation extends DoubleBinaryOperation {
+public class BooleanNullableOrLazyOperation extends DoubleBinaryOperation {
 
-    public BooleanNullableAndOperation(final IParsedExpression left, final IParsedExpression right) {
-        super(Op.AND, left, right);
+    public BooleanNullableOrLazyOperation(final IParsedExpression left, final IParsedExpression right) {
+        super(Op.OR, left, right);
     }
 
     @Override
@@ -94,10 +94,15 @@ public class BooleanNullableAndOperation extends DoubleBinaryOperation {
         final IEvaluateBooleanNullableFDate rightF = right.newEvaluateBooleanNullableFDate();
         return key -> {
             final Boolean leftResult = leftF.evaluateBooleanNullable(key);
-            if (Booleans.isFalse(leftResult)) {
-                return Boolean.FALSE;
+            if (Booleans.isTrue(leftResult)) {
+                return Boolean.TRUE;
             } else {
-                return rightF.evaluateBooleanNullable(key);
+                final Boolean rightResult = rightF.evaluateBooleanNullable(key);
+                if (rightResult == null) {
+                    return leftResult;
+                } else {
+                    return rightResult;
+                }
             }
         };
     }
@@ -108,10 +113,15 @@ public class BooleanNullableAndOperation extends DoubleBinaryOperation {
         final IEvaluateBooleanNullableKey rightF = right.newEvaluateBooleanNullableKey();
         return key -> {
             final Boolean leftResult = leftF.evaluateBooleanNullable(key);
-            if (Booleans.isFalse(leftResult)) {
-                return Boolean.FALSE;
+            if (Booleans.isTrue(leftResult)) {
+                return Boolean.TRUE;
             } else {
-                return rightF.evaluateBooleanNullable(key);
+                final Boolean rightResult = rightF.evaluateBooleanNullable(key);
+                if (rightResult == null) {
+                    return leftResult;
+                } else {
+                    return rightResult;
+                }
             }
         };
     }
@@ -122,10 +132,15 @@ public class BooleanNullableAndOperation extends DoubleBinaryOperation {
         final IEvaluateBooleanNullable rightF = right.newEvaluateBooleanNullable();
         return () -> {
             final Boolean leftResult = leftF.evaluateBooleanNullable();
-            if (Booleans.isFalse(leftResult)) {
-                return Boolean.FALSE;
+            if (Booleans.isTrue(leftResult)) {
+                return Boolean.TRUE;
             } else {
-                return rightF.evaluateBooleanNullable();
+                final Boolean rightResult = rightF.evaluateBooleanNullable();
+                if (rightResult == null) {
+                    return leftResult;
+                } else {
+                    return rightResult;
+                }
             }
         };
     }
@@ -133,28 +148,64 @@ public class BooleanNullableAndOperation extends DoubleBinaryOperation {
     @Override
     public IEvaluateBooleanFDate newEvaluateBooleanFDate() {
         final IEvaluateBooleanNullableFDate leftF = left.newEvaluateBooleanNullableFDate();
-        final IEvaluateBooleanFDate rightF = right.newEvaluateBooleanFDate();
-        return key -> Booleans.isNotFalse(leftF.evaluateBooleanNullable(key)) && rightF.evaluateBoolean(key);
+        final IEvaluateBooleanNullableFDate rightF = right.newEvaluateBooleanNullableFDate();
+        return key -> {
+            final Boolean leftResult = leftF.evaluateBooleanNullable(key);
+            if (Booleans.isTrue(leftResult)) {
+                return true;
+            } else {
+                final Boolean rightResult = rightF.evaluateBooleanNullable(key);
+                if (rightResult == null) {
+                    return leftResult;
+                } else {
+                    return rightResult;
+                }
+            }
+        };
     }
 
     @Override
     public IEvaluateBooleanKey newEvaluateBooleanKey() {
         final IEvaluateBooleanNullableKey leftF = left.newEvaluateBooleanNullableKey();
-        final IEvaluateBooleanKey rightF = right.newEvaluateBooleanKey();
-        return key -> Booleans.isNotFalse(leftF.evaluateBooleanNullable(key)) && rightF.evaluateBoolean(key);
+        final IEvaluateBooleanNullableKey rightF = right.newEvaluateBooleanNullableKey();
+        return key -> {
+            final Boolean leftResult = leftF.evaluateBooleanNullable(key);
+            if (Booleans.isTrue(leftResult)) {
+                return true;
+            } else {
+                final Boolean rightResult = rightF.evaluateBooleanNullable(key);
+                if (rightResult == null) {
+                    return leftResult;
+                } else {
+                    return rightResult;
+                }
+            }
+        };
     }
 
     @Override
     public IEvaluateBoolean newEvaluateBoolean() {
         final IEvaluateBooleanNullable leftF = left.newEvaluateBooleanNullable();
-        final IEvaluateBoolean rightF = right.newEvaluateBoolean();
-        return () -> Booleans.isNotFalse(leftF.evaluateBooleanNullable()) && rightF.evaluateBoolean();
+        final IEvaluateBooleanNullable rightF = right.newEvaluateBooleanNullable();
+        return () -> {
+            final Boolean leftResult = leftF.evaluateBooleanNullable();
+            if (Booleans.isTrue(leftResult)) {
+                return true;
+            } else {
+                final Boolean rightResult = rightF.evaluateBooleanNullable();
+                if (rightResult == null) {
+                    return leftResult;
+                } else {
+                    return rightResult;
+                }
+            }
+        };
     }
 
     @Override
-    public IEvaluateGenericKey<String> newEvaluateFalseReasonKey() {
-        final IEvaluateGenericKey<String> leftF = left.newEvaluateFalseReasonKey();
-        final IEvaluateGenericKey<String> rightF = right.newEvaluateFalseReasonKey();
+    public IEvaluateGenericKey<String> newEvaluateTrueReasonKey() {
+        final IEvaluateGenericKey<String> leftF = left.newEvaluateTrueReasonKey();
+        final IEvaluateGenericKey<String> rightF = right.newEvaluateTrueReasonKey();
         return key -> {
             final String leftStr = leftF.evaluateGeneric(key);
             if (leftStr != null) {
@@ -166,9 +217,9 @@ public class BooleanNullableAndOperation extends DoubleBinaryOperation {
     }
 
     @Override
-    public IEvaluateGeneric<String> newEvaluateFalseReason() {
-        final IEvaluateGeneric<String> leftF = left.newEvaluateFalseReason();
-        final IEvaluateGeneric<String> rightF = right.newEvaluateFalseReason();
+    public IEvaluateGeneric<String> newEvaluateTrueReason() {
+        final IEvaluateGeneric<String> leftF = left.newEvaluateTrueReason();
+        final IEvaluateGeneric<String> rightF = right.newEvaluateTrueReason();
         return () -> {
             final String leftStr = leftF.evaluateGeneric();
             if (leftStr != null) {
@@ -180,9 +231,9 @@ public class BooleanNullableAndOperation extends DoubleBinaryOperation {
     }
 
     @Override
-    public IEvaluateGenericFDate<String> newEvaluateFalseReasonFDate() {
-        final IEvaluateGenericFDate<String> leftF = left.newEvaluateFalseReasonFDate();
-        final IEvaluateGenericFDate<String> rightF = right.newEvaluateFalseReasonFDate();
+    public IEvaluateGenericFDate<String> newEvaluateTrueReasonFDate() {
+        final IEvaluateGenericFDate<String> leftF = left.newEvaluateTrueReasonFDate();
+        final IEvaluateGenericFDate<String> rightF = right.newEvaluateTrueReasonFDate();
         return key -> {
             final String leftStr = leftF.evaluateGeneric(key);
             if (leftStr != null) {
@@ -204,7 +255,9 @@ public class BooleanNullableAndOperation extends DoubleBinaryOperation {
         final IParsedExpression newRight = right.simplify();
         if (newLeft.isConstant()) {
             final Boolean leftResult = newLeft.newEvaluateBooleanNullable().evaluateBooleanNullable();
-            if (leftResult == null || leftResult == Boolean.TRUE) {
+            if (Booleans.isTrue(leftResult)) {
+                return BooleanConstantExpression.TRUE;
+            } else {
                 if (newRight.isConstant()) {
                     final Boolean rightResult = newRight.newEvaluateBooleanNullable().evaluateBooleanNullable();
                     if (rightResult != null) {
@@ -217,13 +270,13 @@ public class BooleanNullableAndOperation extends DoubleBinaryOperation {
                 } else {
                     return newRight;
                 }
-            } else {
-                return BooleanConstantExpression.FALSE;
             }
         }
         if (newRight.isConstant()) {
             final Boolean rightResult = newRight.newEvaluateBooleanNullable().evaluateBooleanNullable();
-            if (rightResult == null || rightResult == Boolean.TRUE) {
+            if (Booleans.isTrue(rightResult)) {
+                return BooleanConstantExpression.TRUE;
+            } else {
                 if (newLeft.isConstant()) {
                     final Boolean leftResult = newLeft.newEvaluateBooleanNullable().evaluateBooleanNullable();
                     if (leftResult != null) {
@@ -236,8 +289,6 @@ public class BooleanNullableAndOperation extends DoubleBinaryOperation {
                 } else {
                     return newLeft;
                 }
-            } else {
-                return BooleanConstantExpression.FALSE;
             }
         }
         return simplify(newLeft, newRight);
@@ -247,9 +298,9 @@ public class BooleanNullableAndOperation extends DoubleBinaryOperation {
     protected IBinaryOperation newBinaryOperation(final IParsedExpression left, final IParsedExpression right) {
         final ExpressionType simplifyType = op.simplifyType(left, right);
         if (simplifyType == null) {
-            return new BooleanNullableAndOperation(left, right);
+            return new BooleanNullableOrLazyOperation(left, right);
         } else if (simplifyType == ExpressionType.Boolean) {
-            return new BooleanAndOperation(left, right);
+            return new BooleanOrLazyOperation(left, right);
         } else {
             throw UnknownArgumentException.newInstance(ExpressionType.class, simplifyType);
         }

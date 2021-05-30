@@ -6,7 +6,7 @@ import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.expression.ExpressionType;
 import de.invesdwin.util.math.expression.eval.IParsedExpression;
-import de.invesdwin.util.math.expression.eval.operation.BooleanNullableAndOperation;
+import de.invesdwin.util.math.expression.eval.operation.BooleanNullableOrEagerOperation;
 import de.invesdwin.util.math.expression.lambda.IEvaluateBoolean;
 import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanFDate;
 import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanKey;
@@ -24,9 +24,9 @@ import de.invesdwin.util.math.expression.lambda.IEvaluateIntegerFDate;
 import de.invesdwin.util.math.expression.lambda.IEvaluateIntegerKey;
 
 @Immutable
-public class BooleanAndOperation extends BooleanNullableAndOperation {
+public class BooleanOrEagerOperation extends BooleanNullableOrEagerOperation {
 
-    public BooleanAndOperation(final IParsedExpression left, final IParsedExpression right) {
+    public BooleanOrEagerOperation(final IParsedExpression left, final IParsedExpression right) {
         super(left, right);
     }
 
@@ -106,29 +106,41 @@ public class BooleanAndOperation extends BooleanNullableAndOperation {
     public IEvaluateBooleanFDate newEvaluateBooleanFDate() {
         final IEvaluateBooleanFDate leftF = left.newEvaluateBooleanFDate();
         final IEvaluateBooleanFDate rightF = right.newEvaluateBooleanFDate();
-        return key -> leftF.evaluateBoolean(key) && rightF.evaluateBoolean(key);
+        return key -> {
+            final boolean left = leftF.evaluateBoolean(key);
+            final boolean right = rightF.evaluateBoolean(key);
+            return left || right;
+        };
     }
 
     @Override
     public IEvaluateBooleanKey newEvaluateBooleanKey() {
         final IEvaluateBooleanKey leftF = left.newEvaluateBooleanKey();
         final IEvaluateBooleanKey rightF = right.newEvaluateBooleanKey();
-        return key -> leftF.evaluateBoolean(key) && rightF.evaluateBoolean(key);
+        return key -> {
+            final boolean left = leftF.evaluateBoolean(key);
+            final boolean right = rightF.evaluateBoolean(key);
+            return left || right;
+        };
     }
 
     @Override
     public IEvaluateBoolean newEvaluateBoolean() {
         final IEvaluateBoolean leftF = left.newEvaluateBoolean();
         final IEvaluateBoolean rightF = right.newEvaluateBoolean();
-        return () -> leftF.evaluateBoolean() && rightF.evaluateBoolean();
+        return () -> {
+            final boolean left = leftF.evaluateBoolean();
+            final boolean right = rightF.evaluateBoolean();
+            return left || right;
+        };
     }
 
     @Override
-    public IEvaluateGenericKey<String> newEvaluateTrueReasonKey() {
+    public IEvaluateGenericKey<String> newEvaluateFalseReasonKey() {
         final IEvaluateBooleanKey f = newEvaluateBooleanKey();
         return key -> {
-            if (f.evaluateBoolean(key)) {
-                return BooleanAndOperation.this.toString();
+            if (!f.evaluateBoolean(key)) {
+                return BooleanOrEagerOperation.this.toString();
             } else {
                 return null;
             }
@@ -136,11 +148,11 @@ public class BooleanAndOperation extends BooleanNullableAndOperation {
     }
 
     @Override
-    public IEvaluateGeneric<String> newEvaluateTrueReason() {
+    public IEvaluateGeneric<String> newEvaluateFalseReason() {
         final IEvaluateBoolean f = newEvaluateBoolean();
         return () -> {
-            if (f.evaluateBoolean()) {
-                return BooleanAndOperation.this.toString();
+            if (!f.evaluateBoolean()) {
+                return BooleanOrEagerOperation.this.toString();
             } else {
                 return null;
             }
@@ -148,11 +160,11 @@ public class BooleanAndOperation extends BooleanNullableAndOperation {
     }
 
     @Override
-    public IEvaluateGenericFDate<String> newEvaluateTrueReasonFDate() {
+    public IEvaluateGenericFDate<String> newEvaluateFalseReasonFDate() {
         final IEvaluateBooleanFDate f = newEvaluateBooleanFDate();
         return key -> {
-            if (f.evaluateBoolean(key)) {
-                return BooleanAndOperation.this.toString();
+            if (!f.evaluateBoolean(key)) {
+                return BooleanOrEagerOperation.this.toString();
             } else {
                 return null;
             }
