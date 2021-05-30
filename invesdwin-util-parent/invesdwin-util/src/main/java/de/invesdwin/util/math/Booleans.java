@@ -31,8 +31,6 @@ public final class Booleans extends ABooleansStaticFacade {
         }
     };
     public static final int BYTES = 1;
-    private static final int TRUE_IDENTITY = System.identityHashCode(Boolean.TRUE);
-    private static final int FALSE_IDENTITY = System.identityHashCode(Boolean.FALSE);
 
     private Booleans() {
     }
@@ -222,19 +220,19 @@ public final class Booleans extends ABooleansStaticFacade {
     }
 
     public static boolean isTrue(final Boolean value) {
-        return System.identityHashCode(value) == TRUE_IDENTITY;
+        return value != null && value.booleanValue();
     }
 
     public static boolean isFalse(final Boolean value) {
-        return System.identityHashCode(value) == FALSE_IDENTITY;
+        return value != null && !value.booleanValue();
     }
 
     public static boolean isNotTrue(final Boolean value) {
-        return System.identityHashCode(value) != TRUE_IDENTITY;
+        return value == null || !value.booleanValue();
     }
 
     public static boolean isNotFalse(final Boolean value) {
-        return System.identityHashCode(value) != FALSE_IDENTITY;
+        return value == null || value.booleanValue();
     }
 
     public static boolean isTrue(final boolean value) {
