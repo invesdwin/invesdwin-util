@@ -156,7 +156,7 @@ public class BooleanNullableParallelOrOperation extends DoubleBinaryOperation {
                 return true;
             } else {
                 if (rightResult == null) {
-                    return leftResult;
+                    return Booleans.isTrue(leftResult);
                 } else {
                     return rightResult;
                 }
@@ -175,7 +175,7 @@ public class BooleanNullableParallelOrOperation extends DoubleBinaryOperation {
                 return true;
             } else {
                 if (rightResult == null) {
-                    return leftResult;
+                    return Booleans.isTrue(leftResult);
                 } else {
                     return rightResult;
                 }
@@ -194,7 +194,7 @@ public class BooleanNullableParallelOrOperation extends DoubleBinaryOperation {
                 return true;
             } else {
                 if (rightResult == null) {
-                    return leftResult;
+                    return Booleans.isTrue(leftResult);
                 } else {
                     return rightResult;
                 }

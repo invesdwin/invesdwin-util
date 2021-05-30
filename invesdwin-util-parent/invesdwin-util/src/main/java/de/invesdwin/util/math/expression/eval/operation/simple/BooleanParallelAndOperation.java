@@ -107,9 +107,9 @@ public class BooleanParallelAndOperation extends BooleanNullableParallelAndOpera
         final IEvaluateBooleanFDate leftF = left.newEvaluateBooleanFDate();
         final IEvaluateBooleanFDate rightF = right.newEvaluateBooleanFDate();
         return key -> {
-            final boolean left = leftF.evaluateBoolean(key);
-            final boolean right = rightF.evaluateBoolean(key);
-            return left && right;
+            final boolean leftResult = leftF.evaluateBoolean(key);
+            final boolean rightResult = rightF.evaluateBoolean(key);
+            return leftResult && rightResult;
         };
     }
 
@@ -118,9 +118,9 @@ public class BooleanParallelAndOperation extends BooleanNullableParallelAndOpera
         final IEvaluateBooleanKey leftF = left.newEvaluateBooleanKey();
         final IEvaluateBooleanKey rightF = right.newEvaluateBooleanKey();
         return key -> {
-            final boolean left = leftF.evaluateBoolean(key);
-            final boolean right = rightF.evaluateBoolean(key);
-            return left && right;
+            final boolean leftResult = leftF.evaluateBoolean(key);
+            final boolean rightResult = rightF.evaluateBoolean(key);
+            return leftResult && rightResult;
         };
     }
 
@@ -129,9 +129,9 @@ public class BooleanParallelAndOperation extends BooleanNullableParallelAndOpera
         final IEvaluateBoolean leftF = left.newEvaluateBoolean();
         final IEvaluateBoolean rightF = right.newEvaluateBoolean();
         return () -> {
-            final boolean left = leftF.evaluateBoolean();
-            final boolean right = rightF.evaluateBoolean();
-            return left && right;
+            final boolean leftResult = leftF.evaluateBoolean();
+            final boolean rightResult = rightF.evaluateBoolean();
+            return leftResult && rightResult;
         };
     }
 
