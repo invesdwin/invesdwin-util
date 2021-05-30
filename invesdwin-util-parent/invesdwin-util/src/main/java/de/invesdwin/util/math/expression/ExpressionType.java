@@ -8,15 +8,21 @@ import de.invesdwin.util.math.expression.eval.IParsedExpression;
 
 @Immutable
 public enum ExpressionType {
-    Double(4),
-    Integer(3),
-    BooleanNullable(2),
-    Boolean(1);
+    Double(4, true),
+    Integer(3, false),
+    BooleanNullable(2, true),
+    Boolean(1, false);
 
     private final int size;
+    private final boolean nullable;
 
-    ExpressionType(final int size) {
+    ExpressionType(final int size, final boolean nullable) {
         this.size = size;
+        this.nullable = nullable;
+    }
+
+    public boolean isNullable() {
+        return nullable;
     }
 
     public static ExpressionType determineType(final ExpressionType defaultType,
