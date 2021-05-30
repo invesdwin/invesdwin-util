@@ -101,7 +101,11 @@ public class BooleanNullableAndOperation extends DoubleBinaryOperation {
                 return Boolean.FALSE;
             } else {
                 final Boolean rightResult = rightF.evaluateBooleanNullable(key);
-                return rightResult;
+                if (rightResult == null) {
+                    return Boolean.TRUE;
+                } else {
+                    return rightResult;
+                }
             }
         };
     }
@@ -119,7 +123,11 @@ public class BooleanNullableAndOperation extends DoubleBinaryOperation {
                 return Boolean.FALSE;
             } else {
                 final Boolean rightResult = rightF.evaluateBooleanNullable(key);
-                return rightResult;
+                if (rightResult == null) {
+                    return Boolean.TRUE;
+                } else {
+                    return rightResult;
+                }
             }
         };
     }
@@ -137,7 +145,11 @@ public class BooleanNullableAndOperation extends DoubleBinaryOperation {
                 return Boolean.FALSE;
             } else {
                 final Boolean rightResult = rightF.evaluateBooleanNullable();
-                return rightResult;
+                if (rightResult == null) {
+                    return Boolean.TRUE;
+                } else {
+                    return rightResult;
+                }
             }
         };
     }
@@ -155,7 +167,11 @@ public class BooleanNullableAndOperation extends DoubleBinaryOperation {
                 return false;
             } else {
                 final Boolean rightResult = rightF.evaluateBooleanNullable(key);
-                return Booleans.isTrue(rightResult);
+                if (rightResult == null) {
+                    return true;
+                } else {
+                    return rightResult.booleanValue();
+                }
             }
         };
     }
@@ -173,7 +189,11 @@ public class BooleanNullableAndOperation extends DoubleBinaryOperation {
                 return false;
             } else {
                 final Boolean rightResult = rightF.evaluateBooleanNullable(key);
-                return Booleans.isTrue(rightResult);
+                if (rightResult == null) {
+                    return true;
+                } else {
+                    return rightResult.booleanValue();
+                }
             }
         };
     }
@@ -191,7 +211,11 @@ public class BooleanNullableAndOperation extends DoubleBinaryOperation {
                 return false;
             } else {
                 final Boolean rightResult = rightF.evaluateBooleanNullable();
-                return Booleans.isTrue(rightResult);
+                if (rightResult == null) {
+                    return true;
+                } else {
+                    return rightResult.booleanValue();
+                }
             }
         };
     }

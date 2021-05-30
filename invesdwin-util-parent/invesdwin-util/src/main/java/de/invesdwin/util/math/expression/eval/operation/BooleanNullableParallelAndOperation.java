@@ -99,6 +99,8 @@ public class BooleanNullableParallelAndOperation extends DoubleBinaryOperation {
                 return rightResult;
             } else if (!leftResult.booleanValue()) {
                 return Boolean.FALSE;
+            } else if (rightResult == null) {
+                return Boolean.TRUE;
             } else {
                 return rightResult;
             }
@@ -116,6 +118,8 @@ public class BooleanNullableParallelAndOperation extends DoubleBinaryOperation {
                 return rightResult;
             } else if (!leftResult.booleanValue()) {
                 return Boolean.FALSE;
+            } else if (rightResult == null) {
+                return Boolean.TRUE;
             } else {
                 return rightResult;
             }
@@ -133,6 +137,8 @@ public class BooleanNullableParallelAndOperation extends DoubleBinaryOperation {
                 return rightResult;
             } else if (!leftResult.booleanValue()) {
                 return Boolean.FALSE;
+            } else if (rightResult == null) {
+                return Boolean.TRUE;
             } else {
                 return rightResult;
             }
@@ -150,8 +156,10 @@ public class BooleanNullableParallelAndOperation extends DoubleBinaryOperation {
                 return Booleans.isTrue(rightResult);
             } else if (!leftResult.booleanValue()) {
                 return false;
+            } else if (rightResult == null) {
+                return true;
             } else {
-                return Booleans.isTrue(rightResult);
+                return rightResult.booleanValue();
             }
         };
     }
@@ -167,8 +175,10 @@ public class BooleanNullableParallelAndOperation extends DoubleBinaryOperation {
                 return Booleans.isTrue(rightResult);
             } else if (!leftResult.booleanValue()) {
                 return false;
+            } else if (rightResult == null) {
+                return true;
             } else {
-                return Booleans.isTrue(rightResult);
+                return rightResult.booleanValue();
             }
         };
     }
@@ -184,8 +194,10 @@ public class BooleanNullableParallelAndOperation extends DoubleBinaryOperation {
                 return Booleans.isTrue(rightResult);
             } else if (!leftResult.booleanValue()) {
                 return false;
+            } else if (rightResult == null) {
+                return true;
             } else {
-                return Booleans.isTrue(rightResult);
+                return rightResult.booleanValue();
             }
         };
     }
