@@ -31,6 +31,8 @@ public final class Booleans extends ABooleansStaticFacade {
         }
     };
     public static final int BYTES = 1;
+    private static final int TRUE_IDENTITY = System.identityHashCode(Boolean.TRUE);
+    private static final int FALSE_IDENTITY = System.identityHashCode(Boolean.FALSE);
 
     private Booleans() {
     }
@@ -217,6 +219,38 @@ public final class Booleans extends ABooleansStaticFacade {
 
     public static boolean xor(final boolean value1, final boolean value2) {
         return value1 ^ value2;
+    }
+
+    public static boolean isTrue(final Boolean value) {
+        return System.identityHashCode(value) == TRUE_IDENTITY;
+    }
+
+    public static boolean isFalse(final Boolean value) {
+        return System.identityHashCode(value) == FALSE_IDENTITY;
+    }
+
+    public static boolean isNotTrue(final Boolean value) {
+        return System.identityHashCode(value) != TRUE_IDENTITY;
+    }
+
+    public static boolean isNotFalse(final Boolean value) {
+        return System.identityHashCode(value) != FALSE_IDENTITY;
+    }
+
+    public static boolean isTrue(final boolean value) {
+        return value;
+    }
+
+    public static boolean isFalse(final boolean value) {
+        return !value;
+    }
+
+    public static boolean isNotTrue(final boolean value) {
+        return !value;
+    }
+
+    public static boolean isNotFalse(final boolean value) {
+        return value;
     }
 
 }
