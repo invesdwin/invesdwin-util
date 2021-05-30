@@ -6,7 +6,7 @@ import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.expression.ExpressionType;
 import de.invesdwin.util.math.expression.eval.IParsedExpression;
-import de.invesdwin.util.math.expression.eval.operation.BooleanNullableAndLazyOperation;
+import de.invesdwin.util.math.expression.eval.operation.BooleanNullableOrOperation;
 import de.invesdwin.util.math.expression.lambda.IEvaluateBoolean;
 import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanFDate;
 import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanKey;
@@ -24,9 +24,9 @@ import de.invesdwin.util.math.expression.lambda.IEvaluateIntegerFDate;
 import de.invesdwin.util.math.expression.lambda.IEvaluateIntegerKey;
 
 @Immutable
-public class BooleanAndLazyOperation extends BooleanNullableAndLazyOperation {
+public class BooleanOrOperation extends BooleanNullableOrOperation {
 
-    public BooleanAndLazyOperation(final IParsedExpression left, final IParsedExpression right) {
+    public BooleanOrOperation(final IParsedExpression left, final IParsedExpression right) {
         super(left, right);
     }
 
@@ -106,29 +106,29 @@ public class BooleanAndLazyOperation extends BooleanNullableAndLazyOperation {
     public IEvaluateBooleanFDate newEvaluateBooleanFDate() {
         final IEvaluateBooleanFDate leftF = left.newEvaluateBooleanFDate();
         final IEvaluateBooleanFDate rightF = right.newEvaluateBooleanFDate();
-        return key -> leftF.evaluateBoolean(key) && rightF.evaluateBoolean(key);
+        return key -> leftF.evaluateBoolean(key) || rightF.evaluateBoolean(key);
     }
 
     @Override
     public IEvaluateBooleanKey newEvaluateBooleanKey() {
         final IEvaluateBooleanKey leftF = left.newEvaluateBooleanKey();
         final IEvaluateBooleanKey rightF = right.newEvaluateBooleanKey();
-        return key -> leftF.evaluateBoolean(key) && rightF.evaluateBoolean(key);
+        return key -> leftF.evaluateBoolean(key) || rightF.evaluateBoolean(key);
     }
 
     @Override
     public IEvaluateBoolean newEvaluateBoolean() {
         final IEvaluateBoolean leftF = left.newEvaluateBoolean();
         final IEvaluateBoolean rightF = right.newEvaluateBoolean();
-        return () -> leftF.evaluateBoolean() && rightF.evaluateBoolean();
+        return () -> leftF.evaluateBoolean() || rightF.evaluateBoolean();
     }
 
     @Override
-    public IEvaluateGenericKey<String> newEvaluateTrueReasonKey() {
+    public IEvaluateGenericKey<String> newEvaluateFalseReasonKey() {
         final IEvaluateBooleanKey f = newEvaluateBooleanKey();
         return key -> {
-            if (f.evaluateBoolean(key)) {
-                return BooleanAndLazyOperation.this.toString();
+            if (!f.evaluateBoolean(key)) {
+                return BooleanOrOperation.this.toString();
             } else {
                 return null;
             }
@@ -136,11 +136,11 @@ public class BooleanAndLazyOperation extends BooleanNullableAndLazyOperation {
     }
 
     @Override
-    public IEvaluateGeneric<String> newEvaluateTrueReason() {
+    public IEvaluateGeneric<String> newEvaluateFalseReason() {
         final IEvaluateBoolean f = newEvaluateBoolean();
         return () -> {
-            if (f.evaluateBoolean()) {
-                return BooleanAndLazyOperation.this.toString();
+            if (!f.evaluateBoolean()) {
+                return BooleanOrOperation.this.toString();
             } else {
                 return null;
             }
@@ -148,11 +148,11 @@ public class BooleanAndLazyOperation extends BooleanNullableAndLazyOperation {
     }
 
     @Override
-    public IEvaluateGenericFDate<String> newEvaluateTrueReasonFDate() {
+    public IEvaluateGenericFDate<String> newEvaluateFalseReasonFDate() {
         final IEvaluateBooleanFDate f = newEvaluateBooleanFDate();
         return key -> {
-            if (f.evaluateBoolean(key)) {
-                return BooleanAndLazyOperation.this.toString();
+            if (!f.evaluateBoolean(key)) {
+                return BooleanOrOperation.this.toString();
             } else {
                 return null;
             }

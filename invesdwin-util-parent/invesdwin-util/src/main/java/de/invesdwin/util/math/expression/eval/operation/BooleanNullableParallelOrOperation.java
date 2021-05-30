@@ -10,7 +10,7 @@ import de.invesdwin.util.math.expression.ExpressionType;
 import de.invesdwin.util.math.expression.eval.BooleanConstantExpression;
 import de.invesdwin.util.math.expression.eval.ConstantExpression;
 import de.invesdwin.util.math.expression.eval.IParsedExpression;
-import de.invesdwin.util.math.expression.eval.operation.simple.BooleanOrEagerOperation;
+import de.invesdwin.util.math.expression.eval.operation.simple.BooleanParallelOrOperation;
 import de.invesdwin.util.math.expression.lambda.IEvaluateBoolean;
 import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanFDate;
 import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanKey;
@@ -28,9 +28,9 @@ import de.invesdwin.util.math.expression.lambda.IEvaluateIntegerFDate;
 import de.invesdwin.util.math.expression.lambda.IEvaluateIntegerKey;
 
 @Immutable
-public class BooleanNullableOrEagerOperation extends DoubleBinaryOperation {
+public class BooleanNullableParallelOrOperation extends DoubleBinaryOperation {
 
-    public BooleanNullableOrEagerOperation(final IParsedExpression left, final IParsedExpression right) {
+    public BooleanNullableParallelOrOperation(final IParsedExpression left, final IParsedExpression right) {
         super(Op.POR, left, right);
     }
 
@@ -298,9 +298,9 @@ public class BooleanNullableOrEagerOperation extends DoubleBinaryOperation {
     protected IBinaryOperation newBinaryOperation(final IParsedExpression left, final IParsedExpression right) {
         final ExpressionType simplifyType = op.simplifyType(left, right);
         if (simplifyType == null) {
-            return new BooleanNullableOrEagerOperation(left, right);
+            return new BooleanNullableParallelOrOperation(left, right);
         } else if (simplifyType == ExpressionType.Boolean) {
-            return new BooleanOrEagerOperation(left, right);
+            return new BooleanParallelOrOperation(left, right);
         } else {
             throw UnknownArgumentException.newInstance(ExpressionType.class, simplifyType);
         }

@@ -8,7 +8,7 @@ import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.expression.ExpressionType;
 import de.invesdwin.util.math.expression.eval.IParsedExpression;
-import de.invesdwin.util.math.expression.eval.operation.simple.BooleanXorOperation;
+import de.invesdwin.util.math.expression.eval.operation.simple.BooleanExclusiveOrOperation;
 import de.invesdwin.util.math.expression.lambda.IEvaluateBoolean;
 import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanFDate;
 import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanKey;
@@ -26,9 +26,9 @@ import de.invesdwin.util.math.expression.lambda.IEvaluateIntegerFDate;
 import de.invesdwin.util.math.expression.lambda.IEvaluateIntegerKey;
 
 @Immutable
-public class BooleanNullableXorOperation extends DoubleBinaryOperation {
+public class BooleanNullableExclusiveOrOperation extends DoubleBinaryOperation {
 
-    public BooleanNullableXorOperation(final IParsedExpression left, final IParsedExpression right) {
+    public BooleanNullableExclusiveOrOperation(final IParsedExpression left, final IParsedExpression right) {
         super(Op.XOR, left, right);
     }
 
@@ -216,9 +216,9 @@ public class BooleanNullableXorOperation extends DoubleBinaryOperation {
     protected IBinaryOperation newBinaryOperation(final IParsedExpression left, final IParsedExpression right) {
         final ExpressionType simplifyType = op.simplifyType(left, right);
         if (simplifyType == null) {
-            return new BooleanNullableXorOperation(left, right);
+            return new BooleanNullableExclusiveOrOperation(left, right);
         } else if (simplifyType == ExpressionType.Boolean) {
-            return new BooleanXorOperation(left, right);
+            return new BooleanExclusiveOrOperation(left, right);
         } else {
             throw UnknownArgumentException.newInstance(ExpressionType.class, simplifyType);
         }

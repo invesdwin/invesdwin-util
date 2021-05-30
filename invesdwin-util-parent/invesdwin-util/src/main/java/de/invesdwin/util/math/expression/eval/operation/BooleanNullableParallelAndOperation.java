@@ -10,7 +10,7 @@ import de.invesdwin.util.math.expression.ExpressionType;
 import de.invesdwin.util.math.expression.eval.BooleanConstantExpression;
 import de.invesdwin.util.math.expression.eval.ConstantExpression;
 import de.invesdwin.util.math.expression.eval.IParsedExpression;
-import de.invesdwin.util.math.expression.eval.operation.simple.BooleanAndEagerOperation;
+import de.invesdwin.util.math.expression.eval.operation.simple.BooleanParallelAndOperation;
 import de.invesdwin.util.math.expression.lambda.IEvaluateBoolean;
 import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanFDate;
 import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanKey;
@@ -28,9 +28,9 @@ import de.invesdwin.util.math.expression.lambda.IEvaluateIntegerFDate;
 import de.invesdwin.util.math.expression.lambda.IEvaluateIntegerKey;
 
 @Immutable
-public class BooleanNullableAndEagerOperation extends DoubleBinaryOperation {
+public class BooleanNullableParallelAndOperation extends DoubleBinaryOperation {
 
-    public BooleanNullableAndEagerOperation(final IParsedExpression left, final IParsedExpression right) {
+    public BooleanNullableParallelAndOperation(final IParsedExpression left, final IParsedExpression right) {
         super(Op.PAND, left, right);
     }
 
@@ -298,9 +298,9 @@ public class BooleanNullableAndEagerOperation extends DoubleBinaryOperation {
     protected IBinaryOperation newBinaryOperation(final IParsedExpression left, final IParsedExpression right) {
         final ExpressionType simplifyType = op.simplifyType(left, right);
         if (simplifyType == null) {
-            return new BooleanNullableAndEagerOperation(left, right);
+            return new BooleanNullableParallelAndOperation(left, right);
         } else if (simplifyType == ExpressionType.Boolean) {
-            return new BooleanAndEagerOperation(left, right);
+            return new BooleanParallelAndOperation(left, right);
         } else {
             throw UnknownArgumentException.newInstance(ExpressionType.class, simplifyType);
         }

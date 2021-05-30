@@ -7,7 +7,7 @@ import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.expression.ExpressionType;
 import de.invesdwin.util.math.expression.eval.IParsedExpression;
-import de.invesdwin.util.math.expression.eval.operation.BooleanNullableXorOperation;
+import de.invesdwin.util.math.expression.eval.operation.BooleanNullableExclusiveOrOperation;
 import de.invesdwin.util.math.expression.lambda.IEvaluateBoolean;
 import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanFDate;
 import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanKey;
@@ -25,9 +25,9 @@ import de.invesdwin.util.math.expression.lambda.IEvaluateIntegerFDate;
 import de.invesdwin.util.math.expression.lambda.IEvaluateIntegerKey;
 
 @Immutable
-public class BooleanXorOperation extends BooleanNullableXorOperation {
+public class BooleanExclusiveOrOperation extends BooleanNullableExclusiveOrOperation {
 
-    public BooleanXorOperation(final IParsedExpression left, final IParsedExpression right) {
+    public BooleanExclusiveOrOperation(final IParsedExpression left, final IParsedExpression right) {
         super(left, right);
     }
 
@@ -129,7 +129,7 @@ public class BooleanXorOperation extends BooleanNullableXorOperation {
         final IEvaluateBooleanKey f = newEvaluateBooleanKey();
         return key -> {
             if (!f.evaluateBoolean(key)) {
-                return BooleanXorOperation.this.toString();
+                return BooleanExclusiveOrOperation.this.toString();
             } else {
                 return null;
             }
@@ -141,7 +141,7 @@ public class BooleanXorOperation extends BooleanNullableXorOperation {
         final IEvaluateBoolean f = newEvaluateBoolean();
         return () -> {
             if (!f.evaluateBoolean()) {
-                return BooleanXorOperation.this.toString();
+                return BooleanExclusiveOrOperation.this.toString();
             } else {
                 return null;
             }
@@ -153,7 +153,7 @@ public class BooleanXorOperation extends BooleanNullableXorOperation {
         final IEvaluateBooleanFDate f = newEvaluateBooleanFDate();
         return key -> {
             if (!f.evaluateBoolean(key)) {
-                return BooleanXorOperation.this.toString();
+                return BooleanExclusiveOrOperation.this.toString();
             } else {
                 return null;
             }

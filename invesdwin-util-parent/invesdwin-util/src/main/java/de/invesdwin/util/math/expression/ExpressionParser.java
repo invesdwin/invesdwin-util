@@ -16,12 +16,12 @@ import de.invesdwin.util.math.expression.eval.ConstantExpression;
 import de.invesdwin.util.math.expression.eval.DynamicPreviousKeyExpression;
 import de.invesdwin.util.math.expression.eval.IParsedExpression;
 import de.invesdwin.util.math.expression.eval.function.DoubleFunctionCall;
-import de.invesdwin.util.math.expression.eval.operation.BooleanNullableAndEagerOperation;
-import de.invesdwin.util.math.expression.eval.operation.BooleanNullableAndLazyOperation;
+import de.invesdwin.util.math.expression.eval.operation.BooleanNullableParallelAndOperation;
+import de.invesdwin.util.math.expression.eval.operation.BooleanNullableAndOperation;
 import de.invesdwin.util.math.expression.eval.operation.BooleanNullableNotOperation;
-import de.invesdwin.util.math.expression.eval.operation.BooleanNullableOrEagerOperation;
-import de.invesdwin.util.math.expression.eval.operation.BooleanNullableOrLazyOperation;
-import de.invesdwin.util.math.expression.eval.operation.BooleanNullableXorOperation;
+import de.invesdwin.util.math.expression.eval.operation.BooleanNullableParallelOrOperation;
+import de.invesdwin.util.math.expression.eval.operation.BooleanNullableOrOperation;
+import de.invesdwin.util.math.expression.eval.operation.BooleanNullableExclusiveOrOperation;
 import de.invesdwin.util.math.expression.eval.operation.DoubleBinaryOperation;
 import de.invesdwin.util.math.expression.eval.operation.DoubleCrossesAboveOperation;
 import de.invesdwin.util.math.expression.eval.operation.DoubleCrossesBelowOperation;
@@ -423,15 +423,15 @@ public class ExpressionParser {
         }
         switch (op) {
         case AND:
-            return new BooleanNullableAndLazyOperation(left, right);
+            return new BooleanNullableAndOperation(left, right);
         case PAND:
-            return new BooleanNullableAndEagerOperation(left, right);
+            return new BooleanNullableParallelAndOperation(left, right);
         case OR:
-            return new BooleanNullableOrLazyOperation(left, right);
+            return new BooleanNullableOrOperation(left, right);
         case POR:
-            return new BooleanNullableOrEagerOperation(left, right);
+            return new BooleanNullableParallelOrOperation(left, right);
         case XOR:
-            return new BooleanNullableXorOperation(left, right);
+            return new BooleanNullableExclusiveOrOperation(left, right);
         case NOT:
             return new BooleanNullableNotOperation(left, right);
         case CROSSES_ABOVE:
@@ -462,15 +462,15 @@ public class ExpressionParser {
             final Op op) {
         switch (op) {
         case AND:
-            return target.setLeft(new BooleanNullableAndLazyOperation(newLeft, target.getLeft()));
+            return target.setLeft(new BooleanNullableAndOperation(newLeft, target.getLeft()));
         case PAND:
-            return target.setLeft(new BooleanNullableAndEagerOperation(newLeft, target.getLeft()));
+            return target.setLeft(new BooleanNullableParallelAndOperation(newLeft, target.getLeft()));
         case OR:
-            return target.setLeft(new BooleanNullableOrLazyOperation(newLeft, target.getLeft()));
+            return target.setLeft(new BooleanNullableOrOperation(newLeft, target.getLeft()));
         case POR:
-            return target.setLeft(new BooleanNullableOrEagerOperation(newLeft, target.getLeft()));
+            return target.setLeft(new BooleanNullableParallelOrOperation(newLeft, target.getLeft()));
         case XOR:
-            return target.setLeft(new BooleanNullableXorOperation(newLeft, target.getLeft()));
+            return target.setLeft(new BooleanNullableExclusiveOrOperation(newLeft, target.getLeft()));
         case NOT:
             return target.setLeft(new BooleanNullableNotOperation(newLeft, target.getLeft()));
         case CROSSES_ABOVE:
