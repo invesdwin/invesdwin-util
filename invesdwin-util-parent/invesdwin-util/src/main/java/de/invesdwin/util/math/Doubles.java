@@ -701,6 +701,9 @@ public final class Doubles extends ADoublesStaticFacade {
         }
     }
 
+    /**
+     * https://stackoverflow.com/questions/9898512/how-to-test-if-a-double-is-an-integer/9898528
+     */
     public static boolean isInteger(final double value) {
         return value == Integers.checkedCastNoOverflow(value);
     }
