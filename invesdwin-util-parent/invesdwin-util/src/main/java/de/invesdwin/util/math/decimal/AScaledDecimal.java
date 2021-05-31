@@ -15,6 +15,7 @@ import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.decimal.internal.DecimalAggregate;
 import de.invesdwin.util.math.decimal.internal.DummyDecimalAggregate;
 import de.invesdwin.util.math.decimal.scaled.IDecimalScale;
+import de.invesdwin.util.math.decimal.scaled.ScaledDecimalToStringBuilder;
 
 @Immutable
 public abstract class AScaledDecimal<T extends AScaledDecimal<T, S>, S extends IDecimalScale<T, S>> extends ADecimal<T>

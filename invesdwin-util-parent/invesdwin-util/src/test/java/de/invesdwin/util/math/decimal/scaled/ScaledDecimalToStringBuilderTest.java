@@ -1,4 +1,4 @@
-package de.invesdwin.util.math.decimal;
+package de.invesdwin.util.math.decimal.scaled;
 
 import javax.annotation.concurrent.NotThreadSafe;
 

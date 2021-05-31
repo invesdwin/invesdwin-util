@@ -208,6 +208,10 @@ public class Decimal extends ADecimal<Decimal> {
         }
     }
 
+    public DecimalToStringBuilder toStringBuilder() {
+        return new DecimalToStringBuilder(getGenericThis());
+    }
+
     @Override
     public String toFormattedString() {
         return toFormattedString(Decimal.DEFAULT_DECIMAL_FORMAT);
