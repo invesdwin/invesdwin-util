@@ -195,6 +195,20 @@ public abstract class AContinuousRecursiveHistoricalCacheQuery<V> implements IRe
         return getPreviousValueByRecursion(key, previousKey);
     }
 
+    @Override
+    public V getPreviousValueIfPresent(final FDate key, final FDate previousKey) {
+        if (parent.containsKey(previousKey)) {
+            final IHistoricalEntry<V> entry = parentQuery.getEntry(previousKey);
+            if (entry != null) {
+                final V value = entry.getValueIfPresent();
+                if (value != null) {
+                    return value;
+                }
+            }
+        }
+        return null;
+    }
+
     private V getPreviousValueByRecursion(final FDate key, final FDate previousKey) {
         return getPreviousValueByRecusionTry(key, previousKey, 0);
     }

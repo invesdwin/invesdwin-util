@@ -157,6 +157,12 @@ public abstract class AUnstableRecursiveHistoricalCacheQuery<V> implements IRecu
         return previous;
     }
 
+    @Override
+    public V getPreviousValueIfPresent(final FDate key, final FDate previousKey) {
+        //never present
+        return null;
+    }
+
     private V getPreviousValueByRecursion(final FDate key, final FDate previousKey) {
         return getPreviousValueByRecusionTry(key, previousKey, 0);
     }

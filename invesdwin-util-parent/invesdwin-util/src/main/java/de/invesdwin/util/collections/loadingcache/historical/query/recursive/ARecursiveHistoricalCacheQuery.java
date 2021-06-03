@@ -84,6 +84,11 @@ public abstract class ARecursiveHistoricalCacheQuery<V> implements IRecursiveHis
         return delegate.getPreviousValue(key, previousKey);
     }
 
+    @Override
+    public V getPreviousValueIfPresent(final FDate key, final FDate previousKey) {
+        return delegate.getPreviousValueIfPresent(key, previousKey);
+    }
+
     protected abstract V getInitialValue(FDate previousKey);
 
     public static int newContinuousUnstablePeriod(final int recursionCount,
