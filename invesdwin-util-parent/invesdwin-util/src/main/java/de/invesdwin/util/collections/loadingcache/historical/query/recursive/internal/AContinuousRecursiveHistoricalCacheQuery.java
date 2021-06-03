@@ -28,6 +28,7 @@ import de.invesdwin.util.time.duration.Duration;
 import de.invesdwin.util.time.fdate.FDate;
 import de.invesdwin.util.time.fdate.FTimeUnit;
 import de.invesdwin.util.time.range.TimeRange;
+import io.netty.util.concurrent.FastThreadLocal;
 
 /**
  * This variation calculates the values continuously when possible by using the previous value from the cache thus
@@ -62,6 +63,8 @@ public abstract class AContinuousRecursiveHistoricalCacheQuery<V> implements IRe
     private static final Integer MAX_RECURSION_LOOKBACK_LIMIT = 20000;
     private static final int LARGE_RECALCULATION_WARNING_THRESHOLD = 10;
 
+    private static final FastThreadLocal<FDate> OUTER_FIRST_RECURSION_KEY = new FastThreadLocal<>();
+
     private static final org.slf4j.ext.XLogger LOG = org.slf4j.ext.XLoggerFactory
             .getXLogger(AContinuousRecursiveHistoricalCacheQuery.class);
 
@@ -71,6 +74,8 @@ public abstract class AContinuousRecursiveHistoricalCacheQuery<V> implements IRe
     private boolean recursionInProgress = false;
     @GuardedBy("parent")
     private FDate firstRecursionKey;
+    @GuardedBy("parent")
+    private boolean outerFirstRecursionKeySet;
     @GuardedBy("parent")
     private FDate lastRecursionKey;
     //BTreeMap has problems with removing first entry so we use TreeMap
@@ -325,6 +330,10 @@ public abstract class AContinuousRecursiveHistoricalCacheQuery<V> implements IRe
             return value;
         } finally {
             firstRecursionKey = null;
+            if (outerFirstRecursionKeySet) {
+                OUTER_FIRST_RECURSION_KEY.remove();
+                outerFirstRecursionKeySet = false;
+            }
             lastRecursionKey = null;
             shouldAppendHighestRecursionResults = false;
         }
@@ -409,6 +418,15 @@ public abstract class AContinuousRecursiveHistoricalCacheQuery<V> implements IRe
         }
         try {
             firstRecursionKey = iterator.getHead();
+            final FDate outerFirstRecursionKey = OUTER_FIRST_RECURSION_KEY.get();
+            if (outerFirstRecursionKey == null) {
+                OUTER_FIRST_RECURSION_KEY.set(firstRecursionKey);
+                outerFirstRecursionKeySet = true;
+            } else if (outerFirstRecursionKey.isAfterNotNullSafe(firstRecursionKey)) {
+                //don't exceed outer first recursion key, instead use initial value
+                firstRecursionKey = null;
+                return null;
+            }
             final TimeRange timeRange = new TimeRange(firstRecursionKey, from);
             if (timeRange.getDuration().intValue(FTimeUnit.YEARS) > 1) {
                 largeRecalculationsCount++;
@@ -423,6 +441,10 @@ public abstract class AContinuousRecursiveHistoricalCacheQuery<V> implements IRe
             return iterator;
         } catch (final NoSuchElementException e) {
             firstRecursionKey = null;
+            if (outerFirstRecursionKeySet) {
+                OUTER_FIRST_RECURSION_KEY.remove();
+                outerFirstRecursionKeySet = false;
+            }
             return null;
         }
     }
