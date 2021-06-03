@@ -25,7 +25,7 @@ public abstract class APushingRecursiveHistoricalResult<D, E, R extends APushing
 
     public final synchronized R maybeInit() {
         if (data == null) {
-            if (previousKey != null) {
+            if (previousKey != null && !key.equalsNotNullSafe(previousKey)) {
                 final R previousValue = recursiveQuery.getPreviousValueIfPresent(key, previousKey);
                 if (previousValue != null) {
                     data = previousValue.maybeInit().pushToNext(key).data;
