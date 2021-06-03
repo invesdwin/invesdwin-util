@@ -32,6 +32,9 @@ final class FullRecursionKeysResult
     }
 
     protected static IndexedFDate adjustKey(final AHistoricalCache<?> parent, final FDate key) {
+        if (key == null) {
+            return null;
+        }
         return IndexedFDate.maybeWrap(key)
                 .putExtractedKey(parent.getExtractKeyProvider(), parent.getAdjustKeyProvider());
     }
@@ -44,8 +47,7 @@ final class FullRecursionKeysResult
     @Override
     protected BufferingIterator<FDate> initData() {
         final BufferingIterator<FDate> data = new BufferingIterator<>();
-        try (ICloseableIterator<FDate> values = parentQuery.getPreviousKeys(key, fullRecursionCount)
-                .iterator()) {
+        try (ICloseableIterator<FDate> values = parentQuery.getPreviousKeys(key, fullRecursionCount).iterator()) {
             while (true) {
                 final FDate next = values.next();
                 final IndexedFDate indexedTime = adjustKey(parent, next);
@@ -101,8 +103,7 @@ final class FullRecursionKeysResult
     @Override
     protected FullRecursionKeysResult newResult(final FDate key, final FDate previousKey,
             final IRecursiveHistoricalCacheQuery<FullRecursionKeysResult> recursiveQuery) {
-        return new FullRecursionKeysResult(parent, key, previousKey, recursiveQuery, fullRecursionCount,
-                parentQuery);
+        return new FullRecursionKeysResult(parent, key, previousKey, recursiveQuery, fullRecursionCount, parentQuery);
     }
 
     @Override
