@@ -23,12 +23,20 @@ public abstract class APushingRecursiveHistoricalResult<D, E, R extends APushing
         this.recursiveQuery = recursiveQuery;
     }
 
-    public final synchronized R maybeInit() {
+    public final R maybeInit() {
+        return maybeInit(0);
+    }
+
+    protected int getMaxRecursionCount() {
+        return 100;
+    }
+
+    public final synchronized R maybeInit(final int recursionCount) {
         if (data == null) {
-            if (previousKey != null && !key.equalsNotNullSafe(previousKey)) {
+            if (previousKey != null && !key.equalsNotNullSafe(previousKey) && recursionCount < getMaxRecursionCount()) {
                 final R previousValue = recursiveQuery.getPreviousValueIfPresent(key, previousKey);
-                if (previousValue != null) {
-                    data = previousValue.maybeInit().pushToNext(key).data;
+                if (previousValue != null && previousValue != this) {
+                    data = previousValue.maybeInit(recursionCount + 1).pushToNext(key).data;
                     if (data != null) {
                         return getGenericThis();
                     }
