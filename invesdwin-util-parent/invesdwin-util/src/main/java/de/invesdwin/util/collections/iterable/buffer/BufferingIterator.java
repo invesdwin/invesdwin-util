@@ -13,7 +13,7 @@ import de.invesdwin.util.collections.iterable.WrapperCloseableIterable;
 import de.invesdwin.util.collections.iterable.WrapperCloseableIterator;
 import de.invesdwin.util.collections.list.Lists;
 import de.invesdwin.util.error.FastNoSuchElementException;
-import de.invesdwin.util.lang.Objects;
+import de.invesdwin.util.lang.Strings;
 
 /**
  * This iterator can be used to buffer another iterator. Useful to load from a file immediately to keep the file open as
@@ -271,7 +271,7 @@ public class BufferingIterator<E> implements IBufferingIterator<E>, ISerializabl
 
         @Override
         public String toString() {
-            return Objects.toString(value);
+            return Strings.asString(value);
         }
     }
 
