@@ -14,4 +14,6 @@ public interface IRecursiveHistoricalCacheQuery<V> {
 
     V getPreviousValueIfPresent(FDate key, FDate previousKey);
 
+    FDate getKey(FDate key);
+
 }

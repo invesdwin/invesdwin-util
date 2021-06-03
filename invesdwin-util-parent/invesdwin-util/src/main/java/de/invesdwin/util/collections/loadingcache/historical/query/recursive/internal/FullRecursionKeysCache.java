@@ -3,52 +3,21 @@ package de.invesdwin.util.collections.loadingcache.historical.query.recursive.in
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
-import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQuery;
-import de.invesdwin.util.math.expression.lambda.IEvaluateGenericFDate;
+import de.invesdwin.util.collections.loadingcache.historical.query.recursive.IRecursiveHistoricalCacheQuery;
+import de.invesdwin.util.collections.loadingcache.historical.query.recursive.pushing.APushingRecursiveHistoricalCache;
 import de.invesdwin.util.time.fdate.FDate;
 
 @ThreadSafe
-final class FullRecursionKeysCache extends AHistoricalCache<FullRecursionKeysResult> {
-    private final AHistoricalCache<?> parent;
-    private final int fullRecursionCount;
-    private final IHistoricalCacheQuery<?> parentQueryWithFutureNull;
-    private final AContinuousRecursiveHistoricalCacheQuery<FullRecursionKeysResult> recursiveQuery;
+final class FullRecursionKeysCache extends APushingRecursiveHistoricalCache<FullRecursionKeysResult> {
 
     FullRecursionKeysCache(final AHistoricalCache<?> parent, final int fullRecursionCount) {
-        this.parent = parent;
-        this.parentQueryWithFutureNull = parent.query().withFutureNull();
-        this.fullRecursionCount = fullRecursionCount;
-        setShiftKeyDelegate(parent, true);
-        setAdjustKeyProvider(parent.getAdjustKeyProvider());
-        this.recursiveQuery = new AContinuousRecursiveHistoricalCacheQuery<FullRecursionKeysResult>(this,
-                fullRecursionCount) {
-
-            @Override
-            protected FullRecursionKeysResult getInitialValue(final FDate previousKey) {
-                return new FullRecursionKeysResult(previousKey, fullRecursionCount, parent, parentQueryWithFutureNull)
-                        .maybeInit();
-            }
-
-            @Override
-            protected boolean shouldUseInitialValueInsteadOfFullRecursion() {
-                //calculate the initial value
-                return true;
-            }
-        };
+        super(parent, fullRecursionCount);
     }
 
     @Override
-    protected IEvaluateGenericFDate<FullRecursionKeysResult> newLoadValue() {
-        return pKey -> {
-            final FDate key = pKey.asFDate();
-            final FDate previousKey = parentQueryWithFutureNull.getPreviousKey(key, 1);
-            if (previousKey == null) {
-                return new FullRecursionKeysResult(key, fullRecursionCount, parent, parentQueryWithFutureNull);
-            } else {
-                final FullRecursionKeysResult previousValue = recursiveQuery.getPreviousValue(key, previousKey);
-                return previousValue.pushToNext(key);
-            }
-        };
+    protected FullRecursionKeysResult newResult(final FDate key, final FDate previousKey,
+            final IRecursiveHistoricalCacheQuery<FullRecursionKeysResult> recursiveQuery) {
+        return new FullRecursionKeysResult(parent, key, previousKey, recursiveQuery, fullRecursionCount, parentQuery);
     }
 
 }

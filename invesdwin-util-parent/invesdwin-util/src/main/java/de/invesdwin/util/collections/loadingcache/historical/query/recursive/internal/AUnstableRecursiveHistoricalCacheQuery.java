@@ -127,6 +127,11 @@ public abstract class AUnstableRecursiveHistoricalCacheQuery<V> implements IRecu
     }
 
     @Override
+    public FDate getKey(final FDate key) {
+        return parentQuery.getKey(key);
+    }
+
+    @Override
     public void clear() {
         synchronized (parent) {
             resetForRetry();

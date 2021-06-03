@@ -139,6 +139,11 @@ public abstract class AContinuousRecursiveHistoricalCacheQuery<V> implements IRe
         parent.increaseMaximumSize(this.recursionCount, "recursionCount");
     }
 
+    @Override
+    public FDate getKey(final FDate key) {
+        return parentQuery.getKey(key);
+    }
+
     public static int newContinuousUnstablePeriod(final int recursionCount,
             final boolean shouldUseInitialValueInsteadOfFullRecursion) {
         if (shouldUseInitialValueInsteadOfFullRecursion) {

@@ -97,4 +97,9 @@ public abstract class ARecursiveHistoricalCacheQuery<V> implements IRecursiveHis
                 shouldUseInitialValueInsteadOfFullRecursion);
     }
 
+    @Override
+    public FDate getKey(final FDate key) {
+        return delegate.getKey(key);
+    }
+
 }

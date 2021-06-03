@@ -8,81 +8,62 @@ import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
 import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
 import de.invesdwin.util.collections.loadingcache.historical.IHistoricalEntry;
-import de.invesdwin.util.collections.loadingcache.historical.IHistoricalValue;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQuery;
 import de.invesdwin.util.collections.loadingcache.historical.query.index.IndexedFDate;
+import de.invesdwin.util.collections.loadingcache.historical.query.recursive.IRecursiveHistoricalCacheQuery;
+import de.invesdwin.util.collections.loadingcache.historical.query.recursive.pushing.APushingRecursiveHistoricalResult;
 import de.invesdwin.util.time.fdate.FDate;
 
 @ThreadSafe
-final class FullRecursionKeysResult implements IHistoricalValue<FullRecursionKeysResult> {
+final class FullRecursionKeysResult
+        extends APushingRecursiveHistoricalResult<BufferingIterator<FDate>, FDate, FullRecursionKeysResult> {
 
-    private final FDate key;
-    private BufferingIterator<FDate> fullRecursionKeys;
-    private final int fullRecursionCount;
     private final AHistoricalCache<?> parent;
-    private final IHistoricalCacheQuery<?> parentQueryWithFutureNull;
+    private final int fullRecursionCount;
+    private final IHistoricalCacheQuery<?> parentQuery;
 
-    FullRecursionKeysResult(final FDate key, final int fullRecursionCount, final AHistoricalCache<?> parent,
-            final IHistoricalCacheQuery<?> parentQueryWithFutureNull) {
-        this.key = IndexedFDate.maybeWrap(key)
-                .putExtractedKey(parent.getExtractKeyProvider(), parent.getAdjustKeyProvider());
-        this.fullRecursionCount = fullRecursionCount;
+    FullRecursionKeysResult(final AHistoricalCache<?> parent, final FDate key, final FDate previousKey,
+            final IRecursiveHistoricalCacheQuery<FullRecursionKeysResult> recursiveQuery, final int fullRecursionCount,
+            final IHistoricalCacheQuery<?> parentQuery) {
+        super(adjustKey(parent, key), adjustKey(parent, previousKey), recursiveQuery);
         this.parent = parent;
-        this.parentQueryWithFutureNull = parentQueryWithFutureNull;
+        this.fullRecursionCount = fullRecursionCount;
+        this.parentQuery = parentQuery;
+    }
+
+    protected static IndexedFDate adjustKey(final AHistoricalCache<?> parent, final FDate key) {
+        return IndexedFDate.maybeWrap(key)
+                .putExtractedKey(parent.getExtractKeyProvider(), parent.getAdjustKeyProvider());
     }
 
     public synchronized ICloseableIterator<FDate> getFullRecursionKeys() {
         maybeInit();
-        return fullRecursionKeys.iterator();
+        return data.iterator();
     }
 
-    public synchronized FullRecursionKeysResult maybeInit() {
-        if (fullRecursionKeys == null) {
-            fullRecursionKeys = new BufferingIterator<>();
-            try (ICloseableIterator<FDate> values = parentQueryWithFutureNull.getPreviousKeys(key, fullRecursionCount)
-                    .iterator()) {
-                while (true) {
-                    final FDate next = values.next();
-                    final IndexedFDate indexedTime = IndexedFDate.maybeWrap(next);
-                    indexedTime.putExtractedKey(parent.getExtractKeyProvider(), parent.getAdjustKeyProvider());
-                    fullRecursionKeys.add(indexedTime);
-                }
-            } catch (final NoSuchElementException e) {
-                //ignore
+    @Override
+    protected BufferingIterator<FDate> initData() {
+        final BufferingIterator<FDate> data = new BufferingIterator<>();
+        try (ICloseableIterator<FDate> values = parentQuery.getPreviousKeys(key, fullRecursionCount)
+                .iterator()) {
+            while (true) {
+                final FDate next = values.next();
+                final IndexedFDate indexedTime = adjustKey(parent, next);
+                data.add(indexedTime);
             }
+        } catch (final NoSuchElementException e) {
+            //ignore
         }
-        return this;
+        return data;
     }
 
-    public synchronized FullRecursionKeysResult pushToNext(final FDate key) {
-        if (key.equals(this.key)) {
-            return this;
-        }
-        if (!key.isAfter(this.key)) {
-            throw new IllegalArgumentException("key [" + key + "] should be after [" + this.key + "]");
-        }
-        final FDate nextEntry = parentQueryWithFutureNull.getKey(key);
-        if (!nextEntry.isAfter(this.key)) {
-            throw new IllegalArgumentException("entry.key [" + key + "] should be after [" + this.key + "]");
-        }
-        if (nextEntry.equals(this.key)) {
-            return this;
-        }
-        if (fullRecursionKeys == null || fullRecursionKeys.isEmpty()) {
-            return new FullRecursionKeysResult(key, fullRecursionCount, parent, parentQueryWithFutureNull);
-        } else {
-            final IndexedFDate indexedTime = IndexedFDate.maybeWrap(nextEntry);
-            indexedTime.putExtractedKey(parent.getExtractKeyProvider(), parent.getAdjustKeyProvider());
-            fullRecursionKeys.add(indexedTime);
-            //trim
-            while (fullRecursionKeys.size() > fullRecursionCount) {
-                fullRecursionKeys.next();
-            }
-            final FullRecursionKeysResult nextResult = new FullRecursionKeysResult(key, fullRecursionCount, parent,
-                    parentQueryWithFutureNull);
-            nextResult.fullRecursionKeys = fullRecursionKeys;
-            fullRecursionKeys = null;
-            return nextResult;
+    @Override
+    protected void appendEntry(final FDate nextEntry) {
+        final IndexedFDate indexedTime = adjustKey(parent, nextEntry);
+        data.add(indexedTime);
+        //trim
+        while (data.size() > fullRecursionCount) {
+            data.next();
         }
     }
 
@@ -105,6 +86,28 @@ final class FullRecursionKeysResult implements IHistoricalValue<FullRecursionKey
                 return getKey() + " -> " + getValue();
             }
         };
+    }
+
+    @Override
+    protected FDate getEntry(final FDate key) {
+        return parentQuery.getKey(key);
+    }
+
+    @Override
+    protected FDate extractKey(final FDate entry) {
+        return entry;
+    }
+
+    @Override
+    protected FullRecursionKeysResult newResult(final FDate key, final FDate previousKey,
+            final IRecursiveHistoricalCacheQuery<FullRecursionKeysResult> recursiveQuery) {
+        return new FullRecursionKeysResult(parent, key, previousKey, recursiveQuery, fullRecursionCount,
+                parentQuery);
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return data.isEmpty();
     }
 
 }
