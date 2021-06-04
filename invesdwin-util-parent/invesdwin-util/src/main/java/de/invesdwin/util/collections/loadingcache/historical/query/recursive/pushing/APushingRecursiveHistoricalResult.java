@@ -6,11 +6,15 @@ import javax.annotation.concurrent.ThreadSafe;
 import de.invesdwin.util.collections.loadingcache.historical.IHistoricalEntry;
 import de.invesdwin.util.collections.loadingcache.historical.IHistoricalValue;
 import de.invesdwin.util.collections.loadingcache.historical.query.recursive.IRecursiveHistoricalCacheQuery;
+import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.time.fdate.FDate;
 
 @ThreadSafe
 public abstract class APushingRecursiveHistoricalResult<D, E, R extends APushingRecursiveHistoricalResult<D, E, R>>
         implements IHistoricalValue<R> {
+
+    public static final int MIN_RECURSION_COUNT = 10;
+    public static final int MAX_RECURSION_COUNT_LIMIT = 10000;
 
     protected final FDate key;
     protected final FDate previousKey;
@@ -26,19 +30,19 @@ public abstract class APushingRecursiveHistoricalResult<D, E, R extends APushing
     }
 
     public final R maybeInit() {
-        return maybeInit(0);
+        return maybeInit(0, getMaxRecursionCount());
     }
 
     protected int getMaxRecursionCount() {
-        return 10;
+        return Integers.between(recursiveQuery.getRecursionCount(), MIN_RECURSION_COUNT, MAX_RECURSION_COUNT_LIMIT);
     }
 
-    public final synchronized R maybeInit(final int recursionCount) {
+    public final synchronized R maybeInit(final int recursionCount, final int maxRecursionCount) {
         if (data == null) {
-            if (previousKey != null && !key.equalsNotNullSafe(previousKey) && recursionCount < getMaxRecursionCount()) {
+            if (previousKey != null && !key.equalsNotNullSafe(previousKey) && recursionCount < maxRecursionCount) {
                 final R previousValue = recursiveQuery.getPreviousValueIfPresent(key, previousKey);
                 if (previousValue != null && previousValue != this) {
-                    data = previousValue.maybeInit(recursionCount + 1).pushToNext(key).data;
+                    data = previousValue.maybeInit(recursionCount + 1, maxRecursionCount).pushToNext(key).data;
                     if (data != null) {
                         return getGenericThis();
                     }
@@ -65,9 +69,9 @@ public abstract class APushingRecursiveHistoricalResult<D, E, R extends APushing
             return getGenericThis();
         }
         final FDate nextEntryKey = extractKey(nextEntry);
-        if (nextEntryKey.isBeforeNotNullSafe(this.key)) {
-            throw new IllegalArgumentException(
-                    "entry.key [" + nextEntryKey + "] should be after or equal to [" + this.key + "]");
+        if (nextEntryKey.isBeforeOrEqualToNotNullSafe(this.key)) {
+            //most likely a closing tick
+            return getGenericThis();
         }
         if (nextEntryKey.equalsNotNullSafe(this.key)) {
             return getGenericThis();
