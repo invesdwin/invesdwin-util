@@ -41,7 +41,7 @@ final class FullRecursionKeysResult
 
     public synchronized ICloseableIterator<FDate> getFullRecursionKeys() {
         maybeInit();
-        return data.iterator();
+        return data.snapshot().iterator();
     }
 
     @Override
@@ -101,13 +101,18 @@ final class FullRecursionKeysResult
     }
 
     @Override
+    protected FullRecursionKeysResult getGenericThis() {
+        return this;
+    }
+
+    @Override
     protected FullRecursionKeysResult newResult(final FDate key, final FDate previousKey,
             final IRecursiveHistoricalCacheQuery<FullRecursionKeysResult> recursiveQuery) {
         return new FullRecursionKeysResult(parent, key, previousKey, recursiveQuery, fullRecursionCount, parentQuery);
     }
 
     @Override
-    public boolean isEmpty() {
+    protected boolean isEmpty(final BufferingIterator<FDate> data) {
         return data.isEmpty();
     }
 

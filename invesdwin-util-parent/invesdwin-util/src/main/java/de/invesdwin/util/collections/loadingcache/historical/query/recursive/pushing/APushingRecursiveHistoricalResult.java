@@ -1,5 +1,6 @@
 package de.invesdwin.util.collections.loadingcache.historical.query.recursive.pushing;
 
+import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.collections.loadingcache.historical.IHistoricalEntry;
@@ -14,6 +15,7 @@ public abstract class APushingRecursiveHistoricalResult<D, E, R extends APushing
     protected final FDate key;
     protected final FDate previousKey;
     protected final IRecursiveHistoricalCacheQuery<R> recursiveQuery;
+    @GuardedBy("this")
     protected D data;
 
     public APushingRecursiveHistoricalResult(final FDate key, final FDate previousKey,
@@ -70,7 +72,7 @@ public abstract class APushingRecursiveHistoricalResult<D, E, R extends APushing
         if (nextEntryKey.equalsNotNullSafe(this.key)) {
             return getGenericThis();
         }
-        if (data == null || isEmpty()) {
+        if (isEmpty()) {
             return newResult(key, this.key, recursiveQuery);
         } else {
             appendEntry(nextEntry);
@@ -94,7 +96,11 @@ public abstract class APushingRecursiveHistoricalResult<D, E, R extends APushing
         return (R) this;
     }
 
-    public abstract boolean isEmpty();
+    public final boolean isEmpty() {
+        return data == null || isEmpty(data);
+    }
+
+    protected abstract boolean isEmpty(D data);
 
     @Override
     public IHistoricalEntry<? extends R> asHistoricalEntry() {
