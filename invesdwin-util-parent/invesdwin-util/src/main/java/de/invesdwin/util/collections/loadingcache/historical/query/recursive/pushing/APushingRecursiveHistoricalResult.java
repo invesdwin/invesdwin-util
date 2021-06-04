@@ -30,7 +30,7 @@ public abstract class APushingRecursiveHistoricalResult<D, E, R extends APushing
     }
 
     protected int getMaxRecursionCount() {
-        return 100;
+        return 10;
     }
 
     public final synchronized R maybeInit(final int recursionCount) {
