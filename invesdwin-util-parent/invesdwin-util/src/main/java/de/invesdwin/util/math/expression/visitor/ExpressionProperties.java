@@ -43,6 +43,12 @@ public final class ExpressionProperties {
      * DEFAULT when undefined is false.
      */
     public static final String PERSIST = "PERSIST";
+    /**
+     * Return true if this is a parameter that can be optimized.
+     * 
+     * DEFAULT when undefined is false.
+     */
+    public static final String OPTIMIZE = "OPTIMIZE";
 
     private ExpressionProperties() {
     }
@@ -93,6 +99,19 @@ public final class ExpressionProperties {
         final IExpression[] parameters = expression.getChildren();
         for (int i = 0; i < parameters.length; i++) {
             if (isLastTrades(parameters[i])) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean isOptimize(final IExpression expression) {
+        if (Booleans.isTrue((Boolean) expression.getProperty(OPTIMIZE))) {
+            return true;
+        }
+        final IExpression[] parameters = expression.getChildren();
+        for (int i = 0; i < parameters.length; i++) {
+            if (isOptimize(parameters[i])) {
                 return true;
             }
         }
