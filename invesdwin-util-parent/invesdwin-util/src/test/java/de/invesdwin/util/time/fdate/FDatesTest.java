@@ -33,7 +33,7 @@ public class FDatesTest {
     }
 
     @Test
-    public void testWithoutTime() {
+    public void testWithoutTimeUtc() {
         final FDate now = new FDate().withoutTime(FTimeZone.UTC);
         final FDate utcTime = now.applyTimeZoneOffset(FTimeZone.UTC);
         //CHECKSTYLE:OFF
@@ -41,6 +41,20 @@ public class FDatesTest {
                 now + " (" + now.getTimeZone().getId() + ") -> " + utcTime + " (" + TimeZones.UTC.getID() + ")");
         //CHECKSTYLE:ON
         Assertions.checkEquals(0, now.getHour(FTimeZone.UTC));
+        Assertions.checkEquals(2, now.getHour(FTimeZone.EUROPE_BERLIN));
+        Assertions.checkEquals(now.getHour(), now.getHour(now.getTimeZone()));
+    }
+
+    @Test
+    public void testWithoutTimeEuropeBerlin() {
+        final FDate now = new FDate().withoutTime(FTimeZone.EUROPE_BERLIN);
+        final FDate utcTime = now.applyTimeZoneOffset(FTimeZone.EUROPE_BERLIN);
+        //CHECKSTYLE:OFF
+        System.out.println(now + " (" + now.getTimeZone().getId() + ") -> " + utcTime + " ("
+                + TimeZones.EUROPE_BERLIN.getID() + ")");
+        //CHECKSTYLE:ON
+        Assertions.checkEquals(0, now.getHour(FTimeZone.EUROPE_BERLIN));
+        Assertions.checkEquals(22, now.getHour(FTimeZone.UTC));
         Assertions.checkEquals(now.getHour(), now.getHour(now.getTimeZone()));
     }
 

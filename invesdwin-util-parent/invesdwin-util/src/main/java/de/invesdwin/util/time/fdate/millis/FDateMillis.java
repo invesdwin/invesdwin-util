@@ -414,7 +414,12 @@ public final class FDateMillis {
      * sets hour, minute, second and millisecond each to 0.
      */
     public static long withoutTime(final long millis) {
-        return truncate(millis, FDateField.Day);
+        //modulo seems to be faster than division and multiplication
+        long withoutTime = millis - millis % FDates.MILLISECONDS_IN_DAY;
+        if (!FDates.getDefaultTimeZone().isUTC()) {
+            withoutTime -= FDates.getDefaultTimeZone().getOffsetMilliseconds(withoutTime);
+        }
+        return withoutTime;
     }
 
     public static long withoutTime(final long millis, final FTimeZone timeZone) {
