@@ -358,6 +358,11 @@ public class MultipleExpressionParser implements IExpressionParser {
             protected String modifyExpression(final String expression) {
                 return MultipleExpressionParser.this.modifyExpression(expression);
             }
+
+            @Override
+            protected IParsedExpression simplify(final IParsedExpression expression) {
+                return MultipleExpressionParser.this.simplify(expression);
+            }
         };
     }
 
@@ -387,6 +392,10 @@ public class MultipleExpressionParser implements IExpressionParser {
 
     protected AFunction getFunction(final String context, final String name) {
         return null;
+    }
+
+    protected IParsedExpression simplify(final IParsedExpression expression) {
+        return expression.simplify();
     }
 
 }

@@ -101,7 +101,7 @@ public class ExpressionParserLazyTest {
         final ExpressionParser parser = new ExpressionParser(
                 "(falseFunction() && firstNanFunction()) && (trueFunction() && secondNanFunction())") {
             @Override
-            protected AFunction getFunction(final String context, final String name) {
+            public AFunction getFunction(final String context, final String name) {
                 if ("firstNanFunction".equalsIgnoreCase(name)) {
                     return newNanFunctionCalled(firstNanFunctionCalled, name);
                 } else if ("secondNanFunction".equalsIgnoreCase(name)) {
@@ -147,7 +147,7 @@ public class ExpressionParserLazyTest {
         final ExpressionParser parser = new ExpressionParser(
                 "(trueFunction() && firstNanFunction()) && (falseFunction() && secondNanFunction())") {
             @Override
-            protected AFunction getFunction(final String context, final String name) {
+            public AFunction getFunction(final String context, final String name) {
                 if ("firstNanFunction".equalsIgnoreCase(name)) {
                     return newNanFunctionCalled(firstNanFunctionCalled, name);
                 } else if ("secondNanFunction".equalsIgnoreCase(name)) {
@@ -193,7 +193,7 @@ public class ExpressionParserLazyTest {
         final ExpressionParser parser = new ExpressionParser(
                 "(trueFunction() && firstNanFunction()) && (trueFunction() && secondNanFunction())") {
             @Override
-            protected AFunction getFunction(final String context, final String name) {
+            public AFunction getFunction(final String context, final String name) {
                 if ("firstNanFunction".equalsIgnoreCase(name)) {
                     return newNanFunctionCalled(firstNanFunctionCalled, name);
                 } else if ("secondNanFunction".equalsIgnoreCase(name)) {
@@ -240,7 +240,7 @@ public class ExpressionParserLazyTest {
         final ExpressionParser parser = new ExpressionParser(
                 "(falseFunction() && firstNanFunction()) || (trueFunction() && secondNanFunction())") {
             @Override
-            protected AFunction getFunction(final String context, final String name) {
+            public AFunction getFunction(final String context, final String name) {
                 if ("firstNanFunction".equalsIgnoreCase(name)) {
                     return newNanFunctionCalled(firstNanFunctionCalled, name);
                 } else if ("secondNanFunction".equalsIgnoreCase(name)) {
@@ -286,7 +286,7 @@ public class ExpressionParserLazyTest {
         final ExpressionParser parser = new ExpressionParser(
                 "(trueFunction() && firstNanFunction()) || (falseFunction() && secondNanFunction())") {
             @Override
-            protected AFunction getFunction(final String context, final String name) {
+            public AFunction getFunction(final String context, final String name) {
                 if ("firstNanFunction".equalsIgnoreCase(name)) {
                     return newNanFunctionCalled(firstNanFunctionCalled, name);
                 } else if ("secondNanFunction".equalsIgnoreCase(name)) {
@@ -332,7 +332,7 @@ public class ExpressionParserLazyTest {
         final ExpressionParser parser = new ExpressionParser(
                 "(trueFunction() && firstNanFunction()) || (trueFunction() && secondNanFunction())") {
             @Override
-            protected AFunction getFunction(final String context, final String name) {
+            public AFunction getFunction(final String context, final String name) {
                 if ("firstNanFunction".equalsIgnoreCase(name)) {
                     return newNanFunctionCalled(firstNanFunctionCalled, name);
                 } else if ("secondNanFunction".equalsIgnoreCase(name)) {
