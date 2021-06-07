@@ -111,7 +111,11 @@ public class MultipleExpressionParser implements IExpressionParser {
     }
 
     private IParsedExpression finalExpression() {
-        final IPosition positionBefore = tokenizer.current();
+        final Token positionBefore = tokenizer.current();
+        if (positionBefore.isEnd()) {
+            throw new ParseException(positionBefore,
+                    TextDescription.format("Unexpected token: '%s'", positionBefore.getSource()));
+        }
         final String expression = collectExpression();
         try {
             final IParsedExpression parsed = (IParsedExpression) newNestedParser(expression).parse();

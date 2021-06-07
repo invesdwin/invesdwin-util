@@ -7,6 +7,7 @@ import org.junit.Test;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.math.expression.eval.function.ADoubleNullaryFunction;
 import de.invesdwin.util.math.expression.function.AFunction;
+import de.invesdwin.util.math.expression.tokenizer.ParseException;
 
 @NotThreadSafe
 public class MultipleExpressionParserTest {
@@ -18,6 +19,28 @@ public class MultipleExpressionParserTest {
         Assertions.checkEquals("var one = 1; var two = 1; 1", parsed.toString());
         final boolean evaluateBoolean = parsed.newEvaluateBoolean().evaluateBoolean();
         Assertions.checkTrue(evaluateBoolean);
+    }
+
+    @Test
+    public void testOnlyVar() {
+        final String expression = "var one = 1";
+        try {
+            new MultipleExpressionParser(expression).parse();
+            Assertions.failExceptionExpected();
+        } catch (final ParseException e) {
+            Assertions.checkEquals("Line=1: Column=11: Unexpected token: '<End Of Input>'", e.getMessage());
+        }
+    }
+
+    @Test
+    public void testOnlyVarSemicolon() {
+        final String expression = "var one = 1; ";
+        try {
+            new MultipleExpressionParser(expression).parse();
+            Assertions.failExceptionExpected();
+        } catch (final ParseException e) {
+            Assertions.checkEquals("Line=1: Column=13: Unexpected token: '<End Of Input>'", e.getMessage());
+        }
     }
 
     @Test
