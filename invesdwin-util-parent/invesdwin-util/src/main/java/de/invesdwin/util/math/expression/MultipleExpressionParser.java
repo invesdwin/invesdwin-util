@@ -92,6 +92,7 @@ public class MultipleExpressionParser implements IExpressionParser {
             }
         } finally {
             tokenizer = null;
+            fakeParser.setParent(null);
             fakeParser = null;
         }
     }
