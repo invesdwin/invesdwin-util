@@ -1,6 +1,8 @@
-package de.invesdwin.util.math.expression;
+package de.invesdwin.util.math.expression.delegate;
 
 import javax.annotation.concurrent.NotThreadSafe;
+
+import de.invesdwin.util.math.expression.IExpression;
 
 @NotThreadSafe
 public class DelegateExpression extends ADelegateExpression {

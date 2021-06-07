@@ -16,12 +16,12 @@ import de.invesdwin.util.math.expression.eval.ConstantExpression;
 import de.invesdwin.util.math.expression.eval.DynamicPreviousKeyExpression;
 import de.invesdwin.util.math.expression.eval.IParsedExpression;
 import de.invesdwin.util.math.expression.eval.function.DoubleFunctionCall;
-import de.invesdwin.util.math.expression.eval.operation.BooleanNullableParallelAndOperation;
 import de.invesdwin.util.math.expression.eval.operation.BooleanNullableAndOperation;
-import de.invesdwin.util.math.expression.eval.operation.BooleanNullableNotOperation;
-import de.invesdwin.util.math.expression.eval.operation.BooleanNullableParallelOrOperation;
-import de.invesdwin.util.math.expression.eval.operation.BooleanNullableOrOperation;
 import de.invesdwin.util.math.expression.eval.operation.BooleanNullableExclusiveOrOperation;
+import de.invesdwin.util.math.expression.eval.operation.BooleanNullableNotOperation;
+import de.invesdwin.util.math.expression.eval.operation.BooleanNullableOrOperation;
+import de.invesdwin.util.math.expression.eval.operation.BooleanNullableParallelAndOperation;
+import de.invesdwin.util.math.expression.eval.operation.BooleanNullableParallelOrOperation;
 import de.invesdwin.util.math.expression.eval.operation.DoubleBinaryOperation;
 import de.invesdwin.util.math.expression.eval.operation.DoubleCrossesAboveOperation;
 import de.invesdwin.util.math.expression.eval.operation.DoubleCrossesBelowOperation;
@@ -46,7 +46,9 @@ import de.invesdwin.util.math.expression.variable.Variables;
 import io.netty.util.concurrent.FastThreadLocal;
 
 @NotThreadSafe
-public class ExpressionParser {
+public class ExpressionParser implements IExpressionParser {
+
+    public static final Op DEFAULT_COMMA_OP = Op.AND;
 
     private static final FastThreadLocal<Tokenizer> TOKENIZER = new FastThreadLocal<Tokenizer>() {
         @Override
@@ -222,6 +224,7 @@ public class ExpressionParser {
         return DEFAULT_VARIABLES.values();
     }
 
+    @Override
     public IExpression parse() {
         try {
             tokenizer = TOKENIZER.get();
@@ -271,7 +274,7 @@ public class ExpressionParser {
             if (current.matches("&&")) {
                 tokenizer.consume();
                 final IParsedExpression right = expression(commaAllowed);
-                return reOrder(left, right, Op.AND);
+                return reOrder(left, right, DEFAULT_COMMA_OP);
             }
             if (current.matches("||")) {
                 tokenizer.consume();
@@ -281,7 +284,7 @@ public class ExpressionParser {
         } else if ("and".equalsIgnoreCase(current.getContents())) {
             tokenizer.consume();
             final IParsedExpression right = expression(commaAllowed);
-            return reOrder(left, right, Op.AND);
+            return reOrder(left, right, DEFAULT_COMMA_OP);
         } else if ("or".equalsIgnoreCase(current.getContents())) {
             tokenizer.consume();
             final IParsedExpression right = expression(commaAllowed);
@@ -306,7 +309,7 @@ public class ExpressionParser {
      * Someone might want to switch to OR here
      */
     protected Op getCommaOp() {
-        return Op.AND;
+        return DEFAULT_COMMA_OP;
     }
 
     //CHECKSTYLE:OFF
@@ -735,7 +738,7 @@ public class ExpressionParser {
         throw new ParseException(position, TextDescription.format("Unknown function: '%s'", name));
     }
 
-    protected AFunction getFunction(final String context, final String name) {
+    public AFunction getFunction(final String context, final String name) {
         final IFunctionFactory functionFactory = DEFAULT_FUNCTIONS.get(name);
         if (functionFactory == null) {
             return null;
@@ -764,7 +767,7 @@ public class ExpressionParser {
         throw new ParseException(position, TextDescription.format("Unknown variable: '%s'", name));
     }
 
-    protected AVariableReference<?> getVariable(final String context, final String name) {
+    public AVariableReference<?> getVariable(final String context, final String name) {
         final IVariable variable = DEFAULT_VARIABLES.get(name);
         if (variable != null) {
             return variable.newReference(context);
