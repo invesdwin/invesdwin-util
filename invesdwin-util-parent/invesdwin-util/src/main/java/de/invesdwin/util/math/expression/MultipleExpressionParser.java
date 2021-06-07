@@ -5,8 +5,10 @@ import java.util.Map;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.collections.factory.ILockCollectionFactory;
+import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.lang.Strings;
+import de.invesdwin.util.lang.description.TextDescription;
 import de.invesdwin.util.math.Characters;
 import de.invesdwin.util.math.expression.delegate.ADelegateParsedExpression;
 import de.invesdwin.util.math.expression.eval.IParsedExpression;
@@ -28,37 +30,122 @@ import de.invesdwin.util.math.expression.lambda.IEvaluateIntegerFDate;
 import de.invesdwin.util.math.expression.lambda.IEvaluateIntegerKey;
 import de.invesdwin.util.math.expression.tokenizer.IPosition;
 import de.invesdwin.util.math.expression.tokenizer.ParseException;
+import de.invesdwin.util.math.expression.tokenizer.Token;
+import de.invesdwin.util.math.expression.tokenizer.Tokenizer;
 import de.invesdwin.util.math.expression.variable.IBooleanNullableVariable;
 import de.invesdwin.util.math.expression.variable.IBooleanVariable;
 import de.invesdwin.util.math.expression.variable.IDoubleVariable;
 import de.invesdwin.util.math.expression.variable.IIntegerVariable;
 import de.invesdwin.util.math.expression.variable.IVariable;
+import io.netty.util.concurrent.FastThreadLocal;
 
 @NotThreadSafe
 public class MultipleExpressionParser implements IExpressionParser {
 
+    private static final FastThreadLocal<Tokenizer> TOKENIZER = new FastThreadLocal<Tokenizer>() {
+        @Override
+        protected Tokenizer initialValue() throws Exception {
+            return new Tokenizer();
+        }
+    };
+    private static final FastThreadLocal<NestedExpressionParser> FAKE_PARSER = new FastThreadLocal<NestedExpressionParser>() {
+        @Override
+        protected NestedExpressionParser initialValue() throws Exception {
+            return new NestedExpressionParser("1");
+        }
+    };
     private final Map<String, IVariable> variables = ILockCollectionFactory.getInstance(false).newLinkedMap();
+    private Tokenizer tokenizer;
+    private NestedExpressionParser fakeParser;
     private final String originalExpression;
-    private final ExpressionParser fakeExpressionParser;
 
     public MultipleExpressionParser(final String expression) {
-        this.originalExpression = expression;
-        this.fakeExpressionParser = newExpressionParser("1");
+        this.originalExpression = modifyExpression(expression);
     }
 
     @Override
     public IExpression parse() throws ParseException {
-        final String[] expressions = Strings.splitPreserveAllTokens(originalExpression, ";");
-        for (int i = 0; i < expressions.length - 1; i++) {
-            final String expression = expressions[i];
-            variableDefinition(expression);
+        try {
+            fakeParser = FAKE_PARSER.get();
+            fakeParser.setParent(this);
+            tokenizer = TOKENIZER.get();
+            tokenizer.init(originalExpression, isSemicolonAllowed());
+            final IParsedExpression result = expression();
+            if (tokenizer.current().isNotEnd()) {
+                final Token token = tokenizer.consume();
+                throw new ParseException(token,
+                        TextDescription.format("Unexpected token: '%s'. Expected an expression", token.getSource()));
+            }
+            return result;
+        } catch (final ParseException e) {
+            if (Throwables.isDebugStackTraceEnabled()) {
+                throw new ParseException(e.getPosition(),
+                        TextDescription.format("%s (%s)", e.getMessage(), originalExpression));
+            } else {
+                throw e;
+            }
+        } catch (final Throwable t) {
+            if (Throwables.isDebugStackTraceEnabled()) {
+                throw new RuntimeException("At: " + originalExpression, t);
+            } else {
+                throw t;
+            }
+        } finally {
+            tokenizer = null;
+            fakeParser = null;
         }
-        final IParsedExpression parsed = (IParsedExpression) newExpressionParser(expressions[expressions.length - 1])
-                .parse();
-        return newParsedExpression(variables, parsed);
     }
 
-    private IParsedExpression newParsedExpression(final Map<String, IVariable> variables,
+    private boolean isSemicolonAllowed() {
+        return true;
+    }
+
+    private IParsedExpression expression() {
+        if (tokenizer.current().getContents().equalsIgnoreCase("var")) {
+            tokenizer.consume();
+            variableDefinition();
+            return expression();
+        } else {
+            return finalExpression();
+        }
+    }
+
+    private IParsedExpression finalExpression() {
+        final IPosition positionBefore = tokenizer.current();
+        final String expression = collectExpression();
+        try {
+            final IParsedExpression parsed = (IParsedExpression) newNestedParser(expression).parse();
+            return newParsedExpression(variables, parsed);
+        } catch (final ParseException e) {
+            throw new ParseException(newNestedPosition(positionBefore, e), e.getMessage(), e);
+        }
+    }
+
+    private IPosition newNestedPosition(final IPosition positionBefore, final ParseException e) {
+        return new IPosition() {
+            @Override
+            public int getLineOffset() {
+                return positionBefore.getLineOffset() + e.getPosition().getLineOffset();
+            }
+
+            @Override
+            public int getLength() {
+                return e.getPosition().getLength();
+            }
+
+            @Override
+            public int getIndexOffset() {
+                return positionBefore.getIndexOffset() + e.getPosition().getIndexOffset();
+            }
+
+            @Override
+            public int getColumnOffset() {
+                return positionBefore.getColumnOffset() + e.getPosition().getColumnOffset();
+            }
+        };
+    }
+
+    private static IParsedExpression newParsedExpression(final Map<String, IVariable> variables,
             final IParsedExpression parsed) {
         return new ADelegateParsedExpression() {
             @Override
@@ -79,37 +166,51 @@ public class MultipleExpressionParser implements IExpressionParser {
         };
     }
 
-    private void variableDefinition(final String expression) {
-        if (expression.isBlank()) {
-            return;
-        }
-        final String variableName = Strings.substringBetween(expression, "var ", "=").trim();
-        if (Strings.isBlank(variableName)) {
-            throw new ParseException(IPosition.UNKNOWN,
-                    "Expected format [var name = expression;] but got: " + expression + ";");
-        }
-        if (!Strings.isAlphanumeric(variableName) || !Characters.isAsciiAlpha(variableName.charAt(0))) {
-            throw new ParseException(IPosition.UNKNOWN,
-                    "variableName should be alphanumeric with the first char being alpha: " + variableName);
-        }
+    private void variableDefinition() {
+        final String variableName = tokenizer.consume().getContents();
         final String variableNameLower = variableName.toLowerCase();
-        assertVariableNameUnused(variableNameLower);
-        final String definition = Strings.substringAfter(expression, "=");
-        final IParsedExpression parsedDefinition = (IParsedExpression) newExpressionParser(definition).parse();
-        final IVariable variable = newVariable(variableName, parsedDefinition);
-        variables.put(variableNameLower, variable);
+        assertVariableName(variableNameLower);
+        tokenizer.consumeExpectedSymbol("=");
+        final IPosition positionBefore = tokenizer.current();
+        final String definition = collectExpression();
+        try {
+            final IParsedExpression parsedDefinition = (IParsedExpression) newNestedParser(definition).parse();
+            final IVariable variable = newVariable(variableName, parsedDefinition);
+            variables.put(variableNameLower, variable);
+        } catch (final ParseException e) {
+            throw new ParseException(newNestedPosition(positionBefore, e), e.getMessage(), e);
+        }
     }
 
-    private void assertVariableNameUnused(final String variableName) {
-        final AVariableReference<?> variable = fakeExpressionParser.getVariable(null, variableName);
+    private String collectExpression() {
+        final StringBuilder sb = new StringBuilder();
+        int consumed = 0;
+        for (int i = tokenizer.current().getIndexOffset(); i < originalExpression.length(); i++) {
+            consumed++;
+            if (originalExpression.charAt(i) == ';') {
+                break;
+            }
+            sb.append(originalExpression.charAt(i));
+        }
+        tokenizer.setPostition(tokenizer.current());
+        tokenizer.skipCharacters(consumed);
+        return sb.toString();
+    }
+
+    private void assertVariableName(final String variableName) {
+        if (!Strings.isAlphanumeric(variableName) || !Characters.isAsciiAlpha(variableName.charAt(0))) {
+            throw new ParseException(tokenizer.getPosition(),
+                    "variableName should be alphanumeric with the first char being alpha: " + variableName);
+        }
+        final AVariableReference<?> variable = fakeParser.getVariable(null, variableName);
         if (variable != null) {
-            throw new ParseException(IPosition.UNKNOWN,
+            throw new ParseException(tokenizer.getPosition(),
                     "var name [" + variableName + "] already used for variable: " + variable.toString());
         }
-        final AFunction function = fakeExpressionParser.getFunction(null, variableName);
+        final AFunction function = fakeParser.getFunction(null, variableName);
         if (function != null) {
-            throw new ParseException(IPosition.UNKNOWN, "var name [" + variableName + "] already used for function: "
-                    + function.getExpressionString(function.getDefaultValues()));
+            throw new ParseException(tokenizer.getPosition(), "var name [" + variableName
+                    + "] already used for function: " + function.getExpressionString(function.getDefaultValues()));
         }
     }
 
@@ -319,51 +420,10 @@ public class MultipleExpressionParser implements IExpressionParser {
         return "var " + expressionName + " = " + definition.toString() + ";";
     }
 
-    protected ExpressionParser newExpressionParser(final String expression) {
-        return new ExpressionParser(expression) {
-            @Override
-            public AVariableReference<?> getVariable(final String context, final String name) {
-                final AVariableReference<?> variable = MultipleExpressionParser.this.getVariable(context, name);
-                if (variable != null) {
-                    return variable;
-                }
-                return super.getVariable(context, name);
-            }
-
-            @Override
-            public AFunction getFunction(final String context, final String name) {
-                final AFunction function = MultipleExpressionParser.this.getFunction(context, name);
-                if (function != null) {
-                    return function;
-                }
-                return super.getFunction(context, name);
-            }
-
-            @Override
-            protected Op getCommaOp() {
-                return MultipleExpressionParser.this.getCommaOp();
-            }
-
-            @Override
-            protected IPreviousKeyFunction getPreviousKeyFunction(final String context) {
-                return MultipleExpressionParser.this.getPreviousKeyFunction(context);
-            }
-
-            @Override
-            protected String modifyContext(final String context) {
-                return MultipleExpressionParser.this.modifyContext(context);
-            }
-
-            @Override
-            protected String modifyExpression(final String expression) {
-                return MultipleExpressionParser.this.modifyExpression(expression);
-            }
-
-            @Override
-            protected IParsedExpression simplify(final IParsedExpression expression) {
-                return MultipleExpressionParser.this.simplify(expression);
-            }
-        };
+    private NestedExpressionParser newNestedParser(final String expression) {
+        final NestedExpressionParser parser = new NestedExpressionParser(expression);
+        parser.setParent(this);
+        return parser;
     }
 
     protected String modifyExpression(final String expression) {
@@ -396,6 +456,57 @@ public class MultipleExpressionParser implements IExpressionParser {
 
     protected IParsedExpression simplify(final IParsedExpression expression) {
         return expression.simplify();
+    }
+
+    private static final class NestedExpressionParser extends ExpressionParser {
+
+        private MultipleExpressionParser parent;
+
+        private NestedExpressionParser(final String expression) {
+            super(expression);
+        }
+
+        private void setParent(final MultipleExpressionParser parent) {
+            this.parent = parent;
+        }
+
+        @Override
+        public AVariableReference<?> getVariable(final String context, final String name) {
+            final AVariableReference<?> variable = parent.getVariable(context, name);
+            if (variable != null) {
+                return variable;
+            }
+            return super.getVariable(context, name);
+        }
+
+        @Override
+        public AFunction getFunction(final String context, final String name) {
+            final AFunction function = parent.getFunction(context, name);
+            if (function != null) {
+                return function;
+            }
+            return super.getFunction(context, name);
+        }
+
+        @Override
+        protected Op getCommaOp() {
+            return parent.getCommaOp();
+        }
+
+        @Override
+        protected IPreviousKeyFunction getPreviousKeyFunction(final String context) {
+            return parent.getPreviousKeyFunction(context);
+        }
+
+        @Override
+        protected String modifyContext(final String context) {
+            return parent.modifyContext(context);
+        }
+
+        @Override
+        protected IParsedExpression simplify(final IParsedExpression expression) {
+            return parent.simplify(expression);
+        }
     }
 
 }
