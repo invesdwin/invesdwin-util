@@ -69,8 +69,12 @@ public class MultipleExpressionParser implements IExpressionParser {
             @Override
             public String toString() {
                 final StringBuilder sb = new StringBuilder();
-                for()
-                return originalExpression;
+                for (final IVariable variable : variables.values()) {
+                    sb.append(variable);
+                    sb.append(" ");
+                }
+                sb.append(parsed);
+                return sb.toString();
             }
         };
     }
