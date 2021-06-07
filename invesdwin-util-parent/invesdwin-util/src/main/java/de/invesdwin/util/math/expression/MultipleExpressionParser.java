@@ -172,9 +172,10 @@ public class MultipleExpressionParser implements IExpressionParser {
     }
 
     private void variableDefinition() {
-        final String variableName = tokenizer.consume().getContents();
+        final Token variableNameToken = tokenizer.consume();
+        final String variableName = variableNameToken.getContents();
         final String variableNameLower = variableName.toLowerCase();
-        assertVariableName(variableNameLower);
+        assertVariableName(variableName, variableNameLower, variableNameToken);
         tokenizer.consumeExpectedSymbol("=");
         final IPosition positionBefore = tokenizer.current();
         final String definition = collectExpression();
@@ -202,20 +203,21 @@ public class MultipleExpressionParser implements IExpressionParser {
         return sb.toString();
     }
 
-    private void assertVariableName(final String variableName) {
-        if (!Strings.isAlphanumeric(variableName) || !Characters.isAsciiAlpha(variableName.charAt(0))) {
-            throw new ParseException(tokenizer.getPosition(),
+    private void assertVariableName(final String variableName, final String variableNameLower,
+            final Token variableNameToken) {
+        if (!Strings.isAlphanumeric(variableNameLower) || !Characters.isAsciiAlpha(variableNameLower.charAt(0))) {
+            throw new ParseException(variableNameToken,
                     "variableName should be alphanumeric with the first char being alpha: " + variableName);
         }
-        final AVariableReference<?> variable = fakeParser.getVariable(null, variableName);
+        final AVariableReference<?> variable = fakeParser.getVariable(null, variableNameLower);
         if (variable != null) {
-            throw new ParseException(tokenizer.getPosition(),
+            throw new ParseException(variableNameToken,
                     "var name [" + variableName + "] already used for variable: " + variable.toString());
         }
-        final AFunction function = fakeParser.getFunction(null, variableName);
+        final AFunction function = fakeParser.getFunction(null, variableNameLower);
         if (function != null) {
-            throw new ParseException(tokenizer.getPosition(), "var name [" + variableName
-                    + "] already used for function: " + function.getExpressionString(function.getDefaultValues()));
+            throw new ParseException(variableNameToken, "var name [" + variableName + "] already used for function: "
+                    + function.getExpressionString(function.getDefaultValues()));
         }
     }
 
