@@ -14,7 +14,8 @@ public abstract class APushingRecursiveHistoricalResult<D, E, R extends APushing
         implements IHistoricalValue<R> {
 
     public static final int MIN_RECURSION_COUNT = 10;
-    public static final int MAX_RECURSION_COUNT_LIMIT = 10000;
+    //10k causes stakcoverflow errors
+    public static final int MAX_RECURSION_COUNT_LIMIT = 1000;
 
     protected final FDate key;
     protected final FDate previousKey;

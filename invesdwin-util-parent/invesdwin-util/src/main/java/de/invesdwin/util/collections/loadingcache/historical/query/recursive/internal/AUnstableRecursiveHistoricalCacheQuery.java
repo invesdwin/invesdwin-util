@@ -345,4 +345,9 @@ public abstract class AUnstableRecursiveHistoricalCacheQuery<V> implements IRecu
         return ARecursiveHistoricalCacheQuery.DEFAULT_SHOULD_USE_INITIAL_VALUE_INSTEAD_OF_FULL_RECURSION;
     }
 
+    @Override
+    public FDate getRecursionFrom() {
+        return null;
+    }
+
 }

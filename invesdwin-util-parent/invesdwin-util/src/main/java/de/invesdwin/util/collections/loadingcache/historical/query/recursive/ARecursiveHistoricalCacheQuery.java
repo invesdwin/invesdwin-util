@@ -102,4 +102,9 @@ public abstract class ARecursiveHistoricalCacheQuery<V> implements IRecursiveHis
         return delegate.getKey(key);
     }
 
+    @Override
+    public FDate getRecursionFrom() {
+        return delegate.getRecursionFrom();
+    }
+
 }

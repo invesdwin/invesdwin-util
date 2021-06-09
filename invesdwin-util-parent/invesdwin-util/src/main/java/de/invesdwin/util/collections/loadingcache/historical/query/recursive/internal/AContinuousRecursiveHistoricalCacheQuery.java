@@ -491,4 +491,9 @@ public abstract class AContinuousRecursiveHistoricalCacheQuery<V> implements IRe
 
     protected abstract V getInitialValue(FDate previousKey);
 
+    @Override
+    public FDate getRecursionFrom() {
+        return OUTER_FIRST_RECURSION_KEY.get();
+    }
+
 }
