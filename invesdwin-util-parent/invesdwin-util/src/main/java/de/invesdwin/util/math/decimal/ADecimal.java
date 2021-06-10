@@ -362,6 +362,10 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
         return Doubles.isGreaterThan(getValue(), o);
     }
 
+    public boolean isGreaterThan(final AScaledDecimal<?, ?> o) {
+        return Doubles.isGreaterThan(getDefaultValue(), o.getDefaultValue());
+    }
+
     public boolean isGreaterThanOrEqualTo(final double o) {
         return Doubles.isGreaterThanOrEqualTo(getValue(), o);
     }
@@ -372,6 +376,10 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
 
     public boolean isGreaterThanOrEqualTo(final Number o) {
         return Doubles.isGreaterThanOrEqualTo(getValue(), o);
+    }
+
+    public boolean isGreaterThanOrEqualTo(final AScaledDecimal<?, ?> o) {
+        return Doubles.isGreaterThanOrEqualTo(getDefaultValue(), o.getDefaultValue());
     }
 
     public boolean isLessThan(final double o) {
@@ -386,6 +394,10 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
         return Doubles.isLessThan(getValue(), o);
     }
 
+    public boolean isLessThan(final AScaledDecimal<?, ?> o) {
+        return Doubles.isLessThan(getDefaultValue(), o.getDefaultValue());
+    }
+
     public boolean isLessThanOrEqualTo(final double o) {
         return Doubles.isLessThanOrEqualTo(getValue(), o);
     }
@@ -398,6 +410,10 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
         return Doubles.isLessThanOrEqualTo(getValue(), o);
     }
 
+    public boolean isLessThanOrEqualTo(final AScaledDecimal<?, ?> o) {
+        return Doubles.isLessThanOrEqualTo(getDefaultValue(), o.getDefaultValue());
+    }
+
     public boolean isBetween(final double lowerBound, final double upperBound) {
         return isGreaterThanOrEqualTo(lowerBound) && isLessThanOrEqualTo(upperBound);
     }
@@ -407,6 +423,10 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
     }
 
     public boolean isBetween(final Number lowerBound, final Number upperBound) {
+        return isGreaterThanOrEqualTo(lowerBound) && isLessThanOrEqualTo(upperBound);
+    }
+
+    public boolean isBetween(final AScaledDecimal<?, ?> lowerBound, final AScaledDecimal<?, ?> upperBound) {
         return isGreaterThanOrEqualTo(lowerBound) && isLessThanOrEqualTo(upperBound);
     }
 

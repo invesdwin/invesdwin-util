@@ -70,7 +70,7 @@ public class DoubleStreamZigZag implements IDoubleStreamAlgorithm {
         }
         if (!Doubles.isNaN(reversalReference)) {
             final Percent change = Percent.relativeDifference(reversalReference, value);
-            if (change.abs().isGreaterThanOrEqualTo(reversalThreshold)) {
+            if (Doubles.abs(change.getDefaultValue()) >= reversalThreshold.getDefaultValue()) {
                 if (change.isPositive()) {
                     if (currentDirection != PriceDirection.RISING) {
                         //reference point was a trough, so we were falling before
