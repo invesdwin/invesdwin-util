@@ -156,8 +156,9 @@ public abstract class AContinuousRecursiveHistoricalCacheQuery<V> implements IRe
             final Integer limited = Integers.min(MAX_RECURSION_LOOKBACK_LIMIT, atLeastMin);
             return limited;
         } else {
-            final int multiplied = recursionCount * RECURSION_COUNT_LOOKBACK_MULTIPLICATOR;
-            final Integer multipliedLimit = Integers.max(recursionCount, MAX_RECURSION_MULTIPLIED_LOOKBACK);
+            final int usedRecursionCount = Integers.max(recursionCount, 1);
+            final int multiplied = usedRecursionCount * RECURSION_COUNT_LOOKBACK_MULTIPLICATOR;
+            final Integer multipliedLimit = Integers.max(usedRecursionCount, MAX_RECURSION_MULTIPLIED_LOOKBACK);
             final Integer multipliedLimited = Integers.min(multiplied, multipliedLimit);
             final int atLeastMin = Integers.max(multipliedLimited, MIN_RECURSION_LOOKBACK);
             final Integer limited = Integers.min(MAX_RECURSION_LOOKBACK_LIMIT, atLeastMin);
