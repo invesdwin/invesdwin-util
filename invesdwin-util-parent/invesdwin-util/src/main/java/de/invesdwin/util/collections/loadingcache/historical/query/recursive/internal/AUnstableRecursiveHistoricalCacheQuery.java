@@ -346,7 +346,7 @@ public abstract class AUnstableRecursiveHistoricalCacheQuery<V> implements IRecu
     }
 
     @Override
-    public FDate getRecursionFrom() {
+    public FDate getOuterFirstRecursionKey() {
         return null;
     }
 

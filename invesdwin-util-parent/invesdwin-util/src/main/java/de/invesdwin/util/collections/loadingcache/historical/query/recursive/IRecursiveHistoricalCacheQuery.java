@@ -25,6 +25,6 @@ public interface IRecursiveHistoricalCacheQuery<V> {
     /**
      * A limit to not exceed when loading initial value
      */
-    FDate getRecursionFrom();
+    FDate getOuterFirstRecursionKey();
 
 }
