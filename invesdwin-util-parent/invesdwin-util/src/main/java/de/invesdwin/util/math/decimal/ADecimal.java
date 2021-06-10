@@ -362,7 +362,7 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
         return Doubles.isGreaterThan(getValue(), o);
     }
 
-    public boolean isGreaterThan(final AScaledDecimal<?, ?> o) {
+    public boolean isGreaterThan(final ADecimal<?> o) {
         return Doubles.isGreaterThan(getDefaultValue(), o.getDefaultValue());
     }
 
@@ -378,7 +378,7 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
         return Doubles.isGreaterThanOrEqualTo(getValue(), o);
     }
 
-    public boolean isGreaterThanOrEqualTo(final AScaledDecimal<?, ?> o) {
+    public boolean isGreaterThanOrEqualTo(final ADecimal<?> o) {
         return Doubles.isGreaterThanOrEqualTo(getDefaultValue(), o.getDefaultValue());
     }
 
@@ -394,7 +394,7 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
         return Doubles.isLessThan(getValue(), o);
     }
 
-    public boolean isLessThan(final AScaledDecimal<?, ?> o) {
+    public boolean isLessThan(final ADecimal<?> o) {
         return Doubles.isLessThan(getDefaultValue(), o.getDefaultValue());
     }
 
@@ -410,7 +410,7 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
         return Doubles.isLessThanOrEqualTo(getValue(), o);
     }
 
-    public boolean isLessThanOrEqualTo(final AScaledDecimal<?, ?> o) {
+    public boolean isLessThanOrEqualTo(final ADecimal<?> o) {
         return Doubles.isLessThanOrEqualTo(getDefaultValue(), o.getDefaultValue());
     }
 
@@ -426,7 +426,7 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
         return isGreaterThanOrEqualTo(lowerBound) && isLessThanOrEqualTo(upperBound);
     }
 
-    public boolean isBetween(final AScaledDecimal<?, ?> lowerBound, final AScaledDecimal<?, ?> upperBound) {
+    public boolean isBetween(final ADecimal<?> lowerBound, final ADecimal<?> upperBound) {
         return isGreaterThanOrEqualTo(lowerBound) && isLessThanOrEqualTo(upperBound);
     }
 

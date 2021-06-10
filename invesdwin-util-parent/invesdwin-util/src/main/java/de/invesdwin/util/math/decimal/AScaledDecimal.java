@@ -224,6 +224,31 @@ public abstract class AScaledDecimal<T extends AScaledDecimal<T, S>, S extends I
         }
     }
 
+    @Override
+    public boolean isGreaterThan(final ADecimal<?> o) {
+        return isGreaterThan(maybeGetDefaultScaledNumber(o));
+    }
+
+    @Override
+    public boolean isLessThan(final ADecimal<?> o) {
+        return isLessThan(maybeGetDefaultScaledNumber(o));
+    }
+
+    @Override
+    public boolean isBetween(final ADecimal<?> lowerBound, final ADecimal<?> upperBound) {
+        return isBetween(maybeGetDefaultScaledNumber(lowerBound), maybeGetDefaultScaledNumber(upperBound));
+    }
+
+    @Override
+    public boolean isGreaterThanOrEqualTo(final ADecimal<?> o) {
+        return isGreaterThanOrEqualTo(maybeGetDefaultScaledNumber(o));
+    }
+
+    @Override
+    public boolean isLessThanOrEqualTo(final ADecimal<?> o) {
+        return isLessThanOrEqualTo(maybeGetDefaultScaledNumber(o));
+    }
+
     private double maybeGetDefaultScaledNumber(final ADecimal<?> number) {
         assertSameDefaultScale(number);
         return number.getDefaultValue();
