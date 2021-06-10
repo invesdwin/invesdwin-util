@@ -147,7 +147,12 @@ public abstract class AContinuousRecursiveHistoricalCacheQuery<V> implements IRe
     public static int newContinuousUnstablePeriod(final int recursionCount,
             final boolean shouldUseInitialValueInsteadOfFullRecursion) {
         if (shouldUseInitialValueInsteadOfFullRecursion) {
-            final int atLeastMin = recursionCount;
+            final int atLeastMin;
+            if (recursionCount > 1) {
+                atLeastMin = Integers.max(recursionCount, MIN_RECURSION_LOOKBACK);
+            } else {
+                atLeastMin = 1;
+            }
             final Integer limited = Integers.min(MAX_RECURSION_LOOKBACK_LIMIT, atLeastMin);
             return limited;
         } else {
