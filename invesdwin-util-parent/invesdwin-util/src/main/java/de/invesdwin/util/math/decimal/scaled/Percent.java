@@ -227,7 +227,8 @@ public class Percent extends AScaledDecimal<Percent, PercentScale> {
      */
     public static <T extends ADecimal<T>> Percent relativeDifference(final ADecimal<T> oldValue,
             final ADecimal<T> newValue) {
-        return new Percent(newValue.subtract(oldValue), oldValue.abs());
+        final double old = oldValue.getDefaultValue();
+        return new Percent(newValue.getDefaultValue() - old, Doubles.abs(old));
     }
 
     /**
