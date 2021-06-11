@@ -682,17 +682,22 @@ public final class Strings extends AStringsStaticFacade {
         if (str.length() <= maxLength) {
             return Collections.singletonList(str);
         }
-        final int hardMaxLength = (int) (maxLength * 1.1D);
+        final int whitespaceMaxLength = (int) (maxLength * 1.1D);
+        final int hardMaxLength = (int) (whitespaceMaxLength * 1.1D);
         final List<String> chunks = new ArrayList<>();
         final StringBuilder sb = new StringBuilder();
         for (int i = 0; i < str.length(); i++) {
             final char c = str.charAt(i);
             sb.append(c);
-            if (sb.length() >= hardMaxLength || (sb.length() >= maxLength && Character.isWhitespace(c))) {
+            if (sb.length() >= hardMaxLength || (sb.length() >= whitespaceMaxLength && Character.isWhitespace(c))
+                    || (sb.length() >= maxLength && c == '\n')) {
                 chunks.add(sb.toString());
                 sb.setLength(0);
                 sb.append(c);
             }
+        }
+        if (sb.length() > 0) {
+            chunks.add(sb.toString());
         }
         return chunks;
     }
