@@ -678,154 +678,23 @@ public final class Strings extends AStringsStaticFacade {
         return string.getBytes().length;
     }
 
-    /**
-     * http://www.java2s.com/Code/Java/Data-Type/Splitstheprovidedtextintoanarraywithamaximumlengthseparatorsspecified.htm
-     */
     public static List<String> splitByMaxLength(final String str, final int maxLength) {
-        return splitByMaxLength(str, null, maxLength, false);
-    }
-
-    /**
-     * <p>
-     * Splits the provided text into an array with a maximum length, separators specified.
-     * </p>
-     *
-     * <p>
-     * The separator is not included in the returned String array. Adjacent separators are treated as one separator.
-     * </p>
-     *
-     * <p>
-     * A <code>null</code> input String returns <code>null</code>. A <code>null</code> separatorChars splits on
-     * whitespace.
-     * </p>
-     *
-     * <p>
-     * If more than <code>max</code> delimited substrings are found, the last returned string includes all characters
-     * after the first <code>max - 1</code> returned strings (including separator characters).
-     * </p>
-     *
-     * <pre>
-     * StringUtils.split(null, *, *)            = null
-     * StringUtils.split("", *, *)              = []
-     * StringUtils.split("ab de fg", null, 0)   = ["ab", "de", "fg"]
-     * StringUtils.split("ab   de fg", null, 0) = ["ab", "de", "fg"]
-     * StringUtils.split("ab:cd:ef", ":", 0)    = ["ab", "cd", "ef"]
-     * StringUtils.split("ab:cd:ef", ":", 2)    = ["ab", "cd:ef"]
-     * </pre>
-     *
-     * @param str
-     *            the String to parse, may be null
-     * @param separatorChars
-     *            the characters used as the delimiters, <code>null</code> splits on whitespace
-     * @param maxLength
-     *            the maximum number of elements to include in the array. A zero or negative value implies no limit
-     * @return an array of parsed Strings, <code>null</code> if null String input
-     */
-    public static List<String> splitByMaxLength(final String str, final String separatorChars, final int maxLength) {
-        return splitByMaxLength(str, separatorChars, maxLength, false);
-    }
-
-    /**
-     * Performs the logic for the <code>split</code> and <code>splitPreserveAllTokens</code> methods that return a
-     * maximum array length.
-     *
-     * @param str
-     *            the String to parse, may be <code>null</code>
-     * @param separatorChars
-     *            the separate character
-     * @param maxLength
-     *            the maximum number of elements to include in the array. A zero or negative value implies no limit.
-     * @param preserveAllTokens
-     *            if <code>true</code>, adjacent separators are treated as empty token separators; if
-     *            <code>false</code>, adjacent separators are treated as one separator.
-     * @return an array of parsed Strings, <code>null</code> if null String input
-     */
-    //CHECKSTYLE:OFF
-    public static List<String> splitByMaxLength(final String str, final String separatorChars, final int maxLength,
-            final boolean preserveAllTokens) {
-        //CHECKSTYLE:ON
-        // Performance tuned for 2.0 (JDK1.4)
-        // Direct code is quicker than StringTokenizer.
-        // Also, StringTokenizer uses isSpace() not isWhitespace()
-
-        if (str == null) {
-            return null;
+        if (str.length() <= maxLength) {
+            return Collections.singletonList(str);
         }
-        final int len = str.length();
-        if (len == 0) {
-            return Collections.emptyList();
-        }
-        final List<String> list = new ArrayList<>();
-        int sizePlus1 = 1;
-        int i = 0, start = 0;
-        boolean match = false;
-        boolean lastMatch = false;
-        if (separatorChars == null) {
-            // Null separator means use whitespace
-            while (i < len) {
-                if (Character.isWhitespace(str.charAt(i))) {
-                    if (match || preserveAllTokens) {
-                        lastMatch = true;
-                        if (sizePlus1++ == maxLength) {
-                            i = len;
-                            lastMatch = false;
-                        }
-                        list.add(str.substring(start, i));
-                        match = false;
-                    }
-                    start = ++i;
-                    continue;
-                }
-                lastMatch = false;
-                match = true;
-                i++;
-            }
-        } else if (separatorChars.length() == 1) {
-            // Optimise 1 character case
-            final char sep = separatorChars.charAt(0);
-            while (i < len) {
-                if (str.charAt(i) == sep) {
-                    if (match || preserveAllTokens) {
-                        lastMatch = true;
-                        if (sizePlus1++ == maxLength) {
-                            i = len;
-                            lastMatch = false;
-                        }
-                        list.add(str.substring(start, i));
-                        match = false;
-                    }
-                    start = ++i;
-                    continue;
-                }
-                lastMatch = false;
-                match = true;
-                i++;
-            }
-        } else {
-            // standard case
-            while (i < len) {
-                if (separatorChars.indexOf(str.charAt(i)) >= 0) {
-                    if (match || preserveAllTokens) {
-                        lastMatch = true;
-                        if (sizePlus1++ == maxLength) {
-                            i = len;
-                            lastMatch = false;
-                        }
-                        list.add(str.substring(start, i));
-                        match = false;
-                    }
-                    start = ++i;
-                    continue;
-                }
-                lastMatch = false;
-                match = true;
-                i++;
+        final int hardMaxLength = (int) (maxLength * 1.1D);
+        final List<String> chunks = new ArrayList<>();
+        final StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < str.length(); i++) {
+            final char c = str.charAt(i);
+            sb.append(c);
+            if (sb.length() >= hardMaxLength || (sb.length() >= maxLength && Character.isWhitespace(c))) {
+                chunks.add(sb.toString());
+                sb.setLength(0);
+                sb.append(c);
             }
         }
-        if (match || (preserveAllTokens && lastMatch)) {
-            list.add(str.substring(start, i));
-        }
-        return list;
+        return chunks;
     }
 
 }
