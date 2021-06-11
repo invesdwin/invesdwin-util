@@ -693,7 +693,6 @@ public final class Strings extends AStringsStaticFacade {
                     || (sb.length() >= maxLength && c == '\n')) {
                 chunks.add(sb.toString());
                 sb.setLength(0);
-                sb.append(c);
             }
         }
         if (sb.length() > 0) {
