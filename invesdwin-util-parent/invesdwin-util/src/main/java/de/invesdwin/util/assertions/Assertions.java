@@ -1,6 +1,10 @@
 package de.invesdwin.util.assertions;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import javax.annotation.concurrent.Immutable;
@@ -11,11 +15,13 @@ import de.invesdwin.util.assertions.type.DecimalAssert;
 import de.invesdwin.util.assertions.type.FDateAssert;
 import de.invesdwin.util.assertions.type.StringAssert;
 import de.invesdwin.util.assertions.type.internal.junit.JUnitAssertions;
+import de.invesdwin.util.lang.Files;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.lang.reflection.Reflections;
 import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.decimal.ADecimal;
+import de.invesdwin.util.math.decimal.scaled.ByteSizeScale;
 import de.invesdwin.util.time.duration.Duration;
 import de.invesdwin.util.time.fdate.FDate;
 
@@ -29,6 +35,8 @@ import de.invesdwin.util.time.fdate.FDate;
 public final class Assertions extends AAssertionsStaticFacade {
 
     public static final int COMPARISON_FAILURE_MESSAGE_LIMIT = 1000;
+    public static final int DEFAULT_MAX_REFERENCE_LENGTH = (int) ByteSizeScale.BYTES.convert(10,
+            ByteSizeScale.MEGABYTES);
 
     private static final boolean JUNIT_AVAILABLE;
 
@@ -533,6 +541,34 @@ public final class Assertions extends AAssertionsStaticFacade {
     public static <T extends java.lang.Object> T assertTimeoutPreemptively(final Duration timeout,
             final ThrowingSupplier<T> supplier, final java.util.function.Supplier<String> messageSupplier) {
         return JUnitAssertions.assertTimeoutPreemptively(timeout.javaTimeValue(), supplier, messageSupplier);
+    }
+
+    public static void checkReference(final boolean createReferenceFile, final File referenceFile,
+            final String reference) {
+        checkReference(createReferenceFile, referenceFile, reference, DEFAULT_MAX_REFERENCE_LENGTH);
+    }
+
+    public static void checkReference(final boolean createReferenceFile, final File referenceFile,
+            final String reference, final int maxReferenceLength) {
+        final List<String> references = Strings.splitByMaxLength(reference, maxReferenceLength);
+        for (int i = 0; i < references.size(); i++) {
+            final String ref = references.get(i);
+            final File indexedReferenceFile;
+            if (i == 0) {
+                indexedReferenceFile = referenceFile;
+            } else {
+                indexedReferenceFile = Files.prefixExtension(referenceFile, "_" + i);
+            }
+            if (createReferenceFile) {
+                Files.writeStringToFileIfDifferent(indexedReferenceFile, ref);
+            }
+            try {
+                final String existingRef = Files.readFileToString(indexedReferenceFile, Charset.defaultCharset());
+                Assertions.checkEquals(existingRef, ref);
+            } catch (final IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
 }

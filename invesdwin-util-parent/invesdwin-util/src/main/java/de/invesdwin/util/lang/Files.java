@@ -290,4 +290,28 @@ public final class Files extends AFilesStaticFacade {
         }
     }
 
+    public static String getExtension(final File f) {
+        final int i = f.getName().lastIndexOf('.');
+        if (i < 0) {
+            return "";
+        }
+        final String extension = f.getName().substring(i);
+        return extension;
+    }
+
+    public static File setExtension(final File f, final String newExtension) {
+        final int i = f.getName().lastIndexOf('.');
+        if (i < 0) {
+            return new File(f.getParent(), f.getName() + newExtension);
+        } else {
+            final String name = f.getName().substring(0, i);
+            return new File(f.getParent(), name + newExtension);
+        }
+    }
+
+    public static File prefixExtension(final File f, final String prefix) {
+        final String newExtension = prefix + getExtension(f);
+        return setExtension(f, newExtension);
+    }
+
 }
