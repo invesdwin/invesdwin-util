@@ -19,6 +19,7 @@ public abstract class ANonRecursivePullingHistoricalCacheAdjustKeyProvider
         implements IHistoricalCacheAdjustKeyProvider {
 
     private volatile FDate curHighestAllowedKey;
+    private volatile FDate prevHighestAllowedKey;
     private final Set<HistoricalCacheForClear> historicalCachesForClear = Collections
             .synchronizedSet(new HashSet<HistoricalCacheForClear>());
     private final AHistoricalCache<?> parent;
@@ -72,6 +73,7 @@ public abstract class ANonRecursivePullingHistoricalCacheAdjustKeyProvider
 
             if (purge || curHighestAllowedKeyCopy.isBefore(newHighestAllowedKey)) {
                 curHighestAllowedKey = newHighestAllowedKey;
+                prevHighestAllowedKey = curHighestAllowedKeyCopy;
             }
         }
         return newHighestAllowedKey;
@@ -80,10 +82,14 @@ public abstract class ANonRecursivePullingHistoricalCacheAdjustKeyProvider
     @Override
     public FDate getHighestAllowedKey() {
         if (curHighestAllowedKey == null) {
-            final FDate newHighestAllowedKey = getHighestAllowedKeyUpdateCached();
-            curHighestAllowedKey = newHighestAllowedKey;
+            getHighestAllowedKeyUpdateCached();
         }
         return curHighestAllowedKey;
+    }
+
+    @Override
+    public FDate getPreviousHighestAllowedKey() {
+        return prevHighestAllowedKey;
     }
 
     protected abstract FDate innerGetHighestAllowedKey();

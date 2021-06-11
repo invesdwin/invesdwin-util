@@ -604,11 +604,6 @@ public abstract class AHistoricalCache<V>
         }
 
         @Override
-        public IHistoricalCacheQuery<?> newKeysQueryInterceptorWithFutureNull() {
-            return AHistoricalCache.this.getShiftKeyProvider().newKeysQueryInterceptorWithFutureNull();
-        }
-
-        @Override
         public String toString() {
             return AHistoricalCache.this.toString();
         }
@@ -742,11 +737,6 @@ public abstract class AHistoricalCache<V>
         }
 
         @Override
-        public IHistoricalCacheQuery<?> newKeysQueryInterceptorWithFutureNull() {
-            return null;
-        }
-
-        @Override
         public IHistoricalEntry<V> maybeWrap(final FDate key, final V value) {
             return IndexedHistoricalEntry.maybeExtractKey(internalMethods, key, value);
         }
@@ -827,6 +817,11 @@ public abstract class AHistoricalCache<V>
 
         @Override
         public FDate getHighestAllowedKey() {
+            return null;
+        }
+
+        @Override
+        public FDate getPreviousHighestAllowedKey() {
             return null;
         }
 

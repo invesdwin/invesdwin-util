@@ -18,6 +18,8 @@ public interface IHistoricalCacheAdjustKeyProvider {
 
     FDate getHighestAllowedKey();
 
+    FDate getPreviousHighestAllowedKey();
+
     boolean registerHistoricalCache(AHistoricalCache<?> historicalCache);
 
     AHistoricalCache<?> getParent();

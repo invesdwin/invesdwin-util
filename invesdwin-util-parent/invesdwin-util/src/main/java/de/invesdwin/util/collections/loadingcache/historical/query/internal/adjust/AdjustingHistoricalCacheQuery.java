@@ -1,7 +1,6 @@
 package de.invesdwin.util.collections.loadingcache.historical.query.internal.adjust;
 
 import java.util.Iterator;
-import java.util.Optional;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -9,6 +8,7 @@ import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.iterable.EmptyCloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.loadingcache.historical.IHistoricalEntry;
+import de.invesdwin.util.collections.loadingcache.historical.key.IHistoricalCacheAdjustKeyProvider;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQuery;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQueryElementFilter;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQueryWithFuture;
@@ -23,7 +23,6 @@ public class AdjustingHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V
 
     private final IHistoricalCacheInternalMethods<V> internalMethods;
     private final IHistoricalCacheQuery<V> delegate;
-    private Optional<IHistoricalCacheQuery<?>> keysQueryInterceptorWithFutureNull;
 
     public AdjustingHistoricalCacheQuery(final IHistoricalCacheInternalMethods<V> internalMethods) {
         this(internalMethods, new HistoricalCacheQuery<V>(internalMethods));
@@ -38,29 +37,14 @@ public class AdjustingHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V
     protected FDate alignAndAdjustKey(final FDate key) {
         if (internalMethods.isAlignKeys()) {
             if (!internalMethods.isAdjustedKey(key)) {
-                final IHistoricalCacheQuery<?> interceptor = getKeysQueryInterceptorWithFutureNull();
-                if (interceptor != null) {
-                    //align to reduce cache misses (which are very expensive in recursive queries)
-                    final FDate aligned = interceptor.getKey(key);
-                    if (aligned != null) {
-                        return adjustKey(aligned);
-                    }
-                }
-                return adjustKey(key);
+                //align to reduce cache misses (which are very expensive in recursive queries)
+                return getKey(key);
             } else {
                 return key;
             }
         } else {
             return adjustKey(key);
         }
-    }
-
-    private IHistoricalCacheQuery<?> getKeysQueryInterceptorWithFutureNull() {
-        if (keysQueryInterceptorWithFutureNull == null) {
-            keysQueryInterceptorWithFutureNull = Optional
-                    .ofNullable(internalMethods.getQueryCore().getParent().newKeysQueryInterceptorWithFutureNull());
-        }
-        return keysQueryInterceptorWithFutureNull.orElse(null);
     }
 
     protected FDate adjustKey(final FDate key) {
@@ -157,7 +141,30 @@ public class AdjustingHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V
 
     @Override
     public FDate getKey(final FDate key) {
-        return delegate.getKey(adjustKey(key));
+        final IHistoricalCacheAdjustKeyProvider adjustKeyProvider = internalMethods.getAdjustKeyProvider();
+        if (adjustKeyProvider.isAlreadyAdjustingKey()) {
+            return delegate.getKey(key);
+        }
+        final FDate highestAllowedKey = adjustKeyProvider.getHighestAllowedKey();
+        if (highestAllowedKey == null) {
+            return getKeyAdjusting(key);
+        } else if (key.isAfterOrEqualToNotNullSafe(highestAllowedKey)) {
+            //we trust that the highest allowed key is the correct key of the last available entry
+            return highestAllowedKey;
+        } else {
+            final FDate prevHighestAllowedKey = adjustKeyProvider.getPreviousHighestAllowedKey();
+            if (prevHighestAllowedKey != null && key.isAfterOrEqualToNotNullSafe(prevHighestAllowedKey)) {
+                //we trust that the highest allowed key is the correct key of the last available entry
+                return prevHighestAllowedKey;
+            } else {
+                return getKeyAdjusting(key);
+            }
+        }
+    }
+
+    private FDate getKeyAdjusting(final FDate key) {
+        final FDate adjustedKey = adjustKey(key);
+        return delegate.getKey(adjustedKey);
     }
 
     @Override

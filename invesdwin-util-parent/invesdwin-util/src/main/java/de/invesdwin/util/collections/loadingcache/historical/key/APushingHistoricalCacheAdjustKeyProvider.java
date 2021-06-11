@@ -19,6 +19,7 @@ import de.invesdwin.util.time.fdate.FDate;
 public abstract class APushingHistoricalCacheAdjustKeyProvider implements IHistoricalCacheAdjustKeyProvider {
 
     private volatile FDate curHighestAllowedKey;
+    private volatile FDate prevHighestAllowedKey;
     private final Set<HistoricalCacheForClear> historicalCachesForClear = Collections
             .synchronizedSet(new HashSet<HistoricalCacheForClear>());
     private final IHistoricalCacheAdjustKeyProvider pullingAdjustKeyProvider;
@@ -86,6 +87,7 @@ public abstract class APushingHistoricalCacheAdjustKeyProvider implements IHisto
         if (curHighestAllowedKey == null && highestAllowedKey != null) {
             clear();
         }
+        this.prevHighestAllowedKey = this.curHighestAllowedKey;
         this.curHighestAllowedKey = highestAllowedKey;
     }
 
@@ -95,6 +97,11 @@ public abstract class APushingHistoricalCacheAdjustKeyProvider implements IHisto
             curHighestAllowedKey = pullingAdjustKeyProvider.getHighestAllowedKey();
         }
         return curHighestAllowedKey;
+    }
+
+    @Override
+    public FDate getPreviousHighestAllowedKey() {
+        return prevHighestAllowedKey;
     }
 
     @Override

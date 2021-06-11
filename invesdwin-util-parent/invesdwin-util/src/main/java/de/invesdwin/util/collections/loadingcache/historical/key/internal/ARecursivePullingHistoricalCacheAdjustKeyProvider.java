@@ -25,6 +25,7 @@ public abstract class ARecursivePullingHistoricalCacheAdjustKeyProvider implemen
     private final WeakThreadLocalReference<Boolean> alreadyAdjustingKey = new WeakThreadLocalReference<Boolean>();
 
     private volatile FDate curHighestAllowedKey;
+    private volatile FDate prevHighestAllowedKey;
     private final Set<FDate> keysToRemoveOnNewHighestAllowedKey = Collections.synchronizedSet(new HashSet<FDate>());
     private final Set<HistoricalCacheForClear> historicalCachesForClear = Collections
             .synchronizedSet(new HashSet<HistoricalCacheForClear>());
@@ -96,6 +97,7 @@ public abstract class ARecursivePullingHistoricalCacheAdjustKeyProvider implemen
                     //and we don't want to keep references to all those others using this properly
                     parent.remove(keyToRemove);
                 }
+                prevHighestAllowedKey = curHighestAllowedKeyCopy;
                 curHighestAllowedKey = newHighestAllowedKey;
                 keysToRemoveOnNewHighestAllowedKey.clear();
             }
@@ -111,8 +113,7 @@ public abstract class ARecursivePullingHistoricalCacheAdjustKeyProvider implemen
                 GLOBAL_ALREADY_ADJUSTING_KEY.set(true);
                 alreadyAdjustingKey.set(true);
                 try {
-                    final FDate newHighestAllowedKey = getHighestAllowedKeyUpdateCached();
-                    curHighestAllowedKey = newHighestAllowedKey;
+                    getHighestAllowedKeyUpdateCached();
                 } finally {
                     GLOBAL_ALREADY_ADJUSTING_KEY.set(prevGlobalAlreadyAdjustingKey);
                     alreadyAdjustingKey.remove();
@@ -120,6 +121,11 @@ public abstract class ARecursivePullingHistoricalCacheAdjustKeyProvider implemen
             }
         }
         return curHighestAllowedKey;
+    }
+
+    @Override
+    public FDate getPreviousHighestAllowedKey() {
+        return prevHighestAllowedKey;
     }
 
     public static boolean isGlobalAlreadyAdjustingKey() {
