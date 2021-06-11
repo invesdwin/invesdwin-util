@@ -679,7 +679,7 @@ public final class Strings extends AStringsStaticFacade {
     }
 
     public static List<String> splitByMaxLength(final String str, final int maxLength) {
-        if (str.length() <= maxLength) {
+        if (maxLength <= 0 || str.length() <= maxLength) {
             return Collections.singletonList(str);
         }
         final int whitespaceMaxLength = (int) (maxLength * 1.1D);
