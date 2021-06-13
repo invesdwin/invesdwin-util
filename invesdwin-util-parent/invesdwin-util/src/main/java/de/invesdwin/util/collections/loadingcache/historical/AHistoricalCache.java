@@ -473,6 +473,13 @@ public abstract class AHistoricalCache<V>
         return new HistoricalCachePreviousKeysQueryInterceptorSupport();
     }
 
+    /**
+     * Can be overridden to shortcut queries and not cache the latest value too often
+     */
+    protected V getHighestAllowedValueInterceptor(final IFDateProvider key) {
+        return null;
+    }
+
     protected ILoadingCache<FDate, IHistoricalEntry<V>> getValuesMap() {
         return getOrCreateValuesMap();
     }
@@ -601,6 +608,11 @@ public abstract class AHistoricalCache<V>
         @Override
         public IHistoricalCacheQuery<?> newKeysQueryInterceptor() {
             return AHistoricalCache.this.getShiftKeyProvider().newKeysQueryInterceptor();
+        }
+
+        @Override
+        public V getHighestAllowedValueInterceptor(final IFDateProvider key) {
+            return AHistoricalCache.this.getHighestAllowedValueInterceptor(key);
         }
 
         @Override

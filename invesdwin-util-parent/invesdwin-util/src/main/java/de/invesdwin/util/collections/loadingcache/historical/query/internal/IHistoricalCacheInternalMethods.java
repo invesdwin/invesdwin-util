@@ -11,6 +11,7 @@ import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCa
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.IHistoricalCacheQueryCore;
 import de.invesdwin.util.math.expression.lambda.IEvaluateGenericFDate;
 import de.invesdwin.util.time.fdate.FDate;
+import de.invesdwin.util.time.fdate.IFDateProvider;
 
 public interface IHistoricalCacheInternalMethods<V> {
 
@@ -59,5 +60,7 @@ public interface IHistoricalCacheInternalMethods<V> {
     AHistoricalCache<V> getParent();
 
     boolean isAlignKeys();
+
+    V getHighestAllowedValueInterceptor(IFDateProvider key);
 
 }
