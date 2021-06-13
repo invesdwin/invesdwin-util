@@ -8,6 +8,7 @@ import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.iterable.EmptyCloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.loadingcache.historical.IHistoricalEntry;
+import de.invesdwin.util.collections.loadingcache.historical.ImmutableHistoricalEntry;
 import de.invesdwin.util.collections.loadingcache.historical.key.IHistoricalCacheAdjustKeyProvider;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQuery;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQueryElementFilter;
@@ -78,19 +79,53 @@ public class AdjustingHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V
     @Override
     public IEvaluateGenericFDate<IHistoricalEntry<V>> newGetEntry() {
         final IEvaluateGenericFDate<IHistoricalEntry<V>> getEntryF = delegate.newGetEntry();
-        return (key) -> getEntryF.evaluateGeneric(() -> alignAndAdjustKey(key.asFDate()));
+        return key -> {
+            final V latestValue = internalMethods.getHighestAllowedValueInterceptor(key);
+            if (latestValue != null) {
+                return ImmutableHistoricalEntry.maybeExtractKey(internalMethods.getParent(), null, latestValue);
+            }
+            return getEntryF.evaluateGeneric(() -> alignAndAdjustKey(key.asFDate()));
+        };
     }
 
     @Override
     public IEvaluateGenericFDate<FDate> newGetKey() {
         final IEvaluateGenericFDate<FDate> getKeyF = delegate.newGetKey();
-        return (key) -> getKeyF.evaluateGeneric(() -> adjustKey(key.asFDate()));
+        return pKey -> {
+            final IHistoricalCacheAdjustKeyProvider adjustKeyProvider = internalMethods.getAdjustKeyProvider();
+            if (adjustKeyProvider.isAlreadyAdjustingKey()) {
+                return getKeyF.evaluateGeneric(pKey);
+            }
+            final FDate highestAllowedKey = adjustKeyProvider.getHighestAllowedKey();
+            if (highestAllowedKey == null) {
+                return getKeyF.evaluateGeneric(() -> adjustKey(pKey.asFDate()));
+            }
+            final FDate key = pKey.asFDate();
+            if (key.isAfterOrEqualToNotNullSafe(highestAllowedKey)) {
+                //we trust that the highest allowed key is the correct key of the last available entry
+                return highestAllowedKey;
+            } else {
+                final FDate prevHighestAllowedKey = adjustKeyProvider.getPreviousHighestAllowedKey();
+                if (prevHighestAllowedKey != null && key.isAfterOrEqualToNotNullSafe(prevHighestAllowedKey)) {
+                    //we trust that the highest allowed key is the correct key of the last available entry
+                    return prevHighestAllowedKey;
+                } else {
+                    return getKeyF.evaluateGeneric(() -> adjustKey(pKey.asFDate()));
+                }
+            }
+        };
     }
 
     @Override
     public IEvaluateGenericFDate<V> newGetValue() {
         final IEvaluateGenericFDate<V> getValueF = delegate.newGetValue();
-        return (key) -> getValueF.evaluateGeneric(() -> alignAndAdjustKey(key.asFDate()));
+        return key -> {
+            final V latestValue = internalMethods.getHighestAllowedValueInterceptor(key);
+            if (latestValue != null) {
+                return latestValue;
+            }
+            return getValueF.evaluateGeneric(() -> alignAndAdjustKey(key.asFDate()));
+        };
     }
 
     @Override
@@ -116,16 +151,28 @@ public class AdjustingHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V
 
     @Override
     public IHistoricalEntry<V> getEntry(final FDate key) {
+        final V latestValue = internalMethods.getHighestAllowedValueInterceptor(key);
+        if (latestValue != null) {
+            return ImmutableHistoricalEntry.maybeExtractKey(internalMethods.getParent(), null, latestValue);
+        }
         return delegate.getEntry(alignAndAdjustKey(key));
     }
 
     @Override
     public IHistoricalEntry<V> getEntryIfPresent(final FDate key) {
+        final V highestAllowedValue = internalMethods.getHighestAllowedValueInterceptor(key);
+        if (highestAllowedValue != null) {
+            return ImmutableHistoricalEntry.maybeExtractKey(internalMethods.getParent(), null, highestAllowedValue);
+        }
         return delegate.getEntryIfPresent(alignAndAdjustKey(key));
     }
 
     @Override
     public V getValue(final FDate key) {
+        final V latestValue = internalMethods.getHighestAllowedValueInterceptor(key);
+        if (latestValue != null) {
+            return latestValue;
+        }
         return delegate.getValue(alignAndAdjustKey(key));
     }
 
@@ -147,7 +194,7 @@ public class AdjustingHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V
         }
         final FDate highestAllowedKey = adjustKeyProvider.getHighestAllowedKey();
         if (highestAllowedKey == null) {
-            return getKeyAdjusting(key);
+            return delegate.getKey(adjustKey(key));
         } else if (key.isAfterOrEqualToNotNullSafe(highestAllowedKey)) {
             //we trust that the highest allowed key is the correct key of the last available entry
             return highestAllowedKey;
@@ -157,14 +204,9 @@ public class AdjustingHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V
                 //we trust that the highest allowed key is the correct key of the last available entry
                 return prevHighestAllowedKey;
             } else {
-                return getKeyAdjusting(key);
+                return delegate.getKey(adjustKey(key));
             }
         }
-    }
-
-    private FDate getKeyAdjusting(final FDate key) {
-        final FDate adjustedKey = adjustKey(key);
-        return delegate.getKey(adjustedKey);
     }
 
     @Override
