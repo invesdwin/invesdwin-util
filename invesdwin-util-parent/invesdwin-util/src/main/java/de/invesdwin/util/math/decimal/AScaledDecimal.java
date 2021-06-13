@@ -226,12 +226,12 @@ public abstract class AScaledDecimal<T extends AScaledDecimal<T, S>, S extends I
 
     @Override
     public boolean isGreaterThan(final ADecimal<?> o) {
-        return isGreaterThan(maybeGetDefaultScaledNumber(o));
+        return Doubles.isGreaterThan(getDefaultValue(), maybeGetDefaultScaledNumber(o));
     }
 
     @Override
     public boolean isLessThan(final ADecimal<?> o) {
-        return isLessThan(maybeGetDefaultScaledNumber(o));
+        return Doubles.isLessThan(getDefaultValue(), maybeGetDefaultScaledNumber(o));
     }
 
     @Override
@@ -241,12 +241,12 @@ public abstract class AScaledDecimal<T extends AScaledDecimal<T, S>, S extends I
 
     @Override
     public boolean isGreaterThanOrEqualTo(final ADecimal<?> o) {
-        return isGreaterThanOrEqualTo(maybeGetDefaultScaledNumber(o));
+        return Doubles.isGreaterThanOrEqualTo(getDefaultValue(), maybeGetDefaultScaledNumber(o));
     }
 
     @Override
     public boolean isLessThanOrEqualTo(final ADecimal<?> o) {
-        return isLessThanOrEqualTo(maybeGetDefaultScaledNumber(o));
+        return Doubles.isLessThanOrEqualTo(getDefaultValue(), maybeGetDefaultScaledNumber(o));
     }
 
     private double maybeGetDefaultScaledNumber(final ADecimal<?> number) {
