@@ -6,12 +6,9 @@ import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.collections.loadingcache.historical.IHistoricalEntry;
-import de.invesdwin.util.collections.loadingcache.historical.ImmutableHistoricalEntry;
-import de.invesdwin.util.collections.loadingcache.historical.key.AdjustedFDate;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQuery;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQueryElementFilter;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQueryWithFuture;
-import de.invesdwin.util.collections.loadingcache.historical.query.index.IndexedFDate;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.HistoricalCacheAssertValue;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.IHistoricalCacheInternalMethods;
 import de.invesdwin.util.math.expression.lambda.IEvaluateGenericFDate;
@@ -52,17 +49,7 @@ public class FilteringHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V
 
     @Override
     public IEvaluateGenericFDate<IHistoricalEntry<V>> newGetEntry() {
-        final IEvaluateGenericFDate<IHistoricalEntry<V>> getEntryF = delegate.newGetEntry();
-        return pKey -> {
-            final FDate key = pKey.asFDate();
-            if (!(key instanceof AdjustedFDate) && !(key instanceof IndexedFDate)) {
-                final V latestValue = internalMethods.getHighestAllowedValueInterceptor(key);
-                if (latestValue != null) {
-                    return ImmutableHistoricalEntry.maybeExtractKey(internalMethods.getParent(), null, latestValue);
-                }
-            }
-            return getEntryF.evaluateGeneric(key);
-        };
+        return delegate.newGetEntry();
     }
 
     @Override
@@ -72,49 +59,21 @@ public class FilteringHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V
 
     @Override
     public IEvaluateGenericFDate<V> newGetValue() {
-        final IEvaluateGenericFDate<V> getValueF = delegate.newGetValue();
-        return pKey -> {
-            final FDate key = pKey.asFDate();
-            if (!(key instanceof AdjustedFDate) && !(key instanceof IndexedFDate)) {
-                final V latestValue = internalMethods.getHighestAllowedValueInterceptor(key);
-                if (latestValue != null) {
-                    return latestValue;
-                }
-            }
-            return getValueF.evaluateGeneric(key);
-        };
+        return delegate.newGetValue();
     }
 
     @Override
     public IHistoricalEntry<V> getEntry(final FDate key) {
-        if (!(key instanceof AdjustedFDate) && !(key instanceof IndexedFDate)) {
-            final V latestValue = internalMethods.getHighestAllowedValueInterceptor(key);
-            if (latestValue != null) {
-                return ImmutableHistoricalEntry.maybeExtractKey(internalMethods.getParent(), null, latestValue);
-            }
-        }
         return delegate.getEntry(key);
     }
 
     @Override
     public IHistoricalEntry<V> getEntryIfPresent(final FDate key) {
-        if (!(key instanceof AdjustedFDate) && !(key instanceof IndexedFDate)) {
-            final V latestValue = internalMethods.getHighestAllowedValueInterceptor(key);
-            if (latestValue != null) {
-                return ImmutableHistoricalEntry.maybeExtractKey(internalMethods.getParent(), null, latestValue);
-            }
-        }
         return delegate.getEntryIfPresent(key);
     }
 
     @Override
     public V getValue(final FDate key) {
-        if (!(key instanceof AdjustedFDate) && !(key instanceof IndexedFDate)) {
-            final V latestValue = internalMethods.getHighestAllowedValueInterceptor(key);
-            if (latestValue != null) {
-                return latestValue;
-            }
-        }
         return delegate.getValue(key);
     }
 
