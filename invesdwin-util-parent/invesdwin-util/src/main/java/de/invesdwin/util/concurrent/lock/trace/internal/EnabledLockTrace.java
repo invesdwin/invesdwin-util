@@ -27,7 +27,7 @@ public class EnabledLockTrace implements ILockTrace {
         }
 
         @Override
-        protected ILoadingCache<String, ConcurrentHashMap<String, LockTraceEntry>> createDelegate() {
+        protected ILoadingCache<String, ConcurrentHashMap<String, LockTraceEntry>> newDelegate() {
             final Integer maximumSize = getInitialMaximumSize();
             final Function<String, ConcurrentHashMap<String, LockTraceEntry>> loadValue = new Function<String, ConcurrentHashMap<String, LockTraceEntry>>() {
                 @Override

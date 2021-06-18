@@ -216,4 +216,9 @@ public final class SynchronizedLockCollectionFactory implements ILockCollectionF
         return Collections.synchronizedMap(DisabledLockCollectionFactory.INSTANCE.newIdentityMap());
     }
 
+    @Override
+    public boolean isThreadSafe() {
+        return true;
+    }
+
 }

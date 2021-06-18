@@ -38,6 +38,11 @@ public abstract class APushingRecursiveHistoricalCache<R extends APushingRecursi
         };
     }
 
+    @Override
+    public boolean isThreadSafe() {
+        return parent.isThreadSafe();
+    }
+
     protected abstract R newResult(FDate key, FDate previousKey, IRecursiveHistoricalCacheQuery<R> recursiveQuery);
 
     @Override

@@ -46,7 +46,7 @@ public abstract class ALoadingCache<K, V> extends ADelegateLoadingCache<K, V> {
     protected abstract V loadValue(K key);
 
     @Override
-    protected ILoadingCache<K, V> createDelegate() {
+    protected ILoadingCache<K, V> newDelegate() {
         final Integer maximumSize = getInitialMaximumSize();
         final Function<K, V> loadValue = new Function<K, V>() {
             @Override

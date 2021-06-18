@@ -15,14 +15,18 @@ public abstract class ADelegateLoadingCache<K, V> implements ILoadingCache<K, V>
 
     public ADelegateLoadingCache() {
         //lazy initialization is too expensive here
-        this.delegate = createDelegate();
+        this.delegate = newDelegate();
+    }
+
+    public ADelegateLoadingCache(final ILoadingCache<K, V> delegate) {
+        this.delegate = delegate;
     }
 
     protected ILoadingCache<K, V> getDelegate() {
         return delegate;
     }
 
-    protected abstract ILoadingCache<K, V> createDelegate();
+    protected abstract ILoadingCache<K, V> newDelegate();
 
     @Override
     public V get(final K key) {

@@ -20,11 +20,13 @@ import de.invesdwin.util.collections.eviction.EvictionMode;
 import de.invesdwin.util.collections.fast.concurrent.ASynchronizedFastIterableDelegateList;
 import de.invesdwin.util.collections.loadingcache.ADelegateLoadingCache;
 import de.invesdwin.util.collections.loadingcache.ALoadingCache;
+import de.invesdwin.util.collections.loadingcache.DelegateLoadingCache;
 import de.invesdwin.util.collections.loadingcache.ILoadingCache;
 import de.invesdwin.util.collections.loadingcache.historical.interceptor.HistoricalCachePreviousKeysQueryInterceptorSupport;
 import de.invesdwin.util.collections.loadingcache.historical.interceptor.HistoricalCacheRangeQueryInterceptorSupport;
 import de.invesdwin.util.collections.loadingcache.historical.interceptor.IHistoricalCachePreviousKeysQueryInterceptor;
 import de.invesdwin.util.collections.loadingcache.historical.interceptor.IHistoricalCacheRangeQueryInterceptor;
+import de.invesdwin.util.collections.loadingcache.historical.internal.IValuesMap;
 import de.invesdwin.util.collections.loadingcache.historical.key.APullingHistoricalCacheAdjustKeyProvider;
 import de.invesdwin.util.collections.loadingcache.historical.key.IHistoricalCacheAdjustKeyProvider;
 import de.invesdwin.util.collections.loadingcache.historical.key.IHistoricalCachePutProvider;
@@ -92,7 +94,7 @@ public abstract class AHistoricalCache<V>
     private IHistoricalCacheShiftKeyProvider<V> shiftKeyProvider = new InnerHistoricalCacheShiftKeyProvider();
     private IHistoricalCacheExtractKeyProvider<V> extractKeyProvider = new InnerHistoricalCacheExtractKeyProvider();
     @GuardedBy("this only during initialization")
-    private InnerLoadingCache valuesMap;
+    private IValuesMap<V> valuesMap = new LazyValuesMap();
     private boolean alignKeys;
 
     public AHistoricalCache() {
@@ -115,6 +117,13 @@ public abstract class AHistoricalCache<V>
      */
     protected Integer getInitialMaximumSize() {
         return DEFAULT_MAXIMUM_SIZE;
+    }
+
+    /**
+     * Return false to get a faster implementation
+     */
+    public boolean isThreadSafe() {
+        return true;
     }
 
     @Override
@@ -267,12 +276,17 @@ public abstract class AHistoricalCache<V>
     protected abstract IEvaluateGenericFDate<V> newLoadValue();
 
     protected <T> ILoadingCache<FDate, T> newLoadingCacheProvider(final Function<FDate, T> loadValue,
-            final Integer maximumSize) {
+            final Integer maximumSize, final boolean threadSafe) {
         final ALoadingCache<FDate, T> loadingCache = new ALoadingCache<FDate, T>() {
 
             @Override
             protected Integer getInitialMaximumSize() {
                 return maximumSize;
+            }
+
+            @Override
+            protected boolean isThreadSafe() {
+                return threadSafe;
             }
 
             @Override
@@ -457,25 +471,7 @@ public abstract class AHistoricalCache<V>
         return new HistoricalCachePreviousKeysQueryInterceptorSupport();
     }
 
-    protected ILoadingCache<FDate, IHistoricalEntry<V>> getValuesMap() {
-        return getOrCreateValuesMap();
-    }
-
-    private InnerLoadingCache getOrCreateValuesMap() {
-        /*
-         * initialize lazy, so that caches that are never used occupy less memory and so that newLoadValue is called
-         * only after constructor
-         */
-        if (valuesMap == null) {
-            synchronized (this) {
-                if (valuesMap == null) {
-                    valuesMap = new InnerLoadingCache();
-                    if (maximumSize != null && maximumSize != initialMaximumSize) {
-                        innerIncreaseMaximumSize(maximumSize, "innerLoadCache lazy init");
-                    }
-                }
-            }
-        }
+    protected IValuesMap<V> getValuesMap() {
         return valuesMap;
     }
 
@@ -487,7 +483,39 @@ public abstract class AHistoricalCache<V>
         return FDate.MAX_DATE;
     }
 
-    private final class InnerLoadingCache extends ADelegateLoadingCache<FDate, IHistoricalEntry<V>> {
+    private final class LazyValuesMap extends DelegateLoadingCache<FDate, IHistoricalEntry<V>>
+            implements IValuesMap<V> {
+
+        private LazyValuesMap() {
+            super(null);
+        }
+
+        @Override
+        protected IValuesMap<V> getDelegate() {
+            /*
+             * initialize lazy, so that caches that are never used occupy less memory and so that newLoadValue is called
+             * only after constructor
+             */
+            if (valuesMap == this) {
+                synchronized (AHistoricalCache.this) {
+                    if (valuesMap == this) {
+                        valuesMap = new ValuesMap();
+                        if (maximumSize != null && maximumSize != initialMaximumSize) {
+                            innerIncreaseMaximumSize(maximumSize, "innerLoadCache lazy init");
+                        }
+                    }
+                }
+            }
+            return valuesMap;
+        }
+
+        @Override
+        public void putDirectly(final FDate key, final IHistoricalEntry<V> value) {
+            getDelegate().putDirectly(key, value);
+        }
+    }
+
+    private final class ValuesMap extends ADelegateLoadingCache<FDate, IHistoricalEntry<V>> implements IValuesMap<V> {
 
         @Override
         public IHistoricalEntry<V> get(final FDate key) {
@@ -496,8 +524,9 @@ public abstract class AHistoricalCache<V>
         }
 
         @Override
-        protected ILoadingCache<FDate, IHistoricalEntry<V>> createDelegate() {
+        protected ILoadingCache<FDate, IHistoricalEntry<V>> newDelegate() {
             final Integer size = initialMaximumSize;
+            final boolean threadSafe = isThreadSafe();
             final IEvaluateGenericFDate<V> loadValueF = internalMethods.newLoadValue();
             return newLoadingCacheProvider(key -> {
                 try {
@@ -506,7 +535,7 @@ public abstract class AHistoricalCache<V>
                 } catch (final Throwable t) {
                     throw new RuntimeException("At: " + AHistoricalCache.this.toString(), t);
                 }
-            }, size);
+            }, size, threadSafe);
         }
 
         @Override
@@ -514,7 +543,8 @@ public abstract class AHistoricalCache<V>
             shiftKeyProvider.put(key, value);
         }
 
-        private void putDirectly(final FDate key, final IHistoricalEntry<V> value) {
+        @Override
+        public void putDirectly(final FDate key, final IHistoricalEntry<V> value) {
             super.put(key, value);
         }
     }
@@ -545,7 +575,7 @@ public abstract class AHistoricalCache<V>
         }
 
         @Override
-        public ILoadingCache<FDate, IHistoricalEntry<V>> getValuesMap() {
+        public IValuesMap<V> getValuesMap() {
             return AHistoricalCache.this.getValuesMap();
         }
 
@@ -572,6 +602,11 @@ public abstract class AHistoricalCache<V>
         @Override
         public Integer getMaximumSize() {
             return AHistoricalCache.this.getMaximumSize();
+        }
+
+        @Override
+        public boolean isThreadSafe() {
+            return AHistoricalCache.this.isThreadSafe();
         }
 
         @Override
@@ -641,7 +676,7 @@ public abstract class AHistoricalCache<V>
 
         @Override
         public void putDirectly(final FDate key, final IHistoricalEntry<V> value) {
-            AHistoricalCache.this.getOrCreateValuesMap().putDirectly(key, value);
+            getValuesMap().putDirectly(key, value);
         }
 
         @Override

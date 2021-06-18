@@ -78,4 +78,6 @@ public interface ILockCollectionFactory {
         }
     }
 
+    boolean isThreadSafe();
+
 }

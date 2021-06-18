@@ -3,7 +3,6 @@ package de.invesdwin.util.collections.loadingcache.historical.query.internal.cor
 import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.concurrent.locks.ReentrantLock;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
@@ -11,6 +10,7 @@ import javax.annotation.concurrent.ThreadSafe;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.apache.commons.lang3.mutable.MutableInt;
 
+import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.collections.iterable.ACloseableIterator;
 import de.invesdwin.util.collections.iterable.ASkippingIterable;
 import de.invesdwin.util.collections.iterable.EmptyCloseableIterator;
@@ -25,7 +25,6 @@ import de.invesdwin.util.collections.loadingcache.historical.query.index.Indexed
 import de.invesdwin.util.collections.loadingcache.historical.query.index.QueryCoreIndex;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.IHistoricalCacheInternalMethods;
 import de.invesdwin.util.concurrent.lock.ILock;
-import de.invesdwin.util.concurrent.lock.Locks;
 import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.lang.description.TextDescription;
 import de.invesdwin.util.lang.finalizer.AFinalizer;
@@ -44,8 +43,8 @@ public class TrailingHistoricalCacheQueryCore<V> extends ACachedEntriesHistorica
 
     public TrailingHistoricalCacheQueryCore(final IHistoricalCacheInternalMethods<V> parent) {
         //CHECKSTYLE:OFF no cycle detection needed because we always back off locks via tryLock
-        this.cachedQueryActiveLock = Locks.maybeWrap(
-                TrailingHistoricalCacheQueryCore.class.getSimpleName() + "_cachedQueryActiveLock", new ReentrantLock());
+        this.cachedQueryActiveLock = ILockCollectionFactory.getInstance(parent.isThreadSafe())
+                .newLock(TrailingHistoricalCacheQueryCore.class.getSimpleName() + "_cachedQueryActiveLock");
         //CHECKSTYLE:ON
         //reuse lock so that set methods on sublist are synchronized
         this.delegate = new CachedHistoricalCacheQueryCore<V>(parent, cachedQueryActiveLock, cachedQueryActive);

@@ -236,4 +236,9 @@ public final class DisabledLockCollectionFactory implements ILockCollectionFacto
         return new IdentityHashMap<K, V>();
     }
 
+    @Override
+    public boolean isThreadSafe() {
+        return false;
+    }
+
 }
