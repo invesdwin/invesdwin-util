@@ -60,6 +60,9 @@ public class MultipleExpressionParser implements IExpressionParser {
     private final String originalExpression;
 
     public MultipleExpressionParser(final String expression) {
+        if (expression == null) {
+            throw new NullPointerException("expression should not be null");
+        }
         this.originalExpression = modifyExpression(expression);
     }
 

@@ -197,6 +197,9 @@ public class ExpressionParser implements IExpressionParser {
     }
 
     public ExpressionParser(final String expression) {
+        if (expression == null) {
+            throw new NullPointerException("expression should not be null");
+        }
         originalExpression = modifyExpression(expression);
     }
 
