@@ -1,17 +1,10 @@
 package de.invesdwin.util.collections.loadingcache.historical.refresh;
 
-import java.util.Collections;
-import java.util.Set;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ScheduledExecutorService;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
-import com.github.benmanes.caffeine.cache.Caffeine;
-
-import de.invesdwin.util.collections.loadingcache.ALoadingCache;
-import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
 import de.invesdwin.util.concurrent.Executors;
 import de.invesdwin.util.time.duration.Duration;
 import de.invesdwin.util.time.fdate.FDate;
@@ -46,30 +39,19 @@ public final class HistoricalCacheRefreshManager {
             .getXLogger(HistoricalCacheRefreshManager.class);
 
     private static volatile FDate lastRefresh = new FDate();
+    private static volatile long lastRefreshMillis = lastRefresh.millisValue();
     @GuardedBy("HistoricalCacheRefreshManager.class")
     private static ScheduledExecutorService executor;
 
-    private static final ALoadingCache<String, Set<AHistoricalCache<?>>> REGISTERED_CACHES = new ALoadingCache<String, Set<AHistoricalCache<?>>>() {
-
-        @Override
-        protected Set<AHistoricalCache<?>> loadValue(final String key) {
-            final ConcurrentMap<AHistoricalCache<?>, Boolean> map = Caffeine.newBuilder()
-                    .weakKeys()
-                    .<AHistoricalCache<?>, Boolean> build()
-                    .asMap();
-            return Collections.newSetFromMap(map);
-        }
-
-        @Override
-        protected boolean isHighConcurrency() {
-            return true;
-        }
-    };
-
-    private HistoricalCacheRefreshManager() {}
+    private HistoricalCacheRefreshManager() {
+    }
 
     public static FDate getLastRefresh() {
         return lastRefresh;
+    }
+
+    public static long getLastRefreshMillis() {
+        return lastRefreshMillis;
     }
 
     /**
@@ -77,17 +59,12 @@ public final class HistoricalCacheRefreshManager {
      * 
      * Calling this manually makes the caches refresh on the next call to get.
      */
-    @SuppressWarnings("deprecation")
     public static synchronized void forceRefresh() {
         //CHECKSTYLE:OFF
-        LOG.warn("Forcing refresh on historical caches: {}", REGISTERED_CACHES.size());
+        LOG.warn("Forcing refresh on historical caches");
         //CHECKSTYLE:ON
         lastRefresh = new FDate();
-        for (final Set<AHistoricalCache<?>> caches : REGISTERED_CACHES.values()) {
-            for (final AHistoricalCache<?> registeredCache : caches) {
-                registeredCache.requestRefresh();
-            }
-        }
+        lastRefreshMillis = lastRefresh.millisValue();
     }
 
     public static boolean maybeRefresh() {
@@ -136,28 +113,6 @@ public final class HistoricalCacheRefreshManager {
 
     public static synchronized boolean isRefreshSchedulerRunning() {
         return executor != null;
-    }
-
-    public static synchronized boolean register(final AHistoricalCache<?> cache) {
-        final Set<AHistoricalCache<?>> caches = REGISTERED_CACHES.get(cache.toString());
-        if (!caches.add(cache)) {
-            return false;
-        }
-        final int size = caches.size();
-        if (size % 10000 == 0) {
-            //CHECKSTYLE:OFF
-            LOG.warn(
-                    "Already registered {} {}s, maybe the cache instance should be cached itself instead of being recreated all the time? "
-                            + "Alternatively set maximum size to 0 so it does not get registered here. Class={} ToString={}",
-                    size, AHistoricalCache.class.getSimpleName(), cache.getClass().getSimpleName(), cache);
-            //CHECKSTYLE:ON
-        }
-        return true;
-    }
-
-    public static synchronized boolean unregister(final AHistoricalCache<?> cache) {
-        final Set<AHistoricalCache<?>> caches = REGISTERED_CACHES.get(cache.toString());
-        return caches.remove(cache);
     }
 
 }

@@ -82,7 +82,7 @@ public abstract class AHistoricalCache<V>
     private IHistoricalCachePutProvider<V> putProvider = new InnerHistoricalCachePutProvider();
     private boolean isPutDisabled = getMaximumSize() != null && getMaximumSize() == 0;
 
-    private volatile FDate lastRefresh = HistoricalCacheRefreshManager.getLastRefresh();
+    private volatile long lastRefreshMillis = HistoricalCacheRefreshManager.getLastRefresh().millisValue();
     private volatile Integer maximumSize = getInitialMaximumSize();
     /*
      * need to remember this, so that valuesMap lazy initialization uses the correct impl, since actual maximumSize
@@ -93,7 +93,6 @@ public abstract class AHistoricalCache<V>
     private IHistoricalCacheExtractKeyProvider<V> extractKeyProvider = new InnerHistoricalCacheExtractKeyProvider();
     @GuardedBy("this only during initialization")
     private InnerLoadingCache valuesMap;
-    private volatile boolean refreshRequested;
     private boolean alignKeys;
 
     public AHistoricalCache() {
@@ -254,29 +253,14 @@ public abstract class AHistoricalCache<V>
         return alignKeys;
     }
 
-    /**
-     * Requests a refresh of the cache on the next get() operation. We would risk deadlocks if we did not make that
-     * detour.
-     * 
-     * WARNING: Please use HistoricalCacheRefreshManager instead of directly requesting refresh here.
-     */
-    @Deprecated
-    public final void requestRefresh() {
-        final FDate lastRefreshFromManager = HistoricalCacheRefreshManager.getLastRefresh();
-        if (lastRefresh.isBefore(lastRefreshFromManager)) {
-            lastRefresh = new FDate();
-            refreshRequested = true;
-        }
-    }
-
-    public FDate getLastRefresh() {
-        return lastRefresh;
+    public long getLastRefreshMillis() {
+        return lastRefreshMillis;
     }
 
     private void invokeRefreshIfRequested() {
-        if (refreshRequested) {
+        final long lastRefreshMillisFromManager = HistoricalCacheRefreshManager.getLastRefreshMillis();
+        if (lastRefreshMillis < lastRefreshMillisFromManager) {
             clear();
-            refreshRequested = false;
         }
     }
 
@@ -428,7 +412,7 @@ public abstract class AHistoricalCache<V>
         for (final IHistoricalCacheOnClearListener listener : onClearListeners) {
             listener.onClear();
         }
-        lastRefresh = HistoricalCacheRefreshManager.getLastRefresh();
+        lastRefreshMillis = HistoricalCacheRefreshManager.getLastRefreshMillis();
     }
 
     public Set<IHistoricalCacheOnClearListener> getOnClearListeners() {
@@ -514,9 +498,6 @@ public abstract class AHistoricalCache<V>
         @Override
         protected ILoadingCache<FDate, IHistoricalEntry<V>> createDelegate() {
             final Integer size = initialMaximumSize;
-            if (size == null || size > 0) {
-                Assertions.checkTrue(HistoricalCacheRefreshManager.register(AHistoricalCache.this));
-            }
             final IEvaluateGenericFDate<V> loadValueF = internalMethods.newLoadValue();
             return newLoadingCacheProvider(key -> {
                 try {
