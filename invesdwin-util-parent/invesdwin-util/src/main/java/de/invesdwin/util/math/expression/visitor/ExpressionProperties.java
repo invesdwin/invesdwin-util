@@ -1,7 +1,11 @@
 package de.invesdwin.util.math.expression.visitor;
 
+import java.util.Collection;
+import java.util.Set;
+
 import javax.annotation.concurrent.Immutable;
 
+import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.math.Booleans;
 import de.invesdwin.util.math.expression.IExpression;
 
@@ -49,6 +53,13 @@ public final class ExpressionProperties {
      * DEFAULT when undefined is false.
      */
     public static final String OPTIMIZE = "OPTIMIZE";
+
+    /**
+     * Return a single or a collection of optimization variables.
+     * 
+     * DEFAULT when undefined is an empty collection.
+     */
+    public static final String OPTIMIZATION_VARIABLES = "OPTIMIZATION_VARIABLES";
 
     private ExpressionProperties() {
     }
@@ -105,19 +116,6 @@ public final class ExpressionProperties {
         return false;
     }
 
-    public static boolean isOptimize(final IExpression expression) {
-        if (Booleans.isTrue((Boolean) expression.getProperty(OPTIMIZE))) {
-            return true;
-        }
-        final IExpression[] parameters = expression.getChildren();
-        for (int i = 0; i < parameters.length; i++) {
-            if (isOptimize(parameters[i])) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     public static IExpression getDrawable(final IExpression expression) {
         if (Booleans.isFalse((Boolean) expression.getProperty(ExpressionProperties.DRAW))) {
             final IExpression[] children = expression.getChildren();
@@ -132,6 +130,49 @@ public final class ExpressionProperties {
             }
         }
         return expression;
+    }
+
+    public static boolean isOptimize(final IExpression expression) {
+        if (Booleans.isTrue((Boolean) expression.getProperty(OPTIMIZE))) {
+            return true;
+        }
+        final IExpression[] parameters = expression.getChildren();
+        for (int i = 0; i < parameters.length; i++) {
+            if (isOptimize(parameters[i])) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static <T> Set<T> getOptimizationVariables(final IExpression expression) {
+        final Set<T> set = ILockCollectionFactory.getInstance(false).newSet();
+        getOptimizationVariables(expression, set);
+        return set;
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T> void getOptimizationVariables(final IExpression expression, final Set<T> optimizationVariables) {
+        final Object value = expression.getProperty(OPTIMIZATION_VARIABLES);
+        if (value != null) {
+            if (value instanceof Object[]) {
+                final Object[] arr = (Object[]) value;
+                for (int i = 0; i < arr.length; i++) {
+                    final T cValue = (T) arr[i];
+                    optimizationVariables.add(cValue);
+                }
+            } else if (value instanceof Collection) {
+                final Collection<T> col = (Collection<T>) value;
+                optimizationVariables.addAll(col);
+            } else {
+                final T cValue = (T) value;
+                optimizationVariables.add(cValue);
+            }
+        }
+        final IExpression[] parameters = expression.getChildren();
+        for (int i = 0; i < parameters.length; i++) {
+            getOptimizationVariables(parameters[i], optimizationVariables);
+        }
     }
 
 }
