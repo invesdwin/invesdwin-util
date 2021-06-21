@@ -146,7 +146,7 @@ public final class ExpressionProperties {
     }
 
     public static <T> Set<T> getOptimizationVariables(final IExpression expression) {
-        final Set<T> set = ILockCollectionFactory.getInstance(false).newSet();
+        final Set<T> set = ILockCollectionFactory.getInstance(false).newLinkedSet();
         getOptimizationVariables(expression, set);
         return set;
     }
