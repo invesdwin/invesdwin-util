@@ -51,7 +51,7 @@ public abstract class AFilteringArrayUnmodifiableList<E> extends AUnmodifiableLi
                 size++;
             }
         }
-        throw new IndexOutOfBoundsException(index);
+        throw new IndexOutOfBoundsException(String.valueOf(index));
     }
 
     @Override
