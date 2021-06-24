@@ -155,4 +155,9 @@ public abstract class ADelegateExpression implements IExpression {
         return getDelegate().asParsedExpression();
     }
 
+    @Override
+    public String toString() {
+        return getDelegate().toString();
+    }
+
 }
