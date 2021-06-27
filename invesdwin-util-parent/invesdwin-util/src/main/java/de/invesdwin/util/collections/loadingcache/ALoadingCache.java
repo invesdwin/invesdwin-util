@@ -55,7 +55,7 @@ public abstract class ALoadingCache<K, V> extends ADelegateLoadingCache<K, V> {
             }
         };
         if (isHighConcurrency()) {
-            return newCaffeineLoadingCache(maximumSize, loadValue);
+            return newConcurrentLoadingCache(maximumSize, loadValue);
         } else if (maximumSize == null) {
             if (isThreadSafe()) {
                 return new SynchronizedUnlimitedCachingLoadingCache<K, V>(loadValue);
@@ -73,8 +73,7 @@ public abstract class ALoadingCache<K, V> extends ADelegateLoadingCache<K, V> {
         }
     }
 
-    protected CaffeineLoadingCache<K, V> newCaffeineLoadingCache(final Integer maximumSize,
-            final Function<K, V> loadValue) {
+    protected ILoadingCache<K, V> newConcurrentLoadingCache(final Integer maximumSize, final Function<K, V> loadValue) {
         return new CaffeineLoadingCache<K, V>(loadValue, maximumSize);
     }
 

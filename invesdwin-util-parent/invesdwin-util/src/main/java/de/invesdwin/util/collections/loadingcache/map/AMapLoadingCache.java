@@ -15,7 +15,7 @@ import de.invesdwin.util.collections.loadingcache.ILoadingCache;
 public abstract class AMapLoadingCache<K, V> implements ILoadingCache<K, V> {
 
     protected final Map<K, V> map;
-    private final Function<K, V> loadValue;
+    protected final Function<K, V> loadValue;
 
     public AMapLoadingCache(final Function<K, V> loadValue, final Map<K, V> map) {
         this.loadValue = loadValue;
