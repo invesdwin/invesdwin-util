@@ -58,6 +58,11 @@ public class OrCombinedHolidayManager implements IHolidayManager {
         return holidayCalendarId;
     }
 
+    @Override
+    public String toString() {
+        return getHolidayCalendarId();
+    }
+
     public boolean isEmpty() {
         return holidayManagers.isEmpty();
     }

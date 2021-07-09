@@ -10,6 +10,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.time.date.holiday.IHolidayManager;
 import de.invesdwin.util.time.date.holiday.provider.IHolidayManagerProvider;
+import de.invesdwin.util.time.date.holiday.provider.custom.expiration.QuarterlyExpirationDayHolidayManager;
 
 @NotThreadSafe
 public final class CustomHolidayManagerProvider implements IHolidayManagerProvider {
@@ -20,11 +21,15 @@ public final class CustomHolidayManagerProvider implements IHolidayManagerProvid
     @GuardedBy("none for performance")
     private static String availableCalendarIdsInfo;
 
+    static {
+        registerHolidayManager(QuarterlyExpirationDayHolidayManager.INSTANCE);
+    }
+
     public static String prepareHolidayCalendarId(final String holidayCalendarId) {
         if (Strings.isBlank(holidayCalendarId)) {
             return null;
         }
-        return holidayCalendarId.trim().toLowerCase();
+        return holidayCalendarId.trim().toUpperCase();
     }
 
     public static boolean registerHolidayManager(final IHolidayManager holidayManager) {

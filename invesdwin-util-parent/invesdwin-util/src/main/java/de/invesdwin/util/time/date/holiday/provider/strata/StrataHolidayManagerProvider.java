@@ -11,18 +11,20 @@ import com.opengamma.strata.basics.date.HolidayCalendars;
 
 import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 import de.invesdwin.util.lang.Strings;
+import de.invesdwin.util.time.date.holiday.IHolidayManager;
 import de.invesdwin.util.time.date.holiday.provider.IHolidayManagerProvider;
+import de.invesdwin.util.time.date.holiday.provider.custom.CachingHolidayManager;
 
 @Immutable
 public final class StrataHolidayManagerProvider implements IHolidayManagerProvider {
 
     public static final StrataHolidayManagerProvider INSTANCE = new StrataHolidayManagerProvider();
 
-    private static final ALoadingCache<String, Optional<StrataHolidayManager>> ID_MANAGER = new ALoadingCache<String, Optional<StrataHolidayManager>>() {
+    private static final ALoadingCache<String, Optional<IHolidayManager>> ID_MANAGER = new ALoadingCache<String, Optional<IHolidayManager>>() {
         @Override
-        protected Optional<StrataHolidayManager> loadValue(final String key) {
+        protected Optional<IHolidayManager> loadValue(final String key) {
             try {
-                return Optional.of(new StrataHolidayManager(key));
+                return Optional.of(new CachingHolidayManager(new StrataHolidayManager(key)));
             } catch (final Throwable t) {
                 return Optional.empty();
             }
@@ -35,7 +37,7 @@ public final class StrataHolidayManagerProvider implements IHolidayManagerProvid
     }
 
     @Override
-    public StrataHolidayManager getInstance(final String calendarId) {
+    public IHolidayManager getInstance(final String calendarId) {
         return ID_MANAGER.get(calendarId).orElse(null);
     }
 

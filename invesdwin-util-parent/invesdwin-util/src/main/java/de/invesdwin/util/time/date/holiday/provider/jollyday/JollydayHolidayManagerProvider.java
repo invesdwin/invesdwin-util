@@ -16,7 +16,9 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
 import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 import de.invesdwin.util.lang.Strings;
+import de.invesdwin.util.time.date.holiday.IHolidayManager;
 import de.invesdwin.util.time.date.holiday.provider.IHolidayManagerProvider;
+import de.invesdwin.util.time.date.holiday.provider.custom.CachingHolidayManager;
 import de.jollyday.HolidayCalendar;
 import de.jollyday.HolidayManager;
 import de.jollyday.ManagerParameters;
@@ -31,23 +33,23 @@ public final class JollydayHolidayManagerProvider implements IHolidayManagerProv
      * 
      * Holidays on 1.January and 25.December only
      */
-    public static final JollydayHolidayManager ZORRO;
-    public static final JollydayHolidayManager GERMANY;
+    public static final IHolidayManager ZORRO;
+    public static final IHolidayManager GERMANY;
 
     private static final Set<String> AVAILABLE_CALENDAR_IDS;
     private static final Map<String, String> CALENDAR_ID;
     private static final Map<String, HolidayCalendar> ID_CALENDAR;
 
-    private static final ALoadingCache<String, Optional<JollydayHolidayManager>> ID_MANAGER;
+    private static final ALoadingCache<String, Optional<IHolidayManager>> ID_MANAGER;
     @GuardedBy("none for performance")
     private static String availableCalendarIdsInfo;
 
     static {
-        ID_MANAGER = new ALoadingCache<String, Optional<JollydayHolidayManager>>() {
+        ID_MANAGER = new ALoadingCache<String, Optional<IHolidayManager>>() {
             @Override
-            protected Optional<JollydayHolidayManager> loadValue(final String key) {
+            protected Optional<IHolidayManager> loadValue(final String key) {
                 try {
-                    return Optional.of(new JollydayHolidayManager(key));
+                    return Optional.of(new CachingHolidayManager(new JollydayHolidayManager(key)));
                 } catch (final Throwable t) {
                     return Optional.empty();
                 }
@@ -130,7 +132,7 @@ public final class JollydayHolidayManagerProvider implements IHolidayManagerProv
         return holidayCalendarId.trim().toLowerCase();
     }
 
-    public static JollydayHolidayManager getInstance(final HolidayCalendar holidayCalendar) {
+    public static IHolidayManager getInstance(final HolidayCalendar holidayCalendar) {
         if (holidayCalendar == null) {
             return null;
         }
@@ -139,7 +141,7 @@ public final class JollydayHolidayManagerProvider implements IHolidayManagerProv
     }
 
     @Override
-    public JollydayHolidayManager getInstance(final String holidayCalendarId) {
+    public IHolidayManager getInstance(final String holidayCalendarId) {
         final String prepared = prepareHolidayCalendarId(holidayCalendarId);
         if (prepared == null) {
             return null;

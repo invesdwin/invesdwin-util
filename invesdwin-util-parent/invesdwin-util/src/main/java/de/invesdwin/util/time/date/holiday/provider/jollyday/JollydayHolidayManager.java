@@ -4,7 +4,6 @@ import java.util.Locale;
 
 import javax.annotation.concurrent.Immutable;
 
-import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.time.date.FDate;
 import de.invesdwin.util.time.date.holiday.IHolidayManager;
@@ -15,22 +14,6 @@ import de.jollyday.util.ResourceUtil;
 @Immutable
 public class JollydayHolidayManager implements IHolidayManager {
 
-    private final ALoadingCache<FDate, Boolean> day_holiday = new ALoadingCache<FDate, Boolean>() {
-        @Override
-        protected Boolean loadValue(final FDate key) {
-            return holidayManager.isHoliday(key.calendarValue());
-        }
-
-        @Override
-        protected Integer getInitialMaximumSize() {
-            return 1000;
-        }
-
-        @Override
-        protected boolean isHighConcurrency() {
-            return true;
-        }
-    };
     private final String calendarId;
     private final HolidayManager holidayManager;
 
@@ -49,12 +32,17 @@ public class JollydayHolidayManager implements IHolidayManager {
 
     @Override
     public boolean isHoliday(final FDate date) {
-        return day_holiday.get(date);
+        return holidayManager.isHoliday(date.calendarValue());
     }
 
     @Override
     public String getHolidayCalendarId() {
         return calendarId;
+    }
+
+    @Override
+    public String toString() {
+        return getHolidayCalendarId();
     }
 
     public String getDescription() {
@@ -68,11 +56,6 @@ public class JollydayHolidayManager implements IHolidayManager {
         } else {
             return description;
         }
-    }
-
-    @Override
-    public String toString() {
-        return getHolidayCalendarId();
     }
 
 }
