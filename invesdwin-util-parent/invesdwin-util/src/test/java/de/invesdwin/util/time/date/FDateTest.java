@@ -11,7 +11,7 @@ import org.junit.Test;
 
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
-import de.invesdwin.util.time.date.holiday.FHolidayManager;
+import de.invesdwin.util.time.date.holiday.HolidayManagers;
 import de.invesdwin.util.time.date.timezone.FTimeZone;
 import de.invesdwin.util.time.date.timezone.TimeZones;
 
@@ -148,15 +148,15 @@ public class FDateTest {
     public void testAddWorkdays() {
         final FDate saturday = FDateBuilder.newDate(2016, 4, 30);
         Assertions.assertThat(saturday.addWorkdays(2, null)).isEqualTo(FDateBuilder.newDate(2016, 5, 3));
-        Assertions.assertThat(saturday.addWorkdays(2, FHolidayManager.GERMANY))
+        Assertions.assertThat(saturday.addWorkdays(2, HolidayManagers.GERMANY))
                 .isEqualTo(FDateBuilder.newDate(2016, 5, 3));
         Assertions.assertThat(saturday.addWorkdays(-2, null)).isEqualTo(FDateBuilder.newDate(2016, 4, 28));
-        Assertions.assertThat(saturday.addWorkdays(-2, FHolidayManager.GERMANY))
+        Assertions.assertThat(saturday.addWorkdays(-2, HolidayManagers.GERMANY))
                 .isEqualTo(FDateBuilder.newDate(2016, 4, 28));
 
         final FDate wednesday = FDateBuilder.newDate(2016, 5, 4);
         Assertions.assertThat(wednesday.addWorkdays(5, null)).isEqualTo(FDateBuilder.newDate(2016, 5, 11));
-        Assertions.assertThat(wednesday.addWorkdays(5, FHolidayManager.GERMANY))
+        Assertions.assertThat(wednesday.addWorkdays(5, HolidayManagers.GERMANY))
                 .isEqualTo(FDateBuilder.newDate(2016, 5, 12));
     }
 

@@ -25,7 +25,7 @@ import de.invesdwin.util.time.date.FMonth;
 import de.invesdwin.util.time.date.FTimeUnit;
 import de.invesdwin.util.time.date.FWeekTime;
 import de.invesdwin.util.time.date.FWeekday;
-import de.invesdwin.util.time.date.holiday.FHolidayManager;
+import de.invesdwin.util.time.date.holiday.IHolidayManager;
 import de.invesdwin.util.time.date.timezone.FTimeZone;
 import de.invesdwin.util.time.duration.Duration;
 
@@ -510,6 +510,10 @@ public final class FDateMillis {
         return javaTimeValueZoned(millis).toLocalDateTime();
     }
 
+    public static java.time.LocalDate javaDateValue(final long millis) {
+        return javaTimeValueZoned(millis).toLocalDate();
+    }
+
     public static long valueOf(final long value, final FTimeUnit timeUnit) {
         return timeUnit.toMillis(value);
     }
@@ -674,14 +678,14 @@ public final class FDateMillis {
         }
     }
 
-    public static long getFirstWorkdayOfMonth(final long millis, final FHolidayManager holidayManager,
+    public static long getFirstWorkdayOfMonth(final long millis, final IHolidayManager holidayManager,
             final FTimeZone timeZone) {
         final long offset = getTimeZoneOffsetMilliseconds(millis, timeZone);
         return revertTimeZoneOffset(getFirstWorkdayOfMonth(applyTimeZoneOffset(millis, offset), holidayManager),
                 offset);
     }
 
-    public static long getFirstWorkdayOfMonth(final long millis, final FHolidayManager holidayManager) {
+    public static long getFirstWorkdayOfMonth(final long millis, final IHolidayManager holidayManager) {
         long firstWorkdayDay = setDay(withoutTime(millis), 1);
         while (getFWeekday(firstWorkdayDay).isWeekend() || isHoliday(firstWorkdayDay, holidayManager)) {
             firstWorkdayDay = addDays(firstWorkdayDay, 1);
@@ -689,24 +693,24 @@ public final class FDateMillis {
         return firstWorkdayDay;
     }
 
-    public static boolean isHoliday(final long millis, final FHolidayManager holidayManager) {
+    public static boolean isHoliday(final long millis, final IHolidayManager holidayManager) {
         if (holidayManager == null) {
             return false;
         }
         return holidayManager.isHoliday(millis);
     }
 
-    public static boolean isHoliday(final long millis, final FHolidayManager holidayManager, final FTimeZone timeZone) {
+    public static boolean isHoliday(final long millis, final IHolidayManager holidayManager, final FTimeZone timeZone) {
         return isHoliday(applyTimeZoneOffset(millis, timeZone), holidayManager);
     }
 
-    public static long addWorkdays(final long millis, final int workdays, final FHolidayManager holidayManager,
+    public static long addWorkdays(final long millis, final int workdays, final IHolidayManager holidayManager,
             final FTimeZone timeZone) {
         final long offset = getTimeZoneOffsetMilliseconds(millis, timeZone);
         return revertTimeZoneOffset(addWorkdays(applyTimeZoneOffset(millis, offset), workdays, holidayManager), offset);
     }
 
-    public static long addWorkdays(final long millis, final int workdays, final FHolidayManager holidayManager) {
+    public static long addWorkdays(final long millis, final int workdays, final IHolidayManager holidayManager) {
         int workdaysToShift = Integers.abs(workdays);
         if (getFWeekday(millis).isWeekend() || isHoliday(millis, holidayManager)) {
             if (workdaysToShift > 1) {
