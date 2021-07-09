@@ -1,4 +1,4 @@
-package de.invesdwin.util.time.date.holiday.provider.custom.trading;
+package de.invesdwin.util.time.date.holiday.provider.custom.specific;
 
 import javax.annotation.concurrent.Immutable;
 

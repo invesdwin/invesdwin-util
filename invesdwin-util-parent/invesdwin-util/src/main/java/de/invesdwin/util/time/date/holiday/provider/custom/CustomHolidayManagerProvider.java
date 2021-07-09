@@ -10,9 +10,9 @@ import javax.annotation.concurrent.NotThreadSafe;
 import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.time.date.holiday.IHolidayManager;
 import de.invesdwin.util.time.date.holiday.provider.IHolidayManagerProvider;
-import de.invesdwin.util.time.date.holiday.provider.custom.trading.MonthlyExpirationDayHolidayManager;
-import de.invesdwin.util.time.date.holiday.provider.custom.trading.NewYearsEveHolidayManager;
-import de.invesdwin.util.time.date.holiday.provider.custom.trading.QuarterlyExpirationDayHolidayManager;
+import de.invesdwin.util.time.date.holiday.provider.custom.specific.MonthlyExpirationDayHolidayManager;
+import de.invesdwin.util.time.date.holiday.provider.custom.specific.NewYearsEveHolidayManager;
+import de.invesdwin.util.time.date.holiday.provider.custom.specific.QuarterlyExpirationDayHolidayManager;
 
 @NotThreadSafe
 public final class CustomHolidayManagerProvider implements IHolidayManagerProvider {
