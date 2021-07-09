@@ -1,6 +1,6 @@
 package de.invesdwin.util.collections.loadingcache.historical.query.recursive;
 
-import de.invesdwin.util.time.fdate.FDate;
+import de.invesdwin.util.time.date.FDate;
 
 public interface IRecursiveHistoricalCacheQuery<V> {
 

@@ -1,4 +1,4 @@
-package de.invesdwin.util.time.fdate.millis;
+package de.invesdwin.util.time.date.millis;
 
 import java.util.Arrays;
 import java.util.Calendar;
@@ -17,17 +17,17 @@ import org.joda.time.format.DateTimeFormatter;
 
 import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.math.Integers;
+import de.invesdwin.util.time.date.FDate;
+import de.invesdwin.util.time.date.FDateField;
+import de.invesdwin.util.time.date.FDates;
+import de.invesdwin.util.time.date.FDayTime;
+import de.invesdwin.util.time.date.FMonth;
+import de.invesdwin.util.time.date.FTimeUnit;
+import de.invesdwin.util.time.date.FWeekTime;
+import de.invesdwin.util.time.date.FWeekday;
+import de.invesdwin.util.time.date.holiday.FHolidayManager;
+import de.invesdwin.util.time.date.timezone.FTimeZone;
 import de.invesdwin.util.time.duration.Duration;
-import de.invesdwin.util.time.fdate.FDate;
-import de.invesdwin.util.time.fdate.FDateField;
-import de.invesdwin.util.time.fdate.FDates;
-import de.invesdwin.util.time.fdate.FDayTime;
-import de.invesdwin.util.time.fdate.FHolidayManager;
-import de.invesdwin.util.time.fdate.FMonth;
-import de.invesdwin.util.time.fdate.FTimeUnit;
-import de.invesdwin.util.time.fdate.FWeekTime;
-import de.invesdwin.util.time.fdate.FWeekday;
-import de.invesdwin.util.time.fdate.ftimezone.FTimeZone;
 
 /**
  * FDate stands for an immutable Fast Date implementation by utilizing heavy caching.

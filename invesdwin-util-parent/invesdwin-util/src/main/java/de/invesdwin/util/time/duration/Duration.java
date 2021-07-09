@@ -16,9 +16,9 @@ import de.invesdwin.util.math.Characters;
 import de.invesdwin.util.math.Longs;
 import de.invesdwin.util.math.decimal.Decimal;
 import de.invesdwin.util.time.Instant;
+import de.invesdwin.util.time.date.FDate;
+import de.invesdwin.util.time.date.FTimeUnit;
 import de.invesdwin.util.time.duration.internal.DurationParser;
-import de.invesdwin.util.time.fdate.FDate;
-import de.invesdwin.util.time.fdate.FTimeUnit;
 
 @ThreadSafe
 public class Duration extends Number implements Comparable<Object> {

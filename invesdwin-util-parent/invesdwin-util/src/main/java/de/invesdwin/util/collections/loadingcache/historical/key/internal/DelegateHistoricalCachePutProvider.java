@@ -7,7 +7,7 @@ import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.collections.loadingcache.historical.key.IHistoricalCachePutProvider;
 import de.invesdwin.util.collections.loadingcache.historical.listener.IHistoricalCachePutListener;
-import de.invesdwin.util.time.fdate.FDate;
+import de.invesdwin.util.time.date.FDate;
 
 @Immutable
 public final class DelegateHistoricalCachePutProvider<V> implements IHistoricalCachePutProvider<V> {

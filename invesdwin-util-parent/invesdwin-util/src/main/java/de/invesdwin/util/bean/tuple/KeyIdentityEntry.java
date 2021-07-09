@@ -7,7 +7,7 @@ import javax.annotation.concurrent.Immutable;
 import de.invesdwin.util.bean.AValueObject;
 import de.invesdwin.util.lang.ADelegateComparator;
 import de.invesdwin.util.lang.Objects;
-import de.invesdwin.util.time.fdate.FDate;
+import de.invesdwin.util.time.date.FDate;
 
 @SuppressWarnings("serial")
 @Immutable

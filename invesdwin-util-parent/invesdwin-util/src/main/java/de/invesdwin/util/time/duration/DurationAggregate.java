@@ -9,7 +9,7 @@ import de.invesdwin.util.collections.list.Lists;
 import de.invesdwin.util.math.Longs;
 import de.invesdwin.util.math.decimal.Decimal;
 import de.invesdwin.util.math.stream.number.NumberStreamAvg;
-import de.invesdwin.util.time.fdate.FTimeUnit;
+import de.invesdwin.util.time.date.FTimeUnit;
 
 @Immutable
 class DurationAggregate implements IDurationAggregate {

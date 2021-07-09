@@ -6,7 +6,7 @@ import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQuery;
-import de.invesdwin.util.time.fdate.FDate;
+import de.invesdwin.util.time.date.FDate;
 
 @Immutable
 public abstract class AHistoricalCachePreviousKeysQueryInterceptor

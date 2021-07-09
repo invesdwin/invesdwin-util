@@ -43,8 +43,8 @@ import org.assertj.core.util.DateUtil;
 import org.assertj.core.util.VisibleForTesting;
 
 import de.invesdwin.util.math.Longs;
-import de.invesdwin.util.time.fdate.FDate;
-import de.invesdwin.util.time.fdate.FDates;
+import de.invesdwin.util.time.date.FDate;
+import de.invesdwin.util.time.date.FDates;
 
 /**
  * Reusable assertions for <code>{@link FDate}</code>s.

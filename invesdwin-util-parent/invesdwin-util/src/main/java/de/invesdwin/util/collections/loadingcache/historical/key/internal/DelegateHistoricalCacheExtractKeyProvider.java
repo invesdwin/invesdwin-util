@@ -8,8 +8,8 @@ import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
 import de.invesdwin.util.collections.loadingcache.historical.IHistoricalEntry;
 import de.invesdwin.util.collections.loadingcache.historical.IHistoricalValue;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQueryWithFuture;
-import de.invesdwin.util.time.fdate.FDate;
-import de.invesdwin.util.time.fdate.IFDateProvider;
+import de.invesdwin.util.time.date.FDate;
+import de.invesdwin.util.time.date.IFDateProvider;
 
 @Immutable
 public final class DelegateHistoricalCacheExtractKeyProvider<V> implements IHistoricalCacheExtractKeyProvider<V> {

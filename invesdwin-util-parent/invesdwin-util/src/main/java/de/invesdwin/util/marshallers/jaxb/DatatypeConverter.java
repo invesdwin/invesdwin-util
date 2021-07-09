@@ -8,7 +8,7 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 
 import de.invesdwin.util.math.decimal.Decimal;
-import de.invesdwin.util.time.fdate.FDate;
+import de.invesdwin.util.time.date.FDate;
 
 @Immutable
 public final class DatatypeConverter {

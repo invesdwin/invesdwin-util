@@ -1,4 +1,4 @@
-package de.invesdwin.util.time.fdate;
+package de.invesdwin.util.time.date;
 
 import java.time.temporal.ChronoField;
 import java.util.Calendar;

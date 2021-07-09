@@ -28,7 +28,7 @@ import org.assertj.core.util.VisibleForTesting;
 
 import de.invesdwin.util.assertions.type.internal.FDatesAssertions;
 import de.invesdwin.util.collections.factory.ILockCollectionFactory;
-import de.invesdwin.util.time.fdate.FDate;
+import de.invesdwin.util.time.date.FDate;
 import io.netty.util.concurrent.FastThreadLocal;
 
 /**

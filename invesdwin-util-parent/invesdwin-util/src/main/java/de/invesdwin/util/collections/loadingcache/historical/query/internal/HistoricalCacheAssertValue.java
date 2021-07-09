@@ -3,7 +3,7 @@ package de.invesdwin.util.collections.loadingcache.historical.query.internal;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.collections.loadingcache.historical.IHistoricalEntry;
-import de.invesdwin.util.time.fdate.FDate;
+import de.invesdwin.util.time.date.FDate;
 
 @Immutable
 public enum HistoricalCacheAssertValue {

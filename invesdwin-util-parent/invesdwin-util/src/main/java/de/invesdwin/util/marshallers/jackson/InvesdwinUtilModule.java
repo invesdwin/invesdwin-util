@@ -5,8 +5,8 @@ import javax.annotation.concurrent.NotThreadSafe;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
 import de.invesdwin.util.math.decimal.Decimal;
+import de.invesdwin.util.time.date.FDate;
 import de.invesdwin.util.time.duration.Duration;
-import de.invesdwin.util.time.fdate.FDate;
 
 @NotThreadSafe
 public class InvesdwinUtilModule extends SimpleModule {

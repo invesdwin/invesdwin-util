@@ -11,7 +11,7 @@ import de.invesdwin.util.math.expression.eval.IParsedExpression;
 import de.invesdwin.util.math.expression.eval.operation.Op;
 import de.invesdwin.util.math.expression.function.IPreviousKeyFunction;
 import de.invesdwin.util.math.expression.tokenizer.ParseException;
-import de.invesdwin.util.time.fdate.IFDateProvider;
+import de.invesdwin.util.time.date.IFDateProvider;
 
 @NotThreadSafe
 public class ExpressionParserTest {

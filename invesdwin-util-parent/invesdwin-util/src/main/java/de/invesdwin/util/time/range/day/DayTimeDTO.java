@@ -2,7 +2,7 @@ package de.invesdwin.util.time.range.day;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import de.invesdwin.util.time.fdate.FDayTime;
+import de.invesdwin.util.time.date.FDayTime;
 
 @NotThreadSafe
 public class DayTimeDTO implements IDayTimeData {

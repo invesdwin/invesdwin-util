@@ -1,4 +1,4 @@
-package de.invesdwin.util.time.fdate;
+package de.invesdwin.util.time.date;
 
 import java.nio.ByteBuffer;
 import java.util.Collection;
@@ -11,9 +11,9 @@ import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.error.FastNoSuchElementException;
 import de.invesdwin.util.error.UnknownArgumentException;
+import de.invesdwin.util.time.date.millis.FDatesMillis;
+import de.invesdwin.util.time.date.timezone.FTimeZone;
 import de.invesdwin.util.time.duration.Duration;
-import de.invesdwin.util.time.fdate.ftimezone.FTimeZone;
-import de.invesdwin.util.time.fdate.millis.FDatesMillis;
 
 @ThreadSafe
 public final class FDates {

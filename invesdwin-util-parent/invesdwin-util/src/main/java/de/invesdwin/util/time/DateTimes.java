@@ -6,7 +6,7 @@ import javax.annotation.concurrent.Immutable;
 
 import org.joda.time.DateTime;
 
-import de.invesdwin.util.time.fdate.FDate;
+import de.invesdwin.util.time.date.FDate;
 
 @Immutable
 public final class DateTimes {

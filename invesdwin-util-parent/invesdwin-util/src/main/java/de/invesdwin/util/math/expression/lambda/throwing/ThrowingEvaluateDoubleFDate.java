@@ -5,7 +5,7 @@ import javax.annotation.concurrent.Immutable;
 import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.math.expression.IExpression;
 import de.invesdwin.util.math.expression.lambda.IEvaluateDoubleFDate;
-import de.invesdwin.util.time.fdate.IFDateProvider;
+import de.invesdwin.util.time.date.IFDateProvider;
 
 @Immutable
 public class ThrowingEvaluateDoubleFDate implements IEvaluateDoubleFDate {

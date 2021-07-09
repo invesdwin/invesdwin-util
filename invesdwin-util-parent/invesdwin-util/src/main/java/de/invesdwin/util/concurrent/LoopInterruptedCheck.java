@@ -2,8 +2,8 @@ package de.invesdwin.util.concurrent;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.util.time.date.FTimeUnit;
 import de.invesdwin.util.time.duration.Duration;
-import de.invesdwin.util.time.fdate.FTimeUnit;
 
 @NotThreadSafe
 public class LoopInterruptedCheck {

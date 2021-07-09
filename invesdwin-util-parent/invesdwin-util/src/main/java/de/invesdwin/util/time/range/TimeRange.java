@@ -10,11 +10,11 @@ import de.invesdwin.util.bean.AValueObject;
 import de.invesdwin.util.bean.tuple.IPair;
 import de.invesdwin.util.lang.ADelegateComparator;
 import de.invesdwin.util.lang.Objects;
+import de.invesdwin.util.time.date.FDate;
+import de.invesdwin.util.time.date.FDates;
+import de.invesdwin.util.time.date.IFDateProvider;
+import de.invesdwin.util.time.date.timezone.FTimeZone;
 import de.invesdwin.util.time.duration.Duration;
-import de.invesdwin.util.time.fdate.FDate;
-import de.invesdwin.util.time.fdate.FDates;
-import de.invesdwin.util.time.fdate.IFDateProvider;
-import de.invesdwin.util.time.fdate.ftimezone.FTimeZone;
 
 @Immutable
 public class TimeRange extends AValueObject {

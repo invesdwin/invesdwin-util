@@ -1,4 +1,4 @@
-package de.invesdwin.util.time.fdate;
+package de.invesdwin.util.time.date;
 
 import java.time.format.DateTimeFormatter;
 import java.util.TimeZone;
@@ -11,8 +11,9 @@ import org.junit.Test;
 
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
-import de.invesdwin.util.time.fdate.ftimezone.FTimeZone;
-import de.invesdwin.util.time.fdate.ftimezone.TimeZones;
+import de.invesdwin.util.time.date.holiday.FHolidayManager;
+import de.invesdwin.util.time.date.timezone.FTimeZone;
+import de.invesdwin.util.time.date.timezone.TimeZones;
 
 @NotThreadSafe
 public class FDateTest {

@@ -22,8 +22,8 @@ import de.invesdwin.util.lang.reflection.Reflections;
 import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.decimal.ADecimal;
 import de.invesdwin.util.math.decimal.scaled.ByteSizeScale;
+import de.invesdwin.util.time.date.FDate;
 import de.invesdwin.util.time.duration.Duration;
-import de.invesdwin.util.time.fdate.FDate;
 
 @StaticFacadeDefinition(name = "de.invesdwin.util.assertions.internal.AAssertionsStaticFacade", targets = {
         org.assertj.core.api.Assertions.class, org.assertj.guava.api.Assertions.class,

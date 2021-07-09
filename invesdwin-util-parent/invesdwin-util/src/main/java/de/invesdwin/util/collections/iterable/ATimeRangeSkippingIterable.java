@@ -3,7 +3,7 @@ package de.invesdwin.util.collections.iterable;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.error.FastNoSuchElementException;
-import de.invesdwin.util.time.fdate.FDate;
+import de.invesdwin.util.time.date.FDate;
 import de.invesdwin.util.time.range.TimeRange;
 
 @NotThreadSafe

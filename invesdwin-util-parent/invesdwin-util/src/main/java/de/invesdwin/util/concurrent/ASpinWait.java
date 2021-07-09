@@ -10,8 +10,8 @@ import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.lang.reflection.Reflections;
 import de.invesdwin.util.time.Instant;
+import de.invesdwin.util.time.date.FTimeUnit;
 import de.invesdwin.util.time.duration.Duration;
-import de.invesdwin.util.time.fdate.FTimeUnit;
 
 @Immutable
 public abstract class ASpinWait {

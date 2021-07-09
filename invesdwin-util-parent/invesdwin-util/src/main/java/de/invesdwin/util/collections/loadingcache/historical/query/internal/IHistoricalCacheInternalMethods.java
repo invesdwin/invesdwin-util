@@ -10,7 +10,7 @@ import de.invesdwin.util.collections.loadingcache.historical.key.IHistoricalCach
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQuery;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.IHistoricalCacheQueryCore;
 import de.invesdwin.util.math.expression.lambda.IEvaluateGenericFDate;
-import de.invesdwin.util.time.fdate.FDate;
+import de.invesdwin.util.time.date.FDate;
 
 public interface IHistoricalCacheInternalMethods<V> {
 

@@ -1,12 +1,12 @@
-package de.invesdwin.util.time.fdate.ftimezone;
+package de.invesdwin.util.time.date.timezone;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
 import org.junit.Test;
 
 import de.invesdwin.util.assertions.Assertions;
-import de.invesdwin.util.time.fdate.FDate;
-import de.invesdwin.util.time.fdate.FDateBuilder;
+import de.invesdwin.util.time.date.FDate;
+import de.invesdwin.util.time.date.FDateBuilder;
 
 @NotThreadSafe
 public class TimeZonesTest {

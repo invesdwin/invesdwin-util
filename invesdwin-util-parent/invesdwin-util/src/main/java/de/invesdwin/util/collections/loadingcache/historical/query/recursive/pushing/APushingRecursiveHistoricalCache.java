@@ -7,7 +7,7 @@ import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCa
 import de.invesdwin.util.collections.loadingcache.historical.query.recursive.ARecursiveHistoricalCacheQuery;
 import de.invesdwin.util.collections.loadingcache.historical.query.recursive.IRecursiveHistoricalCacheQuery;
 import de.invesdwin.util.math.expression.lambda.IEvaluateGenericFDate;
-import de.invesdwin.util.time.fdate.FDate;
+import de.invesdwin.util.time.date.FDate;
 
 @ThreadSafe
 public abstract class APushingRecursiveHistoricalCache<R extends APushingRecursiveHistoricalResult<?, ?, R>>

@@ -1,4 +1,4 @@
-package de.invesdwin.util.time.fdate;
+package de.invesdwin.util.time.date;
 
 @FunctionalInterface
 public interface IFDateProvider {

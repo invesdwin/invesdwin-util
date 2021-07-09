@@ -3,8 +3,8 @@ package de.invesdwin.util.math.stream.duration;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.math.stream.IStreamAlgorithm;
+import de.invesdwin.util.time.date.FTimeUnit;
 import de.invesdwin.util.time.duration.Duration;
-import de.invesdwin.util.time.fdate.FTimeUnit;
 
 @NotThreadSafe
 public class DurationStreamAvg implements IStreamAlgorithm<Duration, Double> {

@@ -8,7 +8,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 import de.invesdwin.util.bean.AValueObject;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.decimal.scaled.Percent;
-import de.invesdwin.util.time.fdate.FDate;
+import de.invesdwin.util.time.date.FDate;
 
 @NotThreadSafe
 public abstract class AEstimatedRemainingDuration extends AValueObject {

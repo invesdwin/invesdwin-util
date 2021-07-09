@@ -6,7 +6,7 @@ import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.bean.tuple.IPair;
 import de.invesdwin.util.collections.loadingcache.historical.IHistoricalEntry;
 import de.invesdwin.util.collections.loadingcache.historical.IHistoricalValue;
-import de.invesdwin.util.time.fdate.FDate;
+import de.invesdwin.util.time.date.FDate;
 
 @Immutable
 public class TimedDecimal extends Decimal implements IHistoricalValue<TimedDecimal>, IPair<FDate, Decimal> {

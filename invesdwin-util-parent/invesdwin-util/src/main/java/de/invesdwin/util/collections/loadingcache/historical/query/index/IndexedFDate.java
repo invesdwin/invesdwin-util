@@ -3,8 +3,8 @@ package de.invesdwin.util.collections.loadingcache.historical.query.index;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.collections.loadingcache.historical.key.IHistoricalCacheAdjustKeyProvider;
-import de.invesdwin.util.time.fdate.FDate;
-import de.invesdwin.util.time.fdate.IFDateProvider;
+import de.invesdwin.util.time.date.FDate;
+import de.invesdwin.util.time.date.IFDateProvider;
 
 @NotThreadSafe
 public class IndexedFDate extends FDate {

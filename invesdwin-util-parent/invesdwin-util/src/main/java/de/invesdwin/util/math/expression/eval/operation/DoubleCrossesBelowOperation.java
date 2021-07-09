@@ -23,7 +23,7 @@ import de.invesdwin.util.math.expression.lambda.IEvaluateGenericKey;
 import de.invesdwin.util.math.expression.lambda.IEvaluateInteger;
 import de.invesdwin.util.math.expression.lambda.IEvaluateIntegerFDate;
 import de.invesdwin.util.math.expression.lambda.IEvaluateIntegerKey;
-import de.invesdwin.util.time.fdate.IFDateProvider;
+import de.invesdwin.util.time.date.IFDateProvider;
 
 // AvgTrueRange(10) crosses below AvgTrueRange(20)
 // ATR(10)[0] < ATR(20)[0] && ATR(10)[1] >= ATR(20)[1];

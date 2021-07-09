@@ -1,4 +1,4 @@
-package de.invesdwin.util.time.fdate;
+package de.invesdwin.util.time.date;
 
 import java.io.Serializable;
 import java.nio.ByteBuffer;
@@ -26,9 +26,10 @@ import de.invesdwin.util.lang.ADelegateComparator;
 import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.decimal.scaled.Percent;
+import de.invesdwin.util.time.date.holiday.FHolidayManager;
+import de.invesdwin.util.time.date.millis.FDateMillis;
+import de.invesdwin.util.time.date.timezone.FTimeZone;
 import de.invesdwin.util.time.duration.Duration;
-import de.invesdwin.util.time.fdate.ftimezone.FTimeZone;
-import de.invesdwin.util.time.fdate.millis.FDateMillis;
 
 /**
  * FDate stands for an immutable Fast Date implementation by utilizing heavy caching.

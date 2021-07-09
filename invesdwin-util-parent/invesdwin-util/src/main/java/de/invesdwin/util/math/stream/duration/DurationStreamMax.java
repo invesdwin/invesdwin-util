@@ -4,8 +4,8 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.stream.IStreamAlgorithm;
+import de.invesdwin.util.time.date.FTimeUnit;
 import de.invesdwin.util.time.duration.Duration;
-import de.invesdwin.util.time.fdate.FTimeUnit;
 
 @NotThreadSafe
 public class DurationStreamMax implements IStreamAlgorithm<Duration, Double> {

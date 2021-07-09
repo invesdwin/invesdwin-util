@@ -50,8 +50,8 @@ import de.invesdwin.util.collections.loadingcache.historical.query.internal.filt
 import de.invesdwin.util.collections.loadingcache.historical.refresh.HistoricalCacheRefreshManager;
 import de.invesdwin.util.lang.description.TextDescription;
 import de.invesdwin.util.math.expression.lambda.IEvaluateGenericFDate;
-import de.invesdwin.util.time.fdate.FDate;
-import de.invesdwin.util.time.fdate.IFDateProvider;
+import de.invesdwin.util.time.date.FDate;
+import de.invesdwin.util.time.date.IFDateProvider;
 
 @ThreadSafe
 public abstract class AHistoricalCache<V>

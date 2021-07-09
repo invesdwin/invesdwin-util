@@ -1,6 +1,6 @@
 // CHECKSTYLE:OFF file length
 
-package de.invesdwin.util.time.fdate;
+package de.invesdwin.util.time.date;
 
 import java.time.temporal.ChronoUnit;
 import java.util.Calendar;

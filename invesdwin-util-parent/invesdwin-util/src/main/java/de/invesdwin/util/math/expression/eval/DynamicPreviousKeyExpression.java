@@ -21,7 +21,7 @@ import de.invesdwin.util.math.expression.lambda.IEvaluateGenericKey;
 import de.invesdwin.util.math.expression.lambda.IEvaluateInteger;
 import de.invesdwin.util.math.expression.lambda.IEvaluateIntegerFDate;
 import de.invesdwin.util.math.expression.lambda.IEvaluateIntegerKey;
-import de.invesdwin.util.time.fdate.IFDateProvider;
+import de.invesdwin.util.time.date.IFDateProvider;
 
 @Immutable
 public class DynamicPreviousKeyExpression implements IParsedExpression {

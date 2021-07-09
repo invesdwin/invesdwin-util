@@ -16,7 +16,7 @@ import de.invesdwin.util.collections.loadingcache.historical.query.internal.IHis
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.impl.GetNextEntryQueryImpl;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.impl.GetPreviousEntryQueryImpl;
 import de.invesdwin.util.math.expression.lambda.IEvaluateGenericFDate;
-import de.invesdwin.util.time.fdate.FDate;
+import de.invesdwin.util.time.date.FDate;
 
 @Immutable
 public class DefaultHistoricalCacheQueryCore<V> implements IHistoricalCacheQueryCore<V> {

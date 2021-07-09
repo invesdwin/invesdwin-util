@@ -5,9 +5,9 @@ import javax.annotation.concurrent.NotThreadSafe;
 import de.invesdwin.util.collections.loadingcache.historical.AGapHistoricalCache;
 import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
 import de.invesdwin.util.math.stream.doubl.DoubleStreamAvg;
+import de.invesdwin.util.time.date.FDate;
+import de.invesdwin.util.time.date.FTimeUnit;
 import de.invesdwin.util.time.duration.Duration;
-import de.invesdwin.util.time.fdate.FDate;
-import de.invesdwin.util.time.fdate.FTimeUnit;
 
 @NotThreadSafe
 public abstract class AGapHistoricalCacheMissCounter<V> {

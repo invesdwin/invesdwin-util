@@ -1,8 +1,8 @@
-package de.invesdwin.util.time.fdate;
+package de.invesdwin.util.time.date;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import de.invesdwin.util.time.fdate.ftimezone.FTimeZone;
+import de.invesdwin.util.time.date.timezone.FTimeZone;
 
 @NotThreadSafe
 public class FDateBuilder {

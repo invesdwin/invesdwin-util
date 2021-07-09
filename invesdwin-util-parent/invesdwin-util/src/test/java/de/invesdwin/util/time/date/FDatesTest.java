@@ -1,4 +1,4 @@
-package de.invesdwin.util.time.fdate;
+package de.invesdwin.util.time.date;
 
 import java.util.Arrays;
 
@@ -7,8 +7,8 @@ import javax.annotation.concurrent.NotThreadSafe;
 import org.junit.Test;
 
 import de.invesdwin.util.assertions.Assertions;
-import de.invesdwin.util.time.fdate.ftimezone.FTimeZone;
-import de.invesdwin.util.time.fdate.ftimezone.TimeZones;
+import de.invesdwin.util.time.date.timezone.FTimeZone;
+import de.invesdwin.util.time.date.timezone.TimeZones;
 
 @NotThreadSafe
 public class FDatesTest {

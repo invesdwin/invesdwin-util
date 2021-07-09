@@ -8,7 +8,7 @@ import javax.annotation.concurrent.Immutable;
 import de.invesdwin.util.bean.tuple.ImmutableEntry;
 import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
 import de.invesdwin.util.collections.loadingcache.historical.listener.IHistoricalCachePutListener;
-import de.invesdwin.util.time.fdate.FDate;
+import de.invesdwin.util.time.date.FDate;
 
 @Immutable
 public abstract class AConvertingHistoricalCachePutProvider<FROM, TO> implements IHistoricalCachePutProvider<TO> {

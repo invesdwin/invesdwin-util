@@ -2,7 +2,7 @@ package de.invesdwin.util.collections.loadingcache.historical.query;
 
 import javax.annotation.concurrent.Immutable;
 
-import de.invesdwin.util.time.fdate.FDate;
+import de.invesdwin.util.time.date.FDate;
 
 @Immutable
 public final class DisabledHistoricalCacheQueryElementFilter<V> implements IHistoricalCacheQueryElementFilter<V> {

@@ -1,4 +1,4 @@
-package de.invesdwin.util.time.fdate.ftimezone;
+package de.invesdwin.util.time.date.timezone;
 
 import java.time.ZoneId;
 import java.util.Calendar;
@@ -13,8 +13,8 @@ import org.joda.time.DurationField;
 import org.joda.time.chrono.ISOChronology;
 
 import de.invesdwin.util.lang.Objects;
-import de.invesdwin.util.time.fdate.FDateField;
-import de.invesdwin.util.time.fdate.FTimeUnit;
+import de.invesdwin.util.time.date.FDateField;
+import de.invesdwin.util.time.date.FTimeUnit;
 
 @Immutable
 public class FTimeZone implements IFTimeZoneProvider {

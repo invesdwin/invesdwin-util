@@ -24,7 +24,7 @@ import de.invesdwin.util.collections.loadingcache.historical.query.error.ResetCa
 import de.invesdwin.util.collections.loadingcache.historical.query.recursive.ARecursiveHistoricalCacheQuery;
 import de.invesdwin.util.collections.loadingcache.historical.query.recursive.IRecursiveHistoricalCacheQuery;
 import de.invesdwin.util.error.Throwables;
-import de.invesdwin.util.time.fdate.FDate;
+import de.invesdwin.util.time.date.FDate;
 
 /**
  * This variation calculates the values according to recursionCount+unstableRecursionCount for each request. This makes

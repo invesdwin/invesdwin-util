@@ -9,11 +9,11 @@ import de.invesdwin.util.collections.loadingcache.historical.internal.AGapHistor
 import de.invesdwin.util.collections.loadingcache.historical.key.IHistoricalCacheAdjustKeyProvider;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQuery;
 import de.invesdwin.util.math.expression.lambda.IEvaluateGenericFDate;
+import de.invesdwin.util.time.date.FDate;
+import de.invesdwin.util.time.date.FDates;
+import de.invesdwin.util.time.date.FTimeUnit;
+import de.invesdwin.util.time.date.IFDateProvider;
 import de.invesdwin.util.time.duration.Duration;
-import de.invesdwin.util.time.fdate.FDate;
-import de.invesdwin.util.time.fdate.FDates;
-import de.invesdwin.util.time.fdate.FTimeUnit;
-import de.invesdwin.util.time.fdate.IFDateProvider;
 
 /**
  * Tries to fill gaps via an intelligent caching algorithm to reduce the number of queries. This is also tolerant to

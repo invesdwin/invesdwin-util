@@ -3,8 +3,8 @@ package de.invesdwin.util.collections.loadingcache.historical;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.lang.Objects;
-import de.invesdwin.util.time.fdate.FDate;
-import de.invesdwin.util.time.fdate.IFDateProvider;
+import de.invesdwin.util.time.date.FDate;
+import de.invesdwin.util.time.date.IFDateProvider;
 
 @Immutable
 public final class ImmutableHistoricalEntry<T> implements IHistoricalEntry<T> {

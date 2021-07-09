@@ -11,7 +11,7 @@ import de.invesdwin.util.math.expression.lambda.IEvaluateBooleanKey;
 import de.invesdwin.util.math.expression.lambda.IEvaluateInteger;
 import de.invesdwin.util.math.expression.lambda.IEvaluateIntegerFDate;
 import de.invesdwin.util.math.expression.lambda.IEvaluateIntegerKey;
-import de.invesdwin.util.time.fdate.IFDateProvider;
+import de.invesdwin.util.time.date.IFDateProvider;
 
 @Immutable
 public final class IndexOfFunctions {

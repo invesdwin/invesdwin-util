@@ -1,4 +1,4 @@
-package de.invesdwin.util.time.fdate.ftimezone;
+package de.invesdwin.util.time.date.timezone;
 
 import java.io.IOException;
 

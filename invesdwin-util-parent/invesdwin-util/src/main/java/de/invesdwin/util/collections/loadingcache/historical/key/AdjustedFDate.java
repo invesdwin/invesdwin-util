@@ -3,7 +3,7 @@ package de.invesdwin.util.collections.loadingcache.historical.key;
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.collections.loadingcache.historical.query.index.IndexedFDate;
-import de.invesdwin.util.time.fdate.FDate;
+import de.invesdwin.util.time.date.FDate;
 
 @ThreadSafe
 public class AdjustedFDate extends IndexedFDate {

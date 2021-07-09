@@ -6,8 +6,8 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import de.invesdwin.util.time.Instant;
+import de.invesdwin.util.time.date.FDate;
 import de.invesdwin.util.time.duration.Duration;
-import de.invesdwin.util.time.fdate.FDate;
 
 @Ignore("manual test")
 @NotThreadSafe

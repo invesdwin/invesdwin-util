@@ -17,8 +17,8 @@ import org.apache.commons.codec.EncoderException;
 import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.lang.uri.connect.IURIsConnect;
 import de.invesdwin.util.lang.uri.connect.IURIsConnectFactory;
+import de.invesdwin.util.time.date.FTimeUnit;
 import de.invesdwin.util.time.duration.Duration;
-import de.invesdwin.util.time.fdate.FTimeUnit;
 
 @Immutable
 public final class URIs {

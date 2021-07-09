@@ -2,8 +2,8 @@ package de.invesdwin.util.time;
 
 import javax.annotation.concurrent.Immutable;
 
+import de.invesdwin.util.time.date.FTimeUnit;
 import de.invesdwin.util.time.duration.Duration;
-import de.invesdwin.util.time.fdate.FTimeUnit;
 
 /**
  * This class represents an instant relative to the application start in nanoseconds.

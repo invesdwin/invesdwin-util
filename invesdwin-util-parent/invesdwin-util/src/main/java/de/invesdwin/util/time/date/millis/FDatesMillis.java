@@ -1,4 +1,4 @@
-package de.invesdwin.util.time.fdate.millis;
+package de.invesdwin.util.time.date.millis;
 
 import java.util.NoSuchElementException;
 
@@ -7,12 +7,12 @@ import javax.annotation.concurrent.ThreadSafe;
 import de.invesdwin.util.error.FastNoSuchElementException;
 import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.math.Longs;
+import de.invesdwin.util.time.date.FDateField;
+import de.invesdwin.util.time.date.FDates;
+import de.invesdwin.util.time.date.FTimeUnit;
+import de.invesdwin.util.time.date.FWeekday;
+import de.invesdwin.util.time.date.timezone.FTimeZone;
 import de.invesdwin.util.time.duration.Duration;
-import de.invesdwin.util.time.fdate.FDateField;
-import de.invesdwin.util.time.fdate.FDates;
-import de.invesdwin.util.time.fdate.FTimeUnit;
-import de.invesdwin.util.time.fdate.FWeekday;
-import de.invesdwin.util.time.fdate.ftimezone.FTimeZone;
 import it.unimi.dsi.fastutil.longs.LongIterable;
 import it.unimi.dsi.fastutil.longs.LongIterator;
 

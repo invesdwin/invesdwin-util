@@ -1,4 +1,4 @@
-package de.invesdwin.util.time.fdate;
+package de.invesdwin.util.time.date.holiday;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -16,7 +16,8 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
 import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 import de.invesdwin.util.lang.Strings;
-import de.invesdwin.util.time.fdate.millis.FDateMillis;
+import de.invesdwin.util.time.date.FDate;
+import de.invesdwin.util.time.date.millis.FDateMillis;
 import de.jollyday.HolidayCalendar;
 import de.jollyday.HolidayManager;
 import de.jollyday.HolidayType;

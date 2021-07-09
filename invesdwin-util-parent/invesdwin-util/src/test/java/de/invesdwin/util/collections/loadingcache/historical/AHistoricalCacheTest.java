@@ -20,7 +20,7 @@ import de.invesdwin.util.math.decimal.scaled.Percent;
 import de.invesdwin.util.math.decimal.scaled.PercentScale;
 import de.invesdwin.util.math.random.RandomGenerators;
 import de.invesdwin.util.time.Instant;
-import de.invesdwin.util.time.fdate.FDate;
+import de.invesdwin.util.time.date.FDate;
 
 // CHECKSTYLE:OFF
 @NotThreadSafe

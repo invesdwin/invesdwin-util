@@ -5,7 +5,7 @@ import javax.annotation.concurrent.ThreadSafe;
 import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
 import de.invesdwin.util.collections.loadingcache.historical.query.recursive.internal.AContinuousRecursiveHistoricalCacheQuery;
 import de.invesdwin.util.collections.loadingcache.historical.query.recursive.internal.AUnstableRecursiveHistoricalCacheQuery;
-import de.invesdwin.util.time.fdate.FDate;
+import de.invesdwin.util.time.date.FDate;
 
 /**
  * This class can be used inside of historical caches to retrieve values from itself recursively. It solves the infinite

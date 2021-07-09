@@ -1,4 +1,4 @@
-package de.invesdwin.util.time.fdate.ftimezone;
+package de.invesdwin.util.time.date.timezone;
 
 public interface IFTimeZoneProvider {
 

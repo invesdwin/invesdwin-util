@@ -1,7 +1,7 @@
 package de.invesdwin.util.collections.loadingcache.historical.key.internal;
 
-import de.invesdwin.util.time.fdate.FDate;
-import de.invesdwin.util.time.fdate.IFDateProvider;
+import de.invesdwin.util.time.date.FDate;
+import de.invesdwin.util.time.date.IFDateProvider;
 
 @FunctionalInterface
 public interface IHistoricalCacheExtractKeyProvider<V> {
