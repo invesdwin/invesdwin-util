@@ -42,11 +42,6 @@ public class StrataHolidayManager implements IHolidayManager {
     }
 
     @Override
-    public boolean isHoliday(final long millis) {
-        return isHoliday(new FDate(millis));
-    }
-
-    @Override
     public String toString() {
         return getHolidayCalendarId();
     }

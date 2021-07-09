@@ -1,12 +1,12 @@
 package de.invesdwin.util.time.date.holiday;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.concurrent.ThreadSafe;
 
-import de.invesdwin.util.collections.list.ListSet;
 import de.invesdwin.util.time.date.holiday.provider.IHolidayManagerProvider;
+import de.invesdwin.util.time.date.holiday.provider.custom.CustomHolidayManagerProvider;
 import de.invesdwin.util.time.date.holiday.provider.jollyday.JollydayHolidayManagerProvider;
 import de.invesdwin.util.time.date.holiday.provider.strata.StrataHolidayManagerProvider;
 
@@ -17,28 +17,20 @@ public final class HolidayManagers {
     public static final IHolidayManager GERMANY = JollydayHolidayManagerProvider.GERMANY;
 
     private static final List<IHolidayManagerProvider> PROVIDERS;
-    private static final List<IHolidayManagerProvider> UNMODIFIABLE_PROVIDERS;
 
     static {
-        PROVIDERS = new ListSet<>();
+        PROVIDERS = new ArrayList<>();
+        //custom has highest priority, so that overrides are possible
+        PROVIDERS.add(CustomHolidayManagerProvider.INSTANCE);
         PROVIDERS.add(JollydayHolidayManagerProvider.INSTANCE);
         PROVIDERS.add(StrataHolidayManagerProvider.INSTANCE);
-        UNMODIFIABLE_PROVIDERS = Collections.unmodifiableList(PROVIDERS);
     }
 
     private HolidayManagers() {
     }
 
-    public static boolean registerProvider(final IHolidayManagerProvider provider) {
-        return PROVIDERS.add(provider);
-    }
-
-    public static boolean unregisterProvider(final IHolidayManagerProvider provider) {
-        return PROVIDERS.remove(provider);
-    }
-
     public static List<IHolidayManagerProvider> getProviders() {
-        return UNMODIFIABLE_PROVIDERS;
+        return PROVIDERS;
     }
 
     public static String assertLookupHolidayCalendarId(final String holidayCalendarId) {

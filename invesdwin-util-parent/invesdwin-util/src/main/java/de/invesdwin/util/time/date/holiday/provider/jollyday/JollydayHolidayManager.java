@@ -48,11 +48,6 @@ public class JollydayHolidayManager implements IHolidayManager {
     }
 
     @Override
-    public boolean isHoliday(final long millis) {
-        return isHoliday(new FDate(millis));
-    }
-
-    @Override
     public boolean isHoliday(final FDate date) {
         return day_holiday.get(date);
     }
