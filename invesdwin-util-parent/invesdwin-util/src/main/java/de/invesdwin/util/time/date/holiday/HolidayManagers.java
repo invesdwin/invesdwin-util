@@ -22,8 +22,8 @@ public final class HolidayManagers {
         PROVIDERS = new ArrayList<>();
         //custom has highest priority, so that overrides are possible
         PROVIDERS.add(CustomHolidayManagerProvider.INSTANCE);
-        PROVIDERS.add(JollydayHolidayManagerProvider.INSTANCE);
         PROVIDERS.add(StrataHolidayManagerProvider.INSTANCE);
+        PROVIDERS.add(JollydayHolidayManagerProvider.INSTANCE);
     }
 
     private HolidayManagers() {
