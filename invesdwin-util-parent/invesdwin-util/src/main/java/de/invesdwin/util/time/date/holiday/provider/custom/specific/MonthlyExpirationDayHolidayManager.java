@@ -3,7 +3,6 @@ package de.invesdwin.util.time.date.holiday.provider.custom.specific;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.time.date.FDate;
-import de.invesdwin.util.time.date.FMonth;
 import de.invesdwin.util.time.date.FWeekday;
 import de.invesdwin.util.time.date.holiday.IHolidayManager;
 
@@ -19,11 +18,6 @@ import de.invesdwin.util.time.date.holiday.IHolidayManager;
 public final class MonthlyExpirationDayHolidayManager implements IHolidayManager {
 
     public static final MonthlyExpirationDayHolidayManager INSTANCE = new MonthlyExpirationDayHolidayManager();
-
-    private static final int DECEMBER = FMonth.December.indexValue();
-    private static final int SEPTEMBER = FMonth.September.indexValue();
-    private static final int JUNE = FMonth.June.indexValue();
-    private static final int MARCH = FMonth.March.indexValue();
 
     private static final int FRIDAY = FWeekday.Friday.indexValue();
     private static final int THIRD_WEEK_OF_MONTH = 3;
