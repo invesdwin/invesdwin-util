@@ -1,29 +1,25 @@
 package de.invesdwin.util.concurrent.lambda.callable;
 
 import java.util.concurrent.Callable;
-import java.util.function.Supplier;
 
 import javax.annotation.concurrent.Immutable;
 
-import de.invesdwin.norva.marker.ISerializableValueObject;
+import de.invesdwin.util.concurrent.lambda.ImmutableSupplier;
 
 @Immutable
-public class ImmutableCallable<E> implements Callable<E>, Supplier<E>, ISerializableValueObject {
-
-    private final E value;
+public class ImmutableCallable<E> extends ImmutableSupplier<E> implements Callable<E> {
 
     public ImmutableCallable(final E value) {
-        this.value = value;
+        super(value);
     }
 
     @Override
     public E call() throws Exception {
-        return value;
+        return get();
     }
 
-    @Override
-    public E get() {
-        return value;
+    public static <T> ImmutableCallable<T> of(final T value) {
+        return new ImmutableCallable<T>(value);
     }
 
 }
