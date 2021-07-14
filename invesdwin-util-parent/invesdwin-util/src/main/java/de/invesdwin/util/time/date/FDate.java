@@ -812,22 +812,32 @@ public class FDate
         return new FDate(FDateMillis.getFirstWorkdayOfMonth(millis, holidayManager));
     }
 
+    public FDate getNextHoliday(final IHolidayManager holidayManager, final FTimeZone timeZone) {
+        final long offset = getTimeZoneOffsetMilliseconds(timeZone);
+        return applyTimeZoneOffset(offset).getNextHoliday(holidayManager).revertTimeZoneOffset(offset);
+    }
+
     public FDate getNextHoliday(final IHolidayManager holidayManager) {
         if (holidayManager == null) {
             return this;
         }
-        FDate day = this.withoutTime();
+        FDate day = this.withoutTime().addDays(1);
         while (!holidayManager.isHoliday(day)) {
             day = day.addDays(1);
         }
         return day;
     }
 
+    public FDate getNextNonHoliday(final IHolidayManager holidayManager, final FTimeZone timeZone) {
+        final long offset = getTimeZoneOffsetMilliseconds(timeZone);
+        return applyTimeZoneOffset(offset).getNextNonHoliday(holidayManager).revertTimeZoneOffset(offset);
+    }
+
     public FDate getNextNonHoliday(final IHolidayManager holidayManager) {
         if (holidayManager == null) {
             return this;
         }
-        FDate day = this.withoutTime();
+        FDate day = this.withoutTime().addDays(1);
         while (holidayManager.isHoliday(day)) {
             day = day.addDays(1);
         }

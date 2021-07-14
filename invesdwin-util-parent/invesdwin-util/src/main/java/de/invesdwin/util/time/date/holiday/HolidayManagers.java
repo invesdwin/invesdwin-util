@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.annotation.concurrent.ThreadSafe;
 
+import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.time.date.holiday.provider.IHolidayManagerProvider;
 import de.invesdwin.util.time.date.holiday.provider.custom.CustomHolidayManagerProvider;
 import de.invesdwin.util.time.date.holiday.provider.jollyday.JollydayHolidayManagerProvider;
@@ -55,6 +56,9 @@ public final class HolidayManagers {
     }
 
     public static IHolidayManager getInstance(final String holidayCalendarId) {
+        if (Strings.isBlankOrNullText(holidayCalendarId)) {
+            return null;
+        }
         for (int i = 0; i < PROVIDERS.size(); i++) {
             final IHolidayManagerProvider provider = PROVIDERS.get(i);
             final IHolidayManager instance = provider.getInstance(holidayCalendarId);
