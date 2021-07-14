@@ -14,6 +14,7 @@ import de.invesdwin.util.time.date.holiday.provider.strata.StrataHolidayManagerP
 public final class HolidayManagers {
 
     public static final IHolidayManager ZORRO = JollydayHolidayManagerProvider.ZORRO;
+    public static final IHolidayManager XETRA = JollydayHolidayManagerProvider.XETRA;
     public static final IHolidayManager GERMANY = JollydayHolidayManagerProvider.GERMANY;
 
     private static final List<IHolidayManagerProvider> PROVIDERS;

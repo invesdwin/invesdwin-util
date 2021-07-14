@@ -34,6 +34,12 @@ public final class JollydayHolidayManagerProvider implements IHolidayManagerProv
      * Holidays on 1.January and 25.December only
      */
     public static final IHolidayManager ZORRO;
+    /**
+     * https://www.xetra.com/xetra-de/newsroom/handelskalender
+     * 
+     * 6 holidays
+     */
+    public static final IHolidayManager XETRA;
     public static final IHolidayManager GERMANY;
 
     private static final Set<String> AVAILABLE_CALENDAR_IDS;
@@ -62,6 +68,7 @@ public final class JollydayHolidayManagerProvider implements IHolidayManagerProv
             ID_CALENDAR.put(prepareHolidayCalendarId(cal.getId()), cal);
         }
         ZORRO = INSTANCE.getInstance("zorro");
+        XETRA = INSTANCE.getInstance("xetra");
         GERMANY = getInstance(HolidayCalendar.GERMANY);
 
         AVAILABLE_CALENDAR_IDS = newAvailableCalendarIds();
