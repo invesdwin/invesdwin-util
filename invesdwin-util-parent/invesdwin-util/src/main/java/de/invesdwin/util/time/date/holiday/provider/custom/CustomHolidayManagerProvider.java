@@ -14,6 +14,7 @@ import de.invesdwin.util.time.date.holiday.provider.custom.specific.MonthlyExpir
 import de.invesdwin.util.time.date.holiday.provider.custom.specific.NewYearsEveHolidayManager;
 import de.invesdwin.util.time.date.holiday.provider.custom.specific.QuarterlyExpirationDayHolidayManager;
 import de.invesdwin.util.time.date.holiday.provider.custom.specific.WeekendHolidayManager;
+import de.invesdwin.util.time.date.holiday.provider.custom.specific.XetraFuturesHolidayManager;
 
 @NotThreadSafe
 public final class CustomHolidayManagerProvider implements IHolidayManagerProvider {
@@ -29,6 +30,7 @@ public final class CustomHolidayManagerProvider implements IHolidayManagerProvid
         registerHolidayManager(MonthlyExpirationDayHolidayManager.INSTANCE);
         registerHolidayManager(NewYearsEveHolidayManager.INSTANCE);
         registerHolidayManager(WeekendHolidayManager.INSTANCE);
+        registerHolidayManager(XetraFuturesHolidayManager.INSTANCE);
     }
 
     public static String prepareHolidayCalendarId(final String holidayCalendarId) {
