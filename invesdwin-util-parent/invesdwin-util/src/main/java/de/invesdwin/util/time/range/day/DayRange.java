@@ -35,9 +35,6 @@ public class DayRange extends AValueObject implements IDayRangeData {
         if (to == null) {
             throw new NullPointerException("to should not be null");
         }
-        if (!from.isBefore(to)) {
-            throw new IllegalArgumentException("from [" + from + "] should be before to [" + to + "]");
-        }
         this.from = from;
         this.to = to;
     }

@@ -105,19 +105,35 @@ public class FDayTime extends Number implements Comparable<Object>, IDayTimeData
     }
 
     public boolean isBefore(final FDayTime other) {
-        return other != null && compareTo(other) < 0;
+        return other != null && intValue() < other.intValue();
     }
 
     public boolean isBeforeOrEqualTo(final FDayTime other) {
-        return other != null && !isAfter(other);
+        return other != null && intValue() <= other.intValue();
     }
 
     public boolean isAfter(final FDayTime other) {
-        return other != null && compareTo(other) > 0;
+        return other != null && intValue() > other.intValue();
     }
 
     public boolean isAfterOrEqualTo(final FDayTime other) {
-        return other != null && !isBefore(other);
+        return other != null && intValue() >= other.intValue();
+    }
+
+    public boolean isBeforeNotNullSafe(final FDayTime other) {
+        return intValue() < other.intValue();
+    }
+
+    public boolean isBeforeOrEqualToNotNullSafe(final FDayTime other) {
+        return intValue() <= other.intValue();
+    }
+
+    public boolean isAfterNotNullSafe(final FDayTime other) {
+        return intValue() > other.intValue();
+    }
+
+    public boolean isAfterOrEqualToNotNullSafe(final FDayTime other) {
+        return intValue() >= other.intValue();
     }
 
     @Override
