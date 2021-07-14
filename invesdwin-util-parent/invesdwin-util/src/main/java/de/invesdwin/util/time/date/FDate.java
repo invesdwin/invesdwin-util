@@ -812,6 +812,28 @@ public class FDate
         return new FDate(FDateMillis.getFirstWorkdayOfMonth(millis, holidayManager));
     }
 
+    public FDate getNextHoliday(final IHolidayManager holidayManager) {
+        if (holidayManager == null) {
+            return this;
+        }
+        FDate day = this.withoutTime();
+        while (!holidayManager.isHoliday(day)) {
+            day = day.addDays(1);
+        }
+        return day;
+    }
+
+    public FDate getNextNonHoliday(final IHolidayManager holidayManager) {
+        if (holidayManager == null) {
+            return this;
+        }
+        FDate day = this.withoutTime();
+        while (holidayManager.isHoliday(day)) {
+            day = day.addDays(1);
+        }
+        return day;
+    }
+
     public boolean isHoliday(final IHolidayManager holidayManager) {
         if (holidayManager == null) {
             return false;
