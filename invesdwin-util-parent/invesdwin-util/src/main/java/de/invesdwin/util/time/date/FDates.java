@@ -274,6 +274,11 @@ public final class FDates {
         return !outside;
     }
 
+    public static boolean isBetweenNotNullSafe(final FDate value, final FDate min, final FDate max) {
+        final boolean outside = value.isBeforeNotNullSafe(min) || value.isAfterNotNullSafe(max);
+        return !outside;
+    }
+
     public static boolean isSameYear(final FDate date1, final FDate date2) {
         if (date1 == null || date2 == null) {
             return false;

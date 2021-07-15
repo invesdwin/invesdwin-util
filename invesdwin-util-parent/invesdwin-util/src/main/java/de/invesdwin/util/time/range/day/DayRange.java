@@ -99,12 +99,12 @@ public class DayRange extends AValueObject implements IDayRangeData {
     }
 
     public boolean contains(final FDate time) {
-        final FDate weekendFrom = time.setFDayTime(from);
-        FDate weekendTo = time.setFDayTime(to);
-        if (weekendTo.isBeforeOrEqualTo(weekendFrom)) {
-            weekendTo = weekendTo.addWeeks(1);
+        final FDate sessionFrom = time.setFDayTime(from);
+        FDate sessionTo = time.setFDayTime(to);
+        if (sessionTo.isBeforeOrEqualToNotNullSafe(sessionFrom)) {
+            sessionTo = sessionTo.addWeeks(1);
         }
-        return FDates.isBetween(time, weekendFrom, weekendTo);
+        return FDates.isBetweenNotNullSafe(time, sessionFrom, sessionTo);
     }
 
     @Override
