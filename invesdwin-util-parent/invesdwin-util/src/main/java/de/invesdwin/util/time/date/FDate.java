@@ -821,7 +821,7 @@ public class FDate
         if (holidayManager == null) {
             return this;
         }
-        FDate day = this.withoutTime().addDays(1);
+        FDate day = this.withoutTime();
         while (!holidayManager.isHoliday(day)) {
             day = day.addDays(1);
         }
@@ -837,7 +837,7 @@ public class FDate
         if (holidayManager == null) {
             return this;
         }
-        FDate day = this.withoutTime().addDays(1);
+        FDate day = this.withoutTime();
         while (holidayManager.isHoliday(day)) {
             day = day.addDays(1);
         }
