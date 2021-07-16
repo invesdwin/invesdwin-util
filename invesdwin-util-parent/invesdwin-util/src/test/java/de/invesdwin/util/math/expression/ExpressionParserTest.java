@@ -1418,4 +1418,32 @@ public class ExpressionParserTest {
         Assertions.checkEquals(false, result);
     }
 
+    @Test
+    public void testMathExpressionInParams() {
+        final IExpression parsed = new ExpressionParser("isNaN(1-2 * 3)") {
+            @Override
+            protected IParsedExpression simplify(final IParsedExpression expression) {
+                return expression;
+            }
+        }.parse();
+        Assertions.checkEquals("isNaN((1 - (2 * 3)))", parsed.toString());
+        final int result = parsed.newEvaluateInteger().evaluateInteger();
+        Assertions.checkEquals(0, result);
+    }
+
+    @Test
+    public void testMathExpressionWithFunctionsInParams() {
+        final IExpression parsed = new ExpressionParser(
+                "isNaN(vote(NaN, 0)-vote(0.6,0.6,6,0.1) * isNaN(vote(5,5,60,5)))") {
+            @Override
+            protected IParsedExpression simplify(final IParsedExpression expression) {
+                return expression;
+            }
+        }.parse();
+        Assertions.checkEquals("isNaN((vote(NaN, 0) - (vote(0.6, 0.6, 6, 0.1) * isNaN(vote(5, 5, 60, 5)))))",
+                parsed.toString());
+        final int result = parsed.newEvaluateInteger().evaluateInteger();
+        Assertions.checkEquals(0, result);
+    }
+
 }

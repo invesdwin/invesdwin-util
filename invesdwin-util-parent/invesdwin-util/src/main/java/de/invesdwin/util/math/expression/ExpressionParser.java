@@ -41,6 +41,7 @@ import de.invesdwin.util.math.expression.tokenizer.IPosition;
 import de.invesdwin.util.math.expression.tokenizer.ParseException;
 import de.invesdwin.util.math.expression.tokenizer.Token;
 import de.invesdwin.util.math.expression.tokenizer.Tokenizer;
+import de.invesdwin.util.math.expression.tokenizer.pool.TokenizerObjectPool;
 import de.invesdwin.util.math.expression.variable.IVariable;
 import de.invesdwin.util.math.expression.variable.Variables;
 import io.netty.util.concurrent.FastThreadLocal;
@@ -50,10 +51,10 @@ public class ExpressionParser implements IExpressionParser {
 
     public static final Op DEFAULT_COMMA_OP = Op.AND;
 
-    private static final FastThreadLocal<Tokenizer> TOKENIZER = new FastThreadLocal<Tokenizer>() {
+    private static final FastThreadLocal<TokenizerObjectPool> TOKENIZER = new FastThreadLocal<TokenizerObjectPool>() {
         @Override
-        protected Tokenizer initialValue() throws Exception {
-            return new Tokenizer();
+        protected TokenizerObjectPool initialValue() throws Exception {
+            return new TokenizerObjectPool();
         }
     };
 
@@ -229,8 +230,9 @@ public class ExpressionParser implements IExpressionParser {
 
     @Override
     public IExpression parse() {
+        final TokenizerObjectPool tokenizerPool = TOKENIZER.get();
         try {
-            tokenizer = TOKENIZER.get();
+            tokenizer = tokenizerPool.borrowObject();
             tokenizer.init(originalExpression, isSemicolonAllowed());
             final IParsedExpression result = simplify(expression(true));
             if (tokenizer.current().isNotEnd()) {
@@ -253,6 +255,7 @@ public class ExpressionParser implements IExpressionParser {
                 throw t;
             }
         } finally {
+            tokenizerPool.returnObject(tokenizer);
             tokenizer = null;
         }
     }

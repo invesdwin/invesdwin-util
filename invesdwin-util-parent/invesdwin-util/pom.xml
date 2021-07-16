@@ -73,6 +73,10 @@
 			<artifactId>commons-math3</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-pool2</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>com.github.virtuald</groupId>
 			<artifactId>curvesapi</artifactId>
 		</dependency>
