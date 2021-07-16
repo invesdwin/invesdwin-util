@@ -9,7 +9,6 @@ import de.invesdwin.util.math.expression.IExpression;
 import de.invesdwin.util.math.expression.IFunctionParameterInfo;
 import de.invesdwin.util.math.expression.eval.function.ADoubleNullaryFunction;
 import de.invesdwin.util.math.expression.function.AFunction;
-import de.invesdwin.util.math.expression.multiple.MultipleExpressionParser;
 import de.invesdwin.util.math.expression.tokenizer.ParseException;
 
 @NotThreadSafe
