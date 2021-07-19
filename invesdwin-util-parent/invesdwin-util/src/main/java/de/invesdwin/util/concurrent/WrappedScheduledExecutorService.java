@@ -28,6 +28,11 @@ public class WrappedScheduledExecutorService extends WrappedExecutorService
         }
 
         @Override
+        public boolean isKeepThreadLocals() {
+            return internal.isKeepThreadLocals();
+        }
+
+        @Override
         public boolean isDynamicThreadName() {
             return internal.isDynamicThreadName();
         }

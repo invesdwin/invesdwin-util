@@ -10,6 +10,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 import de.invesdwin.util.concurrent.Threads;
 import de.invesdwin.util.concurrent.priority.IPriorityProvider;
 import de.invesdwin.util.error.Throwables;
+import io.netty.util.concurrent.FastThreadLocal;
 
 @NotThreadSafe
 public final class WrappedCallable<V> implements Callable<V>, IPriorityProvider {
@@ -52,6 +53,9 @@ public final class WrappedCallable<V> implements Callable<V>, IPriorityProvider 
         } finally {
             if (parent != null) {
                 parent.decrementPendingCount();
+                if (!parent.isKeepThreadLocals()) {
+                    FastThreadLocal.removeAll();
+                }
             }
             if (originalThreadName != null) {
                 Threads.setCurrentThreadName(originalThreadName);
@@ -62,6 +66,9 @@ public final class WrappedCallable<V> implements Callable<V>, IPriorityProvider 
     public void maybeCancelled() {
         if (parent != null && !started) {
             parent.decrementPendingCount();
+            if (!parent.isKeepThreadLocals()) {
+                FastThreadLocal.removeAll();
+            }
         }
     }
 

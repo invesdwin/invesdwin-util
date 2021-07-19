@@ -47,6 +47,11 @@ public class WrappedExecutorService implements ListeningExecutorService {
         }
 
         @Override
+        public boolean isKeepThreadLocals() {
+            return WrappedExecutorService.this.isKeepThreadLocals();
+        }
+
+        @Override
         public boolean isDynamicThreadName() {
             return WrappedExecutorService.this.isDynamicThreadName();
         }
@@ -80,6 +85,7 @@ public class WrappedExecutorService implements ListeningExecutorService {
     private final ExecutorService originalDelegate;
     private volatile boolean logExceptions = true;
     private volatile boolean dynamicThreadName = true;
+    private volatile boolean keepThreadLocals = true;
     private final String name;
     private final PendingCountCondition zeroPendingCountCondition;
     private final PendingCountCondition fullPendingCountCondition;
@@ -116,13 +122,22 @@ public class WrappedExecutorService implements ListeningExecutorService {
         };
     }
 
+    public WrappedExecutorService withLogExceptions(final boolean logExceptions) {
+        this.logExceptions = logExceptions;
+        return this;
+    }
+
     public boolean isLogExceptions() {
         return logExceptions;
     }
 
-    public WrappedExecutorService withLogExceptions(final boolean logExceptions) {
-        this.logExceptions = logExceptions;
+    public WrappedExecutorService withKeepThreadLocals(final boolean keepThreadLocals) {
+        this.keepThreadLocals = keepThreadLocals;
         return this;
+    }
+
+    public boolean isKeepThreadLocals() {
+        return keepThreadLocals;
     }
 
     public WrappedExecutorService withDynamicThreadName(final boolean dynamicThreadName) {

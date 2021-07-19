@@ -6,6 +6,8 @@ public interface IWrappedExecutorServiceInternal {
 
     boolean isLogExceptions();
 
+    boolean isKeepThreadLocals();
+
     boolean isDynamicThreadName();
 
     void incrementPendingCount(boolean skipWaitOnFullPendingCount) throws InterruptedException;

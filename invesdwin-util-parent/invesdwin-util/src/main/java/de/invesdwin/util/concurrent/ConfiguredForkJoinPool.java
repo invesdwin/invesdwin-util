@@ -36,6 +36,11 @@ public class ConfiguredForkJoinPool extends ForkJoinPool {
         }
 
         @Override
+        public boolean isKeepThreadLocals() {
+            return ConfiguredForkJoinPool.this.isKeepThreadLocals();
+        }
+
+        @Override
         public void incrementPendingCount(final boolean skipWaitOnFullPendingCount) throws InterruptedException {
             //noop
         }
@@ -53,6 +58,7 @@ public class ConfiguredForkJoinPool extends ForkJoinPool {
     };
     private volatile boolean logExceptions = true;
     private volatile boolean dynamicThreadName = true;
+    private volatile boolean keepThreadLocals = true;
     private final String name;
 
     private final IShutdownHook shutdownHook = new IShutdownHook() {
@@ -69,13 +75,22 @@ public class ConfiguredForkJoinPool extends ForkJoinPool {
         configure();
     }
 
+    public ConfiguredForkJoinPool withLogExceptions(final boolean logExceptions) {
+        this.logExceptions = logExceptions;
+        return this;
+    }
+
     public boolean isLogExceptions() {
         return logExceptions;
     }
 
-    public ConfiguredForkJoinPool withLogExceptions(final boolean logExceptions) {
-        this.logExceptions = logExceptions;
+    public ConfiguredForkJoinPool withKeepThreadLocals(final boolean keepThreadLocals) {
+        this.keepThreadLocals = keepThreadLocals;
         return this;
+    }
+
+    public boolean isKeepThreadLocals() {
+        return keepThreadLocals;
     }
 
     public ConfiguredForkJoinPool withDynamicThreadName(final boolean dynamicThreadName) {
