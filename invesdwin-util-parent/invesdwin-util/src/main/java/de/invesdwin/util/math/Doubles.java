@@ -25,6 +25,8 @@ import de.invesdwin.util.math.internal.CheckedCastDoublesObj;
 @Immutable
 public final class Doubles extends ADoublesStaticFacade {
 
+    public static final double[] EMPTY_ARRAY = new double[0];
+
     public static final String NAN_STR = "NaN";
     //CHECKSTYLE:OFF
     public static final double MAX_VALUE = Double.MAX_VALUE;

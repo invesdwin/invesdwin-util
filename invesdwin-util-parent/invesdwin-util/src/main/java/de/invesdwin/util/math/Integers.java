@@ -21,6 +21,7 @@ import de.invesdwin.util.math.statistics.RunningMedian;
 @Immutable
 public final class Integers extends AIntegersStaticFacade {
 
+    public static final int[] EMPTY_ARRAY = new int[0];
     public static final int DEFAULT_MISSING_VALUE = 0;
     public static final Integer DEFAULT_MISSING_VALUE_OBJ = DEFAULT_MISSING_VALUE;
     public static final ADelegateComparator<Integer> COMPARATOR = new ADelegateComparator<Integer>() {
