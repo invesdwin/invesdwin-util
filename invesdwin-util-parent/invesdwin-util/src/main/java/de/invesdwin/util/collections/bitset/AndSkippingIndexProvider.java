@@ -5,15 +5,15 @@ import java.util.Collection;
 import javax.annotation.concurrent.NotThreadSafe;
 
 @NotThreadSafe
-public class AndSkippingIndexProvider implements ISkippingIndexProvider {
+public final class AndSkippingIndexProvider implements ISkippingIndexProvider {
 
     private final PeekingSkippingIndexProvider[] delegates;
 
-    public AndSkippingIndexProvider(final Collection<PeekingSkippingIndexProvider> delegates) {
+    private AndSkippingIndexProvider(final Collection<PeekingSkippingIndexProvider> delegates) {
         this.delegates = delegates.toArray(new PeekingSkippingIndexProvider[delegates.size()]);
     }
 
-    public AndSkippingIndexProvider(final PeekingSkippingIndexProvider... delegates) {
+    private AndSkippingIndexProvider(final PeekingSkippingIndexProvider... delegates) {
         this.delegates = delegates;
     }
 
@@ -34,6 +34,26 @@ public class AndSkippingIndexProvider implements ISkippingIndexProvider {
             i++;
         }
         return max;
+    }
+
+    public static ISkippingIndexProvider of(final Collection<PeekingSkippingIndexProvider> delegates) {
+        if (delegates == null || delegates.isEmpty()) {
+            return null;
+        } else if (delegates.size() == 1) {
+            return delegates.iterator().next();
+        } else {
+            return new AndSkippingIndexProvider(delegates);
+        }
+    }
+
+    public static ISkippingIndexProvider of(final PeekingSkippingIndexProvider... delegates) {
+        if (delegates == null || delegates.length == 0) {
+            return null;
+        } else if (delegates.length == 1) {
+            return delegates[0];
+        } else {
+            return new AndSkippingIndexProvider(delegates);
+        }
     }
 
 }

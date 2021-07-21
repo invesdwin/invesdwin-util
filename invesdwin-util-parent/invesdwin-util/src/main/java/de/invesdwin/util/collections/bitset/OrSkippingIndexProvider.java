@@ -5,15 +5,15 @@ import java.util.Collection;
 import javax.annotation.concurrent.NotThreadSafe;
 
 @NotThreadSafe
-public class OrSkippingIndexProvider implements ISkippingIndexProvider {
+public final class OrSkippingIndexProvider implements ISkippingIndexProvider {
 
     private final PeekingSkippingIndexProvider[] delegates;
 
-    public OrSkippingIndexProvider(final Collection<PeekingSkippingIndexProvider> delegates) {
+    private OrSkippingIndexProvider(final Collection<PeekingSkippingIndexProvider> delegates) {
         this.delegates = delegates.toArray(new PeekingSkippingIndexProvider[delegates.size()]);
     }
 
-    public OrSkippingIndexProvider(final PeekingSkippingIndexProvider... delegates) {
+    private OrSkippingIndexProvider(final PeekingSkippingIndexProvider... delegates) {
         this.delegates = delegates;
     }
 
@@ -29,6 +29,26 @@ public class OrSkippingIndexProvider implements ISkippingIndexProvider {
             i++;
         }
         return min;
+    }
+
+    public static ISkippingIndexProvider of(final Collection<PeekingSkippingIndexProvider> delegates) {
+        if (delegates == null || delegates.isEmpty()) {
+            return null;
+        } else if (delegates.size() == 1) {
+            return delegates.iterator().next();
+        } else {
+            return new OrSkippingIndexProvider(delegates);
+        }
+    }
+
+    public static ISkippingIndexProvider of(final PeekingSkippingIndexProvider... delegates) {
+        if (delegates == null || delegates.length == 0) {
+            return null;
+        } else if (delegates.length == 1) {
+            return delegates[0];
+        } else {
+            return new OrSkippingIndexProvider(delegates);
+        }
     }
 
 }
