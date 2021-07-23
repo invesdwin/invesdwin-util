@@ -36,6 +36,9 @@ public final class HolidayManagers {
     }
 
     public static String assertLookupHolidayCalendarId(final String holidayCalendarId) {
+        if (Strings.isBlankOrNullText(holidayCalendarId)) {
+            return null;
+        }
         final String lookup = lookupHolidayCalendarId(holidayCalendarId);
         if (lookup == null) {
             throw new RuntimeException("Invalid " + IHolidayManager.class.getSimpleName() + " id [" + holidayCalendarId
