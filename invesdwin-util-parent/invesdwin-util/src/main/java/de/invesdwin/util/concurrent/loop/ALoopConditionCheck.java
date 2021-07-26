@@ -1,4 +1,4 @@
-package de.invesdwin.util.concurrent;
+package de.invesdwin.util.concurrent.loop;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
@@ -6,19 +6,20 @@ import de.invesdwin.util.time.date.FTimeUnit;
 import de.invesdwin.util.time.duration.Duration;
 
 @NotThreadSafe
-public class LoopInterruptedCheck {
+public abstract class ALoopConditionCheck {
 
     protected final Thread currentThread;
     private final long checkIntervalNanos;
     private long nextIntervalNanos;
     private int checksPerInterval;
     private int checksInInterval;
+    private boolean condition = initialValue();
 
-    public LoopInterruptedCheck() {
+    public ALoopConditionCheck() {
         this(Duration.ONE_SECOND);
     }
 
-    public LoopInterruptedCheck(final Duration checkInterval) {
+    public ALoopConditionCheck(final Duration checkInterval) {
         this.currentThread = Thread.currentThread();
         this.checkIntervalNanos = checkInterval.longValue(FTimeUnit.NANOSECONDS);
         this.nextIntervalNanos = getInitialNanoTime() + checkIntervalNanos;
@@ -28,23 +29,24 @@ public class LoopInterruptedCheck {
         return System.nanoTime();
     }
 
-    public boolean check() throws InterruptedException {
+    public final boolean check() {
         checksInInterval++;
         if (checksInInterval > checksPerInterval) {
             final long newIntervalNanos = getInitialNanoTime();
             if (newIntervalNanos > nextIntervalNanos) {
-                onInterval();
+                condition = checkCondition();
                 checksPerInterval = checksInInterval;
                 checksInInterval = 0;
                 nextIntervalNanos = newIntervalNanos + checkIntervalNanos;
-                return true;
             }
         }
+        return condition;
+    }
+
+    protected boolean initialValue() {
         return false;
     }
 
-    protected void onInterval() throws InterruptedException {
-        Threads.throwIfInterrupted(currentThread);
-    }
+    protected abstract boolean checkCondition();
 
 }

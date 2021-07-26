@@ -1,4 +1,4 @@
-package de.invesdwin.util.concurrent;
+package de.invesdwin.util.concurrent.loop;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
