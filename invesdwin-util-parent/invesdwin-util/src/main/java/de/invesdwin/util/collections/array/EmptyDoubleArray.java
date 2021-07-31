@@ -36,4 +36,9 @@ public final class EmptyDoubleArray implements IDoubleArray {
         return Doubles.EMPTY_ARRAY;
     }
 
+    @Override
+    public String toString() {
+        return "[]";
+    }
+
 }

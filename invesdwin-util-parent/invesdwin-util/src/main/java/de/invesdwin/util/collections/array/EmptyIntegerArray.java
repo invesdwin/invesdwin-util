@@ -36,4 +36,9 @@ public final class EmptyIntegerArray implements IIntegerArray {
         return Integers.EMPTY_ARRAY;
     }
 
+    @Override
+    public String toString() {
+        return "[]";
+    }
+
 }

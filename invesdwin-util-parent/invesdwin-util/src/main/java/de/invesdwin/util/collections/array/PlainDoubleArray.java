@@ -1,5 +1,7 @@
 package de.invesdwin.util.collections.array;
 
+import java.util.Arrays;
+
 import javax.annotation.concurrent.NotThreadSafe;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -40,6 +42,11 @@ public class PlainDoubleArray implements IDoubleArray {
     @Override
     public double[] asArray() {
         return values;
+    }
+
+    @Override
+    public String toString() {
+        return Arrays.toString(values);
     }
 
 }
