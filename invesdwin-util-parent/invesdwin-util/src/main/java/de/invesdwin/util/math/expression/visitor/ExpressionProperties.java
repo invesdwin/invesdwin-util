@@ -55,6 +55,11 @@ public final class ExpressionProperties {
     public static final String OPTIMIZE = "OPTIMIZE";
 
     /**
+     * An event that update caches based on optimization variables that have been modified
+     */
+    public static final String AFTER_OPTIMIZATION_MODIFICATION = "AFTER_OPTIMIZATION_MODIFICATION";
+
+    /**
      * Return a single or a collection of optimization variables.
      * 
      * DEFAULT when undefined is an empty collection.
@@ -143,6 +148,14 @@ public final class ExpressionProperties {
             }
         }
         return false;
+    }
+
+    public static void afterOptimizationModification(final IExpression expression) {
+        expression.getProperty(AFTER_OPTIMIZATION_MODIFICATION);
+        final IExpression[] parameters = expression.getChildren();
+        for (int i = 0; i < parameters.length; i++) {
+            afterOptimizationModification(parameters[i]);
+        }
     }
 
     public static <T> Set<T> getOptimizationVariables(final IExpression expression) {
