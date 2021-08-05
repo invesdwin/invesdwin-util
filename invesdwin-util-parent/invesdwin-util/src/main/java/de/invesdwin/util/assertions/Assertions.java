@@ -551,7 +551,8 @@ public final class Assertions extends AAssertionsStaticFacade {
     public static void checkReference(final boolean createReferenceFile, final File referenceFile,
             final String reference, final int maxReferenceLength) {
         final List<String> references = Strings.splitByMaxLength(reference, maxReferenceLength);
-        for (int i = 0; i < references.size(); i++) {
+        int i = 0;
+        while (i < references.size()) {
             final String ref = references.get(i);
             final File indexedReferenceFile;
             if (i == 0) {
@@ -567,6 +568,19 @@ public final class Assertions extends AAssertionsStaticFacade {
                 Assertions.checkEquals(existingRef, ref);
             } catch (final IOException e) {
                 throw new RuntimeException(e);
+            }
+            i++;
+        }
+        if (createReferenceFile) {
+            //delete any existing reference files that are not needed anymore
+            while (true) {
+                i++;
+                final File obsoleteIndexedReferenceFile = Files.prefixExtension(referenceFile, "_" + i);
+                if (obsoleteIndexedReferenceFile.exists()) {
+                    Files.deleteQuietly(obsoleteIndexedReferenceFile);
+                } else {
+                    break;
+                }
             }
         }
     }
