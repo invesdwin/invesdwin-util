@@ -18,7 +18,7 @@ public class DelegateExpression extends ADelegateExpression {
     }
 
     @Override
-    protected IExpression getDelegate() {
+    public IExpression getDelegate() {
         return delegate;
     }
 
