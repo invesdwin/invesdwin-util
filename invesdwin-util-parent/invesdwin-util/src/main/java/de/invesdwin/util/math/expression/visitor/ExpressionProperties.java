@@ -151,11 +151,13 @@ public final class ExpressionProperties {
     }
 
     public static void afterOptimizationModification(final IExpression expression) {
-        expression.getProperty(AFTER_OPTIMIZATION_MODIFICATION);
+        //first process children
         final IExpression[] parameters = expression.getChildren();
         for (int i = 0; i < parameters.length; i++) {
             afterOptimizationModification(parameters[i]);
         }
+        //then process the parent, so that is can use the modified children (might compress them)
+        expression.getProperty(AFTER_OPTIMIZATION_MODIFICATION);
     }
 
     public static <T> Set<T> getOptimizationVariables(final IExpression expression) {
