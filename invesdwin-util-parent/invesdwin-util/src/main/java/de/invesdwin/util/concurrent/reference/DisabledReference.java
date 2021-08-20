@@ -14,6 +14,11 @@ public final class DisabledReference<T> implements IMutableReference<T> {
     }
 
     @Override
+    public T getAndSet(final T value) {
+        return null;
+    }
+
+    @Override
     public void set(final T value) {
     }
 

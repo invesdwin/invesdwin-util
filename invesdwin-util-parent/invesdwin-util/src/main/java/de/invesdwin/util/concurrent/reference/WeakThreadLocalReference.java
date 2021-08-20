@@ -62,6 +62,13 @@ public class WeakThreadLocalReference<V> implements IMutableReference<V> {
         }
     }
 
+    @Override
+    public V getAndSet(final V value) {
+        final V get = get();
+        set(value);
+        return get;
+    }
+
     public void remove() {
         final LoadingCache<Object, IMutableReference<Optional<Object>>> map = THREAD_LOCAL.get();
         map.invalidate(key);

@@ -21,6 +21,11 @@ public final class UnsupportedReference<T> implements IMutableReference<T> {
         throw new UnsupportedOperationException();
     }
 
+    @Override
+    public T getAndSet(final T value) {
+        throw new UnsupportedOperationException();
+    }
+
     @SuppressWarnings("unchecked")
     public static <T> UnsupportedReference<T> getInstance() {
         return INSTANCE;

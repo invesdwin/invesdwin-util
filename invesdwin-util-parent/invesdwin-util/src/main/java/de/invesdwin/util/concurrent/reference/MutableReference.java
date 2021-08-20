@@ -9,7 +9,8 @@ public class MutableReference<T> extends AValueObject implements IMutableReferen
 
     private T value;
 
-    public MutableReference() {}
+    public MutableReference() {
+    }
 
     public MutableReference(final T value) {
         this.value = value;
@@ -23,6 +24,13 @@ public class MutableReference<T> extends AValueObject implements IMutableReferen
     @Override
     public void set(final T value) {
         this.value = value;
+    }
+
+    @Override
+    public T getAndSet(final T value) {
+        final T get = this.value;
+        this.value = value;
+        return get;
     }
 
     @Override

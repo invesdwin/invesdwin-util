@@ -42,6 +42,13 @@ public class ThreadLocalReference<T> implements IMutableReference<T> {
         }
     }
 
+    @Override
+    public T getAndSet(final T value) {
+        final T get = get();
+        set(value);
+        return get;
+    }
+
     public void remove() {
         threadLocal.remove();
     }

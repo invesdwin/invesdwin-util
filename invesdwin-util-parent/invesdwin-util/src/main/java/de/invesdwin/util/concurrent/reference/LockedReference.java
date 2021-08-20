@@ -31,6 +31,18 @@ public class LockedReference<T> extends AValueObject implements IMutableReferenc
     }
 
     @Override
+    public T getAndSet(final T value) {
+        lock.lock();
+        try {
+            final T get = this.value;
+            this.value = value;
+            return get;
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
     public void set(final T value) {
         lock.lock();
         try {

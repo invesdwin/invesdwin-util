@@ -9,7 +9,8 @@ public class VolatileReference<T> extends AValueObject implements IMutableRefere
 
     private volatile T value;
 
-    public VolatileReference() {}
+    public VolatileReference() {
+    }
 
     public VolatileReference(final T value) {
         this.value = value;
@@ -23,6 +24,13 @@ public class VolatileReference<T> extends AValueObject implements IMutableRefere
     @Override
     public void set(final T value) {
         this.value = value;
+    }
+
+    @Override
+    public T getAndSet(final T value) {
+        final T get = this.value;
+        this.value = null;
+        return get;
     }
 
     @Override

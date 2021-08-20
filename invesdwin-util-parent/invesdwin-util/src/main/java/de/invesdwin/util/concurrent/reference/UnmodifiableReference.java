@@ -21,6 +21,11 @@ public final class UnmodifiableReference<T> implements IMutableReference<T> {
         throw new UnsupportedOperationException();
     }
 
+    @Override
+    public T getAndSet(final T value) {
+        throw new UnsupportedOperationException();
+    }
+
     public static <T> UnmodifiableReference<T> of(final T value) {
         return new UnmodifiableReference<>(value);
     }
