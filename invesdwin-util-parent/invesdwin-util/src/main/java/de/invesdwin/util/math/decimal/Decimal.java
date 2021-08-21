@@ -70,6 +70,7 @@ public class Decimal extends ADecimal<Decimal> {
             return true;
         }
     };
+    public static final int BYTES = Double.BYTES;
 
     static {
         MINUS_THREE = new Decimal(-3D);
