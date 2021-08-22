@@ -9,6 +9,7 @@ import javax.annotation.concurrent.Immutable;
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
 import de.invesdwin.util.lang.ADelegateComparator;
 import de.invesdwin.util.lang.Objects;
+import de.invesdwin.util.lang.buffer.IByteBuffer;
 import de.invesdwin.util.math.internal.ALongsStaticFacade;
 import de.invesdwin.util.math.internal.CheckedCastLongs;
 import de.invesdwin.util.math.internal.CheckedCastLongsObj;
@@ -234,6 +235,27 @@ public final class Longs extends ALongsStaticFacade {
 
     public static boolean isBetween(final long value, final long min, final long max) {
         return min <= value && value <= max;
+    }
+
+    public static int putLong(final IByteBuffer buffer, final int index, final Long value) {
+        if (value == null) {
+            return buffer.putLong(index, Long.MIN_VALUE);
+        } else {
+            return buffer.putLong(index, value);
+        }
+    }
+
+    public static Long extractLong(final IByteBuffer buffer, final int index) {
+        final long value = buffer.getLong(index);
+        return extractLong(value);
+    }
+
+    public static Long extractLong(final long value) {
+        if (value == Long.MIN_VALUE) {
+            return null;
+        } else {
+            return value;
+        }
     }
 
 }

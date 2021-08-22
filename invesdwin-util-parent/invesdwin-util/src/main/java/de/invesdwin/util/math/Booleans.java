@@ -1,6 +1,5 @@
 package de.invesdwin.util.math;
 
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -10,6 +9,7 @@ import javax.annotation.concurrent.Immutable;
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
 import de.invesdwin.util.lang.ADelegateComparator;
 import de.invesdwin.util.lang.Objects;
+import de.invesdwin.util.lang.buffer.IByteBuffer;
 import de.invesdwin.util.math.decimal.Decimal;
 import de.invesdwin.util.math.internal.ABooleansStaticFacade;
 import de.invesdwin.util.math.internal.CheckedCastBooleans;
@@ -164,21 +164,16 @@ public final class Booleans extends ABooleansStaticFacade {
         return Objects.fixInconsistentMatrixDimensionsAsList(matrix, missingValue, appendMissingValues);
     }
 
-    public static void putBoolean(final ByteBuffer buffer, final Boolean value) {
+    public static int putBoolean(final IByteBuffer buffer, final int index, final Boolean value) {
         if (value == null) {
-            buffer.put(Byte.MIN_VALUE);
+            return buffer.putByte(index, Byte.MIN_VALUE);
         } else {
-            buffer.put(Bytes.checkedCast(value));
+            return buffer.putByte(index, Bytes.checkedCast(value));
         }
     }
 
-    public static Boolean extractBoolean(final ByteBuffer buffer, final int index) {
-        final byte value = buffer.get(index);
-        return extractBoolean(value);
-    }
-
-    public static Boolean extractBoolean(final ByteBuffer buffer) {
-        final byte value = buffer.get();
+    public static Boolean extractBoolean(final IByteBuffer buffer, final int index) {
+        final byte value = buffer.getByte(index);
         return extractBoolean(value);
     }
 

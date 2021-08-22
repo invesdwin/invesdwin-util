@@ -1,6 +1,5 @@
 package de.invesdwin.util.lang;
 
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -15,6 +14,7 @@ import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
 import de.invesdwin.norva.beanpath.BeanPathStrings;
+import de.invesdwin.util.lang.buffer.IByteBuffer;
 import de.invesdwin.util.lang.internal.AStringsStaticFacade;
 import de.invesdwin.util.lang.internal.CheckedCastStrings;
 import de.invesdwin.util.lang.internal.DefaultToStringStyle;
@@ -657,19 +657,19 @@ public final class Strings extends AStringsStaticFacade {
         }
     }
 
-    public static void putString(final ByteBuffer buffer, final byte[] stringBytes) {
+    public static int putString(final IByteBuffer buffer, final int index, final byte[] stringBytes) {
         if (stringBytes == null || stringBytes.length == 0) {
-            return;
+            return 0;
         }
-        buffer.put(stringBytes);
+        return buffer.putBytes(index, stringBytes);
     }
 
-    public static String extractString(final ByteBuffer buffer, final int index, final int size) {
+    public static String extractString(final IByteBuffer buffer, final int index, final int size) {
         if (size == 0) {
             return null;
         }
         final byte[] bytes = new byte[size];
-        Buffers.get(buffer, index, bytes);
+        buffer.getBytes(index, bytes);
         final String string = new String(bytes);
         return string;
     }

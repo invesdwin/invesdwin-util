@@ -1,6 +1,5 @@
 package de.invesdwin.util.time.range;
 
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,6 +9,7 @@ import de.invesdwin.util.bean.AValueObject;
 import de.invesdwin.util.bean.tuple.IPair;
 import de.invesdwin.util.lang.ADelegateComparator;
 import de.invesdwin.util.lang.Objects;
+import de.invesdwin.util.lang.buffer.IByteBuffer;
 import de.invesdwin.util.time.date.FDate;
 import de.invesdwin.util.time.date.FDates;
 import de.invesdwin.util.time.date.IFDateProvider;
@@ -18,6 +18,8 @@ import de.invesdwin.util.time.duration.Duration;
 
 @Immutable
 public class TimeRange extends AValueObject {
+
+    public static final int BYTES = FDate.BYTES + FDate.BYTES;
 
     public static final ADelegateComparator<TimeRange> COMPARATOR = new ADelegateComparator<TimeRange>() {
         @Override
@@ -107,19 +109,20 @@ public class TimeRange extends AValueObject {
         return from == null || to == null || getDuration().isZero();
     }
 
-    public static void putTimeRange(final ByteBuffer buffer, final TimeRange timeRange) {
+    public static int putTimeRange(final IByteBuffer buffer, final int index, final TimeRange timeRange) {
         if (timeRange == null) {
-            buffer.putLong(Long.MAX_VALUE);
-            buffer.putLong(Long.MAX_VALUE);
+            buffer.putLong(index, Long.MAX_VALUE);
+            buffer.putLong(index + FDate.BYTES, Long.MAX_VALUE);
         } else {
-            FDates.putFDate(buffer, timeRange.getFrom());
-            FDates.putFDate(buffer, timeRange.getTo());
+            FDates.putFDate(buffer, index, timeRange.getFrom());
+            FDates.putFDate(buffer, index + FDate.BYTES, timeRange.getTo());
         }
+        return BYTES;
     }
 
-    public static TimeRange extractTimeRange(final ByteBuffer buffer, final int index) {
+    public static TimeRange extractTimeRange(final IByteBuffer buffer, final int index) {
         final long from = buffer.getLong(index);
-        final long to = buffer.getLong(index + 8);
+        final long to = buffer.getLong(index + FDate.BYTES);
         if (from == Long.MAX_VALUE && to == Long.MAX_VALUE) {
             return null;
         } else {

@@ -2,6 +2,7 @@ package de.invesdwin.util.lang;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -95,6 +96,17 @@ public final class Objects extends AObjectsStaticFacade {
                 @Override
                 public byte[] serialize(final Serializable obj) {
                     return SERIALIZATION_CONFIG_HOLDER.get().asByteArray(obj);
+                }
+
+                @Override
+                public int serialize(final Serializable obj, final OutputStream out) {
+                    try {
+                        final byte[] bytes = serialize(obj);
+                        out.write(bytes, 0, bytes.length);
+                        return bytes.length;
+                    } catch (final IOException e) {
+                        throw new RuntimeException(e);
+                    }
                 }
             });
         }

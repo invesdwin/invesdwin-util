@@ -1,7 +1,6 @@
 package de.invesdwin.util.time.date;
 
 import java.io.Serializable;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -24,6 +23,7 @@ import de.invesdwin.util.collections.loadingcache.historical.IHistoricalEntry;
 import de.invesdwin.util.collections.loadingcache.historical.IHistoricalValue;
 import de.invesdwin.util.lang.ADelegateComparator;
 import de.invesdwin.util.lang.Strings;
+import de.invesdwin.util.lang.buffer.IByteBuffer;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.decimal.scaled.Percent;
 import de.invesdwin.util.time.date.holiday.IHolidayManager;
@@ -942,21 +942,16 @@ public class FDate
         return this;
     }
 
-    public static void putFDate(final ByteBuffer buffer, final FDate value) {
+    public static int putFDate(final IByteBuffer buffer, final int index, final FDate value) {
         if (value == null) {
-            buffer.putDouble(Long.MIN_VALUE);
+            return buffer.putLong(index, Long.MIN_VALUE);
         } else {
-            buffer.putDouble(value.millisValue());
+            return buffer.putLong(index, value.millisValue());
         }
     }
 
-    public static FDate extractFDate(final ByteBuffer buffer, final int index) {
+    public static FDate extractFDate(final IByteBuffer buffer, final int index) {
         final long value = buffer.getLong(index);
-        return extractFDate(value);
-    }
-
-    public static FDate extractFDate(final ByteBuffer buffer) {
-        final long value = buffer.getLong();
         return extractFDate(value);
     }
 

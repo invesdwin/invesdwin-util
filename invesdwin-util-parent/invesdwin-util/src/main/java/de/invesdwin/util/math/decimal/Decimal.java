@@ -1,6 +1,5 @@
 package de.invesdwin.util.math.decimal;
 
-import java.nio.ByteBuffer;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
@@ -15,6 +14,7 @@ import javax.annotation.concurrent.Immutable;
 import de.invesdwin.util.bean.tuple.Pair;
 import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 import de.invesdwin.util.lang.Strings;
+import de.invesdwin.util.lang.buffer.IByteBuffer;
 import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.decimal.internal.DecimalAggregate;
 import de.invesdwin.util.math.decimal.internal.DummyDecimalAggregate;
@@ -283,21 +283,16 @@ public class Decimal extends ADecimal<Decimal> {
         }
     }
 
-    public static void putDecimal(final ByteBuffer buffer, final Decimal value) {
+    public static int putDecimal(final IByteBuffer buffer, final int index, final Decimal value) {
         if (value == null) {
-            buffer.putDouble(Double.NaN);
+            return buffer.putDouble(index, Double.NaN);
         } else {
-            buffer.putDouble(value.doubleValue());
+            return buffer.putDouble(index, value.doubleValue());
         }
     }
 
-    public static Decimal extractDecimal(final ByteBuffer buffer, final int index) {
+    public static Decimal extractDecimal(final IByteBuffer buffer, final int index) {
         final double value = buffer.getDouble(index);
-        return extractDecimal(value);
-    }
-
-    public static Decimal extractDecimal(final ByteBuffer buffer) {
-        final double value = buffer.getDouble();
         return extractDecimal(value);
     }
 

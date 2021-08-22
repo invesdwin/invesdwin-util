@@ -1,7 +1,6 @@
 package de.invesdwin.util.math;
 
 import java.math.RoundingMode;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -13,6 +12,7 @@ import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
 import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.lang.ADelegateComparator;
 import de.invesdwin.util.lang.Objects;
+import de.invesdwin.util.lang.buffer.IByteBuffer;
 import de.invesdwin.util.math.decimal.ADecimal;
 import de.invesdwin.util.math.decimal.Decimal;
 import de.invesdwin.util.math.internal.ADoublesStaticFacade;
@@ -264,21 +264,16 @@ public final class Doubles extends ADoublesStaticFacade {
         return Objects.fixInconsistentMatrixDimensionsAsList(matrix, missingValue, appendMissingValues);
     }
 
-    public static void putDouble(final ByteBuffer buffer, final Double value) {
+    public static int putDouble(final IByteBuffer buffer, final int index, final Double value) {
         if (value == null) {
-            buffer.putDouble(Double.NaN);
+            return buffer.putDouble(index, Double.NaN);
         } else {
-            buffer.putDouble(value);
+            return buffer.putDouble(index, value);
         }
     }
 
-    public static Double extractDouble(final ByteBuffer buffer, final int index) {
+    public static Double extractDouble(final IByteBuffer buffer, final int index) {
         final double value = buffer.getDouble(index);
-        return extractDouble(value);
-    }
-
-    public static Double extractDouble(final ByteBuffer buffer) {
-        final double value = buffer.getDouble();
         return extractDouble(value);
     }
 

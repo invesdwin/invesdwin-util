@@ -12,6 +12,7 @@ import javax.annotation.concurrent.Immutable;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.collections.loadingcache.ALoadingCache;
+import de.invesdwin.util.lang.buffer.ByteBuffers;
 import de.invesdwin.util.math.decimal.Decimal;
 import io.netty.util.concurrent.FastThreadLocal;
 
@@ -198,7 +199,7 @@ public final class Currencies {
 
     public static Currency extractCurrency(final ByteBuffer buffer, final int index) {
         final byte[] bytes = new byte[BYTES];
-        Buffers.get(buffer, index, bytes);
+        ByteBuffers.get(buffer, index, bytes);
         final String currencyCode = new String(bytes);
         if ("___".equals(currencyCode)) {
             return null;
@@ -209,7 +210,7 @@ public final class Currencies {
 
     public static String extractCurrencyCode(final ByteBuffer buffer, final int index) {
         final byte[] bytes = new byte[BYTES];
-        Buffers.get(buffer, index, bytes);
+        ByteBuffers.get(buffer, index, bytes);
         final String currencyCode = new String(bytes);
         if ("___".equals(currencyCode)) {
             return null;

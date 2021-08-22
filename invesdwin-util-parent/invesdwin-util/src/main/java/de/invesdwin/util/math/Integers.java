@@ -1,6 +1,5 @@
 package de.invesdwin.util.math;
 
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -10,6 +9,7 @@ import javax.annotation.concurrent.Immutable;
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
 import de.invesdwin.util.lang.ADelegateComparator;
 import de.invesdwin.util.lang.Objects;
+import de.invesdwin.util.lang.buffer.IByteBuffer;
 import de.invesdwin.util.math.internal.AIntegersStaticFacade;
 import de.invesdwin.util.math.internal.CheckedCastIntegers;
 import de.invesdwin.util.math.internal.CheckedCastIntegersObj;
@@ -340,22 +340,25 @@ public final class Integers extends AIntegersStaticFacade {
         return a < b;
     }
 
-    public static void putInteger(final ByteBuffer buffer, final Integer value) {
+    public static void putInteger(final IByteBuffer buffer, final int index, final Integer value) {
         if (value == null) {
-            buffer.putInt(Integer.MIN_VALUE);
+            buffer.putInt(index, Integer.MIN_VALUE);
         } else {
-            buffer.putInt(value);
+            buffer.putInt(index, value);
         }
     }
 
-    public static Integer extractInteger(final ByteBuffer buffer, final int index) {
+    public static Integer extractInteger(final IByteBuffer buffer, final int index) {
         final int value = buffer.getInt(index);
-        return value;
+        return extractInteger(value);
     }
 
-    public static Integer extractInteger(final ByteBuffer buffer) {
-        final int value = buffer.getInt();
-        return value;
+    public static Integer extractInteger(final int value) {
+        if (value == Integer.MIN_VALUE) {
+            return null;
+        } else {
+            return value;
+        }
     }
 
     public static int add(final double value, final double otherValue) {

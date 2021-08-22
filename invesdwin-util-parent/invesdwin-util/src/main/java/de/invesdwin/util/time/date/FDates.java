@@ -1,6 +1,5 @@
 package de.invesdwin.util.time.date;
 
-import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.Date;
 import java.util.TimeZone;
@@ -11,6 +10,7 @@ import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.error.FastNoSuchElementException;
 import de.invesdwin.util.error.UnknownArgumentException;
+import de.invesdwin.util.lang.buffer.IByteBuffer;
 import de.invesdwin.util.time.date.millis.FDatesMillis;
 import de.invesdwin.util.time.date.timezone.FTimeZone;
 import de.invesdwin.util.time.duration.Duration;
@@ -514,21 +514,16 @@ public final class FDates {
         return new FDate((long) avg);
     }
 
-    public static void putFDate(final ByteBuffer buffer, final FDate time) {
+    public static void putFDate(final IByteBuffer buffer, final int index, final FDate time) {
         if (time == null) {
-            buffer.putLong(Long.MIN_VALUE);
+            buffer.putLong(index, Long.MIN_VALUE);
         } else {
-            buffer.putLong(time.millisValue());
+            buffer.putLong(index, time.millisValue());
         }
     }
 
-    public static FDate extractFDate(final ByteBuffer buffer, final int index) {
+    public static FDate extractFDate(final IByteBuffer buffer, final int index) {
         final long time = buffer.getLong(index);
-        return extractFDate(time);
-    }
-
-    public static FDate extractFDate(final ByteBuffer buffer) {
-        final long time = buffer.getLong();
         return extractFDate(time);
     }
 

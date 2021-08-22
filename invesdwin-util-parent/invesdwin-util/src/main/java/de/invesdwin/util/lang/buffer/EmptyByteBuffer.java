@@ -1,0 +1,194 @@
+package de.invesdwin.util.lang.buffer;
+
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.ByteBuffer;
+
+import javax.annotation.concurrent.Immutable;
+
+import org.agrona.DirectBuffer;
+import org.agrona.MutableDirectBuffer;
+import org.apache.hc.core5.http.impl.io.EmptyInputStream;
+
+import de.invesdwin.util.math.Bytes;
+import de.invesdwin.util.streams.EmptyOutputStream;
+
+@Immutable
+public final class EmptyByteBuffer implements IByteBuffer {
+
+    public static final EmptyByteBuffer INSTANCE = new EmptyByteBuffer();
+
+    private EmptyByteBuffer() {
+    }
+
+    @Override
+    public boolean isExpandable() {
+        return false;
+    }
+
+    @Override
+    public int putLong(final int index, final long value) {
+        throw new IndexOutOfBoundsException("empty");
+    }
+
+    @Override
+    public int putInt(final int index, final int value) {
+        throw new IndexOutOfBoundsException("empty");
+    }
+
+    @Override
+    public int putDouble(final int index, final double value) {
+        throw new IndexOutOfBoundsException("empty");
+    }
+
+    @Override
+    public int putFloat(final int index, final float value) {
+        throw new IndexOutOfBoundsException("empty");
+    }
+
+    @Override
+    public int putShort(final int index, final short value) {
+        throw new IndexOutOfBoundsException("empty");
+    }
+
+    @Override
+    public int putChar(final int index, final char value) {
+        throw new IndexOutOfBoundsException("empty");
+    }
+
+    @Override
+    public int putByte(final int index, final byte value) {
+        throw new IndexOutOfBoundsException("empty");
+    }
+
+    @Override
+    public int putBytes(final int index, final byte[] src) {
+        throw new IndexOutOfBoundsException("empty");
+    }
+
+    @Override
+    public int putBytes(final int index, final byte[] src, final int offset, final int length) {
+        throw new IndexOutOfBoundsException("empty");
+    }
+
+    @Override
+    public int putBytes(final int index, final ByteBuffer srcBuffer, final int srcIndex, final int length) {
+        throw new IndexOutOfBoundsException("empty");
+    }
+
+    @Override
+    public int putBytes(final int index, final DirectBuffer srcBuffer, final int srcIndex, final int length) {
+        throw new IndexOutOfBoundsException("empty");
+    }
+
+    @Override
+    public int putBytes(final int index, final IByteBuffer srcBuffer, final int srcIndex, final int length) {
+        throw new IndexOutOfBoundsException("empty");
+    }
+
+    @Override
+    public long addressOffset() {
+        return 0;
+    }
+
+    @Override
+    public byte[] byteArray() {
+        return Bytes.EMPTY_ARRAY;
+    }
+
+    @Override
+    public ByteBuffer byteBuffer() {
+        return ByteBuffers.EMPTY_BYTE_BUFFER;
+    }
+
+    @Override
+    public int capacity() {
+        return 0;
+    }
+
+    @Override
+    public long getLong(final int index) {
+        throw new IndexOutOfBoundsException("empty");
+    }
+
+    @Override
+    public int getInt(final int index) {
+        throw new IndexOutOfBoundsException("empty");
+    }
+
+    @Override
+    public double getDouble(final int index) {
+        throw new IndexOutOfBoundsException("empty");
+    }
+
+    @Override
+    public float getFloat(final int index) {
+        throw new IndexOutOfBoundsException("empty");
+    }
+
+    @Override
+    public short getShort(final int index) {
+        throw new IndexOutOfBoundsException("empty");
+    }
+
+    @Override
+    public char getChar(final int index) {
+        throw new IndexOutOfBoundsException("empty");
+    }
+
+    @Override
+    public byte getByte(final int index) {
+        throw new IndexOutOfBoundsException("empty");
+    }
+
+    @Override
+    public void getBytes(final int index, final byte[] dst, final int offset, final int length) {
+        throw new IndexOutOfBoundsException("empty");
+    }
+
+    @Override
+    public void getBytes(final int index, final MutableDirectBuffer dstBuffer, final int dstIndex, final int length) {
+        throw new IndexOutOfBoundsException("empty");
+    }
+
+    @Override
+    public void getBytes(final int index, final ByteBuffer dstBuffer, final int dstOffset, final int length) {
+        throw new IndexOutOfBoundsException("empty");
+    }
+
+    @Override
+    public void getBytes(final int index, final IByteBuffer dstBuffer, final int dstIndex, final int length) {
+        throw new IndexOutOfBoundsException("empty");
+    }
+
+    @Override
+    public int wrapAdjustment() {
+        throw new IndexOutOfBoundsException("empty");
+    }
+
+    @Override
+    public MutableDirectBuffer directBuffer() {
+        return ByteBuffers.EMPTY_DIRECT_BUFFER;
+    }
+
+    @Override
+    public InputStream asInputStream(final int offset, final int length) {
+        return EmptyInputStream.INSTANCE;
+    }
+
+    @Override
+    public OutputStream asOutputStream(final int offset, final int length) {
+        return EmptyOutputStream.INSTANCE;
+    }
+
+    @Override
+    public byte[] asByteArray(final int offset, final int length) {
+        return byteArray();
+    }
+
+    @Override
+    public IByteBuffer slice(final int offset, final int length) {
+        return this;
+    }
+
+}
