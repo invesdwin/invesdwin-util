@@ -14,12 +14,10 @@ import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
 import de.invesdwin.norva.beanpath.BeanPathStrings;
-import de.invesdwin.util.lang.buffer.IByteBuffer;
 import de.invesdwin.util.lang.internal.AStringsStaticFacade;
 import de.invesdwin.util.lang.internal.CheckedCastStrings;
 import de.invesdwin.util.lang.internal.DefaultToStringStyle;
 import de.invesdwin.util.lang.internal.MultilineToStringStyle;
-import de.invesdwin.util.math.Bytes;
 
 @Immutable
 @StaticFacadeDefinition(name = "de.invesdwin.util.lang.internal.AStringsStaticFacade", targets = {
@@ -647,35 +645,6 @@ public final class Strings extends AStringsStaticFacade {
         } else {
             return str;
         }
-    }
-
-    public static byte[] putStringBytes(final String string) {
-        if (string == null) {
-            return Bytes.EMPTY_ARRAY;
-        } else {
-            return string.getBytes();
-        }
-    }
-
-    public static int putString(final IByteBuffer buffer, final int index, final byte[] stringBytes) {
-        if (stringBytes == null || stringBytes.length == 0) {
-            return 0;
-        }
-        return buffer.putBytes(index, stringBytes);
-    }
-
-    public static String extractString(final IByteBuffer buffer, final int index, final int size) {
-        if (size == 0) {
-            return null;
-        }
-        final byte[] bytes = new byte[size];
-        buffer.getBytes(index, bytes);
-        final String string = new String(bytes);
-        return string;
-    }
-
-    public static int calculateBytesCount(final String string) {
-        return string.getBytes().length;
     }
 
     public static List<String> splitByMaxLength(final String str, final int maxLength) {

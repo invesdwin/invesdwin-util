@@ -7,6 +7,9 @@ import java.nio.ByteBuffer;
 import org.agrona.DirectBuffer;
 import org.agrona.MutableDirectBuffer;
 
+import de.invesdwin.util.math.Booleans;
+import de.invesdwin.util.math.Bytes;
+
 public interface IByteBuffer {
 
     /**
@@ -44,6 +47,10 @@ public interface IByteBuffer {
      * @return the capacity of the underlying buffer in bytes.
      */
     int capacity();
+
+    default int remaining(final int offset) {
+        return capacity() - offset;
+    }
 
     /**
      * Get the value at a given index.
@@ -98,6 +105,10 @@ public interface IByteBuffer {
      * @return the value at a given index.
      */
     char getChar(int index);
+
+    default boolean getBoolean(final int index) {
+        return Booleans.checkedCast(getByte(index));
+    }
 
     /**
      * Get the value at a given index.
@@ -354,6 +365,10 @@ public interface IByteBuffer {
      */
     int putChar(int index, char value);
 
+    default int putBoolean(final int index, final boolean value) {
+        return putByte(index, Bytes.checkedCast(value));
+    }
+
     /**
      * Put a value to a given index.
      *
@@ -539,14 +554,14 @@ public interface IByteBuffer {
      */
     byte[] asByteArray(int offset, int length);
 
-    default IByteBuffer slice() {
-        return slice(0, capacity());
-    }
-
     default IByteBuffer slice(final int length) {
         return slice(0, length);
     }
 
     IByteBuffer slice(int offset, int length);
+
+    default IByteBuffer sliceFrom(final int offset) {
+        return slice(offset, remaining(offset));
+    }
 
 }

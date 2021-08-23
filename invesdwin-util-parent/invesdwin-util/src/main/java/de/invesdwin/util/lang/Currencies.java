@@ -1,6 +1,5 @@
 package de.invesdwin.util.lang;
 
-import java.nio.ByteBuffer;
 import java.text.NumberFormat;
 import java.util.Currency;
 import java.util.Locale;
@@ -12,12 +11,15 @@ import javax.annotation.concurrent.Immutable;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.collections.loadingcache.ALoadingCache;
-import de.invesdwin.util.lang.buffer.ByteBuffers;
+import de.invesdwin.util.lang.buffer.IByteBuffer;
 import de.invesdwin.util.math.decimal.Decimal;
 import io.netty.util.concurrent.FastThreadLocal;
 
 @Immutable
 public final class Currencies {
+
+    public static final String MISSING_CURRENCY_CODE = "___";
+    public static final byte[] MISSING_CURRENCY_CODE_BYTES = MISSING_CURRENCY_CODE.getBytes(Charsets.UTF_8);
 
     public static final int BYTES = 3;
 
@@ -179,40 +181,40 @@ public final class Currencies {
         }
     }
 
-    public static void putCurrency(final ByteBuffer buffer, final Currency currency) {
+    public static void putCurrency(final IByteBuffer buffer, final int index, final Currency currency) {
         if (currency == null) {
-            buffer.put("___".getBytes());
+            buffer.putBytes(index, MISSING_CURRENCY_CODE_BYTES);
         } else {
-            buffer.put(currency.getCurrencyCode().getBytes());
+            buffer.putBytes(index, currency.getCurrencyCode().getBytes(Charsets.UTF_8));
         }
     }
 
-    public static void putCurrencyCode(final ByteBuffer buffer, final String currencyCode) {
+    public static void putCurrencyCode(final IByteBuffer buffer, final int index, final String currencyCode) {
         if (currencyCode == null) {
-            buffer.put("___".getBytes());
+            buffer.putBytes(index, MISSING_CURRENCY_CODE_BYTES);
         } else {
-            final byte[] bytes = currencyCode.getBytes();
+            final byte[] bytes = currencyCode.getBytes(Charsets.UTF_8);
             Assertions.checkEquals(BYTES, bytes.length);
-            buffer.put(bytes);
+            buffer.putBytes(index, bytes);
         }
     }
 
-    public static Currency extractCurrency(final ByteBuffer buffer, final int index) {
+    public static Currency extractCurrency(final IByteBuffer buffer, final int index) {
         final byte[] bytes = new byte[BYTES];
-        ByteBuffers.get(buffer, index, bytes);
-        final String currencyCode = new String(bytes);
-        if ("___".equals(currencyCode)) {
+        buffer.getBytes(index, bytes);
+        final String currencyCode = new String(bytes, Charsets.UTF_8);
+        if (MISSING_CURRENCY_CODE.equals(currencyCode)) {
             return null;
         } else {
             return getInstance(currencyCode);
         }
     }
 
-    public static String extractCurrencyCode(final ByteBuffer buffer, final int index) {
+    public static String extractCurrencyCode(final IByteBuffer buffer, final int index) {
         final byte[] bytes = new byte[BYTES];
-        ByteBuffers.get(buffer, index, bytes);
-        final String currencyCode = new String(bytes);
-        if ("___".equals(currencyCode)) {
+        buffer.getBytes(index, bytes);
+        final String currencyCode = new String(bytes, Charsets.UTF_8);
+        if (MISSING_CURRENCY_CODE.equals(currencyCode)) {
             return null;
         } else {
             return currencyCode;

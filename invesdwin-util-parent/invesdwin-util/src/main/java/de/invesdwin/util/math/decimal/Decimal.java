@@ -14,7 +14,6 @@ import javax.annotation.concurrent.Immutable;
 import de.invesdwin.util.bean.tuple.Pair;
 import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 import de.invesdwin.util.lang.Strings;
-import de.invesdwin.util.lang.buffer.IByteBuffer;
 import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.decimal.internal.DecimalAggregate;
 import de.invesdwin.util.math.decimal.internal.DummyDecimalAggregate;
@@ -280,27 +279,6 @@ public class Decimal extends ADecimal<Decimal> {
             return Strings.removeStart(str, "-");
         } else {
             return str;
-        }
-    }
-
-    public static int putDecimal(final IByteBuffer buffer, final int index, final Decimal value) {
-        if (value == null) {
-            return buffer.putDouble(index, Double.NaN);
-        } else {
-            return buffer.putDouble(index, value.doubleValue());
-        }
-    }
-
-    public static Decimal extractDecimal(final IByteBuffer buffer, final int index) {
-        final double value = buffer.getDouble(index);
-        return extractDecimal(value);
-    }
-
-    public static Decimal extractDecimal(final double value) {
-        if (Doubles.isNaN(value)) {
-            return null;
-        } else {
-            return new Decimal(value);
         }
     }
 

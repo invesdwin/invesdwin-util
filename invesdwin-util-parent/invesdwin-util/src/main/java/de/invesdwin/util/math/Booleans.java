@@ -9,7 +9,6 @@ import javax.annotation.concurrent.Immutable;
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
 import de.invesdwin.util.lang.ADelegateComparator;
 import de.invesdwin.util.lang.Objects;
-import de.invesdwin.util.lang.buffer.IByteBuffer;
 import de.invesdwin.util.math.decimal.Decimal;
 import de.invesdwin.util.math.internal.ABooleansStaticFacade;
 import de.invesdwin.util.math.internal.CheckedCastBooleans;
@@ -162,27 +161,6 @@ public final class Booleans extends ABooleansStaticFacade {
             final List<? extends List<? extends Boolean>> matrix, final Boolean missingValue,
             final boolean appendMissingValues) {
         return Objects.fixInconsistentMatrixDimensionsAsList(matrix, missingValue, appendMissingValues);
-    }
-
-    public static int putBoolean(final IByteBuffer buffer, final int index, final Boolean value) {
-        if (value == null) {
-            return buffer.putByte(index, Byte.MIN_VALUE);
-        } else {
-            return buffer.putByte(index, Bytes.checkedCast(value));
-        }
-    }
-
-    public static Boolean extractBoolean(final IByteBuffer buffer, final int index) {
-        final byte value = buffer.getByte(index);
-        return extractBoolean(value);
-    }
-
-    public static Boolean extractBoolean(final byte value) {
-        if (value == Byte.MIN_VALUE) {
-            return null;
-        } else {
-            return Booleans.checkedCast(value);
-        }
     }
 
     public static boolean nullToFalse(final Boolean value) {

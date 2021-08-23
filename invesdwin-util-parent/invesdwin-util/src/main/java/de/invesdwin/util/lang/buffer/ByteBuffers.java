@@ -11,20 +11,14 @@ import org.agrona.concurrent.AtomicBuffer;
 import org.agrona.concurrent.UnsafeBuffer;
 
 import de.invesdwin.util.math.Bytes;
-import io.netty.util.concurrent.FastThreadLocal;
 
 @Immutable
 public final class ByteBuffers {
 
+    public static final int EXAPANDABLE_LENGTH = -1;
+
     public static final ByteBuffer EMPTY_BYTE_BUFFER = ByteBuffer.allocate(0);
     public static final AtomicBuffer EMPTY_DIRECT_BUFFER = new UnsafeBuffer(Bytes.EMPTY_ARRAY);
-
-    private static final FastThreadLocal<IByteBuffer> EXPANDABLE_BUFFER_REF = new FastThreadLocal<IByteBuffer>() {
-        @Override
-        protected IByteBuffer initialValue() throws Exception {
-            return ByteBuffers.allocateExpandable();
-        }
-    };
 
     private ByteBuffers() {
     }
@@ -74,10 +68,6 @@ public final class ByteBuffers {
 
     public static IByteBuffer allocateExpandable() {
         return wrap(new ExpandableArrayBuffer());
-    }
-
-    public static IByteBuffer threadLocalExpandable() {
-        return EXPANDABLE_BUFFER_REF.get();
     }
 
     public static IByteBuffer allocateNonZero(final int fixedLength) {

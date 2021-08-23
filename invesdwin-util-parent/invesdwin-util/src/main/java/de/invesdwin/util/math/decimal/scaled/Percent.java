@@ -1,9 +1,8 @@
 package de.invesdwin.util.math.decimal.scaled;
 
-import java.nio.ByteBuffer;
-
 import javax.annotation.concurrent.Immutable;
 
+import de.invesdwin.util.lang.buffer.IByteBuffer;
 import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.decimal.ADecimal;
 import de.invesdwin.util.math.decimal.AScaledDecimal;
@@ -238,21 +237,16 @@ public class Percent extends AScaledDecimal<Percent, PercentScale> {
         return new Percent(newValue - oldValue, Doubles.abs(oldValue));
     }
 
-    public static void putPercent(final ByteBuffer buffer, final Percent value) {
+    public static void putPercent(final IByteBuffer buffer, final int index, final Percent value) {
         if (value == null) {
-            buffer.putDouble(Double.NaN);
+            buffer.putDouble(index, Double.NaN);
         } else {
-            buffer.putDouble(value.getRate());
+            buffer.putDouble(index, value.getRate());
         }
     }
 
-    public static Percent extractPercent(final ByteBuffer buffer, final int index) {
+    public static Percent extractPercent(final IByteBuffer buffer, final int index) {
         final double value = buffer.getDouble(index);
-        return extractPercent(value);
-    }
-
-    public static Percent extractPercent(final ByteBuffer buffer) {
-        final double value = buffer.getDouble();
         return extractPercent(value);
     }
 

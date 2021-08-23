@@ -10,7 +10,6 @@ import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.error.FastNoSuchElementException;
 import de.invesdwin.util.error.UnknownArgumentException;
-import de.invesdwin.util.lang.buffer.IByteBuffer;
 import de.invesdwin.util.time.date.millis.FDatesMillis;
 import de.invesdwin.util.time.date.timezone.FTimeZone;
 import de.invesdwin.util.time.duration.Duration;
@@ -512,27 +511,6 @@ public final class FDates {
         }
         final double avg = sum / values.size();
         return new FDate((long) avg);
-    }
-
-    public static void putFDate(final IByteBuffer buffer, final int index, final FDate time) {
-        if (time == null) {
-            buffer.putLong(index, Long.MIN_VALUE);
-        } else {
-            buffer.putLong(index, time.millisValue());
-        }
-    }
-
-    public static FDate extractFDate(final IByteBuffer buffer, final int index) {
-        final long time = buffer.getLong(index);
-        return extractFDate(time);
-    }
-
-    public static FDate extractFDate(final long time) {
-        if (time == Long.MIN_VALUE) {
-            return null;
-        } else {
-            return new FDate(time);
-        }
     }
 
     public static int bisect(final FDate[] keys, final FDate skippingKeysAbove) {

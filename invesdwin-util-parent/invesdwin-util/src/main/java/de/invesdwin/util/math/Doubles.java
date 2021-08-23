@@ -12,7 +12,6 @@ import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
 import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.lang.ADelegateComparator;
 import de.invesdwin.util.lang.Objects;
-import de.invesdwin.util.lang.buffer.IByteBuffer;
 import de.invesdwin.util.math.decimal.ADecimal;
 import de.invesdwin.util.math.decimal.Decimal;
 import de.invesdwin.util.math.internal.ADoublesStaticFacade;
@@ -262,27 +261,6 @@ public final class Doubles extends ADoublesStaticFacade {
             final List<? extends List<? extends Double>> matrix, final Double missingValue,
             final boolean appendMissingValues) {
         return Objects.fixInconsistentMatrixDimensionsAsList(matrix, missingValue, appendMissingValues);
-    }
-
-    public static int putDouble(final IByteBuffer buffer, final int index, final Double value) {
-        if (value == null) {
-            return buffer.putDouble(index, Double.NaN);
-        } else {
-            return buffer.putDouble(index, value);
-        }
-    }
-
-    public static Double extractDouble(final IByteBuffer buffer, final int index) {
-        final double value = buffer.getDouble(index);
-        return extractDouble(value);
-    }
-
-    public static Double extractDouble(final double value) {
-        if (Doubles.isNaN(value)) {
-            return null;
-        } else {
-            return value;
-        }
     }
 
     public static double divide(final Double dividend, final Double divisor) {
