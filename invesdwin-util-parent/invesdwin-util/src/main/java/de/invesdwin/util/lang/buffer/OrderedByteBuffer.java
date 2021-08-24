@@ -1,0 +1,255 @@
+package de.invesdwin.util.lang.buffer;
+
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+
+import javax.annotation.concurrent.NotThreadSafe;
+
+import org.agrona.DirectBuffer;
+import org.agrona.MutableDirectBuffer;
+
+/**
+ * This wrapper can be used for remote communication where a fixed endianness should be used.
+ */
+@NotThreadSafe
+public final class OrderedByteBuffer implements IByteBuffer {
+
+    private final ByteOrder order;
+    private final IByteBuffer delegate;
+
+    private OrderedByteBuffer(final ByteOrder order, final IByteBuffer delegate) {
+        this.order = order;
+        this.delegate = delegate;
+    }
+
+    @Override
+    public ByteOrder getOrder() {
+        return order;
+    }
+
+    @Override
+    public int putChar(final int index, final char value) {
+        final char bits = (char) Short.reverseBytes((short) value);
+        return delegate.putChar(index, bits);
+    }
+
+    @Override
+    public int putDouble(final int index, final double value) {
+        final long bits = Long.reverseBytes(Double.doubleToRawLongBits(value));
+        return delegate.putLong(index, bits);
+    }
+
+    @Override
+    public int putFloat(final int index, final float value) {
+        final int bits = Integer.reverseBytes(Float.floatToRawIntBits(value));
+        return delegate.putInt(index, bits);
+    }
+
+    @Override
+    public int putInt(final int index, final int value) {
+        final int bits = Integer.reverseBytes(value);
+        return delegate.putInt(index, bits);
+    }
+
+    @Override
+    public int putLong(final int index, final long value) {
+        final long bits = Long.reverseBytes(value);
+        return delegate.putLong(index, bits);
+    }
+
+    @Override
+    public int putShort(final int index, final short value) {
+        final short bits = Short.reverseBytes(value);
+        return delegate.putShort(index, bits);
+    }
+
+    @Override
+    public char getChar(final int index) {
+        final char bits = delegate.getChar(index);
+        return (char) Short.reverseBytes((short) bits);
+    }
+
+    @Override
+    public double getDouble(final int index) {
+        final long bits = delegate.getLong(index);
+        return Double.longBitsToDouble(Long.reverseBytes(bits));
+    }
+
+    @Override
+    public float getFloat(final int index) {
+        final int bits = delegate.getInt(index);
+        return Float.intBitsToFloat(Integer.reverseBytes(bits));
+    }
+
+    @Override
+    public int getInt(final int index) {
+        final int bits = delegate.getInt(index);
+        return Integer.reverseBytes(bits);
+    }
+
+    @Override
+    public long getLong(final int index) {
+        final long bits = delegate.getLong(index);
+        return Long.reverseBytes(bits);
+    }
+
+    @Override
+    public short getShort(final int index) {
+        final short bits = delegate.getShort(index);
+        return Short.reverseBytes(bits);
+    }
+
+    /////////////////// delegates ////////////////////////////
+
+    @Override
+    public int putByte(final int index, final byte value) {
+        return delegate.putByte(index, value);
+    }
+
+    @Override
+    public byte getByte(final int index) {
+        return delegate.getByte(index);
+    }
+
+    @Override
+    public long addressOffset() {
+        return delegate.addressOffset();
+    }
+
+    @Override
+    public MutableDirectBuffer directBuffer() {
+        return delegate.directBuffer();
+    }
+
+    @Override
+    public MutableDirectBuffer asDirectBuffer(final int index, final int length) {
+        return delegate.asDirectBuffer(index, length);
+    }
+
+    @Override
+    public byte[] byteArray() {
+        return delegate.byteArray();
+    }
+
+    @Override
+    public ByteBuffer byteBuffer() {
+        return delegate.byteBuffer();
+    }
+
+    @Override
+    public int capacity() {
+        return delegate.capacity();
+    }
+
+    @Override
+    public void getBytes(final int index, final byte[] dst, final int srcIndex, final int length) {
+        delegate.getBytes(index, dst, srcIndex, length);
+    }
+
+    @Override
+    public void getBytes(final int index, final MutableDirectBuffer dstBuffer, final int dstIndex, final int length) {
+        delegate.getBytes(index, dstBuffer, dstIndex, length);
+    }
+
+    @Override
+    public void getBytes(final int index, final IByteBuffer dstBuffer, final int dstIndex, final int length) {
+        delegate.getBytes(dstIndex, dstBuffer, dstIndex, length);
+    }
+
+    @Override
+    public void getBytes(final int index, final ByteBuffer dstBuffer, final int dstIndex, final int length) {
+        delegate.getBytes(index, dstBuffer, dstIndex, length);
+    }
+
+    @Override
+    public int wrapAdjustment() {
+        return delegate.wrapAdjustment();
+    }
+
+    @Override
+    public boolean isExpandable() {
+        return delegate.isExpandable();
+    }
+
+    @Override
+    public int putBytes(final int index, final byte[] src, final int srcIndex, final int length) {
+        return delegate.putBytes(index, src, srcIndex, length);
+    }
+
+    @Override
+    public int putBytes(final int index, final ByteBuffer srcBuffer, final int srcIndex, final int length) {
+        return delegate.putBytes(srcIndex, srcBuffer, srcIndex, length);
+    }
+
+    @Override
+    public int putBytes(final int index, final DirectBuffer srcBuffer, final int srcIndex, final int length) {
+        return delegate.putBytes(srcIndex, srcBuffer, srcIndex, length);
+    }
+
+    @Override
+    public int putBytes(final int index, final IByteBuffer srcBuffer, final int srcIndex, final int length) {
+        return delegate.putBytes(index, srcBuffer, srcIndex, length);
+    }
+
+    @Override
+    public InputStream asInputStream(final int index, final int length) {
+        return delegate.asInputStream();
+    }
+
+    @Override
+    public OutputStream asOutputStream(final int index, final int length) {
+        return delegate.asOutputStream();
+    }
+
+    @Override
+    public byte[] asByteArray(final int index, final int length) {
+        return delegate.asByteArray();
+    }
+
+    @Override
+    public IByteBuffer slice(final int index, final int length) {
+        return delegate.slice(index, length);
+    }
+
+    public static IByteBuffer maybeWrap(final ByteOrder order, final IByteBuffer buffer) {
+        if (order != buffer.getOrder()) {
+            return new OrderedByteBuffer(order, buffer);
+        } else {
+            //no conversion needed, already uses native
+            return buffer;
+        }
+    }
+
+    @Override
+    public String getStringAscii(final int index, final int size) {
+        return delegate.getStringAscii(index, size);
+    }
+
+    @Override
+    public void getStringAscii(final int index, final int length, final Appendable dst) {
+        delegate.getStringAscii(index, length, dst);
+    }
+
+    @Override
+    public int putStringAscii(final int index, final CharSequence value, final int valueIndex, final int length) {
+        return delegate.putStringAscii(index, value, valueIndex, length);
+    }
+
+    @Override
+    public String getStringUtf8(final int index, final int length) {
+        return delegate.getStringUtf8(index, length);
+    }
+
+    @Override
+    public int putStringUtf8(final int index, final String value) {
+        return delegate.putStringUtf8(index, value);
+    }
+
+    @Override
+    public void getStringUtf8(final int index, final int length, final Appendable dst) {
+        delegate.getStringUtf8(index, length, dst);
+    }
+
+}

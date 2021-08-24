@@ -25,7 +25,7 @@ public final class SerdeBaseMethods {
         }
         final IByteBuffer buffer = ByteBuffers.allocate(fixedLength);
         final int length = serde.toBuffer(obj, buffer);
-        return buffer.asByteArray(length);
+        return buffer.asByteArrayTo(length);
     }
 
     public static <O> O fromBuffer(final ISerde<O> serde, final IByteBuffer buffer) {

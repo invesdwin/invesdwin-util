@@ -1,12 +1,15 @@
 package de.invesdwin.util.lang.buffer;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
 import org.agrona.DirectBuffer;
+import org.agrona.ExpandableArrayBuffer;
 import org.agrona.MutableDirectBuffer;
 import org.agrona.concurrent.UnsafeBuffer;
 import org.agrona.io.DirectBufferInputStream;
@@ -21,6 +24,11 @@ public class AgronaByteBuffer implements IByteBuffer {
 
     public AgronaByteBuffer(final MutableDirectBuffer delegate) {
         this.delegate = delegate;
+    }
+
+    @Override
+    public ByteOrder getOrder() {
+        return ByteBuffers.NATIVE_ORDER;
     }
 
     @Override
@@ -79,8 +87,8 @@ public class AgronaByteBuffer implements IByteBuffer {
     }
 
     @Override
-    public void getBytes(final int index, final byte[] dst, final int offset, final int length) {
-        delegate.getBytes(index, dst, offset, length);
+    public void getBytes(final int index, final byte[] dst, final int dstIndex, final int length) {
+        delegate.getBytes(index, dst, dstIndex, length);
     }
 
     @Override
@@ -89,8 +97,8 @@ public class AgronaByteBuffer implements IByteBuffer {
     }
 
     @Override
-    public void getBytes(final int index, final ByteBuffer dstBuffer, final int dstOffset, final int length) {
-        delegate.getBytes(index, dstBuffer, dstOffset, length);
+    public void getBytes(final int index, final ByteBuffer dstBuffer, final int dstIndex, final int length) {
+        delegate.getBytes(index, dstBuffer, dstIndex, length);
     }
 
     @Override
@@ -159,14 +167,8 @@ public class AgronaByteBuffer implements IByteBuffer {
     }
 
     @Override
-    public int putBytes(final int index, final byte[] src) {
-        delegate.putBytes(index, src);
-        return src.length;
-    }
-
-    @Override
-    public int putBytes(final int index, final byte[] src, final int offset, final int length) {
-        delegate.putBytes(index, src, offset, length);
+    public int putBytes(final int index, final byte[] src, final int srcIndex, final int length) {
+        delegate.putBytes(index, src, srcIndex, length);
         return length;
     }
 
@@ -202,18 +204,32 @@ public class AgronaByteBuffer implements IByteBuffer {
     }
 
     @Override
-    public InputStream asInputStream(final int offset, final int length) {
-        return new DirectBufferInputStream(delegate, offset, length);
+    public MutableDirectBuffer asDirectBuffer(final int index, final int length) {
+        if (index == 0 && length == capacity()) {
+            return delegate;
+        } else {
+            return new UnsafeBuffer(delegate, index, length);
+        }
     }
 
     @Override
-    public OutputStream asOutputStream(final int offset, final int length) {
-        return new DirectBufferOutputStream(delegate, offset, length);
+    public InputStream asInputStream(final int index, final int length) {
+        return new DirectBufferInputStream(delegate, index, length);
     }
 
     @Override
-    public byte[] asByteArray(final int offset, final int length) {
-        if (wrapAdjustment() == 0 && offset == 0 && length == capacity()) {
+    public OutputStream asOutputStream(final int index, final int length) {
+        if (isExpandable() && index + length >= capacity()) {
+            //allow output stream to actually grow the buffer
+            return new DirectBufferOutputStream(delegate, index, ExpandableArrayBuffer.MAX_ARRAY_LENGTH - index);
+        } else {
+            return new DirectBufferOutputStream(delegate, index, length);
+        }
+    }
+
+    @Override
+    public byte[] asByteArray(final int index, final int length) {
+        if (wrapAdjustment() == 0 && index == 0 && length == capacity()) {
             final byte[] bytes = byteArray();
             if (bytes != null) {
                 return bytes;
@@ -227,16 +243,51 @@ public class AgronaByteBuffer implements IByteBuffer {
             }
         }
         final byte[] bytes = new byte[length];
-        delegate.getBytes(offset, bytes, 0, length);
+        delegate.getBytes(index, bytes, 0, length);
         return bytes;
     }
 
     @Override
-    public IByteBuffer slice(final int offset, final int length) {
-        if (offset == 0 && length == capacity()) {
+    public IByteBuffer slice(final int index, final int length) {
+        if (index == 0 && length == capacity()) {
             return this;
         } else {
-            return new AgronaByteBuffer(new UnsafeBuffer(delegate, offset, length));
+            return new AgronaByteBuffer(new UnsafeBuffer(delegate, index, length));
+        }
+    }
+
+    @Override
+    public String getStringAscii(final int index, final int length) {
+        return delegate.getStringWithoutLengthAscii(index, length);
+    }
+
+    @Override
+    public int putStringAscii(final int index, final CharSequence value, final int valueIndex, final int length) {
+        return delegate.putStringWithoutLengthAscii(index, value, valueIndex, length);
+    }
+
+    @Override
+    public String getStringUtf8(final int index, final int length) {
+        return delegate.getStringWithoutLengthUtf8(index, length);
+    }
+
+    @Override
+    public void getStringAscii(final int index, final int length, final Appendable dst) {
+        delegate.getStringWithoutLengthAscii(index, length, dst);
+    }
+
+    @Override
+    public int putStringUtf8(final int index, final String value) {
+        return delegate.putStringWithoutLengthUtf8(index, value);
+    }
+
+    @Override
+    public void getStringUtf8(final int index, final int length, final Appendable dst) {
+        final String string = delegate.getStringWithoutLengthUtf8(index, length);
+        try {
+            dst.append(string);
+        } catch (final IOException e) {
+            throw new RuntimeException(e);
         }
     }
 

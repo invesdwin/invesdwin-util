@@ -8,18 +8,13 @@ import java.util.Map.Entry;
 
 import javax.annotation.concurrent.Immutable;
 
-import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.collections.loadingcache.ALoadingCache;
-import de.invesdwin.util.lang.buffer.IByteBuffer;
 import de.invesdwin.util.math.decimal.Decimal;
 import io.netty.util.concurrent.FastThreadLocal;
 
 @Immutable
 public final class Currencies {
-
-    public static final String MISSING_CURRENCY_CODE = "___";
-    public static final byte[] MISSING_CURRENCY_CODE_BYTES = MISSING_CURRENCY_CODE.getBytes(Charsets.UTF_8);
 
     public static final int BYTES = 3;
 
@@ -178,46 +173,6 @@ public final class Currencies {
             return Currency.getInstance(currencyCode);
         } catch (final Throwable t) {
             return null;
-        }
-    }
-
-    public static void putCurrency(final IByteBuffer buffer, final int index, final Currency currency) {
-        if (currency == null) {
-            buffer.putBytes(index, MISSING_CURRENCY_CODE_BYTES);
-        } else {
-            buffer.putBytes(index, currency.getCurrencyCode().getBytes(Charsets.UTF_8));
-        }
-    }
-
-    public static void putCurrencyCode(final IByteBuffer buffer, final int index, final String currencyCode) {
-        if (currencyCode == null) {
-            buffer.putBytes(index, MISSING_CURRENCY_CODE_BYTES);
-        } else {
-            final byte[] bytes = currencyCode.getBytes(Charsets.UTF_8);
-            Assertions.checkEquals(BYTES, bytes.length);
-            buffer.putBytes(index, bytes);
-        }
-    }
-
-    public static Currency extractCurrency(final IByteBuffer buffer, final int index) {
-        final byte[] bytes = new byte[BYTES];
-        buffer.getBytes(index, bytes);
-        final String currencyCode = new String(bytes, Charsets.UTF_8);
-        if (MISSING_CURRENCY_CODE.equals(currencyCode)) {
-            return null;
-        } else {
-            return getInstance(currencyCode);
-        }
-    }
-
-    public static String extractCurrencyCode(final IByteBuffer buffer, final int index) {
-        final byte[] bytes = new byte[BYTES];
-        buffer.getBytes(index, bytes);
-        final String currencyCode = new String(bytes, Charsets.UTF_8);
-        if (MISSING_CURRENCY_CODE.equals(currencyCode)) {
-            return null;
-        } else {
-            return currencyCode;
         }
     }
 

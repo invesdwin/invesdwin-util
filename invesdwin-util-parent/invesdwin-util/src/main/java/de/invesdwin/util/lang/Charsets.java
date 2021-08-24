@@ -1,13 +1,18 @@
 package de.invesdwin.util.lang;
 
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 import javax.annotation.concurrent.Immutable;
 
 @Immutable
 public final class Charsets {
 
-    public static final Charset UTF_8 = Charset.forName("UTF-8");
+    /**
+     * With UTF-8 we don't have to care about endianness:
+     * https://stackoverflow.com/questions/35704606/method-string-getbytes-is-big-endian-or-litter-endian
+     */
+    public static final Charset UTF_8 = StandardCharsets.UTF_8;
 
     private Charsets() {
     }

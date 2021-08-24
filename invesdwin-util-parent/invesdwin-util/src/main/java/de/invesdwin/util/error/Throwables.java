@@ -2,6 +2,7 @@ package de.invesdwin.util.error;
 
 import javax.annotation.concurrent.Immutable;
 
+import org.agrona.LangUtil;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
@@ -18,7 +19,8 @@ public final class Throwables extends AThrowablesStaticFacade {
 
     private static boolean debugStackTraceEnabled = false;
 
-    private Throwables() {}
+    private Throwables() {
+    }
 
     public static void setDebugStackTraceEnabled(final boolean debugStackTraceEnabled) {
         Throwables.debugStackTraceEnabled = debugStackTraceEnabled;
@@ -168,15 +170,12 @@ public final class Throwables extends AThrowablesStaticFacade {
         return Threads.isInterrupted() || Throwables.isCausedByType(t, InterruptedException.class);
     }
 
+    /**
+     * Not actually throwing a RuntimeException, instead propagating the actual throwable
+     */
     public static RuntimeException propagate(final Throwable t) {
-        if (t instanceof Error) {
-            //rethrow error directly
-            throw (Error) t;
-        } else if (t instanceof RuntimeException) {
-            return (RuntimeException) t;
-        } else {
-            return new RuntimeException(t);
-        }
+        LangUtil.rethrowUnchecked(t);
+        throw (RuntimeException) t;
     }
 
 }
