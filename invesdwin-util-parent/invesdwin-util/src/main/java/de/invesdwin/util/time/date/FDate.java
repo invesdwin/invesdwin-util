@@ -942,11 +942,11 @@ public class FDate
         return this;
     }
 
-    public static int putFDate(final IByteBuffer buffer, final int index, final FDate value) {
+    public static void putFDate(final IByteBuffer buffer, final int index, final FDate value) {
         if (value == null) {
-            return buffer.putLong(index, Long.MIN_VALUE);
+            buffer.putLong(index, Long.MIN_VALUE);
         } else {
-            return buffer.putLong(index, value.millisValue());
+            buffer.putLong(index, value.millisValue());
         }
     }
 

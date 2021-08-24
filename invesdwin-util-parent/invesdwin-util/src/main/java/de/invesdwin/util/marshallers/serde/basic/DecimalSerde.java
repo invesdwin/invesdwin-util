@@ -38,11 +38,11 @@ public final class DecimalSerde implements ISerde<Decimal> {
         return FIXED_LENGTH;
     }
 
-    public static int putDecimal(final IByteBuffer buffer, final int index, final Decimal value) {
+    public static void putDecimal(final IByteBuffer buffer, final int index, final Decimal value) {
         if (value == null) {
-            return buffer.putDouble(index, Double.NaN);
+            buffer.putDouble(index, Double.NaN);
         } else {
-            return buffer.putDouble(index, value.doubleValue());
+            buffer.putDouble(index, value.doubleValue());
         }
     }
 

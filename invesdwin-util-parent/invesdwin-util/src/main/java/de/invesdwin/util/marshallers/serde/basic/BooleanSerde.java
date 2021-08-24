@@ -35,11 +35,11 @@ public class BooleanSerde implements ISerde<Boolean> {
         return FIXED_LENGTH;
     }
 
-    public static int putBoolean(final IByteBuffer buffer, final int index, final Boolean value) {
+    public static void putBoolean(final IByteBuffer buffer, final int index, final Boolean value) {
         if (value == null) {
-            return buffer.putByte(index, Byte.MIN_VALUE);
+            buffer.putByte(index, Byte.MIN_VALUE);
         } else {
-            return buffer.putByte(index, Bytes.checkedCast(value));
+            buffer.putByte(index, Bytes.checkedCast(value));
         }
     }
 

@@ -33,62 +33,62 @@ public final class EmptyByteBuffer implements IByteBuffer {
     }
 
     @Override
-    public int putLong(final int index, final long value) {
+    public void putLong(final int index, final long value) {
         throw new IndexOutOfBoundsException("empty");
     }
 
     @Override
-    public int putInt(final int index, final int value) {
+    public void putInt(final int index, final int value) {
         throw new IndexOutOfBoundsException("empty");
     }
 
     @Override
-    public int putDouble(final int index, final double value) {
+    public void putDouble(final int index, final double value) {
         throw new IndexOutOfBoundsException("empty");
     }
 
     @Override
-    public int putFloat(final int index, final float value) {
+    public void putFloat(final int index, final float value) {
         throw new IndexOutOfBoundsException("empty");
     }
 
     @Override
-    public int putShort(final int index, final short value) {
+    public void putShort(final int index, final short value) {
         throw new IndexOutOfBoundsException("empty");
     }
 
     @Override
-    public int putChar(final int index, final char value) {
+    public void putChar(final int index, final char value) {
         throw new IndexOutOfBoundsException("empty");
     }
 
     @Override
-    public int putByte(final int index, final byte value) {
+    public void putByte(final int index, final byte value) {
         throw new IndexOutOfBoundsException("empty");
     }
 
     @Override
-    public int putBytes(final int index, final byte[] src) {
+    public void putBytes(final int index, final byte[] src) {
         throw new IndexOutOfBoundsException("empty");
     }
 
     @Override
-    public int putBytes(final int index, final byte[] src, final int srcIndex, final int length) {
+    public void putBytes(final int index, final byte[] src, final int srcIndex, final int length) {
         throw new IndexOutOfBoundsException("empty");
     }
 
     @Override
-    public int putBytes(final int index, final ByteBuffer srcBuffer, final int srcIndex, final int length) {
+    public void putBytes(final int index, final ByteBuffer srcBuffer, final int srcIndex, final int length) {
         throw new IndexOutOfBoundsException("empty");
     }
 
     @Override
-    public int putBytes(final int index, final DirectBuffer srcBuffer, final int srcIndex, final int length) {
+    public void putBytes(final int index, final DirectBuffer srcBuffer, final int srcIndex, final int length) {
         throw new IndexOutOfBoundsException("empty");
     }
 
     @Override
-    public int putBytes(final int index, final IByteBuffer srcBuffer, final int srcIndex, final int length) {
+    public void putBytes(final int index, final IByteBuffer srcBuffer, final int srcIndex, final int length) {
         throw new IndexOutOfBoundsException("empty");
     }
 
@@ -208,7 +208,7 @@ public final class EmptyByteBuffer implements IByteBuffer {
     }
 
     @Override
-    public void getStringAscii(final int index, final int length, final Appendable dst) {
+    public int getStringAscii(final int index, final int length, final Appendable dst) {
         throw new IndexOutOfBoundsException("empty");
     }
 
@@ -228,7 +228,7 @@ public final class EmptyByteBuffer implements IByteBuffer {
     }
 
     @Override
-    public void getStringUtf8(final int index, final int length, final Appendable dst) {
+    public int getStringUtf8(final int index, final int length, final Appendable dst) {
         throw new IndexOutOfBoundsException("empty");
     }
 

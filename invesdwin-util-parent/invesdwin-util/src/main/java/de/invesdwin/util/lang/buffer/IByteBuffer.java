@@ -107,63 +107,63 @@ public interface IByteBuffer {
 
     boolean isExpandable();
 
-    int putLong(int index, long value);
+    void putLong(int index, long value);
 
-    int putInt(int index, int value);
+    void putInt(int index, int value);
 
-    int putDouble(int index, double value);
+    void putDouble(int index, double value);
 
-    int putFloat(int index, float value);
+    void putFloat(int index, float value);
 
-    int putShort(int index, short value);
+    void putShort(int index, short value);
 
-    int putChar(int index, char value);
+    void putChar(int index, char value);
 
-    default int putBoolean(final int index, final boolean value) {
-        return putByte(index, Bytes.checkedCast(value));
+    default void putBoolean(final int index, final boolean value) {
+        putByte(index, Bytes.checkedCast(value));
     }
 
-    int putByte(int index, byte value);
+    void putByte(int index, byte value);
 
-    default int putBytes(final int index, final byte[] src) {
-        return putBytes(index, src, src.length);
+    default void putBytes(final int index, final byte[] src) {
+        putBytes(index, src, src.length);
     }
 
-    default int putBytes(final int index, final byte[] src, final int length) {
-        return putBytes(index, src, 0, length);
+    default void putBytes(final int index, final byte[] src, final int length) {
+        putBytes(index, src, 0, length);
     }
 
-    int putBytes(int index, byte[] src, int srcIndex, int length);
+    void putBytes(int index, byte[] src, int srcIndex, int length);
 
-    default int putBytes(final int index, final ByteBuffer srcBuffer) {
-        return putBytes(index, srcBuffer, srcBuffer.remaining());
+    default void putBytes(final int index, final ByteBuffer srcBuffer) {
+        putBytes(index, srcBuffer, srcBuffer.remaining());
     }
 
-    default int putBytes(final int index, final ByteBuffer srcBuffer, final int length) {
-        return putBytes(index, srcBuffer, srcBuffer.position(), length);
+    default void putBytes(final int index, final ByteBuffer srcBuffer, final int length) {
+        putBytes(index, srcBuffer, srcBuffer.position(), length);
     }
 
-    int putBytes(int index, ByteBuffer srcBuffer, int srcIndex, int length);
+    void putBytes(int index, ByteBuffer srcBuffer, int srcIndex, int length);
 
-    default int putBytes(final int index, final DirectBuffer srcBuffer) {
-        return putBytes(index, srcBuffer, 0, srcBuffer.capacity());
+    default void putBytes(final int index, final DirectBuffer srcBuffer) {
+        putBytes(index, srcBuffer, 0, srcBuffer.capacity());
     }
 
-    default int putBytes(final int index, final DirectBuffer srcBuffer, final int length) {
-        return putBytes(index, srcBuffer, 0, length);
+    default void putBytes(final int index, final DirectBuffer srcBuffer, final int length) {
+        putBytes(index, srcBuffer, 0, length);
     }
 
-    int putBytes(int index, DirectBuffer srcBuffer, int srcIndex, int length);
+    void putBytes(int index, DirectBuffer srcBuffer, int srcIndex, int length);
 
-    default int putBytes(final int index, final IByteBuffer srcBuffer) {
-        return putBytes(index, srcBuffer, srcBuffer.capacity());
+    default void putBytes(final int index, final IByteBuffer srcBuffer) {
+        putBytes(index, srcBuffer, srcBuffer.capacity());
     }
 
-    default int putBytes(final int index, final IByteBuffer srcBuffer, final int length) {
-        return putBytes(index, srcBuffer, 0, length);
+    default void putBytes(final int index, final IByteBuffer srcBuffer, final int length) {
+        putBytes(index, srcBuffer, 0, length);
     }
 
-    int putBytes(int index, IByteBuffer srcBuffer, int srcIndex, int length);
+    void putBytes(int index, IByteBuffer srcBuffer, int srcIndex, int length);
 
     default InputStream asInputStream() {
         return asInputStreamTo(capacity());
@@ -248,7 +248,7 @@ public interface IByteBuffer {
     /**
      * Ascii strings can be directly appended to a StringBuilder for even more efficiency.
      */
-    void getStringAscii(int index, int length, Appendable dst);
+    int getStringAscii(int index, int length, Appendable dst);
 
     default int putStringAscii(final int index, final CharSequence value) {
         return putStringAsciiTo(index, value, index);
@@ -271,6 +271,6 @@ public interface IByteBuffer {
 
     String getStringUtf8(int index, int length);
 
-    void getStringUtf8(int index, int length, Appendable dst);
+    int getStringUtf8(int index, int length, Appendable dst);
 
 }

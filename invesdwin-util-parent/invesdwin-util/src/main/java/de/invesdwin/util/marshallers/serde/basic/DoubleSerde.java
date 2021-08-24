@@ -37,11 +37,11 @@ public final class DoubleSerde implements ISerde<Double> {
         return FIXED_LENGTH;
     }
 
-    public static int putDouble(final IByteBuffer buffer, final int index, final Double value) {
+    public static void putDouble(final IByteBuffer buffer, final int index, final Double value) {
         if (value == null) {
-            return buffer.putDouble(index, Double.NaN);
+            buffer.putDouble(index, Double.NaN);
         } else {
-            return buffer.putDouble(index, value);
+            buffer.putDouble(index, value);
         }
     }
 

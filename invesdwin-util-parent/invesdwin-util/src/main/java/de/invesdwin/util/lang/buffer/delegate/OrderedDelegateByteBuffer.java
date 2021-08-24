@@ -1,4 +1,4 @@
-package de.invesdwin.util.lang.buffer;
+package de.invesdwin.util.lang.buffer.delegate;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -10,16 +10,18 @@ import javax.annotation.concurrent.NotThreadSafe;
 import org.agrona.DirectBuffer;
 import org.agrona.MutableDirectBuffer;
 
+import de.invesdwin.util.lang.buffer.IByteBuffer;
+
 /**
  * This wrapper can be used for remote communication where a fixed endianness should be used.
  */
 @NotThreadSafe
-public final class OrderedByteBuffer implements IByteBuffer {
+public final class OrderedDelegateByteBuffer implements IByteBuffer {
 
     private final ByteOrder order;
     private final IByteBuffer delegate;
 
-    private OrderedByteBuffer(final ByteOrder order, final IByteBuffer delegate) {
+    private OrderedDelegateByteBuffer(final ByteOrder order, final IByteBuffer delegate) {
         this.order = order;
         this.delegate = delegate;
     }
@@ -30,39 +32,39 @@ public final class OrderedByteBuffer implements IByteBuffer {
     }
 
     @Override
-    public int putChar(final int index, final char value) {
+    public void putChar(final int index, final char value) {
         final char bits = (char) Short.reverseBytes((short) value);
-        return delegate.putChar(index, bits);
+        delegate.putChar(index, bits);
     }
 
     @Override
-    public int putDouble(final int index, final double value) {
+    public void putDouble(final int index, final double value) {
         final long bits = Long.reverseBytes(Double.doubleToRawLongBits(value));
-        return delegate.putLong(index, bits);
+        delegate.putLong(index, bits);
     }
 
     @Override
-    public int putFloat(final int index, final float value) {
+    public void putFloat(final int index, final float value) {
         final int bits = Integer.reverseBytes(Float.floatToRawIntBits(value));
-        return delegate.putInt(index, bits);
+        delegate.putInt(index, bits);
     }
 
     @Override
-    public int putInt(final int index, final int value) {
+    public void putInt(final int index, final int value) {
         final int bits = Integer.reverseBytes(value);
-        return delegate.putInt(index, bits);
+        delegate.putInt(index, bits);
     }
 
     @Override
-    public int putLong(final int index, final long value) {
+    public void putLong(final int index, final long value) {
         final long bits = Long.reverseBytes(value);
-        return delegate.putLong(index, bits);
+        delegate.putLong(index, bits);
     }
 
     @Override
-    public int putShort(final int index, final short value) {
+    public void putShort(final int index, final short value) {
         final short bits = Short.reverseBytes(value);
-        return delegate.putShort(index, bits);
+        delegate.putShort(index, bits);
     }
 
     @Override
@@ -104,8 +106,8 @@ public final class OrderedByteBuffer implements IByteBuffer {
     /////////////////// delegates ////////////////////////////
 
     @Override
-    public int putByte(final int index, final byte value) {
-        return delegate.putByte(index, value);
+    public void putByte(final int index, final byte value) {
+        delegate.putByte(index, value);
     }
 
     @Override
@@ -174,23 +176,23 @@ public final class OrderedByteBuffer implements IByteBuffer {
     }
 
     @Override
-    public int putBytes(final int index, final byte[] src, final int srcIndex, final int length) {
-        return delegate.putBytes(index, src, srcIndex, length);
+    public void putBytes(final int index, final byte[] src, final int srcIndex, final int length) {
+        delegate.putBytes(index, src, srcIndex, length);
     }
 
     @Override
-    public int putBytes(final int index, final ByteBuffer srcBuffer, final int srcIndex, final int length) {
-        return delegate.putBytes(srcIndex, srcBuffer, srcIndex, length);
+    public void putBytes(final int index, final ByteBuffer srcBuffer, final int srcIndex, final int length) {
+        delegate.putBytes(srcIndex, srcBuffer, srcIndex, length);
     }
 
     @Override
-    public int putBytes(final int index, final DirectBuffer srcBuffer, final int srcIndex, final int length) {
-        return delegate.putBytes(srcIndex, srcBuffer, srcIndex, length);
+    public void putBytes(final int index, final DirectBuffer srcBuffer, final int srcIndex, final int length) {
+        delegate.putBytes(srcIndex, srcBuffer, srcIndex, length);
     }
 
     @Override
-    public int putBytes(final int index, final IByteBuffer srcBuffer, final int srcIndex, final int length) {
-        return delegate.putBytes(index, srcBuffer, srcIndex, length);
+    public void putBytes(final int index, final IByteBuffer srcBuffer, final int srcIndex, final int length) {
+        delegate.putBytes(index, srcBuffer, srcIndex, length);
     }
 
     @Override
@@ -215,7 +217,7 @@ public final class OrderedByteBuffer implements IByteBuffer {
 
     public static IByteBuffer maybeWrap(final ByteOrder order, final IByteBuffer buffer) {
         if (order != buffer.getOrder()) {
-            return new OrderedByteBuffer(order, buffer);
+            return new OrderedDelegateByteBuffer(order, buffer);
         } else {
             //no conversion needed, already uses native
             return buffer;
@@ -228,8 +230,8 @@ public final class OrderedByteBuffer implements IByteBuffer {
     }
 
     @Override
-    public void getStringAscii(final int index, final int length, final Appendable dst) {
-        delegate.getStringAscii(index, length, dst);
+    public int getStringAscii(final int index, final int length, final Appendable dst) {
+        return delegate.getStringAscii(index, length, dst);
     }
 
     @Override
@@ -248,8 +250,8 @@ public final class OrderedByteBuffer implements IByteBuffer {
     }
 
     @Override
-    public void getStringUtf8(final int index, final int length, final Appendable dst) {
-        delegate.getStringUtf8(index, length, dst);
+    public int getStringUtf8(final int index, final int length, final Appendable dst) {
+        return delegate.getStringUtf8(index, length, dst);
     }
 
 }

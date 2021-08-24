@@ -33,11 +33,11 @@ public class LongSerde implements ISerde<Long> {
         return FIXED_LENGTH;
     }
 
-    public static int putLong(final IByteBuffer buffer, final int index, final Long value) {
+    public static void putLong(final IByteBuffer buffer, final int index, final Long value) {
         if (value == null) {
-            return buffer.putLong(index, Long.MIN_VALUE);
+            buffer.putLong(index, Long.MIN_VALUE);
         } else {
-            return buffer.putLong(index, value);
+            buffer.putLong(index, value);
         }
     }
 

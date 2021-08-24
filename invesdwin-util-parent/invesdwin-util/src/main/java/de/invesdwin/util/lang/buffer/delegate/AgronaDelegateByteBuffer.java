@@ -1,4 +1,4 @@
-package de.invesdwin.util.lang.buffer;
+package de.invesdwin.util.lang.buffer.delegate;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,13 +16,15 @@ import org.agrona.io.DirectBufferInputStream;
 import org.agrona.io.DirectBufferOutputStream;
 
 import de.invesdwin.util.error.UnknownArgumentException;
+import de.invesdwin.util.lang.buffer.ByteBuffers;
+import de.invesdwin.util.lang.buffer.IByteBuffer;
 
 @NotThreadSafe
-public class AgronaByteBuffer implements IByteBuffer {
+public class AgronaDelegateByteBuffer implements IByteBuffer {
 
     private final MutableDirectBuffer delegate;
 
-    public AgronaByteBuffer(final MutableDirectBuffer delegate) {
+    public AgronaDelegateByteBuffer(final MutableDirectBuffer delegate) {
         this.delegate = delegate;
     }
 
@@ -125,67 +127,57 @@ public class AgronaByteBuffer implements IByteBuffer {
     }
 
     @Override
-    public int putLong(final int index, final long value) {
+    public void putLong(final int index, final long value) {
         delegate.putLong(index, value);
-        return Long.BYTES;
     }
 
     @Override
-    public int putInt(final int index, final int value) {
+    public void putInt(final int index, final int value) {
         delegate.putInt(index, value);
-        return Integer.BYTES;
     }
 
     @Override
-    public int putDouble(final int index, final double value) {
+    public void putDouble(final int index, final double value) {
         delegate.putDouble(index, value);
-        return Double.BYTES;
     }
 
     @Override
-    public int putFloat(final int index, final float value) {
+    public void putFloat(final int index, final float value) {
         delegate.putFloat(index, value);
-        return Float.BYTES;
     }
 
     @Override
-    public int putShort(final int index, final short value) {
+    public void putShort(final int index, final short value) {
         delegate.putShort(index, value);
-        return Short.BYTES;
     }
 
     @Override
-    public int putChar(final int index, final char value) {
+    public void putChar(final int index, final char value) {
         delegate.putChar(index, value);
-        return Character.BYTES;
     }
 
     @Override
-    public int putByte(final int index, final byte value) {
+    public void putByte(final int index, final byte value) {
         delegate.putByte(index, value);
-        return Byte.BYTES;
     }
 
     @Override
-    public int putBytes(final int index, final byte[] src, final int srcIndex, final int length) {
+    public void putBytes(final int index, final byte[] src, final int srcIndex, final int length) {
         delegate.putBytes(index, src, srcIndex, length);
-        return length;
     }
 
     @Override
-    public int putBytes(final int index, final ByteBuffer srcBuffer, final int srcIndex, final int length) {
+    public void putBytes(final int index, final ByteBuffer srcBuffer, final int srcIndex, final int length) {
         delegate.putBytes(index, srcBuffer, srcIndex, length);
-        return length;
     }
 
     @Override
-    public int putBytes(final int index, final DirectBuffer srcBuffer, final int srcIndex, final int length) {
+    public void putBytes(final int index, final DirectBuffer srcBuffer, final int srcIndex, final int length) {
         delegate.putBytes(index, srcBuffer, srcIndex, length);
-        return length;
     }
 
     @Override
-    public int putBytes(final int index, final IByteBuffer srcBuffer, final int srcIndex, final int length) {
+    public void putBytes(final int index, final IByteBuffer srcBuffer, final int srcIndex, final int length) {
         if (srcBuffer.directBuffer() != null) {
             delegate.putBytes(index, srcBuffer.directBuffer(), srcIndex, length);
         } else if (srcBuffer.byteBuffer() != null) {
@@ -195,7 +187,6 @@ public class AgronaByteBuffer implements IByteBuffer {
         } else {
             throw UnknownArgumentException.newInstance(IByteBuffer.class, srcBuffer);
         }
-        return length;
     }
 
     @Override
@@ -252,7 +243,7 @@ public class AgronaByteBuffer implements IByteBuffer {
         if (index == 0 && length == capacity()) {
             return this;
         } else {
-            return new AgronaByteBuffer(new UnsafeBuffer(delegate, index, length));
+            return new AgronaDelegateByteBuffer(new UnsafeBuffer(delegate, index, length));
         }
     }
 
@@ -272,8 +263,8 @@ public class AgronaByteBuffer implements IByteBuffer {
     }
 
     @Override
-    public void getStringAscii(final int index, final int length, final Appendable dst) {
-        delegate.getStringWithoutLengthAscii(index, length, dst);
+    public int getStringAscii(final int index, final int length, final Appendable dst) {
+        return delegate.getStringWithoutLengthAscii(index, length, dst);
     }
 
     @Override
@@ -282,13 +273,14 @@ public class AgronaByteBuffer implements IByteBuffer {
     }
 
     @Override
-    public void getStringUtf8(final int index, final int length, final Appendable dst) {
+    public int getStringUtf8(final int index, final int length, final Appendable dst) {
         final String string = delegate.getStringWithoutLengthUtf8(index, length);
         try {
             dst.append(string);
         } catch (final IOException e) {
             throw new RuntimeException(e);
         }
+        return string.length();
     }
 
 }

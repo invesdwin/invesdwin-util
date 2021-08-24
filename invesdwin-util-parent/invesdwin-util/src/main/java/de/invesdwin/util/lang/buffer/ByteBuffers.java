@@ -10,12 +10,14 @@ import java.nio.CharBuffer;
 
 import javax.annotation.concurrent.Immutable;
 
-import org.agrona.ExpandableArrayBuffer;
 import org.agrona.MutableDirectBuffer;
 import org.agrona.concurrent.AtomicBuffer;
 import org.agrona.concurrent.UnsafeBuffer;
 
 import de.invesdwin.util.lang.Charsets;
+import de.invesdwin.util.lang.buffer.delegate.AgronaDelegateByteBuffer;
+import de.invesdwin.util.lang.buffer.extend.ExpandableArrayByteBuffer;
+import de.invesdwin.util.lang.buffer.extend.UnsafeByteBuffer;
 import de.invesdwin.util.lang.reflection.Reflections;
 import de.invesdwin.util.math.Bytes;
 
@@ -121,7 +123,7 @@ public final class ByteBuffers {
     }
 
     public static IByteBuffer allocateExpandable() {
-        return wrap(new ExpandableArrayBuffer());
+        return new ExpandableArrayByteBuffer();
     }
 
     public static IByteBuffer allocateNonZero(final int fixedLength) {
@@ -135,15 +137,15 @@ public final class ByteBuffers {
     }
 
     public static IByteBuffer wrap(final byte[] bytes) {
-        return wrap(ByteBuffer.wrap(bytes));
+        return new UnsafeByteBuffer(bytes);
     }
 
     public static IByteBuffer wrap(final ByteBuffer buffer) {
-        return new JavaByteBuffer(buffer);
+        return new UnsafeByteBuffer(buffer);
     }
 
     public static IByteBuffer wrap(final MutableDirectBuffer buffer) {
-        return new AgronaByteBuffer(buffer);
+        return new AgronaDelegateByteBuffer(buffer);
     }
 
     /**

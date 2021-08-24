@@ -1,4 +1,4 @@
-package de.invesdwin.util.lang.buffer;
+package de.invesdwin.util.lang.buffer.delegate;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,14 +16,16 @@ import org.agrona.io.DirectBufferInputStream;
 import org.agrona.io.DirectBufferOutputStream;
 
 import de.invesdwin.util.error.Throwables;
+import de.invesdwin.util.lang.buffer.ByteBuffers;
+import de.invesdwin.util.lang.buffer.IByteBuffer;
 
 @NotThreadSafe
-public class JavaByteBuffer implements IByteBuffer {
+public class JavaDelegateByteBuffer implements IByteBuffer {
 
     private final ByteBuffer buffer;
     private UnsafeBuffer directBuffer;
 
-    public JavaByteBuffer(final ByteBuffer buffer) {
+    public JavaDelegateByteBuffer(final ByteBuffer buffer) {
         this.buffer = buffer;
     }
 
@@ -146,69 +148,58 @@ public class JavaByteBuffer implements IByteBuffer {
     }
 
     @Override
-    public int putLong(final int index, final long value) {
+    public void putLong(final int index, final long value) {
         buffer.putLong(index, value);
-        return Long.BYTES;
     }
 
     @Override
-    public int putInt(final int index, final int value) {
+    public void putInt(final int index, final int value) {
         buffer.putInt(index, value);
-        return Integer.BYTES;
     }
 
     @Override
-    public int putDouble(final int index, final double value) {
+    public void putDouble(final int index, final double value) {
         buffer.putDouble(index, value);
-        return Double.BYTES;
     }
 
     @Override
-    public int putFloat(final int index, final float value) {
+    public void putFloat(final int index, final float value) {
         buffer.putFloat(index, value);
-        return Float.BYTES;
     }
 
     @Override
-    public int putShort(final int index, final short value) {
+    public void putShort(final int index, final short value) {
         buffer.putShort(index, value);
-        return Short.BYTES;
     }
 
     @Override
-    public int putChar(final int index, final char value) {
+    public void putChar(final int index, final char value) {
         buffer.putChar(index, value);
-        return Character.BYTES;
     }
 
     @Override
-    public int putByte(final int index, final byte value) {
+    public void putByte(final int index, final byte value) {
         buffer.put(index, value);
-        return Byte.BYTES;
     }
 
     @Override
-    public int putBytes(final int index, final byte[] src, final int srcIndex, final int length) {
+    public void putBytes(final int index, final byte[] src, final int srcIndex, final int length) {
         buffer.put(index, src, srcIndex, length);
-        return length;
     }
 
     @Override
-    public int putBytes(final int index, final ByteBuffer srcBuffer, final int srcIndex, final int length) {
+    public void putBytes(final int index, final ByteBuffer srcBuffer, final int srcIndex, final int length) {
         directBuffer().putBytes(index, srcBuffer, srcIndex, length);
-        return length;
     }
 
     @Override
-    public int putBytes(final int index, final DirectBuffer srcBuffer, final int srcIndex, final int length) {
+    public void putBytes(final int index, final DirectBuffer srcBuffer, final int srcIndex, final int length) {
         srcBuffer.getBytes(srcIndex, buffer, index, length);
-        return length;
     }
 
     @Override
-    public int putBytes(final int index, final IByteBuffer srcBuffer, final int srcIndex, final int length) {
+    public void putBytes(final int index, final IByteBuffer srcBuffer, final int srcIndex, final int length) {
         srcBuffer.getBytes(srcIndex, buffer, index, length);
-        return length;
     }
 
     @Override
@@ -236,7 +227,7 @@ public class JavaByteBuffer implements IByteBuffer {
 
     @Override
     public IByteBuffer slice(final int index, final int length) {
-        return new JavaByteBuffer(ByteBuffers.slice(buffer, index, length));
+        return new JavaDelegateByteBuffer(ByteBuffers.slice(buffer, index, length));
     }
 
     @Override
@@ -247,13 +238,14 @@ public class JavaByteBuffer implements IByteBuffer {
     }
 
     @Override
-    public void getStringAscii(final int index, final int length, final Appendable dst) {
+    public int getStringAscii(final int index, final int length, final Appendable dst) {
         try {
             final int limit = index + length;
             for (int i = index; i < limit; i++) {
                 final char c = (char) buffer.get(i);
                 dst.append(c > 127 ? '?' : c);
             }
+            return length;
         } catch (final IOException e) {
             throw Throwables.propagate(e);
         }
@@ -287,13 +279,14 @@ public class JavaByteBuffer implements IByteBuffer {
     }
 
     @Override
-    public void getStringUtf8(final int index, final int length, final Appendable dst) {
+    public int getStringUtf8(final int index, final int length, final Appendable dst) {
         final String string = getStringUtf8(index, length);
         try {
             dst.append(string);
         } catch (final IOException e) {
             throw Throwables.propagate(e);
         }
+        return string.length();
     }
 
 }
