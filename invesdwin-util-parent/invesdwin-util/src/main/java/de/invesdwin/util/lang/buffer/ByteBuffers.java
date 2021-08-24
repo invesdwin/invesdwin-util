@@ -16,8 +16,8 @@ import org.agrona.concurrent.UnsafeBuffer;
 
 import de.invesdwin.util.lang.Charsets;
 import de.invesdwin.util.lang.buffer.delegate.AgronaDelegateByteBuffer;
+import de.invesdwin.util.lang.buffer.delegate.JavaDelegateByteBuffer;
 import de.invesdwin.util.lang.buffer.extend.ExpandableArrayByteBuffer;
-import de.invesdwin.util.lang.buffer.extend.UnsafeByteBuffer;
 import de.invesdwin.util.lang.reflection.Reflections;
 import de.invesdwin.util.math.Bytes;
 
@@ -137,11 +137,11 @@ public final class ByteBuffers {
     }
 
     public static IByteBuffer wrap(final byte[] bytes) {
-        return new UnsafeByteBuffer(bytes);
+        return new JavaDelegateByteBuffer(bytes);
     }
 
     public static IByteBuffer wrap(final ByteBuffer buffer) {
-        return new UnsafeByteBuffer(buffer);
+        return new JavaDelegateByteBuffer(buffer);
     }
 
     public static IByteBuffer wrap(final MutableDirectBuffer buffer) {

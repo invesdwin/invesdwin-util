@@ -25,6 +25,10 @@ public class JavaDelegateByteBuffer implements IByteBuffer {
     private final ByteBuffer buffer;
     private UnsafeBuffer directBuffer;
 
+    public JavaDelegateByteBuffer(final byte[] bytes) {
+        this.buffer = ByteBuffer.wrap(bytes);
+    }
+
     public JavaDelegateByteBuffer(final ByteBuffer buffer) {
         this.buffer = buffer;
     }
