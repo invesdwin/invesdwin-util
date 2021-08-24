@@ -66,7 +66,7 @@ public final class HtmlToPlainText {
                 append("\n * ");
             } else if ("dt".equals(name)) {
                 append("  ");
-            } else if (org.jsoup.helper.StringUtil.in(name, "p", "h1", "h2", "h3", "h4", "h5", "tr")) {
+            } else if (org.jsoup.internal.StringUtil.in(name, "p", "h1", "h2", "h3", "h4", "h5", "tr")) {
                 append("\n");
             }
         }
@@ -75,7 +75,7 @@ public final class HtmlToPlainText {
         @Override
         public void tail(final Node node, final int depth) {
             final String name = node.nodeName();
-            if (org.jsoup.helper.StringUtil.in(name, "br", "dd", "dt", "p", "h1", "h2", "h3", "h4", "h5")) {
+            if (org.jsoup.internal.StringUtil.in(name, "br", "dd", "dt", "p", "h1", "h2", "h3", "h4", "h5")) {
                 append("\n");
             } else if ("a".equals(name)) {
                 append(TextDescription.format(" <%s>", node.absUrl("href")));
@@ -88,7 +88,7 @@ public final class HtmlToPlainText {
                 width = 0; // reset counter if starts with a newline. only from formats above, not in natural text
             }
             if (" ".equals(text) && (accum.length() == 0
-                    || org.jsoup.helper.StringUtil.in(accum.substring(accum.length() - 1), " ", "\n"))) {
+                    || org.jsoup.internal.StringUtil.in(accum.substring(accum.length() - 1), " ", "\n"))) {
                 return; // don't accumulate long runs of empty spaces
             }
 
