@@ -4,6 +4,7 @@ import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.DataOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
@@ -263,74 +264,74 @@ public interface IByteBuffer {
      * This is more efficient than getStringUtf8(...) because it creates less garbage. Thout only works together with
      * putStringAscii(...).
      */
-    String getStringAscii(int index, int length);
+    String getStringAsciii(int index, int length);
 
     /**
      * Ascii strings can be directly appended to a StringBuilder for even more efficiency.
      */
-    int getStringAscii(int index, int length, Appendable dst);
+    void getStringAsciii(int index, int length, Appendable dst);
 
-    default int putStringAscii(final int index, final CharSequence value) {
-        return putStringAsciiTo(index, value, index);
+    default void putStringAsciii(final int index, final CharSequence value) {
+        putStringAsciiiTo(index, value, index);
     }
 
-    default int putStringAsciiFrom(final int index, final CharSequence value, final int valueIndex) {
-        return putStringAscii(index, value, valueIndex, value.length() - valueIndex);
+    default void putStringAsciiiFrom(final int index, final CharSequence value, final int valueIndex) {
+        putStringAsciii(index, value, valueIndex, value.length() - valueIndex);
     }
 
-    default int putStringAsciiTo(final int index, final CharSequence value, final int length) {
-        return putStringAscii(index, value, 0, length);
+    default void putStringAsciiiTo(final int index, final CharSequence value, final int length) {
+        putStringAsciii(index, value, 0, length);
     }
 
     /**
      * This is more efficient than putStringUtf8(...) but replaces non ascii characters with '?'.
      */
-    int putStringAscii(int index, CharSequence value, int valueIndex, int length);
+    void putStringAsciii(int index, CharSequence value, int valueIndex, int length);
 
     int putStringUtf8(int index, String value);
 
     String getStringUtf8(int index, int length);
 
-    int getStringUtf8(int index, int length, Appendable dst);
+    void getStringUtf8(int index, int length, Appendable dst);
 
-    default void getBytes(final int index, final DataOutputStream dst) {
+    default void getBytes(final int index, final DataOutputStream dst) throws IOException {
         getBytesTo(index, dst, capacity());
     }
 
-    default void getBytesTo(final int index, final DataOutputStream dst, final int length) {
+    default void getBytesTo(final int index, final DataOutputStream dst, final int length) throws IOException {
         getBytesTo(index, (OutputStream) dst, length);
     }
 
-    default void getBytes(final int index, final DataOutput dst) {
+    default void getBytes(final int index, final DataOutput dst) throws IOException {
         getBytesTo(index, dst, capacity());
     }
 
-    void getBytesTo(int index, DataOutput dst, int length);
+    void getBytesTo(int index, DataOutput dst, int length) throws IOException;
 
-    default void getBytes(final int index, final OutputStream dst) {
+    default void getBytes(final int index, final OutputStream dst) throws IOException {
         getBytesTo(index, dst, capacity());
     }
 
-    void getBytesTo(int index, OutputStream dst, int length);
+    void getBytesTo(int index, OutputStream dst, int length) throws IOException;
 
-    default void putBytes(final int index, final DataInputStream src) {
+    default void putBytes(final int index, final DataInputStream src) throws IOException {
         putBytesTo(index, src, capacity());
     }
 
-    default void putBytesTo(final int index, final DataInputStream src, final int length) {
+    default void putBytesTo(final int index, final DataInputStream src, final int length) throws IOException {
         putBytesTo(index, (InputStream) src, length);
     }
 
-    default void putBytes(final int index, final DataInput src) {
+    default void putBytes(final int index, final DataInput src) throws IOException {
         putBytesTo(index, src, capacity());
     }
 
-    void putBytesTo(int index, DataInput src, int length);
+    void putBytesTo(int index, DataInput src, int length) throws IOException;
 
-    default void putBytes(final int index, final InputStream src) {
+    default void putBytes(final int index, final InputStream src) throws IOException {
         putBytesTo(index, src, capacity());
     }
 
-    void putBytesTo(int index, InputStream src, int length);
+    void putBytesTo(int index, InputStream src, int length) throws IOException;
 
 }

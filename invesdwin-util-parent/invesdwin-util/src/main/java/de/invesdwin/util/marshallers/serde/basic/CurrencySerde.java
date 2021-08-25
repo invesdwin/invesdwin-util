@@ -48,7 +48,7 @@ public final class CurrencySerde implements ISerde<Currency> {
         if (currency == null) {
             buffer.putBytes(index, MISSING_CURRENCY_CODE_BYTES);
         } else {
-            buffer.putStringAscii(index, currency.getCurrencyCode());
+            buffer.putStringAsciii(index, currency.getCurrencyCode());
         }
         return FIXED_LENGTH;
     }
@@ -65,7 +65,7 @@ public final class CurrencySerde implements ISerde<Currency> {
     }
 
     public static Currency getCurrency(final IByteBuffer buffer, final int index) {
-        final String currencyCode = buffer.getStringAscii(index, FIXED_LENGTH);
+        final String currencyCode = buffer.getStringAsciii(index, FIXED_LENGTH);
         if (MISSING_CURRENCY_CODE.equals(currencyCode)) {
             return null;
         } else {
@@ -74,7 +74,7 @@ public final class CurrencySerde implements ISerde<Currency> {
     }
 
     public static String getCurrencyCode(final IByteBuffer buffer, final int index) {
-        final String currencyCode = buffer.getStringAscii(index, FIXED_LENGTH);
+        final String currencyCode = buffer.getStringAsciii(index, FIXED_LENGTH);
         if (MISSING_CURRENCY_CODE.equals(currencyCode)) {
             return null;
         } else {

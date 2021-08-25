@@ -1,5 +1,8 @@
 package de.invesdwin.util.lang.buffer.delegate;
 
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
@@ -225,18 +228,18 @@ public final class OrderedDelegateByteBuffer implements IByteBuffer {
     }
 
     @Override
-    public String getStringAscii(final int index, final int size) {
-        return delegate.getStringAscii(index, size);
+    public String getStringAsciii(final int index, final int size) {
+        return delegate.getStringAsciii(index, size);
     }
 
     @Override
-    public int getStringAscii(final int index, final int length, final Appendable dst) {
-        return delegate.getStringAscii(index, length, dst);
+    public void getStringAsciii(final int index, final int length, final Appendable dst) {
+        delegate.getStringAsciii(index, length, dst);
     }
 
     @Override
-    public int putStringAscii(final int index, final CharSequence value, final int valueIndex, final int length) {
-        return delegate.putStringAscii(index, value, valueIndex, length);
+    public void putStringAsciii(final int index, final CharSequence value, final int valueIndex, final int length) {
+        delegate.putStringAsciii(index, value, valueIndex, length);
     }
 
     @Override
@@ -250,8 +253,28 @@ public final class OrderedDelegateByteBuffer implements IByteBuffer {
     }
 
     @Override
-    public int getStringUtf8(final int index, final int length, final Appendable dst) {
-        return delegate.getStringUtf8(index, length, dst);
+    public void getStringUtf8(final int index, final int length, final Appendable dst) {
+        delegate.getStringUtf8(index, length, dst);
+    }
+
+    @Override
+    public void getBytesTo(final int index, final DataOutput dst, final int length) throws IOException {
+        delegate.getBytesTo(index, dst, length);
+    }
+
+    @Override
+    public void getBytesTo(final int index, final OutputStream dst, final int length) throws IOException {
+        delegate.getBytesTo(index, dst, length);
+    }
+
+    @Override
+    public void putBytesTo(final int index, final DataInput src, final int length) throws IOException {
+        delegate.putBytesTo(index, src, length);
+    }
+
+    @Override
+    public void putBytesTo(final int index, final InputStream src, final int length) throws IOException {
+        delegate.putBytesTo(index, src, length);
     }
 
 }

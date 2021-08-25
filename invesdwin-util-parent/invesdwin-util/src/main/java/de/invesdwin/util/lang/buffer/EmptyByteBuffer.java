@@ -1,5 +1,7 @@
 package de.invesdwin.util.lang.buffer;
 
+import java.io.DataInput;
+import java.io.DataOutput;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
@@ -203,17 +205,17 @@ public final class EmptyByteBuffer implements IByteBuffer {
     }
 
     @Override
-    public String getStringAscii(final int index, final int length) {
+    public String getStringAsciii(final int index, final int length) {
         throw new IndexOutOfBoundsException("empty");
     }
 
     @Override
-    public int getStringAscii(final int index, final int length, final Appendable dst) {
+    public void getStringAsciii(final int index, final int length, final Appendable dst) {
         throw new IndexOutOfBoundsException("empty");
     }
 
     @Override
-    public int putStringAscii(final int index, final CharSequence value, final int valueIndex, final int length) {
+    public void putStringAsciii(final int index, final CharSequence value, final int valueIndex, final int length) {
         throw new IndexOutOfBoundsException("empty");
     }
 
@@ -228,7 +230,27 @@ public final class EmptyByteBuffer implements IByteBuffer {
     }
 
     @Override
-    public int getStringUtf8(final int index, final int length, final Appendable dst) {
+    public void getStringUtf8(final int index, final int length, final Appendable dst) {
+        throw new IndexOutOfBoundsException("empty");
+    }
+
+    @Override
+    public void getBytesTo(final int index, final DataOutput dst, final int length) {
+        throw new IndexOutOfBoundsException("empty");
+    }
+
+    @Override
+    public void getBytesTo(final int index, final OutputStream dst, final int length) {
+        throw new IndexOutOfBoundsException("empty");
+    }
+
+    @Override
+    public void putBytesTo(final int index, final DataInput src, final int length) {
+        throw new IndexOutOfBoundsException("empty");
+    }
+
+    @Override
+    public void putBytesTo(final int index, final InputStream src, final int length) {
         throw new IndexOutOfBoundsException("empty");
     }
 

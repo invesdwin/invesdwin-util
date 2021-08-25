@@ -1,5 +1,7 @@
 package de.invesdwin.util.lang.buffer.delegate;
 
+import java.io.DataInput;
+import java.io.DataOutput;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -15,6 +17,7 @@ import org.agrona.concurrent.UnsafeBuffer;
 import org.agrona.io.DirectBufferInputStream;
 import org.agrona.io.DirectBufferOutputStream;
 
+import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.lang.buffer.ByteBuffers;
 import de.invesdwin.util.lang.buffer.IByteBuffer;
@@ -248,13 +251,13 @@ public class AgronaDelegateByteBuffer implements IByteBuffer {
     }
 
     @Override
-    public String getStringAscii(final int index, final int length) {
+    public String getStringAsciii(final int index, final int length) {
         return delegate.getStringWithoutLengthAscii(index, length);
     }
 
     @Override
-    public int putStringAscii(final int index, final CharSequence value, final int valueIndex, final int length) {
-        return delegate.putStringWithoutLengthAscii(index, value, valueIndex, length);
+    public void putStringAsciii(final int index, final CharSequence value, final int valueIndex, final int length) {
+        delegate.putStringWithoutLengthAscii(index, value, valueIndex, length);
     }
 
     @Override
@@ -263,8 +266,8 @@ public class AgronaDelegateByteBuffer implements IByteBuffer {
     }
 
     @Override
-    public int getStringAscii(final int index, final int length, final Appendable dst) {
-        return delegate.getStringWithoutLengthAscii(index, length, dst);
+    public void getStringAsciii(final int index, final int length, final Appendable dst) {
+        delegate.getStringWithoutLengthAscii(index, length, dst);
     }
 
     @Override
@@ -273,14 +276,53 @@ public class AgronaDelegateByteBuffer implements IByteBuffer {
     }
 
     @Override
-    public int getStringUtf8(final int index, final int length, final Appendable dst) {
+    public void getStringUtf8(final int index, final int length, final Appendable dst) {
         final String string = delegate.getStringWithoutLengthUtf8(index, length);
         try {
             dst.append(string);
         } catch (final IOException e) {
-            throw new RuntimeException(e);
+            throw Throwables.propagate(e);
         }
-        return string.length();
+    }
+
+    @Override
+    public void getBytesTo(final int index, final DataOutput dst, final int length) throws IOException {
+        int i = index;
+        while (i < length) {
+            final byte b = delegate.getByte(i);
+            dst.write(b);
+            i++;
+        }
+    }
+
+    @Override
+    public void getBytesTo(final int index, final OutputStream dst, final int length) throws IOException {
+        int i = index;
+        while (i < length) {
+            final byte b = delegate.getByte(i);
+            dst.write(b);
+            i++;
+        }
+    }
+
+    @Override
+    public void putBytesTo(final int index, final DataInput src, final int length) throws IOException {
+        int i = index;
+        while (i < length) {
+            final byte b = src.readByte();
+            delegate.putByte(i, b);
+            i++;
+        }
+    }
+
+    @Override
+    public void putBytesTo(final int index, final InputStream src, final int length) throws IOException {
+        int i = index;
+        while (i < length) {
+            final int result = src.read();
+            delegate.putByte(i, (byte) result);
+            i++;
+        }
     }
 
 }

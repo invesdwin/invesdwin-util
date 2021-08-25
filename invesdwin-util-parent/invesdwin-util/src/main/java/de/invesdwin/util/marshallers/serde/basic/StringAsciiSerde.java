@@ -43,14 +43,15 @@ public class StringAsciiSerde implements ISerde<String> {
         if (string == null || string.length() == 0) {
             return 0;
         }
-        return buffer.putStringAscii(index, string);
+        buffer.putStringAsciii(index, string);
+        return ByteBuffers.newStringAsciiLength(string);
     }
 
     public static String getStringAscii(final IByteBuffer buffer, final int index, final int size) {
         if (size == 0) {
             return null;
         }
-        return buffer.getStringAscii(index, size);
+        return buffer.getStringAsciii(index, size);
     }
 
 }
