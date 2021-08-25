@@ -185,6 +185,9 @@ public final class ByteBuffers {
      * Allocate a buffer for this encoded size and use putStringAscii(string) afterwards.
      */
     public static int newStringAsciiLength(final CharSequence value) {
+        if (value == null) {
+            return 0;
+        }
         return value.length();
     }
 
@@ -192,6 +195,9 @@ public final class ByteBuffers {
      * Allocate a buffer for the encoded size and use putBytes(stringBytes) afterwards.
      */
     public static byte[] newStringAsciiBytes(final CharSequence value) {
+        if (value == null || value.length() == 0) {
+            return Bytes.EMPTY_ARRAY;
+        }
         final byte[] bytes = new byte[newStringAsciiLength(value)];
         final int length = value.length();
         for (int i = 0; i < length; i++) {
@@ -209,6 +215,9 @@ public final class ByteBuffers {
      * Allocate a buffer for the encoded size and use putBytes(stringBytes) afterwards.
      */
     public static byte[] newStringUtf8Bytes(final CharSequence value) {
+        if (value == null || value.length() == 0) {
+            return Bytes.EMPTY_ARRAY;
+        }
         return Charsets.UTF_8.encode(CharBuffer.wrap(value)).array();
     }
 
@@ -216,10 +225,16 @@ public final class ByteBuffers {
      * Allocate a buffer for the encoded size and use putBytes(stringBytes) afterwards.
      */
     public static byte[] newStringUtf8Bytes(final String value) {
+        if (value == null || value.length() == 0) {
+            return Bytes.EMPTY_ARRAY;
+        }
         return value.getBytes(Charsets.UTF_8);
     }
 
     public static String newStringUtf8(final byte[] bytes) {
+        if (bytes == null || bytes.length == 0) {
+            return null;
+        }
         return new String(bytes, Charsets.UTF_8);
     }
 
