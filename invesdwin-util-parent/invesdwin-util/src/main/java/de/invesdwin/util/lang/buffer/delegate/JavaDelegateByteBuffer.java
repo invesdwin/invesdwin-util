@@ -37,7 +37,7 @@ public class JavaDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public ByteOrder getOrder() {
-        return ByteBuffers.NATIVE_ORDER;
+        return delegate.order();
     }
 
     @Override

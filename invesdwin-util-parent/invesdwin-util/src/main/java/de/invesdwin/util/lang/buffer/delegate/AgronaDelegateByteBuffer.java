@@ -33,7 +33,7 @@ public class AgronaDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public ByteOrder getOrder() {
-        return ByteBuffers.NATIVE_ORDER;
+        return ByteBuffers.DEFAULT_ORDER;
     }
 
     @Override
@@ -58,32 +58,32 @@ public class AgronaDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public long getLong(final int index) {
-        return delegate.getLong(index);
+        return delegate.getLong(index, ByteBuffers.DEFAULT_ORDER);
     }
 
     @Override
     public int getInt(final int index) {
-        return delegate.getInt(index);
+        return delegate.getInt(index, ByteBuffers.DEFAULT_ORDER);
     }
 
     @Override
     public double getDouble(final int index) {
-        return delegate.getDouble(index);
+        return delegate.getDouble(index, ByteBuffers.DEFAULT_ORDER);
     }
 
     @Override
     public float getFloat(final int index) {
-        return delegate.getFloat(index);
+        return delegate.getFloat(index, ByteBuffers.DEFAULT_ORDER);
     }
 
     @Override
     public short getShort(final int index) {
-        return delegate.getShort(index);
+        return delegate.getShort(index, ByteBuffers.DEFAULT_ORDER);
     }
 
     @Override
     public char getChar(final int index) {
-        return delegate.getChar(index);
+        return delegate.getChar(index, ByteBuffers.DEFAULT_ORDER);
     }
 
     @Override
@@ -131,32 +131,32 @@ public class AgronaDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public void putLong(final int index, final long value) {
-        delegate.putLong(index, value);
+        delegate.putLong(index, value, ByteBuffers.DEFAULT_ORDER);
     }
 
     @Override
     public void putInt(final int index, final int value) {
-        delegate.putInt(index, value);
+        delegate.putInt(index, value, ByteBuffers.DEFAULT_ORDER);
     }
 
     @Override
     public void putDouble(final int index, final double value) {
-        delegate.putDouble(index, value);
+        delegate.putDouble(index, value, ByteBuffers.DEFAULT_ORDER);
     }
 
     @Override
     public void putFloat(final int index, final float value) {
-        delegate.putFloat(index, value);
+        delegate.putFloat(index, value, ByteBuffers.DEFAULT_ORDER);
     }
 
     @Override
     public void putShort(final int index, final short value) {
-        delegate.putShort(index, value);
+        delegate.putShort(index, value, ByteBuffers.DEFAULT_ORDER);
     }
 
     @Override
     public void putChar(final int index, final char value) {
-        delegate.putChar(index, value);
+        delegate.putChar(index, value, ByteBuffers.DEFAULT_ORDER);
     }
 
     @Override

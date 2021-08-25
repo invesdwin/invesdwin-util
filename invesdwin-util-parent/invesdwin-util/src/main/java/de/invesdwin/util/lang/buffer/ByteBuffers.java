@@ -32,9 +32,9 @@ public final class ByteBuffers {
     public static final AtomicBuffer EMPTY_DIRECT_BUFFER = new UnsafeBuffer(Bytes.EMPTY_ARRAY);
 
     /**
-     * Also used by Protobuf, most common in x86/x64 systems.
+     * ByteBuffer uses BigEndian per default.
      */
-    public static final ByteOrder DEFAULT_ORDER = ByteOrder.LITTLE_ENDIAN;
+    public static final ByteOrder DEFAULT_ORDER = ByteOrder.BIG_ENDIAN;
     /**
      * What does the system actually use?
      */

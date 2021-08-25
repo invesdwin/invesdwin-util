@@ -59,7 +59,7 @@ public class UnsafeByteBuffer extends UnsafeBuffer implements IByteBuffer {
 
     @Override
     public ByteOrder getOrder() {
-        return ByteBuffers.NATIVE_ORDER;
+        return ByteBuffers.DEFAULT_ORDER;
     }
 
     @Override
@@ -222,6 +222,66 @@ public class UnsafeByteBuffer extends UnsafeBuffer implements IByteBuffer {
             putByte(i, (byte) result);
             i++;
         }
+    }
+
+    @Override
+    public void putLong(final int index, final long value) {
+        putLong(index, value, ByteBuffers.DEFAULT_ORDER);
+    }
+
+    @Override
+    public void putInt(final int index, final int value) {
+        putInt(index, value, ByteBuffers.DEFAULT_ORDER);
+    }
+
+    @Override
+    public void putDouble(final int index, final double value) {
+        putDouble(index, value, ByteBuffers.DEFAULT_ORDER);
+    }
+
+    @Override
+    public void putFloat(final int index, final float value) {
+        putFloat(index, value, ByteBuffers.DEFAULT_ORDER);
+    }
+
+    @Override
+    public void putShort(final int index, final short value) {
+        putShort(index, value, ByteBuffers.DEFAULT_ORDER);
+    }
+
+    @Override
+    public void putChar(final int index, final char value) {
+        putChar(index, value, ByteBuffers.DEFAULT_ORDER);
+    }
+
+    @Override
+    public long getLong(final int index) {
+        return getLong(index, ByteBuffers.DEFAULT_ORDER);
+    }
+
+    @Override
+    public int getInt(final int index) {
+        return getInt(index, ByteBuffers.DEFAULT_ORDER);
+    }
+
+    @Override
+    public double getDouble(final int index) {
+        return getDouble(index, ByteBuffers.DEFAULT_ORDER);
+    }
+
+    @Override
+    public float getFloat(final int index) {
+        return getFloat(index, ByteBuffers.DEFAULT_ORDER);
+    }
+
+    @Override
+    public short getShort(final int index) {
+        return getShort(index, ByteBuffers.DEFAULT_ORDER);
+    }
+
+    @Override
+    public char getChar(final int index) {
+        return getChar(index, ByteBuffers.DEFAULT_ORDER);
     }
 
 }

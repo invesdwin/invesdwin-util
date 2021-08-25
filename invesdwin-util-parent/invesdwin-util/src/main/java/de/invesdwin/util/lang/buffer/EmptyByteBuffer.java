@@ -26,7 +26,7 @@ public final class EmptyByteBuffer implements IByteBuffer {
 
     @Override
     public ByteOrder getOrder() {
-        return ByteBuffers.NATIVE_ORDER;
+        return ByteBuffers.DEFAULT_ORDER;
     }
 
     @Override
