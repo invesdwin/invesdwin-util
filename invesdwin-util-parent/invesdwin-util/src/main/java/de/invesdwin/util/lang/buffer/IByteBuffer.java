@@ -227,8 +227,7 @@ public interface IByteBuffer {
     }
 
     /**
-     * Either returns the underlying array or copies the underlying storage into an array. Note that changes to the
-     * array might or might not be reflected in the underlying storage.
+     * Always returns a new copy as a byte array regardless of the underlying storage.
      */
     byte[] asByteArray(int index, int length);
 
