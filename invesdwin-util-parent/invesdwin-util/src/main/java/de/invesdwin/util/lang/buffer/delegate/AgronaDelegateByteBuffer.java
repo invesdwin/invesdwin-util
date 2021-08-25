@@ -26,20 +26,14 @@ import de.invesdwin.util.lang.buffer.IByteBuffer;
 public class AgronaDelegateByteBuffer implements IByteBuffer {
 
     private final MutableDirectBuffer delegate;
-    private final ByteOrder order;
 
     public AgronaDelegateByteBuffer(final MutableDirectBuffer delegate) {
-        this(delegate, ByteBuffers.DEFAULT_ORDER);
-    }
-
-    public AgronaDelegateByteBuffer(final MutableDirectBuffer delegate, final ByteOrder order) {
         this.delegate = delegate;
-        this.order = order;
     }
 
     @Override
     public ByteOrder getOrder() {
-        return order;
+        return ByteBuffers.DEFAULT_ORDER;
     }
 
     @Override
@@ -64,32 +58,32 @@ public class AgronaDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public long getLong(final int index) {
-        return delegate.getLong(index, order);
+        return delegate.getLong(index, getOrder());
     }
 
     @Override
     public int getInt(final int index) {
-        return delegate.getInt(index, order);
+        return delegate.getInt(index, getOrder());
     }
 
     @Override
     public double getDouble(final int index) {
-        return delegate.getDouble(index, order);
+        return delegate.getDouble(index, getOrder());
     }
 
     @Override
     public float getFloat(final int index) {
-        return delegate.getFloat(index, order);
+        return delegate.getFloat(index, getOrder());
     }
 
     @Override
     public short getShort(final int index) {
-        return delegate.getShort(index, order);
+        return delegate.getShort(index, getOrder());
     }
 
     @Override
     public char getChar(final int index) {
-        return delegate.getChar(index, order);
+        return delegate.getChar(index, getOrder());
     }
 
     @Override
@@ -137,32 +131,32 @@ public class AgronaDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public void putLong(final int index, final long value) {
-        delegate.putLong(index, value, order);
+        delegate.putLong(index, value, getOrder());
     }
 
     @Override
     public void putInt(final int index, final int value) {
-        delegate.putInt(index, value, order);
+        delegate.putInt(index, value, getOrder());
     }
 
     @Override
     public void putDouble(final int index, final double value) {
-        delegate.putDouble(index, value, order);
+        delegate.putDouble(index, value, getOrder());
     }
 
     @Override
     public void putFloat(final int index, final float value) {
-        delegate.putFloat(index, value, order);
+        delegate.putFloat(index, value, getOrder());
     }
 
     @Override
     public void putShort(final int index, final short value) {
-        delegate.putShort(index, value, order);
+        delegate.putShort(index, value, getOrder());
     }
 
     @Override
     public void putChar(final int index, final char value) {
-        delegate.putChar(index, value, order);
+        delegate.putChar(index, value, getOrder());
     }
 
     @Override
@@ -252,7 +246,7 @@ public class AgronaDelegateByteBuffer implements IByteBuffer {
         if (index == 0 && length == capacity()) {
             return this;
         } else {
-            return new AgronaDelegateByteBuffer(new UnsafeBuffer(delegate, index, length), order);
+            return new AgronaDelegateByteBuffer(new UnsafeBuffer(delegate, index, length));
         }
     }
 

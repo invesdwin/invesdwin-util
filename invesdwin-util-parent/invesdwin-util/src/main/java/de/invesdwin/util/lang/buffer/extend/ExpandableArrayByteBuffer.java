@@ -200,62 +200,62 @@ public class ExpandableArrayByteBuffer extends ExpandableArrayBuffer implements 
 
     @Override
     public void putLong(final int index, final long value) {
-        putLong(index, value, ByteBuffers.DEFAULT_ORDER);
+        putLong(index, value, getOrder());
     }
 
     @Override
     public void putInt(final int index, final int value) {
-        putInt(index, value, ByteBuffers.DEFAULT_ORDER);
+        putInt(index, value, getOrder());
     }
 
     @Override
     public void putDouble(final int index, final double value) {
-        putDouble(index, value, ByteBuffers.DEFAULT_ORDER);
+        putDouble(index, value, getOrder());
     }
 
     @Override
     public void putFloat(final int index, final float value) {
-        putFloat(index, value, ByteBuffers.DEFAULT_ORDER);
+        putFloat(index, value, getOrder());
     }
 
     @Override
     public void putShort(final int index, final short value) {
-        putShort(index, value, ByteBuffers.DEFAULT_ORDER);
+        putShort(index, value, getOrder());
     }
 
     @Override
     public void putChar(final int index, final char value) {
-        putChar(index, value, ByteBuffers.DEFAULT_ORDER);
+        putChar(index, value, getOrder());
     }
 
     @Override
     public long getLong(final int index) {
-        return getLong(index, ByteBuffers.DEFAULT_ORDER);
+        return getLong(index, getOrder());
     }
 
     @Override
     public int getInt(final int index) {
-        return getInt(index, ByteBuffers.DEFAULT_ORDER);
+        return getInt(index, getOrder());
     }
 
     @Override
     public double getDouble(final int index) {
-        return getDouble(index, ByteBuffers.DEFAULT_ORDER);
+        return getDouble(index, getOrder());
     }
 
     @Override
     public float getFloat(final int index) {
-        return getFloat(index, ByteBuffers.DEFAULT_ORDER);
+        return getFloat(index, getOrder());
     }
 
     @Override
     public short getShort(final int index) {
-        return getShort(index, ByteBuffers.DEFAULT_ORDER);
+        return getShort(index, getOrder());
     }
 
     @Override
     public char getChar(final int index) {
-        return getChar(index, ByteBuffers.DEFAULT_ORDER);
+        return getChar(index, getOrder());
     }
 
 }

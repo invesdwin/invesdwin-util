@@ -21,8 +21,8 @@ import de.invesdwin.util.lang.buffer.IByteBuffer;
 @NotThreadSafe
 public final class OrderedDelegateByteBuffer implements IByteBuffer {
 
-    private final ByteOrder order;
     private final IByteBuffer delegate;
+    private final ByteOrder order;
 
     private OrderedDelegateByteBuffer(final ByteOrder order, final IByteBuffer delegate) {
         this.order = order;
@@ -215,14 +215,14 @@ public final class OrderedDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public IByteBuffer slice(final int index, final int length) {
-        return delegate.slice(index, length);
+        return maybeWrap(order, delegate.slice(index, length));
     }
 
     public static IByteBuffer maybeWrap(final ByteOrder order, final IByteBuffer buffer) {
         if (order != buffer.getOrder()) {
             return new OrderedDelegateByteBuffer(order, buffer);
         } else {
-            //no conversion needed, already uses native
+            //no conversion needed, already uses default
             return buffer;
         }
     }
