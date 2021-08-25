@@ -9,6 +9,10 @@
 	</parent>
 	<artifactId>invesdwin-util</artifactId>
 	<packaging>jar</packaging>
+	
+	<properties>
+		<version.compiler>11</version.compiler>
+	</properties>
 
 	<dependencies>
 		<dependency>

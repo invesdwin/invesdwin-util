@@ -90,25 +90,47 @@ public final class ByteBuffers {
     }
 
     public static void get(final ByteBuffer buffer, final int position, final byte[] dst) {
-        final ByteBuffer duplicate = buffer.duplicate();
-        ByteBuffers.position(duplicate, position);
-        duplicate.get(dst);
+        final int positionBefore = buffer.position();
+        buffer.get(dst);
+        position(buffer, positionBefore);
     }
 
     public static byte[] getRemaining(final ByteBuffer buffer, final int position) {
-        final ByteBuffer duplicate = buffer.duplicate();
-        ByteBuffers.position(duplicate, position);
-        final byte[] dst = new byte[duplicate.remaining()];
-        duplicate.get(dst);
+        final int positionBefore = buffer.position();
+        position(buffer, position);
+        final byte[] dst = new byte[buffer.remaining()];
+        buffer.get(dst);
+        position(buffer, positionBefore);
         return dst;
     }
 
     public static byte[] get(final ByteBuffer buffer, final int position, final int size) {
-        final ByteBuffer duplicate = buffer.duplicate();
-        ByteBuffers.position(duplicate, position);
+        final int positionBefore = buffer.position();
+        position(buffer, position);
         final byte[] dst = new byte[size];
-        duplicate.get(dst);
+        buffer.get(dst);
+        position(buffer, positionBefore);
         return dst;
+    }
+
+    public static void get(final ByteBuffer buffer, final int index, final byte[] dst, final int dstIndex,
+            final int length) {
+        final int positionBefore = buffer.position();
+        position(buffer, index);
+        buffer.get(dst, dstIndex, length);
+        position(buffer, positionBefore);
+    }
+
+    public static void put(final ByteBuffer buffer, final int index, final byte[] src, final int srcIndex,
+            final int length) {
+        final int positionBefore = buffer.position();
+        position(buffer, index);
+        buffer.put(src, srcIndex, length);
+        position(buffer, positionBefore);
+    }
+
+    public static void put(final ByteBuffer buffer, final int index, final byte[] bytes) {
+        put(buffer, index, bytes, 0, bytes.length);
     }
 
     public static IByteBuffer allocate(final Integer fixedLength) {

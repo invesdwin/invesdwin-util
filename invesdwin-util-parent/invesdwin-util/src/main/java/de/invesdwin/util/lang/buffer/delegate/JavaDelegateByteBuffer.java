@@ -115,7 +115,7 @@ public class JavaDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public void getBytes(final int index, final byte[] dst, final int dstIndex, final int length) {
-        delegate.get(index, dst, dstIndex, length);
+        ByteBuffers.get(delegate, index, dst, dstIndex, length);
     }
 
     @Override
@@ -190,7 +190,7 @@ public class JavaDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public void putBytes(final int index, final byte[] src, final int srcIndex, final int length) {
-        delegate.put(index, src, srcIndex, length);
+        ByteBuffers.put(delegate, index, src, srcIndex, length);
     }
 
     @Override
@@ -227,7 +227,7 @@ public class JavaDelegateByteBuffer implements IByteBuffer {
             }
         }
         final byte[] bytes = new byte[length];
-        delegate.get(index, bytes, 0, length);
+        ByteBuffers.get(delegate, index, bytes, 0, length);
         return bytes;
     }
 
@@ -239,7 +239,7 @@ public class JavaDelegateByteBuffer implements IByteBuffer {
     @Override
     public String getStringAsciii(final int index, final int length) {
         final byte[] bytes = new byte[length];
-        delegate.get(index, bytes, 0, length);
+        ByteBuffers.get(delegate, index, bytes, 0, length);
         return ByteBuffers.newStringAscii(bytes);
     }
 
@@ -271,14 +271,14 @@ public class JavaDelegateByteBuffer implements IByteBuffer {
     @Override
     public int putStringUtf8(final int index, final String value) {
         final byte[] bytes = ByteBuffers.newStringUtf8Bytes(value);
-        delegate.put(index, bytes);
+        ByteBuffers.put(delegate, index, bytes);
         return bytes.length;
     }
 
     @Override
     public String getStringUtf8(final int index, final int length) {
         final byte[] bytes = new byte[length];
-        delegate.get(index, bytes, 0, length);
+        ByteBuffers.put(delegate,index, bytes, 0, length);
         return ByteBuffers.newStringUtf8(bytes);
     }
 
