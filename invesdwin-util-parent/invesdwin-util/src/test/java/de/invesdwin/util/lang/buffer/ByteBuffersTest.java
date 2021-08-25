@@ -53,12 +53,6 @@ public class ByteBuffersTest {
     private void testBuffer(final IByteBuffer b) {
         Assertions.checkTrue(b.addressOffset() != 0L);
         testPrimitives(b);
-        //        testStringUtf8(b);
-    }
-
-    private void testStringUtf8(final IByteBuffer b) {
-        final int write = 100;
-        b.putStringUtf8(100, null);
     }
 
     private void testPrimitives(final IByteBuffer b) {
