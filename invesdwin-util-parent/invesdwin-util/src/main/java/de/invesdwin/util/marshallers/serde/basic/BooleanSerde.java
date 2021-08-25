@@ -16,6 +16,7 @@ public class BooleanSerde implements ISerde<Boolean> {
 
     @Override
     public Boolean fromBytes(final byte[] bytes) {
+        System.out.println("TODO");
         return SerdeBaseMethods.fromBytes(this, bytes);
     }
 

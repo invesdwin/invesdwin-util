@@ -1,5 +1,9 @@
 package de.invesdwin.util.lang.buffer;
 
+import java.io.DataInput;
+import java.io.DataInputStream;
+import java.io.DataOutput;
+import java.io.DataOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
@@ -126,40 +130,56 @@ public interface IByteBuffer {
     void putByte(int index, byte value);
 
     default void putBytes(final int index, final byte[] src) {
-        putBytes(index, src, src.length);
+        putBytesTo(index, src, src.length);
     }
 
-    default void putBytes(final int index, final byte[] src, final int length) {
+    default void putBytesFrom(final int index, final byte[] src, final int srcIndex) {
+        putBytes(index, src, srcIndex, src.length - srcIndex);
+    }
+
+    default void putBytesTo(final int index, final byte[] src, final int length) {
         putBytes(index, src, 0, length);
     }
 
     void putBytes(int index, byte[] src, int srcIndex, int length);
 
     default void putBytes(final int index, final ByteBuffer srcBuffer) {
-        putBytes(index, srcBuffer, srcBuffer.remaining());
+        putBytesTo(index, srcBuffer, srcBuffer.capacity());
     }
 
-    default void putBytes(final int index, final ByteBuffer srcBuffer, final int length) {
-        putBytes(index, srcBuffer, srcBuffer.position(), length);
+    default void putBytesFrom(final int index, final ByteBuffer srcBuffer, final int srcIndex) {
+        putBytes(index, srcBuffer, srcIndex, srcBuffer.capacity() - srcIndex);
+    }
+
+    default void putBytesTo(final int index, final ByteBuffer srcBuffer, final int length) {
+        putBytes(index, srcBuffer, 0, length);
     }
 
     void putBytes(int index, ByteBuffer srcBuffer, int srcIndex, int length);
 
     default void putBytes(final int index, final DirectBuffer srcBuffer) {
-        putBytes(index, srcBuffer, 0, srcBuffer.capacity());
+        putBytesTo(index, srcBuffer, srcBuffer.capacity());
     }
 
-    default void putBytes(final int index, final DirectBuffer srcBuffer, final int length) {
+    default void putBytesFrom(final int index, final DirectBuffer srcBuffer, final int srcIndex) {
+        putBytes(index, srcBuffer, srcIndex, srcBuffer.capacity() - srcIndex);
+    }
+
+    default void putBytesTo(final int index, final DirectBuffer srcBuffer, final int length) {
         putBytes(index, srcBuffer, 0, length);
     }
 
     void putBytes(int index, DirectBuffer srcBuffer, int srcIndex, int length);
 
     default void putBytes(final int index, final IByteBuffer srcBuffer) {
-        putBytes(index, srcBuffer, srcBuffer.capacity());
+        putBytesTo(index, srcBuffer, srcBuffer.capacity());
     }
 
-    default void putBytes(final int index, final IByteBuffer srcBuffer, final int length) {
+    default void putBytesFrom(final int index, final IByteBuffer srcBuffer, final int srcIndex) {
+        putBytes(index, srcBuffer, srcIndex, srcBuffer.capacity() - srcIndex);
+    }
+
+    default void putBytesTo(final int index, final IByteBuffer srcBuffer, final int length) {
         putBytes(index, srcBuffer, 0, length);
     }
 
@@ -272,5 +292,45 @@ public interface IByteBuffer {
     String getStringUtf8(int index, int length);
 
     int getStringUtf8(int index, int length, Appendable dst);
+
+    default void getBytes(final int index, final DataOutputStream dst) {
+        getBytesTo(index, dst, capacity());
+    }
+
+    default void getBytesTo(final int index, final DataOutputStream dst, final int length) {
+        getBytesTo(index, (OutputStream) dst, length);
+    }
+
+    default void getBytes(final int index, final DataOutput dst) {
+        getBytesTo(index, dst, capacity());
+    }
+
+    void getBytesTo(int index, DataOutput dst, int length);
+
+    default void getBytes(final int index, final OutputStream dst) {
+        getBytesTo(index, dst, capacity());
+    }
+
+    void getBytesTo(int index, OutputStream dst, int length);
+
+    default void putBytes(final int index, final DataInputStream src) {
+        putBytesTo(index, src, capacity());
+    }
+
+    default void putBytesTo(final int index, final DataInputStream src, final int length) {
+        putBytesTo(index, (InputStream) src, length);
+    }
+
+    default void putBytes(final int index, final DataInput src) {
+        putBytesTo(index, src, capacity());
+    }
+
+    void putBytesTo(int index, DataInput src, int length);
+
+    default void putBytes(final int index, final InputStream src) {
+        putBytesTo(index, src, capacity());
+    }
+
+    void putBytesTo(int index, InputStream src, int length);
 
 }

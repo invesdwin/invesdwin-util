@@ -108,6 +108,14 @@ public final class ByteBuffers {
         return dst;
     }
 
+    public static IByteBuffer allocate(final Integer fixedLength) {
+        if (fixedLength == null) {
+            return allocateExpandable();
+        } else {
+            return allocate(fixedLength.intValue());
+        }
+    }
+
     public static IByteBuffer allocate(final int fixedLength) {
         if (fixedLength == 0) {
             return EmptyByteBuffer.INSTANCE;
