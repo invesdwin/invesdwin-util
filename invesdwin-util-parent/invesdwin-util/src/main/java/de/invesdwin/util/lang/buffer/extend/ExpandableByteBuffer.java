@@ -88,7 +88,7 @@ public class ExpandableByteBuffer extends ExpandableDirectByteBuffer implements 
         if (wrapAdjustment() == 0 && index == 0 && length == capacity()) {
             final byte[] bytes = byteArray();
             if (bytes != null) {
-                return bytes;
+                return bytes.clone();
             }
             final ByteBuffer byteBuffer = byteBuffer();
             if (byteBuffer != null) {

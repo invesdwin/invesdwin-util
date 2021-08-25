@@ -223,7 +223,7 @@ public class JavaDelegateByteBuffer implements IByteBuffer {
         if (wrapAdjustment() == 0 && index == 0 && length == capacity()) {
             final byte[] bytes = byteArray();
             if (bytes != null) {
-                return bytes;
+                return bytes.clone();
             }
         }
         final byte[] bytes = new byte[length];
@@ -278,7 +278,7 @@ public class JavaDelegateByteBuffer implements IByteBuffer {
     @Override
     public String getStringUtf8(final int index, final int length) {
         final byte[] bytes = new byte[length];
-        ByteBuffers.put(delegate,index, bytes, 0, length);
+        ByteBuffers.put(delegate, index, bytes, 0, length);
         return ByteBuffers.newStringUtf8(bytes);
     }
 
