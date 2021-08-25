@@ -190,6 +190,9 @@ public class ExpandableArrayByteBuffer extends ExpandableArrayBuffer implements 
         int i = index;
         while (i < length) {
             final int result = src.read();
+            if (result < 0) {
+                throw ByteBuffers.newPutBytesToEOF();
+            }
             putByte(i, (byte) result);
             i++;
         }

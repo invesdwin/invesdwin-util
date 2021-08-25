@@ -320,6 +320,9 @@ public class AgronaDelegateByteBuffer implements IByteBuffer {
         int i = index;
         while (i < length) {
             final int result = src.read();
+            if (result < 0) {
+                throw ByteBuffers.newPutBytesToEOF();
+            }
             delegate.putByte(i, (byte) result);
             i++;
         }

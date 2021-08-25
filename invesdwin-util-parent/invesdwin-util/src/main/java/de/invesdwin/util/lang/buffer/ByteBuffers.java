@@ -14,6 +14,8 @@ import org.agrona.MutableDirectBuffer;
 import org.agrona.concurrent.AtomicBuffer;
 import org.agrona.concurrent.UnsafeBuffer;
 
+import de.invesdwin.util.error.FastEOFException;
+import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.lang.Charsets;
 import de.invesdwin.util.lang.buffer.delegate.AgronaDelegateByteBuffer;
 import de.invesdwin.util.lang.buffer.delegate.JavaDelegateByteBuffer;
@@ -39,6 +41,7 @@ public final class ByteBuffers {
     public static final ByteOrder NATIVE_ORDER = ByteOrder.nativeOrder();
 
     private static final ISliceInvoker SLICE_INVOKER;
+    private static final FastEOFException PUTBYTESTOEOF = new FastEOFException("putBytesTo: src.read() returned -1");
 
     static {
         SLICE_INVOKER = newSliceInvoker();
@@ -201,6 +204,14 @@ public final class ByteBuffers {
     public static String newStringAscii(final byte[] bytes) {
         //actually the same
         return newStringUtf8(bytes);
+    }
+
+    public static FastEOFException newPutBytesToEOF() {
+        if (Throwables.isDebugStackTraceEnabled()) {
+            return new FastEOFException(PUTBYTESTOEOF.getMessage());
+        } else {
+            return PUTBYTESTOEOF;
+        }
     }
 
 }

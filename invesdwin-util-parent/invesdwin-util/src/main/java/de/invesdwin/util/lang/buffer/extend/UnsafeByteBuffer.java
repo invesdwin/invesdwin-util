@@ -2,6 +2,7 @@ package de.invesdwin.util.lang.buffer.extend;
 
 import java.io.DataInput;
 import java.io.DataOutput;
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -215,6 +216,9 @@ public class UnsafeByteBuffer extends UnsafeBuffer implements IByteBuffer {
         int i = index;
         while (i < length) {
             final int result = src.read();
+            if (result == -1) {
+                throw new EOFException();
+            }
             putByte(i, (byte) result);
             i++;
         }
