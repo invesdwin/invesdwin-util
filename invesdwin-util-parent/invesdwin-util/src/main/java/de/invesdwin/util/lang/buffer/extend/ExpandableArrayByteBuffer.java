@@ -242,7 +242,7 @@ public class ExpandableArrayByteBuffer extends ExpandableArrayBuffer implements 
         while (remaining > 0) {
             final int location = end - remaining;
             final int count = src.read(array, location, remaining);
-            if (-1 == count) { // EOF
+            if (count == -1) { // EOF
                 break;
             }
             remaining -= count;

@@ -66,7 +66,7 @@ public class JavaDelegateArrayByteBuffer extends JavaDelegateByteBuffer {
         while (remaining > 0) {
             final int location = end - remaining;
             final int count = src.read(array, location, remaining);
-            if (-1 == count) { // EOF
+            if (count == -1) { // EOF
                 break;
             }
             remaining -= count;
