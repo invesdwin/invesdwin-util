@@ -18,9 +18,9 @@ import de.invesdwin.util.error.FastEOFException;
 import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.lang.Charsets;
 import de.invesdwin.util.lang.buffer.delegate.AgronaDelegateByteBuffer;
-import de.invesdwin.util.lang.buffer.delegate.JavaDelegateArrayByteBuffer;
-import de.invesdwin.util.lang.buffer.delegate.JavaDelegateByteBuffer;
 import de.invesdwin.util.lang.buffer.extend.ExpandableArrayByteBuffer;
+import de.invesdwin.util.lang.buffer.extend.UnsafeArrayByteBuffer;
+import de.invesdwin.util.lang.buffer.extend.UnsafeByteBuffer;
 import de.invesdwin.util.lang.reflection.Reflections;
 import de.invesdwin.util.math.Bytes;
 
@@ -270,14 +270,14 @@ public final class ByteBuffers {
     }
 
     public static IByteBuffer wrap(final byte[] bytes) {
-        return new JavaDelegateArrayByteBuffer(bytes);
+        return new UnsafeArrayByteBuffer(bytes);
     }
 
     public static IByteBuffer wrap(final ByteBuffer buffer) {
         if (buffer.hasArray() && wrapAdjustment(buffer) == 0) {
             return wrap(buffer.array());
         } else {
-            return new JavaDelegateByteBuffer(buffer);
+            return new UnsafeByteBuffer(buffer);
         }
     }
 
