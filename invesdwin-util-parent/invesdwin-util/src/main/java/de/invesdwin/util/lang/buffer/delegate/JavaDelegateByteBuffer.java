@@ -278,7 +278,7 @@ public class JavaDelegateByteBuffer implements IByteBuffer {
     @Override
     public String getStringUtf8(final int index, final int length) {
         final byte[] bytes = new byte[length];
-        ByteBuffers.put(delegate, index, bytes, 0, length);
+        ByteBuffers.get(delegate, index, bytes, 0, length);
         return ByteBuffers.newStringUtf8(bytes);
     }
 

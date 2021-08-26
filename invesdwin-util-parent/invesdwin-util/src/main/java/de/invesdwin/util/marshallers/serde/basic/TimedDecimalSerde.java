@@ -46,7 +46,7 @@ public class TimedDecimalSerde implements ISerde<TimedDecimal> {
 
     @Override
     public TimedDecimal fromBuffer(final IByteBuffer buffer) {
-        final FDate time = FDateSerde.extractFDate(buffer, TIME_INDEX);
+        final FDate time = FDateSerde.getFDate(buffer, TIME_INDEX);
         final double value = buffer.getDouble(DECIMAL_INDEX);
 
         final TimedDecimal timedMoney = new TimedDecimal(time, value);

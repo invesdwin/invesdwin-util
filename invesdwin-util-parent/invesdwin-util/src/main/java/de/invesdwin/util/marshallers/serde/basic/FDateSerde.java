@@ -42,12 +42,12 @@ public class FDateSerde implements ISerde<FDate> {
         }
     }
 
-    public static FDate extractFDate(final IByteBuffer buffer, final int index) {
+    public static FDate getFDate(final IByteBuffer buffer, final int index) {
         final long time = buffer.getLong(index);
-        return extractFDate(time);
+        return getFDate(time);
     }
 
-    public static FDate extractFDate(final long time) {
+    public static FDate getFDate(final long time) {
         if (time == Long.MIN_VALUE) {
             return null;
         } else {
