@@ -60,19 +60,19 @@ public class UnsafeArrayByteBuffer extends UnsafeByteBuffer {
 
     @Override
     public void putBytesTo(final int index, final InputStream src, final int length) throws IOException {
-        //        final int result = src.read(byteArray(), index, length);
-        //        if (result == -1 || length != result) {
-        //            throw ByteBuffers.newPutBytesToEOF();
-        //        }
-        //System.out.println("fixme");
-        int i = index;
-        while (i < length) {
-            final int result = src.read();
-            if (result == -1) {
-                throw ByteBuffers.newPutBytesToEOF();
+        final byte[] array = byteArray();
+        final int end = index + length;
+        int remaining = length;
+        while (remaining > 0) {
+            final int location = end - remaining;
+            final int count = src.read(array, location, remaining);
+            if (-1 == count) { // EOF
+                break;
             }
-            putByte(i, (byte) result);
-            i++;
+            remaining -= count;
+        }
+        if (remaining > 0) {
+            throw ByteBuffers.newPutBytesToEOF();
         }
     }
 
