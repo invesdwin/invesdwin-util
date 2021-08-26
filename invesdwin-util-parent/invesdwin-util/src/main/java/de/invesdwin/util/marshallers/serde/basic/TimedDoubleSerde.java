@@ -41,7 +41,7 @@ public class TimedDoubleSerde implements ISerde<TimedDouble> {
     }
 
     @Override
-    public TimedDouble fromBuffer(final IByteBuffer buffer) {
+    public TimedDouble fromBuffer(final IByteBuffer buffer, final int length) {
         final FDate time = FDateSerde.getFDate(buffer, TIME_INDEX);
         final double value = buffer.getDouble(DOUBLE_INDEX);
 

@@ -16,7 +16,7 @@ public final class SerdeBaseMethods {
         if (bytes == null || bytes.length == 0) {
             return null;
         }
-        return serde.fromBuffer(ByteBuffers.wrap(bytes));
+        return serde.fromBuffer(ByteBuffers.wrap(bytes), bytes.length);
     }
 
     public static <O> byte[] toBytes(final ISerde<O> serde, final O obj, final int fixedLength) {
@@ -25,11 +25,11 @@ public final class SerdeBaseMethods {
         }
         final IByteBuffer buffer = ByteBuffers.allocate(fixedLength);
         final int length = serde.toBuffer(obj, buffer);
-        return buffer.asByteArrayCopyTo(length);
+        return buffer.asByteArrayTo(length);
     }
 
-    public static <O> O fromBuffer(final ISerde<O> serde, final IByteBuffer buffer) {
-        final byte[] bytes = buffer.asByteArrayCopy();
+    public static <O> O fromBuffer(final ISerde<O> serde, final IByteBuffer buffer, final int length) {
+        final byte[] bytes = buffer.asByteArrayTo(length);
         return serde.fromBytes(bytes);
     }
 

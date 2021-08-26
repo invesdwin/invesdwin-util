@@ -27,7 +27,7 @@ public final class DoubleSerde implements ISerde<Double> {
     }
 
     @Override
-    public Double fromBuffer(final IByteBuffer buffer) {
+    public Double fromBuffer(final IByteBuffer buffer, final int length) {
         return extractDouble(buffer, 0);
     }
 

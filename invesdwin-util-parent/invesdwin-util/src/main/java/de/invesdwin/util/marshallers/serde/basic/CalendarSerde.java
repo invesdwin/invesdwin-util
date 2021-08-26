@@ -26,8 +26,8 @@ public class CalendarSerde implements ISerde<Calendar> {
     }
 
     @Override
-    public Calendar fromBuffer(final IByteBuffer buffer) {
-        final Date date = DateSerde.GET.fromBuffer(buffer);
+    public Calendar fromBuffer(final IByteBuffer buffer, final int length) {
+        final Date date = DateSerde.GET.fromBuffer(buffer, length);
         if (date == null) {
             return null;
         } else {

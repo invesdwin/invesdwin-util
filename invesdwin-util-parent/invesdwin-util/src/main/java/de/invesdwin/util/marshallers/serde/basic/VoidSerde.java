@@ -23,7 +23,7 @@ public class VoidSerde implements ISerde<Void> {
     }
 
     @Override
-    public Void fromBuffer(final IByteBuffer buffer) {
+    public Void fromBuffer(final IByteBuffer buffer, final int length) {
         return null;
     }
 

@@ -31,13 +31,13 @@ public class FixedLengthBufferingIteratorDelegateSerde<E> implements ISerde<IBuf
     }
 
     @Override
-    public IBufferingIterator<? extends E> fromBuffer(final IByteBuffer buffer) {
+    public IBufferingIterator<? extends E> fromBuffer(final IByteBuffer buffer, final int length) {
         final int size = buffer.capacity() / fixedLength;
         final BufferingIterator<E> result = new BufferingIterator<E>();
         int curOffset = 0;
         for (int i = 0; i < size; i++) {
             final IByteBuffer slice = buffer.slice(curOffset, fixedLength);
-            final E obj = delegate.fromBuffer(slice);
+            final E obj = delegate.fromBuffer(slice, fixedLength);
             result.add(obj);
             curOffset += fixedLength;
         }

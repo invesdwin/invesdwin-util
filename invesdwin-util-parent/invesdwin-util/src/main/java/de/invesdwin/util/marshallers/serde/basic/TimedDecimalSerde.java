@@ -45,7 +45,7 @@ public class TimedDecimalSerde implements ISerde<TimedDecimal> {
     }
 
     @Override
-    public TimedDecimal fromBuffer(final IByteBuffer buffer) {
+    public TimedDecimal fromBuffer(final IByteBuffer buffer, final int length) {
         final FDate time = FDateSerde.getFDate(buffer, TIME_INDEX);
         final double value = buffer.getDouble(DECIMAL_INDEX);
 

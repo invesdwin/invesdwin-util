@@ -28,7 +28,7 @@ public final class DecimalSerde implements ISerde<Decimal> {
     }
 
     @Override
-    public Decimal fromBuffer(final IByteBuffer buffer) {
+    public Decimal fromBuffer(final IByteBuffer buffer, final int length) {
         return extractDecimal(buffer, 0);
     }
 

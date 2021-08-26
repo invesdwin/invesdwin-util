@@ -38,7 +38,7 @@ public class TimeRangeSerde implements ISerde<TimeRange> {
     }
 
     @Override
-    public TimeRange fromBuffer(final IByteBuffer buffer) {
+    public TimeRange fromBuffer(final IByteBuffer buffer, final int length) {
         return getTimeRange(buffer, 0);
     }
 

@@ -35,7 +35,7 @@ public final class CurrencySerde implements ISerde<Currency> {
     }
 
     @Override
-    public Currency fromBuffer(final IByteBuffer buffer) {
+    public Currency fromBuffer(final IByteBuffer buffer, final int length) {
         return getCurrency(buffer, 0);
     }
 

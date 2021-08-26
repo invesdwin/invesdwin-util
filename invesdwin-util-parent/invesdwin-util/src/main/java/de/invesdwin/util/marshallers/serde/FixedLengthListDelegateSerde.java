@@ -30,13 +30,13 @@ public class FixedLengthListDelegateSerde<E> implements ISerde<List<? extends E>
     }
 
     @Override
-    public List<? extends E> fromBuffer(final IByteBuffer buffer) {
+    public List<? extends E> fromBuffer(final IByteBuffer buffer, final int length) {
         final int size = buffer.capacity() / fixedLength;
         final List<E> result = new ArrayList<E>(size);
         int curOffset = 0;
         for (int i = 0; i < size; i++) {
             final IByteBuffer slice = buffer.slice(curOffset, fixedLength);
-            final E obj = delegate.fromBuffer(slice);
+            final E obj = delegate.fromBuffer(slice, fixedLength);
             result.add(obj);
             curOffset += fixedLength;
         }

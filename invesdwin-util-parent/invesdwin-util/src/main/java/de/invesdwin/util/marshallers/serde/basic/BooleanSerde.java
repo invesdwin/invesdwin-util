@@ -25,8 +25,8 @@ public class BooleanSerde implements ISerde<Boolean> {
     }
 
     @Override
-    public Boolean fromBuffer(final IByteBuffer buffer) {
-        return extractBoolean(buffer, 0);
+    public Boolean fromBuffer(final IByteBuffer buffer, final int length) {
+        return getBoolean(buffer, 0);
     }
 
     @Override
@@ -43,12 +43,12 @@ public class BooleanSerde implements ISerde<Boolean> {
         }
     }
 
-    public static Boolean extractBoolean(final IByteBuffer buffer, final int index) {
+    public static Boolean getBoolean(final IByteBuffer buffer, final int index) {
         final byte value = buffer.getByte(index);
-        return extractBoolean(value);
+        return getBoolean(value);
     }
 
-    public static Boolean extractBoolean(final byte value) {
+    public static Boolean getBoolean(final byte value) {
         if (value == Byte.MIN_VALUE) {
             return null;
         } else {

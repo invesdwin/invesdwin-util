@@ -24,7 +24,7 @@ public class FDateSerde implements ISerde<FDate> {
     }
 
     @Override
-    public FDate fromBuffer(final IByteBuffer buffer) {
+    public FDate fromBuffer(final IByteBuffer buffer, final int length) {
         return FDate.valueOf(buffer.getLong(0));
     }
 

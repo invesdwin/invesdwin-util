@@ -14,6 +14,7 @@ public class LongSerde implements ISerde<Long> {
 
     @Override
     public Long fromBytes(final byte[] bytes) {
+        //        System.out.println("TODO");
         return SerdeBaseMethods.fromBytes(this, bytes);
     }
 
@@ -23,8 +24,8 @@ public class LongSerde implements ISerde<Long> {
     }
 
     @Override
-    public Long fromBuffer(final IByteBuffer buffer) {
-        return extractLong(buffer, 0);
+    public Long fromBuffer(final IByteBuffer buffer, final int length) {
+        return getLong(buffer, 0);
     }
 
     @Override
@@ -41,12 +42,12 @@ public class LongSerde implements ISerde<Long> {
         }
     }
 
-    public static Long extractLong(final IByteBuffer buffer, final int index) {
+    public static Long getLong(final IByteBuffer buffer, final int index) {
         final long value = buffer.getLong(index);
-        return extractLong(value);
+        return getLong(value);
     }
 
-    public static Long extractLong(final long value) {
+    public static Long getLong(final long value) {
         if (value == Long.MIN_VALUE) {
             return null;
         } else {

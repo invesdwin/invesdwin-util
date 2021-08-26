@@ -8,7 +8,7 @@ public interface ISerde<O> {
 
     byte[] toBytes(O obj);
 
-    O fromBuffer(IByteBuffer buffer);
+    O fromBuffer(IByteBuffer buffer, int length);
 
     int toBuffer(O obj, IByteBuffer buffer);
 
