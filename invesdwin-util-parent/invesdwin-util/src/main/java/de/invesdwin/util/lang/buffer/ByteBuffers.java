@@ -170,22 +170,6 @@ public final class ByteBuffers {
         }
     }
 
-    public static IByteBuffer wrap(final byte[] bytes) {
-        return new JavaDelegateArrayByteBuffer(bytes);
-    }
-
-    public static IByteBuffer wrap(final ByteBuffer buffer) {
-        if (buffer.hasArray() && wrapAdjustment(buffer) == 0) {
-            return wrap(buffer.array());
-        } else {
-            return new JavaDelegateByteBuffer(buffer);
-        }
-    }
-
-    public static IByteBuffer wrap(final MutableDirectBuffer buffer) {
-        return new AgronaDelegateByteBuffer(buffer);
-    }
-
     /**
      * Allocate a buffer for this encoded size and use putStringAscii(string) afterwards.
      */
@@ -283,6 +267,22 @@ public final class ByteBuffers {
     public static int wrapAdjustment(final ByteBuffer buffer) {
         final long offset = buffer.hasArray() ? BufferUtil.ARRAY_BASE_OFFSET : BufferUtil.address(buffer);
         return (int) (addressOffset(buffer) - offset);
+    }
+
+    public static IByteBuffer wrap(final byte[] bytes) {
+        return new JavaDelegateArrayByteBuffer(bytes);
+    }
+
+    public static IByteBuffer wrap(final ByteBuffer buffer) {
+        if (buffer.hasArray() && wrapAdjustment(buffer) == 0) {
+            return wrap(buffer.array());
+        } else {
+            return new JavaDelegateByteBuffer(buffer);
+        }
+    }
+
+    public static IByteBuffer wrap(final MutableDirectBuffer buffer) {
+        return new AgronaDelegateByteBuffer(buffer);
     }
 
 }
