@@ -6,7 +6,6 @@ import java.lang.reflect.Method;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.nio.CharBuffer;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -218,7 +217,11 @@ public final class ByteBuffers {
         if (value == null || value.length() == 0) {
             return Bytes.EMPTY_ARRAY;
         }
-        return Charsets.UTF_8.encode(CharBuffer.wrap(value)).array();
+        //this variation causes additional zero bytes to be added at the end -.-
+        //dunno how to get the real size and don't want to iterator until a non-zero byte is found at the end.
+        //also trimming would require a second array copy, which should be equivalent to a value.toString()
+        //return Charsets.UTF_8.encode(CharBuffer.wrap(value)).array();
+        return value.toString().getBytes(Charsets.UTF_8);
     }
 
     /**

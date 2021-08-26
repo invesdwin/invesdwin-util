@@ -214,6 +214,12 @@ public interface IByteBuffer {
 
     OutputStream asOutputStream(int index, int length);
 
+    /**
+     * WARNING: be aware that expandable buffers might have a larger capacity than was was added to the buffer, thus
+     * always prefer to use asByteArrayTo(length) instead of this capacity bounded version. Or make sure to only call
+     * this method on buffers that have been slice(from, to)'d since that sets the capacity as a contraint to the
+     * underlying actual backing array capacity.
+     */
     default byte[] asByteArray() {
         return asByteArrayTo(capacity());
     }

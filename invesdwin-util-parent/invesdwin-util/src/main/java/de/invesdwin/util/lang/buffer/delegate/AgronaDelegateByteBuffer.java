@@ -226,18 +226,28 @@ public class AgronaDelegateByteBuffer implements IByteBuffer {
         if (wrapAdjustment() == 0 && index == 0 && length == capacity()) {
             final byte[] bytes = byteArray();
             if (bytes != null) {
+                if (bytes.length != length) {
+                    return asByteArrayCopy(index, length);
+                }
                 return bytes.clone();
             }
             final ByteBuffer byteBuffer = byteBuffer();
             if (byteBuffer != null) {
                 final byte[] array = byteBuffer.array();
                 if (array != null) {
+                    if (array.length != length) {
+                        return asByteArrayCopy(index, length);
+                    }
                     return array;
                 }
             }
         }
+        return asByteArrayCopy(index, length);
+    }
+
+    private byte[] asByteArrayCopy(final int index, final int length) {
         final byte[] bytes = new byte[length];
-        delegate.getBytes(index, bytes, 0, length);
+        getBytes(index, bytes, 0, length);
         return bytes;
     }
 
