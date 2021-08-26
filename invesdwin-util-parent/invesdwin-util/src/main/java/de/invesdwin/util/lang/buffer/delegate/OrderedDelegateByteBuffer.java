@@ -209,8 +209,8 @@ public final class OrderedDelegateByteBuffer implements IByteBuffer {
     }
 
     @Override
-    public byte[] asByteArray(final int index, final int length) {
-        return delegate.asByteArray();
+    public byte[] asByteArrayCopy(final int index, final int length) {
+        return delegate.asByteArrayCopy();
     }
 
     @Override

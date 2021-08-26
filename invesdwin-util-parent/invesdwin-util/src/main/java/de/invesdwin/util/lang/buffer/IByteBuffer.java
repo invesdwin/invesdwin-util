@@ -222,22 +222,22 @@ public interface IByteBuffer {
      * this method on buffers that have been slice(from, to)'d since that sets the capacity as a contraint to the
      * underlying actual backing array capacity.
      */
-    default byte[] asByteArray() {
-        return asByteArrayTo(capacity());
+    default byte[] asByteArrayCopy() {
+        return asByteArrayCopyTo(capacity());
     }
 
-    default byte[] asByteArrayFrom(final int index) {
-        return asByteArray(index, remaining(index));
+    default byte[] asByteArrayCopyFrom(final int index) {
+        return asByteArrayCopy(index, remaining(index));
     }
 
-    default byte[] asByteArrayTo(final int length) {
-        return asByteArray(0, length);
+    default byte[] asByteArrayCopyTo(final int length) {
+        return asByteArrayCopy(0, length);
     }
 
     /**
      * Always returns a new copy as a byte array regardless of the underlying storage.
      */
-    byte[] asByteArray(int index, int length);
+    byte[] asByteArrayCopy(int index, int length);
 
     default MutableDirectBuffer asDirectBuffer() {
         return asDirectBufferTo(capacity());

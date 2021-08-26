@@ -195,7 +195,7 @@ public final class EmptyByteBuffer implements IByteBuffer {
     }
 
     @Override
-    public byte[] asByteArray(final int index, final int length) {
+    public byte[] asByteArrayCopy(final int index, final int length) {
         return byteArray();
     }
 
