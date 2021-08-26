@@ -82,6 +82,44 @@ public class ExpandableArrayByteBuffer extends ExpandableArrayBuffer implements 
         }
     }
 
+    @Deprecated
+    @Override
+    public byte[] asByteArray() {
+        throw new UnsupportedOperationException("This will give a bigger size than what was added to the buffer. "
+                + "Use buffer.asByteArrayTo(buffer.capacity()) if you really want this from an expandable buffer."
+                + "Also a slice(from, to)'d wrapper of this buffer should not cause this exception.");
+    }
+
+    @Deprecated
+    @Override
+    public byte[] asByteArrayCopy() {
+        return asByteArray();
+    }
+
+    @Override
+    public byte[] asByteArray(final int index, final int length) {
+        if (wrapAdjustment() == 0 && index == 0 && length == capacity()) {
+            final byte[] bytes = byteArray();
+            if (bytes != null) {
+                if (bytes.length != length) {
+                    return asByteArrayCopyGet(index, length);
+                }
+                return bytes;
+            }
+            final ByteBuffer byteBuffer = byteBuffer();
+            if (byteBuffer != null) {
+                final byte[] array = byteBuffer.array();
+                if (array != null) {
+                    if (array.length != length) {
+                        return asByteArrayCopyGet(index, length);
+                    }
+                    return array;
+                }
+            }
+        }
+        return asByteArrayCopyGet(index, length);
+    }
+
     @Override
     public byte[] asByteArrayCopy(final int index, final int length) {
         if (wrapAdjustment() == 0 && index == 0 && length == capacity()) {
@@ -99,7 +137,7 @@ public class ExpandableArrayByteBuffer extends ExpandableArrayBuffer implements 
                     if (array.length != length) {
                         return asByteArrayCopyGet(index, length);
                     }
-                    return array;
+                    return array.clone();
                 }
             }
         }

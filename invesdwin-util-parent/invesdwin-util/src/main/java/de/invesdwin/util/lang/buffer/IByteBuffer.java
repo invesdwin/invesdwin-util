@@ -215,6 +215,33 @@ public interface IByteBuffer {
     OutputStream asOutputStream(int index, int length);
 
     /**
+     * Might return the actual underlying array. Thus make sure to clone() it if the buffer is to be reused. Or just use
+     * asByteArrayCopy instead to make sure a copy is returned always and clone() is not used redundantly.
+     * 
+     * WARNING: be aware that expandable buffers might have a larger capacity than was was added to the buffer, thus
+     * always prefer to use asByteArrayTo(length) instead of this capacity bounded version. Or make sure to only call
+     * this method on buffers that have been slice(from, to)'d since that sets the capacity as a contraint to the
+     * underlying actual backing array capacity.
+     */
+    default byte[] asByteArray() {
+        return asByteArrayTo(capacity());
+    }
+
+    default byte[] asByteArrayFrom(final int index) {
+        return asByteArray(index, remaining(index));
+    }
+
+    default byte[] asByteArrayTo(final int length) {
+        return asByteArray(0, length);
+    }
+
+    /**
+     * Might return the actual underlying array. Thus make sure to clone() it if the buffer is to be reused. Or just use
+     * asByteArrayCopy instead to make sure a copy is returned always and clone() is not used redundantly.
+     */
+    byte[] asByteArray(int index, int length);
+
+    /**
      * Always returns a new copy as a byte array regardless of the underlying storage.
      * 
      * WARNING: be aware that expandable buffers might have a larger capacity than was was added to the buffer, thus

@@ -219,6 +219,20 @@ public class JavaDelegateByteBuffer implements IByteBuffer {
     }
 
     @Override
+    public byte[] asByteArray(final int index, final int length) {
+        if (wrapAdjustment() == 0 && index == 0 && length == capacity()) {
+            final byte[] bytes = byteArray();
+            if (bytes != null) {
+                if (bytes.length != length) {
+                    return asByteArrayCopyGet(index, length);
+                }
+                return bytes;
+            }
+        }
+        return asByteArrayCopyGet(index, length);
+    }
+
+    @Override
     public byte[] asByteArrayCopy(final int index, final int length) {
         if (wrapAdjustment() == 0 && index == 0 && length == capacity()) {
             final byte[] bytes = byteArray();
