@@ -271,11 +271,11 @@ public interface IByteBuffer {
     void getStringAsciii(int index, int length, Appendable dst);
 
     default void putStringAsciii(final int index, final CharSequence value) {
-        putStringAsciiiTo(index, value, index);
+        putStringAsciiiTo(index, value, ByteBuffers.newStringAsciiLength(value));
     }
 
     default void putStringAsciiiFrom(final int index, final CharSequence value, final int valueIndex) {
-        putStringAsciii(index, value, valueIndex, value.length() - valueIndex);
+        putStringAsciii(index, value, valueIndex, ByteBuffers.newStringAsciiLength(value) - valueIndex);
     }
 
     default void putStringAsciiiTo(final int index, final CharSequence value, final int length) {
