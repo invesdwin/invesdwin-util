@@ -61,7 +61,7 @@ public class UnsafeArrayByteBuffer extends UnsafeByteBuffer {
     @Override
     public void putBytesTo(final int index, final InputStream src, final int length) throws IOException {
         final int result = src.read(byteArray(), index, length);
-        if (result == -1) {
+        if (result == -1 || length != result) {
             throw ByteBuffers.newPutBytesToEOF();
         }
     }

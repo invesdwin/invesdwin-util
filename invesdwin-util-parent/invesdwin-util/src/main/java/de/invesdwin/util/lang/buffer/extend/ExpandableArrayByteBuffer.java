@@ -238,7 +238,7 @@ public class ExpandableArrayByteBuffer extends ExpandableArrayBuffer implements 
     public void putBytesTo(final int index, final InputStream src, final int length) throws IOException {
         checkLimit(index + length);
         final int result = src.read(byteArray(), index, length);
-        if (result == -1) {
+        if (result == -1 || length != result) {
             throw ByteBuffers.newPutBytesToEOF();
         }
     }
