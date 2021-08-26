@@ -2,7 +2,6 @@ package de.invesdwin.util.lang.buffer.extend;
 
 import java.io.DataInput;
 import java.io.DataOutput;
-import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -12,7 +11,6 @@ import java.nio.ByteOrder;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import org.agrona.DirectBuffer;
-import org.agrona.ExpandableArrayBuffer;
 import org.agrona.MutableDirectBuffer;
 import org.agrona.concurrent.UnsafeBuffer;
 import org.agrona.io.DirectBufferInputStream;
@@ -100,12 +98,43 @@ public class UnsafeByteBuffer extends UnsafeBuffer implements IByteBuffer {
 
     @Override
     public OutputStream asOutputStream(final int index, final int length) {
-        if (isExpandable() && index + length >= capacity()) {
-            //allow output stream to actually grow the buffer
-            return new DirectBufferOutputStream(this, index, ExpandableArrayBuffer.MAX_ARRAY_LENGTH - index);
-        } else {
-            return new DirectBufferOutputStream(this, index, length);
+        return new DirectBufferOutputStream(this, index, length);
+    }
+
+    @Override
+    public byte[] asByteArray() {
+        if (wrapAdjustment() == 0) {
+            final byte[] bytes = byteArray();
+            if (bytes != null) {
+                return bytes;
+            }
+            final ByteBuffer byteBuffer = byteBuffer();
+            if (byteBuffer != null) {
+                final byte[] array = byteBuffer.array();
+                if (array != null) {
+                    return array;
+                }
+            }
         }
+        return ByteBuffers.asByteArrayCopyGet(this, 0, capacity());
+    }
+
+    @Override
+    public byte[] asByteArrayCopy() {
+        if (wrapAdjustment() == 0) {
+            final byte[] bytes = byteArray();
+            if (bytes != null) {
+                return bytes.clone();
+            }
+            final ByteBuffer byteBuffer = byteBuffer();
+            if (byteBuffer != null) {
+                final byte[] array = byteBuffer.array();
+                if (array != null) {
+                    return array.clone();
+                }
+            }
+        }
+        return ByteBuffers.asByteArrayCopyGet(this, 0, capacity());
     }
 
     @Override
@@ -114,7 +143,7 @@ public class UnsafeByteBuffer extends UnsafeBuffer implements IByteBuffer {
             final byte[] bytes = byteArray();
             if (bytes != null) {
                 if (bytes.length != length) {
-                    return asByteArrayCopyGet(index, length);
+                    return ByteBuffers.asByteArrayCopyGet(this, index, length);
                 }
                 return bytes;
             }
@@ -123,13 +152,13 @@ public class UnsafeByteBuffer extends UnsafeBuffer implements IByteBuffer {
                 final byte[] array = byteBuffer.array();
                 if (array != null) {
                     if (array.length != length) {
-                        return asByteArrayCopyGet(index, length);
+                        return ByteBuffers.asByteArrayCopyGet(this, index, length);
                     }
                     return array;
                 }
             }
         }
-        return asByteArrayCopyGet(index, length);
+        return ByteBuffers.asByteArrayCopyGet(this, index, length);
     }
 
     @Override
@@ -138,7 +167,7 @@ public class UnsafeByteBuffer extends UnsafeBuffer implements IByteBuffer {
             final byte[] bytes = byteArray();
             if (bytes != null) {
                 if (bytes.length != length) {
-                    return asByteArrayCopyGet(index, length);
+                    return ByteBuffers.asByteArrayCopyGet(this, index, length);
                 }
                 return bytes.clone();
             }
@@ -147,19 +176,13 @@ public class UnsafeByteBuffer extends UnsafeBuffer implements IByteBuffer {
                 final byte[] array = byteBuffer.array();
                 if (array != null) {
                     if (array.length != length) {
-                        return asByteArrayCopyGet(index, length);
+                        return ByteBuffers.asByteArrayCopyGet(this, index, length);
                     }
                     return array.clone();
                 }
             }
         }
-        return asByteArrayCopyGet(index, length);
-    }
-
-    private byte[] asByteArrayCopyGet(final int index, final int length) {
-        final byte[] bytes = new byte[length];
-        getBytes(index, bytes, 0, length);
-        return bytes;
+        return ByteBuffers.asByteArrayCopyGet(this, index, length);
     }
 
     @Override
@@ -251,7 +274,7 @@ public class UnsafeByteBuffer extends UnsafeBuffer implements IByteBuffer {
         while (i < length) {
             final int result = src.read();
             if (result == -1) {
-                throw new EOFException();
+                throw ByteBuffers.newPutBytesToEOF();
             }
             putByte(i, (byte) result);
             i++;

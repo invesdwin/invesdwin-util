@@ -9,6 +9,7 @@ import java.nio.ByteOrder;
 
 import javax.annotation.concurrent.Immutable;
 
+import org.agrona.BufferUtil;
 import org.agrona.MutableDirectBuffer;
 import org.agrona.concurrent.AtomicBuffer;
 import org.agrona.concurrent.UnsafeBuffer;
@@ -17,6 +18,7 @@ import de.invesdwin.util.error.FastEOFException;
 import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.lang.Charsets;
 import de.invesdwin.util.lang.buffer.delegate.AgronaDelegateByteBuffer;
+import de.invesdwin.util.lang.buffer.delegate.JavaDelegateArrayByteBuffer;
 import de.invesdwin.util.lang.buffer.delegate.JavaDelegateByteBuffer;
 import de.invesdwin.util.lang.buffer.extend.ExpandableArrayByteBuffer;
 import de.invesdwin.util.lang.reflection.Reflections;
@@ -169,11 +171,15 @@ public final class ByteBuffers {
     }
 
     public static IByteBuffer wrap(final byte[] bytes) {
-        return new JavaDelegateByteBuffer(bytes);
+        return new JavaDelegateArrayByteBuffer(bytes);
     }
 
     public static IByteBuffer wrap(final ByteBuffer buffer) {
-        return new JavaDelegateByteBuffer(buffer);
+        if (buffer.hasArray() && wrapAdjustment(buffer) == 0) {
+            return wrap(buffer.array());
+        } else {
+            return new JavaDelegateByteBuffer(buffer);
+        }
     }
 
     public static IByteBuffer wrap(final MutableDirectBuffer buffer) {
@@ -252,6 +258,31 @@ public final class ByteBuffers {
         } else {
             return PUTBYTESTOEOF;
         }
+    }
+
+    public static byte[] asByteArrayCopyGet(final IByteBuffer buffer, final int index, final int length) {
+        final byte[] bytes = new byte[length];
+        buffer.getBytes(index, bytes, 0, length);
+        return bytes;
+    }
+
+    public static byte[] asByteArrayCopyGet(final ByteBuffer buffer, final int index, final int length) {
+        final byte[] bytes = new byte[length];
+        get(buffer, index, bytes, 0, length);
+        return bytes;
+    }
+
+    public static long addressOffset(final ByteBuffer buffer) {
+        if (buffer.isDirect()) {
+            return BufferUtil.address(buffer);
+        } else {
+            return BufferUtil.ARRAY_BASE_OFFSET + BufferUtil.arrayOffset(buffer);
+        }
+    }
+
+    public static int wrapAdjustment(final ByteBuffer buffer) {
+        final long offset = buffer.hasArray() ? BufferUtil.ARRAY_BASE_OFFSET : BufferUtil.address(buffer);
+        return (int) (addressOffset(buffer) - offset);
     }
 
 }

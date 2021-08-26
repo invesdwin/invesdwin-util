@@ -10,7 +10,6 @@ import java.nio.ByteOrder;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import org.agrona.BufferUtil;
 import org.agrona.DirectBuffer;
 import org.agrona.MutableDirectBuffer;
 import org.agrona.concurrent.UnsafeBuffer;
@@ -24,7 +23,7 @@ import de.invesdwin.util.lang.buffer.IByteBuffer;
 @NotThreadSafe
 public class JavaDelegateByteBuffer implements IByteBuffer {
 
-    private final ByteBuffer delegate;
+    protected final ByteBuffer delegate;
     private UnsafeBuffer directBuffer;
 
     public JavaDelegateByteBuffer(final byte[] bytes) {
@@ -42,13 +41,7 @@ public class JavaDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public long addressOffset() {
-        if (directBuffer != null) {
-            return directBuffer.addressOffset();
-        } else if (delegate.isDirect()) {
-            return BufferUtil.address(delegate);
-        } else {
-            return BufferUtil.ARRAY_BASE_OFFSET + BufferUtil.arrayOffset(delegate);
-        }
+        return ByteBuffers.addressOffset(delegate);
     }
 
     @Override
@@ -144,8 +137,7 @@ public class JavaDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public int wrapAdjustment() {
-        final long offset = delegate.hasArray() ? BufferUtil.ARRAY_BASE_OFFSET : BufferUtil.address(delegate);
-        return (int) (addressOffset() - offset);
+        return ByteBuffers.wrapAdjustment(delegate);
     }
 
     @Override
@@ -219,37 +211,51 @@ public class JavaDelegateByteBuffer implements IByteBuffer {
     }
 
     @Override
+    public byte[] asByteArray() {
+        final byte[] bytes = byteArray();
+        if (bytes != null) {
+            return bytes;
+        } else {
+            return ByteBuffers.asByteArrayCopyGet(delegate, 0, capacity());
+        }
+    }
+
+    @Override
+    public byte[] asByteArrayCopy() {
+        final byte[] bytes = byteArray();
+        if (bytes != null) {
+            return bytes.clone();
+        } else {
+            return ByteBuffers.asByteArrayCopyGet(delegate, 0, capacity());
+        }
+    }
+
+    @Override
     public byte[] asByteArray(final int index, final int length) {
-        if (wrapAdjustment() == 0 && index == 0 && length == capacity()) {
+        if (index == 0 && length == capacity()) {
             final byte[] bytes = byteArray();
             if (bytes != null) {
                 if (bytes.length != length) {
-                    return asByteArrayCopyGet(index, length);
+                    return ByteBuffers.asByteArrayCopyGet(delegate, index, length);
                 }
                 return bytes;
             }
         }
-        return asByteArrayCopyGet(index, length);
+        return ByteBuffers.asByteArrayCopyGet(delegate, index, length);
     }
 
     @Override
     public byte[] asByteArrayCopy(final int index, final int length) {
-        if (wrapAdjustment() == 0 && index == 0 && length == capacity()) {
+        if (index == 0 && length == capacity()) {
             final byte[] bytes = byteArray();
             if (bytes != null) {
                 if (bytes.length != length) {
-                    return asByteArrayCopyGet(index, length);
+                    return ByteBuffers.asByteArrayCopyGet(delegate, index, length);
                 }
                 return bytes.clone();
             }
         }
-        return asByteArrayCopyGet(index, length);
-    }
-
-    private byte[] asByteArrayCopyGet(final int index, final int length) {
-        final byte[] bytes = new byte[length];
-        getBytes(index, bytes, 0, length);
-        return bytes;
+        return ByteBuffers.asByteArrayCopyGet(delegate, index, length);
     }
 
     @Override

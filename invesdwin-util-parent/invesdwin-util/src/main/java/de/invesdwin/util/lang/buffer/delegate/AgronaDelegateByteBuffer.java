@@ -21,6 +21,7 @@ import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.lang.buffer.ByteBuffers;
 import de.invesdwin.util.lang.buffer.IByteBuffer;
+import de.invesdwin.util.lang.buffer.extend.ExpandableByteBuffer;
 
 @NotThreadSafe
 public class AgronaDelegateByteBuffer implements IByteBuffer {
@@ -213,7 +214,7 @@ public class AgronaDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public OutputStream asOutputStream(final int index, final int length) {
-        if (isExpandable() && index + length >= capacity()) {
+        if (delegate.isExpandable() && index + length >= capacity()) {
             //allow output stream to actually grow the buffer
             return new DirectBufferOutputStream(delegate, index, ExpandableArrayBuffer.MAX_ARRAY_LENGTH - index);
         } else {
@@ -222,12 +223,54 @@ public class AgronaDelegateByteBuffer implements IByteBuffer {
     }
 
     @Override
+    public byte[] asByteArray() {
+        if (delegate.isExpandable()) {
+            throw ExpandableByteBuffer.newAsByteArrayUnsupported();
+        }
+        if (wrapAdjustment() == 0) {
+            final byte[] bytes = byteArray();
+            if (bytes != null) {
+                return bytes;
+            }
+            final ByteBuffer byteBuffer = byteBuffer();
+            if (byteBuffer != null) {
+                final byte[] array = byteBuffer.array();
+                if (array != null) {
+                    return array;
+                }
+            }
+        }
+        return ByteBuffers.asByteArrayCopyGet(this, 0, capacity());
+    }
+
+    @Override
+    public byte[] asByteArrayCopy() {
+        if (delegate.isExpandable()) {
+            throw ExpandableByteBuffer.newAsByteArrayUnsupported();
+        }
+        if (wrapAdjustment() == 0) {
+            final byte[] bytes = byteArray();
+            if (bytes != null) {
+                return bytes.clone();
+            }
+            final ByteBuffer byteBuffer = byteBuffer();
+            if (byteBuffer != null) {
+                final byte[] array = byteBuffer.array();
+                if (array != null) {
+                    return array.clone();
+                }
+            }
+        }
+        return ByteBuffers.asByteArrayCopyGet(this, 0, capacity());
+    }
+
+    @Override
     public byte[] asByteArray(final int index, final int length) {
         if (wrapAdjustment() == 0 && index == 0 && length == capacity()) {
             final byte[] bytes = byteArray();
             if (bytes != null) {
                 if (bytes.length != length) {
-                    return asByteArrayCopyGet(index, length);
+                    return ByteBuffers.asByteArrayCopyGet(this, index, length);
                 }
                 return bytes;
             }
@@ -236,13 +279,13 @@ public class AgronaDelegateByteBuffer implements IByteBuffer {
                 final byte[] array = byteBuffer.array();
                 if (array != null) {
                     if (array.length != length) {
-                        return asByteArrayCopyGet(index, length);
+                        return ByteBuffers.asByteArrayCopyGet(this, index, length);
                     }
                     return array;
                 }
             }
         }
-        return asByteArrayCopyGet(index, length);
+        return ByteBuffers.asByteArrayCopyGet(this, index, length);
     }
 
     @Override
@@ -251,7 +294,7 @@ public class AgronaDelegateByteBuffer implements IByteBuffer {
             final byte[] bytes = byteArray();
             if (bytes != null) {
                 if (bytes.length != length) {
-                    return asByteArrayCopyGet(index, length);
+                    return ByteBuffers.asByteArrayCopyGet(this, index, length);
                 }
                 return bytes.clone();
             }
@@ -260,19 +303,13 @@ public class AgronaDelegateByteBuffer implements IByteBuffer {
                 final byte[] array = byteBuffer.array();
                 if (array != null) {
                     if (array.length != length) {
-                        return asByteArrayCopyGet(index, length);
+                        return ByteBuffers.asByteArrayCopyGet(this, index, length);
                     }
                     return array.clone();
                 }
             }
         }
-        return asByteArrayCopyGet(index, length);
-    }
-
-    private byte[] asByteArrayCopyGet(final int index, final int length) {
-        final byte[] bytes = new byte[length];
-        getBytes(index, bytes, 0, length);
-        return bytes;
+        return ByteBuffers.asByteArrayCopyGet(this, index, length);
     }
 
     @Override

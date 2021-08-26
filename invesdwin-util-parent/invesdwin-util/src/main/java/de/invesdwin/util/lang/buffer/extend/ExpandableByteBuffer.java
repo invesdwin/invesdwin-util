@@ -75,18 +75,18 @@ public class ExpandableByteBuffer extends ExpandableDirectByteBuffer implements 
 
     @Override
     public OutputStream asOutputStream(final int index, final int length) {
-        if (isExpandable() && index + length >= capacity()) {
-            //allow output stream to actually grow the buffer
-            return new DirectBufferOutputStream(this, index, ExpandableArrayBuffer.MAX_ARRAY_LENGTH - index);
-        } else {
-            return new DirectBufferOutputStream(this, index, length);
-        }
+        //allow output stream to actually grow the buffer
+        return new DirectBufferOutputStream(this, index, ExpandableArrayBuffer.MAX_ARRAY_LENGTH - index);
     }
 
     @Deprecated
     @Override
     public byte[] asByteArray() {
-        throw new UnsupportedOperationException("This will give a bigger size than what was added to the buffer. "
+        throw newAsByteArrayUnsupported();
+    }
+
+    public static UnsupportedOperationException newAsByteArrayUnsupported() {
+        return new UnsupportedOperationException("This will give a bigger size than what was added to the buffer. "
                 + "Use buffer.asByteArrayTo(buffer.capacity()) if you really want this from an expandable buffer."
                 + "Also a slice(from, to)'d wrapper of this buffer should not cause this exception.");
     }
@@ -94,16 +94,16 @@ public class ExpandableByteBuffer extends ExpandableDirectByteBuffer implements 
     @Deprecated
     @Override
     public byte[] asByteArrayCopy() {
-        return asByteArray();
+        throw newAsByteArrayUnsupported();
     }
 
     @Override
     public byte[] asByteArray(final int index, final int length) {
-        if (wrapAdjustment() == 0 && index == 0 && length == capacity()) {
+        if (index == 0 && length == capacity()) {
             final byte[] bytes = byteArray();
             if (bytes != null) {
                 if (bytes.length != length) {
-                    return asByteArrayCopyGet(index, length);
+                    return ByteBuffers.asByteArrayCopyGet(this, index, length);
                 }
                 return bytes;
             }
@@ -112,22 +112,22 @@ public class ExpandableByteBuffer extends ExpandableDirectByteBuffer implements 
                 final byte[] array = byteBuffer.array();
                 if (array != null) {
                     if (array.length != length) {
-                        return asByteArrayCopyGet(index, length);
+                        return ByteBuffers.asByteArrayCopyGet(this, index, length);
                     }
                     return array;
                 }
             }
         }
-        return asByteArrayCopyGet(index, length);
+        return ByteBuffers.asByteArrayCopyGet(this, index, length);
     }
 
     @Override
     public byte[] asByteArrayCopy(final int index, final int length) {
-        if (wrapAdjustment() == 0 && index == 0 && length == capacity()) {
+        if (index == 0 && length == capacity()) {
             final byte[] bytes = byteArray();
             if (bytes != null) {
                 if (bytes.length != length) {
-                    return asByteArrayCopyGet(index, length);
+                    return ByteBuffers.asByteArrayCopyGet(this, index, length);
                 }
                 return bytes.clone();
             }
@@ -136,19 +136,13 @@ public class ExpandableByteBuffer extends ExpandableDirectByteBuffer implements 
                 final byte[] array = byteBuffer.array();
                 if (array != null) {
                     if (array.length != length) {
-                        return asByteArrayCopyGet(index, length);
+                        return ByteBuffers.asByteArrayCopyGet(this, index, length);
                     }
                     return array.clone();
                 }
             }
         }
-        return asByteArrayCopyGet(index, length);
-    }
-
-    private byte[] asByteArrayCopyGet(final int index, final int length) {
-        final byte[] bytes = new byte[length];
-        getBytes(index, bytes, 0, length);
-        return bytes;
+        return ByteBuffers.asByteArrayCopyGet(this, index, length);
     }
 
     @Override
@@ -226,6 +220,7 @@ public class ExpandableByteBuffer extends ExpandableDirectByteBuffer implements 
 
     @Override
     public void putBytesTo(final int index, final DataInput src, final int length) throws IOException {
+        checkLimit(index + length);
         int i = index;
         while (i < length) {
             final byte b = src.readByte();
@@ -236,6 +231,7 @@ public class ExpandableByteBuffer extends ExpandableDirectByteBuffer implements 
 
     @Override
     public void putBytesTo(final int index, final InputStream src, final int length) throws IOException {
+        checkLimit(index + length);
         int i = index;
         while (i < length) {
             final int result = src.read();
