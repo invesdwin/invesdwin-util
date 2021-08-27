@@ -333,7 +333,7 @@ public interface IByteBuffer {
     }
 
     default void getBytesTo(final int index, final DataOutputStream dst, final int length) throws IOException {
-        getBytesTo(index, (OutputStream) dst, length);
+        getBytesTo(index, (DataOutput) dst, length);
     }
 
     default void getBytes(final int index, final DataOutput dst) throws IOException {
@@ -353,7 +353,8 @@ public interface IByteBuffer {
     }
 
     default void putBytesTo(final int index, final DataInputStream src, final int length) throws IOException {
-        putBytesTo(index, (InputStream) src, length);
+        //lz4 throws ArrayIndexOutOfBounds if used with InputStream variation
+        putBytesTo(index, (DataInput) src, length);
     }
 
     default void putBytes(final int index, final DataInput src) throws IOException {
