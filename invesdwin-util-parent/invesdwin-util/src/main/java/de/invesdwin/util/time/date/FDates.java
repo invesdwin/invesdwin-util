@@ -268,13 +268,23 @@ public final class FDates {
         return max(min(value, max), min);
     }
 
-    public static boolean isBetween(final FDate value, final FDate min, final FDate max) {
+    public static boolean isBetweenInclusive(final FDate value, final FDate min, final FDate max) {
         final boolean outside = value.isBefore(min) || value.isAfter(max);
         return !outside;
     }
 
-    public static boolean isBetweenNotNullSafe(final FDate value, final FDate min, final FDate max) {
+    public static boolean isBetweenInclusiveNotNullSafe(final FDate value, final FDate min, final FDate max) {
         final boolean outside = value.isBeforeNotNullSafe(min) || value.isAfterNotNullSafe(max);
+        return !outside;
+    }
+
+    public static boolean isBetweenExclusive(final FDate value, final FDate min, final FDate max) {
+        final boolean outside = value.isBeforeOrEqualTo(min) || value.isAfterOrEqualTo(max);
+        return !outside;
+    }
+
+    public static boolean isBetweenExclusiveNotNullSafe(final FDate value, final FDate min, final FDate max) {
+        final boolean outside = value.isBeforeOrEqualToNotNullSafe(min) || value.isAfterOrEqualToNotNullSafe(max);
         return !outside;
     }
 

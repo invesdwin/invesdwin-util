@@ -97,17 +97,30 @@ public class WeekRange extends AValueObject {
         return from == null || to == null || getDuration().isZero();
     }
 
-    public boolean contains(final FDate time, final FTimeZone timeZone) {
-        return contains(time.applyTimeZoneOffset(timeZone));
+    public boolean containsInclusive(final FDate time, final FTimeZone timeZone) {
+        return containsInclusive(time.applyTimeZoneOffset(timeZone));
     }
 
-    public boolean contains(final FDate time) {
+    public boolean containsInclusive(final FDate time) {
         final FDate weekendFrom = time.setFWeekTime(from);
         FDate weekendTo = time.setFWeekTime(to);
         if (weekendTo.isBeforeOrEqualTo(weekendFrom)) {
             weekendTo = weekendTo.addWeeks(1);
         }
-        return FDates.isBetween(time, weekendFrom, weekendTo);
+        return FDates.isBetweenInclusiveNotNullSafe(time, weekendFrom, weekendTo);
+    }
+
+    public boolean containsExclusive(final FDate time, final FTimeZone timeZone) {
+        return containsExclusive(time.applyTimeZoneOffset(timeZone));
+    }
+
+    public boolean containsExclusive(final FDate time) {
+        final FDate weekendFrom = time.setFWeekTime(from);
+        FDate weekendTo = time.setFWeekTime(to);
+        if (weekendTo.isBeforeOrEqualTo(weekendFrom)) {
+            weekendTo = weekendTo.addWeeks(1);
+        }
+        return FDates.isBetweenExclusiveNotNullSafe(time, weekendFrom, weekendTo);
     }
 
     @Override

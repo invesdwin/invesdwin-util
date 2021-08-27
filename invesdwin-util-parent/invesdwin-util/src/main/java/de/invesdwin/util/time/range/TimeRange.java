@@ -106,8 +106,20 @@ public class TimeRange extends AValueObject {
         return from == null || to == null || getDuration().isZero();
     }
 
-    public boolean contains(final FDate time) {
-        return FDates.isBetween(time, from, to);
+    public boolean containsInclusive(final FDate time) {
+        return FDates.isBetweenInclusive(time, from, to);
+    }
+
+    public boolean containsExclusive(final FDate time) {
+        return FDates.isBetweenExclusive(time, from, to);
+    }
+
+    public boolean containsInclusiveNotNullSafe(final FDate time) {
+        return FDates.isBetweenInclusiveNotNullSafe(time, from, to);
+    }
+
+    public boolean containsExclusiveNotNullSafe(final FDate time) {
+        return FDates.isBetweenExclusiveNotNullSafe(time, from, to);
     }
 
     @Override

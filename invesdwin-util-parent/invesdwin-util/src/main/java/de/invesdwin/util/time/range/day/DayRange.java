@@ -94,17 +94,30 @@ public class DayRange extends AValueObject implements IDayRangeData {
         return from == null || to == null || getDuration().isZero();
     }
 
-    public boolean contains(final FDate time, final FTimeZone timeZone) {
-        return contains(time.applyTimeZoneOffset(timeZone));
+    public boolean containsInclusive(final FDate time, final FTimeZone timeZone) {
+        return containsInclusive(time.applyTimeZoneOffset(timeZone));
     }
 
-    public boolean contains(final FDate time) {
+    public boolean containsInclusive(final FDate time) {
         final FDate sessionFrom = time.setFDayTime(from);
         FDate sessionTo = time.setFDayTime(to);
         if (sessionTo.isBeforeOrEqualToNotNullSafe(sessionFrom)) {
-            sessionTo = sessionTo.addWeeks(1);
+            sessionTo = sessionTo.addDays(1);
         }
-        return FDates.isBetweenNotNullSafe(time, sessionFrom, sessionTo);
+        return FDates.isBetweenInclusiveNotNullSafe(time, sessionFrom, sessionTo);
+    }
+
+    public boolean containsExclusive(final FDate time, final FTimeZone timeZone) {
+        return containsExclusive(time.applyTimeZoneOffset(timeZone));
+    }
+
+    public boolean containsExclusive(final FDate time) {
+        final FDate sessionFrom = time.setFDayTime(from);
+        FDate sessionTo = time.setFDayTime(to);
+        if (sessionTo.isBeforeOrEqualToNotNullSafe(sessionFrom)) {
+            sessionTo = sessionTo.addDays(1);
+        }
+        return FDates.isBetweenExclusiveNotNullSafe(time, sessionFrom, sessionTo);
     }
 
     @Override

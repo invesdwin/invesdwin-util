@@ -7,6 +7,7 @@ import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.math.Bytes;
 import de.invesdwin.util.math.Shorts;
+import de.invesdwin.util.time.duration.Duration;
 import de.invesdwin.util.time.range.day.IDayTimeData;
 
 @Immutable
@@ -245,8 +246,7 @@ public class FDayTime extends Number implements Comparable<Object>, IDayTimeData
                 }
                 return new FDayTime(hour, minute, second, millisecond);
             } else {
-                throw new IllegalArgumentException(
-                        "Expecting between 1, 2, 3, 4,, 5, 6, 8 or 9 characters but got " + length);
+                throw new IllegalArgumentException("Expecting between 1 to 9 characters but got " + length);
             }
         } catch (final Throwable t) {
             throw new RuntimeException("Expected format H[0-9] or HH[0-23]MM[0-59]SS[0-59]SSS[0-999] at: " + value, t);
@@ -269,6 +269,24 @@ public class FDayTime extends Number implements Comparable<Object>, IDayTimeData
         } else {
             return valueOf(value.intValue(), false);
         }
+    }
+
+    public static FDayTime valueOf(final Duration value) {
+        return new FDayTime(FDate.MIN_DATE.add(value));
+    }
+
+    public Duration durationValue() {
+        return new Duration(hour, FTimeUnit.HOURS).add(minute, FTimeUnit.MINUTES)
+                .add(second, FTimeUnit.SECONDS)
+                .add(millisecond, FTimeUnit.MILLISECONDS);
+    }
+
+    public FDayTime subtract(final Duration duration) {
+        return valueOf(durationValue().subtract(duration));
+    }
+
+    public FDayTime add(final Duration duration) {
+        return valueOf(durationValue().add(duration));
     }
 
 }

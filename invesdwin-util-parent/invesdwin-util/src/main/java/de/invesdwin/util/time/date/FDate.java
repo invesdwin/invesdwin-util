@@ -884,8 +884,20 @@ public class FDate
         return cur;
     }
 
-    public boolean isBetween(final FDate min, final FDate max) {
-        return FDates.isBetween(this, min, max);
+    public boolean isBetweenInclusive(final FDate min, final FDate max) {
+        return FDates.isBetweenInclusive(this, min, max);
+    }
+
+    public boolean isBetweenInclusiveNotNullSafe(final FDate min, final FDate max) {
+        return FDates.isBetweenInclusiveNotNullSafe(this, min, max);
+    }
+
+    public boolean isBetweenExclusive(final FDate min, final FDate max) {
+        return FDates.isBetweenExclusive(this, min, max);
+    }
+
+    public boolean isBetweenExclusiveNotNullSafe(final FDate min, final FDate max) {
+        return FDates.isBetweenExclusiveNotNullSafe(this, min, max);
     }
 
     public FDate orHigher(final FDate other) {
