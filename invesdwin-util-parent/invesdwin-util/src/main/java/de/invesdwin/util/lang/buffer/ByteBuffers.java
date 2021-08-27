@@ -1,5 +1,7 @@
 package de.invesdwin.util.lang.buffer;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
@@ -283,6 +285,23 @@ public final class ByteBuffers {
 
     public static IByteBuffer wrap(final MutableDirectBuffer buffer) {
         return new AgronaDelegateByteBuffer(buffer);
+    }
+
+    public static void readFully(final InputStream src, final byte[] array, final int index, final int length)
+            throws IOException {
+        final int end = index + length;
+        int remaining = length;
+        while (remaining > 0) {
+            final int location = end - remaining;
+            final int count = src.read(array, location, remaining);
+            if (count == -1) { // EOF
+                break;
+            }
+            remaining -= count;
+        }
+        if (remaining > 0) {
+            throw ByteBuffers.newPutBytesToEOF();
+        }
     }
 
 }
