@@ -11,32 +11,34 @@ import java.nio.ByteOrder;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import org.agrona.DirectBuffer;
+import org.agrona.ExpandableArrayBuffer;
 import org.agrona.MutableDirectBuffer;
 import org.agrona.concurrent.UnsafeBuffer;
 import org.agrona.io.DirectBufferInputStream;
+import org.agrona.io.DirectBufferOutputStream;
 
 import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.lang.buffer.ByteBuffers;
 import de.invesdwin.util.lang.buffer.IByteBuffer;
-import de.invesdwin.util.lang.buffer.extend.UnsafeByteBuffer;
+import de.invesdwin.util.lang.buffer.extend.ExpandableByteBuffer;
 
 @NotThreadSafe
-public class AgronaDelegateByteBuffer implements IByteBuffer {
+public class AgronaDelegateMutableByteBuffer implements IByteBuffer {
 
-    private final DirectBuffer delegate;
+    private final MutableDirectBuffer delegate;
 
-    public AgronaDelegateByteBuffer(final DirectBuffer delegate) {
+    public AgronaDelegateMutableByteBuffer(final MutableDirectBuffer delegate) {
         this.delegate = delegate;
     }
 
-    public DirectBuffer getDelegate() {
+    public MutableDirectBuffer getDelegate() {
         return delegate;
     }
 
     @Override
     public boolean isReadOnly() {
-        return true;
+        return false;
     }
 
     @Override
@@ -134,77 +136,81 @@ public class AgronaDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public boolean isExpandable() {
-        return false;
+        return delegate.isExpandable();
     }
 
     @Override
     public void putLong(final int index, final long value) {
-        throw newReadOnlyException();
-    }
-
-    private UnsupportedOperationException newReadOnlyException() {
-        return new UnsupportedOperationException("read only");
+        delegate.putLong(index, value, getOrder());
     }
 
     @Override
     public void putInt(final int index, final int value) {
-        throw newReadOnlyException();
+        delegate.putInt(index, value, getOrder());
     }
 
     @Override
     public void putDouble(final int index, final double value) {
-        throw newReadOnlyException();
+        delegate.putDouble(index, value, getOrder());
     }
 
     @Override
     public void putFloat(final int index, final float value) {
-        throw newReadOnlyException();
+        delegate.putFloat(index, value, getOrder());
     }
 
     @Override
     public void putShort(final int index, final short value) {
-        throw newReadOnlyException();
+        delegate.putShort(index, value, getOrder());
     }
 
     @Override
     public void putChar(final int index, final char value) {
-        throw newReadOnlyException();
+        delegate.putChar(index, value, getOrder());
     }
 
     @Override
     public void putByte(final int index, final byte value) {
-        throw newReadOnlyException();
+        delegate.putByte(index, value);
     }
 
     @Override
     public void putBytes(final int index, final byte[] src, final int srcIndex, final int length) {
-        throw newReadOnlyException();
+        delegate.putBytes(index, src, srcIndex, length);
     }
 
     @Override
     public void putBytes(final int index, final ByteBuffer srcBuffer, final int srcIndex, final int length) {
-        throw newReadOnlyException();
+        delegate.putBytes(index, srcBuffer, srcIndex, length);
     }
 
     @Override
     public void putBytes(final int index, final DirectBuffer srcBuffer, final int srcIndex, final int length) {
-        throw newReadOnlyException();
+        delegate.putBytes(index, srcBuffer, srcIndex, length);
     }
 
     @Override
     public void putBytes(final int index, final IByteBuffer srcBuffer, final int srcIndex, final int length) {
-        throw newReadOnlyException();
+        if (srcBuffer.directBuffer() != null) {
+            delegate.putBytes(index, srcBuffer.directBuffer(), srcIndex, length);
+        } else if (srcBuffer.byteBuffer() != null) {
+            delegate.putBytes(index, srcBuffer.byteBuffer(), srcIndex, length);
+        } else if (srcBuffer.byteArray() != null) {
+            delegate.putBytes(index, srcBuffer.byteArray(), srcIndex, length);
+        } else {
+            throw UnknownArgumentException.newInstance(IByteBuffer.class, srcBuffer);
+        }
     }
 
     @Override
     public MutableDirectBuffer directBuffer() {
-        return unwrap(MutableDirectBuffer.class);
+        return delegate;
     }
 
     @Override
     public MutableDirectBuffer asDirectBuffer(final int index, final int length) {
         if (index == 0 && length == capacity()) {
-            return directBuffer();
+            return delegate;
         } else {
             return new UnsafeBuffer(delegate, index, length);
         }
@@ -217,11 +223,19 @@ public class AgronaDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public OutputStream asOutputStream(final int index, final int length) {
-        throw newReadOnlyException();
+        if (delegate.isExpandable() && index + length >= capacity()) {
+            //allow output stream to actually grow the buffer
+            return new DirectBufferOutputStream(delegate, index, ExpandableArrayBuffer.MAX_ARRAY_LENGTH - index);
+        } else {
+            return new DirectBufferOutputStream(delegate, index, length);
+        }
     }
 
     @Override
     public byte[] asByteArray() {
+        if (delegate.isExpandable()) {
+            throw ExpandableByteBuffer.newAsByteArrayUnsupported();
+        }
         if (wrapAdjustment() == 0) {
             final byte[] bytes = byteArray();
             if (bytes != null) {
@@ -240,6 +254,9 @@ public class AgronaDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public byte[] asByteArrayCopy() {
+        if (delegate.isExpandable()) {
+            throw ExpandableByteBuffer.newAsByteArrayUnsupported();
+        }
         if (wrapAdjustment() == 0) {
             final byte[] bytes = byteArray();
             if (bytes != null) {
@@ -309,7 +326,7 @@ public class AgronaDelegateByteBuffer implements IByteBuffer {
         if (index == 0 && length == capacity()) {
             return this;
         } else {
-            return new UnsafeByteBuffer(delegate, index, length);
+            return new AgronaDelegateMutableByteBuffer(new UnsafeBuffer(delegate, index, length));
         }
     }
 
@@ -320,7 +337,7 @@ public class AgronaDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public void putStringAsciii(final int index, final CharSequence value, final int valueIndex, final int length) {
-        throw newReadOnlyException();
+        delegate.putStringWithoutLengthAscii(index, value, valueIndex, length);
     }
 
     @Override
@@ -335,7 +352,7 @@ public class AgronaDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public int putStringUtf8(final int index, final String value) {
-        throw newReadOnlyException();
+        return delegate.putStringWithoutLengthUtf8(index, value);
     }
 
     @Override
@@ -370,12 +387,25 @@ public class AgronaDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public void putBytesTo(final int index, final DataInput src, final int length) throws IOException {
-        throw newReadOnlyException();
+        int i = index;
+        while (i < length) {
+            final byte b = src.readByte();
+            delegate.putByte(i, b);
+            i++;
+        }
     }
 
     @Override
     public void putBytesTo(final int index, final InputStream src, final int length) throws IOException {
-        throw newReadOnlyException();
+        int i = index;
+        while (i < length) {
+            final int result = src.read();
+            if (result < 0) {
+                throw ByteBuffers.newPutBytesToEOF();
+            }
+            delegate.putByte(i, (byte) result);
+            i++;
+        }
     }
 
     @SuppressWarnings("unchecked")

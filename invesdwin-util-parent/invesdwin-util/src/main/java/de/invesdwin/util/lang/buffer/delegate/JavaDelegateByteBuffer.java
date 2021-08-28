@@ -35,6 +35,11 @@ public class JavaDelegateByteBuffer implements IByteBuffer {
     }
 
     @Override
+    public boolean isReadOnly() {
+        return delegate.isReadOnly();
+    }
+
+    @Override
     public ByteOrder getOrder() {
         return delegate.order();
     }
@@ -360,6 +365,18 @@ public class JavaDelegateByteBuffer implements IByteBuffer {
             delegate.put(i, (byte) result);
             i++;
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> T unwrap(final Class<T> type) {
+        if (getClass().isAssignableFrom(type)) {
+            return (T) this;
+        }
+        if (delegate.getClass().isAssignableFrom(type)) {
+            return (T) delegate;
+        }
+        return null;
     }
 
 }

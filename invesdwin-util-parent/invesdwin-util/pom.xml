@@ -9,7 +9,7 @@
 	</parent>
 	<artifactId>invesdwin-util</artifactId>
 	<packaging>jar</packaging>
-	
+
 	<dependencies>
 		<dependency>
 			<groupId>de.invesdwin</groupId>
@@ -232,6 +232,11 @@
 		<dependency>
 			<groupId>org.agrona</groupId>
 			<artifactId>agrona</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>net.openhft</groupId>
+			<artifactId>chronicle-bytes</artifactId>
+			<scope>provided</scope>
 		</dependency>
 	</dependencies>
 

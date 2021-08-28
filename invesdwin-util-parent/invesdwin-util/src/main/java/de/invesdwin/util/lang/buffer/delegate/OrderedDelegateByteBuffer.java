@@ -30,6 +30,11 @@ public final class OrderedDelegateByteBuffer implements IByteBuffer {
     }
 
     @Override
+    public boolean isReadOnly() {
+        return delegate.isReadOnly();
+    }
+
+    @Override
     public ByteOrder getOrder() {
         return order;
     }
@@ -280,6 +285,15 @@ public final class OrderedDelegateByteBuffer implements IByteBuffer {
     @Override
     public void putBytesTo(final int index, final InputStream src, final int length) throws IOException {
         delegate.putBytesTo(index, src, length);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> T unwrap(final Class<T> type) {
+        if (getClass().isAssignableFrom(type)) {
+            return (T) this;
+        }
+        return delegate.unwrap(type);
     }
 
 }

@@ -64,4 +64,13 @@ public class UnsafeArrayByteBuffer extends UnsafeByteBuffer {
         ByteBuffers.readFully(src, array, index, length);
     }
 
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> T unwrap(final Class<T> type) {
+        if (getClass().isAssignableFrom(type)) {
+            return (T) this;
+        }
+        return null;
+    }
+
 }

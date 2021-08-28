@@ -16,14 +16,16 @@ import org.agrona.MutableDirectBuffer;
 import de.invesdwin.util.lang.buffer.IByteBuffer;
 
 @NotThreadSafe
-public class SliceFromDelegateByteBuffer implements IByteBuffer {
+public class SliceDelegateByteBuffer implements IByteBuffer {
 
     private final IByteBuffer delegate;
     private final int from;
+    private final int length;
 
-    public SliceFromDelegateByteBuffer(final IByteBuffer delegate, final int from) {
+    public SliceDelegateByteBuffer(final IByteBuffer delegate, final int from, final int length) {
         this.delegate = delegate;
         this.from = from;
+        this.length = length;
     }
 
     @Override
@@ -58,7 +60,7 @@ public class SliceFromDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public int capacity() {
-        return delegate.capacity() - from;
+        return length;
     }
 
     @Override
@@ -208,7 +210,7 @@ public class SliceFromDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public IByteBuffer sliceFrom(final int index) {
-        return new SliceFromDelegateByteBuffer(delegate, index + from);
+        return new SliceDelegateByteBuffer(delegate, index + from, length);
     }
 
     @Override

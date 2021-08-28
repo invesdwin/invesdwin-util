@@ -11,13 +11,15 @@ import org.agrona.concurrent.UnsafeBuffer;
 import org.junit.Test;
 
 import de.invesdwin.util.assertions.Assertions;
-import de.invesdwin.util.lang.buffer.delegate.AgronaDelegateByteBuffer;
+import de.invesdwin.util.lang.buffer.delegate.AgronaDelegateMutableByteBuffer;
+import de.invesdwin.util.lang.buffer.delegate.ChronicleDelegateByteBuffer;
 import de.invesdwin.util.lang.buffer.delegate.JavaDelegateByteBuffer;
 import de.invesdwin.util.lang.buffer.delegate.OrderedDelegateByteBuffer;
 import de.invesdwin.util.lang.buffer.extend.ExpandableArrayByteBuffer;
 import de.invesdwin.util.lang.buffer.extend.ExpandableByteBuffer;
 import de.invesdwin.util.lang.buffer.extend.UnsafeByteBuffer;
 import de.invesdwin.util.math.Booleans;
+import net.openhft.chronicle.bytes.BytesStore;
 
 @NotThreadSafe
 public class ByteBuffersTest {
@@ -33,15 +35,27 @@ public class ByteBuffersTest {
         testBufferOrdered(new UnsafeByteBuffer(ByteBuffer.allocate(BUFFER_SIZE)));
         testBufferOrdered(new UnsafeByteBuffer(ByteBuffer.allocateDirect(BUFFER_SIZE)));
         testBufferOrdered(new UnsafeByteBuffer(new byte[BUFFER_SIZE]));
-        testBufferOrdered(new AgronaDelegateByteBuffer(new UnsafeBuffer(ByteBuffer.allocate(BUFFER_SIZE))));
-        testBufferOrdered(new AgronaDelegateByteBuffer(new UnsafeBuffer(ByteBuffer.allocateDirect(BUFFER_SIZE))));
-        testBufferOrdered(new AgronaDelegateByteBuffer(new UnsafeBuffer(new byte[BUFFER_SIZE])));
+        testBufferOrdered(new AgronaDelegateMutableByteBuffer(new UnsafeBuffer(ByteBuffer.allocate(BUFFER_SIZE))));
+        testBufferOrdered(
+                new AgronaDelegateMutableByteBuffer(new UnsafeBuffer(ByteBuffer.allocateDirect(BUFFER_SIZE))));
+        testBufferOrdered(new AgronaDelegateMutableByteBuffer(new UnsafeBuffer(new byte[BUFFER_SIZE])));
 
         testBufferOrdered(new ExpandableArrayByteBuffer());
-        testBufferOrdered(new AgronaDelegateByteBuffer(new ExpandableArrayBuffer()));
+        testBufferOrdered(new AgronaDelegateMutableByteBuffer(new ExpandableArrayBuffer()));
 
         testBufferOrdered(new ExpandableByteBuffer());
-        testBufferOrdered(new AgronaDelegateByteBuffer(new ExpandableDirectByteBuffer()));
+        testBufferOrdered(new AgronaDelegateMutableByteBuffer(new ExpandableDirectByteBuffer()));
+
+        testBufferOrdered(new ChronicleDelegateByteBuffer(BytesStore.wrap(new byte[BUFFER_SIZE]).bytesForWrite()));
+        testBufferOrdered(
+                new ChronicleDelegateByteBuffer(BytesStore.wrap(ByteBuffer.allocate(BUFFER_SIZE)).bytesForWrite()));
+        testBufferOrdered(new ChronicleDelegateByteBuffer(
+                BytesStore.wrap(ByteBuffer.allocateDirect(BUFFER_SIZE)).bytesForWrite()));
+        testBufferOrdered(new ChronicleDelegateByteBuffer(net.openhft.chronicle.bytes.Bytes.elasticByteBuffer()));
+        testBufferOrdered(new ChronicleDelegateByteBuffer(
+                net.openhft.chronicle.bytes.Bytes.allocateDirect(new byte[BUFFER_SIZE])));
+        testBufferOrdered(
+                new ChronicleDelegateByteBuffer(net.openhft.chronicle.bytes.Bytes.allocateDirect(BUFFER_SIZE)));
     }
 
     public void testBufferOrdered(final IByteBuffer buffer) {
@@ -51,8 +65,36 @@ public class ByteBuffersTest {
     }
 
     private void testBuffer(final IByteBuffer b) {
-        Assertions.checkTrue(b.addressOffset() != 0L);
         testPrimitives(b);
+        testStringAscii(b);
+        testStringUtf8(b);
+    }
+
+    private void testStringAscii(final IByteBuffer b) {
+        final String str = "asdfäöüjklm";
+
+        int write = 200;
+        b.putStringAsciii(write, str);
+        final int lengthAscii = ByteBuffers.newStringAsciiLength(str);
+        write += lengthAscii;
+
+        final int read = 200;
+        final String strRead = b.getStringAsciii(read, lengthAscii);
+
+        Assertions.checkEquals("asdf???jklm", strRead);
+    }
+
+    private void testStringUtf8(final IByteBuffer b) {
+        final String str = "asdfäöüjklm";
+
+        int write = 200;
+        final int lengthUtf8 = b.putStringUtf8(write, str);
+        write += lengthUtf8;
+
+        final int read = 200;
+        final String strRead = b.getStringUtf8(read, lengthUtf8);
+
+        Assertions.checkEquals(str, strRead);
     }
 
     private void testPrimitives(final IByteBuffer b) {

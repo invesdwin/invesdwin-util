@@ -56,6 +56,11 @@ public class UnsafeByteBuffer extends UnsafeBuffer implements IByteBuffer {
     }
 
     @Override
+    public boolean isReadOnly() {
+        return false;
+    }
+
+    @Override
     public ByteOrder getOrder() {
         return ByteBuffers.DEFAULT_ORDER;
     }
@@ -339,6 +344,15 @@ public class UnsafeByteBuffer extends UnsafeBuffer implements IByteBuffer {
     @Override
     public char getChar(final int index) {
         return getChar(index, getOrder());
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> T unwrap(final Class<T> type) {
+        if (getClass().isAssignableFrom(type)) {
+            return (T) this;
+        }
+        return null;
     }
 
 }

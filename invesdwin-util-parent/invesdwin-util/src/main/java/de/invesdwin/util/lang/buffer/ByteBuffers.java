@@ -12,14 +12,14 @@ import java.nio.ByteOrder;
 import javax.annotation.concurrent.Immutable;
 
 import org.agrona.BufferUtil;
+import org.agrona.DirectBuffer;
 import org.agrona.MutableDirectBuffer;
-import org.agrona.concurrent.AtomicBuffer;
-import org.agrona.concurrent.UnsafeBuffer;
 
 import de.invesdwin.util.error.FastEOFException;
 import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.lang.Charsets;
 import de.invesdwin.util.lang.buffer.delegate.AgronaDelegateByteBuffer;
+import de.invesdwin.util.lang.buffer.delegate.AgronaDelegateMutableByteBuffer;
 import de.invesdwin.util.lang.buffer.extend.ExpandableArrayByteBuffer;
 import de.invesdwin.util.lang.buffer.extend.UnsafeArrayByteBuffer;
 import de.invesdwin.util.lang.buffer.extend.UnsafeByteBuffer;
@@ -30,9 +30,6 @@ import de.invesdwin.util.math.Bytes;
 public final class ByteBuffers {
 
     public static final int EXPANDABLE_LENGTH = -1;
-
-    public static final ByteBuffer EMPTY_BYTE_BUFFER = ByteBuffer.allocate(0);
-    public static final AtomicBuffer EMPTY_DIRECT_BUFFER = new UnsafeBuffer(Bytes.EMPTY_ARRAY);
 
     /**
      * ByteBuffer uses BigEndian per default.
@@ -234,8 +231,11 @@ public final class ByteBuffers {
     }
 
     public static String newStringAscii(final byte[] bytes) {
-        //actually the same
-        return newStringUtf8(bytes);
+        if (bytes == null || bytes.length == 0) {
+            return null;
+        }
+        //tell it to treat each byte separately
+        return new String(bytes, Charsets.US_ASCII);
     }
 
     public static FastEOFException newPutBytesToEOF() {
@@ -271,6 +271,10 @@ public final class ByteBuffers {
         return (int) (addressOffset(buffer) - offset);
     }
 
+    public static IByteBuffer wrap(final DirectBuffer buffer) {
+        return new AgronaDelegateByteBuffer(buffer);
+    }
+
     public static IByteBuffer wrap(final byte[] bytes) {
         return new UnsafeArrayByteBuffer(bytes);
     }
@@ -284,7 +288,7 @@ public final class ByteBuffers {
     }
 
     public static IByteBuffer wrap(final MutableDirectBuffer buffer) {
-        return new AgronaDelegateByteBuffer(buffer);
+        return new AgronaDelegateMutableByteBuffer(buffer);
     }
 
     public static void readFully(final InputStream src, final byte[] array, final int index, final int length)
@@ -317,6 +321,54 @@ public final class ByteBuffers {
             return null;
         } else {
             return fixedLength;
+        }
+    }
+
+    public static IByteBuffer wrapFrom(final byte[] bytes, final int index) {
+        return wrap(bytes, index, bytes.length - index);
+    }
+
+    public static IByteBuffer wrapTo(final byte[] bytes, final int length) {
+        return wrap(bytes, 0, length);
+    }
+
+    public static IByteBuffer wrap(final byte[] bytes, final int index, final int length) {
+        if (index == 0 && length == bytes.length) {
+            return wrap(bytes);
+        } else {
+            return new UnsafeByteBuffer(bytes, index, length);
+        }
+    }
+
+    public static IByteBuffer wrapFrom(final ByteBuffer buffer, final int index) {
+        return wrap(buffer, index, buffer.capacity() - index);
+    }
+
+    public static IByteBuffer wrapTo(final ByteBuffer buffer, final int length) {
+        return wrap(buffer, 0, length);
+    }
+
+    public static IByteBuffer wrap(final ByteBuffer buffer, final int index, final int length) {
+        if (index == 0 && length == buffer.capacity()) {
+            return wrap(buffer);
+        } else {
+            return new UnsafeByteBuffer(buffer, index, length);
+        }
+    }
+
+    public static IByteBuffer wrapFrom(final DirectBuffer buffer, final int index) {
+        return wrap(buffer, index, buffer.capacity() - index);
+    }
+
+    public static IByteBuffer wrapTo(final DirectBuffer buffer, final int length) {
+        return wrap(buffer, 0, length);
+    }
+
+    public static IByteBuffer wrap(final DirectBuffer buffer, final int index, final int length) {
+        if (index == 0 && length == buffer.capacity()) {
+            return wrap(buffer);
+        } else {
+            return new UnsafeByteBuffer(buffer, index, length);
         }
     }
 

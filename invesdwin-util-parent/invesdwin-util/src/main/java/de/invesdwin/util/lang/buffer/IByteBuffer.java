@@ -20,6 +20,8 @@ public interface IByteBuffer {
 
     ByteOrder getOrder();
 
+    boolean isReadOnly();
+
     long addressOffset();
 
     MutableDirectBuffer directBuffer();
@@ -367,5 +369,7 @@ public interface IByteBuffer {
     }
 
     void putBytesTo(int index, InputStream src, int length) throws IOException;
+
+    <T> T unwrap(Class<T> type);
 
 }

@@ -32,6 +32,11 @@ public class ExpandableArrayByteBuffer extends ExpandableArrayBuffer implements 
     }
 
     @Override
+    public boolean isReadOnly() {
+        return false;
+    }
+
+    @Override
     public ByteOrder getOrder() {
         return ByteBuffers.DEFAULT_ORDER;
     }
@@ -246,6 +251,15 @@ public class ExpandableArrayByteBuffer extends ExpandableArrayBuffer implements 
         checkLimit(index + length);
         final byte[] array = byteArray();
         ByteBuffers.readFully(src, array, index, length);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> T unwrap(final Class<T> type) {
+        if (getClass().isAssignableFrom(type)) {
+            return (T) this;
+        }
+        return null;
     }
 
 }

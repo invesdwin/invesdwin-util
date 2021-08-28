@@ -13,6 +13,7 @@ public final class Charsets {
      * https://stackoverflow.com/questions/35704606/method-string-getbytes-is-big-endian-or-litter-endian
      */
     public static final Charset UTF_8 = StandardCharsets.UTF_8;
+    public static final Charset US_ASCII = StandardCharsets.US_ASCII;
 
     private Charsets() {
     }
