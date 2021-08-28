@@ -45,14 +45,14 @@ public class FixedLengthBufferingIteratorDelegateSerde<E> implements ISerde<IBuf
     }
 
     @Override
-    public int toBuffer(final IBufferingIterator<? extends E> objs, final IByteBuffer buffer) {
+    public int toBuffer(final IByteBuffer buffer, final IBufferingIterator<? extends E> objs) {
         final int length = objs.size() * fixedLength;
         int curOffset = 0;
         try {
             while (true) {
                 final E obj = objs.next();
                 final IByteBuffer slice = buffer.slice(curOffset, fixedLength);
-                final int objLength = delegate.toBuffer(obj, slice);
+                final int objLength = delegate.toBuffer(slice, obj);
                 if (objLength != fixedLength) {
                     throw new IllegalArgumentException("Serialized object [" + obj + "] has unexpected byte length of ["
                             + objLength + "] while fixed length [" + fixedLength + "] was expected!");

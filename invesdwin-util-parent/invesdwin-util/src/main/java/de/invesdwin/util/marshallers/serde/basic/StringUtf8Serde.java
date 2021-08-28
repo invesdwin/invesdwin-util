@@ -35,7 +35,7 @@ public class StringUtf8Serde implements ISerde<String> {
     }
 
     @Override
-    public int toBuffer(final String obj, final IByteBuffer buffer) {
+    public int toBuffer(final IByteBuffer buffer, final String obj) {
         return putStringUtf8(buffer, 0, obj);
     }
 

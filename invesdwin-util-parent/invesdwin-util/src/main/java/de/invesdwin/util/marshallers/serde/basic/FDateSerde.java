@@ -32,7 +32,7 @@ public class FDateSerde implements ISerde<FDate> {
     }
 
     @Override
-    public int toBuffer(final FDate obj, final IByteBuffer buffer) {
+    public int toBuffer(final IByteBuffer buffer, final FDate obj) {
         if (obj == null) {
             return 0;
         }

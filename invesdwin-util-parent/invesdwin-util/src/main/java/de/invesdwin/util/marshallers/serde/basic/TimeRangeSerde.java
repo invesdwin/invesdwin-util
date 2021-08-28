@@ -43,7 +43,7 @@ public class TimeRangeSerde implements ISerde<TimeRange> {
     }
 
     @Override
-    public int toBuffer(final TimeRange obj, final IByteBuffer buffer) {
+    public int toBuffer(final IByteBuffer buffer, final TimeRange obj) {
         return putTimeRange(buffer, 0, obj);
     }
 

@@ -40,14 +40,14 @@ public class CalendarSerde implements ISerde<Calendar> {
     }
 
     @Override
-    public int toBuffer(final Calendar obj, final IByteBuffer buffer) {
+    public int toBuffer(final IByteBuffer buffer, final Calendar obj) {
         final Date date;
         if (obj == null) {
             date = null;
         } else {
             date = obj.getTime();
         }
-        return DateSerde.GET.toBuffer(date, buffer);
+        return DateSerde.GET.toBuffer(buffer, date);
     }
 
 }

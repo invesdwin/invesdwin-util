@@ -53,7 +53,7 @@ public class TimedDoubleSerde implements ISerde<TimedDouble> {
     }
 
     @Override
-    public int toBuffer(final TimedDouble obj, final IByteBuffer buffer) {
+    public int toBuffer(final IByteBuffer buffer, final TimedDouble obj) {
         if (obj == null) {
             return 0;
         }

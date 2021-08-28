@@ -28,7 +28,7 @@ public class LongSerde implements ISerde<Long> {
     }
 
     @Override
-    public int toBuffer(final Long obj, final IByteBuffer buffer) {
+    public int toBuffer(final IByteBuffer buffer, final Long obj) {
         buffer.putLong(0, obj);
         return FIXED_LENGTH;
     }

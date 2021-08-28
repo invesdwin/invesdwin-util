@@ -37,14 +37,14 @@ public class DateSerde implements ISerde<Date> {
     }
 
     @Override
-    public int toBuffer(final Date obj, final IByteBuffer buffer) {
+    public int toBuffer(final IByteBuffer buffer, final Date obj) {
         final Long time;
         if (obj == null) {
             time = null;
         } else {
             time = obj.getTime();
         }
-        return LongSerde.GET.toBuffer(time, buffer);
+        return LongSerde.GET.toBuffer(buffer, time);
     }
 
 }

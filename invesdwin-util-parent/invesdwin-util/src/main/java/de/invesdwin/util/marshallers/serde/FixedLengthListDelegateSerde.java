@@ -44,14 +44,14 @@ public class FixedLengthListDelegateSerde<E> implements ISerde<List<? extends E>
     }
 
     @Override
-    public int toBuffer(final List<? extends E> objs, final IByteBuffer buffer) {
+    public int toBuffer(final IByteBuffer buffer, final List<? extends E> objs) {
         final int length = objs.size() * fixedLength;
         final int size = objs.size();
         int curOffset = 0;
         for (int i = 0; i < size; i++) {
             final E obj = objs.get(i);
             final IByteBuffer slice = buffer.slice(curOffset, fixedLength);
-            final int objLength = delegate.toBuffer(obj, slice);
+            final int objLength = delegate.toBuffer(slice, obj);
             if (objLength != fixedLength) {
                 throw new IllegalArgumentException("Serialized object [" + obj + "] has unexpected byte length of ["
                         + objLength + "] while fixed length [" + fixedLength + "] was expected!");

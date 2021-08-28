@@ -31,7 +31,7 @@ public class IntegerSerde implements ISerde<Integer> {
     }
 
     @Override
-    public int toBuffer(final Integer obj, final IByteBuffer buffer) {
+    public int toBuffer(final IByteBuffer buffer, final Integer obj) {
         if (obj == null) {
             return 0;
         }

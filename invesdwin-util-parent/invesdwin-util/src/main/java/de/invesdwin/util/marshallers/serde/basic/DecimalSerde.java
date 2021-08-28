@@ -37,7 +37,7 @@ public final class DecimalSerde implements ISerde<Decimal> {
     }
 
     @Override
-    public int toBuffer(final Decimal obj, final IByteBuffer buffer) {
+    public int toBuffer(final IByteBuffer buffer, final Decimal obj) {
         if (obj == null) {
             return 0;
         }

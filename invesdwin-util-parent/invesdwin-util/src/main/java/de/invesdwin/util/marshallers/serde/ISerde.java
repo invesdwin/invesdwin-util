@@ -10,6 +10,6 @@ public interface ISerde<O> {
 
     O fromBuffer(IByteBuffer buffer, int length);
 
-    int toBuffer(O obj, IByteBuffer buffer);
+    int toBuffer(IByteBuffer buffer, O obj);
 
 }

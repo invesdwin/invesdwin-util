@@ -57,7 +57,7 @@ public class TimedDecimalSerde implements ISerde<TimedDecimal> {
     }
 
     @Override
-    public int toBuffer(final TimedDecimal obj, final IByteBuffer buffer) {
+    public int toBuffer(final IByteBuffer buffer, final TimedDecimal obj) {
         if (obj == null) {
             return 0;
         }

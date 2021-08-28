@@ -33,7 +33,7 @@ public class BooleanSerde implements ISerde<Boolean> {
     }
 
     @Override
-    public int toBuffer(final Boolean obj, final IByteBuffer buffer) {
+    public int toBuffer(final IByteBuffer buffer, final Boolean obj) {
         if (obj == null) {
             return 0;
         }

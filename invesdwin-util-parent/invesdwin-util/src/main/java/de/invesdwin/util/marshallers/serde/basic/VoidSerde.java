@@ -28,7 +28,7 @@ public class VoidSerde implements ISerde<Void> {
     }
 
     @Override
-    public int toBuffer(final Void obj, final IByteBuffer buffer) {
+    public int toBuffer(final IByteBuffer buffer, final Void obj) {
         return 0;
     }
 

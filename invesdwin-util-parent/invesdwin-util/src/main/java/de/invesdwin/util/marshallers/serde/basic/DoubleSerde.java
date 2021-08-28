@@ -35,7 +35,7 @@ public final class DoubleSerde implements ISerde<Double> {
     }
 
     @Override
-    public int toBuffer(final Double obj, final IByteBuffer buffer) {
+    public int toBuffer(final IByteBuffer buffer, final Double obj) {
         if (obj == null) {
             return 0;
         }

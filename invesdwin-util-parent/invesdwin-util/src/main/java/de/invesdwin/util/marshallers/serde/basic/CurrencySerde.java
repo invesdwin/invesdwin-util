@@ -44,7 +44,7 @@ public final class CurrencySerde implements ISerde<Currency> {
     }
 
     @Override
-    public int toBuffer(final Currency obj, final IByteBuffer buffer) {
+    public int toBuffer(final IByteBuffer buffer, final Currency obj) {
         if (obj == null) {
             return 0;
         }

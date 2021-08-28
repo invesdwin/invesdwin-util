@@ -27,7 +27,7 @@ public class ByteSerde implements ISerde<byte[]> {
     }
 
     @Override
-    public int toBuffer(final byte[] obj, final IByteBuffer buffer) {
-        return SerdeBaseMethods.toBuffer(this, obj, buffer);
+    public int toBuffer(final IByteBuffer buffer, final byte[] obj) {
+        return SerdeBaseMethods.toBuffer(this, buffer, obj);
     }
 }
