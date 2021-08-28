@@ -18,6 +18,7 @@ import org.agrona.io.DirectBufferOutputStream;
 import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.lang.buffer.ByteBuffers;
 import de.invesdwin.util.lang.buffer.IByteBuffer;
+import de.invesdwin.util.lang.buffer.delegate.SliceFromDelegateByteBuffer;
 
 @NotThreadSafe
 public class ExpandableArrayByteBuffer extends ExpandableArrayBuffer implements IByteBuffer {
@@ -87,10 +88,16 @@ public class ExpandableArrayByteBuffer extends ExpandableArrayBuffer implements 
     }
 
     @Override
+    public IByteBuffer sliceFrom(final int index) {
+        return new SliceFromDelegateByteBuffer(this, index);
+    }
+
+    @Override
     public IByteBuffer slice(final int index, final int length) {
         if (index == 0 && length == capacity()) {
             return this;
         } else {
+            checkLimit(index + length);
             return new UnsafeByteBuffer(this, index, length);
         }
     }

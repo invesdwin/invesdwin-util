@@ -29,7 +29,7 @@ import de.invesdwin.util.math.Bytes;
 @Immutable
 public final class ByteBuffers {
 
-    public static final int EXAPANDABLE_LENGTH = -1;
+    public static final int EXPANDABLE_LENGTH = -1;
 
     public static final ByteBuffer EMPTY_BYTE_BUFFER = ByteBuffer.allocate(0);
     public static final AtomicBuffer EMPTY_DIRECT_BUFFER = new UnsafeBuffer(Bytes.EMPTY_ARRAY);
@@ -301,6 +301,22 @@ public final class ByteBuffers {
         }
         if (remaining > 0) {
             throw ByteBuffers.newPutBytesToEOF();
+        }
+    }
+
+    public static int newAllocateFixedLength(final Integer fixedLength) {
+        if (fixedLength == null) {
+            return EXPANDABLE_LENGTH;
+        } else {
+            return fixedLength.intValue();
+        }
+    }
+
+    public static Integer newFixedLength(final int fixedLength) {
+        if (fixedLength < 0) {
+            return null;
+        } else {
+            return fixedLength;
         }
     }
 
