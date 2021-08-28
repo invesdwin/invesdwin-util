@@ -159,14 +159,8 @@ public final class ByteBuffers {
         return new ExpandableArrayByteBuffer();
     }
 
-    public static IByteBuffer allocateNonZero(final int fixedLength) {
-        if (fixedLength == 0) {
-            throw new IllegalArgumentException("fixedLength should not be 0");
-        } else if (fixedLength < 0) {
-            return allocateExpandable();
-        } else {
-            return allocateFixed(fixedLength);
-        }
+    public static IByteBuffer allocateExpandable(final int initialLength) {
+        return new ExpandableArrayByteBuffer(initialLength);
     }
 
     /**
