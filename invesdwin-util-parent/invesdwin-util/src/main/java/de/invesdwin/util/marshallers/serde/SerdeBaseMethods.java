@@ -29,11 +29,17 @@ public final class SerdeBaseMethods {
     }
 
     public static <O> O fromBuffer(final ISerde<O> serde, final IByteBuffer buffer, final int length) {
+        if (length == 0) {
+            return null;
+        }
         final byte[] bytes = buffer.asByteArrayTo(length);
         return serde.fromBytes(bytes);
     }
 
     public static <O> int toBuffer(final ISerde<O> serde, final O obj, final IByteBuffer buffer) {
+        if (obj == null) {
+            return 0;
+        }
         final byte[] bytes = serde.toBytes(obj);
         buffer.putBytes(0, bytes);
         return bytes.length;

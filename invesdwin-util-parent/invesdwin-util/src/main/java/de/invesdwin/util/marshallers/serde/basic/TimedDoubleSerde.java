@@ -42,16 +42,22 @@ public class TimedDoubleSerde implements ISerde<TimedDouble> {
 
     @Override
     public TimedDouble fromBuffer(final IByteBuffer buffer, final int length) {
-        final FDate time = FDateSerde.getFDate(buffer, TIME_INDEX);
+        if (length == 0) {
+            return null;
+        }
+        final long time = buffer.getLong(TIME_INDEX);
         final double value = buffer.getDouble(DOUBLE_INDEX);
 
-        final TimedDouble timedMoney = new TimedDouble(time, value);
+        final TimedDouble timedMoney = new TimedDouble(FDate.valueOf(time), value);
         return timedMoney;
     }
 
     @Override
     public int toBuffer(final TimedDouble obj, final IByteBuffer buffer) {
-        FDateSerde.putFDate(buffer, TIME_INDEX, obj.getTime());
+        if (obj == null) {
+            return 0;
+        }
+        buffer.putLong(TIME_INDEX, obj.getTime().millisValue());
         buffer.putDouble(DOUBLE_INDEX, obj.doubleValue());
         return FIXED_LENGTH;
     }

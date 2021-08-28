@@ -24,12 +24,18 @@ public class IntegerSerde implements ISerde<Integer> {
 
     @Override
     public Integer fromBuffer(final IByteBuffer buffer, final int length) {
-        return extractInteger(buffer, 0);
+        if (length == 0) {
+            return null;
+        }
+        return buffer.getInt(0);
     }
 
     @Override
     public int toBuffer(final Integer obj, final IByteBuffer buffer) {
-        putInteger(buffer, 0, obj);
+        if (obj == null) {
+            return 0;
+        }
+        buffer.putInt(0, obj);
         return FIXED_LENGTH;
     }
 

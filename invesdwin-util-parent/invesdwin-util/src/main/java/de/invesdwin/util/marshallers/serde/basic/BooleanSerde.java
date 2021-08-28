@@ -26,12 +26,18 @@ public class BooleanSerde implements ISerde<Boolean> {
 
     @Override
     public Boolean fromBuffer(final IByteBuffer buffer, final int length) {
-        return getBoolean(buffer, 0);
+        if (length == 0) {
+            return null;
+        }
+        return buffer.getBoolean(0);
     }
 
     @Override
     public int toBuffer(final Boolean obj, final IByteBuffer buffer) {
-        putBoolean(buffer, 0, obj);
+        if (obj == null) {
+            return 0;
+        }
+        buffer.putBoolean(0, obj);
         return FIXED_LENGTH;
     }
 

@@ -32,7 +32,7 @@ public class FixedLengthBufferingIteratorDelegateSerde<E> implements ISerde<IBuf
 
     @Override
     public IBufferingIterator<? extends E> fromBuffer(final IByteBuffer buffer, final int length) {
-        final int size = buffer.capacity() / fixedLength;
+        final int size = length / fixedLength;
         final BufferingIterator<E> result = new BufferingIterator<E>();
         int curOffset = 0;
         for (int i = 0; i < size; i++) {

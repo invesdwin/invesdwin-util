@@ -29,12 +29,20 @@ public final class DecimalSerde implements ISerde<Decimal> {
 
     @Override
     public Decimal fromBuffer(final IByteBuffer buffer, final int length) {
-        return extractDecimal(buffer, 0);
+        if (length == 0) {
+            return null;
+        }
+        final double value = buffer.getDouble(0);
+        return Decimal.valueOf(value);
     }
 
     @Override
     public int toBuffer(final Decimal obj, final IByteBuffer buffer) {
-        putDecimal(buffer, 0, obj);
+        if (obj == null) {
+            return 0;
+        }
+        final double value = obj.doubleValue();
+        buffer.putDouble(0, value);
         return FIXED_LENGTH;
     }
 

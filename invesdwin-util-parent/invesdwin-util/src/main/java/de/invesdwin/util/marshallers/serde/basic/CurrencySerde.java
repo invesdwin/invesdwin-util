@@ -36,12 +36,21 @@ public final class CurrencySerde implements ISerde<Currency> {
 
     @Override
     public Currency fromBuffer(final IByteBuffer buffer, final int length) {
-        return getCurrency(buffer, 0);
+        if (length == 0) {
+            return null;
+        }
+        final String currencyCode = buffer.getStringAsciii(0, length);
+        return Currencies.getInstance(currencyCode);
     }
 
     @Override
     public int toBuffer(final Currency obj, final IByteBuffer buffer) {
-        return putCurrency(buffer, 0, obj);
+        if (obj == null) {
+            return 0;
+        }
+        final String currencyCode = obj.getCurrencyCode();
+        buffer.putStringAsciii(0, currencyCode);
+        return ByteBuffers.newStringAsciiLength(currencyCode);
     }
 
     public static int putCurrency(final IByteBuffer buffer, final int index, final Currency currency) {

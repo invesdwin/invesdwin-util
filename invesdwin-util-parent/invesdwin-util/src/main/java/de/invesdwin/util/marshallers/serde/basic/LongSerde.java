@@ -14,7 +14,6 @@ public class LongSerde implements ISerde<Long> {
 
     @Override
     public Long fromBytes(final byte[] bytes) {
-        //        System.out.println("TODO");
         return SerdeBaseMethods.fromBytes(this, bytes);
     }
 
@@ -25,12 +24,12 @@ public class LongSerde implements ISerde<Long> {
 
     @Override
     public Long fromBuffer(final IByteBuffer buffer, final int length) {
-        return getLong(buffer, 0);
+        return buffer.getLong(0);
     }
 
     @Override
     public int toBuffer(final Long obj, final IByteBuffer buffer) {
-        putLong(buffer, 0, obj);
+        buffer.putLong(0, obj);
         return FIXED_LENGTH;
     }
 

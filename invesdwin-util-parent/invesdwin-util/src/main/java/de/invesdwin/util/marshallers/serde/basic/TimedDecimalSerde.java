@@ -46,16 +46,22 @@ public class TimedDecimalSerde implements ISerde<TimedDecimal> {
 
     @Override
     public TimedDecimal fromBuffer(final IByteBuffer buffer, final int length) {
-        final FDate time = FDateSerde.getFDate(buffer, TIME_INDEX);
+        if (length == 0) {
+            return null;
+        }
+        final long time = buffer.getLong(TIME_INDEX);
         final double value = buffer.getDouble(DECIMAL_INDEX);
 
-        final TimedDecimal timedMoney = new TimedDecimal(time, value);
+        final TimedDecimal timedMoney = new TimedDecimal(FDate.valueOf(time), value);
         return timedMoney;
     }
 
     @Override
     public int toBuffer(final TimedDecimal obj, final IByteBuffer buffer) {
-        FDateSerde.putFDate(buffer, TIME_INDEX, obj.getTime());
+        if (obj == null) {
+            return 0;
+        }
+        buffer.putLong(TIME_INDEX, obj.getTime().millisValue());
         buffer.putDouble(DECIMAL_INDEX, obj.doubleValue());
         return FIXED_LENGTH;
     }

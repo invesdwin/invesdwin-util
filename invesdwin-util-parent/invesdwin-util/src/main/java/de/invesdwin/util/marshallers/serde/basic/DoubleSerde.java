@@ -28,12 +28,18 @@ public final class DoubleSerde implements ISerde<Double> {
 
     @Override
     public Double fromBuffer(final IByteBuffer buffer, final int length) {
-        return extractDouble(buffer, 0);
+        if (length == 0) {
+            return null;
+        }
+        return buffer.getDouble(0);
     }
 
     @Override
     public int toBuffer(final Double obj, final IByteBuffer buffer) {
-        putDouble(buffer, 0, obj);
+        if (obj == null) {
+            return 0;
+        }
+        buffer.putDouble(0, obj);
         return FIXED_LENGTH;
     }
 
