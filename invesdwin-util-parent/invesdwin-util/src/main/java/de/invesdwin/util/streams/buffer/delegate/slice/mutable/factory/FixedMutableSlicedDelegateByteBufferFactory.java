@@ -3,15 +3,15 @@ package de.invesdwin.util.streams.buffer.delegate.slice.mutable.factory;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.streams.buffer.IByteBuffer;
-import de.invesdwin.util.streams.buffer.delegate.slice.mutable.MutableSliceDelegateByteBuffer;
+import de.invesdwin.util.streams.buffer.delegate.slice.mutable.MutableSlicedDelegateByteBuffer;
 
 @NotThreadSafe
-public class FixedMutableSliceDelegateByteBufferFactory implements IMutableSliceDelegateByteBufferFactory {
+public class FixedMutableSlicedDelegateByteBufferFactory implements IMutableSlicedDelegateByteBufferFactory {
 
     private final IByteBuffer delegate;
-    private MutableSliceDelegateByteBuffer slice;
+    private MutableSlicedDelegateByteBuffer slice;
 
-    public FixedMutableSliceDelegateByteBufferFactory(final IByteBuffer delegate) {
+    public FixedMutableSlicedDelegateByteBufferFactory(final IByteBuffer delegate) {
         this.delegate = delegate;
     }
 
@@ -26,7 +26,7 @@ public class FixedMutableSliceDelegateByteBufferFactory implements IMutableSlice
             return delegate;
         }
         if (slice == null) {
-            slice = new MutableSliceDelegateByteBuffer(delegate, index, length);
+            slice = new MutableSlicedDelegateByteBuffer(delegate, index, length);
         } else {
             slice.setFrom(index);
             slice.setLength(length);

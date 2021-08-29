@@ -21,15 +21,15 @@ import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.streams.buffer.ByteBuffers;
 import de.invesdwin.util.streams.buffer.IByteBuffer;
-import de.invesdwin.util.streams.buffer.delegate.slice.SliceFromDelegateByteBuffer;
-import de.invesdwin.util.streams.buffer.delegate.slice.mutable.factory.IMutableSliceDelegateByteBufferFactory;
+import de.invesdwin.util.streams.buffer.delegate.slice.SlicedFromDelegateByteBuffer;
+import de.invesdwin.util.streams.buffer.delegate.slice.mutable.factory.IMutableSlicedDelegateByteBufferFactory;
 import de.invesdwin.util.streams.buffer.extend.ExpandableByteBuffer;
 
 @NotThreadSafe
 public class AgronaDelegateMutableByteBuffer implements IByteBuffer {
 
     private final MutableDirectBuffer delegate;
-    private IMutableSliceDelegateByteBufferFactory mutableSliceFactory;
+    private IMutableSlicedDelegateByteBufferFactory mutableSliceFactory;
 
     public AgronaDelegateMutableByteBuffer(final MutableDirectBuffer delegate) {
         this.delegate = delegate;
@@ -324,9 +324,9 @@ public class AgronaDelegateMutableByteBuffer implements IByteBuffer {
         return ByteBuffers.asByteArrayCopyGet(this, index, length);
     }
 
-    private IMutableSliceDelegateByteBufferFactory getMutableSliceFactory() {
+    private IMutableSlicedDelegateByteBufferFactory getMutableSliceFactory() {
         if (mutableSliceFactory == null) {
-            mutableSliceFactory = IMutableSliceDelegateByteBufferFactory.newInstance(this);
+            mutableSliceFactory = IMutableSlicedDelegateByteBufferFactory.newInstance(this);
         }
         return mutableSliceFactory;
     }
@@ -344,7 +344,7 @@ public class AgronaDelegateMutableByteBuffer implements IByteBuffer {
     @Override
     public IByteBuffer newSliceFrom(final int index) {
         if (isExpandable()) {
-            return new SliceFromDelegateByteBuffer(this, index);
+            return new SlicedFromDelegateByteBuffer(this, index);
         } else {
             return newSlice(index, remaining(index));
         }

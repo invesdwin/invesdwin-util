@@ -14,21 +14,19 @@ import org.agrona.DirectBuffer;
 import org.agrona.MutableDirectBuffer;
 
 import de.invesdwin.util.streams.buffer.IByteBuffer;
-import de.invesdwin.util.streams.buffer.delegate.slice.mutable.factory.FixedMutableSliceDelegateByteBufferFactory;
-import de.invesdwin.util.streams.buffer.delegate.slice.mutable.factory.IMutableSliceDelegateByteBufferFactory;
+import de.invesdwin.util.streams.buffer.delegate.slice.mutable.factory.ExpandableMutableSlicedDelegateByteBufferFactory;
+import de.invesdwin.util.streams.buffer.delegate.slice.mutable.factory.IMutableSlicedDelegateByteBufferFactory;
 
 @NotThreadSafe
-public class SliceDelegateByteBuffer implements IByteBuffer {
+public class SlicedFromDelegateByteBuffer implements IByteBuffer {
 
     private final IByteBuffer delegate;
     private final int from;
-    private final int length;
-    private IMutableSliceDelegateByteBufferFactory mutableSliceFactory;
+    private IMutableSlicedDelegateByteBufferFactory mutableSliceFactory;
 
-    public SliceDelegateByteBuffer(final IByteBuffer delegate, final int from, final int length) {
+    public SlicedFromDelegateByteBuffer(final IByteBuffer delegate, final int from) {
         this.delegate = delegate;
         this.from = from;
-        this.length = length;
     }
 
     @Override
@@ -63,7 +61,7 @@ public class SliceDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public int capacity() {
-        return length;
+        return delegate.capacity() - from;
     }
 
     @Override
@@ -211,9 +209,9 @@ public class SliceDelegateByteBuffer implements IByteBuffer {
         return delegate.asDirectBuffer(index + from, length);
     }
 
-    private IMutableSliceDelegateByteBufferFactory getMutableSliceFactory() {
+    private IMutableSlicedDelegateByteBufferFactory getMutableSliceFactory() {
         if (mutableSliceFactory == null) {
-            mutableSliceFactory = new FixedMutableSliceDelegateByteBufferFactory(this);
+            mutableSliceFactory = new ExpandableMutableSlicedDelegateByteBufferFactory(this);
         }
         return mutableSliceFactory;
     }
@@ -230,7 +228,7 @@ public class SliceDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public IByteBuffer newSliceFrom(final int index) {
-        return new SliceDelegateByteBuffer(delegate, index + from, length);
+        return new SlicedFromDelegateByteBuffer(delegate, index + from);
     }
 
     @Override

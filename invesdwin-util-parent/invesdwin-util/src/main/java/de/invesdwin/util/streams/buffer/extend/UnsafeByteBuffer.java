@@ -19,13 +19,13 @@ import org.agrona.io.DirectBufferOutputStream;
 import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.streams.buffer.ByteBuffers;
 import de.invesdwin.util.streams.buffer.IByteBuffer;
-import de.invesdwin.util.streams.buffer.delegate.slice.mutable.factory.FixedMutableSliceDelegateByteBufferFactory;
-import de.invesdwin.util.streams.buffer.delegate.slice.mutable.factory.IMutableSliceDelegateByteBufferFactory;
+import de.invesdwin.util.streams.buffer.delegate.slice.mutable.factory.FixedMutableSlicedDelegateByteBufferFactory;
+import de.invesdwin.util.streams.buffer.delegate.slice.mutable.factory.IMutableSlicedDelegateByteBufferFactory;
 
 @NotThreadSafe
 public class UnsafeByteBuffer extends UnsafeBuffer implements IByteBuffer {
 
-    private IMutableSliceDelegateByteBufferFactory mutableSliceFactory;
+    private IMutableSlicedDelegateByteBufferFactory mutableSliceFactory;
 
     public UnsafeByteBuffer() {
         super();
@@ -203,9 +203,9 @@ public class UnsafeByteBuffer extends UnsafeBuffer implements IByteBuffer {
         }
     }
 
-    private IMutableSliceDelegateByteBufferFactory getMutableSliceFactory() {
+    private IMutableSlicedDelegateByteBufferFactory getMutableSliceFactory() {
         if (mutableSliceFactory == null) {
-            mutableSliceFactory = new FixedMutableSliceDelegateByteBufferFactory(this);
+            mutableSliceFactory = new FixedMutableSlicedDelegateByteBufferFactory(this);
         }
         return mutableSliceFactory;
     }

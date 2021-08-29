@@ -14,7 +14,7 @@ import org.agrona.DirectBuffer;
 import org.agrona.MutableDirectBuffer;
 
 import de.invesdwin.util.streams.buffer.IByteBuffer;
-import de.invesdwin.util.streams.buffer.delegate.slice.mutable.factory.IMutableSliceDelegateByteBufferFactory;
+import de.invesdwin.util.streams.buffer.delegate.slice.mutable.factory.IMutableSlicedDelegateByteBufferFactory;
 
 /**
  * This wrapper can be used for remote communication where a fixed endianness should be used.
@@ -24,7 +24,7 @@ public final class OrderedDelegateByteBuffer implements IByteBuffer {
 
     private final IByteBuffer delegate;
     private final ByteOrder order;
-    private IMutableSliceDelegateByteBufferFactory mutableSliceFactory;
+    private IMutableSlicedDelegateByteBufferFactory mutableSliceFactory;
 
     private OrderedDelegateByteBuffer(final IByteBuffer delegate, final ByteOrder order) {
         this.delegate = delegate;
@@ -225,9 +225,9 @@ public final class OrderedDelegateByteBuffer implements IByteBuffer {
         return delegate.asByteArrayCopy(index, length);
     }
 
-    private IMutableSliceDelegateByteBufferFactory getMutableSliceFactory() {
+    private IMutableSlicedDelegateByteBufferFactory getMutableSliceFactory() {
         if (mutableSliceFactory == null) {
-            mutableSliceFactory = IMutableSliceDelegateByteBufferFactory.newInstance(this, order);
+            mutableSliceFactory = IMutableSlicedDelegateByteBufferFactory.newInstance(this, order);
         }
         return mutableSliceFactory;
     }

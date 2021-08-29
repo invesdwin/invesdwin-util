@@ -3,17 +3,17 @@ package de.invesdwin.util.streams.buffer.delegate.slice.mutable.factory;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.streams.buffer.IByteBuffer;
-import de.invesdwin.util.streams.buffer.delegate.slice.mutable.MutableSliceDelegateByteBuffer;
-import de.invesdwin.util.streams.buffer.delegate.slice.mutable.MutableSliceFromDelegateByteBuffer;
+import de.invesdwin.util.streams.buffer.delegate.slice.mutable.MutableSlicedDelegateByteBuffer;
+import de.invesdwin.util.streams.buffer.delegate.slice.mutable.MutableSlicedFromDelegateByteBuffer;
 
 @NotThreadSafe
-public class ExpandableMutableSliceDelegateByteBufferFactory implements IMutableSliceDelegateByteBufferFactory {
+public class ExpandableMutableSlicedDelegateByteBufferFactory implements IMutableSlicedDelegateByteBufferFactory {
 
     private final IByteBuffer delegate;
-    private MutableSliceFromDelegateByteBuffer sliceFrom;
-    private MutableSliceDelegateByteBuffer slice;
+    private MutableSlicedFromDelegateByteBuffer sliceFrom;
+    private MutableSlicedDelegateByteBuffer slice;
 
-    public ExpandableMutableSliceDelegateByteBufferFactory(final IByteBuffer delegate) {
+    public ExpandableMutableSlicedDelegateByteBufferFactory(final IByteBuffer delegate) {
         this.delegate = delegate;
     }
 
@@ -23,7 +23,7 @@ public class ExpandableMutableSliceDelegateByteBufferFactory implements IMutable
             return delegate;
         }
         if (sliceFrom == null) {
-            sliceFrom = new MutableSliceFromDelegateByteBuffer(delegate, index);
+            sliceFrom = new MutableSlicedFromDelegateByteBuffer(delegate, index);
         } else {
             sliceFrom.setFrom(index);
         }
@@ -36,7 +36,7 @@ public class ExpandableMutableSliceDelegateByteBufferFactory implements IMutable
             return delegate;
         }
         if (slice == null) {
-            slice = new MutableSliceDelegateByteBuffer(delegate, index, length);
+            slice = new MutableSlicedDelegateByteBuffer(delegate, index, length);
         } else {
             slice.setFrom(index);
             slice.setLength(length);

@@ -19,15 +19,15 @@ import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.streams.buffer.ByteBuffers;
 import de.invesdwin.util.streams.buffer.IByteBuffer;
-import de.invesdwin.util.streams.buffer.delegate.slice.mutable.factory.FixedMutableSliceDelegateByteBufferFactory;
-import de.invesdwin.util.streams.buffer.delegate.slice.mutable.factory.IMutableSliceDelegateByteBufferFactory;
+import de.invesdwin.util.streams.buffer.delegate.slice.mutable.factory.FixedMutableSlicedDelegateByteBufferFactory;
+import de.invesdwin.util.streams.buffer.delegate.slice.mutable.factory.IMutableSlicedDelegateByteBufferFactory;
 import de.invesdwin.util.streams.buffer.extend.UnsafeByteBuffer;
 
 @NotThreadSafe
 public class AgronaDelegateByteBuffer implements IByteBuffer {
 
     private final DirectBuffer delegate;
-    private IMutableSliceDelegateByteBufferFactory mutableSliceFactory;
+    private IMutableSlicedDelegateByteBufferFactory mutableSliceFactory;
 
     public AgronaDelegateByteBuffer(final DirectBuffer delegate) {
         this.delegate = delegate;
@@ -307,9 +307,9 @@ public class AgronaDelegateByteBuffer implements IByteBuffer {
         return ByteBuffers.asByteArrayCopyGet(this, index, length);
     }
 
-    private IMutableSliceDelegateByteBufferFactory getMutableSliceFactory() {
+    private IMutableSlicedDelegateByteBufferFactory getMutableSliceFactory() {
         if (mutableSliceFactory == null) {
-            mutableSliceFactory = new FixedMutableSliceDelegateByteBufferFactory(this);
+            mutableSliceFactory = new FixedMutableSlicedDelegateByteBufferFactory(this);
         }
         return mutableSliceFactory;
     }

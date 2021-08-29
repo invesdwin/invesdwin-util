@@ -19,15 +19,15 @@ import org.agrona.io.DirectBufferOutputStream;
 import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.streams.buffer.ByteBuffers;
 import de.invesdwin.util.streams.buffer.IByteBuffer;
-import de.invesdwin.util.streams.buffer.delegate.slice.mutable.factory.FixedMutableSliceDelegateByteBufferFactory;
-import de.invesdwin.util.streams.buffer.delegate.slice.mutable.factory.IMutableSliceDelegateByteBufferFactory;
+import de.invesdwin.util.streams.buffer.delegate.slice.mutable.factory.FixedMutableSlicedDelegateByteBufferFactory;
+import de.invesdwin.util.streams.buffer.delegate.slice.mutable.factory.IMutableSlicedDelegateByteBufferFactory;
 
 @NotThreadSafe
 public class JavaDelegateByteBuffer implements IByteBuffer {
 
     protected final ByteBuffer delegate;
     private UnsafeBuffer directBuffer;
-    private IMutableSliceDelegateByteBufferFactory mutableSliceFactory;
+    private IMutableSlicedDelegateByteBufferFactory mutableSliceFactory;
 
     public JavaDelegateByteBuffer(final byte[] bytes) {
         this.delegate = ByteBuffer.wrap(bytes);
@@ -266,9 +266,9 @@ public class JavaDelegateByteBuffer implements IByteBuffer {
         return ByteBuffers.asByteArrayCopyGet(delegate, index, length);
     }
 
-    private IMutableSliceDelegateByteBufferFactory getMutableSliceFactory() {
+    private IMutableSlicedDelegateByteBufferFactory getMutableSliceFactory() {
         if (mutableSliceFactory == null) {
-            mutableSliceFactory = new FixedMutableSliceDelegateByteBufferFactory(this);
+            mutableSliceFactory = new FixedMutableSlicedDelegateByteBufferFactory(this);
         }
         return mutableSliceFactory;
     }

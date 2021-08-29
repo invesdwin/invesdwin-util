@@ -18,14 +18,14 @@ import org.agrona.io.DirectBufferOutputStream;
 import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.streams.buffer.ByteBuffers;
 import de.invesdwin.util.streams.buffer.IByteBuffer;
-import de.invesdwin.util.streams.buffer.delegate.slice.SliceFromDelegateByteBuffer;
-import de.invesdwin.util.streams.buffer.delegate.slice.mutable.factory.ExpandableMutableSliceDelegateByteBufferFactory;
-import de.invesdwin.util.streams.buffer.delegate.slice.mutable.factory.IMutableSliceDelegateByteBufferFactory;
+import de.invesdwin.util.streams.buffer.delegate.slice.SlicedFromDelegateByteBuffer;
+import de.invesdwin.util.streams.buffer.delegate.slice.mutable.factory.ExpandableMutableSlicedDelegateByteBufferFactory;
+import de.invesdwin.util.streams.buffer.delegate.slice.mutable.factory.IMutableSlicedDelegateByteBufferFactory;
 
 @NotThreadSafe
 public class ExpandableArrayByteBuffer extends ExpandableArrayBuffer implements IByteBuffer {
 
-    private IMutableSliceDelegateByteBufferFactory mutableSliceFactory;
+    private IMutableSlicedDelegateByteBufferFactory mutableSliceFactory;
 
     public ExpandableArrayByteBuffer() {
         super(INITIAL_CAPACITY);
@@ -96,9 +96,9 @@ public class ExpandableArrayByteBuffer extends ExpandableArrayBuffer implements 
         }
     }
 
-    private IMutableSliceDelegateByteBufferFactory getMutableSliceFactory() {
+    private IMutableSlicedDelegateByteBufferFactory getMutableSliceFactory() {
         if (mutableSliceFactory == null) {
-            mutableSliceFactory = new ExpandableMutableSliceDelegateByteBufferFactory(this);
+            mutableSliceFactory = new ExpandableMutableSlicedDelegateByteBufferFactory(this);
         }
         return mutableSliceFactory;
     }
@@ -115,7 +115,7 @@ public class ExpandableArrayByteBuffer extends ExpandableArrayBuffer implements 
 
     @Override
     public IByteBuffer newSliceFrom(final int index) {
-        return new SliceFromDelegateByteBuffer(this, index);
+        return new SlicedFromDelegateByteBuffer(this, index);
     }
 
     @Override
