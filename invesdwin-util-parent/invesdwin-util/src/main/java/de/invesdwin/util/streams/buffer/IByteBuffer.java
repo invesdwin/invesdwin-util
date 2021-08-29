@@ -16,7 +16,7 @@ import org.agrona.MutableDirectBuffer;
 import de.invesdwin.util.math.Booleans;
 import de.invesdwin.util.math.Bytes;
 
-public interface IByteBuffer {
+public interface IByteBuffer extends IByteBufferWriter {
 
     ByteOrder getOrder();
 
@@ -371,5 +371,17 @@ public interface IByteBuffer {
     void putBytesTo(int index, InputStream src, int length) throws IOException;
 
     <T> T unwrap(Class<T> type);
+
+    @Override
+    default int write(final IByteBuffer buffer) {
+        final int length = capacity();
+        getBytesTo(0, buffer, length);
+        return length;
+    }
+
+    @Override
+    default IByteBuffer asByteBuffer() {
+        return this;
+    }
 
 }
