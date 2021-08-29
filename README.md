@@ -30,6 +30,8 @@ This stands for "Fast Date". It is essentially a long value and is suitable as a
 Makes time-tracking in batch processing easier, prints itself out as a Duration with the precision of System.nanoTime().
 #### `Duration`
 Useful for time duration calculations and prints them out as an extended version of [ISO-8601 Duration](https://en.wikipedia.org/wiki/ISO_8601#Durations)
+#### 'IByteBuffer'
+A wrapper for various other byte buffer implementations. Adds some convenience to the [Agrona DirectBuffer][https://github.com/real-logic/agrona], Java ByteBuffer and [Chronicle Bytes](https://github.com/OpenHFT/Chronicle-Bytes) (optional dependency).
 
 ## Caches
 #### `ALoadingCache`
