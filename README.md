@@ -30,8 +30,6 @@ This stands for "Fast Date". It is essentially a long value and is suitable as a
 Makes time-tracking in batch processing easier, prints itself out as a Duration with the precision of System.nanoTime().
 #### `Duration`
 Useful for time duration calculations and prints them out as an extended version of [ISO-8601 Duration](https://en.wikipedia.org/wiki/ISO_8601#Durations)
-#### 'IByteBuffer'
-A wrapper for various other byte buffer implementations. Adds some convenience to the [Agrona DirectBuffer][https://github.com/real-logic/agrona], Java ByteBuffer and [Chronicle Bytes](https://github.com/OpenHFT/Chronicle-Bytes) (optional dependency).
 
 ## Caches
 #### `ALoadingCache`
@@ -65,10 +63,13 @@ These can be useful as combined keys for caches (e.g. ALoadingCache) or when mul
 The popular [AssertJ](http://joel-costigliola.github.io/assertj) fluent API extended by `FDate` and `Decimal`. Though sometimes it might be better to use if-throw statements instead of this API, since it might be a performance bottleneck in some cases. Where it is not, it is a very good ease in doing defensive coding. Best approach is to use it as a default and replace it by manual code where the profiler tells that it is too slow (should not be too many cases anyway).
 #### `ADelegateComparator`
 Ever wondered if your comparator will result in ascending or descending order? This class will make the desired order easier to get by making that an explicit decision during sort calls. You also only have to give it the property to compare and it will handle casting, null checks and other things for you.
-#### `Strings`, `Reflections`, `Objects`, ...
+#### `Strings`, `Reflections`, `Objects` ...
 Each one being a one-stop class to find the utility method you are searching for by providing a [static facade](https://github.com/subes/invesdwin-norva#static-facade) to the most useful frameworks and providing its own set of operations which are missing from the ones that already exist.
 #### `ExpressionParser`
 This is a major rewrite of the popular and fast [parsii](https://github.com/scireum/parsii) expression library. There are a lot of performance optimizations included (using final and immutable where possible, faster tokenizer and removing unneeded features). Also support was added for time series based expressions with `[x]` operator on functions and variables for looking up previous values and for operators like `crosses above` and `crosses below`. Functions can be referenced as variables and vice versa where possible. Thus the parentheses operator `()` becomes optional. Boolean expressions are processed efficiently by skipping unnecessary expression evaluations. You can also use `double and boolean` as results for evaluations as well as `none, int and time` based historical indexing for evaluation by calling the appropriate expression method. The time series based functions and variables can be added by overriding the `getFunction(name)`, `getVariable(name)` and `getPreviousKeyFunction()` methods of the parser class. Though without these the classical math and boolean expressions still work properly. It is possible to extend the expressions by technical analysis features using this functionality. The expressions are case insensitive with variables and functions automatically being converted to lowercase before being parsed.
+#### `IByteBuffer`
+Wrappers for various other byte buffer implementations. Adds some convenience to the Java `ByteBuffer`, [Agrona DirectBuffer][https://github.com/real-logic/agrona], and [Chronicle Bytes](https://github.com/OpenHFT/Chronicle-Bytes) (optional dependency). `ByteBuffers` provides `allocate` and `wrap` methods for the fastest implementations.
+#### `ISerde`: simplified and fast conversion from/to bytes for value objects. Preferable use the `fromBuffer`/`toBuffer` methods instead of `fromBytes`/`toBytes`. There are implementations available for the most important types.
 
 ## Support
 
