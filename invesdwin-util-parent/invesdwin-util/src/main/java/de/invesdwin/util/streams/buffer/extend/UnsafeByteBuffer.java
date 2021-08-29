@@ -381,4 +381,29 @@ public class UnsafeByteBuffer extends UnsafeBuffer implements IByteBuffer {
         return null;
     }
 
+    @Override
+    public ByteBuffer asByteBuffer() {
+        final ByteBuffer byteBuffer = byteBuffer();
+        if (byteBuffer != null) {
+            return byteBuffer;
+        }
+        final byte[] array = byteArray();
+        if (array != null) {
+            final ByteBuffer arrayBuffer = ByteBuffer.wrap(array, wrapAdjustment(), capacity());
+            return arrayBuffer;
+        }
+        final long address = addressOffset();
+        return ByteBuffers.asDirectByteBuffer(address, capacity());
+    }
+
+    @Override
+    public ByteBuffer asByteBuffer(final int index, final int length) {
+        final ByteBuffer buffer = asByteBuffer();
+        if (index == 0 && length == capacity()) {
+            return buffer;
+        } else {
+            return ByteBuffers.slice(buffer, index, length);
+        }
+    }
+
 }

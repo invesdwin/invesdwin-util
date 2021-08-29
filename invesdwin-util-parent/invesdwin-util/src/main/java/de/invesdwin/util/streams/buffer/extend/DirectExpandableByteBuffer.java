@@ -5,11 +5,13 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
 import org.agrona.ExpandableArrayBuffer;
+import org.agrona.ExpandableDirectByteBuffer;
 import org.agrona.MutableDirectBuffer;
 import org.agrona.concurrent.UnsafeBuffer;
 import org.agrona.io.DirectBufferInputStream;
@@ -23,15 +25,15 @@ import de.invesdwin.util.streams.buffer.delegate.slice.mutable.factory.Expandabl
 import de.invesdwin.util.streams.buffer.delegate.slice.mutable.factory.IMutableSlicedDelegateByteBufferFactory;
 
 @NotThreadSafe
-public class ExpandableArrayByteBuffer extends ExpandableArrayBuffer implements IByteBuffer {
+public class DirectExpandableByteBuffer extends ExpandableDirectByteBuffer implements IByteBuffer {
 
     private IMutableSlicedDelegateByteBufferFactory mutableSliceFactory;
 
-    public ExpandableArrayByteBuffer() {
-        super(INITIAL_CAPACITY);
+    public DirectExpandableByteBuffer() {
+        super();
     }
 
-    public ExpandableArrayByteBuffer(final int initialCapacity) {
+    public DirectExpandableByteBuffer(final int initialCapacity) {
         super(initialCapacity);
     }
 
@@ -85,6 +87,72 @@ public class ExpandableArrayByteBuffer extends ExpandableArrayBuffer implements 
     public OutputStream asOutputStream(final int index, final int length) {
         //allow output stream to actually grow the buffer
         return new DirectBufferOutputStream(this, index, ExpandableArrayBuffer.MAX_ARRAY_LENGTH - index);
+    }
+
+    @Deprecated
+    @Override
+    public byte[] asByteArray() {
+        throw newAsByteArrayUnsupported();
+    }
+
+    public static UnsupportedOperationException newAsByteArrayUnsupported() {
+        return new UnsupportedOperationException("This will give a bigger size than what was added to the buffer. "
+                + "Use buffer.asByteArrayTo(buffer.capacity()) if you really want this from an expandable buffer."
+                + "Also a slice(from, to)'d wrapper of this buffer should not cause this exception.");
+    }
+
+    @Deprecated
+    @Override
+    public byte[] asByteArrayCopy() {
+        throw newAsByteArrayUnsupported();
+    }
+
+    @Override
+    public byte[] asByteArray(final int index, final int length) {
+        if (index == 0 && length == capacity()) {
+            final byte[] bytes = byteArray();
+            if (bytes != null) {
+                if (bytes.length != length) {
+                    return ByteBuffers.asByteArrayCopyGet(this, index, length);
+                }
+                return bytes;
+            }
+            final ByteBuffer byteBuffer = byteBuffer();
+            if (byteBuffer != null) {
+                final byte[] array = byteBuffer.array();
+                if (array != null) {
+                    if (array.length != length) {
+                        return ByteBuffers.asByteArrayCopyGet(this, index, length);
+                    }
+                    return array;
+                }
+            }
+        }
+        return ByteBuffers.asByteArrayCopyGet(this, index, length);
+    }
+
+    @Override
+    public byte[] asByteArrayCopy(final int index, final int length) {
+        if (index == 0 && length == capacity()) {
+            final byte[] bytes = byteArray();
+            if (bytes != null) {
+                if (bytes.length != length) {
+                    return ByteBuffers.asByteArrayCopyGet(this, index, length);
+                }
+                return bytes.clone();
+            }
+            final ByteBuffer byteBuffer = byteBuffer();
+            if (byteBuffer != null) {
+                final byte[] array = byteBuffer.array();
+                if (array != null) {
+                    if (array.length != length) {
+                        return ByteBuffers.asByteArrayCopyGet(this, index, length);
+                    }
+                    return array.clone();
+                }
+            }
+        }
+        return ByteBuffers.asByteArrayCopyGet(this, index, length);
     }
 
     @Override
@@ -164,6 +232,51 @@ public class ExpandableArrayByteBuffer extends ExpandableArrayBuffer implements 
     }
 
     @Override
+    public void getBytesTo(final int index, final DataOutput dst, final int length) throws IOException {
+        int i = index;
+        while (i < length) {
+            final byte b = getByte(i);
+            dst.write(b);
+            i++;
+        }
+    }
+
+    @Override
+    public void getBytesTo(final int index, final OutputStream dst, final int length) throws IOException {
+        int i = index;
+        while (i < length) {
+            final byte b = getByte(i);
+            dst.write(b);
+            i++;
+        }
+    }
+
+    @Override
+    public void putBytesTo(final int index, final DataInput src, final int length) throws IOException {
+        checkLimit(index + length);
+        int i = index;
+        while (i < length) {
+            final byte b = src.readByte();
+            putByte(i, b);
+            i++;
+        }
+    }
+
+    @Override
+    public void putBytesTo(final int index, final InputStream src, final int length) throws IOException {
+        checkLimit(index + length);
+        int i = index;
+        while (i < length) {
+            final int result = src.read();
+            if (result < 0) {
+                throw ByteBuffers.newPutBytesToEOF();
+            }
+            putByte(i, (byte) result);
+            i++;
+        }
+    }
+
+    @Override
     public void putLong(final int index, final long value) {
         putLong(index, value, getOrder());
     }
@@ -223,57 +336,6 @@ public class ExpandableArrayByteBuffer extends ExpandableArrayBuffer implements 
         return getChar(index, getOrder());
     }
 
-    @Deprecated
-    @Override
-    public byte[] asByteArray() {
-        throw ExpandableByteBuffer.newAsByteArrayUnsupported();
-    }
-
-    @Deprecated
-    @Override
-    public byte[] asByteArrayCopy() {
-        throw ExpandableByteBuffer.newAsByteArrayUnsupported();
-    }
-
-    @Override
-    public byte[] asByteArray(final int index, final int length) {
-        if (index == 0 && length == capacity()) {
-            return byteArray();
-        }
-        return ByteBuffers.asByteArrayCopyGet(this, index, length);
-    }
-
-    @Override
-    public byte[] asByteArrayCopy(final int index, final int length) {
-        if (index == 0 && length == capacity()) {
-            return byteArray().clone();
-        }
-        return ByteBuffers.asByteArrayCopyGet(this, index, length);
-    }
-
-    @Override
-    public void getBytesTo(final int index, final DataOutput dst, final int length) throws IOException {
-        dst.write(byteArray(), index, length);
-    }
-
-    @Override
-    public void getBytesTo(final int index, final OutputStream dst, final int length) throws IOException {
-        dst.write(byteArray(), index, length);
-    }
-
-    @Override
-    public void putBytesTo(final int index, final DataInput src, final int length) throws IOException {
-        checkLimit(index + length);
-        src.readFully(byteArray(), index, length);
-    }
-
-    @Override
-    public void putBytesTo(final int index, final InputStream src, final int length) throws IOException {
-        checkLimit(index + length);
-        final byte[] array = byteArray();
-        ByteBuffers.readFully(src, array, index, length);
-    }
-
     @SuppressWarnings("unchecked")
     @Override
     public <T> T unwrap(final Class<T> type) {
@@ -281,6 +343,17 @@ public class ExpandableArrayByteBuffer extends ExpandableArrayBuffer implements 
             return (T) this;
         }
         return null;
+    }
+
+    @Override
+    public ByteBuffer asByteBuffer(final int index, final int length) {
+        checkLimit(index + length);
+        final ByteBuffer buffer = byteBuffer();
+        if (index == 0 && length == capacity()) {
+            return buffer;
+        } else {
+            return ByteBuffers.slice(buffer, index, length);
+        }
     }
 
 }

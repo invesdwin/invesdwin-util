@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodHandles.Lookup;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
@@ -22,7 +24,8 @@ import de.invesdwin.util.lang.reflection.Reflections;
 import de.invesdwin.util.math.Bytes;
 import de.invesdwin.util.streams.buffer.delegate.AgronaDelegateByteBuffer;
 import de.invesdwin.util.streams.buffer.delegate.AgronaDelegateMutableByteBuffer;
-import de.invesdwin.util.streams.buffer.extend.ExpandableArrayByteBuffer;
+import de.invesdwin.util.streams.buffer.extend.ArrayExpandableByteBuffer;
+import de.invesdwin.util.streams.buffer.extend.DirectExpandableByteBuffer;
 import de.invesdwin.util.streams.buffer.extend.UnsafeArrayByteBuffer;
 import de.invesdwin.util.streams.buffer.extend.UnsafeByteBuffer;
 
@@ -42,9 +45,25 @@ public final class ByteBuffers {
 
     private static final ISliceInvoker SLICE_INVOKER;
     private static final FastEOFException PUTBYTESTOEOF = new FastEOFException("putBytesTo: src.read() returned -1");
+    private static final MethodHandle BYTEBUFFER_ADDRESS_SETTER;
+    private static final MethodHandle BYTEBUFFER_CAPACITY_SETTER;
 
     static {
         SLICE_INVOKER = newSliceInvoker();
+        try {
+            final Field addressField = Buffer.class.getDeclaredField("address");
+            addressField.setAccessible(true);
+            final Field capacityField = Buffer.class.getDeclaredField("capacity");
+            capacityField.setAccessible(true);
+
+            final Lookup lookup = MethodHandles.lookup();
+            BYTEBUFFER_ADDRESS_SETTER = lookup.unreflectSetter(addressField);
+            BYTEBUFFER_CAPACITY_SETTER = lookup.unreflectSetter(capacityField);
+
+        } catch (final Exception e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
     private ByteBuffers() {
@@ -156,11 +175,41 @@ public final class ByteBuffers {
     }
 
     public static IByteBuffer allocateExpandable() {
-        return new ExpandableArrayByteBuffer();
+        return new ArrayExpandableByteBuffer();
     }
 
     public static IByteBuffer allocateExpandable(final int initialLength) {
-        return new ExpandableArrayByteBuffer(initialLength);
+        return new ArrayExpandableByteBuffer(initialLength);
+    }
+
+    public static IByteBuffer allocateDirect(final Integer fixedLength) {
+        if (fixedLength == null) {
+            return allocateDirectExpandable();
+        } else {
+            return allocateDirect(fixedLength.intValue());
+        }
+    }
+
+    public static IByteBuffer allocateDirect(final int fixedLength) {
+        if (fixedLength == 0) {
+            return EmptyByteBuffer.INSTANCE;
+        } else if (fixedLength < 0) {
+            return allocateDirectExpandable();
+        } else {
+            return allocateDirectFixed(fixedLength);
+        }
+    }
+
+    public static IByteBuffer allocateDirectFixed(final int fixedLength) {
+        return wrap(ByteBuffer.allocateDirect(fixedLength));
+    }
+
+    public static IByteBuffer allocateDirectExpandable() {
+        return new DirectExpandableByteBuffer();
+    }
+
+    public static IByteBuffer allocateDirectExpandable(final int initialLength) {
+        return new DirectExpandableByteBuffer(initialLength);
     }
 
     /**
@@ -364,6 +413,17 @@ public final class ByteBuffers {
         } else {
             return new UnsafeByteBuffer(buffer, index, length);
         }
+    }
+
+    public static ByteBuffer asDirectByteBuffer(final long address, final int length) {
+        final ByteBuffer bb = ByteBuffer.allocateDirect(0);
+        try {
+            BYTEBUFFER_ADDRESS_SETTER.invoke(bb, address);
+            BYTEBUFFER_CAPACITY_SETTER.invoke(bb, length);
+        } catch (final Throwable e) {
+            throw new RuntimeException(e);
+        }
+        return bb;
     }
 
 }

@@ -4,6 +4,6 @@ public interface IByteBufferWriter {
 
     int write(IByteBuffer buffer);
 
-    IByteBuffer asByteBuffer();
+    IByteBuffer asBuffer();
 
 }

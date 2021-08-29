@@ -2,10 +2,13 @@ package de.invesdwin.util.streams.buffer;
 
 import java.io.DataInput;
 import java.io.DataOutput;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.channels.ReadableByteChannel;
+import java.nio.channels.WritableByteChannel;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -295,6 +298,21 @@ public final class EmptyByteBuffer implements IByteBuffer {
             return (T) this;
         }
         return null;
+    }
+
+    @Override
+    public ByteBuffer asByteBuffer(final int index, final int length) {
+        throw newEmptyException();
+    }
+
+    @Override
+    public void getBytesTo(final int index, final WritableByteChannel dst, final int length) throws IOException {
+        throw newEmptyException();
+    }
+
+    @Override
+    public void putBytesTo(final int index, final ReadableByteChannel src, final int length) throws IOException {
+        throw newEmptyException();
     }
 
 }

@@ -9,6 +9,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.channels.ReadableByteChannel;
+import java.nio.channels.WritableByteChannel;
 
 import org.agrona.DirectBuffer;
 import org.agrona.MutableDirectBuffer;
@@ -243,6 +245,24 @@ public interface IByteBuffer extends IByteBufferWriter {
      */
     byte[] asByteArray(int index, int length);
 
+    default ByteBuffer asByteBuffer() {
+        return asByteBufferTo(capacity());
+    }
+
+    default ByteBuffer asByteBufferFrom(final int index) {
+        return asByteBuffer(index, remaining(index));
+    }
+
+    default ByteBuffer asByteBufferTo(final int length) {
+        return asByteBuffer(0, length);
+    }
+
+    /**
+     * Might return the actual underlying array. Thus make sure to clone() it if the buffer is to be reused. Or just use
+     * asByteArrayCopy instead to make sure a copy is returned always and clone() is not used redundantly.
+     */
+    ByteBuffer asByteBuffer(int index, int length);
+
     /**
      * Always returns a new copy as a byte array regardless of the underlying storage.
      * 
@@ -375,13 +395,21 @@ public interface IByteBuffer extends IByteBufferWriter {
     void getBytesTo(int index, DataOutput dst, int length) throws IOException;
 
     default void getBytes(final int index, final OutputStream dst) throws IOException {
-        getBytesTo(index, dst, capacity());
+        getBytesTo(index, dst, remaining(index));
     }
 
     void getBytesTo(int index, OutputStream dst, int length) throws IOException;
 
+    default void getBytes(final int index, final WritableByteChannel dst) throws IOException {
+        getBytesTo(index, dst, remaining(index));
+    }
+
+    default void getBytesTo(final int index, final WritableByteChannel dst, final int length) throws IOException {
+        dst.write(asByteBuffer(index, length));
+    }
+
     default void putBytes(final int index, final DataInputStream src) throws IOException {
-        putBytesTo(index, src, capacity());
+        putBytesTo(index, src, remaining(index));
     }
 
     default void putBytesTo(final int index, final DataInputStream src, final int length) throws IOException {
@@ -389,16 +417,24 @@ public interface IByteBuffer extends IByteBufferWriter {
     }
 
     default void putBytes(final int index, final DataInput src) throws IOException {
-        putBytesTo(index, src, capacity());
+        putBytesTo(index, src, remaining(index));
     }
 
     void putBytesTo(int index, DataInput src, int length) throws IOException;
 
     default void putBytes(final int index, final InputStream src) throws IOException {
-        putBytesTo(index, src, capacity());
+        putBytesTo(index, src, remaining(index));
     }
 
     void putBytesTo(int index, InputStream src, int length) throws IOException;
+
+    default void putBytes(final int index, final ReadableByteChannel src) throws IOException {
+        putBytesTo(index, src, remaining(index));
+    }
+
+    default void putBytesTo(final int index, final ReadableByteChannel src, final int length) throws IOException {
+        src.read(asByteBuffer(index, length));
+    }
 
     <T> T unwrap(Class<T> type);
 
@@ -410,7 +446,7 @@ public interface IByteBuffer extends IByteBufferWriter {
     }
 
     @Override
-    default IByteBuffer asByteBuffer() {
+    default IByteBuffer asBuffer() {
         return this;
     }
 

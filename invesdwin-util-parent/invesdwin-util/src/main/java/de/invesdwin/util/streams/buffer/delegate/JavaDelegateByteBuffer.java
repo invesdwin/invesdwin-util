@@ -404,4 +404,14 @@ public class JavaDelegateByteBuffer implements IByteBuffer {
         return null;
     }
 
+    @Override
+    public ByteBuffer asByteBuffer(final int index, final int length) {
+        final ByteBuffer buffer = asByteBuffer();
+        if (index == 0 && length == capacity()) {
+            return buffer;
+        } else {
+            return ByteBuffers.slice(buffer, index, length);
+        }
+    }
+
 }

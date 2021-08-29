@@ -14,6 +14,7 @@ import org.agrona.DirectBuffer;
 import org.agrona.MutableDirectBuffer;
 
 import de.invesdwin.util.error.Throwables;
+import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.streams.buffer.ByteBuffers;
 import de.invesdwin.util.streams.buffer.IByteBuffer;
@@ -48,7 +49,8 @@ public class ChronicleDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public long addressOffset() {
-        return 0;
+        final ByteBuffer byteBuffer = byteBuffer();
+        return ByteBuffers.addressOffset(byteBuffer);
     }
 
     @Override
@@ -58,11 +60,19 @@ public class ChronicleDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public byte[] byteArray() {
+        final Object underlying = delegate.underlyingObject();
+        if (underlying instanceof byte[]) {
+            return (byte[]) underlying;
+        }
         return null;
     }
 
     @Override
     public ByteBuffer byteBuffer() {
+        final Object underlying = delegate.underlyingObject();
+        if (underlying instanceof ByteBuffer) {
+            return (ByteBuffer) underlying;
+        }
         return null;
     }
 
@@ -136,7 +146,12 @@ public class ChronicleDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public int wrapAdjustment() {
-        return 0;
+        final ByteBuffer byteBuffer = byteBuffer();
+        if (byteBuffer != null) {
+            return ByteBuffers.wrapAdjustment(byteBuffer);
+        } else {
+            return 0;
+        }
     }
 
     @Override
@@ -219,7 +234,20 @@ public class ChronicleDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public byte[] asByteArray(final int index, final int length) {
-        return asByteArrayCopy(index, length);
+        if (wrapAdjustment() == 0) {
+            final byte[] bytes = byteArray();
+            if (bytes != null) {
+                return bytes;
+            }
+            final ByteBuffer byteBuffer = byteBuffer();
+            if (byteBuffer != null) {
+                final byte[] array = byteBuffer.array();
+                if (array != null) {
+                    return array;
+                }
+            }
+        }
+        return ByteBuffers.asByteArrayCopyGet(this, 0, capacity());
     }
 
     @Override
@@ -231,8 +259,8 @@ public class ChronicleDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public MutableDirectBuffer asDirectBuffer(final int index, final int length) {
-        final byte[] bytes = asByteArray(index, length);
-        return new UnsafeByteBuffer(bytes);
+        final ByteBuffer bytes = asByteBuffer();
+        return new UnsafeByteBuffer(bytes, index, length);
     }
 
     private IMutableSlicedDelegateByteBufferFactory getMutableSliceFactory() {
@@ -371,6 +399,30 @@ public class ChronicleDelegateByteBuffer implements IByteBuffer {
             return (T) delegate;
         }
         return null;
+    }
+
+    @Override
+    public ByteBuffer asByteBuffer() {
+        final ByteBuffer byteBuffer = byteBuffer();
+        if (byteBuffer != null) {
+            return byteBuffer;
+        }
+        final byte[] array = byteArray();
+        if (array != null) {
+            final ByteBuffer arrayBuffer = ByteBuffer.wrap(array, wrapAdjustment(), capacity());
+            return arrayBuffer;
+        }
+        throw UnknownArgumentException.newInstance(Object.class, delegate.underlyingObject());
+    }
+
+    @Override
+    public ByteBuffer asByteBuffer(final int index, final int length) {
+        final ByteBuffer buffer = asByteBuffer();
+        if (index == 0 && length == capacity()) {
+            return buffer;
+        } else {
+            return ByteBuffers.slice(buffer, index, length);
+        }
     }
 
 }

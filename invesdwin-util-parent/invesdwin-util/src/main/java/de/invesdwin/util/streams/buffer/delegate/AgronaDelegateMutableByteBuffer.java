@@ -23,7 +23,7 @@ import de.invesdwin.util.streams.buffer.ByteBuffers;
 import de.invesdwin.util.streams.buffer.IByteBuffer;
 import de.invesdwin.util.streams.buffer.delegate.slice.SlicedFromDelegateByteBuffer;
 import de.invesdwin.util.streams.buffer.delegate.slice.mutable.factory.IMutableSlicedDelegateByteBufferFactory;
-import de.invesdwin.util.streams.buffer.extend.ExpandableByteBuffer;
+import de.invesdwin.util.streams.buffer.extend.DirectExpandableByteBuffer;
 
 @NotThreadSafe
 public class AgronaDelegateMutableByteBuffer implements IByteBuffer {
@@ -237,7 +237,7 @@ public class AgronaDelegateMutableByteBuffer implements IByteBuffer {
     @Override
     public byte[] asByteArray() {
         if (delegate.isExpandable()) {
-            throw ExpandableByteBuffer.newAsByteArrayUnsupported();
+            throw DirectExpandableByteBuffer.newAsByteArrayUnsupported();
         }
         if (wrapAdjustment() == 0) {
             final byte[] bytes = byteArray();
@@ -258,7 +258,7 @@ public class AgronaDelegateMutableByteBuffer implements IByteBuffer {
     @Override
     public byte[] asByteArrayCopy() {
         if (delegate.isExpandable()) {
-            throw ExpandableByteBuffer.newAsByteArrayUnsupported();
+            throw DirectExpandableByteBuffer.newAsByteArrayUnsupported();
         }
         if (wrapAdjustment() == 0) {
             final byte[] bytes = byteArray();
@@ -447,6 +447,31 @@ public class AgronaDelegateMutableByteBuffer implements IByteBuffer {
             return (T) delegate;
         }
         return null;
+    }
+
+    @Override
+    public ByteBuffer asByteBuffer() {
+        final ByteBuffer byteBuffer = byteBuffer();
+        if (byteBuffer != null) {
+            return byteBuffer;
+        }
+        final byte[] array = byteArray();
+        if (array != null) {
+            final ByteBuffer arrayBuffer = ByteBuffer.wrap(array, wrapAdjustment(), capacity());
+            return arrayBuffer;
+        }
+        final long address = addressOffset();
+        return ByteBuffers.asDirectByteBuffer(address, capacity());
+    }
+
+    @Override
+    public ByteBuffer asByteBuffer(final int index, final int length) {
+        final ByteBuffer buffer = asByteBuffer();
+        if (index == 0 && length == capacity()) {
+            return buffer;
+        } else {
+            return ByteBuffers.slice(buffer, index, length);
+        }
     }
 
 }

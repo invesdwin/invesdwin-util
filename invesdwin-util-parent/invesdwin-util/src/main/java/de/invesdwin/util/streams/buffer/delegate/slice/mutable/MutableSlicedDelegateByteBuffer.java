@@ -7,6 +7,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.channels.ReadableByteChannel;
+import java.nio.channels.WritableByteChannel;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
@@ -304,6 +306,21 @@ public class MutableSlicedDelegateByteBuffer implements IByteBuffer {
             return (T) this;
         }
         return delegate.unwrap(type);
+    }
+
+    @Override
+    public ByteBuffer asByteBuffer(final int index, final int length) {
+        return delegate.asByteBuffer(index + from, length);
+    }
+
+    @Override
+    public void getBytesTo(final int index, final WritableByteChannel dst, final int length) throws IOException {
+        delegate.getBytesTo(index + from, dst, length);
+    }
+
+    @Override
+    public void putBytesTo(final int index, final ReadableByteChannel src, final int length) throws IOException {
+        delegate.putBytesTo(index + from, src, length);
     }
 
 }

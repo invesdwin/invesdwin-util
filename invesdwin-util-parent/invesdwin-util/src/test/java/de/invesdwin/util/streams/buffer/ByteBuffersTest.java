@@ -16,8 +16,8 @@ import de.invesdwin.util.streams.buffer.delegate.AgronaDelegateMutableByteBuffer
 import de.invesdwin.util.streams.buffer.delegate.ChronicleDelegateByteBuffer;
 import de.invesdwin.util.streams.buffer.delegate.JavaDelegateByteBuffer;
 import de.invesdwin.util.streams.buffer.delegate.OrderedDelegateByteBuffer;
-import de.invesdwin.util.streams.buffer.extend.ExpandableArrayByteBuffer;
-import de.invesdwin.util.streams.buffer.extend.ExpandableByteBuffer;
+import de.invesdwin.util.streams.buffer.extend.ArrayExpandableByteBuffer;
+import de.invesdwin.util.streams.buffer.extend.DirectExpandableByteBuffer;
 import de.invesdwin.util.streams.buffer.extend.UnsafeByteBuffer;
 import net.openhft.chronicle.bytes.BytesStore;
 
@@ -40,10 +40,10 @@ public class ByteBuffersTest {
                 new AgronaDelegateMutableByteBuffer(new UnsafeBuffer(ByteBuffer.allocateDirect(BUFFER_SIZE))));
         testBufferOrdered(new AgronaDelegateMutableByteBuffer(new UnsafeBuffer(new byte[BUFFER_SIZE])));
 
-        testBufferOrdered(new ExpandableArrayByteBuffer());
+        testBufferOrdered(new ArrayExpandableByteBuffer());
         testBufferOrdered(new AgronaDelegateMutableByteBuffer(new ExpandableArrayBuffer()));
 
-        testBufferOrdered(new ExpandableByteBuffer());
+        testBufferOrdered(new DirectExpandableByteBuffer());
         testBufferOrdered(new AgronaDelegateMutableByteBuffer(new ExpandableDirectByteBuffer()));
 
         testBufferOrdered(new ChronicleDelegateByteBuffer(BytesStore.wrap(new byte[BUFFER_SIZE]).bytesForWrite()));

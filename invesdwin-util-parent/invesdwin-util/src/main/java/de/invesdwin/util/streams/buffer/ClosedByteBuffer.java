@@ -7,6 +7,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.channels.ReadableByteChannel;
+import java.nio.channels.WritableByteChannel;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
@@ -21,7 +23,10 @@ import de.invesdwin.util.error.UnknownArgumentException;
 @NotThreadSafe
 public class ClosedByteBuffer implements IByteBuffer {
 
-    public static final byte CLOSED_BYTE = Byte.MIN_VALUE;
+    /**
+     * This is also read from a closed socket.
+     */
+    public static final byte CLOSED_BYTE = (byte) -1;
     public static final byte[] CLOSED_ARRAY = new byte[] { CLOSED_BYTE };
 
     public static final ByteBuffer CLOSED_BYTE_BUFFER = ByteBuffer.wrap(CLOSED_ARRAY);
@@ -346,6 +351,29 @@ public class ClosedByteBuffer implements IByteBuffer {
             return (T) this;
         }
         return null;
+    }
+
+    @Override
+    public ByteBuffer asByteBuffer(final int index, final int length) {
+        if (index == 0 && length == CLOSED_ARRAY.length) {
+            return CLOSED_BYTE_BUFFER;
+        } else {
+            throw newClosedException();
+        }
+    }
+
+    @Override
+    public void getBytesTo(final int index, final WritableByteChannel dst, final int length) throws IOException {
+        if (index == 0 && length == CLOSED_ARRAY.length) {
+            dst.write(CLOSED_BYTE_BUFFER);
+        } else {
+            throw newClosedException();
+        }
+    }
+
+    @Override
+    public void putBytesTo(final int index, final ReadableByteChannel src, final int length) throws IOException {
+        throw newClosedException();
     }
 
 }
