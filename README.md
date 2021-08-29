@@ -58,11 +58,11 @@ This type should be used as the base class for all beans. It provides reflective
 #### `Pair`, `Triple`, `Quadruple`
 These can be useful as combined keys for caches (e.g. ALoadingCache) or when multiple return values are required for a method and you don't want to write another value object for this.
 
-## ByteBuffers
+## Byte Buffers
 #### `IByteBuffer`
 Wrappers for various other byte buffer implementations. Adds some convenience to the Java `ByteBuffer`, [Agrona DirectBuffer][https://github.com/real-logic/agrona], and [Chronicle Bytes](https://github.com/OpenHFT/Chronicle-Bytes) (optional dependency). The class `ByteBuffers` provides `allocate` and `wrap` methods for the fastest implementations. Slices are reused per default for zero-allocation.
 #### `ISerde` 
-Simplified and fast conversion from/to bytes for value objects. Preferable use the `fromBuffer`/`toBuffer` methods instead of `fromBytes`/`toBytes`. There are implementations available for the most important types.
+Serde stands for Serializer/Deserializer. They provider simplified and fast conversion from/to bytes for value objects. Preferably use the `fromBuffer`/`toBuffer` methods with sliced buffers instead of `fromBytes`/`toBytes` so that zero-copy/zero-allocation pipelines can be built. There are implementations available for the most important types. [Simple Binary Encoding](https://github.com/real-logic/simple-binary-encoding) can be used generate code for complex types that can be wrapped in an `ISerde` instance.
 
 ## Others
 #### `Assertions`
