@@ -39,28 +39,28 @@ public class ClosedByteBuffer implements IByteBuffer {
         return ByteBuffers.DEFAULT_ORDER;
     }
 
-    public static boolean isClosed(final DirectBuffer buffer, final int length) {
-        return length == 1 && buffer.getByte(0) == CLOSED_BYTE;
+    public static boolean isClosed(final DirectBuffer buffer, final int index, final int length) {
+        return length == 1 && buffer.getByte(index) == CLOSED_BYTE;
     }
 
-    public static boolean isClosed(final ByteBuffer buffer, final int length) {
-        return length == 1 && buffer.get(0) == CLOSED_BYTE;
+    public static boolean isClosed(final ByteBuffer buffer, final int index, final int length) {
+        return length == 1 && buffer.get(index) == CLOSED_BYTE;
     }
 
-    public static boolean isClosed(final IByteBuffer buffer, final int length) {
-        return length == 1 && buffer.getByte(0) == CLOSED_BYTE;
+    public static boolean isClosed(final IByteBuffer buffer, final int index, final int length) {
+        return length == 1 && buffer.getByte(index) == CLOSED_BYTE;
     }
 
     public static boolean isClosed(final IByteBuffer buffer) {
-        return isClosed(buffer, buffer.capacity());
+        return isClosed(buffer, 0, buffer.capacity());
     }
 
-    public static boolean isClosed(final byte[] bytes, final int length) {
-        return length == 1 && bytes[0] == CLOSED_BYTE;
+    public static boolean isClosed(final byte[] bytes, final int index, final int length) {
+        return length == 1 && bytes[index] == CLOSED_BYTE;
     }
 
     public static boolean isClosed(final byte[] bytes) {
-        return isClosed(bytes, bytes.length);
+        return isClosed(bytes, 0, bytes.length);
     }
 
     @Override

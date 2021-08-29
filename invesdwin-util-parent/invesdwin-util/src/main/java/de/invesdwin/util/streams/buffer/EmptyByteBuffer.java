@@ -16,16 +16,18 @@ import org.agrona.DirectBuffer;
 import org.agrona.MutableDirectBuffer;
 import org.agrona.concurrent.AtomicBuffer;
 import org.agrona.concurrent.UnsafeBuffer;
-import org.apache.hc.core5.http.impl.io.EmptyInputStream;
 
 import de.invesdwin.util.math.Bytes;
+import de.invesdwin.util.streams.EmptyInputStream;
 import de.invesdwin.util.streams.EmptyOutputStream;
 
 @Immutable
 public final class EmptyByteBuffer implements IByteBuffer {
 
     public static final ByteBuffer EMPTY_BYTE_BUFFER = ByteBuffer.allocate(0);
-    public static final AtomicBuffer EMPTY_DIRECT_BUFFER = new UnsafeBuffer(Bytes.EMPTY_ARRAY);
+    public static final ByteBuffer EMPTY_DIRECT_BYTE_BUFFER = ByteBuffer.allocateDirect(0);
+    public static final AtomicBuffer EMPTY_AGRONA_BUFFER = new UnsafeBuffer(Bytes.EMPTY_ARRAY);
+    public static final AtomicBuffer EMPTY_DIRECT_AGRONA_BUFFER = new UnsafeBuffer(EMPTY_DIRECT_BYTE_BUFFER);
 
     public static final EmptyByteBuffer INSTANCE = new EmptyByteBuffer();
 
@@ -194,7 +196,7 @@ public final class EmptyByteBuffer implements IByteBuffer {
 
     @Override
     public MutableDirectBuffer directBuffer() {
-        return EMPTY_DIRECT_BUFFER;
+        return EMPTY_AGRONA_BUFFER;
     }
 
     @Override

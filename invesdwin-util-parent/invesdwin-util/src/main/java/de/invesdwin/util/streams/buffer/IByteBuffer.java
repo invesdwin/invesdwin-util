@@ -405,7 +405,7 @@ public interface IByteBuffer extends IByteBufferWriter {
     }
 
     default void getBytesTo(final int index, final WritableByteChannel dst, final int length) throws IOException {
-        dst.write(asByteBuffer(index, length));
+        ByteBuffers.writeFully(dst, asByteBuffer(index, length));
     }
 
     default void putBytes(final int index, final DataInputStream src) throws IOException {
@@ -433,7 +433,7 @@ public interface IByteBuffer extends IByteBufferWriter {
     }
 
     default void putBytesTo(final int index, final ReadableByteChannel src, final int length) throws IOException {
-        src.read(asByteBuffer(index, length));
+        ByteBuffers.readFully(src, asByteBuffer(index, length));
     }
 
     <T> T unwrap(Class<T> type);

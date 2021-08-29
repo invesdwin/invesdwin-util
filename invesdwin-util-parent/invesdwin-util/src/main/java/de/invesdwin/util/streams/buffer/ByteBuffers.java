@@ -10,6 +10,8 @@ import java.lang.reflect.Method;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.channels.ReadableByteChannel;
+import java.nio.channels.WritableByteChannel;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -341,6 +343,34 @@ public final class ByteBuffers {
         while (remaining > 0) {
             final int location = end - remaining;
             final int count = src.read(array, location, remaining);
+            if (count == -1) { // EOF
+                break;
+            }
+            remaining -= count;
+        }
+        if (remaining > 0) {
+            throw ByteBuffers.newPutBytesToEOF();
+        }
+    }
+
+    public static void writeFully(final WritableByteChannel dst, final ByteBuffer byteBuffer) throws IOException {
+        int remaining = byteBuffer.remaining();
+        while (remaining > 0) {
+            final int count = dst.write(byteBuffer);
+            if (count == -1) { // EOF
+                break;
+            }
+            remaining -= count;
+        }
+        if (remaining > 0) {
+            throw ByteBuffers.newPutBytesToEOF();
+        }
+    }
+
+    public static void readFully(final ReadableByteChannel src, final ByteBuffer byteBuffer) throws IOException {
+        int remaining = byteBuffer.remaining();
+        while (remaining > 0) {
+            final int count = src.read(byteBuffer);
             if (count == -1) { // EOF
                 break;
             }
