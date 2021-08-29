@@ -60,8 +60,8 @@ These can be useful as combined keys for caches (e.g. ALoadingCache) or when mul
 
 ## ByteBuffers
 #### `IByteBuffer`
-Wrappers for various other byte buffer implementations. Adds some convenience to the Java `ByteBuffer`, [Agrona DirectBuffer][https://github.com/real-logic/agrona], and [Chronicle Bytes](https://github.com/OpenHFT/Chronicle-Bytes) (optional dependency). `ByteBuffers` provides `allocate` and `wrap` methods for the fastest implementations. Slices are reused per default for zero-allocation.
-#### `ISerde`: 
+Wrappers for various other byte buffer implementations. Adds some convenience to the Java `ByteBuffer`, [Agrona DirectBuffer][https://github.com/real-logic/agrona], and [Chronicle Bytes](https://github.com/OpenHFT/Chronicle-Bytes) (optional dependency). The class `ByteBuffers` provides `allocate` and `wrap` methods for the fastest implementations. Slices are reused per default for zero-allocation.
+#### `ISerde` 
 Simplified and fast conversion from/to bytes for value objects. Preferable use the `fromBuffer`/`toBuffer` methods instead of `fromBytes`/`toBytes`. There are implementations available for the most important types.
 
 ## Others
