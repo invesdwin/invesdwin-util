@@ -59,9 +59,9 @@ public class ByteBuffersTest {
     }
 
     public void testBufferOrdered(final IByteBuffer buffer) {
-        testBuffer(OrderedDelegateByteBuffer.maybeWrap(ByteBuffers.NATIVE_ORDER, buffer));
-        testBuffer(OrderedDelegateByteBuffer.maybeWrap(ByteOrder.BIG_ENDIAN, buffer));
-        testBuffer(OrderedDelegateByteBuffer.maybeWrap(ByteOrder.LITTLE_ENDIAN, buffer));
+        testBuffer(OrderedDelegateByteBuffer.maybeWrap(buffer, ByteBuffers.NATIVE_ORDER));
+        testBuffer(OrderedDelegateByteBuffer.maybeWrap(buffer, ByteOrder.BIG_ENDIAN));
+        testBuffer(OrderedDelegateByteBuffer.maybeWrap(buffer, ByteOrder.LITTLE_ENDIAN));
     }
 
     private void testBuffer(final IByteBuffer b) {

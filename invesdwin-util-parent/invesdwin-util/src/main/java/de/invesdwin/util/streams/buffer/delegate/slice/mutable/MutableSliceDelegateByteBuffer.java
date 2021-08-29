@@ -1,4 +1,4 @@
-package de.invesdwin.util.streams.buffer.delegate;
+package de.invesdwin.util.streams.buffer.delegate.slice.mutable;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -14,17 +14,29 @@ import org.agrona.DirectBuffer;
 import org.agrona.MutableDirectBuffer;
 
 import de.invesdwin.util.streams.buffer.IByteBuffer;
+import de.invesdwin.util.streams.buffer.delegate.slice.SliceDelegateByteBuffer;
+import de.invesdwin.util.streams.buffer.delegate.slice.mutable.factory.FixedMutableSliceDelegateByteBufferFactory;
+import de.invesdwin.util.streams.buffer.delegate.slice.mutable.factory.IMutableSliceDelegateByteBufferFactory;
 
 @NotThreadSafe
-public class SliceDelegateByteBuffer implements IByteBuffer {
+public class MutableSliceDelegateByteBuffer implements IByteBuffer {
 
     private final IByteBuffer delegate;
-    private final int from;
-    private final int length;
+    private int from;
+    private int length;
+    private IMutableSliceDelegateByteBufferFactory mutableSliceFactory;
 
-    public SliceDelegateByteBuffer(final IByteBuffer delegate, final int from, final int length) {
+    public MutableSliceDelegateByteBuffer(final IByteBuffer delegate, final int from, final int length) {
         this.delegate = delegate;
         this.from = from;
+        this.length = length;
+    }
+
+    public void setFrom(final int from) {
+        this.from = from;
+    }
+
+    public void setLength(final int length) {
         this.length = length;
     }
 
@@ -208,14 +220,31 @@ public class SliceDelegateByteBuffer implements IByteBuffer {
         return delegate.asDirectBuffer(index + from, length);
     }
 
+    private IMutableSliceDelegateByteBufferFactory getMutableSliceFactory() {
+        if (mutableSliceFactory == null) {
+            mutableSliceFactory = new FixedMutableSliceDelegateByteBufferFactory(this);
+        }
+        return mutableSliceFactory;
+    }
+
     @Override
     public IByteBuffer sliceFrom(final int index) {
-        return new SliceDelegateByteBuffer(delegate, index + from, length);
+        return getMutableSliceFactory().sliceFrom(index);
     }
 
     @Override
     public IByteBuffer slice(final int index, final int length) {
-        return delegate.slice(index + from, length);
+        return getMutableSliceFactory().slice(index, length);
+    }
+
+    @Override
+    public IByteBuffer newSliceFrom(final int index) {
+        return new SliceDelegateByteBuffer(delegate, index + from, length);
+    }
+
+    @Override
+    public IByteBuffer newSlice(final int index, final int length) {
+        return delegate.newSlice(index + from, length);
     }
 
     @Override

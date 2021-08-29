@@ -1,4 +1,4 @@
-package de.invesdwin.util.streams.buffer.delegate;
+package de.invesdwin.util.streams.buffer.delegate.slice;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -14,12 +14,15 @@ import org.agrona.DirectBuffer;
 import org.agrona.MutableDirectBuffer;
 
 import de.invesdwin.util.streams.buffer.IByteBuffer;
+import de.invesdwin.util.streams.buffer.delegate.slice.mutable.factory.ExpandableMutableSliceDelegateByteBufferFactory;
+import de.invesdwin.util.streams.buffer.delegate.slice.mutable.factory.IMutableSliceDelegateByteBufferFactory;
 
 @NotThreadSafe
 public class SliceFromDelegateByteBuffer implements IByteBuffer {
 
     private final IByteBuffer delegate;
     private final int from;
+    private IMutableSliceDelegateByteBufferFactory mutableSliceFactory;
 
     public SliceFromDelegateByteBuffer(final IByteBuffer delegate, final int from) {
         this.delegate = delegate;
@@ -206,14 +209,31 @@ public class SliceFromDelegateByteBuffer implements IByteBuffer {
         return delegate.asDirectBuffer(index + from, length);
     }
 
+    private IMutableSliceDelegateByteBufferFactory getMutableSliceFactory() {
+        if (mutableSliceFactory == null) {
+            mutableSliceFactory = new ExpandableMutableSliceDelegateByteBufferFactory(this);
+        }
+        return mutableSliceFactory;
+    }
+
     @Override
     public IByteBuffer sliceFrom(final int index) {
-        return new SliceFromDelegateByteBuffer(delegate, index + from);
+        return getMutableSliceFactory().sliceFrom(index);
     }
 
     @Override
     public IByteBuffer slice(final int index, final int length) {
-        return delegate.slice(index + from, length);
+        return getMutableSliceFactory().slice(index, length);
+    }
+
+    @Override
+    public IByteBuffer newSliceFrom(final int index) {
+        return new SliceFromDelegateByteBuffer(delegate, index + from);
+    }
+
+    @Override
+    public IByteBuffer newSlice(final int index, final int length) {
+        return delegate.newSlice(index + from, length);
     }
 
     @Override

@@ -286,15 +286,45 @@ public interface IByteBuffer extends IByteBufferWriter {
      */
     MutableDirectBuffer asDirectBuffer(int index, int length);
 
-    default IByteBuffer sliceFrom(final int index) {
-        return slice(index, remaining(index));
-    }
+    /**
+     * WARNING: Slice instances will be reused from each buffer so previous slices will change when invoking this method
+     * again. This is fine when using a slice completely, then setting up another slice to use then. If you need
+     * multiple separate slices at the same it, it is better to call newSlice... instead.
+     */
+    IByteBuffer sliceFrom(int index);
 
+    /**
+     * WARNING: Slice instances will be reused from each buffer so previous slices will change when invoking this method
+     * again. This is fine when using a slice completely, then setting up another slice to use then. If you need
+     * multiple separate slices at the same it, it is better to call newSlice... instead.
+     */
     default IByteBuffer sliceTo(final int length) {
         return slice(0, length);
     }
 
+    /**
+     * WARNING: Slice instances will be reused from each buffer so previous slices will change when invoking this method
+     * again. This is fine when using a slice completely, then setting up another slice to use then. If you need
+     * multiple separate slices at the same it, it is better to call newSlice... instead.
+     */
     IByteBuffer slice(int index, int length);
+
+    /**
+     * This always creates a new object for the slice, thus slice instances are not reused.
+     */
+    IByteBuffer newSliceFrom(int index);
+
+    /**
+     * This always creates a new object for the slice, thus slice instances are not reused.
+     */
+    default IByteBuffer newSliceTo(final int length) {
+        return newSlice(0, length);
+    }
+
+    /**
+     * This always creates a new object for the slice, thus slice instances are not reused.
+     */
+    IByteBuffer newSlice(int index, int length);
 
     /**
      * This is more efficient than getStringUtf8(...) because it creates less garbage. Thout only works together with

@@ -215,7 +215,22 @@ public final class EmptyByteBuffer implements IByteBuffer {
     }
 
     @Override
+    public IByteBuffer sliceFrom(final int index) {
+        return newSliceFrom(index);
+    }
+
+    @Override
+    public IByteBuffer newSliceFrom(final int index) {
+        return newSlice(index, remaining(index));
+    }
+
+    @Override
     public IByteBuffer slice(final int index, final int length) {
+        return newSlice(index, length);
+    }
+
+    @Override
+    public IByteBuffer newSlice(final int index, final int length) {
         return this;
     }
 

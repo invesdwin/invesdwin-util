@@ -14,6 +14,7 @@ import org.agrona.DirectBuffer;
 import org.agrona.MutableDirectBuffer;
 
 import de.invesdwin.util.streams.buffer.IByteBuffer;
+import de.invesdwin.util.streams.buffer.delegate.slice.mutable.factory.IMutableSliceDelegateByteBufferFactory;
 
 /**
  * This wrapper can be used for remote communication where a fixed endianness should be used.
@@ -23,10 +24,11 @@ public final class OrderedDelegateByteBuffer implements IByteBuffer {
 
     private final IByteBuffer delegate;
     private final ByteOrder order;
+    private IMutableSliceDelegateByteBufferFactory mutableSliceFactory;
 
-    private OrderedDelegateByteBuffer(final ByteOrder order, final IByteBuffer delegate) {
-        this.order = order;
+    private OrderedDelegateByteBuffer(final IByteBuffer delegate, final ByteOrder order) {
         this.delegate = delegate;
+        this.order = order;
     }
 
     @Override
@@ -223,14 +225,36 @@ public final class OrderedDelegateByteBuffer implements IByteBuffer {
         return delegate.asByteArrayCopy(index, length);
     }
 
-    @Override
-    public IByteBuffer slice(final int index, final int length) {
-        return maybeWrap(order, delegate.slice(index, length));
+    private IMutableSliceDelegateByteBufferFactory getMutableSliceFactory() {
+        if (mutableSliceFactory == null) {
+            mutableSliceFactory = IMutableSliceDelegateByteBufferFactory.newInstance(this, order);
+        }
+        return mutableSliceFactory;
     }
 
-    public static IByteBuffer maybeWrap(final ByteOrder order, final IByteBuffer buffer) {
+    @Override
+    public IByteBuffer sliceFrom(final int index) {
+        return getMutableSliceFactory().sliceFrom(index);
+    }
+
+    @Override
+    public IByteBuffer slice(final int index, final int length) {
+        return getMutableSliceFactory().slice(index, length);
+    }
+
+    @Override
+    public IByteBuffer newSliceFrom(final int index) {
+        return maybeWrap(delegate.newSliceFrom(index), order);
+    }
+
+    @Override
+    public IByteBuffer newSlice(final int index, final int length) {
+        return maybeWrap(delegate.newSlice(index, length), order);
+    }
+
+    public static IByteBuffer maybeWrap(final IByteBuffer buffer, final ByteOrder order) {
         if (order != buffer.getOrder()) {
-            return new OrderedDelegateByteBuffer(order, buffer);
+            return new OrderedDelegateByteBuffer(buffer, order);
         } else {
             //no conversion needed, already uses default
             return buffer;

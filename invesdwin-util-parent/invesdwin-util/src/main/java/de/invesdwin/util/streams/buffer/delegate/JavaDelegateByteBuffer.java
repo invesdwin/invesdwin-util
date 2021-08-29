@@ -19,12 +19,15 @@ import org.agrona.io.DirectBufferOutputStream;
 import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.streams.buffer.ByteBuffers;
 import de.invesdwin.util.streams.buffer.IByteBuffer;
+import de.invesdwin.util.streams.buffer.delegate.slice.mutable.factory.FixedMutableSliceDelegateByteBufferFactory;
+import de.invesdwin.util.streams.buffer.delegate.slice.mutable.factory.IMutableSliceDelegateByteBufferFactory;
 
 @NotThreadSafe
 public class JavaDelegateByteBuffer implements IByteBuffer {
 
     protected final ByteBuffer delegate;
     private UnsafeBuffer directBuffer;
+    private IMutableSliceDelegateByteBufferFactory mutableSliceFactory;
 
     public JavaDelegateByteBuffer(final byte[] bytes) {
         this.delegate = ByteBuffer.wrap(bytes);
@@ -263,8 +266,30 @@ public class JavaDelegateByteBuffer implements IByteBuffer {
         return ByteBuffers.asByteArrayCopyGet(delegate, index, length);
     }
 
+    private IMutableSliceDelegateByteBufferFactory getMutableSliceFactory() {
+        if (mutableSliceFactory == null) {
+            mutableSliceFactory = new FixedMutableSliceDelegateByteBufferFactory(this);
+        }
+        return mutableSliceFactory;
+    }
+
+    @Override
+    public IByteBuffer sliceFrom(final int index) {
+        return getMutableSliceFactory().sliceFrom(index);
+    }
+
     @Override
     public IByteBuffer slice(final int index, final int length) {
+        return getMutableSliceFactory().slice(index, length);
+    }
+
+    @Override
+    public IByteBuffer newSliceFrom(final int index) {
+        return newSlice(index, remaining(index));
+    }
+
+    @Override
+    public IByteBuffer newSlice(final int index, final int length) {
         return new JavaDelegateByteBuffer(ByteBuffers.slice(delegate, index, length));
     }
 

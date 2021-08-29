@@ -20,10 +20,14 @@ import org.agrona.io.DirectBufferOutputStream;
 import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.streams.buffer.ByteBuffers;
 import de.invesdwin.util.streams.buffer.IByteBuffer;
-import de.invesdwin.util.streams.buffer.delegate.SliceFromDelegateByteBuffer;
+import de.invesdwin.util.streams.buffer.delegate.slice.SliceFromDelegateByteBuffer;
+import de.invesdwin.util.streams.buffer.delegate.slice.mutable.factory.ExpandableMutableSliceDelegateByteBufferFactory;
+import de.invesdwin.util.streams.buffer.delegate.slice.mutable.factory.IMutableSliceDelegateByteBufferFactory;
 
 @NotThreadSafe
 public class ExpandableByteBuffer extends ExpandableDirectByteBuffer implements IByteBuffer {
+
+    private IMutableSliceDelegateByteBufferFactory mutableSliceFactory;
 
     public ExpandableByteBuffer() {
         super();
@@ -160,13 +164,30 @@ public class ExpandableByteBuffer extends ExpandableDirectByteBuffer implements 
         }
     }
 
+    private IMutableSliceDelegateByteBufferFactory getMutableSliceFactory() {
+        if (mutableSliceFactory == null) {
+            mutableSliceFactory = new ExpandableMutableSliceDelegateByteBufferFactory(this);
+        }
+        return mutableSliceFactory;
+    }
+
     @Override
     public IByteBuffer sliceFrom(final int index) {
-        return new SliceFromDelegateByteBuffer(this, index);
+        return getMutableSliceFactory().sliceFrom(index);
     }
 
     @Override
     public IByteBuffer slice(final int index, final int length) {
+        return getMutableSliceFactory().slice(index, length);
+    }
+
+    @Override
+    public IByteBuffer newSliceFrom(final int index) {
+        return new SliceFromDelegateByteBuffer(this, index);
+    }
+
+    @Override
+    public IByteBuffer newSlice(final int index, final int length) {
         if (index == 0 && length == capacity()) {
             return this;
         } else {

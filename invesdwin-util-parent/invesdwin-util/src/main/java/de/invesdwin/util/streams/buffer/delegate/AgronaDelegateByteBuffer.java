@@ -19,12 +19,15 @@ import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.streams.buffer.ByteBuffers;
 import de.invesdwin.util.streams.buffer.IByteBuffer;
+import de.invesdwin.util.streams.buffer.delegate.slice.mutable.factory.FixedMutableSliceDelegateByteBufferFactory;
+import de.invesdwin.util.streams.buffer.delegate.slice.mutable.factory.IMutableSliceDelegateByteBufferFactory;
 import de.invesdwin.util.streams.buffer.extend.UnsafeByteBuffer;
 
 @NotThreadSafe
 public class AgronaDelegateByteBuffer implements IByteBuffer {
 
     private final DirectBuffer delegate;
+    private IMutableSliceDelegateByteBufferFactory mutableSliceFactory;
 
     public AgronaDelegateByteBuffer(final DirectBuffer delegate) {
         this.delegate = delegate;
@@ -304,8 +307,30 @@ public class AgronaDelegateByteBuffer implements IByteBuffer {
         return ByteBuffers.asByteArrayCopyGet(this, index, length);
     }
 
+    private IMutableSliceDelegateByteBufferFactory getMutableSliceFactory() {
+        if (mutableSliceFactory == null) {
+            mutableSliceFactory = new FixedMutableSliceDelegateByteBufferFactory(this);
+        }
+        return mutableSliceFactory;
+    }
+
+    @Override
+    public IByteBuffer sliceFrom(final int index) {
+        return getMutableSliceFactory().sliceFrom(index);
+    }
+
     @Override
     public IByteBuffer slice(final int index, final int length) {
+        return getMutableSliceFactory().slice(index, length);
+    }
+
+    @Override
+    public IByteBuffer newSliceFrom(final int index) {
+        return newSlice(index, remaining(index));
+    }
+
+    @Override
+    public IByteBuffer newSlice(final int index, final int length) {
         if (index == 0 && length == capacity()) {
             return this;
         } else {
