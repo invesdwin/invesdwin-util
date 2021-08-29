@@ -1,4 +1,4 @@
-package de.invesdwin.util.lang.buffer.delegate;
+package de.invesdwin.util.streams.buffer.delegate;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -19,9 +19,9 @@ import org.agrona.io.DirectBufferOutputStream;
 
 import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.error.UnknownArgumentException;
-import de.invesdwin.util.lang.buffer.ByteBuffers;
-import de.invesdwin.util.lang.buffer.IByteBuffer;
-import de.invesdwin.util.lang.buffer.extend.ExpandableByteBuffer;
+import de.invesdwin.util.streams.buffer.ByteBuffers;
+import de.invesdwin.util.streams.buffer.IByteBuffer;
+import de.invesdwin.util.streams.buffer.extend.ExpandableByteBuffer;
 
 @NotThreadSafe
 public class AgronaDelegateMutableByteBuffer implements IByteBuffer {

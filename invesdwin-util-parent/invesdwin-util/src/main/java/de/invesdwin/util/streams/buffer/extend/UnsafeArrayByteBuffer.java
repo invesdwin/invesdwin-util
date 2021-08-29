@@ -1,4 +1,4 @@
-package de.invesdwin.util.lang.buffer.extend;
+package de.invesdwin.util.streams.buffer.extend;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -8,7 +8,7 @@ import java.io.OutputStream;
 
 import javax.annotation.concurrent.Immutable;
 
-import de.invesdwin.util.lang.buffer.ByteBuffers;
+import de.invesdwin.util.streams.buffer.ByteBuffers;
 
 @Immutable
 public class UnsafeArrayByteBuffer extends UnsafeByteBuffer {

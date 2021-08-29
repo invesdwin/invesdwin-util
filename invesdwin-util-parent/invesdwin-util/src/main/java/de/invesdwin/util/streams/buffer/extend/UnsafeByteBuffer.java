@@ -1,4 +1,4 @@
-package de.invesdwin.util.lang.buffer.extend;
+package de.invesdwin.util.streams.buffer.extend;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -17,8 +17,8 @@ import org.agrona.io.DirectBufferInputStream;
 import org.agrona.io.DirectBufferOutputStream;
 
 import de.invesdwin.util.error.UnknownArgumentException;
-import de.invesdwin.util.lang.buffer.ByteBuffers;
-import de.invesdwin.util.lang.buffer.IByteBuffer;
+import de.invesdwin.util.streams.buffer.ByteBuffers;
+import de.invesdwin.util.streams.buffer.IByteBuffer;
 
 @NotThreadSafe
 public class UnsafeByteBuffer extends UnsafeBuffer implements IByteBuffer {

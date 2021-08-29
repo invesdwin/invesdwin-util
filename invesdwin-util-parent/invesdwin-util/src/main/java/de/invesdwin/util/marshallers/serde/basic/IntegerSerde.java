@@ -2,9 +2,9 @@ package de.invesdwin.util.marshallers.serde.basic;
 
 import javax.annotation.concurrent.Immutable;
 
-import de.invesdwin.util.lang.buffer.IByteBuffer;
 import de.invesdwin.util.marshallers.serde.ISerde;
 import de.invesdwin.util.marshallers.serde.SerdeBaseMethods;
+import de.invesdwin.util.streams.buffer.IByteBuffer;
 
 @Immutable
 public class IntegerSerde implements ISerde<Integer> {

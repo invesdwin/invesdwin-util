@@ -1,4 +1,4 @@
-package de.invesdwin.util.lang.buffer.delegate;
+package de.invesdwin.util.streams.buffer;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -12,260 +12,316 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import org.agrona.DirectBuffer;
 import org.agrona.MutableDirectBuffer;
+import org.agrona.concurrent.AtomicBuffer;
+import org.agrona.concurrent.UnsafeBuffer;
+import org.agrona.io.DirectBufferInputStream;
 
-import de.invesdwin.util.lang.buffer.IByteBuffer;
+import de.invesdwin.util.error.UnknownArgumentException;
 
 @NotThreadSafe
-public class SliceDelegateByteBuffer implements IByteBuffer {
+public class ClosedByteBuffer implements IByteBuffer {
 
-    private final IByteBuffer delegate;
-    private final int from;
-    private final int length;
+    public static final byte CLOSED_BYTE = Byte.MIN_VALUE;
+    public static final byte[] CLOSED_ARRAY = new byte[] { CLOSED_BYTE };
 
-    public SliceDelegateByteBuffer(final IByteBuffer delegate, final int from, final int length) {
-        this.delegate = delegate;
-        this.from = from;
-        this.length = length;
+    public static final ByteBuffer CLOSED_BYTE_BUFFER = ByteBuffer.wrap(CLOSED_ARRAY);
+    public static final AtomicBuffer CLOSED_DIRECT_BUFFER = new UnsafeBuffer(CLOSED_ARRAY);
+
+    public static final ClosedByteBuffer INSTANCE = new ClosedByteBuffer();
+
+    @Override
+    public ByteOrder getOrder() {
+        return ByteBuffers.DEFAULT_ORDER;
+    }
+
+    public static boolean isClosed(final DirectBuffer buffer, final int length) {
+        return length == 1 && buffer.getByte(0) == CLOSED_BYTE;
+    }
+
+    public static boolean isClosed(final ByteBuffer buffer, final int length) {
+        return length == 1 && buffer.get(0) == CLOSED_BYTE;
+    }
+
+    public static boolean isClosed(final IByteBuffer buffer, final int length) {
+        return length == 1 && buffer.getByte(0) == CLOSED_BYTE;
+    }
+
+    public static boolean isClosed(final IByteBuffer buffer) {
+        return isClosed(buffer, buffer.capacity());
+    }
+
+    public static boolean isClosed(final byte[] bytes, final int length) {
+        return length == 1 && bytes[0] == CLOSED_BYTE;
+    }
+
+    public static boolean isClosed(final byte[] bytes) {
+        return isClosed(bytes, bytes.length);
     }
 
     @Override
     public boolean isReadOnly() {
-        return delegate.isReadOnly();
-    }
-
-    @Override
-    public ByteOrder getOrder() {
-        return delegate.getOrder();
+        return true;
     }
 
     @Override
     public long addressOffset() {
-        return delegate.addressOffset() + from;
+        return 0;
     }
 
     @Override
     public MutableDirectBuffer directBuffer() {
-        return delegate.directBuffer();
+        return CLOSED_DIRECT_BUFFER;
     }
 
     @Override
     public byte[] byteArray() {
-        return delegate.byteArray();
+        return CLOSED_ARRAY;
     }
 
     @Override
     public ByteBuffer byteBuffer() {
-        return delegate.byteBuffer();
+        return CLOSED_BYTE_BUFFER;
     }
 
     @Override
     public int capacity() {
-        return length;
+        return CLOSED_ARRAY.length;
     }
 
     @Override
     public long getLong(final int index) {
-        return delegate.getLong(index + from);
+        throw newClosedException();
+    }
+
+    private IndexOutOfBoundsException newClosedException() {
+        return new IndexOutOfBoundsException("closed");
     }
 
     @Override
     public int getInt(final int index) {
-        return delegate.getInt(index + from);
+        throw newClosedException();
     }
 
     @Override
     public double getDouble(final int index) {
-        return delegate.getDouble(index + from);
+        throw newClosedException();
     }
 
     @Override
     public float getFloat(final int index) {
-        return delegate.getFloat(index + from);
+        throw newClosedException();
     }
 
     @Override
     public short getShort(final int index) {
-        return delegate.getShort(index + from);
+        throw newClosedException();
     }
 
     @Override
     public char getChar(final int index) {
-        return delegate.getChar(index + from);
+        throw newClosedException();
     }
 
     @Override
     public byte getByte(final int index) {
-        return delegate.getByte(index + from);
+        if (index == 0) {
+            throw newClosedException();
+        } else {
+            return CLOSED_BYTE;
+        }
     }
 
     @Override
     public void getBytes(final int index, final byte[] dst, final int dstIndex, final int length) {
-        delegate.getBytes(index + from, dst, dstIndex, length);
+        CLOSED_DIRECT_BUFFER.getBytes(index, dst, dstIndex, length);
     }
 
     @Override
     public void getBytes(final int index, final MutableDirectBuffer dstBuffer, final int dstIndex, final int length) {
-        delegate.getBytes(index + from, dstBuffer, dstIndex, length);
+        CLOSED_DIRECT_BUFFER.getBytes(index, dstBuffer, dstIndex, length);
     }
 
     @Override
     public void getBytes(final int index, final IByteBuffer dstBuffer, final int dstIndex, final int length) {
-        delegate.getBytes(index + from, dstBuffer, dstIndex, length);
+        if (dstBuffer.directBuffer() != null) {
+            CLOSED_DIRECT_BUFFER.getBytes(index, dstBuffer.directBuffer(), dstIndex, length);
+        } else if (dstBuffer.byteBuffer() != null) {
+            CLOSED_DIRECT_BUFFER.getBytes(index, dstBuffer.byteBuffer(), dstIndex, length);
+        } else if (dstBuffer.byteArray() != null) {
+            CLOSED_DIRECT_BUFFER.getBytes(index, dstBuffer.byteArray(), dstIndex, length);
+        } else {
+            throw UnknownArgumentException.newInstance(IByteBuffer.class, dstBuffer);
+        }
     }
 
     @Override
     public void getBytes(final int index, final ByteBuffer dstBuffer, final int dstIndex, final int length) {
-        delegate.getBytes(index + from, dstBuffer, dstIndex, length);
+        CLOSED_DIRECT_BUFFER.getBytes(index, dstBuffer, dstIndex, length);
     }
 
     @Override
     public int wrapAdjustment() {
-        return delegate.wrapAdjustment() + from;
+        return 0;
     }
 
     @Override
     public boolean isExpandable() {
-        return delegate.isExpandable();
+        return false;
     }
 
     @Override
     public void putLong(final int index, final long value) {
-        delegate.putLong(index + from, value);
+        throw newClosedException();
     }
 
     @Override
     public void putInt(final int index, final int value) {
-        delegate.putInt(index + from, value);
+        throw newClosedException();
     }
 
     @Override
     public void putDouble(final int index, final double value) {
-        delegate.putDouble(index + from, value);
+        throw newClosedException();
     }
 
     @Override
     public void putFloat(final int index, final float value) {
-        delegate.putFloat(index + from, value);
+        throw newClosedException();
     }
 
     @Override
     public void putShort(final int index, final short value) {
-        delegate.putShort(index + from, value);
+        throw newClosedException();
     }
 
     @Override
     public void putChar(final int index, final char value) {
-        delegate.putChar(index + from, value);
+        throw newClosedException();
     }
 
     @Override
     public void putByte(final int index, final byte value) {
-        delegate.putByte(index + from, value);
+        throw newClosedException();
     }
 
     @Override
     public void putBytes(final int index, final byte[] src, final int srcIndex, final int length) {
-        delegate.putBytes(index + from, src, srcIndex, length);
+        throw newClosedException();
     }
 
     @Override
     public void putBytes(final int index, final ByteBuffer srcBuffer, final int srcIndex, final int length) {
-        delegate.putBytes(index + from, srcBuffer, srcIndex, length);
+        throw newClosedException();
     }
 
     @Override
     public void putBytes(final int index, final DirectBuffer srcBuffer, final int srcIndex, final int length) {
-        delegate.putBytes(index + from, srcBuffer, srcIndex, length);
+        throw newClosedException();
     }
 
     @Override
     public void putBytes(final int index, final IByteBuffer srcBuffer, final int srcIndex, final int length) {
-        delegate.putBytes(index + from, srcBuffer, srcIndex, length);
+        throw newClosedException();
     }
 
     @Override
     public InputStream asInputStream(final int index, final int length) {
-        return delegate.asInputStream(index + from, length);
+        return new DirectBufferInputStream(CLOSED_DIRECT_BUFFER, index, length);
     }
 
     @Override
     public OutputStream asOutputStream(final int index, final int length) {
-        return delegate.asOutputStream(index + from, length);
+        throw newClosedException();
     }
 
     @Override
     public byte[] asByteArray(final int index, final int length) {
-        return delegate.asByteArray(index + from, length);
+        if (index == 0 && length == CLOSED_ARRAY.length) {
+            return CLOSED_ARRAY;
+        } else {
+            throw newClosedException();
+        }
     }
 
     @Override
     public byte[] asByteArrayCopy(final int index, final int length) {
-        return delegate.asByteArrayCopy(index + from, length);
+        if (index == 0 && length == CLOSED_ARRAY.length) {
+            return CLOSED_ARRAY.clone();
+        } else {
+            throw newClosedException();
+        }
     }
 
     @Override
     public MutableDirectBuffer asDirectBuffer(final int index, final int length) {
-        return delegate.asDirectBuffer(index + from, length);
-    }
-
-    @Override
-    public IByteBuffer sliceFrom(final int index) {
-        return new SliceDelegateByteBuffer(delegate, index + from, length);
+        return CLOSED_DIRECT_BUFFER;
     }
 
     @Override
     public IByteBuffer slice(final int index, final int length) {
-        return delegate.slice(index + from, length);
+        if (index == 0 && length == CLOSED_ARRAY.length) {
+            return this;
+        } else {
+            throw newClosedException();
+        }
     }
 
     @Override
     public String getStringAsciii(final int index, final int length) {
-        return delegate.getStringAsciii(index + from, length);
+        throw newClosedException();
     }
 
     @Override
     public void getStringAsciii(final int index, final int length, final Appendable dst) {
-        delegate.getStringAsciii(index + from, length, dst);
+        throw newClosedException();
     }
 
     @Override
     public void putStringAsciii(final int index, final CharSequence value, final int valueIndex, final int length) {
-        delegate.putStringAsciii(index + from, value, valueIndex, length);
+        throw newClosedException();
     }
 
     @Override
     public int putStringUtf8(final int index, final String value) {
-        return delegate.putStringUtf8(index + from, value);
+        throw newClosedException();
     }
 
     @Override
     public String getStringUtf8(final int index, final int length) {
-        return delegate.getStringUtf8(index + from, length);
+        throw newClosedException();
     }
 
     @Override
     public void getStringUtf8(final int index, final int length, final Appendable dst) {
-        delegate.getStringUtf8(index + from, length, dst);
+        throw newClosedException();
     }
 
     @Override
     public void getBytesTo(final int index, final DataOutput dst, final int length) throws IOException {
-        delegate.getBytesTo(index + from, dst, length);
+        if (index == 0 && length == CLOSED_ARRAY.length) {
+            dst.write(CLOSED_ARRAY);
+        } else {
+            throw newClosedException();
+        }
     }
 
     @Override
     public void getBytesTo(final int index, final OutputStream dst, final int length) throws IOException {
-        delegate.getBytesTo(index + from, dst, length);
+        if (index == 0 && length == CLOSED_ARRAY.length) {
+            dst.write(CLOSED_ARRAY);
+        } else {
+            throw newClosedException();
+        }
     }
 
     @Override
     public void putBytesTo(final int index, final DataInput src, final int length) throws IOException {
-        delegate.putBytesTo(index + from, src, length);
+        throw newClosedException();
     }
 
     @Override
     public void putBytesTo(final int index, final InputStream src, final int length) throws IOException {
-        delegate.putBytesTo(index + from, src, length);
+        throw newClosedException();
     }
 
     @SuppressWarnings("unchecked")
@@ -274,7 +330,7 @@ public class SliceDelegateByteBuffer implements IByteBuffer {
         if (getClass().isAssignableFrom(type)) {
             return (T) this;
         }
-        return delegate.unwrap(type);
+        return null;
     }
 
 }

@@ -2,10 +2,10 @@ package de.invesdwin.util.marshallers.serde.basic;
 
 import javax.annotation.concurrent.Immutable;
 
-import de.invesdwin.util.lang.buffer.ByteBuffers;
-import de.invesdwin.util.lang.buffer.IByteBuffer;
 import de.invesdwin.util.marshallers.serde.ISerde;
 import de.invesdwin.util.math.Bytes;
+import de.invesdwin.util.streams.buffer.ByteBuffers;
+import de.invesdwin.util.streams.buffer.IByteBuffer;
 
 @Immutable
 public class StringAsciiSerde implements ISerde<String> {

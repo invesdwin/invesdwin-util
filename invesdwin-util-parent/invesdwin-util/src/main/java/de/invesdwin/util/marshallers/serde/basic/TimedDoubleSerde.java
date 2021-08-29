@@ -3,11 +3,11 @@ package de.invesdwin.util.marshallers.serde.basic;
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.assertions.Assertions;
-import de.invesdwin.util.lang.buffer.IByteBuffer;
 import de.invesdwin.util.marshallers.serde.FixedLengthBufferingIteratorDelegateSerde;
 import de.invesdwin.util.marshallers.serde.ISerde;
 import de.invesdwin.util.marshallers.serde.SerdeBaseMethods;
 import de.invesdwin.util.math.TimedDouble;
+import de.invesdwin.util.streams.buffer.IByteBuffer;
 import de.invesdwin.util.time.date.FDate;
 
 @ThreadSafe

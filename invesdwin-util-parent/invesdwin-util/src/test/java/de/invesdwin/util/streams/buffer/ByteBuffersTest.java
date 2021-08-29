@@ -1,4 +1,4 @@
-package de.invesdwin.util.lang.buffer;
+package de.invesdwin.util.streams.buffer;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -11,14 +11,16 @@ import org.agrona.concurrent.UnsafeBuffer;
 import org.junit.Test;
 
 import de.invesdwin.util.assertions.Assertions;
-import de.invesdwin.util.lang.buffer.delegate.AgronaDelegateMutableByteBuffer;
-import de.invesdwin.util.lang.buffer.delegate.ChronicleDelegateByteBuffer;
-import de.invesdwin.util.lang.buffer.delegate.JavaDelegateByteBuffer;
-import de.invesdwin.util.lang.buffer.delegate.OrderedDelegateByteBuffer;
-import de.invesdwin.util.lang.buffer.extend.ExpandableArrayByteBuffer;
-import de.invesdwin.util.lang.buffer.extend.ExpandableByteBuffer;
-import de.invesdwin.util.lang.buffer.extend.UnsafeByteBuffer;
 import de.invesdwin.util.math.Booleans;
+import de.invesdwin.util.streams.buffer.ByteBuffers;
+import de.invesdwin.util.streams.buffer.IByteBuffer;
+import de.invesdwin.util.streams.buffer.delegate.AgronaDelegateMutableByteBuffer;
+import de.invesdwin.util.streams.buffer.delegate.ChronicleDelegateByteBuffer;
+import de.invesdwin.util.streams.buffer.delegate.JavaDelegateByteBuffer;
+import de.invesdwin.util.streams.buffer.delegate.OrderedDelegateByteBuffer;
+import de.invesdwin.util.streams.buffer.extend.ExpandableArrayByteBuffer;
+import de.invesdwin.util.streams.buffer.extend.ExpandableByteBuffer;
+import de.invesdwin.util.streams.buffer.extend.UnsafeByteBuffer;
 import net.openhft.chronicle.bytes.BytesStore;
 
 @NotThreadSafe

@@ -1,4 +1,4 @@
-package de.invesdwin.util.lang.buffer;
+package de.invesdwin.util.streams.buffer;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,13 +18,13 @@ import org.agrona.MutableDirectBuffer;
 import de.invesdwin.util.error.FastEOFException;
 import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.lang.Charsets;
-import de.invesdwin.util.lang.buffer.delegate.AgronaDelegateByteBuffer;
-import de.invesdwin.util.lang.buffer.delegate.AgronaDelegateMutableByteBuffer;
-import de.invesdwin.util.lang.buffer.extend.ExpandableArrayByteBuffer;
-import de.invesdwin.util.lang.buffer.extend.UnsafeArrayByteBuffer;
-import de.invesdwin.util.lang.buffer.extend.UnsafeByteBuffer;
 import de.invesdwin.util.lang.reflection.Reflections;
 import de.invesdwin.util.math.Bytes;
+import de.invesdwin.util.streams.buffer.delegate.AgronaDelegateByteBuffer;
+import de.invesdwin.util.streams.buffer.delegate.AgronaDelegateMutableByteBuffer;
+import de.invesdwin.util.streams.buffer.extend.ExpandableArrayByteBuffer;
+import de.invesdwin.util.streams.buffer.extend.UnsafeArrayByteBuffer;
+import de.invesdwin.util.streams.buffer.extend.UnsafeByteBuffer;
 
 @Immutable
 public final class ByteBuffers {

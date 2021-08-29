@@ -1,4 +1,4 @@
-package de.invesdwin.util.lang.buffer.delegate;
+package de.invesdwin.util.streams.buffer.delegate;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -13,7 +13,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 import org.agrona.DirectBuffer;
 import org.agrona.MutableDirectBuffer;
 
-import de.invesdwin.util.lang.buffer.IByteBuffer;
+import de.invesdwin.util.streams.buffer.IByteBuffer;
 
 @NotThreadSafe
 public class SliceFromDelegateByteBuffer implements IByteBuffer {

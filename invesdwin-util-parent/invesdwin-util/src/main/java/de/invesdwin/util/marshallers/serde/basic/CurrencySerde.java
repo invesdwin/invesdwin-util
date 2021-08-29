@@ -7,10 +7,10 @@ import javax.annotation.concurrent.Immutable;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.lang.Charsets;
 import de.invesdwin.util.lang.Currencies;
-import de.invesdwin.util.lang.buffer.ByteBuffers;
-import de.invesdwin.util.lang.buffer.IByteBuffer;
 import de.invesdwin.util.marshallers.serde.ISerde;
 import de.invesdwin.util.marshallers.serde.SerdeBaseMethods;
+import de.invesdwin.util.streams.buffer.ByteBuffers;
+import de.invesdwin.util.streams.buffer.IByteBuffer;
 
 @Immutable
 public final class CurrencySerde implements ISerde<Currency> {

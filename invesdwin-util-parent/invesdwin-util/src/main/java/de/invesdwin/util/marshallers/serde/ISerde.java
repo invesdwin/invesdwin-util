@@ -1,6 +1,6 @@
 package de.invesdwin.util.marshallers.serde;
 
-import de.invesdwin.util.lang.buffer.IByteBuffer;
+import de.invesdwin.util.streams.buffer.IByteBuffer;
 
 public interface ISerde<O> {
 

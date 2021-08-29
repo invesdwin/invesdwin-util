@@ -1,4 +1,4 @@
-package de.invesdwin.util.lang.buffer;
+package de.invesdwin.util.streams.buffer;
 
 import java.io.DataInput;
 import java.io.DataOutput;

@@ -1,4 +1,4 @@
-package de.invesdwin.util.lang.buffer.delegate;
+package de.invesdwin.util.streams.buffer.delegate;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -12,239 +12,266 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import org.agrona.DirectBuffer;
 import org.agrona.MutableDirectBuffer;
+import org.agrona.concurrent.UnsafeBuffer;
+import org.agrona.io.DirectBufferInputStream;
+import org.agrona.io.DirectBufferOutputStream;
 
 import de.invesdwin.util.error.Throwables;
-import de.invesdwin.util.lang.buffer.ByteBuffers;
-import de.invesdwin.util.lang.buffer.IByteBuffer;
-import de.invesdwin.util.lang.buffer.extend.UnsafeByteBuffer;
-import de.invesdwin.util.math.Integers;
+import de.invesdwin.util.streams.buffer.ByteBuffers;
+import de.invesdwin.util.streams.buffer.IByteBuffer;
 
 @NotThreadSafe
-public class ChronicleDelegateByteBuffer implements IByteBuffer {
+public class JavaDelegateByteBuffer implements IByteBuffer {
 
-    private final net.openhft.chronicle.bytes.Bytes<?> delegate;
+    protected final ByteBuffer delegate;
+    private UnsafeBuffer directBuffer;
 
-    public ChronicleDelegateByteBuffer(final net.openhft.chronicle.bytes.Bytes<?> delegate) {
-        this.delegate = delegate;
+    public JavaDelegateByteBuffer(final byte[] bytes) {
+        this.delegate = ByteBuffer.wrap(bytes);
     }
 
-    public net.openhft.chronicle.bytes.Bytes<?> getDelegate() {
-        return delegate;
-    }
-
-    @Override
-    public ByteOrder getOrder() {
-        return delegate.byteOrder();
+    public JavaDelegateByteBuffer(final ByteBuffer buffer) {
+        this.delegate = buffer;
     }
 
     @Override
     public boolean isReadOnly() {
-        return false;
+        return delegate.isReadOnly();
+    }
+
+    @Override
+    public ByteOrder getOrder() {
+        return delegate.order();
     }
 
     @Override
     public long addressOffset() {
-        return 0;
+        return ByteBuffers.addressOffset(delegate);
     }
 
     @Override
     public MutableDirectBuffer directBuffer() {
-        return null;
+        if (directBuffer == null) {
+            directBuffer = new UnsafeBuffer(delegate);
+        }
+        return directBuffer;
     }
 
     @Override
     public byte[] byteArray() {
-        return null;
+        if (delegate.hasArray()) {
+            return delegate.array();
+        } else {
+            return null;
+        }
     }
 
     @Override
     public ByteBuffer byteBuffer() {
-        return null;
+        return delegate;
     }
 
     @Override
     public int capacity() {
-        return Integers.checkedCast(delegate.capacity());
+        return delegate.capacity();
     }
 
     @Override
     public long getLong(final int index) {
-        return delegate.readLong(index);
+        return delegate.getLong(index);
     }
 
     @Override
     public int getInt(final int index) {
-        return delegate.readInt(index);
+        return delegate.getInt(index);
     }
 
     @Override
     public double getDouble(final int index) {
-        return delegate.readDouble(index);
+        return delegate.getDouble(index);
     }
 
     @Override
     public float getFloat(final int index) {
-        return delegate.readFloat(index);
+        return delegate.getFloat(index);
     }
 
     @Override
     public short getShort(final int index) {
-        return delegate.readShort(index);
+        return delegate.getShort(index);
     }
 
     @Override
     public char getChar(final int index) {
-        return (char) delegate.readShort(index);
+        return delegate.getChar(index);
     }
 
     @Override
     public byte getByte(final int index) {
-        return delegate.readByte(index);
+        return delegate.get(index);
     }
 
     @Override
     public void getBytes(final int index, final byte[] dst, final int dstIndex, final int length) {
-        for (int i = 0; i < length; i++) {
-            dst[dstIndex + i] = delegate.readByte(index + i);
-        }
+        ByteBuffers.get(delegate, index, dst, dstIndex, length);
     }
 
     @Override
     public void getBytes(final int index, final MutableDirectBuffer dstBuffer, final int dstIndex, final int length) {
-        for (int i = 0; i < length; i++) {
-            dstBuffer.putByte(dstIndex + i, delegate.readByte(index + i));
-        }
+        dstBuffer.putBytes(dstIndex, delegate, index, length);
     }
 
     @Override
     public void getBytes(final int index, final IByteBuffer dstBuffer, final int dstIndex, final int length) {
-        for (int i = 0; i < length; i++) {
-            dstBuffer.putByte(dstIndex + i, delegate.readByte(index + i));
-        }
+        dstBuffer.putBytes(dstIndex, delegate, index, length);
     }
 
     @Override
     public void getBytes(final int index, final ByteBuffer dstBuffer, final int dstIndex, final int length) {
-        for (int i = 0; i < length; i++) {
-            dstBuffer.put(dstIndex + i, delegate.readByte(index + i));
+        directBuffer().getBytes(index, dstBuffer, dstIndex, length);
+    }
+
+    @Override
+    public MutableDirectBuffer asDirectBuffer(final int index, final int length) {
+        if (index == 0 && length == capacity()) {
+            return directBuffer();
+        } else {
+            return new UnsafeBuffer(delegate, index, length);
         }
     }
 
     @Override
     public int wrapAdjustment() {
-        return 0;
+        return ByteBuffers.wrapAdjustment(delegate);
     }
 
     @Override
     public boolean isExpandable() {
-        return delegate.isElastic();
+        return false;
     }
 
     @Override
     public void putLong(final int index, final long value) {
-        delegate.writeLong(index, value);
+        delegate.putLong(index, value);
     }
 
     @Override
     public void putInt(final int index, final int value) {
-        delegate.writeInt(index, value);
+        delegate.putInt(index, value);
     }
 
     @Override
     public void putDouble(final int index, final double value) {
-        delegate.writeDouble(index, value);
+        delegate.putDouble(index, value);
     }
 
     @Override
     public void putFloat(final int index, final float value) {
-        delegate.writeFloat(index, value);
+        delegate.putFloat(index, value);
     }
 
     @Override
     public void putShort(final int index, final short value) {
-        delegate.writeShort(index, value);
+        delegate.putShort(index, value);
     }
 
     @Override
     public void putChar(final int index, final char value) {
-        delegate.writeShort(index, (short) value);
+        delegate.putChar(index, value);
     }
 
     @Override
     public void putByte(final int index, final byte value) {
-        delegate.writeByte(index, value);
+        delegate.put(index, value);
     }
 
     @Override
     public void putBytes(final int index, final byte[] src, final int srcIndex, final int length) {
-        delegate.write(index, src, srcIndex, length);
+        ByteBuffers.put(delegate, index, src, srcIndex, length);
     }
 
     @Override
     public void putBytes(final int index, final ByteBuffer srcBuffer, final int srcIndex, final int length) {
-        delegate.write(index, srcBuffer, srcIndex, length);
+        directBuffer().putBytes(index, srcBuffer, srcIndex, length);
     }
 
     @Override
     public void putBytes(final int index, final DirectBuffer srcBuffer, final int srcIndex, final int length) {
-        for (int i = 0; i < length; i++) {
-            delegate.writeByte(index + i, srcBuffer.getByte(srcIndex + i));
-        }
+        srcBuffer.getBytes(srcIndex, delegate, index, length);
     }
 
     @Override
     public void putBytes(final int index, final IByteBuffer srcBuffer, final int srcIndex, final int length) {
-        for (int i = 0; i < length; i++) {
-            delegate.writeByte(index + i, srcBuffer.getByte(srcIndex + i));
-        }
+        srcBuffer.getBytes(srcIndex, delegate, index, length);
     }
 
     @Override
     public InputStream asInputStream(final int index, final int length) {
-        delegate.readPosition(index);
-        delegate.readLimit(index + length);
-        return delegate.inputStream();
+        return new DirectBufferInputStream(directBuffer(), index, length);
     }
 
     @Override
     public OutputStream asOutputStream(final int index, final int length) {
-        delegate.writePosition(index);
-        delegate.writeLimit(index + length);
-        return delegate.outputStream();
+        return new DirectBufferOutputStream(directBuffer(), index, length);
+    }
+
+    @Override
+    public byte[] asByteArray() {
+        final byte[] bytes = byteArray();
+        if (bytes != null) {
+            return bytes;
+        } else {
+            return ByteBuffers.asByteArrayCopyGet(delegate, 0, capacity());
+        }
+    }
+
+    @Override
+    public byte[] asByteArrayCopy() {
+        final byte[] bytes = byteArray();
+        if (bytes != null) {
+            return bytes.clone();
+        } else {
+            return ByteBuffers.asByteArrayCopyGet(delegate, 0, capacity());
+        }
     }
 
     @Override
     public byte[] asByteArray(final int index, final int length) {
-        return asByteArrayCopy(index, length);
+        if (index == 0 && length == capacity()) {
+            final byte[] bytes = byteArray();
+            if (bytes != null) {
+                if (bytes.length != length) {
+                    return ByteBuffers.asByteArrayCopyGet(delegate, index, length);
+                }
+                return bytes;
+            }
+        }
+        return ByteBuffers.asByteArrayCopyGet(delegate, index, length);
     }
 
     @Override
     public byte[] asByteArrayCopy(final int index, final int length) {
-        delegate.readPosition(index);
-        delegate.readLimit(index + length);
-        return delegate.toByteArray();
-    }
-
-    @Override
-    public MutableDirectBuffer asDirectBuffer(final int index, final int length) {
-        final byte[] bytes = asByteArray(index, length);
-        return new UnsafeByteBuffer(bytes);
-    }
-
-    @Override
-    public IByteBuffer sliceFrom(final int index) {
-        return new SliceFromDelegateByteBuffer(this, index);
+        if (index == 0 && length == capacity()) {
+            final byte[] bytes = byteArray();
+            if (bytes != null) {
+                if (bytes.length != length) {
+                    return ByteBuffers.asByteArrayCopyGet(delegate, index, length);
+                }
+                return bytes.clone();
+            }
+        }
+        return ByteBuffers.asByteArrayCopyGet(delegate, index, length);
     }
 
     @Override
     public IByteBuffer slice(final int index, final int length) {
-        return new SliceDelegateByteBuffer(this, index, length);
+        return new JavaDelegateByteBuffer(ByteBuffers.slice(delegate, index, length));
     }
 
     @Override
     public String getStringAsciii(final int index, final int length) {
         final byte[] bytes = new byte[length];
-        getBytes(index, bytes, 0, length);
+        ByteBuffers.get(delegate, index, bytes, 0, length);
         return ByteBuffers.newStringAscii(bytes);
     }
 
@@ -253,7 +280,7 @@ public class ChronicleDelegateByteBuffer implements IByteBuffer {
         try {
             final int limit = index + length;
             for (int i = index; i < limit; i++) {
-                final char c = (char) delegate.readByte(i);
+                final char c = (char) delegate.get(i);
                 dst.append(c > 127 ? '?' : c);
             }
         } catch (final IOException e) {
@@ -269,21 +296,21 @@ public class ChronicleDelegateByteBuffer implements IByteBuffer {
                 c = '?';
             }
 
-            delegate.writeByte(index + i, (byte) c);
+            delegate.put(index + i, (byte) c);
         }
     }
 
     @Override
     public int putStringUtf8(final int index, final String value) {
         final byte[] bytes = ByteBuffers.newStringUtf8Bytes(value);
-        delegate.write(index, bytes);
+        ByteBuffers.put(delegate, index, bytes);
         return bytes.length;
     }
 
     @Override
     public String getStringUtf8(final int index, final int length) {
         final byte[] bytes = new byte[length];
-        getBytes(index, bytes, 0, length);
+        ByteBuffers.get(delegate, index, bytes, 0, length);
         return ByteBuffers.newStringUtf8(bytes);
     }
 
@@ -301,7 +328,7 @@ public class ChronicleDelegateByteBuffer implements IByteBuffer {
     public void getBytesTo(final int index, final DataOutput dst, final int length) throws IOException {
         int i = index;
         while (i < length) {
-            final byte b = delegate.readByte(i);
+            final byte b = delegate.get(i);
             dst.write(b);
             i++;
         }
@@ -311,7 +338,7 @@ public class ChronicleDelegateByteBuffer implements IByteBuffer {
     public void getBytesTo(final int index, final OutputStream dst, final int length) throws IOException {
         int i = index;
         while (i < length) {
-            final byte b = delegate.readByte(i);
+            final byte b = delegate.get(i);
             dst.write(b);
             i++;
         }
@@ -322,7 +349,7 @@ public class ChronicleDelegateByteBuffer implements IByteBuffer {
         int i = index;
         while (i < length) {
             final byte b = src.readByte();
-            delegate.writeByte(i, b);
+            delegate.put(i, b);
             i++;
         }
     }
@@ -335,7 +362,7 @@ public class ChronicleDelegateByteBuffer implements IByteBuffer {
             if (result < 0) {
                 throw ByteBuffers.newPutBytesToEOF();
             }
-            delegate.writeByte(i, (byte) result);
+            delegate.put(i, (byte) result);
             i++;
         }
     }
