@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodHandles.Lookup;
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
@@ -19,6 +17,7 @@ import javax.annotation.concurrent.Immutable;
 import org.agrona.BufferUtil;
 import org.agrona.DirectBuffer;
 import org.agrona.MutableDirectBuffer;
+import org.agrona.UnsafeAccess;
 
 import de.invesdwin.util.error.FastEOFException;
 import de.invesdwin.util.error.Throwables;
@@ -50,25 +49,9 @@ public final class ByteBuffers {
 
     private static final ISliceInvoker SLICE_INVOKER;
     private static final FastEOFException PUTBYTESTOEOF = new FastEOFException("putBytesTo: src.read() returned -1");
-    private static final MethodHandle BYTEBUFFER_ADDRESS_SETTER;
-    private static final MethodHandle BYTEBUFFER_CAPACITY_SETTER;
 
     static {
         SLICE_INVOKER = newSliceInvoker();
-        try {
-            final Field addressField = Buffer.class.getDeclaredField("address");
-            addressField.setAccessible(true);
-            final Field capacityField = Buffer.class.getDeclaredField("capacity");
-            capacityField.setAccessible(true);
-
-            final Lookup lookup = MethodHandles.lookup();
-            BYTEBUFFER_ADDRESS_SETTER = lookup.unreflectSetter(addressField);
-            BYTEBUFFER_CAPACITY_SETTER = lookup.unreflectSetter(capacityField);
-
-        } catch (final Exception e) {
-            throw new RuntimeException(e);
-        }
-
     }
 
     private ByteBuffers() {
@@ -448,14 +431,11 @@ public final class ByteBuffers {
         }
     }
 
+    @SuppressWarnings("restriction")
     public static ByteBuffer asDirectByteBuffer(final long address, final int length) {
         final ByteBuffer bb = ByteBuffer.allocateDirect(0);
-        try {
-            BYTEBUFFER_ADDRESS_SETTER.invoke(bb, address);
-            BYTEBUFFER_CAPACITY_SETTER.invoke(bb, length);
-        } catch (final Throwable e) {
-            throw new RuntimeException(e);
-        }
+        UnsafeAccess.UNSAFE.putLong(BufferUtil.BYTE_BUFFER_ADDRESS_FIELD_OFFSET, address);
+        UnsafeAccess.UNSAFE.putInt(BufferUtil.BYTE_BUFFER_OFFSET_FIELD_OFFSET, length);
         return bb;
     }
 
