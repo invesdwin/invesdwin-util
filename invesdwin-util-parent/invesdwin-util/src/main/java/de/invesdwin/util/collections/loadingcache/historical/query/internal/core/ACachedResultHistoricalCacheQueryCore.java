@@ -10,6 +10,7 @@ import java.util.Spliterator;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
+import org.agrona.UnsafeAccess;
 import org.apache.commons.lang3.mutable.MutableInt;
 
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
@@ -233,7 +234,8 @@ public abstract class ACachedResultHistoricalCacheQueryCore<V> extends ACachedEn
         @Override
         public ICloseableIterator<IHistoricalEntry<_V>> iterator() {
             try {
-                final Object[] array = (Object[]) ArrayListCloseableIterable.ARRAYLIST_ELEMENTDATA_GETTER.invoke(list);
+                final Object[] array = (Object[]) UnsafeAccess.UNSAFE.getObject(list,
+                        ArrayListCloseableIterable.ARRAYLIST_ELEMENTDATA_FIELD_OFFSET);
                 return new ArrayCloseableIterator(array, offset + modIncrementIndex.intValue(), size);
             } catch (final Throwable e) {
                 throw new RuntimeException(e);
