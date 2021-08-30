@@ -12,6 +12,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
+import java.util.Arrays;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -22,8 +23,10 @@ import org.agrona.MutableDirectBuffer;
 import de.invesdwin.util.error.FastEOFException;
 import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.lang.Charsets;
+import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.lang.reflection.Reflections;
 import de.invesdwin.util.math.Bytes;
+import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.streams.buffer.delegate.AgronaDelegateByteBuffer;
 import de.invesdwin.util.streams.buffer.delegate.AgronaDelegateMutableByteBuffer;
 import de.invesdwin.util.streams.buffer.extend.ArrayExpandableByteBuffer;
@@ -37,7 +40,7 @@ public final class ByteBuffers {
     public static final int EXPANDABLE_LENGTH = -1;
 
     /**
-     * ByteBuffer uses BigEndian per default.
+     * ByteBuffer uses BigEndian per default. BigEndian also seems faster somehow.
      */
     public static final ByteOrder DEFAULT_ORDER = ByteOrder.BIG_ENDIAN;
     /**
@@ -454,6 +457,16 @@ public final class ByteBuffers {
             throw new RuntimeException(e);
         }
         return bb;
+    }
+
+    public static String toString(final IByteBuffer buffer) {
+        final byte[] byteArray = buffer.asByteArray(0, Integers.min(1024, buffer.capacity()));
+        return Objects.toStringHelper(buffer)
+                .add("addressOffset", buffer.addressOffset())
+                .add("capacity", buffer.capacity())
+                .add("wrapAdjustment", buffer.wrapAdjustment())
+                .with(Arrays.toString(byteArray))
+                .toString();
     }
 
 }

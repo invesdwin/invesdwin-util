@@ -15,6 +15,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 import org.agrona.DirectBuffer;
 import org.agrona.MutableDirectBuffer;
 
+import de.invesdwin.util.streams.buffer.ByteBuffers;
 import de.invesdwin.util.streams.buffer.IByteBuffer;
 import de.invesdwin.util.streams.buffer.delegate.slice.SlicedFromDelegateByteBuffer;
 import de.invesdwin.util.streams.buffer.delegate.slice.mutable.factory.ExpandableMutableSlicedDelegateByteBufferFactory;
@@ -315,6 +316,11 @@ public class MutableSlicedFromDelegateByteBuffer implements IByteBuffer {
     @Override
     public void putBytesTo(final int index, final ReadableByteChannel src, final int length) throws IOException {
         delegate.putBytesTo(index + from, src, length);
+    }
+
+    @Override
+    public String toString() {
+        return ByteBuffers.toString(this);
     }
 
 }

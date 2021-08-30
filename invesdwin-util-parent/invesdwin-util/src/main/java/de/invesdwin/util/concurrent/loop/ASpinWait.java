@@ -85,7 +85,7 @@ public abstract class ASpinWait {
     }
 
     protected boolean determineSpinAllowed() {
-        return Runtime.getRuntime().availableProcessors() >= 2;
+        return true;
     }
 
     /**

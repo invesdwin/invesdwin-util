@@ -186,7 +186,7 @@ public final class EmptyByteBuffer implements IByteBuffer {
 
     @Override
     public int wrapAdjustment() {
-        throw newEmptyException();
+        return 0;
     }
 
     @Override

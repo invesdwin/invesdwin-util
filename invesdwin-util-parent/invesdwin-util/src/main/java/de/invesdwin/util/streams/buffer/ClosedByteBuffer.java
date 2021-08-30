@@ -18,8 +18,6 @@ import org.agrona.concurrent.AtomicBuffer;
 import org.agrona.concurrent.UnsafeBuffer;
 import org.agrona.io.DirectBufferInputStream;
 
-import de.invesdwin.util.error.UnknownArgumentException;
-
 @NotThreadSafe
 public class ClosedByteBuffer implements IByteBuffer {
 
@@ -130,9 +128,9 @@ public class ClosedByteBuffer implements IByteBuffer {
     @Override
     public byte getByte(final int index) {
         if (index == 0) {
-            throw newClosedException();
-        } else {
             return CLOSED_BYTE;
+        } else {
+            throw newClosedException();
         }
     }
 
@@ -155,7 +153,9 @@ public class ClosedByteBuffer implements IByteBuffer {
         } else if (dstBuffer.byteArray() != null) {
             CLOSED_DIRECT_BUFFER.getBytes(index, dstBuffer.byteArray(), dstIndex, length);
         } else {
-            throw UnknownArgumentException.newInstance(IByteBuffer.class, dstBuffer);
+            for (int i = 0; i < length; i++) {
+                dstBuffer.putByte(dstIndex + i, getByte(index + i));
+            }
         }
     }
 

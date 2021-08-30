@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.Arrays;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
@@ -16,7 +17,6 @@ import org.agrona.concurrent.UnsafeBuffer;
 import org.agrona.io.DirectBufferInputStream;
 import org.agrona.io.DirectBufferOutputStream;
 
-import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.streams.buffer.ByteBuffers;
 import de.invesdwin.util.streams.buffer.IByteBuffer;
 import de.invesdwin.util.streams.buffer.delegate.slice.mutable.factory.FixedMutableSlicedDelegateByteBufferFactory;
@@ -83,7 +83,9 @@ public class UnsafeByteBuffer extends UnsafeBuffer implements IByteBuffer {
         } else if (dstBuffer.byteArray() != null) {
             getBytes(index, dstBuffer.byteArray(), dstIndex, length);
         } else {
-            throw UnknownArgumentException.newInstance(IByteBuffer.class, dstBuffer);
+            for (int i = 0; i < length; i++) {
+                dstBuffer.putByte(dstIndex + i, getByte(index + i));
+            }
         }
     }
 
@@ -96,7 +98,9 @@ public class UnsafeByteBuffer extends UnsafeBuffer implements IByteBuffer {
         } else if (srcBuffer.byteArray() != null) {
             putBytes(index, srcBuffer.byteArray(), srcIndex, length);
         } else {
-            throw UnknownArgumentException.newInstance(IByteBuffer.class, srcBuffer);
+            for (int i = 0; i < length; i++) {
+                putByte(index + i, srcBuffer.getByte(srcIndex + i));
+            }
         }
     }
 
@@ -404,6 +408,11 @@ public class UnsafeByteBuffer extends UnsafeBuffer implements IByteBuffer {
         } else {
             return ByteBuffers.slice(buffer, index, length);
         }
+    }
+
+    @Override
+    public String toString() {
+        return Arrays.toString(asByteArray());
     }
 
 }

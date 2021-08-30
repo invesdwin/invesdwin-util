@@ -30,11 +30,11 @@ public class JavaDelegateByteBuffer implements IByteBuffer {
     private IMutableSlicedDelegateByteBufferFactory mutableSliceFactory;
 
     public JavaDelegateByteBuffer(final byte[] bytes) {
-        this.delegate = ByteBuffer.wrap(bytes);
+        this.delegate = ByteBuffer.wrap(bytes).order(ByteBuffers.DEFAULT_ORDER);
     }
 
     public JavaDelegateByteBuffer(final ByteBuffer buffer) {
-        this.delegate = buffer;
+        this.delegate = buffer.order(ByteBuffers.DEFAULT_ORDER);
     }
 
     @Override
@@ -44,7 +44,7 @@ public class JavaDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public ByteOrder getOrder() {
-        return delegate.order();
+        return ByteBuffers.DEFAULT_ORDER;
     }
 
     @Override
@@ -412,6 +412,11 @@ public class JavaDelegateByteBuffer implements IByteBuffer {
         } else {
             return ByteBuffers.slice(buffer, index, length);
         }
+    }
+
+    @Override
+    public String toString() {
+        return ByteBuffers.toString(this);
     }
 
 }

@@ -16,7 +16,6 @@ import org.agrona.concurrent.UnsafeBuffer;
 import org.agrona.io.DirectBufferInputStream;
 
 import de.invesdwin.util.error.Throwables;
-import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.streams.buffer.ByteBuffers;
 import de.invesdwin.util.streams.buffer.IByteBuffer;
 import de.invesdwin.util.streams.buffer.delegate.slice.mutable.factory.FixedMutableSlicedDelegateByteBufferFactory;
@@ -126,7 +125,9 @@ public class AgronaDelegateByteBuffer implements IByteBuffer {
         } else if (dstBuffer.byteArray() != null) {
             delegate.getBytes(index, dstBuffer.byteArray(), dstIndex, length);
         } else {
-            throw UnknownArgumentException.newInstance(IByteBuffer.class, dstBuffer);
+            for (int i = 0; i < length; i++) {
+                dstBuffer.putByte(dstIndex + i, delegate.getByte(index + i));
+            }
         }
     }
 
@@ -438,6 +439,11 @@ public class AgronaDelegateByteBuffer implements IByteBuffer {
         } else {
             return ByteBuffers.slice(buffer, index, length);
         }
+    }
+
+    @Override
+    public String toString() {
+        return ByteBuffers.toString(this);
     }
 
 }

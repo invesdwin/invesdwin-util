@@ -77,7 +77,15 @@ public final class Longs extends ALongsStaticFacade {
         return matrixAsList;
     }
 
-    public static Long min(final Long... times) {
+    public static long min(final long... times) {
+        long minTime = times[0];
+        for (int i = 1; i < times.length; i++) {
+            minTime = min(minTime, times[i]);
+        }
+        return minTime;
+    }
+
+    public static Long minNullable(final Long... times) {
         Long minTime = null;
         for (final Long time : times) {
             minTime = min(minTime, time);
@@ -107,7 +115,15 @@ public final class Longs extends ALongsStaticFacade {
         }
     }
 
-    public static Long max(final Long... times) {
+    public static long max(final long... times) {
+        long maxTime = times[0];
+        for (int i = 1; i < times.length; i++) {
+            maxTime = max(maxTime, times[i]);
+        }
+        return maxTime;
+    }
+
+    public static Long maxNullable(final Long... times) {
         Long maxTime = null;
         for (final Long time : times) {
             maxTime = max(maxTime, time);
