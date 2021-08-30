@@ -337,6 +337,12 @@ public class ChronicleDelegateByteBuffer implements IByteBuffer {
     }
 
     @Override
+    public MutableDirectBuffer asDirectBuffer() {
+        final ByteBuffer bytes = asByteBuffer();
+        return new UnsafeByteBuffer(bytes);
+    }
+
+    @Override
     public MutableDirectBuffer asDirectBuffer(final int index, final int length) {
         final ByteBuffer bytes = asByteBuffer();
         return new UnsafeByteBuffer(bytes, index, length);

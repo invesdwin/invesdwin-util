@@ -287,9 +287,7 @@ public interface IByteBuffer extends IByteBufferWriter {
      */
     byte[] asByteArrayCopy(int index, int length);
 
-    default MutableDirectBuffer asDirectBuffer() {
-        return asDirectBufferTo(capacity());
-    }
+    MutableDirectBuffer asDirectBuffer();
 
     default MutableDirectBuffer asDirectBufferFrom(final int index) {
         return asDirectBuffer(index, remaining(index));

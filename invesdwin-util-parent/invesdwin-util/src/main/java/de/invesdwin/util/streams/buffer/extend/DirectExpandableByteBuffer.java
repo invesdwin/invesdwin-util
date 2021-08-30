@@ -160,6 +160,11 @@ public class DirectExpandableByteBuffer extends ExpandableDirectByteBuffer imple
     }
 
     @Override
+    public MutableDirectBuffer asDirectBuffer() {
+        return directBuffer();
+    }
+
+    @Override
     public MutableDirectBuffer asDirectBuffer(final int index, final int length) {
         if (index == 0 && length == capacity()) {
             return this;

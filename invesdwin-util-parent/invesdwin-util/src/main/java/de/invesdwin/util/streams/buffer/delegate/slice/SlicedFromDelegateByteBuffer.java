@@ -208,6 +208,11 @@ public class SlicedFromDelegateByteBuffer implements IByteBuffer {
     }
 
     @Override
+    public MutableDirectBuffer asDirectBuffer() {
+        return asDirectBufferTo(capacity());
+    }
+
+    @Override
     public MutableDirectBuffer asDirectBuffer(final int index, final int length) {
         return delegate.asDirectBuffer(index + from, length);
     }

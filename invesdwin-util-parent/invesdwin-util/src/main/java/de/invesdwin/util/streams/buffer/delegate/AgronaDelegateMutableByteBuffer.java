@@ -214,6 +214,11 @@ public class AgronaDelegateMutableByteBuffer implements IByteBuffer {
     }
 
     @Override
+    public MutableDirectBuffer asDirectBuffer() {
+        return delegate;
+    }
+
+    @Override
     public MutableDirectBuffer asDirectBuffer(final int index, final int length) {
         if (index == 0 && length == capacity()) {
             return delegate;

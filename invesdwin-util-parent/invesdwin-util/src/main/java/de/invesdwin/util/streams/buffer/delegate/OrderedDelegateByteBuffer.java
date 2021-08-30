@@ -139,6 +139,11 @@ public final class OrderedDelegateByteBuffer implements IByteBuffer {
     }
 
     @Override
+    public MutableDirectBuffer asDirectBuffer() {
+        return delegate.asDirectBuffer();
+    }
+
+    @Override
     public MutableDirectBuffer asDirectBuffer(final int index, final int length) {
         return delegate.asDirectBuffer(index, length);
     }

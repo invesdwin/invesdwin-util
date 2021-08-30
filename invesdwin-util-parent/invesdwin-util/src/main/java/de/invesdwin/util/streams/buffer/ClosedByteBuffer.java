@@ -259,8 +259,17 @@ public class ClosedByteBuffer implements IByteBuffer {
     }
 
     @Override
+    public MutableDirectBuffer asDirectBuffer() {
+        return directBuffer();
+    }
+
+    @Override
     public MutableDirectBuffer asDirectBuffer(final int index, final int length) {
-        return CLOSED_DIRECT_BUFFER;
+        if (index == 0 && length == CLOSED_ARRAY.length) {
+            return directBuffer();
+        } else {
+            throw newClosedException();
+        }
     }
 
     @Override

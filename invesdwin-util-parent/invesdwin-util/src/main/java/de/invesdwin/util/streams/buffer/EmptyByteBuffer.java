@@ -190,6 +190,11 @@ public final class EmptyByteBuffer implements IByteBuffer {
     }
 
     @Override
+    public MutableDirectBuffer asDirectBuffer() {
+        return directBuffer();
+    }
+
+    @Override
     public MutableDirectBuffer asDirectBuffer(final int index, final int length) {
         return directBuffer();
     }
