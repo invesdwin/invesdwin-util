@@ -16,9 +16,9 @@ import org.agrona.MutableDirectBuffer;
 
 import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.error.UnknownArgumentException;
-import de.invesdwin.util.math.Bytes;
 import de.invesdwin.util.math.Longs;
 import de.invesdwin.util.streams.buffer.ByteBuffers;
+import de.invesdwin.util.streams.buffer.EmptyByteBuffer;
 import de.invesdwin.util.streams.buffer.IByteBuffer;
 import de.invesdwin.util.streams.buffer.delegate.slice.SlicedDelegateByteBuffer;
 import de.invesdwin.util.streams.buffer.delegate.slice.SlicedFromDelegateByteBuffer;
@@ -30,7 +30,8 @@ import net.openhft.chronicle.bytes.BytesStore;
 @NotThreadSafe
 public class ChronicleDelegateByteBuffer implements IByteBuffer {
 
-    public static final net.openhft.chronicle.bytes.Bytes<?> EMPTY_BYTES = BytesStore.wrap(Bytes.EMPTY_ARRAY)
+    public static final net.openhft.chronicle.bytes.Bytes<?> EMPTY_BYTES = BytesStore
+            .wrap(EmptyByteBuffer.EMPTY_DIRECT_BYTE_BUFFER)
             .bytesForWrite();
     public static final ChronicleDelegateByteBuffer EMPTY_BUFFER = new ChronicleDelegateByteBuffer(EMPTY_BYTES);
 
