@@ -1,13 +1,12 @@
 package de.invesdwin.util.collections.iterable.collection;
 
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import org.agrona.UnsafeAccess;
 import org.apache.commons.lang3.ArrayUtils;
 
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
@@ -15,19 +14,15 @@ import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.collections.list.IFastToListProvider;
 import de.invesdwin.util.lang.reflection.Reflections;
 
+@SuppressWarnings("restriction")
 @NotThreadSafe
 public class ArrayListCloseableIterable<E> implements ICloseableIterable<E>, IFastToListProvider<E> {
 
-    public static final MethodHandle ARRAYLIST_ELEMENTDATA_GETTER;
+    public static final long ARRAYLIST_ELEMENTDATA_FIELD_OFFSET;
 
     static {
-        try {
-            final Field arraylistElementDataField = Reflections.findField(ArrayList.class, "elementData");
-            Reflections.makeAccessible(arraylistElementDataField);
-            ARRAYLIST_ELEMENTDATA_GETTER = MethodHandles.lookup().unreflectGetter(arraylistElementDataField);
-        } catch (final IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
+        final Field arraylistElementDataField = Reflections.findField(ArrayList.class, "elementData");
+        ARRAYLIST_ELEMENTDATA_FIELD_OFFSET = UnsafeAccess.UNSAFE.objectFieldOffset(arraylistElementDataField);
     }
 
     private final ArrayList<? extends E> arrayList;
@@ -49,7 +44,7 @@ public class ArrayListCloseableIterable<E> implements ICloseableIterable<E>, IFa
         if (cachedSize != arrayList.size()) {
             cachedSize = arrayList.size();
             try {
-                cachedArray = (E[]) ARRAYLIST_ELEMENTDATA_GETTER.invokeExact(arrayList);
+                cachedArray = (E[]) UnsafeAccess.UNSAFE.getObject(arrayList, ARRAYLIST_ELEMENTDATA_FIELD_OFFSET);
             } catch (final Throwable e) {
                 throw new RuntimeException(e);
             }

@@ -1,13 +1,12 @@
 package de.invesdwin.util.collections.iterable.collection;
 
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import org.agrona.UnsafeAccess;
 import org.apache.commons.lang3.ArrayUtils;
 
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
@@ -15,36 +14,29 @@ import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.collections.list.IFastToListProvider;
 import de.invesdwin.util.lang.reflection.Reflections;
 
+@SuppressWarnings("restriction")
 @NotThreadSafe
 public class ArraySubListCloseableIterable<E> implements ICloseableIterable<E>, IFastToListProvider<E> {
 
     public static final Class<?> SUBLIST_CLASS;
-    public static final MethodHandle SUBLIST_SIZE_GETTER;
-    public static final MethodHandle SUBLIST_OFFSET_GETTER;
-    public static final MethodHandle SUBLIST_PARENT_GETTER;
+    public static final long SUBLIST_SIZE_FIELD_OFFSET;
+    public static final long SUBLIST_OFFSET_FIELD_OFFSET;
+    public static final long SUBLIST_PARENT_FIELD_OFFSET;
 
     static {
-        try {
-            SUBLIST_CLASS = Reflections.classForName("java.util.ArrayList$SubList");
-            final Field sublistSizeField = Reflections.findField(SUBLIST_CLASS, "size");
-            Reflections.makeAccessible(sublistSizeField);
-            SUBLIST_SIZE_GETTER = MethodHandles.lookup().unreflectGetter(sublistSizeField);
-            final Field sublistOffsetField = Reflections.findField(SUBLIST_CLASS, "offset");
-            Reflections.makeAccessible(sublistOffsetField);
-            SUBLIST_OFFSET_GETTER = MethodHandles.lookup().unreflectGetter(sublistOffsetField);
-            final Field sublistRootField = Reflections.findField(SUBLIST_CLASS, "root");
-            if (sublistRootField != null) {
-                //java 11, we can directly access the root
-                Reflections.makeAccessible(sublistRootField);
-                SUBLIST_PARENT_GETTER = MethodHandles.lookup().unreflectGetter(sublistRootField);
-            } else {
-                //before java 11
-                final Field sublistParentField = Reflections.findField(SUBLIST_CLASS, "parent");
-                Reflections.makeAccessible(sublistParentField);
-                SUBLIST_PARENT_GETTER = MethodHandles.lookup().unreflectGetter(sublistParentField);
-            }
-        } catch (final IllegalAccessException e) {
-            throw new RuntimeException(e);
+        SUBLIST_CLASS = Reflections.classForName("java.util.ArrayList$SubList");
+        final Field sublistSizeField = Reflections.findField(SUBLIST_CLASS, "size");
+        SUBLIST_SIZE_FIELD_OFFSET = UnsafeAccess.UNSAFE.objectFieldOffset(sublistSizeField);
+        final Field sublistOffsetField = Reflections.findField(SUBLIST_CLASS, "offset");
+        SUBLIST_OFFSET_FIELD_OFFSET = UnsafeAccess.UNSAFE.objectFieldOffset(sublistOffsetField);
+        final Field sublistRootField = Reflections.findField(SUBLIST_CLASS, "root");
+        if (sublistRootField != null) {
+            //java 11, we can directly access the root
+            SUBLIST_PARENT_FIELD_OFFSET = UnsafeAccess.UNSAFE.objectFieldOffset(sublistRootField);
+        } else {
+            //before java 11
+            final Field sublistParentField = Reflections.findField(SUBLIST_CLASS, "parent");
+            SUBLIST_PARENT_FIELD_OFFSET = UnsafeAccess.UNSAFE.objectFieldOffset(sublistParentField);
         }
     }
 
@@ -71,17 +63,17 @@ public class ArraySubListCloseableIterable<E> implements ICloseableIterable<E>, 
     @Override
     public ICloseableIterator<E> iterator() {
         try {
-            final int size = (int) SUBLIST_SIZE_GETTER.invoke(arraySubList);
+            final int size = UnsafeAccess.UNSAFE.getInt(arraySubList, SUBLIST_SIZE_FIELD_OFFSET);
             if (cachedSize != size) {
                 cachedSize = size;
                 List<E> parent = (List<E>) arraySubList;
                 while (parent.getClass().equals(SUBLIST_CLASS)) {
-                    parent = (List<E>) SUBLIST_PARENT_GETTER.invoke(parent);
+                    parent = (List<E>) UnsafeAccess.UNSAFE.getObject(parent, SUBLIST_PARENT_FIELD_OFFSET);
                 }
                 final ArrayList<E> arrayListParent = (ArrayList<E>) parent;
-                cachedArray = (E[]) ArrayListCloseableIterable.ARRAYLIST_ELEMENTDATA_GETTER
-                        .invokeExact(arrayListParent);
-                cachedOffset = (Integer) SUBLIST_OFFSET_GETTER.invoke(arraySubList);
+                cachedArray = (E[]) UnsafeAccess.UNSAFE.getObject(arrayListParent,
+                        ArrayListCloseableIterable.ARRAYLIST_ELEMENTDATA_FIELD_OFFSET);
+                cachedOffset = UnsafeAccess.UNSAFE.getInt(arraySubList, SUBLIST_OFFSET_FIELD_OFFSET);
             }
         } catch (final Throwable e) {
             throw new RuntimeException(e);
