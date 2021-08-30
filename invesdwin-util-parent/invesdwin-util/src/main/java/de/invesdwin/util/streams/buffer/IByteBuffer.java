@@ -15,7 +15,6 @@ import java.nio.channels.WritableByteChannel;
 import org.agrona.DirectBuffer;
 import org.agrona.MutableDirectBuffer;
 
-import de.invesdwin.util.math.Booleans;
 import de.invesdwin.util.math.Bytes;
 
 public interface IByteBuffer extends IByteBufferWriter {
@@ -51,7 +50,7 @@ public interface IByteBuffer extends IByteBufferWriter {
     char getChar(int index);
 
     default boolean getBoolean(final int index) {
-        return Booleans.checkedCast(getByte(index));
+        return getByte(index) > 0;
     }
 
     byte getByte(int index);
