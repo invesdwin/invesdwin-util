@@ -303,7 +303,19 @@ public final class ByteBuffers {
     }
 
     public static IByteBuffer wrap(final DirectBuffer buffer) {
+        /*
+         * We do not check if the instance might be a IByteBuffer already since we can not risk to share the mutable
+         * slices between threads. So we don't unwrap that here.
+         */
         return new AgronaDelegateByteBuffer(buffer);
+    }
+
+    public static IByteBuffer wrap(final MutableDirectBuffer buffer) {
+        /*
+         * We do not check if the instance might be a IByteBuffer already since we can not risk to share the mutable
+         * slices between threads. So we don't unwrap that here.
+         */
+        return new AgronaDelegateMutableByteBuffer(buffer);
     }
 
     public static IByteBuffer wrap(final byte[] bytes) {
@@ -316,10 +328,6 @@ public final class ByteBuffers {
         } else {
             return new UnsafeByteBuffer(buffer);
         }
-    }
-
-    public static IByteBuffer wrap(final MutableDirectBuffer buffer) {
-        return new AgronaDelegateMutableByteBuffer(buffer);
     }
 
     public static void readFully(final InputStream src, final byte[] array, final int index, final int length)

@@ -121,11 +121,11 @@ public class AgronaDelegateMutableByteBuffer implements IByteBuffer {
     @Override
     public void getBytes(final int index, final IByteBuffer dstBuffer, final int dstIndex, final int length) {
         if (dstBuffer.directBuffer() != null) {
-            delegate.getBytes(index, dstBuffer.directBuffer(), dstIndex, length);
+            delegate.getBytes(index, dstBuffer.directBuffer(), dstIndex + dstBuffer.wrapAdjustment(), length);
         } else if (dstBuffer.byteBuffer() != null) {
-            delegate.getBytes(index, dstBuffer.byteBuffer(), dstIndex, length);
+            delegate.getBytes(index, dstBuffer.byteBuffer(), dstIndex + dstBuffer.wrapAdjustment(), length);
         } else if (dstBuffer.byteArray() != null) {
-            delegate.getBytes(index, dstBuffer.byteArray(), dstIndex, length);
+            delegate.getBytes(index, dstBuffer.byteArray(), dstIndex + dstBuffer.wrapAdjustment(), length);
         } else {
             for (int i = 0; i < length; i++) {
                 dstBuffer.putByte(dstIndex + i, delegate.getByte(index + i));
@@ -196,11 +196,11 @@ public class AgronaDelegateMutableByteBuffer implements IByteBuffer {
     @Override
     public void putBytes(final int index, final IByteBuffer srcBuffer, final int srcIndex, final int length) {
         if (srcBuffer.directBuffer() != null) {
-            delegate.putBytes(index, srcBuffer.directBuffer(), srcIndex, length);
+            delegate.putBytes(index, srcBuffer.directBuffer(), srcIndex + srcBuffer.wrapAdjustment(), length);
         } else if (srcBuffer.byteBuffer() != null) {
-            delegate.putBytes(index, srcBuffer.byteBuffer(), srcIndex, length);
+            delegate.putBytes(index, srcBuffer.byteBuffer(), srcIndex + srcBuffer.wrapAdjustment(), length);
         } else if (srcBuffer.byteArray() != null) {
-            delegate.putBytes(index, srcBuffer.byteArray(), srcIndex, length);
+            delegate.putBytes(index, srcBuffer.byteArray(), srcIndex + srcBuffer.wrapAdjustment(), length);
         } else {
             for (int i = 0; i < length; i++) {
                 delegate.putByte(index + i, srcBuffer.getByte(srcIndex + i));
