@@ -33,6 +33,7 @@ public final class SerdeBaseMethods {
         }
         final IByteBuffer buffer = EXPANDABLE_BUFFER_REF.get();
         final int length = serde.toBuffer(buffer, obj);
+        //we need this as a copy since byte arrays might be stored/cached before the next toBytes call might happen
         return buffer.asByteArrayCopyTo(length);
     }
 
