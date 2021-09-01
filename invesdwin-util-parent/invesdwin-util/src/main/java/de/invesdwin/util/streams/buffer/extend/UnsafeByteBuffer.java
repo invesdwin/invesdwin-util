@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteOrder;
-import java.util.Arrays;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
@@ -416,7 +415,19 @@ public class UnsafeByteBuffer extends UnsafeBuffer implements IByteBuffer {
 
     @Override
     public String toString() {
-        return Arrays.toString(asByteArray());
+        return ByteBuffers.toString(this);
+    }
+
+    //CHECKSTYLE:OFF
+    @Override
+    public IByteBuffer clone() {
+        //CHECKSTYLE:ON
+        return ByteBuffers.wrap(asByteArrayCopy());
+    }
+
+    @Override
+    public IByteBuffer clone(final int index, final int length) {
+        return ByteBuffers.wrap(asByteArrayCopy(index, length));
     }
 
 }

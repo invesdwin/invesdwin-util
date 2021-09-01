@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteOrder;
-import java.util.Arrays;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
@@ -108,6 +107,18 @@ public class DirectExpandableByteBuffer extends ExpandableDirectByteBuffer imple
     @Override
     public byte[] asByteArrayCopy() {
         throw newAsByteArrayUnsupported();
+    }
+
+    //CHECKSTYLE:OFF
+    @Override
+    public IByteBuffer clone() {
+        //CHECKSTYLE:ON
+        throw newAsByteArrayUnsupported();
+    }
+
+    @Override
+    public IByteBuffer clone(final int index, final int length) {
+        return ByteBuffers.wrap(asByteArrayCopy(index, length));
     }
 
     @Override
@@ -366,7 +377,7 @@ public class DirectExpandableByteBuffer extends ExpandableDirectByteBuffer imple
 
     @Override
     public String toString() {
-        return Arrays.toString(asByteArray());
+        return ByteBuffers.toString(this);
     }
 
 }

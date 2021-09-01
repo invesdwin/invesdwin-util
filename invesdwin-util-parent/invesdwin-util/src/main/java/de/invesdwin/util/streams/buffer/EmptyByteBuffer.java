@@ -321,4 +321,16 @@ public final class EmptyByteBuffer implements IByteBuffer {
         throw newEmptyException();
     }
 
+    //CHECKSTYLE:OFF
+    @Override
+    public IByteBuffer clone() {
+        //CHECKSTYLE:ON
+        return this;
+    }
+
+    @Override
+    public IByteBuffer clone(final int index, final int length) {
+        return this;
+    }
+
 }

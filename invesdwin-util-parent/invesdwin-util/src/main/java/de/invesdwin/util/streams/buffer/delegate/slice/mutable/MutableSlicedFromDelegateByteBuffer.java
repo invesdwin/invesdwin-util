@@ -327,4 +327,16 @@ public class MutableSlicedFromDelegateByteBuffer implements IByteBuffer {
         return ByteBuffers.toString(this);
     }
 
+    //CHECKSTYLE:OFF
+    @Override
+    public IByteBuffer clone() {
+        //CHECKSTYLE:ON
+        return ByteBuffers.wrap(asByteArrayCopy());
+    }
+
+    @Override
+    public IByteBuffer clone(final int index, final int length) {
+        return ByteBuffers.wrap(asByteArrayCopy(index, length));
+    }
+
 }

@@ -16,7 +16,7 @@ import org.agrona.MutableDirectBuffer;
 
 import de.invesdwin.util.math.Bytes;
 
-public interface IByteBuffer extends IByteBufferWriter {
+public interface IByteBuffer extends IByteBufferWriter, Cloneable {
 
     ByteOrder getOrder();
 
@@ -445,5 +445,17 @@ public interface IByteBuffer extends IByteBufferWriter {
     default IByteBuffer asBuffer() {
         return this;
     }
+
+    IByteBuffer clone();
+
+    default IByteBuffer cloneFrom(final int index) {
+        return clone(index, remaining(index));
+    }
+
+    default IByteBuffer cloneTo(final int length) {
+        return clone(0, length);
+    }
+
+    IByteBuffer clone(int index, int length);
 
 }

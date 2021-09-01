@@ -385,4 +385,20 @@ public class ClosedByteBuffer implements IByteBuffer {
         throw newClosedException();
     }
 
+    //CHECKSTYLE:OFF
+    @Override
+    public IByteBuffer clone() {
+        //CHECKSTYLE:ON
+        return this;
+    }
+
+    @Override
+    public IByteBuffer clone(final int index, final int length) {
+        if (index == 0 && length == CLOSED_ARRAY.length) {
+            return this;
+        } else {
+            throw newClosedException();
+        }
+    }
+
 }

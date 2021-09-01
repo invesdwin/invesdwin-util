@@ -484,12 +484,16 @@ public final class Doubles extends ADoublesStaticFacade {
     }
 
     public static double nanToZero(final double value) {
-        assert !isInfinite(value) : "Infinite: " + value;
+        assert isNotInfinite(value) : newInfiniteErrorMessage(value);
         if (isNaN(value)) {
             return 0D;
         } else {
             return value;
         }
+    }
+
+    private static String newInfiniteErrorMessage(final double value) {
+        return "Infinite: " + value;
     }
 
     public static boolean isNaN(final double value) {
@@ -524,6 +528,10 @@ public final class Doubles extends ADoublesStaticFacade {
         return Double.isInfinite(value);
     }
 
+    public static boolean isNotInfinite(final double value) {
+        return !Double.isInfinite(value);
+    }
+
     public static Double nanToNull(final Double value) {
         if (value == null) {
             return null;
@@ -533,7 +541,7 @@ public final class Doubles extends ADoublesStaticFacade {
     }
 
     public static Double nanToNull(final double value) {
-        assert !isInfinite(value) : "Infinite: " + value;
+        assert !isInfinite(value) : newInfiniteErrorMessage(value);
         if (isNaN(value)) {
             return null;
         } else {

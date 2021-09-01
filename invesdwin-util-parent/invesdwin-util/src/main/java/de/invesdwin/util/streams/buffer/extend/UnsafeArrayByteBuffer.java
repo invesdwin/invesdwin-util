@@ -5,7 +5,6 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Arrays;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -76,7 +75,7 @@ public class UnsafeArrayByteBuffer extends UnsafeByteBuffer {
 
     @Override
     public String toString() {
-        return Arrays.toString(asByteArray());
+        return ByteBuffers.toString(this);
     }
 
 }

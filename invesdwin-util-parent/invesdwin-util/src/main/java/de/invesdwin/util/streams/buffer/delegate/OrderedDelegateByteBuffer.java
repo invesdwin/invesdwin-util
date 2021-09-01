@@ -347,4 +347,16 @@ public final class OrderedDelegateByteBuffer implements IByteBuffer {
         return ByteBuffers.toString(this);
     }
 
+    //CHECKSTYLE:OFF
+    @Override
+    public IByteBuffer clone() {
+        //CHECKSTYLE:ON
+        return maybeWrap(delegate.clone(), order);
+    }
+
+    @Override
+    public IByteBuffer clone(final int index, final int length) {
+        return maybeWrap(delegate.clone(index, length), order);
+    }
+
 }
