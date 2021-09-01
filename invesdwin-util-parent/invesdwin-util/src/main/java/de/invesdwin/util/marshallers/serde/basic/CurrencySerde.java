@@ -31,7 +31,7 @@ public final class CurrencySerde implements ISerde<Currency> {
 
     @Override
     public byte[] toBytes(final Currency obj) {
-        return SerdeBaseMethods.toBytes(this, obj, FIXED_LENGTH);
+        return SerdeBaseMethods.toBytes(this, obj);
     }
 
     @Override

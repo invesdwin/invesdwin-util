@@ -34,7 +34,7 @@ public class TimeRangeSerde implements ISerde<TimeRange> {
 
     @Override
     public byte[] toBytes(final TimeRange obj) {
-        return SerdeBaseMethods.toBytes(this, obj, FIXED_LENGTH);
+        return SerdeBaseMethods.toBytes(this, obj);
     }
 
     @Override

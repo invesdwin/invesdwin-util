@@ -21,7 +21,7 @@ public class BooleanSerde implements ISerde<Boolean> {
 
     @Override
     public byte[] toBytes(final Boolean obj) {
-        return SerdeBaseMethods.toBytes(this, obj, FIXED_LENGTH);
+        return SerdeBaseMethods.toBytes(this, obj);
     }
 
     @Override

@@ -27,7 +27,7 @@ public class FixedLengthBufferingIteratorDelegateSerde<E> implements ISerde<IBuf
 
     @Override
     public byte[] toBytes(final IBufferingIterator<? extends E> objs) {
-        return SerdeBaseMethods.toBytes(this, objs, fixedLength * objs.size());
+        return SerdeBaseMethods.toBytes(this, objs);
     }
 
     @Override

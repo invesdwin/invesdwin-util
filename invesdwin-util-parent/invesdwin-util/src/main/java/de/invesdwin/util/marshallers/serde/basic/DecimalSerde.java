@@ -24,7 +24,7 @@ public final class DecimalSerde implements ISerde<Decimal> {
 
     @Override
     public byte[] toBytes(final Decimal obj) {
-        return SerdeBaseMethods.toBytes(this, obj, FIXED_LENGTH);
+        return SerdeBaseMethods.toBytes(this, obj);
     }
 
     @Override

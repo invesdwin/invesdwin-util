@@ -19,7 +19,7 @@ public class IntegerSerde implements ISerde<Integer> {
 
     @Override
     public byte[] toBytes(final Integer obj) {
-        return SerdeBaseMethods.toBytes(this, obj, FIXED_LENGTH);
+        return SerdeBaseMethods.toBytes(this, obj);
     }
 
     @Override

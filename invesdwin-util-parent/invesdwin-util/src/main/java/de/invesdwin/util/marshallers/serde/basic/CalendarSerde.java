@@ -22,7 +22,7 @@ public class CalendarSerde implements ISerde<Calendar> {
 
     @Override
     public byte[] toBytes(final Calendar obj) {
-        return SerdeBaseMethods.toBytes(this, obj, FIXED_LENGTH);
+        return SerdeBaseMethods.toBytes(this, obj);
     }
 
     @Override

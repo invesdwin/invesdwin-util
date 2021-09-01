@@ -25,8 +25,7 @@ public class FixedLengthListDelegateSerde<E> implements ISerde<List<? extends E>
 
     @Override
     public byte[] toBytes(final List<? extends E> objs) {
-        final int length = fixedLength * objs.size();
-        return SerdeBaseMethods.toBytes(this, objs, length);
+        return SerdeBaseMethods.toBytes(this, objs);
     }
 
     @Override

@@ -19,7 +19,7 @@ public class LongSerde implements ISerde<Long> {
 
     @Override
     public byte[] toBytes(final Long obj) {
-        return SerdeBaseMethods.toBytes(this, obj, FIXED_LENGTH);
+        return SerdeBaseMethods.toBytes(this, obj);
     }
 
     @Override

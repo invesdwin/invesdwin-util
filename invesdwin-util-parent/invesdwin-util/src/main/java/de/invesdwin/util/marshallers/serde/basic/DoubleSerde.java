@@ -23,7 +23,7 @@ public final class DoubleSerde implements ISerde<Double> {
 
     @Override
     public byte[] toBytes(final Double obj) {
-        return SerdeBaseMethods.toBytes(this, obj, FIXED_LENGTH);
+        return SerdeBaseMethods.toBytes(this, obj);
     }
 
     @Override

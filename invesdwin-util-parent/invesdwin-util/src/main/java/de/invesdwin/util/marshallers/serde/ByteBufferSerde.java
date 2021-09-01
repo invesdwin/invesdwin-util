@@ -16,7 +16,7 @@ public class ByteBufferSerde implements ISerde<IByteBuffer> {
 
     @Override
     public byte[] toBytes(final IByteBuffer obj) {
-        return SerdeBaseMethods.toBytes(this, obj, obj.capacity());
+        return obj.asByteArray();
     }
 
     @Override
