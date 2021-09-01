@@ -18,6 +18,8 @@ import de.invesdwin.util.math.Bytes;
 
 public interface IByteBuffer extends IByteBufferWriter, Cloneable {
 
+    void checkLimit(int limit);
+
     ByteOrder getOrder();
 
     boolean isReadOnly();

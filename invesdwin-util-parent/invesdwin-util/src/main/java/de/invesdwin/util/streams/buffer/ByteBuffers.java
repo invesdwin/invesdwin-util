@@ -1,5 +1,6 @@
 package de.invesdwin.util.streams.buffer;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.invoke.MethodHandle;
@@ -329,6 +330,47 @@ public final class ByteBuffers {
         }
     }
 
+    public static int readExpandable(final ReadableByteChannel src, final IByteBuffer buffer, final int index)
+            throws IOException {
+        int location = index;
+        while (true) {
+            final int count = src.read(buffer.asByteBufferFrom(location));
+            if (count == -1) { // EOF
+                break;
+            } else {
+                location += count;
+                final int capacity = buffer.capacity();
+                if (location == capacity) {
+                    buffer.checkLimit(capacity + count);
+                }
+            }
+        }
+        return location - index;
+    }
+
+    public static int readExpandable(final InputStream src, final IByteBuffer buffer, final int index)
+            throws IOException {
+        if (src instanceof FileInputStream) {
+            final FileInputStream cSrc = (FileInputStream) src;
+            return readExpandable(cSrc.getChannel(), buffer, index);
+        } else {
+            int location = index;
+            while (true) {
+                final int count = src.read(buffer.byteArray(), location, buffer.remaining(location));
+                if (count == -1) { // EOF
+                    break;
+                } else {
+                    location += count;
+                    final int capacity = buffer.capacity();
+                    if (location == capacity) {
+                        buffer.checkLimit(capacity + count);
+                    }
+                }
+            }
+            return location - index;
+        }
+    }
+
     public static void readFully(final InputStream src, final byte[] array, final int index, final int length)
             throws IOException {
         final int end = index + length;
@@ -456,6 +498,13 @@ public final class ByteBuffers {
                 .add("wrapAdjustment", buffer.wrapAdjustment())
                 .with(Arrays.toString(byteArray))
                 .toString();
+    }
+
+    public static void checkLimit(final IByteBuffer buffer, final int limit) {
+        final int capacity = buffer.capacity();
+        if (limit > capacity) {
+            throw new IndexOutOfBoundsException("limit=" + limit + " is beyond capacity=" + capacity);
+        }
     }
 
 }

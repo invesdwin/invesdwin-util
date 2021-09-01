@@ -385,6 +385,11 @@ public class ClosedByteBuffer implements IByteBuffer {
         throw newClosedException();
     }
 
+    @Override
+    public void checkLimit(final int limit) {
+        ByteBuffers.checkLimit(this, limit);
+    }
+
     //CHECKSTYLE:OFF
     @Override
     public IByteBuffer clone() {

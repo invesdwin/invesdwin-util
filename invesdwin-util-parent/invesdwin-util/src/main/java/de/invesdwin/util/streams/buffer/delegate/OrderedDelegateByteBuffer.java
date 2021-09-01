@@ -359,4 +359,8 @@ public final class OrderedDelegateByteBuffer implements IByteBuffer {
         return maybeWrap(delegate.clone(index, length), order);
     }
 
+    @Override
+    public void checkLimit(final int limit) {
+        delegate.checkLimit(limit);
+    }
 }

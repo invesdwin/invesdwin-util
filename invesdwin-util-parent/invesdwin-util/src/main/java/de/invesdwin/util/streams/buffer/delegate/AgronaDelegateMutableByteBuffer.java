@@ -498,4 +498,9 @@ public class AgronaDelegateMutableByteBuffer implements IByteBuffer {
         return ByteBuffers.wrap(asByteArrayCopy(index, length));
     }
 
+    @Override
+    public void checkLimit(final int limit) {
+        delegate.checkLimit(limit);
+    }
+
 }
