@@ -1,12 +1,12 @@
 package de.invesdwin.util.concurrent.lambda;
 
-import java.nio.ByteBuffer;
 import java.util.function.BooleanSupplier;
 
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.math.Booleans;
 import de.invesdwin.util.math.Bytes;
+import de.invesdwin.util.streams.buffer.IByteBuffer;
 
 @Immutable
 public final class BooleanSuppliers {
@@ -14,21 +14,16 @@ public final class BooleanSuppliers {
     private BooleanSuppliers() {
     }
 
-    public static void putBooleanSupplier(final ByteBuffer buffer, final BooleanSupplier value) {
+    public static void putBooleanSupplier(final IByteBuffer buffer, final int index, final BooleanSupplier value) {
         if (value == null) {
-            buffer.put(Byte.MIN_VALUE);
+            buffer.putByte(index, Byte.MIN_VALUE);
         } else {
-            buffer.put(Bytes.checkedCast(value.getAsBoolean()));
+            buffer.putByte(index, Bytes.checkedCast(value.getAsBoolean()));
         }
     }
 
-    public static BooleanSupplier extractBooleanSupplier(final ByteBuffer buffer, final int index) {
-        final byte value = buffer.get(index);
-        return extractBooleanSupplier(value);
-    }
-
-    public static BooleanSupplier extractBooleanSupplier(final ByteBuffer buffer) {
-        final byte value = buffer.get();
+    public static BooleanSupplier extractBooleanSupplier(final IByteBuffer buffer, final int index) {
+        final byte value = buffer.getByte(index);
         return extractBooleanSupplier(value);
     }
 

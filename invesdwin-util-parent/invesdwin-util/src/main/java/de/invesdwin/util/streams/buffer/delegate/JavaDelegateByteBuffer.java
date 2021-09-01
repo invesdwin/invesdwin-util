@@ -5,7 +5,6 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 import javax.annotation.concurrent.NotThreadSafe;
@@ -25,15 +24,15 @@ import de.invesdwin.util.streams.buffer.delegate.slice.mutable.factory.IMutableS
 @NotThreadSafe
 public class JavaDelegateByteBuffer implements IByteBuffer {
 
-    protected final ByteBuffer delegate;
+    protected final java.nio.ByteBuffer delegate;
     private UnsafeBuffer directBuffer;
     private IMutableSlicedDelegateByteBufferFactory mutableSliceFactory;
 
     public JavaDelegateByteBuffer(final byte[] bytes) {
-        this.delegate = ByteBuffer.wrap(bytes).order(ByteBuffers.DEFAULT_ORDER);
+        this.delegate = java.nio.ByteBuffer.wrap(bytes).order(ByteBuffers.DEFAULT_ORDER);
     }
 
-    public JavaDelegateByteBuffer(final ByteBuffer buffer) {
+    public JavaDelegateByteBuffer(final java.nio.ByteBuffer buffer) {
         this.delegate = buffer.order(ByteBuffers.DEFAULT_ORDER);
     }
 
@@ -70,7 +69,7 @@ public class JavaDelegateByteBuffer implements IByteBuffer {
     }
 
     @Override
-    public ByteBuffer byteBuffer() {
+    public java.nio.ByteBuffer byteBuffer() {
         return delegate;
     }
 
@@ -130,7 +129,7 @@ public class JavaDelegateByteBuffer implements IByteBuffer {
     }
 
     @Override
-    public void getBytes(final int index, final ByteBuffer dstBuffer, final int dstIndex, final int length) {
+    public void getBytes(final int index, final java.nio.ByteBuffer dstBuffer, final int dstIndex, final int length) {
         directBuffer().getBytes(index, dstBuffer, dstIndex, length);
     }
 
@@ -199,7 +198,7 @@ public class JavaDelegateByteBuffer implements IByteBuffer {
     }
 
     @Override
-    public void putBytes(final int index, final ByteBuffer srcBuffer, final int srcIndex, final int length) {
+    public void putBytes(final int index, final java.nio.ByteBuffer srcBuffer, final int srcIndex, final int length) {
         directBuffer().putBytes(index, srcBuffer, srcIndex, length);
     }
 
@@ -410,8 +409,8 @@ public class JavaDelegateByteBuffer implements IByteBuffer {
     }
 
     @Override
-    public ByteBuffer asByteBuffer(final int index, final int length) {
-        final ByteBuffer buffer = asByteBuffer();
+    public java.nio.ByteBuffer asByteBuffer(final int index, final int length) {
+        final java.nio.ByteBuffer buffer = asByteBuffer();
         if (index == 0 && length == capacity()) {
             return buffer;
         } else {

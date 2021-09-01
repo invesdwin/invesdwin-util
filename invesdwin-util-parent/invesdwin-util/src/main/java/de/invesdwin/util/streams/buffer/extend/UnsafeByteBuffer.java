@@ -5,7 +5,6 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Arrays;
 
@@ -39,11 +38,11 @@ public class UnsafeByteBuffer extends UnsafeBuffer implements IByteBuffer {
         super(buffer, offset, length);
     }
 
-    public UnsafeByteBuffer(final ByteBuffer buffer) {
+    public UnsafeByteBuffer(final java.nio.ByteBuffer buffer) {
         super(buffer);
     }
 
-    public UnsafeByteBuffer(final ByteBuffer buffer, final int offset, final int length) {
+    public UnsafeByteBuffer(final java.nio.ByteBuffer buffer, final int offset, final int length) {
         super(buffer, offset, length);
     }
 
@@ -121,7 +120,7 @@ public class UnsafeByteBuffer extends UnsafeBuffer implements IByteBuffer {
             if (bytes != null) {
                 return bytes;
             }
-            final ByteBuffer byteBuffer = byteBuffer();
+            final java.nio.ByteBuffer byteBuffer = byteBuffer();
             if (byteBuffer != null) {
                 final byte[] array = byteBuffer.array();
                 if (array != null) {
@@ -139,7 +138,7 @@ public class UnsafeByteBuffer extends UnsafeBuffer implements IByteBuffer {
             if (bytes != null) {
                 return bytes.clone();
             }
-            final ByteBuffer byteBuffer = byteBuffer();
+            final java.nio.ByteBuffer byteBuffer = byteBuffer();
             if (byteBuffer != null) {
                 final byte[] array = byteBuffer.array();
                 if (array != null) {
@@ -160,7 +159,7 @@ public class UnsafeByteBuffer extends UnsafeBuffer implements IByteBuffer {
                 }
                 return bytes;
             }
-            final ByteBuffer byteBuffer = byteBuffer();
+            final java.nio.ByteBuffer byteBuffer = byteBuffer();
             if (byteBuffer != null) {
                 final byte[] array = byteBuffer.array();
                 if (array != null) {
@@ -184,7 +183,7 @@ public class UnsafeByteBuffer extends UnsafeBuffer implements IByteBuffer {
                 }
                 return bytes.clone();
             }
-            final ByteBuffer byteBuffer = byteBuffer();
+            final java.nio.ByteBuffer byteBuffer = byteBuffer();
             if (byteBuffer != null) {
                 final byte[] array = byteBuffer.array();
                 if (array != null) {
@@ -391,14 +390,14 @@ public class UnsafeByteBuffer extends UnsafeBuffer implements IByteBuffer {
     }
 
     @Override
-    public ByteBuffer asByteBuffer() {
-        final ByteBuffer byteBuffer = byteBuffer();
+    public java.nio.ByteBuffer asByteBuffer() {
+        final java.nio.ByteBuffer byteBuffer = byteBuffer();
         if (byteBuffer != null) {
             return byteBuffer;
         }
         final byte[] array = byteArray();
         if (array != null) {
-            final ByteBuffer arrayBuffer = ByteBuffer.wrap(array, wrapAdjustment(), capacity());
+            final java.nio.ByteBuffer arrayBuffer = java.nio.ByteBuffer.wrap(array, wrapAdjustment(), capacity());
             return arrayBuffer;
         }
         final long address = addressOffset();
@@ -406,8 +405,8 @@ public class UnsafeByteBuffer extends UnsafeBuffer implements IByteBuffer {
     }
 
     @Override
-    public ByteBuffer asByteBuffer(final int index, final int length) {
-        final ByteBuffer buffer = asByteBuffer();
+    public java.nio.ByteBuffer asByteBuffer(final int index, final int length) {
+        final java.nio.ByteBuffer buffer = asByteBuffer();
         if (index == 0 && length == capacity()) {
             return buffer;
         } else {

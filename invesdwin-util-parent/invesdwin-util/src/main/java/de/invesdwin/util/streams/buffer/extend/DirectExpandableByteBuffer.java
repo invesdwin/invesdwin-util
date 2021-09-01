@@ -5,7 +5,6 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Arrays;
 
@@ -121,7 +120,7 @@ public class DirectExpandableByteBuffer extends ExpandableDirectByteBuffer imple
                 }
                 return bytes;
             }
-            final ByteBuffer byteBuffer = byteBuffer();
+            final java.nio.ByteBuffer byteBuffer = byteBuffer();
             if (byteBuffer != null) {
                 final byte[] array = byteBuffer.array();
                 if (array != null) {
@@ -145,7 +144,7 @@ public class DirectExpandableByteBuffer extends ExpandableDirectByteBuffer imple
                 }
                 return bytes.clone();
             }
-            final ByteBuffer byteBuffer = byteBuffer();
+            final java.nio.ByteBuffer byteBuffer = byteBuffer();
             if (byteBuffer != null) {
                 final byte[] array = byteBuffer.array();
                 if (array != null) {
@@ -355,9 +354,9 @@ public class DirectExpandableByteBuffer extends ExpandableDirectByteBuffer imple
     }
 
     @Override
-    public ByteBuffer asByteBuffer(final int index, final int length) {
+    public java.nio.ByteBuffer asByteBuffer(final int index, final int length) {
         checkLimit(index + length);
-        final ByteBuffer buffer = byteBuffer();
+        final java.nio.ByteBuffer buffer = byteBuffer();
         if (index == 0 && length == capacity()) {
             return buffer;
         } else {

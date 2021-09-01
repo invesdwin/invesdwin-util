@@ -6,7 +6,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.ByteBuffer;
 import java.nio.file.Path;
 
 import javax.annotation.concurrent.NotThreadSafe;
@@ -130,7 +129,7 @@ public class InputStreamHttpResponseConsumer {
         }
     }
 
-    public void data(final ByteBuffer src, final boolean endOfStream) throws IOException {
+    public void data(final java.nio.ByteBuffer src, final boolean endOfStream) throws IOException {
         if (byteArrayOut != null) {
             if (defaultTempDir != null) {
                 while (src.hasRemaining()) {

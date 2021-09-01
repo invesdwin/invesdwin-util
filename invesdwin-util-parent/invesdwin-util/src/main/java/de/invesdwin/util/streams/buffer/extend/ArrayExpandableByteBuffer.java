@@ -5,7 +5,6 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Arrays;
 
@@ -294,9 +293,9 @@ public class ArrayExpandableByteBuffer extends ExpandableArrayBuffer implements 
     }
 
     @Override
-    public ByteBuffer asByteBuffer(final int index, final int length) {
+    public java.nio.ByteBuffer asByteBuffer(final int index, final int length) {
         checkLimit(index + length);
-        final ByteBuffer buffer = ByteBuffer.wrap(byteArray());
+        final java.nio.ByteBuffer buffer = java.nio.ByteBuffer.wrap(byteArray());
         if (index == 0 && length == capacity()) {
             return buffer;
         } else {

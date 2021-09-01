@@ -6,7 +6,6 @@ import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
 import java.nio.Buffer;
-import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
@@ -60,11 +59,11 @@ public final class ByteBuffers {
     private static ISliceInvoker newSliceInvoker() {
         try {
             //java >= 13
-            final Method sliceMethod = Reflections.findMethod(ByteBuffer.class, "slice", int.class, int.class);
+            final Method sliceMethod = Reflections.findMethod(java.nio.ByteBuffer.class, "slice", int.class, int.class);
             final MethodHandle sliceInvoker = MethodHandles.lookup().unreflect(sliceMethod);
             return (buffer, position, length) -> {
                 try {
-                    return (ByteBuffer) sliceInvoker.invoke(buffer, position, length);
+                    return (java.nio.ByteBuffer) sliceInvoker.invoke(buffer, position, length);
                 } catch (final Throwable e) {
                     throw new RuntimeException(e);
                 }
@@ -72,7 +71,7 @@ public final class ByteBuffers {
         } catch (final Throwable e) {
             //java < 13
             return (buffer, position, length) -> {
-                final ByteBuffer duplicate = buffer.duplicate();
+                final java.nio.ByteBuffer duplicate = buffer.duplicate();
                 position(duplicate, position);
                 duplicate.limit(position + length);
                 return duplicate.slice();
@@ -82,7 +81,7 @@ public final class ByteBuffers {
 
     @FunctionalInterface
     private interface ISliceInvoker {
-        ByteBuffer slice(ByteBuffer buffer, int position, int length);
+        java.nio.ByteBuffer slice(java.nio.ByteBuffer buffer, int position, int length);
     }
 
     /**
@@ -92,17 +91,17 @@ public final class ByteBuffers {
         buffer.position(position);
     }
 
-    public static ByteBuffer slice(final ByteBuffer buffer, final int position, final int length) {
+    public static java.nio.ByteBuffer slice(final java.nio.ByteBuffer buffer, final int position, final int length) {
         return SLICE_INVOKER.slice(buffer, position, length);
     }
 
-    public static void get(final ByteBuffer buffer, final int position, final byte[] dst) {
+    public static void get(final java.nio.ByteBuffer buffer, final int position, final byte[] dst) {
         final int positionBefore = buffer.position();
         buffer.get(dst);
         position(buffer, positionBefore);
     }
 
-    public static byte[] getRemaining(final ByteBuffer buffer, final int position) {
+    public static byte[] getRemaining(final java.nio.ByteBuffer buffer, final int position) {
         final int positionBefore = buffer.position();
         position(buffer, position);
         final byte[] dst = new byte[buffer.remaining()];
@@ -111,7 +110,7 @@ public final class ByteBuffers {
         return dst;
     }
 
-    public static byte[] get(final ByteBuffer buffer, final int position, final int size) {
+    public static byte[] get(final java.nio.ByteBuffer buffer, final int position, final int size) {
         final int positionBefore = buffer.position();
         position(buffer, position);
         final byte[] dst = new byte[size];
@@ -120,7 +119,7 @@ public final class ByteBuffers {
         return dst;
     }
 
-    public static void get(final ByteBuffer buffer, final int index, final byte[] dst, final int dstIndex,
+    public static void get(final java.nio.ByteBuffer buffer, final int index, final byte[] dst, final int dstIndex,
             final int length) {
         final int positionBefore = buffer.position();
         position(buffer, index);
@@ -128,7 +127,7 @@ public final class ByteBuffers {
         position(buffer, positionBefore);
     }
 
-    public static void put(final ByteBuffer buffer, final int index, final byte[] src, final int srcIndex,
+    public static void put(final java.nio.ByteBuffer buffer, final int index, final byte[] src, final int srcIndex,
             final int length) {
         final int positionBefore = buffer.position();
         position(buffer, index);
@@ -136,7 +135,7 @@ public final class ByteBuffers {
         position(buffer, positionBefore);
     }
 
-    public static void put(final ByteBuffer buffer, final int index, final byte[] bytes) {
+    public static void put(final java.nio.ByteBuffer buffer, final int index, final byte[] bytes) {
         put(buffer, index, bytes, 0, bytes.length);
     }
 
@@ -189,7 +188,7 @@ public final class ByteBuffers {
     }
 
     public static IByteBuffer allocateDirectFixed(final int fixedLength) {
-        return wrap(ByteBuffer.allocateDirect(fixedLength));
+        return wrap(java.nio.ByteBuffer.allocateDirect(fixedLength));
     }
 
     public static IByteBuffer allocateDirectExpandable() {
@@ -283,13 +282,13 @@ public final class ByteBuffers {
         return bytes;
     }
 
-    public static byte[] asByteArrayCopyGet(final ByteBuffer buffer, final int index, final int length) {
+    public static byte[] asByteArrayCopyGet(final java.nio.ByteBuffer buffer, final int index, final int length) {
         final byte[] bytes = new byte[length];
         get(buffer, index, bytes, 0, length);
         return bytes;
     }
 
-    public static long addressOffset(final ByteBuffer buffer) {
+    public static long addressOffset(final java.nio.ByteBuffer buffer) {
         if (buffer.isDirect()) {
             return BufferUtil.address(buffer);
         } else {
@@ -297,7 +296,7 @@ public final class ByteBuffers {
         }
     }
 
-    public static int wrapAdjustment(final ByteBuffer buffer) {
+    public static int wrapAdjustment(final java.nio.ByteBuffer buffer) {
         final long offset = buffer.hasArray() ? BufferUtil.ARRAY_BASE_OFFSET : BufferUtil.address(buffer);
         return (int) (addressOffset(buffer) - offset);
     }
@@ -322,7 +321,7 @@ public final class ByteBuffers {
         return new UnsafeArrayByteBuffer(bytes);
     }
 
-    public static IByteBuffer wrap(final ByteBuffer buffer) {
+    public static IByteBuffer wrap(final java.nio.ByteBuffer buffer) {
         if (buffer.hasArray() && wrapAdjustment(buffer) == 0) {
             return wrap(buffer.array());
         } else {
@@ -347,7 +346,8 @@ public final class ByteBuffers {
         }
     }
 
-    public static void writeFully(final WritableByteChannel dst, final ByteBuffer byteBuffer) throws IOException {
+    public static void writeFully(final WritableByteChannel dst, final java.nio.ByteBuffer byteBuffer)
+            throws IOException {
         int remaining = byteBuffer.remaining();
         while (remaining > 0) {
             final int count = dst.write(byteBuffer);
@@ -361,7 +361,8 @@ public final class ByteBuffers {
         }
     }
 
-    public static void readFully(final ReadableByteChannel src, final ByteBuffer byteBuffer) throws IOException {
+    public static void readFully(final ReadableByteChannel src, final java.nio.ByteBuffer byteBuffer)
+            throws IOException {
         int remaining = byteBuffer.remaining();
         while (remaining > 0) {
             final int count = src.read(byteBuffer);
@@ -407,15 +408,15 @@ public final class ByteBuffers {
         }
     }
 
-    public static IByteBuffer wrapFrom(final ByteBuffer buffer, final int index) {
+    public static IByteBuffer wrapFrom(final java.nio.ByteBuffer buffer, final int index) {
         return wrap(buffer, index, buffer.capacity() - index);
     }
 
-    public static IByteBuffer wrapTo(final ByteBuffer buffer, final int length) {
+    public static IByteBuffer wrapTo(final java.nio.ByteBuffer buffer, final int length) {
         return wrap(buffer, 0, length);
     }
 
-    public static IByteBuffer wrap(final ByteBuffer buffer, final int index, final int length) {
+    public static IByteBuffer wrap(final java.nio.ByteBuffer buffer, final int index, final int length) {
         if (index == 0 && length == buffer.capacity()) {
             return wrap(buffer);
         } else {
@@ -440,8 +441,8 @@ public final class ByteBuffers {
     }
 
     @SuppressWarnings("restriction")
-    public static ByteBuffer asDirectByteBuffer(final long address, final int length) {
-        final ByteBuffer bb = ByteBuffer.allocateDirect(0);
+    public static java.nio.ByteBuffer asDirectByteBuffer(final long address, final int length) {
+        final java.nio.ByteBuffer bb = java.nio.ByteBuffer.allocateDirect(0);
         UnsafeAccess.UNSAFE.putLong(BufferUtil.BYTE_BUFFER_ADDRESS_FIELD_OFFSET, address);
         UnsafeAccess.UNSAFE.putInt(BufferUtil.BYTE_BUFFER_OFFSET_FIELD_OFFSET, length);
         return bb;

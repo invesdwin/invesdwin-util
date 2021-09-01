@@ -5,7 +5,6 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
@@ -58,7 +57,7 @@ public class SlicedFromDelegateByteBuffer implements IByteBuffer {
     }
 
     @Override
-    public ByteBuffer byteBuffer() {
+    public java.nio.ByteBuffer byteBuffer() {
         return delegate.byteBuffer();
     }
 
@@ -118,7 +117,7 @@ public class SlicedFromDelegateByteBuffer implements IByteBuffer {
     }
 
     @Override
-    public void getBytes(final int index, final ByteBuffer dstBuffer, final int dstIndex, final int length) {
+    public void getBytes(final int index, final java.nio.ByteBuffer dstBuffer, final int dstIndex, final int length) {
         delegate.getBytes(index + from, dstBuffer, dstIndex, length);
     }
 
@@ -173,7 +172,7 @@ public class SlicedFromDelegateByteBuffer implements IByteBuffer {
     }
 
     @Override
-    public void putBytes(final int index, final ByteBuffer srcBuffer, final int srcIndex, final int length) {
+    public void putBytes(final int index, final java.nio.ByteBuffer srcBuffer, final int srcIndex, final int length) {
         delegate.putBytes(index + from, srcBuffer, srcIndex, length);
     }
 
@@ -304,7 +303,7 @@ public class SlicedFromDelegateByteBuffer implements IByteBuffer {
     }
 
     @Override
-    public ByteBuffer asByteBuffer(final int index, final int length) {
+    public java.nio.ByteBuffer asByteBuffer(final int index, final int length) {
         return delegate.asByteBuffer(index + from, length);
     }
 

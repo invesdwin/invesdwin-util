@@ -5,7 +5,6 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
@@ -27,7 +26,7 @@ public class ClosedByteBuffer implements IByteBuffer {
     public static final byte CLOSED_BYTE = (byte) -1;
     public static final byte[] CLOSED_ARRAY = new byte[] { CLOSED_BYTE };
 
-    public static final ByteBuffer CLOSED_BYTE_BUFFER = ByteBuffer.wrap(CLOSED_ARRAY);
+    public static final java.nio.ByteBuffer CLOSED_BYTE_BUFFER = java.nio.ByteBuffer.wrap(CLOSED_ARRAY);
     public static final AtomicBuffer CLOSED_DIRECT_BUFFER = new UnsafeBuffer(CLOSED_ARRAY);
 
     public static final ClosedByteBuffer INSTANCE = new ClosedByteBuffer();
@@ -41,7 +40,7 @@ public class ClosedByteBuffer implements IByteBuffer {
         return length == 1 && buffer.getByte(index) == CLOSED_BYTE;
     }
 
-    public static boolean isClosed(final ByteBuffer buffer, final int index, final int length) {
+    public static boolean isClosed(final java.nio.ByteBuffer buffer, final int index, final int length) {
         return length == 1 && buffer.get(index) == CLOSED_BYTE;
     }
 
@@ -82,7 +81,7 @@ public class ClosedByteBuffer implements IByteBuffer {
     }
 
     @Override
-    public ByteBuffer byteBuffer() {
+    public java.nio.ByteBuffer byteBuffer() {
         return CLOSED_BYTE_BUFFER;
     }
 
@@ -161,7 +160,7 @@ public class ClosedByteBuffer implements IByteBuffer {
     }
 
     @Override
-    public void getBytes(final int index, final ByteBuffer dstBuffer, final int dstIndex, final int length) {
+    public void getBytes(final int index, final java.nio.ByteBuffer dstBuffer, final int dstIndex, final int length) {
         CLOSED_DIRECT_BUFFER.getBytes(index, dstBuffer, dstIndex, length);
     }
 
@@ -216,7 +215,7 @@ public class ClosedByteBuffer implements IByteBuffer {
     }
 
     @Override
-    public void putBytes(final int index, final ByteBuffer srcBuffer, final int srcIndex, final int length) {
+    public void putBytes(final int index, final java.nio.ByteBuffer srcBuffer, final int srcIndex, final int length) {
         throw newClosedException();
     }
 
@@ -364,7 +363,7 @@ public class ClosedByteBuffer implements IByteBuffer {
     }
 
     @Override
-    public ByteBuffer asByteBuffer(final int index, final int length) {
+    public java.nio.ByteBuffer asByteBuffer(final int index, final int length) {
         if (index == 0 && length == CLOSED_ARRAY.length) {
             return CLOSED_BYTE_BUFFER;
         } else {

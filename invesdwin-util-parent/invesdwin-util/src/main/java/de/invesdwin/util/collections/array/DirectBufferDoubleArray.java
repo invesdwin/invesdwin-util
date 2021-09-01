@@ -1,17 +1,18 @@
 package de.invesdwin.util.collections.array;
 
-import java.nio.ByteBuffer;
-
 import javax.annotation.concurrent.NotThreadSafe;
+
+import de.invesdwin.util.streams.buffer.ByteBuffers;
+import de.invesdwin.util.streams.buffer.IByteBuffer;
 
 @NotThreadSafe
 public class DirectBufferDoubleArray implements IDoubleArray {
 
-    private final ByteBuffer values;
+    private final IByteBuffer values;
     private final int size;
 
     public DirectBufferDoubleArray(final int size) {
-        this.values = ByteBuffer.allocateDirect(size * Double.BYTES);
+        this.values = ByteBuffers.allocateDirect(size * Double.BYTES);
         this.size = size;
     }
 

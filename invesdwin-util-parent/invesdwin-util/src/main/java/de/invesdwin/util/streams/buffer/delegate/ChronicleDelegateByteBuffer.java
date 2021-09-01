@@ -5,7 +5,6 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 import javax.annotation.concurrent.NotThreadSafe;
@@ -58,7 +57,7 @@ public class ChronicleDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public long addressOffset() {
-        final ByteBuffer byteBuffer = byteBuffer();
+        final java.nio.ByteBuffer byteBuffer = byteBuffer();
         if (byteBuffer != null) {
             return ByteBuffers.addressOffset(byteBuffer);
         } else {
@@ -81,10 +80,10 @@ public class ChronicleDelegateByteBuffer implements IByteBuffer {
     }
 
     @Override
-    public ByteBuffer byteBuffer() {
+    public java.nio.ByteBuffer byteBuffer() {
         final Object underlying = delegate.underlyingObject();
-        if (underlying instanceof ByteBuffer) {
-            return (ByteBuffer) underlying;
+        if (underlying instanceof java.nio.ByteBuffer) {
+            return (java.nio.ByteBuffer) underlying;
         }
         return null;
     }
@@ -101,7 +100,7 @@ public class ChronicleDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public long getLong(final int index) {
-        if (delegate.byteOrder() != ByteBuffers.DEFAULT_ORDER) {
+        if (delegate.byteOrder() != getOrder()) {
             final long bits = delegate.readLong(index);
             return Long.reverseBytes(bits);
         } else {
@@ -111,7 +110,7 @@ public class ChronicleDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public int getInt(final int index) {
-        if (delegate.byteOrder() != ByteBuffers.DEFAULT_ORDER) {
+        if (delegate.byteOrder() != getOrder()) {
             final int bits = delegate.readInt(index);
             return Integer.reverseBytes(bits);
         } else {
@@ -121,7 +120,7 @@ public class ChronicleDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public double getDouble(final int index) {
-        if (delegate.byteOrder() != ByteBuffers.DEFAULT_ORDER) {
+        if (delegate.byteOrder() != getOrder()) {
             final long bits = delegate.readLong(index);
             return Double.longBitsToDouble(Long.reverseBytes(bits));
         } else {
@@ -131,7 +130,7 @@ public class ChronicleDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public float getFloat(final int index) {
-        if (delegate.byteOrder() != ByteBuffers.DEFAULT_ORDER) {
+        if (delegate.byteOrder() != getOrder()) {
             final int bits = delegate.readInt(index);
             return Float.intBitsToFloat(Integer.reverseBytes(bits));
         } else {
@@ -141,7 +140,7 @@ public class ChronicleDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public short getShort(final int index) {
-        if (delegate.byteOrder() != ByteBuffers.DEFAULT_ORDER) {
+        if (delegate.byteOrder() != getOrder()) {
             final short bits = delegate.readShort(index);
             return Short.reverseBytes(bits);
         } else {
@@ -151,7 +150,7 @@ public class ChronicleDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public char getChar(final int index) {
-        if (delegate.byteOrder() != ByteBuffers.DEFAULT_ORDER) {
+        if (delegate.byteOrder() != getOrder()) {
             final short bits = delegate.readShort(index);
             return (char) Short.reverseBytes(bits);
         } else {
@@ -186,7 +185,7 @@ public class ChronicleDelegateByteBuffer implements IByteBuffer {
     }
 
     @Override
-    public void getBytes(final int index, final ByteBuffer dstBuffer, final int dstIndex, final int length) {
+    public void getBytes(final int index, final java.nio.ByteBuffer dstBuffer, final int dstIndex, final int length) {
         for (int i = 0; i < length; i++) {
             dstBuffer.put(dstIndex + i, delegate.readByte(index + i));
         }
@@ -194,7 +193,7 @@ public class ChronicleDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public int wrapAdjustment() {
-        final ByteBuffer byteBuffer = byteBuffer();
+        final java.nio.ByteBuffer byteBuffer = byteBuffer();
         if (byteBuffer != null) {
             return ByteBuffers.wrapAdjustment(byteBuffer);
         } else {
@@ -210,7 +209,7 @@ public class ChronicleDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public void putLong(final int index, final long value) {
-        if (delegate.byteOrder() != ByteBuffers.DEFAULT_ORDER) {
+        if (delegate.byteOrder() != getOrder()) {
             final long bits = Long.reverseBytes(value);
             delegate.writeLong(index, bits);
         } else {
@@ -220,7 +219,7 @@ public class ChronicleDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public void putInt(final int index, final int value) {
-        if (delegate.byteOrder() != ByteBuffers.DEFAULT_ORDER) {
+        if (delegate.byteOrder() != getOrder()) {
             final int bits = Integer.reverseBytes(value);
             delegate.writeInt(index, bits);
         } else {
@@ -230,7 +229,7 @@ public class ChronicleDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public void putDouble(final int index, final double value) {
-        if (delegate.byteOrder() != ByteBuffers.DEFAULT_ORDER) {
+        if (delegate.byteOrder() != getOrder()) {
             final long bits = Long.reverseBytes(Double.doubleToRawLongBits(value));
             delegate.writeLong(index, bits);
         } else {
@@ -240,7 +239,7 @@ public class ChronicleDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public void putFloat(final int index, final float value) {
-        if (delegate.byteOrder() != ByteBuffers.DEFAULT_ORDER) {
+        if (delegate.byteOrder() != getOrder()) {
             final int bits = Integer.reverseBytes(Float.floatToRawIntBits(value));
             delegate.writeInt(index, bits);
         } else {
@@ -250,7 +249,7 @@ public class ChronicleDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public void putShort(final int index, final short value) {
-        if (delegate.byteOrder() != ByteBuffers.DEFAULT_ORDER) {
+        if (delegate.byteOrder() != getOrder()) {
             final short bits = Short.reverseBytes(value);
             delegate.writeShort(index, bits);
         } else {
@@ -260,7 +259,7 @@ public class ChronicleDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public void putChar(final int index, final char value) {
-        if (delegate.byteOrder() != ByteBuffers.DEFAULT_ORDER) {
+        if (delegate.byteOrder() != getOrder()) {
             final short bits = Short.reverseBytes((short) value);
             delegate.writeShort(index, bits);
         } else {
@@ -279,7 +278,7 @@ public class ChronicleDelegateByteBuffer implements IByteBuffer {
     }
 
     @Override
-    public void putBytes(final int index, final ByteBuffer srcBuffer, final int srcIndex, final int length) {
+    public void putBytes(final int index, final java.nio.ByteBuffer srcBuffer, final int srcIndex, final int length) {
         delegate.write(index, srcBuffer, srcIndex, length);
     }
 
@@ -318,7 +317,7 @@ public class ChronicleDelegateByteBuffer implements IByteBuffer {
             if (bytes != null) {
                 return bytes;
             }
-            final ByteBuffer byteBuffer = byteBuffer();
+            final java.nio.ByteBuffer byteBuffer = byteBuffer();
             if (byteBuffer != null) {
                 final byte[] array = byteBuffer.array();
                 if (array != null) {
@@ -338,13 +337,13 @@ public class ChronicleDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public MutableDirectBuffer asDirectBuffer() {
-        final ByteBuffer bytes = asByteBuffer();
+        final java.nio.ByteBuffer bytes = asByteBuffer();
         return new UnsafeByteBuffer(bytes);
     }
 
     @Override
     public MutableDirectBuffer asDirectBuffer(final int index, final int length) {
-        final ByteBuffer bytes = asByteBuffer();
+        final java.nio.ByteBuffer bytes = asByteBuffer();
         return new UnsafeByteBuffer(bytes, index, length);
     }
 
@@ -487,22 +486,22 @@ public class ChronicleDelegateByteBuffer implements IByteBuffer {
     }
 
     @Override
-    public ByteBuffer asByteBuffer() {
-        final ByteBuffer byteBuffer = byteBuffer();
+    public java.nio.ByteBuffer asByteBuffer() {
+        final java.nio.ByteBuffer byteBuffer = byteBuffer();
         if (byteBuffer != null) {
             return byteBuffer;
         }
         final byte[] array = byteArray();
         if (array != null) {
-            final ByteBuffer arrayBuffer = ByteBuffer.wrap(array, wrapAdjustment(), capacity());
+            final java.nio.ByteBuffer arrayBuffer = java.nio.ByteBuffer.wrap(array, wrapAdjustment(), capacity());
             return arrayBuffer;
         }
         throw UnknownArgumentException.newInstance(Object.class, delegate.underlyingObject());
     }
 
     @Override
-    public ByteBuffer asByteBuffer(final int index, final int length) {
-        final ByteBuffer buffer = asByteBuffer();
+    public java.nio.ByteBuffer asByteBuffer(final int index, final int length) {
+        final java.nio.ByteBuffer buffer = asByteBuffer();
         if (index == 0 && length == capacity()) {
             return buffer;
         } else {

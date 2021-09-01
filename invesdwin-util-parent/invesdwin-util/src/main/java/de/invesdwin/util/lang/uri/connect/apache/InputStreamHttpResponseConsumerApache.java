@@ -1,7 +1,6 @@
 package de.invesdwin.util.lang.uri.connect.apache;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
@@ -39,7 +38,7 @@ public class InputStreamHttpResponseConsumerApache extends AbstractBinResponseCo
     }
 
     @Override
-    protected void data(final ByteBuffer src, final boolean endOfStream) throws IOException {
+    protected void data(final java.nio.ByteBuffer src, final boolean endOfStream) throws IOException {
         delegate.data(src, endOfStream);
     }
 

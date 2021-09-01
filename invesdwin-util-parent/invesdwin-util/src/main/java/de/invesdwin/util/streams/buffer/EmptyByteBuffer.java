@@ -5,7 +5,6 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
@@ -24,8 +23,8 @@ import de.invesdwin.util.streams.EmptyOutputStream;
 @Immutable
 public final class EmptyByteBuffer implements IByteBuffer {
 
-    public static final ByteBuffer EMPTY_BYTE_BUFFER = ByteBuffer.allocate(0);
-    public static final ByteBuffer EMPTY_DIRECT_BYTE_BUFFER = ByteBuffer.allocateDirect(0);
+    public static final java.nio.ByteBuffer EMPTY_BYTE_BUFFER = java.nio.ByteBuffer.allocate(0);
+    public static final java.nio.ByteBuffer EMPTY_DIRECT_BYTE_BUFFER = java.nio.ByteBuffer.allocateDirect(0);
     public static final AtomicBuffer EMPTY_AGRONA_BUFFER = new UnsafeBuffer(Bytes.EMPTY_ARRAY);
     public static final AtomicBuffer EMPTY_DIRECT_AGRONA_BUFFER = new UnsafeBuffer(EMPTY_DIRECT_BYTE_BUFFER);
 
@@ -95,7 +94,7 @@ public final class EmptyByteBuffer implements IByteBuffer {
     }
 
     @Override
-    public void putBytes(final int index, final ByteBuffer srcBuffer, final int srcIndex, final int length) {
+    public void putBytes(final int index, final java.nio.ByteBuffer srcBuffer, final int srcIndex, final int length) {
         throw newEmptyException();
     }
 
@@ -120,7 +119,7 @@ public final class EmptyByteBuffer implements IByteBuffer {
     }
 
     @Override
-    public ByteBuffer byteBuffer() {
+    public java.nio.ByteBuffer byteBuffer() {
         return EMPTY_BYTE_BUFFER;
     }
 
@@ -175,7 +174,7 @@ public final class EmptyByteBuffer implements IByteBuffer {
     }
 
     @Override
-    public void getBytes(final int index, final ByteBuffer dstBuffer, final int dstIndex, final int length) {
+    public void getBytes(final int index, final java.nio.ByteBuffer dstBuffer, final int dstIndex, final int length) {
         throw newEmptyException();
     }
 
@@ -308,7 +307,7 @@ public final class EmptyByteBuffer implements IByteBuffer {
     }
 
     @Override
-    public ByteBuffer asByteBuffer(final int index, final int length) {
+    public java.nio.ByteBuffer asByteBuffer(final int index, final int length) {
         throw newEmptyException();
     }
 

@@ -5,7 +5,6 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 import javax.annotation.concurrent.NotThreadSafe;
@@ -59,7 +58,7 @@ public class AgronaDelegateMutableByteBuffer implements IByteBuffer {
     }
 
     @Override
-    public ByteBuffer byteBuffer() {
+    public java.nio.ByteBuffer byteBuffer() {
         return delegate.byteBuffer();
     }
 
@@ -114,7 +113,7 @@ public class AgronaDelegateMutableByteBuffer implements IByteBuffer {
     }
 
     @Override
-    public void getBytes(final int index, final ByteBuffer dstBuffer, final int dstIndex, final int length) {
+    public void getBytes(final int index, final java.nio.ByteBuffer dstBuffer, final int dstIndex, final int length) {
         delegate.getBytes(index, dstBuffer, dstIndex, length);
     }
 
@@ -184,7 +183,7 @@ public class AgronaDelegateMutableByteBuffer implements IByteBuffer {
     }
 
     @Override
-    public void putBytes(final int index, final ByteBuffer srcBuffer, final int srcIndex, final int length) {
+    public void putBytes(final int index, final java.nio.ByteBuffer srcBuffer, final int srcIndex, final int length) {
         delegate.putBytes(index, srcBuffer, srcIndex, length);
     }
 
@@ -252,7 +251,7 @@ public class AgronaDelegateMutableByteBuffer implements IByteBuffer {
             if (bytes != null) {
                 return bytes;
             }
-            final ByteBuffer byteBuffer = byteBuffer();
+            final java.nio.ByteBuffer byteBuffer = byteBuffer();
             if (byteBuffer != null) {
                 final byte[] array = byteBuffer.array();
                 if (array != null) {
@@ -273,7 +272,7 @@ public class AgronaDelegateMutableByteBuffer implements IByteBuffer {
             if (bytes != null) {
                 return bytes.clone();
             }
-            final ByteBuffer byteBuffer = byteBuffer();
+            final java.nio.ByteBuffer byteBuffer = byteBuffer();
             if (byteBuffer != null) {
                 final byte[] array = byteBuffer.array();
                 if (array != null) {
@@ -294,7 +293,7 @@ public class AgronaDelegateMutableByteBuffer implements IByteBuffer {
                 }
                 return bytes;
             }
-            final ByteBuffer byteBuffer = byteBuffer();
+            final java.nio.ByteBuffer byteBuffer = byteBuffer();
             if (byteBuffer != null) {
                 final byte[] array = byteBuffer.array();
                 if (array != null) {
@@ -318,7 +317,7 @@ public class AgronaDelegateMutableByteBuffer implements IByteBuffer {
                 }
                 return bytes.clone();
             }
-            final ByteBuffer byteBuffer = byteBuffer();
+            final java.nio.ByteBuffer byteBuffer = byteBuffer();
             if (byteBuffer != null) {
                 final byte[] array = byteBuffer.array();
                 if (array != null) {
@@ -458,14 +457,14 @@ public class AgronaDelegateMutableByteBuffer implements IByteBuffer {
     }
 
     @Override
-    public ByteBuffer asByteBuffer() {
-        final ByteBuffer byteBuffer = byteBuffer();
+    public java.nio.ByteBuffer asByteBuffer() {
+        final java.nio.ByteBuffer byteBuffer = byteBuffer();
         if (byteBuffer != null) {
             return byteBuffer;
         }
         final byte[] array = byteArray();
         if (array != null) {
-            final ByteBuffer arrayBuffer = ByteBuffer.wrap(array, wrapAdjustment(), capacity());
+            final java.nio.ByteBuffer arrayBuffer = java.nio.ByteBuffer.wrap(array, wrapAdjustment(), capacity());
             return arrayBuffer;
         }
         final long address = addressOffset();
@@ -473,8 +472,8 @@ public class AgronaDelegateMutableByteBuffer implements IByteBuffer {
     }
 
     @Override
-    public ByteBuffer asByteBuffer(final int index, final int length) {
-        final ByteBuffer buffer = asByteBuffer();
+    public java.nio.ByteBuffer asByteBuffer(final int index, final int length) {
+        final java.nio.ByteBuffer buffer = asByteBuffer();
         if (index == 0 && length == capacity()) {
             return buffer;
         } else {

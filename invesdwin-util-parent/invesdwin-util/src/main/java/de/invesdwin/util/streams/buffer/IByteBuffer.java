@@ -7,7 +7,6 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
@@ -29,7 +28,7 @@ public interface IByteBuffer extends IByteBufferWriter {
 
     byte[] byteArray();
 
-    ByteBuffer byteBuffer();
+    java.nio.ByteBuffer byteBuffer();
 
     int capacity();
 
@@ -97,19 +96,19 @@ public interface IByteBuffer extends IByteBufferWriter {
 
     void getBytes(int index, IByteBuffer dstBuffer, int dstIndex, int length);
 
-    default void getBytes(final int index, final ByteBuffer dstBuffer) {
+    default void getBytes(final int index, final java.nio.ByteBuffer dstBuffer) {
         getBytesTo(index, dstBuffer, dstBuffer.remaining());
     }
 
-    default void getBytesFrom(final int index, final ByteBuffer dstBuffer, final int dstIndex) {
+    default void getBytesFrom(final int index, final java.nio.ByteBuffer dstBuffer, final int dstIndex) {
         getBytes(index, dstBuffer, dstBuffer.position(), dstIndex);
     }
 
-    default void getBytesTo(final int index, final ByteBuffer dstBuffer, final int length) {
+    default void getBytesTo(final int index, final java.nio.ByteBuffer dstBuffer, final int length) {
         getBytes(index, dstBuffer, dstBuffer.position(), length);
     }
 
-    void getBytes(int index, ByteBuffer dstBuffer, int dstIndex, int length);
+    void getBytes(int index, java.nio.ByteBuffer dstBuffer, int dstIndex, int length);
 
     int wrapAdjustment();
 
@@ -147,19 +146,19 @@ public interface IByteBuffer extends IByteBufferWriter {
 
     void putBytes(int index, byte[] src, int srcIndex, int length);
 
-    default void putBytes(final int index, final ByteBuffer srcBuffer) {
+    default void putBytes(final int index, final java.nio.ByteBuffer srcBuffer) {
         putBytesTo(index, srcBuffer, srcBuffer.capacity());
     }
 
-    default void putBytesFrom(final int index, final ByteBuffer srcBuffer, final int srcIndex) {
+    default void putBytesFrom(final int index, final java.nio.ByteBuffer srcBuffer, final int srcIndex) {
         putBytes(index, srcBuffer, srcIndex, srcBuffer.capacity() - srcIndex);
     }
 
-    default void putBytesTo(final int index, final ByteBuffer srcBuffer, final int length) {
+    default void putBytesTo(final int index, final java.nio.ByteBuffer srcBuffer, final int length) {
         putBytes(index, srcBuffer, 0, length);
     }
 
-    void putBytes(int index, ByteBuffer srcBuffer, int srcIndex, int length);
+    void putBytes(int index, java.nio.ByteBuffer srcBuffer, int srcIndex, int length);
 
     default void putBytes(final int index, final DirectBuffer srcBuffer) {
         putBytesTo(index, srcBuffer, srcBuffer.capacity());
@@ -244,15 +243,15 @@ public interface IByteBuffer extends IByteBufferWriter {
      */
     byte[] asByteArray(int index, int length);
 
-    default ByteBuffer asByteBuffer() {
+    default java.nio.ByteBuffer asByteBuffer() {
         return asByteBufferTo(capacity());
     }
 
-    default ByteBuffer asByteBufferFrom(final int index) {
+    default java.nio.ByteBuffer asByteBufferFrom(final int index) {
         return asByteBuffer(index, remaining(index));
     }
 
-    default ByteBuffer asByteBufferTo(final int length) {
+    default java.nio.ByteBuffer asByteBufferTo(final int length) {
         return asByteBuffer(0, length);
     }
 
@@ -260,7 +259,7 @@ public interface IByteBuffer extends IByteBufferWriter {
      * Might return the actual underlying array. Thus make sure to clone() it if the buffer is to be reused. Or just use
      * asByteArrayCopy instead to make sure a copy is returned always and clone() is not used redundantly.
      */
-    ByteBuffer asByteBuffer(int index, int length);
+    java.nio.ByteBuffer asByteBuffer(int index, int length);
 
     /**
      * Always returns a new copy as a byte array regardless of the underlying storage.
