@@ -20,9 +20,10 @@ import de.invesdwin.util.streams.buffer.IByteBuffer;
 import de.invesdwin.util.streams.buffer.delegate.slice.SlicedFromDelegateByteBuffer;
 import de.invesdwin.util.streams.buffer.delegate.slice.mutable.factory.ExpandableMutableSlicedDelegateByteBufferFactory;
 import de.invesdwin.util.streams.buffer.delegate.slice.mutable.factory.IMutableSlicedDelegateByteBufferFactory;
+import de.invesdwin.util.streams.buffer.extend.internal.ExpandableUninitializedArrayBuffer;
 
 @NotThreadSafe
-public class ArrayExpandableByteBuffer extends ExpandableArrayBuffer implements IByteBuffer {
+public class ArrayExpandableByteBuffer extends ExpandableUninitializedArrayBuffer implements IByteBuffer {
 
     private IMutableSlicedDelegateByteBufferFactory mutableSliceFactory;
 

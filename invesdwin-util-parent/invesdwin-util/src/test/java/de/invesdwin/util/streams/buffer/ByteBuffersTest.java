@@ -27,18 +27,19 @@ public class ByteBuffersTest {
 
     @Test
     public void testBuffers() {
-        testBufferOrdered(new JavaDelegateByteBuffer(new byte[BUFFER_SIZE]));
+        testBufferOrdered(new JavaDelegateByteBuffer(ByteBuffers.allocateByteArray(BUFFER_SIZE)));
         testBufferOrdered(new JavaDelegateByteBuffer(java.nio.ByteBuffer.allocate(BUFFER_SIZE)));
         testBufferOrdered(new JavaDelegateByteBuffer(java.nio.ByteBuffer.allocateDirect(BUFFER_SIZE)));
 
         testBufferOrdered(new UnsafeByteBuffer(java.nio.ByteBuffer.allocate(BUFFER_SIZE)));
         testBufferOrdered(new UnsafeByteBuffer(java.nio.ByteBuffer.allocateDirect(BUFFER_SIZE)));
-        testBufferOrdered(new UnsafeByteBuffer(new byte[BUFFER_SIZE]));
+        testBufferOrdered(new UnsafeByteBuffer(ByteBuffers.allocateByteArray(BUFFER_SIZE)));
         testBufferOrdered(
                 new AgronaDelegateMutableByteBuffer(new UnsafeBuffer(java.nio.ByteBuffer.allocate(BUFFER_SIZE))));
         testBufferOrdered(
                 new AgronaDelegateMutableByteBuffer(new UnsafeBuffer(java.nio.ByteBuffer.allocateDirect(BUFFER_SIZE))));
-        testBufferOrdered(new AgronaDelegateMutableByteBuffer(new UnsafeBuffer(new byte[BUFFER_SIZE])));
+        testBufferOrdered(new AgronaDelegateMutableByteBuffer(
+                new UnsafeBuffer(ByteBuffers.allocateByteArray(BUFFER_SIZE))));
 
         testBufferOrdered(new ArrayExpandableByteBuffer());
         testBufferOrdered(new AgronaDelegateMutableByteBuffer(new ExpandableArrayBuffer()));
@@ -46,14 +47,15 @@ public class ByteBuffersTest {
         testBufferOrdered(new DirectExpandableByteBuffer());
         testBufferOrdered(new AgronaDelegateMutableByteBuffer(new ExpandableDirectByteBuffer()));
 
-        testBufferOrdered(new ChronicleDelegateByteBuffer(BytesStore.wrap(new byte[BUFFER_SIZE]).bytesForWrite()));
+        testBufferOrdered(new ChronicleDelegateByteBuffer(
+                BytesStore.wrap(ByteBuffers.allocateByteArray(BUFFER_SIZE)).bytesForWrite()));
         testBufferOrdered(new ChronicleDelegateByteBuffer(
                 BytesStore.wrap(java.nio.ByteBuffer.allocate(BUFFER_SIZE)).bytesForWrite()));
         testBufferOrdered(new ChronicleDelegateByteBuffer(
                 BytesStore.wrap(java.nio.ByteBuffer.allocateDirect(BUFFER_SIZE)).bytesForWrite()));
         testBufferOrdered(new ChronicleDelegateByteBuffer(net.openhft.chronicle.bytes.Bytes.elasticByteBuffer()));
         testBufferOrdered(new ChronicleDelegateByteBuffer(
-                net.openhft.chronicle.bytes.Bytes.allocateDirect(new byte[BUFFER_SIZE])));
+                net.openhft.chronicle.bytes.Bytes.allocateDirect(ByteBuffers.allocateByteArray(BUFFER_SIZE))));
         testBufferOrdered(
                 new ChronicleDelegateByteBuffer(net.openhft.chronicle.bytes.Bytes.allocateDirect(BUFFER_SIZE)));
     }

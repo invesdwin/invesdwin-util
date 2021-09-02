@@ -114,7 +114,7 @@ public final class ByteBuffers {
     public static byte[] getRemaining(final java.nio.ByteBuffer buffer, final int position) {
         final int positionBefore = buffer.position();
         position(buffer, position);
-        final byte[] dst = new byte[buffer.remaining()];
+        final byte[] dst = allocateByteArray(buffer.remaining());
         buffer.get(dst);
         position(buffer, positionBefore);
         return dst;
@@ -123,7 +123,7 @@ public final class ByteBuffers {
     public static byte[] get(final java.nio.ByteBuffer buffer, final int position, final int size) {
         final int positionBefore = buffer.position();
         position(buffer, position);
-        final byte[] dst = new byte[size];
+        final byte[] dst = allocateByteArray(size);
         buffer.get(dst);
         position(buffer, positionBefore);
         return dst;
@@ -168,7 +168,16 @@ public final class ByteBuffers {
     }
 
     public static IByteBuffer allocateFixed(final int fixedLength) {
-        return wrap(new byte[fixedLength]);
+        return wrap(allocateByteArray(fixedLength));
+    }
+
+    /**
+     * We skip zeroing with this implementation.
+     * 
+     * https://shipilev.net/jvm/anatomy-quarks/7-initialization-costs/
+     */
+    public static byte[] allocateByteArray(final int fixedLength) {
+        return io.netty.util.internal.PlatformDependent.allocateUninitializedArray(fixedLength);
     }
 
     public static IByteBuffer allocateExpandable() {
@@ -226,7 +235,7 @@ public final class ByteBuffers {
         if (value == null || value.length() == 0) {
             return Bytes.EMPTY_ARRAY;
         }
-        final byte[] bytes = new byte[newStringAsciiLength(value)];
+        final byte[] bytes = allocateByteArray(newStringAsciiLength(value));
         final int length = value.length();
         for (int i = 0; i < length; i++) {
             char c = value.charAt(i);
@@ -287,13 +296,13 @@ public final class ByteBuffers {
     }
 
     public static byte[] asByteArrayCopyGet(final IByteBuffer buffer, final int index, final int length) {
-        final byte[] bytes = new byte[length];
+        final byte[] bytes = allocateByteArray(length);
         buffer.getBytes(index, bytes, 0, length);
         return bytes;
     }
 
     public static byte[] asByteArrayCopyGet(final java.nio.ByteBuffer buffer, final int index, final int length) {
-        final byte[] bytes = new byte[length];
+        final byte[] bytes = allocateByteArray(length);
         get(buffer, index, bytes, 0, length);
         return bytes;
     }

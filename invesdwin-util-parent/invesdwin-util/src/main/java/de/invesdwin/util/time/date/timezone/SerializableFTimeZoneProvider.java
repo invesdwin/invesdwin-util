@@ -5,6 +5,7 @@ import java.io.IOException;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.norva.marker.ISerializableValueObject;
+import de.invesdwin.util.streams.buffer.ByteBuffers;
 
 @Immutable
 public class SerializableFTimeZoneProvider implements ISerializableValueObject, IFTimeZoneProvider {
@@ -21,16 +22,16 @@ public class SerializableFTimeZoneProvider implements ISerializableValueObject, 
     }
 
     private void writeObject(final java.io.ObjectOutputStream stream) throws IOException {
-        final byte[] array = timeZone.getId().getBytes();
-        stream.writeInt(array.length);
-        stream.write(array);
+        final String id = timeZone.getId();
+        stream.writeInt(ByteBuffers.newStringAsciiLength(id));
+        stream.write(ByteBuffers.newStringAsciiBytes(id));
     }
 
     private void readObject(final java.io.ObjectInputStream stream) throws IOException, ClassNotFoundException {
         final int size = stream.readInt();
-        final byte[] array = new byte[size];
+        final byte[] array = ByteBuffers.allocateByteArray(size);
         stream.read(array);
-        final String id = new String(array);
+        final String id = ByteBuffers.newStringAscii(array);
         timeZone = TimeZones.getFTimeZone(id);
     }
 

@@ -299,7 +299,7 @@ public class JavaDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public String getStringAsciii(final int index, final int length) {
-        final byte[] bytes = new byte[length];
+        final byte[] bytes = ByteBuffers.allocateByteArray(length);
         ByteBuffers.get(delegate, index, bytes, 0, length);
         return ByteBuffers.newStringAscii(bytes);
     }
@@ -338,7 +338,7 @@ public class JavaDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public String getStringUtf8(final int index, final int length) {
-        final byte[] bytes = new byte[length];
+        final byte[] bytes = ByteBuffers.allocateByteArray(length);
         ByteBuffers.get(delegate, index, bytes, 0, length);
         return ByteBuffers.newStringUtf8(bytes);
     }

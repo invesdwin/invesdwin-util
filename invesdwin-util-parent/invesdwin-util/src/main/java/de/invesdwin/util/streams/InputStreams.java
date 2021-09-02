@@ -6,6 +6,7 @@ import java.io.InputStream;
 
 import javax.annotation.concurrent.Immutable;
 
+import de.invesdwin.util.streams.buffer.ByteBuffers;
 import io.netty.util.concurrent.FastThreadLocal;
 
 /**
@@ -17,7 +18,7 @@ public final class InputStreams {
     private static final FastThreadLocal<byte[]> LONG_BUFFER_HOLDER = new FastThreadLocal<byte[]>() {
         @Override
         protected byte[] initialValue() throws Exception {
-            return new byte[8];
+            return ByteBuffers.allocateByteArray(8);
         }
     };
 
