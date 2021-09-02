@@ -7,7 +7,7 @@ import java.util.function.Supplier;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import org.agrona.concurrent.OneToOneConcurrentArrayQueue;
+import org.agrona.concurrent.ManyToManyConcurrentArrayQueue;
 
 import de.invesdwin.util.concurrent.pool.AObjectPool;
 import de.invesdwin.util.streams.buffer.IByteBuffer;
@@ -21,7 +21,7 @@ public final class PooledByteBufferObjectPool extends AObjectPool<IByteBuffer> {
     public PooledByteBufferObjectPool(final Supplier<IByteBuffer> factory, final int maxPoolSize) {
         super(new PooledByteBufferObjectFactory(factory));
         this.maxPoolSize = maxPoolSize;
-        pooledLZ4BlockInputStreamRotation = new OneToOneConcurrentArrayQueue<IByteBuffer>(maxPoolSize);
+        pooledLZ4BlockInputStreamRotation = new ManyToManyConcurrentArrayQueue<IByteBuffer>(maxPoolSize);
     }
 
     @Override
