@@ -172,7 +172,8 @@ public final class ByteBuffers {
     }
 
     /**
-     * We skip zeroing with this implementation.
+     * We skip zeroing with this implementation. Requires JVM args: --add-opens java.base/jdk.internal.misc=ALL-UNNAMED
+     * -Dio.netty.tryReflectionSetAccessible=true
      * 
      * https://shipilev.net/jvm/anatomy-quarks/7-initialization-costs/
      */
