@@ -5,17 +5,9 @@ import javax.annotation.concurrent.Immutable;
 import de.invesdwin.util.math.Bytes;
 import de.invesdwin.util.streams.buffer.ByteBuffers;
 import de.invesdwin.util.streams.buffer.IByteBuffer;
-import io.netty.util.concurrent.FastThreadLocal;
 
 @Immutable
 public final class SerdeBaseMethods {
-
-    private static final FastThreadLocal<IByteBuffer> EXPANDABLE_BUFFER_REF = new FastThreadLocal<IByteBuffer>() {
-        @Override
-        protected IByteBuffer initialValue() throws Exception {
-            return ByteBuffers.allocateExpandable();
-        }
-    };
 
     private SerdeBaseMethods() {
     }
@@ -31,10 +23,14 @@ public final class SerdeBaseMethods {
         if (obj == null) {
             return Bytes.EMPTY_ARRAY;
         }
-        final IByteBuffer buffer = EXPANDABLE_BUFFER_REF.get();
-        final int length = serde.toBuffer(buffer, obj);
-        //we need this as a copy since byte arrays might be stored/cached before the next toBytes call might happen
-        return buffer.asByteArrayCopyTo(length);
+        final IByteBuffer buffer = ByteBuffers.EXPANDABLE_POOL.borrowObject();
+        try {
+            final int length = serde.toBuffer(buffer, obj);
+            //we need this as a copy since byte arrays might be stored/cached before the next toBytes call might happen
+            return buffer.asByteArrayCopyTo(length);
+        } finally {
+            ByteBuffers.EXPANDABLE_POOL.returnObject(buffer);
+        }
     }
 
     public static <O> O fromBuffer(final ISerde<O> serde, final IByteBuffer buffer, final int length) {
