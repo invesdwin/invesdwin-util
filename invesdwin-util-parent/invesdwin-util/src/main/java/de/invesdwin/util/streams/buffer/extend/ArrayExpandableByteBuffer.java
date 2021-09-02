@@ -294,6 +294,11 @@ public class ArrayExpandableByteBuffer extends ExpandableArrayBuffer implements 
         ByteBuffers.readFully(src, array, index, length);
     }
 
+    @Override
+    public void clear(final byte value, final int index, final int length) {
+        setMemory(index, length, value);
+    }
+
     @SuppressWarnings("unchecked")
     @Override
     public <T> T unwrap(final Class<T> type) {

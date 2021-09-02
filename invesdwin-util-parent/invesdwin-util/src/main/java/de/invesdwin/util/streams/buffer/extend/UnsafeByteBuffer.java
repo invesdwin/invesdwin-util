@@ -414,6 +414,11 @@ public class UnsafeByteBuffer extends UnsafeBuffer implements IByteBuffer {
     }
 
     @Override
+    public void clear(final byte value, final int index, final int length) {
+        super.setMemory(index, length, value);
+    }
+
+    @Override
     public String toString() {
         return ByteBuffers.toString(this);
     }

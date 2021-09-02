@@ -353,6 +353,11 @@ public class ClosedByteBuffer implements IByteBuffer {
         throw newClosedException();
     }
 
+    @Override
+    public void clear(final byte value, final int index, final int length) {
+        throw newClosedException();
+    }
+
     @SuppressWarnings("unchecked")
     @Override
     public <T> T unwrap(final Class<T> type) {

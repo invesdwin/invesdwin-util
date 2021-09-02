@@ -320,6 +320,11 @@ public class SlicedDelegateByteBuffer implements IByteBuffer {
     }
 
     @Override
+    public void clear(final byte value, final int index, final int length) {
+        delegate.clear(value, index + from, length);
+    }
+
+    @Override
     public String toString() {
         return ByteBuffers.toString(this);
     }

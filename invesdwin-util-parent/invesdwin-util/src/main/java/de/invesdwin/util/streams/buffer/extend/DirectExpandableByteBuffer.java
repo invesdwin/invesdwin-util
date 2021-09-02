@@ -355,6 +355,11 @@ public class DirectExpandableByteBuffer extends ExpandableDirectByteBuffer imple
         return getChar(index, getOrder());
     }
 
+    @Override
+    public void clear(final byte value, final int index, final int length) {
+        setMemory(index, length, value);
+    }
+
     @SuppressWarnings("unchecked")
     @Override
     public <T> T unwrap(final Class<T> type) {

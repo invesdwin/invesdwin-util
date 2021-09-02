@@ -446,6 +446,11 @@ public class AgronaDelegateByteBuffer implements IByteBuffer {
     }
 
     @Override
+    public void clear(final byte value, final int index, final int length) {
+        throw newReadOnlyException();
+    }
+
+    @Override
     public String toString() {
         return ByteBuffers.toString(this);
     }

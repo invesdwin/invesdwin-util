@@ -510,6 +510,14 @@ public class ChronicleDelegateByteBuffer implements IByteBuffer {
     }
 
     @Override
+    public void clear(final byte value, final int index, final int length) {
+        final int target = index + length;
+        for (int i = index; i < target; i++) {
+            delegate.writeByte(i, value);
+        }
+    }
+
+    @Override
     public String toString() {
         return ByteBuffers.toString(this);
     }

@@ -440,4 +440,9 @@ public class JavaDelegateByteBuffer implements IByteBuffer {
         ByteBuffers.checkLimit(this, limit);
     }
 
+    @Override
+    public void clear(final byte value, final int index, final int length) {
+        directBuffer().setMemory(index, length, value);
+    }
+
 }

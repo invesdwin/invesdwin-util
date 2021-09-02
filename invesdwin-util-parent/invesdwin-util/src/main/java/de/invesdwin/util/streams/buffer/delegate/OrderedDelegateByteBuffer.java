@@ -363,4 +363,9 @@ public final class OrderedDelegateByteBuffer implements IByteBuffer {
     public void checkLimit(final int limit) {
         delegate.checkLimit(limit);
     }
+
+    @Override
+    public void clear(final byte value, final int index, final int length) {
+        delegate.clear(value, index, length);
+    }
 }

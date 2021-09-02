@@ -482,6 +482,11 @@ public class AgronaDelegateMutableByteBuffer implements IByteBuffer {
     }
 
     @Override
+    public void clear(final byte value, final int index, final int length) {
+        delegate.setMemory(index, length, value);
+    }
+
+    @Override
     public String toString() {
         return ByteBuffers.toString(this);
     }
