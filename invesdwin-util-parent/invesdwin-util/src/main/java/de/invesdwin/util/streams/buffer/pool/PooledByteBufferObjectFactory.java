@@ -4,11 +4,11 @@ import java.util.function.Supplier;
 
 import javax.annotation.concurrent.Immutable;
 
-import de.invesdwin.util.concurrent.pool.IPoolableObjectFactory;
+import de.invesdwin.util.concurrent.pool.commons.ICommonsPoolableObjectFactory;
 import de.invesdwin.util.streams.buffer.IByteBuffer;
 
 @Immutable
-public final class PooledByteBufferObjectFactory implements IPoolableObjectFactory<IByteBuffer> {
+public final class PooledByteBufferObjectFactory implements ICommonsPoolableObjectFactory<IByteBuffer> {
 
     private final Supplier<IByteBuffer> factory;
 

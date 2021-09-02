@@ -4,7 +4,7 @@
  * >Source</a> in order to not have to use PooledObject everywhere without needing it -_-
  */
 
-package de.invesdwin.util.concurrent.pool;
+package de.invesdwin.util.concurrent.pool.commons;
 
 // CHECKSTYLE:OFF unused import
 import org.apache.commons.pool2.ObjectPool;
@@ -45,7 +45,7 @@ import org.apache.commons.pool2.ObjectPool;
  * @version $Revision: 1222388 $ $Date: 2011-12-22 13:28:27 -0500 (Thu, 22 Dec 2011) $
  * @since Pool 1.0
  */
-public interface IPoolableObjectFactory<T> {
+public interface ICommonsPoolableObjectFactory<T> {
     /**
      * Creates an instance that can be served by the pool. Instances returned from this method should be in the same
      * state as if they had been {@link #activateObject activated}. They will not be activated before being served by

@@ -6,11 +6,11 @@ import java.util.Collection;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.collections.iterable.buffer.NodeBufferingIterator;
-import de.invesdwin.util.concurrent.pool.AObjectPool;
+import de.invesdwin.util.concurrent.pool.commons.ACommonsObjectPool;
 import de.invesdwin.util.math.expression.multiple.NestedExpressionParser;
 
 @NotThreadSafe
-public final class NestedExpressionParserObjectPool extends AObjectPool<NestedExpressionParser> {
+public final class NestedExpressionParserObjectPool extends ACommonsObjectPool<NestedExpressionParser> {
 
     private final NodeBufferingIterator<NestedExpressionParser> nestedExpressionParserRotation = new NodeBufferingIterator<NestedExpressionParser>();
 

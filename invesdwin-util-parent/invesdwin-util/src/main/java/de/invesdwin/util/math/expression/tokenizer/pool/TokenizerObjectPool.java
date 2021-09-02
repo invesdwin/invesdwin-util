@@ -6,11 +6,11 @@ import java.util.Collection;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.collections.iterable.buffer.NodeBufferingIterator;
-import de.invesdwin.util.concurrent.pool.AObjectPool;
+import de.invesdwin.util.concurrent.pool.commons.ACommonsObjectPool;
 import de.invesdwin.util.math.expression.tokenizer.Tokenizer;
 
 @NotThreadSafe
-public final class TokenizerObjectPool extends AObjectPool<Tokenizer> {
+public final class TokenizerObjectPool extends ACommonsObjectPool<Tokenizer> {
 
     private final NodeBufferingIterator<Tokenizer> tokenizerRotation = new NodeBufferingIterator<Tokenizer>();
 

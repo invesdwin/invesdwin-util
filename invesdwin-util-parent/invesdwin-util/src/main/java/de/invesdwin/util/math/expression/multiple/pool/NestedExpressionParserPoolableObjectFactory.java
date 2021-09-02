@@ -2,12 +2,12 @@ package de.invesdwin.util.math.expression.multiple.pool;
 
 import javax.annotation.concurrent.Immutable;
 
-import de.invesdwin.util.concurrent.pool.IPoolableObjectFactory;
+import de.invesdwin.util.concurrent.pool.commons.ICommonsPoolableObjectFactory;
 import de.invesdwin.util.math.expression.multiple.NestedExpressionParser;
 
 @Immutable
 public final class NestedExpressionParserPoolableObjectFactory
-        implements IPoolableObjectFactory<NestedExpressionParser> {
+        implements ICommonsPoolableObjectFactory<NestedExpressionParser> {
 
     private final String expression;
 

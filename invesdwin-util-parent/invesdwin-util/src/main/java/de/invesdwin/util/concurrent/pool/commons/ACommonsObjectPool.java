@@ -1,4 +1,4 @@
-package de.invesdwin.util.concurrent.pool;
+package de.invesdwin.util.concurrent.pool.commons;
 
 import java.util.Collection;
 import java.util.NoSuchElementException;
@@ -11,19 +11,20 @@ import org.apache.commons.pool2.ObjectPool;
 
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.concurrent.Threads;
+import de.invesdwin.util.concurrent.pool.IObjectPool;
 
 /**
  * Implements the lifecycle of pooled objects
  */
 @ThreadSafe
-public abstract class AObjectPool<E> implements ObjectPool<E> {
+public abstract class ACommonsObjectPool<E> implements ObjectPool<E>, IObjectPool<E> {
 
-    protected IPoolableObjectFactory<E> factory;
+    protected ICommonsPoolableObjectFactory<E> factory;
     private final AtomicInteger activeCount = new AtomicInteger();
     @GuardedBy("this")
     private boolean closed;
 
-    public AObjectPool(final IPoolableObjectFactory<E> factory) {
+    public ACommonsObjectPool(final ICommonsPoolableObjectFactory<E> factory) {
         this.factory = factory;
     }
 
@@ -160,7 +161,7 @@ public abstract class AObjectPool<E> implements ObjectPool<E> {
         Assertions.assertThat(isClosed()).as("Instance already closed!").isFalse();
     }
 
-    public final void setFactory(final IPoolableObjectFactory<E> factory) {
+    public final void setFactory(final ICommonsPoolableObjectFactory<E> factory) {
         this.factory = factory;
     }
 
