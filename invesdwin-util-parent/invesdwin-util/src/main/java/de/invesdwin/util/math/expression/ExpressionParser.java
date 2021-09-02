@@ -44,19 +44,11 @@ import de.invesdwin.util.math.expression.tokenizer.Tokenizer;
 import de.invesdwin.util.math.expression.tokenizer.pool.TokenizerObjectPool;
 import de.invesdwin.util.math.expression.variable.IVariable;
 import de.invesdwin.util.math.expression.variable.Variables;
-import io.netty.util.concurrent.FastThreadLocal;
 
 @NotThreadSafe
 public class ExpressionParser implements IExpressionParser {
 
     public static final Op DEFAULT_COMMA_OP = Op.AND;
-
-    private static final FastThreadLocal<TokenizerObjectPool> TOKENIZER = new FastThreadLocal<TokenizerObjectPool>() {
-        @Override
-        protected TokenizerObjectPool initialValue() throws Exception {
-            return new TokenizerObjectPool();
-        }
-    };
 
     private static final Map<String, IFunctionFactory> DEFAULT_FUNCTIONS;
     private static final Map<String, IVariable> DEFAULT_VARIABLES;
@@ -230,9 +222,8 @@ public class ExpressionParser implements IExpressionParser {
 
     @Override
     public IExpression parse() {
-        final TokenizerObjectPool tokenizerPool = TOKENIZER.get();
         try {
-            tokenizer = tokenizerPool.borrowObject();
+            tokenizer = TokenizerObjectPool.INSTANCE.borrowObject();
             tokenizer.init(originalExpression, isSemicolonAllowed());
             final IParsedExpression result = simplify(expression(true));
             if (tokenizer.current().isNotEnd()) {
@@ -255,7 +246,7 @@ public class ExpressionParser implements IExpressionParser {
                 throw t;
             }
         } finally {
-            tokenizerPool.returnObject(tokenizer);
+            TokenizerObjectPool.INSTANCE.returnObject(tokenizer);
             tokenizer = null;
         }
     }

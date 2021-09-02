@@ -6,4 +6,6 @@ public interface IObjectPool<E> {
 
     void returnObject(E element);
 
+    void clear();
+
 }

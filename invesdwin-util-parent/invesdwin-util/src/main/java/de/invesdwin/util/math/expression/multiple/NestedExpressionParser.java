@@ -2,7 +2,6 @@ package de.invesdwin.util.math.expression.multiple;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import de.invesdwin.util.collections.iterable.buffer.NodeBufferingIterator.INode;
 import de.invesdwin.util.math.expression.ExpressionParser;
 import de.invesdwin.util.math.expression.eval.IParsedExpression;
 import de.invesdwin.util.math.expression.eval.operation.Op;
@@ -11,10 +10,9 @@ import de.invesdwin.util.math.expression.function.AFunction;
 import de.invesdwin.util.math.expression.function.IPreviousKeyFunction;
 
 @NotThreadSafe
-public final class NestedExpressionParser extends ExpressionParser implements INode<NestedExpressionParser> {
+public final class NestedExpressionParser extends ExpressionParser {
 
     private MultipleExpressionParser parent;
-    private NestedExpressionParser next;
 
     public NestedExpressionParser(final String expression) {
         super(expression);
@@ -62,13 +60,4 @@ public final class NestedExpressionParser extends ExpressionParser implements IN
         return parent.simplify(expression);
     }
 
-    @Override
-    public NestedExpressionParser getNext() {
-        return next;
-    }
-
-    @Override
-    public void setNext(final NestedExpressionParser next) {
-        this.next = next;
-    }
 }

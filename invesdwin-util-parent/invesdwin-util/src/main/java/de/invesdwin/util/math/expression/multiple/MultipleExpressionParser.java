@@ -43,23 +43,11 @@ import de.invesdwin.util.math.expression.variable.IBooleanVariable;
 import de.invesdwin.util.math.expression.variable.IDoubleVariable;
 import de.invesdwin.util.math.expression.variable.IIntegerVariable;
 import de.invesdwin.util.math.expression.variable.IVariable;
-import io.netty.util.concurrent.FastThreadLocal;
 
 @NotThreadSafe
 public class MultipleExpressionParser implements IExpressionParser {
 
-    private static final FastThreadLocal<TokenizerObjectPool> TOKENIZER = new FastThreadLocal<TokenizerObjectPool>() {
-        @Override
-        protected TokenizerObjectPool initialValue() throws Exception {
-            return new TokenizerObjectPool();
-        }
-    };
-    private static final FastThreadLocal<NestedExpressionParserObjectPool> FAKE_PARSER = new FastThreadLocal<NestedExpressionParserObjectPool>() {
-        @Override
-        protected NestedExpressionParserObjectPool initialValue() throws Exception {
-            return new NestedExpressionParserObjectPool("1");
-        }
-    };
+    private static final NestedExpressionParserObjectPool FAKE_PARSER_POOL = new NestedExpressionParserObjectPool("1");
     private final Map<String, IVariable> variables = ILockCollectionFactory.getInstance(false).newLinkedMap();
     private Tokenizer tokenizer;
     private NestedExpressionParser fakeParser;
@@ -74,12 +62,10 @@ public class MultipleExpressionParser implements IExpressionParser {
 
     @Override
     public IExpression parse() throws ParseException {
-        final TokenizerObjectPool tokenizerPool = TOKENIZER.get();
-        final NestedExpressionParserObjectPool fakeParserPool = FAKE_PARSER.get();
         try {
-            fakeParser = fakeParserPool.borrowObject();
+            fakeParser = FAKE_PARSER_POOL.borrowObject();
             fakeParser.setParent(this);
-            tokenizer = tokenizerPool.borrowObject();
+            tokenizer = TokenizerObjectPool.INSTANCE.borrowObject();
             tokenizer.init(originalExpression, isSemicolonAllowed());
             final IParsedExpression result = expression();
             if (tokenizer.current().isNotEnd()) {
@@ -102,10 +88,10 @@ public class MultipleExpressionParser implements IExpressionParser {
                 throw t;
             }
         } finally {
-            tokenizerPool.returnObject(tokenizer);
+            TokenizerObjectPool.INSTANCE.returnObject(tokenizer);
             tokenizer = null;
             fakeParser.setParent(null);
-            fakeParserPool.returnObject(fakeParser);
+            FAKE_PARSER_POOL.returnObject(fakeParser);
             fakeParser = null;
         }
     }
