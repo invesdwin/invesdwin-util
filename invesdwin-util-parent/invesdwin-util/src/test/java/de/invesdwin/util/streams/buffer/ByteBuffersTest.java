@@ -25,6 +25,14 @@ public class ByteBuffersTest {
 
     private static final int BUFFER_SIZE = 10000;
 
+    static {
+        //java 16 requires --illegal-access=permit --add-exports java.base/jdk.internal.ref=ALL-UNNAMED --add-opens java.base/jdk.internal.misc=ALL-UNNAMED
+        //CHECKSTYLE:OFF
+        System.setProperty("io.netty.tryReflectionSetAccessible", "true");
+        System.setProperty("io.netty.uninitializedArrayAllocationThreshold", "1");
+        //CHECKSTYLE:ON
+    }
+
     @Test
     public void testBuffers() {
         testBufferOrdered(new JavaDelegateByteBuffer(ByteBuffers.allocateByteArray(BUFFER_SIZE)));
@@ -38,8 +46,8 @@ public class ByteBuffersTest {
                 new AgronaDelegateMutableByteBuffer(new UnsafeBuffer(java.nio.ByteBuffer.allocate(BUFFER_SIZE))));
         testBufferOrdered(
                 new AgronaDelegateMutableByteBuffer(new UnsafeBuffer(java.nio.ByteBuffer.allocateDirect(BUFFER_SIZE))));
-        testBufferOrdered(new AgronaDelegateMutableByteBuffer(
-                new UnsafeBuffer(ByteBuffers.allocateByteArray(BUFFER_SIZE))));
+        testBufferOrdered(
+                new AgronaDelegateMutableByteBuffer(new UnsafeBuffer(ByteBuffers.allocateByteArray(BUFFER_SIZE))));
 
         testBufferOrdered(new ArrayExpandableByteBuffer());
         testBufferOrdered(new AgronaDelegateMutableByteBuffer(new ExpandableArrayBuffer()));
