@@ -50,7 +50,7 @@ public interface IBufferingIterator<E> extends ICloseableIterator<E>, ICloseable
     /**
      * If given a BufferingIterator, it will get added to this one and emptied. This is a lot faster than using addAll.
      */
-    boolean consume(BufferingIterator<E> iterator);
+    boolean consume(IBufferingIterator<E> iterator);
 
     ICloseableIterable<E> snapshot();
 

@@ -9,7 +9,6 @@ import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.collections.iterable.WrapperCloseableIterable;
 import de.invesdwin.util.collections.iterable.WrapperCloseableIterator;
-import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
 import de.invesdwin.util.collections.iterable.buffer.IBufferingIterator;
 
 @NotThreadSafe
@@ -100,7 +99,7 @@ public abstract class ADelegateBufferingIterator<E> implements IBufferingIterato
     }
 
     @Override
-    public boolean consume(final BufferingIterator<E> iterator) {
+    public boolean consume(final IBufferingIterator<E> iterator) {
         return addAll(iterator);
     }
 

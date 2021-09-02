@@ -113,7 +113,7 @@ public abstract class ADelegateBufferingIterator<E> implements IBufferingIterato
     }
 
     @Override
-    public boolean consume(final BufferingIterator<E> iterator) {
+    public boolean consume(final IBufferingIterator<E> iterator) {
         return getDelegate().consume(iterator);
     }
 

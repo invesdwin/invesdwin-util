@@ -112,7 +112,7 @@ public final class EmptyBufferingIterator<E> implements IBufferingIterator<E> {
     }
 
     @Override
-    public boolean consume(final BufferingIterator<E> iterator) {
+    public boolean consume(final IBufferingIterator<E> iterator) {
         return false;
     }
 

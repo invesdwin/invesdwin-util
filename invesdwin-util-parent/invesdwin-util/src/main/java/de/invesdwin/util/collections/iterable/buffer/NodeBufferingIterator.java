@@ -11,9 +11,9 @@ import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.collections.iterable.WrapperCloseableIterable;
 import de.invesdwin.util.collections.iterable.WrapperCloseableIterator;
+import de.invesdwin.util.collections.iterable.buffer.NodeBufferingIterator.INode;
 import de.invesdwin.util.collections.list.Lists;
 import de.invesdwin.util.error.FastNoSuchElementException;
-import de.invesdwin.util.lang.Strings;
 
 /**
  * This iterator can be used to buffer another iterator. Useful to load from a file immediately to keep the file open as
@@ -26,33 +26,33 @@ import de.invesdwin.util.lang.Strings;
  * Also a faster alternative to any list when only iteration is needed.
  */
 @NotThreadSafe
-public class BufferingIterator<E> implements IBufferingIterator<E>, ISerializableValueObject {
+public class NodeBufferingIterator<E extends INode<E>> implements IBufferingIterator<E>, ISerializableValueObject {
 
-    private Node<E> head;
-    private Node<E> tail;
+    private E head;
+    private E tail;
     private int size = 0;
 
-    public BufferingIterator() {
+    public NodeBufferingIterator() {
     }
 
-    public BufferingIterator(final IBufferingIterator<E> iterable) {
+    public NodeBufferingIterator(final IBufferingIterator<E> iterable) {
         addAll(iterable);
     }
 
-    public BufferingIterator(final ICloseableIterator<? extends E> iterator) {
+    public NodeBufferingIterator(final ICloseableIterator<? extends E> iterator) {
         addAll(iterator);
     }
 
     @Deprecated
-    public BufferingIterator(final Iterator<? extends E> iterator) {
+    public NodeBufferingIterator(final Iterator<? extends E> iterator) {
         addAll(iterator);
     }
 
-    public BufferingIterator(final ICloseableIterable<? extends E> iterable) {
+    public NodeBufferingIterator(final ICloseableIterable<? extends E> iterable) {
         addAll(iterable);
     }
 
-    public BufferingIterator(final Iterable<? extends E> iterable) {
+    public NodeBufferingIterator(final Iterable<? extends E> iterable) {
         addAll(iterable);
     }
 
@@ -74,6 +74,7 @@ public class BufferingIterator<E> implements IBufferingIterator<E>, ISerializabl
         final E value = getHead();
         head = head.getNext();
         size--;
+        value.setNext(null);
         return value;
     }
 
@@ -82,7 +83,7 @@ public class BufferingIterator<E> implements IBufferingIterator<E>, ISerializabl
         if (head == null) {
             return null;
         } else {
-            return head.getValue();
+            return head;
         }
     }
 
@@ -91,16 +92,15 @@ public class BufferingIterator<E> implements IBufferingIterator<E>, ISerializabl
         if (tail == null) {
             return null;
         } else {
-            return tail.getValue();
+            return tail;
         }
     }
 
     @Override
-    public boolean prepend(final E element) {
-        if (element == null) {
+    public boolean prepend(final E newHead) {
+        if (newHead == null) {
             throw new NullPointerException();
         }
-        final Node<E> newHead = new Node<>(element);
         newHead.setNext(head);
         head = newHead;
         size++;
@@ -108,11 +108,10 @@ public class BufferingIterator<E> implements IBufferingIterator<E>, ISerializabl
     }
 
     @Override
-    public boolean add(final E element) {
-        if (element == null) {
+    public boolean add(final E newTail) {
+        if (newTail == null) {
             throw new NullPointerException();
         }
-        final Node<E> newTail = new Node<>(element);
         if (head == null) {
             head = newTail;
         } else {
@@ -165,18 +164,18 @@ public class BufferingIterator<E> implements IBufferingIterator<E>, ISerializabl
         if (iterator == null) {
             return false;
         } else {
-            Node<E> prev = tail;
+            E prev = tail;
             final int sizeBefore = size;
             try {
                 if (tail == null) {
-                    prev = new Node<>(iterator.next());
+                    prev = iterator.next();
                     size++;
                 }
                 if (head == null) {
                     head = prev;
                 }
                 while (true) {
-                    final Node<E> next = new Node<>(iterator.next());
+                    final E next = iterator.next();
                     prev.setNext(next);
                     prev = next;
                     size++;
@@ -195,9 +194,9 @@ public class BufferingIterator<E> implements IBufferingIterator<E>, ISerializabl
     public boolean consume(final Iterable<? extends E> iterable) {
         if (iterable == null) {
             return false;
-        } else if (iterable instanceof BufferingIterator) {
+        } else if (iterable instanceof NodeBufferingIterator) {
             @SuppressWarnings("unchecked")
-            final BufferingIterator<E> cIterable = (BufferingIterator<E>) iterable;
+            final NodeBufferingIterator<E> cIterable = (NodeBufferingIterator<E>) iterable;
             return consume(cIterable);
         } else {
             return addAll(iterable);
@@ -209,9 +208,9 @@ public class BufferingIterator<E> implements IBufferingIterator<E>, ISerializabl
     public boolean consume(final Iterator<? extends E> iterator) {
         if (iterator == null) {
             return false;
-        } else if (iterator instanceof BufferingIterator) {
+        } else if (iterator instanceof NodeBufferingIterator) {
             @SuppressWarnings("unchecked")
-            final BufferingIterator<E> cIterable = (BufferingIterator<E>) iterator;
+            final NodeBufferingIterator<E> cIterable = (NodeBufferingIterator<E>) iterator;
             return consume(cIterable);
         } else {
             return addAll(iterator);
@@ -220,8 +219,8 @@ public class BufferingIterator<E> implements IBufferingIterator<E>, ISerializabl
 
     @Override
     public boolean consume(final IBufferingIterator<E> iterator) {
-        if (iterator instanceof BufferingIterator) {
-            final BufferingIterator<E> cIterator = (BufferingIterator<E>) iterator;
+        if (iterator instanceof NodeBufferingIterator) {
+            final NodeBufferingIterator<E> cIterator = (NodeBufferingIterator<E>) iterator;
             final int sizeBefore = size;
             size += cIterator.size;
             if (head == null) {
@@ -254,30 +253,12 @@ public class BufferingIterator<E> implements IBufferingIterator<E>, ISerializabl
         return size;
     }
 
-    private static class Node<_E> implements ISerializableValueObject {
-        private final _E value;
-        private Node<_E> next;
+    public interface INode<E extends INode<E>> {
 
-        Node(final _E value) {
-            this.value = value;
-        }
+        E getNext();
 
-        public _E getValue() {
-            return value;
-        }
+        void setNext(E next);
 
-        public Node<_E> getNext() {
-            return next;
-        }
-
-        public void setNext(final Node<_E> next) {
-            this.next = next;
-        }
-
-        @Override
-        public String toString() {
-            return Strings.asString(value);
-        }
     }
 
     @Override
@@ -294,10 +275,10 @@ public class BufferingIterator<E> implements IBufferingIterator<E>, ISerializabl
         }
     }
 
-    private static final class BufferingIteratorIterator<_E> implements ICloseableIterator<_E> {
-        private Node<_E> innerHead;
+    private static final class BufferingIteratorIterator<_E extends INode<_E>> implements ICloseableIterator<_E> {
+        private _E innerHead;
 
-        private BufferingIteratorIterator(final Node<_E> head) {
+        private BufferingIteratorIterator(final _E head) {
             this.innerHead = head;
         }
 
@@ -311,7 +292,7 @@ public class BufferingIterator<E> implements IBufferingIterator<E>, ISerializabl
             if (!hasNext()) {
                 throw new FastNoSuchElementException("BufferingIterator: hasNext is false");
             }
-            final _E value = innerHead.getValue();
+            final _E value = innerHead;
             innerHead = innerHead.getNext();
             return value;
         }
@@ -322,11 +303,12 @@ public class BufferingIterator<E> implements IBufferingIterator<E>, ISerializabl
         }
     }
 
-    private static final class SnapshotBufferingIteratorIterator<_E> implements ICloseableIterator<_E> {
-        private Node<_E> innerHead;
-        private final Node<_E> innerTail;
+    private static final class SnapshotBufferingIteratorIterator<_E extends INode<_E>>
+            implements ICloseableIterator<_E> {
+        private _E innerHead;
+        private final _E innerTail;
 
-        private SnapshotBufferingIteratorIterator(final Node<_E> head, final Node<_E> tail) {
+        private SnapshotBufferingIteratorIterator(final _E head, final _E tail) {
             this.innerHead = head;
             this.innerTail = tail;
         }
@@ -341,7 +323,7 @@ public class BufferingIterator<E> implements IBufferingIterator<E>, ISerializabl
             if (!hasNext()) {
                 throw new FastNoSuchElementException("BufferingIterator: hasNext is false");
             }
-            final _E value = innerHead.getValue();
+            final _E value = innerHead;
             if (innerHead == innerTail) {
                 innerHead = null;
             } else {
@@ -358,8 +340,8 @@ public class BufferingIterator<E> implements IBufferingIterator<E>, ISerializabl
 
     @Override
     public ICloseableIterable<E> snapshot() {
-        final Node<E> head = this.head;
-        final Node<E> tail = this.tail;
+        final E head = this.head;
+        final E tail = this.tail;
         return new ICloseableIterable<E>() {
             @Override
             public ICloseableIterator<E> iterator() {

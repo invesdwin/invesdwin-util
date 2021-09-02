@@ -131,7 +131,7 @@ public abstract class ATransformingBufferingIterator<S, R> implements IBuffering
     }
 
     @Override
-    public boolean consume(final BufferingIterator<R> iterator) {
+    public boolean consume(final IBufferingIterator<R> iterator) {
         throw new UnsupportedOperationException("can not add");
     }
 
