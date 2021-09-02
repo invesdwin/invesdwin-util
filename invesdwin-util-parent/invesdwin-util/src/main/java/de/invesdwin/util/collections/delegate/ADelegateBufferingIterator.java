@@ -56,6 +56,16 @@ public abstract class ADelegateBufferingIterator<E> implements IBufferingIterato
     }
 
     @Override
+    public boolean remove(final E element) {
+        return delegate.remove(element);
+    }
+
+    @Override
+    public void remove() {
+        delegate.remove();
+    }
+
+    @Override
     public boolean addAll(final IBufferingIterator<E> iterable) {
         final ICloseableIterator<E> allowedElements = filterAllowedElements(iterable.iterator());
         return getDelegate().addAll(allowedElements);

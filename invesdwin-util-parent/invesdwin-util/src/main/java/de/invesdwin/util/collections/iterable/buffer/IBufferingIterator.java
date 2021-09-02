@@ -33,6 +33,8 @@ public interface IBufferingIterator<E> extends ICloseableIterator<E>, ICloseable
 
     boolean addAll(IBufferingIterator<E> iterable);
 
+    boolean remove(E element);
+
     void clear();
 
     int size();

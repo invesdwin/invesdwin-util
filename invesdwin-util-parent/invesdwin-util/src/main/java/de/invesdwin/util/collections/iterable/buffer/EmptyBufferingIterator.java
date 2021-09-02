@@ -68,6 +68,11 @@ public final class EmptyBufferingIterator<E> implements IBufferingIterator<E> {
     }
 
     @Override
+    public boolean remove(final E element) {
+        return false;
+    }
+
+    @Override
     public boolean addAll(final Iterator<? extends E> iterator) {
         return false;
     }

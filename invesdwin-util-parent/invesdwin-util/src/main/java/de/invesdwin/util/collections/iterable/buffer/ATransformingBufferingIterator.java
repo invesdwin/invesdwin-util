@@ -82,6 +82,17 @@ public abstract class ATransformingBufferingIterator<S, R> implements IBuffering
 
     @Deprecated
     @Override
+    public boolean remove(final R element) {
+        throw new UnsupportedOperationException("can not remove");
+    }
+
+    @Override
+    public void remove() {
+        delegate.remove();
+    }
+
+    @Deprecated
+    @Override
     public boolean addAll(final Iterator<? extends R> iterator) {
         throw new UnsupportedOperationException("can not add");
     }

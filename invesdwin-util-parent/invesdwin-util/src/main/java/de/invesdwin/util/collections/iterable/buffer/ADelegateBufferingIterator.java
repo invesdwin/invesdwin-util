@@ -68,6 +68,11 @@ public abstract class ADelegateBufferingIterator<E> implements IBufferingIterato
     }
 
     @Override
+    public boolean remove(final E element) {
+        return getDelegate().remove(element);
+    }
+
+    @Override
     public boolean addAll(final Iterator<? extends E> iterator) {
         return getDelegate().addAll(iterator);
     }

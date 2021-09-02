@@ -1,6 +1,6 @@
 package de.invesdwin.util.collections.iterable.concurrent;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
@@ -35,7 +35,7 @@ public abstract class AParallelChunkConsumerIterator<R, E> extends ACloseableIte
         super(new TextDescription(name));
         this.finalizer = new ParallelChunkConsumerIteratorFinalizer<>(name, requests, chunkSize);
         this.finalizer.register(this);
-        this.futures = new ArrayList<Future<E>>(chunkSize);
+        this.futures = new LinkedList<Future<E>>();
     }
 
     @Override
