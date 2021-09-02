@@ -2,17 +2,17 @@ package de.invesdwin.util.math.expression.tokenizer.pool;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.util.collections.iterable.buffer.NodeBufferingIterator;
 import de.invesdwin.util.concurrent.pool.AObjectPool;
 import de.invesdwin.util.math.expression.tokenizer.Tokenizer;
 
 @NotThreadSafe
 public final class TokenizerObjectPool extends AObjectPool<Tokenizer> {
 
-    private final List<Tokenizer> tokenizerRotation = new ArrayList<Tokenizer>();
+    private final NodeBufferingIterator<Tokenizer> tokenizerRotation = new NodeBufferingIterator<Tokenizer>();
 
     public TokenizerObjectPool() {
         super(new TokenizerPoolableObjectFactory());
@@ -23,7 +23,7 @@ public final class TokenizerObjectPool extends AObjectPool<Tokenizer> {
         if (tokenizerRotation.isEmpty()) {
             return factory.makeObject();
         }
-        final Tokenizer tokenizer = tokenizerRotation.remove(0);
+        final Tokenizer tokenizer = tokenizerRotation.next();
         if (tokenizer != null) {
             return tokenizer;
         } else {
@@ -40,7 +40,7 @@ public final class TokenizerObjectPool extends AObjectPool<Tokenizer> {
     public Collection<Tokenizer> internalClear() {
         final Collection<Tokenizer> removed = new ArrayList<Tokenizer>();
         while (!tokenizerRotation.isEmpty()) {
-            removed.add(tokenizerRotation.remove(0));
+            removed.add(tokenizerRotation.next());
         }
         return removed;
     }
@@ -64,7 +64,7 @@ public final class TokenizerObjectPool extends AObjectPool<Tokenizer> {
 
     @Override
     protected void internalRemoveObject(final Tokenizer obj) {
-        tokenizerRotation.remove(obj);
+        tokenizerRotation.next();
     }
 
 }

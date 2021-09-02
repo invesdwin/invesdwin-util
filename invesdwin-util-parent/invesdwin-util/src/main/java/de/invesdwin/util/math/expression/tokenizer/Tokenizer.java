@@ -5,11 +5,12 @@ import java.util.Map;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.util.collections.iterable.buffer.NodeBufferingIterator.INode;
 import de.invesdwin.util.lang.description.TextDescription;
 import de.invesdwin.util.math.expression.tokenizer.Token.TokenType;
 
 @NotThreadSafe
-public class Tokenizer extends ALookahead<Token> {
+public class Tokenizer extends ALookahead<Token> implements INode<Tokenizer> {
 
     private static final char PLUS = '+';
     private static final char MINUS = '-';
@@ -36,6 +37,7 @@ public class Tokenizer extends ALookahead<Token> {
 
     protected final LookaheadReader input;
     private boolean semicolonAllowed;
+    private Tokenizer next;
 
     public Tokenizer() {
         this.input = new LookaheadReader();
@@ -350,6 +352,16 @@ public class Tokenizer extends ALookahead<Token> {
 
     public IPosition getPosition() {
         return input.getPosition();
+    }
+
+    @Override
+    public Tokenizer getNext() {
+        return next;
+    }
+
+    @Override
+    public void setNext(final Tokenizer next) {
+        this.next = next;
     }
 
 }
