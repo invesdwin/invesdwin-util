@@ -535,8 +535,8 @@ public class ChronicleDelegateByteBuffer implements IByteBuffer {
     }
 
     @Override
-    public void checkLimit(final int limit) {
-        delegate.ensureCapacity(limit);
+    public void ensureCapacity(final int desiredCapacity) {
+        delegate.ensureCapacity(desiredCapacity);
     }
 
 }

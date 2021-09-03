@@ -435,4 +435,9 @@ public class UnsafeByteBuffer extends UnsafeBuffer implements IByteBuffer {
         return ByteBuffers.wrap(asByteArrayCopy(index, length));
     }
 
+    @Override
+    public void ensureCapacity(final int desiredCapacity) {
+        checkLimit(desiredCapacity);
+    }
+
 }

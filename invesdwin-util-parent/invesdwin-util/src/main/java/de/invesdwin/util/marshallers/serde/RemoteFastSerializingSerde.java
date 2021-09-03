@@ -129,7 +129,7 @@ public class RemoteFastSerializingSerde<E> implements ISerde<E> {
         } catch (final FSTBufferTooSmallException e) {
             if (buffer.isExpandable()) {
                 final int newCapacity = (int) (buffer.capacity() * EXPANSION_FACTORY);
-                buffer.checkLimit(newCapacity);
+                buffer.ensureCapacity(newCapacity);
                 return toBufferExpandable(buffer, obj);
             } else {
                 throw e;

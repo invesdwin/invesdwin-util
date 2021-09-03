@@ -339,8 +339,8 @@ public final class EmptyByteBuffer implements IByteBuffer {
     }
 
     @Override
-    public void checkLimit(final int limit) {
-        ByteBuffers.checkLimit(this, limit);
+    public void ensureCapacity(final int limit) {
+        ByteBuffers.ensureCapacity(this, limit);
     }
 
 }

@@ -9,6 +9,7 @@ import java.nio.ByteOrder;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import org.agrona.BitUtil;
 import org.agrona.ExpandableArrayBuffer;
 import org.agrona.MutableDirectBuffer;
 import org.agrona.concurrent.UnsafeBuffer;
@@ -136,7 +137,7 @@ public class ArrayExpandableByteBuffer extends ExpandableUninitializedArrayBuffe
         if (index == 0 && length == capacity()) {
             return this;
         } else {
-            checkLimit(index + length);
+            ensureCapacity(index + length);
             return new UnsafeByteBuffer(this, index, length);
         }
     }
@@ -288,13 +289,13 @@ public class ArrayExpandableByteBuffer extends ExpandableUninitializedArrayBuffe
 
     @Override
     public void putBytesTo(final int index, final DataInput src, final int length) throws IOException {
-        checkLimit(index + length);
+        ensureCapacity(index + length);
         src.readFully(byteArray(), index, length);
     }
 
     @Override
     public void putBytesTo(final int index, final InputStream src, final int length) throws IOException {
-        checkLimit(index + length);
+        ensureCapacity(index + length);
         final byte[] array = byteArray();
         ByteBuffers.readFully(src, array, index, length);
     }
@@ -315,7 +316,7 @@ public class ArrayExpandableByteBuffer extends ExpandableUninitializedArrayBuffe
 
     @Override
     public java.nio.ByteBuffer asByteBuffer(final int index, final int length) {
-        checkLimit(index + length);
+        ensureCapacity(index + length);
         final java.nio.ByteBuffer buffer = java.nio.ByteBuffer.wrap(byteArray());
         if (index == 0 && length == capacity()) {
             return buffer;
@@ -327,6 +328,12 @@ public class ArrayExpandableByteBuffer extends ExpandableUninitializedArrayBuffe
     @Override
     public String toString() {
         return ByteBuffers.toString(this);
+    }
+
+    @Override
+    public void ensureCapacity(final int desiredCapacity) {
+        //we need this workaround to prevent growth when capacity matches on the last bit
+        checkLimit(desiredCapacity - BitUtil.SIZE_OF_BYTE);
     }
 
 }

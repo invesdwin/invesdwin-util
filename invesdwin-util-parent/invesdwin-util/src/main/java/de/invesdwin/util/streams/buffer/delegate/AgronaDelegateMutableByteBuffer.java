@@ -9,6 +9,7 @@ import java.nio.ByteOrder;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import org.agrona.BitUtil;
 import org.agrona.DirectBuffer;
 import org.agrona.ExpandableArrayBuffer;
 import org.agrona.MutableDirectBuffer;
@@ -504,8 +505,13 @@ public class AgronaDelegateMutableByteBuffer implements IByteBuffer {
     }
 
     @Override
-    public void checkLimit(final int limit) {
-        delegate.checkLimit(limit);
+    public void ensureCapacity(final int desiredCapacity) {
+        if (isExpandable()) {
+            //we need this workaround to prevent growth when capacity matches on the last bit
+            delegate.checkLimit(desiredCapacity - BitUtil.SIZE_OF_BYTE);
+        } else {
+            delegate.checkLimit(desiredCapacity);
+        }
     }
 
 }

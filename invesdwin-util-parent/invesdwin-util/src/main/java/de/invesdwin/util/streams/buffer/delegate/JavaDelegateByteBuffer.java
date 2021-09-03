@@ -436,8 +436,8 @@ public class JavaDelegateByteBuffer implements IByteBuffer {
     }
 
     @Override
-    public void checkLimit(final int limit) {
-        ByteBuffers.checkLimit(this, limit);
+    public void ensureCapacity(final int desiredCapacity) {
+        ByteBuffers.ensureCapacity(this, desiredCapacity);
     }
 
     @Override

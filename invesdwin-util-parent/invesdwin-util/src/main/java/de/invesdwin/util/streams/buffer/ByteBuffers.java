@@ -358,7 +358,7 @@ public final class ByteBuffers {
                 location += count;
                 final int capacity = buffer.capacity();
                 if (location == capacity) {
-                    buffer.checkLimit(capacity + count);
+                    buffer.ensureCapacity(capacity + count);
                 }
             }
         }
@@ -380,7 +380,7 @@ public final class ByteBuffers {
                     location += count;
                     final int capacity = buffer.capacity();
                     if (location == capacity) {
-                        buffer.checkLimit(capacity + count);
+                        buffer.ensureCapacity(capacity + count);
                     }
                 }
             }
@@ -517,10 +517,11 @@ public final class ByteBuffers {
                 .toString();
     }
 
-    public static void checkLimit(final IByteBuffer buffer, final int limit) {
+    public static void ensureCapacity(final IByteBuffer buffer, final int desiredCapacity) {
         final int capacity = buffer.capacity();
-        if (limit > capacity) {
-            throw new IndexOutOfBoundsException("limit=" + limit + " is beyond capacity=" + capacity);
+        if (desiredCapacity > capacity) {
+            throw new IndexOutOfBoundsException(
+                    "desiredCapacity=" + desiredCapacity + " is beyond capacity=" + capacity);
         }
     }
 

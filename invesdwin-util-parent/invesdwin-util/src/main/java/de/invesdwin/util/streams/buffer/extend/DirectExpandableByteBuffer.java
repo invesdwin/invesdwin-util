@@ -9,6 +9,7 @@ import java.nio.ByteOrder;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import org.agrona.BitUtil;
 import org.agrona.ExpandableArrayBuffer;
 import org.agrona.ExpandableDirectByteBuffer;
 import org.agrona.MutableDirectBuffer;
@@ -210,7 +211,7 @@ public class DirectExpandableByteBuffer extends ExpandableDirectByteBuffer imple
         if (index == 0 && length == capacity()) {
             return this;
         } else {
-            checkLimit(index + length);
+            ensureCapacity(index + length);
             return new UnsafeByteBuffer(this, index, length);
         }
     }
@@ -272,7 +273,7 @@ public class DirectExpandableByteBuffer extends ExpandableDirectByteBuffer imple
 
     @Override
     public void putBytesTo(final int index, final DataInput src, final int length) throws IOException {
-        checkLimit(index + length);
+        ensureCapacity(index + length);
         int i = index;
         while (i < length) {
             final byte b = src.readByte();
@@ -283,7 +284,7 @@ public class DirectExpandableByteBuffer extends ExpandableDirectByteBuffer imple
 
     @Override
     public void putBytesTo(final int index, final InputStream src, final int length) throws IOException {
-        checkLimit(index + length);
+        ensureCapacity(index + length);
         int i = index;
         while (i < length) {
             final int result = src.read();
@@ -371,7 +372,7 @@ public class DirectExpandableByteBuffer extends ExpandableDirectByteBuffer imple
 
     @Override
     public java.nio.ByteBuffer asByteBuffer(final int index, final int length) {
-        checkLimit(index + length);
+        ensureCapacity(index + length);
         final java.nio.ByteBuffer buffer = byteBuffer();
         if (index == 0 && length == capacity()) {
             return buffer;
@@ -383,6 +384,12 @@ public class DirectExpandableByteBuffer extends ExpandableDirectByteBuffer imple
     @Override
     public String toString() {
         return ByteBuffers.toString(this);
+    }
+
+    @Override
+    public void ensureCapacity(final int desiredCapacity) {
+        //we need this workaround to prevent growth when capacity matches on the last bit
+        checkLimit(desiredCapacity - BitUtil.SIZE_OF_BYTE);
     }
 
 }
