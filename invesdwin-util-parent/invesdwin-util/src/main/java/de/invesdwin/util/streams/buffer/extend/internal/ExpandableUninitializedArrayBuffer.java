@@ -70,6 +70,10 @@ public class ExpandableUninitializedArrayBuffer implements MutableDirectBuffer {
         byteArray = ByteBuffers.allocateByteArray(initialCapacity);
     }
 
+    public ExpandableUninitializedArrayBuffer(final byte[] byteArray) {
+        this.byteArray = byteArray;
+    }
+
     /**
      * {@inheritDoc}
      */

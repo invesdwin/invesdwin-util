@@ -35,6 +35,10 @@ public class ArrayExpandableByteBuffer extends ExpandableUninitializedArrayBuffe
         super(initialCapacity);
     }
 
+    public ArrayExpandableByteBuffer(final byte[] byteArray) {
+        super(byteArray);
+    }
+
     @Override
     public boolean isReadOnly() {
         return false;
