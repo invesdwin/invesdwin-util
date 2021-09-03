@@ -19,7 +19,8 @@ import org.agrona.DirectBuffer;
 import org.agrona.MutableDirectBuffer;
 import org.agrona.UnsafeAccess;
 
-import de.invesdwin.util.concurrent.Executors;
+import de.invesdwin.util.concurrent.pool.AgronaObjectPool;
+import de.invesdwin.util.concurrent.pool.IObjectPool;
 import de.invesdwin.util.error.FastEOFException;
 import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.lang.Charsets;
@@ -33,7 +34,6 @@ import de.invesdwin.util.streams.buffer.extend.ArrayExpandableByteBuffer;
 import de.invesdwin.util.streams.buffer.extend.DirectExpandableByteBuffer;
 import de.invesdwin.util.streams.buffer.extend.UnsafeArrayByteBuffer;
 import de.invesdwin.util.streams.buffer.extend.UnsafeByteBuffer;
-import de.invesdwin.util.streams.buffer.pool.PooledByteBufferObjectPool;
 
 @Immutable
 public final class ByteBuffers {
@@ -49,12 +49,10 @@ public final class ByteBuffers {
      */
     public static final ByteOrder NATIVE_ORDER = ByteOrder.nativeOrder();
 
-    //normally buffers should not be nested in one thread
-    public static final int MAX_POOL_SIZE = Integers.max(2, Executors.getCpuThreadPoolCount());
-    public static final PooledByteBufferObjectPool EXPANDABLE_POOL = new PooledByteBufferObjectPool(
-            () -> allocateExpandable(), MAX_POOL_SIZE);
-    public static final PooledByteBufferObjectPool DIRECT_EXPANDABLE_POOL = new PooledByteBufferObjectPool(
-            () -> allocateDirectExpandable(), MAX_POOL_SIZE);
+    public static final IObjectPool<IByteBuffer> EXPANDABLE_POOL = new AgronaObjectPool<IByteBuffer>(
+            () -> allocateExpandable());
+    public static final IObjectPool<IByteBuffer> DIRECT_EXPANDABLE_POOL = new AgronaObjectPool<IByteBuffer>(
+            () -> allocateDirectExpandable());
 
     private static final ISliceInvoker SLICE_INVOKER;
     private static final FastEOFException PUTBYTESTOEOF = new FastEOFException("putBytesTo: src.read() returned -1");

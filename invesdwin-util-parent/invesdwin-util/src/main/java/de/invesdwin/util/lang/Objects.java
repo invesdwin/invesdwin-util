@@ -1,8 +1,5 @@
 package de.invesdwin.util.lang;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -15,7 +12,6 @@ import java.util.function.Function;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.builder.CompareToBuilder;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -23,10 +19,10 @@ import org.nustaq.serialization.FSTConfiguration;
 
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
 import de.invesdwin.norva.beanpath.BeanPathObjects;
-import de.invesdwin.norva.beanpath.IDeepCloneProvider;
 import de.invesdwin.util.lang.internal.AObjectsStaticFacade;
+import de.invesdwin.util.marshallers.serde.LocalFastSerializingSerde;
 import de.invesdwin.util.math.Integers;
-import io.netty.util.concurrent.FastThreadLocal;
+import de.invesdwin.util.streams.buffer.IByteBuffer;
 
 @Immutable
 @StaticFacadeDefinition(name = "de.invesdwin.util.lang.internal.AObjectsStaticFacade", targets = {
@@ -34,13 +30,6 @@ import io.netty.util.concurrent.FastThreadLocal;
 public final class Objects extends AObjectsStaticFacade {
 
     public static final boolean DEFAULT_APPEND_MISSING_VALUES = true;
-    public static final FSTConfiguration SERIALIZATION_CONFIG_TEMPLATE;
-    public static final FastThreadLocal<FSTConfiguration> SERIALIZATION_CONFIG_HOLDER = new FastThreadLocal<FSTConfiguration>() {
-        @Override
-        protected FSTConfiguration initialValue() throws Exception {
-            return SERIALIZATION_CONFIG_TEMPLATE.deriveConfiguration();
-        }
-    };
     public static final Set<String> REFLECTION_EXCLUDED_FIELDS = new HashSet<String>();
     public static final ADelegateComparator<Object> COMPARATOR = new ADelegateComparator<Object>() {
         @Override
@@ -54,61 +43,12 @@ public final class Objects extends AObjectsStaticFacade {
         //datanucleus enhancer fix
         REFLECTION_EXCLUDED_FIELDS.add("jdoDetachedState");
         REFLECTION_EXCLUDED_FIELDS.add("class");
-        FSTConfiguration fstConfig;
         try {
-            fstConfig = FSTConfiguration.getDefaultConfiguration();
-        } catch (final Throwable t) {
-            /*
-             * we might be in a restricted environment where FST is not allowed, stay with java serialization then
-             */
-            fstConfig = null;
-        }
-        SERIALIZATION_CONFIG_TEMPLATE = fstConfig;
-        if (SERIALIZATION_CONFIG_TEMPLATE != null) {
             //use FST in BeanPathObjects as deepClone fallback instead of java serialization
-            BeanPathObjects.setDeepCloneProvider(new IDeepCloneProvider() {
-                @SuppressWarnings("unchecked")
-                @Override
-                public <T> T deepClone(final T obj) {
-                    if (obj == null) {
-                        return null;
-                    }
-                    final byte[] serialized = serialize((Serializable) obj);
-                    return (T) deserialize(serialized);
-                }
-
-                @Override
-                @SuppressWarnings("unchecked")
-                public <T> T deserialize(final byte[] objectData) {
-                    return (T) SERIALIZATION_CONFIG_HOLDER.get().asObject(objectData);
-                }
-
-                @Override
-                public <T> T deserialize(final InputStream in) {
-                    //FST is unreliable regarding input streams
-                    try {
-                        return deserialize(IOUtils.toByteArray(in));
-                    } catch (final IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-
-                @Override
-                public byte[] serialize(final Serializable obj) {
-                    return SERIALIZATION_CONFIG_HOLDER.get().asByteArray(obj);
-                }
-
-                @Override
-                public int serialize(final Serializable obj, final OutputStream out) {
-                    try {
-                        final byte[] bytes = serialize(obj);
-                        out.write(bytes, 0, bytes.length);
-                        return bytes.length;
-                    } catch (final IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-            });
+            FSTConfiguration.getDefaultConfiguration(); //might throw an exception here
+            BeanPathObjects.setDeepCloneProvider(LocalFastSerializingSerde.get());
+        } catch (final Throwable t) {
+            // we might be in a restricted environment where FST is not allowed, stay with java serialization then
         }
     }
 
@@ -421,6 +361,14 @@ public final class Objects extends AObjectsStaticFacade {
             }
             b.append(", ");
         }
+    }
+
+    public static <T extends Serializable> T deserialize(final IByteBuffer buffer, final int length) {
+        return LocalFastSerializingSerde.<T> get().fromBuffer(buffer, length);
+    }
+
+    public static <T extends Serializable> int serialize(final IByteBuffer buffer, final T obj) {
+        return LocalFastSerializingSerde.<T> get().toBuffer(buffer, obj);
     }
 
 }
