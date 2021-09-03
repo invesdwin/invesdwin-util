@@ -18,6 +18,10 @@ public class UnsafeArrayByteBuffer extends UnsafeByteBuffer {
         super(array);
     }
 
+    public UnsafeArrayByteBuffer(final byte[] array, final int offset, final int length) {
+        super(array, offset, length);
+    }
+
     @Override
     public byte[] asByteArray() {
         return byteArray();

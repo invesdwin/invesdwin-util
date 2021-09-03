@@ -337,14 +337,22 @@ public final class ByteBuffers {
     }
 
     public static IByteBuffer wrap(final byte[] bytes) {
+        //        if (Throwables.isDebugStackTraceEnabled()) {
+        //            return new JavaDelegateArrayByteBuffer(bytes);
+        //        } else {
         return new UnsafeArrayByteBuffer(bytes);
+        //        }
     }
 
     public static IByteBuffer wrap(final java.nio.ByteBuffer buffer) {
         if (buffer.hasArray() && wrapAdjustment(buffer) == 0) {
             return wrap(buffer.array());
         } else {
+            //            if (Throwables.isDebugStackTraceEnabled()) {
+            //                return new JavaDelegateByteBuffer(buffer);
+            //            } else {
             return new UnsafeByteBuffer(buffer);
+            //            }
         }
     }
 
@@ -440,7 +448,7 @@ public final class ByteBuffers {
         if (index == 0 && length == bytes.length) {
             return wrap(bytes);
         } else {
-            return new UnsafeByteBuffer(bytes, index, length);
+            return new UnsafeArrayByteBuffer(bytes, index, length);
         }
     }
 
