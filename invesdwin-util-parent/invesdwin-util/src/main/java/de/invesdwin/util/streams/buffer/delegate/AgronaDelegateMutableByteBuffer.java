@@ -120,10 +120,11 @@ public class AgronaDelegateMutableByteBuffer implements IByteBuffer {
 
     @Override
     public void getBytes(final int index, final IByteBuffer dstBuffer, final int dstIndex, final int length) {
+        //wrapadjustment only needed for byteArray
         if (dstBuffer.directBuffer() != null) {
-            delegate.getBytes(index, dstBuffer.directBuffer(), dstIndex + dstBuffer.wrapAdjustment(), length);
+            delegate.getBytes(index, dstBuffer.directBuffer(), dstIndex, length);
         } else if (dstBuffer.byteBuffer() != null) {
-            delegate.getBytes(index, dstBuffer.byteBuffer(), dstIndex + dstBuffer.wrapAdjustment(), length);
+            delegate.getBytes(index, dstBuffer.byteBuffer(), dstIndex, length);
         } else if (dstBuffer.byteArray() != null) {
             delegate.getBytes(index, dstBuffer.byteArray(), dstIndex + dstBuffer.wrapAdjustment(), length);
         } else {
@@ -195,10 +196,11 @@ public class AgronaDelegateMutableByteBuffer implements IByteBuffer {
 
     @Override
     public void putBytes(final int index, final IByteBuffer srcBuffer, final int srcIndex, final int length) {
+        //wrapadjustment only needed for byteArray
         if (srcBuffer.directBuffer() != null) {
-            delegate.putBytes(index, srcBuffer.directBuffer(), srcIndex + srcBuffer.wrapAdjustment(), length);
+            delegate.putBytes(index, srcBuffer.directBuffer(), srcIndex, length);
         } else if (srcBuffer.byteBuffer() != null) {
-            delegate.putBytes(index, srcBuffer.byteBuffer(), srcIndex + srcBuffer.wrapAdjustment(), length);
+            delegate.putBytes(index, srcBuffer.byteBuffer(), srcIndex, length);
         } else if (srcBuffer.byteArray() != null) {
             delegate.putBytes(index, srcBuffer.byteArray(), srcIndex + srcBuffer.wrapAdjustment(), length);
         } else {
