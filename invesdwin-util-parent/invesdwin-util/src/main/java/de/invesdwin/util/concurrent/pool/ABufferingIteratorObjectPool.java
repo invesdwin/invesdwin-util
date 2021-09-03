@@ -1,5 +1,7 @@
 package de.invesdwin.util.concurrent.pool;
 
+import java.util.NoSuchElementException;
+
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.collections.iterable.buffer.IBufferingIterator;
@@ -15,10 +17,14 @@ public abstract class ABufferingIteratorObjectPool<E> implements IObjectPool<E> 
 
     @Override
     public E borrowObject() {
-        final E element = bufferingIterator.next();
-        if (element != null) {
-            return element;
-        } else {
+        try {
+            final E element = bufferingIterator.next();
+            if (element != null) {
+                return element;
+            } else {
+                return newObject();
+            }
+        } catch (final NoSuchElementException e) {
             return newObject();
         }
     }

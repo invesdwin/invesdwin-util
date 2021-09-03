@@ -77,12 +77,16 @@ public abstract class ATimeoutObjectPool<E> implements IObjectPool<E>, Closeable
 
     @Override
     public synchronized E borrowObject() {
-        final TimeoutReference<E> reference = bufferingIterator.next();
-        if (reference != null) {
-            final E element = reference.get();
-            reference.clear();
-            return element;
-        } else {
+        try {
+            final TimeoutReference<E> reference = bufferingIterator.next();
+            if (reference != null) {
+                final E element = reference.get();
+                reference.clear();
+                return element;
+            } else {
+                return newObject();
+            }
+        } catch (final NoSuchElementException e) {
             return newObject();
         }
     }
