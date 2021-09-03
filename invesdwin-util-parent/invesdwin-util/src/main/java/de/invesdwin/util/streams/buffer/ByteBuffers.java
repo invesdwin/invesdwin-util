@@ -1,5 +1,6 @@
 package de.invesdwin.util.streams.buffer;
 
+import java.io.DataInput;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,7 +10,6 @@ import java.lang.reflect.Method;
 import java.nio.Buffer;
 import java.nio.ByteOrder;
 import java.nio.channels.ReadableByteChannel;
-import java.nio.channels.WritableByteChannel;
 import java.util.Arrays;
 
 import javax.annotation.concurrent.Immutable;
@@ -28,6 +28,7 @@ import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.lang.reflection.Reflections;
 import de.invesdwin.util.math.Bytes;
 import de.invesdwin.util.math.Integers;
+import de.invesdwin.util.streams.InputStreams;
 import de.invesdwin.util.streams.buffer.delegate.AgronaDelegateByteBuffer;
 import de.invesdwin.util.streams.buffer.delegate.AgronaDelegateMutableByteBuffer;
 import de.invesdwin.util.streams.buffer.extend.ArrayExpandableByteBuffer;
@@ -365,6 +366,29 @@ public final class ByteBuffers {
         return location - index;
     }
 
+    public static int readExpandable(final DataInput src, final IByteBuffer buffer, final int index)
+            throws IOException {
+        if (src instanceof FileInputStream) {
+            final FileInputStream cSrc = (FileInputStream) src;
+            return readExpandable(cSrc.getChannel(), buffer, index);
+        } else {
+            int location = index;
+            while (true) {
+                final int count = InputStreams.read(src, buffer.byteArray(), location, buffer.remaining(location));
+                if (count == -1) { // EOF
+                    break;
+                } else {
+                    location += count;
+                    final int capacity = buffer.capacity();
+                    if (location == capacity) {
+                        buffer.ensureCapacity(capacity + count);
+                    }
+                }
+            }
+            return location - index;
+        }
+    }
+
     public static int readExpandable(final InputStream src, final IByteBuffer buffer, final int index)
             throws IOException {
         if (src instanceof FileInputStream) {
@@ -385,53 +409,6 @@ public final class ByteBuffers {
                 }
             }
             return location - index;
-        }
-    }
-
-    public static void readFully(final InputStream src, final byte[] array, final int index, final int length)
-            throws IOException {
-        final int end = index + length;
-        int remaining = length;
-        while (remaining > 0) {
-            final int location = end - remaining;
-            final int count = src.read(array, location, remaining);
-            if (count == -1) { // EOF
-                break;
-            }
-            remaining -= count;
-        }
-        if (remaining > 0) {
-            throw ByteBuffers.newPutBytesToEOF();
-        }
-    }
-
-    public static void writeFully(final WritableByteChannel dst, final java.nio.ByteBuffer byteBuffer)
-            throws IOException {
-        int remaining = byteBuffer.remaining();
-        while (remaining > 0) {
-            final int count = dst.write(byteBuffer);
-            if (count == -1) { // EOF
-                break;
-            }
-            remaining -= count;
-        }
-        if (remaining > 0) {
-            throw ByteBuffers.newPutBytesToEOF();
-        }
-    }
-
-    public static void readFully(final ReadableByteChannel src, final java.nio.ByteBuffer byteBuffer)
-            throws IOException {
-        int remaining = byteBuffer.remaining();
-        while (remaining > 0) {
-            final int count = src.read(byteBuffer);
-            if (count == -1) { // EOF
-                break;
-            }
-            remaining -= count;
-        }
-        if (remaining > 0) {
-            throw ByteBuffers.newPutBytesToEOF();
         }
     }
 

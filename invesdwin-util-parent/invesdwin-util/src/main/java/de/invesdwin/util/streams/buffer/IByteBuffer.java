@@ -15,6 +15,8 @@ import org.agrona.DirectBuffer;
 import org.agrona.MutableDirectBuffer;
 
 import de.invesdwin.util.math.Bytes;
+import de.invesdwin.util.streams.InputStreams;
+import de.invesdwin.util.streams.OutputStreams;
 
 public interface IByteBuffer extends IByteBufferWriter, Cloneable {
 
@@ -403,7 +405,7 @@ public interface IByteBuffer extends IByteBufferWriter, Cloneable {
     }
 
     default void getBytesTo(final int index, final WritableByteChannel dst, final int length) throws IOException {
-        ByteBuffers.writeFully(dst, asByteBuffer(index, length));
+        OutputStreams.writeFully(dst, asByteBuffer(index, length));
     }
 
     default void putBytes(final int index, final DataInputStream src) throws IOException {
@@ -431,7 +433,7 @@ public interface IByteBuffer extends IByteBufferWriter, Cloneable {
     }
 
     default void putBytesTo(final int index, final ReadableByteChannel src, final int length) throws IOException {
-        ByteBuffers.readFully(src, asByteBuffer(index, length));
+        InputStreams.readFully(src, asByteBuffer(index, length));
     }
 
     <T> T unwrap(Class<T> type);

@@ -16,6 +16,7 @@ import org.agrona.concurrent.UnsafeBuffer;
 import org.agrona.io.DirectBufferInputStream;
 import org.agrona.io.DirectBufferOutputStream;
 
+import de.invesdwin.util.streams.InputStreams;
 import de.invesdwin.util.streams.buffer.ByteBuffers;
 import de.invesdwin.util.streams.buffer.IByteBuffer;
 import de.invesdwin.util.streams.buffer.delegate.slice.SlicedFromDelegateByteBuffer;
@@ -297,7 +298,7 @@ public class ArrayExpandableByteBuffer extends ExpandableUninitializedArrayBuffe
     public void putBytesTo(final int index, final InputStream src, final int length) throws IOException {
         ensureCapacity(index + length);
         final byte[] array = byteArray();
-        ByteBuffers.readFully(src, array, index, length);
+        InputStreams.readFully(src, array, index, length);
     }
 
     @Override
