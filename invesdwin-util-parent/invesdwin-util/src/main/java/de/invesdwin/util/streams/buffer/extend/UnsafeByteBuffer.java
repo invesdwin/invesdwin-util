@@ -30,31 +30,31 @@ public class UnsafeByteBuffer extends UnsafeBuffer implements IByteBuffer {
     }
 
     public UnsafeByteBuffer(final byte[] buffer) {
-        super(buffer);
+        super(ByteBuffers.assertBuffer(buffer));
     }
 
     public UnsafeByteBuffer(final byte[] buffer, final int offset, final int length) {
-        super(buffer, offset, length);
+        super(ByteBuffers.assertBuffer(buffer), offset, length);
     }
 
     public UnsafeByteBuffer(final java.nio.ByteBuffer buffer) {
-        super(buffer);
+        super(ByteBuffers.assertBuffer(buffer));
     }
 
     public UnsafeByteBuffer(final java.nio.ByteBuffer buffer, final int offset, final int length) {
-        super(buffer, offset, length);
+        super(ByteBuffers.assertBuffer(buffer), offset, length);
     }
 
     public UnsafeByteBuffer(final DirectBuffer buffer) {
-        super(buffer);
+        super(ByteBuffers.assertBuffer(buffer));
     }
 
     public UnsafeByteBuffer(final DirectBuffer buffer, final int offset, final int length) {
-        super(buffer, offset, length);
+        super(ByteBuffers.assertBuffer(buffer), offset, length);
     }
 
     public UnsafeByteBuffer(final long address, final int length) {
-        super(address, length);
+        super(ByteBuffers.assertBuffer(address), length);
     }
 
     @Override

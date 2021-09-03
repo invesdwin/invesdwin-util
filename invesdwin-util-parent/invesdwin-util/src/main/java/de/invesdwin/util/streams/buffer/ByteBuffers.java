@@ -510,4 +510,32 @@ public final class ByteBuffers {
         }
     }
 
+    public static long assertBuffer(final long address) {
+        if (address <= 0) {
+            throw new NullPointerException("address [" + address + "] should be positive (this can cause a jvm crash)");
+        }
+        return address;
+    }
+
+    public static DirectBuffer assertBuffer(final DirectBuffer buffer) {
+        if (buffer == null) {
+            throw new NullPointerException("buffer should not be null (this can cause a jvm crash)");
+        }
+        return buffer;
+    }
+
+    public static java.nio.ByteBuffer assertBuffer(final java.nio.ByteBuffer buffer) {
+        if (buffer == null) {
+            throw new NullPointerException("buffer should not be null (this can cause a jvm crash)");
+        }
+        return buffer;
+    }
+
+    public static byte[] assertBuffer(final byte[] buffer) {
+        if (buffer == null) {
+            throw new NullPointerException("buffer should not be null (this can cause a jvm crash)");
+        }
+        return buffer;
+    }
+
 }
