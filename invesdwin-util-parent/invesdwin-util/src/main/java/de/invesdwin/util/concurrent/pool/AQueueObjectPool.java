@@ -27,6 +27,9 @@ public abstract class AQueueObjectPool<E> implements IObjectPool<E> {
 
     @Override
     public void returnObject(final E element) {
+        if (element == null) {
+            return;
+        }
         queue.offer(element);
     }
 
