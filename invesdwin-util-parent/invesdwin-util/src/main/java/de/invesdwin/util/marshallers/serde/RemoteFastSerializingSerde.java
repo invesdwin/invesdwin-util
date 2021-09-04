@@ -61,7 +61,7 @@ public class RemoteFastSerializingSerde<E> implements ISerde<E> {
         }
         for (int i = 0; i < types.size(); i++) {
             final Class<?> type = types.get(i);
-            if (type == null || !(type instanceof Serializable)) {
+            if (type == null || !Serializable.class.isAssignableFrom(type)) {
                 types.remove(i);
                 i--;
             }
