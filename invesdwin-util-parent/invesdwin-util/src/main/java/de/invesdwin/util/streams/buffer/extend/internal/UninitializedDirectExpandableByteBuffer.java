@@ -1,4 +1,4 @@
-package de.invesdwin.util.streams.buffer.extend;
+package de.invesdwin.util.streams.buffer.extend.internal;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -9,7 +9,8 @@ import java.nio.ByteOrder;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import org.agrona.DirectBuffer;
+import org.agrona.BitUtil;
+import org.agrona.ExpandableArrayBuffer;
 import org.agrona.MutableDirectBuffer;
 import org.agrona.concurrent.UnsafeBuffer;
 import org.agrona.io.DirectBufferInputStream;
@@ -17,45 +18,23 @@ import org.agrona.io.DirectBufferOutputStream;
 
 import de.invesdwin.util.streams.buffer.ByteBuffers;
 import de.invesdwin.util.streams.buffer.IByteBuffer;
-import de.invesdwin.util.streams.buffer.delegate.slice.mutable.factory.FixedMutableSlicedDelegateByteBufferFactory;
+import de.invesdwin.util.streams.buffer.delegate.slice.SlicedFromDelegateByteBuffer;
+import de.invesdwin.util.streams.buffer.delegate.slice.mutable.factory.ExpandableMutableSlicedDelegateByteBufferFactory;
 import de.invesdwin.util.streams.buffer.delegate.slice.mutable.factory.IMutableSlicedDelegateByteBufferFactory;
-import de.invesdwin.util.streams.buffer.extend.internal.UninitializedDirectByteBuffers;
+import de.invesdwin.util.streams.buffer.extend.UnsafeByteBuffer;
 
 @NotThreadSafe
-public class UnsafeByteBuffer extends UnsafeBuffer implements IByteBuffer {
+public class UninitializedDirectExpandableByteBuffer extends UninitializedExpandableDirectBufferBase
+        implements IByteBuffer {
 
     private IMutableSlicedDelegateByteBufferFactory mutableSliceFactory;
 
-    public UnsafeByteBuffer() {
+    public UninitializedDirectExpandableByteBuffer() {
         super();
     }
 
-    public UnsafeByteBuffer(final byte[] buffer) {
-        super(ByteBuffers.assertBuffer(buffer));
-    }
-
-    public UnsafeByteBuffer(final byte[] buffer, final int offset, final int length) {
-        super(ByteBuffers.assertBuffer(buffer), offset, length);
-    }
-
-    public UnsafeByteBuffer(final java.nio.ByteBuffer buffer) {
-        super(ByteBuffers.assertBuffer(buffer));
-    }
-
-    public UnsafeByteBuffer(final java.nio.ByteBuffer buffer, final int offset, final int length) {
-        super(ByteBuffers.assertBuffer(buffer), offset, length);
-    }
-
-    public UnsafeByteBuffer(final DirectBuffer buffer) {
-        super(ByteBuffers.assertBuffer(buffer));
-    }
-
-    public UnsafeByteBuffer(final DirectBuffer buffer, final int offset, final int length) {
-        super(ByteBuffers.assertBuffer(buffer), offset, length);
-    }
-
-    public UnsafeByteBuffer(final long address, final int length) {
-        super(ByteBuffers.assertBuffer(address), length);
+    public UninitializedDirectExpandableByteBuffer(final int initialCapacity) {
+        super(initialCapacity);
     }
 
     @Override
@@ -75,13 +54,13 @@ public class UnsafeByteBuffer extends UnsafeBuffer implements IByteBuffer {
 
     @Override
     public void getBytes(final int index, final IByteBuffer dstBuffer, final int dstIndex, final int length) {
-        //wrapadjustment only needed for byteArray
+        //no wrapadjustment needed, since expandable always is a direct reference
         if (dstBuffer.directBuffer() != null) {
             getBytes(index, dstBuffer.directBuffer(), dstIndex, length);
         } else if (dstBuffer.byteBuffer() != null) {
             getBytes(index, dstBuffer.byteBuffer(), dstIndex, length);
         } else if (dstBuffer.byteArray() != null) {
-            getBytes(index, dstBuffer.byteArray(), dstIndex + dstBuffer.wrapAdjustment(), length);
+            getBytes(index, dstBuffer.byteArray(), dstIndex, length);
         } else {
             for (int i = 0; i < length; i++) {
                 dstBuffer.putByte(dstIndex + i, getByte(index + i));
@@ -91,13 +70,13 @@ public class UnsafeByteBuffer extends UnsafeBuffer implements IByteBuffer {
 
     @Override
     public void putBytes(final int index, final IByteBuffer srcBuffer, final int srcIndex, final int length) {
-        //wrapadjustment only needed for byteArray
+        //no wrapadjustment needed, since expandable always is a direct reference
         if (srcBuffer.directBuffer() != null) {
             putBytes(index, srcBuffer.directBuffer(), srcIndex, length);
         } else if (srcBuffer.byteBuffer() != null) {
             putBytes(index, srcBuffer.byteBuffer(), srcIndex, length);
         } else if (srcBuffer.byteArray() != null) {
-            putBytes(index, srcBuffer.byteArray(), srcIndex + srcBuffer.wrapAdjustment(), length);
+            putBytes(index, srcBuffer.byteArray(), srcIndex, length);
         } else {
             for (int i = 0; i < length; i++) {
                 putByte(index + i, srcBuffer.getByte(srcIndex + i));
@@ -112,48 +91,43 @@ public class UnsafeByteBuffer extends UnsafeBuffer implements IByteBuffer {
 
     @Override
     public OutputStream asOutputStream(final int index, final int length) {
-        return new DirectBufferOutputStream(this, index, length);
+        //allow output stream to actually grow the buffer
+        return new DirectBufferOutputStream(this, index, ExpandableArrayBuffer.MAX_ARRAY_LENGTH - index);
     }
 
+    @Deprecated
     @Override
     public byte[] asByteArray() {
-        if (wrapAdjustment() == 0) {
-            final byte[] bytes = byteArray();
-            if (bytes != null) {
-                return bytes;
-            }
-            final java.nio.ByteBuffer byteBuffer = byteBuffer();
-            if (byteBuffer != null) {
-                final byte[] array = byteBuffer.array();
-                if (array != null) {
-                    return array;
-                }
-            }
-        }
-        return ByteBuffers.asByteArrayCopyGet(this, 0, capacity());
+        throw newAsByteArrayUnsupported();
+    }
+
+    public static UnsupportedOperationException newAsByteArrayUnsupported() {
+        return new UnsupportedOperationException("This will give a bigger size than what was added to the buffer. "
+                + "Use buffer.asByteArrayTo(buffer.capacity()) if you really want this from an expandable buffer."
+                + "Also a slice(from, to)'d wrapper of this buffer should not cause this exception.");
+    }
+
+    @Deprecated
+    @Override
+    public byte[] asByteArrayCopy() {
+        throw newAsByteArrayUnsupported();
+    }
+
+    //CHECKSTYLE:OFF
+    @Override
+    public IByteBuffer clone() {
+        //CHECKSTYLE:ON
+        throw newAsByteArrayUnsupported();
     }
 
     @Override
-    public byte[] asByteArrayCopy() {
-        if (wrapAdjustment() == 0) {
-            final byte[] bytes = byteArray();
-            if (bytes != null) {
-                return bytes.clone();
-            }
-            final java.nio.ByteBuffer byteBuffer = byteBuffer();
-            if (byteBuffer != null) {
-                final byte[] array = byteBuffer.array();
-                if (array != null) {
-                    return array.clone();
-                }
-            }
-        }
-        return ByteBuffers.asByteArrayCopyGet(this, 0, capacity());
+    public IByteBuffer clone(final int index, final int length) {
+        return ByteBuffers.wrap(asByteArrayCopy(index, length));
     }
 
     @Override
     public byte[] asByteArray(final int index, final int length) {
-        if (wrapAdjustment() == 0 && index == 0 && length == capacity()) {
+        if (index == 0 && length == capacity()) {
             final byte[] bytes = byteArray();
             if (bytes != null) {
                 if (bytes.length != length) {
@@ -177,7 +151,7 @@ public class UnsafeByteBuffer extends UnsafeBuffer implements IByteBuffer {
 
     @Override
     public byte[] asByteArrayCopy(final int index, final int length) {
-        if (wrapAdjustment() == 0 && index == 0 && length == capacity()) {
+        if (index == 0 && length == capacity()) {
             final byte[] bytes = byteArray();
             if (bytes != null) {
                 if (bytes.length != length) {
@@ -215,7 +189,7 @@ public class UnsafeByteBuffer extends UnsafeBuffer implements IByteBuffer {
 
     private IMutableSlicedDelegateByteBufferFactory getMutableSliceFactory() {
         if (mutableSliceFactory == null) {
-            mutableSliceFactory = new FixedMutableSlicedDelegateByteBufferFactory(this);
+            mutableSliceFactory = new ExpandableMutableSlicedDelegateByteBufferFactory(this);
         }
         return mutableSliceFactory;
     }
@@ -232,7 +206,7 @@ public class UnsafeByteBuffer extends UnsafeBuffer implements IByteBuffer {
 
     @Override
     public IByteBuffer newSliceFrom(final int index) {
-        return newSlice(index, remaining(index));
+        return new SlicedFromDelegateByteBuffer(this, index);
     }
 
     @Override
@@ -240,6 +214,7 @@ public class UnsafeByteBuffer extends UnsafeBuffer implements IByteBuffer {
         if (index == 0 && length == capacity()) {
             return this;
         } else {
+            ensureCapacity(index + length);
             return new UnsafeByteBuffer(this, index, length);
         }
     }
@@ -301,6 +276,7 @@ public class UnsafeByteBuffer extends UnsafeBuffer implements IByteBuffer {
 
     @Override
     public void putBytesTo(final int index, final DataInput src, final int length) throws IOException {
+        ensureCapacity(index + length);
         int i = index;
         while (i < length) {
             final byte b = src.readByte();
@@ -311,10 +287,11 @@ public class UnsafeByteBuffer extends UnsafeBuffer implements IByteBuffer {
 
     @Override
     public void putBytesTo(final int index, final InputStream src, final int length) throws IOException {
+        ensureCapacity(index + length);
         int i = index;
         while (i < length) {
             final int result = src.read();
-            if (result == -1) {
+            if (result < 0) {
                 throw ByteBuffers.newPutBytesToEOF();
             }
             putByte(i, (byte) result);
@@ -382,6 +359,11 @@ public class UnsafeByteBuffer extends UnsafeBuffer implements IByteBuffer {
         return getChar(index, getOrder());
     }
 
+    @Override
+    public void clear(final byte value, final int index, final int length) {
+        setMemory(index, length, value);
+    }
+
     @SuppressWarnings("unchecked")
     @Override
     public <T> T unwrap(final Class<T> type) {
@@ -392,23 +374,9 @@ public class UnsafeByteBuffer extends UnsafeBuffer implements IByteBuffer {
     }
 
     @Override
-    public java.nio.ByteBuffer asByteBuffer() {
-        final java.nio.ByteBuffer byteBuffer = byteBuffer();
-        if (byteBuffer != null) {
-            return byteBuffer;
-        }
-        final byte[] array = byteArray();
-        if (array != null) {
-            final java.nio.ByteBuffer arrayBuffer = java.nio.ByteBuffer.wrap(array, wrapAdjustment(), capacity());
-            return arrayBuffer;
-        }
-        final long address = addressOffset();
-        return UninitializedDirectByteBuffers.asDirectByteBufferNoCleaner(address, capacity());
-    }
-
-    @Override
     public java.nio.ByteBuffer asByteBuffer(final int index, final int length) {
-        final java.nio.ByteBuffer buffer = asByteBuffer();
+        ensureCapacity(index + length);
+        final java.nio.ByteBuffer buffer = byteBuffer();
         if (index == 0 && length == capacity()) {
             return buffer;
         } else {
@@ -417,30 +385,14 @@ public class UnsafeByteBuffer extends UnsafeBuffer implements IByteBuffer {
     }
 
     @Override
-    public void clear(final byte value, final int index, final int length) {
-        super.setMemory(index, length, value);
-    }
-
-    @Override
     public String toString() {
         return ByteBuffers.toString(this);
     }
 
-    //CHECKSTYLE:OFF
-    @Override
-    public IByteBuffer clone() {
-        //CHECKSTYLE:ON
-        return ByteBuffers.wrap(asByteArrayCopy());
-    }
-
-    @Override
-    public IByteBuffer clone(final int index, final int length) {
-        return ByteBuffers.wrap(asByteArrayCopy(index, length));
-    }
-
     @Override
     public void ensureCapacity(final int desiredCapacity) {
-        checkLimit(desiredCapacity);
+        //we need this workaround to prevent growth when capacity matches on the last bit
+        checkLimit(desiredCapacity - BitUtil.SIZE_OF_BYTE);
     }
 
 }

@@ -17,7 +17,6 @@ import javax.annotation.concurrent.Immutable;
 import org.agrona.BufferUtil;
 import org.agrona.DirectBuffer;
 import org.agrona.MutableDirectBuffer;
-import org.agrona.UnsafeAccess;
 
 import de.invesdwin.util.concurrent.pool.AgronaObjectPool;
 import de.invesdwin.util.concurrent.pool.IObjectPool;
@@ -33,9 +32,11 @@ import de.invesdwin.util.streams.buffer.delegate.AgronaDelegateByteBuffer;
 import de.invesdwin.util.streams.buffer.delegate.AgronaDelegateMutableByteBuffer;
 import de.invesdwin.util.streams.buffer.extend.ArrayExpandableByteBuffer;
 import de.invesdwin.util.streams.buffer.extend.DirectExpandableByteBuffer;
-import de.invesdwin.util.streams.buffer.extend.UninitializedDirectByteBuffer;
 import de.invesdwin.util.streams.buffer.extend.UnsafeArrayByteBuffer;
 import de.invesdwin.util.streams.buffer.extend.UnsafeByteBuffer;
+import de.invesdwin.util.streams.buffer.extend.internal.UninitializedDirectByteBuffer;
+import de.invesdwin.util.streams.buffer.extend.internal.UninitializedDirectByteBuffers;
+import de.invesdwin.util.streams.buffer.extend.internal.UninitializedDirectExpandableByteBuffer;
 
 @Immutable
 public final class ByteBuffers {
@@ -56,8 +57,9 @@ public final class ByteBuffers {
     public static final IObjectPool<IByteBuffer> DIRECT_EXPANDABLE_POOL = new AgronaObjectPool<IByteBuffer>(
             () -> allocateDirectExpandable());
 
-    private static final ISliceInvoker SLICE_INVOKER;
     private static final FastEOFException PUTBYTESTOEOF = new FastEOFException("putBytesTo: src.read() returned -1");
+
+    private static final ISliceInvoker SLICE_INVOKER;
 
     static {
         SLICE_INVOKER = newSliceInvoker();
@@ -210,15 +212,28 @@ public final class ByteBuffers {
     }
 
     public static IByteBuffer allocateDirectFixed(final int fixedLength) {
-        return new UninitializedDirectByteBuffer(fixedLength);
+        if (UninitializedDirectByteBuffers.isDirectByteBufferNoCleanerSupported()) {
+            return new UninitializedDirectByteBuffer(fixedLength);
+        } else {
+            //no need to register a second cleaner
+            return wrap(java.nio.ByteBuffer.allocateDirect(fixedLength));
+        }
     }
 
     public static IByteBuffer allocateDirectExpandable() {
-        return new DirectExpandableByteBuffer();
+        if (UninitializedDirectByteBuffers.isDirectByteBufferNoCleanerSupported()) {
+            return new UninitializedDirectExpandableByteBuffer();
+        } else {
+            return new DirectExpandableByteBuffer();
+        }
     }
 
     public static IByteBuffer allocateDirectExpandable(final int initialLength) {
-        return new DirectExpandableByteBuffer(initialLength);
+        if (UninitializedDirectByteBuffers.isDirectByteBufferNoCleanerSupported()) {
+            return new UninitializedDirectExpandableByteBuffer(initialLength);
+        } else {
+            return new DirectExpandableByteBuffer(initialLength);
+        }
     }
 
     /**
@@ -523,48 +538,6 @@ public final class ByteBuffers {
             throw new NullPointerException("buffer should not be null (this can cause a jvm crash)");
         }
         return buffer;
-    }
-
-    @SuppressWarnings("restriction")
-    public static java.nio.ByteBuffer asDirectByteBufferNoCleaner(final long address, final int length) {
-        if (io.netty.util.internal.PlatformDependent.hasDirectBufferNoCleanerConstructor()) {
-            return io.netty.util.internal.PlatformDependent.directBuffer(address, length);
-        } else {
-            final java.nio.ByteBuffer bb = java.nio.ByteBuffer.allocateDirect(0);
-            BufferUtil.free(bb); //try to disarm the internal cleaner for the 1 byte allocated there
-            UnsafeAccess.UNSAFE.putLong(BufferUtil.BYTE_BUFFER_ADDRESS_FIELD_OFFSET, address);
-            UnsafeAccess.UNSAFE.putInt(BufferUtil.BYTE_BUFFER_OFFSET_FIELD_OFFSET, length);
-            return bb;
-        }
-    }
-
-    public static java.nio.ByteBuffer allocateDirectByteBufferNoCleaner(final int capacity) {
-        if (io.netty.util.internal.PlatformDependent.useDirectBufferNoCleaner()) {
-            return io.netty.util.internal.PlatformDependent.allocateDirectNoCleaner(capacity);
-        } else {
-            final long address = io.netty.util.internal.PlatformDependent.allocateMemory(capacity);
-            return asDirectByteBufferNoCleaner(address, capacity);
-        }
-    }
-
-    public static java.nio.ByteBuffer reallocateDirectByteBufferNoCleaner(final java.nio.ByteBuffer byteBuffer,
-            final int newCapacity) {
-        if (io.netty.util.internal.PlatformDependent.useDirectBufferNoCleaner()) {
-            return io.netty.util.internal.PlatformDependent.reallocateDirectNoCleaner(byteBuffer, newCapacity);
-        } else {
-            final long address = BufferUtil.address(byteBuffer);
-            final long newAddress = io.netty.util.internal.PlatformDependent.reallocateMemory(address, newCapacity);
-            return asDirectByteBufferNoCleaner(newAddress, newCapacity);
-        }
-    }
-
-    public static void freeDirectByteBufferNoCleaner(final java.nio.ByteBuffer byteBuffer) {
-        if (io.netty.util.internal.PlatformDependent.useDirectBufferNoCleaner()) {
-            io.netty.util.internal.PlatformDependent.freeDirectNoCleaner(byteBuffer);
-        } else {
-            final long address = BufferUtil.address(byteBuffer);
-            io.netty.util.internal.PlatformDependent.freeMemory(address);
-        }
     }
 
 }

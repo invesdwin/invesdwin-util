@@ -1,4 +1,4 @@
-package de.invesdwin.util.streams.buffer.extend;
+package de.invesdwin.util.streams.buffer.extend.internal;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -7,7 +7,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.lang.finalizer.AFinalizer;
-import de.invesdwin.util.streams.buffer.ByteBuffers;
+import de.invesdwin.util.streams.buffer.extend.UnsafeByteBuffer;
 
 /**
  * Registers a cleaner to free memory
@@ -27,7 +27,7 @@ public class UninitializedDirectByteBuffer extends UnsafeByteBuffer implements C
 
         @Override
         protected void clean() {
-            ByteBuffers.freeDirectByteBufferNoCleaner(buffer);
+            UninitializedDirectByteBuffers.freeDirectByteBufferNoCleaner(buffer);
             buffer = null;
         }
 
@@ -46,7 +46,7 @@ public class UninitializedDirectByteBuffer extends UnsafeByteBuffer implements C
     private final UninitializedDirectByteBufferFinalizer finalizer;
 
     public UninitializedDirectByteBuffer(final int length) {
-        super(ByteBuffers.allocateDirectByteBufferNoCleaner(length), 0, length);
+        super(UninitializedDirectByteBuffers.allocateDirectByteBufferNoCleaner(length), 0, length);
         this.finalizer = new UninitializedDirectByteBufferFinalizer(byteBuffer());
     }
 

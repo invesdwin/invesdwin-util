@@ -11,6 +11,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import org.agrona.BitUtil;
 import org.agrona.ExpandableArrayBuffer;
+import org.agrona.ExpandableDirectByteBuffer;
 import org.agrona.MutableDirectBuffer;
 import org.agrona.concurrent.UnsafeBuffer;
 import org.agrona.io.DirectBufferInputStream;
@@ -21,10 +22,9 @@ import de.invesdwin.util.streams.buffer.IByteBuffer;
 import de.invesdwin.util.streams.buffer.delegate.slice.SlicedFromDelegateByteBuffer;
 import de.invesdwin.util.streams.buffer.delegate.slice.mutable.factory.ExpandableMutableSlicedDelegateByteBufferFactory;
 import de.invesdwin.util.streams.buffer.delegate.slice.mutable.factory.IMutableSlicedDelegateByteBufferFactory;
-import de.invesdwin.util.streams.buffer.extend.internal.UninitializedExpandableDirectBuffer;
 
 @NotThreadSafe
-public class DirectExpandableByteBuffer extends UninitializedExpandableDirectBuffer implements IByteBuffer {
+public class DirectExpandableByteBuffer extends ExpandableDirectByteBuffer implements IByteBuffer {
 
     private IMutableSlicedDelegateByteBufferFactory mutableSliceFactory;
 

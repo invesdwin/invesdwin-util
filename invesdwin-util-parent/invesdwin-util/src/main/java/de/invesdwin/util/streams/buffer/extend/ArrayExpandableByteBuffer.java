@@ -22,10 +22,10 @@ import de.invesdwin.util.streams.buffer.IByteBuffer;
 import de.invesdwin.util.streams.buffer.delegate.slice.SlicedFromDelegateByteBuffer;
 import de.invesdwin.util.streams.buffer.delegate.slice.mutable.factory.ExpandableMutableSlicedDelegateByteBufferFactory;
 import de.invesdwin.util.streams.buffer.delegate.slice.mutable.factory.IMutableSlicedDelegateByteBufferFactory;
-import de.invesdwin.util.streams.buffer.extend.internal.UninitializedExpandableArrayBuffer;
+import de.invesdwin.util.streams.buffer.extend.internal.UninitializedExpandableArrayBufferBase;
 
 @NotThreadSafe
-public class ArrayExpandableByteBuffer extends UninitializedExpandableArrayBuffer implements IByteBuffer {
+public class ArrayExpandableByteBuffer extends UninitializedExpandableArrayBufferBase implements IByteBuffer {
 
     private IMutableSlicedDelegateByteBufferFactory mutableSliceFactory;
 
