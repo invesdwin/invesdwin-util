@@ -3,6 +3,7 @@ package de.invesdwin.util.marshallers.serde;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
+import java.util.List;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -23,7 +24,7 @@ public class LocalFastSerializingSerde<E extends Serializable> implements ISerde
 
     private RemoteFastSerializingSerde<Object> delegate = new RemoteFastSerializingSerde<>(true);
 
-    public void setClassRegistry(final Class<?>[] classRegistry) {
+    public void setClassRegistry(final List<Class<?>> classRegistry) {
         this.delegate = new RemoteFastSerializingSerde<>(true, classRegistry);
     }
 

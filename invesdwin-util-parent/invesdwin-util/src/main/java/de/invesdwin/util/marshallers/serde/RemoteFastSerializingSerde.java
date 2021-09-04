@@ -1,6 +1,9 @@
 package de.invesdwin.util.marshallers.serde;
 
 import java.io.IOException;
+import java.io.Serializable;
+import java.util.Arrays;
+import java.util.List;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -20,18 +23,49 @@ import de.invesdwin.util.streams.buffer.IByteBuffer;
 @Immutable
 public class RemoteFastSerializingSerde<E> implements ISerde<E> {
 
+    private static final Class<?>[] EMPTY_TYPES = new Class[0];
+
     private static final double EXPANSION_FACTORY = 1.5;
 
     private final IObjectPool<OnHeapCoder> onHeapCoderPool;
     private final IObjectPool<OffHeapCoder> offHeapCoderPool;
+
+    public RemoteFastSerializingSerde(final boolean shared, final List<Class<?>> types) {
+        final Class<?>[] filteredTypes = filter(types);
+        this.onHeapCoderPool = new AgronaObjectPool<>(() -> new OnHeapCoder(shared, filteredTypes));
+        this.offHeapCoderPool = new AgronaObjectPool<>(() -> new OffHeapCoder(shared, filteredTypes));
+    }
 
     /**
      * Use shared=true when the object tree can have multiple object references to the same object. This also solves
      * circular dependencies. Though shared=false is faster for flat objects.
      */
     public RemoteFastSerializingSerde(final boolean shared, final Class<?>... types) {
-        this.onHeapCoderPool = new AgronaObjectPool<>(() -> new OnHeapCoder(shared, types));
-        this.offHeapCoderPool = new AgronaObjectPool<>(() -> new OffHeapCoder(shared, types));
+        final Class<?>[] filteredTypes = filter(types);
+        this.onHeapCoderPool = new AgronaObjectPool<>(() -> new OnHeapCoder(shared, filteredTypes));
+        this.offHeapCoderPool = new AgronaObjectPool<>(() -> new OffHeapCoder(shared, filteredTypes));
+    }
+
+    private Class<?>[] filter(final Class<?>[] types) {
+        if (types == null || types.length == 0) {
+            return EMPTY_TYPES;
+        } else {
+            return filter(Arrays.asList(types));
+        }
+    }
+
+    private static Class<?>[] filter(final List<Class<?>> types) {
+        if (types == null || types.isEmpty()) {
+            return EMPTY_TYPES;
+        }
+        for (int i = 0; i < types.size(); i++) {
+            final Class<?> type = types.get(i);
+            if (type == null || !(type instanceof Serializable)) {
+                types.remove(i);
+                i--;
+            }
+        }
+        return types.toArray(new Class[types.size()]);
     }
 
     public IObjectPool<OnHeapCoder> getOnHeapCoderPool() {
