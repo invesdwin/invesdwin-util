@@ -2,6 +2,7 @@ package de.invesdwin.util.marshallers.serde;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -50,7 +51,7 @@ public class RemoteFastSerializingSerde<E> implements ISerde<E> {
         if (types == null || types.length == 0) {
             return EMPTY_TYPES;
         } else {
-            return filter(Arrays.asList(types));
+            return filter(new ArrayList<>(Arrays.asList(types)));
         }
     }
 
