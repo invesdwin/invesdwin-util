@@ -24,6 +24,9 @@ import de.invesdwin.util.streams.buffer.delegate.slice.mutable.factory.Expandabl
 import de.invesdwin.util.streams.buffer.delegate.slice.mutable.factory.IMutableSlicedDelegateByteBufferFactory;
 import de.invesdwin.util.streams.buffer.extend.internal.UninitializedExpandableArrayBufferBase;
 
+/**
+ * Uninitialized can be default here since we don't have to register a cleaner anyway
+ */
 @NotThreadSafe
 public class ArrayExpandableByteBuffer extends UninitializedExpandableArrayBufferBase implements IByteBuffer {
 

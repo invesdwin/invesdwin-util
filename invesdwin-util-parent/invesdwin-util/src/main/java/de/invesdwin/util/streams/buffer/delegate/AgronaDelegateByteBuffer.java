@@ -434,7 +434,8 @@ public class AgronaDelegateByteBuffer implements IByteBuffer {
             return arrayBuffer;
         }
         final long address = addressOffset();
-        return ByteBuffers.asDirectByteBufferNoCleaner(address, capacity());
+        return de.invesdwin.util.streams.buffer.extend.internal.UninitializedDirectByteBuffers
+                .asDirectByteBufferNoCleaner(address, capacity());
     }
 
     @Override

@@ -11,11 +11,11 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import org.agrona.BitUtil;
 import org.agrona.DirectBuffer;
-import org.agrona.ExpandableArrayBuffer;
 import org.agrona.MutableDirectBuffer;
 import org.agrona.concurrent.UnsafeBuffer;
 import org.agrona.io.DirectBufferInputStream;
 import org.agrona.io.DirectBufferOutputStream;
+import org.agrona.io.ExpandableDirectBufferOutputStream;
 
 import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.streams.buffer.ByteBuffers;
@@ -238,7 +238,7 @@ public class AgronaDelegateMutableByteBuffer implements IByteBuffer {
     public OutputStream asOutputStream(final int index, final int length) {
         if (delegate.isExpandable() && index + length >= capacity()) {
             //allow output stream to actually grow the buffer
-            return new DirectBufferOutputStream(delegate, index, ExpandableArrayBuffer.MAX_ARRAY_LENGTH - index);
+            return new ExpandableDirectBufferOutputStream(delegate, index);
         } else {
             return new DirectBufferOutputStream(delegate, index, length);
         }
@@ -471,7 +471,8 @@ public class AgronaDelegateMutableByteBuffer implements IByteBuffer {
             return arrayBuffer;
         }
         final long address = addressOffset();
-        return ByteBuffers.asDirectByteBufferNoCleaner(address, capacity());
+        return de.invesdwin.util.streams.buffer.extend.internal.UninitializedDirectByteBuffers
+                .asDirectByteBufferNoCleaner(address, capacity());
     }
 
     @Override

@@ -14,11 +14,13 @@ import de.invesdwin.util.math.Booleans;
 import de.invesdwin.util.streams.buffer.delegate.AgronaDelegateMutableByteBuffer;
 import de.invesdwin.util.streams.buffer.delegate.ChronicleDelegateByteBuffer;
 import de.invesdwin.util.streams.buffer.delegate.JavaDelegateByteBuffer;
+import de.invesdwin.util.streams.buffer.delegate.NettyDelegateByteBuffer;
 import de.invesdwin.util.streams.buffer.delegate.OrderedDelegateByteBuffer;
 import de.invesdwin.util.streams.buffer.extend.ArrayExpandableByteBuffer;
 import de.invesdwin.util.streams.buffer.extend.DirectExpandableByteBuffer;
 import de.invesdwin.util.streams.buffer.extend.UnsafeByteBuffer;
 import de.invesdwin.util.streams.buffer.extend.internal.UninitializedDirectByteBuffer;
+import io.netty.buffer.Unpooled;
 import net.openhft.chronicle.bytes.BytesStore;
 
 @NotThreadSafe
@@ -72,6 +74,18 @@ public class ByteBuffersTest {
                 net.openhft.chronicle.bytes.Bytes.allocateDirect(ByteBuffers.allocateByteArray(BUFFER_SIZE))));
         testBufferOrdered(
                 new ChronicleDelegateByteBuffer(net.openhft.chronicle.bytes.Bytes.allocateDirect(BUFFER_SIZE)));
+    }
+
+    @Test
+    public void testNettyBuffers() {
+        testBufferOrdered(
+                new NettyDelegateByteBuffer(Unpooled.wrappedBuffer(ByteBuffers.allocateByteArray(BUFFER_SIZE))));
+        testBufferOrdered(
+                new NettyDelegateByteBuffer(Unpooled.wrappedBuffer(java.nio.ByteBuffer.allocate(BUFFER_SIZE))));
+        testBufferOrdered(
+                new NettyDelegateByteBuffer(Unpooled.wrappedBuffer(java.nio.ByteBuffer.allocateDirect(BUFFER_SIZE))));
+        testBufferOrdered(new NettyDelegateByteBuffer(Unpooled.buffer(BUFFER_SIZE)));
+        testBufferOrdered(new NettyDelegateByteBuffer(Unpooled.directBuffer(BUFFER_SIZE)));
     }
 
     public void testBufferOrdered(final IByteBuffer buffer) {
