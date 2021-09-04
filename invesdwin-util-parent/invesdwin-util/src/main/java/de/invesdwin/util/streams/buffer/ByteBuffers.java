@@ -33,6 +33,7 @@ import de.invesdwin.util.streams.buffer.delegate.AgronaDelegateByteBuffer;
 import de.invesdwin.util.streams.buffer.delegate.AgronaDelegateMutableByteBuffer;
 import de.invesdwin.util.streams.buffer.extend.ArrayExpandableByteBuffer;
 import de.invesdwin.util.streams.buffer.extend.DirectExpandableByteBuffer;
+import de.invesdwin.util.streams.buffer.extend.UninitializedDirectByteBuffer;
 import de.invesdwin.util.streams.buffer.extend.UnsafeArrayByteBuffer;
 import de.invesdwin.util.streams.buffer.extend.UnsafeByteBuffer;
 
@@ -175,6 +176,8 @@ public final class ByteBuffers {
      * -Dio.netty.tryReflectionSetAccessible=true
      * 
      * https://shipilev.net/jvm/anatomy-quarks/7-initialization-costs/
+     * 
+     * https://netty.io/wiki/using-as-a-generic-library.html#performance
      */
     public static byte[] allocateByteArray(final int fixedLength) {
         return io.netty.util.internal.PlatformDependent.allocateUninitializedArray(fixedLength);
@@ -207,7 +210,7 @@ public final class ByteBuffers {
     }
 
     public static IByteBuffer allocateDirectFixed(final int fixedLength) {
-        return wrap(java.nio.ByteBuffer.allocateDirect(fixedLength));
+        return new UninitializedDirectByteBuffer(fixedLength);
     }
 
     public static IByteBuffer allocateDirectExpandable() {
@@ -337,22 +340,14 @@ public final class ByteBuffers {
     }
 
     public static IByteBuffer wrap(final byte[] bytes) {
-        //        if (Throwables.isDebugStackTraceEnabled()) {
-        //            return new JavaDelegateArrayByteBuffer(bytes);
-        //        } else {
         return new UnsafeArrayByteBuffer(bytes);
-        //        }
     }
 
     public static IByteBuffer wrap(final java.nio.ByteBuffer buffer) {
         if (buffer.hasArray() && wrapAdjustment(buffer) == 0) {
             return wrap(buffer.array());
         } else {
-            //            if (Throwables.isDebugStackTraceEnabled()) {
-            //                return new JavaDelegateByteBuffer(buffer);
-            //            } else {
             return new UnsafeByteBuffer(buffer);
-            //            }
         }
     }
 
@@ -484,14 +479,6 @@ public final class ByteBuffers {
         }
     }
 
-    @SuppressWarnings("restriction")
-    public static java.nio.ByteBuffer asDirectByteBuffer(final long address, final int length) {
-        final java.nio.ByteBuffer bb = java.nio.ByteBuffer.allocateDirect(0);
-        UnsafeAccess.UNSAFE.putLong(BufferUtil.BYTE_BUFFER_ADDRESS_FIELD_OFFSET, address);
-        UnsafeAccess.UNSAFE.putInt(BufferUtil.BYTE_BUFFER_OFFSET_FIELD_OFFSET, length);
-        return bb;
-    }
-
     public static String toString(final IByteBuffer buffer) {
         final byte[] byteArray = buffer.asByteArray(0, Integers.min(1024, buffer.capacity()));
         return Objects.toStringHelper(buffer)
@@ -536,6 +523,48 @@ public final class ByteBuffers {
             throw new NullPointerException("buffer should not be null (this can cause a jvm crash)");
         }
         return buffer;
+    }
+
+    @SuppressWarnings("restriction")
+    public static java.nio.ByteBuffer asDirectByteBufferNoCleaner(final long address, final int length) {
+        if (io.netty.util.internal.PlatformDependent.hasDirectBufferNoCleanerConstructor()) {
+            return io.netty.util.internal.PlatformDependent.directBuffer(address, length);
+        } else {
+            final java.nio.ByteBuffer bb = java.nio.ByteBuffer.allocateDirect(0);
+            BufferUtil.free(bb); //try to disarm the internal cleaner for the 1 byte allocated there
+            UnsafeAccess.UNSAFE.putLong(BufferUtil.BYTE_BUFFER_ADDRESS_FIELD_OFFSET, address);
+            UnsafeAccess.UNSAFE.putInt(BufferUtil.BYTE_BUFFER_OFFSET_FIELD_OFFSET, length);
+            return bb;
+        }
+    }
+
+    public static java.nio.ByteBuffer allocateDirectByteBufferNoCleaner(final int capacity) {
+        if (io.netty.util.internal.PlatformDependent.useDirectBufferNoCleaner()) {
+            return io.netty.util.internal.PlatformDependent.allocateDirectNoCleaner(capacity);
+        } else {
+            final long address = io.netty.util.internal.PlatformDependent.allocateMemory(capacity);
+            return asDirectByteBufferNoCleaner(address, capacity);
+        }
+    }
+
+    public static java.nio.ByteBuffer reallocateDirectByteBufferNoCleaner(final java.nio.ByteBuffer byteBuffer,
+            final int newCapacity) {
+        if (io.netty.util.internal.PlatformDependent.useDirectBufferNoCleaner()) {
+            return io.netty.util.internal.PlatformDependent.reallocateDirectNoCleaner(byteBuffer, newCapacity);
+        } else {
+            final long address = BufferUtil.address(byteBuffer);
+            final long newAddress = io.netty.util.internal.PlatformDependent.reallocateMemory(address, newCapacity);
+            return asDirectByteBufferNoCleaner(newAddress, newCapacity);
+        }
+    }
+
+    public static void freeDirectByteBufferNoCleaner(final java.nio.ByteBuffer byteBuffer) {
+        if (io.netty.util.internal.PlatformDependent.useDirectBufferNoCleaner()) {
+            io.netty.util.internal.PlatformDependent.freeDirectNoCleaner(byteBuffer);
+        } else {
+            final long address = BufferUtil.address(byteBuffer);
+            io.netty.util.internal.PlatformDependent.freeMemory(address);
+        }
     }
 
 }

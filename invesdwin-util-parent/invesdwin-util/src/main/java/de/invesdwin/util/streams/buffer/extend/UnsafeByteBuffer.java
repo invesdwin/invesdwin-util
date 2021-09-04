@@ -402,7 +402,7 @@ public class UnsafeByteBuffer extends UnsafeBuffer implements IByteBuffer {
             return arrayBuffer;
         }
         final long address = addressOffset();
-        return ByteBuffers.asDirectByteBuffer(address, capacity());
+        return ByteBuffers.asDirectByteBufferNoCleaner(address, capacity());
     }
 
     @Override
