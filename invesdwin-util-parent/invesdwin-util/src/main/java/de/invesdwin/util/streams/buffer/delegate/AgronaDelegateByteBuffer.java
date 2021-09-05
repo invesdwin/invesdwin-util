@@ -68,32 +68,122 @@ public class AgronaDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public long getLong(final int index) {
-        return delegate.getLong(index, getOrder());
+        if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
+            final long bits = delegate.getLong(index);
+            return Long.reverseBytes(bits);
+        } else {
+            return delegate.getLong(index);
+        }
     }
 
     @Override
     public int getInt(final int index) {
-        return delegate.getInt(index, getOrder());
+        if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
+            final int bits = delegate.getInt(index);
+            return Integer.reverseBytes(bits);
+        } else {
+            return delegate.getInt(index);
+        }
     }
 
     @Override
     public double getDouble(final int index) {
-        return delegate.getDouble(index, getOrder());
+        if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
+            final long bits = delegate.getLong(index);
+            return Double.longBitsToDouble(Long.reverseBytes(bits));
+        } else {
+            return delegate.getDouble(index);
+        }
     }
 
     @Override
     public float getFloat(final int index) {
-        return delegate.getFloat(index, getOrder());
+        if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
+            final int bits = delegate.getInt(index);
+            return Float.intBitsToFloat(Integer.reverseBytes(bits));
+        } else {
+            return delegate.getFloat(index);
+        }
     }
 
     @Override
     public short getShort(final int index) {
-        return delegate.getShort(index, getOrder());
+        if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
+            final short bits = delegate.getShort(index);
+            return Short.reverseBytes(bits);
+        } else {
+            return delegate.getShort(index);
+        }
     }
 
     @Override
     public char getChar(final int index) {
-        return delegate.getChar(index, getOrder());
+        if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
+            final short bits = delegate.getShort(index);
+            return (char) Short.reverseBytes(bits);
+        } else {
+            return delegate.getChar(index);
+        }
+    }
+
+    @Override
+    public long getLongReverse(final int index) {
+        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
+            final long bits = delegate.getLong(index);
+            return Long.reverseBytes(bits);
+        } else {
+            return delegate.getLong(index);
+        }
+    }
+
+    @Override
+    public int getIntReverse(final int index) {
+        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
+            final int bits = delegate.getInt(index);
+            return Integer.reverseBytes(bits);
+        } else {
+            return delegate.getInt(index);
+        }
+    }
+
+    @Override
+    public double getDoubleReverse(final int index) {
+        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
+            final long bits = delegate.getLong(index);
+            return Double.longBitsToDouble(Long.reverseBytes(bits));
+        } else {
+            return delegate.getDouble(index);
+        }
+    }
+
+    @Override
+    public float getFloatReverse(final int index) {
+        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
+            final int bits = delegate.getInt(index);
+            return Float.intBitsToFloat(Integer.reverseBytes(bits));
+        } else {
+            return delegate.getFloat(index);
+        }
+    }
+
+    @Override
+    public short getShortReverse(final int index) {
+        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
+            final short bits = delegate.getShort(index);
+            return Short.reverseBytes(bits);
+        } else {
+            return delegate.getShort(index);
+        }
+    }
+
+    @Override
+    public char getCharReverse(final int index) {
+        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
+            final short bits = delegate.getShort(index);
+            return (char) Short.reverseBytes(bits);
+        } else {
+            return delegate.getChar(index);
+        }
     }
 
     @Override
@@ -142,13 +232,13 @@ public class AgronaDelegateByteBuffer implements IByteBuffer {
         return false;
     }
 
+    private UnsupportedOperationException newReadOnlyException() {
+        return new UnsupportedOperationException("read only");
+    }
+
     @Override
     public void putLong(final int index, final long value) {
         throw newReadOnlyException();
-    }
-
-    private UnsupportedOperationException newReadOnlyException() {
-        return new UnsupportedOperationException("read only");
     }
 
     @Override
@@ -173,6 +263,36 @@ public class AgronaDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public void putChar(final int index, final char value) {
+        throw newReadOnlyException();
+    }
+
+    @Override
+    public void putLongReverse(final int index, final long value) {
+        throw newReadOnlyException();
+    }
+
+    @Override
+    public void putIntReverse(final int index, final int value) {
+        throw newReadOnlyException();
+    }
+
+    @Override
+    public void putDoubleReverse(final int index, final double value) {
+        throw newReadOnlyException();
+    }
+
+    @Override
+    public void putFloatReverse(final int index, final float value) {
+        throw newReadOnlyException();
+    }
+
+    @Override
+    public void putShortReverse(final int index, final short value) {
+        throw newReadOnlyException();
+    }
+
+    @Override
+    public void putCharReverse(final int index, final char value) {
         throw newReadOnlyException();
     }
 

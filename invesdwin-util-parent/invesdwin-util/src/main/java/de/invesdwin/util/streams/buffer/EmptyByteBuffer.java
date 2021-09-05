@@ -79,6 +79,36 @@ public final class EmptyByteBuffer implements IByteBuffer {
     }
 
     @Override
+    public void putLongReverse(final int index, final long value) {
+        throw newEmptyException();
+    }
+
+    @Override
+    public void putIntReverse(final int index, final int value) {
+        throw newEmptyException();
+    }
+
+    @Override
+    public void putDoubleReverse(final int index, final double value) {
+        throw newEmptyException();
+    }
+
+    @Override
+    public void putFloatReverse(final int index, final float value) {
+        throw newEmptyException();
+    }
+
+    @Override
+    public void putShortReverse(final int index, final short value) {
+        throw newEmptyException();
+    }
+
+    @Override
+    public void putCharReverse(final int index, final char value) {
+        throw newEmptyException();
+    }
+
+    @Override
     public void putByte(final int index, final byte value) {
         throw newEmptyException();
     }
@@ -155,6 +185,36 @@ public final class EmptyByteBuffer implements IByteBuffer {
 
     @Override
     public char getChar(final int index) {
+        throw newEmptyException();
+    }
+
+    @Override
+    public long getLongReverse(final int index) {
+        throw newEmptyException();
+    }
+
+    @Override
+    public int getIntReverse(final int index) {
+        throw newEmptyException();
+    }
+
+    @Override
+    public double getDoubleReverse(final int index) {
+        throw newEmptyException();
+    }
+
+    @Override
+    public float getFloatReverse(final int index) {
+        throw newEmptyException();
+    }
+
+    @Override
+    public short getShortReverse(final int index) {
+        throw newEmptyException();
+    }
+
+    @Override
+    public char getCharReverse(final int index) {
         throw newEmptyException();
     }
 

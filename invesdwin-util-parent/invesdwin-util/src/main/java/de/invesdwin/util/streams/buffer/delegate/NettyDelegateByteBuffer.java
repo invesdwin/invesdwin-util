@@ -37,8 +37,14 @@ public class NettyDelegateByteBuffer implements IByteBuffer {
     private final ByteBuf delegate;
     private IMutableSlicedDelegateByteBufferFactory mutableSliceFactory;
 
+    @SuppressWarnings("deprecation")
     public NettyDelegateByteBuffer(final ByteBuf delegate) {
-        this.delegate = delegate;
+        if (delegate.order() != ByteBuffers.DEFAULT_ORDER) {
+            //unwrap SwappedByteBuf
+            this.delegate = delegate.order(ByteBuffers.DEFAULT_ORDER);
+        } else {
+            this.delegate = delegate;
+        }
     }
 
     public ByteBuf getDelegate() {
@@ -79,9 +85,12 @@ public class NettyDelegateByteBuffer implements IByteBuffer {
         }
     }
 
+    /**
+     * https://github.com/netty/netty/wiki/New-and-noteworthy-in-4.0#predictable-nio-buffer-conversion
+     */
     @Override
     public java.nio.ByteBuffer byteBuffer() {
-        if (delegate.isDirect()) {
+        if (delegate.nioBufferCount() == 1) {
             return delegate.nioBuffer();
         } else {
             return null;
@@ -100,62 +109,62 @@ public class NettyDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public long getLong(final int index) {
-        if (getDelegateOrder() != getOrder()) {
-            final long bits = delegate.getLong(index);
-            return Long.reverseBytes(bits);
-        } else {
-            return delegate.getLong(index);
-        }
+        return delegate.getLong(index);
+    }
+
+    @Override
+    public long getLongReverse(final int index) {
+        return delegate.getLongLE(index);
     }
 
     @Override
     public int getInt(final int index) {
-        if (getDelegateOrder() != getOrder()) {
-            final int bits = delegate.getInt(index);
-            return Integer.reverseBytes(bits);
-        } else {
-            return delegate.getInt(index);
-        }
+        return delegate.getInt(index);
+    }
+
+    @Override
+    public int getIntReverse(final int index) {
+        return delegate.getIntLE(index);
     }
 
     @Override
     public double getDouble(final int index) {
-        if (getDelegateOrder() != getOrder()) {
-            final long bits = delegate.getLong(index);
-            return Double.longBitsToDouble(Long.reverseBytes(bits));
-        } else {
-            return delegate.getDouble(index);
-        }
+        return delegate.getDouble(index);
+    }
+
+    @Override
+    public double getDoubleReverse(final int index) {
+        return delegate.getDoubleLE(index);
     }
 
     @Override
     public float getFloat(final int index) {
-        if (getDelegateOrder() != getOrder()) {
-            final int bits = delegate.getInt(index);
-            return Float.intBitsToFloat(Integer.reverseBytes(bits));
-        } else {
-            return delegate.getFloat(index);
-        }
+        return delegate.getFloat(index);
+    }
+
+    @Override
+    public float getFloatReverse(final int index) {
+        return delegate.getFloatLE(index);
     }
 
     @Override
     public short getShort(final int index) {
-        if (getDelegateOrder() != getOrder()) {
-            final short bits = delegate.getShort(index);
-            return Short.reverseBytes(bits);
-        } else {
-            return delegate.getShort(index);
-        }
+        return delegate.getShort(index);
+    }
+
+    @Override
+    public short getShortReverse(final int index) {
+        return delegate.getShortLE(index);
     }
 
     @Override
     public char getChar(final int index) {
-        if (getDelegateOrder() != getOrder()) {
-            final short bits = delegate.getShort(index);
-            return (char) Short.reverseBytes(bits);
-        } else {
-            return (char) delegate.getShort(index);
-        }
+        return (char) delegate.getShort(index);
+    }
+
+    @Override
+    public char getCharReverse(final int index) {
+        return (char) delegate.getShortLE(index);
     }
 
     @Override
@@ -209,62 +218,62 @@ public class NettyDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public void putLong(final int index, final long value) {
-        if (getDelegateOrder() != getOrder()) {
-            final long bits = Long.reverseBytes(value);
-            delegate.setLong(index, bits);
-        } else {
-            delegate.setLong(index, value);
-        }
+        delegate.setLong(index, value);
+    }
+
+    @Override
+    public void putLongReverse(final int index, final long value) {
+        delegate.setLongLE(index, value);
     }
 
     @Override
     public void putInt(final int index, final int value) {
-        if (getDelegateOrder() != getOrder()) {
-            final int bits = Integer.reverseBytes(value);
-            delegate.setInt(index, bits);
-        } else {
-            delegate.setInt(index, value);
-        }
+        delegate.setInt(index, value);
+    }
+
+    @Override
+    public void putIntReverse(final int index, final int value) {
+        delegate.setIntLE(index, value);
     }
 
     @Override
     public void putDouble(final int index, final double value) {
-        if (getDelegateOrder() != getOrder()) {
-            final long bits = Long.reverseBytes(Double.doubleToRawLongBits(value));
-            delegate.setLong(index, bits);
-        } else {
-            delegate.setDouble(index, value);
-        }
+        delegate.setDouble(index, value);
+    }
+
+    @Override
+    public void putDoubleReverse(final int index, final double value) {
+        delegate.setDoubleLE(index, value);
     }
 
     @Override
     public void putFloat(final int index, final float value) {
-        if (getDelegateOrder() != getOrder()) {
-            final int bits = Integer.reverseBytes(Float.floatToRawIntBits(value));
-            delegate.setInt(index, bits);
-        } else {
-            delegate.setFloat(index, value);
-        }
+        delegate.setFloat(index, value);
+    }
+
+    @Override
+    public void putFloatReverse(final int index, final float value) {
+        delegate.setFloatLE(index, value);
     }
 
     @Override
     public void putShort(final int index, final short value) {
-        if (getDelegateOrder() != getOrder()) {
-            final short bits = Short.reverseBytes(value);
-            delegate.setShort(index, bits);
-        } else {
-            delegate.setShort(index, value);
-        }
+        delegate.setShort(index, value);
+    }
+
+    @Override
+    public void putShortReverse(final int index, final short value) {
+        delegate.setShortLE(index, value);
     }
 
     @Override
     public void putChar(final int index, final char value) {
-        if (getDelegateOrder() != getOrder()) {
-            final short bits = Short.reverseBytes((short) value);
-            delegate.setShort(index, bits);
-        } else {
-            delegate.setShort(index, (short) value);
-        }
+        delegate.setShort(index, (short) value);
+    }
+
+    @Override
+    public void putCharReverse(final int index, final char value) {
+        delegate.setShortLE(index, (short) value);
     }
 
     @Override

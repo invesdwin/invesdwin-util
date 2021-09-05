@@ -25,15 +25,27 @@ import de.invesdwin.util.streams.buffer.delegate.slice.mutable.factory.IMutableS
 public class JavaDelegateByteBuffer implements IByteBuffer {
 
     protected final java.nio.ByteBuffer delegate;
+    private java.nio.ByteBuffer reverse;
     private UnsafeBuffer directBuffer;
     private IMutableSlicedDelegateByteBufferFactory mutableSliceFactory;
 
     public JavaDelegateByteBuffer(final byte[] bytes) {
-        this.delegate = java.nio.ByteBuffer.wrap(bytes).order(ByteBuffers.DEFAULT_ORDER);
+        this(java.nio.ByteBuffer.wrap(bytes));
     }
 
     public JavaDelegateByteBuffer(final java.nio.ByteBuffer buffer) {
-        this.delegate = buffer.order(ByteBuffers.DEFAULT_ORDER);
+        if (buffer.order() != ByteBuffers.DEFAULT_ORDER) {
+            this.delegate = buffer.duplicate().order(ByteBuffers.DEFAULT_ORDER);
+        } else {
+            this.delegate = buffer;
+        }
+    }
+
+    protected java.nio.ByteBuffer getReverse() {
+        if (reverse == null) {
+            reverse = delegate.duplicate().order(ByteOrder.LITTLE_ENDIAN);
+        }
+        return reverse;
     }
 
     @Override
@@ -106,6 +118,36 @@ public class JavaDelegateByteBuffer implements IByteBuffer {
     @Override
     public char getChar(final int index) {
         return delegate.getChar(index);
+    }
+
+    @Override
+    public long getLongReverse(final int index) {
+        return getReverse().getLong(index);
+    }
+
+    @Override
+    public int getIntReverse(final int index) {
+        return getReverse().getInt(index);
+    }
+
+    @Override
+    public double getDoubleReverse(final int index) {
+        return getReverse().getDouble(index);
+    }
+
+    @Override
+    public float getFloatReverse(final int index) {
+        return getReverse().getFloat(index);
+    }
+
+    @Override
+    public short getShortReverse(final int index) {
+        return getReverse().getShort(index);
+    }
+
+    @Override
+    public char getCharReverse(final int index) {
+        return getReverse().getChar(index);
     }
 
     @Override
@@ -185,6 +227,36 @@ public class JavaDelegateByteBuffer implements IByteBuffer {
     @Override
     public void putChar(final int index, final char value) {
         delegate.putChar(index, value);
+    }
+
+    @Override
+    public void putLongReverse(final int index, final long value) {
+        getReverse().putLong(index, value);
+    }
+
+    @Override
+    public void putIntReverse(final int index, final int value) {
+        getReverse().putInt(index, value);
+    }
+
+    @Override
+    public void putDoubleReverse(final int index, final double value) {
+        getReverse().putDouble(index, value);
+    }
+
+    @Override
+    public void putFloatReverse(final int index, final float value) {
+        getReverse().putFloat(index, value);
+    }
+
+    @Override
+    public void putShortReverse(final int index, final short value) {
+        getReverse().putShort(index, value);
+    }
+
+    @Override
+    public void putCharReverse(final int index, final char value) {
+        getReverse().putChar(index, value);
     }
 
     @Override

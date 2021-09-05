@@ -99,6 +99,36 @@ public class SlicedDelegateByteBuffer implements IByteBuffer {
     }
 
     @Override
+    public long getLongReverse(final int index) {
+        return delegate.getLongReverse(index + from);
+    }
+
+    @Override
+    public int getIntReverse(final int index) {
+        return delegate.getIntReverse(index + from);
+    }
+
+    @Override
+    public double getDoubleReverse(final int index) {
+        return delegate.getDoubleReverse(index + from);
+    }
+
+    @Override
+    public float getFloatReverse(final int index) {
+        return delegate.getFloatReverse(index + from);
+    }
+
+    @Override
+    public short getShortReverse(final int index) {
+        return delegate.getShortReverse(index + from);
+    }
+
+    @Override
+    public char getCharReverse(final int index) {
+        return delegate.getCharReverse(index + from);
+    }
+
+    @Override
     public byte getByte(final int index) {
         return delegate.getByte(index + from);
     }
@@ -161,6 +191,36 @@ public class SlicedDelegateByteBuffer implements IByteBuffer {
     @Override
     public void putChar(final int index, final char value) {
         delegate.putChar(index + from, value);
+    }
+
+    @Override
+    public void putLongReverse(final int index, final long value) {
+        delegate.putLongReverse(index + from, value);
+    }
+
+    @Override
+    public void putIntReverse(final int index, final int value) {
+        delegate.putIntReverse(index + from, value);
+    }
+
+    @Override
+    public void putDoubleReverse(final int index, final double value) {
+        delegate.putDoubleReverse(index + from, value);
+    }
+
+    @Override
+    public void putFloatReverse(final int index, final float value) {
+        delegate.putFloatReverse(index + from, value);
+    }
+
+    @Override
+    public void putShortReverse(final int index, final short value) {
+        delegate.putShortReverse(index + from, value);
+    }
+
+    @Override
+    public void putCharReverse(final int index, final char value) {
+        delegate.putCharReverse(index + from, value);
     }
 
     @Override

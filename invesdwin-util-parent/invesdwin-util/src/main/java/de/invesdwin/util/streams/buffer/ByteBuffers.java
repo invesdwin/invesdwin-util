@@ -47,6 +47,13 @@ public final class ByteBuffers {
      * ByteBuffer uses BigEndian per default. BigEndian also seems faster somehow.
      */
     public static final ByteOrder DEFAULT_ORDER = ByteOrder.BIG_ENDIAN;
+
+    public static final boolean BIG_ENDIAN_NATIVE_ORDER = io.netty.util.internal.PlatformDependent.BIG_ENDIAN_NATIVE_ORDER;
+    public static final boolean LITTLE_ENDIAN_NATIVE_ORDER = !BIG_ENDIAN_NATIVE_ORDER;
+
+    public static final boolean BIG_ENDIAN_REVERSAL_NEEDED = !BIG_ENDIAN_NATIVE_ORDER;
+    public static final boolean LITTLE_ENDIAN_REVERSAL_NEEDED = !LITTLE_ENDIAN_NATIVE_ORDER;
+
     /**
      * What does the system actually use?
      */

@@ -45,74 +45,122 @@ public final class OrderedDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public void putChar(final int index, final char value) {
-        final char bits = (char) Short.reverseBytes((short) value);
-        delegate.putChar(index, bits);
+        delegate.putCharReverse(index, value);
+    }
+
+    @Override
+    public void putCharReverse(final int index, final char value) {
+        delegate.putChar(index, value);
     }
 
     @Override
     public void putDouble(final int index, final double value) {
-        final long bits = Long.reverseBytes(Double.doubleToRawLongBits(value));
-        delegate.putLong(index, bits);
+        delegate.putDoubleReverse(index, value);
+    }
+
+    @Override
+    public void putDoubleReverse(final int index, final double value) {
+        delegate.putDouble(index, value);
     }
 
     @Override
     public void putFloat(final int index, final float value) {
-        final int bits = Integer.reverseBytes(Float.floatToRawIntBits(value));
-        delegate.putInt(index, bits);
+        delegate.putFloatReverse(index, value);
+    }
+
+    @Override
+    public void putFloatReverse(final int index, final float value) {
+        delegate.putFloat(index, value);
     }
 
     @Override
     public void putInt(final int index, final int value) {
-        final int bits = Integer.reverseBytes(value);
-        delegate.putInt(index, bits);
+        delegate.putIntReverse(index, value);
+    }
+
+    @Override
+    public void putIntReverse(final int index, final int value) {
+        delegate.putInt(index, value);
     }
 
     @Override
     public void putLong(final int index, final long value) {
-        final long bits = Long.reverseBytes(value);
-        delegate.putLong(index, bits);
+        delegate.putLongReverse(index, value);
+    }
+
+    @Override
+    public void putLongReverse(final int index, final long value) {
+        delegate.putLong(index, value);
     }
 
     @Override
     public void putShort(final int index, final short value) {
-        final short bits = Short.reverseBytes(value);
-        delegate.putShort(index, bits);
+        delegate.putShortReverse(index, value);
+    }
+
+    @Override
+    public void putShortReverse(final int index, final short value) {
+        delegate.putShort(index, value);
     }
 
     @Override
     public char getChar(final int index) {
-        final char bits = delegate.getChar(index);
-        return (char) Short.reverseBytes((short) bits);
+        return delegate.getCharReverse(index);
+    }
+
+    @Override
+    public char getCharReverse(final int index) {
+        return delegate.getChar(index);
     }
 
     @Override
     public double getDouble(final int index) {
-        final long bits = delegate.getLong(index);
-        return Double.longBitsToDouble(Long.reverseBytes(bits));
+        return delegate.getDoubleReverse(index);
+    }
+
+    @Override
+    public double getDoubleReverse(final int index) {
+        return delegate.getDouble(index);
     }
 
     @Override
     public float getFloat(final int index) {
-        final int bits = delegate.getInt(index);
-        return Float.intBitsToFloat(Integer.reverseBytes(bits));
+        return delegate.getFloatReverse(index);
+    }
+
+    @Override
+    public float getFloatReverse(final int index) {
+        return delegate.getFloat(index);
     }
 
     @Override
     public int getInt(final int index) {
-        final int bits = delegate.getInt(index);
-        return Integer.reverseBytes(bits);
+        return delegate.getIntReverse(index);
+    }
+
+    @Override
+    public int getIntReverse(final int index) {
+        return delegate.getInt(index);
     }
 
     @Override
     public long getLong(final int index) {
-        final long bits = delegate.getLong(index);
-        return Long.reverseBytes(bits);
+        return delegate.getLongReverse(index);
+    }
+
+    @Override
+    public long getLongReverse(final int index) {
+        return delegate.getLong(index);
     }
 
     @Override
     public short getShort(final int index) {
-        final short bits = delegate.getShort(index);
-        return Short.reverseBytes(bits);
+        return delegate.getShortReverse(index);
+    }
+
+    @Override
+    public short getShortReverse(final int index) {
+        return delegate.getShort(index);
     }
 
     /////////////////// delegates ////////////////////////////
@@ -261,7 +309,12 @@ public final class OrderedDelegateByteBuffer implements IByteBuffer {
 
     public static IByteBuffer maybeWrap(final IByteBuffer buffer, final ByteOrder order) {
         if (order != buffer.getOrder()) {
-            return new OrderedDelegateByteBuffer(buffer, order);
+            if (buffer instanceof OrderedDelegateByteBuffer) {
+                final OrderedDelegateByteBuffer cBuffer = (OrderedDelegateByteBuffer) buffer;
+                return cBuffer.delegate;
+            } else {
+                return new OrderedDelegateByteBuffer(buffer, order);
+            }
         } else {
             //no conversion needed, already uses default
             return buffer;

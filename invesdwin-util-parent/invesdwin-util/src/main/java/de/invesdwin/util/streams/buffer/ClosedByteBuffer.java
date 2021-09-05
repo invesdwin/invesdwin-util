@@ -90,13 +90,13 @@ public class ClosedByteBuffer implements IByteBuffer {
         return CLOSED_ARRAY.length;
     }
 
+    private IndexOutOfBoundsException newClosedException() {
+        return new IndexOutOfBoundsException("closed");
+    }
+
     @Override
     public long getLong(final int index) {
         throw newClosedException();
-    }
-
-    private IndexOutOfBoundsException newClosedException() {
-        return new IndexOutOfBoundsException("closed");
     }
 
     @Override
@@ -121,6 +121,36 @@ public class ClosedByteBuffer implements IByteBuffer {
 
     @Override
     public char getChar(final int index) {
+        throw newClosedException();
+    }
+
+    @Override
+    public long getLongReverse(final int index) {
+        throw newClosedException();
+    }
+
+    @Override
+    public int getIntReverse(final int index) {
+        throw newClosedException();
+    }
+
+    @Override
+    public double getDoubleReverse(final int index) {
+        throw newClosedException();
+    }
+
+    @Override
+    public float getFloatReverse(final int index) {
+        throw newClosedException();
+    }
+
+    @Override
+    public short getShortReverse(final int index) {
+        throw newClosedException();
+    }
+
+    @Override
+    public char getCharReverse(final int index) {
         throw newClosedException();
     }
 
@@ -201,6 +231,36 @@ public class ClosedByteBuffer implements IByteBuffer {
 
     @Override
     public void putChar(final int index, final char value) {
+        throw newClosedException();
+    }
+
+    @Override
+    public void putLongReverse(final int index, final long value) {
+        throw newClosedException();
+    }
+
+    @Override
+    public void putIntReverse(final int index, final int value) {
+        throw newClosedException();
+    }
+
+    @Override
+    public void putDoubleReverse(final int index, final double value) {
+        throw newClosedException();
+    }
+
+    @Override
+    public void putFloatReverse(final int index, final float value) {
+        throw newClosedException();
+    }
+
+    @Override
+    public void putShortReverse(final int index, final short value) {
+        throw newClosedException();
+    }
+
+    @Override
+    public void putCharReverse(final int index, final char value) {
         throw newClosedException();
     }
 

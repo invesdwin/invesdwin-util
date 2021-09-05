@@ -39,6 +39,9 @@ public class ChronicleDelegateByteBuffer implements IByteBuffer {
 
     public ChronicleDelegateByteBuffer(final net.openhft.chronicle.bytes.Bytes<?> delegate) {
         this.delegate = delegate;
+        if (delegate.byteOrder() != ByteBuffers.NATIVE_ORDER) {
+            throw new IllegalArgumentException("Expecting chronicle-bytes to always be in native order!");
+        }
     }
 
     public net.openhft.chronicle.bytes.Bytes<?> getDelegate() {
@@ -100,7 +103,7 @@ public class ChronicleDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public long getLong(final int index) {
-        if (delegate.byteOrder() != getOrder()) {
+        if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
             final long bits = delegate.readLong(index);
             return Long.reverseBytes(bits);
         } else {
@@ -110,7 +113,7 @@ public class ChronicleDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public int getInt(final int index) {
-        if (delegate.byteOrder() != getOrder()) {
+        if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
             final int bits = delegate.readInt(index);
             return Integer.reverseBytes(bits);
         } else {
@@ -120,7 +123,7 @@ public class ChronicleDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public double getDouble(final int index) {
-        if (delegate.byteOrder() != getOrder()) {
+        if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
             final long bits = delegate.readLong(index);
             return Double.longBitsToDouble(Long.reverseBytes(bits));
         } else {
@@ -130,7 +133,7 @@ public class ChronicleDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public float getFloat(final int index) {
-        if (delegate.byteOrder() != getOrder()) {
+        if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
             final int bits = delegate.readInt(index);
             return Float.intBitsToFloat(Integer.reverseBytes(bits));
         } else {
@@ -140,7 +143,7 @@ public class ChronicleDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public short getShort(final int index) {
-        if (delegate.byteOrder() != getOrder()) {
+        if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
             final short bits = delegate.readShort(index);
             return Short.reverseBytes(bits);
         } else {
@@ -150,7 +153,67 @@ public class ChronicleDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public char getChar(final int index) {
-        if (delegate.byteOrder() != getOrder()) {
+        if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
+            final short bits = delegate.readShort(index);
+            return (char) Short.reverseBytes(bits);
+        } else {
+            return (char) delegate.readShort(index);
+        }
+    }
+
+    @Override
+    public long getLongReverse(final int index) {
+        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
+            final long bits = delegate.readLong(index);
+            return Long.reverseBytes(bits);
+        } else {
+            return delegate.readLong(index);
+        }
+    }
+
+    @Override
+    public int getIntReverse(final int index) {
+        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
+            final int bits = delegate.readInt(index);
+            return Integer.reverseBytes(bits);
+        } else {
+            return delegate.readInt(index);
+        }
+    }
+
+    @Override
+    public double getDoubleReverse(final int index) {
+        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
+            final long bits = delegate.readLong(index);
+            return Double.longBitsToDouble(Long.reverseBytes(bits));
+        } else {
+            return delegate.readDouble(index);
+        }
+    }
+
+    @Override
+    public float getFloatReverse(final int index) {
+        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
+            final int bits = delegate.readInt(index);
+            return Float.intBitsToFloat(Integer.reverseBytes(bits));
+        } else {
+            return delegate.readFloat(index);
+        }
+    }
+
+    @Override
+    public short getShortReverse(final int index) {
+        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
+            final short bits = delegate.readShort(index);
+            return Short.reverseBytes(bits);
+        } else {
+            return delegate.readShort(index);
+        }
+    }
+
+    @Override
+    public char getCharReverse(final int index) {
+        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
             final short bits = delegate.readShort(index);
             return (char) Short.reverseBytes(bits);
         } else {
@@ -209,7 +272,7 @@ public class ChronicleDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public void putLong(final int index, final long value) {
-        if (delegate.byteOrder() != getOrder()) {
+        if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
             final long bits = Long.reverseBytes(value);
             delegate.writeLong(index, bits);
         } else {
@@ -219,7 +282,7 @@ public class ChronicleDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public void putInt(final int index, final int value) {
-        if (delegate.byteOrder() != getOrder()) {
+        if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
             final int bits = Integer.reverseBytes(value);
             delegate.writeInt(index, bits);
         } else {
@@ -229,7 +292,7 @@ public class ChronicleDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public void putDouble(final int index, final double value) {
-        if (delegate.byteOrder() != getOrder()) {
+        if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
             final long bits = Long.reverseBytes(Double.doubleToRawLongBits(value));
             delegate.writeLong(index, bits);
         } else {
@@ -239,7 +302,7 @@ public class ChronicleDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public void putFloat(final int index, final float value) {
-        if (delegate.byteOrder() != getOrder()) {
+        if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
             final int bits = Integer.reverseBytes(Float.floatToRawIntBits(value));
             delegate.writeInt(index, bits);
         } else {
@@ -249,7 +312,7 @@ public class ChronicleDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public void putShort(final int index, final short value) {
-        if (delegate.byteOrder() != getOrder()) {
+        if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
             final short bits = Short.reverseBytes(value);
             delegate.writeShort(index, bits);
         } else {
@@ -259,7 +322,67 @@ public class ChronicleDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public void putChar(final int index, final char value) {
-        if (delegate.byteOrder() != getOrder()) {
+        if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
+            final short bits = Short.reverseBytes((short) value);
+            delegate.writeShort(index, bits);
+        } else {
+            delegate.writeShort(index, (short) value);
+        }
+    }
+
+    @Override
+    public void putLongReverse(final int index, final long value) {
+        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
+            final long bits = Long.reverseBytes(value);
+            delegate.writeLong(index, bits);
+        } else {
+            delegate.writeLong(index, value);
+        }
+    }
+
+    @Override
+    public void putIntReverse(final int index, final int value) {
+        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
+            final int bits = Integer.reverseBytes(value);
+            delegate.writeInt(index, bits);
+        } else {
+            delegate.writeInt(index, value);
+        }
+    }
+
+    @Override
+    public void putDoubleReverse(final int index, final double value) {
+        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
+            final long bits = Long.reverseBytes(Double.doubleToRawLongBits(value));
+            delegate.writeLong(index, bits);
+        } else {
+            delegate.writeDouble(index, value);
+        }
+    }
+
+    @Override
+    public void putFloatReverse(final int index, final float value) {
+        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
+            final int bits = Integer.reverseBytes(Float.floatToRawIntBits(value));
+            delegate.writeInt(index, bits);
+        } else {
+            delegate.writeFloat(index, value);
+        }
+    }
+
+    @Override
+    public void putShortReverse(final int index, final short value) {
+        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
+            final short bits = Short.reverseBytes(value);
+            delegate.writeShort(index, bits);
+        } else {
+            delegate.writeShort(index, value);
+        }
+    }
+
+    @Override
+    public void putCharReverse(final int index, final char value) {
+        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
             final short bits = Short.reverseBytes((short) value);
             delegate.writeShort(index, bits);
         } else {

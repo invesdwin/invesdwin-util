@@ -18,6 +18,10 @@ import de.invesdwin.util.math.Bytes;
 import de.invesdwin.util.streams.InputStreams;
 import de.invesdwin.util.streams.OutputStreams;
 
+/**
+ * Default ByteOrder is always BigEndian. Use Reverse-Suffixed methods to write/read in LittleEndian. Alternatively use
+ * OrderedDelegateByteBuffer to switch the default byte order (though not recommeded).
+ */
 public interface IByteBuffer extends IByteBufferWriter, Cloneable {
 
     void ensureCapacity(int capacity);
@@ -42,15 +46,27 @@ public interface IByteBuffer extends IByteBufferWriter, Cloneable {
 
     long getLong(int index);
 
+    long getLongReverse(int index);
+
     int getInt(int index);
+
+    int getIntReverse(int index);
 
     double getDouble(int index);
 
+    double getDoubleReverse(int index);
+
     float getFloat(int index);
+
+    float getFloatReverse(int index);
 
     short getShort(int index);
 
+    short getShortReverse(int index);
+
     char getChar(int index);
+
+    char getCharReverse(int index);
 
     default boolean getBoolean(final int index) {
         return getByte(index) > 0;
@@ -120,15 +136,27 @@ public interface IByteBuffer extends IByteBufferWriter, Cloneable {
 
     void putLong(int index, long value);
 
+    void putLongReverse(int index, long value);
+
     void putInt(int index, int value);
+
+    void putIntReverse(int index, int value);
 
     void putDouble(int index, double value);
 
+    void putDoubleReverse(int index, double value);
+
     void putFloat(int index, float value);
+
+    void putFloatReverse(int index, float value);
 
     void putShort(int index, short value);
 
+    void putShortReverse(int index, short value);
+
     void putChar(int index, char value);
+
+    void putCharReverse(int index, char value);
 
     default void putBoolean(final int index, final boolean value) {
         putByte(index, Bytes.checkedCast(value));
