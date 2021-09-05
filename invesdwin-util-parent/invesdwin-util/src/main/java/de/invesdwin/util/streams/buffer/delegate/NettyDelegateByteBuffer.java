@@ -11,10 +11,10 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import org.agrona.BufferUtil;
 import org.agrona.DirectBuffer;
+import org.agrona.ExpandableArrayBuffer;
 import org.agrona.MutableDirectBuffer;
 import org.agrona.io.DirectBufferInputStream;
 import org.agrona.io.DirectBufferOutputStream;
-import org.agrona.io.ExpandableDirectBufferOutputStream;
 
 import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.error.UnknownArgumentException;
@@ -222,81 +222,97 @@ public class NettyDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public void putLong(final int index, final long value) {
+        ensureCapacity(index, Long.BYTES);
         delegate.setLong(index, value);
     }
 
     @Override
     public void putLongReverse(final int index, final long value) {
+        ensureCapacity(index, Long.BYTES);
         delegate.setLongLE(index, value);
     }
 
     @Override
     public void putInt(final int index, final int value) {
+        ensureCapacity(index, Integer.BYTES);
         delegate.setInt(index, value);
     }
 
     @Override
     public void putIntReverse(final int index, final int value) {
+        ensureCapacity(index, Integer.BYTES);
         delegate.setIntLE(index, value);
     }
 
     @Override
     public void putDouble(final int index, final double value) {
+        ensureCapacity(index, Double.BYTES);
         delegate.setDouble(index, value);
     }
 
     @Override
     public void putDoubleReverse(final int index, final double value) {
+        ensureCapacity(index, Double.BYTES);
         delegate.setDoubleLE(index, value);
     }
 
     @Override
     public void putFloat(final int index, final float value) {
+        ensureCapacity(index, Float.BYTES);
         delegate.setFloat(index, value);
     }
 
     @Override
     public void putFloatReverse(final int index, final float value) {
+        ensureCapacity(index, Float.BYTES);
         delegate.setFloatLE(index, value);
     }
 
     @Override
     public void putShort(final int index, final short value) {
+        ensureCapacity(index, Short.BYTES);
         delegate.setShort(index, value);
     }
 
     @Override
     public void putShortReverse(final int index, final short value) {
+        ensureCapacity(index, Short.BYTES);
         delegate.setShortLE(index, value);
     }
 
     @Override
     public void putChar(final int index, final char value) {
+        ensureCapacity(index, Character.BYTES);
         delegate.setShort(index, (short) value);
     }
 
     @Override
     public void putCharReverse(final int index, final char value) {
+        ensureCapacity(index, Character.BYTES);
         delegate.setShortLE(index, (short) value);
     }
 
     @Override
     public void putByte(final int index, final byte value) {
+        ensureCapacity(index, Byte.BYTES);
         delegate.setByte(index, value);
     }
 
     @Override
     public void putBytes(final int index, final byte[] src, final int srcIndex, final int length) {
+        ensureCapacity(index, length);
         delegate.setBytes(index, src, srcIndex, length);
     }
 
     @Override
     public void putBytes(final int index, final java.nio.ByteBuffer srcBuffer, final int srcIndex, final int length) {
+        ensureCapacity(index, length);
         delegate.setBytes(index, Unpooled.wrappedBuffer(srcBuffer), srcIndex, length);
     }
 
     @Override
     public void putBytes(final int index, final DirectBuffer srcBuffer, final int srcIndex, final int length) {
+        ensureCapacity(index, length);
         for (int i = 0; i < length; i++) {
             delegate.setByte(index + i, srcBuffer.getByte(srcIndex + i));
         }
@@ -304,6 +320,7 @@ public class NettyDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public void putBytes(final int index, final IByteBuffer srcBuffer, final int srcIndex, final int length) {
+        ensureCapacity(index, length);
         for (int i = 0; i < length; i++) {
             delegate.setByte(index + i, srcBuffer.getByte(srcIndex + i));
         }
@@ -318,7 +335,7 @@ public class NettyDelegateByteBuffer implements IByteBuffer {
     public OutputStream asOutputStream(final int index, final int length) {
         if (isExpandable() && index + length >= capacity()) {
             //allow output stream to actually grow the buffer
-            return new ExpandableDirectBufferOutputStream(asDirectBuffer(), index);
+            return new DirectBufferOutputStream(asDirectBuffer(), index, Integer.MAX_VALUE);
         } else {
             return new DirectBufferOutputStream(asDirectBuffer(), index, length);
         }
@@ -410,6 +427,7 @@ public class NettyDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public void putStringAsciii(final int index, final CharSequence value, final int valueIndex, final int length) {
+        ensureCapacity(index, length);
         for (int i = 0; i < length; i++) {
             char c = value.charAt(valueIndex + i);
             if (c > 127) {
@@ -423,6 +441,7 @@ public class NettyDelegateByteBuffer implements IByteBuffer {
     @Override
     public int putStringUtf8(final int index, final String value) {
         final byte[] bytes = ByteBuffers.newStringUtf8Bytes(value);
+        ensureCapacity(index, bytes.length);
         delegate.setBytes(index, bytes);
         return bytes.length;
     }
@@ -466,6 +485,7 @@ public class NettyDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public void putBytesTo(final int index, final DataInput src, final int length) throws IOException {
+        ensureCapacity(index, length);
         int i = index;
         while (i < length) {
             final byte b = src.readByte();
@@ -476,6 +496,7 @@ public class NettyDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public void putBytesTo(final int index, final InputStream src, final int length) throws IOException {
+        ensureCapacity(index, length);
         int i = index;
         while (i < length) {
             final int result = src.read();
@@ -550,7 +571,26 @@ public class NettyDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public void ensureCapacity(final int desiredCapacity) {
-        delegate.capacity(desiredCapacity);
+        if (delegate.capacity() < desiredCapacity) {
+            delegate.capacity(desiredCapacity);
+        }
+    }
+
+    private void ensureCapacity(final int index, final int length) {
+        if (index < 0 || length < 0) {
+            throw new IndexOutOfBoundsException("negative value: index=" + index + " length=" + length);
+        }
+
+        final long resultingPosition = index + (long) length;
+        final int currentArrayLength = delegate.capacity();
+        if (resultingPosition > currentArrayLength) {
+            if (resultingPosition > ExpandableArrayBuffer.MAX_ARRAY_LENGTH) {
+                throw new IndexOutOfBoundsException("index=" + index + " length=" + length + " maxCapacity="
+                        + ExpandableArrayBuffer.MAX_ARRAY_LENGTH);
+            }
+
+            ensureCapacity((int) resultingPosition);
+        }
     }
 
 }
