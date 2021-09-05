@@ -17,6 +17,7 @@ import org.agrona.io.DirectBufferInputStream;
 
 import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.streams.buffer.ByteBuffers;
+import de.invesdwin.util.streams.buffer.EmptyByteBuffer;
 import de.invesdwin.util.streams.buffer.IByteBuffer;
 import de.invesdwin.util.streams.buffer.delegate.slice.mutable.factory.FixedMutableSlicedDelegateByteBufferFactory;
 import de.invesdwin.util.streams.buffer.delegate.slice.mutable.factory.IMutableSlicedDelegateByteBufferFactory;
@@ -25,10 +26,17 @@ import de.invesdwin.util.streams.buffer.extend.UnsafeByteBuffer;
 @NotThreadSafe
 public class AgronaDelegateByteBuffer implements IByteBuffer {
 
-    private final DirectBuffer delegate;
+    public static final DirectBuffer EMPTY_BYTES = EmptyByteBuffer.EMPTY_AGRONA_BUFFER;
+    public static final AgronaDelegateByteBuffer EMPTY_BUFFER = new AgronaDelegateByteBuffer(EMPTY_BYTES);
+
+    private DirectBuffer delegate;
     private IMutableSlicedDelegateByteBufferFactory mutableSliceFactory;
 
     public AgronaDelegateByteBuffer(final DirectBuffer delegate) {
+        setDelegate(delegate);
+    }
+
+    public void setDelegate(final DirectBuffer delegate) {
         this.delegate = delegate;
     }
 

@@ -34,18 +34,22 @@ public class ChronicleDelegateByteBuffer implements IByteBuffer {
             .bytesForWrite();
     public static final ChronicleDelegateByteBuffer EMPTY_BUFFER = new ChronicleDelegateByteBuffer(EMPTY_BYTES);
 
-    private final net.openhft.chronicle.bytes.Bytes<?> delegate;
+    private net.openhft.chronicle.bytes.Bytes<?> delegate;
     private IMutableSlicedDelegateByteBufferFactory mutableSliceFactory;
 
     public ChronicleDelegateByteBuffer(final net.openhft.chronicle.bytes.Bytes<?> delegate) {
-        this.delegate = delegate;
-        if (delegate.byteOrder() != ByteBuffers.NATIVE_ORDER) {
-            throw new IllegalArgumentException("Expecting chronicle-bytes to always be in native order!");
-        }
+        setDelegate(delegate);
     }
 
     public net.openhft.chronicle.bytes.Bytes<?> getDelegate() {
         return delegate;
+    }
+
+    public void setDelegate(final net.openhft.chronicle.bytes.Bytes<?> delegate) {
+        if (delegate.byteOrder() != ByteBuffers.NATIVE_ORDER) {
+            throw new IllegalArgumentException("Expecting chronicle-bytes to always be in native order!");
+        }
+        this.delegate = delegate;
     }
 
     @Override

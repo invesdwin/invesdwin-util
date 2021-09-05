@@ -25,6 +25,7 @@ public final class EmptyByteBuffer implements IByteBuffer {
 
     public static final java.nio.ByteBuffer EMPTY_BYTE_BUFFER = java.nio.ByteBuffer.allocate(0);
     public static final java.nio.ByteBuffer EMPTY_DIRECT_BYTE_BUFFER = java.nio.ByteBuffer.allocateDirect(0);
+
     public static final AtomicBuffer EMPTY_AGRONA_BUFFER = new UnsafeBuffer(Bytes.EMPTY_ARRAY);
     public static final AtomicBuffer EMPTY_DIRECT_AGRONA_BUFFER = new UnsafeBuffer(EMPTY_DIRECT_BYTE_BUFFER);
 

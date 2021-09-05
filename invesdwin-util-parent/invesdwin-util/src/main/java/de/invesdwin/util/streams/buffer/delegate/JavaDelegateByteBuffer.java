@@ -24,7 +24,7 @@ import de.invesdwin.util.streams.buffer.delegate.slice.mutable.factory.IMutableS
 @NotThreadSafe
 public class JavaDelegateByteBuffer implements IByteBuffer {
 
-    protected final java.nio.ByteBuffer delegate;
+    protected java.nio.ByteBuffer delegate;
     private java.nio.ByteBuffer reverse;
     private UnsafeBuffer directBuffer;
     private IMutableSlicedDelegateByteBufferFactory mutableSliceFactory;
@@ -34,11 +34,21 @@ public class JavaDelegateByteBuffer implements IByteBuffer {
     }
 
     public JavaDelegateByteBuffer(final java.nio.ByteBuffer buffer) {
-        if (buffer.order() != ByteBuffers.DEFAULT_ORDER) {
-            this.delegate = buffer.duplicate().order(ByteBuffers.DEFAULT_ORDER);
+        setDelegate(buffer);
+    }
+
+    public java.nio.ByteBuffer getDelegate() {
+        return delegate;
+    }
+
+    public void setDelegate(final java.nio.ByteBuffer delegate) {
+        if (delegate.order() != ByteBuffers.DEFAULT_ORDER) {
+            this.delegate = delegate.duplicate().order(ByteBuffers.DEFAULT_ORDER);
         } else {
-            this.delegate = buffer;
+            this.delegate = delegate;
         }
+        this.reverse = null;
+        this.directBuffer = null;
     }
 
     protected java.nio.ByteBuffer getReverse() {

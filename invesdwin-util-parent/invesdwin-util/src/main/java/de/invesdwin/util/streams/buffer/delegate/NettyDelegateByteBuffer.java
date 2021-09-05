@@ -34,21 +34,25 @@ public class NettyDelegateByteBuffer implements IByteBuffer {
     public static final ByteBuf EMPTY_BYTES = Unpooled.wrappedBuffer(Bytes.EMPTY_ARRAY);
     public static final NettyDelegateByteBuffer EMPTY_BUFFER = new NettyDelegateByteBuffer(EMPTY_BYTES);
 
-    private final ByteBuf delegate;
+    private ByteBuf delegate;
     private IMutableSlicedDelegateByteBufferFactory mutableSliceFactory;
 
-    @SuppressWarnings("deprecation")
     public NettyDelegateByteBuffer(final ByteBuf delegate) {
+        setDelegate(delegate);
+    }
+
+    public ByteBuf getDelegate() {
+        return delegate;
+    }
+
+    @SuppressWarnings("deprecation")
+    public void setDelegate(final ByteBuf delegate) {
         if (delegate.order() != ByteBuffers.DEFAULT_ORDER) {
             //unwrap SwappedByteBuf
             this.delegate = delegate.order(ByteBuffers.DEFAULT_ORDER);
         } else {
             this.delegate = delegate;
         }
-    }
-
-    public ByteBuf getDelegate() {
-        return delegate;
     }
 
     @Override
