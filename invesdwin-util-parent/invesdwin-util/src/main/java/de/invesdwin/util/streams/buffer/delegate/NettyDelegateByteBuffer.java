@@ -349,7 +349,7 @@ public class NettyDelegateByteBuffer implements IByteBuffer {
                 return bytes;
             }
             final java.nio.ByteBuffer byteBuffer = byteBuffer();
-            if (byteBuffer != null) {
+            if (byteBuffer != null && byteBuffer.hasArray()) {
                 final byte[] array = byteBuffer.array();
                 if (array != null) {
                     return array;

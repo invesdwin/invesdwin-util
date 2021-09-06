@@ -443,7 +443,7 @@ public class AgronaDelegateMutableByteBuffer implements IByteBuffer {
                 return bytes;
             }
             final java.nio.ByteBuffer byteBuffer = byteBuffer();
-            if (byteBuffer != null) {
+            if (byteBuffer != null && byteBuffer.hasArray()) {
                 final byte[] array = byteBuffer.array();
                 if (array != null) {
                     return array;
@@ -464,7 +464,7 @@ public class AgronaDelegateMutableByteBuffer implements IByteBuffer {
                 return bytes.clone();
             }
             final java.nio.ByteBuffer byteBuffer = byteBuffer();
-            if (byteBuffer != null) {
+            if (byteBuffer != null && byteBuffer.hasArray()) {
                 final byte[] array = byteBuffer.array();
                 if (array != null) {
                     return array.clone();
@@ -485,7 +485,7 @@ public class AgronaDelegateMutableByteBuffer implements IByteBuffer {
                 return bytes;
             }
             final java.nio.ByteBuffer byteBuffer = byteBuffer();
-            if (byteBuffer != null) {
+            if (byteBuffer != null && byteBuffer.hasArray()) {
                 final byte[] array = byteBuffer.array();
                 if (array != null) {
                     if (array.length != length) {
@@ -509,7 +509,7 @@ public class AgronaDelegateMutableByteBuffer implements IByteBuffer {
                 return bytes.clone();
             }
             final java.nio.ByteBuffer byteBuffer = byteBuffer();
-            if (byteBuffer != null) {
+            if (byteBuffer != null && byteBuffer.hasArray()) {
                 final byte[] array = byteBuffer.array();
                 if (array != null) {
                     if (array.length != length) {
