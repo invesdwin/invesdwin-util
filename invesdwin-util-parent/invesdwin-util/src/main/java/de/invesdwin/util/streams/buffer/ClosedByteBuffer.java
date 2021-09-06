@@ -175,11 +175,10 @@ public class ClosedByteBuffer implements IByteBuffer {
 
     @Override
     public void getBytes(final int index, final IByteBuffer dstBuffer, final int dstIndex, final int length) {
-        //wrapadjustment only needed for byteArray
         if (dstBuffer.directBuffer() != null) {
             CLOSED_DIRECT_BUFFER.getBytes(index, dstBuffer.directBuffer(), dstIndex, length);
         } else if (dstBuffer.byteBuffer() != null) {
-            CLOSED_DIRECT_BUFFER.getBytes(index, dstBuffer.byteBuffer(), dstIndex, length);
+            CLOSED_DIRECT_BUFFER.getBytes(index, dstBuffer.byteBuffer(), dstIndex + dstBuffer.wrapAdjustment(), length);
         } else if (dstBuffer.byteArray() != null) {
             CLOSED_DIRECT_BUFFER.getBytes(index, dstBuffer.byteArray(), dstIndex + dstBuffer.wrapAdjustment(), length);
         } else {
@@ -469,6 +468,11 @@ public class ClosedByteBuffer implements IByteBuffer {
         } else {
             throw newClosedException();
         }
+    }
+
+    @Override
+    public String toString() {
+        return ByteBuffers.toString(this);
     }
 
 }

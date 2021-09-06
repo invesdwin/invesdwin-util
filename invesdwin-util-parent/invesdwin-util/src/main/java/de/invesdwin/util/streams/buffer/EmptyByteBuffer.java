@@ -404,4 +404,9 @@ public final class EmptyByteBuffer implements IByteBuffer {
         ByteBuffers.ensureCapacity(this, limit);
     }
 
+    @Override
+    public String toString() {
+        return ByteBuffers.toString(this);
+    }
+
 }

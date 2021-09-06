@@ -61,13 +61,12 @@ public class ArrayExpandableByteBuffer extends UninitializedExpandableArrayBuffe
 
     @Override
     public void getBytes(final int index, final IByteBuffer dstBuffer, final int dstIndex, final int length) {
-        //no wrapadjustment needed, since expandable always is a direct reference
         if (dstBuffer.directBuffer() != null) {
             getBytes(index, dstBuffer.directBuffer(), dstIndex, length);
         } else if (dstBuffer.byteBuffer() != null) {
-            getBytes(index, dstBuffer.byteBuffer(), dstIndex, length);
+            getBytes(index, dstBuffer.byteBuffer(), dstIndex + dstBuffer.wrapAdjustment(), length);
         } else if (dstBuffer.byteArray() != null) {
-            getBytes(index, dstBuffer.byteArray(), dstIndex, length);
+            getBytes(index, dstBuffer.byteArray(), dstIndex + dstBuffer.wrapAdjustment(), length);
         } else {
             for (int i = 0; i < length; i++) {
                 dstBuffer.putByte(dstIndex + i, getByte(index + i));
@@ -77,13 +76,12 @@ public class ArrayExpandableByteBuffer extends UninitializedExpandableArrayBuffe
 
     @Override
     public void putBytes(final int index, final IByteBuffer srcBuffer, final int srcIndex, final int length) {
-        //no wrapadjustment needed, since expandable always is a direct reference
         if (srcBuffer.directBuffer() != null) {
             putBytes(index, srcBuffer.directBuffer(), srcIndex, length);
         } else if (srcBuffer.byteBuffer() != null) {
-            putBytes(index, srcBuffer.byteBuffer(), srcIndex, length);
+            putBytes(index, srcBuffer.byteBuffer(), srcIndex + srcBuffer.wrapAdjustment(), length);
         } else if (srcBuffer.byteArray() != null) {
-            putBytes(index, srcBuffer.byteArray(), srcIndex, length);
+            putBytes(index, srcBuffer.byteArray(), srcIndex + srcBuffer.wrapAdjustment(), length);
         } else {
             for (int i = 0; i < length; i++) {
                 putByte(index + i, srcBuffer.getByte(srcIndex + i));
