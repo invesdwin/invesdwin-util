@@ -171,7 +171,7 @@ public final class Throwables extends AThrowablesStaticFacade {
     }
 
     /**
-     * Not actually throwing a RuntimeException, instead propagating the actual throwable
+     * Not throwing a RuntimeException, instead propagating the actual throwable
      */
     public static RuntimeException propagate(final Throwable t) {
         LangUtil.rethrowUnchecked(t);
