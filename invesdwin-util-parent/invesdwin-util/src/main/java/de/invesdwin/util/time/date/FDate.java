@@ -25,7 +25,6 @@ import de.invesdwin.util.lang.ADelegateComparator;
 import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.decimal.scaled.Percent;
-import de.invesdwin.util.streams.buffer.IByteBuffer;
 import de.invesdwin.util.time.date.holiday.IHolidayManager;
 import de.invesdwin.util.time.date.millis.FDateMillis;
 import de.invesdwin.util.time.date.timezone.FTimeZone;
@@ -608,6 +607,14 @@ public class FDate
         }
     }
 
+    public static FDate valueOf(final java.time.ZonedDateTime time) {
+        if (time == null) {
+            return null;
+        } else {
+            return new FDate(time);
+        }
+    }
+
     public static FDate valueOf(final String str, final String... parsePatterns) {
         return valueOf(str, (FTimeZone) null, null, parsePatterns);
     }
@@ -952,27 +959,6 @@ public class FDate
     @Override
     public FDate asFDate() {
         return this;
-    }
-
-    public static void putFDate(final IByteBuffer buffer, final int index, final FDate value) {
-        if (value == null) {
-            buffer.putLong(index, Long.MIN_VALUE);
-        } else {
-            buffer.putLong(index, value.millisValue());
-        }
-    }
-
-    public static FDate extractFDate(final IByteBuffer buffer, final int index) {
-        final long value = buffer.getLong(index);
-        return extractFDate(value);
-    }
-
-    public static FDate extractFDate(final long value) {
-        if (value == Long.MIN_VALUE) {
-            return null;
-        } else {
-            return new FDate(value);
-        }
     }
 
 }
