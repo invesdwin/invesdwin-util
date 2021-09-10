@@ -4,8 +4,11 @@ import java.util.Comparator;
 
 import javax.annotation.concurrent.Immutable;
 
+import de.invesdwin.util.streams.buffer.delegate.NettyDelegateByteBuffer;
+import io.netty.buffer.ByteBuf;
+
 @Immutable
-public class SerdeComparator<O> implements Comparator<byte[]> {
+public class SerdeComparator<O> implements Comparator<ByteBuf> {
 
     private final ISerde<O> serde;
 
@@ -14,9 +17,9 @@ public class SerdeComparator<O> implements Comparator<byte[]> {
     }
 
     @Override
-    public final int compare(final byte[] o1, final byte[] o2) {
-        final boolean o1NullOrEmpty = o1 == null || o1.length == 0;
-        final boolean o2NullOrEmpty = o2 == null || o2.length == 0;
+    public final int compare(final ByteBuf o1, final ByteBuf o2) {
+        final boolean o1NullOrEmpty = o1 == null || o1.readableBytes() == 0;
+        final boolean o2NullOrEmpty = o2 == null || o2.readableBytes() == 0;
         if (o1NullOrEmpty && o2NullOrEmpty) {
             return 0;
         }
@@ -27,8 +30,10 @@ public class SerdeComparator<O> implements Comparator<byte[]> {
             // fix buffer underflow
             return 1;
         }
-        final Comparable<Object> co1 = toComparable(serde.fromBytes(o1));
-        final Comparable<Object> co2 = toComparable(serde.fromBytes(o2));
+        final Comparable<Object> co1 = toComparable(
+                serde.fromBuffer(new NettyDelegateByteBuffer(o1), o1.readableBytes()));
+        final Comparable<Object> co2 = toComparable(
+                serde.fromBuffer(new NettyDelegateByteBuffer(o2), o2.readableBytes()));
         return innerCompare(co1, co2);
     }
 
