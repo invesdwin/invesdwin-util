@@ -551,8 +551,16 @@ public class FDate
         return FDateMillis.javaTimeValueZoned(millis);
     }
 
+    public java.time.ZonedDateTime javaTimeValueZoned(final FTimeZone timeZone) {
+        return FDateMillis.javaTimeValueZoned(millis, timeZone);
+    }
+
     public java.time.LocalDateTime javaTimeValue() {
         return FDateMillis.javaTimeValue(millis);
+    }
+
+    public java.time.LocalDateTime javaTimeValue(final FTimeZone timeZone) {
+        return FDateMillis.javaTimeValue(millis, timeZone);
     }
 
     public java.time.LocalDate javaDateValue() {

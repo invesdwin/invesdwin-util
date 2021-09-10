@@ -1,5 +1,6 @@
 package de.invesdwin.util.time.date.millis;
 
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
@@ -506,8 +507,16 @@ public final class FDateMillis {
         return java.time.Instant.ofEpochMilli(millis).atZone(FDates.getDefaultTimeZone().getZoneId());
     }
 
+    public static ZonedDateTime javaTimeValueZoned(final long millis, final FTimeZone timeZone) {
+        return java.time.Instant.ofEpochMilli(millis).atZone(timeZone.getZoneId());
+    }
+
     public static java.time.LocalDateTime javaTimeValue(final long millis) {
         return javaTimeValueZoned(millis).toLocalDateTime();
+    }
+
+    public static java.time.LocalDateTime javaTimeValue(final long millis, final FTimeZone timeZone) {
+        return javaTimeValueZoned(millis, timeZone).toLocalDateTime();
     }
 
     public static java.time.LocalDate javaDateValue(final long millis) {
