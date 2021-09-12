@@ -112,7 +112,6 @@ public final class TextDescriptionFormatter {
     }
 
     private static boolean isEscapedDelimeter(final String messagePattern, final int delimeterStartIndex) {
-
         if (delimeterStartIndex == 0) {
             return false;
         }
