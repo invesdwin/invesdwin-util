@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
 import java.util.Set;
+import java.util.TreeMap;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -35,7 +36,6 @@ import de.invesdwin.util.concurrent.nested.DisabledNestedExecutor;
 import de.invesdwin.util.concurrent.nested.INestedExecutor;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
-import uk.co.omegaprime.btreemap.BTreeMap;
 
 @Immutable
 public final class DisabledLockCollectionFactory implements ILockCollectionFactory {
@@ -209,16 +209,15 @@ public final class DisabledLockCollectionFactory implements ILockCollectionFacto
         }
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
     public <K, V> NavigableMap<K, V> newTreeMap() {
-        return (NavigableMap) BTreeMap.create();
+        return new TreeMap<K, V>();
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
     public <K, V> NavigableMap<K, V> newTreeMap(final Comparator<? extends K> comparator) {
-        return BTreeMap.<K, V> create((Comparator) comparator);
+        return new TreeMap<K, V>((Comparator) comparator);
     }
 
     @Override

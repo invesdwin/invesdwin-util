@@ -154,10 +154,6 @@
 			<artifactId>netty-common</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>uk.co.omega-prime</groupId>
-			<artifactId>btreemap</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>com.github.ben-manes.caffeine</groupId>
 			<artifactId>caffeine</artifactId>
 		</dependency>

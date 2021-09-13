@@ -35,7 +35,6 @@
 		<project.version.invesdwin-norva>1.0.5-SNAPSHOT</project.version.invesdwin-norva>
 		<version.fest-reflect>1.4.1</version.fest-reflect>
 		<version.fest-util>1.2.5</version.fest-util>
-		<version.btreemap>1.2.0</version.btreemap>
 		<version.concurrent-locks>1.0.0</version.concurrent-locks>
 		<version.classgraph>4.6.32</version.classgraph>
 		<version.okhttp>4.9.1</version.okhttp>
@@ -75,11 +74,6 @@
 						<artifactId>commons-logging</artifactId>
 					</exclusion>
 				</exclusions>
-			</dependency>
-			<dependency>
-				<groupId>uk.co.omega-prime</groupId>
-				<artifactId>btreemap</artifactId>
-				<version>${version.btreemap}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.googlecode.concurrent-locks</groupId>
