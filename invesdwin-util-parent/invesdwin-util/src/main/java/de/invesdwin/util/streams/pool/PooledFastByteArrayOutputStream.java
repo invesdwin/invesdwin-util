@@ -30,6 +30,8 @@ public final class PooledFastByteArrayOutputStream extends FastByteArrayOutputSt
             throw new IllegalStateException("not closed");
         }
         closed = false;
+        length = 0;
+        position(0);
         return this;
     }
 
