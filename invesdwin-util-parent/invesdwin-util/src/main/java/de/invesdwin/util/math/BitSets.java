@@ -1,22 +1,24 @@
 package de.invesdwin.util.math;
 
-import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodHandles.Lookup;
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Collection;
 import java.util.List;
 
 import javax.annotation.concurrent.Immutable;
 
+import org.agrona.UnsafeAccess;
+
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
 import de.invesdwin.util.lang.reflection.Reflections;
 import de.invesdwin.util.math.internal.ABitSetsStaticFacade;
 import de.invesdwin.util.math.internal.CheckedCastBitSets;
 
+@SuppressWarnings("restriction")
 @StaticFacadeDefinition(name = "de.invesdwin.util.math.internal.ABitSetsStaticFacade", targets = {
         CheckedCastBitSets.class })
 @Immutable
@@ -26,46 +28,35 @@ public final class BitSets extends ABitSetsStaticFacade {
     public static final int BITS_PER_WORD;
     public static final int BIT_INDEX_MASK;
 
-    private static final MethodHandle BITSET_WORDS_GETTER;
-    private static final MethodHandle BITSET_WORDS_IN_USE_GETTER;
-    private static final MethodHandle BITSET_WORDS_IN_USE_SETTER;
-    private static final MethodHandle BITSET_RECALCULATE_WORDS_IN_USE_METHOD;
-    private static final MethodHandle BITSET_ENSURE_CAPACITY_METHOD;
+    private static final long BITSET_WORDS_OFFSET;
+    private static final long BITSET_WORDS_IN_USE_OFFSET;
+    private static final long BITSET_SIZE_IS_STICKY_OFFSET;
 
     static {
         try {
             final Field bitSetAddressBitsPerWordField = BitSet.class.getDeclaredField("ADDRESS_BITS_PER_WORD");
-            Reflections.makeAccessible(bitSetAddressBitsPerWordField);
-            ADDRESS_BITS_PER_WORD = bitSetAddressBitsPerWordField.getInt(null);
+            final long bitSetAddressBitsPerWordFieldOffset = UnsafeAccess.UNSAFE
+                    .staticFieldOffset(bitSetAddressBitsPerWordField);
+            ADDRESS_BITS_PER_WORD = UnsafeAccess.UNSAFE.getInt(BitSet.class, bitSetAddressBitsPerWordFieldOffset);
 
             final Field bitSetBitsPerWordField = BitSet.class.getDeclaredField("BITS_PER_WORD");
-            Reflections.makeAccessible(bitSetBitsPerWordField);
-            BITS_PER_WORD = bitSetBitsPerWordField.getInt(null);
+            final long bitSetBitsPerWordFieldOffset = UnsafeAccess.UNSAFE.staticFieldOffset(bitSetBitsPerWordField);
+            BITS_PER_WORD = UnsafeAccess.UNSAFE.getInt(BitSet.class, bitSetBitsPerWordFieldOffset);
 
             final Field bitSetBitIndexMaskField = BitSet.class.getDeclaredField("BIT_INDEX_MASK");
-            Reflections.makeAccessible(bitSetBitIndexMaskField);
-            BIT_INDEX_MASK = bitSetBitIndexMaskField.getInt(null);
+            final long bitSetBitIndexMaskFieldOffset = UnsafeAccess.UNSAFE.staticFieldOffset(bitSetBitIndexMaskField);
+            BIT_INDEX_MASK = UnsafeAccess.UNSAFE.getInt(BitSet.class, bitSetBitIndexMaskFieldOffset);
 
             final Lookup lookup = MethodHandles.lookup();
 
             final Field bitSetWordsField = Reflections.findField(BitSet.class, "words");
-            Reflections.makeAccessible(bitSetWordsField);
-            BITSET_WORDS_GETTER = lookup.unreflectGetter(bitSetWordsField);
+            BITSET_WORDS_OFFSET = UnsafeAccess.UNSAFE.objectFieldOffset(bitSetWordsField);
 
             final Field bitSetWordsInUseField = Reflections.findField(BitSet.class, "wordsInUse");
-            Reflections.makeAccessible(bitSetWordsInUseField);
-            BITSET_WORDS_IN_USE_GETTER = lookup.unreflectGetter(bitSetWordsInUseField);
-            BITSET_WORDS_IN_USE_SETTER = lookup.unreflectSetter(bitSetWordsInUseField);
+            BITSET_WORDS_IN_USE_OFFSET = UnsafeAccess.UNSAFE.objectFieldOffset(bitSetWordsInUseField);
 
-            final Method bitSetRecalculateWordsInUseMethod = Reflections.findMethod(BitSet.class,
-                    "recalculateWordsInUse");
-            Reflections.makeAccessible(bitSetRecalculateWordsInUseMethod);
-            BITSET_RECALCULATE_WORDS_IN_USE_METHOD = lookup.unreflect(bitSetRecalculateWordsInUseMethod);
-
-            final Method bitSetEnsureCapacityMethod = Reflections.findMethod(BitSet.class, "ensureCapacity", int.class);
-            Reflections.makeAccessible(bitSetEnsureCapacityMethod);
-            BITSET_ENSURE_CAPACITY_METHOD = lookup.unreflect(bitSetEnsureCapacityMethod);
-
+            final Field bitSetSizeIsStickyField = Reflections.findField(BitSet.class, "sizeIsSticky");
+            BITSET_SIZE_IS_STICKY_OFFSET = UnsafeAccess.UNSAFE.objectFieldOffset(bitSetSizeIsStickyField);
         } catch (final Exception e) {
             throw new RuntimeException(e);
         }
@@ -115,17 +106,17 @@ public final class BitSets extends ABitSetsStaticFacade {
         }
         //
         try {
-            final int thisWordsInUse = (int) BITSET_WORDS_IN_USE_GETTER.invoke(combinedInto);
-            final long[] thisWords = (long[]) BITSET_WORDS_GETTER.invoke(combinedInto);
-            final int otherWordsInUse = (int) BITSET_WORDS_IN_USE_GETTER.invoke(other);
-            final long[] otherWords = (long[]) BITSET_WORDS_GETTER.invoke(other);
+            final int thisWordsInUse = UnsafeAccess.UNSAFE.getInt(combinedInto, BITSET_WORDS_IN_USE_OFFSET);
+            final long[] thisWords = (long[]) UnsafeAccess.UNSAFE.getObject(combinedInto, BITSET_WORDS_OFFSET);
+            final int otherWordsInUse = UnsafeAccess.UNSAFE.getInt(other, BITSET_WORDS_IN_USE_OFFSET);
+            final long[] otherWords = (long[]) UnsafeAccess.UNSAFE.getObject(other, BITSET_WORDS_OFFSET);
             //            while (wordsInUse > set.wordsInUse)
             //                words[--wordsInUse] = 0;
             final int toWordExclusive = Integers.min(thisWordsInUse, wordIndex(toExclusive) + 1, otherWordsInUse);
 
             final int fromWord = wordIndex(fromInclusive);
             if (toWordExclusive != thisWordsInUse) {
-                BITSET_WORDS_IN_USE_SETTER.invoke(combinedInto, toWordExclusive);
+                UnsafeAccess.UNSAFE.putInt(combinedInto, BITSET_WORDS_IN_USE_OFFSET, toWordExclusive);
             }
             //
             //            // Perform logical AND on words in common
@@ -137,7 +128,7 @@ public final class BitSets extends ABitSetsStaticFacade {
             }
             //
             //            recalculateWordsInUse();
-            BITSET_RECALCULATE_WORDS_IN_USE_METHOD.invoke(combinedInto);
+            recalculateWordsInUse(combinedInto, thisWords);
             //            checkInvariants();
             //skipping that method
             //        }
@@ -155,9 +146,9 @@ public final class BitSets extends ABitSetsStaticFacade {
             return;
         }
         try {
-            int thisWordsInUse = (int) BITSET_WORDS_IN_USE_GETTER.invoke(combinedInto);
-            final int otherWordsInUse = (int) BITSET_WORDS_IN_USE_GETTER.invoke(other);
-            final long[] otherWords = (long[]) BITSET_WORDS_GETTER.invoke(other);
+            int thisWordsInUse = UnsafeAccess.UNSAFE.getInt(combinedInto, BITSET_WORDS_IN_USE_OFFSET);
+            final int otherWordsInUse = UnsafeAccess.UNSAFE.getInt(other, BITSET_WORDS_IN_USE_OFFSET);
+            final long[] otherWords = (long[]) UnsafeAccess.UNSAFE.getObject(other, BITSET_WORDS_OFFSET);
             //        int wordsInCommon = Math.min(wordsInUse, set.wordsInUse);
             final int wordsInCommon = Math.min(thisWordsInUse, otherWordsInUse);
 
@@ -166,11 +157,11 @@ public final class BitSets extends ABitSetsStaticFacade {
             //            wordsInUse = set.wordsInUse;
             //        }
             if (thisWordsInUse < otherWordsInUse) {
-                BITSET_ENSURE_CAPACITY_METHOD.invoke(combinedInto, otherWordsInUse);
-                BITSET_WORDS_IN_USE_SETTER.invoke(combinedInto, otherWordsInUse);
+                ensureCapacity(combinedInto, otherWordsInUse);
+                UnsafeAccess.UNSAFE.putInt(combinedInto, BITSET_WORDS_IN_USE_OFFSET, otherWordsInUse);
                 thisWordsInUse = otherWordsInUse;
             }
-            final long[] thisWords = (long[]) BITSET_WORDS_GETTER.invoke(combinedInto);
+            final long[] thisWords = (long[]) UnsafeAccess.UNSAFE.getObject(combinedInto, BITSET_WORDS_OFFSET);
 
             // Perform logical OR on words in common
             //        for (int i = 0; i < wordsInCommon; i++)
@@ -192,7 +183,7 @@ public final class BitSets extends ABitSetsStaticFacade {
                 System.arraycopy(otherWords, wordsInCommon, thisWords, wordsInCommon, thisWordsInUse - toWordExclusive);
             }
             if (toWordExclusive != thisWordsInUse) {
-                BITSET_WORDS_IN_USE_SETTER.invoke(combinedInto, toWordExclusive);
+                UnsafeAccess.UNSAFE.putInt(combinedInto, BITSET_WORDS_IN_USE_OFFSET, toWordExclusive);
             }
 
             //         recalculateWordsInUse() is unnecessary
@@ -209,6 +200,32 @@ public final class BitSets extends ABitSetsStaticFacade {
      */
     public static int wordIndex(final int bitIndex) {
         return bitIndex >> ADDRESS_BITS_PER_WORD;
+    }
+
+    private static void recalculateWordsInUse(final BitSet bitSet, final long[] words) {
+        final int prevWordsInUse = UnsafeAccess.UNSAFE.getInt(bitSet, BITSET_WORDS_IN_USE_OFFSET);
+
+        // Traverse the bitset until a used word is found
+        int i;
+        for (i = prevWordsInUse - 1; i >= 0; i--) {
+            if (words[i] != 0) {
+                break;
+            }
+        }
+
+        final int newWordsInUse = i + 1; // The new logical size
+        UnsafeAccess.UNSAFE.putInt(bitSet, BITSET_WORDS_IN_USE_OFFSET, newWordsInUse);
+    }
+
+    private static void ensureCapacity(final BitSet bitSet, final int wordsRequired) {
+        final long[] words = (long[]) UnsafeAccess.UNSAFE.getObject(bitSet, BITSET_WORDS_OFFSET);
+        if (words.length < wordsRequired) {
+            // Allocate larger of doubled size or required size
+            final int request = Math.max(2 * words.length, wordsRequired);
+            final long[] newWords = Arrays.copyOf(words, request);
+            UnsafeAccess.UNSAFE.putObject(bitSet, BITSET_WORDS_OFFSET, newWords);
+            UnsafeAccess.UNSAFE.putBoolean(bitSet, BITSET_SIZE_IS_STICKY_OFFSET, false);
+        }
     }
 
 }
