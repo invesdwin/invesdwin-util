@@ -19,7 +19,7 @@ public final class PooledFastByteArrayOutputStream extends FastByteArrayOutputSt
             () -> new PooledFastByteArrayOutputStream());
 
     private NonClosingDelegateOutputStream nonClosing;
-    private boolean closed;
+    private boolean closed = true;
     private FastByteArrayInputStream inputStream;
 
     private PooledFastByteArrayOutputStream() {
