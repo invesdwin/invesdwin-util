@@ -10,13 +10,12 @@ import java.util.Map.Entry;
 
 import javax.annotation.concurrent.Immutable;
 
-import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
-
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
 import de.invesdwin.norva.beanpath.BeanPathStrings;
 import de.invesdwin.util.lang.internal.AStringsStaticFacade;
 import de.invesdwin.util.lang.internal.CheckedCastStrings;
 import de.invesdwin.util.lang.internal.DefaultToStringStyle;
+import de.invesdwin.util.lang.internal.ExtendedReflectionToStringBuilder;
 import de.invesdwin.util.lang.internal.MultilineToStringStyle;
 
 @Immutable
@@ -201,17 +200,17 @@ public final class Strings extends AStringsStaticFacade {
     }
 
     /**
-     * Calls ReflectionToStringBuilder.toString() with DefaultToStringStyle.
+     * Calls ExtendedReflectionToStringBuilder.toString() with DefaultToStringStyle.
      */
     public static String asStringReflective(final Object o) {
-        return ReflectionToStringBuilder.toString(o, DefaultToStringStyle.INSTANCE);
+        return ExtendedReflectionToStringBuilder.toString(o, DefaultToStringStyle.INSTANCE);
     }
 
     /**
-     * Calls ReflectionToStringBuilder.toString() with MultilineToStringStyle.
+     * Calls ExtendedReflectionToStringBuilder.toString() with MultilineToStringStyle.
      */
     public static String asStringReflectiveMultiline(final Object o) {
-        return ReflectionToStringBuilder.toString(o, MultilineToStringStyle.INSTANCE);
+        return ExtendedReflectionToStringBuilder.toString(o, MultilineToStringStyle.INSTANCE);
     }
 
     public static String asStringIdentity(final Object o) {

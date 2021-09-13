@@ -8,7 +8,6 @@ import java.util.Map.Entry;
 import javax.annotation.concurrent.ThreadSafe;
 
 import org.apache.commons.lang3.SystemUtils;
-import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 @ThreadSafe
@@ -186,19 +185,22 @@ public class MultilineToStringStyle extends DefaultToStringStyle {
         if (value == null || value.getClass().getName().startsWith("java.")) {
             super.appendDetail(buffer, fieldName, value);
         } else {
-            super.appendDetail(buffer, fieldName, indentDetail(ReflectionToStringBuilder.toString(value, this)));
+            super.appendDetail(buffer, fieldName,
+                    indentDetail(ExtendedReflectionToStringBuilder.toString(value, this)));
         }
     }
 
-    private void appendSummarySize(final StringBuffer buffer, final String fieldName, final Object obj, final int size) {
+    private void appendSummarySize(final StringBuffer buffer, final String fieldName, final Object obj,
+            final int size) {
         appendClassName(buffer, obj);
         appendIdentityHashCode(buffer, obj);
         appendSummarySize(buffer, fieldName, size);
     }
 
     private String indentDetail(final String detail) {
-        String indent = detail.replaceAll("(?m)\\" + initialContentStart + "[\\s\\Q" + INDENT + "\\E]+\\"
-                + initialContentEnd, initialContentStart + initialContentEnd);
+        String indent = detail.replaceAll(
+                "(?m)\\" + initialContentStart + "[\\s\\Q" + INDENT + "\\E]+\\" + initialContentEnd,
+                initialContentStart + initialContentEnd);
         indent = indent.replace("\n", "\n" + INDENT);
         return indent;
     }

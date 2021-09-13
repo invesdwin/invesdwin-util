@@ -24,12 +24,10 @@ public final class UninitializedDirectByteBuffers {
         if (io.netty.util.internal.PlatformDependent.hasDirectBufferNoCleanerConstructor()) {
             return io.netty.util.internal.PlatformDependent.directBuffer(address, length);
         } else {
-            //segfaults on java 16
-            //            final java.nio.ByteBuffer bb = java.nio.ByteBuffer.allocateDirect(0);
-            //            UnsafeAccess.UNSAFE.putLong(BufferUtil.BYTE_BUFFER_ADDRESS_FIELD_OFFSET, address);
-            //            UnsafeAccess.UNSAFE.putInt(BufferUtil.BYTE_BUFFER_OFFSET_FIELD_OFFSET, length);
-            //            return bb;
-            return null;
+            final java.nio.ByteBuffer bb = java.nio.ByteBuffer.allocateDirect(0);
+            UnsafeAccess.UNSAFE.putLong(bb, BufferUtil.BYTE_BUFFER_ADDRESS_FIELD_OFFSET, address);
+            UnsafeAccess.UNSAFE.putInt(bb, BufferUtil.BYTE_BUFFER_OFFSET_FIELD_OFFSET, length);
+            return bb;
         }
     }
 

@@ -9,7 +9,7 @@ import java.util.concurrent.TimeUnit;
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.lang.reflection.Reflections;
-import de.invesdwin.util.lang.reflection.UnsafeField;
+import de.invesdwin.util.lang.reflection.field.UnsafeField;
 
 /**
  * https://stackoverflow.com/questions/3198660/java-executors-how-can-i-set-task-priority

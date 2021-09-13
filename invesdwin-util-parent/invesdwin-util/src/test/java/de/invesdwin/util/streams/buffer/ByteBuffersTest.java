@@ -37,11 +37,7 @@ public class ByteBuffersTest {
     }
 
     @Test
-    public void testBuffers() {
-        testBufferOrdered(new JavaDelegateByteBuffer(ByteBuffers.allocateByteArray(BUFFER_SIZE)));
-        testBufferOrdered(new JavaDelegateByteBuffer(java.nio.ByteBuffer.allocate(BUFFER_SIZE)));
-        testBufferOrdered(new JavaDelegateByteBuffer(java.nio.ByteBuffer.allocateDirect(BUFFER_SIZE)));
-
+    public void testAgronaBuffers() {
         testBufferOrdered(new UnsafeByteBuffer(java.nio.ByteBuffer.allocate(BUFFER_SIZE)));
         testBufferOrdered(new UnsafeByteBuffer(java.nio.ByteBuffer.allocateDirect(BUFFER_SIZE)));
         testBufferOrdered(new UnsafeByteBuffer(ByteBuffers.allocateByteArray(BUFFER_SIZE)));
@@ -59,6 +55,13 @@ public class ByteBuffersTest {
 
         testBufferOrdered(new DirectExpandableByteBuffer());
         testBufferOrdered(new AgronaDelegateMutableByteBuffer(new ExpandableDirectByteBuffer()));
+    }
+
+    @Test
+    public void testJavaBuffers() {
+        testBufferOrdered(new JavaDelegateByteBuffer(ByteBuffers.allocateByteArray(BUFFER_SIZE)));
+        testBufferOrdered(new JavaDelegateByteBuffer(java.nio.ByteBuffer.allocate(BUFFER_SIZE)));
+        testBufferOrdered(new JavaDelegateByteBuffer(java.nio.ByteBuffer.allocateDirect(BUFFER_SIZE)));
     }
 
     @Test
