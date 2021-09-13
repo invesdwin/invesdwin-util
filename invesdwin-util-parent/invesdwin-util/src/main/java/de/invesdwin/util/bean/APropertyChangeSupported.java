@@ -11,6 +11,8 @@ import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 import javax.persistence.Transient;
 
+import org.agrona.UnsafeAccess;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.querydsl.core.annotations.QuerySupertype;
 
@@ -33,9 +35,20 @@ import de.invesdwin.util.lang.reflection.Reflections;
  * @author Barend Garvelink
  * @since 1.0
  */
+@SuppressWarnings("restriction")
 @ThreadSafe
 @QuerySupertype
 public abstract class APropertyChangeSupported {
+
+    private static final long PROPERTYCHANGESUPPORT_MAP_FIELD_OFFSET;
+    private static final long PROPERTYCHANGELISTENERMAP_MAP_FIELD_OFFSET;
+
+    static {
+        final Field mapField = Reflections.findField(PropertyChangeSupport.class, "map");
+        PROPERTYCHANGESUPPORT_MAP_FIELD_OFFSET = UnsafeAccess.UNSAFE.objectFieldOffset(mapField);
+        final Field mapMapField = Reflections.findField(mapField.getType(), "map");
+        PROPERTYCHANGELISTENERMAP_MAP_FIELD_OFFSET = UnsafeAccess.UNSAFE.objectFieldOffset(mapMapField);
+    }
 
     /**
      * Used to track property change listeners. Lazily initialized. PropertyChangeSupport is itself threadsafe, so we
@@ -195,13 +208,9 @@ public abstract class APropertyChangeSupported {
     @SuppressWarnings("unchecked")
     private static void fireEvent(final PropertyChangeSupport ref, final String propertyName,
             final PropertyChangeEvent event) {
-        final Field mapField = Reflections.findField(PropertyChangeSupport.class, "map");
-        Reflections.makeAccessible(mapField);
-        final Object map = Reflections.getField(mapField, ref);
-        final Field mapMapField = Reflections.findField(map.getClass(), "map");
-        Reflections.makeAccessible(mapMapField);
-        final Map<String, PropertyChangeListener[]> mapMap = (Map<String, PropertyChangeListener[]>) Reflections
-                .getField(mapMapField, map);
+        final Object map = UnsafeAccess.UNSAFE.getObject(ref, PROPERTYCHANGESUPPORT_MAP_FIELD_OFFSET);
+        final Map<String, PropertyChangeListener[]> mapMap = (Map<String, PropertyChangeListener[]>) UnsafeAccess.UNSAFE
+                .getObject(map, PROPERTYCHANGELISTENERMAP_MAP_FIELD_OFFSET);
         if (mapMap == null) {
             return;
         }

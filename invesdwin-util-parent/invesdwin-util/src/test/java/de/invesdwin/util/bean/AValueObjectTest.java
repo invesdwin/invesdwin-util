@@ -32,8 +32,7 @@ public class AValueObjectTest {
         vo.getCloneableVO().setValue(6);
         final CloneableVO voClone = (CloneableVO) vo.clone();
         Assertions.assertThat(vo).isNotSameAs(voClone);
-        //FST does not clone immutable values
-        Assertions.assertThat(vo.getValue()).isSameAs(voClone.getValue());
+        Assertions.assertThat(vo.getValue()).isEqualTo(voClone.getValue());
         Assertions.assertThat(vo.getValue()).isEqualTo(voClone.getValue());
         //only mutable ones
         Assertions.assertThat(vo.getMutableValue()).isNotSameAs(voClone.getMutableValue());
@@ -167,7 +166,7 @@ public class AValueObjectTest {
                 Assertions.assertThat(evt.getOldValue()).isNull();
                 Assertions.assertThat(evt.getNewValue()).isEqualTo(5);
                 Assertions.assertThat(evt.getSource()).isSameAs(vo);
-                System.out.println(Strings.asStringReflective(evt)); //SUPPRESS CHECKSTYLE single line
+                System.out.println(Strings.asString(evt)); //SUPPRESS CHECKSTYLE single line
                 propertyChanged = true;
             }
         });
