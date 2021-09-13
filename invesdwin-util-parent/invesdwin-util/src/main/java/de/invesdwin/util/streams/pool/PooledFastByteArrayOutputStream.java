@@ -9,7 +9,6 @@ import de.invesdwin.util.concurrent.pool.AgronaObjectPool;
 import de.invesdwin.util.concurrent.pool.IObjectPool;
 import de.invesdwin.util.lang.Charsets;
 import de.invesdwin.util.streams.buffer.ByteBuffers;
-import it.unimi.dsi.fastutil.io.FastByteArrayInputStream;
 import it.unimi.dsi.fastutil.io.FastByteArrayOutputStream;
 
 @NotThreadSafe
@@ -20,7 +19,7 @@ public final class PooledFastByteArrayOutputStream extends FastByteArrayOutputSt
 
     private NonClosingDelegateOutputStream nonClosing;
     private boolean closed = true;
-    private FastByteArrayInputStream inputStream;
+    private PooledFastByteArrayInputStream inputStream;
 
     private PooledFastByteArrayOutputStream() {
     }
@@ -44,7 +43,7 @@ public final class PooledFastByteArrayOutputStream extends FastByteArrayOutputSt
     @Override
     public void close() {
         if (!closed) {
-            //            POOL.returnObject(this);
+            POOL.returnObject(this);
             closed = true;
         }
     }
@@ -66,17 +65,9 @@ public final class PooledFastByteArrayOutputStream extends FastByteArrayOutputSt
 
     public InputStream asInputStream() {
         if (inputStream == null) {
-            inputStream = new FastByteArrayInputStream(array, 0, length) {
-                @Override
-                public void close() {
-                    super.close();
-                    PooledFastByteArrayOutputStream.this.close();
-                }
-            };
+            inputStream = new PooledFastByteArrayInputStream(this);
         } else {
-            inputStream.array = array;
-            inputStream.offset = 0;
-            inputStream.length = length;
+            inputStream.init();
         }
         return inputStream;
     }
