@@ -618,8 +618,9 @@ public class UnsafeByteBuffer extends UnsafeBuffer implements IByteBuffer {
     }
 
     @Override
-    public void ensureCapacity(final int desiredCapacity) {
+    public IByteBuffer ensureCapacity(final int desiredCapacity) {
         checkLimit(desiredCapacity);
+        return this;
     }
 
 }

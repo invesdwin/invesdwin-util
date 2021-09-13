@@ -570,10 +570,11 @@ public class NettyDelegateByteBuffer implements IByteBuffer {
     }
 
     @Override
-    public void ensureCapacity(final int desiredCapacity) {
+    public IByteBuffer ensureCapacity(final int desiredCapacity) {
         if (delegate.capacity() < desiredCapacity) {
             delegate.capacity(desiredCapacity);
         }
+        return this;
     }
 
     private void ensureCapacity(final int index, final int length) {

@@ -4,11 +4,13 @@ import java.io.DataInput;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UTFDataFormatException;
 import java.nio.channels.ReadableByteChannel;
 
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.streams.buffer.ByteBuffers;
+import de.invesdwin.util.streams.buffer.IByteBuffer;
 import io.netty.util.concurrent.FastThreadLocal;
 
 /**
@@ -185,6 +187,99 @@ public final class InputStreams {
         }
         if (remaining > 0) {
             throw ByteBuffers.newPutBytesToEOF();
+        }
+    }
+
+    /**
+     * Reads from the stream {@code in} a representation of a Unicode character string encoded in
+     * <a href="DataInput.html#modified-utf-8">modified UTF-8</a> format; this string of characters is then returned as
+     * a {@code String}. The details of the modified UTF-8 representation are exactly the same as for the
+     * {@code readUTF} method of {@code DataInput}.
+     *
+     * @param in
+     *            a data input stream.
+     * @return a Unicode string.
+     * @throws EOFException
+     *             if the input stream reaches the end before all the bytes.
+     * @throws IOException
+     *             the stream has been closed and the contained input stream does not support reading after close, or
+     *             another I/O error occurs.
+     * @throws UTFDataFormatException
+     *             if the bytes do not represent a valid modified UTF-8 encoding of a Unicode string.
+     * @see java.io.DataInputStream#readUnsignedShort()
+     */
+    public static String readUTF(final InputStream in) throws IOException {
+        final int utflen = readUnsignedShort(in);
+        final IByteBuffer bytearr = ByteBuffers.EXPANDABLE_POOL.borrowObject().ensureCapacity(utflen);
+        try {
+            final char[] chararr = new char[utflen];
+
+            int c, char2, char3;
+            int count = 0;
+            int chararr_count = 0;
+
+            bytearr.putBytesTo(0, in, utflen);
+
+            while (count < utflen) {
+                c = bytearr.getByte(count) & 0xff;
+                if (c > 127) {
+                    break;
+                }
+                count++;
+                chararr[chararr_count++] = (char) c;
+            }
+
+            while (count < utflen) {
+                c = bytearr.getByte(count) & 0xff;
+                switch (c >> 4) {
+                case 0:
+                case 1:
+                case 2:
+                case 3:
+                case 4:
+                case 5:
+                case 6:
+                case 7:
+                    /* 0xxxxxxx */
+                    count++;
+                    chararr[chararr_count++] = (char) c;
+                    break;
+                case 12:
+                case 13:
+                    /* 110x xxxx 10xx xxxx */
+                    count += 2;
+                    if (count > utflen) {
+                        throw new UTFDataFormatException("malformed input: partial character at end");
+                    }
+                    char2 = bytearr.getByte(count - 1);
+                    if ((char2 & 0xC0) != 0x80) {
+                        throw new UTFDataFormatException("malformed input around byte " + count);
+                    }
+                    chararr[chararr_count++] = (char) (((c & 0x1F) << 6) | (char2 & 0x3F));
+                    break;
+                case 14:
+                    /* 1110 xxxx 10xx xxxx 10xx xxxx */
+                    count += 3;
+                    if (count > utflen) {
+                        throw new UTFDataFormatException("malformed input: partial character at end");
+                    }
+                    char2 = bytearr.getByte(count - 2);
+                    char3 = bytearr.getByte(count - 1);
+                    if (((char2 & 0xC0) != 0x80) || ((char3 & 0xC0) != 0x80)) {
+                        throw new UTFDataFormatException("malformed input around byte " + (count - 1));
+                    }
+                    chararr[chararr_count++] = (char) (((c & 0x0F) << 12) | ((char2 & 0x3F) << 6)
+                            | ((char3 & 0x3F) << 0));
+                    break;
+                default:
+                    /* 10xx xxxx, 1111 xxxx */
+                    throw new UTFDataFormatException("malformed input around byte " + count);
+                }
+            }
+            // The number of chars produced may be less than utflen
+            return new String(chararr, 0, chararr_count);
+        } finally {
+            ByteBuffers.EXPANDABLE_POOL.returnObject(bytearr);
         }
     }
 

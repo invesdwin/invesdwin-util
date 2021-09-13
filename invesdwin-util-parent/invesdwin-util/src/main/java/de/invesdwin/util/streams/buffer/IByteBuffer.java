@@ -24,7 +24,7 @@ import de.invesdwin.util.streams.OutputStreams;
  */
 public interface IByteBuffer extends IByteBufferWriter, Cloneable {
 
-    void ensureCapacity(int capacity);
+    IByteBuffer ensureCapacity(int capacity);
 
     ByteOrder getOrder();
 

@@ -1,6 +1,5 @@
 package de.invesdwin.util.lang.uri.connect;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -12,14 +11,13 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import org.apache.commons.io.IOUtils;
 
-import com.fasterxml.jackson.core.util.ByteArrayBuilder;
-
 import de.invesdwin.util.lang.Files;
 import de.invesdwin.util.lang.description.TextDescription;
 import de.invesdwin.util.math.decimal.scaled.ByteSize;
 import de.invesdwin.util.math.decimal.scaled.ByteSizeScale;
 import de.invesdwin.util.streams.ADelegateInputStream;
 import de.invesdwin.util.streams.DeletingFileInputStream;
+import de.invesdwin.util.streams.pool.PooledFastByteArrayOutputStream;
 
 @NotThreadSafe
 public class InputStreamHttpResponseConsumer {
@@ -35,7 +33,7 @@ public class InputStreamHttpResponseConsumer {
     private int maxSizeInMemory = defaultMaxSizeInMemory;
 
     private IHttpResponse response;
-    private ByteArrayBuilder byteArrayOut;
+    private PooledFastByteArrayOutputStream byteArrayOut;
     private FileOutputStream fileOut;
     private File file;
 
@@ -89,6 +87,7 @@ public class InputStreamHttpResponseConsumer {
     }
 
     public void releaseResources() {
+        //asInputStream closes the output stream later
         byteArrayOut = null;
         if (fileOut != null) {
             try {
@@ -104,7 +103,7 @@ public class InputStreamHttpResponseConsumer {
 
     public void start(final IHttpResponse response) {
         this.response = response;
-        this.byteArrayOut = new ByteArrayBuilder();
+        this.byteArrayOut = PooledFastByteArrayOutputStream.newInstance();
     }
 
     public InputStreamHttpResponse buildResult() {
@@ -113,8 +112,7 @@ public class InputStreamHttpResponseConsumer {
 
     private InputStream newDelegate() {
         if (byteArrayOut != null) {
-            System.out.println("don't copy");
-            return new ByteArrayInputStream(byteArrayOut.toByteArray());
+            return byteArrayOut.asInputStream();
         } else {
             return new ADelegateInputStream(
                     new TextDescription(InputStreamHttpResponseConsumer.class.getSimpleName())) {
@@ -135,7 +133,7 @@ public class InputStreamHttpResponseConsumer {
             if (defaultTempDir != null) {
                 while (src.hasRemaining()) {
                     byteArrayOut.write(src.get());
-                    if (byteArrayOut.size() > maxSizeInMemory) {
+                    if (byteArrayOut.length > maxSizeInMemory) {
                         Files.forceMkdir(tempDir);
                         file = newTempFile();
                         fileOut = new FileOutputStream(file);
@@ -168,11 +166,12 @@ public class InputStreamHttpResponseConsumer {
                 int n;
                 while (IOUtils.EOF != (n = src.read(buffer))) {
                     byteArrayOut.write(buffer, 0, n);
-                    if (byteArrayOut.size() > maxSizeInMemory) {
+                    if (byteArrayOut.length > maxSizeInMemory) {
                         Files.forceMkdir(tempDir);
                         file = newTempFile();
                         fileOut = new FileOutputStream(file);
                         IOUtils.write(byteArrayOut.toByteArray(), fileOut);
+                        byteArrayOut.close();
                         byteArrayOut = null;
                         break;
                     }

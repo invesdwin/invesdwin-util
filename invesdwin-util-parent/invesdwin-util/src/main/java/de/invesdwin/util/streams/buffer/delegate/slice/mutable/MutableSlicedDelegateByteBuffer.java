@@ -411,8 +411,9 @@ public class MutableSlicedDelegateByteBuffer implements IByteBuffer {
     }
 
     @Override
-    public void ensureCapacity(final int desiredCapacity) {
+    public IByteBuffer ensureCapacity(final int desiredCapacity) {
         delegate.ensureCapacity(desiredCapacity + from);
+        return this;
     }
 
 }

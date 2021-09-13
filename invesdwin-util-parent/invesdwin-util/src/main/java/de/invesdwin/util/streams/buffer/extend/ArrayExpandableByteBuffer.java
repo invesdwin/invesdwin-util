@@ -515,9 +515,10 @@ public class ArrayExpandableByteBuffer extends UninitializedExpandableArrayBuffe
     }
 
     @Override
-    public void ensureCapacity(final int desiredCapacity) {
+    public IByteBuffer ensureCapacity(final int desiredCapacity) {
         //we need this workaround to prevent growth when capacity matches on the last bit
         checkLimit(desiredCapacity - BitUtil.SIZE_OF_BYTE);
+        return this;
     }
 
 }

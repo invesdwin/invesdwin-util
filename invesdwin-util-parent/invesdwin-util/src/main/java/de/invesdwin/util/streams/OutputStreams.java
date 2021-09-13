@@ -2,11 +2,13 @@ package de.invesdwin.util.streams;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.UTFDataFormatException;
 import java.nio.channels.WritableByteChannel;
 
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.streams.buffer.ByteBuffers;
+import de.invesdwin.util.streams.buffer.IByteBuffer;
 
 /**
  * Extracted from java.io.DataOutputStream
@@ -91,6 +93,69 @@ public final class OutputStreams {
         if (remaining > 0) {
             throw ByteBuffers.newPutBytesToEOF();
         }
+    }
+
+    //CHECKSTYLE:OFF
+    public static int writeUTF(final OutputStream out, final String str) throws IOException {
+        //CHECKSTYLE:ON
+        final int strlen = str.length();
+        int utflen = strlen; // optimized for ASCII
+
+        for (int i = 0; i < strlen; i++) {
+            final int c = str.charAt(i);
+            if (c >= 0x80 || c == 0) {
+                utflen += (c >= 0x800) ? 2 : 1;
+            }
+        }
+
+        if (utflen > 65535 || /* overflow */ utflen < strlen) {
+            throw new UTFDataFormatException(tooLongMsg(str, utflen));
+        }
+
+        final IByteBuffer bytearr = ByteBuffers.EXPANDABLE_POOL.borrowObject().ensureCapacity(utflen + 2);
+        try {
+            int count = 0;
+            bytearr.putByte(count++, (byte) ((utflen >>> 8) & 0xFF));
+            bytearr.putByte(count++, (byte) ((utflen >>> 0) & 0xFF));
+
+            int i = 0;
+            for (i = 0; i < strlen; i++) { // optimized for initial run of ASCII
+                final int c = str.charAt(i);
+                if (c >= 0x80 || c == 0) {
+                    break;
+                }
+                bytearr.putByte(count++, (byte) c);
+            }
+
+            //CHECKSTYLE:OFF
+            for (; i < strlen; i++) {
+                //CHECKSTYLE:ON
+                final int c = str.charAt(i);
+                if (c < 0x80 && c != 0) {
+                    bytearr.putByte(count++, (byte) c);
+                } else if (c >= 0x800) {
+                    bytearr.putByte(count++, (byte) (0xE0 | ((c >> 12) & 0x0F)));
+                    bytearr.putByte(count++, (byte) (0x80 | ((c >> 6) & 0x3F)));
+                    bytearr.putByte(count++, (byte) (0x80 | ((c >> 0) & 0x3F)));
+                } else {
+                    bytearr.putByte(count++, (byte) (0xC0 | ((c >> 6) & 0x1F)));
+                    bytearr.putByte(count++, (byte) (0x80 | ((c >> 0) & 0x3F)));
+                }
+            }
+            out.write(bytearr.byteArray(), 0, utflen + 2);
+            return utflen + 2;
+        } finally {
+            ByteBuffers.EXPANDABLE_POOL.returnObject(bytearr);
+        }
+    }
+
+    private static String tooLongMsg(final String s, final int bits32) {
+        final int slen = s.length();
+        final String head = s.substring(0, 8);
+        final String tail = s.substring(slen - 8, slen);
+        // handle int overflow with max 3x expansion
+        final long actualLength = slen + Integer.toUnsignedLong(bits32 - slen);
+        return "encoded string (" + head + "..." + tail + ") too long: " + actualLength + " bytes";
     }
 
 }

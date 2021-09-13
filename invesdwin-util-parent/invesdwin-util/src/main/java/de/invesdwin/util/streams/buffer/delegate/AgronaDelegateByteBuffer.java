@@ -598,13 +598,14 @@ public class AgronaDelegateByteBuffer implements IByteBuffer {
     }
 
     @Override
-    public void ensureCapacity(final int desiredCapacity) {
+    public IByteBuffer ensureCapacity(final int desiredCapacity) {
         if (isExpandable()) {
             //we need this workaround to prevent growth when capacity matches on the last bit
             delegate.checkLimit(desiredCapacity - BitUtil.SIZE_OF_BYTE);
         } else {
             delegate.checkLimit(desiredCapacity);
         }
+        return this;
     }
 
 }
