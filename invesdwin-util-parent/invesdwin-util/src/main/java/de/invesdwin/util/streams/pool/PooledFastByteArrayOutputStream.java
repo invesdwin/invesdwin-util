@@ -29,9 +29,8 @@ public final class PooledFastByteArrayOutputStream extends FastByteArrayOutputSt
         if (!closed) {
             throw new IllegalStateException("not closed");
         }
+        reset();
         closed = false;
-        length = 0;
-        position(0);
         return this;
     }
 
@@ -45,8 +44,7 @@ public final class PooledFastByteArrayOutputStream extends FastByteArrayOutputSt
     @Override
     public void close() {
         if (!closed) {
-            reset();
-            POOL.returnObject(this);
+            //            POOL.returnObject(this);
             closed = true;
         }
     }
