@@ -113,6 +113,7 @@ public class InputStreamHttpResponseConsumer {
 
     private InputStream newDelegate() {
         if (byteArrayOut != null) {
+            System.out.println("don't copy");
             return new ByteArrayInputStream(byteArrayOut.toByteArray());
         } else {
             return new ADelegateInputStream(
