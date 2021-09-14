@@ -460,7 +460,11 @@ public class AgronaDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public IByteBuffer newSliceFrom(final int index) {
-        return newSlice(index, remaining(index));
+        if (index == 0) {
+            return this;
+        } else {
+            return new UnsafeByteBuffer(delegate, index, remaining(index));
+        }
     }
 
     @Override

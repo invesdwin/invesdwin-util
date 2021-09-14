@@ -539,10 +539,12 @@ public class AgronaDelegateMutableByteBuffer implements IByteBuffer {
 
     @Override
     public IByteBuffer newSliceFrom(final int index) {
-        if (isExpandable()) {
+        if (index == 0) {
+            return this;
+        } else if (isExpandable()) {
             return new SlicedFromDelegateByteBuffer(this, index);
         } else {
-            return newSlice(index, remaining(index));
+            return new AgronaDelegateMutableByteBuffer(new UnsafeBuffer(delegate, index, remaining(index)));
         }
     }
 

@@ -26,7 +26,7 @@ public class RemoteFastSerializingSerde<E> implements ISerde<E> {
 
     private static final Class<?>[] EMPTY_TYPES = new Class[0];
 
-    private static final double EXPANSION_FACTOR = 1.5;
+    private static final double EXPANSION_FACTOR = 2D;
 
     private final IObjectPool<OnHeapCoder> onHeapCoderPool;
     private final IObjectPool<OffHeapCoder> offHeapCoderPool;

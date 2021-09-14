@@ -371,12 +371,20 @@ public class JavaDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public IByteBuffer newSliceFrom(final int index) {
-        return newSlice(index, remaining(index));
+        if (index == 0) {
+            return this;
+        } else {
+            return new JavaDelegateByteBuffer(ByteBuffers.slice(delegate, index, remaining(index)));
+        }
     }
 
     @Override
     public IByteBuffer newSlice(final int index, final int length) {
-        return new JavaDelegateByteBuffer(ByteBuffers.slice(delegate, index, length));
+        if (index == 0 && length == capacity()) {
+            return this;
+        } else {
+            return new JavaDelegateByteBuffer(ByteBuffers.slice(delegate, index, length));
+        }
     }
 
     @Override

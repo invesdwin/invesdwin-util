@@ -295,12 +295,20 @@ public class SlicedFromDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public IByteBuffer newSliceFrom(final int index) {
-        return new SlicedFromDelegateByteBuffer(delegate, index + from);
+        if (index == 0) {
+            return this;
+        } else {
+            return new SlicedFromDelegateByteBuffer(delegate, index + from);
+        }
     }
 
     @Override
     public IByteBuffer newSlice(final int index, final int length) {
-        return delegate.newSlice(index + from, length);
+        if (index == 0 && length == capacity()) {
+            return this;
+        } else {
+            return delegate.newSlice(index + from, length);
+        }
     }
 
     @Override

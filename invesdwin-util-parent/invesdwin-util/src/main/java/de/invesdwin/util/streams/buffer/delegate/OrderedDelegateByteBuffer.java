@@ -299,12 +299,20 @@ public final class OrderedDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public IByteBuffer newSliceFrom(final int index) {
-        return maybeWrap(delegate.newSliceFrom(index), order);
+        if (index == 0) {
+            return this;
+        } else {
+            return maybeWrap(delegate.newSliceFrom(index), order);
+        }
     }
 
     @Override
     public IByteBuffer newSlice(final int index, final int length) {
-        return maybeWrap(delegate.newSlice(index, length), order);
+        if (index == 0 && length == capacity()) {
+            return this;
+        } else {
+            return maybeWrap(delegate.newSlice(index, length), order);
+        }
     }
 
     public static IByteBuffer maybeWrap(final IByteBuffer buffer, final ByteOrder order) {

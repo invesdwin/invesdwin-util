@@ -398,12 +398,20 @@ public class NettyDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public IByteBuffer newSliceFrom(final int index) {
-        return new SlicedFromDelegateByteBuffer(this, index);
+        if (index == 0) {
+            return this;
+        } else {
+            return new SlicedFromDelegateByteBuffer(this, index);
+        }
     }
 
     @Override
     public IByteBuffer newSlice(final int index, final int length) {
-        return new SlicedDelegateByteBuffer(this, index, length);
+        if (index == 0 && length == capacity()) {
+            return this;
+        } else {
+            return new SlicedDelegateByteBuffer(this, index, length);
+        }
     }
 
     @Override

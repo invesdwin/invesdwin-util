@@ -204,6 +204,9 @@ public class UninitializedDirectExpandableByteBuffer extends UninitializedExpand
 
     @Override
     public IByteBuffer newSliceFrom(final int index) {
+        if (index == 0) {
+            return this;
+        }
         return new SlicedFromDelegateByteBuffer(this, index);
     }
 

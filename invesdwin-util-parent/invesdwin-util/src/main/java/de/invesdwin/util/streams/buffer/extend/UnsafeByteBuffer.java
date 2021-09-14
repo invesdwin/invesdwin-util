@@ -231,7 +231,10 @@ public class UnsafeByteBuffer extends UnsafeBuffer implements IByteBuffer {
 
     @Override
     public IByteBuffer newSliceFrom(final int index) {
-        return newSlice(index, remaining(index));
+        if (index == 0) {
+            return this;
+        }
+        return new UnsafeByteBuffer(this, index, remaining(index));
     }
 
     @Override
