@@ -206,13 +206,14 @@ public class NettyDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public int wrapAdjustment() {
+        if (delegate.hasArray()) {
+            return delegate.arrayOffset();
+        }
         final java.nio.ByteBuffer byteBuffer = byteBuffer();
         if (byteBuffer != null) {
             return ByteBuffers.wrapAdjustment(byteBuffer);
-        } else {
-            final long offset = BufferUtil.ARRAY_BASE_OFFSET;
-            return (int) (addressOffset() - offset);
         }
+        return 0;
     }
 
     @Override

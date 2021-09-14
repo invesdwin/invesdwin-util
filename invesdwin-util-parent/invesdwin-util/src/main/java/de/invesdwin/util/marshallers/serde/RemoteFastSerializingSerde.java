@@ -26,7 +26,7 @@ public class RemoteFastSerializingSerde<E> implements ISerde<E> {
 
     private static final Class<?>[] EMPTY_TYPES = new Class[0];
 
-    private static final double EXPANSION_FACTORY = 1.5;
+    private static final double EXPANSION_FACTOR = 1.5;
 
     private final IObjectPool<OnHeapCoder> onHeapCoderPool;
     private final IObjectPool<OffHeapCoder> offHeapCoderPool;
@@ -157,13 +157,13 @@ public class RemoteFastSerializingSerde<E> implements ISerde<E> {
         try {
             final byte[] byteArray = buffer.byteArray();
             if (byteArray != null) {
-                return toBuffer(obj, byteArray, buffer.wrapAdjustment());
+                return toBuffer(obj, byteArray, buffer.wrapAdjustment(), buffer.capacity());
             } else {
                 return toBuffer(obj, buffer.addressOffset(), buffer.capacity());
             }
         } catch (final FSTBufferTooSmallException e) {
             if (buffer.isExpandable()) {
-                final int newCapacity = (int) (buffer.capacity() * EXPANSION_FACTORY);
+                final int newCapacity = (int) (buffer.capacity() * EXPANSION_FACTOR);
                 buffer.ensureCapacity(newCapacity);
                 return toBufferExpandable(buffer, obj);
             } else {
@@ -174,10 +174,11 @@ public class RemoteFastSerializingSerde<E> implements ISerde<E> {
         }
     }
 
-    private int toBuffer(final Object obj, final byte[] byteArray, final int index) throws FSTBufferTooSmallException {
+    private int toBuffer(final Object obj, final byte[] byteArray, final int index, final int availableSize)
+            throws FSTBufferTooSmallException {
         final OnHeapCoder coder = onHeapCoderPool.borrowObject();
         try {
-            return coder.toByteArray(obj, byteArray, index, byteArray.length - index);
+            return coder.toByteArray(obj, byteArray, index, availableSize);
         } finally {
             onHeapCoderPool.returnObject(coder);
         }
