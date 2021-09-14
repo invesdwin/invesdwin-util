@@ -3,14 +3,12 @@ package de.invesdwin.util.lang.internal;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import org.apache.commons.lang3.ArraySorter;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
@@ -56,8 +54,8 @@ public class ExtendedReflectionToStringBuilder extends ReflectionToStringBuilder
         }
         // The elements in the returned array are not sorted and are not in any particular order.
         final IUnsafeField<Object>[] fields = FIELDS_CACHE.computeIfAbsent(clazz, key -> {
-            final Field[] declaredFields = ArraySorter.sort(clazz.getDeclaredFields(),
-                    Comparator.comparing(Field::getName));
+            //keep order of declaration
+            final Field[] declaredFields = clazz.getDeclaredFields();
             final List<IUnsafeField<Object>> unsafeFields = new ArrayList<>(declaredFields.length);
             for (int i = 0; i < declaredFields.length; i++) {
                 final Field field = declaredFields[i];
