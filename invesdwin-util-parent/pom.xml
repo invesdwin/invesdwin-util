@@ -214,7 +214,8 @@
 				<jdk>(,14)</jdk>
 			</activation>
 			<properties>
-				<version.fst>2.57</version.fst>
+				<!-- https://github.com/RuedigerMoeller/fast-serialization/pull/318 -->
+				<version.fst>2.57-inv</version.fst>
 			</properties>
 		</profile>
 		<profile>
@@ -224,7 +225,8 @@
 				<jdk>[14,)</jdk>
 			</activation>
 			<properties>
-				<version.fst>3.0.3</version.fst>
+				<!-- https://github.com/RuedigerMoeller/fast-serialization/pull/318 -->
+				<version.fst>3.0.3-inv</version.fst>
 			</properties>
 		</profile>
 	</profiles>
