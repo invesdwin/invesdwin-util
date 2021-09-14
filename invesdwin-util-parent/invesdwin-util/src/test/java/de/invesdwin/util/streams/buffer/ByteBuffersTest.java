@@ -29,7 +29,7 @@ public class ByteBuffersTest {
     private static final int BUFFER_SIZE = 10000;
 
     static {
-        //java 16 requires --illegal-access=permit --add-exports java.base/jdk.internal.ref=ALL-UNNAMED --add-opens java.base/jdk.internal.misc=ALL-UNNAMED --add-opens java.base/java.nioc=ALL-UNNAMED
+        //java 16 requires --illegal-access=permit --add-exports java.base/jdk.internal.ref=ALL-UNNAMED --add-opens java.base/jdk.internal.misc=ALL-UNNAMED --add-opens java.base/java.nio=ALL-UNNAMED
         //CHECKSTYLE:OFF
         System.setProperty("io.netty.tryReflectionSetAccessible", "true");
         System.setProperty("io.netty.uninitializedArrayAllocationThreshold", "1");
