@@ -9,6 +9,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -31,6 +33,23 @@ public final class Futures extends AFuturesStaticFacade {
     public static <T> T get(final Future<T> future) throws InterruptedException {
         try {
             return future.get();
+        } catch (final InterruptedException e) {
+            future.cancel(true);
+            throw e;
+        } catch (final ExecutionException e) {
+            final InterruptedException iCause = Throwables.getCauseByType(e, InterruptedException.class);
+            if (iCause != null) {
+                throw iCause;
+            } else {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    public static <T> T get(final Future<T> future, final long timeout, final TimeUnit unit)
+            throws InterruptedException, TimeoutException {
+        try {
+            return future.get(timeout, unit);
         } catch (final InterruptedException e) {
             future.cancel(true);
             throw e;
