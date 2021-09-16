@@ -532,12 +532,17 @@ public class NettyDelegateByteBuffer implements IByteBuffer {
     @Override
     public java.nio.ByteBuffer asByteBuffer() {
         final java.nio.ByteBuffer byteBuffer = byteBuffer();
+        final int wrapAdjustment = wrapAdjustment();
         if (byteBuffer != null) {
-            return byteBuffer;
+            if (wrapAdjustment == 0 && capacity() == byteBuffer.capacity()) {
+                return byteBuffer;
+            } else {
+                return ByteBuffers.slice(byteBuffer, wrapAdjustment, capacity());
+            }
         }
         final byte[] array = byteArray();
         if (array != null) {
-            final java.nio.ByteBuffer arrayBuffer = java.nio.ByteBuffer.wrap(array, wrapAdjustment(), capacity());
+            final java.nio.ByteBuffer arrayBuffer = java.nio.ByteBuffer.wrap(array, wrapAdjustment, capacity());
             return arrayBuffer;
         }
         throw UnknownArgumentException.newInstance(ByteBuf.class, delegate);

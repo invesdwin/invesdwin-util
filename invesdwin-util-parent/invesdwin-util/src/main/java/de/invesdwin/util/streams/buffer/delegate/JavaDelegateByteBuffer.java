@@ -500,7 +500,7 @@ public class JavaDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public java.nio.ByteBuffer asByteBuffer(final int index, final int length) {
-        final java.nio.ByteBuffer buffer = asByteBuffer();
+        final java.nio.ByteBuffer buffer = byteBuffer();
         if (index == 0 && length == capacity()) {
             return buffer;
         } else {
