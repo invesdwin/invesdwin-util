@@ -40,6 +40,7 @@
 		<version.okhttp>4.9.1</version.okhttp>
 		<version.okio>2.10.0</version.okio>
 		<version.roaringbitmap>0.9.0</version.roaringbitmap>
+		<version.fst>2.57-inv</version.fst>
 	</properties>
 
 	<dependencyManagement>
@@ -205,31 +206,6 @@
 			</plugin>
 		</plugins>
 	</build>
-
-	<profiles>
-		<profile>
-			<id>fst-2</id>
-			<activation>
-				<!-- use older fst version before java 14 -->
-				<jdk>(,14)</jdk>
-			</activation>
-			<properties>
-				<!-- https://github.com/RuedigerMoeller/fast-serialization/pull/318 -->
-				<version.fst>2.57-inv</version.fst>
-			</properties>
-		</profile>
-		<profile>
-			<id>fst-3</id>
-			<activation>
-				<!-- use newer fst version from java 14 -->
-				<jdk>[14,)</jdk>
-			</activation>
-			<properties>
-				<!-- https://github.com/RuedigerMoeller/fast-serialization/pull/318 -->
-				<version.fst>3.0.3-inv</version.fst>
-			</properties>
-		</profile>
-	</profiles>
 
 	<distributionManagement>
 		<repository>
