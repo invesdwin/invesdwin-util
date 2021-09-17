@@ -2,6 +2,7 @@ package de.invesdwin.util.collections.iterable.concurrent;
 
 import java.util.NoSuchElementException;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
@@ -14,7 +15,6 @@ import javax.annotation.concurrent.NotThreadSafe;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.iterable.ACloseableIterator;
 import de.invesdwin.util.concurrent.Executors;
-import de.invesdwin.util.concurrent.WrappedExecutorService;
 import de.invesdwin.util.concurrent.lock.Locks;
 import de.invesdwin.util.error.FastNoSuchElementException;
 import de.invesdwin.util.lang.description.TextDescription;
@@ -36,8 +36,7 @@ public abstract class AGenericProducerQueueIterator<E> extends ACloseableIterato
                 };
                 AGenericProducerQueueIterator.this.internalProduce(consumer);
             } catch (final NoSuchElementException e) {
-                finalizer.close();
-                internalCloseProducer();
+                //end reached
             } finally {
                 //closing does not prevent queue from getting drained completely
                 finalizer.close();
@@ -99,12 +98,20 @@ public abstract class AGenericProducerQueueIterator<E> extends ACloseableIterato
 
     public AGenericProducerQueueIterator(final String name, final int queueSize) {
         super(new TextDescription(name));
-        this.finalizer = new GenericProducerQueueIteratorFinalizer(name);
+        this.finalizer = new GenericProducerQueueIteratorFinalizer(name, newExecutor(name), isShutdownExecutor());
         this.queue = new LinkedBlockingDeque<E>(queueSize);
         this.queueSize = queueSize;
         this.drainedLock = Locks
                 .newReentrantLock(AGenericProducerQueueIterator.class.getSimpleName() + "_" + name + "_drainedLock");
         this.drainedCondition = drainedLock.newCondition();
+    }
+
+    protected boolean isShutdownExecutor() {
+        return true;
+    };
+
+    protected ExecutorService newExecutor(final String name) {
+        return Executors.newFixedThreadPool(name, 1);
     }
 
     protected void start() {
@@ -192,13 +199,16 @@ public abstract class AGenericProducerQueueIterator<E> extends ACloseableIterato
     private static final class GenericProducerQueueIteratorFinalizer extends AFinalizer {
 
         private final String name;
-        private WrappedExecutorService executor;
+        private ExecutorService executor;
+        private final boolean shutdownExecutor;
         private boolean started;
         private volatile boolean cleaned;
 
-        private GenericProducerQueueIteratorFinalizer(final String name) {
+        private GenericProducerQueueIteratorFinalizer(final String name, final ExecutorService executor,
+                final boolean shutdownExecutor) {
             this.name = name;
-            this.executor = Executors.newFixedThreadPool(name, 1);
+            this.executor = executor;
+            this.shutdownExecutor = shutdownExecutor;
         }
 
         @Override
@@ -211,7 +221,9 @@ public abstract class AGenericProducerQueueIterator<E> extends ACloseableIterato
         @Override
         protected void clean() {
             //cannot wait here for executor to close completely since the thread could trigger it himself
-            executor.shutdown();
+            if (shutdownExecutor) {
+                executor.shutdown();
+            }
             executor = null;
             cleaned = true;
         }
