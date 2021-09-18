@@ -14,7 +14,10 @@ import org.springframework.core.io.Resource;
 @Immutable
 public final class Resources {
 
-    private Resources() {}
+    public static final Resource[] EMPTY_ARRAY = new Resource[0];
+
+    private Resources() {
+    }
 
     public static List<String> extractMetaInfResourceLocations(final Iterable<? extends Resource> resources) {
         final List<String> locationStrings = new ArrayList<String>();

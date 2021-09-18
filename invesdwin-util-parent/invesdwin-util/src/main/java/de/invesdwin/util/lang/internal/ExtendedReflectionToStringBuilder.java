@@ -61,7 +61,7 @@ public class ExtendedReflectionToStringBuilder extends ReflectionToStringBuilder
                 final Field field = declaredFields[i];
                 unsafeFields.add(IUnsafeField.valueOf(field));
             }
-            return unsafeFields.toArray(new IUnsafeField[unsafeFields.size()]);
+            return unsafeFields.toArray(IUnsafeField.EMPTY_ARRAY);
         });
         for (int i = 0; i < fields.length; i++) {
             final IUnsafeField<Object> unsafeField = fields[i];

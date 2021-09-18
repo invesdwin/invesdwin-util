@@ -30,7 +30,7 @@ public class SingleValueIterable<E> implements IFastIterable<E> {
 
     @SuppressWarnings("unchecked")
     @Override
-    public E[] asArray(final Class<E> type) {
+    public E[] asArray(final E[] emptyArray) {
         return (E[]) new Object[] { singleValue };
     }
 

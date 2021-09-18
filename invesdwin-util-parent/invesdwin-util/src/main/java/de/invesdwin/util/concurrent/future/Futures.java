@@ -9,6 +9,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -26,6 +27,8 @@ import de.invesdwin.util.time.duration.Duration;
 @StaticFacadeDefinition(name = "de.invesdwin.util.concurrent.future.internal.AFuturesStaticFacade", targets = {
         com.google.common.util.concurrent.Futures.class })
 public final class Futures extends AFuturesStaticFacade {
+
+    public static final FutureTask[] FUTURETASK_EMPTY_ARRAY = new FutureTask[0];
 
     private Futures() {
     }

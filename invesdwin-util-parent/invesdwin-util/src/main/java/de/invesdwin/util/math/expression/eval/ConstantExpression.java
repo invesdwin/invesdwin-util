@@ -259,7 +259,7 @@ public class ConstantExpression implements IParsedExpression {
 
     @Override
     public IExpression[] getChildren() {
-        return EMPTY_EXPRESSIONS;
+        return EMPTY_ARRAY;
     }
 
     @Override

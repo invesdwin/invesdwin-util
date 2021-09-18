@@ -128,12 +128,10 @@ public abstract class ASynchronizedFastIterableDelegateMap<K, V> implements IFas
         return values;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    public synchronized V[] asValueArray(final Class<V> valueType) {
+    public synchronized V[] asValueArray(final V[] emptyArray) {
         if (valueArray == null) {
-            final V[] empty = (V[]) Array.newInstance(valueType, delegate.size());
-            valueArray = values.toArray(empty);
+            valueArray = values.toArray(emptyArray);
         }
         return valueArray;
     }
@@ -143,12 +141,10 @@ public abstract class ASynchronizedFastIterableDelegateMap<K, V> implements IFas
         return keySet;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    public synchronized K[] asKeyArray(final Class<K> keyType) {
+    public synchronized K[] asKeyArray(final K[] emptyArray) {
         if (keyArray == null) {
-            final K[] empty = (K[]) Array.newInstance(keyType, delegate.size());
-            keyArray = keySet.toArray(empty);
+            keyArray = keySet.toArray(emptyArray);
         }
         return keyArray;
     }

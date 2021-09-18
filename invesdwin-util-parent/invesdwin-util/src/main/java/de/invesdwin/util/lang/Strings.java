@@ -361,7 +361,7 @@ public final class Strings extends AStringsStaticFacade {
         if (vector == null) {
             return null;
         }
-        return vector.toArray(new String[vector.size()]);
+        return vector.toArray(EMPTY_ARRAY);
     }
 
     public static String[] toArrayVector(final List<String> vector) {

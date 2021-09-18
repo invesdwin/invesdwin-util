@@ -228,7 +228,7 @@ public abstract class ARedirectedDoubleExpression implements IParsedExpression {
 
     @Override
     public IExpression[] getChildren() {
-        return EMPTY_EXPRESSIONS;
+        return EMPTY_ARRAY;
     }
 
 }

@@ -6,6 +6,8 @@ import de.invesdwin.util.lang.reflection.Reflections;
 
 public interface IUnsafeField<T> {
 
+    IUnsafeField[] EMPTY_ARRAY = new IUnsafeField[0];
+
     Field getField();
 
     T get(Object obj);

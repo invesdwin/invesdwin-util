@@ -10,7 +10,7 @@ public final class AndSkippingIndexProvider implements ISkippingIndexProvider {
     private final PeekingSkippingIndexProvider[] delegates;
 
     private AndSkippingIndexProvider(final Collection<PeekingSkippingIndexProvider> delegates) {
-        this.delegates = delegates.toArray(new PeekingSkippingIndexProvider[delegates.size()]);
+        this.delegates = delegates.toArray(PeekingSkippingIndexProvider.EMPTY_ARRAY);
     }
 
     private AndSkippingIndexProvider(final PeekingSkippingIndexProvider... delegates) {

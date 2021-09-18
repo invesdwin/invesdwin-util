@@ -79,14 +79,14 @@ public final class TaskInfoManager {
     }
 
     private static void triggerOnTaskInfoAdded(final String name) {
-        final ITaskInfoListener[] array = LISTENERS.asArray(ITaskInfoListener.class);
+        final ITaskInfoListener[] array = LISTENERS.asArray(ITaskInfoListener.EMPTY_ARRAY);
         for (int i = 0; i < array.length; i++) {
             array[i].onTaskInfoAdded(name);
         }
     }
 
     private static void triggerOnTaskInfoRemoved(final String name) {
-        final ITaskInfoListener[] array = LISTENERS.asArray(ITaskInfoListener.class);
+        final ITaskInfoListener[] array = LISTENERS.asArray(ITaskInfoListener.EMPTY_ARRAY);
         for (int i = 0; i < array.length; i++) {
             array[i].onTaskInfoRemoved(name);
         }

@@ -30,6 +30,8 @@ public final class Booleans extends ABooleansStaticFacade {
         }
     };
     public static final int BYTES = 1;
+    public static final Boolean[] OBJ_EMPTY_ARRAY = new Boolean[0];
+    public static final boolean[] EMPTY_ARRAY = new boolean[0];
 
     private Booleans() {
     }

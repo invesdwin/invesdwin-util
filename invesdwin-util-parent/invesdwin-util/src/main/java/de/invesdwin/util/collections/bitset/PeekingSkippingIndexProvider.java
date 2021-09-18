@@ -5,6 +5,8 @@ import javax.annotation.concurrent.NotThreadSafe;
 @NotThreadSafe
 public class PeekingSkippingIndexProvider implements ISkippingIndexProvider {
 
+    public static final PeekingSkippingIndexProvider[] EMPTY_ARRAY = new PeekingSkippingIndexProvider[0];
+
     private final ISkippingIndexProvider delegate;
 
     private int peek = -1;

@@ -1,6 +1,5 @@
 package de.invesdwin.util.collections.fast;
 
-import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -128,12 +127,10 @@ public abstract class AFastIterableDelegateList<E> implements IFastIterableList<
         return delegate.size();
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    public E[] asArray(final Class<E> type) {
+    public E[] asArray(final E[] emptyArray) {
         if (array == null) {
-            final E[] empty = (E[]) Array.newInstance(type, delegate.size());
-            array = toArray(empty);
+            array = toArray(emptyArray);
         }
         return array;
     }

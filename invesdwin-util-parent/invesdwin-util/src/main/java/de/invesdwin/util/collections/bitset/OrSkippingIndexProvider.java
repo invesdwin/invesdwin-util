@@ -10,7 +10,7 @@ public final class OrSkippingIndexProvider implements ISkippingIndexProvider {
     private final PeekingSkippingIndexProvider[] delegates;
 
     private OrSkippingIndexProvider(final Collection<PeekingSkippingIndexProvider> delegates) {
-        this.delegates = delegates.toArray(new PeekingSkippingIndexProvider[delegates.size()]);
+        this.delegates = delegates.toArray(PeekingSkippingIndexProvider.EMPTY_ARRAY);
     }
 
     private OrSkippingIndexProvider(final PeekingSkippingIndexProvider... delegates) {

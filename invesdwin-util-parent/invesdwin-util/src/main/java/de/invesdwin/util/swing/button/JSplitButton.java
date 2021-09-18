@@ -33,6 +33,7 @@ import de.invesdwin.util.swing.listener.MouseMotionListenerSupport;
 @NotThreadSafe
 public class JSplitButton extends JButton {
 
+    private static final ActionListener[] ACTIONLISTENER_EMPTY_ARRAY = new ActionListener[0];
     private int separatorSpacing = 4;
     private int splitWidth = 22;
     private int arrowSize = 8;
@@ -135,7 +136,7 @@ public class JSplitButton extends JButton {
 
     @Override
     public ActionListener[] getActionListeners() {
-        return actionListeners.toArray(new ActionListener[actionListeners.size()]);
+        return actionListeners.toArray(ACTIONLISTENER_EMPTY_ARRAY);
     }
 
     /**

@@ -6,9 +6,9 @@ import de.invesdwin.norva.marker.ISerializableValueObject;
 
 public interface IFastIterableMap<K, V> extends Map<K, V>, ISerializableValueObject {
 
-    V[] asValueArray(Class<V> valueType);
+    V[] asValueArray(V[] emptyArray);
 
-    K[] asKeyArray(Class<K> keyType);
+    K[] asKeyArray(K[] emptyArray);
 
     Entry<K, V>[] asEntryArray();
 

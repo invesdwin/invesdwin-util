@@ -1,6 +1,5 @@
 package de.invesdwin.util.collections.fast;
 
-import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.Set;
 
@@ -113,11 +112,9 @@ public abstract class AFastIterableDelegateSet<E> implements IFastIterableSet<E>
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public E[] asArray(final Class<E> type) {
+    public E[] asArray(final E[] emptyArray) {
         if (array == null) {
-            final E[] empty = (E[]) Array.newInstance(type, delegate.size());
-            array = toArray(empty);
+            array = toArray(emptyArray);
         }
         return array;
     }

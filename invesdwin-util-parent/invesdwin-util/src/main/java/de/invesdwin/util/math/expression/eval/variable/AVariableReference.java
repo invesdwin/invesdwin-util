@@ -57,7 +57,7 @@ public abstract class AVariableReference<V extends IVariable> implements IParsed
 
     @Override
     public IExpression[] getChildren() {
-        return EMPTY_EXPRESSIONS;
+        return EMPTY_ARRAY;
     }
 
     public abstract AFunction asFunction();

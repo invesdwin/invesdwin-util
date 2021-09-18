@@ -18,7 +18,7 @@ import de.invesdwin.util.math.expression.lambda.IEvaluateIntegerKey;
 
 public interface IExpression extends IParsedExpressionProvider {
 
-    IExpression[] EMPTY_EXPRESSIONS = new IExpression[0];
+    IExpression[] EMPTY_ARRAY = new IExpression[0];
 
     /**
      * evaluates the expression using the current time key

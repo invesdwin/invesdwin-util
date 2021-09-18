@@ -638,7 +638,7 @@ public class ExpressionParser implements IExpressionParser {
                         functionStr, numberOfArgumentsMin, numberOfArgumentsMax, arguments));
             }
         }
-        final IParsedExpression[] parametersArray = parameters.toArray(new IParsedExpression[arguments]);
+        final IParsedExpression[] parametersArray = parameters.toArray(IParsedExpression.EMPTY_ARRAY);
         return fun.newCall(functionContext, parametersArray);
     }
 
@@ -752,7 +752,7 @@ public class ExpressionParser implements IExpressionParser {
         final AFunction function = getFunction(context, name);
         if (function != null) {
             if (function.getNumberOfArgumentsMin() == 0) {
-                return function.newCall(context, IParsedExpression.EMPTY_EXPRESSIONS);
+                return function.newCall(context, IParsedExpression.EMPTY_ARRAY);
             } else {
                 throw new ParseException(position,
                         TextDescription.format(

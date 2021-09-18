@@ -104,6 +104,8 @@ public class FDate
         }
     };
 
+    public static final FDate[] EMPTY_ARRAY = new FDate[0];
+
     private final long millis;
     @Transient
     private transient Object extension;

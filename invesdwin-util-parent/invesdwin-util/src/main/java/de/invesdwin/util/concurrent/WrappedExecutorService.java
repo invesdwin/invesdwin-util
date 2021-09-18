@@ -181,7 +181,8 @@ public class WrappedExecutorService implements ListeningExecutorService {
     }
 
     private void notifyPendingCountListeners(final int currentPendingCount) {
-        final PendingCountCondition[] conditionArray = pendingCount_condition.asValueArray(PendingCountCondition.class);
+        final PendingCountCondition[] conditionArray = pendingCount_condition
+                .asValueArray(PendingCountCondition.EMPTY_ARRAY);
         for (int i = 0; i < conditionArray.length; i++) {
             final PendingCountCondition condition = conditionArray[i];
             if (currentPendingCount <= condition.getLimit()) {
@@ -193,7 +194,7 @@ public class WrappedExecutorService implements ListeningExecutorService {
                 }
             }
         }
-        final IPendingCountListener[] listenerArray = pendingCountListeners.asArray(IPendingCountListener.class);
+        final IPendingCountListener[] listenerArray = pendingCountListeners.asArray(IPendingCountListener.EMPTY_ARRAY);
         for (int i = 0; i < listenerArray.length; i++) {
             listenerArray[i].onPendingCountChanged(currentPendingCount);
         }
@@ -507,7 +508,9 @@ public class WrappedExecutorService implements ListeningExecutorService {
         }, Executors.SIMPLE_DISABLED_EXECUTOR);
     }
 
-    public final class PendingCountCondition {
+    public static final class PendingCountCondition {
+
+        public static final PendingCountCondition[] EMPTY_ARRAY = new PendingCountCondition[0];
 
         private final int limit;
         private final Condition condition;

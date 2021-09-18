@@ -69,6 +69,8 @@ import javax.swing.SortOrder;
 //CHECKSTYLE:OFF
 @NotThreadSafe
 public abstract class ComparableDefaultRowSorter<M, I> extends RowSorter<M> {
+    private static final SortKey[] SORTKEY_EMPTY_ARRAY = new SortKey[0];
+
     /**
      * Whether or not we resort on TableModelEvent.UPDATEs.
      */
@@ -516,7 +518,7 @@ public abstract class ComparableDefaultRowSorter<M, I> extends RowSorter<M> {
         updateUseToString();
         if (isUnsorted()) {
             // Unsorted
-            cachedSortKeys = new SortKey[0];
+            cachedSortKeys = SORTKEY_EMPTY_ARRAY;
             if (getRowFilter() == null) {
                 // No filter & unsorted
                 if (viewToModel != null) {
@@ -634,7 +636,7 @@ public abstract class ComparableDefaultRowSorter<M, I> extends RowSorter<M> {
         for (int i = 0; i < keySize; i++) {
             sortComparators[i] = getComparator0(keys.get(i).getColumn());
         }
-        cachedSortKeys = keys.toArray(new SortKey[keySize]);
+        cachedSortKeys = keys.toArray(SORTKEY_EMPTY_ARRAY);
     }
 
     /**

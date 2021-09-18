@@ -24,7 +24,7 @@ import de.invesdwin.util.streams.buffer.IByteBuffer;
 @Immutable
 public class RemoteFastSerializingSerde<E> implements ISerde<E> {
 
-    private static final Class<?>[] EMPTY_TYPES = new Class[0];
+    private static final Class<?>[] CLASS_EMPTY_ARRAY = new Class[0];
 
     private static final double EXPANSION_FACTOR = 2D;
 
@@ -49,7 +49,7 @@ public class RemoteFastSerializingSerde<E> implements ISerde<E> {
 
     private Class<?>[] filter(final Class<?>[] types) {
         if (types == null || types.length == 0) {
-            return EMPTY_TYPES;
+            return CLASS_EMPTY_ARRAY;
         } else {
             return filter(new ArrayList<>(Arrays.asList(types)));
         }
@@ -57,7 +57,7 @@ public class RemoteFastSerializingSerde<E> implements ISerde<E> {
 
     private static Class<?>[] filter(final List<Class<?>> types) {
         if (types == null || types.isEmpty()) {
-            return EMPTY_TYPES;
+            return CLASS_EMPTY_ARRAY;
         }
         for (int i = 0; i < types.size(); i++) {
             final Class<?> type = types.get(i);
@@ -66,7 +66,7 @@ public class RemoteFastSerializingSerde<E> implements ISerde<E> {
                 i--;
             }
         }
-        return types.toArray(new Class[types.size()]);
+        return types.toArray(CLASS_EMPTY_ARRAY);
     }
 
     public IObjectPool<OnHeapCoder> getOnHeapCoderPool() {

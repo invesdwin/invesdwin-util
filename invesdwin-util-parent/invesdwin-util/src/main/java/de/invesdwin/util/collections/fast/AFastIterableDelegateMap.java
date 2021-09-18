@@ -120,11 +120,9 @@ public abstract class AFastIterableDelegateMap<K, V> implements IFastIterableMap
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public V[] asValueArray(final Class<V> valueType) {
+    public V[] asValueArray(final V[] emptyArray) {
         if (valueArray == null) {
-            final V[] empty = (V[]) Array.newInstance(valueType, delegate.size());
-            valueArray = values.toArray(empty);
+            valueArray = values.toArray(emptyArray);
         }
         return valueArray;
     }
@@ -135,11 +133,9 @@ public abstract class AFastIterableDelegateMap<K, V> implements IFastIterableMap
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public K[] asKeyArray(final Class<K> keyType) {
+    public K[] asKeyArray(final K[] emptyArray) {
         if (keyArray == null) {
-            final K[] empty = (K[]) Array.newInstance(keyType, delegate.size());
-            keyArray = keySet.toArray(empty);
+            keyArray = keySet.toArray(emptyArray);
         }
         return keyArray;
     }

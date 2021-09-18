@@ -110,7 +110,7 @@ public abstract class AFunction {
                 defaultValues.add(parameter.getExpressionName());
             }
         }
-        return defaultValues.toArray(new String[defaultValues.size()]);
+        return defaultValues.toArray(Strings.EMPTY_ARRAY);
     }
 
     public final String getExpressionString(final String[] args) {

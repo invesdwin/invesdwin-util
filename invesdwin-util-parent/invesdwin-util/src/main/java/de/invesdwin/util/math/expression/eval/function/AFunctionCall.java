@@ -31,7 +31,7 @@ public abstract class AFunctionCall<F extends AFunction> implements IParsedExpre
     public AFunctionCall(final String context, final F function) {
         this.context = context;
         this.function = function;
-        this.parameters = EMPTY_EXPRESSIONS;
+        this.parameters = EMPTY_ARRAY;
     }
 
     @Override

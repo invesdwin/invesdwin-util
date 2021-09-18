@@ -1,6 +1,5 @@
 package de.invesdwin.util.collections.fast.concurrent;
 
-import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.Set;
 
@@ -119,11 +118,9 @@ public abstract class ASynchronizedFastIterableDelegateSet<E> implements IFastIt
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public synchronized E[] asArray(final Class<E> type) {
+    public synchronized E[] asArray(final E[] emptyArray) {
         if (array == null) {
-            final E[] empty = (E[]) Array.newInstance(type, delegate.size());
-            array = toArray(empty);
+            array = toArray(emptyArray);
         }
         return array;
     }
