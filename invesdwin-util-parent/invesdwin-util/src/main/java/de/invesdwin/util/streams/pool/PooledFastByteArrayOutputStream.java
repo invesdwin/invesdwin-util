@@ -72,4 +72,8 @@ public final class PooledFastByteArrayOutputStream extends FastByteArrayOutputSt
         return inputStream;
     }
 
+    public InputStream newInputStream() {
+        return new NonClosingPooledFastByteArrayInputStream(this);
+    }
+
 }
