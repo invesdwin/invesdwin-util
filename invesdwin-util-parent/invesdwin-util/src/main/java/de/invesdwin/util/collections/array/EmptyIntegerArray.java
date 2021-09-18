@@ -27,12 +27,17 @@ public final class EmptyIntegerArray implements IIntegerArray {
     }
 
     @Override
-    public IIntegerArray subarray(final int startIndexInclusive, final int endIndexExclusive) {
+    public IIntegerArray slice(final int fromIndex, final int length) {
         return this;
     }
 
     @Override
     public int[] asArray() {
+        return Integers.EMPTY_ARRAY;
+    }
+
+    @Override
+    public int[] asArray(final int fromIndex, final int length) {
         return Integers.EMPTY_ARRAY;
     }
 

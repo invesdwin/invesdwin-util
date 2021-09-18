@@ -27,12 +27,17 @@ public final class EmptyDoubleArray implements IDoubleArray {
     }
 
     @Override
-    public IDoubleArray subarray(final int startIndexInclusive, final int endIndexExclusive) {
+    public IDoubleArray slice(final int fromIndex, final int length) {
         return this;
     }
 
     @Override
     public double[] asArray() {
+        return Doubles.EMPTY_ARRAY;
+    }
+
+    @Override
+    public double[] asArray(final int fromIndex, final int length) {
         return Doubles.EMPTY_ARRAY;
     }
 

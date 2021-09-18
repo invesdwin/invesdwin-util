@@ -11,6 +11,7 @@ import java.util.List;
 
 import javax.annotation.concurrent.Immutable;
 
+import de.invesdwin.util.collections.bitset.IBitSet;
 import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.math.decimal.ADecimal;
 
@@ -227,6 +228,9 @@ public final class CheckedCastBooleans {
         } else if (value instanceof boolean[]) {
             final boolean[] cValue = (boolean[]) value;
             return checkedCastVector(cValue);
+        } else if (value instanceof IBitSet) {
+            final IBitSet cValue = (IBitSet) value;
+            return checkedCastVector(cValue);
         } else if (value instanceof BitSet) {
             final BitSet cValue = (BitSet) value;
             return checkedCastVector(cValue);
@@ -333,6 +337,17 @@ public final class CheckedCastBooleans {
         final boolean[] vector = new boolean[value.size()];
         for (int i = 0; i < value.size(); i++) {
             vector[i] = checkedCast(value.get(i));
+        }
+        return vector;
+    }
+
+    public static boolean[] checkedCastVector(final IBitSet value) {
+        if (value == null) {
+            return null;
+        }
+        final boolean[] vector = new boolean[value.getExpectedSize()];
+        for (int i = 0; i < vector.length; i++) {
+            vector[i] = checkedCast(value.contains(i));
         }
         return vector;
     }

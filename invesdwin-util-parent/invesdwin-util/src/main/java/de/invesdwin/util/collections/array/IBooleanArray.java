@@ -8,16 +8,18 @@ public interface IBooleanArray {
 
     int size();
 
-    IBooleanArray subarray(int startIndexInclusive, int endIndexExclusive);
+    IBooleanArray slice(int fromIndex, int length);
 
     boolean[] asArray();
 
+    boolean[] asArray(int fromIndex, int length);
+
     static IBooleanArray newInstance(final int size) {
-        return new PlainBooleanArray(size);
+        return new HeapBooleanArray(size);
     }
 
     static IBooleanArray newInstance(final boolean[] values) {
-        return new PlainBooleanArray(values);
+        return new HeapBooleanArray(values);
     }
 
 }

@@ -20,7 +20,11 @@ public class JavaBitSet implements IBitSet {
     }
 
     public JavaBitSet(final int expectedSize) {
-        this.bitSet = new BitSet(expectedSize);
+        if (expectedSize < 0) {
+            this.bitSet = new BitSet();
+        } else {
+            this.bitSet = new BitSet(expectedSize);
+        }
         this.expectedSize = expectedSize;
         //leaving trueCount explicitly at 0 so that add works properly
     }

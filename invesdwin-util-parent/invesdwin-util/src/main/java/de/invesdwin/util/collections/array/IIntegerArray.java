@@ -8,16 +8,18 @@ public interface IIntegerArray {
 
     int size();
 
-    IIntegerArray subarray(int startIndexInclusive, int endIndexExclusive);
+    IIntegerArray slice(int fromIndex, int length);
 
     int[] asArray();
 
+    int[] asArray(int fromIndex, int length);
+
     static IIntegerArray newInstance(final int size) {
-        return new PlainIntegerArray(size);
+        return new HeapIntegerArray(size);
     }
 
     static IIntegerArray newInstance(final int[] values) {
-        return new PlainIntegerArray(values);
+        return new HeapIntegerArray(values);
     }
 
 }

@@ -41,6 +41,8 @@ import de.invesdwin.util.streams.buffer.extend.internal.UninitializedDirectExpan
 @Immutable
 public final class ByteBuffers {
 
+    public static final int MAX_TO_STRING_COUNT = 1024;
+
     public static final int EXPANDABLE_LENGTH = -1;
 
     /**
@@ -502,7 +504,7 @@ public final class ByteBuffers {
     }
 
     public static String toString(final IByteBuffer buffer) {
-        final byte[] byteArray = buffer.asByteArray(0, Integers.min(1024, buffer.capacity()));
+        final byte[] byteArray = buffer.asByteArray(0, Integers.min(MAX_TO_STRING_COUNT, buffer.capacity()));
         return Objects.toStringHelper(buffer)
                 .add("addressOffset", buffer.addressOffset())
                 .add("capacity", buffer.capacity())

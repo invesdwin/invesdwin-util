@@ -8,17 +8,19 @@ public interface IDoubleArray {
 
     int size();
 
-    IDoubleArray subarray(int startIndexInclusive, int endIndexExclusive);
+    IDoubleArray slice(int fromIndex, int length);
 
     double[] asArray();
 
+    double[] asArray(int fromIndex, int length);
+
     static IDoubleArray newInstance(final int size) {
         //plain arrays are significantly faster than direct buffers
-        return new PlainDoubleArray(size);
+        return new HeapDoubleArray(size);
     }
 
     static IDoubleArray newInstance(final double[] values) {
-        return new PlainDoubleArray(values);
+        return new HeapDoubleArray(values);
     }
 
 }
