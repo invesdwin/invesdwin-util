@@ -20,6 +20,7 @@ public class RefCountReverseCloseableIterable<E> extends RefCountCloseableIterab
 
     @Override
     public ICloseableIterator<E> reverseIterator() {
+        used = true;
         return new RefCountCloseableIterator<E>(getDelegate().reverseIterator(), getRefCount());
     }
 

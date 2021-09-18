@@ -10,6 +10,7 @@ import de.invesdwin.util.collections.iterable.ICloseableIterator;
 @ThreadSafe
 public class RefCountCloseableIterable<E> implements ICloseableIterable<E> {
 
+    protected volatile boolean used = false;
     private final ICloseableIterable<E> delegate;
     private final AtomicInteger refCount;
 
@@ -30,8 +31,13 @@ public class RefCountCloseableIterable<E> implements ICloseableIterable<E> {
         return refCount;
     }
 
+    public boolean isUsed() {
+        return used;
+    }
+
     @Override
     public ICloseableIterator<E> iterator() {
+        used = true;
         return new RefCountCloseableIterator<E>(delegate.iterator(), refCount);
     }
 
