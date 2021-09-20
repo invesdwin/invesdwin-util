@@ -571,8 +571,10 @@ public class DirectExpandableByteBuffer extends ExpandableDirectByteBuffer imple
 
     @Override
     public IByteBuffer ensureCapacity(final int desiredCapacity) {
-        //we need this workaround to prevent growth when capacity matches on the last bit
-        checkLimit(desiredCapacity - BitUtil.SIZE_OF_BYTE);
+        if (desiredCapacity > capacity()) {
+            //we need this workaround to prevent growth when capacity matches on the last bit
+            checkLimit(desiredCapacity - BitUtil.SIZE_OF_BYTE);
+        }
         return this;
     }
 

@@ -17,9 +17,9 @@ import org.agrona.io.DirectBufferOutputStream;
 
 import de.invesdwin.util.streams.buffer.ByteBuffers;
 import de.invesdwin.util.streams.buffer.IByteBuffer;
+import de.invesdwin.util.streams.buffer.UninitializedDirectByteBuffers;
 import de.invesdwin.util.streams.buffer.delegate.slice.mutable.factory.FixedMutableSlicedDelegateByteBufferFactory;
 import de.invesdwin.util.streams.buffer.delegate.slice.mutable.factory.IMutableSlicedDelegateByteBufferFactory;
-import de.invesdwin.util.streams.buffer.extend.internal.UninitializedDirectByteBuffers;
 
 @NotThreadSafe
 public class UnsafeByteBuffer extends UnsafeBuffer implements IByteBuffer {
@@ -627,7 +627,9 @@ public class UnsafeByteBuffer extends UnsafeBuffer implements IByteBuffer {
 
     @Override
     public IByteBuffer ensureCapacity(final int desiredCapacity) {
-        checkLimit(desiredCapacity);
+        if (desiredCapacity > capacity()) {
+            checkLimit(desiredCapacity);
+        }
         return this;
     }
 

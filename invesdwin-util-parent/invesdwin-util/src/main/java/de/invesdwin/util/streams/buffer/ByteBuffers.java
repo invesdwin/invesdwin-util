@@ -35,7 +35,6 @@ import de.invesdwin.util.streams.buffer.extend.DirectExpandableByteBuffer;
 import de.invesdwin.util.streams.buffer.extend.UnsafeArrayByteBuffer;
 import de.invesdwin.util.streams.buffer.extend.UnsafeByteBuffer;
 import de.invesdwin.util.streams.buffer.extend.internal.UninitializedDirectByteBuffer;
-import de.invesdwin.util.streams.buffer.extend.internal.UninitializedDirectByteBuffers;
 import de.invesdwin.util.streams.buffer.extend.internal.UninitializedDirectExpandableByteBuffer;
 
 @Immutable
@@ -341,7 +340,7 @@ public final class ByteBuffers {
             return BufferUtil.ARRAY_BASE_OFFSET + BufferUtil.arrayOffset(buffer);
         }
     }
-
+    
     public static int wrapAdjustment(final java.nio.ByteBuffer buffer) {
         final long offset = buffer.hasArray() ? BufferUtil.ARRAY_BASE_OFFSET : BufferUtil.address(buffer);
         return (int) (addressOffset(buffer) - offset);

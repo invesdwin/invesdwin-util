@@ -14,11 +14,10 @@ import org.agrona.DirectBuffer;
 import org.agrona.MutableDirectBuffer;
 
 import de.invesdwin.util.error.Throwables;
-import de.invesdwin.util.error.UnknownArgumentException;
-import de.invesdwin.util.math.Longs;
 import de.invesdwin.util.streams.buffer.ByteBuffers;
 import de.invesdwin.util.streams.buffer.EmptyByteBuffer;
 import de.invesdwin.util.streams.buffer.IByteBuffer;
+import de.invesdwin.util.streams.buffer.UninitializedDirectByteBuffers;
 import de.invesdwin.util.streams.buffer.delegate.slice.SlicedDelegateByteBuffer;
 import de.invesdwin.util.streams.buffer.delegate.slice.SlicedFromDelegateByteBuffer;
 import de.invesdwin.util.streams.buffer.delegate.slice.mutable.factory.IMutableSlicedDelegateByteBufferFactory;
@@ -97,7 +96,7 @@ public class ChronicleDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public int capacity() {
-        final long capacity = Longs.min(delegate.readLimit(), delegate.writeLimit(), delegate.safeLimit());
+        final long capacity = delegate.safeLimit();
         if (capacity > ArrayExpandableByteBuffer.MAX_ARRAY_LENGTH) {
             return ArrayExpandableByteBuffer.MAX_ARRAY_LENGTH;
         } else {
@@ -620,6 +619,7 @@ public class ChronicleDelegateByteBuffer implements IByteBuffer {
         return null;
     }
 
+    @SuppressWarnings("rawtypes")
     @Override
     public java.nio.ByteBuffer asByteBuffer() {
         final java.nio.ByteBuffer byteBuffer = byteBuffer();
@@ -636,7 +636,9 @@ public class ChronicleDelegateByteBuffer implements IByteBuffer {
             final java.nio.ByteBuffer arrayBuffer = java.nio.ByteBuffer.wrap(array, wrapAdjustment, capacity());
             return arrayBuffer;
         }
-        throw UnknownArgumentException.newInstance(Object.class, delegate.underlyingObject());
+        final BytesStore store = delegate.bytesStore();
+        final long address = store.addressForRead(store.start());
+        return UninitializedDirectByteBuffers.asDirectByteBufferNoCleaner(address, capacity());
     }
 
     @Override

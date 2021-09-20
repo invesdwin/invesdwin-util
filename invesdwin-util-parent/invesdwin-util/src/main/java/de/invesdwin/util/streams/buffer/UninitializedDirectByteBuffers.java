@@ -1,4 +1,4 @@
-package de.invesdwin.util.streams.buffer.extend.internal;
+package de.invesdwin.util.streams.buffer;
 
 import javax.annotation.concurrent.Immutable;
 

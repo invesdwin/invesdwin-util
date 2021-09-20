@@ -37,6 +37,7 @@ import org.agrona.LangUtil;
 import org.agrona.MutableDirectBuffer;
 
 import de.invesdwin.util.lang.finalizer.AFinalizer;
+import de.invesdwin.util.streams.buffer.UninitializedDirectByteBuffers;
 
 /**
  * Extracted from org.agrona.ExpandableDirectByteBuffer

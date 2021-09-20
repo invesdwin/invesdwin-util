@@ -664,7 +664,7 @@ public class AgronaDelegateMutableByteBuffer implements IByteBuffer {
             return arrayBuffer;
         }
         final long address = addressOffset();
-        return de.invesdwin.util.streams.buffer.extend.internal.UninitializedDirectByteBuffers
+        return de.invesdwin.util.streams.buffer.UninitializedDirectByteBuffers
                 .asDirectByteBufferNoCleaner(address, capacity());
     }
 
@@ -702,11 +702,13 @@ public class AgronaDelegateMutableByteBuffer implements IByteBuffer {
 
     @Override
     public IByteBuffer ensureCapacity(final int desiredCapacity) {
-        if (isExpandable()) {
-            //we need this workaround to prevent growth when capacity matches on the last bit
-            delegate.checkLimit(desiredCapacity - BitUtil.SIZE_OF_BYTE);
-        } else {
-            delegate.checkLimit(desiredCapacity);
+        if (desiredCapacity > capacity()) {
+            if (isExpandable()) {
+                //we need this workaround to prevent growth when capacity matches on the last bit
+                delegate.checkLimit(desiredCapacity - BitUtil.SIZE_OF_BYTE);
+            } else {
+                delegate.checkLimit(desiredCapacity);
+            }
         }
         return this;
     }
