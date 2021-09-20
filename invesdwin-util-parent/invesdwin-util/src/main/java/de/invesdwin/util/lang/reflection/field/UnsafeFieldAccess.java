@@ -20,7 +20,7 @@ public enum UnsafeFieldAccess {
 
         @Override
         public <T> void put(final Object obj, final long offset, final T value) {
-            UnsafeAccess.UNSAFE.putBoolean(obj, offset, (boolean) value);
+            UnsafeAccess.UNSAFE.putBoolean(obj, offset, (Boolean) value);
         }
     },
     BYTE(byte.class) {
@@ -32,7 +32,7 @@ public enum UnsafeFieldAccess {
 
         @Override
         public <T> void put(final Object obj, final long offset, final T value) {
-            UnsafeAccess.UNSAFE.putByte(obj, offset, (byte) value);
+            UnsafeAccess.UNSAFE.putByte(obj, offset, (Byte) value);
         }
     },
     CHAR(char.class) {
@@ -44,7 +44,7 @@ public enum UnsafeFieldAccess {
 
         @Override
         public <T> void put(final Object obj, final long offset, final T value) {
-            UnsafeAccess.UNSAFE.putChar(obj, offset, (char) value);
+            UnsafeAccess.UNSAFE.putChar(obj, offset, (Character) value);
         }
     },
     SHORT(short.class) {
@@ -56,7 +56,7 @@ public enum UnsafeFieldAccess {
 
         @Override
         public <T> void put(final Object obj, final long offset, final T value) {
-            UnsafeAccess.UNSAFE.putShort(obj, offset, (short) value);
+            UnsafeAccess.UNSAFE.putShort(obj, offset, (Short) value);
         }
     },
     INT(int.class) {
@@ -68,7 +68,7 @@ public enum UnsafeFieldAccess {
 
         @Override
         public <T> void put(final Object obj, final long offset, final T value) {
-            UnsafeAccess.UNSAFE.putInt(obj, offset, (int) value);
+            UnsafeAccess.UNSAFE.putInt(obj, offset, (Integer) value);
         }
     },
     LONG(long.class) {
@@ -80,7 +80,7 @@ public enum UnsafeFieldAccess {
 
         @Override
         public <T> void put(final Object obj, final long offset, final T value) {
-            UnsafeAccess.UNSAFE.putLong(obj, offset, (long) value);
+            UnsafeAccess.UNSAFE.putLong(obj, offset, (Long) value);
         }
     },
     FLOAT(float.class) {
@@ -92,7 +92,7 @@ public enum UnsafeFieldAccess {
 
         @Override
         public <T> void put(final Object obj, final long offset, final T value) {
-            UnsafeAccess.UNSAFE.putFloat(obj, offset, (float) value);
+            UnsafeAccess.UNSAFE.putFloat(obj, offset, (Float) value);
         }
     },
     DOUBLE(double.class) {
@@ -104,7 +104,7 @@ public enum UnsafeFieldAccess {
 
         @Override
         public <T> void put(final Object obj, final long offset, final T value) {
-            UnsafeAccess.UNSAFE.putDouble(obj, offset, (double) value);
+            UnsafeAccess.UNSAFE.putDouble(obj, offset, (Double) value);
         }
     },
     OBJECT(Object.class) {
