@@ -38,7 +38,7 @@ public final class InputStreams {
     }
 
     public static int read(final DataInput in, final byte[] b, final int off, final int len) {
-        java.util.Objects.checkFromIndexSize(off, len, b.length);
+        checkFromIndexSize(off, len, b.length);
         if (len == 0) {
             return 0;
         }
@@ -281,6 +281,14 @@ public final class InputStreams {
         } finally {
             ByteBuffers.EXPANDABLE_POOL.returnObject(bytearr);
         }
+    }
+
+    public static <X extends RuntimeException> int checkFromIndexSize(final int fromIndex, final int size,
+            final int length) {
+        if ((length | fromIndex | size) < 0 || size > length - fromIndex) {
+            throw new IndexOutOfBoundsException("fromIndex=" + fromIndex + " size=" + size + " length=" + length);
+        }
+        return fromIndex;
     }
 
 }
