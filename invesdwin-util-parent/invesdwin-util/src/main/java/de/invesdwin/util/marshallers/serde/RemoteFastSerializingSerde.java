@@ -70,7 +70,7 @@ public class RemoteFastSerializingSerde<E> implements ISerde<E> {
     }
 
     public IObjectPool<OnHeapCoder> getOnHeapCoderPool() {
-        if (onHeapCoderPool != null) {
+        if (onHeapCoderPool == null) {
             onHeapCoderPool = new AgronaObjectPool<>(() -> new OnHeapCoder(shared, filteredTypes));
         }
         return onHeapCoderPool;
