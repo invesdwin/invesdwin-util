@@ -6,6 +6,7 @@ import java.util.Iterator;
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.assertions.Assertions;
+import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.concurrent.lock.ILock;
 import de.invesdwin.util.concurrent.lock.Locks;
 import de.invesdwin.util.lang.description.TextDescription;
@@ -13,9 +14,9 @@ import de.invesdwin.util.lang.description.TextDescription;
 @ThreadSafe
 public abstract class APreLockedCollection<E> implements Collection<E> {
 
-    private final TextDescription iteratorName;
+    protected final TextDescription iteratorName;
     /** The object to lock on, needed for List/SortedSet views */
-    private final ILock lock;
+    protected final ILock lock;
 
     //-----------------------------------------------------------------------
     /**
@@ -41,8 +42,8 @@ public abstract class APreLockedCollection<E> implements Collection<E> {
      * @throws NullPointerException
      *             if the collection or lock is null
      */
-    public APreLockedCollection(final TextDescription name, final ILock lock) {
-        this.iteratorName = name;
+    public APreLockedCollection(final TextDescription iteratorName, final ILock lock) {
+        this.iteratorName = iteratorName;
         Assertions.checkNotNull(lock);
         this.lock = lock;
     }
@@ -54,14 +55,10 @@ public abstract class APreLockedCollection<E> implements Collection<E> {
      */
     protected abstract Collection<E> getPreLockedDelegate();
 
-    protected ILock getLock() {
-        return lock;
-    }
-
     //-----------------------------------------------------------------------
 
     @Override
-    public boolean add(final E object) {
+    public final boolean add(final E object) {
         final Collection<E> delegate = getPreLockedDelegate();
         try {
             return delegate.add(object);
@@ -71,7 +68,7 @@ public abstract class APreLockedCollection<E> implements Collection<E> {
     }
 
     @Override
-    public boolean addAll(final Collection<? extends E> coll) {
+    public final boolean addAll(final Collection<? extends E> coll) {
         final Collection<E> delegate = getPreLockedDelegate();
         try {
             return delegate.addAll(coll);
@@ -81,7 +78,7 @@ public abstract class APreLockedCollection<E> implements Collection<E> {
     }
 
     @Override
-    public void clear() {
+    public final void clear() {
         final Collection<E> delegate = getPreLockedDelegate();
         try {
             delegate.clear();
@@ -91,7 +88,7 @@ public abstract class APreLockedCollection<E> implements Collection<E> {
     }
 
     @Override
-    public boolean contains(final Object object) {
+    public final boolean contains(final Object object) {
         final Collection<E> delegate = getPreLockedDelegate();
         try {
             return delegate.contains(object);
@@ -101,7 +98,7 @@ public abstract class APreLockedCollection<E> implements Collection<E> {
     }
 
     @Override
-    public boolean containsAll(final Collection<?> coll) {
+    public final boolean containsAll(final Collection<?> coll) {
         final Collection<E> delegate = getPreLockedDelegate();
         try {
             return delegate.containsAll(coll);
@@ -111,7 +108,7 @@ public abstract class APreLockedCollection<E> implements Collection<E> {
     }
 
     @Override
-    public boolean isEmpty() {
+    public final boolean isEmpty() {
         final Collection<E> delegate = getPreLockedDelegate();
         try {
             return delegate.isEmpty();
@@ -121,18 +118,14 @@ public abstract class APreLockedCollection<E> implements Collection<E> {
     }
 
     @Override
-    public Iterator<E> iterator() {
+    public final ICloseableIterator<E> iterator() {
         final Collection<E> delegate = getPreLockedDelegate();
-        try {
-            final Iterator<E> iterator = delegate.iterator();
-            return new PreLockedIterator<E>(iteratorName, iterator, lock);
-        } finally {
-            lock.unlock();
-        }
+        final Iterator<E> iterator = delegate.iterator();
+        return new PreLockedIterator<E>(iteratorName, iterator, lock);
     }
 
     @Override
-    public Object[] toArray() {
+    public final Object[] toArray() {
         final Collection<E> delegate = getPreLockedDelegate();
         try {
             return delegate.toArray();
@@ -142,7 +135,7 @@ public abstract class APreLockedCollection<E> implements Collection<E> {
     }
 
     @Override
-    public <T> T[] toArray(final T[] object) {
+    public final <T> T[] toArray(final T[] object) {
         final Collection<E> delegate = getPreLockedDelegate();
         try {
             return delegate.toArray(object);
@@ -152,7 +145,7 @@ public abstract class APreLockedCollection<E> implements Collection<E> {
     }
 
     @Override
-    public boolean remove(final Object object) {
+    public final boolean remove(final Object object) {
         final Collection<E> delegate = getPreLockedDelegate();
         try {
             return delegate.remove(object);
@@ -162,7 +155,7 @@ public abstract class APreLockedCollection<E> implements Collection<E> {
     }
 
     @Override
-    public boolean removeAll(final Collection<?> coll) {
+    public final boolean removeAll(final Collection<?> coll) {
         final Collection<E> delegate = getPreLockedDelegate();
         try {
             return delegate.removeAll(coll);
@@ -172,7 +165,7 @@ public abstract class APreLockedCollection<E> implements Collection<E> {
     }
 
     @Override
-    public boolean retainAll(final Collection<?> coll) {
+    public final boolean retainAll(final Collection<?> coll) {
         final Collection<E> delegate = getPreLockedDelegate();
         try {
             return delegate.retainAll(coll);
@@ -182,7 +175,7 @@ public abstract class APreLockedCollection<E> implements Collection<E> {
     }
 
     @Override
-    public int size() {
+    public final int size() {
         final Collection<E> delegate = getPreLockedDelegate();
         try {
             return delegate.size();
@@ -192,7 +185,7 @@ public abstract class APreLockedCollection<E> implements Collection<E> {
     }
 
     @Override
-    public boolean equals(final Object object) {
+    public final boolean equals(final Object object) {
         final Collection<E> delegate = getPreLockedDelegate();
         try {
             if (object == this) {
@@ -205,7 +198,7 @@ public abstract class APreLockedCollection<E> implements Collection<E> {
     }
 
     @Override
-    public int hashCode() {
+    public final int hashCode() {
         final Collection<E> delegate = getPreLockedDelegate();
         try {
             return delegate.hashCode();
@@ -215,7 +208,7 @@ public abstract class APreLockedCollection<E> implements Collection<E> {
     }
 
     @Override
-    public String toString() {
+    public final String toString() {
         final Collection<E> delegate = getPreLockedDelegate();
         try {
             return delegate.toString();
