@@ -28,8 +28,8 @@ public class RemoteFastSerializingSerde<E> implements ISerde<E> {
 
     private static final double EXPANSION_FACTOR = 2D;
 
-    private final IObjectPool<OnHeapCoder> onHeapCoderPool;
-    private final IObjectPool<OffHeapCoder> offHeapCoderPool;
+    private final transient IObjectPool<OnHeapCoder> onHeapCoderPool;
+    private final transient IObjectPool<OffHeapCoder> offHeapCoderPool;
 
     public RemoteFastSerializingSerde(final boolean shared, final List<Class<?>> types) {
         final Class<?>[] filteredTypes = filter(types);
