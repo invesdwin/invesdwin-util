@@ -89,13 +89,13 @@ public class RemoteFastSerializingSerde<E> implements ISerde<E> {
         if (bytes.length == 0) {
             return null;
         }
-        final OnHeapCoder coder = onHeapCoderPool.borrowObject();
+        final OnHeapCoder coder = getOnHeapCoderPool().borrowObject();
         try {
             return (E) coder.toObject(bytes);
         } catch (final Throwable t) {
             throw new SerializationException(t);
         } finally {
-            onHeapCoderPool.returnObject(coder);
+            getOnHeapCoderPool().returnObject(coder);
         }
     }
 
@@ -104,13 +104,13 @@ public class RemoteFastSerializingSerde<E> implements ISerde<E> {
         if (obj == null) {
             return Bytes.EMPTY_ARRAY;
         }
-        final OnHeapCoder coder = onHeapCoderPool.borrowObject();
+        final OnHeapCoder coder = getOnHeapCoderPool().borrowObject();
         try {
             return coder.toByteArray(obj);
         } catch (final Throwable t) {
             throw new SerializationException(t);
         } finally {
-            onHeapCoderPool.returnObject(coder);
+            getOnHeapCoderPool().returnObject(coder);
         }
     }
 
@@ -133,21 +133,21 @@ public class RemoteFastSerializingSerde<E> implements ISerde<E> {
 
     @SuppressWarnings("unchecked")
     private E fromBuffer(final byte[] byteArray, final int index, final int length) {
-        final OnHeapCoder coder = onHeapCoderPool.borrowObject();
+        final OnHeapCoder coder = getOnHeapCoderPool().borrowObject();
         try {
             return (E) coder.toObject(byteArray, index, length);
         } finally {
-            onHeapCoderPool.returnObject(coder);
+            getOnHeapCoderPool().returnObject(coder);
         }
     }
 
     @SuppressWarnings("unchecked")
     private E fromBuffer(final long addressOffset, final int length) throws ClassNotFoundException, IOException {
-        final OffHeapCoder coder = offHeapCoderPool.borrowObject();
+        final OffHeapCoder coder = getOffHeapCoderPool().borrowObject();
         try {
             return (E) coder.toObject(addressOffset, length);
         } finally {
-            offHeapCoderPool.returnObject(coder);
+            getOffHeapCoderPool().returnObject(coder);
         }
     }
 
@@ -182,21 +182,21 @@ public class RemoteFastSerializingSerde<E> implements ISerde<E> {
 
     private int toBuffer(final Object obj, final byte[] byteArray, final int index, final int availableSize)
             throws FSTBufferTooSmallException {
-        final OnHeapCoder coder = onHeapCoderPool.borrowObject();
+        final OnHeapCoder coder = getOnHeapCoderPool().borrowObject();
         try {
             return coder.toByteArray(obj, byteArray, index, availableSize);
         } finally {
-            onHeapCoderPool.returnObject(coder);
+            getOnHeapCoderPool().returnObject(coder);
         }
     }
 
     private int toBuffer(final Object obj, final long addressOffset, final int length)
             throws FSTBufferTooSmallException, IOException {
-        final OffHeapCoder coder = offHeapCoderPool.borrowObject();
+        final OffHeapCoder coder = getOffHeapCoderPool().borrowObject();
         try {
             return coder.toMemory(obj, addressOffset, length);
         } finally {
-            offHeapCoderPool.returnObject(coder);
+            getOffHeapCoderPool().returnObject(coder);
         }
     }
 
