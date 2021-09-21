@@ -28,13 +28,14 @@ public class RemoteFastSerializingSerde<E> implements ISerde<E> {
 
     private static final double EXPANSION_FACTOR = 2D;
 
-    private final transient IObjectPool<OnHeapCoder> onHeapCoderPool;
-    private final transient IObjectPool<OffHeapCoder> offHeapCoderPool;
+    private final boolean shared;
+    private final Class<?>[] filteredTypes;
+    private transient IObjectPool<OnHeapCoder> onHeapCoderPool;
+    private transient IObjectPool<OffHeapCoder> offHeapCoderPool;
 
     public RemoteFastSerializingSerde(final boolean shared, final List<Class<?>> types) {
-        final Class<?>[] filteredTypes = filter(types);
-        this.onHeapCoderPool = new AgronaObjectPool<>(() -> new OnHeapCoder(shared, filteredTypes));
-        this.offHeapCoderPool = new AgronaObjectPool<>(() -> new OffHeapCoder(shared, filteredTypes));
+        this.shared = shared;
+        this.filteredTypes = filter(types);
     }
 
     /**
@@ -42,9 +43,8 @@ public class RemoteFastSerializingSerde<E> implements ISerde<E> {
      * circular dependencies. Though shared=false is faster for flat objects.
      */
     public RemoteFastSerializingSerde(final boolean shared, final Class<?>... types) {
-        final Class<?>[] filteredTypes = filter(types);
-        this.onHeapCoderPool = new AgronaObjectPool<>(() -> new OnHeapCoder(shared, filteredTypes));
-        this.offHeapCoderPool = new AgronaObjectPool<>(() -> new OffHeapCoder(shared, filteredTypes));
+        this.shared = shared;
+        this.filteredTypes = filter(types);
     }
 
     private Class<?>[] filter(final Class<?>[] types) {
@@ -70,10 +70,16 @@ public class RemoteFastSerializingSerde<E> implements ISerde<E> {
     }
 
     public IObjectPool<OnHeapCoder> getOnHeapCoderPool() {
+        if (onHeapCoderPool != null) {
+            onHeapCoderPool = new AgronaObjectPool<>(() -> new OnHeapCoder(shared, filteredTypes));
+        }
         return onHeapCoderPool;
     }
 
     public IObjectPool<OffHeapCoder> getOffHeapCoderPool() {
+        if (offHeapCoderPool == null) {
+            offHeapCoderPool = new AgronaObjectPool<>(() -> new OffHeapCoder(shared, filteredTypes));
+        }
         return offHeapCoderPool;
     }
 
