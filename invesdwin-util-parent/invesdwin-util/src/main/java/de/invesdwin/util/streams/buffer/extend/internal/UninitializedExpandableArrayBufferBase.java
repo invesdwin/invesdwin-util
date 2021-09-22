@@ -1448,7 +1448,8 @@ public class UninitializedExpandableArrayBufferBase implements MutableDirectBuff
                         "index=" + index + " length=" + length + " maxCapacity=" + MAX_ARRAY_LENGTH);
             }
 
-            byteArray = Arrays.copyOf(byteArray, calculateExpansion(currentArrayLength, resultingPosition));
+            final int newLength = calculateExpansion(currentArrayLength, resultingPosition);
+            byteArray = Arrays.copyOf(byteArray, newLength);
         }
     }
 

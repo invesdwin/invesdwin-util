@@ -552,7 +552,7 @@ public final class ByteBuffers {
         final byte[] bytes = buffer.byteArray();
         if (bytes != null) {
             final int wrapAdjustment = buffer.wrapAdjustment();
-            if (wrapAdjustment != 0 || index != 0 || length == bytes.length) {
+            if (wrapAdjustment != 0 || index != 0 || length != bytes.length) {
                 return Arrays.copyOfRange(bytes, wrapAdjustment + index, length);
             } else {
                 return bytes;
@@ -563,7 +563,7 @@ public final class ByteBuffers {
             final byte[] array = byteBuffer.array();
             if (array != null) {
                 final int wrapAdjustment = buffer.wrapAdjustment();
-                if (wrapAdjustment != 0 || index != 0 || length == array.length) {
+                if (wrapAdjustment != 0 || index != 0 || length != array.length) {
                     return Arrays.copyOfRange(array, wrapAdjustment + index, length);
                 } else {
                     return array;
@@ -577,7 +577,7 @@ public final class ByteBuffers {
         final byte[] bytes = buffer.byteArray();
         if (bytes != null) {
             final int wrapAdjustment = buffer.wrapAdjustment();
-            if (wrapAdjustment != 0 || index != 0 || length == bytes.length) {
+            if (wrapAdjustment != 0 || index != 0 || length != bytes.length) {
                 return Arrays.copyOfRange(bytes, wrapAdjustment + index, length);
             } else {
                 return bytes.clone();
@@ -588,7 +588,7 @@ public final class ByteBuffers {
             final byte[] array = byteBuffer.array();
             if (array != null) {
                 final int wrapAdjustment = buffer.wrapAdjustment();
-                if (wrapAdjustment != 0 || index != 0 || length == array.length) {
+                if (wrapAdjustment != 0 || index != 0 || length != array.length) {
                     return Arrays.copyOfRange(array, wrapAdjustment + index, length);
                 } else {
                     return array.clone();
