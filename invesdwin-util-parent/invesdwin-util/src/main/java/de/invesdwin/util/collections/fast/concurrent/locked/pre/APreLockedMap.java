@@ -20,9 +20,9 @@ public abstract class APreLockedMap<K, V> implements Map<K, V> {
     /** The object to lock on, needed for List/SortedSet views */
     protected final ILock lock;
 
-    protected final Set<K> keySet;
-    protected final Set<Entry<K, V>> entrySet;
-    protected final Collection<V> values;
+    private Set<K> keySet;
+    private Set<Entry<K, V>> entrySet;
+    private Collection<V> values;
 
     //-----------------------------------------------------------------------
     /**
@@ -36,9 +36,6 @@ public abstract class APreLockedMap<K, V> implements Map<K, V> {
     public APreLockedMap(final TextDescription iteratorName) {
         this.iteratorName = iteratorName;
         this.lock = Locks.newReentrantLock(getClass().getSimpleName());
-        this.keySet = newKeySet();
-        this.entrySet = newEntrySet();
-        this.values = newValues();
     }
 
     /**
@@ -55,9 +52,6 @@ public abstract class APreLockedMap<K, V> implements Map<K, V> {
         this.iteratorName = iteratorName;
         Assertions.checkNotNull(lock);
         this.lock = lock;
-        this.keySet = newKeySet();
-        this.entrySet = newEntrySet();
-        this.values = newValues();
     }
 
     private APreLockedMap<K, V> getThis() {
@@ -65,7 +59,7 @@ public abstract class APreLockedMap<K, V> implements Map<K, V> {
     }
 
     protected Collection<V> newValues() {
-        return new APreLockedCollection<V>(iteratorName) {
+        return new APreLockedCollection<V>(iteratorName, lock) {
             @Override
             protected Collection<V> getPreLockedDelegate() {
                 return getThis().getPreLockedDelegate().values();
@@ -74,7 +68,7 @@ public abstract class APreLockedMap<K, V> implements Map<K, V> {
     }
 
     protected Set<Entry<K, V>> newEntrySet() {
-        return new APreLockedSet<Entry<K, V>>(iteratorName) {
+        return new APreLockedSet<Entry<K, V>>(iteratorName, lock) {
             @Override
             protected Set<Entry<K, V>> getPreLockedDelegate() {
                 return getThis().getPreLockedDelegate().entrySet();
@@ -83,7 +77,7 @@ public abstract class APreLockedMap<K, V> implements Map<K, V> {
     }
 
     protected Set<K> newKeySet() {
-        return new APreLockedSet<K>(iteratorName) {
+        return new APreLockedSet<K>(iteratorName, lock) {
             @Override
             protected Set<K> getPreLockedDelegate() {
                 return getThis().getPreLockedDelegate().keySet();
@@ -225,16 +219,25 @@ public abstract class APreLockedMap<K, V> implements Map<K, V> {
 
     @Override
     public Set<K> keySet() {
+        if (keySet == null) {
+            keySet = newKeySet();
+        }
         return keySet;
     }
 
     @Override
     public final Collection<V> values() {
+        if (values == null) {
+            values = newValues();
+        }
         return values;
     }
 
     @Override
     public final Set<Entry<K, V>> entrySet() {
+        if (entrySet == null) {
+            entrySet = newEntrySet();
+        }
         return entrySet;
     }
 

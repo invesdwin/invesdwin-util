@@ -12,19 +12,15 @@ import de.invesdwin.util.lang.description.TextDescription;
 @ThreadSafe
 public abstract class APreLockedNavigableMap<K, V> extends APreLockedSortedMap<K, V> implements NavigableMap<K, V> {
 
-    private final NavigableMap<K, V> descendingMap;
-    private final NavigableSet<K> descendingKeySet;
+    private NavigableMap<K, V> descendingMap;
+    private NavigableSet<K> descendingKeySet;
 
     public APreLockedNavigableMap(final TextDescription iteratorName) {
         super(iteratorName);
-        this.descendingMap = newDescendingMap();
-        this.descendingKeySet = newDescendingKeySet();
     }
 
     public APreLockedNavigableMap(final TextDescription iteratorName, final ILock lock) {
         super(iteratorName, lock);
-        this.descendingMap = newDescendingMap();
-        this.descendingKeySet = newDescendingKeySet();
     }
 
     protected NavigableSet<K> newDescendingKeySet() {
@@ -174,6 +170,9 @@ public abstract class APreLockedNavigableMap<K, V> extends APreLockedSortedMap<K
 
     @Override
     public NavigableMap<K, V> descendingMap() {
+        if (descendingMap == null) {
+            descendingMap = newDescendingMap();
+        }
         return descendingMap;
     }
 
@@ -199,6 +198,9 @@ public abstract class APreLockedNavigableMap<K, V> extends APreLockedSortedMap<K
 
     @Override
     public final NavigableSet<K> descendingKeySet() {
+        if (descendingKeySet == null) {
+            descendingKeySet = newDescendingKeySet();
+        }
         return descendingKeySet;
     }
 
