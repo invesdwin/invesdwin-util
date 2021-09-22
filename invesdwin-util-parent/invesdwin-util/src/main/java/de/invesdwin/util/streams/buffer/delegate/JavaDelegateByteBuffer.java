@@ -326,30 +326,12 @@ public class JavaDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public byte[] asByteArray(final int index, final int length) {
-        if (index == 0 && length == capacity()) {
-            final byte[] bytes = byteArray();
-            if (bytes != null) {
-                if (bytes.length != length) {
-                    return ByteBuffers.asByteArrayCopyGet(delegate, index, length);
-                }
-                return bytes;
-            }
-        }
-        return ByteBuffers.asByteArrayCopyGet(delegate, index, length);
+        return ByteBuffers.asByteArray(this, index, length);
     }
 
     @Override
     public byte[] asByteArrayCopy(final int index, final int length) {
-        if (index == 0 && length == capacity()) {
-            final byte[] bytes = byteArray();
-            if (bytes != null) {
-                if (bytes.length != length) {
-                    return ByteBuffers.asByteArrayCopyGet(delegate, index, length);
-                }
-                return bytes.clone();
-            }
-        }
-        return ByteBuffers.asByteArrayCopyGet(delegate, index, length);
+        return ByteBuffers.asByteArrayCopy(this, index, length);
     }
 
     private IMutableSlicedDelegateByteBufferFactory getMutableSliceFactory() {

@@ -395,50 +395,12 @@ public class AgronaDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public byte[] asByteArray(final int index, final int length) {
-        if (wrapAdjustment() == 0 && index == 0 && length == capacity()) {
-            final byte[] bytes = byteArray();
-            if (bytes != null) {
-                if (bytes.length != length) {
-                    return ByteBuffers.asByteArrayCopyGet(this, index, length);
-                }
-                return bytes;
-            }
-            final java.nio.ByteBuffer byteBuffer = byteBuffer();
-            if (byteBuffer != null && byteBuffer.hasArray()) {
-                final byte[] array = byteBuffer.array();
-                if (array != null) {
-                    if (array.length != length) {
-                        return ByteBuffers.asByteArrayCopyGet(this, index, length);
-                    }
-                    return array;
-                }
-            }
-        }
-        return ByteBuffers.asByteArrayCopyGet(this, index, length);
+        return ByteBuffers.asByteArray(this, index, length);
     }
 
     @Override
     public byte[] asByteArrayCopy(final int index, final int length) {
-        if (wrapAdjustment() == 0 && index == 0 && length == capacity()) {
-            final byte[] bytes = byteArray();
-            if (bytes != null) {
-                if (bytes.length != length) {
-                    return ByteBuffers.asByteArrayCopyGet(this, index, length);
-                }
-                return bytes.clone();
-            }
-            final java.nio.ByteBuffer byteBuffer = byteBuffer();
-            if (byteBuffer != null && byteBuffer.hasArray()) {
-                final byte[] array = byteBuffer.array();
-                if (array != null) {
-                    if (array.length != length) {
-                        return ByteBuffers.asByteArrayCopyGet(this, index, length);
-                    }
-                    return array.clone();
-                }
-            }
-        }
-        return ByteBuffers.asByteArrayCopyGet(this, index, length);
+        return ByteBuffers.asByteArrayCopy(this, index, length);
     }
 
     private IMutableSlicedDelegateByteBufferFactory getMutableSliceFactory() {
@@ -570,8 +532,8 @@ public class AgronaDelegateByteBuffer implements IByteBuffer {
             return arrayBuffer;
         }
         final long address = addressOffset();
-        return de.invesdwin.util.streams.buffer.UninitializedDirectByteBuffers
-                .asDirectByteBufferNoCleaner(address, capacity());
+        return de.invesdwin.util.streams.buffer.UninitializedDirectByteBuffers.asDirectByteBufferNoCleaner(address,
+                capacity());
     }
 
     @Override

@@ -30,18 +30,12 @@ public class JavaDelegateArrayByteBuffer extends JavaDelegateByteBuffer {
 
     @Override
     public byte[] asByteArray(final int index, final int length) {
-        if (index == 0 && length == capacity()) {
-            return byteArray();
-        }
-        return ByteBuffers.asByteArrayCopyGet(this, index, length);
+        return ByteBuffers.asByteArray(this, index, length);
     }
 
     @Override
     public byte[] asByteArrayCopy(final int index, final int length) {
-        if (index == 0 && length == capacity()) {
-            return byteArray().clone();
-        }
-        return ByteBuffers.asByteArrayCopyGet(this, index, length);
+        return ByteBuffers.asByteArrayCopy(this, index, length);
     }
 
     @Override

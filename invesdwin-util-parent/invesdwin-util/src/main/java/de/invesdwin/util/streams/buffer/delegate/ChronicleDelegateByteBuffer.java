@@ -438,27 +438,12 @@ public class ChronicleDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public byte[] asByteArray(final int index, final int length) {
-        if (wrapAdjustment() == 0) {
-            final byte[] bytes = byteArray();
-            if (bytes != null) {
-                return bytes;
-            }
-            final java.nio.ByteBuffer byteBuffer = byteBuffer();
-            if (byteBuffer != null && byteBuffer.hasArray()) {
-                final byte[] array = byteBuffer.array();
-                if (array != null) {
-                    return array;
-                }
-            }
-        }
-        return ByteBuffers.asByteArrayCopyGet(this, 0, capacity());
+        return ByteBuffers.asByteArray(this, index, length);
     }
 
     @Override
     public byte[] asByteArrayCopy(final int index, final int length) {
-        delegate.readPosition(index);
-        delegate.readLimit(index + length);
-        return delegate.toByteArray();
+        return ByteBuffers.asByteArrayCopy(this, index, length);
     }
 
     @Override

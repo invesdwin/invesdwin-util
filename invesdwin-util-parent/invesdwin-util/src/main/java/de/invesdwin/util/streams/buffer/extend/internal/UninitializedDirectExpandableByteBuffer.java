@@ -125,49 +125,11 @@ public class UninitializedDirectExpandableByteBuffer extends UninitializedExpand
 
     @Override
     public byte[] asByteArray(final int index, final int length) {
-        if (index == 0 && length == capacity()) {
-            final byte[] bytes = byteArray();
-            if (bytes != null) {
-                if (bytes.length != length) {
-                    return ByteBuffers.asByteArrayCopyGet(this, index, length);
-                }
-                return bytes;
-            }
-            final java.nio.ByteBuffer byteBuffer = byteBuffer();
-            if (byteBuffer != null && byteBuffer.hasArray()) {
-                final byte[] array = byteBuffer.array();
-                if (array != null) {
-                    if (array.length != length) {
-                        return ByteBuffers.asByteArrayCopyGet(this, index, length);
-                    }
-                    return array;
-                }
-            }
-        }
         return ByteBuffers.asByteArrayCopyGet(this, index, length);
     }
 
     @Override
     public byte[] asByteArrayCopy(final int index, final int length) {
-        if (index == 0 && length == capacity()) {
-            final byte[] bytes = byteArray();
-            if (bytes != null) {
-                if (bytes.length != length) {
-                    return ByteBuffers.asByteArrayCopyGet(this, index, length);
-                }
-                return bytes.clone();
-            }
-            final java.nio.ByteBuffer byteBuffer = byteBuffer();
-            if (byteBuffer != null && byteBuffer.hasArray()) {
-                final byte[] array = byteBuffer.array();
-                if (array != null) {
-                    if (array.length != length) {
-                        return ByteBuffers.asByteArrayCopyGet(this, index, length);
-                    }
-                    return array.clone();
-                }
-            }
-        }
         return ByteBuffers.asByteArrayCopyGet(this, index, length);
     }
 

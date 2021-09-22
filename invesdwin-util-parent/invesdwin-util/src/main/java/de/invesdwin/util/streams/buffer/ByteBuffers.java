@@ -340,7 +340,7 @@ public final class ByteBuffers {
             return BufferUtil.ARRAY_BASE_OFFSET + BufferUtil.arrayOffset(buffer);
         }
     }
-    
+
     public static int wrapAdjustment(final java.nio.ByteBuffer buffer) {
         final long offset = buffer.hasArray() ? BufferUtil.ARRAY_BASE_OFFSET : BufferUtil.address(buffer);
         return (int) (addressOffset(buffer) - offset);
@@ -546,6 +546,56 @@ public final class ByteBuffers {
             throw new NullPointerException("buffer should not be null (this can cause a jvm crash)");
         }
         return buffer;
+    }
+
+    public static byte[] asByteArray(final IByteBuffer buffer, final int index, final int length) {
+        final byte[] bytes = buffer.byteArray();
+        if (bytes != null) {
+            final int wrapAdjustment = buffer.wrapAdjustment();
+            if (wrapAdjustment != 0 || index != 0 || length == bytes.length) {
+                return Arrays.copyOfRange(bytes, wrapAdjustment + index, length);
+            } else {
+                return bytes;
+            }
+        }
+        final java.nio.ByteBuffer byteBuffer = buffer.byteBuffer();
+        if (byteBuffer != null && byteBuffer.hasArray()) {
+            final byte[] array = byteBuffer.array();
+            if (array != null) {
+                final int wrapAdjustment = buffer.wrapAdjustment();
+                if (wrapAdjustment != 0 || index != 0 || length == array.length) {
+                    return Arrays.copyOfRange(array, wrapAdjustment + index, length);
+                } else {
+                    return array;
+                }
+            }
+        }
+        return ByteBuffers.asByteArrayCopyGet(buffer, index, length);
+    }
+
+    public static byte[] asByteArrayCopy(final IByteBuffer buffer, final int index, final int length) {
+        final byte[] bytes = buffer.byteArray();
+        if (bytes != null) {
+            final int wrapAdjustment = buffer.wrapAdjustment();
+            if (wrapAdjustment != 0 || index != 0 || length == bytes.length) {
+                return Arrays.copyOfRange(bytes, wrapAdjustment + index, length);
+            } else {
+                return bytes.clone();
+            }
+        }
+        final java.nio.ByteBuffer byteBuffer = buffer.byteBuffer();
+        if (byteBuffer != null && byteBuffer.hasArray()) {
+            final byte[] array = byteBuffer.array();
+            if (array != null) {
+                final int wrapAdjustment = buffer.wrapAdjustment();
+                if (wrapAdjustment != 0 || index != 0 || length == array.length) {
+                    return Arrays.copyOfRange(array, wrapAdjustment + index, length);
+                } else {
+                    return array.clone();
+                }
+            }
+        }
+        return ByteBuffers.asByteArrayCopyGet(buffer, index, length);
     }
 
 }
