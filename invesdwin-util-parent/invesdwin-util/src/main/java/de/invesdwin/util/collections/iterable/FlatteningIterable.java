@@ -1,6 +1,8 @@
 package de.invesdwin.util.collections.iterable;
 
+import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
@@ -28,6 +30,27 @@ public class FlatteningIterable<E> implements ICloseableIterable<E> {
             }
         };
         return new FlatteningIterator<E>(transformingDelegate);
+    }
+
+    public static <T> ICloseableIterable<? extends T> maybeWrap(final List<ICloseableIterable<? extends T>> iterables) {
+        if (iterables == null || iterables.isEmpty()) {
+            return EmptyCloseableIterable.getInstance();
+        } else if (iterables.size() == 1) {
+            return iterables.get(0);
+        } else {
+            return new FlatteningIterable<T>(WrapperCloseableIterable.maybeWrap(iterables));
+        }
+    }
+
+    public static <T> ICloseableIterable<? extends T> maybeWrap(
+            final Collection<ICloseableIterable<? extends T>> iterables) {
+        if (iterables == null || iterables.isEmpty()) {
+            return EmptyCloseableIterable.getInstance();
+        } else if (iterables.size() == 1) {
+            return iterables.iterator().next();
+        } else {
+            return new FlatteningIterable<T>(WrapperCloseableIterable.maybeWrap(iterables));
+        }
     }
 
 }
