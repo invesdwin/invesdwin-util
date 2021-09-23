@@ -2,10 +2,11 @@ package de.invesdwin.util.concurrent.reference;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import de.invesdwin.util.bean.AValueObject;
+import de.invesdwin.norva.marker.ISerializableValueObject;
+import de.invesdwin.util.lang.Objects;
 
 @NotThreadSafe
-public class MutableReference<T> extends AValueObject implements IMutableReference<T> {
+public class MutableReference<T> implements IMutableReference<T>, ISerializableValueObject {
 
     private T value;
 
@@ -31,6 +32,11 @@ public class MutableReference<T> extends AValueObject implements IMutableReferen
         final T get = this.value;
         this.value = value;
         return get;
+    }
+
+    @Override
+    public String toString() {
+        return Objects.toStringHelper(this).addValue(value).toString();
     }
 
     @Override

@@ -2,10 +2,11 @@ package de.invesdwin.util.concurrent.reference;
 
 import javax.annotation.concurrent.ThreadSafe;
 
-import de.invesdwin.util.bean.AValueObject;
+import de.invesdwin.norva.marker.ISerializableValueObject;
+import de.invesdwin.util.lang.Objects;
 
 @ThreadSafe
-public class AtomicReference<T> extends AValueObject implements IMutableReference<T> {
+public class AtomicReference<T> implements IMutableReference<T>, ISerializableValueObject {
 
     private final java.util.concurrent.atomic.AtomicReference<T> value;
 
@@ -30,6 +31,11 @@ public class AtomicReference<T> extends AValueObject implements IMutableReferenc
     @Override
     public T getAndSet(final T value) {
         return this.value.getAndSet(value);
+    }
+
+    @Override
+    public String toString() {
+        return Objects.toStringHelper(this).addValue(value).toString();
     }
 
     @Override

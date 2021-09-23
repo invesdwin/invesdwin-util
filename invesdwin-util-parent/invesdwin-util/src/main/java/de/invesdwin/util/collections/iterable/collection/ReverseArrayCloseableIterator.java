@@ -15,13 +15,13 @@ import de.invesdwin.util.error.FastNoSuchElementException;
 public class ReverseArrayCloseableIterator<E> implements ICloseableIterator<E>, IFastToListProvider<E> {
 
     private final E[] array;
-    private int highIndex;
+    private int offset;
     private final int lowIndex;
 
     public ReverseArrayCloseableIterator(final E[] array, final int offset, final int count) {
         this.array = array;
-        this.lowIndex = offset;
-        this.highIndex = count + offset - 1;
+        this.lowIndex = offset - count;
+        this.offset = offset;
     }
 
     public ReverseArrayCloseableIterator(final E[] array) {
@@ -30,7 +30,7 @@ public class ReverseArrayCloseableIterator<E> implements ICloseableIterator<E>, 
 
     @Override
     public boolean hasNext() {
-        return lowIndex <= highIndex;
+        return lowIndex <= offset;
     }
 
     @Override
@@ -39,7 +39,9 @@ public class ReverseArrayCloseableIterator<E> implements ICloseableIterator<E>, 
             throw new FastNoSuchElementException("ArrayCloseableIterator: hasNext returned false");
         }
         try {
-            return array[highIndex--];
+            final E value = array[offset];
+            offset--;
+            return value;
         } catch (final IndexOutOfBoundsException e) {
             throw new FastNoSuchElementException("ArrayCloseableIterator: next threw IndexOutOfBoundsException");
         }
@@ -47,16 +49,16 @@ public class ReverseArrayCloseableIterator<E> implements ICloseableIterator<E>, 
 
     @Override
     public void close() {
-        highIndex = lowIndex - 1;
+        offset = lowIndex - 1;
     }
 
     @Override
     public List<E> toList() {
         try {
-            if (lowIndex == 0 && highIndex == array.length) {
+            if (lowIndex == 0 && offset == array.length) {
                 return Lists.reverse(Arrays.asList(array));
             } else {
-                final ArrayList<E> list = new ArrayList<E>(highIndex);
+                final ArrayList<E> list = new ArrayList<E>(offset);
                 addAllTo(list);
                 return list;
             }
@@ -68,7 +70,7 @@ public class ReverseArrayCloseableIterator<E> implements ICloseableIterator<E>, 
     @Override
     public List<E> toList(final List<E> list) {
         try {
-            if (lowIndex == 0 && highIndex == array.length) {
+            if (lowIndex == 0 && offset == array.length) {
                 list.addAll(Arrays.asList(array));
             } else {
                 addAllTo(list);
@@ -80,7 +82,7 @@ public class ReverseArrayCloseableIterator<E> implements ICloseableIterator<E>, 
     }
 
     protected void addAllTo(final List<E> list) {
-        for (int i = highIndex; i >= lowIndex; i--) {
+        for (int i = offset; i >= lowIndex; i--) {
             list.add(0, array[i]);
         }
     }

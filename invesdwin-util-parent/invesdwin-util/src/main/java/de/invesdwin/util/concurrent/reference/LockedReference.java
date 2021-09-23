@@ -2,11 +2,12 @@ package de.invesdwin.util.concurrent.reference;
 
 import javax.annotation.concurrent.ThreadSafe;
 
-import de.invesdwin.util.bean.AValueObject;
+import de.invesdwin.norva.marker.ISerializableValueObject;
 import de.invesdwin.util.concurrent.lock.ILock;
+import de.invesdwin.util.lang.Objects;
 
 @ThreadSafe
-public class LockedReference<T> extends AValueObject implements IMutableReference<T> {
+public class LockedReference<T> implements IMutableReference<T>, ISerializableValueObject {
 
     private final ILock lock;
     private T value;
@@ -50,6 +51,11 @@ public class LockedReference<T> extends AValueObject implements IMutableReferenc
         } finally {
             lock.unlock();
         }
+    }
+
+    @Override
+    public String toString() {
+        return Objects.toStringHelper(this).addValue(value).toString();
     }
 
     @Override

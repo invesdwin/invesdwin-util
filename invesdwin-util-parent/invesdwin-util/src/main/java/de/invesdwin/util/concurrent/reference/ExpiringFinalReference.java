@@ -2,12 +2,13 @@ package de.invesdwin.util.concurrent.reference;
 
 import javax.annotation.concurrent.ThreadSafe;
 
-import de.invesdwin.util.bean.AValueObject;
+import de.invesdwin.norva.marker.ISerializableValueObject;
+import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.time.Instant;
 import de.invesdwin.util.time.duration.Duration;
 
 @ThreadSafe
-public class ExpiringFinalReference<T> extends AValueObject implements IReference {
+public class ExpiringFinalReference<T> implements IReference<T>, ISerializableValueObject {
 
     private volatile Instant lastAccess = new Instant();
     private final T value;
@@ -28,6 +29,11 @@ public class ExpiringFinalReference<T> extends AValueObject implements IReferenc
 
     public Instant getLastAccess() {
         return lastAccess;
+    }
+
+    @Override
+    public String toString() {
+        return Objects.toStringHelper(this).addValue(value).toString();
     }
 
     @Override
