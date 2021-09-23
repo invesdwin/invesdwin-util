@@ -7,6 +7,7 @@ import java.util.concurrent.ConcurrentMap;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.github.benmanes.caffeine.cache.Caffeine;
@@ -19,7 +20,7 @@ import de.invesdwin.util.time.date.FDate;
 import de.invesdwin.util.time.duration.Duration;
 
 @NotThreadSafe
-//@Ignore("manual test")
+@Ignore("manual test")
 public class CaffeineAsMapPerformanceTest extends ADatabasePerformanceTest {
 
     @Test
