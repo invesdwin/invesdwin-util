@@ -37,6 +37,7 @@ import org.agrona.LangUtil;
 import org.agrona.MutableDirectBuffer;
 
 import de.invesdwin.util.lang.finalizer.AFinalizer;
+import de.invesdwin.util.streams.buffer.ByteBuffers;
 import de.invesdwin.util.streams.buffer.UninitializedDirectByteBuffers;
 
 /**
@@ -1522,7 +1523,7 @@ public class UninitializedExpandableDirectBufferBase implements MutableDirectBuf
                         "index=" + index + " length=" + length + " maxCapacity=" + MAX_BUFFER_LENGTH);
             }
 
-            final int newCapacity = calculateExpansion(currentCapacity, resultingPosition);
+            final int newCapacity = calculateExpansion(currentCapacity, (int) resultingPosition);
             final java.nio.ByteBuffer newBuffer = UninitializedDirectByteBuffers
                     .reallocateDirectByteBufferNoCleaner(finalizer.byteBuffer, newCapacity);
 
@@ -1535,18 +1536,13 @@ public class UninitializedExpandableDirectBufferBase implements MutableDirectBuf
         }
     }
 
-    private int calculateExpansion(final int currentLength, final long requiredLength) {
-        long value = Math.max(currentLength, INITIAL_CAPACITY);
-
-        while (value < requiredLength) {
-            value = value + (value >> 1);
-
-            if (value > MAX_BUFFER_LENGTH) {
-                value = MAX_BUFFER_LENGTH;
-            }
+    protected int calculateExpansion(final int currentLength, final int requiredLength) {
+        final int value = ByteBuffers.calculateExpansionInt(requiredLength);
+        if (value > MAX_BUFFER_LENGTH) {
+            return MAX_BUFFER_LENGTH;
+        } else {
+            return value;
         }
-
-        return (int) value;
     }
 
     private void boundsCheck0(final int index, final int length) {

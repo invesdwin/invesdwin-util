@@ -598,4 +598,12 @@ public final class ByteBuffers {
         return ByteBuffers.asByteArrayCopyGet(buffer, index, length);
     }
 
+    public static long calculateExpansionLong(final long requestedSize) {
+        return 1L << (64 - Long.numberOfLeadingZeros(requestedSize - 1L));
+    }
+
+    public static int calculateExpansionInt(final int requestedSize) {
+        return 1 << (32 - Integer.numberOfLeadingZeros(requestedSize - 1));
+    }
+
 }
