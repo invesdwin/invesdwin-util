@@ -2,7 +2,9 @@ package de.invesdwin.util.time.date;
 
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 import java.util.TimeZone;
+import java.util.function.Function;
 
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -552,6 +554,44 @@ public final class FDates {
             lo = lo - 1;
         }
         final FDate loTime = keys[lo];
+        if (loTime.isAfterNotNullSafe(skippingKeysAbove)) {
+            final int index = lo - 1;
+            return index;
+        } else {
+            return lo;
+        }
+    }
+
+    public static <T> int bisect(final Function<T, FDate> extractTime, final List<T> values,
+            final FDate skippingKeysAbove) {
+        int lo = 0;
+        int hi = values.size();
+        while (lo < hi) {
+            // same as (low+high)/2
+            final int mid = (lo + hi) >>> 1;
+            //if (x < list.get(mid)) {
+            final FDate midKey = extractTime.apply(values.get(mid));
+            final int compareTo = midKey.compareToNotNullSafe(skippingKeysAbove);
+            switch (compareTo) {
+            case MISSING_INDEX:
+                lo = mid + 1;
+                break;
+            case 0:
+                return mid;
+            case 1:
+                hi = mid;
+                break;
+            default:
+                throw UnknownArgumentException.newInstance(Integer.class, compareTo);
+            }
+        }
+        if (lo <= 0) {
+            return 0;
+        }
+        if (lo >= values.size()) {
+            lo = lo - 1;
+        }
+        final FDate loTime = extractTime.apply(values.get(lo));
         if (loTime.isAfterNotNullSafe(skippingKeysAbove)) {
             final int index = lo - 1;
             return index;

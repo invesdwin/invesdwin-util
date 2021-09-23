@@ -65,6 +65,29 @@ public class ArrayListCloseableIterable<E> implements IReverseCloseableIterable<
     }
 
     @SuppressWarnings("unchecked")
+    public ICloseableIterator<E> iterator(final int lowIndex, final int highIndex) {
+        if (cachedSize != arrayList.size()) {
+            cachedSize = arrayList.size();
+            try {
+                cachedArray = (E[]) UnsafeAccess.UNSAFE.getObject(arrayList, ARRAYLIST_ELEMENTDATA_FIELD_OFFSET);
+            } catch (final Throwable e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return new ArrayCloseableIterator<E>(cachedArray, lowIndex, highIndex - lowIndex) {
+            @Override
+            public List<E> toList() {
+                return ArrayListCloseableIterable.this.toList(lowIndex, highIndex);
+            }
+
+            @Override
+            public List<E> toList(final List<E> list) {
+                return ArrayListCloseableIterable.this.toList(lowIndex, highIndex);
+            }
+        };
+    }
+
+    @SuppressWarnings("unchecked")
     @Override
     public ICloseableIterator<E> reverseIterator() {
         if (cachedSize != arrayList.size()) {
@@ -89,6 +112,29 @@ public class ArrayListCloseableIterable<E> implements IReverseCloseableIterable<
     }
 
     @SuppressWarnings("unchecked")
+    public ICloseableIterator<E> reverseIterator(final int highIndex, final int lowIndex) {
+        if (cachedSize != arrayList.size()) {
+            cachedSize = arrayList.size();
+            try {
+                cachedArray = (E[]) UnsafeAccess.UNSAFE.getObject(arrayList, ARRAYLIST_ELEMENTDATA_FIELD_OFFSET);
+            } catch (final Throwable e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return new ReverseArrayCloseableIterator<E>(cachedArray, highIndex, highIndex - lowIndex) {
+            @Override
+            public List<E> toList() {
+                return Lists.reverse(ArrayListCloseableIterable.this.toList(lowIndex, highIndex));
+            }
+
+            @Override
+            public List<E> toList(final List<E> list) {
+                return Lists.reverse(ArrayListCloseableIterable.this.toList(lowIndex, highIndex));
+            }
+        };
+    }
+
+    @SuppressWarnings("unchecked")
     public synchronized void reset() {
         cachedSize = 0;
         cachedArray = (E[]) ArrayUtils.EMPTY_OBJECT_ARRAY;
@@ -98,6 +144,11 @@ public class ArrayListCloseableIterable<E> implements IReverseCloseableIterable<
     @Override
     public List<E> toList() {
         return (List<E>) arrayList;
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<E> toList(final int lowIndex, final int highIndex) {
+        return (List<E>) arrayList.subList(lowIndex, highIndex + 1);
     }
 
     @Override
