@@ -14,6 +14,7 @@ import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
 import de.invesdwin.norva.beanpath.BeanPathReflections;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.factory.ILockCollectionFactory;
+import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.lang.reflection.internal.AReflectionsStaticFacade;
 
 @StaticFacadeDefinition(name = "de.invesdwin.util.lang.reflection.internal.AReflectionsStaticFacade", targets = {
@@ -174,6 +175,16 @@ public final class Reflections extends AReflectionsStaticFacade {
             }
         }
         return unsafe;
+    }
+
+    public static String getClassSimpleNameNonBlank(final Class<?> clazz) {
+        Class<?> curClazz = clazz;
+        String className = null;
+        while (Strings.isBlank(className) && curClazz != null) {
+            className = curClazz.getSimpleName();
+            curClazz = curClazz.getSuperclass();
+        }
+        return className;
     }
 
 }
