@@ -553,7 +553,7 @@ public final class ByteBuffers {
         if (bytes != null) {
             final int wrapAdjustment = buffer.wrapAdjustment();
             if (wrapAdjustment != 0 || index != 0 || length != bytes.length) {
-                return Arrays.copyOfRange(bytes, wrapAdjustment + index, length);
+                return ByteBuffers.copyOfRange(bytes, wrapAdjustment + index, length);
             } else {
                 return bytes;
             }
@@ -564,7 +564,7 @@ public final class ByteBuffers {
             if (array != null) {
                 final int wrapAdjustment = buffer.wrapAdjustment();
                 if (wrapAdjustment != 0 || index != 0 || length != array.length) {
-                    return Arrays.copyOfRange(array, wrapAdjustment + index, length);
+                    return ByteBuffers.copyOfRange(array, wrapAdjustment + index, length);
                 } else {
                     return array;
                 }
@@ -578,7 +578,7 @@ public final class ByteBuffers {
         if (bytes != null) {
             final int wrapAdjustment = buffer.wrapAdjustment();
             if (wrapAdjustment != 0 || index != 0 || length != bytes.length) {
-                return Arrays.copyOfRange(bytes, wrapAdjustment + index, length);
+                return ByteBuffers.copyOfRange(bytes, wrapAdjustment + index, length);
             } else {
                 return bytes.clone();
             }
@@ -589,7 +589,7 @@ public final class ByteBuffers {
             if (array != null) {
                 final int wrapAdjustment = buffer.wrapAdjustment();
                 if (wrapAdjustment != 0 || index != 0 || length != array.length) {
-                    return Arrays.copyOfRange(array, wrapAdjustment + index, length);
+                    return ByteBuffers.copyOfRange(array, wrapAdjustment + index, length);
                 } else {
                     return array.clone();
                 }
@@ -604,6 +604,22 @@ public final class ByteBuffers {
 
     public static int calculateExpansionInt(final int requestedSize) {
         return 1 << (32 - Integer.numberOfLeadingZeros(requestedSize - 1));
+    }
+
+    public static byte[] copyOf(final byte[] original, final int newLength) {
+        final byte[] copy = allocateByteArray(newLength);
+        System.arraycopy(original, 0, copy, 0, Math.min(original.length, newLength));
+        return copy;
+    }
+
+    public static byte[] copyOfRange(final byte[] original, final int from, final int to) {
+        final int newLength = to - from;
+        if (newLength < 0) {
+            throw new IllegalArgumentException(from + " > " + to);
+        }
+        final byte[] copy = allocateByteArray(newLength);
+        System.arraycopy(original, from, copy, 0, Math.min(original.length - from, newLength));
+        return copy;
     }
 
 }
