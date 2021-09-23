@@ -4,8 +4,8 @@ import java.util.Iterator;
 
 import javax.annotation.concurrent.Immutable;
 
-import de.invesdwin.util.collections.iterable.ASkippingIterator;
 import de.invesdwin.util.collections.iterable.collection.ArrayCloseableIterator;
+import de.invesdwin.util.collections.iterable.skip.ASkippingIterator;
 
 @Immutable
 public abstract class AFilteringArrayUnmodifiableList<E> extends AUnmodifiableList<E> {

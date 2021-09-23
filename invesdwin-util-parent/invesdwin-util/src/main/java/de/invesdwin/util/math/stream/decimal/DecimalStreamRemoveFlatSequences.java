@@ -2,8 +2,8 @@ package de.invesdwin.util.math.stream.decimal;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import de.invesdwin.util.collections.iterable.ASkippingIterator;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
+import de.invesdwin.util.collections.iterable.skip.ASkippingIterator;
 import de.invesdwin.util.math.decimal.ADecimal;
 import de.invesdwin.util.math.stream.IStreamAlgorithm;
 

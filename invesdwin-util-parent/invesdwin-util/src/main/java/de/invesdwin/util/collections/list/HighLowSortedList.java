@@ -57,6 +57,21 @@ public class HighLowSortedList<E> extends ADelegateList<E> {
         return true;
     }
 
+    /**
+     * adds the element at its appropriate spot doing the search in descending order to add it in the end
+     */
+    public int addGetIndex(final E o) {
+        final int size = getDelegate().size();
+        for (int i = size; i > 0; i--) {
+            if (comparator.compare(getDelegate().get(i - 1), o) < 0) {
+                getDelegate().add(i, o);
+                return i;
+            }
+        }
+        getDelegate().add(0, o);
+        return 0;
+    }
+
     @Override
     public boolean addAll(final Collection<? extends E> c) {
         for (final E o : c) {

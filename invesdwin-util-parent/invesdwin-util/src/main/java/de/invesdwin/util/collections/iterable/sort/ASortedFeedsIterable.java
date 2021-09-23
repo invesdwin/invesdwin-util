@@ -1,6 +1,11 @@
-package de.invesdwin.util.collections.iterable;
+package de.invesdwin.util.collections.iterable.sort;
 
 import javax.annotation.concurrent.NotThreadSafe;
+
+import de.invesdwin.util.collections.iterable.ATransformingIterable;
+import de.invesdwin.util.collections.iterable.ICloseableIterable;
+import de.invesdwin.util.collections.iterable.ICloseableIterator;
+import de.invesdwin.util.collections.iterable.WrapperCloseableIterable;
 
 @NotThreadSafe
 public abstract class ASortedFeedsIterable<E> implements ICloseableIterable<E> {

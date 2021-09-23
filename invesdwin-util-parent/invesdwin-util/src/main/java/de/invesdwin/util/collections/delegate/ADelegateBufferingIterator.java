@@ -4,12 +4,12 @@ import java.util.Iterator;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import de.invesdwin.util.collections.iterable.ASkippingIterator;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.collections.iterable.WrapperCloseableIterable;
 import de.invesdwin.util.collections.iterable.WrapperCloseableIterator;
 import de.invesdwin.util.collections.iterable.buffer.IBufferingIterator;
+import de.invesdwin.util.collections.iterable.skip.ASkippingIterator;
 
 @NotThreadSafe
 public abstract class ADelegateBufferingIterator<E> implements IBufferingIterator<E> {

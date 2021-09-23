@@ -1,4 +1,4 @@
-package de.invesdwin.util.collections.iterable;
+package de.invesdwin.util.collections.iterable.sort;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -6,6 +6,8 @@ import java.util.NoSuchElementException;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.util.collections.iterable.ICloseableIterator;
+import de.invesdwin.util.collections.iterable.PeekingCloseableIterator;
 import de.invesdwin.util.collections.list.HighLowSortedList;
 import de.invesdwin.util.error.FastNoSuchElementException;
 import de.invesdwin.util.lang.ADelegateComparator;

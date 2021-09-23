@@ -1,9 +1,10 @@
-package de.invesdwin.util.collections.iterable;
+package de.invesdwin.util.collections.iterable.skip;
 
 import java.util.NoSuchElementException;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.error.FastNoSuchElementException;
 
 @NotThreadSafe
