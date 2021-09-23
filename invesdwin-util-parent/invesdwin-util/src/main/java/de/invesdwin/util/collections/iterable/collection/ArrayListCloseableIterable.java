@@ -74,7 +74,7 @@ public class ArrayListCloseableIterable<E> implements IReverseCloseableIterable<
                 throw new RuntimeException(e);
             }
         }
-        return new ArrayCloseableIterator<E>(cachedArray, lowIndex, highIndex - lowIndex) {
+        return new ArrayCloseableIterator<E>(cachedArray, lowIndex, highIndex - lowIndex + 1) {
             @Override
             public List<E> toList() {
                 return ArrayListCloseableIterable.this.toList(lowIndex, highIndex);
@@ -121,7 +121,7 @@ public class ArrayListCloseableIterable<E> implements IReverseCloseableIterable<
                 throw new RuntimeException(e);
             }
         }
-        return new ReverseArrayCloseableIterator<E>(cachedArray, highIndex, highIndex - lowIndex) {
+        return new ReverseArrayCloseableIterator<E>(cachedArray, highIndex, highIndex - lowIndex + 1) {
             @Override
             public List<E> toList() {
                 return Lists.reverse(ArrayListCloseableIterable.this.toList(lowIndex, highIndex));
