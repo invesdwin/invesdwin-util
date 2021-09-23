@@ -43,6 +43,7 @@ public class Duration extends Number implements Comparable<Object> {
     public static final Duration ONE_HOUR = new Duration(1, FTimeUnit.HOURS);
     public static final Duration ONE_DAY = new Duration(1, FTimeUnit.DAYS);
     public static final Duration ONE_WEEK = new Duration(1, FTimeUnit.WEEKS);
+    public static final Duration TWO_WEEKS = new Duration(2, FTimeUnit.WEEKS);
     public static final Duration ONE_MONTH = new Duration(1, FTimeUnit.MONTHS);
     public static final Duration ONE_YEAR = new Duration(1, FTimeUnit.YEARS);
 
