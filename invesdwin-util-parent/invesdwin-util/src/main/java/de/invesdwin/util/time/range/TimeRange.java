@@ -215,4 +215,20 @@ public class TimeRange extends AValueObject {
         return new TimeRange(initialEquity.getFirst(), finalEquity.getFirst());
     }
 
+    public TimeRange asNonNullNow() {
+        final FDate usedFrom;
+        if (from == null) {
+            usedFrom = new FDate();
+        } else {
+            usedFrom = from;
+        }
+        final FDate usedTo;
+        if (to == null) {
+            usedTo = new FDate();
+        } else {
+            usedTo = to;
+        }
+        return new TimeRange(usedFrom, usedTo);
+    }
+
 }
