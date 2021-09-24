@@ -86,20 +86,25 @@ public class SortedBufferingIterator<E> implements ICloseableIterator<E> {
         if (buffer.isEmpty()) {
             return false;
         }
-        if (reading && comparator.compare(element, buffer.get(0)) < 0) {
-            onElementSkipped(element);
-            return true;
+        if (reading) {
+            final E firstBufferElement = buffer.get(0);
+            if (comparator.compare(element, firstBufferElement) < 0) {
+                onElementSkipped(element, firstBufferElement);
+                return true;
+            }
         }
         return false;
     }
 
-    protected void onElementSkipped(final E element) {
-        throw newWrongBufferSizeException(element, bufferSize);
+    protected void onElementSkipped(final E element, final E firstBufferElement) {
+        throw newWrongBufferSizeException(element, firstBufferElement, bufferSize);
     }
 
-    public static IllegalStateException newWrongBufferSizeException(final Object element, final int bufferSize) {
+    public static IllegalStateException newWrongBufferSizeException(final Object element,
+            final Object firstBufferElement, final int bufferSize) {
         return new IllegalStateException("Can not prepend element [" + element
-                + "] because it is beyond already read buffer [" + bufferSize + "], maybe increase buffer size?");
+                + "] because it is beyond already read buffer, maybe increase buffer size? bufferSize=" + bufferSize
+                + " firstBufferElement=" + firstBufferElement + "");
     }
 
     @Override

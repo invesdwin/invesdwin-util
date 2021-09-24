@@ -26,14 +26,14 @@ public class SortedBufferingIterable<E> implements ICloseableIterable<E> {
     public ICloseableIterator<E> iterator() {
         return new SortedBufferingIterator<E>(delegate.iterator(), comparator, bufferSize) {
             @Override
-            protected void onElementSkipped(final E element) {
-                SortedBufferingIterable.this.onElementSkipped(element);
+            protected void onElementSkipped(final E element, final E firstBufferElement) {
+                SortedBufferingIterable.this.onElementSkipped(element, firstBufferElement);
             }
         };
     }
 
-    protected void onElementSkipped(final E element) {
-        throw SortedBufferingIterator.newWrongBufferSizeException(element, bufferSize);
+    protected void onElementSkipped(final E element, final E firstBufferElement) {
+        throw SortedBufferingIterator.newWrongBufferSizeException(element, firstBufferElement, bufferSize);
     }
 
 }
