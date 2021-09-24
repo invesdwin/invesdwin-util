@@ -1,6 +1,5 @@
 package de.invesdwin.util.math.statistics;
 
-import java.util.Comparator;
 import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
@@ -9,6 +8,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.list.BisectSortedList;
+import de.invesdwin.util.lang.comparator.IComparator;
 import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.decimal.scaled.Percent;
@@ -29,7 +29,7 @@ public class RunningMedian {
     }
 
     @SuppressWarnings("rawtypes")
-    protected List<Double> newSortedList(final Comparator comparator) {
+    protected List<Double> newSortedList(final IComparator<Double> comparator) {
         return new BisectSortedList<Double>(comparator);
     }
 

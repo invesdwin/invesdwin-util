@@ -2,26 +2,26 @@ package de.invesdwin.util.collections.list;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.collections.delegate.ADelegateList;
+import de.invesdwin.util.lang.comparator.IComparator;
 
 /**
  * A performant way to keep a list of ordered elements when the elements arrive in a more or less ordered fashion
  */
 @NotThreadSafe
 public class HighLowSortedList<E> extends ADelegateList<E> {
-    private final Comparator<E> comparator;
+    private final IComparator<E> comparator;
 
     /**
      * The comparator can throw a a DuplicateElementException to ignore an element.
      */
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    public HighLowSortedList(final Comparator comparator) {
+    public HighLowSortedList(final IComparator comparator) {
         this.comparator = comparator;
     }
 
@@ -38,7 +38,7 @@ public class HighLowSortedList<E> extends ADelegateList<E> {
         try {
             final int size = getDelegate().size();
             for (int i = 0; i < size; i++) {
-                if (comparator.compare(getDelegate().get(i), o) > 0) {
+                if (comparator.compareTyped(getDelegate().get(i), o) > 0) {
                     getDelegate().add(i, o);
                     return;
                 }
@@ -57,7 +57,7 @@ public class HighLowSortedList<E> extends ADelegateList<E> {
         try {
             final int size = getDelegate().size();
             for (int i = size; i > 0; i--) {
-                if (comparator.compare(getDelegate().get(i - 1), o) < 0) {
+                if (comparator.compareTyped(getDelegate().get(i - 1), o) < 0) {
                     getDelegate().add(i, o);
                     return true;
                 }
@@ -77,7 +77,7 @@ public class HighLowSortedList<E> extends ADelegateList<E> {
         try {
             final int size = getDelegate().size();
             for (int i = size; i > 0; i--) {
-                if (comparator.compare(getDelegate().get(i - 1), o) < 0) {
+                if (comparator.compareTyped(getDelegate().get(i - 1), o) < 0) {
                     getDelegate().add(i, o);
                     return i;
                 }

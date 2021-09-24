@@ -1,21 +1,20 @@
 package de.invesdwin.util.collections.iterable.sort;
 
-import java.util.Comparator;
-
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
+import de.invesdwin.util.lang.comparator.IComparator;
 
 @SuppressWarnings("rawtypes")
 @NotThreadSafe
 public class SortedBufferingIterable<E> implements ICloseableIterable<E> {
 
     private final ICloseableIterable<? extends E> delegate;
-    private final Comparator comparator;
+    private final IComparator comparator;
     private final int bufferSize;
 
-    public SortedBufferingIterable(final ICloseableIterable<? extends E> delegate, final Comparator comparator,
+    public SortedBufferingIterable(final ICloseableIterable<? extends E> delegate, final IComparator comparator,
             final int bufferSize) {
         this.delegate = delegate;
         this.comparator = comparator;

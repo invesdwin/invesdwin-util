@@ -25,10 +25,10 @@ public class SortedBufferingIteratorTest {
         wrongOrder.add(FDateBuilder.newDate(2003));
         wrongOrder.add(FDateBuilder.newDate(2002));
         final List<FDate> correctOrder = new ArrayList<>(wrongOrder);
-        FDate.COMPARATOR.asAscending().sort(correctOrder);
+        FDate.COMPARATOR.asAscending().asNotNullSafe().sort(correctOrder);
 
         final List<FDate> sortedOrder = Lists.toListWithoutHasNext(new SortedBufferingIterable<FDate>(
-                WrapperCloseableIterable.maybeWrap(wrongOrder), FDate.COMPARATOR, 3));
+                WrapperCloseableIterable.maybeWrap(wrongOrder), FDate.COMPARATOR.asNotNullSafe(), 3));
 
         for (int i = 0; i < correctOrder.size(); i++) {
             Assertions.checkEquals(correctOrder.get(i), sortedOrder.get(i));

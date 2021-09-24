@@ -2,12 +2,12 @@ package de.invesdwin.util.collections.list;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.List;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.collections.delegate.ADelegateList;
+import de.invesdwin.util.lang.comparator.IComparator;
 
 /**
  * A performant way to keep a list of ordered elements when the elements arrive in a random order
@@ -16,13 +16,13 @@ import de.invesdwin.util.collections.delegate.ADelegateList;
  */
 @NotThreadSafe
 public class BisectSortedList<E> extends ADelegateList<E> {
-    private final Comparator<E> comparator;
+    private final IComparator<E> comparator;
 
     /**
      * The comparator can throw a a DuplicateElementException to ignore an element.
      */
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    public BisectSortedList(final Comparator comparator) {
+    public BisectSortedList(final IComparator comparator) {
         this.comparator = comparator;
     }
 
@@ -46,7 +46,7 @@ public class BisectSortedList<E> extends ADelegateList<E> {
         while (lo < hi) {
             final int mid = (lo + hi) / 2;
             //if (x < list.get(mid)) {
-            if (comparator.compare(getDelegate().get(mid), x) > 0) {
+            if (comparator.compareTyped(getDelegate().get(mid), x) > 0) {
                 hi = mid;
             } else {
                 lo = mid + 1;

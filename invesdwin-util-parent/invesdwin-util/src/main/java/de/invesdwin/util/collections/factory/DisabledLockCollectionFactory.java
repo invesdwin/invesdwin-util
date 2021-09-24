@@ -2,7 +2,6 @@ package de.invesdwin.util.collections.factory;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +33,7 @@ import de.invesdwin.util.concurrent.lock.disabled.DisabledReadWriteLock;
 import de.invesdwin.util.concurrent.lock.readwrite.IReadWriteLock;
 import de.invesdwin.util.concurrent.nested.DisabledNestedExecutor;
 import de.invesdwin.util.concurrent.nested.INestedExecutor;
+import de.invesdwin.util.lang.comparator.IComparator;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
 
@@ -216,8 +216,8 @@ public final class DisabledLockCollectionFactory implements ILockCollectionFacto
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
-    public <K, V> NavigableMap<K, V> newTreeMap(final Comparator<? extends K> comparator) {
-        return new TreeMap<K, V>((Comparator) comparator);
+    public <K, V> NavigableMap<K, V> newTreeMap(final IComparator<? super K> comparator) {
+        return new TreeMap<K, V>(comparator.asTyped());
     }
 
     @Override

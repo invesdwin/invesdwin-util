@@ -23,7 +23,7 @@ public abstract class ASortedFeedsIterator<E> implements ICloseableIterator<E> {
         }
     };
     private final HighLowSortedList<PeekingCloseableIterator<? extends E>> peekingFeeds = new HighLowSortedList<PeekingCloseableIterator<? extends E>>(
-            comparator) {
+            comparator.asNotNullSafe()) {
         @Override
         protected List<PeekingCloseableIterator<? extends E>> newDelegate() {
             return new LinkedList<>();

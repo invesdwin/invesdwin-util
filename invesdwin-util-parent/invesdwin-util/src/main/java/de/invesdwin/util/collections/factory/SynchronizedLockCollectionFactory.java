@@ -1,7 +1,6 @@
 package de.invesdwin.util.collections.factory;
 
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
@@ -27,6 +26,7 @@ import de.invesdwin.util.concurrent.lock.Locks;
 import de.invesdwin.util.concurrent.lock.readwrite.IReadWriteLock;
 import de.invesdwin.util.concurrent.nested.ANestedExecutor;
 import de.invesdwin.util.concurrent.nested.INestedExecutor;
+import de.invesdwin.util.lang.comparator.IComparator;
 
 @Immutable
 public final class SynchronizedLockCollectionFactory implements ILockCollectionFactory {
@@ -77,7 +77,7 @@ public final class SynchronizedLockCollectionFactory implements ILockCollectionF
     }
 
     @Override
-    public <K, V> NavigableMap<K, V> newTreeMap(final Comparator<? extends K> comparator) {
+    public <K, V> NavigableMap<K, V> newTreeMap(final IComparator<? super K> comparator) {
         return Collections.synchronizedNavigableMap(DisabledLockCollectionFactory.INSTANCE.newTreeMap(comparator));
     }
 

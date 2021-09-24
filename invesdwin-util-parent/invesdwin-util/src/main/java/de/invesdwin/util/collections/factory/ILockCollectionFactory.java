@@ -1,6 +1,5 @@
 package de.invesdwin.util.collections.factory;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
@@ -15,6 +14,7 @@ import de.invesdwin.util.collections.loadingcache.ALoadingCacheConfig;
 import de.invesdwin.util.concurrent.lock.ILock;
 import de.invesdwin.util.concurrent.lock.readwrite.IReadWriteLock;
 import de.invesdwin.util.concurrent.nested.INestedExecutor;
+import de.invesdwin.util.lang.comparator.IComparator;
 
 public interface ILockCollectionFactory {
 
@@ -60,7 +60,7 @@ public interface ILockCollectionFactory {
 
     <K, V> NavigableMap<K, V> newTreeMap();
 
-    <K, V> NavigableMap<K, V> newTreeMap(Comparator<? extends K> comparator);
+    <K, V> NavigableMap<K, V> newTreeMap(IComparator<? super K> comparator);
 
     INestedExecutor newNestedExecutor(String name);
 

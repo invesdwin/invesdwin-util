@@ -1,6 +1,5 @@
 package de.invesdwin.util.collections.iterable.sort;
 
-import java.util.Comparator;
 import java.util.NoSuchElementException;
 
 import javax.annotation.concurrent.NotThreadSafe;
@@ -8,6 +7,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.collections.list.HighLowSortedList;
 import de.invesdwin.util.error.FastNoSuchElementException;
+import de.invesdwin.util.lang.comparator.IComparator;
 import de.invesdwin.util.math.Integers;
 
 /**
@@ -17,18 +17,18 @@ import de.invesdwin.util.math.Integers;
 public class SortedBufferingIterator<E> implements ICloseableIterator<E> {
 
     private ICloseableIterator<? extends E> delegate;
-    private final Comparator<E> comparator;
+    private final IComparator<E> comparator;
     private final HighLowSortedList<E> buffer;
     private final int bufferSize;
     private final int halfBufferSize;
     private boolean reading = false;
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    public SortedBufferingIterator(final ICloseableIterator<? extends E> delegate, final Comparator comparator,
+    public SortedBufferingIterator(final ICloseableIterator<? extends E> delegate, final IComparator<E> comparator,
             final int bufferSize) {
         this.delegate = delegate;
         this.comparator = comparator;
-        this.buffer = new HighLowSortedList<E>(comparator);
+        this.buffer = new HighLowSortedList<E>(comparator.asNotNullSafe());
         this.bufferSize = Integer.max(10, bufferSize);
         this.halfBufferSize = Integers.max(1, bufferSize / 2);
     }

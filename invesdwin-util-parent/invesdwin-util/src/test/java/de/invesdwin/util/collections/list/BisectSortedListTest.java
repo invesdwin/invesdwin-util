@@ -19,34 +19,34 @@ public class BisectSortedListTest {
 
     @Test
     public void testAdd() {
-        final List<Decimal> sorted = new BisectSortedList<Decimal>(Decimal.COMPARATOR);
+        final List<Decimal> sorted = new BisectSortedList<Decimal>(Decimal.COMPARATOR.asNotNullSafe());
         sorted.add(Decimal.TWO);
         sorted.add(Decimal.THREE);
         sorted.add(Decimal.ONE);
         sorted.add(Decimal.TEN);
         sorted.add(Decimal.FIVE);
         sorted.add(Decimal.MINUS_THREE);
-        Comparators.assertOrderAll(Decimal.COMPARATOR.asAscending(), sorted);
+        Comparators.assertOrderAll(Decimal.COMPARATOR.asAscending().asNotNullSafe(), sorted);
     }
 
     @Test
     public void testAddIndex() {
-        final List<Decimal> sorted = new BisectSortedList<Decimal>(Decimal.COMPARATOR);
+        final List<Decimal> sorted = new BisectSortedList<Decimal>(Decimal.COMPARATOR.asNotNullSafe());
         sorted.add(0, Decimal.TWO);
         sorted.add(0, Decimal.THREE);
         sorted.add(0, Decimal.ONE);
         sorted.add(0, Decimal.TEN);
         sorted.add(0, Decimal.FIVE);
         sorted.add(0, Decimal.MINUS_THREE);
-        Comparators.assertOrderAll(Decimal.COMPARATOR.asAscending(), sorted);
+        Comparators.assertOrderAll(Decimal.COMPARATOR.asAscending().asNotNullSafe(), sorted);
     }
 
     @Test
     public void testRandomReplay() {
-        final List<Decimal> sorted = new BisectSortedList<Decimal>(Decimal.COMPARATOR);
+        final List<Decimal> sorted = new BisectSortedList<Decimal>(Decimal.COMPARATOR.asNotNullSafe());
         sorted.add(new Decimal("10"));
         sorted.add(0, new Decimal("5"));
-        Comparators.assertOrderAll(Decimal.COMPARATOR.asAscending(), sorted);
+        Comparators.assertOrderAll(Decimal.COMPARATOR.asAscending().asNotNullSafe(), sorted);
     }
 
     @Test
@@ -63,7 +63,7 @@ public class BisectSortedListTest {
             final List<Decimal> input = new ArrayList<Decimal>(original);
             final RandomGenerator random = RandomGenerators.newDefaultRandom();
             Collections.shuffle(input, new RandomAdaptor(random));
-            final List<Decimal> sorted = new BisectSortedList<Decimal>(Decimal.COMPARATOR);
+            final List<Decimal> sorted = new BisectSortedList<Decimal>(Decimal.COMPARATOR.asNotNullSafe());
             //            System.out.println("----------------"); //SUPPRESS CHECKSTYLE single line
             for (final Decimal in : input) {
                 final boolean add0 = random.nextBoolean();
@@ -74,7 +74,7 @@ public class BisectSortedListTest {
                     sorted.add(in);
                     //                    System.out.println("sorted.add(new Decimal(\"" + in + "\"));"); //SUPPRESS CHECKSTYLE single line
                 }
-                Comparators.assertOrderAll(Decimal.COMPARATOR.asAscending(), sorted);
+                Comparators.assertOrderAll(Decimal.COMPARATOR.asAscending().asNotNullSafe(), sorted);
             }
         }
     }
