@@ -10,14 +10,15 @@ import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.collections.iterable.PeekingCloseableIterator;
 import de.invesdwin.util.collections.list.HighLowSortedList;
 import de.invesdwin.util.error.FastNoSuchElementException;
-import de.invesdwin.util.lang.ADelegateComparator;
+import de.invesdwin.util.lang.comparator.ACriteriaComparator;
+import de.invesdwin.util.lang.comparator.IComparator;
 
 @NotThreadSafe
 public abstract class ASortedFeedsIterator<E> implements ICloseableIterator<E> {
 
-    private final ADelegateComparator<PeekingCloseableIterator<E>> comparator = new ADelegateComparator<PeekingCloseableIterator<E>>() {
+    private final IComparator<PeekingCloseableIterator<E>> comparator = new ACriteriaComparator<PeekingCloseableIterator<E>>() {
         @Override
-        protected Comparable<?> getCompareCriteria(final PeekingCloseableIterator<E> e) {
+        public Comparable<?> getCompareCriteriaNotNullSafe(final PeekingCloseableIterator<E> e) {
             return ASortedFeedsIterator.this.getCompareCriteria(e.peek());
         }
     };

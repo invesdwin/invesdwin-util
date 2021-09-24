@@ -80,7 +80,8 @@ public abstract class AContinuousRecursiveHistoricalCacheQuery<V> implements IRe
     private FDate lastRecursionKey;
     //BTreeMap has problems with removing first entry so we use TreeMap
     @GuardedBy("parent")
-    private final NavigableMap<FDate, V> highestRecursionResultsAsc = new TreeMap<FDate, V>(FDate.COMPARATOR);
+    private final NavigableMap<FDate, V> highestRecursionResultsAsc = new TreeMap<FDate, V>(
+            FDate.COMPARATOR.asNotNullSafe());
     private final int maxHighestRecursionResultsCount;
     @GuardedBy("parent")
     private boolean shouldAppendHighestRecursionResults;

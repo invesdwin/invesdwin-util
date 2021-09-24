@@ -21,7 +21,7 @@ import de.invesdwin.util.math.decimal.scaled.PercentScale;
 public class RunningMedian {
 
     private final Deque<Double> queue = new LinkedList<Double>();
-    private final List<Double> sortedList = newSortedList(Doubles.COMPARATOR);
+    private final List<Double> sortedList = newSortedList(Doubles.COMPARATOR.asNotNullSafe());
     private final int size;
 
     public RunningMedian(final int size) {

@@ -12,6 +12,7 @@ import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
 import de.invesdwin.norva.beanpath.BeanPathStrings;
+import de.invesdwin.util.lang.comparator.IComparator;
 import de.invesdwin.util.lang.internal.AStringsStaticFacade;
 import de.invesdwin.util.lang.internal.CheckedCastStrings;
 import de.invesdwin.util.lang.internal.DefaultToStringStyle;
@@ -27,12 +28,7 @@ import de.invesdwin.util.lang.internal.MultilineToStringStyle;
                         "com.google.common.base.Strings#repeat(java.lang.String, int)" })
 public final class Strings extends AStringsStaticFacade {
 
-    public static final ADelegateComparator<String> COMPARATOR = new ADelegateComparator<String>() {
-        @Override
-        protected Comparable<?> getCompareCriteria(final String e) {
-            return e;
-        }
-    };
+    public static final IComparator<String> COMPARATOR = IComparator.getDefaultInstance();
 
     public static final String EMPTY = org.apache.commons.lang3.StringUtils.EMPTY;
     public static final String[] EMPTY_ARRAY = new String[0];

@@ -19,6 +19,7 @@ import org.nustaq.serialization.FSTConfiguration;
 
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
 import de.invesdwin.norva.beanpath.BeanPathObjects;
+import de.invesdwin.util.lang.comparator.IComparator;
 import de.invesdwin.util.lang.internal.AObjectsStaticFacade;
 import de.invesdwin.util.marshallers.serde.LocalFastSerializingSerde;
 import de.invesdwin.util.math.Integers;
@@ -31,12 +32,7 @@ public final class Objects extends AObjectsStaticFacade {
 
     public static final boolean DEFAULT_APPEND_MISSING_VALUES = true;
     public static final Set<String> REFLECTION_EXCLUDED_FIELDS = new HashSet<String>();
-    public static final ADelegateComparator<Object> COMPARATOR = new ADelegateComparator<Object>() {
-        @Override
-        protected Comparable<?> getCompareCriteria(final Object e) {
-            return (Comparable<?>) e;
-        }
-    };
+    public static final IComparator<Object> COMPARATOR = IComparator.getDefaultInstance();
     public static final Object[] EMPTY_ARRAY = new Object[0];
 
     static {

@@ -21,8 +21,8 @@ import org.joda.time.format.DateTimeFormatter;
 import de.invesdwin.norva.marker.IDate;
 import de.invesdwin.util.collections.loadingcache.historical.IHistoricalEntry;
 import de.invesdwin.util.collections.loadingcache.historical.IHistoricalValue;
-import de.invesdwin.util.lang.ADelegateComparator;
 import de.invesdwin.util.lang.Strings;
+import de.invesdwin.util.lang.comparator.IComparator;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.decimal.scaled.Percent;
 import de.invesdwin.util.time.date.holiday.IHolidayManager;
@@ -37,12 +37,7 @@ import de.invesdwin.util.time.duration.Duration;
 public class FDate
         implements IDate, Serializable, Cloneable, Comparable<Object>, IHistoricalValue<FDate>, IFDateProvider {
 
-    public static final ADelegateComparator<FDate> COMPARATOR = new ADelegateComparator<FDate>() {
-        @Override
-        protected Comparable<?> getCompareCriteria(final FDate e) {
-            return e;
-        }
-    };
+    public static final IComparator<FDate> COMPARATOR = IComparator.getDefaultInstance();
 
     public static final int BYTES = Long.BYTES;
     /**
@@ -96,13 +91,6 @@ public class FDate
     public static final String FORMAT_GERMAN_DATE = "dd.MM.yyyy";
     public static final String FORMAT_GERMAN_DATE_TIME = FORMAT_GERMAN_DATE + " " + FORMAT_ISO_TIME;
     public static final String FORMAT_GERMAN_DATE_TIME_MS = FORMAT_GERMAN_DATE + " " + FORMAT_ISO_TIME_MS;
-
-    public static final ADelegateComparator<FDate> DATE_COMPARATOR = new ADelegateComparator<FDate>() {
-        @Override
-        protected Comparable<?> getCompareCriteria(final FDate e) {
-            return e;
-        }
-    };
 
     public static final FDate[] EMPTY_ARRAY = new FDate[0];
 

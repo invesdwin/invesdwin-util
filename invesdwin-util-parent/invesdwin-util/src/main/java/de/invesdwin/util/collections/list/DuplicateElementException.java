@@ -1,8 +1,10 @@
-package de.invesdwin.util.error;
+package de.invesdwin.util.collections.list;
 
 import java.util.NoSuchElementException;
 
 import javax.annotation.concurrent.NotThreadSafe;
+
+import de.invesdwin.util.error.Throwables;
 
 /**
  * Often it is faster to use iterators without calling hasNext and instead catching the NoSuchElementException. Throw
@@ -14,9 +16,9 @@ import javax.annotation.concurrent.NotThreadSafe;
  * 
  */
 @NotThreadSafe
-public class FastNoSuchElementException extends NoSuchElementException {
+public class DuplicateElementException extends NoSuchElementException {
 
-    private static final FastNoSuchElementException INSTANCE = new FastNoSuchElementException("end reached");
+    private static final DuplicateElementException INSTANCE = new DuplicateElementException("duplicate");
 
     private static final long serialVersionUID = 1L;
 
@@ -24,7 +26,7 @@ public class FastNoSuchElementException extends NoSuchElementException {
      * We always want a message here with some interesting information about the origin, since the stacktrace is
      * disabled. At least we can then search the code for the string.
      */
-    public FastNoSuchElementException(final String message) {
+    public DuplicateElementException(final String message) {
         super(message);
     }
 
@@ -38,16 +40,16 @@ public class FastNoSuchElementException extends NoSuchElementException {
     }
 
     public static NoSuchElementException maybeReplace(final NoSuchElementException e, final String message) {
-        if (e instanceof FastNoSuchElementException || Throwables.isDebugStackTraceEnabled()) {
+        if (e instanceof DuplicateElementException || Throwables.isDebugStackTraceEnabled()) {
             return e;
         } else {
-            return new FastNoSuchElementException(message + ": " + e.toString());
+            return new DuplicateElementException(message + ": " + e.toString());
         }
     }
 
-    public static FastNoSuchElementException getInstance() {
+    public static DuplicateElementException getInstance() {
         if (Throwables.isDebugStackTraceEnabled()) {
-            throw new FastNoSuchElementException("end reached");
+            throw new DuplicateElementException("duplicate");
         } else {
             throw INSTANCE;
         }

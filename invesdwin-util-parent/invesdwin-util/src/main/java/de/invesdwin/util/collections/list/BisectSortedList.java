@@ -18,6 +18,9 @@ import de.invesdwin.util.collections.delegate.ADelegateList;
 public class BisectSortedList<E> extends ADelegateList<E> {
     private final Comparator<E> comparator;
 
+    /**
+     * The comparator can throw a a DuplicateElementException to ignore an element.
+     */
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public BisectSortedList(final Comparator comparator) {
         this.comparator = comparator;
@@ -30,7 +33,11 @@ public class BisectSortedList<E> extends ADelegateList<E> {
 
     @Override
     public void add(final int index, final E o) {
-        getDelegate().add(bisect(o), o);
+        try {
+            getDelegate().add(bisect(o), o);
+        } catch (final DuplicateElementException e) {
+            //ignore duplicate
+        }
     }
 
     private int bisect(final E x) {
@@ -50,16 +57,24 @@ public class BisectSortedList<E> extends ADelegateList<E> {
 
     @Override
     public boolean add(final E o) {
-        getDelegate().add(bisect(o), o);
-        return true;
+        try {
+            getDelegate().add(bisect(o), o);
+            return true;
+        } catch (final DuplicateElementException e) {
+            //ignore duplicate
+            return false;
+        }
     }
 
     @Override
     public boolean addAll(final Collection<? extends E> c) {
+        boolean changed = false;
         for (final E o : c) {
-            add(o);
+            if (add(o)) {
+                changed = true;
+            }
         }
-        return true;
+        return changed;
     }
 
     @Override

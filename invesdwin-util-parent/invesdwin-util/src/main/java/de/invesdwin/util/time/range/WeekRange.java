@@ -7,8 +7,9 @@ import java.util.List;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.bean.AValueObject;
-import de.invesdwin.util.lang.ADelegateComparator;
 import de.invesdwin.util.lang.Strings;
+import de.invesdwin.util.lang.comparator.ACriteriaComparator;
+import de.invesdwin.util.lang.comparator.IComparator;
 import de.invesdwin.util.time.date.FDate;
 import de.invesdwin.util.time.date.FDates;
 import de.invesdwin.util.time.date.FWeekTime;
@@ -20,9 +21,9 @@ public class WeekRange extends AValueObject {
 
     public static final String FROM_TO_SEPARATOR = "-";
 
-    public static final ADelegateComparator<WeekRange> COMPARATOR = new ADelegateComparator<WeekRange>() {
+    public static final IComparator<WeekRange> COMPARATOR = new ACriteriaComparator<WeekRange>() {
         @Override
-        protected Comparable<?> getCompareCriteria(final WeekRange e) {
+        public Comparable<?> getCompareCriteriaNotNullSafe(final WeekRange e) {
             return e.getFrom();
         }
     };

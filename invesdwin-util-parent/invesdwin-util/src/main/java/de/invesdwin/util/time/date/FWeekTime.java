@@ -2,16 +2,17 @@ package de.invesdwin.util.time.date;
 
 import javax.annotation.concurrent.Immutable;
 
-import de.invesdwin.util.lang.ADelegateComparator;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.lang.Strings;
+import de.invesdwin.util.lang.comparator.ACriteriaComparator;
+import de.invesdwin.util.lang.comparator.IComparator;
 
 @Immutable
 public class FWeekTime extends FDayTime {
 
-    public static final ADelegateComparator<FWeekTime> COMPARATOR = new ADelegateComparator<FWeekTime>() {
+    public static final IComparator<FWeekTime> COMPARATOR = new ACriteriaComparator<FWeekTime>() {
         @Override
-        protected Comparable<?> getCompareCriteria(final FWeekTime e) {
+        public Comparable<?> getCompareCriteriaNotNullSafe(final FWeekTime e) {
             return e.longValue();
         }
     };

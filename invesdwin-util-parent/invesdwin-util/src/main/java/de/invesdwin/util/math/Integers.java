@@ -7,8 +7,8 @@ import java.util.List;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
-import de.invesdwin.util.lang.ADelegateComparator;
 import de.invesdwin.util.lang.Objects;
+import de.invesdwin.util.lang.comparator.IComparator;
 import de.invesdwin.util.math.internal.AIntegersStaticFacade;
 import de.invesdwin.util.math.internal.CheckedCastIntegers;
 import de.invesdwin.util.math.internal.CheckedCastIntegersObj;
@@ -23,12 +23,7 @@ public final class Integers extends AIntegersStaticFacade {
     public static final int[] EMPTY_ARRAY = new int[0];
     public static final int DEFAULT_MISSING_VALUE = 0;
     public static final Integer DEFAULT_MISSING_VALUE_OBJ = DEFAULT_MISSING_VALUE;
-    public static final ADelegateComparator<Integer> COMPARATOR = new ADelegateComparator<Integer>() {
-        @Override
-        protected Comparable<?> getCompareCriteria(final Integer e) {
-            return e;
-        }
-    };
+    public static final IComparator<Integer> COMPARATOR = IComparator.getDefaultInstance();
 
     private Integers() {
     }

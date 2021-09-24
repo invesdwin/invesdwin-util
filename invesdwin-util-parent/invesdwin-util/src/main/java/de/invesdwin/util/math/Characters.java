@@ -9,8 +9,8 @@ import javax.annotation.concurrent.Immutable;
 import org.apache.commons.lang3.CharUtils;
 
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
-import de.invesdwin.util.lang.ADelegateComparator;
 import de.invesdwin.util.lang.Objects;
+import de.invesdwin.util.lang.comparator.IComparator;
 import de.invesdwin.util.math.internal.ACharactersStaticFacade;
 import de.invesdwin.util.math.internal.CheckedCastCharacters;
 import de.invesdwin.util.math.internal.CheckedCastCharactersObj;
@@ -24,14 +24,10 @@ public final class Characters extends ACharactersStaticFacade {
 
     public static final char DEFAULT_MISSING_VALUE = (char) 0;
     public static final Character DEFAULT_MISSING_VALUE_OBJ = DEFAULT_MISSING_VALUE;
-    public static final ADelegateComparator<Character> COMPARATOR = new ADelegateComparator<Character>() {
-        @Override
-        protected Comparable<?> getCompareCriteria(final Character e) {
-            return e;
-        }
-    };
+    public static final IComparator<Character> COMPARATOR = IComparator.getDefaultInstance();
 
-    private Characters() {}
+    private Characters() {
+    }
 
     public static char[] toArray(final Collection<Character> vector) {
         if (vector == null) {

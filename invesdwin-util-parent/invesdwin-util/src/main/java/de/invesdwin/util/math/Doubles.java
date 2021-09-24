@@ -10,8 +10,8 @@ import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
 import de.invesdwin.util.error.UnknownArgumentException;
-import de.invesdwin.util.lang.ADelegateComparator;
 import de.invesdwin.util.lang.Objects;
+import de.invesdwin.util.lang.comparator.IComparator;
 import de.invesdwin.util.math.decimal.ADecimal;
 import de.invesdwin.util.math.decimal.Decimal;
 import de.invesdwin.util.math.internal.ADoublesStaticFacade;
@@ -36,12 +36,7 @@ public final class Doubles extends ADoublesStaticFacade {
     public static final double ONE_THIRD = 1D / 3D;
     public static final double DEFAULT_MISSING_VALUE = 0d;
     public static final Double DEFAULT_MISSING_VALUE_OBJ = DEFAULT_MISSING_VALUE;
-    public static final ADelegateComparator<Double> COMPARATOR = new ADelegateComparator<Double>() {
-        @Override
-        protected Comparable<?> getCompareCriteria(final Double e) {
-            return e;
-        }
-    };
+    public static final IComparator<Double> COMPARATOR = IComparator.getDefaultInstance();
 
     public static final double FIRST_ABOVE_ZERO = 0.000000001;
     public static final double FIRST_BELOW_ZERO = -0.000000001;

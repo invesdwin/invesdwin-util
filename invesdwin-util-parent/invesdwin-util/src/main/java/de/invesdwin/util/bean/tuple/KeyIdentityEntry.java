@@ -5,17 +5,18 @@ import java.util.Map.Entry;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.bean.AValueObject;
-import de.invesdwin.util.lang.ADelegateComparator;
 import de.invesdwin.util.lang.Objects;
+import de.invesdwin.util.lang.comparator.ACriteriaComparator;
+import de.invesdwin.util.lang.comparator.IComparator;
 import de.invesdwin.util.time.date.FDate;
 
 @SuppressWarnings("serial")
 @Immutable
 public class KeyIdentityEntry<K, V> extends AValueObject implements Entry<K, V> {
 
-    public static final ADelegateComparator<Entry<FDate, ?>> KEY_COMPARATOR = new ADelegateComparator<Entry<FDate, ?>>() {
+    public static final IComparator<Entry<FDate, ?>> KEY_COMPARATOR = new ACriteriaComparator<Entry<FDate, ?>>() {
         @Override
-        protected Comparable<?> getCompareCriteria(final Entry<FDate, ?> e) {
+        public Comparable<?> getCompareCriteriaNotNullSafe(final Entry<FDate, ?> e) {
             return e.getKey();
         }
     };

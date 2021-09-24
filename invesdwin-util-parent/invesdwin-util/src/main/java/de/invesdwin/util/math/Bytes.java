@@ -7,8 +7,8 @@ import java.util.List;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
-import de.invesdwin.util.lang.ADelegateComparator;
 import de.invesdwin.util.lang.Objects;
+import de.invesdwin.util.lang.comparator.IComparator;
 import de.invesdwin.util.math.internal.ABytesStaticFacade;
 import de.invesdwin.util.math.internal.CheckedCastBytes;
 import de.invesdwin.util.math.internal.CheckedCastBytesObj;
@@ -23,14 +23,10 @@ public final class Bytes extends ABytesStaticFacade {
 
     public static final byte DEFAULT_MISSING_VALUE = (byte) 0;
     public static final Byte DEFAULT_MISSING_VALUE_OBJ = DEFAULT_MISSING_VALUE;
-    public static final ADelegateComparator<Byte> COMPARATOR = new ADelegateComparator<Byte>() {
-        @Override
-        protected Comparable<?> getCompareCriteria(final Byte e) {
-            return e;
-        }
-    };
+    public static final IComparator<Byte> COMPARATOR = IComparator.getDefaultInstance();
 
-    private Bytes() {}
+    private Bytes() {
+    }
 
     public static byte[] toArray(final Collection<? extends Number> vector) {
         if (vector == null) {

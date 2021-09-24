@@ -7,8 +7,8 @@ import java.util.List;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
-import de.invesdwin.util.lang.ADelegateComparator;
 import de.invesdwin.util.lang.Objects;
+import de.invesdwin.util.lang.comparator.IComparator;
 import de.invesdwin.util.math.internal.AFloatsStaticFacade;
 import de.invesdwin.util.math.internal.CheckedCastFloats;
 import de.invesdwin.util.math.internal.CheckedCastFloatsObj;
@@ -21,14 +21,10 @@ public final class Floats extends AFloatsStaticFacade {
 
     public static final float DEFAULT_MISSING_VALUE = 0f;
     public static final Float DEFAULT_MISSING_VALUE_OBJ = DEFAULT_MISSING_VALUE;
-    public static final ADelegateComparator<Float> COMPARATOR = new ADelegateComparator<Float>() {
-        @Override
-        protected Comparable<?> getCompareCriteria(final Float e) {
-            return e;
-        }
-    };
+    public static final IComparator<Float> COMPARATOR = IComparator.getDefaultInstance();
 
-    private Floats() {}
+    private Floats() {
+    }
 
     public static float[] toArray(final Collection<? extends Number> vector) {
         if (vector == null) {

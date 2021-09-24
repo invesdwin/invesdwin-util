@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
@@ -16,6 +17,9 @@ import de.invesdwin.util.collections.delegate.ADelegateList;
 public class HighLowSortedList<E> extends ADelegateList<E> {
     private final Comparator<E> comparator;
 
+    /**
+     * The comparator can throw a a DuplicateElementException to ignore an element.
+     */
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public HighLowSortedList(final Comparator comparator) {
         this.comparator = comparator;
@@ -31,14 +35,18 @@ public class HighLowSortedList<E> extends ADelegateList<E> {
      */
     @Override
     public void add(final int index, final E o) {
-        final int size = getDelegate().size();
-        for (int i = 0; i < size; i++) {
-            if (comparator.compare(getDelegate().get(i), o) > 0) {
-                getDelegate().add(i, o);
-                return;
+        try {
+            final int size = getDelegate().size();
+            for (int i = 0; i < size; i++) {
+                if (comparator.compare(getDelegate().get(i), o) > 0) {
+                    getDelegate().add(i, o);
+                    return;
+                }
             }
+            getDelegate().add(o);
+        } catch (final NoSuchElementException e) {
+            //ignore duplicate
         }
-        getDelegate().add(o);
     }
 
     /**
@@ -46,38 +54,51 @@ public class HighLowSortedList<E> extends ADelegateList<E> {
      */
     @Override
     public boolean add(final E o) {
-        final int size = getDelegate().size();
-        for (int i = size; i > 0; i--) {
-            if (comparator.compare(getDelegate().get(i - 1), o) < 0) {
-                getDelegate().add(i, o);
-                return true;
+        try {
+            final int size = getDelegate().size();
+            for (int i = size; i > 0; i--) {
+                if (comparator.compare(getDelegate().get(i - 1), o) < 0) {
+                    getDelegate().add(i, o);
+                    return true;
+                }
             }
+            getDelegate().add(0, o);
+            return true;
+        } catch (final NoSuchElementException e) {
+            //ignore duplicate
+            return false;
         }
-        getDelegate().add(0, o);
-        return true;
     }
 
     /**
      * adds the element at its appropriate spot doing the search in descending order to add it in the end
      */
     public int addGetIndex(final E o) {
-        final int size = getDelegate().size();
-        for (int i = size; i > 0; i--) {
-            if (comparator.compare(getDelegate().get(i - 1), o) < 0) {
-                getDelegate().add(i, o);
-                return i;
+        try {
+            final int size = getDelegate().size();
+            for (int i = size; i > 0; i--) {
+                if (comparator.compare(getDelegate().get(i - 1), o) < 0) {
+                    getDelegate().add(i, o);
+                    return i;
+                }
             }
+            getDelegate().add(0, o);
+            return 0;
+        } catch (final NoSuchElementException e) {
+            //ignore duplicate
+            return -1;
         }
-        getDelegate().add(0, o);
-        return 0;
     }
 
     @Override
     public boolean addAll(final Collection<? extends E> c) {
+        boolean changed = false;
         for (final E o : c) {
-            add(o);
+            if (add(o)) {
+                changed = true;
+            }
         }
-        return true;
+        return changed;
     }
 
     @Override

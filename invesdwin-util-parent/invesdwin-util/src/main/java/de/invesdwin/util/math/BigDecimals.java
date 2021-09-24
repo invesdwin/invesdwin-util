@@ -8,8 +8,8 @@ import java.util.List;
 
 import javax.annotation.concurrent.Immutable;
 
-import de.invesdwin.util.lang.ADelegateComparator;
 import de.invesdwin.util.lang.Objects;
+import de.invesdwin.util.lang.comparator.IComparator;
 import de.invesdwin.util.math.decimal.ADecimal;
 import de.invesdwin.util.math.decimal.Decimal;
 
@@ -19,14 +19,10 @@ public final class BigDecimals {
     public static final BigDecimal DEFAULT_MISSING_VALUE = BigDecimal.ZERO;
     public static final MathContext DEFAULT_MATH_CONTEXT = new MathContext(MathContext.DECIMAL128.getPrecision(),
             Decimal.DEFAULT_ROUNDING_MODE);
-    public static final ADelegateComparator<BigDecimal> COMPARATOR = new ADelegateComparator<BigDecimal>() {
-        @Override
-        protected Comparable<?> getCompareCriteria(final BigDecimal e) {
-            return e;
-        }
-    };
+    public static final IComparator<BigDecimal> COMPARATOR = IComparator.getDefaultInstance();
 
-    private BigDecimals() {}
+    private BigDecimals() {
+    }
 
     public static BigDecimal valueOf(final ADecimal<?> value) {
         if (value == null) {

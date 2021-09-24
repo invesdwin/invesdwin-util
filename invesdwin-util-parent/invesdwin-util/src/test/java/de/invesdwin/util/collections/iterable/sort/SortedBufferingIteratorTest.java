@@ -25,7 +25,7 @@ public class SortedBufferingIteratorTest {
         wrongOrder.add(FDateBuilder.newDate(2003));
         wrongOrder.add(FDateBuilder.newDate(2002));
         final List<FDate> correctOrder = new ArrayList<>(wrongOrder);
-        FDate.COMPARATOR.sort(correctOrder, true);
+        FDate.COMPARATOR.asAscending().sort(correctOrder);
 
         final List<FDate> sortedOrder = Lists.toListWithoutHasNext(new SortedBufferingIterable<FDate>(
                 WrapperCloseableIterable.maybeWrap(wrongOrder), FDate.COMPARATOR, 3));

@@ -7,8 +7,9 @@ import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.bean.AValueObject;
 import de.invesdwin.util.bean.tuple.IPair;
-import de.invesdwin.util.lang.ADelegateComparator;
 import de.invesdwin.util.lang.Objects;
+import de.invesdwin.util.lang.comparator.ACriteriaComparator;
+import de.invesdwin.util.lang.comparator.IComparator;
 import de.invesdwin.util.time.date.FDate;
 import de.invesdwin.util.time.date.FDates;
 import de.invesdwin.util.time.date.IFDateProvider;
@@ -18,9 +19,9 @@ import de.invesdwin.util.time.duration.Duration;
 @Immutable
 public class TimeRange extends AValueObject {
 
-    public static final ADelegateComparator<TimeRange> COMPARATOR = new ADelegateComparator<TimeRange>() {
+    public static final IComparator<TimeRange> COMPARATOR = new ACriteriaComparator<TimeRange>() {
         @Override
-        protected Comparable<?> getCompareCriteria(final TimeRange e) {
+        public Comparable<?> getCompareCriteriaNotNullSafe(final TimeRange e) {
             return e.getFrom();
         }
     };

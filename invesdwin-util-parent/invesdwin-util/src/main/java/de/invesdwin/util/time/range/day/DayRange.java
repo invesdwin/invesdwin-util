@@ -7,8 +7,9 @@ import java.util.List;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.bean.AValueObject;
-import de.invesdwin.util.lang.ADelegateComparator;
 import de.invesdwin.util.lang.Strings;
+import de.invesdwin.util.lang.comparator.ACriteriaComparator;
+import de.invesdwin.util.lang.comparator.IComparator;
 import de.invesdwin.util.time.date.FDate;
 import de.invesdwin.util.time.date.FDates;
 import de.invesdwin.util.time.date.FDayTime;
@@ -18,9 +19,9 @@ import de.invesdwin.util.time.duration.Duration;
 @Immutable
 public class DayRange extends AValueObject implements IDayRangeData {
 
-    public static final ADelegateComparator<DayRange> COMPARATOR = new ADelegateComparator<DayRange>() {
+    public static final IComparator<DayRange> COMPARATOR = new ACriteriaComparator<DayRange>() {
         @Override
-        protected Comparable<?> getCompareCriteria(final DayRange e) {
+        public Comparable<?> getCompareCriteriaNotNullSafe(final DayRange e) {
             return e.getFrom();
         }
     };

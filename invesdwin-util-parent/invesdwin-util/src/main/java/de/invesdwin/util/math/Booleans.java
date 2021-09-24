@@ -7,8 +7,8 @@ import java.util.List;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
-import de.invesdwin.util.lang.ADelegateComparator;
 import de.invesdwin.util.lang.Objects;
+import de.invesdwin.util.lang.comparator.IComparator;
 import de.invesdwin.util.math.decimal.Decimal;
 import de.invesdwin.util.math.internal.ABooleansStaticFacade;
 import de.invesdwin.util.math.internal.CheckedCastBooleans;
@@ -23,12 +23,7 @@ public final class Booleans extends ABooleansStaticFacade {
 
     public static final boolean DEFAULT_MISSING_VALUE = false;
     public static final Boolean DEFAULT_MISSING_VALUE_OBJ = DEFAULT_MISSING_VALUE;
-    public static final ADelegateComparator<Boolean> COMPARATOR = new ADelegateComparator<Boolean>() {
-        @Override
-        protected Comparable<?> getCompareCriteria(final Boolean e) {
-            return e;
-        }
-    };
+    public static final IComparator<Boolean> COMPARATOR = IComparator.getDefaultInstance();
     public static final int BYTES = 1;
     public static final Boolean[] OBJ_EMPTY_ARRAY = new Boolean[0];
     public static final boolean[] EMPTY_ARRAY = new boolean[0];

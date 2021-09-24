@@ -7,22 +7,18 @@ import java.util.List;
 
 import javax.annotation.concurrent.Immutable;
 
-import de.invesdwin.util.lang.ADelegateComparator;
 import de.invesdwin.util.lang.Objects;
+import de.invesdwin.util.lang.comparator.IComparator;
 import de.invesdwin.util.math.decimal.ADecimal;
 
 @Immutable
 public final class BigIntegers {
 
     public static final BigInteger DEFAULT_MISSING_VALUE = BigInteger.ZERO;
-    public static final ADelegateComparator<BigInteger> COMPARATOR = new ADelegateComparator<BigInteger>() {
-        @Override
-        protected Comparable<?> getCompareCriteria(final BigInteger e) {
-            return e;
-        }
-    };
+    public static final IComparator<BigInteger> COMPARATOR = IComparator.getDefaultInstance();
 
-    private BigIntegers() {}
+    private BigIntegers() {
+    }
 
     public static BigInteger valueOf(final ADecimal<?> value) {
         if (value == null) {

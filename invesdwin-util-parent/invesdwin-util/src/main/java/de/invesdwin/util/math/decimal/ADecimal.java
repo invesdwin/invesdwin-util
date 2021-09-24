@@ -14,8 +14,8 @@ import java.util.Locale;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.norva.marker.IDecimal;
-import de.invesdwin.util.lang.ADelegateComparator;
 import de.invesdwin.util.lang.Objects;
+import de.invesdwin.util.lang.comparator.IComparator;
 import de.invesdwin.util.lang.description.TextDescription;
 import de.invesdwin.util.math.BigDecimals;
 import de.invesdwin.util.math.BigIntegers;
@@ -40,12 +40,7 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
      */
     public static final RoundingMode DEFAULT_ROUNDING_MODE = RoundingMode.HALF_UP;
     public static final int DEFAULT_ROUNDING_SCALE = 9;
-    public static final ADelegateComparator<ADecimal<?>> COMPARATOR = new ADelegateComparator<ADecimal<?>>() {
-        @Override
-        protected Comparable<?> getCompareCriteria(final ADecimal<?> e) {
-            return e;
-        }
-    };
+    public static final IComparator<ADecimal<?>> COMPARATOR = IComparator.getDefaultInstance();
     private static final FastThreadLocal<NumberFormat> NUMBER_FORMAT = new FastThreadLocal<NumberFormat>() {
         @Override
         protected NumberFormat initialValue() throws Exception {

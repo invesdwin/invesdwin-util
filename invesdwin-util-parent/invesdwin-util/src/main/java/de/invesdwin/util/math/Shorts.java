@@ -7,8 +7,8 @@ import java.util.List;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
-import de.invesdwin.util.lang.ADelegateComparator;
 import de.invesdwin.util.lang.Objects;
+import de.invesdwin.util.lang.comparator.IComparator;
 import de.invesdwin.util.math.internal.AShortsStaticFacade;
 import de.invesdwin.util.math.internal.CheckedCastShorts;
 import de.invesdwin.util.math.internal.CheckedCastShortsObj;
@@ -21,14 +21,10 @@ public final class Shorts extends AShortsStaticFacade {
 
     public static final short DEFAULT_MISSING_VALUE = (short) 0;
     public static final Short DEFAULT_MISSING_VALUE_OBJ = DEFAULT_MISSING_VALUE;
-    public static final ADelegateComparator<Short> COMPARATOR = new ADelegateComparator<Short>() {
-        @Override
-        protected Comparable<?> getCompareCriteria(final Short e) {
-            return e;
-        }
-    };
+    public static final IComparator<Short> COMPARATOR = IComparator.getDefaultInstance();
 
-    private Shorts() {}
+    private Shorts() {
+    }
 
     public static short[] toArray(final Collection<? extends Number> vector) {
         if (vector == null) {

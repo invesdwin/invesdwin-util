@@ -10,6 +10,7 @@ import org.apache.commons.math3.random.RandomAdaptor;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.junit.Test;
 
+import de.invesdwin.util.lang.comparator.Comparators;
 import de.invesdwin.util.math.decimal.Decimal;
 import de.invesdwin.util.math.random.RandomGenerators;
 
@@ -25,7 +26,7 @@ public class BisectSortedListTest {
         sorted.add(Decimal.TEN);
         sorted.add(Decimal.FIVE);
         sorted.add(Decimal.MINUS_THREE);
-        Decimal.COMPARATOR.assertOrder(sorted, true);
+        Comparators.assertOrderAll(Decimal.COMPARATOR.asAscending(), sorted);
     }
 
     @Test
@@ -37,7 +38,7 @@ public class BisectSortedListTest {
         sorted.add(0, Decimal.TEN);
         sorted.add(0, Decimal.FIVE);
         sorted.add(0, Decimal.MINUS_THREE);
-        Decimal.COMPARATOR.assertOrder(sorted, true);
+        Comparators.assertOrderAll(Decimal.COMPARATOR.asAscending(), sorted);
     }
 
     @Test
@@ -45,7 +46,7 @@ public class BisectSortedListTest {
         final List<Decimal> sorted = new BisectSortedList<Decimal>(Decimal.COMPARATOR);
         sorted.add(new Decimal("10"));
         sorted.add(0, new Decimal("5"));
-        Decimal.COMPARATOR.assertOrder(sorted, true);
+        Comparators.assertOrderAll(Decimal.COMPARATOR.asAscending(), sorted);
     }
 
     @Test
@@ -73,7 +74,7 @@ public class BisectSortedListTest {
                     sorted.add(in);
                     //                    System.out.println("sorted.add(new Decimal(\"" + in + "\"));"); //SUPPRESS CHECKSTYLE single line
                 }
-                Decimal.COMPARATOR.assertOrder(sorted, true);
+                Comparators.assertOrderAll(Decimal.COMPARATOR.asAscending(), sorted);
             }
         }
     }

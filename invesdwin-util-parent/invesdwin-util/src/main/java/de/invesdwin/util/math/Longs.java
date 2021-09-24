@@ -7,8 +7,8 @@ import java.util.List;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
-import de.invesdwin.util.lang.ADelegateComparator;
 import de.invesdwin.util.lang.Objects;
+import de.invesdwin.util.lang.comparator.IComparator;
 import de.invesdwin.util.math.internal.ALongsStaticFacade;
 import de.invesdwin.util.math.internal.CheckedCastLongs;
 import de.invesdwin.util.math.internal.CheckedCastLongsObj;
@@ -21,12 +21,7 @@ public final class Longs extends ALongsStaticFacade {
 
     public static final long DEFAULT_MISSING_VALUE = 0;
     public static final Long DEFAULT_MISSING_VALUE_OBJ = DEFAULT_MISSING_VALUE;
-    public static final ADelegateComparator<Long> COMPARATOR = new ADelegateComparator<Long>() {
-        @Override
-        protected Comparable<?> getCompareCriteria(final Long e) {
-            return e;
-        }
-    };
+    public static final IComparator<Long> COMPARATOR = IComparator.getDefaultInstance();
 
     private Longs() {
     }

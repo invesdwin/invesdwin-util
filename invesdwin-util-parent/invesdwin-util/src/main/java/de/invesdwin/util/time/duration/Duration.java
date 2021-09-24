@@ -10,8 +10,8 @@ import javax.persistence.Transient;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import de.invesdwin.util.error.UnknownArgumentException;
-import de.invesdwin.util.lang.ADelegateComparator;
 import de.invesdwin.util.lang.Strings;
+import de.invesdwin.util.lang.comparator.IComparator;
 import de.invesdwin.util.math.Characters;
 import de.invesdwin.util.math.Longs;
 import de.invesdwin.util.math.decimal.Decimal;
@@ -23,12 +23,7 @@ import de.invesdwin.util.time.duration.internal.DurationParser;
 @ThreadSafe
 public class Duration extends Number implements Comparable<Object> {
 
-    public static final ADelegateComparator<Duration> COMPARATOR = new ADelegateComparator<Duration>() {
-        @Override
-        protected Comparable<?> getCompareCriteria(final Duration e) {
-            return e;
-        }
-    };
+    public static final IComparator<Duration> COMPARATOR = IComparator.getDefaultInstance();
 
     public static final Duration ZERO = new Duration(0, FTimeUnit.NANOSECONDS);
     public static final Duration ONE_NANOSECOND = new Duration(1, FTimeUnit.NANOSECONDS);
