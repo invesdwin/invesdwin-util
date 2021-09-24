@@ -10,7 +10,7 @@ class NotNullSafeComparator<E> implements IComparator<E> {
     private final IComparator<E> nullSafe;
 
     NotNullSafeComparator(final IComparator<E> nullSafe) {
-        Assertions.checkTrue(nullSafe.isAscending());
+        Assertions.checkTrue(nullSafe.isNullSafe());
         this.nullSafe = nullSafe;
     }
 
