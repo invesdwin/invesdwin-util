@@ -23,7 +23,7 @@ import de.invesdwin.util.marshallers.serde.basic.TimedDecimalSerde;
 import de.invesdwin.util.marshallers.serde.basic.VoidSerde;
 import de.invesdwin.util.math.decimal.Decimal;
 import de.invesdwin.util.math.decimal.TimedDecimal;
-import de.invesdwin.util.streams.buffer.IByteBuffer;
+import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 import de.invesdwin.util.time.date.FDate;
 
 @Immutable

@@ -23,7 +23,7 @@ import de.invesdwin.util.lang.comparator.IComparator;
 import de.invesdwin.util.lang.internal.AObjectsStaticFacade;
 import de.invesdwin.util.marshallers.serde.LocalFastSerializingSerde;
 import de.invesdwin.util.math.Integers;
-import de.invesdwin.util.streams.buffer.IByteBuffer;
+import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 
 @Immutable
 @StaticFacadeDefinition(name = "de.invesdwin.util.lang.internal.AObjectsStaticFacade", targets = {

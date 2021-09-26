@@ -7,7 +7,7 @@ import de.invesdwin.util.math.decimal.ADecimal;
 import de.invesdwin.util.math.decimal.AScaledDecimal;
 import de.invesdwin.util.math.decimal.Decimal;
 import de.invesdwin.util.math.decimal.IScaledNumber;
-import de.invesdwin.util.streams.buffer.IByteBuffer;
+import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 import de.invesdwin.util.time.date.FTimeUnit;
 import de.invesdwin.util.time.duration.Duration;
 

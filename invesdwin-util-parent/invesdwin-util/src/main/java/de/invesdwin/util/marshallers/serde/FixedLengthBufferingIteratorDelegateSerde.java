@@ -6,7 +6,7 @@ import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
 import de.invesdwin.util.collections.iterable.buffer.IBufferingIterator;
-import de.invesdwin.util.streams.buffer.IByteBuffer;
+import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 
 @Immutable
 public class FixedLengthBufferingIteratorDelegateSerde<E> implements ISerde<IBufferingIterator<? extends E>> {

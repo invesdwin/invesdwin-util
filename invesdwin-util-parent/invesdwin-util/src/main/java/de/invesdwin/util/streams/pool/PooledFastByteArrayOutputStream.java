@@ -8,7 +8,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 import de.invesdwin.util.concurrent.pool.AgronaObjectPool;
 import de.invesdwin.util.concurrent.pool.IObjectPool;
 import de.invesdwin.util.lang.Charsets;
-import de.invesdwin.util.streams.buffer.ByteBuffers;
+import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import it.unimi.dsi.fastutil.io.FastByteArrayOutputStream;
 
 @NotThreadSafe

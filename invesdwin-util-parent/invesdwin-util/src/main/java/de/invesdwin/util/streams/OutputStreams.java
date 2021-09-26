@@ -7,8 +7,8 @@ import java.nio.channels.WritableByteChannel;
 
 import javax.annotation.concurrent.Immutable;
 
-import de.invesdwin.util.streams.buffer.ByteBuffers;
-import de.invesdwin.util.streams.buffer.IByteBuffer;
+import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
+import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 
 /**
  * Extracted from java.io.DataOutputStream

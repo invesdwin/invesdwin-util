@@ -5,7 +5,7 @@ import java.util.Arrays;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.math.Integers;
-import de.invesdwin.util.streams.buffer.ByteBuffers;
+import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 
 @NotThreadSafe
 public class HeapDoubleArray implements IDoubleArray {

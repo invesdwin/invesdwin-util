@@ -8,7 +8,7 @@ import de.invesdwin.util.collections.bitset.IBitSet;
 import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.math.Booleans;
 import de.invesdwin.util.math.Integers;
-import de.invesdwin.util.streams.buffer.ByteBuffers;
+import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 
 @NotThreadSafe
 public class BitSetBooleanArray implements IBooleanArray {

@@ -4,7 +4,7 @@ import java.util.Comparator;
 
 import javax.annotation.concurrent.Immutable;
 
-import de.invesdwin.util.streams.buffer.delegate.JavaDelegateByteBuffer;
+import de.invesdwin.util.streams.buffer.bytes.delegate.NioDelegateByteBuffer;
 
 @Immutable
 public class SerdeComparator<O> implements Comparator<java.nio.ByteBuffer> {
@@ -30,9 +30,9 @@ public class SerdeComparator<O> implements Comparator<java.nio.ByteBuffer> {
             return 1;
         }
         final Comparable<Object> co1 = toComparable(
-                serde.fromBuffer(new JavaDelegateByteBuffer(o1).newSliceFrom(o1.position()), o1.remaining()));
+                serde.fromBuffer(new NioDelegateByteBuffer(o1).newSliceFrom(o1.position()), o1.remaining()));
         final Comparable<Object> co2 = toComparable(
-                serde.fromBuffer(new JavaDelegateByteBuffer(o2).newSliceFrom(o2.position()), o2.remaining()));
+                serde.fromBuffer(new NioDelegateByteBuffer(o2).newSliceFrom(o2.position()), o2.remaining()));
         return innerCompare(co1, co2);
     }
 

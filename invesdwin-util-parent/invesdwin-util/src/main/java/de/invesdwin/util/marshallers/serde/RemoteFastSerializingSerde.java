@@ -16,7 +16,7 @@ import org.nustaq.serialization.simpleapi.OnHeapCoder;
 import de.invesdwin.util.concurrent.pool.AgronaObjectPool;
 import de.invesdwin.util.concurrent.pool.IObjectPool;
 import de.invesdwin.util.math.Bytes;
-import de.invesdwin.util.streams.buffer.IByteBuffer;
+import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 
 /**
  * This serializing serde is suitable for IPC

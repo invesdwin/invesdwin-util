@@ -10,8 +10,8 @@ import javax.annotation.concurrent.Immutable;
 import org.apache.commons.lang3.SerializationException;
 
 import de.invesdwin.norva.beanpath.IDeepCloneProvider;
-import de.invesdwin.util.streams.buffer.ByteBuffers;
-import de.invesdwin.util.streams.buffer.IByteBuffer;
+import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
+import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 
 /**
  * This serializing serde is only suitable inside the current JVM

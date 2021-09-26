@@ -6,7 +6,7 @@ import de.invesdwin.util.marshallers.serde.ISerde;
 import de.invesdwin.util.marshallers.serde.SerdeBaseMethods;
 import de.invesdwin.util.math.Booleans;
 import de.invesdwin.util.math.Bytes;
-import de.invesdwin.util.streams.buffer.IByteBuffer;
+import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 
 @Immutable
 public class BooleanSerde implements ISerde<Boolean> {

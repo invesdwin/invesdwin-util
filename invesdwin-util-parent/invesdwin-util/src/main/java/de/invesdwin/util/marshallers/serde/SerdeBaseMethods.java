@@ -3,8 +3,8 @@ package de.invesdwin.util.marshallers.serde;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.math.Bytes;
-import de.invesdwin.util.streams.buffer.ByteBuffers;
-import de.invesdwin.util.streams.buffer.IByteBuffer;
+import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
+import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 
 @Immutable
 public final class SerdeBaseMethods {

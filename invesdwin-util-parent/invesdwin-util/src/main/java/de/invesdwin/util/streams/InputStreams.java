@@ -9,8 +9,8 @@ import java.nio.channels.ReadableByteChannel;
 
 import javax.annotation.concurrent.Immutable;
 
-import de.invesdwin.util.streams.buffer.ByteBuffers;
-import de.invesdwin.util.streams.buffer.IByteBuffer;
+import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
+import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 import io.netty.util.concurrent.FastThreadLocal;
 
 /**

@@ -2,7 +2,7 @@ package de.invesdwin.util.marshallers.serde;
 
 import javax.annotation.concurrent.Immutable;
 
-import de.invesdwin.util.streams.buffer.IByteBuffer;
+import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 
 @Immutable
 public class ByteBufferSerde implements ISerde<IByteBuffer> {

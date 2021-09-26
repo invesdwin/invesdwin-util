@@ -5,7 +5,7 @@ import java.util.List;
 
 import javax.annotation.concurrent.Immutable;
 
-import de.invesdwin.util.streams.buffer.IByteBuffer;
+import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 
 @Immutable
 public class FixedLengthListDelegateSerde<E> implements ISerde<List<? extends E>> {

@@ -5,7 +5,7 @@ import java.io.IOException;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.norva.marker.ISerializableValueObject;
-import de.invesdwin.util.streams.buffer.ByteBuffers;
+import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 
 @Immutable
 public class SerializableFTimeZoneProvider implements ISerializableValueObject, IFTimeZoneProvider {

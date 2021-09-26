@@ -6,7 +6,7 @@ import de.invesdwin.util.marshallers.serde.ISerde;
 import de.invesdwin.util.marshallers.serde.SerdeBaseMethods;
 import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.decimal.Decimal;
-import de.invesdwin.util.streams.buffer.IByteBuffer;
+import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 
 @Immutable
 public final class DecimalSerde implements ISerde<Decimal> {
