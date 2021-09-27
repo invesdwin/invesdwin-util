@@ -66,7 +66,11 @@ public class MemoryMappedFile implements Closeable {
         private MemoryMappedFileFinalizer(final String path, final int length, final boolean readOnly)
                 throws IOException {
             this.path = path;
-            this.length = roundTo4096(length);
+            if (readOnly) {
+                this.length = length;
+            } else {
+                this.length = roundTo4096(length);
+            }
             if (readOnly) {
                 this.address = mapAndSetOffsetReadOnly();
             } else {
