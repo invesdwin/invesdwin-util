@@ -40,6 +40,16 @@ public abstract class ASimpleDelegateInputStream extends InputStream {
     }
 
     @Override
+    public int read(final byte[] b) throws IOException {
+        return delegate.read(b);
+    }
+
+    @Override
+    public int read(final byte[] b, final int off, final int len) throws IOException {
+        return delegate.read(b, off, len);
+    }
+
+    @Override
     public int read() throws IOException {
         return delegate.read();
     }
