@@ -35,6 +35,13 @@ public final class OutputStreams {
         out.write(v);
     }
 
+    public static void writeBytes(final OutputStream out, final String s) throws IOException {
+        final int len = s.length();
+        for (int i = 0; i < len; i++) {
+            out.write((byte) s.charAt(i));
+        }
+    }
+
     public static void writeShort(final OutputStream out, final int v) throws IOException {
         out.write((v >>> 8) & 0xFF);
         out.write((v >>> 0) & 0xFF);

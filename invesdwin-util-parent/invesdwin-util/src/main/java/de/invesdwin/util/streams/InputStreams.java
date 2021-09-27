@@ -4,6 +4,7 @@ import java.io.DataInput;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PushbackInputStream;
 import java.io.UTFDataFormatException;
 import java.nio.channels.ReadableByteChannel;
 
@@ -25,8 +26,58 @@ public final class InputStreams {
             return ByteBuffers.allocateByteArray(8);
         }
     };
+    private static final FastThreadLocal<char[]> LINE_BUFFER_HOLDER = new FastThreadLocal<char[]>() {
+        @Override
+        protected char[] initialValue() throws Exception {
+            return new char[128];
+        }
+    };
 
     private InputStreams() {
+    }
+
+    public static String readLine(final InputStream pIn) throws IOException {
+        InputStream in = pIn;
+        char[] lineBuffer = LINE_BUFFER_HOLDER.get();
+        char[] buf = lineBuffer;
+
+        int room = buf.length;
+        int offset = 0;
+        int c;
+
+        loop: while (true) {
+            c = in.read();
+            switch (c) {
+            case -1:
+            case '\n':
+                break loop;
+
+            case '\r':
+                final int c2 = in.read();
+                if ((c2 != '\n') && (c2 != -1)) {
+                    if (!(in instanceof PushbackInputStream)) {
+                        in = new PushbackInputStream(in);
+                    }
+                    ((PushbackInputStream) in).unread(c2);
+                }
+                break loop;
+
+            default:
+                if (--room < 0) {
+                    buf = new char[offset + 128];
+                    room = buf.length - offset - 1;
+                    System.arraycopy(lineBuffer, 0, buf, 0, offset);
+                    lineBuffer = buf;
+                    LINE_BUFFER_HOLDER.set(lineBuffer);
+                }
+                buf[offset++] = (char) c;
+                break;
+            }
+        }
+        if ((c == -1) && (offset == 0)) {
+            return null;
+        }
+        return String.copyValueOf(buf, 0, offset);
     }
 
     public static int read(final InputStream in, final byte[] b) throws IOException {

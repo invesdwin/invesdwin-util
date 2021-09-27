@@ -15,21 +15,21 @@ public enum ByteSizeScale implements IDecimalScale<ByteSize, ByteSizeScale> {
     TERABYTES("TeraBytes", 4, "TB"),
     PETABYTES("PetaBytes", 5, "PB");
 
-    private static final double MULTIPLICATOR_1000 = 1000D;
-    private static final int SCALE_1000 = new Decimal(MULTIPLICATOR_1000).getDigits() - 1;
+    private static final double MULTIPLICATOR_1024 = 1024D;
+    private static final int SCALE_1024 = new Decimal(MULTIPLICATOR_1024).getDigits() - 1;
 
     private String text;
-    private int multiplesOf1000;
+    private int multiplesOf1024;
     private String symbol;
 
     ByteSizeScale(final String text, final int multiplesOf1000, final String symbol) {
         this.text = text;
-        this.multiplesOf1000 = multiplesOf1000;
+        this.multiplesOf1024 = multiplesOf1000;
         this.symbol = symbol;
     }
 
-    public int getMultiplesOf1000() {
-        return multiplesOf1000;
+    public int getMultiplesOf1024() {
+        return multiplesOf1024;
     }
 
     @Override
@@ -43,13 +43,13 @@ public enum ByteSizeScale implements IDecimalScale<ByteSize, ByteSizeScale> {
     }
 
     public double convert(final double value, final ByteSizeScale scale) {
-        final double byteValue = value * Doubles.pow(MULTIPLICATOR_1000, scale.getMultiplesOf1000());
-        return byteValue / Doubles.pow(MULTIPLICATOR_1000, getMultiplesOf1000());
+        final double byteValue = value * Doubles.pow(MULTIPLICATOR_1024, scale.getMultiplesOf1024());
+        return byteValue / Doubles.pow(MULTIPLICATOR_1024, getMultiplesOf1024());
     }
 
     @Override
     public int getDefaultDecimalDigits(final ByteSize parent) {
-        return getMultiplesOf1000() * SCALE_1000;
+        return getMultiplesOf1024() * SCALE_1024;
     }
 
     @Override

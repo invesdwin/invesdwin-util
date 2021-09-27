@@ -1,4 +1,4 @@
-package de.invesdwin.util.streams.pool;
+package de.invesdwin.util.streams;
 
 import java.io.IOException;
 import java.io.OutputStream;

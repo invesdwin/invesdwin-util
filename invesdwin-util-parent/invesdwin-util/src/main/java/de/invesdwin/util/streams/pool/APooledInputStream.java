@@ -4,6 +4,8 @@ import java.io.InputStream;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.util.streams.NonClosingDelegateInputStream;
+
 @NotThreadSafe
 public abstract class APooledInputStream extends InputStream {
 

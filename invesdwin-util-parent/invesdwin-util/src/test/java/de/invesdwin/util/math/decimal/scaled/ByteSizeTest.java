@@ -17,28 +17,28 @@ public class ByteSizeTest {
     public void test() {
         Assertions.assertThat(new ByteSize(1D, ByteSizeScale.BYTES).getValue(ByteSizeScale.BYTES)).isEqualTo(1D);
         Assertions.assertThat(new Decimal(new ByteSize(1D, ByteSizeScale.BYTES).getValue(ByteSizeScale.KILOBYTES)))
-                .isEqualTo(new Decimal("0.001"));
+                .isEqualTo(new Decimal("0.0009765625"));
 
         Assertions
                 .assertThat(Decimal.valueOf(new ByteSize(1D, ByteSizeScale.BYTES).getValue(ByteSizeScale.MEGABYTES))
                         .toString())
-                .isEqualTo(new Decimal("0.000001").toString());
+                .isEqualTo(new Decimal("0.00000095367431640625").toString());
         Assertions.assertThat(new Decimal(new ByteSize(1D, ByteSizeScale.BYTES).getValue(ByteSizeScale.MEGABYTES)))
-                .isEqualTo(new Decimal("0.000001"));
+                .isEqualTo(new Decimal("0.00000095367431640625"));
 
         Assertions.assertThat(new ByteSize(1D, ByteSizeScale.KILOBYTES).getValue(ByteSizeScale.KILOBYTES))
                 .isEqualTo(1D);
         Assertions.assertThat(new Decimal(new ByteSize(1D, ByteSizeScale.KILOBYTES).getValue(ByteSizeScale.MEGABYTES)))
-                .isEqualTo(new Decimal("0.001"));
+                .isEqualTo(new Decimal("0.0009765625"));
         Assertions.assertThat(new Decimal(new ByteSize(1D, ByteSizeScale.KILOBYTES).getValue(ByteSizeScale.BYTES)))
-                .isEqualTo(new Decimal("1000"));
+                .isEqualTo(new Decimal("1024"));
 
         Assertions.assertThat(new ByteSize(1D, ByteSizeScale.MEGABYTES).getValue(ByteSizeScale.MEGABYTES))
                 .isEqualTo(1D);
         Assertions.assertThat(new Decimal(new ByteSize(1D, ByteSizeScale.MEGABYTES).getValue(ByteSizeScale.KILOBYTES)))
-                .isEqualTo(new Decimal("1000"));
+                .isEqualTo(new Decimal("1024"));
         Assertions.assertThat(new Decimal(new ByteSize(1D, ByteSizeScale.MEGABYTES).getValue(ByteSizeScale.BYTES)))
-                .isEqualTo(new Decimal("1000000"));
+                .isEqualTo(new Decimal("1048576"));
 
         Assertions.assertThat(new ByteSize(1D, ByteSizeScale.BYTES).toString(ByteSizeScale.BYTES, true))
                 .isEqualTo("1B");
