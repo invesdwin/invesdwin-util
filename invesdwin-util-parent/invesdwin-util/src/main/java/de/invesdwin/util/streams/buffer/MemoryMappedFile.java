@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
@@ -24,6 +25,7 @@ import de.invesdwin.util.lang.finalizer.AFinalizer;
 public class MemoryMappedFile implements Closeable {
 
     private final MemoryMappedFileFinalizer finalizer;
+    private final AtomicInteger refCount = new AtomicInteger();
 
     /**
      * Constructs a new memory mapped file.
@@ -35,16 +37,32 @@ public class MemoryMappedFile implements Closeable {
      * @throws Exception
      *             in case there was an error creating the memory mapped file
      */
-    public MemoryMappedFile(final String path, final int length, final boolean readOnly) throws IOException {
+    public MemoryMappedFile(final String path, final long length, final boolean readOnly) throws IOException {
         this.finalizer = new MemoryMappedFileFinalizer(path, length, readOnly);
         this.finalizer.register(this);
+    }
+
+    public int getRefCount() {
+        return refCount.get();
+    }
+
+    public boolean incrementRefCount() {
+        if (finalizer.isClosed()) {
+            return false;
+        }
+        refCount.incrementAndGet();
+        return true;
+    }
+
+    public void decrementRefCount() {
+        refCount.decrementAndGet();
     }
 
     public long getAddress() {
         return finalizer.address;
     }
 
-    public int getLength() {
+    public long getLength() {
         return finalizer.length;
     }
 
@@ -60,10 +78,10 @@ public class MemoryMappedFile implements Closeable {
     private static final class MemoryMappedFileFinalizer extends AFinalizer {
         private final String path;
         private final long address;
-        private final int length;
+        private final long length;
         private boolean cleaned;
 
-        private MemoryMappedFileFinalizer(final String path, final int length, final boolean readOnly)
+        private MemoryMappedFileFinalizer(final String path, final long length, final boolean readOnly)
                 throws IOException {
             this.path = path;
             if (readOnly) {
@@ -94,13 +112,12 @@ public class MemoryMappedFile implements Closeable {
             return false;
         }
 
-        private static int roundTo4096(final int i) {
+        private static long roundTo4096(final long i) {
             return (i + 0xfff) & ~0xfff;
         }
 
         private long mapAndSetOffsetReadOnly() throws IOException {
             final RandomAccessFile backingFile = new RandomAccessFile(this.path, "r");
-            backingFile.setLength(this.length);
             final FileChannel ch = backingFile.getChannel();
             final long address = IoUtil.map(ch, MapMode.READ_ONLY, 0L, length);
             ch.close();

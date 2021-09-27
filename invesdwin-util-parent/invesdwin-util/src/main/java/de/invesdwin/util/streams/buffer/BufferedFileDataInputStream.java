@@ -86,7 +86,7 @@ public class BufferedFileDataInputStream extends InputStream implements DataInpu
     }
 
     protected IObjectPool<IByteBuffer> getBufferPool() {
-        return ByteBuffers.DIRECT_EXPANDABLE_POOL;
+        return ByteBuffers.EXPANDABLE_POOL;
     }
 
     private boolean fillBuffer() throws IOException {
