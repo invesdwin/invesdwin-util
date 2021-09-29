@@ -82,7 +82,11 @@ public abstract class ATimeoutObjectPool<E> implements IObjectPool<E>, Closeable
             if (reference != null) {
                 final E element = reference.get();
                 reference.clear();
-                return element;
+                if (element == null) {
+                    return newObject();
+                } else {
+                    return element;
+                }
             } else {
                 return newObject();
             }
