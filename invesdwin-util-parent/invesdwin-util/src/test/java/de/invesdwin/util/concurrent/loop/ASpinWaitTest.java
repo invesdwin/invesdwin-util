@@ -18,7 +18,7 @@ public class ASpinWaitTest {
         final ASpinWait waitingSpinWait = new ASpinWait() {
 
             @Override
-            protected boolean isConditionFulfilled() {
+            public boolean isConditionFulfilled() {
                 return false;
             }
         };
@@ -33,7 +33,7 @@ public class ASpinWaitTest {
         final ASpinWait waitingSpinWait = new ASpinWait() {
 
             @Override
-            protected boolean isConditionFulfilled() {
+            public boolean isConditionFulfilled() {
                 return true;
             }
         };

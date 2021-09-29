@@ -102,7 +102,7 @@ public abstract class ASpinWait {
         return new Duration(10, FTimeUnit.MICROSECONDS);
     }
 
-    protected abstract boolean isConditionFulfilled() throws Exception;
+    public abstract boolean isConditionFulfilled() throws Exception;
 
     protected boolean isSpinAllowed(final long waitingSinceNanos) {
         return (System.nanoTime() - waitingSinceNanos) < skipSpinAfterWaitingSince;
