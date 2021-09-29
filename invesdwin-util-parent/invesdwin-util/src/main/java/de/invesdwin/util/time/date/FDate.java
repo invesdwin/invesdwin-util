@@ -557,6 +557,10 @@ public class FDate
         return FDateMillis.javaDateValue(millis);
     }
 
+    public java.time.LocalDate javaDateValue(final FTimeZone timeZone) {
+        return FDateMillis.javaDateValue(millis, timeZone);
+    }
+
     public static FDate valueOf(final Long millis) {
         if (millis != null) {
             return new FDate(millis);

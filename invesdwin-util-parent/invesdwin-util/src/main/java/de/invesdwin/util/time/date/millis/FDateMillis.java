@@ -523,6 +523,10 @@ public final class FDateMillis {
         return javaTimeValueZoned(millis).toLocalDate();
     }
 
+    public static java.time.LocalDate javaDateValue(final long millis, final FTimeZone timeZone) {
+        return javaTimeValueZoned(millis, timeZone).toLocalDate();
+    }
+
     public static long valueOf(final long value, final FTimeUnit timeUnit) {
         return timeUnit.toMillis(value);
     }
