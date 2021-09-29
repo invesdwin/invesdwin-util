@@ -335,7 +335,12 @@ public class NodeBufferingIterator<E extends INode<E>> implements IBufferingIter
 
         @Override
         public void remove() {
-            final E next = innerHead.getNext();
+            final E next;
+            if (innerHead != null) {
+                next = innerHead.getNext();
+            } else {
+                next = null;
+            }
             if (innerPrev == null) {
                 if (innerHead == head) {
                     NodeBufferingIterator.this.next();
@@ -387,7 +392,12 @@ public class NodeBufferingIterator<E extends INode<E>> implements IBufferingIter
 
         @Override
         public void remove() {
-            final E next = innerHead.getNext();
+            final E next;
+            if (innerHead != null) {
+                next = innerHead.getNext();
+            } else {
+                next = null;
+            }
             if (innerPrev == null) {
                 if (innerHead == head) {
                     NodeBufferingIterator.this.next();

@@ -354,7 +354,12 @@ public class BufferingIterator<E> implements IBufferingIterator<E>, ISerializabl
 
         @Override
         public void remove() {
-            final Node<E> next = innerHead.getNext();
+            final Node<E> next;
+            if (innerHead != null) {
+                next = innerHead.getNext();
+            } else {
+                next = null;
+            }
             if (innerPrev == null) {
                 if (innerHead == head) {
                     BufferingIterator.this.next();
@@ -406,7 +411,12 @@ public class BufferingIterator<E> implements IBufferingIterator<E>, ISerializabl
 
         @Override
         public void remove() {
-            final Node<E> next = innerHead.getNext();
+            final Node<E> next;
+            if (innerHead != null) {
+                next = innerHead.getNext();
+            } else {
+                next = null;
+            }
             if (innerPrev == null) {
                 if (innerHead == head) {
                     BufferingIterator.this.next();
