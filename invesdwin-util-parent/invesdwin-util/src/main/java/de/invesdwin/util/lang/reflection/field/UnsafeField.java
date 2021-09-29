@@ -4,7 +4,7 @@ import java.lang.reflect.Field;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import org.agrona.UnsafeAccess;
+import de.invesdwin.util.lang.reflection.Reflections;
 
 /**
  * Useful to access private field of private inner classes where methodhandles do not work. This also circumvents the
@@ -23,7 +23,7 @@ public class UnsafeField<T> implements IUnsafeField<T> {
     @SuppressWarnings("restriction")
     public UnsafeField(final Field field) {
         this.field = field;
-        this.offset = UnsafeAccess.UNSAFE.objectFieldOffset(field);
+        this.offset = Reflections.getUnsafe().objectFieldOffset(field);
         this.access = UnsafeFieldAccess.valueOf(field);
     }
 

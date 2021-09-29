@@ -3,7 +3,8 @@ package de.invesdwin.util.streams.buffer.bytes;
 import javax.annotation.concurrent.Immutable;
 
 import org.agrona.BufferUtil;
-import org.agrona.UnsafeAccess;
+
+import de.invesdwin.util.lang.reflection.Reflections;
 
 @Immutable
 public final class UninitializedDirectByteBuffers {
@@ -25,8 +26,8 @@ public final class UninitializedDirectByteBuffers {
             return io.netty.util.internal.PlatformDependent.directBuffer(address, length);
         } else {
             final java.nio.ByteBuffer bb = java.nio.ByteBuffer.allocateDirect(0);
-            UnsafeAccess.UNSAFE.putLong(bb, BufferUtil.BYTE_BUFFER_ADDRESS_FIELD_OFFSET, address);
-            UnsafeAccess.UNSAFE.putInt(bb, BufferUtil.BYTE_BUFFER_OFFSET_FIELD_OFFSET, length);
+            Reflections.getUnsafe().putLong(bb, BufferUtil.BYTE_BUFFER_ADDRESS_FIELD_OFFSET, address);
+            Reflections.getUnsafe().putInt(bb, BufferUtil.BYTE_BUFFER_OFFSET_FIELD_OFFSET, length);
             return bb;
         }
     }
@@ -56,7 +57,7 @@ public final class UninitializedDirectByteBuffers {
             final long address = BufferUtil.address(buffer);
             final java.nio.ByteBuffer newBuffer = java.nio.ByteBuffer.allocateDirect(newCapacity);
             final long newAddress = BufferUtil.address(newBuffer);
-            UnsafeAccess.UNSAFE.copyMemory(address, newAddress, newCapacity);
+            Reflections.getUnsafe().copyMemory(address, newAddress, newCapacity);
             BufferUtil.free(buffer); //release old buffer
             return newBuffer;
         }

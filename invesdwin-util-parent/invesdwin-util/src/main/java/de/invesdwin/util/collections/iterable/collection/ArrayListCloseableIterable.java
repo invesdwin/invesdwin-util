@@ -6,7 +6,6 @@ import java.util.List;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import org.agrona.UnsafeAccess;
 import org.apache.commons.lang3.ArrayUtils;
 
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
@@ -23,7 +22,7 @@ public class ArrayListCloseableIterable<E> implements IReverseCloseableIterable<
 
     static {
         final Field arraylistElementDataField = Reflections.findField(ArrayList.class, "elementData");
-        ARRAYLIST_ELEMENTDATA_FIELD_OFFSET = UnsafeAccess.UNSAFE.objectFieldOffset(arraylistElementDataField);
+        ARRAYLIST_ELEMENTDATA_FIELD_OFFSET = Reflections.getUnsafe().objectFieldOffset(arraylistElementDataField);
     }
 
     private final ArrayList<? extends E> arrayList;
@@ -46,7 +45,7 @@ public class ArrayListCloseableIterable<E> implements IReverseCloseableIterable<
         if (cachedSize != arrayList.size()) {
             cachedSize = arrayList.size();
             try {
-                cachedArray = (E[]) UnsafeAccess.UNSAFE.getObject(arrayList, ARRAYLIST_ELEMENTDATA_FIELD_OFFSET);
+                cachedArray = (E[]) Reflections.getUnsafe().getObject(arrayList, ARRAYLIST_ELEMENTDATA_FIELD_OFFSET);
             } catch (final Throwable e) {
                 throw new RuntimeException(e);
             }
@@ -69,7 +68,7 @@ public class ArrayListCloseableIterable<E> implements IReverseCloseableIterable<
         if (cachedSize != arrayList.size()) {
             cachedSize = arrayList.size();
             try {
-                cachedArray = (E[]) UnsafeAccess.UNSAFE.getObject(arrayList, ARRAYLIST_ELEMENTDATA_FIELD_OFFSET);
+                cachedArray = (E[]) Reflections.getUnsafe().getObject(arrayList, ARRAYLIST_ELEMENTDATA_FIELD_OFFSET);
             } catch (final Throwable e) {
                 throw new RuntimeException(e);
             }
@@ -93,7 +92,7 @@ public class ArrayListCloseableIterable<E> implements IReverseCloseableIterable<
         if (cachedSize != arrayList.size()) {
             cachedSize = arrayList.size();
             try {
-                cachedArray = (E[]) UnsafeAccess.UNSAFE.getObject(arrayList, ARRAYLIST_ELEMENTDATA_FIELD_OFFSET);
+                cachedArray = (E[]) Reflections.getUnsafe().getObject(arrayList, ARRAYLIST_ELEMENTDATA_FIELD_OFFSET);
             } catch (final Throwable e) {
                 throw new RuntimeException(e);
             }
@@ -116,7 +115,7 @@ public class ArrayListCloseableIterable<E> implements IReverseCloseableIterable<
         if (cachedSize != arrayList.size()) {
             cachedSize = arrayList.size();
             try {
-                cachedArray = (E[]) UnsafeAccess.UNSAFE.getObject(arrayList, ARRAYLIST_ELEMENTDATA_FIELD_OFFSET);
+                cachedArray = (E[]) Reflections.getUnsafe().getObject(arrayList, ARRAYLIST_ELEMENTDATA_FIELD_OFFSET);
             } catch (final Throwable e) {
                 throw new RuntimeException(e);
             }

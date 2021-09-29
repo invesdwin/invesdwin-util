@@ -243,6 +243,11 @@
 			<artifactId>netty-buffer</artifactId>
 			<scope>provided</scope>
 		</dependency>
+
+		<dependency>
+			<groupId>org.burningwave</groupId>
+			<artifactId>core</artifactId>
+		</dependency>
 	</dependencies>
 
 </project>

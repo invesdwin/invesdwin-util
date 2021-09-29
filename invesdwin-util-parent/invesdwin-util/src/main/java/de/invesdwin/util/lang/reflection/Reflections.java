@@ -6,8 +6,11 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Set;
 
+import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.Immutable;
 
+import org.agrona.UnsafeAccess;
+import org.burningwave.core.assembler.StaticComponentContainer;
 import org.springframework.util.ClassUtils;
 
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
@@ -32,8 +35,8 @@ public final class Reflections extends AReflectionsStaticFacade {
      */
     public static final boolean JAVA_DEBUG_MODE;
 
-    @SuppressWarnings("restriction")
-    private static sun.misc.Unsafe unsafe;
+    @GuardedBy("this.class")
+    private static boolean modulesExported = false;
 
     static {
         JAVA_VERSION = determineJavaVersion();
@@ -54,6 +57,18 @@ public final class Reflections extends AReflectionsStaticFacade {
             return Double.parseDouble(version);
         } catch (final Throwable t) {
             return 1.8D; //use oldest
+        }
+    }
+
+    /**
+     * https://dev.to/jjbrt/how-to-avoid-resorting-to-add-exports-and-add-opens-in-jdk-16-and-later-j3m
+     */
+    public static synchronized void disableJavaModuleSystemRestrictions() {
+        if (!modulesExported) {
+            if (StaticComponentContainer.Modules != null) {
+                StaticComponentContainer.Modules.exportAllToAll();
+            }
+            modulesExported = true;
         }
     }
 
@@ -165,16 +180,7 @@ public final class Reflections extends AReflectionsStaticFacade {
 
     @SuppressWarnings("restriction")
     public static sun.misc.Unsafe getUnsafe() {
-        if (unsafe == null) {
-            try {
-                final Field unsafeField = sun.misc.Unsafe.class.getDeclaredField("theUnsafe");
-                unsafeField.setAccessible(true);
-                unsafe = (sun.misc.Unsafe) unsafeField.get(null);
-            } catch (final Throwable e) {
-                throw new RuntimeException(e);
-            }
-        }
-        return unsafe;
+        return UnsafeAccess.UNSAFE;
     }
 
     public static String getClassSimpleNameNonBlank(final Class<?> clazz) {

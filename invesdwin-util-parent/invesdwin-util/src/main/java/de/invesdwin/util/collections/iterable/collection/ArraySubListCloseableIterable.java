@@ -6,7 +6,6 @@ import java.util.List;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import org.agrona.UnsafeAccess;
 import org.apache.commons.lang3.ArrayUtils;
 
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
@@ -26,17 +25,17 @@ public class ArraySubListCloseableIterable<E> implements ICloseableIterable<E>, 
     static {
         SUBLIST_CLASS = Reflections.classForName("java.util.ArrayList$SubList");
         final Field sublistSizeField = Reflections.findField(SUBLIST_CLASS, "size");
-        SUBLIST_SIZE_FIELD_OFFSET = UnsafeAccess.UNSAFE.objectFieldOffset(sublistSizeField);
+        SUBLIST_SIZE_FIELD_OFFSET = Reflections.getUnsafe().objectFieldOffset(sublistSizeField);
         final Field sublistOffsetField = Reflections.findField(SUBLIST_CLASS, "offset");
-        SUBLIST_OFFSET_FIELD_OFFSET = UnsafeAccess.UNSAFE.objectFieldOffset(sublistOffsetField);
+        SUBLIST_OFFSET_FIELD_OFFSET = Reflections.getUnsafe().objectFieldOffset(sublistOffsetField);
         final Field sublistRootField = Reflections.findField(SUBLIST_CLASS, "root");
         if (sublistRootField != null) {
             //java 11, we can directly access the root
-            SUBLIST_PARENT_FIELD_OFFSET = UnsafeAccess.UNSAFE.objectFieldOffset(sublistRootField);
+            SUBLIST_PARENT_FIELD_OFFSET = Reflections.getUnsafe().objectFieldOffset(sublistRootField);
         } else {
             //before java 11
             final Field sublistParentField = Reflections.findField(SUBLIST_CLASS, "parent");
-            SUBLIST_PARENT_FIELD_OFFSET = UnsafeAccess.UNSAFE.objectFieldOffset(sublistParentField);
+            SUBLIST_PARENT_FIELD_OFFSET = Reflections.getUnsafe().objectFieldOffset(sublistParentField);
         }
     }
 
@@ -63,17 +62,17 @@ public class ArraySubListCloseableIterable<E> implements ICloseableIterable<E>, 
     @Override
     public ICloseableIterator<E> iterator() {
         try {
-            final int size = UnsafeAccess.UNSAFE.getInt(arraySubList, SUBLIST_SIZE_FIELD_OFFSET);
+            final int size = Reflections.getUnsafe().getInt(arraySubList, SUBLIST_SIZE_FIELD_OFFSET);
             if (cachedSize != size) {
                 cachedSize = size;
                 List<E> parent = (List<E>) arraySubList;
                 while (parent.getClass().equals(SUBLIST_CLASS)) {
-                    parent = (List<E>) UnsafeAccess.UNSAFE.getObject(parent, SUBLIST_PARENT_FIELD_OFFSET);
+                    parent = (List<E>) Reflections.getUnsafe().getObject(parent, SUBLIST_PARENT_FIELD_OFFSET);
                 }
                 final ArrayList<E> arrayListParent = (ArrayList<E>) parent;
-                cachedArray = (E[]) UnsafeAccess.UNSAFE.getObject(arrayListParent,
-                        ArrayListCloseableIterable.ARRAYLIST_ELEMENTDATA_FIELD_OFFSET);
-                cachedOffset = UnsafeAccess.UNSAFE.getInt(arraySubList, SUBLIST_OFFSET_FIELD_OFFSET);
+                cachedArray = (E[]) Reflections.getUnsafe()
+                        .getObject(arrayListParent, ArrayListCloseableIterable.ARRAYLIST_ELEMENTDATA_FIELD_OFFSET);
+                cachedOffset = Reflections.getUnsafe().getInt(arraySubList, SUBLIST_OFFSET_FIELD_OFFSET);
             }
         } catch (final Throwable e) {
             throw new RuntimeException(e);

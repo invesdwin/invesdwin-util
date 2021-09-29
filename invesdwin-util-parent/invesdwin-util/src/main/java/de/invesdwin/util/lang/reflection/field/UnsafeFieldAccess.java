@@ -4,9 +4,8 @@ import java.lang.reflect.Field;
 
 import javax.annotation.concurrent.Immutable;
 
-import org.agrona.UnsafeAccess;
-
 import de.invesdwin.util.error.UnknownArgumentException;
+import de.invesdwin.util.lang.reflection.Reflections;
 
 @Immutable
 @SuppressWarnings({ "unchecked", "restriction" })
@@ -14,109 +13,109 @@ public enum UnsafeFieldAccess {
     BOOLEAN(boolean.class) {
         @Override
         public <T> T get(final Object obj, final long offset) {
-            final Boolean value = UnsafeAccess.UNSAFE.getBoolean(obj, offset);
+            final Boolean value = Reflections.getUnsafe().getBoolean(obj, offset);
             return (T) value;
         }
 
         @Override
         public <T> void put(final Object obj, final long offset, final T value) {
-            UnsafeAccess.UNSAFE.putBoolean(obj, offset, (Boolean) value);
+            Reflections.getUnsafe().putBoolean(obj, offset, (Boolean) value);
         }
     },
     BYTE(byte.class) {
         @Override
         public <T> T get(final Object obj, final long offset) {
-            final Byte value = UnsafeAccess.UNSAFE.getByte(obj, offset);
+            final Byte value = Reflections.getUnsafe().getByte(obj, offset);
             return (T) value;
         }
 
         @Override
         public <T> void put(final Object obj, final long offset, final T value) {
-            UnsafeAccess.UNSAFE.putByte(obj, offset, (Byte) value);
+            Reflections.getUnsafe().putByte(obj, offset, (Byte) value);
         }
     },
     CHAR(char.class) {
         @Override
         public <T> T get(final Object obj, final long offset) {
-            final Character value = UnsafeAccess.UNSAFE.getChar(obj, offset);
+            final Character value = Reflections.getUnsafe().getChar(obj, offset);
             return (T) value;
         }
 
         @Override
         public <T> void put(final Object obj, final long offset, final T value) {
-            UnsafeAccess.UNSAFE.putChar(obj, offset, (Character) value);
+            Reflections.getUnsafe().putChar(obj, offset, (Character) value);
         }
     },
     SHORT(short.class) {
         @Override
         public <T> T get(final Object obj, final long offset) {
-            final Short value = UnsafeAccess.UNSAFE.getShort(obj, offset);
+            final Short value = Reflections.getUnsafe().getShort(obj, offset);
             return (T) value;
         }
 
         @Override
         public <T> void put(final Object obj, final long offset, final T value) {
-            UnsafeAccess.UNSAFE.putShort(obj, offset, (Short) value);
+            Reflections.getUnsafe().putShort(obj, offset, (Short) value);
         }
     },
     INT(int.class) {
         @Override
         public <T> T get(final Object obj, final long offset) {
-            final Integer value = UnsafeAccess.UNSAFE.getInt(obj, offset);
+            final Integer value = Reflections.getUnsafe().getInt(obj, offset);
             return (T) value;
         }
 
         @Override
         public <T> void put(final Object obj, final long offset, final T value) {
-            UnsafeAccess.UNSAFE.putInt(obj, offset, (Integer) value);
+            Reflections.getUnsafe().putInt(obj, offset, (Integer) value);
         }
     },
     LONG(long.class) {
         @Override
         public <T> T get(final Object obj, final long offset) {
-            final Long value = UnsafeAccess.UNSAFE.getLong(obj, offset);
+            final Long value = Reflections.getUnsafe().getLong(obj, offset);
             return (T) value;
         }
 
         @Override
         public <T> void put(final Object obj, final long offset, final T value) {
-            UnsafeAccess.UNSAFE.putLong(obj, offset, (Long) value);
+            Reflections.getUnsafe().putLong(obj, offset, (Long) value);
         }
     },
     FLOAT(float.class) {
         @Override
         public <T> T get(final Object obj, final long offset) {
-            final Float value = UnsafeAccess.UNSAFE.getFloat(obj, offset);
+            final Float value = Reflections.getUnsafe().getFloat(obj, offset);
             return (T) value;
         }
 
         @Override
         public <T> void put(final Object obj, final long offset, final T value) {
-            UnsafeAccess.UNSAFE.putFloat(obj, offset, (Float) value);
+            Reflections.getUnsafe().putFloat(obj, offset, (Float) value);
         }
     },
     DOUBLE(double.class) {
         @Override
         public <T> T get(final Object obj, final long offset) {
-            final Double value = UnsafeAccess.UNSAFE.getDouble(obj, offset);
+            final Double value = Reflections.getUnsafe().getDouble(obj, offset);
             return (T) value;
         }
 
         @Override
         public <T> void put(final Object obj, final long offset, final T value) {
-            UnsafeAccess.UNSAFE.putDouble(obj, offset, (Double) value);
+            Reflections.getUnsafe().putDouble(obj, offset, (Double) value);
         }
     },
     OBJECT(Object.class) {
         @Override
         public <T> T get(final Object obj, final long offset) {
-            final Object value = UnsafeAccess.UNSAFE.getObject(obj, offset);
+            final Object value = Reflections.getUnsafe().getObject(obj, offset);
             return (T) value;
         }
 
         @Override
         public <T> void put(final Object obj, final long offset, final T value) {
-            UnsafeAccess.UNSAFE.putObject(obj, offset, value);
+            Reflections.getUnsafe().putObject(obj, offset, value);
         }
     };
 

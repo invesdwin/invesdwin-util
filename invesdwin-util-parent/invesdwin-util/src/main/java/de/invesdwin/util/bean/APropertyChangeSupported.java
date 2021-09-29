@@ -11,8 +11,6 @@ import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 import javax.persistence.Transient;
 
-import org.agrona.UnsafeAccess;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.querydsl.core.annotations.QuerySupertype;
 
@@ -45,9 +43,9 @@ public abstract class APropertyChangeSupported {
 
     static {
         final Field mapField = Reflections.findField(PropertyChangeSupport.class, "map");
-        PROPERTYCHANGESUPPORT_MAP_FIELD_OFFSET = UnsafeAccess.UNSAFE.objectFieldOffset(mapField);
+        PROPERTYCHANGESUPPORT_MAP_FIELD_OFFSET = Reflections.getUnsafe().objectFieldOffset(mapField);
         final Field mapMapField = Reflections.findField(mapField.getType(), "map");
-        PROPERTYCHANGELISTENERMAP_MAP_FIELD_OFFSET = UnsafeAccess.UNSAFE.objectFieldOffset(mapMapField);
+        PROPERTYCHANGELISTENERMAP_MAP_FIELD_OFFSET = Reflections.getUnsafe().objectFieldOffset(mapMapField);
     }
 
     /**
@@ -208,8 +206,9 @@ public abstract class APropertyChangeSupported {
     @SuppressWarnings("unchecked")
     private static void fireEvent(final PropertyChangeSupport ref, final String propertyName,
             final PropertyChangeEvent event) {
-        final Object map = UnsafeAccess.UNSAFE.getObject(ref, PROPERTYCHANGESUPPORT_MAP_FIELD_OFFSET);
-        final Map<String, PropertyChangeListener[]> mapMap = (Map<String, PropertyChangeListener[]>) UnsafeAccess.UNSAFE
+        final Object map = Reflections.getUnsafe().getObject(ref, PROPERTYCHANGESUPPORT_MAP_FIELD_OFFSET);
+        final Map<String, PropertyChangeListener[]> mapMap = (Map<String, PropertyChangeListener[]>) Reflections
+                .getUnsafe()
                 .getObject(map, PROPERTYCHANGELISTENERMAP_MAP_FIELD_OFFSET);
         if (mapMap == null) {
             return;
