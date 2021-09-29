@@ -52,8 +52,10 @@ public class LimitedObjectPool<E> implements IObjectPool<E> {
 
     @Override
     public void returnObject(final E element) {
-        delegate.returnObject(element);
-        leasedInstances.decrementAndGet();
+        if (element != null) {
+            delegate.returnObject(element);
+            leasedInstances.decrementAndGet();
+        }
     }
 
     @Override
