@@ -10,7 +10,7 @@ import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.Immutable;
 
 import org.agrona.UnsafeAccess;
-import org.burningwave.core.assembler.StaticComponentContainer;
+import org.burningwave.core.classes.Modules;
 import org.springframework.util.ClassUtils;
 
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
@@ -65,8 +65,8 @@ public final class Reflections extends AReflectionsStaticFacade {
      */
     public static synchronized void disableJavaModuleSystemRestrictions() {
         if (!modulesExported) {
-            if (StaticComponentContainer.Modules != null) {
-                StaticComponentContainer.Modules.exportAllToAll();
+            if (JAVA_VERSION > 8) {
+                Modules.create().exportAllToAll();
             }
             modulesExported = true;
         }
