@@ -329,7 +329,8 @@ public class BufferingIterator<E> implements IBufferingIterator<E>, ISerializabl
     }
 
     private final class BufferingIteratorIterator implements ICloseableIterator<E> {
-        private Node<E> innerPrev;
+        private Node<E> innerRemovablePrev;
+        private Node<E> innerRemovable;
         private Node<E> innerHead;
 
         private BufferingIteratorIterator(final Node<E> head) {
@@ -346,7 +347,8 @@ public class BufferingIterator<E> implements IBufferingIterator<E>, ISerializabl
             if (!hasNext()) {
                 throw new FastNoSuchElementException("BufferingIterator: hasNext is false");
             }
-            innerPrev = innerHead;
+            innerRemovablePrev = innerRemovable;
+            innerRemovable = innerHead;
             final E value = innerHead.getValue();
             innerHead = innerHead.getNext();
             return value;
@@ -354,21 +356,25 @@ public class BufferingIterator<E> implements IBufferingIterator<E>, ISerializabl
 
         @Override
         public void remove() {
+            if (innerRemovable == null) {
+                throw new IllegalStateException("next not called yet");
+            }
             final Node<E> next;
-            if (innerHead != null) {
-                next = innerHead.getNext();
+            if (innerRemovable != null) {
+                next = innerRemovable.getNext();
             } else {
                 next = null;
             }
-            if (innerPrev == null) {
-                if (innerHead == head) {
+            if (innerRemovablePrev == null) {
+                if (innerRemovable == head) {
                     BufferingIterator.this.next();
-                    innerPrev = null;
+                    innerRemovable = null;
                 }
-            } else if (innerPrev.getNext() == innerHead) {
-                innerPrev.setNext(next);
-                if (next == null && innerHead == tail) {
-                    tail = innerPrev;
+            } else if (innerRemovablePrev.getNext() == innerRemovable) {
+                innerRemovablePrev.setNext(next);
+                size--;
+                if (next == null && innerRemovable == tail) {
+                    tail = innerRemovablePrev;
                 }
             }
         }
@@ -380,7 +386,8 @@ public class BufferingIterator<E> implements IBufferingIterator<E>, ISerializabl
     }
 
     private final class SnapshotBufferingIteratorIterator implements ICloseableIterator<E> {
-        private Node<E> innerPrev;
+        private Node<E> innerRemovablePrev;
+        private Node<E> innerRemovable;
         private Node<E> innerHead;
         private final Node<E> innerTail;
 
@@ -399,7 +406,8 @@ public class BufferingIterator<E> implements IBufferingIterator<E>, ISerializabl
             if (!hasNext()) {
                 throw new FastNoSuchElementException("BufferingIterator: hasNext is false");
             }
-            innerPrev = innerHead;
+            innerRemovablePrev = innerRemovable;
+            innerRemovable = innerHead;
             final E value = innerHead.getValue();
             if (innerHead == innerTail) {
                 innerHead = null;
@@ -411,21 +419,25 @@ public class BufferingIterator<E> implements IBufferingIterator<E>, ISerializabl
 
         @Override
         public void remove() {
+            if (innerRemovable == null) {
+                throw new IllegalStateException("next not called yet");
+            }
             final Node<E> next;
-            if (innerHead != null) {
-                next = innerHead.getNext();
+            if (innerRemovable != null) {
+                next = innerRemovable.getNext();
             } else {
                 next = null;
             }
-            if (innerPrev == null) {
-                if (innerHead == head) {
+            if (innerRemovablePrev == null) {
+                if (innerRemovable == head) {
                     BufferingIterator.this.next();
-                    innerPrev = null;
+                    innerRemovable = null;
                 }
-            } else if (innerPrev.getNext() == innerHead) {
-                innerPrev.setNext(next);
-                if (next == null && innerHead == tail) {
-                    tail = innerPrev;
+            } else if (innerRemovablePrev.getNext() == innerRemovable) {
+                innerRemovablePrev.setNext(next);
+                size--;
+                if (next == null && innerRemovable == tail) {
+                    tail = innerRemovablePrev;
                 }
             }
         }

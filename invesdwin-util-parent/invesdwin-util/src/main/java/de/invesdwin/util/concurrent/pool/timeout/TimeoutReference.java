@@ -13,13 +13,20 @@ public final class TimeoutReference<E> implements INode<TimeoutReference<E>> {
     private TimeoutReference<E> next;
 
     public void set(final E value) {
+        if (value == null) {
+            throw new IllegalStateException("value should not be set to null");
+        }
         this.value = value;
         this.timeoutStartMillis = System.currentTimeMillis();
     }
 
     public void clear() {
-        value = null;
-        TimeoutReferenceObjectPool.<E> getInstance().returnObject(this);
+        if (value != null) {
+            value = null;
+            TimeoutReferenceObjectPool.<E> getInstance().returnObject(this);
+        } else {
+            throw new IllegalStateException("value already cleared");
+        }
     }
 
     public boolean isTimeoutExceeded(final long timeoutMillis) {

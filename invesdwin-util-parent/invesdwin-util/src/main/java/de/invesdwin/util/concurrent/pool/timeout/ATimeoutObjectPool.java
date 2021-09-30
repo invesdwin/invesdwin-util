@@ -44,8 +44,11 @@ public abstract class ATimeoutObjectPool<E> implements IObjectPool<E>, Closeable
                     final TimeoutReference<E> reference = iterator.next();
                     if (reference.isTimeoutExceeded(timeoutMillis)) {
                         iterator.remove();
-                        destroyObject(reference.get());
-                        reference.clear();
+                        final E element = reference.get();
+                        if (element != null) {
+                            destroyObject(element);
+                            reference.clear();
+                        }
                     }
                 }
             } catch (final NoSuchElementException e) {
@@ -81,10 +84,10 @@ public abstract class ATimeoutObjectPool<E> implements IObjectPool<E>, Closeable
             final TimeoutReference<E> reference = bufferingIterator.next();
             if (reference != null) {
                 final E element = reference.get();
-                reference.clear();
                 if (element == null) {
                     return newObject();
                 } else {
+                    reference.clear();
                     return element;
                 }
             } else {
@@ -115,8 +118,11 @@ public abstract class ATimeoutObjectPool<E> implements IObjectPool<E>, Closeable
         try {
             while (true) {
                 final TimeoutReference<E> reference = bufferingIterator.next();
-                destroyObject(reference.get());
-                reference.clear();
+                final E element = reference.get();
+                if (element != null) {
+                    destroyObject(element);
+                    reference.clear();
+                }
             }
         } catch (final NoSuchElementException e) {
             //end reached
