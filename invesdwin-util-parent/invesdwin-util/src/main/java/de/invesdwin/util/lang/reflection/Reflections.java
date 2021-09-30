@@ -66,6 +66,7 @@ public final class Reflections extends AReflectionsStaticFacade {
     public static synchronized void disableJavaModuleSystemRestrictions() {
         if (!modulesExported) {
             if (JAVA_VERSION > 8) {
+                //https://github.com/burningwave/core/issues/10
                 if (StaticComponentContainer.Modules != null) {
                     StaticComponentContainer.Modules.exportAllToAll();
                 }
