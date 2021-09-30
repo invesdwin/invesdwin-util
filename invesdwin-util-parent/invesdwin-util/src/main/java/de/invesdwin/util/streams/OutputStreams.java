@@ -90,6 +90,7 @@ public final class OutputStreams {
     public static void writeFully(final WritableByteChannel dst, final java.nio.ByteBuffer byteBuffer)
             throws IOException {
         int remaining = byteBuffer.remaining();
+        final int positionBefore = byteBuffer.position();
         while (remaining > 0) {
             final int count = dst.write(byteBuffer);
             if (count == -1) { // EOF
@@ -97,6 +98,7 @@ public final class OutputStreams {
             }
             remaining -= count;
         }
+        ByteBuffers.position(byteBuffer, positionBefore);
         if (remaining > 0) {
             throw ByteBuffers.newPutBytesToEOF();
         }
