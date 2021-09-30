@@ -183,7 +183,9 @@ public final class Reflections extends AReflectionsStaticFacade {
 
     @SuppressWarnings("restriction")
     public static sun.misc.Unsafe getUnsafe() {
+        //CHECKSTYLE:OFF
         return UnsafeAccess.UNSAFE;
+        //CHECKSTYLE:ON
     }
 
     public static String getClassSimpleNameNonBlank(final Class<?> clazz) {
