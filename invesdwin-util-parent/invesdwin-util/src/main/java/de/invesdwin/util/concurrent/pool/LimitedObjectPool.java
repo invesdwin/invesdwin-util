@@ -1,10 +1,13 @@
 package de.invesdwin.util.concurrent.pool;
 
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.concurrent.loop.ASpinWait;
+import de.invesdwin.util.time.date.FTimeUnit;
+import de.invesdwin.util.time.duration.Duration;
 
 @ThreadSafe
 public class LimitedObjectPool<E> implements IObjectPool<E> {
@@ -24,10 +27,12 @@ public class LimitedObjectPool<E> implements IObjectPool<E> {
             return leasedInstances.get() < maximumSize;
         }
     };
+    private final Duration timeout;
 
-    public LimitedObjectPool(final IObjectPool<E> delegate, final int maximumSize) {
+    public LimitedObjectPool(final IObjectPool<E> delegate, final int maximumSize, final Duration timeout) {
         this.delegate = delegate;
         this.maximumSize = maximumSize;
+        this.timeout = timeout;
     }
 
     @Override
@@ -42,6 +47,11 @@ public class LimitedObjectPool<E> implements IObjectPool<E> {
                             leasedInstances.incrementAndGet();
                             return delegate.borrowObject();
                         }
+                    }
+                } else {
+                    final long curNanos = System.nanoTime();
+                    if (timeout.isGreaterThan(curNanos - waitingSinceNanos, FTimeUnit.NANOSECONDS)) {
+                        throw new TimeoutException("Timeout exceeded: " + timeout);
                     }
                 }
             }
