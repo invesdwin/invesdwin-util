@@ -70,10 +70,16 @@ public class FlatteningIterator<E> implements ICloseableIterator<E> {
         throw new FastNoSuchElementException("FlatteningIterator: curIterator is null");
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void close() {
-        if (curIterator != null) {
+        while (curIterator != null) {
             curIterator.close();
+            if (delegate.hasNext()) {
+                curIterator = WrapperCloseableIterator.maybeWrap(delegate.next());
+            } else {
+                curIterator = null;
+            }
         }
         delegate.close();
     }
