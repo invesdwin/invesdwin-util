@@ -517,6 +517,30 @@ public class FDate
         return millis;
     }
 
+    public long toDurationMillis() {
+        return FDateMillis.now() - millisValue();
+    }
+
+    public Duration toDuration() {
+        return new Duration(toDurationMillis(), FTimeUnit.MILLISECONDS);
+    }
+
+    public boolean isGreaterThan(final Duration duration) {
+        return duration.isLessThanOrEqualTo(this);
+    }
+
+    public boolean isGreaterThanOrEqualTo(final Duration duration) {
+        return duration.isLessThan(this);
+    }
+
+    public boolean isLessThan(final Duration duration) {
+        return duration.isGreaterThanOrEqualTo(this);
+    }
+
+    public boolean isLessThanOrEqualTo(final Duration duration) {
+        return duration.isGreaterThan(this);
+    }
+
     public Date dateValue() {
         return FDateMillis.dateValue(millis);
     }

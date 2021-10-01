@@ -110,6 +110,14 @@ public class Duration extends Number implements Comparable<Object> {
         return isGreaterThan(duration.duration, duration.timeUnit);
     }
 
+    public boolean isGreaterThan(final FDate date) {
+        return isGreaterThan(date.toDurationMillis(), FTimeUnit.MILLISECONDS);
+    }
+
+    public boolean isGreaterThan(final Instant instant) {
+        return isGreaterThanNanos(instant.toDurationNanos());
+    }
+
     public boolean isGreaterThan(final long duration, final FTimeUnit timeUnit) {
         final long durationNanos = FTimeUnit.NANOSECONDS.convert(duration, timeUnit);
         return isGreaterThanNanos(durationNanos);
@@ -121,6 +129,14 @@ public class Duration extends Number implements Comparable<Object> {
 
     public boolean isGreaterThanOrEqualTo(final Duration duration) {
         return isGreaterThanOrEqualTo(duration.duration, duration.timeUnit);
+    }
+
+    public boolean isGreaterThanOrEqualTo(final FDate date) {
+        return isGreaterThanOrEqualTo(date.toDurationMillis(), FTimeUnit.MILLISECONDS);
+    }
+
+    public boolean isGreaterThanOrEqualTo(final Instant instant) {
+        return isGreaterThanOrEqualToNanos(instant.toDurationNanos());
     }
 
     public boolean isGreaterThanOrEqualTo(final long duration, final FTimeUnit timeUnit) {
@@ -136,6 +152,14 @@ public class Duration extends Number implements Comparable<Object> {
         return isLessThan(duration.duration, duration.timeUnit);
     }
 
+    public boolean isLessThan(final FDate date) {
+        return isLessThan(date.toDurationMillis(), FTimeUnit.MILLISECONDS);
+    }
+
+    public boolean isLessThan(final Instant instant) {
+        return isLessThanNanos(instant.toDurationNanos());
+    }
+
     public boolean isLessThan(final long duration, final FTimeUnit timeUnit) {
         final long durationNanos = FTimeUnit.NANOSECONDS.convert(duration, timeUnit);
         return isLessThanNanos(durationNanos);
@@ -147,6 +171,14 @@ public class Duration extends Number implements Comparable<Object> {
 
     public boolean isLessThanOrEqualTo(final Duration duration) {
         return isLessThanOrEqualTo(duration.duration, duration.timeUnit);
+    }
+
+    public boolean isLessThanOrEqualTo(final FDate date) {
+        return isLessThanOrEqualTo(date.toDurationMillis(), FTimeUnit.MILLISECONDS);
+    }
+
+    public boolean isLessThanOrEqualTo(final Instant instant) {
+        return isLessThanOrEqualToNanos(instant.toDurationNanos());
     }
 
     public boolean isLessThanOrEqualTo(final long duration, final FTimeUnit timeUnit) {

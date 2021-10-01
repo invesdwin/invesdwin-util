@@ -175,19 +175,19 @@ public class Instant extends Number implements Comparable<Object> {
     }
 
     public boolean isGreaterThan(final Duration duration) {
-        return duration.isLessThanOrEqualToNanos(toDurationNanos());
+        return duration.isLessThanOrEqualTo(this);
     }
 
     public boolean isGreaterThanOrEqualTo(final Duration duration) {
-        return duration.isLessThanNanos(toDurationNanos());
+        return duration.isLessThan(this);
     }
 
     public boolean isLessThan(final Duration duration) {
-        return duration.isGreaterThanOrEqualToNanos(toDurationNanos());
+        return duration.isGreaterThanOrEqualTo(this);
     }
 
     public boolean isLessThanOrEqualTo(final Duration duration) {
-        return duration.isGreaterThanNanos(toDurationNanos());
+        return duration.isGreaterThan(this);
     }
 
 }
