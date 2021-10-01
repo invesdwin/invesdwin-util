@@ -97,7 +97,7 @@ public class ArrayListCloseableIterable<E> implements IReverseCloseableIterable<
                 throw new RuntimeException(e);
             }
         }
-        return new ReverseArrayCloseableIterator<E>(cachedArray, 0, cachedSize) {
+        return new ReverseArrayCloseableIterator<E>(cachedArray, cachedSize - 1, cachedSize) {
             @Override
             public List<E> toList() {
                 return Lists.reverse(ArrayListCloseableIterable.this.toList());
