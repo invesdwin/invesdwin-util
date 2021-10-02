@@ -23,7 +23,6 @@ import de.invesdwin.util.streams.buffer.bytes.EmptyByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.delegate.slice.SlicedFromDelegateByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.delegate.slice.mutable.factory.IMutableSlicedDelegateByteBufferFactory;
-import de.invesdwin.util.streams.buffer.bytes.extend.DirectExpandableByteBuffer;
 import de.invesdwin.util.streams.buffer.memory.IMemoryBuffer;
 import de.invesdwin.util.streams.buffer.memory.delegate.ByteDelegateMemoryBuffer;
 
@@ -464,7 +463,8 @@ public class AgronaDelegateMutableByteBuffer implements IByteBuffer {
     @Override
     public byte[] asByteArray() {
         if (delegate.isExpandable()) {
-            throw DirectExpandableByteBuffer.newAsByteArrayUnsupported();
+            throw de.invesdwin.util.streams.buffer.bytes.extend.internal.DirectExpandableByteBuffer
+                    .newAsByteArrayUnsupported();
         }
         if (wrapAdjustment() == 0) {
             final byte[] bytes = byteArray();
@@ -485,7 +485,8 @@ public class AgronaDelegateMutableByteBuffer implements IByteBuffer {
     @Override
     public byte[] asByteArrayCopy() {
         if (delegate.isExpandable()) {
-            throw DirectExpandableByteBuffer.newAsByteArrayUnsupported();
+            throw de.invesdwin.util.streams.buffer.bytes.extend.internal.DirectExpandableByteBuffer
+                    .newAsByteArrayUnsupported();
         }
         if (wrapAdjustment() == 0) {
             final byte[] bytes = byteArray();

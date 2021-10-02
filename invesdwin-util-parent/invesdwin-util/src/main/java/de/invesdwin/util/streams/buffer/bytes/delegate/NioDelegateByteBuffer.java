@@ -53,6 +53,12 @@ public class NioDelegateByteBuffer implements IByteBuffer {
         this.directBuffer = null;
     }
 
+    public void setDelegateUnchecked(final java.nio.ByteBuffer delegate) {
+        this.delegate = delegate;
+        this.reverse = null;
+        this.directBuffer = null;
+    }
+
     protected java.nio.ByteBuffer getReverse() {
         if (reverse == null) {
             reverse = delegate.duplicate().order(ByteOrder.LITTLE_ENDIAN);

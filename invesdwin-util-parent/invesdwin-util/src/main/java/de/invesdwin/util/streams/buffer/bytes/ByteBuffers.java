@@ -31,9 +31,9 @@ import de.invesdwin.util.streams.InputStreams;
 import de.invesdwin.util.streams.buffer.bytes.delegate.AgronaDelegateByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.delegate.AgronaDelegateMutableByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.extend.ArrayExpandableByteBuffer;
-import de.invesdwin.util.streams.buffer.bytes.extend.DirectExpandableByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.extend.UnsafeArrayByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.extend.UnsafeByteBuffer;
+import de.invesdwin.util.streams.buffer.bytes.extend.internal.DirectExpandableByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.extend.internal.UninitializedDirectByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.extend.internal.UninitializedDirectExpandableByteBuffer;
 
