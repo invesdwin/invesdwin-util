@@ -5,6 +5,7 @@ import java.util.NoSuchElementException;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
+import de.invesdwin.util.collections.iterable.buffer.EmptyBufferingIterator;
 import de.invesdwin.util.collections.iterable.buffer.IBufferingIterator;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 
@@ -22,6 +23,9 @@ public class FixedLengthBufferingIteratorDelegateSerde<E> implements ISerde<IBuf
 
     @Override
     public IBufferingIterator<? extends E> fromBytes(final byte[] bytes) {
+        if (bytes == null || bytes.length == 0) {
+            return EmptyBufferingIterator.getInstance();
+        }
         return SerdeBaseMethods.fromBytes(this, bytes);
     }
 
@@ -32,6 +36,9 @@ public class FixedLengthBufferingIteratorDelegateSerde<E> implements ISerde<IBuf
 
     @Override
     public IBufferingIterator<? extends E> fromBuffer(final IByteBuffer buffer, final int length) {
+        if (length == 0) {
+            return EmptyBufferingIterator.getInstance();
+        }
         final int size = length / fixedLength;
         final BufferingIterator<E> result = new BufferingIterator<E>();
         int curOffset = 0;
