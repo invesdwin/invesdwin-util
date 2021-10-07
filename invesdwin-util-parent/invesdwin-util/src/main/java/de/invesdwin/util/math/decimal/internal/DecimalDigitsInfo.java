@@ -36,13 +36,7 @@ public class DecimalDigitsInfo {
              * scaleByPowerOfTen
              */
             final String s = toString();
-            final int indexOfDecimalPoint = s.indexOf(".");
-            final int digits;
-            if (indexOfDecimalPoint != -1) {
-                digits = indexOfDecimalPoint;
-            } else {
-                digits = Math.max(1, s.length());
-            }
+            final int digits = getWholeNumberDigits(s);
             wholeNumberDigits = encodeDigits(digits);
             return digits;
         } else {
@@ -72,13 +66,7 @@ public class DecimalDigitsInfo {
              * scaleByPowerOfTen
              */
             final String s = toString();
-            final int indexOfDecimalPoint = s.indexOf(".");
-            final int digits;
-            if (indexOfDecimalPoint != -1) {
-                digits = s.length() - indexOfDecimalPoint - 1;
-            } else {
-                digits = 0;
-            }
+            final int digits = getDecimalDigits(s);
             decimalDigits = encodeDigits(digits);
             return digits;
         } else {
@@ -93,13 +81,7 @@ public class DecimalDigitsInfo {
              * scaleByPowerOfTen
              */
             final String s = toString();
-            final int indexOfDecimalPoint = s.indexOf(".");
-            final int digits;
-            if (indexOfDecimalPoint != -1) {
-                digits = s.length() - 1;
-            } else {
-                digits = Math.max(1, s.length());
-            }
+            final int digits = getDigits(s);
             this.digits = encodeDigits(digits);
             return digits;
         } else {
@@ -110,6 +92,39 @@ public class DecimalDigitsInfo {
     @Override
     public String toString() {
         return toString;
+    }
+
+    private int getDigits(final String s) {
+        final int indexOfDecimalPoint = s.indexOf(".");
+        final int digits;
+        if (indexOfDecimalPoint != -1) {
+            digits = s.length() - 1;
+        } else {
+            digits = Math.max(1, s.length());
+        }
+        return digits;
+    }
+
+    private int getWholeNumberDigits(final String s) {
+        final int indexOfDecimalPoint = s.indexOf(".");
+        final int digits;
+        if (indexOfDecimalPoint != -1) {
+            digits = indexOfDecimalPoint;
+        } else {
+            digits = Math.max(1, s.length());
+        }
+        return digits;
+    }
+
+    private int getDecimalDigits(final String s) {
+        final int indexOfDecimalPoint = s.indexOf(".");
+        final int digits;
+        if (indexOfDecimalPoint != -1) {
+            digits = s.length() - indexOfDecimalPoint - 1;
+        } else {
+            digits = 0;
+        }
+        return digits;
     }
 
 }
