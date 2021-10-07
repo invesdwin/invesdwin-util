@@ -24,6 +24,8 @@ import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 @Immutable
 public class RemoteFastSerializingSerde<E> implements ISerde<E> {
 
+    public static final RemoteFastSerializingSerde<Object> INSTANCE = new RemoteFastSerializingSerde<Object>(true);
+
     private static final Class<?>[] CLASS_EMPTY_ARRAY = new Class[0];
 
     private static final double EXPANSION_FACTOR = 2D;
@@ -71,14 +73,22 @@ public class RemoteFastSerializingSerde<E> implements ISerde<E> {
 
     public IObjectPool<OnHeapCoder> getOnHeapCoderPool() {
         if (onHeapCoderPool == null) {
-            onHeapCoderPool = new AgronaObjectPool<>(() -> new OnHeapCoder(shared, filteredTypes));
+            if (filteredTypes == null || filteredTypes.length == 0) {
+                onHeapCoderPool = new AgronaObjectPool<>(() -> new OnHeapCoder(shared));
+            } else {
+                onHeapCoderPool = new AgronaObjectPool<>(() -> new OnHeapCoder(shared, filteredTypes));
+            }
         }
         return onHeapCoderPool;
     }
 
     public IObjectPool<OffHeapCoder> getOffHeapCoderPool() {
         if (offHeapCoderPool == null) {
-            offHeapCoderPool = new AgronaObjectPool<>(() -> new OffHeapCoder(shared, filteredTypes));
+            if (filteredTypes == null || filteredTypes.length == 0) {
+                offHeapCoderPool = new AgronaObjectPool<>(() -> new OffHeapCoder(shared));
+            } else {
+                offHeapCoderPool = new AgronaObjectPool<>(() -> new OffHeapCoder(shared, filteredTypes));
+            }
         }
         return offHeapCoderPool;
     }
