@@ -608,13 +608,9 @@ public final class ByteBuffers {
         return copy;
     }
 
-    public static byte[] copyOfRange(final byte[] original, final int from, final int to) {
-        final int newLength = to - from;
-        if (newLength < 0) {
-            throw new IllegalArgumentException(from + " > " + to);
-        }
-        final byte[] copy = allocateByteArray(newLength);
-        System.arraycopy(original, from, copy, 0, Math.min(original.length - from, newLength));
+    public static byte[] copyOfRange(final byte[] original, final int from, final int length) {
+        final byte[] copy = allocateByteArray(length);
+        System.arraycopy(original, from, copy, 0, length);
         return copy;
     }
 
