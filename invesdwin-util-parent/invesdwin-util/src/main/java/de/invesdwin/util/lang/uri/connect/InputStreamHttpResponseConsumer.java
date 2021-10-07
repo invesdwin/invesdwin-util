@@ -119,6 +119,7 @@ public class InputStreamHttpResponseConsumer {
                 @Override
                 protected InputStream newDelegate() {
                     try {
+                        //without buffering input stream, reading can be 5x slower
                         return new DeletingBufferedFileDataInputStream(file, maxSizeInMemory);
                     } catch (final FileNotFoundException e) {
                         throw new RuntimeException(e);
