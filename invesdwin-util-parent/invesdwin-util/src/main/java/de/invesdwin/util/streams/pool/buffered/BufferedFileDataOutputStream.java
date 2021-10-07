@@ -1,4 +1,4 @@
-package de.invesdwin.util.streams.buffer;
+package de.invesdwin.util.streams.pool.buffered;
 
 import java.io.DataOutput;
 import java.io.File;

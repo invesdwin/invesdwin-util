@@ -16,8 +16,8 @@ import de.invesdwin.util.lang.description.TextDescription;
 import de.invesdwin.util.math.decimal.scaled.ByteSize;
 import de.invesdwin.util.math.decimal.scaled.ByteSizeScale;
 import de.invesdwin.util.streams.ADelegateInputStream;
-import de.invesdwin.util.streams.DeletingFileInputStream;
 import de.invesdwin.util.streams.pool.PooledFastByteArrayOutputStream;
+import de.invesdwin.util.streams.pool.buffered.DeletingBufferedFileDataInputStream;
 
 @NotThreadSafe
 public class InputStreamHttpResponseConsumer {
@@ -119,7 +119,7 @@ public class InputStreamHttpResponseConsumer {
                 @Override
                 protected InputStream newDelegate() {
                     try {
-                        return new DeletingFileInputStream(file);
+                        return new DeletingBufferedFileDataInputStream(file, maxSizeInMemory);
                     } catch (final FileNotFoundException e) {
                         throw new RuntimeException(e);
                     }
