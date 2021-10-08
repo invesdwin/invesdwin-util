@@ -987,4 +987,8 @@ public class FDate
         return this;
     }
 
+    public boolean isWithoutTime() {
+        return millis % FTimeUnit.MILLISECONDS_IN_DAY == 0;
+    }
+
 }
