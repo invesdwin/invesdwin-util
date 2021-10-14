@@ -10,6 +10,8 @@ import java.util.Map.Entry;
 
 import javax.annotation.concurrent.Immutable;
 
+import org.apache.commons.lang3.math.NumberUtils;
+
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
 import de.invesdwin.norva.beanpath.BeanPathStrings;
 import de.invesdwin.util.lang.comparator.IComparator;
@@ -663,6 +665,10 @@ public final class Strings extends AStringsStaticFacade {
             chunks.add(sb.toString());
         }
         return chunks;
+    }
+
+    public static boolean isDecimal(final String str) {
+        return NumberUtils.isParsable(str);
     }
 
 }
