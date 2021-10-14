@@ -6,7 +6,6 @@ import org.agrona.LangUtil;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
-import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.concurrent.Threads;
 import de.invesdwin.util.error.internal.AThrowablesStaticFacade;
 import de.invesdwin.util.lang.Strings;
@@ -41,8 +40,6 @@ public final class Throwables extends AThrowablesStaticFacade {
 
     @SuppressWarnings("unchecked" /* is safe since typecheck is done */)
     public static <T extends Throwable> T getCauseByType(final Throwable e, final Class<T> type) {
-        Assertions.assertThat(e).isNotNull();
-        Assertions.assertThat(type).isNotNull();
         Throwable cause = e;
         while (cause != null) {
             if (type.isInstance(cause)) {
