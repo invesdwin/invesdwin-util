@@ -91,6 +91,10 @@ public class ChronicleDelegateByteBuffer implements IByteBuffer {
         if (underlying instanceof byte[]) {
             return (byte[]) underlying;
         }
+        final java.nio.ByteBuffer buffer = nioByteBuffer();
+        if (buffer != null && buffer.hasArray()) {
+            return buffer.array();
+        }
         return null;
     }
 
