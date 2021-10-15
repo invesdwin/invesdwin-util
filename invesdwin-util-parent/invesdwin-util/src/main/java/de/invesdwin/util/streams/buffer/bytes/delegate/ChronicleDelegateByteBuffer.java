@@ -11,6 +11,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import org.agrona.BufferUtil;
 import org.agrona.DirectBuffer;
+import org.agrona.ExpandableArrayBuffer;
 import org.agrona.MutableDirectBuffer;
 
 import de.invesdwin.util.error.Throwables;
@@ -290,6 +291,7 @@ public class ChronicleDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public void putLong(final int index, final long value) {
+        ensureCapacity(index, Long.BYTES);
         if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
             final long bits = Long.reverseBytes(value);
             delegate.writeLong(index, bits);
@@ -300,6 +302,7 @@ public class ChronicleDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public void putInt(final int index, final int value) {
+        ensureCapacity(index, Integer.BYTES);
         if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
             final int bits = Integer.reverseBytes(value);
             delegate.writeInt(index, bits);
@@ -310,6 +313,7 @@ public class ChronicleDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public void putDouble(final int index, final double value) {
+        ensureCapacity(index, Double.BYTES);
         if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
             final long bits = Long.reverseBytes(Double.doubleToRawLongBits(value));
             delegate.writeLong(index, bits);
@@ -320,6 +324,7 @@ public class ChronicleDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public void putFloat(final int index, final float value) {
+        ensureCapacity(index, Float.BYTES);
         if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
             final int bits = Integer.reverseBytes(Float.floatToRawIntBits(value));
             delegate.writeInt(index, bits);
@@ -330,6 +335,7 @@ public class ChronicleDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public void putShort(final int index, final short value) {
+        ensureCapacity(index, Short.BYTES);
         if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
             final short bits = Short.reverseBytes(value);
             delegate.writeShort(index, bits);
@@ -340,6 +346,7 @@ public class ChronicleDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public void putChar(final int index, final char value) {
+        ensureCapacity(index, Character.BYTES);
         if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
             final short bits = Short.reverseBytes((short) value);
             delegate.writeShort(index, bits);
@@ -350,6 +357,7 @@ public class ChronicleDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public void putLongReverse(final int index, final long value) {
+        ensureCapacity(index, Long.BYTES);
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
             final long bits = Long.reverseBytes(value);
             delegate.writeLong(index, bits);
@@ -360,6 +368,7 @@ public class ChronicleDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public void putIntReverse(final int index, final int value) {
+        ensureCapacity(index, Integer.BYTES);
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
             final int bits = Integer.reverseBytes(value);
             delegate.writeInt(index, bits);
@@ -370,6 +379,7 @@ public class ChronicleDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public void putDoubleReverse(final int index, final double value) {
+        ensureCapacity(index, Double.BYTES);
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
             final long bits = Long.reverseBytes(Double.doubleToRawLongBits(value));
             delegate.writeLong(index, bits);
@@ -380,6 +390,7 @@ public class ChronicleDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public void putFloatReverse(final int index, final float value) {
+        ensureCapacity(index, Float.BYTES);
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
             final int bits = Integer.reverseBytes(Float.floatToRawIntBits(value));
             delegate.writeInt(index, bits);
@@ -390,6 +401,7 @@ public class ChronicleDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public void putShortReverse(final int index, final short value) {
+        ensureCapacity(index, Short.BYTES);
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
             final short bits = Short.reverseBytes(value);
             delegate.writeShort(index, bits);
@@ -400,6 +412,7 @@ public class ChronicleDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public void putCharReverse(final int index, final char value) {
+        ensureCapacity(index, Character.BYTES);
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
             final short bits = Short.reverseBytes((short) value);
             delegate.writeShort(index, bits);
@@ -410,21 +423,25 @@ public class ChronicleDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public void putByte(final int index, final byte value) {
+        ensureCapacity(index, Byte.BYTES);
         delegate.writeByte(index, value);
     }
 
     @Override
     public void putBytes(final int index, final byte[] src, final int srcIndex, final int length) {
+        ensureCapacity(index, length);
         delegate.write(index, src, srcIndex, length);
     }
 
     @Override
     public void putBytes(final int index, final java.nio.ByteBuffer srcBuffer, final int srcIndex, final int length) {
+        ensureCapacity(index, length);
         delegate.write(index, srcBuffer, srcIndex, length);
     }
 
     @Override
     public void putBytes(final int index, final DirectBuffer srcBuffer, final int srcIndex, final int length) {
+        ensureCapacity(index, length);
         for (int i = 0; i < length; i++) {
             delegate.writeByte(index + i, srcBuffer.getByte(srcIndex + i));
         }
@@ -432,6 +449,7 @@ public class ChronicleDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public void putBytes(final int index, final IByteBuffer srcBuffer, final int srcIndex, final int length) {
+        ensureCapacity(index, length);
         for (int i = 0; i < length; i++) {
             delegate.writeByte(index + i, srcBuffer.getByte(srcIndex + i));
         }
@@ -439,6 +457,7 @@ public class ChronicleDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public void putBytes(final int index, final IMemoryBuffer srcBuffer, final long srcIndex, final int length) {
+        ensureCapacity(index, length);
         for (int i = 0; i < length; i++) {
             delegate.writeByte(index + i, srcBuffer.getByte(srcIndex + i));
         }
@@ -552,6 +571,7 @@ public class ChronicleDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public void putStringAsciii(final int index, final CharSequence value, final int valueIndex, final int length) {
+        ensureCapacity(index, length);
         for (int i = 0; i < length; i++) {
             char c = value.charAt(valueIndex + i);
             if (c > 127) {
@@ -565,6 +585,7 @@ public class ChronicleDelegateByteBuffer implements IByteBuffer {
     @Override
     public int putStringUtf8(final int index, final String value) {
         final byte[] bytes = ByteBuffers.newStringUtf8Bytes(value);
+        ensureCapacity(index, bytes.length);
         delegate.write(index, bytes);
         return bytes.length;
     }
@@ -608,6 +629,7 @@ public class ChronicleDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public void putBytesTo(final int index, final DataInput src, final int length) throws IOException {
+        ensureCapacity(index, length);
         int i = index;
         while (i < length) {
             final byte b = src.readByte();
@@ -618,6 +640,7 @@ public class ChronicleDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public void putBytesTo(final int index, final InputStream src, final int length) throws IOException {
+        ensureCapacity(index, length);
         int i = index;
         while (i < length) {
             final int result = src.read();
@@ -700,8 +723,27 @@ public class ChronicleDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public IByteBuffer ensureCapacity(final int desiredCapacity) {
-        delegate.ensureCapacity(desiredCapacity);
+        if (capacity() < desiredCapacity) {
+            delegate.ensureCapacity(desiredCapacity);
+        }
         return this;
+    }
+
+    private void ensureCapacity(final int index, final int length) {
+        if (index < 0 || length < 0) {
+            throw new IndexOutOfBoundsException("negative value: index=" + index + " length=" + length);
+        }
+
+        final long resultingPosition = index + (long) length;
+        final int currentArrayLength = capacity();
+        if (resultingPosition > currentArrayLength) {
+            if (resultingPosition > ExpandableArrayBuffer.MAX_ARRAY_LENGTH) {
+                throw new IndexOutOfBoundsException("index=" + index + " length=" + length + " maxCapacity="
+                        + ExpandableArrayBuffer.MAX_ARRAY_LENGTH);
+            }
+
+            ensureCapacity((int) resultingPosition);
+        }
     }
 
 }
