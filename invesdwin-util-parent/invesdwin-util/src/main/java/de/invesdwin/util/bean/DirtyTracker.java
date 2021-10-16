@@ -49,6 +49,11 @@ public class DirtyTracker implements Serializable {
             });
             return Collections.unmodifiableSet(beanPaths);
         }
+
+        @Override
+        protected boolean isHighConcurrency() {
+            return true;
+        }
     };
 
     private final AValueObject root;
