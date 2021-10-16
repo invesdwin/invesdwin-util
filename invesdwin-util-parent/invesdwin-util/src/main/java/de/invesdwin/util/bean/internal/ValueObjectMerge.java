@@ -8,8 +8,9 @@ import javax.annotation.concurrent.ThreadSafe;
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.Converter;
 
-import de.invesdwin.norva.beanpath.impl.object.BeanObjectContext;
-import de.invesdwin.norva.beanpath.impl.object.BeanObjectProcessor;
+import de.invesdwin.norva.beanpath.impl.clazz.BeanClassContext;
+import de.invesdwin.norva.beanpath.impl.clazz.BeanClassProcessor;
+import de.invesdwin.norva.beanpath.impl.clazz.BeanClassProcessorConfig;
 import de.invesdwin.norva.beanpath.spi.element.IBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.IPropertyBeanPathElement;
 import de.invesdwin.util.bean.AValueObject;
@@ -52,10 +53,10 @@ public class ValueObjectMerge {
     //CHECKSTYLE:OFF
     public void merge(final Object o) {
         //CHECKSTYLE:ON
-        final BeanObjectContext thisCtx = new BeanObjectContext(thisVo);
-        boolean thisProcessed = false;
-        final BeanObjectContext thereCtx = new BeanObjectContext(o);
-        new BeanObjectProcessor(thereCtx).withShallowOnly().process();
+        final BeanClassContext thisCtx = BeanClassProcessor
+                .getContext(BeanClassProcessorConfig.getDefaultShallow(thisVo.getClass()));
+        final BeanClassContext thereCtx = BeanClassProcessor
+                .getContext(BeanClassProcessorConfig.getDefaultShallow(o.getClass()));
         for (final IBeanPathElement thereElement : thereCtx.getElementRegistry().getElements()) {
             final String propertyName = thereElement.getAccessor().getBeanPathFragment();
             if (!thereElement.isProperty() || !thereElement.getAccessor().hasPublicGetterOrField()) {
@@ -80,11 +81,6 @@ public class ValueObjectMerge {
                 }
             }
             if (valueThere != null) {
-                if (!thisProcessed) {
-                    //process lazy
-                    new BeanObjectProcessor(thisCtx).withShallowOnly().process();
-                    thisProcessed = true;
-                }
                 final IBeanPathElement thisElement = thisCtx.getElementRegistry().getElement(propertyName);
                 if (thisElement == null || !thisElement.isProperty()
                         || !thisElement.getAccessor().hasPublicSetterOrField()) {

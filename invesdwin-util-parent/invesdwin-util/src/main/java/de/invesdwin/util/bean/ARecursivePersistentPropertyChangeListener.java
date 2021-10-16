@@ -16,6 +16,7 @@ import javax.annotation.concurrent.ThreadSafe;
 import de.invesdwin.norva.beanpath.BeanPathReflections;
 import de.invesdwin.norva.beanpath.impl.object.BeanObjectContext;
 import de.invesdwin.norva.beanpath.impl.object.BeanObjectProcessor;
+import de.invesdwin.norva.beanpath.spi.BeanPathProcessorConfig;
 import de.invesdwin.norva.beanpath.spi.BeanPathUtil;
 import de.invesdwin.norva.beanpath.spi.element.AChoiceBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.IPropertyBeanPathElement;
@@ -167,7 +168,7 @@ public abstract class ARecursivePersistentPropertyChangeListener implements Prop
         source.addPropertyChangeListener(this);
         onListenerAdded(this);
         final BeanObjectContext context = new BeanObjectContext(source);
-        new BeanObjectProcessor(context, new SimpleBeanPathVisitorSupport(context) {
+        new BeanObjectProcessor(BeanPathProcessorConfig.DEFAULT_SHALLOW, context, new SimpleBeanPathVisitorSupport() {
             @Override
             public void visitProperty(final IPropertyBeanPathElement e) {
                 if (e.getAccessor().hasPublicGetterOrField() && !(e instanceof ITableColumnBeanPathElement)) {
@@ -207,7 +208,7 @@ public abstract class ARecursivePersistentPropertyChangeListener implements Prop
                 }
             }
 
-        }).withShallowOnly().process();
+        }).process();
     }
 
     private void maybeRemoveChildPropertyChangeListenersSimpleValue(final Object oldValue) {

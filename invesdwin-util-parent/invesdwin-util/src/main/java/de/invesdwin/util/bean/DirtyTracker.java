@@ -18,8 +18,8 @@ import java.util.WeakHashMap;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
-import de.invesdwin.norva.beanpath.impl.object.BeanObjectContext;
-import de.invesdwin.norva.beanpath.impl.object.BeanObjectProcessor;
+import de.invesdwin.norva.beanpath.impl.clazz.BeanClassProcessor;
+import de.invesdwin.norva.beanpath.impl.clazz.BeanClassProcessorConfig;
 import de.invesdwin.norva.beanpath.spi.BeanPathUtil;
 import de.invesdwin.norva.beanpath.spi.element.IPropertyBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.table.column.ITableColumnBeanPathElement;
@@ -27,6 +27,7 @@ import de.invesdwin.norva.beanpath.spi.visitor.SimpleBeanPathVisitorSupport;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.fast.concurrent.ASynchronizedFastIterableDelegateSet;
 import de.invesdwin.util.collections.fast.concurrent.SynchronizedSet;
+import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 import de.invesdwin.util.lang.Strings;
 
 /**
@@ -36,8 +37,23 @@ import de.invesdwin.util.lang.Strings;
 @ThreadSafe
 public class DirtyTracker implements Serializable {
 
+    private static final ALoadingCache<Class<?>, Set<String>> TYPE_BEANPATHS = new ALoadingCache<Class<?>, Set<String>>() {
+        @Override
+        protected Set<String> loadValue(final Class<?> key) {
+            final Set<String> beanPaths = new HashSet<String>();
+            BeanClassProcessor.process(key, new SimpleBeanPathVisitorSupport() {
+                @Override
+                public void visitProperty(final IPropertyBeanPathElement e) {
+                    Assertions.checkTrue(beanPaths.add(e.getBeanPath()));
+                }
+            });
+            return Collections.unmodifiableSet(beanPaths);
+        }
+    };
+
     private final AValueObject root;
     private final Set<String> beanPaths;
+    private final BeanClassProcessorConfig shallowProcessorConfig;
     private final ASynchronizedFastIterableDelegateSet<IDirtyTrackerListener> listeners = new ASynchronizedFastIterableDelegateSet<IDirtyTrackerListener>() {
         @Override
         protected Set<IDirtyTrackerListener> newDelegate() {
@@ -58,15 +74,8 @@ public class DirtyTracker implements Serializable {
 
     public DirtyTracker(final AValueObject root) {
         this.root = root;
-        final Set<String> beanPaths = new HashSet<String>();
-        final BeanObjectContext context = new BeanObjectContext(root);
-        new BeanObjectProcessor(context, new SimpleBeanPathVisitorSupport(context) {
-            @Override
-            public void visitProperty(final IPropertyBeanPathElement e) {
-                Assertions.assertThat(beanPaths.add(e.getBeanPath())).isTrue();
-            }
-        }).process();
-        this.beanPaths = Collections.unmodifiableSet(beanPaths);
+        this.beanPaths = TYPE_BEANPATHS.get(root.getClass());
+        this.shallowProcessorConfig = BeanClassProcessorConfig.getDefaultShallow(root.getClass());
     }
 
     private synchronized Map<TrackingChangesPropagatingRecursivePersistentPropertyChangeListener, String> getRegisteredTrackers() {
@@ -166,15 +175,14 @@ public class DirtyTracker implements Serializable {
 
     private void childrenMarkDirty(final String... beanPathPrefixes) {
         //notify children
-        final BeanObjectContext context = new BeanObjectContext(root);
-        new BeanObjectProcessor(context, new SimpleBeanPathVisitorSupport(context) {
+        BeanClassProcessor.process(shallowProcessorConfig, new SimpleBeanPathVisitorSupport() {
             @Override
             public void visitProperty(final IPropertyBeanPathElement e) {
                 final String[] childBeanPathPrefixes = adjustBeanPathPrefixesForChildren(e.getBeanPath(),
                         beanPathPrefixes);
                 if (childBeanPathPrefixes != null && e.getAccessor().hasPublicGetterOrField()
                         && !(e instanceof ITableColumnBeanPathElement)) {
-                    final Object value = e.getModifier().getValue();
+                    final Object value = e.getModifier().getValueFromRoot(root);
                     if (value != null && value instanceof AValueObject) {
                         final AValueObject cValue = (AValueObject) value;
                         final DirtyTracker childDirtyTracker = cValue.dirtyTracker();
@@ -184,7 +192,7 @@ public class DirtyTracker implements Serializable {
                     }
                 }
             }
-        }).withShallowOnly().process();
+        });
     }
 
     /**
@@ -212,15 +220,14 @@ public class DirtyTracker implements Serializable {
 
     private void childrenMarkClean(final String... beanPathPrefixes) {
         //notify children
-        final BeanObjectContext context = new BeanObjectContext(root);
-        new BeanObjectProcessor(context, new SimpleBeanPathVisitorSupport(context) {
+        BeanClassProcessor.process(shallowProcessorConfig, new SimpleBeanPathVisitorSupport() {
             @Override
             public void visitProperty(final IPropertyBeanPathElement e) {
                 final String[] childBeanPathPrefixes = adjustBeanPathPrefixesForChildren(e.getBeanPath(),
                         beanPathPrefixes);
                 if (childBeanPathPrefixes != null && e.getAccessor().hasPublicGetterOrField()
                         && !(e instanceof ITableColumnBeanPathElement)) {
-                    final Object value = e.getModifier().getValue();
+                    final Object value = e.getModifier().getValueFromRoot(root);
                     if (value != null && value instanceof AValueObject) {
                         final AValueObject cValue = (AValueObject) value;
                         final DirtyTracker childDirtyTracker = cValue.dirtyTracker();
@@ -231,7 +238,7 @@ public class DirtyTracker implements Serializable {
                 }
             }
 
-        }).withShallowOnly().process();
+        });
     }
 
     private synchronized void detectAndHealBrokenChildTrackers(final DirtyTracker childDirtyTracker) {

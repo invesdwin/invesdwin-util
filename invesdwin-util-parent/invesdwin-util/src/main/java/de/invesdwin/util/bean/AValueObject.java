@@ -14,6 +14,7 @@ import de.invesdwin.norva.apt.constants.BeanPathRoot;
 import de.invesdwin.norva.beanpath.annotation.Hidden;
 import de.invesdwin.norva.beanpath.impl.object.BeanObjectContext;
 import de.invesdwin.norva.beanpath.impl.object.BeanObjectProcessor;
+import de.invesdwin.norva.beanpath.spi.BeanPathProcessorConfig;
 import de.invesdwin.norva.beanpath.spi.element.IPropertyBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.visitor.SimpleBeanPathVisitorSupport;
 import de.invesdwin.norva.marker.ISerializableValueObject;
@@ -77,7 +78,7 @@ public abstract class AValueObject extends APropertyChangeSupported
         if (obj != null && getClass().isAssignableFrom(obj.getClass())) {
             final BeanObjectContext ctxThis = new BeanObjectContext(this);
             try {
-                new BeanObjectProcessor(ctxThis, new SimpleBeanPathVisitorSupport(ctxThis) {
+                new BeanObjectProcessor(BeanPathProcessorConfig.DEFAULT, ctxThis, new SimpleBeanPathVisitorSupport() {
                     @Override
                     public void visitProperty(final IPropertyBeanPathElement e) {
                         final Object valueThis = e.getModifier().getValue();
