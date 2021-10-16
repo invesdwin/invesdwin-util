@@ -95,7 +95,7 @@ public class ValueObjectMerge {
     private void copyValue(final IBeanPathElement thisElement, final Object valueThere) {
         boolean copy = true;
         final IPropertyBeanPathElement thisPropertyElement = (IPropertyBeanPathElement) thisElement;
-        final Object valueThis = thisPropertyElement.getModifier().getValue();
+        final Object valueThis = thisPropertyElement.getModifier().getValueFromRoot(thisVo);
         if (valueThis != null) {
             if (valueThis instanceof AValueObject) {
                 final AValueObject vo = (AValueObject) valueThis;
