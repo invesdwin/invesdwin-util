@@ -12,9 +12,8 @@ import com.querydsl.core.annotations.QuerySupertype;
 
 import de.invesdwin.norva.apt.constants.BeanPathRoot;
 import de.invesdwin.norva.beanpath.annotation.Hidden;
-import de.invesdwin.norva.beanpath.impl.object.BeanObjectContext;
-import de.invesdwin.norva.beanpath.impl.object.BeanObjectProcessor;
-import de.invesdwin.norva.beanpath.spi.BeanPathProcessorConfig;
+import de.invesdwin.norva.beanpath.impl.clazz.BeanClassProcessor;
+import de.invesdwin.norva.beanpath.impl.clazz.BeanClassProcessorConfig;
 import de.invesdwin.norva.beanpath.spi.element.IPropertyBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.visitor.SimpleBeanPathVisitorSupport;
 import de.invesdwin.norva.marker.ISerializableValueObject;
@@ -76,18 +75,18 @@ public abstract class AValueObject extends APropertyChangeSupported
     @Hidden(skip = true)
     public boolean equalsByBeanPathValues(final Object obj) {
         if (obj != null && getClass().isAssignableFrom(obj.getClass())) {
-            final BeanObjectContext ctxThis = new BeanObjectContext(this);
             try {
-                new BeanObjectProcessor(BeanPathProcessorConfig.DEFAULT, ctxThis, new SimpleBeanPathVisitorSupport() {
-                    @Override
-                    public void visitProperty(final IPropertyBeanPathElement e) {
-                        final Object valueThis = e.getModifier().getValue();
-                        final Object valueObj = e.getModifier().getValueFromRoot(obj);
-                        if (!Objects.equals(valueThis, valueObj)) {
-                            throw new NotEqualRuntimeException();
-                        }
-                    }
-                }).process();
+                BeanClassProcessor.process(BeanClassProcessorConfig.getDefault(AValueObject.this.getClass()),
+                        new SimpleBeanPathVisitorSupport() {
+                            @Override
+                            public void visitProperty(final IPropertyBeanPathElement e) {
+                                final Object valueThis = e.getModifier().getValueFromRoot(AValueObject.this);
+                                final Object valueObj = e.getModifier().getValueFromRoot(obj);
+                                if (!Objects.equals(valueThis, valueObj)) {
+                                    throw new NotEqualRuntimeException();
+                                }
+                            }
+                        });
                 return true;
             } catch (final Throwable t) {
                 if (Throwables.isCausedByType(t, NotEqualRuntimeException.class)) {

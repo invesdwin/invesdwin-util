@@ -14,9 +14,8 @@ import javax.annotation.concurrent.Immutable;
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.norva.beanpath.BeanPathReflections;
-import de.invesdwin.norva.beanpath.impl.object.BeanObjectContext;
-import de.invesdwin.norva.beanpath.impl.object.BeanObjectProcessor;
-import de.invesdwin.norva.beanpath.spi.BeanPathProcessorConfig;
+import de.invesdwin.norva.beanpath.impl.clazz.BeanClassProcessor;
+import de.invesdwin.norva.beanpath.impl.clazz.BeanClassProcessorConfig;
 import de.invesdwin.norva.beanpath.spi.BeanPathUtil;
 import de.invesdwin.norva.beanpath.spi.element.AChoiceBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.IPropertyBeanPathElement;
@@ -167,48 +166,48 @@ public abstract class ARecursivePersistentPropertyChangeListener implements Prop
     public final void addListenersToSourceHierarchy() {
         source.addPropertyChangeListener(this);
         onListenerAdded(this);
-        final BeanObjectContext context = new BeanObjectContext(source);
-        new BeanObjectProcessor(BeanPathProcessorConfig.DEFAULT_SHALLOW, context, new SimpleBeanPathVisitorSupport() {
-            @Override
-            public void visitProperty(final IPropertyBeanPathElement e) {
-                if (e.getAccessor().hasPublicGetterOrField() && !(e instanceof ITableColumnBeanPathElement)) {
-                    final Object value = e.getModifier().getValue();
-                    internalAddListenersToSourceHierarchy(e, value);
-                    if (e instanceof AChoiceBeanPathElement) {
-                        final AChoiceBeanPathElement choice = (AChoiceBeanPathElement) e;
-                        if (!choice.isChoiceOnly()) {
-                            final List<?> choiceValue = choice.getChoiceModifier().getValue();
-                            internalAddListenersToSourceHierarchy(e, choiceValue);
+        BeanClassProcessor.process(BeanClassProcessorConfig.getDefaultShallow(source.getClass()),
+                new SimpleBeanPathVisitorSupport() {
+                    @Override
+                    public void visitProperty(final IPropertyBeanPathElement e) {
+                        if (e.getAccessor().hasPublicGetterOrField() && !(e instanceof ITableColumnBeanPathElement)) {
+                            final Object value = e.getModifier().getValueFromRoot(source);
+                            internalAddListenersToSourceHierarchy(e, value);
+                            if (e instanceof AChoiceBeanPathElement) {
+                                final AChoiceBeanPathElement choice = (AChoiceBeanPathElement) e;
+                                if (!choice.isChoiceOnly()) {
+                                    final List<?> choiceValue = choice.getChoiceModifier().getValueFromRoot(source);
+                                    internalAddListenersToSourceHierarchy(e, choiceValue);
+                                }
+                            }
                         }
                     }
-                }
-            }
 
-            private void internalAddListenersToSourceHierarchy(final IPropertyBeanPathElement e,
-                    final Object newSource) {
-                if (newSource instanceof Iterable) {
-                    final Iterable<?> it = (Iterable<?>) newSource;
-                    for (final Object value : it) {
-                        internalAddListenersToSourceHierarchySimpleValue(e, value);
+                    private void internalAddListenersToSourceHierarchy(final IPropertyBeanPathElement e,
+                            final Object newSource) {
+                        if (newSource instanceof Iterable) {
+                            final Iterable<?> it = (Iterable<?>) newSource;
+                            for (final Object value : it) {
+                                internalAddListenersToSourceHierarchySimpleValue(e, value);
+                            }
+                        } else {
+                            internalAddListenersToSourceHierarchySimpleValue(e, newSource);
+                        }
                     }
-                } else {
-                    internalAddListenersToSourceHierarchySimpleValue(e, newSource);
-                }
-            }
 
-            private void internalAddListenersToSourceHierarchySimpleValue(final IPropertyBeanPathElement e,
-                    final Object value) {
-                if (value != null && value instanceof APropertyChangeSupported) {
-                    Assertions.assertThat(BeanPathUtil.isShallowBeanPath(e.getBeanPath())).isTrue();
-                    final APropertyChangeSupported cValue = (APropertyChangeSupported) value;
-                    final ChildRecursivePersistentPropertyChangeListener child = new ChildRecursivePersistentPropertyChangeListener(
-                            cValue, ARecursivePersistentPropertyChangeListener.this,
-                            e.getAccessor().getBeanPathFragment());
-                    child.addListenersToSourceHierarchy();
-                }
-            }
+                    private void internalAddListenersToSourceHierarchySimpleValue(final IPropertyBeanPathElement e,
+                            final Object value) {
+                        if (value != null && value instanceof APropertyChangeSupported) {
+                            Assertions.assertThat(BeanPathUtil.isShallowBeanPath(e.getBeanPath())).isTrue();
+                            final APropertyChangeSupported cValue = (APropertyChangeSupported) value;
+                            final ChildRecursivePersistentPropertyChangeListener child = new ChildRecursivePersistentPropertyChangeListener(
+                                    cValue, ARecursivePersistentPropertyChangeListener.this,
+                                    e.getAccessor().getBeanPathFragment());
+                            child.addListenersToSourceHierarchy();
+                        }
+                    }
 
-        }).process();
+                });
     }
 
     private void maybeRemoveChildPropertyChangeListenersSimpleValue(final Object oldValue) {
