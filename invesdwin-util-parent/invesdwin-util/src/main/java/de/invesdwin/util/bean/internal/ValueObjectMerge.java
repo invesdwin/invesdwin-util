@@ -67,7 +67,7 @@ public class ValueObjectMerge {
             }
 
             final IPropertyBeanPathElement therePropertyElement = (IPropertyBeanPathElement) thereElement;
-            Object valueThere = therePropertyElement.getModifier().getValue();
+            Object valueThere = therePropertyElement.getModifier().getValueFromRoot(o);
             if (clone && valueThere != null) {
                 if (valueThere instanceof AValueObject) {
                     final AValueObject cValueThere = (AValueObject) valueThere;
@@ -111,7 +111,7 @@ public class ValueObjectMerge {
         if (copy) {
             final Class<?> type = thisPropertyElement.getModifier().getBeanClassAccessor().getRawType().getType();
             final Object convertedValue = convertValue(valueThere, type);
-            thisPropertyElement.getModifier().setValue(convertedValue);
+            thisPropertyElement.getModifier().setValueFromRoot(thisVo, convertedValue);
         }
     }
 
