@@ -15,6 +15,7 @@ public final class TimeZones {
 
     public static final TimeZone UTC = getTimeZone("UTC");
     public static final TimeZone EET = getTimeZone("EET");
+    public static final TimeZone CET = getTimeZone("CET");
     public static final TimeZone EUROPE_BERLIN = getTimeZone("Europe/Berlin");
     public static final TimeZone AMERICA_NEWYORK = getTimeZone("America/New_York");
 
