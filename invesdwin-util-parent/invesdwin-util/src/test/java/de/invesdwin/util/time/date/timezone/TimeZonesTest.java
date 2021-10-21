@@ -12,6 +12,11 @@ import de.invesdwin.util.time.date.FDateBuilder;
 public class TimeZonesTest {
 
     @Test
+    public void testOffsets() {
+        showTimeZoneInfo(TimeZones.getFTimeZone("UTC+1"));
+    }
+
+    @Test
     public void testTimeZones() {
         showTimeZoneInfo(TimeZones.getFTimeZone("Europe/London"));
         showTimeZoneInfo(TimeZones.getFTimeZone("America/New_York"));

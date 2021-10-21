@@ -13,14 +13,27 @@ import de.invesdwin.util.lang.Strings;
 @Immutable
 public final class TimeZones {
 
-    public static final TimeZone UTC = getTimeZone("UTC");
-    public static final TimeZone EET = getTimeZone("EET");
-    public static final TimeZone CET = getTimeZone("CET");
-    public static final TimeZone EUROPE_BERLIN = getTimeZone("Europe/Berlin");
-    public static final TimeZone AMERICA_NEWYORK = getTimeZone("America/New_York");
+    public static final TimeZone UTC;
+    public static final TimeZone EET;
+    public static final TimeZone CET;
+    public static final TimeZone EUROPE_BERLIN;
+    public static final TimeZone AMERICA_NEWYORK;
 
-    private static final String[] SEARCH_PREFIXES = new String[] { "UTC-", "UTC+", "GMT-", "GMT+", "UT-", "UT+" };
-    private static final String[] REPLACE_PREFIXES = new String[] { "UTC-", "UTC+", "UTC-", "UTC+", "UTC-", "UTC+" };
+    private static final String[] SEARCH_PREFIXES;
+    private static final String[] REPLACE_PREFIXES;
+
+    static {
+        SEARCH_PREFIXES = new String[] { "UTC-", "UTC+", "GMT-", "GMT+", "UT-", "UT+" };
+        REPLACE_PREFIXES = new String[] { "UTC-", "UTC+", "UTC-", "UTC+", "UTC-", "UTC+" };
+
+        //CHECKSTYLE:OFF
+        UTC = TimeZone.getTimeZone("UTC");
+        //CHECKSTYLE:ON
+        EET = getTimeZone("EET");
+        CET = getTimeZone("CET");
+        EUROPE_BERLIN = getTimeZone("Europe/Berlin");
+        AMERICA_NEWYORK = getTimeZone("America/New_York");
+    }
 
     private TimeZones() {
     }
@@ -29,9 +42,10 @@ public final class TimeZones {
         if (Strings.isBlank(id)) {
             return null;
         }
-        //CHECKSTYLE:OFF
-        final TimeZone tz = TimeZone.getTimeZone(id);
-        //CHECKSTYLE:ON
+        final TimeZone tz = adjustedGetTimeZone(id);
+        if (tz == null) {
+            throw new NullPointerException("Unable to parse: " + id);
+        }
         Assertions.assertThat(tz.getID()).as("Invalid timeZoneId: %s", id).isEqualToIgnoringCase(id);
         return tz;
     }
@@ -40,10 +54,8 @@ public final class TimeZones {
         if (Strings.isBlankOrNullText(id)) {
             return null;
         }
-        //CHECKSTYLE:OFF
-        final TimeZone tz = TimeZone.getTimeZone(id);
-        //CHECKSTYLE:ON
-        if (!tz.getID().equalsIgnoreCase(id)) {
+        final TimeZone tz = adjustedGetTimeZone(id);
+        if (tz == null || !tz.getID().equalsIgnoreCase(id)) {
             return null;
         }
         return tz;
@@ -126,10 +138,24 @@ public final class TimeZones {
         if (timeZone == null) {
             return null;
         } else {
-            //CHECKSTYLE:OFF
-            return TimeZone.getTimeZone(timeZone);
-            //CHECKSTYLE:ON
+            final String id = timeZone.getId();
+            return adjustedGetTimeZone(id);
         }
+    }
+
+    private static TimeZone adjustedGetTimeZone(final String id) {
+        final String adjId = maybeReplacePrefix(id).replace("UTC", "GMT");
+        if ("GMT".equals(adjId)) {
+            return UTC;
+        }
+        //CHECKSTYLE:OFF
+        final TimeZone timeZone = TimeZone.getTimeZone(adjId);
+        //CHECKSTYLE:ON
+        if (timeZone.getID().equals("GMT") && !"GMT".equals(adjId)) {
+            //java internal fallback was used
+            return null;
+        }
+        return timeZone;
     }
 
     public static DateTimeZone getDateTimeZone(final ZoneId zoneId) {

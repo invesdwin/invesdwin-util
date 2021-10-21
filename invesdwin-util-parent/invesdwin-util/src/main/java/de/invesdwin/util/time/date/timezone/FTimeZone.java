@@ -53,9 +53,7 @@ public class FTimeZone implements IFTimeZoneProvider {
 
     public FTimeZone(final ZoneId zoneId) {
         this.zoneId = zoneId;
-        //CHECKSTYLE:OFF
-        this.timeZone = TimeZone.getTimeZone(zoneId);
-        //CHECKSTYLE:ON
+        this.timeZone = TimeZones.getTimeZone(zoneId);
         this.isUTC = TimeZones.UTC.equals(timeZone);
         this.dateTimeZone = DateTimeZone.forTimeZone(timeZone);
         //CHECKSTYLE:OFF
