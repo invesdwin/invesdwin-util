@@ -27,8 +27,8 @@ public class TimeZonesTest {
         try {
             TimeZones.getTimeZone("America/New York");
             Assertions.failBecauseExceptionWasNotThrown(AssertionError.class);
-        } catch (final AssertionError e) {
-            Assertions.assertThat(e.getMessage()).contains("GMT");
+        } catch (final Exception e) {
+            Assertions.assertThat(e.getMessage()).contains("America/New York");
         }
     }
 

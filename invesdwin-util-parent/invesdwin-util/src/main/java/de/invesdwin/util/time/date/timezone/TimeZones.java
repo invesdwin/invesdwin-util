@@ -44,7 +44,7 @@ public final class TimeZones {
         }
         final TimeZone tz = adjustedGetTimeZone(id);
         if (tz == null) {
-            throw new NullPointerException("Unable to parse: " + id);
+            throw new IllegalArgumentException("Unable to parse: " + id);
         }
         Assertions.assertThat(tz.getID()).as("Invalid timeZoneId: %s", id).isEqualToIgnoringCase(id);
         return tz;
