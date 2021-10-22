@@ -36,9 +36,4 @@ public class SortedBufferingIteratorTest {
 
     }
 
-    @Test
-    public void testOnElementSkipped() {
-        throw new RuntimeException("not yet implemented");
-    }
-
 }
