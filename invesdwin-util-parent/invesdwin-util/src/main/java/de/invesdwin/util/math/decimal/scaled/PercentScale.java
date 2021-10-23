@@ -75,4 +75,16 @@ public enum PercentScale implements IDecimalScale<Percent, PercentScale> {
         return percent / 100D;
     }
 
+    public static double rateToPercent(final double rate) {
+        return rate * 100D;
+    }
+
+    public static double permilleToRate(final double permille) {
+        return permille / 1000D;
+    }
+
+    public static double rateToPermille(final double rate) {
+        return rate * 1000D;
+    }
+
 }
