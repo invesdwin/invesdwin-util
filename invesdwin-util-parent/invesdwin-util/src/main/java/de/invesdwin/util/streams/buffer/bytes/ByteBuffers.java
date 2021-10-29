@@ -346,6 +346,10 @@ public final class ByteBuffers {
         return (int) (addressOffset(buffer) - offset);
     }
 
+    public static IByteBuffer wrap(final long address, final int length) {
+        return new UnsafeByteBuffer(address, length);
+    }
+
     public static IByteBuffer wrap(final DirectBuffer buffer) {
         /*
          * We do not check if the instance might be a IByteBuffer already since we can not risk to share the mutable
@@ -371,6 +375,54 @@ public final class ByteBuffers {
             return wrap(buffer.array());
         } else {
             return new UnsafeByteBuffer(buffer);
+        }
+    }
+
+    public static IByteBuffer wrapFrom(final byte[] bytes, final int index) {
+        return wrap(bytes, index, bytes.length - index);
+    }
+
+    public static IByteBuffer wrapTo(final byte[] bytes, final int length) {
+        return wrap(bytes, 0, length);
+    }
+
+    public static IByteBuffer wrap(final byte[] bytes, final int index, final int length) {
+        if (index == 0 && length == bytes.length) {
+            return wrap(bytes);
+        } else {
+            return new UnsafeArrayByteBuffer(bytes, index, length);
+        }
+    }
+
+    public static IByteBuffer wrapFrom(final java.nio.ByteBuffer buffer, final int index) {
+        return wrap(buffer, index, buffer.capacity() - index);
+    }
+
+    public static IByteBuffer wrapTo(final java.nio.ByteBuffer buffer, final int length) {
+        return wrap(buffer, 0, length);
+    }
+
+    public static IByteBuffer wrap(final java.nio.ByteBuffer buffer, final int index, final int length) {
+        if (index == 0 && length == buffer.capacity()) {
+            return wrap(buffer);
+        } else {
+            return new UnsafeByteBuffer(buffer, index, length);
+        }
+    }
+
+    public static IByteBuffer wrapFrom(final DirectBuffer buffer, final int index) {
+        return wrap(buffer, index, buffer.capacity() - index);
+    }
+
+    public static IByteBuffer wrapTo(final DirectBuffer buffer, final int length) {
+        return wrap(buffer, 0, length);
+    }
+
+    public static IByteBuffer wrap(final DirectBuffer buffer, final int index, final int length) {
+        if (index == 0 && length == buffer.capacity()) {
+            return wrap(buffer);
+        } else {
+            return new UnsafeByteBuffer(buffer, index, length);
         }
     }
 
@@ -454,54 +506,6 @@ public final class ByteBuffers {
         }
     }
 
-    public static IByteBuffer wrapFrom(final byte[] bytes, final int index) {
-        return wrap(bytes, index, bytes.length - index);
-    }
-
-    public static IByteBuffer wrapTo(final byte[] bytes, final int length) {
-        return wrap(bytes, 0, length);
-    }
-
-    public static IByteBuffer wrap(final byte[] bytes, final int index, final int length) {
-        if (index == 0 && length == bytes.length) {
-            return wrap(bytes);
-        } else {
-            return new UnsafeArrayByteBuffer(bytes, index, length);
-        }
-    }
-
-    public static IByteBuffer wrapFrom(final java.nio.ByteBuffer buffer, final int index) {
-        return wrap(buffer, index, buffer.capacity() - index);
-    }
-
-    public static IByteBuffer wrapTo(final java.nio.ByteBuffer buffer, final int length) {
-        return wrap(buffer, 0, length);
-    }
-
-    public static IByteBuffer wrap(final java.nio.ByteBuffer buffer, final int index, final int length) {
-        if (index == 0 && length == buffer.capacity()) {
-            return wrap(buffer);
-        } else {
-            return new UnsafeByteBuffer(buffer, index, length);
-        }
-    }
-
-    public static IByteBuffer wrapFrom(final DirectBuffer buffer, final int index) {
-        return wrap(buffer, index, buffer.capacity() - index);
-    }
-
-    public static IByteBuffer wrapTo(final DirectBuffer buffer, final int length) {
-        return wrap(buffer, 0, length);
-    }
-
-    public static IByteBuffer wrap(final DirectBuffer buffer, final int index, final int length) {
-        if (index == 0 && length == buffer.capacity()) {
-            return wrap(buffer);
-        } else {
-            return new UnsafeByteBuffer(buffer, index, length);
-        }
-    }
-
     public static String toString(final IByteBuffer buffer) {
         final byte[] byteArray = buffer.asByteArray(0, Integers.min(MAX_TO_STRING_COUNT, buffer.capacity()));
         return Objects.toStringHelper(buffer)
@@ -527,21 +531,7 @@ public final class ByteBuffers {
         return address;
     }
 
-    public static DirectBuffer assertBuffer(final DirectBuffer buffer) {
-        if (buffer == null) {
-            throw new NullPointerException("buffer should not be null (this can cause a jvm crash)");
-        }
-        return buffer;
-    }
-
-    public static java.nio.ByteBuffer assertBuffer(final java.nio.ByteBuffer buffer) {
-        if (buffer == null) {
-            throw new NullPointerException("buffer should not be null (this can cause a jvm crash)");
-        }
-        return buffer;
-    }
-
-    public static byte[] assertBuffer(final byte[] buffer) {
+    public static <T> T assertBuffer(final T buffer) {
         if (buffer == null) {
             throw new NullPointerException("buffer should not be null (this can cause a jvm crash)");
         }

@@ -245,7 +245,7 @@ public class ChronicleDelegateMemoryBuffer implements IMemoryBuffer {
 
     @Override
     public void getBytes(final long index, final IMemoryBuffer dstBuffer, final long dstIndex, final long length) {
-        for (int i = 0; i < length; i++) {
+        for (long i = 0; i < length; i++) {
             dstBuffer.putByte(dstIndex + i, delegate.readByte(index + i));
         }
     }
@@ -266,7 +266,7 @@ public class ChronicleDelegateMemoryBuffer implements IMemoryBuffer {
         final byte[] array = byteArray();
         if (array != null) {
             final long offset = BufferUtil.ARRAY_BASE_OFFSET;
-            return (int) (addressOffset() - offset);
+            return addressOffset() - offset;
         }
         return 0;
     }
