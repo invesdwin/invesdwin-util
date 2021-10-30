@@ -75,6 +75,9 @@ public final class MemoryLimit {
     }
 
     private static void logWarning(final Object holder, final String name, final long size) {
+        if (!LOGGER.isWarnEnabled()) {
+            return;
+        }
         final String holderStr;
         if (holder instanceof Class) {
             final Class<?> cHolder = (Class<?>) holder;
