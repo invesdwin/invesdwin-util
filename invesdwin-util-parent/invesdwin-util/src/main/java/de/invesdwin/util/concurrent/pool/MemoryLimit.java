@@ -8,6 +8,7 @@ import javax.annotation.concurrent.ThreadSafe;
 import com.github.benmanes.caffeine.cache.LoadingCache;
 
 import de.invesdwin.util.concurrent.loop.AtomicLoopInterruptedCheck;
+import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.time.date.FTimeUnit;
 import de.invesdwin.util.time.duration.Duration;
@@ -32,6 +33,7 @@ public final class MemoryLimit {
         }
     };
     private static volatile boolean prevMemoryLimitReached = false;
+    private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(MemoryLimit.class);
 
     private MemoryLimit() {
     }
@@ -49,17 +51,20 @@ public final class MemoryLimit {
         }
     }
 
-    public static void maybeClearCache(final LoadingCache<?, ?> cache, final Lock lock) {
+    public static void maybeClearCache(final Object holder, final String name, final LoadingCache<?, ?> cache,
+            final Lock lock) {
         if (isMemoryLimitReached()) {
-            maybeClearCacheUnchecked(cache, lock);
+            maybeClearCacheUnchecked(holder, name, cache, lock);
         }
     }
 
-    public static void maybeClearCacheUnchecked(final LoadingCache<?, ?> cache, final Lock lock) {
+    public static void maybeClearCacheUnchecked(final Object holder, final String name, final LoadingCache<?, ?> cache,
+            final Lock lock) {
         if (cache.estimatedSize() > MemoryLimit.CLEAR_CACHE_MIN_COUNT) {
             if (lock.tryLock()) {
                 try {
                     if (cache.estimatedSize() > MemoryLimit.CLEAR_CACHE_MIN_COUNT) {
+                        logWarning(holder, name, cache.estimatedSize());
                         cache.asMap().clear();
                     }
                 } finally {
@@ -69,16 +74,28 @@ public final class MemoryLimit {
         }
     }
 
-    public static void maybeClearCache(final Map<?, ?> cache) {
+    private static void logWarning(final Object holder, final String name, final long size) {
+        final String holderStr;
+        if (holder instanceof Class) {
+            final Class<?> cHolder = (Class<?>) holder;
+            holderStr = cHolder.getSimpleName();
+        } else {
+            holderStr = Strings.asString(holder);
+        }
+        LOGGER.warn("Clearing cache [%s.%s] with [%s] values because memory limit is exceeded.", holderStr, name, size);
+    }
+
+    public static void maybeClearCache(final Object holder, final String name, final Map<?, ?> cache) {
         if (isMemoryLimitReached()) {
-            maybeClearCacheUnchecked(cache);
+            maybeClearCacheUnchecked(holder, name, cache);
         }
     }
 
-    public static void maybeClearCacheUnchecked(final Map<?, ?> cache) {
+    public static void maybeClearCacheUnchecked(final Object holder, final String name, final Map<?, ?> cache) {
         if (cache.size() > CLEAR_CACHE_MIN_COUNT) {
             synchronized (cache) {
                 if (cache.size() > CLEAR_CACHE_MIN_COUNT) {
+                    logWarning(holder, name, cache.size());
                     cache.clear();
                 }
             }
