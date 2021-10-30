@@ -10,6 +10,8 @@ import com.github.benmanes.caffeine.cache.LoadingCache;
 import de.invesdwin.util.concurrent.loop.AtomicLoopInterruptedCheck;
 import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.math.Doubles;
+import de.invesdwin.util.math.decimal.scaled.Percent;
+import de.invesdwin.util.math.decimal.scaled.PercentScale;
 import de.invesdwin.util.time.date.FTimeUnit;
 import de.invesdwin.util.time.duration.Duration;
 
@@ -17,10 +19,11 @@ import de.invesdwin.util.time.duration.Duration;
 public final class MemoryLimit {
 
     public static final int CLEAR_CACHE_MIN_COUNT = 10;
+    public static final Percent FREE_MEMORY_LIMIT = new Percent(10, PercentScale.PERCENT);
     /**
      * If free memory is below 10%, clear the file buffer cache and load from file for one check period.
      */
-    private static final double FREE_MEMORY_LIMIT_REACHED_RATE = 0.1D;
+    public static final double FREE_MEMORY_LIMIT_RATE = FREE_MEMORY_LIMIT.getRate();
     /**
      * Check each 100ms if we can use the cache again or should clear it again.
      */
@@ -33,6 +36,7 @@ public final class MemoryLimit {
         }
     };
     private static volatile boolean prevMemoryLimitReached = false;
+    private static volatile double prevFreeMemoryRate = getFreeMemoryRate();
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(MemoryLimit.class);
 
     private MemoryLimit() {
@@ -41,14 +45,20 @@ public final class MemoryLimit {
     public static boolean isMemoryLimitReached() {
         try {
             if (MEMORY_LIMIT_REACHED_CHECK.check()) {
-                final Runtime runtime = Runtime.getRuntime();
-                final double freeMemoryRate = Doubles.divide(runtime.freeMemory(), runtime.totalMemory());
-                prevMemoryLimitReached = freeMemoryRate < FREE_MEMORY_LIMIT_REACHED_RATE;
+                final double freeMemoryRate = getFreeMemoryRate();
+                prevFreeMemoryRate = freeMemoryRate;
+                prevMemoryLimitReached = freeMemoryRate < FREE_MEMORY_LIMIT_RATE;
             }
             return prevMemoryLimitReached;
         } catch (final InterruptedException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private static double getFreeMemoryRate() {
+        final Runtime runtime = Runtime.getRuntime();
+        final double freeMemoryRate = Doubles.divide(runtime.freeMemory(), runtime.totalMemory());
+        return freeMemoryRate;
     }
 
     public static void maybeClearCache(final Object holder, final String name, final LoadingCache<?, ?> cache,
@@ -86,7 +96,9 @@ public final class MemoryLimit {
             holderStr = Strings.asString(holder);
         }
         //CHECKSTYLE:OFF
-        LOGGER.warn("Clearing cache [{}.{}] with [{}] values because memory limit is exceeded.", holderStr, name, size);
+        LOGGER.warn("Clearing cache [{}.{}] with [{}] values because free memory limit {} is exceeded: {}", holderStr,
+                name, size, FREE_MEMORY_LIMIT,
+                new Percent(prevFreeMemoryRate, PercentScale.RATE).toString(PercentScale.PERCENT));
         //CHECKSTYLE:ON
     }
 
