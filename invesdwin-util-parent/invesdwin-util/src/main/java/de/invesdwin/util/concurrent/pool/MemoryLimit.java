@@ -82,7 +82,9 @@ public final class MemoryLimit {
         } else {
             holderStr = Strings.asString(holder);
         }
-        LOGGER.warn("Clearing cache [%s.%s] with [%s] values because memory limit is exceeded.", holderStr, name, size);
+        //CHECKSTYLE:OFF
+        LOGGER.warn("Clearing cache [{}.{}] with [{}] values because memory limit is exceeded.", holderStr, name, size);
+        //CHECKSTYLE:ON
     }
 
     public static void maybeClearCache(final Object holder, final String name, final Map<?, ?> cache) {
