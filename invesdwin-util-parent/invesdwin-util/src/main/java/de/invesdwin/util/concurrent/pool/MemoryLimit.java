@@ -19,7 +19,7 @@ import de.invesdwin.util.time.duration.Duration;
 @ThreadSafe
 public final class MemoryLimit {
 
-    public static final int CLEAR_CACHE_MIN_COUNT = 1;
+    public static final int CLEAR_CACHE_MIN_COUNT = 2;
     public static final Percent FREE_MEMORY_LIMIT = new Percent(15, PercentScale.PERCENT);
     /**
      * If free memory is below 10%, clear the file buffer cache and load from file for one check period.
