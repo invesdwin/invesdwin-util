@@ -71,10 +71,10 @@ public final class MemoryLimit {
 
     public static void maybeClearCacheUnchecked(final Object holder, final String name, final LoadingCache<?, ?> cache,
             final Lock lock) {
-        if (cache.estimatedSize() > MemoryLimit.CLEAR_CACHE_MIN_COUNT) {
+        if (cache.estimatedSize() >= MemoryLimit.CLEAR_CACHE_MIN_COUNT) {
             if (lock.tryLock()) {
                 try {
-                    if (cache.estimatedSize() > MemoryLimit.CLEAR_CACHE_MIN_COUNT) {
+                    if (cache.estimatedSize() >= MemoryLimit.CLEAR_CACHE_MIN_COUNT) {
                         logWarning(holder, name, cache.estimatedSize());
                         cache.asMap().clear();
                     }
@@ -110,9 +110,9 @@ public final class MemoryLimit {
     }
 
     public static void maybeClearCacheUnchecked(final Object holder, final String name, final Map<?, ?> cache) {
-        if (cache.size() > CLEAR_CACHE_MIN_COUNT) {
+        if (cache.size() >= CLEAR_CACHE_MIN_COUNT) {
             synchronized (cache) {
-                if (cache.size() > CLEAR_CACHE_MIN_COUNT) {
+                if (cache.size() >= CLEAR_CACHE_MIN_COUNT) {
                     logWarning(holder, name, cache.size());
                     cache.clear();
                 }
