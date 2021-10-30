@@ -96,9 +96,9 @@ public final class MemoryLimit {
             holderStr = Strings.asString(holder);
         }
         //CHECKSTYLE:OFF
-        LOGGER.warn("Clearing cache [{}.{}] with [{}] values because free memory limit {} is exceeded: {}", holderStr,
-                name, size, FREE_MEMORY_LIMIT,
-                new Percent(prevFreeMemoryRate, PercentScale.RATE).toString(PercentScale.PERCENT));
+        LOGGER.warn("Clearing cache [{}.{}] with [{}] values because free memory limit is exceeded: {} < {}", holderStr,
+                name, size, new Percent(prevFreeMemoryRate, PercentScale.RATE).toString(PercentScale.PERCENT),
+                FREE_MEMORY_LIMIT);
         //CHECKSTYLE:ON
     }
 
