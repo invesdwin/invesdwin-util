@@ -7,6 +7,7 @@ import javax.annotation.concurrent.ThreadSafe;
 
 import com.github.benmanes.caffeine.cache.LoadingCache;
 
+import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
 import de.invesdwin.util.concurrent.loop.AtomicLoopInterruptedCheck;
 import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.math.Doubles;
@@ -85,7 +86,7 @@ public final class MemoryLimit {
     }
 
     private static void logWarning(final Object holder, final String name, final long size) {
-        if (!LOGGER.isWarnEnabled()) {
+        if (!AHistoricalCache.isDebugAutomaticReoptimization() || !LOGGER.isWarnEnabled()) {
             return;
         }
         final String holderStr;
