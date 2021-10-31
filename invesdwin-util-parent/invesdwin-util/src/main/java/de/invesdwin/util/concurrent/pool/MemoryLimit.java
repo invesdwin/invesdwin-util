@@ -7,6 +7,7 @@ import javax.annotation.concurrent.ThreadSafe;
 
 import com.github.benmanes.caffeine.cache.LoadingCache;
 
+import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
 import de.invesdwin.util.concurrent.loop.AtomicLoopInterruptedCheck;
 import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.math.Doubles;
@@ -18,7 +19,7 @@ import de.invesdwin.util.time.duration.Duration;
 @ThreadSafe
 public final class MemoryLimit {
 
-    public static final int CLEAR_CACHE_MIN_COUNT = 10;
+    public static final int CLEAR_CACHE_MIN_COUNT = 2;
     public static final Percent FREE_MEMORY_LIMIT = new Percent(10, PercentScale.PERCENT);
     /**
      * If free memory is below 10%, clear the file buffer cache and load from file for one check period.
@@ -70,10 +71,10 @@ public final class MemoryLimit {
 
     public static void maybeClearCacheUnchecked(final Object holder, final String name, final LoadingCache<?, ?> cache,
             final Lock lock) {
-        if (cache.estimatedSize() > MemoryLimit.CLEAR_CACHE_MIN_COUNT) {
+        if (cache.estimatedSize() >= MemoryLimit.CLEAR_CACHE_MIN_COUNT) {
             if (lock.tryLock()) {
                 try {
-                    if (cache.estimatedSize() > MemoryLimit.CLEAR_CACHE_MIN_COUNT) {
+                    if (cache.estimatedSize() >= MemoryLimit.CLEAR_CACHE_MIN_COUNT) {
                         logWarning(holder, name, cache.estimatedSize());
                         cache.asMap().clear();
                     }
@@ -85,7 +86,7 @@ public final class MemoryLimit {
     }
 
     private static void logWarning(final Object holder, final String name, final long size) {
-        if (!LOGGER.isWarnEnabled()) {
+        if (!AHistoricalCache.isDebugAutomaticReoptimization() || !LOGGER.isWarnEnabled()) {
             return;
         }
         final String holderStr;
@@ -109,9 +110,9 @@ public final class MemoryLimit {
     }
 
     public static void maybeClearCacheUnchecked(final Object holder, final String name, final Map<?, ?> cache) {
-        if (cache.size() > CLEAR_CACHE_MIN_COUNT) {
+        if (cache.size() >= CLEAR_CACHE_MIN_COUNT) {
             synchronized (cache) {
-                if (cache.size() > CLEAR_CACHE_MIN_COUNT) {
+                if (cache.size() >= CLEAR_CACHE_MIN_COUNT) {
                     logWarning(holder, name, cache.size());
                     cache.clear();
                 }
