@@ -36,10 +36,21 @@ public class ProcessedEventsRateString {
         if (ratePerMillisecond < 10 && duration.isGreaterThan(Duration.ONE_SECOND)) {
             final double seconds = duration.doubleValue(FTimeUnit.SECONDS);
             final double ratePerSecond = countEvents / seconds;
-            return new Decimal(ratePerSecond).round(2) + "/s";
+            if (ratePerSecond < 1) {
+                final double ratePerMinute = ratePerSecond * FTimeUnit.SECONDS_IN_MINUTE;
+                if (ratePerMinute < 1) {
+                    final double ratePerHour = ratePerMinute * FTimeUnit.MINUTES_IN_HOUR;
+                    return new Decimal(ratePerHour).round(2) + "/h";
+                } else {
+                    return new Decimal(ratePerMinute).round(2) + "/m";
+                }
+            } else {
+                return new Decimal(ratePerSecond).round(2) + "/s";
+            }
         } else {
             if (ratePerMillisecond > 10_000) {
-                return new Decimal(ratePerMillisecond / 1000).round(2) + "/µs";
+                final double ratePerMicrosecond = ratePerMillisecond / FTimeUnit.MICROSECONDS_IN_MILLISECOND;
+                return new Decimal(ratePerMicrosecond).round(2) + "/µs";
             } else {
                 return new Decimal(ratePerMillisecond).round(2) + "/ms";
             }
