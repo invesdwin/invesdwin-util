@@ -122,7 +122,7 @@ public class WrappedExecutorService implements ListeningExecutorService {
         };
     }
 
-    public WrappedExecutorService withLogExceptions(final boolean logExceptions) {
+    public WrappedExecutorService setLogExceptions(final boolean logExceptions) {
         this.logExceptions = logExceptions;
         return this;
     }
@@ -131,7 +131,7 @@ public class WrappedExecutorService implements ListeningExecutorService {
         return logExceptions;
     }
 
-    public WrappedExecutorService withKeepThreadLocals(final boolean keepThreadLocals) {
+    public WrappedExecutorService setKeepThreadLocals(final boolean keepThreadLocals) {
         this.keepThreadLocals = keepThreadLocals;
         return this;
     }
@@ -140,7 +140,7 @@ public class WrappedExecutorService implements ListeningExecutorService {
         return keepThreadLocals;
     }
 
-    public WrappedExecutorService withDynamicThreadName(final boolean dynamicThreadName) {
+    public WrappedExecutorService setDynamicThreadName(final boolean dynamicThreadName) {
         this.dynamicThreadName = dynamicThreadName;
         return this;
     }
@@ -255,7 +255,7 @@ public class WrappedExecutorService implements ListeningExecutorService {
         return waitOnFullPendingCountCondition.getLimit();
     }
 
-    public WrappedExecutorService withWaitOnFullPendingCount(final boolean waitOnFullPendingCount) {
+    public WrappedExecutorService setWaitOnFullPendingCount(final boolean waitOnFullPendingCount) {
         if (waitOnFullPendingCount) {
             this.waitOnFullPendingCountCondition = fullPendingCountCondition;
         } else {
@@ -264,7 +264,7 @@ public class WrappedExecutorService implements ListeningExecutorService {
         return this;
     }
 
-    public WrappedExecutorService withWaitOnFullPendingCount(final int waitOnFullPendingCount) {
+    public WrappedExecutorService setWaitOnFullPendingCount(final int waitOnFullPendingCount) {
         if (waitOnFullPendingCount <= 0) {
             this.waitOnFullPendingCountCondition = zeroPendingCountCondition;
         } else {

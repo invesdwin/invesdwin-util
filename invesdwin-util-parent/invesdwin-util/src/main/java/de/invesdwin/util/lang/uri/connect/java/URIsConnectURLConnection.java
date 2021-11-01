@@ -44,7 +44,7 @@ public final class URIsConnectURLConnection implements IURIsConnect {
     }
 
     @Override
-    public URIsConnectURLConnection withNetworkTimeout(final Duration networkTimeout) {
+    public URIsConnectURLConnection setNetworkTimeout(final Duration networkTimeout) {
         this.networkTimeout = networkTimeout;
         return this;
     }
@@ -60,16 +60,16 @@ public final class URIsConnectURLConnection implements IURIsConnect {
     }
 
     @Override
-    public URIsConnectURLConnection withBasicAuth(final String username, final String password) {
+    public URIsConnectURLConnection addBasicAuth(final String username, final String password) {
         final String authString = username + ":" + password;
         final byte[] authEncBytes = Base64.encodeBase64(authString.getBytes());
         final String authStringEnc = new String(authEncBytes);
-        withHeader("Authorization", "Basic " + authStringEnc);
+        addHeader("Authorization", "Basic " + authStringEnc);
         return this;
     }
 
     @Override
-    public URIsConnectURLConnection withHeader(final String key, final String value) {
+    public URIsConnectURLConnection addHeader(final String key, final String value) {
         if (headers == null) {
             headers = new HashMap<String, String>();
         }
@@ -78,7 +78,7 @@ public final class URIsConnectURLConnection implements IURIsConnect {
     }
 
     @Override
-    public URIsConnectURLConnection withProxy(final Proxy proxy) {
+    public URIsConnectURLConnection setProxy(final Proxy proxy) {
         this.proxy = proxy;
         return this;
     }

@@ -20,7 +20,7 @@ public abstract class APushingRecursiveHistoricalCache<R extends APushingRecursi
     public APushingRecursiveHistoricalCache(final AHistoricalCache<?> parent, final int fullRecursionCount) {
         this.parent = parent;
         this.fullRecursionCount = fullRecursionCount;
-        this.parentQuery = parent.query().withFutureNull();
+        this.parentQuery = parent.query().setFutureNullEnabled();
         setShiftKeyDelegate(parent, true);
         setAdjustKeyProvider(parent.getAdjustKeyProvider());
         this.recursiveQuery = new ARecursiveHistoricalCacheQuery<R>(this, fullRecursionCount, null) {

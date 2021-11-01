@@ -11,19 +11,19 @@ public interface IURIsConnect {
     String HEAD = "HEAD";
     String GET = "GET";
 
-    IURIsConnect withNetworkTimeout(Duration networkTimeout);
+    IURIsConnect setNetworkTimeout(Duration networkTimeout);
 
     Duration getNetworkTimeout();
 
-    IURIsConnect withProxy(Proxy proxy);
+    IURIsConnect setProxy(Proxy proxy);
 
     Proxy getProxy();
 
     URI getUri();
 
-    IURIsConnect withBasicAuth(String username, String password);
+    IURIsConnect addBasicAuth(String username, String password);
 
-    IURIsConnect withHeader(String key, String value);
+    IURIsConnect addHeader(String key, String value);
 
     long lastModified();
 

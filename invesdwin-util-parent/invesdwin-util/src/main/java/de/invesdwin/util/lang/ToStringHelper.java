@@ -102,7 +102,9 @@ public final class ToStringHelper {
         return this;
     }
 
+    //CHECKSTYLE:OFF
     public ToStringHelper with(final Object... objs) {
+        //CHECKSTYLE:ON
         for (final Object obj : objs) {
             if (obj != null) {
                 final String string = obj.toString();

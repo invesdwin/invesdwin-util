@@ -75,7 +75,7 @@ public class ConfiguredForkJoinPool extends ForkJoinPool {
         configure();
     }
 
-    public ConfiguredForkJoinPool withLogExceptions(final boolean logExceptions) {
+    public ConfiguredForkJoinPool setLogExceptions(final boolean logExceptions) {
         this.logExceptions = logExceptions;
         return this;
     }
@@ -84,7 +84,7 @@ public class ConfiguredForkJoinPool extends ForkJoinPool {
         return logExceptions;
     }
 
-    public ConfiguredForkJoinPool withKeepThreadLocals(final boolean keepThreadLocals) {
+    public ConfiguredForkJoinPool setKeepThreadLocals(final boolean keepThreadLocals) {
         this.keepThreadLocals = keepThreadLocals;
         return this;
     }
@@ -93,7 +93,7 @@ public class ConfiguredForkJoinPool extends ForkJoinPool {
         return keepThreadLocals;
     }
 
-    public ConfiguredForkJoinPool withDynamicThreadName(final boolean dynamicThreadName) {
+    public ConfiguredForkJoinPool setDynamicThreadName(final boolean dynamicThreadName) {
         this.dynamicThreadName = dynamicThreadName;
         return this;
     }

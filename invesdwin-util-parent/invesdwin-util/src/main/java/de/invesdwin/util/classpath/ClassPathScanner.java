@@ -49,7 +49,7 @@ public class ClassPathScanner
         return super.isCandidateComponent(metadataReader);
     }
 
-    public ClassPathScanner withInterfacesOnly() {
+    public ClassPathScanner setInterfacesOnly() {
         interfacesOnly = true;
         return this;
     }

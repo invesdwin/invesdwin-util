@@ -24,7 +24,7 @@ public class RobustPlateauInterpolationConfig {
         return isHigherBetter;
     }
 
-    public RobustPlateauInterpolationConfig withHigherBetter(final boolean isHigherBetter) {
+    public RobustPlateauInterpolationConfig setHigherBetter(final boolean isHigherBetter) {
         this.isHigherBetter = isHigherBetter;
         return this;
     }
@@ -33,7 +33,7 @@ public class RobustPlateauInterpolationConfig {
      * Edges will only get punished when the values size is >= 5, or else the data is insufficient to tell that the
      * edges are actually worse.
      */
-    public RobustPlateauInterpolationConfig withPunishEdges(final boolean isPunishEdges) {
+    public RobustPlateauInterpolationConfig setPunishEdges(final boolean isPunishEdges) {
         this.isPunishEdges = isPunishEdges;
         return this;
     }
@@ -42,7 +42,7 @@ public class RobustPlateauInterpolationConfig {
         return maxSegments;
     }
 
-    public RobustPlateauInterpolationConfig withMaxSegments(final int maxSegments) {
+    public RobustPlateauInterpolationConfig setMaxSegments(final int maxSegments) {
         Assertions.assertThat(maxSegments).isGreaterThanOrEqualTo(1);
         this.maxSegments = maxSegments;
         return this;

@@ -37,12 +37,12 @@ public final class TaskInfoCallable<V> implements IPriorityCallable<V>, ITaskInf
         TaskInfoManager.onCreated(this);
     }
 
-    public TaskInfoCallable<V> withDescription(final String description) {
+    public TaskInfoCallable<V> setDescription(final String description) {
         this.description = description;
         return this;
     }
 
-    public TaskInfoCallable<V> withInheritable(final boolean inheritable) {
+    public TaskInfoCallable<V> setInheritable(final boolean inheritable) {
         Assertions.checkEquals(status, TaskInfoStatus.CREATED);
         this.inheritable = inheritable;
         return this;

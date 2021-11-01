@@ -36,7 +36,7 @@ public class DecimalAggregateInterpolationsTest {
         }
         final List<? extends Decimal> interpolatedValues = Decimal.valueOf(values)
                 .interpolate()
-                .bSpline(new BSplineInterpolationConfig().withDegree(values.size() - 1))
+                .bSpline(new BSplineInterpolationConfig().setDegree(values.size() - 1))
                 .values();
         Assertions.assertThat(values).hasSameSizeAs(interpolatedValues);
     }

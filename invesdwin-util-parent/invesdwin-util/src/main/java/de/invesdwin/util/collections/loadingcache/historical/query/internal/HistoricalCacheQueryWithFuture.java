@@ -19,14 +19,14 @@ public class HistoricalCacheQueryWithFuture<V> extends HistoricalCacheQuery<V>
     }
 
     @Override
-    public IHistoricalCacheQueryWithFuture<V> withElementFilter(
+    public IHistoricalCacheQueryWithFuture<V> setElementFilter(
             final IHistoricalCacheQueryElementFilter<V> elementFilter) {
-        return (IHistoricalCacheQueryWithFuture<V>) super.withElementFilter(elementFilter);
+        return (IHistoricalCacheQueryWithFuture<V>) super.setElementFilter(elementFilter);
     }
 
     @Deprecated
     @Override
-    public IHistoricalCacheQueryWithFuture<V> withFutureNull() {
+    public IHistoricalCacheQueryWithFuture<V> setFutureNullEnabled() {
         throw new IllegalStateException(
                 "withFuture() has already been called. Please create a new query for this and call withFutureNull() directly");
     }
@@ -40,7 +40,7 @@ public class HistoricalCacheQueryWithFuture<V> extends HistoricalCacheQuery<V>
     public final FDate getNextKey(final FDate key, final int shiftForwardUnits) {
         final IHistoricalCacheQuery<?> interceptor = getKeysQueryInterceptor();
         if (interceptor != null) {
-            return interceptor.withFuture().getNextKey(key, shiftForwardUnits);
+            return interceptor.setFutureEnabled().getNextKey(key, shiftForwardUnits);
         }
         assertShiftUnitsPositive(shiftForwardUnits);
         return IHistoricalEntry.unwrapEntryKey(getNextEntry(key, shiftForwardUnits));
@@ -50,7 +50,7 @@ public class HistoricalCacheQueryWithFuture<V> extends HistoricalCacheQuery<V>
     public ICloseableIterable<FDate> getNextKeys(final FDate key, final int shiftForwardUnits) {
         final IHistoricalCacheQuery<?> interceptor = getKeysQueryInterceptor();
         if (interceptor != null) {
-            return interceptor.withFuture().getNextKeys(key, shiftForwardUnits);
+            return interceptor.setFutureEnabled().getNextKeys(key, shiftForwardUnits);
         }
         assertShiftUnitsPositiveNonZero(shiftForwardUnits);
         return new ICloseableIterable<FDate>() {

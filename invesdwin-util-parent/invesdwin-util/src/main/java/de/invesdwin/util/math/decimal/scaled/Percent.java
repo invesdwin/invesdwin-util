@@ -268,7 +268,7 @@ public class Percent extends AScaledDecimal<Percent, PercentScale> {
 
     @Override
     public ScaledDecimalToStringBuilder<Percent, PercentScale> toStringBuilder() {
-        return super.toStringBuilder().withDecimalDigitsTrailing(true);
+        return super.toStringBuilder().setDecimalDigitsTrailing(true);
     }
 
     public static double toValue(final Percent value, final PercentScale scale) {

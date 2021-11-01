@@ -142,7 +142,7 @@ public abstract class AScaledDecimal<T extends AScaledDecimal<T, S>, S extends I
     }
 
     public final String toString(final S scale, final boolean withSymbol) {
-        return toStringBuilder().withScale(scale).withSymbol(withSymbol).toString();
+        return toStringBuilder().setScale(scale).setSymbol(withSymbol).toString();
     }
 
     public ScaledDecimalToStringBuilder<T, S> toStringBuilder() {

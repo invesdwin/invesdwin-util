@@ -14,7 +14,7 @@ public class ScaledDecimalToStringBuilder<T extends AScaledDecimal<T, S>, S exte
 
     private final T parent;
     private S scale;
-    private boolean withSymbol = true;
+    private boolean symbol = true;
     private Integer decimalDigits;
     private boolean decimalDigitsOptional = true;
     private boolean decimalDigitsTrailing;
@@ -24,26 +24,25 @@ public class ScaledDecimalToStringBuilder<T extends AScaledDecimal<T, S>, S exte
         this.scale = parent.getScale();
     }
 
-    public ScaledDecimalToStringBuilder<T, S> withScale(final S scale) {
+    public ScaledDecimalToStringBuilder<T, S> setScale(final S scale) {
         this.scale = scale;
         return this;
     }
 
-    public ScaledDecimalToStringBuilder<T, S> withoutSymbol() {
-        withSymbol = false;
+    public ScaledDecimalToStringBuilder<T, S> setSymbolDisabled() {
+        return setSymbol(false);
+    }
+
+    public ScaledDecimalToStringBuilder<T, S> setSymbol(final boolean symbol) {
+        this.symbol = symbol;
         return this;
     }
 
-    public ScaledDecimalToStringBuilder<T, S> withSymbol(final boolean withSymbol) {
-        this.withSymbol = withSymbol;
-        return this;
+    public boolean isSymbol() {
+        return symbol;
     }
 
-    public boolean isWithSymbol() {
-        return withSymbol;
-    }
-
-    public ScaledDecimalToStringBuilder<T, S> withDecimalDigits(final Integer decimalDigits) {
+    public ScaledDecimalToStringBuilder<T, S> setDecimalDigits(final Integer decimalDigits) {
         this.decimalDigits = decimalDigits;
         return this;
     }
@@ -52,22 +51,22 @@ public class ScaledDecimalToStringBuilder<T extends AScaledDecimal<T, S>, S exte
         return decimalDigits;
     }
 
-    public ScaledDecimalToStringBuilder<T, S> withDecimalDigitsRequired() {
-        withDecimalDigitsOptional(false);
+    public ScaledDecimalToStringBuilder<T, S> setDecimalDigitsRequired() {
+        setDecimalDigitsOptional(false);
         return this;
     }
 
-    public ScaledDecimalToStringBuilder<T, S> withDecimalDigitsOptional(final boolean decimalDigitsOptional) {
+    public ScaledDecimalToStringBuilder<T, S> setDecimalDigitsOptional(final boolean decimalDigitsOptional) {
         this.decimalDigitsOptional = decimalDigitsOptional;
         return this;
     }
 
-    public ScaledDecimalToStringBuilder<T, S> withDecimalDigitsTrailing() {
-        withDecimalDigitsTrailing(true);
+    public ScaledDecimalToStringBuilder<T, S> setDecimalDigitsTrailing() {
+        setDecimalDigitsTrailing(true);
         return this;
     }
 
-    public ScaledDecimalToStringBuilder<T, S> withDecimalDigitsTrailing(final boolean decimalDigitsTrailing) {
+    public ScaledDecimalToStringBuilder<T, S> setDecimalDigitsTrailing(final boolean decimalDigitsTrailing) {
         this.decimalDigitsTrailing = decimalDigitsTrailing;
         return this;
     }
@@ -100,7 +99,7 @@ public class ScaledDecimalToStringBuilder<T extends AScaledDecimal<T, S>, S exte
         } else {
             trailingDecimalDigits = providedDecimalDigits;
         }
-        final String formatStr = scale.getFormat(parent, withSymbol, trailingDecimalDigits, decimalDigitsOptional);
+        final String formatStr = scale.getFormat(parent, symbol, trailingDecimalDigits, decimalDigitsOptional);
         return formatStr;
     }
 
@@ -112,7 +111,7 @@ public class ScaledDecimalToStringBuilder<T extends AScaledDecimal<T, S>, S exte
         final DecimalFormat formatter = Decimal.newDecimalFormatInstance(format);
         final double value = parent.getValue(scale);
         final String str = formatter.format(value);
-        if (withSymbol) {
+        if (symbol) {
             return normalizeNegativeZero(str, scale.getSymbol().length());
         } else {
             return normalizeNegativeZero(str, 0);

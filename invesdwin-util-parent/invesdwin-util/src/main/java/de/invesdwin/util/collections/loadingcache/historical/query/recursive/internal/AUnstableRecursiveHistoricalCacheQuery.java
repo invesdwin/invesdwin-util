@@ -79,8 +79,8 @@ public abstract class AUnstableRecursiveHistoricalCacheQuery<V> implements IRecu
                     "unstableRecursionCount should not be negative: " + unstableRecursionCount);
         }
         this.unstableRecursionCount = unstableRecursionCount;
-        this.parentQuery = parent.query().withFutureNull();
-        this.parentQueryWithFuture = parent.query().withFuture();
+        this.parentQuery = parent.query().setFutureNullEnabled();
+        this.parentQueryWithFuture = parent.query().setFutureEnabled();
         this.cachedResults = new ALoadingCache<FDate, V>() {
 
             @Override
@@ -121,7 +121,7 @@ public abstract class AUnstableRecursiveHistoricalCacheQuery<V> implements IRecu
         this.fullRecursionKeysResults = new FullRecursionKeysCache(parent.getShiftKeyProvider().getParent(),
                 fullRecursionCount);
         fullRecursionKeysResults.enableTrailingQueryCore();
-        this.fullRecursionKeysResultsQueryWithFutureNull = fullRecursionKeysResults.query().withFutureNull();
+        this.fullRecursionKeysResultsQueryWithFutureNull = fullRecursionKeysResults.query().setFutureNullEnabled();
         parent.increaseMaximumSize(fullRecursionCount * 2, "fullRecursionCount");
         parent.getPutProvider().registerPutListener(fullRecursionKeysResults);
     }

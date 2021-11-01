@@ -8,11 +8,11 @@ import de.invesdwin.util.time.date.FDate;
 
 public interface IHistoricalCacheQuery<V> extends IHistoricalCacheQueryInternalMethods<V> {
 
-    IHistoricalCacheQuery<V> withElementFilter(IHistoricalCacheQueryElementFilter<V> elementFilter);
+    IHistoricalCacheQuery<V> setElementFilter(IHistoricalCacheQueryElementFilter<V> elementFilter);
 
-    IHistoricalCacheQuery<V> withFutureNull();
+    IHistoricalCacheQuery<V> setFutureNullEnabled();
 
-    IHistoricalCacheQueryWithFuture<V> withFuture();
+    IHistoricalCacheQueryWithFuture<V> setFutureEnabled();
 
     IHistoricalEntry<V> getEntry(FDate key);
 

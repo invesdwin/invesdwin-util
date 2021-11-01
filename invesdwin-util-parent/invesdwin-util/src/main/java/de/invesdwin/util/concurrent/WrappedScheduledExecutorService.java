@@ -115,18 +115,18 @@ public class WrappedScheduledExecutorService extends WrappedExecutorService
     }
 
     @Override
-    public WrappedScheduledExecutorService withLogExceptions(final boolean logExceptions) {
-        return (WrappedScheduledExecutorService) super.withLogExceptions(logExceptions);
+    public WrappedScheduledExecutorService setLogExceptions(final boolean logExceptions) {
+        return (WrappedScheduledExecutorService) super.setLogExceptions(logExceptions);
     }
 
     @Override
-    public WrappedScheduledExecutorService withWaitOnFullPendingCount(final boolean waitOnFullPendingCount) {
-        return (WrappedScheduledExecutorService) super.withWaitOnFullPendingCount(waitOnFullPendingCount);
+    public WrappedScheduledExecutorService setWaitOnFullPendingCount(final boolean waitOnFullPendingCount) {
+        return (WrappedScheduledExecutorService) super.setWaitOnFullPendingCount(waitOnFullPendingCount);
     }
 
     @Override
-    public WrappedScheduledExecutorService withDynamicThreadName(final boolean dynamicThreadName) {
-        return (WrappedScheduledExecutorService) super.withDynamicThreadName(dynamicThreadName);
+    public WrappedScheduledExecutorService setDynamicThreadName(final boolean dynamicThreadName) {
+        return (WrappedScheduledExecutorService) super.setDynamicThreadName(dynamicThreadName);
     }
 
 }

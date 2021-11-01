@@ -26,7 +26,7 @@ public class CaffeineLoadingCacheMapConfig {
             .newDisabledExecutor(CaffeineLoadingCacheMapConfig.class.getSimpleName() + "_DISABLED");
     private static final WrappedExecutorService RECURSIVE_EXECUTOR = Executors
             .newCachedThreadPool(CaffeineLoadingCacheMapConfig.class.getSimpleName() + "_RECURSIVE")
-            .withDynamicThreadName(false);
+            .setDynamicThreadName(false);
 
     private Long maximumSize;
     private Duration refreshAfterWrite;
@@ -42,12 +42,12 @@ public class CaffeineLoadingCacheMapConfig {
         return maximumSize;
     }
 
-    public CaffeineLoadingCacheMapConfig withMaximumSize(final Long maximumSize) {
+    public CaffeineLoadingCacheMapConfig setMaximumSize(final Long maximumSize) {
         this.maximumSize = maximumSize;
         return this;
     }
 
-    public CaffeineLoadingCacheMapConfig withMaximumSize(final Integer maximumSize) {
+    public CaffeineLoadingCacheMapConfig setMaximumSize(final Integer maximumSize) {
         if (this.maximumSize == null) {
             this.maximumSize = null;
         } else {
@@ -60,7 +60,7 @@ public class CaffeineLoadingCacheMapConfig {
         return refreshAfterWrite;
     }
 
-    public CaffeineLoadingCacheMapConfig withRefreshAfterWrite(final Duration refreshAfterWrite) {
+    public CaffeineLoadingCacheMapConfig setRefreshAfterWrite(final Duration refreshAfterWrite) {
         this.refreshAfterWrite = refreshAfterWrite;
         return this;
     }
@@ -69,7 +69,7 @@ public class CaffeineLoadingCacheMapConfig {
         return expireAfterWrite;
     }
 
-    public CaffeineLoadingCacheMapConfig withExpireAfterWrite(final Duration expireAfterWrite) {
+    public CaffeineLoadingCacheMapConfig setExpireAfterWrite(final Duration expireAfterWrite) {
         this.expireAfterWrite = expireAfterWrite;
         return this;
     }
@@ -78,12 +78,12 @@ public class CaffeineLoadingCacheMapConfig {
         return expireAfterAccess;
     }
 
-    public CaffeineLoadingCacheMapConfig withExpireAfterAccess(final Duration expireAfterAccess) {
+    public CaffeineLoadingCacheMapConfig setExpireAfterAccess(final Duration expireAfterAccess) {
         this.expireAfterAccess = expireAfterAccess;
         return this;
     }
 
-    public CaffeineLoadingCacheMapConfig withSoftValues(final Boolean softValues) {
+    public CaffeineLoadingCacheMapConfig setSoftValues(final Boolean softValues) {
         this.softValues = softValues;
         return this;
     }
@@ -92,7 +92,7 @@ public class CaffeineLoadingCacheMapConfig {
         return softValues;
     }
 
-    public CaffeineLoadingCacheMapConfig withWeakKeys(final Boolean weakKeys) {
+    public CaffeineLoadingCacheMapConfig setWeakKeys(final Boolean weakKeys) {
         this.weakKeys = weakKeys;
         return this;
     }
@@ -101,7 +101,7 @@ public class CaffeineLoadingCacheMapConfig {
         return weakKeys;
     }
 
-    public CaffeineLoadingCacheMapConfig withWeakValues(final Boolean weakValues) {
+    public CaffeineLoadingCacheMapConfig setWeakValues(final Boolean weakValues) {
         this.weakValues = weakValues;
         return this;
     }
@@ -114,7 +114,7 @@ public class CaffeineLoadingCacheMapConfig {
         return removalListener;
     }
 
-    public CaffeineLoadingCacheMapConfig withRemovalListener(final IRemovalListener removalListener) {
+    public CaffeineLoadingCacheMapConfig setRemovalListener(final IRemovalListener removalListener) {
         this.removalListener = removalListener;
         return this;
     }
@@ -123,7 +123,7 @@ public class CaffeineLoadingCacheMapConfig {
         return recursiveLoading;
     }
 
-    public CaffeineLoadingCacheMapConfig withRecursiveLoading(final Boolean recursiveLoading) {
+    public CaffeineLoadingCacheMapConfig setRecursiveLoading(final Boolean recursiveLoading) {
         this.recursiveLoading = recursiveLoading;
         return this;
     }

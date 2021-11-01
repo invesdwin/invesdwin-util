@@ -116,7 +116,7 @@ public final class URIsConnectApacheSync implements IURIsConnect {
     }
 
     @Override
-    public URIsConnectApacheSync withNetworkTimeout(final Duration networkTimeout) {
+    public URIsConnectApacheSync setNetworkTimeout(final Duration networkTimeout) {
         this.networkTimeout = networkTimeout;
         return this;
     }
@@ -127,7 +127,7 @@ public final class URIsConnectApacheSync implements IURIsConnect {
     }
 
     @Override
-    public URIsConnectApacheSync withProxy(final Proxy proxy) {
+    public URIsConnectApacheSync setProxy(final Proxy proxy) {
         this.proxy = proxy;
         return this;
     }
@@ -147,16 +147,16 @@ public final class URIsConnectApacheSync implements IURIsConnect {
      * separate HttpClient where this information does not get shared!
      */
     @Override
-    public URIsConnectApacheSync withBasicAuth(final String username, final String password) {
+    public URIsConnectApacheSync addBasicAuth(final String username, final String password) {
         final String authString = username + ":" + password;
         final byte[] authEncBytes = Base64.encodeBase64(authString.getBytes());
         final String authStringEnc = new String(authEncBytes);
-        withHeader(HttpHeaders.AUTHORIZATION, "Basic " + authStringEnc);
+        addHeader(HttpHeaders.AUTHORIZATION, "Basic " + authStringEnc);
         return this;
     }
 
     @Override
-    public URIsConnectApacheSync withHeader(final String key, final String value) {
+    public URIsConnectApacheSync addHeader(final String key, final String value) {
         if (headers == null) {
             headers = new HashMap<String, String>();
         }

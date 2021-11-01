@@ -33,12 +33,12 @@ public class ProducerQueueIterable<E> implements ICloseableIterable<E> {
             }
         };
         if (utilizationDebugEnabled) {
-            iterator.withUtilizationDebugEnabled();
+            iterator.setUtilizationDebugEnabled();
         }
         return iterator;
     }
 
-    public ProducerQueueIterable<E> withUtilizationDebugEnabled() {
+    public ProducerQueueIterable<E> setUtilizationDebugEnabled() {
         this.utilizationDebugEnabled = true;
         return this;
     }

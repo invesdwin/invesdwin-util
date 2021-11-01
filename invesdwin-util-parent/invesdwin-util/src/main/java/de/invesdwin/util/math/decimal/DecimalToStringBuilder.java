@@ -19,7 +19,7 @@ public class DecimalToStringBuilder {
         this.parent = parent;
     }
 
-    public DecimalToStringBuilder withDecimalDigits(final Integer decimalDigits) {
+    public DecimalToStringBuilder setDecimalDigits(final Integer decimalDigits) {
         this.decimalDigits = decimalDigits;
         return this;
     }
@@ -28,22 +28,22 @@ public class DecimalToStringBuilder {
         return decimalDigits;
     }
 
-    public DecimalToStringBuilder withDecimalDigitsRequired() {
-        withDecimalDigitsOptional(false);
+    public DecimalToStringBuilder setDecimalDigitsRequired() {
+        setDecimalDigitsOptional(false);
         return this;
     }
 
-    public DecimalToStringBuilder withDecimalDigitsOptional(final boolean decimalDigitsOptional) {
+    public DecimalToStringBuilder setDecimalDigitsOptional(final boolean decimalDigitsOptional) {
         this.decimalDigitsOptional = decimalDigitsOptional;
         return this;
     }
 
-    public DecimalToStringBuilder withDecimalDigitsTrailing() {
-        withDecimalDigitsTrailing(true);
+    public DecimalToStringBuilder setDecimalDigitsTrailing() {
+        setDecimalDigitsTrailing(true);
         return this;
     }
 
-    public DecimalToStringBuilder withDecimalDigitsTrailing(final boolean decimalDigitsTrailing) {
+    public DecimalToStringBuilder setDecimalDigitsTrailing(final boolean decimalDigitsTrailing) {
         this.decimalDigitsTrailing = decimalDigitsTrailing;
         return this;
     }

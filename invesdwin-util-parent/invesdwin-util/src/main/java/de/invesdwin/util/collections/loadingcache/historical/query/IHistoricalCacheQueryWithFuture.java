@@ -7,17 +7,17 @@ import de.invesdwin.util.time.date.FDate;
 public interface IHistoricalCacheQueryWithFuture<V> extends IHistoricalCacheQuery<V> {
 
     @Override
-    IHistoricalCacheQueryWithFuture<V> withElementFilter(IHistoricalCacheQueryElementFilter<V> elementFilter);
+    IHistoricalCacheQueryWithFuture<V> setElementFilter(IHistoricalCacheQueryElementFilter<V> elementFilter);
 
     /**
      * Warning: throws an exception since withFuture() was already called
      */
     @Deprecated
     @Override
-    IHistoricalCacheQueryWithFuture<V> withFutureNull();
+    IHistoricalCacheQueryWithFuture<V> setFutureNullEnabled();
 
     @Override
-    IHistoricalCacheQueryWithFuture<V> withFuture();
+    IHistoricalCacheQueryWithFuture<V> setFutureEnabled();
 
     /**
      * Jumps the specified shiftForwardUnits to the future instead of only one unit.

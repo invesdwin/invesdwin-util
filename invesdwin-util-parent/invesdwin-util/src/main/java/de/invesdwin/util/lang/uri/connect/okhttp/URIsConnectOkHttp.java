@@ -82,7 +82,7 @@ public final class URIsConnectOkHttp implements IURIsConnect {
     }
 
     @Override
-    public URIsConnectOkHttp withNetworkTimeout(final Duration networkTimeout) {
+    public URIsConnectOkHttp setNetworkTimeout(final Duration networkTimeout) {
         this.networkTimeout = networkTimeout;
         return this;
     }
@@ -93,7 +93,7 @@ public final class URIsConnectOkHttp implements IURIsConnect {
     }
 
     @Override
-    public URIsConnectOkHttp withProxy(final Proxy proxy) {
+    public URIsConnectOkHttp setProxy(final Proxy proxy) {
         this.proxy = proxy;
         return this;
     }
@@ -109,16 +109,16 @@ public final class URIsConnectOkHttp implements IURIsConnect {
     }
 
     @Override
-    public URIsConnectOkHttp withBasicAuth(final String username, final String password) {
+    public URIsConnectOkHttp addBasicAuth(final String username, final String password) {
         final String authString = username + ":" + password;
         final byte[] authEncBytes = Base64.encodeBase64(authString.getBytes());
         final String authStringEnc = new String(authEncBytes);
-        withHeader("Authorization", "Basic " + authStringEnc);
+        addHeader("Authorization", "Basic " + authStringEnc);
         return this;
     }
 
     @Override
-    public URIsConnectOkHttp withHeader(final String key, final String value) {
+    public URIsConnectOkHttp addHeader(final String key, final String value) {
         if (headers == null) {
             headers = new HashMap<String, String>();
         }

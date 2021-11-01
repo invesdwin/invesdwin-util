@@ -26,7 +26,7 @@ public abstract class ACompressingWeakReference<T, C> extends WeakReference<T> i
     static {
         final WrappedExecutorService executor = Executors
                 .newFixedCallerRunsThreadPool(ACompressingWeakReference.class.getSimpleName(), 1)
-                .withDynamicThreadName(false);
+                .setDynamicThreadName(false);
         executor.execute(new Runnable() {
             @SuppressWarnings("unchecked")
             @Override

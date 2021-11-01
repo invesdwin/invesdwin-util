@@ -20,7 +20,7 @@ public final class DelegateHistoricalCacheExtractKeyProvider<V> implements IHist
 
     private DelegateHistoricalCacheExtractKeyProvider(final AHistoricalCache<Object> delegate) {
         this.delegate = delegate;
-        this.delegateQueryWithFuture = delegate.query().withFuture();
+        this.delegateQueryWithFuture = delegate.query().setFutureEnabled();
         this.hashCode = delegate.getExtractKeyProvider().hashCode();
     }
 

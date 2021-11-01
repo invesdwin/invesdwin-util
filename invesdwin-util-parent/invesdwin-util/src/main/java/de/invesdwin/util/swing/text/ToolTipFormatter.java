@@ -27,7 +27,7 @@ public final class ToolTipFormatter extends AValueObject {
     /**
      * lineBreaks[0] will be used as the inserted line break
      */
-    public ToolTipFormatter withLineBreaks(final String[] lineBreaks) {
+    public ToolTipFormatter setLineBreaks(final String[] lineBreaks) {
         this.lineBreaks = lineBreaks;
         return this;
     }
@@ -36,7 +36,7 @@ public final class ToolTipFormatter extends AValueObject {
         return maxLength;
     }
 
-    public ToolTipFormatter withMaxLength(final int maxLength) {
+    public ToolTipFormatter setMaxLength(final int maxLength) {
         this.maxLength = maxLength;
         return this;
     }

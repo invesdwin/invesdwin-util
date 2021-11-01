@@ -36,7 +36,7 @@ public class CaffeineLoadingCache<K, V> implements ILoadingCache<K, V> {
     }
 
     protected CaffeineLoadingCacheMapConfig getConfig() {
-        return new CaffeineLoadingCacheMapConfig().withMaximumSize(maximumSize);
+        return new CaffeineLoadingCacheMapConfig().setMaximumSize(maximumSize);
     }
 
     @Override

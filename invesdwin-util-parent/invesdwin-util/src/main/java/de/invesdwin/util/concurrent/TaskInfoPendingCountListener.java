@@ -47,12 +47,12 @@ public class TaskInfoPendingCountListener implements IPendingCountListener, ITas
         return name;
     }
 
-    public TaskInfoPendingCountListener withDescription(final String description) {
+    public TaskInfoPendingCountListener setDescription(final String description) {
         this.description = description;
         return this;
     }
 
-    public TaskInfoPendingCountListener withInheritable(final boolean inheritable) {
+    public TaskInfoPendingCountListener setInheritable(final boolean inheritable) {
         Assertions.checkEquals(status, TaskInfoStatus.CREATED);
         this.inheritable = inheritable;
         return this;

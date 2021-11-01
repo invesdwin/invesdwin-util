@@ -27,29 +27,29 @@ public class BSplineInterpolationConfig extends SplineInterpolationConfig {
     /**
      * If degree is greater than values size, then the degree is automatically shrinked to the size.
      */
-    public BSplineInterpolationConfig withDegree(final int degree) {
+    public BSplineInterpolationConfig setDegree(final int degree) {
         this.degree = degree;
         return this;
     }
 
     @Override
-    public BSplineInterpolationConfig withPunishEdges(final boolean punishEdges) {
-        return (BSplineInterpolationConfig) super.withPunishEdges(punishEdges);
+    public BSplineInterpolationConfig setPunishEdges(final boolean punishEdges) {
+        return (BSplineInterpolationConfig) super.setPunishEdges(punishEdges);
     }
 
     @Override
-    public BSplineInterpolationConfig withHigherBetter(final boolean isHigherBetter) {
-        return (BSplineInterpolationConfig) super.withHigherBetter(isHigherBetter);
+    public BSplineInterpolationConfig setHigherBetter(final boolean isHigherBetter) {
+        return (BSplineInterpolationConfig) super.setHigherBetter(isHigherBetter);
     }
 
     @Override
-    public BSplineInterpolationConfig withMaxPoints(final Integer maxPoints) {
-        return (BSplineInterpolationConfig) super.withMaxPoints(maxPoints);
+    public BSplineInterpolationConfig setMaxPoints(final Integer maxPoints) {
+        return (BSplineInterpolationConfig) super.setMaxPoints(maxPoints);
     }
 
     @Override
-    public BSplineInterpolationConfig withValueMultiplicator(final Decimal valueMultiplicator) {
-        return (BSplineInterpolationConfig) super.withValueMultiplicator(valueMultiplicator);
+    public BSplineInterpolationConfig setValueMultiplicator(final Decimal valueMultiplicator) {
+        return (BSplineInterpolationConfig) super.setValueMultiplicator(valueMultiplicator);
     }
 
 }

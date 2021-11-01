@@ -64,7 +64,7 @@ public abstract class ATimeoutObjectPool<E> implements IObjectPool<E>, Closeable
             //reduce cpu load by using max 1 thread
             scheduledExecutor = Executors
                     .newScheduledThreadPool(ATimeoutObjectPool.class.getSimpleName() + "_SCHEDULER", 1)
-                    .withDynamicThreadName(false);
+                    .setDynamicThreadName(false);
         }
         return scheduledExecutor;
     }

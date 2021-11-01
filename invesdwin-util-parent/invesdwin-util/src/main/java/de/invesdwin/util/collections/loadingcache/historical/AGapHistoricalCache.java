@@ -94,7 +94,7 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
     @GuardedBy("this")
     private FDate minKey;
 
-    private final IHistoricalCacheQuery<V> thisQueryWithFuture = query().withFuture();
+    private final IHistoricalCacheQuery<V> thisQueryWithFuture = query().setFutureEnabled();
 
     private boolean clearRequested;
 

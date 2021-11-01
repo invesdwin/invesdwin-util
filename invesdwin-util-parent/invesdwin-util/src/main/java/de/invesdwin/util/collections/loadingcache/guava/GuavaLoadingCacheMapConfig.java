@@ -34,7 +34,7 @@ public class GuavaLoadingCacheMapConfig {
         return concurrencyLevel;
     }
 
-    public GuavaLoadingCacheMapConfig withConcurrencyLevel(final Integer concurrencyLevel) {
+    public GuavaLoadingCacheMapConfig setConcurrencyLevel(final Integer concurrencyLevel) {
         this.concurrencyLevel = concurrencyLevel;
         return this;
     }
@@ -43,12 +43,12 @@ public class GuavaLoadingCacheMapConfig {
         return maximumSize;
     }
 
-    public GuavaLoadingCacheMapConfig withMaximumSize(final Long maximumSize) {
+    public GuavaLoadingCacheMapConfig setMaximumSize(final Long maximumSize) {
         this.maximumSize = maximumSize;
         return this;
     }
 
-    public GuavaLoadingCacheMapConfig withMaximumSize(final Integer maximumSize) {
+    public GuavaLoadingCacheMapConfig setMaximumSize(final Integer maximumSize) {
         if (this.maximumSize == null) {
             this.maximumSize = null;
         } else {
@@ -61,7 +61,7 @@ public class GuavaLoadingCacheMapConfig {
         return expireAfterWrite;
     }
 
-    public GuavaLoadingCacheMapConfig withExpireAfterWrite(final Duration expireAfterWrite) {
+    public GuavaLoadingCacheMapConfig setExpireAfterWrite(final Duration expireAfterWrite) {
         this.expireAfterWrite = expireAfterWrite;
         return this;
     }
@@ -70,12 +70,12 @@ public class GuavaLoadingCacheMapConfig {
         return expireAfterAccess;
     }
 
-    public GuavaLoadingCacheMapConfig withExpireAfterAccess(final Duration expireAfterAccess) {
+    public GuavaLoadingCacheMapConfig setExpireAfterAccess(final Duration expireAfterAccess) {
         this.expireAfterAccess = expireAfterAccess;
         return this;
     }
 
-    public GuavaLoadingCacheMapConfig withSoftValues(final Boolean softValues) {
+    public GuavaLoadingCacheMapConfig setSoftValues(final Boolean softValues) {
         this.softValues = softValues;
         return this;
     }
@@ -84,7 +84,7 @@ public class GuavaLoadingCacheMapConfig {
         return softValues;
     }
 
-    public GuavaLoadingCacheMapConfig withWeakKeys(final Boolean weakKeys) {
+    public GuavaLoadingCacheMapConfig setWeakKeys(final Boolean weakKeys) {
         this.weakKeys = weakKeys;
         return this;
     }
@@ -93,7 +93,7 @@ public class GuavaLoadingCacheMapConfig {
         return weakKeys;
     }
 
-    public GuavaLoadingCacheMapConfig withWeakValues(final Boolean weakValues) {
+    public GuavaLoadingCacheMapConfig setWeakValues(final Boolean weakValues) {
         this.weakValues = weakValues;
         return this;
     }
@@ -106,7 +106,7 @@ public class GuavaLoadingCacheMapConfig {
         return removalListener;
     }
 
-    public GuavaLoadingCacheMapConfig withRemovalListener(final IRemovalListener removalListener) {
+    public GuavaLoadingCacheMapConfig setRemovalListener(final IRemovalListener removalListener) {
         this.removalListener = removalListener;
         return this;
     }

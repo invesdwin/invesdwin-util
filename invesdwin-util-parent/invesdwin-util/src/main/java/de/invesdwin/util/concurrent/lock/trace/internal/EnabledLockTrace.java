@@ -38,7 +38,7 @@ public class EnabledLockTrace implements ILockTrace {
             return new CaffeineLoadingCache<String, ConcurrentHashMap<String, LockTraceEntry>>(loadValue, maximumSize) {
                 @Override
                 protected CaffeineLoadingCacheMapConfig getConfig() {
-                    return super.getConfig().withExpireAfterAccess(Duration.ONE_MINUTE);
+                    return super.getConfig().setExpireAfterAccess(Duration.ONE_MINUTE);
                 }
             };
         }

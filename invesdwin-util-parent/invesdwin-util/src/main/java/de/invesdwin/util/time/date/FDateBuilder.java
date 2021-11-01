@@ -29,14 +29,14 @@ public class FDateBuilder {
         timeZone = FDates.getDefaultTimeZone();
     }
 
-    public FDateBuilder withDate(final FDate date) {
+    public FDateBuilder setDate(final FDate date) {
         this.years = date.getYear();
         this.months = date.getMonth();
         this.days = date.getDay();
         return this;
     }
 
-    public FDateBuilder withTime(final FDate time) {
+    public FDateBuilder setTime(final FDate time) {
         this.hours = time.getHour();
         this.minutes = time.getMinute();
         this.seconds = time.getSecond();
@@ -44,59 +44,59 @@ public class FDateBuilder {
         return this;
     }
 
-    public FDateBuilder withWeekTime(final FWeekTime weekTime) {
+    public FDateBuilder setWeekTime(final FWeekTime weekTime) {
         this.weekday = weekTime.getFWeekday();
         this.hours = weekTime.getHour();
         this.minutes = weekTime.getMinute();
         return this;
     }
 
-    public FDateBuilder withYears(final int years) {
+    public FDateBuilder setYears(final int years) {
         this.years = years;
         return this;
     }
 
-    public FDateBuilder withMonths(final int months) {
+    public FDateBuilder setMonths(final int months) {
         this.months = months;
         return this;
     }
 
-    public FDateBuilder withFWeekday(final FWeekday weekday) {
+    public FDateBuilder setFWeekday(final FWeekday weekday) {
         this.weekday = weekday;
         return this;
     }
 
-    public FDateBuilder withWeekday(final int weekday) {
+    public FDateBuilder setWeekday(final int weekday) {
         this.weekday = FWeekday.valueOfIndex(weekday);
         return this;
     }
 
-    public FDateBuilder withDays(final int days) {
+    public FDateBuilder setDays(final int days) {
         this.days = days;
         return this;
     }
 
-    public FDateBuilder withHours(final int hours) {
+    public FDateBuilder setHours(final int hours) {
         this.hours = hours;
         return this;
     }
 
-    public FDateBuilder withMinutes(final int minutes) {
+    public FDateBuilder setMinutes(final int minutes) {
         this.minutes = minutes;
         return this;
     }
 
-    public FDateBuilder withSeconds(final int seconds) {
+    public FDateBuilder setSeconds(final int seconds) {
         this.seconds = seconds;
         return this;
     }
 
-    public FDateBuilder withMilliseconds(final int milliseconds) {
+    public FDateBuilder setMilliseconds(final int milliseconds) {
         this.milliseconds = milliseconds;
         return this;
     }
 
-    public FDateBuilder withTimeZone(final FTimeZone timeZone) {
+    public FDateBuilder setTimeZone(final FTimeZone timeZone) {
         this.timeZone = timeZone;
         return this;
     }

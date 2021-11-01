@@ -44,8 +44,8 @@ public abstract class AProducerQueueIterator<E> extends AGenericProducerQueueIte
     }
 
     @Override
-    public AProducerQueueIterator<E> withUtilizationDebugEnabled() {
-        super.withUtilizationDebugEnabled();
+    public AProducerQueueIterator<E> setUtilizationDebugEnabled() {
+        super.setUtilizationDebugEnabled();
         return this;
     }
 

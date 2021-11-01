@@ -1049,7 +1049,7 @@ public abstract class AHistoricalCache<V>
         executor.execute(new Runnable() {
             @Override
             public void run() {
-                query().withFuture().getValue(FDate.MIN_DATE);
+                query().setFutureEnabled().getValue(FDate.MIN_DATE);
             }
         });
     }

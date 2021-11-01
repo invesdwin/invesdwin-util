@@ -23,16 +23,16 @@ public class FilteringHistoricalCacheQueryWithFuture<V> extends FilteringHistori
     }
 
     @Override
-    public IHistoricalCacheQueryWithFuture<V> withElementFilter(
+    public IHistoricalCacheQueryWithFuture<V> setElementFilter(
             final IHistoricalCacheQueryElementFilter<V> elementFilter) {
-        delegate.withElementFilter(elementFilter);
+        delegate.setElementFilter(elementFilter);
         return this;
     }
 
     @Deprecated
     @Override
-    public IHistoricalCacheQueryWithFuture<V> withFutureNull() {
-        delegate.withFutureNull();
+    public IHistoricalCacheQueryWithFuture<V> setFutureNullEnabled() {
+        delegate.setFutureNullEnabled();
         return this;
     }
 

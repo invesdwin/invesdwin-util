@@ -46,12 +46,12 @@ public final class TaskInfoRunnable implements IPriorityRunnable, ITaskInfoProvi
         }
     }
 
-    public TaskInfoRunnable withDescription(final String description) {
+    public TaskInfoRunnable setDescription(final String description) {
         this.description = description;
         return this;
     }
 
-    public TaskInfoRunnable withInheritable(final boolean inheritable) {
+    public TaskInfoRunnable setInheritable(final boolean inheritable) {
         Assertions.checkEquals(status, TaskInfoStatus.CREATED);
         this.inheritable = inheritable;
         return this;

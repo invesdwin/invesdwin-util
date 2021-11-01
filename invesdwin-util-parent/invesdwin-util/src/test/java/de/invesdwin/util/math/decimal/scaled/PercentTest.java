@@ -39,20 +39,20 @@ public class PercentTest {
         Assertions.assertThat(new Percent(0.001D, PercentScale.PERCENT).toString(PercentScale.RATE))
                 .isEqualTo("0.00001");
         Assertions.assertThat(new Percent(0.001D, PercentScale.PERCENT).toStringBuilder()
-                .withScale(PercentScale.RATE)
-                .withDecimalDigits(5)
+                .setScale(PercentScale.RATE)
+                .setDecimalDigits(5)
                 .toString()).isEqualTo("0.00001");
         Assertions.assertThat(new Percent(0.001D, PercentScale.PERCENT).toString(PercentScale.PERCENT))
                 .isEqualTo("0.001%");
         Assertions.assertThat(new Percent(0.001D, PercentScale.PERCENT).toStringBuilder()
-                .withScale(PercentScale.PERCENT)
-                .withDecimalDigits(3)
+                .setScale(PercentScale.PERCENT)
+                .setDecimalDigits(3)
                 .toString()).isEqualTo("0.001%");
         final Percent permilleValue = new Percent(0.001D, PercentScale.PERCENT).asScale(PercentScale.PERMILLE);
         Assertions.assertThat(permilleValue.toString(PercentScale.PERMILLE))
                 .isEqualTo("0.01" + PercentScale.PERMILLE.getSymbol());
         Assertions.assertThat(
-                permilleValue.toStringBuilder().withScale(PercentScale.PERMILLE).withDecimalDigits(2).toString())
+                permilleValue.toStringBuilder().setScale(PercentScale.PERMILLE).setDecimalDigits(2).toString())
                 .isEqualTo("0.01" + PercentScale.PERMILLE.getSymbol());
     }
 }

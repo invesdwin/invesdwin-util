@@ -18,13 +18,13 @@ public class SplineInterpolationConfig extends RobustPlateauInterpolationConfig 
      * edges are actually worse.
      */
     @Override
-    public SplineInterpolationConfig withPunishEdges(final boolean isPunishEdges) {
-        return (SplineInterpolationConfig) super.withPunishEdges(isPunishEdges);
+    public SplineInterpolationConfig setPunishEdges(final boolean isPunishEdges) {
+        return (SplineInterpolationConfig) super.setPunishEdges(isPunishEdges);
     }
 
     @Override
-    public SplineInterpolationConfig withHigherBetter(final boolean isHigherBetter) {
-        return (SplineInterpolationConfig) super.withHigherBetter(isHigherBetter);
+    public SplineInterpolationConfig setHigherBetter(final boolean isHigherBetter) {
+        return (SplineInterpolationConfig) super.setHigherBetter(isHigherBetter);
     }
 
     public Integer getMaxPoints() {
@@ -34,7 +34,7 @@ public class SplineInterpolationConfig extends RobustPlateauInterpolationConfig 
     /**
      * You can achieve a smoother curve by reducing the number of points, e.g. to a maximum of 100 or so.
      */
-    public SplineInterpolationConfig withMaxPoints(final Integer maxPoints) {
+    public SplineInterpolationConfig setMaxPoints(final Integer maxPoints) {
         this.maxPoints = maxPoints;
         return this;
     }
@@ -47,7 +47,7 @@ public class SplineInterpolationConfig extends RobustPlateauInterpolationConfig 
      * You can achieve a better curve by increasing the value scale from [0,1] to [0, 100] via multipliying by 100. With
      * a scale of [0,1] the difference in the values is not large enough to correctly detect peaks and valleys.
      */
-    public SplineInterpolationConfig withValueMultiplicator(final Decimal valueMultiplicator) {
+    public SplineInterpolationConfig setValueMultiplicator(final Decimal valueMultiplicator) {
         this.valueMultiplicator = valueMultiplicator;
         return this;
     }

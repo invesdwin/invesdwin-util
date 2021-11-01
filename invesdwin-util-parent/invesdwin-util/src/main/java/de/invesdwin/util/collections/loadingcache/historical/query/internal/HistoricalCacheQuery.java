@@ -50,7 +50,7 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
     }
 
     @Override
-    public IHistoricalCacheQuery<V> withElementFilter(final IHistoricalCacheQueryElementFilter<V> elementFilter) {
+    public IHistoricalCacheQuery<V> setElementFilter(final IHistoricalCacheQueryElementFilter<V> elementFilter) {
         if (elementFilter == null) {
             this.elementFilter = DisabledHistoricalCacheQueryElementFilter.getInstance();
         } else {
@@ -64,7 +64,7 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
      * Prevents exeption on future value and instead returns null.
      */
     @Override
-    public IHistoricalCacheQuery<V> withFutureNull() {
+    public IHistoricalCacheQuery<V> setFutureNullEnabled() {
         checkAssertValueUnchangedAndSet(HistoricalCacheAssertValue.ASSERT_VALUE_WITH_FUTURE_NULL);
         return this;
     }
@@ -73,7 +73,7 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
      * Allows values from future.
      */
     @Override
-    public final IHistoricalCacheQueryWithFuture<V> withFuture() {
+    public final IHistoricalCacheQueryWithFuture<V> setFutureEnabled() {
         checkAssertValueUnchangedAndSet(HistoricalCacheAssertValue.ASSERT_VALUE_WITH_FUTURE);
         return newFutureQuery();
     }
@@ -386,7 +386,7 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
             @Override
             public ICloseableIterator<IHistoricalEntry<V>> iterator() {
                 return new ICloseableIterator<IHistoricalEntry<V>>() {
-                    private final IHistoricalCacheQueryWithFuture<V> future = withFuture();
+                    private final IHistoricalCacheQueryWithFuture<V> future = setFutureEnabled();
                     private IHistoricalEntry<V> nextEntry;
                     private FDate nextEntryKey;
 

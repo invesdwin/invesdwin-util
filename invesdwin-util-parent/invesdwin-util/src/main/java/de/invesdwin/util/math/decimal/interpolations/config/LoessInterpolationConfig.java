@@ -14,29 +14,29 @@ public class LoessInterpolationConfig extends SplineInterpolationConfig {
         return smoothness;
     }
 
-    public LoessInterpolationConfig withSmoothness(final Percent smoothness) {
+    public LoessInterpolationConfig setSmoothness(final Percent smoothness) {
         this.smoothness = smoothness;
         return this;
     }
 
     @Override
-    public LoessInterpolationConfig withPunishEdges(final boolean punishEdges) {
-        return (LoessInterpolationConfig) super.withPunishEdges(punishEdges);
+    public LoessInterpolationConfig setPunishEdges(final boolean punishEdges) {
+        return (LoessInterpolationConfig) super.setPunishEdges(punishEdges);
     }
 
     @Override
-    public LoessInterpolationConfig withHigherBetter(final boolean isHigherBetter) {
-        return (LoessInterpolationConfig) super.withHigherBetter(isHigherBetter);
+    public LoessInterpolationConfig setHigherBetter(final boolean isHigherBetter) {
+        return (LoessInterpolationConfig) super.setHigherBetter(isHigherBetter);
     }
 
     @Override
-    public LoessInterpolationConfig withMaxPoints(final Integer maxPoints) {
-        return (LoessInterpolationConfig) super.withMaxPoints(maxPoints);
+    public LoessInterpolationConfig setMaxPoints(final Integer maxPoints) {
+        return (LoessInterpolationConfig) super.setMaxPoints(maxPoints);
     }
 
     @Override
-    public LoessInterpolationConfig withValueMultiplicator(final Decimal valueMultiplicator) {
-        return (LoessInterpolationConfig) super.withValueMultiplicator(valueMultiplicator);
+    public LoessInterpolationConfig setValueMultiplicator(final Decimal valueMultiplicator) {
+        return (LoessInterpolationConfig) super.setValueMultiplicator(valueMultiplicator);
     }
 
 }

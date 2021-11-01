@@ -36,7 +36,7 @@ public class GuavaLoadingCache<K, V> implements ILoadingCache<K, V> {
     }
 
     protected GuavaLoadingCacheMapConfig getConfig() {
-        return new GuavaLoadingCacheMapConfig().withMaximumSize(maximumSize);
+        return new GuavaLoadingCacheMapConfig().setMaximumSize(maximumSize);
     }
 
     @Override

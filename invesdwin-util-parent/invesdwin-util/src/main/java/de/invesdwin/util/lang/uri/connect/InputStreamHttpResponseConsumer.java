@@ -60,7 +60,7 @@ public class InputStreamHttpResponseConsumer {
     /**
      * Use this method to override the write cache directory. Null disables the write cache for this call.
      */
-    public InputStreamHttpResponseConsumer withTempDir(final File tempDir) {
+    public InputStreamHttpResponseConsumer setTempDir(final File tempDir) {
         this.tempDir = tempDir;
         if (tempDir == null) {
             this.tempDirPath = null;
@@ -77,7 +77,7 @@ public class InputStreamHttpResponseConsumer {
     /**
      * Use this method to override the default size limit for using the write cache.
      */
-    public InputStreamHttpResponseConsumer withMaxSizeInMemory(final ByteSize maxSizeInMemory) {
+    public InputStreamHttpResponseConsumer setMaxSizeInMemory(final ByteSize maxSizeInMemory) {
         this.maxSizeInMemory = (int) maxSizeInMemory.getValue(ByteSizeScale.BYTES);
         return this;
     }

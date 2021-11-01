@@ -129,7 +129,7 @@ public abstract class AGenericProducerQueueIterator<E> extends ACloseableIterato
      */
     protected abstract void internalCloseProducer();
 
-    public AGenericProducerQueueIterator<E> withUtilizationDebugEnabled() {
+    public AGenericProducerQueueIterator<E> setUtilizationDebugEnabled() {
         this.utilizationDebugEnabled = true;
         return this;
     }

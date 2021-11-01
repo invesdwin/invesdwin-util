@@ -116,24 +116,24 @@ public class AdjustingHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V
     }
 
     @Override
-    public IHistoricalCacheQuery<V> withElementFilter(final IHistoricalCacheQueryElementFilter<V> elementFilter) {
-        delegate.withElementFilter(elementFilter);
+    public IHistoricalCacheQuery<V> setElementFilter(final IHistoricalCacheQueryElementFilter<V> elementFilter) {
+        delegate.setElementFilter(elementFilter);
         return this;
     }
 
     @Override
-    public IHistoricalCacheQuery<V> withFutureNull() {
-        Assertions.checkSame(delegate.withFutureNull(), delegate);
+    public IHistoricalCacheQuery<V> setFutureNullEnabled() {
+        Assertions.checkSame(delegate.setFutureNullEnabled(), delegate);
         return this;
     }
 
     @Override
-    public IHistoricalCacheQueryWithFuture<V> withFuture() {
+    public IHistoricalCacheQueryWithFuture<V> setFutureEnabled() {
         return newFutureQuery();
     }
 
     protected AdjustingHistoricalCacheQueryWithFuture<V> newFutureQuery() {
-        return new AdjustingHistoricalCacheQueryWithFuture<V>(internalMethods, delegate.withFuture());
+        return new AdjustingHistoricalCacheQueryWithFuture<V>(internalMethods, delegate.setFutureEnabled());
     }
 
     @Override

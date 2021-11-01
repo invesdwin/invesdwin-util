@@ -6,7 +6,6 @@ import java.util.concurrent.ForkJoinPool.ForkJoinWorkerThreadFactory;
 import java.util.concurrent.ForkJoinWorkerThread;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import javax.annotation.Nonnull;
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.assertions.Assertions;
@@ -21,8 +20,8 @@ public class ConfiguredForkJoinWorkerThreadFactory implements ForkJoinWorkerThre
     private IWrappedExecutorServiceInternal parent;
     private final String name;
 
-    public ConfiguredForkJoinWorkerThreadFactory(@Nonnull final String name) {
-        Assertions.assertThat(name).isNotNull();
+    public ConfiguredForkJoinWorkerThreadFactory(final String name) {
+        Assertions.checkNotNull(name);
         this.name = name;
     }
 

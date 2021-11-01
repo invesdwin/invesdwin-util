@@ -71,7 +71,7 @@ public final class Executors {
     public static WrappedScheduledExecutorService newScheduledThreadPool(final String name) {
         final java.util.concurrent.ScheduledThreadPoolExecutor ex = (java.util.concurrent.ScheduledThreadPoolExecutor) java.util.concurrent.Executors
                 .newScheduledThreadPool(MAX_CACHED_POOL_SIZE, newFastThreadLocalThreadFactory(name));
-        return new WrappedScheduledExecutorService(ex, name).withDynamicThreadName(false);
+        return new WrappedScheduledExecutorService(ex, name).setDynamicThreadName(false);
     }
 
     /**
@@ -81,7 +81,7 @@ public final class Executors {
         final int threads = Integers.max(1, corePoolSize);
         final java.util.concurrent.ScheduledThreadPoolExecutor ex = (java.util.concurrent.ScheduledThreadPoolExecutor) java.util.concurrent.Executors
                 .newScheduledThreadPool(threads, newFastThreadLocalThreadFactory(name));
-        return new WrappedScheduledExecutorService(ex, name).withDynamicThreadName(false);
+        return new WrappedScheduledExecutorService(ex, name).setDynamicThreadName(false);
     }
 
     public static WrappedExecutorService newFixedCallerRunsThreadPool(final String name, final int nThreads) {
@@ -120,7 +120,7 @@ public final class Executors {
         return new WrappedExecutorService(MoreExecutors.newDirectExecutorService(), name) {
 
             {
-                super.withDynamicThreadName(false);
+                super.setDynamicThreadName(false);
             }
 
             @Override
@@ -140,7 +140,7 @@ public final class Executors {
             }
 
             @Override
-            public WrappedExecutorService withDynamicThreadName(final boolean dynamicThreadName) {
+            public WrappedExecutorService setDynamicThreadName(final boolean dynamicThreadName) {
                 //disabled
                 return this;
             }

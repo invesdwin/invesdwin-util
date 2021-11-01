@@ -447,11 +447,15 @@ public class FDate
     /**
      * sets hour, minute, second and millisecond each to 0.
      */
+    //CHECKSTYLE:OFF
     public FDate withoutTime() {
+        //CHECKSTYLE:ON
         return new FDate(FDateMillis.withoutTime(millis));
     }
 
+    //CHECKSTYLE:OFF
     public FDate withoutTime(final FTimeZone timeZone) {
+        //CHECKSTYLE:ON
         return new FDate(FDateMillis.withoutTime(millis, timeZone));
     }
 
