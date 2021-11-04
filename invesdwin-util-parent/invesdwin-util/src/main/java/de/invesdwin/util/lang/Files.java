@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.Iterator;
 
 import javax.annotation.concurrent.Immutable;
@@ -312,6 +313,13 @@ public final class Files extends AFilesStaticFacade {
     public static File prefixExtension(final File f, final String prefix) {
         final String newExtension = prefix + getExtension(f);
         return setExtension(f, newExtension);
+    }
+
+    /**
+     * Overwrites the destFile if it already exists.
+     */
+    public static void moveFile(final java.io.File srcFile, final java.io.File destFile) throws java.io.IOException {
+        org.apache.commons.io.FileUtils.moveFile(srcFile, destFile, StandardCopyOption.REPLACE_EXISTING);
     }
 
 }
