@@ -5,11 +5,11 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.util.Iterator;
 
 import javax.annotation.concurrent.Immutable;
 
+import org.apache.commons.io.FileExistsException;
 import org.apache.commons.io.filefilter.AgeFileFilter;
 import org.apache.commons.io.filefilter.TrueFileFilter;
 
@@ -319,7 +319,13 @@ public final class Files extends AFilesStaticFacade {
      * Overwrites the destFile if it already exists.
      */
     public static void moveFile(final java.io.File srcFile, final java.io.File destFile) throws java.io.IOException {
-        org.apache.commons.io.FileUtils.moveFile(srcFile, destFile, StandardCopyOption.REPLACE_EXISTING);
+        try {
+            org.apache.commons.io.FileUtils.moveFile(srcFile, destFile);
+        } catch (final FileExistsException e) {
+            //delete and retry
+            deleteQuietly(destFile);
+            org.apache.commons.io.FileUtils.moveFile(srcFile, destFile);
+        }
     }
 
 }
