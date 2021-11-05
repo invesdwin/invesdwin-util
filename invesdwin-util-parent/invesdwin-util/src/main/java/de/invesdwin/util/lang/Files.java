@@ -248,6 +248,7 @@ public final class Files extends AFilesStaticFacade {
         } else if (!deleteNativeWindowsAvailable) {
             return false;
         } else {
+            //sometimes it does not work properly with some files, in that case we need to go again with java delete
             return deleteNativeWindows(file) && !file.exists();
         }
     }
