@@ -248,7 +248,7 @@ public final class Files extends AFilesStaticFacade {
         } else if (!deleteNativeWindowsAvailable) {
             return false;
         } else {
-            return deleteNativeWindows(file);
+            return deleteNativeWindows(file) && !file.exists();
         }
     }
 
