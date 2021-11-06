@@ -7,11 +7,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.function.Function;
-import java.util.regex.Pattern;
 
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.bean.tuple.Pair;
+import de.invesdwin.util.collections.iterable.ICloseableIterable;
+import de.invesdwin.util.collections.list.Lists;
 import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.math.Doubles;
@@ -46,8 +47,6 @@ public class Decimal extends ADecimal<Decimal> {
     public static final Decimal SEVENTYFIVE;
     public static final Decimal ONE_HUNDRED;
     public static final Decimal PI;
-
-    private static final Pattern MINUS_ZERO_PATTERN = Pattern.compile("-0([\\.,](0)*)?");
 
     private static final ALoadingCache<Pair<String, DecimalFormatSymbols>, FastThreadLocal<DecimalFormat>> DECIMAL_FORMAT = new ALoadingCache<Pair<String, DecimalFormatSymbols>, FastThreadLocal<DecimalFormat>>() {
         @Override
@@ -275,15 +274,47 @@ public class Decimal extends ADecimal<Decimal> {
     }
 
     private static String postProcessFormattedString(final String str) {
-        if (str.startsWith("-0") && MINUS_ZERO_PATTERN.matcher(str).matches()) {
+        if (isMinusZeroString(str)) {
             return Strings.removeStart(str, "-");
         } else {
             return str;
         }
     }
 
+    private static boolean isMinusZeroString(final String str) {
+        if (str.length() < 2) {
+            return false;
+        }
+        if (str.charAt(0) != '-') {
+            return false;
+        }
+        if (str.charAt(1) != '0') {
+            return false;
+        }
+        if (str.length() == 2) {
+            return true;
+        }
+        if (str.charAt(2) != '.' || str.charAt(2) != ',') {
+            return false;
+        }
+        for (int i = 3; i < str.length(); i++) {
+            if (str.charAt(i) != '0') {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public static IDecimalAggregate<Decimal> valueOf(final Decimal... values) {
         return valueOf(Arrays.asList(values));
+    }
+
+    public static IDecimalAggregate<Decimal> valueOf(final ICloseableIterable<? extends Decimal> values) {
+        return valueOf(Lists.toList(values));
+    }
+
+    public static IDecimalAggregate<Decimal> valueOf(final Iterable<? extends Decimal> values) {
+        return valueOf(Lists.toList(values));
     }
 
     public static IDecimalAggregate<Decimal> valueOf(final List<? extends Decimal> values) {
