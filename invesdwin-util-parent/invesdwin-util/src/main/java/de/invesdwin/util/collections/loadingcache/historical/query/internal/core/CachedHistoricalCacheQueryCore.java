@@ -276,7 +276,7 @@ public class CachedHistoricalCacheQueryCore<V> extends ACachedResultHistoricalCa
 
     private List<IHistoricalEntry<V>> cachedGetPreviousEntries_decrementedKey(
             final IHistoricalCacheQueryInternalMethods<V> query, final int shiftBackUnits, final FDate key,
-            final List<IHistoricalEntry<V>> trailing) {
+            final List<IHistoricalEntry<V>> trailing) throws ResetCacheException {
         int unitsBack = shiftBackUnits - 1;
         unitsBack = fillFromCacheAsFarAsPossible(trailing, unitsBack, key);
         if (unitsBack == -1) {
@@ -361,13 +361,13 @@ public class CachedHistoricalCacheQueryCore<V> extends ACachedResultHistoricalCa
     }
 
     private void prependCachedEntries(final FDate key, final List<IHistoricalEntry<V>> trailing,
-            final int trailingCountFoundInCache) {
+            final int trailingCountFoundInCache) throws ResetCacheException {
         for (int i = trailing.size() - trailingCountFoundInCache - 1; i >= 0; i--) {
             final IHistoricalEntry<V> prependEntry = trailing.get(i);
             if (!cachedPreviousEntries.isEmpty()) {
                 final IHistoricalEntry<V> firstCachedEntry = getFirstCachedEntry();
                 if (!prependEntry.getKey().isBeforeNotNullSafe(firstCachedEntry.getKey())) {
-                    throw new IllegalStateException("prependEntry [" + prependEntry.getKey()
+                    throw new ResetCacheException("prependEntry [" + prependEntry.getKey()
                             + "] should be before firstCachedEntry [" + firstCachedEntry.getKey() + "]");
                 }
             }
