@@ -10,7 +10,20 @@ import de.invesdwin.util.error.Throwables;
 @Immutable
 public final class Closeables {
 
-    private Closeables() {}
+    private Closeables() {
+    }
+
+    public static void closeOrThrow(final Object obj) {
+        if (obj == null) {
+            return;
+        }
+        final Closeable cObj = (Closeable) obj;
+        try {
+            cObj.close();
+        } catch (final IOException e) {
+            throw Throwables.propagate(e);
+        }
+    }
 
     public static void close(final Closeable closeable) {
         if (closeable != null) {
