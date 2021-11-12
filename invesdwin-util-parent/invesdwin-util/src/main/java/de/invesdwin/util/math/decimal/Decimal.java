@@ -380,4 +380,18 @@ public class Decimal extends ADecimal<Decimal> {
         }
     }
 
+    public static Boolean toBooleanNullable(final Decimal value) {
+        if (value == null || Doubles.isNaN(value)) {
+            return null;
+        } else if (value.doubleValue() > 0D) {
+            return Boolean.TRUE;
+        } else {
+            return Boolean.FALSE;
+        }
+    }
+
+    public static boolean toBoolean(final Decimal value) {
+        return value != null && value.doubleValue() > 0D;
+    }
+
 }

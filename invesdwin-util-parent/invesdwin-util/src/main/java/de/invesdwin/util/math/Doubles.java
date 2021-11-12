@@ -658,8 +658,22 @@ public final class Doubles extends ADoublesStaticFacade {
         }
     }
 
+    public static Boolean toBooleanNullable(final Double value) {
+        if (value == null || Doubles.isNaN(value)) {
+            return null;
+        } else if (value > 0D) {
+            return Boolean.TRUE;
+        } else {
+            return Boolean.FALSE;
+        }
+    }
+
+    public static boolean toBoolean(final Double value) {
+        return value != null && value.doubleValue() > 0D;
+    }
+
     public static boolean toBoolean(final double value) {
-        return value > FALSE;
+        return value > 0D;
     }
 
     public static double fromBoolean(final boolean value) {
