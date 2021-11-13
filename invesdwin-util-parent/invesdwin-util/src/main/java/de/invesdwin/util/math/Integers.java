@@ -386,4 +386,12 @@ public final class Integers extends AIntegersStaticFacade {
         return checkedCastNoOverflow(Doubles.pow(value, otherValue));
     }
 
+    public static int nullToZero(final Integer value) {
+        if (value == null) {
+            return 0;
+        } else {
+            return value.intValue();
+        }
+    }
+
 }

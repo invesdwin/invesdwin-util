@@ -27,6 +27,9 @@ public final class Doubles extends ADoublesStaticFacade {
     public static final Double[] OBJ_EMPTY_ARRAY = new Double[0];
     public static final double[] EMPTY_ARRAY = new double[0];
 
+    //CHECKSTYLE:OFF
+    public static final double NaN = Double.NaN;
+    //CHECKSTYLE:ON
     public static final String NAN_STR = "NaN";
     //CHECKSTYLE:OFF
     public static final double MAX_VALUE = Double.MAX_VALUE;
