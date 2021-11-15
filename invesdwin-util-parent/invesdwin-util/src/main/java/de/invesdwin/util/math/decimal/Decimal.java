@@ -294,7 +294,7 @@ public class Decimal extends ADecimal<Decimal> {
         if (str.length() == 2) {
             return true;
         }
-        if (str.charAt(2) != '.' || str.charAt(2) != ',') {
+        if (str.charAt(2) != '.' && str.charAt(2) != ',') {
             return false;
         }
         for (int i = 3; i < str.length(); i++) {
