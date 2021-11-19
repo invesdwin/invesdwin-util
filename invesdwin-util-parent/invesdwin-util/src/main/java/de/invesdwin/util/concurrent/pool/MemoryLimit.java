@@ -58,10 +58,7 @@ public final class MemoryLimit {
 
     private static double getFreeMemoryRate() {
         final Runtime runtime = Runtime.getRuntime();
-        final long usedMemory = runtime.totalMemory() - runtime.freeMemory();
-        final long maxMemory = runtime.maxMemory();
-        final long freeMemory = maxMemory - usedMemory;
-        final double freeMemoryRate = Doubles.divide(freeMemory, maxMemory);
+        final double freeMemoryRate = Doubles.divide(runtime.freeMemory(), runtime.totalMemory());
         return freeMemoryRate;
     }
 
