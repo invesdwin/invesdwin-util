@@ -354,15 +354,16 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
     /**
      * Returns all values in the given time range.
      */
+    @SuppressWarnings("unchecked")
     @Override
     public ICloseableIterable<IHistoricalEntry<V>> getEntries(final FDate from, final FDate to) {
-        final ICloseableIterable<IHistoricalEntry<V>> iterableInterceptor = internalMethods.getQueryCore()
+        final ICloseableIterable<? extends IHistoricalEntry<V>> iterableInterceptor = internalMethods.getQueryCore()
                 .getParent()
                 .getRangeQueryInterceptor()
                 .getEntries(from, to);
         if (iterableInterceptor != null) {
             if (elementFilter == null || elementFilter instanceof DisabledHistoricalCacheQueryElementFilter) {
-                return iterableInterceptor;
+                return (ICloseableIterable) iterableInterceptor;
             } else {
                 return new ASkippingIterable<IHistoricalEntry<V>>(iterableInterceptor) {
                     @Override

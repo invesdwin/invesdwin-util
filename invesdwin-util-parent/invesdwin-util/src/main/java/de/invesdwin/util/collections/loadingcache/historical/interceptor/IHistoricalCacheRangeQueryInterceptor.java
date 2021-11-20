@@ -8,6 +8,6 @@ public interface IHistoricalCacheRangeQueryInterceptor<V> {
 
     ICloseableIterable<FDate> getKeys(FDate from, FDate to);
 
-    ICloseableIterable<IHistoricalEntry<V>> getEntries(FDate from, FDate to);
+    ICloseableIterable<? extends IHistoricalEntry<V>> getEntries(FDate from, FDate to);
 
 }
