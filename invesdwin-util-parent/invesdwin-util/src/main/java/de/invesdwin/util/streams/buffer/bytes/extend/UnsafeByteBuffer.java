@@ -572,6 +572,16 @@ public class UnsafeByteBuffer extends UnsafeBuffer implements IByteBuffer {
     }
 
     @Override
+    public int wrapAdjustment() {
+        if (byteArray() == null && byteBuffer() == null) {
+            //nullpointer workaround when we have no byteBuffer, thus wrapAdjustment=0
+            return 0;
+        } else {
+            return super.wrapAdjustment();
+        }
+    }
+
+    @Override
     public java.nio.ByteBuffer asNioByteBuffer() {
         final java.nio.ByteBuffer byteBuffer = nioByteBuffer();
         final int wrapAdjustment = wrapAdjustment();
