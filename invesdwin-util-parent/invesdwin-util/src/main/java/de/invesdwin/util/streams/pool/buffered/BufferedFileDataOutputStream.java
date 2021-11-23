@@ -28,7 +28,7 @@ public class BufferedFileDataOutputStream extends OutputStream implements DataOu
     private IByteBuffer buffer;
     private final java.nio.ByteBuffer nioBuffer;
 
-    private final RandomAccessFile raf;
+    private final RandomAccessFile randomAccessFile;
     private final FileChannel channel;
 
     private NonClosingDelegateOutputStream nonClosing;
@@ -39,8 +39,8 @@ public class BufferedFileDataOutputStream extends OutputStream implements DataOu
 
     public BufferedFileDataOutputStream(final File file, final int bufferSize) throws FileNotFoundException {
         // for backwards compatiblity with file interface, we still use RandomAccessFile
-        this.raf = new RandomAccessFile(file, "rw");
-        this.channel = raf.getChannel();
+        this.randomAccessFile = new RandomAccessFile(file, "rw");
+        this.channel = randomAccessFile.getChannel();
 
         this.buffer = getBufferPool().borrowObject();
         this.nioBuffer = buffer.asNioByteBuffer(0, bufferSize);
@@ -51,7 +51,7 @@ public class BufferedFileDataOutputStream extends OutputStream implements DataOu
     }
 
     public BufferedFileDataOutputStream(final Path path, final int bufferSize) throws IOException {
-        this.raf = null;
+        this.randomAccessFile = null;
         this.channel = FileChannel.open(path, StandardOpenOption.CREATE, StandardOpenOption.READ,
                 StandardOpenOption.WRITE);
 
@@ -167,8 +167,8 @@ public class BufferedFileDataOutputStream extends OutputStream implements DataOu
     public final void close() throws IOException {
         if (buffer != null) {
             flush();
-            if (raf != null) {
-                raf.close();
+            if (randomAccessFile != null) {
+                randomAccessFile.close();
             }
             channel.close();
             getBufferPool().returnObject(buffer);
@@ -193,5 +193,13 @@ public class BufferedFileDataOutputStream extends OutputStream implements DataOu
     public void sync() throws IOException {
         flush();
         channel.force(true);
+    }
+
+    public FileChannel getChannel() {
+        return channel;
+    }
+
+    public RandomAccessFile getRandomAccessFile() {
+        return randomAccessFile;
     }
 }
