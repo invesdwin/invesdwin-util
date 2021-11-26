@@ -9,6 +9,7 @@ import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 @ThreadSafe
 public class UniqueNameGenerator {
 
+    public static final String SEPARATOR = "_";
     private final ALoadingCache<String, AtomicLong> name_sequencenumber = new ALoadingCache<String, AtomicLong>() {
         @Override
         protected AtomicLong loadValue(final String key) {
@@ -29,7 +30,7 @@ public class UniqueNameGenerator {
     }
 
     protected String wrapSequenceNumber(final long sequenceNumber) {
-        return "_" + sequenceNumber;
+        return SEPARATOR + sequenceNumber;
     }
 
     public synchronized long nextSequenceNumber(final String name) {
