@@ -110,6 +110,10 @@ public final class Files extends AFilesStaticFacade {
         return normalizePathMaxLength(Strings.replaceEach(name, NORMALIZE_FILENAME_SEARCH, NORMALIZE_FILENAME_REPLACE));
     }
 
+    public static File normalizePath(final File path) {
+        return new File(normalizePath(path.getAbsolutePath()));
+    }
+
     public static String normalizePath(final String path) {
         return normalizePathMaxLength(Strings.replaceEach(path, NORMALIZE_PATH_SEARCH, NORMALIZE_PATH_REPLACE));
     }
