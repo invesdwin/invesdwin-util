@@ -111,7 +111,7 @@ public final class Files extends AFilesStaticFacade {
     }
 
     public static File normalizePath(final File path) {
-        return new File(normalizePath(path.getAbsolutePath()));
+        return new File(normalizePath(path.getPath()));
     }
 
     public static String normalizePath(final String path) {
