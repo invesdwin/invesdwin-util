@@ -6,12 +6,17 @@ import java.nio.charset.Charset;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Path;
 import java.util.Iterator;
+import java.util.concurrent.TimeoutException;
 
 import javax.annotation.concurrent.Immutable;
 
 import org.apache.commons.io.FileExistsException;
 import org.apache.commons.io.filefilter.AgeFileFilter;
 import org.apache.commons.io.filefilter.TrueFileFilter;
+import org.zeroturnaround.exec.InvalidExitValueException;
+import org.zeroturnaround.exec.ProcessExecutor;
+import org.zeroturnaround.exec.ProcessResult;
+import org.zeroturnaround.exec.stream.slf4j.Slf4jStream;
 
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
 import de.invesdwin.util.assertions.Assertions;
@@ -267,8 +272,7 @@ public final class Files extends AFilesStaticFacade {
     private static boolean deleteNativeUnix(final File file) {
         try {
             final String[] deleteCommand = new String[] { "/bin/rm", "-rf", file.getAbsolutePath() };
-            final Process process = new ProcessBuilder(deleteCommand).start();
-            final int returnCode = process.waitFor();
+            final int returnCode = executeCommand(deleteCommand);
             return returnCode == 0;
         } catch (final Exception e) {
             return false;
@@ -288,8 +292,7 @@ public final class Files extends AFilesStaticFacade {
                 //rmdir would give a 9009 return code if file does not exist
                 deleteCommand = "del /f/s/q \"" + path + "\" > nul";
             }
-            final Process process = new ProcessBuilder("cmd.exe", "/c", deleteCommand).start();
-            final int returnCode = process.waitFor();
+            final int returnCode = executeCommand("cmd.exe", "/c", deleteCommand);
             return returnCode == 0;
         } catch (final Exception e) {
             return false;
@@ -331,6 +334,16 @@ public final class Files extends AFilesStaticFacade {
             deleteQuietly(destFile);
             org.apache.commons.io.FileUtils.moveFile(srcFile, destFile);
         }
+    }
+
+    private static int executeCommand(final String... command)
+            throws IOException, InvalidExitValueException, InterruptedException, TimeoutException {
+        final ProcessResult result = new ProcessExecutor().command(command)
+                .destroyOnExit()
+                .redirectOutput(Slf4jStream.of(Files.class).asDebug())
+                .redirectError(Slf4jStream.of(Files.class).asWarn())
+                .execute();
+        return result.getExitValue();
     }
 
 }

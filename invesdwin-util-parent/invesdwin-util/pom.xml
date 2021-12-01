@@ -159,7 +159,6 @@
 			<artifactId>concurrent-locks</artifactId>
 		</dependency>
 
-
 		<dependency>
 			<groupId>io.github.classgraph</groupId>
 			<artifactId>classgraph</artifactId>
@@ -243,6 +242,11 @@
 		<dependency>
 			<groupId>org.burningwave</groupId>
 			<artifactId>core</artifactId>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.zeroturnaround</groupId>
+			<artifactId>zt-exec</artifactId>
 		</dependency>
 	</dependencies>
 
