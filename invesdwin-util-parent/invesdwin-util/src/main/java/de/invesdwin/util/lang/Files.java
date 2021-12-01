@@ -116,7 +116,23 @@ public final class Files extends AFilesStaticFacade {
     }
 
     public static File normalizePath(final File path) {
-        return new File(normalizePath(path.getAbsolutePath()));
+        if (path.isAbsolute()) {
+            final String absolutePath = path.getAbsolutePath();
+            if (absolutePath.charAt(1) == ':' && absolutePath.length() > 4) {
+                //we are on windows with a device location
+                final String pathSuffix = absolutePath.substring(2);
+                final String pathPrefix = absolutePath.substring(0, 2);
+                final String pathSuffixNormalized = normalizePath(pathSuffix);
+                final String normalizedPath = pathPrefix + pathSuffixNormalized;
+                return new File(normalizedPath);
+            } else {
+                final String normalizedPath = normalizePath(path.getAbsolutePath());
+                return new File(normalizedPath);
+            }
+        } else {
+            final String normalizedPath = normalizePath(path.getPath());
+            return new File(normalizedPath);
+        }
     }
 
     public static String normalizePath(final String path) {
