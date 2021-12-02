@@ -16,7 +16,6 @@ import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.zeroturnaround.exec.InvalidExitValueException;
 import org.zeroturnaround.exec.ProcessExecutor;
 import org.zeroturnaround.exec.ProcessResult;
-import org.zeroturnaround.exec.stream.slf4j.Slf4jStream;
 
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
 import de.invesdwin.util.assertions.Assertions;
@@ -356,8 +355,8 @@ public final class Files extends AFilesStaticFacade {
             throws IOException, InvalidExitValueException, InterruptedException, TimeoutException {
         final ProcessResult result = new ProcessExecutor().command(command)
                 .destroyOnExit()
-                .redirectOutput(Slf4jStream.of(Files.class).asDebug())
-                .redirectError(Slf4jStream.of(Files.class).asWarn())
+                //                .redirectOutput(Slf4jStream.of(Files.class).asDebug())
+                //                .redirectError(Slf4jStream.of(Files.class).asWarn())
                 .execute();
         return result.getExitValue();
     }
