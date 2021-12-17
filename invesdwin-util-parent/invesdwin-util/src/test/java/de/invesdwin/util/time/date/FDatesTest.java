@@ -34,7 +34,7 @@ public class FDatesTest {
 
     @Test
     public void testWithoutTimeUtc() {
-        final FDate now = new FDate().withoutTime(FTimeZone.UTC);
+        final FDate now = FDateBuilder.newDate(2021, 8, 1).withoutTime(FTimeZone.UTC);
         final FDate utcTime = now.applyTimeZoneOffset(FTimeZone.UTC);
         //CHECKSTYLE:OFF
         System.out.println(
@@ -47,7 +47,7 @@ public class FDatesTest {
 
     @Test
     public void testWithoutTimeEuropeBerlin() {
-        final FDate now = new FDate().withoutTime(FTimeZone.EUROPE_BERLIN);
+        final FDate now = FDateBuilder.newDate(2021, 8, 1).withoutTime(FTimeZone.EUROPE_BERLIN);
         final FDate utcTime = now.applyTimeZoneOffset(FTimeZone.EUROPE_BERLIN);
         //CHECKSTYLE:OFF
         System.out.println(now + " (" + now.getTimeZone().getId() + ") -> " + utcTime + " ("
