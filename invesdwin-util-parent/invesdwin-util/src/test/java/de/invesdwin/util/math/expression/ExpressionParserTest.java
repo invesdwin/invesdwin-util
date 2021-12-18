@@ -1291,7 +1291,7 @@ public class ExpressionParserTest {
 
     @Test
     public void testNull() {
-        Assertions.assertThrows(ParseException.class, () -> {
+        Assertions.assertThrows(NullPointerException.class, () -> {
             new ExpressionParser(null).parse();
         });
     }
