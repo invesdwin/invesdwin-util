@@ -2,7 +2,7 @@ package de.invesdwin.util.lang.description;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.helpers.MessageFormatter;
 
 import de.invesdwin.util.assertions.Assertions;

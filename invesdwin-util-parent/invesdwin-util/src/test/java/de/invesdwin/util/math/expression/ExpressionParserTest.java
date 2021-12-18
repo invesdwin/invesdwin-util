@@ -2,8 +2,8 @@ package de.invesdwin.util.math.expression;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import org.junit.ComparisonFailure;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.opentest4j.AssertionFailedError;
 
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.math.Characters;
@@ -192,7 +192,7 @@ public class ExpressionParserTest {
                 }.parse();
                 Assertions.checkEquals(parsed.toString(), parsedAgain.toString());
             } catch (final Throwable t) {
-                if (t instanceof ComparisonFailure) {
+                if (t instanceof AssertionFailedError) {
                     throw t;
                 } else {
                     throw new RuntimeException("At: " + op, t);
@@ -289,7 +289,7 @@ public class ExpressionParserTest {
                 }.parse();
                 Assertions.checkEquals(parsed.toString(), parsedAgain.toString());
             } catch (final Throwable t) {
-                if (t instanceof ComparisonFailure) {
+                if (t instanceof AssertionFailedError) {
                     throw t;
                 } else {
                     throw new RuntimeException("At: " + escapeStr, t);
@@ -329,7 +329,7 @@ public class ExpressionParserTest {
                 }.parse();
                 Assertions.checkEquals(parsed.toString(), parsedAgain.toString());
             } catch (final Throwable t) {
-                if (t instanceof ComparisonFailure) {
+                if (t instanceof AssertionFailedError) {
                     throw t;
                 } else {
                     throw new RuntimeException("At: " + escapeStr, t);
@@ -375,7 +375,7 @@ public class ExpressionParserTest {
                 }.parse();
                 Assertions.checkEquals(parsed.toString(), parsedAgain.toString());
             } catch (final Throwable t) {
-                if (t instanceof ComparisonFailure) {
+                if (t instanceof AssertionFailedError) {
                     throw t;
                 } else {
                     throw new RuntimeException("At: " + escapeStr, t);
@@ -478,7 +478,7 @@ public class ExpressionParserTest {
                 }.parse();
                 Assertions.checkEquals(parsed.toString(), parsedAgain.toString());
             } catch (final Throwable t) {
-                if (t instanceof ComparisonFailure) {
+                if (t instanceof AssertionFailedError) {
                     throw t;
                 } else {
                     throw new RuntimeException("At: " + escapeStr, t);
@@ -523,7 +523,7 @@ public class ExpressionParserTest {
                 }.parse();
                 Assertions.checkEquals(parsed.toString(), parsedAgain.toString());
             } catch (final Throwable t) {
-                if (t instanceof ComparisonFailure) {
+                if (t instanceof AssertionFailedError) {
                     throw t;
                 } else {
                     throw new RuntimeException("At: " + escapeStr, t);
@@ -568,7 +568,7 @@ public class ExpressionParserTest {
                 }.parse();
                 Assertions.checkEquals(parsed.toString(), parsedAgain.toString());
             } catch (final Throwable t) {
-                if (t instanceof ComparisonFailure) {
+                if (t instanceof AssertionFailedError) {
                     throw t;
                 } else {
                     throw new RuntimeException("At: " + escapeStr, t);
@@ -613,7 +613,7 @@ public class ExpressionParserTest {
                 }.parse();
                 Assertions.checkEquals(parsed.toString(), parsedAgain.toString());
             } catch (final Throwable t) {
-                if (t instanceof ComparisonFailure) {
+                if (t instanceof AssertionFailedError) {
                     throw t;
                 } else {
                     throw new RuntimeException("At: " + escapeStr, t);
@@ -658,7 +658,7 @@ public class ExpressionParserTest {
                 }.parse();
                 Assertions.checkEquals(parsed.toString(), parsedAgain.toString());
             } catch (final Throwable t) {
-                if (t instanceof ComparisonFailure) {
+                if (t instanceof AssertionFailedError) {
                     throw t;
                 } else {
                     throw new RuntimeException("At: " + escapeStr, t);
@@ -703,7 +703,7 @@ public class ExpressionParserTest {
                 }.parse();
                 Assertions.checkEquals(parsed.toString(), parsedAgain.toString());
             } catch (final Throwable t) {
-                if (t instanceof ComparisonFailure) {
+                if (t instanceof AssertionFailedError) {
                     throw t;
                 } else {
                     throw new RuntimeException("At: " + escapeStr, t);
@@ -748,7 +748,7 @@ public class ExpressionParserTest {
                 }.parse();
                 Assertions.checkEquals(parsed.toString(), parsedAgain.toString());
             } catch (final Throwable t) {
-                if (t instanceof ComparisonFailure) {
+                if (t instanceof AssertionFailedError) {
                     throw t;
                 } else {
                     throw new RuntimeException("At: " + escapeStr, t);
@@ -789,7 +789,7 @@ public class ExpressionParserTest {
                 }.parse();
                 Assertions.checkEquals(parsed.toString(), parsedAgain.toString());
             } catch (final Throwable t) {
-                if (t instanceof ComparisonFailure) {
+                if (t instanceof AssertionFailedError) {
                     throw t;
                 } else {
                     throw new RuntimeException("At: " + escapeStr, t);
@@ -830,7 +830,7 @@ public class ExpressionParserTest {
                 }.parse();
                 Assertions.checkEquals(parsed.toString(), parsedAgain.toString());
             } catch (final Throwable t) {
-                if (t instanceof ComparisonFailure) {
+                if (t instanceof AssertionFailedError) {
                     throw t;
                 } else {
                     throw new RuntimeException("At: " + escapeStr, t);
@@ -858,7 +858,7 @@ public class ExpressionParserTest {
                 Assertions.checkEquals("STOOQ:vic" + escapeStr + ":isNaN(STOOQ:vic" + escapeStr + ":NaN)",
                         parsed.toString());
             } catch (final Throwable t) {
-                if (t instanceof ComparisonFailure) {
+                if (t instanceof AssertionFailedError) {
                     throw t;
                 } else {
                     throw new RuntimeException("At: " + escapeStr, t);
@@ -1289,19 +1289,25 @@ public class ExpressionParserTest {
         Assertions.checkEquals(-1D, evaluateDouble);
     }
 
-    @Test(expected = ParseException.class)
+    @Test
     public void testNull() {
-        new ExpressionParser("").parse();
+        Assertions.assertThrows(ParseException.class, () -> {
+            new ExpressionParser(null).parse();
+        });
     }
 
-    @Test(expected = ParseException.class)
+    @Test
     public void testEmpty() {
-        new ExpressionParser("").parse();
+        Assertions.assertThrows(ParseException.class, () -> {
+            new ExpressionParser("").parse();
+        });
     }
 
-    @Test(expected = ParseException.class)
+    @Test
     public void testBlank() {
-        new ExpressionParser(" ").parse();
+        Assertions.assertThrows(ParseException.class, () -> {
+            new ExpressionParser(" ").parse();
+        });
     }
 
     @Test

@@ -5,8 +5,8 @@ import java.util.NoSuchElementException;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
@@ -19,7 +19,7 @@ import de.invesdwin.util.time.date.FDate;
 import de.invesdwin.util.time.duration.Duration;
 
 @NotThreadSafe
-@Ignore("manual test")
+@Disabled("manual test")
 public class CaffeinePerformanceTest extends ADatabasePerformanceTest {
 
     @Test

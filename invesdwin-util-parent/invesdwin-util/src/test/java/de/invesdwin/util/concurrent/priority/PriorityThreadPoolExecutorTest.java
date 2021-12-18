@@ -6,8 +6,8 @@ import java.util.concurrent.Callable;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.concurrent.Executors;
@@ -20,7 +20,7 @@ public class PriorityThreadPoolExecutorTest {
 
     private int executed = 0;
 
-    @Before
+    @BeforeEach
     public void before() {
         executed = 0;
     }

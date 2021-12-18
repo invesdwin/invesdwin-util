@@ -5,7 +5,7 @@ import java.util.BitSet;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.roaringbitmap.FastAggregation;
 import org.roaringbitmap.RoaringBitmap;
 

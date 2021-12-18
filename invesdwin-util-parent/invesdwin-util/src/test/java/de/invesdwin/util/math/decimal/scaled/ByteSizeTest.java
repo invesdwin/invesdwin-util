@@ -5,7 +5,7 @@ import java.util.Locale;
 
 import javax.annotation.concurrent.ThreadSafe;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.math.decimal.Decimal;

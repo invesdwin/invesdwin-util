@@ -7,8 +7,8 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.concurrent.Executors;
@@ -20,7 +20,7 @@ import de.invesdwin.util.math.decimal.scaled.PercentScale;
 import de.invesdwin.util.time.Instant;
 
 @NotThreadSafe
-@Ignore
+@Disabled
 public class AllocateByteArrayTest {
 
     private static final int COUNT_BYTES = 100000000;

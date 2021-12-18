@@ -7,7 +7,7 @@ import java.util.List;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import org.apache.commons.math3.stat.descriptive.rank.Median;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.math.statistics.RunningMedian;

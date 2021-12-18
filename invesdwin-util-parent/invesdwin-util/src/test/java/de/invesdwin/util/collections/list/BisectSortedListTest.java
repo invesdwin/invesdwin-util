@@ -8,7 +8,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import org.apache.commons.math3.random.RandomAdaptor;
 import org.apache.commons.math3.random.RandomGenerator;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import de.invesdwin.util.lang.comparator.Comparators;
 import de.invesdwin.util.math.decimal.Decimal;

@@ -6,8 +6,8 @@ import java.util.TimeZone;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import org.joda.time.DateTimeZone;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
@@ -18,7 +18,7 @@ import de.invesdwin.util.time.date.timezone.TimeZones;
 @NotThreadSafe
 public class FDateTest {
 
-    @BeforeClass
+    @BeforeAll
     public static void beforeClass() {
         final TimeZone newTimeZone = TimeZones.getTimeZone("UTC");
         FDates.setDefaultTimeZone(new FTimeZone(newTimeZone));

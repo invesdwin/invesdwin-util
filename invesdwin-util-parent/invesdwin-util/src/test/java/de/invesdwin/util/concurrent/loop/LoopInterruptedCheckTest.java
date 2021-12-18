@@ -2,8 +2,8 @@ package de.invesdwin.util.concurrent.loop;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import de.invesdwin.util.concurrent.LoopInterruptedCheckMillis;
 import de.invesdwin.util.concurrent.Threads;
@@ -11,7 +11,7 @@ import de.invesdwin.util.time.Instant;
 import de.invesdwin.util.time.date.FDate;
 import de.invesdwin.util.time.duration.Duration;
 
-@Ignore("manual test")
+@Disabled("manual test")
 @NotThreadSafe
 public class LoopInterruptedCheckTest {
 

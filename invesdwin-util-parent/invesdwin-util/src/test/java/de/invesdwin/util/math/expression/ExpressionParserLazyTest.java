@@ -3,7 +3,7 @@ package de.invesdwin.util.math.expression;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import org.apache.commons.lang3.mutable.MutableBoolean;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.math.expression.eval.function.ADoubleNullaryFunction;

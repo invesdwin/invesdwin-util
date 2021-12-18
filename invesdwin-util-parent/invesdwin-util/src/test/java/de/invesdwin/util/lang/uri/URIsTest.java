@@ -5,7 +5,7 @@ import java.io.IOException;
 
 import javax.annotation.concurrent.ThreadSafe;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import de.invesdwin.util.assertions.Assertions;
 
@@ -22,9 +22,11 @@ public class URIsTest {
         Assertions.assertThat(URIs.connect("https://invesdwin.de").lastModified() > 0).isTrue();
     }
 
-    @Test(expected = FileNotFoundException.class)
+    @Test
     public void test404() throws IOException {
-        URIs.connect("https://invesdwin.de/asdfasdf").downloadThrowing();
+        Assertions.assertThrows(FileNotFoundException.class, () -> {
+            URIs.connect("https://invesdwin.de/asdfasdf").downloadThrowing();
+        });
     }
 
     @Test

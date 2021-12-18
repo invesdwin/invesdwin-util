@@ -5,13 +5,13 @@ import java.util.concurrent.Callable;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import org.apache.commons.math3.random.RandomGenerator;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import de.invesdwin.util.time.Instant;
 import de.invesdwin.util.time.duration.Duration;
 
-@Ignore("manual test")
+@Disabled("manual test")
 @NotThreadSafe
 public class RandomGeneratorsTest {
 

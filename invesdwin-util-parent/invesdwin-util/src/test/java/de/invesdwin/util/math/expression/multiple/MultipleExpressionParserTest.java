@@ -2,7 +2,7 @@ package de.invesdwin.util.math.expression.multiple;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.math.expression.IExpression;

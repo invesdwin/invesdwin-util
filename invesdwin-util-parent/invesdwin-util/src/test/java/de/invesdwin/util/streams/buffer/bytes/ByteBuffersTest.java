@@ -7,7 +7,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 import org.agrona.ExpandableArrayBuffer;
 import org.agrona.ExpandableDirectByteBuffer;
 import org.agrona.concurrent.UnsafeBuffer;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.lang.reflection.Reflections;

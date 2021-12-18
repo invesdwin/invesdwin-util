@@ -2,15 +2,17 @@ package de.invesdwin.util.math;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 @NotThreadSafe
 public class IntegersTest {
 
-    @Test(expected = ArithmeticException.class)
+    @Test
     public void testDivideByZero() {
-        final int division = 5 / 0;
-        org.assertj.core.api.Assertions.fail("exception expected: " + division);
+        org.junit.jupiter.api.Assertions.assertThrows(ArithmeticException.class, () -> {
+            final int division = 5 / 0;
+            org.assertj.core.api.Assertions.fail("exception expected: " + division);
+        });
     }
 
     @Test

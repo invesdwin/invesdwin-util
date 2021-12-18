@@ -8,8 +8,8 @@ import java.util.concurrent.ConcurrentMap;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.list.Lists;
@@ -19,7 +19,7 @@ import de.invesdwin.util.time.date.FDate;
 import de.invesdwin.util.time.duration.Duration;
 
 @NotThreadSafe
-@Ignore("manual test")
+@Disabled("manual test")
 public class ConcurrentHashMapPerformanceTest extends ADatabasePerformanceTest {
 
     @Test

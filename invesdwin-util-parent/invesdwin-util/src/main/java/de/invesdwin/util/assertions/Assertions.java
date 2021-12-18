@@ -212,7 +212,7 @@ public final class Assertions extends AAssertionsStaticFacade {
     public static void checkEquals(final Object expected, final Object actual) {
         if (!Objects.equals(expected, actual)) {
             if (JUNIT_AVAILABLE && expected instanceof String && actual instanceof String) {
-                de.invesdwin.util.assertions.type.internal.junit.JUnit4CheckEquals.checkEqualsJunit((String) expected,
+                de.invesdwin.util.assertions.type.internal.junit.JUnit5CheckEquals.checkEqualsJunit((String) expected,
                         (String) actual);
             } else {
                 assertThat(actual).isEqualTo(expected);
@@ -225,7 +225,7 @@ public final class Assertions extends AAssertionsStaticFacade {
             final Object... args) {
         if (!Objects.equals(expected, actual)) {
             if (JUNIT_AVAILABLE && expected instanceof String && actual instanceof String) {
-                de.invesdwin.util.assertions.type.internal.junit.JUnit4CheckEquals.checkEqualsJunit((String) expected,
+                de.invesdwin.util.assertions.type.internal.junit.JUnit5CheckEquals.checkEqualsJunit((String) expected,
                         (String) actual, message, args);
             } else {
                 assertThat(actual).as(message, args).isEqualTo(expected);
@@ -238,7 +238,7 @@ public final class Assertions extends AAssertionsStaticFacade {
             final Object... args) {
         if (!Objects.equals(expected, actual)) {
             if (JUNIT_AVAILABLE) {
-                de.invesdwin.util.assertions.type.internal.junit.JUnit4CheckEquals.checkEqualsJunit(expected, actual,
+                de.invesdwin.util.assertions.type.internal.junit.JUnit5CheckEquals.checkEqualsJunit(expected, actual,
                         message, args);
             } else {
                 assertThat(actual).as(message, args).isEqualTo(expected);
