@@ -42,6 +42,7 @@ public final class Assertions extends AAssertionsStaticFacade {
 
     static {
         JUNIT_AVAILABLE = Reflections.classExists("org.junit.Assert");
+        Assertions.setMaxStackTraceElementsDisplayed(COMPARISON_FAILURE_MESSAGE_LIMIT);
     }
 
     private Assertions() {

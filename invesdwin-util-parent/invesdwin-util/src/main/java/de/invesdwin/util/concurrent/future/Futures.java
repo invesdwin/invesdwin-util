@@ -191,7 +191,7 @@ public final class Futures extends AFuturesStaticFacade {
                     if (future.isDone()) {
                         futures.remove(future);
                         try {
-                            Assertions.assertThat(get(future)).isNull();
+                            Assertions.assertThat(Futures.get(future)).isNull();
                         } catch (final Throwable t) {
                             for (final Future<?> f : futures) {
                                 f.cancel(true);
