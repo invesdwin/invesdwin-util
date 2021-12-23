@@ -45,6 +45,9 @@ import de.invesdwin.util.math.expression.tokenizer.pool.TokenizerObjectPool;
 import de.invesdwin.util.math.expression.variable.IVariable;
 import de.invesdwin.util.math.expression.variable.Variables;
 
+/**
+ * Forked from here: https://github.com/scireum/parsii/issues/21
+ */
 @NotThreadSafe
 public class ExpressionParser implements IExpressionParser {
 
