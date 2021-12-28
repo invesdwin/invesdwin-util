@@ -48,6 +48,12 @@ public class ConfiguredForkJoinWorkerThreadFactory implements ForkJoinWorkerThre
                     setName(curThreadName);
                 }
             }
+
+            @Override
+            public void run() {
+                Threads.setCurrentThreadPoolName(name);
+                super.run();
+            }
         };
         /*
          * So that exceptions are still logged if runnables are sent into executors without futures being checked. This

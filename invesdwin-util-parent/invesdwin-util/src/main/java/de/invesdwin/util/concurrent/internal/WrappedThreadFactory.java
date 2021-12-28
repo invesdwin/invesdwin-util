@@ -39,7 +39,10 @@ public class WrappedThreadFactory implements ThreadFactory {
 
     @Override
     public Thread newThread(final Runnable r) {
-        final Thread t = delegate.newThread(r);
+        final Thread t = delegate.newThread(() -> {
+            Threads.setCurrentThreadPoolName(name);
+            r.run();
+        });
 
         final String curThreadName = threadpoolId + "-" + threadIds.incrementAndGet() + ":" + name;
         if (parent == null || parent.isDynamicThreadName()) {

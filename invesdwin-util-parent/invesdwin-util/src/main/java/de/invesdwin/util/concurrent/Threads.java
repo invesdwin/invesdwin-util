@@ -4,6 +4,7 @@ import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.shutdown.ShutdownHookManager;
+import io.netty.util.concurrent.FastThreadLocal;
 
 @Immutable
 public final class Threads {
@@ -14,7 +15,10 @@ public final class Threads {
      */
     private static final int MAX_THREAD_NAME_LENGTH = 1800;
 
-    private Threads() {}
+    private static final FastThreadLocal<String> THREAD_POOL_NAME = new FastThreadLocal<>();
+
+    private Threads() {
+    }
 
     public static void throwIfInterrupted(final Thread thread) throws InterruptedException {
         if (isInterrupted(thread)) {
@@ -78,6 +82,18 @@ public final class Threads {
         final String curThreadName = getCurrentThreadName();
         final String curRootThreadName = Strings.substringBefore(curThreadName, NESTED_THREAD_NAME_SEPARATOR);
         return curRootThreadName;
+    }
+
+    public static String getCurrentThreadPoolName() {
+        return THREAD_POOL_NAME.get();
+    }
+
+    public static void setCurrentThreadPoolName(final String name) {
+        if (name == null) {
+            THREAD_POOL_NAME.remove();
+        } else {
+            THREAD_POOL_NAME.set(name);
+        }
     }
 
 }

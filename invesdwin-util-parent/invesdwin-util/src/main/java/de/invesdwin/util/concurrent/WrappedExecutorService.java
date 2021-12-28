@@ -106,6 +106,10 @@ public class WrappedExecutorService implements ListeningExecutorService {
         this.waitOnFullPendingCountCondition = zeroPendingCountCondition;
     }
 
+    public boolean isExecutorThread() {
+        return name.equals(Threads.getCurrentThreadPoolName());
+    }
+
     protected IShutdownHook newShutdownHook(final ExecutorService delegate) {
         return staticNewShutdownHook(delegate);
     }
