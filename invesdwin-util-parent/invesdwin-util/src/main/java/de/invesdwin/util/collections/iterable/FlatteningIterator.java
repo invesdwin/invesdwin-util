@@ -75,11 +75,17 @@ public class FlatteningIterator<E> implements ICloseableIterator<E> {
     public void close() {
         while (curIterator != null) {
             curIterator.close();
-            if (delegate.hasNext()) {
-                curIterator = WrapperCloseableIterator.maybeWrap(delegate.next());
-            } else {
-                curIterator = null;
-            }
+            /*
+             * WARNING: not closing the rest of the iterators, since this could lead to additional data being loaded by
+             * ATimeSeriesDB because further iterators are created lazy. Instead the delegate has to decide if it should
+             * close the iterators it has available next. In most cases it is fine and faster to just discard further
+             * iterators.
+             */
+            //            if (delegate.hasNext()) {
+            //                curIterator = WrapperCloseableIterator.maybeWrap(delegate.next());
+            //            } else {
+            //                curIterator = null;
+            //            }
         }
         delegate.close();
     }
