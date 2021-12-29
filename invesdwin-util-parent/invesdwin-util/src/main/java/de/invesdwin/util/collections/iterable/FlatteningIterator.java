@@ -70,7 +70,6 @@ public class FlatteningIterator<E> implements ICloseableIterator<E> {
         throw new FastNoSuchElementException("FlatteningIterator: curIterator is null");
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     public void close() {
         /*
