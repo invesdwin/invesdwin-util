@@ -1,11 +1,10 @@
 package de.invesdwin.util.marshallers.serde;
 
 import java.util.Calendar;
+import java.util.Currency;
 import java.util.Date;
 
 import javax.annotation.concurrent.Immutable;
-
-import com.opengamma.strata.basics.currency.Currency;
 
 import de.invesdwin.util.lang.reflection.Reflections;
 import de.invesdwin.util.marshallers.serde.basic.BooleanSerde;
