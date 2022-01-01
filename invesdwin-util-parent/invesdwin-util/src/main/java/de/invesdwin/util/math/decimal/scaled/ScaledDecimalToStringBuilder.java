@@ -53,6 +53,7 @@ public class ScaledDecimalToStringBuilder<T extends AScaledDecimal<T, S>, S exte
 
     public ScaledDecimalToStringBuilder<T, S> setDecimalDigitsRequired() {
         setDecimalDigitsOptional(false);
+        setDecimalDigitsTrailing(false);
         return this;
     }
 
