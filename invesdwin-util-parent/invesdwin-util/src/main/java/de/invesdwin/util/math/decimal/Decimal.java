@@ -380,6 +380,10 @@ public class Decimal extends ADecimal<Decimal> {
         }
     }
 
+    public static double toValue(final Decimal value) {
+        return nullToNan(value);
+    }
+
     public static Boolean toBooleanNullable(final Decimal value) {
         if (value == null || Doubles.isNaN(value)) {
             return null;
