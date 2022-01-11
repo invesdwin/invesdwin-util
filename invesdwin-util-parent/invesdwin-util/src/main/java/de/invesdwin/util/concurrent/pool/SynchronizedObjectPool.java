@@ -32,6 +32,13 @@ public class SynchronizedObjectPool<E> implements IObjectPool<E> {
     }
 
     @Override
+    public void invalidateObject(final E element) {
+        synchronized (lock) {
+            delegate.invalidateObject(element);
+        }
+    }
+
+    @Override
     public void clear() {
         synchronized (lock) {
             delegate.clear();

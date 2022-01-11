@@ -31,4 +31,9 @@ public class AgronaObjectPool<E> extends AQueueObjectPool<E> {
         return objectFactory.get();
     }
 
+    @Override
+    public void invalidateObject(final E element) {
+        //noop
+    }
+
 }

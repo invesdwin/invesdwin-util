@@ -69,6 +69,14 @@ public class LimitedObjectPool<E> implements IObjectPool<E> {
     }
 
     @Override
+    public void invalidateObject(final E element) {
+        if (element != null) {
+            delegate.invalidateObject(element);
+            leasedInstances.decrementAndGet();
+        }
+    }
+
+    @Override
     public void clear() {
         delegate.clear();
     }

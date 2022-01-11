@@ -34,6 +34,11 @@ public abstract class AQueueObjectPool<E> implements IObjectPool<E> {
     }
 
     @Override
+    public void invalidateObject(final E element) {
+        //noop
+    }
+
+    @Override
     public void clear() {
         queue.clear();
     }

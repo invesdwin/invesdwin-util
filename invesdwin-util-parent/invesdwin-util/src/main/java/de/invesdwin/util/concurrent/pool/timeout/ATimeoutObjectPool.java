@@ -46,7 +46,7 @@ public abstract class ATimeoutObjectPool<E> implements IObjectPool<E>, Closeable
                         iterator.remove();
                         final E element = reference.get();
                         if (element != null) {
-                            destroyObject(element);
+                            invalidateObject(element);
                             reference.clear();
                         }
                     }
@@ -56,8 +56,6 @@ public abstract class ATimeoutObjectPool<E> implements IObjectPool<E>, Closeable
             }
         }
     }
-
-    public abstract void destroyObject(E obj);
 
     public static synchronized WrappedScheduledExecutorService getScheduledExecutor() {
         if (scheduledExecutor == null) {
@@ -120,7 +118,7 @@ public abstract class ATimeoutObjectPool<E> implements IObjectPool<E>, Closeable
                 final TimeoutReference<E> reference = bufferingIterator.next();
                 final E element = reference.get();
                 if (element != null) {
-                    destroyObject(element);
+                    invalidateObject(element);
                     reference.clear();
                 }
             }

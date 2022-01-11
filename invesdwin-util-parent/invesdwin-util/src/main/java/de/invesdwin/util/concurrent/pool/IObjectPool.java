@@ -8,4 +8,6 @@ public interface IObjectPool<E> {
 
     void clear();
 
+    void invalidateObject(E element);
+
 }

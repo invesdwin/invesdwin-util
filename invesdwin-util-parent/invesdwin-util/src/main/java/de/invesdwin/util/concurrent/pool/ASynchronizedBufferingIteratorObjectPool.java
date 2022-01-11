@@ -22,6 +22,11 @@ public abstract class ASynchronizedBufferingIteratorObjectPool<E> extends ABuffe
     }
 
     @Override
+    public synchronized void invalidateObject(final E element) {
+        super.invalidateObject(element);
+    }
+
+    @Override
     public synchronized void clear() {
         super.clear();
     }

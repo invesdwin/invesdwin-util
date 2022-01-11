@@ -40,6 +40,11 @@ public abstract class ABufferingIteratorObjectPool<E> implements IObjectPool<E> 
     }
 
     @Override
+    public void invalidateObject(final E element) {
+        //noop
+    }
+
+    @Override
     public void clear() {
         bufferingIterator.clear();
     }
