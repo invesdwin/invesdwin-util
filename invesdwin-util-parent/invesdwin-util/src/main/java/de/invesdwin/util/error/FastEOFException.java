@@ -16,6 +16,8 @@ import javax.annotation.concurrent.NotThreadSafe;
 @NotThreadSafe
 public class FastEOFException extends EOFException {
 
+    private static final FastEOFException INSTANCE = new FastEOFException("end reached");
+
     private static final long serialVersionUID = 1L;
 
     /**
@@ -40,6 +42,14 @@ public class FastEOFException extends EOFException {
             return e;
         } else {
             return new FastEOFException(message + ": " + e.toString());
+        }
+    }
+
+    public static FastEOFException getInstance() throws FastEOFException {
+        if (Throwables.isDebugStackTraceEnabled()) {
+            return new FastEOFException("end reached");
+        } else {
+            return INSTANCE;
         }
     }
 

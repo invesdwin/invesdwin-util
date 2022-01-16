@@ -47,9 +47,9 @@ public class FastNoSuchElementException extends NoSuchElementException {
 
     public static FastNoSuchElementException getInstance() {
         if (Throwables.isDebugStackTraceEnabled()) {
-            throw new FastNoSuchElementException("end reached");
+            return new FastNoSuchElementException("end reached");
         } else {
-            throw INSTANCE;
+            return INSTANCE;
         }
     }
 
