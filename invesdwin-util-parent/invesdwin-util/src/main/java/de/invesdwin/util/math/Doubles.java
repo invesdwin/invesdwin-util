@@ -35,7 +35,6 @@ public final class Doubles extends ADoublesStaticFacade {
     //CHECKSTYLE:OFF
     public static final double MAX_VALUE = Double.MAX_VALUE;
     public static final double MIN_VALUE = -Double.MAX_VALUE;
-    public static final double SMALLEST_VALUE = Double.MIN_VALUE;
     //CHECKSTYLE:ON
     public static final double ONE_THIRD = 1D / 3D;
     public static final double DEFAULT_MISSING_VALUE = 0d;

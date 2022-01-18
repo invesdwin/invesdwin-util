@@ -12,6 +12,7 @@ import java.util.List;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.error.UnknownArgumentException;
+import de.invesdwin.util.math.Floats;
 import de.invesdwin.util.math.decimal.ADecimal;
 
 @Immutable
@@ -154,7 +155,7 @@ public final class CheckedCastFloats {
     }
 
     public static float checkedCast(final double value) {
-        if (value < Float.MIN_VALUE || value > Float.MAX_VALUE) {
+        if (value < Floats.MIN_VALUE || value > Floats.MAX_VALUE) {
             throw new ArithmeticException("float overflow: " + value);
         }
         return (float) value;

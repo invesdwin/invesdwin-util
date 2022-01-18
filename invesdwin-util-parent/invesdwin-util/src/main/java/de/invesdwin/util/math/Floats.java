@@ -23,6 +23,11 @@ public final class Floats extends AFloatsStaticFacade {
     public static final Float DEFAULT_MISSING_VALUE_OBJ = DEFAULT_MISSING_VALUE;
     public static final IComparator<Float> COMPARATOR = IComparator.getDefaultInstance();
 
+    //CHECKSTYLE:OFF
+    public static final float MAX_VALUE = Float.MAX_VALUE;
+    public static final float MIN_VALUE = -Float.MAX_VALUE;
+    //CHECKSTYLE:ON
+
     private Floats() {
     }
 
