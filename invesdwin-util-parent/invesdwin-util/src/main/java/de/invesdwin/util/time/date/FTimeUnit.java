@@ -1296,4 +1296,12 @@ public enum FTimeUnit {
         return ALIAS_LOOKUP.get(nameOrAlias.toUpperCase());
     }
 
+    public void sleepNoInterrupt(final int timeout) {
+        try {
+            sleep(timeout);
+        } catch (final InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }
