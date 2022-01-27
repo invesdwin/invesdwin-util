@@ -1156,6 +1156,8 @@ public enum FTimeUnit {
     public static final int CENTURIES_IN_MILLENIUM = YEARS_IN_MILLENIUM / YEARS_IN_CENTURY;
     public static final int DECADES_IN_CENTURY = YEARS_IN_CENTURY / YEARS_IN_DECADE;
     public static final int DAYS_IN_YEAR = 365;
+    //might have a leapyear
+    public static final int MAX_DAYS_IN_YEAR = DAYS_IN_YEAR + 1;
     public static final int MONTHS_IN_YEAR = 12;
     public static final int DAYS_IN_WEEK = 7;
     public static final int DAYS_IN_MONTH = DAYS_IN_YEAR / MONTHS_IN_YEAR;
