@@ -1,4 +1,4 @@
-package de.invesdwin.util.lang;
+package de.invesdwin.util.streams.resource;
 
 import java.io.IOException;
 import java.net.URI;
@@ -10,6 +10,8 @@ import javax.annotation.concurrent.Immutable;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
+
+import de.invesdwin.util.lang.Strings;
 
 @Immutable
 public final class Resources {

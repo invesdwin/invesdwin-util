@@ -17,6 +17,7 @@ import de.invesdwin.norva.beanpath.BeanPathStrings;
 import de.invesdwin.util.lang.comparator.IComparator;
 import de.invesdwin.util.lang.internal.AStringsStaticFacade;
 import de.invesdwin.util.lang.internal.CheckedCastStrings;
+import de.invesdwin.util.lang.internal.CommentRemover;
 import de.invesdwin.util.lang.internal.DefaultToStringStyle;
 import de.invesdwin.util.lang.internal.ExtendedReflectionToStringBuilder;
 import de.invesdwin.util.lang.internal.MultilineToStringStyle;
@@ -25,7 +26,7 @@ import de.invesdwin.util.lang.internal.MultilineToStringStyle;
 @StaticFacadeDefinition(name = "de.invesdwin.util.lang.internal.AStringsStaticFacade", targets = {
         CheckedCastStrings.class, BeanPathStrings.class, com.google.common.base.Strings.class,
         org.assertj.core.util.Strings.class, org.apache.commons.text.StringEscapeUtils.class,
-        org.apache.commons.text.WordUtils.class }, filterMethodSignatureExpressions = {
+        org.apache.commons.text.WordUtils.class, CommentRemover.class }, filterMethodSignatureExpressions = {
                 ".* isNullOrEmpty\\(.*" }, filterSeeMethodSignatures = {
                         "com.google.common.base.Strings#repeat(java.lang.String, int)" })
 public final class Strings extends AStringsStaticFacade {
