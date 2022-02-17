@@ -249,6 +249,10 @@ public abstract class AHistoricalCache<V>
         return adjustKeyProvider.maybeAdjustKey(key);
     }
 
+    protected FDate getHighestAllowedKey() {
+        return adjustKeyProvider.getHighestAllowedKey();
+    }
+
     protected boolean isAdjustedKey(final FDate key) {
         return adjustKeyProvider.isAdjustedKey(key);
     }
@@ -584,6 +588,11 @@ public abstract class AHistoricalCache<V>
         @Override
         public FDate adjustKey(final FDate key) {
             return AHistoricalCache.this.adjustKey(key);
+        }
+
+        @Override
+        public FDate getHighestAllowedKey() {
+            return AHistoricalCache.this.getHighestAllowedKey();
         }
 
         @Override

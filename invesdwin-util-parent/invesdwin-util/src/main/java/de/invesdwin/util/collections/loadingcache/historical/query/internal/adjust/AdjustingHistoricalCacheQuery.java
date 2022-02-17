@@ -51,6 +51,23 @@ public class AdjustingHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V
         return internalMethods.adjustKey(key);
     }
 
+    protected boolean isFutureEntry(final IHistoricalEntry<V> entry) {
+        if (entry == null) {
+            return false;
+        }
+        return isFutureKey(entry.getKey());
+    }
+
+    protected boolean isFutureKey(final FDate key) {
+        if (key == null) {
+            return false;
+        }
+        if (key.isAfter(internalMethods.getHighestAllowedKey())) {
+            return true;
+        }
+        return false;
+    }
+
     protected Iterable<FDate> adjustKey(final Iterable<FDate> keys) {
         return new Iterable<FDate>() {
             @Override

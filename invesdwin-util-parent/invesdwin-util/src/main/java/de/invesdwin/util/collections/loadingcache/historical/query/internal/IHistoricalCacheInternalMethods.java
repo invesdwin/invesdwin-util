@@ -26,6 +26,8 @@ public interface IHistoricalCacheInternalMethods<V> {
 
     FDate adjustKey(FDate key);
 
+    FDate getHighestAllowedKey();
+
     boolean isAdjustedKey(FDate key);
 
     void remove(FDate key);
