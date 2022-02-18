@@ -43,7 +43,8 @@ public abstract class APushingRecursiveHistoricalResult<D, E, R extends APushing
             if (previousKey != null && !key.equalsNotNullSafe(previousKey) && recursionCount < maxRecursionCount) {
                 final R previousValue = recursiveQuery.getPreviousValueIfPresent(key, previousKey);
                 if (previousValue != null && previousValue != this) {
-                    data = previousValue.maybeInit(recursionCount + 1, maxRecursionCount).pushToNext(key).data;
+                    data = previousValue.maybeInit(recursionCount + 1, maxRecursionCount)
+                            .pushToNext(key, previousKey).data;
                     if (data != null) {
                         return getGenericThis();
                     }
@@ -57,12 +58,13 @@ public abstract class APushingRecursiveHistoricalResult<D, E, R extends APushing
 
     protected abstract D initData();
 
-    public final synchronized R pushToNext(final FDate key) {
+    public final synchronized R pushToNext(final FDate key, final FDate previousKey) {
         if (key.equals(this.key)) {
             return getGenericThis();
         }
         if (!key.isAfterNotNullSafe(this.key)) {
-            throw new IllegalArgumentException("key [" + key + "] should be after [" + this.key + "]");
+            //might happen in blackboard engine after initialization, thus give a clean new result
+            return newResult(key, previousKey, recursiveQuery);
         }
         final E nextEntry = getEntry(key);
         if (nextEntry == null) {

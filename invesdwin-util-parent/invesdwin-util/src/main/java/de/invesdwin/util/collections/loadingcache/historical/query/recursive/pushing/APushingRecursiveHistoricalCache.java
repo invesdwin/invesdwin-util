@@ -54,7 +54,7 @@ public abstract class APushingRecursiveHistoricalCache<R extends APushingRecursi
                 return newResult(key, previousKey, recursiveQuery);
             } else {
                 final R previousValue = recursiveQuery.getPreviousValue(key, previousKey);
-                return previousValue.pushToNext(key);
+                return previousValue.pushToNext(key, previousKey);
             }
         };
     }
