@@ -27,7 +27,7 @@ public class DoubleStreamRelativeDetrending {
         final double xChange = scaleChangeInX(toX - fromX);
         if (xChange <= 0D) {
             throw new IllegalArgumentException("from [" + fromX + " -> " + fromY + "] -> to [" + toX + " -> " + toY
-                    + "] has negative change per x: " + xChange);
+                    + "] has negative or zero change per x: " + xChange);
         }
         final double toAdjY = getY(toY);
         this.logAvgChangeYperX = Doubles.log(toAdjY / fromY) / xChange;
