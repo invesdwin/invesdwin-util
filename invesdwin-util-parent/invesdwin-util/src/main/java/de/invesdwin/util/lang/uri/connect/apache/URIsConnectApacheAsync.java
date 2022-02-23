@@ -30,6 +30,7 @@ import org.apache.hc.client5.http.impl.async.CloseableHttpAsyncClient;
 import org.apache.hc.client5.http.impl.async.HttpAsyncClientBuilder;
 import org.apache.hc.client5.http.impl.nio.PoolingAsyncClientConnectionManagerBuilder;
 import org.apache.hc.core5.concurrent.FutureCallback;
+import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.nio.AsyncResponseConsumer;
@@ -63,11 +64,47 @@ public final class URIsConnectApacheAsync implements IURIsConnect {
     private final URI uri;
     private Duration networkTimeout = URIs.getDefaultNetworkTimeout();
     private Proxy proxy = null;
+    private String method = GET;
+    private byte[] body;
+    private String bodyMimeType = DEFAULT_BODY_MIME_TYPE;
 
     private Map<String, String> headers;
 
     public URIsConnectApacheAsync(final URI url) {
         this.uri = url;
+    }
+
+    @Override
+    public String getMethod() {
+        return method;
+    }
+
+    @Override
+    public IURIsConnect setMethod(final String method) {
+        this.method = method;
+        return this;
+    }
+
+    @Override
+    public IURIsConnect setBody(final byte[] body) {
+        this.body = body;
+        return this;
+    }
+
+    @Override
+    public byte[] getBody() {
+        return body;
+    }
+
+    @Override
+    public String getBodyMimeType() {
+        return bodyMimeType;
+    }
+
+    @Override
+    public IURIsConnect setBodyMimeType(final String bodyMimeType) {
+        this.bodyMimeType = bodyMimeType;
+        return this;
     }
 
     public static CloseableHttpAsyncClient getHttpClient() {
@@ -243,7 +280,7 @@ public final class URIsConnectApacheAsync implements IURIsConnect {
     public String download() {
         InputStream in = null;
         try {
-            in = getInputStream();
+            in = downloadInputStream();
             return IOUtils.toString(in, Charset.defaultCharset());
         } catch (final Throwable e) {
             return null;
@@ -256,7 +293,7 @@ public final class URIsConnectApacheAsync implements IURIsConnect {
     public String downloadThrowing() throws IOException {
         InputStream in = null;
         try {
-            in = getInputStream();
+            in = downloadInputStream();
             final String response = IOUtils.toString(in, Charset.defaultCharset());
             if (response == null) {
                 throw new IOException("response is null");
@@ -265,6 +302,21 @@ public final class URIsConnectApacheAsync implements IURIsConnect {
         } finally {
             Closeables.closeQuietly(in);
         }
+    }
+
+    @Override
+    public boolean upload() {
+        try {
+            return uploadThrowing();
+        } catch (final Throwable e) {
+            //noop
+            return false;
+        }
+    }
+
+    @Override
+    public boolean uploadThrowing() throws IOException {
+        return upload(openConnection(method), uri);
     }
 
     public Future<InputStreamHttpResponse> openConnection() {
@@ -288,6 +340,9 @@ public final class URIsConnectApacheAsync implements IURIsConnect {
                 request.addHeader(header.getKey(), header.getValue());
             }
         }
+        if (body != null) {
+            request.setBody(body, ContentType.create(bodyMimeType));
+        }
 
         final SimpleRequestProducer requestProducer = SimpleRequestProducer.create(request);
         final Future<T> response = getHttpClient().execute(requestProducer, responseConsumer, callback);
@@ -310,12 +365,12 @@ public final class URIsConnectApacheAsync implements IURIsConnect {
     }
 
     public InputStreamHttpResponse getInputStream(final String method) throws IOException {
-        return getInputStream(openConnection(method), uri);
+        return downloadInputStream(openConnection(method), uri);
     }
 
     @Override
-    public InputStreamHttpResponse getInputStream() throws IOException {
-        return getInputStream(openConnection(), uri);
+    public InputStreamHttpResponse downloadInputStream() throws IOException {
+        return downloadInputStream(openConnection(), uri);
     }
 
     @Override
@@ -323,7 +378,7 @@ public final class URIsConnectApacheAsync implements IURIsConnect {
         return uri.toString();
     }
 
-    public static InputStreamHttpResponse getInputStream(final Future<InputStreamHttpResponse> call, final URI uri)
+    public static InputStreamHttpResponse downloadInputStream(final Future<InputStreamHttpResponse> call, final URI uri)
             throws IOException {
         final InputStreamHttpResponse response;
         try {
@@ -335,6 +390,34 @@ public final class URIsConnectApacheAsync implements IURIsConnect {
         final int responseCode = response.getResponse().getCode();
         if (URIs.isSuccessful(responseCode)) {
             return response;
+        } else {
+            if (responseCode == HttpURLConnection.HTTP_NOT_FOUND || responseCode == HttpURLConnection.HTTP_GONE) {
+                throw new FileNotFoundException(uri.toString());
+            } else {
+                if (responseCode == HttpURLConnection.HTTP_INTERNAL_ERROR) {
+                    final String errorStr = IOUtils.toString(response, Charset.defaultCharset());
+                    throw new IOException("Server returned HTTP response code [" + responseCode + "] for URL ["
+                            + uri.toString() + "] with error:\n*****************************\n"
+                            + Strings.putSuffix(errorStr, "\n") + "*****************************");
+                } else {
+                    throw new IOException("Server returned HTTP response code [" + responseCode + "] for URL ["
+                            + uri.toString() + "]");
+                }
+            }
+        }
+    }
+
+    public static boolean upload(final Future<InputStreamHttpResponse> call, final URI uri) throws IOException {
+        final InputStreamHttpResponse response;
+        try {
+            response = Futures.get(call);
+        } catch (final InterruptedException e) {
+            throw new IOException(e);
+        }
+        // https://stackoverflow.com/questions/613307/read-error-response-body-in-java
+        final int responseCode = response.getResponse().getCode();
+        if (URIs.isSuccessful(responseCode)) {
+            return true;
         } else {
             if (responseCode == HttpURLConnection.HTTP_NOT_FOUND || responseCode == HttpURLConnection.HTTP_GONE) {
                 throw new FileNotFoundException(uri.toString());

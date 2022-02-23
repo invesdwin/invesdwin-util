@@ -36,11 +36,47 @@ public final class URIsConnectURLConnection implements IURIsConnect {
     private final URL url;
     private Duration networkTimeout = URIs.getDefaultNetworkTimeout();
     private Proxy proxy;
+    private String method = GET;
+    private byte[] body;
+    private String bodyMimeType = DEFAULT_BODY_MIME_TYPE;
 
     private Map<String, String> headers;
 
     public URIsConnectURLConnection(final URI uri) {
         this.url = URIs.asUrl(uri);
+    }
+
+    @Override
+    public String getMethod() {
+        return method;
+    }
+
+    @Override
+    public IURIsConnect setMethod(final String method) {
+        this.method = method;
+        return this;
+    }
+
+    @Override
+    public IURIsConnect setBody(final byte[] body) {
+        this.body = body;
+        return this;
+    }
+
+    @Override
+    public byte[] getBody() {
+        return body;
+    }
+
+    @Override
+    public String getBodyMimeType() {
+        return bodyMimeType;
+    }
+
+    @Override
+    public IURIsConnect setBodyMimeType(final String bodyMimeType) {
+        this.bodyMimeType = bodyMimeType;
+        return this;
     }
 
     @Override
@@ -135,7 +171,7 @@ public final class URIsConnectURLConnection implements IURIsConnect {
     public String download() {
         InputStream in = null;
         try {
-            in = getInputStream();
+            in = downloadInputStream();
             return IOUtils.toString(in, Charset.defaultCharset());
         } catch (final Throwable e) {
             return null;
@@ -148,7 +184,7 @@ public final class URIsConnectURLConnection implements IURIsConnect {
     public String downloadThrowing() throws IOException {
         InputStream in = null;
         try {
-            in = getInputStream();
+            in = downloadInputStream();
             final String response = IOUtils.toString(in, Charset.defaultCharset());
             if (response == null) {
                 throw new IOException("response is null");
@@ -157,6 +193,21 @@ public final class URIsConnectURLConnection implements IURIsConnect {
         } finally {
             Closeables.closeQuietly(in);
         }
+    }
+
+    @Override
+    public boolean upload() {
+        try {
+            return uploadThrowing();
+        } catch (final Throwable e) {
+            //noop
+            return false;
+        }
+    }
+
+    @Override
+    public boolean uploadThrowing() throws IOException {
+        return upload(openConnection(method));
     }
 
     public URLConnection openConnection(final String method) throws IOException {
@@ -176,17 +227,24 @@ public final class URIsConnectURLConnection implements IURIsConnect {
         }
         if (con instanceof HttpURLConnection) {
             final HttpURLConnection cCon = (HttpURLConnection) con;
-            cCon.setRequestMethod(HEAD);
+            cCon.setRequestMethod(method);
+        }
+        if (body != null) {
+            con.setDoOutput(true);
+            IOUtils.write(body, con.getOutputStream());
+            if (bodyMimeType != null) {
+                con.setRequestProperty("Content-type", bodyMimeType);
+            }
         }
         return con;
     }
 
     @Override
-    public InputStreamHttpResponse getInputStream() throws IOException {
-        return getInputStream(openConnection(GET));
+    public InputStreamHttpResponse downloadInputStream() throws IOException {
+        return downloadInputStream(openConnection(method));
     }
 
-    public static InputStreamHttpResponse getInputStream(final URLConnection con) throws IOException {
+    public static InputStreamHttpResponse downloadInputStream(final URLConnection con) throws IOException {
         final IHttpResponse response;
         if (con instanceof HttpURLConnection) {
             final HttpURLConnection cCon = (HttpURLConnection) con;
@@ -225,6 +283,39 @@ public final class URIsConnectURLConnection implements IURIsConnect {
         final InputStreamHttpResponse result = consumer.buildResult();
         consumer.releaseResources();
         return result;
+    }
+
+    public static boolean upload(final URLConnection con) throws IOException {
+        if (con instanceof HttpURLConnection) {
+            final HttpURLConnection cCon = (HttpURLConnection) con;
+            // https://stackoverflow.com/questions/613307/read-error-response-body-in-java
+            final int respCode = cCon.getResponseCode();
+            if (respCode >= HttpURLConnection.HTTP_BAD_REQUEST) {
+                if (respCode == HttpURLConnection.HTTP_NOT_FOUND || respCode == HttpURLConnection.HTTP_GONE) {
+                    throw new FileNotFoundException(con.getURL().toString());
+                } else {
+                    if (respCode == HttpURLConnection.HTTP_INTERNAL_ERROR) {
+                        final String errorStr;
+                        try (InputStream error = cCon.getErrorStream()) {
+                            errorStr = IOUtils.toString(error, Charset.defaultCharset());
+                        } catch (final Throwable t) {
+                            throw new IOException("Server returned HTTP" + " response code: " + respCode + " for URL: "
+                                    + con.getURL().toString() + " failed to retrieve error response: <" + t.toString()
+                                    + ">");
+                        }
+                        throw new IOException("Server returned HTTP" + " response code: " + respCode + " for URL: "
+                                + con.getURL().toString() + " error response:" + "\n*****************************"
+                                + errorStr + "*****************************");
+                    } else {
+                        throw new IOException("Server returned HTTP" + " response code: " + respCode + " for URL: "
+                                + con.getURL().toString());
+                    }
+                }
+            }
+            return true;
+        } else {
+            return false;
+        }
     }
 
     @Override

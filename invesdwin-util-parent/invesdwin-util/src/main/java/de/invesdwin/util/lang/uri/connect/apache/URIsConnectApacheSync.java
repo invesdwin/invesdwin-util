@@ -25,8 +25,10 @@ import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
+import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpHost;
+import org.apache.hc.core5.http.io.entity.ByteArrayEntity;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.pool.PoolConcurrencyPolicy;
 import org.apache.hc.core5.util.TimeValue;
@@ -55,11 +57,47 @@ public final class URIsConnectApacheSync implements IURIsConnect {
     private final URI uri;
     private Duration networkTimeout = URIs.getDefaultNetworkTimeout();
     private Proxy proxy = null;
+    private String method = GET;
+    private byte[] body;
+    private String bodyMimeType = DEFAULT_BODY_MIME_TYPE;
 
     private Map<String, String> headers;
 
     public URIsConnectApacheSync(final URI url) {
         this.uri = url;
+    }
+
+    @Override
+    public String getMethod() {
+        return method;
+    }
+
+    @Override
+    public IURIsConnect setMethod(final String method) {
+        this.method = method;
+        return this;
+    }
+
+    @Override
+    public IURIsConnect setBody(final byte[] body) {
+        this.body = body;
+        return this;
+    }
+
+    @Override
+    public byte[] getBody() {
+        return body;
+    }
+
+    @Override
+    public String getBodyMimeType() {
+        return bodyMimeType;
+    }
+
+    @Override
+    public IURIsConnect setBodyMimeType(final String bodyMimeType) {
+        this.bodyMimeType = bodyMimeType;
+        return this;
     }
 
     public static CloseableHttpClient getHttpClient() {
@@ -227,7 +265,7 @@ public final class URIsConnectApacheSync implements IURIsConnect {
     public String download() {
         InputStream in = null;
         try {
-            in = getInputStream();
+            in = downloadInputStream();
             return IOUtils.toString(in, Charset.defaultCharset());
         } catch (final Throwable e) {
             return null;
@@ -240,7 +278,7 @@ public final class URIsConnectApacheSync implements IURIsConnect {
     public String downloadThrowing() throws IOException {
         InputStream in = null;
         try {
-            in = getInputStream();
+            in = downloadInputStream();
             final String response = IOUtils.toString(in, Charset.defaultCharset());
             if (response == null) {
                 throw new IOException("response is null");
@@ -264,6 +302,10 @@ public final class URIsConnectApacheSync implements IURIsConnect {
             }
         }
 
+        if (body != null) {
+            request.setEntity(new ByteArrayEntity(body, ContentType.create(bodyMimeType)));
+        }
+
         final CloseableHttpResponse response = getHttpClient().execute(request);
         return response;
     }
@@ -284,12 +326,27 @@ public final class URIsConnectApacheSync implements IURIsConnect {
     }
 
     public InputStreamHttpResponse getInputStream(final String method) throws IOException {
-        return getInputStream(openConnection(method), uri);
+        return downloadInputStream(openConnection(method), uri);
     }
 
     @Override
-    public InputStreamHttpResponse getInputStream() throws IOException {
-        return getInputStream(openConnection(), uri);
+    public InputStreamHttpResponse downloadInputStream() throws IOException {
+        return downloadInputStream(openConnection(), uri);
+    }
+
+    @Override
+    public boolean upload() {
+        try {
+            return uploadThrowing();
+        } catch (final Throwable e) {
+            //noop
+            return false;
+        }
+    }
+
+    @Override
+    public boolean uploadThrowing() throws IOException {
+        return upload(openConnection(method), uri);
     }
 
     @Override
@@ -297,7 +354,7 @@ public final class URIsConnectApacheSync implements IURIsConnect {
         return uri.toString();
     }
 
-    public static InputStreamHttpResponse getInputStream(final CloseableHttpResponse response, final URI uri)
+    public static InputStreamHttpResponse downloadInputStream(final CloseableHttpResponse response, final URI uri)
             throws IOException {
         try {
             // https://stackoverflow.com/questions/613307/read-error-response-body-in-java
@@ -309,6 +366,33 @@ public final class URIsConnectApacheSync implements IURIsConnect {
                 final InputStreamHttpResponse result = consumer.buildResult();
                 consumer.releaseResources();
                 return result;
+            } else {
+                if (responseCode == HttpURLConnection.HTTP_NOT_FOUND || responseCode == HttpURLConnection.HTTP_GONE) {
+                    throw new FileNotFoundException(uri.toString());
+                } else {
+                    if (responseCode == HttpURLConnection.HTTP_INTERNAL_ERROR) {
+                        final String errorStr = IOUtils.toString(response.getEntity().getContent(),
+                                Charset.defaultCharset());
+                        throw new IOException("Server returned HTTP response code [" + responseCode + "] for URL ["
+                                + uri.toString() + "] with error:\n*****************************\n"
+                                + Strings.putSuffix(errorStr, "\n") + "*****************************");
+                    } else {
+                        throw new IOException("Server returned HTTP response code [" + responseCode + "] for URL ["
+                                + uri.toString() + "]");
+                    }
+                }
+            }
+        } finally {
+            response.close();
+        }
+    }
+
+    public static boolean upload(final CloseableHttpResponse response, final URI uri) throws IOException {
+        try {
+            // https://stackoverflow.com/questions/613307/read-error-response-body-in-java
+            final int responseCode = response.getCode();
+            if (URIs.isSuccessful(responseCode)) {
+                return true;
             } else {
                 if (responseCode == HttpURLConnection.HTTP_NOT_FOUND || responseCode == HttpURLConnection.HTTP_GONE) {
                     throw new FileNotFoundException(uri.toString());

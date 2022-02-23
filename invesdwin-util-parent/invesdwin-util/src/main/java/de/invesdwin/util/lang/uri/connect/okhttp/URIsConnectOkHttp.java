@@ -28,9 +28,11 @@ import de.invesdwin.util.lang.uri.connect.InputStreamHttpResponseConsumer;
 import de.invesdwin.util.time.date.FTimeUnit;
 import de.invesdwin.util.time.duration.Duration;
 import okhttp3.Call;
+import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Request.Builder;
+import okhttp3.RequestBody;
 import okhttp3.Response;
 
 @NotThreadSafe
@@ -41,6 +43,9 @@ public final class URIsConnectOkHttp implements IURIsConnect {
     private final URL url;
     private Duration networkTimeout = URIs.getDefaultNetworkTimeout();
     private Proxy proxy;
+    private String method = GET;
+    private byte[] body;
+    private String bodyMimeType = DEFAULT_BODY_MIME_TYPE;
 
     private Map<String, String> headers;
 
@@ -50,6 +55,39 @@ public final class URIsConnectOkHttp implements IURIsConnect {
 
     public URIsConnectOkHttp(final URI url) {
         this.url = URIs.asUrl(url);
+    }
+
+    @Override
+    public String getMethod() {
+        return method;
+    }
+
+    @Override
+    public IURIsConnect setMethod(final String method) {
+        this.method = method;
+        return this;
+    }
+
+    @Override
+    public IURIsConnect setBody(final byte[] body) {
+        this.body = body;
+        return this;
+    }
+
+    @Override
+    public byte[] getBody() {
+        return body;
+    }
+
+    @Override
+    public String getBodyMimeType() {
+        return bodyMimeType;
+    }
+
+    @Override
+    public IURIsConnect setBodyMimeType(final String bodyMimeType) {
+        this.bodyMimeType = bodyMimeType;
+        return this;
     }
 
     public static OkHttpClient getHttpClient() {
@@ -186,7 +224,7 @@ public final class URIsConnectOkHttp implements IURIsConnect {
     public String download() {
         InputStream in = null;
         try {
-            in = getInputStream();
+            in = downloadInputStream();
             return IOUtils.toString(in, Charset.defaultCharset());
         } catch (final Throwable e) {
             return null;
@@ -199,7 +237,7 @@ public final class URIsConnectOkHttp implements IURIsConnect {
     public String downloadThrowing() throws IOException {
         InputStream in = null;
         try {
-            in = getInputStream();
+            in = downloadInputStream();
             final String response = IOUtils.toString(in, Charset.defaultCharset());
             if (response == null) {
                 throw new IOException("response is null");
@@ -210,8 +248,23 @@ public final class URIsConnectOkHttp implements IURIsConnect {
         }
     }
 
+    @Override
+    public boolean upload() {
+        try {
+            return uploadThrowing();
+        } catch (final Throwable e) {
+            //noop
+            return false;
+        }
+    }
+
+    @Override
+    public boolean uploadThrowing() throws IOException {
+        return upload(openConnection(method));
+    }
+
     public Call openConnection() {
-        return openConnection(GET);
+        return openConnection(method);
     }
 
     public Call openConnection(final String method) {
@@ -229,7 +282,15 @@ public final class URIsConnectOkHttp implements IURIsConnect {
             client = getHttpClient();
         }
         final Builder requestBuilder = new Request.Builder().url(url);
-        requestBuilder.method(method, null);
+
+        final RequestBody requestBody;
+        if (body != null) {
+            requestBody = RequestBody.create(body, MediaType.parse(bodyMimeType));
+        } else {
+            requestBody = null;
+        }
+
+        requestBuilder.method(method, requestBody);
         if (headers != null) {
             for (final Entry<String, String> header : headers.entrySet()) {
                 requestBuilder.addHeader(header.getKey(), header.getValue());
@@ -240,12 +301,12 @@ public final class URIsConnectOkHttp implements IURIsConnect {
     }
 
     public InputStreamHttpResponse getInputStream(final String method) throws IOException {
-        return getInputStream(openConnection(method));
+        return downloadInputStream(openConnection(method));
     }
 
     @Override
-    public InputStreamHttpResponse getInputStream() throws IOException {
-        return getInputStream(openConnection());
+    public InputStreamHttpResponse downloadInputStream() throws IOException {
+        return downloadInputStream(openConnection());
     }
 
     @Override
@@ -253,7 +314,7 @@ public final class URIsConnectOkHttp implements IURIsConnect {
         return url.toString();
     }
 
-    public static InputStreamHttpResponse getInputStream(final Call call) throws IOException {
+    public static InputStreamHttpResponse downloadInputStream(final Call call) throws IOException {
         try (Response response = call.execute()) {
             // https://stackoverflow.com/questions/613307/read-error-response-body-in-java
             if (response.isSuccessful()) {
@@ -263,6 +324,31 @@ public final class URIsConnectOkHttp implements IURIsConnect {
                 final InputStreamHttpResponse result = consumer.buildResult();
                 consumer.releaseResources();
                 return result;
+            } else {
+                final int respCode = response.code();
+                final String urlString = call.request().url().toString();
+                if (respCode == HttpURLConnection.HTTP_NOT_FOUND || respCode == HttpURLConnection.HTTP_GONE) {
+                    throw new FileNotFoundException(urlString);
+                } else {
+                    if (respCode == HttpURLConnection.HTTP_INTERNAL_ERROR) {
+                        final String errorStr = response.body().string();
+                        throw new IOException("Server returned HTTP" + " response code: " + respCode + " for URL: "
+                                + urlString + " error response:" + "\n*****************************" + errorStr
+                                + "*****************************");
+                    } else {
+                        throw new IOException(
+                                "Server returned HTTP" + " response code: " + respCode + " for URL: " + urlString);
+                    }
+                }
+            }
+        }
+    }
+
+    public static boolean upload(final Call call) throws IOException {
+        try (Response response = call.execute()) {
+            // https://stackoverflow.com/questions/613307/read-error-response-body-in-java
+            if (response.isSuccessful()) {
+                return true;
             } else {
                 final int respCode = response.code();
                 final String urlString = call.request().url().toString();
