@@ -50,9 +50,9 @@ public interface IURIsConnect {
 
     byte[] getBody();
 
-    IURIsConnect setBodyMimeType(String bodyMimeType);
+    IURIsConnect setContentType(String contentType);
 
-    String getBodyMimeType();
+    String getContentType();
 
     IURIsConnect setMethod(String method);
 

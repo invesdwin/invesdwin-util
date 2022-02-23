@@ -38,7 +38,7 @@ public final class URIsConnectURLConnection implements IURIsConnect {
     private Proxy proxy;
     private String method = GET;
     private byte[] body;
-    private String bodyMimeType;
+    private String contentType;
 
     private Map<String, String> headers;
 
@@ -69,13 +69,13 @@ public final class URIsConnectURLConnection implements IURIsConnect {
     }
 
     @Override
-    public String getBodyMimeType() {
-        return bodyMimeType;
+    public String getContentType() {
+        return contentType;
     }
 
     @Override
-    public IURIsConnect setBodyMimeType(final String bodyMimeType) {
-        this.bodyMimeType = bodyMimeType;
+    public IURIsConnect setContentType(final String contentType) {
+        this.contentType = contentType;
         return this;
     }
 
@@ -232,8 +232,8 @@ public final class URIsConnectURLConnection implements IURIsConnect {
         if (body != null) {
             con.setDoOutput(true);
             IOUtils.write(body, con.getOutputStream());
-            if (bodyMimeType != null) {
-                con.setRequestProperty("Content-type", bodyMimeType);
+            if (contentType != null) {
+                con.setRequestProperty("Content-type", contentType);
             }
         }
         return con;

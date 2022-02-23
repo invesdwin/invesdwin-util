@@ -59,7 +59,7 @@ public final class URIsConnectApacheSync implements IURIsConnect {
     private Proxy proxy = null;
     private String method = GET;
     private byte[] body;
-    private String bodyMimeType;
+    private String contentType;
 
     private Map<String, String> headers;
 
@@ -90,13 +90,13 @@ public final class URIsConnectApacheSync implements IURIsConnect {
     }
 
     @Override
-    public String getBodyMimeType() {
-        return bodyMimeType;
+    public String getContentType() {
+        return contentType;
     }
 
     @Override
-    public IURIsConnect setBodyMimeType(final String bodyMimeType) {
-        this.bodyMimeType = bodyMimeType;
+    public IURIsConnect setContentType(final String contentType) {
+        this.contentType = contentType;
         return this;
     }
 
@@ -303,13 +303,13 @@ public final class URIsConnectApacheSync implements IURIsConnect {
         }
 
         if (body != null) {
-            final ContentType contentType;
-            if (bodyMimeType != null) {
-                contentType = ContentType.create(bodyMimeType);
+            final ContentType commonsContentType;
+            if (contentType != null) {
+                commonsContentType = ContentType.create(contentType);
             } else {
-                contentType = null;
+                commonsContentType = null;
             }
-            request.setEntity(new ByteArrayEntity(body, contentType));
+            request.setEntity(new ByteArrayEntity(body, commonsContentType));
         }
 
         final CloseableHttpResponse response = getHttpClient().execute(request);
