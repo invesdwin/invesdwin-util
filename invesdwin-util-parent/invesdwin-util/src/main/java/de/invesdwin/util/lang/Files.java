@@ -6,6 +6,7 @@ import java.nio.charset.Charset;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Path;
 import java.util.Iterator;
+import java.util.List;
 import java.util.concurrent.TimeoutException;
 
 import javax.annotation.concurrent.Immutable;
@@ -21,6 +22,7 @@ import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.concurrent.Threads;
 import de.invesdwin.util.lang.internal.AFilesStaticFacade;
+import de.invesdwin.util.math.decimal.scaled.ByteSizeScale;
 import de.invesdwin.util.time.date.FDate;
 import de.invesdwin.util.time.duration.Duration;
 
@@ -34,6 +36,9 @@ import de.invesdwin.util.time.duration.Duration;
                 "java.nio.file.Files#writeString(java.nio.file.Path, java.lang.CharSequence, java.nio.charset.Charset, java.nio.file.OpenOption...)",
                 "java.nio.file.Files#mismatch(java.nio.file.Path, java.nio.file.Path)" })
 public final class Files extends AFilesStaticFacade {
+
+    public static final int DEFAULT_MAX_REFERENCE_LENGTH = (int) ByteSizeScale.BYTES.convert(10,
+            ByteSizeScale.MEGABYTES);
 
     private static final String[] NORMALIZE_FILENAME_SEARCH = { ":", "@", "*", "?", "<", ">", "=", "\"", "|", "/",
             "\\" };
@@ -359,6 +364,107 @@ public final class Files extends AFilesStaticFacade {
                 //                .redirectError(Slf4jStream.of(Files.class).asWarn())
                 .execute();
         return result.getExitValue();
+    }
+
+    public static void checkReference(final boolean createReferenceFile, final File referenceFile,
+            final String reference) {
+        checkReference(createReferenceFile, referenceFile, reference, DEFAULT_MAX_REFERENCE_LENGTH);
+    }
+
+    public static void checkReference(final boolean createReferenceFile, final File referenceFile,
+            final String reference, final int maxReferenceLength) {
+        final List<String> references = Strings.splitByMaxLength(reference, maxReferenceLength);
+        int i = 0;
+        while (i < references.size()) {
+            final String ref = references.get(i);
+            final File indexedReferenceFile;
+            if (i == 0) {
+                indexedReferenceFile = referenceFile;
+            } else {
+                indexedReferenceFile = Files.prefixExtension(referenceFile, "_" + i);
+            }
+            if (createReferenceFile) {
+                Files.writeStringToFileIfDifferent(indexedReferenceFile, ref);
+            }
+            try {
+                final String existingRef = Files.readFileToString(indexedReferenceFile, Charset.defaultCharset());
+                Assertions.checkEquals(existingRef, ref);
+            } catch (final IOException e) {
+                throw new RuntimeException(e);
+            }
+            i++;
+        }
+        if (createReferenceFile) {
+            //delete any existing reference files that are not needed anymore
+            while (true) {
+                i++;
+                final File obsoleteIndexedReferenceFile = Files.prefixExtension(referenceFile, "_" + i);
+                if (obsoleteIndexedReferenceFile.exists()) {
+                    Files.deleteQuietly(obsoleteIndexedReferenceFile);
+                } else {
+                    break;
+                }
+            }
+        }
+    }
+
+    public static void writeReference(final File referenceFile, final String reference) {
+        writeReference(referenceFile, reference, DEFAULT_MAX_REFERENCE_LENGTH);
+    }
+
+    public static void writeReference(final File referenceFile, final String reference, final int maxReferenceLength) {
+        final List<String> references = Strings.splitByMaxLength(reference, maxReferenceLength);
+        int i = 0;
+        while (i < references.size()) {
+            final String ref = references.get(i);
+            final File indexedReferenceFile;
+            if (i == 0) {
+                indexedReferenceFile = referenceFile;
+            } else {
+                indexedReferenceFile = Files.prefixExtension(referenceFile, "_" + i);
+            }
+            Files.writeStringToFileIfDifferent(indexedReferenceFile, ref);
+            i++;
+        }
+        //delete any existing reference files that are not needed anymore
+        while (true) {
+            i++;
+            final File obsoleteIndexedReferenceFile = Files.prefixExtension(referenceFile, "_" + i);
+            if (obsoleteIndexedReferenceFile.exists()) {
+                Files.deleteQuietly(obsoleteIndexedReferenceFile);
+            } else {
+                break;
+            }
+        }
+    }
+
+    public static String readReference(final File referenceFile) {
+        final StringBuilder reference = new StringBuilder();
+        int i = 0;
+        while (true) {
+            final File indexedReferenceFile;
+            if (i == 0) {
+                indexedReferenceFile = referenceFile;
+            } else {
+                indexedReferenceFile = Files.prefixExtension(referenceFile, "_" + i);
+            }
+            i++;
+            if (indexedReferenceFile.exists()) {
+                final String indexedReference;
+                try {
+                    indexedReference = Files.readFileToString(indexedReferenceFile, Charset.defaultCharset());
+                } catch (final IOException e) {
+                    throw new RuntimeException(e);
+                }
+                if (reference.length() > 0) {
+                    reference.append("\n");
+                }
+                reference.append(indexedReference);
+            } else {
+                break;
+            }
+        }
+        return reference.toString();
     }
 
 }
