@@ -10,6 +10,10 @@ public interface IURIsConnect {
 
     String HEAD = "HEAD";
     String GET = "GET";
+    String POST = "POST";
+    String PUT = "PUT";
+    String DELETE = "DELETE";
+    String PATCH = "PATCH";
 
     IURIsConnect setNetworkTimeout(Duration networkTimeout);
 

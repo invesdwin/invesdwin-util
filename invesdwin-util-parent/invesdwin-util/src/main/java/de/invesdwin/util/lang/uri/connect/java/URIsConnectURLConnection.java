@@ -114,7 +114,7 @@ public final class URIsConnectURLConnection implements IURIsConnect {
             return false;
         }
         try {
-            final URLConnection con = openConnection();
+            final URLConnection con = openConnection(HEAD);
             return con.getInputStream().available() > 0;
         } catch (final Throwable e) {
             return false;
@@ -124,7 +124,7 @@ public final class URIsConnectURLConnection implements IURIsConnect {
     @Override
     public long lastModified() {
         try {
-            final URLConnection con = openConnection();
+            final URLConnection con = openConnection(HEAD);
             return con.getLastModified();
         } catch (final IOException e) {
             return -1;
@@ -159,7 +159,7 @@ public final class URIsConnectURLConnection implements IURIsConnect {
         }
     }
 
-    public URLConnection openConnection() throws IOException {
+    public URLConnection openConnection(final String method) throws IOException {
         final URLConnection con;
         if (proxy != null) {
             con = url.openConnection(proxy);
@@ -174,12 +174,16 @@ public final class URIsConnectURLConnection implements IURIsConnect {
                 con.setRequestProperty(header.getKey(), header.getValue());
             }
         }
+        if (con instanceof HttpURLConnection) {
+            final HttpURLConnection cCon = (HttpURLConnection) con;
+            cCon.setRequestMethod(HEAD);
+        }
         return con;
     }
 
     @Override
     public InputStreamHttpResponse getInputStream() throws IOException {
-        return getInputStream(openConnection());
+        return getInputStream(openConnection(GET));
     }
 
     public static InputStreamHttpResponse getInputStream(final URLConnection con) throws IOException {
