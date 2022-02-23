@@ -18,8 +18,6 @@ public interface IURIsConnect {
     String DELETE = "DELETE";
     String PATCH = "PATCH";
 
-    String DEFAULT_BODY_MIME_TYPE = "text/plain";
-
     IURIsConnect setNetworkTimeout(Duration networkTimeout);
 
     Duration getNetworkTimeout();
@@ -30,9 +28,9 @@ public interface IURIsConnect {
 
     URI getUri();
 
-    IURIsConnect addBasicAuth(String username, String password);
+    IURIsConnect putBasicAuth(String username, String password);
 
-    IURIsConnect addHeader(String key, String value);
+    IURIsConnect putHeader(String key, String value);
 
     default IURIsConnect setBody(final String body) {
         return setBody(body.getBytes());

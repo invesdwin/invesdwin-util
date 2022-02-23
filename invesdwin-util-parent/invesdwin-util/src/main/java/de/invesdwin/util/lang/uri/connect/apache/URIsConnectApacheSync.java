@@ -59,7 +59,7 @@ public final class URIsConnectApacheSync implements IURIsConnect {
     private Proxy proxy = null;
     private String method = GET;
     private byte[] body;
-    private String bodyMimeType = DEFAULT_BODY_MIME_TYPE;
+    private String bodyMimeType;
 
     private Map<String, String> headers;
 
@@ -185,16 +185,16 @@ public final class URIsConnectApacheSync implements IURIsConnect {
      * separate HttpClient where this information does not get shared!
      */
     @Override
-    public URIsConnectApacheSync addBasicAuth(final String username, final String password) {
+    public URIsConnectApacheSync putBasicAuth(final String username, final String password) {
         final String authString = username + ":" + password;
         final byte[] authEncBytes = Base64.encodeBase64(authString.getBytes());
         final String authStringEnc = new String(authEncBytes);
-        addHeader(HttpHeaders.AUTHORIZATION, "Basic " + authStringEnc);
+        putHeader(HttpHeaders.AUTHORIZATION, "Basic " + authStringEnc);
         return this;
     }
 
     @Override
-    public URIsConnectApacheSync addHeader(final String key, final String value) {
+    public URIsConnectApacheSync putHeader(final String key, final String value) {
         if (headers == null) {
             headers = new HashMap<String, String>();
         }
@@ -303,7 +303,13 @@ public final class URIsConnectApacheSync implements IURIsConnect {
         }
 
         if (body != null) {
-            request.setEntity(new ByteArrayEntity(body, ContentType.create(bodyMimeType)));
+            final ContentType contentType;
+            if (bodyMimeType != null) {
+                contentType = ContentType.create(bodyMimeType);
+            } else {
+                contentType = null;
+            }
+            request.setEntity(new ByteArrayEntity(body, contentType));
         }
 
         final CloseableHttpResponse response = getHttpClient().execute(request);

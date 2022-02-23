@@ -38,7 +38,7 @@ public final class URIsConnectURLConnection implements IURIsConnect {
     private Proxy proxy;
     private String method = GET;
     private byte[] body;
-    private String bodyMimeType = DEFAULT_BODY_MIME_TYPE;
+    private String bodyMimeType;
 
     private Map<String, String> headers;
 
@@ -96,16 +96,16 @@ public final class URIsConnectURLConnection implements IURIsConnect {
     }
 
     @Override
-    public URIsConnectURLConnection addBasicAuth(final String username, final String password) {
+    public URIsConnectURLConnection putBasicAuth(final String username, final String password) {
         final String authString = username + ":" + password;
         final byte[] authEncBytes = Base64.encodeBase64(authString.getBytes());
         final String authStringEnc = new String(authEncBytes);
-        addHeader("Authorization", "Basic " + authStringEnc);
+        putHeader("Authorization", "Basic " + authStringEnc);
         return this;
     }
 
     @Override
-    public URIsConnectURLConnection addHeader(final String key, final String value) {
+    public URIsConnectURLConnection putHeader(final String key, final String value) {
         if (headers == null) {
             headers = new HashMap<String, String>();
         }

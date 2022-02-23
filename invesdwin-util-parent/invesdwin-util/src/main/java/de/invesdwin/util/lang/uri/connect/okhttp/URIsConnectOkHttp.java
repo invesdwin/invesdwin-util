@@ -45,7 +45,7 @@ public final class URIsConnectOkHttp implements IURIsConnect {
     private Proxy proxy;
     private String method = GET;
     private byte[] body;
-    private String bodyMimeType = DEFAULT_BODY_MIME_TYPE;
+    private String bodyMimeType;
 
     private Map<String, String> headers;
 
@@ -147,16 +147,16 @@ public final class URIsConnectOkHttp implements IURIsConnect {
     }
 
     @Override
-    public URIsConnectOkHttp addBasicAuth(final String username, final String password) {
+    public URIsConnectOkHttp putBasicAuth(final String username, final String password) {
         final String authString = username + ":" + password;
         final byte[] authEncBytes = Base64.encodeBase64(authString.getBytes());
         final String authStringEnc = new String(authEncBytes);
-        addHeader("Authorization", "Basic " + authStringEnc);
+        putHeader("Authorization", "Basic " + authStringEnc);
         return this;
     }
 
     @Override
-    public URIsConnectOkHttp addHeader(final String key, final String value) {
+    public URIsConnectOkHttp putHeader(final String key, final String value) {
         if (headers == null) {
             headers = new HashMap<String, String>();
         }
@@ -285,7 +285,13 @@ public final class URIsConnectOkHttp implements IURIsConnect {
 
         final RequestBody requestBody;
         if (body != null) {
-            requestBody = RequestBody.create(body, MediaType.parse(bodyMimeType));
+            final MediaType mediaType;
+            if (bodyMimeType != null) {
+                mediaType = MediaType.parse(bodyMimeType);
+            } else {
+                mediaType = null;
+            }
+            requestBody = RequestBody.create(body, mediaType);
         } else {
             requestBody = null;
         }
