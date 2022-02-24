@@ -2,6 +2,7 @@ package de.invesdwin.util.streams;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collection;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
@@ -11,7 +12,11 @@ public class FlatteningInputStream extends InputStream {
     private final InputStream[] ins;
     private int insIdx = 0;
 
-    public FlatteningInputStream(final InputStream[] ins) {
+    public FlatteningInputStream(final Collection<? extends InputStream> ins) {
+        this(ins.toArray(InputStreams.EMPTY_ARRAY));
+    }
+
+    public FlatteningInputStream(final InputStream... ins) {
         this.ins = ins;
     }
 
