@@ -4,9 +4,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -292,6 +294,22 @@ public final class Strings extends AStringsStaticFacade {
             return null;
         }
         return s.replace("\r\n", "\n").replace("\r", "\n");
+    }
+
+    public static String removeDuplicateLines(final String s) {
+        final Set<String> set = new HashSet<>();
+        final String[] lines = Strings.splitPreserveAllTokens(s, "\n");
+        final StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < lines.length; i++) {
+            final String line = lines[i];
+            if (set.add(line)) {
+                if (sb.length() > 0) {
+                    sb.append("\n");
+                }
+                sb.append(line);
+            }
+        }
+        return sb.toString();
     }
 
     public static String replaceRange(final String s, final int start, final int end, final String replaceStr) {
