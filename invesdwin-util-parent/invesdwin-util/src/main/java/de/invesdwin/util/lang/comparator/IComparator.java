@@ -64,7 +64,7 @@ public interface IComparator<E> extends Comparator<Object>, ISerializableValueOb
     }
 
     default void sort(final List<? extends E> list) {
-        Comparators.sort(this, list);
+        Comparators.sort(list, this);
     }
 
 }
