@@ -166,21 +166,29 @@ public class InputStreamHttpResponseConsumer {
         if (byteArrayOut != null) {
             if (defaultTempDir != null) {
                 int n;
-                while (IOUtils.EOF != (n = src.read(buffer))) {
-                    byteArrayOut.write(buffer, 0, n);
-                    if (byteArrayOut.length > maxSizeInMemory) {
-                        Files.forceMkdir(tempDir);
-                        file = newTempFile();
-                        fileOut = new FileOutputStream(file);
-                        IOUtils.write(byteArrayOut.toByteArray(), fileOut);
-                        byteArrayOut.close();
-                        byteArrayOut = null;
-                        break;
+                try {
+                    while (IOUtils.EOF != (n = src.read(buffer))) {
+                        byteArrayOut.write(buffer, 0, n);
+                        if (byteArrayOut.length > maxSizeInMemory) {
+                            Files.forceMkdir(tempDir);
+                            file = newTempFile();
+                            fileOut = new FileOutputStream(file);
+                            IOUtils.write(byteArrayOut.toByteArray(), fileOut);
+                            byteArrayOut.close();
+                            byteArrayOut = null;
+                            break;
+                        }
                     }
+                } catch (final EOFException eof) {
+                    //end reached
                 }
             } else {
-                while (src.available() > 0) {
-                    byteArrayOut.write(src.read());
+                try {
+                    while (src.available() > 0) {
+                        byteArrayOut.write(src.read());
+                    }
+                } catch (final EOFException eof) {
+                    //end reached
                 }
             }
         }
