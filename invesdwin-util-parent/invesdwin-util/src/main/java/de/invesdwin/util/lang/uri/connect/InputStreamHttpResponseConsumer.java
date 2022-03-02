@@ -1,5 +1,6 @@
 package de.invesdwin.util.lang.uri.connect;
 
+import java.io.EOFException;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -185,8 +186,12 @@ public class InputStreamHttpResponseConsumer {
         }
         if (fileOut != null) {
             int n;
-            while (IOUtils.EOF != (n = src.read(buffer))) {
-                fileOut.write(buffer, 0, n);
+            try {
+                while (IOUtils.EOF != (n = src.read(buffer))) {
+                    fileOut.write(buffer, 0, n);
+                }
+            } catch (final EOFException eof) {
+                //end reached
             }
             fileOut.close();
             fileOut = null;
