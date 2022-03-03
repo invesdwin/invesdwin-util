@@ -18,7 +18,7 @@ public class LimitedObjectPool<E> implements IObjectPool<E> {
     private final ASpinWait leasedWait = new ASpinWait() {
 
         @Override
-        protected boolean isSpinAllowed(final long waitingSinceNanos) {
+        protected boolean determineSpinAllowed() {
             return false;
         }
 

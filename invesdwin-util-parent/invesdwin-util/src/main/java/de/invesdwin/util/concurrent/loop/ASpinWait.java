@@ -51,7 +51,7 @@ public abstract class ASpinWait {
 
     protected Duration determineSkipSpinAfterWaitingSince() {
         //when we have been waiting a long time for a request/response we should keep the CPU usage to a minimum and thus don't even try to spin
-        return new Duration(1, FTimeUnit.SECONDS);
+        return new Duration(10, FTimeUnit.MILLISECONDS);
     }
 
     protected static MethodHandle determineOnSpinWait() {
