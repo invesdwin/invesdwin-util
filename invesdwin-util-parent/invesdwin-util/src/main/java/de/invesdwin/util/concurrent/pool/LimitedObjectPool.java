@@ -16,12 +16,6 @@ public class LimitedObjectPool<E> implements IObjectPool<E> {
     private final int maximumSize;
     private final AtomicInteger leasedInstances = new AtomicInteger();
     private final ASpinWait leasedWait = new ASpinWait() {
-
-        @Override
-        protected boolean determineSpinAllowed() {
-            return false;
-        }
-
         @Override
         public boolean isConditionFulfilled() throws Exception {
             return leasedInstances.get() < maximumSize;

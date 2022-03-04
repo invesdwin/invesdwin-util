@@ -8,6 +8,7 @@ import java.util.concurrent.locks.LockSupport;
 
 import javax.annotation.concurrent.Immutable;
 
+import de.invesdwin.util.lang.OperatingSystem;
 import de.invesdwin.util.lang.reflection.Reflections;
 import de.invesdwin.util.time.Instant;
 import de.invesdwin.util.time.date.FTimeUnit;
@@ -45,7 +46,7 @@ public abstract class ASpinWait {
      */
     protected final long maxParkIntervalNanos = determineMaxParkInterval().longValue(FTIMEUNIT);
     /**
-     * How long we want to
+     * How long we want to spin timed
      */
     protected final long maxTimedSpinDuration = determineMaxTimedSpinDuration().longValue(FTIMEUNIT);
 
@@ -85,7 +86,7 @@ public abstract class ASpinWait {
     }
 
     protected boolean determineSpinAllowed() {
-        return true;
+        return OperatingSystem.isWindows() && Runtime.getRuntime().availableProcessors() > 1;
     }
 
     /**
@@ -133,7 +134,7 @@ public abstract class ASpinWait {
                 onSpinWait();
             }
         }
-        long nanosRemaining = maxWait.longValue(FTIMEUNIT);
+        long nanosRemaining = maxWait.nanosValue();
         final long waitDeadline = System.nanoTime() + nanosRemaining;
         final Thread w = Thread.currentThread();
         int timedSpins = 0;
