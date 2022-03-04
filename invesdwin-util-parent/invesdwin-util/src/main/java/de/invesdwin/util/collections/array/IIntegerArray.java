@@ -15,10 +15,16 @@ public interface IIntegerArray {
     int[] asArray(int fromIndex, int length);
 
     static IIntegerArray newInstance(final int size) {
+        if (size == 0) {
+            return EmptyIntegerArray.INSTANCE;
+        }
         return new HeapIntegerArray(size);
     }
 
     static IIntegerArray newInstance(final int[] values) {
+        if (values.length == 0) {
+            return EmptyIntegerArray.INSTANCE;
+        }
         return new HeapIntegerArray(values);
     }
 

@@ -15,11 +15,17 @@ public interface IDoubleArray {
     double[] asArray(int fromIndex, int length);
 
     static IDoubleArray newInstance(final int size) {
+        if (size == 0) {
+            return EmptyDoubleArray.INSTANCE;
+        }
         //plain arrays are significantly faster than direct buffers
         return new HeapDoubleArray(size);
     }
 
     static IDoubleArray newInstance(final double[] values) {
+        if (values.length == 0) {
+            return EmptyDoubleArray.INSTANCE;
+        }
         return new HeapDoubleArray(values);
     }
 

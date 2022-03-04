@@ -15,10 +15,16 @@ public interface IBooleanArray {
     boolean[] asArray(int fromIndex, int length);
 
     static IBooleanArray newInstance(final int size) {
+        if (size == 0) {
+            return EmptyBooleanArray.INSTANCE;
+        }
         return new HeapBooleanArray(size);
     }
 
     static IBooleanArray newInstance(final boolean[] values) {
+        if (values.length == 0) {
+            return EmptyBooleanArray.INSTANCE;
+        }
         return new HeapBooleanArray(values);
     }
 
