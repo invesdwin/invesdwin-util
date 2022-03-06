@@ -69,6 +69,10 @@ public final class Currencies {
      * Fake currency to denote absolute values that are stored in money objects.
      */
     public static final String ABS = "ABS";
+    /**
+     * Fake currency to denote a missing currency.
+     */
+    public static final String NUL = "NUL";
 
     private static final Map<String, String> CURRENCY_CODE_2_CURRENCY_SYMBOL = ILockCollectionFactory.getInstance(true)
             .newConcurrentMap();
@@ -121,6 +125,9 @@ public final class Currencies {
     }
 
     public static String getSymbol(final String currencyCode) {
+        if (currencyCode == null) {
+            return null;
+        }
         final String currencySymbolFromCode = CURRENCY_CODE_2_CURRENCY_SYMBOL.get(currencyCode);
         if (currencySymbolFromCode != null) {
             return currencySymbolFromCode;
