@@ -81,7 +81,7 @@ public final class URIs {
         try {
             return uri.toURL();
         } catch (final MalformedURLException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException(Strings.asString(uri), e);
         }
     }
 
