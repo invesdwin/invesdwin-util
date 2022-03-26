@@ -41,7 +41,6 @@ public class ProcessedEventsRateString {
                 final double ratePerMinute = ratePerSecond * FTimeUnit.SECONDS_IN_MINUTE;
                 final double ratePerMinutePrecise = ratePerSecondPrecise / FTimeUnit.SECONDS_IN_MINUTE;
                 if (ratePerMinute < 1) {
-                    final double ratePerHour = ratePerMinute * FTimeUnit.MINUTES_IN_HOUR;
                     final double ratePerHourPrecise = ratePerMinutePrecise / FTimeUnit.MINUTES_IN_HOUR;
                     return new Decimal(ratePerHourPrecise).round(2) + "/h";
                 } else {
