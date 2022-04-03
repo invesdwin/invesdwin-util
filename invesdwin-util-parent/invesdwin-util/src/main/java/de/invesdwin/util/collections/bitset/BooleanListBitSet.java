@@ -79,7 +79,7 @@ public class BooleanListBitSet implements IBitSet {
 
     @Override
     public IBitSet negateShallow() {
-        throw new UnsupportedOperationException();
+        return new ShallowNegatedBitSet(this);
     }
 
     @Override
