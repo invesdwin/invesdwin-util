@@ -2,11 +2,12 @@ package de.invesdwin.util.collections.iterable.concurrent;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
+
+import com.google.common.util.concurrent.ListenableFuture;
 
 import de.invesdwin.util.collections.iterable.ACloseableIterator;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
@@ -32,8 +33,13 @@ public abstract class AParallelChunkConsumerIterator<R, E> extends ACloseableIte
 
     public AParallelChunkConsumerIterator(final String name, final ICloseableIterator<R> requests,
             final int chunkSize) {
+        this(name, requests, chunkSize, null);
+    }
+
+    public AParallelChunkConsumerIterator(final String name, final ICloseableIterator<R> requests, final int chunkSize,
+            final WrappedExecutorService limitExecutor) {
         super(new TextDescription(name));
-        this.finalizer = new ParallelChunkConsumerIteratorFinalizer<>(name, requests, chunkSize);
+        this.finalizer = new ParallelChunkConsumerIteratorFinalizer<>(name, requests, chunkSize, limitExecutor);
         this.finalizer.register(this);
         this.futures = new LinkedList<Future<E>>();
     }
@@ -50,11 +56,9 @@ public abstract class AParallelChunkConsumerIterator<R, E> extends ACloseableIte
                         .getPendingCount() < finalizer.consumerExecutor.getFullPendingCountCondition().getLimit()
                 && futures.size() < finalizer.chunkSize) {
             final R request = finalizer.requests.next();
-            final Future<E> submit = finalizer.consumerExecutor.submit(new Callable<E>() {
-                @Override
-                public E call() throws Exception {
-                    return doWork(request);
-                }
+            final Future<E> submit = finalizer.consumerExecutor.submit(() -> {
+                final ListenableFuture<E> future = finalizer.limitExecutor.submit(() -> doWork(request));
+                return Futures.get(future);
             });
             futures.add(submit);
         }
@@ -77,13 +81,19 @@ public abstract class AParallelChunkConsumerIterator<R, E> extends ACloseableIte
 
         private final int chunkSize;
         private ICloseableIterator<_R> requests;
+        private WrappedExecutorService limitExecutor;
         private WrappedExecutorService consumerExecutor;
 
         private ParallelChunkConsumerIteratorFinalizer(final String name, final ICloseableIterator<_R> requests,
-                final int chunkSize) {
+                final int chunkSize, final WrappedExecutorService limitExecutor) {
             this.chunkSize = chunkSize;
             this.requests = requests;
             this.consumerExecutor = Executors.newFixedThreadPool(name, chunkSize).setDynamicThreadName(false);
+            if (limitExecutor != null) {
+                this.limitExecutor = limitExecutor;
+            } else {
+                this.limitExecutor = Executors.newDisabledExecutor(name);
+            }
         }
 
         @Override
