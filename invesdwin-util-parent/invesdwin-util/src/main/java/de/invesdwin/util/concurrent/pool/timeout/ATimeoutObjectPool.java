@@ -109,7 +109,7 @@ public abstract class ATimeoutObjectPool<E> implements IObjectPool<E>, Closeable
         bufferingIterator.add(reference);
     }
 
-    protected abstract void passivateObject(E obj);
+    protected abstract void passivateObject(E element);
 
     @Override
     public synchronized void clear() {
