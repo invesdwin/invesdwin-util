@@ -65,6 +65,7 @@ public abstract class AHistoricalCache<V>
     public static final Integer DEFAULT_MAXIMUM_SIZE = 100;
     public static final int DEFAULT_MAXIMUM_SIZE_LIMIT = 10_000;
     public static final EvictionMode EVICTION_MODE = EvictionMode.LeastRecentlyAdded;
+    public static final boolean DEFAULT_ALIGN_KEYS = false;
 
     private static final WeakReference[] WEAKREFERENCE_EMPTY_ARRAY = new WeakReference[0];
     private static final org.slf4j.ext.XLogger LOG = org.slf4j.ext.XLoggerFactory.getXLogger(AHistoricalCache.class);
@@ -97,7 +98,7 @@ public abstract class AHistoricalCache<V>
     private IHistoricalCacheExtractKeyProvider<V> extractKeyProvider = new InnerHistoricalCacheExtractKeyProvider();
     @GuardedBy("this only during initialization")
     private IValuesMap<V> valuesMap = new LazyValuesMap();
-    private boolean alignKeys;
+    private boolean alignKeys = DEFAULT_ALIGN_KEYS;
 
     public AHistoricalCache() {
     }
