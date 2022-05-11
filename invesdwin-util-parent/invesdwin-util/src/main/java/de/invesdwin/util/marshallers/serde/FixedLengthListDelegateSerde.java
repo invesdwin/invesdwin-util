@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.annotation.concurrent.Immutable;
 
+import de.invesdwin.util.collections.Collections;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 
 @Immutable
@@ -20,6 +21,9 @@ public class FixedLengthListDelegateSerde<E> implements ISerde<List<? extends E>
 
     @Override
     public List<? extends E> fromBytes(final byte[] bytes) {
+        if (bytes == null || bytes.length == 0) {
+            return Collections.emptyList();
+        }
         return SerdeBaseMethods.fromBytes(this, bytes);
     }
 
@@ -30,6 +34,9 @@ public class FixedLengthListDelegateSerde<E> implements ISerde<List<? extends E>
 
     @Override
     public List<? extends E> fromBuffer(final IByteBuffer buffer, final int length) {
+        if (length == 0) {
+            return Collections.emptyList();
+        }
         final int size = length / fixedLength;
         final List<E> result = new ArrayList<E>(size);
         int curOffset = 0;
