@@ -397,13 +397,13 @@ public final class Files extends AFilesStaticFacade {
         if (createReferenceFile) {
             //delete any existing reference files that are not needed anymore
             while (true) {
-                i++;
                 final File obsoleteIndexedReferenceFile = Files.prefixExtension(referenceFile, "_" + i);
                 if (obsoleteIndexedReferenceFile.exists()) {
                     Files.deleteQuietly(obsoleteIndexedReferenceFile);
                 } else {
                     break;
                 }
+                i++;
             }
         }
     }
