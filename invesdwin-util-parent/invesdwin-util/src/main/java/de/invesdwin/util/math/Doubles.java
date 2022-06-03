@@ -370,8 +370,7 @@ public final class Doubles extends ADoublesStaticFacade {
         final double multiplied = value * stepReciprocal;
         final double rounded = round(multiplied, 0, roundingMode);
         final double divided = divide(rounded, stepReciprocal);
-        //need to round again to prevent 0.999999999 values due to division
-        return round(divided);
+        return divided;
     }
 
     public static double reciprocal(final double value) {
