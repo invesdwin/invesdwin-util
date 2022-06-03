@@ -3,6 +3,7 @@ package de.invesdwin.util.collections.loadingcache.historical.query.recursive.pu
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
+import de.invesdwin.util.collections.loadingcache.historical.IHistoricalCache;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQuery;
 import de.invesdwin.util.collections.loadingcache.historical.query.recursive.ARecursiveHistoricalCacheQuery;
 import de.invesdwin.util.collections.loadingcache.historical.query.recursive.IRecursiveHistoricalCacheQuery;
@@ -12,12 +13,12 @@ import de.invesdwin.util.time.date.FDate;
 @ThreadSafe
 public abstract class APushingRecursiveHistoricalCache<R extends APushingRecursiveHistoricalResult<?, ?, R>>
         extends AHistoricalCache<R> {
-    protected final AHistoricalCache<?> parent;
+    protected final IHistoricalCache<?> parent;
     protected final int fullRecursionCount;
     protected final IHistoricalCacheQuery<?> parentQuery;
     protected final IRecursiveHistoricalCacheQuery<R> recursiveQuery;
 
-    public APushingRecursiveHistoricalCache(final AHistoricalCache<?> parent, final int fullRecursionCount) {
+    public APushingRecursiveHistoricalCache(final IHistoricalCache<?> parent, final int fullRecursionCount) {
         this.parent = parent;
         this.fullRecursionCount = fullRecursionCount;
         this.parentQuery = parent.query().setFutureNullEnabled();

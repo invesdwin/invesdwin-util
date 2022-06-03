@@ -4,7 +4,7 @@ import java.util.Map.Entry;
 
 import javax.annotation.concurrent.Immutable;
 
-import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
+import de.invesdwin.util.collections.loadingcache.historical.IHistoricalCache;
 import de.invesdwin.util.collections.loadingcache.historical.IHistoricalEntry;
 import de.invesdwin.util.collections.loadingcache.historical.IHistoricalValue;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQueryWithFuture;
@@ -14,11 +14,11 @@ import de.invesdwin.util.time.date.IFDateProvider;
 @Immutable
 public final class DelegateHistoricalCacheExtractKeyProvider<V> implements IHistoricalCacheExtractKeyProvider<V> {
 
-    private final AHistoricalCache<Object> delegate;
+    private final IHistoricalCache<Object> delegate;
     private final IHistoricalCacheQueryWithFuture<Object> delegateQueryWithFuture;
     private final int hashCode;
 
-    private DelegateHistoricalCacheExtractKeyProvider(final AHistoricalCache<Object> delegate) {
+    private DelegateHistoricalCacheExtractKeyProvider(final IHistoricalCache<Object> delegate) {
         this.delegate = delegate;
         this.delegateQueryWithFuture = delegate.query().setFutureEnabled();
         this.hashCode = delegate.getExtractKeyProvider().hashCode();
@@ -55,7 +55,7 @@ public final class DelegateHistoricalCacheExtractKeyProvider<V> implements IHist
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    public static <T> DelegateHistoricalCacheExtractKeyProvider<T> maybeWrap(final AHistoricalCache shiftKeyDelegate) {
+    public static <T> DelegateHistoricalCacheExtractKeyProvider<T> maybeWrap(final IHistoricalCache shiftKeyDelegate) {
         if (shiftKeyDelegate.getExtractKeyProvider() instanceof DelegateHistoricalCacheExtractKeyProvider) {
             final DelegateHistoricalCacheExtractKeyProvider extractKeyProvider = (DelegateHistoricalCacheExtractKeyProvider) shiftKeyDelegate
                     .getExtractKeyProvider();

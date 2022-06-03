@@ -6,7 +6,7 @@ import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
-import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
+import de.invesdwin.util.collections.loadingcache.historical.IHistoricalCache;
 import de.invesdwin.util.collections.loadingcache.historical.IHistoricalEntry;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQuery;
 import de.invesdwin.util.collections.loadingcache.historical.query.index.IndexedFDate;
@@ -18,11 +18,11 @@ import de.invesdwin.util.time.date.FDate;
 final class FullRecursionKeysResult
         extends APushingRecursiveHistoricalResult<BufferingIterator<FDate>, FDate, FullRecursionKeysResult> {
 
-    private final AHistoricalCache<?> parent;
+    private final IHistoricalCache<?> parent;
     private final int fullRecursionCount;
     private final IHistoricalCacheQuery<?> parentQuery;
 
-    FullRecursionKeysResult(final AHistoricalCache<?> parent, final FDate key, final FDate previousKey,
+    FullRecursionKeysResult(final IHistoricalCache<?> parent, final FDate key, final FDate previousKey,
             final IRecursiveHistoricalCacheQuery<FullRecursionKeysResult> recursiveQuery, final int fullRecursionCount,
             final IHistoricalCacheQuery<?> parentQuery) {
         super(adjustKey(parent, key), adjustKey(parent, previousKey), recursiveQuery);
@@ -31,7 +31,7 @@ final class FullRecursionKeysResult
         this.parentQuery = parentQuery;
     }
 
-    protected static IndexedFDate adjustKey(final AHistoricalCache<?> parent, final FDate key) {
+    protected static IndexedFDate adjustKey(final IHistoricalCache<?> parent, final FDate key) {
         if (key == null) {
             return null;
         }

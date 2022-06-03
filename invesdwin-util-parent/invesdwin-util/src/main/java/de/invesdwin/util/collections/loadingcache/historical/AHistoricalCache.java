@@ -54,8 +54,7 @@ import de.invesdwin.util.time.date.FDate;
 import de.invesdwin.util.time.date.IFDateProvider;
 
 @ThreadSafe
-public abstract class AHistoricalCache<V>
-        implements IHistoricalCacheIncreaseMaximumSizeListener, IHistoricalCachePutListener {
+public abstract class AHistoricalCache<V> implements IHistoricalCache<V> {
 
     public static final Integer DISABLED_MAXIMUM_SIZE = 0;
     public static final Integer UNLIMITED_MAXIMUM_SIZE = null;
@@ -125,6 +124,7 @@ public abstract class AHistoricalCache<V>
     /**
      * Return false to get a faster implementation
      */
+    @Override
     public boolean isThreadSafe() {
         return true;
     }
@@ -175,6 +175,7 @@ public abstract class AHistoricalCache<V>
      * Use a different type of query core that works faster with limited unstable recursive queries, but minimally
      * slower with normal queries.
      */
+    @Override
     public void enableTrailingQueryCore() {
         if (!(queryCore instanceof TrailingHistoricalCacheQueryCore)) {
             queryCore = new TrailingHistoricalCacheQueryCore<>(internalMethods);
@@ -205,7 +206,7 @@ public abstract class AHistoricalCache<V>
         this.adjustKeyProvider = adjustKeyProvider;
     }
 
-    protected void setShiftKeyDelegate(final AHistoricalCache<?> shiftKeyDelegate, final boolean alsoExtractKey) {
+    protected void setShiftKeyDelegate(final IHistoricalCache<?> shiftKeyDelegate, final boolean alsoExtractKey) {
         Assertions.assertThat(shiftKeyDelegate).as("Use null instead of this").isNotSameAs(this);
         Assertions.assertThat(this.shiftKeyProvider)
                 .as("%s can only be set once", IHistoricalCacheShiftKeyProvider.class.getSimpleName())
@@ -238,10 +239,12 @@ public abstract class AHistoricalCache<V>
         }
     }
 
+    @Override
     public final IHistoricalCachePutProvider<V> getPutProvider() {
         return putProvider;
     }
 
+    @Override
     public IHistoricalCacheExtractKeyProvider<V> getExtractKeyProvider() {
         return extractKeyProvider;
     }
@@ -261,14 +264,17 @@ public abstract class AHistoricalCache<V>
     /**
      * Keys should be aligned when cache misses are especially expensive. E.g. for recursive queries.
      */
+    @Override
     public void setAlignKeys(final boolean alignKeys) {
         this.alignKeys = alignKeys;
     }
 
+    @Override
     public boolean isAlignKeys() {
         return alignKeys;
     }
 
+    @Override
     public long getLastRefreshMillis() {
         return lastRefreshMillis;
     }
@@ -334,6 +340,7 @@ public abstract class AHistoricalCache<V>
     /**
      * Should return the key if the value does not contain a key itself. The time should be the end time for bars.
      */
+    @Override
     public final FDate extractKey(final IFDateProvider key, final V value) {
         if (key == null) {
             final FDate extractedKey;
@@ -377,10 +384,12 @@ public abstract class AHistoricalCache<V>
         return nextKey;
     }
 
+    @Override
     public IHistoricalCacheShiftKeyProvider<V> getShiftKeyProvider() {
         return shiftKeyProvider;
     }
 
+    @Override
     public IHistoricalCacheAdjustKeyProvider getAdjustKeyProvider() {
         return adjustKeyProvider;
     }
@@ -402,10 +411,12 @@ public abstract class AHistoricalCache<V>
     /**
      * Does not allow values from future per default.
      */
+    @Override
     public final IHistoricalCacheQuery<V> query() {
         return new FilteringHistoricalCacheQuery<V>(internalMethods, adjustKeyProvider.newQuery(internalMethods));
     }
 
+    @Override
     public boolean containsKey(final FDate key) {
         return getValuesMap().containsKey(key);
     }
@@ -418,6 +429,7 @@ public abstract class AHistoricalCache<V>
         getValuesMap().remove(key);
     }
 
+    @Override
     public void clear() {
         if (valuesMap != null) {
             valuesMap.clear();
@@ -436,22 +448,27 @@ public abstract class AHistoricalCache<V>
         lastRefreshMillis = HistoricalCacheRefreshManager.getLastRefreshMillis();
     }
 
+    @Override
     public Set<IHistoricalCacheOnClearListener> getOnClearListeners() {
         return Collections.unmodifiableSet(onClearListeners);
     }
 
+    @Override
     public boolean registerOnClearListener(final IHistoricalCacheOnClearListener l) {
         return onClearListeners.add(l);
     }
 
+    @Override
     public boolean unregisterOnClearListener(final IHistoricalCacheOnClearListener l) {
         return onClearListeners.remove(l);
     }
 
+    @Override
     public Set<IHistoricalCacheIncreaseMaximumSizeListener> getIncreaseMaximumSizeListeners() {
         return Collections.unmodifiableSet(increaseMaximumSizeListeners);
     }
 
+    @Override
     public boolean registerIncreaseMaximumSizeListener(final IHistoricalCacheIncreaseMaximumSizeListener l) {
         if (l == this) {
             return false;
@@ -466,6 +483,7 @@ public abstract class AHistoricalCache<V>
         }
     }
 
+    @Override
     public boolean unregisterIncreaseMaximumSizeListener(final IHistoricalCacheIncreaseMaximumSizeListener l) {
         return increaseMaximumSizeListeners.remove(l);
     }
@@ -1055,6 +1073,7 @@ public abstract class AHistoricalCache<V>
         queryCore.putPreviousKey(previousKey, valueKey);
     }
 
+    @Override
     public void preloadData(final ExecutorService executor) {
         executor.execute(new Runnable() {
             @Override
@@ -1064,6 +1083,7 @@ public abstract class AHistoricalCache<V>
         });
     }
 
+    @Override
     public int size() {
         return valuesMap.size();
     }

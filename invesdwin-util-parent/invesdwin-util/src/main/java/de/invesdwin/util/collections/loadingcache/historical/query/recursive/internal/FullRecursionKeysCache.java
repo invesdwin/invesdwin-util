@@ -2,7 +2,7 @@ package de.invesdwin.util.collections.loadingcache.historical.query.recursive.in
 
 import javax.annotation.concurrent.ThreadSafe;
 
-import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
+import de.invesdwin.util.collections.loadingcache.historical.IHistoricalCache;
 import de.invesdwin.util.collections.loadingcache.historical.query.recursive.IRecursiveHistoricalCacheQuery;
 import de.invesdwin.util.collections.loadingcache.historical.query.recursive.pushing.APushingRecursiveHistoricalCache;
 import de.invesdwin.util.time.date.FDate;
@@ -10,7 +10,7 @@ import de.invesdwin.util.time.date.FDate;
 @ThreadSafe
 final class FullRecursionKeysCache extends APushingRecursiveHistoricalCache<FullRecursionKeysResult> {
 
-    FullRecursionKeysCache(final AHistoricalCache<?> parent, final int fullRecursionCount) {
+    FullRecursionKeysCache(final IHistoricalCache<?> parent, final int fullRecursionCount) {
         super(parent, fullRecursionCount);
     }
 

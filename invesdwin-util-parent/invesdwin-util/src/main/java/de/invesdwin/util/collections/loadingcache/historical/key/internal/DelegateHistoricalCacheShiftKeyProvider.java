@@ -2,7 +2,7 @@ package de.invesdwin.util.collections.loadingcache.historical.key.internal;
 
 import javax.annotation.concurrent.Immutable;
 
-import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
+import de.invesdwin.util.collections.loadingcache.historical.IHistoricalCache;
 import de.invesdwin.util.collections.loadingcache.historical.IHistoricalEntry;
 import de.invesdwin.util.collections.loadingcache.historical.ImmutableHistoricalEntry;
 import de.invesdwin.util.collections.loadingcache.historical.key.IHistoricalCacheShiftKeyProvider;
@@ -13,19 +13,19 @@ import de.invesdwin.util.time.date.FDate;
 public final class DelegateHistoricalCacheShiftKeyProvider<V> implements IHistoricalCacheShiftKeyProvider<V> {
 
     private final de.invesdwin.util.collections.loadingcache.historical.query.internal.IHistoricalCacheInternalMethods<V> parent;
-    private final AHistoricalCache<V> delegateCache;
+    private final IHistoricalCache<V> delegateCache;
     private final IHistoricalCacheShiftKeyProvider<V> delegate;
 
     private DelegateHistoricalCacheShiftKeyProvider(
             final de.invesdwin.util.collections.loadingcache.historical.query.internal.IHistoricalCacheInternalMethods<V> parent,
-            final AHistoricalCache<V> delegateCache, final IHistoricalCacheShiftKeyProvider<V> delegate) {
+            final IHistoricalCache<V> delegateCache, final IHistoricalCacheShiftKeyProvider<V> delegate) {
         this.parent = parent;
         this.delegateCache = delegateCache;
         this.delegate = delegate;
     }
 
     @Override
-    public AHistoricalCache<?> getParent() {
+    public IHistoricalCache<?> getParent() {
         return delegateCache;
     }
 
@@ -62,7 +62,7 @@ public final class DelegateHistoricalCacheShiftKeyProvider<V> implements IHistor
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public static <T> DelegateHistoricalCacheShiftKeyProvider<T> maybeWrap(
             final de.invesdwin.util.collections.loadingcache.historical.query.internal.IHistoricalCacheInternalMethods<T> parent,
-            final AHistoricalCache delegate) {
+            final IHistoricalCache delegate) {
         if (delegate.getShiftKeyProvider() instanceof DelegateHistoricalCacheShiftKeyProvider) {
             final DelegateHistoricalCacheShiftKeyProvider provider = (DelegateHistoricalCacheShiftKeyProvider) delegate
                     .getShiftKeyProvider();
