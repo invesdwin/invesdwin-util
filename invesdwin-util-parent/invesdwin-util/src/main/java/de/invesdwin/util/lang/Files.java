@@ -50,7 +50,11 @@ public final class Files extends AFilesStaticFacade {
             "b" };
     private static final String[] NORMALIZE_PATH_SEARCH = { ":", "@", "*", "?", "<", ">", "=", "\"", "|" };
     private static final String[] NORMALIZE_PATH_REPLACE = { "c", "a", "m", "q", "l", "g", "e", "u", "p" };
-    private static final int MAX_FILE_NAME_LENGTH = 255;
+    /*
+     * 256 should be maximum, but we need a few less so that windows explorer can actually delete too long paths maybe
+     * for some "" that it adds internally
+     */
+    private static final int MAX_FILE_NAME_LENGTH = 254;
 
     private static Boolean deleteNativeUnixAvailable = null;
     private static Boolean deleteNativeWindowsAvailable = null;
