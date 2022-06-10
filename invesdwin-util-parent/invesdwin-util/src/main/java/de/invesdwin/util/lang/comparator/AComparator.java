@@ -15,6 +15,7 @@ public abstract class AComparator<E> implements IComparator<E> {
         }
     };
 
+    private ISortAlgorithm sortAlgorithm;
     private IComparator<E> descending;
     private IComparator<E> notNullSafe;
 
@@ -78,7 +79,7 @@ public abstract class AComparator<E> implements IComparator<E> {
     }
 
     @Override
-    public IComparator<E> asNotNullSafe() {
+    public final IComparator<E> asNotNullSafe() {
         if (notNullSafe == null) {
             notNullSafe = newNotNullSafeComparator();
         }
@@ -90,11 +91,23 @@ public abstract class AComparator<E> implements IComparator<E> {
     }
 
     @Override
-    public IComparator<E> asDescending() {
+    public final IComparator<E> asDescending() {
         if (descending == null) {
             descending = newDescendingComparator();
         }
         return descending;
+    }
+
+    @Override
+    public ISortAlgorithm getSortAlgorithm() {
+        if (sortAlgorithm == null) {
+            sortAlgorithm = newSortAlgorithm();
+        }
+        return sortAlgorithm;
+    }
+
+    protected ISortAlgorithm newSortAlgorithm() {
+        return SortAlgorithm.DEFAULT;
     }
 
     protected IComparator<E> newDescendingComparator() {

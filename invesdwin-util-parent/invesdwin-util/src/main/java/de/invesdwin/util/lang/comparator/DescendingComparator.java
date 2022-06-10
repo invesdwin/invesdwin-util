@@ -67,4 +67,9 @@ final class DescendingComparator<E> implements IComparator<E> {
         return this;
     }
 
+    @Override
+    public ISortAlgorithm getSortAlgorithm() {
+        return ascending.getSortAlgorithm();
+    }
+
 }

@@ -83,6 +83,10 @@ public final class Comparators {
         }
     }
 
+    public static <T extends Comparable<? super T>> void sort(final List<? extends T> list) {
+        Collections.sort(list);
+    }
+
     public static <T> void sort(final List<? extends T> list, final Comparator<? super T> comparator) {
         Collections.sort(list, comparator);
     }

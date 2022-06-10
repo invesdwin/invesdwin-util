@@ -62,4 +62,9 @@ class NotNullSafeComparator<E> implements IComparator<E> {
         return nullSafe.asDescending().asNotNullSafe();
     }
 
+    @Override
+    public ISortAlgorithm getSortAlgorithm() {
+        return nullSafe.getSortAlgorithm();
+    }
+
 }

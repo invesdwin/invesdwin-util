@@ -63,8 +63,10 @@ public interface IComparator<E> extends Comparator<Object>, ISerializableValueOb
         return AComparator.getDefaultInstance();
     }
 
+    ISortAlgorithm getSortAlgorithm();
+
     default void sort(final List<? extends E> list) {
-        Comparators.sort(list, this);
+        getSortAlgorithm().sort(list, this);
     }
 
 }
