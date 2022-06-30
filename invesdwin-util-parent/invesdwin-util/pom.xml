@@ -89,7 +89,7 @@
 			<artifactId>curvesapi</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.techascent</groupId>
+			<groupId>com.tdunning</groupId>
 			<artifactId>t-digest</artifactId>
 		</dependency>
 		<dependency>
