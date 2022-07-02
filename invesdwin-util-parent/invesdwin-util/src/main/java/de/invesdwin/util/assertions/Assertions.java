@@ -33,7 +33,7 @@ public final class Assertions extends AAssertionsStaticFacade {
     private static final boolean JUNIT_AVAILABLE;
 
     static {
-        JUNIT_AVAILABLE = Reflections.classExists("org.junit.Assert");
+        JUNIT_AVAILABLE = Reflections.classExists("org.junit.jupiter.api.Assertions");
         Assertions.setMaxStackTraceElementsDisplayed(COMPARISON_FAILURE_MESSAGE_LIMIT);
     }
 
