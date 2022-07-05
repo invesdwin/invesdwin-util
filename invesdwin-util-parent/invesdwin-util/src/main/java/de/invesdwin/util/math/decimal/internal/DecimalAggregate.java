@@ -7,7 +7,6 @@ import java.util.List;
 
 import javax.annotation.concurrent.ThreadSafe;
 
-import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.collections.iterable.WrapperCloseableIterable;
 import de.invesdwin.util.collections.list.Lists;
@@ -53,8 +52,10 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
                     break;
                 }
             }
-            Assertions.checkNotNull(converter, "Please provide a converter manually via the appropriate constructor "
-                    + "or make sure there is at least one non null value in the list.");
+            if (converter == null) {
+                throw new NullPointerException("Please provide a converter manually via the appropriate constructor "
+                        + "or make sure there is at least one non null value in the list.");
+            }
         }
         return converter;
 
@@ -481,6 +482,17 @@ public class DecimalAggregate<E extends ADecimal<E>> implements IDecimalAggregat
         final List<E> filtered = new ArrayList<E>(size());
         for (final E value : values) {
             if (value != null) {
+                filtered.add(value);
+            }
+        }
+        return new DecimalAggregate<E>(filtered, getConverter());
+    }
+
+    @Override
+    public IDecimalAggregate<E> removeZeroValues() {
+        final List<E> filtered = new ArrayList<E>(size());
+        for (final E value : values) {
+            if (value.isNotZero()) {
                 filtered.add(value);
             }
         }

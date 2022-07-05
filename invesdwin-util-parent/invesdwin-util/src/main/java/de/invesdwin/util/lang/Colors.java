@@ -16,7 +16,8 @@ public final class Colors {
     public static final int MIN_ALPHA = 0;
     public static final int MAX_ALPHA = 255;
 
-    private Colors() {}
+    private Colors() {
+    }
 
     public static String toHexHtml(final Color color) {
         return "#" + toHex(color);
@@ -27,7 +28,7 @@ public final class Colors {
     }
 
     public static Color fromHex(final String hex) {
-        return Color.decode(hex);
+        return Color.decode(Strings.putPrefix(hex, "#"));
     }
 
     /**

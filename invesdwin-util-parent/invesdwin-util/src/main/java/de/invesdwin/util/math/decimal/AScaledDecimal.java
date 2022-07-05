@@ -309,4 +309,13 @@ public abstract class AScaledDecimal<T extends AScaledDecimal<T, S>, S extends I
         }
     }
 
+    public static <D extends ADecimal<D>> IDecimalAggregate<D> valueOf(final List<? extends D> values,
+            final D converter) {
+        if (values == null || values.size() == 0) {
+            return DummyDecimalAggregate.getInstance();
+        } else {
+            return new DecimalAggregate<D>(values, converter);
+        }
+    }
+
 }

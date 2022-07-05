@@ -135,6 +135,8 @@ public interface IDecimalAggregate<E extends ADecimal<E>> {
 
     IDecimalAggregate<E> removeNullValues();
 
+    IDecimalAggregate<E> removeZeroValues();
+
     /**
      * normalized(x) = (x-min(x))/(max(x)-min(x))
      */
