@@ -1,7 +1,6 @@
 package de.invesdwin.util.collections.fast.concurrent;
 
 import java.io.Serializable;
-import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
@@ -11,6 +10,7 @@ import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.bean.tuple.ImmutableEntry;
+import de.invesdwin.util.collections.Collections;
 import de.invesdwin.util.collections.fast.IFastIterableMap;
 import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
 
@@ -131,7 +131,12 @@ public abstract class ASynchronizedFastIterableDelegateMap<K, V> implements IFas
     @Override
     public synchronized V[] asValueArray(final V[] emptyArray) {
         if (valueArray == null) {
-            valueArray = values.toArray(emptyArray);
+            if (values.isEmpty()) {
+                assert emptyArray.length == 0 : "emptyArray.length needs to be 0: " + emptyArray.length;
+                valueArray = emptyArray;
+            } else {
+                valueArray = values.toArray(emptyArray);
+            }
         }
         return valueArray;
     }
@@ -144,7 +149,12 @@ public abstract class ASynchronizedFastIterableDelegateMap<K, V> implements IFas
     @Override
     public synchronized K[] asKeyArray(final K[] emptyArray) {
         if (keyArray == null) {
-            keyArray = keySet.toArray(emptyArray);
+            if (keySet.isEmpty()) {
+                assert emptyArray.length == 0 : "emptyArray.length needs to be 0: " + emptyArray.length;
+                keyArray = emptyArray;
+            } else {
+                keyArray = keySet.toArray(emptyArray);
+            }
         }
         return keyArray;
     }
@@ -158,8 +168,11 @@ public abstract class ASynchronizedFastIterableDelegateMap<K, V> implements IFas
     @Override
     public synchronized Entry<K, V>[] asEntryArray() {
         if (entryArray == null) {
-            final Entry<K, V>[] empty = (Entry<K, V>[]) Array.newInstance(Entry.class, delegate.size());
-            entryArray = entrySet.toArray(empty);
+            if (entrySet.isEmpty()) {
+                entryArray = Collections.EMPTY_ENTRY_ARRAY;
+            } else {
+                entryArray = entrySet.toArray(Collections.EMPTY_ENTRY_ARRAY);
+            }
         }
         return entryArray;
     }

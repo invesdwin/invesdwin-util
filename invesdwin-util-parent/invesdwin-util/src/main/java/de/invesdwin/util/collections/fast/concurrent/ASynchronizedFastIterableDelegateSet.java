@@ -120,7 +120,12 @@ public abstract class ASynchronizedFastIterableDelegateSet<E> implements IFastIt
     @Override
     public synchronized E[] asArray(final E[] emptyArray) {
         if (array == null) {
-            array = toArray(emptyArray);
+            if (delegate.isEmpty()) {
+                assert emptyArray.length == 0 : "emptyArray.length needs to be 0: " + emptyArray.length;
+                array = emptyArray;
+            } else {
+                array = toArray(emptyArray);
+            }
         }
         return array;
     }

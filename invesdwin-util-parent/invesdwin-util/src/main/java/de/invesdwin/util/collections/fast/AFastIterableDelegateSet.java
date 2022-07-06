@@ -114,7 +114,12 @@ public abstract class AFastIterableDelegateSet<E> implements IFastIterableSet<E>
     @Override
     public E[] asArray(final E[] emptyArray) {
         if (array == null) {
-            array = toArray(emptyArray);
+            if (delegate.isEmpty()) {
+                assert emptyArray.length == 0 : "emptyArray.length needs to be 0: " + emptyArray.length;
+                array = emptyArray;
+            } else {
+                array = toArray(emptyArray);
+            }
         }
         return array;
     }

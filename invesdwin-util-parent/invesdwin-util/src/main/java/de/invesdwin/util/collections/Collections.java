@@ -2,6 +2,7 @@ package de.invesdwin.util.collections;
 
 import java.lang.reflect.Array;
 import java.util.Collection;
+import java.util.Map.Entry;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -13,6 +14,9 @@ import de.invesdwin.util.collections.internal.ACollectionsStaticFacade;
         java.util.Collections.class }, filterSeeMethodSignatures = { "java.util.Collections#min(java.util.Collection)",
                 "java.util.Collections#max(java.util.Collection)" })
 public class Collections extends ACollectionsStaticFacade {
+
+    @SuppressWarnings("rawtypes")
+    public static final Entry[] EMPTY_ENTRY_ARRAY = new Entry[0];
 
     /**
      * https://shipilev.net/blog/2016/arrays-wisdom-ancients/#_introduction
