@@ -16,6 +16,7 @@ import org.nustaq.serialization.simpleapi.OnHeapCoder;
 import de.invesdwin.util.concurrent.pool.AgronaObjectPool;
 import de.invesdwin.util.concurrent.pool.IObjectPool;
 import de.invesdwin.util.math.Bytes;
+import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 
 /**
@@ -28,6 +29,7 @@ public class RemoteFastSerializingSerde<E> implements ISerde<E> {
 
     private static final Class<?>[] CLASS_EMPTY_ARRAY = new Class[0];
 
+    private static final int MIN_CAPACITY = Double.BYTES;
     private static final double EXPANSION_FACTOR = 2D;
 
     private final boolean shared;
@@ -179,7 +181,8 @@ public class RemoteFastSerializingSerde<E> implements ISerde<E> {
             }
         } catch (final FSTBufferTooSmallException e) {
             if (buffer.isExpandable()) {
-                final int newCapacity = (int) (buffer.capacity() * EXPANSION_FACTOR);
+                final int existingCapacity = Integers.max(MIN_CAPACITY, buffer.capacity());
+                final int newCapacity = (int) (existingCapacity * EXPANSION_FACTOR);
                 buffer.ensureCapacity(newCapacity);
                 return toBufferExpandable(buffer, obj);
             } else {

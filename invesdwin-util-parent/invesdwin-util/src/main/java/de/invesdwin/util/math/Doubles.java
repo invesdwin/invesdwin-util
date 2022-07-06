@@ -810,6 +810,31 @@ public final class Doubles extends ADoublesStaticFacade {
         return isLessThanOrEqualTo(value, otherValue.doubleValue());
     }
 
+    public static int compare(final Double a, final Double b) {
+        if (a == null && b == null) {
+            return 0;
+        } else if (a == null) {
+            return -1;
+        } else if (b == null) {
+            return 1;
+        }
+        return compare(a.intValue(), b.intValue());
+    }
+
+    public static int compare(final Double a, final double b) {
+        if (a == null) {
+            return -1;
+        }
+        return compare(a.intValue(), b);
+    }
+
+    public static int compare(final double a, final Double b) {
+        if (b == null) {
+            return 1;
+        }
+        return compare(a, b.intValue());
+    }
+
     /**
      * NaN is treated as 0 for comparison purposes. This method is normally used for comparisons in the UI or arbitraty
      * lists.
