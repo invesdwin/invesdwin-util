@@ -1,13 +1,24 @@
 package de.invesdwin.util.streams.buffer.bytes.extend.internal;
 
+import static java.nio.ByteOrder.LITTLE_ENDIAN;
 import static java.nio.charset.StandardCharsets.US_ASCII;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.agrona.AsciiEncoding.ASCII_DIGITS;
+import static org.agrona.AsciiEncoding.INTEGER_ABSOLUTE_MIN_VALUE;
+import static org.agrona.AsciiEncoding.INT_MAX_DIGITS;
+import static org.agrona.AsciiEncoding.LONG_MAX_DIGITS;
+import static org.agrona.AsciiEncoding.LONG_MAX_VALUE_DIGITS;
+import static org.agrona.AsciiEncoding.LONG_MIN_VALUE_DIGITS;
 import static org.agrona.AsciiEncoding.MINUS_SIGN;
 import static org.agrona.AsciiEncoding.MIN_INTEGER_VALUE;
 import static org.agrona.AsciiEncoding.MIN_LONG_VALUE;
 import static org.agrona.AsciiEncoding.ZERO;
-import static org.agrona.AsciiEncoding.endOffset;
+import static org.agrona.AsciiEncoding.digitCount;
+import static org.agrona.AsciiEncoding.isDigit;
+import static org.agrona.AsciiEncoding.isEightDigitAsciiEncodedNumber;
+import static org.agrona.AsciiEncoding.isFourDigitsAsciiEncodedNumber;
+import static org.agrona.AsciiEncoding.parseEightDigitsLittleEndian;
+import static org.agrona.AsciiEncoding.parseFourDigitsLittleEndian;
 import static org.agrona.BitUtil.SIZE_OF_BYTE;
 import static org.agrona.BitUtil.SIZE_OF_CHAR;
 import static org.agrona.BitUtil.SIZE_OF_DOUBLE;
@@ -21,13 +32,14 @@ import static org.agrona.BufferUtil.NULL_BYTES;
 import static org.agrona.BufferUtil.address;
 import static org.agrona.BufferUtil.array;
 import static org.agrona.BufferUtil.arrayOffset;
+import static org.agrona.UnsafeAccess.MEMSET_HACK_REQUIRED;
+import static org.agrona.UnsafeAccess.MEMSET_HACK_THRESHOLD;
 
 import java.io.IOException;
 import java.nio.ByteOrder;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import org.agrona.AsciiEncoding;
 import org.agrona.AsciiNumberFormatException;
 import org.agrona.BufferUtil;
 import org.agrona.DirectBuffer;
@@ -161,17 +173,15 @@ public class ExpandableDirectByteBufferBase implements MutableDirectBuffer {
      */
     @Override
     public void setMemory(final int index, final int length, final byte value) {
-        lengthCheck(length);
         ensureCapacity(index, length);
 
-        final long indexOffset = address + index;
-        if (0 == (indexOffset & 1) && length > 64) {
+        final long offset = address + index;
+        if (MEMSET_HACK_REQUIRED && length > MEMSET_HACK_THRESHOLD && 0 == (offset & 1)) {
             // This horrible filth is to encourage the JVM to call memset() when address is even.
-            // TODO: check if this still applies when Java 9 is out!!!
-            Reflections.getUnsafe().putByte(null, indexOffset, value);
-            Reflections.getUnsafe().setMemory(null, indexOffset + 1, length - 1, value);
+            Reflections.getUnsafe().putByte(null, offset, value);
+            Reflections.getUnsafe().setMemory(null, offset + 1, length - 1, value);
         } else {
-            Reflections.getUnsafe().setMemory(null, indexOffset, length, value);
+            Reflections.getUnsafe().setMemory(null, offset, length, value);
         }
     }
 
@@ -496,7 +506,6 @@ public class ExpandableDirectByteBufferBase implements MutableDirectBuffer {
      */
     @Override
     public void getBytes(final int index, final byte[] dst, final int offset, final int length) {
-        lengthCheck(length);
         boundsCheck0(index, length);
         BufferUtil.boundsCheck(dst, offset, length);
 
@@ -557,7 +566,6 @@ public class ExpandableDirectByteBufferBase implements MutableDirectBuffer {
     public void putBytes(final int index, final byte[] src, final int offset, final int length) {
         ensureCapacity(index, length);
 
-        lengthCheck(length);
         BufferUtil.boundsCheck(src, offset, length);
 
         Reflections.getUnsafe().copyMemory(src, ARRAY_BASE_OFFSET + offset, null, address + index, length);
@@ -1114,13 +1122,15 @@ public class ExpandableDirectByteBufferBase implements MutableDirectBuffer {
             throw new AsciiNumberFormatException("empty string: index=" + index + " length=" + length);
         }
 
-        final int end = index + length;
-        int tally = 0;
-        for (int i = index; i < end; i++) {
-            tally = (tally * 10) + AsciiEncoding.getDigit(i, Reflections.getUnsafe().getByte(null, address + i));
+        if (length < INT_MAX_DIGITS) {
+            return parsePositiveIntAscii(index, length, index, index + length);
+        } else {
+            final long tally = parsePositiveIntAsciiOverflowCheck(index, length, index, index + length);
+            if (tally >= INTEGER_ABSOLUTE_MIN_VALUE) {
+                throwParseIntOverflowError(index, length);
+            }
+            return (int) tally;
         }
-
-        return tally;
     }
 
     /**
@@ -1134,13 +1144,11 @@ public class ExpandableDirectByteBufferBase implements MutableDirectBuffer {
             throw new AsciiNumberFormatException("empty string: index=" + index + " length=" + length);
         }
 
-        final int end = index + length;
-        long tally = 0L;
-        for (int i = index; i < end; i++) {
-            tally = (tally * 10) + AsciiEncoding.getDigit(i, Reflections.getUnsafe().getByte(null, address + i));
+        if (length < LONG_MAX_DIGITS) {
+            return parsePositiveLongAscii(index, length, index, index + length);
+        } else {
+            return parseLongAsciiOverflowCheck(index, length, LONG_MAX_VALUE_DIGITS, index, index + length);
         }
-
-        return tally;
     }
 
     /**
@@ -1152,29 +1160,28 @@ public class ExpandableDirectByteBufferBase implements MutableDirectBuffer {
 
         if (length <= 0) {
             throw new AsciiNumberFormatException("empty string: index=" + index + " length=" + length);
-        } else if (1 == length) {
-            return AsciiEncoding.getDigit(index, Reflections.getUnsafe().getByte(null, address + index));
         }
 
-        final int endExclusive = index + length;
-        final int first = getByte0(index);
+        final boolean negative = MINUS_SIGN == Reflections.getUnsafe().getByte(null, address + index);
         int i = index;
-        if (first == MINUS_SIGN) {
+        if (negative) {
             i++;
+            if (1 == length) {
+                throwParseIntError(index, length);
+            }
         }
 
-        int tally = 0;
-        //CHECKSTYLE:OFF
-        for (; i < endExclusive; i++) {
-            //CHECKSTYLE:ON
-            tally = (tally * 10) + AsciiEncoding.getDigit(i, Reflections.getUnsafe().getByte(null, address + i));
+        final int end = index + length;
+        if (end - i < INT_MAX_DIGITS) {
+            final int tally = parsePositiveIntAscii(index, length, i, end);
+            return negative ? -tally : tally;
+        } else {
+            final long tally = parsePositiveIntAsciiOverflowCheck(index, length, i, end);
+            if (tally > INTEGER_ABSOLUTE_MIN_VALUE || INTEGER_ABSOLUTE_MIN_VALUE == tally && !negative) {
+                throwParseIntOverflowError(index, length);
+            }
+            return (int) (negative ? -tally : tally);
         }
-
-        if (first == MINUS_SIGN) {
-            tally = -tally;
-        }
-
-        return tally;
     }
 
     /**
@@ -1186,29 +1193,26 @@ public class ExpandableDirectByteBufferBase implements MutableDirectBuffer {
 
         if (length <= 0) {
             throw new AsciiNumberFormatException("empty string: index=" + index + " length=" + length);
-        } else if (1 == length) {
-            return AsciiEncoding.getDigit(index, Reflections.getUnsafe().getByte(null, address + index));
         }
 
-        final int endExclusive = index + length;
-        final int first = getByte0(index);
+        final boolean negative = MINUS_SIGN == Reflections.getUnsafe().getByte(null, address + index);
         int i = index;
-        if (first == MINUS_SIGN) {
+        if (negative) {
             i++;
+            if (1 == length) {
+                throwParseLongError(index, length);
+            }
         }
 
-        long tally = 0;
-        //CHECKSTYLE:OFF
-        for (; i < endExclusive; i++) {
-            //CHECKSTYLE:ON
-            tally = (tally * 10) + AsciiEncoding.getDigit(i, Reflections.getUnsafe().getByte(null, address + i));
+        final int end = index + length;
+        if (end - i < LONG_MAX_DIGITS) {
+            final long tally = parsePositiveLongAscii(index, length, i, end);
+            return negative ? -tally : tally;
+        } else if (negative) {
+            return -parseLongAsciiOverflowCheck(index, length, LONG_MIN_VALUE_DIGITS, i, end);
+        } else {
+            return parseLongAsciiOverflowCheck(index, length, LONG_MAX_VALUE_DIGITS, i, end);
         }
-
-        if (first == MINUS_SIGN) {
-            tally = -tally;
-        }
-
-        return tally;
     }
 
     /**
@@ -1226,47 +1230,38 @@ public class ExpandableDirectByteBufferBase implements MutableDirectBuffer {
      */
     @Override
     public int putIntAscii(final int index, final int value) {
-        if (value == 0) {
+        if (0 == value) {
             putByte0(index, ZERO);
             return 1;
         }
 
-        if (value == Integer.MIN_VALUE) {
-            putBytes(index, MIN_INTEGER_VALUE);
-            return MIN_INTEGER_VALUE.length;
-        }
-
-        int start = index;
+        long offset;
         int quotient = value;
-        int length = 1;
+        final int digitCount, length;
         if (value < 0) {
-            putByte0(index, MINUS_SIGN);
-            start++;
-            length++;
+            if (Integer.MIN_VALUE == value) {
+                putBytes(index, MIN_INTEGER_VALUE);
+                return MIN_INTEGER_VALUE.length;
+            }
+
             quotient = -quotient;
-        }
+            digitCount = digitCount(quotient);
+            length = digitCount + 1;
 
-        int i = endOffset(quotient);
-        length += i;
+            ensureCapacity(index, length);
+            offset = address + index;
 
-        ensureCapacity(index, length);
-
-        final java.nio.ByteBuffer dest = byteBuffer;
-        while (quotient >= 100) {
-            final int position = (quotient % 100) << 1;
-            quotient /= 100;
-            dest.put(i + start, ASCII_DIGITS[position + 1]);
-            dest.put(i - 1 + start, ASCII_DIGITS[position]);
-            i -= 2;
-        }
-
-        if (quotient < 10) {
-            dest.put(i + start, (byte) (ZERO + quotient));
+            Reflections.getUnsafe().putByte(null, offset, MINUS_SIGN);
+            offset++;
         } else {
-            final int position = quotient << 1;
-            dest.put(i + start, ASCII_DIGITS[position + 1]);
-            dest.put(i - 1 + start, ASCII_DIGITS[position]);
+            digitCount = digitCount(quotient);
+            length = digitCount;
+
+            ensureCapacity(index, length);
+            offset = address + index;
         }
+
+        putPositiveIntAscii(offset, quotient, digitCount);
 
         return length;
     }
@@ -1276,35 +1271,18 @@ public class ExpandableDirectByteBufferBase implements MutableDirectBuffer {
      */
     @Override
     public int putNaturalIntAscii(final int index, final int value) {
-        if (value == 0) {
+        if (0 == value) {
             putByte0(index, ZERO);
             return 1;
         }
 
-        int i = endOffset(value);
-        final int length = i + 1;
+        final int digitCount = digitCount(value);
 
-        ensureCapacity(index, length);
+        ensureCapacity(index, digitCount);
 
-        int quotient = value;
-        final java.nio.ByteBuffer dest = byteBuffer;
-        while (quotient >= 100) {
-            final int position = (quotient % 100) << 1;
-            quotient /= 100;
-            dest.put(i + index, ASCII_DIGITS[position + 1]);
-            dest.put(i - 1 + index, ASCII_DIGITS[position]);
-            i -= 2;
-        }
+        putPositiveIntAscii(address + index, value, digitCount);
 
-        if (quotient < 10) {
-            dest.put(i + index, (byte) (ZERO + quotient));
-        } else {
-            final int position = quotient << 1;
-            dest.put(i + index, ASCII_DIGITS[position + 1]);
-            dest.put(i - 1 + index, ASCII_DIGITS[position]);
-        }
-
-        return length;
+        return digitCount;
     }
 
     /**
@@ -1347,59 +1325,18 @@ public class ExpandableDirectByteBufferBase implements MutableDirectBuffer {
      */
     @Override
     public int putNaturalLongAscii(final int index, final long value) {
-        if (value == 0L) {
+        if (0L == value) {
             putByte0(index, ZERO);
             return 1;
         }
 
-        int i = endOffset(value);
-        final int length = i + 1;
+        final int digitCount = digitCount(value);
 
-        ensureCapacity(index, length);
+        ensureCapacity(index, digitCount);
 
-        long quotient = value;
-        final java.nio.ByteBuffer dest = byteBuffer;
-        while (quotient >= 100000000) {
-            final int lastEightDigits = (int) (quotient % 100000000);
-            quotient /= 100000000;
+        putPositiveLongAscii(address + index, value, digitCount);
 
-            final int upperPart = lastEightDigits / 10000;
-            final int lowerPart = lastEightDigits % 10000;
-
-            final int u1 = (upperPart / 100) << 1;
-            final int u2 = (upperPart % 100) << 1;
-            final int l1 = (lowerPart / 100) << 1;
-            final int l2 = (lowerPart % 100) << 1;
-
-            i -= 8;
-
-            dest.put(index + i + 1, ASCII_DIGITS[u1]);
-            dest.put(index + i + 2, ASCII_DIGITS[u1 + 1]);
-            dest.put(index + i + 3, ASCII_DIGITS[u2]);
-            dest.put(index + i + 4, ASCII_DIGITS[u2 + 1]);
-            dest.put(index + i + 5, ASCII_DIGITS[l1]);
-            dest.put(index + i + 6, ASCII_DIGITS[l1 + 1]);
-            dest.put(index + i + 7, ASCII_DIGITS[l2]);
-            dest.put(index + i + 8, ASCII_DIGITS[l2 + 1]);
-        }
-
-        while (quotient >= 100) {
-            final int position = (int) ((quotient % 100) << 1);
-            quotient /= 100;
-            dest.put(index + i, ASCII_DIGITS[position + 1]);
-            dest.put(index + i - 1, ASCII_DIGITS[position]);
-            i -= 2;
-        }
-
-        if (quotient < 10) {
-            dest.put(index + i, (byte) (ZERO + quotient));
-        } else {
-            final int position = (int) (quotient << 1);
-            dest.put(index + i, ASCII_DIGITS[position + 1]);
-            dest.put(index + i - 1, ASCII_DIGITS[position]);
-        }
-
-        return length;
+        return digitCount;
     }
 
     /**
@@ -1407,123 +1344,40 @@ public class ExpandableDirectByteBufferBase implements MutableDirectBuffer {
      */
     @Override
     public int putLongAscii(final int index, final long value) {
-        if (value == 0) {
+        if (0L == value) {
             putByte0(index, ZERO);
             return 1;
         }
 
-        if (value == Long.MIN_VALUE) {
-            putBytes(index, MIN_LONG_VALUE);
-            return MIN_LONG_VALUE.length;
-        }
-
-        int start = index;
+        long offset;
         long quotient = value;
-        int length = 1;
+        final int digitCount, length;
         if (value < 0) {
-            putByte0(index, MINUS_SIGN);
-            start++;
-            length++;
-            quotient = -quotient;
-        }
-
-        int i = endOffset(quotient);
-        length += i;
-
-        ensureCapacity(index, length);
-
-        final java.nio.ByteBuffer dest = byteBuffer;
-        while (quotient >= 100000000) {
-            final int lastEightDigits = (int) (quotient % 100000000);
-            quotient /= 100000000;
-
-            final int upperPart = lastEightDigits / 10000;
-            final int lowerPart = lastEightDigits % 10000;
-
-            final int u1 = (upperPart / 100) << 1;
-            final int u2 = (upperPart % 100) << 1;
-            final int l1 = (lowerPart / 100) << 1;
-            final int l2 = (lowerPart % 100) << 1;
-
-            i -= 8;
-
-            dest.put(start + i + 1, ASCII_DIGITS[u1]);
-            dest.put(start + i + 2, ASCII_DIGITS[u1 + 1]);
-            dest.put(start + i + 3, ASCII_DIGITS[u2]);
-            dest.put(start + i + 4, ASCII_DIGITS[u2 + 1]);
-            dest.put(start + i + 5, ASCII_DIGITS[l1]);
-            dest.put(start + i + 6, ASCII_DIGITS[l1 + 1]);
-            dest.put(start + i + 7, ASCII_DIGITS[l2]);
-            dest.put(start + i + 8, ASCII_DIGITS[l2 + 1]);
-        }
-
-        while (quotient >= 100) {
-            final int position = (int) ((quotient % 100) << 1);
-            quotient /= 100;
-            dest.put(start + i, ASCII_DIGITS[position + 1]);
-            dest.put(start + i - 1, ASCII_DIGITS[position]);
-            i -= 2;
-        }
-
-        if (quotient < 10) {
-            dest.put(start + i, (byte) (ZERO + quotient));
-        } else {
-            final int position = (int) (quotient << 1);
-            dest.put(start + i, ASCII_DIGITS[position + 1]);
-            dest.put(start + i - 1, ASCII_DIGITS[position]);
-        }
-
-        return length;
-    }
-
-    ///////////////////////////////////////////////////////////////////////////
-
-    private void ensureCapacity(final int index, final int length) {
-        if (index < 0 || length < 0) {
-            throw new IndexOutOfBoundsException("negative value: index=" + index + " length=" + length);
-        }
-
-        final long resultingPosition = index + (long) length;
-        final int currentCapacity = capacity;
-        if (resultingPosition > currentCapacity) {
-            if (resultingPosition > MAX_BUFFER_LENGTH) {
-                throw new IndexOutOfBoundsException(
-                        "index=" + index + " length=" + length + " maxCapacity=" + MAX_BUFFER_LENGTH);
+            if (Long.MIN_VALUE == value) {
+                putBytes(index, MIN_LONG_VALUE);
+                return MIN_LONG_VALUE.length;
             }
 
-            final int newCapacity = calculateExpansion(currentCapacity, (int) resultingPosition);
-            final java.nio.ByteBuffer newBuffer = java.nio.ByteBuffer.allocateDirect(newCapacity);
+            quotient = -quotient;
+            digitCount = digitCount(quotient);
+            length = digitCount + 1;
 
-            getBytes(0, newBuffer, 0, capacity);
+            ensureCapacity(index, length);
+            offset = address + index;
 
-            address = address(newBuffer);
-            capacity = newCapacity;
-            byteBuffer = newBuffer;
-        }
-    }
-
-    protected int calculateExpansion(final int currentLength, final int requiredLength) {
-        final int value = ByteBuffers.calculateExpansion(requiredLength);
-        if (value > MAX_BUFFER_LENGTH) {
-            return MAX_BUFFER_LENGTH;
+            Reflections.getUnsafe().putByte(null, offset, MINUS_SIGN);
+            offset++;
         } else {
-            return value;
-        }
-    }
+            digitCount = digitCount(quotient);
+            length = digitCount;
 
-    private void boundsCheck0(final int index, final int length) {
-        final int currentCapacity = capacity;
-        final long resultingPosition = index + (long) length;
-        if (index < 0 || length < 0 || resultingPosition > currentCapacity) {
-            throw new IndexOutOfBoundsException(
-                    "index=" + index + " length=" + length + " capacity=" + currentCapacity);
+            ensureCapacity(index, length);
+            offset = address + index;
         }
-    }
 
-    private void lengthCheck(final int length) {
-        if (length < 0) {
-            throw new IllegalArgumentException("negative length: " + length);
-        }
+        putPositiveLongAscii(offset, quotient, digitCount);
+
+        return length;
     }
 
     /**
@@ -1611,5 +1465,270 @@ public class ExpandableDirectByteBufferBase implements MutableDirectBuffer {
     public String toString() {
         return "ExpandableDirectByteBuffer{" + "address=" + address + ", capacity=" + capacity + ", byteBuffer="
                 + byteBuffer + '}';
+    }
+
+    private void ensureCapacity(final int index, final int length) {
+        if (index < 0 || length < 0) {
+            throw new IndexOutOfBoundsException("negative value: index=" + index + " length=" + length);
+        }
+
+        final long resultingPosition = index + (long) length;
+        final int currentCapacity = capacity;
+        if (resultingPosition > currentCapacity) {
+            if (resultingPosition > MAX_BUFFER_LENGTH) {
+                throw new IndexOutOfBoundsException(
+                        "index=" + index + " length=" + length + " maxCapacity=" + MAX_BUFFER_LENGTH);
+            }
+
+            final int newCapacity = calculateExpansion(currentCapacity, (int) resultingPosition);
+            final java.nio.ByteBuffer newBuffer = java.nio.ByteBuffer.allocateDirect(newCapacity);
+
+            getBytes(0, newBuffer, 0, capacity);
+
+            address = address(newBuffer);
+            capacity = newCapacity;
+            byteBuffer = newBuffer;
+        }
+    }
+
+    protected int calculateExpansion(final int currentLength, final int requiredLength) {
+        final int value = ByteBuffers.calculateExpansion(requiredLength);
+        if (value > MAX_BUFFER_LENGTH) {
+            return MAX_BUFFER_LENGTH;
+        } else {
+            return value;
+        }
+    }
+
+    private void boundsCheck0(final int index, final int length) {
+        final int currentCapacity = capacity;
+        final long resultingPosition = index + (long) length;
+        if (index < 0 || length < 0 || resultingPosition > currentCapacity) {
+            throw new IndexOutOfBoundsException(
+                    "index=" + index + " length=" + length + " capacity=" + currentCapacity);
+        }
+    }
+
+    //CHECKSTYLE:OFF
+    private int parsePositiveIntAscii(final int index, final int length, final int startIndex, final int end) {
+        final long offset = address;
+        int i = startIndex;
+        int tally = 0, quartet;
+        while ((end - i) >= 4
+                && isFourDigitsAsciiEncodedNumber(quartet = Reflections.getUnsafe().getInt(null, offset + i))) {
+            if (NATIVE_BYTE_ORDER != LITTLE_ENDIAN) {
+                quartet = Integer.reverseBytes(quartet);
+            }
+
+            tally = (tally * 10_000) + parseFourDigitsLittleEndian(quartet);
+            i += 4;
+        }
+
+        byte digit;
+        while (i < end && isDigit(digit = Reflections.getUnsafe().getByte(null, offset + i))) {
+            tally = (tally * 10) + (digit - 0x30);
+            i++;
+        }
+
+        if (i != end) {
+            throwParseIntError(index, length);
+        }
+
+        return tally;
+    }
+
+    private long parsePositiveIntAsciiOverflowCheck(final int index, final int length, final int startIndex,
+            final int end) {
+        if ((end - startIndex) > INT_MAX_DIGITS) {
+            throwParseIntOverflowError(index, length);
+        }
+
+        final long offset = address;
+        int i = startIndex;
+        long tally = 0;
+        long octet = Reflections.getUnsafe().getLong(null, offset + i);
+        if (isEightDigitAsciiEncodedNumber(octet)) {
+            if (NATIVE_BYTE_ORDER != LITTLE_ENDIAN) {
+                octet = Long.reverseBytes(octet);
+            }
+            tally = parseEightDigitsLittleEndian(octet);
+            i += 8;
+
+            byte digit;
+            while (i < end && isDigit(digit = Reflections.getUnsafe().getByte(null, offset + i))) {
+                tally = (tally * 10L) + (digit - 0x30);
+                i++;
+            }
+        }
+
+        if (i != end) {
+            throwParseIntError(index, length);
+        }
+
+        return tally;
+    }
+
+    private void throwParseIntError(final int index, final int length) {
+        throw new AsciiNumberFormatException("error parsing int: " + getStringWithoutLengthAscii(index, length));
+    }
+
+    private void throwParseIntOverflowError(final int index, final int length) {
+        throw new AsciiNumberFormatException("int overflow parsing: " + getStringWithoutLengthAscii(index, length));
+    }
+
+    private long parsePositiveLongAscii(final int index, final int length, final int startIndex, final int end) {
+        final long offset = address;
+        int i = startIndex;
+        long tally = 0, octet;
+        while ((end - i) >= 8
+                && isEightDigitAsciiEncodedNumber(octet = Reflections.getUnsafe().getLong(null, offset + i))) {
+            if (NATIVE_BYTE_ORDER != LITTLE_ENDIAN) {
+                octet = Long.reverseBytes(octet);
+            }
+
+            tally = (tally * 100_000_000L) + parseEightDigitsLittleEndian(octet);
+            i += 8;
+        }
+
+        int quartet;
+        while ((end - i) >= 4
+                && isFourDigitsAsciiEncodedNumber(quartet = Reflections.getUnsafe().getInt(null, offset + i))) {
+            if (NATIVE_BYTE_ORDER != LITTLE_ENDIAN) {
+                quartet = Integer.reverseBytes(quartet);
+            }
+
+            tally = (tally * 10_000L) + parseFourDigitsLittleEndian(quartet);
+            i += 4;
+        }
+
+        byte digit;
+        while (i < end && isDigit(digit = Reflections.getUnsafe().getByte(null, offset + i))) {
+            tally = (tally * 10) + (digit - 0x30);
+            i++;
+        }
+
+        if (i != end) {
+            throwParseLongError(index, length);
+        }
+
+        return tally;
+    }
+
+    private long parseLongAsciiOverflowCheck(final int index, final int length, final int[] maxValue,
+            final int startIndex, final int end) {
+        if ((end - startIndex) > LONG_MAX_DIGITS) {
+            throwParseLongOverflowError(index, length);
+        }
+
+        final long offset = address;
+        int i = startIndex, k = 0;
+        boolean checkOverflow = true;
+        long tally = 0, octet;
+        while ((end - i) >= 8
+                && isEightDigitAsciiEncodedNumber(octet = Reflections.getUnsafe().getLong(null, offset + i))) {
+            if (NATIVE_BYTE_ORDER != LITTLE_ENDIAN) {
+                octet = Long.reverseBytes(octet);
+            }
+
+            final int eightDigits = parseEightDigitsLittleEndian(octet);
+            if (checkOverflow) {
+                if (eightDigits > maxValue[k]) {
+                    throwParseLongOverflowError(index, length);
+                } else if (eightDigits < maxValue[k]) {
+                    checkOverflow = false;
+                }
+                k++;
+            }
+            tally = (tally * 100_000_000L) + eightDigits;
+            i += 8;
+        }
+
+        byte digit;
+        int lastDigits = 0;
+        while (i < end && isDigit(digit = Reflections.getUnsafe().getByte(null, offset + i))) {
+            lastDigits = (lastDigits * 10) + (digit - 0x30);
+            i++;
+        }
+
+        if (i != end) {
+            throwParseLongError(index, length);
+        } else if (checkOverflow && lastDigits > maxValue[k]) {
+            throwParseLongOverflowError(index, length);
+        }
+
+        return (tally * 1000L) + lastDigits;
+    }
+    //CHECKSTYLE:ON
+
+    private void throwParseLongError(final int index, final int length) {
+        throw new AsciiNumberFormatException("error parsing long: " + getStringWithoutLengthAscii(index, length));
+    }
+
+    private void throwParseLongOverflowError(final int index, final int length) {
+        throw new AsciiNumberFormatException("long overflow parsing: " + getStringWithoutLengthAscii(index, length));
+    }
+
+    private static void putPositiveIntAscii(final long offset, final int value, final int digitCount) {
+        int quotient = value;
+        int i = digitCount;
+        while (quotient >= 10_000) {
+            final int lastFourDigits = quotient % 10_000;
+            quotient /= 10_000;
+
+            final int p1 = (lastFourDigits / 100) << 1;
+            final int p2 = (lastFourDigits % 100) << 1;
+
+            i -= 4;
+
+            Reflections.getUnsafe().putByte(null, offset + i, ASCII_DIGITS[p1]);
+            Reflections.getUnsafe().putByte(null, offset + i + 1, ASCII_DIGITS[p1 + 1]);
+            Reflections.getUnsafe().putByte(null, offset + i + 2, ASCII_DIGITS[p2]);
+            Reflections.getUnsafe().putByte(null, offset + i + 3, ASCII_DIGITS[p2 + 1]);
+        }
+
+        if (quotient >= 100) {
+            final int position = (quotient % 100) << 1;
+            quotient /= 100;
+            Reflections.getUnsafe().putByte(null, offset + i - 1, ASCII_DIGITS[position + 1]);
+            Reflections.getUnsafe().putByte(null, offset + i - 2, ASCII_DIGITS[position]);
+        }
+
+        if (quotient >= 10) {
+            final int position = quotient << 1;
+            Reflections.getUnsafe().putByte(null, offset + 1, ASCII_DIGITS[position + 1]);
+            Reflections.getUnsafe().putByte(null, offset, ASCII_DIGITS[position]);
+        } else {
+            Reflections.getUnsafe().putByte(null, offset, (byte) (ZERO + quotient));
+        }
+    }
+
+    private static void putPositiveLongAscii(final long offset, final long value, final int digitCount) {
+        long quotient = value;
+        int i = digitCount;
+        while (quotient >= 100_000_000) {
+            final int lastEightDigits = (int) (quotient % 100_000_000);
+            quotient /= 100_000_000;
+
+            final int upperPart = lastEightDigits / 10_000;
+            final int lowerPart = lastEightDigits % 10_000;
+
+            final int u1 = (upperPart / 100) << 1;
+            final int u2 = (upperPart % 100) << 1;
+            final int l1 = (lowerPart / 100) << 1;
+            final int l2 = (lowerPart % 100) << 1;
+
+            i -= 8;
+
+            Reflections.getUnsafe().putByte(null, offset + i, ASCII_DIGITS[u1]);
+            Reflections.getUnsafe().putByte(null, offset + i + 1, ASCII_DIGITS[u1 + 1]);
+            Reflections.getUnsafe().putByte(null, offset + i + 2, ASCII_DIGITS[u2]);
+            Reflections.getUnsafe().putByte(null, offset + i + 3, ASCII_DIGITS[u2 + 1]);
+            Reflections.getUnsafe().putByte(null, offset + i + 4, ASCII_DIGITS[l1]);
+            Reflections.getUnsafe().putByte(null, offset + i + 5, ASCII_DIGITS[l1 + 1]);
+            Reflections.getUnsafe().putByte(null, offset + i + 6, ASCII_DIGITS[l2]);
+            Reflections.getUnsafe().putByte(null, offset + i + 7, ASCII_DIGITS[l2 + 1]);
+        }
+
+        putPositiveIntAscii(offset, (int) quotient, i);
     }
 }

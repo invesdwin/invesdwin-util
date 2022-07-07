@@ -1,13 +1,24 @@
 package de.invesdwin.util.streams.buffer.bytes.extend.internal;
 
+import static java.nio.ByteOrder.LITTLE_ENDIAN;
 import static java.nio.charset.StandardCharsets.US_ASCII;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.agrona.AsciiEncoding.ASCII_DIGITS;
+import static org.agrona.AsciiEncoding.INTEGER_ABSOLUTE_MIN_VALUE;
+import static org.agrona.AsciiEncoding.INT_MAX_DIGITS;
+import static org.agrona.AsciiEncoding.LONG_MAX_DIGITS;
+import static org.agrona.AsciiEncoding.LONG_MAX_VALUE_DIGITS;
+import static org.agrona.AsciiEncoding.LONG_MIN_VALUE_DIGITS;
 import static org.agrona.AsciiEncoding.MINUS_SIGN;
 import static org.agrona.AsciiEncoding.MIN_INTEGER_VALUE;
 import static org.agrona.AsciiEncoding.MIN_LONG_VALUE;
 import static org.agrona.AsciiEncoding.ZERO;
-import static org.agrona.AsciiEncoding.endOffset;
+import static org.agrona.AsciiEncoding.digitCount;
+import static org.agrona.AsciiEncoding.isDigit;
+import static org.agrona.AsciiEncoding.isEightDigitAsciiEncodedNumber;
+import static org.agrona.AsciiEncoding.isFourDigitsAsciiEncodedNumber;
+import static org.agrona.AsciiEncoding.parseEightDigitsLittleEndian;
+import static org.agrona.AsciiEncoding.parseFourDigitsLittleEndian;
 import static org.agrona.BitUtil.SIZE_OF_BYTE;
 import static org.agrona.BitUtil.SIZE_OF_CHAR;
 import static org.agrona.BitUtil.SIZE_OF_DOUBLE;
@@ -28,7 +39,6 @@ import java.util.Arrays;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import org.agrona.AsciiEncoding;
 import org.agrona.AsciiNumberFormatException;
 import org.agrona.BufferUtil;
 import org.agrona.DirectBuffer;
@@ -1082,13 +1092,15 @@ public class UninitializedExpandableArrayBufferBase implements MutableDirectBuff
             throw new AsciiNumberFormatException("empty string: index=" + index + " length=" + length);
         }
 
-        final int end = index + length;
-        int tally = 0;
-        for (int i = index; i < end; i++) {
-            tally = (tally * 10) + AsciiEncoding.getDigit(i, byteArray[i]);
+        if (length < INT_MAX_DIGITS) {
+            return parsePositiveIntAscii(index, length, index, index + length);
+        } else {
+            final long tally = parsePositiveIntAsciiOverflowCheck(index, length, index, index + length);
+            if (tally >= INTEGER_ABSOLUTE_MIN_VALUE) {
+                throwParseIntOverflowError(index, length);
+            }
+            return (int) tally;
         }
-
-        return tally;
     }
 
     /**
@@ -1102,13 +1114,11 @@ public class UninitializedExpandableArrayBufferBase implements MutableDirectBuff
             throw new AsciiNumberFormatException("empty string: index=" + index + " length=" + length);
         }
 
-        final int end = index + length;
-        long tally = 0;
-        for (int i = index; i < end; i++) {
-            tally = (tally * 10) + AsciiEncoding.getDigit(i, byteArray[i]);
+        if (length < LONG_MAX_DIGITS) {
+            return parsePositiveLongAscii(index, length, index, index + length);
+        } else {
+            return parseLongAsciiOverflowCheck(index, length, LONG_MAX_VALUE_DIGITS, index, index + length);
         }
-
-        return tally;
     }
 
     /**
@@ -1120,30 +1130,28 @@ public class UninitializedExpandableArrayBufferBase implements MutableDirectBuff
 
         if (length <= 0) {
             throw new AsciiNumberFormatException("empty string: index=" + index + " length=" + length);
-        } else if (1 == length) {
-            return AsciiEncoding.getDigit(index, byteArray[index]);
         }
 
-        final int endExclusive = index + length;
-        final int first = byteArray[index];
+        final boolean negative = MINUS_SIGN == byteArray[index];
         int i = index;
-
-        if (first == MINUS_SIGN) {
+        if (negative) {
             i++;
+            if (1 == length) {
+                throwParseIntError(index, length);
+            }
         }
 
-        int tally = 0;
-        //CHECKSTYLE:OFF
-        for (; i < endExclusive; i++) {
-            //CHECKSTYLE:ON
-            tally = (tally * 10) + AsciiEncoding.getDigit(i, byteArray[i]);
+        final int end = index + length;
+        if (end - i < INT_MAX_DIGITS) {
+            final int tally = parsePositiveIntAscii(index, length, i, end);
+            return negative ? -tally : tally;
+        } else {
+            final long tally = parsePositiveIntAsciiOverflowCheck(index, length, i, end);
+            if (tally > INTEGER_ABSOLUTE_MIN_VALUE || INTEGER_ABSOLUTE_MIN_VALUE == tally && !negative) {
+                throwParseIntOverflowError(index, length);
+            }
+            return (int) (negative ? -tally : tally);
         }
-
-        if (first == MINUS_SIGN) {
-            tally = -tally;
-        }
-
-        return tally;
     }
 
     /**
@@ -1155,30 +1163,26 @@ public class UninitializedExpandableArrayBufferBase implements MutableDirectBuff
 
         if (length <= 0) {
             throw new AsciiNumberFormatException("empty string: index=" + index + " length=" + length);
-        } else if (1 == length) {
-            return AsciiEncoding.getDigit(index, byteArray[index]);
         }
 
-        final int endExclusive = index + length;
-        final int first = byteArray[index];
+        final boolean negative = MINUS_SIGN == byteArray[index];
         int i = index;
-
-        if (first == MINUS_SIGN) {
+        if (negative) {
             i++;
+            if (1 == length) {
+                throwParseLongError(index, length);
+            }
         }
 
-        long tally = 0;
-        //CHECKSTYLE:OFF
-        for (; i < endExclusive; i++) {
-            //CHECKSTYLE:ON
-            tally = (tally * 10) + AsciiEncoding.getDigit(i, byteArray[i]);
+        final int end = index + length;
+        if (end - i < LONG_MAX_DIGITS) {
+            final long tally = parsePositiveLongAscii(index, length, i, end);
+            return negative ? -tally : tally;
+        } else if (negative) {
+            return -parseLongAsciiOverflowCheck(index, length, LONG_MIN_VALUE_DIGITS, i, end);
+        } else {
+            return parseLongAsciiOverflowCheck(index, length, LONG_MAX_VALUE_DIGITS, i, end);
         }
-
-        if (first == MINUS_SIGN) {
-            tally = -tally;
-        }
-
-        return tally;
     }
 
     /**
@@ -1186,47 +1190,36 @@ public class UninitializedExpandableArrayBufferBase implements MutableDirectBuff
      */
     @Override
     public int putIntAscii(final int index, final int value) {
-        if (value == 0) {
+        if (0 == value) {
             putByte0(index, ZERO);
             return 1;
         }
 
-        if (value == Integer.MIN_VALUE) {
-            putBytes(index, MIN_INTEGER_VALUE);
-            return MIN_INTEGER_VALUE.length;
-        }
-
-        int start = index;
+        int offset = index;
         int quotient = value;
-        int length = 1;
+        final int digitCount, length;
         if (value < 0) {
-            putByte0(index, MINUS_SIGN);
-            start++;
-            length++;
+            if (Integer.MIN_VALUE == value) {
+                putBytes(index, MIN_INTEGER_VALUE);
+                return MIN_INTEGER_VALUE.length;
+            }
+
             quotient = -quotient;
-        }
+            digitCount = digitCount(quotient);
+            length = digitCount + 1;
 
-        int i = endOffset(quotient);
-        length += i;
+            ensureCapacity(index, length);
 
-        ensureCapacity(index, length);
-
-        final byte[] dest = byteArray;
-        while (quotient >= 100) {
-            final int position = (quotient % 100) << 1;
-            quotient /= 100;
-            dest[i + start] = ASCII_DIGITS[position + 1];
-            dest[i - 1 + start] = ASCII_DIGITS[position];
-            i -= 2;
-        }
-
-        if (quotient < 10) {
-            dest[i + start] = (byte) (ZERO + quotient);
+            byteArray[offset] = MINUS_SIGN;
+            offset++;
         } else {
-            final int position = quotient << 1;
-            dest[i + start] = ASCII_DIGITS[position + 1];
-            dest[i - 1 + start] = ASCII_DIGITS[position];
+            digitCount = digitCount(quotient);
+            length = digitCount;
+
+            ensureCapacity(index, length);
         }
+
+        putPositiveIntAscii(byteArray, offset, quotient, digitCount);
 
         return length;
     }
@@ -1236,35 +1229,18 @@ public class UninitializedExpandableArrayBufferBase implements MutableDirectBuff
      */
     @Override
     public int putNaturalIntAscii(final int index, final int value) {
-        if (value == 0) {
+        if (0 == value) {
             putByte0(index, ZERO);
             return 1;
         }
 
-        int i = endOffset(value);
-        final int length = i + 1;
+        final int digitCount = digitCount(value);
 
-        ensureCapacity(index, length);
+        ensureCapacity(index, digitCount);
 
-        int quotient = value;
-        final byte[] dest = byteArray;
-        while (quotient >= 100) {
-            final int position = (quotient % 100) << 1;
-            quotient /= 100;
-            dest[i + index] = ASCII_DIGITS[position + 1];
-            dest[i - 1 + index] = ASCII_DIGITS[position];
-            i -= 2;
-        }
+        putPositiveIntAscii(byteArray, index, value, digitCount);
 
-        if (quotient < 10) {
-            dest[i + index] = (byte) (ZERO + quotient);
-        } else {
-            final int position = quotient << 1;
-            dest[i + index] = ASCII_DIGITS[position + 1];
-            dest[i - 1 + index] = ASCII_DIGITS[position];
-        }
-
-        return length;
+        return digitCount;
     }
 
     /**
@@ -1272,12 +1248,15 @@ public class UninitializedExpandableArrayBufferBase implements MutableDirectBuff
      */
     @Override
     public void putNaturalPaddedIntAscii(final int offset, final int length, final int value) {
+        ensureCapacity(offset, length);
+
+        final byte[] dest = byteArray;
         final int end = offset + length;
         int remainder = value;
         for (int index = end - 1; index >= offset; index--) {
             final int digit = remainder % 10;
             remainder = remainder / 10;
-            putByte0(index, (byte) (ZERO + digit));
+            dest[index] = (byte) (ZERO + digit);
         }
 
         if (remainder != 0) {
@@ -1307,59 +1286,18 @@ public class UninitializedExpandableArrayBufferBase implements MutableDirectBuff
      */
     @Override
     public int putNaturalLongAscii(final int index, final long value) {
-        if (value == 0) {
+        if (0 == value) {
             putByte0(index, ZERO);
             return 1;
         }
 
-        int i = endOffset(value);
-        final int length = i + 1;
+        final int digitCount = digitCount(value);
 
-        ensureCapacity(index, length);
+        ensureCapacity(index, digitCount);
 
-        long quotient = value;
-        final byte[] dest = byteArray;
-        while (quotient >= 100000000) {
-            final int lastEightDigits = (int) (quotient % 100000000);
-            quotient /= 100000000;
+        putPositiveLongAscii(byteArray, index, value, digitCount);
 
-            final int upperPart = lastEightDigits / 10000;
-            final int lowerPart = lastEightDigits % 10000;
-
-            final int u1 = (upperPart / 100) << 1;
-            final int u2 = (upperPart % 100) << 1;
-            final int l1 = (lowerPart / 100) << 1;
-            final int l2 = (lowerPart % 100) << 1;
-
-            i -= 8;
-
-            dest[index + i + 1] = ASCII_DIGITS[u1];
-            dest[index + i + 2] = ASCII_DIGITS[u1 + 1];
-            dest[index + i + 3] = ASCII_DIGITS[u2];
-            dest[index + i + 4] = ASCII_DIGITS[u2 + 1];
-            dest[index + i + 5] = ASCII_DIGITS[l1];
-            dest[index + i + 6] = ASCII_DIGITS[l1 + 1];
-            dest[index + i + 7] = ASCII_DIGITS[l2];
-            dest[index + i + 8] = ASCII_DIGITS[l2 + 1];
-        }
-
-        while (quotient >= 100) {
-            final int position = (int) ((quotient % 100) << 1);
-            quotient /= 100;
-            dest[index + i] = ASCII_DIGITS[position + 1];
-            dest[index + i - 1] = ASCII_DIGITS[position];
-            i -= 2;
-        }
-
-        if (quotient < 10) {
-            dest[index + i] = (byte) (ZERO + quotient);
-        } else {
-            final int position = (int) (quotient << 1);
-            dest[index + i] = ASCII_DIGITS[position + 1];
-            dest[index + i - 1] = ASCII_DIGITS[position];
-        }
-
-        return length;
+        return digitCount;
     }
 
     /**
@@ -1367,111 +1305,38 @@ public class UninitializedExpandableArrayBufferBase implements MutableDirectBuff
      */
     @Override
     public int putLongAscii(final int index, final long value) {
-        if (value == 0) {
+        if (0 == value) {
             putByte0(index, ZERO);
             return 1;
         }
 
-        if (value == Long.MIN_VALUE) {
-            putBytes(index, MIN_LONG_VALUE);
-            return MIN_LONG_VALUE.length;
-        }
-
-        int start = index;
+        int offset = index;
         long quotient = value;
-        int length = 1;
+        final int digitCount, length;
         if (value < 0) {
-            putByte0(index, MINUS_SIGN);
-            start++;
-            length++;
-            quotient = -quotient;
-        }
-
-        int i = endOffset(quotient);
-        length += i;
-
-        ensureCapacity(index, length);
-
-        final byte[] dest = byteArray;
-        while (quotient >= 100000000) {
-            final int lastEightDigits = (int) (quotient % 100000000);
-            quotient /= 100000000;
-
-            final int upperPart = lastEightDigits / 10000;
-            final int lowerPart = lastEightDigits % 10000;
-
-            final int u1 = (upperPart / 100) << 1;
-            final int u2 = (upperPart % 100) << 1;
-            final int l1 = (lowerPart / 100) << 1;
-            final int l2 = (lowerPart % 100) << 1;
-
-            i -= 8;
-
-            dest[start + i + 1] = ASCII_DIGITS[u1];
-            dest[start + i + 2] = ASCII_DIGITS[u1 + 1];
-            dest[start + i + 3] = ASCII_DIGITS[u2];
-            dest[start + i + 4] = ASCII_DIGITS[u2 + 1];
-            dest[start + i + 5] = ASCII_DIGITS[l1];
-            dest[start + i + 6] = ASCII_DIGITS[l1 + 1];
-            dest[start + i + 7] = ASCII_DIGITS[l2];
-            dest[start + i + 8] = ASCII_DIGITS[l2 + 1];
-        }
-
-        while (quotient >= 100) {
-            final int position = (int) ((quotient % 100) << 1);
-            quotient /= 100;
-            dest[start + i] = ASCII_DIGITS[position + 1];
-            dest[start + i - 1] = ASCII_DIGITS[position];
-            i -= 2;
-        }
-
-        if (quotient < 10) {
-            dest[start + i] = (byte) (ZERO + quotient);
-        } else {
-            final int position = (int) (quotient << 1);
-            dest[start + i] = ASCII_DIGITS[position + 1];
-            dest[start + i - 1] = ASCII_DIGITS[position];
-        }
-
-        return length;
-    }
-
-    ///////////////////////////////////////////////////////////////////////////
-
-    private void ensureCapacity(final int index, final int length) {
-        if (index < 0 || length < 0) {
-            throw new IndexOutOfBoundsException("negative value: index=" + index + " length=" + length);
-        }
-
-        final long resultingPosition = index + (long) length;
-        final int currentArrayLength = byteArray.length;
-        if (resultingPosition > currentArrayLength) {
-            if (resultingPosition > MAX_ARRAY_LENGTH) {
-                throw new IndexOutOfBoundsException(
-                        "index=" + index + " length=" + length + " maxCapacity=" + MAX_ARRAY_LENGTH);
+            if (Long.MIN_VALUE == value) {
+                putBytes(index, MIN_LONG_VALUE);
+                return MIN_LONG_VALUE.length;
             }
 
-            final int newLength = calculateExpansion(currentArrayLength, (int) resultingPosition);
-            byteArray = ByteBuffers.copyTo(byteArray, newLength);
-        }
-    }
+            quotient = -quotient;
+            digitCount = digitCount(quotient);
+            length = digitCount + 1;
 
-    protected int calculateExpansion(final int currentLength, final int requiredLength) {
-        final int value = ByteBuffers.calculateExpansion(requiredLength);
-        if (value > MAX_ARRAY_LENGTH) {
-            return MAX_ARRAY_LENGTH;
+            ensureCapacity(index, length);
+
+            byteArray[offset] = MINUS_SIGN;
+            offset++;
         } else {
-            return value;
-        }
-    }
+            digitCount = digitCount(quotient);
+            length = digitCount;
 
-    private void boundsCheck0(final int index, final int length) {
-        final int currentArrayLength = byteArray.length;
-        final long resultingPosition = index + (long) length;
-        if (index < 0 || length < 0 || resultingPosition > currentArrayLength) {
-            throw new IndexOutOfBoundsException(
-                    "index=" + index + " length=" + length + " capacity=" + currentArrayLength);
+            ensureCapacity(index, length);
         }
+
+        putPositiveLongAscii(byteArray, offset, quotient, digitCount);
+
+        return length;
     }
 
     /**
@@ -1553,5 +1418,270 @@ public class UninitializedExpandableArrayBufferBase implements MutableDirectBuff
     public String toString() {
         return "UninitializedExpandableArrayBuffer{" + "byteArray=" + byteArray + // lgtm [java/print-array]
                 " byteArray.length" + (null == byteArray ? 0 : byteArray.length) + '}';
+    }
+
+    private void ensureCapacity(final int index, final int length) {
+        if (index < 0 || length < 0) {
+            throw new IndexOutOfBoundsException("negative value: index=" + index + " length=" + length);
+        }
+
+        final long resultingPosition = index + (long) length;
+        final int currentArrayLength = byteArray.length;
+        if (resultingPosition > currentArrayLength) {
+            if (resultingPosition > MAX_ARRAY_LENGTH) {
+                throw new IndexOutOfBoundsException(
+                        "index=" + index + " length=" + length + " maxCapacity=" + MAX_ARRAY_LENGTH);
+            }
+
+            byteArray = Arrays.copyOf(byteArray, calculateExpansion(currentArrayLength, resultingPosition));
+        }
+    }
+
+    private int calculateExpansion(final int currentLength, final long requiredLength) {
+        long value = Math.max(currentLength, INITIAL_CAPACITY);
+
+        while (value < requiredLength) {
+            value = value + (value >> 1);
+
+            if (value > MAX_ARRAY_LENGTH) {
+                value = MAX_ARRAY_LENGTH;
+            }
+        }
+
+        return (int) value;
+    }
+
+    private void boundsCheck0(final int index, final int length) {
+        final int currentArrayLength = byteArray.length;
+        final long resultingPosition = index + (long) length;
+        if (index < 0 || length < 0 || resultingPosition > currentArrayLength) {
+            throw new IndexOutOfBoundsException(
+                    "index=" + index + " length=" + length + " capacity=" + currentArrayLength);
+        }
+    }
+
+    //CHECKSTYLE:OFF
+    private int parsePositiveIntAscii(final int index, final int length, final int startIndex, final int end) {
+        final byte[] src = byteArray;
+        int i = startIndex;
+        int tally = 0, quartet;
+        while ((end - i) >= 4 && isFourDigitsAsciiEncodedNumber(
+                quartet = Reflections.getUnsafe().getInt(src, ARRAY_BASE_OFFSET + i))) {
+            if (NATIVE_BYTE_ORDER != LITTLE_ENDIAN) {
+                quartet = Integer.reverseBytes(quartet);
+            }
+
+            tally = (tally * 10_000) + parseFourDigitsLittleEndian(quartet);
+            i += 4;
+        }
+
+        byte digit;
+        while (i < end && isDigit(digit = Reflections.getUnsafe().getByte(src, ARRAY_BASE_OFFSET + i))) {
+            tally = (tally * 10) + (digit - 0x30);
+            i++;
+        }
+
+        if (i != end) {
+            throwParseIntError(index, length);
+        }
+
+        return tally;
+    }
+
+    private long parsePositiveIntAsciiOverflowCheck(final int index, final int length, final int startIndex,
+            final int end) {
+        if ((end - startIndex) > INT_MAX_DIGITS) {
+            throwParseIntOverflowError(index, length);
+        }
+
+        final byte[] src = byteArray;
+        int i = startIndex;
+        long tally = 0;
+        long octet = Reflections.getUnsafe().getLong(src, ARRAY_BASE_OFFSET + i);
+        if (isEightDigitAsciiEncodedNumber(octet)) {
+            if (NATIVE_BYTE_ORDER != LITTLE_ENDIAN) {
+                octet = Long.reverseBytes(octet);
+            }
+            tally = parseEightDigitsLittleEndian(octet);
+            i += 8;
+
+            byte digit;
+            while (i < end && isDigit(digit = Reflections.getUnsafe().getByte(src, ARRAY_BASE_OFFSET + i))) {
+                tally = (tally * 10) + (digit - 0x30);
+                i++;
+            }
+        }
+
+        if (i != end) {
+            throwParseIntError(index, length);
+        }
+
+        return tally;
+    }
+
+    private void throwParseIntError(final int index, final int length) {
+        throw new AsciiNumberFormatException("error parsing int: " + getStringWithoutLengthAscii(index, length));
+    }
+
+    private void throwParseIntOverflowError(final int index, final int length) {
+        throw new AsciiNumberFormatException("int overflow parsing: " + getStringWithoutLengthAscii(index, length));
+    }
+
+    private long parsePositiveLongAscii(final int index, final int length, final int startIndex, final int end) {
+        final byte[] src = byteArray;
+        int i = startIndex;
+        long tally = 0, octet;
+        while ((end - i) >= 8 && isEightDigitAsciiEncodedNumber(
+                octet = Reflections.getUnsafe().getLong(src, ARRAY_BASE_OFFSET + i))) {
+            if (NATIVE_BYTE_ORDER != LITTLE_ENDIAN) {
+                octet = Long.reverseBytes(octet);
+            }
+
+            tally = (tally * 100_000_000L) + parseEightDigitsLittleEndian(octet);
+            i += 8;
+        }
+
+        int quartet;
+        while ((end - i) >= 4 && isFourDigitsAsciiEncodedNumber(
+                quartet = Reflections.getUnsafe().getInt(src, ARRAY_BASE_OFFSET + i))) {
+            if (NATIVE_BYTE_ORDER != LITTLE_ENDIAN) {
+                quartet = Integer.reverseBytes(quartet);
+            }
+
+            tally = (tally * 10_000L) + parseFourDigitsLittleEndian(quartet);
+            i += 4;
+        }
+
+        byte digit;
+        while (i < end && isDigit(digit = Reflections.getUnsafe().getByte(src, ARRAY_BASE_OFFSET + i))) {
+            tally = (tally * 10L) + (digit - 0x30);
+            i++;
+        }
+
+        if (i != end) {
+            throwParseLongError(index, length);
+        }
+
+        return tally;
+    }
+
+    private long parseLongAsciiOverflowCheck(final int index, final int length, final int[] maxValue,
+            final int startIndex, final int end) {
+        if ((end - startIndex) > LONG_MAX_DIGITS) {
+            throwParseLongOverflowError(index, length);
+        }
+
+        final byte[] src = byteArray;
+        int i = startIndex, k = 0;
+        boolean checkOverflow = true;
+        long tally = 0, octet;
+        while ((end - i) >= 8 && isEightDigitAsciiEncodedNumber(
+                octet = Reflections.getUnsafe().getLong(src, ARRAY_BASE_OFFSET + i))) {
+            if (NATIVE_BYTE_ORDER != LITTLE_ENDIAN) {
+                octet = Long.reverseBytes(octet);
+            }
+
+            final int eightDigits = parseEightDigitsLittleEndian(octet);
+            if (checkOverflow) {
+                if (eightDigits > maxValue[k]) {
+                    throwParseLongOverflowError(index, length);
+                } else if (eightDigits < maxValue[k]) {
+                    checkOverflow = false;
+                }
+                k++;
+            }
+            tally = (tally * 100_000_000L) + eightDigits;
+            i += 8;
+        }
+
+        byte digit;
+        int lastDigits = 0;
+        while (i < end && isDigit(digit = Reflections.getUnsafe().getByte(src, ARRAY_BASE_OFFSET + i))) {
+            lastDigits = (lastDigits * 10) + (digit - 0x30);
+            i++;
+        }
+
+        if (i != end) {
+            throwParseLongError(index, length);
+        } else if (checkOverflow && lastDigits > maxValue[k]) {
+            throwParseLongOverflowError(index, length);
+        }
+
+        return (tally * 1000L) + lastDigits;
+    }
+    //CHECKSTYLE:ON
+
+    private void throwParseLongError(final int index, final int length) {
+        throw new AsciiNumberFormatException("error parsing long: " + getStringWithoutLengthAscii(index, length));
+    }
+
+    private void throwParseLongOverflowError(final int index, final int length) {
+        throw new AsciiNumberFormatException("long overflow parsing: " + getStringWithoutLengthAscii(index, length));
+    }
+
+    private static void putPositiveIntAscii(final byte[] dest, final int offset, final int value,
+            final int digitCount) {
+        int quotient = value;
+        int i = digitCount;
+        while (quotient >= 10_000) {
+            final int lastFourDigits = quotient % 10_000;
+            quotient /= 10_000;
+
+            final int p1 = (lastFourDigits / 100) << 1;
+            final int p2 = (lastFourDigits % 100) << 1;
+
+            i -= 4;
+
+            dest[offset + i] = ASCII_DIGITS[p1];
+            dest[offset + i + 1] = ASCII_DIGITS[p1 + 1];
+            dest[offset + i + 2] = ASCII_DIGITS[p2];
+            dest[offset + i + 3] = ASCII_DIGITS[p2 + 1];
+        }
+
+        if (quotient >= 100) {
+            final int position = (quotient % 100) << 1;
+            quotient /= 100;
+            dest[offset + i - 1] = ASCII_DIGITS[position + 1];
+            dest[offset + i - 2] = ASCII_DIGITS[position];
+        }
+
+        if (quotient >= 10) {
+            final int position = quotient << 1;
+            dest[offset + 1] = ASCII_DIGITS[position + 1];
+            dest[offset] = ASCII_DIGITS[position];
+        } else {
+            dest[offset] = (byte) (ZERO + quotient);
+        }
+    }
+
+    private static void putPositiveLongAscii(final byte[] dest, final int offset, final long value,
+            final int digitCount) {
+        long quotient = value;
+        int i = digitCount;
+        while (quotient >= 100_000_000) {
+            final int lastEightDigits = (int) (quotient % 100_000_000);
+            quotient /= 100_000_000;
+
+            final int upperPart = lastEightDigits / 10_000;
+            final int lowerPart = lastEightDigits % 10_000;
+
+            final int u1 = (upperPart / 100) << 1;
+            final int u2 = (upperPart % 100) << 1;
+            final int l1 = (lowerPart / 100) << 1;
+            final int l2 = (lowerPart % 100) << 1;
+
+            i -= 8;
+
+            dest[offset + i] = ASCII_DIGITS[u1];
+            dest[offset + i + 1] = ASCII_DIGITS[u1 + 1];
+            dest[offset + i + 2] = ASCII_DIGITS[u2];
+            dest[offset + i + 3] = ASCII_DIGITS[u2 + 1];
+            dest[offset + i + 4] = ASCII_DIGITS[l1];
+            dest[offset + i + 5] = ASCII_DIGITS[l1 + 1];
+            dest[offset + i + 6] = ASCII_DIGITS[l2];
+            dest[offset + i + 7] = ASCII_DIGITS[l2 + 1];
+        }
+
+        putPositiveIntAscii(dest, offset, (int) quotient, i);
     }
 }
