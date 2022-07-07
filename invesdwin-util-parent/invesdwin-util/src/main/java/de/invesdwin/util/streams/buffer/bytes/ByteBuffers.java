@@ -592,7 +592,7 @@ public final class ByteBuffers {
         return 1 << (32 - Integer.numberOfLeadingZeros(requestedSize - 1));
     }
 
-    public static byte[] copyTo(final byte[] original, final int newLength) {
+    public static byte[] copyOf(final byte[] original, final int newLength) {
         final byte[] copy = allocateByteArray(newLength);
         System.arraycopy(original, 0, copy, 0, Math.min(original.length, newLength));
         return copy;
