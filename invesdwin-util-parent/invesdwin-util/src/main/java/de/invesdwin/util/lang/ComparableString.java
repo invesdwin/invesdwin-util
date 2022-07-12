@@ -12,18 +12,49 @@ import javax.annotation.concurrent.NotThreadSafe;
 @SuppressWarnings("rawtypes")
 public class ComparableString<E extends Comparable> implements Comparable<Object>, Serializable, CharSequence {
 
-    private final String str;
     private final E comparable;
+    private final String str;
 
-    public ComparableString(final String str, final E comparable) {
-        this.str = str;
+    public ComparableString(final E comparable) {
         this.comparable = comparable;
+        this.str = Strings.asString(comparable);
+    }
+
+    public ComparableString(final E comparable, final String str) {
+        this.comparable = comparable;
+        this.str = Strings.asString(str);
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public int compareTo(final Object o) {
-        return comparable.compareTo(maybeUnwrapComparable(o));
+        final Comparable oComparable = maybeUnwrapComparable(o);
+        if (comparable == null && oComparable == null) {
+            return 0;
+        } else if (comparable == null) {
+            return -1;
+        } else if (oComparable == null) {
+            return 1;
+        }
+        if (comparable.getClass().isAssignableFrom(oComparable.getClass())) {
+            return comparable.compareTo(oComparable);
+        } else {
+            return compareToFallback(o);
+        }
+    }
+
+    protected int compareToFallback(final Object o) {
+        //fallback to string comparison
+        final String oStr = Strings.asString(o);
+        if (str == null && oStr == null) {
+            return 0;
+        } else if (str == null) {
+            return -1;
+        } else if (oStr == null) {
+            return 1;
+        }
+        //sort it below a real value (below a negative number for example)
+        return -str.compareTo(oStr);
     }
 
     @Override
@@ -67,6 +98,14 @@ public class ComparableString<E extends Comparable> implements Comparable<Object
     @Override
     public CharSequence subSequence(final int start, final int end) {
         return str.subSequence(start, end);
+    }
+
+    public static <T extends Comparable> ComparableString<T> valueOf(final T comparable, final String str) {
+        return new ComparableString<>(comparable, str);
+    }
+
+    public static <T extends Comparable> ComparableString<T> valueOf(final T comparable) {
+        return new ComparableString<>(comparable);
     }
 
 }
