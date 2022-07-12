@@ -12,8 +12,8 @@ import javax.annotation.concurrent.NotThreadSafe;
 @SuppressWarnings("rawtypes")
 public class ComparableString<E extends Comparable> implements Comparable<Object>, Serializable, CharSequence {
 
-    private final E comparable;
-    private final String str;
+    protected final E comparable;
+    protected final String str;
 
     public ComparableString(final E comparable) {
         this.comparable = comparable;
@@ -37,10 +37,15 @@ public class ComparableString<E extends Comparable> implements Comparable<Object
             return 1;
         }
         if (comparable.getClass().isAssignableFrom(oComparable.getClass())) {
-            return comparable.compareTo(oComparable);
+            return compareToTypeSafe((E) oComparable);
         } else {
             return compareToFallback(o);
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    protected int compareToTypeSafe(final E oComparable) {
+        return comparable.compareTo(oComparable);
     }
 
     protected int compareToFallback(final Object o) {
@@ -64,7 +69,7 @@ public class ComparableString<E extends Comparable> implements Comparable<Object
 
     @Override
     public boolean equals(final Object obj) {
-        return comparable.equals(maybeUnwrapComparable(obj));
+        return Objects.equals(comparable, maybeUnwrapComparable(obj));
     }
 
     @Override
@@ -76,7 +81,7 @@ public class ComparableString<E extends Comparable> implements Comparable<Object
         return comparable;
     }
 
-    public static Comparable maybeUnwrapComparable(final Object obj) {
+    private static Comparable maybeUnwrapComparable(final Object obj) {
         if (obj instanceof ComparableString) {
             final ComparableString cObj = (ComparableString) obj;
             return cObj.comparable;
@@ -101,11 +106,19 @@ public class ComparableString<E extends Comparable> implements Comparable<Object
     }
 
     public static <T extends Comparable> ComparableString<T> valueOf(final T comparable, final String str) {
-        return new ComparableString<>(comparable, str);
+        if (comparable == null && str == null) {
+            return null;
+        } else {
+            return new ComparableString<>(comparable, str);
+        }
     }
 
     public static <T extends Comparable> ComparableString<T> valueOf(final T comparable) {
-        return new ComparableString<>(comparable);
+        if (comparable == null) {
+            return null;
+        } else {
+            return new ComparableString<>(comparable);
+        }
     }
 
 }

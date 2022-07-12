@@ -44,12 +44,6 @@ public class ResizingDelegateTableCellRenderer implements TableCellRenderer {
 
     protected void resizeColumn(final JTable table, final boolean isSelected, final int row, final int column,
             final Component component) {
-        if (isSelected) {
-            Components.setBackground(component, table.getSelectionBackground());
-        } else {
-            Components.setBackground(component, table.getBackground());
-        }
-
         if (component instanceof JLabel) {
             final JLabel lbl = (JLabel) component;
             resizeLabelColumn(table, column, lbl);

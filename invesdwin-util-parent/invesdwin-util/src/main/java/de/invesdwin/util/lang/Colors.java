@@ -91,15 +91,16 @@ public final class Colors {
      * https://stackoverflow.com/questions/4672271/reverse-opposing-colors
      */
     public static Color getContrastColor(final Color color, final Color dark, final Color bright) {
-        final double y = (299 * color.getRed() + 587 * color.getGreen() + 114 * color.getBlue()) / 1000;
-        return y >= 128 ? dark : bright;
+        return isBrightColor(color) ? dark : bright;
     }
 
-    public static int getComplementaryColor(final Color colorToInvert) {
-        final float[] hsb = new float[3];
-        Color.RGBtoHSB(colorToInvert.getRed(), colorToInvert.getGreen(), colorToInvert.getBlue(), hsb);
-        hsb[0] = (hsb[0] + 180) % 360;
-        return Color.HSBtoRGB(hsb[0], hsb[1], hsb[2]);
+    public static boolean isBrightColor(final Color color) {
+        final double y = (299 * color.getRed() + 587 * color.getGreen() + 114 * color.getBlue()) / 1000;
+        return y >= 128;
+    }
+
+    public static boolean isDarkColor(final Color color) {
+        return !isBrightColor(color);
     }
 
 }
