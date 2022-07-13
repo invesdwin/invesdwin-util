@@ -79,6 +79,9 @@ public abstract class AFastIterableDelegateMap<K, V> implements IFastIterableMap
 
     @Override
     public void clear() {
+        if (delegate.isEmpty()) {
+            return;
+        }
         delegate.clear();
         fastIterable = new BufferingIterator<Entry<K, V>>();
         entryArray = null;

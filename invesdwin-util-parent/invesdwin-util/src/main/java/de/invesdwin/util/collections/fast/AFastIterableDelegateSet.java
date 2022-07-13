@@ -88,6 +88,9 @@ public abstract class AFastIterableDelegateSet<E> implements IFastIterableSet<E>
 
     @Override
     public void clear() {
+        if (delegate.isEmpty()) {
+            return;
+        }
         delegate.clear();
         fastIterable = new BufferingIterator<E>();
         array = null;

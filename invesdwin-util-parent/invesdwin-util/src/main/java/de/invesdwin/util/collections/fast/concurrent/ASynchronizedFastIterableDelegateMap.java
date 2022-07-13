@@ -88,6 +88,9 @@ public abstract class ASynchronizedFastIterableDelegateMap<K, V> implements IFas
 
     @Override
     public synchronized void clear() {
+        if (delegate.isEmpty()) {
+            return;
+        }
         delegate.clear();
         fastIterable = new BufferingIterator<Entry<K, V>>();
         entryArray = null;

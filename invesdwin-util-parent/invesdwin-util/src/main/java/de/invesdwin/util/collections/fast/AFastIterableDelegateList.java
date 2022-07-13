@@ -104,6 +104,9 @@ public abstract class AFastIterableDelegateList<E> implements IFastIterableList<
 
     @Override
     public void clear() {
+        if (delegate.isEmpty()) {
+            return;
+        }
         delegate.clear();
         fastIterable = new BufferingIterator<E>();
         array = null;

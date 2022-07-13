@@ -94,6 +94,9 @@ public abstract class ASynchronizedFastIterableDelegateSet<E> implements IFastIt
 
     @Override
     public synchronized void clear() {
+        if (delegate.isEmpty()) {
+            return;
+        }
         delegate.clear();
         fastIterable = new BufferingIterator<E>();
         array = null;
