@@ -219,8 +219,10 @@ public class AgronaDelegateMutableByteBuffer implements IByteBuffer {
 
     @Override
     public void getBytes(final int index, final IByteBuffer dstBuffer, final int dstIndex, final int length) {
-        if (dstBuffer.directBuffer() != null) {
-            delegate.getBytes(index, dstBuffer.directBuffer(), dstIndex, length);
+        final MutableDirectBuffer directBuffer = dstBuffer.directBuffer();
+        if (directBuffer != null) {
+            delegate.getBytes(index, directBuffer,
+                    dstIndex + dstBuffer.wrapAdjustment() - directBuffer.wrapAdjustment(), length);
         } else if (dstBuffer.nioByteBuffer() != null) {
             delegate.getBytes(index, dstBuffer.nioByteBuffer(), dstIndex + dstBuffer.wrapAdjustment(), length);
         } else if (dstBuffer.byteArray() != null) {
@@ -391,8 +393,10 @@ public class AgronaDelegateMutableByteBuffer implements IByteBuffer {
 
     @Override
     public void putBytes(final int index, final IByteBuffer srcBuffer, final int srcIndex, final int length) {
-        if (srcBuffer.directBuffer() != null) {
-            delegate.putBytes(index, srcBuffer.directBuffer(), srcIndex, length);
+        final MutableDirectBuffer directBuffer = srcBuffer.directBuffer();
+        if (directBuffer != null) {
+            delegate.putBytes(index, directBuffer,
+                    srcIndex + srcBuffer.wrapAdjustment() - directBuffer.wrapAdjustment(), length);
         } else if (srcBuffer.nioByteBuffer() != null) {
             delegate.putBytes(index, srcBuffer.nioByteBuffer(), srcIndex + srcBuffer.wrapAdjustment(), length);
         } else if (srcBuffer.byteArray() != null) {

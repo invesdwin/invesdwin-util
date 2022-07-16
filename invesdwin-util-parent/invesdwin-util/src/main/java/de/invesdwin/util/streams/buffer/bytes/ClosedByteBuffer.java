@@ -186,8 +186,10 @@ public class ClosedByteBuffer implements IByteBuffer {
 
     @Override
     public void getBytes(final int index, final IByteBuffer dstBuffer, final int dstIndex, final int length) {
-        if (dstBuffer.directBuffer() != null) {
-            CLOSED_DIRECT_BUFFER.getBytes(index, dstBuffer.directBuffer(), dstIndex, length);
+        final MutableDirectBuffer directBuffer = dstBuffer.directBuffer();
+        if (directBuffer != null) {
+            CLOSED_DIRECT_BUFFER.getBytes(index, directBuffer,
+                    dstIndex + dstBuffer.wrapAdjustment() - directBuffer.wrapAdjustment(), length);
         } else if (dstBuffer.nioByteBuffer() != null) {
             CLOSED_DIRECT_BUFFER.getBytes(index, dstBuffer.nioByteBuffer(), dstIndex + dstBuffer.wrapAdjustment(),
                     length);

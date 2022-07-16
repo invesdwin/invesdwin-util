@@ -82,8 +82,10 @@ public class UnsafeByteBuffer extends UnsafeBuffer implements IByteBuffer {
 
     @Override
     public void getBytes(final int index, final IByteBuffer dstBuffer, final int dstIndex, final int length) {
-        if (dstBuffer.directBuffer() != null) {
-            getBytes(index, dstBuffer.directBuffer(), dstIndex, length);
+        final MutableDirectBuffer directBuffer = dstBuffer.directBuffer();
+        if (directBuffer != null) {
+            getBytes(index, directBuffer, dstIndex + dstBuffer.wrapAdjustment() - directBuffer.wrapAdjustment(),
+                    length);
         } else if (dstBuffer.nioByteBuffer() != null) {
             getBytes(index, dstBuffer.nioByteBuffer(), dstIndex + dstBuffer.wrapAdjustment(), length);
         } else if (dstBuffer.byteArray() != null) {
@@ -105,8 +107,10 @@ public class UnsafeByteBuffer extends UnsafeBuffer implements IByteBuffer {
     @Override
     public void putBytes(final int index, final IByteBuffer srcBuffer, final int srcIndex, final int length) {
         //wrapadjustment only needed for byteArray
-        if (srcBuffer.directBuffer() != null) {
-            putBytes(index, srcBuffer.directBuffer(), srcIndex, length);
+        final MutableDirectBuffer directBuffer = srcBuffer.directBuffer();
+        if (directBuffer != null) {
+            putBytes(index, directBuffer, srcIndex + srcBuffer.wrapAdjustment() - directBuffer.wrapAdjustment(),
+                    length);
         } else if (srcBuffer.nioByteBuffer() != null) {
             putBytes(index, srcBuffer.nioByteBuffer(), srcIndex + srcBuffer.wrapAdjustment(), length);
         } else if (srcBuffer.byteArray() != null) {

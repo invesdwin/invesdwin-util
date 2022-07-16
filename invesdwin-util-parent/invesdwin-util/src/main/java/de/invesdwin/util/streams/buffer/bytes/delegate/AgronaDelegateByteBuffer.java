@@ -218,8 +218,10 @@ public class AgronaDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public void getBytes(final int index, final IByteBuffer dstBuffer, final int dstIndex, final int length) {
-        if (dstBuffer.directBuffer() != null) {
-            delegate.getBytes(index, dstBuffer.directBuffer(), dstIndex, length);
+        final MutableDirectBuffer directBuffer = dstBuffer.directBuffer();
+        if (directBuffer != null) {
+            delegate.getBytes(index, directBuffer,
+                    dstIndex + dstBuffer.wrapAdjustment() - directBuffer.wrapAdjustment(), length);
         } else if (dstBuffer.nioByteBuffer() != null) {
             delegate.getBytes(index, dstBuffer.nioByteBuffer(), dstIndex + dstBuffer.wrapAdjustment(), length);
         } else if (dstBuffer.byteArray() != null) {
@@ -379,6 +381,11 @@ public class AgronaDelegateByteBuffer implements IByteBuffer {
     @Override
     public InputStream asInputStream(final int index, final int length) {
         return new DirectBufferInputStream(delegate, index, length);
+    }
+
+    @Override
+    public OutputStream asOutputStreamFrom(final int index) {
+        throw newReadOnlyException();
     }
 
     @Override
