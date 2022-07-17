@@ -25,6 +25,8 @@ public final class Bytes extends ABytesStaticFacade {
     public static final Byte DEFAULT_MISSING_VALUE_OBJ = DEFAULT_MISSING_VALUE;
     public static final IComparator<Byte> COMPARATOR = IComparator.getDefaultInstance();
 
+    public static final byte ONE = (byte) 1;
+    public static final byte ZERO = (byte) 0;
     public static final byte MINUES_ONE = (byte) -1;
 
     private Bytes() {

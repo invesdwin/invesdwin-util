@@ -23,6 +23,10 @@ public final class OutputStreams {
         out.write(b);
     }
 
+    public static void write(final OutputStream out, final byte[] b) throws IOException {
+        out.write(b);
+    }
+
     public static void write(final OutputStream out, final byte[] b, final int off, final int len) throws IOException {
         out.write(b, off, len);
     }
