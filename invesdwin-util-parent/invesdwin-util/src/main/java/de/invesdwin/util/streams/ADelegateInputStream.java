@@ -64,16 +64,50 @@ public abstract class ADelegateInputStream extends InputStream {
 
     @Override
     public int read() throws IOException {
-        if (finalizer.debugStackTraceEnabled && finalizer.readStackTrace == null) {
-            finalizer.initStackTrace = null;
-            finalizer.readStackTrace = new Exception();
-            finalizer.readStackTrace.fillInStackTrace();
-        }
+        onRead();
         final int read = getDelegate().read();
         if (shouldCloseOnMinus1Read() && read == -1) {
             close();
         }
         return read;
+    }
+
+    @Override
+    public int read(final byte[] b) throws IOException {
+        onRead();
+        return getDelegate().read(b);
+    }
+
+    @Override
+    public int read(final byte[] b, final int off, final int len) throws IOException {
+        onRead();
+        return getDelegate().read(b, off, len);
+    }
+
+    @Override
+    public byte[] readAllBytes() throws IOException {
+        onRead();
+        return getDelegate().readAllBytes();
+    }
+
+    @Override
+    public int readNBytes(final byte[] b, final int off, final int len) throws IOException {
+        onRead();
+        return getDelegate().readNBytes(b, off, len);
+    }
+
+    @Override
+    public byte[] readNBytes(final int len) throws IOException {
+        onRead();
+        return getDelegate().readNBytes(len);
+    }
+
+    private void onRead() {
+        if (finalizer.debugStackTraceEnabled && finalizer.readStackTrace == null) {
+            finalizer.initStackTrace = null;
+            finalizer.readStackTrace = new Exception();
+            finalizer.readStackTrace.fillInStackTrace();
+        }
     }
 
     protected boolean shouldCloseOnMinus1Read() {

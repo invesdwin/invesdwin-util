@@ -45,12 +45,28 @@ public abstract class ADelegateOutputStream extends OutputStream {
 
     @Override
     public void write(final int b) throws IOException {
+        onWrite();
+        getDelegate().write(b);
+    }
+
+    @Override
+    public void write(final byte[] b) throws IOException {
+        onWrite();
+        getDelegate().write(b);
+    }
+
+    @Override
+    public void write(final byte[] b, final int off, final int len) throws IOException {
+        onWrite();
+        getDelegate().write(b, off, len);
+    }
+
+    private void onWrite() {
         if (finalizer.debugStackTraceEnabled && finalizer.readStackTrace == null) {
             finalizer.initStackTrace = null;
             finalizer.readStackTrace = new Exception();
             finalizer.readStackTrace.fillInStackTrace();
         }
-        getDelegate().write(b);
     }
 
     @Override
