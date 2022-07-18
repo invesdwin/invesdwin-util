@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -64,7 +65,11 @@ public final class Objects extends AObjectsStaticFacade {
     public static boolean equals(@Nullable final Object a, @Nullable final Object b) {
         //CHECKSTYLE:ON
         if (a != null && a.getClass().isArray() && b != null && b.getClass().isArray()) {
-            if (Array.getLength(a) == 0 && Array.getLength(b) == 0) {
+            final int aLength = Array.getLength(a);
+            final int bLength = Array.getLength(b);
+            if (aLength != bLength) {
+                return false;
+            } else if (aLength == 0 && bLength == 0) {
                 return true;
             } else if (a instanceof boolean[] && b instanceof boolean[]) {
                 return Arrays.equals((boolean[]) a, (boolean[]) b);
@@ -86,6 +91,18 @@ public final class Objects extends AObjectsStaticFacade {
                 return Arrays.deepEquals((Object[]) a, (Object[]) b);
             }
         }
+        if (a instanceof Collection && b instanceof Collection) {
+            final Collection<?> cA = (Collection<?>) a;
+            final Collection<?> cB = (Collection<?>) b;
+            final int aSize = cA.size();
+            final int bSize = cB.size();
+            if (aSize != bSize) {
+                return false;
+            } else if (cA.size() == 0 && cB.size() == 0) {
+                return true;
+            }
+        }
+
         return com.google.common.base.Objects.equal(a, b);
     }
 
