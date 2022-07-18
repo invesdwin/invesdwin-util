@@ -187,4 +187,33 @@ public final class Floats extends AFloatsStaticFacade {
     public static float abs(final float value) {
         return Math.abs(value);
     }
+
+    public static int compare(final Float a, final Float b) {
+        if (a == null && b == null) {
+            return 0;
+        } else if (a == null) {
+            return -1;
+        } else if (b == null) {
+            return 1;
+        }
+        return compare(a.floatValue(), b.floatValue());
+    }
+
+    public static int compare(final Float a, final float b) {
+        if (a == null) {
+            return -1;
+        }
+        return compare(a.floatValue(), b);
+    }
+
+    public static int compare(final float a, final Float b) {
+        if (b == null) {
+            return 1;
+        }
+        return compare(a, b.floatValue());
+    }
+
+    public static int compare(final float a, final float b) {
+        return Float.compare(a, b);
+    }
 }

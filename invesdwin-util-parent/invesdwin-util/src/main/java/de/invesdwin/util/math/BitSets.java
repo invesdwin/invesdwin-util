@@ -1,7 +1,5 @@
 package de.invesdwin.util.math;
 
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodHandles.Lookup;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -45,8 +43,6 @@ public final class BitSets extends ABitSetsStaticFacade {
             final long bitSetBitIndexMaskFieldOffset = Reflections.getUnsafe()
                     .staticFieldOffset(bitSetBitIndexMaskField);
             BIT_INDEX_MASK = Reflections.getUnsafe().getInt(BitSet.class, bitSetBitIndexMaskFieldOffset);
-
-            final Lookup lookup = MethodHandles.lookup();
 
             final Field bitSetWordsField = Reflections.findField(BitSet.class, "words");
             BITSET_WORDS_OFFSET = Reflections.getUnsafe().objectFieldOffset(bitSetWordsField);

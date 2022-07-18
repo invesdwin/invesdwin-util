@@ -209,4 +209,33 @@ public final class Bytes extends ABytesStaticFacade {
         return Objects.fixInconsistentMatrixDimensionsAsList(matrix, missingValue, appendMissingValues);
     }
 
+    public static int compare(final Byte a, final Byte b) {
+        if (a == null && b == null) {
+            return 0;
+        } else if (a == null) {
+            return -1;
+        } else if (b == null) {
+            return 1;
+        }
+        return compare(a.byteValue(), b.byteValue());
+    }
+
+    public static int compare(final Byte a, final int b) {
+        if (a == null) {
+            return -1;
+        }
+        return compare(a.byteValue(), b);
+    }
+
+    public static int compare(final int a, final Byte b) {
+        if (b == null) {
+            return 1;
+        }
+        return compare(a, b.byteValue());
+    }
+
+    public static int compare(final byte a, final byte b) {
+        return Byte.compare(a, b);
+    }
+
 }

@@ -203,4 +203,33 @@ public final class Shorts extends AShortsStaticFacade {
         return Objects.fixInconsistentMatrixDimensionsAsList(matrix, missingValue, appendMissingValues);
     }
 
+    public static int compare(final Short a, final Short b) {
+        if (a == null && b == null) {
+            return 0;
+        } else if (a == null) {
+            return -1;
+        } else if (b == null) {
+            return 1;
+        }
+        return compare(a.shortValue(), b.shortValue());
+    }
+
+    public static int compare(final Short a, final short b) {
+        if (a == null) {
+            return -1;
+        }
+        return compare(a.shortValue(), b);
+    }
+
+    public static int compare(final short a, final Short b) {
+        if (b == null) {
+            return 1;
+        }
+        return compare(a, b.shortValue());
+    }
+
+    public static int compare(final short a, final short b) {
+        return Short.compare(a, b);
+    }
+
 }

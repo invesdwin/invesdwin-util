@@ -419,4 +419,8 @@ public final class Integers extends AIntegersStaticFacade {
         return compare(a, b.intValue());
     }
 
+    public static int compare(final int a, final int b) {
+        return Integer.compare(a, b);
+    }
+
 }

@@ -221,4 +221,33 @@ public final class Booleans extends ABooleansStaticFacade {
         return value;
     }
 
+    public static int compare(final Boolean a, final Boolean b) {
+        if (a == null && b == null) {
+            return 0;
+        } else if (a == null) {
+            return -1;
+        } else if (b == null) {
+            return 1;
+        }
+        return compare(a.booleanValue(), b.booleanValue());
+    }
+
+    public static int compare(final Boolean a, final boolean b) {
+        if (a == null) {
+            return -1;
+        }
+        return compare(a.booleanValue(), b);
+    }
+
+    public static int compare(final boolean a, final Boolean b) {
+        if (b == null) {
+            return 1;
+        }
+        return compare(a, b.booleanValue());
+    }
+
+    public static int compare(final boolean a, final boolean b) {
+        return Boolean.compare(a, b);
+    }
+
 }

@@ -247,4 +247,33 @@ public final class Longs extends ALongsStaticFacade {
         return min <= value && value <= max;
     }
 
+    public static int compare(final Long a, final Long b) {
+        if (a == null && b == null) {
+            return 0;
+        } else if (a == null) {
+            return -1;
+        } else if (b == null) {
+            return 1;
+        }
+        return compare(a.longValue(), b.longValue());
+    }
+
+    public static int compare(final Long a, final long b) {
+        if (a == null) {
+            return -1;
+        }
+        return compare(a.longValue(), b);
+    }
+
+    public static int compare(final long a, final Long b) {
+        if (b == null) {
+            return 1;
+        }
+        return compare(a, b.longValue());
+    }
+
+    public static int compare(final long a, final long b) {
+        return Long.compare(a, b);
+    }
+
 }

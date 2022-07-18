@@ -86,4 +86,15 @@ public final class BigDecimals {
         return Objects.fixInconsistentMatrixDimensionsAsList(matrix, missingValue, appendMissingValues);
     }
 
+    public static int compare(final BigDecimal a, final BigDecimal b) {
+        if (a == null && b == null) {
+            return 0;
+        } else if (a == null) {
+            return -1;
+        } else if (b == null) {
+            return 1;
+        }
+        return a.compareTo(b);
+    }
+
 }

@@ -207,4 +207,33 @@ public final class Characters extends ACharactersStaticFacade {
         return Objects.fixInconsistentMatrixDimensionsAsList(matrix, missingValue, appendMissingValues);
     }
 
+    public static int compare(final Character a, final Character b) {
+        if (a == null && b == null) {
+            return 0;
+        } else if (a == null) {
+            return -1;
+        } else if (b == null) {
+            return 1;
+        }
+        return compare(a.charValue(), b.charValue());
+    }
+
+    public static int compare(final Character a, final char b) {
+        if (a == null) {
+            return -1;
+        }
+        return compare(a.charValue(), b);
+    }
+
+    public static int compare(final char a, final Character b) {
+        if (b == null) {
+            return 1;
+        }
+        return compare(a, b.charValue());
+    }
+
+    public static int compare(final char a, final char b) {
+        return Character.compare(a, b);
+    }
+
 }
