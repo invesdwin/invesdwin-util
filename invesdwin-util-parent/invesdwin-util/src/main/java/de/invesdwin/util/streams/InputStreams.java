@@ -230,6 +230,7 @@ public final class InputStreams {
     public static void readFully(final ReadableByteChannel src, final java.nio.ByteBuffer byteBuffer)
             throws IOException {
         int remaining = byteBuffer.remaining();
+        final int positionBefore = byteBuffer.position();
         while (remaining > 0) {
             final int count = src.read(byteBuffer);
             if (count == -1) { // EOF
@@ -237,6 +238,7 @@ public final class InputStreams {
             }
             remaining -= count;
         }
+        ByteBuffers.position(byteBuffer, positionBefore);
         if (remaining > 0) {
             throw ByteBuffers.newPutBytesToEOF();
         }
