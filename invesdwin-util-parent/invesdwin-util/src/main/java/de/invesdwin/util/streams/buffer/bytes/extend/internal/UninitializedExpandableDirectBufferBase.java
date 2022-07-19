@@ -564,7 +564,7 @@ public class UninitializedExpandableDirectBufferBase implements MutableDirectBuf
     public void getBytes(final int index, final java.nio.ByteBuffer dstBuffer, final int length) {
         final int dstOffset = dstBuffer.position();
         getBytes(index, dstBuffer, dstOffset, length);
-        dstBuffer.position(dstOffset + length);
+        ByteBuffers.position(dstBuffer, dstOffset + length);
     }
 
     /**
@@ -616,7 +616,7 @@ public class UninitializedExpandableDirectBufferBase implements MutableDirectBuf
     public void putBytes(final int index, final java.nio.ByteBuffer srcBuffer, final int length) {
         final int srcIndex = srcBuffer.position();
         putBytes(index, srcBuffer, srcIndex, length);
-        srcBuffer.position(srcIndex + length);
+        ByteBuffers.position(srcBuffer, srcIndex + length);
     }
 
     /**
@@ -1504,7 +1504,7 @@ public class UninitializedExpandableDirectBufferBase implements MutableDirectBuf
      */
     @Override
     public String toString() {
-        return "UninitializedExpandableDirectBuffer{" + "address=" + finalizer.address + ", capacity="
+        return "UninitializedExpandableDirectBufferBase{" + "address=" + finalizer.address + ", capacity="
                 + finalizer.capacity + ", byteBuffer=" + finalizer.byteBuffer + '}';
     }
 

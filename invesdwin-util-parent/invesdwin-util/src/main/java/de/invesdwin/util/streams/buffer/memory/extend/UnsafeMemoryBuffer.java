@@ -29,10 +29,10 @@ import de.invesdwin.util.streams.buffer.memory.MemoryBufferOutputStream;
 import de.invesdwin.util.streams.buffer.memory.MemoryBuffers;
 import de.invesdwin.util.streams.buffer.memory.delegate.slice.mutable.factory.FixedMutableSlicedDelegateMemoryBufferFactory;
 import de.invesdwin.util.streams.buffer.memory.delegate.slice.mutable.factory.IMutableSlicedDelegateMemoryBufferFactory;
-import de.invesdwin.util.streams.buffer.memory.extend.internal.UnsafeMemory;
+import de.invesdwin.util.streams.buffer.memory.extend.internal.UnsafeMemoryBase;
 
 @NotThreadSafe
-public class UnsafeMemoryBuffer extends UnsafeMemory implements IMemoryBuffer {
+public class UnsafeMemoryBuffer extends UnsafeMemoryBase implements IMemoryBuffer {
 
     private IMutableSlicedDelegateMemoryBufferFactory mutableSliceFactory;
 

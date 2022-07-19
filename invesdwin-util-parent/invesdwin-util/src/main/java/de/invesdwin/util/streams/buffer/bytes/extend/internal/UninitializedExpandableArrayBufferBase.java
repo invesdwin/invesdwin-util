@@ -517,7 +517,7 @@ public class UninitializedExpandableArrayBufferBase implements MutableDirectBuff
     public void getBytes(final int index, final java.nio.ByteBuffer dstBuffer, final int length) {
         final int dstOffset = dstBuffer.position();
         getBytes(index, dstBuffer, dstOffset, length);
-        dstBuffer.position(dstOffset + length);
+        ByteBuffers.position(dstBuffer, dstOffset + length);
     }
 
     /**
@@ -566,7 +566,7 @@ public class UninitializedExpandableArrayBufferBase implements MutableDirectBuff
     public void putBytes(final int index, final java.nio.ByteBuffer srcBuffer, final int length) {
         final int srcIndex = srcBuffer.position();
         putBytes(index, srcBuffer, srcIndex, length);
-        srcBuffer.position(srcIndex + length);
+        ByteBuffers.position(srcBuffer, srcIndex + length);
     }
 
     /**
@@ -1418,7 +1418,7 @@ public class UninitializedExpandableArrayBufferBase implements MutableDirectBuff
      */
     @Override
     public String toString() {
-        return "UninitializedExpandableArrayBuffer{" + "byteArray=" + byteArray + // lgtm [java/print-array]
+        return "UninitializedExpandableArrayBufferBase{" + "byteArray=" + byteArray + // lgtm [java/print-array]
                 " byteArray.length" + (null == byteArray ? 0 : byteArray.length) + '}';
     }
 

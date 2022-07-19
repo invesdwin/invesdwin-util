@@ -90,7 +90,7 @@ public class BufferedFileDataInputStream extends InputStream implements DataInpu
     }
 
     private boolean fillBuffer() throws IOException {
-        nioBuffer.position(0);
+        ByteBuffers.position(nioBuffer, 0);
         final int limit = (int) Math.min((channelLimit - channel.position()), nioBuffer.capacity());
         nioBuffer.limit(limit);
         if (limit == 0) {
@@ -138,7 +138,7 @@ public class BufferedFileDataInputStream extends InputStream implements DataInpu
 
     public void position(final long addr) throws IOException {
         if (addr >= bufferPos && addr <= bufferPos + nioBuffer.limit()) {
-            nioBuffer.position((int) (addr - bufferPos));
+            ByteBuffers.position(nioBuffer, (int) (addr - bufferPos));
         } else {
             channel.position(addr);
             bufferPos = addr;
