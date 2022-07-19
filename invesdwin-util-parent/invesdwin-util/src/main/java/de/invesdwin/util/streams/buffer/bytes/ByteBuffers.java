@@ -446,9 +446,8 @@ public final class ByteBuffers {
 
     public static int readExpandable(final DataInput src, final IByteBuffer buffer, final int index)
             throws IOException {
-        if (src instanceof FileInputStream) {
-            final FileInputStream cSrc = (FileInputStream) src;
-            return readExpandable(cSrc.getChannel(), buffer, index);
+        if (src instanceof ReadableByteChannel) {
+            return readExpandable((ReadableByteChannel) src, buffer, index);
         } else {
             int location = index;
             while (true) {
@@ -469,9 +468,13 @@ public final class ByteBuffers {
 
     public static int readExpandable(final InputStream src, final IByteBuffer buffer, final int index)
             throws IOException {
-        if (src instanceof FileInputStream) {
+        if (src instanceof ReadableByteChannel) {
+            return readExpandable((ReadableByteChannel) src, buffer, index);
+        } else if (src instanceof FileInputStream) {
             final FileInputStream cSrc = (FileInputStream) src;
             return readExpandable(cSrc.getChannel(), buffer, index);
+        } else if (src instanceof DataInput) {
+            return readExpandable((DataInput) src, buffer, index);
         } else {
             int location = index;
             while (true) {

@@ -2,10 +2,14 @@ package de.invesdwin.util.streams.buffer.memory.delegate;
 
 import java.io.DataInput;
 import java.io.DataOutput;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteOrder;
+import java.nio.channels.ReadableByteChannel;
+import java.nio.channels.WritableByteChannel;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
@@ -558,44 +562,70 @@ public class ChronicleDelegateMemoryBuffer implements IMemoryBuffer {
 
     @Override
     public void getBytesTo(final long index, final DataOutput dst, final long length) throws IOException {
-        long i = index;
-        while (i < length) {
-            final byte b = delegate.readByte(i);
-            dst.write(b);
-            i++;
+        if (dst instanceof WritableByteChannel) {
+            getBytesTo(index, (WritableByteChannel) dst, length);
+        } else {
+            long i = index;
+            while (i < length) {
+                final byte b = delegate.readByte(i);
+                dst.write(b);
+                i++;
+            }
         }
     }
 
     @Override
     public void getBytesTo(final long index, final OutputStream dst, final long length) throws IOException {
-        long i = index;
-        while (i < length) {
-            final byte b = delegate.readByte(i);
-            dst.write(b);
-            i++;
+        if (dst instanceof WritableByteChannel) {
+            getBytesTo(index, (WritableByteChannel) dst, length);
+        } else if (dst instanceof FileOutputStream) {
+            final FileOutputStream cDst = (FileOutputStream) dst;
+            getBytesTo(index, cDst.getChannel(), length);
+        } else if (dst instanceof DataOutput) {
+            getBytesTo(index, (DataOutput) dst, length);
+        } else {
+            long i = index;
+            while (i < length) {
+                final byte b = delegate.readByte(i);
+                dst.write(b);
+                i++;
+            }
         }
     }
 
     @Override
     public void putBytesTo(final long index, final DataInput src, final long length) throws IOException {
-        long i = index;
-        while (i < length) {
-            final byte b = src.readByte();
-            delegate.writeByte(i, b);
-            i++;
+        if (src instanceof ReadableByteChannel) {
+            putBytesTo(index, (ReadableByteChannel) src, length);
+        } else {
+            long i = index;
+            while (i < length) {
+                final byte b = src.readByte();
+                delegate.writeByte(i, b);
+                i++;
+            }
         }
     }
 
     @Override
     public void putBytesTo(final long index, final InputStream src, final long length) throws IOException {
-        long i = index;
-        while (i < length) {
-            final int result = src.read();
-            if (result < 0) {
-                throw ByteBuffers.newPutBytesToEOF();
+        if (src instanceof ReadableByteChannel) {
+            putBytesTo(index, (ReadableByteChannel) src, length);
+        } else if (src instanceof FileInputStream) {
+            final FileInputStream cSrc = (FileInputStream) src;
+            putBytesTo(index, cSrc.getChannel(), length);
+        } else if (src instanceof DataInput) {
+            putBytesTo(index, (DataInput) src, length);
+        } else {
+            long i = index;
+            while (i < length) {
+                final int result = src.read();
+                if (result < 0) {
+                    throw ByteBuffers.newPutBytesToEOF();
+                }
+                delegate.writeByte(i, (byte) result);
+                i++;
             }
-            delegate.writeByte(i, (byte) result);
-            i++;
         }
     }
 
