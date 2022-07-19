@@ -1,10 +1,12 @@
 package de.invesdwin.util.concurrent.pool;
 
 import java.util.Map;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.Lock;
 
 import javax.annotation.concurrent.ThreadSafe;
 
+import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
 
 import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
@@ -13,6 +15,7 @@ import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.decimal.scaled.Percent;
 import de.invesdwin.util.math.decimal.scaled.PercentScale;
+import de.invesdwin.util.time.Instant;
 import de.invesdwin.util.time.date.FTimeUnit;
 import de.invesdwin.util.time.duration.Duration;
 
@@ -29,6 +32,7 @@ public final class MemoryLimit {
      * Check each 100ms if we can use the cache again or should clear it again.
      */
     private static final Duration MEMORY_LIMIT_REACHED_CHECK_INTERVAL = new Duration(100, FTimeUnit.MILLISECONDS);
+    private static final Duration CLEAR_CACHE_INTERVAL = Duration.ONE_MINUTE;
     private static final AtomicLoopInterruptedCheck MEMORY_LIMIT_REACHED_CHECK = new AtomicLoopInterruptedCheck(
             MEMORY_LIMIT_REACHED_CHECK_INTERVAL) {
         @Override
@@ -39,6 +43,11 @@ public final class MemoryLimit {
     private static volatile boolean prevMemoryLimitReached = false;
     private static volatile double prevFreeMemoryRate = getFreeMemoryRate();
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(MemoryLimit.class);
+    private static final ConcurrentMap<Integer, Instant> IDENTITY_LASTCLEAR;
+
+    static {
+        IDENTITY_LASTCLEAR = Caffeine.newBuilder().maximumSize(10_000).<Integer, Instant> build().asMap();
+    }
 
     private MemoryLimit() {
     }
@@ -75,8 +84,13 @@ public final class MemoryLimit {
             if (lock.tryLock()) {
                 try {
                     if (cache.estimatedSize() >= MemoryLimit.CLEAR_CACHE_MIN_COUNT) {
-                        logWarning(holder, name, cache.estimatedSize());
-                        cache.asMap().clear();
+                        final int cacheIdentity = System.identityHashCode(holder);
+                        final Instant lastClear = IDENTITY_LASTCLEAR.get(cacheIdentity);
+                        if (lastClear == null || lastClear.isGreaterThan(CLEAR_CACHE_INTERVAL)) {
+                            logWarning(holder, name, cache.estimatedSize());
+                            cache.asMap().clear();
+                            IDENTITY_LASTCLEAR.put(cacheIdentity, new Instant());
+                        }
                     }
                 } finally {
                     lock.unlock();
@@ -113,8 +127,13 @@ public final class MemoryLimit {
         if (cache.size() >= CLEAR_CACHE_MIN_COUNT) {
             synchronized (cache) {
                 if (cache.size() >= CLEAR_CACHE_MIN_COUNT) {
-                    logWarning(holder, name, cache.size());
-                    cache.clear();
+                    final int cacheIdentity = System.identityHashCode(holder);
+                    final Instant lastClear = IDENTITY_LASTCLEAR.get(cacheIdentity);
+                    if (lastClear == null || lastClear.isGreaterThan(CLEAR_CACHE_INTERVAL)) {
+                        logWarning(holder, name, cache.size());
+                        cache.clear();
+                        IDENTITY_LASTCLEAR.put(cacheIdentity, new Instant());
+                    }
                 }
             }
         }
