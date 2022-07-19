@@ -43,6 +43,50 @@ public final class Strings extends AStringsStaticFacade {
 
     private static final Map<String, String> SYMBOL_ESCAPEDHTML = new HashMap<String, String>();
 
+    private static final String[] AS_STRING_SPACES_SEARCH = new String[] { //
+            "|", //
+            "[", //
+            "]", //
+            "{", //
+            "}", //
+            "->", //
+            "=>", //
+            "  ", //
+    };
+    private static final String[] AS_STRING_SPACES_REPLACE = new String[] { //
+            " | ", //
+            " [ ", //
+            " ]", //
+            "{ ", //
+            " }", //
+            " -> ", //
+            " => ", //
+            " ", //
+    };
+
+    private static final String[] AS_STRING_SPACES_HTML_SEARCH = new String[] { //
+            "|", //
+            "[", //
+            "]", //
+            "{", //
+            "}", //
+            "->", //
+            "=>", //
+            "\n", //
+            "\t", //
+    };
+    private static final String[] AS_STRING_SPACES_HTML_REPLACE = new String[] { //
+            " | ", //
+            " [ ", //
+            " ]", //
+            "{ ", //
+            " }", //
+            " -> ", //
+            " => ", //
+            "<br>", //
+            "&nbsp;&nbsp;&nbsp;&nbsp;", //
+    };
+
     static {
         SYMBOL_ESCAPEDHTML.put("ä", "&auml;");
         SYMBOL_ESCAPEDHTML.put("Ä", "&Auml;");
@@ -190,15 +234,12 @@ public final class Strings extends AStringsStaticFacade {
     }
 
     public static String asStringSpaces(final Object o) {
-        return asStringNullText(o).toString()
-                .replace("|", " | ")
-                .replace("[", " [ ")
-                .replace("]", " ]")
-                .replace("{", "{ ")
-                .replace("}", " }")
-                .replace("->", " -> ")
-                .replace("=>", " => ")
-                .replace("  ", " ");
+        return replaceEach(asStringNullText(o), AS_STRING_SPACES_SEARCH, AS_STRING_SPACES_REPLACE);
+    }
+
+    public static String asStringSpacesHtml(final Object o) {
+        return replaceEach(asStringNullText(o).replace(" ", "&nbsp;"), AS_STRING_SPACES_HTML_SEARCH,
+                AS_STRING_SPACES_HTML_REPLACE);
     }
 
     /**
