@@ -27,10 +27,15 @@ public class ReverseUnmodifiableFastIterableList<E> extends ReverseUnmodifiableL
     public E[] asArray(final E[] emptyArray) {
         final E[] asArray = getDelegate().asArray(emptyArray);
         if (prevAsArray != asArray) {
-            final E[] reverseAsArray = asArray.clone();
-            ArrayUtils.reverse(reverseAsArray);
-            prevReverseAsArray = reverseAsArray;
-            prevAsArray = asArray;
+            if (asArray.length <= 1) {
+                prevReverseAsArray = asArray;
+                prevAsArray = asArray;
+            } else {
+                final E[] reverseAsArray = asArray.clone();
+                ArrayUtils.reverse(reverseAsArray);
+                prevReverseAsArray = reverseAsArray;
+                prevAsArray = asArray;
+            }
         }
         return prevReverseAsArray;
     }
