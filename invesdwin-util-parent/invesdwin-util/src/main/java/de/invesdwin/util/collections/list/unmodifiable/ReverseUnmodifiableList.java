@@ -1,6 +1,5 @@
-package de.invesdwin.util.collections.list;
+package de.invesdwin.util.collections.list.unmodifiable;
 
-import java.util.Iterator;
 import java.util.List;
 
 import javax.annotation.concurrent.NotThreadSafe;
@@ -19,26 +18,30 @@ public class ReverseUnmodifiableList<E> extends AUnmodifiableList<E> {
         this.delegate = delegate;
     }
 
+    public List<E> getDelegate() {
+        return delegate;
+    }
+
     @Override
     public int size() {
-        return delegate.size();
+        return getDelegate().size();
     }
 
     @Override
     public boolean isEmpty() {
-        return delegate.isEmpty();
+        return getDelegate().isEmpty();
     }
 
     @Override
     public boolean contains(final Object o) {
-        return delegate.contains(o);
+        return getDelegate().contains(o);
     }
 
     @Override
-    public Iterator<E> iterator() {
+    public ICloseableIterator<E> iterator() {
         return new ICloseableIterator<E>() {
 
-            private int nextIndex = delegate.size() - 1;
+            private int nextIndex = getDelegate().size() - 1;
 
             @Override
             public boolean hasNext() {
@@ -50,7 +53,7 @@ public class ReverseUnmodifiableList<E> extends AUnmodifiableList<E> {
                 if (nextIndex < 0) {
                     throw new FastNoSuchElementException("ReverseUnmodifiableList.iterator.next() reached end");
                 }
-                final E next = delegate.get(nextIndex);
+                final E next = getDelegate().get(nextIndex);
                 nextIndex--;
                 return next;
             }
@@ -64,30 +67,30 @@ public class ReverseUnmodifiableList<E> extends AUnmodifiableList<E> {
 
     @Override
     public Object[] toArray() {
-        final Object[] array = delegate.toArray();
+        final Object[] array = getDelegate().toArray();
         ArrayUtils.reverse(array);
         return array;
     }
 
     @Override
     public <T> T[] toArray(final T[] a) {
-        final T[] array = delegate.toArray(a);
+        final T[] array = getDelegate().toArray(a);
         ArrayUtils.reverse(array);
         return array;
     }
 
     @Override
     public E get(final int index) {
-        return delegate.get(reverseIndex(index));
+        return getDelegate().get(reverseIndex(index));
     }
 
     private int reverseIndex(final int index) {
-        return delegate.size() - 1 - index;
+        return getDelegate().size() - 1 - index;
     }
 
     @Override
     public int indexOf(final Object o) {
-        final int indexOf = delegate.indexOf(o);
+        final int indexOf = getDelegate().indexOf(o);
         if (indexOf < 0) {
             return indexOf;
         } else {
@@ -97,7 +100,7 @@ public class ReverseUnmodifiableList<E> extends AUnmodifiableList<E> {
 
     @Override
     public int lastIndexOf(final Object o) {
-        final int lastIndexOf = delegate.lastIndexOf(o);
+        final int lastIndexOf = getDelegate().lastIndexOf(o);
         if (lastIndexOf < 0) {
             return lastIndexOf;
         } else {

@@ -29,7 +29,7 @@ public final class EmptyFastIterable<E> implements IFastIterable<E> {
     }
 
     @Override
-    public boolean contains(final E value) {
+    public boolean contains(final Object value) {
         return false;
     }
 

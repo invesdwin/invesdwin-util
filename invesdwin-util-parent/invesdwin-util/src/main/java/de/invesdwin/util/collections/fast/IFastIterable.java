@@ -7,7 +7,7 @@ public interface IFastIterable<E> extends ICloseableIterable<E>, ISerializableVa
 
     boolean isEmpty();
 
-    boolean contains(E value);
+    boolean contains(Object value);
 
     E[] asArray(E[] emptyArray);
 

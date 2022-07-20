@@ -24,7 +24,7 @@ public class SingleValueIterable<E> implements IFastIterable<E> {
     }
 
     @Override
-    public boolean contains(final E value) {
+    public boolean contains(final Object value) {
         return this.singleValue.equals(value);
     }
 
