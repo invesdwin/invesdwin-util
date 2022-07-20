@@ -32,6 +32,11 @@ public final class MemoryLimit {
      * Check each 100ms if we can use the cache again or should clear it again.
      */
     private static final Duration MEMORY_LIMIT_REACHED_CHECK_INTERVAL = new Duration(100, FTimeUnit.MILLISECONDS);
+    /**
+     * Each cache should only be cleared once a minute. That way other caches are more likely to be cleared as well and
+     * we don't get into a situation where the wrong cache is cleared the permanently without the memory recovering
+     * properly. Also we give a change for the GC to try to clear things up between the one minute intervals.
+     */
     private static final Duration CLEAR_CACHE_INTERVAL = Duration.ONE_MINUTE;
     private static final AtomicLoopInterruptedCheck MEMORY_LIMIT_REACHED_CHECK = new AtomicLoopInterruptedCheck(
             MEMORY_LIMIT_REACHED_CHECK_INTERVAL) {
