@@ -238,4 +238,63 @@ public final class Bytes extends ABytesStaticFacade {
         return Byte.compare(a, b);
     }
 
+    public static byte[] concatenate(final byte[] array1, final byte[] array2) {
+        if (array1.length == 0) {
+            return array2;
+        } else if (array2.length == 0) {
+            return array1;
+        }
+
+        final int length = array1.length + array2.length;
+        final byte[] newArray = new byte[length];
+        int destPos = 0;
+
+        System.arraycopy(array1, 0, newArray, destPos, array1.length);
+        destPos += array1.length;
+
+        System.arraycopy(array2, 0, newArray, destPos, array2.length);
+        destPos += array2.length;
+
+        return newArray;
+    }
+
+    public static byte[] concatenate(final byte[]... arrays) {
+        int sizedArrays = 0;
+        byte[] lastSizedArray = null;
+
+        int length = 0;
+        for (int i = 0; i < arrays.length; i++) {
+            final byte[] array = arrays[i];
+            length += array.length;
+            if (array.length > 0) {
+                sizedArrays++;
+                lastSizedArray = array;
+            }
+        }
+        if (sizedArrays == 0) {
+            return EMPTY_ARRAY;
+        } else if (sizedArrays == 1) {
+            return lastSizedArray;
+        }
+
+        final byte[] newArray = new byte[length];
+        int destPos = 0;
+        for (int i = 0; i < arrays.length; i++) {
+            final byte[] array = arrays[i];
+            System.arraycopy(array, 0, newArray, destPos, array.length);
+            destPos += array.length;
+        }
+        return newArray;
+    }
+
+    public static byte[] subArray(final byte[] array, final int beginIndex, final int endIndex) {
+        if (beginIndex == 0 && endIndex == array.length - 1) {
+            return array;
+        }
+        final int length = endIndex - beginIndex;
+        final byte[] subarray = new byte[length];
+        System.arraycopy(array, beginIndex, subarray, 0, length);
+        return subarray;
+    }
+
 }
