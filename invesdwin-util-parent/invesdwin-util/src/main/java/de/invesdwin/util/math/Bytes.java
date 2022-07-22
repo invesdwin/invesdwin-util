@@ -238,7 +238,7 @@ public final class Bytes extends ABytesStaticFacade {
         return Byte.compare(a, b);
     }
 
-    public static byte[] concatenate(final byte[] array1, final byte[] array2) {
+    public static byte[] concat(final byte[] array1, final byte[] array2) {
         if (array1.length == 0) {
             return array2;
         } else if (array2.length == 0) {
@@ -258,7 +258,7 @@ public final class Bytes extends ABytesStaticFacade {
         return newArray;
     }
 
-    public static byte[] concatenate(final byte[]... arrays) {
+    public static byte[] concat(final byte[]... arrays) {
         int sizedArrays = 0;
         byte[] lastSizedArray = null;
 
@@ -288,12 +288,16 @@ public final class Bytes extends ABytesStaticFacade {
     }
 
     public static byte[] subArray(final byte[] array, final int beginIndex, final int endIndex) {
-        if (beginIndex == 0 && endIndex == array.length - 1) {
+        final int length = endIndex - beginIndex;
+        return subArrayLength(array, beginIndex, length);
+    }
+
+    public static byte[] subArrayLength(final byte[] array, final int index, final int length) {
+        if (index == 0 && length == array.length) {
             return array;
         }
-        final int length = endIndex - beginIndex;
         final byte[] subarray = new byte[length];
-        System.arraycopy(array, beginIndex, subarray, 0, length);
+        System.arraycopy(array, index, subarray, 0, length);
         return subarray;
     }
 

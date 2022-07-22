@@ -8,6 +8,8 @@ import javax.annotation.concurrent.Immutable;
 @Immutable
 public final class Charsets {
 
+    public static final Charset DEFAULT = Charset.defaultCharset();
+
     /**
      * With UTF-8 we don't have to care about endianness:
      * https://stackoverflow.com/questions/35704606/method-string-getbytes-is-big-endian-or-litter-endian
