@@ -1,12 +1,17 @@
 package de.invesdwin.util.math;
 
+import java.nio.CharBuffer;
+import java.nio.charset.CharsetEncoder;
+import java.nio.charset.CodingErrorAction;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
+import de.invesdwin.util.lang.Charsets;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.lang.comparator.IComparator;
 import de.invesdwin.util.math.internal.ABytesStaticFacade;
@@ -299,6 +304,59 @@ public final class Bytes extends ABytesStaticFacade {
         final byte[] subarray = new byte[length];
         System.arraycopy(array, index, subarray, 0, length);
         return subarray;
+    }
+
+    /**
+     * Taken from com.password4j.Utils
+     */
+    public static byte[] fromCharSequenceToBytes(final CharSequence charSequence) {
+        if (charSequence == null) {
+            return new byte[0];
+        }
+        final CharsetEncoder encoder = Charsets.DEFAULT.newEncoder();
+        final int length = charSequence.length();
+        final int arraySize = scale(length, encoder.maxBytesPerChar());
+        final byte[] result = new byte[arraySize];
+        if (length == 0) {
+            return result;
+        } else {
+            char[] charArray;
+            if (charSequence instanceof String) {
+                charArray = ((String) charSequence).toCharArray();
+            } else {
+                charArray = fromCharSequenceToChars(charSequence);
+            }
+
+            charArray = Arrays.copyOfRange(charArray, 0, length);
+
+            encoder.onMalformedInput(CodingErrorAction.REPLACE)
+                    .onUnmappableCharacter(CodingErrorAction.REPLACE)
+                    .reset();
+
+            final java.nio.ByteBuffer byteBuffer = java.nio.ByteBuffer.wrap(result);
+            final CharBuffer charBuffer = CharBuffer.wrap(charArray, 0, length);
+
+            encoder.encode(charBuffer, byteBuffer, true);
+            encoder.flush(byteBuffer);
+
+            return Arrays.copyOf(result, byteBuffer.position());
+        }
+    }
+
+    private static int scale(final int initialLength, final float bytesPerChar) {
+        return (int) ((double) initialLength * (double) bytesPerChar);
+    }
+
+    private static char[] fromCharSequenceToChars(final CharSequence charSequence) {
+        if (charSequence == null || charSequence.length() == 0) {
+            return new char[0];
+        }
+        final char[] result = new char[charSequence.length()];
+        for (int i = 0; i < charSequence.length(); i++) {
+            result[i] = charSequence.charAt(i);
+        }
+
+        return result;
     }
 
 }
