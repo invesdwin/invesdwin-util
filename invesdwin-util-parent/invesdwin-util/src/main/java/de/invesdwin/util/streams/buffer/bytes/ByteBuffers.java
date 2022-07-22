@@ -10,6 +10,7 @@ import java.lang.reflect.Method;
 import java.nio.Buffer;
 import java.nio.ByteOrder;
 import java.nio.channels.ReadableByteChannel;
+import java.security.MessageDigest;
 import java.util.Arrays;
 
 import javax.annotation.concurrent.Immutable;
@@ -509,6 +510,10 @@ public final class ByteBuffers {
         }
     }
 
+    public static String toString(final java.nio.ByteBuffer nioBuffer) {
+        return toString(wrap(nioBuffer));
+    }
+
     public static String toString(final IByteBuffer buffer) {
         final byte[] byteArray = buffer.asByteArray(0, Integers.min(MAX_TO_STRING_COUNT, buffer.capacity()));
         return Objects.toStringHelper(buffer)
@@ -605,6 +610,90 @@ public final class ByteBuffers {
         final byte[] copy = allocateByteArray(newLength);
         System.arraycopy(original, from, copy, 0, Math.min(original.length, newLength));
         return copy;
+    }
+
+    /**
+     * https://security.stackexchange.com/a/77433
+     * 
+     * https://codahale.com/a-lesson-in-timing-attacks/
+     * 
+     * MessageDigest.isEqual is fixed since Java 6u17. It also does not leak information about the correct length. So an
+     * invalid equals check takes the same time as a valid equals check.
+     */
+    public static boolean constantTimeEquals(final byte[] a, final byte[] b) {
+        return MessageDigest.isEqual(a, b);
+    }
+
+    public static boolean constantTimeEquals(final IByteBuffer digesta, final byte[] digestb) {
+        if (digesta == null || digestb == null) {
+            return false;
+        }
+
+        final int lenA = digesta.capacity();
+        final int lenB = digestb.length;
+
+        if (lenB == 0) {
+            return lenA == 0;
+        }
+
+        int result = 0;
+        result |= lenA - lenB;
+
+        // time-constant comparison
+        for (int i = 0; i < lenA; i++) {
+            // If i >= lenB, indexB is 0; otherwise, i.
+            final int indexB = ((i - lenB) >>> 31) * i;
+            result |= digesta.getByte(i) ^ digestb[indexB];
+        }
+        return result == 0;
+    }
+
+    public static boolean constantTimeEquals(final byte[] digesta, final IByteBuffer digestb) {
+        if (digesta == null || digestb == null) {
+            return false;
+        }
+
+        final int lenA = digesta.length;
+        final int lenB = digestb.capacity();
+
+        if (lenB == 0) {
+            return lenA == 0;
+        }
+
+        int result = 0;
+        result |= lenA - lenB;
+
+        // time-constant comparison
+        for (int i = 0; i < lenA; i++) {
+            // If i >= lenB, indexB is 0; otherwise, i.
+            final int indexB = ((i - lenB) >>> 31) * i;
+            result |= digesta[i] ^ digestb.getByte(indexB);
+        }
+        return result == 0;
+    }
+
+    public static boolean constantTimeEquals(final IByteBuffer digesta, final IByteBuffer digestb) {
+        if (digesta == null || digestb == null) {
+            return false;
+        }
+
+        final int lenA = digesta.capacity();
+        final int lenB = digestb.capacity();
+
+        if (lenB == 0) {
+            return lenA == 0;
+        }
+
+        int result = 0;
+        result |= lenA - lenB;
+
+        // time-constant comparison
+        for (int i = 0; i < lenA; i++) {
+            // If i >= lenB, indexB is 0; otherwise, i.
+            final int indexB = ((i - lenB) >>> 31) * i;
+            result |= digesta.getByte(i) ^ digestb.getByte(indexB);
+        }
+        return result == 0;
     }
 
 }
