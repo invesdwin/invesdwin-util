@@ -17,7 +17,6 @@ import de.invesdwin.util.lang.comparator.IComparator;
 import de.invesdwin.util.math.internal.ABytesStaticFacade;
 import de.invesdwin.util.math.internal.CheckedCastBytes;
 import de.invesdwin.util.math.internal.CheckedCastBytesObj;
-import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 
 @StaticFacadeDefinition(name = "de.invesdwin.util.math.internal.ABytesStaticFacade", targets = { CheckedCastBytes.class,
         CheckedCastBytesObj.class,
@@ -358,10 +357,6 @@ public final class Bytes extends ABytesStaticFacade {
         }
 
         return result;
-    }
-
-    public static boolean constantTimeEquals(final byte[] a, final byte[] b) {
-        return ByteBuffers.constantTimeEquals(a, b);
     }
 
 }
