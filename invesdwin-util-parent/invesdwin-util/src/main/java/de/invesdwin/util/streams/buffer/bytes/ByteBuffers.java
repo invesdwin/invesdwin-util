@@ -696,4 +696,12 @@ public final class ByteBuffers {
         return result == 0;
     }
 
+    public static java.nio.ByteBuffer asNioByteBuffer(final IByteBuffer buffer) {
+        if (buffer != null) {
+            return buffer.asNioByteBuffer();
+        } else {
+            return null;
+        }
+    }
+
 }
