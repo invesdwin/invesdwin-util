@@ -696,6 +696,105 @@ public final class ByteBuffers {
         return result == 0;
     }
 
+    public static boolean equals(final byte[] digesta, final byte[] digestb) {
+        if (digesta == digestb) {
+            return true;
+        }
+        if (digesta == null || digestb == null) {
+            return false;
+        }
+
+        final int lenA = digesta.length;
+        final int lenB = digestb.length;
+
+        if (lenB == 0) {
+            return lenA == 0;
+        }
+
+        if (lenA != lenB) {
+            return false;
+        }
+
+        for (int i = 0; i < lenA; i++) {
+            if (digesta[i] != digestb[i]) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static boolean equals(final IByteBuffer digesta, final byte[] digestb) {
+        if (digesta == null || digestb == null) {
+            return false;
+        }
+
+        final int lenA = digesta.capacity();
+        final int lenB = digestb.length;
+
+        if (lenB == 0) {
+            return lenA == 0;
+        }
+
+        if (lenA != lenB) {
+            return false;
+        }
+
+        for (int i = 0; i < lenA; i++) {
+            if (digesta.getByte(i) != digestb[i]) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static boolean equals(final byte[] digesta, final IByteBuffer digestb) {
+        if (digesta == null || digestb == null) {
+            return false;
+        }
+
+        final int lenA = digesta.length;
+        final int lenB = digestb.capacity();
+
+        if (lenB == 0) {
+            return lenA == 0;
+        }
+
+        if (lenA != lenB) {
+            return false;
+        }
+
+        for (int i = 0; i < lenA; i++) {
+            if (digesta[i] != digestb.getByte(i)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static boolean equals(final IByteBuffer digesta, final IByteBuffer digestb) {
+        if (digesta == null || digestb == null) {
+            return false;
+        }
+
+        final int lenA = digesta.capacity();
+        final int lenB = digestb.capacity();
+
+        if (lenB == 0) {
+            return lenA == 0;
+        }
+
+        if (lenA != lenB) {
+            return false;
+        }
+
+        for (int i = 0; i < lenA; i++) {
+            if (digesta.getByte(i) != digestb.getByte(i)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public static java.nio.ByteBuffer asNioByteBuffer(final IByteBuffer buffer) {
         if (buffer != null) {
             return buffer.asNioByteBuffer();
