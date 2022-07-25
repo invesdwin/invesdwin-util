@@ -13,7 +13,7 @@ import javax.swing.JPanel;
 @NotThreadSafe
 public class JCheckBoxButton extends JButton {
 
-    public static final String DEFAULT_CHECKBOX_NAME_SUFFIX = "Enabled";
+    public static final String CHECKBOX_NAME_SUFFIX = "Enabled";
     private final JCheckBox checkbox;
     private final JLabel label;
 
@@ -32,7 +32,7 @@ public class JCheckBoxButton extends JButton {
     @Override
     public void setName(final String name) {
         super.setName(name);
-        checkbox.setName(name + DEFAULT_CHECKBOX_NAME_SUFFIX);
+        checkbox.setName(name + CHECKBOX_NAME_SUFFIX);
     }
 
     @Override
