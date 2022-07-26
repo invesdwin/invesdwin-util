@@ -903,7 +903,12 @@ public abstract class ComparableDefaultRowSorter<M, I> extends RowSorter<M> {
                 }
                 // Treat nulls as < then non-null
                 final Comparator<Object> c = (Comparator<Object>) sortComparators[counter];
-                result = compare(model1, v1, model2, v2, c, sortOrder);
+                try {
+                    result = compare(model1, v1, model2, v2, c, sortOrder);
+                } catch (final IndexOutOfBoundsException e) {
+                    //ignore, raca condition
+                    result = 0;
+                }
             }
             if (result != 0) {
                 return result;
