@@ -298,12 +298,20 @@ public final class EmptyByteBuffer implements IByteBuffer {
 
     @Override
     public byte[] asByteArray(final int index, final int length) {
-        return byteArray();
+        if (index == 0 && length == 0) {
+            return byteArray();
+        } else {
+            throw newEmptyException();
+        }
     }
 
     @Override
     public byte[] asByteArrayCopy(final int index, final int length) {
-        return byteArray();
+        if (index == 0 && length == 0) {
+            return byteArray();
+        } else {
+            throw newEmptyException();
+        }
     }
 
     @Override
@@ -391,7 +399,11 @@ public final class EmptyByteBuffer implements IByteBuffer {
 
     @Override
     public java.nio.ByteBuffer asNioByteBuffer(final int index, final int length) {
-        throw newEmptyException();
+        if (index == 0 && length == 0) {
+            return nioByteBuffer();
+        } else {
+            throw newEmptyException();
+        }
     }
 
     @Override
