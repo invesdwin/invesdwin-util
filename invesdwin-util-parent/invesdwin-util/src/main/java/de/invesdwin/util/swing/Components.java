@@ -98,14 +98,19 @@ public final class Components {
             final ToolTipFormatter formatter) {
         final String htmlText;
         if (text != null) {
-            final String replaced = text.replace("\n", "<br>");
-            final String formatted;
-            if (formatter != null) {
-                formatted = formatter.format(replaced);
+            final String htmlTag = "<html>";
+            if (htmlTag.equalsIgnoreCase(text.trim())) {
+                htmlText = null;
             } else {
-                formatted = replaced;
+                final String replaced = text.replace("\n", "<br>");
+                final String formatted;
+                if (formatter != null) {
+                    formatted = formatter.format(replaced);
+                } else {
+                    formatted = replaced;
+                }
+                htmlText = Strings.putPrefix(formatted, htmlTag);
             }
-            htmlText = Strings.putPrefix(formatted, "<html>");
         } else {
             htmlText = text;
         }
