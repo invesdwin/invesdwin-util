@@ -19,6 +19,7 @@ import de.invesdwin.norva.beanpath.impl.clazz.BeanClassProcessorConfig;
 import de.invesdwin.norva.beanpath.spi.BeanPathUtil;
 import de.invesdwin.norva.beanpath.spi.element.AChoiceBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.IPropertyBeanPathElement;
+import de.invesdwin.norva.beanpath.spi.element.table.ATableBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.table.column.ITableColumnBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.visitor.SimpleBeanPathVisitorSupport;
 import de.invesdwin.util.assertions.Assertions;
@@ -170,7 +171,12 @@ public abstract class ARecursivePersistentPropertyChangeListener implements Prop
                 new SimpleBeanPathVisitorSupport() {
                     @Override
                     public void visitProperty(final IPropertyBeanPathElement e) {
-                        if (e.getAccessor().hasPublicGetterOrField() && !(e instanceof ITableColumnBeanPathElement)) {
+                        if (e.getAccessor().hasPublicGetterOrField() && !(e instanceof ITableColumnBeanPathElement)
+                        /*
+                         * table rows are often fetched from a database and get dynamically updated, thus
+                         * register/unregister dirty tracker can get confused with the state, thus ignore tables
+                         */
+                                && !(e instanceof ATableBeanPathElement)) {
                             final Object value = e.getModifier().getValueFromRoot(source);
                             internalAddListenersToSourceHierarchy(e, value);
                             if (e instanceof AChoiceBeanPathElement) {
