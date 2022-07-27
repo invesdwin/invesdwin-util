@@ -459,7 +459,7 @@ public class DirtyTracker implements Serializable {
     private synchronized void removeRegisteredTracker(
             final TrackingChangesPropagatingRecursivePersistentPropertyChangeListener tracker) {
         final Map<TrackingChangesPropagatingRecursivePersistentPropertyChangeListener, String> registeredTrackers = getRegisteredTrackers();
-        Assertions.assertThat(registeredTrackers.remove(tracker)).isNotNull();
+        registeredTrackers.remove(tracker);
         removeLeadingRegisteredTrackerIfMatching(tracker);
         if (registeredTrackers.isEmpty() && isTrackingChangesDirectly()) {
             addDirectTracker();
