@@ -7,6 +7,7 @@ import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.concurrent.Threads;
+import de.invesdwin.util.lang.Strings;
 
 @ThreadSafe
 public class WrappedThreadFactory implements ThreadFactory {
@@ -20,7 +21,10 @@ public class WrappedThreadFactory implements ThreadFactory {
     private final ThreadFactory delegate;
 
     public WrappedThreadFactory(final String name, final ThreadFactory delegate) {
-        Assertions.assertThat(name).isNotNull();
+        //also check startsWith for nested executor
+        if (Strings.isBlankOrNullText(name) || Strings.startsWithAnyIgnoreCase(name, Strings.NULL_TEXT)) {
+            throw new NullPointerException("name should not be blank or start with null: " + name);
+        }
         Assertions.assertThat(delegate).isNotNull();
         this.name = name;
         this.delegate = delegate;

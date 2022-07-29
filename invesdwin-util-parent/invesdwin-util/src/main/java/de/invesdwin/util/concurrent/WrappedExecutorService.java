@@ -29,6 +29,7 @@ import de.invesdwin.util.concurrent.internal.WrappedCallable;
 import de.invesdwin.util.concurrent.internal.WrappedRunnable;
 import de.invesdwin.util.concurrent.internal.WrappedThreadFactory;
 import de.invesdwin.util.concurrent.lock.Locks;
+import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.shutdown.IShutdownHook;
 import de.invesdwin.util.shutdown.ShutdownHookManager;
 import de.invesdwin.util.time.date.FTimeUnit;
@@ -95,6 +96,10 @@ public class WrappedExecutorService implements ListeningExecutorService {
     private IShutdownHook shutdownHook;
 
     public WrappedExecutorService(final ExecutorService delegate, final String name) {
+        //also check startsWith for nested executor
+        if (Strings.isBlankOrNullText(name) || Strings.startsWithAnyIgnoreCase(name, Strings.NULL_TEXT)) {
+            throw new NullPointerException("name should not be blank or start with null: " + name);
+        }
         this.shutdownHook = newShutdownHook(delegate);
         this.name = name;
         this.pendingCountLock = Locks

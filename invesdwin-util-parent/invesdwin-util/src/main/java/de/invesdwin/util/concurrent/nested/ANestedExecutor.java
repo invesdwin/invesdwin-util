@@ -6,6 +6,7 @@ import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 import de.invesdwin.util.concurrent.Threads;
 import de.invesdwin.util.concurrent.WrappedExecutorService;
+import de.invesdwin.util.lang.Strings;
 
 @ThreadSafe
 public abstract class ANestedExecutor implements INestedExecutor {
@@ -29,6 +30,9 @@ public abstract class ANestedExecutor implements INestedExecutor {
     private final String name;
 
     public ANestedExecutor(final String name) {
+        if (Strings.isBlankOrNullText(name)) {
+            throw new NullPointerException("name should not be blank or null: " + name);
+        }
         this.name = name;
     }
 
