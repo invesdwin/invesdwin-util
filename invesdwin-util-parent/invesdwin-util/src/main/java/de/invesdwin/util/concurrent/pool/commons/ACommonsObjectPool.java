@@ -31,20 +31,20 @@ public abstract class ACommonsObjectPool<E> implements ObjectPool<E>, IObjectPoo
     @Override
     public final E borrowObject() {
         throwIfClosed();
-        E obj;
+        E element;
         while (true) {
             try {
                 Threads.throwIfInterrupted();
             } catch (final InterruptedException e) {
                 throw new RuntimeException(e);
             }
-            obj = internalBorrowObject();
-            if (obj != null) {
-                factory.activateObject(obj);
-                if (factory.validateObject(obj)) {
+            element = internalBorrowObject();
+            if (element != null) {
+                factory.activateObject(element);
+                if (factory.validateObject(element)) {
                     break;
                 } else {
-                    factory.destroyObject(obj);
+                    factory.destroyObject(element);
                 }
             } else {
                 //CHECKSTYLE:OFF we explicitly want the stacktrace here
@@ -53,51 +53,51 @@ public abstract class ACommonsObjectPool<E> implements ObjectPool<E>, IObjectPoo
             }
         }
         activeCount.incrementAndGet();
-        return obj;
+        return element;
     }
 
     @Override
     public final void addObject() {
         throwIfClosed();
-        final E obj = internalAddObject();
-        if (factory.validateObject(obj)) {
-            factory.passivateObject(obj);
+        final E element = internalAddObject();
+        if (factory.validateObject(element)) {
+            factory.passivateObject(element);
         } else {
-            removeObject(obj);
+            removeObject(element);
         }
     }
 
-    protected void removeObject(final E obj) {
-        internalRemoveObject(obj);
-        factory.destroyObject(obj);
+    protected void removeObject(final E element) {
+        internalRemoveObject(element);
+        factory.destroyObject(element);
     }
 
     @Override
-    public final void returnObject(final E obj) {
-        if (obj != null) {
+    public final void returnObject(final E element) {
+        if (element != null) {
             activeCount.decrementAndGet();
-            if (factory.validateObject(obj)) {
-                factory.passivateObject(obj);
-                internalReturnObject(obj);
+            if (factory.validateObject(element)) {
+                factory.passivateObject(element);
+                internalReturnObject(element);
             } else {
-                factory.destroyObject(obj);
+                factory.destroyObject(element);
             }
         }
     }
 
     @Override
-    public final void invalidateObject(final E obj) {
-        if (obj != null) {
+    public final void invalidateObject(final E element) {
+        if (element != null) {
             activeCount.decrementAndGet();
-            factory.destroyObject(obj);
-            internalInvalidateObject(obj);
+            factory.destroyObject(element);
+            internalInvalidateObject(element);
         }
     }
 
     @Override
     public final void clear() {
-        for (final E obj : internalClear()) {
-            factory.destroyObject(obj);
+        for (final E element : internalClear()) {
+            factory.destroyObject(element);
         }
     }
 
@@ -120,11 +120,11 @@ public abstract class ACommonsObjectPool<E> implements ObjectPool<E>, IObjectPoo
     /**
      * If during the add the validation failed and destroy was called, the instance must be removed afterall.
      */
-    protected abstract void internalRemoveObject(E obj);
+    protected abstract void internalRemoveObject(E element);
 
-    protected abstract void internalReturnObject(E obj);
+    protected abstract void internalReturnObject(E element);
 
-    protected abstract void internalInvalidateObject(E obj);
+    protected abstract void internalInvalidateObject(E element);
 
     @Override
     public abstract int getNumIdle();
