@@ -118,31 +118,49 @@ public final class EmptyByteBuffer implements IByteBuffer {
 
     @Override
     public void putBytes(final int index, final byte[] src) {
+        if (index == 0 && src.length == 0) {
+            return;
+        }
         throw newEmptyException();
     }
 
     @Override
     public void putBytes(final int index, final byte[] src, final int srcIndex, final int length) {
+        if (index == 0 && length == 0) {
+            return;
+        }
         throw newEmptyException();
     }
 
     @Override
     public void putBytes(final int index, final java.nio.ByteBuffer srcBuffer, final int srcIndex, final int length) {
+        if (index == 0 && length == 0) {
+            return;
+        }
         throw newEmptyException();
     }
 
     @Override
     public void putBytes(final int index, final DirectBuffer srcBuffer, final int srcIndex, final int length) {
+        if (index == 0 && length == 0) {
+            return;
+        }
         throw newEmptyException();
     }
 
     @Override
     public void putBytes(final int index, final IByteBuffer srcBuffer, final int srcIndex, final int length) {
+        if (index == 0 && length == 0) {
+            return;
+        }
         throw newEmptyException();
     }
 
     @Override
     public void putBytes(final int index, final IMemoryBuffer srcBuffer, final long srcIndex, final int length) {
+        if (index == 0 && length == 0) {
+            return;
+        }
         throw newEmptyException();
     }
 
@@ -233,26 +251,41 @@ public final class EmptyByteBuffer implements IByteBuffer {
 
     @Override
     public void getBytes(final int index, final byte[] dst, final int dstIndex, final int length) {
+        if (index == 0 && length == 0) {
+            return;
+        }
         throw newEmptyException();
     }
 
     @Override
     public void getBytes(final int index, final MutableDirectBuffer dstBuffer, final int dstIndex, final int length) {
+        if (index == 0 && length == 0) {
+            return;
+        }
         throw newEmptyException();
     }
 
     @Override
     public void getBytes(final int index, final java.nio.ByteBuffer dstBuffer, final int dstIndex, final int length) {
+        if (index == 0 && length == 0) {
+            return;
+        }
         throw newEmptyException();
     }
 
     @Override
     public void getBytes(final int index, final IByteBuffer dstBuffer, final int dstIndex, final int length) {
+        if (index == 0 && length == 0) {
+            return;
+        }
         throw newEmptyException();
     }
 
     @Override
     public void getBytes(final int index, final IMemoryBuffer dstBuffer, final long dstIndex, final int length) {
+        if (index == 0 && length == 0) {
+            return;
+        }
         throw newEmptyException();
     }
 
@@ -268,7 +301,11 @@ public final class EmptyByteBuffer implements IByteBuffer {
 
     @Override
     public IMemoryBuffer asMemoryBuffer(final int index, final int length) {
-        return EmptyMemoryBuffer.INSTANCE;
+        if (index == 0 && length == 0) {
+            return EmptyMemoryBuffer.INSTANCE;
+        } else {
+            throw newEmptyException();
+        }
     }
 
     @Override
@@ -278,7 +315,11 @@ public final class EmptyByteBuffer implements IByteBuffer {
 
     @Override
     public MutableDirectBuffer asDirectBuffer(final int index, final int length) {
-        return directBuffer();
+        if (index == 0 && length == 0) {
+            return directBuffer();
+        } else {
+            throw newEmptyException();
+        }
     }
 
     @Override
@@ -288,12 +329,20 @@ public final class EmptyByteBuffer implements IByteBuffer {
 
     @Override
     public InputStream asInputStream(final int index, final int length) {
-        return EmptyInputStream.INSTANCE;
+        if (index == 0 && length == 0) {
+            return EmptyInputStream.INSTANCE;
+        } else {
+            throw newEmptyException();
+        }
     }
 
     @Override
     public OutputStream asOutputStream(final int index, final int length) {
-        return EmptyOutputStream.INSTANCE;
+        if (index == 0 && length == 0) {
+            return EmptyOutputStream.INSTANCE;
+        } else {
+            throw newEmptyException();
+        }
     }
 
     @Override
@@ -331,56 +380,90 @@ public final class EmptyByteBuffer implements IByteBuffer {
 
     @Override
     public IByteBuffer newSlice(final int index, final int length) {
-        return this;
+        if (index == 0 && length == 0) {
+            return this;
+        } else {
+            throw newEmptyException();
+        }
     }
 
     @Override
     public String getStringAsciii(final int index, final int length) {
+        if (index == 0 && length == 0) {
+            return "";
+        }
         throw newEmptyException();
     }
 
     @Override
     public void getStringAsciii(final int index, final int length, final Appendable dst) {
+        if (index == 0 && length == 0) {
+            return;
+        }
         throw newEmptyException();
     }
 
     @Override
     public void putStringAsciii(final int index, final CharSequence value, final int valueIndex, final int length) {
+        if (index == 0 && length == 0) {
+            return;
+        }
         throw newEmptyException();
     }
 
     @Override
     public String getStringUtf8(final int index, final int length) {
+        if (index == 0 && length == 0) {
+            return "";
+        }
         throw newEmptyException();
     }
 
     @Override
     public int putStringUtf8(final int index, final String value) {
+        if (index == 0 && value.length() == 0) {
+            return 0;
+        }
         throw newEmptyException();
     }
 
     @Override
     public void getStringUtf8(final int index, final int length, final Appendable dst) {
+        if (index == 0 && length == 0) {
+            return;
+        }
         throw newEmptyException();
     }
 
     @Override
     public void getBytesTo(final int index, final DataOutput dst, final int length) {
+        if (index == 0 && length == 0) {
+            return;
+        }
         throw newEmptyException();
     }
 
     @Override
     public void getBytesTo(final int index, final OutputStream dst, final int length) {
+        if (index == 0 && length == 0) {
+            return;
+        }
         throw newEmptyException();
     }
 
     @Override
     public void putBytesTo(final int index, final DataInput src, final int length) {
+        if (index == 0 && length == 0) {
+            return;
+        }
         throw newEmptyException();
     }
 
     @Override
     public void putBytesTo(final int index, final InputStream src, final int length) {
+        if (index == 0 && length == 0) {
+            return;
+        }
         throw newEmptyException();
     }
 
@@ -408,16 +491,25 @@ public final class EmptyByteBuffer implements IByteBuffer {
 
     @Override
     public void getBytesTo(final int index, final WritableByteChannel dst, final int length) throws IOException {
+        if (index == 0 && length == 0) {
+            return;
+        }
         throw newEmptyException();
     }
 
     @Override
     public void putBytesTo(final int index, final ReadableByteChannel src, final int length) throws IOException {
+        if (index == 0 && length == 0) {
+            return;
+        }
         throw newEmptyException();
     }
 
     @Override
     public void clear(final byte value, final int index, final int length) {
+        if (index == 0 && length == 0) {
+            return;
+        }
         throw newEmptyException();
     }
 
@@ -430,7 +522,11 @@ public final class EmptyByteBuffer implements IByteBuffer {
 
     @Override
     public IByteBuffer clone(final int index, final int length) {
-        return this;
+        if (index == 0 && length == 0) {
+            return this;
+        } else {
+            throw newEmptyException();
+        }
     }
 
     @Override

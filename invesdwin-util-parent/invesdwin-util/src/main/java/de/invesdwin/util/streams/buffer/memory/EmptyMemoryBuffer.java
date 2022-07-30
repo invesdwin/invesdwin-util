@@ -111,31 +111,49 @@ public final class EmptyMemoryBuffer implements IMemoryBuffer {
 
     @Override
     public void putBytes(final long index, final byte[] src) {
+        if (index == 0 && src.length == 0) {
+            return;
+        }
         throw newEmptyException();
     }
 
     @Override
     public void putBytes(final long index, final byte[] src, final int srcIndex, final int length) {
+        if (index == 0 && length == 0) {
+            return;
+        }
         throw newEmptyException();
     }
 
     @Override
     public void putBytes(final long index, final java.nio.ByteBuffer srcBuffer, final int srcIndex, final int length) {
+        if (index == 0 && length == 0) {
+            return;
+        }
         throw newEmptyException();
     }
 
     @Override
     public void putBytes(final long index, final DirectBuffer srcBuffer, final int srcIndex, final int length) {
+        if (index == 0 && length == 0) {
+            return;
+        }
         throw newEmptyException();
     }
 
     @Override
     public void putBytes(final long index, final IByteBuffer srcBuffer, final int srcIndex, final int length) {
+        if (index == 0 && length == 0) {
+            return;
+        }
         throw newEmptyException();
     }
 
     @Override
     public void putBytes(final long index, final IMemoryBuffer srcBuffer, final long srcIndex, final long length) {
+        if (index == 0 && length == 0) {
+            return;
+        }
         throw newEmptyException();
     }
 
@@ -216,26 +234,41 @@ public final class EmptyMemoryBuffer implements IMemoryBuffer {
 
     @Override
     public void getBytes(final long index, final byte[] dst, final int dstIndex, final int length) {
+        if (index == 0 && length == 0) {
+            return;
+        }
         throw newEmptyException();
     }
 
     @Override
     public void getBytes(final long index, final MutableDirectBuffer dstBuffer, final int dstIndex, final int length) {
+        if (index == 0 && length == 0) {
+            return;
+        }
         throw newEmptyException();
     }
 
     @Override
     public void getBytes(final long index, final java.nio.ByteBuffer dstBuffer, final int dstIndex, final int length) {
+        if (index == 0 && length == 0) {
+            return;
+        }
         throw newEmptyException();
     }
 
     @Override
     public void getBytes(final long index, final IByteBuffer dstBuffer, final int dstIndex, final int length) {
+        if (index == 0 && length == 0) {
+            return;
+        }
         throw newEmptyException();
     }
 
     @Override
     public void getBytes(final long index, final IMemoryBuffer dstBuffer, final long dstIndex, final long length) {
+        if (index == 0 && length == 0) {
+            return;
+        }
         throw newEmptyException();
     }
 
@@ -246,27 +279,47 @@ public final class EmptyMemoryBuffer implements IMemoryBuffer {
 
     @Override
     public MutableDirectBuffer asDirectBuffer(final long index, final int length) {
-        return EmptyByteBuffer.EMPTY_AGRONA_BUFFER;
+        if (index == 0 && length == 0) {
+            return EmptyByteBuffer.EMPTY_AGRONA_BUFFER;
+        } else {
+            throw newEmptyException();
+        }
     }
 
     @Override
     public IByteBuffer asByteBuffer(final long index, final int length) {
-        return EmptyByteBuffer.INSTANCE;
+        if (index == 0 && length == 0) {
+            return EmptyByteBuffer.INSTANCE;
+        } else {
+            throw newEmptyException();
+        }
     }
 
     @Override
     public InputStream asInputStream(final long index, final long length) {
-        return EmptyInputStream.INSTANCE;
+        if (index == 0 && length == 0) {
+            return EmptyInputStream.INSTANCE;
+        } else {
+            throw newEmptyException();
+        }
     }
 
     @Override
     public OutputStream asOutputStream(final long index, final long length) {
-        return EmptyOutputStream.INSTANCE;
+        if (index == 0 && length == 0) {
+            return EmptyOutputStream.INSTANCE;
+        } else {
+            throw newEmptyException();
+        }
     }
 
     @Override
     public byte[] asByteArrayCopy(final long index, final int length) {
-        return Bytes.EMPTY_ARRAY;
+        if (index == 0 && length == 0) {
+            return Bytes.EMPTY_ARRAY;
+        } else {
+            throw newEmptyException();
+        }
     }
 
     @Override
@@ -286,56 +339,90 @@ public final class EmptyMemoryBuffer implements IMemoryBuffer {
 
     @Override
     public IMemoryBuffer newSlice(final long index, final long length) {
-        return this;
+        if (index == 0 && length == 0) {
+            return this;
+        } else {
+            throw newEmptyException();
+        }
     }
 
     @Override
     public String getStringAsciii(final long index, final int length) {
+        if (index == 0 && length == 0) {
+            return "";
+        }
         throw newEmptyException();
     }
 
     @Override
     public void getStringAsciii(final long index, final int length, final Appendable dst) {
+        if (index == 0 && length == 0) {
+            return;
+        }
         throw newEmptyException();
     }
 
     @Override
     public void putStringAsciii(final long index, final CharSequence value, final int valueIndex, final int length) {
+        if (index == 0 && length == 0) {
+            return;
+        }
         throw newEmptyException();
     }
 
     @Override
     public String getStringUtf8(final long index, final int length) {
+        if (index == 0 && length == 0) {
+            return "";
+        }
         throw newEmptyException();
     }
 
     @Override
     public int putStringUtf8(final long index, final String value) {
+        if (index == 0 && value.length() == 0) {
+            return 0;
+        }
         throw newEmptyException();
     }
 
     @Override
     public void getStringUtf8(final long index, final int length, final Appendable dst) {
+        if (index == 0 && length == 0) {
+            return;
+        }
         throw newEmptyException();
     }
 
     @Override
     public void getBytesTo(final long index, final DataOutput dst, final long length) {
+        if (index == 0 && length == 0) {
+            return;
+        }
         throw newEmptyException();
     }
 
     @Override
     public void getBytesTo(final long index, final OutputStream dst, final long length) {
+        if (index == 0 && length == 0) {
+            return;
+        }
         throw newEmptyException();
     }
 
     @Override
     public void putBytesTo(final long index, final DataInput src, final long length) {
+        if (index == 0 && length == 0) {
+            return;
+        }
         throw newEmptyException();
     }
 
     @Override
     public void putBytesTo(final long index, final InputStream src, final long length) {
+        if (index == 0 && length == 0) {
+            return;
+        }
         throw newEmptyException();
     }
 
@@ -354,21 +441,33 @@ public final class EmptyMemoryBuffer implements IMemoryBuffer {
 
     @Override
     public java.nio.ByteBuffer asNioByteBuffer(final long index, final int length) {
+        if (index == 0 && length == 0) {
+            return EmptyByteBuffer.EMPTY_BYTE_BUFFER;
+        }
         throw newEmptyException();
     }
 
     @Override
     public void getBytesTo(final long index, final WritableByteChannel dst, final long length) throws IOException {
+        if (index == 0 && length == 0) {
+            return;
+        }
         throw newEmptyException();
     }
 
     @Override
     public void putBytesTo(final long index, final ReadableByteChannel src, final long length) throws IOException {
+        if (index == 0 && length == 0) {
+            return;
+        }
         throw newEmptyException();
     }
 
     @Override
     public void clear(final byte value, final long index, final long length) {
+        if (index == 0 && length == 0) {
+            return;
+        }
         throw newEmptyException();
     }
 

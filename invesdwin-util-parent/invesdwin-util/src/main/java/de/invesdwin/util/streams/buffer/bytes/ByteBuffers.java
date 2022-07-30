@@ -648,6 +648,31 @@ public final class ByteBuffers {
         return result == 0;
     }
 
+    public static boolean constantTimeEquals(final IByteBuffer digesta, final byte[] digestb, final int digestbOffset,
+            final int digestbLength) {
+        if (digesta == null || digestb == null) {
+            return false;
+        }
+
+        final int lenA = digesta.capacity();
+        final int lenB = digestbLength;
+
+        if (lenB == 0) {
+            return lenA == 0;
+        }
+
+        int result = 0;
+        result |= lenA - lenB;
+
+        // time-constant comparison
+        for (int i = 0; i < lenA; i++) {
+            // If i >= lenB, indexB is 0; otherwise, i.
+            final int indexB = digestbOffset + ((i - lenB) >>> 31) * i;
+            result |= digesta.getByte(i) ^ digestb[indexB];
+        }
+        return result == 0;
+    }
+
     public static boolean constantTimeEquals(final byte[] digesta, final IByteBuffer digestb) {
         if (digesta == null || digestb == null) {
             return false;
