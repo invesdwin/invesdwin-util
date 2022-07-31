@@ -24,6 +24,12 @@ public final class RandomGenerators {
         return THREAD_LOCAL.get();
     }
 
+    /**
+     * xoroshiro++ is not cryptographically secure
+     * https://lemire.me/blog/2017/08/22/cracking-random-number-generators-xoroshiro128/
+     * 
+     * Use CryptoRandomGenerators instead.
+     */
     public static RandomGenerator newDefaultRandom() {
         return new XoRoShiRo128PlusRandomGenerator();
     }
