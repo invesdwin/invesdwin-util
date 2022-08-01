@@ -13,7 +13,7 @@ public abstract class ALazyDelegateInputStream extends InputStream {
     public ALazyDelegateInputStream() {
     }
 
-    public final InputStream getDelegate() {
+    public InputStream getDelegate() {
         if (delegate == null) {
             this.delegate = newDelegate();
         }

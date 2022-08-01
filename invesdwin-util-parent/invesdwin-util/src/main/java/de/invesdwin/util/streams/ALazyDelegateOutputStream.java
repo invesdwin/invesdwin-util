@@ -13,7 +13,7 @@ public abstract class ALazyDelegateOutputStream extends OutputStream {
     public ALazyDelegateOutputStream() {
     }
 
-    public final OutputStream getDelegate() {
+    public OutputStream getDelegate() {
         if (delegate == null) {
             this.delegate = newDelegate();
         }
