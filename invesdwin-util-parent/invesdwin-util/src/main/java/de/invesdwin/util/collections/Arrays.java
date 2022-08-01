@@ -44,7 +44,7 @@ public class Arrays extends AArraysStaticFacade {
     @SuppressWarnings("unchecked")
     public static <T> T[] concat(final T[]... arrays) {
         if (arrays.length == 0) {
-            final Class<?> arrayType = arrays.getClass().componentType().componentType();
+            final Class<?> arrayType = arrays.getClass().getComponentType().getComponentType();
             return (T[]) Array.newInstance(arrayType, 0);
         }
 
