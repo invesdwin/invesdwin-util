@@ -509,28 +509,32 @@ public class TrailingHistoricalCacheQueryCore<V> extends ACachedEntriesHistorica
 
                 };
             } else {
+                /*
+                 * don't register finalizer on unlocking iterator to reduce performance overhead (clients will have to
+                 * close the iterator or else there will be deadlocks, use debug stacktraces to get warnings from above
+                 */
                 return new ICloseableIterator<IHistoricalEntry<V>>() {
 
-                    private final UnlockingResultFinalizer<IHistoricalEntry<V>> finalizer = new UnlockingResultFinalizer<IHistoricalEntry<V>>(
-                            result.iterator(), cachedQueryActive, cachedQueryActiveLock);
-
-                    {
-                        this.finalizer.register(this);
-                    }
+                    private ICloseableIterator<IHistoricalEntry<V>> iterator = result.iterator();
 
                     @Override
                     public boolean hasNext() {
-                        return finalizer.iterator.hasNext();
+                        return iterator.hasNext();
                     }
 
                     @Override
                     public IHistoricalEntry<V> next() {
-                        return finalizer.iterator.next();
+                        return iterator.next();
                     }
 
                     @Override
                     public void close() {
-                        finalizer.close();
+                        if (iterator != EmptyCloseableIterator.<IHistoricalEntry<V>> getInstance()) {
+                            iterator.close();
+                            iterator = EmptyCloseableIterator.getInstance();
+                            cachedQueryActive.setFalse();
+                            cachedQueryActiveLock.unlock();
+                        }
                     }
 
                 };
