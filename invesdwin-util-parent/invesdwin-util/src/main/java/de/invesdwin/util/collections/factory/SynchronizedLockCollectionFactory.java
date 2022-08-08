@@ -1,6 +1,5 @@
 package de.invesdwin.util.collections.factory;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
@@ -9,6 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.concurrent.Immutable;
 
+import de.invesdwin.util.collections.Collections;
 import de.invesdwin.util.collections.bitset.IBitSet;
 import de.invesdwin.util.collections.bitset.SynchronizedBitSet;
 import de.invesdwin.util.collections.fast.IFastIterableList;

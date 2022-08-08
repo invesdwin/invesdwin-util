@@ -5,12 +5,11 @@ import java.util.List;
 
 import javax.annotation.concurrent.ThreadSafe;
 
-import org.apache.commons.math3.random.RandomGenerator;
-
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.math.decimal.ADecimal;
 import de.invesdwin.util.math.decimal.IDecimalAggregate;
 import de.invesdwin.util.math.decimal.internal.randomizers.impl.blocklength.CircularOptimalBlockLength;
+import de.invesdwin.util.math.random.IRandomGenerator;
 
 /**
  * http://www.math.ucsd.edu/~politis/SOFT/PPW/ppw.R
@@ -36,7 +35,7 @@ public class CircularBootstrapRandomizer<E extends ADecimal<E>> implements IDeci
         } else {
             delegate = new IDecimalRandomizer<E>() {
                 @Override
-                public Iterator<E> randomize(final RandomGenerator random) {
+                public Iterator<E> randomize(final IRandomGenerator random) {
                     return internalResample(random);
                 }
             };
@@ -48,15 +47,15 @@ public class CircularBootstrapRandomizer<E extends ADecimal<E>> implements IDeci
     }
 
     @Override
-    public final Iterator<E> randomize(final RandomGenerator random) {
+    public final Iterator<E> randomize(final IRandomGenerator random) {
         return delegate.randomize(random);
     }
 
-    protected int nextBlockLength(final RandomGenerator random) {
+    protected int nextBlockLength(final IRandomGenerator random) {
         return blockLength;
     }
 
-    private Iterator<E> internalResample(final RandomGenerator random) {
+    private Iterator<E> internalResample(final IRandomGenerator random) {
         return new Iterator<E>() {
             private final int maxResampleIdx = sample.size();
             private int curResampleIdx = 0;
@@ -81,7 +80,7 @@ public class CircularBootstrapRandomizer<E extends ADecimal<E>> implements IDeci
                 return value;
             }
 
-            private void initNextBlock(final RandomGenerator random) {
+            private void initNextBlock(final IRandomGenerator random) {
                 curStartIdx = random.nextInt(maxResampleIdx);
                 final int curBlockLength = nextBlockLength(random);
                 if (curResampleIdx + curBlockLength < maxResampleIdx) {

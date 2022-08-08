@@ -5,13 +5,13 @@ package de.invesdwin.util.lang.internal;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
 import javax.annotation.concurrent.Immutable;
 
+import de.invesdwin.util.collections.Arrays;
 import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.math.Bytes;
 import de.invesdwin.util.math.Characters;
@@ -21,7 +21,8 @@ import de.invesdwin.util.math.decimal.Decimal;
 @Immutable
 public final class CheckedCastStrings {
 
-    private CheckedCastStrings() {}
+    private CheckedCastStrings() {
+    }
 
     public static String checkedCast(final Object value) {
         if (value == null) {

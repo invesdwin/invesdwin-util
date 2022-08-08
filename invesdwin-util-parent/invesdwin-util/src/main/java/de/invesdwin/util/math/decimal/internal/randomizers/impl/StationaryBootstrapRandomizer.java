@@ -2,11 +2,10 @@ package de.invesdwin.util.math.decimal.internal.randomizers.impl;
 
 import javax.annotation.concurrent.ThreadSafe;
 
-import org.apache.commons.math3.random.RandomGenerator;
-
 import de.invesdwin.util.math.decimal.ADecimal;
 import de.invesdwin.util.math.decimal.IDecimalAggregate;
 import de.invesdwin.util.math.decimal.internal.randomizers.impl.blocklength.StationaryOptimalBlockLength;
+import de.invesdwin.util.math.random.IRandomGenerator;
 
 @ThreadSafe
 public class StationaryBootstrapRandomizer<E extends ADecimal<E>> extends CircularBootstrapRandomizer<E> {
@@ -25,7 +24,7 @@ public class StationaryBootstrapRandomizer<E extends ADecimal<E>> extends Circul
     }
 
     @Override
-    protected int nextBlockLength(final RandomGenerator random) {
+    protected int nextBlockLength(final IRandomGenerator random) {
         //we randomize the block length for the stationary bootstrap
         final int newBlockLength = Math.round((float) (random.nextDouble() / divisor));
         return Math.max(1, newBlockLength);

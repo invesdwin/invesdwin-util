@@ -2,7 +2,6 @@ package de.invesdwin.util.math;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Collection;
 import java.util.List;
@@ -10,6 +9,7 @@ import java.util.List;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
+import de.invesdwin.util.collections.Arrays;
 import de.invesdwin.util.lang.reflection.Reflections;
 import de.invesdwin.util.math.internal.ABitSetsStaticFacade;
 import de.invesdwin.util.math.internal.CheckedCastBitSets;

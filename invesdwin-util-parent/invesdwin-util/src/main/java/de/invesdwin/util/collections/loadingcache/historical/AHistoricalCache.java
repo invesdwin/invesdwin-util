@@ -2,7 +2,6 @@ package de.invesdwin.util.collections.loadingcache.historical;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -16,6 +15,7 @@ import javax.annotation.concurrent.ThreadSafe;
 import com.github.benmanes.caffeine.cache.Caffeine;
 
 import de.invesdwin.util.assertions.Assertions;
+import de.invesdwin.util.collections.Collections;
 import de.invesdwin.util.collections.eviction.EvictionMode;
 import de.invesdwin.util.collections.fast.concurrent.ASynchronizedFastIterableDelegateList;
 import de.invesdwin.util.collections.loadingcache.ADelegateLoadingCache;

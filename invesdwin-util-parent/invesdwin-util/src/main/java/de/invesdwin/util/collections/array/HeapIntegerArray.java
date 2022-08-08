@@ -1,9 +1,8 @@
 package de.invesdwin.util.collections.array;
 
-import java.util.Arrays;
-
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.util.collections.Arrays;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 

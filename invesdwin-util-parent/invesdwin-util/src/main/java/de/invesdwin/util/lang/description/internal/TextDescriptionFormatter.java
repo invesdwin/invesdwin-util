@@ -1,6 +1,5 @@
 package de.invesdwin.util.lang.description.internal;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -8,6 +7,7 @@ import javax.annotation.concurrent.Immutable;
 
 import org.slf4j.helpers.Util;
 
+import de.invesdwin.util.collections.Arrays;
 import de.invesdwin.util.lang.Strings;
 
 /**

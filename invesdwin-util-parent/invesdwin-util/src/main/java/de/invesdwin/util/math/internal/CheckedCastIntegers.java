@@ -1,6 +1,5 @@
 package de.invesdwin.util.math.internal;
 
-import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -11,6 +10,7 @@ import java.util.List;
 
 import javax.annotation.concurrent.Immutable;
 
+import de.invesdwin.util.collections.Arrays;
 import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.math.decimal.ADecimal;
 
@@ -34,9 +34,9 @@ public final class CheckedCastIntegers {
             final CharSequence cValue = (CharSequence) value;
             return checkedCast(cValue);
         } else if (value.getClass().isArray()) {
-            final int length = Array.getLength(value);
+            final int length = Arrays.getLength(value);
             if (length == 1) {
-                final Object cValue = Array.get(value, 0);
+                final Object cValue = Arrays.get(value, 0);
                 return checkedCast(cValue);
             }
         }
@@ -57,9 +57,9 @@ public final class CheckedCastIntegers {
             final CharSequence cValue = (CharSequence) value;
             return checkedCast(cValue);
         } else if (value.getClass().isArray()) {
-            final int length = Array.getLength(value);
+            final int length = Arrays.getLength(value);
             if (length == 1) {
-                final Object cValue = Array.get(value, 0);
+                final Object cValue = Arrays.get(value, 0);
                 return checkedCastNoOverflow(cValue);
             }
         }

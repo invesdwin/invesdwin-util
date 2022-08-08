@@ -1,12 +1,12 @@
 package de.invesdwin.util.classpath;
 
-import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.util.collections.Collections;
 import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ScanResult;
 
@@ -18,7 +18,8 @@ public final class FastClassPathScanner {
     @GuardedBy("this")
     private static ScanResult scanResult;
 
-    private FastClassPathScanner() {}
+    private FastClassPathScanner() {
+    }
 
     public static synchronized ScanResult getScanResult() {
         if (scanResult == null) {

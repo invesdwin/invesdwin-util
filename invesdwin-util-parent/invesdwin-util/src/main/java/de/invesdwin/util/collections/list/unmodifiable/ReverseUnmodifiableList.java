@@ -4,8 +4,7 @@ import java.util.List;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import org.apache.commons.lang3.ArrayUtils;
-
+import de.invesdwin.util.collections.Arrays;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.error.FastNoSuchElementException;
 
@@ -68,14 +67,14 @@ public class ReverseUnmodifiableList<E> extends AUnmodifiableList<E> {
     @Override
     public Object[] toArray() {
         final Object[] array = getDelegate().toArray();
-        ArrayUtils.reverse(array);
+        Arrays.reverse(array);
         return array;
     }
 
     @Override
     public <T> T[] toArray(final T[] a) {
         final T[] array = getDelegate().toArray(a);
-        ArrayUtils.reverse(array);
+        Arrays.reverse(array);
         return array;
     }
 

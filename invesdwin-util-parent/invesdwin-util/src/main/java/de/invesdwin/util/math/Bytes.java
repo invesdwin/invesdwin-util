@@ -4,13 +4,13 @@ import java.nio.CharBuffer;
 import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CodingErrorAction;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
+import de.invesdwin.util.collections.Arrays;
 import de.invesdwin.util.lang.Charsets;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.lang.comparator.IComparator;

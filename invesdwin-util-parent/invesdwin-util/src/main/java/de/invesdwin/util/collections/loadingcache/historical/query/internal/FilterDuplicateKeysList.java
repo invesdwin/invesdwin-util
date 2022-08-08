@@ -1,13 +1,13 @@
 package de.invesdwin.util.collections.loadingcache.historical.query.internal;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.util.collections.Arrays;
+import de.invesdwin.util.collections.Collections;
 import de.invesdwin.util.collections.delegate.ADelegateList;
 import de.invesdwin.util.collections.list.Lists;
 import de.invesdwin.util.collections.loadingcache.historical.IHistoricalEntry;

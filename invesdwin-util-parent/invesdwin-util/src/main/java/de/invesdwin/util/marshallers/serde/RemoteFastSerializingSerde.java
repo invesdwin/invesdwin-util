@@ -3,7 +3,6 @@ package de.invesdwin.util.marshallers.serde;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.annotation.concurrent.Immutable;
@@ -13,6 +12,7 @@ import org.nustaq.serialization.simpleapi.FSTBufferTooSmallException;
 import org.nustaq.serialization.simpleapi.OffHeapCoder;
 import org.nustaq.serialization.simpleapi.OnHeapCoder;
 
+import de.invesdwin.util.collections.Arrays;
 import de.invesdwin.util.concurrent.pool.AgronaObjectPool;
 import de.invesdwin.util.concurrent.pool.IObjectPool;
 import de.invesdwin.util.math.Bytes;

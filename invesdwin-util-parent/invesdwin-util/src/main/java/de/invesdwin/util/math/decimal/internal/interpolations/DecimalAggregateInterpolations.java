@@ -1,7 +1,6 @@
 package de.invesdwin.util.math.decimal.internal.interpolations;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.concurrent.NotThreadSafe;
@@ -22,6 +21,7 @@ import com.graphbuilder.geom.PointFactory;
 
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.bean.tuple.Pair;
+import de.invesdwin.util.collections.Collections;
 import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.decimal.ADecimal;

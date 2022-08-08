@@ -3,7 +3,6 @@ package de.invesdwin.util.math.decimal;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -11,6 +10,7 @@ import javax.annotation.concurrent.ThreadSafe;
 import org.junit.jupiter.api.Test;
 
 import de.invesdwin.util.assertions.Assertions;
+import de.invesdwin.util.collections.Arrays;
 import de.invesdwin.util.lang.Objects;
 
 @ThreadSafe
@@ -55,8 +55,9 @@ public class DecimalTest {
     public void testMultiply() {
         Assertions.assertThat(new Decimal("13191").multiply(new Decimal("1352255913000")).toString())
                 .isIn("17837607748383000", /* double imprecision adds 2 */"17837607748383002");
-        Assertions.assertThat(new Decimal("13191").multiply(new Decimal("1352255913000"))).isIn(
-                new Decimal("17837607748383000"), /* double imprecision adds 2 */new Decimal("17837607748383002"));
+        Assertions.assertThat(new Decimal("13191").multiply(new Decimal("1352255913000")))
+                .isIn(new Decimal("17837607748383000"),
+                        /* double imprecision adds 2 */new Decimal("17837607748383002"));
     }
 
     @Test

@@ -6,11 +6,10 @@ import java.util.List;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import org.apache.commons.lang3.ArrayUtils;
-
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.collections.list.IFastToListProvider;
+import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.lang.reflection.Reflections;
 
 @SuppressWarnings("restriction")
@@ -42,7 +41,7 @@ public class ArraySubListCloseableIterable<E> implements ICloseableIterable<E>, 
     private final List<? extends E> arraySubList;
     private int cachedSize = 0;
     @SuppressWarnings("unchecked")
-    private E[] cachedArray = (E[]) ArrayUtils.EMPTY_OBJECT_ARRAY;
+    private E[] cachedArray = (E[]) Objects.EMPTY_ARRAY;
     private int cachedOffset = 0;
 
     public ArraySubListCloseableIterable(final List<? extends E> arraySubList) {
@@ -93,7 +92,7 @@ public class ArraySubListCloseableIterable<E> implements ICloseableIterable<E>, 
     @SuppressWarnings("unchecked")
     public synchronized void reset() {
         cachedSize = 0;
-        cachedArray = (E[]) ArrayUtils.EMPTY_OBJECT_ARRAY;
+        cachedArray = (E[]) Objects.EMPTY_ARRAY;
         cachedOffset = 0;
     }
 

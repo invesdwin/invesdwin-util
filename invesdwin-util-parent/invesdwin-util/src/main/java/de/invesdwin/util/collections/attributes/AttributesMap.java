@@ -1,6 +1,5 @@
 package de.invesdwin.util.collections.attributes;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
@@ -8,6 +7,7 @@ import java.util.function.Supplier;
 
 import javax.annotation.concurrent.ThreadSafe;
 
+import de.invesdwin.util.collections.Collections;
 import de.invesdwin.util.collections.delegate.ADelegateMap;
 
 @ThreadSafe

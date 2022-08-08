@@ -1,17 +1,17 @@
 package de.invesdwin.util.math.decimal.internal.randomizers.impl;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
 import javax.annotation.concurrent.ThreadSafe;
 
 import org.apache.commons.math3.random.RandomAdaptor;
-import org.apache.commons.math3.random.RandomGenerator;
 
+import de.invesdwin.util.collections.Collections;
 import de.invesdwin.util.math.decimal.ADecimal;
 import de.invesdwin.util.math.decimal.IDecimalAggregate;
+import de.invesdwin.util.math.random.IRandomGenerator;
 
 @ThreadSafe
 public class ShuffleRandomizer<E extends ADecimal<E>> implements IDecimalRandomizer<E> {
@@ -23,7 +23,7 @@ public class ShuffleRandomizer<E extends ADecimal<E>> implements IDecimalRandomi
     }
 
     @Override
-    public Iterator<E> randomize(final RandomGenerator random) {
+    public Iterator<E> randomize(final IRandomGenerator random) {
         final List<E> sampleCopy = new ArrayList<E>(sample);
         Collections.shuffle(sampleCopy, new RandomAdaptor(random));
         return sampleCopy.iterator();

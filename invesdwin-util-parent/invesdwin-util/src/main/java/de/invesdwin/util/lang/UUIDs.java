@@ -4,9 +4,8 @@ import java.util.UUID;
 
 import javax.annotation.concurrent.Immutable;
 
-import org.apache.commons.math3.random.RandomGenerator;
-
-import de.invesdwin.util.math.random.RandomGenerators;
+import de.invesdwin.util.math.random.IRandomGenerator;
+import de.invesdwin.util.math.random.PseudoRandomGenerators;
 
 @Immutable
 public final class UUIDs {
@@ -24,8 +23,8 @@ public final class UUIDs {
      * 
      * See: http://stackoverflow.com/questions/14532976/performance-of-random-uuid-generation-with-java-7-or-java-6
      */
-    public static String newPseudorandomUUID() {
-        final RandomGenerator random = RandomGenerators.currentThreadLocalRandom();
+    public static String newPseudoRandomUUID() {
+        final IRandomGenerator random = PseudoRandomGenerators.getThreadLocalPseudoRandom();
         return new UUID(random.nextLong(), random.nextLong()).toString();
     }
 

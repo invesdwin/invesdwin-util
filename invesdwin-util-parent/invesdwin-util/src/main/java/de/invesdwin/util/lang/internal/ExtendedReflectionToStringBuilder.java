@@ -9,11 +9,11 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.apache.commons.lang3.builder.ToStringSummary;
 
+import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.lang.reflection.field.IUnsafeField;
 
 @NotThreadSafe
@@ -122,7 +122,7 @@ public class ExtendedReflectionToStringBuilder extends ReflectionToStringBuilder
 
     static String[] toNoNullStringArray(final Collection<String> collection) {
         if (collection == null) {
-            return ArrayUtils.EMPTY_STRING_ARRAY;
+            return Strings.EMPTY_ARRAY;
         }
         return toNoNullStringArray(collection.toArray());
     }
@@ -134,7 +134,7 @@ public class ExtendedReflectionToStringBuilder extends ReflectionToStringBuilder
                 list.add(e.toString());
             }
         }
-        return list.toArray(ArrayUtils.EMPTY_STRING_ARRAY);
+        return list.toArray(Strings.EMPTY_ARRAY);
     }
 
     public static String toStringExclude(final Object object, final String... excludeFieldNames) {

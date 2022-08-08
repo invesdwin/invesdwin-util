@@ -1,10 +1,10 @@
 package de.invesdwin.util.collections.loadingcache.historical.query.internal.core;
 
-import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.concurrent.Immutable;
 
+import de.invesdwin.util.collections.Collections;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.WrapperCloseableIterable;
 import de.invesdwin.util.collections.loadingcache.historical.IHistoricalEntry;

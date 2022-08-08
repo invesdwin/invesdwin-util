@@ -1,7 +1,6 @@
 package de.invesdwin.util.collections.factory;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,6 +15,7 @@ import com.koloboke.collect.impl.hash.LHashParallelKVObjObjMapFactoryImpl;
 import com.koloboke.collect.map.hash.HashObjObjMapFactory;
 import com.koloboke.collect.set.hash.HashObjSetFactory;
 
+import de.invesdwin.util.collections.Collections;
 import de.invesdwin.util.collections.bitset.IBitSet;
 import de.invesdwin.util.collections.bitset.JavaBitSet;
 import de.invesdwin.util.collections.bitset.RoaringBitSet;

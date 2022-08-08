@@ -11,7 +11,6 @@ import java.nio.Buffer;
 import java.nio.ByteOrder;
 import java.nio.channels.ReadableByteChannel;
 import java.security.MessageDigest;
-import java.util.Arrays;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -19,6 +18,7 @@ import org.agrona.BufferUtil;
 import org.agrona.DirectBuffer;
 import org.agrona.MutableDirectBuffer;
 
+import de.invesdwin.util.collections.Arrays;
 import de.invesdwin.util.concurrent.pool.AgronaObjectPool;
 import de.invesdwin.util.concurrent.pool.IObjectPool;
 import de.invesdwin.util.error.FastEOFException;

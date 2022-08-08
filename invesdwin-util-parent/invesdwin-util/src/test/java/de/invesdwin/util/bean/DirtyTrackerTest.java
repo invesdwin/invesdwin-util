@@ -2,7 +2,6 @@ package de.invesdwin.util.bean;
 
 import java.beans.PropertyChangeEvent;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.annotation.concurrent.NotThreadSafe;
@@ -10,6 +9,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 import org.junit.jupiter.api.Test;
 
 import de.invesdwin.util.assertions.Assertions;
+import de.invesdwin.util.collections.Arrays;
 
 @NotThreadSafe
 public class DirtyTrackerTest {

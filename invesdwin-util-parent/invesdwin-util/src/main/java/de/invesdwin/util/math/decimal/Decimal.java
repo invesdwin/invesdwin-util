@@ -3,7 +3,6 @@ package de.invesdwin.util.math.decimal;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.function.Function;
@@ -11,6 +10,7 @@ import java.util.function.Function;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.bean.tuple.Pair;
+import de.invesdwin.util.collections.Arrays;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.list.Lists;
 import de.invesdwin.util.collections.loadingcache.ALoadingCache;

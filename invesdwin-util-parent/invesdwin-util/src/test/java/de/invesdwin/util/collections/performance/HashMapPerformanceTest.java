@@ -1,6 +1,5 @@
 package de.invesdwin.util.collections.performance;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -13,6 +12,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import de.invesdwin.util.assertions.Assertions;
+import de.invesdwin.util.collections.Collections;
 import de.invesdwin.util.collections.list.Lists;
 import de.invesdwin.util.concurrent.loop.LoopInterruptedCheck;
 import de.invesdwin.util.time.Instant;

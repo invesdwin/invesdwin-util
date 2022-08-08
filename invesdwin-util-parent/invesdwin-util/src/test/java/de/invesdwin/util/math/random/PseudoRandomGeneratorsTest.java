@@ -4,7 +4,6 @@ import java.util.concurrent.Callable;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import org.apache.commons.math3.random.RandomGenerator;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
@@ -13,34 +12,34 @@ import de.invesdwin.util.time.duration.Duration;
 
 @Disabled("manual test")
 @NotThreadSafe
-public class RandomGeneratorsTest {
+public class PseudoRandomGeneratorsTest {
 
     @Test
     public void testPerformance() throws Exception {
-        testRandomGenerator("Xoroshiro", new Callable<RandomGenerator>() {
+        testRandomGenerator("Xoroshiro", new Callable<IRandomGenerator>() {
 
-            private final RandomGenerator random = RandomGenerators.newDefaultRandom();
+            private final IRandomGenerator random = PseudoRandomGenerators.newPseudoRandom();
 
             @Override
-            public RandomGenerator call() throws Exception {
+            public IRandomGenerator call() throws Exception {
                 return random;
             }
         });
-        testRandomGenerator("ThreadLocalRandom", new Callable<RandomGenerator>() {
+        testRandomGenerator("ThreadLocalRandom", new Callable<IRandomGenerator>() {
             @Override
-            public RandomGenerator call() throws Exception {
-                return RandomGenerators.currentThreadLocalRandom();
+            public IRandomGenerator call() throws Exception {
+                return PseudoRandomGenerators.getThreadLocalPseudoRandom();
             }
         });
-        testRandomGenerator("JdkThreadLocalRandom", new Callable<RandomGenerator>() {
+        testRandomGenerator("JdkThreadLocalRandom", new Callable<IRandomGenerator>() {
             @Override
-            public RandomGenerator call() throws Exception {
+            public IRandomGenerator call() throws Exception {
                 return new RandomGeneratorAdapter(java.util.concurrent.ThreadLocalRandom.current());
             }
         });
     }
 
-    private Duration testRandomGenerator(final String name, final Callable<RandomGenerator> random) throws Exception {
+    private Duration testRandomGenerator(final String name, final Callable<IRandomGenerator> random) throws Exception {
         final Instant start = new Instant();
         for (long i = 0; i < 1000000000L; i++) {
             random.call().nextDouble();

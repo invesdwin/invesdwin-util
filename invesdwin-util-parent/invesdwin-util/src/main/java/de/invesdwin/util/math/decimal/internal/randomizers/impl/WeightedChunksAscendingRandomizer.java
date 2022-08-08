@@ -5,12 +5,11 @@ import java.util.List;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import org.apache.commons.math3.random.RandomGenerator;
-
 import de.invesdwin.util.bean.tuple.Pair;
 import de.invesdwin.util.collections.list.Lists;
 import de.invesdwin.util.math.decimal.ADecimal;
 import de.invesdwin.util.math.decimal.IDecimalAggregate;
+import de.invesdwin.util.math.random.IRandomGenerator;
 
 @NotThreadSafe
 public class WeightedChunksAscendingRandomizer<E extends ADecimal<E>> implements IDecimalRandomizer<E> {
@@ -38,7 +37,7 @@ public class WeightedChunksAscendingRandomizer<E extends ADecimal<E>> implements
     }
 
     @Override
-    public Iterator<E> randomize(final RandomGenerator random) {
+    public Iterator<E> randomize(final IRandomGenerator random) {
         return new Iterator<E>() {
 
             private int resampleIdx = 0;
@@ -59,7 +58,7 @@ public class WeightedChunksAscendingRandomizer<E extends ADecimal<E>> implements
         };
     }
 
-    private List<E> getSampleChunk(final RandomGenerator random) {
+    private List<E> getSampleChunk(final IRandomGenerator random) {
         final double chunkThreshold = random.nextDouble();
         for (int i = 0; i < threshold_chunk.length; i++) {
             final Pair<Double, ? extends List<E>> pair = threshold_chunk[i];

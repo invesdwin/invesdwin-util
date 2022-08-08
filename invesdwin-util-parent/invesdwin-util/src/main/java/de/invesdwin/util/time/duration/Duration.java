@@ -1,6 +1,5 @@
 package de.invesdwin.util.time.duration;
 
-import java.util.Arrays;
 import java.util.List;
 
 import javax.annotation.concurrent.GuardedBy;
@@ -9,6 +8,7 @@ import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import de.invesdwin.util.collections.Arrays;
 import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.lang.comparator.IComparator;

@@ -1,13 +1,13 @@
 package de.invesdwin.util.collections.loadingcache.historical.key;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import javax.annotation.concurrent.ThreadSafe;
 
+import de.invesdwin.util.collections.Collections;
 import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
 import de.invesdwin.util.collections.loadingcache.historical.key.internal.ANonRecursivePullingHistoricalCacheAdjustKeyProvider;
 import de.invesdwin.util.collections.loadingcache.historical.key.internal.ARecursivePullingHistoricalCacheAdjustKeyProvider;

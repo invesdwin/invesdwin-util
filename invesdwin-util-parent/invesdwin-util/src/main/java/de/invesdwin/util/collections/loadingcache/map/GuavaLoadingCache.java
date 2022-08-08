@@ -1,7 +1,6 @@
 package de.invesdwin.util.collections.loadingcache.map;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -9,6 +8,7 @@ import java.util.function.Function;
 
 import javax.annotation.concurrent.ThreadSafe;
 
+import de.invesdwin.util.collections.Collections;
 import de.invesdwin.util.collections.loadingcache.ILoadingCache;
 import de.invesdwin.util.collections.loadingcache.guava.AGuavaLoadingCacheMap;
 import de.invesdwin.util.collections.loadingcache.guava.GuavaLoadingCacheMapConfig;

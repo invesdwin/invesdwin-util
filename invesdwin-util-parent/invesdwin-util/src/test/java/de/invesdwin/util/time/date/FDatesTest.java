@@ -1,12 +1,11 @@
 package de.invesdwin.util.time.date;
 
-import java.util.Arrays;
-
 import javax.annotation.concurrent.NotThreadSafe;
 
 import org.junit.jupiter.api.Test;
 
 import de.invesdwin.util.assertions.Assertions;
+import de.invesdwin.util.collections.Arrays;
 import de.invesdwin.util.time.date.timezone.FTimeZone;
 import de.invesdwin.util.time.date.timezone.TimeZones;
 

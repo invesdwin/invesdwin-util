@@ -1,9 +1,7 @@
 package de.invesdwin.util.lang;
 
 import java.io.Serializable;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -20,6 +18,7 @@ import org.nustaq.serialization.FSTConfiguration;
 
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
 import de.invesdwin.norva.beanpath.BeanPathObjects;
+import de.invesdwin.util.collections.Arrays;
 import de.invesdwin.util.lang.comparator.IComparator;
 import de.invesdwin.util.lang.internal.AObjectsStaticFacade;
 import de.invesdwin.util.marshallers.serde.LocalFastSerializingSerde;
@@ -65,8 +64,8 @@ public final class Objects extends AObjectsStaticFacade {
     public static boolean equals(@Nullable final Object a, @Nullable final Object b) {
         //CHECKSTYLE:ON
         if (a != null && a.getClass().isArray() && b != null && b.getClass().isArray()) {
-            final int aLength = Array.getLength(a);
-            final int bLength = Array.getLength(b);
+            final int aLength = Arrays.getLength(a);
+            final int bLength = Arrays.getLength(b);
             if (aLength != bLength) {
                 return false;
             } else if (aLength == 0 && bLength == 0) {
@@ -275,7 +274,7 @@ public final class Objects extends AObjectsStaticFacade {
         if (!colsInconsistent) {
             return matrix;
         }
-        final T[][] fixedMatrix = (T[][]) Array.newInstance(matrix.getClass().getComponentType(), rows, cols);
+        final T[][] fixedMatrix = (T[][]) Arrays.newInstance(matrix.getClass().getComponentType(), rows, cols);
         for (int i = 0; i < matrix.length; i++) {
             final T[] vector = matrix[i];
             final T[] fixedVector = fixedMatrix[i];

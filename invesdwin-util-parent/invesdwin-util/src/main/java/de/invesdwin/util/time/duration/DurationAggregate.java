@@ -1,10 +1,10 @@
 package de.invesdwin.util.time.duration;
 
-import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.concurrent.Immutable;
 
+import de.invesdwin.util.collections.Collections;
 import de.invesdwin.util.collections.list.Lists;
 import de.invesdwin.util.math.Longs;
 import de.invesdwin.util.math.decimal.Decimal;

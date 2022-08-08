@@ -4,11 +4,11 @@ import static java.lang.Math.exp;
 import static java.lang.Math.log;
 import static java.lang.Math.sqrt;
 
-import java.util.Arrays;
-
 import javax.annotation.concurrent.Immutable;
 
 import org.apache.commons.math3.distribution.NormalDistribution;
+
+import de.invesdwin.util.collections.Arrays;
 
 @Immutable
 public final class AndersonDarling {

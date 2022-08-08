@@ -1,6 +1,5 @@
 package de.invesdwin.util.collections;
 
-import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.Map.Entry;
 
@@ -31,7 +30,7 @@ public class Collections extends ACollectionsStaticFacade {
             return null;
         } else {
             try {
-                final T[] newArray = (T[]) Array.newInstance(type, 0);
+                final T[] newArray = (T[]) Arrays.newInstance(type, 0);
                 return col.toArray(newArray);
             } catch (final Exception e) {
                 throw new RuntimeException(e);

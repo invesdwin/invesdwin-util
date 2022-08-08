@@ -1,7 +1,6 @@
 package de.invesdwin.util.time.date.holiday.provider.jollyday;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -14,6 +13,7 @@ import javax.annotation.concurrent.Immutable;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
+import de.invesdwin.util.collections.Collections;
 import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.time.date.holiday.IHolidayManager;

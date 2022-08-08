@@ -35,7 +35,6 @@ import static org.agrona.BufferUtil.arrayOffset;
 
 import java.io.IOException;
 import java.nio.ByteOrder;
-import java.util.Arrays;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
@@ -45,6 +44,7 @@ import org.agrona.DirectBuffer;
 import org.agrona.LangUtil;
 import org.agrona.MutableDirectBuffer;
 
+import de.invesdwin.util.collections.Arrays;
 import de.invesdwin.util.lang.reflection.Reflections;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 

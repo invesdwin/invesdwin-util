@@ -2,8 +2,9 @@ package de.invesdwin.util.collections.iterable;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import com.google.common.collect.Iterators;
 import com.google.common.collect.PeekingIterator;
+
+import de.invesdwin.util.collections.Iterators;
 
 @NotThreadSafe
 public class PeekingCloseableIterator<E> implements ICloseableIterator<E>, PeekingIterator<E> {

@@ -1,13 +1,13 @@
 package de.invesdwin.util.collections.fast.concurrent;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.ListIterator;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
+import de.invesdwin.util.collections.Collections;
 import de.invesdwin.util.collections.fast.IFastIterableList;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;

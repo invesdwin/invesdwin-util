@@ -4,8 +4,7 @@ import java.util.List;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import org.apache.commons.lang3.ArrayUtils;
-
+import de.invesdwin.util.collections.Arrays;
 import de.invesdwin.util.collections.fast.IFastIterableList;
 
 @NotThreadSafe
@@ -32,7 +31,7 @@ public class ReverseUnmodifiableFastIterableList<E> extends ReverseUnmodifiableL
                 prevAsArray = asArray;
             } else {
                 final E[] reverseAsArray = asArray.clone();
-                ArrayUtils.reverse(reverseAsArray);
+                Arrays.reverse(reverseAsArray);
                 prevReverseAsArray = reverseAsArray;
                 prevAsArray = asArray;
             }

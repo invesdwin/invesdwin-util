@@ -3,11 +3,11 @@ package de.invesdwin.util.math;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.annotation.concurrent.Immutable;
 
+import de.invesdwin.util.collections.Arrays;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.lang.comparator.IComparator;
 import de.invesdwin.util.math.decimal.ADecimal;

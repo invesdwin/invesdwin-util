@@ -5,10 +5,9 @@ import java.util.List;
 
 import javax.annotation.concurrent.ThreadSafe;
 
-import org.apache.commons.math3.random.RandomGenerator;
-
 import de.invesdwin.util.math.decimal.ADecimal;
 import de.invesdwin.util.math.decimal.IDecimalAggregate;
+import de.invesdwin.util.math.random.IRandomGenerator;
 
 @ThreadSafe
 public class BootstrapRandomizer<E extends ADecimal<E>> implements IDecimalRandomizer<E> {
@@ -20,7 +19,7 @@ public class BootstrapRandomizer<E extends ADecimal<E>> implements IDecimalRando
     }
 
     @Override
-    public Iterator<E> randomize(final RandomGenerator random) {
+    public Iterator<E> randomize(final IRandomGenerator random) {
         return new Iterator<E>() {
 
             private final int size = sample.size();

@@ -2,8 +2,6 @@ package de.invesdwin.util.math.expression.function;
 
 import javax.annotation.concurrent.Immutable;
 
-import org.apache.commons.math3.random.RandomGenerator;
-
 import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.expression.ExpressionReturnType;
 import de.invesdwin.util.math.expression.IExpression;
@@ -14,7 +12,8 @@ import de.invesdwin.util.math.expression.eval.function.ADoubleUnaryFunction;
 import de.invesdwin.util.math.expression.lambda.IEvaluateDouble;
 import de.invesdwin.util.math.expression.lambda.IEvaluateDoubleFDate;
 import de.invesdwin.util.math.expression.lambda.IEvaluateDoubleKey;
-import de.invesdwin.util.math.random.RandomGenerators;
+import de.invesdwin.util.math.random.IRandomGenerator;
+import de.invesdwin.util.math.random.PseudoRandomGenerators;
 
 @Immutable
 public final class MathFunctions {
@@ -2101,12 +2100,12 @@ public final class MathFunctions {
             @Override
             public IEvaluateDoubleFDate newEvaluateDoubleFDate(final String context, final IExpression[] args) {
                 if (args.length == 0) {
-                    final RandomGenerator random = RandomGenerators.newDefaultRandom();
+                    final IRandomGenerator random = PseudoRandomGenerators.newPseudoRandom();
                     return key -> random.nextDouble();
                 } else {
                     final IEvaluateDouble aF = args[0].newEvaluateDouble();
                     final long seed = (long) aF.evaluateDouble();
-                    final RandomGenerator random = RandomGenerators.newDefaultRandom(seed);
+                    final IRandomGenerator random = PseudoRandomGenerators.newPseudoRandom(seed);
                     return key -> {
                         return random.nextDouble();
                     };
@@ -2116,12 +2115,12 @@ public final class MathFunctions {
             @Override
             public IEvaluateDoubleKey newEvaluateDoubleKey(final String context, final IExpression[] args) {
                 if (args.length == 0) {
-                    final RandomGenerator random = RandomGenerators.newDefaultRandom();
+                    final IRandomGenerator random = PseudoRandomGenerators.newPseudoRandom();
                     return key -> random.nextDouble();
                 } else {
                     final IEvaluateDouble aF = args[0].newEvaluateDouble();
                     final long seed = (long) aF.evaluateDouble();
-                    final RandomGenerator random = RandomGenerators.newDefaultRandom(seed);
+                    final IRandomGenerator random = PseudoRandomGenerators.newPseudoRandom(seed);
                     return key -> {
                         return random.nextDouble();
                     };
@@ -2131,12 +2130,12 @@ public final class MathFunctions {
             @Override
             public IEvaluateDouble newEvaluateDouble(final String context, final IExpression[] args) {
                 if (args.length == 0) {
-                    final RandomGenerator random = RandomGenerators.newDefaultRandom();
+                    final IRandomGenerator random = PseudoRandomGenerators.newPseudoRandom();
                     return () -> random.nextDouble();
                 } else {
                     final IEvaluateDouble aF = args[0].newEvaluateDouble();
                     final long seed = (long) aF.evaluateDouble();
-                    final RandomGenerator random = RandomGenerators.newDefaultRandom(seed);
+                    final IRandomGenerator random = PseudoRandomGenerators.newPseudoRandom(seed);
                     return () -> {
                         return random.nextDouble();
                     };

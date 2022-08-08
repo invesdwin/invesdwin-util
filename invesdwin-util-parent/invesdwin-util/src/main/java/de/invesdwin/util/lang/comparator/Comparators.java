@@ -1,12 +1,13 @@
 package de.invesdwin.util.lang.comparator;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.ListIterator;
 
 import javax.annotation.concurrent.Immutable;
+
+import de.invesdwin.util.collections.Arrays;
+import de.invesdwin.util.collections.Collections;
 
 @Immutable
 public final class Comparators {

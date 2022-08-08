@@ -11,7 +11,7 @@ import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.list.Lists;
 import de.invesdwin.util.math.decimal.Decimal;
 import de.invesdwin.util.math.decimal.IDecimalAggregate;
-import de.invesdwin.util.math.random.RandomGenerators;
+import de.invesdwin.util.math.random.PseudoRandomGenerators;
 
 @NotThreadSafe
 public class DecimalAggregateRandomizersTest {
@@ -28,7 +28,7 @@ public class DecimalAggregateRandomizersTest {
         final IDecimalAggregate<Decimal> agg = Decimal.valueOf(values);
         for (int i = 0; i < REPEAT_COUNT; i++) {
             final List<? extends Decimal> resampled = Lists
-                    .toList(agg.randomize().shuffle(RandomGenerators.newDefaultRandom()));
+                    .toList(agg.randomize().shuffle(PseudoRandomGenerators.newPseudoRandom()));
             Assertions.assertThat(values).hasSameSizeAs(resampled);
         }
     }
@@ -43,7 +43,7 @@ public class DecimalAggregateRandomizersTest {
         final IDecimalAggregate<Decimal> agg = Decimal.valueOf(values);
         for (int i = 0; i < REPEAT_COUNT; i++) {
             final List<? extends Decimal> resampled = Lists
-                    .toList(agg.randomize().bootstrap(RandomGenerators.newDefaultRandom()));
+                    .toList(agg.randomize().bootstrap(PseudoRandomGenerators.newPseudoRandom()));
             Assertions.assertThat(values).hasSameSizeAs(resampled);
         }
     }
@@ -58,7 +58,7 @@ public class DecimalAggregateRandomizersTest {
         final IDecimalAggregate<Decimal> agg = Decimal.valueOf(values);
         for (int i = 0; i < REPEAT_COUNT; i++) {
             final List<? extends Decimal> resampled = Lists
-                    .toList(agg.randomize().circularBlockBootstrap(RandomGenerators.newDefaultRandom()));
+                    .toList(agg.randomize().circularBlockBootstrap(PseudoRandomGenerators.newPseudoRandom()));
             Assertions.assertThat(values).hasSameSizeAs(resampled);
         }
     }
@@ -73,7 +73,7 @@ public class DecimalAggregateRandomizersTest {
         final IDecimalAggregate<Decimal> agg = Decimal.valueOf(values);
         for (int i = 0; i < REPEAT_COUNT; i++) {
             final List<? extends Decimal> resampled = Lists
-                    .toList(agg.randomize().stationaryBootstrap(RandomGenerators.newDefaultRandom()));
+                    .toList(agg.randomize().stationaryBootstrap(PseudoRandomGenerators.newPseudoRandom()));
             Assertions.assertThat(values).hasSameSizeAs(resampled);
         }
     }

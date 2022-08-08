@@ -1,17 +1,13 @@
 package de.invesdwin.util.math.random;
 
-import java.util.Random;
-
 import javax.annotation.concurrent.Immutable;
 
-import org.apache.commons.math3.random.RandomGenerator;
-
 @Immutable
-public class RandomGeneratorAdapter implements RandomGenerator {
+public class RandomGeneratorAdapter implements IRandomGenerator {
 
-    private final Random delegate;
+    private final java.util.Random delegate;
 
-    public RandomGeneratorAdapter(final Random delegate) {
+    public RandomGeneratorAdapter(final java.util.Random delegate) {
         this.delegate = delegate;
     }
 

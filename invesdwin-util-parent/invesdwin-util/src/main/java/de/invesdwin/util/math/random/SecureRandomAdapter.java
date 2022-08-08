@@ -1,17 +1,13 @@
 package de.invesdwin.util.math.random;
 
-import java.security.SecureRandomParameters;
-
 import javax.annotation.concurrent.Immutable;
 
-import org.apache.commons.math3.random.RandomGenerator;
-
 @Immutable
-public class SecureRandomAdapter extends java.security.SecureRandom implements RandomGenerator {
+public class SecureRandomAdapter extends java.security.SecureRandom implements IRandomGenerator {
 
-    private final RandomGenerator delegate;
+    private final IRandomGenerator delegate;
 
-    public SecureRandomAdapter(final RandomGenerator delegate) {
+    public SecureRandomAdapter(final IRandomGenerator delegate) {
         this.delegate = delegate;
     }
 
@@ -51,12 +47,6 @@ public class SecureRandomAdapter extends java.security.SecureRandom implements R
         delegate.nextBytes(bytes);
     }
 
-    @Deprecated
-    @Override
-    public void nextBytes(final byte[] bytes, final SecureRandomParameters params) {
-        delegate.nextBytes(bytes);
-    }
-
     @Override
     public int nextInt() {
         return delegate.nextInt();
@@ -92,16 +82,49 @@ public class SecureRandomAdapter extends java.security.SecureRandom implements R
         return delegate.nextGaussian();
     }
 
-    @Deprecated
     @Override
-    public void reseed() {
-        //noop
+    public float nextFloat(final float minInclusive, final float maxExclusive) {
+        return IRandomGenerator.super.nextFloat(minInclusive, maxExclusive);
     }
 
-    @Deprecated
     @Override
-    public void reseed(final SecureRandomParameters params) {
-        //noop
+    public double nextDouble(final double maxExclusive) {
+        return IRandomGenerator.super.nextDouble(maxExclusive);
+    }
+
+    @Override
+    public int nextInt(final int minInclusive, final int maxExclusive) {
+        return IRandomGenerator.super.nextInt(minInclusive, maxExclusive);
+    }
+
+    @Override
+    public float nextFloat(final float maxExclusive) {
+        return IRandomGenerator.super.nextFloat(maxExclusive);
+    }
+
+    @Override
+    public long nextLong(final long maxExclusive) {
+        return IRandomGenerator.super.nextLong(maxExclusive);
+    }
+
+    @Override
+    public double nextDouble(final double minInclusive, final double maxExclusive) {
+        return IRandomGenerator.super.nextDouble(minInclusive, maxExclusive);
+    }
+
+    @Override
+    public long nextLong(final long minInclusive, final long maxExclusive) {
+        return IRandomGenerator.super.nextLong(minInclusive, maxExclusive);
+    }
+
+    @Override
+    public double nextGaussian(final double mean, final double stddev) {
+        return IRandomGenerator.super.nextGaussian(mean, stddev);
+    }
+
+    @Override
+    public double nextExponential() {
+        return IRandomGenerator.super.nextExponential();
     }
 
 }

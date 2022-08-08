@@ -1,19 +1,18 @@
 package de.invesdwin.util.math.decimal;
 
-import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.MathContext;
 import java.math.RoundingMode;
 import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.norva.marker.IDecimal;
+import de.invesdwin.util.collections.Arrays;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.lang.comparator.IComparator;
 import de.invesdwin.util.lang.description.TextDescription;
@@ -88,7 +87,7 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
         if (vector == null) {
             return null;
         }
-        final E[] destination = (E[]) Array.newInstance(getGenericThis().getClass(), vector.length);
+        final E[] destination = (E[]) Arrays.newInstance(getGenericThis().getClass(), vector.length);
         return fromDefaultValueVector(vector, destination);
     }
 
@@ -104,7 +103,7 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
         if (matrix == null) {
             return null;
         }
-        final E[][] destination = (E[][]) Array.newInstance(getGenericThis().getClass(), matrix.length,
+        final E[][] destination = (E[][]) Arrays.newInstance(getGenericThis().getClass(), matrix.length,
                 matrix[0].length);
         return fromDefaultValueMatrix(matrix, destination);
     }
@@ -147,7 +146,7 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
         if (vector == null) {
             return null;
         }
-        final E[] destination = (E[]) Array.newInstance(getGenericThis().getClass(), vector.length);
+        final E[] destination = (E[]) Arrays.newInstance(getGenericThis().getClass(), vector.length);
         return toObjectVector(vector, destination);
     }
 
@@ -164,9 +163,9 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
             return null;
         }
         if (matrix.length == 0) {
-            return (E[][]) Array.newInstance(getGenericThis().getClass(), 0, 0);
+            return (E[][]) Arrays.newInstance(getGenericThis().getClass(), 0, 0);
         } else {
-            final E[][] destination = (E[][]) Array.newInstance(getGenericThis().getClass(), matrix.length,
+            final E[][] destination = (E[][]) Arrays.newInstance(getGenericThis().getClass(), matrix.length,
                     matrix[0].length);
             return toObjectMatrix(matrix, destination);
         }

@@ -1,7 +1,6 @@
 package de.invesdwin.util.lang;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,6 +10,7 @@ import javax.annotation.concurrent.ThreadSafe;
 import org.junit.jupiter.api.Test;
 
 import de.invesdwin.util.assertions.Assertions;
+import de.invesdwin.util.collections.Arrays;
 import de.invesdwin.util.time.date.FDate;
 
 @ThreadSafe

@@ -1,6 +1,5 @@
 package de.invesdwin.util.math;
 
-import java.util.Arrays;
 import java.util.BitSet;
 
 import javax.annotation.concurrent.NotThreadSafe;
@@ -10,6 +9,7 @@ import org.roaringbitmap.FastAggregation;
 import org.roaringbitmap.RoaringBitmap;
 
 import de.invesdwin.util.assertions.Assertions;
+import de.invesdwin.util.collections.Arrays;
 import de.invesdwin.util.collections.bitset.IBitSet;
 import de.invesdwin.util.collections.bitset.ISkippingIndexProvider;
 import de.invesdwin.util.collections.bitset.JavaBitSet;

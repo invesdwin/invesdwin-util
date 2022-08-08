@@ -1,7 +1,6 @@
 package de.invesdwin.util.concurrent.priority;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.concurrent.NotThreadSafe;
@@ -9,6 +8,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 import org.junit.jupiter.api.Test;
 
 import de.invesdwin.util.assertions.Assertions;
+import de.invesdwin.util.collections.Collections;
 
 @NotThreadSafe
 public class PriorityFutureTest {
@@ -35,7 +35,8 @@ public class PriorityFutureTest {
             }
 
             @Override
-            public void run() {}
+            public void run() {
+            }
 
             @Override
             public String toString() {

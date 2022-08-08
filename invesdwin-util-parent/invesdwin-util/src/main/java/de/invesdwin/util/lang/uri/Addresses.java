@@ -5,11 +5,12 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 
 import javax.annotation.concurrent.Immutable;
+
+import de.invesdwin.util.collections.Collections;
 
 @Immutable
 public final class Addresses {
@@ -30,7 +31,8 @@ public final class Addresses {
         ALL_PORTS = Collections.unmodifiableList(ports);
     }
 
-    private Addresses() {}
+    private Addresses() {
+    }
 
     public static boolean isPort(final String port) {
         try {

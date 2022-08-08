@@ -1,12 +1,13 @@
 package de.invesdwin.util.collections.attributes;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
 import javax.annotation.concurrent.Immutable;
+
+import de.invesdwin.util.collections.Collections;
 
 @Immutable
 public final class EmptyAttributesMap implements IAttributesMap {

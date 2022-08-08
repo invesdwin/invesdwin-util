@@ -1,6 +1,5 @@
 package de.invesdwin.util.streams.buffer.bytes;
 
-import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
@@ -11,6 +10,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import de.invesdwin.util.assertions.Assertions;
+import de.invesdwin.util.collections.Arrays;
 import de.invesdwin.util.concurrent.Executors;
 import de.invesdwin.util.concurrent.future.Futures;
 import de.invesdwin.util.lang.reflection.Reflections;

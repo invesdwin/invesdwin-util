@@ -1,6 +1,5 @@
 package de.invesdwin.util.concurrent;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -12,6 +11,7 @@ import javax.annotation.concurrent.Immutable;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 
+import de.invesdwin.util.collections.Collections;
 import de.invesdwin.util.concurrent.internal.WrappedThreadFactory;
 import de.invesdwin.util.concurrent.priority.PriorityThreadPoolExecutor;
 import de.invesdwin.util.math.Integers;
@@ -32,7 +32,8 @@ public final class Executors {
     private static final int MAX_CACHED_POOL_SIZE = 1000;
     private static int cpuThreadPoolCount = Runtime.getRuntime().availableProcessors();
 
-    private Executors() {}
+    private Executors() {
+    }
 
     /**
      * @see java.util.concurrent.Executors.newCachedThreadPool

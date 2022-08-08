@@ -1,6 +1,5 @@
 package de.invesdwin.util.collections.loadingcache.historical.query.internal.core;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -10,6 +9,7 @@ import javax.annotation.concurrent.ThreadSafe;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.apache.commons.lang3.mutable.MutableInt;
 
+import de.invesdwin.util.collections.Arrays;
 import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.collections.iterable.ACloseableIterator;
 import de.invesdwin.util.collections.iterable.EmptyCloseableIterator;

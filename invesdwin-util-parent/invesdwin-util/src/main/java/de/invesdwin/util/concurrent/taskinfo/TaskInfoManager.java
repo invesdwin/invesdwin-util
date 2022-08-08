@@ -2,7 +2,6 @@ package de.invesdwin.util.concurrent.taskinfo;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -16,6 +15,7 @@ import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.assertions.Assertions;
+import de.invesdwin.util.collections.Collections;
 import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.collections.fast.IFastIterableSet;
 import de.invesdwin.util.concurrent.taskinfo.provider.ITaskInfoProvider;

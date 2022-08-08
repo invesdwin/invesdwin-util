@@ -1,12 +1,12 @@
 package de.invesdwin.util.time.date.holiday.provider.custom;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.util.collections.Arrays;
 import de.invesdwin.util.time.date.FDate;
 import de.invesdwin.util.time.date.holiday.IHolidayManager;
 

@@ -1,13 +1,13 @@
 package de.invesdwin.util.math.decimal;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.Immutable;
 
+import de.invesdwin.util.collections.Arrays;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.list.Lists;
 import de.invesdwin.util.lang.Objects;

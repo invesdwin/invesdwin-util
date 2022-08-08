@@ -1,11 +1,10 @@
 package de.invesdwin.util.streams.buffer.memory;
 
-import java.util.Arrays;
-
 import javax.annotation.concurrent.Immutable;
 
 import org.agrona.DirectBuffer;
 
+import de.invesdwin.util.collections.Arrays;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.math.Longs;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;

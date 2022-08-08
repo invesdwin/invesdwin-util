@@ -1,7 +1,6 @@
 package de.invesdwin.util.collections.loadingcache.map;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -10,6 +9,7 @@ import java.util.function.Function;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
+import de.invesdwin.util.collections.Collections;
 import de.invesdwin.util.collections.fast.concurrent.SynchronizedCollection;
 import de.invesdwin.util.collections.fast.concurrent.SynchronizedMap;
 import de.invesdwin.util.collections.fast.concurrent.SynchronizedSet;

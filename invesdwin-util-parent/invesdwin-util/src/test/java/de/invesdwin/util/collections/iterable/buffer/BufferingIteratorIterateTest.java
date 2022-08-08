@@ -1,7 +1,6 @@
 package de.invesdwin.util.collections.iterable.buffer;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.concurrent.ExecutorService;
@@ -10,17 +9,18 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import org.apache.commons.math3.random.RandomDataGenerator;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
+import de.invesdwin.util.collections.Arrays;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.concurrent.Executors;
 import de.invesdwin.util.concurrent.future.Futures;
 import de.invesdwin.util.math.decimal.Decimal;
 import de.invesdwin.util.math.decimal.scaled.Percent;
 import de.invesdwin.util.math.decimal.scaled.PercentScale;
-import de.invesdwin.util.math.random.RandomGenerators;
+import de.invesdwin.util.math.random.IRandomGenerator;
+import de.invesdwin.util.math.random.PseudoRandomGenerators;
 import de.invesdwin.util.time.Instant;
 
 @NotThreadSafe
@@ -72,7 +72,7 @@ public class BufferingIteratorIterateTest {
     private static long iteratorPerformanceTestBuffering(final int curTest) {
         final Instant start = new Instant();
         final BufferingIterator<Long> list = new BufferingIterator<Long>();
-        final RandomDataGenerator r = new RandomDataGenerator(RandomGenerators.newDefaultRandom());
+        final IRandomGenerator r = PseudoRandomGenerators.newPseudoRandom();
         for (long ilong = 0L; ilong < COUNT_RAND; ilong++) {
             list.add(r.nextLong(Long.MIN_VALUE, Long.MAX_VALUE));
         }
@@ -92,7 +92,7 @@ public class BufferingIteratorIterateTest {
     private static long iteratorPerformanceTestList(final int curTest) {
         final Instant start = new Instant();
         final ArrayList<Long> list = new ArrayList<Long>(COUNT_RAND);
-        final RandomDataGenerator r = new RandomDataGenerator(RandomGenerators.newDefaultRandom());
+        final IRandomGenerator r = PseudoRandomGenerators.newPseudoRandom();
         for (long ilong = 0L; ilong < COUNT_RAND; ilong++) {
             list.add(r.nextLong(Long.MIN_VALUE, Long.MAX_VALUE));
         }

@@ -2,12 +2,12 @@ package de.invesdwin.util.lang.finalizer;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
+import de.invesdwin.util.collections.Collections;
 import de.invesdwin.util.concurrent.reference.persistent.ACompressingWeakReference;
 import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.lang.finalizer.internal.FallbackFinalizerManagerProvider;

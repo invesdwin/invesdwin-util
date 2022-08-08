@@ -1,9 +1,7 @@
 package de.invesdwin.util.collections.list;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
@@ -12,6 +10,8 @@ import java.util.NoSuchElementException;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
+import de.invesdwin.util.collections.Arrays;
+import de.invesdwin.util.collections.Collections;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.collections.iterable.WrapperCloseableIterable;

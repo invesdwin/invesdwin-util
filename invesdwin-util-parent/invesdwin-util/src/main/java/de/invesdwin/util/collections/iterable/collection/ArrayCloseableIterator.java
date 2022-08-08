@@ -1,11 +1,11 @@
 package de.invesdwin.util.collections.iterable.collection;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.util.collections.Arrays;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.collections.list.IFastToListProvider;
 import de.invesdwin.util.error.FastNoSuchElementException;

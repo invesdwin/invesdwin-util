@@ -1,7 +1,6 @@
 package de.invesdwin.util.collections.loadingcache.historical.key.internal;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -10,6 +9,7 @@ import javax.annotation.concurrent.ThreadSafe;
 
 import org.apache.commons.lang3.BooleanUtils;
 
+import de.invesdwin.util.collections.Collections;
 import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
 import de.invesdwin.util.collections.loadingcache.historical.key.AdjustedFDate;
 import de.invesdwin.util.collections.loadingcache.historical.key.IHistoricalCacheAdjustKeyProvider;

@@ -2,8 +2,6 @@ package de.invesdwin.util.swing.table;
 
 import java.text.Collator;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -11,6 +9,9 @@ import javax.annotation.concurrent.NotThreadSafe;
 import javax.swing.RowFilter;
 import javax.swing.RowSorter;
 import javax.swing.SortOrder;
+
+import de.invesdwin.util.collections.Arrays;
+import de.invesdwin.util.collections.Collections;
 
 /**
  * An implementation of <code>RowSorter</code> that provides sorting and filtering around a grid-based data model.

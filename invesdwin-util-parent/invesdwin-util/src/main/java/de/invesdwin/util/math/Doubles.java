@@ -2,13 +2,13 @@ package de.invesdwin.util.math;
 
 import java.math.RoundingMode;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
+import de.invesdwin.util.collections.Arrays;
 import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.lang.comparator.IComparator;

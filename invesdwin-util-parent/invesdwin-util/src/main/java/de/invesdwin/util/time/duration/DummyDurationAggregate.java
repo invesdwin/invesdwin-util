@@ -1,16 +1,18 @@
 package de.invesdwin.util.time.duration;
 
-import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.concurrent.Immutable;
+
+import de.invesdwin.util.collections.Collections;
 
 @Immutable
 final class DummyDurationAggregate implements IDurationAggregate {
 
     public static final DummyDurationAggregate INSTANCE = new DummyDurationAggregate();
 
-    private DummyDurationAggregate() {}
+    private DummyDurationAggregate() {
+    }
 
     @Override
     public IDurationAggregate reverse() {

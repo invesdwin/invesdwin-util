@@ -1,12 +1,12 @@
 package de.invesdwin.util.time.range;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.bean.AValueObject;
+import de.invesdwin.util.collections.Arrays;
 import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.lang.comparator.ACriteriaComparator;
 import de.invesdwin.util.lang.comparator.IComparator;

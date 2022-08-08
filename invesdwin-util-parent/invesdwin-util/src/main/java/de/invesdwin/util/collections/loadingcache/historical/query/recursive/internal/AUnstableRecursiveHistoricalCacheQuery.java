@@ -8,10 +8,10 @@ import java.util.Optional;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
-import com.google.common.collect.Iterators;
 import com.google.common.collect.PeekingIterator;
 
 import de.invesdwin.util.assertions.Assertions;
+import de.invesdwin.util.collections.Iterators;
 import de.invesdwin.util.collections.eviction.EvictionMode;
 import de.invesdwin.util.collections.eviction.IEvictionMap;
 import de.invesdwin.util.collections.loadingcache.ALoadingCache;

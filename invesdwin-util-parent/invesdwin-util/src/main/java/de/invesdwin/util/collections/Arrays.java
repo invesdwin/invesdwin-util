@@ -7,7 +7,8 @@ import de.invesdwin.util.collections.internal.AArraysStaticFacade;
 
 @Immutable
 @StaticFacadeDefinition(name = "de.invesdwin.util.collections.internal.AArraysStaticFacade", targets = {
-        java.util.Arrays.class, java.lang.reflect.Array.class, org.apache.commons.lang3.ArrayUtils.class })
+        java.util.Arrays.class, java.lang.reflect.Array.class, org.apache.commons.lang3.ArrayUtils.class,
+        org.apache.commons.math3.util.MathArrays.class })
 public class Arrays extends AArraysStaticFacade {
 
     @SuppressWarnings("unchecked")
