@@ -9,15 +9,11 @@ import de.invesdwin.util.collections.internal.ASetsStaticFacade;
 
 @Immutable
 @StaticFacadeDefinition(name = "de.invesdwin.util.collections.internal.ASetsStaticFacade", targets = {
-        com.google.common.collect.Sets.class,
-        org.apache.commons.collections4.SetUtils.class }, filterMethodSignatureExpressions = {
-                ".* com\\.google\\.common\\.collect\\.Sets\\.SetView.* union\\(.*",
-                ".* com\\.google\\.common\\.collect\\.Sets\\.SetView.* difference\\(.*",
-                ".* com\\.google\\.common\\.collect\\.Sets\\.SetView.* intersection\\(.*",
-                ".* java\\.util\\.SortedSet.* unmodifiableNavigableSet\\(.*" })
+        org.apache.commons.collections4.SetUtils.class, com.google.common.collect.Sets.class })
 public final class Sets extends ASetsStaticFacade {
 
-    private Sets() {}
+    private Sets() {
+    }
 
     public static boolean equals(final Set<?> set1, final Set<?> set2) {
         final boolean set1NullOrEmpty = set1 == null || set1.isEmpty();

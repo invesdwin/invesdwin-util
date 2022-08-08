@@ -4,14 +4,12 @@ import java.lang.reflect.Array;
 
 import javax.annotation.concurrent.Immutable;
 
-import org.apache.commons.lang3.ArrayUtils;
-
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
 import de.invesdwin.util.collections.internal.AArraysStaticFacade;
 
 @Immutable
 @StaticFacadeDefinition(name = "de.invesdwin.util.collections.internal.AArraysStaticFacade", targets = {
-        java.util.Arrays.class, ArrayUtils.class })
+        java.util.Arrays.class, org.apache.commons.lang3.ArrayUtils.class })
 public class Arrays extends AArraysStaticFacade {
 
     @SuppressWarnings("unchecked")
