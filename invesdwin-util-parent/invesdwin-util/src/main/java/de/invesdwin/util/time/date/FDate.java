@@ -2,7 +2,6 @@ package de.invesdwin.util.time.date;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
@@ -19,6 +18,7 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 import de.invesdwin.norva.marker.IDate;
+import de.invesdwin.util.collections.Arrays;
 import de.invesdwin.util.collections.loadingcache.historical.IHistoricalEntry;
 import de.invesdwin.util.collections.loadingcache.historical.IHistoricalValue;
 import de.invesdwin.util.lang.Strings;
@@ -485,7 +485,12 @@ public class FDate
 
     /**
      * Go back to the default timezone for a data that was converted into another timezone.
+     * 
+     * WARNING: this can cause issues when apply/revert is used with offsetTimeZone because right at daylight saving
+     * time switch the reference changes and can cause 1 hour difference. So better use getTimeZoneOffset as a long and
+     * use apply/revert with that long value instead of this dynamic version.
      */
+    @Deprecated
     public FDate revertTimeZoneOffset(final FTimeZone timeZone) {
         if (timeZone == null || timeZone.equals(getTimeZone())) {
             return this;

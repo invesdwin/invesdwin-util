@@ -1,7 +1,6 @@
 package de.invesdwin.util.time.date.millis;
 
 import java.time.ZonedDateTime;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
@@ -16,6 +15,7 @@ import org.joda.time.ReadableDateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+import de.invesdwin.util.collections.Arrays;
 import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.time.date.FDate;
@@ -460,7 +460,12 @@ public final class FDateMillis {
 
     /**
      * Go back to the default timezone for a data that was converted into another timezone.
+     * 
+     * WARNING: this can cause issues when apply/revert is used with offsetTimeZone because right at daylight saving
+     * time switch the reference changes and can cause 1 hour difference. So better use getTimeZoneOffset as a long and
+     * use apply/revert with that long value instead of this dynamic version.
      */
+    @Deprecated
     public static long revertTimeZoneOffset(final long millis, final FTimeZone timeZone) {
         final long offset = getTimeZoneOffsetMilliseconds(millis, timeZone);
         return revertTimeZoneOffset(millis, offset);

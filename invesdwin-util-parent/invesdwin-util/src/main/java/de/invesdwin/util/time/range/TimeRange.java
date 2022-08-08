@@ -151,6 +151,32 @@ public class TimeRange extends AValueObject {
         }
     }
 
+    public TimeRange revertTimeZoneOffset(final long fromOffsetMilliseconds,
+            final long toOffsetMilliseconds) {
+        if (fromOffsetMilliseconds == 0 && toOffsetMilliseconds == 0) {
+            return this;
+        } else {
+            return new TimeRange(from.revertTimeZoneOffset(fromOffsetMilliseconds),
+                    to.revertTimeZoneOffset(toOffsetMilliseconds));
+        }
+    }
+
+    @SuppressWarnings("deprecation")
+    public TimeRange revertTimeZoneOffset(final long fromOffsetMilliseconds, final FTimeZone toOffsetTimeZone) {
+        if (fromOffsetMilliseconds == 0 && toOffsetTimeZone == null) {
+            return this;
+        } else {
+            return new TimeRange(from.revertTimeZoneOffset(fromOffsetMilliseconds),
+                    to.revertTimeZoneOffset(toOffsetTimeZone));
+        }
+    }
+
+    /**
+     * WARNING: this can cause issues when apply/revert is used with offsetTimeZone because right at daylight saving
+     * time switch the reference changes and can cause 1 hour difference. So better use getTimeZoneOffset as a long and
+     * use apply/revert with that long value instead of this dynamic version.
+     */
+    @Deprecated
     public TimeRange revertTimeZoneOffset(final FTimeZone offsetTimeZone) {
         if (offsetTimeZone == null) {
             return this;
