@@ -151,8 +151,7 @@ public class TimeRange extends AValueObject {
         }
     }
 
-    public TimeRange revertTimeZoneOffset(final long fromOffsetMilliseconds,
-            final long toOffsetMilliseconds) {
+    public TimeRange revertTimeZoneOffset(final long fromOffsetMilliseconds, final long toOffsetMilliseconds) {
         if (fromOffsetMilliseconds == 0 && toOffsetMilliseconds == 0) {
             return this;
         } else {
