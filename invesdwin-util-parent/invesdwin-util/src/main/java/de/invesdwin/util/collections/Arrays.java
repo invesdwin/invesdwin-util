@@ -1,7 +1,5 @@
 package de.invesdwin.util.collections;
 
-import java.lang.reflect.Array;
-
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
@@ -15,7 +13,7 @@ public class Arrays extends AArraysStaticFacade {
     @SuppressWarnings("unchecked")
     public static <T> T[] concat(final Class<T> type, final T[]... arrays) {
         if (arrays.length == 0) {
-            return (T[]) Array.newInstance(type, 0);
+            return (T[]) newInstance(type, 0);
         }
 
         int finalLength = 0;
@@ -28,7 +26,7 @@ public class Arrays extends AArraysStaticFacade {
             return arrays[0];
         }
 
-        final T[] dest = (T[]) Array.newInstance(type, finalLength);
+        final T[] dest = (T[]) newInstance(type, finalLength);
         int destPos = 0;
 
         for (int i = 0; i < arrays.length; i++) {
@@ -43,7 +41,7 @@ public class Arrays extends AArraysStaticFacade {
     public static <T> T[] concat(final T[]... arrays) {
         if (arrays.length == 0) {
             final Class<?> arrayType = arrays.getClass().getComponentType().getComponentType();
-            return (T[]) Array.newInstance(arrayType, 0);
+            return (T[]) newInstance(arrayType, 0);
         }
 
         int finalLength = 0;
