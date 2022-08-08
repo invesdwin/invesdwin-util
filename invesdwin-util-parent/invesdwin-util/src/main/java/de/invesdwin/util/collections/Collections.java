@@ -14,7 +14,9 @@ import de.invesdwin.util.collections.internal.ACollectionsStaticFacade;
         java.util.Collections.class, org.apache.commons.collections4.CollectionUtils.class,
         com.google.common.collect.Collections2.class }, filterSeeMethodSignatures = {
                 "java.util.Collections#min(java.util.Collection)", "java.util.Collections#max(java.util.Collection)",
-                "org.apache.commons.collections4.CollectionUtils#addAll(java.util.Collection, C...)" })
+                "org.apache.commons.collections4.CollectionUtils#addAll(java.util.Collection, C...)",
+                "org.apache.commons.collections4.CollectionUtils#synchronizedCollection(java.util.Collection)",
+                "org.apache.commons.collections4.CollectionUtils#unmodifiableCollection(java.util.Collection)" })
 public class Collections extends ACollectionsStaticFacade {
 
     @SuppressWarnings("rawtypes")
