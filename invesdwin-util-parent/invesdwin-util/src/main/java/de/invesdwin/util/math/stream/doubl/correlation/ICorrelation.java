@@ -17,7 +17,9 @@ public interface ICorrelation {
      */
     default Percent getCoefficientOfDetermination() {
         final Percent correlation = getCorrelation();
-        if (correlation.isNegative()) {
+        if (correlation == null) {
+            return null;
+        } else if (correlation.isNegative()) {
             return correlation.square().negate();
         } else {
             return correlation.square();
