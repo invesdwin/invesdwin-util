@@ -411,7 +411,7 @@ public final class ByteBuffers {
         }
     }
 
-    public static IByteBuffer wrapSlice(final java.nio.ByteBuffer buffer) {
+    public static IByteBuffer wrapRelative(final java.nio.ByteBuffer buffer) {
         final int position = buffer.position();
         final int limit = buffer.limit();
         if (buffer.hasArray() && wrapAdjustment(buffer) == 0) {
@@ -421,17 +421,17 @@ public final class ByteBuffers {
         }
     }
 
-    public static IByteBuffer wrapSliceFrom(final java.nio.ByteBuffer buffer, final int index) {
-        return wrapSlice(buffer, index, buffer.limit() - buffer.position() - index);
+    public static IByteBuffer wrapRelativeFrom(final java.nio.ByteBuffer buffer, final int index) {
+        return wrapRelative(buffer, index, buffer.limit() - buffer.position() - index);
     }
 
-    public static IByteBuffer wrapSliceTo(final java.nio.ByteBuffer buffer, final int length) {
-        return wrapSlice(buffer, 0, length);
+    public static IByteBuffer wrapRelativeTo(final java.nio.ByteBuffer buffer, final int length) {
+        return wrapRelative(buffer, 0, length);
     }
 
-    public static IByteBuffer wrapSlice(final java.nio.ByteBuffer buffer, final int index, final int length) {
+    public static IByteBuffer wrapRelative(final java.nio.ByteBuffer buffer, final int index, final int length) {
         if (index == 0 && length == (buffer.limit() - buffer.position())) {
-            return wrapSlice(buffer);
+            return wrapRelative(buffer);
         } else {
             return new UnsafeByteBuffer(buffer, index, length);
         }
