@@ -371,14 +371,6 @@ public final class ByteBuffers {
         return new UnsafeArrayByteBuffer(bytes);
     }
 
-    public static IByteBuffer wrap(final java.nio.ByteBuffer buffer) {
-        if (buffer.hasArray() && wrapAdjustment(buffer) == 0) {
-            return wrapTo(buffer.array(), buffer.limit());
-        } else {
-            return new UnsafeByteBuffer(buffer);
-        }
-    }
-
     public static IByteBuffer wrapFrom(final byte[] bytes, final int index) {
         return wrap(bytes, index, bytes.length - index);
     }
@@ -395,6 +387,14 @@ public final class ByteBuffers {
         }
     }
 
+    public static IByteBuffer wrap(final java.nio.ByteBuffer buffer) {
+        if (buffer.hasArray() && wrapAdjustment(buffer) == 0) {
+            return wrapTo(buffer.array(), buffer.limit());
+        } else {
+            return new UnsafeByteBuffer(buffer);
+        }
+    }
+
     public static IByteBuffer wrapFrom(final java.nio.ByteBuffer buffer, final int index) {
         return wrap(buffer, index, buffer.capacity() - index);
     }
@@ -406,6 +406,32 @@ public final class ByteBuffers {
     public static IByteBuffer wrap(final java.nio.ByteBuffer buffer, final int index, final int length) {
         if (index == 0 && length == buffer.capacity()) {
             return wrap(buffer);
+        } else {
+            return new UnsafeByteBuffer(buffer, index, length);
+        }
+    }
+
+    public static IByteBuffer wrapSlice(final java.nio.ByteBuffer buffer) {
+        final int position = buffer.position();
+        final int limit = buffer.limit();
+        if (buffer.hasArray() && wrapAdjustment(buffer) == 0) {
+            return wrap(buffer.array(), position, limit - position);
+        } else {
+            return new UnsafeByteBuffer(buffer, position, limit - position);
+        }
+    }
+
+    public static IByteBuffer wrapSliceFrom(final java.nio.ByteBuffer buffer, final int index) {
+        return wrapSlice(buffer, index, buffer.limit() - buffer.position() - index);
+    }
+
+    public static IByteBuffer wrapSliceTo(final java.nio.ByteBuffer buffer, final int length) {
+        return wrapSlice(buffer, 0, length);
+    }
+
+    public static IByteBuffer wrapSlice(final java.nio.ByteBuffer buffer, final int index, final int length) {
+        if (index == 0 && length == (buffer.limit() - buffer.position())) {
+            return wrapSlice(buffer);
         } else {
             return new UnsafeByteBuffer(buffer, index, length);
         }
