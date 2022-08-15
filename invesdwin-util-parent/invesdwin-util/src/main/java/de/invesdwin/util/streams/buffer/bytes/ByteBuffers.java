@@ -537,7 +537,7 @@ public final class ByteBuffers {
     }
 
     public static String toString(final java.nio.ByteBuffer nioBuffer) {
-        return toString(wrap(nioBuffer));
+        return toString(wrapRelative(nioBuffer));
     }
 
     public static String toString(final IByteBuffer buffer) {
