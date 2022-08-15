@@ -373,7 +373,7 @@ public final class ByteBuffers {
 
     public static IByteBuffer wrap(final java.nio.ByteBuffer buffer) {
         if (buffer.hasArray() && wrapAdjustment(buffer) == 0) {
-            return wrap(buffer.array());
+            return wrapTo(buffer.array(), buffer.limit());
         } else {
             return new UnsafeByteBuffer(buffer);
         }
