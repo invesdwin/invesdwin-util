@@ -94,12 +94,17 @@ public class ArrayLeastRecentlyAddedMap<K, V> implements Map<K, V>, IEvictionMap
             System.arraycopy(oldArray, 0, orderedKeys, 0, oldArray.length);
         }
         if (map.size() > evictionSize) {
-            while (map.size() > maximumSize) {
+            int rotations = 0;
+            OUTER: while (map.size() > maximumSize) {
                 do {
                     leastRecentlyAddedKeyIndex++;
                     if (leastRecentlyAddedKeyIndex >= evictionSize
                             || leastRecentlyAddedKeyIndex >= orderedKeys.length) {
                         leastRecentlyAddedKeyIndex = 0;
+                        rotations++;
+                        if (rotations > 2) {
+                            break OUTER;
+                        }
                     }
                     //jump over removed keys
                 } while (orderedKeys[leastRecentlyAddedKeyIndex] == null);
