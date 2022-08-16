@@ -2,11 +2,13 @@ package de.invesdwin.util.collections.eviction;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.collections.factory.ILockCollectionFactory;
+import de.invesdwin.util.error.FastNoSuchElementException;
 import de.invesdwin.util.math.Integers;
 
 /**
@@ -104,6 +106,11 @@ public class ArrayLeastRecentlyAddedMap<K, V> implements Map<K, V>, IEvictionMap
                 map.remove(orderedKeys[leastRecentlyAddedKeyIndex]);
                 orderedKeys[leastRecentlyAddedKeyIndex] = null;
             }
+            if (map.size() > evictionSize) {
+                //ordered keys are async and map is too large, reset everything
+                clear();
+                return;
+            }
         }
         orderedKeys[mostRecentlyAddedKeyIndex] = key;
     }
@@ -125,34 +132,41 @@ public class ArrayLeastRecentlyAddedMap<K, V> implements Map<K, V>, IEvictionMap
     }
 
     @Override
-    public V remove(final Object arg0) {
-        final V removed = map.remove(arg0);
+    public V remove(final Object key) {
+        final V removed = map.remove(key);
         if (removed != null) {
             if (map.isEmpty()) {
                 orderedKeys = new Object[0];
                 leastRecentlyAddedKeyIndex = -1;
                 mostRecentlyAddedKeyIndex = -1;
             } else {
-                final int index = findIndex(arg0);
-                if (index == mostRecentlyAddedKeyIndex) {
-                    orderedKeys[mostRecentlyAddedKeyIndex] = null;
-                    mostRecentlyAddedKeyIndex--;
-                } else {
-                    orderedKeys[index] = null;
+                try {
+                    final int index = findIndex(key);
+                    if (index == mostRecentlyAddedKeyIndex) {
+                        orderedKeys[mostRecentlyAddedKeyIndex] = null;
+                        mostRecentlyAddedKeyIndex--;
+                    } else {
+                        orderedKeys[index] = null;
+                    }
+                } catch (final NoSuchElementException e) {
+                    //the ordered keys got async and the map has grown too much, reset everything
+                    if (map.size() > evictionSize) {
+                        clear();
+                    }
                 }
             }
         }
         return removed;
     }
 
-    private int findIndex(final Object arg0) {
+    private int findIndex(final Object key) {
         for (int i = 0; i < orderedKeys.length; i++) {
             final Object cur = orderedKeys[i];
-            if (cur != null && cur.equals(arg0)) {
+            if (cur != null && cur.equals(key)) {
                 return i;
             }
         }
-        throw new IllegalStateException("Key not found: " + arg0);
+        throw new FastNoSuchElementException("Key not found");
     }
 
     @Override
