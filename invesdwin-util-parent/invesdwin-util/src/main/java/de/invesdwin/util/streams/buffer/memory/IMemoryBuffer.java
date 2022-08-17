@@ -459,6 +459,10 @@ public interface IMemoryBuffer extends IMemoryBufferWriter {
         return this;
     }
 
+    default void clear() {
+        clear(Bytes.ZERO);
+    }
+
     default void clear(final byte value) {
         clear(value, 0, capacity());
     }

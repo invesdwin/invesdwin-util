@@ -519,6 +519,10 @@ public interface IByteBuffer extends IByteBufferWriter, Cloneable {
 
     IByteBuffer clone(int index, int length);
 
+    default void clear() {
+        clear(Bytes.ZERO);
+    }
+
     default void clear(final byte value) {
         clear(value, 0, capacity());
     }
