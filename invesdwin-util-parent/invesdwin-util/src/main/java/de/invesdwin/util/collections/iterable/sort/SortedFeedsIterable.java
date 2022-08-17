@@ -2,18 +2,28 @@ package de.invesdwin.util.collections.iterable.sort;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.util.collections.Arrays;
 import de.invesdwin.util.collections.iterable.ATransformingIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.collections.iterable.WrapperCloseableIterable;
+import de.invesdwin.util.lang.comparator.IComparator;
 
 @NotThreadSafe
-public abstract class ASortedFeedsIterable<E> implements ICloseableIterable<E> {
+public class SortedFeedsIterable<E> implements ICloseableIterable<E> {
 
+    private final IComparator<? super E> comparator;
     private final Iterable<Iterable<E>> feeds;
 
     @SuppressWarnings("unchecked")
-    public ASortedFeedsIterable(final Iterable<? extends Iterable<? extends E>> feeds) {
+    public SortedFeedsIterable(final IComparator<? super E> comparator, final Iterable<? extends E>... feeds) {
+        this(comparator, Arrays.asList(feeds));
+    }
+
+    @SuppressWarnings("unchecked")
+    public SortedFeedsIterable(final IComparator<? super E> comparator,
+            final Iterable<? extends Iterable<? extends E>> feeds) {
+        this.comparator = comparator;
         this.feeds = (Iterable<Iterable<E>>) feeds;
     }
 
@@ -26,14 +36,7 @@ public abstract class ASortedFeedsIterable<E> implements ICloseableIterable<E> {
                 return WrapperCloseableIterable.maybeWrap(value).iterator();
             }
         };
-        return new ASortedFeedsIterator<E>(iterators) {
-            @Override
-            protected Comparable<?> getCompareCriteria(final E e) {
-                return ASortedFeedsIterable.this.getCompareCriteria(e);
-            }
-        };
+        return new SortedFeedsIterator<E>(comparator, iterators);
     }
-
-    protected abstract Comparable<?> getCompareCriteria(E e);
 
 }
