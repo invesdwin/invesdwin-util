@@ -12,6 +12,11 @@ public class RandomGeneratorAdapter implements IRandomGenerator {
     }
 
     @Override
+    public String toString() {
+        return delegate.toString();
+    }
+
+    @Override
     public void setSeed(final int seed) {
         setSeed((long) seed);
     }
