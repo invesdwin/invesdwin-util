@@ -43,6 +43,11 @@ public class SecureRandomAdapter extends java.security.SecureRandom implements I
     }
 
     @Override
+    public void reseed() {
+        delegate.reseed();
+    }
+
+    @Override
     public void nextBytes(final byte[] bytes) {
         delegate.nextBytes(bytes);
     }
