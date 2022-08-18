@@ -12,6 +12,16 @@ public class SecureRandomAdapter extends java.security.SecureRandom implements I
     }
 
     @Override
+    public String getAlgorithm() {
+        return delegate.getClass().getSimpleName();
+    }
+
+    @Override
+    public String toString() {
+        return delegate.toString();
+    }
+
+    @Override
     public void setSeed(final int seed) {
         delegate.setSeed(seed);
     }
