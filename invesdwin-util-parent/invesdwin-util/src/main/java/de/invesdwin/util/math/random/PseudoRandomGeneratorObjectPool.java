@@ -4,6 +4,9 @@ import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.concurrent.pool.AAgronaObjectPool;
 
+/**
+ * WARNING: prefer to use thread local instance instead of the pool for better performance.
+ */
 @ThreadSafe
 public final class PseudoRandomGeneratorObjectPool extends AAgronaObjectPool<IRandomGenerator> {
 

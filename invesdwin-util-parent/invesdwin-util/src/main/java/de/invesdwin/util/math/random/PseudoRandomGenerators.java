@@ -22,10 +22,13 @@ public final class PseudoRandomGenerators {
     }
 
     /**
+     * WARNING: for better performance, use thread local pseudorandom instead of a new one if it can not be reused for a
+     * long period of time.
+     * 
      * xoroshiro++ is not cryptographically secure
      * https://lemire.me/blog/2017/08/22/cracking-random-number-generators-xoroshiro128/
      * 
-     * Use CryptoRandomGenerators instead.
+     * Use CryptoRandomGenerators instead for security purposes.
      */
     public static IRandomGenerator newPseudoRandom() {
         return new PseudoRandomGenerator();
