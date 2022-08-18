@@ -191,6 +191,9 @@ public final class ByteBuffers {
      * https://netty.io/wiki/using-as-a-generic-library.html#performance
      */
     public static byte[] allocateByteArray(final int fixedLength) {
+        if (fixedLength == 0) {
+            return Bytes.EMPTY_ARRAY;
+        }
         return io.netty.util.internal.PlatformDependent.allocateUninitializedArray(fixedLength);
     }
 
