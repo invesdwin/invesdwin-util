@@ -35,4 +35,8 @@ public final class PseudoRandomGenerators {
         return new PseudoRandomGenerator(seed);
     }
 
+    public static IRandomGenerator newPseudoRandom(final byte[] seed) {
+        return new PseudoRandomGenerator(seed);
+    }
+
 }

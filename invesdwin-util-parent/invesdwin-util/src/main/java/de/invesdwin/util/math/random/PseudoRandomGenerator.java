@@ -15,4 +15,20 @@ public class PseudoRandomGenerator extends XoRoShiRo128PlusRandomGenerator imple
         super(seed);
     }
 
+    public PseudoRandomGenerator(final byte[] seed) {
+        super();
+        setSeed(seed);
+    }
+
+    public void setSeed(final byte[] seed) {
+        // the following number is the largest prime that fits in 32 bits (it is 2^32 - 5)
+        final long prime = 4294967291L;
+
+        long combined = 0L;
+        for (int i = 0; i < seed.length; i++) {
+            combined = combined * prime + seed[i];
+        }
+        setSeed(combined);
+    }
+
 }

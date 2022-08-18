@@ -42,7 +42,8 @@ public class PseudoRandomGeneratorsTest {
     private Duration testRandomGenerator(final String name, final Callable<IRandomGenerator> random) throws Exception {
         final Instant start = new Instant();
         for (long i = 0; i < 1000000000L; i++) {
-            random.call().nextDouble();
+            final IRandomGenerator instance = random.call();
+            instance.nextDouble();
         }
         final Duration duration = start.toDuration();
         //CHECKSTYLE:OFF
