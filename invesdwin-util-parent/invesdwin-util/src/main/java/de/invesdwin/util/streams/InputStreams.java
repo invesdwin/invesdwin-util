@@ -10,6 +10,7 @@ import java.nio.channels.ReadableByteChannel;
 
 import javax.annotation.concurrent.Immutable;
 
+import de.invesdwin.util.error.FastEOFException;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 import io.netty.util.concurrent.FastThreadLocal;
@@ -34,8 +35,7 @@ public final class InputStreams {
         }
     };
 
-    private InputStreams() {
-    }
+    private InputStreams() {}
 
     public static String readLine(final InputStream pIn) throws IOException {
         InputStream in = pIn;
@@ -128,7 +128,7 @@ public final class InputStreams {
     public static boolean readBoolean(final InputStream in) throws IOException {
         final int ch = in.read();
         if (ch < 0) {
-            throw new EOFException();
+            throw FastEOFException.getInstance();
         }
         return (ch != 0);
     }
@@ -136,7 +136,7 @@ public final class InputStreams {
     public static byte readByte(final InputStream in) throws IOException {
         final int ch = in.read();
         if (ch < 0) {
-            throw new EOFException();
+            throw FastEOFException.getInstance();
         }
         return (byte) (ch);
     }
@@ -144,7 +144,7 @@ public final class InputStreams {
     public static int readUnsignedByte(final InputStream in) throws IOException {
         final int ch = in.read();
         if (ch < 0) {
-            throw new EOFException();
+            throw FastEOFException.getInstance();
         }
         return ch;
     }
@@ -153,7 +153,7 @@ public final class InputStreams {
         final int ch1 = in.read();
         final int ch2 = in.read();
         if ((ch1 | ch2) < 0) {
-            throw new EOFException();
+            throw FastEOFException.getInstance();
         }
         return (short) ((ch1 << 8) + (ch2 << 0));
     }
@@ -162,7 +162,7 @@ public final class InputStreams {
         final int ch1 = in.read();
         final int ch2 = in.read();
         if ((ch1 | ch2) < 0) {
-            throw new EOFException();
+            throw FastEOFException.getInstance();
         }
         return (ch1 << 8) + (ch2 << 0);
     }
@@ -171,7 +171,7 @@ public final class InputStreams {
         final int ch1 = in.read();
         final int ch2 = in.read();
         if ((ch1 | ch2) < 0) {
-            throw new EOFException();
+            throw FastEOFException.getInstance();
         }
         return (char) ((ch1 << 8) + (ch2 << 0));
     }
@@ -182,7 +182,7 @@ public final class InputStreams {
         final int ch3 = in.read();
         final int ch4 = in.read();
         if ((ch1 | ch2 | ch3 | ch4) < 0) {
-            throw new EOFException();
+            throw FastEOFException.getInstance();
         }
         return ((ch1 << 24) + (ch2 << 16) + (ch3 << 8) + (ch4 << 0));
     }
