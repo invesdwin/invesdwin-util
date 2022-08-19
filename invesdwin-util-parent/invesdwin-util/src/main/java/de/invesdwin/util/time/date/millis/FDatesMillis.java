@@ -19,8 +19,7 @@ import it.unimi.dsi.fastutil.longs.LongIterator;
 @ThreadSafe
 public final class FDatesMillis {
 
-    private FDatesMillis() {
-    }
+    private FDatesMillis() {}
 
     public static LongIterable iterable(final long start, final long end, final Duration increment) {
         return new FDateMillisIterable(start, end, increment.getTimeUnit(), increment.intValue());
@@ -76,7 +75,8 @@ public final class FDatesMillis {
                             return spot;
                         } else {
                             if (spot > endFinal || end) {
-                                throw new FastNoSuchElementException("FDateIterable: incrementing next reached end");
+                                throw FastNoSuchElementException
+                                        .getInstance("FDateIterable: incrementing next reached end");
                             }
                             spot = FDateMillis.add(spot, timeUnit, incrementAmount);
                             if (spot >= endFinal) {
@@ -114,7 +114,8 @@ public final class FDatesMillis {
                             return spot;
                         } else {
                             if (spot < endFinal || end) {
-                                throw new FastNoSuchElementException("FDateIterable: decrementing next reached end");
+                                throw FastNoSuchElementException
+                                        .getInstance("FDateIterable: decrementing next reached end");
                             }
                             spot = FDateMillis.add(spot, timeUnit, incrementAmount);
                             if (spot <= endFinal) {

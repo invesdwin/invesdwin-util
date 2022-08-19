@@ -62,7 +62,7 @@ public class SortedFeedsIterator<E> implements ICloseableIterator<E> {
             }
         }
         if (max == null) {
-            throw new FastNoSuchElementException("ASortedFeedsIterator reached end");
+            throw FastNoSuchElementException.getInstance("ASortedFeedsIterator reached end");
         }
         maxFeed.next();
         if (!maxFeed.hasNext()) {

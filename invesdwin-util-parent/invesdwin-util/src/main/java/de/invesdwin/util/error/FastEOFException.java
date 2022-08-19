@@ -14,7 +14,7 @@ import javax.annotation.concurrent.NotThreadSafe;
  * 
  */
 @NotThreadSafe
-public class FastEOFException extends EOFException {
+public final class FastEOFException extends EOFException {
 
     private static final FastEOFException INSTANCE = new FastEOFException("end reached");
 
@@ -24,7 +24,7 @@ public class FastEOFException extends EOFException {
      * We always want a message here with some interesting information about the origin, since the stacktrace is
      * disabled. At least we can then search the code for the string.
      */
-    public FastEOFException(final String message) {
+    private FastEOFException(final String message) {
         super(message);
     }
 
@@ -37,17 +37,41 @@ public class FastEOFException extends EOFException {
         }
     }
 
+    public static EOFException maybeReplace(final EOFException e) {
+        if (e instanceof FastEOFException || Throwables.isDebugStackTraceEnabled()) {
+            return e;
+        } else {
+            return getInstance(e);
+        }
+    }
+
     public static EOFException maybeReplace(final EOFException e, final String message) {
         if (e instanceof FastEOFException || Throwables.isDebugStackTraceEnabled()) {
             return e;
         } else {
-            return new FastEOFException(message + ": " + e.toString());
+            return getInstance(message, e);
         }
     }
 
-    public static FastEOFException getInstance() throws FastEOFException {
+    public static FastEOFException getInstance(final String message) {
         if (Throwables.isDebugStackTraceEnabled()) {
-            return new FastEOFException("end reached");
+            return new FastEOFException(message);
+        } else {
+            return INSTANCE;
+        }
+    }
+
+    public static FastEOFException getInstance(final Throwable cause) {
+        return getInstance(cause.getMessage(), cause);
+    }
+
+    public static FastEOFException getInstance(final String message, final Throwable cause) {
+        if (Throwables.isDebugStackTraceEnabled()) {
+            final FastEOFException eof = new FastEOFException(message);
+            if (cause != null) {
+                eof.initCause(cause);
+            }
+            return eof;
         } else {
             return INSTANCE;
         }

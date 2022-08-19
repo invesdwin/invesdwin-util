@@ -52,7 +52,7 @@ public abstract class ATimeRangeSkippingIterable<E> implements ICloseableIterabl
                         return true;
                     }
                     if (time.isAfterNotNullSafe(to)) {
-                        throw new FastNoSuchElementException(getName() + " end reached");
+                        throw FastNoSuchElementException.getInstance(getName() + " end reached");
                     }
                     return false;
                 }
@@ -74,7 +74,7 @@ public abstract class ATimeRangeSkippingIterable<E> implements ICloseableIterabl
                 protected boolean skip(final E element) {
                     final FDate time = extractEndTime(element);
                     if (time.isAfterNotNullSafe(to)) {
-                        throw new FastNoSuchElementException(getName() + " end reached");
+                        throw FastNoSuchElementException.getInstance(getName() + " end reached");
                     }
                     return false;
                 }
@@ -99,7 +99,7 @@ public abstract class ATimeRangeSkippingIterable<E> implements ICloseableIterabl
                         return true;
                     }
                     if (time.isBeforeNotNullSafe(to)) {
-                        throw new FastNoSuchElementException(getName() + " end reached");
+                        throw FastNoSuchElementException.getInstance(getName() + " end reached");
                     }
                     return false;
                 }
@@ -121,7 +121,7 @@ public abstract class ATimeRangeSkippingIterable<E> implements ICloseableIterabl
                 protected boolean skip(final E element) {
                     final FDate time = extractEndTime(element);
                     if (time.isBeforeNotNullSafe(to)) {
-                        throw new FastNoSuchElementException(getName() + " end reached");
+                        throw FastNoSuchElementException.getInstance(getName() + " end reached");
                     }
                     return false;
                 }

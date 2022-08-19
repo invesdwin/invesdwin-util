@@ -25,7 +25,7 @@ public class SingleValueIterator<E> implements ICloseableIterator<E> {
             singleValue = null;
             return ret;
         } else {
-            throw new FastNoSuchElementException("SingleValueIterator: hasNext is false");
+            throw FastNoSuchElementException.getInstance("SingleValueIterator: hasNext is false");
         }
     }
 

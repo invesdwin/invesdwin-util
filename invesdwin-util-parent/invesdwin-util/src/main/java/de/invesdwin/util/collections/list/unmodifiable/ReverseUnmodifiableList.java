@@ -50,7 +50,7 @@ public class ReverseUnmodifiableList<E> extends AUnmodifiableList<E> {
             @Override
             public E next() {
                 if (nextIndex < 0) {
-                    throw new FastNoSuchElementException("ReverseUnmodifiableList.iterator.next() reached end");
+                    throw FastNoSuchElementException.getInstance("ReverseUnmodifiableList.iterator.next() reached end");
                 }
                 final E next = getDelegate().get(nextIndex);
                 nextIndex--;

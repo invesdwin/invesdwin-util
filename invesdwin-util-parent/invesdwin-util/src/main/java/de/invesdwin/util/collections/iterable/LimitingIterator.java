@@ -33,7 +33,7 @@ public class LimitingIterator<E> implements ICloseableIterator<E> {
     public E next() {
         if (curCount >= limit) {
             close();
-            throw new FastNoSuchElementException("LimitingIterator: next reached limit");
+            throw FastNoSuchElementException.getInstance("LimitingIterator: next reached limit");
         }
         curCount++;
         return delegate.next();

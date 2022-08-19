@@ -81,7 +81,7 @@ public abstract class ABufferingRetrievalCloseableIterable<T> implements IClosea
             public T next() {
                 final IBufferingIterator<? extends T> list = getList();
                 if (list == null) {
-                    throw new FastNoSuchElementException("ABufferingRetrievalCloseableIterable: list is null");
+                    throw FastNoSuchElementException.getInstance("ABufferingRetrievalCloseableIterable: list is null");
                 }
                 final T next = list.next();
                 final FDate nextDate = extractTime(next);
@@ -90,8 +90,8 @@ public abstract class ABufferingRetrievalCloseableIterable<T> implements IClosea
                 }
                 if (!curDate.equals(fromDate) && curDate.equals(nextDate)) {
                     close();
-                    throw new FastNoSuchElementException(
-                            "ABufferingRetrievalCloseableIterable: nextDate is same as curDate");
+                    throw FastNoSuchElementException
+                            .getInstance("ABufferingRetrievalCloseableIterable: nextDate is same as curDate");
                 } else {
                     curDate = nextDate;
                     return next;

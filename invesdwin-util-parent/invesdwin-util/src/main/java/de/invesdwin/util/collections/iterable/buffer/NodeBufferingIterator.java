@@ -33,8 +33,7 @@ public class NodeBufferingIterator<E extends INode<E>> implements IBufferingIter
     private E tail;
     private int size = 0;
 
-    public NodeBufferingIterator() {
-    }
+    public NodeBufferingIterator() {}
 
     public NodeBufferingIterator(final IBufferingIterator<E> iterable) {
         addAll(iterable);
@@ -70,7 +69,7 @@ public class NodeBufferingIterator<E extends INode<E>> implements IBufferingIter
     @Override
     public E next() {
         if (head == null) {
-            throw new FastNoSuchElementException("BufferingIterator next() head is null");
+            throw FastNoSuchElementException.getInstance("BufferingIterator next() head is null");
         }
         final E value = getHead();
         head = head.getNext();
@@ -326,7 +325,7 @@ public class NodeBufferingIterator<E extends INode<E>> implements IBufferingIter
         @Override
         public E next() {
             if (!hasNext()) {
-                throw new FastNoSuchElementException("BufferingIterator: hasNext is false");
+                throw FastNoSuchElementException.getInstance("BufferingIterator: hasNext is false");
             }
             innerRemovablePrev = innerRemovable;
             innerRemovable = innerHead;
@@ -385,7 +384,7 @@ public class NodeBufferingIterator<E extends INode<E>> implements IBufferingIter
         @Override
         public E next() {
             if (!hasNext()) {
-                throw new FastNoSuchElementException("BufferingIterator: hasNext is false");
+                throw FastNoSuchElementException.getInstance("BufferingIterator: hasNext is false");
             }
             innerRemovablePrev = innerRemovable;
             innerRemovable = innerHead;

@@ -369,7 +369,7 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
                     @Override
                     protected boolean skip(final IHistoricalEntry<V> element) {
                         if (!elementFilter.isValid(element.getKey(), element.getValue())) {
-                            throw new FastNoSuchElementException(
+                            throw FastNoSuchElementException.getInstance(
                                     "HistoricalCacheQuery: getEntries elementFilter found not valid element");
                         }
                         return false;
@@ -426,7 +426,8 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
                             }
                             return currentEntry;
                         } else {
-                            throw new FastNoSuchElementException("HistoricalCacheQuery: getEntries hasNext is false");
+                            throw FastNoSuchElementException
+                                    .getInstance("HistoricalCacheQuery: getEntries hasNext is false");
                         }
                     }
 

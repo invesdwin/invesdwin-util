@@ -14,7 +14,7 @@ import javax.annotation.concurrent.NotThreadSafe;
  * 
  */
 @NotThreadSafe
-public class FastNoSuchElementException extends NoSuchElementException {
+public final class FastNoSuchElementException extends NoSuchElementException {
 
     private static final FastNoSuchElementException INSTANCE = new FastNoSuchElementException("end reached");
 
@@ -24,7 +24,7 @@ public class FastNoSuchElementException extends NoSuchElementException {
      * We always want a message here with some interesting information about the origin, since the stacktrace is
      * disabled. At least we can then search the code for the string.
      */
-    public FastNoSuchElementException(final String message) {
+    private FastNoSuchElementException(final String message) {
         super(message);
     }
 
@@ -37,17 +37,41 @@ public class FastNoSuchElementException extends NoSuchElementException {
         }
     }
 
+    public static NoSuchElementException maybeReplace(final NoSuchElementException e) {
+        if (e instanceof FastNoSuchElementException || Throwables.isDebugStackTraceEnabled()) {
+            return e;
+        } else {
+            return getInstance(e);
+        }
+    }
+
     public static NoSuchElementException maybeReplace(final NoSuchElementException e, final String message) {
         if (e instanceof FastNoSuchElementException || Throwables.isDebugStackTraceEnabled()) {
             return e;
         } else {
-            return new FastNoSuchElementException(message + ": " + e.toString());
+            return getInstance(message, e);
         }
     }
 
-    public static FastNoSuchElementException getInstance() {
+    public static FastNoSuchElementException getInstance(final String message) {
         if (Throwables.isDebugStackTraceEnabled()) {
-            return new FastNoSuchElementException("end reached");
+            return new FastNoSuchElementException(message);
+        } else {
+            return INSTANCE;
+        }
+    }
+
+    public static FastNoSuchElementException getInstance(final Throwable cause) {
+        return getInstance(cause.getMessage(), cause);
+    }
+
+    public static FastNoSuchElementException getInstance(final String message, final Throwable cause) {
+        if (Throwables.isDebugStackTraceEnabled()) {
+            final FastNoSuchElementException eof = new FastNoSuchElementException(message);
+            if (cause != null) {
+                eof.initCause(cause);
+            }
+            return eof;
         } else {
             return INSTANCE;
         }

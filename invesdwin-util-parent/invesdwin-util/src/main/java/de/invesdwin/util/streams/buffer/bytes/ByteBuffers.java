@@ -22,7 +22,6 @@ import de.invesdwin.util.collections.Arrays;
 import de.invesdwin.util.concurrent.pool.AgronaObjectPool;
 import de.invesdwin.util.concurrent.pool.IObjectPool;
 import de.invesdwin.util.error.FastEOFException;
-import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.lang.Charsets;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.lang.reflection.Reflections;
@@ -66,16 +65,13 @@ public final class ByteBuffers {
     public static final IObjectPool<IByteBuffer> DIRECT_EXPANDABLE_POOL = new AgronaObjectPool<IByteBuffer>(
             () -> allocateDirectExpandable());
 
-    private static final FastEOFException PUTBYTESTOEOF = new FastEOFException("putBytesTo: src.read() returned -1");
-
     private static final ISliceInvoker SLICE_INVOKER;
 
     static {
         SLICE_INVOKER = newSliceInvoker();
     }
 
-    private ByteBuffers() {
-    }
+    private ByteBuffers() {}
 
     private static ISliceInvoker newSliceInvoker() {
         try {
@@ -318,11 +314,7 @@ public final class ByteBuffers {
     }
 
     public static FastEOFException newPutBytesToEOF() {
-        if (Throwables.isDebugStackTraceEnabled()) {
-            return new FastEOFException(PUTBYTESTOEOF.getMessage());
-        } else {
-            return PUTBYTESTOEOF;
-        }
+        return FastEOFException.getInstance("putBytesTo: src.read() returned -1");
     }
 
     public static byte[] asByteArrayCopyGet(final IByteBuffer buffer, final int index, final int length) {

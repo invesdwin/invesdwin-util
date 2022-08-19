@@ -67,7 +67,7 @@ public class FlatteningIterator<E> implements ICloseableIterator<E> {
                 nextIterator();
             }
         }
-        throw new FastNoSuchElementException("FlatteningIterator: curIterator is null");
+        throw FastNoSuchElementException.getInstance("FlatteningIterator: curIterator is null");
     }
 
     @Override

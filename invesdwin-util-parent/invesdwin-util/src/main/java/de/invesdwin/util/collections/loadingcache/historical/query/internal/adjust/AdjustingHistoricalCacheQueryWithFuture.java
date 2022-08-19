@@ -60,7 +60,7 @@ public class AdjustingHistoricalCacheQueryWithFuture<V> extends AdjustingHistori
             @Override
             protected boolean skip(final FDate element) {
                 if (isFutureKey(element)) {
-                    throw new FastNoSuchElementException("future data reached");
+                    throw FastNoSuchElementException.getInstance("future data reached");
                 }
                 return false;
             }
@@ -113,7 +113,7 @@ public class AdjustingHistoricalCacheQueryWithFuture<V> extends AdjustingHistori
             @Override
             protected boolean skip(final IHistoricalEntry<V> element) {
                 if (isFutureEntry(element)) {
-                    throw new FastNoSuchElementException("future data reached");
+                    throw FastNoSuchElementException.getInstance("future data reached");
                 }
                 return false;
             }

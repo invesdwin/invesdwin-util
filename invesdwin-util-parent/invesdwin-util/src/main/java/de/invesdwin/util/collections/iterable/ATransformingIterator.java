@@ -22,7 +22,7 @@ public abstract class ATransformingIterator<S, R> implements ICloseableIterator<
     public R next() {
         final S next = delegate.next();
         if (next == null) {
-            throw new FastNoSuchElementException("ATransformingCloseableIterator: next is null");
+            throw FastNoSuchElementException.getInstance("ATransformingCloseableIterator: next is null");
         } else {
             return transform(next);
         }

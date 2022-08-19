@@ -36,14 +36,15 @@ public class ReverseArrayCloseableIterator<E> implements ICloseableIterator<E>, 
     @Override
     public E next() {
         if (!hasNext()) {
-            throw new FastNoSuchElementException("ArrayCloseableIterator: hasNext returned false");
+            throw FastNoSuchElementException.getInstance("ArrayCloseableIterator: hasNext returned false");
         }
         try {
             final E value = array[offset];
             offset--;
             return value;
         } catch (final IndexOutOfBoundsException e) {
-            throw new FastNoSuchElementException("ArrayCloseableIterator: next threw IndexOutOfBoundsException");
+            throw FastNoSuchElementException
+                    .getInstance("ArrayCloseableIterator: next threw IndexOutOfBoundsException");
         }
     }
 

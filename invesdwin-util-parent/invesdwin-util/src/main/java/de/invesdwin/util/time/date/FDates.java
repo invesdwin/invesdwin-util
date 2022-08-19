@@ -30,8 +30,7 @@ public final class FDates {
         setDefaultTimeZone(new FTimeZone(TimeZone.getDefault()));
     }
 
-    private FDates() {
-    }
+    private FDates() {}
 
     public static void setDefaultTimeZone(final FTimeZone defaultTimeZone) {
         FDates.defaultTimeZone = defaultTimeZone;
@@ -95,7 +94,8 @@ public final class FDates {
                             return spot;
                         } else {
                             if (spot.isAfter(endFinal) || end) {
-                                throw new FastNoSuchElementException("FDateIterable: incrementing next reached end");
+                                throw FastNoSuchElementException
+                                        .getInstance("FDateIterable: incrementing next reached end");
                             }
                             spot = spot.add(timeUnit, incrementAmount);
                             if (spot.isAfterOrEqualTo(endFinal)) {
@@ -139,7 +139,8 @@ public final class FDates {
                             return spot;
                         } else {
                             if (spot.isBefore(endFinal) || end) {
-                                throw new FastNoSuchElementException("FDateIterable: decrementing next reached end");
+                                throw FastNoSuchElementException
+                                        .getInstance("FDateIterable: decrementing next reached end");
                             }
                             spot = spot.add(timeUnit, incrementAmount);
                             if (spot.isBeforeOrEqualTo(endFinal)) {

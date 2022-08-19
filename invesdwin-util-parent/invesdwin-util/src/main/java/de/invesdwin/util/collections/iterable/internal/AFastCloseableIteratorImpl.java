@@ -37,7 +37,7 @@ public abstract class AFastCloseableIteratorImpl<E> implements ICloseableIterato
     @Override
     public final E next() {
         if (isClosed()) {
-            throw new FastNoSuchElementException("ACloseableIterator: next blocked because already closed");
+            throw FastNoSuchElementException.getInstance("ACloseableIterator: next blocked because already closed");
         }
         final E next;
         try {
@@ -48,7 +48,7 @@ public abstract class AFastCloseableIteratorImpl<E> implements ICloseableIterato
         }
         if (next == null) {
             close();
-            throw new FastNoSuchElementException("ACloseableIterator: next is null");
+            throw FastNoSuchElementException.getInstance("ACloseableIterator: next is null");
         }
         return next;
     }
@@ -58,7 +58,7 @@ public abstract class AFastCloseableIteratorImpl<E> implements ICloseableIterato
     @Override
     public final void remove() {
         if (isClosed()) {
-            throw new FastNoSuchElementException("ACloseableIterator: remove blocked because already closed");
+            throw FastNoSuchElementException.getInstance("ACloseableIterator: remove blocked because already closed");
         }
         innerRemove();
     }

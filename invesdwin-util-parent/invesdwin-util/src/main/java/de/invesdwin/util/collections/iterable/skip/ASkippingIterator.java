@@ -27,7 +27,7 @@ public abstract class ASkippingIterator<E> implements ICloseableIterator<E> {
         final E readNext = readNext();
         cachedReadNext = null;
         if (readNext == null) {
-            throw new FastNoSuchElementException("ASkippingIterator: readNext is null");
+            throw FastNoSuchElementException.getInstance("ASkippingIterator: readNext is null");
         }
         return readNext;
     }

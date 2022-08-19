@@ -28,7 +28,7 @@ public class ListCloseableIterator<E> implements ICloseableIterator<E>, IFastToL
     @Override
     public E next() {
         if (!hasNext()) {
-            throw new FastNoSuchElementException("ListCloseableIterator: hasNext returned false");
+            throw FastNoSuchElementException.getInstance("ListCloseableIterator: hasNext returned false");
         }
         return list.get(i++);
     }

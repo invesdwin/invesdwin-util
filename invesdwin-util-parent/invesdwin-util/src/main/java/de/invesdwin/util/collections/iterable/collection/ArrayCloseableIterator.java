@@ -35,12 +35,13 @@ public class ArrayCloseableIterator<E> implements ICloseableIterator<E>, IFastTo
     @Override
     public E next() {
         if (!hasNext()) {
-            throw new FastNoSuchElementException("ArrayCloseableIterator: hasNext returned false");
+            throw FastNoSuchElementException.getInstance("ArrayCloseableIterator: hasNext returned false");
         }
         try {
             return array[offset++];
         } catch (final IndexOutOfBoundsException e) {
-            throw new FastNoSuchElementException("ArrayCloseableIterator: next threw IndexOutOfBoundsException");
+            throw FastNoSuchElementException
+                    .getInstance("ArrayCloseableIterator: next threw IndexOutOfBoundsException");
         }
     }
 

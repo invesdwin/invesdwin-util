@@ -19,7 +19,7 @@ public final class EmptyCloseableIterator<E> implements ICloseableIterator<E> {
 
     @Override
     public E next() {
-        throw new FastNoSuchElementException("EmptyCloseableIterator: always empty");
+        throw FastNoSuchElementException.getInstance("EmptyCloseableIterator: always empty");
     }
 
     @Override

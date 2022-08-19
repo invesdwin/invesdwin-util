@@ -42,7 +42,7 @@ public class SortedBufferingIterator<E> implements ICloseableIterator<E> {
     public E next() {
         final E readNext = readNext();
         if (readNext == null) {
-            throw new FastNoSuchElementException("ASkippingIterator: readNext is null");
+            throw FastNoSuchElementException.getInstance("ASkippingIterator: readNext is null");
         }
         return readNext;
     }

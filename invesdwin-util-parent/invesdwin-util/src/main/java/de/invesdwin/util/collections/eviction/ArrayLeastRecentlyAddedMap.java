@@ -171,7 +171,7 @@ public class ArrayLeastRecentlyAddedMap<K, V> implements Map<K, V>, IEvictionMap
                 return i;
             }
         }
-        throw new FastNoSuchElementException("Key not found");
+        throw FastNoSuchElementException.getInstance("Key not found");
     }
 
     @Override

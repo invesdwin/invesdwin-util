@@ -63,7 +63,7 @@ public abstract class AParallelChunkConsumerIterator<R, E> extends ACloseableIte
             futures.add(submit);
         }
         if (futures.isEmpty()) {
-            throw new FastNoSuchElementException("AParallelChunkConsumerIterator: futures is empty");
+            throw FastNoSuchElementException.getInstance("AParallelChunkConsumerIterator: futures is empty");
         }
         final Future<E> future = futures.remove(0);
         try {
@@ -71,7 +71,8 @@ public abstract class AParallelChunkConsumerIterator<R, E> extends ACloseableIte
             return result;
         } catch (final InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new FastNoSuchElementException("AParallelChunkConsumerIterator: InterrupedException received");
+            throw FastNoSuchElementException
+                    .getInstance("AParallelChunkConsumerIterator: InterrupedException received");
         }
     }
 

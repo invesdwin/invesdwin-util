@@ -33,8 +33,7 @@ public class BufferingIterator<E> implements IBufferingIterator<E>, ISerializabl
     private Node<E> tail;
     private int size = 0;
 
-    public BufferingIterator() {
-    }
+    public BufferingIterator() {}
 
     public BufferingIterator(final IBufferingIterator<E> iterable) {
         addAll(iterable);
@@ -70,7 +69,7 @@ public class BufferingIterator<E> implements IBufferingIterator<E>, ISerializabl
     @Override
     public E next() {
         if (head == null) {
-            throw new FastNoSuchElementException("BufferingIterator next() head is null");
+            throw FastNoSuchElementException.getInstance("BufferingIterator next() head is null");
         }
         final E value = getHead();
         head = head.getNext();
@@ -345,7 +344,7 @@ public class BufferingIterator<E> implements IBufferingIterator<E>, ISerializabl
         @Override
         public E next() {
             if (!hasNext()) {
-                throw new FastNoSuchElementException("BufferingIterator: hasNext is false");
+                throw FastNoSuchElementException.getInstance("BufferingIterator: hasNext is false");
             }
             innerRemovablePrev = innerRemovable;
             innerRemovable = innerHead;
@@ -404,7 +403,7 @@ public class BufferingIterator<E> implements IBufferingIterator<E>, ISerializabl
         @Override
         public E next() {
             if (!hasNext()) {
-                throw new FastNoSuchElementException("BufferingIterator: hasNext is false");
+                throw FastNoSuchElementException.getInstance("BufferingIterator: hasNext is false");
             }
             innerRemovablePrev = innerRemovable;
             innerRemovable = innerHead;
