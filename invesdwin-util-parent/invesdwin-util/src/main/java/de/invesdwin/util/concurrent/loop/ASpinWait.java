@@ -16,6 +16,10 @@ import de.invesdwin.util.time.duration.Duration;
 @Immutable
 public abstract class ASpinWait {
 
+    public static final Duration DEFAULT_SKIP_SPIN_AFTER_WAITING_SINCE = new Duration(10, FTimeUnit.MILLISECONDS);
+    public static final Duration DEFAULT_MAX_TIMED_SPIN_DURATION = new Duration(10, FTimeUnit.MICROSECONDS);
+    public static final Duration DEFAULT_MAX_PARK_INTERVAL = new Duration(1, FTimeUnit.MICROSECONDS);
+
     public static final FTimeUnit FTIMEUNIT = FTimeUnit.NANOSECONDS;
     public static final TimeUnit TIMEUNIT = FTIMEUNIT.timeUnitValue();
 
@@ -51,7 +55,7 @@ public abstract class ASpinWait {
 
     protected Duration determineSkipSpinAfterWaitingSince() {
         //when we have been waiting a long time for a request/response we should keep the CPU usage to a minimum and thus don't even try to spin
-        return new Duration(10, FTimeUnit.MILLISECONDS);
+        return DEFAULT_SKIP_SPIN_AFTER_WAITING_SINCE;
     }
 
     protected static MethodHandle determineOnSpinWait() {
@@ -70,8 +74,7 @@ public abstract class ASpinWait {
     }
 
     @SuppressWarnings("unused")
-    private static void noop() {
-    }
+    private static void noop() {}
 
     protected int determineMaxUntimedSpins() {
         return maxTimedSpins * 16;
@@ -92,14 +95,14 @@ public abstract class ASpinWait {
      * with 1 microsecond sleep, the performance penalty is not too large while still keeping the CPU usage at minimum
      */
     protected Duration determineMaxParkInterval() {
-        return new Duration(1, FTimeUnit.MICROSECONDS);
+        return DEFAULT_MAX_PARK_INTERVAL;
     }
 
     /**
-     * since we have IPC the 1000 nanoseconds from SynchronousQueue for spinning are too short to optimal performance
+     * since we have IPC the 1000 nanoseconds from SynchronousQueue for spinning are too short for optimal performance
      */
     public Duration determineMaxTimedSpinDuration() {
-        return new Duration(10, FTimeUnit.MICROSECONDS);
+        return DEFAULT_MAX_TIMED_SPIN_DURATION;
     }
 
     public abstract boolean isConditionFulfilled() throws Exception;

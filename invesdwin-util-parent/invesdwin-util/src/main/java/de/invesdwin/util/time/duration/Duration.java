@@ -15,6 +15,7 @@ import de.invesdwin.util.lang.comparator.IComparator;
 import de.invesdwin.util.math.Characters;
 import de.invesdwin.util.math.Longs;
 import de.invesdwin.util.math.decimal.Decimal;
+import de.invesdwin.util.math.random.PseudoRandomGenerators;
 import de.invesdwin.util.time.Instant;
 import de.invesdwin.util.time.date.FDate;
 import de.invesdwin.util.time.date.FTimeUnit;
@@ -29,6 +30,8 @@ public class Duration extends Number implements Comparable<Object> {
     public static final Duration ONE_NANOSECOND = new Duration(1, FTimeUnit.NANOSECONDS);
     public static final Duration ONE_MICROSECOND = new Duration(1, FTimeUnit.MICROSECONDS);
     public static final Duration ONE_MILLISECOND = new Duration(1, FTimeUnit.MILLISECONDS);
+    public static final Duration FIFTY_MILLISECONDS = new Duration(50, FTimeUnit.MILLISECONDS);
+    public static final Duration ONE_HUNDRED_MILLISECONDS = new Duration(100, FTimeUnit.MILLISECONDS);
     public static final Duration ONE_SECOND = new Duration(1, FTimeUnit.SECONDS);
     public static final Duration THREE_SECONDS = new Duration(3, FTimeUnit.SECONDS);
     public static final Duration FIVE_SECONDS = new Duration(5, FTimeUnit.SECONDS);
@@ -202,6 +205,11 @@ public class Duration extends Number implements Comparable<Object> {
 
     public void sleep() throws InterruptedException {
         timeUnit.sleep(duration);
+    }
+
+    public void sleepRandom() throws InterruptedException {
+        final long randomDuration = PseudoRandomGenerators.getThreadLocalPseudoRandom().nextLong(nanosValue());
+        FTimeUnit.NANOSECONDS.sleep(randomDuration);
     }
 
     @Override
