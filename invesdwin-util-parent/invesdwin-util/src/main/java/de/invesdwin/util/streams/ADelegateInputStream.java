@@ -149,7 +149,7 @@ public abstract class ADelegateInputStream extends InputStream {
         protected void onRun() {
             if (delegate != null) {
                 String warning = "Finalizing unclosed " + InputStream.class.getSimpleName() + " ["
-                        + getClass().getName() + "]: " + name;
+                        + delegate.getClass().getName() + "]: " + name;
                 if (debugStackTraceEnabled) {
                     final Exception stackTrace;
                     if (initStackTrace != null) {

@@ -109,7 +109,7 @@ public abstract class ADelegateOutputStream extends OutputStream {
         protected void onRun() {
             if (delegate != null) {
                 String warning = "Finalizing unclosed " + OutputStream.class.getSimpleName() + " ["
-                        + getClass().getName() + "]: " + name;
+                        + delegate.getClass().getName() + "]: " + name;
                 if (debugStackTraceEnabled) {
                     final Exception stackTrace;
                     if (initStackTrace != null) {
