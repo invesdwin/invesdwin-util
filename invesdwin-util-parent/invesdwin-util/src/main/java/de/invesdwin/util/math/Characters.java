@@ -26,8 +26,9 @@ public final class Characters extends ACharactersStaticFacade {
     public static final Character DEFAULT_MISSING_VALUE_OBJ = DEFAULT_MISSING_VALUE;
     public static final IComparator<Character> COMPARATOR = IComparator.getDefaultInstance();
 
-    private Characters() {
-    }
+    public static final char[] EMPTY_ARRAY = new char[0];
+
+    private Characters() {}
 
     public static char[] toArray(final Collection<Character> vector) {
         if (vector == null) {
