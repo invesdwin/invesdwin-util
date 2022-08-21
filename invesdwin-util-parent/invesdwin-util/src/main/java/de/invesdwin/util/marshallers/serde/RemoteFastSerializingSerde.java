@@ -16,7 +16,7 @@ import de.invesdwin.util.collections.Arrays;
 import de.invesdwin.util.concurrent.pool.AgronaObjectPool;
 import de.invesdwin.util.concurrent.pool.IObjectPool;
 import de.invesdwin.util.math.Bytes;
-import de.invesdwin.util.math.Integers;
+import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 
 /**
@@ -28,9 +28,6 @@ public class RemoteFastSerializingSerde<E> implements ISerde<E> {
     public static final RemoteFastSerializingSerde<Object> INSTANCE = new RemoteFastSerializingSerde<Object>(true);
 
     private static final Class<?>[] CLASS_EMPTY_ARRAY = new Class[0];
-
-    private static final int MIN_CAPACITY = Double.BYTES;
-    private static final double EXPANSION_FACTOR = 2D;
 
     private final boolean shared;
     private final Class<?>[] filteredTypes;
@@ -181,9 +178,7 @@ public class RemoteFastSerializingSerde<E> implements ISerde<E> {
             }
         } catch (final FSTBufferTooSmallException e) {
             if (buffer.isExpandable()) {
-                final int existingCapacity = Integers.max(MIN_CAPACITY, buffer.capacity());
-                final int newCapacity = (int) (existingCapacity * EXPANSION_FACTOR);
-                buffer.ensureCapacity(newCapacity);
+                ByteBuffers.expand(buffer);
                 return toBufferExpandable(buffer, obj);
             } else {
                 throw e;

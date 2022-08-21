@@ -67,6 +67,9 @@ public final class ByteBuffers {
 
     private static final ISliceInvoker SLICE_INVOKER;
 
+    private static final int MIN_CAPACITY = Double.BYTES;
+    private static final double EXPANSION_FACTOR = 2D;
+
     static {
         SLICE_INVOKER = newSliceInvoker();
     }
@@ -851,6 +854,12 @@ public final class ByteBuffers {
         } else {
             return null;
         }
+    }
+
+    public static void expand(final IByteBuffer buffer) {
+        final int existingCapacity = Integers.max(MIN_CAPACITY, buffer.capacity());
+        final int newCapacity = (int) (existingCapacity * EXPANSION_FACTOR);
+        buffer.ensureCapacity(newCapacity);
     }
 
 }
