@@ -157,7 +157,7 @@ public abstract class ASpinWait {
             } else {
                 //only check interrupted when we are on the slow lane anyway
                 if (w.isInterrupted()) {
-                    return false;
+                    throw new InterruptedException();
                 }
                 LockSupport.parkNanos(this, maxParkIntervalNanos);
             }
