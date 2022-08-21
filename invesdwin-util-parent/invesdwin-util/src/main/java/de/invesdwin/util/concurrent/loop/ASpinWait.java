@@ -138,7 +138,7 @@ public abstract class ASpinWait {
         }
         long nanosRemaining = maxWait.nanosValue();
         final long waitDeadline = System.nanoTime() + nanosRemaining;
-        final Thread w = Thread.currentThread();
+        final Thread thread = Thread.currentThread();
         int timedSpins = 0;
         while (true) {
             if (isConditionFulfilled()) {
@@ -156,7 +156,7 @@ public abstract class ASpinWait {
                 onSpinWait();
             } else {
                 //only check interrupted when we are on the slow lane anyway
-                if (w.isInterrupted()) {
+                if (thread.isInterrupted()) {
                     throw new InterruptedException();
                 }
                 LockSupport.parkNanos(this, maxParkIntervalNanos);
