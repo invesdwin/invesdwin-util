@@ -2,7 +2,7 @@ package de.invesdwin.util.streams.buffer.bytes;
 
 public interface IByteBufferWriter {
 
-    int writeBuffer(IByteBuffer buffer);
+    int writeBuffer(IByteBuffer dst);
 
     IByteBuffer asBuffer();
 

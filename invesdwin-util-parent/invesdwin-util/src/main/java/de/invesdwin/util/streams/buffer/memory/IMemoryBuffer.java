@@ -448,9 +448,9 @@ public interface IMemoryBuffer extends IMemoryBufferWriter {
     <T> T unwrap(Class<T> type);
 
     @Override
-    default long write(final IMemoryBuffer buffer) {
+    default long writeBuffer(final IMemoryBuffer dst) {
         final long length = capacity();
-        getBytesTo(0, buffer, length);
+        getBytesTo(0, dst, length);
         return length;
     }
 

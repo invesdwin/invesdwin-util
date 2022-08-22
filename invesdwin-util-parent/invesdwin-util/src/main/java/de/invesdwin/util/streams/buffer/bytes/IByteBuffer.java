@@ -496,9 +496,9 @@ public interface IByteBuffer extends IByteBufferWriter, Cloneable {
     <T> T unwrap(Class<T> type);
 
     @Override
-    default int writeBuffer(final IByteBuffer buffer) {
+    default int writeBuffer(final IByteBuffer dst) {
         final int length = capacity();
-        getBytesTo(0, buffer, length);
+        getBytesTo(0, dst, length);
         return length;
     }
 
