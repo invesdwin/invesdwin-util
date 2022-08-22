@@ -1,5 +1,7 @@
 package de.invesdwin.util.collections;
 
+import java.util.List;
+
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
@@ -67,7 +69,7 @@ public class Arrays extends AArraysStaticFacade {
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> java.util.List<T> asList(final T... a) {
+    public static <T> List<T> asList(final T... a) {
         if (a == null) {
             return null;
         }
