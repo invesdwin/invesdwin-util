@@ -66,4 +66,15 @@ public class Arrays extends AArraysStaticFacade {
         return dest;
     }
 
+    @SuppressWarnings("unchecked")
+    public static <T> java.util.List<T> asList(final T... a) {
+        if (a == null) {
+            return null;
+        }
+        if (a.length == 0) {
+            return Collections.emptyList();
+        }
+        return java.util.Arrays.asList(a);
+    }
+
 }
