@@ -1,8 +1,8 @@
 package de.invesdwin.util.streams.buffer.bytes;
 
-public interface IByteBufferWriter {
+public interface IByteBufferProvider {
 
-    int writeBuffer(IByteBuffer dst);
+    int getBuffer(IByteBuffer dst);
 
     IByteBuffer asBuffer();
 

@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.NavigableMap;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -33,8 +34,7 @@ public final class SynchronizedLockCollectionFactory implements ILockCollectionF
 
     public static final SynchronizedLockCollectionFactory INSTANCE = new SynchronizedLockCollectionFactory();
 
-    private SynchronizedLockCollectionFactory() {
-    }
+    private SynchronizedLockCollectionFactory() {}
 
     @Override
     public ILock newLock(final String name) {
@@ -102,13 +102,13 @@ public final class SynchronizedLockCollectionFactory implements ILockCollectionF
     }
 
     @Override
-    public <K, V> Map<K, V> newConcurrentMap() {
+    public <K, V> ConcurrentMap<K, V> newConcurrentMap() {
         return new ConcurrentHashMap<>();
     }
 
     @Override
     public <T> Set<T> newConcurrentSet() {
-        return Collections.newSetFromMap(newConcurrentMap());
+        return ConcurrentHashMap.newKeySet();
     }
 
     @Override

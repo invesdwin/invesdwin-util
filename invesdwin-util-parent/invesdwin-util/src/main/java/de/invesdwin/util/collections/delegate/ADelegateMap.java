@@ -3,6 +3,9 @@ package de.invesdwin.util.collections.delegate;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
@@ -100,6 +103,56 @@ public abstract class ADelegateMap<K, V> implements Map<K, V>, ISerializableValu
     @Override
     public Set<java.util.Map.Entry<K, V>> entrySet() {
         return getDelegate().entrySet();
+    }
+
+    @Override
+    public V compute(final K key, final BiFunction<? super K, ? super V, ? extends V> remappingFunction) {
+        return getDelegate().compute(key, remappingFunction);
+    }
+
+    @Override
+    public V computeIfAbsent(final K key, final Function<? super K, ? extends V> mappingFunction) {
+        return getDelegate().computeIfAbsent(key, mappingFunction);
+    }
+
+    @Override
+    public V computeIfPresent(final K key, final BiFunction<? super K, ? super V, ? extends V> remappingFunction) {
+        return getDelegate().computeIfPresent(key, remappingFunction);
+    }
+
+    @Override
+    public V getOrDefault(final Object key, final V defaultValue) {
+        return getDelegate().getOrDefault(key, defaultValue);
+    }
+
+    @Override
+    public V merge(final K key, final V value, final BiFunction<? super V, ? super V, ? extends V> remappingFunction) {
+        return getDelegate().merge(key, value, remappingFunction);
+    }
+
+    @Override
+    public boolean remove(final Object key, final Object value) {
+        return getDelegate().remove(key, value);
+    }
+
+    @Override
+    public boolean replace(final K key, final V oldValue, final V newValue) {
+        return getDelegate().replace(key, oldValue, newValue);
+    }
+
+    @Override
+    public V replace(final K key, final V value) {
+        return getDelegate().replace(key, value);
+    }
+
+    @Override
+    public void replaceAll(final BiFunction<? super K, ? super V, ? extends V> function) {
+        getDelegate().replaceAll(function);
+    }
+
+    @Override
+    public void forEach(final BiConsumer<? super K, ? super V> action) {
+        getDelegate().forEach(action);
     }
 
     public boolean isPutAllowed(final K key, final V value) {

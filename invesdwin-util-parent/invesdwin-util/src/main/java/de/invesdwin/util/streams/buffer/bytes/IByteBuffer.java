@@ -23,7 +23,7 @@ import de.invesdwin.util.streams.buffer.memory.IMemoryBuffer;
  * Default ByteOrder is always BigEndian. Use Reverse-Suffixed methods to write/read in LittleEndian. Alternatively use
  * OrderedDelegateByteBuffer to switch the default byte order (though not recommeded).
  */
-public interface IByteBuffer extends IByteBufferWriter, Cloneable {
+public interface IByteBuffer extends IByteBufferProvider, Cloneable {
 
     IByteBuffer ensureCapacity(int capacity);
 
@@ -496,7 +496,7 @@ public interface IByteBuffer extends IByteBufferWriter, Cloneable {
     <T> T unwrap(Class<T> type);
 
     @Override
-    default int writeBuffer(final IByteBuffer dst) {
+    default int getBuffer(final IByteBuffer dst) {
         final int length = capacity();
         getBytesTo(0, dst, length);
         return length;
