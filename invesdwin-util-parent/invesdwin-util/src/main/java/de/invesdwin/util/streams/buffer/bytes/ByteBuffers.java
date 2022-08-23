@@ -495,7 +495,7 @@ public final class ByteBuffers {
             throws IOException {
         if (src instanceof ReadableByteChannel) {
             return readExpandable((ReadableByteChannel) src, buffer, index);
-        } else if (src instanceof FileInputStream) {
+        } else if (src instanceof FileInputStream && ((FileInputStream) src).getChannel() != null) {
             final FileInputStream cSrc = (FileInputStream) src;
             return readExpandable(cSrc.getChannel(), buffer, index);
         } else if (src instanceof DataInput) {

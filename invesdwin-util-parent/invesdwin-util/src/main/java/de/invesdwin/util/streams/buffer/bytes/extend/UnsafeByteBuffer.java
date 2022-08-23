@@ -305,7 +305,7 @@ public class UnsafeByteBuffer extends UnsafeBuffer implements IByteBuffer {
     public void getBytesTo(final int index, final OutputStream dst, final int length) throws IOException {
         if (dst instanceof WritableByteChannel) {
             getBytesTo(index, (WritableByteChannel) dst, length);
-        } else if (dst instanceof FileOutputStream) {
+        } else if (dst instanceof FileOutputStream && ((FileOutputStream) dst).getChannel() != null) {
             final FileOutputStream cDst = (FileOutputStream) dst;
             getBytesTo(index, cDst.getChannel(), length);
         } else if (dst instanceof DataOutput) {
@@ -338,7 +338,7 @@ public class UnsafeByteBuffer extends UnsafeBuffer implements IByteBuffer {
     public void putBytesTo(final int index, final InputStream src, final int length) throws IOException {
         if (src instanceof ReadableByteChannel) {
             putBytesTo(index, (ReadableByteChannel) src, length);
-        } else if (src instanceof FileInputStream) {
+        } else if (src instanceof FileInputStream && ((FileInputStream) src).getChannel() != null) {
             final FileInputStream cSrc = (FileInputStream) src;
             putBytesTo(index, cSrc.getChannel(), length);
         } else if (src instanceof DataInput) {
