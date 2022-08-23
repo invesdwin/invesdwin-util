@@ -5,7 +5,7 @@ import java.util.concurrent.ConcurrentMap;
 import javax.annotation.concurrent.ThreadSafe;
 
 @ThreadSafe
-public abstract class ADelegateConcurrentMap<K, V> extends ADelegateMap<K, V> {
+public abstract class ADelegateConcurrentMap<K, V> extends ADelegateMap<K, V> implements ConcurrentMap<K, V> {
 
     public ADelegateConcurrentMap() {
         super();
