@@ -25,8 +25,8 @@ public class BooleanSerde implements ISerde<Boolean> {
     }
 
     @Override
-    public Boolean fromBuffer(final IByteBuffer buffer, final int length) {
-        if (length == 0) {
+    public Boolean fromBuffer(final IByteBuffer buffer) {
+        if (buffer.capacity() == 0) {
             return null;
         }
         return buffer.getBoolean(0);

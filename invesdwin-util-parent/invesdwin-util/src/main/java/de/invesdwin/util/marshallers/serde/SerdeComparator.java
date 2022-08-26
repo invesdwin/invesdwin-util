@@ -30,9 +30,9 @@ public class SerdeComparator<O> implements Comparator<java.nio.ByteBuffer> {
             return 1;
         }
         final Comparable<Object> co1 = toComparable(
-                serde.fromBuffer(new NioDelegateByteBuffer(o1).newSliceFrom(o1.position()), o1.remaining()));
+                serde.fromBuffer(new NioDelegateByteBuffer(o1).newSlice(o1.position(), o1.remaining())));
         final Comparable<Object> co2 = toComparable(
-                serde.fromBuffer(new NioDelegateByteBuffer(o2).newSliceFrom(o2.position()), o2.remaining()));
+                serde.fromBuffer(new NioDelegateByteBuffer(o2).newSlice(o2.position(), o2.remaining())));
         return innerCompare(co1, co2);
     }
 

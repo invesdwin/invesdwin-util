@@ -30,8 +30,8 @@ public class StringAsciiSerde implements ISerde<String> {
     }
 
     @Override
-    public String fromBuffer(final IByteBuffer buffer, final int length) {
-        return getStringAscii(buffer, 0, length);
+    public String fromBuffer(final IByteBuffer buffer) {
+        return getStringAscii(buffer, 0, buffer.capacity());
     }
 
     @Override

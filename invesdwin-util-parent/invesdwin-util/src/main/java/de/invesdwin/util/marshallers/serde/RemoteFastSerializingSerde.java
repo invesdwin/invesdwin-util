@@ -124,16 +124,16 @@ public class RemoteFastSerializingSerde<E> implements ISerde<E> {
     }
 
     @Override
-    public E fromBuffer(final IByteBuffer buffer, final int length) {
-        if (length == 0) {
+    public E fromBuffer(final IByteBuffer buffer) {
+        if (buffer.capacity() == 0) {
             return null;
         }
         try {
             final byte[] byteArray = buffer.byteArray();
             if (byteArray != null) {
-                return fromBuffer(byteArray, buffer.wrapAdjustment(), length);
+                return fromBuffer(byteArray, buffer.wrapAdjustment(), buffer.capacity());
             } else {
-                return fromBuffer(buffer.addressOffset(), length);
+                return fromBuffer(buffer.addressOffset(), buffer.capacity());
             }
         } catch (final Throwable t) {
             throw new SerializationException(t);

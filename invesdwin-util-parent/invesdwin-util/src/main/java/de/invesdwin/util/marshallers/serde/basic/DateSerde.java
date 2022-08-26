@@ -25,8 +25,8 @@ public class DateSerde implements ISerde<Date> {
     }
 
     @Override
-    public Date fromBuffer(final IByteBuffer buffer, final int length) {
-        final Long time = LongSerde.GET.fromBuffer(buffer, length);
+    public Date fromBuffer(final IByteBuffer buffer) {
+        final Long time = LongSerde.GET.fromBuffer(buffer);
         if (time == null) {
             return null;
         } else {

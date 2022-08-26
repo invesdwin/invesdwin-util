@@ -41,8 +41,8 @@ public class TimedDoubleSerde implements ISerde<TimedDouble> {
     }
 
     @Override
-    public TimedDouble fromBuffer(final IByteBuffer buffer, final int length) {
-        if (length == 0) {
+    public TimedDouble fromBuffer(final IByteBuffer buffer) {
+        if (buffer.capacity() == 0) {
             return null;
         }
         final long time = buffer.getLong(TIME_INDEX);

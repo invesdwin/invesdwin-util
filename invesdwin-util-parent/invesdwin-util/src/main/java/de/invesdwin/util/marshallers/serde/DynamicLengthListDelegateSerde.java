@@ -33,8 +33,8 @@ public class DynamicLengthListDelegateSerde<E> implements ISerde<List<? extends 
     }
 
     @Override
-    public List<? extends E> fromBuffer(final IByteBuffer buffer, final int length) {
-        if (length == 0) {
+    public List<? extends E> fromBuffer(final IByteBuffer buffer) {
+        if (buffer.capacity() == 0) {
             return Collections.emptyList();
         }
         int curOffset = 0;
@@ -51,7 +51,7 @@ public class DynamicLengthListDelegateSerde<E> implements ISerde<List<? extends 
             curOffset += Integer.BYTES;
             //OBJ
             final IByteBuffer slice = buffer.slice(curOffset, objSize);
-            final E obj = delegate.fromBuffer(slice, objSize);
+            final E obj = delegate.fromBuffer(slice);
             result.add(obj);
             curOffset += objSize;
         }

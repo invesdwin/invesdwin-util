@@ -48,8 +48,7 @@ public final class Objects extends AObjectsStaticFacade {
         }
     }
 
-    private Objects() {
-    }
+    private Objects() {}
 
     public static <T> T defaultIfNull(final T object, final T defaultValue) {
         return org.apache.commons.lang3.ObjectUtils.defaultIfNull(object, defaultValue);
@@ -375,8 +374,8 @@ public final class Objects extends AObjectsStaticFacade {
         }
     }
 
-    public static <T extends Serializable> T deserialize(final IByteBuffer buffer, final int length) {
-        return LocalFastSerializingSerde.<T> get().fromBuffer(buffer, length);
+    public static <T extends Serializable> T deserialize(final IByteBuffer buffer) {
+        return LocalFastSerializingSerde.<T> get().fromBuffer(buffer);
     }
 
     public static <T extends Serializable> int serialize(final IByteBuffer buffer, final T obj) {

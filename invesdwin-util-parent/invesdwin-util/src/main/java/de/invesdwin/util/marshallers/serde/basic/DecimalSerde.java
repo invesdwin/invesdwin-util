@@ -14,8 +14,7 @@ public final class DecimalSerde implements ISerde<Decimal> {
     public static final DecimalSerde GET = new DecimalSerde();
     public static final int FIXED_LENGTH = Decimal.BYTES;
 
-    private DecimalSerde() {
-    }
+    private DecimalSerde() {}
 
     @Override
     public Decimal fromBytes(final byte[] bytes) {
@@ -28,8 +27,8 @@ public final class DecimalSerde implements ISerde<Decimal> {
     }
 
     @Override
-    public Decimal fromBuffer(final IByteBuffer buffer, final int length) {
-        if (length == 0) {
+    public Decimal fromBuffer(final IByteBuffer buffer) {
+        if (buffer.capacity() == 0) {
             return null;
         }
         final double value = buffer.getDouble(0);

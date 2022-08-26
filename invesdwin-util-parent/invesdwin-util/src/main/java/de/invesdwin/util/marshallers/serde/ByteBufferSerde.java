@@ -20,8 +20,8 @@ public class ByteBufferSerde implements ISerde<IByteBuffer> {
     }
 
     @Override
-    public IByteBuffer fromBuffer(final IByteBuffer buffer, final int length) {
-        return buffer.sliceTo(length);
+    public IByteBuffer fromBuffer(final IByteBuffer buffer) {
+        return buffer;
     }
 
     @Override

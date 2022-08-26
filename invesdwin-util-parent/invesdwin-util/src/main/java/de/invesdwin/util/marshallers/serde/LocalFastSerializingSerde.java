@@ -44,8 +44,8 @@ public class LocalFastSerializingSerde<E extends Serializable> implements ISerde
     }
 
     @Override
-    public E fromBuffer(final IByteBuffer buffer, final int length) {
-        return deserialize(buffer, length);
+    public E fromBuffer(final IByteBuffer buffer) {
+        return deserialize(buffer);
     }
 
     @Override
@@ -62,7 +62,7 @@ public class LocalFastSerializingSerde<E extends Serializable> implements ISerde
         final IByteBuffer buffer = ByteBuffers.EXPANDABLE_POOL.borrowObject();
         try {
             final int length = serialize(buffer, (Serializable) obj);
-            return (T) deserialize(buffer, length);
+            return (T) deserialize(buffer.sliceTo(length));
         } finally {
             ByteBuffers.EXPANDABLE_POOL.returnObject(buffer);
         }
@@ -81,7 +81,7 @@ public class LocalFastSerializingSerde<E extends Serializable> implements ISerde
         final IByteBuffer buffer = ByteBuffers.EXPANDABLE_POOL.borrowObject();
         try {
             final int length = ByteBuffers.readExpandable(in, buffer, 0);
-            return (T) deserialize(buffer, length);
+            return (T) deserialize(buffer.sliceTo(length));
         } catch (final Throwable t) {
             throw new SerializationException(t);
         } finally {
@@ -109,8 +109,8 @@ public class LocalFastSerializingSerde<E extends Serializable> implements ISerde
     }
 
     @SuppressWarnings("unchecked")
-    public <T> T deserialize(final IByteBuffer buffer, final int length) {
-        return (T) delegate.fromBuffer(buffer, length);
+    public <T> T deserialize(final IByteBuffer buffer) {
+        return (T) delegate.fromBuffer(buffer);
     }
 
     public <T> int serialize(final IByteBuffer buffer, final T obj) {

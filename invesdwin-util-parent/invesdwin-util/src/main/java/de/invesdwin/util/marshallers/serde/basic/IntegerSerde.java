@@ -23,8 +23,8 @@ public class IntegerSerde implements ISerde<Integer> {
     }
 
     @Override
-    public Integer fromBuffer(final IByteBuffer buffer, final int length) {
-        if (length == 0) {
+    public Integer fromBuffer(final IByteBuffer buffer) {
+        if (buffer.capacity() == 0) {
             return null;
         }
         return buffer.getInt(0);

@@ -21,8 +21,7 @@ public final class CurrencySerde implements ISerde<Currency> {
     public static final CurrencySerde GET = new CurrencySerde();
     public static final int FIXED_LENGTH = Currencies.BYTES;
 
-    private CurrencySerde() {
-    }
+    private CurrencySerde() {}
 
     @Override
     public Currency fromBytes(final byte[] bytes) {
@@ -35,11 +34,11 @@ public final class CurrencySerde implements ISerde<Currency> {
     }
 
     @Override
-    public Currency fromBuffer(final IByteBuffer buffer, final int length) {
-        if (length == 0) {
+    public Currency fromBuffer(final IByteBuffer buffer) {
+        if (buffer.capacity() == 0) {
             return null;
         }
-        final String currencyCode = buffer.getStringAsciii(0, length);
+        final String currencyCode = buffer.getStringAsciii(0, buffer.capacity());
         return Currencies.getInstance(currencyCode);
     }
 

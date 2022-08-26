@@ -9,14 +9,13 @@ import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 @Immutable
 public final class SerdeBaseMethods {
 
-    private SerdeBaseMethods() {
-    }
+    private SerdeBaseMethods() {}
 
     public static <O> O fromBytes(final ISerde<O> serde, final byte[] bytes) {
         if (bytes == null || bytes.length == 0) {
             return null;
         }
-        return serde.fromBuffer(ByteBuffers.wrap(bytes), bytes.length);
+        return serde.fromBuffer(ByteBuffers.wrap(bytes));
     }
 
     public static <O> byte[] toBytes(final ISerde<O> serde, final O obj) {
@@ -33,11 +32,11 @@ public final class SerdeBaseMethods {
         }
     }
 
-    public static <O> O fromBuffer(final ISerde<O> serde, final IByteBuffer buffer, final int length) {
-        if (length == 0) {
+    public static <O> O fromBuffer(final ISerde<O> serde, final IByteBuffer buffer) {
+        if (buffer.capacity() == 0) {
             return null;
         }
-        final byte[] bytes = buffer.asByteArrayTo(length);
+        final byte[] bytes = buffer.asByteArray();
         return serde.fromBytes(bytes);
     }
 

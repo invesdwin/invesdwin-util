@@ -24,8 +24,7 @@ public class TimeRangeSerde implements ISerde<TimeRange> {
     public static final FixedLengthBufferingIteratorDelegateSerde<TimeRange> GET_LIST = new FixedLengthBufferingIteratorDelegateSerde<TimeRange>(
             GET, FIXED_LENGTH);
 
-    public TimeRangeSerde() {
-    }
+    public TimeRangeSerde() {}
 
     @Override
     public TimeRange fromBytes(final byte[] bytes) {
@@ -38,7 +37,7 @@ public class TimeRangeSerde implements ISerde<TimeRange> {
     }
 
     @Override
-    public TimeRange fromBuffer(final IByteBuffer buffer, final int length) {
+    public TimeRange fromBuffer(final IByteBuffer buffer) {
         return getTimeRange(buffer, 0);
     }
 

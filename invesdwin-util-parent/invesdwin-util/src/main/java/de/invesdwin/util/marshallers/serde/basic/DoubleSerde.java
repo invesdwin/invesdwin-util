@@ -13,8 +13,7 @@ public final class DoubleSerde implements ISerde<Double> {
     public static final DoubleSerde GET = new DoubleSerde();
     public static final int FIXED_LENGTH = Double.BYTES;
 
-    private DoubleSerde() {
-    }
+    private DoubleSerde() {}
 
     @Override
     public Double fromBytes(final byte[] bytes) {
@@ -27,8 +26,8 @@ public final class DoubleSerde implements ISerde<Double> {
     }
 
     @Override
-    public Double fromBuffer(final IByteBuffer buffer, final int length) {
-        if (length == 0) {
+    public Double fromBuffer(final IByteBuffer buffer) {
+        if (buffer.capacity() == 0) {
             return null;
         }
         return buffer.getDouble(0);

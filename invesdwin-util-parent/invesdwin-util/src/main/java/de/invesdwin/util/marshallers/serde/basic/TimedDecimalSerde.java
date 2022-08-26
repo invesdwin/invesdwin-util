@@ -31,8 +31,7 @@ public class TimedDecimalSerde implements ISerde<TimedDecimal> {
         Assertions.assertThat(GET.fromBytes(GET.toBytes(TimedDecimal.DUMMY))).isEqualTo(TimedDecimal.DUMMY);
     }
 
-    public TimedDecimalSerde() {
-    }
+    public TimedDecimalSerde() {}
 
     @Override
     public TimedDecimal fromBytes(final byte[] bytes) {
@@ -45,8 +44,8 @@ public class TimedDecimalSerde implements ISerde<TimedDecimal> {
     }
 
     @Override
-    public TimedDecimal fromBuffer(final IByteBuffer buffer, final int length) {
-        if (length == 0) {
+    public TimedDecimal fromBuffer(final IByteBuffer buffer) {
+        if (buffer.capacity() == 0) {
             return null;
         }
         final long time = buffer.getLong(TIME_INDEX);

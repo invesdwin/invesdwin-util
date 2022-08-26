@@ -41,7 +41,7 @@ public final class ByteArraySerde implements ISerde<byte[][]> {
     }
 
     @Override
-    public byte[][] fromBuffer(final IByteBuffer buffer, final int length) {
+    public byte[][] fromBuffer(final IByteBuffer buffer) {
         final int arrayCount;
         int lengthPosition = 0;
         if (fixedArrayCount == null) {
