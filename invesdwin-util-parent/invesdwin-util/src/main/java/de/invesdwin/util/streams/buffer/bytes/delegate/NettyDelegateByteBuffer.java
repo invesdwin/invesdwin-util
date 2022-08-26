@@ -101,7 +101,13 @@ public class NettyDelegateByteBuffer implements IByteBuffer {
     @Override
     public java.nio.ByteBuffer nioByteBuffer() {
         if (delegate.nioBufferCount() == 1) {
-            return delegate.nioBuffer();
+            final int writerIndexBefore = delegate.writerIndex();
+            delegate.writerIndex(capacity());
+            try {
+                return delegate.nioBuffer();
+            } finally {
+                delegate.writerIndex(writerIndexBefore);
+            }
         } else {
             return null;
         }
