@@ -170,6 +170,7 @@ public class BufferedFileDataOutputStream extends OutputStream implements DataOu
             if (randomAccessFile != null) {
                 randomAccessFile.close();
             }
+            syncWithFilesystem();
             channel.close();
             getBufferPool().returnObject(buffer);
             buffer = null;
@@ -177,8 +178,15 @@ public class BufferedFileDataOutputStream extends OutputStream implements DataOu
         }
     }
 
-    protected void onClose() {
+    /**
+     * Override with no-op to disable.
+     */
+    protected void syncWithFilesystem() throws IOException {
+        //sync with filesystem
+        channel.force(true);
     }
+
+    protected void onClose() {}
 
     public long position() throws IOException {
         return channel.position() + nioBuffer.position();
@@ -192,7 +200,7 @@ public class BufferedFileDataOutputStream extends OutputStream implements DataOu
 
     public void sync() throws IOException {
         flush();
-        channel.force(true);
+        syncWithFilesystem();
     }
 
     public FileChannel getChannel() {
