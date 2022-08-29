@@ -167,10 +167,10 @@ public class BufferedFileDataOutputStream extends OutputStream implements DataOu
     public final void close() throws IOException {
         if (buffer != null) {
             flush();
+            syncWithFilesystem();
             if (randomAccessFile != null) {
                 randomAccessFile.close();
             }
-            syncWithFilesystem();
             channel.close();
             getBufferPool().returnObject(buffer);
             buffer = null;
