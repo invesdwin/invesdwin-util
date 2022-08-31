@@ -6,8 +6,9 @@ import java.util.concurrent.locks.Lock;
 
 import javax.annotation.concurrent.ThreadSafe;
 
+import com.github.benmanes.caffeine.cache.AsyncCache;
+import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
-import com.github.benmanes.caffeine.cache.LoadingCache;
 
 import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
 import de.invesdwin.util.concurrent.loop.AtomicLoopInterruptedCheck;
@@ -54,8 +55,7 @@ public final class MemoryLimit {
         IDENTITY_LASTCLEAR = Caffeine.newBuilder().maximumSize(10_000).<Integer, Instant> build().asMap();
     }
 
-    private MemoryLimit() {
-    }
+    private MemoryLimit() {}
 
     public static boolean isMemoryLimitReached() {
         try {
@@ -76,14 +76,14 @@ public final class MemoryLimit {
         return freeMemoryRate;
     }
 
-    public static void maybeClearCache(final Object holder, final String name, final LoadingCache<?, ?> cache,
+    public static void maybeClearCache(final Object holder, final String name, final Cache<?, ?> cache,
             final Lock lock) {
         if (isMemoryLimitReached()) {
             maybeClearCacheUnchecked(holder, name, cache, lock);
         }
     }
 
-    public static void maybeClearCacheUnchecked(final Object holder, final String name, final LoadingCache<?, ?> cache,
+    public static void maybeClearCacheUnchecked(final Object holder, final String name, final Cache<?, ?> cache,
             final Lock lock) {
         if (cache.estimatedSize() >= MemoryLimit.CLEAR_CACHE_MIN_COUNT) {
             if (lock.tryLock()) {
@@ -94,6 +94,61 @@ public final class MemoryLimit {
                         if (lastClear == null || lastClear.isGreaterThan(CLEAR_CACHE_INTERVAL)) {
                             logWarning(holder, name, cache.estimatedSize());
                             cache.asMap().clear();
+                            IDENTITY_LASTCLEAR.put(cacheIdentity, new Instant());
+                        }
+                    }
+                } finally {
+                    lock.unlock();
+                }
+            }
+        }
+    }
+
+    public static void maybeClearCache(final Object holder, final String name, final AsyncCache<?, ?> cache,
+            final Lock lock) {
+        if (isMemoryLimitReached()) {
+            maybeClearCacheUnchecked(holder, name, cache, lock);
+        }
+    }
+
+    public static void maybeClearCacheUnchecked(final Object holder, final String name, final AsyncCache<?, ?> cache,
+            final Lock lock) {
+        if (cache.asMap().size() >= MemoryLimit.CLEAR_CACHE_MIN_COUNT) {
+            if (lock.tryLock()) {
+                try {
+                    if (cache.asMap().size() >= MemoryLimit.CLEAR_CACHE_MIN_COUNT) {
+                        final int cacheIdentity = System.identityHashCode(holder);
+                        final Instant lastClear = IDENTITY_LASTCLEAR.get(cacheIdentity);
+                        if (lastClear == null || lastClear.isGreaterThan(CLEAR_CACHE_INTERVAL)) {
+                            logWarning(holder, name, cache.asMap().size());
+                            cache.asMap().clear();
+                            IDENTITY_LASTCLEAR.put(cacheIdentity, new Instant());
+                        }
+                    }
+                } finally {
+                    lock.unlock();
+                }
+            }
+        }
+    }
+
+    public static void maybeClearCache(final Object holder, final String name, final Map<?, ?> cache, final Lock lock) {
+        if (isMemoryLimitReached()) {
+            maybeClearCacheUnchecked(holder, name, cache, lock);
+        }
+    }
+
+    public static void maybeClearCacheUnchecked(final Object holder, final String name, final Map<?, ?> cache,
+            final Lock lock) {
+        if (cache.size() >= MemoryLimit.CLEAR_CACHE_MIN_COUNT) {
+            if (lock.tryLock()) {
+                try {
+                    if (cache.size() >= MemoryLimit.CLEAR_CACHE_MIN_COUNT) {
+                        final int cacheIdentity = System.identityHashCode(holder);
+                        final Instant lastClear = IDENTITY_LASTCLEAR.get(cacheIdentity);
+                        if (lastClear == null || lastClear.isGreaterThan(CLEAR_CACHE_INTERVAL)) {
+                            logWarning(holder, name, cache.size());
+                            cache.clear();
                             IDENTITY_LASTCLEAR.put(cacheIdentity, new Instant());
                         }
                     }
