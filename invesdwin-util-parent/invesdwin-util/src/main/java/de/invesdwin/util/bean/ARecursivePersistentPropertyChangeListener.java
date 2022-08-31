@@ -176,7 +176,7 @@ public abstract class ARecursivePersistentPropertyChangeListener implements Prop
                          * table rows are often fetched from a database and get dynamically updated, thus
                          * register/unregister dirty tracker can get confused with the state, thus ignore tables
                          */
-                                && !(e instanceof ATableBeanPathElement)) {
+                                && (!(e instanceof ATableBeanPathElement) || isTrackIterableChildren())) {
                             final Object value = e.getModifier().getValueFromRoot(source);
                             internalAddListenersToSourceHierarchy(e, value);
                             if (e instanceof AChoiceBeanPathElement) {
@@ -215,6 +215,8 @@ public abstract class ARecursivePersistentPropertyChangeListener implements Prop
 
                 });
     }
+
+    protected abstract boolean isTrackIterableChildren();
 
     private void maybeRemoveChildPropertyChangeListenersSimpleValue(final Object oldValue) {
         if (oldValue != null && oldValue instanceof APropertyChangeSupported) {
@@ -257,15 +259,22 @@ public abstract class ARecursivePersistentPropertyChangeListener implements Prop
 
         private final WeakReference<ARecursivePersistentPropertyChangeListener> parentRef;
         private final String beanPathFragment;
+        private final boolean trackIterableChildren;
 
         ChildRecursivePersistentPropertyChangeListener(final APropertyChangeSupported source,
                 final ARecursivePersistentPropertyChangeListener parent, final String beanPathFragment) {
             super(buildSourceBeanPath(parent, beanPathFragment), source);
             this.parentRef = new WeakReference<ARecursivePersistentPropertyChangeListener>(parent);
+            this.trackIterableChildren = parent.isTrackIterableChildren();
             this.beanPathFragment = beanPathFragment;
             synchronized (parent) {
                 parent.children.add(this);
             }
+        }
+
+        @Override
+        protected boolean isTrackIterableChildren() {
+            return trackIterableChildren;
         }
 
         @Override

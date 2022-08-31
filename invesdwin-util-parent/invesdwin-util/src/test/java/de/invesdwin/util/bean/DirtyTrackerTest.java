@@ -539,12 +539,21 @@ public class DirtyTrackerTest {
     }
 
     @Test
-    public void testIterableChildrenGetTracked() {
+    public void testIterableChildrenGetTrackedWhenEabled() {
+        final ListVo listVo = new ListVo();
+        listVo.dirtyTracker().setTrackIterableChildren(true).startTrackingChangesDirectly();
+        Assertions.assertThat(listVo.dirtyTracker().isDirty()).isFalse();
+        listVo.getList().get(0).setOtherValue(1298129);
+        Assertions.assertThat(listVo.dirtyTracker().isDirty()).isTrue();
+    }
+
+    @Test
+    public void testIterableChildrenDontGetTrackedPerDefault() {
         final ListVo listVo = new ListVo();
         listVo.dirtyTracker().startTrackingChangesDirectly();
         Assertions.assertThat(listVo.dirtyTracker().isDirty()).isFalse();
         listVo.getList().get(0).setOtherValue(1298129);
-        Assertions.assertThat(listVo.dirtyTracker().isDirty()).isTrue();
+        Assertions.assertThat(listVo.dirtyTracker().isDirty()).isFalse();
     }
 
     public static class ListVo extends AValueObject {

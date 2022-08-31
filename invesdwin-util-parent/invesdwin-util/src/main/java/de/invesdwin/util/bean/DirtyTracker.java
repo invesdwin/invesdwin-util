@@ -71,6 +71,8 @@ public class DirtyTracker implements Serializable {
     @GuardedBy("this")
     private boolean trackingChangesDirectly;
     @GuardedBy("this")
+    private boolean trackIterableChildren;
+    @GuardedBy("this")
     private transient TrackingChangesPropagatingRecursivePersistentPropertyChangeListener directTracker;
     @GuardedBy("this")
     private transient Map<TrackingChangesPropagatingRecursivePersistentPropertyChangeListener, String> registeredTracker_sourceBeanPath;
@@ -93,25 +95,27 @@ public class DirtyTracker implements Serializable {
     /**
      * Starts tracking changes directly.
      */
-    public synchronized void startTrackingChangesDirectly() {
+    public synchronized DirtyTracker startTrackingChangesDirectly() {
         if (!trackingChangesDirectly) {
             trackingChangesDirectly = true;
             if (directTracker == null) {
                 addDirectTracker();
             }
         }
+        return this;
     }
 
     /**
      * Stops tracking changes directly.
      */
-    public synchronized void stopTrackingChangesDirectly() {
+    public synchronized DirtyTracker stopTrackingChangesDirectly() {
         if (trackingChangesDirectly) {
             trackingChangesDirectly = false;
             if (directTracker != null) {
                 removeDirectTracker();
             }
         }
+        return this;
     }
 
     /**
@@ -132,6 +136,18 @@ public class DirtyTracker implements Serializable {
      */
     public synchronized boolean isTrackingChangesDirectly() {
         return trackingChangesDirectly;
+    }
+
+    public synchronized boolean isTrackIterableChildren() {
+        return trackIterableChildren;
+    }
+
+    public synchronized DirtyTracker setTrackIterableChildren(final boolean trackIterableChildren) {
+        if (trackingChangesDirectly) {
+            throw new IllegalStateException("can only modify this setting when tracking is disabled");
+        }
+        this.trackIterableChildren = trackIterableChildren;
+        return this;
     }
 
     public Set<IDirtyTrackerListener> getListeners() {
@@ -385,6 +401,11 @@ public class DirtyTracker implements Serializable {
         @Override
         protected void onPropertyChangeOnLastLevel(final PropertyChangeEvent evt) {
             //ignore
+        }
+
+        @Override
+        protected boolean isTrackIterableChildren() {
+            return trackIterableChildren;
         }
 
         @Override
