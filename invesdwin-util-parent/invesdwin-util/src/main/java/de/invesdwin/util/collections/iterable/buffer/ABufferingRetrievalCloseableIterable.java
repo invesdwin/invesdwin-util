@@ -64,6 +64,10 @@ public abstract class ABufferingRetrievalCloseableIterable<T> implements IClosea
 
             private IBufferingIterator<? extends T> queryNext(final FDate fromDate, final Integer retrievalCount) {
                 final IBufferingIterator<? extends T> list = query(fromDate, toDate, retrievalCount);
+                if (list == null) {
+                    throw new NullPointerException(
+                            "ABufferingRetrievalCloseableIterable: queryNext() query returned null");
+                }
                 if (retrievalCount != null && list.size() > retrievalCount) {
                     throw new IllegalStateException(
                             "Got more results [" + list.size() + "] than requested [" + retrievalCount + "]");
@@ -84,9 +88,14 @@ public abstract class ABufferingRetrievalCloseableIterable<T> implements IClosea
                     throw FastNoSuchElementException.getInstance("ABufferingRetrievalCloseableIterable: list is null");
                 }
                 final T next = list.next();
+                if (next == null) {
+                    throw new NullPointerException(
+                            "ABufferingRetrievalCloseableIterable: next is null for [" + next + "]");
+                }
                 final FDate nextDate = extractTime(next);
                 if (nextDate == null) {
-                    throw new NullPointerException("nextDate is null for [" + next + "]");
+                    throw new NullPointerException(
+                            "ABufferingRetrievalCloseableIterable: nextDate is null for [" + next + "]");
                 }
                 if (!curDate.equals(fromDate) && curDate.equals(nextDate)) {
                     close();

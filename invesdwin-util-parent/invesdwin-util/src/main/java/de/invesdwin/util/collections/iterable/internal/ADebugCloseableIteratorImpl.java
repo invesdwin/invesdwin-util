@@ -51,7 +51,7 @@ public abstract class ADebugCloseableIteratorImpl<E> implements ICloseableIterat
         }
         if (next == null) {
             close();
-            throw FastNoSuchElementException.getInstance("ACloseableIterator: next is null");
+            throw new NullPointerException("ACloseableIterator: next is null");
         }
         return next;
     }

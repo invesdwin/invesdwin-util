@@ -2,8 +2,6 @@ package de.invesdwin.util.collections.iterable;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import de.invesdwin.util.error.FastNoSuchElementException;
-
 @NotThreadSafe
 public abstract class ATransformingIterator<S, R> implements ICloseableIterator<R> {
 
@@ -22,7 +20,7 @@ public abstract class ATransformingIterator<S, R> implements ICloseableIterator<
     public R next() {
         final S next = delegate.next();
         if (next == null) {
-            throw FastNoSuchElementException.getInstance("ATransformingCloseableIterator: next is null");
+            throw new NullPointerException("ATransformingCloseableIterator: next is null");
         } else {
             return transform(next);
         }

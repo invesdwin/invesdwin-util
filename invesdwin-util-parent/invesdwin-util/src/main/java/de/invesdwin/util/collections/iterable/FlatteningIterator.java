@@ -45,29 +45,43 @@ public class FlatteningIterator<E> implements ICloseableIterator<E> {
         return false;
     }
 
-    @SuppressWarnings("deprecation")
     private void nextIterator() {
         curIterator.close();
         curIterator = null;
         //might throw another final NoSuchElement exception
-        curIterator = WrapperCloseableIterator.maybeWrap(delegate.next());
+        curIterator = delegateNext();
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     public E next() {
         if (curIterator == null) {
             //might throw a NoSuchElement exception
-            curIterator = WrapperCloseableIterator.maybeWrap(delegate.next());
+            curIterator = delegateNext();
+            if (curIterator == null) {
+                throw new NullPointerException();
+            }
         }
         while (curIterator != null) {
             try {
-                return curIterator.next();
+                final E next = curIterator.next();
+                if (next == null) {
+                    throw new NullPointerException("FlatteningIterator: next() curIterator.next() returned null");
+                }
+                return next;
             } catch (final NoSuchElementException e) {
                 nextIterator();
             }
         }
         throw FastNoSuchElementException.getInstance("FlatteningIterator: curIterator is null");
+    }
+
+    @SuppressWarnings("deprecation")
+    private ICloseableIterator<? extends E> delegateNext() {
+        final Iterator<? extends E> delegateNext = delegate.next();
+        if (delegateNext == null) {
+            throw new NullPointerException("FlatteningIterator: delegateNext() delegate.next() returned null");
+        }
+        return WrapperCloseableIterator.maybeWrap(delegateNext);
     }
 
     @Override

@@ -68,7 +68,7 @@ public class SortedBufferingIterator<E> implements ICloseableIterator<E> {
                 final E next = delegate.next();
                 if (next == null) {
                     delegate.close();
-                    delegate = null;
+                    throw new NullPointerException("ASkippingIterator: fullBuffer() delegate.next() returned null");
                 } else if (!skip(next)) {
                     buffer.add(next);
                 }

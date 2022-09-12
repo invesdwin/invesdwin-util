@@ -48,7 +48,7 @@ public abstract class AFastCloseableIteratorImpl<E> implements ICloseableIterato
         }
         if (next == null) {
             close();
-            throw FastNoSuchElementException.getInstance("ACloseableIterator: next is null");
+            throw new NullPointerException("ACloseableIterator: next is null");
         }
         return next;
     }

@@ -51,6 +51,9 @@ public class SortedFeedsIterator<E> implements ICloseableIterator<E> {
             final PeekingCloseableIterator<? extends E> peekingFeed = peekingFeeds.get(i);
             try {
                 final E peek = peekingFeed.peek();
+                if (peek == null) {
+                    throw new NullPointerException("ASortedFeedsIterator: next() peekingFeed.peek() returned null");
+                }
                 if (max == null || comparator.compareTyped(max, peek) > 0) {
                     max = peek;
                     maxFeed = peekingFeed;
@@ -62,7 +65,7 @@ public class SortedFeedsIterator<E> implements ICloseableIterator<E> {
             }
         }
         if (max == null) {
-            throw FastNoSuchElementException.getInstance("ASortedFeedsIterator reached end");
+            throw FastNoSuchElementException.getInstance("ASortedFeedsIterator: next() reached end");
         }
         maxFeed.next();
         if (!maxFeed.hasNext()) {

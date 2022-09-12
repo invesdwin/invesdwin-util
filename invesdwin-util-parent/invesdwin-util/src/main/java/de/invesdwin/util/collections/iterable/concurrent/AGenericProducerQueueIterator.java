@@ -157,7 +157,7 @@ public abstract class AGenericProducerQueueIterator<E> extends ACloseableIterato
             final E curElement = nextElement;
             nextElement = null;
             if (curElement == null) {
-                throw FastNoSuchElementException.getInstance("ProducerQueueIterator: curElement is null");
+                throw new NullPointerException("ProducerQueueIterator: curElement is null");
             }
             nextElement = readNext();
             return curElement;

@@ -32,7 +32,11 @@ public final class WrapperCloseableIterator<E> implements ICloseableIterator<E> 
     @Override
     public E next() {
         try {
-            return delegate.next();
+            final E next = delegate.next();
+            if (next == null) {
+                throw new NullPointerException("WrapperCloseableIterator: next() delegate.next() returned null");
+            }
+            return next;
         } catch (final NoSuchElementException e) {
             close();
             throw FastNoSuchElementException.maybeReplace(e, "WrapperCloseableIterator: next threw");
