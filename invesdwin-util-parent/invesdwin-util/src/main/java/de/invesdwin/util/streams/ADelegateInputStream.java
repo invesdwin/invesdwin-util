@@ -65,11 +65,7 @@ public abstract class ADelegateInputStream extends InputStream {
     @Override
     public int read() throws IOException {
         onRead();
-        final int read = getDelegate().read();
-        if (shouldCloseOnMinus1Read() && read == -1) {
-            close();
-        }
-        return read;
+        return getDelegate().read();
     }
 
     @Override
@@ -102,16 +98,12 @@ public abstract class ADelegateInputStream extends InputStream {
         return getDelegate().readNBytes(len);
     }
 
-    private void onRead() {
+    protected void onRead() {
         if (finalizer.debugStackTraceEnabled && finalizer.readStackTrace == null) {
             finalizer.initStackTrace = null;
             finalizer.readStackTrace = new Exception();
             finalizer.readStackTrace.fillInStackTrace();
         }
-    }
-
-    protected boolean shouldCloseOnMinus1Read() {
-        return true;
     }
 
     private static final class DelegateInputStreamFinalizer extends AFinalizer {
