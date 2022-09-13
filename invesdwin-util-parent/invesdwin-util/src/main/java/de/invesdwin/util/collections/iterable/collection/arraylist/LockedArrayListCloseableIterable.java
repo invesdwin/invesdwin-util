@@ -30,10 +30,30 @@ public class LockedArrayListCloseableIterable<E> implements IArrayListCloseableI
     }
 
     @Override
+    public ICloseableIterator<E> reverseIterator(final int highIndex, final int lowIndex) {
+        lock.lock();
+        try {
+            return delegate.reverseIterator(highIndex, lowIndex);
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
     public ICloseableIterator<E> iterator() {
         lock.lock();
         try {
             return delegate.iterator();
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
+    public ICloseableIterator<E> iterator(final int lowIndex, final int highIndex) {
+        lock.lock();
+        try {
+            return delegate.iterator(lowIndex, highIndex);
         } finally {
             lock.unlock();
         }

@@ -22,8 +22,18 @@ public class SynchronizedArrayListCloseableIterable<E> implements IArrayListClos
     }
 
     @Override
+    public synchronized ICloseableIterator<E> reverseIterator(final int highIndex, final int lowIndex) {
+        return delegate.reverseIterator(highIndex, lowIndex);
+    }
+
+    @Override
     public synchronized ICloseableIterator<E> iterator() {
         return delegate.iterator();
+    }
+
+    @Override
+    public synchronized ICloseableIterator<E> iterator(final int lowIndex, final int highIndex) {
+        return delegate.iterator(lowIndex, highIndex);
     }
 
     @Override

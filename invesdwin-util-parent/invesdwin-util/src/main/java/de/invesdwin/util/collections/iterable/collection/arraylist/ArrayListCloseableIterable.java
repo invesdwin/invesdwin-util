@@ -63,6 +63,7 @@ public class ArrayListCloseableIterable<E> implements IArrayListCloseableIterabl
     }
 
     @SuppressWarnings("unchecked")
+    @Override
     public ICloseableIterator<E> iterator(final int lowIndex, final int highIndex) {
         if (cachedSize != arrayList.size()) {
             cachedSize = arrayList.size();
@@ -110,6 +111,7 @@ public class ArrayListCloseableIterable<E> implements IArrayListCloseableIterabl
     }
 
     @SuppressWarnings("unchecked")
+    @Override
     public ICloseableIterator<E> reverseIterator(final int highIndex, final int lowIndex) {
         if (cachedSize != arrayList.size()) {
             cachedSize = arrayList.size();
