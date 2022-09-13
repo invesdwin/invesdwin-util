@@ -52,8 +52,8 @@ public abstract class AParallelChunkConsumerIterator<R, E> extends ACloseableIte
     @Override
     protected synchronized E innerNext() {
         while (finalizer.requests.hasNext()
-                && finalizer.consumerExecutor
-                        .getPendingCount() < finalizer.consumerExecutor.getFullPendingCountCondition().getLimit()
+                && (futures.isEmpty() || finalizer.consumerExecutor
+                        .getPendingCount() < finalizer.consumerExecutor.getFullPendingCountCondition().getLimit())
                 && futures.size() < finalizer.chunkSize) {
             final R request = finalizer.requests.next();
             final Future<E> submit = finalizer.consumerExecutor.submit(() -> {
