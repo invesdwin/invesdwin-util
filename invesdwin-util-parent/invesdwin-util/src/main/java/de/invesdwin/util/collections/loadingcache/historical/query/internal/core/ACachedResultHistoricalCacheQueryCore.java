@@ -15,7 +15,7 @@ import org.apache.commons.lang3.mutable.MutableInt;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.collections.iterable.collection.ArrayCloseableIterator;
-import de.invesdwin.util.collections.iterable.collection.ArrayListCloseableIterable;
+import de.invesdwin.util.collections.iterable.collection.arraylist.ArrayListCloseableIterable;
 import de.invesdwin.util.collections.loadingcache.historical.IHistoricalEntry;
 import de.invesdwin.util.collections.loadingcache.historical.ImmutableHistoricalEntry;
 import de.invesdwin.util.collections.loadingcache.historical.query.error.ResetCacheException;

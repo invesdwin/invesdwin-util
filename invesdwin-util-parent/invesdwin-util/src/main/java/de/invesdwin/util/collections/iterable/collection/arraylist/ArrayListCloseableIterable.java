@@ -1,4 +1,4 @@
-package de.invesdwin.util.collections.iterable.collection;
+package de.invesdwin.util.collections.iterable.collection.arraylist;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -7,15 +7,15 @@ import java.util.List;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
-import de.invesdwin.util.collections.iterable.IReverseCloseableIterable;
-import de.invesdwin.util.collections.list.IFastToListProvider;
+import de.invesdwin.util.collections.iterable.collection.ArrayCloseableIterator;
+import de.invesdwin.util.collections.iterable.collection.ReverseArrayCloseableIterator;
 import de.invesdwin.util.collections.list.Lists;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.lang.reflection.Reflections;
 
 @SuppressWarnings("restriction")
 @NotThreadSafe
-public class ArrayListCloseableIterable<E> implements IReverseCloseableIterable<E>, IFastToListProvider<E> {
+public class ArrayListCloseableIterable<E> implements IArrayListCloseableIterable<E> {
 
     public static final long ARRAYLIST_ELEMENTDATA_FIELD_OFFSET;
 
@@ -132,8 +132,9 @@ public class ArrayListCloseableIterable<E> implements IReverseCloseableIterable<
         };
     }
 
+    @Override
     @SuppressWarnings("unchecked")
-    public synchronized void reset() {
+    public void reset() {
         cachedSize = 0;
         cachedArray = (E[]) Objects.EMPTY_ARRAY;
     }
@@ -155,6 +156,7 @@ public class ArrayListCloseableIterable<E> implements IReverseCloseableIterable<
         return list;
     }
 
+    @Override
     public ArrayList<? extends E> getArrayList() {
         return arrayList;
     }

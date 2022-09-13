@@ -7,6 +7,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.collections.Arrays;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
+import de.invesdwin.util.collections.iterable.collection.arraylist.SynchronizedArrayListCloseableIterable;
 import de.invesdwin.util.collections.list.IFastToListProvider;
 import de.invesdwin.util.error.FastNoSuchElementException;
 
@@ -21,6 +22,11 @@ public class ArrayCloseableIterator<E> implements ICloseableIterator<E>, IFastTo
         this.array = array;
         this.offset = offset;
         this.size = count + offset;
+        if (array.length < size) {
+            throw new IllegalArgumentException(
+                    "Maybe a spot where " + SynchronizedArrayListCloseableIterable.class.getSimpleName()
+                            + " is needed: array.length [" + array.length + "] < size[" + size + "]");
+        }
     }
 
     public ArrayCloseableIterator(final E[] array) {
@@ -35,7 +41,8 @@ public class ArrayCloseableIterator<E> implements ICloseableIterator<E>, IFastTo
     @Override
     public E next() {
         if (!hasNext()) {
-            throw FastNoSuchElementException.getInstance("ArrayCloseableIterator: hasNext returned false");
+            throw FastNoSuchElementException.getInstance("ArrayCloseableIterator: hasNext returned false offset="
+                    + offset + " size=" + size + " elements=" + Arrays.toString(array));
         }
         try {
             return array[offset++];
