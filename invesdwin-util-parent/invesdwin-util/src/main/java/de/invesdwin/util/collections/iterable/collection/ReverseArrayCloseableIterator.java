@@ -30,7 +30,7 @@ public class ReverseArrayCloseableIterator<E> implements ICloseableIterator<E>, 
 
     @Override
     public boolean hasNext() {
-        return lowIndex <= offset;
+        return offset >= 0 && lowIndex <= offset;
     }
 
     @Override
