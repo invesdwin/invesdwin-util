@@ -41,8 +41,7 @@ public class ArrayCloseableIterator<E> implements ICloseableIterator<E>, IFastTo
     @Override
     public E next() {
         if (!hasNext()) {
-            throw FastNoSuchElementException.getInstance("ArrayCloseableIterator: hasNext returned false offset="
-                    + offset + " size=" + size + " elements=" + Arrays.toString(array));
+            throw FastNoSuchElementException.getInstance("ArrayCloseableIterator: hasNext returned false");
         }
         try {
             return array[offset++];
