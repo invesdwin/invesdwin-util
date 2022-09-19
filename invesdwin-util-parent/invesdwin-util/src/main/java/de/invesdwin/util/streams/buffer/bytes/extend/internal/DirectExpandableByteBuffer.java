@@ -133,26 +133,19 @@ public class DirectExpandableByteBuffer extends ExpandableDirectByteBufferBase i
     @Deprecated
     @Override
     public byte[] asByteArray() {
-        throw newAsByteArrayUnsupported();
+        return asByteArrayTo(capacity());
     }
 
-    public static UnsupportedOperationException newAsByteArrayUnsupported() {
-        return new UnsupportedOperationException("This will give a bigger size than what was added to the buffer. "
-                + "Use buffer.asByteArrayTo(buffer.capacity()) if you really want this from an expandable buffer."
-                + "Also a slice(from, to)'d wrapper of this buffer should not cause this exception.");
-    }
-
-    @Deprecated
     @Override
     public byte[] asByteArrayCopy() {
-        throw newAsByteArrayUnsupported();
+        return asByteArrayCopyTo(capacity());
     }
 
     //CHECKSTYLE:OFF
     @Override
     public IByteBuffer clone() {
         //CHECKSTYLE:ON
-        throw newAsByteArrayUnsupported();
+        return ByteBuffers.wrap(asByteArrayCopy());
     }
 
     @Override

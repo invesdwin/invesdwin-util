@@ -470,10 +470,6 @@ public class AgronaDelegateMutableByteBuffer implements IByteBuffer {
 
     @Override
     public byte[] asByteArray() {
-        if (delegate.isExpandable()) {
-            throw de.invesdwin.util.streams.buffer.bytes.extend.internal.DirectExpandableByteBuffer
-                    .newAsByteArrayUnsupported();
-        }
         if (wrapAdjustment() == 0) {
             final byte[] bytes = byteArray();
             if (bytes != null) {
@@ -492,10 +488,6 @@ public class AgronaDelegateMutableByteBuffer implements IByteBuffer {
 
     @Override
     public byte[] asByteArrayCopy() {
-        if (delegate.isExpandable()) {
-            throw de.invesdwin.util.streams.buffer.bytes.extend.internal.DirectExpandableByteBuffer
-                    .newAsByteArrayUnsupported();
-        }
         if (wrapAdjustment() == 0) {
             final byte[] bytes = byteArray();
             if (bytes != null) {

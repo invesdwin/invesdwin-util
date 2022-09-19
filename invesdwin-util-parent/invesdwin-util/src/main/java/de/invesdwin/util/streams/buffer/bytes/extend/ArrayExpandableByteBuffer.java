@@ -26,7 +26,6 @@ import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.delegate.slice.SlicedFromDelegateByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.delegate.slice.mutable.factory.ExpandableMutableSlicedDelegateByteBufferFactory;
 import de.invesdwin.util.streams.buffer.bytes.delegate.slice.mutable.factory.IMutableSlicedDelegateByteBufferFactory;
-import de.invesdwin.util.streams.buffer.bytes.extend.internal.DirectExpandableByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.extend.internal.UninitializedExpandableArrayBufferBase;
 import de.invesdwin.util.streams.buffer.memory.IMemoryBuffer;
 import de.invesdwin.util.streams.buffer.memory.delegate.ByteDelegateMemoryBuffer;
@@ -478,23 +477,21 @@ public class ArrayExpandableByteBuffer extends UninitializedExpandableArrayBuffe
         }
     }
 
-    @Deprecated
     @Override
     public byte[] asByteArray() {
-        throw DirectExpandableByteBuffer.newAsByteArrayUnsupported();
+        return asByteArrayTo(capacity());
     }
 
-    @Deprecated
     @Override
     public byte[] asByteArrayCopy() {
-        throw DirectExpandableByteBuffer.newAsByteArrayUnsupported();
+        return asByteArrayCopyTo(capacity());
     }
 
     //CHECKSTYLE:OFF
     @Override
     public IByteBuffer clone() {
         //CHECKSTYLE:ON
-        throw DirectExpandableByteBuffer.newAsByteArrayUnsupported();
+        return ByteBuffers.wrap(asByteArrayCopy());
     }
 
     @Override
