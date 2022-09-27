@@ -123,6 +123,10 @@ public class Duration extends Number implements Comparable<Object> {
         return isGreaterThan(date.toDurationMillis(), FTimeUnit.MILLISECONDS);
     }
 
+    public boolean isGreaterThan(final FDate from, final FDate to) {
+        return isGreaterThan(to.millisValue() - from.millisValue(), FTimeUnit.MILLISECONDS);
+    }
+
     public boolean isGreaterThan(final Instant instant) {
         return isGreaterThanNanos(instant.toDurationNanos());
     }
@@ -142,6 +146,10 @@ public class Duration extends Number implements Comparable<Object> {
 
     public boolean isGreaterThanOrEqualTo(final FDate date) {
         return isGreaterThanOrEqualTo(date.toDurationMillis(), FTimeUnit.MILLISECONDS);
+    }
+
+    public boolean isGreaterThanOrEqualTo(final FDate from, final FDate to) {
+        return isGreaterThanOrEqualTo(to.millisValue() - from.millisValue(), FTimeUnit.MILLISECONDS);
     }
 
     public boolean isGreaterThanOrEqualTo(final Instant instant) {
@@ -165,6 +173,10 @@ public class Duration extends Number implements Comparable<Object> {
         return isLessThan(date.toDurationMillis(), FTimeUnit.MILLISECONDS);
     }
 
+    public boolean isLessThan(final FDate from, final FDate to) {
+        return isLessThan(to.millisValue() - from.millisValue(), FTimeUnit.MILLISECONDS);
+    }
+
     public boolean isLessThan(final Instant instant) {
         return isLessThanNanos(instant.toDurationNanos());
     }
@@ -184,6 +196,10 @@ public class Duration extends Number implements Comparable<Object> {
 
     public boolean isLessThanOrEqualTo(final FDate date) {
         return isLessThanOrEqualTo(date.toDurationMillis(), FTimeUnit.MILLISECONDS);
+    }
+
+    public boolean isLessThanOrEqualTo(final FDate from, final FDate to) {
+        return isLessThanOrEqualTo(to.millisValue() - from.millisValue(), FTimeUnit.MILLISECONDS);
     }
 
     public boolean isLessThanOrEqualTo(final Instant instant) {
