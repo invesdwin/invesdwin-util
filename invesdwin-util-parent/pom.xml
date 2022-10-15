@@ -1,6 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>de.invesdwin</groupId>
@@ -41,6 +39,7 @@
 		<version.okio>2.10.0</version.okio>
 		<version.roaringbitmap>0.9.0</version.roaringbitmap>
 		<version.fst>2.57-inv</version.fst>
+		<version.jdk-serialiable-functional>1.9.0</version.jdk-serialiable-functional>
 	</properties>
 
 	<dependencyManagement>
@@ -100,6 +99,11 @@
 				<groupId>org.roaringbitmap</groupId>
 				<artifactId>RoaringBitmap</artifactId>
 				<version>${version.roaringbitmap}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.danekja</groupId>
+				<artifactId>jdk-serializable-functional</artifactId>
+				<version>${version.jdk-serializable-functional}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>

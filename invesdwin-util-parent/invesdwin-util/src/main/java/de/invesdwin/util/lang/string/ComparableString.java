@@ -1,10 +1,10 @@
 package de.invesdwin.util.lang.string;
 
-import java.io.Serializable;
-import java.util.function.Supplier;
-
 import javax.annotation.concurrent.NotThreadSafe;
 
+import org.danekja.java.util.function.serializable.SerializableSupplier;
+
+import de.invesdwin.norva.marker.ISerializableValueObject;
 import de.invesdwin.util.lang.Objects;
 
 /**
@@ -13,10 +13,11 @@ import de.invesdwin.util.lang.Objects;
  */
 @NotThreadSafe
 @SuppressWarnings("rawtypes")
-public class ComparableString<E extends Comparable> implements Comparable<Object>, Serializable, CharSequence {
+public class ComparableString<E extends Comparable>
+        implements Comparable<Object>, ISerializableValueObject, CharSequence {
 
     protected final E comparable;
-    protected final Supplier<Object> strSupplier;
+    protected final SerializableSupplier<Object> strSupplier;
     protected String str;
 
     public ComparableString(final E comparable) {
@@ -24,7 +25,7 @@ public class ComparableString<E extends Comparable> implements Comparable<Object
         this.strSupplier = () -> comparable;
     }
 
-    public ComparableString(final E comparable, final Supplier<Object> strSupplier) {
+    public ComparableString(final E comparable, final SerializableSupplier<Object> strSupplier) {
         this.comparable = comparable;
         this.strSupplier = strSupplier;
     }
@@ -113,7 +114,8 @@ public class ComparableString<E extends Comparable> implements Comparable<Object
         return toString().subSequence(start, end);
     }
 
-    public static <T extends Comparable> ComparableString<T> valueOf(final T comparable, final Supplier<Object> str) {
+    public static <T extends Comparable> ComparableString<T> valueOf(final T comparable,
+            final SerializableSupplier<Object> str) {
         if (comparable == null && str == null) {
             return null;
         } else {
