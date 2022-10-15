@@ -17,8 +17,8 @@ import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
 import de.invesdwin.norva.beanpath.BeanPathReflections;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.factory.ILockCollectionFactory;
-import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.lang.reflection.internal.AReflectionsStaticFacade;
+import de.invesdwin.util.lang.string.Strings;
 
 @StaticFacadeDefinition(name = "de.invesdwin.util.lang.reflection.internal.AReflectionsStaticFacade", targets = {
         org.fest.reflect.core.Reflection.class, BeanPathReflections.class,

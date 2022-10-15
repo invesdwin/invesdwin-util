@@ -10,7 +10,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.lang.Objects;
-import de.invesdwin.util.lang.description.TextDescription;
+import de.invesdwin.util.lang.string.description.TextDescription;
 import de.invesdwin.util.math.expression.eval.BooleanConstantExpression;
 import de.invesdwin.util.math.expression.eval.ConstantExpression;
 import de.invesdwin.util.math.expression.eval.DynamicPreviousKeyExpression;

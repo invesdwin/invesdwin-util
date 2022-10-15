@@ -14,7 +14,7 @@ import javax.annotation.concurrent.Immutable;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.EncoderException;
 
-import de.invesdwin.util.lang.Strings;
+import de.invesdwin.util.lang.string.Strings;
 import de.invesdwin.util.lang.uri.connect.IURIsConnect;
 import de.invesdwin.util.lang.uri.connect.IURIsConnectFactory;
 import de.invesdwin.util.time.date.FTimeUnit;

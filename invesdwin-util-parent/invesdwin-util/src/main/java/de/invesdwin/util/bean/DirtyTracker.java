@@ -28,7 +28,7 @@ import de.invesdwin.util.collections.Collections;
 import de.invesdwin.util.collections.fast.concurrent.ASynchronizedFastIterableDelegateSet;
 import de.invesdwin.util.collections.fast.concurrent.SynchronizedSet;
 import de.invesdwin.util.collections.loadingcache.ALoadingCache;
-import de.invesdwin.util.lang.Strings;
+import de.invesdwin.util.lang.string.Strings;
 
 /**
  * The DirtyTracker does its best effort to detect and heal broken links between children and parents, though to provide

@@ -6,7 +6,7 @@ import java.util.SortedSet;
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.concurrent.lock.ILock;
-import de.invesdwin.util.lang.description.TextDescription;
+import de.invesdwin.util.lang.string.description.TextDescription;
 
 @ThreadSafe
 public abstract class APreLockedSortedSet<E> extends APreLockedSet<E> implements SortedSet<E> {

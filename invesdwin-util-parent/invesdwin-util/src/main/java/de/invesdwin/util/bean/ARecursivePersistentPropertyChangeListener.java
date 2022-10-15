@@ -23,8 +23,8 @@ import de.invesdwin.norva.beanpath.spi.element.table.column.ITableColumnBeanPath
 import de.invesdwin.norva.beanpath.spi.visitor.SimpleBeanPathVisitorSupport;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.Collections;
-import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.lang.reflection.Reflections;
+import de.invesdwin.util.lang.string.Strings;
 
 /**
  * This PropertyChangeListener adds itself recursively to all child bean paths.

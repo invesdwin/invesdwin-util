@@ -10,8 +10,8 @@ import javax.annotation.concurrent.NotThreadSafe;
 import de.invesdwin.util.collections.delegate.ADelegateList;
 import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.lang.Closeables;
-import de.invesdwin.util.lang.description.TextDescription;
 import de.invesdwin.util.lang.finalizer.AFinalizer;
+import de.invesdwin.util.lang.string.description.TextDescription;
 
 @NotThreadSafe
 public class CloseableDelegateList<E> extends ADelegateList<E> implements Closeable {

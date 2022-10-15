@@ -1,4 +1,4 @@
-package de.invesdwin.util.lang.internal;
+package de.invesdwin.util.lang.string.internal;
 
 import java.util.Collection;
 import java.util.Iterator;

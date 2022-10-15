@@ -21,7 +21,7 @@ import de.invesdwin.util.collections.fast.IFastIterableSet;
 import de.invesdwin.util.concurrent.taskinfo.provider.ITaskInfoProvider;
 import de.invesdwin.util.concurrent.taskinfo.provider.TaskInfoStatus;
 import de.invesdwin.util.concurrent.taskinfo.provider.WeakReferenceTaskInfoProvider;
-import de.invesdwin.util.lang.Strings;
+import de.invesdwin.util.lang.string.Strings;
 import de.invesdwin.util.math.decimal.scaled.Percent;
 import io.netty.util.concurrent.FastThreadLocal;
 

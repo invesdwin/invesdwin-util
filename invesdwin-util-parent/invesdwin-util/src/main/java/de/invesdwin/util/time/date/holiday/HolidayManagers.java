@@ -5,7 +5,7 @@ import java.util.List;
 
 import javax.annotation.concurrent.ThreadSafe;
 
-import de.invesdwin.util.lang.Strings;
+import de.invesdwin.util.lang.string.Strings;
 import de.invesdwin.util.time.date.holiday.provider.IHolidayManagerProvider;
 import de.invesdwin.util.time.date.holiday.provider.custom.CustomHolidayManagerProvider;
 import de.invesdwin.util.time.date.holiday.provider.jollyday.JollydayHolidayManagerProvider;

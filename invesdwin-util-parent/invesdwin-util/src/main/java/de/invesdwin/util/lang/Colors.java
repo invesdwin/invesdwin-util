@@ -4,6 +4,7 @@ import java.awt.Color;
 
 import javax.annotation.concurrent.Immutable;
 
+import de.invesdwin.util.lang.string.Strings;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.decimal.scaled.Percent;
 import de.invesdwin.util.math.decimal.scaled.PercentScale;

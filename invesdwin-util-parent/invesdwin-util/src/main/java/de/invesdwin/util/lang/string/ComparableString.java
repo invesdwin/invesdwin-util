@@ -1,8 +1,11 @@
-package de.invesdwin.util.lang;
+package de.invesdwin.util.lang.string;
 
 import java.io.Serializable;
+import java.util.function.Supplier;
 
 import javax.annotation.concurrent.NotThreadSafe;
+
+import de.invesdwin.util.lang.Objects;
 
 /**
  * This can be used to display a specific String in a table, but let the auto sort work on an uderlying comparable
@@ -13,16 +16,17 @@ import javax.annotation.concurrent.NotThreadSafe;
 public class ComparableString<E extends Comparable> implements Comparable<Object>, Serializable, CharSequence {
 
     protected final E comparable;
-    protected final String str;
+    protected final Supplier<Object> strSupplier;
+    protected String str;
 
     public ComparableString(final E comparable) {
         this.comparable = comparable;
-        this.str = Strings.asString(comparable);
+        this.strSupplier = () -> comparable;
     }
 
-    public ComparableString(final E comparable, final String str) {
+    public ComparableString(final E comparable, final Supplier<Object> strSupplier) {
         this.comparable = comparable;
-        this.str = Strings.asString(str);
+        this.strSupplier = strSupplier;
     }
 
     @SuppressWarnings("unchecked")
@@ -51,6 +55,7 @@ public class ComparableString<E extends Comparable> implements Comparable<Object
     protected int compareToFallback(final Object o) {
         //fallback to string comparison
         final String oStr = Strings.asString(o);
+        final String str = toString();
         if (str == null && oStr == null) {
             return 0;
         } else if (str == null) {
@@ -74,6 +79,9 @@ public class ComparableString<E extends Comparable> implements Comparable<Object
 
     @Override
     public String toString() {
+        if (str == null) {
+            str = Strings.asString(strSupplier.get());
+        }
         return str;
     }
 
@@ -92,20 +100,20 @@ public class ComparableString<E extends Comparable> implements Comparable<Object
 
     @Override
     public int length() {
-        return str.length();
+        return toString().length();
     }
 
     @Override
     public char charAt(final int index) {
-        return str.charAt(index);
+        return toString().charAt(index);
     }
 
     @Override
     public CharSequence subSequence(final int start, final int end) {
-        return str.subSequence(start, end);
+        return toString().subSequence(start, end);
     }
 
-    public static <T extends Comparable> ComparableString<T> valueOf(final T comparable, final String str) {
+    public static <T extends Comparable> ComparableString<T> valueOf(final T comparable, final Supplier<Object> str) {
         if (comparable == null && str == null) {
             return null;
         } else {

@@ -1,4 +1,4 @@
-package de.invesdwin.util.lang;
+package de.invesdwin.util.lang.string;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;

@@ -6,7 +6,7 @@ import java.util.List;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.bean.AValueObject;
-import de.invesdwin.util.lang.Strings;
+import de.invesdwin.util.lang.string.Strings;
 
 /**
  * https://stackoverflow.com/questions/868651/multi-line-tooltips-in-java?rq=1

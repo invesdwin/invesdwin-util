@@ -1,4 +1,4 @@
-package de.invesdwin.util.lang.description;
+package de.invesdwin.util.lang.string.description;
 
 import javax.annotation.concurrent.NotThreadSafe;
 

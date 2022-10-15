@@ -3,7 +3,7 @@ package de.invesdwin.util.time.duration.internal;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.error.UnknownArgumentException;
-import de.invesdwin.util.lang.Strings;
+import de.invesdwin.util.lang.string.Strings;
 import de.invesdwin.util.time.date.FTimeUnit;
 import de.invesdwin.util.time.duration.Duration;
 

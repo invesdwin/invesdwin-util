@@ -15,8 +15,8 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
-import de.invesdwin.util.lang.Strings;
-import de.invesdwin.util.lang.description.HtmlToPlainText;
+import de.invesdwin.util.lang.string.Strings;
+import de.invesdwin.util.lang.string.description.HtmlToPlainText;
 import de.invesdwin.util.swing.Components;
 
 @NotThreadSafe

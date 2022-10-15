@@ -1,4 +1,4 @@
-package de.invesdwin.util.lang.internal;
+package de.invesdwin.util.lang.string.internal;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -13,8 +13,8 @@ import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.apache.commons.lang3.builder.ToStringSummary;
 
-import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.lang.reflection.field.IUnsafeField;
+import de.invesdwin.util.lang.string.Strings;
 
 @NotThreadSafe
 public class ExtendedReflectionToStringBuilder extends ReflectionToStringBuilder {

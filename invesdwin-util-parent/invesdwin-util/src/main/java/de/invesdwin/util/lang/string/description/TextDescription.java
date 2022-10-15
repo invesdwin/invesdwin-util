@@ -1,11 +1,11 @@
-package de.invesdwin.util.lang.description;
+package de.invesdwin.util.lang.string.description;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
 import org.assertj.core.description.Description;
 
 import de.invesdwin.util.lang.Objects;
-import de.invesdwin.util.lang.description.internal.TextDescriptionFormatter;
+import de.invesdwin.util.lang.string.description.internal.TextDescriptionFormatter;
 
 @NotThreadSafe
 public class TextDescription extends Description {

@@ -11,9 +11,9 @@ import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
 import de.invesdwin.util.collections.Arrays;
-import de.invesdwin.util.lang.Charsets;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.lang.comparator.IComparator;
+import de.invesdwin.util.lang.string.Charsets;
 import de.invesdwin.util.math.internal.ABytesStaticFacade;
 import de.invesdwin.util.math.internal.CheckedCastBytes;
 import de.invesdwin.util.math.internal.CheckedCastBytesObj;

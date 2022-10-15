@@ -8,7 +8,7 @@ import javax.annotation.concurrent.Immutable;
 import org.joda.time.DateTimeZone;
 
 import de.invesdwin.util.assertions.Assertions;
-import de.invesdwin.util.lang.Strings;
+import de.invesdwin.util.lang.string.Strings;
 
 @Immutable
 public final class TimeZones {

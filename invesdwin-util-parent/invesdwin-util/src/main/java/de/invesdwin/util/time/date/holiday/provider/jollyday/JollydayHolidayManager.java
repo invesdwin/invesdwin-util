@@ -4,7 +4,7 @@ import java.util.Locale;
 
 import javax.annotation.concurrent.Immutable;
 
-import de.invesdwin.util.lang.Strings;
+import de.invesdwin.util.lang.string.Strings;
 import de.invesdwin.util.time.date.FDate;
 import de.invesdwin.util.time.date.holiday.IHolidayManager;
 import de.jollyday.HolidayManager;

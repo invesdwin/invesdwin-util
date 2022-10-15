@@ -17,8 +17,8 @@ import de.invesdwin.util.collections.iterable.ACloseableIterator;
 import de.invesdwin.util.concurrent.Executors;
 import de.invesdwin.util.concurrent.lock.Locks;
 import de.invesdwin.util.error.FastNoSuchElementException;
-import de.invesdwin.util.lang.description.TextDescription;
 import de.invesdwin.util.lang.finalizer.AFinalizer;
+import de.invesdwin.util.lang.string.description.TextDescription;
 
 @NotThreadSafe
 public abstract class AGenericProducerQueueIterator<E> extends ACloseableIterator<E> {

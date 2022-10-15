@@ -6,8 +6,8 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.error.FastNoSuchElementException;
 import de.invesdwin.util.error.Throwables;
-import de.invesdwin.util.lang.description.TextDescription;
 import de.invesdwin.util.lang.finalizer.AFinalizer;
+import de.invesdwin.util.lang.string.description.TextDescription;
 
 @NotThreadSafe
 public abstract class ADebugCloseableIteratorImpl<E> implements ICloseableIteratorImpl<E> {

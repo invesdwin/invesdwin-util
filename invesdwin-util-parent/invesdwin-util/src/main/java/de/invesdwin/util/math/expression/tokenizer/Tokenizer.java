@@ -5,7 +5,7 @@ import java.util.Map;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import de.invesdwin.util.lang.description.TextDescription;
+import de.invesdwin.util.lang.string.description.TextDescription;
 import de.invesdwin.util.math.expression.tokenizer.Token.TokenType;
 
 @NotThreadSafe

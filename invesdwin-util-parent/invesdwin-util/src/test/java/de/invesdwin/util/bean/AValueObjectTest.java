@@ -12,7 +12,7 @@ import org.mockito.Mockito;
 
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.lang.Objects;
-import de.invesdwin.util.lang.Strings;
+import de.invesdwin.util.lang.string.Strings;
 
 // CHECKSTYLE:OFF abstract class name
 @ThreadSafe

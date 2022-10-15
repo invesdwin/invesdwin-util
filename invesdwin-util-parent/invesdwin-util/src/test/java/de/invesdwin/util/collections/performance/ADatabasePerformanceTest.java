@@ -3,8 +3,8 @@ package de.invesdwin.util.collections.performance;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
-import de.invesdwin.util.lang.ProcessedEventsRateString;
-import de.invesdwin.util.lang.description.TextDescription;
+import de.invesdwin.util.lang.string.ProcessedEventsRateString;
+import de.invesdwin.util.lang.string.description.TextDescription;
 import de.invesdwin.util.math.decimal.scaled.Percent;
 import de.invesdwin.util.math.decimal.scaled.PercentScale;
 import de.invesdwin.util.time.Instant;

@@ -2,7 +2,7 @@ package de.invesdwin.util.concurrent;
 
 import javax.annotation.concurrent.Immutable;
 
-import de.invesdwin.util.lang.Strings;
+import de.invesdwin.util.lang.string.Strings;
 import de.invesdwin.util.shutdown.ShutdownHookManager;
 import io.netty.util.concurrent.FastThreadLocal;
 

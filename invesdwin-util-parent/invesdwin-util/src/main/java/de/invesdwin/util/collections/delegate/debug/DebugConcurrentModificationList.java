@@ -12,7 +12,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 import de.invesdwin.util.collections.delegate.DelegateList;
 import de.invesdwin.util.collections.iterable.ACloseableIterator;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
-import de.invesdwin.util.lang.description.TextDescription;
+import de.invesdwin.util.lang.string.description.TextDescription;
 
 @NotThreadSafe
 public class DebugConcurrentModificationList<E> extends DelegateList<E> {

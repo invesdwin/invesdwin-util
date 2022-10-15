@@ -1,5 +1,5 @@
 // CHECKSTYLE:OFF file length
-package de.invesdwin.util.lang.internal;
+package de.invesdwin.util.lang.string.internal;
 // CHECKSTYLE:ON
 
 import java.math.BigDecimal;

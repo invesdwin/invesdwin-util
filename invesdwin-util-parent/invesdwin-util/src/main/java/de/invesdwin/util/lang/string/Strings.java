@@ -1,4 +1,4 @@
-package de.invesdwin.util.lang;
+package de.invesdwin.util.lang.string;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,16 +16,17 @@ import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
 import de.invesdwin.norva.beanpath.BeanPathStrings;
 import de.invesdwin.util.collections.Arrays;
 import de.invesdwin.util.collections.Collections;
+import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.lang.comparator.IComparator;
-import de.invesdwin.util.lang.internal.AStringsStaticFacade;
-import de.invesdwin.util.lang.internal.CheckedCastStrings;
-import de.invesdwin.util.lang.internal.CommentRemover;
-import de.invesdwin.util.lang.internal.DefaultToStringStyle;
-import de.invesdwin.util.lang.internal.ExtendedReflectionToStringBuilder;
-import de.invesdwin.util.lang.internal.MultilineToStringStyle;
+import de.invesdwin.util.lang.string.internal.AStringsStaticFacade;
+import de.invesdwin.util.lang.string.internal.CheckedCastStrings;
+import de.invesdwin.util.lang.string.internal.CommentRemover;
+import de.invesdwin.util.lang.string.internal.DefaultToStringStyle;
+import de.invesdwin.util.lang.string.internal.ExtendedReflectionToStringBuilder;
+import de.invesdwin.util.lang.string.internal.MultilineToStringStyle;
 
 @Immutable
-@StaticFacadeDefinition(name = "de.invesdwin.util.lang.internal.AStringsStaticFacade", targets = {
+@StaticFacadeDefinition(name = "de.invesdwin.util.lang.string.internal.AStringsStaticFacade", targets = {
         CheckedCastStrings.class, BeanPathStrings.class, com.google.common.base.Strings.class,
         org.assertj.core.util.Strings.class, org.apache.commons.text.StringEscapeUtils.class,
         org.apache.commons.text.WordUtils.class, CommentRemover.class }, filterMethodSignatureExpressions = {
@@ -103,8 +104,7 @@ public final class Strings extends AStringsStaticFacade {
         SYMBOL_ESCAPEDHTML.put("§", "&sect;");
     }
 
-    private Strings() {
-    }
+    private Strings() {}
 
     public static String escapeHtmlSymbolsWithoutDestroyingMarkup(final String str) {
         String escapedValue = str;

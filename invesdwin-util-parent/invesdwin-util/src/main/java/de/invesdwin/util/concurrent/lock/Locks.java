@@ -33,8 +33,8 @@ import de.invesdwin.util.concurrent.lock.readwrite.IReentrantReadWriteLock;
 import de.invesdwin.util.concurrent.lock.trace.ILockTrace;
 import de.invesdwin.util.concurrent.lock.trace.internal.DisabledLockTrace;
 import de.invesdwin.util.concurrent.lock.trace.internal.EnabledLockTrace;
-import de.invesdwin.util.lang.Strings;
-import de.invesdwin.util.lang.UniqueNameGenerator;
+import de.invesdwin.util.lang.string.Strings;
+import de.invesdwin.util.lang.string.UniqueNameGenerator;
 import de.invesdwin.util.time.duration.Duration;
 
 @StaticFacadeDefinition(name = "de.invesdwin.util.concurrent.lock.internal.ALocksStaticFacade", targets = {

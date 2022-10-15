@@ -3,7 +3,7 @@ package de.invesdwin.util.math.expression;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.invesdwin.util.lang.Strings;
+import de.invesdwin.util.lang.string.Strings;
 
 public interface IFunctionParameterInfo {
 

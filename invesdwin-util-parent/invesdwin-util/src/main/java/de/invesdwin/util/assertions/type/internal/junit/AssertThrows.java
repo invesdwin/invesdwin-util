@@ -5,7 +5,7 @@ import java.util.function.Supplier;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.assertions.Executable;
-import de.invesdwin.util.lang.description.TextDescription;
+import de.invesdwin.util.lang.string.description.TextDescription;
 
 @Immutable
 public final class AssertThrows {

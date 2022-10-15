@@ -4,7 +4,7 @@ import java.text.DecimalFormatSymbols;
 
 import javax.annotation.concurrent.Immutable;
 
-import de.invesdwin.util.lang.Strings;
+import de.invesdwin.util.lang.string.Strings;
 import de.invesdwin.util.math.Doubles;
 
 @Immutable

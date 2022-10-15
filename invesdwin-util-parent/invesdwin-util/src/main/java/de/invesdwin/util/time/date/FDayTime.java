@@ -3,9 +3,9 @@ package de.invesdwin.util.time.date;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.lang.Objects;
-import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.lang.comparator.ACriteriaComparator;
 import de.invesdwin.util.lang.comparator.IComparator;
+import de.invesdwin.util.lang.string.Strings;
 import de.invesdwin.util.math.Bytes;
 import de.invesdwin.util.math.Shorts;
 import de.invesdwin.util.time.duration.Duration;

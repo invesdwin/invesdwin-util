@@ -3,7 +3,7 @@ package de.invesdwin.util.error;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.NotThreadSafe;
 
-import de.invesdwin.util.lang.Strings;
+import de.invesdwin.util.lang.string.Strings;
 
 @SuppressWarnings("serial")
 @NotThreadSafe

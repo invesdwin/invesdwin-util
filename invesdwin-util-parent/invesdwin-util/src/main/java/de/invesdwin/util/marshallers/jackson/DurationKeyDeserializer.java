@@ -7,7 +7,7 @@ import javax.annotation.concurrent.Immutable;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.KeyDeserializer;
 
-import de.invesdwin.util.lang.Strings;
+import de.invesdwin.util.lang.string.Strings;
 import de.invesdwin.util.time.duration.Duration;
 
 @Immutable

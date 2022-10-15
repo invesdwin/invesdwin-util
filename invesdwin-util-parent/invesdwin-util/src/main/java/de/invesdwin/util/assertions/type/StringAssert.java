@@ -8,7 +8,7 @@ import org.assertj.core.api.AssertionInfo;
 import de.invesdwin.util.assertions.type.internal.ShouldBeBlank;
 import de.invesdwin.util.assertions.type.internal.ShouldBeNullOrBlank;
 import de.invesdwin.util.assertions.type.internal.ShouldNotBeBlank;
-import de.invesdwin.util.lang.Strings;
+import de.invesdwin.util.lang.string.Strings;
 
 @NotThreadSafe
 public class StringAssert extends AbstractStringAssert<StringAssert> {

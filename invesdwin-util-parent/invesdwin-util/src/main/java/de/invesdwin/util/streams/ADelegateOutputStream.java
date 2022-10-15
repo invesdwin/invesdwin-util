@@ -9,8 +9,8 @@ import org.apache.commons.io.output.ClosedOutputStream;
 
 import de.invesdwin.util.collections.iterable.ACloseableIterator;
 import de.invesdwin.util.error.Throwables;
-import de.invesdwin.util.lang.description.TextDescription;
 import de.invesdwin.util.lang.finalizer.AFinalizer;
+import de.invesdwin.util.lang.string.description.TextDescription;
 
 @NotThreadSafe
 public abstract class ADelegateOutputStream extends OutputStream {

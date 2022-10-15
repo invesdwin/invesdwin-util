@@ -7,9 +7,9 @@ import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.bean.AValueObject;
 import de.invesdwin.util.collections.Arrays;
-import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.lang.comparator.ACriteriaComparator;
 import de.invesdwin.util.lang.comparator.IComparator;
+import de.invesdwin.util.lang.string.Strings;
 import de.invesdwin.util.time.date.FDate;
 import de.invesdwin.util.time.date.FDates;
 import de.invesdwin.util.time.date.FDayTime;

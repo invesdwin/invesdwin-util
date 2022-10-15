@@ -6,7 +6,7 @@ import de.invesdwin.util.collections.iterable.internal.ADebugCloseableIteratorIm
 import de.invesdwin.util.collections.iterable.internal.AFastCloseableIteratorImpl;
 import de.invesdwin.util.collections.iterable.internal.ICloseableIteratorImpl;
 import de.invesdwin.util.error.Throwables;
-import de.invesdwin.util.lang.description.TextDescription;
+import de.invesdwin.util.lang.string.description.TextDescription;
 
 @NotThreadSafe
 public abstract class ACloseableIterator<E> implements ICloseableIterator<E> {

@@ -6,7 +6,8 @@ import java.util.List;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.NotThreadSafe;
 
-import de.invesdwin.util.lang.internal.MultilineToStringStyle;
+import de.invesdwin.util.lang.string.Strings;
+import de.invesdwin.util.lang.string.internal.MultilineToStringStyle;
 
 @NotThreadSafe
 public final class ToStringHelper {

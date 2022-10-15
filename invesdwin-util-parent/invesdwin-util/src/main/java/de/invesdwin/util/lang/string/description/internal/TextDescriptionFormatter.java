@@ -1,4 +1,4 @@
-package de.invesdwin.util.lang.description.internal;
+package de.invesdwin.util.lang.string.description.internal;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -8,7 +8,7 @@ import javax.annotation.concurrent.Immutable;
 import org.slf4j.helpers.Util;
 
 import de.invesdwin.util.collections.Arrays;
-import de.invesdwin.util.lang.Strings;
+import de.invesdwin.util.lang.string.Strings;
 
 /**
  * Adapted from SLF4J to use %s instead of {}

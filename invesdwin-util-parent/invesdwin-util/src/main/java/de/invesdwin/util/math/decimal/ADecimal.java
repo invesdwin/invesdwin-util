@@ -15,7 +15,7 @@ import de.invesdwin.norva.marker.IDecimal;
 import de.invesdwin.util.collections.Arrays;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.lang.comparator.IComparator;
-import de.invesdwin.util.lang.description.TextDescription;
+import de.invesdwin.util.lang.string.description.TextDescription;
 import de.invesdwin.util.math.BigDecimals;
 import de.invesdwin.util.math.BigIntegers;
 import de.invesdwin.util.math.Bytes;
