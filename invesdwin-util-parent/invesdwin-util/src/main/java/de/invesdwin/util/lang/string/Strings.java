@@ -195,7 +195,7 @@ public final class Strings extends AStringsStaticFacade {
             if (sb.length() > 0) {
                 sb.append(delimiter);
             }
-            sb.append(e);
+            sb.append(asStringNotNull(e));
         }
         return sb.toString();
     }
@@ -209,7 +209,7 @@ public final class Strings extends AStringsStaticFacade {
             if (sb.length() > 0) {
                 sb.append(delimiter);
             }
-            sb.append(e);
+            sb.append(asStringNotNull(e));
         }
         return sb.toString();
     }
@@ -221,7 +221,7 @@ public final class Strings extends AStringsStaticFacade {
         if (o == null) {
             return NULL_TEXT;
         } else {
-            return o.toString();
+            return asStringNotNull(o);
         }
     }
 
@@ -229,7 +229,7 @@ public final class Strings extends AStringsStaticFacade {
         if (o == null) {
             return "";
         } else {
-            return o.toString();
+            return asStringNotNull(o);
         }
     }
 
