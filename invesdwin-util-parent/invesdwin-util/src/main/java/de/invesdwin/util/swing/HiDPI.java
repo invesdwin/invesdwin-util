@@ -1,0 +1,60 @@
+package de.invesdwin.util.swing;
+
+import java.awt.Dimension;
+import java.awt.Toolkit;
+
+import javax.annotation.concurrent.Immutable;
+import javax.swing.ImageIcon;
+
+@Immutable
+public final class HiDPI {
+
+    private static double scaleFactor = determineScaleFactor();
+    private static float scaleFactorFloat = (float) scaleFactor;
+
+    private HiDPI() {}
+
+    private static double determineScaleFactor() {
+        final double trueHorizontalLines = Toolkit.getDefaultToolkit().getScreenSize().getHeight();
+        //we scale based on 1920x1080 (1k), since that is where normally the scaling comes into play with 2.0 for 4k
+        final double scaledHorizontalLines = 1080;
+        final double dpiScaleFactor = trueHorizontalLines / scaledHorizontalLines;
+        return dpiScaleFactor;
+    }
+
+    public static void setScaleFactor(final double scaleFactor) {
+        HiDPI.scaleFactor = scaleFactor;
+        HiDPI.scaleFactorFloat = (float) scaleFactor;
+    }
+
+    public static double getScaleFactor() {
+        return scaleFactor;
+    }
+
+    public static float getScaleFactorFloat() {
+        return scaleFactorFloat;
+    }
+
+    public static int scale(final int size) {
+        return (int) Math.ceil(size * scaleFactor);
+    }
+
+    public static double scale(final double size) {
+        return size * scaleFactor;
+    }
+
+    public static float scale(final float size) {
+        return size * scaleFactorFloat;
+    }
+
+    public static Dimension scale(final Dimension dimension) {
+        return new Dimension(scale(dimension.width), scale(dimension.height));
+    }
+
+    public static ImageIcon scale(final ImageIcon icon) {
+        return new ImageIcon(icon.getImage()
+                .getScaledInstance(scale(icon.getIconWidth()), scale(icon.getIconHeight()),
+                        java.awt.Image.SCALE_SMOOTH));
+    }
+
+}
