@@ -1,6 +1,7 @@
 package de.invesdwin.util.swing;
 
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Toolkit;
 
 import javax.annotation.concurrent.Immutable;
@@ -33,6 +34,10 @@ public final class HiDPI {
 
     public static float getScaleFactorFloat() {
         return scaleFactorFloat;
+    }
+
+    public static Font scale(final Font font) {
+        return Fonts.resizeFont(font, scale(font.getSize()));
     }
 
     public static int scale(final int size) {
