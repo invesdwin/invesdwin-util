@@ -18,6 +18,7 @@ import javax.swing.table.TableColumn;
 import de.invesdwin.util.lang.string.Strings;
 import de.invesdwin.util.lang.string.description.HtmlToPlainText;
 import de.invesdwin.util.swing.Components;
+import de.invesdwin.util.swing.HiDPI;
 
 @NotThreadSafe
 public class ResizingDelegateTableCellRenderer implements TableCellRenderer {
@@ -76,7 +77,8 @@ public class ResizingDelegateTableCellRenderer implements TableCellRenderer {
         final FontRenderContext frc = new FontRenderContext(affinetransform, true, true);
         final String plainText = HtmlToPlainText.htmlToPlainText(text);
         final String longestLine = Strings.extractLongestLine(plainText);
-        final int textWidth = (int) (component.getFont().getStringBounds(longestLine, frc).getWidth()) + 10;
+        final int textWidth = (int) (component.getFont().getStringBounds(longestLine, frc).getWidth())
+                + HiDPI.scale(10);
         final TableColumn c = table.getColumnModel().getColumn(column);
         Components.setMinWidth(c, Math.max(c.getMinWidth(), textWidth));
         Components.setPreferredWidth(c, Math.max(c.getPreferredWidth(), textWidth));
