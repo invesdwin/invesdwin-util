@@ -47,28 +47,28 @@ public class ResizingDelegateTableCellRenderer implements TableCellRenderer {
             final Component component) {
         if (component instanceof JLabel) {
             final JLabel lbl = (JLabel) component;
-            resizeLabelColumn(table, column, lbl);
+            resizeLabelColumn(table, row, column, lbl);
         } else if (component instanceof JTextField) {
             final JTextField txt = (JTextField) component;
-            resizeTextFieldColumn(table, column, txt);
+            resizeTextFieldColumn(table, row, column, txt);
         } else {
-            resizeOtherColumn(table, column, component);
+            resizeOtherColumn(table, row, column, component);
         }
     }
 
-    protected void resizeLabelColumn(final JTable table, final int column, final JLabel lbl) {
+    protected void resizeLabelColumn(final JTable table, final int row, final int column, final JLabel lbl) {
         lbl.setHorizontalAlignment(JLabel.RIGHT);
         final String text = lbl.getText();
-        resizeTextColumn(table, column, lbl, text);
+        resizeTextColumn(table, row, column, lbl, text);
     }
 
-    protected void resizeTextFieldColumn(final JTable table, final int column, final JTextField txt) {
+    protected void resizeTextFieldColumn(final JTable table, final int row, final int column, final JTextField txt) {
         txt.setHorizontalAlignment(JLabel.RIGHT);
         final String text = txt.getText();
-        resizeTextColumn(table, column, txt, text);
+        resizeTextColumn(table, row, column, txt, text);
     }
 
-    protected void resizeTextColumn(final JTable table, final int column, final JComponent component,
+    protected void resizeTextColumn(final JTable table, final int row, final int column, final JComponent component,
             final String text) {
         if (Strings.isBlank(text)) {
             return;
@@ -84,7 +84,7 @@ public class ResizingDelegateTableCellRenderer implements TableCellRenderer {
         Components.setPreferredWidth(c, Math.max(c.getPreferredWidth(), textWidth));
     }
 
-    protected void resizeOtherColumn(final JTable table, final int column, final Component component) {
+    protected void resizeOtherColumn(final JTable table, final int row, final int column, final Component component) {
         final TableColumn c = table.getColumnModel().getColumn(column);
         int minWidth = component.getMinimumSize().width;
         if (component instanceof JCheckBox) {
