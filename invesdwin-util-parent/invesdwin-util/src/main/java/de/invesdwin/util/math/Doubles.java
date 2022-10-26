@@ -12,6 +12,7 @@ import de.invesdwin.util.collections.Arrays;
 import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.lang.comparator.IComparator;
+import de.invesdwin.util.lang.string.Strings;
 import de.invesdwin.util.math.decimal.ADecimal;
 import de.invesdwin.util.math.decimal.Decimal;
 import de.invesdwin.util.math.internal.ADoublesStaticFacade;
@@ -47,8 +48,7 @@ public final class Doubles extends ADoublesStaticFacade {
     public static final double TRUE = 1D;
     private static final long RAW_BITS_NEGATIVE_ZERO = Double.doubleToRawLongBits(-0.0);
 
-    private Doubles() {
-    }
+    private Doubles() {}
 
     public static double[] toArray(final Collection<? extends Number> vector) {
         if (vector == null) {
@@ -1282,6 +1282,17 @@ public final class Doubles extends ADoublesStaticFacade {
             final double defaultRoundedValue = round(value);
             final double roundedOther = round(otherValue);
             return defaultRoundedValue <= roundedOther;
+        }
+    }
+
+    public static Double valueOfOrNull(final String s) {
+        if (!Strings.isDecimal(s)) {
+            return null;
+        }
+        try {
+            return Double.valueOf(s);
+        } catch (final NumberFormatException e) {
+            return null;
         }
     }
 

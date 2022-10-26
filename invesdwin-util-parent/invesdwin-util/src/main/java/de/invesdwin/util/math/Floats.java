@@ -9,6 +9,7 @@ import javax.annotation.concurrent.Immutable;
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.lang.comparator.IComparator;
+import de.invesdwin.util.lang.string.Strings;
 import de.invesdwin.util.math.internal.AFloatsStaticFacade;
 import de.invesdwin.util.math.internal.CheckedCastFloats;
 import de.invesdwin.util.math.internal.CheckedCastFloatsObj;
@@ -28,8 +29,7 @@ public final class Floats extends AFloatsStaticFacade {
     public static final float MIN_VALUE = -Float.MAX_VALUE;
     //CHECKSTYLE:ON
 
-    private Floats() {
-    }
+    private Floats() {}
 
     public static float[] toArray(final Collection<? extends Number> vector) {
         if (vector == null) {
@@ -215,5 +215,16 @@ public final class Floats extends AFloatsStaticFacade {
 
     public static int compare(final float a, final float b) {
         return Float.compare(a, b);
+    }
+
+    public static Float valueOfOrNull(final String s) {
+        if (!Strings.isDecimal(s)) {
+            return null;
+        }
+        try {
+            return Float.valueOf(s);
+        } catch (final NumberFormatException e) {
+            return null;
+        }
     }
 }

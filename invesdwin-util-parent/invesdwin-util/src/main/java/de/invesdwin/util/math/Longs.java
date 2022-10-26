@@ -9,6 +9,7 @@ import javax.annotation.concurrent.Immutable;
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.lang.comparator.IComparator;
+import de.invesdwin.util.lang.string.Strings;
 import de.invesdwin.util.math.internal.ALongsStaticFacade;
 import de.invesdwin.util.math.internal.CheckedCastLongs;
 import de.invesdwin.util.math.internal.CheckedCastLongsObj;
@@ -23,8 +24,7 @@ public final class Longs extends ALongsStaticFacade {
     public static final Long DEFAULT_MISSING_VALUE_OBJ = DEFAULT_MISSING_VALUE;
     public static final IComparator<Long> COMPARATOR = IComparator.getDefaultInstance();
 
-    private Longs() {
-    }
+    private Longs() {}
 
     public static long[] toArray(final Collection<? extends Number> vector) {
         if (vector == null) {
@@ -274,6 +274,17 @@ public final class Longs extends ALongsStaticFacade {
 
     public static int compare(final long a, final long b) {
         return Long.compare(a, b);
+    }
+
+    public static Long valueOfOrNull(final String s) {
+        if (!Strings.isInteger(s)) {
+            return null;
+        }
+        try {
+            return Long.valueOf(s);
+        } catch (final NumberFormatException e) {
+            return null;
+        }
     }
 
 }

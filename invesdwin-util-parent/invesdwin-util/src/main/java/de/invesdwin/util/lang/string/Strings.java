@@ -732,4 +732,26 @@ public final class Strings extends AStringsStaticFacade {
         return NumberUtils.isParsable(str);
     }
 
+    public static boolean isInteger(final CharSequence cs) {
+        if (isEmpty(cs)) {
+            return false;
+        }
+        final int sz = cs.length();
+        for (int i = 0; i < sz; i++) {
+            final char c = cs.charAt(i);
+            if (!Character.isDigit(c) && c != '-') {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static String blankToNull(final String str) {
+        if (isBlank(str)) {
+            return null;
+        } else {
+            return str;
+        }
+    }
+
 }
