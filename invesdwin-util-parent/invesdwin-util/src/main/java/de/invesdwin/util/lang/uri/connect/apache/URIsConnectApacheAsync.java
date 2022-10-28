@@ -18,7 +18,6 @@ import java.util.concurrent.TimeUnit;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.apache.hc.client5.http.async.methods.SimpleHttpRequest;
 import org.apache.hc.client5.http.async.methods.SimpleHttpRequests;
@@ -39,6 +38,7 @@ import org.apache.hc.core5.pool.PoolConcurrencyPolicy;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.util.TimeValue;
 
+import de.invesdwin.util.collections.Collections;
 import de.invesdwin.util.concurrent.Executors;
 import de.invesdwin.util.concurrent.future.Futures;
 import de.invesdwin.util.lang.Closeables;
@@ -47,6 +47,7 @@ import de.invesdwin.util.lang.uri.Addresses;
 import de.invesdwin.util.lang.uri.URIs;
 import de.invesdwin.util.lang.uri.connect.IURIsConnect;
 import de.invesdwin.util.lang.uri.connect.InputStreamHttpResponse;
+import de.invesdwin.util.lang.uri.header.BasicAuth;
 import de.invesdwin.util.shutdown.IShutdownHook;
 import de.invesdwin.util.shutdown.ShutdownHookManager;
 import de.invesdwin.util.time.date.FTimeUnit;
@@ -197,20 +198,28 @@ public final class URIsConnectApacheAsync implements IURIsConnect {
      */
     @Override
     public URIsConnectApacheAsync putBasicAuth(final String username, final String password) {
-        final String authString = username + ":" + password;
-        final byte[] authEncBytes = Base64.encodeBase64(authString.getBytes());
-        final String authStringEnc = new String(authEncBytes);
-        putHeader(HttpHeaders.AUTHORIZATION, "Basic " + authStringEnc);
+        putHeader(BasicAuth.HEADER, BasicAuth.encode(username, password));
         return this;
     }
 
     @Override
     public URIsConnectApacheAsync putHeader(final String key, final String value) {
+        if (key == null || value == null) {
+            return this;
+        }
         if (headers == null) {
             headers = new HashMap<String, String>();
         }
         headers.put(key, value);
         return this;
+    }
+
+    @Override
+    public Map<String, String> getHeaders() {
+        if (headers == null) {
+            return Collections.emptyMap();
+        }
+        return headers;
     }
 
     @Override

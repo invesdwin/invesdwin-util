@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.Proxy;
 import java.net.URI;
+import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
 
@@ -31,6 +32,8 @@ public interface IURIsConnect {
     IURIsConnect putBasicAuth(String username, String password);
 
     IURIsConnect putHeader(String key, String value);
+
+    Map<String, String> getHeaders();
 
     default IURIsConnect setBody(final String body) {
         return setBody(body.getBytes());
