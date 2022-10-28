@@ -64,7 +64,7 @@ public final class URIsConnectApacheAsync implements IURIsConnect {
 
     private final URI uri;
     private Duration networkTimeout = URIs.getDefaultNetworkTimeout();
-    private Proxy proxy = null;
+    private Proxy proxy;
     private String method = GET;
     private byte[] body;
     private String contentType;
@@ -372,6 +372,11 @@ public final class URIsConnectApacheAsync implements IURIsConnect {
             }
             if (proxy != null) {
                 builder = applyProxy(builder, proxy);
+            } else {
+                final Proxy systemProxy = URIs.getSystemProxy();
+                if (systemProxy != null) {
+                    applyProxy(builder, systemProxy);
+                }
             }
             return builder.build();
         } else {

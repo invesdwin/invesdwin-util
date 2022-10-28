@@ -333,6 +333,11 @@ public final class URIsConnectApacheSync implements IURIsConnect {
             }
             if (proxy != null) {
                 builder = applyProxy(builder, proxy);
+            } else {
+                final Proxy systemProxy = URIs.getSystemProxy();
+                if (systemProxy != null) {
+                    applyProxy(builder, systemProxy);
+                }
             }
             return builder.build();
         } else {
