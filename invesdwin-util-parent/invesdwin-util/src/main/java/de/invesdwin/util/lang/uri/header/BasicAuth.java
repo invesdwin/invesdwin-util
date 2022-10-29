@@ -7,7 +7,6 @@ import org.apache.commons.codec.binary.Base64;
 @Immutable
 public final class BasicAuth {
 
-    public static final String HEADER = "Authorization";
     private static final String BASIC_PREFIX = "Basic ";
     private static final String SEPARATOR = ":";
     private final String username;

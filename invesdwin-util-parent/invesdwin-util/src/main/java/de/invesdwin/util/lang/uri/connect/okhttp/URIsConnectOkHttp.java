@@ -26,6 +26,7 @@ import de.invesdwin.util.lang.uri.connect.IURIsConnect;
 import de.invesdwin.util.lang.uri.connect.InputStreamHttpResponse;
 import de.invesdwin.util.lang.uri.connect.InputStreamHttpResponseConsumer;
 import de.invesdwin.util.lang.uri.header.BasicAuth;
+import de.invesdwin.util.lang.uri.header.Headers;
 import de.invesdwin.util.time.date.FTimeUnit;
 import de.invesdwin.util.time.duration.Duration;
 import okhttp3.Call;
@@ -152,7 +153,7 @@ public final class URIsConnectOkHttp implements IURIsConnect {
 
     @Override
     public URIsConnectOkHttp putBasicAuth(final String username, final String password) {
-        putHeader(BasicAuth.HEADER, BasicAuth.encode(username, password));
+        putHeader(Headers.AUTHORIZATION, BasicAuth.encode(username, password));
         return this;
     }
 
@@ -203,7 +204,7 @@ public final class URIsConnectOkHttp implements IURIsConnect {
             if (!response.isSuccessful()) {
                 return false;
             }
-            final String contentLength = response.headers().get("content-length");
+            final String contentLength = response.headers().get(Headers.CONTENT_LENGTH);
             if (contentLength != null) {
                 return Long.parseLong(contentLength) > 0;
             } else {
@@ -221,7 +222,7 @@ public final class URIsConnectOkHttp implements IURIsConnect {
             if (!response.isSuccessful()) {
                 return -1;
             }
-            final Date lastModified = response.headers().getDate("last-modified");
+            final Date lastModified = response.headers().getDate(Headers.LAST_MODIFIED);
             if (lastModified == null) {
                 return -1;
             } else {

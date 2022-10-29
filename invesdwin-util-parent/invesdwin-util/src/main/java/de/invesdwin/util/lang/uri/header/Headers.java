@@ -14,6 +14,9 @@ import de.invesdwin.util.lang.string.Strings;
 @Immutable
 public final class Headers {
 
+    public static final String AUTHORIZATION = "Authorization";
+    public static final String CONTENT_LENGTH = "Content-Length";
+    public static final String LAST_MODIFIED = "Last-Modified";
     private static final String ENTRY_SEPARATOR = ";";
     private static final String KEY_VALUE_SEPARATOR = ":";
 

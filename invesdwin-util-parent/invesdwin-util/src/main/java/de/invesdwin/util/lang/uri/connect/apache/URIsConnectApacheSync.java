@@ -25,7 +25,6 @@ import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
 import org.apache.hc.core5.http.ContentType;
-import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.io.entity.ByteArrayEntity;
 import org.apache.hc.core5.io.CloseMode;
@@ -41,6 +40,7 @@ import de.invesdwin.util.lang.uri.connect.IURIsConnect;
 import de.invesdwin.util.lang.uri.connect.InputStreamHttpResponse;
 import de.invesdwin.util.lang.uri.connect.InputStreamHttpResponseConsumer;
 import de.invesdwin.util.lang.uri.header.BasicAuth;
+import de.invesdwin.util.lang.uri.header.Headers;
 import de.invesdwin.util.shutdown.IShutdownHook;
 import de.invesdwin.util.shutdown.ShutdownHookManager;
 import de.invesdwin.util.time.date.FTimeUnit;
@@ -190,7 +190,7 @@ public final class URIsConnectApacheSync implements IURIsConnect {
      */
     @Override
     public URIsConnectApacheSync putBasicAuth(final String username, final String password) {
-        putHeader(BasicAuth.HEADER, BasicAuth.encode(username, password));
+        putHeader(Headers.AUTHORIZATION, BasicAuth.encode(username, password));
         return this;
     }
 
@@ -240,7 +240,7 @@ public final class URIsConnectApacheSync implements IURIsConnect {
             if (!URIs.isSuccessful(response.getCode())) {
                 return false;
             }
-            final String contentLengthStr = response.getFirstHeader(HttpHeaders.CONTENT_LENGTH).getValue();
+            final String contentLengthStr = response.getFirstHeader(Headers.CONTENT_LENGTH).getValue();
             if (contentLengthStr != null) {
                 final long contentLength = Long.parseLong(contentLengthStr);
                 return contentLength > 0;
@@ -258,7 +258,7 @@ public final class URIsConnectApacheSync implements IURIsConnect {
             if (!URIs.isSuccessful(response.getCode())) {
                 return -1;
             }
-            final String lastModifiedStr = response.getFirstHeader(HttpHeaders.LAST_MODIFIED).getValue();
+            final String lastModifiedStr = response.getFirstHeader(Headers.LAST_MODIFIED).getValue();
             if (lastModifiedStr == null) {
                 return -1;
             }

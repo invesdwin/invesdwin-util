@@ -28,6 +28,7 @@ import de.invesdwin.util.lang.uri.connect.IURIsConnect;
 import de.invesdwin.util.lang.uri.connect.InputStreamHttpResponse;
 import de.invesdwin.util.lang.uri.connect.InputStreamHttpResponseConsumer;
 import de.invesdwin.util.lang.uri.header.BasicAuth;
+import de.invesdwin.util.lang.uri.header.Headers;
 import de.invesdwin.util.time.date.FTimeUnit;
 import de.invesdwin.util.time.duration.Duration;
 
@@ -101,7 +102,7 @@ public final class URIsConnectURLConnection implements IURIsConnect {
 
     @Override
     public URIsConnectURLConnection putBasicAuth(final String username, final String password) {
-        putHeader(BasicAuth.HEADER, BasicAuth.encode(username, password));
+        putHeader(Headers.AUTHORIZATION, BasicAuth.encode(username, password));
         return this;
     }
 
