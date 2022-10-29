@@ -60,6 +60,9 @@ public final class URIsConnectURLConnection implements IURIsConnect {
 
     @Override
     public IURIsConnect setBody(final byte[] body) {
+        if (body != null && body.length == 0) {
+            return this;
+        }
         this.body = body;
         return this;
     }
