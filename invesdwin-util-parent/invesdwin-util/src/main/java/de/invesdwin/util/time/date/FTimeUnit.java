@@ -22,6 +22,11 @@ public enum FTimeUnit {
 
     MILLENIA("MILLENIUM") {
         @Override
+        public FTimeUnitFractional asFractional() {
+            return FTimeUnitFractional.MILLENIA;
+        }
+
+        @Override
         public int calendarValue() {
             throw new UnsupportedOperationException();
         }
@@ -108,6 +113,11 @@ public enum FTimeUnit {
     },
     CENTURIES("CENTURY") {
         @Override
+        public FTimeUnitFractional asFractional() {
+            return FTimeUnitFractional.CENTURIES;
+        }
+
+        @Override
         public int calendarValue() {
             throw new UnsupportedOperationException();
         }
@@ -193,6 +203,12 @@ public enum FTimeUnit {
         }
     },
     DECADES("DECADE") {
+
+        @Override
+        public FTimeUnitFractional asFractional() {
+            return FTimeUnitFractional.DECADES;
+        }
+
         @Override
         public int calendarValue() {
             throw new UnsupportedOperationException();
@@ -279,6 +295,12 @@ public enum FTimeUnit {
         }
     },
     YEARS("YEAR", "Y") {
+
+        @Override
+        public FTimeUnitFractional asFractional() {
+            return FTimeUnitFractional.YEARS;
+        }
+
         @Override
         public int calendarValue() {
             return Calendar.YEAR;
@@ -366,6 +388,12 @@ public enum FTimeUnit {
 
     },
     MONTHS("MONTH", "MON", "MONS") {
+
+        @Override
+        public FTimeUnitFractional asFractional() {
+            return FTimeUnitFractional.MONTHS;
+        }
+
         @Override
         public int calendarValue() {
             return Calendar.MONTH;
@@ -455,6 +483,11 @@ public enum FTimeUnit {
     WEEKS("WEEK", "W") {
 
         @Override
+        public FTimeUnitFractional asFractional() {
+            return FTimeUnitFractional.WEEKS;
+        }
+
+        @Override
         public int calendarValue() {
             return Calendar.WEEK_OF_YEAR;
         }
@@ -541,6 +574,12 @@ public enum FTimeUnit {
 
     },
     DAYS("DAY", "D") {
+
+        @Override
+        public FTimeUnitFractional asFractional() {
+            return FTimeUnitFractional.DAYS;
+        }
+
         @Override
         public int calendarValue() {
             return Calendar.DAY_OF_MONTH;
@@ -628,6 +667,12 @@ public enum FTimeUnit {
 
     },
     HOURS("HOUR", "H") {
+
+        @Override
+        public FTimeUnitFractional asFractional() {
+            return FTimeUnitFractional.HOURS;
+        }
+
         @Override
         public int calendarValue() {
             return Calendar.HOUR_OF_DAY;
@@ -715,6 +760,12 @@ public enum FTimeUnit {
 
     },
     MINUTES("MINUTE", "MIN", "MINS", "M") {
+
+        @Override
+        public FTimeUnitFractional asFractional() {
+            return FTimeUnitFractional.MINUTES;
+        }
+
         @Override
         public int calendarValue() {
             return Calendar.MINUTE;
@@ -802,6 +853,12 @@ public enum FTimeUnit {
 
     },
     SECONDS("SECOND", "SEC", "SECS", "S") {
+
+        @Override
+        public FTimeUnitFractional asFractional() {
+            return FTimeUnitFractional.SECONDS;
+        }
+
         @Override
         public int calendarValue() {
             return Calendar.SECOND;
@@ -889,6 +946,12 @@ public enum FTimeUnit {
 
     },
     MILLISECONDS("MILLISECOND", "MILLIS", "MS") {
+
+        @Override
+        public FTimeUnitFractional asFractional() {
+            return FTimeUnitFractional.MILLISECONDS;
+        }
+
         @Override
         public int calendarValue() {
             return Calendar.MILLISECOND;
@@ -976,6 +1039,12 @@ public enum FTimeUnit {
 
     },
     MICROSECONDS("MICROSECOND", "MICROS", "MICRO") {
+
+        @Override
+        public FTimeUnitFractional asFractional() {
+            return FTimeUnitFractional.MICROSECONDS;
+        }
+
         @Override
         public int calendarValue() {
             throw new UnsupportedOperationException();
@@ -1063,6 +1132,12 @@ public enum FTimeUnit {
 
     },
     NANOSECONDS("NANOSECOND", "NANOS", "NS") {
+
+        @Override
+        public FTimeUnitFractional asFractional() {
+            return FTimeUnitFractional.NANOSECONDS;
+        }
+
         @Override
         public int calendarValue() {
             throw new UnsupportedOperationException();
@@ -1289,6 +1364,8 @@ public enum FTimeUnit {
     public abstract long toYears(long duration);
 
     public abstract DurationField durationFieldValue();
+
+    public abstract FTimeUnitFractional asFractional();
 
     public static FTimeUnit valueOf(final Duration duration) {
         return DURATION_NANOS_LOOKUP.get(duration.longValue(FTimeUnit.NANOSECONDS));

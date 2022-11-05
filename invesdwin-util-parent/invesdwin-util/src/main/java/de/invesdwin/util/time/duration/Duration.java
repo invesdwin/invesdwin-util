@@ -13,6 +13,8 @@ import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.lang.comparator.IComparator;
 import de.invesdwin.util.lang.string.Strings;
 import de.invesdwin.util.math.Characters;
+import de.invesdwin.util.math.Floats;
+import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.Longs;
 import de.invesdwin.util.math.decimal.Decimal;
 import de.invesdwin.util.math.random.PseudoRandomGenerators;
@@ -101,7 +103,7 @@ public class Duration extends Number implements Comparable<Object> {
     }
 
     public Duration(final long duration, final FTimeUnit timeUnit) {
-        this.duration = Long.valueOf(duration);
+        this.duration = duration;
         if (timeUnit == null) {
             throw new NullPointerException("timeUnit should not be null");
         }
@@ -234,7 +236,7 @@ public class Duration extends Number implements Comparable<Object> {
     }
 
     public int intValue(final FTimeUnit timeUnit) {
-        return Long.valueOf(longValue(timeUnit)).intValue();
+        return Integers.checkedCast(longValue(timeUnit));
     }
 
     public long nanosValue() {
@@ -263,7 +265,7 @@ public class Duration extends Number implements Comparable<Object> {
     }
 
     public float floatValue(final FTimeUnit timeUnit) {
-        return Long.valueOf(longValue(timeUnit)).floatValue();
+        return Floats.checkedCast(doubleValue(timeUnit));
     }
 
     @Override
@@ -272,7 +274,11 @@ public class Duration extends Number implements Comparable<Object> {
     }
 
     public double doubleValue(final FTimeUnit timeUnit) {
-        return Long.valueOf(longValue(timeUnit)).doubleValue();
+        if (timeUnit == FTimeUnit.NANOSECONDS) {
+            return nanosValue();
+        } else {
+            return timeUnit.asFractional().convert(duration, this.timeUnit.asFractional());
+        }
     }
 
     public Decimal decimalValue() {
