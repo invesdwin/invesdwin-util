@@ -45,7 +45,7 @@ public class HighLowSortedList<E> extends ADelegateList<E> {
             }
             getDelegate().add(o);
         } catch (final NoSuchElementException e) {
-            //ignore duplicate
+            //ignore DuplicateElementException
         }
     }
 
@@ -65,7 +65,7 @@ public class HighLowSortedList<E> extends ADelegateList<E> {
             getDelegate().add(0, o);
             return true;
         } catch (final NoSuchElementException e) {
-            //ignore duplicate
+            //ignore DuplicateElementException
             return false;
         }
     }
@@ -85,7 +85,7 @@ public class HighLowSortedList<E> extends ADelegateList<E> {
             getDelegate().add(0, o);
             return 0;
         } catch (final NoSuchElementException e) {
-            //ignore duplicate
+            //ignore DuplicateElementException
             return -1;
         }
     }

@@ -39,9 +39,9 @@ public class DuplicateElementException extends NoSuchElementException {
         }
     }
 
-    public static NoSuchElementException maybeReplace(final NoSuchElementException e, final String message) {
+    public static DuplicateElementException maybeReplace(final NoSuchElementException e, final String message) {
         if (e instanceof DuplicateElementException || Throwables.isDebugStackTraceEnabled()) {
-            return e;
+            return (DuplicateElementException) e;
         } else {
             return new DuplicateElementException(message + ": " + e.toString());
         }
