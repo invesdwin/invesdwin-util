@@ -282,7 +282,7 @@ public final class Doubles extends ADoublesStaticFacade {
         if (value == null) {
             return null;
         } else {
-            return round(value);
+            return round(value.doubleValue());
         }
     }
 
