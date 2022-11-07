@@ -9,6 +9,7 @@ import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
 import de.invesdwin.util.assertions.internal.AAssertionsStaticFacade;
 import de.invesdwin.util.assertions.type.DecimalAssert;
 import de.invesdwin.util.assertions.type.FDateAssert;
+import de.invesdwin.util.assertions.type.RoundingDoubleAssert;
 import de.invesdwin.util.assertions.type.StringAssert;
 import de.invesdwin.util.assertions.type.internal.junit.JUnitAssertions;
 import de.invesdwin.util.lang.Objects;
@@ -37,8 +38,7 @@ public final class Assertions extends AAssertionsStaticFacade {
         Assertions.setMaxStackTraceElementsDisplayed(COMPARISON_FAILURE_MESSAGE_LIMIT);
     }
 
-    private Assertions() {
-    }
+    private Assertions() {}
 
     public static <T extends ADecimal<T>> DecimalAssert<T> assertThat(final T actual) {
         return new DecimalAssert<T>(actual);
@@ -534,6 +534,14 @@ public final class Assertions extends AAssertionsStaticFacade {
     public static <T extends java.lang.Object> T assertTimeoutPreemptively(final Duration timeout,
             final ThrowingSupplier<T> supplier, final java.util.function.Supplier<String> messageSupplier) {
         return JUnitAssertions.assertTimeoutPreemptively(timeout.javaTimeValue(), supplier, messageSupplier);
+    }
+
+    public static RoundingDoubleAssert assertThat(final double actual) {
+        return new RoundingDoubleAssert(actual);
+    }
+
+    public static RoundingDoubleAssert assertThat(final Double actual) {
+        return new RoundingDoubleAssert(actual);
     }
 
 }

@@ -278,6 +278,14 @@ public final class Doubles extends ADoublesStaticFacade {
         }
     }
 
+    public static Double round(final Double value) {
+        if (value == null) {
+            return null;
+        } else {
+            return round(value);
+        }
+    }
+
     public static double round(final double value) {
         return round(value, ADecimal.DEFAULT_ROUNDING_SCALE, ADecimal.DEFAULT_ROUNDING_MODE);
     }
@@ -743,7 +751,7 @@ public final class Doubles extends ADoublesStaticFacade {
     }
 
     public static boolean isPositiveNonZero(final double value) {
-        return isPositive(value) && !isZero(value);
+        return value > 0;
     }
 
     public static boolean isNegative(final double value) {
@@ -1294,6 +1302,38 @@ public final class Doubles extends ADoublesStaticFacade {
         } catch (final NumberFormatException e) {
             return null;
         }
+    }
+
+    public static boolean isBetween(final double value, final double lowerBound, final double upperBound) {
+        return isGreaterThanOrEqualTo(value, lowerBound) && isLessThanOrEqualTo(value, upperBound);
+    }
+
+    public static String getSign(final double value) {
+        return getSign(value, false);
+    }
+
+    public static String getSignInverted(final double value) {
+        return getSign(value, true);
+    }
+
+    public static String getSign(final double value, final boolean inverted) {
+        if (isPositive(value)) {
+            if (!inverted) {
+                return ADecimal.POSITIVE_SIGN;
+            } else {
+                return ADecimal.NEGATIVE_SIGN;
+            }
+        } else {
+            if (!inverted) {
+                return ADecimal.NEGATIVE_SIGN;
+            } else {
+                return ADecimal.POSITIVE_SIGN;
+            }
+        }
+    }
+
+    public static double distance(final double a, final double b) {
+        return abs(a - b);
     }
 
 }
