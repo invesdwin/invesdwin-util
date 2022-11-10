@@ -9,18 +9,18 @@ import de.invesdwin.util.time.date.FTimeUnit;
 import de.invesdwin.util.time.duration.Duration;
 
 @ThreadSafe
-public class AtomicLoopInterruptedCheck {
+public class SynchronizedLoopInterruptedCheck {
 
     private final long checkIntervalNanos;
     private volatile long nextIntervalNanos;
     private volatile int checksPerInterval;
     private final AtomicInteger checksInInterval = new AtomicInteger();
 
-    public AtomicLoopInterruptedCheck() {
+    public SynchronizedLoopInterruptedCheck() {
         this(Duration.ONE_SECOND);
     }
 
-    public AtomicLoopInterruptedCheck(final Duration checkInterval) {
+    public SynchronizedLoopInterruptedCheck(final Duration checkInterval) {
         this.checkIntervalNanos = checkInterval.longValue(FTimeUnit.NANOSECONDS);
         this.nextIntervalNanos = getInitialNanoTime() + checkIntervalNanos;
     }
