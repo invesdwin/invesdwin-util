@@ -11,7 +11,7 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 
 import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
-import de.invesdwin.util.concurrent.loop.AtomicLoopInterruptedCheck;
+import de.invesdwin.util.concurrent.loop.SynchronizedLoopInterruptedCheck;
 import de.invesdwin.util.lang.string.Strings;
 import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.decimal.scaled.Percent;
@@ -39,7 +39,7 @@ public final class MemoryLimit {
      * properly. Also we give a change for the GC to try to clear things up between the one minute intervals.
      */
     private static final Duration CLEAR_CACHE_INTERVAL = Duration.ONE_MINUTE;
-    private static final AtomicLoopInterruptedCheck MEMORY_LIMIT_REACHED_CHECK = new AtomicLoopInterruptedCheck(
+    private static final SynchronizedLoopInterruptedCheck MEMORY_LIMIT_REACHED_CHECK = new SynchronizedLoopInterruptedCheck(
             MEMORY_LIMIT_REACHED_CHECK_INTERVAL) {
         @Override
         protected void onInterval() throws InterruptedException {
