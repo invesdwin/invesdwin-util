@@ -94,7 +94,6 @@ public class KeyGrabberTextField extends JTextField implements FocusListener, Ke
             setForeground((Color) UIManager.get("TextArea.foreground"));
             printText();
         }
-        repaint();
     }
 
     private boolean isKeyCodeNoModifier(final KeyEvent e) {
