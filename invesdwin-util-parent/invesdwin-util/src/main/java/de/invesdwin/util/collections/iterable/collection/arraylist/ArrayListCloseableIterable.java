@@ -57,7 +57,7 @@ public class ArrayListCloseableIterable<E> implements IArrayListCloseableIterabl
 
             @Override
             public List<E> toList(final List<E> list) {
-                return ArrayListCloseableIterable.this.toList();
+                return ArrayListCloseableIterable.this.toList(list);
             }
         };
     }
