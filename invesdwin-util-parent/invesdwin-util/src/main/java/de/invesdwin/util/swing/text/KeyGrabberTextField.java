@@ -78,6 +78,7 @@ public class KeyGrabberTextField extends JTextField implements FocusListener, Ke
                 updateOnFocus(false);
             }
         }
+        this.transferFocus();
         e.consume();
     }
 
