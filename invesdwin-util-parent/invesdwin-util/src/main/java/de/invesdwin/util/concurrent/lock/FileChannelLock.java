@@ -127,6 +127,13 @@ public class FileChannelLock implements Closeable, ILock {
         return this;
     }
 
+    public FileChannelLock tryLockThrowing(final long time, final TimeUnit unit) throws InterruptedException {
+        if (!tryLock(time, unit)) {
+            throw new IllegalStateException("Unable to lock file: " + finalizer.file);
+        }
+        return this;
+    }
+
     private static final class FileChannelLockFinalizer extends AFinalizer {
 
         private final File file;
