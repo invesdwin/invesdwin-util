@@ -145,12 +145,6 @@ public class KeyGrabberTextField extends JTextField implements FocusListener, Ke
     }
 
     @Override
-    public void mouseClicked(final MouseEvent e) {}
-
-    @Override
-    public void mousePressed(final MouseEvent e) {}
-
-    @Override
     public void mouseReleased(final MouseEvent e) {
         setFocusable(true);
         requestFocus();
@@ -158,19 +152,37 @@ public class KeyGrabberTextField extends JTextField implements FocusListener, Ke
     }
 
     @Override
-    public void mouseEntered(final MouseEvent e) {}
-
-    @Override
-    public void mouseExited(final MouseEvent e) {}
-
-    @Override
-    public void focusGained(final FocusEvent e) {}
-
-    @Override
     public boolean isEditable() {
         return false;
     }
 
     @Override
-    public void setEditable(final boolean b) {}
+    public void mouseClicked(final MouseEvent e) {
+        //noop
+    }
+
+    @Override
+    public void mousePressed(final MouseEvent e) {
+        //noop
+    }
+
+    @Override
+    public void mouseEntered(final MouseEvent e) {
+        //noop
+    }
+
+    @Override
+    public void mouseExited(final MouseEvent e) {
+        //noop
+    }
+
+    @Override
+    public void focusGained(final FocusEvent e) {
+        //noop
+    }
+
+    @Override
+    public void setEditable(final boolean b) {
+        //noop
+    }
 }
