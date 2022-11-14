@@ -38,6 +38,10 @@ public final class BasicAuth {
     }
 
     public static BasicAuth decode(final String encoded) {
+        if (encoded == null) {
+            return null;
+        }
+
         if (encoded.length() < 6) {
             return null;
         }

@@ -25,6 +25,8 @@ import javax.swing.text.JTextComponent;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.lang.string.Strings;
 import de.invesdwin.util.swing.listener.ADelegateMouseMotionListener;
+import de.invesdwin.util.swing.text.Hotkey;
+import de.invesdwin.util.swing.text.KeyGrabberTextField;
 import de.invesdwin.util.swing.text.ToolTipFormatter;
 
 @Immutable
@@ -32,8 +34,7 @@ public final class Components {
 
     private static ToolTipFormatter defaultToolTipFormatter = new ToolTipFormatter();
 
-    private Components() {
-    }
+    private Components() {}
 
     public static void setDefaultToolTipFormatter(final ToolTipFormatter defaultToolTipFormatter) {
         Components.defaultToolTipFormatter = defaultToolTipFormatter;
@@ -265,6 +266,12 @@ public final class Components {
     public static void setText(final JTextComponent component, final String text) {
         if (!Objects.equals(text, component.getText())) {
             component.setText(text);
+        }
+    }
+
+    public static void setHotkey(final KeyGrabberTextField component, final Hotkey hotkey) {
+        if (!Objects.equals(hotkey, component.getHotkey())) {
+            component.setHotkey(hotkey);
         }
     }
 

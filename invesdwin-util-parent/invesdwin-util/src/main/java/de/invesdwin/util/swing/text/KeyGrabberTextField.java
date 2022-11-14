@@ -5,18 +5,21 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.beans.BeanProperty;
 
 import javax.annotation.concurrent.NotThreadSafe;
 import javax.swing.JTextField;
 import javax.swing.UIManager;
 
 @NotThreadSafe
-public class KeyGrabberTextField extends JTextField implements FocusListener, KeyListener {
+public class KeyGrabberTextField extends JTextField implements FocusListener, KeyListener, MouseListener {
 
     public static final String ENTER_HOTKEY_TEXT = "Enter hotkey";
     public static final String DISABLED_TEXT = "Disabled";
-    public static final String PROP_KEY = "key";
-    public static final String PROP_MODIFIERS = "modifiers";
+    public static final String PROP_HOTKEY = "hotkey";
+
     private int key = 0;
     private int modifiers = 0;
     private boolean singleKeyEnabled = false;
@@ -30,12 +33,17 @@ public class KeyGrabberTextField extends JTextField implements FocusListener, Ke
         super();
         addFocusListener(this);
         addKeyListener(this);
+        addMouseListener(this);
+        super.setEditable(false);
+        updateOnFocus(false);
+        setFocusable(false);
+
         singleKeyEnabled = enableSingleKey;
     }
 
     private void printText() {
         if (editing) {
-            setText(ENTER_HOTKEY_TEXT);
+            super.setText(ENTER_HOTKEY_TEXT);
         } else {
             if (key != KeyEvent.VK_UNDEFINED) {
                 String text = KeyEvent.getKeyModifiersText(modifiers);
@@ -43,21 +51,17 @@ public class KeyGrabberTextField extends JTextField implements FocusListener, Ke
                     text += "+";
                 }
                 text += KeyEvent.getKeyText(key);
-                setText(text);
+                super.setText(text);
             } else {
-                setText(DISABLED_TEXT);
+                super.setText(DISABLED_TEXT);
             }
         }
     }
 
     @Override
-    public void focusGained(final FocusEvent e) {
-        updateOnFocus(true);
-    }
-
-    @Override
     public void focusLost(final FocusEvent e) {
         updateOnFocus(false);
+        setFocusable(false);
     }
 
     @Override
@@ -67,18 +71,21 @@ public class KeyGrabberTextField extends JTextField implements FocusListener, Ke
 
     @Override
     public void keyPressed(final KeyEvent e) {
-        if (e.getModifiers() == 0 && e.getKeyCode() == KeyEvent.VK_BACK_SPACE) {
-            setKey(KeyEvent.VK_UNDEFINED);
-            setModifiers(0);
+        if (!editing) {
+            e.consume();
+            return;
+        }
+
+        if (e.getModifiers() == KeyEvent.VK_UNDEFINED && e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+            setHotkey(KeyEvent.VK_UNDEFINED, KeyEvent.VK_UNDEFINED);
             updateOnFocus(false);
         } else {
-            if (isKeyCodeNoModifier(e) && (e.getModifiers() != 0 || singleKeyEnabled)) {
-                setKey(e.getKeyCode());
-                setModifiers(e.getModifiers());
+            if (isKeyCodeNoModifier(e) && (e.getModifiers() != KeyEvent.VK_UNDEFINED || singleKeyEnabled)) {
+                setHotkey(e.getKeyCode(), e.getModifiers());
                 updateOnFocus(false);
             }
         }
-        this.transferFocus();
+
         e.consume();
     }
 
@@ -108,25 +115,62 @@ public class KeyGrabberTextField extends JTextField implements FocusListener, Ke
         e.consume();
     }
 
-    public int getKey() {
-        return key;
+    @Override
+    public String getText() {
+        return Hotkey.encode(key, modifiers);
     }
 
-    public int getModifiers() {
-        return modifiers;
+    @Override
+    @BeanProperty(bound = false, description = "the text of this component")
+    public void setText(final String t) {
+        setHotkey(Hotkey.decode(t));
     }
 
-    public void setKey(final int key) {
-        final int oldKey = this.key;
-        this.key = key;
-        firePropertyChange(PROP_KEY, oldKey, key);
+    public Hotkey getHotkey() {
+        return new Hotkey(this.key, this.modifiers);
+    }
+
+    public void setHotkey(final int key, final int modifieres) {
+        setHotkey(new Hotkey(key, modifieres));
+    }
+
+    public void setHotkey(final Hotkey hotkey) {
+        final Hotkey oldHotkey = getHotkey();
+
+        this.key = hotkey.getKey();
+        this.modifiers = hotkey.getModifiers();
+
         printText();
+        firePropertyChange(PROP_HOTKEY, oldHotkey, hotkey);
     }
 
-    public void setModifiers(final int modifiers) {
-        final int oldModifiers = this.modifiers;
-        this.modifiers = modifiers;
-        firePropertyChange(PROP_MODIFIERS, oldModifiers, modifiers);
-        printText();
+    @Override
+    public void mouseClicked(final MouseEvent e) {}
+
+    @Override
+    public void mousePressed(final MouseEvent e) {}
+
+    @Override
+    public void mouseReleased(final MouseEvent e) {
+        setFocusable(true);
+        requestFocus();
+        updateOnFocus(true);
     }
+
+    @Override
+    public void mouseEntered(final MouseEvent e) {}
+
+    @Override
+    public void mouseExited(final MouseEvent e) {}
+
+    @Override
+    public void focusGained(final FocusEvent e) {}
+
+    @Override
+    public boolean isEditable() {
+        return false;
+    }
+
+    @Override
+    public void setEditable(final boolean b) {}
 }
