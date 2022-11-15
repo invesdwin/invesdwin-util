@@ -27,7 +27,7 @@ public class KeyGrabberTextField extends JTextField implements FocusListener, Ke
     private int key;
     private int modifiers;
     private boolean editing;
-    private boolean editable;
+    private boolean hotkeyEditable;
     private final boolean initialized;
 
     public KeyGrabberTextField() {
@@ -87,7 +87,7 @@ public class KeyGrabberTextField extends JTextField implements FocusListener, Ke
     @Override
     public void keyPressed(final KeyEvent e) {
         e.consume();
-        if (!editing || !editable || !isEnabled()) {
+        if (!editing || !hotkeyEditable || !isEnabled()) {
             return;
         }
         if (e.getModifiersEx() == KeyEvent.VK_UNDEFINED && e.getKeyCode() == KeyEvent.VK_ESCAPE) {
@@ -107,7 +107,7 @@ public class KeyGrabberTextField extends JTextField implements FocusListener, Ke
         //don't show caret, needs to be updated multiple times
         getCaret().setVisible(false);
 
-        if (!editable || !isEnabled()) {
+        if (!hotkeyEditable || !isEnabled()) {
             Components.setBackground(this, UIManager.getColor("TextField.inactiveBackground"));
             Components.setForeground(this, UIManager.getColor("TextField.inactiveForeground"));
             editing = false;
@@ -187,7 +187,7 @@ public class KeyGrabberTextField extends JTextField implements FocusListener, Ke
 
     @Override
     public void mouseClicked(final MouseEvent e) {
-        if (!editable || !isEnabled()) {
+        if (!hotkeyEditable || !isEnabled()) {
             return;
         }
         if (editing) {
@@ -233,20 +233,29 @@ public class KeyGrabberTextField extends JTextField implements FocusListener, Ke
     }
 
     @Override
-    public void setEditable(final boolean editable) {
-        if (!initialized) {
-            return;
-        }
-        final boolean oldEditable = this.editable;
-        this.editable = editable;
-        if (oldEditable != editable) {
-            updateOnEditing(editing);
-        }
+    public void setEditable(final boolean hotkeyEditable) {
+        setHotkeyEditable(hotkeyEditable);
     }
 
     @Override
     public boolean isEditable() {
-        return editable;
+        //prevent clipboard actions and text popup menu modifications
+        return false;
+    }
+
+    public void setHotkeyEditable(final boolean hotkeyEditable) {
+        if (!initialized) {
+            return;
+        }
+        final boolean oldEditable = this.hotkeyEditable;
+        this.hotkeyEditable = hotkeyEditable;
+        if (oldEditable != hotkeyEditable) {
+            updateOnEditing(editing);
+        }
+    }
+
+    public boolean isHotkeyEditable() {
+        return hotkeyEditable;
     }
 
 }
