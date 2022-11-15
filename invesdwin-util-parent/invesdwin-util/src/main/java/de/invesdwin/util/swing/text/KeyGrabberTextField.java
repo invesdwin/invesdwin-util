@@ -104,8 +104,6 @@ public class KeyGrabberTextField extends JTextField implements FocusListener, Ke
     }
 
     private void updateOnEditing(final boolean newEditing) {
-        //only show selection when not editing
-        getCaret().setSelectionVisible(!newEditing);
         //don't show caret, needs to be updated multiple times
         getCaret().setVisible(false);
 
@@ -117,13 +115,12 @@ public class KeyGrabberTextField extends JTextField implements FocusListener, Ke
             return;
         }
         editing = newEditing;
+        Components.setBackground(this, UIManager.getColor("TextField.background"));
+        Components.setForeground(this, UIManager.getColor("TextField.foreground"));
         if (newEditing) {
-            Components.setBackground(this, UIManager.getColor("TextField.background"));
-            Components.setForeground(this, UIManager.getColor("TextField.selectionBackground"));
             printText();
+            select(0, Integer.MAX_VALUE);
         } else {
-            Components.setBackground(this, UIManager.getColor("TextField.background"));
-            Components.setForeground(this, UIManager.getColor("TextField.foreground"));
             printText();
         }
     }
@@ -175,6 +172,8 @@ public class KeyGrabberTextField extends JTextField implements FocusListener, Ke
     public void mouseReleased(final MouseEvent e) {
         if (editing) {
             e.consume();
+            //restore full selection highlighting
+            select(0, Integer.MAX_VALUE);
         }
     }
 
