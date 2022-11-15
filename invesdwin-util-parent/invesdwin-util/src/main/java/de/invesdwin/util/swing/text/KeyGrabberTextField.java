@@ -6,7 +6,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.beans.BeanProperty;
 
 import javax.annotation.concurrent.NotThreadSafe;
 import javax.swing.JTextField;
@@ -28,24 +27,25 @@ public class KeyGrabberTextField extends JTextField implements FocusListener, Ke
     private int key;
     private int modifiers;
     private boolean editing;
+    private boolean editable;
+    private final boolean initialized;
 
     public KeyGrabberTextField() {
         this(DEFAULT_SINGLE_KEY_ENABLED);
     }
 
     public KeyGrabberTextField(final boolean singleKeyEnabled) {
+        this.singleKeyEnabled = singleKeyEnabled;
+
         addFocusListener(this);
         addKeyListener(this);
         addMouseListener(this);
+
         super.setEditable(false);
         updateOnEditing(false);
         setFocusable(false);
 
-        //don't show caret
-        getCaret().setSelectionVisible(false);
-        getCaret().setVisible(false);
-
-        this.singleKeyEnabled = singleKeyEnabled;
+        initialized = true;
     }
 
     private void printText() {
@@ -76,17 +76,18 @@ public class KeyGrabberTextField extends JTextField implements FocusListener, Ke
 
     @Override
     public void keyTyped(final KeyEvent e) {
-        if (editing) {
-            e.consume();
-        }
+        e.consume();
+    }
+
+    @Override
+    public void keyReleased(final KeyEvent e) {
+        e.consume();
     }
 
     @Override
     public void keyPressed(final KeyEvent e) {
-        if (editing) {
-            e.consume();
-        }
-        if (!editing || !isEnabled()) {
+        e.consume();
+        if (!editing || !editable || !isEnabled()) {
             return;
         }
         if (e.getModifiersEx() == KeyEvent.VK_UNDEFINED && e.getKeyCode() == KeyEvent.VK_ESCAPE) {
@@ -103,7 +104,12 @@ public class KeyGrabberTextField extends JTextField implements FocusListener, Ke
     }
 
     private void updateOnEditing(final boolean newEditing) {
-        if (!isEnabled()) {
+        //only show selection when not editing
+        getCaret().setSelectionVisible(!newEditing);
+        //don't show caret, needs to be updated multiple times
+        getCaret().setVisible(false);
+
+        if (!editable || !isEnabled()) {
             Components.setBackground(this, UIManager.getColor("TextField.inactiveBackground"));
             Components.setForeground(this, UIManager.getColor("TextField.inactiveForeground"));
             editing = false;
@@ -112,7 +118,7 @@ public class KeyGrabberTextField extends JTextField implements FocusListener, Ke
         }
         editing = newEditing;
         if (newEditing) {
-            Components.setBackground(this, UIManager.getColor("TextField.selectionBackground"));
+            Components.setBackground(this, UIManager.getColor("TextField.background"));
             Components.setForeground(this, UIManager.getColor("TextField.selectionBackground"));
             printText();
         } else {
@@ -129,19 +135,11 @@ public class KeyGrabberTextField extends JTextField implements FocusListener, Ke
     }
 
     @Override
-    public void keyReleased(final KeyEvent e) {
-        if (editing) {
-            e.consume();
-        }
-    }
-
-    @Override
     public String getText() {
         return Hotkey.encode(key, modifiers);
     }
 
     @Override
-    @BeanProperty(bound = false, description = "the text of this component")
     public void setText(final String t) {
         setHotkey(Hotkey.decode(t));
     }
@@ -183,7 +181,6 @@ public class KeyGrabberTextField extends JTextField implements FocusListener, Ke
     @Override
     public void setEnabled(final boolean enabled) {
         final boolean oldEnabled = isEnabled();
-        super.setEnabled(enabled);
         if (oldEnabled != enabled) {
             updateOnEditing(editing);
         }
@@ -191,7 +188,7 @@ public class KeyGrabberTextField extends JTextField implements FocusListener, Ke
 
     @Override
     public void mouseClicked(final MouseEvent e) {
-        if (!isEnabled()) {
+        if (!editable || !isEnabled()) {
             return;
         }
         if (editing) {
@@ -237,21 +234,20 @@ public class KeyGrabberTextField extends JTextField implements FocusListener, Ke
     }
 
     @Override
-    public void setEditable(final boolean b) {
-        //noop
+    public void setEditable(final boolean editable) {
+        if (!initialized) {
+            return;
+        }
+        final boolean oldEditable = this.editable;
+        this.editable = editable;
+        if (oldEditable != editable) {
+            updateOnEditing(editing);
+        }
     }
 
     @Override
     public boolean isEditable() {
-        return false;
-    }
-
-    @Override
-    public void setToolTipText(final String text) {
-        if (editing) {
-            return;
-        }
-        super.setToolTipText(text);
+        return editable;
     }
 
 }
