@@ -28,6 +28,7 @@ public class KeyGrabberTextField extends JTextField implements FocusListener, Ke
     private int modifiers;
     private boolean editing;
     private boolean hotkeyEditable;
+    private final boolean initialized;
 
     public KeyGrabberTextField() {
         this(DEFAULT_SINGLE_KEY_ENABLED);
@@ -43,6 +44,8 @@ public class KeyGrabberTextField extends JTextField implements FocusListener, Ke
         super.setEditable(false);
         updateOnEditing(false);
         setFocusable(false);
+
+        initialized = true;
     }
 
     private void printText() {
@@ -241,6 +244,9 @@ public class KeyGrabberTextField extends JTextField implements FocusListener, Ke
     }
 
     public void setHotkeyEditable(final boolean hotkeyEditable) {
+        if (!initialized) {
+            return;
+        }
         final boolean oldEditable = this.hotkeyEditable;
         this.hotkeyEditable = hotkeyEditable;
         if (oldEditable != hotkeyEditable) {
