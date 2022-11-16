@@ -183,7 +183,7 @@ public class BufferedFileDataOutputStream extends OutputStream implements DataOu
      */
     protected void syncWithFilesystem() throws IOException {
         //sync with filesystem
-        channel.force(true);
+        //        channel.force(true);
     }
 
     protected void onClose() {}
