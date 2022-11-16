@@ -90,11 +90,8 @@ public class KeyGrabberTextField extends JTextField implements FocusListener, Ke
         if (!editing || !hotkeyEditable || !isEnabled()) {
             return;
         }
-        if (e.getModifiersEx() == KeyEvent.VK_UNDEFINED && e.getKeyCode() == KeyEvent.VK_ESCAPE) {
-            //escape cancels and keeps old hotkey
-            updateOnEditing(false);
-        } else if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_ESCAPE) {
-            //ctrl+escape disables the hotkey
+        if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+            //escape disables the hotkey
             setHotkey(KeyEvent.VK_UNDEFINED, KeyEvent.VK_UNDEFINED);
             updateOnEditing(false);
         } else if (isKeyCodeNoModifier(e) && (e.getModifiersEx() != KeyEvent.VK_UNDEFINED || singleKeyEnabled)) {
