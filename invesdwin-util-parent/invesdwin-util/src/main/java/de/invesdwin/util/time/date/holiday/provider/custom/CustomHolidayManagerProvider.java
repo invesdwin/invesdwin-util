@@ -43,6 +43,9 @@ public final class CustomHolidayManagerProvider implements IHolidayManagerProvid
     }
 
     public static boolean registerHolidayManager(final IHolidayManager holidayManager) {
+        //        if (holidayManager == null) {
+        //            return false;
+        //        }
         final boolean changed = ID_MANAGER.putIfAbsent(prepareHolidayCalendarId(holidayManager.getHolidayCalendarId()),
                 holidayManager) == null;
         if (changed) {

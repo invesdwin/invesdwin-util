@@ -4,12 +4,12 @@ import java.util.Locale;
 
 import javax.annotation.concurrent.Immutable;
 
+import de.focus_shift.HolidayManager;
+import de.focus_shift.ManagerParameters;
+import de.focus_shift.util.ResourceUtil;
 import de.invesdwin.util.lang.string.Strings;
 import de.invesdwin.util.time.date.FDate;
 import de.invesdwin.util.time.date.holiday.IHolidayManager;
-import de.jollyday.HolidayManager;
-import de.jollyday.ManagerParameters;
-import de.jollyday.util.ResourceUtil;
 
 @Immutable
 public class JollydayHolidayManager implements IHolidayManager {

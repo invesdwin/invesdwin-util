@@ -13,15 +13,15 @@ import javax.annotation.concurrent.Immutable;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
+import de.focus_shift.HolidayCalendar;
+import de.focus_shift.HolidayManager;
+import de.focus_shift.ManagerParameters;
 import de.invesdwin.util.collections.Collections;
 import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 import de.invesdwin.util.lang.string.Strings;
 import de.invesdwin.util.time.date.holiday.IHolidayManager;
 import de.invesdwin.util.time.date.holiday.provider.IHolidayManagerProvider;
 import de.invesdwin.util.time.date.holiday.provider.custom.CachingHolidayManager;
-import de.jollyday.HolidayCalendar;
-import de.jollyday.HolidayManager;
-import de.jollyday.ManagerParameters;
 
 @Immutable
 public final class JollydayHolidayManagerProvider implements IHolidayManagerProvider {
@@ -47,6 +47,7 @@ public final class JollydayHolidayManagerProvider implements IHolidayManagerProv
     private static final Map<String, HolidayCalendar> ID_CALENDAR;
 
     private static final ALoadingCache<String, Optional<IHolidayManager>> ID_MANAGER;
+
     @GuardedBy("none for performance")
     private static String availableCalendarIdsInfo;
 
@@ -74,8 +75,7 @@ public final class JollydayHolidayManagerProvider implements IHolidayManagerProv
         AVAILABLE_CALENDAR_IDS = newAvailableCalendarIds();
     }
 
-    private JollydayHolidayManagerProvider() {
-    }
+    private JollydayHolidayManagerProvider() {}
 
     private static Set<String> newAvailableCalendarIds() {
         final Set<String> availableCalendarIds = new TreeSet<>();
