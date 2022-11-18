@@ -3,6 +3,8 @@ package de.invesdwin.util.collections.loadingcache.caffeine.internal;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Function;
 
@@ -30,8 +32,8 @@ public class WrapperLoadingCache<K, V> implements LoadingCache<K, V> {
 
     @SuppressWarnings("unchecked")
     @Override
-    public V getIfPresent(final Object key) {
-        return maybeGet((K) key, delegate.getIfPresent(key));
+    public V getIfPresent(final K key) {
+        return maybeGet(key, delegate.getIfPresent(key));
     }
 
     @Override
@@ -45,7 +47,7 @@ public class WrapperLoadingCache<K, V> implements LoadingCache<K, V> {
     }
 
     @Override
-    public ImmutableMap<K, V> getAllPresent(final Iterable<?> keys) {
+    public ImmutableMap<K, V> getAllPresent(final Iterable<? extends K> keys) {
         final Map<K, V> allPresent = delegate.getAllPresent(keys);
         final Map<K, V> nonnullAllPresent = new HashMap<K, V>();
         for (final Entry<K, V> e : allPresent.entrySet()) {
@@ -70,16 +72,16 @@ public class WrapperLoadingCache<K, V> implements LoadingCache<K, V> {
             final V value = e.getValue();
             newMap.put(key, value);
         }
-        delegate.putAll(newMap);
+        delegate.putAll(m);
     }
 
     @Override
-    public void invalidate(final Object key) {
+    public void invalidate(final K key) {
         delegate.invalidate(key);
     }
 
     @Override
-    public void invalidateAll(final Iterable<?> keys) {
+    public void invalidateAll(final Iterable<? extends K> keys) {
         delegate.invalidateAll(keys);
     }
 
@@ -122,8 +124,27 @@ public class WrapperLoadingCache<K, V> implements LoadingCache<K, V> {
     }
 
     @Override
-    public void refresh(final K key) {
-        delegate.refresh(key);
+    public Map<K, V> getAll(final Iterable<? extends K> keys,
+            final Function<? super Set<? extends K>, ? extends Map<? extends K, ? extends V>> mappingFunction) {
+        final Map<K, V> all = delegate.getAll(keys, mappingFunction);
+        final Map<K, V> nonnullAll = new HashMap<K, V>();
+        for (final Entry<K, V> e : all.entrySet()) {
+            final V value = maybeGet(e.getKey(), e.getValue());
+            if (value != null) {
+                nonnullAll.put(e.getKey(), value);
+            }
+        }
+        return ImmutableMap.copyOf(nonnullAll);
+    }
+
+    @Override
+    public CompletableFuture<V> refresh(final K key) {
+        return delegate.refresh(key);
+    }
+
+    @Override
+    public CompletableFuture<Map<K, V>> refreshAll(final Iterable<? extends K> keys) {
+        return delegate.refreshAll(keys);
     }
 
     @Override

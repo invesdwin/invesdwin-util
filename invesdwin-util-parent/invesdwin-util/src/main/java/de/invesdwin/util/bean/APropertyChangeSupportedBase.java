@@ -9,13 +9,13 @@ import java.util.Map;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
-import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import de.invesdwin.norva.beanpath.annotation.Hidden;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.lang.reflection.Reflections;
+import jakarta.persistence.Transient;
 
 /**
  * Standard implementation of {@link PropertyChangeSupported}. This class is thread-safe and uses a lazily initialized

@@ -5,7 +5,6 @@ import java.util.Set;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
-import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.querydsl.core.annotations.QuerySupertype;
@@ -20,6 +19,7 @@ import de.invesdwin.norva.marker.ISerializableValueObject;
 import de.invesdwin.util.bean.internal.ValueObjectMerge;
 import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.lang.Objects;
+import jakarta.persistence.Transient;
 
 /**
  * ValueObjects are non persistent Entities. They do not contain any logic, but they contain data and verifications.

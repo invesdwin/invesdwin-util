@@ -1,6 +1,7 @@
 package de.invesdwin.util.time.date;
 
 import java.io.Serializable;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -9,7 +10,6 @@ import java.util.List;
 import java.util.Locale;
 
 import javax.annotation.concurrent.ThreadSafe;
-import javax.persistence.Transient;
 
 import org.joda.time.DateTime;
 import org.joda.time.LocalDateTime;
@@ -29,6 +29,7 @@ import de.invesdwin.util.time.date.holiday.IHolidayManager;
 import de.invesdwin.util.time.date.millis.FDateMillis;
 import de.invesdwin.util.time.date.timezone.FTimeZone;
 import de.invesdwin.util.time.duration.Duration;
+import jakarta.persistence.Transient;
 
 /**
  * FDate stands for an immutable Fast Date implementation by utilizing heavy caching.
@@ -120,6 +121,10 @@ public class FDate
 
     public FDate(final java.time.ZonedDateTime javaTime) {
         this(javaTime.toInstant().toEpochMilli());
+    }
+
+    public FDate(final java.time.LocalDateTime javaTime) {
+        this(javaTime.atZone(ZoneId.systemDefault()));
     }
 
     public FDate(final java.time.Instant javaTime) {
@@ -637,6 +642,14 @@ public class FDate
     public static FDate valueOf(final LocalDateTime jodaTime) {
         if (jodaTime != null) {
             return new FDate(jodaTime);
+        } else {
+            return null;
+        }
+    }
+
+    public static FDate valueOf(final java.time.LocalDateTime time) {
+        if (time != null) {
+            return new FDate(time);
         } else {
             return null;
         }

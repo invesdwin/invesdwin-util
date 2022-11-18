@@ -93,7 +93,7 @@ public final class DatatypeConverter {
     }
 
     public static FDate parseTime(final String lex) {
-        final Calendar cal = javax.xml.bind.DatatypeConverter.parseTime(lex);
+        final Calendar cal = jakarta.xml.bind.DatatypeConverter.parseTime(lex);
         return FDate.valueOf(cal);
     }
 
@@ -102,11 +102,11 @@ public final class DatatypeConverter {
             return null;
         }
         final Calendar cal = toCalendar(date);
-        return javax.xml.bind.DatatypeConverter.printTime(cal);
+        return jakarta.xml.bind.DatatypeConverter.printTime(cal);
     }
 
     public static FDate parseDate(final String lex) {
-        final Calendar cal = javax.xml.bind.DatatypeConverter.parseDate(lex);
+        final Calendar cal = jakarta.xml.bind.DatatypeConverter.parseDate(lex);
         return FDate.valueOf(cal);
     }
 
@@ -115,11 +115,11 @@ public final class DatatypeConverter {
             return null;
         }
         final Calendar cal = toCalendar(date);
-        return javax.xml.bind.DatatypeConverter.printDate(cal);
+        return jakarta.xml.bind.DatatypeConverter.printDate(cal);
     }
 
     public static FDate parseDateTime(final String lex) {
-        final Calendar cal = javax.xml.bind.DatatypeConverter.parseDateTime(lex);
+        final Calendar cal = jakarta.xml.bind.DatatypeConverter.parseDateTime(lex);
         return FDate.valueOf(cal);
     }
 
@@ -128,7 +128,7 @@ public final class DatatypeConverter {
             return null;
         }
         final Calendar cal = toCalendar(date);
-        return javax.xml.bind.DatatypeConverter.printDateTime(cal);
+        return jakarta.xml.bind.DatatypeConverter.printDateTime(cal);
     }
 
 }

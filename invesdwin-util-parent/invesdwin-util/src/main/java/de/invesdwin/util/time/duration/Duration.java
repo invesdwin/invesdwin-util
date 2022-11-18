@@ -4,7 +4,6 @@ import java.util.List;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
-import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -22,6 +21,7 @@ import de.invesdwin.util.time.Instant;
 import de.invesdwin.util.time.date.FDate;
 import de.invesdwin.util.time.date.FTimeUnit;
 import de.invesdwin.util.time.duration.internal.DurationParser;
+import jakarta.persistence.Transient;
 
 @ThreadSafe
 public class Duration extends Number implements Comparable<Object> {
