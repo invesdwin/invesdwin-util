@@ -38,7 +38,7 @@
 		<version.okhttp>4.9.3</version.okhttp>
 		<version.okio>2.10.0</version.okio>
 		<version.roaringbitmap>0.9.0</version.roaringbitmap>
-		<version.fst>2.57-inv</version.fst>
+		<version.fst>3.03-inv</version.fst>
 		<version.jdk-serialiable-functional>1.9.0</version.jdk-serialiable-functional>
 	</properties>
 
