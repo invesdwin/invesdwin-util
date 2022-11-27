@@ -40,6 +40,7 @@
 		<version.roaringbitmap>0.9.0</version.roaringbitmap>
 		<version.fst>2.57-inv</version.fst>
 		<version.jdk-serialiable-functional>1.9.0</version.jdk-serialiable-functional>
+		<version.jcolorbrewer>5.2</version.jcolorbrewer>
 	</properties>
 
 	<dependencyManagement>
@@ -104,6 +105,11 @@
 				<groupId>org.danekja</groupId>
 				<artifactId>jdk-serializable-functional</artifactId>
 				<version>${version.jdk-serializable-functional}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.biojava</groupId>
+				<artifactId>jcolorbrewer</artifactId>
+				<version>${version.jcolorbrewer}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
