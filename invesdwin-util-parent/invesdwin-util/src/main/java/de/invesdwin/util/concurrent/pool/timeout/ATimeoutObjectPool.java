@@ -32,6 +32,7 @@ public abstract class ATimeoutObjectPool<E> implements IObjectPool<E>, Closeable
         this.bufferingIterator = new NodeBufferingIterator<>();
         this.timeoutMillis = timeout.longValue(FTimeUnit.MILLISECONDS);
 
+        ACTIVE_POOLS.incrementAndGet();
         this.scheduledFuture = getScheduledExecutor().scheduleAtFixedRate(this::checkTimeouts, 0,
                 checkInverval.longValue(), checkInverval.getTimeUnit().timeUnitValue());
     }
