@@ -879,6 +879,18 @@ public final class Doubles extends ADoublesStaticFacade {
         }
     }
 
+    public static boolean equals(final Double value, final Double otherValue) {
+        return equals(nullToNan(value), nullToNan(otherValue));
+    }
+
+    public static boolean equals(final double value, final Double otherValue) {
+        return equals(value, nullToNan(otherValue));
+    }
+
+    public static boolean equals(final Double value, final double otherValue) {
+        return equals(nullToNan(value), otherValue);
+    }
+
     /**
      * Here we use classical java logic than a comparison with NaN always results in false. Since in math you can not
      * compare an existing value with a missing one.
@@ -901,6 +913,18 @@ public final class Doubles extends ADoublesStaticFacade {
         }
     }
 
+    public static boolean equalsNaNable(final Double value, final Double otherValue) {
+        return equalsNaNable(nullToNan(value), nullToNan(otherValue));
+    }
+
+    public static boolean equalsNaNable(final double value, final Double otherValue) {
+        return equalsNaNable(value, nullToNan(otherValue));
+    }
+
+    public static boolean equalsNaNable(final Double value, final double otherValue) {
+        return equalsNaNable(nullToNan(value), otherValue);
+    }
+
     /**
      * NaN always loses, an existing value wins. Useful for comparison if a new takeProfit/stopLoss is better than
      * missing one.
@@ -920,6 +944,18 @@ public final class Doubles extends ADoublesStaticFacade {
             final double roundedOther = round(otherValue);
             return defaultRoundedValue == roundedOther;
         }
+    }
+
+    public static Boolean equalsNullable(final Double value, final Double otherValue) {
+        return equalsNullable(nullToNan(value), nullToNan(otherValue));
+    }
+
+    public static Boolean equalsNullable(final double value, final Double otherValue) {
+        return equalsNullable(value, nullToNan(otherValue));
+    }
+
+    public static Boolean equalsNullable(final Double value, final double otherValue) {
+        return equalsNullable(nullToNan(value), otherValue);
     }
 
     /**
@@ -944,6 +980,18 @@ public final class Doubles extends ADoublesStaticFacade {
         }
     }
 
+    public static boolean notEquals(final Double value, final Double otherValue) {
+        return notEquals(nullToNan(value), nullToNan(otherValue));
+    }
+
+    public static boolean notEquals(final double value, final Double otherValue) {
+        return notEquals(value, nullToNan(otherValue));
+    }
+
+    public static boolean notEquals(final Double value, final double otherValue) {
+        return notEquals(nullToNan(value), otherValue);
+    }
+
     /**
      * Here we use classical java logic than a comparison with NaN always results in false. Since in math you can not
      * compare an existing value with a missing one.
@@ -966,6 +1014,18 @@ public final class Doubles extends ADoublesStaticFacade {
         }
     }
 
+    public static boolean notEqualsNaNable(final Double value, final Double otherValue) {
+        return notEqualsNaNable(nullToNan(value), nullToNan(otherValue));
+    }
+
+    public static boolean notEqualsNaNable(final double value, final Double otherValue) {
+        return notEqualsNaNable(value, nullToNan(otherValue));
+    }
+
+    public static boolean notEqualsNaNable(final Double value, final double otherValue) {
+        return notEqualsNaNable(nullToNan(value), otherValue);
+    }
+
     /**
      * NaN always loses, an existing value wins. Useful for comparison if a new takeProfit/stopLoss is better than
      * missing one.
@@ -985,6 +1045,18 @@ public final class Doubles extends ADoublesStaticFacade {
             final double roundedOther = round(otherValue);
             return defaultRoundedValue != roundedOther;
         }
+    }
+
+    public static Boolean notEqualsNullable(final Double value, final Double otherValue) {
+        return notEqualsNullable(nullToNan(value), nullToNan(otherValue));
+    }
+
+    public static Boolean notEqualsNullable(final double value, final Double otherValue) {
+        return notEqualsNullable(value, nullToNan(otherValue));
+    }
+
+    public static Boolean notEqualsNullable(final Double value, final double otherValue) {
+        return notEqualsNullable(nullToNan(value), otherValue);
     }
 
     /**
