@@ -132,9 +132,9 @@ public abstract class ATimeoutObjectPool<E> implements IObjectPool<E>, Closeable
     public void close() {
         Assertions.checkNotNull(scheduledFuture);
         clear();
-        ACTIVE_POOLS.decrementAndGet();
         scheduledFuture.cancel(true);
         scheduledFuture = null;
+        ACTIVE_POOLS.decrementAndGet();
         maybeCloseScheduledExecutor();
     }
 
