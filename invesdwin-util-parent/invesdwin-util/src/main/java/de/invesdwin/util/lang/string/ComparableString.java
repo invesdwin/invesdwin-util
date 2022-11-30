@@ -4,6 +4,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import org.danekja.java.util.function.serializable.SerializableSupplier;
 
+import de.invesdwin.norva.beanpath.annotation.BeanPathEndPoint;
 import de.invesdwin.norva.marker.ISerializableValueObject;
 import de.invesdwin.util.lang.Objects;
 
@@ -13,6 +14,7 @@ import de.invesdwin.util.lang.Objects;
  */
 @NotThreadSafe
 @SuppressWarnings("rawtypes")
+@BeanPathEndPoint
 public class ComparableString<E extends Comparable>
         implements Comparable<Object>, ISerializableValueObject, CharSequence {
 

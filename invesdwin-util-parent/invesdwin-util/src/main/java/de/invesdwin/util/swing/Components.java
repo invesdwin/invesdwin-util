@@ -15,6 +15,7 @@ import javax.annotation.concurrent.Immutable;
 import javax.swing.AbstractButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JSpinner;
 import javax.swing.JTable;
 import javax.swing.SwingUtilities;
 import javax.swing.ToolTipManager;
@@ -279,6 +280,12 @@ public final class Components {
     public static void setText(final JTextComponent component, final String text) {
         if (!Objects.equals(text, component.getText())) {
             component.setText(text);
+        }
+    }
+
+    public static void setValue(final JSpinner component, final Object value) {
+        if (!Objects.equals(value, component.getValue())) {
+            component.setValue(value);
         }
     }
 
