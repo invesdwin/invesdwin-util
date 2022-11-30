@@ -142,7 +142,11 @@ public final class Components {
      */
     public static void triggerMouseMoved(final JComponent component, final MouseMotionListener listener) {
         if (isShowingAndWindowIsActive(component)) {
-            final Point locationOnScreen = MouseInfo.getPointerInfo().getLocation();
+            final PointerInfo pointerInfo = MouseInfo.getPointerInfo();
+            if (pointerInfo == null) {
+                return;
+            }
+            final Point locationOnScreen = pointerInfo.getLocation();
             final Point locationOnComponent = new Point(locationOnScreen);
             SwingUtilities.convertPointFromScreen(locationOnComponent, component);
             if (component.contains(locationOnComponent)) {
@@ -165,7 +169,11 @@ public final class Components {
         if (isShowingAndWindowIsActive(component)) {
             return null;
         }
-        final Point locationOnScreen = MouseInfo.getPointerInfo().getLocation();
+        final PointerInfo pointerInfo = MouseInfo.getPointerInfo();
+        if (pointerInfo == null) {
+            return null;
+        }
+        final Point locationOnScreen = pointerInfo.getLocation();
         final Point locationOnComponent = new Point(locationOnScreen);
         SwingUtilities.convertPointFromScreen(locationOnComponent, component);
         if (component.contains(locationOnComponent)) {
