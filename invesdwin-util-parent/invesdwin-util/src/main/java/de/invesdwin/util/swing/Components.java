@@ -5,6 +5,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.MouseInfo;
 import java.awt.Point;
+import java.awt.PointerInfo;
 import java.awt.Window;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -84,7 +85,11 @@ public final class Components {
         if (!isShowingAndWindowIsActive(component)) {
             return false;
         } else {
-            final Point locationOnScreen = MouseInfo.getPointerInfo().getLocation();
+            final PointerInfo pointerInfo = MouseInfo.getPointerInfo();
+            if (pointerInfo == null) {
+                return false;
+            }
+            final Point locationOnScreen = pointerInfo.getLocation();
             final Point locationOnComponent = new Point(locationOnScreen);
             SwingUtilities.convertPointFromScreen(locationOnComponent, component);
             return component.contains(locationOnComponent);
