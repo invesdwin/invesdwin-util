@@ -482,6 +482,46 @@ public final class Doubles extends ADoublesStaticFacade {
         return result;
     }
 
+    public static double nullToNan(final Double value) {
+        if (value == null) {
+            return Double.NaN;
+        } else {
+            return value.doubleValue();
+        }
+    }
+
+    public static double nullToNan(final Number value) {
+        if (value == null) {
+            return Double.NaN;
+        } else {
+            return value.doubleValue();
+        }
+    }
+
+    public static double nullToZero(final Double value) {
+        if (value == null) {
+            return 0D;
+        } else {
+            return nanToZero(value.doubleValue());
+        }
+    }
+
+    public static double nullToZero(final Number value) {
+        if (value == null) {
+            return 0D;
+        } else {
+            return nanToZero(value.doubleValue());
+        }
+    }
+
+    public static double nanToZero(final Number value) {
+        if (value == null) {
+            return 0D;
+        } else {
+            return nanToZero(value.doubleValue());
+        }
+    }
+
     public static double nanToZero(final Double value) {
         if (value == null) {
             return 0D;
@@ -499,6 +539,30 @@ public final class Doubles extends ADoublesStaticFacade {
         }
     }
 
+    public static double zeroToNan(final Number value) {
+        if (value == null) {
+            return Double.NaN;
+        } else {
+            return zeroToNan(value.doubleValue());
+        }
+    }
+
+    public static double zeroToNan(final Double value) {
+        if (value == null) {
+            return Double.NaN;
+        } else {
+            return zeroToNan(value.doubleValue());
+        }
+    }
+
+    public static double zeroToNan(final double value) {
+        if (isZero(value)) {
+            return Double.NaN;
+        } else {
+            return value;
+        }
+    }
+
     private static String newInfiniteErrorMessage(final double value) {
         return "Infinite: " + value;
     }
@@ -509,22 +573,6 @@ public final class Doubles extends ADoublesStaticFacade {
 
     public static boolean isNaN(final Number number) {
         return number instanceof Double && Doubles.isNaN(number.doubleValue());
-    }
-
-    public static double nullToZero(final Double value) {
-        if (value == null) {
-            return 0D;
-        } else {
-            return value.doubleValue();
-        }
-    }
-
-    public static double nullToZero(final Number value) {
-        if (value == null) {
-            return 0D;
-        } else {
-            return value.doubleValue();
-        }
     }
 
     public static double scaleByPowerOfTen(final double value, final int n) {
@@ -585,14 +633,6 @@ public final class Doubles extends ADoublesStaticFacade {
     public static double growthRate(final double first, final double second) {
         final double rate = Doubles.divide(second - first, Doubles.abs(first));
         return rate;
-    }
-
-    public static double nullToNan(final Double value) {
-        if (value == null) {
-            return Double.NaN;
-        } else {
-            return value.doubleValue();
-        }
     }
 
     public static double infinityToZero(final double value) {
