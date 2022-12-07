@@ -180,6 +180,9 @@ public class AdjustingHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V
 
     @Override
     public FDate getKey(final FDate key) {
+        if (key == null) {
+            return null;
+        }
         final IHistoricalCacheAdjustKeyProvider adjustKeyProvider = internalMethods.getAdjustKeyProvider();
         if (adjustKeyProvider.isAlreadyAdjustingKey()) {
             return delegate.getKey(key);
