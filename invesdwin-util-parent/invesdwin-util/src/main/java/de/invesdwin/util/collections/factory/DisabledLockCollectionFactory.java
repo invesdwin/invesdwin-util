@@ -112,6 +112,11 @@ public final class DisabledLockCollectionFactory implements ILockCollectionFacto
     }
 
     @Override
+    public <T> List<T> newArrayList() {
+        return new ArrayList<>();
+    }
+
+    @Override
     public <T> List<T> newArrayList(final int initialSize) {
         return new ArrayList<>(initialSize);
     }
