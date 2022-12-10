@@ -6,6 +6,7 @@ import java.util.NavigableMap;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ConcurrentMapKeySetView;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -15,9 +16,9 @@ import de.invesdwin.util.collections.bitset.SynchronizedBitSet;
 import de.invesdwin.util.collections.fast.IFastIterableList;
 import de.invesdwin.util.collections.fast.IFastIterableMap;
 import de.invesdwin.util.collections.fast.IFastIterableSet;
-import de.invesdwin.util.collections.fast.concurrent.ASynchronizedFastIterableDelegateList;
-import de.invesdwin.util.collections.fast.concurrent.ASynchronizedFastIterableDelegateMap;
-import de.invesdwin.util.collections.fast.concurrent.ASynchronizedFastIterableDelegateSet;
+import de.invesdwin.util.collections.fast.concurrent.SynchronizedFastIterableDelegateList;
+import de.invesdwin.util.collections.fast.concurrent.SynchronizedFastIterableDelegateMap;
+import de.invesdwin.util.collections.fast.concurrent.SynchronizedFastIterableDelegateSet;
 import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 import de.invesdwin.util.collections.loadingcache.ALoadingCacheConfig;
 import de.invesdwin.util.concurrent.Executors;
@@ -47,28 +48,25 @@ public final class SynchronizedLockCollectionFactory implements ILockCollectionF
     }
 
     @Override
-    public IBitSet newBitSet(final int expectedSize) {
-        return new SynchronizedBitSet(DisabledLockCollectionFactory.INSTANCE.newBitSet(expectedSize));
+    public IBitSet newBitSet(final int initialSize) {
+        return new SynchronizedBitSet(DisabledLockCollectionFactory.INSTANCE.newBitSet(initialSize));
     }
 
     @Override
-    public <T> IFastIterableSet<T> newFastIterableLinkedSet() {
-        return new SynchronizedFastIterableLinkedSet<T>();
+    public <T> IFastIterableSet<T> newFastIterableLinkedSet(final int initialSize, final float loadFactor) {
+        return new SynchronizedFastIterableDelegateSet<T>(
+                DisabledLockCollectionFactory.INSTANCE.newLinkedSet(initialSize, loadFactor));
     }
 
     @Override
-    public <T> IFastIterableList<T> newFastIterableArrayList() {
-        return new SynchronizedFastIterableArrayList<T>();
+    public <T> IFastIterableList<T> newFastIterableArrayList(final int initialSize) {
+        return new SynchronizedFastIterableDelegateList<T>(
+                DisabledLockCollectionFactory.INSTANCE.newArrayList(initialSize));
     }
 
     @Override
-    public <T> IFastIterableList<T> newFastIterableArrayList(final int expectedSize) {
-        return new SynchronizedFastIterableArrayListWithSize<T>(expectedSize);
-    }
-
-    @Override
-    public <K, V> Map<K, V> newMap() {
-        return Collections.synchronizedMap(DisabledLockCollectionFactory.INSTANCE.newMap());
+    public <K, V> Map<K, V> newMap(final int initialSize, final float loadFactor) {
+        return Collections.synchronizedMap(DisabledLockCollectionFactory.INSTANCE.newMap(initialSize, loadFactor));
     }
 
     @Override
@@ -97,75 +95,79 @@ public final class SynchronizedLockCollectionFactory implements ILockCollectionF
     }
 
     @Override
-    public <K, V> IFastIterableMap<K, V> newFastIterableLinkedMap() {
-        return new SynchronizedFastIterableLinkedMap<K, V>();
+    public <K, V> IFastIterableMap<K, V> newFastIterableLinkedMap(final int initialSize, final float loadFactor) {
+        return new SynchronizedFastIterableDelegateMap<K, V>(
+                DisabledLockCollectionFactory.INSTANCE.newLinkedMap(initialSize, loadFactor));
     }
 
     @Override
     public <K, V> ConcurrentMap<K, V> newConcurrentMap() {
-        return new ConcurrentHashMap<>();
+        return newConcurrentMap(DEFAULT_INITIAL_SIZE);
     }
 
     @Override
-    public <T> Set<T> newConcurrentSet() {
-        return ConcurrentHashMap.newKeySet();
+    public <K, V> ConcurrentMap<K, V> newConcurrentMap(final int initialSize) {
+        return newConcurrentMap(initialSize, DEFAULT_LOAD_FACTOR);
     }
 
     @Override
-    public <T> List<T> newArrayList() {
-        return Collections.synchronizedList(DisabledLockCollectionFactory.INSTANCE.newArrayList());
+    public <K, V> ConcurrentMap<K, V> newConcurrentMap(final int initialSize, final float loadFactor) {
+        return new ConcurrentHashMap<>(initialSize, loadFactor);
     }
 
     @Override
-    public <T> List<T> newArrayList(final int expectedSize) {
-        return Collections.synchronizedList(DisabledLockCollectionFactory.INSTANCE.newArrayList(expectedSize));
+    public <T> Set<T> newConcurrentSet(final int initialSize, final float loadFactor) {
+        return new ConcurrentMapKeySetView<T, Boolean>(new ConcurrentHashMap<T, Boolean>(initialSize, loadFactor),
+                Boolean.TRUE);
     }
 
     @Override
-    public <T> IFastIterableSet<T> newFastIterableSet() {
-        return new SynchronizedFastIterableSet<T>();
+    public <T> List<T> newArrayList(final int initialSize) {
+        return Collections.synchronizedList(DisabledLockCollectionFactory.INSTANCE.newArrayList(initialSize));
     }
 
     @Override
-    public <K, V> IFastIterableMap<K, V> newFastIterableMap() {
-        return new SynchronizedFastIterableMap<K, V>();
+    public <T> IFastIterableSet<T> newFastIterableSet(final int initialSize, final float loadFactor) {
+        return new SynchronizedFastIterableDelegateSet<T>(
+                DisabledLockCollectionFactory.INSTANCE.newSet(initialSize, loadFactor));
     }
 
     @Override
-    public <K, V> Map<K, V> newLinkedMap() {
-        return Collections.synchronizedMap(DisabledLockCollectionFactory.INSTANCE.newLinkedMap());
+    public <K, V> IFastIterableMap<K, V> newFastIterableMap(final int initialSize, final float loadFactor) {
+        return new SynchronizedFastIterableDelegateMap<K, V>(
+                DisabledLockCollectionFactory.INSTANCE.newMap(initialSize, loadFactor));
     }
 
     @Override
-    public <T> Set<T> newSet() {
-        return Collections.synchronizedSet(DisabledLockCollectionFactory.INSTANCE.newSet());
+    public <K, V> Map<K, V> newLinkedMap(final int initialSize, final float loadFactor) {
+        return Collections
+                .synchronizedMap(DisabledLockCollectionFactory.INSTANCE.newLinkedMap(initialSize, loadFactor));
     }
 
     @Override
-    public <T> Set<T> newLinkedSet() {
-        return Collections.synchronizedSet(DisabledLockCollectionFactory.INSTANCE.newLinkedSet());
+    public <T> Set<T> newSet(final int initialSize, final float loadFactor) {
+        return Collections.synchronizedSet(DisabledLockCollectionFactory.INSTANCE.newSet(initialSize, loadFactor));
     }
 
-    private static final class SynchronizedFastIterableMap<K, V> extends ASynchronizedFastIterableDelegateMap<K, V> {
-        @Override
-        protected Map<K, V> newDelegate() {
-            return DisabledLockCollectionFactory.INSTANCE.newMap();
-        }
+    @Override
+    public <T> Set<T> newLinkedSet(final int initialSize, final float loadFactor) {
+        return Collections
+                .synchronizedSet(DisabledLockCollectionFactory.INSTANCE.newLinkedSet(initialSize, loadFactor));
     }
 
-    private static final class SynchronizedFastIterableSet<T> extends ASynchronizedFastIterableDelegateSet<T> {
-        @Override
-        protected Set<T> newDelegate() {
-            return DisabledLockCollectionFactory.INSTANCE.newSet();
-        }
+    @Override
+    public <T> Set<T> newIdentitySet(final int initialSize) {
+        return Collections.synchronizedSet(DisabledLockCollectionFactory.INSTANCE.newIdentitySet(initialSize));
     }
 
-    private static final class SynchronizedFastIterableLinkedMap<K, V>
-            extends ASynchronizedFastIterableDelegateMap<K, V> {
-        @Override
-        protected Map<K, V> newDelegate() {
-            return DisabledLockCollectionFactory.INSTANCE.newLinkedMap();
-        }
+    @Override
+    public <K, V> Map<K, V> newIdentityMap(final int initialSize) {
+        return Collections.synchronizedMap(DisabledLockCollectionFactory.INSTANCE.newIdentityMap(initialSize));
+    }
+
+    @Override
+    public boolean isThreadSafe() {
+        return true;
     }
 
     private static final class SynchronizedNestedExecutor extends ANestedExecutor {
@@ -177,48 +179,6 @@ public final class SynchronizedLockCollectionFactory implements ILockCollectionF
         protected WrappedExecutorService newNestedExecutor(final String nestedName) {
             return Executors.newFixedThreadPool(nestedName, Executors.getCpuThreadPoolCount());
         }
-    }
-
-    private static final class SynchronizedFastIterableArrayList<T> extends ASynchronizedFastIterableDelegateList<T> {
-        @Override
-        protected List<T> newDelegate() {
-            return DisabledLockCollectionFactory.INSTANCE.newArrayList();
-        }
-    }
-
-    private static final class SynchronizedFastIterableArrayListWithSize<T>
-            extends ASynchronizedFastIterableDelegateList<T> {
-
-        private SynchronizedFastIterableArrayListWithSize(final int expectedSize) {
-            super(DisabledLockCollectionFactory.INSTANCE.newArrayList());
-        }
-
-        @Override
-        protected List<T> newDelegate() {
-            throw new UnsupportedOperationException();
-        }
-    }
-
-    private static final class SynchronizedFastIterableLinkedSet<T> extends ASynchronizedFastIterableDelegateSet<T> {
-        @Override
-        protected Set<T> newDelegate() {
-            return DisabledLockCollectionFactory.INSTANCE.newLinkedSet();
-        }
-    }
-
-    @Override
-    public <T> Set<T> newIdentitySet() {
-        return Collections.synchronizedSet(DisabledLockCollectionFactory.INSTANCE.newIdentitySet());
-    }
-
-    @Override
-    public <K, V> Map<K, V> newIdentityMap() {
-        return Collections.synchronizedMap(DisabledLockCollectionFactory.INSTANCE.newIdentityMap());
-    }
-
-    @Override
-    public boolean isThreadSafe() {
-        return true;
     }
 
 }

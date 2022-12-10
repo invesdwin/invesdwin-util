@@ -44,7 +44,7 @@ public abstract class ASynchronizedFastIterableDelegateMap<K, V> implements IFas
     private final Collection<V> values = new ValuesCollection();
 
     protected ASynchronizedFastIterableDelegateMap(final Map<K, V> delegate) {
-        this.delegate = newDelegate();
+        this.delegate = delegate;
         refreshFastIterable();
     }
 

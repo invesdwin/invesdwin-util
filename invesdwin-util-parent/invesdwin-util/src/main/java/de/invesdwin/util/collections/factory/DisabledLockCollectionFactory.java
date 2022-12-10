@@ -14,9 +14,9 @@ import de.invesdwin.util.collections.Collections;
 import de.invesdwin.util.collections.bitset.IBitSet;
 import de.invesdwin.util.collections.bitset.JavaBitSet;
 import de.invesdwin.util.collections.bitset.RoaringBitSet;
-import de.invesdwin.util.collections.fast.AFastIterableDelegateList;
-import de.invesdwin.util.collections.fast.AFastIterableDelegateMap;
-import de.invesdwin.util.collections.fast.AFastIterableDelegateSet;
+import de.invesdwin.util.collections.fast.FastIterableDelegateList;
+import de.invesdwin.util.collections.fast.FastIterableDelegateMap;
+import de.invesdwin.util.collections.fast.FastIterableDelegateSet;
 import de.invesdwin.util.collections.fast.IFastIterableList;
 import de.invesdwin.util.collections.fast.IFastIterableMap;
 import de.invesdwin.util.collections.fast.IFastIterableSet;
@@ -57,15 +57,15 @@ public final class DisabledLockCollectionFactory implements ILockCollectionFacto
     }
 
     @Override
-    public IBitSet newBitSet(final int expectedSize) {
+    public IBitSet newBitSet(final int initialSize) {
         /*
          * java bitsets are about twice as fast as roaring bitsets, though roaring might be interesting to use with
          * larger sizes to stay in memory limits
          */
-        if (expectedSize > ROARING_BITMAP_THRESHOLD) {
-            return new RoaringBitSet(expectedSize);
+        if (initialSize > ROARING_BITMAP_THRESHOLD) {
+            return new RoaringBitSet(initialSize);
         } else {
-            return new JavaBitSet(expectedSize);
+            return new JavaBitSet(initialSize);
         }
     }
 
@@ -87,117 +87,58 @@ public final class DisabledLockCollectionFactory implements ILockCollectionFacto
     }
 
     @Override
-    public <T> IFastIterableSet<T> newFastIterableLinkedSet() {
-        return new DisabledFastIterableLinkedSet<T>();
+    public <T> IFastIterableSet<T> newFastIterableLinkedSet(final int initialSize, final float loadFactor) {
+        return new FastIterableDelegateSet<T>(newLinkedSet(initialSize, loadFactor));
     }
 
     @Override
-    public <T> IFastIterableList<T> newFastIterableArrayList() {
-        return new DisabledFastIterableArrayList<T>();
+    public <T> IFastIterableList<T> newFastIterableArrayList(final int initialSize) {
+        return new FastIterableDelegateList<T>(newArrayList(initialSize));
     }
 
     @Override
-    public <T> IFastIterableList<T> newFastIterableArrayList(final int expectedSize) {
-        return new DisabledFastIterableArrayListWithSize<T>(expectedSize);
+    public <K, V> Map<K, V> newMap(final int initialSize, final float loadFactor) {
+        return new Object2ObjectOpenHashMap<>(initialSize, loadFactor);
     }
 
     @Override
-    public <K, V> Map<K, V> newMap() {
-        //koboloke has the same memory efficiency as fastutil but is a bit faster
-        return new Object2ObjectOpenHashMap<>();
+    public <K, V> IFastIterableMap<K, V> newFastIterableLinkedMap(final int initialSize, final float loadFactor) {
+        return new FastIterableDelegateMap<K, V>(newLinkedMap(initialSize, loadFactor));
     }
 
     @Override
-    public <K, V> IFastIterableMap<K, V> newFastIterableLinkedMap() {
-        return new DisabledFastIterableLinkedMap<K, V>();
+    public <K, V> Map<K, V> newConcurrentMap(final int initialSize, final float loadFactor) {
+        return newMap(initialSize, loadFactor);
     }
 
     @Override
-    public <K, V> Map<K, V> newConcurrentMap() {
-        return newMap();
+    public <T> List<T> newArrayList(final int initialSize) {
+        return new ArrayList<>(initialSize);
     }
 
     @Override
-    public <T> List<T> newArrayList() {
-        return new ArrayList<>();
+    public <T> IFastIterableSet<T> newFastIterableSet(final int initialSize, final float loadFactor) {
+        return new FastIterableDelegateSet<T>(newSet(initialSize, loadFactor));
     }
 
     @Override
-    public <T> List<T> newArrayList(final int expectedSize) {
-        return new ArrayList<>(expectedSize);
+    public <K, V> IFastIterableMap<K, V> newFastIterableMap(final int initialSize, final float loadFactor) {
+        return new FastIterableDelegateMap<K, V>(newMap(initialSize, loadFactor));
     }
 
     @Override
-    public <T> IFastIterableSet<T> newFastIterableSet() {
-        return new DisabledFastIterableSet<T>();
+    public <K, V> Map<K, V> newLinkedMap(final int initialSize, final float loadFactor) {
+        return new Object2ObjectLinkedOpenHashMap<>(initialSize, loadFactor);
     }
 
     @Override
-    public <K, V> IFastIterableMap<K, V> newFastIterableMap() {
-        return new DisabledFastIterableMap<K, V>();
+    public <T> Set<T> newSet(final int initialSize, final float loadFactor) {
+        return new ObjectOpenHashSet<>(initialSize, loadFactor);
     }
 
     @Override
-    public <K, V> Map<K, V> newLinkedMap() {
-        return new Object2ObjectLinkedOpenHashMap<>();
-    }
-
-    @Override
-    public <T> Set<T> newSet() {
-        //koboloke has the same memory efficiency as fastutil but is a bit faster
-        return new ObjectOpenHashSet<>();
-    }
-
-    @Override
-    public <T> Set<T> newLinkedSet() {
-        return new ObjectLinkedOpenHashSet<>();
-    }
-
-    private static final class DisabledFastIterableMap<K, V> extends AFastIterableDelegateMap<K, V> {
-        @Override
-        protected Map<K, V> newDelegate() {
-            return INSTANCE.newMap();
-        }
-    }
-
-    private static final class DisabledFastIterableSet<T> extends AFastIterableDelegateSet<T> {
-        @Override
-        protected Set<T> newDelegate() {
-            return INSTANCE.newSet();
-        }
-    }
-
-    private static final class DisabledFastIterableLinkedMap<K, V> extends AFastIterableDelegateMap<K, V> {
-        @Override
-        protected Map<K, V> newDelegate() {
-            return INSTANCE.newLinkedMap();
-        }
-    }
-
-    private static final class DisabledFastIterableArrayList<T> extends AFastIterableDelegateList<T> {
-        @Override
-        protected List<T> newDelegate() {
-            return INSTANCE.newArrayList();
-        }
-    }
-
-    private static final class DisabledFastIterableArrayListWithSize<T> extends AFastIterableDelegateList<T> {
-
-        private DisabledFastIterableArrayListWithSize(final int expectedSize) {
-            super(INSTANCE.newArrayList(expectedSize));
-        }
-
-        @Override
-        protected List<T> newDelegate() {
-            throw new UnsupportedOperationException();
-        }
-    }
-
-    private static final class DisabledFastIterableLinkedSet<T> extends AFastIterableDelegateSet<T> {
-        @Override
-        protected Set<T> newDelegate() {
-            return INSTANCE.newLinkedSet();
-        }
+    public <T> Set<T> newLinkedSet(final int initialSize, final float loadFactor) {
+        return new ObjectLinkedOpenHashSet<>(initialSize, loadFactor);
     }
 
     @Override
@@ -205,25 +146,24 @@ public final class DisabledLockCollectionFactory implements ILockCollectionFacto
         return new TreeMap<K, V>();
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
     public <K, V> NavigableMap<K, V> newTreeMap(final IComparator<? super K> comparator) {
         return new TreeMap<K, V>(comparator.asTyped());
     }
 
     @Override
-    public <T> Set<T> newConcurrentSet() {
-        return newSet();
+    public <T> Set<T> newConcurrentSet(final int initialSize, final float loadFactor) {
+        return newSet(initialSize, loadFactor);
     }
 
     @Override
-    public <T> Set<T> newIdentitySet() {
-        return Collections.newSetFromMap(newIdentityMap());
+    public <T> Set<T> newIdentitySet(final int initialSize) {
+        return Collections.newSetFromMap(newIdentityMap(initialSize));
     }
 
     @Override
-    public <K, V> Map<K, V> newIdentityMap() {
-        return new IdentityHashMap<K, V>();
+    public <K, V> Map<K, V> newIdentityMap(final int initialSize) {
+        return new IdentityHashMap<K, V>(initialSize);
     }
 
     @Override

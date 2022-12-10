@@ -15,46 +15,146 @@ import de.invesdwin.util.concurrent.lock.ILock;
 import de.invesdwin.util.concurrent.lock.readwrite.IReadWriteLock;
 import de.invesdwin.util.concurrent.nested.INestedExecutor;
 import de.invesdwin.util.lang.comparator.IComparator;
+import it.unimi.dsi.fastutil.Hash;
 
 public interface ILockCollectionFactory {
+
+    int DEFAULT_INITIAL_SIZE = Hash.DEFAULT_INITIAL_SIZE;
+    int DEFAULT_INITIAL_SIZE_IDENTITY = 32;
+    /*
+     * higher load factor means better space efficiency while having a worse lookup performance (due to collisions)
+     */
+    float DEFAULT_LOAD_FACTOR = Hash.DEFAULT_LOAD_FACTOR;
 
     ILock newLock(String name);
 
     IReadWriteLock newReadWriteLock(String name);
 
-    IBitSet newBitSet(int expectedSize);
+    IBitSet newBitSet(int initialSize);
 
-    <T> List<T> newArrayList();
+    default <T> List<T> newArrayList() {
+        return newArrayList(DEFAULT_INITIAL_SIZE);
+    }
 
-    <T> IFastIterableList<T> newFastIterableArrayList();
+    <T> List<T> newArrayList(int initialSize);
 
-    <T> List<T> newArrayList(int expectedSize);
+    default <T> IFastIterableList<T> newFastIterableArrayList() {
+        return newFastIterableArrayList(DEFAULT_INITIAL_SIZE);
+    }
 
-    <T> IFastIterableList<T> newFastIterableArrayList(int expectedSize);
+    <T> IFastIterableList<T> newFastIterableArrayList(int initialSize);
 
-    <T> Set<T> newSet();
+    default <T> Set<T> newSet() {
+        return newSet(DEFAULT_INITIAL_SIZE);
+    }
 
-    <T> IFastIterableSet<T> newFastIterableSet();
+    default <T> Set<T> newSet(final int initialSize) {
+        return newSet(initialSize, DEFAULT_LOAD_FACTOR);
+    }
 
-    <T> Set<T> newLinkedSet();
+    <T> Set<T> newSet(int initialSize, float loadFactor);
 
-    <T> IFastIterableSet<T> newFastIterableLinkedSet();
+    default <T> IFastIterableSet<T> newFastIterableSet() {
+        return newFastIterableSet(DEFAULT_INITIAL_SIZE);
+    }
 
-    <T> Set<T> newConcurrentSet();
+    default <T> IFastIterableSet<T> newFastIterableSet(final int initialSize) {
+        return newFastIterableSet(initialSize, DEFAULT_LOAD_FACTOR);
+    }
 
-    <T> Set<T> newIdentitySet();
+    <T> IFastIterableSet<T> newFastIterableSet(int initialSize, float loadFactor);
 
-    <K, V> Map<K, V> newMap();
+    default <T> Set<T> newLinkedSet() {
+        return newLinkedSet(DEFAULT_INITIAL_SIZE);
+    }
 
-    <K, V> IFastIterableMap<K, V> newFastIterableMap();
+    default <T> Set<T> newLinkedSet(final int initialSize) {
+        return newLinkedSet(initialSize, DEFAULT_LOAD_FACTOR);
+    }
 
-    <K, V> Map<K, V> newLinkedMap();
+    <T> Set<T> newLinkedSet(int initialSize, float loadFactor);
 
-    <K, V> Map<K, V> newConcurrentMap();
+    default <T> IFastIterableSet<T> newFastIterableLinkedSet() {
+        return newFastIterableLinkedSet(DEFAULT_INITIAL_SIZE);
+    }
 
-    <K, V> Map<K, V> newIdentityMap();
+    default <T> IFastIterableSet<T> newFastIterableLinkedSet(final int initialSize) {
+        return newFastIterableLinkedSet(initialSize, DEFAULT_LOAD_FACTOR);
+    }
 
-    <K, V> IFastIterableMap<K, V> newFastIterableLinkedMap();
+    <T> IFastIterableSet<T> newFastIterableLinkedSet(int initialSize, float loadFactor);
+
+    default <T> Set<T> newConcurrentSet() {
+        return newConcurrentSet(DEFAULT_INITIAL_SIZE);
+    }
+
+    default <T> Set<T> newConcurrentSet(final int initialSize) {
+        return newConcurrentSet(initialSize, DEFAULT_LOAD_FACTOR);
+    }
+
+    <T> Set<T> newConcurrentSet(int initialSize, float loadFactor);
+
+    default <T> Set<T> newIdentitySet() {
+        return newIdentitySet(DEFAULT_INITIAL_SIZE_IDENTITY);
+    }
+
+    <T> Set<T> newIdentitySet(int initialSize);
+
+    default <K, V> Map<K, V> newMap() {
+        return newMap(DEFAULT_INITIAL_SIZE);
+    }
+
+    default <K, V> Map<K, V> newMap(final int initialSize) {
+        return newMap(initialSize, DEFAULT_LOAD_FACTOR);
+    }
+
+    <K, V> Map<K, V> newMap(int initialSize, float loadFactor);
+
+    default <K, V> IFastIterableMap<K, V> newFastIterableMap() {
+        return newFastIterableMap(DEFAULT_INITIAL_SIZE);
+    }
+
+    default <K, V> IFastIterableMap<K, V> newFastIterableMap(final int initialSize) {
+        return newFastIterableMap(initialSize, DEFAULT_LOAD_FACTOR);
+    }
+
+    <K, V> IFastIterableMap<K, V> newFastIterableMap(int initialSize, float loadFactor);
+
+    default <K, V> Map<K, V> newLinkedMap() {
+        return newLinkedMap(DEFAULT_INITIAL_SIZE);
+    }
+
+    default <K, V> Map<K, V> newLinkedMap(final int initialSize) {
+        return newLinkedMap(initialSize, DEFAULT_LOAD_FACTOR);
+    }
+
+    <K, V> Map<K, V> newLinkedMap(int initialSize, float loadFactor);
+
+    default <K, V> Map<K, V> newConcurrentMap() {
+        return newConcurrentMap(DEFAULT_INITIAL_SIZE);
+    }
+
+    default <K, V> Map<K, V> newConcurrentMap(final int initialSize) {
+        return newConcurrentMap(initialSize, DEFAULT_LOAD_FACTOR);
+    }
+
+    <K, V> Map<K, V> newConcurrentMap(int initialSize, float loadFactor);
+
+    default <K, V> Map<K, V> newIdentityMap() {
+        return newIdentityMap(DEFAULT_INITIAL_SIZE_IDENTITY);
+    }
+
+    <K, V> Map<K, V> newIdentityMap(int initialSize);
+
+    default <K, V> IFastIterableMap<K, V> newFastIterableLinkedMap() {
+        return newFastIterableLinkedMap(DEFAULT_INITIAL_SIZE);
+    }
+
+    default <K, V> IFastIterableMap<K, V> newFastIterableLinkedMap(final int initialSize) {
+        return newFastIterableLinkedMap(initialSize, DEFAULT_LOAD_FACTOR);
+    }
+
+    <K, V> IFastIterableMap<K, V> newFastIterableLinkedMap(int initialSize, float loadFactor);
 
     <K, V> ALoadingCache<K, V> newLoadingCache(ALoadingCacheConfig<K, V> config);
 
