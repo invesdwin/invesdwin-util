@@ -2,10 +2,10 @@ package de.invesdwin.util.math.random;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import it.unimi.dsi.util.XoRoShiRo128PlusRandomGenerator;
+import it.unimi.dsi.util.XoShiRo256PlusRandomGenerator;
 
 @NotThreadSafe
-public class PseudoRandomGenerator extends XoRoShiRo128PlusRandomGenerator implements IRandomGenerator {
+public class PseudoRandomGenerator extends XoShiRo256PlusRandomGenerator implements IRandomGenerator {
 
     public PseudoRandomGenerator() {
         super();
