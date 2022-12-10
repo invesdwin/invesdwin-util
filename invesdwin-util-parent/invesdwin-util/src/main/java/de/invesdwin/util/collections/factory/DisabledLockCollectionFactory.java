@@ -92,6 +92,11 @@ public final class DisabledLockCollectionFactory implements ILockCollectionFacto
     }
 
     @Override
+    public <T> IFastIterableList<T> newFastIterableArrayList() {
+        return new FastIterableDelegateList<T>(newArrayList());
+    }
+
+    @Override
     public <T> IFastIterableList<T> newFastIterableArrayList(final int initialSize) {
         return new FastIterableDelegateList<T>(newArrayList(initialSize));
     }

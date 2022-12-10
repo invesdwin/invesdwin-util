@@ -59,6 +59,11 @@ public final class SynchronizedLockCollectionFactory implements ILockCollectionF
     }
 
     @Override
+    public <T> IFastIterableList<T> newFastIterableArrayList() {
+        return new SynchronizedFastIterableDelegateList<T>(DisabledLockCollectionFactory.INSTANCE.newArrayList());
+    }
+
+    @Override
     public <T> IFastIterableList<T> newFastIterableArrayList(final int initialSize) {
         return new SynchronizedFastIterableDelegateList<T>(
                 DisabledLockCollectionFactory.INSTANCE.newArrayList(initialSize));
