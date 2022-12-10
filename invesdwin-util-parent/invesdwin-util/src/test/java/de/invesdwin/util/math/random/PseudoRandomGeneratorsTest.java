@@ -66,7 +66,7 @@ public class PseudoRandomGeneratorsTest {
     //    L128X1024MixRandom: PT5.054.260.496S
     @Test
     public void testPerformance() throws Exception {
-        testRandomGenerator("Xoroshiro", new Callable<IRandomGenerator>() {
+        testRandomGenerator("Xorshiro", new Callable<IRandomGenerator>() {
             @Override
             public IRandomGenerator call() throws Exception {
                 return PseudoRandomGenerators.newPseudoRandom();
