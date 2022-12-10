@@ -10,11 +10,6 @@ import java.util.TreeMap;
 
 import javax.annotation.concurrent.Immutable;
 
-import com.koloboke.collect.impl.hash.LHashObjSetFactoryImpl;
-import com.koloboke.collect.impl.hash.LHashParallelKVObjObjMapFactoryImpl;
-import com.koloboke.collect.map.hash.HashObjObjMapFactory;
-import com.koloboke.collect.set.hash.HashObjSetFactory;
-
 import de.invesdwin.util.collections.Collections;
 import de.invesdwin.util.collections.bitset.IBitSet;
 import de.invesdwin.util.collections.bitset.JavaBitSet;
@@ -35,23 +30,21 @@ import de.invesdwin.util.concurrent.nested.DisabledNestedExecutor;
 import de.invesdwin.util.concurrent.nested.INestedExecutor;
 import de.invesdwin.util.lang.comparator.IComparator;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 
 @Immutable
 public final class DisabledLockCollectionFactory implements ILockCollectionFactory {
 
     public static final DisabledLockCollectionFactory INSTANCE = new DisabledLockCollectionFactory();
-    //ServiceLoader does not work properly during maven builds, thus directly reference the actual factories
-    private static final HashObjObjMapFactory<?, ?> KOLOBOKE_MAP_FACTORY = new LHashParallelKVObjObjMapFactoryImpl<Object, Object>();
-    private static final HashObjSetFactory<?> KOLOBOKE_SET_FACTORY = new LHashObjSetFactoryImpl<Object>();
     /**
      * At a few 100k elements the speed of roaring bitmap is similar to that of java bitset (about 20-30% slower instead
      * of 50%). Thus prefer the memory saver version at some threshold.
      */
     private static final int ROARING_BITMAP_THRESHOLD = 1_000_000;
 
-    private DisabledLockCollectionFactory() {
-    }
+    private DisabledLockCollectionFactory() {}
 
     @Override
     public ILock newLock(final String name) {
@@ -108,11 +101,10 @@ public final class DisabledLockCollectionFactory implements ILockCollectionFacto
         return new DisabledFastIterableArrayListWithSize<T>(expectedSize);
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
     public <K, V> Map<K, V> newMap() {
         //koboloke has the same memory efficiency as fastutil but is a bit faster
-        return (Map) KOLOBOKE_MAP_FACTORY.newMutableMap();
+        return new Object2ObjectOpenHashMap<>();
     }
 
     @Override
@@ -150,11 +142,10 @@ public final class DisabledLockCollectionFactory implements ILockCollectionFacto
         return new Object2ObjectLinkedOpenHashMap<>();
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
     public <T> Set<T> newSet() {
         //koboloke has the same memory efficiency as fastutil but is a bit faster
-        return (Set) KOLOBOKE_SET_FACTORY.newMutableSet();
+        return new ObjectOpenHashSet<>();
     }
 
     @Override

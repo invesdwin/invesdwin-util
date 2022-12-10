@@ -74,10 +74,6 @@
 			<groupId>it.unimi.dsi</groupId>
 			<artifactId>fastutil</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>com.koloboke</groupId>
-			<artifactId>koloboke-impl-jdk8</artifactId>
-		</dependency>
 
 		<dependency>
 			<groupId>org.apache.commons</groupId>
