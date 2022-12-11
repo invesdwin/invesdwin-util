@@ -1,12 +1,15 @@
 package de.invesdwin.util.collections.factory;
 
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.reflect.Constructor;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentHashMap.KeySetView;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.ConcurrentMapKeySetView;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -29,13 +32,32 @@ import de.invesdwin.util.concurrent.lock.readwrite.IReadWriteLock;
 import de.invesdwin.util.concurrent.nested.ANestedExecutor;
 import de.invesdwin.util.concurrent.nested.INestedExecutor;
 import de.invesdwin.util.lang.comparator.IComparator;
+import de.invesdwin.util.lang.reflection.Reflections;
 
 @Immutable
 public final class SynchronizedLockCollectionFactory implements ILockCollectionFactory {
 
     public static final SynchronizedLockCollectionFactory INSTANCE = new SynchronizedLockCollectionFactory();
 
+    private static final MethodHandle KEYSETVIEW_CONSTRUCTOR;
+
+    static {
+        KEYSETVIEW_CONSTRUCTOR = newKeySetViewConstructor();
+    }
+
     private SynchronizedLockCollectionFactory() {}
+
+    private static MethodHandle newKeySetViewConstructor() {
+        try {
+            @SuppressWarnings({ "unchecked", "rawtypes" })
+            final Constructor<KeySetView> keySetViewConstructor = (Constructor<KeySetView>) KeySetView.class
+                    .getDeclaredConstructors()[0];
+            Reflections.makeAccessible(keySetViewConstructor);
+            return MethodHandles.lookup().unreflectConstructor(keySetViewConstructor);
+        } catch (final Exception e) {
+            return null;
+        }
+    }
 
     @Override
     public ILock newLock(final String name) {
@@ -122,8 +144,16 @@ public final class SynchronizedLockCollectionFactory implements ILockCollectionF
 
     @Override
     public <T> Set<T> newConcurrentSet(final int initialSize, final float loadFactor) {
-        return new ConcurrentMapKeySetView<T, Boolean>(new ConcurrentHashMap<T, Boolean>(initialSize, loadFactor),
-                Boolean.TRUE);
+        if (KEYSETVIEW_CONSTRUCTOR != null) {
+            try {
+                return (Set<T>) KEYSETVIEW_CONSTRUCTOR
+                        .invoke(new ConcurrentHashMap<T, Boolean>(initialSize, loadFactor), Boolean.TRUE);
+            } catch (final Throwable e) {
+                throw new RuntimeException(e);
+            }
+        } else {
+            return ConcurrentHashMap.newKeySet(initialSize);
+        }
     }
 
     @Override
