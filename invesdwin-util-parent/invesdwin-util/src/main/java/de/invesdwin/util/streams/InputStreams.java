@@ -22,6 +22,7 @@ import io.netty.util.concurrent.FastThreadLocal;
 public final class InputStreams {
 
     public static final InputStream[] EMPTY_ARRAY = new InputStream[0];
+    public static final int MAX_READ_FULLY_TRIES = 1000;
     private static final FastThreadLocal<byte[]> LONG_BUFFER_HOLDER = new FastThreadLocal<byte[]>() {
         @Override
         protected byte[] initialValue() throws Exception {
@@ -214,6 +215,7 @@ public final class InputStreams {
             throws IOException {
         final int end = index + length;
         int remaining = length;
+        int tries = 0;
         while (remaining > 0) {
             final int location = end - remaining;
             final int count = src.read(array, location, remaining);
@@ -221,6 +223,10 @@ public final class InputStreams {
                 break;
             }
             remaining -= count;
+            tries++;
+            if (tries > MAX_READ_FULLY_TRIES) {
+                throw FastEOFException.getInstance("read tries exceeded");
+            }
         }
         if (remaining > 0) {
             throw ByteBuffers.newPutBytesToEOF();
@@ -231,12 +237,17 @@ public final class InputStreams {
             throws IOException {
         int remaining = byteBuffer.remaining();
         final int positionBefore = byteBuffer.position();
+        int tries = 0;
         while (remaining > 0) {
             final int count = src.read(byteBuffer);
             if (count == -1) { // EOF
                 break;
             }
             remaining -= count;
+            tries++;
+            if (tries > MAX_READ_FULLY_TRIES) {
+                throw FastEOFException.getInstance("read tries exceeded");
+            }
         }
         ByteBuffers.position(byteBuffer, positionBefore);
         if (remaining > 0) {

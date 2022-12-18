@@ -7,6 +7,7 @@ import java.nio.channels.WritableByteChannel;
 
 import javax.annotation.concurrent.Immutable;
 
+import de.invesdwin.util.error.FastEOFException;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 
@@ -16,8 +17,7 @@ import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 @Immutable
 public final class OutputStreams {
 
-    private OutputStreams() {
-    }
+    private OutputStreams() {}
 
     public static void write(final OutputStream out, final int b) throws IOException {
         out.write(b);
@@ -95,12 +95,17 @@ public final class OutputStreams {
             throws IOException {
         int remaining = byteBuffer.remaining();
         final int positionBefore = byteBuffer.position();
+        int tries = 0;
         while (remaining > 0) {
             final int count = dst.write(byteBuffer);
             if (count == -1) { // EOF
                 break;
             }
             remaining -= count;
+            tries++;
+            if (tries > InputStreams.MAX_READ_FULLY_TRIES) {
+                throw FastEOFException.getInstance("write tries exceeded");
+            }
         }
         ByteBuffers.position(byteBuffer, positionBefore);
         if (remaining > 0) {
