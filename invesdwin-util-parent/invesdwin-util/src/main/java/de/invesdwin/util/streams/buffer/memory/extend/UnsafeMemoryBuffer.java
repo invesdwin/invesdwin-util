@@ -289,7 +289,7 @@ public class UnsafeMemoryBuffer extends UnsafeMemoryBase implements IMemoryBuffe
             long i = index;
             while (i < length) {
                 final int result = src.read();
-                if (result == -1) {
+                if (result < 0) {
                     throw ByteBuffers.newPutBytesToEOF();
                 }
                 putByte(i, (byte) result);

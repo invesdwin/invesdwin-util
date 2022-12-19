@@ -456,14 +456,13 @@ public final class ByteBuffers {
         int location = index;
         while (true) {
             final int count = src.read(buffer.asNioByteBufferFrom(location));
-            if (count == -1) { // EOF
+            if (count < 0) { // EOF
                 break;
-            } else {
-                location += count;
-                final int capacity = buffer.capacity();
-                if (location == capacity) {
-                    buffer.ensureCapacity(capacity + count);
-                }
+            }
+            location += count;
+            final int capacity = buffer.capacity();
+            if (location == capacity) {
+                buffer.ensureCapacity(capacity + count);
             }
         }
         return location - index;
@@ -477,14 +476,13 @@ public final class ByteBuffers {
             int location = index;
             while (true) {
                 final int count = InputStreams.read(src, buffer.byteArray(), location, buffer.remaining(location));
-                if (count == -1) { // EOF
+                if (count < 0) { // EOF
                     break;
-                } else {
-                    location += count;
-                    final int capacity = buffer.capacity();
-                    if (location == capacity) {
-                        buffer.ensureCapacity(capacity + count);
-                    }
+                }
+                location += count;
+                final int capacity = buffer.capacity();
+                if (location == capacity) {
+                    buffer.ensureCapacity(capacity + count);
                 }
             }
             return location - index;
@@ -504,14 +502,13 @@ public final class ByteBuffers {
             int location = index;
             while (true) {
                 final int count = src.read(buffer.byteArray(), location, buffer.remaining(location));
-                if (count == -1) { // EOF
+                if (count < 0) { // EOF
                     break;
-                } else {
-                    location += count;
-                    final int capacity = buffer.capacity();
-                    if (location == capacity) {
-                        buffer.ensureCapacity(capacity + count);
-                    }
+                }
+                location += count;
+                final int capacity = buffer.capacity();
+                if (location == capacity) {
+                    buffer.ensureCapacity(capacity + count);
                 }
             }
             return location - index;

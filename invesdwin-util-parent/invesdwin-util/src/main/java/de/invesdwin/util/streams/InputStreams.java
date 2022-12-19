@@ -219,7 +219,7 @@ public final class InputStreams {
         while (remaining > 0) {
             final int location = end - remaining;
             final int count = src.read(array, location, remaining);
-            if (count == -1) { // EOF
+            if (count < 0) { // EOF
                 break;
             }
             remaining -= count;
@@ -240,7 +240,7 @@ public final class InputStreams {
         int tries = 0;
         while (remaining > 0) {
             final int count = src.read(byteBuffer);
-            if (count == -1) { // EOF
+            if (count < 0) { // EOF
                 break;
             }
             remaining -= count;

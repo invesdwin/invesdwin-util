@@ -347,7 +347,7 @@ public class UnsafeByteBuffer extends UnsafeBuffer implements IByteBuffer {
             int i = index;
             while (i < length) {
                 final int result = src.read();
-                if (result == -1) {
+                if (result < 0) {
                     throw ByteBuffers.newPutBytesToEOF();
                 }
                 putByte(i, (byte) result);
