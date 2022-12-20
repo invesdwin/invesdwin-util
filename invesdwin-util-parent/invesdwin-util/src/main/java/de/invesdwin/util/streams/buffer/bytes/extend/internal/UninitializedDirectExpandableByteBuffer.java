@@ -20,6 +20,7 @@ import org.agrona.io.DirectBufferInputStream;
 import org.agrona.io.DirectBufferOutputStream;
 import org.agrona.io.ExpandableDirectBufferOutputStream;
 
+import de.invesdwin.util.concurrent.loop.ASpinWait;
 import de.invesdwin.util.error.FastEOFException;
 import de.invesdwin.util.lang.uri.URIs;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
@@ -347,6 +348,7 @@ public class UninitializedDirectExpandableByteBuffer extends UninitializedExpand
                     } else if (timeout.isLessThanNanos(System.nanoTime() - zeroCountNanos)) {
                         throw FastEOFException.getInstance("write timeout exceeded");
                     }
+                    ASpinWait.onSpinWaitStatic();
                 } else {
                     zeroCountNanos = -1L;
                     putByte(i, (byte) result);
