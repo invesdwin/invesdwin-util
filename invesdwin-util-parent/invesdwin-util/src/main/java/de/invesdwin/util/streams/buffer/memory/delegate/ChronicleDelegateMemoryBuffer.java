@@ -18,6 +18,7 @@ import org.agrona.DirectBuffer;
 import org.agrona.MutableDirectBuffer;
 
 import de.invesdwin.util.error.Throwables;
+import de.invesdwin.util.lang.uri.URIs;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.UninitializedDirectByteBuffers;
@@ -30,6 +31,7 @@ import de.invesdwin.util.streams.buffer.memory.MemoryBuffers;
 import de.invesdwin.util.streams.buffer.memory.delegate.slice.SlicedDelegateMemoryBuffer;
 import de.invesdwin.util.streams.buffer.memory.delegate.slice.SlicedFromDelegateMemoryBuffer;
 import de.invesdwin.util.streams.buffer.memory.delegate.slice.mutable.factory.IMutableSlicedDelegateMemoryBufferFactory;
+import de.invesdwin.util.time.duration.Duration;
 import net.openhft.chronicle.bytes.BytesStore;
 
 @NotThreadSafe
@@ -617,11 +619,14 @@ public class ChronicleDelegateMemoryBuffer implements IMemoryBuffer {
         } else if (src instanceof DataInput) {
             putBytesTo(index, (DataInput) src, length);
         } else {
+            final Duration timeout = URIs.getDefaultNetworkTimeout();
+            final long zeroCountNanos = -1L;
+
             long i = index;
             while (i < length) {
                 final int result = src.read();
                 if (result < 0) {
-                    throw ByteBuffers.newPutBytesToEOF();
+                    throw ByteBuffers.newEOF();
                 }
                 delegate.writeByte(i, (byte) result);
                 i++;

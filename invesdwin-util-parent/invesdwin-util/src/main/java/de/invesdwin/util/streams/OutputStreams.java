@@ -7,8 +7,11 @@ import java.nio.channels.WritableByteChannel;
 
 import javax.annotation.concurrent.Immutable;
 
+import de.invesdwin.util.error.FastEOFException;
+import de.invesdwin.util.lang.uri.URIs;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
+import de.invesdwin.util.time.duration.Duration;
 
 /**
  * Extracted from java.io.DataOutputStream
@@ -92,6 +95,9 @@ public final class OutputStreams {
 
     public static void writeFully(final WritableByteChannel dst, final java.nio.ByteBuffer byteBuffer)
             throws IOException {
+        final Duration timeout = URIs.getDefaultNetworkTimeout();
+        long zeroCountNanos = -1L;
+
         int remaining = byteBuffer.remaining();
         final int positionBefore = byteBuffer.position();
         while (remaining > 0) {
@@ -99,11 +105,20 @@ public final class OutputStreams {
             if (count < 0) { // EOF
                 break;
             }
-            remaining -= count;
+            if (count == 0 && timeout != null) {
+                if (zeroCountNanos == -1) {
+                    zeroCountNanos = System.nanoTime();
+                } else if (timeout.isLessThanNanos(System.nanoTime() - zeroCountNanos)) {
+                    throw FastEOFException.getInstance("write timeout exceeded");
+                }
+            } else {
+                zeroCountNanos = -1L;
+                remaining -= count;
+            }
         }
         ByteBuffers.position(byteBuffer, positionBefore);
         if (remaining > 0) {
-            throw ByteBuffers.newPutBytesToEOF();
+            throw ByteBuffers.newEOF();
         }
     }
 

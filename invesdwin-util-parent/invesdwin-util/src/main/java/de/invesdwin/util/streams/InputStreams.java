@@ -11,8 +11,10 @@ import java.nio.channels.ReadableByteChannel;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.error.FastEOFException;
+import de.invesdwin.util.lang.uri.URIs;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
+import de.invesdwin.util.time.duration.Duration;
 import io.netty.util.concurrent.FastThreadLocal;
 
 /**
@@ -22,7 +24,6 @@ import io.netty.util.concurrent.FastThreadLocal;
 public final class InputStreams {
 
     public static final InputStream[] EMPTY_ARRAY = new InputStream[0];
-    public static final int MAX_READ_FULLY_TRIES = 1000;
     private static final FastThreadLocal<byte[]> LONG_BUFFER_HOLDER = new FastThreadLocal<byte[]>() {
         @Override
         protected byte[] initialValue() throws Exception {
@@ -213,45 +214,59 @@ public final class InputStreams {
 
     public static void readFully(final InputStream src, final byte[] array, final int index, final int length)
             throws IOException {
+        final Duration timeout = URIs.getDefaultNetworkTimeout();
+        long zeroCountNanos = -1L;
+
         final int end = index + length;
         int remaining = length;
-        int tries = 0;
         while (remaining > 0) {
             final int location = end - remaining;
             final int count = src.read(array, location, remaining);
             if (count < 0) { // EOF
                 break;
             }
-            remaining -= count;
-            tries++;
-            if (tries > MAX_READ_FULLY_TRIES) {
-                throw FastEOFException.getInstance("read tries exceeded");
+            if (count == 0 && timeout != null) {
+                if (zeroCountNanos == -1) {
+                    zeroCountNanos = System.nanoTime();
+                } else if (timeout.isLessThanNanos(System.nanoTime() - zeroCountNanos)) {
+                    throw FastEOFException.getInstance("read timeout exceeded");
+                }
+            } else {
+                zeroCountNanos = -1L;
+                remaining -= count;
             }
         }
         if (remaining > 0) {
-            throw ByteBuffers.newPutBytesToEOF();
+            throw ByteBuffers.newEOF();
         }
     }
 
     public static void readFully(final ReadableByteChannel src, final java.nio.ByteBuffer byteBuffer)
             throws IOException {
+        final Duration timeout = URIs.getDefaultNetworkTimeout();
+        long zeroCountNanos = -1L;
+
         int remaining = byteBuffer.remaining();
         final int positionBefore = byteBuffer.position();
-        int tries = 0;
         while (remaining > 0) {
             final int count = src.read(byteBuffer);
             if (count < 0) { // EOF
                 break;
             }
-            remaining -= count;
-            tries++;
-            if (tries > MAX_READ_FULLY_TRIES) {
-                throw FastEOFException.getInstance("read tries exceeded");
+            if (count == 0 && timeout != null) {
+                if (zeroCountNanos == -1) {
+                    zeroCountNanos = System.nanoTime();
+                } else if (timeout.isLessThanNanos(System.nanoTime() - zeroCountNanos)) {
+                    throw FastEOFException.getInstance("read timeout exceeded");
+                }
+            } else {
+                zeroCountNanos = -1L;
+                remaining -= count;
             }
         }
         ByteBuffers.position(byteBuffer, positionBefore);
         if (remaining > 0) {
-            throw ByteBuffers.newPutBytesToEOF();
+            throw ByteBuffers.newEOF();
         }
     }
 

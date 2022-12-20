@@ -21,7 +21,9 @@ import org.agrona.io.DirectBufferInputStream;
 import org.agrona.io.DirectBufferOutputStream;
 import org.agrona.io.ExpandableDirectBufferOutputStream;
 
+import de.invesdwin.util.error.FastEOFException;
 import de.invesdwin.util.error.Throwables;
+import de.invesdwin.util.lang.uri.URIs;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import de.invesdwin.util.streams.buffer.bytes.EmptyByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
@@ -29,6 +31,7 @@ import de.invesdwin.util.streams.buffer.bytes.delegate.slice.SlicedFromDelegateB
 import de.invesdwin.util.streams.buffer.bytes.delegate.slice.mutable.factory.IMutableSlicedDelegateByteBufferFactory;
 import de.invesdwin.util.streams.buffer.memory.IMemoryBuffer;
 import de.invesdwin.util.streams.buffer.memory.delegate.ByteDelegateMemoryBuffer;
+import de.invesdwin.util.time.duration.Duration;
 
 @NotThreadSafe
 public class AgronaDelegateMutableByteBuffer implements IByteBuffer {
@@ -643,14 +646,26 @@ public class AgronaDelegateMutableByteBuffer implements IByteBuffer {
         } else if (src instanceof DataInput) {
             putBytesTo(index, (DataInput) src, length);
         } else {
+            final Duration timeout = URIs.getDefaultNetworkTimeout();
+            long zeroCountNanos = -1L;
+
             int i = index;
             while (i < length) {
                 final int result = src.read();
-                if (result < 0) {
-                    throw ByteBuffers.newPutBytesToEOF();
+                if (result < 0) { // EOF
+                    throw ByteBuffers.newEOF();
                 }
-                delegate.putByte(i, (byte) result);
-                i++;
+                if (result == 0 && timeout != null) {
+                    if (zeroCountNanos == -1) {
+                        zeroCountNanos = System.nanoTime();
+                    } else if (timeout.isLessThanNanos(System.nanoTime() - zeroCountNanos)) {
+                        throw FastEOFException.getInstance("write timeout exceeded");
+                    }
+                } else {
+                    zeroCountNanos = -1L;
+                    delegate.putByte(i, (byte) result);
+                    i++;
+                }
             }
         }
     }

@@ -16,6 +16,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 import org.agrona.DirectBuffer;
 import org.agrona.MutableDirectBuffer;
 
+import de.invesdwin.util.lang.uri.URIs;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
@@ -30,6 +31,7 @@ import de.invesdwin.util.streams.buffer.memory.MemoryBuffers;
 import de.invesdwin.util.streams.buffer.memory.delegate.slice.mutable.factory.FixedMutableSlicedDelegateMemoryBufferFactory;
 import de.invesdwin.util.streams.buffer.memory.delegate.slice.mutable.factory.IMutableSlicedDelegateMemoryBufferFactory;
 import de.invesdwin.util.streams.buffer.memory.extend.internal.UnsafeMemoryBase;
+import de.invesdwin.util.time.duration.Duration;
 
 @NotThreadSafe
 public class UnsafeMemoryBuffer extends UnsafeMemoryBase implements IMemoryBuffer {
@@ -286,11 +288,14 @@ public class UnsafeMemoryBuffer extends UnsafeMemoryBase implements IMemoryBuffe
         } else if (src instanceof DataInput) {
             putBytesTo(index, (DataInput) src, length);
         } else {
+            final Duration timeout = URIs.getDefaultNetworkTimeout();
+            final long zeroCountNanos = -1L;
+
             long i = index;
             while (i < length) {
                 final int result = src.read();
                 if (result < 0) {
-                    throw ByteBuffers.newPutBytesToEOF();
+                    throw ByteBuffers.newEOF();
                 }
                 putByte(i, (byte) result);
                 i++;

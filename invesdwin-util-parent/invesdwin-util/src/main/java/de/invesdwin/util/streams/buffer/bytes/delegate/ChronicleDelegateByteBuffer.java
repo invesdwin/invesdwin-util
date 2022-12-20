@@ -18,7 +18,9 @@ import org.agrona.DirectBuffer;
 import org.agrona.ExpandableArrayBuffer;
 import org.agrona.MutableDirectBuffer;
 
+import de.invesdwin.util.error.FastEOFException;
 import de.invesdwin.util.error.Throwables;
+import de.invesdwin.util.lang.uri.URIs;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import de.invesdwin.util.streams.buffer.bytes.EmptyByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
@@ -30,6 +32,7 @@ import de.invesdwin.util.streams.buffer.bytes.extend.ArrayExpandableByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.extend.UnsafeByteBuffer;
 import de.invesdwin.util.streams.buffer.memory.IMemoryBuffer;
 import de.invesdwin.util.streams.buffer.memory.delegate.ChronicleDelegateMemoryBuffer;
+import de.invesdwin.util.time.duration.Duration;
 import net.openhft.chronicle.bytes.BytesStore;
 
 @NotThreadSafe
@@ -673,15 +676,27 @@ public class ChronicleDelegateByteBuffer implements IByteBuffer {
         } else if (src instanceof DataInput) {
             putBytesTo(index, (DataInput) src, length);
         } else {
+            final Duration timeout = URIs.getDefaultNetworkTimeout();
+            long zeroCountNanos = -1L;
+
             ensureCapacity(index, length);
             int i = index;
             while (i < length) {
                 final int result = src.read();
-                if (result < 0) {
-                    throw ByteBuffers.newPutBytesToEOF();
+                if (result < 0) { // EOF
+                    throw ByteBuffers.newEOF();
                 }
-                delegate.writeByte(i, (byte) result);
-                i++;
+                if (result == 0 && timeout != null) {
+                    if (zeroCountNanos == -1) {
+                        zeroCountNanos = System.nanoTime();
+                    } else if (timeout.isLessThanNanos(System.nanoTime() - zeroCountNanos)) {
+                        throw FastEOFException.getInstance("write timeout exceeded");
+                    }
+                } else {
+                    zeroCountNanos = -1L;
+                    delegate.writeByte(i, (byte) result);
+                    i++;
+                }
             }
         }
     }

@@ -25,6 +25,7 @@ import de.invesdwin.util.error.FastEOFException;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.lang.reflection.Reflections;
 import de.invesdwin.util.lang.string.Charsets;
+import de.invesdwin.util.lang.uri.URIs;
 import de.invesdwin.util.math.Bytes;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.streams.InputStreams;
@@ -36,6 +37,7 @@ import de.invesdwin.util.streams.buffer.bytes.extend.UnsafeByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.extend.internal.DirectExpandableByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.extend.internal.UninitializedDirectByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.extend.internal.UninitializedDirectExpandableByteBuffer;
+import de.invesdwin.util.time.duration.Duration;
 
 @Immutable
 public final class ByteBuffers {
@@ -316,8 +318,8 @@ public final class ByteBuffers {
         return new String(bytes, Charsets.US_ASCII);
     }
 
-    public static FastEOFException newPutBytesToEOF() {
-        return FastEOFException.getInstance("putBytesTo: src.read() returned -1");
+    public static FastEOFException newEOF() {
+        return FastEOFException.getInstance("src.read() or dst.write() returned negative count");
     }
 
     public static byte[] asByteArrayCopyGet(final IByteBuffer buffer, final int index, final int length) {
@@ -455,14 +457,26 @@ public final class ByteBuffers {
             throws IOException {
         int location = index;
         while (true) {
+            final Duration timeout = URIs.getDefaultNetworkTimeout();
+            long zeroCountNanos = -1L;
+
             final int count = src.read(buffer.asNioByteBufferFrom(location));
             if (count < 0) { // EOF
                 break;
             }
-            location += count;
-            final int capacity = buffer.capacity();
-            if (location == capacity) {
-                buffer.ensureCapacity(capacity + count);
+            if (count == 0 && timeout != null) {
+                if (zeroCountNanos == -1) {
+                    zeroCountNanos = System.nanoTime();
+                } else if (timeout.isLessThanNanos(System.nanoTime() - zeroCountNanos)) {
+                    throw FastEOFException.getInstance("read timeout exceeded");
+                }
+            } else {
+                zeroCountNanos = -1L;
+                location += count;
+                final int capacity = buffer.capacity();
+                if (location == capacity) {
+                    buffer.ensureCapacity(capacity + count);
+                }
             }
         }
         return location - index;
@@ -473,16 +487,28 @@ public final class ByteBuffers {
         if (src instanceof ReadableByteChannel) {
             return readExpandable((ReadableByteChannel) src, buffer, index);
         } else {
+            final Duration timeout = URIs.getDefaultNetworkTimeout();
+            long zeroCountNanos = -1L;
+
             int location = index;
             while (true) {
                 final int count = InputStreams.read(src, buffer.byteArray(), location, buffer.remaining(location));
                 if (count < 0) { // EOF
                     break;
                 }
-                location += count;
-                final int capacity = buffer.capacity();
-                if (location == capacity) {
-                    buffer.ensureCapacity(capacity + count);
+                if (count == 0 && timeout != null) {
+                    if (zeroCountNanos == -1) {
+                        zeroCountNanos = System.nanoTime();
+                    } else if (timeout.isLessThanNanos(System.nanoTime() - zeroCountNanos)) {
+                        throw FastEOFException.getInstance("read timeout exceeded");
+                    }
+                } else {
+                    zeroCountNanos = -1L;
+                    location += count;
+                    final int capacity = buffer.capacity();
+                    if (location == capacity) {
+                        buffer.ensureCapacity(capacity + count);
+                    }
                 }
             }
             return location - index;
@@ -499,16 +525,28 @@ public final class ByteBuffers {
         } else if (src instanceof DataInput) {
             return readExpandable((DataInput) src, buffer, index);
         } else {
+            final Duration timeout = URIs.getDefaultNetworkTimeout();
+            long zeroCountNanos = -1L;
+
             int location = index;
             while (true) {
                 final int count = src.read(buffer.byteArray(), location, buffer.remaining(location));
                 if (count < 0) { // EOF
                     break;
                 }
-                location += count;
-                final int capacity = buffer.capacity();
-                if (location == capacity) {
-                    buffer.ensureCapacity(capacity + count);
+                if (count == 0 && timeout != null) {
+                    if (zeroCountNanos == -1) {
+                        zeroCountNanos = System.nanoTime();
+                    } else if (timeout.isLessThanNanos(System.nanoTime() - zeroCountNanos)) {
+                        throw FastEOFException.getInstance("write timeout exceeded");
+                    }
+                } else {
+                    zeroCountNanos = -1L;
+                    location += count;
+                    final int capacity = buffer.capacity();
+                    if (location == capacity) {
+                        buffer.ensureCapacity(capacity + count);
+                    }
                 }
             }
             return location - index;
