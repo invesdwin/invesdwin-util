@@ -133,4 +133,12 @@ public class ComparableString<E extends Comparable>
         }
     }
 
+    public static <T extends Comparable> T extractComparable(final ComparableString<T> comparableString) {
+        if (comparableString != null) {
+            return comparableString.getComparable();
+        } else {
+            return null;
+        }
+    }
+
 }
