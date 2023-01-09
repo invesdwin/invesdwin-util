@@ -16,6 +16,7 @@ import javax.swing.AbstractButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JSpinner;
+import javax.swing.JSpinner.DefaultEditor;
 import javax.swing.JTable;
 import javax.swing.SwingUtilities;
 import javax.swing.ToolTipManager;
@@ -103,6 +104,7 @@ public final class Components {
 
     public static void setToolTipText(final JComponent component, final String text, final boolean update,
             final ToolTipFormatter formatter) {
+        final JComponent tooltipComponent = getTooltipComponent(component);
         final String htmlText;
         if (text != null) {
             final String htmlTag = "<html>";
@@ -121,12 +123,24 @@ public final class Components {
         } else {
             htmlText = text;
         }
-        if (!Objects.equals(component.getToolTipText(), htmlText)) {
-            component.setToolTipText(htmlText);
+        if (!Objects.equals(tooltipComponent.getToolTipText(), htmlText)) {
+            tooltipComponent.setToolTipText(htmlText);
             if (update) {
-                updateToolTip(component);
+                updateToolTip(tooltipComponent);
             }
         }
+    }
+
+    public static JComponent getTooltipComponent(final JComponent component) {
+        if (component instanceof JSpinner) {
+            final JSpinner cComponent = (JSpinner) component;
+            final JComponent editor = cComponent.getEditor();
+            if (editor instanceof DefaultEditor) {
+                final DefaultEditor cEditor = (DefaultEditor) editor;
+                return cEditor.getTextField();
+            }
+        }
+        return component;
     }
 
     public static void updateToolTip(final JComponent component) {
