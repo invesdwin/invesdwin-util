@@ -28,14 +28,23 @@ import de.invesdwin.util.time.duration.Duration;
         com.google.common.util.concurrent.Futures.class })
 public final class Futures extends AFuturesStaticFacade {
 
+    @SuppressWarnings("rawtypes")
     public static final FutureTask[] FUTURETASK_EMPTY_ARRAY = new FutureTask[0];
 
-    private Futures() {
-    }
+    private Futures() {}
 
     public static <T> T get(final Future<T> future) throws InterruptedException {
         try {
-            return future.get();
+            while (true) {
+                try {
+                    return future.get(1, TimeUnit.MILLISECONDS);
+                } catch (final TimeoutException e) {
+                    /*
+                     * retry, we use polling to prevent deadlock in TrustedListenableFutureTask (despite the value being
+                     * set already it sometimes waits endlessly; though might only happen during debugging)
+                     */
+                }
+            }
         } catch (final InterruptedException e) {
             future.cancel(true);
             throw e;
