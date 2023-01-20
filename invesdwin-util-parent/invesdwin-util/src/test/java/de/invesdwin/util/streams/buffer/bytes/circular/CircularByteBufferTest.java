@@ -5,6 +5,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 import org.junit.jupiter.api.Test;
 
 import de.invesdwin.util.assertions.Assertions;
+import de.invesdwin.util.collections.circular.CircularByteBuffer;
 import de.invesdwin.util.math.Bytes;
 
 @NotThreadSafe
