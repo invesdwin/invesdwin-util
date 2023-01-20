@@ -97,10 +97,10 @@ public abstract class ABufferingRetrievalCloseableIterable<T> implements IClosea
                     throw new NullPointerException(
                             "ABufferingRetrievalCloseableIterable: nextDate is null for [" + next + "]");
                 }
-                if (!curDate.equals(fromDate) && curDate.equals(nextDate)) {
+                if (!curDate.equals(fromDate) && nextDate.isBeforeNotNullSafe(curDate)) {
                     close();
                     throw FastNoSuchElementException
-                            .getInstance("ABufferingRetrievalCloseableIterable: nextDate is same as curDate");
+                            .getInstance("ABufferingRetrievalCloseableIterable: nextDate is before as curDate");
                 } else {
                     curDate = nextDate;
                     return next;
