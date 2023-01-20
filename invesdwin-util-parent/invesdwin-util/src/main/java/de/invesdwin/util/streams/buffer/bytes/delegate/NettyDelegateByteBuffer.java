@@ -17,8 +17,6 @@ import org.agrona.BufferUtil;
 import org.agrona.DirectBuffer;
 import org.agrona.ExpandableArrayBuffer;
 import org.agrona.MutableDirectBuffer;
-import org.agrona.io.DirectBufferInputStream;
-import org.agrona.io.DirectBufferOutputStream;
 
 import de.invesdwin.util.concurrent.loop.ASpinWait;
 import de.invesdwin.util.error.FastEOFException;
@@ -32,6 +30,9 @@ import de.invesdwin.util.streams.buffer.bytes.delegate.slice.SlicedDelegateByteB
 import de.invesdwin.util.streams.buffer.bytes.delegate.slice.SlicedFromDelegateByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.delegate.slice.mutable.factory.IMutableSlicedDelegateByteBufferFactory;
 import de.invesdwin.util.streams.buffer.bytes.extend.UnsafeByteBuffer;
+import de.invesdwin.util.streams.buffer.bytes.stream.ByteBufferInputStream;
+import de.invesdwin.util.streams.buffer.bytes.stream.ByteBufferOutputStream;
+import de.invesdwin.util.streams.buffer.bytes.stream.ExpandableByteBufferOutputStream;
 import de.invesdwin.util.streams.buffer.memory.IMemoryBuffer;
 import de.invesdwin.util.streams.buffer.memory.delegate.ByteDelegateMemoryBuffer;
 import de.invesdwin.util.time.duration.Duration;
@@ -360,16 +361,16 @@ public class NettyDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public InputStream asInputStream(final int index, final int length) {
-        return new DirectBufferInputStream(asDirectBuffer(), index, length);
+        return new ByteBufferInputStream(this, index, length);
     }
 
     @Override
     public OutputStream asOutputStream(final int index, final int length) {
         if (isExpandable() && index + length >= capacity()) {
             //allow output stream to actually grow the buffer
-            return new DirectBufferOutputStream(asDirectBuffer(), index, Integer.MAX_VALUE);
+            return new ExpandableByteBufferOutputStream(this, index);
         } else {
-            return new DirectBufferOutputStream(asDirectBuffer(), index, length);
+            return new ByteBufferOutputStream(this, index, length);
         }
     }
 

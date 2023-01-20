@@ -33,8 +33,7 @@ public final class EmptyByteBuffer implements IByteBuffer {
 
     public static final EmptyByteBuffer INSTANCE = new EmptyByteBuffer();
 
-    private EmptyByteBuffer() {
-    }
+    private EmptyByteBuffer() {}
 
     @Override
     public ByteOrder getOrder() {
@@ -467,7 +466,7 @@ public final class EmptyByteBuffer implements IByteBuffer {
         throw newEmptyException();
     }
 
-    private IndexOutOfBoundsException newEmptyException() {
+    public static IndexOutOfBoundsException newEmptyException() {
         return new IndexOutOfBoundsException("empty");
     }
 

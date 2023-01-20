@@ -25,7 +25,7 @@ import io.netty.util.concurrent.FastThreadLocal;
 public final class InputStreams {
 
     public static final InputStream[] EMPTY_ARRAY = new InputStream[0];
-    private static final FastThreadLocal<byte[]> LONG_BUFFER_HOLDER = new FastThreadLocal<byte[]>() {
+    public static final FastThreadLocal<byte[]> LONG_BUFFER_HOLDER = new FastThreadLocal<byte[]>() {
         @Override
         protected byte[] initialValue() throws Exception {
             return ByteBuffers.allocateByteArray(8);
@@ -171,12 +171,7 @@ public final class InputStreams {
     }
 
     public static char readChar(final InputStream in) throws IOException {
-        final int ch1 = in.read();
-        final int ch2 = in.read();
-        if ((ch1 | ch2) < 0) {
-            throw FastEOFException.getInstance("end reached");
-        }
-        return (char) ((ch1 << 8) + (ch2 << 0));
+        return (char) readShort(in);
     }
 
     public static int readInt(final InputStream in) throws IOException {
