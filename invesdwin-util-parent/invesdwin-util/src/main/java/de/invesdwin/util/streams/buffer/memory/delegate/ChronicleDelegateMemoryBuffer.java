@@ -507,35 +507,36 @@ public class ChronicleDelegateMemoryBuffer implements IMemoryBuffer {
     }
 
     @Override
-    public String getStringAsciii(final long index, final int length) {
+    public String getStringAscii(final long index, final int length) {
         final byte[] bytes = ByteBuffers.allocateByteArray(length);
         getBytes(index, bytes, 0, length);
         return ByteBuffers.newStringAscii(bytes);
     }
 
     @Override
-    public void getStringAsciii(final long index, final int length, final Appendable dst) {
+    public int getStringAscii(final long index, final int length, final Appendable dst) {
         try {
             final long limit = index + length;
             for (long i = index; i < limit; i++) {
                 final char c = (char) delegate.readByte(i);
                 dst.append(c > 127 ? '?' : c);
             }
+            return length;
         } catch (final IOException e) {
             throw Throwables.propagate(e);
         }
     }
 
     @Override
-    public void putStringAsciii(final long index, final CharSequence value, final int valueIndex, final int length) {
+    public int putStringAscii(final long index, final CharSequence value, final int valueIndex, final int length) {
         for (int i = 0; i < length; i++) {
             char c = value.charAt(valueIndex + i);
             if (c > 127) {
                 c = '?';
             }
-
             delegate.writeByte(index + i, (byte) c);
         }
+        return length;
     }
 
     @Override
@@ -553,13 +554,14 @@ public class ChronicleDelegateMemoryBuffer implements IMemoryBuffer {
     }
 
     @Override
-    public void getStringUtf8(final long index, final int length, final Appendable dst) {
+    public int getStringUtf8(final long index, final int length, final Appendable dst) {
         final String string = getStringUtf8(index, length);
         try {
             dst.append(string);
         } catch (final IOException e) {
             throw Throwables.propagate(e);
         }
+        return length;
     }
 
     @Override

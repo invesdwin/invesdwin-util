@@ -312,18 +312,18 @@ public final class OrderedDelegateMemoryBuffer implements IMemoryBuffer {
     }
 
     @Override
-    public String getStringAsciii(final long index, final int size) {
-        return delegate.getStringAsciii(index, size);
+    public String getStringAscii(final long index, final int size) {
+        return delegate.getStringAscii(index, size);
     }
 
     @Override
-    public void getStringAsciii(final long index, final int length, final Appendable dst) {
-        delegate.getStringAsciii(index, length, dst);
+    public int getStringAscii(final long index, final int length, final Appendable dst) {
+        return delegate.getStringAscii(index, length, dst);
     }
 
     @Override
-    public void putStringAsciii(final long index, final CharSequence value, final int valueIndex, final int length) {
-        delegate.putStringAsciii(index, value, valueIndex, length);
+    public int putStringAscii(final long index, final CharSequence value, final int valueIndex, final int length) {
+        return delegate.putStringAscii(index, value, valueIndex, length);
     }
 
     @Override
@@ -337,8 +337,8 @@ public final class OrderedDelegateMemoryBuffer implements IMemoryBuffer {
     }
 
     @Override
-    public void getStringUtf8(final long index, final int length, final Appendable dst) {
-        delegate.getStringUtf8(index, length, dst);
+    public int getStringUtf8(final long index, final int length, final Appendable dst) {
+        return delegate.getStringUtf8(index, length, dst);
     }
 
     @Override

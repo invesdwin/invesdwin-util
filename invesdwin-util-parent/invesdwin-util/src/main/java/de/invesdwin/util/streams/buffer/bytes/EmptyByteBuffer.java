@@ -387,7 +387,7 @@ public final class EmptyByteBuffer implements IByteBuffer {
     }
 
     @Override
-    public String getStringAsciii(final int index, final int length) {
+    public String getStringAscii(final int index, final int length) {
         if (index == 0 && length == 0) {
             return "";
         }
@@ -395,17 +395,17 @@ public final class EmptyByteBuffer implements IByteBuffer {
     }
 
     @Override
-    public void getStringAsciii(final int index, final int length, final Appendable dst) {
+    public int getStringAscii(final int index, final int length, final Appendable dst) {
         if (index == 0 && length == 0) {
-            return;
+            return 0;
         }
         throw newEmptyException();
     }
 
     @Override
-    public void putStringAsciii(final int index, final CharSequence value, final int valueIndex, final int length) {
+    public int putStringAscii(final int index, final CharSequence value, final int valueIndex, final int length) {
         if (index == 0 && length == 0) {
-            return;
+            return 0;
         }
         throw newEmptyException();
     }
@@ -427,9 +427,9 @@ public final class EmptyByteBuffer implements IByteBuffer {
     }
 
     @Override
-    public void getStringUtf8(final int index, final int length, final Appendable dst) {
+    public int getStringUtf8(final int index, final int length, final Appendable dst) {
         if (index == 0 && length == 0) {
-            return;
+            return 0;
         }
         throw newEmptyException();
     }

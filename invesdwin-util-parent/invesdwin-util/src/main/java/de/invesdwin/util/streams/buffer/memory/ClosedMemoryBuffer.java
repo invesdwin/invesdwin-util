@@ -318,17 +318,17 @@ public class ClosedMemoryBuffer implements IMemoryBuffer {
     }
 
     @Override
-    public String getStringAsciii(final long index, final int length) {
+    public String getStringAscii(final long index, final int length) {
         throw newClosedException();
     }
 
     @Override
-    public void getStringAsciii(final long index, final int length, final Appendable dst) {
+    public int getStringAscii(final long index, final int length, final Appendable dst) {
         throw newClosedException();
     }
 
     @Override
-    public void putStringAsciii(final long index, final CharSequence value, final int valueIndex, final int length) {
+    public int putStringAscii(final long index, final CharSequence value, final int valueIndex, final int length) {
         throw newClosedException();
     }
 
@@ -343,7 +343,7 @@ public class ClosedMemoryBuffer implements IMemoryBuffer {
     }
 
     @Override
-    public void getStringUtf8(final long index, final int length, final Appendable dst) {
+    public int getStringUtf8(final long index, final int length, final Appendable dst) {
         throw newClosedException();
     }
 

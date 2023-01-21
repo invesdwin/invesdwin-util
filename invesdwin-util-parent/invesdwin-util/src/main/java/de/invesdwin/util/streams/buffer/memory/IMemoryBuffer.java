@@ -341,35 +341,35 @@ public interface IMemoryBuffer extends IMemoryBufferWriter {
      * This is more efficient than getStringUtf8(...) because it creates less garbage. Thout only works together with
      * putStringAscii(...).
      */
-    String getStringAsciii(long index, int length);
+    String getStringAscii(long index, int length);
 
     /**
      * Ascii strings can be directly appended to a StringBuilder for even more efficiency.
      */
-    void getStringAsciii(long index, int length, Appendable dst);
+    int getStringAscii(long index, int length, Appendable dst);
 
-    default void putStringAsciii(final long index, final CharSequence value) {
-        putStringAsciiiTo(index, value, ByteBuffers.newStringAsciiLength(value));
+    default int putStringAscii(final long index, final CharSequence value) {
+        return putStringAsciiTo(index, value, ByteBuffers.newStringAsciiLength(value));
     }
 
-    default void putStringAsciiiFrom(final long index, final CharSequence value, final int valueIndex) {
-        putStringAsciii(index, value, valueIndex, ByteBuffers.newStringAsciiLength(value) - valueIndex);
+    default int putStringAsciiFrom(final long index, final CharSequence value, final int valueIndex) {
+        return putStringAscii(index, value, valueIndex, ByteBuffers.newStringAsciiLength(value) - valueIndex);
     }
 
-    default void putStringAsciiiTo(final long index, final CharSequence value, final int length) {
-        putStringAsciii(index, value, 0, length);
+    default int putStringAsciiTo(final long index, final CharSequence value, final int length) {
+        return putStringAscii(index, value, 0, length);
     }
 
     /**
      * This is more efficient than putStringUtf8(...) but replaces non ascii characters with '?'.
      */
-    void putStringAsciii(long index, CharSequence value, int valueIndex, int length);
+    int putStringAscii(long index, CharSequence value, int valueIndex, int length);
 
     int putStringUtf8(long index, String value);
 
     String getStringUtf8(long index, int length);
 
-    void getStringUtf8(long index, int length, Appendable dst);
+    int getStringUtf8(long index, int length, Appendable dst);
 
     default void getBytes(final long index, final DataOutputStream dst) throws IOException {
         getBytesTo(index, dst, capacity());

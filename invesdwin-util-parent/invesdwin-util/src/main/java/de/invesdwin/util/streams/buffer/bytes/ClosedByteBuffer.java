@@ -399,17 +399,17 @@ public class ClosedByteBuffer implements IByteBuffer {
     }
 
     @Override
-    public String getStringAsciii(final int index, final int length) {
+    public String getStringAscii(final int index, final int length) {
         throw newClosedException();
     }
 
     @Override
-    public void getStringAsciii(final int index, final int length, final Appendable dst) {
+    public int getStringAscii(final int index, final int length, final Appendable dst) {
         throw newClosedException();
     }
 
     @Override
-    public void putStringAsciii(final int index, final CharSequence value, final int valueIndex, final int length) {
+    public int putStringAscii(final int index, final CharSequence value, final int valueIndex, final int length) {
         throw newClosedException();
     }
 
@@ -424,7 +424,7 @@ public class ClosedByteBuffer implements IByteBuffer {
     }
 
     @Override
-    public void getStringUtf8(final int index, final int length, final Appendable dst) {
+    public int getStringUtf8(final int index, final int length, final Appendable dst) {
         throw newClosedException();
     }
 

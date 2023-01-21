@@ -335,18 +335,18 @@ public class SlicedDelegateByteBuffer implements IByteBuffer {
     }
 
     @Override
-    public String getStringAsciii(final int index, final int length) {
-        return delegate.getStringAsciii(index + from, length);
+    public String getStringAscii(final int index, final int length) {
+        return delegate.getStringAscii(index + from, length);
     }
 
     @Override
-    public void getStringAsciii(final int index, final int length, final Appendable dst) {
-        delegate.getStringAsciii(index + from, length, dst);
+    public int getStringAscii(final int index, final int length, final Appendable dst) {
+        return delegate.getStringAscii(index + from, length, dst);
     }
 
     @Override
-    public void putStringAsciii(final int index, final CharSequence value, final int valueIndex, final int length) {
-        delegate.putStringAsciii(index + from, value, valueIndex, length);
+    public int putStringAscii(final int index, final CharSequence value, final int valueIndex, final int length) {
+        return delegate.putStringAscii(index + from, value, valueIndex, length);
     }
 
     @Override
@@ -360,8 +360,8 @@ public class SlicedDelegateByteBuffer implements IByteBuffer {
     }
 
     @Override
-    public void getStringUtf8(final int index, final int length, final Appendable dst) {
-        delegate.getStringUtf8(index + from, length, dst);
+    public int getStringUtf8(final int index, final int length, final Appendable dst) {
+        return delegate.getStringUtf8(index + from, length, dst);
     }
 
     @Override

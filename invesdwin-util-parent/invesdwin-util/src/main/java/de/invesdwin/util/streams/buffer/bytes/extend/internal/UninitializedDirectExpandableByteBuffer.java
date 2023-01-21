@@ -240,18 +240,18 @@ public class UninitializedDirectExpandableByteBuffer extends UninitializedExpand
     }
 
     @Override
-    public String getStringAsciii(final int index, final int length) {
+    public String getStringAscii(final int index, final int length) {
         return getStringWithoutLengthAscii(index, length);
     }
 
     @Override
-    public void getStringAsciii(final int index, final int length, final Appendable dst) {
-        getStringWithoutLengthAscii(index, length, dst);
+    public int getStringAscii(final int index, final int length, final Appendable dst) {
+        return getStringWithoutLengthAscii(index, length, dst);
     }
 
     @Override
-    public void putStringAsciii(final int index, final CharSequence value, final int valueIndex, final int length) {
-        putStringWithoutLengthAscii(index, value, valueIndex, length);
+    public int putStringAscii(final int index, final CharSequence value, final int valueIndex, final int length) {
+        return putStringWithoutLengthAscii(index, value, valueIndex, length);
     }
 
     @Override
@@ -265,13 +265,14 @@ public class UninitializedDirectExpandableByteBuffer extends UninitializedExpand
     }
 
     @Override
-    public void getStringUtf8(final int index, final int length, final Appendable dst) {
+    public int getStringUtf8(final int index, final int length, final Appendable dst) {
         final String string = getStringWithoutLengthUtf8(index, length);
         try {
             dst.append(string);
         } catch (final IOException e) {
             throw new RuntimeException(e);
         }
+        return length;
     }
 
     @Override

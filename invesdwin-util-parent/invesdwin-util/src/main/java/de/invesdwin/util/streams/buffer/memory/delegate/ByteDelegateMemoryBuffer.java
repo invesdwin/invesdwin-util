@@ -310,18 +310,18 @@ public class ByteDelegateMemoryBuffer implements IMemoryBuffer {
     }
 
     @Override
-    public String getStringAsciii(final long index, final int length) {
-        return delegate.getStringAsciii(Integers.checkedCast(index), length);
+    public String getStringAscii(final long index, final int length) {
+        return delegate.getStringAscii(Integers.checkedCast(index), length);
     }
 
     @Override
-    public void getStringAsciii(final long index, final int length, final Appendable dst) {
-        delegate.getStringAsciii(Integers.checkedCast(index), length, dst);
+    public int getStringAscii(final long index, final int length, final Appendable dst) {
+        return delegate.getStringAscii(Integers.checkedCast(index), length, dst);
     }
 
     @Override
-    public void putStringAsciii(final long index, final CharSequence value, final int valueIndex, final int length) {
-        delegate.putStringAsciiiFrom(Integers.checkedCast(index), value, valueIndex);
+    public int putStringAscii(final long index, final CharSequence value, final int valueIndex, final int length) {
+        return delegate.putStringAsciiFrom(Integers.checkedCast(index), value, valueIndex);
     }
 
     @Override
@@ -335,8 +335,8 @@ public class ByteDelegateMemoryBuffer implements IMemoryBuffer {
     }
 
     @Override
-    public void getStringUtf8(final long index, final int length, final Appendable dst) {
-        delegate.getStringUtf8(Integers.checkedCast(index), length, dst);
+    public int getStringUtf8(final long index, final int length, final Appendable dst) {
+        return delegate.getStringUtf8(Integers.checkedCast(index), length, dst);
     }
 
     @Override

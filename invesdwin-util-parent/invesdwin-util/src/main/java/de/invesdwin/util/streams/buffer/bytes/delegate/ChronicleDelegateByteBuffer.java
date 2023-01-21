@@ -562,27 +562,28 @@ public class ChronicleDelegateByteBuffer implements IByteBuffer {
     }
 
     @Override
-    public String getStringAsciii(final int index, final int length) {
+    public String getStringAscii(final int index, final int length) {
         final byte[] bytes = ByteBuffers.allocateByteArray(length);
         getBytes(index, bytes, 0, length);
         return ByteBuffers.newStringAscii(bytes);
     }
 
     @Override
-    public void getStringAsciii(final int index, final int length, final Appendable dst) {
+    public int getStringAscii(final int index, final int length, final Appendable dst) {
         try {
             final int limit = index + length;
             for (int i = index; i < limit; i++) {
                 final char c = (char) delegate.readByte(i);
                 dst.append(c > 127 ? '?' : c);
             }
+            return length;
         } catch (final IOException e) {
             throw Throwables.propagate(e);
         }
     }
 
     @Override
-    public void putStringAsciii(final int index, final CharSequence value, final int valueIndex, final int length) {
+    public int putStringAscii(final int index, final CharSequence value, final int valueIndex, final int length) {
         ensureCapacity(index, length);
         for (int i = 0; i < length; i++) {
             char c = value.charAt(valueIndex + i);
@@ -592,6 +593,7 @@ public class ChronicleDelegateByteBuffer implements IByteBuffer {
 
             delegate.writeByte(index + i, (byte) c);
         }
+        return length;
     }
 
     @Override
@@ -610,13 +612,14 @@ public class ChronicleDelegateByteBuffer implements IByteBuffer {
     }
 
     @Override
-    public void getStringUtf8(final int index, final int length, final Appendable dst) {
+    public int getStringUtf8(final int index, final int length, final Appendable dst) {
         final String string = getStringUtf8(index, length);
         try {
             dst.append(string);
         } catch (final IOException e) {
             throw Throwables.propagate(e);
         }
+        return length;
     }
 
     @Override

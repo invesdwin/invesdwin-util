@@ -556,14 +556,14 @@ public class ArrayListByteBuffer implements IByteBuffer {
     }
 
     @Override
-    public String getStringAsciii(final int index, final int length) {
+    public String getStringAscii(final int index, final int length) {
         final byte[] bytes = ByteBuffers.allocateByteArray(length);
         getBytes(index, bytes, 0, length);
         return ByteBuffers.newStringAscii(bytes);
     }
 
     @Override
-    public void getStringAsciii(final int index, final int length, final Appendable dst) {
+    public int getStringAscii(final int index, final int length, final Appendable dst) {
         int position = 0;
         for (int i = 0; i < list.size(); i++) {
             IByteBuffer buffer = list.get(i);
@@ -574,8 +574,8 @@ public class ArrayListByteBuffer implements IByteBuffer {
             } else {
                 int indexMinusPosition = index - position;
                 if (capacity > indexMinusPosition + Short.BYTES) {
-                    buffer.getStringAsciii(indexMinusPosition, length, dst);
-                    return;
+                    buffer.getStringAscii(indexMinusPosition, length, dst);
+                    return length;
                 } else {
                     try {
                         final int limit = index + length;
@@ -592,7 +592,7 @@ public class ArrayListByteBuffer implements IByteBuffer {
                     } catch (final IOException e) {
                         throw Throwables.propagate(e);
                     }
-                    return;
+                    return length;
                 }
             }
         }
@@ -601,7 +601,7 @@ public class ArrayListByteBuffer implements IByteBuffer {
     }
 
     @Override
-    public void putStringAsciii(final int index, final CharSequence value, final int valueIndex, final int length) {
+    public int putStringAscii(final int index, final CharSequence value, final int valueIndex, final int length) {
         ensureCapacity(index, length);
         int position = 0;
         for (int i = 0; i < list.size(); i++) {
@@ -613,8 +613,8 @@ public class ArrayListByteBuffer implements IByteBuffer {
             } else {
                 int indexMinusPosition = index - position;
                 if (capacity > indexMinusPosition + Short.BYTES) {
-                    buffer.putStringAsciii(indexMinusPosition, value, valueIndex, length);
-                    return;
+                    buffer.putStringAscii(indexMinusPosition, value, valueIndex, length);
+                    return length;
                 } else {
                     for (int b = 0; b < length; b++) {
                         while (indexMinusPosition + b > capacity) {
@@ -629,7 +629,7 @@ public class ArrayListByteBuffer implements IByteBuffer {
                         }
                         buffer.putByte(indexMinusPosition + b, (byte) c);
                     }
-                    return;
+                    return length;
                 }
             }
         }
@@ -652,13 +652,14 @@ public class ArrayListByteBuffer implements IByteBuffer {
     }
 
     @Override
-    public void getStringUtf8(final int index, final int length, final Appendable dst) {
+    public int getStringUtf8(final int index, final int length, final Appendable dst) {
         final String string = getStringUtf8(index, length);
         try {
             dst.append(string);
         } catch (final IOException e) {
             throw Throwables.propagate(e);
         }
+        return length;
     }
 
     @Override
