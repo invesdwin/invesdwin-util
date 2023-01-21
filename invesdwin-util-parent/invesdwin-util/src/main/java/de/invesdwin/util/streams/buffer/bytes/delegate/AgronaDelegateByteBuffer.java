@@ -475,12 +475,12 @@ public class AgronaDelegateByteBuffer implements IByteBuffer {
     }
 
     @Override
-    public String getStringAscii(final int index, final int length) {
+    public String getStringAsciii(final int index, final int length) {
         return delegate.getStringWithoutLengthAscii(index, length);
     }
 
     @Override
-    public int putStringAscii(final int index, final CharSequence value, final int valueIndex, final int length) {
+    public void putStringAsciii(final int index, final CharSequence value, final int valueIndex, final int length) {
         throw newReadOnlyException();
     }
 
@@ -490,8 +490,8 @@ public class AgronaDelegateByteBuffer implements IByteBuffer {
     }
 
     @Override
-    public int getStringAscii(final int index, final int length, final Appendable dst) {
-        return delegate.getStringWithoutLengthAscii(index, length, dst);
+    public void getStringAsciii(final int index, final int length, final Appendable dst) {
+        delegate.getStringWithoutLengthAscii(index, length, dst);
     }
 
     @Override
@@ -500,14 +500,13 @@ public class AgronaDelegateByteBuffer implements IByteBuffer {
     }
 
     @Override
-    public int getStringUtf8(final int index, final int length, final Appendable dst) {
+    public void getStringUtf8(final int index, final int length, final Appendable dst) {
         final String string = delegate.getStringWithoutLengthUtf8(index, length);
         try {
             dst.append(string);
         } catch (final IOException e) {
             throw Throwables.propagate(e);
         }
-        return length;
     }
 
     @Override

@@ -26,7 +26,8 @@ public final class DisabledMemoryBuffer implements IMemoryBuffer {
 
     public static final DisabledMemoryBuffer INSTANCE = new DisabledMemoryBuffer();
 
-    private DisabledMemoryBuffer() {}
+    private DisabledMemoryBuffer() {
+    }
 
     @Override
     public ByteOrder getOrder() {
@@ -44,61 +45,80 @@ public final class DisabledMemoryBuffer implements IMemoryBuffer {
     }
 
     @Override
-    public void putLong(final long index, final long value) {}
+    public void putLong(final long index, final long value) {
+    }
 
     @Override
-    public void putInt(final long index, final int value) {}
+    public void putInt(final long index, final int value) {
+    }
 
     @Override
-    public void putDouble(final long index, final double value) {}
+    public void putDouble(final long index, final double value) {
+    }
 
     @Override
-    public void putFloat(final long index, final float value) {}
+    public void putFloat(final long index, final float value) {
+    }
 
     @Override
-    public void putShort(final long index, final short value) {}
+    public void putShort(final long index, final short value) {
+    }
 
     @Override
-    public void putChar(final long index, final char value) {}
+    public void putChar(final long index, final char value) {
+    }
 
     @Override
-    public void putLongReverse(final long index, final long value) {}
+    public void putLongReverse(final long index, final long value) {
+    }
 
     @Override
-    public void putIntReverse(final long index, final int value) {}
+    public void putIntReverse(final long index, final int value) {
+    }
 
     @Override
-    public void putDoubleReverse(final long index, final double value) {}
+    public void putDoubleReverse(final long index, final double value) {
+    }
 
     @Override
-    public void putFloatReverse(final long index, final float value) {}
+    public void putFloatReverse(final long index, final float value) {
+    }
 
     @Override
-    public void putShortReverse(final long index, final short value) {}
+    public void putShortReverse(final long index, final short value) {
+    }
 
     @Override
-    public void putCharReverse(final long index, final char value) {}
+    public void putCharReverse(final long index, final char value) {
+    }
 
     @Override
-    public void putByte(final long index, final byte value) {}
+    public void putByte(final long index, final byte value) {
+    }
 
     @Override
-    public void putBytes(final long index, final byte[] src) {}
+    public void putBytes(final long index, final byte[] src) {
+    }
 
     @Override
-    public void putBytes(final long index, final byte[] src, final int srcIndex, final int length) {}
+    public void putBytes(final long index, final byte[] src, final int srcIndex, final int length) {
+    }
 
     @Override
-    public void putBytes(final long index, final java.nio.ByteBuffer srcBuffer, final int srcIndex, final int length) {}
+    public void putBytes(final long index, final java.nio.ByteBuffer srcBuffer, final int srcIndex, final int length) {
+    }
 
     @Override
-    public void putBytes(final long index, final DirectBuffer srcBuffer, final int srcIndex, final int length) {}
+    public void putBytes(final long index, final DirectBuffer srcBuffer, final int srcIndex, final int length) {
+    }
 
     @Override
-    public void putBytes(final long index, final IByteBuffer srcBuffer, final int srcIndex, final int length) {}
+    public void putBytes(final long index, final IByteBuffer srcBuffer, final int srcIndex, final int length) {
+    }
 
     @Override
-    public void putBytes(final long index, final IMemoryBuffer srcBuffer, final long srcIndex, final long length) {}
+    public void putBytes(final long index, final IMemoryBuffer srcBuffer, final long srcIndex, final long length) {
+    }
 
     @Override
     public long addressOffset() {
@@ -176,19 +196,24 @@ public final class DisabledMemoryBuffer implements IMemoryBuffer {
     }
 
     @Override
-    public void getBytes(final long index, final byte[] dst, final int dstIndex, final int length) {}
+    public void getBytes(final long index, final byte[] dst, final int dstIndex, final int length) {
+    }
 
     @Override
-    public void getBytes(final long index, final MutableDirectBuffer dstBuffer, final int dstIndex, final int length) {}
+    public void getBytes(final long index, final MutableDirectBuffer dstBuffer, final int dstIndex, final int length) {
+    }
 
     @Override
-    public void getBytes(final long index, final java.nio.ByteBuffer dstBuffer, final int dstIndex, final int length) {}
+    public void getBytes(final long index, final java.nio.ByteBuffer dstBuffer, final int dstIndex, final int length) {
+    }
 
     @Override
-    public void getBytes(final long index, final IByteBuffer dstBuffer, final int dstIndex, final int length) {}
+    public void getBytes(final long index, final IByteBuffer dstBuffer, final int dstIndex, final int length) {
+    }
 
     @Override
-    public void getBytes(final long index, final IMemoryBuffer dstBuffer, final long dstIndex, final long length) {}
+    public void getBytes(final long index, final IMemoryBuffer dstBuffer, final long dstIndex, final long length) {
+    }
 
     @Override
     public long wrapAdjustment() {
@@ -241,18 +266,16 @@ public final class DisabledMemoryBuffer implements IMemoryBuffer {
     }
 
     @Override
-    public String getStringAscii(final long index, final int length) {
+    public String getStringAsciii(final long index, final int length) {
         return null;
     }
 
     @Override
-    public int getStringAscii(final long index, final int length, final Appendable dst) {
-        return 0;
+    public void getStringAsciii(final long index, final int length, final Appendable dst) {
     }
 
     @Override
-    public int putStringAscii(final long index, final CharSequence value, final int valueIndex, final int length) {
-        return 0;
+    public void putStringAsciii(final long index, final CharSequence value, final int valueIndex, final int length) {
     }
 
     @Override
@@ -266,21 +289,24 @@ public final class DisabledMemoryBuffer implements IMemoryBuffer {
     }
 
     @Override
-    public int getStringUtf8(final long index, final int length, final Appendable dst) {
-        return 0;
+    public void getStringUtf8(final long index, final int length, final Appendable dst) {
     }
 
     @Override
-    public void getBytesTo(final long index, final DataOutput dst, final long length) {}
+    public void getBytesTo(final long index, final DataOutput dst, final long length) {
+    }
 
     @Override
-    public void getBytesTo(final long index, final OutputStream dst, final long length) {}
+    public void getBytesTo(final long index, final OutputStream dst, final long length) {
+    }
 
     @Override
-    public void putBytesTo(final long index, final DataInput src, final long length) {}
+    public void putBytesTo(final long index, final DataInput src, final long length) {
+    }
 
     @Override
-    public void putBytesTo(final long index, final InputStream src, final long length) {}
+    public void putBytesTo(final long index, final InputStream src, final long length) {
+    }
 
     @SuppressWarnings("unchecked")
     @Override
@@ -297,13 +323,16 @@ public final class DisabledMemoryBuffer implements IMemoryBuffer {
     }
 
     @Override
-    public void getBytesTo(final long index, final WritableByteChannel dst, final long length) throws IOException {}
+    public void getBytesTo(final long index, final WritableByteChannel dst, final long length) throws IOException {
+    }
 
     @Override
-    public void putBytesTo(final long index, final ReadableByteChannel src, final long length) throws IOException {}
+    public void putBytesTo(final long index, final ReadableByteChannel src, final long length) throws IOException {
+    }
 
     @Override
-    public void clear(final byte value, final long index, final long length) {}
+    public void clear(final byte value, final long index, final long length) {
+    }
 
     @Override
     public IMemoryBuffer ensureCapacity(final long desiredCapacity) {

@@ -31,6 +31,9 @@ import de.invesdwin.util.streams.buffer.memory.MemoryBuffers;
 import de.invesdwin.util.streams.buffer.memory.delegate.slice.SlicedDelegateMemoryBuffer;
 import de.invesdwin.util.streams.buffer.memory.delegate.slice.SlicedFromDelegateMemoryBuffer;
 import de.invesdwin.util.streams.buffer.memory.delegate.slice.mutable.factory.IMutableSlicedDelegateMemoryBufferFactory;
+import de.invesdwin.util.streams.buffer.memory.stream.ExpandableMemoryBufferOutputStream;
+import de.invesdwin.util.streams.buffer.memory.stream.MemoryBufferInputStream;
+import de.invesdwin.util.streams.buffer.memory.stream.MemoryBufferOutputStream;
 import de.invesdwin.util.time.duration.Duration;
 import net.openhft.chronicle.bytes.BytesStore;
 
@@ -440,16 +443,17 @@ public class ChronicleDelegateMemoryBuffer implements IMemoryBuffer {
 
     @Override
     public InputStream asInputStream(final long index, final long length) {
-        delegate.readPosition(index);
-        delegate.readLimit(index + length);
-        return delegate.inputStream();
+        return new MemoryBufferInputStream(this, index, length);
     }
 
     @Override
     public OutputStream asOutputStream(final long index, final long length) {
-        delegate.writePosition(index);
-        delegate.writeLimit(index + length);
-        return delegate.outputStream();
+        if (isExpandable() && index + length >= capacity()) {
+            //allow output stream to actually grow the buffer
+            return new ExpandableMemoryBufferOutputStream(this, index);
+        } else {
+            return new MemoryBufferOutputStream(this, index, length);
+        }
     }
 
     @Override
@@ -507,36 +511,35 @@ public class ChronicleDelegateMemoryBuffer implements IMemoryBuffer {
     }
 
     @Override
-    public String getStringAscii(final long index, final int length) {
+    public String getStringAsciii(final long index, final int length) {
         final byte[] bytes = ByteBuffers.allocateByteArray(length);
         getBytes(index, bytes, 0, length);
         return ByteBuffers.newStringAscii(bytes);
     }
 
     @Override
-    public int getStringAscii(final long index, final int length, final Appendable dst) {
+    public void getStringAsciii(final long index, final int length, final Appendable dst) {
         try {
             final long limit = index + length;
             for (long i = index; i < limit; i++) {
                 final char c = (char) delegate.readByte(i);
                 dst.append(c > 127 ? '?' : c);
             }
-            return length;
         } catch (final IOException e) {
             throw Throwables.propagate(e);
         }
     }
 
     @Override
-    public int putStringAscii(final long index, final CharSequence value, final int valueIndex, final int length) {
+    public void putStringAsciii(final long index, final CharSequence value, final int valueIndex, final int length) {
         for (int i = 0; i < length; i++) {
             char c = value.charAt(valueIndex + i);
             if (c > 127) {
                 c = '?';
             }
+
             delegate.writeByte(index + i, (byte) c);
         }
-        return length;
     }
 
     @Override
@@ -554,14 +557,13 @@ public class ChronicleDelegateMemoryBuffer implements IMemoryBuffer {
     }
 
     @Override
-    public int getStringUtf8(final long index, final int length, final Appendable dst) {
+    public void getStringUtf8(final long index, final int length, final Appendable dst) {
         final String string = getStringUtf8(index, length);
         try {
             dst.append(string);
         } catch (final IOException e) {
             throw Throwables.propagate(e);
         }
-        return length;
     }
 
     @Override

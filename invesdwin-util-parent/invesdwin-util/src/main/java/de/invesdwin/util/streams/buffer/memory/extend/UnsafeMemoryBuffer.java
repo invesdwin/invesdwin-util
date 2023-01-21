@@ -25,12 +25,12 @@ import de.invesdwin.util.streams.buffer.bytes.delegate.MemoryDelegateByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.extend.ArrayExpandableByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.extend.UnsafeByteBuffer;
 import de.invesdwin.util.streams.buffer.memory.IMemoryBuffer;
-import de.invesdwin.util.streams.buffer.memory.MemoryBufferInputStream;
-import de.invesdwin.util.streams.buffer.memory.MemoryBufferOutputStream;
 import de.invesdwin.util.streams.buffer.memory.MemoryBuffers;
 import de.invesdwin.util.streams.buffer.memory.delegate.slice.mutable.factory.FixedMutableSlicedDelegateMemoryBufferFactory;
 import de.invesdwin.util.streams.buffer.memory.delegate.slice.mutable.factory.IMutableSlicedDelegateMemoryBufferFactory;
 import de.invesdwin.util.streams.buffer.memory.extend.internal.UnsafeMemoryBase;
+import de.invesdwin.util.streams.buffer.memory.stream.MemoryBufferInputStream;
+import de.invesdwin.util.streams.buffer.memory.stream.MemoryBufferOutputStream;
 import de.invesdwin.util.time.duration.Duration;
 
 @NotThreadSafe
@@ -197,18 +197,18 @@ public class UnsafeMemoryBuffer extends UnsafeMemoryBase implements IMemoryBuffe
     }
 
     @Override
-    public String getStringAscii(final long index, final int length) {
+    public String getStringAsciii(final long index, final int length) {
         return getStringWithoutLengthAscii(index, length);
     }
 
     @Override
-    public int getStringAscii(final long index, final int length, final Appendable dst) {
-        return getStringWithoutLengthAscii(index, length, dst);
+    public void getStringAsciii(final long index, final int length, final Appendable dst) {
+        getStringWithoutLengthAscii(index, length, dst);
     }
 
     @Override
-    public int putStringAscii(final long index, final CharSequence value, final int valueIndex, final int length) {
-        return putStringWithoutLengthAscii(index, value, valueIndex, length);
+    public void putStringAsciii(final long index, final CharSequence value, final int valueIndex, final int length) {
+        putStringWithoutLengthAscii(index, value, valueIndex, length);
     }
 
     @Override
@@ -222,14 +222,13 @@ public class UnsafeMemoryBuffer extends UnsafeMemoryBase implements IMemoryBuffe
     }
 
     @Override
-    public int getStringUtf8(final long index, final int length, final Appendable dst) {
+    public void getStringUtf8(final long index, final int length, final Appendable dst) {
         final String string = getStringWithoutLengthUtf8(index, length);
         try {
             dst.append(string);
         } catch (final IOException e) {
             throw new RuntimeException(e);
         }
-        return length;
     }
 
     @Override

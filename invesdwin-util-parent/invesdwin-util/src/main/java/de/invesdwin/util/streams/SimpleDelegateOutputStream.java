@@ -6,11 +6,11 @@ import java.io.OutputStream;
 import javax.annotation.concurrent.NotThreadSafe;
 
 @NotThreadSafe
-public abstract class ASimpleDelegateOutputStream extends OutputStream {
+public class SimpleDelegateOutputStream extends OutputStream {
 
     private final OutputStream delegate;
 
-    public ASimpleDelegateOutputStream(final OutputStream delegate) {
+    public SimpleDelegateOutputStream(final OutputStream delegate) {
         this.delegate = delegate;
     }
 

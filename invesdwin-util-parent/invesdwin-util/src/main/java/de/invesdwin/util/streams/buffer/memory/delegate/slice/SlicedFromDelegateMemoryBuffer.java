@@ -304,18 +304,18 @@ public class SlicedFromDelegateMemoryBuffer implements IMemoryBuffer {
     }
 
     @Override
-    public String getStringAscii(final long index, final int length) {
-        return delegate.getStringAscii(index + from, length);
+    public String getStringAsciii(final long index, final int length) {
+        return delegate.getStringAsciii(index + from, length);
     }
 
     @Override
-    public int getStringAscii(final long index, final int length, final Appendable dst) {
-        return delegate.getStringAscii(index + from, length, dst);
+    public void getStringAsciii(final long index, final int length, final Appendable dst) {
+        delegate.getStringAsciii(index + from, length, dst);
     }
 
     @Override
-    public int putStringAscii(final long index, final CharSequence value, final int valueIndex, final int length) {
-        return delegate.putStringAscii(index + from, value, valueIndex, length);
+    public void putStringAsciii(final long index, final CharSequence value, final int valueIndex, final int length) {
+        delegate.putStringAsciii(index + from, value, valueIndex, length);
     }
 
     @Override
@@ -329,8 +329,8 @@ public class SlicedFromDelegateMemoryBuffer implements IMemoryBuffer {
     }
 
     @Override
-    public int getStringUtf8(final long index, final int length, final Appendable dst) {
-        return delegate.getStringUtf8(index + from, length, dst);
+    public void getStringUtf8(final long index, final int length, final Appendable dst) {
+        delegate.getStringUtf8(index + from, length, dst);
     }
 
     @Override

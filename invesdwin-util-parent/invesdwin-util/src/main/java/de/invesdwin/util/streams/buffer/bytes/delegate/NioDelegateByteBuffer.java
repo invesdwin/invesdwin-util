@@ -406,36 +406,35 @@ public class NioDelegateByteBuffer implements IByteBuffer {
     }
 
     @Override
-    public String getStringAscii(final int index, final int length) {
+    public String getStringAsciii(final int index, final int length) {
         final byte[] bytes = ByteBuffers.allocateByteArray(length);
         ByteBuffers.get(delegate, index, bytes, 0, length);
         return ByteBuffers.newStringAscii(bytes);
     }
 
     @Override
-    public int getStringAscii(final int index, final int length, final Appendable dst) {
+    public void getStringAsciii(final int index, final int length, final Appendable dst) {
         try {
             final int limit = index + length;
             for (int i = index; i < limit; i++) {
                 final char c = (char) delegate.get(i);
                 dst.append(c > 127 ? '?' : c);
             }
-            return length;
         } catch (final IOException e) {
             throw Throwables.propagate(e);
         }
     }
 
     @Override
-    public int putStringAscii(final int index, final CharSequence value, final int valueIndex, final int length) {
+    public void putStringAsciii(final int index, final CharSequence value, final int valueIndex, final int length) {
         for (int i = 0; i < length; i++) {
             char c = value.charAt(valueIndex + i);
             if (c > 127) {
                 c = '?';
             }
+
             delegate.put(index + i, (byte) c);
         }
-        return length;
     }
 
     @Override
@@ -453,14 +452,13 @@ public class NioDelegateByteBuffer implements IByteBuffer {
     }
 
     @Override
-    public int getStringUtf8(final int index, final int length, final Appendable dst) {
+    public void getStringUtf8(final int index, final int length, final Appendable dst) {
         final String string = getStringUtf8(index, length);
         try {
             dst.append(string);
         } catch (final IOException e) {
             throw Throwables.propagate(e);
         }
-        return length;
     }
 
     @Override
