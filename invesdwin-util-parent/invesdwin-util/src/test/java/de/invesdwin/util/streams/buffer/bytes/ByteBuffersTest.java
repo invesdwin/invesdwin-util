@@ -38,7 +38,6 @@ import de.invesdwin.util.streams.buffer.bytes.extend.internal.UninitializedDirec
 import de.invesdwin.util.streams.buffer.memory.IMemoryBuffer;
 import io.netty.buffer.Unpooled;
 import net.openhft.chronicle.bytes.BytesStore;
-import net.openhft.chronicle.bytes.VanillaBytes;
 
 @NotThreadSafe
 public class ByteBuffersTest {
@@ -85,7 +84,7 @@ public class ByteBuffersTest {
     @SuppressWarnings("rawtypes")
     @Test
     public void testChronicleBuffers() throws IllegalStateException, IOException {
-        final VanillaBytes direct = net.openhft.chronicle.bytes.Bytes
+        final net.openhft.chronicle.bytes.VanillaBytes direct = net.openhft.chronicle.bytes.Bytes
                 .allocateDirect(ByteBuffers.allocateByteArray(BUFFER_SIZE));
         direct.writePosition(0);
         testBufferOrdered(new ChronicleDelegateByteBuffer(direct));
