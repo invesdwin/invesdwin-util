@@ -28,6 +28,7 @@ import de.invesdwin.util.streams.DelegateDataInput;
 import de.invesdwin.util.streams.DelegateDataOutput;
 import de.invesdwin.util.streams.buffer.bytes.delegate.AgronaDelegateMutableByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.delegate.ChronicleDelegateByteBuffer;
+import de.invesdwin.util.streams.buffer.bytes.delegate.ListByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.delegate.NettyDelegateByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.delegate.NioDelegateByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.delegate.OrderedDelegateByteBuffer;
@@ -111,6 +112,33 @@ public class ByteBuffersTest {
         testBufferOrdered(new NettyDelegateByteBuffer(Unpooled.directBuffer(BUFFER_SIZE)));
     }
 
+    @Test
+    public void testByteBuffers() throws IOException {
+        testBufferOrdered(ByteBuffers.allocate(BUFFER_SIZE));
+        testBufferOrdered(ByteBuffers.allocateDirect(BUFFER_SIZE));
+        testBufferOrdered(ByteBuffers.allocateExpandable(BUFFER_SIZE));
+        testBufferOrdered(ByteBuffers.allocateDirectExpandable(BUFFER_SIZE));
+        testBufferOrdered(ByteBuffers.allocateExpandable());
+        testBufferOrdered(ByteBuffers.allocateDirectExpandable());
+    }
+
+    @Test
+    public void testListBuffer() throws IOException {
+        for (int chunkSize = 1; chunkSize <= 20; chunkSize++) {
+            final ListByteBuffer buffer = new ListByteBuffer();
+            for (int i = 0; i < BUFFER_SIZE; i += chunkSize) {
+                buffer.getList().add(ByteBuffers.allocate(chunkSize));
+            }
+            testBufferOrdered(buffer);
+
+            final ListByteBuffer directBuffer = new ListByteBuffer();
+            for (int i = 0; i < BUFFER_SIZE; i += chunkSize) {
+                directBuffer.getList().add(ByteBuffers.allocateDirect(chunkSize));
+            }
+            testBufferOrdered(directBuffer);
+        }
+    }
+
     public void testBufferOrdered(final IByteBuffer buffer) throws IOException {
         testBuffer(OrderedDelegateByteBuffer.maybeWrap(buffer, ByteBuffers.NATIVE_ORDER));
         testBuffer(OrderedDelegateByteBuffer.maybeWrap(buffer, ByteOrder.BIG_ENDIAN));
@@ -149,10 +177,10 @@ public class ByteBuffersTest {
         b.getBytes(0, get);
         Assertions.checkTrue(ByteBuffers.constantTimeEquals(b, random));
         Assertions.checkTrue(ByteBuffers.constantTimeEquals(get, random));
-        final IByteBuffer clone = b.clone();
+        final IByteBuffer clone = b.clone(0, b.capacity());
         Assertions.checkTrue(ByteBuffers.constantTimeEquals(clone, random));
-        Assertions.checkTrue(ByteBuffers.constantTimeEquals(b.asByteArray(), random));
-        Assertions.checkTrue(ByteBuffers.constantTimeEquals(b.asByteArrayCopy(), random));
+        Assertions.checkTrue(ByteBuffers.constantTimeEquals(b.asByteArray(0, b.capacity()), random));
+        Assertions.checkTrue(ByteBuffers.constantTimeEquals(b.asByteArrayCopy(0, b.capacity()), random));
         java.nio.ByteBuffer nioBuffer = clone.asNioByteBuffer();
         Assertions.checkTrue(ByteBuffers.constantTimeEquals(ByteBuffers.wrap(nioBuffer), random));
         MutableDirectBuffer directBuffer = clone.asDirectBuffer();

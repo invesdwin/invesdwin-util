@@ -37,10 +37,19 @@ import de.invesdwin.util.streams.buffer.memory.IMemoryBuffer;
 import de.invesdwin.util.streams.buffer.memory.delegate.ByteDelegateMemoryBuffer;
 
 @NotThreadSafe
-public class ArrayListByteBuffer implements IByteBuffer {
+public class ListByteBuffer implements IByteBuffer {
 
-    private final List<IByteBuffer> list = new ArrayList<>();
+    private final List<IByteBuffer> list = newList();
+
     private IMutableSlicedDelegateByteBufferFactory mutableSliceFactory;
+
+    protected List<IByteBuffer> newList() {
+        return new ArrayList<>();
+    }
+
+    public List<IByteBuffer> getList() {
+        return list;
+    }
 
     private IMutableSlicedDelegateByteBufferFactory getMutableSliceFactory() {
         if (mutableSliceFactory == null) {
@@ -168,17 +177,17 @@ public class ArrayListByteBuffer implements IByteBuffer {
                 position += capacity;
                 continue;
             } else {
-                int bufferPosition = index - position;
-                if (capacity > bufferPosition + Long.BYTES) {
+                int bufferPosition = index - position - 1;
+                if (capacity >= bufferPosition + Long.BYTES) {
                     return buffer.getLong(bufferPosition);
                 } else {
                     final byte[] readBuffer = InputStreams.LONG_BUFFER_HOLDER.get();
                     for (int i = 0; i < Long.BYTES; i++) {
-                        while (bufferPosition > capacity) {
+                        while (bufferPosition >= capacity) {
                             buf++;
                             buffer = list.get(buf);
                             capacity = buffer.capacity();
-                            bufferPosition = index - position;
+                            bufferPosition = index - position - 1;
                         }
                         readBuffer[i] = buffer.getByte(bufferPosition);
                         bufferPosition++;
@@ -211,17 +220,17 @@ public class ArrayListByteBuffer implements IByteBuffer {
                 position += capacity;
                 continue;
             } else {
-                int bufferPosition = index - position;
-                if (capacity > bufferPosition + Integer.BYTES) {
+                int bufferPosition = index - position - 1;
+                if (capacity >= bufferPosition + Integer.BYTES) {
                     return buffer.getInt(bufferPosition);
                 } else {
                     final byte[] readBuffer = InputStreams.LONG_BUFFER_HOLDER.get();
                     for (int i = 0; i < Integer.BYTES; i++) {
-                        while (bufferPosition > capacity) {
+                        while (bufferPosition >= capacity) {
                             buf++;
                             buffer = list.get(buf);
                             capacity = buffer.capacity();
-                            bufferPosition = index - position;
+                            bufferPosition = index - position - 1;
                         }
                         readBuffer[i] = buffer.getByte(bufferPosition);
                         bufferPosition++;
@@ -272,17 +281,17 @@ public class ArrayListByteBuffer implements IByteBuffer {
                 position += capacity;
                 continue;
             } else {
-                int bufferPosition = index - position;
-                if (capacity > bufferPosition + Short.BYTES) {
+                int bufferPosition = index - position - 1;
+                if (capacity >= bufferPosition + Short.BYTES) {
                     return buffer.getShort(bufferPosition);
                 } else {
                     final byte[] readBuffer = InputStreams.LONG_BUFFER_HOLDER.get();
                     for (int i = 0; i < Short.BYTES; i++) {
-                        while (bufferPosition > capacity) {
+                        while (bufferPosition >= capacity) {
                             buf++;
                             buffer = list.get(buf);
                             capacity = buffer.capacity();
-                            bufferPosition = index - position;
+                            bufferPosition = index - position - 1;
                         }
                         readBuffer[i] = buffer.getByte(bufferPosition);
                         bufferPosition++;
@@ -321,7 +330,7 @@ public class ArrayListByteBuffer implements IByteBuffer {
                 position += capacity;
                 continue;
             } else {
-                return buffer.getByte(index - position);
+                return buffer.getByte(index - position - 1);
             }
         }
         throw new IndexOutOfBoundsException("index=" + index + " capacity=" + capacity());
@@ -444,7 +453,7 @@ public class ArrayListByteBuffer implements IByteBuffer {
                 position += capacity;
                 continue;
             } else {
-                buffer.putByte(index - position, value);
+                buffer.putByte(index - position - 1, value);
                 return;
             }
         }
@@ -599,19 +608,19 @@ public class ArrayListByteBuffer implements IByteBuffer {
                 position += capacity;
                 continue;
             } else {
-                int bufferPosition = index - position;
-                if (capacity > bufferPosition + Short.BYTES) {
+                int bufferPosition = index - position - 1;
+                if (capacity >= bufferPosition + Short.BYTES) {
                     buffer.getStringAsciii(bufferPosition, length, dst);
                     return;
                 } else {
                     try {
                         final int limit = index + length;
                         for (int i = index; i < limit; i++) {
-                            while (bufferPosition > capacity) {
+                            while (bufferPosition >= capacity) {
                                 buf++;
                                 buffer = list.get(buf);
                                 capacity = buffer.capacity();
-                                bufferPosition = index - position;
+                                bufferPosition = index - position - 1;
                             }
                             final char c = (char) buffer.getByte(bufferPosition);
                             dst.append(c > 127 ? '?' : c);
@@ -639,8 +648,8 @@ public class ArrayListByteBuffer implements IByteBuffer {
                 position += capacity;
                 continue;
             } else {
-                int bufferPosition = index - position;
-                if (capacity > bufferPosition + Short.BYTES) {
+                int bufferPosition = index - position - 1;
+                if (capacity >= bufferPosition + Short.BYTES) {
                     buffer.putStringAsciii(bufferPosition, value, valueIndex, length);
                     return;
                 } else {
@@ -649,7 +658,7 @@ public class ArrayListByteBuffer implements IByteBuffer {
                             buf++;
                             buffer = list.get(buf);
                             capacity = buffer.capacity();
-                            bufferPosition = index - position;
+                            bufferPosition = index - position - 1;
                         }
                         char c = value.charAt(valueIndex + b);
                         if (c > 127) {
@@ -707,8 +716,8 @@ public class ArrayListByteBuffer implements IByteBuffer {
                     position += capacity;
                     continue;
                 } else {
-                    int bufferPosition = index - position;
-                    if (capacity > bufferPosition + length) {
+                    int bufferPosition = index - position - 1;
+                    if (capacity >= bufferPosition + length) {
                         buffer.getBytesTo(bufferPosition, dst, length);
                         return;
                     } else {
@@ -716,13 +725,13 @@ public class ArrayListByteBuffer implements IByteBuffer {
                             final int limit = index + length;
                             int remaining = length;
                             for (int i = index; i < limit; i++) {
-                                while (bufferPosition > capacity) {
+                                while (bufferPosition >= capacity) {
                                     buf++;
                                     buffer = list.get(buf);
                                     capacity = buffer.capacity();
-                                    bufferPosition = index - position;
+                                    bufferPosition = index - position - 1;
                                 }
-                                final int toCopy = Integers.min(remaining, buffer.remaining(i));
+                                final int toCopy = Integers.min(remaining, buffer.remaining(bufferPosition));
                                 buffer.getBytesTo(bufferPosition, dst, toCopy);
                                 remaining -= toCopy;
                                 i += toCopy;
@@ -752,8 +761,8 @@ public class ArrayListByteBuffer implements IByteBuffer {
                     position += capacity;
                     continue;
                 } else {
-                    int bufferPosition = index - position;
-                    if (capacity > bufferPosition + length) {
+                    int bufferPosition = index - position - 1;
+                    if (capacity >= bufferPosition + length) {
                         buffer.putBytesTo(bufferPosition, src, length);
                         return;
                     } else {
@@ -761,13 +770,13 @@ public class ArrayListByteBuffer implements IByteBuffer {
                             final int limit = index + length;
                             int remaining = length;
                             for (int i = index; i < limit; i++) {
-                                while (bufferPosition > capacity) {
+                                while (bufferPosition >= capacity) {
                                     buf++;
                                     buffer = list.get(buf);
                                     capacity = buffer.capacity();
-                                    bufferPosition = index - position;
+                                    bufferPosition = index - position - 1;
                                 }
-                                final int toCopy = Integers.min(remaining, buffer.remaining(i));
+                                final int toCopy = Integers.min(remaining, buffer.remaining(bufferPosition));
                                 buffer.putBytesTo(bufferPosition, src, toCopy);
                                 remaining -= toCopy;
                                 i += toCopy;
@@ -802,8 +811,8 @@ public class ArrayListByteBuffer implements IByteBuffer {
                     position += capacity;
                     continue;
                 } else {
-                    int bufferPosition = index - position;
-                    if (capacity > bufferPosition + length) {
+                    int bufferPosition = index - position - 1;
+                    if (capacity >= bufferPosition + length) {
                         buffer.putBytesTo(bufferPosition, src, length);
                         return;
                     } else {
@@ -811,13 +820,13 @@ public class ArrayListByteBuffer implements IByteBuffer {
                             final int limit = index + length;
                             int remaining = length;
                             for (int i = index; i < limit; i++) {
-                                while (bufferPosition > capacity) {
+                                while (bufferPosition >= capacity) {
                                     buf++;
                                     buffer = list.get(buf);
                                     capacity = buffer.capacity();
-                                    bufferPosition = index - position;
+                                    bufferPosition = index - position - 1;
                                 }
-                                final int toCopy = Integers.min(remaining, buffer.remaining(i));
+                                final int toCopy = Integers.min(remaining, buffer.remaining(bufferPosition));
                                 buffer.putBytesTo(bufferPosition, src, toCopy);
                                 remaining -= toCopy;
                                 i += toCopy;
@@ -847,8 +856,8 @@ public class ArrayListByteBuffer implements IByteBuffer {
                     position += capacity;
                     continue;
                 } else {
-                    int bufferPosition = index - position;
-                    if (capacity > bufferPosition + length) {
+                    int bufferPosition = index - position - 1;
+                    if (capacity >= bufferPosition + length) {
                         buffer.getBytesTo(bufferPosition, dst, length);
                         return;
                     } else {
@@ -856,13 +865,13 @@ public class ArrayListByteBuffer implements IByteBuffer {
                             final int limit = index + length;
                             int remaining = length;
                             for (int i = index; i < limit; i++) {
-                                while (bufferPosition > capacity) {
+                                while (bufferPosition >= capacity) {
                                     buf++;
                                     buffer = list.get(buf);
                                     capacity = buffer.capacity();
-                                    bufferPosition = index - position;
+                                    bufferPosition = index - position - 1;
                                 }
-                                final int toCopy = Integers.min(remaining, buffer.remaining(i));
+                                final int toCopy = Integers.min(remaining, buffer.remaining(bufferPosition));
                                 buffer.getBytesTo(bufferPosition, dst, toCopy);
                                 remaining -= toCopy;
                                 i += toCopy;
@@ -889,22 +898,22 @@ public class ArrayListByteBuffer implements IByteBuffer {
                 position += capacity;
                 continue;
             } else {
-                int bufferPosition = index - position;
+                int bufferPosition = index - position - 1;
                 int srcPosition = srcIndex;
-                if (capacity > bufferPosition + length) {
+                if (capacity >= bufferPosition + length) {
                     buffer.putBytes(bufferPosition, src, srcPosition, length);
                     return;
                 } else {
                     final int limit = index + length;
                     int remaining = length;
                     for (int i = index; i < limit; i++) {
-                        while (bufferPosition > capacity) {
+                        while (bufferPosition >= capacity) {
                             buf++;
                             buffer = list.get(buf);
                             capacity = buffer.capacity();
-                            bufferPosition = index - position;
+                            bufferPosition = index - position - 1;
                         }
-                        final int toCopy = Integers.min(remaining, buffer.remaining(i));
+                        final int toCopy = Integers.min(remaining, buffer.remaining(bufferPosition));
                         buffer.putBytes(bufferPosition, src, srcPosition, toCopy);
                         remaining -= toCopy;
                         i += toCopy;
@@ -928,22 +937,22 @@ public class ArrayListByteBuffer implements IByteBuffer {
                 position += capacity;
                 continue;
             } else {
-                int bufferPosition = index - position;
+                int bufferPosition = index - position - 1;
                 int srcPosition = srcIndex;
-                if (capacity > bufferPosition + length) {
+                if (capacity >= bufferPosition + length) {
                     buffer.putBytes(bufferPosition, srcBuffer, srcPosition, length);
                     return;
                 } else {
                     final int limit = index + length;
                     int remaining = length;
                     for (int i = index; i < limit; i++) {
-                        while (bufferPosition > capacity) {
+                        while (bufferPosition >= capacity) {
                             buf++;
                             buffer = list.get(buf);
                             capacity = buffer.capacity();
-                            bufferPosition = index - position;
+                            bufferPosition = index - position - 1;
                         }
-                        final int toCopy = Integers.min(remaining, buffer.remaining(i));
+                        final int toCopy = Integers.min(remaining, buffer.remaining(bufferPosition));
                         buffer.putBytes(bufferPosition, srcBuffer, srcPosition, toCopy);
                         remaining -= toCopy;
                         i += toCopy;
@@ -967,22 +976,22 @@ public class ArrayListByteBuffer implements IByteBuffer {
                 position += capacity;
                 continue;
             } else {
-                int bufferPosition = index - position;
+                int bufferPosition = index - position - 1;
                 int srcPosition = srcIndex;
-                if (capacity > bufferPosition + length) {
+                if (capacity >= bufferPosition + length) {
                     buffer.putBytes(bufferPosition, srcBuffer, srcPosition, length);
                     return;
                 } else {
                     final int limit = index + length;
                     int remaining = length;
                     for (int i = index; i < limit; i++) {
-                        while (bufferPosition > capacity) {
+                        while (bufferPosition >= capacity) {
                             buf++;
                             buffer = list.get(buf);
                             capacity = buffer.capacity();
-                            bufferPosition = index - position;
+                            bufferPosition = index - position - 1;
                         }
-                        final int toCopy = Integers.min(remaining, buffer.remaining(i));
+                        final int toCopy = Integers.min(remaining, buffer.remaining(bufferPosition));
                         buffer.putBytes(bufferPosition, srcBuffer, srcPosition, toCopy);
                         remaining -= toCopy;
                         i += toCopy;
@@ -1006,22 +1015,22 @@ public class ArrayListByteBuffer implements IByteBuffer {
                 position += capacity;
                 continue;
             } else {
-                int bufferPosition = index - position;
+                int bufferPosition = index - position - 1;
                 int srcPosition = srcIndex;
-                if (capacity > bufferPosition + length) {
+                if (capacity >= bufferPosition + length) {
                     buffer.putBytes(bufferPosition, srcBuffer, srcPosition, length);
                     return;
                 } else {
                     final int limit = index + length;
                     int remaining = length;
                     for (int i = index; i < limit; i++) {
-                        while (bufferPosition > capacity) {
+                        while (bufferPosition >= capacity) {
                             buf++;
                             buffer = list.get(buf);
                             capacity = buffer.capacity();
-                            bufferPosition = index - position;
+                            bufferPosition = index - position - 1;
                         }
-                        final int toCopy = Integers.min(remaining, buffer.remaining(i));
+                        final int toCopy = Integers.min(remaining, buffer.remaining(bufferPosition));
                         buffer.putBytes(bufferPosition, srcBuffer, srcPosition, toCopy);
                         remaining -= toCopy;
                         i += toCopy;
@@ -1045,22 +1054,22 @@ public class ArrayListByteBuffer implements IByteBuffer {
                 position += capacity;
                 continue;
             } else {
-                int bufferPosition = index - position;
+                int bufferPosition = index - position - 1;
                 long srcPosition = srcIndex;
-                if (capacity > bufferPosition + length) {
+                if (capacity >= bufferPosition + length) {
                     buffer.putBytes(bufferPosition, srcBuffer, srcPosition, length);
                     return;
                 } else {
                     final int limit = index + length;
                     int remaining = length;
                     for (int i = index; i < limit; i++) {
-                        while (bufferPosition > capacity) {
+                        while (bufferPosition >= capacity) {
                             buf++;
                             buffer = list.get(buf);
                             capacity = buffer.capacity();
-                            bufferPosition = index - position;
+                            bufferPosition = index - position - 1;
                         }
-                        final int toCopy = Integers.min(remaining, buffer.remaining(i));
+                        final int toCopy = Integers.min(remaining, buffer.remaining(bufferPosition));
                         buffer.putBytes(bufferPosition, srcBuffer, srcPosition, toCopy);
                         remaining -= toCopy;
                         i += toCopy;
@@ -1084,22 +1093,22 @@ public class ArrayListByteBuffer implements IByteBuffer {
                 position += capacity;
                 continue;
             } else {
-                int bufferPosition = index - position;
+                int bufferPosition = index - position - 1;
                 int dstPosition = dstIndex;
-                if (capacity > bufferPosition + length) {
+                if (capacity >= bufferPosition + length) {
                     buffer.getBytes(bufferPosition, dst, dstPosition, length);
                     return;
                 } else {
                     final int limit = index + length;
                     int remaining = length;
                     for (int i = index; i < limit; i++) {
-                        while (bufferPosition > capacity) {
+                        while (bufferPosition >= capacity) {
                             buf++;
                             buffer = list.get(buf);
                             capacity = buffer.capacity();
-                            bufferPosition = index - position;
+                            bufferPosition = index - position - 1;
                         }
-                        final int toCopy = Integers.min(remaining, buffer.remaining(i));
+                        final int toCopy = Integers.min(remaining, buffer.remaining(bufferPosition));
                         buffer.getBytes(bufferPosition, dst, dstPosition, toCopy);
                         remaining -= toCopy;
                         i += toCopy;
@@ -1123,22 +1132,22 @@ public class ArrayListByteBuffer implements IByteBuffer {
                 position += capacity;
                 continue;
             } else {
-                int bufferPosition = index - position;
+                int bufferPosition = index - position - 1;
                 int dstPosition = dstIndex;
-                if (capacity > bufferPosition + length) {
+                if (capacity >= bufferPosition + length) {
                     buffer.getBytes(bufferPosition, dstBuffer, dstPosition, length);
                     return;
                 } else {
                     final int limit = index + length;
                     int remaining = length;
                     for (int i = index; i < limit; i++) {
-                        while (bufferPosition > capacity) {
+                        while (bufferPosition >= capacity) {
                             buf++;
                             buffer = list.get(buf);
                             capacity = buffer.capacity();
-                            bufferPosition = index - position;
+                            bufferPosition = index - position - 1;
                         }
-                        final int toCopy = Integers.min(remaining, buffer.remaining(i));
+                        final int toCopy = Integers.min(remaining, buffer.remaining(bufferPosition));
                         buffer.getBytes(bufferPosition, dstBuffer, dstPosition, toCopy);
                         remaining -= toCopy;
                         i += toCopy;
@@ -1162,22 +1171,22 @@ public class ArrayListByteBuffer implements IByteBuffer {
                 position += capacity;
                 continue;
             } else {
-                int bufferPosition = index - position;
+                int bufferPosition = index - position - 1;
                 int dstPosition = dstIndex;
-                if (capacity > bufferPosition + length) {
+                if (capacity >= bufferPosition + length) {
                     buffer.getBytes(bufferPosition, dstBuffer, dstPosition, length);
                     return;
                 } else {
                     final int limit = index + length;
                     int remaining = length;
                     for (int i = index; i < limit; i++) {
-                        while (bufferPosition > capacity) {
+                        while (bufferPosition >= capacity) {
                             buf++;
                             buffer = list.get(buf);
                             capacity = buffer.capacity();
-                            bufferPosition = index - position;
+                            bufferPosition = index - position - 1;
                         }
-                        final int toCopy = Integers.min(remaining, buffer.remaining(i));
+                        final int toCopy = Integers.min(remaining, buffer.remaining(bufferPosition));
                         buffer.getBytes(bufferPosition, dstBuffer, dstPosition, toCopy);
                         remaining -= toCopy;
                         i += toCopy;
@@ -1201,22 +1210,22 @@ public class ArrayListByteBuffer implements IByteBuffer {
                 position += capacity;
                 continue;
             } else {
-                int bufferPosition = index - position;
+                int bufferPosition = index - position - 1;
                 int dstPosition = dstIndex;
-                if (capacity > bufferPosition + length) {
+                if (capacity >= bufferPosition + length) {
                     buffer.getBytes(bufferPosition, dstBuffer, dstPosition, length);
                     return;
                 } else {
                     final int limit = index + length;
                     int remaining = length;
                     for (int i = index; i < limit; i++) {
-                        while (bufferPosition > capacity) {
+                        while (bufferPosition >= capacity) {
                             buf++;
                             buffer = list.get(buf);
                             capacity = buffer.capacity();
-                            bufferPosition = index - position;
+                            bufferPosition = index - position - 1;
                         }
-                        final int toCopy = Integers.min(remaining, buffer.remaining(i));
+                        final int toCopy = Integers.min(remaining, buffer.remaining(bufferPosition));
                         buffer.getBytes(bufferPosition, dstBuffer, dstPosition, toCopy);
                         remaining -= toCopy;
                         i += toCopy;
@@ -1240,22 +1249,22 @@ public class ArrayListByteBuffer implements IByteBuffer {
                 position += capacity;
                 continue;
             } else {
-                int bufferPosition = index - position;
+                int bufferPosition = index - position - 1;
                 long dstPosition = dstIndex;
-                if (capacity > bufferPosition + length) {
+                if (capacity >= bufferPosition + length) {
                     buffer.getBytes(bufferPosition, dstBuffer, dstPosition, length);
                     return;
                 } else {
                     final int limit = index + length;
                     int remaining = length;
                     for (int i = index; i < limit; i++) {
-                        while (bufferPosition > capacity) {
+                        while (bufferPosition >= capacity) {
                             buf++;
                             buffer = list.get(buf);
                             capacity = buffer.capacity();
-                            bufferPosition = index - position;
+                            bufferPosition = index - position - 1;
                         }
-                        final int toCopy = Integers.min(remaining, buffer.remaining(i));
+                        final int toCopy = Integers.min(remaining, buffer.remaining(bufferPosition));
                         buffer.getBytes(bufferPosition, dstBuffer, dstPosition, toCopy);
                         remaining -= toCopy;
                         i += toCopy;
@@ -1279,21 +1288,21 @@ public class ArrayListByteBuffer implements IByteBuffer {
                 position += capacity;
                 continue;
             } else {
-                int bufferPosition = index - position;
-                if (capacity > bufferPosition + length) {
+                int bufferPosition = index - position - 1;
+                if (capacity >= bufferPosition + length) {
                     buffer.clear(value, bufferPosition, length);
                     return;
                 } else {
                     final int limit = index + length;
                     int remaining = length;
                     for (int i = index; i < limit; i++) {
-                        while (bufferPosition > capacity) {
+                        while (bufferPosition >= capacity) {
                             buf++;
                             buffer = list.get(buf);
                             capacity = buffer.capacity();
-                            bufferPosition = index - position;
+                            bufferPosition = index - position - 1;
                         }
-                        final int toCopy = Integers.min(remaining, buffer.remaining(i));
+                        final int toCopy = Integers.min(remaining, buffer.remaining(bufferPosition));
                         buffer.clear(value, bufferPosition, toCopy);
                         remaining -= toCopy;
                         i += toCopy;
