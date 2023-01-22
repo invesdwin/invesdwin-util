@@ -1306,6 +1306,7 @@ public class ArrayListByteBuffer implements IByteBuffer {
         throw new IndexOutOfBoundsException("index=" + index + " capacity=" + capacity());
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <T> T unwrap(final Class<T> type) {
         if (getClass().isAssignableFrom(type)) {
