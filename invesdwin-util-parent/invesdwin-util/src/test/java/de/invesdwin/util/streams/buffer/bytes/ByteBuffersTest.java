@@ -377,7 +377,7 @@ public class ByteBuffersTest {
         Assertions.checkEquals(Float.MIN_VALUE, b.getFloat(read));
         read += Float.BYTES;
         Assertions.checkEquals(Double.MAX_VALUE, b.getDouble(read));
-        read += Double.SIZE;
+        read += Double.BYTES;
     }
 
     private void testPrimitivesReverse(final IByteBuffer b) {
