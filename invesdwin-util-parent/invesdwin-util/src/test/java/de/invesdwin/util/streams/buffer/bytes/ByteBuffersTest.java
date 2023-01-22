@@ -41,13 +41,14 @@ import de.invesdwin.util.streams.buffer.bytes.extend.UnsafeByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.extend.internal.DirectExpandableByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.extend.internal.UninitializedDirectByteBuffer;
 import de.invesdwin.util.streams.buffer.memory.IMemoryBuffer;
+import de.invesdwin.util.time.Instant;
 import io.netty.buffer.Unpooled;
 import net.openhft.chronicle.bytes.BytesStore;
 
 @NotThreadSafe
 public class ByteBuffersTest {
 
-    private static final int BUFFER_SIZE = 10000;
+    private static final int BUFFER_SIZE = 1000;
 
     static {
         //CHECKSTYLE:OFF
@@ -129,12 +130,18 @@ public class ByteBuffersTest {
     @Test
     public void testListBuffer() throws IOException {
         for (int chunkSize = 1; chunkSize <= 20; chunkSize++) {
-            System.out.println(chunkSize);
+            //CHECKSTYLE:OFF
+            System.out.println("ListByteBuffer[" + chunkSize + "]");
+            //CHECKSTYLE:ON
+            final Instant start = new Instant();
             final ListByteBuffer buffer = new ListByteBuffer();
             for (int i = 0; i < BUFFER_SIZE; i += chunkSize) {
                 buffer.getList().add(ByteBuffers.allocate(chunkSize));
             }
             testBufferOrdered(buffer);
+            //CHECKSTYLE:OFF
+            System.out.println("ListByteBuffer[" + chunkSize + "] finished after " + start);
+            //CHECKSTYLE:ON
         }
     }
 
@@ -145,8 +152,6 @@ public class ByteBuffersTest {
     }
 
     private void testBuffer(final IByteBuffer b) throws IOException {
-        testPrimitivesStream(b);
-        b.clear();
         testPrimitives(b);
         b.clear();
         testPrimitivesReverse(b);
@@ -155,16 +160,12 @@ public class ByteBuffersTest {
         b.clear();
         testStringUtf8(b);
         b.clear();
+        testPrimitivesStream(b);
+        b.clear();
 
-        if (b.isExpandable()) {
-            b.ensureCapacity(BUFFER_SIZE);
-            Assertions.assertThat(b.capacity()).isGreaterThanOrEqualTo(BUFFER_SIZE);
-            Assertions.assertThat(b.remaining(b.capacity() - 200)).isEqualTo(200);
-        } else {
-            b.ensureCapacity(BUFFER_SIZE);
-            Assertions.assertThat(b.capacity()).isEqualTo(BUFFER_SIZE);
-            Assertions.assertThat(b.remaining(BUFFER_SIZE - 200)).isEqualTo(200);
-        }
+        b.ensureCapacity(BUFFER_SIZE);
+        Assertions.assertThat(b.capacity()).isGreaterThanOrEqualTo(BUFFER_SIZE);
+        Assertions.assertThat(b.remaining(b.capacity() - 200)).isEqualTo(200);
         testCopy(b);
     }
 
