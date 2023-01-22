@@ -171,7 +171,12 @@ public final class InputStreams {
     }
 
     public static char readChar(final InputStream in) throws IOException {
-        return (char) readShort(in);
+        final int ch1 = in.read();
+        final int ch2 = in.read();
+        if ((ch1 | ch2) < 0) {
+            throw FastEOFException.getInstance("end reached");
+        }
+        return (char) ((ch1 << 8) + (ch2 << 0));
     }
 
     public static int readInt(final InputStream in) throws IOException {

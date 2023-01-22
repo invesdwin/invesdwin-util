@@ -7,6 +7,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.ByteOrder;
 
 import javax.annotation.concurrent.NotThreadSafe;
@@ -26,6 +28,8 @@ import de.invesdwin.util.math.random.IRandomGenerator;
 import de.invesdwin.util.math.random.PseudoRandomGenerators;
 import de.invesdwin.util.streams.DelegateDataInput;
 import de.invesdwin.util.streams.DelegateDataOutput;
+import de.invesdwin.util.streams.InputStreams;
+import de.invesdwin.util.streams.OutputStreams;
 import de.invesdwin.util.streams.buffer.bytes.delegate.AgronaDelegateMutableByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.delegate.ChronicleDelegateByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.delegate.ListByteBuffer;
@@ -146,10 +150,16 @@ public class ByteBuffersTest {
     }
 
     private void testBuffer(final IByteBuffer b) throws IOException {
+        testPrimitivesStream(b);
+        b.clear();
         testPrimitives(b);
+        b.clear();
         testPrimitivesReverse(b);
+        b.clear();
         testStringAscii(b);
+        b.clear();
         testStringUtf8(b);
+        b.clear();
 
         if (b.isExpandable()) {
             b.ensureCapacity(BUFFER_SIZE);
@@ -347,9 +357,9 @@ public class ByteBuffersTest {
         b.putLong(write, Long.MAX_VALUE);
         write += Long.BYTES;
         b.putFloat(write, Float.MIN_VALUE);
-        write += Float.SIZE;
+        write += Float.BYTES;
         b.putDouble(write, Double.MAX_VALUE);
-        write += Double.SIZE;
+        write += Double.BYTES;
 
         int read = 200;
         Assertions.checkEquals(true, b.getBoolean(read));
@@ -365,7 +375,7 @@ public class ByteBuffersTest {
         Assertions.checkEquals(Long.MAX_VALUE, b.getLong(read));
         read += Long.BYTES;
         Assertions.checkEquals(Float.MIN_VALUE, b.getFloat(read));
-        read += Float.SIZE;
+        read += Float.BYTES;
         Assertions.checkEquals(Double.MAX_VALUE, b.getDouble(read));
         read += Double.SIZE;
     }
@@ -381,9 +391,9 @@ public class ByteBuffersTest {
         b.putLongReverse(write, Long.MAX_VALUE);
         write += Long.BYTES;
         b.putFloatReverse(write, Float.MIN_VALUE);
-        write += Float.SIZE;
+        write += Float.BYTES;
         b.putDoubleReverse(write, Double.MAX_VALUE);
-        write += Double.SIZE;
+        write += Double.BYTES;
 
         int read = 200;
         Assertions.checkEquals('A', b.getCharReverse(read));
@@ -395,9 +405,75 @@ public class ByteBuffersTest {
         Assertions.checkEquals(Long.MAX_VALUE, b.getLongReverse(read));
         read += Long.BYTES;
         Assertions.checkEquals(Float.MIN_VALUE, b.getFloatReverse(read));
-        read += Float.SIZE;
+        read += Float.BYTES;
         Assertions.checkEquals(Double.MAX_VALUE, b.getDoubleReverse(read));
-        read += Double.SIZE;
+        read += Double.BYTES;
+    }
+
+    private void testPrimitivesStream(final IByteBuffer b) throws IOException {
+        final int write = 200;
+        try (OutputStream out = b.asOutputStreamFrom(write)) {
+            OutputStreams.writeBoolean(out, true);
+            OutputStreams.write(out, (byte) 2);
+            OutputStreams.writeChar(out, 'A');
+            OutputStreams.writeShort(out, Short.MAX_VALUE);
+            OutputStreams.writeInt(out, Integer.MIN_VALUE);
+            OutputStreams.writeLong(out, Long.MAX_VALUE);
+            OutputStreams.writeFloat(out, Float.MIN_VALUE);
+            OutputStreams.writeDouble(out, Double.MAX_VALUE);
+        }
+
+        int read = 200;
+        try (InputStream in = b.asInputStreamFrom(read)) {
+            Assertions.checkEquals(true, InputStreams.readBoolean(in));
+            Assertions.checkEquals(true, b.getBoolean(read));
+            read += Booleans.BYTES;
+            Assertions.checkEquals((byte) 2, InputStreams.readByte(in));
+            Assertions.checkEquals((byte) 2, b.getByte(read));
+            read += Byte.BYTES;
+            Assertions.checkEquals('A', InputStreams.readChar(in));
+            if (b.getOrder() == ByteOrder.BIG_ENDIAN) {
+                Assertions.checkEquals('A', b.getChar(read));
+            } else {
+                Assertions.checkEquals('A', b.getCharReverse(read));
+            }
+            read += Character.BYTES;
+            Assertions.checkEquals(Short.MAX_VALUE, InputStreams.readShort(in));
+            if (b.getOrder() == ByteOrder.BIG_ENDIAN) {
+                Assertions.checkEquals(Short.MAX_VALUE, b.getShort(read));
+            } else {
+                Assertions.checkEquals(Short.MAX_VALUE, b.getShortReverse(read));
+            }
+            read += Short.BYTES;
+            Assertions.checkEquals(Integer.MIN_VALUE, InputStreams.readInt(in));
+            if (b.getOrder() == ByteOrder.BIG_ENDIAN) {
+                Assertions.checkEquals(Integer.MIN_VALUE, b.getInt(read));
+            } else {
+                Assertions.checkEquals(Integer.MIN_VALUE, b.getIntReverse(read));
+            }
+            read += Integer.BYTES;
+            Assertions.checkEquals(Long.MAX_VALUE, InputStreams.readLong(in));
+            if (b.getOrder() == ByteOrder.BIG_ENDIAN) {
+                Assertions.checkEquals(Long.MAX_VALUE, b.getLong(read));
+            } else {
+                Assertions.checkEquals(Long.MAX_VALUE, b.getLongReverse(read));
+            }
+            read += Long.BYTES;
+            Assertions.checkEquals(Float.MIN_VALUE, InputStreams.readFloat(in));
+            if (b.getOrder() == ByteOrder.BIG_ENDIAN) {
+                Assertions.checkEquals(Float.MIN_VALUE, b.getFloat(read));
+            } else {
+                Assertions.checkEquals(Float.MIN_VALUE, b.getFloatReverse(read));
+            }
+            read += Float.BYTES;
+            Assertions.checkEquals(Double.MAX_VALUE, InputStreams.readDouble(in));
+            if (b.getOrder() == ByteOrder.BIG_ENDIAN) {
+                Assertions.checkEquals(Double.MAX_VALUE, b.getDouble(read));
+            } else {
+                Assertions.checkEquals(Double.MAX_VALUE, b.getDoubleReverse(read));
+            }
+            read += Double.BYTES;
+        }
     }
 
 }

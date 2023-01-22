@@ -330,12 +330,42 @@ public class ListByteBuffer implements IByteBuffer {
 
     @Override
     public char getChar(final int index) {
-        return (char) getShort(index);
+        int position = 0;
+        for (int buf = 0; buf < list.size(); buf++) {
+            IByteBuffer buffer = list.get(buf);
+            int capacity = buffer.capacity();
+            if (index >= position + capacity) {
+                position += capacity;
+                continue;
+            } else {
+                int bufferPosition = index - position;
+                if (capacity >= bufferPosition + Short.BYTES) {
+                    return buffer.getChar(bufferPosition);
+                } else {
+                    final byte[] readBuffer = InputStreams.LONG_BUFFER_HOLDER.get();
+                    final int limit = index + Short.BYTES;
+                    for (int i = index, ri = 0; i < limit;) {
+                        while (bufferPosition >= capacity) {
+                            buf++;
+                            buffer = list.get(buf);
+                            capacity = buffer.capacity();
+                            bufferPosition = index - position;
+                        }
+                        readBuffer[ri] = buffer.getByte(bufferPosition);
+                        i++;
+                        ri++;
+                        bufferPosition++;
+                    }
+                    return (char) ((readBuffer[0] << 8) + (readBuffer[1] & 0xFF));
+                }
+            }
+        }
+        throw new IndexOutOfBoundsException("index=" + index + " capacity=" + capacity());
     }
 
     @Override
     public char getCharReverse(final int index) {
-        final short bits = getShort(index);
+        final short bits = (short) getChar(index);
         return (char) Short.reverseBytes(bits);
     }
 
