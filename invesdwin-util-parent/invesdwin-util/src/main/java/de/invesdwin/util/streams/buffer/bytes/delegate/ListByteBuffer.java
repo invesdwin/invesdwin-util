@@ -898,6 +898,47 @@ public class ListByteBuffer implements IByteBuffer {
     }
 
     @Override
+    public void putBytesTo(final int index, final ReadableByteChannel src, final int length) throws IOException {
+        int position = 0;
+        for (int buf = 0; buf < list.size(); buf++) {
+            IByteBuffer buffer = list.get(buf);
+            int capacity = buffer.capacity();
+            if (index >= position + capacity) {
+                position += capacity;
+                continue;
+            } else {
+                int bufferPosition = index - position;
+                if (capacity >= bufferPosition + length) {
+                    buffer.putBytesTo(bufferPosition, src, length);
+                    return;
+                } else {
+                    try {
+                        final int limit = index + length;
+                        int remaining = length;
+                        for (int i = index; i < limit;) {
+                            while (bufferPosition >= capacity) {
+                                buf++;
+                                buffer = list.get(buf);
+                                capacity = buffer.capacity();
+                                bufferPosition = index - position;
+                            }
+                            final int toCopy = Integers.min(remaining, buffer.remaining(bufferPosition));
+                            buffer.putBytesTo(bufferPosition, src, toCopy);
+                            remaining -= toCopy;
+                            i += toCopy;
+                            bufferPosition += toCopy;
+                        }
+                    } catch (final IOException e) {
+                        throw Throwables.propagate(e);
+                    }
+                    return;
+                }
+            }
+        }
+        throw new IndexOutOfBoundsException("index=" + index + " capacity=" + capacity());
+    }
+
+    @Override
     public void getBytesTo(final int index, final DataOutput dst, final int length) throws IOException {
         if (dst instanceof WritableByteChannel) {
             getBytesTo(index, (WritableByteChannel) dst, length);
@@ -940,6 +981,47 @@ public class ListByteBuffer implements IByteBuffer {
             }
             throw new IndexOutOfBoundsException("index=" + index + " capacity=" + capacity());
         }
+    }
+
+    @Override
+    public void getBytesTo(final int index, final WritableByteChannel dst, final int length) throws IOException {
+        int position = 0;
+        for (int buf = 0; buf < list.size(); buf++) {
+            IByteBuffer buffer = list.get(buf);
+            int capacity = buffer.capacity();
+            if (index >= position + capacity) {
+                position += capacity;
+                continue;
+            } else {
+                int bufferPosition = index - position;
+                if (capacity >= bufferPosition + length) {
+                    buffer.getBytesTo(bufferPosition, dst, length);
+                    return;
+                } else {
+                    try {
+                        final int limit = index + length;
+                        int remaining = length;
+                        for (int i = index; i < limit;) {
+                            while (bufferPosition >= capacity) {
+                                buf++;
+                                buffer = list.get(buf);
+                                capacity = buffer.capacity();
+                                bufferPosition = index - position;
+                            }
+                            final int toCopy = Integers.min(remaining, buffer.remaining(bufferPosition));
+                            buffer.getBytesTo(bufferPosition, dst, toCopy);
+                            remaining -= toCopy;
+                            i += toCopy;
+                            bufferPosition += toCopy;
+                        }
+                    } catch (final IOException e) {
+                        throw Throwables.propagate(e);
+                    }
+                    return;
+                }
+            }
+        }
+        throw new IndexOutOfBoundsException("index=" + index + " capacity=" + capacity());
     }
 
     @Override

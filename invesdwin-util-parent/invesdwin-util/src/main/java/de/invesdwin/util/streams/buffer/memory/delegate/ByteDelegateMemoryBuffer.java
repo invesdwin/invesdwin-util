@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteOrder;
+import java.nio.channels.ReadableByteChannel;
+import java.nio.channels.WritableByteChannel;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
@@ -357,6 +359,16 @@ public class ByteDelegateMemoryBuffer implements IMemoryBuffer {
     @Override
     public void putBytesTo(final long index, final InputStream src, final long length) throws IOException {
         delegate.putBytesTo(Integers.checkedCast(index), src, Integers.checkedCast(length));
+    }
+
+    @Override
+    public void putBytesTo(final long index, final ReadableByteChannel src, final long length) throws IOException {
+        delegate.putBytesTo(Integers.checkedCast(index), src, Integers.checkedCast(length));
+    }
+
+    @Override
+    public void getBytesTo(final long index, final WritableByteChannel dst, final long length) throws IOException {
+        delegate.getBytesTo(Integers.checkedCast(index), dst, Integers.checkedCast(length));
     }
 
     @SuppressWarnings("unchecked")

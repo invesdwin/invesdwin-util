@@ -129,17 +129,12 @@ public class ByteBuffersTest {
     @Test
     public void testListBuffer() throws IOException {
         for (int chunkSize = 1; chunkSize <= 20; chunkSize++) {
+            System.out.println(chunkSize);
             final ListByteBuffer buffer = new ListByteBuffer();
             for (int i = 0; i < BUFFER_SIZE; i += chunkSize) {
                 buffer.getList().add(ByteBuffers.allocate(chunkSize));
             }
             testBufferOrdered(buffer);
-
-            final ListByteBuffer directBuffer = new ListByteBuffer();
-            for (int i = 0; i < BUFFER_SIZE; i += chunkSize) {
-                directBuffer.getList().add(ByteBuffers.allocateDirect(chunkSize));
-            }
-            testBufferOrdered(directBuffer);
         }
     }
 

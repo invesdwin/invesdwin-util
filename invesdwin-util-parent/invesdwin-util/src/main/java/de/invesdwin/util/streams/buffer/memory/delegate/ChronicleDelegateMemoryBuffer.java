@@ -19,6 +19,9 @@ import org.agrona.MutableDirectBuffer;
 
 import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.lang.uri.URIs;
+import de.invesdwin.util.math.Longs;
+import de.invesdwin.util.streams.InputStreams;
+import de.invesdwin.util.streams.OutputStreams;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.UninitializedDirectByteBuffers;
@@ -635,6 +638,34 @@ public class ChronicleDelegateMemoryBuffer implements IMemoryBuffer {
                 delegate.writeByte(i, (byte) result);
                 i++;
             }
+        }
+    }
+
+    @Override
+    public void getBytesTo(final long index, final WritableByteChannel dst, final long length) throws IOException {
+        if (length > ArrayExpandableByteBuffer.MAX_ARRAY_LENGTH) {
+            long remaining = length;
+            while (remaining > 0L) {
+                final long chunk = Longs.min(remaining, ArrayExpandableByteBuffer.MAX_ARRAY_LENGTH);
+                remaining -= chunk;
+                OutputStreams.writeFully(dst, asNioByteBuffer(index, (int) chunk));
+            }
+        } else {
+            OutputStreams.writeFully(dst, asNioByteBuffer(index, (int) length));
+        }
+    }
+
+    @Override
+    public void putBytesTo(final long index, final ReadableByteChannel src, final long length) throws IOException {
+        if (length > ArrayExpandableByteBuffer.MAX_ARRAY_LENGTH) {
+            long remaining = length;
+            while (remaining > 0L) {
+                final long chunk = Longs.min(remaining, ArrayExpandableByteBuffer.MAX_ARRAY_LENGTH);
+                remaining -= chunk;
+                InputStreams.readFully(src, asNioByteBuffer(index, (int) chunk));
+            }
+        } else {
+            InputStreams.readFully(src, asNioByteBuffer(index, (int) length));
         }
     }
 

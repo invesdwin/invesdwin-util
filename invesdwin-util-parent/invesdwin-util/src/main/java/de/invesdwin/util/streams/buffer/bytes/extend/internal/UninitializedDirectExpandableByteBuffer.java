@@ -23,6 +23,8 @@ import org.agrona.io.ExpandableDirectBufferOutputStream;
 import de.invesdwin.util.concurrent.loop.ASpinWait;
 import de.invesdwin.util.error.FastEOFException;
 import de.invesdwin.util.lang.uri.URIs;
+import de.invesdwin.util.streams.InputStreams;
+import de.invesdwin.util.streams.OutputStreams;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.delegate.slice.SlicedFromDelegateByteBuffer;
@@ -353,6 +355,16 @@ public class UninitializedDirectExpandableByteBuffer extends UninitializedExpand
                 }
             }
         }
+    }
+
+    @Override
+    public void getBytesTo(final int index, final WritableByteChannel dst, final int length) throws IOException {
+        OutputStreams.writeFully(dst, asNioByteBuffer(index, length));
+    }
+
+    @Override
+    public void putBytesTo(final int index, final ReadableByteChannel src, final int length) throws IOException {
+        InputStreams.readFully(src, asNioByteBuffer(index, length));
     }
 
     @Override

@@ -15,8 +15,6 @@ import org.agrona.DirectBuffer;
 import org.agrona.MutableDirectBuffer;
 
 import de.invesdwin.util.math.Bytes;
-import de.invesdwin.util.streams.InputStreams;
-import de.invesdwin.util.streams.OutputStreams;
 import de.invesdwin.util.streams.buffer.memory.IMemoryBuffer;
 
 /**
@@ -303,6 +301,9 @@ public interface IByteBuffer extends IByteBufferProvider, Cloneable {
     /**
      * Might return the actual underlying array. Thus make sure to clone() it if the buffer is to be reused. Or just use
      * asByteArrayCopy instead to make sure a copy is returned always and clone() is not used redundantly.
+     * 
+     * Though it is not guaranteed that the returned ByteBuffer will not be a separate copy of this storage (e.g. when
+     * ListByteBuffer is used).
      */
     java.nio.ByteBuffer asNioByteBuffer(int index, int length);
 
@@ -463,9 +464,7 @@ public interface IByteBuffer extends IByteBufferProvider, Cloneable {
         getBytesTo(index, dst, remaining(index));
     }
 
-    default void getBytesTo(final int index, final WritableByteChannel dst, final int length) throws IOException {
-        OutputStreams.writeFully(dst, asNioByteBuffer(index, length));
-    }
+    void getBytesTo(int index, WritableByteChannel dst, int length) throws IOException;
 
     default void putBytes(final int index, final DataInputStream src) throws IOException {
         putBytesTo(index, src, remaining(index));
@@ -491,9 +490,7 @@ public interface IByteBuffer extends IByteBufferProvider, Cloneable {
         putBytesTo(index, src, remaining(index));
     }
 
-    default void putBytesTo(final int index, final ReadableByteChannel src, final int length) throws IOException {
-        InputStreams.readFully(src, asNioByteBuffer(index, length));
-    }
+    void putBytesTo(int index, ReadableByteChannel src, int length) throws IOException;
 
     <T> T unwrap(Class<T> type);
 
