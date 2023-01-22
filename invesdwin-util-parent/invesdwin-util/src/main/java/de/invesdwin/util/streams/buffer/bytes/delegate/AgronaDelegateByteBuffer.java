@@ -511,21 +511,19 @@ public class AgronaDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public void getBytesTo(final int index, final DataOutput dst, final int length) throws IOException {
-        int i = index;
-        while (i < length) {
+        final int limit = index + length;
+        for (int i = index; i < limit; i++) {
             final byte b = delegate.getByte(i);
             dst.write(b);
-            i++;
         }
     }
 
     @Override
     public void getBytesTo(final int index, final OutputStream dst, final int length) throws IOException {
-        int i = index;
-        while (i < length) {
+        final int limit = index + length;
+        for (int i = index; i < limit; i++) {
             final byte b = delegate.getByte(i);
             dst.write(b);
-            i++;
         }
     }
 

@@ -629,7 +629,8 @@ public class ChronicleDelegateByteBuffer implements IByteBuffer {
             getBytesTo(index, (WritableByteChannel) dst, length);
         } else {
             int i = index;
-            while (i < length) {
+            final int targetIndex = index + length;
+            while (i < targetIndex) {
                 final byte b = delegate.readByte(i);
                 dst.write(b);
                 i++;
@@ -648,7 +649,8 @@ public class ChronicleDelegateByteBuffer implements IByteBuffer {
             getBytesTo(index, (DataOutput) dst, length);
         } else {
             int i = index;
-            while (i < length) {
+            final int targetIndex = index + length;
+            while (i < targetIndex) {
                 final byte b = delegate.readByte(i);
                 dst.write(b);
                 i++;
@@ -663,7 +665,8 @@ public class ChronicleDelegateByteBuffer implements IByteBuffer {
         } else {
             ensureCapacity(index, length);
             int i = index;
-            while (i < length) {
+            final int targetIndex = index + length;
+            while (i < targetIndex) {
                 final byte b = src.readByte();
                 delegate.writeByte(i, b);
                 i++;
@@ -686,7 +689,8 @@ public class ChronicleDelegateByteBuffer implements IByteBuffer {
 
             ensureCapacity(index, length);
             int i = index;
-            while (i < length) {
+            final int targetIndex = index + length;
+            while (i < targetIndex) {
                 final int result = src.read();
                 if (result < 0) { // EOF
                     throw ByteBuffers.newEOF();
@@ -753,8 +757,8 @@ public class ChronicleDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public void clear(final byte value, final int index, final int length) {
-        final int target = index + length;
-        for (int i = index; i < target; i++) {
+        final int limit = index + length;
+        for (int i = index; i < limit; i++) {
             delegate.writeByte(i, value);
         }
     }

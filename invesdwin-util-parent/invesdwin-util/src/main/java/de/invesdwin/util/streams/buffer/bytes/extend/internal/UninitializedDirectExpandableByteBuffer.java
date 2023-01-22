@@ -279,11 +279,10 @@ public class UninitializedDirectExpandableByteBuffer extends UninitializedExpand
         if (dst instanceof WritableByteChannel) {
             getBytesTo(index, (WritableByteChannel) dst, length);
         } else {
-            int i = index;
-            while (i < length) {
+            final int limit = index + length;
+            for (int i = index; i < limit; i++) {
                 final byte b = getByte(i);
                 dst.write(b);
-                i++;
             }
         }
     }
@@ -298,11 +297,10 @@ public class UninitializedDirectExpandableByteBuffer extends UninitializedExpand
         } else if (dst instanceof DataOutput) {
             getBytesTo(index, (DataOutput) dst, length);
         } else {
-            int i = index;
-            while (i < length) {
+            final int limit = index + length;
+            for (int i = index; i < limit; i++) {
                 final byte b = getByte(i);
                 dst.write(b);
-                i++;
             }
         }
     }
@@ -313,11 +311,10 @@ public class UninitializedDirectExpandableByteBuffer extends UninitializedExpand
             putBytesTo(index, (ReadableByteChannel) src, length);
         } else {
             ensureCapacity(index + length);
-            int i = index;
-            while (i < length) {
+            final int limit = index + length;
+            for (int i = index; i < limit; i++) {
                 final byte b = src.readByte();
                 putByte(i, b);
-                i++;
             }
         }
     }
@@ -336,8 +333,8 @@ public class UninitializedDirectExpandableByteBuffer extends UninitializedExpand
             long zeroCountNanos = -1L;
 
             ensureCapacity(index + length);
-            int i = index;
-            while (i < length) {
+            final int limit = index + length;
+            for (int i = index; i < limit;) {
                 final int result = src.read();
                 if (result < 0) { // EOF
                     throw ByteBuffers.newEOF();

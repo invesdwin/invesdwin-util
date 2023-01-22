@@ -511,11 +511,10 @@ public class NettyDelegateByteBuffer implements IByteBuffer {
         if (dst instanceof WritableByteChannel) {
             getBytesTo(index, (WritableByteChannel) dst, length);
         } else {
-            int i = index;
-            while (i < length) {
+            final int limit = index + length;
+            for (int i = index; i < limit; i++) {
                 final byte b = delegate.getByte(i);
                 dst.write(b);
-                i++;
             }
         }
     }
@@ -530,11 +529,10 @@ public class NettyDelegateByteBuffer implements IByteBuffer {
         } else if (dst instanceof DataOutput) {
             getBytesTo(index, (DataOutput) dst, length);
         } else {
-            int i = index;
-            while (i < length) {
+            final int limit = index + length;
+            for (int i = index; i < limit; i++) {
                 final byte b = delegate.getByte(i);
                 dst.write(b);
-                i++;
             }
         }
     }
@@ -545,11 +543,10 @@ public class NettyDelegateByteBuffer implements IByteBuffer {
             putBytesTo(index, (ReadableByteChannel) src, length);
         } else {
             ensureCapacity(index, length);
-            int i = index;
-            while (i < length) {
+            final int limit = index + length;
+            for (int i = index; i < limit; i++) {
                 final byte b = src.readByte();
                 delegate.setByte(i, b);
-                i++;
             }
         }
     }
@@ -568,8 +565,8 @@ public class NettyDelegateByteBuffer implements IByteBuffer {
             long zeroCountNanos = -1L;
 
             ensureCapacity(index, length);
-            int i = index;
-            while (i < length) {
+            final int limit = index + length;
+            for (int i = index; i < limit;) {
                 final int result = src.read();
                 if (result < 0) { // EOF
                     throw ByteBuffers.newEOF();
@@ -633,8 +630,8 @@ public class NettyDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public void clear(final byte value, final int index, final int length) {
-        final int target = index + length;
-        for (int i = index; i < target; i++) {
+        final int limit = index + length;
+        for (int i = index; i < limit; i++) {
             delegate.setByte(i, value);
         }
     }

@@ -466,11 +466,10 @@ public class NioDelegateByteBuffer implements IByteBuffer {
         if (dst instanceof WritableByteChannel) {
             getBytesTo(index, (WritableByteChannel) dst, length);
         } else {
-            int i = index;
-            while (i < length) {
+            final int limit = index + length;
+            for (int i = index; i < limit; i++) {
                 final byte b = delegate.get(i);
                 dst.write(b);
-                i++;
             }
         }
     }
@@ -485,11 +484,10 @@ public class NioDelegateByteBuffer implements IByteBuffer {
         } else if (dst instanceof DataOutput) {
             getBytesTo(index, (DataOutput) dst, length);
         } else {
-            int i = index;
-            while (i < length) {
+            final int limit = index + length;
+            for (int i = index; i < limit; i++) {
                 final byte b = delegate.get(i);
                 dst.write(b);
-                i++;
             }
         }
     }
@@ -499,11 +497,10 @@ public class NioDelegateByteBuffer implements IByteBuffer {
         if (src instanceof ReadableByteChannel) {
             putBytesTo(index, (ReadableByteChannel) src, length);
         } else {
-            int i = index;
-            while (i < length) {
+            final int limit = index + length;
+            for (int i = index; i < limit; i++) {
                 final byte b = src.readByte();
                 delegate.put(i, b);
-                i++;
             }
         }
     }
@@ -521,8 +518,8 @@ public class NioDelegateByteBuffer implements IByteBuffer {
             final Duration timeout = URIs.getDefaultNetworkTimeout();
             long zeroCountNanos = -1L;
 
-            int i = index;
-            while (i < length) {
+            final int limit = index + length;
+            for (int i = index; i < limit;) {
                 final int result = src.read();
                 if (result < 0) { // EOF
                     throw ByteBuffers.newEOF();
