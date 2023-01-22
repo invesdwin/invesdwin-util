@@ -168,19 +168,20 @@ public class ArrayListByteBuffer implements IByteBuffer {
                 position += capacity;
                 continue;
             } else {
-                int indexMinusPosition = index - position;
-                if (capacity > indexMinusPosition + Long.BYTES) {
-                    return buffer.getLong(indexMinusPosition);
+                int bufferPosition = index - position;
+                if (capacity > bufferPosition + Long.BYTES) {
+                    return buffer.getLong(bufferPosition);
                 } else {
                     final byte[] readBuffer = InputStreams.LONG_BUFFER_HOLDER.get();
                     for (int i = 0; i < Long.BYTES; i++) {
-                        while (indexMinusPosition + i > capacity) {
+                        while (bufferPosition > capacity) {
                             buf++;
                             buffer = list.get(buf);
                             capacity = buffer.capacity();
-                            indexMinusPosition = index - position;
+                            bufferPosition = index - position;
                         }
-                        readBuffer[i] = buffer.getByte(indexMinusPosition + i);
+                        readBuffer[i] = buffer.getByte(bufferPosition);
+                        bufferPosition++;
                     }
                     //CHECKSTYLE:OFF
                     return (((long) readBuffer[0] << 56) + ((long) (readBuffer[1] & 255) << 48)
@@ -210,19 +211,20 @@ public class ArrayListByteBuffer implements IByteBuffer {
                 position += capacity;
                 continue;
             } else {
-                int indexMinusPosition = index - position;
-                if (capacity > indexMinusPosition + Integer.BYTES) {
-                    return buffer.getInt(indexMinusPosition);
+                int bufferPosition = index - position;
+                if (capacity > bufferPosition + Integer.BYTES) {
+                    return buffer.getInt(bufferPosition);
                 } else {
                     final byte[] readBuffer = InputStreams.LONG_BUFFER_HOLDER.get();
                     for (int i = 0; i < Integer.BYTES; i++) {
-                        while (indexMinusPosition + i > capacity) {
+                        while (bufferPosition > capacity) {
                             buf++;
                             buffer = list.get(buf);
                             capacity = buffer.capacity();
-                            indexMinusPosition = index - position;
+                            bufferPosition = index - position;
                         }
-                        readBuffer[i] = buffer.getByte(indexMinusPosition + i);
+                        readBuffer[i] = buffer.getByte(bufferPosition);
+                        bufferPosition++;
                     }
                     return ((readBuffer[0] << 24) + (readBuffer[1] << 16) + (readBuffer[2] << 8)
                             + (readBuffer[3] << 0));
@@ -270,19 +272,20 @@ public class ArrayListByteBuffer implements IByteBuffer {
                 position += capacity;
                 continue;
             } else {
-                int indexMinusPosition = index - position;
-                if (capacity > indexMinusPosition + Short.BYTES) {
-                    return buffer.getShort(indexMinusPosition);
+                int bufferPosition = index - position;
+                if (capacity > bufferPosition + Short.BYTES) {
+                    return buffer.getShort(bufferPosition);
                 } else {
                     final byte[] readBuffer = InputStreams.LONG_BUFFER_HOLDER.get();
                     for (int i = 0; i < Short.BYTES; i++) {
-                        while (indexMinusPosition + i > capacity) {
+                        while (bufferPosition > capacity) {
                             buf++;
                             buffer = list.get(buf);
                             capacity = buffer.capacity();
-                            indexMinusPosition = index - position;
+                            bufferPosition = index - position;
                         }
-                        readBuffer[i] = buffer.getByte(indexMinusPosition + i);
+                        readBuffer[i] = buffer.getByte(bufferPosition);
+                        bufferPosition++;
                     }
                     return (short) ((readBuffer[0] << 8) + (readBuffer[1] << 0));
                 }
@@ -596,22 +599,23 @@ public class ArrayListByteBuffer implements IByteBuffer {
                 position += capacity;
                 continue;
             } else {
-                int indexMinusPosition = index - position;
-                if (capacity > indexMinusPosition + Short.BYTES) {
-                    buffer.getStringAsciii(indexMinusPosition, length, dst);
+                int bufferPosition = index - position;
+                if (capacity > bufferPosition + Short.BYTES) {
+                    buffer.getStringAsciii(bufferPosition, length, dst);
                     return;
                 } else {
                     try {
                         final int limit = index + length;
                         for (int i = index; i < limit; i++) {
-                            while (indexMinusPosition + i > capacity) {
+                            while (bufferPosition > capacity) {
                                 buf++;
                                 buffer = list.get(buf);
                                 capacity = buffer.capacity();
-                                indexMinusPosition = index - position;
+                                bufferPosition = index - position;
                             }
-                            final char c = (char) buffer.getByte(indexMinusPosition + i);
+                            final char c = (char) buffer.getByte(bufferPosition);
                             dst.append(c > 127 ? '?' : c);
+                            bufferPosition++;
                         }
                     } catch (final IOException e) {
                         throw Throwables.propagate(e);
@@ -635,23 +639,23 @@ public class ArrayListByteBuffer implements IByteBuffer {
                 position += capacity;
                 continue;
             } else {
-                int indexMinusPosition = index - position;
-                if (capacity > indexMinusPosition + Short.BYTES) {
-                    buffer.putStringAsciii(indexMinusPosition, value, valueIndex, length);
+                int bufferPosition = index - position;
+                if (capacity > bufferPosition + Short.BYTES) {
+                    buffer.putStringAsciii(bufferPosition, value, valueIndex, length);
                     return;
                 } else {
                     for (int b = 0; b < length; b++) {
-                        while (indexMinusPosition + b > capacity) {
+                        while (bufferPosition + b > capacity) {
                             buf++;
                             buffer = list.get(buf);
                             capacity = buffer.capacity();
-                            indexMinusPosition = index - position;
+                            bufferPosition = index - position;
                         }
                         char c = value.charAt(valueIndex + b);
                         if (c > 127) {
                             c = '?';
                         }
-                        buffer.putByte(indexMinusPosition + b, (byte) c);
+                        buffer.putByte(bufferPosition + b, (byte) c);
                     }
                     return;
                 }
@@ -703,25 +707,26 @@ public class ArrayListByteBuffer implements IByteBuffer {
                     position += capacity;
                     continue;
                 } else {
-                    int indexMinusPosition = index - position;
-                    if (capacity > indexMinusPosition + length) {
-                        buffer.getBytesTo(indexMinusPosition, dst, length);
+                    int bufferPosition = index - position;
+                    if (capacity > bufferPosition + length) {
+                        buffer.getBytesTo(bufferPosition, dst, length);
                         return;
                     } else {
                         try {
                             final int limit = index + length;
                             int remaining = length;
                             for (int i = index; i < limit; i++) {
-                                while (indexMinusPosition + i > capacity) {
+                                while (bufferPosition > capacity) {
                                     buf++;
                                     buffer = list.get(buf);
                                     capacity = buffer.capacity();
-                                    indexMinusPosition = index - position;
+                                    bufferPosition = index - position;
                                 }
                                 final int toCopy = Integers.min(remaining, buffer.remaining(i));
-                                buffer.getBytesTo(i, dst, toCopy);
+                                buffer.getBytesTo(bufferPosition, dst, toCopy);
                                 remaining -= toCopy;
                                 i += toCopy;
+                                bufferPosition += toCopy;
                             }
                         } catch (final IOException e) {
                             throw Throwables.propagate(e);
@@ -747,25 +752,26 @@ public class ArrayListByteBuffer implements IByteBuffer {
                     position += capacity;
                     continue;
                 } else {
-                    int indexMinusPosition = index - position;
-                    if (capacity > indexMinusPosition + length) {
-                        buffer.putBytesTo(indexMinusPosition, src, length);
+                    int bufferPosition = index - position;
+                    if (capacity > bufferPosition + length) {
+                        buffer.putBytesTo(bufferPosition, src, length);
                         return;
                     } else {
                         try {
                             final int limit = index + length;
                             int remaining = length;
                             for (int i = index; i < limit; i++) {
-                                while (indexMinusPosition + i > capacity) {
+                                while (bufferPosition > capacity) {
                                     buf++;
                                     buffer = list.get(buf);
                                     capacity = buffer.capacity();
-                                    indexMinusPosition = index - position;
+                                    bufferPosition = index - position;
                                 }
                                 final int toCopy = Integers.min(remaining, buffer.remaining(i));
-                                buffer.putBytesTo(i, src, toCopy);
+                                buffer.putBytesTo(bufferPosition, src, toCopy);
                                 remaining -= toCopy;
                                 i += toCopy;
+                                bufferPosition += toCopy;
                             }
                         } catch (final IOException e) {
                             throw Throwables.propagate(e);
@@ -796,25 +802,26 @@ public class ArrayListByteBuffer implements IByteBuffer {
                     position += capacity;
                     continue;
                 } else {
-                    int indexMinusPosition = index - position;
-                    if (capacity > indexMinusPosition + length) {
-                        buffer.putBytesTo(indexMinusPosition, src, length);
+                    int bufferPosition = index - position;
+                    if (capacity > bufferPosition + length) {
+                        buffer.putBytesTo(bufferPosition, src, length);
                         return;
                     } else {
                         try {
                             final int limit = index + length;
                             int remaining = length;
                             for (int i = index; i < limit; i++) {
-                                while (indexMinusPosition + i > capacity) {
+                                while (bufferPosition > capacity) {
                                     buf++;
                                     buffer = list.get(buf);
                                     capacity = buffer.capacity();
-                                    indexMinusPosition = index - position;
+                                    bufferPosition = index - position;
                                 }
                                 final int toCopy = Integers.min(remaining, buffer.remaining(i));
-                                buffer.putBytesTo(i, src, toCopy);
+                                buffer.putBytesTo(bufferPosition, src, toCopy);
                                 remaining -= toCopy;
                                 i += toCopy;
+                                bufferPosition += toCopy;
                             }
                         } catch (final IOException e) {
                             throw Throwables.propagate(e);
@@ -840,25 +847,26 @@ public class ArrayListByteBuffer implements IByteBuffer {
                     position += capacity;
                     continue;
                 } else {
-                    int indexMinusPosition = index - position;
-                    if (capacity > indexMinusPosition + length) {
-                        buffer.getBytesTo(indexMinusPosition, dst, length);
+                    int bufferPosition = index - position;
+                    if (capacity > bufferPosition + length) {
+                        buffer.getBytesTo(bufferPosition, dst, length);
                         return;
                     } else {
                         try {
                             final int limit = index + length;
                             int remaining = length;
                             for (int i = index; i < limit; i++) {
-                                while (indexMinusPosition + i > capacity) {
+                                while (bufferPosition > capacity) {
                                     buf++;
                                     buffer = list.get(buf);
                                     capacity = buffer.capacity();
-                                    indexMinusPosition = index - position;
+                                    bufferPosition = index - position;
                                 }
                                 final int toCopy = Integers.min(remaining, buffer.remaining(i));
-                                buffer.getBytesTo(i, dst, toCopy);
+                                buffer.getBytesTo(bufferPosition, dst, toCopy);
                                 remaining -= toCopy;
                                 i += toCopy;
+                                bufferPosition += toCopy;
                             }
                         } catch (final IOException e) {
                             throw Throwables.propagate(e);
@@ -872,34 +880,394 @@ public class ArrayListByteBuffer implements IByteBuffer {
     }
 
     @Override
-    public void putBytes(final int index, final byte[] src, final int srcIndex, final int length) {}
+    public void putBytes(final int index, final byte[] src, final int srcIndex, final int length) {
+        int position = 0;
+        for (int buf = 0; buf < list.size(); buf++) {
+            IByteBuffer buffer = list.get(buf);
+            int capacity = buffer.capacity();
+            if (index > position + capacity) {
+                position += capacity;
+                continue;
+            } else {
+                int bufferPosition = index - position;
+                int srcPosition = srcIndex;
+                if (capacity > bufferPosition + length) {
+                    buffer.putBytes(bufferPosition, src, srcPosition, length);
+                    return;
+                } else {
+                    final int limit = index + length;
+                    int remaining = length;
+                    for (int i = index; i < limit; i++) {
+                        while (bufferPosition > capacity) {
+                            buf++;
+                            buffer = list.get(buf);
+                            capacity = buffer.capacity();
+                            bufferPosition = index - position;
+                        }
+                        final int toCopy = Integers.min(remaining, buffer.remaining(i));
+                        buffer.putBytes(bufferPosition, src, srcPosition, toCopy);
+                        remaining -= toCopy;
+                        i += toCopy;
+                        bufferPosition += toCopy;
+                        srcPosition += toCopy;
+                    }
+                    return;
+                }
+            }
+        }
+        throw new IndexOutOfBoundsException("index=" + index + " capacity=" + capacity());
+    }
 
     @Override
-    public void putBytes(final int index, final java.nio.ByteBuffer srcBuffer, final int srcIndex, final int length) {}
+    public void putBytes(final int index, final java.nio.ByteBuffer srcBuffer, final int srcIndex, final int length) {
+        int position = 0;
+        for (int buf = 0; buf < list.size(); buf++) {
+            IByteBuffer buffer = list.get(buf);
+            int capacity = buffer.capacity();
+            if (index > position + capacity) {
+                position += capacity;
+                continue;
+            } else {
+                int bufferPosition = index - position;
+                int srcPosition = srcIndex;
+                if (capacity > bufferPosition + length) {
+                    buffer.putBytes(bufferPosition, srcBuffer, srcPosition, length);
+                    return;
+                } else {
+                    final int limit = index + length;
+                    int remaining = length;
+                    for (int i = index; i < limit; i++) {
+                        while (bufferPosition > capacity) {
+                            buf++;
+                            buffer = list.get(buf);
+                            capacity = buffer.capacity();
+                            bufferPosition = index - position;
+                        }
+                        final int toCopy = Integers.min(remaining, buffer.remaining(i));
+                        buffer.putBytes(bufferPosition, srcBuffer, srcPosition, toCopy);
+                        remaining -= toCopy;
+                        i += toCopy;
+                        bufferPosition += toCopy;
+                        srcPosition += toCopy;
+                    }
+                    return;
+                }
+            }
+        }
+        throw new IndexOutOfBoundsException("index=" + index + " capacity=" + capacity());
+    }
 
     @Override
-    public void putBytes(final int index, final DirectBuffer srcBuffer, final int srcIndex, final int length) {}
+    public void putBytes(final int index, final DirectBuffer srcBuffer, final int srcIndex, final int length) {
+        int position = 0;
+        for (int buf = 0; buf < list.size(); buf++) {
+            IByteBuffer buffer = list.get(buf);
+            int capacity = buffer.capacity();
+            if (index > position + capacity) {
+                position += capacity;
+                continue;
+            } else {
+                int bufferPosition = index - position;
+                int srcPosition = srcIndex;
+                if (capacity > bufferPosition + length) {
+                    buffer.putBytes(bufferPosition, srcBuffer, srcPosition, length);
+                    return;
+                } else {
+                    final int limit = index + length;
+                    int remaining = length;
+                    for (int i = index; i < limit; i++) {
+                        while (bufferPosition > capacity) {
+                            buf++;
+                            buffer = list.get(buf);
+                            capacity = buffer.capacity();
+                            bufferPosition = index - position;
+                        }
+                        final int toCopy = Integers.min(remaining, buffer.remaining(i));
+                        buffer.putBytes(bufferPosition, srcBuffer, srcPosition, toCopy);
+                        remaining -= toCopy;
+                        i += toCopy;
+                        bufferPosition += toCopy;
+                        srcPosition += toCopy;
+                    }
+                    return;
+                }
+            }
+        }
+        throw new IndexOutOfBoundsException("index=" + index + " capacity=" + capacity());
+    }
 
     @Override
-    public void putBytes(final int index, final IByteBuffer srcBuffer, final int srcIndex, final int length) {}
+    public void putBytes(final int index, final IByteBuffer srcBuffer, final int srcIndex, final int length) {
+        int position = 0;
+        for (int buf = 0; buf < list.size(); buf++) {
+            IByteBuffer buffer = list.get(buf);
+            int capacity = buffer.capacity();
+            if (index > position + capacity) {
+                position += capacity;
+                continue;
+            } else {
+                int bufferPosition = index - position;
+                int srcPosition = srcIndex;
+                if (capacity > bufferPosition + length) {
+                    buffer.putBytes(bufferPosition, srcBuffer, srcPosition, length);
+                    return;
+                } else {
+                    final int limit = index + length;
+                    int remaining = length;
+                    for (int i = index; i < limit; i++) {
+                        while (bufferPosition > capacity) {
+                            buf++;
+                            buffer = list.get(buf);
+                            capacity = buffer.capacity();
+                            bufferPosition = index - position;
+                        }
+                        final int toCopy = Integers.min(remaining, buffer.remaining(i));
+                        buffer.putBytes(bufferPosition, srcBuffer, srcPosition, toCopy);
+                        remaining -= toCopy;
+                        i += toCopy;
+                        bufferPosition += toCopy;
+                        srcPosition += toCopy;
+                    }
+                    return;
+                }
+            }
+        }
+        throw new IndexOutOfBoundsException("index=" + index + " capacity=" + capacity());
+    }
 
     @Override
-    public void putBytes(final int index, final IMemoryBuffer srcBuffer, final long srcIndex, final int length) {}
+    public void putBytes(final int index, final IMemoryBuffer srcBuffer, final long srcIndex, final int length) {
+        int position = 0;
+        for (int buf = 0; buf < list.size(); buf++) {
+            IByteBuffer buffer = list.get(buf);
+            int capacity = buffer.capacity();
+            if (index > position + capacity) {
+                position += capacity;
+                continue;
+            } else {
+                int bufferPosition = index - position;
+                long srcPosition = srcIndex;
+                if (capacity > bufferPosition + length) {
+                    buffer.putBytes(bufferPosition, srcBuffer, srcPosition, length);
+                    return;
+                } else {
+                    final int limit = index + length;
+                    int remaining = length;
+                    for (int i = index; i < limit; i++) {
+                        while (bufferPosition > capacity) {
+                            buf++;
+                            buffer = list.get(buf);
+                            capacity = buffer.capacity();
+                            bufferPosition = index - position;
+                        }
+                        final int toCopy = Integers.min(remaining, buffer.remaining(i));
+                        buffer.putBytes(bufferPosition, srcBuffer, srcPosition, toCopy);
+                        remaining -= toCopy;
+                        i += toCopy;
+                        bufferPosition += toCopy;
+                        srcPosition += toCopy;
+                    }
+                    return;
+                }
+            }
+        }
+        throw new IndexOutOfBoundsException("index=" + index + " capacity=" + capacity());
+    }
 
     @Override
-    public void getBytes(final int index, final byte[] dst, final int dstIndex, final int length) {}
+    public void getBytes(final int index, final byte[] dst, final int dstIndex, final int length) {
+        int position = 0;
+        for (int buf = 0; buf < list.size(); buf++) {
+            IByteBuffer buffer = list.get(buf);
+            int capacity = buffer.capacity();
+            if (index > position + capacity) {
+                position += capacity;
+                continue;
+            } else {
+                int bufferPosition = index - position;
+                int dstPosition = dstIndex;
+                if (capacity > bufferPosition + length) {
+                    buffer.getBytes(bufferPosition, dst, dstPosition, length);
+                    return;
+                } else {
+                    final int limit = index + length;
+                    int remaining = length;
+                    for (int i = index; i < limit; i++) {
+                        while (bufferPosition > capacity) {
+                            buf++;
+                            buffer = list.get(buf);
+                            capacity = buffer.capacity();
+                            bufferPosition = index - position;
+                        }
+                        final int toCopy = Integers.min(remaining, buffer.remaining(i));
+                        buffer.getBytes(bufferPosition, dst, dstPosition, toCopy);
+                        remaining -= toCopy;
+                        i += toCopy;
+                        bufferPosition += toCopy;
+                        dstPosition += toCopy;
+                    }
+                    return;
+                }
+            }
+        }
+        throw new IndexOutOfBoundsException("index=" + index + " capacity=" + capacity());
+    }
 
     @Override
-    public void getBytes(final int index, final java.nio.ByteBuffer dstBuffer, final int dstIndex, final int length) {}
+    public void getBytes(final int index, final java.nio.ByteBuffer dstBuffer, final int dstIndex, final int length) {
+        int position = 0;
+        for (int buf = 0; buf < list.size(); buf++) {
+            IByteBuffer buffer = list.get(buf);
+            int capacity = buffer.capacity();
+            if (index > position + capacity) {
+                position += capacity;
+                continue;
+            } else {
+                int bufferPosition = index - position;
+                int dstPosition = dstIndex;
+                if (capacity > bufferPosition + length) {
+                    buffer.getBytes(bufferPosition, dstBuffer, dstPosition, length);
+                    return;
+                } else {
+                    final int limit = index + length;
+                    int remaining = length;
+                    for (int i = index; i < limit; i++) {
+                        while (bufferPosition > capacity) {
+                            buf++;
+                            buffer = list.get(buf);
+                            capacity = buffer.capacity();
+                            bufferPosition = index - position;
+                        }
+                        final int toCopy = Integers.min(remaining, buffer.remaining(i));
+                        buffer.getBytes(bufferPosition, dstBuffer, dstPosition, toCopy);
+                        remaining -= toCopy;
+                        i += toCopy;
+                        bufferPosition += toCopy;
+                        dstPosition += toCopy;
+                    }
+                    return;
+                }
+            }
+        }
+        throw new IndexOutOfBoundsException("index=" + index + " capacity=" + capacity());
+    }
 
     @Override
-    public void getBytes(final int index, final MutableDirectBuffer dstBuffer, final int dstIndex, final int length) {}
+    public void getBytes(final int index, final MutableDirectBuffer dstBuffer, final int dstIndex, final int length) {
+        int position = 0;
+        for (int buf = 0; buf < list.size(); buf++) {
+            IByteBuffer buffer = list.get(buf);
+            int capacity = buffer.capacity();
+            if (index > position + capacity) {
+                position += capacity;
+                continue;
+            } else {
+                int bufferPosition = index - position;
+                int dstPosition = dstIndex;
+                if (capacity > bufferPosition + length) {
+                    buffer.getBytes(bufferPosition, dstBuffer, dstPosition, length);
+                    return;
+                } else {
+                    final int limit = index + length;
+                    int remaining = length;
+                    for (int i = index; i < limit; i++) {
+                        while (bufferPosition > capacity) {
+                            buf++;
+                            buffer = list.get(buf);
+                            capacity = buffer.capacity();
+                            bufferPosition = index - position;
+                        }
+                        final int toCopy = Integers.min(remaining, buffer.remaining(i));
+                        buffer.getBytes(bufferPosition, dstBuffer, dstPosition, toCopy);
+                        remaining -= toCopy;
+                        i += toCopy;
+                        bufferPosition += toCopy;
+                        dstPosition += toCopy;
+                    }
+                    return;
+                }
+            }
+        }
+        throw new IndexOutOfBoundsException("index=" + index + " capacity=" + capacity());
+    }
 
     @Override
-    public void getBytes(final int index, final IByteBuffer dstBuffer, final int dstIndex, final int length) {}
+    public void getBytes(final int index, final IByteBuffer dstBuffer, final int dstIndex, final int length) {
+        int position = 0;
+        for (int buf = 0; buf < list.size(); buf++) {
+            IByteBuffer buffer = list.get(buf);
+            int capacity = buffer.capacity();
+            if (index > position + capacity) {
+                position += capacity;
+                continue;
+            } else {
+                int bufferPosition = index - position;
+                int dstPosition = dstIndex;
+                if (capacity > bufferPosition + length) {
+                    buffer.getBytes(bufferPosition, dstBuffer, dstPosition, length);
+                    return;
+                } else {
+                    final int limit = index + length;
+                    int remaining = length;
+                    for (int i = index; i < limit; i++) {
+                        while (bufferPosition > capacity) {
+                            buf++;
+                            buffer = list.get(buf);
+                            capacity = buffer.capacity();
+                            bufferPosition = index - position;
+                        }
+                        final int toCopy = Integers.min(remaining, buffer.remaining(i));
+                        buffer.getBytes(bufferPosition, dstBuffer, dstPosition, toCopy);
+                        remaining -= toCopy;
+                        i += toCopy;
+                        bufferPosition += toCopy;
+                        dstPosition += toCopy;
+                    }
+                    return;
+                }
+            }
+        }
+        throw new IndexOutOfBoundsException("index=" + index + " capacity=" + capacity());
+    }
 
     @Override
-    public void getBytes(final int index, final IMemoryBuffer dstBuffer, final long dstIndex, final int length) {}
+    public void getBytes(final int index, final IMemoryBuffer dstBuffer, final long dstIndex, final int length) {
+        int position = 0;
+        for (int buf = 0; buf < list.size(); buf++) {
+            IByteBuffer buffer = list.get(buf);
+            int capacity = buffer.capacity();
+            if (index > position + capacity) {
+                position += capacity;
+                continue;
+            } else {
+                int bufferPosition = index - position;
+                long dstPosition = dstIndex;
+                if (capacity > bufferPosition + length) {
+                    buffer.getBytes(bufferPosition, dstBuffer, dstPosition, length);
+                    return;
+                } else {
+                    final int limit = index + length;
+                    int remaining = length;
+                    for (int i = index; i < limit; i++) {
+                        while (bufferPosition > capacity) {
+                            buf++;
+                            buffer = list.get(buf);
+                            capacity = buffer.capacity();
+                            bufferPosition = index - position;
+                        }
+                        final int toCopy = Integers.min(remaining, buffer.remaining(i));
+                        buffer.getBytes(bufferPosition, dstBuffer, dstPosition, toCopy);
+                        remaining -= toCopy;
+                        i += toCopy;
+                        bufferPosition += toCopy;
+                        dstPosition += toCopy;
+                    }
+                    return;
+                }
+            }
+        }
+        throw new IndexOutOfBoundsException("index=" + index + " capacity=" + capacity());
+    }
 
     @Override
     public void clear(final byte value, final int index, final int length) {
@@ -911,24 +1279,25 @@ public class ArrayListByteBuffer implements IByteBuffer {
                 position += capacity;
                 continue;
             } else {
-                int indexMinusPosition = index - position;
-                if (capacity > indexMinusPosition + length) {
-                    buffer.clear(value, indexMinusPosition, length);
+                int bufferPosition = index - position;
+                if (capacity > bufferPosition + length) {
+                    buffer.clear(value, bufferPosition, length);
                     return;
                 } else {
                     final int limit = index + length;
                     int remaining = length;
                     for (int i = index; i < limit; i++) {
-                        while (indexMinusPosition + i > capacity) {
+                        while (bufferPosition > capacity) {
                             buf++;
                             buffer = list.get(buf);
                             capacity = buffer.capacity();
-                            indexMinusPosition = index - position;
+                            bufferPosition = index - position;
                         }
                         final int toCopy = Integers.min(remaining, buffer.remaining(i));
-                        buffer.clear(value, i, toCopy);
+                        buffer.clear(value, bufferPosition, toCopy);
                         remaining -= toCopy;
                         i += toCopy;
+                        bufferPosition += toCopy;
                     }
                     return;
                 }
