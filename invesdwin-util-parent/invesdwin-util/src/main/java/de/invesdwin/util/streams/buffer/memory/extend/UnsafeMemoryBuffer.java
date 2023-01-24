@@ -18,6 +18,9 @@ import org.agrona.MutableDirectBuffer;
 
 import de.invesdwin.util.lang.uri.URIs;
 import de.invesdwin.util.math.Integers;
+import de.invesdwin.util.math.Longs;
+import de.invesdwin.util.streams.InputStreams;
+import de.invesdwin.util.streams.OutputStreams;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.UninitializedDirectByteBuffers;
@@ -25,12 +28,12 @@ import de.invesdwin.util.streams.buffer.bytes.delegate.MemoryDelegateByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.extend.ArrayExpandableByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.extend.UnsafeByteBuffer;
 import de.invesdwin.util.streams.buffer.memory.IMemoryBuffer;
-import de.invesdwin.util.streams.buffer.memory.MemoryBufferInputStream;
-import de.invesdwin.util.streams.buffer.memory.MemoryBufferOutputStream;
 import de.invesdwin.util.streams.buffer.memory.MemoryBuffers;
 import de.invesdwin.util.streams.buffer.memory.delegate.slice.mutable.factory.FixedMutableSlicedDelegateMemoryBufferFactory;
 import de.invesdwin.util.streams.buffer.memory.delegate.slice.mutable.factory.IMutableSlicedDelegateMemoryBufferFactory;
 import de.invesdwin.util.streams.buffer.memory.extend.internal.UnsafeMemoryBase;
+import de.invesdwin.util.streams.buffer.memory.stream.MemoryBufferInputStream;
+import de.invesdwin.util.streams.buffer.memory.stream.MemoryBufferOutputStream;
 import de.invesdwin.util.time.duration.Duration;
 
 @NotThreadSafe
@@ -300,6 +303,34 @@ public class UnsafeMemoryBuffer extends UnsafeMemoryBase implements IMemoryBuffe
                 putByte(i, (byte) result);
                 i++;
             }
+        }
+    }
+
+    @Override
+    public void getBytesTo(final long index, final WritableByteChannel dst, final long length) throws IOException {
+        if (length > ArrayExpandableByteBuffer.MAX_ARRAY_LENGTH) {
+            long remaining = length;
+            while (remaining > 0L) {
+                final long chunk = Longs.min(remaining, ArrayExpandableByteBuffer.MAX_ARRAY_LENGTH);
+                remaining -= chunk;
+                OutputStreams.writeFully(dst, asNioByteBuffer(index, (int) chunk));
+            }
+        } else {
+            OutputStreams.writeFully(dst, asNioByteBuffer(index, (int) length));
+        }
+    }
+
+    @Override
+    public void putBytesTo(final long index, final ReadableByteChannel src, final long length) throws IOException {
+        if (length > ArrayExpandableByteBuffer.MAX_ARRAY_LENGTH) {
+            long remaining = length;
+            while (remaining > 0L) {
+                final long chunk = Longs.min(remaining, ArrayExpandableByteBuffer.MAX_ARRAY_LENGTH);
+                remaining -= chunk;
+                InputStreams.readFully(src, asNioByteBuffer(index, (int) chunk));
+            }
+        } else {
+            InputStreams.readFully(src, asNioByteBuffer(index, (int) length));
         }
     }
 

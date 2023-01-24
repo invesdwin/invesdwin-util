@@ -4,10 +4,10 @@ import java.io.InputStream;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import de.invesdwin.util.streams.ASimpleDelegateInputStream;
+import de.invesdwin.util.streams.SimpleDelegateInputStream;
 
 @NotThreadSafe
-public class InputStreamHttpResponse extends ASimpleDelegateInputStream {
+public class InputStreamHttpResponse extends SimpleDelegateInputStream {
 
     private final IHttpResponse response;
 

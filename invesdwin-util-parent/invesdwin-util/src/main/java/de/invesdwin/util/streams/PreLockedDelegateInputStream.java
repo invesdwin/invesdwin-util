@@ -7,7 +7,7 @@ import java.util.concurrent.locks.Lock;
 import javax.annotation.concurrent.NotThreadSafe;
 
 @NotThreadSafe
-public class PreLockedDelegateInputStream extends ASimpleDelegateInputStream {
+public class PreLockedDelegateInputStream extends SimpleDelegateInputStream {
 
     private Lock lock;
 

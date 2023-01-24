@@ -17,8 +17,6 @@ import org.agrona.BufferUtil;
 import org.agrona.DirectBuffer;
 import org.agrona.ExpandableArrayBuffer;
 import org.agrona.MutableDirectBuffer;
-import org.agrona.io.DirectBufferInputStream;
-import org.agrona.io.DirectBufferOutputStream;
 
 import de.invesdwin.util.concurrent.loop.ASpinWait;
 import de.invesdwin.util.error.FastEOFException;
@@ -26,12 +24,17 @@ import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.lang.uri.URIs;
 import de.invesdwin.util.math.Bytes;
+import de.invesdwin.util.streams.InputStreams;
+import de.invesdwin.util.streams.OutputStreams;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.delegate.slice.SlicedDelegateByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.delegate.slice.SlicedFromDelegateByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.delegate.slice.mutable.factory.IMutableSlicedDelegateByteBufferFactory;
 import de.invesdwin.util.streams.buffer.bytes.extend.UnsafeByteBuffer;
+import de.invesdwin.util.streams.buffer.bytes.stream.ByteBufferInputStream;
+import de.invesdwin.util.streams.buffer.bytes.stream.ByteBufferOutputStream;
+import de.invesdwin.util.streams.buffer.bytes.stream.ExpandableByteBufferOutputStream;
 import de.invesdwin.util.streams.buffer.memory.IMemoryBuffer;
 import de.invesdwin.util.streams.buffer.memory.delegate.ByteDelegateMemoryBuffer;
 import de.invesdwin.util.time.duration.Duration;
@@ -360,16 +363,16 @@ public class NettyDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public InputStream asInputStream(final int index, final int length) {
-        return new DirectBufferInputStream(asDirectBuffer(), index, length);
+        return new ByteBufferInputStream(this, index, length);
     }
 
     @Override
     public OutputStream asOutputStream(final int index, final int length) {
         if (isExpandable() && index + length >= capacity()) {
             //allow output stream to actually grow the buffer
-            return new DirectBufferOutputStream(asDirectBuffer(), index, Integer.MAX_VALUE);
+            return new ExpandableByteBufferOutputStream(this, index);
         } else {
-            return new DirectBufferOutputStream(asDirectBuffer(), index, length);
+            return new ByteBufferOutputStream(this, index, length);
         }
     }
 
@@ -510,11 +513,10 @@ public class NettyDelegateByteBuffer implements IByteBuffer {
         if (dst instanceof WritableByteChannel) {
             getBytesTo(index, (WritableByteChannel) dst, length);
         } else {
-            int i = index;
-            while (i < length) {
+            final int limit = index + length;
+            for (int i = index; i < limit; i++) {
                 final byte b = delegate.getByte(i);
                 dst.write(b);
-                i++;
             }
         }
     }
@@ -529,11 +531,10 @@ public class NettyDelegateByteBuffer implements IByteBuffer {
         } else if (dst instanceof DataOutput) {
             getBytesTo(index, (DataOutput) dst, length);
         } else {
-            int i = index;
-            while (i < length) {
+            final int limit = index + length;
+            for (int i = index; i < limit; i++) {
                 final byte b = delegate.getByte(i);
                 dst.write(b);
-                i++;
             }
         }
     }
@@ -544,11 +545,10 @@ public class NettyDelegateByteBuffer implements IByteBuffer {
             putBytesTo(index, (ReadableByteChannel) src, length);
         } else {
             ensureCapacity(index, length);
-            int i = index;
-            while (i < length) {
+            final int limit = index + length;
+            for (int i = index; i < limit; i++) {
                 final byte b = src.readByte();
                 delegate.setByte(i, b);
-                i++;
             }
         }
     }
@@ -567,8 +567,8 @@ public class NettyDelegateByteBuffer implements IByteBuffer {
             long zeroCountNanos = -1L;
 
             ensureCapacity(index, length);
-            int i = index;
-            while (i < length) {
+            final int limit = index + length;
+            for (int i = index; i < limit;) {
                 final int result = src.read();
                 if (result < 0) { // EOF
                     throw ByteBuffers.newEOF();
@@ -587,6 +587,16 @@ public class NettyDelegateByteBuffer implements IByteBuffer {
                 }
             }
         }
+    }
+
+    @Override
+    public void getBytesTo(final int index, final WritableByteChannel dst, final int length) throws IOException {
+        OutputStreams.writeFully(dst, asNioByteBuffer(index, length));
+    }
+
+    @Override
+    public void putBytesTo(final int index, final ReadableByteChannel src, final int length) throws IOException {
+        InputStreams.readFully(src, asNioByteBuffer(index, length));
     }
 
     @SuppressWarnings("unchecked")
@@ -632,8 +642,8 @@ public class NettyDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public void clear(final byte value, final int index, final int length) {
-        final int target = index + length;
-        for (int i = index; i < target; i++) {
+        final int limit = index + length;
+        for (int i = index; i < limit; i++) {
             delegate.setByte(i, value);
         }
     }

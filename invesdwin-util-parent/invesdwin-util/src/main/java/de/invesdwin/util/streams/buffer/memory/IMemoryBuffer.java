@@ -15,12 +15,8 @@ import org.agrona.DirectBuffer;
 import org.agrona.MutableDirectBuffer;
 
 import de.invesdwin.util.math.Bytes;
-import de.invesdwin.util.math.Longs;
-import de.invesdwin.util.streams.InputStreams;
-import de.invesdwin.util.streams.OutputStreams;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
-import de.invesdwin.util.streams.buffer.bytes.extend.ArrayExpandableByteBuffer;
 
 /**
  * Default ByteOrder is always BigEndian. Use Reverse-Suffixed methods to write/read in LittleEndian. Alternatively use
@@ -340,6 +336,8 @@ public interface IMemoryBuffer extends IMemoryBufferWriter {
     /**
      * This is more efficient than getStringUtf8(...) because it creates less garbage. Thout only works together with
      * putStringAscii(...).
+     * 
+     * WARNING: we have to keep the tripe-i naming to prevent a name-clash with Agrona.
      */
     String getStringAsciii(long index, int length);
 
@@ -395,18 +393,7 @@ public interface IMemoryBuffer extends IMemoryBufferWriter {
         getBytesTo(index, dst, remaining(index));
     }
 
-    default void getBytesTo(final long index, final WritableByteChannel dst, final long length) throws IOException {
-        if (length > ArrayExpandableByteBuffer.MAX_ARRAY_LENGTH) {
-            long remaining = length;
-            while (remaining > 0L) {
-                final long chunk = Longs.min(remaining, ArrayExpandableByteBuffer.MAX_ARRAY_LENGTH);
-                remaining -= chunk;
-                OutputStreams.writeFully(dst, asNioByteBuffer(index, (int) chunk));
-            }
-        } else {
-            OutputStreams.writeFully(dst, asNioByteBuffer(index, (int) length));
-        }
-    }
+    void getBytesTo(long index, WritableByteChannel dst, long length) throws IOException;
 
     default void putBytes(final long index, final DataInputStream src) throws IOException {
         putBytesTo(index, src, remaining(index));
@@ -432,18 +419,7 @@ public interface IMemoryBuffer extends IMemoryBufferWriter {
         putBytesTo(index, src, remaining(index));
     }
 
-    default void putBytesTo(final long index, final ReadableByteChannel src, final long length) throws IOException {
-        if (length > ArrayExpandableByteBuffer.MAX_ARRAY_LENGTH) {
-            long remaining = length;
-            while (remaining > 0L) {
-                final long chunk = Longs.min(remaining, ArrayExpandableByteBuffer.MAX_ARRAY_LENGTH);
-                remaining -= chunk;
-                InputStreams.readFully(src, asNioByteBuffer(index, (int) chunk));
-            }
-        } else {
-            InputStreams.readFully(src, asNioByteBuffer(index, (int) length));
-        }
-    }
+    void putBytesTo(long index, ReadableByteChannel src, long length) throws IOException;
 
     <T> T unwrap(Class<T> type);
 

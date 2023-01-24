@@ -23,6 +23,8 @@ import de.invesdwin.util.concurrent.loop.ASpinWait;
 import de.invesdwin.util.error.FastEOFException;
 import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.lang.uri.URIs;
+import de.invesdwin.util.streams.InputStreams;
+import de.invesdwin.util.streams.OutputStreams;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.delegate.slice.mutable.factory.FixedMutableSlicedDelegateByteBufferFactory;
@@ -466,11 +468,10 @@ public class NioDelegateByteBuffer implements IByteBuffer {
         if (dst instanceof WritableByteChannel) {
             getBytesTo(index, (WritableByteChannel) dst, length);
         } else {
-            int i = index;
-            while (i < length) {
+            final int limit = index + length;
+            for (int i = index; i < limit; i++) {
                 final byte b = delegate.get(i);
                 dst.write(b);
-                i++;
             }
         }
     }
@@ -485,11 +486,10 @@ public class NioDelegateByteBuffer implements IByteBuffer {
         } else if (dst instanceof DataOutput) {
             getBytesTo(index, (DataOutput) dst, length);
         } else {
-            int i = index;
-            while (i < length) {
+            final int limit = index + length;
+            for (int i = index; i < limit; i++) {
                 final byte b = delegate.get(i);
                 dst.write(b);
-                i++;
             }
         }
     }
@@ -499,11 +499,10 @@ public class NioDelegateByteBuffer implements IByteBuffer {
         if (src instanceof ReadableByteChannel) {
             putBytesTo(index, (ReadableByteChannel) src, length);
         } else {
-            int i = index;
-            while (i < length) {
+            final int limit = index + length;
+            for (int i = index; i < limit; i++) {
                 final byte b = src.readByte();
                 delegate.put(i, b);
-                i++;
             }
         }
     }
@@ -521,8 +520,8 @@ public class NioDelegateByteBuffer implements IByteBuffer {
             final Duration timeout = URIs.getDefaultNetworkTimeout();
             long zeroCountNanos = -1L;
 
-            int i = index;
-            while (i < length) {
+            final int limit = index + length;
+            for (int i = index; i < limit;) {
                 final int result = src.read();
                 if (result < 0) { // EOF
                     throw ByteBuffers.newEOF();
@@ -541,6 +540,16 @@ public class NioDelegateByteBuffer implements IByteBuffer {
                 }
             }
         }
+    }
+
+    @Override
+    public void getBytesTo(final int index, final WritableByteChannel dst, final int length) throws IOException {
+        OutputStreams.writeFully(dst, asNioByteBuffer(index, length));
+    }
+
+    @Override
+    public void putBytesTo(final int index, final ReadableByteChannel src, final int length) throws IOException {
+        InputStreams.readFully(src, asNioByteBuffer(index, length));
     }
 
     @SuppressWarnings("unchecked")

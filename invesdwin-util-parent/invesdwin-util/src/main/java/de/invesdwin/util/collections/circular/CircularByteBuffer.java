@@ -1,4 +1,4 @@
-package de.invesdwin.util.streams.buffer.bytes.circular;
+package de.invesdwin.util.collections.circular;
 
 import javax.annotation.concurrent.NotThreadSafe;
 

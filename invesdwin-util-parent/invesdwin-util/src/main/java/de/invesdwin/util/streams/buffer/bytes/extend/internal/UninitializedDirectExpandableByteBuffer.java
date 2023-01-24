@@ -23,6 +23,8 @@ import org.agrona.io.ExpandableDirectBufferOutputStream;
 import de.invesdwin.util.concurrent.loop.ASpinWait;
 import de.invesdwin.util.error.FastEOFException;
 import de.invesdwin.util.lang.uri.URIs;
+import de.invesdwin.util.streams.InputStreams;
+import de.invesdwin.util.streams.OutputStreams;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.delegate.slice.SlicedFromDelegateByteBuffer;
@@ -279,11 +281,10 @@ public class UninitializedDirectExpandableByteBuffer extends UninitializedExpand
         if (dst instanceof WritableByteChannel) {
             getBytesTo(index, (WritableByteChannel) dst, length);
         } else {
-            int i = index;
-            while (i < length) {
+            final int limit = index + length;
+            for (int i = index; i < limit; i++) {
                 final byte b = getByte(i);
                 dst.write(b);
-                i++;
             }
         }
     }
@@ -298,11 +299,10 @@ public class UninitializedDirectExpandableByteBuffer extends UninitializedExpand
         } else if (dst instanceof DataOutput) {
             getBytesTo(index, (DataOutput) dst, length);
         } else {
-            int i = index;
-            while (i < length) {
+            final int limit = index + length;
+            for (int i = index; i < limit; i++) {
                 final byte b = getByte(i);
                 dst.write(b);
-                i++;
             }
         }
     }
@@ -313,11 +313,10 @@ public class UninitializedDirectExpandableByteBuffer extends UninitializedExpand
             putBytesTo(index, (ReadableByteChannel) src, length);
         } else {
             ensureCapacity(index + length);
-            int i = index;
-            while (i < length) {
+            final int limit = index + length;
+            for (int i = index; i < limit; i++) {
                 final byte b = src.readByte();
                 putByte(i, b);
-                i++;
             }
         }
     }
@@ -336,8 +335,8 @@ public class UninitializedDirectExpandableByteBuffer extends UninitializedExpand
             long zeroCountNanos = -1L;
 
             ensureCapacity(index + length);
-            int i = index;
-            while (i < length) {
+            final int limit = index + length;
+            for (int i = index; i < limit;) {
                 final int result = src.read();
                 if (result < 0) { // EOF
                     throw ByteBuffers.newEOF();
@@ -356,6 +355,16 @@ public class UninitializedDirectExpandableByteBuffer extends UninitializedExpand
                 }
             }
         }
+    }
+
+    @Override
+    public void getBytesTo(final int index, final WritableByteChannel dst, final int length) throws IOException {
+        OutputStreams.writeFully(dst, asNioByteBuffer(index, length));
+    }
+
+    @Override
+    public void putBytesTo(final int index, final ReadableByteChannel src, final int length) throws IOException {
+        InputStreams.readFully(src, asNioByteBuffer(index, length));
     }
 
     @Override

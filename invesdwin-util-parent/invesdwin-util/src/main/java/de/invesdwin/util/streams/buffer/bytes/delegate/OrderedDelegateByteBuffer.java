@@ -289,12 +289,12 @@ public final class OrderedDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public InputStream asInputStream(final int index, final int length) {
-        return delegate.asInputStream();
+        return delegate.asInputStream(index, length);
     }
 
     @Override
     public OutputStream asOutputStream(final int index, final int length) {
-        return delegate.asOutputStream();
+        return delegate.asOutputStream(index, length);
     }
 
     @Override

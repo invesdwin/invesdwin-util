@@ -19,6 +19,9 @@ import org.agrona.MutableDirectBuffer;
 
 import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.lang.uri.URIs;
+import de.invesdwin.util.math.Longs;
+import de.invesdwin.util.streams.InputStreams;
+import de.invesdwin.util.streams.OutputStreams;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.UninitializedDirectByteBuffers;
@@ -31,6 +34,9 @@ import de.invesdwin.util.streams.buffer.memory.MemoryBuffers;
 import de.invesdwin.util.streams.buffer.memory.delegate.slice.SlicedDelegateMemoryBuffer;
 import de.invesdwin.util.streams.buffer.memory.delegate.slice.SlicedFromDelegateMemoryBuffer;
 import de.invesdwin.util.streams.buffer.memory.delegate.slice.mutable.factory.IMutableSlicedDelegateMemoryBufferFactory;
+import de.invesdwin.util.streams.buffer.memory.stream.ExpandableMemoryBufferOutputStream;
+import de.invesdwin.util.streams.buffer.memory.stream.MemoryBufferInputStream;
+import de.invesdwin.util.streams.buffer.memory.stream.MemoryBufferOutputStream;
 import de.invesdwin.util.time.duration.Duration;
 import net.openhft.chronicle.bytes.BytesStore;
 
@@ -440,16 +446,17 @@ public class ChronicleDelegateMemoryBuffer implements IMemoryBuffer {
 
     @Override
     public InputStream asInputStream(final long index, final long length) {
-        delegate.readPosition(index);
-        delegate.readLimit(index + length);
-        return delegate.inputStream();
+        return new MemoryBufferInputStream(this, index, length);
     }
 
     @Override
     public OutputStream asOutputStream(final long index, final long length) {
-        delegate.writePosition(index);
-        delegate.writeLimit(index + length);
-        return delegate.outputStream();
+        if (isExpandable() && index + length >= capacity()) {
+            //allow output stream to actually grow the buffer
+            return new ExpandableMemoryBufferOutputStream(this, index);
+        } else {
+            return new MemoryBufferOutputStream(this, index, length);
+        }
     }
 
     @Override
@@ -631,6 +638,34 @@ public class ChronicleDelegateMemoryBuffer implements IMemoryBuffer {
                 delegate.writeByte(i, (byte) result);
                 i++;
             }
+        }
+    }
+
+    @Override
+    public void getBytesTo(final long index, final WritableByteChannel dst, final long length) throws IOException {
+        if (length > ArrayExpandableByteBuffer.MAX_ARRAY_LENGTH) {
+            long remaining = length;
+            while (remaining > 0L) {
+                final long chunk = Longs.min(remaining, ArrayExpandableByteBuffer.MAX_ARRAY_LENGTH);
+                remaining -= chunk;
+                OutputStreams.writeFully(dst, asNioByteBuffer(index, (int) chunk));
+            }
+        } else {
+            OutputStreams.writeFully(dst, asNioByteBuffer(index, (int) length));
+        }
+    }
+
+    @Override
+    public void putBytesTo(final long index, final ReadableByteChannel src, final long length) throws IOException {
+        if (length > ArrayExpandableByteBuffer.MAX_ARRAY_LENGTH) {
+            long remaining = length;
+            while (remaining > 0L) {
+                final long chunk = Longs.min(remaining, ArrayExpandableByteBuffer.MAX_ARRAY_LENGTH);
+                remaining -= chunk;
+                InputStreams.readFully(src, asNioByteBuffer(index, (int) chunk));
+            }
+        } else {
+            InputStreams.readFully(src, asNioByteBuffer(index, (int) length));
         }
     }
 

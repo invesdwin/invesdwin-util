@@ -25,7 +25,7 @@ import io.netty.util.concurrent.FastThreadLocal;
 public final class InputStreams {
 
     public static final InputStream[] EMPTY_ARRAY = new InputStream[0];
-    private static final FastThreadLocal<byte[]> LONG_BUFFER_HOLDER = new FastThreadLocal<byte[]>() {
+    public static final FastThreadLocal<byte[]> LONG_BUFFER_HOLDER = new FastThreadLocal<byte[]>() {
         @Override
         protected byte[] initialValue() throws Exception {
             return ByteBuffers.allocateByteArray(8);
