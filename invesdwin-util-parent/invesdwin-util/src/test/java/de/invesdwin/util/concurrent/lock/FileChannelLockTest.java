@@ -8,12 +8,17 @@ import javax.annotation.concurrent.NotThreadSafe;
 import org.junit.jupiter.api.Test;
 
 import de.invesdwin.util.lang.Files;
+import de.invesdwin.util.lang.OperatingSystem;
 
 @NotThreadSafe
 public class FileChannelLockTest {
 
     @Test
     public void testDualLock() throws IOException {
+        if (OperatingSystem.isWindows()) {
+            //symlinks can not be created on windows
+            return;
+        }
         final File lock1File = new File("cache/" + FileChannelLock.class.getSimpleName() + ".lock");
         final File lock2Symlink = new File(lock1File.getAbsolutePath() + "2");
         Files.deleteQuietly(lock1File);

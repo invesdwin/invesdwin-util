@@ -2,9 +2,11 @@ package de.invesdwin.util.collections.loadingcache.historical.query.internal.cor
 
 import javax.annotation.concurrent.Immutable;
 
+import de.invesdwin.util.collections.iterable.ATransformingIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.skip.ASkippingIterable;
 import de.invesdwin.util.collections.loadingcache.historical.IHistoricalEntry;
+import de.invesdwin.util.collections.loadingcache.historical.ImmutableHistoricalEntry;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.HistoricalCacheAssertValue;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.HistoricalCacheQuery;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.IHistoricalCacheInternalMethods;
@@ -30,23 +32,38 @@ public abstract class AFilteringDelegateHistoricalCacheQueryCore<V> implements I
         }
         //check if present to prevent stack overflow during lazy loading
         if (entry.isValuePresent() && entry.getValueIfPresent() == null) {
-            return null;
+            if (entry.getKey() != null) {
+                return ImmutableHistoricalEntry.of(entry.getKey(), null);
+            } else {
+                return null;
+            }
         }
         return entry;
     }
 
     private ICloseableIterable<IHistoricalEntry<V>> filter(final ICloseableIterable<IHistoricalEntry<V>> entries) {
-        return new ASkippingIterable<IHistoricalEntry<V>>(entries) {
+        final ASkippingIterable<IHistoricalEntry<V>> skipping = new ASkippingIterable<IHistoricalEntry<V>>(entries) {
             @Override
             protected boolean skip(final IHistoricalEntry<V> element) {
                 if (element == null) {
                     return true;
                 }
-                //check if present to prevent stack overflow during lazy loading
-                if (element.isValuePresent() && element.getValueIfPresent() == null) {
-                    return true;
-                }
                 return false;
+            }
+        };
+        return new ATransformingIterable<IHistoricalEntry<V>, IHistoricalEntry<V>>(skipping) {
+
+            @Override
+            protected IHistoricalEntry<V> transform(final IHistoricalEntry<V> entry) {
+                //check if present to prevent stack overflow during lazy loading
+                if (entry.isValuePresent() && entry.getValueIfPresent() == null) {
+                    if (entry.getKey() != null) {
+                        return ImmutableHistoricalEntry.of(entry.getKey(), null);
+                    } else {
+                        return null;
+                    }
+                }
+                return entry;
             }
         };
     }
