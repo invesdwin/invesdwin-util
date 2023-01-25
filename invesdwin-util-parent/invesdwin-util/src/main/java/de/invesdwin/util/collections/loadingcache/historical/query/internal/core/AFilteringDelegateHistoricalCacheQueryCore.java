@@ -51,6 +51,11 @@ public abstract class AFilteringDelegateHistoricalCacheQueryCore<V> implements I
                 if (element == null) {
                     return true;
                 }
+                /*
+                 * converting to ImmutableHistoricalEntry here causes errors because the upstream code has different
+                 * expectations. If this becomes a requirement due to specific null values being required, this needs to
+                 * be investigated in more detail.
+                 */
                 if (element.isValuePresent() && element.getValueIfPresent() == null) {
                     return true;
                 }
