@@ -4,6 +4,8 @@ import java.io.EOFException;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.util.lang.string.description.TextDescription;
+
 /**
  * Often it is faster to use iterators without calling hasNext and instead catching the NoSuchElementException. Throw
  * this exception instead to skip the stack trace generation to make it even faster.
@@ -56,6 +58,30 @@ public final class FastEOFException extends EOFException {
     public static FastEOFException getInstance(final String message) {
         if (Throwables.isDebugStackTraceEnabled()) {
             return new FastEOFException(message);
+        } else {
+            return INSTANCE;
+        }
+    }
+
+    public static FastEOFException getInstance(final String message, final Object arg) {
+        if (Throwables.isDebugStackTraceEnabled()) {
+            return new FastEOFException(TextDescription.format(message, arg));
+        } else {
+            return INSTANCE;
+        }
+    }
+
+    public static FastEOFException getInstance(final String message, final Object arg1, final Object arg2) {
+        if (Throwables.isDebugStackTraceEnabled()) {
+            return new FastEOFException(TextDescription.format(message, arg1, arg2));
+        } else {
+            return INSTANCE;
+        }
+    }
+
+    public static FastEOFException getInstance(final String message, final Object... args) {
+        if (Throwables.isDebugStackTraceEnabled()) {
+            return new FastEOFException(TextDescription.format(message, args));
         } else {
             return INSTANCE;
         }
