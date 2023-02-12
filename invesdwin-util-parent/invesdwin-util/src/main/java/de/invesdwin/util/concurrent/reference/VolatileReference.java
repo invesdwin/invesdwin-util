@@ -10,8 +10,7 @@ public class VolatileReference<T> implements IMutableReference<T>, ISerializable
 
     private volatile T value;
 
-    public VolatileReference() {
-    }
+    public VolatileReference() {}
 
     public VolatileReference(final T value) {
         this.value = value;
@@ -30,7 +29,7 @@ public class VolatileReference<T> implements IMutableReference<T>, ISerializable
     @Override
     public T getAndSet(final T value) {
         final T get = this.value;
-        this.value = null;
+        this.value = value;
         return get;
     }
 

@@ -1,22 +1,23 @@
 package de.invesdwin.util.concurrent.reference;
 
+import java.util.concurrent.locks.Lock;
+
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.norva.marker.ISerializableValueObject;
-import de.invesdwin.util.concurrent.lock.ILock;
 import de.invesdwin.util.lang.Objects;
 
 @ThreadSafe
 public class LockedReference<T> implements IMutableReference<T>, ISerializableValueObject {
 
-    private final ILock lock;
+    private final Lock lock;
     private T value;
 
-    public LockedReference(final ILock lock) {
+    public LockedReference(final Lock lock) {
         this(lock, null);
     }
 
-    public LockedReference(final ILock lock, final T value) {
+    public LockedReference(final Lock lock, final T value) {
         this.lock = lock;
         this.value = value;
     }

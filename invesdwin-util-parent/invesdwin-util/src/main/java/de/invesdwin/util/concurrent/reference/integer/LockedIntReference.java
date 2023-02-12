@@ -1,4 +1,4 @@
-package de.invesdwin.util.concurrent.reference;
+package de.invesdwin.util.concurrent.reference.integer;
 
 import java.util.concurrent.locks.Lock;
 
@@ -8,22 +8,22 @@ import de.invesdwin.norva.marker.ISerializableValueObject;
 import de.invesdwin.util.lang.Objects;
 
 @ThreadSafe
-public class JavaLockedReference<T> implements IMutableReference<T>, ISerializableValueObject {
+public class LockedIntReference<T> implements IMutableIntReference, ISerializableValueObject {
 
     private final Lock lock;
-    private T value;
+    private int value;
 
-    public JavaLockedReference(final Lock lock) {
-        this(lock, null);
+    public LockedIntReference(final Lock lock) {
+        this(lock, 0);
     }
 
-    public JavaLockedReference(final Lock lock, final T value) {
+    public LockedIntReference(final Lock lock, final int value) {
         this.lock = lock;
         this.value = value;
     }
 
     @Override
-    public T get() {
+    public int get() {
         lock.lock();
         try {
             return value;
@@ -33,10 +33,10 @@ public class JavaLockedReference<T> implements IMutableReference<T>, ISerializab
     }
 
     @Override
-    public T getAndSet(final T value) {
+    public int getAndSet(final int value) {
         lock.lock();
         try {
-            final T get = this.value;
+            final int get = this.value;
             this.value = value;
             return get;
         } finally {
@@ -45,7 +45,7 @@ public class JavaLockedReference<T> implements IMutableReference<T>, ISerializab
     }
 
     @Override
-    public void set(final T value) {
+    public void set(final int value) {
         lock.lock();
         try {
             this.value = value;
@@ -63,11 +63,7 @@ public class JavaLockedReference<T> implements IMutableReference<T>, ISerializab
     public int hashCode() {
         lock.lock();
         try {
-            if (value == null) {
-                return super.hashCode();
-            } else {
-                return value.hashCode();
-            }
+            return Integer.hashCode(value);
         } finally {
             lock.unlock();
         }
@@ -77,13 +73,11 @@ public class JavaLockedReference<T> implements IMutableReference<T>, ISerializab
     public boolean equals(final Object obj) {
         lock.lock();
         try {
-            if (value == null) {
-                return super.equals(obj);
-            } else if (obj instanceof IReference) {
-                final IReference<?> cObj = (IReference<?>) obj;
-                return value.equals(cObj.get());
+            if (obj instanceof IIntReference) {
+                final IIntReference cObj = (IIntReference) obj;
+                return value == cObj.get();
             } else {
-                return value.equals(obj);
+                return obj.equals(value);
             }
         } finally {
             lock.unlock();

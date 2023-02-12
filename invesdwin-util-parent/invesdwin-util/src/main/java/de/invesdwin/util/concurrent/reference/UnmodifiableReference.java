@@ -26,6 +26,27 @@ public final class UnmodifiableReference<T> implements IMutableReference<T> {
         throw new UnsupportedOperationException();
     }
 
+    @Override
+    public int hashCode() {
+        if (value == null) {
+            return super.hashCode();
+        } else {
+            return value.hashCode();
+        }
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (value == null) {
+            return super.equals(obj);
+        } else if (obj instanceof IReference) {
+            final IReference<?> cObj = (IReference<?>) obj;
+            return value.equals(cObj.get());
+        } else {
+            return value.equals(obj);
+        }
+    }
+
     public static <T> UnmodifiableReference<T> of(final T value) {
         return new UnmodifiableReference<>(value);
     }
