@@ -153,6 +153,22 @@ public final class Components {
     }
 
     /**
+     * Sets the focus on a (JSpinner-)TextField and selects the full-text inside of it. Just focuses the component if no
+     * text is available to be selected.
+     */
+    public static void requestFocusAndSelectAll(final JComponent component) {
+        final JComponent tooltipComponent = getTooltipComponent(component);
+        tooltipComponent.requestFocusInWindow();
+        if (tooltipComponent instanceof JTextComponent) {
+            final JTextComponent textComponent = (JTextComponent) tooltipComponent;
+            //No idea why but .selectAll() is not working properly unless i call this (otherwise useless) setText(...) line here.
+            //google spat this 19 year old thread out: https://coderanch.com/t/335499/java/selectAll-JTextField
+            textComponent.setText(textComponent.getText());
+            textComponent.selectAll();
+        }
+    }
+
+    /**
      * https://stackoverflow.com/questions/12822819/dynamically-update-tooltip-currently-displayed
      */
     public static void triggerMouseMoved(final JComponent component, final MouseMotionListener listener) {
