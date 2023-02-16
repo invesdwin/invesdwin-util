@@ -6,7 +6,7 @@ import de.invesdwin.norva.marker.ISerializableValueObject;
 import de.invesdwin.util.lang.Objects;
 
 @ThreadSafe
-public class VolatileIntReference<T> implements IMutableIntReference, ISerializableValueObject {
+public class VolatileIntReference implements IMutableIntReference, ISerializableValueObject {
 
     private volatile int value;
 

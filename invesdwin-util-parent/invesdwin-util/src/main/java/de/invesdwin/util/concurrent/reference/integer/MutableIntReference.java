@@ -6,7 +6,7 @@ import de.invesdwin.norva.marker.ISerializableValueObject;
 import de.invesdwin.util.lang.Objects;
 
 @NotThreadSafe
-public class MutableIntReference<T> implements IMutableIntReference, ISerializableValueObject {
+public class MutableIntReference implements IMutableIntReference, ISerializableValueObject {
 
     private int value;
 

@@ -8,7 +8,7 @@ import de.invesdwin.norva.marker.ISerializableValueObject;
 import de.invesdwin.util.lang.Objects;
 
 @ThreadSafe
-public class LockedIntReference<T> implements IMutableIntReference, ISerializableValueObject {
+public class LockedIntReference implements IMutableIntReference, ISerializableValueObject {
 
     private final Lock lock;
     private int value;
