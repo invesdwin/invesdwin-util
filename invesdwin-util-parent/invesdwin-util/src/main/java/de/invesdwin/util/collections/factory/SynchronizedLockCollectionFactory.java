@@ -54,7 +54,7 @@ public final class SynchronizedLockCollectionFactory implements ILockCollectionF
                     .getDeclaredConstructors()[0];
             Reflections.makeAccessible(keySetViewConstructor);
             return MethodHandles.lookup().unreflectConstructor(keySetViewConstructor);
-        } catch (final Exception e) {
+        } catch (final Throwable e) {
             return null;
         }
     }

@@ -5,6 +5,8 @@ import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.function.Function;
 
 import javax.annotation.concurrent.Immutable;
@@ -13,7 +15,6 @@ import de.invesdwin.util.bean.tuple.Pair;
 import de.invesdwin.util.collections.Arrays;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.list.Lists;
-import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 import de.invesdwin.util.lang.string.Strings;
 import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.decimal.internal.DecimalAggregate;
@@ -48,26 +49,10 @@ public class Decimal extends ADecimal<Decimal> {
     public static final Decimal ONE_HUNDRED;
     public static final Decimal PI;
 
-    private static final ALoadingCache<Pair<String, DecimalFormatSymbols>, FastThreadLocal<DecimalFormat>> DECIMAL_FORMAT = new ALoadingCache<Pair<String, DecimalFormatSymbols>, FastThreadLocal<DecimalFormat>>() {
-        @Override
-        protected FastThreadLocal<DecimalFormat> loadValue(final Pair<String, DecimalFormatSymbols> key) {
-            final String format = key.getFirst();
-            final DecimalFormatSymbols symbols = key.getSecond();
-            return new FastThreadLocal<DecimalFormat>() {
-                @Override
-                protected DecimalFormat initialValue() throws Exception {
-                    final DecimalFormat formatter = new DecimalFormat(format, symbols);
-                    formatter.setRoundingMode(ADecimal.DEFAULT_ROUNDING_MODE);
-                    return formatter;
-                }
-            };
-        }
-
-        @Override
-        protected boolean isHighConcurrency() {
-            return true;
-        }
-    };
+    /*
+     * Don't use Caffeine (java 11 only) here so that we stay compatible with Java 8 on this class for JDK upgrades.
+     */
+    private static final ConcurrentMap<Pair<String, DecimalFormatSymbols>, FastThreadLocal<DecimalFormat>> DECIMAL_FORMAT = new ConcurrentHashMap<Pair<String, DecimalFormatSymbols>, FastThreadLocal<DecimalFormat>>();
     public static final int BYTES = Double.BYTES;
 
     static {
@@ -151,6 +136,7 @@ public class Decimal extends ADecimal<Decimal> {
         return decimals;
     }
 
+    @SuppressWarnings("unchecked")
     public static <T> List<Decimal> extractValues(final Function<T, Decimal> getter, final T... objects) {
         return extractValues(getter, Arrays.asList(objects));
     }
@@ -350,7 +336,21 @@ public class Decimal extends ADecimal<Decimal> {
     }
 
     public static DecimalFormat newDecimalFormatInstance(final String format, final DecimalFormatSymbols symbols) {
-        return DECIMAL_FORMAT.get(Pair.of(format, symbols)).get();
+        return DECIMAL_FORMAT.computeIfAbsent(Pair.of(format, symbols), Decimal::loadDecimalFormatInstance).get();
+    }
+
+    private static FastThreadLocal<DecimalFormat> loadDecimalFormatInstance(
+            final Pair<String, DecimalFormatSymbols> key) {
+        final String format = key.getFirst();
+        final DecimalFormatSymbols symbols = key.getSecond();
+        return new FastThreadLocal<DecimalFormat>() {
+            @Override
+            protected DecimalFormat initialValue() throws Exception {
+                final DecimalFormat formatter = new DecimalFormat(format, symbols);
+                formatter.setRoundingMode(ADecimal.DEFAULT_ROUNDING_MODE);
+                return formatter;
+            }
+        };
     }
 
     public static Decimal nanToNull(final Double value) {
