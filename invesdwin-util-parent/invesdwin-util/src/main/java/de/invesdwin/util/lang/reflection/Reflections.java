@@ -11,7 +11,6 @@ import javax.annotation.concurrent.Immutable;
 
 import org.agrona.UnsafeAccess;
 import org.burningwave.core.assembler.StaticComponentContainer;
-import org.springframework.util.ClassUtils;
 
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
 import de.invesdwin.norva.beanpath.BeanPathReflections;
@@ -46,8 +45,7 @@ public final class Reflections extends AReflectionsStaticFacade {
                 .indexOf("jdwp") >= 0;
     }
 
-    private Reflections() {
-    }
+    private Reflections() {}
 
     private static double determineJavaVersion() {
         try {
@@ -77,11 +75,38 @@ public final class Reflections extends AReflectionsStaticFacade {
 
     public static boolean classExists(final String className) {
         try {
-            Assertions.assertThat(Class.forName(className, false, ClassUtils.getDefaultClassLoader())).isNotNull();
+            Assertions.assertThat(Class.forName(className, false, getDefaultClassLoader())).isNotNull();
             return true;
         } catch (final ClassNotFoundException e) {
             return false;
         }
+    }
+
+    /**
+     * Don't touch spring classes so that we can upgrade from java 8 to java 17 with this.
+     * 
+     * Extracted from org.springframework.util.ClassUtils.getDefaultClassLoader().
+     */
+    public static ClassLoader getDefaultClassLoader() {
+        ClassLoader cl = null;
+        try {
+            cl = Thread.currentThread().getContextClassLoader();
+        } catch (final Throwable ex) {
+            // Cannot access thread context ClassLoader - falling back...
+        }
+        if (cl == null) {
+            // No thread context class loader -> use class loader of this class.
+            cl = Reflections.class.getClassLoader();
+            if (cl == null) {
+                // getClassLoader() returning null indicates the bootstrap ClassLoader
+                try {
+                    cl = ClassLoader.getSystemClassLoader();
+                } catch (final Throwable ex) {
+                    // Cannot access system ClassLoader - oh well, maybe the caller can live with null...
+                }
+            }
+        }
+        return cl;
     }
 
     @SuppressWarnings("unchecked")
