@@ -96,7 +96,7 @@ public final class ByteBuffers {
             return (buffer, position, length) -> {
                 final java.nio.ByteBuffer duplicate = buffer.duplicate();
                 position(duplicate, position);
-                duplicate.limit(position + length);
+                limit(duplicate, position + length);
                 return duplicate.slice();
             };
         }
@@ -112,6 +112,13 @@ public final class ByteBuffers {
      */
     public static void position(final Buffer buffer, final int position) {
         buffer.position(position);
+    }
+
+    /**
+     * Workaround for java 8 compiled on java 9 or higher
+     */
+    public static void limit(final Buffer buffer, final int position) {
+        buffer.limit(position);
     }
 
     public static java.nio.ByteBuffer slice(final java.nio.ByteBuffer buffer, final int position, final int length) {

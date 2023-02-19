@@ -49,7 +49,7 @@ public class BufferedFileDataInputStream extends InputStream implements DataInpu
 
         this.buffer = getBufferPool().borrowObject();
         this.nioBuffer = buffer.asNioByteBuffer(0, bufferSize);
-        this.nioBuffer.limit(0);
+        ByteBuffers.limit(this.nioBuffer, 0);
     }
 
     public BufferedFileDataInputStream(final Path path) throws IOException {
@@ -67,7 +67,7 @@ public class BufferedFileDataInputStream extends InputStream implements DataInpu
 
         this.buffer = getBufferPool().borrowObject();
         this.nioBuffer = buffer.asNioByteBuffer(0, bufferSize);
-        this.nioBuffer.limit(0);
+        ByteBuffers.limit(this.nioBuffer, 0);
     }
 
     public InputStream asNonClosing() {
@@ -92,7 +92,7 @@ public class BufferedFileDataInputStream extends InputStream implements DataInpu
     private boolean fillBuffer() throws IOException {
         ByteBuffers.position(nioBuffer, 0);
         final int limit = (int) Math.min((channelLimit - channel.position()), nioBuffer.capacity());
-        nioBuffer.limit(limit);
+        ByteBuffers.limit(nioBuffer, limit);
         if (limit == 0) {
             return false;
         }
@@ -143,7 +143,7 @@ public class BufferedFileDataInputStream extends InputStream implements DataInpu
             channel.position(addr);
             bufferPos = addr;
             nioBuffer.position(0);
-            nioBuffer.limit(0);
+            ByteBuffers.limit(nioBuffer, 0);
         }
     }
 
@@ -160,8 +160,7 @@ public class BufferedFileDataInputStream extends InputStream implements DataInpu
         }
     }
 
-    protected void onClose() {
-    }
+    protected void onClose() {}
 
     @Override
     public String readUTF() throws IOException {

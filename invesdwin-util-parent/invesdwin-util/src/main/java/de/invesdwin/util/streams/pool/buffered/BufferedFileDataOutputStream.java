@@ -195,7 +195,7 @@ public class BufferedFileDataOutputStream extends OutputStream implements DataOu
     public void seek(final long addr) throws IOException {
         channel.position(addr);
         ByteBuffers.position(nioBuffer, 0);
-        nioBuffer.limit(0);
+        ByteBuffers.limit(nioBuffer, 0);
     }
 
     public void sync() throws IOException {
