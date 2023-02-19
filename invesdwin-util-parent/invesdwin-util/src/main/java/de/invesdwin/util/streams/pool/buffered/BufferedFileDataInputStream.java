@@ -98,7 +98,7 @@ public class BufferedFileDataInputStream extends InputStream implements DataInpu
         }
         bufferPos = channel.position();
         channel.read(nioBuffer);
-        nioBuffer.flip();
+        ByteBuffers.flip(nioBuffer);
         return true;
     }
 

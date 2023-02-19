@@ -158,7 +158,7 @@ public class BufferedFileDataOutputStream extends OutputStream implements DataOu
 
     @Override
     public void flush() throws IOException {
-        nioBuffer.flip();
+        ByteBuffers.flip(nioBuffer);
         channel.write(nioBuffer);
         nioBuffer.clear();
     }

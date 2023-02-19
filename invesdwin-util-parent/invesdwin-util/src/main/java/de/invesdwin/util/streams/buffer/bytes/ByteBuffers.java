@@ -121,6 +121,13 @@ public final class ByteBuffers {
         buffer.limit(position);
     }
 
+    /**
+     * Workaround for java 8 compiled on java 9 or higher
+     */
+    public static void flip(final Buffer buffer) {
+        buffer.flip();
+    }
+
     public static java.nio.ByteBuffer slice(final java.nio.ByteBuffer buffer, final int position, final int length) {
         return SLICE_INVOKER.slice(buffer, position, length);
     }
