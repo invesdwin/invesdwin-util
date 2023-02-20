@@ -17,9 +17,6 @@ import org.agrona.BitUtil;
 import org.agrona.DirectBuffer;
 import org.agrona.MutableDirectBuffer;
 import org.agrona.concurrent.UnsafeBuffer;
-import org.agrona.io.DirectBufferInputStream;
-import org.agrona.io.DirectBufferOutputStream;
-import org.agrona.io.ExpandableDirectBufferOutputStream;
 
 import de.invesdwin.util.concurrent.loop.ASpinWait;
 import de.invesdwin.util.error.FastEOFException;
@@ -32,6 +29,9 @@ import de.invesdwin.util.streams.buffer.bytes.EmptyByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.delegate.slice.SlicedFromDelegateByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.delegate.slice.mutable.factory.IMutableSlicedDelegateByteBufferFactory;
+import de.invesdwin.util.streams.buffer.bytes.stream.ByteBufferInputStream;
+import de.invesdwin.util.streams.buffer.bytes.stream.ByteBufferOutputStream;
+import de.invesdwin.util.streams.buffer.bytes.stream.ExpandableByteBufferOutputStream;
 import de.invesdwin.util.streams.buffer.memory.IMemoryBuffer;
 import de.invesdwin.util.streams.buffer.memory.delegate.ByteDelegateMemoryBuffer;
 import de.invesdwin.util.time.duration.Duration;
@@ -461,16 +461,16 @@ public class AgronaDelegateMutableByteBuffer implements IByteBuffer {
 
     @Override
     public InputStream asInputStream(final int index, final int length) {
-        return new DirectBufferInputStream(delegate, index, length);
+        return new ByteBufferInputStream(this, index, length);
     }
 
     @Override
     public OutputStream asOutputStream(final int index, final int length) {
         if (delegate.isExpandable() && index + length >= capacity()) {
             //allow output stream to actually grow the buffer
-            return new ExpandableDirectBufferOutputStream(delegate, index);
+            return new ExpandableByteBufferOutputStream(this, index);
         } else {
-            return new DirectBufferOutputStream(delegate, index, length);
+            return new ByteBufferOutputStream(this, index, length);
         }
     }
 

@@ -15,8 +15,8 @@ import org.agrona.DirectBuffer;
 import org.agrona.MutableDirectBuffer;
 import org.agrona.concurrent.AtomicBuffer;
 import org.agrona.concurrent.UnsafeBuffer;
-import org.agrona.io.DirectBufferInputStream;
 
+import de.invesdwin.util.streams.buffer.bytes.stream.ByteBufferInputStream;
 import de.invesdwin.util.streams.buffer.memory.ClosedMemoryBuffer;
 import de.invesdwin.util.streams.buffer.memory.IMemoryBuffer;
 
@@ -317,7 +317,7 @@ public class ClosedByteBuffer implements IByteBuffer {
     @Override
     public InputStream asInputStream(final int index, final int length) {
         if (index == 0 && length == ClosedByteBuffer.CLOSED_ARRAY.length) {
-            return new DirectBufferInputStream(ClosedByteBuffer.CLOSED_DIRECT_BUFFER);
+            return new ByteBufferInputStream(this);
         } else {
             throw newClosedException();
         }

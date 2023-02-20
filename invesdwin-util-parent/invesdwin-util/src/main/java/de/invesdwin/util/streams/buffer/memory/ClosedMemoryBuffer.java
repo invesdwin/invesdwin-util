@@ -13,11 +13,11 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import org.agrona.DirectBuffer;
 import org.agrona.MutableDirectBuffer;
-import org.agrona.io.DirectBufferInputStream;
 
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import de.invesdwin.util.streams.buffer.bytes.ClosedByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
+import de.invesdwin.util.streams.buffer.bytes.stream.ByteBufferInputStream;
 
 @NotThreadSafe
 public class ClosedMemoryBuffer implements IMemoryBuffer {
@@ -255,7 +255,7 @@ public class ClosedMemoryBuffer implements IMemoryBuffer {
     @Override
     public InputStream asInputStream(final long index, final long length) {
         if (index == 0 && length == ClosedByteBuffer.CLOSED_ARRAY.length) {
-            return new DirectBufferInputStream(ClosedByteBuffer.CLOSED_DIRECT_BUFFER);
+            return new ByteBufferInputStream(ClosedByteBuffer.INSTANCE);
         } else {
             throw newClosedException();
         }

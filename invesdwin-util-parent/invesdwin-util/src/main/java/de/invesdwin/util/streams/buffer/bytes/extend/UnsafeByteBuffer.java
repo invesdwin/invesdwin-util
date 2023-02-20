@@ -16,8 +16,6 @@ import javax.annotation.concurrent.NotThreadSafe;
 import org.agrona.DirectBuffer;
 import org.agrona.MutableDirectBuffer;
 import org.agrona.concurrent.UnsafeBuffer;
-import org.agrona.io.DirectBufferInputStream;
-import org.agrona.io.DirectBufferOutputStream;
 
 import de.invesdwin.util.concurrent.loop.ASpinWait;
 import de.invesdwin.util.error.FastEOFException;
@@ -29,6 +27,8 @@ import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.UninitializedDirectByteBuffers;
 import de.invesdwin.util.streams.buffer.bytes.delegate.slice.mutable.factory.FixedMutableSlicedDelegateByteBufferFactory;
 import de.invesdwin.util.streams.buffer.bytes.delegate.slice.mutable.factory.IMutableSlicedDelegateByteBufferFactory;
+import de.invesdwin.util.streams.buffer.bytes.stream.ByteBufferInputStream;
+import de.invesdwin.util.streams.buffer.bytes.stream.ByteBufferOutputStream;
 import de.invesdwin.util.streams.buffer.memory.IMemoryBuffer;
 import de.invesdwin.util.streams.buffer.memory.delegate.ByteDelegateMemoryBuffer;
 import de.invesdwin.util.time.duration.Duration;
@@ -141,12 +141,12 @@ public class UnsafeByteBuffer extends UnsafeBuffer implements IByteBuffer {
 
     @Override
     public InputStream asInputStream(final int index, final int length) {
-        return new DirectBufferInputStream(this, index, length);
+        return new ByteBufferInputStream(this, index, length);
     }
 
     @Override
     public OutputStream asOutputStream(final int index, final int length) {
-        return new DirectBufferOutputStream(this, index, length);
+        return new ByteBufferOutputStream(this, index, length);
     }
 
     @Override
