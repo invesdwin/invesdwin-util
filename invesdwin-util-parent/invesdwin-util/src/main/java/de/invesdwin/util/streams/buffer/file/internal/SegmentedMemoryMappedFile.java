@@ -1,5 +1,6 @@
 package de.invesdwin.util.streams.buffer.file.internal;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,9 +35,48 @@ public class SegmentedMemoryMappedFile implements IMemoryMappedFile {
     private final long index;
     private final long length;
 
-    public SegmentedMemoryMappedFile(final String path, final long offset, final long length, final boolean readOnly) {
+    public SegmentedMemoryMappedFile(final String path, final long offset, final long length, final boolean readOnly)
+            throws IOException {
         this.index = offset;
         this.length = length;
+        initList(path, offset, length, readOnly);
+    }
+
+    private void initList(final String path, final long offset, final long length, final boolean readOnly)
+            throws IOException {
+        long position = 0;
+        for (int buf = 0; buf < list.size(); buf++) {
+            IMemoryMappedFile buffer = list.get(buf);
+            long capacity = buffer.capacity();
+            if (index >= position + capacity) {
+                position += capacity;
+                continue;
+            } else {
+                long bufferPosition = index - position;
+                if (capacity >= bufferPosition + length) {
+                    list.add(new MemoryMappedFile(path, bufferPosition, length, readOnly));
+                    return;
+                } else {
+                    final long limit = index + length;
+                    long remaining = length;
+                    for (long i = index; i < limit;) {
+                        while (bufferPosition >= capacity) {
+                            buf++;
+                            buffer = list.get(buf);
+                            capacity = buffer.capacity();
+                            bufferPosition = 0;
+                        }
+                        final int toCopy = Integers.checkedCast(Longs.min(remaining, buffer.remaining(bufferPosition)));
+                        list.add(new MemoryMappedFile(path, bufferPosition, toCopy, readOnly));
+                        remaining -= toCopy;
+                        i += toCopy;
+                        bufferPosition += toCopy;
+                    }
+                    return;
+                }
+            }
+        }
+        throw new IndexOutOfBoundsException("index=" + index + " capacity=" + capacity());
     }
 
     @Override
