@@ -4,6 +4,8 @@ import java.io.InputStream;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import org.agrona.concurrent.UnsafeBuffer;
+
 import de.invesdwin.util.math.Longs;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 
@@ -20,8 +22,7 @@ public class ByteBufferInputStream extends InputStream {
     /**
      * Default constructor.
      */
-    public ByteBufferInputStream() {
-    }
+    public ByteBufferInputStream() {}
 
     /**
      * Wrap given {@link IByteBuffer}.
@@ -76,6 +77,18 @@ public class ByteBufferInputStream extends InputStream {
         this.offset = offset;
         this.length = length;
         this.position = 0;
+
+        if (UnsafeBuffer.SHOULD_BOUNDS_CHECK) {
+            boundsCheck0(offset, length);
+        }
+    }
+
+    private void boundsCheck0(final long index, final long length) {
+        final long resultingPosition = index + length;
+        if (index < 0 || length < 0 || resultingPosition > buffer.capacity()) {
+            throw new IndexOutOfBoundsException(
+                    "index=" + index + " length=" + length + " capacity=" + buffer.capacity());
+        }
     }
 
     /**
@@ -166,6 +179,5 @@ public class ByteBufferInputStream extends InputStream {
      * {@inheritDoc}
      */
     @Override
-    public void close() {
-    }
+    public void close() {}
 }

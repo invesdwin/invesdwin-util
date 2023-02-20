@@ -5,6 +5,8 @@ import java.io.OutputStream;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import org.agrona.concurrent.UnsafeBuffer;
+
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 
 /**
@@ -20,8 +22,7 @@ public class ByteBufferOutputStream extends OutputStream {
     /**
      * Default constructor.
      */
-    public ByteBufferOutputStream() {
-    }
+    public ByteBufferOutputStream() {}
 
     /**
      * Constructs output stream wrapping the given buffer.
@@ -76,6 +77,18 @@ public class ByteBufferOutputStream extends OutputStream {
         this.offset = offset;
         this.length = length;
         this.position = 0;
+
+        if (UnsafeBuffer.SHOULD_BOUNDS_CHECK) {
+            boundsCheck0(offset, length);
+        }
+    }
+
+    private void boundsCheck0(final long index, final long length) {
+        final long resultingPosition = index + length;
+        if (index < 0 || length < 0 || resultingPosition > buffer.capacity()) {
+            throw new IndexOutOfBoundsException(
+                    "index=" + index + " length=" + length + " capacity=" + buffer.capacity());
+        }
     }
 
     /**
@@ -172,13 +185,11 @@ public class ByteBufferOutputStream extends OutputStream {
      * Override to remove {@link IOException}. This method does nothing.
      */
     @Override
-    public void flush() {
-    }
+    public void flush() {}
 
     /**
      * Override to remove {@link IOException}. This method does nothing.
      */
     @Override
-    public void close() {
-    }
+    public void close() {}
 }
