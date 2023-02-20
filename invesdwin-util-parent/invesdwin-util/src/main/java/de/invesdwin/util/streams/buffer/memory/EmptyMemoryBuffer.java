@@ -26,8 +26,7 @@ public final class EmptyMemoryBuffer implements IMemoryBuffer {
 
     public static final EmptyMemoryBuffer INSTANCE = new EmptyMemoryBuffer();
 
-    private EmptyMemoryBuffer() {
-    }
+    private EmptyMemoryBuffer() {}
 
     @Override
     public ByteOrder getOrder() {
@@ -426,7 +425,7 @@ public final class EmptyMemoryBuffer implements IMemoryBuffer {
         throw newEmptyException();
     }
 
-    private IndexOutOfBoundsException newEmptyException() {
+    public static IndexOutOfBoundsException newEmptyException() {
         return new IndexOutOfBoundsException("empty");
     }
 
