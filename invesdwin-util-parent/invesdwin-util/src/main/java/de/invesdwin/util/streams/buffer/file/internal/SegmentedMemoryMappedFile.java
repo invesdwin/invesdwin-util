@@ -35,18 +35,18 @@ public class SegmentedMemoryMappedFile implements IMemoryMappedFile {
     private final long offset;
     private final long length;
 
-    public SegmentedMemoryMappedFile(final String path, final long offset, final long length, final boolean readOnly)
-            throws IOException {
+    public SegmentedMemoryMappedFile(final String path, final long offset, final long length, final boolean readOnly,
+            final long segmentLength) throws IOException {
         this.offset = offset;
         this.length = length;
-        initList(path, readOnly);
+        initList(path, readOnly, segmentLength);
     }
 
-    private void initList(final String path, final boolean readOnly) throws IOException {
+    private void initList(final String path, final boolean readOnly, final long segmentLength) throws IOException {
+        final long limit = offset + length;
         long position = 0;
-        for (int buf = 0; buf < list.size(); buf++) {
-            IMemoryMappedFile buffer = list.get(buf);
-            long capacity = buffer.capacity();
+        while (position < limit) {
+            long capacity = segmentLength;
             if (offset >= position + capacity) {
                 position += capacity;
                 continue;
@@ -56,16 +56,13 @@ public class SegmentedMemoryMappedFile implements IMemoryMappedFile {
                     list.add(new MemoryMappedFile(path, bufferPosition, length, readOnly));
                     return;
                 } else {
-                    final long limit = offset + length;
                     long remaining = length;
                     for (long i = offset; i < limit;) {
                         while (bufferPosition >= capacity) {
-                            buf++;
-                            buffer = list.get(buf);
-                            capacity = buffer.capacity();
+                            capacity = segmentLength;
                             bufferPosition = 0;
                         }
-                        final int toCopy = Integers.checkedCast(Longs.min(remaining, buffer.remaining(bufferPosition)));
+                        final long toCopy = Longs.min(remaining, segmentLength - bufferPosition);
                         list.add(new MemoryMappedFile(path, bufferPosition, toCopy, readOnly));
                         remaining -= toCopy;
                         i += toCopy;
