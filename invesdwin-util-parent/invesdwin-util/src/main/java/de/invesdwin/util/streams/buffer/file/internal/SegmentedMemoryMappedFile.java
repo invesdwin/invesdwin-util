@@ -32,34 +32,33 @@ public class SegmentedMemoryMappedFile implements IMemoryMappedFile {
 
     private final List<IMemoryMappedFile> list = new ArrayList<>();
 
-    private final long index;
+    private final long offset;
     private final long length;
 
     public SegmentedMemoryMappedFile(final String path, final long offset, final long length, final boolean readOnly)
             throws IOException {
-        this.index = offset;
+        this.offset = offset;
         this.length = length;
-        initList(path, offset, length, readOnly);
+        initList(path, readOnly);
     }
 
-    private void initList(final String path, final long offset, final long length, final boolean readOnly)
-            throws IOException {
+    private void initList(final String path, final boolean readOnly) throws IOException {
         long position = 0;
         for (int buf = 0; buf < list.size(); buf++) {
             IMemoryMappedFile buffer = list.get(buf);
             long capacity = buffer.capacity();
-            if (index >= position + capacity) {
+            if (offset >= position + capacity) {
                 position += capacity;
                 continue;
             } else {
-                long bufferPosition = index - position;
+                long bufferPosition = offset - position;
                 if (capacity >= bufferPosition + length) {
                     list.add(new MemoryMappedFile(path, bufferPosition, length, readOnly));
                     return;
                 } else {
-                    final long limit = index + length;
+                    final long limit = offset + length;
                     long remaining = length;
-                    for (long i = index; i < limit;) {
+                    for (long i = offset; i < limit;) {
                         while (bufferPosition >= capacity) {
                             buf++;
                             buffer = list.get(buf);
@@ -76,7 +75,7 @@ public class SegmentedMemoryMappedFile implements IMemoryMappedFile {
                 }
             }
         }
-        throw new IndexOutOfBoundsException("index=" + index + " capacity=" + capacity());
+        throw new IndexOutOfBoundsException("index=" + offset + " capacity=" + capacity());
     }
 
     @Override
@@ -102,7 +101,7 @@ public class SegmentedMemoryMappedFile implements IMemoryMappedFile {
 
     @Override
     public long wrapAdjustment() {
-        return index;
+        return offset;
     }
 
     @Override
