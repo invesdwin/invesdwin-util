@@ -45,8 +45,8 @@ public class SegmentedMemoryMappedFile implements IMemoryMappedFile {
     private void initList(final String path, final boolean readOnly, final long segmentLength) throws IOException {
         final long limit = offset + length;
         long position = 0;
+        final long capacity = segmentLength;
         while (position < limit) {
-            long capacity = segmentLength;
             if (offset >= position + capacity) {
                 position += capacity;
                 continue;
@@ -59,7 +59,6 @@ public class SegmentedMemoryMappedFile implements IMemoryMappedFile {
                     long remaining = length;
                     for (long i = offset; i < limit;) {
                         while (bufferPosition >= capacity) {
-                            capacity = segmentLength;
                             bufferPosition = 0;
                         }
                         final long toCopy = Longs.min(remaining, segmentLength - bufferPosition);
