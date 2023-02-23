@@ -51,6 +51,16 @@ public class UninitializedDirectByteBuffer extends UnsafeByteBuffer implements C
         this.finalizer = new UninitializedDirectByteBufferFinalizer(nioByteBuffer());
     }
 
+    public UninitializedDirectByteBuffer(final int length, final int alignment) {
+        super(UninitializedDirectByteBuffers.allocateDirectByteBufferNoCleanerAligned(length, alignment));
+        this.finalizer = new UninitializedDirectByteBufferFinalizer(nioByteBuffer());
+    }
+
+    private UninitializedDirectByteBuffer(final java.nio.ByteBuffer buffer) {
+        super(buffer);
+        this.finalizer = new UninitializedDirectByteBufferFinalizer(buffer);
+    }
+
     @Override
     public void close() throws IOException {
         finalizer.close();

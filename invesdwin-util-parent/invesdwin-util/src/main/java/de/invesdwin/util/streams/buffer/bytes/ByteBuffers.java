@@ -248,6 +248,14 @@ public final class ByteBuffers {
         }
     }
 
+    public static IByteBuffer allocateDirectFixedAligned(final int fixedLength, final ByteBufferAlignment alignment) {
+        if (UninitializedDirectByteBuffers.isDirectByteBufferNoCleanerSupported()) {
+            return new UninitializedDirectByteBuffer(fixedLength, alignment.value());
+        } else {
+            return wrap(BufferUtil.allocateDirectAligned(fixedLength, alignment.value()));
+        }
+    }
+
     public static IByteBuffer allocateDirectExpandable() {
         if (UninitializedDirectByteBuffers.isDirectByteBufferNoCleanerSupported()) {
             return new UninitializedDirectExpandableByteBuffer();

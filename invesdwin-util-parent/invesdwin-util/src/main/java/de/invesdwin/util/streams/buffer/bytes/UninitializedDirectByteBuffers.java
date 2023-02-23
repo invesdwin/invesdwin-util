@@ -2,6 +2,7 @@ package de.invesdwin.util.streams.buffer.bytes;
 
 import javax.annotation.concurrent.Immutable;
 
+import org.agrona.BitUtil;
 import org.agrona.BufferUtil;
 
 import de.invesdwin.util.lang.reflection.Reflections;
@@ -9,8 +10,7 @@ import de.invesdwin.util.lang.reflection.Reflections;
 @Immutable
 public final class UninitializedDirectByteBuffers {
 
-    private UninitializedDirectByteBuffers() {
-    }
+    private UninitializedDirectByteBuffers() {}
 
     public static boolean isDirectByteBufferNoCleanerSupported() {
         return io.netty.util.internal.PlatformDependent.hasDirectBufferNoCleanerConstructor()
@@ -70,6 +70,25 @@ public final class UninitializedDirectByteBuffers {
             //use the internal cleaner
             BufferUtil.free(buffer);
         }
+    }
+
+    public static java.nio.ByteBuffer allocateDirectByteBufferNoCleanerAligned(final int capacity,
+            final int alignment) {
+        if (!BitUtil.isPowerOfTwo(alignment)) {
+            throw new IllegalArgumentException("Must be a power of 2: alignment=" + alignment);
+        }
+
+        final java.nio.ByteBuffer buffer = allocateDirectByteBufferNoCleaner(capacity + alignment);
+
+        final long address = BufferUtil.address(buffer);
+        final int remainder = (int) (address & (alignment - 1));
+        final int offset = alignment - remainder;
+
+        ByteBuffers.limit(buffer, capacity + offset);
+        ByteBuffers.position(buffer, offset);
+
+        final java.nio.ByteBuffer slice = buffer.slice();
+        return slice;
     }
 
 }
