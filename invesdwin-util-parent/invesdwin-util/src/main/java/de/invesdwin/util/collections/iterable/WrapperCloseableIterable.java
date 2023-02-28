@@ -6,8 +6,8 @@ import java.util.List;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import de.invesdwin.util.collections.Arrays;
 import de.invesdwin.util.collections.delegate.ADelegateList;
+import de.invesdwin.util.collections.iterable.collection.ArrayCloseableIterable;
 import de.invesdwin.util.collections.iterable.collection.ArraySubListCloseableIterable;
 import de.invesdwin.util.collections.iterable.collection.CollectionCloseableIterable;
 import de.invesdwin.util.collections.iterable.collection.ListCloseableIterable;
@@ -40,7 +40,7 @@ public final class WrapperCloseableIterable<E> implements ICloseableIterable<E> 
 
     @SuppressWarnings("unchecked")
     public static <T> ICloseableIterable<T> maybeWrap(final T... iterable) {
-        return maybeWrap(new ArrayList<T>(Arrays.asList(iterable)));
+        return new ArrayCloseableIterable<>(iterable);
     }
 
     @SuppressWarnings("unchecked")
