@@ -1249,6 +1249,9 @@ public enum FTimeUnit {
     public static final int MILLISECONDS_IN_HOUR = MILLISECONDS_IN_MINUTE * MINUTES_IN_HOUR;
     public static final int MILLISECONDS_IN_DAY = MILLISECONDS_IN_HOUR * HOURS_IN_DAY;
 
+    public static final int SECONDS_IN_HOUR = SECONDS_IN_MINUTE * MINUTES_IN_HOUR;
+    public static final int SECONDS_IN_DAY = SECONDS_IN_HOUR * HOURS_IN_DAY;
+
     private static final Map<TimeUnit, FTimeUnit> TIME_UNIT_LOOKUP = new HashMap<TimeUnit, FTimeUnit>();
     private static final Map<Integer, FTimeUnit> CALENDAR_LOOKUP = new HashMap<Integer, FTimeUnit>();
     private static final Map<ChronoUnit, FTimeUnit> JAVA_TIME_LOOKUP = new HashMap<ChronoUnit, FTimeUnit>();
