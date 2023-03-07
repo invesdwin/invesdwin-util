@@ -86,12 +86,12 @@ public class BufferingIteratorIterateTest {
                 //end reached
             }
         }
-        return start.longValue();
+        return start.toDurationNanos();
     }
 
     private static long iteratorPerformanceTestList(final int curTest) {
         final Instant start = new Instant();
-        final ArrayList<Long> list = new ArrayList<Long>(COUNT_RAND);
+        final ArrayList<Long> list = new ArrayList<Long>();
         final IRandomGenerator r = PseudoRandomGenerators.newPseudoRandom();
         for (long ilong = 0L; ilong < COUNT_RAND; ilong++) {
             list.add(r.nextLong(Long.MIN_VALUE, Long.MAX_VALUE));
@@ -111,7 +111,7 @@ public class BufferingIteratorIterateTest {
                 //end reached
             }
         }
-        return start.longValue();
+        return start.toDurationNanos();
     }
 
 }
