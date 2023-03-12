@@ -538,8 +538,7 @@ public class UninitializedExpandableArrayBufferBase implements MutableDirectBuff
             dstBaseOffset = ARRAY_BASE_OFFSET + arrayOffset(dstBuffer);
         }
 
-        Reflections.getUnsafe()
-                .copyMemory(byteArray, ARRAY_BASE_OFFSET + index, dstByteArray, dstBaseOffset + dstOffset, length);
+        UNSAFE.copyMemory(byteArray, ARRAY_BASE_OFFSET + index, dstByteArray, dstBaseOffset + dstOffset, length);
     }
 
     /**
@@ -587,8 +586,7 @@ public class UninitializedExpandableArrayBufferBase implements MutableDirectBuff
             srcBaseOffset = ARRAY_BASE_OFFSET + arrayOffset(srcBuffer);
         }
 
-        Reflections.getUnsafe()
-                .copyMemory(srcByteArray, srcBaseOffset + srcIndex, byteArray, ARRAY_BASE_OFFSET + index, length);
+        UNSAFE.copyMemory(srcByteArray, srcBaseOffset + srcIndex, byteArray, ARRAY_BASE_OFFSET + index, length);
     }
 
     /**
@@ -599,9 +597,8 @@ public class UninitializedExpandableArrayBufferBase implements MutableDirectBuff
         ensureCapacity(index, length);
         srcBuffer.boundsCheck(srcIndex, length);
 
-        Reflections.getUnsafe()
-                .copyMemory(srcBuffer.byteArray(), srcBuffer.addressOffset() + srcIndex, byteArray,
-                        ARRAY_BASE_OFFSET + index, length);
+        UNSAFE.copyMemory(srcBuffer.byteArray(), srcBuffer.addressOffset() + srcIndex, byteArray,
+                ARRAY_BASE_OFFSET + index, length);
     }
 
     ///////////////////////////////////////////////////////////////////////////

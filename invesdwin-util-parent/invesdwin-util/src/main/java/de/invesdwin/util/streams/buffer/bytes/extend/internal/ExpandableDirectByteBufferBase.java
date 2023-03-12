@@ -612,8 +612,7 @@ public class ExpandableDirectByteBufferBase implements MutableDirectBuffer {
         ensureCapacity(index, length);
         srcBuffer.boundsCheck(srcIndex, length);
 
-        Reflections.getUnsafe()
-                .copyMemory(srcBuffer.byteArray(), srcBuffer.addressOffset() + srcIndex, null, address + index, length);
+        UNSAFE.copyMemory(srcBuffer.byteArray(), srcBuffer.addressOffset() + srcIndex, null, address + index, length);
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -1019,8 +1018,7 @@ public class ExpandableDirectByteBufferBase implements MutableDirectBuffer {
         boundsCheck0(index + STR_HEADER_LEN, length);
 
         final byte[] stringInBytes = new byte[length];
-        Reflections.getUnsafe()
-                .copyMemory(null, address + index + STR_HEADER_LEN, stringInBytes, ARRAY_BASE_OFFSET, length);
+        UNSAFE.copyMemory(null, address + index + STR_HEADER_LEN, stringInBytes, ARRAY_BASE_OFFSET, length);
 
         return new String(stringInBytes, UTF_8);
     }
@@ -1054,8 +1052,7 @@ public class ExpandableDirectByteBufferBase implements MutableDirectBuffer {
         ensureCapacity(index, STR_HEADER_LEN + bytes.length);
 
         UNSAFE.putInt(null, address + index, bytes.length);
-        Reflections.getUnsafe()
-                .copyMemory(bytes, ARRAY_BASE_OFFSET, null, address + index + STR_HEADER_LEN, bytes.length);
+        UNSAFE.copyMemory(bytes, ARRAY_BASE_OFFSET, null, address + index + STR_HEADER_LEN, bytes.length);
 
         return STR_HEADER_LEN + bytes.length;
     }
@@ -1079,8 +1076,7 @@ public class ExpandableDirectByteBufferBase implements MutableDirectBuffer {
         }
 
         UNSAFE.putInt(null, address + index, bits);
-        Reflections.getUnsafe()
-                .copyMemory(bytes, ARRAY_BASE_OFFSET, null, address + index + STR_HEADER_LEN, bytes.length);
+        UNSAFE.copyMemory(bytes, ARRAY_BASE_OFFSET, null, address + index + STR_HEADER_LEN, bytes.length);
 
         return STR_HEADER_LEN + bytes.length;
     }

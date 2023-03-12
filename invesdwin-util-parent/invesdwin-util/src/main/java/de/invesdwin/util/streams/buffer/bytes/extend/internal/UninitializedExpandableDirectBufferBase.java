@@ -585,8 +585,7 @@ public class UninitializedExpandableDirectBufferBase implements MutableDirectBuf
             dstBaseOffset = ARRAY_BASE_OFFSET + arrayOffset(dstBuffer);
         }
 
-        Reflections.getUnsafe()
-                .copyMemory(null, finalizer.address + index, dstByteArray, dstBaseOffset + dstOffset, length);
+        UNSAFE.copyMemory(null, finalizer.address + index, dstByteArray, dstBaseOffset + dstOffset, length);
     }
 
     /**
@@ -637,8 +636,7 @@ public class UninitializedExpandableDirectBufferBase implements MutableDirectBuf
             srcBaseOffset = ARRAY_BASE_OFFSET + arrayOffset(srcBuffer);
         }
 
-        Reflections.getUnsafe()
-                .copyMemory(srcByteArray, srcBaseOffset + srcIndex, null, finalizer.address + index, length);
+        UNSAFE.copyMemory(srcByteArray, srcBaseOffset + srcIndex, null, finalizer.address + index, length);
     }
 
     /**
@@ -649,9 +647,8 @@ public class UninitializedExpandableDirectBufferBase implements MutableDirectBuf
         ensureCapacity(index, length);
         srcBuffer.boundsCheck(srcIndex, length);
 
-        Reflections.getUnsafe()
-                .copyMemory(srcBuffer.byteArray(), srcBuffer.addressOffset() + srcIndex, null,
-                        finalizer.address + index, length);
+        UNSAFE.copyMemory(srcBuffer.byteArray(), srcBuffer.addressOffset() + srcIndex, null, finalizer.address + index,
+                length);
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -774,8 +771,7 @@ public class UninitializedExpandableDirectBufferBase implements MutableDirectBuf
         boundsCheck0(index + STR_HEADER_LEN, length);
 
         final byte[] dst = new byte[length];
-        Reflections.getUnsafe()
-                .copyMemory(null, finalizer.address + index + STR_HEADER_LEN, dst, ARRAY_BASE_OFFSET, length);
+        UNSAFE.copyMemory(null, finalizer.address + index + STR_HEADER_LEN, dst, ARRAY_BASE_OFFSET, length);
 
         return new String(dst, US_ASCII);
     }
@@ -1058,8 +1054,7 @@ public class UninitializedExpandableDirectBufferBase implements MutableDirectBuf
         boundsCheck0(index + STR_HEADER_LEN, length);
 
         final byte[] stringInBytes = new byte[length];
-        Reflections.getUnsafe()
-                .copyMemory(null, finalizer.address + index + STR_HEADER_LEN, stringInBytes, ARRAY_BASE_OFFSET, length);
+        UNSAFE.copyMemory(null, finalizer.address + index + STR_HEADER_LEN, stringInBytes, ARRAY_BASE_OFFSET, length);
 
         return new String(stringInBytes, UTF_8);
     }
@@ -1093,8 +1088,7 @@ public class UninitializedExpandableDirectBufferBase implements MutableDirectBuf
         ensureCapacity(index, STR_HEADER_LEN + bytes.length);
 
         UNSAFE.putInt(null, finalizer.address + index, bytes.length);
-        Reflections.getUnsafe()
-                .copyMemory(bytes, ARRAY_BASE_OFFSET, null, finalizer.address + index + STR_HEADER_LEN, bytes.length);
+        UNSAFE.copyMemory(bytes, ARRAY_BASE_OFFSET, null, finalizer.address + index + STR_HEADER_LEN, bytes.length);
 
         return STR_HEADER_LEN + bytes.length;
     }
@@ -1118,8 +1112,7 @@ public class UninitializedExpandableDirectBufferBase implements MutableDirectBuf
         }
 
         UNSAFE.putInt(null, finalizer.address + index, bits);
-        Reflections.getUnsafe()
-                .copyMemory(bytes, ARRAY_BASE_OFFSET, null, finalizer.address + index + STR_HEADER_LEN, bytes.length);
+        UNSAFE.copyMemory(bytes, ARRAY_BASE_OFFSET, null, finalizer.address + index + STR_HEADER_LEN, bytes.length);
 
         return STR_HEADER_LEN + bytes.length;
     }

@@ -7,8 +7,23 @@ import org.agrona.BufferUtil;
 
 import de.invesdwin.util.lang.reflection.Reflections;
 
+@SuppressWarnings("restriction")
 @Immutable
 public final class UninitializedDirectByteBuffers {
+
+    private static final long BYTE_BUFFER_CAPACITY_FIELD_OFFSET;
+    private static final long BYTE_BUFFER_LIMIT_FIELD_OFFSET;
+
+    static {
+        try {
+            BYTE_BUFFER_CAPACITY_FIELD_OFFSET = Reflections.getUnsafe()
+                    .objectFieldOffset(java.nio.Buffer.class.getDeclaredField("capacity"));
+            BYTE_BUFFER_LIMIT_FIELD_OFFSET = Reflections.getUnsafe()
+                    .objectFieldOffset(java.nio.Buffer.class.getDeclaredField("limit"));
+        } catch (final Throwable e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     private UninitializedDirectByteBuffers() {}
 
@@ -27,7 +42,8 @@ public final class UninitializedDirectByteBuffers {
         } else {
             final java.nio.ByteBuffer bb = java.nio.ByteBuffer.allocateDirect(0);
             Reflections.getUnsafe().putLong(bb, BufferUtil.BYTE_BUFFER_ADDRESS_FIELD_OFFSET, address);
-            Reflections.getUnsafe().putInt(bb, BufferUtil.BYTE_BUFFER_OFFSET_FIELD_OFFSET, length);
+            Reflections.getUnsafe().putInt(bb, BYTE_BUFFER_CAPACITY_FIELD_OFFSET, length);
+            Reflections.getUnsafe().putInt(bb, BYTE_BUFFER_LIMIT_FIELD_OFFSET, length);
             return bb;
         }
     }

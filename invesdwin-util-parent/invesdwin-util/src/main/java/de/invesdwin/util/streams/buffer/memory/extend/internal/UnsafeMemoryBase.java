@@ -796,9 +796,8 @@ public class UnsafeMemoryBase {
             srcBuffer.boundsCheck(srcIndex, length);
         }
 
-        Reflections.getUnsafe()
-                .copyMemory(srcBuffer.byteArray(), srcBuffer.addressOffset() + srcIndex, dstBuffer.byteArray(),
-                        dstBuffer.addressOffset() + dstIndex, length);
+        UNSAFE.copyMemory(srcBuffer.byteArray(), srcBuffer.addressOffset() + srcIndex, dstBuffer.byteArray(),
+                dstBuffer.addressOffset() + dstIndex, length);
     }
 
     public void getBytes(final long index, final java.nio.ByteBuffer dstBuffer, final int length) {
@@ -823,8 +822,7 @@ public class UnsafeMemoryBase {
             dstBaseOffset = ARRAY_BASE_OFFSET + arrayOffset(dstBuffer);
         }
 
-        Reflections.getUnsafe()
-                .copyMemory(byteArray, addressOffset + index, dstByteArray, dstBaseOffset + dstOffset, length);
+        UNSAFE.copyMemory(byteArray, addressOffset + index, dstByteArray, dstBaseOffset + dstOffset, length);
     }
 
     public void putBytes(final long index, final byte[] src) {
@@ -866,8 +864,7 @@ public class UnsafeMemoryBase {
             srcBaseOffset = ARRAY_BASE_OFFSET + arrayOffset(srcBuffer);
         }
 
-        Reflections.getUnsafe()
-                .copyMemory(srcByteArray, srcBaseOffset + srcIndex, byteArray, addressOffset + index, length);
+        UNSAFE.copyMemory(srcByteArray, srcBaseOffset + srcIndex, byteArray, addressOffset + index, length);
     }
 
     public void putBytes(final long index, final DirectBuffer srcBuffer, final int srcIndex, final int length) {
@@ -876,9 +873,8 @@ public class UnsafeMemoryBase {
             srcBuffer.boundsCheck(srcIndex, length);
         }
 
-        Reflections.getUnsafe()
-                .copyMemory(srcBuffer.byteArray(), srcBuffer.addressOffset() + srcIndex, byteArray,
-                        addressOffset + index, length);
+        UNSAFE.copyMemory(srcBuffer.byteArray(), srcBuffer.addressOffset() + srcIndex, byteArray, addressOffset + index,
+                length);
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -995,9 +991,8 @@ public class UnsafeMemoryBase {
         }
 
         final byte[] dst = new byte[length];
-        Reflections.getUnsafe()
-                .copyMemory(byteArray, addressOffset + index + DirectBuffer.STR_HEADER_LEN, dst, ARRAY_BASE_OFFSET,
-                        length);
+        UNSAFE.copyMemory(byteArray, addressOffset + index + DirectBuffer.STR_HEADER_LEN, dst, ARRAY_BASE_OFFSET,
+                length);
 
         return new String(dst, US_ASCII);
     }
@@ -1035,8 +1030,7 @@ public class UnsafeMemoryBase {
                 c = '?';
             }
 
-            Reflections.getUnsafe()
-                    .putByte(byteArray, addressOffset + DirectBuffer.STR_HEADER_LEN + index + i, (byte) c);
+            UNSAFE.putByte(byteArray, addressOffset + DirectBuffer.STR_HEADER_LEN + index + i, (byte) c);
         }
 
         return DirectBuffer.STR_HEADER_LEN + length;
@@ -1057,8 +1051,7 @@ public class UnsafeMemoryBase {
                 c = '?';
             }
 
-            Reflections.getUnsafe()
-                    .putByte(byteArray, addressOffset + DirectBuffer.STR_HEADER_LEN + index + i, (byte) c);
+            UNSAFE.putByte(byteArray, addressOffset + DirectBuffer.STR_HEADER_LEN + index + i, (byte) c);
         }
 
         return DirectBuffer.STR_HEADER_LEN + length;
@@ -1084,8 +1077,7 @@ public class UnsafeMemoryBase {
                 c = '?';
             }
 
-            Reflections.getUnsafe()
-                    .putByte(byteArray, addressOffset + DirectBuffer.STR_HEADER_LEN + index + i, (byte) c);
+            UNSAFE.putByte(byteArray, addressOffset + DirectBuffer.STR_HEADER_LEN + index + i, (byte) c);
         }
 
         return DirectBuffer.STR_HEADER_LEN + length;
@@ -1111,8 +1103,7 @@ public class UnsafeMemoryBase {
                 c = '?';
             }
 
-            Reflections.getUnsafe()
-                    .putByte(byteArray, addressOffset + DirectBuffer.STR_HEADER_LEN + index + i, (byte) c);
+            UNSAFE.putByte(byteArray, addressOffset + DirectBuffer.STR_HEADER_LEN + index + i, (byte) c);
         }
 
         return DirectBuffer.STR_HEADER_LEN + length;
@@ -1257,9 +1248,8 @@ public class UnsafeMemoryBase {
         }
 
         final byte[] stringInBytes = new byte[length];
-        Reflections.getUnsafe()
-                .copyMemory(byteArray, addressOffset + index + DirectBuffer.STR_HEADER_LEN, stringInBytes,
-                        ARRAY_BASE_OFFSET, length);
+        UNSAFE.copyMemory(byteArray, addressOffset + index + DirectBuffer.STR_HEADER_LEN, stringInBytes,
+                ARRAY_BASE_OFFSET, length);
 
         return new String(stringInBytes, UTF_8);
     }
@@ -1283,9 +1273,8 @@ public class UnsafeMemoryBase {
         }
 
         UNSAFE.putInt(byteArray, addressOffset + index, bytes.length);
-        Reflections.getUnsafe()
-                .copyMemory(bytes, ARRAY_BASE_OFFSET, byteArray, addressOffset + index + DirectBuffer.STR_HEADER_LEN,
-                        bytes.length);
+        UNSAFE.copyMemory(bytes, ARRAY_BASE_OFFSET, byteArray, addressOffset + index + DirectBuffer.STR_HEADER_LEN,
+                bytes.length);
 
         return DirectBuffer.STR_HEADER_LEN + bytes.length;
     }
@@ -1307,9 +1296,8 @@ public class UnsafeMemoryBase {
         }
 
         UNSAFE.putInt(byteArray, addressOffset + index, bits);
-        Reflections.getUnsafe()
-                .copyMemory(bytes, ARRAY_BASE_OFFSET, byteArray, addressOffset + index + DirectBuffer.STR_HEADER_LEN,
-                        bytes.length);
+        UNSAFE.copyMemory(bytes, ARRAY_BASE_OFFSET, byteArray, addressOffset + index + DirectBuffer.STR_HEADER_LEN,
+                bytes.length);
 
         return DirectBuffer.STR_HEADER_LEN + bytes.length;
     }
@@ -1612,8 +1600,7 @@ public class UnsafeMemoryBase {
         final long thatOffset = that.addressOffset;
 
         for (long i = 0, length = capacity; i < length; i++) {
-            if (UNSAFE.getByte(thisByteArray, thisOffset + i) != Reflections.getUnsafe()
-                    .getByte(thatByteArray, thatOffset + i)) {
+            if (UNSAFE.getByte(thisByteArray, thisOffset + i) != UNSAFE.getByte(thatByteArray, thatOffset + i)) {
                 return false;
             }
         }
