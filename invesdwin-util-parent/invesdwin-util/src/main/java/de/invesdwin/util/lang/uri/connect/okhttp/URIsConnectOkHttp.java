@@ -206,7 +206,7 @@ public final class URIsConnectOkHttp implements IURIsConnect {
             }
             final String contentLength = response.headers().get(Headers.CONTENT_LENGTH);
             if (contentLength != null) {
-                return Long.parseLong(contentLength) > 0;
+                return Long.parseLong(contentLength) >= 0;
             } else {
                 return true;
             }
