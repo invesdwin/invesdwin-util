@@ -18,6 +18,7 @@ public final class TimeZones {
     public static final TimeZone CET;
     public static final TimeZone EUROPE_BERLIN;
     public static final TimeZone AMERICA_NEWYORK;
+    public static final TimeZone US_EASTERN;
 
     private static final String[] SEARCH_PREFIXES;
     private static final String[] REPLACE_PREFIXES;
@@ -33,10 +34,10 @@ public final class TimeZones {
         CET = getTimeZone("CET");
         EUROPE_BERLIN = getTimeZone("Europe/Berlin");
         AMERICA_NEWYORK = getTimeZone("America/New_York");
+        US_EASTERN = getTimeZone("US/Eastern");
     }
 
-    private TimeZones() {
-    }
+    private TimeZones() {}
 
     public static TimeZone getTimeZone(final String id) {
         if (Strings.isBlank(id)) {
