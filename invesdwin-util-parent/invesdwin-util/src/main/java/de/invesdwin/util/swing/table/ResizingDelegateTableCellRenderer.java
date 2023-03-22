@@ -27,6 +27,10 @@ public class ResizingDelegateTableCellRenderer implements TableCellRenderer {
 
     protected final TableCellRenderer delegate;
 
+    //Used for resizing TableColumns
+    private Integer[] columnWidths;
+    private Boolean[] setMaxWidth;
+
     public ResizingDelegateTableCellRenderer(final TableCellRenderer delegate) {
         this.delegate = delegate;
     }
@@ -45,6 +49,8 @@ public class ResizingDelegateTableCellRenderer implements TableCellRenderer {
 
     protected void resizeColumn(final JTable table, final boolean isSelected, final int row, final int column,
             final Component component) {
+        maybeResetResizeFields(table, row, column, component);
+
         if (component instanceof JLabel) {
             final JLabel lbl = (JLabel) component;
             resizeLabelColumn(table, row, column, lbl);
@@ -54,6 +60,8 @@ public class ResizingDelegateTableCellRenderer implements TableCellRenderer {
         } else {
             resizeOtherColumn(table, row, column, component);
         }
+
+        maybeApplyColumnWidths(table, row, column);
     }
 
     protected void resizeLabelColumn(final JTable table, final int row, final int column, final JLabel lbl) {
@@ -77,21 +85,68 @@ public class ResizingDelegateTableCellRenderer implements TableCellRenderer {
         final FontRenderContext frc = new FontRenderContext(affinetransform, true, true);
         final String plainText = HtmlToPlainText.htmlToPlainText(text);
         final String longestLine = Strings.extractLongestLine(plainText);
+
         final int textWidth = (int) (component.getFont().getStringBounds(longestLine, frc).getWidth())
                 + HiDPI.scale(10);
-        final TableColumn c = table.getColumnModel().getColumn(column);
-        Components.setMinWidth(c, Math.max(c.getMinWidth(), textWidth));
-        Components.setPreferredWidth(c, Math.max(c.getPreferredWidth(), textWidth));
+
+        if (this.columnWidths != null && (this.columnWidths[column] == null || this.columnWidths[column] < textWidth)) {
+            this.columnWidths[column] = textWidth;
+        }
+        this.setMaxWidth[column] = false;
     }
 
     protected void resizeOtherColumn(final JTable table, final int row, final int column, final Component component) {
-        final TableColumn c = table.getColumnModel().getColumn(column);
         int minWidth = component.getMinimumSize().width;
         if (component instanceof JCheckBox) {
             minWidth *= 2;
         }
-        Components.setMinWidth(c, minWidth);
-        Components.setPreferredWidth(c, minWidth);
-        Components.setMaxWidth(c, minWidth);
+        if (this.columnWidths[column] == null || this.columnWidths[column] < minWidth) {
+            this.columnWidths[column] = minWidth;
+        }
+        this.setMaxWidth[column] = true;
+    }
+
+    /**
+     * Applies the saved ColumnWidths after the last column of the last row has been processed. Processing always
+     * happens in order from first row/column to last row/column.
+     */
+    private void maybeApplyColumnWidths(final JTable table, final int row, final int column) {
+        //The NullCheck on columnWidth here is because when you mouse-hover over a row in the PositionManager
+        //or you click on one we restart the whole "go over each cell routine" from that row on (not from row 0)
+        //--> so a reset could have happened before we got to the last column of the last row.
+        if (row == table.getRowCount() - 1 && column == table.getColumnCount() - 1 && this.columnWidths != null) {
+            for (int i = 0; i < table.getColumnCount(); i++) {
+                final TableColumn tableColumn = table.getColumnModel().getColumn(i);
+                Components.setMinWidth(tableColumn, this.columnWidths[i]);
+                Components.setPreferredWidth(tableColumn, this.columnWidths[i]);
+                if (Boolean.TRUE.equals(this.setMaxWidth[i])) {
+                    Components.setMaxWidth(tableColumn, this.columnWidths[i]);
+                }
+            }
+            this.columnWidths = null;
+        }
+    }
+
+    /**
+     * Resets the fields used for TableColumn-Resizing when we start processing at the first column of the first row.
+     */
+    private void maybeResetResizeFields(final JTable table, final int row, final int column,
+            final Component component) {
+        if (this.setMaxWidth == null) {
+            this.setMaxWidth = new Boolean[table.getColumnCount()];
+        }
+        if (row == 0 && column == 0) {
+            this.columnWidths = new Integer[table.getColumnCount()];
+            //Prefill with header minWidth
+            for (int i = 0; i < columnWidths.length; i++) {
+                final AffineTransform affinetransform = new AffineTransform();
+                final FontRenderContext frc = new FontRenderContext(affinetransform, true, true);
+                final String plainText = HtmlToPlainText.htmlToPlainText(table.getColumnName(i));
+                final String longestLine = Strings.extractLongestLine(plainText);
+                final int textWidth = (int) (component.getFont().getStringBounds(longestLine, frc).getWidth())
+                        + HiDPI.scale(10);
+                columnWidths[i] = textWidth;
+            }
+        }
     }
 }
