@@ -77,10 +77,12 @@ public class StringsTest {
 
     @Test
     public void testAsStringIdentity() {
-        System.out.println(String.format(new Object().toString())); //SUPPRESS CHECKSTYLE single line
-        System.out.println(String.format(Strings.asStringIdentity(new PrettyToStringVO()))); //SUPPRESS CHECKSTYLE single line
+        //CHECKSTYLE:OFF
+        System.out.println(String.format(new Object().toString()));
+        System.out.println(String.format(Strings.asStringIdentity(new PrettyToStringVO())));
         System.out
-                .println(String.format(Strings.asStringIdentity(new ArrayList<Integer>(Arrays.asList(1, 2, 3, 4, 5))))); //SUPPRESS CHECKSTYLE single line
+                .println(String.format(Strings.asStringIdentity(new ArrayList<Integer>(Arrays.asList(1, 2, 3, 4, 5)))));
+        //CHECKSTYLE:ON
     }
 
     @SuppressWarnings("unused")
