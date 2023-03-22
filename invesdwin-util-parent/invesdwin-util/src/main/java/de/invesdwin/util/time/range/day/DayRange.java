@@ -96,10 +96,16 @@ public class DayRange extends AValueObject implements IDayRangeData {
     }
 
     public boolean containsInclusive(final FDate time, final FTimeZone timeZone) {
+        if (time == null) {
+            return false;
+        }
         return containsInclusive(time.applyTimeZoneOffset(timeZone));
     }
 
     public boolean containsInclusive(final FDate time) {
+        if (time == null) {
+            return false;
+        }
         final FDate sessionFrom = time.setFDayTime(from);
         FDate sessionTo = time.setFDayTime(to);
         if (sessionTo.isBeforeOrEqualToNotNullSafe(sessionFrom)) {
@@ -109,10 +115,16 @@ public class DayRange extends AValueObject implements IDayRangeData {
     }
 
     public boolean containsExclusive(final FDate time, final FTimeZone timeZone) {
+        if (time == null) {
+            return false;
+        }
         return containsExclusive(time.applyTimeZoneOffset(timeZone));
     }
 
     public boolean containsExclusive(final FDate time) {
+        if (time == null) {
+            return false;
+        }
         final FDate sessionFrom = time.setFDayTime(from);
         FDate sessionTo = time.setFDayTime(to);
         if (sessionTo.isBeforeOrEqualToNotNullSafe(sessionFrom)) {

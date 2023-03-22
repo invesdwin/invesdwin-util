@@ -256,7 +256,7 @@ public final class URIsConnectApacheAsync implements IURIsConnect {
             final String contentLengthStr = response.getFirstHeader(Headers.CONTENT_LENGTH).getValue();
             if (contentLengthStr != null) {
                 final long contentLength = Long.parseLong(contentLengthStr);
-                return contentLength > 0;
+                return contentLength >= 0;
             } else {
                 return true;
             }

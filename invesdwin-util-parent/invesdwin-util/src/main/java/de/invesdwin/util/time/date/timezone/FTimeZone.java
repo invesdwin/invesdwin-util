@@ -12,6 +12,7 @@ import org.joda.time.DateTimeZone;
 import org.joda.time.DurationField;
 import org.joda.time.chrono.ISOChronology;
 
+import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.time.date.FDateField;
 import de.invesdwin.util.time.date.FTimeUnit;
@@ -24,6 +25,14 @@ public class FTimeZone implements IFTimeZoneProvider {
     public static final FTimeZone EET = new FTimeZone(TimeZones.EET);
     public static final FTimeZone CET = new FTimeZone(TimeZones.CET);
     public static final FTimeZone AMERICA_NEWYORK = new FTimeZone(TimeZones.AMERICA_NEWYORK);
+    public static final FTimeZone US_EASTERN = new FTimeZone(TimeZones.US_EASTERN);
+
+    private static final ALoadingCache<String, FTimeZone> ID_TZ = new ALoadingCache<String, FTimeZone>() {
+        @Override
+        protected FTimeZone loadValue(final String key) {
+            return new FTimeZone(TimeZones.getTimeZone(key));
+        }
+    };
 
     private final Calendar templateCalendar;
     private final TimeZone timeZone;
@@ -248,7 +257,7 @@ public class FTimeZone implements IFTimeZoneProvider {
     }
 
     public static FTimeZone valueOf(final String id) {
-        return new FTimeZone(TimeZones.getZoneId(id));
+        return ID_TZ.get(id);
     }
 
 }

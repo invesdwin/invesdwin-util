@@ -164,7 +164,7 @@ public final class URIsConnectURLConnection implements IURIsConnect {
         }
         try {
             final URLConnection con = openConnection(HEAD);
-            return con.getInputStream().available() > 0;
+            return con.getInputStream().available() >= 0;
         } catch (final Throwable e) {
             return false;
         }
