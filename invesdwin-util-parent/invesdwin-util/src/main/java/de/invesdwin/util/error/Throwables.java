@@ -18,8 +18,7 @@ public final class Throwables extends AThrowablesStaticFacade {
 
     private static boolean debugStackTraceEnabled = false;
 
-    private Throwables() {
-    }
+    private Throwables() {}
 
     public static void setDebugStackTraceEnabled(final boolean debugStackTraceEnabled) {
         Throwables.debugStackTraceEnabled = debugStackTraceEnabled;
@@ -36,6 +35,21 @@ public final class Throwables extends AThrowablesStaticFacade {
 
     public static <T extends Throwable> boolean isCausedByType(final Throwable e, final Class<T> type) {
         return getCauseByType(e, type) != null;
+    }
+
+    @SafeVarargs
+    public static boolean isCausedByAnyType(final Throwable e, final Class<? extends Throwable>... types) {
+        Throwable cause = e;
+        while (cause != null) {
+            for (int i = 0; i < types.length; i++) {
+                final Class<? extends Throwable> type = types[i];
+                if (type.isInstance(cause)) {
+                    return true;
+                }
+            }
+            cause = cause.getCause();
+        }
+        return false;
     }
 
     @SuppressWarnings("unchecked" /* is safe since typecheck is done */)
