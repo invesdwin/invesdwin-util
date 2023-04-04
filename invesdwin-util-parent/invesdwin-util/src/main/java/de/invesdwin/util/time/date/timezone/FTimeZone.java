@@ -30,7 +30,11 @@ public class FTimeZone implements IFTimeZoneProvider {
     private static final ALoadingCache<String, FTimeZone> ID_TZ = new ALoadingCache<String, FTimeZone>() {
         @Override
         protected FTimeZone loadValue(final String key) {
-            return new FTimeZone(TimeZones.getTimeZone(key));
+            final TimeZone tz = TimeZones.getTimeZone(key);
+            if (tz == null) {
+                return null;
+            }
+            return new FTimeZone(tz);
         }
     };
 
