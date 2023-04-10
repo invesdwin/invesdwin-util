@@ -17,10 +17,11 @@ import org.agrona.MutableDirectBuffer;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import de.invesdwin.util.streams.buffer.bytes.ClosedByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
+import de.invesdwin.util.streams.buffer.bytes.ICloseableByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.stream.ByteBufferInputStream;
 
 @NotThreadSafe
-public class ClosedMemoryBuffer implements IMemoryBuffer {
+public class ClosedMemoryBuffer implements ICloseableMemoryBuffer {
 
     public static final ClosedMemoryBuffer INSTANCE = new ClosedMemoryBuffer();
 
@@ -276,7 +277,7 @@ public class ClosedMemoryBuffer implements IMemoryBuffer {
     }
 
     @Override
-    public IByteBuffer asByteBuffer(final long index, final int length) {
+    public ICloseableByteBuffer asByteBuffer(final long index, final int length) {
         if (index == 0 && length == ClosedByteBuffer.CLOSED_ARRAY.length) {
             return ClosedByteBuffer.INSTANCE;
         } else {
@@ -294,27 +295,27 @@ public class ClosedMemoryBuffer implements IMemoryBuffer {
     }
 
     @Override
-    public IMemoryBuffer sliceFrom(final long index) {
-        return newSliceFrom(index);
+    public ICloseableMemoryBuffer sliceFrom(final long index) {
+        return slice(index, remaining(index));
     }
 
     @Override
     public IMemoryBuffer newSliceFrom(final long index) {
-        return newSlice(index, remaining(index));
+        return sliceFrom(index);
     }
 
     @Override
-    public IMemoryBuffer slice(final long index, final long length) {
-        return newSlice(index, length);
-    }
-
-    @Override
-    public IMemoryBuffer newSlice(final long index, final long length) {
+    public ICloseableMemoryBuffer slice(final long index, final long length) {
         if (index == 0 && length == ClosedByteBuffer.CLOSED_ARRAY.length) {
             return this;
         } else {
             throw newClosedException();
         }
+    }
+
+    @Override
+    public IMemoryBuffer newSlice(final long index, final long length) {
+        return slice(index, length);
     }
 
     @Override
@@ -413,7 +414,7 @@ public class ClosedMemoryBuffer implements IMemoryBuffer {
     }
 
     @Override
-    public IMemoryBuffer ensureCapacity(final long desiredCapacity) {
+    public ICloseableMemoryBuffer ensureCapacity(final long desiredCapacity) {
         MemoryBuffers.ensureCapacity(this, desiredCapacity);
         return this;
     }
@@ -421,6 +422,11 @@ public class ClosedMemoryBuffer implements IMemoryBuffer {
     @Override
     public String toString() {
         return MemoryBuffers.toString(this);
+    }
+
+    @Override
+    public void close() {
+        //noop
     }
 
 }

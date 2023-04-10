@@ -18,10 +18,11 @@ import org.agrona.concurrent.UnsafeBuffer;
 
 import de.invesdwin.util.streams.buffer.bytes.stream.ByteBufferInputStream;
 import de.invesdwin.util.streams.buffer.memory.ClosedMemoryBuffer;
+import de.invesdwin.util.streams.buffer.memory.ICloseableMemoryBuffer;
 import de.invesdwin.util.streams.buffer.memory.IMemoryBuffer;
 
 @NotThreadSafe
-public class ClosedByteBuffer implements IByteBuffer {
+public class ClosedByteBuffer implements ICloseableByteBuffer {
 
     /**
      * This is also read from a closed socket.
@@ -361,12 +362,12 @@ public class ClosedByteBuffer implements IByteBuffer {
     }
 
     @Override
-    public IMemoryBuffer asMemoryBuffer() {
+    public ICloseableMemoryBuffer asMemoryBuffer() {
         return ClosedMemoryBuffer.INSTANCE;
     }
 
     @Override
-    public IMemoryBuffer asMemoryBuffer(final int index, final int length) {
+    public ICloseableMemoryBuffer asMemoryBuffer(final int index, final int length) {
         if (index == 0 && length == CLOSED_ARRAY.length) {
             return asMemoryBuffer();
         } else {
@@ -375,27 +376,27 @@ public class ClosedByteBuffer implements IByteBuffer {
     }
 
     @Override
-    public IByteBuffer sliceFrom(final int index) {
-        return newSliceFrom(index);
+    public ICloseableByteBuffer sliceFrom(final int index) {
+        return slice(index, remaining(index));
     }
 
     @Override
     public IByteBuffer newSliceFrom(final int index) {
-        return newSlice(index, remaining(index));
+        return sliceFrom(index);
     }
 
     @Override
-    public IByteBuffer slice(final int index, final int length) {
-        return newSlice(index, length);
-    }
-
-    @Override
-    public IByteBuffer newSlice(final int index, final int length) {
+    public ICloseableByteBuffer slice(final int index, final int length) {
         if (index == 0 && length == CLOSED_ARRAY.length) {
             return this;
         } else {
             throw newClosedException();
         }
+    }
+
+    @Override
+    public IByteBuffer newSlice(final int index, final int length) {
+        return slice(index, length);
     }
 
     @Override
@@ -494,7 +495,7 @@ public class ClosedByteBuffer implements IByteBuffer {
     }
 
     @Override
-    public IByteBuffer ensureCapacity(final int desiredCapacity) {
+    public ICloseableByteBuffer ensureCapacity(final int desiredCapacity) {
         ByteBuffers.ensureCapacity(this, desiredCapacity);
         return this;
     }
@@ -518,6 +519,11 @@ public class ClosedByteBuffer implements IByteBuffer {
     @Override
     public String toString() {
         return ByteBuffers.toString(this);
+    }
+
+    @Override
+    public void close() {
+        //noop
     }
 
 }

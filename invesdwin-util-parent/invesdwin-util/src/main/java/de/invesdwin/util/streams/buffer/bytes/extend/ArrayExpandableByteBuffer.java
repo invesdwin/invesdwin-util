@@ -37,7 +37,7 @@ import de.invesdwin.util.streams.buffer.memory.delegate.ByteDelegateMemoryBuffer
 @NotThreadSafe
 public class ArrayExpandableByteBuffer extends UninitializedExpandableArrayBufferBase implements IByteBuffer {
 
-    private IMutableSlicedDelegateByteBufferFactory mutableSliceFactory;
+    protected IMutableSlicedDelegateByteBufferFactory mutableSliceFactory;
 
     public ArrayExpandableByteBuffer() {
         super(INITIAL_CAPACITY);
@@ -168,7 +168,7 @@ public class ArrayExpandableByteBuffer extends UninitializedExpandableArrayBuffe
         return new ByteDelegateMemoryBuffer(this).newSlice(index, length);
     }
 
-    private IMutableSlicedDelegateByteBufferFactory getMutableSliceFactory() {
+    protected IMutableSlicedDelegateByteBufferFactory getMutableSliceFactory() {
         if (mutableSliceFactory == null) {
             mutableSliceFactory = new ExpandableMutableSlicedDelegateByteBufferFactory(this);
         }

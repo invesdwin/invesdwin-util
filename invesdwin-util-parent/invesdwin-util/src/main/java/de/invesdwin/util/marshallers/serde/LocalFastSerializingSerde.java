@@ -12,6 +12,7 @@ import org.apache.commons.lang3.SerializationException;
 import de.invesdwin.norva.beanpath.IDeepCloneProvider;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
+import de.invesdwin.util.streams.buffer.bytes.ICloseableByteBuffer;
 
 /**
  * This serializing serde is only suitable inside the current JVM
@@ -59,12 +60,9 @@ public class LocalFastSerializingSerde<E extends Serializable> implements ISerde
         if (obj == null) {
             return null;
         }
-        final IByteBuffer buffer = ByteBuffers.EXPANDABLE_POOL.borrowObject();
-        try {
+        try (ICloseableByteBuffer buffer = ByteBuffers.EXPANDABLE_POOL.borrowObject()) {
             final int length = serialize(buffer, (Serializable) obj);
             return (T) deserialize(buffer.sliceTo(length));
-        } finally {
-            ByteBuffers.EXPANDABLE_POOL.returnObject(buffer);
         }
     }
 
@@ -78,14 +76,11 @@ public class LocalFastSerializingSerde<E extends Serializable> implements ISerde
     @Override
     public <T> T deserialize(final InputStream in) {
         //FST is unreliable regarding input streams and not zero allocation
-        final IByteBuffer buffer = ByteBuffers.EXPANDABLE_POOL.borrowObject();
-        try {
+        try (ICloseableByteBuffer buffer = ByteBuffers.EXPANDABLE_POOL.borrowObject()) {
             final int length = ByteBuffers.readExpandable(in, buffer, 0);
             return (T) deserialize(buffer.sliceTo(length));
         } catch (final Throwable t) {
             throw new SerializationException(t);
-        } finally {
-            ByteBuffers.EXPANDABLE_POOL.returnObject(buffer);
         }
     }
 
@@ -96,15 +91,12 @@ public class LocalFastSerializingSerde<E extends Serializable> implements ISerde
 
     @Override
     public int serialize(final OutputStream out, final Serializable obj) {
-        final IByteBuffer buffer = ByteBuffers.EXPANDABLE_POOL.borrowObject();
-        try {
+        try (ICloseableByteBuffer buffer = ByteBuffers.EXPANDABLE_POOL.borrowObject()) {
             final int length = serialize(buffer, obj);
             buffer.getBytesTo(0, out, length);
             return length;
         } catch (final Throwable t) {
             throw new SerializationException(t);
-        } finally {
-            ByteBuffers.EXPANDABLE_POOL.returnObject(buffer);
         }
     }
 

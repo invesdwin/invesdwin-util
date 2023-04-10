@@ -20,10 +20,11 @@ import de.invesdwin.util.math.Bytes;
 import de.invesdwin.util.streams.EmptyInputStream;
 import de.invesdwin.util.streams.EmptyOutputStream;
 import de.invesdwin.util.streams.buffer.memory.EmptyMemoryBuffer;
+import de.invesdwin.util.streams.buffer.memory.ICloseableMemoryBuffer;
 import de.invesdwin.util.streams.buffer.memory.IMemoryBuffer;
 
 @Immutable
-public final class DisabledByteBuffer implements IByteBuffer {
+public final class DisabledByteBuffer implements ICloseableByteBuffer {
 
     public static final java.nio.ByteBuffer EMPTY_BYTE_BUFFER = java.nio.ByteBuffer.allocate(0);
     public static final java.nio.ByteBuffer EMPTY_DIRECT_BYTE_BUFFER = java.nio.ByteBuffer.allocateDirect(0);
@@ -33,8 +34,7 @@ public final class DisabledByteBuffer implements IByteBuffer {
 
     public static final DisabledByteBuffer INSTANCE = new DisabledByteBuffer();
 
-    private DisabledByteBuffer() {
-    }
+    private DisabledByteBuffer() {}
 
     @Override
     public ByteOrder getOrder() {
@@ -52,80 +52,61 @@ public final class DisabledByteBuffer implements IByteBuffer {
     }
 
     @Override
-    public void putLong(final int index, final long value) {
-    }
+    public void putLong(final int index, final long value) {}
 
     @Override
-    public void putInt(final int index, final int value) {
-    }
+    public void putInt(final int index, final int value) {}
 
     @Override
-    public void putDouble(final int index, final double value) {
-    }
+    public void putDouble(final int index, final double value) {}
 
     @Override
-    public void putFloat(final int index, final float value) {
-    }
+    public void putFloat(final int index, final float value) {}
 
     @Override
-    public void putShort(final int index, final short value) {
-    }
+    public void putShort(final int index, final short value) {}
 
     @Override
-    public void putChar(final int index, final char value) {
-    }
+    public void putChar(final int index, final char value) {}
 
     @Override
-    public void putLongReverse(final int index, final long value) {
-    }
+    public void putLongReverse(final int index, final long value) {}
 
     @Override
-    public void putIntReverse(final int index, final int value) {
-    }
+    public void putIntReverse(final int index, final int value) {}
 
     @Override
-    public void putDoubleReverse(final int index, final double value) {
-    }
+    public void putDoubleReverse(final int index, final double value) {}
 
     @Override
-    public void putFloatReverse(final int index, final float value) {
-    }
+    public void putFloatReverse(final int index, final float value) {}
 
     @Override
-    public void putShortReverse(final int index, final short value) {
-    }
+    public void putShortReverse(final int index, final short value) {}
 
     @Override
-    public void putCharReverse(final int index, final char value) {
-    }
+    public void putCharReverse(final int index, final char value) {}
 
     @Override
-    public void putByte(final int index, final byte value) {
-    }
+    public void putByte(final int index, final byte value) {}
 
     @Override
-    public void putBytes(final int index, final byte[] src) {
-    }
+    public void putBytes(final int index, final byte[] src) {}
 
     @Override
-    public void putBytes(final int index, final byte[] src, final int srcIndex, final int length) {
-    }
+    public void putBytes(final int index, final byte[] src, final int srcIndex, final int length) {}
 
     @Override
-    public void putBytes(final int index, final java.nio.ByteBuffer srcBuffer, final int srcIndex, final int length) {
-    }
+    public void putBytes(final int index, final java.nio.ByteBuffer srcBuffer, final int srcIndex, final int length) {}
 
     @Override
-    public void putBytes(final int index, final DirectBuffer srcBuffer, final int srcIndex, final int length) {
-    }
+    public void putBytes(final int index, final DirectBuffer srcBuffer, final int srcIndex, final int length) {}
 
     @Override
-    public void putBytes(final int index, final IByteBuffer srcBuffer, final int srcIndex, final int length) {
-    }
+    public void putBytes(final int index, final IByteBuffer srcBuffer, final int srcIndex, final int length) {}
 
     @Override
-    public void putBytes(final int index, final IMemoryBuffer srcBuffer, final long srcIndex, final int length) {
-    }
+    public void putBytes(final int index, final IMemoryBuffer srcBuffer, final long srcIndex, final int length) {}
 
     @Override
     public long addressOffset() {
@@ -213,24 +194,19 @@ public final class DisabledByteBuffer implements IByteBuffer {
     }
 
     @Override
-    public void getBytes(final int index, final byte[] dst, final int dstIndex, final int length) {
-    }
+    public void getBytes(final int index, final byte[] dst, final int dstIndex, final int length) {}
 
     @Override
-    public void getBytes(final int index, final MutableDirectBuffer dstBuffer, final int dstIndex, final int length) {
-    }
+    public void getBytes(final int index, final MutableDirectBuffer dstBuffer, final int dstIndex, final int length) {}
 
     @Override
-    public void getBytes(final int index, final java.nio.ByteBuffer dstBuffer, final int dstIndex, final int length) {
-    }
+    public void getBytes(final int index, final java.nio.ByteBuffer dstBuffer, final int dstIndex, final int length) {}
 
     @Override
-    public void getBytes(final int index, final IByteBuffer dstBuffer, final int dstIndex, final int length) {
-    }
+    public void getBytes(final int index, final IByteBuffer dstBuffer, final int dstIndex, final int length) {}
 
     @Override
-    public void getBytes(final int index, final IMemoryBuffer dstBuffer, final long dstIndex, final int length) {
-    }
+    public void getBytes(final int index, final IMemoryBuffer dstBuffer, final long dstIndex, final int length) {}
 
     @Override
     public int wrapAdjustment() {
@@ -238,12 +214,12 @@ public final class DisabledByteBuffer implements IByteBuffer {
     }
 
     @Override
-    public IMemoryBuffer asMemoryBuffer() {
+    public ICloseableMemoryBuffer asMemoryBuffer() {
         return EmptyMemoryBuffer.INSTANCE;
     }
 
     @Override
-    public IMemoryBuffer asMemoryBuffer(final int index, final int length) {
+    public ICloseableMemoryBuffer asMemoryBuffer(final int index, final int length) {
         return EmptyMemoryBuffer.INSTANCE;
     }
 
@@ -283,23 +259,23 @@ public final class DisabledByteBuffer implements IByteBuffer {
     }
 
     @Override
-    public IByteBuffer sliceFrom(final int index) {
-        return newSliceFrom(index);
+    public ICloseableByteBuffer sliceFrom(final int index) {
+        return slice(index, remaining(index));
     }
 
     @Override
     public IByteBuffer newSliceFrom(final int index) {
-        return newSlice(index, remaining(index));
+        return sliceFrom(index);
     }
 
     @Override
-    public IByteBuffer slice(final int index, final int length) {
-        return newSlice(index, length);
+    public ICloseableByteBuffer slice(final int index, final int length) {
+        return this;
     }
 
     @Override
     public IByteBuffer newSlice(final int index, final int length) {
-        return this;
+        return slice(index, length);
     }
 
     @Override
@@ -308,12 +284,10 @@ public final class DisabledByteBuffer implements IByteBuffer {
     }
 
     @Override
-    public void getStringAsciii(final int index, final int length, final Appendable dst) {
-    }
+    public void getStringAsciii(final int index, final int length, final Appendable dst) {}
 
     @Override
-    public void putStringAsciii(final int index, final CharSequence value, final int valueIndex, final int length) {
-    }
+    public void putStringAsciii(final int index, final CharSequence value, final int valueIndex, final int length) {}
 
     @Override
     public String getStringUtf8(final int index, final int length) {
@@ -326,24 +300,19 @@ public final class DisabledByteBuffer implements IByteBuffer {
     }
 
     @Override
-    public void getStringUtf8(final int index, final int length, final Appendable dst) {
-    }
+    public void getStringUtf8(final int index, final int length, final Appendable dst) {}
 
     @Override
-    public void getBytesTo(final int index, final DataOutput dst, final int length) {
-    }
+    public void getBytesTo(final int index, final DataOutput dst, final int length) {}
 
     @Override
-    public void getBytesTo(final int index, final OutputStream dst, final int length) {
-    }
+    public void getBytesTo(final int index, final OutputStream dst, final int length) {}
 
     @Override
-    public void putBytesTo(final int index, final DataInput src, final int length) {
-    }
+    public void putBytesTo(final int index, final DataInput src, final int length) {}
 
     @Override
-    public void putBytesTo(final int index, final InputStream src, final int length) {
-    }
+    public void putBytesTo(final int index, final InputStream src, final int length) {}
 
     @SuppressWarnings("unchecked")
     @Override
@@ -360,16 +329,13 @@ public final class DisabledByteBuffer implements IByteBuffer {
     }
 
     @Override
-    public void getBytesTo(final int index, final WritableByteChannel dst, final int length) throws IOException {
-    }
+    public void getBytesTo(final int index, final WritableByteChannel dst, final int length) throws IOException {}
 
     @Override
-    public void putBytesTo(final int index, final ReadableByteChannel src, final int length) throws IOException {
-    }
+    public void putBytesTo(final int index, final ReadableByteChannel src, final int length) throws IOException {}
 
     @Override
-    public void clear(final byte value, final int index, final int length) {
-    }
+    public void clear(final byte value, final int index, final int length) {}
 
     //CHECKSTYLE:OFF
     @Override
@@ -384,7 +350,7 @@ public final class DisabledByteBuffer implements IByteBuffer {
     }
 
     @Override
-    public IByteBuffer ensureCapacity(final int desiredCapacity) {
+    public ICloseableByteBuffer ensureCapacity(final int desiredCapacity) {
         ByteBuffers.ensureCapacity(this, desiredCapacity);
         return this;
     }
@@ -392,6 +358,11 @@ public final class DisabledByteBuffer implements IByteBuffer {
     @Override
     public String toString() {
         return ByteBuffers.toString(this);
+    }
+
+    @Override
+    public void close() {
+        //noop
     }
 
 }

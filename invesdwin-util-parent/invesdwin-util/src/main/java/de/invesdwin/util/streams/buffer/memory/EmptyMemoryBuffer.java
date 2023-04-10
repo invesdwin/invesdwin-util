@@ -20,9 +20,10 @@ import de.invesdwin.util.streams.EmptyOutputStream;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import de.invesdwin.util.streams.buffer.bytes.EmptyByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
+import de.invesdwin.util.streams.buffer.bytes.ICloseableByteBuffer;
 
 @Immutable
-public final class EmptyMemoryBuffer implements IMemoryBuffer {
+public final class EmptyMemoryBuffer implements ICloseableMemoryBuffer {
 
     public static final EmptyMemoryBuffer INSTANCE = new EmptyMemoryBuffer();
 
@@ -286,7 +287,7 @@ public final class EmptyMemoryBuffer implements IMemoryBuffer {
     }
 
     @Override
-    public IByteBuffer asByteBuffer(final long index, final int length) {
+    public ICloseableByteBuffer asByteBuffer(final long index, final int length) {
         if (index == 0 && length == 0) {
             return EmptyByteBuffer.INSTANCE;
         } else {
@@ -322,27 +323,27 @@ public final class EmptyMemoryBuffer implements IMemoryBuffer {
     }
 
     @Override
-    public IMemoryBuffer sliceFrom(final long index) {
-        return newSliceFrom(index);
+    public ICloseableMemoryBuffer sliceFrom(final long index) {
+        return slice(index, remaining(index));
     }
 
     @Override
     public IMemoryBuffer newSliceFrom(final long index) {
-        return newSlice(index, remaining(index));
+        return sliceFrom(index);
     }
 
     @Override
-    public IMemoryBuffer slice(final long index, final long length) {
-        return newSlice(index, length);
-    }
-
-    @Override
-    public IMemoryBuffer newSlice(final long index, final long length) {
+    public ICloseableMemoryBuffer slice(final long index, final long length) {
         if (index == 0 && length == 0) {
             return this;
         } else {
             throw newEmptyException();
         }
+    }
+
+    @Override
+    public IMemoryBuffer newSlice(final long index, final long length) {
+        return slice(index, length);
     }
 
     @Override
@@ -471,7 +472,7 @@ public final class EmptyMemoryBuffer implements IMemoryBuffer {
     }
 
     @Override
-    public IMemoryBuffer ensureCapacity(final long desiredCapacity) {
+    public ICloseableMemoryBuffer ensureCapacity(final long desiredCapacity) {
         MemoryBuffers.ensureCapacity(this, desiredCapacity);
         return this;
     }
@@ -479,6 +480,11 @@ public final class EmptyMemoryBuffer implements IMemoryBuffer {
     @Override
     public String toString() {
         return MemoryBuffers.toString(this);
+    }
+
+    @Override
+    public void close() {
+        //noop
     }
 
 }

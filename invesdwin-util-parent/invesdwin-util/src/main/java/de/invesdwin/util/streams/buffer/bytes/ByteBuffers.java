@@ -20,7 +20,6 @@ import org.agrona.MutableDirectBuffer;
 
 import de.invesdwin.util.collections.Arrays;
 import de.invesdwin.util.concurrent.loop.ASpinWait;
-import de.invesdwin.util.concurrent.pool.AgronaObjectPool;
 import de.invesdwin.util.concurrent.pool.IObjectPool;
 import de.invesdwin.util.error.FastEOFException;
 import de.invesdwin.util.lang.Objects;
@@ -38,6 +37,8 @@ import de.invesdwin.util.streams.buffer.bytes.extend.UnsafeByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.extend.internal.DirectExpandableByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.extend.internal.UninitializedDirectByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.extend.internal.UninitializedDirectExpandableByteBuffer;
+import de.invesdwin.util.streams.buffer.bytes.internal.array.ArrayExpandableByteBufferPool;
+import de.invesdwin.util.streams.buffer.bytes.internal.direct.DirectExpandableByteBufferPool;
 import de.invesdwin.util.time.duration.Duration;
 
 @Immutable
@@ -63,10 +64,8 @@ public final class ByteBuffers {
      */
     public static final ByteOrder NATIVE_ORDER = ByteOrder.nativeOrder();
 
-    public static final IObjectPool<IByteBuffer> EXPANDABLE_POOL = new AgronaObjectPool<IByteBuffer>(
-            () -> allocateExpandable());
-    public static final IObjectPool<IByteBuffer> DIRECT_EXPANDABLE_POOL = new AgronaObjectPool<IByteBuffer>(
-            () -> allocateDirectExpandable());
+    public static final IObjectPool<ICloseableByteBuffer> EXPANDABLE_POOL = ArrayExpandableByteBufferPool.INSTANCE;
+    public static final IObjectPool<ICloseableByteBuffer> DIRECT_EXPANDABLE_POOL = DirectExpandableByteBufferPool.INSTANCE;
 
     private static final ISliceInvoker SLICE_INVOKER;
 

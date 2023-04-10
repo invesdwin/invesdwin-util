@@ -17,6 +17,7 @@ import de.invesdwin.util.streams.InputStreams;
 import de.invesdwin.util.streams.NonClosingDelegateInputStream;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
+import de.invesdwin.util.streams.buffer.bytes.ICloseableByteBuffer;
 
 @NotThreadSafe
 public class BufferedFileDataInputStream extends InputStream implements DataInput {
@@ -25,7 +26,7 @@ public class BufferedFileDataInputStream extends InputStream implements DataInpu
     private final RandomAccessFile raf;
     private final FileChannel channel;
 
-    private IByteBuffer buffer;
+    private ICloseableByteBuffer buffer;
     private final java.nio.ByteBuffer nioBuffer;
 
     private long bufferPos;
@@ -85,7 +86,7 @@ public class BufferedFileDataInputStream extends InputStream implements DataInpu
         return nioBuffer;
     }
 
-    protected IObjectPool<IByteBuffer> getBufferPool() {
+    protected IObjectPool<ICloseableByteBuffer> getBufferPool() {
         return ByteBuffers.EXPANDABLE_POOL;
     }
 

@@ -20,10 +20,11 @@ import de.invesdwin.util.math.Bytes;
 import de.invesdwin.util.streams.EmptyInputStream;
 import de.invesdwin.util.streams.EmptyOutputStream;
 import de.invesdwin.util.streams.buffer.memory.EmptyMemoryBuffer;
+import de.invesdwin.util.streams.buffer.memory.ICloseableMemoryBuffer;
 import de.invesdwin.util.streams.buffer.memory.IMemoryBuffer;
 
 @Immutable
-public final class EmptyByteBuffer implements IByteBuffer {
+public final class EmptyByteBuffer implements ICloseableByteBuffer {
 
     public static final java.nio.ByteBuffer EMPTY_BYTE_BUFFER = java.nio.ByteBuffer.allocate(0);
     public static final java.nio.ByteBuffer EMPTY_DIRECT_BYTE_BUFFER = java.nio.ByteBuffer.allocateDirect(0);
@@ -294,12 +295,12 @@ public final class EmptyByteBuffer implements IByteBuffer {
     }
 
     @Override
-    public IMemoryBuffer asMemoryBuffer() {
+    public ICloseableMemoryBuffer asMemoryBuffer() {
         return EmptyMemoryBuffer.INSTANCE;
     }
 
     @Override
-    public IMemoryBuffer asMemoryBuffer(final int index, final int length) {
+    public ICloseableMemoryBuffer asMemoryBuffer(final int index, final int length) {
         if (index == 0 && length == 0) {
             return EmptyMemoryBuffer.INSTANCE;
         } else {
@@ -363,27 +364,27 @@ public final class EmptyByteBuffer implements IByteBuffer {
     }
 
     @Override
-    public IByteBuffer sliceFrom(final int index) {
-        return newSliceFrom(index);
+    public ICloseableByteBuffer sliceFrom(final int index) {
+        return slice(index, remaining(index));
     }
 
     @Override
     public IByteBuffer newSliceFrom(final int index) {
-        return newSlice(index, remaining(index));
+        return sliceFrom(index);
     }
 
     @Override
-    public IByteBuffer slice(final int index, final int length) {
-        return newSlice(index, length);
-    }
-
-    @Override
-    public IByteBuffer newSlice(final int index, final int length) {
+    public ICloseableByteBuffer slice(final int index, final int length) {
         if (index == 0 && length == 0) {
             return this;
         } else {
             throw newEmptyException();
         }
+    }
+
+    @Override
+    public IByteBuffer newSlice(final int index, final int length) {
+        return slice(index, length);
     }
 
     @Override
@@ -529,7 +530,7 @@ public final class EmptyByteBuffer implements IByteBuffer {
     }
 
     @Override
-    public IByteBuffer ensureCapacity(final int desiredCapacity) {
+    public ICloseableByteBuffer ensureCapacity(final int desiredCapacity) {
         ByteBuffers.ensureCapacity(this, desiredCapacity);
         return this;
     }
@@ -537,6 +538,11 @@ public final class EmptyByteBuffer implements IByteBuffer {
     @Override
     public String toString() {
         return ByteBuffers.toString(this);
+    }
+
+    @Override
+    public void close() {
+        //noop
     }
 
 }

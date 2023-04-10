@@ -22,7 +22,7 @@ import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
  * Default ByteOrder is always BigEndian. Use Reverse-Suffixed methods to write/read in LittleEndian. Alternatively use
  * OrderedDelegateByteBuffer to switch the default byte order (though not recommeded).
  */
-public interface IMemoryBuffer extends IMemoryBufferWriter {
+public interface IMemoryBuffer extends IMemoryBufferProvider {
 
     IMemoryBuffer ensureCapacity(long capacity);
 

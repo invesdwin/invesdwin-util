@@ -39,7 +39,7 @@ import de.invesdwin.util.time.duration.Duration;
 public class UninitializedDirectExpandableByteBuffer extends UninitializedExpandableDirectBufferBase
         implements IByteBuffer {
 
-    private IMutableSlicedDelegateByteBufferFactory mutableSliceFactory;
+    protected IMutableSlicedDelegateByteBufferFactory mutableSliceFactory;
 
     public UninitializedDirectExpandableByteBuffer() {
         super();
@@ -206,7 +206,7 @@ public class UninitializedDirectExpandableByteBuffer extends UninitializedExpand
         return new ByteDelegateMemoryBuffer(this).newSlice(index, length);
     }
 
-    private IMutableSlicedDelegateByteBufferFactory getMutableSliceFactory() {
+    protected IMutableSlicedDelegateByteBufferFactory getMutableSliceFactory() {
         if (mutableSliceFactory == null) {
             mutableSliceFactory = new ExpandableMutableSlicedDelegateByteBufferFactory(this);
         }

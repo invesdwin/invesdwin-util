@@ -19,13 +19,14 @@ import de.invesdwin.util.streams.NonClosingDelegateOutputStream;
 import de.invesdwin.util.streams.OutputStreams;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
+import de.invesdwin.util.streams.buffer.bytes.ICloseableByteBuffer;
 
 @NotThreadSafe
 public class BufferedFileDataOutputStream extends OutputStream implements DataOutput {
     public static final int DEFAULT_BUFFER_SIZE = Integers
             .checkedCast(ByteSizeScale.BYTES.convert(64D, ByteSizeScale.KILOBYTES));
 
-    private IByteBuffer buffer;
+    private ICloseableByteBuffer buffer;
     private final java.nio.ByteBuffer nioBuffer;
 
     private final RandomAccessFile randomAccessFile;
@@ -74,7 +75,7 @@ public class BufferedFileDataOutputStream extends OutputStream implements DataOu
         return buffer;
     }
 
-    protected IObjectPool<IByteBuffer> getBufferPool() {
+    protected IObjectPool<ICloseableByteBuffer> getBufferPool() {
         return ByteBuffers.EXPANDABLE_POOL;
     }
 

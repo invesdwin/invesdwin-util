@@ -11,7 +11,7 @@ import de.invesdwin.util.concurrent.loop.ASpinWait;
 import de.invesdwin.util.error.FastEOFException;
 import de.invesdwin.util.lang.uri.URIs;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
-import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
+import de.invesdwin.util.streams.buffer.bytes.ICloseableByteBuffer;
 import de.invesdwin.util.time.duration.Duration;
 
 /**
@@ -141,8 +141,8 @@ public final class OutputStreams {
             throw new UTFDataFormatException(tooLongMsg(str, utflen));
         }
 
-        final IByteBuffer bytearr = ByteBuffers.EXPANDABLE_POOL.borrowObject().ensureCapacity(utflen + 2);
-        try {
+        try (ICloseableByteBuffer bytearr = ByteBuffers.EXPANDABLE_POOL.borrowObject()) {
+            bytearr.ensureCapacity(utflen + 2);
             int count = 0;
             bytearr.putByte(count++, (byte) ((utflen >>> 8) & 0xFF));
             bytearr.putByte(count++, (byte) ((utflen >>> 0) & 0xFF));
@@ -173,8 +173,6 @@ public final class OutputStreams {
             }
             out.write(bytearr.byteArray(), 0, utflen + 2);
             return utflen + 2;
-        } finally {
-            ByteBuffers.EXPANDABLE_POOL.returnObject(bytearr);
         }
     }
 

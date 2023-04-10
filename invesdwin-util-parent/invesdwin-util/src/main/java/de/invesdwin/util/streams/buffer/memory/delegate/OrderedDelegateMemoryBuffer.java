@@ -24,13 +24,13 @@ import de.invesdwin.util.streams.buffer.memory.delegate.slice.mutable.factory.IM
  * This wrapper can be used for remote communication where a fixed endianness should be used.
  */
 @NotThreadSafe
-public final class OrderedDelegateMemoryBuffer implements IMemoryBuffer {
+public class OrderedDelegateMemoryBuffer implements IMemoryBuffer {
 
-    private final IMemoryBuffer delegate;
-    private final ByteOrder order;
-    private IMutableSlicedDelegateMemoryBufferFactory mutableSliceFactory;
+    protected final IMemoryBuffer delegate;
+    protected final ByteOrder order;
+    protected IMutableSlicedDelegateMemoryBufferFactory mutableSliceFactory;
 
-    private OrderedDelegateMemoryBuffer(final IMemoryBuffer delegate, final ByteOrder order) {
+    protected OrderedDelegateMemoryBuffer(final IMemoryBuffer delegate, final ByteOrder order) {
         this.delegate = delegate;
         this.order = order;
     }
@@ -262,7 +262,7 @@ public final class OrderedDelegateMemoryBuffer implements IMemoryBuffer {
         return delegate.asByteArrayCopy(index, length);
     }
 
-    private IMutableSlicedDelegateMemoryBufferFactory getMutableSliceFactory() {
+    protected IMutableSlicedDelegateMemoryBufferFactory getMutableSliceFactory() {
         if (mutableSliceFactory == null) {
             mutableSliceFactory = IMutableSlicedDelegateMemoryBufferFactory.newInstance(this, order);
         }

@@ -25,9 +25,9 @@ import de.invesdwin.util.streams.buffer.memory.delegate.slice.mutable.factory.IM
 @NotThreadSafe
 public class MutableSlicedFromDelegateMemoryBuffer implements IMemoryBuffer {
 
-    private final IMemoryBuffer delegate;
-    private long from;
-    private IMutableSlicedDelegateMemoryBufferFactory mutableSliceFactory;
+    protected final IMemoryBuffer delegate;
+    protected long from;
+    protected IMutableSlicedDelegateMemoryBufferFactory mutableSliceFactory;
 
     public MutableSlicedFromDelegateMemoryBuffer(final IMemoryBuffer delegate, final long from) {
         this.delegate = delegate;
@@ -273,7 +273,7 @@ public class MutableSlicedFromDelegateMemoryBuffer implements IMemoryBuffer {
         return new MemoryDelegateByteBuffer(newSlice(index, length));
     }
 
-    private IMutableSlicedDelegateMemoryBufferFactory getMutableSliceFactory() {
+    protected IMutableSlicedDelegateMemoryBufferFactory getMutableSliceFactory() {
         if (mutableSliceFactory == null) {
             mutableSliceFactory = new ExpandableMutableSlicedDelegateMemoryBufferFactory(this);
         }

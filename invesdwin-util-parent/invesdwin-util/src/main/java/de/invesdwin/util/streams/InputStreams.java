@@ -14,7 +14,7 @@ import de.invesdwin.util.concurrent.loop.ASpinWait;
 import de.invesdwin.util.error.FastEOFException;
 import de.invesdwin.util.lang.uri.URIs;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
-import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
+import de.invesdwin.util.streams.buffer.bytes.ICloseableByteBuffer;
 import de.invesdwin.util.time.duration.Duration;
 import io.netty.util.concurrent.FastThreadLocal;
 
@@ -293,8 +293,8 @@ public final class InputStreams {
      */
     public static String readUTF(final InputStream in) throws IOException {
         final int utflen = readUnsignedShort(in);
-        final IByteBuffer bytearr = ByteBuffers.EXPANDABLE_POOL.borrowObject().ensureCapacity(utflen);
-        try {
+        try (ICloseableByteBuffer bytearr = ByteBuffers.EXPANDABLE_POOL.borrowObject()) {
+            bytearr.ensureCapacity(utflen);
             final char[] chararr = new char[utflen];
 
             int c, char2, char3;
@@ -361,8 +361,6 @@ public final class InputStreams {
             }
             // The number of chars produced may be less than utflen
             return new String(chararr, 0, chararr_count);
-        } finally {
-            ByteBuffers.EXPANDABLE_POOL.returnObject(bytearr);
         }
     }
 

@@ -27,7 +27,7 @@ import de.invesdwin.util.streams.buffer.memory.delegate.slice.mutable.factory.IM
 public class ByteDelegateMemoryBuffer implements IMemoryBuffer {
 
     protected IByteBuffer delegate;
-    private IMutableSlicedDelegateMemoryBufferFactory mutableSliceFactory;
+    protected IMutableSlicedDelegateMemoryBufferFactory mutableSliceFactory;
 
     public ByteDelegateMemoryBuffer(final IByteBuffer buffer) {
         setDelegate(buffer);
@@ -276,7 +276,7 @@ public class ByteDelegateMemoryBuffer implements IMemoryBuffer {
         return delegate.asByteArrayCopy(Integers.checkedCast(index), length);
     }
 
-    private IMutableSlicedDelegateMemoryBufferFactory getMutableSliceFactory() {
+    protected IMutableSlicedDelegateMemoryBufferFactory getMutableSliceFactory() {
         if (mutableSliceFactory == null) {
             mutableSliceFactory = new FixedMutableSlicedDelegateMemoryBufferFactory(this);
         }

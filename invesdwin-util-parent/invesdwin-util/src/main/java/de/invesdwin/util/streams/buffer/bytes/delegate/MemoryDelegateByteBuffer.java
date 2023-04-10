@@ -28,10 +28,10 @@ import de.invesdwin.util.streams.buffer.memory.IMemoryBuffer;
  * This wrapper can be used for remote communication where a fixed endianness should be used.
  */
 @NotThreadSafe
-public final class MemoryDelegateByteBuffer implements IByteBuffer {
+public class MemoryDelegateByteBuffer implements IByteBuffer {
 
-    private final IMemoryBuffer delegate;
-    private IMutableSlicedDelegateByteBufferFactory mutableSliceFactory;
+    protected final IMemoryBuffer delegate;
+    protected IMutableSlicedDelegateByteBufferFactory mutableSliceFactory;
 
     public MemoryDelegateByteBuffer(final IMemoryBuffer delegate) {
         this.delegate = delegate;
@@ -309,7 +309,7 @@ public final class MemoryDelegateByteBuffer implements IByteBuffer {
         return delegate.asByteArrayCopy(index, length);
     }
 
-    private IMutableSlicedDelegateByteBufferFactory getMutableSliceFactory() {
+    protected IMutableSlicedDelegateByteBufferFactory getMutableSliceFactory() {
         if (mutableSliceFactory == null) {
             mutableSliceFactory = IMutableSlicedDelegateByteBufferFactory.newInstance(this);
         }

@@ -5,6 +5,7 @@ import javax.annotation.concurrent.Immutable;
 import de.invesdwin.util.math.Bytes;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
+import de.invesdwin.util.streams.buffer.bytes.ICloseableByteBuffer;
 
 @Immutable
 public final class SerdeBaseMethods {
@@ -22,13 +23,10 @@ public final class SerdeBaseMethods {
         if (obj == null) {
             return Bytes.EMPTY_ARRAY;
         }
-        final IByteBuffer buffer = ByteBuffers.EXPANDABLE_POOL.borrowObject();
-        try {
+        try (ICloseableByteBuffer buffer = ByteBuffers.EXPANDABLE_POOL.borrowObject()) {
             final int length = serde.toBuffer(buffer, obj);
             //we need this as a copy since byte arrays might be stored/cached before the next toBytes call might happen
             return buffer.asByteArrayCopyTo(length);
-        } finally {
-            ByteBuffers.EXPANDABLE_POOL.returnObject(buffer);
         }
     }
 

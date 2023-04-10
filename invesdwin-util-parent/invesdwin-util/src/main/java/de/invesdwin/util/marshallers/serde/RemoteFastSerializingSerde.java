@@ -25,7 +25,8 @@ import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 @Immutable
 public class RemoteFastSerializingSerde<E> implements ISerde<E> {
 
-    public static final RemoteFastSerializingSerde<Object> INSTANCE = new RemoteFastSerializingSerde<Object>(true);
+    @SuppressWarnings("rawtypes")
+    private static final RemoteFastSerializingSerde INSTANCE = new RemoteFastSerializingSerde<>(true);
 
     private static final Class<?>[] CLASS_EMPTY_ARRAY = new Class[0];
 
@@ -46,6 +47,11 @@ public class RemoteFastSerializingSerde<E> implements ISerde<E> {
     public RemoteFastSerializingSerde(final boolean shared, final Class<?>... types) {
         this.shared = shared;
         this.filteredTypes = filter(types);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T> RemoteFastSerializingSerde<T> get() {
+        return INSTANCE;
     }
 
     private Class<?>[] filter(final Class<?>[] types) {

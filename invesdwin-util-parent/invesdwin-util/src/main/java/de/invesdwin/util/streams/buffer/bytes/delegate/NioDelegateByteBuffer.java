@@ -228,6 +228,11 @@ public class NioDelegateByteBuffer implements IByteBuffer {
     }
 
     @Override
+    public IMemoryBuffer asMemoryBufferFrom(final int index) {
+        return new ByteDelegateMemoryBuffer(this).newSliceFrom(index);
+    }
+
+    @Override
     public IMemoryBuffer asMemoryBuffer(final int index, final int length) {
         return new ByteDelegateMemoryBuffer(this).newSlice(index, length);
     }
