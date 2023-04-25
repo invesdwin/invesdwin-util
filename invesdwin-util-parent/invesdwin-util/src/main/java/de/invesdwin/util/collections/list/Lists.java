@@ -1,5 +1,6 @@
 package de.invesdwin.util.collections.list;
 
+import java.util.AbstractSequentialList;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -22,8 +23,7 @@ import de.invesdwin.util.collections.list.internal.AListsStaticFacade;
         com.google.common.collect.Lists.class, org.apache.commons.collections4.ListUtils.class })
 public final class Lists extends AListsStaticFacade {
 
-    private Lists() {
-    }
+    private Lists() {}
 
     public static <T> List<T> join(final Collection<? extends Collection<T>> lists) {
         final List<T> result = new ArrayList<T>();
@@ -340,6 +340,25 @@ public final class Lists extends AListsStaticFacade {
         } else {
             return Collections.singletonList(value);
         }
+    }
+
+    @SafeVarargs
+    public static <T> boolean containsAny(final List<T> list, final T... elements) {
+        if (list instanceof AbstractSequentialList) {
+            for (final T v : list) {
+                if (Arrays.contains(elements, v)) {
+                    return true;
+                }
+            }
+        } else {
+            for (int i = 0; i < list.size(); i++) {
+                final T v = list.get(i);
+                if (Arrays.contains(elements, v)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
 }
