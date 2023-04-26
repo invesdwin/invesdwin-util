@@ -16,9 +16,12 @@ public class FDatesTest {
     public void testBisect() {
         final FDate[] dates = { FDateBuilder.newDate(2000), FDateBuilder.newDate(2000, 6), FDateBuilder.newDate(2001),
                 FDateBuilder.newDate(2002) };
-        Assertions.assertThat(FDates.bisect(dates, FDateBuilder.newDate(2001).addDays(-1))).isEqualTo(1);
-        Assertions.assertThat(FDates.bisect(dates, FDate.MAX_DATE)).isEqualTo(3);
-        Assertions.assertThat(FDates.bisect(dates, FDate.MIN_DATE)).isEqualTo(0);
+        Assertions
+                .assertThat(FDates.bisect(dates, FDateBuilder.newDate(2001).addDays(-1),
+                        BisectDuplicateKeyHandling.UNDEFINED))
+                .isEqualTo(1);
+        Assertions.assertThat(FDates.bisect(dates, FDate.MAX_DATE, BisectDuplicateKeyHandling.UNDEFINED)).isEqualTo(3);
+        Assertions.assertThat(FDates.bisect(dates, FDate.MIN_DATE, BisectDuplicateKeyHandling.UNDEFINED)).isEqualTo(0);
     }
 
     @Test
