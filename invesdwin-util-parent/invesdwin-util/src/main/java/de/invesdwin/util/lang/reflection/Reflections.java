@@ -16,6 +16,8 @@ import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
 import de.invesdwin.norva.beanpath.BeanPathReflections;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.factory.ILockCollectionFactory;
+import de.invesdwin.util.lang.comparator.AComparator;
+import de.invesdwin.util.lang.comparator.IComparator;
 import de.invesdwin.util.lang.reflection.internal.AReflectionsStaticFacade;
 import de.invesdwin.util.lang.string.Strings;
 
@@ -24,6 +26,21 @@ import de.invesdwin.util.lang.string.Strings;
         org.springframework.core.GenericTypeResolver.class })
 @Immutable
 public final class Reflections extends AReflectionsStaticFacade {
+
+    public static final IComparator<Method> METHOD_COMPARATOR = new AComparator<Method>() {
+        @Override
+        public int compareTypedNotNullSafe(final Method o1, final Method o2) {
+            final String name1 = o1.getName();
+            final String name2 = o2.getName();
+            final int nameCompare = name1.compareTo(name2);
+            if (nameCompare != 0) {
+                return nameCompare;
+            }
+            final String signature1 = o1.toGenericString();
+            final String signature2 = o2.toGenericString();
+            return signature1.compareTo(signature2);
+        }
+    };
 
     /**
      * https://stackoverflow.com/questions/2591083/getting-java-version-at-runtime/21112531

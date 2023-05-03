@@ -526,7 +526,8 @@ public final class FDates {
         return new FDate((long) avg);
     }
 
-    public static int bisect(final FDate[] keys, final FDate skippingKeysAbove) {
+    public static int bisect(final FDate[] keys, final FDate skippingKeysAbove,
+            final BisectDuplicateKeyHandling duplicateKeyHandling) {
         int lo = 0;
         int hi = keys.length;
         while (lo < hi) {
@@ -540,7 +541,7 @@ public final class FDates {
                 lo = mid + 1;
                 break;
             case 0:
-                return mid;
+                return duplicateKeyHandling.apply(keys, mid, midKey);
             case 1:
                 hi = mid;
                 break;
@@ -554,31 +555,32 @@ public final class FDates {
         if (lo >= keys.length) {
             lo = lo - 1;
         }
-        final FDate loTime = keys[lo];
-        if (loTime.isAfterNotNullSafe(skippingKeysAbove)) {
+        final FDate loKey = keys[lo];
+        if (loKey.isAfterNotNullSafe(skippingKeysAbove)) {
+            //no duplicate key handling needed because this is the last value before the actual requested key
             final int index = lo - 1;
             return index;
         } else {
-            return lo;
+            return duplicateKeyHandling.apply(keys, lo, loKey);
         }
     }
 
-    public static <T> int bisect(final Function<T, FDate> extractTime, final List<T> values,
-            final FDate skippingKeysAbove) {
+    public static <T> int bisect(final Function<T, FDate> extractKey, final List<T> values,
+            final FDate skippingKeysAbove, final BisectDuplicateKeyHandling duplicateKeyHandling) {
         int lo = 0;
         int hi = values.size();
         while (lo < hi) {
             // same as (low+high)/2
             final int mid = (lo + hi) >>> 1;
             //if (x < list.get(mid)) {
-            final FDate midKey = extractTime.apply(values.get(mid));
+            final FDate midKey = extractKey.apply(values.get(mid));
             final int compareTo = midKey.compareToNotNullSafe(skippingKeysAbove);
             switch (compareTo) {
             case MISSING_INDEX:
                 lo = mid + 1;
                 break;
             case 0:
-                return mid;
+                return duplicateKeyHandling.apply(extractKey, values, mid, midKey);
             case 1:
                 hi = mid;
                 break;
@@ -592,12 +594,13 @@ public final class FDates {
         if (lo >= values.size()) {
             lo = lo - 1;
         }
-        final FDate loTime = extractTime.apply(values.get(lo));
-        if (loTime.isAfterNotNullSafe(skippingKeysAbove)) {
+        final FDate loKey = extractKey.apply(values.get(lo));
+        if (loKey.isAfterNotNullSafe(skippingKeysAbove)) {
+            //no duplicate key handling needed because this is the last value before the actual requested key
             final int index = lo - 1;
             return index;
         } else {
-            return lo;
+            return duplicateKeyHandling.apply(extractKey, values, lo, loKey);
         }
     }
 
