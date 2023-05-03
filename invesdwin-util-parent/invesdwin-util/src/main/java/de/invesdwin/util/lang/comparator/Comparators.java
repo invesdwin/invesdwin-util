@@ -12,11 +12,10 @@ import de.invesdwin.util.collections.Collections;
 @Immutable
 public final class Comparators {
 
-    public static final IComparator<Comparable<Object>> COMPARATOR = IComparator.getDefaultInstance();
+    public static final IComparator<Comparable<?>> COMPARATOR = IComparator.getDefaultInstance();
     private static final int INSERTIONSORT_THRESHOLD = 7;
 
-    private Comparators() {
-    }
+    private Comparators() {}
 
     /**
      * Checks all elements
