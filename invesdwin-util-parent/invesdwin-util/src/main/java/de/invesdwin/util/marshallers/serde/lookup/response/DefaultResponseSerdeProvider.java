@@ -10,11 +10,16 @@ import de.invesdwin.util.marshallers.serde.TypeDelegateSerde;
 @Immutable
 public final class DefaultResponseSerdeProvider implements IResponseSerdeProvider {
 
-    private final TypeDelegateSerde<Object> serde;
+    private final ISerde<Object> serde;
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public DefaultResponseSerdeProvider(final Method method) {
         this.serde = new TypeDelegateSerde(method.getReturnType());
+    }
+
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public DefaultResponseSerdeProvider(final ISerde<?> serde) {
+        this.serde = (ISerde) serde;
     }
 
     @Override

@@ -1,6 +1,5 @@
 package de.invesdwin.util.marshallers.serde.lookup.request;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 import javax.annotation.concurrent.Immutable;
@@ -22,18 +21,9 @@ public final class DefaultRequestSerdeLookup implements IRequestSerdeLookup {
     public ISerde<Object[]> lookup(final Method method) {
         final Serde serdeAnnotation = Reflections.getAnnotation(method, Serde.class);
         if (serdeAnnotation != null) {
-            final Class<? extends ISerde<Object[]>> overrideClass = serdeAnnotation.request();
-            if (overrideClass != Serde.DEFAULT_REQUEST.class) {
-                final Field instanceField = Reflections.findField(overrideClass, "INSTANCE");
-                try {
-                    if (instanceField != null) {
-                        return (ISerde<Object[]>) instanceField.get(null);
-                    } else {
-                        return overrideClass.getConstructor().newInstance();
-                    }
-                } catch (final Exception e) {
-                    throw new RuntimeException(e);
-                }
+            final Class<? extends ISerde<?>> serdeClass = serdeAnnotation.request();
+            if (serdeClass != Serde.DEFAULT_REQUEST.class) {
+                return (ISerde<Object[]>) Reflections.getOrCreateInstance(serdeClass);
             }
         }
         return RemoteFastSerializingSerde.get();

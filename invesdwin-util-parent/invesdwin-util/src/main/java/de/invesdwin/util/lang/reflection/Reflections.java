@@ -51,6 +51,9 @@ public final class Reflections extends AReflectionsStaticFacade {
      */
     public static final boolean JAVA_DEBUG_MODE;
 
+    private static final String[] INSTANCE_FIELD_NAMES = new String[] { "INSTANCE", "GET" };
+    private static final String[] INSTANCE_METHOD_NAMES = new String[] { "getInstance", "newInstance", "get" };
+
     @GuardedBy("this.class")
     private static boolean modulesExported = false;
 
@@ -238,6 +241,29 @@ public final class Reflections extends AReflectionsStaticFacade {
             curClazz = curClazz.getSuperclass();
         }
         return className;
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T> T getOrCreateInstance(final Class<T> type) {
+        try {
+            for (final String instanceFieldName : INSTANCE_FIELD_NAMES) {
+                final Field instanceField = Reflections.findField(type, instanceFieldName);
+                if (instanceField != null && Reflections.isPublic(instanceField)
+                        && Reflections.isStatic(instanceField)) {
+                    return (T) instanceField.get(null);
+                }
+            }
+            for (final String instanceMethodName : INSTANCE_METHOD_NAMES) {
+                final Method instanceMethod = Reflections.findMethod(type, instanceMethodName);
+                if (instanceMethod != null && Reflections.isPublic(instanceMethod)
+                        && Reflections.isStatic(instanceMethod)) {
+                    return (T) instanceMethod.invoke(null);
+                }
+            }
+            return type.getConstructor().newInstance();
+        } catch (final Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }
