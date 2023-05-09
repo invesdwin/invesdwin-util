@@ -40,7 +40,7 @@ public class LoopInterruptedCheck {
     public final boolean check() throws InterruptedException {
         checksInInterval++;
         if (checksInInterval > checksPerInterval) {
-            final long newIntervalNanos = getInitialNanoTime();
+            final long newIntervalNanos = System.nanoTime();
             if (newIntervalNanos > nextIntervalNanos) {
                 onInterval();
                 checksPerInterval = checksInInterval;
