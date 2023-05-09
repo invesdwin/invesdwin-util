@@ -15,7 +15,6 @@ public final class DefaultResponseSerdeProviderLookup implements IResponseSerdeP
 
     private DefaultResponseSerdeProviderLookup() {}
 
-    @SuppressWarnings("rawtypes")
     @Override
     public IResponseSerdeProvider lookup(final Method method) {
         final Serde serdeAnnotation = Reflections.getAnnotation(method, Serde.class);
@@ -24,8 +23,8 @@ public final class DefaultResponseSerdeProviderLookup implements IResponseSerdeP
             if (serdeProviderClass != Serde.DEFAULT_RESPONSE_PROVIDER.class) {
                 return Reflections.getOrCreateInstance(serdeProviderClass);
             }
-            final Class<? extends ISerde> serdeClass = serdeAnnotation.response();
-            if (serdeProviderClass != Serde.DEFAULT_RESPONSE.class) {
+            final Class<? extends ISerde<?>> serdeClass = serdeAnnotation.response();
+            if (serdeClass != Serde.DEFAULT_RESPONSE.class) {
                 final ISerde<?> serde = Reflections.getOrCreateInstance(serdeClass);
                 return new DefaultResponseSerdeProvider(serde);
             }
