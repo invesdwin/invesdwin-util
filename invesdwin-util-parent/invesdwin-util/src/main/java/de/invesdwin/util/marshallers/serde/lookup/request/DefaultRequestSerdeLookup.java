@@ -16,14 +16,14 @@ public final class DefaultRequestSerdeLookup implements IRequestSerdeLookup {
 
     private DefaultRequestSerdeLookup() {}
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
     public ISerde<Object[]> lookup(final Method method) {
         final Serde serdeAnnotation = Reflections.getAnnotation(method, Serde.class);
         if (serdeAnnotation != null) {
-            final Class<? extends ISerde<?>> serdeClass = serdeAnnotation.request();
+            final Class<? extends ISerde> serdeClass = serdeAnnotation.request();
             if (serdeClass != Serde.DEFAULT_REQUEST.class) {
-                return (ISerde<Object[]>) Reflections.getOrCreateInstance(serdeClass);
+                return Reflections.getOrCreateInstance(serdeClass);
             }
         }
         return RemoteFastSerializingSerde.get();
