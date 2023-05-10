@@ -266,4 +266,25 @@ public final class Reflections extends AReflectionsStaticFacade {
         }
     }
 
+    /**
+     * https://stackoverflow.com/a/62434122
+     */
+    @SuppressWarnings({ "unchecked", "restriction" })
+    public static <T> T unsafeClone(final T object) {
+        try {
+            final T instance = (T) getUnsafe().allocateInstance(object.getClass());
+            Class<?> clazz = object.getClass();
+            while (!clazz.equals(Object.class)) {
+                for (final Field field : clazz.getDeclaredFields()) {
+                    field.setAccessible(true);
+                    field.set(instance, field.get(object));
+                }
+                clazz = clazz.getSuperclass();
+            }
+            return instance;
+        } catch (final Exception e) {
+            throw new RuntimeException();
+        }
+    }
+
 }
