@@ -1,6 +1,5 @@
 package de.invesdwin.util.concurrent.pool.timeout;
 
-import java.io.Closeable;
 import java.util.NoSuchElementException;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -10,21 +9,22 @@ import com.google.common.util.concurrent.ListenableScheduledFuture;
 
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
+import de.invesdwin.util.collections.iterable.buffer.IBufferingIterator;
 import de.invesdwin.util.collections.iterable.buffer.NodeBufferingIterator;
 import de.invesdwin.util.concurrent.Executors;
 import de.invesdwin.util.concurrent.WrappedScheduledExecutorService;
-import de.invesdwin.util.concurrent.pool.IObjectPool;
+import de.invesdwin.util.concurrent.pool.ICloseableObjectPool;
 import de.invesdwin.util.time.date.FTimeUnit;
 import de.invesdwin.util.time.duration.Duration;
 
 @ThreadSafe
-public abstract class ATimeoutObjectPool<E> implements IObjectPool<E>, Closeable {
+public abstract class ATimeoutObjectPool<E> implements ICloseableObjectPool<E> {
 
     private static final AtomicLong ACTIVE_POOLS = new AtomicLong();
     private static WrappedScheduledExecutorService scheduledExecutor = Executors
             .newScheduledThreadPool(ATimeoutObjectPool.class.getSimpleName() + "_timeout", 1);
 
-    protected NodeBufferingIterator<TimeoutReference<E>> bufferingIterator;
+    protected IBufferingIterator<TimeoutReference<E>> bufferingIterator;
     private final long timeoutMillis;
     private ListenableScheduledFuture<?> scheduledFuture;
 
@@ -104,13 +104,16 @@ public abstract class ATimeoutObjectPool<E> implements IObjectPool<E>, Closeable
         if (element == null) {
             return;
         }
-        passivateObject(element);
-        final TimeoutReference<E> reference = TimeoutReferenceObjectPool.<E> getInstance().borrowObject();
-        reference.set(element);
-        bufferingIterator.add(reference);
+        if (passivateObject(element)) {
+            final TimeoutReference<E> reference = TimeoutReferenceObjectPool.<E> getInstance().borrowObject();
+            reference.set(element);
+            bufferingIterator.add(reference);
+        } else {
+            invalidateObject(element);
+        }
     }
 
-    protected abstract void passivateObject(E element);
+    protected abstract boolean passivateObject(E element);
 
     @Override
     public synchronized void clear() {
