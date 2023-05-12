@@ -21,9 +21,4 @@ public abstract class AAgronaObjectPool<E> extends AQueueObjectPool<E> {
         super(new ManyToManyConcurrentArrayQueue<>(maxPoolSize));
     }
 
-    @Override
-    public void invalidateObject(final E element) {
-        //noop
-    }
-
 }

@@ -105,9 +105,10 @@ public interface ICommonsPoolableObjectFactory<T> {
      *
      * @param obj
      *            the instance to be passivated
+     * @return true if the object can be reused, false if it should be destroyed
      * @throws Exception
      *             if there is a problem passivating <code>obj</code>, this exception may be swallowed by the pool.
      * @see #destroyObject
      */
-    void passivateObject(T obj);
+    boolean passivateObject(T obj);
 }

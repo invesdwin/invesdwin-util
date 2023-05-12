@@ -12,22 +12,11 @@ public final class PseudoRandomGeneratorObjectPool extends AAgronaObjectPool<IRa
 
     public static final PseudoRandomGeneratorObjectPool INSTANCE = new PseudoRandomGeneratorObjectPool();
 
-    private PseudoRandomGeneratorObjectPool() {
-    }
+    private PseudoRandomGeneratorObjectPool() {}
 
     @Override
     protected IRandomGenerator newObject() {
         return PseudoRandomGenerators.newPseudoRandom();
-    }
-
-    @Override
-    public void invalidateObject(final IRandomGenerator element) {
-        //noop
-    }
-
-    @Override
-    protected void passivateObject(final IRandomGenerator element) {
-        //noop
     }
 
 }

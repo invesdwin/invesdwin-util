@@ -60,7 +60,9 @@ public abstract class ACommonsObjectPool<E> implements ObjectPool<E>, ICloseable
         throwIfClosed();
         final E element = internalAddObject();
         if (factory.validateObject(element)) {
-            factory.passivateObject(element);
+            if (!factory.passivateObject(element)) {
+                removeObject(element);
+            }
         } else {
             removeObject(element);
         }
@@ -76,8 +78,11 @@ public abstract class ACommonsObjectPool<E> implements ObjectPool<E>, ICloseable
         if (element != null) {
             activeCount.decrementAndGet();
             if (factory.validateObject(element)) {
-                factory.passivateObject(element);
-                internalReturnObject(element);
+                if (factory.passivateObject(element)) {
+                    internalReturnObject(element);
+                } else {
+                    factory.destroyObject(element);
+                }
             } else {
                 factory.destroyObject(element);
             }
