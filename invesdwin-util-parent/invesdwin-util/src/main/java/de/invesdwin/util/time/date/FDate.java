@@ -47,8 +47,8 @@ public class FDate
     public static final int MAX_YEAR = 5555;
     public static final int MIN_YEAR = 1;
 
-    public static final FDate MIN_DATE = FDateBuilder.newDate(MIN_YEAR);
-    public static final FDate MAX_DATE = FDateBuilder.newDate(MAX_YEAR);
+    public static final FDate MIN_DATE = FDateBuilder.newDate(MIN_YEAR, 1, 1, 0, 0, 0, 0, FTimeZone.UTC);
+    public static final FDate MAX_DATE = FDateBuilder.newDate(MAX_YEAR, 1, 1, 0, 0, 0, 0, FTimeZone.UTC);
 
     public static final int COUNT_NANOSECONDS_IN_MILLISECOND = Integers.checkedCast(FTimeUnit.MILLISECONDS.toNanos(1));
     public static final int COUNT_NANOSECONDS_IN_MICROSECOND = Integers.checkedCast(FTimeUnit.MICROSECONDS.toNanos(1));
