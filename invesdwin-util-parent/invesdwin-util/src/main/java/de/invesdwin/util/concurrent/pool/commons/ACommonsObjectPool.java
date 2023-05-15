@@ -9,15 +9,14 @@ import javax.annotation.concurrent.ThreadSafe;
 
 import org.apache.commons.pool2.ObjectPool;
 
-import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.concurrent.Threads;
-import de.invesdwin.util.concurrent.pool.IObjectPool;
+import de.invesdwin.util.concurrent.pool.ICloseableObjectPool;
 
 /**
  * Implements the lifecycle of pooled objects
  */
 @ThreadSafe
-public abstract class ACommonsObjectPool<E> implements ObjectPool<E>, IObjectPool<E> {
+public abstract class ACommonsObjectPool<E> implements ObjectPool<E>, ICloseableObjectPool<E> {
 
     protected ICommonsPoolableObjectFactory<E> factory;
     private final AtomicInteger activeCount = new AtomicInteger();
@@ -61,7 +60,9 @@ public abstract class ACommonsObjectPool<E> implements ObjectPool<E>, IObjectPoo
         throwIfClosed();
         final E element = internalAddObject();
         if (factory.validateObject(element)) {
-            factory.passivateObject(element);
+            if (!factory.passivateObject(element)) {
+                removeObject(element);
+            }
         } else {
             removeObject(element);
         }
@@ -77,8 +78,11 @@ public abstract class ACommonsObjectPool<E> implements ObjectPool<E>, IObjectPoo
         if (element != null) {
             activeCount.decrementAndGet();
             if (factory.validateObject(element)) {
-                factory.passivateObject(element);
-                internalReturnObject(element);
+                if (factory.passivateObject(element)) {
+                    internalReturnObject(element);
+                } else {
+                    factory.destroyObject(element);
+                }
             } else {
                 factory.destroyObject(element);
             }
@@ -158,7 +162,9 @@ public abstract class ACommonsObjectPool<E> implements ObjectPool<E>, IObjectPoo
     }
 
     protected final void throwIfClosed() {
-        Assertions.assertThat(isClosed()).as("Instance already closed!").isFalse();
+        if (isClosed()) {
+            throw new IllegalStateException("closed");
+        }
     }
 
     public final void setFactory(final ICommonsPoolableObjectFactory<E> factory) {

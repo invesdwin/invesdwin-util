@@ -30,12 +30,15 @@ public abstract class AQueueObjectPool<E> implements IObjectPool<E> {
         if (element == null) {
             return;
         }
-        passivateObject(element);
-        queue.offer(element);
+        if (passivateObject(element)) {
+            queue.offer(element);
+        } else {
+            invalidateObject(element);
+        }
     }
 
-    protected void passivateObject(final E element) {
-        //noop
+    protected boolean passivateObject(final E element) {
+        return true;
     }
 
     @Override

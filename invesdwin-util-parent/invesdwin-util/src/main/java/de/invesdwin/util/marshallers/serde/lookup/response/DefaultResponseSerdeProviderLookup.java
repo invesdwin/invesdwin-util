@@ -24,7 +24,7 @@ public final class DefaultResponseSerdeProviderLookup implements IResponseSerdeP
                 return Reflections.getOrCreateInstance(serdeProviderClass);
             }
             final Class<? extends ISerde<?>> serdeClass = serdeAnnotation.response();
-            if (serdeProviderClass != Serde.DEFAULT_RESPONSE.class) {
+            if (serdeClass != Serde.DEFAULT_RESPONSE.class) {
                 final ISerde<?> serde = Reflections.getOrCreateInstance(serdeClass);
                 return new DefaultResponseSerdeProvider(serde);
             }
