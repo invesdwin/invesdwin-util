@@ -8,12 +8,13 @@ import de.invesdwin.util.collections.loadingcache.historical.IHistoricalValue;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.math.decimal.Decimal;
 import de.invesdwin.util.time.date.FDate;
+import de.invesdwin.util.time.date.FDates;
 
 @Immutable
 public class TimedDouble extends Number
         implements IHistoricalValue<TimedDouble>, Comparable<Object>, IPair<FDate, Number> {
 
-    public static final TimedDouble DUMMY = new TimedDouble(FDate.MIN_DATE, Double.NaN);
+    public static final TimedDouble DUMMY = new TimedDouble(FDates.MIN_DATE, Double.NaN);
 
     private final FDate time;
     private final double value;

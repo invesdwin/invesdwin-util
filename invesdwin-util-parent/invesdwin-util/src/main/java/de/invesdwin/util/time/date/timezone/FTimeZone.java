@@ -17,6 +17,7 @@ import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.time.date.FDate;
 import de.invesdwin.util.time.date.FDateBuilder;
 import de.invesdwin.util.time.date.FDateField;
+import de.invesdwin.util.time.date.FDates;
 import de.invesdwin.util.time.date.FTimeUnit;
 
 @Immutable
@@ -100,8 +101,8 @@ public class FTimeZone implements IFTimeZoneProvider {
         this.durationFieldSeconds = FTimeUnit.SECONDS.jodaTimeValue().getField(chronology);
         this.durationFieldMilliseconds = FTimeUnit.MILLISECONDS.jodaTimeValue().getField(chronology);
 
-        this.minDate = FDateBuilder.newDate(FDate.MIN_YEAR, 1, 1, 0, 0, 0, 0, this);
-        this.maxDate = FDateBuilder.newDate(FDate.MAX_YEAR, 1, 1, 0, 0, 0, 0, this);
+        this.minDate = FDateBuilder.newDate(FDates.MIN_YEAR, 1, 1, 0, 0, 0, 0, this);
+        this.maxDate = FDateBuilder.newDate(FDates.MAX_YEAR, 1, 1, 0, 0, 0, 0, this);
     }
 
     public FTimeZone(final TimeZone timeZone) {
@@ -135,8 +136,8 @@ public class FTimeZone implements IFTimeZoneProvider {
         this.durationFieldSeconds = FTimeUnit.SECONDS.jodaTimeValue().getField(chronology);
         this.durationFieldMilliseconds = FTimeUnit.MILLISECONDS.jodaTimeValue().getField(chronology);
 
-        this.minDate = FDateBuilder.newDate(FDate.MIN_YEAR, 1, 1, 0, 0, 0, 0, this);
-        this.maxDate = FDateBuilder.newDate(FDate.MAX_YEAR, 1, 1, 0, 0, 0, 0, this);
+        this.minDate = FDateBuilder.newDate(FDates.MIN_YEAR, 1, 1, 0, 0, 0, 0, this);
+        this.maxDate = FDateBuilder.newDate(FDates.MAX_YEAR, 1, 1, 0, 0, 0, 0, this);
     }
 
     public Calendar newCalendar() {

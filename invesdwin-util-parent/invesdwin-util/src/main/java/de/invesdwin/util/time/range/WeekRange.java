@@ -57,7 +57,7 @@ public class WeekRange extends AValueObject {
         if (from == null || to == null) {
             return null;
         } else {
-            return new Duration(FDate.MIN_DATE.setFWeekTime(from), FDate.MIN_DATE.addWeeks(1).setFWeekTime(to));
+            return new Duration(FDates.MIN_DATE.setFWeekTime(from), FDates.MIN_DATE.addWeeks(1).setFWeekTime(to));
         }
     }
 

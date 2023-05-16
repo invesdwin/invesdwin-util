@@ -20,8 +20,8 @@ public class FDatesTest {
                 .assertThat(FDates.bisect(dates, FDateBuilder.newDate(2001).addDays(-1),
                         BisectDuplicateKeyHandling.UNDEFINED))
                 .isEqualTo(1);
-        Assertions.assertThat(FDates.bisect(dates, FDate.MAX_DATE, BisectDuplicateKeyHandling.UNDEFINED)).isEqualTo(3);
-        Assertions.assertThat(FDates.bisect(dates, FDate.MIN_DATE, BisectDuplicateKeyHandling.UNDEFINED)).isEqualTo(0);
+        Assertions.assertThat(FDates.bisect(dates, FDates.MAX_DATE, BisectDuplicateKeyHandling.UNDEFINED)).isEqualTo(3);
+        Assertions.assertThat(FDates.bisect(dates, FDates.MIN_DATE, BisectDuplicateKeyHandling.UNDEFINED)).isEqualTo(0);
     }
 
     @Test

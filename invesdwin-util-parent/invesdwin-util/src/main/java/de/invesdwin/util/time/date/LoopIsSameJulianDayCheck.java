@@ -10,7 +10,7 @@ public class LoopIsSameJulianDayCheck {
 
     public LoopIsSameJulianDayCheck() {
         this.prevJulianDay = 0L;
-        this.lastTime = FDate.MIN_DATE;
+        this.lastTime = FDates.MIN_DATE;
     }
 
     public LoopIsSameJulianDayCheck(final FDate initialTime) {
@@ -35,7 +35,7 @@ public class LoopIsSameJulianDayCheck {
 
     public void reset() {
         prevJulianDay = 0L;
-        lastTime = FDate.MIN_DATE;
+        lastTime = FDates.MIN_DATE;
     }
 
     public void reset(final FDate initialTime) {

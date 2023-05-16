@@ -19,6 +19,15 @@ import de.invesdwin.util.time.duration.Duration;
 @ThreadSafe
 public final class FDates {
 
+    /**
+     * Somehow leveldb-jni does not like going higher than this year...
+     */
+    public static final int MAX_YEAR = 5555;
+    public static final int MIN_YEAR = 1;
+
+    public static final FDate MIN_DATE = FDateBuilder.newDate(MIN_YEAR, 1, 1, 0, 0, 0, 0, FTimeZone.UTC);
+    public static final FDate MAX_DATE = FDateBuilder.newDate(MAX_YEAR, 1, 1, 0, 0, 0, 0, FTimeZone.UTC);
+
     public static final int MISSING_INDEX = -1;
     public static final long MILLISECONDS_IN_DAY = FTimeUnit.MILLISECONDS_IN_DAY;
     public static final long MILLISECONDS_IN_HOUR = FTimeUnit.MILLISECONDS_IN_HOUR;

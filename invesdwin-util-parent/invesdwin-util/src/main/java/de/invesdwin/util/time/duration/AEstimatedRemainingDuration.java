@@ -9,6 +9,7 @@ import de.invesdwin.util.bean.AValueObject;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.decimal.scaled.Percent;
 import de.invesdwin.util.time.date.FDate;
+import de.invesdwin.util.time.date.FDates;
 
 @NotThreadSafe
 public abstract class AEstimatedRemainingDuration extends AValueObject {
@@ -22,7 +23,7 @@ public abstract class AEstimatedRemainingDuration extends AValueObject {
     private final List<FDate> previousEstimatedFullDurationsUpdateTimes = new ArrayList<FDate>();
     private final List<Percent> previousEstimatedFullDurationProgressPercents = new ArrayList<Percent>();
     private final List<Percent> previousUnsurenessMultiplicators = new ArrayList<Percent>();
-    private FDate lastUpdate = FDate.MIN_DATE;
+    private FDate lastUpdate = FDates.MIN_DATE;
     private Duration maxEstimatedFullDuration = null;
 
     public Duration getEstimatedRemainingDuration() {
