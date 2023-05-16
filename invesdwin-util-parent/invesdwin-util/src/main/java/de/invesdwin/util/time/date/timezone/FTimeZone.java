@@ -14,6 +14,8 @@ import org.joda.time.chrono.ISOChronology;
 
 import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 import de.invesdwin.util.lang.Objects;
+import de.invesdwin.util.time.date.FDate;
+import de.invesdwin.util.time.date.FDateBuilder;
 import de.invesdwin.util.time.date.FDateField;
 import de.invesdwin.util.time.date.FTimeUnit;
 
@@ -64,6 +66,9 @@ public class FTimeZone implements IFTimeZoneProvider {
     private final DurationField durationFieldSeconds;
     private final DurationField durationFieldMilliseconds;
 
+    private final FDate minDate;
+    private final FDate maxDate;
+
     public FTimeZone(final ZoneId zoneId) {
         this.zoneId = zoneId;
         this.timeZone = TimeZones.getTimeZone(zoneId);
@@ -94,6 +99,9 @@ public class FTimeZone implements IFTimeZoneProvider {
         this.durationFieldMinutes = FTimeUnit.MINUTES.jodaTimeValue().getField(chronology);
         this.durationFieldSeconds = FTimeUnit.SECONDS.jodaTimeValue().getField(chronology);
         this.durationFieldMilliseconds = FTimeUnit.MILLISECONDS.jodaTimeValue().getField(chronology);
+
+        this.minDate = FDateBuilder.newDate(FDate.MIN_YEAR, 1, 1, 0, 0, 0, 0, this);
+        this.maxDate = FDateBuilder.newDate(FDate.MAX_YEAR, 1, 1, 0, 0, 0, 0, this);
     }
 
     public FTimeZone(final TimeZone timeZone) {
@@ -126,6 +134,9 @@ public class FTimeZone implements IFTimeZoneProvider {
         this.durationFieldMinutes = FTimeUnit.MINUTES.jodaTimeValue().getField(chronology);
         this.durationFieldSeconds = FTimeUnit.SECONDS.jodaTimeValue().getField(chronology);
         this.durationFieldMilliseconds = FTimeUnit.MILLISECONDS.jodaTimeValue().getField(chronology);
+
+        this.minDate = FDateBuilder.newDate(FDate.MIN_YEAR, 1, 1, 0, 0, 0, 0, this);
+        this.maxDate = FDateBuilder.newDate(FDate.MAX_YEAR, 1, 1, 0, 0, 0, 0, this);
     }
 
     public Calendar newCalendar() {
@@ -234,6 +245,14 @@ public class FTimeZone implements IFTimeZoneProvider {
 
     public String getId() {
         return zoneId.getId();
+    }
+
+    public FDate getMinDate() {
+        return minDate;
+    }
+
+    public FDate getMaxDate() {
+        return maxDate;
     }
 
     @Override
