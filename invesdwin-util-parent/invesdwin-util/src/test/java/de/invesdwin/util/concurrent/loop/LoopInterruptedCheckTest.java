@@ -5,7 +5,6 @@ import javax.annotation.concurrent.NotThreadSafe;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-import de.invesdwin.util.concurrent.LoopInterruptedCheckMillis;
 import de.invesdwin.util.concurrent.Threads;
 import de.invesdwin.util.time.Instant;
 import de.invesdwin.util.time.date.FDate;
@@ -22,7 +21,6 @@ public class LoopInterruptedCheckTest {
         testLoopAlwaysDate();
         testLoopAlwaysInstant();
         testLoopAlwaysCheck();
-        testLoopAlwaysCheckMs();
     }
 
     private void testLoopAlwaysCheck() throws InterruptedException {
@@ -37,21 +35,6 @@ public class LoopInterruptedCheckTest {
         }
         //CHECKSTYLE:OFF
         System.out.println("testLoopAlwaysCheck    " + iterations + ": " + start);
-        //CHECKSTYLE:ON
-    }
-
-    private void testLoopAlwaysCheckMs() throws InterruptedException {
-        final Instant start = new Instant();
-        final LoopInterruptedCheckMillis check = new LoopInterruptedCheckMillis(Duration.ONE_SECOND);
-        int iterations = 0;
-        for (int i = 0; i < SECONDS;) {
-            if (check.check()) {
-                i++;
-            }
-            iterations++;
-        }
-        //CHECKSTYLE:OFF
-        System.out.println("testLoopAlwaysCheckMs  " + iterations + ": " + start);
         //CHECKSTYLE:ON
     }
 

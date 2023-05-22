@@ -50,6 +50,14 @@ public class Instant extends Number implements Comparable<Object> {
         return System.nanoTime() - nanos;
     }
 
+    public void sleepRelativeNoInterrupt(final long amount, final FTimeUnit timeUnit) {
+        try {
+            sleepRelative(amount, timeUnit);
+        } catch (final InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     /**
      * Sleeps relative to this instant. Thus may not sleep at all if the time has already passed.
      */
@@ -59,6 +67,14 @@ public class Instant extends Number implements Comparable<Object> {
         final long remainingNanos = durationNanos - alreadyPassedNanos;
         if (remainingNanos > 0) {
             DEFAULT_TIME_UNIT.sleep(remainingNanos);
+        }
+    }
+
+    public void sleepRelativeNoInterrupt(final Duration duration) {
+        try {
+            sleepRelative(duration);
+        } catch (final InterruptedException e) {
+            throw new RuntimeException(e);
         }
     }
 

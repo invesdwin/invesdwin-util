@@ -42,8 +42,9 @@ public final class MemoryLimit {
     private static final SynchronizedLoopInterruptedCheck MEMORY_LIMIT_REACHED_CHECK = new SynchronizedLoopInterruptedCheck(
             MEMORY_LIMIT_REACHED_CHECK_INTERVAL) {
         @Override
-        protected void onInterval() throws InterruptedException {
+        protected boolean onInterval() throws InterruptedException {
             //noop
+            return true;
         }
     };
     private static volatile boolean prevMemoryLimitReached = false;
