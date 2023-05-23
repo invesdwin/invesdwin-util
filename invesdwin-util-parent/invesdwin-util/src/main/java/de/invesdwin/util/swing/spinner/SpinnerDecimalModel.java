@@ -131,6 +131,16 @@ public class SpinnerDecimalModel extends SpinnerNumberModel {
         setValue(Decimal.valueOf((Number) value));
     }
 
+    public boolean setStateChangeEventFiring(final boolean stateChangeEventFiring) {
+        final boolean prevStateChangeEventFiring = this.stateChangeEventFiring;
+        this.stateChangeEventFiring = stateChangeEventFiring;
+        return prevStateChangeEventFiring;
+    }
+
+    public boolean isStateChangeEventFiring() {
+        return stateChangeEventFiring;
+    }
+
     public void setValue(final Decimal newValue) {
         if (stateChangeEventFiring) {
             return;
