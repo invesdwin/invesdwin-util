@@ -53,7 +53,37 @@ public final class Futures extends AFuturesStaticFacade {
             if (iCause != null) {
                 throw iCause;
             } else {
-                throw new RuntimeException(e);
+                throw Throwables.propagate(e.getCause());
+            }
+        }
+    }
+
+    public static <T> T getRethrowing(final Future<T> future) throws Exception {
+        try {
+            while (true) {
+                try {
+                    return future.get(1, TimeUnit.MILLISECONDS);
+                } catch (final TimeoutException e) {
+                    /*
+                     * retry, we use polling to prevent deadlock in TrustedListenableFutureTask (despite the value being
+                     * set already it sometimes waits endlessly; though might only happen during debugging)
+                     */
+                }
+            }
+        } catch (final InterruptedException e) {
+            future.cancel(true);
+            throw e;
+        } catch (final ExecutionException e) {
+            final InterruptedException iCause = Throwables.getCauseByType(e, InterruptedException.class);
+            if (iCause != null) {
+                throw iCause;
+            } else {
+                final Throwable cause = e.getCause();
+                if (cause instanceof Exception) {
+                    throw (Exception) cause;
+                } else {
+                    throw Throwables.propagate(cause);
+                }
             }
         }
     }
@@ -70,7 +100,7 @@ public final class Futures extends AFuturesStaticFacade {
             if (iCause != null) {
                 throw iCause;
             } else {
-                throw new RuntimeException(e);
+                throw Throwables.propagate(e.getCause());
             }
         }
     }
@@ -80,7 +110,16 @@ public final class Futures extends AFuturesStaticFacade {
             return get(future);
         } catch (final InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new RuntimeException(e);
+            throw Throwables.propagate(e);
+        }
+    }
+
+    public static <T> T getRethrowingNoInterrupt(final Future<T> future) throws Exception {
+        try {
+            return getRethrowing(future);
+        } catch (final InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw Throwables.propagate(e);
         }
     }
 
@@ -116,7 +155,7 @@ public final class Futures extends AFuturesStaticFacade {
             return results;
         } catch (final InterruptedException e) {
             cancel(futures);
-            throw new RuntimeException(e);
+            throw Throwables.propagate(e);
         }
     }
 
@@ -239,7 +278,7 @@ public final class Futures extends AFuturesStaticFacade {
             return getNoInterrupt(futures);
         } catch (final InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new RuntimeException(e);
+            throw Throwables.propagate(e);
         }
     }
 
@@ -273,7 +312,7 @@ public final class Futures extends AFuturesStaticFacade {
         } catch (final InterruptedException e) {
             cancel(futures);
             Thread.currentThread().interrupt();
-            throw new RuntimeException(e);
+            throw Throwables.propagate(e);
         }
     }
 

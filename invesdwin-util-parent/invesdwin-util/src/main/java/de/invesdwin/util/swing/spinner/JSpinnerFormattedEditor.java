@@ -11,20 +11,13 @@ import javax.swing.text.DefaultFormatterFactory;
 @NotThreadSafe
 public class JSpinnerFormattedEditor extends DefaultEditor {
 
-    private final AbstractFormatter formatter;
-
     public JSpinnerFormattedEditor(final JSpinner spinner, final AbstractFormatter formatter) {
         super(spinner);
-        this.formatter = formatter;
         final DefaultFormatterFactory factory = new DefaultFormatterFactory(formatter);
         final JFormattedTextField ftf = getTextField();
         ftf.setEditable(true);
         ftf.setFormatterFactory(factory);
         ftf.setHorizontalAlignment(JTextField.RIGHT);
-    }
-
-    public AbstractFormatter getFormatter() {
-        return formatter;
     }
 
 }
