@@ -54,7 +54,7 @@ public class DayRange extends AValueObject implements IDayRangeData {
         if (from == null || to == null) {
             return null;
         } else {
-            return new Duration(FDate.MIN_DATE.setFDayTime(from), FDate.MIN_DATE.addWeeks(1).setFDayTime(to));
+            return new Duration(FDates.MIN_DATE.setFDayTime(from), FDates.MIN_DATE.addWeeks(1).setFDayTime(to));
         }
     }
 

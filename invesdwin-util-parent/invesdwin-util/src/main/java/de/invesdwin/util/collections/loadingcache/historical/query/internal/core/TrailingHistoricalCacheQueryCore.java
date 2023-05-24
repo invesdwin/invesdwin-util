@@ -30,6 +30,7 @@ import de.invesdwin.util.lang.finalizer.AFinalizer;
 import de.invesdwin.util.lang.string.description.TextDescription;
 import de.invesdwin.util.math.expression.lambda.IEvaluateGenericFDate;
 import de.invesdwin.util.time.date.FDate;
+import de.invesdwin.util.time.date.FDates;
 
 @ThreadSafe
 public class TrailingHistoricalCacheQueryCore<V> extends ACachedEntriesHistoricalCacheQueryCore<V> {
@@ -202,7 +203,7 @@ public class TrailingHistoricalCacheQueryCore<V> extends ACachedEntriesHistorica
             final ICloseableIterable<IHistoricalEntry<V>> result) {
         return new ASkippingIterable<IHistoricalEntry<V>>(result) {
 
-            private FDate prevKey = FDate.MIN_DATE;
+            private FDate prevKey = FDates.MIN_DATE;
 
             @Override
             protected boolean skip(final IHistoricalEntry<V> element) {

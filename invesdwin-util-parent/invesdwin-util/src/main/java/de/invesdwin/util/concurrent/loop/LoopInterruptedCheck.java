@@ -10,6 +10,7 @@ import de.invesdwin.util.time.duration.Duration;
 public class LoopInterruptedCheck {
 
     protected final Thread currentThread;
+    private final Duration checkInterval;
     private final long checkIntervalNanos;
     private long nextIntervalNanos;
     private int checksPerInterval;
@@ -21,8 +22,13 @@ public class LoopInterruptedCheck {
 
     public LoopInterruptedCheck(final Duration checkInterval) {
         this.currentThread = Thread.currentThread();
+        this.checkInterval = checkInterval;
         this.checkIntervalNanos = checkInterval.longValue(FTimeUnit.NANOSECONDS);
         this.nextIntervalNanos = getInitialNanoTime() + checkIntervalNanos;
+    }
+
+    public Duration getCheckInterval() {
+        return checkInterval;
     }
 
     protected long getInitialNanoTime() {
@@ -42,18 +48,19 @@ public class LoopInterruptedCheck {
         if (checksInInterval > checksPerInterval) {
             final long newIntervalNanos = System.nanoTime();
             if (newIntervalNanos > nextIntervalNanos) {
-                onInterval();
+                final boolean result = onInterval();
                 checksPerInterval = checksInInterval;
                 checksInInterval = 0;
                 nextIntervalNanos = newIntervalNanos + checkIntervalNanos;
-                return true;
+                return result;
             }
         }
         return false;
     }
 
-    protected void onInterval() throws InterruptedException {
+    protected boolean onInterval() throws InterruptedException {
         Threads.throwIfInterrupted(currentThread);
+        return true;
     }
 
 }

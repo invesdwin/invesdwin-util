@@ -20,6 +20,7 @@ import de.invesdwin.util.collections.Arrays;
 import de.invesdwin.util.concurrent.future.internal.AFuturesStaticFacade;
 import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.time.date.FDate;
+import de.invesdwin.util.time.date.FDates;
 import de.invesdwin.util.time.date.FTimeUnit;
 import de.invesdwin.util.time.duration.Duration;
 
@@ -230,7 +231,7 @@ public final class Futures extends AFuturesStaticFacade {
             final Collection<? extends Runnable> tasks) {
         final List<Future<?>> futures = new CopyOnWriteArrayList<Future<?>>();
 
-        FDate lastFailFastCheck = FDate.MIN_DATE;
+        FDate lastFailFastCheck = FDates.MIN_DATE;
         for (final Runnable task : tasks) {
             futures.add(executor.submit(task));
             if (new Duration(lastFailFastCheck, new FDate()).isGreaterThan(5, FTimeUnit.SECONDS)) {

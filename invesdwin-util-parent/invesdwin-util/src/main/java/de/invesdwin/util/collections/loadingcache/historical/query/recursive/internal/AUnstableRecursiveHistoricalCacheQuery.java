@@ -25,6 +25,7 @@ import de.invesdwin.util.collections.loadingcache.historical.query.recursive.ARe
 import de.invesdwin.util.collections.loadingcache.historical.query.recursive.IRecursiveHistoricalCacheQuery;
 import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.time.date.FDate;
+import de.invesdwin.util.time.date.FDates;
 
 /**
  * This variation calculates the values according to recursionCount+unstableRecursionCount for each request. This makes
@@ -309,7 +310,7 @@ public abstract class AUnstableRecursiveHistoricalCacheQuery<V> implements IRecu
 
     protected FDate getFirstAvailableKey() {
         if (firstAvailableKey == null && !firstAvailableKeyRequested) {
-            this.firstAvailableKey = parentQueryWithFuture.getKey(FDate.MIN_DATE);
+            this.firstAvailableKey = parentQueryWithFuture.getKey(FDates.MIN_DATE);
             firstAvailableKeyRequested = true;
         }
         return firstAvailableKey;

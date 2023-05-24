@@ -7,11 +7,12 @@ import de.invesdwin.util.bean.tuple.IPair;
 import de.invesdwin.util.collections.loadingcache.historical.IHistoricalEntry;
 import de.invesdwin.util.collections.loadingcache.historical.IHistoricalValue;
 import de.invesdwin.util.time.date.FDate;
+import de.invesdwin.util.time.date.FDates;
 
 @Immutable
 public class TimedDecimal extends Decimal implements IHistoricalValue<TimedDecimal>, IPair<FDate, Decimal> {
 
-    public static final TimedDecimal DUMMY = new TimedDecimal(FDate.MIN_DATE, Decimal.ZERO);
+    public static final TimedDecimal DUMMY = new TimedDecimal(FDates.MIN_DATE, Decimal.ZERO);
     private final FDate time;
 
     public TimedDecimal(final FDate time, final Decimal decimal) {

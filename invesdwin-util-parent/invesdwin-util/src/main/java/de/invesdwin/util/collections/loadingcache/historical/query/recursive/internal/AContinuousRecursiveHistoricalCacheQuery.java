@@ -25,6 +25,7 @@ import de.invesdwin.util.collections.loadingcache.historical.query.recursive.IRe
 import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.time.date.FDate;
+import de.invesdwin.util.time.date.FDates;
 import de.invesdwin.util.time.date.FTimeUnit;
 import de.invesdwin.util.time.duration.Duration;
 import de.invesdwin.util.time.range.TimeRange;
@@ -486,7 +487,7 @@ public abstract class AContinuousRecursiveHistoricalCacheQuery<V> implements IRe
 
     protected FDate getFirstAvailableKey() {
         if (firstAvailableKey == null && !firstAvailableKeyRequested) {
-            this.firstAvailableKey = parentQueryWithFuture.getKey(FDate.MIN_DATE);
+            this.firstAvailableKey = parentQueryWithFuture.getKey(FDates.MIN_DATE);
             firstAvailableKeyRequested = true;
         }
         return firstAvailableKey;

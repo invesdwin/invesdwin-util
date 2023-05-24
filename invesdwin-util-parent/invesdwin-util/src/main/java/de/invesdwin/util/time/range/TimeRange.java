@@ -207,8 +207,8 @@ public class TimeRange extends AValueObject {
     }
 
     public static boolean isUnlimited(final FDate from, final FDate to) {
-        return (from == null || from.isBeforeOrEqualToNotNullSafe(FDate.MIN_DATE))
-                && (to == null || to.isAfterOrEqualToNotNullSafe(FDate.MAX_DATE));
+        return (from == null || from.isBeforeOrEqualToNotNullSafe(FDates.MIN_DATE))
+                && (to == null || to.isAfterOrEqualToNotNullSafe(FDates.MAX_DATE));
     }
 
     public TimeRange limit(final TimeRange timeRange) {
@@ -226,13 +226,13 @@ public class TimeRange extends AValueObject {
 
     public TimeRange asNonUnlimited(final IFDateProvider minProvider, final IFDateProvider maxProvider) {
         final FDate usedFrom;
-        if (from == null || from.isBeforeOrEqualToNotNullSafe(FDate.MIN_DATE)) {
+        if (from == null || from.isBeforeOrEqualToNotNullSafe(FDates.MIN_DATE)) {
             usedFrom = minProvider.asFDate();
         } else {
             usedFrom = from;
         }
         final FDate usedTo;
-        if (to == null || to.isAfterOrEqualToNotNullSafe(FDate.MAX_DATE)) {
+        if (to == null || to.isAfterOrEqualToNotNullSafe(FDates.MAX_DATE)) {
             usedTo = maxProvider.asFDate();
         } else {
             usedTo = to;

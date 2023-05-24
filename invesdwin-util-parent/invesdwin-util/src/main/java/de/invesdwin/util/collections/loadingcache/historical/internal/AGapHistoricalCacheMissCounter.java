@@ -6,6 +6,7 @@ import de.invesdwin.util.collections.loadingcache.historical.AGapHistoricalCache
 import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
 import de.invesdwin.util.math.stream.doubl.DoubleStreamAvg;
 import de.invesdwin.util.time.date.FDate;
+import de.invesdwin.util.time.date.FDates;
 import de.invesdwin.util.time.date.FTimeUnit;
 import de.invesdwin.util.time.duration.Duration;
 
@@ -20,7 +21,7 @@ public abstract class AGapHistoricalCacheMissCounter<V> {
             .getXLogger(AGapHistoricalCacheMissCounter.class);
 
     private int successiveCacheEvictions = 0;
-    private FDate successiveCacheEvictionsToMinKey = FDate.MAX_DATE;
+    private FDate successiveCacheEvictionsToMinKey = FDates.MAX_DATE;
     private FDate successiveCacheEvictionsFromMaxKey;
     private int maxSuccessiveCacheEvictions = 1;
 

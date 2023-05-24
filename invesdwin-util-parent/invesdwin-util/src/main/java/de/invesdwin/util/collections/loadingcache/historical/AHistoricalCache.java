@@ -51,6 +51,7 @@ import de.invesdwin.util.collections.loadingcache.historical.refresh.HistoricalC
 import de.invesdwin.util.lang.string.description.TextDescription;
 import de.invesdwin.util.math.expression.lambda.IEvaluateGenericFDate;
 import de.invesdwin.util.time.date.FDate;
+import de.invesdwin.util.time.date.FDates;
 import de.invesdwin.util.time.date.IFDateProvider;
 
 @ThreadSafe
@@ -99,8 +100,7 @@ public abstract class AHistoricalCache<V> implements IHistoricalCache<V> {
     private IValuesMap<V> valuesMap = new LazyValuesMap();
     private boolean alignKeys = DEFAULT_ALIGN_KEYS;
 
-    public AHistoricalCache() {
-    }
+    public AHistoricalCache() {}
 
     /**
      * You can enable this setting to get useful info when the automatic reoptimization happens, so you can hardcode the
@@ -501,11 +501,11 @@ public abstract class AHistoricalCache<V> implements IHistoricalCache<V> {
     }
 
     protected final FDate minKey() {
-        return FDate.MIN_DATE;
+        return FDates.MIN_DATE;
     }
 
     protected final FDate maxKey() {
-        return FDate.MAX_DATE;
+        return FDates.MAX_DATE;
     }
 
     private final class LazyValuesMap extends DelegateLoadingCache<FDate, IHistoricalEntry<V>>
@@ -769,8 +769,7 @@ public abstract class AHistoricalCache<V> implements IHistoricalCache<V> {
         }
 
         @Override
-        public void clear() {
-        }
+        public void clear() {}
 
         @Override
         public AHistoricalCache<?> getParent() {
@@ -858,8 +857,7 @@ public abstract class AHistoricalCache<V> implements IHistoricalCache<V> {
         }
 
         @Override
-        public void clear() {
-        }
+        public void clear() {}
 
         @Override
         public FDate getHighestAllowedKey() {
@@ -1078,7 +1076,7 @@ public abstract class AHistoricalCache<V> implements IHistoricalCache<V> {
         executor.execute(new Runnable() {
             @Override
             public void run() {
-                query().setFutureEnabled().getValue(FDate.MIN_DATE);
+                query().setFutureEnabled().getValue(FDates.MIN_DATE);
             }
         });
     }
