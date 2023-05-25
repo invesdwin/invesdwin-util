@@ -33,14 +33,10 @@ public class BisectSortedList<E> extends ADelegateList<E> {
 
     @Override
     public void add(final int index, final E o) {
-        try {
-            getDelegate().add(bisect(o), o);
-        } catch (final DuplicateElementException e) {
-            //ignore duplicate
-        }
+        add(o);
     }
 
-    private int bisect(final E x) {
+    protected int bisect(final E x) {
         int lo = 0;
         int hi = size();
         while (lo < hi) {
@@ -58,12 +54,16 @@ public class BisectSortedList<E> extends ADelegateList<E> {
     @Override
     public boolean add(final E o) {
         try {
-            getDelegate().add(bisect(o), o);
+            bisectAdd(bisect(o), o);
             return true;
         } catch (final DuplicateElementException e) {
             //ignore duplicate
             return false;
         }
+    }
+
+    protected void bisectAdd(final int bisectIndex, final E o) {
+        getDelegate().add(bisectIndex, o);
     }
 
     @Override
