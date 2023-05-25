@@ -94,8 +94,8 @@ public class JSpinnerComparableChoiceModel extends AbstractSpinnerModel {
                  */
                 final int index = Collections.binarySearch(choice, selection);
                 // outOfBounds ? end of the list, we don't change the date
-                final boolean outOfBounds = (Math.abs(index) - 1) >= choice.size();
-                return outOfBounds ? selection : choice.get(Math.abs(index) - 1);
+                final boolean outOfBounds = (Math.abs(index + 1)) >= choice.size();
+                return outOfBounds ? selection : choice.get(Math.abs(index + 1));
             } else if (indexOf == choice.size() - 1) {
                 //end of the list, we don't change the date
                 return selection;
