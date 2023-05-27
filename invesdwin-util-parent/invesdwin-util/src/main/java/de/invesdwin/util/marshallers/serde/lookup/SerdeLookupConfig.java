@@ -2,8 +2,8 @@ package de.invesdwin.util.marshallers.serde.lookup;
 
 import javax.annotation.concurrent.Immutable;
 
-import de.invesdwin.util.marshallers.serde.lookup.request.DefaultRequestSerdeLookup;
-import de.invesdwin.util.marshallers.serde.lookup.request.IRequestSerdeLookup;
+import de.invesdwin.util.marshallers.serde.lookup.request.DefaultRequestSerdeProviderLookup;
+import de.invesdwin.util.marshallers.serde.lookup.request.IRequestSerdeProviderLookup;
 import de.invesdwin.util.marshallers.serde.lookup.response.DefaultResponseSerdeProviderLookup;
 import de.invesdwin.util.marshallers.serde.lookup.response.IResponseSerdeProviderLookup;
 
@@ -11,18 +11,18 @@ import de.invesdwin.util.marshallers.serde.lookup.response.IResponseSerdeProvide
 public class SerdeLookupConfig {
 
     public static final SerdeLookupConfig DEFAULT = new SerdeLookupConfig(
-            DefaultRequestSerdeLookup.INSTANCE, DefaultResponseSerdeProviderLookup.INSTANCE);
+            DefaultRequestSerdeProviderLookup.INSTANCE, DefaultResponseSerdeProviderLookup.INSTANCE);
 
-    private final IRequestSerdeLookup requestLookup;
+    private final IRequestSerdeProviderLookup requestLookup;
     private final IResponseSerdeProviderLookup responseLookup;
 
-    public SerdeLookupConfig(final IRequestSerdeLookup requestLookup,
+    public SerdeLookupConfig(final IRequestSerdeProviderLookup requestLookup,
             final IResponseSerdeProviderLookup responseLookup) {
         this.requestLookup = requestLookup;
         this.responseLookup = responseLookup;
     }
 
-    public IRequestSerdeLookup getRequestLookup() {
+    public IRequestSerdeProviderLookup getRequestLookup() {
         return requestLookup;
     }
 

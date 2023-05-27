@@ -43,21 +43,20 @@ public final class ByteArraySerde implements ISerde<byte[][]> {
     @Override
     public byte[][] fromBuffer(final IByteBuffer buffer) {
         final int arrayCount;
-        int lengthPosition = 0;
+        int position = 0;
         if (fixedArrayCount == null) {
-            arrayCount = buffer.getInt(lengthPosition);
-            lengthPosition += Integer.BYTES;
+            arrayCount = buffer.getInt(position);
+            position += Integer.BYTES;
         } else {
             arrayCount = fixedArrayCount;
         }
-        int payloadPosition = lengthPosition + Integer.BYTES * arrayCount;
         final byte[][] result = new byte[arrayCount][];
         for (int i = 0; i < arrayCount; i++) {
-            final int curLength = buffer.getInt(lengthPosition);
-            lengthPosition += Integer.BYTES;
+            final int curLength = buffer.getInt(position);
+            position += Integer.BYTES;
             final byte[] payload = ByteBuffers.allocateByteArray(curLength);
-            buffer.getBytes(payloadPosition, payload);
-            payloadPosition += curLength;
+            buffer.getBytes(position, payload);
+            position += curLength;
             result[i] = payload;
         }
         return result;
@@ -66,26 +65,25 @@ public final class ByteArraySerde implements ISerde<byte[][]> {
     @Override
     public int toBuffer(final IByteBuffer buffer, final byte[][] obj) {
         final int arrayCount = obj.length;
-        int lengthPosition = 0;
+        int position = 0;
         if (fixedArrayCount == null) {
-            buffer.putInt(lengthPosition, arrayCount);
-            lengthPosition += Integer.BYTES;
+            buffer.putInt(position, arrayCount);
+            position += Integer.BYTES;
         } else {
             if (arrayCount != fixedArrayCount) {
                 throw new IllegalArgumentException(
                         "arrayCount[" + arrayCount + "] != fixedArrayCount[" + fixedArrayCount + "]");
             }
         }
-        int payloadPosition = lengthPosition + Integer.BYTES * arrayCount;
         for (int i = 0; i < arrayCount; i++) {
             final int curLength = obj[i].length;
-            buffer.putInt(lengthPosition, curLength);
-            lengthPosition += Integer.BYTES;
-            buffer.putBytes(payloadPosition, obj[i]);
-            payloadPosition += curLength;
+            buffer.putInt(position, curLength);
+            position += Integer.BYTES;
+            buffer.putBytes(position, obj[i]);
+            position += curLength;
         }
 
-        return payloadPosition;
+        return position;
     }
 
     public static ByteArraySerde getInstance(final Integer fixedArrayCount) {
