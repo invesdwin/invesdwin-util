@@ -240,7 +240,7 @@ public final class Futures extends AFuturesStaticFacade {
                     if (future.isDone()) {
                         futures.remove(future);
                         try {
-                            Assertions.assertThat(Futures.get(future)).isNull();
+                            Assertions.checkNull(Futures.get(future));
                         } catch (final Throwable t) {
                             for (final Future<?> f : futures) {
                                 f.cancel(true);
@@ -318,10 +318,10 @@ public final class Futures extends AFuturesStaticFacade {
     }
 
     public static <T> void wait(final Future<? extends T> future) throws InterruptedException {
-        Assertions.assertThat(get(future)).isNull();
+        Assertions.checkNull(get(future));
     }
 
     public static <T> void waitNoInterrupt(final Future<? extends T> future) {
-        Assertions.assertThat(getNoInterrupt(future)).isNull();
+        Assertions.checkNull(getNoInterrupt(future));
     }
 }

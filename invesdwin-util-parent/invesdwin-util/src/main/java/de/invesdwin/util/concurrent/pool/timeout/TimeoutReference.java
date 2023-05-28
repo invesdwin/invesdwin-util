@@ -11,6 +11,7 @@ public final class TimeoutReference<E> implements INode<TimeoutReference<E>> {
     private long timeoutStartMillis;
 
     private TimeoutReference<E> next;
+    private TimeoutReference<E> prev;
 
     public void set(final E value) {
         if (value == null) {
@@ -45,6 +46,16 @@ public final class TimeoutReference<E> implements INode<TimeoutReference<E>> {
     @Override
     public void setNext(final TimeoutReference<E> next) {
         this.next = next;
+    }
+
+    @Override
+    public TimeoutReference<E> getPrev() {
+        return prev;
+    }
+
+    @Override
+    public void setPrev(final TimeoutReference<E> prev) {
+        this.prev = prev;
     }
 
 }

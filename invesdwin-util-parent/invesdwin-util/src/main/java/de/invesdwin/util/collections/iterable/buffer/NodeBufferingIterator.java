@@ -14,7 +14,6 @@ import de.invesdwin.util.collections.iterable.WrapperCloseableIterator;
 import de.invesdwin.util.collections.iterable.buffer.NodeBufferingIterator.INode;
 import de.invesdwin.util.collections.list.Lists;
 import de.invesdwin.util.error.FastNoSuchElementException;
-import de.invesdwin.util.lang.Objects;
 
 /**
  * This iterator can be used to buffer another iterator. Useful to load from a file immediately to keep the file open as
@@ -75,6 +74,7 @@ public class NodeBufferingIterator<E extends INode<E>> implements IBufferingIter
         head = head.getNext();
         size--;
         value.setNext(null);
+        head.setPrev(null);
         return value;
     }
 
@@ -102,6 +102,7 @@ public class NodeBufferingIterator<E extends INode<E>> implements IBufferingIter
             throw new NullPointerException();
         }
         newHead.setNext(head);
+        head.setPrev(newHead);
         head = newHead;
         size++;
         return true;
@@ -114,8 +115,12 @@ public class NodeBufferingIterator<E extends INode<E>> implements IBufferingIter
         }
         if (head == null) {
             head = newTail;
+            newTail.setPrev(null);
+            newTail.setNext(null);
         } else {
             tail.setNext(newTail);
+            newTail.setPrev(tail);
+            newTail.setNext(null);
         }
         size++;
         tail = newTail;
@@ -135,23 +140,16 @@ public class NodeBufferingIterator<E extends INode<E>> implements IBufferingIter
         if (head == null) {
             return false;
         }
-        if (Objects.equals(head, element)) {
+        if (head == element) {
             next();
             return true;
         }
-        E curHead = head;
-        while (curHead != null) {
-            final E next = curHead.getNext();
-            if (Objects.equals(next, element)) {
-                final E nextNext = next.getNext();
-                curHead.setNext(nextNext);
-                if (nextNext == null) {
-                    tail = curHead;
-                }
-                return true;
-            }
-            curHead = curHead.getNext();
+        element.getPrev().setNext(element.getNext());
+        if (element.getNext() != null) {
+            element.getNext().setPrev(element.getPrev());
         }
+        element.setNext(null);
+        element.setPrev(null);
         return false;
     }
 
@@ -209,6 +207,8 @@ public class NodeBufferingIterator<E extends INode<E>> implements IBufferingIter
                 }
                 while (true) {
                     final E next = iterator.next();
+                    next.setPrev(prev);
+                    next.setNext(null);
                     prev.setNext(next);
                     prev = next;
                     size++;
@@ -259,6 +259,7 @@ public class NodeBufferingIterator<E extends INode<E>> implements IBufferingIter
             if (head == null) {
                 head = cIterator.head;
             } else {
+                cIterator.head.setPrev(tail);
                 tail.setNext(cIterator.head);
             }
             tail = cIterator.tail;
@@ -291,6 +292,10 @@ public class NodeBufferingIterator<E extends INode<E>> implements IBufferingIter
         E getNext();
 
         void setNext(E next);
+
+        E getPrev();
+
+        void setPrev(E prev);
 
     }
 
@@ -352,6 +357,11 @@ public class NodeBufferingIterator<E extends INode<E>> implements IBufferingIter
                 }
             } else if (innerRemovablePrev.getNext() == innerRemovable) {
                 innerRemovablePrev.setNext(next);
+                if (next != null) {
+                    next.setPrev(innerRemovablePrev);
+                }
+                innerRemovable.setNext(null);
+                innerRemovable.setPrev(null);
                 size--;
                 if (next == null && innerRemovable == tail) {
                     tail = innerRemovablePrev;
@@ -415,6 +425,11 @@ public class NodeBufferingIterator<E extends INode<E>> implements IBufferingIter
                 }
             } else if (innerRemovablePrev.getNext() == innerRemovable) {
                 innerRemovablePrev.setNext(next);
+                if (next != null) {
+                    next.setPrev(innerRemovablePrev);
+                }
+                innerRemovable.setNext(null);
+                innerRemovable.setPrev(null);
                 size--;
                 if (next == null && innerRemovable == tail) {
                     tail = innerRemovablePrev;
