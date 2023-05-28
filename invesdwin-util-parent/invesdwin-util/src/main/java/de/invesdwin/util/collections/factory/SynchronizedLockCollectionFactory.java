@@ -81,6 +81,12 @@ public final class SynchronizedLockCollectionFactory implements ILockCollectionF
     }
 
     @Override
+    public <T> IFastIterableSet<T> newFastIterableIdentitySet(final int initialSize) {
+        return new SynchronizedFastIterableDelegateSet<T>(
+                DisabledLockCollectionFactory.INSTANCE.newIdentitySet(initialSize));
+    }
+
+    @Override
     public <T> IFastIterableList<T> newFastIterableArrayList() {
         return new SynchronizedFastIterableDelegateList<T>(DisabledLockCollectionFactory.INSTANCE.newArrayList());
     }
@@ -125,6 +131,12 @@ public final class SynchronizedLockCollectionFactory implements ILockCollectionF
     public <K, V> IFastIterableMap<K, V> newFastIterableLinkedMap(final int initialSize, final float loadFactor) {
         return new SynchronizedFastIterableDelegateMap<K, V>(
                 DisabledLockCollectionFactory.INSTANCE.newLinkedMap(initialSize, loadFactor));
+    }
+
+    @Override
+    public <K, V> IFastIterableMap<K, V> newFastIterableIdentityMap(final int initialSize) {
+        return new SynchronizedFastIterableDelegateMap<K, V>(
+                DisabledLockCollectionFactory.INSTANCE.newIdentityMap(initialSize));
     }
 
     @Override

@@ -84,6 +84,12 @@ public interface ILockCollectionFactory {
 
     <T> IFastIterableSet<T> newFastIterableLinkedSet(int initialSize, float loadFactor);
 
+    default <T> IFastIterableSet<T> newFastIterableIdentitySet() {
+        return newFastIterableIdentitySet(DEFAULT_INITIAL_SIZE);
+    }
+
+    <T> IFastIterableSet<T> newFastIterableIdentitySet(int initialSize);
+
     default <T> Set<T> newConcurrentSet() {
         return newConcurrentSet(DEFAULT_INITIAL_SIZE);
     }
@@ -155,6 +161,12 @@ public interface ILockCollectionFactory {
     }
 
     <K, V> IFastIterableMap<K, V> newFastIterableLinkedMap(int initialSize, float loadFactor);
+
+    default <K, V> IFastIterableMap<K, V> newFastIterableIdentityMap() {
+        return newFastIterableIdentityMap(DEFAULT_INITIAL_SIZE);
+    }
+
+    <K, V> IFastIterableMap<K, V> newFastIterableIdentityMap(int initialSize);
 
     <K, V> ALoadingCache<K, V> newLoadingCache(ALoadingCacheConfig<K, V> config);
 

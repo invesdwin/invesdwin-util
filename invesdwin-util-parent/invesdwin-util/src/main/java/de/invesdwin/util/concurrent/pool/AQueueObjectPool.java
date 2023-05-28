@@ -31,7 +31,10 @@ public abstract class AQueueObjectPool<E> implements IObjectPool<E> {
             return;
         }
         if (passivateObject(element)) {
-            queue.offer(element);
+            final boolean added = queue.offer(element);
+            if (!added) {
+                invalidateObject(element);
+            }
         } else {
             invalidateObject(element);
         }

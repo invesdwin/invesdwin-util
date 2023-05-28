@@ -112,6 +112,11 @@ public final class DisabledLockCollectionFactory implements ILockCollectionFacto
     }
 
     @Override
+    public <K, V> IFastIterableMap<K, V> newFastIterableIdentityMap(final int initialSize) {
+        return new FastIterableDelegateMap<K, V>(newIdentityMap(initialSize));
+    }
+
+    @Override
     public <K, V> Map<K, V> newConcurrentMap(final int initialSize, final float loadFactor) {
         return newMap(initialSize, loadFactor);
     }
@@ -129,6 +134,11 @@ public final class DisabledLockCollectionFactory implements ILockCollectionFacto
     @Override
     public <T> IFastIterableSet<T> newFastIterableSet(final int initialSize, final float loadFactor) {
         return new FastIterableDelegateSet<T>(newSet(initialSize, loadFactor));
+    }
+
+    @Override
+    public <T> IFastIterableSet<T> newFastIterableIdentitySet(final int initialSize) {
+        return new FastIterableDelegateSet<T>(newIdentitySet(initialSize));
     }
 
     @Override
