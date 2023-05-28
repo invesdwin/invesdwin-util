@@ -74,7 +74,9 @@ public class NodeBufferingIterator<E extends INode<E>> implements IBufferingIter
         head = head.getNext();
         size--;
         value.setNext(null);
-        head.setPrev(null);
+        if (head != null) {
+            head.setPrev(null);
+        }
         return value;
     }
 
