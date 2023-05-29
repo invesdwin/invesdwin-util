@@ -7,6 +7,7 @@ import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.lang.reflection.Reflections;
 import de.invesdwin.util.marshallers.serde.ISerde;
+import de.invesdwin.util.marshallers.serde.basic.EmptyObjectArraySerde;
 
 @Immutable
 public final class DefaultRequestSerdeProviderLookup implements IRequestSerdeProviderLookup {
@@ -18,6 +19,9 @@ public final class DefaultRequestSerdeProviderLookup implements IRequestSerdePro
     @Override
     public ISerde<Object[]> lookup(final Method method) {
         final Parameter[] parameters = method.getParameters();
+        if (parameters.length == 0) {
+            return EmptyObjectArraySerde.GET;
+        }
         final IRequestSerdeProvider[] providers = new IRequestSerdeProvider[parameters.length];
         for (int i = 0; i < parameters.length; i++) {
             final Parameter parameter = parameters[i];
