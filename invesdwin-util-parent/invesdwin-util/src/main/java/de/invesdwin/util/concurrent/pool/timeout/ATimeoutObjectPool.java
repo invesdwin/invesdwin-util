@@ -21,8 +21,7 @@ import de.invesdwin.util.time.duration.Duration;
 public abstract class ATimeoutObjectPool<E> implements ICloseableObjectPool<E> {
 
     private static final AtomicLong ACTIVE_POOLS = new AtomicLong();
-    private static WrappedScheduledExecutorService scheduledExecutor = Executors
-            .newScheduledThreadPool(ATimeoutObjectPool.class.getSimpleName() + "_timeout", 1);
+    private static WrappedScheduledExecutorService scheduledExecutor;
 
     protected IBufferingIterator<TimeoutReference<E>> bufferingIterator;
     private final long timeoutMillis;
