@@ -9,7 +9,7 @@ import de.invesdwin.util.collections.loadingcache.historical.query.internal.core
 import de.invesdwin.util.time.date.FDate;
 
 @NotThreadSafe
-public class GetPreviousEntryQueryImpl<V> {
+public class GetPreviousEntryQueryLoop<V> {
 
     private final IHistoricalCacheQueryCore<V> core;
     private final FDate key;
@@ -20,7 +20,7 @@ public class GetPreviousEntryQueryImpl<V> {
     private final IHistoricalCacheQueryInternalMethods<V> query;
     private boolean duplicateEncountered = false;
 
-    public GetPreviousEntryQueryImpl(final IHistoricalCacheQueryCore<V> core,
+    public GetPreviousEntryQueryLoop(final IHistoricalCacheQueryCore<V> core,
             final IHistoricalCacheQueryInternalMethods<V> query, final FDate key, final int shiftBackUnits) {
         this.core = core;
         this.query = query;

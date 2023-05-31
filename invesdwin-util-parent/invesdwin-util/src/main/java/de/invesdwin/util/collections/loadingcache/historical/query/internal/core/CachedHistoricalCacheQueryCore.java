@@ -23,7 +23,7 @@ import de.invesdwin.util.collections.loadingcache.historical.query.error.ResetCa
 import de.invesdwin.util.collections.loadingcache.historical.query.index.IndexedFDate;
 import de.invesdwin.util.collections.loadingcache.historical.query.index.QueryCoreIndex;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.IHistoricalCacheInternalMethods;
-import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.impl.GetPreviousEntryQueryImpl;
+import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.impl.GetPreviousEntryQueryLoop;
 import de.invesdwin.util.concurrent.lock.ILock;
 import de.invesdwin.util.concurrent.lock.Locks;
 import de.invesdwin.util.error.Throwables;
@@ -249,10 +249,10 @@ public class CachedHistoricalCacheQueryCore<V> extends ACachedResultHistoricalCa
         final FDate lastCachedEntryKey = determineConsistentLastCachedEntryKey();
 
         //go through query as long as we found the first entry in the cache
-        final GetPreviousEntryQueryImpl<V> impl = new GetPreviousEntryQueryImpl<V>(this, query, key, shiftBackUnits);
+        final GetPreviousEntryQueryLoop<V> loop = new GetPreviousEntryQueryLoop<V>(this, query, key, shiftBackUnits);
         IHistoricalEntry<V> latestValue = null;
-        while (!impl.iterationFinished()) {
-            final IHistoricalEntry<V> value = impl.getResult();
+        while (!loop.iterationFinished()) {
+            final IHistoricalEntry<V> value = loop.getResult();
             if (value == null) {
                 resetCachedPreviousResult();
                 return null; //abort since we could not find any values
@@ -329,7 +329,7 @@ public class CachedHistoricalCacheQueryCore<V> extends ACachedResultHistoricalCa
             final int shiftBackUnits, final FDate key, final List<IHistoricalEntry<V>> trailing) {
         int unitsBack = shiftBackUnits - 1;
         //go through query as long as we found the first entry in the cache
-        final GetPreviousEntryQueryImpl<V> impl = new GetPreviousEntryQueryImpl<V>(this, query, key, shiftBackUnits);
+        final GetPreviousEntryQueryLoop<V> loop = new GetPreviousEntryQueryLoop<V>(this, query, key, shiftBackUnits);
         final FDate lastCachedEntryKey = getLastCachedEntry().getKey();
         final List<IHistoricalEntry<V>> trailingReverse;
         if (trailing.isEmpty()) {
@@ -337,8 +337,8 @@ public class CachedHistoricalCacheQueryCore<V> extends ACachedResultHistoricalCa
         } else {
             trailingReverse = newEntriesList(shiftBackUnits);
         }
-        while (unitsBack >= 0 && !impl.iterationFinished()) {
-            final IHistoricalEntry<V> value = impl.getResult();
+        while (unitsBack >= 0 && !loop.iterationFinished()) {
+            final IHistoricalEntry<V> value = loop.getResult();
             if (value != null) {
                 if (value.getKey().equalsNotNullSafe(lastCachedEntryKey)) {
                     break; //continue with fillFromCacheAsFarAsPossible
@@ -452,15 +452,15 @@ public class CachedHistoricalCacheQueryCore<V> extends ACachedResultHistoricalCa
         final FDate lastTrailingKey = trailing.get(0).getKey();
         //we need to load further values from the map
         final int skipFirstValueIncrement = 1;
-        final GetPreviousEntryQueryImpl<V> impl = new GetPreviousEntryQueryImpl<V>(this, query, lastTrailingKey,
+        final GetPreviousEntryQueryLoop<V> loop = new GetPreviousEntryQueryLoop<V>(this, query, lastTrailingKey,
                 unitsBack + skipFirstValueIncrement);
-        impl.setIterations(skipFirstValueIncrement);
+        loop.setIterations(skipFirstValueIncrement);
         int newUnitsBack = unitsBack;
-        newUnitsBack = fillFromQuery(query, trailing, impl, newUnitsBack);
+        newUnitsBack = fillFromQuery(query, trailing, loop, newUnitsBack);
     }
 
     private int fillFromQuery(final IHistoricalCacheQueryInternalMethods<V> query,
-            final List<IHistoricalEntry<V>> trailing, final GetPreviousEntryQueryImpl<V> impl, final int unitsBack) {
+            final List<IHistoricalEntry<V>> trailing, final GetPreviousEntryQueryLoop<V> impl, final int unitsBack) {
         int newUnitsBack = unitsBack;
         final List<IHistoricalEntry<V>> trailingReverse;
         if (trailing.isEmpty()) {
@@ -503,9 +503,9 @@ public class CachedHistoricalCacheQueryCore<V> extends ACachedResultHistoricalCa
 
     private List<IHistoricalEntry<V>> queryPreviousEntries(final IHistoricalCacheQueryInternalMethods<V> query,
             final FDate key, final int shiftBackUnits, final List<IHistoricalEntry<V>> trailing) {
-        final GetPreviousEntryQueryImpl<V> impl = new GetPreviousEntryQueryImpl<V>(this, query, key, shiftBackUnits);
+        final GetPreviousEntryQueryLoop<V> loop = new GetPreviousEntryQueryLoop<V>(this, query, key, shiftBackUnits);
         int unitsBack = shiftBackUnits - 1;
-        unitsBack = fillFromQuery(query, trailing, impl, unitsBack);
+        unitsBack = fillFromQuery(query, trailing, loop, unitsBack);
         return trailing;
     }
 

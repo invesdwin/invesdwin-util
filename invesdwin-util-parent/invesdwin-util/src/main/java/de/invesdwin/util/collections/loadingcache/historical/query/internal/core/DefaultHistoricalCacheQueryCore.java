@@ -13,8 +13,8 @@ import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCa
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.HistoricalCacheAssertValue;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.HistoricalCacheQuery;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.IHistoricalCacheInternalMethods;
-import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.impl.GetNextEntryQueryImpl;
-import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.impl.GetPreviousEntryQueryImpl;
+import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.impl.GetNextEntryQueryLoop;
+import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.impl.GetPreviousEntryQueryLoop;
 import de.invesdwin.util.math.expression.lambda.IEvaluateGenericFDate;
 import de.invesdwin.util.time.date.FDate;
 
@@ -71,13 +71,13 @@ public class DefaultHistoricalCacheQueryCore<V> implements IHistoricalCacheQuery
     @Override
     public IHistoricalEntry<V> getPreviousEntry(final IHistoricalCacheQueryInternalMethods<V> query, final FDate key,
             final int shiftBackUnits) {
-        final GetPreviousEntryQueryImpl<V> impl = new GetPreviousEntryQueryImpl<V>(this, query, key, shiftBackUnits);
+        final GetPreviousEntryQueryLoop<V> loop = new GetPreviousEntryQueryLoop<V>(this, query, key, shiftBackUnits);
         //CHECKSTYLE:OFF
-        while (!impl.iterationFinished()) {
+        while (!loop.iterationFinished()) {
             //noop
         }
         //CHECKSTYLE:ON
-        return impl.getResult();
+        return loop.getResult();
     }
 
     /**
@@ -93,9 +93,9 @@ public class DefaultHistoricalCacheQueryCore<V> implements IHistoricalCacheQuery
         //With 10 units this iterates from 9 to 0
         //to go from past to future so that queries get minimized
         //only on the first call we risk multiple queries
-        final GetPreviousEntryQueryImpl<V> impl = new GetPreviousEntryQueryImpl<V>(this, query, key, shiftBackUnits);
-        for (int unitsBack = shiftBackUnits - 1; unitsBack >= 0 && !impl.iterationFinished(); unitsBack--) {
-            final IHistoricalEntry<V> value = impl.getResult();
+        final GetPreviousEntryQueryLoop<V> loop = new GetPreviousEntryQueryLoop<V>(this, query, key, shiftBackUnits);
+        for (int unitsBack = shiftBackUnits - 1; unitsBack >= 0 && !loop.iterationFinished(); unitsBack--) {
+            final IHistoricalEntry<V> value = loop.getResult();
             if (value != null) {
                 if (!trailing.add(value)) {
                     break;
@@ -116,9 +116,9 @@ public class DefaultHistoricalCacheQueryCore<V> implements IHistoricalCacheQuery
         //With 10 units this iterates from 9 to 0
         //to go from past to future so that queries get minimized
         //only on the first call we risk multiple queries
-        final GetNextEntryQueryImpl<V> impl = new GetNextEntryQueryImpl<V>(this, query, key, shiftForwardUnits);
-        for (int unitsBack = shiftForwardUnits - 1; unitsBack >= 0 && !impl.iterationFinished(); unitsBack--) {
-            final IHistoricalEntry<V> value = impl.getResult();
+        final GetNextEntryQueryLoop<V> loop = new GetNextEntryQueryLoop<V>(this, query, key, shiftForwardUnits);
+        for (int unitsBack = shiftForwardUnits - 1; unitsBack >= 0 && !loop.iterationFinished(); unitsBack--) {
+            final IHistoricalEntry<V> value = loop.getResult();
             if (value != null) {
                 if (!trailing.add(value)) {
                     break;
@@ -133,13 +133,13 @@ public class DefaultHistoricalCacheQueryCore<V> implements IHistoricalCacheQuery
     @Override
     public IHistoricalEntry<V> getNextEntry(final IHistoricalCacheQueryInternalMethods<V> query, final FDate key,
             final int shiftForwardUnits) {
-        final GetNextEntryQueryImpl<V> impl = new GetNextEntryQueryImpl<V>(this, query, key, shiftForwardUnits);
+        final GetNextEntryQueryLoop<V> loop = new GetNextEntryQueryLoop<V>(this, query, key, shiftForwardUnits);
         //CHECKSTYLE:OFF
-        while (!impl.iterationFinished()) {
+        while (!loop.iterationFinished()) {
             //noop
         }
         //CHECKSTYLE:ON
-        return impl.getResult();
+        return loop.getResult();
     }
 
     @Override
