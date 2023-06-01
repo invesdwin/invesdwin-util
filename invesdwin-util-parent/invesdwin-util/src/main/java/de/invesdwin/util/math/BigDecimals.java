@@ -21,8 +21,7 @@ public final class BigDecimals {
             Decimal.DEFAULT_ROUNDING_MODE);
     public static final IComparator<BigDecimal> COMPARATOR = IComparator.getDefaultInstance();
 
-    private BigDecimals() {
-    }
+    private BigDecimals() {}
 
     public static BigDecimal valueOf(final ADecimal<?> value) {
         if (value == null) {
@@ -95,6 +94,14 @@ public final class BigDecimals {
             return 1;
         }
         return a.compareTo(b);
+    }
+
+    public static BigDecimal stripTrailingZeros(final BigDecimal value) {
+        if (value == null) {
+            return null;
+        } else {
+            return value.stripTrailingZeros();
+        }
     }
 
 }
