@@ -57,7 +57,7 @@ public abstract class APostProcessingFuture<E> implements Future<E> {
         }
     }
 
-    protected abstract E onSuccess(E value) throws ExecutionException;
+    protected abstract E onSuccess(E value) throws ExecutionException, InterruptedException;
 
     protected abstract ExecutionException onError(ExecutionException exc);
 
