@@ -158,8 +158,6 @@ public class NodeBufferingIterator<E extends INode<E>> implements IBufferingIter
         return false;
     }
 
-
-
     @Override
     public boolean addAll(final Iterable<? extends E> iterable) {
         if (iterable == null) {
