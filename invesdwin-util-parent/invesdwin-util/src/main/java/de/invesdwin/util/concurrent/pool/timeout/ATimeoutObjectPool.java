@@ -20,7 +20,7 @@ import de.invesdwin.util.time.duration.Duration;
 @ThreadSafe
 public abstract class ATimeoutObjectPool<E> implements ICloseableObjectPool<E> {
 
-    private static final AtomicLong ACTIVE_POOLS = new AtomicLong();
+    public static final AtomicLong ACTIVE_POOLS = new AtomicLong();
     private static WrappedScheduledExecutorService scheduledExecutor;
 
     protected IBufferingIterator<TimeoutReference<E>> bufferingIterator;
@@ -67,7 +67,7 @@ public abstract class ATimeoutObjectPool<E> implements ICloseableObjectPool<E> {
         return scheduledExecutor;
     }
 
-    private static synchronized void maybeCloseScheduledExecutor() {
+    public static synchronized void maybeCloseScheduledExecutor() {
         if (ACTIVE_POOLS.get() == 0L) {
             if (scheduledExecutor != null) {
                 scheduledExecutor.shutdownNow();
