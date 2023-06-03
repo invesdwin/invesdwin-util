@@ -158,18 +158,7 @@ public class NodeBufferingIterator<E extends INode<E>> implements IBufferingIter
         return false;
     }
 
-    public int count() {
-        int count = 0;
-        try (ICloseableIterator<E> iterator = iterator()) {
-            while (true) {
-                iterator.next();
-                count++;
-            }
-        } catch (final NoSuchElementException e) {
-            //end reached
-        }
-        return count;
-    }
+
 
     @Override
     public boolean addAll(final Iterable<? extends E> iterable) {
