@@ -149,10 +149,26 @@ public class NodeBufferingIterator<E extends INode<E>> implements IBufferingIter
         element.getPrev().setNext(element.getNext());
         if (element.getNext() != null) {
             element.getNext().setPrev(element.getPrev());
+        } else {
+            tail = element.getPrev();
         }
         element.setNext(null);
         element.setPrev(null);
+        size--;
         return false;
+    }
+
+    public int count() {
+        int count = 0;
+        try (ICloseableIterator<E> iterator = iterator()) {
+            while (true) {
+                iterator.next();
+                count++;
+            }
+        } catch (final NoSuchElementException e) {
+            //end reached
+        }
+        return count;
     }
 
     @Override

@@ -103,6 +103,7 @@ public class BufferingIterator<E> implements IBufferingIterator<E>, ISerializabl
                 if (nextNext == null) {
                     tail = curHead;
                 }
+                size--;
                 return true;
             }
             curHead = curHead.getNext();
