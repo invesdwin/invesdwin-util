@@ -274,6 +274,21 @@ public final class Assertions extends AAssertionsStaticFacade {
         }
     }
 
+    public static void checkNotSame(final Object expected, final Object actual) {
+        if (expected == actual) {
+            assertThat(actual).isNotSameAs(expected);
+            failExceptionExpected();
+        }
+    }
+
+    public static void checkNotSame(final Object expected, final Object actual, final String message,
+            final Object... args) {
+        if (expected == actual) {
+            assertThat(actual).as(message, args).isNotSameAs(expected);
+            failExceptionExpected();
+        }
+    }
+
     public static void checkNull(final Object obj) {
         if (obj != null) {
             assertThat(obj).isNull();
