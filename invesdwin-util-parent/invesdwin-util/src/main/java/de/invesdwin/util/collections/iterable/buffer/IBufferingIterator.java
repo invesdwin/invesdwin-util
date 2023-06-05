@@ -56,4 +56,13 @@ public interface IBufferingIterator<E> extends ICloseableIterator<E>, ICloseable
 
     ICloseableIterable<E> snapshot();
 
+    default ICloseableIterable<E> asConsumingIterable() {
+        return new ICloseableIterable<E>() {
+            @Override
+            public ICloseableIterator<E> iterator() {
+                return IBufferingIterator.this;
+            }
+        };
+    }
+
 }

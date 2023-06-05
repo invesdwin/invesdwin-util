@@ -6,6 +6,8 @@ import java.util.List;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.util.collections.iterable.buffer.IBufferingIterator;
+
 @NotThreadSafe
 public class FlatteningIterable<E> implements ICloseableIterable<E> {
 
@@ -39,6 +41,17 @@ public class FlatteningIterable<E> implements ICloseableIterable<E> {
             return iterables.get(0);
         } else {
             return new FlatteningIterable<T>(WrapperCloseableIterable.maybeWrap(iterables));
+        }
+    }
+
+    public static <T> ICloseableIterable<? extends T> maybeWrap(
+            final IBufferingIterator<ICloseableIterable<? extends T>> iterables) {
+        if (iterables == null || iterables.isEmpty()) {
+            return EmptyCloseableIterable.getInstance();
+        } else if (iterables.size() == 1) {
+            return iterables.next();
+        } else {
+            return new FlatteningIterable<T>(iterables.asConsumingIterable());
         }
     }
 
