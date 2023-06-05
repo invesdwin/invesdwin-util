@@ -15,4 +15,42 @@ public final class Decimals {
         }
     }
 
+    public static <T extends ADecimal<T>> T max(final T first, final T second) {
+        if (first == null) {
+            return second;
+        } else if (second == null) {
+            return first;
+        } else {
+            return first.orHigher(second);
+        }
+    }
+
+    @SafeVarargs
+    public static <T extends ADecimal<T>> T max(final T... array) {
+        T max = array[0];
+        for (int i = 1; i < array.length; i++) {
+            max = max(max, array[i]);
+        }
+        return max;
+    }
+
+    public static <T extends ADecimal<T>> T min(final T first, final T second) {
+        if (first == null) {
+            return second;
+        } else if (second == null) {
+            return first;
+        } else {
+            return first.orLower(second);
+        }
+    }
+
+    @SafeVarargs
+    public static <T extends ADecimal<T>> T min(final T... array) {
+        T min = array[0];
+        for (int i = 1; i < array.length; i++) {
+            min = min(min, array[i]);
+        }
+        return min;
+    }
+
 }
