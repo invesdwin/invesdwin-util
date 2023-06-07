@@ -96,10 +96,8 @@ public abstract class ACachedResultHistoricalCacheQueryCore<V> extends ACachedEn
         }
     }
 
-    //CHECKSTYLE:OFF
     protected void appendCachedEntryAndResult(final FDate key, final Integer shiftBackUnits,
             final IHistoricalEntry<V> latestEntry) {
-        //CHECKSTYLE:ON
         if (latestEntry != null) {
             if (shiftBackUnits != null && cachedPreviousResult_shiftBackUnits == null) {
                 throw new IllegalStateException(

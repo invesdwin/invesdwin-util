@@ -124,9 +124,7 @@ public final class OutputStreams {
         }
     }
 
-    //CHECKSTYLE:OFF
     public static int writeUTF(final OutputStream out, final String str) throws IOException {
-        //CHECKSTYLE:ON
         final int strlen = str.length();
         int utflen = strlen; // optimized for ASCII
 

@@ -50,9 +50,7 @@ public class ValueObjectMerge {
         return beanUtilsBean;
     }
 
-    //CHECKSTYLE:OFF
     public void merge(final Object o) {
-        //CHECKSTYLE:ON
         final BeanClassContext thisCtx = BeanClassProcessor
                 .getContext(BeanClassProcessorConfig.getDefaultShallow(thisVo.getClass()));
         final BeanClassContext thereCtx = BeanClassProcessor

@@ -43,10 +43,8 @@ public class TrailingHistoricalCacheQueryCore<V> extends ACachedEntriesHistorica
     private final MutableBoolean cachedQueryActive = new MutableBoolean(false);
 
     public TrailingHistoricalCacheQueryCore(final IHistoricalCacheInternalMethods<V> parent) {
-        //CHECKSTYLE:OFF no cycle detection needed because we always back off locks via tryLock
         this.cachedQueryActiveLock = ILockCollectionFactory.getInstance(parent.isThreadSafe())
                 .newLock(TrailingHistoricalCacheQueryCore.class.getSimpleName() + "_cachedQueryActiveLock");
-        //CHECKSTYLE:ON
         //reuse lock so that set methods on sublist are synchronized
         this.delegate = new CachedHistoricalCacheQueryCore<V>(parent, cachedQueryActiveLock, cachedQueryActive);
     }

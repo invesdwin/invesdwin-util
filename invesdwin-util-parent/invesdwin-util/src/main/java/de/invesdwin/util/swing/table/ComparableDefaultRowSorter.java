@@ -1191,8 +1191,7 @@ public abstract class ComparableDefaultRowSorter<M, I> extends RowSorter<M> {
         /**
          * Creates a new <code>ModelWrapper</code>.
          */
-        protected ModelWrapper() {
-        }
+        protected ModelWrapper() {}
 
         /**
          * Returns the underlying model that this <code>Model</code> is wrapping.

@@ -121,9 +121,7 @@ public class FWeekTime extends FDayTime {
         }
     }
 
-    //CHECKSTYLE:OFF
     private static FWeekTime valueOfNumeric(final String value, final boolean max) {
-        //CHECKSTYLE:ON
         try {
             final int length = value.length();
             if (length != 1 && length != 3 && length != 5 && length != 7 && length != 10) {

@@ -21,8 +21,7 @@ import de.invesdwin.util.math.decimal.Decimal;
 @Immutable
 public final class CheckedCastStrings {
 
-    private CheckedCastStrings() {
-    }
+    private CheckedCastStrings() {}
 
     public static String checkedCast(final Object value) {
         if (value == null) {

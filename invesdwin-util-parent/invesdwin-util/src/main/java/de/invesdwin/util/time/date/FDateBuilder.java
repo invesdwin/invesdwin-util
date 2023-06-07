@@ -143,10 +143,8 @@ public class FDateBuilder {
         return newDate(years, months, days, hours, minutes, seconds, milliseconds, FDates.getDefaultTimeZone());
     }
 
-    //CHECKSTYLE:OFF
     public static FDate newDate(final int years, final int months, final int days, final int hours, final int minutes,
             final int seconds, final int milliseconds, final FTimeZone timeZone) {
-        //CHECKSTYLE:ON
         return new FDate(newMillis(years, months, days, hours, minutes, seconds, milliseconds, timeZone));
     }
 
@@ -181,10 +179,8 @@ public class FDateBuilder {
         return newMillis(years, months, days, hours, minutes, seconds, milliseconds, FDates.getDefaultTimeZone());
     }
 
-    //CHECKSTYLE:OFF
     public static long newMillis(final int years, final int months, final int days, final int hours, final int minutes,
             final int seconds, final int milliseconds, final FTimeZone timeZone) {
-        //CHECKSTYLE:ON
         final long dateTime = timeZone.getChronology()
                 .getDateTimeMillis(years, months, days, hours, minutes, seconds, milliseconds);
         return dateTime;

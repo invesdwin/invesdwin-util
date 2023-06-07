@@ -529,11 +529,9 @@ public class CachedHistoricalCacheQueryCore<V> extends ACachedResultHistoricalCa
         return newUnitsBack;
     }
 
-    //CHECKSTYLE:OFF
     @Override
     public int bisect(final FDate skippingKeysAbove, final List<IHistoricalEntry<V>> list, final Integer unitsBack,
             final ACachedEntriesHistoricalCacheQueryCore<V> useIndex) {
-        //CHECKSTYLE:ON
         int lo = 0;
         int hi = list.size();
         if (unitsBack != null) {

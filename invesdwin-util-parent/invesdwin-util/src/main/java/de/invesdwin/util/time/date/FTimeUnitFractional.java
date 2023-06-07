@@ -1,10 +1,7 @@
-// CHECKSTYLE:OFF file length
-
 package de.invesdwin.util.time.date;
 
 import javax.annotation.concurrent.Immutable;
 
-// CHECKSTYLE:ON
 @Immutable
 public enum FTimeUnitFractional {
 

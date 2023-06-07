@@ -518,7 +518,6 @@ public final class Strings extends AStringsStaticFacade {
     private static String replaceEachIgnoreCase(final String text, final String[] searchList,
             final String[] replacementList, final boolean repeat, final int timeToLive) {
         //CHECKSTYLE:ON
-
         // mchyzer Performance note: This creates very few new objects (one major goal)
         // let me know if there are performance requests, we can create a harness to measure
 

@@ -40,8 +40,7 @@ public final class TaskInfoManager {
     private static final FastThreadLocal<Stack<WeakReferenceTaskInfoProvider>> CURRENT_THREAD_TASK_INFO_NAME = new FastThreadLocal<>();
     private static final int MAX_DESCRIPTIONS = 3;
 
-    private TaskInfoManager() {
-    }
+    private TaskInfoManager() {}
 
     public static synchronized void onCreated(final ITaskInfoProvider taskInfoProvider) {
         final String name = taskInfoProvider.getName();
@@ -181,9 +180,7 @@ public final class TaskInfoManager {
         }
     }
 
-    //CHECKSTYLE:OFF
     private static TaskInfo getTaskInfo(final String name, final Collection<WeakReferenceTaskInfoProvider> tasks) {
-        //CHECKSTYLE:ON
         int createdCount = 0;
         int startedCount = 0;
         int completedCount = 0;

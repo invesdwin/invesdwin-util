@@ -52,10 +52,8 @@ public class Tokenizer extends ALookahead<Token> {
         return Token.createAndFill(Token.TokenType.EOI, input.current());
     }
 
-    //CHECKSTYLE:OFF
     @Override
     protected Token fetch() {
-        //CHECKSTYLE:ON
         // Fetch and ignore any whitespace
         while (input.current().isWhitepace()) {
             input.consume();

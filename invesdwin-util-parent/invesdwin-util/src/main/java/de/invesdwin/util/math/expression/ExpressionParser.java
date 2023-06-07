@@ -312,9 +312,7 @@ public class ExpressionParser implements IExpressionParser {
         return DEFAULT_COMMA_OP;
     }
 
-    //CHECKSTYLE:OFF
     protected IParsedExpression relationalExpression() {
-        //CHECKSTYLE:ON
         final IParsedExpression left = term();
         final Token current = tokenizer.current();
         if (current.isSymbol()) {
@@ -502,9 +500,7 @@ public class ExpressionParser implements IExpressionParser {
         return left;
     }
 
-    //CHECKSTYLE:OFF
     protected IParsedExpression atom() {
-        //CHECKSTYLE:ON
         Token current = tokenizer.current();
         if (current.isSymbol()) {
             if (current.matches("-")) {
@@ -686,7 +682,6 @@ public class ExpressionParser implements IExpressionParser {
             final String valueStr = tokenizer.consume().getContents();
             double value = Double.parseDouble(valueStr);
             if (tokenizer.current().isIdentifier()) {
-                //CHECKSTYLE:OFF
                 final String quantifierStr = tokenizer.current().getContents();
                 if (quantifierStr.length() == 1) {
                     final char quantifier = quantifierStr.charAt(0);
@@ -714,7 +709,6 @@ public class ExpressionParser implements IExpressionParser {
                                 .format("Unexpected token: '%s'. Expected a valid quantifier.", token.getSource()));
                     }
                 }
-                //CHECKSTYLE:ON
             }
             return new ConstantExpression(value);
         }

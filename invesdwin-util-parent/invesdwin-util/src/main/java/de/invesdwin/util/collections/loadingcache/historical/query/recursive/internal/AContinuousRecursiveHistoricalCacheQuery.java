@@ -381,9 +381,7 @@ public abstract class AContinuousRecursiveHistoricalCacheQuery<V> implements IRe
         }
     }
 
-    //CHECKSTYLE:OFF
     private IBufferingIterator<FDate> newRecursionKeysIterator(final FDate previousKey) {
-        //CHECKSTYLE:ON
         if (highestRecursionResultsAsc.isEmpty()) {
             shouldAppendHighestRecursionResults = true;
         }

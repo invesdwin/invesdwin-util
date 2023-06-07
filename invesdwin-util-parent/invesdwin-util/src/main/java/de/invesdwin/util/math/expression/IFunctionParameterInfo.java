@@ -17,9 +17,7 @@ public interface IFunctionParameterInfo {
         return isOptional() ? getExpressionName() + "?" : getExpressionName();
     }
 
-    //CHECKSTYLE:OFF
     default String getDescriptionWithDetails() {
-        //CHECKSTYLE:ON
         final StringBuilder sb = new StringBuilder();
         final String description = getDescription();
         if (Strings.isNotBlank(description)) {

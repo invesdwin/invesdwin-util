@@ -304,9 +304,7 @@ public class Duration extends Number implements Comparable<Object> {
      * 
      * @see <a href="http://de.wikipedia.org/wiki/ISO_8601">ISO_8601</a>
      */
-    //CHECKSTYLE:OFF NPath
     public String toString(final FTimeUnit smallestTimeUnit) {
-        //CHECKSTYLE:ON
         long nanoseconds = Longs.abs(nanosValue());
         final long years = FTimeUnit.NANOSECONDS.toYears(nanoseconds);
         nanoseconds -= FTimeUnit.YEARS.toNanos(years);

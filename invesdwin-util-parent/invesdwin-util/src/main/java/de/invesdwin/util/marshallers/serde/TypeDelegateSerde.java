@@ -35,9 +35,7 @@ public class TypeDelegateSerde<O> implements ISerde<O> {
         delegate = (ISerde<O>) newDelegate(type);
     }
 
-    //CHECKSTYLE:OFF
     protected ISerde<?> newDelegate(final Class<O> type) {
-        //CHECKSTYLE:ON
         if (Reflections.isVoid(type)) {
             return VoidSerde.GET;
         } else if (Double.class.isAssignableFrom(type) || double.class.isAssignableFrom(type)) {

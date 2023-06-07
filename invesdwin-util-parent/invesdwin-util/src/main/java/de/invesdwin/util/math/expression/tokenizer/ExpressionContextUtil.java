@@ -7,8 +7,7 @@ import de.invesdwin.util.lang.string.Strings;
 @Immutable
 public final class ExpressionContextUtil {
 
-    private ExpressionContextUtil() {
-    }
+    private ExpressionContextUtil() {}
 
     //CHECKSTYLE:OFF
     public static String collectContext(final Tokenizer tokenizer, final String originalExpression,
@@ -151,11 +150,9 @@ public final class ExpressionContextUtil {
         return -1;
     }
 
-    //CHECKSTYLE:OFF
     private static boolean maybeSkipContextCharacters(final Tokenizer tokenizer, final String originalExpression,
             final boolean ofContext, final StringBuilder context, final boolean consumeMore, final int start,
             final int end, final int skipCharacters) {
-        //CHECKSTYLE:ON
         int usedSkipCharacters = skipCharacters;
 
         boolean endsWithComment = false;

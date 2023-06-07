@@ -43,8 +43,7 @@ public final class HistoricalCacheRefreshManager {
     @GuardedBy("HistoricalCacheRefreshManager.class")
     private static ScheduledExecutorService executor;
 
-    private HistoricalCacheRefreshManager() {
-    }
+    private HistoricalCacheRefreshManager() {}
 
     public static FDate getLastRefresh() {
         return lastRefresh;
@@ -60,9 +59,7 @@ public final class HistoricalCacheRefreshManager {
      * Calling this manually makes the caches refresh on the next call to get.
      */
     public static synchronized void forceRefresh() {
-        //CHECKSTYLE:OFF
         LOG.warn("Forcing refresh on historical caches");
-        //CHECKSTYLE:ON
         lastRefresh = new FDate();
         lastRefreshMillis = lastRefresh.millisValue();
     }

@@ -51,8 +51,7 @@ public final class Dialogs extends javax.swing.JOptionPane {
 
     private static final org.slf4j.ext.XLogger LOG = org.slf4j.ext.XLoggerFactory.getXLogger(Dialogs.class);
 
-    private Dialogs() {
-    }
+    private Dialogs() {}
 
     public static void setDialogVisitor(final AComponentVisitor dialogVisitor) {
         Dialogs.dialogVisitor = dialogVisitor;
@@ -130,11 +129,9 @@ public final class Dialogs extends javax.swing.JOptionPane {
                 optionType, messageType, icon);
     }
 
-    //CHECKSTYLE:OFF
     public static int showOptionDialog(final Component parentComponent, final Object message, final String title,
             final int optionType, final int messageType, final Icon icon, final Object[] options,
             final Object initialValue) {
-        //CHECKSTYLE:ON
         return javax.swing.JOptionPane.showOptionDialog(parentComponent, standardizeMessage(message), title, optionType,
                 messageType, icon, options, initialValue);
     }
@@ -177,11 +174,9 @@ public final class Dialogs extends javax.swing.JOptionPane {
                 optionType, messageType, icon);
     }
 
-    //CHECKSTYLE:OFF
     public static int showInternalOptionDialog(final Component parentComponent, final Object message,
             final String title, final int optionType, final int messageType, final Icon icon, final Object[] options,
             final Object initialValue) {
-        //CHECKSTYLE:ON
         return javax.swing.JOptionPane.showInternalOptionDialog(parentComponent, standardizeMessage(message), title,
                 optionType, messageType, icon, options, initialValue);
     }

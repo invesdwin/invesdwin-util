@@ -175,9 +175,7 @@ public class FDayTime extends Number implements Comparable<Object>, IDayTimeData
         }
     }
 
-    //CHECKSTYLE:OFF
     private static FDayTime valueOfNumeric(final String value, final boolean max) {
-        //CHECKSTYLE:ON
         try {
             final int length = value.length();
             if (length == 2 || length == 4 || length == 6 || length == 9) {

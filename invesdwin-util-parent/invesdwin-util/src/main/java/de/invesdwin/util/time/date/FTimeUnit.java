@@ -1,5 +1,3 @@
-// CHECKSTYLE:OFF file length
-
 package de.invesdwin.util.time.date;
 
 import java.time.temporal.ChronoUnit;
@@ -16,7 +14,6 @@ import org.joda.time.DurationFieldType;
 import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.time.duration.Duration;
 
-// CHECKSTYLE:ON
 @Immutable
 public enum FTimeUnit {
 
