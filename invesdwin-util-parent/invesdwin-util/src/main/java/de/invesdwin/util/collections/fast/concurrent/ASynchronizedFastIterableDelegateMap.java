@@ -138,10 +138,14 @@ public abstract class ASynchronizedFastIterableDelegateMap<K, V> implements IFas
                 assert emptyArray.length == 0 : "emptyArray.length needs to be 0: " + emptyArray.length;
                 valueArray = emptyArray;
             } else {
-                valueArray = values.toArray(emptyArray);
+                valueArray = onValueArrayCreated(values.toArray(emptyArray));
             }
         }
         return valueArray;
+    }
+
+    protected V[] onValueArrayCreated(final V[] array) {
+        return array;
     }
 
     @Override
@@ -156,10 +160,14 @@ public abstract class ASynchronizedFastIterableDelegateMap<K, V> implements IFas
                 assert emptyArray.length == 0 : "emptyArray.length needs to be 0: " + emptyArray.length;
                 keyArray = emptyArray;
             } else {
-                keyArray = keySet.toArray(emptyArray);
+                keyArray = onKeyArrayCreated(keySet.toArray(emptyArray));
             }
         }
         return keyArray;
+    }
+
+    protected K[] onKeyArrayCreated(final K[] array) {
+        return array;
     }
 
     @Override
@@ -174,10 +182,14 @@ public abstract class ASynchronizedFastIterableDelegateMap<K, V> implements IFas
             if (entrySet.isEmpty()) {
                 entryArray = Collections.EMPTY_ENTRY_ARRAY;
             } else {
-                entryArray = entrySet.toArray(Collections.EMPTY_ENTRY_ARRAY);
+                entryArray = onEntryArrayCreated(entrySet.toArray(Collections.EMPTY_ENTRY_ARRAY));
             }
         }
         return entryArray;
+    }
+
+    protected Entry<K, V>[] onEntryArrayCreated(final Entry<K, V>[] array) {
+        return array;
     }
 
     @Override

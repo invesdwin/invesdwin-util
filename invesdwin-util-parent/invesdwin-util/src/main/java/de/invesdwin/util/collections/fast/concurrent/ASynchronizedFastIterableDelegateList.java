@@ -143,9 +143,13 @@ public abstract class ASynchronizedFastIterableDelegateList<E> implements IFastI
                 assert emptyArray.length == 0 : "emptyArray.length needs to be 0: " + emptyArray.length;
                 array = emptyArray;
             } else {
-                array = toArray(emptyArray);
+                array = onArrayCreated(delegate.toArray(emptyArray));
             }
         }
+        return array;
+    }
+
+    protected E[] onArrayCreated(final E[] array) {
         return array;
     }
 
