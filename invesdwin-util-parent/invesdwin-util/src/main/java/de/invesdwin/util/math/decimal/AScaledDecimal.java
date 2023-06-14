@@ -41,8 +41,7 @@ public abstract class AScaledDecimal<T extends AScaledDecimal<T, S>, S extends I
         }
     }
 
-    protected void validateScale(final S scale) {
-    }
+    protected void validateScale(final S scale) {}
 
     protected abstract T newValueCopy(double value, S scale);
 
@@ -169,7 +168,7 @@ public abstract class AScaledDecimal<T extends AScaledDecimal<T, S>, S extends I
         if (subtrahend == null) {
             return getGenericThis();
         }
-        final double defaultScaledSubtrahend = maybeGetDefaultScaledNumber(subtrahend);
+        final double defaultScaledSubtrahend = maybeGetDefaultScaledNumberNotNullSafe(subtrahend);
         final double newDefault = getDefaultValue() - defaultScaledSubtrahend;
         return fromDefaultValue(newDefault);
     }
@@ -179,7 +178,7 @@ public abstract class AScaledDecimal<T extends AScaledDecimal<T, S>, S extends I
         if (augend == null) {
             return getGenericThis();
         }
-        final double defaultScaledAugend = maybeGetDefaultScaledNumber(augend);
+        final double defaultScaledAugend = maybeGetDefaultScaledNumberNotNullSafe(augend);
         final double newDefault = getDefaultValue() + defaultScaledAugend;
         return fromDefaultValue(newDefault);
     }
@@ -191,7 +190,7 @@ public abstract class AScaledDecimal<T extends AScaledDecimal<T, S>, S extends I
         } else if (multiplicant == null || multiplicant.isZero()) {
             return zero();
         } else {
-            final double defaultScaledMultiplicant = maybeGetDefaultScaledNumber(multiplicant);
+            final double defaultScaledMultiplicant = maybeGetDefaultScaledNumberNotNullSafe(multiplicant);
             final double newDefault = getDefaultValue() * defaultScaledMultiplicant;
             return fromDefaultValue(newDefault);
         }
@@ -203,9 +202,9 @@ public abstract class AScaledDecimal<T extends AScaledDecimal<T, S>, S extends I
             //prevent NaN
             return getGenericThis();
         } else if (divisor == null || divisor.isZero()) {
-            return divide(0);
+            return divide(0D);
         } else {
-            final double defaultScaledDivisor = maybeGetDefaultScaledNumber(divisor);
+            final double defaultScaledDivisor = maybeGetDefaultScaledNumberNotNullSafe(divisor);
             final double newDefault = getDefaultValue() / defaultScaledDivisor;
             return fromDefaultValue(newDefault);
         }
@@ -216,9 +215,9 @@ public abstract class AScaledDecimal<T extends AScaledDecimal<T, S>, S extends I
         if (isZero()) {
             return getGenericThis();
         } else if (divisor == null || divisor.isZero()) {
-            return remainder(0);
+            return remainder(0D);
         } else {
-            final double defaultScaledDivisor = maybeGetDefaultScaledNumber(divisor);
+            final double defaultScaledDivisor = maybeGetDefaultScaledNumberNotNullSafe(divisor);
             final double newDefault = Doubles.remainder(getDefaultValue(), defaultScaledDivisor);
             return fromDefaultValue(newDefault);
         }
@@ -250,6 +249,13 @@ public abstract class AScaledDecimal<T extends AScaledDecimal<T, S>, S extends I
     }
 
     private double maybeGetDefaultScaledNumber(final ADecimal<?> number) {
+        if (number == null) {
+            return Double.NaN;
+        }
+        return maybeGetDefaultScaledNumberNotNullSafe(number);
+    }
+
+    private double maybeGetDefaultScaledNumberNotNullSafe(final ADecimal<?> number) {
         assertSameDefaultScale(number);
         return number.getDefaultValue();
     }
