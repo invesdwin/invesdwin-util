@@ -15,9 +15,10 @@ public class RequestArgsSerde implements ISerde<Object[]> {
     private final int maxSerdeProviderIndex;
 
     public RequestArgsSerde(final IRequestSerdeProvider[] providers, final boolean varArgs) {
+        System.out.println("TODO: don't put element length for only one arg with fixed length");
         this.providers = providers;
         if (varArgs) {
-            this.fixedArrayLength = providers.length;
+            this.fixedArrayLength = null;
         } else {
             this.fixedArrayLength = providers.length;
         }

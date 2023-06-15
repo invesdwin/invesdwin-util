@@ -27,6 +27,7 @@ public final class ByteArraySerde implements ISerde<byte[][]> {
     private final Integer fixedArrayCount;
 
     private ByteArraySerde(final Integer fixedArrayCount) {
+        //System.out.println("TODO: don't put element length for only one arg with fixed length");
         this.fixedArrayCount = fixedArrayCount;
     }
 
