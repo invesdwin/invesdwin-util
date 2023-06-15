@@ -27,7 +27,6 @@ public final class ByteArraySerde implements ISerde<byte[][]> {
     private final Integer fixedArrayCount;
 
     private ByteArraySerde(final Integer fixedArrayCount) {
-        //System.out.println("TODO: don't put element length for only one arg with fixed length");
         this.fixedArrayCount = fixedArrayCount;
     }
 
@@ -48,6 +47,12 @@ public final class ByteArraySerde implements ISerde<byte[][]> {
         if (fixedArrayCount == null) {
             arrayCount = buffer.getInt(position);
             position += Integer.BYTES;
+        } else if (fixedArrayCount == 1) {
+            final byte[][] result = new byte[1][];
+            final byte[] payload = ByteBuffers.allocateByteArray(buffer.capacity());
+            buffer.getBytes(0, payload);
+            result[0] = payload;
+            return result;
         } else {
             arrayCount = fixedArrayCount;
         }
@@ -70,21 +75,31 @@ public final class ByteArraySerde implements ISerde<byte[][]> {
         if (fixedArrayCount == null) {
             buffer.putInt(position, arrayCount);
             position += Integer.BYTES;
+        } else if (fixedArrayCount == 1) {
+            assertFixedArrayCount(arrayCount);
+            final byte[] array = obj[0];
+            buffer.putBytes(position, array);
+            return array.length;
         } else {
-            if (arrayCount != fixedArrayCount) {
-                throw new IllegalArgumentException(
-                        "arrayCount[" + arrayCount + "] != fixedArrayCount[" + fixedArrayCount + "]");
-            }
+            assertFixedArrayCount(arrayCount);
         }
         for (int i = 0; i < arrayCount; i++) {
-            final int curLength = obj[i].length;
+            final byte[] array = obj[i];
+            final int curLength = array.length;
             buffer.putInt(position, curLength);
             position += Integer.BYTES;
-            buffer.putBytes(position, obj[i]);
+            buffer.putBytes(position, array);
             position += curLength;
         }
 
         return position;
+    }
+
+    private void assertFixedArrayCount(final int arrayCount) {
+        if (arrayCount != fixedArrayCount) {
+            throw new IllegalArgumentException(
+                    "arrayCount[" + arrayCount + "] != fixedArrayCount[" + fixedArrayCount + "]");
+        }
     }
 
     public static ByteArraySerde getInstance(final Integer fixedArrayCount) {

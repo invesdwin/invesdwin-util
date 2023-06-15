@@ -15,7 +15,6 @@ public class RequestArgsSerde implements ISerde<Object[]> {
     private final int maxSerdeProviderIndex;
 
     public RequestArgsSerde(final IRequestSerdeProvider[] providers, final boolean varArgs) {
-        System.out.println("TODO: don't put element length for only one arg with fixed length");
         this.providers = providers;
         if (varArgs) {
             this.fixedArrayLength = null;
@@ -42,6 +41,12 @@ public class RequestArgsSerde implements ISerde<Object[]> {
         if (fixedArrayLength == null) {
             arrayLength = buffer.getInt(position);
             position += Integer.BYTES;
+        } else if (fixedArrayLength == 1) {
+            final Object[] result = new Object[1];
+            final IRequestSerdeProvider serdeProvider = providers[0];
+            final ISerde<Object> serde = serdeProvider.getSerde(result, 0);
+            result[0] = serde.fromBuffer(buffer);
+            return result;
         } else {
             arrayLength = fixedArrayLength;
         }
@@ -64,11 +69,13 @@ public class RequestArgsSerde implements ISerde<Object[]> {
         if (fixedArrayLength == null) {
             buffer.putInt(position, arrayLength);
             position += Integer.BYTES;
+        } else if (fixedArrayLength == 1) {
+            assertFixedArrayLength(arrayLength);
+            final IRequestSerdeProvider serdeProvider = providers[0];
+            final ISerde<Object> serde = serdeProvider.getSerde(obj, 0);
+            return serde.toBuffer(buffer, obj[0]);
         } else {
-            if (arrayLength != fixedArrayLength) {
-                throw new IllegalArgumentException(
-                        "arrayLength[" + arrayLength + "] != fixedarrayLength[" + fixedArrayLength + "]");
-            }
+            assertFixedArrayLength(arrayLength);
         }
         for (int i = 0; i < arrayLength; i++) {
             final IRequestSerdeProvider serdeProvider = providers[Integers.min(i, maxSerdeProviderIndex)];
@@ -77,8 +84,14 @@ public class RequestArgsSerde implements ISerde<Object[]> {
             buffer.putInt(position, curLength);
             position += Integer.BYTES + curLength;
         }
-
         return position;
+    }
+
+    private void assertFixedArrayLength(final int arrayLength) {
+        if (arrayLength != fixedArrayLength) {
+            throw new IllegalArgumentException(
+                    "arrayLength[" + arrayLength + "] != fixedarrayLength[" + fixedArrayLength + "]");
+        }
     }
 
 }
