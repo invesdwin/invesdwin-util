@@ -54,13 +54,17 @@ public class NettyDelegateByteBuffer implements IByteBuffer {
         setDelegate(delegate);
     }
 
+    public NettyDelegateByteBuffer() {}
+
     public ByteBuf getDelegate() {
         return delegate;
     }
 
     @SuppressWarnings("deprecation")
     public void setDelegate(final ByteBuf delegate) {
-        if (delegate.order() != ByteBuffers.DEFAULT_ORDER) {
+        if (delegate == null) {
+            this.delegate = null;
+        } else if (delegate.order() != ByteBuffers.DEFAULT_ORDER) {
             //unwrap SwappedByteBuf
             this.delegate = delegate.order(ByteBuffers.DEFAULT_ORDER);
         } else {
