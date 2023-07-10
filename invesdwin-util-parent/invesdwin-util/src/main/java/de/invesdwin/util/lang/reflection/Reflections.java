@@ -277,6 +277,12 @@ public final class Reflections extends AReflectionsStaticFacade {
             Class<?> clazz = object.getClass();
             while (!clazz.equals(Object.class)) {
                 for (final Field field : clazz.getDeclaredFields()) {
+                    if (Reflections.isFinal(field)) {
+                        continue;
+                    }
+                    if (Reflections.isStatic(field)) {
+                        continue;
+                    }
                     field.setAccessible(true);
                     field.set(instance, field.get(object));
                 }
