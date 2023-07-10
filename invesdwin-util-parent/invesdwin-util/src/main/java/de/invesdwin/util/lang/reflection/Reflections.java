@@ -16,6 +16,7 @@ import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
 import de.invesdwin.norva.beanpath.BeanPathReflections;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.factory.ILockCollectionFactory;
+import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.lang.comparator.AComparator;
 import de.invesdwin.util.lang.comparator.IComparator;
 import de.invesdwin.util.lang.reflection.internal.AReflectionsStaticFacade;
@@ -283,7 +284,7 @@ public final class Reflections extends AReflectionsStaticFacade {
             }
             return instance;
         } catch (final Exception e) {
-            throw new RuntimeException(e);
+            throw Throwables.propagate(e);
         }
     }
 
