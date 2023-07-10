@@ -283,7 +283,7 @@ public final class Reflections extends AReflectionsStaticFacade {
             }
             return instance;
         } catch (final Exception e) {
-            throw new RuntimeException();
+            throw new RuntimeException(e);
         }
     }
 
