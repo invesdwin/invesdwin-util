@@ -21,6 +21,8 @@ public class SpinnerDecimalEditor extends DefaultEditor {
     public static final String DECIMAL_FORMAT = Decimal.newDefaultDecimalFormat(Decimal.DEFAULT_ROUNDING_SCALE);
     public static final String INTEGER_FORMAT = Decimal.newDefaultDecimalFormat(0);
 
+    private final NumberEditorFormatter formatter;
+
     public SpinnerDecimalEditor(final JSpinner spinner) {
         this(spinner, DECIMAL_FORMAT);
     }
@@ -36,7 +38,7 @@ public class SpinnerDecimalEditor extends DefaultEditor {
         }
 
         final SpinnerDecimalModel model = (SpinnerDecimalModel) spinner.getModel();
-        final NumberFormatter formatter = new NumberEditorFormatter(model, format);
+        this.formatter = new NumberEditorFormatter(model, format);
         final DefaultFormatterFactory factory = new DefaultFormatterFactory(formatter);
         final JFormattedTextField ftf = getTextField();
         ftf.setEditable(true);
@@ -57,6 +59,10 @@ public class SpinnerDecimalEditor extends DefaultEditor {
 
     }
 
+    public NumberEditorFormatter getFormatter() {
+        return formatter;
+    }
+
     public DecimalFormat getFormat() {
         return (DecimalFormat) ((NumberFormatter) (getTextField().getFormatter())).getFormat();
     }
@@ -65,13 +71,28 @@ public class SpinnerDecimalEditor extends DefaultEditor {
         return (SpinnerNumberModel) (getSpinner().getModel());
     }
 
-    private static class NumberEditorFormatter extends NumberFormatter {
+    public static class NumberEditorFormatter extends NumberFormatter {
         private final SpinnerNumberModel model;
+        private boolean installing;
 
         NumberEditorFormatter(final SpinnerNumberModel model, final NumberFormat format) {
             super(format);
             this.model = model;
             setValueClass(model.getValue().getClass());
+        }
+
+        public boolean isInstalling() {
+            return installing;
+        }
+
+        @Override
+        public void install(final JFormattedTextField ftf) {
+            installing = true;
+            try {
+                super.install(ftf);
+            } finally {
+                installing = false;
+            }
         }
 
         @Override
