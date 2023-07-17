@@ -46,16 +46,31 @@ public class LoopInterruptedCheck {
     public final boolean check() throws InterruptedException {
         checksInInterval++;
         if (checksInInterval > checksPerInterval) {
-            final long newIntervalNanos = System.nanoTime();
-            if (newIntervalNanos > nextIntervalNanos) {
-                final boolean result = onInterval();
-                checksPerInterval = checksInInterval;
-                checksInInterval = 0;
-                nextIntervalNanos = newIntervalNanos + checkIntervalNanos;
-                return result;
-            }
+            return checkClock();
+        } else {
+            return false;
         }
-        return false;
+    }
+
+    public final boolean checkClockNoInterrupt() {
+        try {
+            return checkClock();
+        } catch (final InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private boolean checkClock() throws InterruptedException {
+        final long newIntervalNanos = System.nanoTime();
+        if (newIntervalNanos > nextIntervalNanos) {
+            final boolean result = onInterval();
+            checksPerInterval = checksInInterval;
+            checksInInterval = 0;
+            nextIntervalNanos = newIntervalNanos + checkIntervalNanos;
+            return result;
+        } else {
+            return false;
+        }
     }
 
     protected boolean onInterval() throws InterruptedException {
