@@ -20,6 +20,7 @@ import de.invesdwin.util.math.internal.CheckedCastLongsObj;
 @Immutable
 public final class Longs extends ALongsStaticFacade {
 
+    public static final long[] EMPTY_ARRAY = new long[0];
     public static final long DEFAULT_MISSING_VALUE = 0;
     public static final Long DEFAULT_MISSING_VALUE_OBJ = DEFAULT_MISSING_VALUE;
     public static final IComparator<Long> COMPARATOR = IComparator.getDefaultInstance();

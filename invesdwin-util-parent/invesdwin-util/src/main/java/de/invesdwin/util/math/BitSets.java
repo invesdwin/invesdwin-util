@@ -10,6 +10,7 @@ import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
 import de.invesdwin.util.collections.Arrays;
+import de.invesdwin.util.collections.bitset.IBitSet;
 import de.invesdwin.util.lang.reflection.Reflections;
 import de.invesdwin.util.math.internal.ABitSetsStaticFacade;
 import de.invesdwin.util.math.internal.CheckedCastBitSets;
@@ -57,22 +58,22 @@ public final class BitSets extends ABitSetsStaticFacade {
         }
     }
 
-    public static BitSet toArray(final Collection<Boolean> vector) {
+    public static IBitSet toArray(final Collection<Boolean> vector) {
         if (vector == null) {
             return null;
         }
         return checkedCastVector(vector);
     }
 
-    public static BitSet toArrayVector(final Collection<Boolean> vector) {
+    public static IBitSet toArrayVector(final Collection<Boolean> vector) {
         return toArray(vector);
     }
 
-    public static BitSet[] toArrayMatrix(final List<? extends List<Boolean>> matrix) {
+    public static IBitSet[] toArrayMatrix(final List<? extends List<Boolean>> matrix) {
         if (matrix == null) {
             return null;
         }
-        final BitSet[] arrayMatrix = new BitSet[matrix.size()];
+        final IBitSet[] arrayMatrix = new IBitSet[matrix.size()];
         for (int i = 0; i < matrix.size(); i++) {
             final List<Boolean> vector = matrix.get(i);
             arrayMatrix[i] = toArrayVector(vector);
@@ -80,12 +81,12 @@ public final class BitSets extends ABitSetsStaticFacade {
         return arrayMatrix;
     }
 
-    public static List<BitSet> asListMatrix(final BitSet[] matrix) {
+    public static List<IBitSet> asListMatrix(final IBitSet[] matrix) {
         if (matrix == null) {
             return null;
         }
-        final List<BitSet> matrixAsList = new ArrayList<BitSet>(matrix.length);
-        for (final BitSet vector : matrix) {
+        final List<IBitSet> matrixAsList = new ArrayList<IBitSet>(matrix.length);
+        for (final IBitSet vector : matrix) {
             matrixAsList.add(vector);
         }
         return matrixAsList;

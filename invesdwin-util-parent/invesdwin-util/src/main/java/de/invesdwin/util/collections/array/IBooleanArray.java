@@ -1,5 +1,7 @@
 package de.invesdwin.util.collections.array;
 
+import de.invesdwin.util.collections.bitset.IBitSet;
+
 public interface IBooleanArray {
 
     void set(int index, boolean value);
@@ -26,6 +28,13 @@ public interface IBooleanArray {
             return EmptyBooleanArray.INSTANCE;
         }
         return new HeapBooleanArray(values);
+    }
+
+    static IBooleanArray newInstance(final IBitSet values) {
+        if (values.getExpectedSize() == 0) {
+            return EmptyBooleanArray.INSTANCE;
+        }
+        return new BitSetBooleanArray(values);
     }
 
 }
