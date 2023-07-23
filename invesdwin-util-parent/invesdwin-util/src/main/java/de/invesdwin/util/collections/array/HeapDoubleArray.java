@@ -54,6 +54,26 @@ public class HeapDoubleArray implements IDoubleArray {
     }
 
     @Override
+    public double[] asArrayCopy() {
+        return values.clone();
+    }
+
+    @Override
+    public double[] asArrayCopy(final int fromIndex, final int length) {
+        if (fromIndex == 0 && length == size()) {
+            return asArrayCopy();
+        } else {
+            return Arrays.copyOfRange(values, fromIndex, fromIndex + length);
+        }
+    }
+
+    @Override
+    public void getDoubles(final int srcPos, final IDoubleArray dest, final int destPos, final int length) {
+        final HeapDoubleArray cDest = ((HeapDoubleArray) dest);
+        System.arraycopy(values, srcPos, cDest.values, destPos, length);
+    }
+
+    @Override
     public String toString() {
         return Arrays.toString(asArray(0, Integers.min(ByteBuffers.MAX_TO_STRING_COUNT, size())));
     }

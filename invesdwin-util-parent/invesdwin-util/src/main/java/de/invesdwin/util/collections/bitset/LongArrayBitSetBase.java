@@ -459,7 +459,7 @@ public class LongArrayBitSetBase {
 
         // Copy any remaining words
         if (wordsInCommon < set.wordsInUse) {
-            set.words.arrayCopy(wordsInCommon, words, wordsInCommon, wordsInUse - wordsInCommon);
+            set.words.getLongs(wordsInCommon, words, wordsInCommon, wordsInUse - wordsInCommon);
         }
 
         // recalculateWordsInUse() is unnecessary
@@ -481,7 +481,7 @@ public class LongArrayBitSetBase {
 
         // Copy any remaining words
         if (wordsInCommon < set.wordsInUse) {
-            set.words.arrayCopy(wordsInCommon, words, wordsInCommon, set.wordsInUse - wordsInCommon);
+            set.words.getLongs(wordsInCommon, words, wordsInCommon, set.wordsInUse - wordsInCommon);
         }
 
         recalculateWordsInUse();

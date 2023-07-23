@@ -9,12 +9,10 @@ public final class EmptyBooleanArray implements IBooleanArray {
 
     public static final EmptyBooleanArray INSTANCE = new EmptyBooleanArray();
 
-    private EmptyBooleanArray() {
-    }
+    private EmptyBooleanArray() {}
 
     @Override
-    public void set(final int index, final boolean value) {
-    }
+    public void set(final int index, final boolean value) {}
 
     @Override
     public boolean get(final int index) {
@@ -39,6 +37,21 @@ public final class EmptyBooleanArray implements IBooleanArray {
     @Override
     public boolean[] asArray(final int fromIndex, final int length) {
         return Booleans.EMPTY_ARRAY;
+    }
+
+    @Override
+    public boolean[] asArrayCopy() {
+        return Booleans.EMPTY_ARRAY;
+    }
+
+    @Override
+    public boolean[] asArrayCopy(final int fromIndex, final int length) {
+        return Booleans.EMPTY_ARRAY;
+    }
+
+    @Override
+    public void getBooleans(final int srcPos, final IBooleanArray dest, final int destPos, final int length) {
+        //noop
     }
 
     @Override

@@ -14,6 +14,12 @@ public interface IDoubleArray {
 
     double[] asArray(int fromIndex, int length);
 
+    double[] asArrayCopy();
+
+    double[] asArrayCopy(int fromIndex, int length);
+
+    void getDoubles(int srcPos, IDoubleArray dest, int destPos, int length);
+
     static IDoubleArray newInstance(final int size) {
         if (size == 0) {
             return EmptyDoubleArray.INSTANCE;

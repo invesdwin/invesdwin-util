@@ -116,6 +116,11 @@ public final class SliceDelegateBitSet implements IBitSet {
     }
 
     @Override
+    public void getBooleans(final int srcPos, final IBitSet dest, final int destPos, final int length) {
+        throw new UnsupportedOperationException("Indexes might get mangled");
+    }
+
+    @Override
     public IBitSet unwrap() {
         throw new UnsupportedOperationException("Indexes might get mangled");
     }

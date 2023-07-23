@@ -9,12 +9,10 @@ public final class EmptyIntegerArray implements IIntegerArray {
 
     public static final EmptyIntegerArray INSTANCE = new EmptyIntegerArray();
 
-    private EmptyIntegerArray() {
-    }
+    private EmptyIntegerArray() {}
 
     @Override
-    public void set(final int index, final int value) {
-    }
+    public void set(final int index, final int value) {}
 
     @Override
     public int get(final int index) {
@@ -39,6 +37,21 @@ public final class EmptyIntegerArray implements IIntegerArray {
     @Override
     public int[] asArray(final int fromIndex, final int length) {
         return Integers.EMPTY_ARRAY;
+    }
+
+    @Override
+    public int[] asArrayCopy() {
+        return Integers.EMPTY_ARRAY;
+    }
+
+    @Override
+    public int[] asArrayCopy(final int fromIndex, final int length) {
+        return Integers.EMPTY_ARRAY;
+    }
+
+    @Override
+    public void getIntegers(final int srcPos, final IIntegerArray dest, final int destPos, final int length) {
+        //noop
     }
 
     @Override

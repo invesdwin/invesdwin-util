@@ -7,8 +7,7 @@ public final class NoSkippingFakeBitSet implements IBitSet {
 
     public static final NoSkippingFakeBitSet INSTANCE = new NoSkippingFakeBitSet();
 
-    private NoSkippingFakeBitSet() {
-    }
+    private NoSkippingFakeBitSet() {}
 
     @Override
     public void remove(final int index) {
@@ -77,6 +76,11 @@ public final class NoSkippingFakeBitSet implements IBitSet {
 
     @Override
     public IBitSet negateShallow() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void getBooleans(final int srcPos, final IBitSet dest, final int destPos, final int length) {
         throw new UnsupportedOperationException();
     }
 

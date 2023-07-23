@@ -44,17 +44,33 @@ public class BitSetBooleanArray implements IBooleanArray {
 
     @Override
     public boolean[] asArray() {
-        return Booleans.checkedCastVector(values);
+        return asArrayCopy();
     }
 
     @Override
     public boolean[] asArray(final int fromIndex, final int length) {
+        return asArrayCopy(fromIndex, length);
+    }
+
+    @Override
+    public boolean[] asArrayCopy() {
+        return Booleans.checkedCastVector(values);
+    }
+
+    @Override
+    public boolean[] asArrayCopy(final int fromIndex, final int length) {
         final boolean[] vector = new boolean[length];
         final int limit = fromIndex + length;
         for (int i = fromIndex; i < limit; i++) {
             vector[i] = values.contains(i);
         }
         return vector;
+    }
+
+    @Override
+    public void getBooleans(final int srcPos, final IBooleanArray dest, final int destPos, final int length) {
+        final BitSetBooleanArray cDest = ((BitSetBooleanArray) dest);
+        values.getBooleans(srcPos, cDest.values, destPos, length);
     }
 
     @Override

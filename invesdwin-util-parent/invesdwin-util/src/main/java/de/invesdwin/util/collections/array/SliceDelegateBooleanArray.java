@@ -50,6 +50,21 @@ public class SliceDelegateBooleanArray implements IBooleanArray {
     }
 
     @Override
+    public boolean[] asArrayCopy() {
+        return delegate.asArrayCopy(from, length);
+    }
+
+    @Override
+    public boolean[] asArrayCopy(final int fromIndex, final int length) {
+        return delegate.asArrayCopy(fromIndex + from, length);
+    }
+
+    @Override
+    public void getBooleans(final int srcPos, final IBooleanArray dest, final int destPos, final int length) {
+        delegate.getBooleans(srcPos + from, dest, destPos, length);
+    }
+
+    @Override
     public String toString() {
         return Arrays.toString(asArray(0, Integers.min(ByteBuffers.MAX_TO_STRING_COUNT, size())));
     }

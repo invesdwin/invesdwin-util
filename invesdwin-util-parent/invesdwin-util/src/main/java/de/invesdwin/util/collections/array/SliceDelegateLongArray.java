@@ -50,8 +50,18 @@ public class SliceDelegateLongArray implements ILongArray {
     }
 
     @Override
-    public void arrayCopy(final int srcPos, final ILongArray dest, final int destPos, final int length) {
-        delegate.arrayCopy(srcPos + from, dest, destPos, length);
+    public long[] asArrayCopy() {
+        return delegate.asArrayCopy(from, length);
+    }
+
+    @Override
+    public long[] asArrayCopy(final int fromIndex, final int length) {
+        return delegate.asArrayCopy(fromIndex + from, length);
+    }
+
+    @Override
+    public void getLongs(final int srcPos, final ILongArray dest, final int destPos, final int length) {
+        delegate.getLongs(srcPos + from, dest, destPos, length);
     }
 
     @Override

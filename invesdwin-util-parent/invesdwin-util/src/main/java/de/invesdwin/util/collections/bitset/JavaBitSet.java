@@ -166,6 +166,22 @@ public class JavaBitSet implements IBitSet {
     }
 
     @Override
+    public void getBooleans(final int srcPos, final IBitSet dest, final int destPos, final int length) {
+        if (srcPos == destPos) {
+            dest.andRange(destPos, destPos + length, new IBitSet[] { this });
+        } else {
+            for (int i = 0; i < length; i++) {
+                final boolean contains = contains(srcPos + i);
+                if (contains) {
+                    dest.add(destPos + i);
+                } else {
+                    dest.remove(destPos + i);
+                }
+            }
+        }
+    }
+
+    @Override
     public IBitSet unwrap() {
         return this;
     }

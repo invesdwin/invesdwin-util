@@ -46,4 +46,6 @@ public interface IBitSet {
 
     IBitSet unwrap();
 
+    void getBooleans(int srcPos, IBitSet dest, int destPos, int length);
+
 }

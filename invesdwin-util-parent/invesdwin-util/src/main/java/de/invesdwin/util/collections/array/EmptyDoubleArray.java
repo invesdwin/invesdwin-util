@@ -9,12 +9,10 @@ public final class EmptyDoubleArray implements IDoubleArray {
 
     public static final EmptyDoubleArray INSTANCE = new EmptyDoubleArray();
 
-    private EmptyDoubleArray() {
-    }
+    private EmptyDoubleArray() {}
 
     @Override
-    public void set(final int index, final double value) {
-    }
+    public void set(final int index, final double value) {}
 
     @Override
     public double get(final int index) {
@@ -39,6 +37,21 @@ public final class EmptyDoubleArray implements IDoubleArray {
     @Override
     public double[] asArray(final int fromIndex, final int length) {
         return Doubles.EMPTY_ARRAY;
+    }
+
+    @Override
+    public double[] asArrayCopy() {
+        return Doubles.EMPTY_ARRAY;
+    }
+
+    @Override
+    public double[] asArrayCopy(final int fromIndex, final int length) {
+        return Doubles.EMPTY_ARRAY;
+    }
+
+    @Override
+    public void getDoubles(final int srcPos, final IDoubleArray dest, final int destPos, final int length) {
+        //noop
     }
 
     @Override

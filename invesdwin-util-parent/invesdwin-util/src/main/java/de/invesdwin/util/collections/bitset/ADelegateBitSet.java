@@ -5,8 +5,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 @NotThreadSafe
 public abstract class ADelegateBitSet implements IBitSet {
 
-    public ADelegateBitSet() {
-    }
+    public ADelegateBitSet() {}
 
     protected abstract IBitSet getDelegate();
 
@@ -78,6 +77,11 @@ public abstract class ADelegateBitSet implements IBitSet {
     @Override
     public ISkippingIndexProvider newSkippingIndexProvider() {
         return getDelegate().newSkippingIndexProvider();
+    }
+
+    @Override
+    public void getBooleans(final int srcPos, final IBitSet dest, final int destPos, final int length) {
+        getDelegate().getBooleans(srcPos, dest, destPos, length);
     }
 
     @Override

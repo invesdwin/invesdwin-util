@@ -54,6 +54,26 @@ public class HeapBooleanArray implements IBooleanArray {
     }
 
     @Override
+    public boolean[] asArrayCopy() {
+        return values.clone();
+    }
+
+    @Override
+    public boolean[] asArrayCopy(final int fromIndex, final int length) {
+        if (fromIndex == 0 && length == size()) {
+            return asArrayCopy();
+        } else {
+            return Arrays.copyOfRange(values, fromIndex, fromIndex + length);
+        }
+    }
+
+    @Override
+    public void getBooleans(final int srcPos, final IBooleanArray dest, final int destPos, final int length) {
+        final HeapBooleanArray cDest = ((HeapBooleanArray) dest);
+        System.arraycopy(values, srcPos, cDest.values, destPos, length);
+    }
+
+    @Override
     public String toString() {
         return Arrays.toString(asArray(0, Integers.min(ByteBuffers.MAX_TO_STRING_COUNT, size())));
     }

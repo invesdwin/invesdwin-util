@@ -54,14 +54,28 @@ public class HeapLongArray implements ILongArray {
     }
 
     @Override
-    public String toString() {
-        return Arrays.toString(asArray(0, Integers.min(ByteBuffers.MAX_TO_STRING_COUNT, size())));
+    public long[] asArrayCopy() {
+        return values.clone();
     }
 
     @Override
-    public void arrayCopy(final int srcPos, final ILongArray dest, final int destPos, final int length) {
+    public long[] asArrayCopy(final int fromIndex, final int length) {
+        if (fromIndex == 0 && length == size()) {
+            return asArrayCopy();
+        } else {
+            return Arrays.copyOfRange(values, fromIndex, fromIndex + length);
+        }
+    }
+
+    @Override
+    public void getLongs(final int srcPos, final ILongArray dest, final int destPos, final int length) {
         final HeapLongArray cDest = ((HeapLongArray) dest);
         System.arraycopy(values, srcPos, cDest.values, destPos, length);
+    }
+
+    @Override
+    public String toString() {
+        return Arrays.toString(asArray(0, Integers.min(ByteBuffers.MAX_TO_STRING_COUNT, size())));
     }
 
 }

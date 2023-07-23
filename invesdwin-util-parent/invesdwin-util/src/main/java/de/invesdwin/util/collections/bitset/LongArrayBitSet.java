@@ -52,7 +52,7 @@ public class LongArrayBitSet implements IBitSet {
     @Override
     public IBitSet and(final IBitSet... others) {
         final LongArrayBitSetBase combined = new LongArrayBitSetBase(
-                ILongArray.newInstance(bitSet.getWords().asArray()));
+                ILongArray.newInstance(bitSet.getWords().asArrayCopy()));
         for (int i = 0; i < others.length; i++) {
             final IBitSet other = others[i];
             if (other.isEmpty() || combined.isEmpty()) {
@@ -67,7 +67,7 @@ public class LongArrayBitSet implements IBitSet {
     @Override
     public IBitSet andRange(final int fromInclusive, final int toExclusive, final IBitSet[] others) {
         final LongArrayBitSetBase combined = new LongArrayBitSetBase(
-                ILongArray.newInstance(bitSet.getWords().asArray()));
+                ILongArray.newInstance(bitSet.getWords().asArrayCopy()));
         for (int i = 0; i < others.length; i++) {
             final IBitSet other = others[i];
             if (other.isEmpty() || combined.isEmpty()) {
@@ -82,7 +82,7 @@ public class LongArrayBitSet implements IBitSet {
     @Override
     public IBitSet or(final IBitSet... others) {
         final LongArrayBitSetBase combined = new LongArrayBitSetBase(
-                ILongArray.newInstance(bitSet.getWords().asArray()));
+                ILongArray.newInstance(bitSet.getWords().asArrayCopy()));
         for (int i = 0; i < others.length; i++) {
             final IBitSet other = others[i];
             if (other.isEmpty() || combined.isEmpty()) {
@@ -97,7 +97,7 @@ public class LongArrayBitSet implements IBitSet {
     @Override
     public IBitSet orRange(final int fromInclusive, final int toExclusive, final IBitSet[] others) {
         final LongArrayBitSetBase combined = new LongArrayBitSetBase(
-                ILongArray.newInstance(bitSet.getWords().asArray()));
+                ILongArray.newInstance(bitSet.getWords().asArrayCopy()));
         for (int i = 0; i < others.length; i++) {
             final IBitSet other = others[i];
             if (other.isEmpty() || combined.isEmpty()) {
@@ -112,7 +112,7 @@ public class LongArrayBitSet implements IBitSet {
     @Override
     public IBitSet negate() {
         final LongArrayBitSetBase negated = new LongArrayBitSetBase(
-                ILongArray.newInstance(bitSet.getWords().asArray()));
+                ILongArray.newInstance(bitSet.getWords().asArrayCopy()));
         negated.flip(0, expectedSize);
         return new LongArrayBitSet(negated, expectedSize);
     }
@@ -162,6 +162,12 @@ public class LongArrayBitSet implements IBitSet {
                 return next;
             }
         };
+    }
+
+    @Override
+    public void getBooleans(final int srcPos, final IBitSet dest, final int destPos, final int length) {
+        final LongArrayBitSet cDest = (LongArrayBitSet) dest.unwrap();
+        bitSet.getWords().getLongs(srcPos, cDest.bitSet.getWords(), destPos, length);
     }
 
     @Override

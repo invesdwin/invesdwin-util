@@ -16,6 +16,12 @@ public interface IBooleanArray {
 
     boolean[] asArray(int fromIndex, int length);
 
+    boolean[] asArrayCopy();
+
+    boolean[] asArrayCopy(int fromIndex, int length);
+
+    void getBooleans(int srcPos, IBooleanArray dest, int destPos, int length);
+
     static IBooleanArray newInstance(final int size) {
         if (size == 0) {
             return EmptyBooleanArray.INSTANCE;

@@ -14,7 +14,11 @@ public interface ILongArray {
 
     long[] asArray(int fromIndex, int length);
 
-    void arrayCopy(int srcPos, ILongArray dest, int destPos, int length);
+    long[] asArrayCopy();
+
+    long[] asArrayCopy(int fromIndex, int length);
+
+    void getLongs(int srcPos, ILongArray dest, int destPos, int length);
 
     static ILongArray newInstance(final int size) {
         if (size == 0) {

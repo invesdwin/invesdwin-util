@@ -89,6 +89,11 @@ public class BooleanArrayBitSet implements IBitSet {
     }
 
     @Override
+    public void getBooleans(final int srcPos, final IBitSet dest, final int destPos, final int length) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public IBitSet unwrap() {
         return this;
     }

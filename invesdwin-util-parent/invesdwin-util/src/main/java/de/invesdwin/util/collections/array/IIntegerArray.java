@@ -14,6 +14,12 @@ public interface IIntegerArray {
 
     int[] asArray(int fromIndex, int length);
 
+    int[] asArrayCopy();
+
+    int[] asArrayCopy(int fromIndex, int length);
+
+    void getIntegers(int srcPos, IIntegerArray dest, int destPos, int length);
+
     static IIntegerArray newInstance(final int size) {
         if (size == 0) {
             return EmptyIntegerArray.INSTANCE;

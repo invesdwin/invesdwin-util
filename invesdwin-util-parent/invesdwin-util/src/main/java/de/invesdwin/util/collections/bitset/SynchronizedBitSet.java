@@ -129,6 +129,13 @@ public class SynchronizedBitSet implements IBitSet {
     }
 
     @Override
+    public void getBooleans(final int srcPos, final IBitSet dest, final int destPos, final int length) {
+        synchronized (lock) {
+            delegate.getBooleans(srcPos, dest, destPos, length);
+        }
+    }
+
+    @Override
     public IBitSet unwrap() {
         synchronized (lock) {
             return delegate.unwrap();

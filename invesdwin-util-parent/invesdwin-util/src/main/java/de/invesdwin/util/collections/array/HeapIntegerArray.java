@@ -54,6 +54,26 @@ public class HeapIntegerArray implements IIntegerArray {
     }
 
     @Override
+    public int[] asArrayCopy() {
+        return values.clone();
+    }
+
+    @Override
+    public int[] asArrayCopy(final int fromIndex, final int length) {
+        if (fromIndex == 0 && length == size()) {
+            return asArrayCopy();
+        } else {
+            return Arrays.copyOfRange(values, fromIndex, fromIndex + length);
+        }
+    }
+
+    @Override
+    public void getIntegers(final int srcPos, final IIntegerArray dest, final int destPos, final int length) {
+        final HeapIntegerArray cDest = ((HeapIntegerArray) dest);
+        System.arraycopy(values, srcPos, cDest.values, destPos, length);
+    }
+
+    @Override
     public String toString() {
         return Arrays.toString(asArray(0, Integers.min(ByteBuffers.MAX_TO_STRING_COUNT, size())));
     }

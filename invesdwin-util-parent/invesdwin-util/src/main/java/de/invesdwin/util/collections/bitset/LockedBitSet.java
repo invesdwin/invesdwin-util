@@ -177,6 +177,16 @@ public class LockedBitSet implements IBitSet {
     }
 
     @Override
+    public void getBooleans(final int srcPos, final IBitSet dest, final int destPos, final int length) {
+        lock.lock();
+        try {
+            delegate.getBooleans(srcPos, dest, destPos, length);
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
     public IBitSet unwrap() {
         lock.lock();
         try {

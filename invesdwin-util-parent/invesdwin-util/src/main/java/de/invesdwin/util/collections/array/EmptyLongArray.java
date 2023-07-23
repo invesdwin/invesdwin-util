@@ -40,11 +40,23 @@ public final class EmptyLongArray implements ILongArray {
     }
 
     @Override
-    public String toString() {
-        return "[]";
+    public long[] asArrayCopy() {
+        return Longs.EMPTY_ARRAY;
     }
 
     @Override
-    public void arrayCopy(final int srcPos, final ILongArray dest, final int destPos, final int length) {}
+    public long[] asArrayCopy(final int fromIndex, final int length) {
+        return Longs.EMPTY_ARRAY;
+    }
+
+    @Override
+    public void getLongs(final int srcPos, final ILongArray dest, final int destPos, final int length) {
+        //noop
+    }
+
+    @Override
+    public String toString() {
+        return "[]";
+    }
 
 }

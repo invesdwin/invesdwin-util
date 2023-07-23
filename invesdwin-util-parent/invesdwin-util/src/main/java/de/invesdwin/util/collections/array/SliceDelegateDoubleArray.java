@@ -50,6 +50,21 @@ public class SliceDelegateDoubleArray implements IDoubleArray {
     }
 
     @Override
+    public double[] asArrayCopy() {
+        return delegate.asArrayCopy(from, length);
+    }
+
+    @Override
+    public double[] asArrayCopy(final int fromIndex, final int length) {
+        return delegate.asArrayCopy(fromIndex + from, length);
+    }
+
+    @Override
+    public void getDoubles(final int srcPos, final IDoubleArray dest, final int destPos, final int length) {
+        delegate.getDoubles(srcPos + from, dest, destPos, length);
+    }
+
+    @Override
     public String toString() {
         return Arrays.toString(asArray(0, Integers.min(ByteBuffers.MAX_TO_STRING_COUNT, size())));
     }

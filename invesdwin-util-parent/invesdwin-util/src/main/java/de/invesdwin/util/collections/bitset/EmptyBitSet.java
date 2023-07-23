@@ -108,6 +108,11 @@ public class EmptyBitSet implements IBitSet {
     }
 
     @Override
+    public void getBooleans(final int srcPos, final IBitSet values, final int destPos, final int length) {
+        //noop
+    }
+
+    @Override
     public IBitSet unwrap() {
         return this;
     }

@@ -1,5 +1,7 @@
 package de.invesdwin.util.collections.bitset;
 
+import java.util.NoSuchElementException;
+
 import javax.annotation.concurrent.NotThreadSafe;
 
 import org.roaringbitmap.FastAggregation;
@@ -185,6 +187,33 @@ public class RoaringBitSet implements IBitSet {
                 return cur;
             }
         };
+    }
+
+    @Override
+    public void getBooleans(final int srcPos, final IBitSet dest, final int destPos, final int length) {
+        if (srcPos == destPos) {
+            dest.andRange(destPos, destPos + length, new IBitSet[] { this });
+        } else {
+            final RoaringBitSet cValues = (RoaringBitSet) dest;
+            final int target = destPos + length;
+            cValues.bitSet.remove(destPos, target);
+            final PeekableIntIterator iterator = bitSet.getIntIterator();
+            iterator.advanceIfNeeded(srcPos);
+            final int difference = destPos - srcPos;
+            try {
+                while (true) {
+                    final int index = iterator.next();
+                    final int cur = index + difference;
+                    if (cur > destPos) {
+                        break;
+                    } else {
+                        cValues.bitSet.add(cur);
+                    }
+                }
+            } catch (final NoSuchElementException e) {
+                //end reached
+            }
+        }
     }
 
     @Override
