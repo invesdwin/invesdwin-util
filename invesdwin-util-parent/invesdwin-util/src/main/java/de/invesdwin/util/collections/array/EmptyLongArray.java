@@ -44,4 +44,7 @@ public final class EmptyLongArray implements ILongArray {
         return "[]";
     }
 
+    @Override
+    public void arrayCopy(final int srcPos, final ILongArray dest, final int destPos, final int length) {}
+
 }

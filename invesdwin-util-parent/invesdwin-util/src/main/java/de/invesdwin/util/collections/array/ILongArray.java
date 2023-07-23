@@ -14,6 +14,8 @@ public interface ILongArray {
 
     long[] asArray(int fromIndex, int length);
 
+    void arrayCopy(int srcPos, ILongArray dest, int destPos, int length);
+
     static ILongArray newInstance(final int size) {
         if (size == 0) {
             return EmptyLongArray.INSTANCE;

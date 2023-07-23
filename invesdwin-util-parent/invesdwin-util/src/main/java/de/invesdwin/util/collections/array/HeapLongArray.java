@@ -58,4 +58,10 @@ public class HeapLongArray implements ILongArray {
         return Arrays.toString(asArray(0, Integers.min(ByteBuffers.MAX_TO_STRING_COUNT, size())));
     }
 
+    @Override
+    public void arrayCopy(final int srcPos, final ILongArray dest, final int destPos, final int length) {
+        final HeapLongArray cDest = ((HeapLongArray) dest);
+        System.arraycopy(values, srcPos, cDest.values, destPos, length);
+    }
+
 }

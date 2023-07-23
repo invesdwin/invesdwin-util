@@ -50,6 +50,11 @@ public class SliceDelegateLongArray implements ILongArray {
     }
 
     @Override
+    public void arrayCopy(final int srcPos, final ILongArray dest, final int destPos, final int length) {
+        delegate.arrayCopy(srcPos + from, dest, destPos, length);
+    }
+
+    @Override
     public String toString() {
         return Arrays.toString(asArray(0, Integers.min(ByteBuffers.MAX_TO_STRING_COUNT, size())));
     }
