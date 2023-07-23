@@ -2,6 +2,8 @@ package de.invesdwin.util.collections.bitset;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.util.collections.array.ILongArray;
+
 @NotThreadSafe
 public class LongArrayBitSet implements IBitSet {
 
@@ -49,70 +51,70 @@ public class LongArrayBitSet implements IBitSet {
 
     @Override
     public IBitSet and(final IBitSet... others) {
-        //        final BitSet combined = (BitSet) bitSet.clone();
-        //        for (int i = 0; i < others.length; i++) {
-        //            final IBitSet other = others[i];
-        //            if (other.isEmpty() || combined.isEmpty()) {
-        //                return EmptyBitSet.INSTANCE;
-        //            }
-        //            final JavaBitSet cOther = (JavaBitSet) other.unwrap();
-        //            combined.and(cOther.bitSet);
-        //        }
-        //        return new JavaBitSet(combined, expectedSize);
-        return null;
+        final LongArrayBitSetBase combined = new LongArrayBitSetBase(
+                ILongArray.newInstance(bitSet.getWords().asArray()));
+        for (int i = 0; i < others.length; i++) {
+            final IBitSet other = others[i];
+            if (other.isEmpty() || combined.isEmpty()) {
+                return EmptyBitSet.INSTANCE;
+            }
+            final LongArrayBitSet cOther = (LongArrayBitSet) other.unwrap();
+            combined.and(cOther.bitSet);
+        }
+        return new LongArrayBitSet(combined, expectedSize);
     }
 
     @Override
     public IBitSet andRange(final int fromInclusive, final int toExclusive, final IBitSet[] others) {
-        //        final BitSet combined = (BitSet) bitSet.clone();
-        //        for (int i = 0; i < others.length; i++) {
-        //            final IBitSet other = others[i];
-        //            if (other.isEmpty() || combined.isEmpty()) {
-        //                return EmptyBitSet.INSTANCE;
-        //            }
-        //            final JavaBitSet cOther = (JavaBitSet) other.unwrap();
-        //            BitSets.andRangeFast(combined, cOther.bitSet, fromInclusive, toExclusive);
-        //        }
-        //        return new JavaBitSet(combined, expectedSize);
-        return null;
+        final LongArrayBitSetBase combined = new LongArrayBitSetBase(
+                ILongArray.newInstance(bitSet.getWords().asArray()));
+        for (int i = 0; i < others.length; i++) {
+            final IBitSet other = others[i];
+            if (other.isEmpty() || combined.isEmpty()) {
+                return EmptyBitSet.INSTANCE;
+            }
+            final LongArrayBitSet cOther = (LongArrayBitSet) other.unwrap();
+            combined.andRangeFast(cOther.bitSet, fromInclusive, toExclusive);
+        }
+        return new LongArrayBitSet(combined, expectedSize);
     }
 
     @Override
     public IBitSet or(final IBitSet... others) {
-        //        final BitSet combined = (BitSet) bitSet.clone();
-        //        for (int i = 0; i < others.length; i++) {
-        //            final IBitSet other = others[i];
-        //            if (other.isEmpty() || combined.isEmpty()) {
-        //                continue;
-        //            }
-        //            final JavaBitSet cOther = (JavaBitSet) other.unwrap();
-        //            combined.or(cOther.bitSet);
-        //        }
-        //        return new JavaBitSet(combined, expectedSize);
-        return null;
+        final LongArrayBitSetBase combined = new LongArrayBitSetBase(
+                ILongArray.newInstance(bitSet.getWords().asArray()));
+        for (int i = 0; i < others.length; i++) {
+            final IBitSet other = others[i];
+            if (other.isEmpty() || combined.isEmpty()) {
+                continue;
+            }
+            final LongArrayBitSet cOther = (LongArrayBitSet) other.unwrap();
+            combined.or(cOther.bitSet);
+        }
+        return new LongArrayBitSet(combined, expectedSize);
     }
 
     @Override
     public IBitSet orRange(final int fromInclusive, final int toExclusive, final IBitSet[] others) {
-        //        final BitSet combined = (BitSet) bitSet.clone();
-        //        for (int i = 0; i < others.length; i++) {
-        //            final IBitSet other = others[i];
-        //            if (other.isEmpty() || combined.isEmpty()) {
-        //                continue;
-        //            }
-        //            final JavaBitSet cOther = (JavaBitSet) other.unwrap();
-        //            BitSets.orRangeFast(combined, cOther.bitSet, fromInclusive, toExclusive);
-        //        }
-        //        return new JavaBitSet(combined, expectedSize);
-        return null;
+        final LongArrayBitSetBase combined = new LongArrayBitSetBase(
+                ILongArray.newInstance(bitSet.getWords().asArray()));
+        for (int i = 0; i < others.length; i++) {
+            final IBitSet other = others[i];
+            if (other.isEmpty() || combined.isEmpty()) {
+                continue;
+            }
+            final LongArrayBitSet cOther = (LongArrayBitSet) other.unwrap();
+            combined.orRangeFast(cOther.bitSet, fromInclusive, toExclusive);
+        }
+        return new LongArrayBitSet(combined, expectedSize);
     }
 
     @Override
     public IBitSet negate() {
-        //        final BitSet negated = (BitSet) bitSet.clone();
-        //        negated.flip(0, expectedSize);
-        //        return new JavaBitSet(negated, expectedSize);
-        return null;
+        final LongArrayBitSetBase negated = new LongArrayBitSetBase(
+                ILongArray.newInstance(bitSet.getWords().asArray()));
+        negated.flip(0, expectedSize);
+        return new LongArrayBitSet(negated, expectedSize);
     }
 
     @Override

@@ -10,6 +10,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.array.ILongArray;
+import de.invesdwin.util.math.Integers;
 
 /**
  * Adapted from java.util.BitSet to use a custom ILongArray storage for off-heap and memory memory storage.
@@ -39,6 +40,10 @@ public class LongArrayBitSetBase {
         this.words = words;
         this.wordsInUse = words.size();
         checkInvariants();
+    }
+
+    public ILongArray getWords() {
+        return words;
     }
 
     private void checkInvariants() {
@@ -735,6 +740,99 @@ public class LongArrayBitSetBase {
                 return -1;
             }
             word = words.get(u);
+        }
+    }
+
+    /************************** EXTENSIONS ***************************/
+
+    public void andRangeFast(final LongArrayBitSetBase other, final int fromInclusive, final int toExclusive) {
+        //        public void and(BitSet set) {
+        //            if (this == set)
+        //                return;
+        if (this == other) {
+            return;
+        }
+        //
+        try {
+            final int otherWordsInUse = other.wordsInUse;
+            final ILongArray otherWords = other.words;
+            //            while (wordsInUse > set.wordsInUse)
+            //                words[--wordsInUse] = 0;
+            final int toWordExclusive = Integers.min(wordsInUse, wordIndex(toExclusive) + 1, otherWordsInUse);
+
+            final int fromWord = wordIndex(fromInclusive);
+            if (toWordExclusive != wordsInUse) {
+                wordsInUse = toWordExclusive;
+            }
+            //
+            //            // Perform logical AND on words in common
+            //            for (int i = 0; i < wordsInUse; i++)
+            //                words[i] &= set.words[i];
+
+            for (int i = fromWord; i < toWordExclusive; i++) {
+                words.set(i, words.get(i) & otherWords.get(i));
+            }
+            //
+            //            recalculateWordsInUse();
+            recalculateWordsInUse();
+            //            checkInvariants();
+            //skipping that method
+            //        }
+        } catch (final Throwable e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void orRangeFast(final LongArrayBitSetBase other, final int fromInclusive, final int toExclusive) {
+        //        public void or(BitSet set) {
+        //            if (this == set)
+        //                return;
+        if (this == other) {
+            return;
+        }
+        try {
+            final int otherWordsInUse = other.wordsInUse;
+            final ILongArray otherWords = other.words;
+            //        int wordsInCommon = Math.min(wordsInUse, set.wordsInUse);
+            final int wordsInCommon = Math.min(wordsInUse, otherWordsInUse);
+
+            //        if (wordsInUse < set.wordsInUse) {
+            //            ensureCapacity(set.wordsInUse);
+            //            wordsInUse = set.wordsInUse;
+            //        }
+            if (wordsInUse < otherWordsInUse) {
+                ensureCapacity(otherWordsInUse);
+                wordsInUse = otherWordsInUse;
+            }
+            // Perform logical OR on words in common
+            //        for (int i = 0; i < wordsInCommon; i++)
+            //            words[i] |= set.words[i];
+            final int fromWord = wordIndex(fromInclusive);
+            final int toWordInCommonExclusive = Integers.min(wordIndex(toExclusive) + 1, wordsInCommon);
+            for (int i = fromWord; i < toWordInCommonExclusive; i++) {
+                words.set(i, words.get(i) | otherWords.get(i));
+            }
+
+            final int toWordExclusive = Integers.min(wordIndex(toExclusive) + 1,
+                    Integers.max(wordsInUse, otherWordsInUse));
+            // Copy any remaining words
+            //        if (wordsInCommon < set.wordsInUse)
+            //            System.arraycopy(set.words, wordsInCommon,
+            //                             words, wordsInCommon,
+            //                             wordsInUse - wordsInCommon);
+            if (wordsInCommon < toWordExclusive) {
+                System.arraycopy(otherWords, wordsInCommon, words, wordsInCommon, wordsInUse - toWordExclusive);
+            }
+            if (toWordExclusive != wordsInUse) {
+                wordsInUse = toWordExclusive;
+            }
+
+            //         recalculateWordsInUse() is unnecessary
+            //        checkInvariants();
+            //skipping that method
+
+        } catch (final Throwable e) {
+            throw new RuntimeException(e);
         }
     }
 
