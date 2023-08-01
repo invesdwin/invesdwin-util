@@ -654,6 +654,17 @@ public final class FDates {
         return a.compareToNotNullSafe(b);
     }
 
+    public static int compareInvertNull(final FDate a, final FDate b) {
+        if (a == null && b == null) {
+            return 0;
+        } else if (a == null) {
+            return 1;
+        } else if (b == null) {
+            return -1;
+        }
+        return a.compareToNotNullSafe(b);
+    }
+
     public static int compareNotNullSafe(final FDate a, final FDate b) {
         return a.compareToNotNullSafe(b);
     }
