@@ -419,31 +419,6 @@ public final class Integers extends AIntegersStaticFacade {
         return compare(a, b.intValue());
     }
 
-    public static int compareInvertNull(final Integer a, final Integer b) {
-        if (a == null && b == null) {
-            return 0;
-        } else if (a == null) {
-            return 1;
-        } else if (b == null) {
-            return -1;
-        }
-        return compare(a.intValue(), b.intValue());
-    }
-
-    public static int compareInvertNull(final Integer a, final int b) {
-        if (a == null) {
-            return 1;
-        }
-        return compare(a.intValue(), b);
-    }
-
-    public static int compareInvertNull(final int a, final Integer b) {
-        if (b == null) {
-            return -1;
-        }
-        return compare(a, b.intValue());
-    }
-
     public static int compare(final int a, final int b) {
         return Integer.compare(a, b);
     }
