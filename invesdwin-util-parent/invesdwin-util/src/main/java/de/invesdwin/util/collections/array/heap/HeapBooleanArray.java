@@ -1,10 +1,13 @@
-package de.invesdwin.util.collections.array;
+package de.invesdwin.util.collections.array.heap;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.collections.Arrays;
+import de.invesdwin.util.collections.array.IBooleanArray;
+import de.invesdwin.util.collections.array.SliceDelegateBooleanArray;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
+import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 
 @NotThreadSafe
 public class HeapBooleanArray implements IBooleanArray {
@@ -76,6 +79,12 @@ public class HeapBooleanArray implements IBooleanArray {
     @Override
     public String toString() {
         return Arrays.toString(asArray(0, Integers.min(ByteBuffers.MAX_TO_STRING_COUNT, size())));
+    }
+
+    @Override
+    public int toBuffer(final IByteBuffer buffer) {
+        System.out.println("TODO");
+        return 0;
     }
 
 }

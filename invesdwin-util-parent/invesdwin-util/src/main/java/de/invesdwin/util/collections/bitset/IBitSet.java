@@ -1,5 +1,7 @@
 package de.invesdwin.util.collections.bitset;
 
+import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
+
 public interface IBitSet {
 
     void add(int index);
@@ -47,5 +49,7 @@ public interface IBitSet {
     IBitSet unwrap();
 
     void getBooleans(int srcPos, IBitSet dest, int destPos, int length);
+
+    int toBuffer(IByteBuffer buffer);
 
 }

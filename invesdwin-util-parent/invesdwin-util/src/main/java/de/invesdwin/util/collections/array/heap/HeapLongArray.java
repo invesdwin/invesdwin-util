@@ -1,31 +1,34 @@
-package de.invesdwin.util.collections.array;
+package de.invesdwin.util.collections.array.heap;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.collections.Arrays;
+import de.invesdwin.util.collections.array.ILongArray;
+import de.invesdwin.util.collections.array.SliceDelegateLongArray;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
+import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 
 @NotThreadSafe
-public class HeapDoubleArray implements IDoubleArray {
+public class HeapLongArray implements ILongArray {
 
-    private final double[] values;
+    private final long[] values;
 
-    public HeapDoubleArray(final int size) {
-        this.values = new double[size];
+    public HeapLongArray(final int size) {
+        this.values = new long[size];
     }
 
-    public HeapDoubleArray(final double[] values) {
+    public HeapLongArray(final long[] values) {
         this.values = values;
     }
 
     @Override
-    public void set(final int index, final double value) {
+    public void set(final int index, final long value) {
         values[index] = value;
     }
 
     @Override
-    public double get(final int index) {
+    public long get(final int index) {
         return values[index];
     }
 
@@ -35,17 +38,17 @@ public class HeapDoubleArray implements IDoubleArray {
     }
 
     @Override
-    public IDoubleArray slice(final int fromIndex, final int length) {
-        return new SliceDelegateDoubleArray(this, fromIndex, length);
+    public ILongArray slice(final int fromIndex, final int length) {
+        return new SliceDelegateLongArray(this, fromIndex, length);
     }
 
     @Override
-    public double[] asArray() {
+    public long[] asArray() {
         return values;
     }
 
     @Override
-    public double[] asArray(final int fromIndex, final int length) {
+    public long[] asArray(final int fromIndex, final int length) {
         if (fromIndex == 0 && length == size()) {
             return asArray();
         } else {
@@ -54,12 +57,12 @@ public class HeapDoubleArray implements IDoubleArray {
     }
 
     @Override
-    public double[] asArrayCopy() {
+    public long[] asArrayCopy() {
         return values.clone();
     }
 
     @Override
-    public double[] asArrayCopy(final int fromIndex, final int length) {
+    public long[] asArrayCopy(final int fromIndex, final int length) {
         if (fromIndex == 0 && length == size()) {
             return asArrayCopy();
         } else {
@@ -68,14 +71,20 @@ public class HeapDoubleArray implements IDoubleArray {
     }
 
     @Override
-    public void getDoubles(final int srcPos, final IDoubleArray dest, final int destPos, final int length) {
-        final HeapDoubleArray cDest = ((HeapDoubleArray) dest);
+    public void getLongs(final int srcPos, final ILongArray dest, final int destPos, final int length) {
+        final HeapLongArray cDest = ((HeapLongArray) dest);
         System.arraycopy(values, srcPos, cDest.values, destPos, length);
     }
 
     @Override
     public String toString() {
         return Arrays.toString(asArray(0, Integers.min(ByteBuffers.MAX_TO_STRING_COUNT, size())));
+    }
+
+    @Override
+    public int toBuffer(final IByteBuffer buffer) {
+        System.out.println("TODO");
+        return 0;
     }
 
 }

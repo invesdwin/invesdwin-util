@@ -2,6 +2,8 @@ package de.invesdwin.util.collections.bitset;
 
 import javax.annotation.concurrent.ThreadSafe;
 
+import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
+
 @ThreadSafe
 public class SynchronizedBitSet implements IBitSet {
 
@@ -140,6 +142,11 @@ public class SynchronizedBitSet implements IBitSet {
         synchronized (lock) {
             return delegate.unwrap();
         }
+    }
+
+    @Override
+    public int toBuffer(final IByteBuffer buffer) {
+        throw new UnsupportedOperationException();
     }
 
 }

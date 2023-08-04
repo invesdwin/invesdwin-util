@@ -1,41 +1,42 @@
-package de.invesdwin.util.collections.array;
+package de.invesdwin.util.collections.array.buffer;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.collections.Arrays;
-import de.invesdwin.util.collections.bitset.IBitSet;
-import de.invesdwin.util.collections.factory.ILockCollectionFactory;
-import de.invesdwin.util.math.Booleans;
+import de.invesdwin.util.collections.array.BitSetBooleanArray;
+import de.invesdwin.util.collections.array.IBooleanArray;
+import de.invesdwin.util.collections.array.SliceDelegateBooleanArray;
+import de.invesdwin.util.collections.bitset.LongArrayBitSet;
+import de.invesdwin.util.collections.bitset.LongArrayBitSetBase;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 
 @NotThreadSafe
-public class BitSetBooleanArray implements IBooleanArray {
+public class BufferBooleanArray implements IBooleanArray {
 
-    private final IBitSet values;
+    private final IByteBuffer buffer;
+    private final BitSetBooleanArray delegate;
 
-    public BitSetBooleanArray(final int size) {
-        this.values = ILockCollectionFactory.getInstance(false).newBitSet(size);
-    }
-
-    public BitSetBooleanArray(final IBitSet values) {
-        this.values = values;
+    public BufferBooleanArray(final IByteBuffer buffer) {
+        this.buffer = buffer;
+        final LongArrayBitSetBase bitSet = new LongArrayBitSetBase(new BufferLongArray(buffer));
+        this.delegate = new BitSetBooleanArray(new LongArrayBitSet(bitSet, bitSet.cardinality()));
     }
 
     @Override
     public void set(final int index, final boolean value) {
-        values.add(index);
+        delegate.set(index, value);
     }
 
     @Override
     public boolean get(final int index) {
-        return values.contains(index);
+        return delegate.get(index);
     }
 
     @Override
     public int size() {
-        return values.getExpectedSize();
+        return delegate.size();
     }
 
     @Override
@@ -45,33 +46,27 @@ public class BitSetBooleanArray implements IBooleanArray {
 
     @Override
     public boolean[] asArray() {
-        return asArrayCopy();
+        return delegate.asArray();
     }
 
     @Override
     public boolean[] asArray(final int fromIndex, final int length) {
-        return asArrayCopy(fromIndex, length);
+        return delegate.asArray(fromIndex, length);
     }
 
     @Override
     public boolean[] asArrayCopy() {
-        return Booleans.checkedCastVector(values);
+        return delegate.asArrayCopy();
     }
 
     @Override
     public boolean[] asArrayCopy(final int fromIndex, final int length) {
-        final boolean[] vector = new boolean[length];
-        final int limit = fromIndex + length;
-        for (int i = fromIndex; i < limit; i++) {
-            vector[i] = values.contains(i);
-        }
-        return vector;
+        return delegate.asArrayCopy(fromIndex, length);
     }
 
     @Override
     public void getBooleans(final int srcPos, final IBooleanArray dest, final int destPos, final int length) {
-        final BitSetBooleanArray cDest = ((BitSetBooleanArray) dest);
-        values.getBooleans(srcPos, cDest.values, destPos, length);
+        delegate.getBooleans(srcPos, dest, destPos, length);
     }
 
     @Override
@@ -79,13 +74,10 @@ public class BitSetBooleanArray implements IBooleanArray {
         return Arrays.toString(asArray(0, Integers.min(ByteBuffers.MAX_TO_STRING_COUNT, size())));
     }
 
-    public IBitSet getValues() {
-        return values;
-    }
-
     @Override
     public int toBuffer(final IByteBuffer buffer) {
-        return values.toBuffer(buffer);
+        buffer.putBytes(0, this.buffer);
+        return this.buffer.capacity();
     }
 
 }

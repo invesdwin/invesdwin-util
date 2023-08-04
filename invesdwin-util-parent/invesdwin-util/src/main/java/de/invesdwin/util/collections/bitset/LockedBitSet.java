@@ -4,6 +4,7 @@ import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.concurrent.lock.ILock;
 import de.invesdwin.util.concurrent.lock.Locks;
+import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 
 @ThreadSafe
 public class LockedBitSet implements IBitSet {
@@ -191,6 +192,16 @@ public class LockedBitSet implements IBitSet {
         lock.lock();
         try {
             return delegate.unwrap();
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
+    public int toBuffer(final IByteBuffer buffer) {
+        lock.lock();
+        try {
+            return delegate.toBuffer(buffer);
         } finally {
             lock.unlock();
         }

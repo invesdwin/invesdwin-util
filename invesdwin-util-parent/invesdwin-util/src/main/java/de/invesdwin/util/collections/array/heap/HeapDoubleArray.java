@@ -1,31 +1,34 @@
-package de.invesdwin.util.collections.array;
+package de.invesdwin.util.collections.array.heap;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.collections.Arrays;
+import de.invesdwin.util.collections.array.IDoubleArray;
+import de.invesdwin.util.collections.array.SliceDelegateDoubleArray;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
+import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 
 @NotThreadSafe
-public class HeapIntegerArray implements IIntegerArray {
+public class HeapDoubleArray implements IDoubleArray {
 
-    private final int[] values;
+    private final double[] values;
 
-    public HeapIntegerArray(final int size) {
-        this.values = new int[size];
+    public HeapDoubleArray(final int size) {
+        this.values = new double[size];
     }
 
-    public HeapIntegerArray(final int[] values) {
+    public HeapDoubleArray(final double[] values) {
         this.values = values;
     }
 
     @Override
-    public void set(final int index, final int value) {
+    public void set(final int index, final double value) {
         values[index] = value;
     }
 
     @Override
-    public int get(final int index) {
+    public double get(final int index) {
         return values[index];
     }
 
@@ -35,17 +38,17 @@ public class HeapIntegerArray implements IIntegerArray {
     }
 
     @Override
-    public IIntegerArray slice(final int fromIndex, final int length) {
-        return new SliceDelegateIntegerArray(this, fromIndex, length);
+    public IDoubleArray slice(final int fromIndex, final int length) {
+        return new SliceDelegateDoubleArray(this, fromIndex, length);
     }
 
     @Override
-    public int[] asArray() {
+    public double[] asArray() {
         return values;
     }
 
     @Override
-    public int[] asArray(final int fromIndex, final int length) {
+    public double[] asArray(final int fromIndex, final int length) {
         if (fromIndex == 0 && length == size()) {
             return asArray();
         } else {
@@ -54,12 +57,12 @@ public class HeapIntegerArray implements IIntegerArray {
     }
 
     @Override
-    public int[] asArrayCopy() {
+    public double[] asArrayCopy() {
         return values.clone();
     }
 
     @Override
-    public int[] asArrayCopy(final int fromIndex, final int length) {
+    public double[] asArrayCopy(final int fromIndex, final int length) {
         if (fromIndex == 0 && length == size()) {
             return asArrayCopy();
         } else {
@@ -68,14 +71,20 @@ public class HeapIntegerArray implements IIntegerArray {
     }
 
     @Override
-    public void getIntegers(final int srcPos, final IIntegerArray dest, final int destPos, final int length) {
-        final HeapIntegerArray cDest = ((HeapIntegerArray) dest);
+    public void getDoubles(final int srcPos, final IDoubleArray dest, final int destPos, final int length) {
+        final HeapDoubleArray cDest = ((HeapDoubleArray) dest);
         System.arraycopy(values, srcPos, cDest.values, destPos, length);
     }
 
     @Override
     public String toString() {
         return Arrays.toString(asArray(0, Integers.min(ByteBuffers.MAX_TO_STRING_COUNT, size())));
+    }
+
+    @Override
+    public int toBuffer(final IByteBuffer buffer) {
+        System.out.println("TODO");
+        return 0;
     }
 
 }

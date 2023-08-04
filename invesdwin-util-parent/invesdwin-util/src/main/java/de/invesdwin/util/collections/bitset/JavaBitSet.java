@@ -5,6 +5,7 @@ import java.util.BitSet;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.math.BitSets;
+import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 
 @NotThreadSafe
 public class JavaBitSet implements IBitSet {
@@ -184,6 +185,12 @@ public class JavaBitSet implements IBitSet {
     @Override
     public IBitSet unwrap() {
         return this;
+    }
+
+    @Override
+    public int toBuffer(final IByteBuffer buffer) {
+        System.out.println("TODO");
+        return 0;
     }
 
 }

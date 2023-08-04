@@ -9,6 +9,7 @@ import org.roaringbitmap.PeekableIntIterator;
 import org.roaringbitmap.RoaringBitmap;
 
 import de.invesdwin.util.collections.iterable.collection.ArrayCloseableIterator;
+import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 
 @NotThreadSafe
 public class RoaringBitSet implements IBitSet {
@@ -219,6 +220,11 @@ public class RoaringBitSet implements IBitSet {
     @Override
     public IBitSet unwrap() {
         return this;
+    }
+
+    @Override
+    public int toBuffer(final IByteBuffer buffer) {
+        throw new UnsupportedOperationException();
     }
 
 }
