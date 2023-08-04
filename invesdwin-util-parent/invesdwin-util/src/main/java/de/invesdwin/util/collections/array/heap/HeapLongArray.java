@@ -83,8 +83,10 @@ public class HeapLongArray implements ILongArray {
 
     @Override
     public int toBuffer(final IByteBuffer buffer) {
-        System.out.println("TODO");
-        return 0;
+        for (int i = 0; i < size(); i++) {
+            buffer.putDouble(i * Long.BYTES, get(i));
+        }
+        return size() * Long.BYTES;
     }
 
 }

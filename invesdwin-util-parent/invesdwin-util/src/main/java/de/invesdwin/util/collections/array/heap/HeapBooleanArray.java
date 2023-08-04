@@ -3,6 +3,7 @@ package de.invesdwin.util.collections.array.heap;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.collections.Arrays;
+import de.invesdwin.util.collections.array.BitSetBooleanArray;
 import de.invesdwin.util.collections.array.IBooleanArray;
 import de.invesdwin.util.collections.array.SliceDelegateBooleanArray;
 import de.invesdwin.util.math.Integers;
@@ -83,8 +84,12 @@ public class HeapBooleanArray implements IBooleanArray {
 
     @Override
     public int toBuffer(final IByteBuffer buffer) {
-        System.out.println("TODO");
-        return 0;
+        //always save as long array
+        final BitSetBooleanArray delegate = new BitSetBooleanArray(size());
+        for (int i = 0; i < size(); i++) {
+            delegate.set(i, get(i));
+        }
+        return delegate.toBuffer(buffer);
     }
 
 }
