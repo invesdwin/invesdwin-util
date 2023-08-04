@@ -4,6 +4,10 @@ import java.util.BitSet;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.util.collections.Arrays;
+import de.invesdwin.util.collections.array.buffer.BufferBooleanArray;
+import de.invesdwin.util.collections.array.heap.HeapLongArray;
+import de.invesdwin.util.lang.reflection.Reflections;
 import de.invesdwin.util.math.BitSets;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 
@@ -187,10 +191,17 @@ public class JavaBitSet implements IBitSet {
         return this;
     }
 
+    @SuppressWarnings("restriction")
     @Override
     public int toBuffer(final IByteBuffer buffer) {
-        System.out.println("TODO");
-        return 0;
+        buffer.putInt(BufferBooleanArray.LENGTH_INDEX, expectedSize);
+        long[] words = (long[]) Reflections.getUnsafe().getObject(bitSet, BitSets.BITSET_WORDS_OFFSET);
+        final int wordsInUse = (int) Reflections.getUnsafe().getObject(bitSet, BitSets.BITSET_WORDS_IN_USE_OFFSET);
+        if (words.length > wordsInUse) {
+            words = Arrays.copyOfRange(words, 0, wordsInUse);
+        }
+        final HeapLongArray delegate = new HeapLongArray(words);
+        return delegate.toBuffer(buffer.sliceFrom(BufferBooleanArray.ARRAY_INDEX));
     }
 
 }

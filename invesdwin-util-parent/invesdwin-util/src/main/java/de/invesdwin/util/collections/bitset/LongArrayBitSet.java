@@ -3,6 +3,7 @@ package de.invesdwin.util.collections.bitset;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.collections.array.ILongArray;
+import de.invesdwin.util.collections.array.buffer.BufferBooleanArray;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 
 @NotThreadSafe
@@ -178,7 +179,8 @@ public class LongArrayBitSet implements IBitSet {
 
     @Override
     public int toBuffer(final IByteBuffer buffer) {
-        return bitSet.getWords().toBuffer(buffer);
+        buffer.putInt(BufferBooleanArray.LENGTH_INDEX, expectedSize);
+        return bitSet.getWords().toBuffer(buffer.sliceFrom(BufferBooleanArray.ARRAY_INDEX));
     }
 
 }

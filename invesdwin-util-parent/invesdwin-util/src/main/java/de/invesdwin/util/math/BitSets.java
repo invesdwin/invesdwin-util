@@ -25,9 +25,9 @@ public final class BitSets extends ABitSetsStaticFacade {
     public static final int BITS_PER_WORD;
     public static final int BIT_INDEX_MASK;
 
-    private static final long BITSET_WORDS_OFFSET;
-    private static final long BITSET_WORDS_IN_USE_OFFSET;
-    private static final long BITSET_SIZE_IS_STICKY_OFFSET;
+    public static final long BITSET_WORDS_OFFSET;
+    public static final long BITSET_WORDS_IN_USE_OFFSET;
+    public static final long BITSET_SIZE_IS_STICKY_OFFSET;
 
     static {
         try {

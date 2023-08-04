@@ -15,13 +15,19 @@ import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 @NotThreadSafe
 public class BufferBooleanArray implements IBooleanArray {
 
+    public static final int LENGTH_INDEX = 0;
+    public static final int LENGTH_SIZE = Integer.BYTES;
+
+    public static final int ARRAY_INDEX = LENGTH_INDEX + LENGTH_SIZE;
+
     private final IByteBuffer buffer;
     private final BitSetBooleanArray delegate;
 
     public BufferBooleanArray(final IByteBuffer buffer) {
         this.buffer = buffer;
-        final LongArrayBitSetBase bitSet = new LongArrayBitSetBase(new BufferLongArray(buffer));
-        this.delegate = new BitSetBooleanArray(new LongArrayBitSet(bitSet, bitSet.cardinality()));
+        final int expectedSize = buffer.getInt(LENGTH_INDEX);
+        final LongArrayBitSetBase bitSet = new LongArrayBitSetBase(new BufferLongArray(buffer.sliceFrom(ARRAY_INDEX)));
+        this.delegate = new BitSetBooleanArray(new LongArrayBitSet(bitSet, expectedSize));
     }
 
     @Override
