@@ -178,8 +178,7 @@ public class LongArrayBitSet implements IBitSet {
 
     @Override
     public int toBuffer(final IByteBuffer buffer) {
-        System.out.println("TODO");
-        return 0;
+        return bitSet.getWords().toBuffer(buffer);
     }
 
 }
