@@ -75,7 +75,7 @@ public class BufferDoubleArray implements IDoubleArray {
 
     @Override
     public int toBuffer(final IByteBuffer buffer) {
-        buffer.putBytes(0, this.buffer);
+        this.buffer.getBytes(0, buffer);
         return this.buffer.capacity();
     }
 
