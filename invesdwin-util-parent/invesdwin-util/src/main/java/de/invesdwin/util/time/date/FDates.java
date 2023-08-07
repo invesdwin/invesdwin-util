@@ -8,6 +8,7 @@ import java.util.function.Function;
 
 import javax.annotation.concurrent.ThreadSafe;
 
+import de.invesdwin.util.collections.array.IGenericArray;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.error.FastNoSuchElementException;
@@ -565,6 +566,45 @@ public final class FDates {
             lo = lo - 1;
         }
         final FDate loKey = keys[lo];
+        if (loKey.isAfterNotNullSafe(skippingKeysAbove)) {
+            //no duplicate key handling needed because this is the last value before the actual requested key
+            final int index = lo - 1;
+            return index;
+        } else {
+            return duplicateKeyHandling.apply(keys, lo, loKey);
+        }
+    }
+
+    public static int bisect(final IGenericArray<? extends FDate> keys, final FDate skippingKeysAbove,
+            final BisectDuplicateKeyHandling duplicateKeyHandling) {
+        int lo = 0;
+        int hi = keys.size();
+        while (lo < hi) {
+            // same as (low+high)/2
+            final int mid = (lo + hi) >>> 1;
+            //if (x < list.get(mid)) {
+            final FDate midKey = keys.get(mid);
+            final int compareTo = midKey.compareToNotNullSafe(skippingKeysAbove);
+            switch (compareTo) {
+            case MISSING_INDEX:
+                lo = mid + 1;
+                break;
+            case 0:
+                return duplicateKeyHandling.apply(keys, mid, midKey);
+            case 1:
+                hi = mid;
+                break;
+            default:
+                throw UnknownArgumentException.newInstance(Integer.class, compareTo);
+            }
+        }
+        if (lo <= 0) {
+            return 0;
+        }
+        if (lo >= keys.size()) {
+            lo = lo - 1;
+        }
+        final FDate loKey = keys.get(lo);
         if (loKey.isAfterNotNullSafe(skippingKeysAbove)) {
             //no duplicate key handling needed because this is the last value before the actual requested key
             final int index = lo - 1;
