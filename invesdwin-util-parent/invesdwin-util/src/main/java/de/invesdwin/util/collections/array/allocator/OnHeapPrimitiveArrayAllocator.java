@@ -6,6 +6,7 @@ import de.invesdwin.util.collections.array.IBooleanArray;
 import de.invesdwin.util.collections.array.IDoubleArray;
 import de.invesdwin.util.collections.array.IIntegerArray;
 import de.invesdwin.util.collections.array.ILongArray;
+import de.invesdwin.util.collections.bitset.IBitSet;
 import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 
 @Immutable
@@ -27,6 +28,11 @@ public class OnHeapPrimitiveArrayAllocator implements IPrimitiveArrayAllocator {
     }
 
     @Override
+    public IBitSet getBitSet(final String id) {
+        return null;
+    }
+
+    @Override
     public ILongArray getLongArray(final String id) {
         return null;
     }
@@ -44,6 +50,11 @@ public class OnHeapPrimitiveArrayAllocator implements IPrimitiveArrayAllocator {
     @Override
     public IBooleanArray newBooleanArray(final String id, final int size) {
         return IBooleanArray.newInstance(ILockCollectionFactory.getInstance(false).newBitSet(size));
+    }
+
+    @Override
+    public IBitSet newBitSet(final String id, final int size) {
+        return ILockCollectionFactory.getInstance(false).newBitSet(size);
     }
 
     @Override

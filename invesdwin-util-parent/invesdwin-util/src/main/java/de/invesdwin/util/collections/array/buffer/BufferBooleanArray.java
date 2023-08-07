@@ -26,8 +26,13 @@ public class BufferBooleanArray implements IBooleanArray {
     public BufferBooleanArray(final IByteBuffer buffer) {
         this.buffer = buffer;
         final int expectedSize = buffer.getInt(LENGTH_INDEX);
-        final LongArrayBitSetBase bitSet = new LongArrayBitSetBase(new BufferLongArray(buffer.sliceFrom(ARRAY_INDEX)));
+        final LongArrayBitSetBase bitSet = new LongArrayBitSetBase(new BufferLongArray(buffer.sliceFrom(ARRAY_INDEX)),
+                expectedSize);
         this.delegate = new BitSetBooleanArray(new LongArrayBitSet(bitSet, expectedSize));
+    }
+
+    public BitSetBooleanArray getDelegate() {
+        return delegate;
     }
 
     @Override

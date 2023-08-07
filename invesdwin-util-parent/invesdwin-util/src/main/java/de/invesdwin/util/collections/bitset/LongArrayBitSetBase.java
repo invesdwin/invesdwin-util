@@ -36,9 +36,9 @@ public class LongArrayBitSetBase {
         words = ILongArray.newInstance(wordIndex(nbits - 1) + 1);
     }
 
-    public LongArrayBitSetBase(final ILongArray words) {
+    public LongArrayBitSetBase(final ILongArray words, final int expectedSize) {
         this.words = words;
-        this.wordsInUse = words.size();
+        this.wordsInUse = expectedSize;
         checkInvariants();
     }
 

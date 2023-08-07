@@ -10,6 +10,9 @@ import de.invesdwin.util.collections.array.buffer.BufferBooleanArray;
 import de.invesdwin.util.collections.array.buffer.BufferDoubleArray;
 import de.invesdwin.util.collections.array.buffer.BufferIntegerArray;
 import de.invesdwin.util.collections.array.buffer.BufferLongArray;
+import de.invesdwin.util.collections.bitset.IBitSet;
+import de.invesdwin.util.collections.bitset.LongArrayBitSet;
+import de.invesdwin.util.collections.bitset.LongArrayBitSetBase;
 import de.invesdwin.util.math.BitSets;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 
@@ -32,6 +35,11 @@ public class OffHeapPrimitiveArrayAllocator implements IPrimitiveArrayAllocator 
     }
 
     @Override
+    public IBitSet getBitSet(final String id) {
+        return null;
+    }
+
+    @Override
     public ILongArray getLongArray(final String id) {
         return null;
     }
@@ -49,6 +57,12 @@ public class OffHeapPrimitiveArrayAllocator implements IPrimitiveArrayAllocator 
     @Override
     public IBooleanArray newBooleanArray(final String id, final int size) {
         return new BufferBooleanArray(ByteBuffers.allocateDirect(BitSets.wordIndex(size)));
+    }
+
+    @Override
+    public IBitSet newBitSet(final String id, final int size) {
+        return new LongArrayBitSet(new LongArrayBitSetBase(newLongArray(id, BitSets.wordIndex(size - 1) + 1), size),
+                size);
     }
 
     @Override

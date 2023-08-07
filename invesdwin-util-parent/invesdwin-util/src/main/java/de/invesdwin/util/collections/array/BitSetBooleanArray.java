@@ -13,29 +13,29 @@ import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 @NotThreadSafe
 public class BitSetBooleanArray implements IBooleanArray {
 
-    private final IBitSet values;
+    private final IBitSet bitSet;
 
     public BitSetBooleanArray(final int size) {
-        this.values = ILockCollectionFactory.getInstance(false).newBitSet(size);
+        this.bitSet = ILockCollectionFactory.getInstance(false).newBitSet(size);
     }
 
     public BitSetBooleanArray(final IBitSet values) {
-        this.values = values;
+        this.bitSet = values;
     }
 
     @Override
     public void set(final int index, final boolean value) {
-        values.add(index);
+        bitSet.add(index);
     }
 
     @Override
     public boolean get(final int index) {
-        return values.contains(index);
+        return bitSet.contains(index);
     }
 
     @Override
     public int size() {
-        return values.getExpectedSize();
+        return bitSet.getExpectedSize();
     }
 
     @Override
@@ -55,7 +55,7 @@ public class BitSetBooleanArray implements IBooleanArray {
 
     @Override
     public boolean[] asArrayCopy() {
-        return Booleans.checkedCastVector(values);
+        return Booleans.checkedCastVector(bitSet);
     }
 
     @Override
@@ -63,7 +63,7 @@ public class BitSetBooleanArray implements IBooleanArray {
         final boolean[] vector = new boolean[length];
         final int limit = fromIndex + length;
         for (int i = fromIndex; i < limit; i++) {
-            vector[i] = values.contains(i);
+            vector[i] = bitSet.contains(i);
         }
         return vector;
     }
@@ -71,7 +71,7 @@ public class BitSetBooleanArray implements IBooleanArray {
     @Override
     public void getBooleans(final int srcPos, final IBooleanArray dest, final int destPos, final int length) {
         final BitSetBooleanArray cDest = ((BitSetBooleanArray) dest);
-        values.getBooleans(srcPos, cDest.values, destPos, length);
+        bitSet.getBooleans(srcPos, cDest.bitSet, destPos, length);
     }
 
     @Override
@@ -79,13 +79,13 @@ public class BitSetBooleanArray implements IBooleanArray {
         return Arrays.toString(asArray(0, Integers.min(ByteBuffers.MAX_TO_STRING_COUNT, size())));
     }
 
-    public IBitSet getValues() {
-        return values;
+    public IBitSet getBitSet() {
+        return bitSet;
     }
 
     @Override
     public int toBuffer(final IByteBuffer buffer) {
-        return values.toBuffer(buffer);
+        return bitSet.toBuffer(buffer);
     }
 
 }
