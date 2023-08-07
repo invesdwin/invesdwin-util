@@ -1,12 +1,12 @@
 package de.invesdwin.util.collections.array;
 
-public interface IDoubleArray {
+import de.invesdwin.util.collections.array.heap.HeapDoubleArray;
+
+public interface IDoubleArray extends IPrimitiveArray {
 
     void set(int index, double value);
 
     double get(int index);
-
-    int size();
 
     IDoubleArray slice(int fromIndex, int length);
 

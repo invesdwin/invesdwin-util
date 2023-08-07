@@ -1,68 +1,71 @@
-package de.invesdwin.util.collections.array;
+package de.invesdwin.util.collections.array.buffer;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.collections.Arrays;
+import de.invesdwin.util.collections.array.ILongArray;
+import de.invesdwin.util.collections.array.SliceDelegateLongArray;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 
 @NotThreadSafe
-public class SliceDelegateLongArray implements ILongArray {
+public class BufferLongArray implements ILongArray {
 
-    private final ILongArray delegate;
-    private final int from;
-    private final int length;
+    private final IByteBuffer buffer;
 
-    public SliceDelegateLongArray(final ILongArray delegate, final int from, final int length) {
-        this.delegate = delegate;
-        this.from = from;
-        this.length = length;
+    public BufferLongArray(final IByteBuffer buffer) {
+        this.buffer = buffer;
     }
 
     @Override
     public void set(final int index, final long value) {
-        delegate.set(index + from, value);
+        buffer.putLong(index * Long.BYTES, value);
     }
 
     @Override
     public long get(final int index) {
-        return delegate.get(index + from);
+        return buffer.getLong(index * Long.BYTES);
     }
 
     @Override
     public int size() {
-        return length;
+        return buffer.capacity() / Long.BYTES;
     }
 
     @Override
     public ILongArray slice(final int fromIndex, final int length) {
-        return delegate.slice(fromIndex + from, length);
+        return new SliceDelegateLongArray(this, fromIndex, length);
     }
 
     @Override
     public long[] asArray() {
-        return delegate.asArray(from, length);
+        return asArrayCopy();
     }
 
     @Override
     public long[] asArray(final int fromIndex, final int length) {
-        return delegate.asArray(fromIndex + from, length);
+        return asArrayCopy(fromIndex, length);
     }
 
     @Override
     public long[] asArrayCopy() {
-        return delegate.asArrayCopy(from, length);
+        return asArrayCopy(0, size());
     }
 
     @Override
     public long[] asArrayCopy(final int fromIndex, final int length) {
-        return delegate.asArrayCopy(fromIndex + from, length);
+        final long[] array = new long[length];
+        for (int i = fromIndex; i < length; i++) {
+            array[i] = get(i);
+        }
+        return array;
     }
 
     @Override
     public void getLongs(final int srcPos, final ILongArray dest, final int destPos, final int length) {
-        delegate.getLongs(srcPos + from, dest, destPos, length);
+        final BufferLongArray cDest = ((BufferLongArray) dest);
+        buffer.getBytes(srcPos * Long.BYTES, cDest.buffer, destPos * Long.BYTES, length * Long.BYTES);
     }
 
     @Override
@@ -72,7 +75,8 @@ public class SliceDelegateLongArray implements ILongArray {
 
     @Override
     public int toBuffer(final IByteBuffer buffer) {
-        throw new UnsupportedOperationException();
+        this.buffer.getBytes(0, buffer);
+        return this.buffer.capacity();
     }
 
 }

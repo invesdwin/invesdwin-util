@@ -1,12 +1,12 @@
 package de.invesdwin.util.collections.array;
 
-public interface ILongArray {
+import de.invesdwin.util.collections.array.heap.HeapLongArray;
+
+public interface ILongArray extends IPrimitiveArray {
 
     void set(int index, long value);
 
     long get(int index);
-
-    int size();
 
     ILongArray slice(int fromIndex, int length);
 

@@ -5,6 +5,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 import de.invesdwin.util.collections.Arrays;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
+import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 
 @NotThreadSafe
 public class SliceDelegateBooleanArray implements IBooleanArray {
@@ -67,6 +68,11 @@ public class SliceDelegateBooleanArray implements IBooleanArray {
     @Override
     public String toString() {
         return Arrays.toString(asArray(0, Integers.min(ByteBuffers.MAX_TO_STRING_COUNT, size())));
+    }
+
+    @Override
+    public int toBuffer(final IByteBuffer buffer) {
+        throw new UnsupportedOperationException();
     }
 
 }

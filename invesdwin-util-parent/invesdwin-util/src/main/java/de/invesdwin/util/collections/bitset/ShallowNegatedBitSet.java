@@ -2,6 +2,8 @@ package de.invesdwin.util.collections.bitset;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
+
 @NotThreadSafe
 public class ShallowNegatedBitSet implements IBitSet {
 
@@ -112,6 +114,11 @@ public class ShallowNegatedBitSet implements IBitSet {
 
     @Override
     public IBitSet unwrap() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public int toBuffer(final IByteBuffer buffer) {
         throw new UnsupportedOperationException();
     }
 

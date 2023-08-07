@@ -3,6 +3,7 @@ package de.invesdwin.util.collections.array;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.math.Booleans;
+import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 
 @Immutable
 public final class EmptyBooleanArray implements IBooleanArray {
@@ -57,6 +58,11 @@ public final class EmptyBooleanArray implements IBooleanArray {
     @Override
     public String toString() {
         return "[]";
+    }
+
+    @Override
+    public int toBuffer(final IByteBuffer buffer) {
+        return 0;
     }
 
 }

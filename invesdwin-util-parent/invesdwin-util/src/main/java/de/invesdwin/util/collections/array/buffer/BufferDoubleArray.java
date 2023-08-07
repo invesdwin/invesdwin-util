@@ -1,68 +1,71 @@
-package de.invesdwin.util.collections.array;
+package de.invesdwin.util.collections.array.buffer;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.collections.Arrays;
+import de.invesdwin.util.collections.array.IDoubleArray;
+import de.invesdwin.util.collections.array.SliceDelegateDoubleArray;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 
 @NotThreadSafe
-public class SliceDelegateDoubleArray implements IDoubleArray {
+public class BufferDoubleArray implements IDoubleArray {
 
-    private final IDoubleArray delegate;
-    private final int from;
-    private final int length;
+    private final IByteBuffer buffer;
 
-    public SliceDelegateDoubleArray(final IDoubleArray delegate, final int from, final int length) {
-        this.delegate = delegate;
-        this.from = from;
-        this.length = length;
+    public BufferDoubleArray(final IByteBuffer buffer) {
+        this.buffer = buffer;
     }
 
     @Override
     public void set(final int index, final double value) {
-        delegate.set(index + from, value);
+        buffer.putDouble(index * Double.BYTES, value);
     }
 
     @Override
     public double get(final int index) {
-        return delegate.get(index + from);
+        return buffer.getDouble(index * Double.BYTES);
     }
 
     @Override
     public int size() {
-        return length;
+        return buffer.capacity() / Double.BYTES;
     }
 
     @Override
     public IDoubleArray slice(final int fromIndex, final int length) {
-        return delegate.slice(fromIndex + from, length);
+        return new SliceDelegateDoubleArray(this, fromIndex, length);
     }
 
     @Override
     public double[] asArray() {
-        return delegate.asArray(from, length);
+        return asArrayCopy();
     }
 
     @Override
     public double[] asArray(final int fromIndex, final int length) {
-        return delegate.asArray(fromIndex + from, length);
+        return asArrayCopy(fromIndex, length);
     }
 
     @Override
     public double[] asArrayCopy() {
-        return delegate.asArrayCopy(from, length);
+        return asArrayCopy(0, size());
     }
 
     @Override
     public double[] asArrayCopy(final int fromIndex, final int length) {
-        return delegate.asArrayCopy(fromIndex + from, length);
+        final double[] array = new double[length];
+        for (int i = fromIndex; i < length; i++) {
+            array[i] = get(i);
+        }
+        return array;
     }
 
     @Override
     public void getDoubles(final int srcPos, final IDoubleArray dest, final int destPos, final int length) {
-        delegate.getDoubles(srcPos + from, dest, destPos, length);
+        final BufferDoubleArray cDest = ((BufferDoubleArray) dest);
+        buffer.getBytes(srcPos * Double.BYTES, cDest.buffer, destPos * Double.BYTES, length * Double.BYTES);
     }
 
     @Override
@@ -72,7 +75,8 @@ public class SliceDelegateDoubleArray implements IDoubleArray {
 
     @Override
     public int toBuffer(final IByteBuffer buffer) {
-        throw new UnsupportedOperationException();
+        this.buffer.getBytes(0, buffer);
+        return this.buffer.capacity();
     }
 
 }

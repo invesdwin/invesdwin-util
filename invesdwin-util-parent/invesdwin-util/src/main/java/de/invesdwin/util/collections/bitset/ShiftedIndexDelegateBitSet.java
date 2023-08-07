@@ -2,6 +2,8 @@ package de.invesdwin.util.collections.bitset;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
+
 /**
  * WARNING: this seems to disable cpu prefetching somehow? Performance is crawling slow.
  * 
@@ -127,6 +129,11 @@ public final class ShiftedIndexDelegateBitSet implements IBitSet {
         } else {
             return new ShiftedIndexDelegateBitSet(delegate, subtractFromIndex);
         }
+    }
+
+    @Override
+    public int toBuffer(final IByteBuffer buffer) {
+        throw new UnsupportedOperationException();
     }
 
 }

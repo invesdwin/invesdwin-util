@@ -1,10 +1,13 @@
-package de.invesdwin.util.collections.array;
+package de.invesdwin.util.collections.array.heap;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.collections.Arrays;
+import de.invesdwin.util.collections.array.IIntegerArray;
+import de.invesdwin.util.collections.array.SliceDelegateIntegerArray;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
+import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 
 @NotThreadSafe
 public class HeapIntegerArray implements IIntegerArray {
@@ -76,6 +79,14 @@ public class HeapIntegerArray implements IIntegerArray {
     @Override
     public String toString() {
         return Arrays.toString(asArray(0, Integers.min(ByteBuffers.MAX_TO_STRING_COUNT, size())));
+    }
+
+    @Override
+    public int toBuffer(final IByteBuffer buffer) {
+        for (int i = 0; i < size(); i++) {
+            buffer.putDouble(i * Integer.BYTES, get(i));
+        }
+        return size() * Integer.BYTES;
     }
 
 }

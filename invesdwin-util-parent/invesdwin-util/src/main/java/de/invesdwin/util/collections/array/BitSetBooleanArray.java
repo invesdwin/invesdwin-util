@@ -8,6 +8,7 @@ import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.math.Booleans;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
+import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 
 @NotThreadSafe
 public class BitSetBooleanArray implements IBooleanArray {
@@ -76,6 +77,15 @@ public class BitSetBooleanArray implements IBooleanArray {
     @Override
     public String toString() {
         return Arrays.toString(asArray(0, Integers.min(ByteBuffers.MAX_TO_STRING_COUNT, size())));
+    }
+
+    public IBitSet getValues() {
+        return values;
+    }
+
+    @Override
+    public int toBuffer(final IByteBuffer buffer) {
+        return values.toBuffer(buffer);
     }
 
 }

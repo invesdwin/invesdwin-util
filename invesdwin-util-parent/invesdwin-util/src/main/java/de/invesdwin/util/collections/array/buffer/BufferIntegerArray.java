@@ -1,68 +1,71 @@
-package de.invesdwin.util.collections.array;
+package de.invesdwin.util.collections.array.buffer;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.collections.Arrays;
+import de.invesdwin.util.collections.array.IIntegerArray;
+import de.invesdwin.util.collections.array.SliceDelegateIntegerArray;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 
 @NotThreadSafe
-public class SliceDelegateIntegerArray implements IIntegerArray {
+public class BufferIntegerArray implements IIntegerArray {
 
-    private final IIntegerArray delegate;
-    private final int from;
-    private final int length;
+    private final IByteBuffer buffer;
 
-    public SliceDelegateIntegerArray(final IIntegerArray delegate, final int from, final int length) {
-        this.delegate = delegate;
-        this.from = from;
-        this.length = length;
+    public BufferIntegerArray(final IByteBuffer buffer) {
+        this.buffer = buffer;
     }
 
     @Override
     public void set(final int index, final int value) {
-        delegate.set(index + from, value);
+        buffer.putInt(index * Integer.BYTES, value);
     }
 
     @Override
     public int get(final int index) {
-        return delegate.get(index + from);
+        return buffer.getInt(index * Integer.BYTES);
     }
 
     @Override
     public int size() {
-        return length;
+        return buffer.capacity() / Integer.BYTES;
     }
 
     @Override
     public IIntegerArray slice(final int fromIndex, final int length) {
-        return delegate.slice(fromIndex + from, length);
+        return new SliceDelegateIntegerArray(this, fromIndex, length);
     }
 
     @Override
     public int[] asArray() {
-        return delegate.asArray(from, length);
+        return asArrayCopy();
     }
 
     @Override
     public int[] asArray(final int fromIndex, final int length) {
-        return delegate.asArray(fromIndex + from, length);
+        return asArrayCopy(fromIndex, length);
     }
 
     @Override
     public int[] asArrayCopy() {
-        return delegate.asArrayCopy(from, length);
+        return asArrayCopy(0, size());
     }
 
     @Override
     public int[] asArrayCopy(final int fromIndex, final int length) {
-        return delegate.asArrayCopy(fromIndex + from, length);
+        final int[] array = new int[length];
+        for (int i = fromIndex; i < length; i++) {
+            array[i] = get(i);
+        }
+        return array;
     }
 
     @Override
     public void getIntegers(final int srcPos, final IIntegerArray dest, final int destPos, final int length) {
-        delegate.getIntegers(srcPos + from, dest, destPos, length);
+        final BufferIntegerArray cDest = ((BufferIntegerArray) dest);
+        buffer.getBytes(srcPos * Integer.BYTES, cDest.buffer, destPos * Integer.BYTES, length * Integer.BYTES);
     }
 
     @Override
@@ -72,7 +75,8 @@ public class SliceDelegateIntegerArray implements IIntegerArray {
 
     @Override
     public int toBuffer(final IByteBuffer buffer) {
-        throw new UnsupportedOperationException();
+        this.buffer.getBytes(0, buffer);
+        return this.buffer.capacity();
     }
 
 }

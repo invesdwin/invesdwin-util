@@ -2,6 +2,7 @@ package de.invesdwin.util.collections.bitset;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 import it.unimi.dsi.fastutil.booleans.BooleanArrayList;
 import it.unimi.dsi.fastutil.booleans.BooleanList;
 
@@ -110,6 +111,11 @@ public class BooleanListBitSet implements IBitSet {
     @Override
     public IBitSet unwrap() {
         return this;
+    }
+
+    @Override
+    public int toBuffer(final IByteBuffer buffer) {
+        throw new UnsupportedOperationException();
     }
 
 }

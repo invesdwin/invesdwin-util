@@ -2,6 +2,8 @@ package de.invesdwin.util.collections.bitset;
 
 import javax.annotation.concurrent.Immutable;
 
+import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
+
 @Immutable
 public final class NoSkippingFakeBitSet implements IBitSet {
 
@@ -87,5 +89,10 @@ public final class NoSkippingFakeBitSet implements IBitSet {
     @Override
     public IBitSet unwrap() {
         return this;
+    }
+
+    @Override
+    public int toBuffer(final IByteBuffer buffer) {
+        throw new UnsupportedOperationException();
     }
 }
