@@ -246,14 +246,22 @@ public final class Strings extends AStringsStaticFacade {
      * Calls ExtendedReflectionToStringBuilder.toString() with DefaultToStringStyle.
      */
     public static String asStringReflective(final Object o) {
-        return ExtendedReflectionToStringBuilder.toString(o, DefaultToStringStyle.INSTANCE);
+        if (o == null) {
+            return null;
+        } else {
+            return ExtendedReflectionToStringBuilder.toString(o, DefaultToStringStyle.INSTANCE);
+        }
     }
 
     /**
      * Calls ExtendedReflectionToStringBuilder.toString() with MultilineToStringStyle.
      */
     public static String asStringReflectiveMultiline(final Object o) {
-        return ExtendedReflectionToStringBuilder.toString(o, MultilineToStringStyle.INSTANCE);
+        if (o == null) {
+            return null;
+        } else {
+            return ExtendedReflectionToStringBuilder.toString(o, MultilineToStringStyle.INSTANCE);
+        }
     }
 
     public static String asStringIdentity(final Object o) {
