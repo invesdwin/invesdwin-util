@@ -53,4 +53,12 @@ public final class Decimals {
         return min;
     }
 
+    public static <T extends ADecimal<T>> T negate(final T value) {
+        if (value == null) {
+            return null;
+        } else {
+            return value.negate();
+        }
+    }
+
 }

@@ -106,6 +106,14 @@ public final class Strings extends AStringsStaticFacade {
 
     private Strings() {}
 
+    public static List<String> putPrefix(final List<String> strs, final String prefix) {
+        final List<String> prefixed = new ArrayList<>(strs.size());
+        for (int i = 0; i < strs.size(); i++) {
+            prefixed.add(putPrefix(strs.get(i), prefix));
+        }
+        return prefixed;
+    }
+
     public static String escapeHtmlSymbolsWithoutDestroyingMarkup(final String str) {
         String escapedValue = str;
         if (escapedValue != null) {
