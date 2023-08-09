@@ -5,6 +5,8 @@ import java.util.function.Function;
 
 import javax.annotation.concurrent.Immutable;
 
+import de.invesdwin.util.collections.array.IGenericArray;
+
 @Immutable
 public enum BisectDuplicateKeyHandling {
     LOWEST {
@@ -28,6 +30,21 @@ public enum BisectDuplicateKeyHandling {
             int adjPotentialLowIndex = potentialIndex;
             for (int i = potentialIndex - 1; i >= 0; i--) {
                 final FDate prevPotentialLowTime = keys[i];
+                if (prevPotentialLowTime.equalsNotNullSafe(potentialKey)) {
+                    adjPotentialLowIndex = i;
+                } else {
+                    break;
+                }
+            }
+            return adjPotentialLowIndex;
+        }
+
+        @Override
+        public int apply(final IGenericArray<? extends FDate> keys, final int potentialIndex,
+                final FDate potentialKey) {
+            int adjPotentialLowIndex = potentialIndex;
+            for (int i = potentialIndex - 1; i >= 0; i--) {
+                final FDate prevPotentialLowTime = keys.get(i);
                 if (prevPotentialLowTime.equalsNotNullSafe(potentialKey)) {
                     adjPotentialLowIndex = i;
                 } else {
@@ -66,6 +83,21 @@ public enum BisectDuplicateKeyHandling {
             }
             return adjPotentialLowIndex;
         }
+
+        @Override
+        public int apply(final IGenericArray<? extends FDate> keys, final int potentialIndex,
+                final FDate potentialKey) {
+            int adjPotentialLowIndex = potentialIndex;
+            for (int i = potentialIndex + 1; i < keys.size(); i++) {
+                final FDate prevPotentialLowTime = keys.get(i);
+                if (prevPotentialLowTime.equalsNotNullSafe(potentialKey)) {
+                    adjPotentialLowIndex = i;
+                } else {
+                    break;
+                }
+            }
+            return adjPotentialLowIndex;
+        }
     },
     UNDEFINED {
         @Override
@@ -78,10 +110,18 @@ public enum BisectDuplicateKeyHandling {
         public int apply(final FDate[] keys, final int potentialIndex, final FDate potentialKey) {
             return potentialIndex;
         }
+
+        @Override
+        public int apply(final IGenericArray<? extends FDate> keys, final int potentialIndex,
+                final FDate potentialKey) {
+            return potentialIndex;
+        }
     };
 
     public abstract <T> int apply(Function<T, FDate> extractKey, List<T> values, int potentialIndex,
             FDate potentialKey);
 
     public abstract int apply(FDate[] keys, int potentialIndex, FDate potentialKey);
+
+    public abstract int apply(IGenericArray<? extends FDate> keys, int potentialIndex, FDate potentialKey);
 }
