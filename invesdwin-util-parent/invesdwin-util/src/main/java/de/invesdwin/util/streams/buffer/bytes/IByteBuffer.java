@@ -14,6 +14,7 @@ import java.nio.channels.WritableByteChannel;
 import org.agrona.DirectBuffer;
 import org.agrona.MutableDirectBuffer;
 
+import de.invesdwin.util.collections.array.IPrimitiveArray;
 import de.invesdwin.util.math.Bytes;
 import de.invesdwin.util.streams.buffer.memory.IMemoryBuffer;
 
@@ -21,7 +22,7 @@ import de.invesdwin.util.streams.buffer.memory.IMemoryBuffer;
  * Default ByteOrder is always BigEndian. Use Reverse-Suffixed methods to write/read in LittleEndian. Alternatively use
  * OrderedDelegateByteBuffer to switch the default byte order (though not recommeded).
  */
-public interface IByteBuffer extends IByteBufferProvider, Cloneable {
+public interface IByteBuffer extends IByteBufferProvider, Cloneable, IPrimitiveArray {
 
     IByteBuffer ensureCapacity(int capacity);
 
@@ -535,5 +536,16 @@ public interface IByteBuffer extends IByteBufferProvider, Cloneable {
     }
 
     void clear(byte value, int index, int length);
+
+    @Override
+    default int size() {
+        return capacity();
+    }
+
+    @Override
+    default int toBuffer(final IByteBuffer buffer) {
+        putBytes(0, buffer);
+        return capacity();
+    }
 
 }

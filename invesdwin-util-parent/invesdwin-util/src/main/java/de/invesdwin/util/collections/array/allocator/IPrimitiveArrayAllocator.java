@@ -5,8 +5,11 @@ import de.invesdwin.util.collections.array.IDoubleArray;
 import de.invesdwin.util.collections.array.IIntegerArray;
 import de.invesdwin.util.collections.array.ILongArray;
 import de.invesdwin.util.collections.bitset.IBitSet;
+import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 
 public interface IPrimitiveArrayAllocator {
+
+    IByteBuffer getByteBuffer(String id);
 
     IDoubleArray getDoubleArray(String id);
 
@@ -17,6 +20,8 @@ public interface IPrimitiveArrayAllocator {
     IBitSet getBitSet(String id);
 
     ILongArray getLongArray(String id);
+
+    IByteBuffer newByteBuffer(String id, int size);
 
     IDoubleArray newDoubleArray(String id, int size);
 

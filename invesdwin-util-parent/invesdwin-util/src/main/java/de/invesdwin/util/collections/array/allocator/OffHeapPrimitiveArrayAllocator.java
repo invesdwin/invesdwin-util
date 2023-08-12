@@ -15,9 +15,15 @@ import de.invesdwin.util.collections.bitset.LongArrayBitSet;
 import de.invesdwin.util.collections.bitset.LongArrayBitSetBase;
 import de.invesdwin.util.math.BitSets;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
+import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 
 @Immutable
 public class OffHeapPrimitiveArrayAllocator implements IPrimitiveArrayAllocator {
+
+    @Override
+    public IByteBuffer getByteBuffer(final String id) {
+        return null;
+    }
 
     @Override
     public IDoubleArray getDoubleArray(final String id) {
@@ -42,6 +48,11 @@ public class OffHeapPrimitiveArrayAllocator implements IPrimitiveArrayAllocator 
     @Override
     public ILongArray getLongArray(final String id) {
         return null;
+    }
+
+    @Override
+    public IByteBuffer newByteBuffer(final String id, final int size) {
+        return ByteBuffers.allocate(size);
     }
 
     @Override
