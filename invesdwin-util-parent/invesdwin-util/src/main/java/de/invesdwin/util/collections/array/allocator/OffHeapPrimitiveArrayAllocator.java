@@ -13,12 +13,17 @@ import de.invesdwin.util.collections.array.buffer.BufferLongArray;
 import de.invesdwin.util.collections.bitset.IBitSet;
 import de.invesdwin.util.collections.bitset.LongArrayBitSet;
 import de.invesdwin.util.collections.bitset.LongArrayBitSetBase;
+import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.math.BitSets;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 
 @Immutable
-public class OffHeapPrimitiveArrayAllocator implements IPrimitiveArrayAllocator {
+public final class OffHeapPrimitiveArrayAllocator implements IPrimitiveArrayAllocator {
+
+    public static final OffHeapPrimitiveArrayAllocator INSTANCE = new OffHeapPrimitiveArrayAllocator();
+
+    private OffHeapPrimitiveArrayAllocator() {}
 
     @Override
     public IByteBuffer getByteBuffer(final String id) {
@@ -79,6 +84,21 @@ public class OffHeapPrimitiveArrayAllocator implements IPrimitiveArrayAllocator 
     @Override
     public ILongArray newLongArray(final String id, final int size) {
         return new BufferLongArray(ByteBuffers.allocateDirect(size * Long.BYTES));
+    }
+
+    @Override
+    public String toString() {
+        return OffHeapPrimitiveArrayAllocator.class.getSimpleName();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(OffHeapPrimitiveArrayAllocator.class);
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        return obj instanceof OffHeapPrimitiveArrayAllocator;
     }
 
 }
