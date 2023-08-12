@@ -33,4 +33,6 @@ public interface IPrimitiveArrayAllocator {
 
     ILongArray newLongArray(String id, int size);
 
+    <T> T unwrap(Class<T> type);
+
 }

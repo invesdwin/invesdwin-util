@@ -25,7 +25,6 @@ public class LongArrayBitSetBase {
     private static final long WORD_MASK = 0xffffffffffffffffL;
 
     private final ILongArray words;
-    private transient int wordsInUse = 0;
 
     public LongArrayBitSetBase(final int nbits) {
         // nbits can't be negative; size 0 is OK
@@ -38,30 +37,10 @@ public class LongArrayBitSetBase {
 
     public LongArrayBitSetBase(final ILongArray words, final int expectedSize) {
         this.words = words;
-        this.wordsInUse = expectedSize;
-        checkInvariants();
     }
 
     public ILongArray getWords() {
         return words;
-    }
-
-    private void checkInvariants() {
-        assert (wordsInUse == 0 || words.get(wordsInUse - 1) != 0);
-        assert (wordsInUse >= 0 && wordsInUse <= words.size());
-        assert (wordsInUse == words.size() || words.get(wordsInUse) == 0);
-    }
-
-    private void recalculateWordsInUse() {
-        // Traverse the bitset until a used word is found
-        int i;
-        for (i = wordsInUse - 1; i >= 0; i--) {
-            if (words.get(i) != 0) {
-                break;
-            }
-        }
-
-        wordsInUse = i + 1; // The new logical size
     }
 
     private static int wordIndex(final int bitIndex) {
@@ -77,10 +56,7 @@ public class LongArrayBitSetBase {
 
     private void expandTo(final int wordIndex) {
         final int wordsRequired = wordIndex + 1;
-        if (wordsInUse < wordsRequired) {
-            ensureCapacity(wordsRequired);
-            wordsInUse = wordsRequired;
-        }
+        ensureCapacity(wordsRequired);
     }
 
     private static void checkRange(final int fromIndex, final int toIndex) {
@@ -104,9 +80,6 @@ public class LongArrayBitSetBase {
         expandTo(wordIndex);
 
         words.set(wordIndex, words.get(wordIndex) ^ (1L << bitIndex));
-
-        recalculateWordsInUse();
-        checkInvariants();
     }
 
     public void flip(final int fromIndex, final int toIndex) {
@@ -138,9 +111,6 @@ public class LongArrayBitSetBase {
             // Handle last word
             words.set(endWordIndex, words.get(endWordIndex) ^ lastWordMask);
         }
-
-        recalculateWordsInUse();
-        checkInvariants();
     }
 
     public void set(final int bitIndex) {
@@ -152,8 +122,6 @@ public class LongArrayBitSetBase {
         expandTo(wordIndex);
 
         words.set(wordIndex, words.get(wordIndex) | (1L << bitIndex)); // Restores invariants
-
-        checkInvariants();
     }
 
     public void set(final int bitIndex, final boolean value) {
@@ -194,8 +162,6 @@ public class LongArrayBitSetBase {
             // Handle last word (restores invariants)
             words.set(endWordIndex, words.get(endWordIndex) | lastWordMask);
         }
-
-        checkInvariants();
     }
 
     public void set(final int fromIndex, final int toIndex, final boolean value) {
@@ -212,14 +178,11 @@ public class LongArrayBitSetBase {
         }
 
         final int wordIndex = wordIndex(bitIndex);
-        if (wordIndex >= wordsInUse) {
+        if (wordIndex >= words.size()) {
             return;
         }
 
         words.set(wordIndex, words.get(wordIndex) & ~(1L << bitIndex));
-
-        recalculateWordsInUse();
-        checkInvariants();
     }
 
     //CHECKSTYLE:OFF final param
@@ -232,16 +195,16 @@ public class LongArrayBitSetBase {
         }
 
         final int startWordIndex = wordIndex(fromIndex);
-        if (startWordIndex >= wordsInUse) {
+        if (startWordIndex >= words.size()) {
             return;
         }
 
         int endWordIndex = wordIndex(toIndex - 1);
-        if (endWordIndex >= wordsInUse) {
+        if (endWordIndex >= words.size()) {
             //CHECKSTYLE:OFF final param
             toIndex = length();
             //CHECKSTYLE:ON
-            endWordIndex = wordsInUse - 1;
+            endWordIndex = words.size() - 1;
         }
 
         final long firstWordMask = WORD_MASK << fromIndex;
@@ -262,14 +225,11 @@ public class LongArrayBitSetBase {
             // Handle last word
             words.set(endWordIndex, words.get(endWordIndex) & ~lastWordMask);
         }
-
-        recalculateWordsInUse();
-        checkInvariants();
     }
 
     public void clear() {
-        while (wordsInUse > 0) {
-            words.set(--wordsInUse, 0);
+        for (int i = words.size() - 1; i >= 0; i--) {
+            words.set(i, 0);
         }
     }
 
@@ -278,10 +238,8 @@ public class LongArrayBitSetBase {
             throw new IndexOutOfBoundsException("bitIndex < 0: " + bitIndex);
         }
 
-        checkInvariants();
-
         final int wordIndex = wordIndex(bitIndex);
-        return (wordIndex < wordsInUse) && ((words.get(wordIndex) & (1L << bitIndex)) != 0);
+        return (wordIndex < words.size()) && ((words.get(wordIndex) & (1L << bitIndex)) != 0);
     }
 
     public int nextSetBit(final int fromIndex) {
@@ -289,10 +247,8 @@ public class LongArrayBitSetBase {
             throw new IndexOutOfBoundsException("fromIndex < 0: " + fromIndex);
         }
 
-        checkInvariants();
-
         int u = wordIndex(fromIndex);
-        if (u >= wordsInUse) {
+        if (u >= words.size()) {
             return -1;
         }
 
@@ -302,7 +258,7 @@ public class LongArrayBitSetBase {
             if (word != 0) {
                 return (u * BITS_PER_WORD) + Long.numberOfTrailingZeros(word);
             }
-            if (++u == wordsInUse) {
+            if (++u == words.size()) {
                 return -1;
             }
             word = words.get(u);
@@ -316,10 +272,8 @@ public class LongArrayBitSetBase {
             throw new IndexOutOfBoundsException("fromIndex < 0: " + fromIndex);
         }
 
-        checkInvariants();
-
         int u = wordIndex(fromIndex);
-        if (u >= wordsInUse) {
+        if (u >= words.size()) {
             return fromIndex;
         }
 
@@ -329,8 +283,8 @@ public class LongArrayBitSetBase {
             if (word != 0) {
                 return (u * BITS_PER_WORD) + Long.numberOfTrailingZeros(word);
             }
-            if (++u == wordsInUse) {
-                return wordsInUse * BITS_PER_WORD;
+            if (++u == words.size()) {
+                return words.size() * BITS_PER_WORD;
             }
             word = ~words.get(u);
         }
@@ -344,10 +298,8 @@ public class LongArrayBitSetBase {
             throw new IndexOutOfBoundsException("fromIndex < -1: " + fromIndex);
         }
 
-        checkInvariants();
-
         int u = wordIndex(fromIndex);
-        if (u >= wordsInUse) {
+        if (u >= words.size()) {
             return length() - 1;
         }
 
@@ -372,10 +324,8 @@ public class LongArrayBitSetBase {
             throw new IndexOutOfBoundsException("fromIndex < -1: " + fromIndex);
         }
 
-        checkInvariants();
-
         int u = wordIndex(fromIndex);
-        if (u >= wordsInUse) {
+        if (u >= words.size()) {
             return fromIndex;
         }
 
@@ -393,20 +343,20 @@ public class LongArrayBitSetBase {
     }
 
     public int length() {
-        if (wordsInUse == 0) {
+        if (words.size() == 0) {
             return 0;
         }
 
-        return BITS_PER_WORD * (wordsInUse - 1)
-                + (BITS_PER_WORD - Long.numberOfLeadingZeros(words.get(wordsInUse - 1)));
+        return BITS_PER_WORD * (words.size() - 1)
+                + (BITS_PER_WORD - Long.numberOfLeadingZeros(words.get(words.size() - 1)));
     }
 
     public boolean isEmpty() {
-        return wordsInUse == 0;
+        return words.size() == 0;
     }
 
     public boolean intersects(final LongArrayBitSetBase set) {
-        for (int i = Math.min(wordsInUse, set.wordsInUse) - 1; i >= 0; i--) {
+        for (int i = Math.min(words.size(), set.words.size()) - 1; i >= 0; i--) {
             if ((words.get(i) & set.words.get(i)) != 0) {
                 return true;
             }
@@ -416,7 +366,7 @@ public class LongArrayBitSetBase {
 
     public int cardinality() {
         int sum = 0;
-        for (int i = 0; i < wordsInUse; i++) {
+        for (int i = 0; i < words.size(); i++) {
             sum += Long.bitCount(words.get(i));
         }
         return sum;
@@ -427,17 +377,15 @@ public class LongArrayBitSetBase {
             return;
         }
 
-        while (wordsInUse > set.wordsInUse) {
+        int wordsInUse = words.size();
+        while (wordsInUse > set.words.size()) {
             words.set(--wordsInUse, 0);
         }
 
         // Perform logical AND on words in common
-        for (int i = 0; i < wordsInUse; i++) {
+        for (int i = 0; i < words.size(); i++) {
             words.set(i, words.get(i) & set.words.get(i));
         }
-
-        recalculateWordsInUse();
-        checkInvariants();
     }
 
     public void or(final LongArrayBitSetBase set) {
@@ -445,11 +393,10 @@ public class LongArrayBitSetBase {
             return;
         }
 
-        final int wordsInCommon = Math.min(wordsInUse, set.wordsInUse);
+        final int wordsInCommon = Math.min(words.size(), set.words.size());
 
-        if (wordsInUse < set.wordsInUse) {
-            ensureCapacity(set.wordsInUse);
-            wordsInUse = set.wordsInUse;
+        if (words.size() < set.words.size()) {
+            ensureCapacity(set.words.size());
         }
 
         // Perform logical OR on words in common
@@ -458,20 +405,16 @@ public class LongArrayBitSetBase {
         }
 
         // Copy any remaining words
-        if (wordsInCommon < set.wordsInUse) {
-            set.words.getLongs(wordsInCommon, words, wordsInCommon, wordsInUse - wordsInCommon);
+        if (wordsInCommon < set.words.size()) {
+            set.words.getLongs(wordsInCommon, words, wordsInCommon, words.size() - wordsInCommon);
         }
-
-        // recalculateWordsInUse() is unnecessary
-        checkInvariants();
     }
 
     public void xor(final LongArrayBitSetBase set) {
-        final int wordsInCommon = Math.min(wordsInUse, set.wordsInUse);
+        final int wordsInCommon = Math.min(words.size(), set.words.size());
 
-        if (wordsInUse < set.wordsInUse) {
-            ensureCapacity(set.wordsInUse);
-            wordsInUse = set.wordsInUse;
+        if (words.size() < set.words.size()) {
+            ensureCapacity(set.words.size());
         }
 
         // Perform logical XOR on words in common
@@ -480,28 +423,22 @@ public class LongArrayBitSetBase {
         }
 
         // Copy any remaining words
-        if (wordsInCommon < set.wordsInUse) {
-            set.words.getLongs(wordsInCommon, words, wordsInCommon, set.wordsInUse - wordsInCommon);
+        if (wordsInCommon < set.words.size()) {
+            set.words.getLongs(wordsInCommon, words, wordsInCommon, set.words.size() - wordsInCommon);
         }
-
-        recalculateWordsInUse();
-        checkInvariants();
     }
 
     public void andNot(final LongArrayBitSetBase set) {
         // Perform logical (a & !b) on words in common
-        for (int i = Math.min(wordsInUse, set.wordsInUse) - 1; i >= 0; i--) {
+        for (int i = Math.min(words.size(), set.words.size()) - 1; i >= 0; i--) {
             words.set(i, words.get(i) & ~set.words.get(i));
         }
-
-        recalculateWordsInUse();
-        checkInvariants();
     }
 
     @Override
     public int hashCode() {
         long h = 1234;
-        for (int i = wordsInUse; --i >= 0;) {
+        for (int i = words.size(); --i >= 0;) {
             h ^= words.get(i) * (i + 1);
         }
 
@@ -522,15 +459,12 @@ public class LongArrayBitSetBase {
         }
         final LongArrayBitSetBase set = (LongArrayBitSetBase) obj;
 
-        checkInvariants();
-        set.checkInvariants();
-
-        if (wordsInUse != set.wordsInUse) {
+        if (words.size() != set.words.size()) {
             return false;
         }
 
         // Check words in use by both BitSets
-        for (int i = 0; i < wordsInUse; i++) {
+        for (int i = 0; i < words.size(); i++) {
             if (words.get(i) != set.words.get(i)) {
                 return false;
             }
@@ -541,9 +475,7 @@ public class LongArrayBitSetBase {
 
     @Override
     public String toString() {
-        checkInvariants();
-
-        final int numBits = (wordsInUse > 128) ? cardinality() : wordsInUse * BITS_PER_WORD;
+        final int numBits = (words.size() > 128) ? cardinality() : words.size() * BITS_PER_WORD;
         // Avoid overflow in the case of a humongous numBits
         final int initialCapacity = (numBits <= (MAX_INITIAL_CAPACITY - 2) / 6) ? 6 * numBits + 2
                 : MAX_INITIAL_CAPACITY;
@@ -597,8 +529,8 @@ public class LongArrayBitSetBase {
                     // Round up fence to maximum cardinality for allocated words
                     // This is sufficient and cheap for sequential access
                     // When splitting this value is lowered
-                    hi = fence = (wordsInUse >= wordIndex(Integer.MAX_VALUE)) ? Integer.MAX_VALUE
-                            : wordsInUse << ADDRESS_BITS_PER_WORD;
+                    hi = fence = (words.size() >= wordIndex(Integer.MAX_VALUE)) ? Integer.MAX_VALUE
+                            : words.size() << ADDRESS_BITS_PER_WORD;
                     //CHECKSTYLE:ON
                     est = cardinality();
                     index = nextSetBit(0);
@@ -754,16 +686,13 @@ public class LongArrayBitSetBase {
         }
         //
         try {
-            final int otherWordsInUse = other.wordsInUse;
+            final int otherWordsInUse = other.words.size();
             final ILongArray otherWords = other.words;
             //            while (wordsInUse > set.wordsInUse)
             //                words[--wordsInUse] = 0;
-            final int toWordExclusive = Integers.min(wordsInUse, wordIndex(toExclusive) + 1, otherWordsInUse);
+            final int toWordExclusive = Integers.min(words.size(), wordIndex(toExclusive) + 1, otherWordsInUse);
 
             final int fromWord = wordIndex(fromInclusive);
-            if (toWordExclusive != wordsInUse) {
-                wordsInUse = toWordExclusive;
-            }
             //
             //            // Perform logical AND on words in common
             //            for (int i = 0; i < wordsInUse; i++)
@@ -773,10 +702,6 @@ public class LongArrayBitSetBase {
                 words.set(i, words.get(i) & otherWords.get(i));
             }
             //
-            //            recalculateWordsInUse();
-            recalculateWordsInUse();
-            //            checkInvariants();
-            //skipping that method
             //        }
         } catch (final Throwable e) {
             throw new RuntimeException(e);
@@ -791,18 +716,17 @@ public class LongArrayBitSetBase {
             return;
         }
         try {
-            final int otherWordsInUse = other.wordsInUse;
+            final int otherWordsInUse = other.words.size();
             final ILongArray otherWords = other.words;
             //        int wordsInCommon = Math.min(wordsInUse, set.wordsInUse);
-            final int wordsInCommon = Math.min(wordsInUse, otherWordsInUse);
+            final int wordsInCommon = Math.min(words.size(), otherWordsInUse);
 
             //        if (wordsInUse < set.wordsInUse) {
             //            ensureCapacity(set.wordsInUse);
             //            wordsInUse = set.wordsInUse;
             //        }
-            if (wordsInUse < otherWordsInUse) {
+            if (words.size() < otherWordsInUse) {
                 ensureCapacity(otherWordsInUse);
-                wordsInUse = otherWordsInUse;
             }
             // Perform logical OR on words in common
             //        for (int i = 0; i < wordsInCommon; i++)
@@ -814,21 +738,15 @@ public class LongArrayBitSetBase {
             }
 
             final int toWordExclusive = Integers.min(wordIndex(toExclusive) + 1,
-                    Integers.max(wordsInUse, otherWordsInUse));
+                    Integers.max(words.size(), otherWordsInUse));
             // Copy any remaining words
             //        if (wordsInCommon < set.wordsInUse)
             //            System.arraycopy(set.words, wordsInCommon,
             //                             words, wordsInCommon,
             //                             wordsInUse - wordsInCommon);
             if (wordsInCommon < toWordExclusive) {
-                System.arraycopy(otherWords, wordsInCommon, words, wordsInCommon, wordsInUse - toWordExclusive);
+                System.arraycopy(otherWords, wordsInCommon, words, wordsInCommon, words.size() - toWordExclusive);
             }
-            if (toWordExclusive != wordsInUse) {
-                wordsInUse = toWordExclusive;
-            }
-
-            //         recalculateWordsInUse() is unnecessary
-            //        checkInvariants();
             //skipping that method
 
         } catch (final Throwable e) {

@@ -101,4 +101,14 @@ public final class OffHeapPrimitiveArrayAllocator implements IPrimitiveArrayAllo
         return obj instanceof OffHeapPrimitiveArrayAllocator;
     }
 
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> T unwrap(final Class<T> type) {
+        if (type.isAssignableFrom(getClass())) {
+            return (T) this;
+        } else {
+            return null;
+        }
+    }
+
 }
