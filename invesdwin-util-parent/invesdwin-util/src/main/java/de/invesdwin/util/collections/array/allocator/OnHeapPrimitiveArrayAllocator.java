@@ -51,7 +51,7 @@ public final class OnHeapPrimitiveArrayAllocator implements IPrimitiveArrayAlloc
 
     @Override
     public IByteBuffer newByteBuffer(final String id, final int size) {
-        return ByteBuffers.allocateDirect(size);
+        return ByteBuffers.allocate(size);
     }
 
     @Override

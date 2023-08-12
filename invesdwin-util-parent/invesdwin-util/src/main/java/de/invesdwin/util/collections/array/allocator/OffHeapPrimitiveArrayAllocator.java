@@ -57,7 +57,7 @@ public final class OffHeapPrimitiveArrayAllocator implements IPrimitiveArrayAllo
 
     @Override
     public IByteBuffer newByteBuffer(final String id, final int size) {
-        return ByteBuffers.allocate(size);
+        return ByteBuffers.allocateDirect(size);
     }
 
     @Override
