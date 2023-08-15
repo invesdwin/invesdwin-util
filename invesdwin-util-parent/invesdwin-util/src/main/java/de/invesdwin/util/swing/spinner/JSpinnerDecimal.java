@@ -1,10 +1,9 @@
 package de.invesdwin.util.swing.spinner;
 
 import javax.annotation.concurrent.NotThreadSafe;
-import javax.swing.JSpinner;
 
 @NotThreadSafe
-public class JSpinnerDecimal extends JSpinner {
+public class JSpinnerDecimal extends CustomJSpinner {
 
     public JSpinnerDecimal() {
         final SpinnerDecimalModel model = newModel();
