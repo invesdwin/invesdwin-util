@@ -90,7 +90,7 @@ public class BufferBooleanArray implements IBooleanArray, IByteBufferProvider {
 
     @Override
     public int getBuffer(final IByteBuffer dst) throws IOException {
-        buffer.putBytes(0, dst);
+        buffer.getBytes(0, dst, 0, buffer.capacity());
         return buffer.capacity();
     }
 
