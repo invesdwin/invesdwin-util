@@ -54,11 +54,6 @@ public class LongArrayBitSetBase {
         }
     }
 
-    private void expandTo(final int wordIndex) {
-        final int wordsRequired = wordIndex + 1;
-        ensureCapacity(wordsRequired);
-    }
-
     private static void checkRange(final int fromIndex, final int toIndex) {
         if (fromIndex < 0) {
             throw new IndexOutOfBoundsException("fromIndex < 0: " + fromIndex);
@@ -77,7 +72,7 @@ public class LongArrayBitSetBase {
         }
 
         final int wordIndex = wordIndex(bitIndex);
-        expandTo(wordIndex);
+        ensureCapacity(wordIndex);
 
         words.set(wordIndex, words.get(wordIndex) ^ (1L << bitIndex));
     }
@@ -91,7 +86,7 @@ public class LongArrayBitSetBase {
 
         final int startWordIndex = wordIndex(fromIndex);
         final int endWordIndex = wordIndex(toIndex - 1);
-        expandTo(endWordIndex);
+        ensureCapacity(endWordIndex);
 
         final long firstWordMask = WORD_MASK << fromIndex;
         final long lastWordMask = WORD_MASK >>> -toIndex;
@@ -119,7 +114,7 @@ public class LongArrayBitSetBase {
         }
 
         final int wordIndex = wordIndex(bitIndex);
-        expandTo(wordIndex);
+        ensureCapacity(wordIndex);
 
         words.set(wordIndex, words.get(wordIndex) | (1L << bitIndex)); // Restores invariants
     }
@@ -142,7 +137,7 @@ public class LongArrayBitSetBase {
         // Increase capacity if necessary
         final int startWordIndex = wordIndex(fromIndex);
         final int endWordIndex = wordIndex(toIndex - 1);
-        expandTo(endWordIndex);
+        ensureCapacity(endWordIndex);
 
         final long firstWordMask = WORD_MASK << fromIndex;
         final long lastWordMask = WORD_MASK >>> -toIndex;
